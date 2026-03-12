@@ -62,6 +62,46 @@
             "category": "Productivity"
         },
         {
+            "name": "teams",
+            "source": {
+                "source": "local",
+                "path": "./plugins/teams"
+            },
+            "installPolicy": "AVAILABLE",
+            "authPolicy": "ON_INSTALL",
+            "category": "Productivity"
+        },
+        {
+            "name": "sharepoint",
+            "source": {
+                "source": "local",
+                "path": "./plugins/sharepoint"
+            },
+            "installPolicy": "AVAILABLE",
+            "authPolicy": "ON_INSTALL",
+            "category": "Productivity"
+        },
+        {
+            "name": "outlook-email",
+            "source": {
+                "source": "local",
+                "path": "./plugins/outlook-email"
+            },
+            "installPolicy": "AVAILABLE",
+            "authPolicy": "ON_INSTALL",
+            "category": "Productivity"
+        },
+        {
+            "name": "outlook-calendar",
+            "source": {
+                "source": "local",
+                "path": "./plugins/outlook-calendar"
+            },
+            "installPolicy": "AVAILABLE",
+            "authPolicy": "ON_INSTALL",
+            "category": "Productivity"
+        },
+        {
             "name": "accuweather",
             "source": {
                 "source": "local",
