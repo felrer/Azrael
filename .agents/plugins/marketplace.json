@@ -2130,6 +2130,16 @@
             "installPolicy": "AVAILABLE",
             "authPolicy": "ON_INSTALL",
             "category": "Lifestyle"
+        },
+        {
+            "name": "google-slides",
+            "source": {
+                "source": "local",
+                "path": "./plugins/google-slides"
+            },
+            "installPolicy": "AVAILABLE",
+            "authPolicy": "ON_INSTALL",
+            "category": "Productivity"
         }
     ]
 }
