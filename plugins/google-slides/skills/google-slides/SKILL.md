@@ -1,13 +1,13 @@
 ---
 name: google-slides
-description: Inspect, create, import, summarize, and update Google Slides presentations through connected Google Slides data. Use when the user wants to find a deck, read slide structure, summarize a presentation, create a new presentation, import a `.ppt`, `.pptx`, or `.odp`, update slide text or layout, or route a Slides task to a more specific workflow.
+description: Inspect, create, import, summarize, and update Google Slides presentations through connected Google Slides data. Use when the user wants to find a deck, read slide structure, summarize a presentation, create a new presentation, import a `.ppt`, `.pptx`, or `.odp`, update slide text, formatting, or layout, or route a Slides task to a more specific workflow.
 ---
 
 # Google Slides
 
 ## Overview
 
-Use this skill as the default entrypoint for Google Slides work. Stay here for deck search, summaries, light content edits, and new presentation creation. Route to a narrower sibling skill only when the task is specifically import, visual cleanup, structural repair, or template migration.
+Use this skill as the default entrypoint for Google Slides work. Stay here for deck search, summaries, light content edits, isolated slide formatting fixes, and new presentation creation. Route to a narrower sibling skill only when the task is specifically import, repeated visual cleanup, structural repair, or template migration.
 
 ## Required Tooling
 
@@ -49,9 +49,9 @@ Confirm the runtime exposes the relevant Google Slides actions before editing:
 - Preserve user control over substantive design choices. Apply a clean default look, but do not invent a heavy brand system or overly specific theme unless the user asks.
 
 4. Route only when the job is narrower than general Slides work.
-- Stay in this skill for deck summaries, slide-by-slide reviews, new presentation creation, and small content edits.
+- Stay in this skill for deck summaries, slide-by-slide reviews, new presentation creation, small content edits, and isolated formatting fixes on specific slides.
 - Use [google-slides-import-presentation](../google-slides-import-presentation/SKILL.md) when the source is a local presentation file.
-- Use [google-slides-visual-iteration](../google-slides-visual-iteration/SKILL.md) for spacing, overlap, alignment, cropping, density, or other layout cleanup where the slide image matters.
+- Use [google-slides-visual-iteration](../google-slides-visual-iteration/SKILL.md) when formatting cleanup becomes a dedicated slide-by-slide workflow, or when spacing, overlap, alignment, cropping, density, or other layout cleanup needs repeated thumbnail-based passes.
 - Use [google-slides-template-surgery](../google-slides-template-surgery/SKILL.md) when the repeated layout structure is broken.
 - Use [google-slides-template-migration](../google-slides-template-migration/SKILL.md) when content should move onto a company or team template deck.
 
@@ -60,6 +60,8 @@ Confirm the runtime exposes the relevant Google Slides actions before editing:
 - Prefer small `batch_update` requests over large speculative batches.
 - Send `batch_update` requests as structured request objects in the expected tool shape, not as JSON strings or stringified arrays.
 - If the task depends on how the slide looks, fetch a thumbnail before editing and verify again after the write.
+- When fixing slide formatting, use a tight loop: take a thumbnail, identify visible spacing/alignment/cropping/regression issues, send a focused `batch_update`, then take another thumbnail to verify the result.
+- Run 2-4 verified formatting passes when needed. Stop earlier once the slide is clearly clean, and switch to [google-slides-visual-iteration](../google-slides-visual-iteration/SKILL.md) if the job turns into slide-by-slide formatting across a larger set of slides.
 - After creating a new slide or applying layout-heavy changes, immediately verify that no text, shape, image, or color band extends beyond the slide boundary. If the editor would require horizontal or vertical scrolling to see the whole slide, or if the lowest text sits in the bottom safety margin, treat that as a failure and fix it before moving on.
 - When supplying `objectId` values in `batch_update`, use valid Google Slides IDs that are 5-50 characters long and start with an alphanumeric character or `_`. Prefer descriptive IDs like `slide02`, `slide02_title`, or `slide02_body`; do not use very short IDs like `s2` or `i0`.
 - If you need to create a slide and edit its placeholders in the same `batch_update`, create the slide with valid placeholder ID mappings first, then reference those placeholder IDs in later requests in the same batch.
