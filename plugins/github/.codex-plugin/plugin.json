@@ -18,7 +18,9 @@
     "capabilities": [],
     "websiteURL": "https://github.com/",
     "privacyPolicyURL": "https://docs.github.com/site-policy/privacy-policies/github-general-privacy-statement",
-    "defaultPrompt": "Use GitHub to help with this task.",
+    "defaultPrompt": [
+      "Review a repo issue or PR and summarize next steps"
+    ],
     "screenshots": []
   }
 }

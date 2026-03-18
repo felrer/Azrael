@@ -18,7 +18,9 @@
     "capabilities": [],
     "websiteURL": "https://www.notion.so/",
     "privacyPolicyURL": "https://www.notion.com/help/privacy",
-    "defaultPrompt": "Use Notion to help with this task.",
+    "defaultPrompt": [
+      "Find a Notion page and summarize the key points"
+    ],
     "screenshots": []
   }
 }
