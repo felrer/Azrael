@@ -40,7 +40,7 @@ Confirm the runtime exposes the relevant Google Slides actions before editing:
 - Use `get_slide` before any slide-level write so object IDs and layout context come from the live deck.
 - For slide summaries or inspection, do not rely on text extraction alone when a slide contains charts, graphs, screenshots, diagrams, or image-heavy content.
 - Use `get_slide_thumbnail` alongside text/structure reads when visual evidence matters so the summary reflects both what the slide says and what the slide shows.
-- If the thumbnail response includes image content, base64 image data, or an image-bearing URL/data wrapper, ingest that directly as slide image input rather than routing through Atlas or another separate visual-analysis path.
+- If the thumbnail response includes inline image content, base64 image data, or an image-bearing data wrapper, ingest that directly as slide image input. The response may also include `contentUrl` metadata, but if inline image data is present, inspect that directly instead of downloading the URL or relying only on metadata.
 - Treat the slide page size as a hard boundary for every shape, text box, image, and color band you create.
 
 3. Apply default creation polish when making a new presentation.
