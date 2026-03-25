@@ -37,40 +37,26 @@ Use this skill to produce a priority queue or task list for the user from recent
 - If you use `../slack-outgoing-message/SKILL.md` to draft or send the final message, this output contract remains binding. The downstream skill does not relax or rename these sections.
 
 ```md
-*Slack Notification Triage - YYYY-MM-DD*
-[ZWSP line]
-*Overview*
-[ZWSP line]
+**Slack Notification Triage - YYYY-MM-DD**
+**Overview**
 <1-2 sentence summary of what the user most likely needs to read, reply to, or do next>
 
-[blank line]
-[ZWSP line]
-*Tasks for you*
-[ZWSP line]
+**Tasks for you**
 - ...
 
-[blank line]
-[ZWSP line]
-*Worth skimming*
-[ZWSP line]
+**Worth skimming**
 - ...
 
-[blank line]
-[ZWSP line]
-*Can ignore for now*
-[ZWSP line]
+**Can ignore for now**
 - ...
 
-[blank line]
-[ZWSP line]
-*Notes*
-[ZWSP line]
+**Notes**
 - <gaps, caveats, or partial coverage>
 ```
 
 - Keep the triage compact; aim for 3–15 bullets total across all sections.
-- Treat *Tasks for you* as the primary section whenever the triage is meant to produce a personal todo list.
-- Include *Can ignore for now* only when the user explicitly asked to filter tasks.
+- Treat **Tasks for you** as the primary section whenever the triage is meant to produce a personal todo list.
+- Include **Can ignore for now** only when the user explicitly asked to filter tasks.
 - Start each bullet with the key update, then add the action the user may need to take.
 - Preserve exact channel names and mention DMs explicitly.
-- Use *Notes* for coverage limits or sparse results.
+- Use **Notes** for coverage limits or sparse results.
