@@ -399,6 +399,18 @@
       "category": "Design"
     },
     {
+      "name": "plugin-eval",
+      "source": {
+        "source": "local",
+        "path": "./plugins/plugin-eval"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Coding"
+    },
+    {
       "name": "alpaca",
       "source": {
         "source": "local",
