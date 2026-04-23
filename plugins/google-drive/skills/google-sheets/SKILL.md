@@ -1,32 +1,76 @@
 ---
 name: google-sheets
-description: Analyze and edit connected Google Sheets with range precision. Use when the user wants to find a spreadsheet, inspect tabs or ranges, search rows, plan formulas, clean or restructure tables, write concise summaries, or make explicit cell-range updates.
+description: Analyze and edit connected Google Sheets with range precision. Use when the user wants to create Google Sheets, find a spreadsheet, inspect tabs or ranges, search rows, plan formulas, create or repair charts, clean or restructure tables, write concise summaries, or make explicit cell-range updates.
 ---
 
 # Google Sheets
 
 Use this skill to keep spreadsheet work grounded in the exact spreadsheet, sheet, range, headers, and formulas that matter.
 
-## Workflow
+## Purpose Of This File
 
-1. If the spreadsheet or tab is not already grounded, identify it first and read metadata before deeper reads or writes.
-2. Prefer narrow reads and row search over dumping large tabs into context.
-3. Ground the task in exact sheet, range, header, and formula context before proposing changes.
-4. When a read could influence a write, default to `get_cells`. Treat `get_range` as the exception and use it only when plain displayed values are truly sufficient.
-5. If the task involves filling in, editing, or normalizing existing cells, do not rely on `get_range` alone. Inspect the target cells with `get_cells` first so value choices come from the live cell metadata.
-6. When validation-backed cells may matter, prefer a `get_cells` read that includes the live constraint data you need, for example `dataValidation,formattedValue,effectiveValue,userEnteredValue`.
-7. When preparing to write into existing cells, check whether the target range is constrained by dropdowns or other data validation before choosing values. Do not infer allowed values from plain neighboring text alone when validation may exist.
-8. If validation is present, restate the allowed values or rule before drafting or applying the write.
-9. Before the first write-heavy `batch_update`, read `./references/batch-update-recipes.md` for request-shape recall.
-10. Cluster logically related edits into one `batch_update` so the batch is coherent and atomic. Avoid both mega-batches and one-request micro-batches.
-11. If the user asks to clean, normalize, or restructure data, summarize the intended table shape before writing.
-12. For exact-row, fixed-count, or report-style tasks, keep the findings narrowly scoped to the requested conclusions only. Do not add extra metrics, adjacent commentary, or bonus rows unless the user asked for them.
+This file is intentionally minimal and only covers:
 
-## Output Conventions
+1. routing to the right spreadsheet workflow
+2. connector loading and runtime boundaries
+3. stateful operation and mandatory routing to reference files
 
-- Always reference the spreadsheet, sheet name, and range when describing findings or planned edits.
-- For `batch_update` work, use a compact table or list with the request type, target range or sheet, proposed change, and reason.
+Detailed editing, formula, chart, upload, and batch-update rules live in `references/`.
+Latency is not a constraint for this skill, so always read the relevant reference files before performing the task.
 
-## References
+## Runtime Model
 
-- For raw Sheets write shapes and example `batch_update` bodies, read `./references/batch-update-recipes.md`.
+1. Use Google Sheets connector or app tools directly from Codex when they are available.
+2. Keep connector calls separate from local helper processing.
+3. Do not use embedded-runtime helper snippets or assumed global connector bindings.
+4. Connector tools are not called from inside local spreadsheet builders. Treat connector calls and local `.xlsx` authoring as separate execution surfaces.
+
+## Default Routing
+
+Unless the user asks otherwise:
+
+1. New Google Sheets creation: first check whether the `$Spreadsheets` skill is installed, then check whether `$Excel` is installed.
+2. If either skill is installed, use the first available skill in that order to create a local `.xlsx`. After creating the local `.xlsx`, read `references/reference-upload-xlsx-to-drive.md`, then upload it to Google Drive as an `.xlsx`.
+3. If neither skill is installed, create the spreadsheet directly with Google Sheets MCP.
+4. Existing Google Sheets edit: use Google Sheets MCP directly.
+
+## Stateful Operation
+
+Maintain working state for the active spreadsheet task instead of re-deriving context from scratch after every step.
+Keep the spreadsheet URL or id, sheet names, `sheetId` values, ranges, headers, formulas, validation constraints, pending write batches, and verification status current as the task progresses.
+Refresh that state before connector writes when source gathering, spreadsheet switches, connector errors, or runtime resets could make it stale.
+
+## Required Read Order (No Skips)
+
+Before net-new local `.xlsx` creation and upload:
+
+1. If Default Routing uses `$Spreadsheets` or `$Excel`, read the selected authoring skill before creating the workbook.
+2. Read `references/reference-upload-xlsx-to-drive.md` before uploading to Google Drive.
+
+Before any existing spreadsheet content write or edit operation:
+
+1. Read `references/reference-edit-workflow.md`.
+2. Read every task-specific file from the matrix below.
+3. If the task spans multiple categories, read all matching files.
+4. If uncertain, read every file in `references/`.
+
+Do not execute content edits until the required references are read in the current turn.
+
+## Connector Load Checklist
+
+1. Confirm the exact target Google Sheet URL or spreadsheet id before editing an existing spreadsheet.
+2. If the user only gives a title or title keywords, use the connector/app search path to identify candidate spreadsheets before asking for a URL.
+3. Resolve and record the spreadsheet id, target sheet names, and `sheetId` values.
+4. Read spreadsheet metadata before deeper reads or writes.
+5. Before each edit pass, identify the exact sheet, range, headers, formulas, and validation constraints being edited through connector reads.
+6. Re-read target cells before writing when live values, formulas, formatting, or validation could affect the write.
+
+## Task To Reference Map
+
+| Task area | Required reference file |
+| --- | --- |
+| Existing spreadsheet edit workflow, grounding, validation-backed cells, output conventions, and write planning | `references/reference-edit-workflow.md` |
+| Raw Sheets write shapes and example `batch_update` bodies | `references/reference-batch-update-recipes.md` |
+| Uploading a locally created `.xlsx` to Google Drive | `references/reference-upload-xlsx-to-drive.md` |
+| Formula design, repair, rollout, or syntax refresh | `references/reference-formula-patterns.md` |
+| Chart creation, repair, chart-spec recall, or repositioning | `references/reference-chart-recipes.md` |
