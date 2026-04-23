@@ -12,31 +12,36 @@ Use this skill to keep spreadsheet work grounded in the exact spreadsheet, sheet
 This file is intentionally minimal and only covers:
 
 1. routing to the right spreadsheet workflow
-2. connector loading and runtime boundaries
-3. stateful operation and mandatory routing to reference files
+2. stateful operation and mandatory routing to reference files
 
 Detailed editing, formula, chart, upload, and batch-update rules live in `references/`.
 Latency is not a constraint for this skill, so always read the relevant reference files before performing the task.
 
-## Runtime Model
-
-1. Use Google Sheets connector or app tools directly from Codex when they are available.
-2. Keep connector calls separate from local helper processing.
-3. Do not use embedded-runtime helper snippets or assumed global connector bindings.
-4. Connector tools are not called from inside local spreadsheet builders. Treat connector calls and local `.xlsx` authoring as separate execution surfaces.
-
 ## Default Routing
 
-1. New Google Sheets creation: first check whether the `$Spreadsheets` skill is installed, then check whether `$Excel` is installed.
-2. If either skill is installed, YOU MUST use the first available skill in that order to create a local `.xlsx`. After creating the local `.xlsx`, read `references/reference-upload-xlsx-to-drive.md`, upload it to Google Drive as an `.xlsx`.
-3. If neither skill is installed, create the spreadsheet directly with Google Sheets MCP.
-4. Existing Google Sheets edit: use Google Sheets MCP directly.
+1. New Google Sheets creation: first check whether `$Spreadsheets` or `$Excel` skill is installed.
+2. If either skill is installed, YOU MUST use that skill to create a local `.xlsx`. Then upload the `.xlsx` to Google Drive. Read `references/reference-upload-xlsx-to-drive.md`.
+4. If neither skill is installed, create the spreadsheet directly with Google Sheets MCP.
+5. Existing Google Sheets edits: use Google Sheets MCP directly.
 
-## Stateful Operation
+Do not reference the local `.xlsx` in the final answer. Your final answer includes the Google Spreadsheet link only.
 
-Maintain working state for the active spreadsheet task instead of re-deriving context from scratch after every step.
-Keep the spreadsheet URL or id, sheet names, `sheetId` values, ranges, headers, formulas, validation constraints, pending write batches, and verification status current as the task progresses.
-Refresh that state before connector writes when source gathering, spreadsheet switches, connector errors, or runtime resets could make it stale.
+## Canonical Workflow Bias
+
+Prefer one simple proven workflow over a large tree of recovery branches.
+When a task matches a known successful pattern, follow that pattern directly instead of re-evaluating every possible fallback path.
+Do not let accumulated edge-case guardrails turn a straightforward Sheets task into a long blocker-analysis exercise.
+
+For sheet creation and editing tasks, prefer this sequence when viable:
+
+1. Gather the required source material.
+2. Pick the correct default routing.
+3. Establish the sheet checklist or sheet plan.
+4. Build or edit the sheet.
+5. Verify the sheet is clean, complete, native, and scannable.
+6. Stop once the verified workflow has succeeded.
+
+If a simple verified workflow is viable, use it. Do not drift into speculative alternate paths.
 
 ## Required Read Order (No Skips)
 
@@ -52,6 +57,11 @@ If Default Routing uses connector edit workflow:
 4. If uncertain, read every file in `references/`.
 
 Do not execute content edits until the required references are read in the current turn.
+
+## Final Answer Requirement
+
+If the `$Spreadsheets` skill or the `$Excel` skill is installed, you MUST use those skills to create a local `.xlsx` and upload it to Google Drive.
+Even though you created a local `.xlsx`, do not cite the local path in the final answer. The final answer cites only the Google Spreadsheet link.
 
 ## Connector Load Checklist
 

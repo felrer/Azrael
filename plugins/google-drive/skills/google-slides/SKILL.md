@@ -30,8 +30,8 @@ Latency is not a constraint for this skill, so always read the relevant referenc
 
 Unless the user asks otherwise:
 
-1. New Google Slides deck: first check whether the `$Presentations` skill is installed, then check whether `$PowerPoint` is installed.
-2. If either skill is installed, use the first available skill in that order to create a local `.pptx`, then import it with `mcp__codex_apps__google_drive_import_presentation` using `upload_mode: "native_google_slides"`.
+1. New Google Slides deck: first check whether the `$Presentations` skill or the `$PowerPoint` is installed.
+2. If either skill is installed, YOU MUST use either the `$Presentations` skill or the `$PowerPoint` skill to create a local `.pptx`, then import it with `mcp__codex_apps__google_drive_import_presentation` using `upload_mode: "native_google_slides"`.
 3. If neither skill is installed, create the deck directly with Google Slides MCP.
 4. Existing Google Slides edit: use Google Slides MCP directly.
 
@@ -41,6 +41,7 @@ Inserted or edited content must match the target deck's existing structure and c
 Treat wrong target deck, wrong slide, stale object IDs, missing chart updates, leftover placeholder text, clipped text, broken slide order, or unverified visible layout changes as failed output that must be corrected before handoff.
 
 For Slides batch updates, API success is not completion. A fresh post-write LARGE thumbnail and examining the image by curling it is required for every touched slide. You MUST curl the image after requesting thumbnail. No skip.
+If the `$Presentations` skill or the `$PowerPoint` skill is installed, you MUST use those skills to create a local `.pptx` and upload it to Google Drive.
 
 ## Canonical Workflow Bias
 
@@ -72,6 +73,7 @@ Before final handoff, explicitly verify these with connector readback and thumbn
 6. no slide in a multi-slide task was skipped, duplicated, or left in a mixed old/new state
 7. no visual property is claimed as verified unless connector data or a fresh thumbnail supports it
 8. final presentation output is an editable Google Slides deck, not one PNG per slide; verify editable components with `mcp__codex_apps__google_drive_get_presentation` or `mcp__codex_apps__google_drive_get_slide`
+9. Even though you created a local pptx, do not cite the local pptx path as a deliverable in your final answer. Your final answer must only reference the gsuite link.
 
 **Slides**
 
