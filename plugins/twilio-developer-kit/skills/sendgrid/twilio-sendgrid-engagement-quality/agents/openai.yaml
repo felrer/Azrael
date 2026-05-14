@@ -1,6 +1,0 @@
-interface:
-  display_name: "twilio-sendgrid-engagement-quality"
-  short_description: "Twilio skill guidance for twilio-sendgrid-engagement-quality"
-  icon_small: "../../../assets/logo.svg"
-  icon_large: "../../../assets/logo.svg"
-  brand_color: "#F22F46"
