@@ -57,6 +57,8 @@ return { nodeId: rect.id }
 
 ## Create a Text Node
 
+Canonical text-edit recipe: load font → `await` → mutate → return affected IDs. Inter is preloaded in most environments; for any other family/style you would have hit `Cannot write to node with unloaded font "<family> <style>"` without the load step — the recipe is identical regardless of font.
+
 ```js
 // Find clear space to the right of existing content
 const page = figma.currentPage
@@ -65,6 +67,7 @@ for (const child of page.children) {
   maxX = Math.max(maxX, child.x + child.width)
 }
 
+// Load font BEFORE any text mutation — required for every font, not just Inter
 await figma.loadFontAsync({ family: "Inter", style: "Regular" })
 const text = figma.createText()
 text.characters = "Hello World"
@@ -74,7 +77,7 @@ text.textAutoResize = 'WIDTH_AND_HEIGHT'
 text.x = maxX + 100
 text.y = 0
 figma.currentPage.appendChild(text)
-return { nodeId: text.id }
+return { createdNodeIds: [text.id] }
 ```
 
 ## Create Frame with Auto-Layout
@@ -87,9 +90,8 @@ for (const child of page.children) {
   maxX = Math.max(maxX, child.x + child.width)
 }
 
-const frame = figma.createFrame()
+const frame = figma.createAutoLayout('VERTICAL')
 frame.name = "Card"
-frame.layoutMode = 'VERTICAL'
 frame.primaryAxisAlignItems = 'MIN'
 frame.counterAxisAlignItems = 'MIN'
 frame.paddingLeft = 16
@@ -97,8 +99,6 @@ frame.paddingRight = 16
 frame.paddingTop = 12
 frame.paddingBottom = 12
 frame.itemSpacing = 8
-frame.layoutSizingHorizontal = 'HUG'
-frame.layoutSizingVertical = 'HUG'
 frame.fills = [{ type: 'SOLID', color: { r: 1, g: 1, b: 1 } }]
 frame.cornerRadius = 8
 frame.x = maxX + 100
@@ -420,7 +420,7 @@ cs.resizeWithoutConstraints(maxX + 40, maxY + 40);
 const section = figma.createSection();
 section.name = "MyComponent Section";
 section.appendChild(cs);
-section.resizeWithoutConstraints(cs.width + 200, cs.height + 200);
+section.resize(cs.width + 200, cs.height + 200);
 
 return { csId: cs.id, count: components.length };
 ```
