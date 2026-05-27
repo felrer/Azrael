@@ -1491,6 +1491,18 @@
       "category": "Productivity"
     },
     {
+      "name": "datadog",
+      "source": {
+        "source": "local",
+        "path": "./plugins/datadog"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
       "name": "zoom",
       "source": {
         "source": "local",
