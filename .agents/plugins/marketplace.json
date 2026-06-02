@@ -1998,6 +1998,30 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Research"
+    },
+    {
+      "name": "wix",
+      "source": {
+        "source": "local",
+        "path": "./plugins/wix"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
+    },
+    {
+      "name": "base44",
+      "source": {
+        "source": "local",
+        "path": "./plugins/base44"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Developer Tools"
     }
   ]
 }
