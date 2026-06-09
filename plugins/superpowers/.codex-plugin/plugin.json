@@ -41,7 +41,7 @@
     "termsOfServiceURL": "https://docs.github.com/en/site-policy/github-terms/github-terms-of-service",
     "brandColor": "#F59E0B",
     "composerIcon": "./assets/superpowers-small.svg",
-    "logo": "./assets/app-icon.png",
+    "logo": "./assets/superpowers-small.svg",
     "screenshots": []
   }
 }
