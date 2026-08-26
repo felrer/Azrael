@@ -60,7 +60,7 @@
       },
       "policy": {
         "installation": "AVAILABLE",
-        "authentication": "ON_INSTALL"
+        "authentication": "ON_USE"
       },
       "category": "Communication"
     },
@@ -205,7 +205,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -218,7 +220,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -327,7 +331,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -340,7 +346,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -353,7 +361,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_USE",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -366,7 +376,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_USE",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -379,7 +391,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -404,7 +418,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Education & Research"
     },
@@ -417,7 +433,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -430,7 +448,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -455,7 +475,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Creativity"
     },
@@ -468,7 +490,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -854,7 +878,7 @@
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Communication"
+      "category": "Productivity"
     },
     {
       "name": "happenstance",
@@ -1465,7 +1489,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Creativity"
     },
@@ -1502,7 +1528,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_USE",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Security"
     },
@@ -1527,7 +1555,9 @@
       "policy": {
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL",
-        "products": ["CODEX"]
+        "products": [
+          "CODEX"
+        ]
       },
       "category": "Developer Tools"
     },
@@ -2069,7 +2099,7 @@
         "installation": "AVAILABLE",
         "authentication": "ON_INSTALL"
       },
-      "category": "Developer Tools"
+      "category": "Business & Operations"
     },
     {
       "name": "magicpath",
@@ -2178,6 +2208,18 @@
         "authentication": "ON_INSTALL"
       },
       "category": "Developer Tools"
+    },
+    {
+      "name": "dropbox",
+      "source": {
+        "source": "local",
+        "path": "./plugins/dropbox"
+      },
+      "policy": {
+        "installation": "AVAILABLE",
+        "authentication": "ON_INSTALL"
+      },
+      "category": "Productivity"
     }
   ]
 }
