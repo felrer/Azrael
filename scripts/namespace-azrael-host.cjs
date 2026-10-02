@@ -16,6 +16,8 @@ const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refr
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
 const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
+const { injectPaginatedHistory } = require("./inject-paginated-history.cjs");
+const { injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
   injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
 
@@ -301,14 +303,16 @@ function transformAsset(source, relativePath, filename, ts) {
   const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
   const providerPicker = injectProviderModelPicker(queueConsumption.text, relativePath);
   const threadBranch = injectThreadBranch(providerPicker.text, relativePath);
-  const urlSafety = isHostBundle ? injectUrlSafetyTransport(threadBranch.text) : { text: threadBranch.text, count: 0 };
+  const paginatedHistory = injectPaginatedHistory(threadBranch.text, relativePath);
+  const immediateStop = injectImmediateStop(paginatedHistory.text, relativePath);
+  const urlSafety = isHostBundle ? injectUrlSafetyTransport(immediateStop.text) : { text: immediateStop.text, count: 0 };
   const fileOpenMenu = injectFileOpenMenu(urlSafety.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
-  if (namespaced.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
+  if (namespaced.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || paginatedHistory.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
     return { text: localFileDrop.text, asset: {
       path: relativePath,
-      edits: namespaced.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
+      edits: namespaced.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + paginatedHistory.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
@@ -320,6 +324,8 @@ function transformAsset(source, relativePath, filename, ts) {
       queueRefreshNativeChecks: queueRefresh.nativeChecks ?? 0,
       providerPickerEdits: providerPicker.count,
       threadBranchEdits: threadBranch.count,
+      paginatedHistoryEdits: paginatedHistory.count,
+      immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
       queueConsumptionEdits: queueConsumption.count,
       urlSafetyTransportEdits: urlSafety.count,
@@ -340,6 +346,7 @@ function getTransformRules() {
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
+    "inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
   ];
   return Object.fromEntries(transformSources.map((name) =>
     [name, sha(fs.readFileSync(path.join(__dirname, name)))]));
@@ -455,6 +462,11 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + (asset.threadBranchEdits ?? 0), 0) !== 1) {
     throw new Error("Thread branch transformation was incomplete.");
+  }
+  for (const field of ["paginatedHistoryEdits", "immediateStopEdits"]) {
+    if (report.assets.reduce((total, asset) => total + (asset[field] ?? 0), 0) !== 1) {
+      throw new Error(`${field} transformation was incomplete.`);
+    }
   }
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");

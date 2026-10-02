@@ -110,6 +110,12 @@ The receipt is `~/.azrael-ex/azrael/shared-environment/snapshot.json`; a failed 
 
 The Codex environment snapshot uses `scripts/sync-codex-environment.cjs` with `scripts/azrael-codex-environment.json`; its receipt is `~/.azrael-ex/azrael/codex-environment/snapshot.json`, backups and `recovery.json` are under `codex-environment-backups/`, and its lock is `azrael/codex-environment.lock`. There is no automatic stale-lock deletion or crash-atomic guarantee.
 
+## Message editing and immediate stop
+
+Run `node --test scripts/test-paginated-history.cjs scripts/test-immediate-stop.cjs scripts/test-edit-stop-integration.cjs scripts/test-thread-branch.cjs` from the project root with the pinned pristine UI and installed TypeScript available. These checks execute transformed native functions, asynchronous cancellation fixtures and the asset-cache path without compiling or installing a package. The guarded transforms require one creation and one stop patch in prepared assets.
+
+New persistent conversations use paginated history and `thread/revert` for editing. Existing legacy conversations are not converted by this change. Verify send → immediate stop → edit → resend in a newly prepared host separately; source fixtures do not establish installed behavior.
+
 ## Feature checks
 
 Run the checks for the areas a change touches. Each command writes only to the paths it is given; keep logs under `artifacts/logs/<task>/`.

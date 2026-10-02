@@ -75,6 +75,14 @@ The Azrael sidebar's recent-chat list supplies the native server-side `cwd` filt
 
 The pinned Webview marks only its `recent_threads` request. The extension host, which owns access to workspace folders, removes the marker and supplies `cwd` and `modelProviders` at the common app-server request boundary. Archive checks, collaboration hydration and other unmarked `thread/list` requests are unchanged. Preparation fails closed if the pinned recent-list call shape or the host request boundary changes.
 
+## New conversation history and immediate stop
+
+Status: `partial` — source-level checks verify that new persistent conversations use paginated history and its native turn-ID-based `thread/revert` edit path. Ephemeral conversations retain their native creation behavior. Existing legacy conversations are outside this change and are not converted or relabeled.
+
+A user stop during submission applies to that submission only. The UI retains the stop intent while the same turn is pending, waits for its admitted identity, and distinguishes an activation race from a confirmed terminal turn. An interrupt acknowledgement alone does not authorize editing: the selected turn must reach a confirmed terminal state. A different later turn, an unavailable connection, or an unresolved deadline cannot be treated as successful cancellation. Start admission and interrupt termination checks each have a 20-second deadline; expiry ends that check without scheduling a later interrupt. Errors remain visible through the native UI boundary.
+
+The version-pinned UI transforms reuse native turn creation, interruption, history projection and edit handlers. Source-level asynchronous fixtures verify the affected paths; installed-host acceptance is separate from those checks.
+
 ## Conversation branching
 
 Status: `partial` — pinned source fixtures verify branch selection and UI eligibility; packaged/live-host acceptance is pending.
