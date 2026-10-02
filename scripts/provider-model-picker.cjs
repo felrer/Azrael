@@ -147,6 +147,9 @@ function createProviderModelCatalog() {
       if (item.pending) { item.refreshAfterPending = true; return; }
       if (item.invalidate) Promise.resolve(item.invalidate()).catch(() => publish(id, { loading: false, error: true }));
     },
+    notification(event) {
+      if (event?.method === "account/updated") this.sessionCreated(event.hostId);
+    },
   };
 }
 

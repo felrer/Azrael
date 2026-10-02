@@ -66,6 +66,7 @@ function injectProviderModelPicker(text, asset) {
     const nativeEffort = "t.supportedReasoningEfforts.find(e=>{let{reasoningEffort:t}=e;return t===j})?.reasoningEffort??t.defaultReasoningEffort";
     text = once(text, nativeEffort, `__azraelProviderCatalog.modelEffort(t,j,()=>${nativeEffort})`);
     text += bootstrap() + `
+ym.subscribe("mcp-notification",event=>__azraelProviderCatalog.notification(event));
 function __azraelReasoningLabel(e){return z8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
 function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (X8,Z8.jsx,yz,__azraelProviderCatalog,props)}
 `;

@@ -28,7 +28,7 @@ test("OpenRouter spend distinguishes unset, zero, and positive caps without clai
 });
 
 test("managed provider cards expose safe account actions and explicit chat/default scope", () => {
-  const html = providerAccountHtml(provider, provider.accounts[0], undefined);
+  const html = providerAccountHtml(provider, provider.accounts[0], undefined, undefined, true);
   assert.doesNotMatch(html, /<script|<img/);
   assert.match(html, /기본 계정/);
   assert.doesNotMatch(html, /새 채팅 기본 계정/);
@@ -118,14 +118,21 @@ test("a failed refresh labels and preserves the previous successful provider quo
 });
 
 
-test("provider usage disclosure defaults collapsed and keeps identity actions visible", () => {
+test("provider usage disclosure keeps collapsed identity compact and shows management when expanded", () => {
   const quota: ProviderAccountQuota = { providerId: provider.id, accountId: provider.accounts[0].id, status: "ok", source: "probe", observedAt: 1, rows: [{ label: "Private quota", remaining: 8 }] };
   const collapsed = providerAccountHtml(provider, provider.accounts[0], quota);
   assert.match(collapsed, /aria-expanded="false"/);
   assert.match(collapsed, /사용량 펼치기/);
   assert.doesNotMatch(collapsed, /Private quota|출처 probe/);
-  assert.match(collapsed, /A&amp;B|providerReauth|providerRemove/);
+  assert.match(collapsed, /account-heading.*usage-toggle.*<h2>A&amp;B<\/h2>/);
+  assert.doesNotMatch(collapsed, /providerReauth|providerRemove|card-actions/);
+  const unselected = providerAccountHtml(provider, { ...provider.accounts[0], selected: false }, quota);
+  assert.match(unselected, /identity-actions.*data-action="providerSelect"/);
   const expanded = providerAccountHtml(provider, provider.accounts[0], quota, undefined, true);
   assert.match(expanded, /aria-expanded="true"/);
-  assert.match(expanded, /사용량 접기|Private quota|8 남음/);
+  assert.match(expanded, /aria-label="사용량 접기"/);
+  assert.match(expanded, /Private quota/);
+  assert.match(expanded, /8 남음/);
+  assert.match(expanded, /providerReauth/);
+  assert.match(expanded, /providerRemove/);
 });

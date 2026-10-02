@@ -93,6 +93,25 @@ test("menu reopen reuses cache; session creation and manual refresh fetch once",
  await c.query("a",fn,100,invalidate);assert.equal(calls,2);
  c.retry("a");await request;assert.equal(calls,3);
 });
+test("account updates refresh only their host and force backend discovery",async()=>{
+ const c=createProviderModelCatalog();let calls=0,request;
+ const fn=client(p=>{calls++;if(calls>1)assert.equal(p.refresh,true);return {data:[{model:calls===1?"paid":"free"}],nextCursor:null};});
+ const invalidate=()=>request=c.query("a",fn,100,invalidate);
+ await c.query("a",fn,100,invalidate);
+ c.notification({hostId:"a",method:"account/rateLimits/updated"});assert.equal(calls,1);
+ c.notification({hostId:"b",method:"account/updated"});assert.equal(calls,1);
+ c.notification({hostId:"a",method:"account/updated"});await request;
+ assert.equal(calls,2);assert.equal((await c.query("a",fn,100,invalidate)).data[0].model,"free");
+});
+test("account notification subscription uses the actual pinned event bus",()=>{
+ const asset=injection.PROVIDER_PICKER_ASSET;
+ const source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
+ const subscription='ym.subscribe("mcp-notification",event=>__azraelProviderCatalog.notification(event));';
+ assert.ok(source.includes(subscription));
+ let callback,received;
+ vm.runInNewContext(subscription,{ym:{subscribe(name,listener){assert.equal(name,"mcp-notification");callback=listener;}},__azraelProviderCatalog:{notification(event){received=event;}}});
+ const event={hostId:"local",method:"account/updated"};callback(event);assert.equal(received,event);
+});
 test("session creation during discovery schedules a forced refresh",async()=>{
  const c=createProviderModelCatalog();let release,request,calls=0;
  const fn=client(p=>{calls++;if(calls===1)return new Promise(resolve=>release=resolve);assert.equal(p.refresh,true);return {data:[],nextCursor:null};});

@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AccountUsage, RateLimitSnapshot, RateLimitWindow } from "../src/protocol";
-import { escapeHtml, openAIUsageHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml } from "../src/usagePresentation";
+import { escapeHtml, openAIPlanLabel, openAIUsageHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml } from "../src/usagePresentation";
 
 function window(usedPercent: number, windowDurationMins: number | null = 300, resetsAt: number | null = null): RateLimitWindow {
   return { usedPercent, windowDurationMins, resetsAt };
@@ -97,6 +97,16 @@ test("usage identity keys separate provider namespaces, workspaces and delimiter
   assert.notEqual(usageExpansionKey("openai", "a", "w"), usageExpansionKey("provider", "a", "w"));
   assert.notEqual(usageExpansionKey("openai", "a", "w1"), usageExpansionKey("openai", "a", "w2"));
   assert.notEqual(usageExpansionKey("provider", "a\u0000b", "c"), usageExpansionKey("provider", "a", "b\u0000c"));
-  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /aria-expanded="false".*사용량 펼치기/);
-  assert.match(usageToggleHtml(true, 'data-profile="safe"'), /aria-expanded="true".*사용량 접기/);
+  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /aria-expanded="false" aria-label="사용량 펼치기"/);
+  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /<span aria-hidden="true">▸<\/span>/);
+  assert.match(usageToggleHtml(true, 'data-profile="safe"'), /aria-expanded="true" aria-label="사용량 접기"/);
+});
+
+
+test("OpenAI plan label uses current usage and requires confirmation when absent or inconsistent", () => {
+  assert.equal(openAIPlanLabel(usage(null, limit({ planType: "free" }))), "free");
+  assert.equal(openAIPlanLabel(undefined), "요금제 확인 필요");
+  assert.equal(openAIPlanLabel(usage(null)), "요금제 확인 필요");
+  assert.equal(openAIPlanLabel(usage({ a: limit({ planType: "pro" }), b: limit({ planType: "pro" }) })), "pro");
+  assert.equal(openAIPlanLabel(usage({ a: limit({ planType: "pro" }), b: limit({ planType: "free" }) })), "요금제 확인 필요");
 });

@@ -10,6 +10,8 @@ The sidebar profile dropdown has one **계정 및 사용량** entry above the na
 
 Profiles distinguish the login identity and workspace account; email alone is not identity. Outside the native secure credential store only IDs and display metadata are stored.
 
+Saved profile plan metadata is a login-time claim, not proof of a current subscription. The usage page displays the plan from an account-attributed usage response, or **요금제 확인 필요** before an observation is available. Successful native usage queries persist an observed plan only after checking the profile's workspace and user identity; absent plans and failed requests do not infer a subscription.
+
 Profile authentication homes live under `CODEX_HOME/azrael/accounts`, separate from the fixed execution home. Each profile uses a native AuthManager with strict keyring storage on the platform's native backend; there is no plaintext fallback. The engine's native external-auth provider seam resolves the selected managed ChatGPT authentication without changing the native account type or rollout root. Profile managers use the root manager's application network policy for outbound requests; loading a profile's stored identity does not invalidate that shared policy, and root account changes remain responsible for policy invalidation and reload.
 
 Additional login uses the native OAuth server in a staged authentication home. Reauthentication replaces a profile only when both user and workspace identity match. Capturing the existing Azrael login is an explicit action, never an import from ordinary Codex storage. Removing a profile deletes local credentials without revoking unrelated sessions. The management RPC uses the `azrael/account` method and `azrael/account/updated` notification; only sanitized state and the temporary native login URL cross it.
@@ -32,6 +34,8 @@ Execution leases follow actual core task lifetimes, including completion and chi
 
 ## Management connection recovery
 
+The pinned host's model catalog listens for native `account/updated` notifications. It invalidates the affected host's cached model list and requests fresh backend discovery. An account update during discovery schedules another refresh after the pending query finishes, so the picker updates without a manual refresh.
+
 The initial connection waits through bounded transport retries before reporting terminal unavailability, and recovered startup failures leave no permanent disabled notice. Home, version and engine-identity mismatches fail closed. Reconnection never replays account mutations; disposal cancels scheduled recovery.
 
 ## Provider accounts
@@ -47,6 +51,8 @@ Provider selection is manual and defines the default for new threads. A thread p
 Quota is queried for the requested account without selecting it. Results are keyed by provider, account, workspace and limit, with generations that discard stale responses. Units, observation time, source, unsupported and failed states are preserved; unsupported, failed and unmeasured are distinct from zero and unlimited. Request token usage is not account quota. Server-provided windows and reset timestamps are shown without assuming fixed periods. Reset-credit `availableCount` is authoritative, and null means unavailable, not zero. Background refresh omits ticket details; detail queries request them. Codex Spark quota rows are excluded without changing model availability.
 
 ### Usage controls
+
+Account cards use a compact identity row while usage is collapsed, with an accessible triangle button to the left of the account name and selection on the same row. Reauthentication and removal actions are visible only while expanded. Expanding reveals usage and management controls; collapsing preserves the selection action.
 
 Status: `partial`; source tests verify selective refresh, persistent expansion and host-side ticket consumption handling. The profile-scoped native consumption implementation is uncompiled; installed and live ticket behavior is unverified.
 
