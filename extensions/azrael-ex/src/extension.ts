@@ -97,6 +97,8 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   view.initialize();
   context.subscriptions.push(view, usageView, rootResumeView, { dispose: () => service?.dispose() });
   register("azrael.usage", () => usageView.show());
+  context.subscriptions.push(vscode.commands.registerCommand("azrael.accountsEmbedded",
+    (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => usageView.handleEmbedded(webview, request, panel)));
   register("azrael.devinAccount", () => usageView.show());
   register("azrael.rootResume", () => rootResumeView.show());
   register("azrael.manageAccounts", () => usageView.show());

@@ -1,4 +1,5 @@
 "use strict";
+const { ACCOUNT_SETTINGS_ASSET, injectAccountSettings } = require("./inject-account-settings.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
@@ -80,6 +81,7 @@ function applyEdits(text, edits) {
 }
 
 function rewriteJavaScript(text, filename, ts) {
+  const isLocaleAsset = /(?:^|[\\/])[a-z]{2}(?:-[A-Za-z]{2,4})?-[a-f0-9]+\.js$/.test(filename);
   const file = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   if (file.parseDiagnostics.length) throw new Error(`Cannot parse pinned asset: ${filename}`);
   const edits = [];
@@ -91,7 +93,13 @@ function rewriteJavaScript(text, filename, ts) {
       if (node.text === "chatgpt" && ts.isCallExpression(node.parent) &&
           ts.isPropertyAccessExpression(node.parent.expression) &&
           node.parent.expression.name.text === "getConfiguration") next = "azrael";
-      if (node.text === "Codex" || node.text === "Codex Chat" || node.text === "Codex Agent") next = node.text.replace("Codex", "azrael");
+      if (node.text === "Codex" || node.text === "Codex Chat" || node.text === "Codex Agent") next = node.text.replace("Codex", "Azrael");
+      if (node.text === "Codex Settings") next = "Azrael Settings";
+      if (node.text === "azrael" && ts.isVariableDeclaration(node.parent) && node.parent.name.getText(file) === "qOt") next = "Azrael";
+      if (ts.isPropertyAssignment(node.parent) && node.parent.initializer === node &&
+          (isLocaleAsset || node.parent.name.getText(file) === "defaultMessage")) {
+        next = next.replace(/\bCodex\b(?! (?:Spark|Mini)\b)/g, "Azrael");
+      }
       if (next !== node.text) {
         const replacement = ts.isStringLiteral(node) ? JSON.stringify(next) :
           "`" + next.replaceAll("\\", "\\\\").replaceAll("`", "\\`").replaceAll("${", "\\${") + "`";
@@ -210,8 +218,8 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
   manifest.publisher = "azrael-ex-local";
   manifest.name = "azrael";
   manifest.version = hostVersion;
-  manifest.displayName = "azrael";
-  manifest.description = "Independent azrael chat host with its own accounts, sessions and engine.";
+  manifest.displayName = "Azrael";
+  manifest.description = "Independent Azrael chat host with its own accounts, sessions and engine.";
   manifest.extensionKind = ["ui"];
   delete manifest.__metadata;
   delete manifest.enabledApiProposals;
@@ -251,7 +259,7 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
       manifest.contributes.configuration ??= { properties: {} };
       manifest.contributes.configuration.properties = { ...manifest.contributes.configuration.properties, ...visit(block.properties) };
     }
-    manifest.contributes.commands.push({ command: "azrael.recoveryStatus", title: "실행 상태 및 복구", category: "azrael" });
+    manifest.contributes.commands.push({ command: "azrael.recoveryStatus", title: "실행 상태 및 복구", category: "Azrael" });
     manifest.main = "./integrated-azrael-entry.cjs";
     manifest.azraelIntegratedAccounts = true;
     manifest.azraelAccountPayloadVersion = accountVersion;
@@ -259,10 +267,16 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
   manifest.contributes.configuration.title = "azrael Settings";
   manifest.contributes.configuration.properties["azrael.commentCodeLensEnabled"].default = false;
   for (const command of manifest.contributes.commands ?? []) {
-    if (typeof command.title === "string") command.title = command.title.replaceAll("Codex", "azrael");
-    command.category = "azrael";
+    if (typeof command.title === "string") command.title = command.title.replaceAll("Codex", "Azrael");
+    command.category = "Azrael";
   }
-  for (const editor of manifest.contributes.customEditors ?? []) editor.displayName = editor.displayName.replaceAll("Codex", "azrael");
+  for (const editor of manifest.contributes.customEditors ?? []) editor.displayName = editor.displayName.replaceAll("Codex", "Azrael");
+  for (const containers of Object.values(manifest.contributes.viewsContainers ?? {})) {
+    for (const container of containers) if (/^(?:Codex|azrael)$/.test(container.title)) container.title = "Azrael";
+  }
+  for (const views of Object.values(manifest.contributes.views ?? {})) {
+    for (const view of views) if (/^(?:Codex|azrael)$/.test(view.name)) view.name = "Azrael";
+  }
   for (const language of manifest.contributes.languages ?? []) {
     delete language.extensions; // Keep ordinary .rules file associations intact.
     language.aliases = ["azrael Rules"];
@@ -285,11 +299,12 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|["'`]Codex["'`]/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = rewriteJavaScript(source, filename, ts);
-  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(namespaced.text, filename, ts) :
-    isRecentThreadListAsset ? markRecentThreadListRequest(namespaced.text, filename, ts) :
-      { text: namespaced.text, count: 0 };
+  const accountSettings = injectAccountSettings(namespaced.text, relativePath);
+  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(accountSettings.text, filename, ts) :
+    isRecentThreadListAsset ? markRecentThreadListRequest(accountSettings.text, filename, ts) :
+      { text: accountSettings.text, count: 0 };
   const fetchResponse = isHostBundle ? injectFetchResponse(filtered.text) : { text: filtered.text, count: 0 };
   const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
@@ -311,10 +326,11 @@ function transformAsset(source, relativePath, filename, ts) {
   const fileOpenMenu = injectFileOpenMenu(urlSafety.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
-  if (namespaced.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
+  if (namespaced.count || accountSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
     return { text: localFileDrop.text, asset: {
       path: relativePath,
-      edits: namespaced.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
+      edits: namespaced.count + accountSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
+      accountSettingsEdits: accountSettings.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
@@ -346,7 +362,7 @@ function getTransformRules() {
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs",
     "inject-deferred-turn.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs",
-    "inject-provider-model-picker.cjs", "provider-model-picker.cjs",
+    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-account-settings.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
   ];

@@ -32,6 +32,12 @@ Switching is manual and scoped to the connected engine. Active or approval-waiti
 
 Execution leases follow actual core task lifetimes, including completion and child handoff, rather than delayed UI status events. A pending switch rejects new external work but lets existing tasks finish their child work, and tries the exclusive lease without queueing a writer to avoid parent/child deadlock. Realtime conversations and detached memory inference also hold execution leases.
 
+## Settings usage page
+
+Status: `partial`; source integration and lifecycle checks pass without building or installing the host. Installed UI behavior is unverified.
+
+The settings usage section renders the shared account and usage page inside the settings content area. The profile menu and command palette retain their standalone page entry. Both surfaces use the same account actions, expansion preferences, refresh coordinator and isolated engine state. Each embedded mount owns a scoped message subscription and releases it when leaving the section or closing the settings panel. Refresh runs while either surface is visible. Embedded styles stay inside a shadow root so account-page styles do not affect the settings navigation.
+
 ## Management connection recovery
 
 The pinned host's model catalog listens for native `account/updated` notifications. It invalidates the affected host's cached model list and requests fresh backend discovery. An account update during discovery schedules another refresh after the pending query finishes, so the picker updates without a manual refresh.

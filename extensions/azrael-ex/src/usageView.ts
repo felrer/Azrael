@@ -15,11 +15,21 @@ const EXPANSION_STATE = "azrael.usage.expandedAccounts";
 
 const PROVIDER_ACTIONS = new Set(["providerAdd", "providerSelect", "providerRemove", "providerReauth", "providerLoginCancel"]);
 
+interface EmbeddedTarget {
+  clientId: string;
+  panel?: vscode.WebviewPanel;
+  disposal?: vscode.Disposable;
+  visibility?: vscode.Disposable;
+}
+
 export class UsageView implements vscode.Disposable {
   private readonly resetCredits: ResetCreditService;
   private readonly ticketConfirming = new Set<string>();
   private readonly expanded = new Set<string>();
   private panel: vscode.WebviewPanel | undefined;
+  private readonly embedded = new Map<vscode.Webview, EmbeddedTarget>();
+  private listening = false;
+  private disposed = false;
   private timer: NodeJS.Timeout | undefined;
   private refreshing = false;
   private refreshQueued = false;
@@ -33,7 +43,7 @@ export class UsageView implements vscode.Disposable {
   private readonly providerQuotas = new Map<string, ProviderAccountQuota>();
   private readonly providerQuotaErrors = new Map<string, ProviderAccountQuota>();
   private providerGeneration = 0;
-  private readonly stateListener = () => { if (this.panel?.visible) { this.render(); if (!this.refreshing) void this.refresh(); } };
+  private readonly stateListener = () => { if (this.hasVisibleTarget()) { this.render(); if (!this.refreshing) void this.refresh(); } };
 
   constructor(
     private readonly service: AccountService,
@@ -55,25 +65,66 @@ export class UsageView implements vscode.Disposable {
         }
       } catch { /* Ignore malformed persisted state. */ }
     }
-    service.on("state", this.stateListener);
     this.providerSnapshot = providers?.snapshot;
   }
 
   show(): void {
+    if (this.disposed) return;
     if (!this.panel) {
       this.panel = vscode.window.createWebviewPanel("azrael.accounts", "계정 및 사용량", vscode.ViewColumn.Active, { enableScripts: true, retainContextWhenHidden: true });
       this.panel.webview.onDidReceiveMessage(message => { void this.onMessage(message); });
       this.panel.onDidChangeViewState(() => this.visibility());
-      this.panel.onDidDispose(() => { this.panel = undefined; this.stopTimer(); this.devinUsage.cancelRefresh(); });
+      this.panel.onDidDispose(() => { this.panel = undefined; this.visibility(); });
     }
     this.panel.reveal();
     this.render();
     this.visibility();
   }
 
+  async handleEmbedded(webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel): Promise<void> {
+    if (this.disposed || !webview || typeof webview.postMessage !== "function" || !isRecord(request)
+      || request.type !== "azrael-accounts" || typeof request.clientId !== "string"
+      || request.clientId.length === 0 || request.clientId.length > 128) return;
+    const previous = this.embedded.get(webview);
+    if (request.action === "mount") {
+      previous?.disposal?.dispose();
+      previous?.visibility?.dispose();
+      const target: EmbeddedTarget = { clientId: request.clientId, panel };
+      this.embedded.set(webview, target);
+      if (panel) {
+        target.disposal = panel.onDidDispose(() => this.removeEmbedded(webview, target));
+        target.visibility = panel.onDidChangeViewState(() => this.visibility());
+      }
+      this.render();
+      this.visibility();
+    } else if (previous?.clientId === request.clientId) {
+      if (request.action === "unmount") this.removeEmbedded(webview, previous);
+      else if (request.action === "action") await this.onMessage(request.message);
+    }
+  }
+
+  private removeEmbedded(webview: vscode.Webview, target: EmbeddedTarget): void {
+    if (this.embedded.get(webview) !== target) return;
+    this.embedded.delete(webview);
+    target.disposal?.dispose();
+    target.visibility?.dispose();
+    this.visibility();
+  }
+
+  private hasVisibleTarget(): boolean {
+    return !this.disposed && (!!this.panel?.visible || [...this.embedded.values()].some(target => target.panel?.visible !== false));
+  }
+
   dispose(): void {
+    this.disposed = true;
     this.service.off("state", this.stateListener);
+    this.listening = false;
     this.stopTimer();
+    for (const target of this.embedded.values()) {
+      target.disposal?.dispose();
+      target.visibility?.dispose();
+    }
+    this.embedded.clear();
     this.devinUsage.dispose();
     this.providers?.dispose();
     this.panel?.dispose();
@@ -82,13 +133,23 @@ export class UsageView implements vscode.Disposable {
   private stopTimer(): void { if (this.timer) clearInterval(this.timer); this.timer = undefined; }
 
   private visibility(): void {
-    this.stopTimer();
-    if (!this.panel?.visible) { this.devinUsage.cancelRefresh(); return; }
+    if (!this.hasVisibleTarget()) {
+      this.stopTimer();
+      if (this.listening) this.service.off("state", this.stateListener);
+      this.listening = false;
+      this.devinUsage.cancelRefresh();
+      return;
+    }
+    if (!this.listening) {
+      this.service.on("state", this.stateListener);
+      this.listening = true;
+    }
     void this.refresh();
-    this.timer = setInterval(() => { void this.refresh(); }, 60_000);
+    if (!this.timer) this.timer = setInterval(() => { void this.refresh(); }, 60_000);
   }
 
   private async refresh(force = false): Promise<void> {
+    if (!this.hasVisibleTarget()) return;
     if (this.refreshing) {
       this.refreshQueued = true;
       this.refreshQueuedForce ||= force;
@@ -105,7 +166,7 @@ export class UsageView implements vscode.Disposable {
       const queuedForce = this.refreshQueuedForce;
       this.refreshQueued = false;
       this.refreshQueuedForce = false;
-      if (queued && this.panel?.visible) void this.refresh(queuedForce);
+      if (queued && this.hasVisibleTarget()) void this.refresh(queuedForce);
     }
   }
 
@@ -308,8 +369,21 @@ export class UsageView implements vscode.Disposable {
   }
 
   private render(): void {
-    if (!this.panel) return;
-    const nonce = randomBytes(18).toString("base64");
+    if (this.disposed || (!this.panel && this.embedded.size === 0)) return;
+    const html = this.renderMarkup();
+    if (this.panel) {
+      const nonce = randomBytes(18).toString("base64");
+      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind});});</script></body></html>`;
+    }
+    for (const [webview, target] of this.embedded) {
+      try {
+        void Promise.resolve(webview.postMessage({ type: "azrael-accounts-html", clientId: target.clientId, html }))
+          .then(sent => { if (!sent) this.removeEmbedded(webview, target); }, () => this.removeEmbedded(webview, target));
+      } catch { this.removeEmbedded(webview, target); }
+    }
+  }
+
+  private renderMarkup(): string {
     const state = this.service.state;
     const openAICards = state?.profiles.map(profile => {
       const entry = this.usage.get(profile.id, profile.workspaceAccountId);
@@ -334,7 +408,7 @@ export class UsageView implements vscode.Disposable {
     const devinToggle = devin?.loggedIn && devin.email ? usageToggleHtml(devinExpanded, `data-kind="devin-cli" data-account="${escapeHtml(devin.email)}"`) : "";
     const devinActions = `<div class="card-actions"><button data-action="manageDevin">Devin CLI 로그인 관리</button><button class="text-button" data-action="devinBilling">Devin 사용량 열기 ↗</button></div>`;
     const devinCard = `<section class="card account-card${devinExpanded ? " expanded" : " collapsed"}"><div class="identity"><div class="account-heading">${devinToggle}<div class="account-name"><h2>${escapeHtml(devin?.email ?? "Devin CLI")}</h2>${devinExpanded ? `<p class="muted">CLI identity${devin?.plan ? ` · ${escapeHtml(devin.plan)}` : ""} · 관리형 Devin 계정과 별도</p>` : ""}</div></div>${devin?.loggedIn ? '<span class="badge">CLI 로그인됨</span>' : ""}</div>${devinExpanded ? `<div class="usage-details">${devinQuota ? `${quotaHtml(devinQuota.daily, "일일 한도")}${quotaHtml(devinQuota.weekly, "주간 한도")}<p class="muted updated">${this.devinError ? "이전 조회 값 · " : ""}마지막 갱신 ${escapeHtml(new Date(devinQuota.updatedAt).toLocaleString())}</p>` : `<p class="muted">${this.refreshing ? "CLI 사용량을 불러오는 중…" : devin?.enabled === false ? "Devin CLI 연결이 비활성화되어 있습니다." : "CLI 사용량을 가져오지 못했습니다."}</p>`}${this.devinError ? `<p class="error">${escapeHtml(this.devinError)}</p>` : ""}</div>` : ""}${devinExpanded || !devinToggle ? devinActions : ""}</section>`;
-    this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; script-src 'nonce-${nonce}';"><style>${usageStyles}</style></head><body><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정을 관리하고 계정별 한도를 확인합니다.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${escapeHtml(this.error)}</p>` : ""}<div class="provider"><span>OpenAI</span><span class="actions"><button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button></span></div>${openAIState}${openAICards || '<section class="card"><p class="muted">저장된 OpenAI 계정이 없습니다. 현재 엔진 계정을 저장하거나 계정을 추가하세요.</p></section>'}${managedSection}<div class="provider"><span>Devin CLI</span></div>${devinCard}</main><script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind});});</script></body></html>`;
+    return `<style>${usageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정을 관리하고 계정별 한도를 확인합니다.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${escapeHtml(this.error)}</p>` : ""}<div class="provider"><span>OpenAI</span><span class="actions"><button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button></span></div>${openAIState}${openAICards || '<section class="card"><p class="muted">저장된 OpenAI 계정이 없습니다. 현재 엔진 계정을 저장하거나 계정을 추가하세요.</p></section>'}${managedSection}<div class="provider"><span>Devin CLI</span></div>${devinCard}</main>`;
   }
 }
 

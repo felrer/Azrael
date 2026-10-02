@@ -193,7 +193,7 @@ try {
         if ($slot[$key] -cne 'Codex') {
             throw "Pinned manifest branding slot '$key' no longer contains Codex."
         }
-        $slot[$key] = 'azrael'
+        $slot[$key] = 'Azrael'
     }
     $manifest | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $stagedPackagePath -Encoding utf8NoBOM
 
@@ -203,7 +203,7 @@ try {
     if ($matches -ne 1) {
         throw "Pinned webview branding token count mismatch: expected 1, found $matches."
     }
-    [IO.File]::WriteAllText($stagedScriptPath, $scriptText.Replace($needle, 'qOt=`azrael`'), [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($stagedScriptPath, $scriptText.Replace($needle, 'qOt=`Azrael`'), [Text.UTF8Encoding]::new($false))
     Set-AccountMenuEntry -Destination $stage
     Set-StartupNoticesDismissed -Destination $stage
 

@@ -21,12 +21,12 @@
       "azraelViewContainer": [{ "type": "webview", "id": "azrael.chat", "name": "Chat" }]
     },
     "configuration": {
-      "title": "azrael Shared Environment",
+      "title": "Azrael Shared Environment",
       "properties": {
         "azrael.sharedEnvironment.repository": {
           "type": "string",
           "default": "",
-          "description": "Git URL or local path of the shared azrael environment repository."
+          "description": "Git URL or local path of the shared Azrael environment repository."
         },
         "azrael.sharedEnvironment.ref": {
           "type": "string",
@@ -45,57 +45,57 @@
       {
         "command": "azrael.openSidebar",
         "title": "Open Azrael Chat",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.rootResume",
         "title": "루트 재개 예약",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.usage",
         "title": "계정 및 사용량",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.devinAccount",
         "title": "계정 및 사용량 열기 (Devin)",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.manageAccounts",
         "title": "계정 및 사용량 관리",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.accountQuickPick",
         "title": "Switch OpenAI Account",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.refreshAccounts",
         "title": "Refresh OpenAI Accounts",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.openCodex",
-        "title": "Open azrael Sidebar",
-        "category": "azrael"
+        "title": "Open Azrael Sidebar",
+        "category": "Azrael"
       },
       {
         "command": "azrael.openCodexSettings",
-        "title": "Open azrael Settings",
-        "category": "azrael"
+        "title": "Open Azrael Settings",
+        "category": "Azrael"
       },
       {
         "command": "azrael.syncSharedEnvironment",
         "title": "Sync Shared Environment",
-        "category": "azrael"
+        "category": "Azrael"
       },
       {
         "command": "azrael.fetchSharedPlaybook",
         "title": "Fetch Shared Playbook",
-        "category": "azrael"
+        "category": "Azrael"
       }
     ]
   },
