@@ -3,13 +3,14 @@ export const ACCOUNT_UPDATED_METHOD = "azrael/account/updated";
 
 export type AccountAction =
   | "list" | "captureCurrent" | "loginStart" | "loginCancel"
-  | "remove" | "switch" | "cancelSwitch" | "usage";
+  | "remove" | "switch" | "cancelSwitch" | "usage" | "consumeResetCredit";
 
 export interface AccountParams {
   action: AccountAction;
   profileId?: string;
   loginId?: string;
   includeDetails?: boolean;
+  idempotencyKey?: string;
 }
 
 export interface AccountProfile {
@@ -78,7 +79,10 @@ export interface AccountResponse {
   login: { loginId: string; authUrl: string } | null;
   usage: AccountUsage | null;
   usageProfileId: string | null;
+  resetCreditOutcome?: ResetCreditOutcome;
 }
+
+export type ResetCreditOutcome = "reset" | "nothingToReset" | "noCredit" | "alreadyRedeemed";
 
 export interface ConnectedNotice {
   codexHome: string;
@@ -112,6 +116,9 @@ export function parseAccountResponse(value: unknown): AccountResponse {
   }
   if (value.usageProfileId !== null && value.usageProfileId !== undefined && !isProfileId(value.usageProfileId)) {
     throw new Error("invalid usage profile identity");
+  }
+  if (value.resetCreditOutcome !== undefined && !["reset", "nothingToReset", "noCredit", "alreadyRedeemed"].includes(String(value.resetCreditOutcome))) {
+    throw new Error("invalid reset credit outcome");
   }
   return value as unknown as AccountResponse;
 }

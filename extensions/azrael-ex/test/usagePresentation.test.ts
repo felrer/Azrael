@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AccountUsage, RateLimitSnapshot, RateLimitWindow } from "../src/protocol";
-import { escapeHtml, openAIUsageHtml, quotaHtml, resetText, visibleLimits } from "../src/usagePresentation";
+import { escapeHtml, openAIUsageHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml } from "../src/usagePresentation";
 
 function window(usedPercent: number, windowDurationMins: number | null = 300, resetsAt: number | null = null): RateLimitWindow {
   return { usedPercent, windowDurationMins, resetsAt };
@@ -90,4 +90,13 @@ test("usage HTML escapes backend content and preserves a real zero ticket count"
   assert.match(html, /&lt;script data-x=&quot;limit&quot;&gt;bad&lt;\/script&gt;/);
   assert.match(html, /A&amp;B&#39;s &lt;ticket&gt;/);
   assert.equal(escapeHtml('&<>"\''), "&amp;&lt;&gt;&quot;&#39;");
+});
+
+
+test("usage identity keys separate provider namespaces, workspaces and delimiter characters", () => {
+  assert.notEqual(usageExpansionKey("openai", "a", "w"), usageExpansionKey("provider", "a", "w"));
+  assert.notEqual(usageExpansionKey("openai", "a", "w1"), usageExpansionKey("openai", "a", "w2"));
+  assert.notEqual(usageExpansionKey("provider", "a\u0000b", "c"), usageExpansionKey("provider", "a", "b\u0000c"));
+  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /aria-expanded="false".*사용량 펼치기/);
+  assert.match(usageToggleHtml(true, 'data-profile="safe"'), /aria-expanded="true".*사용량 접기/);
 });

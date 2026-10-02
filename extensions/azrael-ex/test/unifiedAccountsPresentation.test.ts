@@ -116,3 +116,16 @@ test("a failed refresh labels and preserves the previous successful provider quo
   assert.match(html, /최신 한도 조회 실패 · temporarily unavailable/);
   assert.match(html, /실패 출처 live probe/);
 });
+
+
+test("provider usage disclosure defaults collapsed and keeps identity actions visible", () => {
+  const quota: ProviderAccountQuota = { providerId: provider.id, accountId: provider.accounts[0].id, status: "ok", source: "probe", observedAt: 1, rows: [{ label: "Private quota", remaining: 8 }] };
+  const collapsed = providerAccountHtml(provider, provider.accounts[0], quota);
+  assert.match(collapsed, /aria-expanded="false"/);
+  assert.match(collapsed, /사용량 펼치기/);
+  assert.doesNotMatch(collapsed, /Private quota|출처 probe/);
+  assert.match(collapsed, /A&amp;B|providerReauth|providerRemove/);
+  const expanded = providerAccountHtml(provider, provider.accounts[0], quota, undefined, true);
+  assert.match(expanded, /aria-expanded="true"/);
+  assert.match(expanded, /사용량 접기|Private quota|8 남음/);
+});

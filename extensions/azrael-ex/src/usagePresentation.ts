@@ -5,6 +5,14 @@ export function escapeHtml(value: unknown): string {
   return String(value).replace(/[&<>"']/g, char => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[char]!));
 }
 
+export function usageExpansionKey(kind: "openai" | "provider" | "devin-cli", account: string, workspace?: string): string {
+  return JSON.stringify(workspace === undefined ? [kind, account] : [kind, account, workspace]);
+}
+
+export function usageToggleHtml(expanded: boolean, attributes: string): string {
+  return `<button class="usage-toggle" data-action="toggleUsage" aria-expanded="${expanded}" ${attributes}>${expanded ? "사용량 접기" : "사용량 펼치기"}</button>`;
+}
+
 export function visibleLimits(usage: AccountUsage): RateLimitSnapshot[] {
   const entries = Object.entries(usage.rateLimitsByLimitId ?? { default: usage.rateLimits });
   return entries.filter(([key, limit]) => ![key, limit.limitId, limit.limitName, limit.normalModelSlug]
@@ -71,12 +79,12 @@ export function providerQuotaHtml(quota: ProviderAccountQuota | undefined, lates
   return `${quota.rows.length ? quota.rows.map(providerQuotaRowHtml).join("") : '<p class="muted">제공된 한도 항목이 없습니다.</p>'}${observation}${failure}`;
 }
 
-export function providerAccountHtml(provider: ManagedProvider, account: ProviderAccount, quota: ProviderAccountQuota | undefined, latestError?: ProviderAccountQuota): string {
+export function providerAccountHtml(provider: ManagedProvider, account: ProviderAccount, quota: ProviderAccountQuota | undefined, latestError?: ProviderAccountQuota, expanded = false): string {
   if (provider.authKind !== "oauth") return "";
   const chat = provider.inferenceConnected ? "채팅 연결 설정됨" : "채팅 미연결";
   const defaultLabel = provider.inferenceConnected ? "새 채팅 기본 계정" : "기본 계정";
   const authAction = `<button data-action="providerReauth" data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}">${account.needsReauth ? "다시 인증" : "재인증"}</button>`;
-  return `<section class="card provider-account"><div class="identity"><div><h2>${escapeHtml(account.label)}</h2><p class="muted">${escapeHtml(provider.label)} · ${escapeHtml(account.id)}</p></div><div class="badges">${account.selected ? `<span class="badge">${defaultLabel}</span>` : ""}<span class="badge${provider.inferenceConnected ? "" : " disconnected"}">${chat}</span></div></div>${providerQuotaHtml(quota, latestError)}<div class="card-actions">${account.selected ? "" : `<button data-action="providerSelect" data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}">${defaultLabel}으로 선택</button>`}${authAction}<button data-action="providerRemove" data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}">제거</button></div></section>`;
+  return `<section class="card provider-account"><div class="identity"><div><h2>${escapeHtml(account.label)}</h2><p class="muted">${escapeHtml(provider.label)} · ${escapeHtml(account.id)}</p></div><div class="badges">${account.selected ? `<span class="badge">${defaultLabel}</span>` : ""}<span class="badge${provider.inferenceConnected ? "" : " disconnected"}">${chat}</span></div></div>${usageToggleHtml(expanded, `data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}"`)}${expanded ? `<div class="usage-details">${providerQuotaHtml(quota, latestError)}</div>` : ""}<div class="card-actions">${account.selected ? "" : `<button data-action="providerSelect" data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}">${defaultLabel}으로 선택</button>`}${authAction}<button data-action="providerRemove" data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}">제거</button></div></section>`;
 }
 
 export const usageStyles = `

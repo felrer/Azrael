@@ -92,7 +92,7 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     prompt: async (prompt, password) => vscode.window.showInputBox({ prompt, password, ignoreFocusOut: true }),
     log: event => providerLog.info(JSON.stringify(event)),
   });
-  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view);
+  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view, context.globalState);
   const rootResumeView = new RootResumeView(service);
   view.initialize();
   context.subscriptions.push(view, usageView, rootResumeView, { dispose: () => service?.dispose() });
