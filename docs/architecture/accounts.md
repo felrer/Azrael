@@ -30,7 +30,15 @@ A profile held by another window's lease cannot be removed: removal reports that
 
 Switching is manual and scoped to the connected engine. Active or approval-waiting turns defer a switch without cancelling work; pending switches are visible and cancelable. A switch atomically blocks new turn admission and verifies idle, validates target authentication, refreshes account-dependent native state, verifies the actual identity, then emits native account events and resumes admission. A failed switch keeps or restores the previous identity; uncertain recovery blocks new work. Account changes propagate to official host/cloud authentication as well as local model requests.
 
-Execution leases follow actual core task lifetimes, including completion and child handoff, rather than delayed UI status events. A pending switch rejects new external work but lets existing tasks finish their child work, and tries the exclusive lease without queueing a writer to avoid parent/child deadlock. Realtime conversations and detached memory inference also hold execution leases.
+Execution leases follow actual core task lifetimes, including completion and child handoff, rather than delayed UI status events. Existing tasks finish their child work, and a switch tries the exclusive lease without queueing a writer to avoid parent/child deadlock. Realtime conversations and detached memory inference also hold execution leases.
+
+### Input during an OpenAI account change
+
+Status: `partial`; pinned-host source tests verify composer and receipt routing. Native Rust admission and wakeup changes are implemented but uncompiled; installed-host acceptance is pending.
+
+While a switch is pending, ordinary composer input enters the existing durable thread queue, including input on an idle thread. Automatic dispatch waits until the switch finishes or is cancelled. A pre-dispatch account-admission rejection carries a dedicated structured marker so the host can enqueue the original input without treating an uncertain delivery as rejection. Account-state query failures remain errors and do not authorize use of the previous account.
+
+The queue's explicit send-now action can acquire shared account admission while the switch is waiting for idle, pinning the current account through submission and execution. It cannot enter an exclusive account commit or failed account recovery. A reopened admission wakes eligible loaded queues without overriding an interrupted or deferred thread's pause. Stopping a parked root cancels its reservation and publishes interruption while preserving child work and recorded tool results.
 
 ## Settings usage page
 

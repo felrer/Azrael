@@ -102,6 +102,18 @@ globalThis.fetch = async url => {
       message: 'Your limit will reset in 13 minutes' }),
       { headers: { 'content-type': 'application/connect+proto' } });
   }
+  if (mode === 'trailer_precondition_usage' || mode === 'http_precondition_usage') {
+    const error = { code: 'failed_precondition',
+      message: 'Your limit will reset in 13 minutes (cloud trace ID: 0123456789abcdef)' };
+    return mode === 'http_precondition_usage'
+      ? new Response(JSON.stringify({ error }), { status: 400 })
+      : new Response(eosBody(error), { headers: { 'content-type': 'application/connect+proto' } });
+  }
+  if (mode === 'trailer_precondition_generic') {
+    return new Response(eosBody({ code: 'failed_precondition',
+      message: 'Unable to process request due to an MCP configuration issue.' }),
+      { headers: { 'content-type': 'application/connect+proto' } });
+  }
   if (mode === 'trailer_resource_exhausted') {
     return new Response(eosBody({ code: 'resource_exhausted',
       message: 'synthetic generic exhaustion' }),

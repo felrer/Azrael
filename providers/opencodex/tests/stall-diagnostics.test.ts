@@ -52,6 +52,14 @@ test('actual inference mock records upstream SSE failure and owns deadline class
     saveConfig(config);
     await saveCredential('anthropic', { access: 'SECRET_ACCESS', refresh: 'SECRET_REFRESH', expires: Date.now() + 3600_000, accountId: 'SECRET_ACCOUNT' });
     const request = () => ({ type: 'request', protocol_version: 1, request_id: 'fixture', thread_id: 'stall-thread', turn_id: 'turn-' + count++, provider_id: 'anthropic', model: 'claude-sonnet-4-6', instructions: 'SECRET_PROMPT', input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: 'SECRET_INPUT' }] }], tools: [], parallel_tool_calls: true });
+    for (const stream of [false, true]) {
+      const frames: any[] = [];
+      const error = { type: 'usage_limit_reached', message: 'PRIVATE_QUOTA_MESSAGE' };
+      const fetcher = (async () => stream ? new Response(wire({ type: 'error', error })) : Response.json({ error }, { status: 400 })) as typeof fetch;
+      await expect(infer(request(), frame => frames.push(frame), fetcher)).rejects.toThrow('provider_usage_limit');
+      expect(frames.some(frame => frame.type === 'completed' || frame.type === 'item_done')).toBeFalse();
+      expect(JSON.stringify(frames)).not.toContain('PRIVATE_QUOTA_MESSAGE');
+    }
     const preHeaderFrames: any[] = [];
     let releaseHeaders: (response: Response) => void;
     const preHeaderProgress = createProgressMonitor(frame => preHeaderFrames.push(frame), { transportEnabled: true, intervalMs: 10 });

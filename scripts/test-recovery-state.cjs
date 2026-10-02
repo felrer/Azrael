@@ -9,6 +9,91 @@ const continuation = (threadId = "thread-1", text = "continue") => ({
   input: [{ type: "text", text }],
 });
 
+for (const status of ["completed", "interrupted", "failed"]) {
+  test(`persisted uncertain delivery reconciles ${status} by identity without replay`, async () => {
+    const store = memoryStore(), calls = [];
+    const params = { ...continuation("restart-identity"), clientUserMessageId: "saved-client" };
+    const unavailable = new RecoveryState({ store, rpc: async (method) => {
+      if (method === "thread/read") return { thread: { status: { type: "idle" } } };
+      if (method === "thread/turns/list") return { data: [] };
+      throw new Error("lost acknowledgement");
+    } });
+    await assert.rejects(unavailable.start(params), /lost acknowledgement/);
+    assert.equal(store.updates.at(-1)[0].clientUserMessageId, "saved-client");
+    const turn = { id: "accepted-before-reload", status,
+      items: [{ type: "userMessage", clientId: "saved-client" }] };
+    const restored = new RecoveryState({ store, rpc: async (method, p) => {
+      calls.push(method);
+      if (method === "thread/read") return { thread: { status: { type: "idle" } } };
+      assert.equal(method, "thread/turns/list");
+      if (p.itemsView === "full") { assert.equal(p.limit, 20); return { data: [turn] }; }
+      return { data: [{ id: turn.id, status }] };
+    } });
+    assert.deepEqual(await restored.start(params), { turn });
+    assert.equal(store.updates.at(-1)[0].phase, "finished");
+    assert.equal(restored.list()[0].uncertain, false);
+    assert.equal(calls.includes("turn/start"), false);
+  });
+}
+
+for (const scenario of ["wrong_client", "wrong_item", "malformed", "inProgress", "read_failure", "disconnect", "storage_failure"]) {
+  test(`persisted reconciliation preserves guard on ${scenario}`, async () => {
+    const store = memoryStore([{ threadId: "unresolved", operationId: "old-op", phase: "unknown",
+      turnId: null, clientUserMessageId: "exact-client" }]);
+    const calls = [];
+    let state;
+    state = new RecoveryState({ store, rpc: async (method, p) => {
+      calls.push(method);
+      if (method === "thread/read") return { thread: { status: { type: "idle" } } };
+      assert.equal(method, "thread/turns/list");
+      if (p.itemsView !== "full") return { data: [] };
+      if (scenario === "read_failure") throw new Error("read failure");
+      if (scenario === "disconnect") state.disconnect();
+      if (scenario === "malformed") return { data: {} };
+      return { data: [{ id: "candidate", status: scenario === "inProgress" ? "inProgress" : "completed",
+        items: [{ type: scenario === "wrong_item" ? "agentMessage" : "userMessage",
+          clientId: scenario === "wrong_client" ? "different-client" : "exact-client" }] }] };
+    } });
+    if (scenario === "storage_failure") store.update = async () => { throw new Error("disk full"); };
+    await assert.rejects(state.start(continuation("unresolved")));
+    assert.equal(state.list()[0].uncertain, true);
+    assert.equal(calls.includes("turn/start"), false);
+  });
+}
+
+test("legacy unknown receipt admits exactly one explicitly reviewed new continuation", async () => {
+  const calls = [], store = memoryStore([{ threadId: "legacy", operationId: "old-op",
+    phase: "unknown", turnId: null }]);
+  const state = new RecoveryState({ store, rpc: idleSnapshotRpc(calls) });
+  await assert.rejects(state.start(continuation("legacy")), /Ctrl\+Shift\+P/);
+  assert.equal(calls.filter(c => c.method === "turn/start").length, 0);
+  await state.recover("legacy", true);
+  assert.equal(calls.filter(c => c.method === "turn/start").length, 1);
+  assert.equal(store.updates.at(-1)[0].phase, "accepted");
+});
+
+test("account pre-dispatch rejection does not poison continuation across reload", async () => {
+  const store = memoryStore(), calls = [];
+  const rejection = Object.assign(new Error("pending"), {
+    rpcError: { code: -32603, data: { azraelAdmission: "accountChangePending" } },
+  });
+  let pending = true;
+  const rpc = async (method, params) => {
+    calls.push(method);
+    if (method === "thread/read") return { thread: { id: params.threadId, status: { type: "idle" } } };
+    if (method === "thread/turns/list") return { data: [{ id: "old", status: "interrupted" }] };
+    if (method === "turn/start") { if (pending) throw rejection; return { turn: { id: "new", status: "inProgress" } }; }
+    throw Error("Unexpected method");
+  };
+  const first = new RecoveryState({ store, rpc });
+  await assert.rejects(first.start(continuation("thread-account")), e => e === rejection);
+  assert.equal(store.updates.at(-1)[0].phase, "finished");
+  pending = false;
+  const reloaded = new RecoveryState({ store, rpc });
+  assert.equal((await reloaded.start(continuation("thread-account"))).turn.id, "new");
+  assert.equal(calls.filter(method => method === "turn/start").length, 2);
+});
+
 for (const continuing of [false, true]) {
   for (const scenario of ["delayed_items", "attempt_cap", "deadline", "generation_during_pause", "read_failure_after_empty"]) {
     test(`${continuing ? "continuation" : "ordinary"} bounded history visibility polling ${scenario}`, async () => {
@@ -253,6 +338,78 @@ test("concurrent native thread resume requests share one RPC", async () => {
   assert.equal(calls.filter(call => call.method === "thread/resume").length, 1);
 });
 
+for (const method of ["turn/start", "turn/steer"]) {
+  test(`${method} waits for pending recovery without overtaking its admission`, async () => {
+    const calls = [];
+    let release, entered;
+    const gate = new Promise(resolve => { release = resolve; });
+    const ready = new Promise(resolve => { entered = resolve; });
+    const baseRpc = idleSnapshotRpc(calls);
+    const state = new RecoveryState({ store: memoryStore(), rpc: async (name, params) => {
+      if (name === "thread/resume") {
+        calls.push({ method: name, params }); entered(); await gate;
+        return { thread: { id: params.threadId } };
+      }
+      if (name === "turn/steer") { calls.push({ method: name, params }); return { turnId: "turn-live" }; }
+      return baseRpc(name, params);
+    } });
+    const resume = state.resume({ threadId: "ordered" });
+    const params = { threadId: "ordered", clientUserMessageId: "new-input", expectedTurnId: "turn-live",
+      input: [{ type: "text", text: "new instruction" }] };
+    const input = method === "turn/start" ? state.start(params) : state.steer(params);
+    await ready;
+    assert.deepEqual(calls.map(call => call.method), ["thread/resume"]);
+    release(); await Promise.all([resume, input]);
+    assert.equal(calls.filter(call => call.method === method).length, 1);
+    assert.ok(calls.findIndex(call => call.method === method) > calls.findIndex(call => call.method === "thread/turns/list"));
+  });
+
+  test(`${method} preserves pending-recovery failure without dispatching input`, async () => {
+    const calls = [], error = Object.assign(Error("resume rejected"), { rpcError: { code: -32603, message: "resume rejected" } });
+    const state = new RecoveryState({ store: memoryStore(), rpc: async name => { calls.push(name); throw error; } });
+    const resume = state.resume({ threadId: "resume-failure" });
+    const params = { threadId: "resume-failure", input: [{ type: "text", text: "new instruction" }] };
+    const input = method === "turn/start" ? state.start(params) : state.steer(params);
+    await Promise.all([assert.rejects(resume, e => e === error), assert.rejects(input, e => e === error)]);
+    assert.deepEqual(calls, ["thread/resume"]);
+  });
+}
+
+test("distinct steering inputs remain ordered while another thread can proceed", async () => {
+  const calls = [];
+  let release, entered;
+  const gate = new Promise(resolve => { release = resolve; });
+  const ready = new Promise(resolve => { entered = resolve; });
+  const state = new RecoveryState({ store: memoryStore(), rpc: async (method, params) => {
+    calls.push({ method, params });
+    if (params.clientUserMessageId === "first") { entered(); await gate; }
+    return { turnId: params.threadId };
+  } });
+  const request = id => ({ threadId: "same", expectedTurnId: "live", clientUserMessageId: id,
+    input: [{ type: "text", text: "same text" }] });
+  const first = state.steer(request("first")), second = state.steer(request("second"));
+  await ready;
+  await state.steer({ ...request("independent"), threadId: "other" });
+  assert.deepEqual(calls.map(call => call.params.clientUserMessageId), ["first", "independent"]);
+  release(); await Promise.all([first, second]);
+  assert.deepEqual(calls.map(call => call.params.clientUserMessageId), ["first", "independent", "second"]);
+});
+
+test("steering queued against a disconnected generation is not replayed", async () => {
+  let release, entered;
+  const gate = new Promise(resolve => { release = resolve; });
+  const ready = new Promise(resolve => { entered = resolve; });
+  const calls = [];
+  const state = new RecoveryState({ store: memoryStore(), rpc: async (method, params) => {
+    calls.push(params.clientUserMessageId); entered(); await gate; return { turnId: "live" };
+  } });
+  const first = state.steer({ threadId: "disconnect", clientUserMessageId: "first" });
+  const second = state.steer({ threadId: "disconnect", clientUserMessageId: "second" });
+  const rejected = assert.rejects(second, /연결이 변경/);
+  await ready; state.disconnect(); release(); await first; await rejected;
+  assert.deepEqual(calls, ["first"]);
+});
+
 test("continuation attaches to an active turn without adding input", async () => {
   const calls = [];
   const rpc = async (method, params) => {
@@ -491,7 +648,40 @@ const timeoutMessages = [
 const terminalErrors = [
   { name: "timeout", error: { codexErrorInfo: "other", message: timeoutMessages[2] } },
   { name: "quota", error: { codexErrorInfo: "usageLimitExceeded", message: "Usage limit reached" } },
+  { name: "provider-rejection", error: { codexErrorInfo: "other",
+    message: "미분류 오류: native inference helper failed (provider_http_400)" } },
 ];
+
+for (const text of [null, "continue", "계속"]) {
+  test(`historical provider rejection admits ${text ?? "empty play"} without asserting quota`, async () => {
+    const calls = [], records = [];
+    const state = new RecoveryState({ store: memoryStore(), log: record => records.push(record),
+      rpc: systemErrorRpc(calls, { error: terminalErrors[2].error }) });
+    const params = text === null ? { threadId: "thread-rejection", input: [] } : continuation("thread-rejection", text);
+    const results = await Promise.all([state.start({ ...params, model: "current-model" }),
+      state.start({ ...params, model: "current-model" })]);
+    assert.equal(results[0].turn.id, results[1].turn.id);
+    const starts = calls.filter(call => call.method === "turn/start");
+    assert.equal(starts.length, 1);
+    assert.equal(starts[0].params.model, "current-model");
+    assert.deepEqual(starts[0].params.input, [{ type: "text", text: text ?? "continue" }]);
+    assert.equal(records.find(record => record.event === "recovery.admission").errorKind, "provider_request_rejected");
+    assert.equal(JSON.stringify(records).includes(terminalErrors[2].error.message), false);
+  });
+}
+
+for (const message of ["native inference helper failed (provider_http_400)",
+  "미분류 오류: native inference helper failed (provider_http_400) extra",
+  'docs say "미분류 오류: native inference helper failed (provider_http_400)"',
+  "미분류 오류: native inference helper failed (provider_http_403)"]) {
+  test(`provider rejection lookalike stays blocked: ${message}`, async () => {
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(),
+      rpc: systemErrorRpc(calls, { error: { codexErrorInfo: "other", message } }) });
+    await assert.rejects(state.start({ threadId: "thread-rejection-other", input: [] }), /엔진 상태를 확인/);
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+}
 
 for (const message of [undefined, "Usage limit reached", "unrelated private engine text", timeoutMessages[0]]) {
   for (const text of [null, "continue", "계속"]) {

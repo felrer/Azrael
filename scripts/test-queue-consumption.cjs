@@ -25,15 +25,18 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
   assert.ok(expression, "pinned coordinator class expression exists");
   class Disposable { constructor(fn) { this.dispose = fn; } }
   const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "Okn");
-  const submissionContext = { ZQ: class extends Error {} };
+  class Cancelled extends Error {}
+  class DeliveryError extends Error { constructor(stage) { super(`delivery ${stage}`); this.delivery = { stage }; } }
+  const submissionContext = { ZQ: Cancelled };
   const Okn = vm.runInNewContext(`(${source.slice(submissionFactory.getStart(ast), submissionFactory.end)})`, submissionContext);
   const Coordinator = vm.runInNewContext(`(${source.slice(expression.getStart(ast), expression.end)})`, {
     aJ: class {}, Okn, Ye: () => { const disposables = []; return { u: x => disposables.push(x), d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; }, xX: Disposable, mt: () => ({ u() {}, d() {} }), H: x => x, $Q: [], I6t: () => {}, mt: () => false,
-    jkn: "submission-outcome-unknown", de: class extends Error {}, QQ: { default: (x,y) => JSON.stringify(x)===JSON.stringify(y) }, Dn: class extends Error {}, ZQ: class extends Error {}, Ae: class extends Error {}, dkn: () => false,
+    jkn: "submission-outcome-unknown", de: DeliveryError, QQ: { default: (x,y) => JSON.stringify(x)===JSON.stringify(y) }, Dn: class extends Error {}, ZQ: Cancelled, Ae: class extends Error {}, dkn: () => false,
+    Akn: { default: value => value }, xt: () => { let resolve, reject; const promise = new Promise((a,b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; },
     d: () => { const disposables = []; return { u: x => disposables.push(x), d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; },
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
-  let sendFailure, activeTurn = null, ready = false, canSend = true;
+  let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
   const writes = [], loads = [], events = [], sends = [], warnings = [], blockedLocks = new Set();
   const execution = {
     subscribe: handlers => { callbacks = handlers; return () => events.push("execution-disposed"); },
@@ -45,11 +48,11 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     prepare: async (thread, item) => ({ status: "ready", submission: { conversationId: thread, resume: { conversationId: thread }, start: { id: item.id }, steer: { id: item.id } } }),
   };
   const queue = new Coordinator({
-    hostId: "local-host", wasMessageAccepted: (_thread, id) => history.has(id), execution: () => execution, getStreamRole: () => role, canSend: () => canSend, isDurableThread: () => false, getMessageQueueMode: () => "steer",
+    hostId: "local-host", createMessageThreadId: () => null, wasMessageAccepted: (_thread, id) => history.has(id), execution: () => execution, getStreamRole: () => role, canSend: () => canSend, isDurableThread: () => false, getMessageQueueMode: () => queueMode,
     storage: {
       read: () => ({ isLoading: false, value: state }),
       load: () => new Promise(resolve => loads.push({ resolve })),
-      update: transform => new Promise((resolve, reject) => writes.push({ transform, resolve: () => { state = transform(state); events.push("storage-committed"); resolve(); }, reject })),
+      update: transform => new Promise((resolve, reject) => writes.push({ transform, messages: queue.readMessages("thread"), resolve: () => { state = transform(state); events.push("storage-committed"); resolve(); }, reject })),
     },
     coordination: { registerBroadcastHandler: handler => { broadcastHandler = handler; return () => events.push("broadcast-disposed"); }, broadcast: async () => {} },
     logger: { error: (...args) => warnings.push(args), warning: (...args) => warnings.push(args) },
@@ -61,7 +64,13 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     },
   });
   return {
-    queue, writes, loads, events, sends, warnings, blockedLocks,
+    queue, writes, loads, events, sends, warnings, blockedLocks, DeliveryError,
+    submit: (item, editPosition) => queue.sendMessage({ conversationId: "thread", message: item, acceptLocally: true, editPosition }, async request => {
+      await prepareHook?.(); if (prepareFailure) throw prepareFailure;
+      return { conversationId: "thread", resume: { conversationId: "thread" }, start: { id: request.message.id }, steer: { id: request.message.id } };
+    }, added => { if (added.locallyAccepted) events.push("locally-accepted"); }),
+    flushLoads: () => { for (const load of loads) if (!load.finished) { load.finished = true; load.resolve(state); } },
+    setPrepareFailure: value => { prepareFailure = value; }, setPrepareHook: value => { prepareHook = value; }, setQueueMode: value => { queueMode = value; },
     send: (id = "accepted", thread = "thread") => queue.sendQueuedMessageNow(thread, id, {}, async request => ({ conversationId: thread, resume: { conversationId: thread }, start: { id: request.message.id }, steer: { id: request.message.id } })),
     changed: () => callbacks.changed(), completed: () => callbacks.turnCompleted({ conversationId: "thread", status: "completed" }), setRole: value => { role = value; },
     broadcast: (items, thread = "thread") => broadcastHandler({ params: { conversationId: thread, messages: items }, sourceClientId: "owner-client" }),
@@ -182,6 +191,8 @@ test("injection is idempotent and fails closed for absent, repeated, and partial
   assert.throws(() => injectQueueConsumption(patched + QUEUE_CONSUMPTION_MARKER), /Duplicate/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelConsume", "async brokenConsume")), /Partial/);
   assert.throws(() => injectQueueConsumption(original.replace("Mkn=class extends aJ{", "Mkn=class extends aJ{/*azrael-queue-consumption-v1*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(original.replace("Mkn=class extends aJ{", "Mkn=class extends aJ{/*azrael-queue-consumption-v2*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(patched.replace("async __azraelCompleteQueued", "async brokenCompleteQueued")), /Partial/);
 });
 
 
@@ -307,5 +318,96 @@ test("native serverAccepted result registers local receipt and awaits persisted 
   const stale = [localMessage("accepted"), message("same-text-new-id")];
   f.setState({ thread: stale }); f.loads[0].resolve({ thread: stale }); await tick();
   assert.deepEqual(ids(f.queue.readMessages("thread")), ["same-text-new-id"]);
+  f.queue.dispose();
+});
+
+// Drive only storage adapters; submission and admission decisions execute Mkn/Okn.
+async function settleSubmission(f, submission, writeFailure) {
+  let completed = false, result, failure, written = 0;
+  submission.then(value => { result = value; completed = true; }, error => { failure = error; completed = true; });
+  for (let step = 0; step < 40 && !completed; step++) {
+    await tick(); f.flushLoads();
+    while (written < f.writes.length) {
+      const index = written++, write = f.writes[index], error = writeFailure?.(write, index);
+      error == null ? write.resolve() : write.reject(error);
+    }
+  }
+  assert.ok(completed, "original composer submission settles after local queue admission");
+  if (failure) throw failure;
+  return result;
+}
+
+const richMessage = () => ({ id: "local-input", text: "keep this draft", context: { attachments: [{ id: "image", mimeType: "image/png" }], selectedText: "context" }, submissionOptions: { model: "selected-model" } });
+const pausedNext = () => ({ ...message("next"), pausedReason: "wait for user" });
+
+function assertLocalCustody(f, item, status, pausedReason) {
+  const queued = f.queue.readMessages("thread");
+  assert.deepEqual(ids(queued), [item.id, "next"]);
+  assert.equal(queued[0].text, item.text);
+  assert.deepEqual(Object.fromEntries(Object.entries(queued[0].context).filter(([, value]) => value !== undefined)), item.context);
+  assert.deepEqual(queued[0].submissionOptions, item.submissionOptions);
+  assert.equal(queued[0].submission.status, status);
+  assert.equal(queued[0].pausedReason, pausedReason);
+  assert.equal(f.events.filter(event => event === "locally-accepted").length, 1);
+  assert.equal(f.queue.accepted.size, 0, "completed locally accepted handle is released");
+}
+
+for (const kind of ["prepare", "not-sent", "outcome-unknown"]) {
+  test(`actual acceptLocally ${kind} failure resolves queued and preserves original custody`, async () => {
+    const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
+    if (kind === "prepare") f.setPrepareFailure(new Error("preparation rejected"));
+    else f.setFailure(kind === "not-sent" ? new f.DeliveryError("not-sent") : new Error("host acknowledgement lost"));
+    const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));
+    assert.equal(result.status, "queued"); assert.equal(result.messageId, item.id);
+    assertLocalCustody(f, item, kind === "outcome-unknown" ? "outcome-unknown" : "queued", kind === "prepare" ? "preparation rejected" : kind === "not-sent" ? "delivery not-sent" : "submission-outcome-unknown");
+    assert.deepEqual(f.sends, kind === "prepare" ? [] : [item.id]);
+    const sends = [...f.sends]; f.changed(); f.completed(); await tick();
+    assert.deepEqual(f.sends, sends, "paused or uncertain input is not automatically replayed");
+    f.queue.dispose();
+  });
+}
+
+test("actual acceptLocally ZQ cancellation settles queued without dispatch or duplicate payload", async () => {
+  const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
+  f.setPrepareHook(() => f.setReady(false));
+  const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));
+  assert.equal(result.status, "queued"); assert.equal(result.messageId, item.id);
+  assertLocalCustody(f, item, "queued", undefined); assert.deepEqual(f.sends, []);
+  f.queue.dispose();
+});
+
+test("actual acceptLocally queue deferral keeps the edited queue position", async () => {
+  const f = fixture(patched, [pausedNext()]), item = richMessage();
+  f.setReady(true); f.setActive("active-turn"); f.setQueueMode("queue");
+  const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));
+  assert.equal(result.status, "queued"); assert.equal(result.messageId, item.id);
+  assertLocalCustody(f, item, "queued", undefined); assert.deepEqual(f.sends, []);
+  f.queue.dispose();
+});
+
+test("actual acceptLocally failure before initial persistence rejects without local acceptance", async () => {
+  const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
+  await assert.rejects(settleSubmission(f, f.submit(item), write => write.messages.some(message => message.id === item.id && message.submission?.status === "pending") ? new Error("initial persistence failed") : null), /initial persistence failed/);
+  assert.ok(!f.events.includes("locally-accepted")); assert.deepEqual(f.sends, []);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), ["next"]); assert.equal(f.queue.accepted.size, 0);
+  f.queue.dispose();
+});
+
+test("explicit metadata send-now failure still rejects and leaves a paused queued item", async () => {
+  const f = fixture(patched, [localMessage("accepted"), message("next")]);
+  f.setFailure(new f.DeliveryError("not-sent"));
+  await assert.rejects(settleSubmission(f, f.send()), /delivery not-sent/);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), ["accepted", "next"]);
+  assert.equal(f.queue.readMessages("thread")[0].submission.status, "queued");
+  assert.equal(f.queue.readMessages("thread")[0].pausedReason, "delivery not-sent");
+  assert.ok(!f.events.includes("locally-accepted")); f.queue.dispose();
+});
+
+test("actual acceptLocally native success retains the sent result and consumes its ID", async () => {
+  const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
+  const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));
+  assert.equal(result.status, "sent"); assert.equal(result.messageId, item.id);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), ["next"]);
+  assert.deepEqual(f.sends, [item.id]); assert.equal(f.queue.accepted.size, 0);
   f.queue.dispose();
 });

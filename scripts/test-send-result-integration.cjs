@@ -5,6 +5,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
+const util = require("node:util");
+const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { RecoveryState } = require("./recovery-state.cjs");
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
@@ -72,7 +74,7 @@ test("pinned request client retains outcome-unknown promise and resolves reconci
   assert.deepEqual(f.logs, []);
 });
 
-function queueFixture() {
+function queueFixture(initial) {
   // Reuse the existing test's AST extraction and minimal coordinator adapters.
   // Its fixture executes the pinned class and submission factory, not replicas.
   const filename = path.join(hostRoot, QUEUE_CONSUMPTION_ASSET);
@@ -82,7 +84,63 @@ function queueFixture() {
   const fixture = vm.runInNewContext(`(${source.slice(declaration.getStart(ast), declaration.end)})`, {
     assert, ts, vm, filename, message: id => ({ id, text: "identical input", context: {} }),
   });
-  return fixture(injectQueueConsumption(fs.readFileSync(filename, "utf8")).text);
+  return fixture(injectQueueConsumption(fs.readFileSync(filename, "utf8")).text, initial);
+}
+
+function composerFixture(options) {
+  const product = injectComposerDraft(fs.readFileSync(path.join(hostRoot, COMPOSER_DRAFT_ASSET), "utf8")).text;
+  const ast = ts.createSourceFile("composer.js", product, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const declarations = new Map(ast.statements.filter(ts.isFunctionDeclaration).map(node => [node.name.text, node.getText(ast)]));
+  const testSource = parse(path.join(__dirname, "test-composer-draft.cjs"));
+  const factory = testSource.ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "fixture");
+  const fixture = vm.runInNewContext(`(${factory.getText(testSource.ast)})`, { vm, assert, util, declarations, performance });
+  return fixture(options);
+}
+
+for (const failure of ["preparation", "not-sent", "outcome-unknown", "storage"]) {
+  test(`composer and local coordinator preserve follow-up custody on ${failure}`, async () => {
+    const q = queueFixture([]);
+    q.setReady(true);
+    if (failure === "preparation") q.setPrepareFailure(Error("preparation rejected"));
+    if (["not-sent", "outcome-unknown"].includes(failure)) q.setFailure(new q.DeliveryError(failure));
+    let result;
+    const f = composerFixture({ submission: async (composer, args) => {
+      const item = args[4];
+      assert.ok(item?.id, "actual composer constructs the follow-up identity");
+      result = await q.queue.sendMessage({ conversationId: "thread", message: item, acceptLocally: true },
+        async request => {
+          if (failure === "preparation") throw Error("preparation rejected");
+          return { conversationId: "thread", resume: { conversationId: "thread" },
+            start: { id: request.message.id }, steer: { id: request.message.id } };
+        }, flags => composer.added(flags));
+      return { messageResult: result };
+    } });
+    let done = false, written = 0;
+    const running = f.run().finally(() => { done = true; });
+    try {
+      for (let step = 0; step < 60 && !done; step++) {
+        await tick(); q.flushLoads();
+        while (written < q.writes.length) {
+          const index = written++, write = q.writes[index];
+          failure === "storage" && index === 0 ? write.reject(Error("storage unavailable")) : write.resolve();
+        }
+      }
+      assert.equal(done, true, "submission completes rather than disappearing behind a pending promise");
+      await running;
+      if (failure === "storage") {
+        assert.equal(f.text(), "A"); assert.equal(f.clears(), 0);
+        assert.equal(f.errors.length, 1); assert.equal(q.sends.length, 0);
+      } else {
+        assert.equal(result.status, "queued");
+        assert.equal(f.errors.length, 0); assert.equal(f.text(), ""); assert.equal(f.restores(), 0);
+        const messages = Array.from(q.queue.readMessages("thread"));
+        assert.equal(messages.length, 1); assert.equal(messages[0].id, result.messageId);
+        assert.equal(messages[0].text, "A"); assert.ok(messages[0].pausedReason);
+        assert.equal(messages[0].submission.status, failure === "outcome-unknown" ? "outcome-unknown" : "queued");
+        assert.equal(q.sends.length, failure === "preparation" ? 0 : 1);
+      }
+    } finally { q.queue.dispose(); }
+  });
 }
 
 for (const continuing of [false, true]) {

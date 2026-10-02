@@ -9,7 +9,6 @@ const { createInterface } = require("node:readline");
 const ORIGINAL_ID = "openai.chatgpt";
 const HOST_ID = "azrael-ex-local.azrael";
 const COMPANION_ID = "azrael-ex-local.azrael-ex";
-const ORIGINAL_VERSION = "26.928.31416";
 const ACCOUNT_COMMANDS = [
   "azrael.usage",
   "azrael.rootResume",
@@ -166,6 +165,7 @@ exports.run = async function run() {
   const expectedState = process.env.SAME_WINDOW_EXPECTED_STATE_ROOT;
   const expectedOrdinaryHome = process.env.SAME_WINDOW_EXPECTED_ORDINARY_HOME;
   const expectedHostVersion = process.env.SAME_WINDOW_EXPECTED_HOST_VERSION;
+  const expectedOriginalVersion = process.env.SAME_WINDOW_EXPECTED_ORIGINAL_VERSION;
   const diagnostics = {};
   const assertFixtureEnvironment = () => {
     assert(expectedState && path.isAbsolute(expectedState), "SAME_WINDOW_EXPECTED_STATE_ROOT is missing");
@@ -188,7 +188,8 @@ exports.run = async function run() {
     if (standalone) assert(!original || !original.isActive, "disabled original extension was active in standalone mode");
     else assert(original, "original extension was not discovered in coexistence mode");
     assert(!companion, "retired companion extension was discovered");
-    if (original) assert(original.packageJSON.version === ORIGINAL_VERSION, `original version was ${original.packageJSON.version}`);
+    assert(expectedOriginalVersion && /^\d+\.\d+\.\d+$/.test(expectedOriginalVersion), "expected original version was not supplied");
+    if (original) assert(original.packageJSON.version === expectedOriginalVersion, `original version was ${original.packageJSON.version}`);
     assert(expectedHostVersion && host.packageJSON.version === expectedHostVersion, `host version was ${host.packageJSON.version}`);
     if (original) assert(!samePath(original.extensionPath, host.extensionPath), "original and host resolved to one directory");
     diagnostics.paths = { original: original?.extensionPath, host: host.extensionPath };

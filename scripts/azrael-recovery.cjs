@@ -243,11 +243,12 @@ class BridgeController {
     const clientMessageHash = typeof params.clientUserMessageId === "string" && params.clientUserMessageId.length > 0
       ? createHash("sha256").update(params.clientUserMessageId).digest("hex") : undefined;
     ui?.log({ event: "recovery.request_dispatch", requestId: id, threadId: params.threadId, method, clientMessageHash });
-    const action = method === "thread/resume" ? this.state.resume(params) : this.state.start(params);
+    const action = method === "thread/resume" ? this.state.resume(params) :
+      method === "turn/steer" ? this.state.steer(params) : this.state.start(params);
     void action.then(result => {
       this.requests.delete(key);
       ui?.log({ event: "recovery.request_result", requestId: id, threadId: params.threadId, method,
-        clientMessageHash, outcome: "accepted", turnId: result.turn?.id });
+        clientMessageHash, outcome: "accepted", turnId: result.turn?.id ?? result.turnId });
       this.host.providers.get(provider)?.onResult?.({ id, result });
     }, error => {
       this.requests.delete(key);
@@ -265,7 +266,7 @@ class BridgeController {
 
 function dispatch(host, args, raw) {
   const [, , method, params] = args;
-  if (!["thread/resume", "turn/start"].includes(method) || typeof params?.threadId !== "string") {
+  if (!["thread/resume", "turn/start", "turn/steer"].includes(method) || typeof params?.threadId !== "string") {
     if (!ui) return raw(...args);
     const [provider, id] = args;
     const key = `${provider}:${id}`;

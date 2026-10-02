@@ -34,7 +34,9 @@ emit({ type: 'progress', progress: { phase: 'stream', elapsed_ms: 10,
   network_idle_ms: 1, event_idle_ms: 2, bytes_received: 128,
   event_count: 1, last_event: 'tool_call_args' } });
 if (process.env.AZRAEL_NATIVE_FIXTURE_TRACE) await writeFile(process.env.AZRAEL_NATIVE_FIXTURE_TRACE, JSON.stringify({ tools: specs.map(tool => [tool.namespace, tool.name, tool.type]), mode, outputCount: outputs.length }));
-if (mode === 'workspace') {
+if (request.tools.length === 0) {
+  finish('COMPACTION_SUMMARY: The user created native-result.txt containing NATIVE_PATCH_7391 and read it through the native shell. Preserve this result and continue normally.');
+} else if (mode === 'workspace') {
   if (outputs.length) finish('WORKSPACE_POLICY_RESULT_RECORDED');
   else {
     const path = task.includes('OUTSIDE') ? '../workspace-outside.txt' : 'workspace-inside.txt';

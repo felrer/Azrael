@@ -8,6 +8,7 @@ import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalog
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
 import { observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
+import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 
 const supported = MANAGED_PROVIDERS;
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
@@ -171,7 +172,7 @@ export function projectRequest(request: any, fingerprint: string) {
 
 // Observe structured replay fields without replacing the vendored stream parser.
 // The adapter sees exactly the same bytes; retained private records are bounded.
-function observeDetails(response: Response, opaque: { details: any[]; terminal: boolean }, retainDetails: boolean, wrappedGoogle = false, onBytes?: (bytes: number) => void) {
+export function observeDetails(response: Response, opaque: { details: any[]; terminal: boolean; upstreamSseError?: boolean }, retainDetails: boolean, wrappedGoogle = false, onBytes?: (bytes: number) => void, provider = '') {
   if (!response.body) fail('provider_eof');
   const decoder = new TextDecoder();
   let pending = '', data: string[] = [], dataBytes = 0;
@@ -180,6 +181,12 @@ function observeDetails(response: Response, opaque: { details: any[]; terminal: 
     const payload = data.join('\n'); data = []; dataBytes = 0;
     if (!payload || payload === '[DONE]') return;
     let parsed; try { parsed = JSON.parse(payload); } catch { return; }
+    const error = parsed.error ?? parsed.response?.error ?? parsed.choices?.find((choice: any) => choice.finish_reason === 'error')?.error;
+    if (error !== undefined) {
+      opaque.upstreamSseError = true;
+      const code = classifyManagedError(provider, undefined, { error });
+      if (code) fail(code);
+    }
     if (wrappedGoogle) parsed = parsed.response ?? parsed;
     const parts = parsed.candidates?.[0]?.content?.parts;
     if (Array.isArray(parts) && parts.some((part: any) => part.inlineData || part.inline_data || part.fileData || part.file_data || part.executableCode || part.codeExecutionResult)) fail('unsupported_provider_output');
@@ -257,32 +264,6 @@ async function* translate(events: AsyncIterable<any>, opaque: { terminal: boolea
   } } catch (error) { tracker?.error('translate', error); throw error; }
 }
 
-async function providerHttpError(response: Response): Promise<string> {
-  if (response.status !== 429 && response.status !== 402) return 'provider_http_' + response.status;
-  const reader = response.body?.getReader();
-  let bytes = 0;
-  const chunks: Uint8Array[] = [];
-  if (reader) {
-    try {
-      for (;;) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        bytes += value.byteLength;
-        if (bytes > 16_384) break;
-        chunks.push(value);
-      }
-    } finally { await reader.cancel().catch(() => {}); }
-  }
-  if (bytes <= 16_384) {
-    try {
-      const payload = JSON.parse(Buffer.concat(chunks).toString('utf8'));
-      const code = payload?.error?.code ?? payload?.code;
-      if (code === 'insufficient_quota' || code === 'quota_exceeded') return 'provider_usage_limit';
-    } catch { /* An unstructured response cannot establish a usage limit. */ }
-  }
-  return response.status === 429 ? 'provider_rate_limit' : 'provider_http_402';
-}
-
 // Anthropic's parser tolerates a terminal message_delta without message_stop.
 // The managed native stream requires the actual terminal frame before tool calls execute.
 export function observeAnthropic(response: Response, opaque: { terminal: boolean; upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any) {
@@ -296,6 +277,10 @@ export function observeAnthropic(response: Response, opaque: { terminal: boolean
     data = []; dataBytes = 0;
     if (value.type === 'error') opaque.upstreamSseError = true;
     tracker?.sse(value);
+    if (value.type === 'error') {
+      const code = classifyManagedError('anthropic', undefined, value);
+      if (code) fail(code);
+    }
     if (value.type === 'message_stop') opaque.terminal = true;
     if (value.type === 'content_block_start' && !['text', 'thinking', 'redacted_thinking', 'tool_use'].includes(value.content_block?.type)) fail('unsupported_provider_output');
     if (value.type === 'content_block_delta' && !['text_delta', 'thinking_delta', 'reasoning_delta', 'signature_delta', 'input_json_delta'].includes(value.delta?.type)) fail('unsupported_provider_output');
@@ -353,10 +338,10 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     stage = 'headers';
     const response = adapter.fetchResponse ? await adapter.fetchResponse(built, { abortSignal: signal, executor: fetcher, returnRawErrors: true, stream: true }) : await fetcher(built.url, { method: built.method, headers: built.headers, body: built.body, signal, redirect: 'error' });
     tracker?.headers(response);
-    if (!response.ok) fail(await providerHttpError(response));
+    if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
-    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker) : observeDetails(response, opaque, false, true, onBytes);
+    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker) : observeDetails(response, opaque, false, true, onBytes, request.provider_id);
     stage = 'map';
     await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque }, emit, request.request_id);
   } catch (error) {

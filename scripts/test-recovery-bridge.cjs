@@ -115,23 +115,33 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   assert.equal(delivered[0].id, "resume-1");
   assert.ok(delivered[0].result, JSON.stringify(delivered[0]));
   assert.equal(delivered[0].result.turn.id, "turn-engine");
+  bridge.sendProviderRequest("client", "steer-1", "turn/steer", {
+    threadId: "thread-1", expectedTurnId: "turn-engine", clientUserMessageId: "follow-up",
+    input: [{ type: "text", text: "follow-up instruction" }],
+  }, false, true);
+  for (let attempt = 0; attempt < 20 && !delivered.some(message => message.id === "steer-1"); attempt++) {
+    await new Promise(resolve => setImmediate(resolve));
+  }
+  assert.ok(delivered.find(message => message.id === "steer-1")?.result);
+  assert.equal(sent.filter(message => message.method === "turn/steer").length, 1);
+  assert.ok(sent.find(message => message.method === "turn/steer").id.startsWith("azrael-recovery-"));
   const ordinary = bridge.sendProviderRequest("client", "list-1", "thread/list", { limit: 1 }, false, true);
   assert.equal(ordinary, undefined);
   assert.equal(sent.some(message => message.method === "thread/list" && message.id === "client:list-1"), true);
 
   const routed = bridge.routeIncomingMessage({ id: "client:reply-1", result: { ok: true } }, false);
   assert.equal(routed.routeKind, "response");
-  assert.equal(delivered.length, 2);
-  assert.equal(delivered[1].id, "reply-1");
-  assert.equal(delivered[1].result.ok, true);
+  assert.equal(delivered.length, 3);
+  assert.equal(delivered[2].id, "reply-1");
+  assert.equal(delivered[2].result.ok, true);
 
   failRecovery = true;
   bridge.sendProviderRequest("client", "error-1", "turn/start", { threadId: "thread-1", input: [{ type: "text", text: "oversized fixture" }] }, false, true);
-  for (let attempt = 0; attempt < 20 && delivered.length < 3; attempt++) await new Promise(resolve => setImmediate(resolve));
-  assert.equal(delivered[2].id, "error-1");
-  assert.equal(delivered[2].error.code, -32042);
-  assert.equal(delivered[2].error.message, "fixture input is too large");
-  assert.equal(delivered[2].error.data.limit, 10);
+  for (let attempt = 0; attempt < 20 && delivered.length < 4; attempt++) await new Promise(resolve => setImmediate(resolve));
+  assert.equal(delivered[3].id, "error-1");
+  assert.equal(delivered[3].error.code, -32042);
+  assert.equal(delivered[3].error.message, "fixture input is too large");
+  assert.equal(delivered[3].error.data.limit, 10);
 
   bridge.failPendingRequests = () => {};
   bridge.requestUserInputAutoResolutionCoordinator = { clearPendingRequests() {} };

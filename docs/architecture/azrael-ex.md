@@ -18,6 +18,8 @@ The local extension ID is not entitled to the original extension's proposed VS C
 
 Reuse the official General, Configuration, Personalization, Usage/Billing, MCP, Hook, Plugin and Account settings; the account module adds account management and entry points. A settings category counts as verified only after reading, saving, rereading and observing its effect; settings requiring reload or a new thread must say so. Ordinary Codex retains `chatgpt.*` preferences; Azrael owns `azrael.*`.
 
+Provider-specific compaction settings, Azrael settings labels and context pricing presentation follow the [provider context policy](context-policy.md).
+
 The azrael-only host supplies the existing first-run tutorial completion flags and the image-generation announcement dismissal flag on state reads. It does not suppress authentication, permission approvals, errors or settings. A source/patched-hash marker guards this patch; unsupported bundles fail preparation.
 
 ## Integrated source state
@@ -38,6 +40,16 @@ Preparation builds one uniquely versioned host VSIX containing the pinned UI, th
 ### Development compilation
 
 Status: `current` — development compilation can reuse TypeScript incremental state, while release packaging uses a clean compilation. Development output reconciliation removes emitted JavaScript and source maps for deleted or renamed source/test files; compiled-test execution requires an explicitly completed compilation with unchanged inputs. Tests run in separate Node processes with bounded file concurrency, preserving the ordering of tests within each file. Build metrics record stage duration and actual command exit codes, including failures, without weakening provenance or payload checks.
+
+The default extension test scope covers the integrated host's account, bridge and runtime contracts. The retained standalone chat implementation has a separate test scope; the full scope includes both without dropping cases. Development verification selects the union of tests for changed areas, with shared inputs and unmapped code changes expanding to the current local source scope. Shared extension inputs also select standalone coverage, and selecting both extension scopes compiles once. Namespace source regressions cover synthetic transformation and wrapper lifecycle behavior separately from acceptance of the completed package. Package acceptance still checks transformed payloads, standalone integrated-host activation and coexistence with original Codex. Source results do not replace acceptance of a different package, and final provenance and preservation checks remain mandatory.
+
+### Automated deployment
+
+Status: `current` — the real verification-only flow and isolated installation result/receipt binding are verified; the complete automatic flow has not been applied to the user profile.
+
+A deployment runner composes the existing build, source verification, preparation, six-stage host acceptance and installation owners. Source verification runs concurrently with the build using separate extension outputs; both must succeed before host acceptance. Each run uses its explicit release and package paths, records command exit codes, stage durations and total wall time, and rejects changed source inputs. Acceptance binds its successful six-stage result to the prepared VSIX SHA-256; installation receives that exact package only after the runner rechecks the binding. A verification-only run stops before user-profile installation. Failed child commands block later stages, and cleanup is limited to child processes created by the runner. Existing user windows and state remain under the installer preservation contract.
+
+The package file set is collected once. Environment-file rejection checks paths for both disk and generated entries before the retained VSCE manifest validation and archive writer, avoiding a second content scan for a filename-only rule. Credential scanning of changed/new text and generated metadata remains mandatory; trusted pristine files, dependency directories and generated binary classifications do not exempt an environment file from rejection.
 
 ### Installation recovery
 

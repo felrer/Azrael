@@ -258,6 +258,23 @@ Test-Case 'production unrelated registry guard accepts unchanged and rejects mut
     . $guard
     $registry[2].version = '2.0.0'; Assert-Rejected { . $guard } 'unrelated extension registry object changed'
 }
+Test-Case 'registry canonicalization accepts equivalent external file URI serialization' {
+    $entry = @{ identifier = @{ id = 'openai.chatgpt' }; version = '1.0.0'; location = @{
+        scheme = 'file'; path = '/c:/extensions/openai.chatgpt'; external = 'file:///c%3A/extensions/openai.chatgpt'
+    } }
+    $rewritten = Clone-Registration $entry
+    $rewritten.location.Remove('external') | Out-Null
+    $rewritten.location.path = '/C:/extensions/openai.chatgpt'
+    Assert-True ((ConvertTo-RegistryComparableJson @($entry)) -ceq (ConvertTo-RegistryComparableJson @($rewritten))) 'Equivalent file URI was rejected.'
+}
+Test-Case 'registry canonicalization retains a conflicting external file URI' {
+    $entry = @{ identifier = @{ id = 'openai.chatgpt' }; version = '1.0.0'; location = @{
+        scheme = 'file'; path = '/c:/extensions/openai.chatgpt'; external = 'file:///c%3A/extensions/another-extension'
+    } }
+    $rewritten = Clone-Registration $entry
+    $rewritten.location.Remove('external') | Out-Null
+    Assert-True ((ConvertTo-RegistryComparableJson @($entry)) -cne (ConvertTo-RegistryComparableJson @($rewritten))) 'Conflicting external URI was ignored.'
+}
 $summary = [ordered]@{ passed = @($results | Where-Object passed).Count; failed = @($results | Where-Object { -not $_.passed }).Count; fixture = $fixture; results = $results.ToArray() }
 $summary | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $output 'results.json')
 "RESULT: $($summary.passed) passed, $($summary.failed) failed; fixtures: $fixture"

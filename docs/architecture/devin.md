@@ -116,7 +116,9 @@ The structure checker inspects supported keyword shapes within depth, node and i
 
 ### Provider rejection evidence
 
-Status: `current` for the helper/engine contract and synthetic SQLite persistence; an installed release needs a rebuilt helper/engine bundle.
+Status: `current` for the helper/engine contract, focused usage classification/helper tests and synthetic SQLite persistence; installed windows require the matching updated bundle and reload.
+
+Usage exhaustion uses the native OpenAI `UsageLimitReached` / `UsageLimitExceeded` error path and its existing UI. Classification requires an explicit usage code or a complete recognized exhaustion/reset message inside a denial response. For usage messages, `failed_precondition` is also a supported denial envelope; that code alone does not establish exhaustion. Message matching accepts an optional trace or cloud trace suffix, excludes quoted/negated mentions, and keeps request rate limits separate. Provider reset times are not inferred.
 
 Provider failures preserve an optional `provider_error_source` (`http_response` or `connect_trailer`), the original allowlisted `provider_error_code`, a validated hexadecimal `provider_trace_id` of 16–64 characters, and a fixed `provider_reason` in `native_inference_helper_failed`. The transport derives these fields from the original denial before enriching a user-facing exception. Both helper and engine validate the fields before persistence; unknown codes become `unknown`, and malformed trace IDs are omitted. These fields do not change error classification, retries or the user-facing error.
 

@@ -20,6 +20,10 @@ function injectProviderModelPicker(text, asset) {
   if (markerCount === 1) return { text, count: 0 };
   if (markerCount > 1) throw new Error("Duplicate provider model-picker marker");
   if (asset === PROVIDER_QUERY_ASSET) {
+    // The pinned event bus is lazy. Register only after its singleton exists;
+    // module-level subscriptions run before the Webview bootstrap initializes it.
+    text = once(text, "xm=bm.getInstance(),c0e((e,t)=>{xm.dispatchMessage(e,t)})",
+      'xm=bm.getInstance(),xm.subscribe("mcp-notification",event=>__azraelProviderCatalog.notification(event)),c0e((e,t)=>{xm.dispatchMessage(e,t)})');
     text = once(text,
       "Ru(f,i).sendRequest(`model/list`,{includeHidden:!0,cursor:null,limit:s},{priority:n})",
       "__azraelProviderCatalog.query(i,()=>Ru(f,i),s,()=>d.invalidateQueries({queryKey:nMt(i,t,s)}),{priority:n})");
@@ -66,7 +70,6 @@ function injectProviderModelPicker(text, asset) {
     const nativeEffort = "t.supportedReasoningEfforts.find(e=>{let{reasoningEffort:t}=e;return t===j})?.reasoningEffort??t.defaultReasoningEffort";
     text = once(text, nativeEffort, `__azraelProviderCatalog.modelEffort(t,j,()=>${nativeEffort})`);
     text += bootstrap() + `
-ym.subscribe("mcp-notification",event=>__azraelProviderCatalog.notification(event));
 function __azraelReasoningLabel(e){return z8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
 function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (X8,Z8.jsx,yz,__azraelProviderCatalog,props)}
 `;

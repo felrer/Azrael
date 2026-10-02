@@ -36,6 +36,17 @@ const textResponse = () => sse({ candidates: [{ content: { parts: [{ text: 'hell
 const textFetch = (captured: any[] = []) => (async (url: any, init: any) => { captured.push({ url: String(url), headers: new Headers(init.headers), body: JSON.parse(init.body) }); return textResponse(); }) as typeof fetch;
 const binding = (thread = 'thread') => JSON.parse(readFileSync(join(process.env.CODEX_HOME!, 'azrael/providers/sessions', thread + '.json'), 'utf8'));
 
+test('CCA HTTP and wrapped streamed exhaustion retain the native usage category', async () => {
+  await setup();
+  for (const stream of [false, true]) {
+    const frames: any[] = [];
+    const error = { code: 429, status: 'RESOURCE_EXHAUSTED', message: 'Daily limit reached' };
+    const fetcher = (async () => stream ? sse({ error }) : Response.json({ error }, { status: 429 })) as typeof fetch;
+    await expect(infer(request('quota-' + stream), frame => frames.push(frame), fetcher)).rejects.toThrow('provider_usage_limit');
+    expect(frames.some(frame => frame.type === 'completed' || frame.type === 'item_done')).toBeFalse();
+  }
+});
+
 test('CCA wrapped text, usage and canonical envelope use selected OAuth snapshot', async () => {
   await setup(); const frames: any[] = [], wire: any[] = [];
   await infer(request(), f => frames.push(f), textFetch(wire));

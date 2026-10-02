@@ -101,6 +101,7 @@ test("ordinary runtime loads its native host dependency with a private environme
     engine,
     bridge,
     codexHome: state,
+    engineVersion: "0.159.3",
   }));
   const originalHelper = process.env.AZRAEL_DEVIN_NATIVE_HELPER;
   const originalNode = process.env.AZRAEL_DEVIN_NODE;

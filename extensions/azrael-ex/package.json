@@ -103,9 +103,15 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
     "build": "npm run clean && tsc -p tsconfig.json",
     "build:incremental": "node scripts/build-incremental.cjs",
-    "test": "npm run build:incremental && npm run test:compiled",
-    "test:compiled": "node --test --test-concurrency=4 dist/test/*.test.js",
-    "test:serial": "node --test --test-concurrency=1 dist/test/*.test.js",
+    "test": "npm run build:incremental && node scripts/run-tests.cjs current",
+    "test:compiled": "node scripts/run-tests.cjs current",
+    "test:current": "npm run build:incremental && node scripts/run-tests.cjs current",
+    "test:standalone": "npm run build:incremental && node scripts/run-tests.cjs standalone",
+    "test:all": "npm run build:incremental && node scripts/run-tests.cjs all",
+    "test:current:compiled": "node scripts/run-tests.cjs current",
+    "test:standalone:compiled": "node scripts/run-tests.cjs standalone",
+    "test:all:compiled": "node scripts/run-tests.cjs all",
+    "test:serial": "node scripts/run-tests.cjs all --serial",
     "package": "npm run build && vsce package --out"
   },
   "devDependencies": {

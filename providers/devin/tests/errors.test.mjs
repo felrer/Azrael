@@ -80,6 +80,23 @@ test('rate-limit classification requires exact codes, anchored templates, or a b
   assert.equal(classifyProviderDenial({ code: 'resource_exhausted', message: 'generic exhaustion' }), undefined);
 });
 
+test('failed_precondition usage messages reuse usage classification without relabeling generic rejections', () => {
+  for (const message of ['Your limit will reset in 13 minutes', 'Quota exceeded.',
+    'Out of credits (trace ID: 0123456789abcdef)',
+    'You have run out of credits (cloud trace ID: 0123456789abcdef)']) {
+    assert.equal(classifyProviderDenial({ code: 'failed_precondition', message }), 'usage_limit', message);
+    assert.equal(providerDiagnostics('connect_trailer', { code: 'failed_precondition', message }).provider_reason,
+      'usage_limit', message);
+  }
+  for (const message of [undefined, 'Unable to process request due to an MCP configuration issue.',
+    'an internal error occurred', 'docs say "Quota exceeded"', 'not out of credits',
+    'Your limit will reset soon', 'Too many requests']) {
+    assert.equal(classifyProviderDenial({ code: 'failed_precondition', message }), undefined, message);
+  }
+  assert.equal(classifyProviderDenial({ code: 'permission_denied',
+    message: 'Your limit will reset in 13 minutes (cloud trace ID: 0123456789abcdef)' }), 'usage_limit');
+});
+
 test('extractErrorFields consults a single envelope and never mixes root with .error', () => {
   assert.deepEqual(extractErrorFields({ error: { code: 'quota_exceeded', message: 'cap' } }),
     { code: 'quota_exceeded', message: 'cap' });

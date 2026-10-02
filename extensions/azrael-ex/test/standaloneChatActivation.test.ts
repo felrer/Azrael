@@ -5,17 +5,22 @@ import * as path from "node:path";
 import Module from "node:module";
 import test from "node:test";
 
-test("integrated activation leaves the chat view and sidebar command to the official UI host", async () => {
-  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-integrated-activation-"));
-  const registered: string[] = [];
+test("standalone activation starts one chat session before account bridge and view resolution", async () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-chat-activation-"));
+  fs.writeFileSync(path.join(directory, "azrael-runtime.json"), JSON.stringify({
+    schema: 2, engine: process.execPath, bridge: process.execPath,
+    codexHome: path.join(directory, "state"), engineVersion: "0.157.1"
+  }));
+  const events: string[] = [];
+  let provider: any;
   const disposable = () => ({ dispose() {} });
   const vscode = {
     env: { remoteName: undefined, sessionId: "fixture-session" },
     workspace: { workspaceFolders: undefined },
     StatusBarAlignment: { Left: 1 },
-    commands: { registerCommand(command: string) { registered.push(command); return disposable(); }, executeCommand: async () => undefined },
+    commands: { registerCommand: () => disposable(), executeCommand: async () => undefined },
     window: {
-      registerWebviewViewProvider() { throw new Error("integrated account UI must not register a chat view"); },
+      registerWebviewViewProvider(_id: string, value: unknown) { provider = value; return disposable(); },
       createOutputChannel: () => ({ info() {}, dispose() {} }),
       createStatusBarItem: () => ({ show() {}, dispose() {} }),
       showErrorMessage() {},
@@ -31,22 +36,22 @@ test("integrated activation leaves the chat view and sidebar command to the offi
     const { AccountService } = require("../src/accountService") as typeof import("../src/accountService");
     const originalStart = ChatSession.prototype.start;
     const originalConnect = AccountService.prototype.connect;
-    ChatSession.prototype.start = async function () { throw new Error("integrated account UI must not start a chat session"); };
-    AccountService.prototype.connect = async function () { return {} as any; };
+    ChatSession.prototype.start = async function () { events.push("chat"); };
+    AccountService.prototype.connect = async function () { events.push("account"); return {} as any; };
     try {
-      delete require.cache[require.resolve("../src/extension")];
       const extension = require("../src/extension") as typeof import("../src/extension");
       await extension.activate({
         extensionPath: directory, extensionUri: { scheme: "file" },
         storageUri: { scheme: "file", fsPath: path.join(directory, "workspace") },
         subscriptions: []
-      } as never, {
-        bridge: process.execPath, engine: process.execPath,
-        socket: path.join(directory, "management.sock"), codexHome: path.join(directory, "state"),
-        engineVersion: "0.157.1", env: {}
+      } as never);
+      assert.deepEqual(events, ["chat", "account"]);
+      assert.ok(provider);
+      provider.resolveWebviewView({
+        webview: { cspSource: "fixture", options: {}, postMessage: () => Promise.resolve(true), onDidReceiveMessage: disposable },
+        onDidDispose: disposable,
       });
-      assert.ok(!registered.includes("azrael.openSidebar"));
-      assert.ok(registered.includes("azrael.usage"));
+      assert.deepEqual(events, ["chat", "account"]);
       extension.deactivate();
     } finally {
       ChatSession.prototype.start = originalStart;
@@ -58,3 +63,4 @@ test("integrated activation leaves the chat view and sidebar command to the offi
     fs.rmSync(directory, { recursive: true, force: true });
   }
 });
+

@@ -8,8 +8,8 @@ const sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
 const isSha = (value) => typeof value === "string" && /^[a-f\d]{64}$/.test(value);
 const COUNT_FIELDS = ["edits", "namespaceEdits", "workspaceThreadListEdits", "recoveryEdits",
   "deferredTurnEdits", "deferredNativeTimingChecks", "compactionProgressEdits", "queueRefreshEdits",
-  "queueRefreshNativeChecks", "providerPickerEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits",
-  "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits"];
+  "queueRefreshNativeChecks", "providerPickerEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits", "accountSwitchQueueEdits",
+  "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits"];
 
 function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescriptVersion,
   transformRules, statistics = { hits: 0, misses: 0 }, metrics }) {

@@ -14,7 +14,8 @@
  *   - usage_limit requires POSITIVE usage evidence: an exact structured code
  *     (USAGE_LIMIT_CODES) or a full anchored denial message template
  *     (USAGE_MESSAGE_RES), inside a known denial envelope — Connect code
- *     permission_denied/resource_exhausted or HTTP 429. A quota phrase quoted
+ *     permission_denied/resource_exhausted/failed_precondition or HTTP 429.
+ *     failed_precondition qualifies only for usage messages. A quota phrase quoted
  *     inside a longer sentence does not match; "rate limit" alone is never
  *     usage evidence.
  *   - rate_limit requires an exact rate-limit code, a rate-limit phrase inside
@@ -118,7 +119,7 @@ const DENIAL_ENVELOPE_CODES: ReadonlySet<string> = new Set([
  * punctuation plus a "(trace ID: <hex>)" suffix, which the EOS trailer path
  * embeds in the message string.
  */
-const TRAILER_SUFFIX = String.raw`\s*\.?\s*(?:\(trace ID: [0-9a-f]+\)\s*)?`;
+const TRAILER_SUFFIX = String.raw`\s*\.?\s*(?:\((?:cloud )?trace ID: [0-9a-f]+\)\s*)?`;
 
 /**
  * Anchored full-message templates. Anchoring is the point: a quoted or
@@ -151,8 +152,11 @@ export function classifyProviderDenial(evidence: ProviderDenialEvidence): Provid
   const { status, code, message } = evidence;
   if (code && USAGE_LIMIT_CODES.has(code)) return 'usage_limit';
   const denialEnvelope = (code !== undefined && DENIAL_ENVELOPE_CODES.has(code)) || status === 429;
+  // A precondition failure can be a usage cap, but also a tool/configuration
+  // rejection. Only a complete usage message establishes the cap.
+  const usageEnvelope = denialEnvelope || code === 'failed_precondition';
   const text = typeof message === 'string' ? message.trim() : '';
-  if (denialEnvelope && text && USAGE_MESSAGE_RES.some(re => re.test(text))) return 'usage_limit';
+  if (usageEnvelope && text && USAGE_MESSAGE_RES.some(re => re.test(text))) return 'usage_limit';
   if (code && RATE_LIMIT_CODES.has(code)) return 'rate_limit';
   if (denialEnvelope && text && RATE_LIMIT_MESSAGE_RES.some(re => re.test(text))) return 'rate_limit';
   // Bare HTTP 429: the status line itself is the rate-limit evidence, but only

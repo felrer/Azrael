@@ -11,6 +11,8 @@ never a prompt instructing the model to compress its context. The existing queue
 owns persistence, cancellation, reordering, cross-window notifications and pause
 after interruption. Repeated requests remain individually cancelable items.
 
+Automatic compaction uses the [provider context policy](context-policy.md); the queue's manual skip threshold remains independent of the automatic setting.
+
 When a compaction reaches its execution point, Core atomically reserves an idle
 turn, respecting pending trigger work, recovery reservations and execution admission.
 It then checks the latest context usage: `last_token_usage.total_tokens` divided by
@@ -39,6 +41,8 @@ queue is non-empty, compaction enqueue fails explicitly rather than placing an
 invisible native item ahead of local messages; the backlog must finish or be
 cancelled first. Legacy messages are neither migrated nor deleted. Supported-host
 queues use the native store for both messages and compaction.
+
+The OpenAI account-change admission rules, including automatic queue suspension and explicit send-now, are owned by [account switching](accounts.md#input-during-an-openai-account-change).
 
 ## Queue presentation and legacy backlog
 
@@ -74,6 +78,28 @@ The native queue adapter retains its app-input confirmation guard. Plain text
 with empty app attachments and open-page instructions is ordinary user input.
 Unreviewed app messages and model context use the existing review path; local
 acceptance reconciliation neither drops their payload nor bypasses confirmation.
+
+### Locally accepted submission results
+
+Status: `current` in scoped source and packaged pinned-function integration tests.
+Installed user-window interaction is outside this automated scope.
+
+Once a follow-up has been persisted and published in the local queue, its
+composer submission finishes as `queued` when dispatch fails, is deferred, or
+is cancelled before acceptance. The queued item retains its original client
+message ID, payload, position and failure or uncertain-delivery state. The
+existing queue presentation exposes paused inputs and the existing send-now and
+edit actions for confirmed failures. Queued, paused and outcome-unknown items
+are visible immediately, including within the optimistic send display delay.
+Unconfirmed delivery keeps send-now and edit disabled until acceptance can be
+established. Editing moves the queued item into the composer through the queue
+owner; submission failure does not also restore a second editable copy.
+
+Failure before local persistence completes remains a submission error and keeps
+the composer draft. Explicit send-now failures retain their error result and
+the queued item. A queued result means custody of the input, not proof of native
+execution. Uncertain delivery requires acceptance reconciliation before another
+send. Native accepted-message removal continues to use the rules above.
 
 ## Compaction progress
 

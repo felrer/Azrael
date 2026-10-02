@@ -201,6 +201,28 @@ test('EOS trailer permission_denied with rate-limit phrase becomes provider_rate
   assert.equal(error.diagnostics?.provider_classification, 'rate_limit');
 });
 
+test('precondition exhaustion reaches the native usage-limit protocol without provider message text', async () => {
+  for (const mode of ['trailer_precondition_usage', 'http_precondition_usage']) {
+    const { code, frames } = await runHelper(mode);
+    assert.equal(code, 1, mode);
+    const error = frames.at(-1);
+    assert.equal(error.code, 'provider_usage_limit', mode);
+    assert.equal(error.diagnostics?.provider_classification, 'usage_limit');
+    assert.equal(error.diagnostics?.provider_error_code, 'failed_precondition');
+    assert.equal(error.diagnostics?.provider_error_source,
+      mode === 'http_precondition_usage' ? 'http_response' : 'connect_trailer');
+    assert.equal(error.diagnostics?.http_status, 400);
+    assert.equal(error.diagnostics?.provider_reason, 'usage_limit');
+    assert.equal(error.diagnostics?.provider_trace_id, '0123456789abcdef');
+    assert(!JSON.stringify(frames).includes('Your limit will reset'));
+    assert(!frames.some(frame => frame.type === 'completed' || frame.type === 'item_done'));
+  }
+  const { code, frames } = await runHelper('trailer_precondition_generic');
+  assert.equal(code, 1);
+  assert.equal(frames.at(-1).code, 'provider_http_400');
+  assert.equal(frames.at(-1).diagnostics?.provider_classification, undefined);
+});
+
 test('negated rate-limit text inside a denial message stays unclassified', async () => {
   const { code, frames } = await runHelper('trailer_rate_negated');
   assert.equal(code, 1);

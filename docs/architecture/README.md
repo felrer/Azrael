@@ -12,6 +12,8 @@ Each document labels its own state (see [document states](../README.md#document-
 - [Queued context compaction](queued-compaction.md): ordered compaction queue, execution-time threshold, queue presentation and compaction progress.
 - [Reload and resume recovery](reload-recovery.md): host recovery states, native state reconciliation and durable resume admission.
 
+- [Provider context policy](context-policy.md): provider-specific 95% compaction defaults, context capacity, pricing tiers and settings/gauge contracts.
+
 ## Target
 
 - [Azrael runtime and providers](azrael-runtime.md): one Azrael-owned engine for subscription providers, dynamic model discovery, recovery and independent VS Code chat. Replaces parts of the current implementation as each boundary is verified.

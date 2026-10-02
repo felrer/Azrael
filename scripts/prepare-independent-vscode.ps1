@@ -5,6 +5,7 @@ param(
     [Parameter(Mandatory)][string]$OutputDirectory,
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$SourceExtensionPath,
+    [string]$TypeScriptPath,
     [string]$DevinExecutable,
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
     [switch]$SkipCodexEnvironmentSnapshot,
@@ -97,10 +98,24 @@ if (-not $DevinExecutable) {
 if ($DevinExecutable) { $DevinExecutable = (Resolve-Path -LiteralPath $DevinExecutable).Path }
 $build = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
 if ([version]$build.packageVersion -lt [version]'0.3.0') { throw 'Independent integration requires account UI payload 0.3.0 or newer.' }
+if ($TypeScriptPath) {
+    $resolvedTypeScript = (Resolve-Path -LiteralPath $TypeScriptPath -ErrorAction Stop).Path
+    $stagePath = $resolvedTypeScript
+    foreach ($level in 1..5) { $stagePath = Split-Path $stagePath -Parent }
+    $expectedTypeScript = Join-Path $stagePath 'companion/node_modules/typescript/lib/typescript.js'
+    if ($resolvedTypeScript -ine $expectedTypeScript -or -not (Test-Path -LiteralPath $resolvedTypeScript -PathType Leaf)) {
+        throw 'TypeScriptPath must name companion/node_modules/typescript/lib/typescript.js in a build staging directory.'
+    }
+    if (-not (Test-Path -LiteralPath (Join-Path $stagePath 'companion/node_modules/@vscode/vsce/vsce') -PathType Leaf)) {
+        throw 'Explicit TypeScript staging directory is missing its pinned VSCE tool.'
+    }
+    $toolDirectory = Get-Item -LiteralPath $stagePath
+} else {
 $toolDirectory = @(Get-ChildItem -LiteralPath (Join-Path $project 'artifacts/build') -Directory | Sort-Object LastWriteTime -Descending | Where-Object {
     (Test-Path -LiteralPath (Join-Path $_.FullName 'companion/node_modules/@vscode/vsce/vsce')) -and
     (Test-Path -LiteralPath (Join-Path $_.FullName 'companion/node_modules/typescript/lib/typescript.js'))
 }) | Select-Object -First 1
+}
 if (-not $toolDirectory) { throw 'Build the companion first to install the pinned packaging/TypeScript tools.' }
 $preparationTimer = [Diagnostics.Stopwatch]::StartNew()
 $script:preparationMetrics = [ordered]@{ schema = 1; resumed = [bool]$Resume; stages = @(); elapsedMs = 0; status = 'running' }

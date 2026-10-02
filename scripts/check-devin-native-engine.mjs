@@ -11,6 +11,8 @@ const live = process.argv.includes('--live');
 const codeMode = process.argv.includes('--code-mode');
 const launcher = process.argv.includes('--launcher');
 const catalogRefresh = process.argv.includes('--catalog-refresh');
+const contextPolicy = process.argv.includes('--context-policy');
+if (contextPolicy && live) throw new Error('context_policy_check_requires_synthetic_peer');
 if (catalogRefresh && live) throw new Error('catalog_refresh_check_requires_synthetic_peer');
 if (launcher && !live) throw new Error('launcher_check_requires_live_cli');
 const bundledLauncher = join(dirname(dirname(engine)), 'scripts/start-devin-native.ps1');
@@ -144,6 +146,17 @@ try {
   assert(peer.events.some(event => event.params?.item?.type === 'commandExecution'));
   assert(peer.events.some(event => event.params?.item?.type === 'fileChange'));
   report.checks.push('native_patch_and_shell_results');
+  if (contextPolicy) {
+    const usage = peer.events.filter(event => event.method === 'thread/tokenUsage/updated' && event.params.threadId === id).at(-1)?.params.tokenUsage;
+    assert.equal(usage?.contextPolicy?.providerId, 'devin');
+    assert.equal(usage.contextPolicy.autoCompactTokenLimit, 190000);
+    assert.equal(usage.contextPolicy.pricing.status, 'unknown');
+    const fork = await peer.request('thread/fork', { threadId: id, cwd });
+    await peer.request('thread/compact/start', { threadId: fork.thread.id });
+    await peer.wait(event => event.params?.threadId === fork.thread.id && event.method === 'item/completed' && event.params.item?.type === 'contextCompaction');
+    await peer.wait(event => event.params?.threadId === fork.thread.id && event.method === 'turn/completed');
+    report.checks.push('devin_95_percent_policy_and_native_summary_transport');
+  }
   await peer.close();
   await start();
   await peer.request('thread/resume', { threadId: id, cwd });

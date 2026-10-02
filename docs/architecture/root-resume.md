@@ -16,6 +16,12 @@ New user input supersedes the reservation and is handled promptly. Resume-now an
 
 Timers run inside the engine on the existing async clock. Reservations are reconciled when their root thread is loaded after an engine restart, and deadlines that passed while the engine was down become eligible then. There is no always-on service and no execution while the engine is stopped. Recovery never discards accepted input, and explicit user cancellation or stop survives restart and prevents stale wakeups.
 
+### Stopping a parked execution
+
+Status: `target`; Rust execution verification and installed-host acceptance are pending.
+
+A manual stop or explicit reservation cancellation first persists cancellation, stops its timer, and then emits a canonical interruption for the parked segment. The execution status becomes interrupted even though there is no active inference task to abort. Repeated stops emit no duplicate terminal event; children and recorded tool results remain available. Cancellation storage failure cannot publish a successful interruption. The terminal duration stays frozen at the defer boundary. An interrupted idle thread without subscribers can use normal unload and release its writer ownership.
+
 ## Deferred turn timing
 
 A deferred execution segment stops its elapsed-time counter at the durable defer boundary, both live and after history reload; only the resumed segment advances. The engine publishes `turn/deferred` with a `deferred` turn status and the measured duration, leaving `completedAt` unset. The host freezes that segment and labels it as waiting to resume, without completion, interruption, unread-completion or automation-completion side effects. An unknown historical duration is shown as waiting without inventing a time.

@@ -1,6 +1,6 @@
 // A protocol peer only: native Codex owns dispatch, results, and durable history.
 import assert from 'node:assert/strict';
-import { appendFile } from 'node:fs/promises';
+import { appendFile, readFile } from 'node:fs/promises';
 import { createHash } from 'node:crypto';
 import { compileRequest } from '../providers/devin/mapping.mjs';
 
@@ -25,8 +25,16 @@ const done = item => emit({ type: 'item_done', item });
 emit({ type: 'created' });
 if (handoff) {
   assert.equal(request.tools.length, 0, 'handoff_must_not_declare_tools');
-  const summary = `Plaintext handoff: retain ${[...new Set(JSON.stringify(request.input).match(/ROUNDTRIP:[A-Z0-9_]+/g) ?? [])].join(' ')}.`;
-  done({ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: summary }] });
+  const control = process.env.AZRAEL_MANAGED_DEVIN_CONTROL
+    ? (await readFile(process.env.AZRAEL_MANAGED_DEVIN_CONTROL, 'utf8')).trim() : '';
+  const failure = { quota: 'provider_usage_limit', http: 'provider_http_400', rate: 'provider_rate_limit' }[control];
+  if (failure) {
+    emit({ type: 'error', code: failure });
+    process.exitCode = 1;
+  } else {
+    const summary = `Plaintext handoff: retain ${[...new Set(JSON.stringify(request.input).match(/ROUNDTRIP:[A-Z0-9_]+/g) ?? [])].join(' ')}.`;
+    done({ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: summary }] });
+  }
 } else if (final) {
   done({ type: 'message', role: 'assistant', content: [{ type: 'output_text', text: `VERIFIED:${marker}:ROUNDTRIP:${marker}` }] });
 } else {
@@ -37,4 +45,4 @@ if (handoff) {
   done({ type: 'reasoning', summary: [{ type: 'summary_text', text: 'Synthetic public Devin reasoning' }], encrypted_content: 'azrael-devin-v1:' + Buffer.from(JSON.stringify(metadata)).toString('base64') });
   done({ type: 'function_call', name: tool.name, namespace: tool.namespace, call_id: `devin_${marker}`, arguments: JSON.stringify({ value: marker }) });
 }
-emit({ type: 'completed' });
+if (!process.exitCode) emit({ type: 'completed' });

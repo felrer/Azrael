@@ -103,13 +103,32 @@ test("account updates refresh only their host and force backend discovery",async
  c.notification({hostId:"a",method:"account/updated"});await request;
  assert.equal(calls,2);assert.equal((await c.query("a",fn,100,invalidate)).data[0].model,"free");
 });
-test("account notification subscription uses the actual pinned event bus",()=>{
- const asset=injection.PROVIDER_PICKER_ASSET;
+test("account notification subscription waits for the pinned lazy event bus initializer",()=>{
+ const asset=injection.PROVIDER_QUERY_ASSET;
  const source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const subscription='ym.subscribe("mcp-notification",event=>__azraelProviderCatalog.notification(event));';
- assert.ok(source.includes(subscription));
- let callback,received;
- vm.runInNewContext(subscription,{ym:{subscribe(name,listener){assert.equal(name,"mcp-notification");callback=listener;}},__azraelProviderCatalog:{notification(event){received=event;}}});
+ const ts=require("../extensions/azrael-ex/node_modules/typescript");
+ const ast=ts.createSourceFile("query.js",source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+ assert.equal(ast.parseDiagnostics.length,0);
+ const subscriptions=[];
+ function visit(node){
+  if(ts.isCallExpression(node)&&node.expression.getText(ast)==="xm.subscribe"&&node.arguments[0]?.text==="mcp-notification")subscriptions.push(node);
+  ts.forEachChild(node,visit);
+ }
+ visit(ast);assert.equal(subscriptions.length,1);
+ const subscription=subscriptions[0];
+ let initializer=subscription.parent;
+ while(initializer&&!ts.isFunctionDeclaration(initializer))initializer=initializer.parent;
+ assert.ok(initializer,"subscription must belong to the lazy initializer, not module evaluation");
+ const creation=initializer.getText(ast).indexOf("xm=bm.getInstance()");
+ assert.ok(creation>=0&&creation<subscription.getStart(ast)-initializer.getStart(ast));
+ const picker=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,injection.PROVIDER_PICKER_ASSET),"utf8"),injection.PROVIDER_PICKER_ASSET).text;
+ assert.ok(!picker.includes('ym.subscribe("mcp-notification"'));
+ let callback,received,created=0,registered=0;
+ const context={bm:{getInstance(){created++;return {subscribe(name,listener){assert.equal(created,1);registered++;assert.equal(name,"mcp-notification");callback=listener;}};}},__azraelProviderCatalog:{notification(event){received=event;}}};
+ // Evaluate registration in a lazy function with the actual transformed calls.
+ vm.runInNewContext(`var xm;function initialize(){xm=bm.getInstance(),${subscription.getText(ast)}}`,context);
+ assert.equal(created,0);assert.equal(registered,0);
+ context.initialize();assert.equal(registered,1);
  const event={hostId:"local",method:"account/updated"};callback(event);assert.equal(received,event);
 });
 test("session creation during discovery schedules a forced refresh",async()=>{

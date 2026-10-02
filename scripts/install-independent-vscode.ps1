@@ -105,6 +105,15 @@ function ConvertTo-RegistryComparableJson {
         [void]$location.Remove('fsPath')
         [void]$location.Remove('_sep')
         $locationPath = [string]$location['path']
+        if ($location.Contains('external')) {
+            $externalUri = $null
+            if ([Uri]::TryCreate([string]$location['external'], [UriKind]::Absolute, [ref]$externalUri) -and
+                $externalUri.IsFile -and $externalUri.Query -ceq '' -and $externalUri.Fragment -ceq '' -and
+                $externalUri.Host -ieq [string]$location['authority'] -and
+                [Uri]::UnescapeDataString($externalUri.AbsolutePath) -ieq $locationPath) {
+                [void]$location.Remove('external')
+            }
+        }
         if ($locationPath -cmatch '^/[A-Za-z]:/') {
             $location['path'] = '/' + $locationPath.Substring(1, 1).ToUpperInvariant() + $locationPath.Substring(2)
         }

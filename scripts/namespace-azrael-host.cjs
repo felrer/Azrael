@@ -11,9 +11,12 @@ const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs"
 const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
+const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContext } = require("./inject-provider-context.cjs");
 const { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, injectDeferredTurn, injectDeferredPresentation, injectDeferredHostNotification } = require("./inject-deferred-turn.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
+const { injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
 const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
@@ -264,7 +267,7 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
     manifest.azraelIntegratedAccounts = true;
     manifest.azraelAccountPayloadVersion = accountVersion;
   }
-  manifest.contributes.configuration.title = "azrael Settings";
+  manifest.contributes.configuration.title = "Azrael Settings";
   manifest.contributes.configuration.properties["azrael.commentCodeLensEnabled"].default = false;
   for (const command of manifest.contributes.commands ?? []) {
     if (typeof command.title === "string") command.title = command.title.replaceAll("Codex", "Azrael");
@@ -299,7 +302,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(accountSettings.text, filename, ts) :
@@ -317,7 +320,8 @@ function transformAsset(source, relativePath, filename, ts) {
     relativePath === QUEUED_COMPACTION_PRESENTATION_ASSET ? injectQueuedCompactionPresentation(queueRefresh.text) :
       relativePath === QUEUED_COMPACTION_LIST_ASSET ? injectQueuedCompactionList(queueRefresh.text) : { text: queueRefresh.text, count: 0 };
   const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
-  const providerPicker = injectProviderModelPicker(queueConsumption.text, relativePath);
+  const accountQueue = injectAccountSwitchQueue(queueConsumption.text, relativePath);
+  const providerPicker = injectProviderModelPicker(accountQueue.text, relativePath);
   const threadBranch = injectThreadBranch(providerPicker.text, relativePath);
   const paginatedHistory = injectPaginatedHistory(threadBranch.text, relativePath);
   const recentChatFilter = injectRecentChatFilter(paginatedHistory.text, relativePath);
@@ -326,10 +330,12 @@ function transformAsset(source, relativePath, filename, ts) {
   const fileOpenMenu = injectFileOpenMenu(urlSafety.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
-  if (namespaced.count || accountSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
-    return { text: localFileDrop.text, asset: {
+  const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
+  const providerContext = injectProviderContext(composerDraft.text, relativePath);
+  if (namespaced.count || accountSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count) {
+    return { text: providerContext.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
+      edits: namespaced.count + accountSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count,
       accountSettingsEdits: accountSettings.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
@@ -346,23 +352,27 @@ function transformAsset(source, relativePath, filename, ts) {
       immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
       queueConsumptionEdits: queueConsumption.count,
+      accountSwitchQueueEdits: accountQueue.count,
       urlSafetyTransportEdits: urlSafety.count,
       imageFileOpenEdits: imageFileOpen.count,
       fileOpenMenuEdits: fileOpenMenu.count,
       localFileDropEdits: localFileDrop.count,
+      composerDraftEdits: composerDraft.count,
+      providerContextEdits: providerContext.count,
       sourceSha256: sha(source),
-      sha256: sha(localFileDrop.text),
+      sha256: sha(providerContext.text),
     } };
   }
-  return { text: localFileDrop.text, asset: null };
+  return { text: providerContext.text, asset: null };
 }
 
 function getTransformRules() {
   const transformSources = [
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
-    "inject-queue-consumption.cjs", "inject-queued-compaction.cjs",
+    "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-account-settings.cjs",
+    "inject-provider-context.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
   ];
@@ -497,6 +507,15 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + asset.localFileDropEdits, 0) !== 2) {
     throw new Error("Local file-drop transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.composerDraftEdits ?? 0), 0) !== 1) {
+    throw new Error("Composer draft transformation was incomplete.");
+  }
+  for (const contextAsset of ["webview/assets/app-initial-9cbfb5c07b41.js", "webview/assets/agent-settings-7296007574a6.js"]) {
+    if (!report.assets.some(asset => asset.path === contextAsset && asset.providerContextEdits > 0)) throw new Error("Provider context transformation was incomplete: " + contextAsset);
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.accountSwitchQueueEdits ?? 0), 0) !== 2) {
+    throw new Error("Account-switch queue transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.queueConsumptionEdits, 0) !== 1) {
     throw new Error("Queue-consumption transformation was incomplete.");

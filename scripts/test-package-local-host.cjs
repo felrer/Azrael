@@ -9,10 +9,10 @@ const { EventEmitter } = require("node:events");
 const { PassThrough } = require("node:stream");
 const { test } = require("node:test");
 const { spawnSync } = require("node:child_process");
-const { textScanFiles, untrustedTextFiles, writeVsix } = require("./package-local-host.cjs");
+const { textScanFiles, untrustedTextFiles, validateEnvPaths, writeVsix } = require("./package-local-host.cjs");
 
 const source = fs.readFileSync(path.join(__dirname, "package-local-host.cjs"), "utf8");
-const pinnedCli = path.resolve(__dirname, "../artifacts/build/pdf_chrome_20261001_v2/companion/node_modules/@vscode/vsce/vsce");
+const pinnedCli = path.resolve(__dirname, "../artifacts/build/test_reduction_20261002_install/companion/node_modules/@vscode/vsce/vsce");
 const pinnedRequire = require("node:module").createRequire(pinnedCli);
 
 async function archiveEntries(filename) {
@@ -114,6 +114,7 @@ test("real .env and credential fixtures fail with nonzero status and no secret b
   const env = run();
   assert.equal(env.status, 1);
   assert.ok(!fs.existsSync(output));
+  assert.ok(!`${env.stdout}${env.stderr}`.includes("EXAMPLE=local-only"));
   // Verify pinned validation itself refuses .env even when credential scanning is allowed.
   const baseline = spawnSync(process.execPath, [pinnedCli, "package", "--no-dependencies", "--no-rewrite-relative-links",
     "--allow-missing-repository", "--allow-package-all-secrets", "--out", output],
@@ -138,7 +139,7 @@ function fixture(t, { diskOk = true, memoryOk = true, validationError } = {}) {
   const cli = path.resolve("pinned-vsce", "vsce");
   const manifest = { name: "host" };
   const files = [
-    { path: "extension/.env", localPath: path.join(cwd, ".env") },
+    { path: "extension/config", localPath: path.join(cwd, "config") },
     { path: "extension/out/main.js", localPath: path.join(cwd, "out/main.js") },
     { path: "extension/bin/engine.exe", localPath: path.join(cwd, "bin/engine.exe") },
     { path: "extension/package.json", contents: '{"name":"host"}' },
@@ -156,7 +157,11 @@ function fixture(t, { diskOk = true, memoryOk = true, validationError } = {}) {
     } };
     if (name === path.join(path.dirname(cli), "out/package.js")) return {
       async readManifest(dir) { calls.manifest = dir; return manifest; },
-      async collect(value, options) { calls.collect.push([value, options]); return files; },
+      async collect(value, options) {
+        assert.equal(options.allowPackageEnvFile, undefined);
+        calls.collect.push([value, options]);
+        return files;
+      },
       async printAndValidatePackagedFiles(...args) {
         calls.validation.push(args);
         if (validationError) throw validationError;
@@ -196,6 +201,71 @@ test("text selection excludes generated native/media assets and existing node_mo
   assert.deepEqual(textScanFiles(files), []);
 });
 
+test("filename guard matches pinned exact .env rule and accepts .env variants", () => {
+  validateEnvPaths([
+    { path: "extension/.env.production", contents: "configuration" },
+    { path: "extension/.ENV", localPath: "C:\\host\\.ENV" },
+    { path: "extension/env", originalPath: "C:\\host\\.env.example" },
+  ]);
+  for (const field of ["path", "localPath", "originalPath"]) {
+    for (const candidate of ["extension/node_modules/dep/.env", "C:\\host\\media\\.env", ".env"]) {
+      assert.throws(() => validateEnvPaths([{ [field]: candidate }]),
+        { message: "Host package environment file check failed." });
+    }
+  }
+});
+
+test("all collected disk, memory and original .env paths block before scanning or validation", async t => {
+  const entries = [
+    { path: "extension/node_modules/dep/.env", localPath: "node_modules/dep/.env" },
+    { path: "extension/.env", localPath: "media/asset.png" },
+    { path: "extension/renamed", localPath: "C:\\host\\.env" },
+    { path: "extension/.env", contents: "sensitive diagnostic" },
+    { path: "extension/readme.md", originalPath: "C:\\host\\.env", contents: "sensitive diagnostic" },
+  ];
+  for (const entry of entries) {
+    const f = fixture(t);
+    f.files.push(entry);
+    await assert.rejects(f.run(), { message: "Host package environment file check failed." });
+    assert.equal(f.calls.files.length, 0);
+    assert.equal(f.calls.text.length, 0);
+    assert.equal(f.calls.validation.length, 0);
+    assert.equal(f.calls.archive.length, 0);
+    assert.equal(f.calls.collect[0][1].allowPackageEnvFile, undefined);
+    assert.ok(!fs.existsSync(f.output));
+    const metrics = JSON.parse(fs.readFileSync(`${f.output}.metrics.json`, "utf8"));
+    assert.equal(metrics.success, false);
+    assert.ok(metrics.timingsMs.envPathGuard >= 0);
+  }
+});
+
+test("real dependency .env and in-memory manifest credentials fail without archive or leaked body", async t => {
+  const { root, cwd } = extensionFixture(t);
+  const output = path.join(root, "blocked.vsix");
+  // Root dependencies are excluded by --no-dependencies; embedded account UI
+  // dependencies are collected and must still receive the filename guard.
+  const dependency = path.join(cwd, "account-ui/node_modules/fixture-dep");
+  fs.mkdirSync(dependency, { recursive: true });
+  const envBody = "DEPENDENCY_PRIVATE_CONFIGURATION=synthetic-only";
+  fs.writeFileSync(path.join(dependency, ".env"), envBody);
+  const run = () => spawnSync(process.execPath, [path.join(__dirname, "package-local-host.cjs"), pinnedCli, output],
+    { cwd, encoding: "utf8", windowsHide: true, timeout: 60000 });
+  const env = run();
+  assert.equal(env.status, 1);
+  assert.ok(!fs.existsSync(output));
+  assert.ok(!`${env.stdout}${env.stderr}`.includes(envBody));
+  fs.unlinkSync(path.join(dependency, ".env"));
+  const credential = "npm_" + "0123456789abcdefghijklmnopqrstuvwxyz";
+  const manifestPath = path.join(cwd, "package.json");
+  const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
+  manifest.description = credential;
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+  const secret = run();
+  assert.equal(secret.status, 1);
+  assert.ok(!fs.existsSync(output));
+  assert.ok(!`${secret.stdout}${secret.stderr}`.includes(credential));
+});
+
 test("collect once, scan, validate and archive the exact collected entries with pinned options", async t => {
   const f = fixture(t);
   assert.equal(await f.run(), 0);
@@ -204,9 +274,9 @@ test("collect once, scan, validate and archive the exact collected entries with 
   assert.equal(f.calls.collect[0][0], f.manifest);
   assert.deepEqual({ ...f.calls.collect[0][1] }, {
     cwd: f.cwd, dependencies: false, allowMissingRepository: true, rewriteRelativeLinks: false,
-    packagePath: f.output, allowPackageAllSecrets: true,
+    packagePath: f.output, allowPackageAllSecrets: true, allowPackageEnvFile: true,
   });
-  assert.deepEqual(Array.from(f.calls.files[0][0]), [path.join(f.cwd, ".env"), path.join(f.cwd, "out/main.js")]);
+  assert.deepEqual(Array.from(f.calls.files[0][0]), [path.join(f.cwd, "config"), path.join(f.cwd, "out/main.js")]);
   assert.deepEqual(f.calls.files[0].slice(1), [true, true]);
   assert.deepEqual(f.calls.text, [
     ['{"name":"host"}', "extension/package.json", true, true],
@@ -216,7 +286,7 @@ test("collect once, scan, validate and archive the exact collected entries with 
   assert.equal(f.calls.validation[0][1], f.cwd);
   assert.equal(f.calls.validation[0][2], f.manifest);
   assert.equal(f.calls.validation[0][3], f.calls.collect[0][1]);
-  assert.equal(f.calls.validation[0][3].allowPackageEnvFile, undefined);
+  assert.equal(f.calls.validation[0][3].allowPackageEnvFile, true);
   assert.deepEqual(f.calls.archive.map(call => call[2]), f.files.map(file => file.path));
   assert.equal(f.calls.archive[0][1], f.files[0].localPath);
   assert.equal(f.calls.archive.at(-1)[1], f.files.at(-1).contents);
@@ -224,7 +294,8 @@ test("collect once, scan, validate and archive the exact collected entries with 
   assert.equal(metrics.success, true);
   assert.equal(metrics.outputBytes, fs.statSync(f.output).size);
   assert.equal(metrics.counts.collected, f.files.length);
-  for (const stage of ["collect", "trustedComparison", "scan", "validationEnvGuard", "archive", "total"])
+  assert.equal(metrics.counts.envPathChecked, f.files.length);
+  for (const stage of ["collect", "envPathGuard", "trustedComparison", "scan", "validationEnvGuard", "archive", "total"])
     assert.ok(metrics.timingsMs[stage] >= 0, stage);
 });
 

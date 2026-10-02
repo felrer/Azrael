@@ -12,7 +12,8 @@ assert(process.argv[2] && isAbsolute(process.argv[2]), 'absolute_engine_executab
 assert(process.argv[3] && isAbsolute(process.argv[3]), 'absolute_new_fixture_root_required');
 const engine = process.argv[2], run = process.argv[3];
 const managedOnly = process.argv.includes('--managed-only');
-const claudeOnly = process.argv.includes('--claude-only');
+const devinHandoffOnly = process.argv.includes('--devin-handoff-only');
+const claudeOnly = process.argv.includes('--claude-only') || devinHandoffOnly;
 assert(!(managedOnly && claudeOnly), 'fixture_modes_are_exclusive');
 const root = resolve(import.meta.dirname, '..');
 const releaseOption = process.argv.indexOf('--release-directory');
@@ -187,6 +188,7 @@ async function start() {
   env.AZRAEL_DEVIN_NODE = process.execPath;
   env.AZRAEL_EX_DEVIN_EXECUTABLE = process.execPath;
   env.AZRAEL_MANAGED_DEVIN_TRACE = join(run, 'devin-requests.jsonl');
+  if (devinHandoffOnly) env.AZRAEL_MANAGED_DEVIN_CONTROL = join(run, 'devin-handoff-control.txt');
   env.NO_PROXY = '127.0.0.1,localhost';
   const child = spawn(engine, ['-c', 'features.code_mode=false', '-c', 'features.plugins=false', '-c', 'web_search="disabled"', 'app-server'],
     { cwd, env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
@@ -324,7 +326,59 @@ try {
   await writeFile(join(state, 'auth.json'), JSON.stringify({ OPENAI_API_KEY: keys[3], tokens: null, last_refresh: null }));
   await writeFile(join(state, 'config.toml'), `model = ${JSON.stringify(models[0])}\nmodel_provider = "fixture_openai"\ncli_auth_credentials_store = "file"\napproval_policy = "never"\nsandbox_mode = "danger-full-access"\n[model_providers.fixture_openai]\nname = "Loopback native OpenAI fixture"\nbase_url = ${JSON.stringify(`${fixture.baseUrl}/openai`)}\nwire_api = "responses"\nrequires_openai_auth = true\n[features]\nplugins = false\nresponses_websockets = false\n`);
   await start();
-  if (claudeOnly) {
+  if (devinHandoffOnly) {
+    report.scope = 'Devin source handoff exhaustion and OpenAI loopback transitions';
+    for (const scenario of [
+      { name: 'same-thread-summary', control: '', fork: false },
+      { name: 'fork-summary', control: '', fork: true },
+      { name: 'same-thread-quota', control: 'quota', fork: false },
+      { name: 'fork-quota', control: 'quota', fork: true },
+      { name: 'resumed-fork-quota', control: 'quota', fork: true, restart: true },
+      { name: 'fork-generic-400', control: 'http', fork: true },
+      { name: 'fork-rate-limit', control: 'rate', fork: true },
+    ]) {
+      await writeFile(join(run, 'devin-handoff-control.txt'), '');
+      const source = await peer.request('thread/start', { model: 'devin/swe-2-high', cwd, approvalPolicy: 'never', sandbox: 'danger-full-access', ephemeral: false, dynamicTools });
+      await boundaryTurn(source.thread.id, 'devin/swe-2-high', 'DEVIN_BOUNDARY_START');
+      const target = scenario.fork ? (await peer.request('thread/fork', { threadId: source.thread.id, model: 'gpt-5.2', cwd, dynamicTools })).thread.id : source.thread.id;
+      if (scenario.restart) {
+        await peer.close();
+        await start();
+        await peer.request('thread/resume', { threadId: target, cwd, model: 'gpt-5.2', dynamicTools });
+      }
+      await writeFile(join(run, 'devin-handoff-control.txt'), scenario.control);
+      const offset = peer.events.length, before = fixture.requests.length, calls = peer.calls.length;
+      const snapshot = await history(target, scenario.name + '-before');
+      if (scenario.control === 'http' || scenario.control === 'rate') {
+        const started = await peer.request('turn/start', { threadId: target, model: 'gpt-5.2', input: [{ type: 'text', text: 'OPENAI_BOUNDARY_END: continue', text_elements: [] }] });
+        const ended = await peer.wait(event => event.method === 'turn/completed' && event.params.threadId === target && event.params.turn.id === started.turn.id);
+        assert.equal(ended.turn.status, 'failed');
+        assert.equal(fixture.requests.length, before, 'unrelated_error_must_not_call_target');
+        assert.equal(peer.calls.length, calls, 'unrelated_error_must_not_replay_tools');
+        assert(!JSON.stringify(peer.events.slice(offset)).includes('encrypted context was omitted'));
+        assert((await history(target, scenario.name + '-failed')).includes('ROUNDTRIP:DEVIN_BOUNDARY_START'), 'failed_handoff_preserves_source_history');
+        await writeFile(join(run, 'devin-handoff-control.txt'), 'quota');
+        await boundaryTurn(target, 'gpt-5.2', 'OPENAI_BOUNDARY_END');
+      } else {
+        await boundaryTurn(target, 'gpt-5.2', 'OPENAI_BOUNDARY_END');
+      }
+      const requests = fixture.requests.slice(before).filter(r => r.provider === 'openai' && !r.handoff);
+      assert.equal(requests.length, 2, 'only_target_tool_and_final_requests');
+      const wire = JSON.stringify(requests);
+      assert(wire.includes('ROUNDTRIP:DEVIN_BOUNDARY_START'), 'saved_source_tool_result_reaches_target');
+      assert(!wire.includes('azrael-devin-v1') && !wire.includes('synthetic-devin-boundary-signature'), 'source_private_reasoning_excluded');
+      if (scenario.control) {
+        assert(!wire.includes('Synthetic public Devin reasoning'), 'quota_excludes_source_reasoning_items');
+        const events = JSON.stringify(peer.events.slice(offset));
+        assert(events.includes('devin usage') && events.includes('fixture_openai') && events.includes('encrypted context was omitted'), 'quota_warning_names_source_destination_and_loss');
+      }
+      assert(snapshot.includes('ROUNDTRIP:DEVIN_BOUNDARY_START'));
+      report.checks.push(scenario.name);
+    }
+    assert.deepEqual(fixture.errors, []);
+    await checkTranscripts();
+    report.status = 'passed';
+  } else if (claudeOnly) {
     const claudeThread = await peer.request('thread/start', { model: models[0], cwd, approvalPolicy: 'never', sandbox: 'danger-full-access', ephemeral: false, dynamicTools });
     await turn(claudeThread.thread.id, 0);
     await boundaryTurn(claudeThread.thread.id, 'gpt-5.2', 'OPENAI_BOUNDARY_START');

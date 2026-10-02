@@ -13,8 +13,14 @@ const continuationTimeouts = new Map([
   ...["provider_headers_timeout", "provider_stream_idle", "provider_request_deadline"].map(code =>
     [`Fatal error: native inference helper failed (${code})`, code]),
 ]);
+// Historical helper rejections may predate precise usage classification.
+// Allow a fresh user-requested continuation, without inferring quota or replay.
+const continuationRejections = new Map([
+  ["미분류 오류: native inference helper failed (provider_http_400)", "provider_request_rejected"],
+]);
 const diagnosticErrors = new Map([
   ...continuationTimeouts,
+  ...continuationRejections,
   ["Fatal error: native inference helper unresponsive (no protocol frames for 120s)", "helper_unresponsive"],
   ["Fatal error: native inference helper failed (provider_failure)", "provider_failure"],
 ]);
@@ -29,7 +35,8 @@ function admitsContinuation(thread, latest) {
   // Match only known terminal errors; transport silence alone is not admission.
   return thread.status?.type === "systemError" && latest?.status === "failed" &&
     (latest.error?.codexErrorInfo === "usageLimitExceeded" ||
-      (latest.error?.codexErrorInfo === "other" && continuationTimeouts.has(latest.error.message)));
+      (latest.error?.codexErrorInfo === "other" &&
+        (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message))));
 }
 
 function isContinuation(params) {
@@ -108,7 +115,11 @@ class RecoveryState {
 
   coalesce(key, action) {
     if (this.inflight.has(key)) return this.inflight.get(key);
-    const promise = Promise.resolve().then(action).finally(() => this.inflight.delete(key));
+    // Register serial work now: a later input must not overtake a resume whose
+    // action has been deferred to the next microtask.
+    let result;
+    try { result = action(); } catch (error) { result = Promise.reject(error); }
+    const promise = Promise.resolve(result).finally(() => this.inflight.delete(key));
     this.inflight.set(key, promise);
     return promise;
   }
@@ -209,15 +220,36 @@ class RecoveryState {
   }
 
   async refresh(threadId) {
+    const generation = this.generation;
     this.setStage(threadId, "recovering");
     try {
       const snapshot = await this.snapshot(threadId);
+      this.checkGeneration(generation);
       const receipt = this.receipts.get(threadId);
       if (unresolved(receipt) && snapshot.active) {
         // This is an attachment receipt, not proof of which request created the
         // live turn. No input is replayed to establish the attachment.
         await this.persist(threadId, { ...receipt, phase: "accepted", turnId: snapshot.latest.id, attached: true });
-      } else if (unresolved(receipt)) this.setStage(threadId, "unknown", receipt.turnId);
+      } else if (unresolved(receipt)) {
+        let matched;
+        if (typeof receipt.clientUserMessageId === "string" && receipt.clientUserMessageId.length) {
+          const page = await this.rpc("thread/turns/list", { threadId, limit: 20,
+            sortDirection: "desc", itemsView: "full" });
+          this.checkGeneration(generation);
+          if (Array.isArray(page?.data)) matched = page.data.slice(0, 20).find(turn =>
+            typeof turn?.id === "string" && turn.id.length &&
+            ["completed", "interrupted", "failed"].includes(turn.status) &&
+            Array.isArray(turn.items) && turn.items.some(item => item?.type === "userMessage" &&
+              item.clientId === receipt.clientUserMessageId));
+        }
+        if (matched) {
+          await this.persist(threadId, { ...receipt, phase: "finished", turnId: matched.id });
+          this.checkGeneration(generation);
+          snapshot.reconciledTurn = matched;
+          this.log({ event: "recovery.receipt_reconciled", threadId, turnId: matched.id,
+            operationId: receipt.operationId, reason: "client_message_matched" });
+        } else this.setStage(threadId, "unknown", receipt.turnId);
+      }
       else if (receipt?.phase === "accepted" && !snapshot.active) await this.persist(threadId, { ...receipt, phase: "finished" });
       return snapshot;
     } catch (error) {
@@ -242,8 +274,11 @@ class RecoveryState {
 
   start(params) {
     if (!isContinuation(params)) {
+      const recovering = this.pendingResumes(params.threadId);
       return this.serial(params.threadId, async () => {
         const generation = this.generation;
+        await Promise.all(recovering);
+        this.checkGeneration(generation);
         this.setStage(params.threadId, "starting");
         let result;
         try { result = await this.dispatchStart(params, generation); }
@@ -262,11 +297,27 @@ class RecoveryState {
     return this.coalesce(`start:${params.threadId}`, () => this.serial(params.threadId, () => this.continueOnce(params)));
   }
 
+  pendingResumes(threadId) {
+    const prefix = `resume:${threadId}:`;
+    return [...this.inflight].filter(([key]) => key.startsWith(prefix)).map(([, promise]) => promise);
+  }
+
+  steer(params) {
+    const recovering = this.pendingResumes(params.threadId);
+    return this.serial(params.threadId, async () => {
+      const generation = this.generation;
+      await Promise.all(recovering);
+      this.checkGeneration(generation);
+      return this.rpc("turn/steer", params);
+    });
+  }
+
   async continueOnce(params, reviewedUnknown = false) {
     const threadId = params.threadId;
     const generation = this.generation;
-    const { thread, latest, active } = await this.refresh(threadId);
+    const { thread, latest, active, reconciledTurn } = await this.refresh(threadId);
     this.checkGeneration(generation);
+    if (reconciledTurn) return { turn: reconciledTurn };
     const decision = (outcome, reason, snapshot = { thread, latest }) => this.log({
       event: "recovery.admission", threadId, turnId: snapshot.latest?.id, outcome, reason,
       threadStatus: knownStatus(snapshot.thread.status?.type, ["active", "idle", "notLoaded", "systemError"]),
@@ -281,7 +332,7 @@ class RecoveryState {
     const previous = this.receipts.get(threadId);
     if (unresolved(previous) && !reviewedUnknown) {
       decision("blocked", "previous_dispatch_unresolved");
-      throw new Error("이전 재개 요청의 결과가 불명확합니다. Azrael 실행 상태에서 기록을 확인한 뒤 새 재개를 선택해주세요.");
+      throw new Error("이전 재개 요청의 결과가 불명확합니다. Ctrl+Shift+P → ‘azrael: 실행 상태 및 복구’에서 이 세션을 선택한 뒤 ‘대화 기록을 확인했으며 새 재개 실행’을 선택해주세요.");
     }
     if (thread.status.type === "notLoaded") {
       await this.rpc("thread/resume", { threadId });
@@ -298,7 +349,9 @@ class RecoveryState {
     // only after continuation admission; attachment to live work never adds input.
     if (params.input.length === 0) params = { ...params, input: [{ type: "text", text: "continue" }] };
     const receipt = { threadId, operationId: randomUUID(), fingerprint: fingerprint(params),
-      baselineTurnId: latest?.id ?? null, phase: "dispatching", turnId: null };
+      baselineTurnId: latest?.id ?? null, phase: "dispatching", turnId: null,
+      ...(typeof params.clientUserMessageId === "string" && params.clientUserMessageId.length ?
+        { clientUserMessageId: params.clientUserMessageId } : {}) };
     await this.persist(threadId, receipt);
     this.checkGeneration(generation);
     decision("admitted", "terminal_state_confirmed");
@@ -314,6 +367,15 @@ class RecoveryState {
       if (!finished && (observed?.turnId !== result.turn.id || observed.phase === "starting")) this.setStage(threadId, "waiting", result.turn.id);
       return result;
     } catch (error) {
+      if (error.rpcError?.data?.azraelAdmission === "accountChangePending") {
+        // This marker is emitted only before native request dispatch. Preserve
+        // the distinction from generic RPC errors with an uncertain outcome.
+        await this.persist(threadId, { ...receipt, phase: "finished", rejected: true });
+        this.setStage(threadId, "idle");
+        this.log({ event: "recovery.rejected", threadId, operationId: receipt.operationId,
+          reason: "account_change_pending" });
+        throw error;
+      }
       this.markStartUncertain(threadId);
       this.log({ event: "recovery.outcome_unknown", threadId, operationId: receipt.operationId });
       await this.persist(threadId, { ...receipt, phase: "unknown" }).catch(() => {});
@@ -325,6 +387,7 @@ class RecoveryState {
     return this.coalesce(`start:${threadId}`, () => this.serial(threadId, async () => {
       const generation = this.generation;
       const snapshot = await this.refresh(threadId);
+      if (snapshot.reconciledTurn && !reviewedUnknown) return { turn: snapshot.reconciledTurn };
       if (snapshot.active) {
         this.setStage(threadId, "interrupting", snapshot.latest.id);
         await this.rpc("turn/interrupt", { threadId, turnId: snapshot.latest.id });
