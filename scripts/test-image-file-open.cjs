@@ -41,7 +41,7 @@ function fixture(bundle, workspacePaths = [], { platform = "linux", pdfError } =
     Pc: value => /^\/[A-Za-z]:[\\/]/.test(value) ? value.slice(1) : value,
     require(id) {
       assert.equal(id, "./pdf-file-open.cjs");
-      return { async openPdfInChrome(value) {
+      return { async openFileInChrome(value) {
         calls.push(["pdf", value]);
         if (pdfError) throw pdfError;
       } };
@@ -157,6 +157,41 @@ test("non-Windows provider preserves PDF text handling", async () => {
   const { provider, calls } = fixture(injectImageFileOpen(original).text);
   assert.equal((await provider.open({ path: "/reports/report.pdf" })).success, true);
   assert.deepEqual(calls.map(call => call[0]), ["text", "show"]);
+});
+
+test("Windows HTML and HTM links open Chrome through existing path resolution", async () => {
+  for (const { input, workspace, expected } of [
+    { input: { path: "C:\\reports\\report.html", line: 7, column: 3 }, expected: "C:\\reports\\report.html" },
+    { input: { path: "/C:/reports/REPORT.HTM" }, expected: "C:/reports/REPORT.HTM" },
+    { input: { path: "reports/report.HtMl", cwd: "C:\\project" }, expected: "C:\\project\\reports\\report.HtMl" },
+    { input: { path: "reports/report.htm" }, workspace: ["C:\\workspace"], expected: "C:\\workspace\\reports\\report.htm" },
+  ]) {
+    const { provider, calls } = fixture(injectImageFileOpen(original).text, workspace, { platform: "win32" });
+    assert.equal((await provider.open(input)).success, true);
+    assert.deepEqual(calls, [["pdf", expected]]);
+  }
+});
+
+test("explicit VS Code menu target uses text and line selection for HTML and media files", async () => {
+  const { provider, calls } = fixture(injectImageFileOpen(original).text, [], { platform: "win32" });
+  for (const extension of ["html", "HTM", "pdf", "png", "txt"]) {
+    calls.length = 0;
+    assert.equal((await provider.open({ path: `C:\\reports\\report.${extension}`, target: "vscode", line: 7, column: 3 })).success, true);
+    assert.deepEqual(calls.map(call => call[0]), ["text", "show"]);
+    assert.equal(calls[1][2].selection.start.line, 6);
+    assert.equal(calls[1][2].selection.start.character, 2);
+  }
+});
+
+test("HTML reveal takes precedence and Chrome failures use existing failure handling", async () => {
+  const { provider, calls } = fixture(injectImageFileOpen(original).text, [], { platform: "win32" });
+  assert.equal((await provider.open({ path: "C:\\reports\\report.html", target: "fileManager" })).success, true);
+  assert.deepEqual(calls.map(call => call.slice(0, 2)), [["command", "revealFileInOS"]]);
+  for (const error of [new Error("Chrome unavailable"), new Error("spawn failed"), new Error("Not a file")]) {
+    const failed = fixture(injectImageFileOpen(original).text, [], { platform: "win32", pdfError: error });
+    assert.equal((await failed.provider.open({ path: "C:\\reports\\report.htm" })).success, false);
+    assert.deepEqual(failed.calls.map(call => call[0]), ["pdf", "error"]);
+  }
 });
 
 test("injection fails closed for missing, duplicated, and altered anchors or markers", () => {

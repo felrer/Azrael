@@ -7,6 +7,7 @@ const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
 const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
+const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 const { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, injectDeferredTurn, injectDeferredPresentation, injectDeferredHostNotification } = require("./inject-deferred-turn.cjs");
@@ -281,7 +282,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|["'`]Codex["'`]/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|["'`]Codex["'`]/.test(source)) return { text: source, asset: null };
   const namespaced = rewriteJavaScript(source, filename, ts);
   const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(namespaced.text, filename, ts) :
     isRecentThreadListAsset ? markRecentThreadListRequest(namespaced.text, filename, ts) :
@@ -301,12 +302,13 @@ function transformAsset(source, relativePath, filename, ts) {
   const providerPicker = injectProviderModelPicker(queueConsumption.text, relativePath);
   const threadBranch = injectThreadBranch(providerPicker.text, relativePath);
   const urlSafety = isHostBundle ? injectUrlSafetyTransport(threadBranch.text) : { text: threadBranch.text, count: 0 };
-  const imageFileOpen = isHostBundle ? injectImageFileOpen(urlSafety.text) : { text: urlSafety.text, count: 0 };
+  const fileOpenMenu = injectFileOpenMenu(urlSafety.text, relativePath);
+  const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
-  if (namespaced.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || urlSafety.count || imageFileOpen.count || localFileDrop.count) {
+  if (namespaced.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || providerPicker.count || threadBranch.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count) {
     return { text: localFileDrop.text, asset: {
       path: relativePath,
-      edits: namespaced.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + urlSafety.count + imageFileOpen.count + localFileDrop.count,
+      edits: namespaced.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + providerPicker.count + threadBranch.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
@@ -322,6 +324,7 @@ function transformAsset(source, relativePath, filename, ts) {
       queueConsumptionEdits: queueConsumption.count,
       urlSafetyTransportEdits: urlSafety.count,
       imageFileOpenEdits: imageFileOpen.count,
+      fileOpenMenuEdits: fileOpenMenu.count,
       localFileDropEdits: localFileDrop.count,
       sourceSha256: sha(source),
       sha256: sha(localFileDrop.text),
@@ -332,7 +335,7 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs",
     "inject-deferred-turn.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs",
@@ -455,6 +458,9 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.fileOpenMenuEdits ?? 0), 0) !== 1) {
+    throw new Error("File-open menu transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.imageFileOpenEdits, 0) !== 1) {
     throw new Error("Image file-open transformation was incomplete.");

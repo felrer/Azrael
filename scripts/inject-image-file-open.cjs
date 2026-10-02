@@ -1,9 +1,9 @@
 "use strict";
 
-const MARKER = "/*azrael-image-file-open-v2*/";
+const MARKER = "/*azrael-image-file-open-v3*/";
 const ANCHOR = 'if(s)return await lo.commands.executeCommand("revealFileInOS",y),!0;let v=await lo.workspace.openTextDocument(y)';
 const IMAGE_EXTENSIONS = "jpg|jpe|jpeg|png|bmp|gif|ico|webp|avif|svg";
-const REPLACEMENT = `if(s)return await lo.commands.executeCommand("revealFileInOS",y),!0;${MARKER}if(process.platform==="win32"&&/\\.pdf$/i.test(y.fsPath)){await require("./pdf-file-open.cjs").openPdfInChrome(y.fsPath);return!0}if(/\\.(?:${IMAGE_EXTENSIONS})$/i.test(y.fsPath)){await lo.commands.executeCommand("vscode.openWith",y,"imagePreview.previewEditor",{preview:!1});return!0}let v=await lo.workspace.openTextDocument(y)`;
+const REPLACEMENT = `if(s)return await lo.commands.executeCommand("revealFileInOS",y),!0;${MARKER}if(i!=="vscode"&&process.platform==="win32"&&/\\.(?:pdf|html|htm)$/i.test(y.fsPath)){await require("./pdf-file-open.cjs").openFileInChrome(y.fsPath);return!0}if(i!=="vscode"&&/\\.(?:${IMAGE_EXTENSIONS})$/i.test(y.fsPath)){await lo.commands.executeCommand("vscode.openWith",y,"imagePreview.previewEditor",{preview:!1});return!0}let v=await lo.workspace.openTextDocument(y)`;
 
 function injectImageFileOpen(text) {
   const count = (needle) => text.split(needle).length - 1;

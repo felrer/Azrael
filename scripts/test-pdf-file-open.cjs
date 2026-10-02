@@ -45,7 +45,7 @@ function fixture({ env = roots, installed = [chromeAt(roots.ProgramFiles)], isFi
     module: exported, exports: exported.exports, process: { env, platform: "win32" },
     require(id) { assert.ok(Object.hasOwn(modules, id), `Unexpected helper dependency: ${id}`); return modules[id]; },
   }, { filename: helperPath });
-  return { open: exported.exports.openPdfInChrome, calls, child };
+  return { open: exported.exports.openFileInChrome, calls, child };
 }
 
 test("PDF launch discovers each standard Chrome install and prefers the first available root", async () => {
@@ -78,8 +78,8 @@ test("missing targets and directories fail before searching Chrome or creating a
   }
 });
 
-test("Chrome receives an encoded file URL as one shell-free detached argument", async () => {
-  const file = "C:\\보고서 폴더\\실험 #1.pdf";
+test("Chrome receives an encoded HTML file URL as one shell-free detached argument", async () => {
+  const file = "C:\\보고서 폴더\\실험 #1.html";
   const { open, calls } = fixture();
   await open(file);
   const launch = calls.find(call => call[0] === "spawn");
