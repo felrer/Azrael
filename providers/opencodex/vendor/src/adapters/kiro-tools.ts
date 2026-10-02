@@ -1,0 +1,263 @@
+import type { OcxParsedRequest, OcxTool } from "../types";
+import { namespacedToolName } from "../types";
+import { normalizeKiroModelId } from "../providers/kiro-models";
+import { isCodexCodeModeExecTool } from "./tool-catalog-nudge";
+import { createKiroToolNameRegistry, type KiroToolNameRegistry } from "./kiro-wire";
+
+const MAX_KIRO_TOOL_DESCRIPTION_UNVERIFIED = 1024;
+const MAX_KIRO_TOOL_DESCRIPTION_GPT_56_SOL = 9_216;
+// Issue #719's successful Kiro probe used 49 outbound tools at about 108 KiB. Leave one of those
+// slots for Kiro's private completion tool and headroom for the enclosing request/message fields.
+export const MAX_KIRO_TOOL_COUNT = 48;
+export const MAX_KIRO_TOOL_CATALOG_BYTES = 96_000;
+const textEncoder = new TextEncoder();
+
+// JSON Schema validation/annotation keywords that Kiro's runtimeservice tool-spec validator
+// rejects ("ValidationException: Invalid tool use format."). Codex's built-in tools omit these,
+// but the `memories__*` tools (add_ad_hoc_note/read/search/list) emit pattern/length/range
+// constraints via schemars, which trip the validator. Strip them everywhere in the schema tree;
+// the constraints are advisory for the model, so dropping them does not change tool behavior.
+const KIRO_REJECTED_SCHEMA_KEYS = new Set([
+  "additionalProperties",
+  "pattern",
+  "format",
+  "minLength",
+  "maxLength",
+  "minimum",
+  "maximum",
+  "exclusiveMinimum",
+  "exclusiveMaximum",
+  "multipleOf",
+  "minItems",
+  "maxItems",
+  "uniqueItems",
+  "minProperties",
+  "maxProperties",
+  "contentEncoding",
+  "contentMediaType",
+  "$schema",
+  // Validation-only composition/applicator keywords that Bedrock/Kiro do not support. Unlike
+  // `properties`/`$defs`, these are not plain property->schema maps the model needs, so they are
+  // dropped outright rather than recursed into.
+  "patternProperties",
+  "propertyNames",
+  "dependentSchemas",
+  "dependentRequired",
+  "if",
+  "then",
+  "else",
+  "contains",
+  "unevaluatedProperties",
+  "unevaluatedItems",
+  // Codex's Responses-only `encrypted: true` marker (openai/codex 5f4d06ef) stamped on v2
+  // collaboration tool schemas. Kiro/Bedrock validators reject a narrower, undocumented schema
+  // subset (issue #85 class); the marker is a ChatGPT-backend annotation with no meaning here.
+  "encrypted",
+]);
+
+// Keys whose values are maps of *property/definition name -> schema* (not schema keywords). Their
+// child keys must never be treated as schema keywords, or a legitimate property named e.g.
+// "format"/"pattern" would be deleted. We recurse into the value schemas but keep every name intact.
+const SCHEMA_MAP_KEYS = new Set(["properties", "$defs", "definitions"]);
+
+function sanitizeSchemaMap(value: unknown): unknown {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return sanitizeKiroSchema(value);
+  const out: Record<string, unknown> = {};
+  for (const [name, child] of Object.entries(value as Record<string, unknown>)) {
+    out[name] = sanitizeKiroSchema(child);
+  }
+  return out;
+}
+
+function sanitizeKiroSchema(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(sanitizeKiroSchema);
+  if (!value || typeof value !== "object") return value;
+  const out: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(value as Record<string, unknown>)) {
+    if (KIRO_REJECTED_SCHEMA_KEYS.has(key)) continue;
+    if (key === "required" && Array.isArray(child) && child.length === 0) continue;
+    out[key] = SCHEMA_MAP_KEYS.has(key) ? sanitizeSchemaMap(child) : sanitizeKiroSchema(child);
+  }
+  return out;
+}
+
+function ensureRootObjectType(schema: unknown): Record<string, unknown> {
+  const obj = schema && typeof schema === "object" && !Array.isArray(schema)
+    ? schema as Record<string, unknown>
+    : {};
+  // Bedrock rejects oneOf/allOf/anyOf at the root ("input_schema does not support oneOf, allOf, or
+  // anyOf at the top level") and requires the root type to be "object". Flatten every root
+  // composition into the object schema while preserving the root's own properties/required and any
+  // other sibling keys. allOf merges required (AND); anyOf/oneOf drop required so a single valid
+  // branch still passes. Nested (non-root) composition is left intact — only the root is illegal.
+  const COMPOSITION_KEYS = ["oneOf", "anyOf", "allOf"] as const;
+  const hasComposition = COMPOSITION_KEYS.some(k => Array.isArray(obj[k]));
+  const t = obj.type;
+  const rootObjectType = t === "object" || (Array.isArray(t) && t.includes("object"));
+  if (!hasComposition) {
+    if (rootObjectType && t === "object") return obj;
+    return { ...obj, type: "object" };
+  }
+
+  const props: Record<string, unknown> = {};
+  const required = new Set<string>();
+  // Seed with the root's own properties/required so a schema like
+  // { type:"object", properties:{path}, required:["path"], oneOf:[...] } keeps them.
+  if (obj.properties && typeof obj.properties === "object") {
+    Object.assign(props, sanitizeSchemaMap(obj.properties) as Record<string, unknown>);
+  }
+  if (Array.isArray(obj.required)) {
+    for (const r of obj.required) if (typeof r === "string") required.add(r);
+  }
+  for (const key of COMPOSITION_KEYS) {
+    const variants = obj[key];
+    if (!Array.isArray(variants)) continue;
+    // allOf is conjunction: its required fields always apply. oneOf/anyOf are disjunction, so
+    // promoting their required would over-constrain a valid single-branch call.
+    const mergeRequired = key === "allOf";
+    for (const variant of variants) {
+      if (!variant || typeof variant !== "object" || Array.isArray(variant)) continue;
+      const v = variant as Record<string, unknown>;
+      if (v.properties && typeof v.properties === "object") {
+        Object.assign(props, sanitizeSchemaMap(v.properties) as Record<string, unknown>);
+      }
+      if (mergeRequired && Array.isArray(v.required)) {
+        for (const r of v.required) if (typeof r === "string") required.add(r);
+      }
+    }
+  }
+
+  // Keep all non-composition sibling keys (description, $defs, definitions, etc.); replace
+  // type/properties/required with the flattened object form.
+  const merged: Record<string, unknown> = {};
+  for (const [key, child] of Object.entries(obj)) {
+    if (key === "oneOf" || key === "anyOf" || key === "allOf") continue;
+    if (key === "type" || key === "properties" || key === "required") continue;
+    merged[key] = child;
+  }
+  merged.type = "object";
+  if (Object.keys(props).length > 0) merged.properties = props;
+  if (required.size > 0) merged.required = [...required];
+  return merged;
+}
+
+function toolDescriptionLimit(modelId: string): number {
+  return normalizeKiroModelId(modelId) === "gpt-5.6-sol"
+    ? MAX_KIRO_TOOL_DESCRIPTION_GPT_56_SOL
+    : MAX_KIRO_TOOL_DESCRIPTION_UNVERIFIED;
+}
+
+function truncateDescription(description: string, limit: number): string {
+  if (description.length <= limit) return description;
+  if (limit <= 1) return description.slice(0, limit);
+  let end = limit - 1;
+  // Never end the kept text on a lone high surrogate; one step back keeps
+  // the whole pair out instead of a U+FFFD-producing half.
+  if (description.charCodeAt(end - 1) >= 0xd800 && description.charCodeAt(end - 1) <= 0xdbff) end -= 1;
+  return `${description.slice(0, end)}…`;
+}
+
+/** Test-only: exercise the surrogate-safe description truncation directly. */
+export function truncateDescriptionForTests(description: string, limit: number): string {
+  return truncateDescription(description, limit);
+}
+
+function serializedToolCatalogBytes(tools: readonly unknown[]): number {
+  return textEncoder.encode(JSON.stringify(tools)).byteLength;
+}
+
+function omittedToolCatalogNotice(kept: number, omitted: readonly OcxTool[], registry: KiroToolNameRegistry): string {
+  const names = omitted.slice(0, 12).map(tool => registry.alias(namespacedToolName(tool.namespace, tool.name)));
+  const remainder = omitted.length - names.length;
+  const summary = `${names.join(", ")}${remainder > 0 ? `, and ${remainder} more` : ""}`;
+  return `[opencodex] Kiro's outbound catalog budget allows ${kept} of ${kept + omitted.length} client tools this turn. Omitted and unavailable this turn: ${summary}.`;
+}
+
+function boundedCatalogPriority(tool: OcxTool): number {
+  if (tool.loadedFromToolSearch) return 0;
+  // Codex code mode reaches shell, file edits, apply_patch and every MCP helper ONLY as nested
+  // `tools.<name>(...)` calls inside this one tool. Dropping it does not shrink the catalog, it
+  // makes the rest of the catalog uncallable -- so it outranks the search gateway and filler.
+  // It stays BEHIND `loadedFromToolSearch` because those are tools the model asked for by name
+  // this turn (#2475). Cursor pins its execution path the same way (request-builder.ts, #399).
+  if (isCodexCodeModeExecTool(tool)) return 1;
+  if (tool.toolSearch) return 2;
+  return 3;
+}
+
+export function convertKiroToolContext(
+  parsed: OcxParsedRequest,
+  registry: KiroToolNameRegistry = createKiroToolNameRegistry(),
+): { tools: unknown[]; systemAdditions: string[]; nameMap: Map<string, string>; registry: KiroToolNameRegistry } {
+  const tools = parsed.context.tools ?? [];
+  const descriptionLimit = toolDescriptionLimit(parsed.modelId);
+  // Validate every listed name even when tool_choice:none emulates a tool-free turn.
+  for (const tool of tools) registry.alias(namespacedToolName(tool.namespace, tool.name));
+  const effectiveTools = parsed.options.toolChoice === "none" ? [] : tools;
+  const convertedEntries = effectiveTools.map((tool, index) => {
+    const description = tool.description || `Tool: ${tool.name}`;
+    // Send the full namespaced wire name (e.g. mcp__chrome-devtools__navigate_page) so Kiro echoes
+    // it back; the bridge's toolNsMap is keyed by this name and restores the MCP namespace Codex
+    // routes by. Kiro's runtimeservice rejects names with spaces or >64 chars, so normalize to a
+    // safe form and remember the mapping; the response parser restores the original wire name.
+    const wireName = namespacedToolName(tool.namespace, tool.name);
+    const toolName = registry.alias(wireName);
+    const converted = {
+      toolSpecification: {
+        name: toolName,
+        description: truncateDescription(description, descriptionLimit),
+        inputSchema: { json: ensureRootObjectType(sanitizeKiroSchema(tool.parameters ?? {})) },
+      },
+    };
+    return { tool, index, converted };
+  });
+  const exceedsBudget = convertedEntries.length > MAX_KIRO_TOOL_COUNT
+    || serializedToolCatalogBytes(convertedEntries.map(entry => entry.converted)) > MAX_KIRO_TOOL_CATALOG_BYTES;
+  const candidates = exceedsBudget
+    ? convertedEntries.toSorted((a, b) => boundedCatalogPriority(a.tool) - boundedCatalogPriority(b.tool) || a.index - b.index)
+    : convertedEntries;
+  // Reserve a seat for the code-mode execution path before filling the rest.
+  //
+  // Priority alone cannot save it. `loadedFromToolSearch` tools outrank it and arrive unbounded
+  // (the Responses parser pushes every `tool_search_output` spec), so a session that accumulated
+  // MAX_KIRO_TOOL_COUNT loaded tools would exhaust the budget before reaching tier 1 and drop the
+  // one tool through which all of them are actually callable.
+  //
+  // Reservation rather than eviction: this lowers the room the fill loop sees, so it admits one
+  // fewer tool. It never removes a tool that already fit, which is what keeps #2475's loaded-result
+  // guarantee intact -- Cursor's `evictNonExecutionPath` exempts only the execution path and could
+  // evict a loaded tool instead.
+  const reserved = candidates.find(entry => isCodexCodeModeExecTool(entry.tool));
+  const admitted = new Set<number>();
+  const filled: unknown[] = [];
+  for (const entry of candidates) {
+    if (entry === reserved) continue;
+    // Measure the projected FINAL array: the byte budget is computed over the serialized array, so
+    // subtracting a standalone size would misjudge it by the separators JSON adds between entries.
+    const projected = reserved ? [...filled, entry.converted, reserved.converted] : [...filled, entry.converted];
+    if (
+      projected.length > MAX_KIRO_TOOL_COUNT
+      || serializedToolCatalogBytes(projected) > MAX_KIRO_TOOL_CATALOG_BYTES
+    ) break;
+    filled.push(entry.converted);
+    admitted.add(entry.index);
+  }
+  if (reserved) admitted.add(reserved.index);
+  // Rebuild in sorted-candidate order so the wire order stays loaded -> exec -> gateway -> filler.
+  // Pushing the reserved entry after the loop would place it last instead.
+  const convertedTools = candidates.filter(entry => admitted.has(entry.index)).map(entry => entry.converted);
+  // Derive omissions by set difference. The old `candidates.slice(omittedAt)` assumed every
+  // candidate after the first rejection was omitted, which stops being true once one of them was
+  // reserved and admitted: the notice would name `exec` unavailable while it is on the wire.
+  const omittedTools = candidates.filter(entry => !admitted.has(entry.index)).map(entry => entry.tool);
+  return {
+    tools: convertedTools,
+    systemAdditions: omittedTools.length > 0 ? [omittedToolCatalogNotice(convertedTools.length, omittedTools, registry)] : [],
+    nameMap: registry.nameMap,
+    registry,
+  };
+}
+
+export function convertKiroTools(parsed: OcxParsedRequest): unknown[] {
+  return convertKiroToolContext(parsed).tools;
+}

@@ -1,0 +1,55 @@
+# Accounts and usage
+
+Status: `current` for OpenAI multi-account management, provider account management and the unified account/usage page. Live login, provider quota accuracy and rendered UI behavior are user-verified; see [provider account operations](../ops/provider-accounts.md) for procedures and verification scope.
+
+## One account and usage page
+
+The sidebar profile dropdown has one **계정 및 사용량** entry above the native settings entry; it opens the host-owned account/usage Webview through `azrael.usage`. The command palette exposes the same page once; `azrael.manageAccounts` and `azrael.devinAccount` remain callable aliases hidden from the palette. The page is the single account management surface for every provider: login, switch, removal and quota controls. It keeps Codex-like neutral themed surfaces, typography, spacing and remaining-percentage bars. The status-bar QuickPick remains an OpenAI shortcut. Existing native settings, shortcuts and logout keep their behavior. Tokens never enter Webviews or logs.
+
+## OpenAI profiles
+
+Profiles distinguish the login identity and workspace account; email alone is not identity. Outside the native secure credential store only IDs and display metadata are stored.
+
+Profile authentication homes live under `CODEX_HOME/azrael/accounts`, separate from the fixed execution home. Each profile uses a native AuthManager with strict keyring storage on the platform's native backend; there is no plaintext fallback. The engine's native external-auth provider seam resolves the selected managed ChatGPT authentication without changing the native account type or rollout root. Profile managers use the root manager's application network policy for outbound requests; loading a profile's stored identity does not invalidate that shared policy, and root account changes remain responsible for policy invalidation and reload.
+
+Additional login uses the native OAuth server in a staged authentication home. Reauthentication replaces a profile only when both user and workspace identity match. Capturing the existing Azrael login is an explicit action, never an import from ordinary Codex storage. Removing a profile deletes local credentials without revoking unrelated sessions. The management RPC uses the `azrael/account` method and `azrael/account/updated` notification; only sanitized state and the temporary native login URL cross it.
+
+## Multiple windows and leases
+
+Each window may independently select any account, including one selected in another window. Root and managed-profile usage take shared OS leases. Credential refresh takes a separate cross-process transaction lock with a 30-second admission deadline and reloads persisted tokens before contacting the authority, so concurrent instances reuse persisted credentials. Identity-changing native login, capture, logout and removal require exclusive usage admission so they cannot invalidate another window's active credentials; same-identity reauthentication is serialized with refresh. If an older engine holds an exclusive lease, a new engine starts without borrowing its root credentials and still offers account selection; it never terminates the older engine or removes its lock. Runtime selection is engine-local.
+
+Selected-account state uses two host-private paths. `AZRAEL_EX_ACCOUNT_STATE_FILE` is scoped by workspace storage and a hash of the opaque VS Code session ID (global storage for empty windows), preserving independent selections in simultaneously open windows. `AZRAEL_EX_ACCOUNT_DEFAULT_FILE` is stable per workspace (or global storage for empty windows) and holds the last committed selection as the default for a new editor session. An existing session file, including an explicit empty selection, takes precedence; otherwise startup restores the default. A completed switch or explicit clear atomically replaces both files and reports a save failure if either replacement fails; pending, cancelled and failed switches change neither. A missing default is initialized from the most recently modified valid legacy session selection in the same storage scope, reading only the sanitized selected-profile JSON and never credentials. Runtimes that supply neither path fall back to `CODEX_HOME/azrael/account-state.json`. The wrapper does not change `process.env`.
+
+When a window has no managed-profile selection, the account snapshot still marks a saved profile active when both its workspace account ID and user ID exactly match the engine's current authentication, so the page shows the actual account on first open. Snapshots carry an instance-local revision so delayed responses cannot revert newer UI state. Authentication cache reload and refresh discard results from a provider replaced while the request was in flight.
+
+A profile held by another window's lease cannot be removed: removal reports that the profile is in use and directs the user to finish work and switch away or close the owning window. Missing storage and denied access are reported only for their confirmed I/O error kinds; unclassified failures are not attributed to authentication or leases. Leases are never bypassed and their lock files are never deleted to force removal.
+
+## Switching
+
+Switching is manual and scoped to the connected engine. Active or approval-waiting turns defer a switch without cancelling work; pending switches are visible and cancelable. A switch atomically blocks new turn admission and verifies idle, validates target authentication, refreshes account-dependent native state, verifies the actual identity, then emits native account events and resumes admission. A failed switch keeps or restores the previous identity; uncertain recovery blocks new work. Account changes propagate to official host/cloud authentication as well as local model requests.
+
+Execution leases follow actual core task lifetimes, including completion and child handoff, rather than delayed UI status events. A pending switch rejects new external work but lets existing tasks finish their child work, and tries the exclusive lease without queueing a writer to avoid parent/child deadlock. Realtime conversations and detached memory inference also hold execution leases.
+
+## Management connection recovery
+
+The initial connection waits through bounded transport retries before reporting terminal unavailability, and recovered startup failures leave no permanent disabled notice. Home, version and engine-identity mismatches fail closed. Reconnection never replays account mutations; disposal cancels scheduled recovery.
+
+## Provider accounts
+
+OpenAI keeps its native keyring, admission/lease and usage owners. Other providers use the pinned opencodex account selection, login and per-account quota functions through a private stdio helper; no management HTTP server or second dashboard runs. The helper uses an explicit isolated `OPENCODEX_HOME` at `CODEX_HOME/azrael/providers/opencodex`; ordinary Codex and standalone opencodex state are not imported or modified. Their OAuth credentials and API-key pools use upstream's permission-hardened auth/config storage and atomic locks, which is not the OpenAI native keyring and is not described as encrypted keyring storage. Only sanitized identities and quota observations reach the Webview; credentials reach native inference over a separate bounded private pipe.
+
+Upstream source and its storage locks are reused rather than reimplementing an account pool. A small documented upstream patch preserves the previous selection atomically when adding an account, because a temporary switch followed by restoration would expose a gap to native requests. Runtime/source revisions, original/local hashes and patch provenance are recorded.
+
+Provider selection is manual and defines the default for new threads. A thread pins the account it first uses for each provider (see [managed providers](managed-providers.md#turn-selection-and-continuity) and [Devin](devin.md)); changing the global selection affects only new bindings. In-flight requests use one credential/server snapshot and never switch accounts after an error. A missing or revoked pinned account produces an actionable error rather than falling back to another identity. Accounts of a provider without an inference adapter are shown as not connected to chat; registering an account does not create an inference integration. Removal is an explicit action and does not revoke unrelated remote sessions. No background rotation or global CLI login rewriting is performed.
+
+## Quota and usage
+
+Quota is queried for the requested account without selecting it. Results are keyed by provider, account, workspace and limit, with generations that discard stale responses. Units, observation time, source, unsupported and failed states are preserved; unsupported, failed and unmeasured are distinct from zero and unlimited. Request token usage is not account quota. Server-provided windows and reset timestamps are shown without assuming fixed periods. Reset-credit `availableCount` is authoritative, and null means unavailable, not zero. Background refresh omits ticket details; detail queries request them. Codex Spark quota rows are excluded without changing model availability.
+
+Refresh runs on view entry, explicit request, completed switch, and every 60 seconds while visible, with concurrency two and failure backoff. A passed reset time triggers a query, not an inferred refill. A failed refresh keeps the last successful value for the same account, labelled stale. Automatic rotation and ticket consumption are outside scope.
+
+A failed OpenAI refresh shows the native request's safe failure class: HTTP status, application network-policy denial, connection or proxy class, timeout, invalid JSON, missing quota snapshots, or credential refresh reason. Response bodies, URLs, tokens and raw transport errors are not shown.
+
+The Devin CLI identity's quota comes from the official CLI's read-only interactive `/usage` screen. A bounded PTY child in a dedicated working directory (`~/.azrael-ex/azrael/devin-usage`) runs only `/usage` and `/exit`; no model prompt or credential export occurs. A headless terminal emulator reconstructs the daily/weekly percentages and reset times. This is a pinned CLI presentation contract, not a public API: unknown output or timeouts produce an explicit error while keeping same-account last-success data as stale. CLI identity is checked before and after the query, and data is discarded when it changes. Omitted extra-balance values are not fabricated. The page owns polling while visible; closing it cancels work. The PTY and terminal-emulator dependencies ship inside the host's account module. Managed Devin accounts show quota as unsupported until an account-scoped source exists.
+
+For OpenRouter, successful key information is usage evidence even when the per-key cap is `null`. Returned spend is shown in USD, and unset, zero and positive caps and unavailable data are distinguished. An unset per-key cap does not establish unlimited balance, and lifetime usage is not subtracted from a resettable cap when authoritative remaining-cap data exists.

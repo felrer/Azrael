@@ -1,0 +1,9 @@
+.gitignore
+src/**
+test/**
+tsconfig*.json
+scripts/**
+*.vsix
+dist/test/**
+dist/**/*.map
+dist/.incremental.tsbuildinfo

@@ -1,0 +1,372 @@
+/**
+ * Hard reasoning-effort caps (devlog/260710_subagent_effort_intercept).
+ *
+ * Prompt-side effort designation (injectionEffort) is advisory only: codex-rs inherits the
+ * parent's effective effort when spawn_agent carries no model/effort args
+ * (multi_agents_common.rs resolve defaults), rejects overrides on full-history forks, and a
+ * non-empty agent-role file rebuilds the child Config and silently drops spawn-time
+ * model/effort. So a session whose config default is ultra leaks max-tier children whenever
+ * the parent model spawns bare. This module is the enforcement path: it rewrites the effort
+ * of proxied turns at the single choke point every HTTP/WS turn passes through
+ * (handleResponses), using the same dual-shape rewrite contract as nativeEffortClamp —
+ * parsed.options.reasoning feeds routed adapters, _rawBody.reasoning.effort feeds the
+ * ChatGPT passthrough serializer.
+ */
+import type { OcxConfig, OcxParsedRequest, OcxProviderConfig } from "../types";
+import { modelInList } from "../types";
+import { codexEffortRank, configuredReasoningEfforts, isCodexReasoningEffort, isDeclaredReasoningEffort, modelRecordValue } from "../reasoning-effort";
+import { catalogModelEfforts } from "../codex/catalog";
+
+/**
+ * True when the request carries codex-rs's spawned-child markers, matched EXACTLY.
+ * Source of truth (openai/codex @ 6138909d): every collab-spawned child turn sends
+ * `x-openai-subagent: collab_spawn` (core/src/responses_metadata.rs) and embeds
+ * `"subagent_kind":"thread_spawn"` in the JSON `x-codex-turn-metadata` compatibility
+ * header. Both are checked: the WS bridge rebuilds internal requests from the
+ * FORWARD_HEADERS allowlist, so either header alone is sufficient evidence.
+ *
+ * Exact matching matters: upstream emits `x-openai-subagent` for OTHER internal
+ * turn categories too (review, compact, memory_consolidation, arbitrary "other"
+ * sources — responses_metadata.rs subagent_source). Those are maintenance turns,
+ * not spawned children, and must never trip subagentEffortCap.
+ */
+export function isThreadSpawnRequest(headers: Headers): boolean {
+  if (headers.get("x-openai-subagent") === "collab_spawn") return true;
+  const turnMeta = headers.get("x-codex-turn-metadata");
+  if (!turnMeta) return false;
+  try {
+    const parsed = JSON.parse(turnMeta) as { subagent_kind?: unknown };
+    return parsed.subagent_kind === "thread_spawn";
+  } catch {
+    return false;
+  }
+}
+
+/** The effective ceiling for this turn, or undefined when no configured cap applies. */
+export function effortCapFor(config: OcxConfig, subagent: boolean): string | undefined {
+  const caps: string[] = [];
+  if (config.effortCap && isCodexReasoningEffort(config.effortCap)) caps.push(config.effortCap);
+  if (subagent && config.subagentEffortCap && isCodexReasoningEffort(config.subagentEffortCap)) {
+    caps.push(config.subagentEffortCap);
+  }
+  if (caps.length === 0) return undefined;
+  return caps.reduce((low, cap) => (codexEffortRank(cap) < codexEffortRank(low) ? cap : low));
+}
+
+/**
+ * Whether the effort caps apply to this turn at all. Caps are a V2-surface feature
+ * (v1 sub-agents are pinned via explicit spawn args + injectionEffort prompting, so
+ * the ultra-default leak this module intercepts is v2-specific):
+ *  - compaction turns are maintenance, not agent turns: they bypass caps entirely so
+ *    native /v1/responses/compact (forwarded, never enters handleResponses) and routed
+ *    compaction (synthesized internal request) get identical cap semantics.
+ *  - multiAgentMode "v1" disables caps entirely (mirrors the GUI hiding the panel).
+ *  - a main turn qualifies when its own tool list carries the v2 collab surface.
+ *  - a CHILD turn is admitted by its spawned-child markers (isThreadSpawnRequest)
+ *    REGARDLESS of tool surface: depth-limited leaves carry no collab tools (surface
+ *    null) while children below the spawn-depth limit retain collab tools (spec_plan.rs
+ *    leaf guard), so tool sniffing alone would cap siblings inconsistently.
+ *  - a v1-surface MAIN turn (no child markers) never qualifies.
+ */
+export function effortCapAppliesTo(
+  surface: "v1" | "v2" | null,
+  headers: Headers,
+  config: OcxConfig,
+  compaction = false,
+): boolean {
+  if (compaction) return false;
+  if (config.multiAgentMode === "v1") return false;
+  return surface === "v2" || isThreadSpawnRequest(headers);
+}
+
+/**
+ * The routed model's supported effort ladder for cap resolution, from the ROUTE's
+ * registry-merged provider (router.ts routedProviderConfig) — the persisted
+ * config.providers entry misses registry seeds, and bare ids can route via
+ * defaultModel/model-list/default-provider, so no "/" heuristic anywhere.
+ *
+ * - `[]`   -> the model intentionally exposes no effort control (noReasoningModels or
+ *             an explicitly empty configured ladder): cap resolution strips.
+ * - list   -> sanitized + healed ladder (configuredReasoningEfforts).
+ * - undefined -> unknown. Includes the raw-nonempty-but-non-rankable case (e.g. a
+ *             thinking-toggle ladder of ["enabled"]): sanitizing would flatten it to []
+ *             and mis-classify it as "no effort control", so it stays unknown.
+ *
+ * Catalog fallback fires only for the ChatGPT-backend native passthrough IDENTITY
+ * (adapter "openai-responses" + authMode "forward", the fresh-install `openai`
+ * provider shape): the injected catalog is authoritative exactly for models Codex
+ * validates against that backend. A custom responses provider (key mode) serving a
+ * native-looking bare id must NOT inherit the unrelated native ladder.
+ */
+/**
+ * Empty ladders mean "no effort control", not "this model cannot emit reasoning".
+ * Drop only `effort` so a Chat Completions `include_reasoning` / `reasoning.summary`
+ * request still reaches parseRequest and is not hidden by hideThinkingSummary.
+ */
+export function stripEmptyLadderEffort(
+  reasoning: unknown,
+  ladder: readonly string[] | undefined,
+): unknown {
+  if (ladder === undefined || ladder.length > 0) return reasoning;
+  if (reasoning === undefined || reasoning === null || typeof reasoning !== "object" || Array.isArray(reasoning)) {
+    return reasoning;
+  }
+  const next = { ...(reasoning as Record<string, unknown>) };
+  delete next.effort;
+  return Object.keys(next).length > 0 ? next : undefined;
+}
+
+export function supportedLadderFor(route: { provider: OcxProviderConfig; modelId: string }): string[] | undefined {
+  const { provider, modelId } = route;
+  if (modelInList(provider.noReasoningModels, modelId)) return [];
+  const raw = modelRecordValue(provider.modelReasoningEfforts, modelId) ?? provider.reasoningEfforts;
+  if (raw !== undefined) {
+    const sanitized = configuredReasoningEfforts(provider, modelId) ?? [];
+    if (sanitized.length === 0 && raw.length > 0) return undefined;
+    return sanitized;
+  }
+  if (provider.adapter === "openai-responses" && provider.authMode === "forward") {
+    const efforts = catalogModelEfforts([modelId]).get(modelId);
+    if (efforts && efforts.length > 0) return efforts;
+  }
+  return undefined;
+}
+
+/**
+ * Resolve the configured cap against the model's supported ladder. Returns the effective
+ * ceiling rung, or null when the turn must be STRIPPED of its effort entirely. The cap
+ * NEVER raises: when rankable rungs exist but none sits at or below the cap, the model
+ * cannot run within the ceiling, so the effort is stripped and the provider default
+ * applies (never a rung above the cap).
+ */
+export function resolveCappedEffort(cap: string, supported: readonly string[] | undefined): string | null {
+  if (supported === undefined) return cap;
+  const rankable = supported.filter(isCodexReasoningEffort);
+  if (rankable.length === 0) {
+    // Nonempty but non-rankable (e.g. ["enabled"]) -> unknown ladder, cap as-is.
+    // Genuinely empty -> no effort control at all -> strip.
+    return supported.length > 0 ? cap : null;
+  }
+  const capRank = codexEffortRank(cap);
+  let best: string | null = null;
+  for (const rung of rankable) {
+    const rank = codexEffortRank(rung);
+    if (rank <= capRank && (best === null || rank > codexEffortRank(best))) best = rung;
+  }
+  return best;
+}
+
+/**
+ * Cap the turn's reasoning effort in BOTH request shapes. Non-strip resolution only
+ * lowers: efforts at or below the resolved ceiling (and non-ladder/absent efforts) pass
+ * untouched. Strip resolution (model exposes no effort control, or no supported rung
+ * fits under the cap) removes whatever effort is present — regardless of its rank —
+ * from both shapes while preserving `reasoning.summary`. Returns the applied rewrite
+ * for request-log annotation (`to: "none"` on strip), or null when nothing changed.
+ */
+export function applyEffortCap(
+  parsed: OcxParsedRequest,
+  headers: Headers,
+  config: OcxConfig,
+  supported?: readonly string[] | undefined,
+): { from: string; to: string; subagent: boolean } | null {
+  const subagent = isThreadSpawnRequest(headers);
+  const cap = effortCapFor(config, subagent);
+  if (!cap) return null;
+  const resolved = resolveCappedEffort(cap, supported);
+  const requested = parsed.options.reasoning;
+  const raw = parsed._rawBody as { reasoning?: { effort?: string } } | undefined;
+  if (resolved === null) {
+    if (!requested) return null;
+    parsed.options.reasoning = undefined;
+    if (raw?.reasoning && typeof raw.reasoning === "object") delete raw.reasoning.effort;
+    return { from: requested, to: "none", subagent };
+  }
+  if (!requested || !isCodexReasoningEffort(requested)) return null;
+  if (codexEffortRank(requested) <= codexEffortRank(resolved)) return null;
+  parsed.options.reasoning = resolved;
+  if (raw?.reasoning && typeof raw.reasoning === "object") raw.reasoning.effort = resolved;
+  return { from: requested, to: resolved, subagent };
+}
+
+/**
+ * Resolve any pinned reasoning effort configured for this model or provider.
+ * Priority order:
+ * 1. Provider model-specific pinned effort (`provider.modelPinnedReasoningEfforts[modelId]`)
+ * 2. Provider-wide pinned effort (`provider.pinnedReasoningEffort`)
+ * 3. Global config model-specific pinned effort (`config.modelPinnedEfforts[modelId]`)
+ * Global keys try the final pre-namespace selector, provider-qualified destination,
+ * then bare destination, using modelRecordValue's exact/family/case-fold semantics.
+ * The caller removes synthetic effort rows and combo selectors before this boundary.
+ *
+ * Returns undefined when no valid pinned effort tier is configured.
+ */
+export function resolvePinnedEffort(
+  route: { provider: OcxProviderConfig; modelId: string; providerName?: string },
+  parsedModelId?: string,
+  config?: OcxConfig,
+): string | undefined {
+  const prov = route.provider;
+  const rawProvModel = modelRecordValue(prov.modelPinnedReasoningEfforts, route.modelId)
+    ?? (parsedModelId ? modelRecordValue(prov.modelPinnedReasoningEfforts, parsedModelId) : undefined);
+  if (rawProvModel && isDeclaredReasoningEffort(rawProvModel)) {
+    return rawProvModel;
+  }
+  if (prov.pinnedReasoningEffort && isDeclaredReasoningEffort(prov.pinnedReasoningEffort)) {
+    return prov.pinnedReasoningEffort;
+  }
+  if (config?.modelPinnedEfforts) {
+    const rawGlobal = (parsedModelId ? modelRecordValue(config.modelPinnedEfforts, parsedModelId) : undefined)
+      ?? (route.providerName ? modelRecordValue(config.modelPinnedEfforts, `${route.providerName}/${route.modelId}`) : undefined)
+      ?? modelRecordValue(config.modelPinnedEfforts, route.modelId);
+    if (rawGlobal && isDeclaredReasoningEffort(rawGlobal)) {
+      return rawGlobal;
+    }
+  }
+  return undefined;
+}
+
+interface EffortSnapshot {
+  selector: string;
+  providerName: string;
+  modelId: string;
+  reasoningPresent: boolean;
+  reasoning: OcxParsedRequest["options"]["reasoning"];
+  rawEffortPresent: boolean;
+  rawEffort: unknown;
+}
+
+const effortSnapshots = new WeakMap<OcxParsedRequest, EffortSnapshot>();
+
+/** Capture effective synthetic/combo defaults before final model namespace rewriting.
+ * A different destination restores effort alone; intervening summary/options edits survive.
+ * Credential retries do not change the destination and retain their existing decision.
+ */
+export function prepareEffortNormalization(
+  parsed: OcxParsedRequest,
+  route: { providerName: string; modelId: string },
+): string {
+  const raw = parsed._rawBody as { reasoning?: Record<string, unknown> } | undefined;
+  const previous = effortSnapshots.get(parsed);
+  if (!previous) {
+    effortSnapshots.set(parsed, {
+      selector: parsed.modelId,
+      providerName: route.providerName,
+      modelId: route.modelId,
+      reasoningPresent: Object.hasOwn(parsed.options, "reasoning"),
+      reasoning: parsed.options.reasoning,
+      rawEffortPresent: !!raw?.reasoning && Object.hasOwn(raw.reasoning, "effort"),
+      rawEffort: raw?.reasoning?.effort,
+    });
+    return parsed.modelId;
+  }
+  if (previous.providerName === route.providerName && previous.modelId === route.modelId) {
+    return previous.selector;
+  }
+  if (previous.reasoningPresent) parsed.options.reasoning = previous.reasoning;
+  else delete parsed.options.reasoning;
+  if (raw && previous.rawEffortPresent) {
+    if (!raw.reasoning || typeof raw.reasoning !== "object") raw.reasoning = {};
+    raw.reasoning.effort = previous.rawEffort;
+  } else if (raw?.reasoning && typeof raw.reasoning === "object") {
+    delete raw.reasoning.effort;
+  }
+  // An unchanged wire model is the previous destination, not a new requested alias.
+  previous.selector = parsed.modelId === previous.modelId || parsed.modelId === previous.selector
+    ? `${route.providerName}/${route.modelId}`
+    : parsed.modelId;
+  previous.providerName = route.providerName;
+  previous.modelId = route.modelId;
+  return previous.selector;
+}
+
+/**
+ * Detect collaboration surface for a native chat request body.
+ * Mirrors Responses collabSurface behavior across function and custom tool representations.
+ */
+export function chatCollabSurface(chatBody: Record<string, unknown>): "v1" | "v2" | null {
+  if (!Array.isArray(chatBody.tools)) return null;
+  let namespacedSpawn = false;
+  let flatSpawn = false;
+  let v1Only = false;
+  let v2Only = false;
+  for (const raw of chatBody.tools) {
+    if (!raw || typeof raw !== "object") continue;
+    const tool = raw as Record<string, unknown>;
+    let name = "";
+    let namespace: string | undefined = undefined;
+    if (tool.type === "function" && tool.function && typeof tool.function === "object") {
+      const fn = tool.function as Record<string, unknown>;
+      name = typeof fn.name === "string" ? fn.name : "";
+    } else if (tool.type === "custom" && tool.custom && typeof tool.custom === "object") {
+      const cust = tool.custom as Record<string, unknown>;
+      name = typeof cust.name === "string" ? cust.name : "";
+    } else if (typeof tool.name === "string") {
+      name = tool.name;
+    }
+    if (typeof tool.namespace === "string") namespace = tool.namespace;
+    if (name === "spawn_agent") {
+      if (namespace) namespacedSpawn = true;
+      else flatSpawn = true;
+    } else if (name === "send_input" || name === "resume_agent" || name === "close_agent") {
+      v1Only = true;
+    } else if (name === "send_message" || name === "followup_task" || name === "interrupt_agent" || name === "list_agents") {
+      v2Only = true;
+    }
+  }
+  if (!namespacedSpawn && !flatSpawn) return null;
+  if (namespacedSpawn && flatSpawn) return null;
+  if (v1Only && v2Only) return null;
+  if (v1Only) return "v1";
+  if (v2Only) return "v2";
+  return namespacedSpawn ? "v1" : "v2";
+}
+
+/**
+ * Apply effortCap to a native chat completions body when admitted by the collaboration gate.
+ */
+export function applyChatEffortCap(
+  chatBody: Record<string, unknown>,
+  headers: Headers,
+  config: OcxConfig,
+  supported?: readonly string[] | undefined,
+): { from: string; to: string; subagent: boolean } | null {
+  const subagent = isThreadSpawnRequest(headers);
+  const cap = effortCapFor(config, subagent);
+  if (!cap) return null;
+  const resolved = resolveCappedEffort(cap, supported);
+  const requested = typeof chatBody.reasoning_effort === "string" ? chatBody.reasoning_effort : undefined;
+  if (resolved === null) {
+    if (!requested) return null;
+    delete chatBody.reasoning_effort;
+    return { from: requested, to: "none", subagent };
+  }
+  if (!requested || !isCodexReasoningEffort(requested)) return null;
+  if (codexEffortRank(requested) <= codexEffortRank(resolved)) return null;
+  chatBody.reasoning_effort = resolved;
+  return { from: requested, to: resolved, subagent };
+}
+
+export function applyPinnedEffort(
+  parsed: OcxParsedRequest,
+  route: { provider: OcxProviderConfig; modelId: string; providerName?: string },
+  config?: OcxConfig,
+  selector = effortSnapshots.get(parsed)?.selector ?? parsed.modelId,
+): { from: string | undefined; to: string } | null {
+  if (parsed._compactionRequest === true) return null;
+  const pinned = resolvePinnedEffort(route, selector, config);
+  if (!pinned) return null;
+  const requested = parsed.options.reasoning;
+  const raw = parsed._rawBody as { reasoning?: { effort?: string } } | undefined;
+  const targetEffort = pinned === "none" ? undefined : pinned;
+  parsed.options.reasoning = targetEffort;
+  if (targetEffort) {
+    if (raw && typeof raw === "object") {
+      if (!raw.reasoning || typeof raw.reasoning !== "object") raw.reasoning = {};
+      raw.reasoning.effort = targetEffort;
+    }
+  } else if (raw?.reasoning && typeof raw.reasoning === "object") {
+    delete raw.reasoning.effort;
+  }
+  return { from: requested, to: pinned };
+}

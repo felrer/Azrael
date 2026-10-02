@@ -1,0 +1,121 @@
+{
+  "name": "azrael",
+  "displayName": "Azrael",
+  "description": "Independent Azrael chat, account, and usage extension.",
+  "version": "0.4.0",
+  "publisher": "azrael-ex-local",
+  "license": "UNLICENSED",
+  "engines": {
+    "vscode": "^1.96.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": ["onView:azrael.chat"],
+  "main": "./dist/src/extension.js",
+  "contributes": {
+    "viewsContainers": {
+      "activitybar": [{ "id": "azraelViewContainer", "title": "Azrael", "icon": "media/chat.svg" }]
+    },
+    "views": {
+      "azraelViewContainer": [{ "type": "webview", "id": "azrael.chat", "name": "Chat" }]
+    },
+    "configuration": {
+      "title": "azrael Shared Environment",
+      "properties": {
+        "azrael.sharedEnvironment.repository": {
+          "type": "string",
+          "default": "",
+          "description": "Git URL or local path of the shared azrael environment repository."
+        },
+        "azrael.sharedEnvironment.ref": {
+          "type": "string",
+          "default": "main",
+          "description": "Git ref (branch, tag, or commit) to sync from the shared environment repository."
+        }
+      }
+    },
+    "menus": {
+      "commandPalette": [
+        { "command": "azrael.manageAccounts", "when": "false" },
+        { "command": "azrael.devinAccount", "when": "false" }
+      ]
+    },
+    "commands": [
+      {
+        "command": "azrael.openSidebar",
+        "title": "Open Azrael Chat",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.rootResume",
+        "title": "루트 재개 예약",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.usage",
+        "title": "계정 및 사용량",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.devinAccount",
+        "title": "계정 및 사용량 열기 (Devin)",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.manageAccounts",
+        "title": "계정 및 사용량 관리",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.accountQuickPick",
+        "title": "Switch OpenAI Account",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.refreshAccounts",
+        "title": "Refresh OpenAI Accounts",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.openCodex",
+        "title": "Open azrael Sidebar",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.openCodexSettings",
+        "title": "Open azrael Settings",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.syncSharedEnvironment",
+        "title": "Sync Shared Environment",
+        "category": "azrael"
+      },
+      {
+        "command": "azrael.fetchSharedPlaybook",
+        "title": "Fetch Shared Playbook",
+        "category": "azrael"
+      }
+    ]
+  },
+  "scripts": {
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "build": "npm run clean && tsc -p tsconfig.json",
+    "build:incremental": "node scripts/build-incremental.cjs",
+    "test": "npm run build:incremental && npm run test:compiled",
+    "test:compiled": "node --test --test-concurrency=4 dist/test/*.test.js",
+    "test:serial": "node --test --test-concurrency=1 dist/test/*.test.js",
+    "package": "npm run build && vsce package --out"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.0",
+    "@types/vscode": "^1.96.0",
+    "@vscode/vsce": "^3.6.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@xterm/headless": "6.0.0",
+    "node-pty": "1.1.0"
+  }
+}

@@ -1,0 +1,356 @@
+import { writeSync } from "node:fs";
+import { modelSelectionGuidance, modelSelectionNextSteps } from "./model-selection-guidance";
+import { warnIfCodexCatalogRefreshPending } from "./account-catalog-refresh";
+import { isCodexResetCreditOperationId } from "../codex/reset-credit-recovery";
+import {
+  CliUsageError,
+  printData,
+  readSecretLine,
+  rejectArgs,
+  runCliAction,
+  runtimeRequest,
+  takeFlag,
+  takeOption,
+  takeOptionWithSyntax,
+  type CliStdin,
+  type RuntimeApiDeps,
+} from "./runtime-api";
+
+/**
+ * Write the whole block to fd 1 synchronously (#1007). `console.log` can
+ * buffer behind a pipe, which hid the authorization URL for the entire
+ * polling window under non-TTY stdout. A partial write loops; a zero-byte
+ * write is a hard failure, never silent progress.
+ */
+function writeStdoutFully(text: string): void {
+  const bytes = Buffer.from(text, "utf8");
+  let offset = 0;
+  while (offset < bytes.length) {
+    const written = writeSync(1, bytes, offset, bytes.length - offset);
+    if (written <= 0) throw new CliUsageError("failed to write login instructions to stdout");
+    offset += written;
+  }
+}
+
+const USAGE = `Usage:
+  ocx account login <provider> [--id <account-id>] [--reauth] [--device] [--code -] [--no-wait] [--json]
+  ocx account code <provider> [--flow <flow-id>] [--json]   (reads the code from stdin)
+  ocx account cancel <provider> [--flow <flow-id>] [--json]
+  ocx account reset-credits <account-id|main> [--consume --yes [--operation-id <uuid>]] [--json]
+  ocx account grok-reset-coupons [<account-id>] [--consume --yes [--token-id <token-id>] [--operation-id <uuid>]] [--json]
+
+--device runs the OpenAI device-code login instead of the browser callback: use
+it when the proxy has no browser or nothing can reach localhost:1455, such as a
+headless or remote hub. Enter the printed code at the printed URL from any other
+machine.
+
+The redirect URL or authorization code is a short-lived credential. Pipe it in
+rather than passing it as an argument, where it lands in shell history and is
+visible to anyone who can run ps:
+  pbpaste | ocx account code <provider> --flow <flow-id>
+  ocx account login <provider> --code -   (same, for the login flow)`;
+
+/**
+ * The Codex account pool answers to three spellings, and a user reaches for whichever
+ * one they already have a word for. `ocx login codex` routes here as well (dispatch.ts):
+ * the pool is deliberately not an `ocx login` provider -- it keeps its own account
+ * ledger and runs its browser flow inside the proxy -- but that is an implementation
+ * boundary, not something a user should have to know before they can log in.
+ */
+const CODEX_NAMES = new Set(["openai", "codex", "chatgpt"]);
+
+/** True for every spelling that means "the Codex account pool" rather than an OAuth provider. */
+export function isCodexAccountLoginName(name: string): boolean {
+  return CODEX_NAMES.has(name.trim().toLowerCase());
+}
+
+interface LoginStart {
+  url?: string;
+  flowId?: string;
+  instructions?: string;
+  deviceCode?: string;
+}
+
+/** `-` means "read it from stdin", the documented way to pass a code silently. */
+const STDIN_SENTINEL = "-";
+
+/** Providers whose ONLY login is already a device flow; --device is redundant, not wrong. */
+const DEVICE_NATIVE_PROVIDERS = new Set(["kimi", "nous", "github-copilot"]);
+
+const ARGV_WARNING =
+  "warning: the authorization code was passed as a command-line argument, so it is now in your shell history and was visible in the process list while this ran. Pipe it on stdin instead, or pass `-` to read from stdin.";
+
+/**
+ * Resolve the code, preferring stdin.
+ *
+ * Never logs the value itself — the warning names the exposure, not the
+ * credential. What this closes is shell history, `ps`, and this program's own
+ * output; a code pasted at an interactive prompt is still visible on the
+ * terminal, exactly as it is in the existing interactive login.
+ */
+async function resolveCode(
+  supplied: { value: string; inline: boolean } | undefined,
+  deps: RuntimeApiDeps,
+  required: boolean,
+): Promise<string | undefined> {
+  if (supplied && supplied.value !== STDIN_SENTINEL) {
+    console.error(ARGV_WARNING);
+    return supplied.value;
+  }
+  if (!supplied && !required) return undefined;
+  const input: CliStdin = deps.stdinImpl ?? process.stdin;
+  if (input.isTTY) console.error("Paste the redirect URL or authorization code, then press Enter:");
+  return await readSecretLine(deps, "authorization code");
+}
+
+async function login(argv: string[], deps: RuntimeApiDeps): Promise<void> {
+  const args = [...argv];
+  const provider = args.shift()?.trim().toLowerCase();
+  const wantsJson = takeFlag(args, "--json");
+  const noWait = takeFlag(args, "--no-wait");
+  const reauth = takeFlag(args, "--reauth");
+  const device = takeFlag(args, "--device");
+  const id = takeOption(args, "--id");
+  const suppliedCode = takeOptionWithSyntax(args, "--code");
+  if (!provider) throw new CliUsageError("provider is required", USAGE);
+  // A bare leftover here is plausibly the authorization code itself: this flow takes one
+  // through --code, and a user who pastes it as a positional would otherwise see it echoed
+  // back in the usage error. `ocx login codex` reaches this parser too, so the paste lands
+  // one word away from a command people run constantly. Flag-shaped leftovers stay visible,
+  // because a mistyped flag is exactly what the message has to name.
+  rejectArgs(args, USAGE, { redactValues: true });
+  // kimi, nous, and github-copilot are already device flows, so --device is a
+  // true statement about them and is accepted as a no-op rather than an error.
+  // Anything else has no device grant at all and must fail loudly.
+  if (device && !CODEX_NAMES.has(provider) && !DEVICE_NATIVE_PROVIDERS.has(provider)) {
+    throw new CliUsageError(`--device is not supported for provider '${provider}'`, USAGE);
+  }
+  // Only resolve when --code was actually given: a plain `ocx account login`
+  // opens the browser flow and polls, and must not block on stdin.
+  const code = await resolveCode(suppliedCode, deps, false);
+
+  if (CODEX_NAMES.has(provider)) {
+    const start = await runtimeRequest<LoginStart>("/api/codex-auth/login", {
+      method: "POST",
+      body: JSON.stringify({
+        ...(id ? { id } : {}),
+        ...(reauth ? { reauth: true } : {}),
+        ...(device ? { device: true } : {}),
+      }),
+    }, deps);
+    if (!wantsJson) {
+      // One atomic pre-poll block, flushed synchronously so a piped parent
+      // reads the URL before the polling window starts (#1007).
+      const block = [
+        start.url ? `Open this URL to sign in:\n${start.url}` : "",
+        start.deviceCode ? `Device code: ${start.deviceCode}` : "",
+        start.instructions ?? "",
+        start.flowId ? `Flow: ${start.flowId}` : "",
+      ].filter(line => line !== "").join("\n");
+      if (block) writeStdoutFully(`${block}\n`);
+    }
+    if (code && start.flowId) {
+      await runtimeRequest("/api/codex-auth/login/code", {
+        method: "POST",
+        body: JSON.stringify({ flowId: start.flowId, input: code }),
+      }, deps);
+    }
+    if (noWait) {
+      printData({ ...start, modelSelection: modelSelectionNextSteps("openai", true) }, wantsJson, modelSelectionGuidance("openai", true));
+      return;
+    }
+    if (!start.flowId) throw new CliUsageError("login did not return a flow id");
+    // A device login is deliberately slow: the user leaves this machine to
+    // enter the code elsewhere. Match the 15-minute grant instead of giving up
+    // at minute five while it is still valid, plus settlement margin for the
+    // token exchange and credential write after the final poll.
+    const maxAttempts = device ? 480 : 150;
+    for (let attempt = 0; attempt < maxAttempts; attempt++) {
+      await Bun.sleep(2_000);
+      const state = await runtimeRequest<Record<string, unknown>>(
+        `/api/codex-auth/login-status?flowId=${encodeURIComponent(start.flowId)}${id ? `&accountId=${encodeURIComponent(id)}` : ""}${reauth ? "&reauth=1" : ""}`,
+        {}, deps,
+      );
+      if (state.status === "done") {
+        if (state.validationPending === true) {
+          printData({ ...state, recoveryCommand: "ocx gui", recoveryAction: "After quota recovers, click Refresh quotas in the dashboard Codex account pool." }, wantsJson, [
+            "Account registered; validation pending (routing disabled).",
+            "After quota recovers, open 'ocx gui' and click Refresh quotas to complete validation.",
+          ]);
+        } else {
+          printData({ ...state, modelSelection: modelSelectionNextSteps("openai") }, wantsJson, [`Logged in${state.email ? ` as ${String(state.email)}` : ""}.`, ...modelSelectionGuidance("openai")]);
+        }
+        if (!wantsJson) warnIfCodexCatalogRefreshPending(state);
+        return;
+      }
+      if (state.status === "error" || state.status === "expired") {
+        throw new CliUsageError(String(state.error ?? `login ${state.status}`));
+      }
+    }
+    throw new CliUsageError("login timed out");
+  }
+
+  if (id && !reauth) throw new CliUsageError("--id is only valid with --reauth for provider OAuth accounts", USAGE);
+  const start = await runtimeRequest<LoginStart>("/api/oauth/login", {
+    method: "POST",
+    body: JSON.stringify({ provider, addAccount: !reauth, ...(reauth && id ? { accountId: id, reauth: true } : {}) }),
+  }, deps);
+  if (!wantsJson) {
+    const block = [
+      start.url ? `Open this URL to sign in:\n${start.url}` : "",
+      start.instructions ?? "",
+      start.deviceCode ? `Device code: ${start.deviceCode}` : "",
+    ].filter(line => line !== "").join("\n");
+    if (block) writeStdoutFully(`${block}\n`);
+  }
+  if (code) {
+    await runtimeRequest("/api/oauth/login/code", {
+      method: "POST",
+      body: JSON.stringify({ provider, input: code }),
+    }, deps);
+  }
+  if (noWait) {
+    printData({ ...start, modelSelection: modelSelectionNextSteps(provider, true) }, wantsJson, modelSelectionGuidance(provider, true));
+    return;
+  }
+  for (let attempt = 0; attempt < 100; attempt++) {
+    await Bun.sleep(2_000);
+    const state = await runtimeRequest<Record<string, unknown>>(`/api/oauth/status?provider=${encodeURIComponent(provider)}`, {}, deps);
+    if (state.error) throw new CliUsageError(String(state.error));
+    if (state.loggedIn === true) {
+      printData({ ...state, modelSelection: modelSelectionNextSteps(provider) }, wantsJson, [`Logged in to ${provider}.`, ...modelSelectionGuidance(provider)]);
+      return;
+    }
+  }
+  throw new CliUsageError("login timed out");
+}
+
+async function code(argv: string[], deps: RuntimeApiDeps): Promise<void> {
+  const args = [...argv];
+  const provider = args.shift()?.trim().toLowerCase();
+  // Flags first. Taking the positional before parsing them made
+  // `ocx account code openai --flow f1` read `--flow` as the code and then
+  // reject `f1` as an unexpected argument.
+  const wantsJson = takeFlag(args, "--json");
+  const flowId = takeOption(args, "--flow");
+  const suppliedCode = takeOptionWithSyntax(args, "--code");
+  // An unknown flag is not a credential. Without this guard `--nope` becomes
+  // the positional code and the real complaint ("unexpected argument") is
+  // replaced by a confusing one about how the code was passed.
+  const positional = args[0]?.startsWith("--") ? undefined : args.shift();
+  if (!provider) throw new CliUsageError("provider is required", USAGE);
+  // A second positional here is most likely the code, split by an unquoted
+  // space or a stray shell expansion. Naming it back would put it on stderr.
+  rejectArgs(args, USAGE, { redactValues: true });
+  if (suppliedCode && positional !== undefined) {
+    throw new CliUsageError("pass the code either positionally or with --code, not both", USAGE);
+  }
+  const input = await resolveCode(
+    suppliedCode ?? (positional === undefined ? undefined : { value: positional, inline: false }),
+    deps,
+    true,
+  );
+  if (!input) throw new CliUsageError("provider and redirect/code are required", USAGE);
+  const path = CODEX_NAMES.has(provider) ? "/api/codex-auth/login/code" : "/api/oauth/login/code";
+  if (CODEX_NAMES.has(provider) && !flowId) throw new CliUsageError("Codex login code requires --flow <flow-id>", USAGE);
+  const body = CODEX_NAMES.has(provider) ? { flowId, input } : { provider, input };
+  const result = await runtimeRequest(path, { method: "POST", body: JSON.stringify(body) }, deps);
+  printData(result, wantsJson, ["Login code submitted."]);
+}
+
+async function cancel(argv: string[], deps: RuntimeApiDeps): Promise<void> {
+  const args = [...argv];
+  const provider = args.shift()?.trim().toLowerCase();
+  const wantsJson = takeFlag(args, "--json");
+  const flowId = takeOption(args, "--flow");
+  if (!provider) throw new CliUsageError("provider is required", USAGE);
+  rejectArgs(args, USAGE);
+  const codex = CODEX_NAMES.has(provider);
+  const result = await runtimeRequest(codex ? "/api/codex-auth/login/cancel" : "/api/oauth/login/cancel", {
+    method: "POST",
+    body: JSON.stringify(codex ? { flowId } : { provider }),
+  }, deps);
+  printData(result, wantsJson, [`Cancelled ${provider} login.`]);
+}
+
+async function resetCredits(argv: string[], deps: RuntimeApiDeps): Promise<void> {
+  const args = [...argv];
+  const rawId = args.shift()?.trim();
+  const wantsJson = takeFlag(args, "--json");
+  const consume = takeFlag(args, "--consume");
+  const yes = takeFlag(args, "--yes");
+  // Before rejectArgs: takeOption splices its two tokens out of `args`.
+  const operationId = takeOption(args, "--operation-id");
+  if (!rawId) throw new CliUsageError("account id is required", USAGE);
+  if (consume && !yes) throw new CliUsageError("consuming a reset credit requires --yes", USAGE);
+  if (operationId !== undefined && !consume) {
+    throw new CliUsageError("--operation-id requires --consume", USAGE);
+  }
+  if (operationId !== undefined && !isCodexResetCreditOperationId(operationId)) {
+    throw new CliUsageError("--operation-id must be a UUIDv4", USAGE);
+  }
+  rejectArgs(args, USAGE);
+  const accountId = rawId === "main" ? "__main__" : rawId;
+  const result = consume
+    ? await runtimeRequest("/api/codex-auth/reset-credits/consume", {
+      method: "POST",
+      // Spread, not `operationId: undefined`: the server distinguishes an absent
+      // key (legacy random id) from a caller who asked for a stable identity.
+      body: JSON.stringify({ accountId, ...(operationId === undefined ? {} : { operationId }) }),
+    }, deps)
+    : await runtimeRequest(`/api/codex-auth/reset-credits?accountId=${encodeURIComponent(accountId)}`, {}, deps);
+  printData(result, wantsJson);
+}
+
+async function grokResetCoupons(argv: string[], deps: RuntimeApiDeps): Promise<void> {
+  const args = [...argv];
+  // The account id is optional here (the server falls back to the selected xAI
+  // account), so a flag-shaped first token must not be swallowed as the id:
+  // `grok-reset-coupons --consume` has to reach the --yes gate, not become a
+  // read of account "--consume".
+  const rawId = args[0]?.startsWith("--") ? undefined : args.shift()?.trim();
+  const wantsJson = takeFlag(args, "--json");
+  const consume = takeFlag(args, "--consume");
+  const yes = takeFlag(args, "--yes");
+  // Before rejectArgs: takeOption splices its two tokens out of `args`.
+  const tokenId = takeOption(args, "--token-id");
+  const operationId = takeOption(args, "--operation-id");
+  if (consume && !yes) throw new CliUsageError("consuming a Grok reset coupon requires --yes", USAGE);
+  if (operationId !== undefined && !consume) {
+    throw new CliUsageError("--operation-id requires --consume", USAGE);
+  }
+  if (tokenId !== undefined && !consume) {
+    throw new CliUsageError("--token-id requires --consume", USAGE);
+  }
+  if (operationId !== undefined && !isCodexResetCreditOperationId(operationId)) {
+    throw new CliUsageError("--operation-id must be a UUIDv4", USAGE);
+  }
+  rejectArgs(args, USAGE);
+  const accountId = rawId ? (rawId === "main" ? "__main__" : rawId) : undefined;
+  const result = consume
+    ? await runtimeRequest("/api/grok/reset-coupons/consume", {
+      method: "POST",
+      // Spread, not `operationId: undefined`: the server distinguishes an absent
+      // key from a caller who asked for a stable idempotency identity.
+      body: JSON.stringify({ accountId, tokenId, ...(operationId === undefined ? {} : { operationId }) }),
+    }, deps)
+    : await runtimeRequest(
+      `/api/grok/reset-coupons${accountId ? `?accountId=${encodeURIComponent(accountId)}` : ""}`,
+      {},
+      deps,
+    );
+  printData(result, wantsJson);
+}
+
+export async function handleAccountAuthCommand(sub: string, argv: string[], deps: RuntimeApiDeps = {}): Promise<number | null> {
+  let action: (() => Promise<void>) | undefined;
+  if (sub === "login" || sub === "reauth") action = () => login(sub === "reauth" ? [...argv, "--reauth"] : argv, deps);
+  else if (sub === "code") action = () => code(argv, deps);
+  else if (sub === "cancel") action = () => cancel(argv, deps);
+  else if (sub === "reset-credits") action = () => resetCredits(argv, deps);
+  else if (sub === "grok-reset-coupons") action = () => grokResetCoupons(argv, deps);
+  if (!action) return null;
+  return runCliAction(action);
+}
+
+export const ACCOUNT_AUTH_USAGE = USAGE;

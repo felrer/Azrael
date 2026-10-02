@@ -1,0 +1,633 @@
+import { normalizeCursorClaudeId } from "../adapters/cursor/claude-id";
+
+/**
+ * Expected-price overlay for models whose jawcode cost rows are missing or all-zero
+ * (subscription/OAuth surfaces). Sourced from official pricing pages only
+ * (devlog/_plan/260720_toks_speed_price_columns/003 — Luna research, main-verified).
+ *
+ * Status semantics:
+ * - "verified": official page opened directly; the 4-tuple is the published API price.
+ * - "verified-derived": mapped from a verified base-model price (for example an
+ *   effort-suffix variant); propagates `estimated=true` downstream.
+ * - "unverified": research lead only. NEVER registered here and never returned by
+ *   the resolver — unverified prices live in the 003 §5 backlog until promoted.
+ */
+
+export interface Cost4 {
+  input: number;
+  output: number;
+  cacheRead: number;
+  cacheWrite: number;
+}
+
+/**
+ * Upper bound for a user-configured USD-per-1M-token rate. Real prices are far
+ * below this (the most expensive published models cost a few hundred USD/M);
+ * the bound keeps `rate * tokens / 1e6` finite for any token count a usage log
+ * can plausibly hold, so an overlay cannot overflow the estimate to Infinity
+ * and serialize cost fields as null.
+ */
+export const MAX_COST4_RATE = 1_000_000;
+
+export type ExpectedPriceStatus = "verified" | "verified-derived" | "unverified";
+
+export interface ExpectedPriceOverlay {
+  provider: string;
+  modelId: string;
+  cost4: Cost4;
+  source: string;
+  verifiedAt: string;
+  status: ExpectedPriceStatus;
+}
+
+const GEMINI_31_PRO: Cost4 = { input: 2, output: 12, cacheRead: 0.2, cacheWrite: 0 };
+const GPT56_SOL: Cost4 = { input: 4, output: 20, cacheRead: 0.4, cacheWrite: 5 };
+const GPT6_ASTRA: Cost4 = { input: 10, output: 50, cacheRead: 1, cacheWrite: 12.5 };
+const ASTRA_API_PRICING = "https://developers.openai.com/api/docs/models/gpt-6-astra";
+/**
+ * Daybreak aliases. `daybreak-*-latest` never appears in the pricing table itself — only its
+ * current snapshot does — so these tuples are the snapshot's published rates and carry
+ * `verified-derived`. That status also keeps the `estimated` marker on, which matters more
+ * here than for a normal row: OpenAI can repoint an alias at a differently-priced model.
+ * Red = gpt-5.6-cyber (12.50 / 1.25 / 15.625 / 75, cache write = 1.25x uncached input).
+ * Blue = gpt-5.6-sol. Verified 2026-08-11 against the pricing page's Cyber models table.
+ */
+const DAYBREAK_RED: Cost4 = { input: 12.5, output: 75, cacheRead: 1.25, cacheWrite: 15.625 };
+const GPT56_TERRA: Cost4 = { input: 2, output: 12, cacheRead: 0.2, cacheWrite: 2.5 };
+const GPT56_LUNA: Cost4 = { input: 0.2, output: 1.2, cacheRead: 0.02, cacheWrite: 0.25 };
+const GEMINI_36_FLASH: Cost4 = { input: 1.5, output: 7.5, cacheRead: 0.15, cacheWrite: 0 };
+// Gemini 3.7 Flash launch promotion: Google publishes $0.75 in / $3.75 out per 1M
+// through 2026-12-31, stepping up to $1.50 / $7.50 on 2027-01-01. Revisit this row
+// then — the promotional rate is dated on the pricing page, not open-ended.
+const GEMINI_37_FLASH: Cost4 = { input: 0.75, output: 3.75, cacheRead: 0.075, cacheWrite: 0 };
+// Gemini 3.8 Flash carries the same published promotional shape as 3.7 through 2026-12-31,
+// rising to $1.50 / $7.50 on 2027-01-01. A SEPARATE constant on purpose: equal today, but
+// aliasing them would silently drag 3.8 along if 3.7's row is ever re-verified differently.
+const GEMINI_38_FLASH: Cost4 = { input: 0.75, output: 3.75, cacheRead: 0.075, cacheWrite: 0 };
+const MINIMAX_M21_HIGHSPEED: Cost4 = { input: 0.6, output: 2.4, cacheRead: 0.03, cacheWrite: 0.375 };
+const KIMI_K3: Cost4 = { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 3 };
+const KIMI_K27_CODE: Cost4 = { input: 0.95, output: 4, cacheRead: 0.19, cacheWrite: 0.95 };
+const KIMI_K27_CODE_HIGHSPEED: Cost4 = { input: 1.9, output: 8, cacheRead: 0.38, cacheWrite: 1.9 };
+const KIMI_K26: Cost4 = { input: 0.95, output: 4, cacheRead: 0.16, cacheWrite: 0.95 };
+const KIMI_K25: Cost4 = { input: 0.6, output: 3, cacheRead: 0.1, cacheWrite: 0.6 };
+/*
+ * Z.AI GLM list prices (USD / 1M tokens), verified 2026-09-13 against
+ * https://docs.z.ai/guides/overview/pricing. Neither z.ai nor bigmodel.cn
+ * publishes a cache-write rate — both list cache storage as limited-time free,
+ * an open-beta promotion the vendor may change or end — so cacheWrite is 0 as a
+ * 2026-09-13 snapshot, not a guaranteed rate; re-check the pricing page before
+ * relying on it long-term. glm-4.5-flash and glm-4.7-flash are officially
+ * "Free" and deliberately get no rows: a zero-cost overlay is inert in the
+ * resolver, which requires a nonzero tuple. glm-5-turbo / glm-5v-turbo are
+ * published only in CNY on bigmodel.cn and stay unregistered — the same hold
+ * the xiaomi CNY rows took in devlog/_fin/260720_toks_speed_price_columns/003.
+ * glm-4.5 (0.6/2.2/0.11), glm-4.5-air (0.2/1.1/0.03) and glm-4.5v (0.6/1.8/0.11)
+ * are verified on the same page but no registered provider exposes them, so
+ * they have no constants here.
+ */
+const GLM_46: Cost4 = { input: 0.6, output: 2.2, cacheRead: 0.11, cacheWrite: 0 };
+const GLM_46V: Cost4 = { input: 0.3, output: 0.9, cacheRead: 0.05, cacheWrite: 0 };
+const GLM_47: Cost4 = { input: 0.6, output: 2.2, cacheRead: 0.11, cacheWrite: 0 };
+const GLM_5: Cost4 = { input: 1, output: 3.2, cacheRead: 0.2, cacheWrite: 0 };
+const GLM_51: Cost4 = { input: 1.4, output: 4.4, cacheRead: 0.26, cacheWrite: 0 };
+const GLM_52: Cost4 = { input: 1.4, output: 4.4, cacheRead: 0.26, cacheWrite: 0 };
+const GLM_53: Cost4 = { input: 1.4, output: 4.4, cacheRead: 0.26, cacheWrite: 0 };
+const GLM_53_FLASH: Cost4 = { input: 0.15, output: 0.5, cacheRead: 0.03, cacheWrite: 0 };
+const QWEN38_MAX: Cost4 = { input: 2, output: 6, cacheRead: 0, cacheWrite: 0 };
+// Anthropic official list prices (USD / 1M tokens). Cache write uses the published 5-minute rate.
+const CLAUDE_SONNET_46: Cost4 = { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 3.75 };
+const CLAUDE_OPUS_46: Cost4 = { input: 5, output: 25, cacheRead: 0.5, cacheWrite: 6.25 };
+// Claude Fable 5.1: 10 / 50, 5m cache write 12.50. Cache hits are 0.025x base input
+// (0.25) on Fable 5.1 — NOT the 0.1x (1.00) that Fable 5 and every other family use;
+// the pricing page footnote calls this out explicitly. Verified 2026-09-02.
+const CLAUDE_FABLE_51: Cost4 = { input: 10, output: 50, cacheRead: 0.25, cacheWrite: 12.5 };
+// Opus 5 is priced from the maintainer's confirmation that it matches the previous
+// Opus, not from a published Opus 5 page. Hence `verified-derived`, and a source
+// string that states the provenance instead of pointing at ANTHROPIC_PRICING.
+const CLAUDE_OPUS_5_DERIVED_SOURCE =
+  "user-confirmed: claude-opus-5 matches Claude Opus 4.6; no separate Anthropic Opus 5 price page verified";
+const ANTHROPIC_PRICING = "https://platform.claude.com/docs/en/about-claude/pricing (official; 5m cache-write tier)";
+
+const GEMINI_PRICING = "https://ai.google.dev/gemini-api/docs/pricing (2026-07-22); cacheWrite=0: storage is billed per-hour, not per-token";
+const GEMINI_37_PRICING = "https://ai.google.dev/gemini-api/docs/pricing (2026-08-14); promotional rate through 2026-12-31, rises to 1.50/7.50 on 2027-01-01; cacheWrite=0: storage is billed per-hour, not per-token";
+const GEMINI_38_PRICING = "https://ai.google.dev/gemini-api/docs/pricing (2026-09-03); promotional rate through 2026-12-31, rises to 1.50/7.50 on 2027-01-01; cacheWrite=0: storage is billed per-hour, not per-token";
+const MINIMAX_PRICING = "https://platform.minimax.io/docs/guides/pricing-paygo";
+const OPENAI_GPT56_PRICING = "https://developers.openai.com/api/docs/pricing";
+const META_MODEL_PRICING = "https://dev.meta.ai/docs/pricing-rate-limits";
+/*
+ * Shared by both Meta providers. Overlays resolve by EXACT provider id, so `meta-muse`
+ * cannot inherit `meta-model`'s rows — and an unpriced provider whose whole warning is
+ * "treat every call as billable" would report no cost at all.
+ */
+const META_MUSE_SPARK_13: Cost4 = { input: 1.25, output: 4.25, cacheRead: 0.15, cacheWrite: 0 };
+const META_MUSE_SPARK_13_CONTRIBUTOR: Cost4 = { input: 0.1, output: 0.2, cacheRead: 0.002, cacheWrite: 0 };
+const META_SPARK_SOURCE = `Meta Model API published price ${META_MODEL_PRICING}`;
+const META_SPARK_CONTRIBUTOR_SOURCE = `Meta Model API published Contributor-tier price ${META_MODEL_PRICING}; data-sharing discount tier`;
+const DEEPSEEK_PRICING = "https://api-docs.deepseek.com/quick_start/pricing-details-usd; V4 Flash alias transition scheduled 2026-07-24 — re-verify after";
+// Kimi official tables publish input/output/cache-hit only; cacheWrite is mapped to the
+// cache-miss input price (Kimi auto-caches with no separate write billing). 2026-07-20 re-verified.
+const KIMI_PRICING = "https://platform.kimi.ai/docs/pricing (official table; cacheWrite derived = input, Kimi auto-cache has no write billing)";
+// Z.AI publishes one USD table for the international surface; the Coding Plan
+// subscription and the domestic bigmodel.cn endpoints bill differently
+// (subscription quota / CNY tiers), so every GLM row below is verified-derived:
+// the numbers are the verified z.ai list prices shown as estimates.
+const ZAI_PRICING = "https://docs.z.ai/guides/overview/pricing (official USD table, 2026-09-13; cacheWrite=0 — cache storage is limited-time free on both z.ai and bigmodel.cn)";
+const ZAI_CODING_PLAN_NOTE = "z.ai list price shown as estimate; GLM Coding Plan is subscription-billed";
+const BIGMODEL_NOTE = "z.ai international list price shown as estimate; domestic bigmodel.cn billing is CNY tiered (docs.bigmodel.cn/cn/guide/start/pricing)";
+// 260804: Qwen3.8-Max shipped as a stable model and Qwen published a per-token rate, which
+// is the exit condition the previous Routeway reseller overlay named. Two caveats are
+// deliberately in the source string rather than dropped: the figure comes from Qwen's own
+// release announcement, NOT from an Alibaba Model Studio billing table (which still lists
+// qwen3.7-max and qwen3-max but has no qwen3.8-max row), and no cache rate is published
+// anywhere. Cache stays 0 rather than inheriting the reseller's 0.15 — a reseller number
+// under a vendor-price label would be a wrong value wearing a verified badge.
+const QWEN38_MAX_PRICING = "https://qwen.ai/blog?id=qwen3.8 (Qwen release announcement; no Model Studio billing row yet; cache rates unpublished -> 0)";
+
+/*
+ * Cognition/Devin list prices (USD / 1M tokens), verified 2026-09-13 against the
+ * official "AI Models" page — its embedded modelCostData table publishes
+ * input / cache-read / cache-write / output per model uid. Self-serve extra
+ * usage and enterprise ACU conversion both bill at these list rates, so the
+ * tuples are the vendor's own published numbers; every row still stays
+ * verified-derived because the surface itself is subscription/ACU, not a
+ * per-token API.
+ * Time-boxed promos are NOT baked in: SWE-2 shows $0 self-serve through
+ * 2026-10-08 and 75%-off enterprise through 2026-12-31, and the doc states the
+ * list rate is what applies afterward, so the list rate is the durable catalog
+ * value. swe-1-7 keeps its list rate for the same reason even though the
+ * self-serve column currently shows 0. gemini-3-8-flash is absent from the
+ * table entirely, so its row derives from Google's published rate instead.
+ */
+const DEVIN_SWE_2: Cost4 = { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 0 };
+const DEVIN_SWE_17: Cost4 = { input: 0.5, output: 2.5, cacheRead: 0.2, cacheWrite: 0 };
+const DEVIN_SWE_17_LIGHTNING: Cost4 = { input: 2.5, output: 12.5, cacheRead: 1, cacheWrite: 0 };
+const DEVIN_SONNET_5: Cost4 = { input: 2, output: 10, cacheRead: 0.2, cacheWrite: 2.5 };
+const DEVIN_KIMI_K3: Cost4 = { input: 3, output: 15, cacheRead: 0.3, cacheWrite: 0 };
+const DEVIN_KIMI_K27: Cost4 = { input: 0.95, output: 4, cacheRead: 0.19, cacheWrite: 0 };
+const DEVIN_GROK: Cost4 = { input: 2, output: 6, cacheRead: 0.3, cacheWrite: 0 };
+const DEVIN_PRICING = "https://docs.devin.ai/desktop/models (official modelCostData table, 2026-09-13; list rates for self-serve overage / enterprise ACU conversion on a subscription surface)";
+const DEVIN_SWE2_NOTE = "list rate; $0 self-serve through 2026-10-08 and 75%-off enterprise through 2026-12-31 are time-boxed promos, not baked in";
+
+export const EXPECTED_PRICE_OVERLAYS: readonly ExpectedPriceOverlay[] = [
+  { provider: "openai-apikey", modelId: "gpt-6-astra", cost4: GPT6_ASTRA, source: ASTRA_API_PRICING, verifiedAt: "2026-09-05", status: "verified" },
+  // Display estimates use API prices for both login and API-key routes, including cache writes.
+  { provider: "openai", modelId: "gpt-6-astra", cost4: GPT6_ASTRA, source: `API-reference comparison estimate: ${ASTRA_API_PRICING}`, verifiedAt: "2026-09-05", status: "verified-derived" },
+  // claude-fable-5-1 now HAS a generated jawcode row, so the two Anthropic surfaces resolve
+  // from it and these overlays are the fallback rather than the primary source. They stay:
+  // the overlay lookup is keyed by the configured provider id, so an account-pool log label
+  // like anthropic-pb51d9b still needs them, and only the jawcode bundle collapses
+  // anthropic-apikey onto anthropic.
+  { provider: "anthropic", modelId: "claude-fable-5-1", cost4: CLAUDE_FABLE_51, source: `anthropic official Claude Fable 5.1 ${ANTHROPIC_PRICING}; cache hit = 0.025x base input`, verifiedAt: "2026-09-02", status: "verified" },
+  { provider: "anthropic-apikey", modelId: "claude-fable-5-1", cost4: CLAUDE_FABLE_51, source: `anthropic official Claude Fable 5.1 ${ANTHROPIC_PRICING}; cache hit = 0.025x base input`, verifiedAt: "2026-09-02", status: "verified" },
+  // Cursor canonicalizes every Fable 5.1 spelling onto this sole overlay row.
+  { provider: "cursor", modelId: "claude-fable-5-1", cost4: CLAUDE_FABLE_51, source: `anthropic official Claude Fable 5.1 ${ANTHROPIC_PRICING}; cache hit = 0.025x base input; vendor list price applied to the Cursor surface`, verifiedAt: "2026-09-02", status: "verified-derived" },
+  // claude-opus-5 is exposed by three providers but absent from the jawcode bundle, so
+  // cost resolution returned null and the Logs `~$` column rendered an em dash. The
+  // model-level vendor fallback only searches jawcode metadata, never overlays, so one
+  // anthropic row would not cover cursor/kiro — each exposing provider needs its own.
+  { provider: "anthropic", modelId: "claude-opus-5", cost4: CLAUDE_OPUS_46, source: CLAUDE_OPUS_5_DERIVED_SOURCE, verifiedAt: "2026-07-25", status: "verified-derived" },
+  { provider: "cursor", modelId: "claude-opus-5", cost4: CLAUDE_OPUS_46, source: CLAUDE_OPUS_5_DERIVED_SOURCE, verifiedAt: "2026-07-25", status: "verified-derived" },
+  { provider: "kiro", modelId: "claude-opus-5", cost4: CLAUDE_OPUS_46, source: CLAUDE_OPUS_5_DERIVED_SOURCE, verifiedAt: "2026-07-25", status: "verified-derived" },
+  // MiniMax M2.1 highspeed — published PAYG price (verified).
+  { provider: "minimax", modelId: "MiniMax-M2.1-highspeed", cost4: MINIMAX_M21_HIGHSPEED, source: MINIMAX_PRICING, verifiedAt: "2026-07-20", status: "verified" },
+  { provider: "minimax-cn", modelId: "MiniMax-M2.1-highspeed", cost4: MINIMAX_M21_HIGHSPEED, source: MINIMAX_PRICING, verifiedAt: "2026-07-20", status: "verified" },
+  // DeepSeek current-generation IDs (verified; cache-hit price mapped to cacheRead).
+  { provider: "deepseek", modelId: "deepseek-chat", cost4: { input: 0.27, output: 1.1, cacheRead: 0.07, cacheWrite: 0 }, source: DEEPSEEK_PRICING, verifiedAt: "2026-07-20", status: "verified" },
+  { provider: "deepseek", modelId: "deepseek-reasoner", cost4: { input: 0.55, output: 2.19, cacheRead: 0.14, cacheWrite: 0 }, source: DEEPSEEK_PRICING, verifiedAt: "2026-07-20", status: "verified" },
+  // Google Antigravity effort-suffix variants — derived from the verified base-model
+  // price (Google does not publish per-suffix prices; Agent inference bills at the
+  // base model's standard rate per the official Billing FAQ).
+  // 3.7 Flash rides CCA, whose billing equivalence to the Developer API list price is
+  // not published, so this is `verified-derived` rather than `verified`: the number is
+  // proven, the claim that Antigravity charges it is inferred.
+  { provider: "google-antigravity", modelId: "gemini-3.8-flash", cost4: GEMINI_38_FLASH, source: `derived: Gemini 3.8 Flash promotional rate through 2026-12-31 ${GEMINI_38_PRICING}`, verifiedAt: "2026-09-03", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.8-flash-low", cost4: GEMINI_38_FLASH, source: `derived: gemini-3.8-flash ${GEMINI_38_PRICING}`, verifiedAt: "2026-09-03", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.8-flash-medium", cost4: GEMINI_38_FLASH, source: `derived: gemini-3.8-flash ${GEMINI_38_PRICING}`, verifiedAt: "2026-09-03", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.8-flash-high", cost4: GEMINI_38_FLASH, source: `derived: gemini-3.8-flash ${GEMINI_38_PRICING}`, verifiedAt: "2026-09-03", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.7-flash", cost4: GEMINI_37_FLASH, source: `derived: Gemini 3.7 Flash promotional rate through 2026-12-31 ${GEMINI_37_PRICING}`, verifiedAt: "2026-08-14", status: "verified-derived" },
+  // Retained after the 3.6 retirement: historical usage.jsonl rows still carry these
+  // ids, and dropping the row would silently zero the cost of requests already made.
+  { provider: "google-antigravity", modelId: "gemini-3.6-flash", cost4: GEMINI_36_FLASH, source: `collapsed base ID ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified" },
+  { provider: "google-antigravity", modelId: "gemini-3.1-pro", cost4: GEMINI_31_PRO, source: `collapsed base ID ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified" },
+  // OpenAI GPT-5.6 `-pro` virtual selections. The virtual resolver keeps the SELECTED id in
+  // the usage log and records the wire model separately, and cost resolution deliberately
+  // does not fall back through resolvedModel — so without these rows every `-pro` request
+  // resolved to null and rendered no cost estimate at all (#908 audit, runtime-verified).
+  // Pro reasoning bills at the base model's published API rate; the suffix is an effort knob.
+  { provider: "openai-apikey", modelId: "gpt-5.6-sol-pro", cost4: GPT56_SOL, source: `collapsed base ID ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-03", status: "verified-derived" },
+  { provider: "openai-apikey", modelId: "gpt-5.6-terra-pro", cost4: GPT56_TERRA, source: `collapsed base ID ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-03", status: "verified-derived" },
+  { provider: "openai-apikey", modelId: "gpt-5.6-luna-pro", cost4: GPT56_LUNA, source: `collapsed base ID ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-03", status: "verified-derived" },
+  // Meta Model API direct provider. `meta-model` has no jawcode metadata alias, so an
+  // unpriced row falls through the whole resolution chain and the Logs cost column
+  // renders nothing — these exact overlays are the only source. Both are Meta's own
+  // published list prices for Meta's own endpoint (hence "verified", not derived), and
+  // they match the figures Command Code republishes for the same two models.
+  // cacheWrite=0: Meta publishes a cached-input price but no cache-write charge.
+  { provider: "meta-model", modelId: "muse-spark-1.3", cost4: META_MUSE_SPARK_13, source: META_SPARK_SOURCE, verifiedAt: "2026-09-03", status: "verified" },
+  { provider: "meta-model", modelId: "muse-spark-1.3-contributor", cost4: META_MUSE_SPARK_13_CONTRIBUTOR, source: META_SPARK_CONTRIBUTOR_SOURCE, verifiedAt: "2026-09-03", status: "verified" },
+  // Same endpoint, same list price, different credential. Meta does not authorize this
+  // reuse and settlement is not observable, so these are the public Model API rates as a
+  // conservative estimate — not evidence of how the call is actually billed.
+  { provider: "meta-muse", modelId: "muse-spark-1.3", cost4: META_MUSE_SPARK_13, source: META_SPARK_SOURCE, verifiedAt: "2026-09-03", status: "verified-derived" },
+  { provider: "meta-muse", modelId: "muse-spark-1.3-contributor", cost4: META_MUSE_SPARK_13_CONTRIBUTOR, source: META_SPARK_CONTRIBUTOR_SOURCE, verifiedAt: "2026-09-03", status: "verified-derived" },
+  // Daybreak aliases: priced as their current snapshots (red -> gpt-5.6-cyber,
+  // blue -> gpt-5.6-sol). The alias ids carry no rows of their own upstream, hence
+  // verified-derived. Blue deliberately reuses GPT56_SOL rather than duplicating the tuple.
+  // The `gpt-` selector is native to ChatGPT/Codex accounts. The bare aliases below belong to
+  // the separately billed API-key catalog; keep those namespaces disjoint so pricing metadata
+  // cannot make an unroutable provider/model pair look supported.
+  { provider: "openai", modelId: "gpt-daybreak-blue-latest", cost4: GPT56_SOL, source: `alias of gpt-5.6-sol ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-11", status: "verified-derived" },
+  { provider: "openai-apikey", modelId: "daybreak-red-latest", cost4: DAYBREAK_RED, source: `alias of gpt-5.6-cyber ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-11", status: "verified-derived" },
+  { provider: "openai-apikey", modelId: "daybreak-blue-latest", cost4: GPT56_SOL, source: `alias of gpt-5.6-sol ${OPENAI_GPT56_PRICING}`, verifiedAt: "2026-08-11", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.1-pro-low", cost4: GEMINI_31_PRO, source: `derived: gemini-3.1-pro (<=200k tier) ${GEMINI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.1-pro-high", cost4: GEMINI_31_PRO, source: `derived: gemini-3.1-pro (<=200k tier) ${GEMINI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-pro-agent", cost4: GEMINI_31_PRO, source: `wire id for gemini-3.1-pro high ${GEMINI_PRICING}`, verifiedAt: "2026-07-23", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.6-flash-low", cost4: GEMINI_36_FLASH, source: `derived: gemini-3.6-flash ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.6-flash-medium", cost4: GEMINI_36_FLASH, source: `derived: gemini-3.6-flash ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.6-flash-high", cost4: GEMINI_36_FLASH, source: `derived: gemini-3.6-flash ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.5-flash-extra-low", cost4: GEMINI_36_FLASH, source: `compat alias -> gemini-3.6-flash-low ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.5-flash-low", cost4: GEMINI_36_FLASH, source: `compat alias -> gemini-3.6-flash-medium ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.5-flash-mid", cost4: GEMINI_36_FLASH, source: `compat alias -> gemini-3.6-flash-medium ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3.5-flash-high", cost4: GEMINI_36_FLASH, source: `compat alias -> gemini-3.6-flash-high ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  { provider: "google-antigravity", modelId: "gemini-3-flash-agent", cost4: GEMINI_36_FLASH, source: `compat alias -> gemini-3.6-flash-high ${GEMINI_PRICING}`, verifiedAt: "2026-07-22", status: "verified-derived" },
+  // Direct Google Gemini API current model (verified — published table).
+  { provider: "google", modelId: "gemini-3.6-flash", cost4: GEMINI_36_FLASH, source: GEMINI_PRICING, verifiedAt: "2026-07-22", status: "verified" },
+  // Developer API row: the price IS published for this surface, so `verified`.
+  { provider: "google", modelId: "gemini-3.7-flash", cost4: GEMINI_37_FLASH, source: GEMINI_37_PRICING, verifiedAt: "2026-08-14", status: "verified" },
+  { provider: "google", modelId: "gemini-3.8-flash", cost4: GEMINI_38_FLASH, source: GEMINI_38_PRICING, verifiedAt: "2026-09-03", status: "verified" },
+  { provider: "google-antigravity", modelId: "gemini-3.1-pro-preview", cost4: GEMINI_31_PRO, source: GEMINI_PRICING, verifiedAt: "2026-07-20", status: "verified" },
+  // Antigravity-bundled third-party models — derived from the underlying vendor's
+  // official API price (Antigravity itself bills via subscription quota).
+  { provider: "google-antigravity", modelId: "claude-sonnet-4-6", cost4: CLAUDE_SONNET_46, source: `anthropic official Claude Sonnet 4.6 ${ANTHROPIC_PRICING}`, verifiedAt: "2026-07-23", status: "verified" },
+  { provider: "google-antigravity", modelId: "claude-opus-4-6-thinking", cost4: CLAUDE_OPUS_46, source: `anthropic official Claude Opus 4.6 ${ANTHROPIC_PRICING}`, verifiedAt: "2026-07-23", status: "verified" },
+  // Alias without the Antigravity "-thinking" suffix (if logs/UI ever surface it).
+  { provider: "google-antigravity", modelId: "claude-opus-4-6", cost4: CLAUDE_OPUS_46, source: `anthropic official Claude Opus 4.6 ${ANTHROPIC_PRICING}`, verifiedAt: "2026-07-23", status: "verified" },
+  { provider: "google-antigravity", modelId: "gpt-oss-120b-medium", cost4: { input: 0.03, output: 0.15, cacheRead: 0, cacheWrite: 0 }, source: "derived: gpt-oss-120b open-weights — OpenRouter advertised lowest https://openrouter.ai/openai/gpt-oss-120b/providers", verifiedAt: "2026-07-20", status: "verified-derived" },
+  // Kimi / Moonshot — official price tables are now published (2026-07-20 re-check;
+  // previously empty). kimi = Kimi Code OAuth surface, moonshot = CN key surface,
+  // kimi-code = API key surface (expected list price, not actual billing).
+  { provider: "kimi", modelId: "k3", cost4: KIMI_K3, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "k3[1m]", cost4: KIMI_K3, source: `derived: k3 (official docs: k3[1m] is the 1M-context compat notation for k3) ${KIMI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "kimi-k2.7-code", cost4: KIMI_K27_CODE, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "kimi-k2.7-code-highspeed", cost4: KIMI_K27_CODE_HIGHSPEED, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "kimi-k2.6", cost4: KIMI_K26, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "kimi-k2.5", cost4: KIMI_K25, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi", modelId: "kimi-for-coding", cost4: KIMI_K27_CODE, source: `derived: kimi-k2.7-code (Kimi Code maps to K2.7 Code per official model docs) ${KIMI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "moonshot", modelId: "kimi-k3", cost4: KIMI_K3, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "moonshot", modelId: "kimi-k2.7-code", cost4: KIMI_K27_CODE, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "moonshot", modelId: "kimi-k2.7-code-highspeed", cost4: KIMI_K27_CODE_HIGHSPEED, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "moonshot", modelId: "kimi-k2.6", cost4: KIMI_K26, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "moonshot", modelId: "kimi-k2.5", cost4: KIMI_K25, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "k3", cost4: KIMI_K3, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "k3[1m]", cost4: KIMI_K3, source: `derived: k3 ${KIMI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "kimi-k2.7-code", cost4: KIMI_K27_CODE, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "kimi-k2.7-code-highspeed", cost4: KIMI_K27_CODE_HIGHSPEED, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "kimi-k2.6", cost4: KIMI_K26, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "kimi-k2.5", cost4: KIMI_K25, source: KIMI_PRICING, verifiedAt: "2026-07-20", status: "verified-derived" },
+  { provider: "kimi-code", modelId: "kimi-for-coding", cost4: KIMI_K27_CODE, source: `derived: kimi-k2.7-code ${KIMI_PRICING}`, verifiedAt: "2026-07-20", status: "verified-derived" },
+  // Qwen3.8-Max: vendor-published input/output rate (verified). See QWEN38_MAX_PRICING
+  // for what that source does and does not cover.
+  { provider: "alibaba-token-plan", modelId: "qwen3.8-max", cost4: QWEN38_MAX, source: QWEN38_MAX_PRICING, verifiedAt: "2026-08-04", status: "verified" },
+  { provider: "alibaba-token-plan-intl", modelId: "qwen3.8-max", cost4: QWEN38_MAX, source: QWEN38_MAX_PRICING, verifiedAt: "2026-08-04", status: "verified" },
+  // Cursor Auto router — Cursor's published fixed token price (verified).
+  { provider: "cursor", modelId: "auto", cost4: { input: 1.25, output: 6, cacheRead: 0.25, cacheWrite: 1.25 }, source: "https://docs.cursor.com/account/pricing + https://cursor.com/blog/aug-2025-pricing", verifiedAt: "2026-07-20", status: "verified" },
+  // Z.AI GLM family — the zai bundle's rows are all-zero upstream, and the four
+  // provider surfaces below resolve overlays by exact provider id, so each one
+  // needs its own rows (same pattern as kimi/moonshot/kimi-code). All rows are
+  // verified-derived: the tuples are the verified z.ai USD list prices, while
+  // the Coding Plan rows are subscription products and zhipu-bigmodel is the
+  // domestic CNY-tiered PAYG — see ZAI_CODING_PLAN_NOTE / BIGMODEL_NOTE.
+  // zai (api.z.ai Coding Plan) exposes: glm-5.3, glm-5.3[1m], glm-5.3-flash,
+  // glm-5.2, glm-5.2[1m], glm-5.1, glm-5, glm-4.6.
+  { provider: "zai", modelId: "glm-5.3", cost4: GLM_53, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5.3[1m]", cost4: GLM_53, source: `derived: glm-5.3 1M-context compat notation; ${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5.3-flash", cost4: GLM_53_FLASH, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5.2", cost4: GLM_52, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5.2[1m]", cost4: GLM_52, source: `derived: glm-5.2 1M-context compat notation; ${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5.1", cost4: GLM_51, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-5", cost4: GLM_5, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zai", modelId: "glm-4.6", cost4: GLM_46, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  // zhipu-bigmodel (open.bigmodel.cn PAYG) exposes: glm-4.6, glm-4.7,
+  // glm-4.7-flash (officially free — no row), glm-5, glm-5.1, glm-5.2, glm-5.3,
+  // glm-4.6v.
+  { provider: "zhipu-bigmodel", modelId: "glm-4.6", cost4: GLM_46, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-4.6v", cost4: GLM_46V, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-4.7", cost4: GLM_47, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-5", cost4: GLM_5, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-5.1", cost4: GLM_51, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-5.2", cost4: GLM_52, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel", modelId: "glm-5.3", cost4: GLM_53, source: `${BIGMODEL_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  // zhipu-bigmodel-coding exposes the same roster as the zai Coding Plan row.
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.3", cost4: GLM_53, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.3[1m]", cost4: GLM_53, source: `derived: glm-5.3 1M-context compat notation; ${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.3-flash", cost4: GLM_53_FLASH, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.2", cost4: GLM_52, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.2[1m]", cost4: GLM_52, source: `derived: glm-5.2 1M-context compat notation; ${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5.1", cost4: GLM_51, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-5", cost4: GLM_5, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-coding", modelId: "glm-4.6", cost4: GLM_46, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  // zhipu-bigmodel-responses exposes glm-5.3, glm-5.3-flash, glm-5-turbo; the
+  // turbo id is CNY-only upstream and stays unregistered (see the GLM_* note).
+  { provider: "zhipu-bigmodel-responses", modelId: "glm-5.3", cost4: GLM_53, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "zhipu-bigmodel-responses", modelId: "glm-5.3-flash", cost4: GLM_53_FLASH, source: `${ZAI_CODING_PLAN_NOTE}; ${ZAI_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  // Cognition/Devin — the two OAuth surfaces resolve by exact provider id, so
+  // each carries the roster its liveModels discovery can surface. swe-2 and
+  // swe-1-6 are listed on both even though each static seed names only one
+  // side: the live catalog is authoritative and drifts between them.
+  // gpt-5-6-sol uses the enterprise list column — the same table's self-serve
+  // column shows a discounted 1.2/6, and the doc calls the list rate the
+  // billing rate for overage. glm-5-2 likewise takes the nonzero list column.
+  { provider: "devin-cli", modelId: "swe-2", cost4: DEVIN_SWE_2, source: `${DEVIN_SWE2_NOTE}; ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "swe-1-7", cost4: DEVIN_SWE_17, source: `list rate; self-serve column currently shows 0 (unannounced promo); ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "swe-1-7-lightning", cost4: DEVIN_SWE_17_LIGHTNING, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "swe-1-6", cost4: DEVIN_SWE_17, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "gpt-5-6-sol", cost4: GPT56_SOL, source: `enterprise list column (self-serve shows discounted 1.2/6); ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "gpt-6-astra", cost4: GPT6_ASTRA, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "claude-opus-5", cost4: CLAUDE_OPUS_46, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "claude-fable-5-1", cost4: CLAUDE_FABLE_51, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "claude-sonnet-5", cost4: DEVIN_SONNET_5, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "glm-5-3", cost4: GLM_53, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "kimi-k3", cost4: DEVIN_KIMI_K3, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "gemini-3-8-flash", cost4: GEMINI_38_FLASH, source: `derived: absent from Devin's modelCostData table; Google published promotional rate through 2026-12-31 shown as estimate ${GEMINI_38_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin-cli", modelId: "grok-4-6", cost4: DEVIN_GROK, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "swe-2", cost4: DEVIN_SWE_2, source: `${DEVIN_SWE2_NOTE}; ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "swe-1-7", cost4: DEVIN_SWE_17, source: `list rate; self-serve column currently shows 0 (unannounced promo); ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "swe-1-7-lightning", cost4: DEVIN_SWE_17_LIGHTNING, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "swe-1-6", cost4: DEVIN_SWE_17, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "gpt-5-6-sol", cost4: GPT56_SOL, source: `enterprise list column (self-serve shows discounted 1.2/6); ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "gpt-5-6-luna", cost4: GPT56_LUNA, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "gpt-5-6-terra", cost4: GPT56_TERRA, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "claude-opus-4-8", cost4: CLAUDE_OPUS_46, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "claude-fable-5-1", cost4: CLAUDE_FABLE_51, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "claude-sonnet-5", cost4: DEVIN_SONNET_5, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "glm-5-2", cost4: GLM_52, source: `enterprise list column (self-serve shows an unannounced 0 promo); ${DEVIN_PRICING}`, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "kimi-k2-7", cost4: DEVIN_KIMI_K27, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+  { provider: "devin", modelId: "grok-4-5", cost4: DEVIN_GROK, source: DEVIN_PRICING, verifiedAt: "2026-09-13", status: "verified-derived" },
+];
+
+/**
+ * Exact official corrections for stale nonzero catalog rows. These are intentionally separate
+ * from fallback overlays: they win over the bundled row only for the declared provider/model and
+ * therefore cannot reprice routed resellers that reuse the same model slug.
+ */
+export const VERIFIED_PRICE_OVERRIDES: readonly ExpectedPriceOverlay[] = [
+  ...["openai", "openai-apikey"].map((provider): ExpectedPriceOverlay => ({
+    provider, modelId: "gpt-5.6-sol", cost4: GPT56_SOL,
+    source: provider === "openai" ? `API-reference comparison estimate: ${OPENAI_GPT56_PRICING}` : OPENAI_GPT56_PRICING,
+    verifiedAt: "2026-09-05", status: provider === "openai" ? "verified-derived" : "verified",
+  })),
+  {
+    provider: "xai",
+    modelId: "grok-4.6",
+    cost4: { input: 2, output: 6, cacheRead: 0.5, cacheWrite: 0 },
+    source: "https://docs.x.ai/developers/pricing",
+    verifiedAt: "2026-08-18",
+    status: "verified",
+  },
+];
+
+export function findVerifiedPriceOverride(
+  provider: string,
+  modelId: string,
+  overrides: readonly ExpectedPriceOverlay[] = VERIFIED_PRICE_OVERRIDES,
+): ExpectedPriceOverlay | undefined {
+  return overrides.find(row => row.provider === provider && row.modelId === modelId);
+}
+
+/**
+ * Exact-key overlay lookup. Returns verified first, then verified-derived.
+ * NEVER returns "unverified" rows — fail-closed is enforced in code, not just docs.
+ * No fuzzy / case-fold / wire-model fallback.
+ */
+export function findExpectedPriceOverlay(
+  provider: string,
+  modelId: string,
+  overlays: readonly ExpectedPriceOverlay[] = EXPECTED_PRICE_OVERLAYS,
+): ExpectedPriceOverlay | undefined {
+  const exact = overlays.filter(row => row.provider === provider && row.modelId === modelId);
+  const match = exact.find(row => row.status === "verified")
+    ?? exact.find(row => row.status === "verified-derived");
+  if (match || provider !== "cursor") return match;
+  const canonicalBaseId = normalizeCursorClaudeId(modelId)?.canonicalBaseId;
+  if (!canonicalBaseId) return undefined;
+  const canonical = overlays.filter(row => row.provider === provider && row.modelId === canonicalBaseId);
+  return canonical.find(row => row.status === "verified")
+    ?? canonical.find(row => row.status === "verified-derived");
+}
+
+/** OpenAI Fast price multipliers retained as a compatibility export. */
+export const PRIORITY_MULTIPLIERS: Readonly<Record<string, number>> = {
+  "gpt-6-astra": 2,
+  "gpt-5.6-sol": 2,
+  "gpt-daybreak-blue-latest": 2,
+  "daybreak-blue-latest": 2,
+  // Post-price-cut Fast tables (https://openai.com/api-fast-mode/, 2026-08-05):
+  // Terra 4/24/0.40/5 and Luna 0.40/2.40/0.04/0.50 are both 2× the corrected
+  // standard tuples; the stale bases made these look like 1.6/0.4 (#907).
+  "gpt-5.6-terra": 2,
+  "gpt-5.6-luna": 2,
+  "gpt-5.5": 2.5,
+  "gpt-5.4-mini": 2,
+  "gpt-5.4": 2,
+};
+
+/** Returns the priority-tier price multiplier for a model (1 if not listed). */
+export function resolvePriorityMultiplier(modelId: string): number {
+  return PRIORITY_MULTIPLIERS[modelId] ?? 1;
+}
+
+export interface PriorityPricingRule {
+  provider: string;
+  modelId: string;
+  multiplier: number;
+  /** Apply the premium only after the upstream response confirms this tier. */
+  requiresResponseConfirmation?: true;
+  source: string;
+  verifiedAt: string;
+}
+
+const XAI_PRIORITY_PRICING = "https://docs.x.ai/developers/advanced-api-usage/priority-processing";
+
+/**
+ * Exact provider/model priority premiums. Routed resellers never inherit a vendor rule merely
+ * because they reuse its model slug. Multipliers apply uniformly after cache discounts.
+ */
+export const PRIORITY_PRICING_RULES: readonly PriorityPricingRule[] = [
+  ...["openai", "openai-apikey"].flatMap(provider =>
+    Object.entries(PRIORITY_MULTIPLIERS)
+      // Daybreak's `gpt-` selector belongs to ChatGPT/Codex accounts; its bare selector belongs
+      // to the separately billed API-key catalog. All ordinary GPT ids remain valid on both.
+      .filter(([modelId]) => provider === "openai"
+        ? modelId !== "daybreak-blue-latest"
+        : modelId !== "gpt-daybreak-blue-latest")
+      .map(([modelId, multiplier]): PriorityPricingRule => ({
+        provider,
+        modelId,
+        multiplier,
+        source: modelId === "gpt-6-astra" ? ASTRA_API_PRICING : "https://openai.com/api-fast-mode/",
+        verifiedAt: modelId === "gpt-6-astra" ? "2026-09-05" : "2026-08-05",
+      })),
+  ),
+  ...["gpt-5.6-sol-pro", "gpt-5.6-terra-pro", "gpt-5.6-luna-pro"].map((modelId): PriorityPricingRule => ({
+    provider: "openai-apikey", modelId, multiplier: 2,
+    source: "https://developers.openai.com/api/docs/pricing (derived from the virtual selection's base wire model)",
+    verifiedAt: "2026-09-05",
+  })),
+  ...["grok-4.5", "grok-4.6"].map((modelId): PriorityPricingRule => ({
+    provider: "xai",
+    modelId,
+    multiplier: 2,
+    requiresResponseConfirmation: true,
+    source: XAI_PRIORITY_PRICING,
+    verifiedAt: "2026-08-18",
+  })),
+];
+
+/** Exact provider/model priority-pricing lookup. */
+export function findPriorityPricingRule(
+  provider: string,
+  modelId: string,
+  rules: readonly PriorityPricingRule[] = PRIORITY_PRICING_RULES,
+): PriorityPricingRule | undefined {
+  return rules.find(rule => rule.provider === provider && rule.modelId === modelId);
+}
+
+/**
+ * Long-context pricing tiers (#908). Several vendors reprice the ENTIRE request
+ * once the prompt crosses a published input-token threshold, so a flat Cost4
+ * cannot express it.
+ *
+ * The threshold is measured on RAW `usage.inputTokens` (total prompt size,
+ * including cache reads/writes) — never on normalized billable input, which has
+ * already had cache tokens subtracted. A 280k prompt with a 200k cache read has
+ * 80k billable input and still crosses OpenAI's 272k boundary; deciding after
+ * normalization would under-bill exactly the cache-heavy long requests.
+ *
+ * Rules are exact provider+model matches. No case folding: the jawcode bundle
+ * carries BOTH `minimax-m3` and `MiniMax-M3` at different rates, so folding
+ * would select the wrong base row. No model-level fallback: routed resellers
+ * (Cursor, OpenRouter) share model slugs but price independently.
+ */
+export interface ContextTier {
+  provider: string;
+  modelId: string;
+  /** Long rates apply once raw input tokens pass this boundary. */
+  thresholdInputTokens: number;
+  /** true = `>=` threshold (xAI), false = `>` threshold (OpenAI, MiniMax). */
+  inclusive: boolean;
+  /** Per-field factor from the short rate to the published long rate. */
+  multiplier: Cost4;
+  /** Published relationship between confirmed priority and long-context bands. */
+  confirmedPriorityRelation?: "exclusive" | "lower-bound" | "stack";
+  source: string;
+  verifiedAt: string;
+}
+
+/**
+ * OpenAI GPT-5.6: "Prompts with >272K input tokens are priced at 2x input and
+ * 1.5x output for the full request." Cached input and cache writes also double,
+ * per the published short/long columns.
+ */
+const OPENAI_LONG_CONTEXT: Cost4 = { input: 2, output: 1.5, cacheRead: 2, cacheWrite: 2 };
+/** xAI and MiniMax double every rate uniformly past their thresholds. */
+const UNIFORM_DOUBLE: Cost4 = { input: 2, output: 2, cacheRead: 2, cacheWrite: 2 };
+
+const OPENAI_PRICING_DOC = "https://developers.openai.com/api/docs/pricing";
+const OPENAI_CONTEXT_MODELS = [
+  "gpt-6-astra",
+  "gpt-5.6-sol",
+  "gpt-5.6-terra",
+  "gpt-5.6-luna",
+  // Virtual `-pro` selections keep their own id in usage logs (the wire model is
+  // recorded separately), so they need their own rows or they silently skip the tier.
+  "gpt-5.6-sol-pro",
+  "gpt-5.6-terra-pro",
+  "gpt-5.6-luna-pro",
+];
+
+export const CONTEXT_TIERS: readonly ContextTier[] = [
+  // API-reference estimates do not apply subscription-only exemptions or multipliers.
+  ...["openai", "openai-apikey"].flatMap(provider =>
+    OPENAI_CONTEXT_MODELS.map((modelId): ContextTier => ({
+      provider,
+      modelId,
+      thresholdInputTokens: 272_000,
+      inclusive: false,
+      multiplier: OPENAI_LONG_CONTEXT,
+      confirmedPriorityRelation: "stack",
+      source: OPENAI_PRICING_DOC,
+      verifiedAt: "2026-09-05",
+    })),
+  ),
+  {
+    // The native Codex selector aliases gpt-5.6-sol and shares its 272k long-context tier.
+    provider: "openai",
+    modelId: "gpt-daybreak-blue-latest",
+    thresholdInputTokens: 272_000,
+    inclusive: false,
+    multiplier: OPENAI_LONG_CONTEXT,
+    confirmedPriorityRelation: "stack",
+    source: OPENAI_PRICING_DOC,
+    verifiedAt: "2026-09-05",
+  },
+  {
+    // The bare selector is the separately billed API-key alias. Daybreak Red has no tier row:
+    // the cyber snapshot's four long-context cells are all "-" on the pricing page.
+    provider: "openai-apikey",
+    modelId: "daybreak-blue-latest",
+    thresholdInputTokens: 272_000,
+    inclusive: false,
+    multiplier: OPENAI_LONG_CONTEXT,
+    confirmedPriorityRelation: "stack",
+    source: OPENAI_PRICING_DOC,
+    verifiedAt: "2026-09-05",
+  },
+  {
+    provider: "xai",
+    modelId: "grok-4.5",
+    thresholdInputTokens: 200_000,
+    inclusive: true,
+    multiplier: UNIFORM_DOUBLE,
+    confirmedPriorityRelation: "lower-bound",
+    source: "https://docs.x.ai/developers/pricing",
+    verifiedAt: "2026-08-03",
+  },
+  {
+    // xAI publishes the whole-request >=200k band for grok-4.6. Its combination with
+    // Priority Processing is not published, so confirmed priority uses this row as a lower bound.
+    provider: "xai",
+    modelId: "grok-4.6",
+    thresholdInputTokens: 200_000,
+    inclusive: true,
+    multiplier: UNIFORM_DOUBLE,
+    confirmedPriorityRelation: "lower-bound",
+    source: "https://docs.x.ai/developers/pricing",
+    verifiedAt: "2026-08-18",
+  },
+  ...["minimax", "minimax-cn"].map((provider): ContextTier => ({
+    provider,
+    modelId: "MiniMax-M3",
+    thresholdInputTokens: 512_000,
+    inclusive: false,
+    multiplier: UNIFORM_DOUBLE,
+    source: "https://platform.minimax.io/docs/guides/pricing-paygo",
+    verifiedAt: "2026-08-03",
+  })),
+];
+
+/** Exact provider+model context-tier lookup. No fuzzy matching, no case folding. */
+export function findContextTier(
+  provider: string,
+  modelId: string,
+  tiers: readonly ContextTier[] = CONTEXT_TIERS,
+): ContextTier | undefined {
+  return tiers.find(tier => tier.provider === provider && tier.modelId === modelId);
+}
+
+/** Whether a raw input-token count crosses the tier's published boundary. */
+export function isLongContext(tier: ContextTier, rawInputTokens: number): boolean {
+  if (!Number.isFinite(rawInputTokens)) return false;
+  return tier.inclusive
+    ? rawInputTokens >= tier.thresholdInputTokens
+    : rawInputTokens > tier.thresholdInputTokens;
+}

@@ -1,0 +1,191 @@
+/**
+ * What opencodex remembers about a client between operations.
+ *
+ * Two hashes, because the two questions are genuinely independent: the FILE
+ * hash identifies the exact result for restore and for clients whose writer
+ * re-serializes the whole document. The BLOCK hash identifies OMP's surgically
+ * patched fragment and detects catalog drift. One hash cannot safely answer
+ * both questions in a shared client config.
+ *
+ * Design of record: devlog/_fin/260802_client_toggle_api/021 §2.
+ */
+import { createHash } from "node:crypto";
+import { mkdirSync, readFileSync } from "node:fs";
+import { dirname, join } from "node:path";
+import type { ManagedContribution, ManagedFragment } from "../clients/config-export";
+import { atomicWriteFile, getConfigDir } from "../config";
+import type { IntegrationClientId } from "./registry";
+
+/** 16 hex chars — the same shape as the Claude Desktop applied fingerprint. */
+export function fingerprint(text: string): string {
+  return createHash("sha256").update(text).digest("hex").slice(0, 16);
+}
+
+/**
+ * Canonicalize JSON object members recursively for semantic comparisons.
+ * Arrays stay ordered because their position can carry configuration meaning.
+ */
+function semanticJsonValue(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map(semanticJsonValue);
+  if (value === null || typeof value !== "object") return value;
+
+  const record = value as Record<string, unknown>;
+  return Object.fromEntries(
+    Object.keys(record)
+      .sort()
+      .map(key => [key, semanticJsonValue(record[key])]),
+  );
+}
+
+/**
+ * Stable semantic bytes of a contribution. Third-party clients may
+ * re-serialize JSON object members in a different order; that formatting-only
+ * rewrite must not look like a protected-value edit.
+ */
+export function semanticContribution(contribution: ManagedContribution): string {
+  const sorted = [...contribution.fragments].sort((a, b) => {
+    const left = a.path.join("\u0000");
+    const right = b.path.join("\u0000");
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
+  return JSON.stringify(sorted.map(fragment => [fragment.path, semanticJsonValue(fragment.value)]));
+}
+
+/**
+ * Legacy-compatible bytes used by existing persisted fingerprints. Fragment
+ * paths are stable, while nested object insertion order remains exact.
+ */
+export function canonicalContribution(contribution: ManagedContribution): string {
+  const sorted = [...contribution.fragments].sort((a, b) => {
+    const left = a.path.join("\u0000");
+    const right = b.path.join("\u0000");
+    return left < right ? -1 : left > right ? 1 : 0;
+  });
+  return JSON.stringify(sorted.map(fragment => [fragment.path, fragment.value]));
+}
+
+export interface OwnershipRecord {
+  clientId: IntegrationClientId;
+  configPath: string;
+  /** Hash of the WHOLE file as we left it — protects whole-file restore. */
+  fileFingerprint: string;
+  /** Hash of our contribution — detects catalog/port drift. */
+  blockFingerprint: string;
+  /** Key-order-independent companion for JSON clients that normalize objects. */
+  semanticBlockFingerprint?: string;
+  /**
+   * Hash of the fields the client must not rewrite. Present only when a
+   * client has explicitly declared runtime-derived paths below.
+   */
+  protectedBlockFingerprint?: string;
+  /** Key-order-independent companion to `protectedBlockFingerprint`. */
+  semanticProtectedBlockFingerprint?: string;
+  /**
+   * Exact document paths a client may derive after apply. These are recorded
+   * per operation so later catalog changes cannot widen an older grant.
+   */
+  refreshablePaths?: readonly (readonly string[])[];
+  /** The exact paths we own. Removal touches these and nothing else. */
+  fragmentPaths: readonly (readonly string[])[];
+  /**
+   * Containers this apply had to CREATE, `\0`-joined.
+   *
+   * Kimi's `models` map exists only because our aliases need somewhere to
+   * live. Without this, disable left it behind as an empty container in a file
+   * the user never asked us to restructure — while a `providers: {}` the user
+   * wrote themselves must survive. Optional because records written before
+   * this field existed simply prune nothing, which is the old behavior.
+   */
+  createdContainers?: readonly string[];
+  appliedAt: string;
+  opId: string;
+}
+
+/** Recovery needs proven metadata, unlike the tolerant status-reader fallback. */
+export function isOwnershipRecord(value: unknown): value is OwnershipRecord {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  const hash = (item: unknown) => typeof item === "string" && /^[a-f0-9]{16}$/.test(item);
+  const paths = (item: unknown) => Array.isArray(item) && item.every(path =>
+    Array.isArray(path) && path.length > 0 && path.every(key => typeof key === "string" && key.length > 0));
+  return typeof record.clientId === "string" && record.clientId.length > 0
+    && typeof record.configPath === "string" && record.configPath.length > 0
+    && typeof record.opId === "string" && record.opId.length > 0
+    && typeof record.appliedAt === "string" && Number.isFinite(Date.parse(record.appliedAt))
+    && hash(record.fileFingerprint) && hash(record.blockFingerprint)
+    && paths(record.fragmentPaths) && (record.fragmentPaths as unknown[]).length > 0
+    && ["semanticBlockFingerprint", "protectedBlockFingerprint", "semanticProtectedBlockFingerprint"]
+      .every(key => record[key] === undefined || hash(record[key]))
+    && (record.refreshablePaths === undefined || paths(record.refreshablePaths))
+    && (record.createdContainers === undefined || (Array.isArray(record.createdContainers)
+      && record.createdContainers.every(path => typeof path === "string")));
+}
+
+/** Missing is empty; corrupt/unreadable ownership is uncertainty and must abort recovery. */
+export function readRecordsStrict(dir: string = integrationsDir()): Partial<Record<IntegrationClientId, OwnershipRecord>> {
+  let text: string;
+  try { text = readFileSync(recordsPath(dir), "utf8"); }
+  catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return {};
+    throw new Error("integration ownership cannot be read for recovery");
+  }
+  try {
+    const parsed: unknown = JSON.parse(text);
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)
+      || !Object.entries(parsed).every(([key, value]) => isOwnershipRecord(value) && value.clientId === key)) throw new Error();
+    return parsed as Partial<Record<IntegrationClientId, OwnershipRecord>>;
+  } catch { throw new Error("integration ownership is invalid for recovery"); }
+}
+
+/**
+ * The integrations directory itself. Every primitive takes THIS path, never a
+ * config root, so a caller cannot accidentally produce
+ * `<root>/integrations/integrations` by passing an already-resolved value.
+ */
+export function integrationsDir(configDir: string = getConfigDir()): string {
+  return join(configDir, "integrations");
+}
+
+/** `atomicWriteFile` does not create parents. */
+export function ensureDir(filePath: string): void {
+  mkdirSync(dirname(filePath), { recursive: true, mode: 0o700 });
+}
+
+function recordsPath(dir: string): string {
+  return join(dir, "records.json");
+}
+
+export function readRecords(
+  dir: string = integrationsDir(),
+): Partial<Record<IntegrationClientId, OwnershipRecord>> {
+  try {
+    const parsed: unknown = JSON.parse(readFileSync(recordsPath(dir), "utf8"));
+    if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+      return parsed as Partial<Record<IntegrationClientId, OwnershipRecord>>;
+    }
+  } catch {
+    // Missing or corrupt records mean "we remember nothing", which the
+    // classifier reads as a conflict for an existing block. Fail closed: an
+    // unreadable memory is never permission to delete.
+  }
+  return {};
+}
+
+export function writeRecord(record: OwnershipRecord, dir: string = integrationsDir()): void {
+  const all = readRecords(dir);
+  all[record.clientId] = record;
+  ensureDir(recordsPath(dir));
+  atomicWriteFile(recordsPath(dir), `${JSON.stringify(all, null, 2)}\n`);
+}
+
+export function deleteRecord(clientId: IntegrationClientId, dir: string = integrationsDir()): void {
+  const all = readRecords(dir);
+  if (!(clientId in all)) return;
+  delete all[clientId];
+  ensureDir(recordsPath(dir));
+  atomicWriteFile(recordsPath(dir), `${JSON.stringify(all, null, 2)}\n`);
+}
+
+export function fragmentPathsOf(contribution: ManagedContribution): readonly (readonly string[])[] {
+  return contribution.fragments.map((fragment: ManagedFragment) => fragment.path);
+}

@@ -1,0 +1,37 @@
+{
+  "schema": 1,
+  "config": {
+    "rootKeys": [
+      "notify"
+    ],
+    "tables": [
+      "marketplaces.*",
+      "plugins.*",
+      "mcp_servers.node_repl",
+      "mcp_servers.node_repl.env",
+      "mcp_servers.laio",
+      "apps.*"
+    ],
+    "tableKeys": {
+      "features": [
+        "js_repl"
+      ],
+      "shell_environment_policy.set": [
+        "NODE_REPL_TRUSTED_BROWSER_CLIENT_SHA256S"
+      ],
+      "desktop": [
+        "followUpQueueMode"
+      ]
+    },
+    "protectedRootKeys": [
+      "model",
+      "model_reasoning_effort",
+      "service_tier",
+      "model_catalog_json"
+    ]
+  },
+  "agentRoles": [],
+  "generatedAgentRoles": [],
+  "personalSkills": [],
+  "copyGlobalInstructions": false
+}
