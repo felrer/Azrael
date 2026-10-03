@@ -1,0 +1,7 @@
+# Merge into an existing [agents] section; do not duplicate the section.
+# This is a concurrency ceiling, not a target number of agents to launch.
+[agents]
+enabled = true
+default_subagent_model = "gpt-6.1-sol"
+default_subagent_reasoning_effort = "medium"
+max_concurrent_threads_per_session = 8

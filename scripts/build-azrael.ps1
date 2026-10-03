@@ -4,7 +4,8 @@ param(
     [ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]*$')]
     [string]$ReleaseName = (Get-Date -Format 'yyyyMMdd-HHmmss-fff'),
     [switch]$SkipEngineBuild,
-    [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/worktrees/azrael-0.159.3'),
+    [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
+    [string]$EngineTargetDirectory,
     [string]$EngineDirectory,
     [string]$CompanionVsixPath,
     [string]$CodeModeHostPath,
@@ -29,9 +30,10 @@ $rustRoot = Join-Path $sourceRoot 'codex-rs'
 if (-not (Test-Path -LiteralPath (Join-Path $rustRoot 'Cargo.toml') -PathType Leaf)) {
     throw 'SourceRoot must contain codex-rs/Cargo.toml.'
 }
-if (-not $EngineDirectory) {
-    $EngineDirectory = Join-Path $rustRoot 'target/x86_64-pc-windows-msvc/debug'
-}
+if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
+if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
+$engineTarget = if ($EngineTargetDirectory) { [IO.Path]::GetFullPath($EngineTargetDirectory) } else { Join-Path $rustRoot 'target' }
+if (-not $EngineDirectory) { $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/debug' }
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
 $buildMetrics = New-BuildMetrics (Join-Path $logDirectory 'build-metrics.json')
@@ -85,9 +87,9 @@ if (-not $SkipEngineBuild) {
     Push-Location $rustRoot
     $previousTarget = $env:CARGO_TARGET_DIR
     try {
-        # Keep the existing incremental cache, even if the caller uses another
-        # CARGO_TARGET_DIR. Always package the pair from this build's target.
-        $env:CARGO_TARGET_DIR = Join-Path $rustRoot 'target'
+        # The explicit cache may be reused across selected source snapshots.
+        # Cargo must successfully build both binaries before provenance is recorded.
+        $env:CARGO_TARGET_DIR = $engineTarget
         Invoke-BuildCommand 'cargo' @('build', '--locked', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-cli', '--bin', 'codex', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }

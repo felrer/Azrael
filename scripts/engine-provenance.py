@@ -1,6 +1,7 @@
 """Bind the deployable engine bundle to source contents and binary hashes."""
 import argparse
 import hashlib
+import importlib.util
 import json
 import os
 from pathlib import Path
@@ -17,8 +18,40 @@ def sha(path):
 
 
 def snapshot(root):
+    root = Path(root).resolve()
+    imported_receipt = root / "SOURCE.json"
+    if imported_receipt.exists() or imported_receipt.is_symlink():
+        if imported_receipt.is_symlink():
+            raise ValueError("Imported source receipt must be a regular file")
+        helper_path = Path(__file__).with_name("import-engine-source.py")
+        spec = importlib.util.spec_from_file_location("engine_source_import", helper_path)
+        helper = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(helper)
+        receipt_bytes = imported_receipt.read_bytes()
+        receipt = json.loads(receipt_bytes)
+        root = root.resolve()
+        inventory_digest = helper.validate_receipt(root, receipt, allow_build_caches=True)
+        digest = hashlib.sha256()
+        for name, entry in sorted(receipt["files"].items()):
+            content = entry.get("sha256", "missing")
+            digest.update(name.encode("utf-8") + b"\0" + content.encode() + b"\0")
+        if imported_receipt.read_bytes() != receipt_bytes:
+            raise ValueError("Imported source receipt changed during provenance verification")
+        return {
+            "schema": 2, "sourceKind": "imported-snapshot", "head": receipt["head"],
+            "importedInventorySha256": inventory_digest,
+            "importedReceiptSha256": hashlib.sha256(receipt_bytes).hexdigest(),
+            "distributionAdaptationSha256": hashlib.sha256(helper.canonical(receipt.get("distributionAdaptation", {}))).hexdigest(),
+            "distributionFilesSha256": hashlib.sha256(helper.canonical(receipt.get("distributionFiles", {}))).hexdigest(),
+            "sourceFixesSha256": hashlib.sha256(helper.canonical(receipt.get("sourceFixes", {}))).hexdigest(),
+            "sourceSha256": digest.hexdigest(), "fileCount": len(receipt["files"]), "target": TARGET,
+            "buildEnvironment": {key: os.environ.get(key, "") for key in
+                                 ("RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTC_WRAPPER", "RUSTUP_TOOLCHAIN")},
+        }
     def git(*args):
         return subprocess.check_output(["git", "-C", str(root), *args])
+    if Path(git("rev-parse", "--show-toplevel").decode().strip()).resolve() != root:
+        raise ValueError("Engine source root has no imported receipt and is not a Git worktree root")
     paths = sorted(set(git("ls-files", "--cached", "--others", "--exclude-standard", "-z").split(b"\0")) - {b""})
     digest = hashlib.sha256()
     for raw in paths:

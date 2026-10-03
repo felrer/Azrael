@@ -111,4 +111,4 @@ function injectProviderContext(text, asset) {
   });
   return count ? {text:text+"\n"+MARKER,count} : {text,count:0};
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,injectProviderContext,policyDescription,decorateGauge,savePolicy};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,policyDescription,decorateGauge,savePolicy};

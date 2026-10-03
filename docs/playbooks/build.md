@@ -6,7 +6,7 @@
 
 - 배포 실행파일은 프로젝트 `artifacts/releases/<이름>/`, VSIX는 `artifacts/vsix/<이름>/`, 로그는 `artifacts/logs/<이름>/`, 격리 검증 상태는 `artifacts/verification/`에 저장한다. 전체 `artifacts/`는 Git에서 제외한다.
 - 계정 모듈은 `artifacts/build/<이름>/companion/`에 소스를 복사한 뒤 lockfile로 설치·빌드한다. 실행 중인 확장이 점유한 네이티브 DLL 때문에 소스 디렉터리의 `node_modules`를 제거하거나 사용자 프로세스를 종료하지 않는다. 빌드 작업 폴더는 검증과 인계가 끝나고 참조가 없을 때 정리한다.
-- Rust 중간 산출물은 빌드에 사용하는 엔진 소스(`-SourceRoot`)의 무시된 `codex-rs/target/` 캐시를 재사용한다. TypeScript의 `dist/`와 `node_modules/`도 기존 무시된 빌드·의존성 폴더를 유지한다. 배포본을 바탕화면이나 외부 작업 문서 폴더에 만들지 않는다.
+- Rust 중간 산출물은 기본적으로 엔진 소스(`-SourceRoot`)의 무시된 `codex-rs/target/` 캐시를 재사용한다. 다른 작업이 사용하는 캐시를 변경하지 않고 스냅샷을 빌드하려면 `-EngineTargetDirectory`로 전용 절대 캐시 경로를 지정한다. TypeScript의 `dist/`와 `node_modules/`도 기존 무시된 빌드·의존성 폴더를 유지한다. 배포본을 바탕화면이나 외부 작업 문서 폴더에 만들지 않는다.
 - 엔진 변경은 엔진과 브리지를 같은 빌드에서 생성하고, 설치된 호환 Codex의 code-mode host를 원본 경로·SHA-256과 함께 고정해 같은 번들로 만든다. Windows용 upstream `rusty_v8` 자산을 받을 수 없는 상태에서는 host를 소스 빌드한 것으로 표시하지 않는다. 계정 모듈만 바꾸면 검증된 배포본의 엔진 번들을 명시적으로 재사용한다. 런처·문서·경로 변경의 검증에는 기존 검증된 엔진 번들과 VSIX를 재사용할 수 있다.
 - 재사용한 바이너리를 현재 소스에서 새로 빌드했다고 보고하지 않는다. 빌드 명령 성공과 기능 검증 통과는 별개다.
 - 엔진 재사용은 `azrael-engine-build.json`의 소스 지문과 현재 소스가 일치하고 엔진·브리지·code-mode host 해시가 일치할 때만 허용한다. Git HEAD만 비교하지 않는다. 추적 파일의 실제 내용, 미추적·삭제 파일과 주요 빌드 환경을 함께 비교한다. 기록이 없는 이전 엔진은 새로 빌드한다. 빌드 도중 소스가 바뀌면 패키징하지 않고 다시 빌드한다. 격리 배포 직전에도 같은 검사를 수행한다.

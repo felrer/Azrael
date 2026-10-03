@@ -3,7 +3,7 @@ param(
     [Parameter(Mandatory)][string]$EnginePath,
     [Parameter(Mandatory)][string]$BridgePath,
     [Parameter(Mandatory)][string]$CompanionVsixPath,
-    [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'upstream/codex'),
+    [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$OutputDirectory = (Join-Path $PSScriptRoot ("../artifacts/releases/" + (Get-Date -Format 'yyyyMMdd-HHmmss-fff')))
 )
 
@@ -32,10 +32,11 @@ if (-not (Test-Path -LiteralPath (Join-Path $sourceRoot 'codex-rs/Cargo.toml') -
     throw 'SourceRoot must contain codex-rs/Cargo.toml.'
 }
 if ((Split-Path $engine -Parent) -cne (Split-Path $bridge -Parent)) { throw 'Engine and bridge must come from the same recorded build directory.' }
-& python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Split-Path $engine -Parent) | Out-Null
+$sourceReceiptText = & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Split-Path $engine -Parent)
 if ($LASTEXITCODE -ne 0) { throw 'Cannot package an engine without matching source provenance.' }
-$base = (& git -C $sourceRoot rev-parse HEAD).Trim()
-if ($LASTEXITCODE -ne 0) { throw 'Could not read the engine source baseline.' }
+$sourceReceipt = $sourceReceiptText | ConvertFrom-Json
+$base = [string]$sourceReceipt.source.head
+if ($base -notmatch '^[0-9a-f]{40}$') { throw 'Could not read the verified engine source baseline.' }
 $engineVersion = & python -c 'import pathlib, sys, tomllib; print(tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))["workspace"]["package"]["version"])' (Join-Path $sourceRoot 'codex-rs/Cargo.toml')
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($engineVersion)) { throw 'Could not read the engine source version.' }
 $requiredScripts = @('start-azrael.ps1', 'prepare-official-ui.ps1')

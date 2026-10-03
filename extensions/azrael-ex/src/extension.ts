@@ -18,15 +18,18 @@ import { buildHostRuntime } from "./hostRuntime";
 import { AppServerTransport } from "./appServerTransport";
 import { ChatSession } from "./chatSession";
 import { ChatView } from "./chatView";
+import { InstructionService } from "./instructionService";
+import { InstructionView } from "./instructionView";
 
 let service: AccountService | undefined;
 
 let fallbackWindowSessionId: string | undefined;
 export async function activate(context: vscode.ExtensionContext, runtime?: HostRuntime): Promise<void> {
   const standalone = runtime === undefined;
+  let instructions: InstructionView | undefined;
   const register = (command: string, action: () => unknown) => context.subscriptions.push(vscode.commands.registerCommand(command, action));
   register("azrael.openCodex", () => guarded(() => standalone ? vscode.commands.executeCommand("azrael.openSidebar") : openAzraelSidebar(vscode)));
-  register("azrael.openCodexSettings", () => guarded(() => pickAzraelSetting(vscode)));
+  register("azrael.openCodexSettings", () => guarded(() => standalone ? instructions?.show() : pickAzraelSetting(vscode)));
 
   if (!runtime && context.extensionPath) {
     try { runtime = buildHostRuntime(context.extensionPath); }
@@ -74,6 +77,11 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   const sharedEnvRuntime = { engine, codexHome };
   register("azrael.syncSharedEnvironment", () => guarded(() => syncSharedEnvironment(context, sharedEnvRuntime, sharedEnvLog)));
   register("azrael.fetchSharedPlaybook", () => guarded(() => fetchSharedPlaybook(context, sharedEnvRuntime, sharedEnvLog)));
+  instructions = new InstructionView(new InstructionService(context, sharedEnvRuntime, sharedEnvLog));
+  context.subscriptions.push(instructions);
+  register("azrael.instructions", () => instructions!.show());
+  context.subscriptions.push(vscode.commands.registerCommand("azrael.instructionsEmbedded",
+    (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => instructions!.handleEmbedded(webview, request, panel)));
 
   service = new AccountService({ executable: bridgeExecutable, socket, codexHome, expectedServerVersion: engineVersion, env: { ...runtimeEnv, AZRAEL_EX_MANAGEMENT_SOCKET: socket, CODEX_HOME: codexHome } });
   const usage = new UsageRefreshCoordinator(async (profileId, workspaceAccountId, includeDetails) => {
@@ -134,7 +142,7 @@ function isHostRuntime(value: unknown): value is HostRuntime {
 }
 
 function registerUnavailable(register: (command: string, action: () => unknown) => void, reason: string): void {
-  for (const command of ["azrael.manageAccounts", "azrael.usage", "azrael.devinAccount", "azrael.rootResume", "azrael.accountQuickPick", "azrael.refreshAccounts", "azrael.syncSharedEnvironment", "azrael.fetchSharedPlaybook"]) {
+  for (const command of ["azrael.manageAccounts", "azrael.usage", "azrael.devinAccount", "azrael.rootResume", "azrael.accountQuickPick", "azrael.refreshAccounts", "azrael.syncSharedEnvironment", "azrael.fetchSharedPlaybook", "azrael.instructions"]) {
     register(command, () => vscode.window.showErrorMessage(reason));
   }
 }

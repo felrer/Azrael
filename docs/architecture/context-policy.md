@@ -1,6 +1,6 @@
 # Provider context policy
 
-Status: `partial`. Percentage-based settings and native policy are the target contract below. Source and transformed-function checks cover the redesign; Rust compilation, installed rendering and real account 1M admission require separate verification because this task excludes builds.
+Status: `partial`. Percentage-based settings and native policy are implemented below. Rust compilation, native configuration RPC checks, source and transformed-function checks, and all six isolated host acceptance stages passed; the tested package is installed. Installed rendering and real account 1M admission require separate verification.
 
 ## Context and automatic compaction
 

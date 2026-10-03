@@ -69,6 +69,7 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/dist/src/extension.js',
             'extension/account-ui/sync-shared-environment.cjs',
             'extension/account-ui/sync-codex-environment.cjs',
+            'extension/account-ui/instruction-package.cjs',
             'extension/account-ui/node_modules/@xterm/headless/package.json',
             'extension/account-ui/node_modules/node-pty/package.json',
             'extension/account-ui/node_modules/node-pty/prebuilds/win32-x64/pty.node'
@@ -173,7 +174,7 @@ try {
         Invoke-PreparationPhase 'account-payload' {
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             foreach ($module in @('azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs')) {

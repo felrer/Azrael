@@ -4,21 +4,35 @@
   "description": "Independent Azrael chat, account, and usage extension.",
   "version": "0.4.0",
   "publisher": "azrael-ex-local",
-  "license": "UNLICENSED",
+  "license": "MIT",
   "engines": {
     "vscode": "^1.96.0"
   },
   "categories": [
     "Other"
   ],
-  "activationEvents": ["onView:azrael.chat"],
+  "activationEvents": [
+    "onView:azrael.chat"
+  ],
   "main": "./dist/src/extension.js",
   "contributes": {
     "viewsContainers": {
-      "activitybar": [{ "id": "azraelViewContainer", "title": "Azrael", "icon": "media/chat.svg" }]
+      "activitybar": [
+        {
+          "id": "azraelViewContainer",
+          "title": "Azrael",
+          "icon": "media/chat.svg"
+        }
+      ]
     },
     "views": {
-      "azraelViewContainer": [{ "type": "webview", "id": "azrael.chat", "name": "Chat" }]
+      "azraelViewContainer": [
+        {
+          "type": "webview",
+          "id": "azrael.chat",
+          "name": "Chat"
+        }
+      ]
     },
     "configuration": {
       "title": "Azrael Shared Environment",
@@ -32,13 +46,24 @@
           "type": "string",
           "default": "main",
           "description": "Git ref (branch, tag, or commit) to sync from the shared environment repository."
+        },
+        "azrael.instructions.repository": {
+          "description": "GitHub repository containing versioned Azrael instruction releases (owner/name).",
+          "default": "felrer/Azrael",
+          "type": "string"
         }
       }
     },
     "menus": {
       "commandPalette": [
-        { "command": "azrael.manageAccounts", "when": "false" },
-        { "command": "azrael.devinAccount", "when": "false" }
+        {
+          "command": "azrael.manageAccounts",
+          "when": "false"
+        },
+        {
+          "command": "azrael.devinAccount",
+          "when": "false"
+        }
       ]
     },
     "commands": [
@@ -96,6 +121,11 @@
         "command": "azrael.fetchSharedPlaybook",
         "title": "Fetch Shared Playbook",
         "category": "Azrael"
+      },
+      {
+        "category": "Azrael",
+        "command": "azrael.instructions",
+        "title": "지침 문서"
       }
     ]
   },
@@ -122,6 +152,14 @@
   },
   "dependencies": {
     "@xterm/headless": "6.0.0",
-    "node-pty": "1.1.0"
-  }
+    "node-pty": "1.1.0",
+    "semver": "7.8.5",
+    "smol-toml": "1.9.0",
+    "yauzl": "3.4.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/felrer/Azrael.git"
+  },
+  "homepage": "https://github.com/felrer/Azrael"
 }

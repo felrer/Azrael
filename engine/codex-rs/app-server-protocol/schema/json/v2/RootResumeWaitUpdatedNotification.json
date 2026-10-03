@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "RootResumeState": {
+      "enum": [
+        "preparing",
+        "waiting",
+        "claimed",
+        "resumed",
+        "cancelled",
+        "blocked"
+      ],
+      "type": "string"
+    },
+    "RootResumeWait": {
+      "description": "Durable presentation metadata for the wait attached to its originating turn.",
+      "properties": {
+        "canWakeEarly": {
+          "type": "boolean"
+        },
+        "reservationId": {
+          "type": "string"
+        },
+        "resumeAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "revision": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "state": {
+          "$ref": "#/definitions/RootResumeState"
+        },
+        "waitEndedAtMs": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "waitStartedAtMs": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        }
+      },
+      "required": [
+        "canWakeEarly",
+        "reservationId",
+        "resumeAtMs",
+        "revision",
+        "state"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "threadId": {
+      "type": "string"
+    },
+    "turnId": {
+      "type": "string"
+    },
+    "wait": {
+      "$ref": "#/definitions/RootResumeWait"
+    }
+  },
+  "required": [
+    "threadId",
+    "turnId",
+    "wait"
+  ],
+  "title": "RootResumeWaitUpdatedNotification",
+  "type": "object"
+}

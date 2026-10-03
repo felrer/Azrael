@@ -34,6 +34,10 @@ Follow the relevant row from code to contract to verification. A row does not re
 | `scripts/check-devin-native-engine.mjs`, `check-devin-native-agents.mjs` | Isolated native tools, policy, resume and child lifecycle acceptance; deterministic and real-model scopes are separate. |
 | `scripts/start-azrael.ps1` | Prepare/launch an isolated VS Code instance with native azrael state and a matching engine/extension pair. |
 | `scripts/build-azrael.ps1` | Build or reuse the engine/bridge, explicitly pin a compatible external code-mode host, package the internal account payload and select the last successful package. |
+| `engine/SOURCE.json`, `scripts/import-engine-source.py`, `engine-provenance.py`, `build-engine-source-release.py` | Import and verify the selected engine snapshot, preserve recorded distribution adaptations, bind binaries to its content and generate a complete source archive. |
+| `instructions/`, `scripts/import-instructions.py`, `build-instruction-release.cjs` | Complete shared instruction library, independent version/component definitions, source mappings and ZIP/manifest/document release assets. |
+| `scripts/instruction-package.cjs`, `extensions/azrael-ex/src/instructionService.ts` | GitHub acquisition, integrity/compatibility validation, managed installation receipts, workspace isolation, pinning, rollback and recovery; host adapter for settings requests. |
+| `extensions/azrael-ex/src/instructionView.ts`, `scripts/inject-instruction-settings.cjs` | Shared instruction settings renderer, webview lifecycle and pinned integrated settings navigation/bridge. |
 | `scripts/build-metrics.ps1` | Record release-build stage timings and command exit codes without replacing causal build errors. |
 | `extensions/azrael-ex/scripts/build-incremental.cjs` | Reconcile compiler-owned outputs and reuse development TypeScript state; release packaging retains clean compilation. |
 | `scripts/install-azrael.ps1`, `install-independent-vscode.ps1` | Install the integrated azrael host and retire the separate companion while preserving original Codex. |

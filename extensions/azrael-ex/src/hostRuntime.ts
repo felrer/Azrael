@@ -1,4 +1,4 @@
-import { randomBytes } from "node:crypto";
+import { createHash, randomBytes } from "node:crypto";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
@@ -38,15 +38,18 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
   } catch {
     throw new Error("Missing or invalid azrael runtime configuration.");
   }
-  if (!isRecord(raw) || raw.schema !== 2) throw new Error("Unsupported azrael runtime configuration.");
+  if (!isRecord(raw) || (raw.schema !== 2 && raw.schema !== 3)) throw new Error("Unsupported azrael runtime configuration.");
+  if (raw.schema === 3) raw = resolvePortableManifest(raw, extensionDirectory);
+  // Both manifest formats converge on the existing absolute runtime contract.
+  const resolved = raw as Record<string, unknown>;
   for (const key of ["engine", "bridge", "codexHome"] as const) {
-    if (!isAbsolutePath(raw[key])) throw new Error(`Invalid azrael ${key} path.`);
+    if (!isAbsolutePath(resolved[key])) throw new Error(`Invalid azrael ${key} path.`);
   }
-  if (typeof raw.engineVersion !== "string" || !isSemver(raw.engineVersion)) {
+  if (typeof resolved.engineVersion !== "string" || !isSemver(resolved.engineVersion)) {
     throw new Error("Invalid azrael engine version.");
   }
-  if (raw.helpers !== undefined && !isRecord(raw.helpers)) throw new Error("Invalid azrael helpers.");
-  const config = raw as unknown as RuntimeManifest;
+  if (resolved.helpers !== undefined && !isRecord(resolved.helpers)) throw new Error("Invalid azrael helpers.");
+  const config = resolved as unknown as RuntimeManifest;
   requireFile(config.engine, "engine");
   requireFile(config.bridge, "bridge");
   for (const key of Object.keys(helperEnv) as Array<keyof typeof helperEnv>) {
@@ -91,6 +94,65 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return !!value && typeof value === "object" && !Array.isArray(value);
+}
+
+function resolvePortableManifest(raw: Record<string, unknown>, extensionDirectory: string): Record<string, unknown> {
+  if (raw.stateDirectory !== undefined && raw.stateDirectory !== ".azrael-ex") {
+    throw new Error("Invalid azrael state directory.");
+  }
+  if (raw.codexHome !== undefined) throw new Error("Invalid azrael state directory.");
+  if (!isRecord(raw.sha256)) throw new Error("Invalid azrael payload hashes.");
+  if (raw.helpers !== undefined && !isRecord(raw.helpers)) throw new Error("Invalid azrael helpers.");
+  const root = fs.realpathSync.native(extensionDirectory);
+  const hashes = raw.sha256;
+  const payloads = new Map<string, string>();
+  // Verify the complete inventory, including payloads launched by the engine itself.
+  for (const [relative, expected] of Object.entries(hashes)) {
+    const candidate = resolveBundleFile(root, relative, "payload");
+    if (typeof expected !== "string" || !/^[a-f0-9]{64}$/.test(expected)) {
+      throw new Error("Invalid azrael payload hash.");
+    }
+    const actual = createHash("sha256").update(fs.readFileSync(candidate)).digest("hex");
+    if (actual !== expected) throw new Error("Azrael payload hash mismatch.");
+    payloads.set(relative, candidate);
+  }
+  function executable(value: unknown, name: string): string {
+    const candidate = resolveBundleFile(root, value, name);
+    if (typeof value !== "string" || !payloads.has(value)) throw new Error(`Missing azrael ${name} hash.`);
+    return candidate;
+  }
+  const helpers: Record<string, string> = {};
+  for (const [key, value] of Object.entries(raw.helpers ?? {})) {
+    if (!Object.prototype.hasOwnProperty.call(helperEnv, key)) throw new Error("Invalid azrael helpers.");
+    helpers[key] = executable(value, key);
+  }
+  return {
+    schema: 2,
+    engine: executable(raw.engine, "engine"),
+    bridge: executable(raw.bridge, "bridge"),
+    engineVersion: raw.engineVersion,
+    codexHome: path.join(os.homedir(), ".azrael-ex"),
+    helpers,
+  };
+}
+
+function resolveBundleFile(root: string, value: unknown, name: string): string {
+  // Use one portable spelling. Reject Windows aliases even on non-Windows hosts.
+  if (typeof value !== "string" || value.length === 0 || value.includes("\\") ||
+      value.split("/").some(segment => !segment || segment === "." || segment === ".." ||
+        /[<>:"|?*\x00-\x1f]/.test(segment) || /[. ]$/.test(segment) ||
+        /^(?:con|prn|aux|nul|conin\$|conout\$|com[1-9¹²³]|lpt[1-9¹²³])(?:\.|$)/i.test(segment) ||
+        /~[1-9]\d*(?:\.|$)/.test(segment))) {
+    throw new Error(`Invalid azrael ${name} path.`);
+  }
+  const candidate = path.resolve(root, value);
+  requireFile(candidate, name);
+  const physical = fs.realpathSync.native(candidate);
+  const relative = path.relative(root, physical);
+  if (relative === "" || relative === ".." || relative.startsWith(".." + path.sep) || path.isAbsolute(relative)) {
+    throw new Error(`Invalid azrael ${name} path outside bundle.`);
+  }
+  return physical;
 }
 
 function isAbsolutePath(value: unknown): value is string {

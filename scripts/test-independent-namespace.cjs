@@ -4,6 +4,7 @@ const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
+const { CONTEXT_ASSET, SETTINGS_ASSET, MARKER } = require("./inject-provider-context.cjs");
 
 const [originalArgument, hostArgument, typescriptArgument] = process.argv.slice(2);
 if (!originalArgument || !hostArgument || !typescriptArgument) {
@@ -155,6 +156,7 @@ assert(hostCommands.includes("azrael.openSidebar"));
 for (const command of [
   "azrael.manageAccounts", "azrael.usage", "azrael.rootResume", "azrael.accountQuickPick", "azrael.refreshAccounts",
   "azrael.openCodex", "azrael.openCodexSettings", "azrael.devinAccount",
+  "azrael.instructions",
 ]) assert(hostCommands.includes(command), `host manifest omitted integrated command ${command}`);
 assert(hostCommands.every((id) => id.startsWith("azrael.")), "host command namespace is not independent");
 assert(hostCommands.every((id) => !originalCommands.includes(id)), "host and original share a command ID");
@@ -166,8 +168,9 @@ assert(originalConfiguration.length > 0 && originalConfiguration.every((id) => i
 assert.deepEqual(hostConfiguration.slice().sort(), [
   ...originalConfiguration.map((id) => id.replace(/^chatgpt\./, "azrael.")),
   "azrael.sharedEnvironment.repository", "azrael.sharedEnvironment.ref",
-].sort(), "host settings must contain the renamed upstream settings and integrated shared-environment settings only");
-for (const [id, defaultValue] of [["azrael.sharedEnvironment.repository", ""], ["azrael.sharedEnvironment.ref", "main"]]) {
+  "azrael.instructions.repository",
+].sort(), "host settings must contain the renamed upstream settings and integrated shared-environment and instruction settings");
+for (const [id, defaultValue] of [["azrael.sharedEnvironment.repository", ""], ["azrael.sharedEnvironment.ref", "main"], ["azrael.instructions.repository", "felrer/Azrael"]]) {
   const setting = hostManifest.contributes.configuration.properties[id];
   assert.equal(setting.type, "string");
   assert.equal(setting.default, defaultValue);
@@ -250,8 +253,8 @@ assert.equal(count(hostBundle, "__azraelWorkspaceThreadList"), 2,
 assert.equal(count(hostRecentThreadBundle, "__azraelWorkspaceThreadList"), 1,
   "packaged recent-thread list does not emit the workspace marker");
 
-for (const asset of ["webview/assets/app-initial-9cbfb5c07b41.js", "webview/assets/agent-settings-7296007574a6.js"]) {
-  assert.equal(count(fs.readFileSync(path.join(hostRoot, asset), "utf8"), "/*azrael-provider-context-v1*/"), 1,
+for (const asset of [CONTEXT_ASSET, SETTINGS_ASSET]) {
+  assert.equal(count(fs.readFileSync(path.join(hostRoot, asset), "utf8"), MARKER), 1,
     "packaged provider context settings/gauge injection is absent or duplicated");
 }
 const report = {

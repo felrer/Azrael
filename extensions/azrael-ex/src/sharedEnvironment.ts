@@ -18,7 +18,7 @@ function sharedConfig() {
 }
 
 function checkoutDirectory(codexHome: string): string {
-  return path.join(codexHome, "azrael", "shared-environment");
+  return path.join(path.dirname(codexHome), ".azrael-shared-environment", path.basename(codexHome));
 }
 
 function scriptPath(context: vscode.ExtensionContext): string {

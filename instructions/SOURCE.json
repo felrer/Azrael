@@ -1,0 +1,324 @@
+{
+  "schemaVersion": 1,
+  "sourceUrl": "https://github.com/felrer/codex-efficient-subagents",
+  "sourceHead": "a106c4b9d53e45746012e206b952287655a629f1",
+  "workingTreeStatus": [
+    " M README.md",
+    " M agents/luna_explorer.toml",
+    " M agents/sol_executor.toml",
+    " M config.example.toml",
+    " M examples/delegation.md",
+    " M instructions/AGENTS.snippet.md",
+    " M skills/project-bootstrap/SKILL.md",
+    " M skills/project-bootstrap/assets/playbooks/work.md",
+    " M skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
+    "?? skills/project-bootstrap/assets/playbooks/app-logging.md"
+  ],
+  "contentSha256": "cdb41de5007d958a53951f2b75f5e54dd81f74ffd38f2f2af6d48fd3a5666b64",
+  "files": [
+    {
+      "path": ".gitignore",
+      "source": ".gitignore",
+      "original": {
+        "size": 43,
+        "sha256": "3fe156ec338aefb77b01dca971638b67c00b3b8276d41fa86a681c4dfdef4cad"
+      },
+      "size": 43,
+      "sha256": "3fe156ec338aefb77b01dca971638b67c00b3b8276d41fa86a681c4dfdef4cad"
+    },
+    {
+      "path": "CHANGELOG.md",
+      "generated": true,
+      "size": 366,
+      "sha256": "87dc992d0c776810908188197e75babe74ef4298efb3a9e55fc81355c117243f"
+    },
+    {
+      "path": "LICENSE",
+      "generated": true,
+      "size": 1063,
+      "sha256": "cba52e5d8f0ce6298cb07e7a41d902dc9005948a927b0807510578f3bf1aa2f0"
+    },
+    {
+      "path": "README.md",
+      "generated": true,
+      "size": 3124,
+      "sha256": "06cb4ed198a7a295ea76ebd534a82bfb5b6efa00020b62fe5f69c798a40a34a2"
+    },
+    {
+      "path": "SOURCE-CHANGELOG.md",
+      "source": "CHANGELOG.md",
+      "original": {
+        "size": 4262,
+        "sha256": "690237e83787a3360c4063e79b2d4b7e76553f92178b045665eebca04702d864"
+      },
+      "size": 4262,
+      "sha256": "690237e83787a3360c4063e79b2d4b7e76553f92178b045665eebca04702d864"
+    },
+    {
+      "path": "SOURCE-README.md",
+      "source": "README.md",
+      "original": {
+        "size": 19780,
+        "sha256": "5f41aa92dfe37ea7155e8b9b9e2923588c10d45bbad13f42a92cf8b726b76bd4"
+      },
+      "size": 19849,
+      "sha256": "ce77035dc0c2bd621b1c7ba11aa2571527f724a683057ab6f86b3099d6c805aa",
+      "adaptation": "Renamed root README; legacy app metadata link points upstream; source changelog link follows rename. Generic C:\\path examples are retained, not personal paths."
+    },
+    {
+      "path": "agents/luna_explorer.toml",
+      "source": "agents/luna_explorer.toml",
+      "original": {
+        "size": 1943,
+        "sha256": "fee208ecb940b2ebc4232b143bb1f5e3f3aaeda87173d7fef96f45d707357e07"
+      },
+      "size": 1943,
+      "sha256": "fee208ecb940b2ebc4232b143bb1f5e3f3aaeda87173d7fef96f45d707357e07"
+    },
+    {
+      "path": "agents/sol_executor.toml",
+      "source": "agents/sol_executor.toml",
+      "original": {
+        "size": 2450,
+        "sha256": "c108b582be1d9f5e8b1b4fee9380d121511480b4e32752736ae668dd580d78e1"
+      },
+      "size": 2450,
+      "sha256": "c108b582be1d9f5e8b1b4fee9380d121511480b4e32752736ae668dd580d78e1"
+    },
+    {
+      "path": "azrael-environment.json",
+      "generated": true,
+      "size": 5507,
+      "sha256": "a66668609f0e4849eff434fa05be07bc07fc90961066fa3cab3496add7678402"
+    },
+    {
+      "path": "config.example.toml",
+      "source": "config.example.toml",
+      "original": {
+        "size": 301,
+        "sha256": "1f220e38ae8da94d137f7c3af7c830a75afb5e202d7605f59065ce94ecc46504"
+      },
+      "size": 301,
+      "sha256": "1f220e38ae8da94d137f7c3af7c830a75afb5e202d7605f59065ce94ecc46504"
+    },
+    {
+      "path": "examples/delegation.md",
+      "source": "examples/delegation.md",
+      "original": {
+        "size": 5389,
+        "sha256": "d08dd24163ca97148cc816f32072c71522e6f3762b13677185ec5e28b6769885"
+      },
+      "size": 5389,
+      "sha256": "d08dd24163ca97148cc816f32072c71522e6f3762b13677185ec5e28b6769885"
+    },
+    {
+      "path": "instructions/AGENTS.snippet.md",
+      "source": "instructions/AGENTS.snippet.md",
+      "original": {
+        "size": 6439,
+        "sha256": "bf5abc242b3fe092ce8193d679a7e926aa6278fc48700f8250a48f7b974e31dd"
+      },
+      "size": 6439,
+      "sha256": "bf5abc242b3fe092ce8193d679a7e926aa6278fc48700f8250a48f7b974e31dd"
+    },
+    {
+      "path": "skills/designing/SKILL.md",
+      "source": "skills/designing/SKILL.md",
+      "original": {
+        "size": 5062,
+        "sha256": "3b2556f6d3221f210bf4ef2b0ccfbc6a0ca37fd17b674527fbd237b2c70401ce"
+      },
+      "size": 5062,
+      "sha256": "3b2556f6d3221f210bf4ef2b0ccfbc6a0ca37fd17b674527fbd237b2c70401ce"
+    },
+    {
+      "path": "skills/planning/SKILL.md",
+      "source": "skills/planning/SKILL.md",
+      "original": {
+        "size": 6780,
+        "sha256": "a576f1618b4ec9626c1e49262d6b1540e702f17751a2f161093518a788ba97b8"
+      },
+      "size": 6780,
+      "sha256": "a576f1618b4ec9626c1e49262d6b1540e702f17751a2f161093518a788ba97b8"
+    },
+    {
+      "path": "skills/planning/references/implementation-plans.md",
+      "source": "skills/planning/references/implementation-plans.md",
+      "original": {
+        "size": 2449,
+        "sha256": "28aa37d7bb147305863591c3741bf485ca7882b69572a86203b24f373827d7a3"
+      },
+      "size": 2449,
+      "sha256": "28aa37d7bb147305863591c3741bf485ca7882b69572a86203b24f373827d7a3"
+    },
+    {
+      "path": "skills/planning/references/task-artifacts.md",
+      "source": "skills/planning/references/task-artifacts.md",
+      "original": {
+        "size": 3518,
+        "sha256": "e5299b49445be0483b0adf42990f1e9d56d64add510379de4adf84d6a5d1ce99"
+      },
+      "size": 3518,
+      "sha256": "e5299b49445be0483b0adf42990f1e9d56d64add510379de4adf84d6a5d1ce99"
+    },
+    {
+      "path": "skills/planning/scripts/new_task_plan.py",
+      "source": "skills/planning/scripts/new_task_plan.py",
+      "original": {
+        "size": 623,
+        "sha256": "8e3834fac88229c82e1ddf223db6702f0a4a2dad59421ed95abc4475b325b084"
+      },
+      "size": 623,
+      "sha256": "8e3834fac88229c82e1ddf223db6702f0a4a2dad59421ed95abc4475b325b084"
+    },
+    {
+      "path": "skills/planning/scripts/tests/test_work_artifacts.py",
+      "source": "skills/planning/scripts/tests/test_work_artifacts.py",
+      "original": {
+        "size": 14199,
+        "sha256": "1fbc7b28727197fb2c566fe2a9edcc1bd4a2b8da3db2310b355463a31db8faaf"
+      },
+      "size": 14199,
+      "sha256": "1fbc7b28727197fb2c566fe2a9edcc1bd4a2b8da3db2310b355463a31db8faaf"
+    },
+    {
+      "path": "skills/planning/scripts/work_artifacts.py",
+      "source": "skills/planning/scripts/work_artifacts.py",
+      "original": {
+        "size": 14203,
+        "sha256": "cd6446cddfd6aac25c5a2075f6276beb1b6c99170339d0ade2ea47ddfeceab87"
+      },
+      "size": 14203,
+      "sha256": "cd6446cddfd6aac25c5a2075f6276beb1b6c99170339d0ade2ea47ddfeceab87"
+    },
+    {
+      "path": "skills/project-bootstrap/SKILL.md",
+      "source": "skills/project-bootstrap/SKILL.md",
+      "original": {
+        "size": 7759,
+        "sha256": "36bbbe960f586de29991023d42cf8c683d3c00e24cd4cbbb470b0b97225d79cd"
+      },
+      "size": 7759,
+      "sha256": "36bbbe960f586de29991023d42cf8c683d3c00e24cd4cbbb470b0b97225d79cd"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/playbooks/app-logging.md",
+      "source": "skills/project-bootstrap/assets/playbooks/app-logging.md",
+      "original": {
+        "size": 4951,
+        "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343"
+      },
+      "size": 4951,
+      "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/playbooks/work.md",
+      "source": "skills/project-bootstrap/assets/playbooks/work.md",
+      "original": {
+        "size": 9835,
+        "sha256": "a1ac750324f74a993ac249c7bd35bf0580b119b7383d06031885843e1ea45fed"
+      },
+      "size": 9835,
+      "sha256": "a1ac750324f74a993ac249c7bd35bf0580b119b7383d06031885843e1ea45fed"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/AGENTS.md",
+      "source": "skills/project-bootstrap/assets/project-template/AGENTS.md",
+      "original": {
+        "size": 978,
+        "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5"
+      },
+      "size": 978,
+      "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/README.md",
+      "original": {
+        "size": 3754,
+        "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae"
+      },
+      "size": 3754,
+      "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md",
+      "original": {
+        "size": 2757,
+        "sha256": "3183b85f923ef780aa03e9059bccb910f0ce2840c06df3c8473afad82dbea1e4"
+      },
+      "size": 2757,
+      "sha256": "3183b85f923ef780aa03e9059bccb910f0ce2840c06df3c8473afad82dbea1e4"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/maps/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/maps/README.md",
+      "original": {
+        "size": 814,
+        "sha256": "5d2eaa365a7e690b2b86f0b04411445242e03e227ebcf5fc622db4691cdc756c"
+      },
+      "size": 814,
+      "sha256": "5d2eaa365a7e690b2b86f0b04411445242e03e227ebcf5fc622db4691cdc756c"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/ops/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/ops/README.md",
+      "original": {
+        "size": 890,
+        "sha256": "4a2eb9f4fa22f654cce8313e054e9c22bf5bf4ef9f38015ecdbe7ba87e4cdee0"
+      },
+      "size": 890,
+      "sha256": "4a2eb9f4fa22f654cce8313e054e9c22bf5bf4ef9f38015ecdbe7ba87e4cdee0"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
+      "original": {
+        "size": 2233,
+        "sha256": "df23218e1d73379dcd3cb434541bc1de0dcfe32e4c630632f7e19cc6369012c9"
+      },
+      "size": 2233,
+      "sha256": "df23218e1d73379dcd3cb434541bc1de0dcfe32e4c630632f7e19cc6369012c9"
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
+      "source": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
+      "original": {
+        "size": 2244,
+        "sha256": "8f767b33abd3c0e2aed95cce64af70db73591a1389dc8b2acbd1ddf4b0f33927"
+      },
+      "size": 2244,
+      "sha256": "8f767b33abd3c0e2aed95cce64af70db73591a1389dc8b2acbd1ddf4b0f33927"
+    }
+  ],
+  "ignored": [
+    {
+      "path": ".git/",
+      "reason": "Git metadata"
+    },
+    {
+      "path": "skills/planning/scripts/__pycache__/",
+      "reason": "dependency or compiled cache"
+    },
+    {
+      "path": "skills/planning/scripts/tests/__pycache__/",
+      "reason": "dependency or compiled cache"
+    }
+  ],
+  "excluded": [
+    {
+      "path": "azrael/install.ps1",
+      "reason": "legacy Azrael app installer/delivery metadata; not instructions",
+      "size": 8195,
+      "sha256": "508ac3c521c14a17770fc72dace22431f41be29c0c17dc3df5451d7ba7a5e1a0"
+    },
+    {
+      "path": "azrael/release.json",
+      "reason": "legacy Azrael app installer/delivery metadata; not instructions",
+      "size": 677,
+      "sha256": "42a7afbaf907d063a0db8eca46b7af2e2a622ab616980d275972c658d98a969c"
+    }
+  ],
+  "inventoryNote": "All actual source files are mapped or explicitly excluded. SOURCE.json is provenance metadata and excludes its own recursive hash; the release manifest hashes it."
+}

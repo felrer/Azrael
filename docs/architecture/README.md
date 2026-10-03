@@ -16,6 +16,7 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Target
 
+- [Instruction distribution and settings](instructions.md): complete instruction releases, GitHub downloads, version selection, protected application and settings UI.
 - [Azrael runtime and providers](azrael-runtime.md): one Azrael-owned engine for subscription providers, dynamic model discovery, recovery and independent VS Code chat. Replaces parts of the current implementation as each boundary is verified.
 
 ## Reference

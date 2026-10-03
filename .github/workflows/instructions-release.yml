@@ -1,0 +1,51 @@
+name: Instruction release
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - 'instructions-v*'
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: extensions/azrael-ex/package-lock.json
+      - name: Install packaging dependencies
+        working-directory: extensions/azrael-ex
+        run: npm ci --ignore-scripts
+      - name: Build complete instruction assets
+        run: node scripts/build-instruction-release.cjs --output artifacts/instructions/release --repository '${{ github.repository }}' --source-commit '${{ github.sha }}'
+      - name: Verify tag matches instruction version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          node -e 'const m=require("./instructions/azrael-environment.json"); if(process.env.GITHUB_REF_NAME!=="instructions-v"+m.instructionVersion) throw Error("Tag and instruction version differ");'
+      - uses: actions/upload-artifact@v4
+        with:
+          name: instruction-release
+          path: artifacts/instructions/release/*
+          if-no-files-found: error
+  publish:
+    if: startsWith(github.ref, 'refs/tags/instructions-v')
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: instruction-release
+          path: release-assets
+      - name: Publish instruction release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "$GITHUB_REF_NAME" release-assets/* --verify-tag --title "Azrael instructions ${GITHUB_REF_NAME#instructions-v}" --notes-file instructions/CHANGELOG.md

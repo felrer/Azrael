@@ -15,6 +15,7 @@ const ACCOUNT_COMMANDS = [
   "azrael.openCodexSettings",
   "azrael.syncSharedEnvironment",
   "azrael.fetchSharedPlaybook",
+  "azrael.instructions",
 ];
 
 test("standalone Azrael host contributes its own chat view and account commands", () => {
@@ -26,6 +27,7 @@ test("standalone Azrael host contributes its own chat view and account commands"
   assert.equal(manifest.contributes.views.azraelViewContainer[0].type, "webview");
   assert.ok(manifest.activationEvents.includes("onView:azrael.chat"));
   assert.deepEqual(Object.keys(manifest.contributes.configuration?.properties ?? {}).sort(), [
+    "azrael.instructions.repository",
     "azrael.sharedEnvironment.ref",
     "azrael.sharedEnvironment.repository",
   ]);

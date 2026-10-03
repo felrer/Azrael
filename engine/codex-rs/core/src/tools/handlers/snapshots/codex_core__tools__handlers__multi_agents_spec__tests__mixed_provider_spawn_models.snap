@@ -1,0 +1,11 @@
+---
+source: core/src/tools/handlers/multi_agents_spec_tests.rs
+expression: "spawn_agent_models_description(&models, MultiAgentVersion::V2)"
+---
+Available model overrides (optional; inherited parent model is preferred):
+- `native-0-model`: native-0 description Reasoning efforts: medium (default). Service tiers: priority.
+- `native-1-model`: native-1 description Reasoning efforts: medium (default). Service tiers: priority.
+- `native-2-model`: native-2 description Reasoning efforts: medium (default). Service tiers: priority.
+- `native-3-model`: native-3 description Reasoning efforts: medium (default). Service tiers: priority.
+- `native-4-model`: native-4 description Reasoning efforts: medium (default). Service tiers: priority.
+- `devin/swe-2-medium`: SWE-2 Medium (Devin)

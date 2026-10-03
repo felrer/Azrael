@@ -14,6 +14,7 @@ const ACCOUNT_COMMANDS = [
   "azrael.openCodexSettings",
   "azrael.syncSharedEnvironment",
   "azrael.fetchSharedPlaybook",
+  "azrael.instructions",
 ];
 
 test("activation uses the injected runtime and exposes invalid runtime failures", async () => {
