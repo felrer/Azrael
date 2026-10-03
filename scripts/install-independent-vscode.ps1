@@ -343,6 +343,9 @@ $receipt = [ordered]@{
 Write-Receipt -Receipt $receipt -Path $receiptPath
 
 try {
+    $computerUseArguments = @()
+    $computerUseDirectory = Join-Path $release 'computer-use'
+    if (Test-Path -LiteralPath $computerUseDirectory) { $computerUseArguments = @('--computer-use-directory', $computerUseDirectory) }
     if ($suppliedPackage) {
         $prepared = Get-PreparedPackage -Directory $suppliedPackage -RequestedRelease $release -RequestedState $state
         if ($DevinExecutable -and [string]$prepared.DevinExecutable -ine (Get-AbsolutePath -Path $DevinExecutable -Name 'DevinExecutable' -MustExist)) { throw 'Prepared DevinExecutable does not match the requested executable.' }
@@ -359,7 +362,7 @@ try {
             --state-root $state `
             --mode validate `
             --engine (Join-Path $release 'engine/codex.exe') `
-            --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
+            --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json') @computerUseArguments
         if ($LASTEXITCODE -ne 0) { throw 'Codex environment snapshot failed; the prepared host was not installed.' }
         $prepared | Add-Member -NotePropertyName CodexEnvironmentSnapshot -NotePropertyValue ($snapshotOutput | ConvertFrom-Json) -Force
     }
@@ -386,7 +389,7 @@ try {
             --state-root $state `
             --mode apply `
             --engine (Join-Path $release 'engine/codex.exe') `
-            --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
+            --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json') @computerUseArguments
         if ($LASTEXITCODE -ne 0) { throw 'Codex environment snapshot failed; host installation was not started.' }
         $receipt.codexEnvironmentSnapshot = $snapshotOutput | ConvertFrom-Json
         Write-Receipt -Receipt $receipt -Path $receiptPath

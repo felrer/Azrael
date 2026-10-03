@@ -22,8 +22,8 @@ async function inputs(config) {
     "preparation-state.cjs", "directory-state.cjs", "prepare-independent-vscode.ps1",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
-    "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs",
-    "azrael-recovery.cjs", "recovery-state.cjs", "package-local-host.cjs",
+    "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
+    "azrael-recovery.cjs", "recovery-state.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
   ];
   const { getTransformRules } = require("./namespace-azrael-host.cjs");
   const hashes = Object.fromEntries(await Promise.all(scripts.map(async name =>

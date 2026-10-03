@@ -25,6 +25,8 @@ Follow the relevant row from code to contract to verification. A row does not re
 
 ## Entry Inventory
 
+Computer Use runtime staging and verification are owned by `scripts/computer-use-runtime.cjs`; the host app consent store and settings are owned by `scripts/computer-use-approvals.cjs`, with pinned forwarding hooks in `scripts/inject-computer-use.cjs`. Their contract is [Computer Use](../architecture/computer-use.md).
+
 | Entry | Role |
 | --- | --- |
 | `providers/devin/helper.mjs`, `mapping.mjs`, `vendor/` | Minimal pinned Devin inference transport and reversible native tool/history mapping; never executes tools. |

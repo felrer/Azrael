@@ -49,10 +49,18 @@ $nativeConfig = $nativeConfigText | ConvertFrom-Json
 $providerAccountsConfigText = & node (Join-Path $PSScriptRoot 'provider-accounts-host.cjs') $release
 if ($LASTEXITCODE -ne 0) { throw 'Provider accounts bundle validation failed. No host was installed.' }
 $providerAccountsConfig = $providerAccountsConfigText | ConvertFrom-Json
+$computerUseDirectory = Join-Path $release 'computer-use'
+$computerUseText = & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory $computerUseDirectory
+if ($LASTEXITCODE -ne 0) { throw 'Computer Use bundle validation failed. No host was installed.' }
+$computerUse = $computerUseText | ConvertFrom-Json
+if (-not $manifest.sha256['computer-use/manifest.json'] -or $computerUse.manifestSha256 -ine $manifest.sha256['computer-use/manifest.json']) { throw 'Release Computer Use manifest hash mismatch.' }
 foreach ($file in @('engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe', 'azrael-ex.vsix')) {
     if ((Get-FileHash (Join-Path $release $file)).Hash -cne $manifest.sha256[$file]) { throw "Release hash mismatch: $file" }
 }
 $prepared = & (Join-Path $PSScriptRoot 'prepare-official-ui.ps1') -SourceExtensionPath $SourceExtensionPath -ExtensionsDir (Join-Path $OutputDirectory 'staging')
+Copy-Item -LiteralPath $computerUseDirectory -Destination (Join-Path $prepared.Extension 'computer-use') -Recurse
+& node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'computer-use') | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'Copied Computer Use bundle validation failed.' }
 $hostFile = Join-Path $prepared.Extension 'out/extension.js'
 $hostText = [IO.File]::ReadAllText($hostFile)
 $hostText = Set-AzraelEngineResolver -HostText $hostText
@@ -77,8 +85,9 @@ if ($DevinExecutable) { $DevinExecutable = (Resolve-Path -LiteralPath $DevinExec
     devinExecutable = $DevinExecutable
     devinNative = $nativeConfig
     providerAccounts = $providerAccountsConfig
+    computerUse = @{ directory = $computerUseDirectory; manifestSha256 = [string]$computerUse.manifestSha256 }
     originalExtension = if ($OriginalExtensionPath) { $OriginalExtensionPath } else { $SourceExtensionPath }
-} | ConvertTo-Json | Set-Content (Join-Path $prepared.Extension 'out/azrael-runtime.json') -Encoding utf8NoBOM
+} | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $prepared.Extension 'out/azrael-runtime.json') -Encoding utf8NoBOM
 
 $result = [ordered]@{ OfficialExtension = $prepared.Extension; CompanionVsix = Join-Path $release 'azrael-ex.vsix'; ReleaseDirectory = $release; StateRoot = $state; DevinExecutable = $DevinExecutable }
 $result | ConvertTo-Json | Set-Content (Join-Path $OutputDirectory 'prepared.json') -Encoding utf8NoBOM

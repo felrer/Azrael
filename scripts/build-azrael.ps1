@@ -9,6 +9,8 @@ param(
     [string]$EngineDirectory,
     [string]$CompanionVsixPath,
     [string]$CodeModeHostPath,
+    [string]$ComputerUseRuntimeDirectory,
+    [string]$ComputerUsePluginDirectory,
     [switch]$IncludeDevinNative = $true,
     [switch]$IncludeProviderAccounts = $true
 )
@@ -143,6 +145,26 @@ Invoke-BuildScript (Join-Path $PSScriptRoot 'package-azrael.ps1') @{
     EnginePath = $engine; BridgePath = $bridge; CompanionVsixPath = $CompanionVsixPath
     SourceRoot = $sourceRoot; OutputDirectory = $release
 } 'package.log'
+Complete-BuildStage $buildMetrics $phase
+$phase = Start-BuildStage $buildMetrics 'computer-use-runtime-staging'
+if (-not $ComputerUseRuntimeDirectory) {
+    $configPath = Join-Path $env:USERPROFILE '.azrael-ex/config.toml'
+    $configuredCommand = & python -B -c 'import pathlib,sys,tomllib; print(tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8-sig"))["mcp_servers"]["node_repl"]["command"])' $configPath
+    if ($LASTEXITCODE -ne 0 -or -not $configuredCommand -or [IO.Path]::GetFileName($configuredCommand) -ine 'node_repl.exe') { throw 'Pass -ComputerUseRuntimeDirectory or configure an explicit official node_repl.exe source.' }
+    $commandDirectory = Split-Path $configuredCommand -Parent
+    $ComputerUseRuntimeDirectory = if ((Split-Path $commandDirectory -Leaf) -ieq 'bin') { Split-Path $commandDirectory -Parent } else { $commandDirectory }
+}
+if (-not $ComputerUsePluginDirectory) {
+    $pluginRoot = Join-Path $env:USERPROFILE '.azrael-ex/plugins/cache/openai-bundled/computer-use'
+    $candidates = @(Get-ChildItem -LiteralPath $pluginRoot -Directory | Where-Object { Test-Path -LiteralPath (Join-Path $_.FullName '.codex-plugin/plugin.json') -PathType Leaf })
+    if ($candidates.Count -ne 1) { throw 'Pass -ComputerUsePluginDirectory; installed Computer Use plugin selection is missing or ambiguous.' }
+    $ComputerUsePluginDirectory = $candidates[0].FullName
+}
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--plugin-directory', $ComputerUsePluginDirectory, '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+$releaseBuildInfoPath = Join-Path $release 'build-info.json'
+$releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
+$releaseBuildInfo.sha256['computer-use/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'computer-use/manifest.json') -Algorithm SHA256).Hash
+$releaseBuildInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $releaseBuildInfoPath -Encoding utf8NoBOM
 Complete-BuildStage $buildMetrics $phase
 if ($IncludeDevinNative) {
     $phase = Start-BuildStage $buildMetrics 'devin-staging'

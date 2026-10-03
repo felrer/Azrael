@@ -62,6 +62,7 @@ function Assert-IntegratedHostVsixContents {
             'extension/out/azrael-recovery.cjs',
             'extension/out/recovery-state.cjs',
             'extension/out/url-safety-transport.cjs',
+            'extension/out/computer-use-approvals.cjs',
             'extension/out/pdf-file-open.cjs',
             'extension/out/devin-native-host.cjs',
             'extension/out/provider-accounts-host.cjs',
@@ -70,11 +71,26 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/sync-shared-environment.cjs',
             'extension/account-ui/sync-codex-environment.cjs',
             'extension/account-ui/instruction-package.cjs',
+            'extension/account-ui/computer-use-runtime.cjs',
+            'extension/computer-use/manifest.json',
             'extension/account-ui/node_modules/@xterm/headless/package.json',
             'extension/account-ui/node_modules/node-pty/package.json',
             'extension/account-ui/node_modules/node-pty/prebuilds/win32-x64/pty.node'
         )) {
             if (-not $archive.GetEntry($requiredEntry)) { throw "Integrated host VSIX is missing required account UI content: $requiredEntry" }
+        }
+        $runtimeDirectory = Join-Path $release 'computer-use'
+        & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory $runtimeDirectory | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Release Computer Use runtime failed verification.' }
+        $runtimeManifest = Get-Content -LiteralPath (Join-Path $runtimeDirectory 'manifest.json') -Raw | ConvertFrom-Json
+        $expected = @(@{ path = 'manifest.json'; sha256 = (Get-FileHash -LiteralPath (Join-Path $runtimeDirectory 'manifest.json')).Hash.ToLowerInvariant() }) + @($runtimeManifest.files)
+        foreach ($file in $expected) {
+            $entryName = 'extension/computer-use/' + $file.path
+            $entries = @($archive.Entries | Where-Object FullName -CEQ $entryName)
+            if ($entries.Count -ne 1) { throw "Computer Use VSIX entry missing or ambiguous: $entryName" }
+            $stream = $entries[0].Open()
+            try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)).ToLowerInvariant() } finally { $stream.Dispose() }
+            if ($actual -cne $file.sha256) { throw "Computer Use VSIX hash mismatch: $entryName" }
         }
     } finally { $archive.Dispose() }
 }
@@ -139,6 +155,10 @@ try {
     Invoke-PreparationPhase 'input-verification' {
         & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $build.engineSourceRoot --engine-dir (Join-Path $release 'engine') | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires an engine built from the current source.' }
+        $computerUseText = & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory (Join-Path $release 'computer-use')
+        if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Computer Use runtime.' }
+        $computerUse = $computerUseText | ConvertFrom-Json
+        if (-not $build.sha256.'computer-use/manifest.json' -or $computerUse.manifestSha256 -ine $build.sha256.'computer-use/manifest.json') { throw 'Release Computer Use manifest hash mismatch.' }
         & node $checkpointTool init $OutputDirectory $configPath ([string][bool]$Resume).ToLowerInvariant()
         if ($LASTEXITCODE -ne 0) { throw 'Preparation inputs or checkpoint verification failed.' }
     }
@@ -174,10 +194,10 @@ try {
         Invoke-PreparationPhase 'account-payload' {
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
-            foreach ($module in @('azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs')) {
+            foreach ($module in @('azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }
         }
@@ -214,7 +234,7 @@ try {
     $environmentSnapshot = $null
     if (-not $SkipCodexEnvironmentSnapshot) {
         $environmentSnapshot = Invoke-PreparationPhase 'environment-validation' {
-            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/codex.exe') --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
+            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/codex.exe') --computer-use-directory (Join-Path $release 'computer-use') --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
             if ($LASTEXITCODE -ne 0) { throw 'Codex environment validation failed.' }
             $snapshot | ConvertFrom-Json
         }

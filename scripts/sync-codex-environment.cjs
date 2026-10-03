@@ -92,7 +92,7 @@ function splitToml(text) {
   return { root, sections };
 }
 
-function selectedConfig(sourceText, destinationText, manifest, replacements) {
+function selectedConfig(sourceText, destinationText, manifest, replacements, ownedRuntime) {
   const source = parseToml(sourceText);
   const destination = parseToml(destinationText);
   const merged = structuredClone(destination);
@@ -118,16 +118,53 @@ function selectedConfig(sourceText, destinationText, manifest, replacements) {
   }
   for (const key of manifest.config.rootKeys) set([key], source[key]);
   for (const selector of manifest.config.tables) {
+    if (ownedRuntime && selector.startsWith("mcp_servers.node_repl")) continue;
     const keys = selector.replace(/\.\*$/, "").split(".");
     set(keys, get(source, keys));
   }
   for (const [tableName, keys] of Object.entries(manifest.config.tableKeys || {})) {
     for (const key of keys) {
+      if (ownedRuntime && tableName === "features" && key === "js_repl") continue;
       const pathKeys = [...tableName.split("."), key];
       const value = get(source, pathKeys);
       if (value === undefined) fail(`Required source config key is missing: ${tableName}.${key}`);
       set(pathKeys, value);
     }
+  }
+  if (ownedRuntime) {
+    merged.features ??= {};
+    merged.features.js_repl = true;
+    merged.mcp_servers ??= {};
+    // Retain explicit timeout and tool policy, never source transport or environment.
+    const policy = {};
+    for (const key of ["startup_timeout_sec", "tool_timeout_sec", "enabled_tools", "disabled_tools"]) {
+      if (source.mcp_servers?.node_repl?.[key] !== undefined) policy[key] = source.mcp_servers.node_repl[key];
+    }
+    const sourceEnvironment = source.mcp_servers?.node_repl?.env || {};
+    const browserEnvironment = Object.fromEntries(Object.entries(sourceEnvironment).filter(([key]) =>
+      key.startsWith("BROWSER_USE_") || ["NODE_REPL_INSTRUCTIONS_USE_CASE_BROWSER", "NODE_REPL_INSTRUCTIONS_USE_CASE_CHROME"].includes(key))
+      .map(([key, value]) => [key, transform(value)]));
+    const services = sourceEnvironment.NODE_REPL_TRUSTED_SERVICES ? JSON.parse(sourceEnvironment.NODE_REPL_TRUSTED_SERVICES) : {};
+    if (!services || typeof services !== "object" || Array.isArray(services) || Object.values(services).some((value) => typeof value !== "string")) fail("Invalid source Node REPL trusted services.");
+    const retainedServices = transform(Object.fromEntries(Object.entries(services).filter(([name]) => name !== "sky")));
+    // Browser dependencies are bundled beside its service; external CU module roots
+    // must not participate in resolution of the package-owned Sky runtime.
+    const externalModulePaths = (sourceEnvironment.NODE_REPL_NODE_MODULE_DIRS || "").split(";").filter(Boolean).map(transform);
+    const trustedPaths = (sourceEnvironment.NODE_REPL_TRUSTED_CODE_PATHS || "").split(";").filter(Boolean).map(transform)
+      .filter((directory) => !externalModulePaths.some((external) => comparablePath(directory) === comparablePath(external)));
+    merged.mcp_servers.node_repl = {
+      ...policy,
+      command: path.join(ownedRuntime.directory, "node_repl.exe"),
+      env: {
+        ...browserEnvironment,
+        NODE_REPL_NODE_PATH: path.join(ownedRuntime.directory, "node.exe"),
+        NODE_REPL_NODE_MODULE_DIRS: path.join(ownedRuntime.directory, "node_modules"),
+        NODE_REPL_TRUSTED_CODE_PATHS: [...new Set([ownedRuntime.directory, ownedRuntime.home, ...trustedPaths])].join(";"),
+        NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ ...retainedServices, sky: "@oai/sky/service" }),
+        CODEX_CLI_PATH: ownedRuntime.engine,
+        CODEX_HOME: ownedRuntime.home,
+      },
+    };
   }
   for (const key of manifest.config.protectedRootKeys) {
     if (JSON.stringify(destination[key]) !== JSON.stringify(merged[key])) fail(`Protected Azrael config key changed: ${key}`);
@@ -272,12 +309,22 @@ function main(argv = process.argv.slice(2)) {
   const sharedSkills = path.resolve(args["shared-skills"] || path.join(os.homedir(), ".agents", "skills"));
   const engine = path.resolve(args.engine || fail("--engine is required."));
   const manifestPath = path.resolve(args.manifest || path.join(__dirname, "azrael-codex-environment.json"));
+  const computerUseDirectory = args["computer-use-directory"] ? path.resolve(args["computer-use-directory"]) : null;
+  const ownedSourceStates = new Map();
+  if (computerUseDirectory) {
+    for (const target of [computerUseDirectory, ...["manifest.json", "node_repl.exe", "node.exe"].map((name) => path.join(computerUseDirectory, name))]) {
+      ownedSourceStates.set(target, pathState(target));
+    }
+    require("./computer-use-runtime.cjs").verifyRuntime(computerUseDirectory);
+    assertUnchanged(ownedSourceStates);
+  }
   if (isWithin(stateRoot, sourceHome) || isWithin(sourceHome, stateRoot)) fail("Azrael and ordinary Codex state must not overlap, including filesystem aliases.");
   if (!["apply", "validate"].includes(args.mode || "apply")) fail("--mode must be apply or validate.");
   assertFile(engine, "Azrael engine");
   assertFile(path.join(sourceHome, "config.toml"), "ordinary Codex config");
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (manifest.schema !== 1) fail("Unsupported Codex environment manifest schema.");
+  if (computerUseDirectory && manifest.personalSkills.some((skill) => skill.name === "computer-use")) fail("Computer Use skill has conflicting snapshot ownership.");
   const copyGlobalInstructions = manifest.copyGlobalInstructions !== false;
   for (const name of [...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name), ...manifest.personalSkills.map((skill) => skill.name)]) {
     if (!/^[A-Za-z0-9_-]+$/.test(name)) fail(`Invalid managed name: ${name}`);
@@ -296,6 +343,7 @@ function main(argv = process.argv.slice(2)) {
     ...(copyGlobalInstructions ? [path.join(stateRoot, "AGENTS.md")] : []),
     ...[...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name)].map((name) => path.join(stateRoot, "agents", `${name}.toml`)),
     ...manifest.personalSkills.map((skill) => path.join(stateRoot, "skills", skill.name)),
+    ...(computerUseDirectory ? [path.join(stateRoot, "skills", "computer-use")] : []),
     ...[...sourceMarketplaces.keys()].map((name) => localMarketplacePath(stateRoot, name)),
     ...enabledPlugins(sourceConfig).map((plugin) => { const [name, marketplace] = plugin.split("@"); return path.join(stateRoot, "plugins", "cache", marketplace, name); }),
     receiptPath,
@@ -308,6 +356,7 @@ function main(argv = process.argv.slice(2)) {
     ...manifest.agentRoles.map((name) => path.join(sourceHome, "agents", `${name}.toml`)),
   ].map((target) => [target, pathState(target)]));
   sourceStates.set(path.join(sourceHome, "config.toml"), initialSourceConfigState);
+  for (const [target, state] of ownedSourceStates) sourceStates.set(target, state);
   const stage = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-codex-environment-"));
   const stageHome = path.join(stage, "home");
   fs.mkdirSync(stageHome, { recursive: true });
@@ -326,8 +375,10 @@ function main(argv = process.argv.slice(2)) {
       copyDirectory(source, localMarketplacePath(stageHome, name));
     }
 
-    let stageConfig = selectedConfig(sourceConfig, destinationConfig, manifest, stageReplacements);
-    let finalConfig = selectedConfig(sourceConfig, destinationConfig, manifest, finalReplacements);
+    let stageConfig = selectedConfig(sourceConfig, destinationConfig, manifest, stageReplacements,
+      computerUseDirectory ? { directory: computerUseDirectory, home: stageHome, engine } : null);
+    let finalConfig = selectedConfig(sourceConfig, destinationConfig, manifest, finalReplacements,
+      computerUseDirectory ? { directory: computerUseDirectory, home: stateRoot, engine } : null);
     for (const name of sourceMarketplaces.keys()) {
       const stageMarketplace = localMarketplacePath(stageHome, name);
       const finalMarketplace = localMarketplacePath(stateRoot, name);
@@ -367,6 +418,26 @@ function main(argv = process.argv.slice(2)) {
     const skillsDirectory = path.join(stageHome, "skills");
     fs.mkdirSync(skillsDirectory, { recursive: true });
     const skillHashes = {};
+    const computerUseFiles = new Map();
+    if (computerUseDirectory) {
+      const skillDirectory = path.join(skillsDirectory, "computer-use");
+      copyDirectory(path.join(computerUseDirectory, "skills", "computer-use"), skillDirectory);
+      copyDirectory(path.join(computerUseDirectory, "docs"), path.join(skillDirectory, "docs"));
+      const instructions = path.join(skillDirectory, "SKILL.md");
+      fs.writeFileSync(instructions, fs.readFileSync(instructions, "utf8").replaceAll("../../docs", "./docs"), "utf8");
+      function collect(directory) {
+        for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
+          const target = path.join(directory, entry.name);
+          if (entry.isDirectory()) collect(target);
+          else if (entry.isFile()) computerUseFiles.set(path.join(stateRoot, "skills", "computer-use", path.relative(skillDirectory, target)), fs.readFileSync(target));
+          else fail(`Computer Use instructions must be regular files: ${target}`);
+        }
+      }
+      collect(skillDirectory);
+      skillHashes["computer-use"] = directoryHash(skillDirectory);
+      runtimeEvidence.computerUse = { path: computerUseDirectory, sha256: ownedSourceStates.get(computerUseDirectory).sha256,
+        manifestSha256: fileHash(path.join(computerUseDirectory, "manifest.json")) };
+    }
     for (const skill of manifest.personalSkills) {
       const source = skill.source === "shared" ? path.join(sharedSkills, skill.name) : path.join(sourceHome, "skills", skill.name);
       assertDirectory(source, `personal skill ${skill.name}`);
@@ -396,8 +467,10 @@ function main(argv = process.argv.slice(2)) {
 
     for (const [label, target] of [
       ["notify", assignment(sourceConfig, "notify")?.[0]],
-      ["node_repl command", assignment(configSections(sourceConfig, "mcp_servers.node_repl")[0].lines.join("\n"), "command")],
-      ["node runtime", assignment(configSections(sourceConfig, "mcp_servers.node_repl.env")[0].lines.join("\n"), "NODE_REPL_NODE_PATH")],
+      ...(computerUseDirectory ? [] : [
+        ["node_repl command", assignment(configSections(sourceConfig, "mcp_servers.node_repl")[0].lines.join("\n"), "command")],
+        ["node runtime", assignment(configSections(sourceConfig, "mcp_servers.node_repl.env")[0].lines.join("\n"), "NODE_REPL_NODE_PATH")],
+      ]),
     ]) {
       assertFile(target, label);
       runtimeEvidence[label] = { path: target, sha256: fileHash(target) };
@@ -431,9 +504,11 @@ function main(argv = process.argv.slice(2)) {
     for (const [service, target] of Object.entries(trustedServices)) {
       if (path.isAbsolute(target)) assertFile(target, `node_repl trusted service ${service}`);
     }
-    const nativePipe = assignment(stagedNodeEnvironment, "SKY_CUA_NATIVE_PIPE_DIRECTORY");
-    if (!/^\\\\\.\\pipe\\[A-Za-z0-9._-]+$/.test(nativePipe || "")) fail("Invalid native computer-use pipe name.");
-    runtimeEvidence.nativeComputerUsePipe = { path: nativePipe, kind: "ephemeral-external-runtime-endpoint" };
+    if (!computerUseDirectory) {
+      const nativePipe = assignment(stagedNodeEnvironment, "SKY_CUA_NATIVE_PIPE_DIRECTORY");
+      if (!/^\\\\\.\\pipe\\[A-Za-z0-9._-]+$/.test(nativePipe || "")) fail("Invalid native computer-use pipe name.");
+      runtimeEvidence.nativeComputerUsePipe = { path: nativePipe, kind: "ephemeral-external-runtime-endpoint" };
+    }
 
     const fingerprint = sha256(JSON.stringify({
       manifest: fileHash(manifestPath), config: sha256(sourceConfig), agents: roleHashes,
@@ -444,6 +519,7 @@ function main(argv = process.argv.slice(2)) {
       [path.join(stateRoot, "config.toml"), finalConfig],
       ...(copyGlobalInstructions ? [[path.join(stateRoot, "AGENTS.md"), fs.readFileSync(path.join(stageHome, "AGENTS.md"))]] : []),
       ...fs.readdirSync(agentsDirectory).map((name) => [path.join(stateRoot, "agents", name), fs.readFileSync(path.join(agentsDirectory, name))]),
+      ...computerUseFiles,
     ]);
     const mismatchedFiles = [...expectedFiles]
       .filter(([target, contents]) => !fs.existsSync(target) || sha256(fs.readFileSync(target)) !== sha256(contents))
@@ -467,6 +543,7 @@ function main(argv = process.argv.slice(2)) {
     const lockDescriptor = fs.openSync(lockPath, "wx");
     fs.closeSync(lockDescriptor);
     commitLock = lockPath;
+    assertUnchanged(sourceStates);
     assertUnchanged(destinationStates);
     const timestamp = new Date().toISOString().replace(/[:.]/g, "-") + "-" + crypto.randomBytes(4).toString("hex");
     backupDirectory = path.join(stateRoot, "azrael", "codex-environment-backups", timestamp);
