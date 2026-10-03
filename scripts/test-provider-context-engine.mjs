@@ -69,7 +69,8 @@ try {
   const openai = snapshot.contextPolicies.find(item => item.providerId === 'openai' && item.modelId === 'gpt-6.1-sol');
   assert(openai, 'selected OpenAI policy');
   assert.equal(openai.contextWindow, 1000000);
-  assert.equal(openai.autoCompactTokenLimit, Math.min(950000, openai.safeContextWindow));
+  assert.equal(openai.autoCompactBaseTokens, 272000);
+  assert.equal(openai.autoCompactTokenLimit, Math.min(258400, openai.safeContextWindow));
   assert.equal(openai.autoCompactSource, 'default');
   assert.equal(openai.pricing.inputTokenThreshold, 272000);
   assert.equal(openai.pricing.inclusive, false);
@@ -89,13 +90,21 @@ try {
   await write([['model_auto_compact_token_limit', 120000], ['provider_auto_compact.openai', {}]]);
   snapshot = await read();
   const reset = snapshot.contextPolicies.find(item => item.providerId === 'openai' && item.modelId === 'gpt-6.1-sol');
-  assert.equal(reset.autoCompactTokenLimit, Math.min(950000, reset.safeContextWindow));
+  assert.equal(reset.autoCompactTokenLimit, Math.min(258400, reset.safeContextWindow));
   assert.equal(reset.autoCompactSource, 'default');
   report.checks.push('explicit provider default overrides legacy global limit');
+  await write([['provider_auto_compact.openai', { percentage: 500 }]]);
+  snapshot = await read();
+  const percentage = snapshot.contextPolicies.find(item => item.providerId === 'openai' && item.modelId === 'gpt-6.1-sol');
+  assert.equal(snapshot.config.provider_auto_compact.openai.percentage, 500);
+  assert.equal(percentage.autoCompactTokenLimit, percentage.safeContextWindow);
+  report.checks.push('percentage input exceeds 100 and caps to usable 1M context');
   for (const invalid of [0, -1, 1.5]) {
-    await assert.rejects(write([['provider_auto_compact.openai', { token_limit: invalid }]]));
+    for (const field of ['token_limit', 'percentage']) {
+      await assert.rejects(write([['provider_auto_compact.openai', { [field]: invalid }]]));
+    }
     const persisted = await read();
-    assert.equal(persisted.config.provider_auto_compact.openai.token_limit ?? null, null);
+    assert.equal(persisted.config.provider_auto_compact.openai.percentage, 500);
   }
   report.checks.push('invalid limits rejected without replacing valid saved config');
   const disk = await readFile(join(directory, 'config.toml'), 'utf8');
