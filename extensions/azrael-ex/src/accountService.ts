@@ -4,14 +4,14 @@ import { BridgeTransport } from "./bridgeTransport";
 import { DevinAction, DevinStatus, parseDevinStatus } from "./devinProtocol";
 import {
   ACCOUNT_METHOD, ACCOUNT_UPDATED_METHOD, AccountAction, AccountParams,
-  AccountResponse, AccountState, parseAccountResponse, isRecord
+  AccountResponse, AccountState, parseAccountResponse, isRecord, accountStateChanged
 } from "./protocol";
 import {
   ROOT_RESUME_METHOD, ROOT_RESUME_UPDATED_METHOD, RootResumeParams,
   RootResumeReservation, RootResumeResponse, parseRootResumeResponse
 } from "./rootResumeProtocol";
 
-const MUTATIONS = new Set<AccountAction>(["captureCurrent", "loginStart", "loginCancel", "remove", "switch", "cancelSwitch", "consumeResetCredit"]);
+const MUTATIONS = new Set<AccountAction>(["captureCurrent", "loginStart", "loginCancel", "remove", "switch", "cancelSwitch", "consumeResetCredit", "autoWindowEnable", "autoWindowDisable", "autoWindowTick"]);
 
 export interface AccountServiceOptions {
   executable: string;
@@ -55,7 +55,8 @@ export class AccountService extends EventEmitter {
     if (!this.transport) throw new Error("Account bridge is disconnected.");
     if (MUTATIONS.has(params.action) && !this.changesEnabled) throw new Error("Account changes are disabled until the engine identity is verified.");
     const response = parseAccountResponse(await this.transport.request(ACCOUNT_METHOD, params));
-    return { ...response, state: this.acceptState(response.state) };
+    const automatic = params.action.startsWith("autoWindow");
+    return { ...response, state: this.acceptState(response.state, !automatic || accountStateChanged(this.state, response.state)) };
   }
 
   async refresh(): Promise<AccountState> { return (await this.call({ action: "list" })).state; }
@@ -165,7 +166,7 @@ export class AccountService extends EventEmitter {
     }
   }
 
-  private acceptState(state: AccountState): AccountState {
+  private acceptState(state: AccountState, notify = true): AccountState {
     if (!samePath(state.codexHome, this.options.codexHome)) throw new Error("Account response CODEX_HOME changed.");
     if (!this.instanceId || state.instanceId !== this.instanceId) {
       this.error = "Account response came from a different engine instance.";
@@ -176,7 +177,7 @@ export class AccountService extends EventEmitter {
     if (selected !== state) return selected;
     this.state = selected;
     this.error = undefined;
-    this.emit("state", state);
+    if (notify) this.emit("state", state);
     return state;
   }
 

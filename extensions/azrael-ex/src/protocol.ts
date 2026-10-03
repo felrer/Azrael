@@ -1,9 +1,12 @@
+import { isDeepStrictEqual } from "node:util";
+
 export const ACCOUNT_METHOD = "azrael/account";
 export const ACCOUNT_UPDATED_METHOD = "azrael/account/updated";
 
 export type AccountAction =
   | "list" | "captureCurrent" | "loginStart" | "loginCancel"
-  | "remove" | "switch" | "cancelSwitch" | "usage" | "consumeResetCredit";
+  | "remove" | "switch" | "cancelSwitch" | "usage" | "consumeResetCredit"
+  | "autoWindowStatus" | "autoWindowEnable" | "autoWindowDisable" | "autoWindowTick";
 
 export interface AccountParams {
   action: AccountAction;
@@ -33,6 +36,13 @@ export interface AccountState {
   hasActiveTurns: boolean;
   loginPending: boolean;
   lastError: string | null;
+}
+
+export function accountStateChanged(current: AccountState | undefined, candidate: AccountState): boolean {
+  if (!current) return true;
+  const { revision: _currentRevision, ...currentFields } = current;
+  const { revision: _candidateRevision, ...candidateFields } = candidate;
+  return !isDeepStrictEqual(currentFields, candidateFields);
 }
 
 export interface RateLimitWindow {
@@ -80,6 +90,19 @@ export interface AccountResponse {
   usage: AccountUsage | null;
   usageProfileId: string | null;
   resetCreditOutcome?: ResetCreditOutcome;
+  autoWindows?: UsageWindowSchedule[] | null;
+}
+
+export interface UsageWindowSchedule {
+  profileId: string;
+  workspaceAccountId: string;
+  userId: string;
+  enabled: boolean;
+  nextRunAt: number | null;
+  basisResetAt: number | null;
+  lastAttemptAt: number | null;
+  status: "disabled" | "scheduled" | "checking" | "confirming" | "started" | "unconfirmed" | "blocked" | "error";
+  error: string | null;
 }
 
 export type ResetCreditOutcome = "reset" | "nothingToReset" | "noCredit" | "alreadyRedeemed";
@@ -119,6 +142,24 @@ export function parseAccountResponse(value: unknown): AccountResponse {
   }
   if (value.resetCreditOutcome !== undefined && !["reset", "nothingToReset", "noCredit", "alreadyRedeemed"].includes(String(value.resetCreditOutcome))) {
     throw new Error("invalid reset credit outcome");
+  }
+  if (value.autoWindows !== undefined && value.autoWindows !== null) {
+    if (!Array.isArray(value.autoWindows)) throw new Error("invalid automatic window schedules");
+    const identities = new Set<string>();
+    for (const schedule of value.autoWindows) {
+      if (!isRecord(schedule) || !isProfileId(schedule.profileId)
+        || typeof schedule.workspaceAccountId !== "string" || !schedule.workspaceAccountId
+        || typeof schedule.userId !== "string" || !schedule.userId
+        || typeof schedule.enabled !== "boolean"
+        || !["disabled", "scheduled", "checking", "confirming", "started", "unconfirmed", "blocked", "error"].includes(String(schedule.status))
+        || (schedule.error !== null && typeof schedule.error !== "string")
+        || [schedule.nextRunAt, schedule.basisResetAt, schedule.lastAttemptAt].some(time => time !== null && (typeof time !== "number" || !Number.isSafeInteger(time) || time < 0))) {
+        throw new Error("invalid automatic window schedule");
+      }
+      const identity = JSON.stringify([schedule.workspaceAccountId, schedule.userId]);
+      if (identities.has(identity)) throw new Error("duplicate automatic window account identity");
+      identities.add(identity);
+    }
   }
   return value as unknown as AccountResponse;
 }

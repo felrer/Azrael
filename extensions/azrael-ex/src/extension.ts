@@ -6,6 +6,7 @@ import * as vscode from "vscode";
 import { AccountService } from "./accountService";
 import { AccountView } from "./accountView";
 import { UsageView } from "./usageView";
+import { UsageWindowService } from "./usageWindowService";
 import { DevinUsageService } from "./devinUsage";
 import { openAzraelSidebar, pickAzraelSetting } from "./nativeAzrael";
 import { parseAccountResponse } from "./protocol";
@@ -92,10 +93,11 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     prompt: async (prompt, password) => vscode.window.showInputBox({ prompt, password, ignoreFocusOut: true }),
     log: event => providerLog.info(JSON.stringify(event)),
   });
-  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view, context.globalState);
+  const usageWindows = new UsageWindowService(service);
+  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view, context.globalState, usageWindows);
   const rootResumeView = new RootResumeView(service);
   view.initialize();
-  context.subscriptions.push(view, usageView, rootResumeView, { dispose: () => service?.dispose() });
+  context.subscriptions.push(view, usageView, rootResumeView, usageWindows, { dispose: () => service?.dispose() });
   register("azrael.usage", () => usageView.show());
   context.subscriptions.push(vscode.commands.registerCommand("azrael.accountsEmbedded",
     (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => usageView.handleEmbedded(webview, request, panel)));
