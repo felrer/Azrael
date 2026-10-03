@@ -1,9 +1,15 @@
 "use strict";
 const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), os = require("node:os"), vm = require("node:vm");
-const { injectComputerUse, replacements, MARKER } = require("./inject-computer-use.cjs");
+const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest,
+  COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET,
+  SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
+  replacements, MARKER } = require("./inject-computer-use.cjs");
 const { createOwner } = require("./computer-use-approvals.cjs");
 const { request } = require("./test-computer-use-approvals.cjs");
 const test = require('node:test');
+function assetRules(transformer, asset, rules = transformer.getTransformRules()) {
+  return typeof transformer.getAssetTransformRules === "function" ? transformer.getAssetTransformRules(asset, rules) : rules;
+}
 async function run() {
   const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416/out/extension.js"), "utf8");
   const injected = injectComputerUse(original);
@@ -46,3 +52,197 @@ async function run() {
   } finally { fs.rmSync(home, { recursive: true, force: true }); }
 }
 test("pinned computer-use approval injection and transformed host handlers", run);
+
+test("pinned computer-use settings visibility preserves eligibility, navigation and redirects", () => {
+  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416", COMPUTER_USE_SETTINGS_ASSET), "utf8");
+  const injected = injectComputerUseSettings(original, COMPUTER_USE_SETTINGS_ASSET);
+  assert.equal(injected.count, 1);
+  assert.deepEqual(injectComputerUseSettings(injected.text, COMPUTER_USE_SETTINGS_ASSET), { text: injected.text, count: 0 });
+  // Exact reversal proves every other branch, gate, component and feature flag stays unchanged.
+  assert.equal(injected.text.replace(SETTINGS_REPLACEMENT, SETTINGS_ANCHOR), original);
+  for (const asset of ["out/extension.js", "webview/assets/other.js", COMPUTER_USE_SETTINGS_ASSET + ".map"]) {
+    assert.deepEqual(injectComputerUseSettings(original, asset), { text: original, count: 0 });
+  }
+  const invalid = [
+    original.replace(SETTINGS_ANCHOR, "changed"), original + SETTINGS_ANCHOR,
+    original + 'case`computer-use`:return{visible:!0,pending:!1};',
+    original + SETTINGS_MARKER, injected.text + SETTINGS_MARKER,
+    injected.text + SETTINGS_REPLACEMENT, injected.text + SETTINGS_ANCHOR,
+    injected.text.replace(SETTINGS_REPLACEMENT, SETTINGS_MARKER),
+    injected.text.replace('case`computer-use`:return{visible:!0,pending:!1};', SETTINGS_ANCHOR),
+    injected.text.replace('case`computer-use`:return{visible:!0,pending:!1};', 'case`computer-use`:return{visible:!0,pending:!0};'),
+    injected.text.replace(SETTINGS_MARKER, ""),
+  ];
+  for (const source of invalid) assert.throws(() => injectComputerUseSettings(source, COMPUTER_USE_SETTINGS_ASSET));
+
+  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  const parsed = ts.createSourceFile(COMPUTER_USE_SETTINGS_ASSET, injected.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  assert.equal(parsed.parseDiagnostics.length, 0);
+  const transformer = require("./namespace-azrael-host.cjs");
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, ts);
+  assert.equal(transformed.asset.computerUseSettingsEdits, 1);
+  assert.equal(transformed.asset.computerUseApprovalEdits, 0);
+  assert.equal(transformed.asset.path, COMPUTER_USE_SETTINGS_ASSET);
+  assert(transformed.text.includes(SETTINGS_REPLACEMENT));
+  const crypto = require("node:crypto");
+  const sha = value => crypto.createHash("sha256").update(value).digest("hex");
+  const namespaced = transformer.rewriteJavaScript(original, COMPUTER_USE_SETTINGS_ASSET, ts);
+  const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
+  const instructions = injectInstructionSettings(namespaced.text, COMPUTER_USE_SETTINGS_ASSET);
+  assert.equal(sha(transformed.text.replace(SETTINGS_REPLACEMENT, SETTINGS_ANCHOR)), sha(instructions.text));
+  assert.equal(transformed.asset.edits, namespaced.count + instructions.count + 1);
+  assert.equal(transformed.asset.sourceSha256, sha(original));
+  assert.equal(transformed.asset.sha256, sha(transformed.text));
+  const rules = transformer.getTransformRules();
+  const settingsRules = assetRules(transformer, COMPUTER_USE_SETTINGS_ASSET, rules);
+  assert.equal(settingsRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
+  const changedRules = assetRules(transformer, COMPUTER_USE_SETTINGS_ASSET,
+    { ...rules, "inject-computer-use.cjs": "0".repeat(64) });
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  assert.notEqual(ruleKey(settingsRules), ruleKey(changedRules), "injector changes must invalidate the settings asset cache key");
+
+  function inspect(source, eligible, selected = "computer-use") {
+    // Run the real hook's visibility/eligibility/selection/navigation tail. Hook data
+    // acquisition above it is replaced by controlled inputs; the tail is not reimplemented.
+    const functionStart = source.indexOf("function ga(e,t,n){");
+    const tailStart = source.indexOf('let L=ue===`loading`', functionStart);
+    const tailEnd = source.indexOf("}function _a(e)", tailStart);
+    assert(functionStart >= 0 && tailStart > functionStart && tailEnd > tailStart);
+    const helpersEnd = source.indexOf("var xa,Sa;", tailEnd);
+    const helpers = source.slice(tailEnd + 1, helpersEnd);
+    const gateStart = source.indexOf("Sa={", helpersEnd) + 3;
+    const gateEnd = source.indexOf("}})))()}", gateStart) + 1;
+    assert(gateStart > helpersEnd && gateEnd > gateStart);
+    const context = { ue: "denied", i: selected, r: Array(50).fill(Symbol.for("react.memo_cache_sentinel")),
+      Dt: ["general-settings", "computer-use", "browser-use", "mcp-settings"].map(slug => ({ slug })),
+      we: { codexOrWorkLocal: eligible }, N: false, u: false, F: "free", ft: { ENT26: "enterprise" },
+      $r: () => false, _t: "general-settings" };
+    return JSON.parse(JSON.stringify(vm.runInNewContext(
+      `var Sa=${source.slice(gateStart, gateEnd)};${helpers};function inspect(){${source.slice(tailStart, tailEnd)}};inspect()`, context)));
+  }
+  const before = inspect(original, true);
+  assert.equal(before.activeSettingsSection, "general-settings");
+  assert.equal(before.shouldRedirectToVisibleSettingsSection, true);
+  const enabled = inspect(transformed.text, true);
+  assert(enabled.visibleSettingsSections.some(section => section.slug === "computer-use"));
+  assert(enabled.settingsNavigationSections.some(section => section.slug === "computer-use"));
+  assert.equal(enabled.activeSettingsSection, "computer-use");
+  assert.equal(enabled.shouldRedirectToVisibleSettingsSection, false);
+  assert.equal(enabled.shouldRenderRouteContent, true);
+  assert.deepEqual(enabled.visibleSettingsSections.filter(section => section.slug !== "computer-use"), before.visibleSettingsSections);
+  const ineligible = inspect(transformed.text, false);
+  assert(!ineligible.visibleSettingsSections.some(section => section.slug === "computer-use"));
+  assert(!ineligible.settingsNavigationSections.some(section => section.slug === "computer-use"));
+  assert.equal(ineligible.activeSettingsSection, "general-settings");
+  assert.equal(ineligible.shouldRedirectToVisibleSettingsSection, true);
+  assert.deepEqual(inspect(transformed.text, true, "browser-use").activeSettingsSection, "general-settings");
+  console.log("PASS actual pinned settings branch, exact path/marker guards, namespace provenance/cache invalidation and native visibility/eligibility/navigation/redirect semantics");
+});
+
+test("pinned computer-use approval card cancels the request through the native response closure", async () => {
+  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416", COMPUTER_USE_APPROVAL_CARD_ASSET), "utf8");
+  const injected = injectComputerUseCancelRequest(original, COMPUTER_USE_APPROVAL_CARD_ASSET);
+  assert.equal(injected.count, 1);
+  assert.deepEqual(injectComputerUseCancelRequest(injected.text, COMPUTER_USE_APPROVAL_CARD_ASSET), { text: injected.text, count: 0 });
+  assert.equal(injected.text.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), original,
+    "native response closure, approve/deny actions and memo slots must remain unchanged");
+  for (const asset of [COMPUTER_USE_SETTINGS_ASSET, "webview/assets/other.js", COMPUTER_USE_APPROVAL_CARD_ASSET + ".map"]) {
+    assert.deepEqual(injectComputerUseCancelRequest(original, asset), { text: original, count: 0 });
+  }
+  for (const text of [original.replace(CANCEL_ANCHOR, "changed"), original + CANCEL_ANCHOR,
+    original + CANCEL_MARKER, injected.text + CANCEL_MARKER, injected.text + CANCEL_ANCHOR,
+    injected.text + CANCEL_REPLACEMENT, injected.text.replace(CANCEL_REPLACEMENT, CANCEL_MARKER),
+    injected.text.replace("onClick:()=>F(`cancel`)", "onClick:()=>F(`decline`)"),
+    injected.text.replace("disabled:z", "disabled:!1"), injected.text.replace(CANCEL_MARKER, "")]) {
+    assert.throws(() => injectComputerUseCancelRequest(text, COMPUTER_USE_APPROVAL_CARD_ASSET));
+  }
+  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  assert.equal(ts.createSourceFile(COMPUTER_USE_APPROVAL_CARD_ASSET, injected.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+  const transformer = require("./namespace-azrael-host.cjs");
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, ts);
+  assert.equal(transformed.asset.computerUseCancelRequestEdits, 1);
+  assert.equal(transformed.asset.computerUseSettingsEdits, 0);
+  assert(transformed.text.includes(CANCEL_REPLACEMENT));
+  assert.equal(transformed.text.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), transformer.rewriteJavaScript(original, COMPUTER_USE_APPROVAL_CARD_ASSET, ts).text);
+  const crypto = require("node:crypto");
+  const sha = value => crypto.createHash("sha256").update(value).digest("hex");
+  const rules = transformer.getTransformRules();
+  const cardRules = assetRules(transformer, COMPUTER_USE_APPROVAL_CARD_ASSET, rules);
+  assert.equal(cardRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
+  const changedRules = assetRules(transformer, COMPUTER_USE_APPROVAL_CARD_ASSET,
+    { ...rules, "inject-computer-use.cjs": "0".repeat(64) });
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  assert.notEqual(ruleKey(cardRules), ruleKey(changedRules), "injector changes must invalidate the approval card cache key");
+
+  const functionStart = transformed.text.indexOf("function E(e){");
+  const functionEnd = transformed.text.indexOf("var D,O,k;", functionStart);
+  assert(functionStart >= 0 && functionEnd > functionStart);
+  const home = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-cancel-card-test-"));
+  try {
+    const owner = createOwner(home);
+    function harness(id, app) {
+      let state = null, finish;
+      const ref = { current: null }, memo = Array(42).fill(Symbol.for("react.memo_cache_sentinel"));
+      const sent = [], settled = [], wire = [], flags = [];
+      owner.receive(request(id, app), () => assert.fail("unexpected automatic approval"), () => {});
+      const pending = new Promise(resolve => { finish = resolve; });
+      const jsx = (type, props) => ({ type, props });
+      const p = { set: (...args) => flags.push(args) };
+      const context = { D: { c: () => memo }, O: { useRef: () => ref, useState: () => [state, value => { state = value; }] },
+        k: { jsx, jsxs: jsx, Fragment: "fragment" }, a: "localized-label", r: () => p, y: "owner", n: () => ({ formatMessage: descriptor => descriptor.defaultMessage }),
+        t: () => true, x: "has-approved", S: () => false, w: "plugin-icon", _: "icon", d: "risk-icon",
+        h: (action, content) => { wire.push({ action, content }); return { action, content }; },
+        m: () => ({ replyWithMcpServerElicitationResponse: (threadId, requestId, response) => {
+          sent.push({ threadId, requestId, response: owner.response(requestId, response) }); return pending;
+        } }),
+        props: { ApprovalCard: "approval-card", conversationId: "thread-a", hostId: "local", requestId: id,
+          request: { riskLevel: "low", connectorName: "Computer Use", appDisplayName: app, persistModes: ["session", "always"] },
+          onRequestSettled: action => settled.push(action) } };
+      const vmContext = vm.createContext(context);
+      vm.runInContext(transformed.text.slice(functionStart, functionEnd), vmContext);
+      return { render: () => vm.runInContext("E(props)", vmContext).props, finish, sent, settled, wire, flags };
+    }
+    const cancel = harness(201, "cancel-card.exe");
+    const card = cancel.render();
+    assert.equal(card.body.type, "button");
+    assert.equal(card.body.props.type, "button");
+    assert.equal(card.body.props.disabled, false);
+    assert.equal(card.body.props.children.props.id, "azrael.computerUse.cancelRequest");
+    assert.equal(card.body.props.children.props.defaultMessage, "Cancel request");
+    card.body.props.onClick();
+    assert.deepEqual(cancel.wire, [{ action: "cancel", content: null }]);
+    assert.equal(cancel.sent[0].response.action, "cancel");
+    assert.equal(cancel.sent[0].requestId, 201);
+    assert.equal(cancel.sent[0].threadId, "thread-a");
+    assert.equal(cancel.flags.length, 0);
+    const submitting = cancel.render();
+    assert.equal(submitting.body.props.disabled, true);
+    assert.equal(submitting.actions.isLoading, true);
+    submitting.body.props.onClick();
+    assert.equal(cancel.sent.length, 1, "native in-flight response guard must prevent duplicate cancellation");
+    assert.equal(owner.getAppApprovals().approvedApps.length, 0);
+    assert(!fs.existsSync(path.join(home, "azrael/computer-use/app-approvals.json")));
+    cancel.finish(); await Promise.resolve();
+    assert.deepEqual(cancel.settled, ["cancel"]);
+    let reshown = false;
+    owner.receive(request(202, "cancel-card.exe"), () => assert.fail("cancel must not grant access"), () => { reshown = true; });
+    assert(reshown);
+
+    const deny = harness(203, "deny-card.exe");
+    deny.render().actions.onDeny();
+    assert.deepEqual(deny.wire, [{ action: "decline", content: null }]);
+    deny.finish(); await Promise.resolve(); assert.deepEqual(deny.settled, ["decline"]);
+    const approve = harness(204, "approve-card.exe");
+    approve.render().actions.onApprove();
+    assert.equal(approve.wire[0].action, "accept");
+    assert.equal(approve.wire[0].content.persist, "session");
+    approve.finish(); await Promise.resolve(); assert.deepEqual(approve.settled, ["accept"]);
+    const always = harness(205, "always-card.exe");
+    always.render().actions.leadingAction.onClick();
+    assert.equal(always.wire[0].action, "accept");
+    assert.equal(always.wire[0].content.persist, "always");
+    always.finish(); await Promise.resolve(); assert.deepEqual(always.settled, ["accept"]);
+    assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === "always-card.exe"));
+    console.log("PASS pinned native card cancel/disabled/settlement/no persistence and unchanged deny/session/always approval actions");
+  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+});

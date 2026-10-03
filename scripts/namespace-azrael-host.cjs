@@ -9,7 +9,7 @@ const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
 const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
-const { injectComputerUse } = require("./inject-computer-use.cjs");
+const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET } = require("./inject-computer-use.cjs");
 const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
@@ -306,7 +306,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET].includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -337,15 +337,17 @@ function transformAsset(source, relativePath, filename, ts) {
   const immediateStop = injectImmediateStop(recentChatFilter.text, relativePath);
   const urlSafety = isHostBundle ? injectUrlSafetyTransport(immediateStop.text) : { text: immediateStop.text, count: 0 };
   const computerUse = isHostBundle ? injectComputerUse(urlSafety.text) : { text: urlSafety.text, count: 0 };
-  const fileOpenMenu = injectFileOpenMenu(computerUse.text, relativePath);
+  const computerUseSettings = injectComputerUseSettings(computerUse.text, relativePath);
+  const computerUseCancelRequest = injectComputerUseCancelRequest(computerUseSettings.text, relativePath);
+  const fileOpenMenu = injectFileOpenMenu(computerUseCancelRequest.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
   const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
   const providerContext = injectProviderContext(composerDraft.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count) {
+  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count) {
     return { text: providerContext.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count,
+      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       namespaceEdits: namespaced.count,
@@ -366,6 +368,8 @@ function transformAsset(source, relativePath, filename, ts) {
       accountSwitchQueueEdits: accountQueue.count,
       urlSafetyTransportEdits: urlSafety.count,
       computerUseApprovalEdits: computerUse.count,
+      computerUseSettingsEdits: computerUseSettings.count,
+      computerUseCancelRequestEdits: computerUseCancelRequest.count,
       imageFileOpenEdits: imageFileOpen.count,
       fileOpenMenuEdits: fileOpenMenu.count,
       localFileDropEdits: localFileDrop.count,
@@ -509,6 +513,8 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     }
   }
   if (report.assets.reduce((total, asset) => total + (asset.computerUseApprovalEdits ?? 0), 0) !== 7) throw new Error("Computer-use approval transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseSettingsEdits ?? 0), 0) !== 1) throw new Error("Computer-use settings transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.computerUseCancelRequestEdits ?? 0), 0) !== 1) throw new Error("Computer-use cancel-request transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");
   }
