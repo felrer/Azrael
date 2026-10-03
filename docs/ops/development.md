@@ -202,6 +202,8 @@ The engine check uses a synthetic interrupted rollout and a local stalled provid
 
 ### Root resume reservations
 
+No-build chat verification: `node --test scripts/test-deferred-turn.cjs scripts/test-namespace-source.cjs scripts/test-integrated-entry.cjs` exercises the pinned reducer, source-turn activity projection, per-reservation clock, stale events, history hydration, Codex divider styling and full in-memory host transform pipeline. This does not compile Rust, generate a VSIX, install the host or establish live screen acceptance. Native waiting boundaries are persisted in additive reservation/history migrations; raw migration bytes remain unchanged. The chat uses the optional `rootResumeWait` turn/timeline field and `turn/rootResumeWait/updated` notification.
+
 Engine coverage: root lifecycle, state, app-server-protocol and RPC tests through `just test`, plus mock-SSE checks that the parked root makes no requests and exactly one request after the deadline or selected-child completion. No paid model call is needed. In a user window, **루트 재개 예약** (`azrael.rootResume`) lists reservations; **지금 재개** and **예약 취소** use the displayed ID and revision, so refresh after losing a race. The engine must be running with the root thread loaded for a timer to fire. A reservation blocked by a crash or admission failure needs the conversation reviewed before resume or cancel. Design: [root resume scheduling](../architecture/root-resume.md).
 
 ### Accounts

@@ -32,6 +32,16 @@ The engine owns the boundary and duration. A versioned derived-history checkpoin
 
 The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
 
+### Chat work and waiting durations
+
+Status: `partial`. The chat source implementation is covered by pinned UI fixtures; native compilation and installed-host acceptance remain pending.
+
+Chat retains a fixed work duration for each deferred turn and measures resumed work from the new turn's start. A reservation's waiting divider shows its planned duration and elapsed waiting seconds; selected-child wake conditions use a maximum planned duration because children may finish early. Only the currently waiting reservation advances. Resume, cancellation, interruption and blocked admission freeze its elapsed duration and display the corresponding outcome. Completed work leaves every preceding segment frozen, including after history reload.
+
+Waiting is keyed by reservation ID and its originating/resume turn identities. Authoritative waiting start and actual end timestamps survive reload; the scheduled deadline is not an actual end timestamp. Unknown historical waiting times remain explicitly unavailable rather than inferred from the work duration. Stale or duplicate notifications cannot reopen a finished waiting segment. The chat reuses the existing Codex work divider, secondary text styles and lifecycle-managed interval hook. Local UI ticks do not make model requests or replace native scheduling.
+
+The reservation stores its first waiting timestamp and freezes the end on its first transition from waiting to claimed, cancelled or blocked. A claim marks the beginning of resume processing, so later admission retries retain that same elapsed waiting duration. The optional `Turn.rootResumeWait` carries reservation identity, revision, both nullable timestamps, deadline, state and whether selected children can wake it early. `turn/rootResumeWait/updated` changes this metadata without completing the deferred turn. Durable history and paginated turn/timeline metadata retain the same field. Segment presentation respects the source turn's deferred or terminal boundary instead of restoring an active work timer.
+
 ## Cost characteristics
 
 A parked root holds no ongoing inference. Resuming makes a new request from retained conversation state, and provider prompt-cache reuse is independent of the reservation, so a cache miss can raise the input cost of the first resumed request. Savings come from avoiding repeated model wakeups and status checks, not from elapsed wall time. Prefer waking on selected child completion with a useful fallback deadline over short repeated timed wakeups intended only to keep a cache warm.

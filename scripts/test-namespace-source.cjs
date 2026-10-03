@@ -19,6 +19,9 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
   assert.equal(transformer.getTransformRules()["inject-composer-draft.cjs"],
     crypto.createHash("sha256").update(fs.readFileSync(path.join(__dirname, "inject-composer-draft.cjs"))).digest("hex"),
     "composer draft transform must invalidate cached assets when its source changes");
+  assert.equal(transformer.getTransformRules()["root-resume-wait.cjs"],
+    crypto.createHash("sha256").update(fs.readFileSync(path.join(__dirname, "root-resume-wait.cjs"))).digest("hex"),
+    "waiting helpers must invalidate cached assets when their source changes");
   const externalUrls = [
     "https://example.test/openai.chatgpt/openai-codex/chatgpt.route",
     "http://example.test/openai.chatgpt",
