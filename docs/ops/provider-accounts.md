@@ -36,9 +36,12 @@ bun test --timeout 30000 tests/catalog.test.ts tests/reasoning.test.ts tests/inf
 # from the project root
 node --test scripts/test-provider-model-picker.cjs scripts/test-provider-accounts-host.cjs
 node scripts/check-managed-native-engine.mjs <codex.exe> <fresh-run-directory>
+node scripts/check-managed-native-engine.mjs <codex.exe> <fresh-run-directory> --devin-handoff-only --release-directory <release-directory>
 # from the engine source's codex-rs
 cargo test -p codex-core managed_catalog
 ```
+
+The `--devin-handoff-only` scope uses a synthetic Devin peer and loopback OpenAI endpoint to cover normal, exhausted-quota, fork/restart, generic-400 and rate-limit boundaries. It verifies public history and exact tool results, excludes source reasoning and does not perform live inference.
 
 The extension's own tests run with `npm test` in `extensions/azrael-ex`. Account tests use fake helper peers or original upstream functions with fresh fixture state. `check-managed-native-engine.mjs` must inject the catalog fetch seam and reject Node HTTP/socket transports, because the vendored router canonicalizes provider URLs; a run without that guard can reach real endpoints and is not isolated. `scripts/check-live-provider-turn.mjs` performs a real, paid provider turn and is run only with explicit approval, using an ephemeral, read-only thread and removing its probe binding afterwards.
 
