@@ -1,6 +1,6 @@
 # Computer Use
 
-Status: `target` — approved Windows integration contract. Prototype execution establishes feasibility; installed-host acceptance is tracked in the [work plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/CL-01-computer-use-prototype/02-plan.md>).
+Status: `target` — implemented and packaged; actual native capture, input, click and recovery are verified. Rendered app-consent acceptance and ordinary-profile installation remain pending in the [work plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/CL-01-computer-use-prototype/02-plan.md>).
 
 ## Runtime ownership
 
@@ -8,7 +8,7 @@ Azrael owns a version-pinned Windows Node REPL and Sky runtime in its local exte
 
 Computer Use uses the standard MCP Node REPL entry point and imports `@oai/sky`. Sky owns platform interaction and helper transport. Azrael does not implement a second helper protocol. The runtime starts without a copied external native-pipe endpoint. Missing payloads or hash mismatches block preparation or produce an explicit unavailable error.
 
-The main engine retains its management socket. The Computer Use child execution boundary removes the parent's management socket address so a nested app-server cannot claim the same socket. The actual engine sandbox-state metadata and user permission profile pass through the native MCP contract. Runtime integration never substitutes a fixed full-access profile.
+The main engine retains its management socket. The Computer Use child execution boundary removes the parent's management socket address so a nested app-server cannot claim the same socket. The native MCP contract carries the actual turn metadata and user permission profile. Actual tests preserved `danger-full-access` and `read-only`; read-only process creation failed with `spawn EPERM` without escalation. A dedicated sandbox-state metadata field has not been independently verified. Runtime integration never substitutes a fixed full-access profile.
 
 ## Configuration and instructions
 
@@ -28,10 +28,12 @@ Computer Use settings query this owner and revoke its app approvals. Revocation 
 
 The agent identifies an exact target window, activates it before capture, observes its current state, and uses Sky APIs to click or type. It refreshes observation after each action and checks focus before typing. The supported initial scope is Windows apps visible on the user's interactive desktop. Foreground activation can change focus. Capture of an occluded window without activation is not an established capability of this integration. The agent verifies that returned images depict the selected target and removes unexpected captures. When physical user activity or another foreground work window conflicts with the test, it pauses desktop control until the desktop is available; repeated activation is not a way to override the user's input.
 
-Synthetic fixture acceptance checks screenshots, accessibility state and app event output together. Approval UI acceptance uses the product route rather than prototype automatic responses.
+Synthetic fixture acceptance checks screenshots, accessibility state and app event output together. Actual package-owned native tests confirmed capture, text input and one click against the same synthetic app. Those tests used narrowly scoped harness consent; rendered product approval remains a separate acceptance requirement. Observation must be refreshed after a completed turn before acting again.
 
 ## Lifetime and recovery
 
-Each host window retains its own main runtime and management channel. Computer Use child resources must not bind another window's management socket. Cancellation stops pending operations and releases owned resources; helper failure becomes a visible tool error. A subsequent call can establish a fresh runtime rather than reusing a failed process.
+Each host window retains its own main runtime and management channel. Computer Use child resources must not bind another window's management socket. Cancellation stops pending operations and releases owned resources. Two concurrent native CLI engines were verified to use separate child process chains, but two rendered extension windows remain a separate acceptance requirement.
+
+An actual Sky helper crash recovered automatically on the next call. A Node REPL crash left the MCP transport closed; interrupting the turn, calling the supported `config/mcpServer/reload` API and making a fresh call restored the same engine/thread. Recovery does not replay the failed action or elevate permissions.
 
 Installation replaces the registered extension with the exact validated package. Existing windows finish their work and reload to activate it. Rollback selects the previous verified release; native account and conversation data remain in `~/.azrael-ex`. Local integration does not establish permission for public redistribution of upstream binary components.
