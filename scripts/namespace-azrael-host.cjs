@@ -1,6 +1,5 @@
 "use strict";
 const { ACCOUNT_SETTINGS_ASSET, injectAccountSettings } = require("./inject-account-settings.cjs");
-const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings } = require("./inject-instruction-settings.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
@@ -40,7 +39,6 @@ const ACCOUNT_UI_COMMANDS = [
   "azrael.devinAccount",
   "azrael.syncSharedEnvironment",
   "azrael.fetchSharedPlaybook",
-  "azrael.instructions",
 ];
 const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-9f7d97690e9b.js";
 const RECENT_THREAD_LIST_SCOPE_MARKER = "__azraelWorkspaceThreadList";
@@ -305,13 +303,12 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET].includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
-  const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
-  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(instructionSettings.text, filename, ts) :
-    isRecentThreadListAsset ? markRecentThreadListRequest(instructionSettings.text, filename, ts) :
-      { text: instructionSettings.text, count: 0 };
+  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(accountSettings.text, filename, ts) :
+    isRecentThreadListAsset ? markRecentThreadListRequest(accountSettings.text, filename, ts) :
+      { text: accountSettings.text, count: 0 };
   const fetchResponse = isHostBundle ? injectFetchResponse(filtered.text) : { text: filtered.text, count: 0 };
   const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
@@ -340,12 +337,11 @@ function transformAsset(source, relativePath, filename, ts) {
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
   const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
   const providerContext = injectProviderContext(composerDraft.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count) {
+  if (namespaced.count || accountSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count) {
     return { text: providerContext.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count,
+      edits: namespaced.count + accountSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count,
       accountSettingsEdits: accountSettings.count,
-      instructionSettingsEdits: instructionSettings.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
@@ -380,7 +376,7 @@ function getTransformRules() {
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
-    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
+    "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-account-settings.cjs",
     "inject-provider-context.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
