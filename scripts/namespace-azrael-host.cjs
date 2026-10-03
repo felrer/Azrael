@@ -534,7 +534,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.queueRefreshNativeChecks, 0) !== 1) {
     throw new Error("Native queue-refresh validation was incomplete.");
   }
-  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 7) {
+  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 26) {
     throw new Error("Deferred-turn transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.deferredNativeTimingChecks, 0) !== 1) {
