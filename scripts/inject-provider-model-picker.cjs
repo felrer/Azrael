@@ -41,6 +41,8 @@ function injectProviderModelPicker(text, asset) {
     text = once(text, efforts, "function uZ(e,t){return __azraelProviderCatalog.efforts(e,t,()=>{" + efforts.slice(efforts.indexOf("let n="), -1) + "})}");
     const selection = "function Hzr(e,t){return WC(e)&&t.some(t=>t.reasoningEffort===e)?e:CGe(e,t.map(e=>e.reasoningEffort))}";
     text = once(text, selection, "function Hzr(e,t){return __azraelProviderCatalog.selectEffort(e,t,()=>" + selection.slice(selection.indexOf("return ") + 7, -1) + ")}");
+    // Provider-default effort stays null; the compact trigger uses the neutral icon.
+    text = once(text, "function XYi(e){return ZYi[e]}", "function XYi(e){return ZYi[e==null?`none`:e]}");
     text = once(text, "a=r.flatMap(({reasoningEffort:e})=>", "a=(r??[]).flatMap(({reasoningEffort:e})=>");
     text = once(text, "(a.length>0?a:[`medium`]).map(e=>({id:`${n}:${e}`",
       "(n.startsWith(`managed/`)?a:a.length?a:[`medium`]).map(e=>({id:`${n}:${e}`");

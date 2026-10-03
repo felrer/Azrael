@@ -320,6 +320,45 @@ test("actual native managed selection, power options and slider gate handle miss
  context.p="gpt";context.h=[];context.R=undefined;assert.equal(vm.runInContext(sliderGate,context),true,"native slider availability is preserved");
 });
 
+test("actual compact trigger renders a neutral icon for managed provider-default effort",()=>{
+ const asset=injection.PROVIDER_PICKER_ASSET,pristine=fs.readFileSync(path.join(original,asset),"utf8");
+ const source=injection.injectProviderModelPicker(pristine,asset).text;
+ const ast=ts.createSourceFile(asset,source,99,true,ts.ScriptKind.JS),declarations=[];let iconTable,triggerIcon,iconConsumer;
+ function visit(n){
+  if(ts.isFunctionDeclaration(n)&&["uZ","Hzr","XYi"].includes(n.name?.text))declarations.push(n.getText(ast));
+  if(ts.isBinaryExpression(n)&&n.left.getText(ast)==="ZYi")iconTable=n.getText(ast);
+  if(ts.isFunctionDeclaration(n)&&n.name?.text==="Wea"){
+   function triggerVisit(child){
+    if(ts.isVariableDeclaration(child)&&child.name?.getText(ast)==="St"&&child.initializer?.getText(ast)==="XYi(it)")triggerIcon=child.getText(ast);
+    if(ts.isCallExpression(child)&&child.arguments[0]?.getText(ast)==="St"&&child.expression.getText(ast)==="(0,C7.jsx)")iconConsumer=child.getText(ast);
+    ts.forEachChild(child,triggerVisit);
+   }triggerVisit(n);
+  }
+  ts.forEachChild(n,visit);
+ }visit(ast);
+ assert.ok(iconTable,"native effort icon table");assert.ok(triggerIcon,"compact trigger icon lookup");assert.ok(iconConsumer,"compact trigger JSX consumer");
+ const context={__azraelProviderCatalog:createProviderModelCatalog(),WC:e=>["none","minimal","low","medium","high","xhigh","max","ultra"].includes(e),LNt:["medium"],CGe:()=>"medium"};
+ for(const name of ["K5e","FYe","Q0e","u6e","GQe"])context[name]=props=>({type:"svg",props:{...props,"data-native-icon":name}});
+ context.C7={jsx(type,props){assert.equal(typeof type,"function","React icon element type must be defined");return type(props);}};
+ vm.createContext(context);vm.runInContext(declarations.join("\n")+"\n"+iconTable,context);
+ const render=effort=>{context.it=effort;return vm.runInContext(`(()=>{let ${triggerIcon};return ${iconConsumer}})()`,context);};
+ for(const fixture of [{supportedReasoningEfforts:[]},{}]){
+  const row={model:"managed/openrouter/provider-default",...fixture},options=context.uZ([row],row.model);
+  assert.equal(options.length,0);const selected=context.Hzr("medium",options);
+  assert.equal(selected,null);assert.equal(JSON.stringify({model:row.model,reasoningEffort:selected}),`{"model":"${row.model}","reasoningEffort":null}`);
+  assert.equal(context.XYi(selected),context.K5e);const icon=render(selected);
+  assert.equal(icon.type,"svg");assert.equal(icon.props["data-native-icon"],"K5e");assert.equal(icon.props.className,"icon-leading text-tertiary");
+ }
+ assert.equal(context.XYi(undefined),context.K5e);assert.equal(render(undefined).props["data-native-icon"],"K5e");
+ for(const [effort,name] of Object.entries({none:"K5e",minimal:"K5e",low:"FYe",medium:"Q0e",high:"u6e",xhigh:"GQe",max:"GQe",ultra:"GQe",persistent:"GQe"})){
+  assert.equal(context.XYi(effort),context[name]);assert.equal(render(effort).props["data-native-icon"],name);
+ }
+ assert.equal(context.XYi("unsupported"),undefined,"unknown non-null effort behavior is preserved");
+ const anchor="function XYi(e){return ZYi[e]}";
+ assert.throws(()=>injection.injectProviderModelPicker(pristine.replace(anchor,"function XYi(e){return ZYi?.[e]}"),asset),/anchor/);
+ assert.throws(()=>injection.injectProviderModelPicker(pristine+anchor,asset),/anchor/);
+});
+
 test("actual native reasoning aria labels safely format null and unsupported efforts",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
  const ast=ts.createSourceFile(asset,source,99,true,ts.ScriptKind.JS),declarations=[];
