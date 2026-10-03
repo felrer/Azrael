@@ -45,7 +45,9 @@ test("Personalization controlled percentage and native slider synchronize select
   assert.match(JSON.stringify(rows[1]),/Using model capacity/);assert.match(tree.props.children.find(x=>x?.type==="style").props.children,/slider-thumb/);
   assert.equal(h.requests.length,1,"editing legacy display does not write until Save");
   await rows[0].props.onSubmit({preventDefault(){}});rows=forms(h.render());assert.equal(h.requests[1].method,"config/batchWrite");assert.equal(h.requests[1].params.edits[0].value.percentage,75);assert.equal(h.requests[2].method,"config/read");assert.equal(input(rows[0]).props.value,"75");assert.doesNotMatch(JSON.stringify(rows[0]),/remains stored until Save/);
-  await rows[0].props.children.find(x=>x?.type==="button"&&x.props.type==="button").props.onClick();rows=forms(h.render());assert.equal(input(rows[0]).props.value,"95");assert.equal(Object.keys(h.requests[3].params.edits[0].value).length,0);
+  const actions=rows[0].props.children.find(x=>x?.type==="div"&&x.props.children?.every(x=>x.type==="button"));assert.equal(actions.props.style.display,"flex");assert.equal(actions.props.children[0].props.type,"submit");assert.equal(actions.props.children[1].props.type,"button");
+  const status=rows[0].props.children.at(-1).props.children;assert.match(status,/Auto-compaction:/);assert.match(status,/Input tokens/);assert.doesNotMatch(status,/Model capacity:|Safe cap:|Pricing:|openai \/|https?:/);
+  await actions.props.children[1].props.onClick();rows=forms(h.render());assert.equal(input(rows[0]).props.value,"95");assert.equal(Object.keys(h.requests[3].params.edits[0].value).length,0);
 });
 test("invalid percentage and save/read failures stay visible, with localized validation",async()=>{
   const response={config:{model:"m"},contextPolicies:[policy(null)]},h=settingsHarness(response,true);h.render();await settle();let row=forms(h.render())[0];input(row).props.onChange({target:{value:"0"}});row=forms(h.render())[0];await row.props.onSubmit({preventDefault(){}});assert.equal(h.render().props.children.find(x=>x?.props?.role==="alert").props.children,"양의 정수 백분율을 입력하세요");assert.equal(h.requests.length,1);

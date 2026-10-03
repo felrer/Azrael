@@ -6,17 +6,20 @@ function once(text, from, to) {
   if (text.split(from).length !== 2) throw Error("Pinned provider context anchor changed: " + from.slice(0, 100));
   return text.replace(from, to);
 }
-function policyDescription(p, ko) {
+function policyDescription(p, ko, detail = "full") {
   if (!p) return "";
   const price = p.pricing;
   const tokens = n => n == null ? (ko ? "알 수 없음" : "unknown") : Number(n).toLocaleString();
   const sources = ko ? {provider:"제공자 설정",global:"전역 설정",default:"기본값"} : {provider:"provider setting",global:"global setting",default:"default"};
+  const compact = (ko ? "자동 압축: " : "Auto-compaction: ") + tokens(p.autoCompactTokenLimit) + " (" + (sources[p.autoCompactSource]??p.autoCompactSource) + ")";
+  const input = (ko ? "입력 토큰" : "Input tokens") + (p.inputTokensEstimated ? (ko ? " (추정)" : " (estimated)") : "") + ": " + tokens(p.inputTokens);
+  if (detail === "compaction") return [compact, input].join("\n");
   const pricing = price?.status === "reference" && price.inputTokenThreshold == null ? (ko ? "API 참고: 길이 추가 요금 없음" : "API reference: no length surcharge") : (ko ? {confirmed:"확인됨",reference:"참고", "no-surcharge":"길이 추가 요금 없음",unknown:"알 수 없음"} : {confirmed:"confirmed",reference:"reference","no-surcharge":"no length surcharge",unknown:"unknown"})[price?.status ?? "unknown"];
   return [p.providerId + " / " + p.modelId,
-    (ko ? "자동 압축: " : "Auto-compaction: ") + tokens(p.autoCompactTokenLimit) + " (" + (sources[p.autoCompactSource]??p.autoCompactSource) + ")",
+    compact,
     (ko ? "모델 용량: " : "Model capacity: ") + tokens(p.contextWindow),
     (ko ? "안전 한도: " : "Safe cap: ") + tokens(p.safeContextWindow),
-    (ko ? "입력 토큰" : "Input tokens") + (p.inputTokensEstimated ? (ko ? " (추정)" : " (estimated)") : "") + ": " + tokens(p.inputTokens),
+    input,
     (ko ? "가격: " : "Pricing: ") + pricing + (price?.inputTokenThreshold == null ? "" : " · " + (price.inclusive ? "≥ " : "> ") + tokens(price.inputTokenThreshold)),
     price?.sourceUrl ?? ""].filter(Boolean).join("\n");
 }
@@ -75,9 +78,11 @@ function renderSettings(React, jsx, client, ko) {
         jsx("p",{children:(ko?"기본 용량: ":"Base capacity: ")+tokens(preview.base)+(fallback?(ko?" 토큰. 추가 요금 경계가 없거나 알 수 없어 모델 용량을 사용합니다. 가격 상태를 확인하세요.":" tokens. Using model capacity because there is no known length-surcharge boundary; check pricing status."):(ko?" 토큰 (길이 추가 요금 없는 용량).":" tokens (no-length-surcharge capacity)."))}),
         jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+preview.percentage+"% = "+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped at safe limit)"):"")}),
         override?.token_limit!=null&&override.percentage==null?jsx("p",{children:(ko?"기존 토큰 한도 ":"Legacy token limit ")+tokens(override.token_limit)+(ko?"이 저장되어 있습니다. 저장을 누르면 표시된 백분율로 변경됩니다.":" remains stored until Save replaces it with the displayed percentage.")}):null,
-        jsx("button",{style:buttonStyle,type:"submit",disabled:pending,children:ko?"저장":"Save"}),
-        jsx("button",{style:buttonStyle,type:"button",disabled:pending,onClick:()=>action(id,""),children:ko?"기본값으로 재설정":"Reset to default"}),
-        jsx("p",{style:{whiteSpace:"pre-line"},children:policyDescription(p,ko)})
+        jsx("div",{style:{display:"flex",gap:8,alignItems:"center"},children:[
+          jsx("button",{style:buttonStyle,type:"submit",disabled:pending,children:ko?"저장":"Save"}),
+          jsx("button",{style:buttonStyle,type:"button",disabled:pending,onClick:()=>action(id,""),children:ko?"기본값으로 재설정":"Reset to default"})
+        ]}),
+        jsx("p",{style:{whiteSpace:"pre-line"},children:policyDescription(p,ko,"compaction")})
       ]});
     })]});
 }
