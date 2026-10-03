@@ -26,7 +26,7 @@ Computer Use settings query this owner and revoke its app approvals. Revocation 
 
 ## Observation and action
 
-The agent identifies an exact target window, observes its current state, and uses Sky APIs to activate, capture, click or type. It refreshes observation after each action and checks focus before typing. The supported initial scope is Windows apps visible on the user's interactive desktop. Foreground activation can change focus. Capture of an occluded window without activation is not an established capability of this integration.
+The agent identifies an exact target window, activates it before capture, observes its current state, and uses Sky APIs to click or type. It refreshes observation after each action and checks focus before typing. The supported initial scope is Windows apps visible on the user's interactive desktop. Foreground activation can change focus. Capture of an occluded window without activation is not an established capability of this integration. The agent verifies that returned images depict the selected target and removes unexpected captures. When physical user activity or another foreground work window conflicts with the test, it pauses desktop control until the desktop is available; repeated activation is not a way to override the user's input.
 
 Synthetic fixture acceptance checks screenshots, accessibility state and app event output together. Approval UI acceptance uses the product route rather than prototype automatic responses.
 

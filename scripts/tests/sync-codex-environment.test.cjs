@@ -227,7 +227,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
     "node_repl.exe": "fixture repl", "node.exe": "fixture node",
     "node_modules/@oai/sky/package.json": JSON.stringify({ name: "@oai/sky", version: "1.0.0" }),
     "node_modules/@oai/sky/bin/windows/codex-computer-use.exe": "fixture helper",
-    "skills/computer-use/SKILL.md": "---\nname: computer-use\ndescription: fixture\n---\nRead [guidance](../../docs/guidance.md).\n",
+    "skills/computer-use/SKILL.md": "---\nname: computer-use\ndescription: fixture\n---\nRead [guidance](../../docs/guidance.md).\nWindows.Graphics.Capture screenshots that work even when windows are occluded.\nLicense: fixture attribution.\n",
     "docs/guidance.md": "fixture guidance", "docs/api.md": "fixture api", "docs/confirmations.md": "fixture confirmations",
   };
   for (const [relative, contents] of Object.entries(files)) {
@@ -238,6 +238,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   const runtimeManifest = { schema: 1, packages: [{ name: "@oai/sky", version: "1.0.0", path: "node_modules/@oai/sky" }], files: Object.entries(files).map(([relative, contents]) => ({ path: relative, source: "synthetic fixture", sha256: crypto.createHash("sha256").update(contents).digest("hex"), bytes: Buffer.byteLength(contents) })) };
   const runtimeManifestPath = path.join(runtime, "manifest.json");
   fs.writeFileSync(runtimeManifestPath, JSON.stringify(runtimeManifest));
+  const runtimeBefore = pathState(runtime);
   fs.mkdirSync(source, { recursive: true });
   fs.mkdirSync(path.join(state, "skills", "computer-use"), { recursive: true });
   fs.mkdirSync(path.join(state, "skills", "user-skill"), { recursive: true });
@@ -267,8 +268,22 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   const applied = sync("apply");
   assert.equal(applied.status, "applied");
   assert.equal(fs.readFileSync(path.join(applied.backup, "previous/skills/computer-use/SKILL.md"), "utf8"), "previous skill");
-  assert.equal(fs.readFileSync(path.join(state, "skills/computer-use/SKILL.md"), "utf8"), files["skills/computer-use/SKILL.md"].replaceAll("../../docs", "./docs"));
-  for (const name of ["guidance", "api", "confirmations"]) assert.equal(fs.readFileSync(path.join(state, "skills/computer-use/docs", `${name}.md`), "utf8"), files[`docs/${name}.md`]);
+  const managedSkill = fs.readFileSync(path.join(state, "skills/computer-use/SKILL.md"), "utf8");
+  assert.ok(managedSkill.startsWith("---\nname: computer-use\ndescription: fixture\n---\n"));
+  assert.ok(managedSkill.includes("Read [guidance](./docs/guidance.md)."));
+  assert.ok(managedSkill.includes("License: fixture attribution."));
+  assert.ok(!managedSkill.includes("screenshots that work even when windows are occluded"));
+  const managedGuidance = fs.readFileSync(path.join(state, "skills/computer-use/docs/guidance.md"), "utf8");
+  for (const text of [managedSkill, managedGuidance]) {
+    assert.match(text, /Activate the exact selected target window/);
+    assert.match(text, /fresh observation before capture or input/);
+    assert.match(text, /returned screenshot shows the selected target's content/);
+    assert.match(text, /Discard unexpected screenshot content/);
+    assert.match(text, /pause if physical user activity or an unexpected other foreground window/);
+    assert.match(text, /Do not repeatedly steal focus/);
+  }
+  assert.ok(managedGuidance.endsWith(files["docs/guidance.md"]));
+  for (const name of ["api", "confirmations"]) assert.equal(fs.readFileSync(path.join(state, "skills/computer-use/docs", `${name}.md`), "utf8"), files[`docs/${name}.md`]);
   assert.equal(fs.readFileSync(path.join(state, "skills/user-skill/SKILL.md"), "utf8"), "user skill");
   const config = parseToml(fs.readFileSync(path.join(state, "config.toml"), "utf8"));
   assert.equal(config.mcp_servers.node_repl.env.CODEX_CLI_PATH, path.resolve(process.env.AZRAEL_CONFIG_TEST_ENGINE));
@@ -280,6 +295,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   assert.equal(sync("apply").status, "unchanged");
   fs.writeFileSync(path.join(state, "skills/computer-use/docs/api.md"), "drift");
   assert.equal(sync("apply").status, "applied");
+  assert.deepEqual(pathState(runtime), runtimeBefore);
   const committed = pathState(state);
   fs.rmSync(runtimeManifestPath);
   assert.match(sync("apply", 1), /manifest.json/);

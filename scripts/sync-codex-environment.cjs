@@ -424,7 +424,22 @@ function main(argv = process.argv.slice(2)) {
       copyDirectory(path.join(computerUseDirectory, "skills", "computer-use"), skillDirectory);
       copyDirectory(path.join(computerUseDirectory, "docs"), path.join(skillDirectory, "docs"));
       const instructions = path.join(skillDirectory, "SKILL.md");
-      fs.writeFileSync(instructions, fs.readFileSync(instructions, "utf8").replaceAll("../../docs", "./docs"), "utf8");
+      const visibleDesktopNote = "## Azrael visible desktop requirement\n\n" +
+        "Activate the exact selected target window and obtain a fresh observation before capture or input. " +
+        "Verify foreground focus before typing and verify that each returned screenshot shows the selected target's content. " +
+        "Discard unexpected screenshot content and pause if physical user activity or an unexpected other foreground window is observed. " +
+        "Do not repeatedly steal focus. Capture of occluded windows is not an established capability of this integration.\n\n";
+      const adaptCaptureClaim = (text) => text.replaceAll("screenshots that work even when windows are occluded", "screenshots subject to the Azrael visible desktop requirement");
+      let skillText = adaptCaptureClaim(fs.readFileSync(instructions, "utf8")).replaceAll("../../docs", "./docs");
+      const frontmatter = skillText.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/)?.[0] || "";
+      skillText = frontmatter + "\n" + visibleDesktopNote + skillText.slice(frontmatter.length);
+      fs.writeFileSync(instructions, skillText, "utf8");
+      for (const name of fs.readdirSync(path.join(skillDirectory, "docs"))) {
+        if (!name.endsWith(".md")) continue;
+        const target = path.join(skillDirectory, "docs", name);
+        const text = adaptCaptureClaim(fs.readFileSync(target, "utf8"));
+        fs.writeFileSync(target, (name === "guidance.md" ? visibleDesktopNote : "") + text, "utf8");
+      }
       function collect(directory) {
         for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
           const target = path.join(directory, entry.name);
