@@ -2,7 +2,7 @@
 
 `vendor/src` originates from `lidge-jun/opencodex` commit `9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19` (package version 2.54.0, MIT). `package.json`, `bun.lock`, and `LICENSE.opencodex` are copied without modification. Narrow account-selection and OpenRouter usage patches are applied to the source import.
 
-The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The patched vendor tree manifest digest is `59d0a9f1edf17ca1592a8a2a37b9405dcf6eb71bcf3f36234694ac9bd5d46ca0`, computed as SHA-256 over the concatenation of sorted `relative/path NUL lowercase-file-sha256 LF` records.
+The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The patched vendor tree manifest digest is `a7ff6113f52727bde0a9a5b76b476b33e0e059b2ea45478bec8c8e267b571a60`, computed as SHA-256 over the concatenation of sorted `relative/path NUL lowercase-file-sha256 LF` records.
 
 | Artifact | SHA-256 |
 | --- | --- |
@@ -20,6 +20,13 @@ Account-selection behavior remains unchanged unless the helper supplies the new 
 | `vendor/src/providers/api-keys.ts` | `926c5004b355edec7434afdef1e28fdbb9b01b7071a0ad3e3f02f13b7185e190` | `b13c6fe6e2c88bffd8cf19a541a9e7bb75783a42dfd2f80eec0d52dd9ba8a620` | Adds `addProviderApiKey(..., { preserveSelection: true })`; the key is added through the existing serialized config mutation without replacing an existing active key. |
 | `vendor/src/providers/quota.ts` | `f0a40c740b7976e5162a716dc78e2a41f72694deee043e4c5d31832c4488bd95` | `68f005f39be85128451cadeb7ce99a87f9910744eb8a2ff06a91108bfd63851f` | Preserves OpenRouter lifetime/period USD spend and nullable key cap; zero is a cap, null is uncapped, and only authoritative remaining-cap data supplies routing evidence. |
 | `vendor/src/providers/quota-types.ts` | `c090ab2a1ea06e67f2d5c6997fdaa6ebf848ca0e3deb2170b1e1a8c7992d9fbe` | `b15a2202ca066e1c0e4c29a714a5a704e3b0f46de98537c793371379e1af191c` | Adds typed, display-only OpenRouter spend and key-cap fields. |
+
+Additional provider prompt patches are included in the reviewed manifest above.
+
+| Path | Current SHA-256 | Patch |
+| --- | --- | --- |
+| `vendor/src/adapters/google.ts` | `3c0633277af0febc3572d17df66d01da7844383ad08fcb938e6fc4f3f76df7a3` | Keeps intermediate progress concise while allowing task-appropriate final answers. |
+| `vendor/src/adapters/tool-catalog-nudge.ts` | `72c991170264438adf65fd02c12ea6547879e844947221826eec437b90ed190f` | Retains exact patch marker requirements while removing the duplicate JavaScript rewriting explanation. |
 
 ## Local runtime boundary
 

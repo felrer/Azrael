@@ -221,7 +221,7 @@ if ($IncludeProviderAccounts) {
     if (-not (Test-Path -LiteralPath $bunDownloadManifest -PathType Leaf)) { throw 'Pinned Bun download provenance is missing.' }
     $providerSourceBefore = Get-ProviderAccountsSourceFingerprint
     $vendorSourceManifest = Get-ProviderVendorManifestFingerprint
-    if ($vendorSourceManifest -cne '59d0a9f1edf17ca1592a8a2a37b9405dcf6eb71bcf3f36234694ac9bd5d46ca0') {
+    if ($vendorSourceManifest -cne 'a7ff6113f52727bde0a9a5b76b476b33e0e059b2ea45478bec8c8e267b571a60') {
         throw 'Provider accounts vendor sources do not match the reviewed patched-source manifest.'
     }
     Complete-BuildStage $buildMetrics $phase
