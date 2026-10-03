@@ -110,7 +110,7 @@ test("absent collaboration mode produces a complete default selection and null e
  assert.deepEqual(result.collaborationMode,{mode:"default",settings:{developer_instructions:null,model:src.latestModel,reasoning_effort:null}});assert.equal(result.deferGoalContinuation,true);
 });
 
-test("actual native branch UI eligibility remains unchanged for read-only and in-progress turns",()=>{
+test("native branch UI gates preserve ordinary turns and release deferred turns",()=>{
  function expressions(relative){
   const text=fs.readFileSync(path.resolve("artifacts/upstream-ui/26.928.31416",relative),"utf8"),changed=transformAsset(text,relative,relative,ts).text;
   function extract(value){const ast=ts.createSourceFile(relative,value,99,true,ts.ScriptKind.JS),out={};function visit(n){
@@ -119,12 +119,15 @@ test("actual native branch UI eligibility remains unchanged for read-only and in
    if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==="K"&&n.initializer?.getText(ast).includes("Ue===`inProgress`"))out.progress=n.initializer.getText(ast);
    ts.forEachChild(n,visit);
   }visit(ast);return out;}
-  const original=extract(text);assert.deepEqual(extract(changed),original);return original;
+  const original=extract(text),transformed=extract(changed);
+  const normalized={...transformed};
+  if(normalized.progress)normalized.progress=normalized.progress.replace(/^y\.status===`deferred`\?false:/,"");
+  assert.deepEqual(normalized,original);return transformed;
  }
  const gate=expressions("webview/assets/local-conversation-thread-c46820dac8eb.js").readOnly;assert.ok(gate);
  const callback=()=>{};for(const readOnly of [false,true])assert.equal(vm.runInNewContext(gate,{o:readOnly,H:true,U:true,tt:true,dn:callback}),readOnly?undefined:callback);
  const turn=expressions("webview/assets/local-conversation-turn-cdb7926f70d6.js");assert.ok(turn.progress);assert.ok(turn.turn);
- for(const [status,nativeStatus,blocked] of [["inProgress","completed",true],["completed","in_progress",false],[null,"in_progress",true],[null,"completed",false]]){
+ for(const [status,nativeStatus,blocked] of [["inProgress","completed",true],["completed","in_progress",false],[null,"in_progress",true],[null,"completed",false],["inProgress","deferred",false],[null,"deferred",false]]){
   const K=vm.runInNewContext(turn.progress,{Ue:status,y:{status:nativeStatus}});assert.equal(K,blocked);assert.equal(vm.runInNewContext(turn.turn,{K,L:callback}),blocked?undefined:callback);
  }
 });
