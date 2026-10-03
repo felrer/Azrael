@@ -8,6 +8,15 @@ const COMPUTER_USE_APPROVAL_CARD_ASSET = "webview/assets/computer-use-app-approv
 const CANCEL_MARKER = "/*azrael-computer-use-cancel-request-v1*/";
 const CANCEL_ANCHOR = "{headerContent:I,title:L,subtitle:R,actions:W}";
 const CANCEL_REPLACEMENT = '{headerContent:I,title:L,subtitle:R,actions:W,body:(0,k.jsx)(`button`,{type:`button`,disabled:z,onClick:()=>F(`cancel`),className:`text-sm text-token-text-secondary hover:text-token-text-primary disabled:opacity-50`,children:(0,k.jsx)(a,{id:`azrael.computerUse.cancelRequest`,defaultMessage:`Cancel request`})})}' + CANCEL_MARKER;
+const COMPUTER_USE_MANAGEMENT_ASSET = "webview/assets/computer-use-settings-547466da95c7.js";
+const MANAGEMENT_MARKER = "/*azrael-computer-use-local-management-v1*/";
+const managementReplacements = [
+  ['function Vr(){let e=(0,Q.c)(26)', 'function Vr(){let e=(0,Q.c)(28)' + MANAGEMENT_MARKER],
+  ['let C;e[21]===o.available?C=e[22]', 'let C;e[21]===o.available&&e[26]===t&&e[27]===s?C=e[22]'],
+  ['C=o.available?(0,$.jsxs)($.Fragment', 'C=(t===`local`&&s===`windows`||o.available)?(0,$.jsxs)($.Fragment'],
+  ['(0,$.jsx)(ri,{})', 'o.available&&(0,$.jsx)(ri,{})'],
+  ['e[21]=o.available,e[22]=C', 'e[21]=o.available,e[26]=t,e[27]=s,e[22]=C'],
+];
 const access = 'require("./computer-use-approvals.cjs")';
 const replacements = [
   ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],
@@ -55,7 +64,24 @@ function injectComputerUseCancelRequest(text, relativePath) {
   if (anchors !== 1) throw new Error("Pinned computer-use cancel-request anchor must occur exactly once");
   return { text: text.replace(CANCEL_ANCHOR, CANCEL_REPLACEMENT), count: 1 };
 }
-module.exports = { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest,
-  COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET,
+function injectComputerUseManagement(text, relativePath) {
+  if (relativePath !== COMPUTER_USE_MANAGEMENT_ASSET) return { text, count: 0 };
+  const markers = text.split(MANAGEMENT_MARKER).length - 1;
+  if (markers) {
+    if (markers !== 1 || managementReplacements.some(([before, after]) =>
+      text.split(after).length - 1 !== 1 || text.replace(after, "").includes(before))) {
+      throw new Error("Invalid computer-use local-management injection marker");
+    }
+    return { text, count: 0 };
+  }
+  for (const [before] of managementReplacements) {
+    if (text.split(before).length - 1 !== 1) throw new Error("Pinned computer-use local-management anchor must occur exactly once: " + before);
+  }
+  for (const [before, after] of managementReplacements) text = text.replace(before, after);
+  return { text, count: 1 };
+}
+module.exports = { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement,
+  COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET,
+  MANAGEMENT_MARKER, managementReplacements,
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   MARKER, replacements };

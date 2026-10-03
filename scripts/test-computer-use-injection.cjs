@@ -1,7 +1,8 @@
 "use strict";
 const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), os = require("node:os"), vm = require("node:vm");
-const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest,
-  COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET,
+const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement,
+  COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET,
+  MANAGEMENT_MARKER, managementReplacements,
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   replacements, MARKER } = require("./inject-computer-use.cjs");
 const { createOwner } = require("./computer-use-approvals.cjs");
@@ -245,4 +246,118 @@ test("pinned computer-use approval card cancels the request through the native r
     assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === "always-card.exe"));
     console.log("PASS pinned native card cancel/disabled/settlement/no persistence and unchanged deny/session/always approval actions");
   } finally { fs.rmSync(home, { recursive: true, force: true }); }
+});
+
+test("local Windows approval management preserves native execution gates and memo correctness", async () => {
+  const root = path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
+  const original = fs.readFileSync(path.join(root, COMPUTER_USE_MANAGEMENT_ASSET), "utf8");
+  const injected = injectComputerUseManagement(original, COMPUTER_USE_MANAGEMENT_ASSET);
+  assert.equal(injected.count, 1);
+  assert.deepEqual(injectComputerUseManagement(injected.text, COMPUTER_USE_MANAGEMENT_ASSET), { text: injected.text, count: 0 });
+  let restored = injected.text;
+  for (const [before, after] of [...managementReplacements].reverse()) restored = restored.replace(after, before);
+  assert.equal(restored, original, "all native hooks, plugin/browser/locked gates and query/revoke functions remain unchanged");
+  for (const asset of [COMPUTER_USE_SETTINGS_ASSET, "webview/assets/other.js", COMPUTER_USE_MANAGEMENT_ASSET + ".map"]) {
+    assert.deepEqual(injectComputerUseManagement(original, asset), { text: original, count: 0 });
+  }
+  for (const [before, after] of managementReplacements) {
+    for (const source of [original.replace(before, "changed"), original + before,
+      injected.text.replace(after, "changed"), injected.text + after, injected.text + before]) {
+      assert.throws(() => injectComputerUseManagement(source, COMPUTER_USE_MANAGEMENT_ASSET));
+    }
+  }
+  for (const source of [original + MANAGEMENT_MARKER, injected.text + MANAGEMENT_MARKER, injected.text.replace(MANAGEMENT_MARKER, "")]) {
+    assert.throws(() => injectComputerUseManagement(source, COMPUTER_USE_MANAGEMENT_ASSET));
+  }
+  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  const parse = source => ts.createSourceFile(COMPUTER_USE_MANAGEMENT_ASSET, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  assert.equal(parse(injected.text).parseDiagnostics.length, 0);
+  const transformer = require("./namespace-azrael-host.cjs");
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_MANAGEMENT_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, ts);
+  assert.equal(transformed.asset.computerUseManagementEdits, 1);
+  assert.equal(transformed.asset.computerUseSettingsEdits, 0);
+  assert.equal(transformed.asset.computerUseCancelRequestEdits, 0);
+  restored = transformed.text;
+  for (const [before, after] of [...managementReplacements].reverse()) restored = restored.replace(after, before);
+  assert.equal(restored, transformer.rewriteJavaScript(original, COMPUTER_USE_MANAGEMENT_ASSET, ts).text);
+  const rules = transformer.getTransformRules(), crypto = require("node:crypto");
+  const sha = value => crypto.createHash("sha256").update(value).digest("hex");
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  const managementRules = assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET, rules);
+  assert.equal(managementRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
+  assert.notEqual(ruleKey(managementRules), ruleKey(assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET,
+    { ...rules, "inject-computer-use.cjs": "0".repeat(64) })));
+  function declaration(source, name) {
+    const node = parse(source).statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name);
+    assert(node, `missing native ${name} declaration`);
+    return node.getText();
+  }
+  const nativeVr = declaration(transformed.text, "Vr");
+  assert.equal(declaration(transformed.text, "Hr"), declaration(original, "Hr"));
+  assert.equal(declaration(transformed.text, "ci"), declaration(original, "ci"));
+  assert.equal(declaration(transformed.text, "ui"), declaration(original, "ui"));
+  const memo = Array(28).fill(Symbol.for("react.memo_cache_sentinel"));
+  let host = "local", platform = "windows", availability = { available: false }, browser = null, plugin = null;
+  const jsx = (type, props) => ({ type, props });
+  const K = Object.assign(function Section() {}, { Header: "section-header", Content: "section-content" });
+  const context = vm.createContext({ Q: { c: count => { assert.equal(count, 28); return memo; } },
+    Lt: () => ({ selectedHostId: host }), v: () => false, hn: "native-enabled", it: () => availability,
+    Ot: () => ({ platform }), Oe: () => false, a: () => ({ pathname: browser == null ? "/settings/computer-use" : `/settings/computer-use/${browser}` }),
+    r: () => ({ params: { browserFamily: browser } }), tn: "browser-route", en: value => value, d: () => plugin, Ci: "plugin",
+    $: { jsx, jsxs: jsx, Fragment: "fragment" }, ti: "browser-page", x: "redirect", ei: "plugin-page",
+    Ct: "settings-title", _i: "computer-use", u: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
+    Hr: "native-controls", ai: "macos-control", G: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page" });
+  vm.runInContext(nativeVr, context);
+  const render = () => vm.runInContext("Vr()", context);
+  function contains(node, type) {
+    if (Array.isArray(node)) return node.some(child => contains(child, type));
+    return !!node && typeof node === "object" && (node.type === type || contains(node.props?.children, type));
+  }
+  for (const unavailable of [{ available: false }, { available: false, isLoading: true }, { available: false, reason: "disabled" }]) {
+    availability = unavailable;
+    const result = render();
+    assert(contains(result, "approvals")); assert(!contains(result, "sound"));
+    assert(contains(result, "native-controls"));
+    assert.equal(result.props.children[0].props.children[1].props.children[0].props.computerUseAvailability, unavailable);
+    assert.equal(render(), result, "unchanged inputs reuse the native memo");
+  }
+  for (const other of ["macOS", "linux"]) {
+    platform = other; assert(!contains(render(), "approvals"));
+    platform = "windows"; assert(contains(render(), "approvals"), "platform changes invalidate approvals memo");
+  }
+  host = "remote"; assert(!contains(render(), "approvals"));
+  host = "local"; assert(contains(render(), "approvals"), "host changes invalidate approvals memo");
+  for (const selectedHost of ["local", "remote"]) for (const selectedPlatform of ["windows", "macOS", "linux"]) {
+    host = selectedHost; platform = selectedPlatform; availability = { available: true };
+    assert(contains(render(), "approvals")); assert(contains(render(), "sound"));
+  }
+  availability = { available: false }; assert(!contains(render(), "approvals"));
+  host = "local"; platform = "windows"; assert(contains(render(), "approvals")); assert(!contains(render(), "sound"));
+  availability = { available: true }; assert(contains(render(), "approvals")); assert(contains(render(), "sound"));
+  availability = { available: false }; assert(contains(render(), "approvals")); assert(!contains(render(), "sound"));
+  plugin = {}; assert.equal(render().type, "plugin-page"); plugin = null;
+  browser = "chrome"; assert.equal(render().type, "browser-page");
+  browser = "unsupported"; assert.equal(render().type, "redirect"); browser = null;
+
+  // Execute the unchanged query factory and ci mount effect: neither requires
+  // native availability, and the query invokes the native approval owner directly.
+  const querySource = fs.readFileSync(path.join(root, "webview/assets/computer-use-app-approvals-query-10c4102007f8.js"), "utf8");
+  const queryStart = querySource.indexOf("j=n(o,()=>({queryFn:");
+  const queryEnd = querySource.indexOf(",M=n(", queryStart);
+  assert(queryStart >= 0 && queryEnd > queryStart);
+  let reads = 0, refetches = 0, fetched;
+  const approvedApps = [{ bundleIdentifier: "stored.exe", displayName: "Stored app" }];
+  const query = vm.runInNewContext(querySource.slice(queryStart, queryEnd) + ";j", {
+    n: (_owner, factory) => factory(), o: "native-owner", h: value => value,
+    l: { computerUseSettings: { getAppApprovals: () => { reads++; return { approvedApps }; } } }, m: { ONE_MINUTE: 60000 } });
+  assert.equal(Object.hasOwn(query, "enabled"), false);
+  assert.equal(query.refetchOnMount, "always");
+  const ciContext = vm.createContext({ Q: { c: () => Array(7).fill(Symbol.for("react.memo_cache_sentinel")) },
+    o: () => ({ get: key => { assert.equal(key, "approval-query"); return { refetch: () => { refetches++; fetched = query.queryFn({ signal: undefined }); } }; } }),
+    Qe: "native-owner", Tn: "approval-query", n: () => ({ isLoading: false, isError: false, data: { approvedApps } }),
+    gi: { useEffect: effect => effect() }, $: { jsx }, li: "approval-list" });
+  vm.runInContext(declaration(transformed.text, "ci"), ciContext);
+  assert.equal(vm.runInContext("ci()", ciContext).type, "approval-list");
+  assert.equal(refetches, 1); assert.equal(reads, 1); assert.deepEqual(await fetched, { approvedApps });
+  console.log("PASS pinned Vr local Windows management, preserved native gates/sound, host/platform/availability memo invalidation and ungated native ci query mount");
 });
