@@ -1,0 +1,7 @@
+[
+  {
+    "file": "docs\\README.md",
+    "old": "[Project playbooks](playbooks/README.md)",
+    "new": "[Project playbooks](../../../playbooks/README.md)"
+  }
+]

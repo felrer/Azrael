@@ -1,0 +1,259 @@
+'use strict';
+
+const fs = require('node:fs');
+const path = require('node:path');
+const crypto = require('node:crypto');
+const { spawn } = require('node:child_process');
+const { getDirectoryState } = require('./directory-state.cjs');
+const { snapshotProject } = require('./deployment-input-snapshot.cjs');
+const hash = data => crypto.createHash('sha256').update(data).digest('hex');
+const fileHash = async filename => hash(await fs.promises.readFile(filename));
+const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
+  ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+const same = (a, b) => canonical(a) === canonical(b);
+const readJson = filename => JSON.parse(fs.readFileSync(filename, 'utf8').replace(/^\uFEFF/, ''));
+const manifestName = 'scripts/azrael-feature-contracts.json';
+
+function loadManifest(projectRoot) { return readJson(path.join(projectRoot, manifestName)); }
+function reference(root, relative) {
+  if (typeof relative !== 'string' || !relative || path.isAbsolute(relative) || relative.includes('\\')) throw Error(`Invalid repository reference: ${relative}`);
+  const resolved = path.resolve(root, relative), inside = path.relative(root, resolved);
+  if (inside.startsWith('..') || path.isAbsolute(inside) || !fs.statSync(resolved).isFile()) throw Error(`Missing or escaping reference: ${relative}`);
+  const realInside = path.relative(fs.realpathSync(root), fs.realpathSync(resolved));
+  if (realInside.startsWith('..') || path.isAbsolute(realInside)) throw Error(`Reference resolves outside repository: ${relative}`);
+  return resolved;
+}
+function checkSources(check) { return check.args.filter(arg => /\.(?:cjs|mjs|js|py)$/.test(arg) && !arg.includes('{')); }
+function validateManifest(manifest, projectRoot, transformRules = {}) {
+  if (manifest.schema !== 1 || !Array.isArray(manifest.features) || !manifest.features.length) throw Error('Invalid feature manifest schema');
+  const ids = new Set(), checks = new Set(), covered = new Set();
+  for (const feature of manifest.features) {
+    if (!/^[a-z][a-z0-9.-]*$/.test(feature.id) || ids.has(feature.id)) throw Error(`Duplicate or invalid feature ID: ${feature.id}`);
+    ids.add(feature.id);
+    if (!['ui', 'engine'].includes(feature.area) || !Array.isArray(feature.owners) || !feature.owners.length || new Set(feature.owners).size !== feature.owners.length) throw Error(`Invalid owners/area: ${feature.id}`);
+    feature.owners.forEach(owner => { reference(projectRoot, owner); if (feature.area === 'ui') covered.add(path.basename(owner)); });
+    reference(projectRoot, feature.contract);
+    if (!Array.isArray(feature.checks) || !feature.checks.length || !Array.isArray(feature.reportFields) || (feature.area === 'ui' && !feature.reportFields.length)) throw Error(`Missing checks/report fields: ${feature.id}`);
+    if (new Set(feature.reportFields).size !== feature.reportFields.length || feature.reportFields.some(field => !/^[a-zA-Z][a-zA-Z0-9]*$/.test(field))) throw Error(`Invalid report fields: ${feature.id}`);
+    for (const check of feature.checks) {
+      if (!/^[a-z][a-z0-9.-]*$/.test(check.id) || checks.has(check.id)) throw Error(`Duplicate or invalid check ID: ${check.id}`);
+      checks.add(check.id);
+      if (!['node', 'python'].includes(check.executable) || !['source', 'native'].includes(check.level) || !Array.isArray(check.args) || !check.args.length || check.args.some(arg => typeof arg !== 'string' || arg.includes('\0') || arg === '--live')) throw Error(`Invalid check command: ${check.id}`);
+      if (feature.area === 'ui' && check.level !== 'source') throw Error(`UI check must be source: ${check.id}`);
+      const sources = checkSources(check);
+      if (!sources.length) throw Error(`Missing executable check source: ${check.id}`);
+      sources.forEach(source => reference(projectRoot, source));
+      for (const arg of check.args) for (const match of arg.matchAll(/\{([^}]+)\}/g)) {
+        if (!['projectRoot', 'uiRoot', 'engineSourceRoot', 'engineDirectory', 'engine', 'fixture'].includes(match[1])) throw Error(`Unknown placeholder: ${match[1]}`);
+      }
+    }
+  }
+  for (const key of Object.keys(transformRules).filter(key => /^inject-.*\.cjs$/.test(key))) if (!covered.has(key)) throw Error(`Unregistered UI injector: ${key}`);
+  return manifest;
+}
+function validateTransformReport(manifest, report) {
+  if (!Array.isArray(report.assets)) throw Error('Transformation report assets missing');
+  for (const feature of manifest.features.filter(feature => feature.area === 'ui')) for (const field of feature.reportFields) {
+    const values = report.assets.map(asset => asset[field] ?? 0);
+    if (values.some(value => !Number.isFinite(value) || value < 0) || values.reduce((total, value) => total + value, 0) <= 0) throw Error(`Missing transformation coverage: ${feature.id}/${field}`);
+  }
+  return true;
+}
+async function execute(executable, args, options) {
+  return new Promise(resolve => {
+    const stdout = fs.createWriteStream(options.logPath), stderr = fs.createWriteStream(options.errorPath);
+    let output = '', errorOutput = '';
+    const child = spawn(executable === 'node' ? process.execPath : 'python', args, { cwd: options.cwd, env: options.env, shell: false, windowsHide: true });
+    child.stdout.on('data', chunk => { stdout.write(chunk); output += chunk; });
+    child.stderr.on('data', chunk => { stderr.write(chunk); errorOutput += chunk; });
+    let spawnError;
+    child.on('error', error => { spawnError = error.message; stderr.write(error.message); });
+    child.on('close', (code, signal) => {
+      stdout.end(() => stderr.end(() => resolve({ exitCode: code, signal, error: spawnError, stdout: output, stderr: errorOutput })));
+    });
+  });
+}
+function selected(manifest, area) {
+  if (!['ui', 'engine', 'all'].includes(area)) throw Error('Explicit area ui, engine or all required');
+  const features = manifest.features.filter(feature => area === 'all' || feature.area === area);
+  for (const required of area === 'all' ? ['ui', 'engine'] : [area]) if (!features.some(feature => feature.area === required)) throw Error(`Missing mandatory area: ${required}`);
+  return features;
+}
+function rulesFor(config) { return config.transformRules ?? require(path.join(config.projectRoot, 'scripts/namespace-azrael-host.cjs')).getTransformRules(); }
+async function sourceUiIdentity(config) {
+  const { PROVIDER_PICKER_ASSET } = require(path.join(config.projectRoot, 'scripts/inject-provider-model-picker.cjs'));
+  if (typeof PROVIDER_PICKER_ASSET !== 'string') throw Error('Provider picker asset contract missing');
+  return { version: readJson(path.join(config.uiRoot, 'package.json')).version,
+    packageSha256: await fileHash(path.join(config.uiRoot, 'package.json')),
+    webviewSha256: await fileHash(path.join(config.uiRoot, PROVIDER_PICKER_ASSET)) };
+}
+async function identity(config, manifest, rules, features, execution = execute) {
+  if (config.identityProvider) return config.identityProvider(config, manifest, rules, features);
+  const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs']);
+  features.forEach(feature => { feature.owners.forEach(owner => references.add(owner)); references.add(feature.contract); feature.checks.forEach(check => checkSources(check).forEach(source => references.add(source))); });
+  // Resource entries bind their content digest through transformRules; they are not script filenames.
+  for (const key of Object.keys(rules).filter(key => !key.includes(':') && /\.(?:cjs|json)$/.test(key))) references.add(`scripts/${key}`);
+  const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await snapshotProject(config.projectRoot)).sha256,
+    registered: await getDirectoryState(path.resolve(config.projectRoot), [...references].sort()), transformRules: rules };
+  if (features.some(feature => feature.area === 'ui')) {
+    if (!config.uiRoot || !path.isAbsolute(config.uiRoot)) throw Error('Explicit absolute uiRoot required');
+    input.ui = await getDirectoryState(config.uiRoot);
+    input.sourceUi = await sourceUiIdentity(config);
+    const typescript = config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js');
+    input.typeScriptSha256 = await fileHash(typescript);
+  }
+  if (features.some(feature => feature.area === 'engine')) {
+    if (![config.engineSourceRoot, config.engineDirectory].every(value => value && path.isAbsolute(value))) throw Error('Explicit absolute engine source and binary roots required');
+    const suffix = crypto.randomUUID();
+    const result = await execution('python', [path.join(config.projectRoot, 'scripts/engine-provenance.py'), 'verify', '--root', config.engineSourceRoot, '--engine-dir', config.engineDirectory],
+      { cwd: config.projectRoot, env: process.env, logPath: path.join(config.outputDirectory, `provenance-${suffix}.log`), errorPath: path.join(config.outputDirectory, `provenance-${suffix}.stderr.log`) });
+    if (result.exitCode !== 0) throw Error(`Engine provenance failed: ${result.stderr || result.error || result.exitCode}`);
+    input.engine = { sourceRoot: config.engineSourceRoot, directory: config.engineDirectory, provenance: JSON.parse(result.stdout) };
+  }
+  return input;
+}
+function expectedReceipt(manifest, features, receipt) {
+  if (receipt.schema !== 1 || receipt.status !== 'passed' || !same(receipt.featureIds, features.map(feature => feature.id))) throw Error('Receipt missing full passing feature scope');
+  const required = features.flatMap(feature => feature.checks.map(check => ({ featureId: feature.id, checkId: check.id, area: feature.area })));
+  if (!Array.isArray(receipt.checks) || receipt.checks.length !== required.length) throw Error('Receipt mandatory checks missing');
+  for (const check of required) {
+    const entries = receipt.checks.filter(entry => entry.featureId === check.featureId && entry.checkId === check.checkId && entry.area === check.area);
+    if (entries.length !== 1 || entries[0].exitCode !== 0) throw Error(`Receipt mandatory check failed: ${check.checkId}`);
+  }
+}
+async function verifyLogs(receipt) {
+  for (const check of receipt.checks) {
+    if (!check.logPath || !check.errorPath || await fileHash(check.logPath) !== check.logSha256 || await fileHash(check.errorPath) !== check.errorSha256) throw Error(`Check evidence changed: ${check.checkId}`);
+  }
+}
+async function runPreservation(config) {
+  const receipt = { schema: 1, status: 'running', area: config.area, featureIds: [], checks: [] };
+  const execution = config.execute ?? execute;
+  if (!config.outputDirectory || !path.isAbsolute(config.outputDirectory)) throw Error('Absolute outputDirectory required');
+  await fs.promises.mkdir(config.outputDirectory, { recursive: true });
+  const runDirectory = await fs.promises.mkdtemp(path.join(config.outputDirectory, 'preservation-'));
+  const receiptPath = path.join(runDirectory, 'receipt.json');
+  let checkpoint = Promise.resolve();
+  const persist = () => {
+    const contents = JSON.stringify(receipt, null, 2) + '\n';
+    checkpoint = checkpoint.then(async () => {
+      const temporary = `${receiptPath}.tmp`;
+      await fs.promises.writeFile(temporary, contents);
+      await fs.promises.rename(temporary, receiptPath);
+    });
+    return checkpoint;
+  };
+  await persist();
+  try {
+    const concurrency = config.sourceConcurrency ?? 4;
+    if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
+    const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
+    validateManifest(manifest, config.projectRoot, rules);
+    const features = selected(manifest, config.area);
+    receipt.featureIds = features.map(feature => feature.id);
+    receipt.inputs = await identity(config, manifest, rules, features, execution);
+    if (config.expectedInputs && !same(config.expectedInputs, receipt.inputs)) throw Error('Expected input identity differs');
+    await persist();
+    const shared = new Map(), records = [];
+    await fs.promises.mkdir(path.join(config.projectRoot, 'artifacts', 'verification'), { recursive: true });
+    for (const feature of features) for (const check of feature.checks) {
+      const fixture = path.join(config.projectRoot, 'artifacts', 'verification', `preservation-${crypto.randomUUID()}`);
+      const variables = { ...config, engine: config.engineDirectory && path.join(config.engineDirectory, 'codex.exe'), fixture };
+      const args = check.args.map(arg => arg.replace(/\{([^}]+)\}/g, (_, key) => {
+        if (!variables[key]) throw Error(`Missing placeholder value: ${key}`);
+        return variables[key];
+      }));
+      // Existing fixture tests must select this candidate; a pinned fallback is safe only behind the supplied environment contract.
+      if (feature.area === 'ui') for (const source of checkSources(check)) {
+        const text = fs.readFileSync(path.join(config.projectRoot, source), 'utf8');
+        const pinned = text.match(/artifacts[\\/]upstream-ui[\\/]([\w.-]+)/);
+        if (pinned && !text.includes('AZRAEL_PRESERVATION_UI_ROOT') && path.resolve(config.uiRoot) !== path.resolve(config.projectRoot, 'artifacts/upstream-ui', pinned[1])) throw Error(`Check uses another UI candidate: ${source}`);
+      }
+      const key = canonical([check.executable, args]);
+      let group = shared.get(key);
+      if (!group) { group = { check, args, native: false, entries: [] }; shared.set(key, group); }
+      group.native ||= check.level === 'native';
+      group.entries.push({ feature, check, index: records.length });
+      records.push(undefined);
+    }
+    const runGroup = async group => {
+        const { check, args } = group;
+        const logPath = path.join(runDirectory, `${check.id}.log`), errorPath = path.join(runDirectory, `${check.id}.stderr.log`);
+        const result = { ...await execution(check.executable, args, { cwd: config.projectRoot, env: { ...process.env,
+          AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
+          AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') }, logPath, errorPath }), logPath, errorPath };
+        result.logSha256 = await fileHash(logPath); result.errorSha256 = await fileHash(errorPath);
+        const { stdout, stderr, ...record } = result;
+        for (const entry of group.entries) {
+          const ownLog = path.join(runDirectory, `${entry.check.id}.log`), ownError = path.join(runDirectory, `${entry.check.id}.stderr.log`);
+          if (ownLog !== logPath) { await fs.promises.copyFile(logPath, ownLog); await fs.promises.copyFile(errorPath, ownError); }
+          records[entry.index] = { featureId: entry.feature.id, checkId: entry.check.id, area: entry.feature.area,
+            level: entry.check.level, executable: entry.check.executable, args, ...record, logPath: ownLog, errorPath: ownError };
+        }
+        receipt.checks = records.filter(Boolean);
+        await persist();
+    };
+    const sourceGroups = [...shared.values()].filter(group => !group.native);
+    let cursor = 0, executionError;
+    await Promise.all(Array.from({ length: Math.min(concurrency, sourceGroups.length) }, async () => {
+      while (!executionError && cursor < sourceGroups.length) {
+        const group = sourceGroups[cursor++];
+        try { await runGroup(group); } catch (error) { executionError ??= error; }
+      }
+    }));
+    if (executionError) throw executionError;
+    for (const group of [...shared.values()].filter(group => group.native)) await runGroup(group);
+    if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
+    receipt.status = 'passed';
+    expectedReceipt(manifest, features, receipt);
+  } catch (error) { receipt.status = 'failed'; receipt.error = error.message; }
+  await persist();
+  return { ...receipt, receiptPath };
+}
+async function verifyReceipt(config) {
+  config = { ...config, outputDirectory: config.outputDirectory ?? path.dirname(path.resolve(config.receiptPath)) };
+  const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
+  validateManifest(manifest, config.projectRoot, rules);
+  const receipt = readJson(config.receiptPath);
+  if (config.area && config.area !== receipt.area) throw Error('Receipt selected area differs');
+  const features = selected(manifest, receipt.area);
+  expectedReceipt(manifest, features, receipt);
+  await verifyLogs(receipt);
+  await fs.promises.mkdir(config.outputDirectory, { recursive: true });
+  const inputs = await identity(config, manifest, rules, features, config.execute ?? execute);
+  if (!same(receipt.inputs, inputs) || (config.expectedInputs && !same(config.expectedInputs, inputs))) throw Error('Preservation receipt input identity is stale');
+  return { ...receipt, receiptPath: path.resolve(config.receiptPath) };
+}
+async function packageState(config) {
+  const rawReceipt = readJson(config.receiptPath);
+  if (!['ui', 'all'].includes(rawReceipt.area)) throw Error('UI passing receipt required for package binding');
+  const receipt = await verifyReceipt(config);
+  const manifest = config.manifest ?? loadManifest(config.projectRoot), report = readJson(config.reportPath);
+  validateTransformReport(manifest, report);
+  if (!same(report.transformRules, rulesFor(config))) throw Error('Transformation report rules differ from verified inputs');
+  if (!same(report.sourceUi, await sourceUiIdentity(config))) throw Error('Transformation report pristine UI identity differs');
+  return { schema: 1, receiptPath: path.resolve(config.receiptPath), reportPath: path.resolve(config.reportPath), packagePath: path.resolve(config.packagePath),
+    receiptSha256: await fileHash(config.receiptPath), reportSha256: await fileHash(config.reportPath), packageSha256: await fileHash(config.packagePath), inputs: receipt.inputs };
+}
+async function bindPackage(config) {
+  const binding = await packageState(config);
+  const bindingPath = config.bindingPath ?? `${config.packagePath}.preservation.json`;
+  await fs.promises.writeFile(bindingPath, JSON.stringify(binding, null, 2) + '\n');
+  return { ...binding, bindingPath };
+}
+async function verifyPackage(config) {
+  const bindingPath = config.bindingPath ?? `${config.packagePath}.preservation.json`;
+  const binding = readJson(bindingPath), current = await packageState(config);
+  if (!same(binding, current)) throw Error('Package preservation binding is stale');
+  return { ...binding, bindingPath, status: 'passed' };
+}
+module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt };
+if (require.main === module) (async () => {
+  const [action, flag, filename, ...extra] = process.argv.slice(2);
+  if (!['run', 'bind', 'verify', 'verify-receipt'].includes(action) || flag !== '--config' || !filename || extra.length) throw Error('Usage: feature-preservation.cjs run|bind|verify|verify-receipt --config <JSON>');
+  const config = readJson(filename);
+  if (config.execute || config.identityProvider || config.manifest || config.transformRules) throw Error('Test injection is unavailable in CLI configuration');
+  const result = await ({ run: runPreservation, bind: bindPackage, verify: verifyPackage, 'verify-receipt': verifyReceipt })[action](config);
+  process.stdout.write(JSON.stringify(result) + '\n');
+  if (result.status === 'failed') process.exitCode = 1;
+})().catch(error => { process.stderr.write(`${error.message}\n`); process.exitCode = 1; });

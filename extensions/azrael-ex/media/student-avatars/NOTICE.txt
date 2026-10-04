@@ -1,0 +1,5 @@
+These portraits are AI-generated fan art of Blue Archive characters, generated with OpenAI image_gen and approved for this project. They are copied unchanged from the approved review assets.
+
+Blue Archive and its characters belong to their respective rights holders, including NEXON Games and NEXON; applicable regional publishing rights belong to their respective publishers. This project is unofficial and is not endorsed by those rights holders. No ownership or license to the original characters or reference artwork is claimed.
+
+The roster and identity references were obtained from SchaleDB (https://schaledb.com/data/en/students.min.json). Per-student portrait and collection reference URLs, generation metadata locations, approved hashes, and the Azusa (Swimsuit) style baseline are recorded in provenance.json. Reference artwork and the style baseline are not included in this packaged roster.

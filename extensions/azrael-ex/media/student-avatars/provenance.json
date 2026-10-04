@@ -1,0 +1,717 @@
+{
+  "schemaVersion": 1,
+  "sourceRoster": "artifacts/visualizations/blue-archive-pixel-review-20261004/students-100/adopted-students.json",
+  "sourceBuildUTC": "2026-09-27T17:40:18+00:00",
+  "selectionPolicy": "100 distinct native Blue Archive students; base versions only; original 11 students then school-round-robin ordered by source ID; costume variants, collaborations and Shiroko*Terror excluded",
+  "approval": "All 100 base-version student portraits approved by user for integration; PNG bytes copied without resampling.",
+  "generation": {
+    "renderer": "OpenAI built-in image_gen",
+    "type": "AI-generated Blue Archive fan art",
+    "designMetadata": "artifacts/visualizations/blue-archive-pixel-review-20261004/students-100/designs/{id}.json",
+    "baseline": "baseline-azusa-swimsuit.png",
+    "baselineSHA256": "c37a61cfe4a82939cb10767f4f9606ab9c665e3a8a184d789628f1dd4d4e3d36",
+    "baselinePurpose": "Approved Azusa (Swimsuit) fan-art pixel head used only as the generation style reference; not part of the 100 base-version roster."
+  },
+  "sources": [
+    {
+      "id": 10010,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10010.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10010.webp",
+      "assetSHA256": "6eb16001f4cc80ee9b7707df5f7054405be7ff179e7d4bd64caf4d3d599c1377"
+    },
+    {
+      "id": 10005,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10005.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10005.webp",
+      "assetSHA256": "158f2bcac3bb5ab988e829ee7e7530040fbf5360af7dd532373ff248ecfa8834"
+    },
+    {
+      "id": 13008,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13008.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13008.webp",
+      "assetSHA256": "dde38d25f96943176eb4fd46307871ce0443040eb4a68c69ac0ad1a8d66d5f3d"
+    },
+    {
+      "id": 13004,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13004.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13004.webp",
+      "assetSHA256": "baf0647c7e5bdf26892e11023bf59d62c3b73f7b5f100d140faa5f7fcb871670"
+    },
+    {
+      "id": 10000,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10000.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10000.webp",
+      "assetSHA256": "80b28b3127a39b0b5eb41e2aa362abb8d399e5519408ded5bfc641d3996a431a"
+    },
+    {
+      "id": 10004,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10004.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10004.webp",
+      "assetSHA256": "f502ae3c3772b02a963a8b79cbf766c7f266da7f3558b247797b6c6ae79ecbc7"
+    },
+    {
+      "id": 13010,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13010.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13010.webp",
+      "assetSHA256": "ab07e6a9ef8f26c58c7e1d255d25af8cfcd0a8ed7d810629c387ae723c68791b"
+    },
+    {
+      "id": 10015,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10015.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10015.webp",
+      "assetSHA256": "5bbd85edba9ac0c8772c11fbeeccb668ddfc6d93f1a966b838f9ccb750313673"
+    },
+    {
+      "id": 10008,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10008.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10008.webp",
+      "assetSHA256": "2fdff6682db46b8de88e5af188c8ca84d2f0483f42f3788388f9904451655445"
+    },
+    {
+      "id": 10059,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10059.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10059.webp",
+      "assetSHA256": "6810110af25228a39d39fe20d94a95fe8870d00bf68aaf4a552be3e84f41c160"
+    },
+    {
+      "id": 10019,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10019.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10019.webp",
+      "assetSHA256": "54619ab0e416e1ca4f95d679a3d1dcdd5abec8853bddbe939915c7965781d2de"
+    },
+    {
+      "id": 23005,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/23005.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/23005.webp",
+      "assetSHA256": "0be41a0fb67424e59ac40858c48a19bf6dc091b6c81005abcb8ce26b20edc320"
+    },
+    {
+      "id": 10002,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10002.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10002.webp",
+      "assetSHA256": "2dcbf077cddf1cd300dd3c25ed639dff0b22b39f39b39bf515a116162a6d2bbf"
+    },
+    {
+      "id": 10001,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10001.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10001.webp",
+      "assetSHA256": "d3923cbdd8076dbdbd7c1ab57f9c92098efe85071c95adaeb79e58f365ef057c"
+    },
+    {
+      "id": 10003,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10003.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10003.webp",
+      "assetSHA256": "fe50417b570e7663362b92b0884697b275b0abeda2c18913b2147d6c51966257"
+    },
+    {
+      "id": 10014,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10014.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10014.webp",
+      "assetSHA256": "e76c2695aa231f31c820beddecf1d33ea7509f18604c52774c72bed55997513f"
+    },
+    {
+      "id": 10011,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10011.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10011.webp",
+      "assetSHA256": "aec814dd03e31d0883d4a4d6625a797cde5805571764d58a03cbb1af1b952f53"
+    },
+    {
+      "id": 10017,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10017.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10017.webp",
+      "assetSHA256": "9a2fd79a86babe6da80dad6019f9e3b9d9304c5f6f94ee9b62f99e1a183467cb"
+    },
+    {
+      "id": 10041,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10041.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10041.webp",
+      "assetSHA256": "e958f73615d0d0cb25e4f242a1c4a5427839b1ea5be9bc19670fa2d388d21323"
+    },
+    {
+      "id": 10038,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10038.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10038.webp",
+      "assetSHA256": "689a099338976eb57f0532dba17580c957d8b3e61824ad7b1e4f2802e0191b97"
+    },
+    {
+      "id": 10137,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10137.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10137.webp",
+      "assetSHA256": "7a972a29c88308eda3a07d3c1046d1ead9a28f81dfb0151cbe46cb50e3ff9793"
+    },
+    {
+      "id": 10117,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10117.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10117.webp",
+      "assetSHA256": "903de95945eecba79b0e4b29d6ca543cac2393967c84faf0187022e98c50d1cb"
+    },
+    {
+      "id": 10125,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10125.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10125.webp",
+      "assetSHA256": "94d625045355075aa8ee536d38fe90c6f1da7ab1f022e8b08936bb4dfaad6c4f"
+    },
+    {
+      "id": 10149,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10149.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10149.webp",
+      "assetSHA256": "48cd08ac5de2d1523ad2b01ffd14045024316c24ecef7a670f2b161a77e6b977"
+    },
+    {
+      "id": 10006,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10006.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10006.webp",
+      "assetSHA256": "4b8b671804ee117376d01db1b74f1bfe9405dee7da22b9c16808dddd31340e2c"
+    },
+    {
+      "id": 10007,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10007.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10007.webp",
+      "assetSHA256": "a6fb5e87d254050b4836b04691e86af00a928a13d82d4ccef7230f8894ddc371"
+    },
+    {
+      "id": 10013,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10013.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10013.webp",
+      "assetSHA256": "4e84dc1c47e8e46bf7b7a9cf1fc42bed0413c108e75589f0d6a5af57ac670bf7"
+    },
+    {
+      "id": 10033,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10033.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10033.webp",
+      "assetSHA256": "554260b0eeafd25124ee0f9f641ed600ebe1bdaa03d0740595f201611184fee5"
+    },
+    {
+      "id": 10050,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10050.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10050.webp",
+      "assetSHA256": "508389c9b75e2bd789c7488ef4d8c31dd05140541a2c4c9e558727224bfb38d9"
+    },
+    {
+      "id": 10037,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10037.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10037.webp",
+      "assetSHA256": "94c233fda2515f91bc831e1119d8f68f866ea8ca1272b1873ae1386da81944dd"
+    },
+    {
+      "id": 10042,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10042.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10042.webp",
+      "assetSHA256": "d06c6482c5cb8270b0eced700e572a3958fcc9cf8590e058d1e4957bbfe1cc28"
+    },
+    {
+      "id": 10039,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10039.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10039.webp",
+      "assetSHA256": "d137c47981f5b4a1c1028406f7beaa8048c277340d98a1aedb99c4572cd166a1"
+    },
+    {
+      "id": 13012,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13012.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13012.webp",
+      "assetSHA256": "3b9561cab62c36dfd0e915e0d644615c958105ee4fa65fb52d1f47978210048d"
+    },
+    {
+      "id": 10118,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10118.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10118.webp",
+      "assetSHA256": "69535c1f252f3f814f27c2d66ffc13278cfd2af467e9e09f6ac8b2673864ea08"
+    },
+    {
+      "id": 10126,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10126.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10126.webp",
+      "assetSHA256": "0859d4ef8fca74832e7b31c4470eac7201a51f8e520f26491c4cc51513ba33f1"
+    },
+    {
+      "id": 10150,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10150.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10150.webp",
+      "assetSHA256": "0dcddd2c58e6f4b634bd373906e365c4742e365bff215aaac3a7881a44239d8f"
+    },
+    {
+      "id": 10009,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10009.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10009.webp",
+      "assetSHA256": "67f39d8f505b889f0faba875ca85700073403eda9c2845be60c540399c93600b"
+    },
+    {
+      "id": 10012,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10012.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10012.webp",
+      "assetSHA256": "6377e85361e6f0f519eece8229ef2af91c163b1b3e4c6383352b0cfab51ebf5e"
+    },
+    {
+      "id": 10020,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10020.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10020.webp",
+      "assetSHA256": "feb62f888fa3540d35fb39dd9ff0bd12cd33143ec44b40b64d88e49fb9834b98"
+    },
+    {
+      "id": 10034,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10034.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10034.webp",
+      "assetSHA256": "e6bc45482c20e2ea7eeba55f48d158a432e52cd5121508ad3587572a3e14f0c2"
+    },
+    {
+      "id": 10069,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10069.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10069.webp",
+      "assetSHA256": "8183f7656f847d5286fe466be714eb5a7a7f091e186fc4da5138a9408d18af3a"
+    },
+    {
+      "id": 10055,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10055.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10055.webp",
+      "assetSHA256": "306a245720300efe869bc8162787da8d19541319b0e46047cbcc81e2c24771e1"
+    },
+    {
+      "id": 10048,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10048.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10048.webp",
+      "assetSHA256": "6d7c9182fe76bb6494a9629319641498330f7ccc63fe3d3d50986d78be372cea"
+    },
+    {
+      "id": 10139,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10139.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10139.webp",
+      "assetSHA256": "8cd036922c862098ab83966b0888c136633d907d41c6d760fb9d39f2b2194d6c"
+    },
+    {
+      "id": 16008,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/16008.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/16008.webp",
+      "assetSHA256": "f9571f02b526efd5c7ded1957c4defe1cc63247753a9ba2287183b9a056cfdcb"
+    },
+    {
+      "id": 16017,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/16017.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/16017.webp",
+      "assetSHA256": "707e3aadc9d25072db418235e5b9a88b77952b4524dca8b29ef37a2a91ecd5cf"
+    },
+    {
+      "id": 10127,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10127.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10127.webp",
+      "assetSHA256": "11220de14ddfa54be93d00a9da6762e92dbc30ebfb6050546f1ef147d04e0f28"
+    },
+    {
+      "id": 10060,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10060.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10060.webp",
+      "assetSHA256": "3c7f8c13cdcd4a09bb5b0b265642b756fa5b48ba6cf82dc80a8a22b706a7e355"
+    },
+    {
+      "id": 10016,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10016.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10016.webp",
+      "assetSHA256": "4f80480d53e6c3ff693b9e29e2685cbe22456f9f86724ed9554c1ac5a412f632"
+    },
+    {
+      "id": 10029,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10029.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10029.webp",
+      "assetSHA256": "a33fc67bd2b0f6e5c58c8ad3ed46f627e6da46ae04833994c0601cb326127541"
+    },
+    {
+      "id": 10040,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10040.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10040.webp",
+      "assetSHA256": "75f56cfcc4fee2c3624b1c6da83ca17c79f87e3247ea11835dac0f8c2db8e7b4"
+    },
+    {
+      "id": 10070,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10070.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10070.webp",
+      "assetSHA256": "f587e70fce906df872ad194a9a2da31a4352897c1b2a90cb188bb62ab157e284"
+    },
+    {
+      "id": 10075,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10075.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10075.webp",
+      "assetSHA256": "e403eaf42d4b286c352d78f18a9a61e4d6ddc082e81e344e2800331b607bfcb8"
+    },
+    {
+      "id": 10130,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10130.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10130.webp",
+      "assetSHA256": "38f5acdcbfd83bbd692450c6e15bb4e5cd9accf032948a131ab77ac4ef7e2150"
+    },
+    {
+      "id": 10140,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10140.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10140.webp",
+      "assetSHA256": "f23224d43b0f06b63297bc639eb7df526e2b2dd303e72011896d725a4424cbb4"
+    },
+    {
+      "id": 20023,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20023.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20023.webp",
+      "assetSHA256": "0be9bf1ad438bad51480f7788872bc89996b7c1897f8de59c347fe2acd99f253"
+    },
+    {
+      "id": 10128,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10128.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10128.webp",
+      "assetSHA256": "c00edf65fc7bf0fc0874b69534b58025207a976beebff90bb84a6928849c0eb0"
+    },
+    {
+      "id": 10078,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10078.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10078.webp",
+      "assetSHA256": "82a068260885962d0b69074683cbae77a083a751d4cac72e3eb83a70be8e802d"
+    },
+    {
+      "id": 10018,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10018.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10018.webp",
+      "assetSHA256": "a98059745786e878b8e5cf3f92d2f705c7eb7ecec300fff823303b3da12dd58b"
+    },
+    {
+      "id": 10035,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10035.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10035.webp",
+      "assetSHA256": "602f7a7c53a3320782bf346e74b3bfd7961679ecdc26a9a98531b33807b8fdcb"
+    },
+    {
+      "id": 10065,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10065.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10065.webp",
+      "assetSHA256": "25c177f2da94103224524519b08765f1adb43185c9b09728709df29e3ee5cca9"
+    },
+    {
+      "id": 10104,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10104.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10104.webp",
+      "assetSHA256": "5b6b3e7e3d10994057e5382edd919d74533965f272aa28a7f4663277436bd99d"
+    },
+    {
+      "id": 10131,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10131.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10131.webp",
+      "assetSHA256": "29d562068286919368e46dc175402cc92a8792df4641bd481cfed8d5031734f2"
+    },
+    {
+      "id": 20017,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20017.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20017.webp",
+      "assetSHA256": "0b0f2ada7d6101740b30774cbaa159a1185a11cf3d4804a96aac79efcd70b724"
+    },
+    {
+      "id": 16020,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/16020.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/16020.webp",
+      "assetSHA256": "4e07e2786b7b763c692c7e35c88e1b2b9a92771ae0185989d4995baac3d77369"
+    },
+    {
+      "id": 10138,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10138.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10138.webp",
+      "assetSHA256": "00479a084c22cf2b4505801ded3b5ed2557ad5e8cf9e6e92747f21c066208c10"
+    },
+    {
+      "id": 10093,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10093.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10093.webp",
+      "assetSHA256": "42cf19c2f6e27e74264cfc0403c0e3986026609605b49427bc8c16b1389cd7a4"
+    },
+    {
+      "id": 10052,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10052.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10052.webp",
+      "assetSHA256": "ad06dcfbc826db6009865951ac12d535e53b68bd7286e9c8068363189341822f"
+    },
+    {
+      "id": 10036,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10036.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10036.webp",
+      "assetSHA256": "c578a6053d9b4a759e6dd22d0a85cce845c910f6b40a67c0e50575f058549761"
+    },
+    {
+      "id": 10081,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10081.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10081.webp",
+      "assetSHA256": "c7e7b43325bb1d00a8c5f44f6a8d2caf635cd53185717b2cf3bbb761cb6a4f87"
+    },
+    {
+      "id": 20002,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20002.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20002.webp",
+      "assetSHA256": "5c426c7af6fb064831619d8ddb0a6e0a7652a6e0e1c7539026959d8626f20f78"
+    },
+    {
+      "id": 10151,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10151.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10151.webp",
+      "assetSHA256": "badc834896b3920d0ad17154394b3cac5f12908e3e359c212ca66797b4134f9f"
+    },
+    {
+      "id": 20014,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20014.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20014.webp",
+      "assetSHA256": "0c1e28f332eb17d312a3e83408f9df10711e911a466a185b7147103c44b23855"
+    },
+    {
+      "id": 20050,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20050.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20050.webp",
+      "assetSHA256": "3d53022edc23db3148004bf8fb7126bde55c917bae1366acae4b2252b5893c82"
+    },
+    {
+      "id": 10107,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10107.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10107.webp",
+      "assetSHA256": "b489557ccc2ed27a231900abfe199bd5af69045a806c5271c39166ebc1e668f8"
+    },
+    {
+      "id": 10062,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10062.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10062.webp",
+      "assetSHA256": "ba61ca6e2df0037e5aceeb8b8cbc63197f5c925257e1a747605f05da34be530b"
+    },
+    {
+      "id": 10049,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10049.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10049.webp",
+      "assetSHA256": "624d517f93017c76a2402fec97be07fcdc288760e2fc1001b70e719b01822bb1"
+    },
+    {
+      "id": 10082,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10082.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10082.webp",
+      "assetSHA256": "0e1516de40f68e55b731200ebd925ab4a85c3a4c29671e0d3c51ba8105953eb2"
+    },
+    {
+      "id": 20039,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20039.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20039.webp",
+      "assetSHA256": "a374cb8603e8d71abb09341eae8f4f76485be659713a3ef51022fb1b7ff4021a"
+    },
+    {
+      "id": 13013,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13013.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13013.webp",
+      "assetSHA256": "2ecb4031277b7cf3a8e2c8761f5bbe1d9f716e81e9975122637b85b516fc6f67"
+    },
+    {
+      "id": 20018,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20018.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20018.webp",
+      "assetSHA256": "db3216383490e6c74a569cfc3e2c48b65fe6ee21f1312111e17fd43a4a6ad1ab"
+    },
+    {
+      "id": 13002,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13002.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13002.webp",
+      "assetSHA256": "11c0ad4eecace0c7d3cd2ffd4b16d55f566ba61bbc9e8c25b20318a47e7c78c5"
+    },
+    {
+      "id": 10063,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10063.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10063.webp",
+      "assetSHA256": "cdbfab6841dd91497d275b41ec1d448157b8b7687f9e0122a935548754aa7405"
+    },
+    {
+      "id": 10058,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10058.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10058.webp",
+      "assetSHA256": "d0a3c26b9378c668e7b1414af0e31c22a53c3026ad4be09093f7d098262cf12a"
+    },
+    {
+      "id": 10083,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10083.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10083.webp",
+      "assetSHA256": "a5515a7391221119e8001baee03fc468c470efde62258b86b042a5de43669890"
+    },
+    {
+      "id": 16007,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/16007.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/16007.webp",
+      "assetSHA256": "935adc7595c906a5a43df773bcd41bbce83392bc8a949f03cca78408aabf9694"
+    },
+    {
+      "id": 13005,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13005.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13005.webp",
+      "assetSHA256": "7f88e8f2db4f164c7873362ce9416ce73c0f19033d3268078bb9a37e82a3df36"
+    },
+    {
+      "id": 10115,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10115.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10115.webp",
+      "assetSHA256": "2be5e563012d518b882290596607d5b14ee2fbb5df6ff95f1d8bf38acb5232d3"
+    },
+    {
+      "id": 10061,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10061.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10061.webp",
+      "assetSHA256": "8a414561eccefefbb10b21bd92aff347752050caff15b6ae01e201855cce3ad0"
+    },
+    {
+      "id": 10090,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10090.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10090.webp",
+      "assetSHA256": "99278be5436b99eb9cf4afa4122fc03b2438812572ebd0ea22b29124004fcc34"
+    },
+    {
+      "id": 20026,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20026.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20026.webp",
+      "assetSHA256": "9e1790b8093d73e8a824db3485dc54aa5aa142842b8c94d25fd83e508ba73370"
+    },
+    {
+      "id": 13006,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13006.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13006.webp",
+      "assetSHA256": "31cd1c05c6b2804dd4c370700ffe58af9bcae661b481b380bff8c2cba7e27239"
+    },
+    {
+      "id": 10135,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10135.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10135.webp",
+      "assetSHA256": "dab64571fe734698d7fa738825d71022aa6a687640d889ef039b42154985596d"
+    },
+    {
+      "id": 10068,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10068.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10068.webp",
+      "assetSHA256": "812f95f2a014d641d8907a5905ac4e4da4af0b97a6359aeeb7831f8bdb1e90e2"
+    },
+    {
+      "id": 10119,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10119.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10119.webp",
+      "assetSHA256": "743505927db3a83fec1f80fb3be037759d94efd5d478dbdd07a1eec895e2d0b4"
+    },
+    {
+      "id": 20052,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/20052.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/20052.webp",
+      "assetSHA256": "03b9c16b5cec8c54f0d99a059a41994ee11d3a75d039a0bfdc83d2679d08384f"
+    },
+    {
+      "id": 13007,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13007.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13007.webp",
+      "assetSHA256": "1c93c45eb9b9dc2246dadb3c0572c64fb3a59447342ce28568d42eb7c8949d29"
+    },
+    {
+      "id": 13000,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13000.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13000.webp",
+      "assetSHA256": "3685ae998a38a38e4f3b153bcab36e797bbe13849d4eb862bb40bb3826bcd4c1"
+    },
+    {
+      "id": 10077,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/10077.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/10077.webp",
+      "assetSHA256": "6abf661957bd088f9d2786e2374fbac9c8d3a27750798fcc3069d8a54b5a3159"
+    },
+    {
+      "id": 13001,
+      "sourceUrl": "https://schaledb.com/data/en/students.min.json",
+      "portraitUrl": "https://schaledb.com/images/student/portrait/13001.webp",
+      "collectionUrl": "https://schaledb.com/images/student/collection/13001.webp",
+      "assetSHA256": "502a947a97947fe24eaf1bf0fe0ea649b8dcd55a30171b0653e3eeebc9c9eca0"
+    }
+  ]
+}
