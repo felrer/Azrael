@@ -35,7 +35,12 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
           let message; try { message = JSON.parse(line); } catch { failPending(new Error('Invalid Window backend response')); void dispose(); return; }
           const p = pending.get(message.id); if (!p) continue;
           pending.delete(message.id); clearTimeout(p.timer);
-          if (message.error) p.reject(new Error(typeof message.error === 'string' ? message.error : message.error.message || 'Window backend error')); else p.resolve(message.result);
+          if (message.error) p.reject(new Error(typeof message.error === 'string' ? message.error : message.error.message || 'Window backend error'));
+          else if (p.method === 'listWindows') {
+            const result = message.result;
+            if (!result || typeof result !== 'object' || Array.isArray(result) || Object.keys(result).length !== 1 || !Object.hasOwn(result, 'windows') || !Array.isArray(result.windows)) p.reject(new Error('Invalid native listWindows result envelope'));
+            else p.resolve(result.windows);
+          } else p.resolve(message.result);
         }
       });
       spawned.stderr.on('data', () => {}); // Never emit native content or image data into host logs.
@@ -52,7 +57,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
     if (pending.size >= 64) throw new Error('Too many Window backend requests');
     return new Promise((resolve, reject) => {
       const id = randomUUID(); const timer = setTimeout(() => { pending.delete(id); reject(new Error('Window backend timed out')); failPending(new Error('Window backend timed out')); void dispose(); }, timeoutMs);
-      pending.set(id, { resolve, reject, timer });
+      pending.set(id, { resolve, reject, timer, method });
       try { active.stdin.write(JSON.stringify({ id, method, params }) + '\n'); } catch (e) { clearTimeout(timer); pending.delete(id); reject(e); }
     });
   }
