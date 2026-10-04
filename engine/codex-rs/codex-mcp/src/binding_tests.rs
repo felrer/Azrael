@@ -55,7 +55,16 @@ async fn test_step(
     approval_mode: AppToolApproval,
     supports_sandbox_state_meta: bool,
 ) -> TestStep {
-    let tool = ToolInfo {
+    test_step_with_visibility(label, approval_mode, supports_sandbox_state_meta, None).await
+}
+
+async fn test_step_with_visibility(
+    label: &str,
+    approval_mode: AppToolApproval,
+    supports_sandbox_state_meta: bool,
+    visibility: Option<&[&str]>,
+) -> TestStep {
+    let mut tool = ToolInfo {
         server_name: SERVER_NAME.to_string(),
         supports_parallel_tool_calls: false,
         server_origin: None,
@@ -72,6 +81,14 @@ async fn test_step(
         connector_name: None,
         plugin_display_names: Vec::new(),
     };
+    if let Some(visibility) = visibility {
+        tool.tool.meta = Some(rmcp::model::MetaObject(
+            serde_json::json!({"ui":{"visibility":visibility}})
+                .as_object()
+                .unwrap()
+                .clone(),
+        ));
+    }
     let client = Arc::new(
         RmcpClient::new_in_process_client(Arc::new(TestInProcessTransportFactory))
             .await
@@ -113,6 +130,10 @@ async fn test_step(
     config
         .server_permission_profiles
         .insert(SERVER_NAME.to_string(), config.permission_profile.clone());
+    config.environment_cwds.insert(
+        format!("{label}-environment"),
+        codex_utils_path_uri::PathUri::parse("file:///configured-test-cwd").unwrap(),
+    );
     let config = Arc::new(config);
     let prepared = PreparedMcpCall::new(
         Arc::clone(&connections),
@@ -142,12 +163,108 @@ async fn test_step(
             clients,
             config,
             /*plugins_available*/ false,
-            vec![tool],
+            if crate::tool_is_model_visible(&tool) {
+                vec![tool]
+            } else {
+                Vec::new()
+            },
             calls,
         )),
         client,
         tool_catalog,
     }
+}
+
+#[tokio::test]
+async fn selected_window_hidden_ui_calls_retain_exact_prepared_authority() {
+    let hidden = test_step_with_visibility(
+        "old",
+        AppToolApproval::Approve,
+        /*supports_sandbox_state_meta*/ true,
+        Some(&["app"]),
+    )
+    .await;
+    assert!(hidden.step.tools().is_empty());
+    assert!(hidden.step.prepare_call(SERVER_NAME, TOOL_NAME).is_none());
+    let call = hidden
+        .step
+        .prepare_direct_call(SERVER_NAME, TOOL_NAME)
+        .unwrap();
+    assert!(!crate::tool_is_model_visible(call.tool_info()));
+    let state = call
+        .sandbox_state_for_configured_environment()
+        .await
+        .unwrap();
+    assert_eq!(state.permission_profile, PermissionProfile::Disabled);
+    assert_eq!(
+        state.sandbox_cwd,
+        codex_utils_path_uri::PathUri::parse("file:///configured-test-cwd").unwrap()
+    );
+    assert!(
+        hidden
+            .step
+            .prepare_direct_call("spoofed", TOOL_NAME)
+            .is_none()
+    );
+    assert!(
+        hidden
+            .step
+            .prepare_direct_call(SERVER_NAME, "unlisted")
+            .is_none()
+    );
+    let ordinary = test_step(
+        "new",
+        AppToolApproval::Approve,
+        /*supports_sandbox_state_meta*/ true,
+    )
+    .await;
+    assert!(ordinary.step.prepare_call(SERVER_NAME, TOOL_NAME).is_some());
+    let call = ordinary
+        .step
+        .prepare_direct_call(SERVER_NAME, TOOL_NAME)
+        .unwrap();
+    assert_eq!(
+        call.sandbox_state_for_configured_environment()
+            .await
+            .unwrap()
+            .permission_profile,
+        call.permission_profile().clone()
+    );
+}
+
+#[tokio::test]
+async fn selected_window_prepared_ui_authority_requires_capability_and_configured_cwd() {
+    let unsupported = test_step(
+        "old",
+        AppToolApproval::Approve,
+        /*supports_sandbox_state_meta*/ false,
+    )
+    .await;
+    assert!(
+        unsupported
+            .step
+            .prepare_direct_call(SERVER_NAME, TOOL_NAME)
+            .unwrap()
+            .sandbox_state_for_configured_environment()
+            .await
+            .is_err()
+    );
+    let supported = test_step(
+        "old",
+        AppToolApproval::Approve,
+        /*supports_sandbox_state_meta*/ true,
+    )
+    .await;
+    let mut call = supported
+        .step
+        .prepare_direct_call(SERVER_NAME, TOOL_NAME)
+        .unwrap();
+    Arc::make_mut(&mut call.config).environment_cwds.clear();
+    assert!(
+        call.sandbox_state_for_configured_environment()
+            .await
+            .is_err()
+    );
 }
 
 #[tokio::test]

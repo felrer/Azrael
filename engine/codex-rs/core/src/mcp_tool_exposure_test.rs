@@ -559,6 +559,17 @@ async fn selected_window_ceiling_rejects_raw_and_server_identity_spoofing() {
     ));
     let catalog = catalog.build();
     let tools = [
+        with_visibility(
+            make_mcp_tool(
+                "azrael_window",
+                "ui_operation",
+                "azrael_window",
+                "ui_operation",
+                /*connector_id*/ None,
+                /*connector_name*/ None,
+            ),
+            &["app"],
+        ),
         make_mcp_tool(
             "azrael_window",
             "exec",

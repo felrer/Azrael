@@ -97,6 +97,14 @@ impl McpBinding {
             .cloned()
     }
 
+    /// Captures a catalog-listed call, including tools reserved for app UI.
+    /// The direct caller must enforce its own exact server and tool authorization.
+    pub fn prepare_direct_call(&self, server: &str, tool: &str) -> Option<PreparedMcpCall> {
+        self.calls
+            .get(&(server.to_string(), tool.to_string()))
+            .cloned()
+    }
+
     pub fn has_servers(&self) -> bool {
         self.connections.has_servers()
     }
@@ -286,6 +294,25 @@ impl PreparedMcpCall {
 
     pub async fn server_supports_sandbox_state_meta_capability(&self) -> Result<bool> {
         Ok(self.client.server_supports_sandbox_state_meta_capability)
+    }
+
+    /// Captures typed sandbox-state metadata without a model turn or cwd fallback.
+    pub async fn sandbox_state_for_configured_environment(&self) -> Result<crate::SandboxState> {
+        if !self.server_supports_sandbox_state_meta_capability().await? {
+            anyhow::bail!("MCP server lacks authoritative sandbox-state metadata capability");
+        }
+        let sandbox_cwd = self
+            .config
+            .environment_cwds
+            .get(self.server_environment_id())
+            .cloned()
+            .context("MCP call has no configured environment cwd")?;
+        Ok(crate::SandboxState {
+            permission_profile: self.permission_profile().clone(),
+            codex_linux_sandbox_exe: self.config.codex_linux_sandbox_exe.clone(),
+            sandbox_cwd,
+            use_legacy_landlock: self.config.use_legacy_landlock,
+        })
     }
 
     pub async fn call(

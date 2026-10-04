@@ -69,7 +69,7 @@ if ($windowControl) {
     & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'window-control') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Copied Window Control bundle validation failed.' }
     foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
-        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.Extension "out/$module")
+        Copy-Item -LiteralPath (Join-Path $release "host/$module") -Destination (Join-Path $prepared.Extension "out/$module")
     }
 }
 $hostFile = Join-Path $prepared.Extension 'out/extension.js'

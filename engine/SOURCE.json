@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "immutable-snapshot",
   "baseTag": "rust-v0.159.3",
-  "byteCount": 89763832,
+  "byteCount": 89777801,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionAdaptation": {
@@ -32,7 +32,7 @@
     "sdk/python/.ruff_cache/CACHEDIR.TAG",
     "sdk/python/.venv"
   ],
-  "fileCount": 8839,
+  "fileCount": 8841,
   "files": {
     ".bazelignore": {
       "gitMode": "100644",
@@ -12848,8 +12848,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "0330d99a1f0bcc2b67c94b9d207245155041e462be11b655749fcf4be39e8739",
-      "size": 72408
+      "sha256": "374504fbd61dc23e7cb7bc0bab39670b170b91aa2d42088678a6aeb4595b1e8e",
+      "size": 73739
     },
     "codex-rs/app-server/tests/suite/v2/thread_status.rs": {
       "gitMode": "100644",
@@ -16726,8 +16726,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "22bd9f0ac9ad899fe2bd8bdddab5cf083c50ebec33f44956b94a6a5043cb283c",
-      "size": 13309
+      "sha256": "b29abcf68ea34d72760b9c29c11609dedcbcc0b90fe723a792a7cd03e34b6a8b",
+      "size": 14542
     },
     "codex-rs/codex-mcp/src/binding_clients.rs": {
       "gitMode": "100644",
@@ -16740,8 +16740,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "26c4d8eb61efc3b2ae4a6c1677ffbc414713eafd8ae4b061a31354ba25dfc4c4",
-      "size": 12868
+      "sha256": "5c242e8edd6db1132dadf93fa8288ae16c80e46cf8b02f9e764056605d0e42cc",
+      "size": 16368
     },
     "codex-rs/codex-mcp/src/catalog.rs": {
       "gitMode": "100644",
@@ -19225,8 +19225,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "715e7d1ad7c59fa94de3cddc4322ad6567b55ee899fd55f9de1c2be46f96e1a5",
-      "size": 46775
+      "sha256": "a2c0a8d276d8b2c5d6dea2256b9de09d00de9eda04d1d0b47949ac9343c9e4c6",
+      "size": 47067
     },
     "codex-rs/core/src/command_canonicalization.rs": {
       "gitMode": "100644",
@@ -20919,8 +20919,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "bf68d5363017277795d1be5c820a98094736940a2aaeea854e996f548ac0ed23",
-      "size": 8949
+      "sha256": "1ebbd21255b1bcf4730861be073b15fd1f11cb0c9d4e74ed7d2ec9bc391cf663",
+      "size": 8974
     },
     "codex-rs/core/src/managed_catalog.rs": {
       "gitMode": "100644",
@@ -21024,8 +21024,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "5fd1ff4e0f57cb3e050e7274f3ab09b2804d17be2d614789fa3cb95598225dc2",
-      "size": 18622
+      "sha256": "90e80ffb951c8afccc494a3a9fb250755f4121032219b837414311f3a3d4aac5",
+      "size": 18940
     },
     "codex-rs/core/src/memory_usage.rs": {
       "gitMode": "100644",
@@ -21334,6 +21334,20 @@
       "permissions": 438,
       "sha256": "079bf1a4457a2d618aa61615c4b7f9b7ab8e69b7f5ba879a086edd693224ac0f",
       "size": 8359
+    },
+    "codex-rs/core/src/selected_window_mcp.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "b59122a1d5227880a01239ce140251ce0d189bd8e3b1a5dd0ff16683bf65b5b2",
+      "size": 4011
+    },
+    "codex-rs/core/src/selected_window_mcp_tests.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "f9cb014af04bf0797ec3dcba4bf9d5a2c51d08729e965522eb754f730fb38c8d",
+      "size": 3259
     },
     "codex-rs/core/src/session/accepted_user_inputs.rs": {
       "gitMode": "100644",
@@ -61929,8 +61943,8 @@
     }
   },
   "head": "bf7ec1ddd65d358bbc1e01304fa111c8d6a98b7a",
-  "inventoryCount": 8844,
-  "inventorySha256": "5bf8bbc96453fee2c08fc607591c50326d7413cb041f45a0c7dc133fbaa09197",
+  "inventoryCount": 8846,
+  "inventorySha256": "74ee8e98d1860deebfe7ffe3255d59b4a4bc0b63e2458d29b45ba2d42f7b8a5e",
   "localChanges": {
     "baseInventorySha256": "d514a36a83dd134600dad3b709b375e7d8e69516d6b58636dbe19268c1bd3221",
     "files": {
@@ -62855,8 +62869,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "0330d99a1f0bcc2b67c94b9d207245155041e462be11b655749fcf4be39e8739",
-          "size": 72408
+          "sha256": "374504fbd61dc23e7cb7bc0bab39670b170b91aa2d42088678a6aeb4595b1e8e",
+          "size": 73739
         },
         "original": {
           "gitMode": "100644",
@@ -62898,6 +62912,38 @@
           "size": 15015
         }
       },
+      "codex-rs/codex-mcp/src/binding.rs": {
+        "current": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b29abcf68ea34d72760b9c29c11609dedcbcc0b90fe723a792a7cd03e34b6a8b",
+          "size": 14542
+        },
+        "original": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "22bd9f0ac9ad899fe2bd8bdddab5cf083c50ebec33f44956b94a6a5043cb283c",
+          "size": 13309
+        }
+      },
+      "codex-rs/codex-mcp/src/binding_tests.rs": {
+        "current": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5c242e8edd6db1132dadf93fa8288ae16c80e46cf8b02f9e764056605d0e42cc",
+          "size": 16368
+        },
+        "original": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "26c4d8eb61efc3b2ae4a6c1677ffbc414713eafd8ae4b061a31354ba25dfc4c4",
+          "size": 12868
+        }
+      },
       "codex-rs/core/config.schema.json": {
         "current": {
           "gitMode": "100644",
@@ -62919,8 +62965,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "715e7d1ad7c59fa94de3cddc4322ad6567b55ee899fd55f9de1c2be46f96e1a5",
-          "size": 46775
+          "sha256": "a2c0a8d276d8b2c5d6dea2256b9de09d00de9eda04d1d0b47949ac9343c9e4c6",
+          "size": 47067
         },
         "original": {
           "gitMode": "100644",
@@ -62928,6 +62974,22 @@
           "permissions": 438,
           "sha256": "715f658c2a9d41f9194c613038311fa2a3a4bcd4a4d9cd1c608c4542e595a9d1",
           "size": 46696
+        }
+      },
+      "codex-rs/core/src/lib.rs": {
+        "current": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "1ebbd21255b1bcf4730861be073b15fd1f11cb0c9d4e74ed7d2ec9bc391cf663",
+          "size": 8974
+        },
+        "original": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bf68d5363017277795d1be5c820a98094736940a2aaeea854e996f548ac0ed23",
+          "size": 8949
         }
       },
       "codex-rs/core/src/mcp_tool_exposure.rs": {
@@ -62951,8 +63013,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "5fd1ff4e0f57cb3e050e7274f3ab09b2804d17be2d614789fa3cb95598225dc2",
-          "size": 18622
+          "sha256": "90e80ffb951c8afccc494a3a9fb250755f4121032219b837414311f3a3d4aac5",
+          "size": 18940
         },
         "original": {
           "gitMode": "100644",
@@ -62961,6 +63023,26 @@
           "sha256": "a5a85b6f5e77fa7b71b41708b7ea3a0435dea90f3320db6924bc0fdaffa04636",
           "size": 16397
         }
+      },
+      "codex-rs/core/src/selected_window_mcp.rs": {
+        "current": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b59122a1d5227880a01239ce140251ce0d189bd8e3b1a5dd0ff16683bf65b5b2",
+          "size": 4011
+        },
+        "original": null
+      },
+      "codex-rs/core/src/selected_window_mcp_tests.rs": {
+        "current": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f9cb014af04bf0797ec3dcba4bf9d5a2c51d08729e965522eb754f730fb38c8d",
+          "size": 3259
+        },
+        "original": null
       },
       "codex-rs/core/src/session/context_policy_tests.rs": {
         "current": {
@@ -63507,7 +63589,7 @@
         }
       }
     },
-    "reason": "Approved provider auto-compaction percentage policy and persistent selected-window Computer Use adaptations; source commits b5dc9764 and 03256dbd."
+    "reason": "Approved provider-compaction, durable selected-window tool ceiling, and prepared UI MCP authority adaptations; original imported inventory preserved."
   },
   "missingTrackedPaths": [
     "codex-rs/tui/src/bottom_pane/chat_composer/snapshots/codex_tui__bottom_pane__chat_composer__sparkle__tests__canceled_history_search_restores_visible_stars_only_before_the_original_deadline.snap",

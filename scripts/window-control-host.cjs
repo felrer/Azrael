@@ -14,6 +14,7 @@ else {
 const { createBackend } = require('./window-control-backend.cjs');
 const { createWindowOwner } = require('./window-control-policy.cjs');
 const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+const actualDisabled = meta => { const p = meta?.['codex/sandbox-state-meta']?.permissionProfile; return p && typeof p === 'object' && !Array.isArray(p) && Object.keys(p).length === 1 && p.type === 'disabled'; };
 const GUIDE = 'This conversation controls only the user-selected window through azrael_window. Never use another computer, desktop screenshot, browser, shell, node_repl, or arbitrary code to control windows. Capture fresh elements before each UI Automation action. A paused or minimized target requires explicit user resume. Report actual tool errors and supported patterns. Never change account, model, or permissions.';
 const escape = text => String(text).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 class Bridge {
@@ -32,36 +33,60 @@ class Bridge {
   dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(new Error('Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
 }
 function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./computer-use-approvals.cjs'), createServer = net.createServer }) {
-  const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map();
+  const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set();
   const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
   const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, authorize: (w, thread) => {
-    const permission = scope.getStore(); return permission?.threadId === thread && permission.sandbox === 'danger-full-access' && threads.has(thread) && approvals.hasAppApproval(w.executable, thread);
+    const permission = scope.getStore(), t = threads.get(thread); return permission?.threadId === thread && permission.disabled === true && t && (!permission.uiRecord || !permission.uiRecord.cancelled) && (!permission.turnId || t.turnId === permission.turnId) && approvals.hasAppApproval(w.executable, thread);
   } });
   const serial = fn => { const result = queue.then(fn); queue = result.catch(() => {}); return result; };
-  const uiScope = async fn => { const thread = current; try { const t = threads.get(thread); if (!t || t.sandbox !== 'danger-full-access') throw new Error('Selected-window actions require the existing danger-full-access permission profile'); return await scope.run({ threadId: thread, sandbox: t.sandbox }, fn); } catch (error) { renderFailure(thread); throw error; } };
+  function invalidateUI(thread) { for (const record of activeUI) if (!thread || record.thread === thread) { record.cancelled = true; uiTokens.delete(record.token); } }
+  const uiScope = async fn => {
+    const thread = current, t = threads.get(thread); let record;
+    try {
+      if (disposed || !t || t.turnId || t.starting) throw new Error('현재 실행이 끝난 뒤 창을 제어해주세요');
+      const token = randomBytes(32).toString('hex'); record = { token, thread, t, fn, completed: false, cancelled: false }; uiTokens.set(token, record); activeUI.add(record);
+      await t.bridge.rpc('mcpServer/tool/call', { threadId: thread, server: 'azrael_window', tool: 'ui_operation', arguments: { requestToken: token } });
+      if (record.cancelled || disposed || current !== thread || threads.get(thread) !== t || t.turnId || t.starting) throw new Error('Selected-window UI operation cancelled');
+      if (!record.completed) throw new Error('Native permission proof was not delivered');
+      if (record.error) throw record.error;
+      return record.result;
+    } catch (error) { renderFailure(thread); throw error; } finally { if (record) { record.cancelled = true; uiTokens.delete(record.token); activeUI.delete(record); } }
+  };
   const render = value => { if (value) last = value; if (panel) void panel.webview.postMessage({ type: 'state', value: last || {}, threadId: current, macros: undefined }); };
   const publicState = status => ({ targetId: last?.targetId, state: last?.state, window: last?.window, supportedActions: last?.supportedActions, ...(status ? { status } : {}) });
   function renderFailure(thread) { if (!thread || current !== thread) return; let value; try { value = owner.peek(thread); } catch { /* Preserve the original operation error. */ } render(value || publicState('실행 오류')); }
   async function cleanup(thread) {
-    approvals.stop(thread); owner.clear(thread); threads.delete(thread); selections.delete(thread); const file = files.get(thread); files.delete(thread);
+    invalidateUI(thread); approvals.stop(thread); owner.clear(thread); threads.delete(thread); selections.delete(thread); const file = files.get(thread); files.delete(thread);
     if (file) { try { const stored = JSON.parse(await fsp.readFile(file, 'utf8')); if (stored.nonce === nonce) await fsp.unlink(file); } catch (e) { if (e.code !== 'ENOENT') throw e; } }
     if (current === thread) { current = undefined; last = undefined; render(); }
   }
   async function handlePipe(message) {
     if (!message || Object.keys(message).some(k => !['nonce', 'threadId', 'method', 'tool', 'arguments', '_meta'].includes(k)) || typeof message.nonce !== 'string' || !/^[a-f0-9]{64}$/.test(message.nonce) || !timingSafeEqual(Buffer.from(message.nonce), Buffer.from(nonce))) throw new Error('Invalid selected-window authentication');
     if (message.method !== 'call' || !threads.has(message.threadId)) throw new Error('Unknown selected-window session');
-    let meta = message._meta?.['x-codex-turn-metadata']; if (typeof meta === 'string') { try { meta = JSON.parse(meta); } catch { throw new Error('Invalid native metadata'); } }
     const t = threads.get(message.threadId);
-    if (!meta || meta.thread_id !== message.threadId || message._meta.threadId !== message.threadId || meta.sandbox_mode !== 'danger-full-access' || typeof meta.turn_id !== 'string' || !t.turnId || meta.turn_id !== t.turnId || t.sandbox !== 'danger-full-access') throw new Error('Native permission context denied');
-    return scope.run({ threadId: message.threadId, sandbox: meta.sandbox_mode }, async () => { try { const result = await owner.call(message.threadId, message.tool, message.arguments); if (current === message.threadId) render(result); return result; } catch (error) { renderFailure(message.threadId); throw error; } });
+    if (disposed || message._meta?.threadId !== message.threadId || !actualDisabled(message._meta)) throw new Error('Native permission context denied');
+    if (message.tool === 'ui_operation') {
+      const args = message.arguments;
+      if (Object.hasOwn(message._meta, 'x-codex-turn-metadata') || !args || Object.keys(args).length !== 1 || typeof args.requestToken !== 'string' || !/^[a-f0-9]{64}$/.test(args.requestToken)) throw new Error('Invalid UI operation proof');
+      const record = uiTokens.get(args.requestToken);
+      if (!record || record.thread !== message.threadId || record.t !== t || record.cancelled || current !== record.thread || t.turnId || t.starting) throw new Error('Unknown or cancelled UI operation token');
+      uiTokens.delete(record.token);
+      try { record.result = await scope.run({ threadId: record.thread, disabled: true, uiRecord: record }, record.fn); } catch (error) { record.error = error; renderFailure(record.thread); } finally { record.completed = true; }
+      return {};
+    }
+    let meta = message._meta?.['x-codex-turn-metadata']; if (typeof meta === 'string') { try { meta = JSON.parse(meta); } catch { throw new Error('Invalid native metadata'); } }
+    if (!meta || meta.thread_id !== message.threadId || typeof meta.turn_id !== 'string' || !t.turnId || meta.turn_id !== t.turnId) throw new Error('Native permission context denied');
+    return scope.run({ threadId: message.threadId, disabled: true, turnId: meta.turn_id }, async () => { try { const result = await owner.call(message.threadId, message.tool, message.arguments); if (current === message.threadId) render(result); return result; } catch (error) { renderFailure(message.threadId); throw error; } });
   }
   async function listen() {
     if (listening) return listening;
     server = createServer(socket => {
       let buffer = '', used = false, requestBytes = 0; const decoder = new StringDecoder('utf8'); socket.setTimeout(30000, () => socket.destroy()); socket.on('error', () => {});
       socket.on('data', data => { if (used) return; const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); const end = bytes.indexOf(10); const part = end < 0 ? bytes : bytes.subarray(0, end + 1); requestBytes += part.length; if (requestBytes > 65536) { used = true; socket.destroy(); return; } buffer += decoder.write(part); const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
-        void serial(async () => { let response; try { response = { result: await handlePipe(JSON.parse(buffer.slice(0, newline))) }; } catch (e) { response = { error: e.message }; } const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: 'Response too large' }) + '\n' : bytes + '\n'); });
+        let message; try { message = JSON.parse(buffer.slice(0, newline)); } catch { socket.end(JSON.stringify({ error: 'Invalid selected-window request' }) + '\n'); return; }
+        const deliver = async () => { let response; try { response = { result: await handlePipe(message) }; } catch (e) { response = { error: e.message }; } const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: 'Response too large' }) + '\n' : bytes + '\n'); };
+        void (message?.tool === 'ui_operation' ? deliver() : serial(deliver));
       });
     });
     listening = new Promise((resolve, reject) => { server.once('error', reject); server.listen(pipe, resolve); }); return listening;
@@ -84,21 +109,21 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     const bridge = [...bridges.values()][0]; if (!bridge) throw new Error('Native engine is not connected');
     const result = await bridge.rpc('thread/start', { computerUseMode: 'selectedWindow', config: { 'mcp_servers.azrael_window.enabled': true }, developerInstructions: GUIDE, cwd: runtime.workspacePath || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath });
     if (result?.computerUseMode !== 'selectedWindow' || !UUID.test(result.thread?.id || '')) throw new Error('Engine did not verify selectedWindow mode; update the engine before selecting a window');
-    const thread = result.thread.id; threads.set(thread, { bridge, sandbox: result.sandbox?.type, turnId: undefined, starting: false, turnVersion: 0 });
+    const thread = result.thread.id; threads.set(thread, { bridge, turnId: undefined, starting: false, turnVersion: 0 });
     try { await publish(thread); } catch (e) { threads.delete(thread); throw e; } if (disposed) { await cleanup(thread); throw new Error('Window host disposed'); } current = thread; render({ state: '창을 선택해주세요' });
   }
   async function handleUI(message) {
     if (!message || message.nonce !== panelNonce || Object.keys(message).some(k => !['nonce', 'type', ...(message.type === 'send' ? ['text'] : [])].includes(k))) throw new Error('Invalid panel message');
     const allowed = ['start', 'select', 'capture', 'pause', 'resume', 'clear', 'send', 'macro', 'action']; if (!allowed.includes(message.type)) throw new Error('Unknown panel operation');
-    if (message.type === 'pause') { if (current) { approvals.stop(current); if (last?.targetId) render(owner.stop(current)); const t = threads.get(current); if (t) { t.turnVersion++; t.starting = false; } if (t?.turnId) { const turnId = t.turnId; t.turnId = undefined; await t.bridge.rpc('turn/interrupt', { threadId: current, turnId }); } } return; }
-    if (message.type === 'clear' && current) { approvals.stop(current); owner.clear(current); last = undefined; render(); }
+    if (message.type === 'pause') { if (current) { invalidateUI(current); approvals.stop(current); if (last?.targetId) render(owner.stop(current)); const t = threads.get(current); if (t) { t.turnVersion++; t.starting = false; } if (t?.turnId) { const turnId = t.turnId; t.turnId = undefined; await t.bridge.rpc('turn/interrupt', { threadId: current, turnId }); } } return; }
+    if (message.type === 'clear' && current) { invalidateUI(current); approvals.stop(current); owner.clear(current); last = undefined; render(); }
     if (message.type === 'send' && (threads.get(current)?.turnId || threads.get(current)?.starting)) throw new Error('현재 실행이 끝난 뒤 메시지를 보내주세요');
     return serial(async () => {
       if (disposed) throw new Error('Window host disposed');
       if (message.type === 'start') { if (current) throw new Error('Clear the current selection before creating another conversation'); return startThread(); }
       if (message.type === 'select') {
         if (!current) throw new Error('Create a selected-window conversation first');
-        const windows = await owner.listWindows(); enumerated = new Map(windows.map(w => [randomUUID(), w]));
+        const windows = await uiScope(() => owner.listWindows()); enumerated = new Map(windows.map(w => [randomUUID(), w]));
         const choice = await vscode.window.showQuickPick([...enumerated].map(([id, w]) => ({ label: w.title || '(untitled)', description: w.executable, id })), { title: '제어할 창 하나 선택' });
         if (!choice) return; const descriptor = enumerated.get(choice.id); if (!descriptor) throw new Error('Window selection was not enumerated');
         if (!await consent(descriptor)) throw new Error('Application approval refused'); render(await uiScope(() => owner.bind(current, descriptor))); selections.set(current, descriptor); return;
@@ -142,16 +167,16 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   }
   function observe(native, message) {
     const params = message?.params; const thread = params?.threadId || params?.thread?.id; const t = threads.get(thread); if (!t || t.bridge.native !== native) return;
-    if (message.method === 'turn/started') { t.turnVersion++; t.starting = false; t.turnId = params.turn?.id; }
-    if (message.method === 'thread/closed') { approvals.stop(thread); owner.clear(thread); void serial(() => cleanup(thread)); }
+    if (message.method === 'turn/started') { invalidateUI(thread); t.turnVersion++; t.starting = false; t.turnId = params.turn?.id; }
+    if (message.method === 'thread/closed') { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); void serial(() => cleanup(thread)); }
     if (message.method === 'turn/completed') { t.turnVersion++; t.starting = false; t.turnId = undefined; owner.invalidateObservation(thread); if (current === thread) { render(publicState(params.turn?.status || '완료')); if (params.turn?.error?.message) void panel?.webview.postMessage({ type: 'error', text: params.turn.error.message }); } }
     if (current !== thread) return;
     if (message.method === 'item/agentMessage/delta' && typeof params.delta === 'string') void panel?.webview.postMessage({ type: 'text', text: params.delta });
     if (message.method === 'error') void panel?.webview.postMessage({ type: 'error', text: params.error?.message || params.message || 'Engine error' });
   }
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
-  function disconnect(native) { const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
-  async function dispose() { if (disposed) return; disposed = true; owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); server?.close(); await backend.dispose(); }
+  function disconnect(native) { const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
+  async function dispose() { if (disposed) return; disposed = true; invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); server?.close(); await backend.dispose(); }
   return { open, attach, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;

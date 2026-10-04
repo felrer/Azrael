@@ -1130,6 +1130,16 @@ impl CodexThread {
         arguments: Option<serde_json::Value>,
         meta: Option<serde_json::Value>,
     ) -> anyhow::Result<CallToolResult> {
+        if self.session.computer_use_mode.is_some() {
+            return crate::selected_window_mcp::call_ui_operation(
+                &self.session,
+                server,
+                tool,
+                arguments,
+                meta,
+            )
+            .await;
+        }
         self.session.refresh_mcp_if_dirty().await;
         self.session
             .services

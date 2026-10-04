@@ -39,6 +39,10 @@ function verifyRelease(release, sourceRoot) {
   const result = verifyRuntime(path.join(release, 'window-control'));
   if (result.manifestSha256 !== expected.toLowerCase()) throw new Error('Release Window Control manifest hash mismatch');
   if (sourceRoot && sourceFingerprint(sourceRoot) !== result.manifest.source.sourceSha256) throw new Error('Window Control source provenance mismatch');
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs']) {
+    const wanted = build.sha256?.[`host/${module}`];
+    if (!wanted || hash(fs.readFileSync(checked(release, `host/${module}`))) !== wanted.toLowerCase()) throw new Error(`Release Window Control host module mismatch: ${module}`);
+  }
   return result;
 }
 function verifyPreparedHost(directory, release) {

@@ -2061,6 +2061,40 @@ async fn selected_window_mode_survives_restart_resume_and_fork_without_permissio
     let ordinary = app.start_thread(ThreadStartParams::default()).await?;
     assert_eq!(ordinary.computer_use_mode, None);
     assert_eq!(ordinary.sandbox, selected.sandbox);
+    let direct = app.send_mcp_server_tool_call_request(
+        codex_app_server_protocol::McpServerToolCallParams {
+            thread_id: selected.thread.id.clone(), server: "azrael_window".to_string(),
+            tool: "status".to_string(), arguments: Some(serde_json::json!({})),
+            meta: Some(serde_json::json!({"codex/sandbox-state-meta":{"permissionProfile":{"type":"disabled"}}})),
+        }).await?;
+    let error = app
+        .read_stream_until_error_message(RequestId::Integer(direct))
+        .await?;
+    assert!(
+        error
+            .error
+            .message
+            .contains("only accept direct azrael_window/ui_operation"),
+        "{}",
+        error.error.message
+    );
+    let direct = app
+        .send_mcp_server_tool_call_request(codex_app_server_protocol::McpServerToolCallParams {
+            thread_id: ordinary.thread.id.clone(),
+            server: "azrael_window".to_string(),
+            tool: "status".to_string(),
+            arguments: Some(serde_json::json!({})),
+            meta: None,
+        })
+        .await?;
+    let ordinary_error = app
+        .read_stream_until_error_message(RequestId::Integer(direct))
+        .await?;
+    assert!(
+        !ordinary_error.error.message.contains("only accept direct"),
+        "{}",
+        ordinary_error.error.message
+    );
     let request = app
         .send_thread_resume_request(ThreadResumeParams {
             thread_id: ordinary.thread.id,

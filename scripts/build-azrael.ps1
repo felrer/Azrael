@@ -167,7 +167,10 @@ Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cj
 $releaseBuildInfoPath = Join-Path $release 'build-info.json'
 $releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
 foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
-    $releaseBuildInfo.sha256["host/$module"] = (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $module) -Algorithm SHA256).Hash
+    $hostDirectory = Join-Path $release 'host'
+    New-Item -ItemType Directory -Path $hostDirectory -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $hostDirectory $module)
+    $releaseBuildInfo.sha256["host/$module"] = (Get-FileHash -LiteralPath (Join-Path $hostDirectory $module) -Algorithm SHA256).Hash
 }
 $releaseBuildInfo.sha256['window-control/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'window-control/manifest.json') -Algorithm SHA256).Hash
 $releaseBuildInfo.sha256['computer-use/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'computer-use/manifest.json') -Algorithm SHA256).Hash

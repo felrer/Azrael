@@ -20,14 +20,17 @@ function parseThreadMetadata(meta) {
   return threadId;
 }
 function relayMetadata(meta) {
-  if (meta === undefined) return {};
   parseThreadMetadata(meta);
+  const sandboxState = meta?.['codex/sandbox-state-meta'];
+  const permissionProfile = sandboxState?.permissionProfile;
+  if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState) || !Object.hasOwn(sandboxState, 'permissionProfile') || !permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || permissionProfile.type !== 'disabled' || Object.keys(permissionProfile).some(key => key !== 'type')) throw new Error('Native Disabled permission profile required');
   const selected = {};
+  selected['codex/sandbox-state-meta'] = { permissionProfile: { type: 'disabled' } };
   if (Object.hasOwn(meta, 'threadId')) selected.threadId = meta.threadId;
   if (Object.hasOwn(meta, 'x-codex-turn-metadata')) {
     const nested = typeof meta['x-codex-turn-metadata'] === 'string' ? JSON.parse(meta['x-codex-turn-metadata']) : meta['x-codex-turn-metadata'];
     const trusted = { thread_id: nested.thread_id };
-    for (const key of ['turn_id', 'sandbox_mode']) {
+    for (const key of ['turn_id']) {
       if (Object.hasOwn(nested, key)) {
         if (typeof nested[key] !== 'string' || !nested[key].length || nested[key].length > 256 || /[\x00-\x1f]/.test(nested[key])) throw new Error('Invalid native turn context');
         trusted[key] = nested[key];
@@ -38,7 +41,7 @@ function relayMetadata(meta) {
   return selected;
 }
 function toolDefinitions() {
-  return TOOLS.map(name => {
+  const definitions = TOOLS.map(name => {
     const properties = { targetId: { type: 'string', description: 'Opaque selected target ID from status or capture.' } }; const required = name === 'status' ? [] : ['targetId'];
     if (['invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll'].includes(name)) {
       properties.observationId = { type: 'string' }; properties.elementId = { type: 'string' }; required.push('observationId', 'elementId');
@@ -48,6 +51,8 @@ function toolDefinitions() {
     if (name === 'run_size_macro') { properties.macroId = { type: 'string' }; required.push('macroId'); }
     return { name, description: `Background selected-window ${name}. Requires the user's existing selection and application approval. ${name === 'status' ? 'Call with {} to discover this thread\'s selected target ID and saved macros. ' : ''}UI Automation only; paused windows require user resume. Capture before each element action.`, inputSchema: { type: 'object', properties, required, additionalProperties: false } };
   });
+  definitions.push({ name: 'ui_operation', description: 'Complete a prepared application UI operation for the authenticated thread.', inputSchema: { type: 'object', properties: { requestToken: { type: 'string', pattern: '^[a-fA-F0-9]{64}$', minLength: 64, maxLength: 64 } }, required: ['requestToken'], additionalProperties: false }, _meta: { ui: { visibility: ['app'] } } });
+  return definitions;
 }
 function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
   return new Promise((resolve, reject) => {
@@ -95,14 +100,15 @@ function createProtocol({ relay = createRelay() } = {}) {
     if (!message || message.jsonrpc !== '2.0' || typeof message.method !== 'string') return { jsonrpc: '2.0', id: id ?? null, error: { code: -32600, message: 'Invalid JSON-RPC request' } };
     if (id === undefined) return null;
     let result;
-    if (message.method === 'initialize') result = { protocolVersion: message.params?.protocolVersion || '2024-11-05', capabilities: { tools: {} }, serverInfo: { name: 'azrael-selected-window', version: '1.0.0' } };
+    if (message.method === 'initialize') result = { protocolVersion: message.params?.protocolVersion || '2024-11-05', capabilities: { tools: {}, experimental: { 'codex/sandbox-state-meta': {} } }, serverInfo: { name: 'azrael-selected-window', version: '1.0.0' } };
     else if (message.method === 'ping') result = {};
     else if (message.method === 'tools/list') result = { tools: toolDefinitions() };
     else if (message.method === 'tools/call') {
       try {
-        const params = message.params; if (!params || !TOOLS.includes(params.name)) throw new Error('Unsupported selected-window tool');
+        const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw new Error('Unsupported selected-window tool');
         const args = params.arguments || {}; const definition = toolDefinitions().find(t => t.name === params.name);
         if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw new Error('Invalid tool arguments');
+        if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw new Error('Invalid prepared UI request token');
         const threadId = parseThreadMetadata(params._meta);
         const trustedMeta = relayMetadata(params._meta);
         result = callResult(await relay(threadId, params.name, args, trustedMeta));

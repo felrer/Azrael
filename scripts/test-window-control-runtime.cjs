@@ -23,9 +23,19 @@ function fixture(t) {
 }
 test('stage closure includes required owned files and release binds provenance', t => {
   const f = fixture(t), result = stageRuntime(f.options);
-  fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256: { 'window-control/manifest.json': result.manifestSha256 } }));
+  const sha256 = { 'window-control/manifest.json': result.manifestSha256 };
+  fs.mkdirSync(path.join(f.release, 'host'));
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs']) {
+    const content = `fixture ${module}`;
+    fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
+  }
+  fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256 }));
   assert.equal(verifyRelease(f.release, f.sourceRoot).executable, path.join(f.destination, 'azrael-window-control.exe'));
   assert.equal(fs.readFileSync(path.join(f.destination, 'THIRD_PARTY_NOTICES.md'), 'utf8'), 'Fixture third-party license notices');
+  const dependency = path.join(f.release, 'host/window-control-runtime.cjs'), dependencyBytes = fs.readFileSync(dependency);
+  fs.unlinkSync(dependency); assert.throws(() => verifyRelease(f.release), /ENOENT/);
+  fs.writeFileSync(dependency, 'tampered'); assert.throws(() => verifyRelease(f.release), /host module mismatch/);
+  fs.writeFileSync(dependency, dependencyBytes);
   fs.writeFileSync(path.join(f.sourceRoot, 'src/main.rs'), 'changed source');
   assert.throws(() => verifyRelease(f.release, f.sourceRoot), /source provenance mismatch/);
 });
@@ -42,9 +52,10 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   const f = fixture(t), runtime = stageRuntime(f.options), host = path.join(path.dirname(f.release), 'host');
   const sha256 = { 'window-control/manifest.json': runtime.manifestSha256 };
   fs.mkdirSync(path.join(host, 'out'), { recursive: true });
+  fs.mkdirSync(path.join(f.release, 'host'));
   for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs']) {
     const content = `fixture ${module}`;
-    fs.writeFileSync(path.join(host, 'out', module), content); sha256[`host/${module}`] = hash(content);
+    fs.writeFileSync(path.join(host, 'out', module), content); fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
   fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256 }));
   fs.cpSync(f.destination, path.join(host, 'window-control'), { recursive: true });
