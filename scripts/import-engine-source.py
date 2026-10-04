@@ -358,6 +358,30 @@ async fn root_wait_state_startup_future_is_send() {
 '''
 
 
+def filesystem_path(path):
+    """Use Win32 extended paths for IO without changing inventory identities."""
+    path = Path(path)
+    if os.name != "nt":
+        return path
+    value = os.path.abspath(path)
+    if value.startswith("\\\\?\\"):
+        return Path(value)
+    if value.startswith("\\\\"):
+        return Path("\\\\?\\UNC\\" + value[2:])
+    return Path("\\\\?\\" + value)
+
+
+def canonical_path(path):
+    """Resolve symlinks using extended IO, then restore the ordinary identity."""
+    value = str(filesystem_path(path).resolve())
+    if os.name == "nt":
+        if value.startswith("\\\\?\\UNC\\"):
+            value = "\\\\" + value[8:]
+        elif value.startswith("\\\\?\\"):
+            value = value[4:]
+    return Path(value)
+
+
 def git(root, *args):
     return subprocess.check_output(
         ["git", "-c", "core.longpaths=true", "-C", str(root), *args])
@@ -369,16 +393,18 @@ def canonical(value):
 
 
 def safe_path(root, name):
+    root = canonical_path(root)
     relative = PurePosixPath(name)
     if relative.is_absolute() or ".." in relative.parts or ".git" in relative.parts:
         raise ValueError(f"Unsafe source path: {name}")
     path = root / name
-    if not path.resolve().is_relative_to(root):
+    if not canonical_path(path).is_relative_to(root):
         raise ValueError(f"Path escapes its root: {name}")
-    return path
+    return filesystem_path(path)
 
 
 def describe(path, git_mode=None):
+    path = filesystem_path(path)
     try:
         info = path.lstat()
     except FileNotFoundError:
@@ -397,6 +423,7 @@ def describe(path, git_mode=None):
 
 
 def snapshot(root):
+    root = canonical_path(root)
     modes = {}
     for item in git(root, "ls-files", "--stage", "-z").split(b"\0"):
         if not item:
@@ -421,18 +448,79 @@ def snapshot(root):
         raise ValueError("Source already owns reserved import metadata path")
     files = {name: describe(safe_path(root, name), modes.get(name)) for name in names}
     # Nested repositories can hide source from the parent Git inventory.
-    for directory, children, entries in os.walk(root):
-        relative = Path(directory).relative_to(root).as_posix()
+    io_root = filesystem_path(root)
+    for directory, children, entries in os.walk(io_root):
+        relative = Path(directory).relative_to(io_root).as_posix()
         if relative != "." and (".git" in children or ".git" in entries):
             raise ValueError(f"Nested Git repository requires explicit import: {relative}")
         children[:] = [name for name in children if name != ".git" and
-                       not any((Path(directory) / name).relative_to(root).as_posix() == prefix
+                       not any((Path(directory) / name).relative_to(io_root).as_posix() == prefix
                                for prefix in EXCLUDED)]
     return {"head": git(root, "rev-parse", "HEAD").decode().strip(),
             "upstreamUrl": git(root, "remote", "get-url", "origin").decode().strip(),
-            "baseTag": git(root, "describe", "--tags", "--match", "rust-v0.159.3",
+            "baseTag": git(root, "describe", "--tags", "--match", "rust-v*",
                            "--abbrev=0").decode().strip(),
             "files": files, "excludedIgnoredPaths": ignored}
+
+
+def release_tag_commit(root, tag):
+    """Resolve only an exact release tag, retaining its ref object for race checks."""
+    if not isinstance(tag, str) or not tag.startswith("rust-v"):
+        raise ValueError("Malformed upstream integration release tag")
+    ref = "refs/tags/" + tag
+    git(root, "check-ref-format", ref)
+    ref_object = git(root, "show-ref", "--verify", "--hash", ref).decode().strip()
+    commit = git(root, "rev-parse", "--verify", ref + "^{commit}").decode().strip()
+    return commit, ref_object
+
+
+def upstream_integration(root, before, target_tag):
+    """Bind a reviewed applied delta to the inventory; this is not HEAD ancestry.
+
+    The delta digest hashes canonical JSON of the exact recursive Git tree
+    inventories (NUL-delimited ls-tree bytes encoded as hex). Git object IDs,
+    modes and paths avoid checkout filters and diff configuration dependencies.
+    This declaration does not establish conflict-free or runtime acceptance.
+    """
+    base_commit, base_ref = release_tag_commit(root, before["baseTag"])
+    target_commit, target_ref = release_tag_commit(root, target_tag)
+    git(root, "merge-base", "--is-ancestor", base_commit, before["head"])
+    trees = {key: git(root, "ls-tree", "-r", "--full-tree", "-z", commit).hex()
+             for key, commit in (("baseTreeHex", base_commit), ("targetTreeHex", target_commit))}
+    record = {"schema": 1, "baseTag": before["baseTag"], "baseCommit": base_commit,
+              "targetTag": target_tag, "targetCommit": target_commit,
+              "upstreamDeltaSha256": hashlib.sha256(canonical(trees)).hexdigest(),
+              "integratedInventorySha256": hashlib.sha256(canonical(before["files"])).hexdigest()}
+    return record, (base_ref, target_ref)
+
+
+def ensure_upstream_unchanged(source, before, pinned):
+    if upstream_integration(source, before, pinned[0]["targetTag"]) != pinned:
+        raise ValueError("Upstream integration tags changed; partial destination retained")
+
+
+def validate_upstream_integration(receipt, digest):
+    if "upstreamIntegration" not in receipt:
+        return
+    record = receipt["upstreamIntegration"]
+    keys = {"schema", "baseTag", "baseCommit", "targetTag", "targetCommit",
+            "upstreamDeltaSha256", "integratedInventorySha256"}
+    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] != 1:
+        raise ValueError("Malformed upstream integration metadata")
+    for key in ("baseTag", "targetTag"):
+        tag = record[key]
+        # Git's ref rules, validated without requiring a source repository.
+        if (not isinstance(tag, str) or not tag.startswith("rust-v") or
+                any(ord(char) < 33 or ord(char) == 127 or char in "~^:?*[\\" for char in tag) or
+                ".." in tag or "@{" in tag or any(not part or part.startswith(".") or part.endswith(".lock") for part in tag.split("/")) or tag.endswith(".")):
+            raise ValueError("Malformed upstream integration release tag")
+    for key, length in (("baseCommit", 40), ("targetCommit", 40),
+                        ("upstreamDeltaSha256", 64), ("integratedInventorySha256", 64)):
+        value = record[key]
+        if not isinstance(value, str) or len(value) != length or any(char not in "0123456789abcdef" for char in value):
+            raise ValueError(f"Malformed upstream integration {key}")
+    if record["baseTag"] != receipt.get("baseTag") or record["integratedInventorySha256"] != digest:
+        raise ValueError("Upstream integration inventory or base tag differs")
 
 
 def adaptation_record(original):
@@ -589,6 +677,7 @@ def apply_state_source_fixes(destination, files):
 
 
 def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None):
+    destination = filesystem_path(destination)
     actual = set()
     for directory, children, entries in os.walk(destination, followlinks=False):
         if allow_build_caches:
@@ -689,6 +778,7 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
     digest = hashlib.sha256(canonical(entries)).hexdigest()
     if receipt.get("inventorySha256") != digest:
         raise ValueError("Source receipt inventory digest differs")
+    validate_upstream_integration(receipt, digest)
     missing = [name for name, entry in entries.items() if entry["kind"] == "missing"]
     expected = {"missingTrackedPaths": missing, "fileCount": len(entries) - len(missing),
                 "inventoryCount": len(entries), "byteCount": sum(entry.get("size", 0) for entry in entries.values()),
@@ -712,8 +802,8 @@ def ensure_unchanged(source, before, phase):
 
 
 def check_source(source, destination, snapshot_only=False):
-    source, destination = source.resolve(), destination.resolve()
-    receipt = json.loads((destination / "SOURCE.json").read_text(encoding="utf-8"))
+    source, destination = canonical_path(source), canonical_path(destination)
+    receipt = json.loads(safe_path(destination, "SOURCE.json").read_text(encoding="utf-8"))
     if snapshot_only:
         before = {key: receipt[key] for key in ("head", "upstreamUrl", "baseTag", "files", "excludedIgnoredPaths")}
     else:
@@ -723,24 +813,33 @@ def check_source(source, destination, snapshot_only=False):
                 raise ValueError(f"Imported source receipt differs from latest source: {key}")
     digest = validate_receipt(destination, receipt, allow_build_caches=True)
     if not snapshot_only:
+        pinned = None
+        if "upstreamIntegration" in receipt:
+            pinned = upstream_integration(source, before, receipt["upstreamIntegration"]["targetTag"])
+            if pinned[0] != receipt["upstreamIntegration"]:
+                raise ValueError("Upstream integration differs from source Git tags or delta")
         ensure_unchanged(source, before, "check")
+        if pinned is not None:
+            ensure_upstream_unchanged(source, before, pinned)
     print(json.dumps({"coverageVerified": True, "head": before["head"],
                       "inventorySha256": digest, "fileCount": receipt["fileCount"],
                       "byteCount": receipt["byteCount"],
                       "verificationScope": "immutable-snapshot" if snapshot_only else "latest-source"}, indent=2))
 
 
-def import_source(source, destination, allow_source_advance=False):
-    source, destination = source.resolve(), destination.resolve()
+def import_source(source, destination, allow_source_advance=False, upstream_tag=None):
+    source, destination = canonical_path(source), canonical_path(destination)
     if source == destination or source.is_relative_to(destination) or destination.is_relative_to(source):
         raise ValueError("Source and destination must not overlap")
-    if not source.is_dir() or Path(git(source, "rev-parse", "--show-toplevel").decode().strip()).resolve() != source:
+    if not filesystem_path(source).is_dir() or canonical_path(git(source, "rev-parse", "--show-toplevel").decode().strip()) != source:
         raise ValueError("Source must be a Git worktree root")
-    if destination.exists() and (not destination.is_dir() or any(destination.iterdir())):
+    io_destination = filesystem_path(destination)
+    if io_destination.exists() and (not io_destination.is_dir() or any(io_destination.iterdir())):
         raise ValueError("Destination must be absent or empty")
     captured_utc = datetime.now(timezone.utc).isoformat()
     before = snapshot(source)
-    destination.mkdir(parents=True, exist_ok=True)
+    pinned = upstream_integration(source, before, upstream_tag) if upstream_tag is not None else None
+    io_destination.mkdir(parents=True, exist_ok=True)
     for name, entry in before["files"].items():
         if entry["kind"] == "missing":
             continue
@@ -774,6 +873,8 @@ def import_source(source, destination, allow_source_advance=False):
               "sourceAdvancedAfterSnapshot": after != before,
               "sourceAdvanceChangedPaths": changed_paths,
               "sourceAdvanceChangedMetadata": [key for key in before if key != "files" and before[key] != after[key]]}
+    if pinned is not None:
+        record["upstreamIntegration"] = pinned[0]
     adaptation = apply_distribution_adaptation(destination, entries)
     if adaptation is not None:
         record["distributionAdaptation"] = adaptation
@@ -787,13 +888,15 @@ def import_source(source, destination, allow_source_advance=False):
     if source_fixes is not None:
         record["sourceFixes"] = source_fixes
     verify_destination(destination, entries, adaptation=adaptation, distribution_files=distribution_files, source_fixes=source_fixes)
-    with (destination / "SOURCE.json").open("x", encoding="utf-8", newline="\n") as output:
+    if pinned is not None:
+        ensure_upstream_unchanged(source, before, pinned)
+    with safe_path(destination, "SOURCE.json").open("x", encoding="utf-8", newline="\n") as output:
         json.dump(record, output, indent=2, sort_keys=True)
         output.write("\n")
     sql = {name: {"sha256": entry["sha256"],
                   "distributionPath": (source_fixes or {}).get(name, {}).get("adaptedPath", name),
-                  "sha384": hashlib.sha384((destination / (source_fixes or {}).get(name, {}).get("adaptedPath", name)).read_bytes()).hexdigest(),
-                  "containsCRLF": b"\r\n" in (destination / (source_fixes or {}).get(name, {}).get("adaptedPath", name)).read_bytes()}
+                  "sha384": hashlib.sha384(safe_path(destination, (source_fixes or {}).get(name, {}).get("adaptedPath", name)).read_bytes()).hexdigest(),
+                  "containsCRLF": b"\r\n" in safe_path(destination, (source_fixes or {}).get(name, {}).get("adaptedPath", name)).read_bytes()}
            for name, entry in entries.items() if entry["kind"] != "missing" and name.endswith(".sql") and
            ("/migrations/" in name or "/thread_history_migrations/" in name)}
     print(json.dumps({"head": record["head"], "inventorySha256": record["inventorySha256"],
@@ -814,13 +917,16 @@ def main():
     parser.add_argument("--check", action="store_true", help="Verify an existing import against latest source without copying")
     parser.add_argument("--snapshot-only", action="store_true", help="With --check, verify only the immutable recorded snapshot")
     parser.add_argument("--allow-source-advance", action="store_true", help="Accept verified before-inventory bytes even if original source later advances")
+    parser.add_argument("--upstream-tag", help="Declare a reviewed applied upstream release delta, distinct from HEAD ancestry and runtime acceptance")
     args = parser.parse_args()
     if args.snapshot_only and not args.check:
         parser.error("--snapshot-only requires --check")
+    if args.upstream_tag is not None and args.check:
+        parser.error("--upstream-tag is only used when creating an import")
     if args.check:
         check_source(args.source, args.destination, snapshot_only=args.snapshot_only)
     else:
-        import_source(args.source, args.destination, allow_source_advance=args.allow_source_advance)
+        import_source(args.source, args.destination, allow_source_advance=args.allow_source_advance, upstream_tag=args.upstream_tag)
 
 
 if __name__ == "__main__":

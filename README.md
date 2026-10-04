@@ -1,30 +1,22 @@
-# Azrael
+# Plugins
 
-Azrael is an independent VS Code extension host with a Codex-based engine,
-provider integrations and a versioned instruction library.
+This repository contains a curated collection of Codex plugin examples.
 
-Development is maintained in the private `felrer/Azrael` repository. Private
-access does not grant redistribution rights for third-party UI or runtimes.
+Each plugin lives under `plugins/<name>/` with a required
+`.codex-plugin/plugin.json` manifest and optional companion surfaces such as
+`skills/`, `.app.json`, `.mcp.json`, plugin-level `agents/`, `commands/`,
+`hooks.json`, `assets/`, and other supporting files.
 
-The former `codex-efficient-subagents` repository is archived. Azrael's
-`instructions/` directory is the active home for instruction maintenance.
+The default marketplace lives at `.agents/plugins/marketplace.json` and points
+at the standard `plugins/` directory. API key login users have a separate
+marketplace at `.agents/plugins/api_marketplace.json`.
 
-Public distribution is **on hold** until redistribution permission for the
-existing integrated OpenAI UI and selected external runtimes is established.
-The current UI is retained. Local development packages are not public releases.
-Azrael-owned code and instructions use [MIT](LICENSE); imported licenses and
-notices remain in [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md).
+Highlighted richer examples in this repo include:
 
-The verified engine source snapshot is in [engine/](engine/), with an exact
-inventory and provenance in `engine/SOURCE.json`. The complete instruction
-library is in [instructions/](instructions/README.md), including roles, skills,
-playbooks, examples and supporting scripts. It has its own semantic version and
-GitHub release assets, independent of the app version.
-
-Azrael settings includes **지침 문서** for browsing documents, downloading the
-whole instruction package, applying selected components, pinning a version and
-rolling back. Live GitHub downloads require the corresponding release to be
-published. Existing local edits are reported as conflicts before application.
-
-See [documentation](docs/README.md), [local development and packaging](docs/ops/development.md)
-and [instruction release operations](docs/ops/instruction-distribution.md).
+- `plugins/figma` for `use_figma`, Code to Canvas, Code Connect, and design system rules
+- `plugins/notion` for planning, research, meetings, and knowledge capture
+- `plugins/build-ios-apps` for SwiftUI implementation, refactors, performance, and debugging
+- `plugins/build-macos-apps` for macOS SwiftUI/AppKit workflows, build/run/debug loops, and packaging guidance
+- `plugins/build-web-apps` for deployment, UI, payments, and database workflows
+- `plugins/expo` for Expo and React Native apps, SDK upgrades, EAS workflows, and Codex Run actions
+- `plugins/netlify`, `plugins/remotion`, and `plugins/google-slides` for additional public skill- and MCP-backed plugin bundles

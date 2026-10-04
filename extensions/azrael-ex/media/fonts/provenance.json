@@ -4,25 +4,18 @@
   "archiveSha256": "db3ce10453401131a34a4958a00a65d01abcb04ea8bfc876a0a38fab1e33d14d",
   "assets": [
     {
-      "file": "gyeonggi-batang-regular.woff",
-      "sha256": "a3dbeaab2b78381675d7732b906da896bd709c44d3c35675dd73417af496473b",
-      "bytes": 2676904,
+      "file": "gyeonggi-title-light.woff",
+      "sha256": "ef39eac846f815b17b2c9403dfee46999ed86cbf8f9433d94bcbdeb92903e4de",
+      "bytes": 555948,
+      "sourceWeight": 300,
       "families": [
-        "GyeonggiBatang",
+        "GyeonggiTitle",
+        "GyeonggiTitle Light",
+        "GyeonggiTitleL",
+        "Light",
         "Regular",
-        "\uacbd\uae30\ucc9c\ub144\ubc14\ud0d5"
-      ]
-    },
-    {
-      "file": "gyeonggi-batang-bold.woff",
-      "sha256": "7c30a126630d6a44d43422830e730fcd8d56d5df91c862cd6eea77e2dd1619a9",
-      "bytes": 2504176,
-      "families": [
-        "Bold",
-        "GyeonggiBatang",
-        "GyeonggiBatang Bold",
-        "\uacbd\uae30\ucc9c\ub144\ubc14\ud0d5",
-        "\uacbd\uae30\ucc9c\ub144\ubc14\ud0d5 Bold"
+        "\uacbd\uae30\ucc9c\ub144\uc81c\ubaa9",
+        "\uacbd\uae30\ucc9c\ub144\uc81c\ubaa9 Light"
       ]
     }
   ]

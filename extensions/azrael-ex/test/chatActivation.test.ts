@@ -8,8 +8,14 @@ import test from "node:test";
 test("integrated activation leaves the chat view and sidebar command to the official UI host", async () => {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-integrated-activation-"));
   const registered: string[] = [];
+  const joinedPaths: string[] = [];
   const disposable = () => ({ dispose() {} });
   const vscode = {
+    Uri: { joinPath(base: { scheme: string; fsPath: string }, ...parts: string[]) {
+      const fsPath = path.join(base.fsPath, ...parts);
+      joinedPaths.push(fsPath);
+      return { ...base, fsPath };
+    } },
     env: { remoteName: undefined, sessionId: "fixture-session" },
     workspace: { workspaceFolders: undefined },
     StatusBarAlignment: { Left: 1 },
@@ -37,7 +43,7 @@ test("integrated activation leaves the chat view and sidebar command to the offi
       delete require.cache[require.resolve("../src/extension")];
       const extension = require("../src/extension") as typeof import("../src/extension");
       await extension.activate({
-        extensionPath: directory, extensionUri: { scheme: "file" },
+        extensionPath: directory, extensionUri: { scheme: "file", fsPath: directory },
         storageUri: { scheme: "file", fsPath: path.join(directory, "workspace") },
         subscriptions: []
       } as never, {
@@ -47,6 +53,7 @@ test("integrated activation leaves the chat view and sidebar command to the offi
       });
       assert.ok(!registered.includes("azrael.openSidebar"));
       assert.ok(registered.includes("azrael.usage"));
+      assert.ok(joinedPaths.includes(path.join(directory, "webview", "assets", "azrael-fonts")));
       extension.deactivate();
     } finally {
       ChatSession.prototype.start = originalStart;

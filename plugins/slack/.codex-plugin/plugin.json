@@ -1,0 +1,46 @@
+{
+  "apps": "./.app.json",
+  "author": {
+    "email": "support@openai.com",
+    "name": "Slack",
+    "url": "https://openai.com/"
+  },
+  "description": "Work with Slack using the configured Slack integration.",
+  "homepage": "https://slack.com/",
+  "interface": {
+    "brandColor": "#611F69",
+    "brandColorDark": "#D896E0",
+    "capabilities": [
+      "Interactive",
+      "Write"
+    ],
+    "category": "Communication",
+    "composerIcon": "./assets/composer-icon.png",
+    "defaultPrompt": [
+      "Summarize unread activity, draft replies, or prepare updates"
+    ],
+    "developerName": "Slack",
+    "displayName": "Slack",
+    "logo": "./assets/logo.png",
+    "longDescription": "Use Slack to summarize channels, draft messages, and organize team conversations through the connected Slack integration.",
+    "privacyPolicyURL": "https://slack.com/privacy-policy",
+    "screenshots": [],
+    "shortDescription": "Read and manage Slack",
+    "termsOfServiceURL": "https://slack.com/terms-of-service/user",
+    "websiteURL": "https://slack.com/"
+  },
+  "keywords": [
+    "slack",
+    "salesforce",
+    "chat",
+    "collaboration",
+    "messaging",
+    "channels",
+    "threads",
+    "workplace chat"
+  ],
+  "license": "MIT",
+  "name": "slack",
+  "repository": "https://github.com/openai/plugins",
+  "version": "0.1.7"
+}

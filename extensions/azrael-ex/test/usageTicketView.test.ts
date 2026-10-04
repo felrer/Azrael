@@ -8,6 +8,8 @@ test("ticket UI validates expanded identity, confirms account and refreshes only
   const moduleApi = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const original = moduleApi._load;
   let confirmation = "cancel";
+  let detailsFail = false;
+  let spendFail = false;
   const messages: string[] = [];
   moduleApi._load = function (request, parent, isMain) {
     if (request === "vscode") return { window: {
@@ -22,7 +24,17 @@ test("ticket UI validates expanded identity, confirms account and refreshes only
     const profile = { id: "a".repeat(32), workspaceAccountId: "workspace", userId: "user", email: "account@example.com", planType: "pro" };
     const service = Object.assign(new EventEmitter(), {
       state: { profiles: [profile], activeProfileId: null },
-      async call(params: unknown) { calls.push(params); return { resetCreditOutcome: "reset" }; },
+      async call(params: { action: string }) {
+        calls.push(params);
+        if (params.action === "usage" && detailsFail) throw new Error("details timeout");
+        if (params.action === "consumeResetCredit" && spendFail) throw new Error("spend timeout");
+        if (params.action === "usage") return { usageProfileId: profile.id, usage: {
+          accountId: profile.workspaceAccountId, rateLimitsByLimitId: {}, rateLimitResetCredits: { availableCount: 1, credits: [
+            { id: "earliest", resetType: "codexRateLimits", status: "available", grantedAt: 1, expiresAt: null },
+          ] },
+        } };
+        return { resetCreditOutcome: "reset" };
+      },
     });
     const calls: unknown[] = [];
     const refreshes: unknown[][] = [];
@@ -41,7 +53,7 @@ test("ticket UI validates expanded identity, confirms account and refreshes only
     internal.expanded.add(usageExpansionKey("openai", profile.id, profile.workspaceAccountId));
     internal.render();
     assert.match(panel.webview.html, /리셋 티켓 사용/);
-    assert.match(panel.webview.html, /free · workspace/);
+    assert.match(panel.webview.html, /free<\/span> · <span data-azrael-dynamic-text>workspace<\/span>/);
     assert.doesNotMatch(panel.webview.html, /pro · workspace/);
     await internal.onMessage({ ...request, workspaceAccountId: "other" });
     assert.equal(messages.length, 0);
@@ -49,9 +61,33 @@ test("ticket UI validates expanded identity, confirms account and refreshes only
     assert.equal(calls.length, 0);
     confirmation = "accept";
     await internal.onMessage(request);
-    assert.equal(calls.length, 1);
+    assert.equal(calls.length, 2);
+    assert.deepEqual(calls[0], { action: "usage", profileId: profile.id, includeDetails: true });
+    assert.equal((calls[1] as { creditId: string }).creditId, "earliest");
     assert.match(messages[0], /account@example.com.*workspace/);
+    assert.match(messages[0], /만료일이 가장 가까운/);
     assert.deepEqual(refreshes, [[profile.id, profile.workspaceAccountId, false, true]]);
+
+    detailsFail = true;
+    await internal.onMessage(request);
+    assert.match(messages.at(-1)!, /details timeout/);
+    assert.doesNotMatch(messages.at(-1)!, /사용 결과가 확인되지/);
+    assert.doesNotMatch(panel.webview.html, /티켓 사용 결과 재확인/);
+    assert.equal(calls.length, 3);
+
+    detailsFail = false;
+    spendFail = true;
+    await internal.onMessage(request);
+    assert.match(messages.at(-1)!, /사용 결과가 확인되지/);
+    assert.match(panel.webview.html, /티켓 사용 결과 재확인/);
+    assert.equal(calls.length, 5);
+    detailsFail = true;
+    spendFail = false;
+    await internal.onMessage(request);
+    assert.equal(calls.length, 6);
+    assert.deepEqual(calls[4], calls[5]);
+    assert.doesNotMatch(panel.webview.html, /티켓 사용 결과 재확인/);
+    assert.equal(refreshes.length, 2);
     view.dispose();
   } finally { moduleApi._load = original; }
 });

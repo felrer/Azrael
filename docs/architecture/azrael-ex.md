@@ -27,6 +27,12 @@ The azrael-only host supplies the existing first-run tutorial completion flags a
 ## Integrated source state
 
 Status: `partial` — UI `26.928.31416` and engine `rust-v0.159.3` are built and installed. Scoped source/core checks, namespace contracts, synthetic code-mode/agent runtime checks and fresh standalone/coexistence activation passed. Existing Azrael host, provider, account, recovery and queue contracts remain applicable. Original inputs are pinned by UI source hashes and the engine tag; Azrael changes live in a separate engine worktree and the local UI preparation path. Full upstream regression, full screen comparison and live provider/feature behavior remain unverified.
+### Integration candidate
+
+Status: `target` — the next candidate combines the complete Codex `rust-v0.160.0` source delta with official UI `26.930.31730`. Existing Azrael source transformations, assets and host contracts are preserved while their guarded anchors and provenance are mapped to the new official input. The prepared UI is generated through the integrated transformation pipeline; a pristine upstream directory alone is not the product.
+
+Candidate sources and packages have distinct immutable paths. The installed source snapshot and retained releases keep their original provenance until a verified candidate is selected for application. Native endpoint model isolation follows the [provider catalog contract](managed-providers.md#native-endpoint-catalog-isolation).
+
 ## Installation and engine freshness
 
 ### Package preparation
@@ -121,5 +127,10 @@ Status: `partial` — source-level checks pass; installed-host behavior is verif
 
 ## Platform scope
 
-Windows local execution is the supported platform. Remote and WSL execution fail explicitly rather than mixing a Windows engine with a Linux home. Windows results do not establish WSL or Remote support.
+### Windows sandbox launcher
 
+Status: `target` for the integration candidate.
+
+The MXC launcher uses executor-owned `SystemDrive`, `LOCALAPPDATA` and `SystemRoot` to resolve Windows platform directories and initialize the native sandbox. The bounded launcher payload separately records the command's already-filtered environment. The sandboxed command receives that exact environment, including an intentionally empty environment; launcher setup values, transport variables and unrelated parent credentials are excluded. Caller overrides apply to the command environment and cannot select the launcher's platform directories.
+
+Windows local execution is the supported platform. Remote and WSL execution fail explicitly rather than mixing a Windows engine with a Linux home. Windows results do not establish WSL or Remote support.

@@ -44,6 +44,16 @@ Anthropic's catalog uses the Claude Models API with the account-scoped token and
 
 **Image input capability.** A managed catalog entry may declare input modalities; an entry that omits them is text-only. Only `["text"]` and `["text","image"]` are accepted, and any other value fails the catalog closed rather than degrading to a guess. For Anthropic the declaration comes from the Models API `capabilities.image_input.supported` flag, so image input is advertised only where the provider confirms it. No modality is inferred from a model name, family or suffix, and a model whose capability is absent or unverified stays text-only.
 
+### Native endpoint catalog isolation
+
+Status: `target` for the Codex 0.160.0 integration candidate; managed and Devin catalog behavior above remains applicable.
+
+A native provider with an explicit `model_catalog_url` owns its model roster. Its manager starts without bundled model entries, resolves metadata by the exact catalog ID, and never merges bundled models into that roster. A successful empty response is authoritative. A failed refresh invalidates the same-identity native roster, ETag and persistent cache for future selections; an invalidated cache cannot become fresh through a provider-specific TTL. Responses from an earlier authentication or request identity are discarded. Explicit refreshes are serialized without retaining an ETag guard while entering the refresh lock.
+
+The manager composition is native, then Devin, then managed. The endpoint policy belongs to the native manager; each outer manager retains its own discovery, identity and failure rules. Authentication-change refresh calls reach the native implementation through both wrappers. Static `model_catalog_json` retains its construction priority, and ordinary OpenAI discovery keeps its existing policy. Empty-selection rejection applies to the final chosen model after default selection, so an empty native roster does not reject a valid managed or Devin model.
+
+The last-complete UI retention rule above covers managed discovery failures. Explicit native endpoint failures expose the invalidated native roster, while other provider sections keep their own catalog state. Catalog updates govern future selection admission; existing managed continuation and private retained-model metadata follow the continuity contract below.
+
 ## Reasoning controls
 
 Each provider exposes one logical picker row per base model and uses the existing Codex reasoning slider for that model's verified selectable stages. The catalog carries stage/default metadata to the native model manager, and the selected stage reaches the provider as its supported wire effort or as an exact variant model ID. Refreshes may change choices for new selections, but an admitted thread/turn keeps its model, stage, upstream mapping and account. The picker preserves a supported current selection or valid declared default; otherwise it selects the first supported stage in catalog order. Missing or invalid metadata never invents Medium or another stage. Models without selectable stages have no reasoning slider and selection clears the previous model's effort. Labels for absent or unrecognized efforts remain safe to render.

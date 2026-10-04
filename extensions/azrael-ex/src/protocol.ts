@@ -15,6 +15,7 @@ export interface AccountParams {
   loginId?: string;
   includeDetails?: boolean;
   idempotencyKey?: string;
+  creditId?: string;
 }
 
 export interface AccountProfile {

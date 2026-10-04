@@ -3,7 +3,10 @@ import contextlib
 import importlib.util
 import io
 import json
+import os
 from pathlib import Path
+import shutil
+import stat
 import subprocess
 import tempfile
 import unittest
@@ -15,6 +18,28 @@ importer = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(importer)
 REPLAY_ORIGINAL = (b"                completed_at,\n                duration_ms,\n            } = turn;\n"
                    b"                            completed_at,\n                            duration_ms,\n                        },\n")
+
+
+def cleanup_long_fixture(root, allocated_root):
+    """Remove only the allocated fixture, including readonly Windows Git objects."""
+    root = importer.canonical_path(root)
+    allocated_root = importer.canonical_path(allocated_root)
+    if root != allocated_root or root == root.parent:
+        raise ValueError("Cleanup target differs from allocated fixture root")
+
+    def retry_readonly(function, path, error):
+        resolved = importer.canonical_path(path)
+        if not resolved.is_relative_to(allocated_root):
+            raise ValueError("Cleanup entry escapes allocated fixture root")
+        if (os.name != "nt" or not isinstance(error[1], PermissionError) or
+                function is not os.unlink or Path(path).is_symlink() or
+                os.stat(path).st_mode & stat.S_IWRITE):
+            raise error[1]
+        os.chmod(path, stat.S_IREAD | stat.S_IWRITE)
+        function(path)
+
+    # onerror remains available across the Python versions running these tests.
+    shutil.rmtree(importer.filesystem_path(root), onerror=retry_readonly)
 
 
 class ImportTests(unittest.TestCase):
@@ -39,9 +64,147 @@ class ImportTests(unittest.TestCase):
     def git(self, *args):
         return subprocess.check_output(["git", "-C", str(self.source), *args], stderr=subprocess.STDOUT)
 
-    def run_import(self, allow_source_advance=False):
+    def run_import(self, allow_source_advance=False, upstream_tag=None):
         with contextlib.redirect_stdout(io.StringIO()):
-            importer.import_source(self.source, self.destination, allow_source_advance=allow_source_advance)
+            importer.import_source(self.source, self.destination, allow_source_advance=allow_source_advance,
+                                   upstream_tag=upstream_tag)
+
+    def prepare_upstream_delta(self):
+        base = self.git("rev-parse", "HEAD").decode().strip()
+        (self.source / "LICENSE").write_bytes(b"upstream release\n")
+        self.git("add", "LICENSE")
+        self.git("commit", "--quiet", "-m", "upstream release")
+        target = self.git("rev-parse", "HEAD").decode().strip()
+        self.git("tag", "-a", "rust-v0.160.0", "-m", "upstream release")
+        self.git("checkout", "--quiet", "--detach", base)
+        (self.source / "LICENSE").write_bytes(b"upstream release\n")
+        (self.source / "azrael.txt").write_bytes(b"local adaptation\n")
+        return base, target
+
+    def test_selected_upstream_delta_is_distinct_from_head_ancestry(self):
+        base, target = self.prepare_upstream_delta()
+        self.run_import(upstream_tag="rust-v0.160.0")
+        receipt = json.loads((self.destination / "SOURCE.json").read_text())
+        integration = receipt["upstreamIntegration"]
+        self.assertEqual(receipt["head"], base)
+        self.assertEqual(receipt["baseTag"], "rust-v0.159.3")
+        self.assertEqual(integration["baseCommit"], base)
+        self.assertEqual(integration["targetCommit"], target)
+        self.assertNotEqual(integration["targetCommit"], receipt["head"])
+        self.assertEqual(integration["integratedInventorySha256"], receipt["inventorySha256"])
+        trees = {key: self.git("ls-tree", "-r", "--full-tree", "-z", commit).hex()
+                 for key, commit in (("baseTreeHex", base), ("targetTreeHex", target))}
+        self.assertEqual(integration["upstreamDeltaSha256"],
+                         importer.hashlib.sha256(importer.canonical(trees)).hexdigest())
+        with contextlib.redirect_stdout(io.StringIO()):
+            importer.check_source(self.source, self.destination)
+            importer.check_source(Path(self.temp.name) / "absent-source", self.destination, snapshot_only=True)
+
+    def test_release_ancestry_discovery_accepts_newer_release(self):
+        self.prepare_upstream_delta()
+        self.git("restore", "LICENSE")
+        self.git("checkout", "--quiet", "--detach", "rust-v0.160.0")
+        self.assertEqual(importer.snapshot(self.source)["baseTag"], "rust-v0.160.0")
+
+    def test_missing_or_revision_expression_upstream_tags_fail_before_copy(self):
+        for tag in ("rust-v0.160.0", "rust-v0.159.3^{commit}", "HEAD", "rust-v0.159.3..other"):
+            with self.subTest(tag=tag), self.assertRaises((ValueError, subprocess.CalledProcessError)):
+                self.run_import(upstream_tag=tag)
+            self.assertFalse(self.destination.exists())
+
+    def test_upstream_metadata_malformed_and_inventory_mismatch_fail(self):
+        self.prepare_upstream_delta()
+        self.run_import(upstream_tag="rust-v0.160.0")
+        path = self.destination / "SOURCE.json"
+        original = json.loads(path.read_text())
+        mutations = [("schema", True), ("baseTag", "rust-v0.159.3..other"),
+                     ("targetTag", "rust-v0.160.0^{commit}"), ("baseCommit", "g" * 40),
+                     ("targetCommit", "a" * 39), ("upstreamDeltaSha256", "G" * 64),
+                     ("integratedInventorySha256", "0" * 64), ("extra", True),
+                     ("baseTag", "rust-v0.999.0")]
+        for key, value in mutations:
+            receipt = json.loads(json.dumps(original))
+            receipt["upstreamIntegration"][key] = value
+            path.write_text(json.dumps(receipt))
+            with self.subTest(key=key, value=value), self.assertRaisesRegex(ValueError, "upstream integration|Upstream integration"):
+                importer.check_source(self.source, self.destination, snapshot_only=True)
+        receipt = json.loads(json.dumps(original))
+        receipt["upstreamIntegration"] = None
+        path.write_text(json.dumps(receipt))
+        with self.assertRaisesRegex(ValueError, "upstream integration"):
+            importer.check_source(self.source, self.destination, snapshot_only=True)
+
+    def test_latest_source_check_rejects_changed_target_tag_and_delta(self):
+        base, _ = self.prepare_upstream_delta()
+        self.run_import(upstream_tag="rust-v0.160.0")
+        path = self.destination / "SOURCE.json"
+        original = json.loads(path.read_text())
+        for key in ("baseCommit", "targetCommit", "upstreamDeltaSha256"):
+            receipt = json.loads(json.dumps(original))
+            receipt["upstreamIntegration"][key] = "0" * (64 if key.endswith("Sha256") else 40)
+            path.write_text(json.dumps(receipt))
+            with self.subTest(key=key), self.assertRaisesRegex(ValueError, "Git tags or delta"):
+                importer.check_source(self.source, self.destination)
+        path.write_text(json.dumps(original))
+        self.git("tag", "--force", "rust-v0.160.0", base)
+        with self.assertRaisesRegex(ValueError, "Git tags or delta"):
+            importer.check_source(self.source, self.destination)
+
+    def test_upstream_tag_race_retains_no_success_manifest_even_with_source_advance(self):
+        base, _ = self.prepare_upstream_delta()
+        copy = importer.shutil.copyfileobj
+        changed = False
+
+        def move_ref(reader, writer):
+            nonlocal changed
+            copy(reader, writer)
+            if not changed:
+                changed = True
+                self.git("tag", "--force", "rust-v0.160.0", base)
+
+        with patch.object(importer.shutil, "copyfileobj", side_effect=move_ref):
+            with self.assertRaisesRegex(ValueError, "tags changed"):
+                self.run_import(allow_source_advance=True, upstream_tag="rust-v0.160.0")
+        self.assertFalse((self.destination / "SOURCE.json").exists())
+
+    def test_import_without_upstream_metadata_remains_supported(self):
+        self.run_import()
+        receipt = json.loads((self.destination / "SOURCE.json").read_text())
+        self.assertNotIn("upstreamIntegration", receipt)
+        with contextlib.redirect_stdout(io.StringIO()):
+            importer.check_source(self.source, self.destination)
+            importer.check_source(Path(self.temp.name) / "absent-source", self.destination, snapshot_only=True)
+
+    def test_existing_long_source_and_destination_are_preserved_and_verified(self):
+        self.git("config", "core.longpaths", "true")
+        relative = Path("long-source") / ("a" * 100) / ("b" * 100) / ("c" * 100)
+        source_file = self.source / relative / "tracked.bin"
+        self.destination = Path(self.temp.name) / "long-destination" / ("d" * 100) / ("e" * 100) / ("f" * 100)
+
+        def fixture_io(path):
+            # Build/read the fixture independently of the importer being tested.
+            return Path("\\\\?\\" + str(path)) if os.name == "nt" else path
+
+        self.addCleanup(cleanup_long_fixture, Path(self.temp.name), Path(self.temp.name))
+        self.assertGreater(len(str(source_file)), 260)
+        self.assertGreater(len(str(self.destination)), 260)
+        fixture_io(source_file.parent).mkdir(parents=True)
+        fixture_io(source_file).write_bytes(b"tracked long source\r\n\x00")
+        self.git("add", source_file.relative_to(self.source).as_posix())
+        untracked = source_file.with_name("untracked.bin")
+        fixture_io(untracked).write_bytes(b"untracked long source\n\xff")
+        self.run_import()
+        receipt = json.loads(fixture_io(self.destination / "SOURCE.json").read_text())
+        for origin in (source_file, untracked):
+            name = origin.relative_to(self.source).as_posix()
+            self.assertEqual(receipt["files"][name]["kind"], "file")
+            self.assertEqual(fixture_io(self.destination / name).read_bytes(), fixture_io(origin).read_bytes())
+        with contextlib.redirect_stdout(io.StringIO()):
+            importer.check_source(self.source, self.destination)
+            importer.check_source(Path(self.temp.name) / "absent-source", self.destination, snapshot_only=True)
+        fixture_io(self.destination / source_file.relative_to(self.source)).write_bytes(b"damaged long source")
+        with self.assertRaisesRegex(ValueError, "Copied source differs"):
+            importer.check_source(self.source, self.destination, snapshot_only=True)
 
     def test_actual_bytes_deleted_and_untracked_coverage(self):
         (self.source / "deleted.txt").unlink()

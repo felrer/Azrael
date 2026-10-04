@@ -65,8 +65,8 @@ test("provider quota keeps numeric units and never converts used tokens into rem
   assert.match(html, /37\.5% 사용/);
   assert.doesNotMatch(html, /62\.5% 남음/);
   assert.match(html, /12 requests 남음 \/ 50 requests/);
-  assert.match(html, /Enterprise<\/span><span class="provider-quota-value"><strong>무제한<\/strong>/);
-  assert.match(html, /출처 account probe · 관측/);
+  assert.match(html, /<span data-azrael-dynamic-text>Enterprise<\/span><\/span><span class="provider-quota-value"><strong>무제한<\/strong>/);
+  assert.match(html, /출처 <span data-azrael-dynamic-text>account probe<\/span> · 관측/);
 });
 
 test("unsupported and error quota observations retain source and observed time", () => {
@@ -74,14 +74,14 @@ test("unsupported and error quota observations retain source and observed time",
     providerId: "devin", accountId: "managed", status: "unsupported", source: "managed account", observedAt: 1_789_516_800_000, rows: [],
   });
   assert.match(unsupported, /계정별 한도 조회를 지원하지 않습니다/);
-  assert.match(unsupported, /출처 managed account/);
+  assert.match(unsupported, /출처 <span data-azrael-dynamic-text>managed account<\/span>/);
 
   const failed = providerQuotaHtml({
     providerId: "other", accountId: "a", status: "error", source: "quota API", observedAt: 1_789_516_800_000, rows: [], error: "denied <unsafe>",
   });
   assert.match(failed, /한도 조회 실패/);
   assert.match(failed, /denied &lt;unsafe&gt;/);
-  assert.match(failed, /출처 quota API/);
+  assert.match(failed, /출처 <span data-azrael-dynamic-text>quota API<\/span>/);
 });
 
 test("never-observed provider results do not display the Unix epoch", () => {
@@ -112,9 +112,9 @@ test("a failed refresh labels and preserves the previous successful provider quo
   };
   const html = providerQuotaHtml(prior, failure);
   assert.match(html, /8 requests 남음/);
-  assert.match(html, /이전 조회 값 · 출처 cached probe/);
-  assert.match(html, /최신 한도 조회 실패 · temporarily unavailable/);
-  assert.match(html, /실패 출처 live probe/);
+  assert.match(html, /이전 조회 값 · 출처 <span data-azrael-dynamic-text>cached probe<\/span>/);
+  assert.match(html, /최신 한도 조회 실패 · <span data-azrael-dynamic-text>temporarily unavailable<\/span>/);
+  assert.match(html, /실패 출처 <span data-azrael-dynamic-text>live probe<\/span>/);
 });
 
 
@@ -123,8 +123,8 @@ test("provider usage disclosure keeps collapsed identity compact and shows manag
   const collapsed = providerAccountHtml(provider, provider.accounts[0], quota);
   assert.match(collapsed, /aria-expanded="false"/);
   assert.match(collapsed, /사용량 펼치기/);
-  assert.doesNotMatch(collapsed, /Private quota|출처 probe/);
-  assert.match(collapsed, /account-heading.*usage-toggle.*<h2>A&amp;B<\/h2>/);
+  assert.doesNotMatch(collapsed, /Private quota|출처/);
+  assert.match(collapsed, /account-heading.*usage-toggle.*<h2><span data-azrael-dynamic-text>A&amp;B<\/span><\/h2>/);
   assert.doesNotMatch(collapsed, /providerReauth|providerRemove|card-actions/);
   const unselected = providerAccountHtml(provider, { ...provider.accounts[0], selected: false }, quota);
   assert.match(unselected, /identity-actions.*data-action="providerSelect"/);

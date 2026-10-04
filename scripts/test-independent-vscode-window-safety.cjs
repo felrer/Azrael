@@ -1,0 +1,52 @@
+"use strict";
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const vm = require("node:vm");
+const source = fs.readFileSync(path.join(__dirname, "check-independent-vscode.ps1"), "utf8");
+const match = source.match(/        @'\r?\n(const vscode = require\("vscode"\);[\s\S]+?)\r?\n'@/);
+assert(match, "keep-open runner source exists");
+const runner = match[1];
+assert(!runner.includes("closeWindow"));
+assert(!runner.includes("executeCommand"));
+const launch = source.match(/function Invoke-FixtureLaunch \{([\s\S]+?)\r?\n\}/)[1];
+assert(!launch.includes("--wait"));
+assert(launch.includes("Get-CimInstance"));
+assert(launch.includes("AddSeconds($ResultTimeoutSeconds)"));
+assert(source.includes("[ValidateRange(1,120)]"));
+async function scenario(change, shouldPass) {
+  const root = path.resolve("mock-fixture");
+  const contract = { nonce: "unique", fixtureRoot: root, workspace: path.join(root,"workspace"), installedHost: path.join(root,"extensions","azrael"), hostVersion: "0.5.1", stateRoot: path.join(root,"state") };
+  const env = { SAME_WINDOW_FIXTURE_NONCE: "unique", SAME_WINDOW_CHECK_ROOT: root, SAME_WINDOW_CHECK_MODE: "standalone" };
+  const host = { packageJSON: { version: "0.5.1" }, extensionPath: contract.installedHost };
+  const uri = value => ({ toString: () => `file:///${value}` });
+  const vscode = { workspace: { workspaceFolders: [{ uri: uri(contract.workspace) }] }, Uri: { file: uri }, extensions: { getExtension: id => { assert.equal(id,"azrael-ex-local.azrael"); return host; } } };
+  let calls = 0, failure;
+  const config = { codexHome: contract.stateRoot };
+  const fakeFs = { realpathSync: value => value, readFileSync: () => JSON.stringify(config), writeFileSync: (target,data) => { assert.equal(target,path.join(root,"standalone-host-result.json")); failure = JSON.parse(data); } };
+  change({env,host,vscode,config,fakeFs});
+  const context = { exports: {}, process: {env}, __dirname: path.join(root,"test-runner-extension"), require: name => {
+    if (name === "vscode") return vscode;
+    if (name === "node:fs") return fakeFs;
+    if (name === "node:path") return path;
+    if (name === "./fixture-contract.json") return contract;
+    if (name === "./independent-vscode-host-check.cjs") return { run: async () => { calls++; } };
+    throw Error(`unexpected require ${name}`);
+  }};
+  vm.runInNewContext(runner,context);
+  await context.exports.activate();
+  assert.equal(calls, shouldPass ? 1 : 0);
+  assert.equal(!!failure,!shouldPass);
+}
+(async () => {
+  await scenario(() => {},true);
+  await scenario(({env}) => { env.SAME_WINDOW_FIXTURE_NONCE = "other"; },false);
+  await scenario(({env}) => { env.SAME_WINDOW_CHECK_ROOT = path.resolve("other"); },false);
+  await scenario(({vscode}) => { vscode.workspace.workspaceFolders = []; },false);
+  await scenario(({vscode}) => { vscode.workspace.workspaceFolders[0].uri = {toString: () => "file:///other"}; },false);
+  await scenario(({fakeFs}) => { fakeFs.realpathSync = value => value.endsWith("test-runner-extension") ? path.resolve("other") : value; },false);
+  await scenario(({host}) => { host.packageJSON.version = "0.5.2"; },false);
+  await scenario(({host}) => { host.extensionPath = path.resolve("other"); },false);
+  await scenario(({config}) => { config.codexHome = path.resolve("ordinary-state"); },false);
+  console.log("keep-open source and 9 mocked runner ownership cases passed; no GUI executed");
+})().catch(error => { console.error(error); process.exitCode = 1; });

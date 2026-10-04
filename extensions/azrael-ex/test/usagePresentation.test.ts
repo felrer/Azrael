@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { AccountUsage, RateLimitSnapshot, RateLimitWindow } from "../src/protocol";
 import { ProviderAccountQuota } from "../src/providerAccountProtocol";
-import { escapeHtml, openAIPlanLabel, openAIUsageHtml, providerQuotaHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml, usageStyles } from "../src/usagePresentation";
+import { escapeHtml, dynamicTextHtml, planLabelHtml, openAIPlanLabel, openAIUsageHtml, providerAccountHtml, providerQuotaHtml, providerQuotaRowHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml, usageStyles } from "../src/usagePresentation";
 
 function window(usedPercent: number, windowDurationMins: number | null = 300, resetsAt: number | null = null): RateLimitWindow {
   return { usedPercent, windowDurationMins, resetsAt };
@@ -69,6 +69,30 @@ function providerQuota(overrides: Partial<ProviderAccountQuota> = {}): ProviderA
   };
 }
 
+test("dynamic typography escapes content and leaves fixed fallbacks and controls in UI fonts", () => {
+  assert.equal(dynamicTextHtml('<계정 & "Account">'), '<span data-azrael-dynamic-text>&lt;계정 &amp; &quot;Account&quot;&gt;</span>');
+  assert.equal(planLabelHtml(undefined), "요금제 확인 필요");
+  assert.equal(planLabelHtml(usage(null, limit({ planType: "pro" }))), '<span data-azrael-dynamic-text>pro</span>');
+  assert.doesNotMatch(quotaHtml(window(NaN), "기본 한도"), /data-azrael-dynamic-text/);
+  assert.match(quotaHtml(window(75, 300, 1_900_000_000), "기본 한도"), /<strong data-azrael-dynamic-text>25% 남음<\/strong>/);
+  assert.match(quotaHtml(window(75, 42), "기본 한도"), /<span data-azrael-dynamic-text>42분 한도<\/span>/);
+  for (const [flags, label] of [[{ unlimited: true }, "무제한"], [{ limitUnset: true }, "지출 한도 미설정"]] as const) {
+    const fallback = providerQuotaRowHtml({ label: "Quota", remaining: 0, limit: 0, usedPercent: 0, ...flags });
+    assert.ok(fallback.includes(`<strong>${label}</strong>`));
+    assert.doesNotMatch(fallback, /<strong data-azrael-dynamic-text/);
+  }
+  assert.match(providerQuotaRowHtml({ label: "Quota", remaining: 0 }), /<strong data-azrael-dynamic-text>0 남음<\/strong>/);
+  assert.match(usageStyles, /\[data-azrael-dynamic-text\]\{font-family:Consolas,"Azrael Gyeonggi Title"/);
+  assert.match(usageStyles, /font-weight:400!important;font-synthesis-weight:none/);
+  const html = providerAccountHtml({ id: "anthropic", label: "Anthropic 공급자", authKind: "oauth", inferenceConnected: true } as never,
+    { id: '<account>', label: "계정 Account 123", selected: false, autoSwitchAllowed: true } as never, undefined, undefined, true);
+  assert.match(html, /<h2><span data-azrael-dynamic-text>계정 Account 123<\/span><\/h2>/);
+  assert.match(html, /data-account="&lt;account&gt;"/);
+  assert.match(html, /<span data-azrael-dynamic-text>Anthropic 공급자<\/span>/);
+  assert.doesNotMatch(html, /<button[^>]*data-azrael-dynamic-text/);
+  assert.match(html, />재인증<\/button>/);
+});
+
 test("ticket details and consumption share a wrapping row with 16px spacing", () => {
   const data = usage(null);
   data.rateLimitResetCredits = { availableCount: 2, credits: null };
@@ -121,14 +145,14 @@ test("Fable preserves the prior quota with latest failure and error observations
   const html = providerQuotaHtml(previous, failure);
   assert.match(html, /Fable 주간 한도/);
   assert.match(html, /aria-valuenow="75"/);
-  assert.match(html, /이전 조회 값 · 출처 account probe · 관측/);
-  assert.match(html, /최신 한도 조회 실패 · denied &lt;access&gt;/);
-  assert.match(html, /실패 출처 latest &lt;probe&gt; · 관측/);
+  assert.match(html, /이전 조회 값 · 출처 <span data-azrael-dynamic-text>account probe<\/span> · 관측/);
+  assert.match(html, /최신 한도 조회 실패 · <span data-azrael-dynamic-text>denied &lt;access&gt;<\/span>/);
+  assert.match(html, /실패 출처 <span data-azrael-dynamic-text>latest &lt;probe&gt;<\/span> · 관측/);
   assert.ok(html.includes(new Date(previous.observedAt).toLocaleString()));
   assert.ok(html.includes(new Date(failure.observedAt).toLocaleString()));
   const errorOnly = providerQuotaHtml(failure);
-  assert.match(errorOnly, /한도 조회 실패 · denied &lt;access&gt;/);
-  assert.match(errorOnly, /출처 latest &lt;probe&gt; · 관측/);
+  assert.match(errorOnly, /한도 조회 실패 · <span data-azrael-dynamic-text>denied &lt;access&gt;<\/span>/);
+  assert.match(errorOnly, /출처 <span data-azrael-dynamic-text>latest &lt;probe&gt;<\/span> · 관측/);
   assert.doesNotMatch(errorOnly, /Fable|role="progressbar"|이전 조회 값/);
 });
 

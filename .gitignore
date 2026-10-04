@@ -1,3 +1,11 @@
+# macOS system files
+.DS_Store
+
+# Python bytecode files
+__pycache__/
+*.pyc
+
+# Azrael build and runtime artifacts
 node_modules/
 /artifacts/
 dist/

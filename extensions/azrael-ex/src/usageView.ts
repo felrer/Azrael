@@ -374,7 +374,7 @@ export class UsageView implements vscode.Disposable {
     try {
       const action = retry ? "사용 결과 재확인" : "티켓 사용";
       const answer = await vscode.window.showWarningMessage(
-        `${profile.email ?? profile.id} (${profile.workspaceAccountId})${retry ? "의 이전 리셋 티켓 사용 요청을 같은 요청 ID로 재확인할까요?" : "의 리셋 티켓 1개를 사용해 한도를 초기화할까요?"}`,
+        `${profile.email ?? profile.id} (${profile.workspaceAccountId})${retry ? "의 이전 리셋 티켓 사용 요청을 같은 요청 ID로 재확인할까요?" : "의 사용 가능한 리셋 티켓 중 만료일이 가장 가까운 티켓 1개를 사용해 한도를 초기화할까요? (만료일 없는 티켓은 마지막에 사용)"}`,
         { modal: true }, action,
       );
       if (answer !== action) return;
@@ -382,6 +382,7 @@ export class UsageView implements vscode.Disposable {
       let outcome;
       try { outcome = await this.resetCredits.consume(profile); }
       catch (error) {
+        if (!this.resetCredits.retrying(profile)) throw error;
         throw new Error(`${error instanceof Error ? error.message : String(error)} · 사용 결과가 확인되지 않았습니다. 재확인 버튼은 같은 요청 ID를 사용합니다.`);
       }
       this.error = undefined;
@@ -447,11 +448,11 @@ export class UsageView implements vscode.Disposable {
     if (this.panel) {
       const nonce = randomBytes(18).toString("base64");
       const webview = this.panel.webview;
-      const fonts = this.fontRoot ? [400, 700].map(weight => {
-        const uri = webview.asWebviewUri(vscode.Uri.joinPath(this.fontRoot!, weight === 400 ? "gyeonggi-batang-regular.woff" : "gyeonggi-batang-bold.woff"));
-        return `@font-face{font-family:"Azrael Gyeonggi Batang";src:url("${escapeHtml(uri.toString())}") format("woff");font-weight:${weight};font-style:normal;font-display:swap}`;
+      const fonts = this.fontRoot ? ["gyeonggi-title-light.woff"].map(file => {
+        const uri = webview.asWebviewUri(vscode.Uri.joinPath(this.fontRoot!, file));
+        return `@font-face{font-family:"Azrael Gyeonggi Title";src:url("${escapeHtml(uri.toString())}") format("woff");font-weight:400;font-style:normal;font-display:swap}`;
       }).join("") : "";
-      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${escapeHtml(webview.cspSource)}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind});});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});</script></body></html>`;
+      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind});});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});</script></body></html>`;
     }
     for (const [webview, target] of this.embedded) {
       try {

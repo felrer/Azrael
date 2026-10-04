@@ -1,0 +1,57 @@
+{
+  "apps": "./.app.json",
+  "author": {
+    "name": "PostHog Inc.",
+    "url": "https://posthog.com"
+  },
+  "description": "PostHog gives your AI agent direct access to your product analytics, feature flags, experiments, error tracking, surveys, logs, and LLM analytics. Ask questions about your data, create insights, toggle feature flags, analyze errors, search docs, and more \u2014 all from chat.",
+  "homepage": "https://posthog.com/docs",
+  "interface": {
+    "brandColor": "#1D4AFF",
+    "brandColorDark": "#1D4AFF",
+    "capabilities": [
+      "Interactive",
+      "Read",
+      "Write"
+    ],
+    "category": "Data & Analytics",
+    "composerIcon": "./assets/composer-icon.png",
+    "defaultPrompt": [
+      "Show me signups this month",
+      "Create a feature flag for the new checkout",
+      "Why are users dropping off in onboarding?"
+    ],
+    "developerName": "PostHog Inc.",
+    "displayName": "PostHog",
+    "logo": "./assets/logo.png",
+    "logoDark": "./assets/logo-dark.png",
+    "longDescription": "PostHog gives your AI agent direct access to your product analytics, feature flags, experiments, error tracking, surveys, logs, and LLM analytics. Ask questions about your data, create insights, toggle feature flags, analyze errors, search docs, and more \u2014 all from chat.",
+    "privacyPolicyURL": "https://posthog.com/privacy",
+    "screenshots": [
+      "./assets/screenshot-1.png",
+      "./assets/screenshot-2.png"
+    ],
+    "shortDescription": "Analyze your product data",
+    "supportURL": "https://posthog.com/support",
+    "termsOfServiceURL": "https://posthog.com/terms",
+    "websiteURL": "https://posthog.com"
+  },
+  "keywords": [
+    "posthog",
+    "analytics",
+    "product-analytics",
+    "feature-flags",
+    "experiments",
+    "error-tracking",
+    "session-replay",
+    "surveys",
+    "llm-analytics",
+    "hogql",
+    "developer-tools"
+  ],
+  "license": "MIT",
+  "name": "posthog",
+  "repository": "https://github.com/openai/plugins",
+  "skills": "./skills/",
+  "version": "1.0.0"
+}

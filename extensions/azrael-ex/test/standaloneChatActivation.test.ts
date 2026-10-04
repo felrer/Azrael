@@ -12,9 +12,15 @@ test("standalone activation starts one chat session before account bridge and vi
     codexHome: path.join(directory, "state"), engineVersion: "0.157.1"
   }));
   const events: string[] = [];
+  const joinedPaths: string[] = [];
   let provider: any;
   const disposable = () => ({ dispose() {} });
   const vscode = {
+    Uri: { joinPath(base: { scheme: string; fsPath: string }, ...parts: string[]) {
+      const fsPath = path.join(base.fsPath, ...parts);
+      joinedPaths.push(fsPath);
+      return { ...base, fsPath };
+    } },
     env: { remoteName: undefined, sessionId: "fixture-session" },
     workspace: { workspaceFolders: undefined },
     StatusBarAlignment: { Left: 1 },
@@ -41,11 +47,12 @@ test("standalone activation starts one chat session before account bridge and vi
     try {
       const extension = require("../src/extension") as typeof import("../src/extension");
       await extension.activate({
-        extensionPath: directory, extensionUri: { scheme: "file" },
+        extensionPath: directory, extensionUri: { scheme: "file", fsPath: directory },
         storageUri: { scheme: "file", fsPath: path.join(directory, "workspace") },
         subscriptions: []
       } as never);
       assert.deepEqual(events, ["chat", "account"]);
+      assert.ok(joinedPaths.includes(path.join(directory, "media", "fonts")));
       assert.ok(provider);
       provider.resolveWebviewView({
         webview: { cspSource: "fixture", options: {}, postMessage: () => Promise.resolve(true), onDidReceiveMessage: disposable },

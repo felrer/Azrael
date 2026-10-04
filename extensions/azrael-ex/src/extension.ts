@@ -20,6 +20,7 @@ import { ChatSession } from "./chatSession";
 import { ChatView } from "./chatView";
 import { InstructionService } from "./instructionService";
 import { InstructionView } from "./instructionView";
+import { StudentDesignService } from "./studentDesign";
 
 let service: AccountService | undefined;
 
@@ -82,6 +83,10 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   register("azrael.instructions", () => instructions!.show());
   context.subscriptions.push(vscode.commands.registerCommand("azrael.instructionsEmbedded",
     (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => instructions!.handleEmbedded(webview, request, panel)));
+  const studentDesign = new StudentDesignService(context);
+  context.subscriptions.push(studentDesign,
+    vscode.commands.registerCommand("azrael.designEmbedded", (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => studentDesign.handleEmbedded(webview, request, panel)),
+    vscode.commands.registerCommand("azrael.studentCreated", (threadId: unknown) => studentDesign.recordCreated(threadId)));
 
   service = new AccountService({ executable: bridgeExecutable, socket, codexHome, expectedServerVersion: engineVersion, env: { ...runtimeEnv, AZRAEL_EX_MANAGEMENT_SOCKET: socket, CODEX_HOME: codexHome } });
   const usage = new UsageRefreshCoordinator(async (profileId, workspaceAccountId, includeDetails) => {

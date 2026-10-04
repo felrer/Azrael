@@ -20,6 +20,16 @@ NOTICE are retained; the root MIT license applies to Azrael-owned material.
 The selected inventory includes the committed provider compaction changes.
 `localChanges` retains their original and current metadata and the original
 inventory digest, so these local changes remain distinct from upstream bytes.
+An import with `--upstream-tag` records a reviewed integration separately in
+`upstreamIntegration`: actual ancestor and selected release tags/commits, a
+digest of both complete Git object inventories, and the imported inventory
+digest. `head` and `baseTag` continue to describe actual Git ancestry. The
+integration record does not claim a commit, conflict-free merge or runtime
+acceptance. Latest-source checks revalidate the release refs and digest;
+snapshot-only checks validate the metadata bound to the frozen inventory.
+On Windows, inventory, copying and verification use extended filesystem paths
+while receipt and Git identities retain canonical ordinary paths. Existing files
+with long paths must be copied and hashed; they are not inherited missing paths.
 The distributed `.gitignore` has a narrow recorded adaptation so inherited
 tracked IDE settings are visible to the parent repository. Original ignore-file
 bytes are retained in `.gitignore.upstream`; provenance verifies both versions.
