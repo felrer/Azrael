@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "AzraelAccountAction": {
+      "enum": [
+        "list",
+        "captureCurrent",
+        "loginStart",
+        "loginCancel",
+        "remove",
+        "switch",
+        "cancelSwitch",
+        "usage",
+        "consumeResetCredit"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "action": {
+      "$ref": "#/definitions/AzraelAccountAction"
+    },
+    "idempotencyKey": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "includeDetails": {
+      "type": "boolean"
+    },
+    "loginId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "profileId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    }
+  },
+  "required": [
+    "action"
+  ],
+  "title": "AzraelAccountParams",
+  "type": "object"
+}

@@ -1,0 +1,158 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "RootResumeAgentTask": {
+      "properties": {
+        "agentPath": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        },
+        "turnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "agentPath",
+        "threadId",
+        "turnId"
+      ],
+      "type": "object"
+    },
+    "RootResumeReservation": {
+      "properties": {
+        "agentTasks": {
+          "items": {
+            "$ref": "#/definitions/RootResumeAgentTask"
+          },
+          "type": "array"
+        },
+        "callId": {
+          "type": "string"
+        },
+        "createdAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "finalOutputJsonSchema": {
+          "default": null
+        },
+        "id": {
+          "type": "string"
+        },
+        "lastError": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "originatingTurnId": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "resumeAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "resumeTurnId": {
+          "type": "string"
+        },
+        "revision": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "rootThreadId": {
+          "type": "string"
+        },
+        "rootTurnId": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/RootResumeState"
+        },
+        "updatedAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "waitEndedAtMs": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "waitStartedAtMs": {
+          "default": null,
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "wakeReason": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RootResumeWakeReason"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "agentTasks",
+        "callId",
+        "createdAtMs",
+        "id",
+        "originatingTurnId",
+        "reason",
+        "resumeAtMs",
+        "resumeTurnId",
+        "revision",
+        "rootThreadId",
+        "rootTurnId",
+        "state",
+        "updatedAtMs"
+      ],
+      "type": "object"
+    },
+    "RootResumeState": {
+      "enum": [
+        "preparing",
+        "waiting",
+        "claimed",
+        "resumed",
+        "cancelled",
+        "blocked"
+      ],
+      "type": "string"
+    },
+    "RootResumeWakeReason": {
+      "enum": [
+        "deadline",
+        "agents_completed",
+        "user_input",
+        "manual"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "reservations": {
+      "items": {
+        "$ref": "#/definitions/RootResumeReservation"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "reservations"
+  ],
+  "title": "RootResumeResponse",
+  "type": "object"
+}

@@ -1,0 +1,705 @@
+{
+  "schemaVersion": 1,
+  "students": [
+    {
+      "id": 10010,
+      "nameKo": "시로코",
+      "nameEn": "Shiroko",
+      "school": "Abydos",
+      "asset": "10010.png"
+    },
+    {
+      "id": 10005,
+      "nameKo": "호시노",
+      "nameEn": "Hoshino",
+      "school": "Abydos",
+      "asset": "10005.png"
+    },
+    {
+      "id": 13008,
+      "nameKo": "세리카",
+      "nameEn": "Serika",
+      "school": "Abydos",
+      "asset": "13008.png"
+    },
+    {
+      "id": 13004,
+      "nameKo": "노노미",
+      "nameEn": "Nonomi",
+      "school": "Abydos",
+      "asset": "13004.png"
+    },
+    {
+      "id": 10000,
+      "nameKo": "아루",
+      "nameEn": "Aru",
+      "school": "Gehenna",
+      "asset": "10000.png"
+    },
+    {
+      "id": 10004,
+      "nameKo": "히나",
+      "nameEn": "Hina",
+      "school": "Gehenna",
+      "asset": "10004.png"
+    },
+    {
+      "id": 13010,
+      "nameKo": "유우카",
+      "nameEn": "Yuuka",
+      "school": "Millennium",
+      "asset": "13010.png"
+    },
+    {
+      "id": 10015,
+      "nameKo": "아리스",
+      "nameEn": "Aris",
+      "school": "Millennium",
+      "asset": "10015.png"
+    },
+    {
+      "id": 10008,
+      "nameKo": "네루",
+      "nameEn": "Neru",
+      "school": "Millennium",
+      "asset": "10008.png"
+    },
+    {
+      "id": 10059,
+      "nameKo": "미카",
+      "nameEn": "Mika",
+      "school": "Trinity",
+      "asset": "10059.png"
+    },
+    {
+      "id": 10019,
+      "nameKo": "아즈사",
+      "nameEn": "Azusa",
+      "school": "Trinity",
+      "asset": "10019.png"
+    },
+    {
+      "id": 23005,
+      "nameKo": "아야네",
+      "nameEn": "Ayane",
+      "school": "Abydos",
+      "asset": "23005.png"
+    },
+    {
+      "id": 10002,
+      "nameKo": "하루나",
+      "nameEn": "Haruna",
+      "school": "Gehenna",
+      "asset": "10002.png"
+    },
+    {
+      "id": 10001,
+      "nameKo": "에이미",
+      "nameEn": "Eimi",
+      "school": "Millennium",
+      "asset": "10001.png"
+    },
+    {
+      "id": 10003,
+      "nameKo": "히후미",
+      "nameEn": "Hifumi",
+      "school": "Trinity",
+      "asset": "10003.png"
+    },
+    {
+      "id": 10014,
+      "nameKo": "이즈나",
+      "nameEn": "Izuna",
+      "school": "Hyakkiyako",
+      "asset": "10014.png"
+    },
+    {
+      "id": 10011,
+      "nameKo": "슌",
+      "nameEn": "Shun",
+      "school": "Shanhaijing",
+      "asset": "10011.png"
+    },
+    {
+      "id": 10017,
+      "nameKo": "체리노",
+      "nameEn": "Cherino",
+      "school": "RedWinter",
+      "asset": "10017.png"
+    },
+    {
+      "id": 10041,
+      "nameKo": "미사키",
+      "nameEn": "Misaki",
+      "school": "Arius",
+      "asset": "10041.png"
+    },
+    {
+      "id": 10038,
+      "nameKo": "미야코",
+      "nameEn": "Miyako",
+      "school": "SRT",
+      "asset": "10038.png"
+    },
+    {
+      "id": 10137,
+      "nameKo": "코노카",
+      "nameEn": "Konoka",
+      "school": "Valkyrie",
+      "asset": "10137.png"
+    },
+    {
+      "id": 10117,
+      "nameKo": "히카리",
+      "nameEn": "Hikari",
+      "school": "Highlander",
+      "asset": "10117.png"
+    },
+    {
+      "id": 10125,
+      "nameKo": "에리",
+      "nameEn": "Eri",
+      "school": "WildHunt",
+      "asset": "10125.png"
+    },
+    {
+      "id": 10149,
+      "nameKo": "코코로",
+      "nameEn": "Kokoro",
+      "school": "Odyssey",
+      "asset": "10149.png"
+    },
+    {
+      "id": 10006,
+      "nameKo": "이오리",
+      "nameEn": "Iori",
+      "school": "Gehenna",
+      "asset": "10006.png"
+    },
+    {
+      "id": 10007,
+      "nameKo": "마키",
+      "nameEn": "Maki",
+      "school": "Millennium",
+      "asset": "10007.png"
+    },
+    {
+      "id": 10013,
+      "nameKo": "츠루기",
+      "nameEn": "Tsurugi",
+      "school": "Trinity",
+      "asset": "10013.png"
+    },
+    {
+      "id": 10033,
+      "nameKo": "와카모",
+      "nameEn": "Wakamo",
+      "school": "Hyakkiyako",
+      "asset": "10033.png"
+    },
+    {
+      "id": 10050,
+      "nameKo": "코코나",
+      "nameEn": "Kokona",
+      "school": "Shanhaijing",
+      "asset": "10050.png"
+    },
+    {
+      "id": 10037,
+      "nameKo": "마리나",
+      "nameEn": "Marina",
+      "school": "RedWinter",
+      "asset": "10037.png"
+    },
+    {
+      "id": 10042,
+      "nameKo": "아츠코",
+      "nameEn": "Atsuko",
+      "school": "Arius",
+      "asset": "10042.png"
+    },
+    {
+      "id": 10039,
+      "nameKo": "미유",
+      "nameEn": "Miyu",
+      "school": "SRT",
+      "asset": "10039.png"
+    },
+    {
+      "id": 13012,
+      "nameKo": "키리노",
+      "nameEn": "Kirino",
+      "school": "Valkyrie",
+      "asset": "13012.png"
+    },
+    {
+      "id": 10118,
+      "nameKo": "노조미",
+      "nameEn": "Nozomi",
+      "school": "Highlander",
+      "asset": "10118.png"
+    },
+    {
+      "id": 10126,
+      "nameKo": "카노에",
+      "nameEn": "Kanoe",
+      "school": "WildHunt",
+      "asset": "10126.png"
+    },
+    {
+      "id": 10150,
+      "nameKo": "코토네",
+      "nameEn": "Kotone",
+      "school": "Odyssey",
+      "asset": "10150.png"
+    },
+    {
+      "id": 10009,
+      "nameKo": "이즈미",
+      "nameEn": "Izumi",
+      "school": "Gehenna",
+      "asset": "10009.png"
+    },
+    {
+      "id": 10012,
+      "nameKo": "스미레",
+      "nameEn": "Sumire",
+      "school": "Millennium",
+      "asset": "10012.png"
+    },
+    {
+      "id": 10020,
+      "nameKo": "코하루",
+      "nameEn": "Koharu",
+      "school": "Trinity",
+      "asset": "10020.png"
+    },
+    {
+      "id": 10034,
+      "nameKo": "미모리",
+      "nameEn": "Mimori",
+      "school": "Hyakkiyako",
+      "asset": "10034.png"
+    },
+    {
+      "id": 10069,
+      "nameKo": "루미",
+      "nameEn": "Rumi",
+      "school": "Shanhaijing",
+      "asset": "10069.png"
+    },
+    {
+      "id": 10055,
+      "nameKo": "시구레",
+      "nameEn": "Shigure",
+      "school": "RedWinter",
+      "asset": "10055.png"
+    },
+    {
+      "id": 10048,
+      "nameKo": "사오리",
+      "nameEn": "Saori",
+      "school": "Arius",
+      "asset": "10048.png"
+    },
+    {
+      "id": 10139,
+      "nameKo": "니코",
+      "nameEn": "Niko",
+      "school": "SRT",
+      "asset": "10139.png"
+    },
+    {
+      "id": 16008,
+      "nameKo": "후부키",
+      "nameEn": "Fubuki",
+      "school": "Valkyrie",
+      "asset": "16008.png"
+    },
+    {
+      "id": 16017,
+      "nameKo": "아오바",
+      "nameEn": "Aoba",
+      "school": "Highlander",
+      "asset": "16017.png"
+    },
+    {
+      "id": 10127,
+      "nameKo": "미요",
+      "nameEn": "Miyo",
+      "school": "WildHunt",
+      "asset": "10127.png"
+    },
+    {
+      "id": 10060,
+      "nameKo": "메구",
+      "nameEn": "Megu",
+      "school": "Gehenna",
+      "asset": "10060.png"
+    },
+    {
+      "id": 10016,
+      "nameKo": "미도리",
+      "nameEn": "Midori",
+      "school": "Millennium",
+      "asset": "10016.png"
+    },
+    {
+      "id": 10029,
+      "nameKo": "나츠",
+      "nameEn": "Natsu",
+      "school": "Trinity",
+      "asset": "10029.png"
+    },
+    {
+      "id": 10040,
+      "nameKo": "츠쿠요",
+      "nameEn": "Tsukuyo",
+      "school": "Hyakkiyako",
+      "asset": "10040.png"
+    },
+    {
+      "id": 10070,
+      "nameKo": "미나",
+      "nameEn": "Mina",
+      "school": "Shanhaijing",
+      "asset": "10070.png"
+    },
+    {
+      "id": 10075,
+      "nameKo": "메루",
+      "nameEn": "Meru",
+      "school": "RedWinter",
+      "asset": "10075.png"
+    },
+    {
+      "id": 10130,
+      "nameKo": "스바루",
+      "nameEn": "Subaru",
+      "school": "Arius",
+      "asset": "10130.png"
+    },
+    {
+      "id": 10140,
+      "nameKo": "쿠루미",
+      "nameEn": "Kurumi",
+      "school": "SRT",
+      "asset": "10140.png"
+    },
+    {
+      "id": 20023,
+      "nameKo": "칸나",
+      "nameEn": "Kanna",
+      "school": "Valkyrie",
+      "asset": "20023.png"
+    },
+    {
+      "id": 10128,
+      "nameKo": "후유",
+      "nameEn": "Fuyu",
+      "school": "WildHunt",
+      "asset": "10128.png"
+    },
+    {
+      "id": 10078,
+      "nameKo": "카스미",
+      "nameEn": "Kasumi",
+      "school": "Gehenna",
+      "asset": "10078.png"
+    },
+    {
+      "id": 10018,
+      "nameKo": "유즈",
+      "nameEn": "Yuzu",
+      "school": "Millennium",
+      "asset": "10018.png"
+    },
+    {
+      "id": 10035,
+      "nameKo": "우이",
+      "nameEn": "Ui",
+      "school": "Trinity",
+      "asset": "10035.png"
+    },
+    {
+      "id": 10065,
+      "nameKo": "카호",
+      "nameEn": "Kaho",
+      "school": "Hyakkiyako",
+      "asset": "10065.png"
+    },
+    {
+      "id": 10104,
+      "nameKo": "레이죠",
+      "nameEn": "Reijo",
+      "school": "Shanhaijing",
+      "asset": "10104.png"
+    },
+    {
+      "id": 10131,
+      "nameKo": "타카네",
+      "nameEn": "Takane",
+      "school": "RedWinter",
+      "asset": "10131.png"
+    },
+    {
+      "id": 20017,
+      "nameKo": "히요리",
+      "nameEn": "Hiyori",
+      "school": "Arius",
+      "asset": "20017.png"
+    },
+    {
+      "id": 16020,
+      "nameKo": "오토기",
+      "nameEn": "Otogi",
+      "school": "SRT",
+      "asset": "16020.png"
+    },
+    {
+      "id": 10138,
+      "nameKo": "레나",
+      "nameEn": "Rena",
+      "school": "WildHunt",
+      "asset": "10138.png"
+    },
+    {
+      "id": 10093,
+      "nameKo": "키라라",
+      "nameEn": "Kirara",
+      "school": "Gehenna",
+      "asset": "10093.png"
+    },
+    {
+      "id": 10052,
+      "nameKo": "노아",
+      "nameEn": "Noa",
+      "school": "Millennium",
+      "asset": "10052.png"
+    },
+    {
+      "id": 10036,
+      "nameKo": "히나타",
+      "nameEn": "Hinata",
+      "school": "Trinity",
+      "asset": "10036.png"
+    },
+    {
+      "id": 10081,
+      "nameKo": "유카리",
+      "nameEn": "Yukari",
+      "school": "Hyakkiyako",
+      "asset": "10081.png"
+    },
+    {
+      "id": 20002,
+      "nameKo": "사야",
+      "nameEn": "Saya",
+      "school": "Shanhaijing",
+      "asset": "20002.png"
+    },
+    {
+      "id": 10151,
+      "nameKo": "안나",
+      "nameEn": "Anna",
+      "school": "RedWinter",
+      "asset": "10151.png"
+    },
+    {
+      "id": 20014,
+      "nameKo": "사키",
+      "nameEn": "Saki",
+      "school": "SRT",
+      "asset": "20014.png"
+    },
+    {
+      "id": 20050,
+      "nameKo": "리츠",
+      "nameEn": "Ritsu",
+      "school": "WildHunt",
+      "asset": "20050.png"
+    },
+    {
+      "id": 10107,
+      "nameKo": "치아키",
+      "nameEn": "Chiaki",
+      "school": "Gehenna",
+      "asset": "10107.png"
+    },
+    {
+      "id": 10062,
+      "nameKo": "토키",
+      "nameEn": "Toki",
+      "school": "Millennium",
+      "asset": "10062.png"
+    },
+    {
+      "id": 10049,
+      "nameKo": "카즈사",
+      "nameEn": "Kazusa",
+      "school": "Trinity",
+      "asset": "10049.png"
+    },
+    {
+      "id": 10082,
+      "nameKo": "렌게",
+      "nameEn": "Renge",
+      "school": "Hyakkiyako",
+      "asset": "10082.png"
+    },
+    {
+      "id": 20039,
+      "nameKo": "키사키",
+      "nameEn": "Kisaki",
+      "school": "Shanhaijing",
+      "asset": "20039.png"
+    },
+    {
+      "id": 13013,
+      "nameKo": "모미지",
+      "nameEn": "Momiji",
+      "school": "RedWinter",
+      "asset": "13013.png"
+    },
+    {
+      "id": 20018,
+      "nameKo": "모에",
+      "nameEn": "Moe",
+      "school": "SRT",
+      "asset": "20018.png"
+    },
+    {
+      "id": 13002,
+      "nameKo": "아카리",
+      "nameEn": "Akari",
+      "school": "Gehenna",
+      "asset": "13002.png"
+    },
+    {
+      "id": 10063,
+      "nameKo": "코유키",
+      "nameEn": "Koyuki",
+      "school": "Millennium",
+      "asset": "10063.png"
+    },
+    {
+      "id": 10058,
+      "nameKo": "미네",
+      "nameEn": "Mine",
+      "school": "Trinity",
+      "asset": "10058.png"
+    },
+    {
+      "id": 10083,
+      "nameKo": "키쿄",
+      "nameEn": "Kikyou",
+      "school": "Hyakkiyako",
+      "asset": "10083.png"
+    },
+    {
+      "id": 16007,
+      "nameKo": "토모에",
+      "nameEn": "Tomoe",
+      "school": "RedWinter",
+      "asset": "16007.png"
+    },
+    {
+      "id": 13005,
+      "nameKo": "카요코",
+      "nameEn": "Kayoko",
+      "school": "Gehenna",
+      "asset": "13005.png"
+    },
+    {
+      "id": 10115,
+      "nameKo": "레이",
+      "nameEn": "Rei",
+      "school": "Millennium",
+      "asset": "10115.png"
+    },
+    {
+      "id": 10061,
+      "nameKo": "사쿠라코",
+      "nameEn": "Sakurako",
+      "school": "Trinity",
+      "asset": "10061.png"
+    },
+    {
+      "id": 10090,
+      "nameKo": "우미카",
+      "nameEn": "Umika",
+      "school": "Hyakkiyako",
+      "asset": "10090.png"
+    },
+    {
+      "id": 20026,
+      "nameKo": "미노리",
+      "nameEn": "Minori",
+      "school": "RedWinter",
+      "asset": "20026.png"
+    },
+    {
+      "id": 13006,
+      "nameKo": "무츠키",
+      "nameEn": "Mutsuki",
+      "school": "Gehenna",
+      "asset": "13006.png"
+    },
+    {
+      "id": 10135,
+      "nameKo": "케이",
+      "nameEn": "Kei",
+      "school": "Millennium",
+      "asset": "10135.png"
+    },
+    {
+      "id": 10068,
+      "nameKo": "레이사",
+      "nameEn": "Reisa",
+      "school": "Trinity",
+      "asset": "10068.png"
+    },
+    {
+      "id": 10119,
+      "nameKo": "나구사",
+      "nameEn": "Nagusa",
+      "school": "Hyakkiyako",
+      "asset": "10119.png"
+    },
+    {
+      "id": 20052,
+      "nameKo": "야쿠모",
+      "nameEn": "Yakumo",
+      "school": "RedWinter",
+      "asset": "20052.png"
+    },
+    {
+      "id": 13007,
+      "nameKo": "준코",
+      "nameEn": "Junko",
+      "school": "Gehenna",
+      "asset": "13007.png"
+    },
+    {
+      "id": 13000,
+      "nameKo": "아카네",
+      "nameEn": "Akane",
+      "school": "Millennium",
+      "asset": "13000.png"
+    },
+    {
+      "id": 10077,
+      "nameKo": "이치카",
+      "nameEn": "Ichika",
+      "school": "Trinity",
+      "asset": "10077.png"
+    },
+    {
+      "id": 13001,
+      "nameKo": "치세",
+      "nameEn": "Chise",
+      "school": "Hyakkiyako",
+      "asset": "13001.png"
+    }
+  ]
+}

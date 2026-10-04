@@ -4,3 +4,14 @@
 # Python bytecode files
 __pycache__/
 *.pyc
+
+# Azrael build and runtime artifacts
+node_modules/
+/artifacts/
+dist/
+coverage/
+*.log
+*.tsbuildinfo
+.env
+.env.*
+!.env.example

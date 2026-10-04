@@ -1,0 +1,22 @@
+{
+  "source": "https://www.gg.go.kr/contents/contents.do?ciIdx=679&menuId=2457",
+  "download": "https://www.gg.go.kr/uploads/CONTENTS/site/gg/%EA%B2%BD%EA%B8%B0%EC%84%9C%EC%B2%B4%EC%9B%B9%ED%8F%B0%ED%8A%B8.zip",
+  "archiveSha256": "db3ce10453401131a34a4958a00a65d01abcb04ea8bfc876a0a38fab1e33d14d",
+  "assets": [
+    {
+      "file": "gyeonggi-title-light.woff",
+      "sha256": "ef39eac846f815b17b2c9403dfee46999ed86cbf8f9433d94bcbdeb92903e4de",
+      "bytes": 555948,
+      "sourceWeight": 300,
+      "families": [
+        "GyeonggiTitle",
+        "GyeonggiTitle Light",
+        "GyeonggiTitleL",
+        "Light",
+        "Regular",
+        "\uacbd\uae30\ucc9c\ub144\uc81c\ubaa9",
+        "\uacbd\uae30\ucc9c\ub144\uc81c\ubaa9 Light"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,560 @@
+import { execFileSync } from "node:child_process";
+import { createHash } from "node:crypto";
+import { copyFileSync, existsSync, mkdirSync, readFileSync, realpathSync } from "node:fs";
+import { delimiter, dirname, join, resolve } from "node:path";
+import { atomicWriteFile, expandUserPath, getConfigDir, websocketsEnabled } from "../../config";
+import { CODEX_CONFIG_PATH, CODEX_MODELS_CACHE_PATH, DEFAULT_CATALOG_PATH, readRootTomlString, resolveCodexConfigPath } from "../paths";
+import { clearModelCache, DEFAULT_MODEL_CACHE_TTL_MS, getFreshCached, getStaleCached, isModelsFetchCoolingDown, markModelsFetchFailure, setCached } from "../model-cache";
+import { buildModelsRequest, resolveModelsAuthToken } from "../../oauth";
+import type { OcxConfig, OcxProviderConfig } from "../../types";
+import { modelInList } from "../../types";
+import { CODEX_REASONING_LEVELS, codexEffortRank, configuredReasoningEfforts, modelRecordValue, sanitizeCodexReasoningEfforts } from "../../reasoning-effort";
+import { getModelMetadata, getModelMetadataCaseInsensitive, listModelMetadata, resolveMetadataProvider } from "../../generated/model-metadata";
+import { enrichProviderFromRegistry, shouldCaseFoldMetadataModelId } from "../../providers/derive";
+import { getProviderRegistryEntry } from "../../providers/registry";
+import { applyProviderContextCap, providerContextCap, resolveUnknownRoutedContextWindow } from "../../providers/context-cap";
+import { clampAutoCompactTokenLimit } from "../../providers/auto-compact-budget";
+import { routedSlug, slugEquals, slugsEquivalent } from "../../providers/slug-codec";
+import { CODEX_GPT5_IDENTITY_LINE } from "../../adapters/identity";
+import { filterCursorConfiguredModelsByLiveDiscovery } from "../../adapters/cursor/discovery";
+import { fetchCursorUsableModels } from "../../adapters/cursor/live-models";
+import { isCanonicalOpenAiForwardProvider, OPENAI_API_PROVIDER_ID, OPENAI_CODEX_PROVIDER_ID } from "../../providers/openai-tiers";
+import {
+  COMBO_NAMESPACE,
+  comboModelId,
+  getCombo,
+  listComboIds,
+  targetKey,
+} from "../../combos";
+import type { NormalizedComboConfig } from "../../combos/types";
+import { providerDestinationResolvedError } from "../../lib/destination-policy";
+import { redactSecretString, redactUserPath } from "../../lib/redact";
+import upstreamModelsSnapshot from "../data/upstream-models.json";
+
+
+import { generatedModelMetadata, readCatalog, readCodexCatalogPath } from "./parsing";
+import type { CatalogModel, RawEntry } from "./parsing";
+import { UPSTREAM_NATIVE_ENTRIES } from "./metadata";
+import { nativeOpenAiCapabilitySourceSlug, SELF_DESCRIBED_NATIVE_OPENAI_MODELS, NATIVE_RESERVE_MODEL } from "./native-models";
+import { isReserveCatalogProjection } from "./reserve";
+import { loadBundledCodexCatalog } from "./bundled";
+import type { BundledCatalogDeps, ReadonlyRawCatalog } from "./bundled";
+import { deriveEntry } from "./sync";
+import {
+  formatClampLogLines,
+  formatRuntimeLogLine,
+  displayCodexRuntimePath,
+  persistEffortClamp,
+  resolveAndPersistCodexRuntime,
+  UNCLAMPABLE_REASONING_EFFORTS,
+  type EffortClampDiagnostic,
+} from "../runtime";
+
+export function nativeEffortClamp(slug: string, effort: string | undefined): string | null {
+  if (!effort || (effort !== "max" && effort !== "ultra")) return null;
+  if (slug.includes("/")) return null; // routed models map efforts in their adapters
+  const entry = UPSTREAM_NATIVE_ENTRIES.get(slug);
+  const levels = Array.isArray(entry?.supported_reasoning_levels)
+    ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+    : [];
+  if (levels.length === 0) {
+    // Not snapshot-covered. gpt-5.6 natives have a REAL max rung (ensureGpt56ReasoningLevels
+    // restores it even off-snapshot) -> never clamp. Every other bare native (gpt-5.5,
+    // a retired slug a client still asks for, and future old-ladder slugs)
+    // really stops at xhigh — the ChatGPT backend error names exactly none..xhigh — so clamp
+    // the synthetic top tier.
+    return isGpt56NativeSlug(slug) ? null : "xhigh";
+  }
+  const supported = levels.flatMap(l => typeof l.effort === "string" ? [l.effort] : []);
+  if (supported.includes(effort)) return null;
+  const rank = ["minimal", "low", "medium", "high", "xhigh", "max"];
+  const highest = supported
+    .filter(e => rank.includes(e))
+    .sort((a, b) => rank.indexOf(a) - rank.indexOf(b))
+    .at(-1);
+  return highest ?? null;
+}
+
+export function shouldApplyNativeEffortClamp(
+  providerName: string,
+  provider: OcxProviderConfig,
+  requestedModelId: string,
+): boolean {
+  return !requestedModelId.includes("/")
+    && providerName === OPENAI_CODEX_PROVIDER_ID
+    && isCanonicalOpenAiForwardProvider(provider);
+}
+
+export function catalogModelEfforts(slugs: readonly string[]): Map<string, string[]> {
+  const out = new Map<string, string[]>();
+  if (slugs.length === 0) return out;
+  const catalog = readCatalog(readCodexCatalogPath());
+  if (!catalog) return out;
+  for (const entry of catalog.models ?? []) {
+    if (typeof entry.slug !== "string") continue;
+    // Tolerate raw legacy config slugs (`provider/vendor/model`) against the
+    // Codex-facing encoded catalog slug (`provider/vendor-model`).
+    const callerSlug = slugs.find(s => slugsEquivalent(s, entry.slug as string));
+    if (callerSlug === undefined) continue;
+    const levels = Array.isArray(entry.supported_reasoning_levels)
+      ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+      : [];
+    const efforts = levels.flatMap(l => typeof l.effort === "string" ? [l.effort] : []);
+    if (efforts.length > 0) out.set(callerSlug, efforts);
+  }
+  return out;
+}
+
+export function catalogEntryEfforts(entry: RawEntry): string[] {
+  const levels = Array.isArray(entry.supported_reasoning_levels)
+    ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+    : [];
+  return levels.flatMap(level => typeof level.effort === "string" ? [level.effort] : []);
+}
+
+export const ROUTED_REASONING_LEVELS = [...CODEX_REASONING_LEVELS];
+
+export function applyCatalogModelMetadata(entry: RawEntry, model?: CatalogModel): void {
+  if (!model) return;
+  // This marker survives strict catalog normalization and lets sync distinguish a stale
+  // bare combo alias from a genuine native model row.
+  if (model.provider === COMBO_NAMESPACE) entry.owned_by = model.owned_by ?? COMBO_NAMESPACE;
+  // displayName is DISPLAY-ONLY: it relabels the picker row but never touches the routing
+  // slug, alias, or provider. deriveEntry already stamped the slug as display_name; a
+  // configured displayName overrides just the label. Custom-model inputs reject `/`; combos
+  // validate their bounded display label independently. Natives never reach here (no CatalogModel),
+  // so genuine upstream marketing names are preserved untouched.
+  const displayName = typeof model.displayName === "string" ? model.displayName.trim() : "";
+  if (displayName) entry.display_name = displayName;
+  const resolvedContext = typeof model.contextWindow === "number" && model.contextWindow > 0
+    ? model.contextWindow
+    : (model.contextCap !== undefined ? resolveUnknownRoutedContextWindow(model.contextCap) : undefined);
+  if (typeof resolvedContext === "number" && resolvedContext > 0) {
+    entry.context_window = resolvedContext;
+    entry.max_context_window = resolvedContext;
+    entry.auto_compact_token_limit = clampAutoCompactTokenLimit(
+      resolvedContext,
+      model.maxInputTokens,
+      model.autoCompactTokenLimit,
+    );
+  } else if (
+    typeof entry.context_window === "number"
+    && entry.context_window > 0
+    && typeof model.maxInputTokens === "number"
+    && model.maxInputTokens > 0
+  ) {
+    // A conservative routed fallback is not evidence for applying the optional soft policy,
+    // but a measured/configured input ceiling is still a hard bound. Compact before that
+    // ceiling even when the provider supplied no authoritative context window.
+    entry.auto_compact_token_limit = clampAutoCompactTokenLimit(
+      entry.context_window,
+      model.maxInputTokens,
+    );
+  }
+  if (Array.isArray(model.inputModalities) && model.inputModalities.length > 0) {
+    entry.input_modalities = model.inputModalities;
+  }
+  if (typeof model.supportsVerbosity === "boolean") {
+    entry.support_verbosity = model.supportsVerbosity;
+  }
+  if (typeof model.supportsReasoningSummaries === "boolean") {
+    entry.supports_reasoning_summaries = model.supportsReasoningSummaries;
+  }
+  if (model.supportsServiceTier === true) {
+    const nativeFast = model.codexForwardNativeCapabilityAlias && Array.isArray(entry.service_tiers)
+      ? entry.service_tiers.find(tier => tier?.id === "priority")
+      : undefined;
+    entry.default_service_tier = null;
+    entry.service_tiers = [{
+      id: "priority",
+      name: "Fast",
+      description: model.fastTierDescription ?? nativeFast?.description ?? "1.5x speed, increased usage",
+    }];
+    entry.additional_speed_tiers = ["fast"];
+  }
+  stampCapabilityProvenance(entry, model);
+}
+
+/**
+ * Record which capability values a real source actually asserted (#1796).
+ *
+ * `ensureStrictCatalogFields` fills `context_window` and `input_modalities` with
+ * compatibility defaults so Codex's strict parser accepts the file, which means
+ * an entry ALWAYS carries both and their presence proves nothing. Routing has to
+ * tell "the provider said text-only" apart from "nobody said anything", so it
+ * reads this block and never the entry itself ("unknown is not zero",
+ * src/routing/capability.ts).
+ *
+ * Two real sources exist and both are consulted here, in the same precedence the
+ * writers use (`applyCatalogMetadata` runs first, the model's own fields
+ * overwrite it): the `CatalogModel` and the generated jawcode metadata table.
+ * Reading only the model would silently drop every provider whose capabilities
+ * live in that table.
+ */
+function stampCapabilityProvenance(entry: RawEntry, model: CatalogModel): void {
+  // Virtual combo rows are synthesized from last-resort defaults (a generic 128k
+  // context and a `["text"]` modality), so their values are placeholders rather
+  // than assertions. Stamping them would reintroduce the exact false-evidence
+  // defect this block exists to prevent.
+  if (model.provider === COMBO_NAMESPACE) return;
+
+  const meta = generatedModelMetadata(model.provider, model.id);
+  const metaContext = typeof meta?.contextWindow === "number" && meta.contextWindow > 0
+    // The generated context is capped before it reaches the entry, so provenance
+    // must apply the same cap or routing would advertise a window the cap refused.
+    ? applyProviderContextCap(meta.contextWindow, model.contextCap) ?? meta.contextWindow
+    : undefined;
+  const contextWindow = typeof model.contextWindow === "number" && model.contextWindow > 0
+    ? model.contextWindow
+    : metaContext;
+  const inputModalities = Array.isArray(model.inputModalities) && model.inputModalities.length > 0
+    ? model.inputModalities
+    : (Array.isArray(meta?.input) && meta.input.length > 0 ? meta.input : undefined);
+
+  entry.opencodex_capability_provenance = {
+    provider: model.provider,
+    model_id: model.id,
+    ...(contextWindow !== undefined ? { context_window: contextWindow } : {}),
+    ...(inputModalities !== undefined ? { input_modalities: [...inputModalities] } : {}),
+    ...(Array.isArray(model.capabilities) && model.capabilities.length > 0
+      ? { capabilities: [...model.capabilities] }
+      : {}),
+  };
+}
+
+export function applyReasoningLevels(
+  entry: RawEntry,
+  effortsOverride?: string[],
+  defaultOverride?: string,
+  preserveExact = false,
+): void {
+  let efforts = sanitizeCodexReasoningEfforts(effortsOverride) ?? ROUTED_REASONING_LEVELS.map(l => l.effort);
+  // Mock top tiers (user decision 260709): every reasoning-capable model advertises `max`
+  // even when the provider ladder stops lower — subagent spawns pass `max` DIRECTLY
+  // (no ultra->max client conversion) and codex-rs validates it by catalog membership,
+  // so a missing max rung hard-fails spawn_agent effort overrides. The wire stays honest:
+  // routed adapters clamp via clampToSupportedCodexEffort and natives via
+  // nativeEffortClamp (max -> the model's real top rung). A `none`-only ladder is NOT
+  // reasoning-capable, so it must not grow synthetic top rungs.
+  if (!preserveExact && efforts.length > 0 && efforts.some(effort => effort !== "none" && effort !== "minimal")) {
+    const additions: string[] = [];
+    if (!efforts.includes("max")) additions.push("max");
+    if (!efforts.includes("ultra")) additions.push("ultra");
+    if (additions.length > 0) efforts = sanitizeCodexReasoningEfforts([...efforts, ...additions]) ?? efforts;
+  }
+  const byEffort = new Map(
+    (Array.isArray(entry.supported_reasoning_levels) ? entry.supported_reasoning_levels : [])
+      .map((l: { effort?: string }) => [l.effort, l]),
+  );
+  entry.supported_reasoning_levels = efforts.map(effort => {
+    const native = byEffort.get(effort);
+    if (native) return native;
+    // Description lookup uses the FULL ladder so an opt-in effort outside the routed default
+    // (e.g. "ultra") still renders its canonical description.
+    return CODEX_REASONING_LEVELS.find(l => l.effort === effort) ?? { effort, description: `${effort} reasoning` };
+  });
+  if (efforts.length === 0) {
+    delete entry.default_reasoning_level;
+    return;
+  }
+  entry.default_reasoning_level = defaultOverride && efforts.includes(defaultOverride)
+    ? defaultOverride
+    : efforts.includes("medium") ? "medium" : efforts.includes("high") ? "high"
+    // Sentinels never become the implicit default when real rungs are declared.
+    : efforts.find(effort => effort !== "none" && effort !== "minimal") ?? efforts[0];
+}
+
+/**
+ * Native slugs entitled to the full GPT-5.6-era ladder (low..ultra, with max restored).
+ *
+ * The name is historical: membership is about the LADDER, not the model generation. `gpt-6-astra`
+ * qualifies because upstream ships it with the same six rungs
+ * (`supported_reasoning_levels` low/medium/high/xhigh/max/ultra, #42607). It used to qualify only
+ * as a side effect of borrowing Sol's capability source; once it became self-described that
+ * accident disappeared, and the sync path's else-branch
+ * (`applyReasoningLevels(entry, ["low","medium","high","xhigh"])`) would have truncated the
+ * shipped ladder, silently dropping `max` and `ultra`.
+ */
+export function isGpt56NativeSlug(slug: string): boolean {
+  if (slug.includes("/")) return false;
+  if (SELF_DESCRIBED_NATIVE_OPENAI_MODELS.has(slug)) return true;
+  return nativeOpenAiCapabilitySourceSlug(slug).startsWith("gpt-5.6-");
+}
+
+export function ensureGpt56ReasoningLevels(entry: RawEntry): void {
+  const levels = Array.isArray(entry.supported_reasoning_levels)
+    ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+    : [];
+  const out = [...levels];
+  // max is a real native rung on the 5.6 family — always restored; ultra always advertised.
+  for (const effort of ["max", "ultra"]) {
+    if (out.some(level => level.effort === effort)) continue;
+    out.push(CODEX_REASONING_LEVELS.find(level => level.effort === effort)
+      ?? { effort, description: `${effort} reasoning` });
+  }
+  entry.supported_reasoning_levels = out;
+}
+
+export function ensureUltraReasoningLevel(entry: RawEntry): void {
+  const levels = Array.isArray(entry.supported_reasoning_levels)
+    ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+    : [];
+  if (levels.length === 0) return;
+  const wanted = ["max", "ultra"];
+  for (const effort of wanted) {
+    if (levels.some(level => level.effort === effort)) continue;
+    levels.push(
+      CODEX_REASONING_LEVELS.find(level => level.effort === effort)
+        ?? { effort, description: `${effort} reasoning` },
+    );
+  }
+  entry.supported_reasoning_levels = levels;
+}
+
+/** Derive the installed Codex effort vocabulary from caller-observed bundled catalog bytes. */
+export function supportedCodexReasoningEffortsFromObservedCatalog(
+  catalog: ReadonlyRawCatalog | null,
+): ReadonlySet<string> | null {
+  if (!catalog) return null;
+  const efforts = new Set<string>();
+  for (const model of catalog.models ?? []) {
+    if (typeof model.slug !== "string" || model.slug.includes("/")) continue;
+    const levels = Array.isArray(model.supported_reasoning_levels) ? model.supported_reasoning_levels : [];
+    for (const level of levels) {
+      const effort = (level as { effort?: unknown })?.effort;
+      if (typeof effort === "string") efforts.add(effort);
+    }
+    if (typeof model.default_reasoning_level === "string") efforts.add(model.default_reasoning_level);
+  }
+  return efforts.size > 0 ? efforts : null;
+}
+
+export function codexSupportedReasoningEfforts(deps: BundledCatalogDeps = {}): ReadonlySet<string> | null {
+  return supportedCodexReasoningEffortsFromObservedCatalog(loadBundledCodexCatalog(deps));
+}
+
+export function clampedDefaultEffort(original: string, surviving: readonly string[]): string {
+  if (surviving.length === 0) return "medium";
+  const ranked = [...surviving]
+    .map(effort => ({ effort, rank: codexEffortRank(effort) }))
+    .sort((a, b) => a.rank - b.rank);
+  const originalRank = codexEffortRank(original);
+  const atOrBelow = ranked.filter(item => item.rank >= 0 && item.rank <= originalRank);
+  return (atOrBelow.at(-1) ?? ranked[0]!).effort;
+}
+
+function requiresExactReserveEfforts(entry: RawEntry): boolean {
+  return entry.slug === NATIVE_RESERVE_MODEL || isReserveCatalogProjection(entry);
+}
+
+export function clampEntryToCodexSupportedEfforts(
+  entry: RawEntry,
+  supported: ReadonlySet<string> | null,
+): void {
+  if (!supported) return;
+  const levels = Array.isArray(entry.supported_reasoning_levels)
+    ? entry.supported_reasoning_levels as Array<{ effort?: string }>
+    : null;
+  if (levels && levels.length > 0) {
+    // A rung survives when the observed runtime offers it OR when it is one of the rungs the
+    // clamp no longer removes (max/ultra, per the unconditional-emission ruling): CLI versions
+    // that genuinely lack them are out of support, and hiding them from current clients costs
+    // more than it buys. Hub admission is a different question and stays fail-closed in
+    // `catalogEffortCompatibility` below.
+    const kept = levels.filter(level => typeof level?.effort === "string"
+      && (supported.has(level.effort) || UNCLAMPABLE_REASONING_EFFORTS.has(level.effort)));
+    if (requiresExactReserveEfforts(entry)) {
+      entry.supported_reasoning_levels = kept;
+      if (kept.length === 0) {
+        // The list-level clamp removes this incompatible row; never invent another ladder.
+        delete entry.default_reasoning_level;
+      } else if (!kept.some(level => level.effort === entry.default_reasoning_level)) {
+        entry.default_reasoning_level = clampedDefaultEffort(
+          typeof entry.default_reasoning_level === "string" ? entry.default_reasoning_level : "",
+          kept.map(level => level.effort!),
+        );
+      }
+      return;
+    }
+    entry.supported_reasoning_levels = kept.length > 0
+      ? kept
+      : CODEX_REASONING_LEVELS
+        .filter(level => level.effort === "low" || level.effort === "medium" || level.effort === "high")
+        .map(level => ({ ...level }));
+  }
+  const currentDefault = entry.default_reasoning_level;
+  const surviving = (Array.isArray(entry.supported_reasoning_levels) ? entry.supported_reasoning_levels : [])
+    .flatMap(level => typeof (level as { effort?: string })?.effort === "string"
+      ? [(level as { effort: string }).effort]
+      : []);
+  // An exempt default survives only when the surviving ladder actually advertises it;
+  // otherwise the row would name a default the client cannot select (review: PR #4257).
+  if (typeof currentDefault === "string"
+    && !supported.has(currentDefault)) {
+    const exemptAndAdvertised = UNCLAMPABLE_REASONING_EFFORTS.has(currentDefault)
+      && surviving.includes(currentDefault);
+    if (!exemptAndAdvertised) {
+      entry.default_reasoning_level = clampedDefaultEffort(currentDefault, surviving);
+    }
+  }
+}
+
+export interface ObservedCatalogEffortClamp {
+  readonly removedEfforts: readonly string[];
+  readonly affectedModels: readonly string[];
+}
+
+export interface CatalogEffortCompatibility {
+  readonly compatible: boolean;
+  readonly unsupportedEfforts: readonly string[];
+  readonly affectedModels: readonly string[];
+}
+
+/**
+ * Report which reasoning efforts in a catalog the local Codex runtime would reject, without
+ * changing anything.
+ *
+ * The clamp above is mutate-and-continue, which is right when this process owns the file it
+ * is about to write. It is wrong for a catalog downloaded from a hub: rewriting it locally
+ * would make the client disagree with hub truth, and #4207 asks for the opposite — establish
+ * compatibility first, and refuse rather than materialise a catalog the local CLI cannot
+ * parse. `supported` of null means the runtime ladder could not be observed, which is not
+ * evidence of incompatibility, so nothing is reported.
+ */
+export function catalogEffortCompatibility(
+  models: readonly RawEntry[],
+  supported: ReadonlySet<string> | null,
+): CatalogEffortCompatibility {
+  if (!supported) return { compatible: true, unsupportedEfforts: [], affectedModels: [] };
+  const unsupported = new Set<string>();
+  const affected: string[] = [];
+  for (const entry of models) {
+    const rejected = catalogEntryEfforts(entry).filter(effort => !supported.has(effort));
+    const fallback = typeof entry.default_reasoning_level === "string"
+      && !supported.has(entry.default_reasoning_level)
+      ? [entry.default_reasoning_level]
+      : [];
+    if (rejected.length === 0 && fallback.length === 0) continue;
+    for (const effort of [...rejected, ...fallback]) unsupported.add(effort);
+    if (typeof entry.slug === "string") affected.push(entry.slug);
+  }
+  return {
+    compatible: unsupported.size === 0,
+    unsupportedEfforts: [...unsupported].sort(),
+    affectedModels: affected,
+  };
+}
+
+/** Apply an already-observed runtime ladder without probing, logging, or writing diagnostics. */
+export function clampCatalogModelsToObservedCodexSupport(
+  models: RawEntry[],
+  supported: ReadonlySet<string> | null,
+): ObservedCatalogEffortClamp {
+  if (!supported) return { removedEfforts: [], affectedModels: [] };
+
+  const removed = new Set<string>();
+  const affected: string[] = [];
+  for (let index = 0; index < models.length;) {
+    const entry = models[index]!;
+    const hadLadder = Array.isArray(entry.supported_reasoning_levels) && entry.supported_reasoning_levels.length > 0;
+    const before = new Set(
+      (Array.isArray(entry.supported_reasoning_levels) ? entry.supported_reasoning_levels : [])
+        .flatMap(level => typeof (level as { effort?: string })?.effort === "string"
+          ? [(level as { effort: string }).effort]
+          : []),
+    );
+    const beforeDefault = typeof entry.default_reasoning_level === "string"
+      ? entry.default_reasoning_level
+      : null;
+    clampEntryToCodexSupportedEfforts(entry, supported);
+    const after = new Set(
+      (Array.isArray(entry.supported_reasoning_levels) ? entry.supported_reasoning_levels : [])
+        .flatMap(level => typeof (level as { effort?: string })?.effort === "string"
+          ? [(level as { effort: string }).effort]
+          : []),
+    );
+    const afterDefault = typeof entry.default_reasoning_level === "string"
+      ? entry.default_reasoning_level
+      : null;
+    const lost = [...before].filter(effort => !after.has(effort));
+    const defaultClamped = Boolean(beforeDefault && beforeDefault !== afterDefault);
+    const omitted = requiresExactReserveEfforts(entry) && hadLadder && after.size === 0;
+    if (lost.length > 0 || defaultClamped || omitted) {
+      for (const effort of lost) removed.add(effort);
+      // An orphaned exempt default (ultra with no ultra rung in the ladder) is repaired for
+      // coherence, but nothing was removed from the offering — do not name it in the diagnostic.
+      if (defaultClamped && beforeDefault && !UNCLAMPABLE_REASONING_EFFORTS.has(beforeDefault)) {
+        removed.add(beforeDefault);
+      }
+      if (typeof entry.slug === "string") affected.push(entry.slug);
+    }
+    if (omitted) models.splice(index, 1);
+    else index += 1;
+  }
+
+  return {
+    removedEfforts: [...removed].sort(),
+    affectedModels: affected,
+  };
+}
+
+export function clampCatalogModelsToCodexSupport(models: RawEntry[], deps: BundledCatalogDeps = {}): RawEntry[] {
+  const supported = codexSupportedReasoningEfforts(deps);
+  if (!supported) {
+    if (!deps.commandCandidates) persistEffortClamp(null, { configDir: deps.configDir });
+    return models;
+  }
+  const clamp = clampCatalogModelsToObservedCodexSupport(models, supported);
+
+  let runtimePath = "codex";
+  let runtimeVersion: string | null = null;
+  if (!deps.commandCandidates) {
+    try {
+      const resolved = resolveAndPersistCodexRuntime({
+        execFileSync: deps.execFileSync,
+        configDir: deps.configDir,
+        env: deps.env,
+        platform: deps.platform,
+        existsSync: deps.existsSync,
+        readFileSync: deps.readFileSync,
+        now: deps.now,
+        discoverAlternatives: deps.discoverAlternatives,
+      });
+      runtimePath = resolved.runtime.command;
+      runtimeVersion = resolved.runtime.version;
+      process.stderr.write(`${formatRuntimeLogLine(resolved.runtime)}\n`);
+      if (resolved.persistError) {
+        console.warn(`[opencodex] Codex runtime selection could not be persisted; a later sync may pick a different binary.`);
+      }
+      if (
+        resolved.replacedConfigured
+        && resolved.replacedConfigured.from.command !== resolved.runtime.command
+      ) {
+        console.warn(`[opencodex] Preferred Codex runtime is unavailable.`);
+        console.warn(
+          `[opencodex] Falling back from ${displayCodexRuntimePath(resolved.replacedConfigured.from.command)} to ${displayCodexRuntimePath(runtimePath)}.`,
+        );
+      }
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      const redacted = redactUserPath(redactSecretString(message)).slice(0, 200);
+      console.warn(`[opencodex] Codex runtime resolve failed during catalog clamp: ${redacted}`);
+    }
+  }
+
+  if (clamp.removedEfforts.length > 0) {
+    const diagnostic: EffortClampDiagnostic = {
+      runtimePath,
+      runtimeVersion,
+      removedEfforts: [...clamp.removedEfforts],
+      affectedModels: [...clamp.affectedModels],
+    };
+    for (const line of formatClampLogLines(diagnostic)) console.warn(line);
+    if (!deps.commandCandidates) persistEffortClamp(diagnostic, { configDir: deps.configDir });
+    deps.onEffortClamp?.(diagnostic);
+  } else if (!deps.commandCandidates) {
+    persistEffortClamp(null, { configDir: deps.configDir });
+  }
+
+  return models;
+}

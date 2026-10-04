@@ -1,0 +1,3 @@
+# Preserve byte-exact imported snapshot inventories across platforms.
+engine/** -text
+instructions/** -text

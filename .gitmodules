@@ -1,0 +1,3 @@
+[submodule "upstream/codex"]
+	path = upstream/codex
+	url = https://github.com/openai/codex.git

@@ -1,0 +1,186 @@
+{
+  "schemaVersion": 1,
+  "instructionVersion": "1.0.0",
+  "minimumAppVersion": "0.4.0",
+  "components": [
+    {
+      "id": "global-instructions",
+      "title": "Global instructions",
+      "kind": "instructions",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "instructions/AGENTS.snippet.md",
+          "target": "AGENTS.md"
+        }
+      ]
+    },
+    {
+      "id": "agent-luna_explorer",
+      "title": "luna_explorer",
+      "kind": "agent",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "agents/luna_explorer.toml",
+          "target": "agents/luna_explorer.toml"
+        }
+      ]
+    },
+    {
+      "id": "agent-sol_executor",
+      "title": "sol_executor",
+      "kind": "agent",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "agents/sol_executor.toml",
+          "target": "agents/sol_executor.toml"
+        }
+      ]
+    },
+    {
+      "id": "skill-designing",
+      "title": "designing",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "skills/designing/SKILL.md",
+          "target": "skills/designing/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "skill-planning",
+      "title": "planning",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "skills/planning/SKILL.md",
+          "target": "skills/planning/SKILL.md"
+        },
+        {
+          "source": "skills/planning/references/implementation-plans.md",
+          "target": "skills/planning/references/implementation-plans.md"
+        },
+        {
+          "source": "skills/planning/references/task-artifacts.md",
+          "target": "skills/planning/references/task-artifacts.md"
+        },
+        {
+          "source": "skills/planning/scripts/new_task_plan.py",
+          "target": "skills/planning/scripts/new_task_plan.py"
+        },
+        {
+          "source": "skills/planning/scripts/tests/test_work_artifacts.py",
+          "target": "skills/planning/scripts/tests/test_work_artifacts.py"
+        },
+        {
+          "source": "skills/planning/scripts/work_artifacts.py",
+          "target": "skills/planning/scripts/work_artifacts.py"
+        }
+      ]
+    },
+    {
+      "id": "skill-project-bootstrap",
+      "title": "project-bootstrap",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "skills/project-bootstrap/SKILL.md",
+          "target": "skills/project-bootstrap/SKILL.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/playbooks/app-logging.md",
+          "target": "skills/project-bootstrap/assets/playbooks/app-logging.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/playbooks/work.md",
+          "target": "skills/project-bootstrap/assets/playbooks/work.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/AGENTS.md",
+          "target": "skills/project-bootstrap/assets/project-template/AGENTS.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/README.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/maps/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/maps/README.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/ops/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/ops/README.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
+          "target": "skills/project-bootstrap/assets/project-template/docs/work/README.md"
+        }
+      ]
+    },
+    {
+      "id": "playbook-work",
+      "title": "work",
+      "kind": "playbook",
+      "scope": "workspace",
+      "default": false,
+      "files": [
+        {
+          "source": "skills/project-bootstrap/assets/playbooks/work.md",
+          "target": "docs/playbooks/work.md"
+        }
+      ]
+    },
+    {
+      "id": "playbook-app-logging",
+      "title": "app-logging",
+      "kind": "playbook",
+      "scope": "workspace",
+      "default": false,
+      "files": [
+        {
+          "source": "skills/project-bootstrap/assets/playbooks/app-logging.md",
+          "target": "docs/playbooks/app-logging.md"
+        }
+      ]
+    },
+    {
+      "id": "agent-config",
+      "title": "Agent configuration",
+      "kind": "config",
+      "scope": "home",
+      "default": true,
+      "files": [
+        {
+          "source": "config.example.toml",
+          "target": "config.toml"
+        }
+      ],
+      "configKeys": [
+        "enabled",
+        "default_subagent_model",
+        "default_subagent_reasoning_effort",
+        "max_concurrent_threads_per_session"
+      ]
+    }
+  ]
+}

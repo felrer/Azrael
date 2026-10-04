@@ -1,0 +1,106 @@
+[
+  {
+    "source": "docs\\architecture\\README.md",
+    "sha256": "392E34D22F536B7FED3CEB5E77226CE17C3BB5F56B167B847EC182D02ACA6BD6"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\azrael-ex-chatgpt-oauth-pi-reference-design.md",
+    "sha256": "8B7E8ED6C2991FD972FF50C4FE2DA729FFC80F86F6CE743A6F222DB279F4CF95"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\azrael-ex-stability-quality-contract.md",
+    "sha256": "C7228EEDDEA0E3A9FFCB0C88C2E6675B5B9963505A55D0CC5EBAE5F7748E016F"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\azrael-ex-two-phase-system-design.md",
+    "sha256": "12B0E8C9AFBA4B978FFBBFCEE4C45BB952AFFC5AF611B3604189B483A6EAE20C"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\azrael-ex-ui-ux-design-guidelines.md",
+    "sha256": "B7B94E91E290AE6DD2108261A85ED4C95CEE7930FBC661B2B3C231BE1BCC94B9"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\model-reasoning-speed-menu-design.md",
+    "sha256": "DDF7B6E2F54B673F356263F0CB54CACC83046F528B95EB49D601ED3055C2C603"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\model-response-session-fork-design.md",
+    "sha256": "BDF9525B7729B323AED21E59705090AFCE33A40462C302A6F3C63FA33C0F07C4"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\multi-session-background-runtime-design.md",
+    "sha256": "9636DABD5EA983DFC72E044902322E0D40C0EC392EE768AFE3E409316894B32E"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\README.md",
+    "sha256": "6AE79EA97CAB3E64C7B77E494DAC80A77D5432812AFDA4EF5475B3BA3774E6EC"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\session-draft-and-command-queue-design.md",
+    "sha256": "81938EFEB41A8B1DD6101FB6ED3548C934613B395EC61988105F8ED4055CB084"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\session-management-ui-design.md",
+    "sha256": "79546781225497EC33AE83B2133AAC966DC6F6DBB25DA42B5773404BDB400D6F"
+  },
+  {
+    "source": "docs\\architecture\\azrael-ex\\session-writer-ownership-design.md",
+    "sha256": "154CD82EFE18E070C17B0FF82E0C1BA3B088C3AF60BC9940B54494E979CC4D90"
+  },
+  {
+    "source": "docs\\architecture\\pi-harness\\hybrid-compaction-design.md",
+    "sha256": "7F0CEA452E4E4079E7D67A31D8629F93287E366024735314D345F37833A73E29"
+  },
+  {
+    "source": "docs\\architecture\\pi-harness\\initial-system-design.md",
+    "sha256": "B7584C75C6978E332E8A7378BC6771D014C6167881FA80C5D4E1112EA3FA4942"
+  },
+  {
+    "source": "docs\\architecture\\pi-harness\\README.md",
+    "sha256": "260D23E51ED3564993CCD34BDB7713DFEEC993A141BEC83C1815AC7450D25264"
+  },
+  {
+    "source": "docs\\architecture\\pi-harness\\workspace-management-design.md",
+    "sha256": "6B958649CAE228C92B1B990766E881A9948BD14100D75D9259FD2D6541B60AC9"
+  },
+  {
+    "source": "docs\\maps\\azrael-ex-code-map.md",
+    "sha256": "A66EF2A6E22A228EDA5C1BF558F602D66D1324FC99CFC4E3626B9EF4E4DF7436"
+  },
+  {
+    "source": "docs\\maps\\README.md",
+    "sha256": "99B4D3CFD71461230EFD0A80913734E7146509C9D2C24888BD2FEBCDE486704A"
+  },
+  {
+    "source": "docs\\maps\\stage8-10-code-map.md",
+    "sha256": "2A21BBD20CE580E9715280F3EC10D6DE354C5DFEA5CC3F8CAD9AD4F5AC58E9F3"
+  },
+  {
+    "source": "docs\\ops\\azrael-ex-verification.md",
+    "sha256": "8C10226512892DCF541DF5D9682EF360D37CAA01FEAE730A94F13CE93FCA4620"
+  },
+  {
+    "source": "docs\\ops\\README.md",
+    "sha256": "A1DB59B151EAE282A40219B013C46921F6AD023BF24DB5DC3C5D8EFC6B4388EB"
+  },
+  {
+    "source": "docs\\ops\\stage8-10-verification.md",
+    "sha256": "7F384E7A3AEB7E2FE1C7A78822DB8727A6E00B69EB44D19743D99EE4CCF63449"
+  },
+  {
+    "source": "docs\\README.md",
+    "sha256": "97617B96DC901BD71CB6D27F0C43EC8680606D2C8B29C002A9AF69B342B10DAA"
+  },
+  {
+    "source": "azrael-ex\\README.md",
+    "sha256": "926B43BAF7A598A17F03395181C46B4AADA681CD91C37D51C90B4DDF21E5C360"
+  },
+  {
+    "source": "azrael-ex\\LICENSE",
+    "sha256": "F095F02AD30EC9E67AFE47A94E9E90138704ED0B3EEA2D2CF684A112157DB756"
+  },
+  {
+    "source": "build-artifacts\\README.md",
+    "sha256": "6C2F8A72FC1D6464F839F39D24405030FC0712C735E1B9B3ED94D0242051E02D"
+  }
+]

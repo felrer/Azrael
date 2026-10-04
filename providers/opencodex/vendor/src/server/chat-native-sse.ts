@@ -1,0 +1,395 @@
+import { chatCompletionsErrorBody } from "../chat/outbound";
+import { classifyError, cyberPolicyErrorType, CYBER_POLICY_ERROR_CODE, isCyberPolicyCode } from "../lib/errors";
+import { redactSecretString } from "../lib/redact";
+import {
+  isTranslatorBudgetExceededError,
+  TRANSLATOR_MAX_SSE_EVENT_BYTES,
+  type TranslatorBudget,
+} from "../lib/translator-budget";
+import type { OcxUsage } from "../types";
+import { resolveStallTimeoutSec } from "../stall-timeout";
+import { createSseBlockBuffer, replaceSseDataPayload, sseDataPayload } from "./sse-payload-rewrite";
+
+type Rec = Record<string, unknown>;
+
+function isRec(value: unknown): value is Rec {
+  return value !== null && typeof value === "object" && !Array.isArray(value);
+}
+
+export function usageFromChat(value: unknown): OcxUsage | undefined {
+  if (!isRec(value)) return undefined;
+  const prompt = typeof value.prompt_tokens === "number" ? value.prompt_tokens : undefined;
+  const completion = typeof value.completion_tokens === "number" ? value.completion_tokens : undefined;
+  if (prompt === undefined && completion === undefined) return undefined;
+  const promptDetails = isRec(value.prompt_tokens_details) ? value.prompt_tokens_details : undefined;
+  const completionDetails = isRec(value.completion_tokens_details) ? value.completion_tokens_details : undefined;
+  return {
+    inputTokens: prompt ?? 0,
+    outputTokens: completion ?? 0,
+    ...(typeof promptDetails?.cached_tokens === "number" ? { cachedInputTokens: promptDetails.cached_tokens } : {}),
+    ...(typeof completionDetails?.reasoning_tokens === "number"
+      ? { reasoningOutputTokens: completionDetails.reasoning_tokens }
+      : {}),
+  };
+}
+
+export function structuredError(value: unknown): {
+  message: string;
+  type?: string;
+  code?: string | null;
+  status?: number;
+} | null {
+  if (!isRec(value) || value.error === undefined || value.error === null) return null;
+  const error = value.error;
+  if (typeof error === "string") return { message: redactSecretString(error) };
+  if (!isRec(error)) return { message: "upstream error" };
+  const rawMessage = typeof error.message === "string" ? error.message : "upstream error";
+  return {
+    message: redactSecretString(rawMessage),
+    ...(typeof error.type === "string" ? { type: error.type } : {}),
+    ...(error.code === null || typeof error.code === "string" ? { code: error.code } : {}),
+    ...(typeof error.status === "number" && Number.isInteger(error.status) ? { status: error.status } : {}),
+  };
+}
+
+function normalizedChunk(value: Rec, requestedModel: string): Rec {
+  return {
+    ...value,
+    id: typeof value.id === "string" ? value.id : `chatcmpl-${crypto.randomUUID().replace(/-/g, "").slice(0, 24)}`,
+    object: "chat.completion.chunk",
+    created: typeof value.created === "number" ? value.created : Math.floor(Date.now() / 1000),
+    model: requestedModel,
+  };
+}
+
+export function jsonCompletionSse(value: Rec, requestedModel: string, budget?: TranslatorBudget): string {
+  const id = typeof value.id === "string" ? value.id : `chatcmpl-${crypto.randomUUID().replace(/-/g, "").slice(0, 24)}`;
+  const created = typeof value.created === "number" ? value.created : Math.floor(Date.now() / 1000);
+  const model = requestedModel;
+  // Relay the upstream service-tier echo on every chunk, matching how OpenAI/xAI
+  // annotate streamed chat chunks, so streaming callers see the same confirmation
+  // the non-streaming body carries.
+  const serviceTier = typeof value.service_tier === "string" ? { service_tier: value.service_tier } : {};
+  const choices = Array.isArray(value.choices) ? value.choices : [];
+  const choice = isRec(choices[0]) ? choices[0] : {};
+  const message = isRec(choice.message) ? choice.message : {};
+  const frames: Rec[] = [{
+    id,
+    object: "chat.completion.chunk",
+    created,
+    model,
+    ...serviceTier,
+    choices: [{ index: 0, delta: { role: "assistant", content: "" }, finish_reason: null }],
+  }];
+  const delta: Rec = {};
+  if (typeof message.content === "string" && message.content.length > 0) delta.content = message.content;
+  if (typeof message.refusal === "string") delta.refusal = message.refusal;
+  if (typeof message.reasoning_content === "string" && message.reasoning_content.length > 0) {
+    delta.reasoning_content = message.reasoning_content;
+  }
+  if (Array.isArray(message.tool_calls) && message.tool_calls.length > 0) {
+    delta.tool_calls = message.tool_calls.filter(isRec).map((tool, index) => ({ ...tool, index }));
+  }
+  if (Object.keys(delta).length > 0) {
+    frames.push({ id, object: "chat.completion.chunk", created, model, ...serviceTier, choices: [{ index: 0, delta, finish_reason: null }] });
+  }
+  frames.push({
+    id,
+    object: "chat.completion.chunk",
+    created,
+    model,
+    ...serviceTier,
+    choices: [{ index: 0, delta: {}, finish_reason: typeof choice.finish_reason === "string" ? choice.finish_reason : "stop" }],
+    ...(value.usage !== undefined ? { usage: value.usage } : {}),
+  });
+  // Keep the frame strings charged while the joined body is allocated. The final
+  // string and Response's UTF-8 body coexist until response ownership ends.
+  const scope = { kind: "live_transient" as const };
+  let frameBytes = 0;
+  const serialized: string[] = [];
+  try {
+    for (const frame of frames) {
+      const text = `data: ${JSON.stringify(frame)}\n\n`;
+      const bytes = Buffer.byteLength(text);
+      budget?.chargeRetained(bytes, scope);
+      frameBytes += bytes;
+      serialized.push(text);
+    }
+    const done = "data: [DONE]\n\n";
+    const outputBytes = frameBytes + Buffer.byteLength(done);
+    budget?.chargeRetained(outputBytes * 2, scope);
+    return serialized.join("") + done;
+  } finally {
+    budget?.releaseRetained(frameBytes, scope);
+  }
+}
+
+interface NativeChatSseOptions {
+  requestedModel: string;
+  translatorBudget: TranslatorBudget;
+  signal: AbortSignal;
+  stallTimeoutSec?: number;
+  onFirstOutput?: () => void;
+  onUsage: (usage: OcxUsage) => void;
+  onTerminal?: (status: number, message?: string) => void;
+  onCancel?: () => void;
+}
+
+export function nativeChatSse(
+  body: ReadableStream<Uint8Array>,
+  options: NativeChatSseOptions,
+): ReadableStream<Uint8Array> {
+  const reader = body.getReader();
+  const decoder = new TextDecoder();
+  const encoder = new TextEncoder();
+  const scope = { kind: "live_transient" as const };
+  const buffer = createSseBlockBuffer(options.translatorBudget, nextBytes => {
+    if (nextBytes > TRANSLATOR_MAX_SSE_EVENT_BYTES) {
+      throw new Error("upstream SSE event exceeded the safe limit", { cause: { code: "translation_buffer_limit" } });
+    }
+  });
+  let queuedBytes = 0;
+  let sawFinish = false;
+  let sawDone = false;
+  let firstOutput = false;
+  let settled = false;
+  let cancelled = false;
+  let cancelledBySignal = false;
+  const stallMs = resolveStallTimeoutSec(options.stallTimeoutSec) * 1_000;
+  // Count only active upstream consumption; downstream backpressure must not
+  // consume the provider's inactivity allowance. Comments and empty deltas do.
+  let remainingStallMs = stallMs;
+  let pullDeadline = 0;
+  const stalled = new Error("upstream stream stalled without meaningful progress");
+
+  const releaseQueued = () => {
+    if (queuedBytes === 0) return;
+    options.translatorBudget.releaseRetained(queuedBytes, scope);
+    queuedBytes = 0;
+  };
+  const enqueue = (controller: ReadableStreamDefaultController<Uint8Array>, text: string) => {
+    const byteLength = Buffer.byteLength(text);
+    const reservation = options.translatorBudget.reserveTransient(byteLength, scope);
+    try {
+      controller.enqueue(encoder.encode(text));
+      reservation.commitRetained();
+      queuedBytes += byteLength;
+    } catch (error) {
+      reservation.release();
+      throw error;
+    }
+  };
+  const releaseBuffer = () => buffer.clear();
+  const settle = (status: number, message?: string) => {
+    if (settled) return;
+    settled = true;
+    options.signal.removeEventListener("abort", onAbort);
+    options.onTerminal?.(status, message);
+  };
+  const fail = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    message: string,
+    code: string,
+    status = 502,
+    type = "upstream_error",
+  ) => {
+    const safeMessage = redactSecretString(message);
+    try {
+      const frame = `data: ${JSON.stringify(chatCompletionsErrorBody(status, safeMessage, type, code))}\n\n`;
+      if (code === "translation_buffer_limit") controller.enqueue(encoder.encode(frame));
+      else enqueue(controller, frame);
+    } catch { /* controller may already be closed */ }
+    releaseBuffer();
+    settle(status, safeMessage);
+    try { void reader.cancel(new Error(safeMessage)).catch(() => {}); } catch { /* already closed */ }
+    try { controller.close(); } catch { /* already closed */ }
+  };
+  const processBlock = (
+    controller: ReadableStreamDefaultController<Uint8Array>,
+    block: string,
+    delimiter: string,
+  ): void => {
+    const payload = sseDataPayload(block);
+    if (payload === null) {
+      if (performance.now() >= pullDeadline) throw stalled;
+      enqueue(controller, block + delimiter);
+      return;
+    }
+    const trimmed = payload.trim();
+    if (trimmed === "") {
+      if (performance.now() >= pullDeadline) throw stalled;
+      enqueue(controller, block + delimiter);
+      return;
+    }
+    if (trimmed === "[DONE]") {
+      sawDone = true;
+      enqueue(controller, replaceSseDataPayload(block, "[DONE]") + delimiter);
+      releaseBuffer();
+      settle(200);
+      try { void reader.cancel().catch(() => {}); } catch { /* already closed */ }
+      controller.close();
+      return;
+    }
+    let parsed: unknown;
+    try {
+      parsed = JSON.parse(payload);
+    } catch {
+      fail(controller, "upstream returned malformed SSE JSON", "upstream_sse_invalid");
+      return;
+    }
+    if (!isRec(parsed)) {
+      fail(controller, "upstream returned an invalid SSE event", "upstream_sse_invalid");
+      return;
+    }
+    const error = structuredError(parsed);
+    if (error) {
+      const status = error.status ?? 502;
+      const classified = classifyError(status, error.type ?? "upstream_error", error.message);
+      if (isCyberPolicyCode(error.code) || classified.code === CYBER_POLICY_ERROR_CODE) {
+        classified.code = CYBER_POLICY_ERROR_CODE;
+        classified.type = cyberPolicyErrorType(error.type);
+      } else if (error.code !== undefined && error.code !== null) {
+        classified.code = error.code;
+      }
+      const safe = chatCompletionsErrorBody(status, classified.message, classified.type, classified.code);
+      enqueue(controller, replaceSseDataPayload(block, JSON.stringify(safe)) + delimiter);
+      releaseBuffer();
+      settle(isCyberPolicyCode(classified.code) ? 400 : status, classified.message);
+      try { void reader.cancel(new Error(classified.message)).catch(() => {}); } catch { /* already closed */ }
+      controller.close();
+      return;
+    }
+    const usage = usageFromChat(parsed.usage);
+    if (usage) options.onUsage(usage);
+    const choices = Array.isArray(parsed.choices) ? parsed.choices : [];
+    const finished = choices.some(choice => isRec(choice) && typeof choice.finish_reason === "string" && choice.finish_reason.length > 0);
+    if (finished) sawFinish = true;
+    const hasProgress = choices.some(choice => {
+      if (!isRec(choice) || !isRec(choice.delta)) return false;
+      const delta = choice.delta;
+      return (typeof delta.content === "string" && delta.content.length > 0)
+        || (typeof delta.reasoning_content === "string" && delta.reasoning_content.length > 0)
+        || (typeof delta.reasoning === "string" && delta.reasoning.length > 0)
+        || (Array.isArray(delta.reasoning_details) && delta.reasoning_details.some(detail =>
+          isRec(detail) && typeof detail.text === "string" && detail.text.length > 0))
+        || (typeof delta.refusal === "string" && delta.refusal.length > 0)
+        || (Array.isArray(delta.tool_calls) && delta.tool_calls.some(tool => {
+          if (!isRec(tool)) return false;
+          const fn = isRec(tool.function) ? tool.function : {};
+          return (typeof tool.id === "string" && tool.id.length > 0)
+            || (typeof fn.name === "string" && fn.name.length > 0)
+            || (typeof fn.arguments === "string" && fn.arguments.length > 0);
+        }));
+    });
+    if (hasProgress || finished) pullDeadline = performance.now() + stallMs;
+    else if (performance.now() >= pullDeadline) throw stalled;
+    if (!firstOutput && hasProgress) {
+      firstOutput = true;
+      options.onFirstOutput?.();
+    }
+    enqueue(controller, replaceSseDataPayload(block, JSON.stringify(normalizedChunk(parsed, options.requestedModel))) + delimiter);
+  };
+
+  function onAbort() {
+    cancelledBySignal = true;
+    releaseBuffer();
+    if (!settled) {
+      settled = true;
+      options.onCancel?.();
+    }
+    try { void reader.cancel(options.signal.reason).catch(() => {}); } catch { /* already closed */ }
+  }
+  if (options.signal.aborted) onAbort();
+  else options.signal.addEventListener("abort", onAbort, { once: true });
+
+  return new ReadableStream<Uint8Array>({
+    async pull(controller) {
+      releaseQueued();
+      pullDeadline = performance.now() + remainingStallMs;
+      try {
+        for (;;) {
+          if (cancelledBySignal) {
+            releaseBuffer();
+            controller.close();
+            return;
+          }
+          const next = buffer.next();
+          if (next) {
+            buffer.compact();
+            processBlock(controller, next.block, next.delimiter);
+            return;
+          }
+          if (performance.now() >= pullDeadline) throw stalled;
+          let timeout: ReturnType<typeof setTimeout> | undefined;
+          let read: Awaited<ReturnType<typeof reader.read>>;
+          try {
+            read = await Promise.race([
+              reader.read(),
+              new Promise<never>((_, reject) => {
+                const check = () => {
+                  const remaining = pullDeadline - performance.now();
+                  if (remaining <= 0) reject(stalled);
+                  else timeout = setTimeout(check, Math.min(remaining, 2_147_483_647));
+                };
+                check();
+              }),
+            ]);
+          } finally {
+            if (timeout !== undefined) clearTimeout(timeout);
+          }
+          const { done, value } = read;
+          if (cancelled) return;
+          if (cancelledBySignal) {
+            releaseBuffer();
+            controller.close();
+            return;
+          }
+          if (!done) {
+            buffer.append(decoder.decode(value, { stream: true }));
+            continue;
+          }
+          buffer.append(decoder.decode());
+          if (buffer.tail().trim().length > 0) {
+            fail(controller, "upstream SSE ended with an unterminated event", "upstream_sse_unterminated");
+            return;
+          }
+          releaseBuffer();
+          if (sawDone || sawFinish) {
+            if (!sawDone) enqueue(controller, "data: [DONE]\n\n");
+            settle(200);
+            controller.close();
+          } else {
+            fail(controller, "upstream SSE ended before a terminal event", "upstream_sse_truncated");
+          }
+          return;
+        }
+      } catch (error) {
+        if (cancelled || cancelledBySignal) {
+          releaseBuffer();
+          try { controller.close(); } catch { /* already closed */ }
+          return;
+        }
+        const overflow = isTranslatorBudgetExceededError(error)
+          || (error instanceof Error && (error.cause as { code?: unknown } | undefined)?.code === "translation_buffer_limit");
+        fail(
+          controller,
+          overflow ? "upstream SSE event exceeded the safe limit" : error instanceof Error ? error.message : String(error),
+          overflow ? "translation_buffer_limit" : error === stalled ? "upstream_stall_timeout" : "upstream_sse_error",
+        );
+      } finally {
+        remainingStallMs = Math.max(0, pullDeadline - performance.now());
+      }
+    },
+    cancel(reason) {
+      cancelled = true;
+      releaseQueued();
+      releaseBuffer();
+      options.signal.removeEventListener("abort", onAbort);
+      if (!settled) {
+        settled = true;
+        options.onCancel?.();
+      }
+      try { return reader.cancel(reason).then(() => undefined, () => undefined); } catch { return Promise.resolve(); }
+    },
+  });
+}

@@ -1,0 +1,399 @@
+/**
+ * Resolve the effective Windows token to the locale-independent SID form that
+ * icacls accepts ("*S-1-..."). Environment values such as USERDOMAIN are not
+ * an authority for the current token: on workgroup machines USERDOMAIN may be
+ * the literal WORKGROUP even though the account belongs to the local computer.
+ *
+ * There is deliberately NO name-shaped fallback. A `DOMAIN\User` string has a
+ * valid shape, but shape is not evidence that the account is the current
+ * token's subject, and both environment variables are writable by whatever
+ * launched us. A wrong principal here is not cosmetic: `runIcacls` grants it
+ * Full Control and then removes inheritance, so a wrong grant either leaves a
+ * different account holding the secret or strands the file with no usable ACE.
+ * When the SID cannot be resolved, the caller declines to touch the ACL at all.
+ *
+ * Budget caveat: callers pass their REMAINING harden budget, which becomes the
+ * child process timeout. Trusted-executable resolution (a `GetSystemDirectoryW`
+ * FFI call) and spawn setup happen before that timeout starts, and the async
+ * timer only arms once `Bun.spawn` returns. Both are small in practice, but the
+ * lookup is not bounded by the deadline to the microsecond. Tightening that
+ * would mean passing an absolute deadline through the runner interface.
+ */
+
+import { existsSync } from "node:fs";
+import { win32 as windowsPath } from "node:path";
+import { waitForSubprocessExit } from "./bounded-subprocess";
+import { decodeWindowsTextBytes } from "./windows-text";
+
+import {
+  resolveTrustedWindowsPowerShellExe,
+  WindowsSystemDirectoryFfiUnavailableError,
+} from "./windows-elevation";
+
+/**
+ * Shared ceiling for a full effective-token identity lookup. PowerShell startup can
+ * legitimately take several seconds on loaded desktops as well as CI, so every caller
+ * that is not spending a smaller pre-existing deadline uses the same #2914-tested budget.
+ */
+export const WINDOWS_PRINCIPAL_LOOKUP_TIMEOUT_MS = 30_000;
+
+const SID_PATTERN = /^S-1-(?:\d+-)+\d+$/i;
+const IDENTITY_EXPRESSION =
+  "$identity=[System.Security.Principal.WindowsIdentity]::GetCurrent();$identity.User.Value;$identity.Name";
+const DEFAULT_WINDOWS_ARM64_POWERSHELL = windowsPath.join(
+  "C:\\Windows\\System32",
+  "WindowsPowerShell",
+  "v1.0",
+  "powershell.exe",
+);
+
+type PrincipalExecutableResolution = Readonly<{
+  platform: NodeJS.Platform;
+  arch: string;
+  resolveTrusted: () => string;
+  pathExists: (path: string) => boolean;
+}>;
+
+/**
+ * Bun's Windows ARM64 build cannot currently execute the `bun:ffi` call used
+ * by the general System32 resolver. The ACL identity lookup has a narrower
+ * authority than the elevation helpers: it starts one non-elevated PowerShell
+ * command and accepts only a SID-shaped result. Keep its fallback equally
+ * narrow by using the fixed, OS-protected default installation path only.
+ *
+ * Environment and PATH lookup are deliberately absent. A Windows installation
+ * outside C:\\Windows keeps failing closed rather than executing a binary chosen
+ * by caller-controlled `SystemRoot`, `WINDIR`, or `PATH` values.
+ */
+function resolveWindowsPrincipalPowerShellExecutable(
+  resolution: PrincipalExecutableResolution = {
+    platform: process.platform,
+    arch: process.arch,
+    resolveTrusted: resolveTrustedWindowsPowerShellExe,
+    pathExists: existsSync,
+  },
+): string {
+  try {
+    return resolution.resolveTrusted();
+  } catch (error) {
+    if (
+      !(error instanceof WindowsSystemDirectoryFfiUnavailableError) ||
+      resolution.platform !== "win32" ||
+      resolution.arch !== "arm64" ||
+      !resolution.pathExists(DEFAULT_WINDOWS_ARM64_POWERSHELL)
+    ) {
+      throw error;
+    }
+    return DEFAULT_WINDOWS_ARM64_POWERSHELL;
+  }
+}
+
+/** Test-only dependency-injected view of the Windows ARM64 executable boundary. */
+export function resolveWindowsPrincipalPowerShellExecutableForTests(
+  resolution: PrincipalExecutableResolution,
+): string {
+  return resolveWindowsPrincipalPowerShellExecutable(resolution);
+}
+
+export interface WindowsPrincipalLookupResult {
+  success: boolean;
+  exitCode: number | null;
+  timedOut: boolean;
+  /**
+   * Raw child stdout. Bytes are allowed because `powershell.exe` writes the console
+   * output code page, not UTF-8, and the decode below is the thing under test: a seam
+   * that only carried a decoded string could never exercise it.
+   */
+  stdout: string | Uint8Array;
+}
+
+export type WindowsPrincipalRunner = (
+  timeoutMs: number,
+) => WindowsPrincipalLookupResult;
+
+export type AsyncWindowsPrincipalRunner = (
+  timeoutMs: number,
+) => Promise<WindowsPrincipalLookupResult>;
+
+const POWERSHELL_ARGS = [
+  "-NoLogo",
+  "-NoProfile",
+  "-NonInteractive",
+  "-Command",
+  IDENTITY_EXPRESSION,
+] as const;
+
+function windowsPrincipalPowerShellCommand(): string[] {
+  return [resolveWindowsPrincipalPowerShellExecutable(), ...POWERSHELL_ARGS];
+}
+
+/** Test-only readback of the exact trusted executable and static arguments. */
+export function windowsPrincipalPowerShellCommandForTests(): string[] {
+  return windowsPrincipalPowerShellCommand();
+}
+
+function defaultWindowsPrincipalRunner(timeoutMs: number): WindowsPrincipalLookupResult {
+  const result = Bun.spawnSync(windowsPrincipalPowerShellCommand(), {
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "ignore",
+    timeout: Math.max(1, timeoutMs),
+    windowsHide: true,
+  });
+  return {
+    success: result.success,
+    exitCode: result.exitCode,
+    timedOut: result.exitedDueToTimeout ?? false,
+    // Bytes, NOT .toString(): that is UTF-8, and Windows PowerShell 5.1 emits the
+    // console output code page. A non-ASCII account name decoded as UTF-8 becomes
+    // U+FFFD and is then frozen into the identity cache.
+    stdout: result.stdout ?? new Uint8Array(),
+  };
+}
+
+async function defaultAsyncWindowsPrincipalRunner(
+  timeoutMs: number,
+): Promise<WindowsPrincipalLookupResult> {
+  const proc = Bun.spawn(windowsPrincipalPowerShellCommand(), {
+    stdin: "ignore",
+    stdout: "pipe",
+    stderr: "ignore",
+    windowsHide: true,
+  });
+  const { exitCode, timedOut } = await waitForSubprocessExit(proc, timeoutMs);
+  // `.bytes()` rather than `.text()`, for the same reason as the sync runner above.
+  const stdout: string | Uint8Array = !timedOut && proc.stdout
+    ? await new Response(proc.stdout).bytes().catch(() => new Uint8Array())
+    : "";
+  return {
+    success: !timedOut && exitCode === 0,
+    exitCode: timedOut ? null : exitCode,
+    timedOut,
+    stdout,
+  };
+}
+
+let principalRunner: WindowsPrincipalRunner = defaultWindowsPrincipalRunner;
+let asyncPrincipalRunner: AsyncWindowsPrincipalRunner = defaultAsyncWindowsPrincipalRunner;
+let principalLocaleForTests: string | undefined;
+
+/**
+ * Decode child stdout the way the rest of this repository already decodes Windows
+ * console output: UTF-16 with or without a BOM, then STRICT UTF-8, then the locale's
+ * legacy code page. Strict-UTF-8-first is what keeps an ordinary UTF-8 host unaffected.
+ *
+ * The SID on the first line is ASCII by construction and survives either way, which is
+ * why this corruption stayed silent: only the account name on the second line breaks.
+ */
+function decodePrincipalStdout(stdout: string | Uint8Array): string {
+  if (typeof stdout === "string") return stdout;
+  return decodeWindowsTextBytes(
+    stdout,
+    principalLocaleForTests ? { locale: principalLocaleForTests } : {},
+  );
+}
+
+export interface WindowsPrincipalIdentity {
+  readonly sid: string;
+  readonly name: string;
+}
+
+let cachedIdentity: WindowsPrincipalIdentity | null = null;
+let asyncLookupInFlight: Promise<string> | null = null;
+
+/**
+ * POSIX CI drives the Windows ACL branch through `setPlatformForTests("win32")`,
+ * on hosts that have neither System32 nor PowerShell. Those runs need SOME
+ * principal, so this seam supplies a synthetic one.
+ *
+ * It lives here rather than in `windows-secret-acl.ts` for one reason that is
+ * not cosmetic: an explicitly injected runner must be able to beat it. When the
+ * synthetic value was chosen first, in the ACL module, a test could not inject a
+ * lookup FAILURE on POSIX at all — so the fail-closed and memo-isolation cases
+ * were guarded with `if (process.platform !== "win32") return;` and never ran
+ * outside Windows. Resolution order below is what makes those cases executable
+ * on every runner.
+ */
+let syntheticPrincipalForTests: string | null = null;
+
+/**
+ * Test seam: supply the principal used when no runner was injected and the host
+ * is not really Windows. Pass null to disable.
+ */
+export function setSyntheticWindowsPrincipalForTests(principal: string | null): void {
+  syntheticPrincipalForTests = principal;
+  cachedIdentity = null;
+}
+
+/** True when an explicit runner override is installed and must take precedence. */
+function hasSyncRunnerOverride(): boolean {
+  return principalRunner !== defaultWindowsPrincipalRunner;
+}
+
+function hasAsyncRunnerOverride(): boolean {
+  return asyncPrincipalRunner !== defaultAsyncWindowsPrincipalRunner;
+}
+
+function identityError(reason: string): NodeJS.ErrnoException {
+  const error = new Error(`Windows effective-account SID lookup ${reason}`) as NodeJS.ErrnoException;
+  // Keep identity lookup failures distinct from icacls timeouts. In particular,
+  // they must not populate windows-secret-acl's destination timeout memo.
+  error.code = "EACLIDENTITY";
+  return error;
+}
+
+function identityFromResult(result: WindowsPrincipalLookupResult): WindowsPrincipalIdentity {
+  if (!result.success) {
+    throw identityError(result.timedOut
+      ? "timed out"
+      : `exited ${result.exitCode ?? "null"}`);
+  }
+  const lines = decodePrincipalStdout(result.stdout).trim().split(/\r?\n/);
+  const sid = lines[0]?.trim() ?? "";
+  const name = lines[1]?.trim() ?? "";
+  if (!SID_PATTERN.test(sid)) {
+    throw identityError(sid ? "returned an invalid SID" : "returned an empty SID");
+  }
+  if (!name || lines.length !== 2) {
+    throw identityError(name ? "returned an ambiguous account name" : "returned an empty account name");
+  }
+  return Object.freeze({ sid: sid.toUpperCase(), name });
+}
+
+/** Read the effective-token identity only when an earlier lookup already cached it. */
+export function cachedCurrentWindowsIdentity(): WindowsPrincipalIdentity | null {
+  return cachedIdentity;
+}
+
+/** Resolve and process-cache the effective token SID for synchronous ACL paths. */
+export function resolveCurrentWindowsPrincipal(timeoutMs: number): string {
+  // Order matters: an explicitly injected runner outranks the synthetic value,
+  // so a test can inject a FAILURE on a POSIX host. See the seam comment above.
+  if (hasSyncRunnerOverride()) {
+    if (cachedIdentity) return `*${cachedIdentity.sid}`;
+    if (timeoutMs <= 0) throw identityError("had no remaining deadline");
+    let overridden: WindowsPrincipalLookupResult;
+    try {
+      overridden = principalRunner(timeoutMs);
+    } catch {
+      throw identityError("could not start");
+    }
+    cachedIdentity = identityFromResult(overridden);
+    return `*${cachedIdentity.sid}`;
+  }
+  if (cachedIdentity) return `*${cachedIdentity.sid}`;
+  if (syntheticPrincipalForTests) return syntheticPrincipalForTests;
+  if (timeoutMs <= 0) throw identityError("had no remaining deadline");
+  let result: WindowsPrincipalLookupResult;
+  try {
+    result = principalRunner(timeoutMs);
+  } catch {
+    throw identityError("could not start");
+  }
+  cachedIdentity = identityFromResult(result);
+  return `*${cachedIdentity.sid}`;
+}
+
+async function waitForExistingLookup(
+  lookup: Promise<string>,
+  timeoutMs: number,
+): Promise<string> {
+  if (timeoutMs <= 0) throw identityError("had no remaining deadline");
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  try {
+    return await Promise.race([
+      lookup,
+      new Promise<never>((_, reject) => {
+        timer = setTimeout(
+          () => reject(identityError("timed out while awaiting the shared lookup")),
+          Math.max(1, timeoutMs),
+        );
+      }),
+    ]);
+  } finally {
+    if (timer) clearTimeout(timer);
+  }
+}
+
+/**
+ * Async counterpart. Concurrent callers share one owned child lookup; a later
+ * caller may exhaust its own budget without cancelling the lookup owned by the
+ * first caller. The first caller owns that child and its process timeout; a
+ * later, longer budget deliberately does not extend an already-running child.
+ */
+export async function resolveCurrentWindowsPrincipalAsync(timeoutMs: number): Promise<string> {
+  const overridden = hasAsyncRunnerOverride();
+  if (cachedIdentity) return `*${cachedIdentity.sid}`;
+  if (asyncLookupInFlight) return waitForExistingLookup(asyncLookupInFlight, timeoutMs);
+  // Same precedence rule as the sync path: an injected runner beats the synthetic.
+  if (!overridden && syntheticPrincipalForTests) return syntheticPrincipalForTests;
+  if (timeoutMs <= 0) throw identityError("had no remaining deadline");
+
+  const lookup = (async (): Promise<string> => {
+    let result: WindowsPrincipalLookupResult;
+    try {
+      result = await asyncPrincipalRunner(timeoutMs);
+    } catch {
+      throw identityError("could not start");
+    }
+    cachedIdentity = identityFromResult(result);
+    return `*${cachedIdentity.sid}`;
+  })();
+  asyncLookupInFlight = lookup;
+  void lookup.then(
+    () => { if (asyncLookupInFlight === lookup) asyncLookupInFlight = null; },
+    () => { if (asyncLookupInFlight === lookup) asyncLookupInFlight = null; },
+  );
+  return waitForExistingLookup(lookup, timeoutMs);
+}
+
+/** Test seam: replace the sync resolver process and clear its successful cache. */
+export function setWindowsPrincipalRunnerForTests(
+  runner: WindowsPrincipalRunner | null,
+): void {
+  if (asyncLookupInFlight) {
+    throw new Error("Cannot replace the Windows principal runner while a lookup is in flight.");
+  }
+  principalRunner = runner ?? defaultWindowsPrincipalRunner;
+  cachedIdentity = null;
+}
+
+/** Test seam: replace the async resolver process and clear its successful cache. */
+export function setAsyncWindowsPrincipalRunnerForTests(
+  runner: AsyncWindowsPrincipalRunner | null,
+): void {
+  if (asyncLookupInFlight) {
+    throw new Error("Cannot replace the Windows principal runner while a lookup is in flight.");
+  }
+  asyncPrincipalRunner = runner ?? defaultAsyncWindowsPrincipalRunner;
+  cachedIdentity = null;
+}
+
+/**
+ * Test seam: pin the locale that selects the legacy code page.
+ *
+ * Required rather than convenient. `decodeWindowsTextBytes` picks ONE legacy encoding
+ * from the ambient locale, so CP949, CP932 and CP936 fixtures cannot all decode
+ * correctly in a single process without being told which to expect. Production passes
+ * nothing and keeps the ambient locale.
+ *
+ * Clears the cache and refuses mid-flight for the same reasons the runner setters do:
+ * a successful identity is returned from cache BEFORE any decode, and the async path
+ * decodes after its runner resolves.
+ */
+export function setWindowsPrincipalLocaleForTests(locale: string | null): void {
+  if (asyncLookupInFlight) {
+    throw new Error("Cannot change the Windows principal locale while a lookup is in flight.");
+  }
+  principalLocaleForTests = locale ?? undefined;
+  cachedIdentity = null;
+}
+
+/** Test seam: clear only process-local principal state. */
+export function resetWindowsPrincipalForTests(): void {
+  if (asyncLookupInFlight) {
+    throw new Error("Cannot reset the Windows principal while a lookup is in flight.");
+  }
+  cachedIdentity = null;
+  syntheticPrincipalForTests = null;
+}

@@ -1,0 +1,142 @@
+{
+  "models": [
+    {
+      "provider_id": "openrouter",
+      "model_id": "z-ai/glm-5.3",
+      "display_name": "z-ai/glm-5.3",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "low",
+          "high",
+          "max"
+        ],
+        "mandatory": true,
+        "default_effort": "max",
+        "default_enabled": true
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "z-ai/glm-5.3-flash",
+      "display_name": "z-ai/glm-5.3-flash",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "low",
+          "high",
+          "max"
+        ],
+        "mandatory": true,
+        "default_effort": "max",
+        "default_enabled": true
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/missing",
+      "display_name": "fixture/missing",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [],
+        "mandatory": false
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/empty-mandatory",
+      "display_name": "fixture/empty-mandatory",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [],
+        "mandatory": true,
+        "default_enabled": true
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/off-without-none",
+      "display_name": "fixture/off-without-none",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "low",
+          "high"
+        ],
+        "mandatory": false,
+        "default_enabled": false
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/automatic-with-none",
+      "display_name": "fixture/automatic-with-none",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "none",
+          "low",
+          "high"
+        ],
+        "mandatory": false
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/invalid",
+      "display_name": "fixture/invalid",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [],
+        "mandatory": true
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "z-ai/glm-5.3-flash:batch",
+      "display_name": "z-ai/glm-5.3-flash:batch",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "low",
+          "high"
+        ],
+        "mandatory": true,
+        "default_effort": "high",
+        "default_enabled": true
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/fixed",
+      "display_name": "fixture/fixed",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "high"
+        ],
+        "mandatory": true,
+        "default_effort": "high"
+      }
+    },
+    {
+      "provider_id": "openrouter",
+      "model_id": "fixture/gateway-all",
+      "display_name": "fixture/gateway-all",
+      "context_window": 64000,
+      "reasoning": {
+        "supported_efforts": [
+          "none",
+          "minimal",
+          "low",
+          "medium",
+          "high",
+          "xhigh",
+          "max"
+        ],
+        "mandatory": false,
+        "default_effort": "medium"
+      }
+    }
+  ]
+}

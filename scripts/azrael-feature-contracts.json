@@ -1,0 +1,783 @@
+{
+  "schema": 1,
+  "features": [
+    {
+      "id": "ui.account-settings",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-account-settings.cjs"
+      ],
+      "contract": "docs/architecture/accounts.md",
+      "checks": [
+        {
+          "id": "ui.account-settings.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-account-settings.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "accountSettingsEdits"
+      ]
+    },
+    {
+      "id": "ui.instruction-settings",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-instruction-settings.cjs"
+      ],
+      "contract": "docs/architecture/instructions.md",
+      "checks": [
+        {
+          "id": "ui.instruction-settings.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-instruction-settings.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "instructionSettingsEdits"
+      ]
+    },
+    {
+      "id": "ui.student-design",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-student-design.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.student-design.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-student-design.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "studentDesignEdits"
+      ]
+    },
+    {
+      "id": "ui.recovery",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-recovery.cjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "ui.recovery.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-recovery-state.cjs",
+            "scripts/test-recovery-bridge.cjs",
+            "scripts/test-recovery-presentation.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "recoveryEdits"
+      ]
+    },
+    {
+      "id": "ui.fetch-response",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-fetch-response.cjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "ui.fetch-response.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-fetch-response.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "fetchResponseEdits"
+      ]
+    },
+    {
+      "id": "ui.url-safety-transport",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-url-safety-transport.cjs"
+      ],
+      "contract": "docs/architecture/computer-use.md",
+      "checks": [
+        {
+          "id": "ui.url-safety-transport.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-url-safety-transport.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "urlSafetyTransportEdits"
+      ]
+    },
+    {
+      "id": "ui.computer-use",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-computer-use.cjs"
+      ],
+      "contract": "docs/architecture/computer-use.md",
+      "checks": [
+        {
+          "id": "ui.computer-use.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-computer-use-injection.cjs",
+            "scripts/test-computer-use-approvals.cjs",
+            "scripts/test-computer-use-runtime.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "computerUseApprovalEdits",
+        "computerUseSettingsEdits",
+        "computerUseCancelRequestEdits",
+        "computerUseManagementEdits"
+      ]
+    },
+    {
+      "id": "ui.window-control",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-window-control.cjs"
+      ],
+      "contract": "docs/architecture/computer-use.md",
+      "checks": [
+        {
+          "id": "ui.window-control.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-window-control-injection.cjs",
+            "scripts/test-window-control-policy.cjs",
+            "scripts/test-window-control-runtime.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "windowControlEdits"
+      ]
+    },
+    {
+      "id": "ui.file-open-menu",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-file-open-menu.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.file-open-menu.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-file-open-menu.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "fileOpenMenuEdits"
+      ]
+    },
+    {
+      "id": "ui.image-file-open",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-image-file-open.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.image-file-open.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-image-file-open.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "imageFileOpenEdits"
+      ]
+    },
+    {
+      "id": "ui.local-file-drop",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-local-file-drop.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.local-file-drop.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-local-file-drop.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "localFileDropEdits"
+      ]
+    },
+    {
+      "id": "ui.composer-draft",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-composer-draft.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.composer-draft.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-composer-draft.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "composerDraftEdits"
+      ]
+    },
+    {
+      "id": "ui.ui-cleanup",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-ui-cleanup.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.ui-cleanup.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-ui-cleanup.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "uiCleanupEdits"
+      ]
+    },
+    {
+      "id": "ui.pets-cleanup",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-pets-cleanup.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.pets-cleanup.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-pets-cleanup.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "petsCleanupEdits"
+      ]
+    },
+    {
+      "id": "ui.content-fonts",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-content-fonts.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.content-fonts.behavior",
+          "executable": "node",
+          "args": [
+            "scripts/test-content-fonts.cjs",
+            "--source-only"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "contentFontEdits"
+      ]
+    },
+    {
+      "id": "ui.provider-context",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-provider-context.cjs"
+      ],
+      "contract": "docs/architecture/context-policy.md",
+      "checks": [
+        {
+          "id": "ui.provider-context.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-provider-context.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "providerContextEdits"
+      ]
+    },
+    {
+      "id": "ui.deferred-turn",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-deferred-turn.cjs"
+      ],
+      "contract": "docs/architecture/root-resume.md",
+      "checks": [
+        {
+          "id": "ui.deferred-turn.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-deferred-turn.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "deferredTurnEdits",
+        "deferredNativeTimingChecks"
+      ]
+    },
+    {
+      "id": "ui.compaction-progress",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-compaction-progress.cjs"
+      ],
+      "contract": "docs/architecture/queued-compaction.md",
+      "checks": [
+        {
+          "id": "ui.compaction-progress.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-compaction-progress.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "compactionProgressEdits"
+      ]
+    },
+    {
+      "id": "ui.queue-refresh",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-queue-refresh.cjs"
+      ],
+      "contract": "docs/architecture/queued-compaction.md",
+      "checks": [
+        {
+          "id": "ui.queue-refresh.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-queue-refresh.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "queueRefreshNativeChecks"
+      ]
+    },
+    {
+      "id": "ui.account-switch-queue",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-account-switch-queue.cjs"
+      ],
+      "contract": "docs/architecture/accounts.md",
+      "checks": [
+        {
+          "id": "ui.account-switch-queue.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-account-switch-queue.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "accountSwitchQueueEdits"
+      ]
+    },
+    {
+      "id": "ui.queue-consumption",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-queue-consumption.cjs"
+      ],
+      "contract": "docs/architecture/queued-compaction.md",
+      "checks": [
+        {
+          "id": "ui.queue-consumption.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-queue-consumption.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "queueConsumptionEdits"
+      ]
+    },
+    {
+      "id": "ui.provider-model-picker",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-provider-model-picker.cjs"
+      ],
+      "contract": "docs/architecture/managed-providers.md",
+      "checks": [
+        {
+          "id": "ui.provider-model-picker.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-provider-model-picker.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "providerPickerEdits"
+      ]
+    },
+    {
+      "id": "ui.thread-branch",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-thread-branch.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.thread-branch.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-thread-branch.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "threadBranchEdits"
+      ]
+    },
+    {
+      "id": "ui.paginated-history",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-paginated-history.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.paginated-history.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-paginated-history.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "paginatedHistoryEdits"
+      ]
+    },
+    {
+      "id": "ui.immediate-stop",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-immediate-stop.cjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "ui.immediate-stop.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-immediate-stop.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "immediateStopEdits"
+      ]
+    },
+    {
+      "id": "ui.queued-compaction",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-queued-compaction.cjs"
+      ],
+      "contract": "docs/architecture/queued-compaction.md",
+      "checks": [
+        {
+          "id": "ui.queued-compaction.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-queued-compaction.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "queuedCompactionEdits"
+      ]
+    },
+    {
+      "id": "ui.max-reasoning",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-max-reasoning.cjs"
+      ],
+      "contract": "docs/architecture/managed-providers.md",
+      "checks": [
+        {
+          "id": "ui.max-reasoning.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-max-reasoning.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "maxReasoningEdits"
+      ]
+    },
+    {
+      "id": "ui.recent-chat-filter",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-recent-chat-filter.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.recent-chat-filter.behavior",
+          "executable": "node",
+          "args": [
+            "scripts/test-feature-preservation.cjs",
+            "--recent-chat-check"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "recentChatFilterEdits"
+      ]
+    },
+    {
+      "id": "engine.provider-context",
+      "area": "engine",
+      "owners": [
+        "scripts/test-provider-context-engine.mjs"
+      ],
+      "contract": "docs/architecture/context-policy.md",
+      "checks": [
+        {
+          "id": "engine.provider-context.native",
+          "executable": "node",
+          "args": [
+            "scripts/test-provider-context-engine.mjs",
+            "{engine}",
+            "{fixture}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.recovery",
+      "area": "engine",
+      "owners": [
+        "scripts/test-recovery-engine.mjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "engine.recovery.native",
+          "executable": "node",
+          "args": [
+            "scripts/test-recovery-engine.mjs",
+            "{engine}",
+            "{fixture}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.accepted-input",
+      "area": "engine",
+      "owners": [
+        "scripts/fixtures/accepted-input-helper.mjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "engine.accepted-input.native",
+          "executable": "node",
+          "args": [
+            "scripts/test-accepted-input-engine.mjs",
+            "--engine",
+            "{engine}",
+            "--output",
+            "{fixture}",
+            "--catalog",
+            "{engineSourceRoot}/codex-rs/models-manager/models.json"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.auto-account-switch",
+      "area": "engine",
+      "owners": [
+        "scripts/auto-account-switch-fixture.mjs"
+      ],
+      "contract": "docs/architecture/accounts.md",
+      "checks": [
+        {
+          "id": "engine.auto-account-switch.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-auto-account-switch.mjs",
+            "{engine}",
+            "{fixture}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.devin-native",
+      "area": "engine",
+      "owners": [
+        "scripts/devin-native-fixture.mjs"
+      ],
+      "contract": "docs/architecture/devin.md",
+      "checks": [
+        {
+          "id": "engine.devin-native.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-devin-native-engine.mjs",
+            "{engine}",
+            "{fixture}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.devin-code-mode",
+      "area": "engine",
+      "owners": [
+        "scripts/devin-native-fixture.mjs"
+      ],
+      "contract": "docs/architecture/devin.md",
+      "checks": [
+        {
+          "id": "engine.devin-code-mode.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-devin-native-engine.mjs",
+            "{engine}",
+            "{fixture}",
+            "--code-mode"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.devin-agents",
+      "area": "engine",
+      "owners": [
+        "scripts/devin-native-agents-fixture.mjs"
+      ],
+      "contract": "docs/architecture/devin.md",
+      "checks": [
+        {
+          "id": "engine.devin-agents.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-devin-native-agents.mjs",
+            "{engine}",
+            "{fixture}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    }
+  ]
+}
