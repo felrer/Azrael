@@ -2,10 +2,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { checked, walk, relative, hash } = require('./computer-use-runtime.cjs');
-const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md'];
+const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md', 'THIRD_PARTY_NOTICES.md'];
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 function sourceFingerprint(sourceRoot) {
-  const files = ['Cargo.lock', 'Cargo.toml', ...walk(path.join(sourceRoot, 'src')).map(rel => `src/${rel}`)].sort();
+  const files = ['Cargo.lock', 'Cargo.toml', 'THIRD_PARTY_NOTICES.md', ...walk(path.join(sourceRoot, 'src')).map(rel => `src/${rel}`)].sort();
   if (!files.includes('Cargo.toml') || !files.includes('Cargo.lock') || !files.some(rel => rel.startsWith('src/'))) throw new Error('Incomplete Window Control crate source');
   return hash(JSON.stringify(files.map(rel => [rel, hash(fs.readFileSync(checked(sourceRoot, rel)))])));
 }
@@ -74,7 +74,7 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   const evidence = JSON.parse(fs.readFileSync(provenance));
   const sourceSha256 = sourceFingerprint(sourceRoot), executableSha256 = hash(fs.readFileSync(executable));
   if (evidence.schema !== 1 || evidence.sourceSha256 !== sourceSha256 || evidence.executableSha256 !== executableSha256) throw new Error('Window Control build provenance mismatch');
-  const inputs = [[REQUIRED[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance]];
+  const inputs = [[REQUIRED[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance], [REQUIRED[4], checked(sourceRoot, REQUIRED[4])]];
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); }

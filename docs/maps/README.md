@@ -27,6 +27,8 @@ Follow the relevant row from code to contract to verification. A row does not re
 
 Computer Use runtime staging and verification are owned by `scripts/computer-use-runtime.cjs`; the host app consent store and settings are owned by `scripts/computer-use-approvals.cjs`, with pinned forwarding hooks in `scripts/inject-computer-use.cjs`. Their contract is [Computer Use](../architecture/computer-use.md).
 
+Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversation/UI ownership, `window-control-policy.cjs` for selection and operation checks, `window-control-mcp.cjs` for the model transport, and `window-control-backend.cjs` for its owned native child. `native/window-control/` implements Windows capture and UI Automation; `scripts/window-control-runtime.cjs` verifies the packaged payload. The native engine owns the durable selected-window tool ceiling. Live Windows acceptance remains a separate gate.
+
 | Entry | Role |
 | --- | --- |
 | `providers/devin/helper.mjs`, `mapping.mjs`, `vendor/` | Minimal pinned Devin inference transport and reversible native tool/history mapping; never executes tools. |

@@ -11,7 +11,7 @@ function fixture(t) {
   t.after(() => fs.rmSync(root, { recursive: true, force: true }));
   const sourceRoot = path.join(root, 'source'), scriptDirectory = path.join(root, 'scripts'), skillDirectory = path.join(root, 'skill');
   for (const directory of [path.join(sourceRoot, 'src'), scriptDirectory, skillDirectory]) fs.mkdirSync(directory, { recursive: true });
-  for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
+  for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['THIRD_PARTY_NOTICES.md', 'Fixture third-party license notices'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
   for (const name of ['window-control-mcp.cjs', 'window-control-policy.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
   const guidance = path.join(skillDirectory, 'selected-window.md');
   fs.writeFileSync(guidance, 'Selected window instructions');
@@ -25,6 +25,7 @@ test('stage closure includes required owned files and release binds provenance',
   const f = fixture(t), result = stageRuntime(f.options);
   fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256: { 'window-control/manifest.json': result.manifestSha256 } }));
   assert.equal(verifyRelease(f.release, f.sourceRoot).executable, path.join(f.destination, 'azrael-window-control.exe'));
+  assert.equal(fs.readFileSync(path.join(f.destination, 'THIRD_PARTY_NOTICES.md'), 'utf8'), 'Fixture third-party license notices');
   fs.writeFileSync(path.join(f.sourceRoot, 'src/main.rs'), 'changed source');
   assert.throws(() => verifyRelease(f.release, f.sourceRoot), /source provenance mismatch/);
 });
@@ -74,6 +75,22 @@ test('tampered, missing and unrecorded files fail closed', t => {
   fs.unlinkSync(file); assert.throws(() => verifyRuntime(f.destination), /ENOENT/);
   fs.writeFileSync(file, original); fs.writeFileSync(path.join(f.destination, 'unrecorded.cjs'), 'extra');
   assert.throws(() => verifyRuntime(f.destination), /Unrecorded/);
+});
+test('native license notices bind source provenance and required release payload', t => {
+  const f = fixture(t), before = fingerprintNativeSource(f.sourceRoot);
+  stageRuntime(f.options);
+  const notices = path.join(f.destination, 'THIRD_PARTY_NOTICES.md'), original = fs.readFileSync(notices);
+  fs.writeFileSync(notices, 'tampered notices');
+  assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
+  fs.unlinkSync(notices); assert.throws(() => verifyRuntime(f.destination), /ENOENT/);
+  fs.writeFileSync(notices, original);
+  const manifestPath = path.join(f.destination, 'manifest.json'), manifest = JSON.parse(fs.readFileSync(manifestPath));
+  manifest.files = manifest.files.filter(entry => entry.path !== 'THIRD_PARTY_NOTICES.md');
+  fs.writeFileSync(manifestPath, JSON.stringify(manifest));
+  assert.throws(() => verifyRuntime(f.destination), /Required Window Control entry missing: THIRD_PARTY_NOTICES/);
+  fs.writeFileSync(path.join(f.sourceRoot, 'THIRD_PARTY_NOTICES.md'), 'changed native notices');
+  assert.notEqual(fingerprintNativeSource(f.sourceRoot), before);
+  assert.throws(() => stageRuntime({ ...f.options, destination: path.join(f.release, 'refreshed') }), /build provenance mismatch/);
 });
 test('missing required entry, unsafe paths and forged binary provenance rejected', t => {
   const f = fixture(t); stageRuntime(f.options);
