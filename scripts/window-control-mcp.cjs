@@ -4,6 +4,7 @@ const path = require('node:path');
 const os = require('node:os');
 const net = require('node:net');
 const readline = require('node:readline');
+const { StringDecoder } = require('node:string_decoder');
 const { TOOLS } = require('./window-control-policy.cjs');
 function parseThreadMetadata(meta) {
   const hasHeader = meta && Object.hasOwn(meta, 'x-codex-turn-metadata');
@@ -50,14 +51,15 @@ function toolDefinitions() {
 }
 function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
   return new Promise((resolve, reject) => {
-    const socket = connect(pipe); let buffer = ''; let settled = false;
+    const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false;
     const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
     socket.setTimeout(timeoutMs, () => finish(new Error('Selected-window host timed out')));
     socket.on('connect', () => socket.write(JSON.stringify(message) + '\n'));
     socket.on('error', e => finish(e));
     socket.on('end', () => finish(new Error('Selected-window host closed without response')));
     socket.on('data', data => {
-      buffer += data.toString('utf8'); if (buffer.length > 32 * 1024 * 1024) return finish(new Error('Host response too large'));
+      receivedBytes += data.length; if (receivedBytes > 32 * 1024 * 1024) return finish(new Error('Host response too large'));
+      buffer += decoder.write(data);
       const newline = buffer.indexOf('\n'); if (newline < 0) return;
       try { const result = JSON.parse(buffer.slice(0, newline)); if (result.error) finish(new Error(typeof result.error === 'string' ? result.error : 'Selected-window operation failed')); else finish(null, result.result); } catch { finish(new Error('Invalid selected-window host response')); }
     });

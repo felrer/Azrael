@@ -1,7 +1,18 @@
 'use strict';
 const assert = require('node:assert/strict');
 const { Readable, Writable } = require('node:stream');
-const { parseThreadMetadata, relayMetadata, createRelay, createProtocol, runProtocol, callResult } = require('./window-control-mcp.cjs');
+const { EventEmitter } = require('node:events');
+const { parseThreadMetadata, relayMetadata, pipeRequest, createRelay, createProtocol, runProtocol, callResult } = require('./window-control-mcp.cjs');
+function fragmentedConnection(chunks) {
+  return () => {
+    const socket = new EventEmitter(); let destroyed = false;
+    socket.setTimeout = () => socket;
+    socket.destroy = () => { destroyed = true; };
+    socket.write = () => { for (const chunk of chunks) { if (destroyed) break; socket.emit('data', chunk); } if (!destroyed) socket.emit('end'); };
+    queueMicrotask(() => socket.emit('connect'));
+    return socket;
+  };
+}
 async function main() {
   const threadId = '12345678-1234-1234-1234-123456789abc';
   assert.equal(parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId }, threadId }), threadId);
@@ -47,6 +58,18 @@ async function main() {
   const missing = createRelay({ readFile: async () => { throw new Error('ENOENT'); } }); await assert.rejects(missing(threadId, 'capture', {}), /No selected/);
   let output = ''; await runProtocol({ input: Readable.from(['{bad\n', JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'ping' }) + '\n']), output: new Writable({ write(chunk, encoding, done) { output += chunk; done(); } }), protocol });
   const lines = output.trim().split('\n').map(JSON.parse); assert.equal(lines[0].error.code, -32700); assert.deepEqual(lines[1].result, {});
+  const koreanResult = { window: { title: '한국어 창 제목' }, elements: [{ id: 'e', name: '저장 버튼' }] };
+  const encoded = Buffer.from(JSON.stringify({ result: koreanResult }) + '\n', 'utf8');
+  const byteChunks = Array.from(encoded, byte => Buffer.from([byte]));
+  assert.deepEqual(await pipeRequest('mock', {}, { connect: fragmentedConnection(byteChunks) }), koreanResult);
+  const limit = 32 * 1024 * 1024;
+  const oversizedMultibyte = Buffer.from('한'.repeat(Math.floor(limit / 3) + 1), 'utf8');
+  assert.ok(oversizedMultibyte.length > limit); assert.ok(oversizedMultibyte.toString('utf8').length < limit);
+  await assert.rejects(pipeRequest('mock', {}, { connect: fragmentedConnection([oversizedMultibyte.subarray(0, limit), oversizedMultibyte.subarray(limit)]) }), /Host response too large/);
+  const prefix = '{"result":{"text":"'; const suffix = '"}}\n';
+  const atLimit = Buffer.from(prefix + 'x'.repeat(limit - Buffer.byteLength(prefix + suffix)) + suffix);
+  assert.equal(atLimit.length, limit);
+  assert.equal((await pipeRequest('mock', {}, { connect: fragmentedConnection([atLimit]) })).text.length, limit - Buffer.byteLength(prefix + suffix));
   console.log('PASS MCP: metadata isolation, session relay, tool boundary, sanitized result, newline JSON-RPC');
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });

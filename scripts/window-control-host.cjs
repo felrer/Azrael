@@ -3,6 +3,7 @@ const fs = require('node:fs');
 const fsp = require('node:fs/promises');
 const path = require('node:path');
 const net = require('node:net');
+const { StringDecoder } = require('node:string_decoder');
 const { randomUUID, randomBytes, timingSafeEqual } = require('node:crypto');
 const { AsyncLocalStorage } = require('node:async_hooks');
 const physicalPath = fs.realpathSync.native(__filename);
@@ -58,8 +59,8 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   async function listen() {
     if (listening) return listening;
     server = createServer(socket => {
-      let buffer = '', used = false; socket.setTimeout(30000, () => socket.destroy()); socket.on('error', () => {});
-      socket.on('data', data => { if (used) return; buffer += data.toString('utf8'); if (Buffer.byteLength(buffer) > 65536) { used = true; socket.destroy(); return; } const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
+      let buffer = '', used = false, requestBytes = 0; const decoder = new StringDecoder('utf8'); socket.setTimeout(30000, () => socket.destroy()); socket.on('error', () => {});
+      socket.on('data', data => { if (used) return; const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); const end = bytes.indexOf(10); const part = end < 0 ? bytes : bytes.subarray(0, end + 1); requestBytes += part.length; if (requestBytes > 65536) { used = true; socket.destroy(); return; } buffer += decoder.write(part); const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
         void serial(async () => { let response; try { response = { result: await handlePipe(JSON.parse(buffer.slice(0, newline))) }; } catch (e) { response = { error: e.message }; } const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: 'Response too large' }) + '\n' : bytes + '\n'); });
       });
     });

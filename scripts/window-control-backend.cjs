@@ -2,6 +2,7 @@
 const { spawn } = require('node:child_process');
 const { randomUUID } = require('node:crypto');
 const path = require('node:path');
+const { StringDecoder } = require('node:string_decoder');
 const { verifyRuntime } = require('./window-control-runtime.cjs');
 const METHODS = new Set(['listWindows', 'status', 'observe', 'restore', 'resize', 'act']);
 function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, timeoutMs = 30000, shutdownMs = 3000 } = {}) {
@@ -21,13 +22,16 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
       for (const key of Object.keys(env)) if (/^(AZRAEL_EX_MANAGEMENT_SOCKET|SKY.*|AZRAEL_EX_SKY.*)$/i.test(key)) delete env[key];
       const spawned = spawnChild(checked.executable, [], { env, windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
       child = spawned; identity = { handle: spawned, started: randomUUID() }; buffer = '';
+      const decoder = new StringDecoder('utf8'); let frameBytes = 0;
       spawned.stdout.on('data', data => {
         if (child !== spawned) return;
-        buffer += data.toString('utf8');
-        if (Buffer.byteLength(buffer) > 32 * 1024 * 1024) { failPending(new Error('Window backend response too large')); buffer = ''; void dispose(); return; }
-        let newline;
-        while ((newline = buffer.indexOf('\n')) >= 0) {
-          const line = buffer.slice(0, newline); buffer = buffer.slice(newline + 1);
+        const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); let offset = 0;
+        while (offset < bytes.length) {
+          const newline = bytes.indexOf(10, offset); const end = newline < 0 ? bytes.length : newline + 1; const part = bytes.subarray(offset, end); offset = end;
+          frameBytes += part.length;
+          if (frameBytes > 32 * 1024 * 1024) { failPending(new Error('Window backend response too large')); buffer = ''; void dispose(); return; }
+          buffer += decoder.write(part); if (newline < 0) break;
+          const line = buffer.slice(0, -1); buffer = ''; frameBytes = 0;
           let message; try { message = JSON.parse(line); } catch { failPending(new Error('Invalid Window backend response')); void dispose(); return; }
           const p = pending.get(message.id); if (!p) continue;
           pending.delete(message.id); clearTimeout(p.timer);

@@ -6,17 +6,18 @@ const path = require('node:path');
 const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
-const descriptor = { hwnd: 'window', pid: 1, processCreated: 'created', executable: 'C:/app.exe', title: '<App>', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
+const descriptor = { hwnd: 'window', pid: 1, processCreated: 'created', executable: 'C:/프로그램/한글앱.exe', title: '<한글 창 제목>', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
 async function main() {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-host-'));
   try {
-    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure;
+    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue;
     const approvals = require('./computer-use-approvals.cjs').createOwner(home);
     const receive = approvals.receive; approvals.receive = (request, ...args) => { observedRequest = request; return receive(request, ...args); };
     const posts = []; const panel = { webview: { html: '', postMessage(value) { posts.push(value); }, onDidReceiveMessage() {} }, onDidDispose() {}, reveal() {}, dispose() {} };
     const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => values[0] } };
-    const backend = { request: async method => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elements: [], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
-    const createServer = () => { const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => { closed++; }; return server; };
+    const backend = { request: async (method, params) => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'act') actedValue = params.value; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elements: [{ id: 'element', name: '입력 영역', controlType: 'Edit', patterns: ['setValue'] }], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
+    const createServer = listener => { connectSocket = listener; const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => { closed++; }; return server; };
+    async function fragmentedPipe(message) { const socket = new EventEmitter(); socket.setTimeout = () => {}; socket.destroy = () => {}; const reply = new Promise(resolve => { socket.end = bytes => resolve(JSON.parse(bytes)); }); connectSocket(socket); const bytes = Buffer.from(JSON.stringify(message) + '\n'); for (let i = 0; i < bytes.length; i++) socket.emit('data', bytes.subarray(i, i + 1)); return reply; }
     const host = createHost({ runtime: { codexHome: home }, vscode, backend, approvals, createServer });
     let callbacks; const native = { registerProvider(_id, value) { callbacks = value; return { dispose() {} }; } };
     const requests = []; host.attach(native, (_provider, id, method, params) => { requests.push({ method, params }); const reply = () => callbacks.onResult({ id, result: method === 'thread/start' ? { computerUseMode: echo, thread: { id: thread }, sandbox: { type: sandbox } } : { turn: { id: 'turn-one' } } }); if (method === 'turn/start' && deferTurn) turnReply = reply; else queueMicrotask(reply); });
@@ -36,6 +37,8 @@ async function main() {
     await assert.rejects(host.handlePipe({ ...message, method: 'bind' }), /Unknown/);
     await assert.rejects(host.handlePipe({ ...message, _meta: { ...message._meta, 'x-codex-turn-metadata': { thread_id: thread, turn_id: 'turn-one', sandbox_mode: 'workspace-write' } } }), /denied/);
     await assert.rejects(host.handlePipe(message), /forged target/);
+    await ui('capture'); const unicodeObservation = posts.at(-1).value; assert.equal(unicodeObservation.window.title, descriptor.title); assert.equal(unicodeObservation.elements[0].name, '입력 영역');
+    const unicodeReply = await fragmentedPipe({ ...message, tool: 'set_value', arguments: { targetId: unicodeObservation.targetId, observationId: unicodeObservation.observationId, elementId: 'element', value: '한글 입력 값 🧪' } }); assert.equal(unicodeReply.error, undefined); assert.equal(actedValue, '한글 입력 값 🧪'); assert.equal(unicodeReply.result.window.title, descriptor.title); assert.equal(observedRequest.params._meta.tool_params.app, descriptor.executable);
     await ui('capture'); const boundTarget = posts.at(-1).value.targetId;
     backendFailure = 'Native input interference'; let beforeFailure = calls;
     await assert.rejects(host.handlePipe({ ...message, tool: 'capture', arguments: { targetId: boundTarget } }), /Native input interference/);
@@ -50,7 +53,7 @@ async function main() {
     host.observe(native, { method: 'thread/closed', params: { threadId: 'ordinary-thread' } }); assert.equal(host.threads.size, 1);
     const file = path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json'); const rendezvous = JSON.parse(await fs.readFile(file, 'utf8')); assert.deepEqual(Object.keys(rendezvous).sort(), ['nonce', 'pipe', 'schema']);
     await fs.writeFile(file, JSON.stringify({ ...rendezvous, nonce: 'other-owner' })); host.disconnect(native); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); await host.dispose(); assert.equal(JSON.parse(await fs.readFile(file, 'utf8')).nonce, 'other-owner'); assert.equal(closed, 1);
-    console.log('Window host: mocked mode/permission/metadata gates, real approval lifecycle and late consent cancellation, duplicate send and late turn race, stale image invalidation, UI nonce and owner-only rendezvous cleanup passed');
+    console.log('Window host: fragmented Korean UTF8 pipe value, mode/permission/metadata gates, real approval lifecycle, turn races, stale image invalidation and owner-only rendezvous cleanup passed');
   } finally { await fs.rm(home, { recursive: true, force: true }); }
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });
