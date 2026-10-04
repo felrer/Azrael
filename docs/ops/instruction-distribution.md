@@ -6,6 +6,10 @@ Public repository/release publication is held, and
 live GitHub release acquisition has not been verified against a published Azrael
 release. Existing integrated UI redistribution permission remains a release gate.
 
+Development uses the private `felrer/Azrael` repository. This visibility choice
+does not replace third-party license conditions or establish redistribution
+permission. Commits and uploads are managed through GitHub Desktop.
+
 ## Source ownership
 
 `engine/` is an immutable verified snapshot selected by the user. Its `SOURCE.json`
@@ -37,6 +41,12 @@ and unknown receipts are preserved; original source files remain in recorded
 source mapping, hash, adaptation and exclusion. Environment-specific instructions
 remain maintained copies, rather than filesystem links. Root project working
 agreements are not overwritten by downloading a package.
+
+`felrer/codex-efficient-subagents` is archived. Maintain new instruction changes
+in Azrael's `instructions/` directory; the former checkout and `SOURCE-*`
+documents are historical import evidence. Do not refresh automatically from or
+mirror new changes to the archived repository. Review instruction version and
+release metadata when changing the maintained library.
 
 Verify the frozen engine before packaging:
 

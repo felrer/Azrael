@@ -41,12 +41,16 @@ Computer Use runtime staging and verification are owned by `scripts/computer-use
 | `scripts/instruction-package.cjs`, `extensions/azrael-ex/src/instructionService.ts` | GitHub acquisition, integrity/compatibility validation, managed installation receipts, workspace isolation, pinning, rollback and recovery; host adapter for settings requests. |
 | `extensions/azrael-ex/src/instructionView.ts`, `scripts/inject-instruction-settings.cjs` | Shared instruction settings renderer, webview lifecycle and pinned integrated settings navigation/bridge. |
 | `scripts/build-metrics.ps1` | Record release-build stage timings and command exit codes without replacing causal build errors. |
+| `scripts/deploy-azrael.ps1`, `deployment-input-snapshot.cjs` | Single build/test/prepare/acceptance/install flow, explicit Rust cache forwarding, bounded parallel content fingerprints and input-check reports. |
 | `extensions/azrael-ex/scripts/build-incremental.cjs` | Reconcile compiler-owned outputs and reuse development TypeScript state; release packaging retains clean compilation. |
 | `scripts/install-azrael.ps1`, `install-independent-vscode.ps1` | Install the integrated azrael host and retire the separate companion while preserving original Codex. |
 | `scripts/integrated-azrael-entry.cjs` | Activate the version-pinned Codex UI host and embedded Azrael account module in one lifecycle; embedded mode does not register the temporary `azrael.chat` view. |
 | `scripts/azrael-recovery.cjs`, `recovery-state.cjs` | Native bridge recovery, visible execution state, persisted continuation receipts and interrupt-before-resume admission. |
 | `scripts/inject-recovery.cjs` | Structurally pin request, notification and teardown hooks in the reused host bundle. |
 | `scripts/inject-fetch-response.cjs`, `test-fetch-response.cjs` | Serialize void host route results as JSON null at the producer boundary; verify the pinned fetch handler and webview response parser together. |
+| `scripts/inject-ui-cleanup.cjs`, `inject-pets-cleanup.cjs` | Azrael composer placeholders, retired add-menu actions, permission presentation and Pets distribution boundaries; registered in namespace preparation with per-asset cache dependencies. |
+| `scripts/create-ui-design-preview.cjs` | Local SVG icon and static-label font comparisons governed by [UI presentation](../architecture/ui-presentation.md). |
+| `scripts/content-fonts.cjs`, `inject-content-fonts.cjs` | Verified local Gyeonggi Batang font resources and semantic content/leaf typography; preserve fixed UI typography through namespace CSS/JS preparation and shared account rendering. |
 | `scripts/inject-queue-refresh.cjs`, `inject-queued-compaction.cjs`, `test-queued-input.cjs` | Preserve queue-change notifications during list requests; route manual compaction to typed server queue items, preserve enqueue local declarations, and verify ordinary input and app review boundaries. |
 | `scripts/inject-queue-consumption.cjs` | Reconcile local submissions against accepted client IDs before locking; await accepted removal and prevent stale snapshots from resurrecting accepted messages. |
 | `scripts/provider-model-picker.cjs`, `inject-provider-model-picker.cjs` | Provider sections/search and scope-aware discovery states; consume every model/list page, preserve native selection callbacks, and transform the pinned query/picker assets. |
@@ -77,6 +81,8 @@ Computer Use runtime staging and verification are owned by `scripts/computer-use
 | `codex-rs/core/src/managed_catalog.rs`, `managed_runtime.rs` | Managed model picker, stream routing, fork provider lineage and request-only OpenAI history projection. Shares the bounded native helper transport with Devin. |
 | `scripts/check-managed-native-engine.mjs`, `managed-native-api-fixture.mjs` | Isolated engine/helper acceptance against loopback provider wires; switching, tools, restart, fork, compaction, cancellation and OpenAI return. |
 | `scripts/provider-accounts-host.cjs` | Provider bundle verification and scoped helper/Bun/state environment. |
+| `codex-rs/core/src/session/account_recovery.rs`, `codex-rs/core/src/managed_account_recovery.rs`, `login/src/azrael_quota_recovery.rs`, `app-server/src/request_processors/account_processor/quota_recovery.rs` | Same-turn recovery on confirmed quota exhaustion, task admission, account-owner commits and public-history boundary; source is the active development engine worktree. |
+| `providers/opencodex/auto-switch.ts`, `inference.ts::recoverAccount` | Identity-scoped permission and bounded provider binding recovery without default selection rewriting. |
 | `extensions/azrael-ex/src/usagePresentation.ts` | Remaining quota bars, reset/ticket formatting and Spark exclusion. |
 | `extensions/azrael-ex/src/devinUsage.ts` | Bounded CLI-owned quota helper, PTY screen parsing and process cleanup. |
 | `scripts/check-launcher.ps1` | Verify path refusal, settings preservation and child/caller environment isolation. |

@@ -1,6 +1,7 @@
 import { createHash, randomUUID } from 'node:crypto';
 import { existsSync, mkdirSync, writeFileSync, renameSync, unlinkSync, realpathSync, openSync, fstatSync, readSync, closeSync } from 'node:fs';
 import { join, relative, isAbsolute } from 'node:path';
+import { createOAuthFileLock, type OAuthFileLockGuard } from './vendor/src/oauth/store.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
 import { AdapterError, compileRequest, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
 import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
@@ -8,6 +9,7 @@ import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalog
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
 import { observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
+import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccounts, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 
 const supported = MANAGED_PROVIDERS;
@@ -44,7 +46,7 @@ function readBinding(path: string, thread: string, directory: string): Binding {
   for (const [id, turn] of Object.entries(binding.turns) as [string, any][]) {
     if (!safeId(id) || !validPin(turn) || !supported.includes(turn.provider_id) || !validModel(turn.model) || Object.keys(turn).some(key => !['provider_id', 'model', 'account_id', 'fingerprint'].includes(key))) fail('invalid_binding');
     const pin = providers[turn.provider_id];
-    if (!pin || pin.account_id !== turn.account_id || pin.fingerprint !== turn.fingerprint) fail('invalid_binding');
+    if (!pin) fail('invalid_binding');
     turns[id] = turn;
   }
   if (Object.keys(binding).some(key => !['version', 'thread_id', 'providers', 'turns'].includes(key))) fail('invalid_binding');
@@ -63,6 +65,36 @@ async function modules() {
   return { config, router, google, budget, antigravity, oauth, store, anthropic };
 }
 
+async function resolvePin(config: any, providerId: string, retained: Pin | undefined, m: any) {
+  const provider = config.providers[providerId];
+  let accountId: string, routed: any, fingerprint: string;
+  if (providerId === 'anthropic') {
+    if (!isManagedOAuthTransport('anthropic', provider)) fail('provider_unavailable');
+    const set = m.store.getAccountSet('anthropic');
+    accountId = retained?.account_id ?? set?.activeAccountId;
+    const account = set?.accounts.find((entry: any) => entry.id === accountId);
+    if (!account) fail('pinned_account_missing');
+    if (account.needsReauth || !account.credential?.refresh) fail('pinned_account_unavailable');
+    const before = managedClaudeIdentity(account.credential);
+    if (!before) fail('pinned_account_unavailable');
+    const access = (await m.oauth.getValidAccessSnapshotForAccount('anthropic', accountId, { requireUsableAccount: true })).accessToken;
+    if (!access) fail('pinned_account_unavailable');
+    const current = m.store.getAccountSet('anthropic')?.accounts.find((entry: any) => entry.id === accountId);
+    const after = managedClaudeIdentity(current?.credential);
+    if (!after || JSON.stringify(after) !== JSON.stringify(before) || current?.needsReauth || current.credential.access !== access) fail('pinned_account_changed');
+    routed = { ...provider, adapter: 'anthropic', authMode: 'oauth', baseUrl: 'https://api.anthropic.com', headers: undefined, apiKey: access };
+    fingerprint = digest(JSON.stringify(['anthropic', accountId, ...after]));
+  } else if (providerId === 'google-antigravity') {
+    const beforeAccount = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === (retained?.account_id ?? m.store.getAccountSet(providerId)?.activeAccountId));
+    const beforeIdentity = accountIdentity(providerId, beforeAccount);
+    const resolved = await m.antigravity.resolveAntigravityAccount(provider, retained?.account_id);
+    const afterAccount = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === resolved.accountId);
+    if (!beforeIdentity || accountIdentity(providerId, afterAccount) !== beforeIdentity || afterAccount?.needsReauth || afterAccount?.credential?.access !== resolved.provider.apiKey) fail('pinned_account_changed');
+    accountId = resolved.accountId; routed = resolved.provider; fingerprint = resolved.fingerprint;
+  } else fail('provider_unavailable');
+  return { accountId, routed, fingerprint };
+}
+
 // Auxiliary state owns identity only. Conversation content remains native.
 export async function pinAccount(config: any, request: any, m: any) {
   if (!supported.includes(request.provider_id) || !safeId(request.thread_id) || !safeId(request.turn_id) || !validModel(request.model)) fail('invalid_selection');
@@ -72,7 +104,11 @@ export async function pinAccount(config: any, request: any, m: any) {
   if (physicalRelative.startsWith('..') || isAbsolute(physicalRelative)) fail('binding_storage_not_isolated');
   const path = join(directory, request.thread_id + '.json');
   const lock = path + '.lock';
-  try { writeFileSync(lock, '', { flag: 'wx', mode: 0o600 }); } catch { fail('binding_busy'); }
+  let guard: OAuthFileLockGuard;
+  // Admission never waits on another turn. Allow the upstream 120s credential
+  // lease to expire before reclaiming a lock abandoned by a killed helper.
+  try { guard = await (m.store.createOAuthFileLock ?? createOAuthFileLock)({ path: lock, waitTimeoutMs: 0, staleAfterMs: 120_000 }).acquire(); }
+  catch { fail('binding_busy'); }
   try {
     let binding: Binding = existsSync(path) ? readBinding(path, request.thread_id, directory) : { version: 1, thread_id: request.thread_id, providers: Object.create(null), turns: Object.create(null) };
     if (!existsSync(path) && request.forked_from_thread_id) {
@@ -87,35 +123,14 @@ export async function pinAccount(config: any, request: any, m: any) {
         }
       }
     }
-    const provider = config.providers[request.provider_id];
     const previous = binding.turns[request.turn_id];
     if (previous && (previous.provider_id !== request.provider_id || previous.model !== request.model)) fail('turn_selection_mismatch');
     const retained = previous ?? binding.providers[request.provider_id];
-    let accountId: string, routed: any, fingerprint: string;
-    if (request.provider_id === 'anthropic') {
-      if (!isManagedOAuthTransport('anthropic', provider)) fail('provider_unavailable');
-      const set = m.store.getAccountSet('anthropic');
-      accountId = retained?.account_id ?? set?.activeAccountId;
-      const account = set?.accounts.find((entry: any) => entry.id === accountId);
-      if (!account) fail('pinned_account_missing');
-      if (account.needsReauth || !account.credential?.refresh) fail('pinned_account_unavailable');
-      const before = managedClaudeIdentity(account.credential);
-      if (!before) fail('pinned_account_unavailable');
-      const access = (await m.oauth.getValidAccessSnapshotForAccount('anthropic', accountId, { requireUsableAccount: true })).accessToken;
-      if (!access) fail('pinned_account_unavailable');
-      const current = m.store.getAccountSet('anthropic')?.accounts.find((entry: any) => entry.id === accountId);
-      const after = managedClaudeIdentity(current?.credential);
-      if (!after || JSON.stringify(after) !== JSON.stringify(before) || current?.needsReauth || current.credential.access !== access) fail('pinned_account_changed');
-      routed = { ...provider, adapter: 'anthropic', authMode: 'oauth', baseUrl: 'https://api.anthropic.com', headers: undefined, apiKey: access };
-      fingerprint = digest(JSON.stringify(['anthropic', accountId, ...after]));
-    } else if (request.provider_id === 'google-antigravity') {
-      const resolved = await m.antigravity.resolveAntigravityAccount(provider, retained?.account_id);
-      accountId = resolved.accountId; routed = resolved.provider; fingerprint = resolved.fingerprint;
-    } else fail('provider_unavailable');
+    const { accountId, routed, fingerprint } = await resolvePin(config, request.provider_id, retained, m);
     if (retained && retained.fingerprint !== fingerprint) fail('pinned_account_changed');
     const pin = { account_id: accountId, fingerprint };
     if (!validPin(pin)) fail('pinned_account_unavailable');
-    binding.providers[request.provider_id] = pin;
+    if (!previous || !binding.providers[request.provider_id]) binding.providers[request.provider_id] = pin;
     binding.turns[request.turn_id] = { ...pin, provider_id: request.provider_id, model: request.model };
     const temporary = path + '.' + randomUUID() + '.tmp';
     const serialized = JSON.stringify(binding);
@@ -123,7 +138,7 @@ export async function pinAccount(config: any, request: any, m: any) {
     writeFileSync(temporary, serialized, { mode: 0o600 });
     renameSync(temporary, path);
     return { provider: routed, fingerprint };
-  } finally { unlinkSync(lock); }
+  } finally { guard!.release(); }
 }
 
 export function projectRequest(request: any, fingerprint: string) {
@@ -462,3 +477,76 @@ export async function runCli() {
 }
 
 if (import.meta.main) await runCli();
+
+// Called only by the native quota-recovery owner, never by inference retries.
+export async function recoverAccount(request: any, injected?: any) {
+  validateIsolatedHomeForTests();
+  const m = injected ?? await modules();
+  const config = m.config.loadConfig();
+  const providerId = request.providerId;
+  if (!supported.includes(providerId) || !safeId(request.threadId) || !safeId(request.turnId) || !validModel(request.model)
+      || !Array.isArray(request.excludedAccountIds) || request.excludedAccountIds.length > 1024
+      || request.excludedAccountIds.some((id: any) => typeof id !== 'string')
+      || (request.expectedAccountId !== undefined && typeof request.expectedAccountId !== 'string')) fail('invalid_selection');
+  const directory = join(process.env.CODEX_HOME!, 'azrael', 'providers', 'sessions');
+  const path = join(directory, request.threadId + '.json');
+  if (!existsSync(path)) fail('invalid_binding');
+  const physicalRelative = relative(realpathSync(process.env.CODEX_HOME!), realpathSync(directory));
+  if (physicalRelative.startsWith('..') || isAbsolute(physicalRelative)) fail('binding_storage_not_isolated');
+  const lock = path + '.lock';
+  let guard: OAuthFileLockGuard;
+  // Admission never waits on another turn. Allow the upstream 120s credential
+  // lease to expire before reclaiming a lock abandoned by a killed helper.
+  try { guard = await (m.store.createOAuthFileLock ?? createOAuthFileLock)({ path: lock, waitTimeoutMs: 0, staleAfterMs: 120_000 }).acquire(); }
+  catch { fail('binding_busy'); }
+  try {
+    const binding = readBinding(path, request.threadId, directory);
+    const source = binding.turns[request.turnId], current = binding.providers[providerId];
+    if (!source || source.provider_id !== providerId || source.model !== request.model || !current
+        || source.account_id !== current.account_id || source.fingerprint !== current.fingerprint
+        || (request.expectedAccountId !== undefined && request.expectedAccountId !== source.account_id)) fail('turn_selection_mismatch');
+    const sourceIdentity = accountIdentity(providerId, m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === source.account_id));
+    const validateSource = async () => {
+      const resolved = await resolvePin(config, providerId, source, m);
+      if (resolved.accountId !== source.account_id || resolved.fingerprint !== source.fingerprint) fail('pinned_account_changed');
+    };
+    await validateSource();
+    const excluded = new Set([source.account_id, ...request.excludedAccountIds]);
+    for (const candidate of eligibleAccounts(providerId, m, excluded)) {
+      await validateSource();
+      let resolved;
+      try { resolved = await resolvePin(config, providerId, { account_id: candidate.id } as Pin, m); }
+      catch { await validateSource(); continue; }
+      const fresh = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === candidate.id);
+      if (resolved.accountId !== candidate.id || !autoSwitchAvailable(providerId, fresh, m) || !autoSwitchAllowed(providerId, fresh)) continue;
+      const destinationIdentity = accountIdentity(providerId, fresh);
+      let destinationAgain;
+      try { destinationAgain = await resolvePin(config, providerId, { account_id: candidate.id } as Pin, m); }
+      catch { await validateSource(); continue; }
+      await validateSource();
+      if (destinationAgain.fingerprint !== resolved.fingerprint) continue;
+      // Serialize the final consent read and binding rename with opt-out. No
+      // credential refresh or other asynchronous work runs in this transaction.
+      const committed = withAutoSwitchPolicyMutation(m, () => {
+        const sourceNow = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === source.account_id);
+        if (!sourceIdentity || accountIdentity(providerId, sourceNow) !== sourceIdentity || !autoSwitchAvailable(providerId, sourceNow, m)) fail('pinned_account_changed');
+        const destination = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === candidate.id);
+        if (accountIdentity(providerId, destination) !== destinationIdentity || !autoSwitchAvailable(providerId, destination, m)
+            || !autoSwitchAllowed(providerId, destination)) return null;
+        const pin = { account_id: candidate.id, fingerprint: resolved.fingerprint };
+        if (!validPin(pin)) fail('pinned_account_unavailable');
+        binding.providers[providerId] = pin;
+        binding.turns[request.turnId] = { ...pin, provider_id: providerId, model: request.model };
+        const serialized = JSON.stringify(binding);
+        if (Buffer.byteLength(serialized) > MAX_BINDING_BYTES) fail('binding_limit');
+        const temporary = path + '.' + randomUUID() + '.tmp';
+        try { writeFileSync(temporary, serialized, { mode: 0o600, flag: 'wx' }); renameSync(temporary, path); }
+        finally { if (existsSync(temporary)) unlinkSync(temporary); }
+        return { exhaustedAccountId: source.account_id, accountId: candidate.id };
+      });
+      if (committed) return committed;
+    }
+    await validateSource();
+    return null;
+  } finally { guard!.release(); }
+}

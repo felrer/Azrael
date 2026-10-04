@@ -107,6 +107,19 @@ test("retains last schedules and safe error on failure or mismatched toggle iden
   } finally { service.dispose(); }
 });
 
+test("failed initial discovery leaves timer state unknown with a safe error", async () => {
+  const backend = new Backend();
+  backend.handler = async () => { throw new Error("Bearer secret-token"); };
+  const service = new UsageWindowService(backend);
+  try {
+    await service.refresh();
+    assert.equal(service.forProfile(profile), undefined);
+    assert.deepEqual(service.schedules, []);
+    assert.ok(service.error);
+    assert.doesNotMatch(service.error, /secret-token/);
+  } finally { service.dispose(); }
+});
+
 test("disposal removes subscription, suppresses in-flight response and prevents new calls", async () => {
   const backend = new Backend();
   let release!: () => void;

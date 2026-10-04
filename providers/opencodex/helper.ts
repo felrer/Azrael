@@ -2,6 +2,7 @@ import { createInterface, type Interface } from "node:readline";
 import { resolve, join, relative, isAbsolute } from "node:path";
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
+import { autoSwitchAvailable, autoSwitchAllowed, setAutoSwitch, recoverDevinAccount, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
 
 type Request = { protocol: 1; id: string; action: string; [key: string]: unknown };
@@ -137,6 +138,8 @@ async function snapshot(m: Awaited<ReturnType<typeof modules>>) {
         accounts: (set?.accounts ?? []).map((account: any) => ({
           id: account.id, label: labelForAccount(account), selected: activeAccountId === account.id,
           needsReauth: account.needsReauth === true,
+          autoSwitchAllowed: autoSwitchAllowed(id, account),
+          autoSwitchAvailable: autoSwitchAvailable(id, account, m),
         })),
       });
     }
@@ -178,6 +181,18 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
   const accountId = typeof request.accountId === "string" ? request.accountId : undefined;
   switch (request.action) {
     case "list": return snapshot(m);
+    case "setAutoSwitch": {
+      if (!providerId || !accountId || typeof request.enabled !== 'boolean') throw new Error(SAFE_ERRORS.invalid);
+      if (!activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      return setAutoSwitch(providerId, accountId, request.enabled, m);
+    }
+    case "recoverAccount": {
+      if (!activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      if (providerId === 'devin') return recoverDevinAccount(request, m);
+      const inference = await import('./inference.ts');
+      const antigravity = await import('./antigravity.ts');
+      return inference.recoverAccount(request, { ...m, antigravity });
+    }
     case "quota": {
       if (!providerId || !accountId) throw new Error(SAFE_ERRORS.invalid);
       return exactQuota(m, providerId, accountId, request.force === true);
@@ -239,6 +254,19 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
     }
     case "credential": {
       if (providerId !== "devin" || !activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      if (request.requireAutoSwitch === true) {
+        if (!accountId) throw new Error(SAFE_ERRORS.invalid);
+        // This private snapshot is recovery admission. Consent changes after it
+        // is returned apply to subsequent recoveries, not this admitted snapshot.
+        return withAutoSwitchPolicyMutation(m, () => {
+          const account = m.store.getAccountSet("devin")?.accounts.find((item: any) => item.id === accountId);
+          if (!account) throw new Error(SAFE_ERRORS.missing);
+          if (!autoSwitchAvailable("devin", account, m) || !autoSwitchAllowed("devin", account)) throw new Error(SAFE_ERRORS.reauth);
+          const url = m.devinBase.validateDevinApiBaseUrl(account.credential.apiBaseUrl);
+          if (!url) throw new Error(SAFE_ERRORS.reauth);
+          return { api_key: account.credential.access, api_server_url: url, account_id: accountId };
+        });
+      }
       const set = m.store.getAccountSet("devin");
       const id = accountId ?? set?.activeAccountId;
       if (!id) return null;

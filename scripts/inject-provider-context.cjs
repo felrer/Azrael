@@ -1,7 +1,7 @@
 "use strict";
 const CONTEXT_ASSET = "webview/assets/app-initial-9cbfb5c07b41.js";
 const SETTINGS_ASSET = "webview/assets/personalization-settings-22572f5615f8.js";
-const MARKER = "/*azrael-provider-context-v2*/";
+const { MARKER, runProviderContext } = require("./provider-context-labels.cjs");
 function once(text, from, to) {
   if (text.split(from).length !== 2) throw Error("Pinned provider context anchor changed: " + from.slice(0, 100));
   return text.replace(from, to);
@@ -86,8 +86,7 @@ function renderSettings(React, jsx, client, ko) {
       ]});
     })]});
 }
-function injectProviderContext(text, asset) {
-  if (text.includes(MARKER)) return {text,count:0};
+function injectProviderContextControls(text, asset) {
   let count = 0;
   if (asset === CONTEXT_ASSET) {
     text=once(text,"function Pea(e){","function __azraelNativeContextUsage(e){");
@@ -103,12 +102,9 @@ function injectProviderContext(text, asset) {
     text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=o(qe),client=_e(scope,hostId),intl=i();return renderSettings(wr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
     count++;
   }
-  // Only settings message descriptors/translation values; keep RPC names and URLs intact.
-  const labels = new Set(["settings.agent.configuration.chatConfirmation.header","settings.agent.configuration.chatConfirmation.title","settings.configuration.codexDefaults","settings.nav.agent","settings.section.agent","settings.title","settings.codex.title"]);
-  text=text.replace(/(id:`([^`]+)`,defaultMessage:`)([^`]*(?:Codex|azrael)[^`]*)(`)|("([^"]+)":`)([^`]*(?:Codex|azrael)[^`]*)(`)/g,(all,start,id,value,end,localStart,localId,localValue,localEnd)=>{
-    if (!labels.has(id ?? localId)) return all;
-    count++;return (start ?? localStart)+(value ?? localValue).replace(/Codex|azrael/g,"Azrael")+(end ?? localEnd);
-  });
-  return count ? {text:text+"\n"+MARKER,count} : {text,count:0};
+  return {text,count};
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,policyDescription,decorateGauge,savePolicy};
+function injectProviderContext(text, asset) {
+  return runProviderContext(text, asset, injectProviderContextControls);
+}
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,savePolicy};

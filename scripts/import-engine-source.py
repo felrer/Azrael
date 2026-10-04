@@ -18,7 +18,8 @@ import sys
 PROJECT = Path(__file__).resolve().parent.parent
 DEFAULT_SOURCE = PROJECT / "artifacts/worktrees/azrael-0.159.3"
 EXCLUDED = (".ruff_cache", "codex-rs/target", "scripts/.venv",
-            "sdk/python/.ruff_cache", "sdk/python/.venv")
+            "sdk/python/.ruff_cache", "sdk/python/.venv", "sdk/python/__pycache__",
+            "sdk/python/src/openai_codex/generated/__pycache__")
 IGNORE_SUFFIX = (b"\n# Azrael: retain imported tracked IDE sources\n!/.vscode/\n"
                  b"!/.vscode/extensions.json\n!/.vscode/launch.json\n!/.vscode/settings.json\n")
 PRESERVED_IGNORE = ".gitignore.upstream"

@@ -33,7 +33,7 @@ test("ticket UI validates expanded identity, confirms account and refreshes only
     internal.panel = panel;
     internal.render();
     assert.doesNotMatch(panel.webview.html, /data-action="consumeResetCredit"/);
-    assert.match(panel.webview.html, /account-provider">free<\/span>/);
+    assert.match(panel.webview.html, /account-provider"><span data-azrael-dynamic-text>free<\/span><\/span>/);
     assert.doesNotMatch(panel.webview.html, /account-provider">pro<\/span>/);
     const request = { action: "consumeResetCredit", profileId: profile.id, workspaceAccountId: profile.workspaceAccountId };
     await internal.onMessage(request);

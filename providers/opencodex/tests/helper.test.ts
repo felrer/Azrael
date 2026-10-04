@@ -186,10 +186,16 @@ describe("provider account helper", () => {
     const accounts = store.listAccounts("anthropic");
     await store.setActiveAccount("anthropic", accounts[0]!.id);
     let calls = 0;
-    const quotaMock = { ...quota, providerOAuthAccountQuotaMode: () => "probe", fetchProviderAccountQuotas: async () => { calls++; return accounts.map((a, i) => ({ accountId: a.id, quota: { weeklyPercent: 10 + i, weeklyResetAt: 1_900_000_000_000, updatedAt: 1234 }, isCurrent: () => true })); } };
+    const quotaMock = { ...quota, providerOAuthAccountQuotaMode: () => "probe", fetchProviderAccountQuotas: async () => { calls++; return accounts.map((a, i) => ({ accountId: a.id, quota: { weeklyPercent: 10 + i, weeklyResetAt: 1_900_000_000_000, customWindows: [{ label: "Fable", percent: 25 + i * 25, resetAt: 1_900_100_000_000 + i * 1000 }], updatedAt: 1234 }, isCurrent: () => true })).reverse(); } };
     const batch: any = await handleRequest(request("q", "quotaBatch", { providerId: "anthropic", force: true }), io, real({ quota: quotaMock }));
     expect(calls).toBe(1);
-    expect(batch.quotas).toEqual(accounts.map((a, i) => expect.objectContaining({ accountId: a.id, status: "ok", observedAt: 1234, rows: [{ label: "Weekly", usedPercent: 10 + i, resetsAt: 1_900_000_000 }] })));
+    expect(batch.quotas).toHaveLength(accounts.length);
+    accounts.forEach((a, i) => {
+      expect(batch.quotas.find((row: any) => row.accountId === a.id)).toEqual(expect.objectContaining({ accountId: a.id, status: "ok", observedAt: 1234, rows: [
+        { label: "Weekly", usedPercent: 10 + i, resetsAt: 1_900_000_000 },
+        { label: "Fable", usedPercent: 25 + i * 25, resetsAt: 1_900_100_000 + i },
+      ] }));
+    });
     expect(store.getAccountSet("anthropic")!.activeAccountId).toBe(accounts[0]!.id);
     const unsupportedQuota = { ...quota, providerOAuthAccountQuotaMode: () => "unsupported" };
     const unsupported: any = await handleRequest(request("u", "quotaBatch", { providerId: "anthropic" }), io, real({ quota: unsupportedQuota }));

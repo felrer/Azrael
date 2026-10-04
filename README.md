@@ -3,6 +3,12 @@
 Azrael is an independent VS Code extension host with a Codex-based engine,
 provider integrations and a versioned instruction library.
 
+Development is maintained in the private `felrer/Azrael` repository. Private
+access does not grant redistribution rights for third-party UI or runtimes.
+
+The former `codex-efficient-subagents` repository is archived. Azrael's
+`instructions/` directory is the active home for instruction maintenance.
+
 Public distribution is **on hold** until redistribution permission for the
 existing integrated OpenAI UI and selected external runtimes is established.
 The current UI is retained. Local development packages are not public releases.

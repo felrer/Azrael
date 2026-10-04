@@ -94,9 +94,11 @@ assert.throws(() => createAssetTransformCache({ ...base, typescriptSha256: undef
 assert.throws(() => createAssetTransformCache({ ...base, cacheDirectory: path.join(project, "outside-cache") }), /under artifacts/);
 console.log("PASS content cache: cold/warm counts and bytes, source/path/rule/helper/TS invalidation, malformed/wrong-key/hash/count corruption and missing-entry recovery");
 
-const assets = ["out/extension.js", "webview/assets/app-initial-9f7d97690e9b.js",
-  "webview/assets/app-initial-4bd9e54bcd58.js", "webview/assets/app-initial-9cbfb5c07b41.js",
-  "webview/assets/queued-message-list-f673efa2d9a8.js", "webview/assets/ko-KR-669e0b3acfd6.js"];
+const assets = [...new Set([
+  "out/extension.js", "webview/assets/app-initial-9f7d97690e9b.js",
+  ...Object.values(transformer.ASSET_RULE_PATHS).flat(),
+  "webview/assets/ko-KR-669e0b3acfd6.js",
+])];
 function prepare(name, accountVersion = "0.4.0") {
   const directory = path.join(runRoot, name);
   function put(relative, data) {
@@ -113,7 +115,7 @@ function prepare(name, accountVersion = "0.4.0") {
   put("out/azrael-runtime.cjs", "// test runtime placeholder; not executed\n");
   put("integrated-azrael-entry.cjs", "// test integrated entry placeholder; not executed\n");
   put("account-ui/dist/src/extension.js", "// test account entry placeholder; not executed\n");
-  const account = JSON.parse(fs.readFileSync(path.join(project, "artifacts/build/pdf_chrome_20261001_v2/companion/package.json")));
+  const account = JSON.parse(fs.readFileSync(path.join(project, "extensions/azrael-ex/package.json")));
   account.version = accountVersion;
   put("account-ui/package.json", JSON.stringify(account));
   return directory;

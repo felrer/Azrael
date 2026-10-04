@@ -7,6 +7,12 @@
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
 - When editing any document, update its current content in place. Integrate confirmed answers into the relevant section; remove resolved questions, superseded text, and duplicates. Do not append response histories, dated confirmation notes, copied investigations, or detailed logs unless that history is itself the document's purpose. Keep only content needed to understand, execute, or verify the current work.
 
+## Instruction Library Ownership
+
+- Maintain shared instructions in this repository's `instructions/` directory. `felrer/Azrael` is the active repository; `felrer/codex-efficient-subagents` is archived.
+- The former shared checkout is historical import evidence, not an active maintenance destination. Do not mirror new changes there. Preserve recorded source provenance and original notices.
+- Keep related examples in `instructions/examples/delegation.md` consistent when changing `instructions/instructions/AGENTS.snippet.md`.
+
 ## Temporary snippets
 
 - When the user mentions `$merge-project-files`, the `merge-project-files` snippet, `프로젝트 파일 병합`, or `프로젝트 병합`, read and follow `G:\내 드라이브\ObsidianVault\PARA\00 Agents\snippets\merge-project-files.md` for that request only.

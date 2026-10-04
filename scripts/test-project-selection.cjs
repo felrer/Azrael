@@ -70,7 +70,7 @@ test("invalid CLI flags and areas reject", () => {
 });
 
 test("deployment tooling selects its isolated build regressions without running installation", () => {
-  for (const changed of ["scripts/deploy-azrael.ps1", "scripts/test-deploy-azrael.ps1"]) {
+  for (const changed of ["scripts/deploy-azrael.ps1", "scripts/test-deploy-azrael.ps1", "scripts/deployment-input-snapshot.cjs", "scripts/test-deployment-input-snapshot.cjs"]) {
     const result = selection(["--changed", changed]);
     const commands = result.commands.filter(command => command.files.includes("scripts/test-deploy-azrael.ps1"));
     assert.equal(commands.length, 1);

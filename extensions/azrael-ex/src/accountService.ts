@@ -11,7 +11,7 @@ import {
   RootResumeReservation, RootResumeResponse, parseRootResumeResponse
 } from "./rootResumeProtocol";
 
-const MUTATIONS = new Set<AccountAction>(["captureCurrent", "loginStart", "loginCancel", "remove", "switch", "cancelSwitch", "consumeResetCredit", "autoWindowEnable", "autoWindowDisable", "autoWindowTick"]);
+const MUTATIONS = new Set<AccountAction>(["captureCurrent", "loginStart", "loginCancel", "remove", "switch", "cancelSwitch", "consumeResetCredit", "autoWindowEnable", "autoWindowDisable", "autoWindowTick", "autoSwitchEnable", "autoSwitchDisable"]);
 
 export interface AccountServiceOptions {
   executable: string;

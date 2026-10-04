@@ -10,6 +10,14 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Provider instruction adjustments
+
+Status: `current` for source and offline adapter request verification; installed-host behavior requires a matching helper bundle.
+
+The Google adapter adds a short reminder to keep intermediate progress concise, with the final answer length governed by the task. This reminder does not prescribe internal reasoning or task persistence. The adapter leaves mathematical notation to the session instructions and client renderer. The pinned UI contains a remarkMath/KaTeX rendering path; support for every delimiter is not established by source inspection.
+
+Provider tool reminders identify the current wire tool catalog and distinguish top-level calls from nested Code Mode helpers. Patch guidance states the required input markers directly. Tool execution, permissions and approvals remain owned by the native runtime.
+
 ## Usage exhaustion
 
 Status: `current` for focused HTTP/SSE classifier tests and Antigravity/Anthropic inference mocks; installed windows require an updated helper bundle and reload.
@@ -49,7 +57,7 @@ Each provider exposes one logical picker row per base model and uses the existin
 
 One native conversation can move between managed providers and the native OpenAI and Devin paths. Selection applies at the next turn boundary; an active inference, its tool calls and results, approval wait and retries keep their turn's provider, model and account. A failed selection leaves the prior selection usable. The UI distinguishes the next-turn model from the running turn's model. Legacy Devin ACP conversations keep their runtime boundary.
 
-Each inference turn has an immutable non-secret binding of provider, model, account identity and endpoint/credential continuity identity, written atomically before inference. A conversation keeps its account per provider, so A→B→A returns to the same account rather than the current global selection. Missing or replaced credentials fail explicitly, and no key-pool rotation or automatic provider fallback overrides the pinned choice. Native turn metadata owns model history; the auxiliary binding holds no duplicate conversation. Resume and fork preserve binding lineage and next-turn selection. Existing markers remain readable; preserving data does not imply ACP compatibility.
+Each inference turn has a non-secret binding of provider, model, account identity and endpoint/credential continuity identity, written atomically before inference. A conversation keeps its account per provider, so A→B→A returns to the same account rather than the current global selection. Missing or replaced credentials fail explicitly, and no key-pool rotation or automatic provider fallback overrides the pinned choice. The explicit opt-in [automatic quota recovery](accounts.md#automatic-account-switching) contract may atomically rebind a confirmed exhausted account within the same provider between requests, with account-scoped private replay excluded. Native turn metadata owns model history; the auxiliary binding holds no duplicate conversation. Resume and fork preserve binding lineage and next-turn selection. Existing markers remain readable; preserving data does not imply ACP compatibility.
 
 ## Conversation branching
 

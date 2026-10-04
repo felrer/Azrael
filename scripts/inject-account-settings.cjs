@@ -26,10 +26,19 @@ function AzraelAccountSettings() {
       send("action", { action: button.dataset.action, profileId: button.dataset.profile, providerId: button.dataset.provider,
         accountId: button.dataset.account, workspaceAccountId: button.dataset.workspace, kind: button.dataset.kind });
     };
+    const onChange = event => {
+      const input = event.target;
+      if (!(input instanceof HTMLInputElement) || input.type !== "checkbox" || input.dataset.action !== "setAutoSwitch" || input.disabled) return;
+      const enabled = input.checked;
+      input.disabled = true;
+      send("action", { action: input.dataset.action, profileId: input.dataset.profile, providerId: input.dataset.provider,
+        accountId: input.dataset.account, workspaceAccountId: input.dataset.workspace, enabled });
+    };
     root.addEventListener("click", onClick);
+    root.addEventListener("change", onChange);
     root.innerHTML = '<p role="status">계정 및 사용량을 불러오는 중…</p>';
     send("mount");
-    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.innerHTML = ""; };
+    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("change", onChange); root.innerHTML = ""; };
   }, []);
   return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-account-settings": true });
 }

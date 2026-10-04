@@ -6,7 +6,7 @@ $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
 $stamp = [guid]::NewGuid().ToString('N')
 $fixtures = Join-Path $project "artifacts/verification/deployment-pipeline-optimization/runner/$stamp spaces 한글"
-$logs = Join-Path $project "artifacts/logs/deployment-pipeline-optimization/runner/$stamp"
+$logs = Join-Path $project "artifacts/logs/deployment-optimization/tests-deploy-$stamp"
 New-Item -ItemType Directory -Path $fixtures, $logs | Out-Null
 $pwsh = (Get-Process -Id $PID).Path
 $results = [Collections.Generic.List[object]]::new()
@@ -37,11 +37,12 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
+@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $deadline=[DateTime]::UtcNow.AddSeconds(10)
 while(-not (Test-Path (Join-Path $a 'source-start.json'))) { if([DateTime]::UtcNow -gt $deadline){throw 'source tests did not overlap build'}; Start-Sleep -Milliseconds 30 }
@@ -58,9 +59,34 @@ if($scenario.mode -eq 'source-fail'){
  Start-Sleep -Seconds 30
 }
 New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName"),(Join-Path $a "build/$ReleaseName/companion/node_modules/typescript/lib") -Force | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName/engine") -Force | Out-Null
+'fixture engine' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/codex.exe")
+'fixture bridge' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/azrael-bridge.exe")
 'pinned typescript' | Set-Content (Join-Path $a "build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js")
 @{time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-end.json')
 if($scenario.mode -eq 'build-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
+'@
+$accountControlsStub = @'
+import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
+const root = path.dirname(path.dirname(fileURLToPath(import.meta.url))); const a = path.join(root, 'artifacts');
+const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
+const args = process.argv.slice(2); const [engine, bridge, state, socket, flag] = args;
+if (!fs.existsSync(path.join(a, 'build-end.json')) || !fs.existsSync(path.join(a, 'source-end.json')) ||
+    !fs.existsSync(path.join(a, 'logs/deploy-chosen/inputs-post-build.json')) || fs.existsSync(path.join(a, 'prepare-invocation.json'))) throw new Error('account gate ordering mismatch');
+if (args.length !== 5 || flag !== '--account-controls-only' || fs.existsSync(state) || fs.existsSync(path.dirname(socket))) throw new Error('account gate arguments/freshness mismatch');
+fs.writeFileSync(path.join(a, 'account-invocation.json'), JSON.stringify(args));
+if (scenario.mode === 'account-command-fail') { console.error('causal account controls failure'); process.exit(37); }
+fs.mkdirSync(state, {recursive:true});
+if (scenario.mode === 'account-missing-report') process.exit(0);
+const result = {status:'passed', route:'account-controls', engine, bridge, modelRequests:0, usageCreditConsumeRequests:0};
+if (scenario.mode === 'account-status') result.status = 'failed';
+if (scenario.mode === 'account-route') result.route = 'other';
+if (scenario.mode === 'account-engine') result.engine = path.join(a, 'latest/codex.exe');
+if (scenario.mode === 'account-bridge') result.bridge = path.join(a, 'latest/azrael-bridge.exe');
+if (scenario.mode === 'account-model-request') result.modelRequests = 1;
+if (scenario.mode === 'account-credit-request') result.usageCreditConsumeRequests = 1;
+if (scenario.mode === 'account-string-count') result.modelRequests = '0';
+fs.writeFileSync(path.join(state, 'verification.json'), JSON.stringify(result));
 '@
 $prepareStub = @'
 param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath)
@@ -128,15 +154,17 @@ if($scenario.mode -eq 'install-wrong-receipt-version'){$receipt.hostVersion='9.9
 $receipt | ConvertTo-Json | Set-Content -LiteralPath $receiptPath
 [pscustomobject]@{Prepared=$true;Installed=$true;ReloadRequired=$true;Receipt=$receiptPath;HostVsix=$prepared.HostVsix;ReleaseDirectory=$ReleaseDirectory;Launched=$false}
 '@
-function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '') {
+function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '') {
     if ($Case -and $Name -notin $Case) { return }
     $root = Join-Path $fixtures $Name
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
     Write-Utf8 (Join-Path $scripts 'build-azrael.ps1') $buildStub
+    Write-Utf8 (Join-Path $scripts 'check-accounts.mjs') $accountControlsStub
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
     Write-Utf8 (Join-Path $scripts 'check-independent-vscode.ps1') $checkStub
     Write-Utf8 (Join-Path $scripts 'install-azrael.ps1') $installStub
@@ -146,6 +174,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git init failed'
     & git -c core.autocrlf=false -C $root add -- .
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git add failed'
+    if($Mode -eq 'input-snapshot-fail'){
+        Remove-Item -LiteralPath (Join-Path $root 'input.txt')
+        New-Item -ItemType Directory -Path (Join-Path $root 'input.txt') | Out-Null
+    }
     if($Mode -eq 'submodule-mutation'){
         $vendor=Join-Path $root 'modules/vendor'
         New-Item -ItemType Directory -Path $vendor | Out-Null
@@ -169,8 +201,13 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $info.CreateNoWindow = $true
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
-    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $a 'engine source 한글'),'-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
+    $argsList = @('-NoLogo','-NoProfile','-NonInteractive','-File',(Join-Path $scripts 'deploy-azrael.ps1'),'-ReleaseName','chosen','-SourceRoot',(Join-Path $a 'engine source 한글'),'-UiSourcePath',(Join-Path $a 'pristine UI'),'-OriginalExtensionPath',(Join-Path $a 'original Codex'),'-OriginalAudioPath',(Join-Path $a 'original audio'),'-StateRoot',(Join-Path $a 'install state'),'-SourceCodexHome',(Join-Path $a 'source codex'),'-WorkspacePath',(Join-Path $a 'workspace'),'-ExtensionsDir',(Join-Path $a 'profile extensions'),'-UserDataDir',(Join-Path $a 'user data'),'-CodePath','code fixture.cmd')
+    if(-not $FullBuild){$argsList += @('-SkipEngineBuild','-EngineDirectory',(Join-Path $a 'explicit engine'))}
+    else{$argsList += @('-CodeModeHostPath',(Join-Path $a 'code mode host.exe'))}
+    $target=if($TargetKind -eq 'relative'){'relative-cache'}else{Join-Path $a 'engine cache 한글'}
+    if($TargetKind){$argsList += @('-EngineTargetDirectory',$target)}
     if($VerifyOnly){$argsList += '-VerifyOnly'}
+    if($Mode -like 'account-*'){$argsList += '-VerifyAccountControls'}
     foreach($arg in $argsList){$info.ArgumentList.Add($arg)}
     $proc=[Diagnostics.Process]::Start($info)
     $stdout=$proc.StandardOutput.ReadToEndAsync();$stderr=$proc.StandardError.ReadToEndAsync()
@@ -183,11 +220,44 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $proc.Dispose()
     }
     $metricsPath=Join-Path $a 'logs/deploy-chosen/deployment-metrics.json'
+    if($Mode -eq 'invalid-target'){
+        Assert-True ($exit -ne 0) "Invalid engine target unexpectedly accepted in $Name"
+        foreach($marker in @('source-start.json','build-start.json','prepare-invocation.json','install-invocation.json')){
+            Assert-True (-not (Test-Path (Join-Path $a $marker))) "Invalid target started work: $marker"
+        }
+        Assert-True ((Get-Content (Join-Path $logs "$Name.stderr.log") -Raw) -match 'EngineTargetDirectory|target directory') 'missing engine target rejection diagnostic'
+        $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
+        return
+    }
     $metrics=Get-Content -LiteralPath $metricsPath -Raw | ConvertFrom-Json
-    $success=$Mode -eq 'success'
+    if($Mode -eq 'input-snapshot-fail'){
+        Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'snapshot failure did not abort deploy'
+        Assert-True ($metrics.inputChecks.Count -eq 1 -and $metrics.inputChecks[0].phase -ceq 'initial' -and $metrics.inputChecks[0].exitCode -ne 0) 'helper nonzero exit was not propagated'
+        foreach($marker in @('source-start.json','build-start.json','prepare-invocation.json','install-invocation.json')){
+            Assert-True (-not (Test-Path (Join-Path $a $marker))) "Snapshot failure started work: $marker"
+        }
+        $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
+        return
+    }
+    $success=$Mode -in @('success','account-success')
     Assert-True (($exit -eq 0) -eq $success) "Unexpected exit code $exit in $Name; see $logs/$Name.stderr.log"
     $installed=Test-Path -LiteralPath (Join-Path $a 'install-invocation.json')
     Assert-True ($installed -eq ($success -and -not $VerifyOnly -or $Mode -like 'install-*')) "Wrong installation gate in $Name"
+    if($Mode -like 'account-*'){
+        $accountArgs=Get-Content (Join-Path $a 'account-invocation.json') -Raw | ConvertFrom-Json
+        $engine=Join-Path $a 'releases/chosen/engine/codex.exe'
+        $bridge=Join-Path $a 'releases/chosen/engine/azrael-bridge.exe'
+        $state=Join-Path $a 'verification/account-controls-chosen'
+        Assert-True ($accountArgs.Count -eq 5 -and $accountArgs[0] -ceq $engine -and $accountArgs[1] -ceq $bridge -and $accountArgs[2] -ceq $state -and $accountArgs[4] -ceq '--account-controls-only') 'account gate did not forward exact release paths/route'
+        Assert-True ([IO.Path]::IsPathFullyQualified($accountArgs[3]) -and [Text.Encoding]::UTF8.GetByteCount($accountArgs[3]) -le 100) 'account socket path is not absolute/short'
+        Assert-True ($metrics.accountControls.verification -ceq (Join-Path $state 'verification.json') -and $metrics.accountControls.engine -ceq $engine -and $metrics.accountControls.bridge -ceq $bridge -and $metrics.accountControls.engineSha256 -ceq (Get-FileHash $engine).Hash -and $metrics.accountControls.bridgeSha256 -ceq (Get-FileHash $bridge).Hash) 'account report/binary identity metrics missing'
+        $accountRecord=@($metrics.stages | Where-Object name -eq 'account-controls')[0]
+        Assert-True ($accountRecord.exitCode -eq $(if($Mode -eq 'account-command-fail'){37}else{0})) 'account command actual exit code lost'
+        Assert-True ($metrics.accountControls.status -ceq $(if($success){'passed'}else{'failed'})) 'account gate report status lost'
+        if(-not $success){
+            foreach($marker in @('prepare-invocation.json','check-invocation.json','install-invocation.json')){Assert-True (-not (Test-Path (Join-Path $a $marker))) "Account gate failure started downstream work: $marker"}
+        }
+    }else{Assert-True (@($metrics.stages | Where-Object name -eq 'account-controls').Count -eq 0) 'account gate ran without opt-in'}
     if($Mode -like 'install-*'){
         Assert-True ($metrics.status -ceq 'installation-failed' -and $metrics.installation.status -ceq 'failed') 'installation failure was reported as success or a different stage'
         if($Mode -eq 'install-nonthrow-exit'){
@@ -200,6 +270,15 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $invocation=Get-Content (Join-Path $a 'test-invocation.json') -Raw | ConvertFrom-Json
     Assert-True (($invocation[0..3] -join '|') -ceq '--area|current|--area|standalone') 'source scopes were not one union call'
     if($success){
+        Assert-True (($metrics.inputChecks.phase -join '|') -ceq 'initial|post-build|pre-install') 'whole-project guard phases changed or redundant guard returned'
+        foreach($inputCheck in $metrics.inputChecks){
+            Assert-True ($inputCheck.exitCode -eq 0 -and $inputCheck.durationMs -ge 0 -and $inputCheck.fileCount -gt 0 -and $inputCheck.bytes -gt 0) 'missing successful content-snapshot metrics'
+            Assert-True ($inputCheck.sha256 -ceq $metrics.projectInputSha256 -and (Test-Path -LiteralPath $inputCheck.report)) 'input guard digest/report lost'
+        }
+        $buildCalls=@(Get-Content (Join-Path $a 'build-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
+        Assert-True ($buildCalls.Count -eq 1) 'build was invoked more than once'
+        Assert-True ($buildCalls[0].SkipEngineBuild -eq (-not $FullBuild)) 'full build/engine reuse selection was lost'
+        if($TargetKind){Assert-True ($buildCalls[0].EngineTargetDirectory -ceq $target -and $metrics.engineTargetDirectory -ceq $target) 'absolute engine cache was not forwarded and recorded exactly'}
         $start=Get-Content (Join-Path $a 'source-start.json') -Raw | ConvertFrom-Json
         $buildStart=Get-Content (Join-Path $a 'build-start.json') -Raw | ConvertFrom-Json
         $end=Get-Content (Join-Path $a 'source-end.json') -Raw | ConvertFrom-Json
@@ -244,6 +323,12 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
 try {
     Invoke-Case 'verify only' 'success' $true
     Invoke-Case 'full install' 'success'
+    Invoke-Case 'full engine build target' 'success' $true '' $true 'absolute'
+    Invoke-Case 'relative engine target' 'invalid-target' $true '' $true 'relative'
+    Invoke-Case 'skip engine with target' 'invalid-target' $true '' $false 'absolute'
+    Invoke-Case 'input snapshot failure' 'input-snapshot-fail'
+    Invoke-Case 'account-success' 'account-success' $false '' $true
+    foreach($mode in @('account-command-fail','account-missing-report','account-status','account-route','account-engine','account-bridge','account-model-request','account-credit-request','account-string-count')){Invoke-Case $mode $mode $false '' $true}
     foreach($mode in @('install-nonthrow-exit','install-no-result','install-failed-receipt','install-wrong-receipt-package','install-wrong-receipt-version')){Invoke-Case $mode $mode}
     foreach($mode in @('source-fail','build-fail','command-error','prepare-fail','acceptance-command-fail','install-fail','build-mutation','prepare-mutation','check-mutation','check-addition','check-deletion','submodule-mutation','prepared-hash','prepared-version','wrong-package','missing-acceptance','missing-stage','null-stage','passed-false','passed-string','acceptance-hash','acceptance-version','acceptance-path','package-mutation')){Invoke-Case $mode $mode}
     foreach($stage in @('initialInventory','hostInstall','finalInventory','namespace','standaloneHost','host')){Invoke-Case "stage-$stage" 'failed-stage' $false $stage}

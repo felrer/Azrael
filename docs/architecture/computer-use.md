@@ -32,6 +32,8 @@ The agent identifies an exact target window, activates it before capture, observ
 
 Synthetic fixture acceptance checks screenshots, accessibility state and app event output together. Actual package-owned native tests confirmed capture, text input and one click against the same synthetic app. Those tests used narrowly scoped harness consent. Separate rendered tests verified refusal, request cancellation, session repeat, persistent approval and revocation through the real host/native MCP contract with synthetic inference. Observation must be refreshed after a completed turn before acting again.
 
+Desktop tests must follow the [desktop and window protection procedure](../ops/development.md#computer-use-desktop-and-window-protection). A report of a missing pointer or user window suspends physical input tests until the affected boundary is understood. Passing capture/input or package-preservation checks does not establish preservation of cursor visibility or already-running user windows.
+
 ## Lifetime and recovery
 
 Each host window retains its own main runtime and management channel. Computer Use child resources must not bind another window's management socket. Cancellation stops pending operations and releases owned resources. Two concurrent native CLI engines used separate child process chains. Two actual Code windows retained different main management sockets, and their native-managed MCP children did not inherit those addresses. Same-home revocation invalidated the other window's pending response and cached session grant.
@@ -43,5 +45,7 @@ Installation replaces the registered extension with the exact validated package.
 ## Verification limits
 
 The final package passed scoped source/extension tests, preparation, six-stage isolated host acceptance and actual rendered approval-management smoke. Native operation evidence is reusable because its engine and Computer Use runtime hashes match the tested payload. Ordinary-profile installation preserves original Codex files, unrelated extension registrations and editor settings; activation in already-running windows remains pending reload.
+
+The user reported a disappearing mouse pointer and the disappearance of the ordinary `pi-harness-init` VS Code window during prior testing, and restored the pointer themselves. Historical tests did not record cursor visibility or the ordinary window's identity and survival before and after cleanup. Saved fixture-close commands and process inventories establish intended isolation, but do not establish every termination command's live ownership checks. The causes remain unresolved; ordinary-window preservation and cursor restoration are not verified by those tests.
 
 One genuine request with the existing ChatGPT authentication and `gpt-6.1-sol` was rejected with HTTP 400 because that model was unsupported for that account route. No tool call reached Sky. Synthetic inference in the rendered tests establishes the UI/native contract, while genuine model inference and model-driven Sky execution remain unverified for that combination.

@@ -29,9 +29,13 @@ export function parseProviderSnapshot(value: unknown): ProviderAccountSnapshot {
     const accountIds = new Set<string>();
     const accounts = item.accounts.map(account => {
       if (!isRecord(account) || !id(account.id) || !text(account.label) || typeof account.selected !== "boolean" ||
-          typeof account.needsReauth !== "boolean" || accountIds.has(account.id)) throw new Error("Invalid provider account identity.");
+          typeof account.needsReauth !== "boolean" ||
+          (account.autoSwitchAllowed !== undefined && typeof account.autoSwitchAllowed !== "boolean") ||
+          (account.autoSwitchAvailable !== undefined && typeof account.autoSwitchAvailable !== "boolean") || accountIds.has(account.id)) throw new Error("Invalid provider account identity.");
       accountIds.add(account.id);
-      return { id: account.id, label: account.label, selected: account.selected, needsReauth: account.needsReauth };
+      return { id: account.id, label: account.label, selected: account.selected, needsReauth: account.needsReauth,
+        ...(account.autoSwitchAllowed === undefined ? {} : { autoSwitchAllowed: account.autoSwitchAllowed as boolean }),
+        ...(account.autoSwitchAvailable === undefined ? {} : { autoSwitchAvailable: account.autoSwitchAvailable as boolean }) };
     });
     if (accounts.filter(account => account.selected).length > 1) throw new Error("Multiple selected provider accounts.");
     return { id: item.id, label: item.label, authKind: item.authKind as ManagedProvider["authKind"],
@@ -127,6 +131,13 @@ export class ProviderAccountService implements ProviderAccountsBackend {
     if (!result || revision !== this.revision) throw new Error("Provider account list changed during usage refresh. Refresh again.");
     this.assertAccount(providerId, accountId);
     return result;
+  }
+  async setAutoSwitch(providerId: string, accountId: string, enabled: boolean): Promise<void> {
+    this.assertAccount(providerId, accountId);
+    const provider = this.snapshot?.providers.find(provider => provider.id === providerId);
+    if (typeof enabled !== "boolean" || !provider?.inferenceConnected || provider.accounts.find(account => account.id === accountId)?.autoSwitchAvailable === false) throw new Error("Automatic account switching unavailable.");
+    await this.request("setAutoSwitch", { providerId, accountId, enabled });
+    await this.refresh();
   }
   async select(providerId: string, accountId: string): Promise<void> {
     this.assertAccount(providerId, accountId);

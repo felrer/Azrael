@@ -10,6 +10,7 @@ replace the conditions of imported source code, dependencies or assets.
 | OpenCodex provider source | `providers/opencodex/LICENSE.opencodex` and `providers/opencodex/UPSTREAM.md` retain the MIT license and source attribution. |
 | Devin transport import | `providers/devin/LICENSE.opencodex`, `UPSTREAM.md` and source headers retain OpenCodex and derived transport attribution. |
 | Node/Bun and npm dependencies | Distribution must retain the licenses shipped with each selected runtime and production dependency. Exact versions are recorded by lockfiles and release manifests. |
+| Gyeonggi Millennium Batang | Unchanged official Regular/Bold WOFF files in `extensions/azrael-ex/media/fonts/`; `NOTICE.md` retains the source and use conditions, and `provenance.json` pins their hashes. Consolas is system supplied. |
 
 The pinned official OpenAI extension UI under ignored `artifacts/upstream-ui/`
 points to OpenAI terms in its `LICENSE.md`. Public release packaging must not

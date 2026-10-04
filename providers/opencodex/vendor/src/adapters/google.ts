@@ -41,19 +41,10 @@ import {
 import { buildNonOpenAIToolCatalogNudgeForTools } from "./tool-catalog-nudge";
 import { configuredReasoningEfforts, mapReasoningEffort } from "../reasoning-effort";
 
-// Google-family models (Gemini/Vertex/Antigravity) tend to emit long running commentary between
-// tool calls. This steers them to keep the BETWEEN-STEP text to one line and reason internally
-// while still driving tools to completion. The FINAL answer is explicitly exempt so task output is
-// not truncated. Appended to systemInstruction for the `google` adapter only, so non-Google
-// providers are unaffected.
-const GOOGLE_BREVITY_INSTRUCTION = [
-  "Output style for this session:",
-  "- While you are still working (between tool calls), keep any text you emit to a single short line; do not narrate at length.",
-  "- Do detailed reasoning internally, not as visible intermediate output.",
-  "- Prefer taking the next tool action over explaining; keep calling tools until the task is complete.",
-  "- This applies only to intermediate progress text. Your final answer after the work is done is exempt: write it in full and at whatever length the task requires.",
-  "- Formatting: The client environment renders standard Markdown and does not support LaTeX math delimiters ($...$, $$...$$, \\(...\\), \\[...\\]). Do not use LaTeX math delimiters or LaTeX markup (such as \\text{}, \\times, \\le, \\ge, etc.) for variables, formulas, dimensions, or units. Use clean plain text, Markdown, and Unicode symbols (e.g. 180°, 2560 × 1920 px, ≤, ≥, Δ, ±) instead.",
-].join("\n");
+// Google-family models can emit lengthy progress between tool calls. Keep this
+// provider reminder focused on intermediate output; final answers follow the task.
+const GOOGLE_BREVITY_INSTRUCTION =
+  "Keep intermediate progress between tool calls concise. This limit does not apply to the final answer; use the length the task requires.";
 
 const ANTIGRAVITY_REJECTED_CLAUDE_SDK_PARAGRAPH =
   "You are a Claude agent, built on Anthropic's Claude Agent SDK.";

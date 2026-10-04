@@ -46,16 +46,17 @@ test("display branding preserves backend identifiers, URLs and model names", () 
 });
 
 test("settings mount renders scoped markup, forwards actions and cleans subscriptions", () => {
-  let effect, cleanup, receiver, click;
+  let effect, cleanup, receiver, click, change;
   const sent = [];
-  const shadow = { innerHTML: "", addEventListener: (_, fn) => { click = fn; }, removeEventListener: (_, fn) => { assert.equal(fn, click); click = undefined; } };
+  const shadow = { innerHTML: "", addEventListener: (type, fn) => { if (type === "click") click = fn; else change = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : change); if (type === "click") click = undefined; else change = undefined; } };
   const element = { attachShadow: () => shadow };
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
+  class HTMLInputElement extends HTMLElement { type = "checkbox"; checked = true; dataset = { action: "setAutoSwitch", provider: "provider", account: "saved" }; }
   const component = vm.runInNewContext("(" + AzraelAccountSettings.toString() + ")", {
     Q: { useRef: () => ({ current: element }), useEffect: fn => { effect = fn; } },
     $: { jsx: (tag, props) => ({ tag, props }) },
-    crypto: { randomUUID: () => "mount-1" }, Element, HTMLElement,
+    crypto: { randomUUID: () => "mount-1" }, Element, HTMLElement, HTMLInputElement,
     azraelAccountBridge: { dispatchMessage: (type, message) => sent.push({ type, ...message }),
       subscribe: (_, fn) => { receiver = fn; return () => { receiver = undefined; }; } },
   });
@@ -72,8 +73,16 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   button.disabled = true;
   click({ target: button });
   assert.equal(sent.length, 2);
+  const input = new HTMLInputElement();
+  change({ target: input });
+  assert.equal(sent[2].message.enabled, true);
+  assert.equal(sent[2].message.accountId, "saved");
+  assert.equal(input.disabled, true);
+  change({ target: input });
+  assert.equal(sent.length, 3);
   cleanup();
-  assert.equal(sent[2].action, "unmount");
+  assert.equal(sent[3].action, "unmount");
+  assert.equal(change, undefined);
   assert.equal(receiver, undefined);
   assert.equal(click, undefined);
 });

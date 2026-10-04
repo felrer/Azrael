@@ -160,7 +160,7 @@ test("usage defaults collapsed, validates toggles, selectively refreshes and res
     assert.doesNotMatch(current.panel.webview.html, /usage-details|마지막 갱신|계정별 한도를 불러오는 중/);
     assert.doesNotMatch(current.panel.webview.html, /data-action="(?:openaiReauth|openaiRemove|providerReauth|providerRemove|manageDevin)"/);
     assert.match(current.panel.webview.html, /identity-actions.*data-action="openaiSwitch"/);
-    assert.match(current.panel.webview.html, /account-heading.*usage-toggle.*<h2>cli<\/h2>/);
+    assert.match(current.panel.webview.html, /account-heading.*usage-toggle.*<h2><span data-azrael-dynamic-text>cli<\/span><\/h2>/);
     await current.internal.onMessage({ action: "toggleUsage", profileId: "a", workspaceAccountId: "wrong" });
     await current.internal.onMessage({ action: "toggleUsage", providerId: "missing", accountId: "a" });
     assert.deepEqual(calls, []);

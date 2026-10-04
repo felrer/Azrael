@@ -6,6 +6,7 @@ export const ACCOUNT_UPDATED_METHOD = "azrael/account/updated";
 export type AccountAction =
   | "list" | "captureCurrent" | "loginStart" | "loginCancel"
   | "remove" | "switch" | "cancelSwitch" | "usage" | "consumeResetCredit"
+  | "autoSwitchEnable" | "autoSwitchDisable"
   | "autoWindowStatus" | "autoWindowEnable" | "autoWindowDisable" | "autoWindowTick";
 
 export interface AccountParams {
@@ -22,6 +23,7 @@ export interface AccountProfile {
   workspaceAccountId: string;
   userId: string;
   planType: string | null;
+  autoSwitchAllowed?: boolean;
 }
 
 export interface AccountState {
@@ -129,7 +131,8 @@ export function parseAccountResponse(value: unknown): AccountResponse {
     throw new Error("invalid account state identity");
   }
   for (const profile of state.profiles) {
-    if (!isRecord(profile) || !isProfileId(profile.id) || typeof profile.workspaceAccountId !== "string" || typeof profile.userId !== "string") {
+    if (!isRecord(profile) || !isProfileId(profile.id) || typeof profile.workspaceAccountId !== "string" || typeof profile.userId !== "string" ||
+        (profile.autoSwitchAllowed !== undefined && typeof profile.autoSwitchAllowed !== "boolean")) {
       throw new Error("invalid account profile");
     }
   }

@@ -7,7 +7,7 @@ const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
 const RECOVERY = ["recovery-state", "recovery-bridge", "fetch-response", "queue-consumption", "send-result-integration", "immediate-stop", "edit-stop-integration"].map(name => `scripts/test-${name}.cjs`);
 const NAMESPACE = ["scripts/test-integrated-entry.cjs", "scripts/test-namespace-source.cjs"];
-const BUILD = ["scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1"];
+const BUILD = ["scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1"];
 const AREAS = ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build"];
 const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/asset-transform-cache.cjs", "scripts/test-project.cjs"]);
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
@@ -82,8 +82,8 @@ function select(options, root = ROOT) {
   for (const area of options.areas) add(area, "explicit --area");
   for (const file of changed) {
     if (/\.(md|markdown)$/i.test(file)) { reasons.push({ path: file, reason: "Markdown documentation only; no source tests selected" }); continue; }
-    if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|test-deploy-))/i.test(file)) separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
-    const buildChange = /(?:^scripts\/(?:build-|install-|prepare-|deploy-|package-|test-(?:incremental-extension-build|ordered-asset-reader|build-metrics|deploy-azrael|preparation-routing))|^scripts\/(?:ordered-asset-reader|preparation-state)\.|^extensions\/azrael-ex\/scripts\/build-)/.test(file);
+    if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file)) separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
+    const buildChange = /(?:^scripts\/(?:build-|install-|prepare-|deploy-|package-|test-(?:incremental-extension-build|ordered-asset-reader|deployment-input-snapshot|build-metrics|deploy-azrael|preparation-routing))|^scripts\/(?:ordered-asset-reader|preparation-state|deployment-input-snapshot)\.|^extensions\/azrael-ex\/scripts\/build-)/.test(file);
     if (buildChange) add("build", `build tooling changed: ${file}`);
     if (SHARED.has(file)) { add("current", `shared source changed: ${file}`); continue; }
     if (file.startsWith("extensions/azrael-ex/")) {

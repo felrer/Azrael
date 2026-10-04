@@ -90,8 +90,12 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
   const namespaced = transformer.rewriteJavaScript(original, COMPUTER_USE_SETTINGS_ASSET, ts);
   const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
   const instructions = injectInstructionSettings(namespaced.text, COMPUTER_USE_SETTINGS_ASSET);
-  assert.equal(sha(transformed.text.replace(SETTINGS_REPLACEMENT, SETTINGS_ANCHOR)), sha(instructions.text));
-  assert.equal(transformed.asset.edits, namespaced.count + instructions.count + 1);
+  const { injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
+  const pets = injectPetsCleanup(instructions.text, COMPUTER_USE_SETTINGS_ASSET, ts);
+  // Other owned transforms remain in the baseline when reversing only computer-use.
+  assert.equal(sha(transformed.text.replace(SETTINGS_REPLACEMENT, SETTINGS_ANCHOR)), sha(pets.text));
+  assert.equal(transformed.asset.petsCleanupEdits, pets.count);
+  assert.equal(transformed.asset.edits, namespaced.count + instructions.count + pets.count + 1);
   assert.equal(transformed.asset.sourceSha256, sha(original));
   assert.equal(transformed.asset.sha256, sha(transformed.text));
   const rules = transformer.getTransformRules();

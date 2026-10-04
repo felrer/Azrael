@@ -12,9 +12,21 @@ import {
 import { basename, dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
+import { OpenAiAutoSwitchFixture, runOpenAiAutoSwitch } from './openai-auto-switch-fixture.mjs';
+import { runAccountControls } from './account-controls-fixture.mjs';
 
 const WAIT_MS = 30_000;
-const [engineArgument, bridgeArgument, stateArgument, socketArgument] = process.argv.slice(2);
+const arguments_ = process.argv.slice(2);
+const autoSwitchOnly = arguments_.includes('--auto-switch-only');
+const accountControlsOnly = arguments_.includes('--account-controls-only');
+if (autoSwitchOnly && accountControlsOnly) {
+  throw new Error('--auto-switch-only and --account-controls-only are mutually exclusive');
+}
+const pathArguments = arguments_.filter(argument => !['--auto-switch-only', '--account-controls-only'].includes(argument));
+const [engineArgument, bridgeArgument, stateArgument, socketArgument] = pathArguments;
+if (pathArguments.length !== 4) {
+  throw new Error('Expected exactly four paths and optional --auto-switch-only or --account-controls-only');
+}
 if (
   !engineArgument ||
   !bridgeArgument ||
@@ -24,7 +36,7 @@ if (
   !isAbsolute(socketArgument)
 ) {
   throw new Error(
-    'Usage: node scripts/check-accounts.mjs <engine> <bridge> <new absolute state directory> <new absolute short socket path>',
+    'Usage: node scripts/check-accounts.mjs <engine> <bridge> <new absolute state directory> <new absolute short socket path> [--auto-switch-only | --account-controls-only]',
   );
 }
 
@@ -320,6 +332,8 @@ const accounts = [
 ];
 
 const backendRequests = [];
+const autoSwitchFixture = autoSwitchOnly ? new OpenAiAutoSwitchFixture(accounts) : null;
+const accountControlsChecks = [];
 let consumeRequests = 0;
 let modelRequests = 0;
 const refreshCounts = new Map();
@@ -360,6 +374,13 @@ function startMockBackend() {
     if (request.method === 'POST' && url.pathname === '/oauth/revoke') {
       request.resume();
       send(200, {});
+      return;
+    }
+    if (autoSwitchOnly && request.method === 'GET' && url.pathname.endsWith('/wham/accounts/check')) {
+      send(200, { accounts: accounts.map(account => ({ id: account.accountId,
+        plan_type: 'team', workspace_backend_origin: 'https://account-fixture.invalid',
+        account_routing_override: 'NO_CONSTRAINT' })),
+        account_ordering: accounts.map(account => account.accountId), default_account_id: accountId });
       return;
     }
     if (request.method === 'GET' && url.pathname === '/backend-api/wham/usage') {
@@ -423,6 +444,15 @@ function startMockBackend() {
     }
     if (url.pathname.includes('/responses')) {
       modelRequests += 1;
+      if (autoSwitchFixture && request.method === 'POST' && ['/v1/responses', '/backend-api/responses', '/backend-api/codex/responses'].includes(url.pathname)) {
+        try {
+          await autoSwitchFixture.respond(request, response);
+        } catch (error) {
+          autoSwitchFixture.error = error;
+          send(500, { error: 'Local automatic recovery fixture rejected inference' });
+        }
+        return;
+      }
       send(500, { error: 'model requests forbidden in account fixture' });
       return;
     }
@@ -460,6 +490,23 @@ async function startPair(label) {
   let stdio;
   let management;
   try {
+    const fixtureEnvironment = {
+      ...process.env,
+      CODEX_HOME: stateDirectory,
+      AZRAEL_EX_MANAGEMENT_SOCKET: socketPath,
+      CODEX_REFRESH_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/token`,
+      CODEX_REVOKE_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/revoke`,
+      HTTPS_PROXY: backend.baseUrl,
+      ALL_PROXY: backend.baseUrl,
+      NO_PROXY: '127.0.0.1,localhost',
+    };
+    if (autoSwitchOnly) {
+      // The installed host forbids endpoint overrides. Exercise the existing
+      // native RPC/callback through ordinary disposable app-server instead.
+      delete fixtureEnvironment.AZRAEL_EX_MANAGEMENT_SOCKET;
+      delete fixtureEnvironment.AZRAEL_EX_ACCOUNT_STATE_FILE;
+      delete fixtureEnvironment.AZRAEL_EX_ACCOUNT_DEFAULT_FILE;
+    }
     engine = spawn(
       enginePath,
       [
@@ -488,16 +535,7 @@ async function startPair(label) {
       ],
       {
         cwd: stateDirectory,
-        env: {
-          ...process.env,
-          CODEX_HOME: stateDirectory,
-          AZRAEL_EX_MANAGEMENT_SOCKET: socketPath,
-          CODEX_REFRESH_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/token`,
-          CODEX_REVOKE_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/revoke`,
-          HTTPS_PROXY: backend.baseUrl,
-          ALL_PROXY: backend.baseUrl,
-          NO_PROXY: '127.0.0.1,localhost',
-        },
+        env: fixtureEnvironment,
         windowsHide: true,
         stdio: ['pipe', 'pipe', 'pipe'],
       },
@@ -509,6 +547,10 @@ async function startPair(label) {
       capabilities: { experimentalApi: true },
     });
     stdio.notify('initialized');
+
+    if (autoSwitchOnly) {
+      return { label, engine, stdio, management: stdio, instanceOrdinal: pairNumber };
+    }
 
     bridge = spawn(bridgePath, [socketPath], {
       cwd: stateDirectory,
@@ -539,9 +581,11 @@ async function startPair(label) {
 
 async function stopPair(pair) {
   if (!pair) return;
+  if (pair.bridge) {
   pair.bridge.stdin.end();
   const bridgeExit = await waitForExit(pair.bridge, `${pair.label} bridge`);
   if (bridgeExit.code !== 0) throw new Error(`${pair.label} bridge exited abnormally`);
+  }
   pair.engine.stdin.end();
   const engineExit = await waitForExit(pair.engine, `${pair.label} engine`);
   if (engineExit.code !== 0) throw new Error(`${pair.label} engine exited abnormally`);
@@ -611,8 +655,8 @@ async function stageAccount(account, label) {
   currentPair.management.discardNotifications('azrael/account/updated', 'account/updated');
   const nativeAzraelEvent = currentPair.stdio.notification('azrael/account/updated');
   const nativeAccountEvent = currentPair.stdio.notification('account/updated');
-  const bridgeAzraelEvent = currentPair.management.notification('azrael/account/updated');
-  const bridgeAccountEvent = currentPair.management.notification('account/updated');
+  const bridgeAzraelEvent = autoSwitchOnly ? Promise.resolve() : currentPair.management.notification('azrael/account/updated');
+  const bridgeAccountEvent = autoSwitchOnly ? Promise.resolve() : currentPair.management.notification('account/updated');
   await azrael(currentPair.stdio, 'captureCurrent');
   const state = await waitForState(
     currentPair.stdio,
@@ -698,6 +742,36 @@ try {
   await writeFile(selectedStatePath, JSON.stringify({ selectedProfileId: null }));
   const second = await stageAccount(accounts[1], 'capture B');
 
+  if (accountControlsOnly) {
+    await runAccountControls({ first, second, accounts, startPair, stopPair, azrael,
+      waitForState, expectRpcError, stateDirectory, checks: accountControlsChecks,
+      setCurrentPair: pair => { currentPair = pair; } });
+    if (modelRequests !== 0) throw new Error('Account controls unexpectedly made a model request');
+    if (consumeRequests !== 0) throw new Error('Account controls unexpectedly consumed a usage credit');
+    await cleanProfiles();
+    await removeSocketFixture();
+    if (modelRequests !== 0 || consumeRequests !== 0) throw new Error('Account controls cleanup made a forbidden request');
+    accountControlsChecks.push('synthetic credential cleanup with zero model and usage credit consumption requests');
+    const result = { status: 'passed', route: 'account-controls', engine: enginePath,
+      bridge: bridgePath, stateRoot: stateDirectory, profilesTested: 2,
+      realLogin: false, liveModelRequest: false, userCredentialRead: false,
+      modelRequests, usageCreditConsumeRequests: consumeRequests, checks: accountControlsChecks };
+    await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(result));
+  } else if (autoSwitchOnly) {
+    await runOpenAiAutoSwitch({ fixture: autoSwitchFixture, first, second, accounts,
+      startPair, stopPair, azrael, waitForState, stateDirectory, selectedStatePath,
+      fixtureModel, setCurrentPair: pair => { currentPair = pair; } });
+    if (consumeRequests !== 0) throw new Error('Automatic recovery consumed a usage credit');
+    await cleanProfiles();
+    await removeSocketFixture();
+    const result = { status: 'passed', route: 'openai-auto-switch', executionMode: 'disposable ordinary app-server', hostBoundaryVerified: false, engine: enginePath,
+      bridge: bridgePath, stateRoot: stateDirectory, realLogin: false, liveModelRequest: false,
+      modelRequests, usageCreditConsumeRequests: consumeRequests, checks: autoSwitchFixture.checks,
+      requests: autoSwitchFixture.requests };
+    await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+    console.log(JSON.stringify(result));
+  } else {
   currentPair = await startPair('account operations');
   const restoredB = await waitForState(
     currentPair.stdio,
@@ -902,6 +976,7 @@ try {
   };
   await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result));
+  }
 } catch (error) {
   primaryError = error;
   if (stateOwned && backend) {
@@ -928,6 +1003,18 @@ try {
     }
   }
   if (stateOwned) {
+    if (accountControlsOnly) {
+      await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify({
+        status: 'failed', route: 'account-controls', engine: enginePath, bridge: bridgePath,
+        stateRoot: stateDirectory, realLogin: false, liveModelRequest: false, userCredentialRead: false,
+        modelRequests, usageCreditConsumeRequests: consumeRequests, checks: accountControlsChecks,
+      }, null, 2));
+    }
+    if (autoSwitchFixture) {
+      await writeFile(join(stateDirectory, 'auto-switch-requests.json'), JSON.stringify({
+        checks: autoSwitchFixture.checks, requests: autoSwitchFixture.requests,
+      }, null, 2));
+    }
     const failure = [primaryError.stack ?? String(primaryError), ...stderrSections.map(get => get())]
       .join('')
       .replaceAll(/Bearer\s+[^\s]+/gi, 'Bearer <redacted>');

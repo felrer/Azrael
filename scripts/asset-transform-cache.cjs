@@ -3,16 +3,16 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 
-const CACHE_SCHEMA = 2;
+const CACHE_SCHEMA = 3;
 const sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
 const isSha = (value) => typeof value === "string" && /^[a-f\d]{64}$/.test(value);
 const COUNT_FIELDS = ["edits", "namespaceEdits", "workspaceThreadListEdits", "recoveryEdits",
   "deferredTurnEdits", "deferredNativeTimingChecks", "compactionProgressEdits", "queueRefreshEdits",
   "queueRefreshNativeChecks", "providerPickerEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits", "accountSwitchQueueEdits",
-  "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits"];
+  "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits", "uiCleanupEdits", "petsCleanupEdits", "contentFontEdits"];
 
 function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescriptVersion,
-  transformRules, statistics = { hits: 0, misses: 0 }, metrics }) {
+  transformRules, getAssetTransformRules = () => transformRules, statistics = { hits: 0, misses: 0 }, metrics }) {
   const initializationStarted = performance.now();
   function measure(stage, action) {
     if (!metrics) return action();
@@ -49,8 +49,9 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
       throw new Error("Asset transform cache resolves outside artifacts.");
     }
   }
-  const rulesSha256 = sha(JSON.stringify(Object.entries(transformRules).sort(([a], [b]) => a.localeCompare(b))));
-  const fingerprint = { schema: CACHE_SCHEMA, rulesSha256, typescriptSha256, typescriptVersion };
+  // Rule hashes belong to each asset key. Keeping them out of this fingerprint
+  // preserves unrelated no-op hints when a path-scoped rule changes.
+  const fingerprint = { schema: CACHE_SCHEMA, typescriptSha256, typescriptVersion };
   const fingerprintText = JSON.stringify(fingerprint);
   const indexPath = directory && path.join(directory, `noops-${sha(fingerprintText)}.json`);
   function readNoops() {
@@ -97,6 +98,8 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
         return transform();
       }
       const lookupStarted = metrics && performance.now();
+      const rulesSha256 = sha(JSON.stringify(Object.entries(getAssetTransformRules(relativePath, transformRules))
+        .sort(([a], [b]) => a.localeCompare(b))));
       const key = { schema: CACHE_SCHEMA, sourceSha256: sourceContentSha256, relativePath,
         rulesSha256, typescriptSha256, typescriptVersion };
       const keyText = JSON.stringify(key);

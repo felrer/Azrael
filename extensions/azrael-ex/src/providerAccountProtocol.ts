@@ -4,6 +4,8 @@ export interface ProviderAccount {
   label: string;
   selected: boolean;
   needsReauth: boolean;
+  autoSwitchAllowed?: boolean;
+  autoSwitchAvailable?: boolean;
 }
 export interface ManagedProvider {
   id: string;
@@ -44,6 +46,7 @@ export interface ProviderAccountsBackend {
   readonly error: string | undefined;
   refresh(): Promise<ProviderAccountSnapshot>;
   quota(providerId: string, accountId: string, force?: boolean): Promise<ProviderAccountQuota>;
+  setAutoSwitch(providerId: string, accountId: string, enabled: boolean): Promise<void>;
   select(providerId: string, accountId: string): Promise<void>;
   remove(providerId: string, accountId: string): Promise<void>;
   login(providerId: string, accountId?: string): Promise<void>;

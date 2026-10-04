@@ -3,6 +3,7 @@
 param(
     [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]*$')][string]$ReleaseName,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
+    [string]$EngineTargetDirectory,
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
     [string]$CodeModeHostPath,
@@ -17,7 +18,8 @@ param(
     [string]$WorkspacePath = (Split-Path $PSScriptRoot -Parent),
     [string]$ExtensionsDir = (Join-Path $env:USERPROFILE '.vscode/extensions'),
     [string]$UserDataDir,
-    [switch]$VerifyOnly
+    [switch]$VerifyOnly,
+    [switch]$VerifyAccountControls
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -27,53 +29,44 @@ $logs = Join-Path $project "artifacts/logs/$run"
 $release = Join-Path $project "artifacts/releases/$ReleaseName"
 $package = Join-Path $project "artifacts/deployments/$run/package"
 $fixture = Join-Path $project "artifacts/verification/$run"
-foreach ($path in @($logs, $release, (Join-Path $project "artifacts/logs/$ReleaseName"), (Split-Path $package -Parent), $fixture)) {
+$accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName"
+$runPaths = @($logs, $release, (Join-Path $project "artifacts/logs/$ReleaseName"), (Split-Path $package -Parent), $fixture)
+if ($VerifyAccountControls) { $runPaths += $accountControlsState }
+foreach ($path in $runPaths) {
     if (Test-Path -LiteralPath $path) { throw "Run path already exists: $path. Use a new ReleaseName." }
 }
 if ($CompanionVsixPath -and -not $TypeScriptPath) { throw 'CompanionVsixPath requires the explicit TypeScriptPath from its pinned build staging.' }
 if ($EngineDirectory -and -not $SkipEngineBuild) { throw 'EngineDirectory requires SkipEngineBuild.' }
 if ($SkipEngineBuild -and (-not $EngineDirectory -or $CodeModeHostPath)) { throw 'SkipEngineBuild requires EngineDirectory and cannot select CodeModeHostPath.' }
 if (-not $SkipEngineBuild -and -not $CodeModeHostPath) { throw 'A full build requires CodeModeHostPath.' }
+if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
+if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
 New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
-$metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); wallTimeMs = 0 }
+$metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0 }
 $pwsh = (Get-Process -Id $PID).Path
 
 function Get-ProjectSnapshot {
-    param([string]$Directory = $project)
-    $info = [Diagnostics.ProcessStartInfo]::new('git')
-    $info.WorkingDirectory = $Directory
-    $info.UseShellExecute = $false
-    $info.CreateNoWindow = $true
-    $info.RedirectStandardOutput = $true
-    $info.RedirectStandardError = $true
-    $info.StandardOutputEncoding = [Text.UTF8Encoding]::new($false)
-    foreach ($arg in @('ls-files', '--cached', '--others', '--exclude-standard', '-z')) { $info.ArgumentList.Add($arg) }
-    $proc = [Diagnostics.Process]::Start($info)
-    try {
-        $errors = $proc.StandardError.ReadToEndAsync()
-        $output = $proc.StandardOutput.ReadToEnd()
-        $proc.WaitForExit()
-        if ($proc.ExitCode -ne 0) { throw "Project input inventory failed ($($proc.ExitCode)): $($errors.GetAwaiter().GetResult())" }
-    } finally { $proc.Dispose() }
-    $inventory = foreach ($relative in @($output.Split([char]0, [StringSplitOptions]::RemoveEmptyEntries) | Sort-Object -Unique -CaseSensitive)) {
-        $path = Join-Path $Directory $relative
-        $hash = if (Test-Path -LiteralPath $path -PathType Leaf) {
-            (Get-FileHash -LiteralPath $path -Algorithm SHA256).Hash
-        } elseif (Test-Path -LiteralPath $path -PathType Container) {
-            # ls-files emits directories for gitlinks. Include their actual worktree
-            # contents; an uninitialized gitlink cannot establish a content snapshot.
-            if (-not (Test-Path -LiteralPath (Join-Path $path '.git'))) { throw "Project gitlink is not initialized: $path" }
-            Get-ProjectSnapshot -Directory $path
-        } else { 'deleted' }
-        [ordered]@{ path = $relative; sha256 = $hash }
-    }
-    $json = ConvertTo-Json -InputObject @($inventory) -Depth 4 -Compress
-    [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json)))
+    param([string]$Phase)
+    $checkTimer = [Diagnostics.Stopwatch]::StartNew()
+    $report = Join-Path $logs "inputs-$Phase.json"
+    $stdout = Join-Path $logs "inputs-$Phase.stdout.log"
+    $stderr = Join-Path $logs "inputs-$Phase.stderr.log"
+    & (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') $project $report 1> $stdout 2> $stderr
+    $checkExit = $LASTEXITCODE
+    $record = [ordered]@{ phase = $Phase; exitCode = $checkExit; durationMs = $checkTimer.Elapsed.TotalMilliseconds; report = $report }
+    $metrics.inputChecks += $record
+    if ($checkExit -ne 0) { throw "Project input snapshot failed ($checkExit). See $stderr" }
+    $snapshot = Get-Content -LiteralPath $stdout -Raw | ConvertFrom-Json
+    $record.fileCount = $snapshot.fileCount
+    $record.bytes = $snapshot.bytes
+    $record.sha256 = $snapshot.sha256
+    $snapshot.sha256
 }
 function Assert-ProjectSnapshot {
-    if ((Get-ProjectSnapshot) -cne $script:inputSnapshot) { throw 'Project inputs changed during deployment. Use a new ReleaseName after source edits stop.' }
+    param([string]$Phase)
+    if ((Get-ProjectSnapshot $Phase) -cne $script:inputSnapshot) { throw 'Project inputs changed during deployment. Use a new ReleaseName after source edits stop.' }
 }
 function Start-OwnedCommand {
     param([string]$Name, [string]$Executable, [string[]]$Arguments)
@@ -132,15 +125,40 @@ function Assert-Package {
     } finally { $archive.Dispose() }
 }
 try {
-    $script:inputSnapshot = Get-ProjectSnapshot
+    $script:inputSnapshot = Get-ProjectSnapshot 'initial'
     $metrics.projectInputSha256 = $inputSnapshot
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot)
+    if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'test-project.cjs'), '--area', 'current', '--area', 'standalone', '--log-directory', (Join-Path $logs 'source-tests'))
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     Wait-OwnedCommands @($sourceTests, $build)
-    Assert-ProjectSnapshot
+    Assert-ProjectSnapshot 'post-build'
+    if ($VerifyAccountControls) {
+        $enginePath = Join-Path $release 'engine/codex.exe'
+        $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
+        $socketPath = Join-Path $accountControlsState 'socket/a.sock'
+        if ([Text.Encoding]::UTF8.GetByteCount($socketPath) -gt 100) {
+            $socketPath = Join-Path ([IO.Path]::GetFullPath([IO.Path]::GetTempPath())) "ac-$([guid]::NewGuid().ToString('N'))/a.sock"
+        }
+        if ([Text.Encoding]::UTF8.GetByteCount($socketPath) -gt 100) { throw 'Account controls socket path exceeds the Windows AF_UNIX limit.' }
+        if (Test-Path -LiteralPath (Split-Path $socketPath -Parent)) { throw 'Account controls socket directory already exists.' }
+        $reportPath = Join-Path $accountControlsState 'verification.json'
+        $metrics.accountControls = [ordered]@{ status = 'running'; verification = $reportPath; stateRoot = $accountControlsState; socket = $socketPath; engine = $enginePath; bridge = $bridgePath; engineSha256 = (Get-FileHash -LiteralPath $enginePath).Hash; bridgeSha256 = (Get-FileHash -LiteralPath $bridgePath).Hash }
+        $accountCheck = Start-OwnedCommand 'account-controls' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'check-accounts.mjs'), $enginePath, $bridgePath, $accountControlsState, $socketPath, '--account-controls-only')
+        Wait-OwnedCommands @($accountCheck)
+        $accountReport = Get-Content -LiteralPath $reportPath -Raw | ConvertFrom-Json
+        if ($accountReport.status -cne 'passed' -or $accountReport.route -cne 'account-controls' -or
+            -not [IO.Path]::IsPathFullyQualified($accountReport.engine) -or [IO.Path]::GetFullPath($accountReport.engine) -ine $enginePath -or
+            -not [IO.Path]::IsPathFullyQualified($accountReport.bridge) -or [IO.Path]::GetFullPath($accountReport.bridge) -ine $bridgePath -or
+            ($accountReport.modelRequests -isnot [long] -and $accountReport.modelRequests -isnot [int]) -or $accountReport.modelRequests -ne 0 -or
+            ($accountReport.usageCreditConsumeRequests -isnot [long] -and $accountReport.usageCreditConsumeRequests -isnot [int]) -or $accountReport.usageCreditConsumeRequests -ne 0) {
+            throw 'Account controls verification status, route, binary identity, or request counts mismatch.'
+        }
+        if ((Get-FileHash -LiteralPath $enginePath).Hash -cne $metrics.accountControls.engineSha256 -or (Get-FileHash -LiteralPath $bridgePath).Hash -cne $metrics.accountControls.bridgeSha256) { throw 'Account controls binaries changed during verification.' }
+        $metrics.accountControls.status = 'passed'
+    }
     if (-not $TypeScriptPath) { $TypeScriptPath = Join-Path $project "artifacts/build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js" }
     $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
     Invoke-Stage 'prepare' 'prepare-independent-vscode.ps1' @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
@@ -149,7 +167,6 @@ try {
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
     $script:preparedHash = (Get-FileHash -LiteralPath $preparedPath).Hash
     Assert-Package
-    Assert-ProjectSnapshot
     Invoke-Stage 'acceptance' 'check-independent-vscode.ps1' @('-HostVsixPath', $prepared.HostVsix, '-FixtureRoot', $fixture, '-StateRoot', (Join-Path $fixture 'state'), '-UseFreshState', '-TypeScriptPath', $TypeScriptPath, '-UiSourcePath', $UiSourcePath, '-OriginalExtensionPath', $OriginalExtensionPath, '-OriginalAudioPath', $OriginalAudioPath, '-CodePath', $CodePath)
     $acceptancePath = Join-Path $fixture 'check-result.json'
     $acceptance = Get-Content -LiteralPath $acceptancePath -Raw | ConvertFrom-Json
@@ -161,7 +178,7 @@ try {
     }
     if ($acceptance.useFreshState -isnot [bool] -or $acceptance.useFreshState -cne $true -or [IO.Path]::GetFullPath($acceptance.hostPackage.vsix) -ine $prepared.HostVsix -or $acceptance.hostPackage.sha256 -ine $prepared.HostSha256 -or [string]$acceptance.hostPackage.version -cne [string]$prepared.HostVersion) { throw 'Host acceptance package identity or fresh state mismatch.' }
     Assert-Package
-    Assert-ProjectSnapshot
+    Assert-ProjectSnapshot 'pre-install'
     $metrics.acceptanceResult = $acceptancePath
     $metrics.hostPackage = @{ vsix = $prepared.HostVsix; sha256 = $prepared.HostSha256; version = $prepared.HostVersion }
     if (-not $VerifyOnly) {
@@ -212,6 +229,7 @@ if ($installExitCode -ne 0) {
     }
     $metrics.status = if ($VerifyOnly) { 'verified' } else { 'installed' }
 } catch {
+    if ($metrics.Contains('accountControls') -and $metrics.accountControls.status -cne 'passed') { $metrics.accountControls.status = 'failed' }
     $metrics.status = if ($metrics.Contains('installation')) { $metrics.installation.status = 'failed'; 'installation-failed' } else { 'failed' }
     $metrics.error = $_.Exception.Message
     throw
