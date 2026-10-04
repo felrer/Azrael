@@ -36,7 +36,7 @@ The receipt is a host recovery guard, not a distributed exactly-once tool execut
 
 ## Visible states and recovery actions
 
-A VS Code status item shows the most recently observed thread state. Its menu lists tracked threads and offers status refresh and interrupt-then-resume. Evidence comes from native notifications: recovery/start acceptance, agent output, tool activity, approval/input wait, completed/interrupted/error, and connection loss. Initial silence is labelled first-response wait rather than claiming a model request was sent.
+A VS Code status item shows the most recently observed thread state. Its menu lists tracked threads and offers status refresh and interrupt-then-resume. Evidence comes from native notifications: recovery/start acceptance, agent output, tool activity, approval/input wait, completed/interrupted/error, and connection loss. Recovery shows `서버 연결 중 · 세션 확인`; pending engine admission shows `전송 대기 중`. Both use an animated status icon. After acceptance, initial silence shows `응답 대기 중` rather than claiming a new server connection is being established.
 
 RPC acknowledgement is bounded at 20 seconds. A turn with no observable progress for 90 seconds is shown as delayed, not dead; human input waits are exempt. Silence does not automatically cancel model or tool work. Interruption recovery waits for a live idle snapshot before admitting a new continuation; timeout leaves the operation stopped at the recovery boundary. It never kills an extension host or a shared engine.
 

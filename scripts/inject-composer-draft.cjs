@@ -1,15 +1,16 @@
 "use strict";
 
 const COMPOSER_DRAFT_ASSET = "webview/assets/app-initial-9cbfb5c07b41.js";
-const MARKER = "/*azrael-composer-draft-v2*/";
+const MARKER = "/*azrael-composer-draft-v3*/";
 // Read the same editable payload used by the pinned host. Clone it immediately:
 // attachment edits may mutate objects while preparation is awaiting native RPC.
 const SNAPSHOT = `${MARKER}function __azraelComposerSnapshot(e,f){let n=e.get(EW),a={};for(let k of ["imageAttachments","imageCommentDrafts","appshotContexts","fileAttachments","pastedTextAttachments","uploadedFileAttachments","addedFiles","mcpAppModelContextAttachments","selectedTextAttachments","responseTextAnnotations","pullRequestMergeConflict","attachmentOrder"])a[k]=n[k];return JSON.parse(JSON.stringify({key:Em(e.value),text:f.getText(),persistedText:f.getPersistedText(),draft:dW(e.get(mW.drafts$)[Em(e.value)]),attachments:a,selections:[e.get(PW),e.get(hU),e.get(mU),e.get(GH),e.get(XH,KTe(e.value)),e.get(lU),e.get(cU)],apps:[f.getMentionedComputerUseApps?.(),f.getMentionedBrowserFamilies?.(),f.getComputerUseAppMentions?.()]}))}function __azraelComposerMatches(e,f,s){return s!=null&&(0,pW.default)(__azraelComposerSnapshot(e,f),s)}`;
 
 const edits = [
-  // Failed and deferred locally admitted inputs stay visible in the queue even
-  // inside the upstream two-second optimistic send window.
-  ["return n.filter(e=>(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t($ca,e.createdAt)))", "return n.filter(e=>e.pausedReason!=null||e.submission?.status===`queued`||e.submission?.status===`outcome-unknown`||(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t($ca,e.createdAt)))"],
+  // Local custody stays visible through preparation and native dispatch. An
+  // optimistic opening-input ID is not evidence that the conversation renders
+  // the input. Accepted removal belongs to the queue coordinator.
+  ["return n.filter(e=>(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t($ca,e.createdAt)))", "return n.filter(e=>e.pausedReason!=null||e.submission?.status===`pending`||e.submission?.status===`sending`||e.submission?.status===`queued`||e.submission?.status===`outcome-unknown`||(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t($ca,e.createdAt)))"],
   ["async function uua({", SNAPSHOT + "async function uua({"],
   ["let Ee=ve??f.getText(),De=", "let __azraelSubmitted=__azraelComposerSnapshot(e,f),__azraelCleared;const __azraelOwns=()=>__azraelComposerMatches(e,f,__azraelSubmitted),__azraelClear=n=>{if(!__azraelOwns())return!1;l(n);__azraelCleared=__azraelComposerSnapshot(e,f);return!0},__azraelRelease=(c,ok)=>c?.(ok,__azraelComposerMatches(e,f,__azraelCleared));let Ee=ve??f.getText(),De="],
   ["await H(Ne)&&(l(),e=me&&Ne.length>0)", "await H(Ne)&&(__azraelClear(),e=me&&Ne.length>0)"],
@@ -28,7 +29,7 @@ const edits = [
 
 const count = (text, token) => text.split(token).length - 1;
 function injectComposerDraft(text) {
-  if (text.includes("/*azrael-composer-draft-v1*/")) throw new Error("Outdated composer draft injection; use the original pinned asset.");
+  if (/\/\*azrael-composer-draft-v[12]\*\//.test(text)) throw new Error("Outdated composer draft injection; use the original pinned asset.");
   if (count(text, MARKER)) {
     if (count(text, MARKER) !== 1 || edits.some(([, replacement]) => count(text, replacement) !== 1)) {
       throw new Error("Invalid or partial composer draft injection.");

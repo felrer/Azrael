@@ -50,10 +50,22 @@ function injectQueuedCompactionPresentation(text) {
 }
 
 function injectQueuedCompactionList(text) {
-  return apply(text, "list", [[
+  const edits = [[
     "isSendNowDisabled:c||l&&R(e.context),onEditMessage:p,onDeleteMessage:m,onOpenInSideChatMessage:h,onSendNowMessage:g,onQueueingChange:v},e.clientUserMessageId??e.id)",
     "$MARKERisSendNowDisabled:c||l&&R(e.context)||e.context.queuedOperationKind===`contextCompaction`,onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:p,onDeleteMessage:m,onOpenInSideChatMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:h,onSendNowMessage:g,onQueueingChange:v},e.clientUserMessageId??e.id)",
-  ]]);
+  ], [
+    "className:`sr-only select-none`,role:`status`,children:(0,$.jsx)(s,{id:`composer.queuedMessage.sending`,defaultMessage:`Sending`,description:`Status of a locally saved message waiting for the app server to accept it`})",
+    "className:`text-text-tertiary text-xs select-none shrink-0`,role:`status`,\"aria-live\":`polite`,children:(0,$.jsx)(s,{id:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:`전송 대기 중`,description:`Status of a locally saved message waiting for the engine to accept it`})",
+  ]];
+  const result = apply(text, "list", edits, 2);
+  // Reused assets must contain every complete replacement, not only the marker.
+  for (const [, replacement] of edits) {
+    const expected = replacement.replace("$MARKER", "/*azrael-queued-compaction-list-v2*/");
+    if (result.text.split(expected).length - 1 !== 1) {
+      throw new Error("Invalid queued-compaction list replacement; use the pinned original asset");
+    }
+  }
+  return result;
 }
 
 module.exports = { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET, QUEUED_COMPACTION_EXPECTED_COUNTS, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList };

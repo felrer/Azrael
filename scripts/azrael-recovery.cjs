@@ -17,7 +17,7 @@ const MAX_HOST_REQUESTS = 128;
 const HOST_REQUEST_TTL_MS = 5 * 60 * 1000;
 let ui;
 const labels = {
-  recovering: "실행 상태 확인 중", starting: "실행 요청 응답 대기", waiting: "다음 응답 대기",
+  recovering: "서버 연결 중 · 세션 확인", starting: "전송 대기 중", waiting: "응답 대기 중",
   responding: "응답 생성 중", tool: "도구 실행 중", approval: "승인 대기", input: "입력 대기",
   completed: "완료", interrupted: "중단됨", idle: "대기 중", error: "실행 오류",
   disconnected: "연결 끊김 · 상태 확인 필요", unknown: "재개 결과 확인 필요", interrupting: "중단 완료 확인 중",
@@ -75,7 +75,8 @@ function initialize(context, vscode) {
     const entries = [...controllers.values()].flatMap(c => c.state.list()).sort((a, b) => b.updatedAt - a.updatedAt);
     const latest = entries[0];
     if (!latest) { status.hide(); return; }
-    status.text = `$(pulse) Azrael: ${latest.delayed ? "진행 지연 · " : ""}${labels[latest.phase]}`;
+    const icon = latest.phase === "recovering" || latest.phase === "starting" ? "loading~spin" : "pulse";
+    status.text = `$(${icon}) Azrael: ${latest.delayed ? "진행 지연 · " : ""}${labels[latest.phase]}`;
     status.tooltip = `세션 ${latest.threadId}\n${latest.delayed ? "90초 동안 새 진행 신호가 없습니다. 실행 중단을 뜻하지 않습니다.\n" : ""}클릭하여 상태 확인 또는 중단 후 재개`;
     status.show();
   };

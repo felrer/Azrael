@@ -81,16 +81,27 @@ acceptance reconciliation neither drops their payload nor bypasses confirmation.
 
 ### Locally accepted submission results
 
-Status: `current` in scoped source and packaged pinned-function integration tests.
-Installed user-window interaction is outside this automated scope.
+Status: `partial`. Queued-result handling is verified in scoped source and
+packaged pinned-function integration tests. Immediate pending/sending visibility
+and waiting presentation are verified in scoped source tests; packaging and installed user-window
+interaction are pending.
 
 Once a follow-up has been persisted and published in the local queue, its
 composer submission finishes as `queued` when dispatch fails, is deferred, or
 is cancelled before acceptance. The queued item retains its original client
 message ID, payload, position and failure or uncertain-delivery state. The
 existing queue presentation exposes paused inputs and the existing send-now and
-edit actions for confirmed failures. Queued, paused and outcome-unknown items
-are visible immediately, including within the optimistic send display delay.
+edit actions for confirmed failures. Pending, sending, queued, paused and
+outcome-unknown local items are visible immediately, including within the
+optimistic send display delay and when their client message ID matches the
+optimistic opening input. Local custody remains visible until the queue owner
+removes the accepted item; an optimistic display identity alone cannot remove
+it from the queue presentation.
+Pending and sending rows reuse the queue's reduced-motion-aware spinner and
+show `전송 대기 중` as a visible, polite status announcement. This label means
+the saved input is awaiting engine acceptance; it does not claim that an OpenAI
+connection is being established. Paused and uncertain rows retain their existing
+warning presentation and admission controls.
 Unconfirmed delivery keeps send-now and edit disabled until acceptance can be
 established. Editing moves the queued item into the composer through the queue
 owner; submission failure does not also restore a second editable copy.

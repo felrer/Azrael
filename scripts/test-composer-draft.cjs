@@ -164,7 +164,7 @@ test("snapshot detects app selection changes", () => {
   f.atoms.set("hU", [{ id: "B" }]); assert.equal(f.context.__azraelComposerMatches(f.scope, f.controller, snapshot), false);
 });
 
-test("queued and failed follow-ups remain visible during the optimistic send window", () => {
+test("locally held follow-ups remain visible during the optimistic send window", () => {
   let selector;
   function visit(node) {
     if (ts.isBinaryExpression(node) && node.left.getText(ast) === "ela") selector = node.right.arguments[1].getText(ast);
@@ -174,6 +174,9 @@ test("queued and failed follow-ups remain visible during the optimistic send win
   assert.ok(selector, "pinned queue visibility selector exists");
   const select = vm.runInNewContext(`(${selector})`, { WX: "messages", yRr: "admitted", $ca: "elapsed" });
   for (const message of [
+    { id: "submitted", submission: { status: "pending" } },
+    { id: "submitted", submission: { status: "sending" } },
+    { id: "local-id", submissionOptions: { clientUserMessageId: "submitted" }, submission: { status: "sending" } },
     { id: "submitted", submission: { status: "queued" } },
     { id: "submitted", submission: { status: "pending" }, pausedReason: "failed before dispatch" },
     { id: "submitted", submission: { status: "outcome-unknown" }, pausedReason: "unconfirmed" },
@@ -182,10 +185,20 @@ test("queued and failed follow-ups remain visible during the optimistic send win
     const get = key => key === "messages" ? [item] : key === "admitted" ? "submitted" : false;
     assert.equal(select("thread", { get })[0], item);
   }
-  const sending = { id: "submitted", submission: { status: "sending" }, submissionIntent: "send-now" };
-  assert.equal(select("thread", { get: key => key === "messages" ? [sending] : key === "admitted" ? "submitted" : false }).length, 0);
+  for (const status of ["pending", "sending"]) {
+    for (const elapsed of [false, true]) {
+      const items = ["A", "B", "C"].map(id => ({ id, submission: { status }, submissionIntent: "send-now", createdAt: 0 }));
+      const get = key => key === "messages" ? items : key === "admitted" ? "A" : elapsed;
+      assert.deepEqual(Array.from(select("thread", { get }), item => item.id), ["A", "B", "C"]);
+      items.shift(); // Accepted removal by the queue owner controls visibility.
+      assert.deepEqual(Array.from(select("thread", { get }), item => item.id), items.map(item => item.id));
+    }
+  }
+  const legacy = { id: "submitted", submissionIntent: "send-now", createdAt: 0 };
+  assert.equal(select("thread", { get: key => key === "messages" ? [legacy] : key === "admitted" ? "submitted" : false }).length, 0);
 });
 test("pinned transform fails closed for missing, repeated and partial anchors", () => {
+  for (const version of [1, 2]) assert.throws(() => injectComposerDraft(original + `/*azrael-composer-draft-v${version}*/`), /Outdated/);
   assert.throws(() => injectComposerDraft(original.replace("async function uua({", "async function changed({")), /anchor/);
   assert.throws(() => injectComposerDraft(original + "async function uua({"), /anchor/);
   assert.throws(() => injectComposerDraft(transformed.replace("__azraelClear(nt)", "l(nt)")), /partial/);
