@@ -1134,6 +1134,7 @@ impl ThreadRequestProcessor {
         request_context: RequestContext,
     ) -> Result<(), JSONRPCErrorError> {
         let ThreadStartParams {
+            computer_use_mode,
             model,
             model_provider,
             allow_provider_model_fallback,
@@ -1242,6 +1243,7 @@ impl ThreadRequestProcessor {
                 typesafe_overrides,
                 dynamic_tools,
                 selected_capability_roots.unwrap_or_default(),
+                computer_use_mode,
                 history_mode.map(Into::into),
                 session_start_source,
                 thread_source.map(Into::into),
@@ -1324,6 +1326,7 @@ impl ThreadRequestProcessor {
         typesafe_overrides: ConfigOverrides,
         dynamic_tools: Option<Vec<DynamicToolSpec>>,
         selected_capability_roots: Vec<SelectedCapabilityRoot>,
+        computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
         history_mode: Option<ThreadHistoryMode>,
         session_start_source: Option<codex_app_server_protocol::ThreadStartSource>,
         thread_source: Option<codex_protocol::protocol::ThreadSource>,
@@ -1464,6 +1467,10 @@ impl ThreadRequestProcessor {
                 .then_some(ThreadHistoryMode::Paginated)
         });
         let mut thread_extension_init = ExtensionDataInit::new();
+        if let Some(mode) = computer_use_mode {
+            thread_extension_init.insert(mode);
+            thread_extension_init.insert(codex_extension_api::ToolPolicy::selected_window());
+        }
         if !selected_capability_roots.is_empty() {
             thread_extension_init.insert(selected_capability_roots);
         }
@@ -1620,6 +1627,7 @@ impl ThreadRequestProcessor {
         let thread_originator = config_snapshot.originator.clone();
 
         let response = ThreadStartResponse {
+            computer_use_mode: config_snapshot.computer_use_mode,
             thread: thread.clone(),
             disabled_plugin_ids: config_snapshot.disabled_plugin_ids,
             model: config_snapshot.model,
@@ -3703,6 +3711,7 @@ impl ThreadRequestProcessor {
         };
 
         let ThreadResumeParams {
+            computer_use_mode: requested_computer_use_mode,
             thread_id,
             history,
             path,
@@ -3725,9 +3734,44 @@ impl ThreadRequestProcessor {
         let include_turns = !exclude_turns;
 
         let resume_result = if let Some(history) = history {
-            self.resume_thread_from_history(history.as_slice())
-                .await
-                .map(|thread_history| (thread_history, None))
+            let mut supplied_history = self.resume_thread_from_history(history.as_slice()).await?;
+            // Supplied model history cannot erase a recorded thread's immutable ceiling.
+            if let Ok(source_id) = ThreadId::from_string(&thread_id) {
+                match self
+                    .thread_store
+                    .read_thread(StoreReadThreadParams {
+                        thread_id: source_id,
+                        include_archived: true,
+                        include_history: true,
+                    })
+                    .await
+                {
+                    Ok(stored) => {
+                        let meta = stored
+                            .history
+                            .as_ref()
+                            .and_then(|history| {
+                                history.items.iter().find_map(|item| match item {
+                                    RolloutItem::SessionMeta(meta) if meta.meta.id == source_id => {
+                                        Some(meta)
+                                    }
+                                    _ => None,
+                                })
+                            })
+                            .ok_or_else(|| {
+                                invalid_request("cannot verify recorded thread tool mode")
+                            })?;
+                        if meta.meta.computer_use_mode.is_some()
+                            && let InitialHistory::Forked(items) = &mut supplied_history
+                        {
+                            items.insert(0, RolloutItem::SessionMeta(meta.clone()));
+                        }
+                    }
+                    Err(ThreadStoreError::ThreadNotFound { .. }) => {}
+                    Err(error) => return Err(thread_store_resume_read_error(error)),
+                }
+            }
+            Ok((supplied_history, None))
         } else if let Some(stored_thread) = stored_thread_from_running_probe {
             self.load_resume_initial_history_from_stored_thread(*stored_thread)
                 .await
@@ -3749,6 +3793,13 @@ impl ThreadRequestProcessor {
             }
         };
         let (thread_history, resume_source_thread) = resume_result?;
+        if requested_computer_use_mode.is_some()
+            && requested_computer_use_mode != thread_history.get_computer_use_mode()
+        {
+            return Err(invalid_request(
+                "computerUseMode is immutable; create a new selected-window thread",
+            ));
+        }
         if let InitialHistory::Resumed(resumed) = &thread_history
             && self
                 .pending_thread_unloads
@@ -3803,6 +3854,7 @@ impl ThreadRequestProcessor {
             let cold_resume_history = paginated_resume.then(|| thread_history.get_rollout_items());
             // Attach to the resolved child with only the caller's history-paging preferences.
             let attach_params = ThreadResumeParams {
+                computer_use_mode: requested_computer_use_mode,
                 thread_id: child_thread_id.to_string(),
                 exclude_turns,
                 initial_turns_page,
@@ -4171,6 +4223,7 @@ impl ThreadRequestProcessor {
 
                 let thread_originator = config_snapshot.originator.clone();
                 let response = ThreadResumeResponse {
+                    computer_use_mode: config_snapshot.computer_use_mode,
                     thread,
                     disabled_plugin_ids: config_snapshot.disabled_plugin_ids,
                     model: session_configured.model,
@@ -4290,6 +4343,14 @@ impl ThreadRequestProcessor {
         } else if let Ok(existing_thread_id) = ThreadId::from_string(&params.thread_id)
             && let Ok(existing_thread) = self.thread_manager.get_thread(existing_thread_id).await
         {
+            if params.computer_use_mode.is_some()
+                && params.computer_use_mode
+                    != existing_thread.config_snapshot().await.computer_use_mode
+            {
+                return Err(invalid_request(
+                    "computerUseMode is immutable; create a new selected-window thread",
+                ));
+            }
             let source_thread = self
                 .read_stored_thread_for_resume(
                     &params.thread_id,
@@ -4334,6 +4395,13 @@ impl ThreadRequestProcessor {
                 )));
             }
             let config_snapshot = existing_thread.config_snapshot().await;
+            if params.computer_use_mode.is_some()
+                && params.computer_use_mode != config_snapshot.computer_use_mode
+            {
+                return Err(invalid_request(
+                    "computerUseMode is immutable; create a new selected-window thread",
+                ));
+            }
             let mismatch_details = collect_resume_override_mismatches(params, &config_snapshot);
             if !mismatch_details.is_empty() {
                 let has_subscribers = !self
@@ -5374,6 +5442,7 @@ impl ThreadRequestProcessor {
             thread_response_active_permission_profile(config_snapshot.active_permission_profile);
         let thread_originator = config_snapshot.originator.clone();
         let response = ThreadForkResponse {
+            computer_use_mode: config_snapshot.computer_use_mode,
             thread: thread.clone(),
             disabled_plugin_ids: config_snapshot.disabled_plugin_ids,
             model: session_configured.model,

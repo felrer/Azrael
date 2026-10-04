@@ -4666,80 +4666,6 @@
         }
       ]
     },
-    "RootResumeState": {
-      "enum": [
-        "preparing",
-        "waiting",
-        "claimed",
-        "resumed",
-        "cancelled",
-        "blocked"
-      ],
-      "type": "string"
-    },
-    "RootResumeWait": {
-      "description": "Durable presentation metadata for the wait attached to its originating turn.",
-      "properties": {
-        "canWakeEarly": {
-          "type": "boolean"
-        },
-        "reservationId": {
-          "type": "string"
-        },
-        "resumeAtMs": {
-          "format": "int64",
-          "type": "integer"
-        },
-        "revision": {
-          "format": "int64",
-          "type": "integer"
-        },
-        "state": {
-          "$ref": "#/definitions/RootResumeState"
-        },
-        "waitEndedAtMs": {
-          "format": "int64",
-          "type": [
-            "integer",
-            "null"
-          ]
-        },
-        "waitStartedAtMs": {
-          "format": "int64",
-          "type": [
-            "integer",
-            "null"
-          ]
-        }
-      },
-      "required": [
-        "canWakeEarly",
-        "reservationId",
-        "resumeAtMs",
-        "revision",
-        "state"
-      ],
-      "type": "object"
-    },
-    "RootResumeWaitUpdatedNotification": {
-      "properties": {
-        "threadId": {
-          "type": "string"
-        },
-        "turnId": {
-          "type": "string"
-        },
-        "wait": {
-          "$ref": "#/definitions/RootResumeWait"
-        }
-      },
-      "required": [
-        "threadId",
-        "turnId",
-        "wait"
-      ],
-      "type": "object"
-    },
     "ServerNotification": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "description": "Notification sent from the server to the client.",
@@ -5163,6 +5089,26 @@
             "params"
           ],
           "title": "Turn/startedNotification",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "method": {
+              "enum": [
+                "turn/rootResumeWait/updated"
+              ],
+              "title": "Turn/rootResumeWait/updatedNotificationMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/RootResumeWaitUpdatedNotification"
+            }
+          },
+          "required": [
+            "method",
+            "params"
+          ],
+          "title": "Turn/rootResumeWait/updatedNotification",
           "type": "object"
         },
         {
@@ -6450,26 +6396,6 @@
             "params"
           ],
           "title": "Account/login/completedNotification",
-          "type": "object"
-        },
-        {
-          "properties": {
-            "method": {
-              "enum": [
-                "turn/rootResumeWait/updated"
-              ],
-              "title": "Turn/rootResumeWait/updatedNotificationMethod",
-              "type": "string"
-            },
-            "params": {
-              "$ref": "#/definitions/RootResumeWaitUpdatedNotification"
-            }
-          },
-          "required": [
-            "method",
-            "params"
-          ],
-          "title": "Turn/rootResumeWait/updatedNotification",
           "type": "object"
         }
       ],
@@ -8334,7 +8260,8 @@
           "remove",
           "switch",
           "cancelSwitch",
-          "usage"
+          "usage",
+          "consumeResetCredit"
         ],
         "type": "string"
       },
@@ -8343,6 +8270,12 @@
         "properties": {
           "action": {
             "$ref": "#/definitions/v2/AzraelAccountAction"
+          },
+          "idempotencyKey": {
+            "type": [
+              "string",
+              "null"
+            ]
           },
           "includeDetails": {
             "type": "boolean"
@@ -8373,6 +8306,16 @@
             "anyOf": [
               {
                 "$ref": "#/definitions/v2/AzraelLogin"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "resetCreditOutcome": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ConsumeAccountRateLimitResetCreditOutcome"
               },
               {
                 "type": "null"
@@ -9709,6 +9652,13 @@
           }
         },
         "type": "object"
+      },
+      "ComputerUseMode": {
+        "description": "Persisted Computer Use tool mode; unknown values fail deserialization.",
+        "enum": [
+          "selectedWindow"
+        ],
+        "type": "string"
       },
       "ComputerUseRequirements": {
         "properties": {
@@ -20598,6 +20548,71 @@
         ],
         "type": "string"
       },
+      "RootResumeWait": {
+        "description": "Durable presentation metadata for the wait attached to its originating turn.",
+        "properties": {
+          "canWakeEarly": {
+            "type": "boolean"
+          },
+          "reservationId": {
+            "type": "string"
+          },
+          "resumeAtMs": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "revision": {
+            "format": "int64",
+            "type": "integer"
+          },
+          "state": {
+            "$ref": "#/definitions/v2/RootResumeState"
+          },
+          "waitEndedAtMs": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          },
+          "waitStartedAtMs": {
+            "format": "int64",
+            "type": [
+              "integer",
+              "null"
+            ]
+          }
+        },
+        "required": [
+          "canWakeEarly",
+          "reservationId",
+          "resumeAtMs",
+          "revision",
+          "state"
+        ],
+        "type": "object"
+      },
+      "RootResumeWaitUpdatedNotification": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "threadId": {
+            "type": "string"
+          },
+          "turnId": {
+            "type": "string"
+          },
+          "wait": {
+            "$ref": "#/definitions/v2/RootResumeWait"
+          }
+        },
+        "required": [
+          "threadId",
+          "turnId",
+          "wait"
+        ],
+        "title": "RootResumeWaitUpdatedNotification",
+        "type": "object"
+      },
       "RootResumeWakeReason": {
         "enum": [
           "deadline",
@@ -22390,6 +22405,16 @@
               }
             ],
             "description": "Reviewer currently used for approval requests on this thread."
+          },
+          "computerUseMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ComputerUseMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "cwd": {
             "$ref": "#/definitions/v2/AbsolutePathBuf"
@@ -24628,6 +24653,17 @@
               "null"
             ]
           },
+          "computerUseMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ComputerUseMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Immutable native selected-window tool ceiling."
+          },
           "config": {
             "additionalProperties": true,
             "type": [
@@ -24725,6 +24761,16 @@
               }
             ],
             "description": "Effective collaboration mode. Absent when resuming from an older server."
+          },
+          "computerUseMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ComputerUseMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "cwd": {
             "$ref": "#/definitions/v2/AbsolutePathBuf"
@@ -25348,6 +25394,17 @@
               "null"
             ]
           },
+          "computerUseMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ComputerUseMode"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Immutable native selected-window tool ceiling."
+          },
           "config": {
             "additionalProperties": true,
             "type": [
@@ -25456,6 +25513,16 @@
               }
             ],
             "description": "Reviewer currently used for approval requests on this thread."
+          },
+          "computerUseMode": {
+            "anyOf": [
+              {
+                "$ref": "#/definitions/v2/ComputerUseMode"
+              },
+              {
+                "type": "null"
+              }
+            ]
           },
           "cwd": {
             "$ref": "#/definitions/v2/AbsolutePathBuf"
@@ -25756,6 +25823,17 @@
                 "format": "uint64",
                 "minimum": 0.0,
                 "type": "integer"
+              },
+              "root_resume_wait": {
+                "anyOf": [
+                  {
+                    "$ref": "#/definitions/v2/RootResumeWait"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ],
+                "default": null
               },
               "started_at": {
                 "format": "int64",
@@ -26257,7 +26335,7 @@
           "rootResumeWait": {
             "anyOf": [
               {
-                "$ref": "#/definitions/RootResumeWait"
+                "$ref": "#/definitions/v2/RootResumeWait"
               },
               {
                 "type": "null"

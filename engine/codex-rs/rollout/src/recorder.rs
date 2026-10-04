@@ -112,6 +112,7 @@ pub enum RolloutRecorderParams {
         creator_account_id: Option<String>,
         base_instructions: BaseInstructions,
         dynamic_tools: Vec<DynamicToolSpec>,
+        computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
         selected_capability_roots: Vec<SelectedCapabilityRoot>,
         runtime_workspace_roots: Option<Vec<PathBuf>>,
         multi_agent_version: Option<MultiAgentVersion>,
@@ -218,6 +219,7 @@ impl RolloutRecorderParams {
             creator_account_id: None,
             base_instructions,
             dynamic_tools,
+            computer_use_mode: None,
             selected_capability_roots: Vec::new(),
             runtime_workspace_roots: None,
             multi_agent_version: None,
@@ -259,6 +261,19 @@ impl RolloutRecorderParams {
         } = &mut self
         {
             *rollout_id_override = Some(rollout_id);
+        }
+        self
+    }
+
+    pub fn with_computer_use_mode(
+        mut self,
+        mode: Option<codex_protocol::protocol::ComputerUseMode>,
+    ) -> Self {
+        if let Self::Create {
+            computer_use_mode, ..
+        } = &mut self
+        {
+            *computer_use_mode = mode;
         }
         self
     }
@@ -911,6 +926,7 @@ impl RolloutRecorder {
                 creator_account_id,
                 base_instructions,
                 dynamic_tools,
+                computer_use_mode,
                 selected_capability_roots,
                 runtime_workspace_roots,
                 multi_agent_version,
@@ -958,6 +974,7 @@ impl RolloutRecorder {
                     } else {
                         Some(dynamic_tools)
                     },
+                    computer_use_mode,
                     selected_capability_roots,
                     memory_mode: (!config.generate_memories()).then_some("disabled".to_string()),
                     history_mode,

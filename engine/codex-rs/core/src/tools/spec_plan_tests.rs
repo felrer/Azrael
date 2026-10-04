@@ -3614,3 +3614,91 @@ async fn hosted_web_search_and_standalone_image_generation_follow_runtime_gates(
     bedrock_with_standalone_web_search.assert_visible_contains(&["web_search"]);
     bedrock_with_standalone_web_search.assert_visible_lacks(&["web"]);
 }
+
+#[tokio::test]
+async fn selected_window_ceiling_filters_direct_discovery_and_code_mode_sources() {
+    for code_mode in [false, true] {
+        let (_, mut turn) = make_session_and_context().await;
+        set_feature(&mut turn, Feature::CodeMode, code_mode);
+        update_turn_settings_for_test(&mut turn, |settings| {
+            let model = Arc::make_mut(&mut settings.model_info);
+            model.supports_search_tool = true;
+            model.use_responses_lite = false;
+        });
+        let mut registry = crate::tools::registry::ToolRegistry::with_tool_policy(Arc::new(
+            codex_extension_api::ToolPolicy::selected_window(),
+        ));
+        registry.add(crate::tools::handlers::PlanHandler);
+        let hosted = append_source_tools(
+            &turn,
+            turn.model_info(),
+            &mut registry,
+            vec![
+                mcp_runtime("azrael_window", "functions", "exec", ToolExposure::Direct),
+                mcp_runtime(
+                    "azrael_window",
+                    "azrael_window",
+                    "capture",
+                    ToolExposure::Deferred,
+                ),
+                mcp_runtime(
+                    "azrael_window",
+                    "mcp__azrael_window",
+                    "status",
+                    ToolExposure::Direct,
+                ),
+                mcp_runtime("sky", "azrael_window", "invoke", ToolExposure::Deferred),
+                mcp_runtime(
+                    "azrael_window",
+                    "azrael_window",
+                    "exec_command",
+                    ToolExposure::Direct,
+                ),
+            ],
+            std::iter::empty::<Arc<dyn for<'call> ToolExecutor<ExtensionToolCall<'call>>>>(),
+            &[
+                dynamic_tool(
+                    Some("azrael_window"),
+                    "toggle",
+                    /*defer_loading*/ false,
+                ),
+                dynamic_tool(
+                    /*namespace*/ None, "exec", /*defer_loading*/ false,
+                ),
+                dynamic_tool(
+                    /*namespace*/ None,
+                    "exec_command",
+                    /*defer_loading*/ false,
+                ),
+            ],
+        );
+        let router = ToolRouter::from_registry(
+            &turn,
+            turn.model_info(),
+            registry,
+            hosted,
+            &Default::default(),
+        );
+        let plan = ToolPlanProbe::from_router(router);
+        plan.assert_registered_contains(&["azrael_windowcapture", "mcp__azrael_windowstatus"]);
+        plan.assert_registered_lacks(&[
+            "azrael_windowinvoke",
+            "azrael_windowtoggle",
+            "azrael_windowexec_command",
+            "exec_command",
+            "write_stdin",
+            "node_repl",
+            "apply_patch",
+            "web_search",
+            "update_plan",
+        ]);
+        assert!(plan.code_mode_tool_names.values().all(|name| name
+            == &ToolName::namespaced("azrael_window", "capture")
+            || name == &ToolName::namespaced("mcp__azrael_window", "status")));
+        if code_mode {
+            plan.assert_visible_contains(&["exec", "wait"]);
+        } else {
+            plan.assert_registered_lacks(&["exec", "wait"]);
+        }
+    }
+}

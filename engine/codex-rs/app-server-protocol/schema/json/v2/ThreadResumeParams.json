@@ -107,6 +107,13 @@
         }
       ]
     },
+    "ComputerUseMode": {
+      "description": "Persisted Computer Use tool mode; unknown values fail deserialization.",
+      "enum": [
+        "selectedWindow"
+      ],
+      "type": "string"
+    },
     "ConfigurationReasoning": {
       "description": "Reasoning settings interpreted by the backend for the routed model.",
       "properties": {
@@ -1501,6 +1508,17 @@
         "string",
         "null"
       ]
+    },
+    "computerUseMode": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ComputerUseMode"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Immutable native selected-window tool ceiling."
     },
     "config": {
       "additionalProperties": true,

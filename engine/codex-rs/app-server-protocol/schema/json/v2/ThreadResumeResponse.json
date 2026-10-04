@@ -471,6 +471,13 @@
       ],
       "type": "string"
     },
+    "ComputerUseMode": {
+      "description": "Persisted Computer Use tool mode; unknown values fail deserialization.",
+      "enum": [
+        "selectedWindow"
+      ],
+      "type": "string"
+    },
     "DynamicToolCallOutputContentItem": {
       "oneOf": [
         {
@@ -3176,6 +3183,16 @@
         }
       ],
       "description": "Effective collaboration mode. Absent when resuming from an older server."
+    },
+    "computerUseMode": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ComputerUseMode"
+        },
+        {
+          "type": "null"
+        }
+      ]
     },
     "cwd": {
       "$ref": "#/definitions/AbsolutePathBuf"

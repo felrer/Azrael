@@ -462,6 +462,12 @@ impl InitialHistory {
         }
     }
 
+    /// Restore the canonical immutable tool mode on resume and fork.
+    pub fn get_computer_use_mode(&self) -> Option<codex_protocol::protocol::ComputerUseMode> {
+        self.get_session_meta()
+            .and_then(|meta| meta.computer_use_mode)
+    }
+
     pub fn get_selected_capability_roots(&self) -> Vec<SelectedCapabilityRoot> {
         self.get_session_meta()
             .map(|meta| meta.selected_capability_roots.clone())

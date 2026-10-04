@@ -4661,6 +4661,7 @@ async fn open_thread_persistence(session: &mut Session) -> PathBuf {
     let live_thread = LiveThread::create(
         Arc::clone(&session.services.thread_store),
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: session.session_id(),
@@ -6730,6 +6731,7 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
+        computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,
         multi_agent_version: OnceLock::from(config.multi_agent_version_from_features()),
@@ -8491,6 +8493,7 @@ async fn shutdown_complete_does_not_append_to_thread_store_after_shutdown() {
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: session.session_id(),
@@ -8611,6 +8614,7 @@ async fn submission_loop_channel_close_runs_full_thread_teardown() {
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: session.session_id(),
@@ -9097,6 +9101,7 @@ where
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
+        computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,
         multi_agent_version: OnceLock::from(config.multi_agent_version_from_features()),
@@ -11412,6 +11417,7 @@ pub(crate) async fn attach_in_memory_thread_store(
     let live_thread = LiveThread::create(
         Arc::clone(&thread_store),
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: session.session_id(),

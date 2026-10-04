@@ -2729,6 +2729,7 @@ mod tests {
         );
         let items = vec![RolloutItem::SessionMeta(SessionMetaLine {
             meta: SessionMeta {
+                computer_use_mode: None,
                 creator_user_id: None,
                 creator_account_id: None,
                 session_id: thread_id.into(),
@@ -2803,6 +2804,7 @@ mod tests {
         );
         let items = vec![RolloutItem::SessionMeta(SessionMetaLine {
             meta: SessionMeta {
+                computer_use_mode: None,
                 creator_user_id: None,
                 creator_account_id: None,
                 session_id: thread_id.into(),
@@ -3550,7 +3552,7 @@ mod tests {
         let items = vec![RolloutItem::EventMsg(EventMsg::TokenCount(
             codex_protocol::protocol::TokenCountEvent {
                 info: Some(codex_protocol::protocol::TokenUsageInfo {
-                context_policy: None,
+                    context_policy: None,
                     total_token_usage: codex_protocol::protocol::TokenUsage {
                         input_tokens: 0,
                         cached_input_tokens: 0,

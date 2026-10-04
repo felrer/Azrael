@@ -2023,3 +2023,115 @@ fn broken_mcp_transport_toml() -> &'static str {
     r#"command = "/bin/sh"
 args = ["-c", "exit 1"]"#
 }
+
+#[tokio::test]
+async fn selected_window_mode_survives_restart_resume_and_fork_without_permission_escalation()
+-> Result<()> {
+    use codex_app_server_protocol::ComputerUseMode;
+    use codex_app_server_protocol::ThreadForkParams;
+    use codex_app_server_protocol::ThreadForkResponse;
+    use codex_app_server_protocol::ThreadResumeParams;
+    use codex_app_server_protocol::ThreadResumeResponse;
+    let server = create_mock_responses_server_repeating_assistant("Done").await;
+    let codex_home = TempDir::new()?;
+    create_config_toml(
+        codex_home.path(),
+        &server.uri(),
+        "sandbox_mode = \"read-only\"",
+        "",
+    )?;
+    let mut app = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .build_initialized()
+        .await?;
+    let selected = app
+        .start_thread(ThreadStartParams {
+            computer_use_mode: Some(ComputerUseMode::SelectedWindow),
+            ..Default::default()
+        })
+        .await?;
+    assert_eq!(
+        selected.computer_use_mode,
+        Some(ComputerUseMode::SelectedWindow)
+    );
+    assert!(matches!(
+        selected.sandbox,
+        codex_app_server_protocol::SandboxPolicy::ReadOnly { .. }
+    ));
+    let ordinary = app.start_thread(ThreadStartParams::default()).await?;
+    assert_eq!(ordinary.computer_use_mode, None);
+    assert_eq!(ordinary.sandbox, selected.sandbox);
+    let request = app
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: ordinary.thread.id,
+            computer_use_mode: Some(ComputerUseMode::SelectedWindow),
+            ..Default::default()
+        })
+        .await?;
+    let error = app
+        .read_stream_until_error_message(RequestId::Integer(request))
+        .await?;
+    assert!(
+        error.error.message.contains("computerUseMode is immutable"),
+        "{}",
+        error.error.message
+    );
+    let request = app
+        .send_thread_settings_update_request(
+            codex_app_server_protocol::ThreadSettingsUpdateParams {
+                thread_id: selected.thread.id.clone(),
+                disabled_plugin_ids: Some(vec!["unrelated-test-plugin".to_string()]),
+                ..Default::default()
+            },
+        )
+        .await?;
+    let _: codex_app_server_protocol::ThreadSettingsUpdateResponse =
+        app.read_response(request).await?;
+    assert!(app.shutdown_gracefully().await?.success());
+    let mut app = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .build_initialized()
+        .await?;
+    let request = app
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: selected.thread.id.clone(),
+            ..Default::default()
+        })
+        .await?;
+    let resumed: ThreadResumeResponse = app.read_response(request).await?;
+    assert_eq!(
+        resumed.computer_use_mode,
+        Some(ComputerUseMode::SelectedWindow)
+    );
+    assert_eq!(resumed.sandbox, selected.sandbox);
+    let request = app
+        .send_thread_fork_request(ThreadForkParams {
+            thread_id: selected.thread.id,
+            ..Default::default()
+        })
+        .await?;
+    let forked: ThreadForkResponse = app.read_response(request).await?;
+    assert_eq!(
+        forked.computer_use_mode,
+        Some(ComputerUseMode::SelectedWindow)
+    );
+    assert_eq!(forked.sandbox, selected.sandbox);
+    assert!(app.shutdown_gracefully().await?.success());
+    let mut app = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .build_initialized()
+        .await?;
+    let request = app
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: forked.thread.id,
+            ..Default::default()
+        })
+        .await?;
+    let reopened: ThreadResumeResponse = app.read_response(request).await?;
+    assert_eq!(
+        reopened.computer_use_mode,
+        Some(ComputerUseMode::SelectedWindow)
+    );
+    assert_eq!(reopened.sandbox, selected.sandbox);
+    Ok(())
+}

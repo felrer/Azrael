@@ -36,6 +36,7 @@ pub fn reviewer_tool_policy() -> ToolPolicy {
                 .map(ToolName::plain)
                 .collect(),
         ),
+        selected_window_only: false,
         require_managed_sandbox: true,
         require_unified_exec: true,
         expose_additional_permissions: false,

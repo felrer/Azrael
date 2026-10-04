@@ -7720,6 +7720,26 @@
       "properties": {
         "method": {
           "enum": [
+            "turn/rootResumeWait/updated"
+          ],
+          "title": "Turn/rootResumeWait/updatedNotificationMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/RootResumeWaitUpdatedNotification"
+        }
+      },
+      "required": [
+        "method",
+        "params"
+      ],
+      "title": "Turn/rootResumeWait/updatedNotification",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "method": {
+          "enum": [
             "turn/deferred"
           ],
           "title": "Turn/deferredNotificationMethod",
@@ -9001,26 +9021,6 @@
         "params"
       ],
       "title": "Account/login/completedNotification",
-      "type": "object"
-    },
-    {
-      "properties": {
-        "method": {
-          "enum": [
-            "turn/rootResumeWait/updated"
-          ],
-          "title": "Turn/rootResumeWait/updatedNotificationMethod",
-          "type": "string"
-        },
-        "params": {
-          "$ref": "#/definitions/RootResumeWaitUpdatedNotification"
-        }
-      },
-      "required": [
-        "method",
-        "params"
-      ],
-      "title": "Turn/rootResumeWait/updatedNotification",
       "type": "object"
     }
   ],

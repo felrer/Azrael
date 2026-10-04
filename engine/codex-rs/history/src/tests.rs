@@ -1038,3 +1038,31 @@ fn multi_agent_version_uses_compaction_metadata_without_turn_context() -> Result
     );
     Ok(())
 }
+
+#[test]
+fn selected_window_mode_restores_from_canonical_metadata_for_resume_and_fork() {
+    let id = ThreadId::default();
+    let marker = RolloutItem::SessionMeta(codex_protocol::protocol::SessionMetaLine {
+        meta: codex_protocol::protocol::SessionMeta {
+            id,
+            computer_use_mode: Some(codex_protocol::protocol::ComputerUseMode::SelectedWindow),
+            ..Default::default()
+        },
+        git: None,
+    });
+    let forked = InitialHistory::Forked(vec![marker.clone()]);
+    let resumed = InitialHistory::Resumed(ResumedHistory {
+        conversation_id: id,
+        history: Arc::new(vec![marker]),
+        rollout_path: None,
+    });
+    assert_eq!(
+        forked.get_computer_use_mode(),
+        Some(codex_protocol::protocol::ComputerUseMode::SelectedWindow)
+    );
+    assert_eq!(
+        resumed.get_computer_use_mode(),
+        forked.get_computer_use_mode()
+    );
+    assert_eq!(InitialHistory::New.get_computer_use_mode(), None);
+}

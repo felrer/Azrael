@@ -10,7 +10,8 @@
         "remove",
         "switch",
         "cancelSwitch",
-        "usage"
+        "usage",
+        "consumeResetCredit"
       ],
       "type": "string"
     }
@@ -18,6 +19,12 @@
   "properties": {
     "action": {
       "$ref": "#/definitions/AzraelAccountAction"
+    },
+    "idempotencyKey": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "includeDetails": {
       "type": "boolean"

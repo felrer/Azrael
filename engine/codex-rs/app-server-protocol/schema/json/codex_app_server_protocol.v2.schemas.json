@@ -1451,7 +1451,8 @@
         "remove",
         "switch",
         "cancelSwitch",
-        "usage"
+        "usage",
+        "consumeResetCredit"
       ],
       "type": "string"
     },
@@ -1460,6 +1461,12 @@
       "properties": {
         "action": {
           "$ref": "#/definitions/AzraelAccountAction"
+        },
+        "idempotencyKey": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "includeDetails": {
           "type": "boolean"
@@ -1490,6 +1497,16 @@
           "anyOf": [
             {
               "$ref": "#/definitions/AzraelLogin"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "resetCreditOutcome": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ConsumeAccountRateLimitResetCreditOutcome"
             },
             {
               "type": "null"
@@ -5431,6 +5448,13 @@
         }
       },
       "type": "object"
+    },
+    "ComputerUseMode": {
+      "description": "Persisted Computer Use tool mode; unknown values fail deserialization.",
+      "enum": [
+        "selectedWindow"
+      ],
+      "type": "string"
     },
     "ComputerUseRequirements": {
       "properties": {
@@ -16541,6 +16565,7 @@
       "type": "object"
     },
     "RootResumeWaitUpdatedNotification": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "properties": {
         "threadId": {
           "type": "string"
@@ -16557,6 +16582,7 @@
         "turnId",
         "wait"
       ],
+      "title": "RootResumeWaitUpdatedNotification",
       "type": "object"
     },
     "RootResumeWakeReason": {
@@ -17353,6 +17379,26 @@
             "params"
           ],
           "title": "Turn/startedNotification",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "method": {
+              "enum": [
+                "turn/rootResumeWait/updated"
+              ],
+              "title": "Turn/rootResumeWait/updatedNotificationMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/RootResumeWaitUpdatedNotification"
+            }
+          },
+          "required": [
+            "method",
+            "params"
+          ],
+          "title": "Turn/rootResumeWait/updatedNotification",
           "type": "object"
         },
         {
@@ -18640,26 +18686,6 @@
             "params"
           ],
           "title": "Account/login/completedNotification",
-          "type": "object"
-        },
-        {
-          "properties": {
-            "method": {
-              "enum": [
-                "turn/rootResumeWait/updated"
-              ],
-              "title": "Turn/rootResumeWait/updatedNotificationMethod",
-              "type": "string"
-            },
-            "params": {
-              "$ref": "#/definitions/RootResumeWaitUpdatedNotification"
-            }
-          },
-          "required": [
-            "method",
-            "params"
-          ],
-          "title": "Turn/rootResumeWait/updatedNotification",
           "type": "object"
         }
       ],
@@ -20093,6 +20119,16 @@
             }
           ],
           "description": "Reviewer currently used for approval requests on this thread."
+        },
+        "computerUseMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComputerUseMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "cwd": {
           "$ref": "#/definitions/AbsolutePathBuf"
@@ -22331,6 +22367,17 @@
             "null"
           ]
         },
+        "computerUseMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComputerUseMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Immutable native selected-window tool ceiling."
+        },
         "config": {
           "additionalProperties": true,
           "type": [
@@ -22428,6 +22475,16 @@
             }
           ],
           "description": "Effective collaboration mode. Absent when resuming from an older server."
+        },
+        "computerUseMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComputerUseMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "cwd": {
           "$ref": "#/definitions/AbsolutePathBuf"
@@ -23051,6 +23108,17 @@
             "null"
           ]
         },
+        "computerUseMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComputerUseMode"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Immutable native selected-window tool ceiling."
+        },
         "config": {
           "additionalProperties": true,
           "type": [
@@ -23159,6 +23227,16 @@
             }
           ],
           "description": "Reviewer currently used for approval requests on this thread."
+        },
+        "computerUseMode": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ComputerUseMode"
+            },
+            {
+              "type": "null"
+            }
+          ]
         },
         "cwd": {
           "$ref": "#/definitions/AbsolutePathBuf"
@@ -23459,6 +23537,17 @@
               "format": "uint64",
               "minimum": 0.0,
               "type": "integer"
+            },
+            "root_resume_wait": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/RootResumeWait"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "default": null
             },
             "started_at": {
               "format": "int64",

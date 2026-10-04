@@ -114,6 +114,38 @@
       ],
       "type": "object"
     },
+    "ConsumeAccountRateLimitResetCreditOutcome": {
+      "oneOf": [
+        {
+          "description": "A reset credit was consumed and the eligible rate-limit windows were reset.",
+          "enum": [
+            "reset"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "No current rate-limit window is eligible for a reset.",
+          "enum": [
+            "nothingToReset"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "The account has no earned reset credits available.",
+          "enum": [
+            "noCredit"
+          ],
+          "type": "string"
+        },
+        {
+          "description": "The same idempotency key already completed a reset successfully.",
+          "enum": [
+            "alreadyRedeemed"
+          ],
+          "type": "string"
+        }
+      ]
+    },
     "CreditsSnapshot": {
       "properties": {
         "balance": {
@@ -402,6 +434,16 @@
       "anyOf": [
         {
           "$ref": "#/definitions/AzraelLogin"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "resetCreditOutcome": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ConsumeAccountRateLimitResetCreditOutcome"
         },
         {
           "type": "null"

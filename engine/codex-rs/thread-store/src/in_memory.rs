@@ -165,6 +165,7 @@ mod tests {
         ] {
             store
                 .create_thread(CreateThreadParams {
+                    computer_use_mode: None,
                     creator_user_id: None,
                     creator_account_id: None,
                     session_id: thread_id.into(),
@@ -439,6 +440,7 @@ mod tests {
         history_mode: ThreadHistoryMode,
     ) -> CreateThreadParams {
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: thread_id.into(),
@@ -574,6 +576,7 @@ impl InMemoryThreadStore {
         let mut state = self.state.lock().await;
         state.calls.create_thread += 1;
         let session_meta = SessionMeta {
+            computer_use_mode: params.computer_use_mode,
             session_id: params.session_id,
             id: params.thread_id,
             forked_from_id: params.forked_from_id,
@@ -892,6 +895,10 @@ impl InMemoryThreadStore {
 }
 
 impl ThreadStore for InMemoryThreadStore {
+    fn supports_computer_use_mode(&self) -> bool {
+        true
+    }
+
     fn as_any(&self) -> &dyn std::any::Any {
         self
     }

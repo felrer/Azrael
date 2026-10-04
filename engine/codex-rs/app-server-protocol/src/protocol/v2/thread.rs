@@ -52,6 +52,8 @@ pub enum ThreadStartSource {
     Clear,
 }
 
+pub use codex_protocol::protocol::ComputerUseMode;
+
 // === Threads, Turns, and Items ===
 // Thread APIs
 #[derive(
@@ -60,6 +62,9 @@ pub enum ThreadStartSource {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadStartParams {
+    /// Immutable native selected-window tool ceiling.
+    #[ts(optional = nullable)]
+    pub computer_use_mode: Option<ComputerUseMode>,
     #[ts(optional = nullable)]
     pub model: Option<String>,
     #[ts(optional = nullable)]
@@ -186,6 +191,7 @@ pub struct MockExperimentalMethodResponse {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadStartResponse {
+    pub computer_use_mode: Option<ComputerUseMode>,
     pub thread: Thread,
     pub model: String,
     pub model_provider: String,
@@ -352,6 +358,9 @@ pub struct ThreadSettingsUpdatedNotification {
 ///
 /// Prefer using thread_id whenever possible.
 pub struct ThreadResumeParams {
+    /// Immutable native selected-window tool ceiling.
+    #[ts(optional = nullable)]
+    pub computer_use_mode: Option<ComputerUseMode>,
     pub thread_id: String,
 
     /// [UNSTABLE] FOR CODEX CLOUD - DO NOT USE.
@@ -434,6 +443,7 @@ pub struct ThreadResumeParams {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadResumeResponse {
+    pub computer_use_mode: Option<ComputerUseMode>,
     pub thread: Thread,
     pub model: String,
     pub model_provider: String,
@@ -630,6 +640,7 @@ pub struct ThreadForkParams {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadForkResponse {
+    pub computer_use_mode: Option<ComputerUseMode>,
     pub thread: Thread,
     pub model: String,
     pub model_provider: String,
@@ -2078,3 +2089,7 @@ pub struct ContextCompactedNotification {
     pub thread_id: String,
     pub turn_id: String,
 }
+
+#[cfg(test)]
+#[path = "thread_computer_use_tests.rs"]
+mod computer_use_tests;

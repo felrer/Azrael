@@ -246,6 +246,12 @@ pub trait ThreadStore: Any + Send + Sync {
     /// Lists stored threads matching the supplied filters.
     fn list_threads(&self, params: ListThreadsParams) -> ThreadStoreFuture<'_, ThreadPage>;
 
+    /// Whether creation, resume, fork, and revert preserve immutable Computer Use metadata.
+    /// Implementations must return false until they retain SessionMeta.computer_use_mode.
+    fn supports_computer_use_mode(&self) -> bool {
+        false
+    }
+
     /// Whether this store can discover and manage independently persisted thread sections.
     fn supports_thread_sections(&self) -> bool {
         false

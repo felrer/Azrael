@@ -382,7 +382,14 @@ impl ToolRegistry {
         exposure: ToolExposure,
     ) -> bool {
         let tool_name = runtime.tool_name().with_default_namespace();
-        if !self.tool_policy.allows(&tool_name) {
+        if !self.tool_policy.allows(&tool_name)
+            || (self.tool_policy.selected_window_only
+                && (runtime.mcp_server_name() != Some("azrael_window")
+                    || !matches!(
+                        tool_name.namespace.as_deref(),
+                        Some("azrael_window" | "mcp__azrael_window")
+                    )))
+        {
             return false;
         }
         if tool_name.is_default_namespace()

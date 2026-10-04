@@ -180,6 +180,7 @@ async fn create_replacement_recorder(
     .with_creator(source_meta.creator_user_id, source_meta.creator_account_id)
     .with_session_id(source_meta.session_id)
     .with_rollout_id(rollout_id)
+    .with_computer_use_mode(source_meta.computer_use_mode)
     .with_selected_capability_roots(source_meta.selected_capability_roots)
     .with_runtime_workspace_roots(source_meta.runtime_workspace_roots)
     .with_multi_agent_version(source_meta.multi_agent_version)

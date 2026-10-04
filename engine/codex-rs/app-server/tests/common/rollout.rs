@@ -116,7 +116,7 @@ pub fn create_fake_rollout_with_token_usage(
     )?;
     let payload = serde_json::to_value(EventMsg::TokenCount(TokenCountEvent {
         info: Some(TokenUsageInfo {
-                context_policy: None,
+            context_policy: None,
             total_token_usage: TokenUsage {
                 input_tokens: 120,
                 cached_input_tokens: 20,
@@ -254,6 +254,7 @@ fn create_fake_rollout_with_source_and_parent_thread_id(
 
     // Build JSONL lines
     let meta = SessionMeta {
+        computer_use_mode: None,
         creator_user_id: None,
         creator_account_id: None,
         session_id,
@@ -350,6 +351,7 @@ pub fn create_fake_rollout_with_text_elements(
 
     // Build JSONL lines
     let meta = SessionMeta {
+        computer_use_mode: None,
         creator_user_id: None,
         creator_account_id: None,
         session_id: conversation_id.into(),

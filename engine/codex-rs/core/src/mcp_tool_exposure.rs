@@ -92,6 +92,23 @@ fn append_mcp_tools(
     for tool in non_app_tools.chain(app_tools) {
         let tool_name = tool.canonical_tool_name();
         let server = mcp_server_catalog.server(&tool.server_name);
+        if registry.tool_policy.selected_window_only
+            && (tool.server_name != "azrael_window"
+                || !matches!(
+                    tool.callable_namespace.as_str(),
+                    "azrael_window" | "mcp__azrael_window"
+                )
+                || tool.tool.name.as_ref() != tool.callable_name
+                || !server.is_some_and(|server| {
+                    matches!(server.source(), codex_mcp::McpServerSource::Config)
+                        && matches!(
+                            &server.config().transport,
+                            codex_config::types::McpServerTransportConfig::Stdio { .. }
+                        )
+                }))
+        {
+            continue;
+        }
         let agent_plugin = server.is_some_and(|server| server.source().is_agent_plugin());
         let tool_input_schema_max_bytes =
             server.and_then(|server| server.config().tool_input_schema_max_bytes);

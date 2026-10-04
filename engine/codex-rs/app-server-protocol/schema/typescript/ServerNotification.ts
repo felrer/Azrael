@@ -47,6 +47,7 @@ import type { ReasoningSummaryPartAddedNotification } from "./v2/ReasoningSummar
 import type { ReasoningSummaryTextDeltaNotification } from "./v2/ReasoningSummaryTextDeltaNotification";
 import type { ReasoningTextDeltaNotification } from "./v2/ReasoningTextDeltaNotification";
 import type { RemoteControlStatusChangedNotification } from "./v2/RemoteControlStatusChangedNotification";
+import type { RootResumeWaitUpdatedNotification } from "./v2/RootResumeWaitUpdatedNotification";
 import type { ServerRequestResolvedNotification } from "./v2/ServerRequestResolvedNotification";
 import type { SkillsChangedNotification } from "./v2/SkillsChangedNotification";
 import type { StrictReviewRequiredNotification } from "./v2/StrictReviewRequiredNotification";
@@ -78,7 +79,6 @@ import type { ThreadStatusChangedNotification } from "./v2/ThreadStatusChangedNo
 import type { ThreadTokenUsageUpdatedNotification } from "./v2/ThreadTokenUsageUpdatedNotification";
 import type { ThreadUnarchivedNotification } from "./v2/ThreadUnarchivedNotification";
 import type { TurnCompletedNotification } from "./v2/TurnCompletedNotification";
-import type { RootResumeWaitUpdatedNotification } from "./v2/RootResumeWaitUpdatedNotification";
 import type { TurnDeferredNotification } from "./v2/TurnDeferredNotification";
 import type { TurnDiffUpdatedNotification } from "./v2/TurnDiffUpdatedNotification";
 import type { TurnModerationMetadataNotification } from "./v2/TurnModerationMetadataNotification";

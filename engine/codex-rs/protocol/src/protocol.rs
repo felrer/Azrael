@@ -3172,6 +3172,9 @@ pub struct HistoryPosition {
 /// and should be used when there is no config override.
 #[derive(Serialize, Deserialize, Clone, Debug, JsonSchema, TS)]
 pub struct SessionMeta {
+    /// Immutable selected-window startup tool ceiling.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    pub computer_use_mode: Option<ComputerUseMode>,
     /// ChatGPT user that created this thread; absent when unavailable or for older threads.
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub creator_user_id: Option<String>,
@@ -3248,10 +3251,19 @@ pub struct SessionMeta {
     pub context_window: Option<SessionContextWindow>,
 }
 
+/// Persisted Computer Use tool mode; unknown values fail deserialization.
+#[derive(Serialize, Deserialize, Clone, Copy, Debug, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase", export_to = "v2/")]
+pub enum ComputerUseMode {
+    SelectedWindow,
+}
+
 impl Default for SessionMeta {
     fn default() -> Self {
         let id = ThreadId::default();
         SessionMeta {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: id.into(),

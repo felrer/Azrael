@@ -548,3 +548,79 @@ async fn defers_apps_and_non_app_mcp_tools() {
         expected_runtimes(&mcp_tools, ToolExposure::Deferred)
     );
 }
+
+#[tokio::test]
+async fn selected_window_ceiling_rejects_raw_and_server_identity_spoofing() {
+    let config = test_config().await;
+    let mut catalog = ResolvedMcpCatalog::builder();
+    catalog.register(McpServerRegistration::from_config(
+        "azrael_window".to_string(),
+        serde_json::from_value(serde_json::json!({ "command": "unused-test-command" })).unwrap(),
+    ));
+    let catalog = catalog.build();
+    let tools = [
+        make_mcp_tool(
+            "azrael_window",
+            "exec",
+            "functions",
+            "exec",
+            /*connector_id*/ None,
+            /*connector_name*/ None,
+        ),
+        make_mcp_tool(
+            "azrael_window",
+            "capture",
+            "azrael_window",
+            "capture",
+            /*connector_id*/ None,
+            /*connector_name*/ None,
+        ),
+        make_mcp_tool(
+            "sky",
+            "invoke",
+            "azrael_window",
+            "invoke",
+            /*connector_id*/ None,
+            /*connector_name*/ None,
+        ),
+        make_mcp_tool(
+            "azrael_window",
+            "exec_command",
+            "azrael_window",
+            "status",
+            /*connector_id*/ None,
+            /*connector_name*/ None,
+        ),
+        make_mcp_tool(
+            "azrael_window",
+            "invoke",
+            "unowned",
+            "invoke",
+            /*connector_id*/ None,
+            /*connector_name*/ None,
+        ),
+    ];
+    let mut registry = ToolRegistry::with_tool_policy(Arc::new(
+        codex_extension_api::ToolPolicy::selected_window(),
+    ));
+    let registered = append_mcp_tools(
+        &tools,
+        &config,
+        /*apps_enabled*/ true,
+        &catalog,
+        /*search_tool_enabled*/ true,
+        &mut HashMap::new(),
+        &mut registry,
+    );
+    assert_eq!(
+        registered,
+        HashSet::from([ToolName::namespaced("azrael_window", "capture")])
+    );
+    assert_eq!(
+        registry
+            .entries()
+            .map(|entry| entry.runtime.tool_name())
+            .collect::<Vec<_>>(),
+        vec![ToolName::namespaced("azrael_window", "capture")]
+    );
+}

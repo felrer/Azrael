@@ -74,6 +74,7 @@ pub(crate) struct Session {
     pub(super) features: ManagedFeatures,
     pub(super) isolation: codex_extension_api::SessionIsolation,
     pub(crate) tool_policy: Arc<codex_extension_api::ToolPolicy>,
+    pub(crate) computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     pub(crate) windows_sandbox_proxy_settings_mode:
         codex_sandboxing::WindowsSandboxProxySettingsMode,
     pub(super) multi_agent_version: OnceLock<MultiAgentVersion>,
@@ -277,6 +278,7 @@ impl SessionConfiguration {
             .map(|config| config.permission_profile.clone())
             .unwrap_or_else(|| self.permission_profile_state.snapshot());
         ThreadConfigSnapshot {
+            computer_use_mode: None,
             model: self.step_settings.collaboration_mode.model().to_string(),
             model_provider_id: self.original_config_do_not_use.model_provider_id.clone(),
             service_tier: self.step_settings.service_tier.clone(),
@@ -1036,6 +1038,32 @@ impl Session {
         // Publish the already resolved model before extensions make startup decisions.
         // Turn construction refreshes this attachment when the selected model changes.
         thread_extension_init.insert(model_info);
+        let computer_use_mode = initial_history.get_computer_use_mode().or_else(|| {
+            thread_extension_init
+                .get::<codex_protocol::protocol::ComputerUseMode>()
+                .map(|mode| *mode)
+        });
+        if computer_use_mode.is_some()
+            && !config.ephemeral
+            && !thread_store.supports_computer_use_mode()
+        {
+            return Err(anyhow::anyhow!(
+                "thread store cannot preserve immutable computerUseMode"
+            ));
+        }
+        if let Some(mode) = computer_use_mode {
+            let mut ceiling = codex_extension_api::ToolPolicy::selected_window();
+            if let Some(existing) = thread_extension_init.get::<codex_extension_api::ToolPolicy>() {
+                if let Some(allowed) = &mut ceiling.allowed_tools {
+                    allowed.retain(|tool| existing.allows(tool));
+                }
+                ceiling.require_managed_sandbox = existing.require_managed_sandbox;
+                ceiling.require_unified_exec = existing.require_unified_exec;
+                ceiling.expose_additional_permissions = existing.expose_additional_permissions;
+            }
+            thread_extension_init.insert(mode);
+            thread_extension_init.insert(ceiling);
+        }
         let tool_policy = thread_extension_init
             .get::<codex_extension_api::ToolPolicy>()
             .unwrap_or_else(|| {
@@ -1073,6 +1101,7 @@ impl Session {
                     InitialHistory::New | InitialHistory::Cleared | InitialHistory::Forked(_) => {
                         let auth = persistence_auth.await;
                         let params = CreateThreadParams {
+                            computer_use_mode,
                             creator_user_id: auth.as_ref().and_then(CodexAuth::get_chatgpt_user_id),
                             creator_account_id: auth.as_ref().and_then(CodexAuth::get_account_id),
                             session_id,
@@ -1831,6 +1860,7 @@ impl Session {
                 features: config.features.clone(),
                 isolation,
                 tool_policy,
+                computer_use_mode,
                 windows_sandbox_proxy_settings_mode,
                 multi_agent_version,
                 mcp_refresh: McpRefresh::new(),
@@ -1969,7 +1999,10 @@ impl Session {
                     initial_auto_compact_window_ids,
                 );
             }
-            if matches!(&sess.fork_persistence, ForkPersistence::Referenced { .. }) {
+            if (!config.ephemeral && sess.computer_use_mode.is_some())
+                || matches!(&sess.fork_persistence, ForkPersistence::Referenced { .. })
+            {
+                // The immutable selected-window ceiling must survive a reload before the first turn.
                 // Keep the source reserved until the child's history reference is durable.
                 sess.try_ensure_rollout_materialized(PersistContext::Standard)
                     .await?;

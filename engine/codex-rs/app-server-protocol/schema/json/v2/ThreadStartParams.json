@@ -94,6 +94,13 @@
         }
       ]
     },
+    "ComputerUseMode": {
+      "description": "Persisted Computer Use tool mode; unknown values fail deserialization.",
+      "enum": [
+        "selectedWindow"
+      ],
+      "type": "string"
+    },
     "DynamicToolNamespaceTool": {
       "oneOf": [
         {
@@ -328,6 +335,17 @@
         "string",
         "null"
       ]
+    },
+    "computerUseMode": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/ComputerUseMode"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Immutable native selected-window tool ceiling."
     },
     "config": {
       "additionalProperties": true,

@@ -471,6 +471,10 @@ impl LocalThreadStore {
 }
 
 impl ThreadStore for LocalThreadStore {
+    fn supports_computer_use_mode(&self) -> bool {
+        true
+    }
+
     fn default_history_mode(&self) -> ThreadHistoryMode {
         ThreadHistoryMode::Paginated
     }
@@ -2079,6 +2083,7 @@ mod tests {
 
     fn create_thread_params(thread_id: ThreadId) -> CreateThreadParams {
         CreateThreadParams {
+            computer_use_mode: None,
             creator_user_id: None,
             creator_account_id: None,
             session_id: thread_id.into(),
