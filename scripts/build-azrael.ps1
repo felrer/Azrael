@@ -160,9 +160,16 @@ if (-not $ComputerUsePluginDirectory) {
     if ($candidates.Count -ne 1) { throw 'Pass -ComputerUsePluginDirectory; installed Computer Use plugin selection is missing or ambiguous.' }
     $ComputerUsePluginDirectory = $candidates[0].FullName
 }
-Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--plugin-directory', $ComputerUsePluginDirectory, '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--plugin-directory', $ComputerUsePluginDirectory, '--selected-window-guide', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
+$windowSource = Join-Path $projectRoot 'native/window-control'
+Invoke-BuildCommand 'pwsh' @('-NoProfile', '-File', (Join-Path $PSScriptRoot 'build-window-control.ps1')) 'window-control-build.log'
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $projectRoot 'artifacts/build/window-control-native/target/release/azrael-window-control.exe'), '--provenance', (Join-Path $projectRoot 'artifacts/build/window-control-native/target/release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'window-control')) 'window-control-runtime.log'
 $releaseBuildInfoPath = Join-Path $release 'build-info.json'
 $releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
+foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+    $releaseBuildInfo.sha256["host/$module"] = (Get-FileHash -LiteralPath (Join-Path $PSScriptRoot $module) -Algorithm SHA256).Hash
+}
+$releaseBuildInfo.sha256['window-control/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'window-control/manifest.json') -Algorithm SHA256).Hash
 $releaseBuildInfo.sha256['computer-use/manifest.json'] = (Get-FileHash -LiteralPath (Join-Path $release 'computer-use/manifest.json') -Algorithm SHA256).Hash
 $releaseBuildInfo | ConvertTo-Json -Depth 30 | Set-Content -LiteralPath $releaseBuildInfoPath -Encoding utf8NoBOM
 Complete-BuildStage $buildMetrics $phase
@@ -295,6 +302,7 @@ if ($IncludeProviderAccounts) {
 }
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'
 Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', (Join-Path $release 'engine')) 'packaged-source-check.log'
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'verify-release', '--release', $release, '--source-root', $windowSource) 'packaged-window-control-source-check.log'
 Complete-BuildStage $buildMetrics $phase
 $phase = Start-BuildStage $buildMetrics 'release-selection'
 $selection = [ordered]@{

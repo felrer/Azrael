@@ -94,11 +94,20 @@ assert.throws(() => createAssetTransformCache({ ...base, typescriptSha256: undef
 assert.throws(() => createAssetTransformCache({ ...base, cacheDirectory: path.join(project, "outside-cache") }), /under artifacts/);
 console.log("PASS content cache: cold/warm counts and bytes, source/path/rule/helper/TS invalidation, malformed/wrong-key/hash/count corruption and missing-entry recovery");
 
-const assets = [...new Set([
+const assetPaths = new Set([
   "out/extension.js", "webview/assets/app-initial-9f7d97690e9b.js",
   ...Object.values(transformer.ASSET_RULE_PATHS).flat(),
-  "webview/assets/ko-KR-669e0b3acfd6.js",
-])];
+]);
+for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
+  for (const value of Object.values(require(`./${name}`))) {
+    for (const asset of Array.isArray(value) ? value : [value]) {
+      if (typeof asset === "string" && /^webview\/assets\/[^\n]+\.js$/.test(asset)) assetPaths.add(asset);
+    }
+  }
+}
+const localePath = "webview/assets/ko-KR-669e0b3acfd6.js";
+assetPaths.add(localePath);
+const assets = [...assetPaths];
 function prepare(name, accountVersion = "0.4.0") {
   const directory = path.join(runRoot, name);
   function put(relative, data) {
@@ -146,9 +155,15 @@ const accountReport = await transformer.transformExtension(accountRoot, warmTs, 
 assert.equal(JSON.parse(fs.readFileSync(path.join(accountRoot, "package.json"))).azraelAccountPayloadVersion, "0.4.1");
 assert.deepEqual(accountReport.assets, uncached.value.assets);
 assert.equal(accountReport.performance.cache.hits, assets.length);
+for (const [directory, report] of [[uncachedRoot, uncached.value], [coldRoot, coldPipeline.value],
+  [warmRoot, warmPipeline.value], [accountRoot, accountReport]]) {
+  assert.equal(report.assets.reduce((sum, asset) => sum + (asset.windowControlEdits ?? 0), 0), 5);
+  const manifest = JSON.parse(fs.readFileSync(path.join(directory, "package.json")));
+  assert.equal(manifest.contributes.commands.filter(command => command.command === "azrael.windowControl").length, 1);
+}
 console.log("PASS all applicable pinned pipeline transforms: uncached/cold/warm identical assets and bytes, existing aggregate checks, warm AST bypass, per-invocation host/account versions");
+console.log("PASS selected-window transformation: exactly 5 edits and 1 azrael.windowControl command across all pipeline fixtures");
 
-const localePath = assets[assets.length - 1];
 const localeSource = fs.readFileSync(path.join(original, localePath), "utf8");
 const oldLocale = timed(() => legacyRewrite(localeSource, localePath, ts));
 const newLocale = timed(() => transformer.rewriteJavaScript(localeSource, localePath, ts));
@@ -238,7 +253,7 @@ const merged = createAssetTransformCache({ ...base, cacheDirectory: noopDirector
 for (const index of [0, 1, 2]) merged.run(noopPath(index), noopSource(index), () => { throw new Error("concurrent merge lost validated hints"); });
 console.log(`PASS ${noopCount} no-op assets: compact index plus positive result, no per-noop writes, warm zero AST, invalidation/corruption/missing-index recovery and concurrent merge`);
 
-const benchmark = { scope: "Six real pinned assets covering every pipeline transform; isolated placeholders for runtime/account entries, no packaging/install",
+const benchmark = { scope: `${assets.length} real pinned assets covering every pipeline transform; isolated placeholders for runtime/account entries, no packaging/install`,
   original, typescriptPath: tsPath, typescriptSha256: base.typescriptSha256, typescriptVersion: ts.version, runRoot,
   pipeline: { fileCount: assets.length, readBytes: coldPipeline.value.performance.readBytes,
     uncachedMs: uncached.elapsedMs, coldMs: coldPipeline.elapsedMs, warmMs: warmPipeline.elapsedMs,

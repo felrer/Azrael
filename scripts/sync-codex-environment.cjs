@@ -118,7 +118,7 @@ function selectedConfig(sourceText, destinationText, manifest, replacements, own
   }
   for (const key of manifest.config.rootKeys) set([key], source[key]);
   for (const selector of manifest.config.tables) {
-    if (ownedRuntime && selector.startsWith("mcp_servers.node_repl")) continue;
+    if (ownedRuntime && (selector.startsWith("mcp_servers.node_repl") || selector.startsWith("mcp_servers.azrael_window"))) continue;
     const keys = selector.replace(/\.\*$/, "").split(".");
     set(keys, get(source, keys));
   }
@@ -165,6 +165,16 @@ function selectedConfig(sourceText, destinationText, manifest, replacements, own
         CODEX_HOME: ownedRuntime.home,
       },
     };
+  }
+  if (ownedRuntime?.windowControl) {
+    merged.mcp_servers.azrael_window = {
+      command: path.join(ownedRuntime.directory, "node.exe"),
+      args: [ownedRuntime.windowControl.mcpScript],
+      env: { CODEX_HOME: ownedRuntime.home },
+      enabled: false,
+    };
+  } else if (ownedRuntime) {
+    delete merged.mcp_servers.azrael_window;
   }
   for (const key of manifest.config.protectedRootKeys) {
     if (JSON.stringify(destination[key]) !== JSON.stringify(merged[key])) fail(`Protected Azrael config key changed: ${key}`);
@@ -310,7 +320,15 @@ function main(argv = process.argv.slice(2)) {
   const engine = path.resolve(args.engine || fail("--engine is required."));
   const manifestPath = path.resolve(args.manifest || path.join(__dirname, "azrael-codex-environment.json"));
   const computerUseDirectory = args["computer-use-directory"] ? path.resolve(args["computer-use-directory"]) : null;
+  const windowControlDirectory = args["window-control-directory"] ? path.resolve(args["window-control-directory"]) : null;
+  let windowControl = null;
   const ownedSourceStates = new Map();
+  if (windowControlDirectory) {
+    if (!computerUseDirectory) fail("Window Control requires owned Node runtime.");
+    ownedSourceStates.set(windowControlDirectory, pathState(windowControlDirectory));
+    windowControl = require("./window-control-runtime.cjs").verifyRuntime(windowControlDirectory);
+    assertUnchanged(ownedSourceStates);
+  }
   if (computerUseDirectory) {
     for (const target of [computerUseDirectory, ...["manifest.json", "node_repl.exe", "node.exe"].map((name) => path.join(computerUseDirectory, name))]) {
       ownedSourceStates.set(target, pathState(target));
@@ -376,9 +394,9 @@ function main(argv = process.argv.slice(2)) {
     }
 
     let stageConfig = selectedConfig(sourceConfig, destinationConfig, manifest, stageReplacements,
-      computerUseDirectory ? { directory: computerUseDirectory, home: stageHome, engine } : null);
+      computerUseDirectory ? { directory: computerUseDirectory, home: stageHome, engine, windowControl } : null);
     let finalConfig = selectedConfig(sourceConfig, destinationConfig, manifest, finalReplacements,
-      computerUseDirectory ? { directory: computerUseDirectory, home: stateRoot, engine } : null);
+      computerUseDirectory ? { directory: computerUseDirectory, home: stateRoot, engine, windowControl } : null);
     for (const name of sourceMarketplaces.keys()) {
       const stageMarketplace = localMarketplacePath(stageHome, name);
       const finalMarketplace = localMarketplacePath(stateRoot, name);
@@ -424,7 +442,9 @@ function main(argv = process.argv.slice(2)) {
       copyDirectory(path.join(computerUseDirectory, "skills", "computer-use"), skillDirectory);
       copyDirectory(path.join(computerUseDirectory, "docs"), path.join(skillDirectory, "docs"));
       const instructions = path.join(skillDirectory, "SKILL.md");
-      const visibleDesktopNote = "## Azrael visible desktop requirement\n\n" +
+      const visibleDesktopNote = "## Azrael foreground mode visible desktop requirement\n\n" +
+        "This requirement applies to foreground Computer Use mode. " +
+        (windowControl ? "Selected-window mode follows docs/selected-window.md and uses azrael_window tools. " : "") +
         "Activate the exact selected target window and obtain a fresh observation before capture or input. " +
         "Verify foreground focus before typing and verify that each returned screenshot shows the selected target's content. " +
         "Discard unexpected screenshot content and pause if physical user activity or an unexpected other foreground window is observed. " +
@@ -491,6 +511,7 @@ function main(argv = process.argv.slice(2)) {
       runtimeEvidence[label] = { path: target, sha256: fileHash(target) };
       sourceStates.set(target, pathState(target));
     }
+    if (windowControl) runtimeEvidence.windowControl = { path: windowControl.directory, manifestSha256: windowControl.manifestSha256 };
     runtimeEvidence.engine = { path: engine, sha256: fileHash(engine) };
     sourceStates.set(engine, pathState(engine));
 

@@ -60,6 +60,12 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "./account-ui/dist/src/extension.js") return accountUi;
         if (request === "./out/azrael-runtime.cjs") return { runtime };
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
+        if (request === "./out/window-control-host.cjs") return { initialize: (receivedContext, receivedVscode, receivedRuntime) => {
+          assert.equal(receivedContext, context);
+          assert.equal(receivedRuntime, runtime);
+          assert.equal(receivedVscode.env.sessionId, sessionId);
+          return { dispose() {} };
+        } };
         throw new Error(`wrapper required unexpected module ${request}`);
       },
     }, { filename: wrapperPath });

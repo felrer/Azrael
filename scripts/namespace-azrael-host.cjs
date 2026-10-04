@@ -10,6 +10,7 @@ const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
 const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
 const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET } = require("./inject-computer-use.cjs");
+const { injectWindowControl, SETTINGS_ASSET: WINDOW_CONTROL_SETTINGS_ASSET } = require("./inject-window-control.cjs");
 const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
@@ -272,6 +273,7 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
       manifest.contributes.configuration.properties = { ...manifest.contributes.configuration.properties, ...visit(block.properties) };
     }
     manifest.contributes.commands.push({ command: "azrael.recoveryStatus", title: "실행 상태 및 복구", category: "Azrael" });
+    manifest.contributes.commands.push({ command: "azrael.windowControl", title: "Computer Use: 선택 창 모드", category: "Azrael" });
     manifest.main = "./integrated-azrael-entry.cjs";
     manifest.azraelIntegratedAccounts = true;
     manifest.azraelAccountPayloadVersion = accountVersion;
@@ -345,7 +347,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const computerUseSettings = injectComputerUseSettings(computerUse.text, relativePath);
   const computerUseCancelRequest = injectComputerUseCancelRequest(computerUseSettings.text, relativePath);
   const computerUseManagement = injectComputerUseManagement(computerUseCancelRequest.text, relativePath);
-  const fileOpenMenu = injectFileOpenMenu(computerUseManagement.text, relativePath);
+  const windowControl = injectWindowControl(computerUseManagement.text, relativePath, ts);
+  const fileOpenMenu = injectFileOpenMenu(windowControl.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
   const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
   const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
@@ -354,10 +357,10 @@ function transformAsset(source, relativePath, filename, ts) {
   const uiCleanup = injectUiCleanup(providerContext.text, relativePath, ts);
   const petsCleanup = injectPetsCleanup(uiCleanup.text, relativePath, ts);
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || computerUseManagement.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || petsCleanup.count || contentFonts.count) {
+  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || computerUseManagement.count || windowControl.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || petsCleanup.count || contentFonts.count) {
     return { text: contentFonts.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + computerUseManagement.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + petsCleanup.count + contentFonts.count,
+      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + computerUseManagement.count + windowControl.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + petsCleanup.count + contentFonts.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       namespaceEdits: namespaced.count,
@@ -381,6 +384,7 @@ function transformAsset(source, relativePath, filename, ts) {
       computerUseSettingsEdits: computerUseSettings.count,
       computerUseCancelRequestEdits: computerUseCancelRequest.count,
       computerUseManagementEdits: computerUseManagement.count,
+      windowControlEdits: windowControl.count,
       imageFileOpenEdits: imageFileOpen.count,
       fileOpenMenuEdits: fileOpenMenu.count,
       localFileDropEdits: localFileDrop.count,
@@ -398,6 +402,7 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
+    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
@@ -415,6 +420,10 @@ function getTransformRules() {
 // Unlisted rules (including generic label transforms and helper dependencies)
 // remain shared. The namespace/cache implementations also invalidate every asset.
 const ASSET_RULE_PATHS = {
+  "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET],
+  "window-control-host.cjs": ["out/extension.js"],
+  "window-control-backend.cjs": ["out/extension.js"],
+  "window-control-policy.cjs": ["out/extension.js"],
   "inject-recovery.cjs": ["out/extension.js"],
   "inject-fetch-response.cjs": ["out/extension.js"],
   "inject-url-safety-transport.cjs": ["out/extension.js"],
@@ -577,6 +586,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + (asset.computerUseSettingsEdits ?? 0), 0) !== 1) throw new Error("Computer-use settings transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseCancelRequestEdits ?? 0), 0) !== 1) throw new Error("Computer-use cancel-request transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseManagementEdits ?? 0), 0) !== 1) throw new Error("Computer-use local-management transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowControlEdits ?? 0), 0) !== 5) throw new Error("Selected-window Computer Use transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");
   }

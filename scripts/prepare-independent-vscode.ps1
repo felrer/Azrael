@@ -92,6 +92,26 @@ function Assert-IntegratedHostVsixContents {
             try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)).ToLowerInvariant() } finally { $stream.Dispose() }
             if ($actual -cne $file.sha256) { throw "Computer Use VSIX hash mismatch: $entryName" }
         }
+        if ($build.sha256.'window-control/manifest.json') {
+            $windowRuntime = Join-Path $release 'window-control'
+            $windowManifest = Get-Content -LiteralPath (Join-Path $windowRuntime 'manifest.json') -Raw | ConvertFrom-Json
+            $windowFiles = @(@{ path = 'manifest.json'; sha256 = $build.sha256.'window-control/manifest.json' }) + @($windowManifest.files)
+            foreach ($file in $windowFiles) {
+                $entryName = 'extension/window-control/' + $file.path
+                $entries = @($archive.Entries | Where-Object FullName -CEQ $entryName)
+                if ($entries.Count -ne 1) { throw "Window Control VSIX entry missing or ambiguous: $entryName" }
+                $stream = $entries[0].Open()
+                try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
+                if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
+            }
+            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+                $entry = $archive.GetEntry("extension/out/$module")
+                if (-not $entry) { throw "Window Control host module missing: $module" }
+                $stream = $entry.Open()
+                try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
+                if (-not $build.sha256."host/$module" -or $actual -ine $build.sha256."host/$module") { throw "Window Control host module hash mismatch: $module" }
+            }
+        }
     } finally { $archive.Dispose() }
 }
 
@@ -159,6 +179,8 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Computer Use runtime.' }
         $computerUse = $computerUseText | ConvertFrom-Json
         if (-not $build.sha256.'computer-use/manifest.json' -or $computerUse.manifestSha256 -ine $build.sha256.'computer-use/manifest.json') { throw 'Release Computer Use manifest hash mismatch.' }
+        & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-release --release $release --source-root (Join-Path $project 'native/window-control') | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Window Control runtime when declared.' }
         & node $checkpointTool init $OutputDirectory $configPath ([string][bool]$Resume).ToLowerInvariant()
         if ($LASTEXITCODE -ne 0) { throw 'Preparation inputs or checkpoint verification failed.' }
     }
@@ -194,7 +216,7 @@ try {
         Invoke-PreparationPhase 'account-payload' {
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'window-control-runtime.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             foreach ($module in @('azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
@@ -215,6 +237,10 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Could not save completed namespace checkpoint.' }
         }
     }
+    Invoke-PreparationPhase 'window-control-host-verification' {
+        & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-host --directory $prepared.OfficialExtension --release $release | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Prepared or resumed Window Control host dependency closure verification failed.' }
+    }
     $hostReport = Get-Content -LiteralPath (Join-Path $prepared.OfficialExtension '.azrael-independent-host.json') -Raw | ConvertFrom-Json
     $accountUiManifest = Get-Content -LiteralPath (Join-Path $prepared.OfficialExtension 'account-ui/package.json') -Raw | ConvertFrom-Json
     $vsix = Join-Path $OutputDirectory 'azrael-host.vsix'
@@ -234,7 +260,9 @@ try {
     $environmentSnapshot = $null
     if (-not $SkipCodexEnvironmentSnapshot) {
         $environmentSnapshot = Invoke-PreparationPhase 'environment-validation' {
-            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/codex.exe') --computer-use-directory (Join-Path $release 'computer-use') --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
+            $windowArguments = @()
+            if ($build.sha256.'window-control/manifest.json') { $windowArguments = @('--window-control-directory', (Join-Path $release 'window-control')) }
+            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/codex.exe') --computer-use-directory (Join-Path $release 'computer-use') @windowArguments --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
             if ($LASTEXITCODE -ne 0) { throw 'Codex environment validation failed.' }
             $snapshot | ConvertFrom-Json
         }

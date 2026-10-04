@@ -1,0 +1,58 @@
+'use strict';
+const test = require('node:test'), assert = require('node:assert/strict');
+const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
+const ts = require('../extensions/azrael-ex/node_modules/typescript');
+const { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, PAGE_ANCHOR, AzraelWindowControlLauncher } = require('./inject-window-control.cjs');
+const { injectAccountSettings } = require('./inject-account-settings.cjs');
+const { injectRecovery } = require('./inject-recovery.cjs');
+test('native window bridge hooks compose with recovery and reject pinned-source drift', () => {
+  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.928.31416/out/extension.js'), 'utf8');
+  const account = injectAccountSettings(original, 'out/extension.js');
+  const recovery = injectRecovery(account.text, 'out/extension.js', ts);
+  const result = injectWindowControl(recovery.text, 'out/extension.js', ts);
+  assert.equal(result.count, 4);
+  assert.equal(injectWindowControl(result.text, 'out/extension.js', ts).count, 0);
+  assert.equal(ts.createSourceFile('host.js', result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+  assert.throws(() => injectWindowControl(result.text.replace('require("./window-control-host.cjs").observe(this,', 'tampered('), 'out/extension.js', ts));
+  assert.throws(() => injectWindowControl(original + HOST_MARKER, 'out/extension.js', ts));
+  assert.throws(() => injectWindowControl(original.replaceAll('sendProviderRequest(', 'changedProviderRequest('), 'out/extension.js', ts));
+});
+test('injected bridge calls preserve native request and lifecycle behavior', async () => {
+  const fixture = 'class Bridge{sendProviderRequest(a,b,c,d,e,f){return c}routeIncomingMessage(a,b){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
+  const calls = [], result = injectWindowControl(fixture, 'out/extension.js', ts);
+  const context = vm.createContext({ require: name => { assert.equal(name, './window-control-host.cjs'); return Object.fromEntries(['attach', 'observe', 'disconnect'].map(method => [method, (...args) => calls.push({ method, args })])); }, Ge: { commands: { executeCommand: async command => calls.push({ command }) } } });
+  vm.runInContext(result.text + ';bridge=new Bridge;', context);
+  assert.equal(context.bridge.sendProviderRequest('p', 'id', 'thread/start', {}, false, true), 'thread/start');
+  assert.equal(calls[0].method, 'attach');
+  assert.equal(calls[0].args[1]('p', 'id', 'turn/start', {}, false, true), 'turn/start');
+  assert.equal(context.bridge.routeIncomingMessage('message', 'context'), 'message');
+  assert.equal(context.bridge.teardownProcess(), 7);
+  await context.route({ type: 'azrael-window-control' });
+  assert.equal(calls.at(-1).command, 'azrael.windowControl');
+});
+test('Computer Use settings launcher is scoped, idempotent and dispatches the owned UI command', () => {
+  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.928.31416', SETTINGS_ASSET), 'utf8');
+  const account = injectAccountSettings(original, SETTINGS_ASSET);
+  assert(account.text.includes(PAGE_ANCHOR));
+  const result = injectWindowControl(account.text, SETTINGS_ASSET, ts);
+  assert.equal(result.count, 1);
+  assert.equal(injectWindowControl(result.text, SETTINGS_ASSET, ts).count, 0);
+  assert.throws(() => injectWindowControl(result.text.replace(AzraelWindowControlLauncher.toString(), 'tampered'), SETTINGS_ASSET, ts));
+  assert.throws(() => injectWindowControl(account.text + PAGE_MARKER, SETTINGS_ASSET, ts));
+  assert.equal(injectWindowControl(original, 'unrelated.js', ts).count, 0);
+  const dispatched = [];
+  const context = vm.createContext({ $: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) }, azraelWindowBridge: { dispatchMessage: (...args) => dispatched.push(args) } });
+  vm.runInContext(AzraelWindowControlLauncher.toString() + ';section=AzraelWindowControlLauncher()', context);
+  context.section.props.children[2].props.onClick();
+  assert.equal(dispatched[0][0], 'azrael-window-control');
+});
+test('window boundary observer failure clears the selected owner and preserves ordinary native delivery', () => {
+  const fixture = 'class Bridge{sendProviderRequest(a,b,c,d,e,f){return c}routeIncomingMessage(a,b){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
+  const calls = [];
+  const result = injectWindowControl(fixture, 'out/extension.js', ts);
+  const context = vm.createContext({ console: { error: value => calls.push(value) }, require: () => ({ attach() {}, observe() { throw new Error('simulated boundary failure'); }, disconnect() { calls.push('disconnected'); } }) });
+  vm.runInContext(result.text + ';bridge=new Bridge;', context);
+  assert.equal(context.bridge.routeIncomingMessage('ordinary notification', {}), 'ordinary notification');
+  assert.equal(calls[0], 'disconnected');
+  assert.match(calls[1], /failed closed/);
+});

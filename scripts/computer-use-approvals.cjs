@@ -97,6 +97,10 @@ function createOwner(codexHome) {
     for (const grants of sessions.values()) for (const [key, grant] of grants) if (!apps.has(key)) apps.set(key, { bundleIdentifier: key, displayName: grant.displayName });
     return { approvedApps: [...apps.values()] };
   }
+  function hasAppApproval(app, threadId) {
+    const key = appKey(app), state = fresh();
+    return state.apps.some(entry => entry.bundleIdentifier === key) || !!sessions.get(threadId)?.has(key);
+  }
   function removeAppApproval(app) {
     const key = appKey(app);
     write(state => {
@@ -107,7 +111,7 @@ function createOwner(codexHome) {
     });
     return getAppApprovals();
   }
-  return { receive, response, outgoing, notification, stop, reset, getAppApprovals, removeAppApproval };
+  return { receive, response, outgoing, notification, stop, reset, getAppApprovals, hasAppApproval, removeAppApproval };
 }
 // Share consent state when Windows resolves the same module with different casing.
 const registry = globalThis[Symbol.for("azrael.computer-use.approval-owners.v1")] ??= new Map();
@@ -117,4 +121,4 @@ function owner() {
   if (!registry.has(key)) registry.set(key, createOwner(home));
   return registry.get(key);
 }
-module.exports = { appKey, createOwner, receive: (...args) => owner().receive(...args), response: (...args) => owner().response(...args), outgoing: (...args) => owner().outgoing(...args), notification: (...args) => owner().notification(...args), stop: (...args) => owner().stop(...args), reset: () => owner().reset(), getAppApprovals: () => owner().getAppApprovals(), removeAppApproval: app => owner().removeAppApproval(app) };
+module.exports = { appKey, createOwner, receive: (...args) => owner().receive(...args), response: (...args) => owner().response(...args), outgoing: (...args) => owner().outgoing(...args), notification: (...args) => owner().notification(...args), stop: (...args) => owner().stop(...args), reset: () => owner().reset(), getAppApprovals: () => owner().getAppApprovals(), hasAppApproval: (...args) => owner().hasAppApproval(...args), removeAppApproval: app => owner().removeAppApproval(app) };

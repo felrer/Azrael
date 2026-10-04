@@ -67,7 +67,7 @@ function resolvePackage(root, from, name) {
   }
   throw new Error(`Missing runtime dependency: ${name} (from ${from})`);
 }
-function stageRuntime({ runtimeDirectory, pluginDirectory, destination }) {
+function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selectedWindowGuide }) {
   runtimeDirectory = path.resolve(runtimeDirectory);
   pluginDirectory = path.resolve(pluginDirectory);
   destination = path.resolve(destination);
@@ -97,18 +97,32 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination }) {
     for (const name of Object.keys(pkg.dependencies || {}).sort()) pending.push(resolvePackage(bin, rel, name));
   }
   for (const rel of REQUIRED.filter(x => x.startsWith('skills/') || x.startsWith('docs/'))) add(pluginDirectory, rel, rel);
+  if (selectedWindowGuide) {
+    const guideRoot = path.dirname(path.resolve(selectedWindowGuide));
+    add(guideRoot, path.basename(selectedWindowGuide), 'docs/selected-window.md');
+    const skill = files.get('skills/computer-use/SKILL.md');
+    const original = fs.readFileSync(skill.source, 'utf8');
+    const routing = '\n## Azrael Computer Use mode\n\nFor selected-window sessions, use only the azrael_window tools and follow [selected-window guidance](docs/selected-window.md). The engine must echo computerUseMode: selectedWindow before window actions. For foreground Computer Use sessions, follow the existing Sky instructions below.\n\n';
+    // Retain plugin front matter so skill discovery metadata remains valid.
+    const frontMatter = original.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/);
+    const offset = frontMatter ? frontMatter[0].length : 0;
+    skill.content = Buffer.from(original.slice(0, offset) + routing + original.slice(offset));
+    skill.sha256 = hash(skill.content); skill.bytes = skill.content.length;
+  }
   for (const rel of walk(pluginDirectory).filter(x => /(^|\/)(plugin\.json|LICENSE(?:\.[^/]*)?|NOTICE(?:\.[^/]*)?)$/i.test(x))) add(pluginDirectory, rel, rel);
-  const manifest = { schema: 1, scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].sort((a,b) => a.path.localeCompare(b.path)) };
+  const manifest = { schema: 1, scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of manifest.files) {
     const target = path.join(destination, entry.path);
     fs.mkdirSync(path.dirname(target), { recursive: true });
-    fs.copyFileSync(entry.source, target);
+    const content = files.get(entry.path).content;
+    if (content) fs.writeFileSync(target, content);
+    else fs.copyFileSync(entry.source, target);
   }
   fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   return verifyRuntime(destination);
 }
-module.exports = { stageRuntime, verifyRuntime };
+module.exports = { stageRuntime, verifyRuntime, checked, walk, relative, hash };
 if (require.main === module) {
   try {
     const [command, ...args] = process.argv.slice(2), options = {};
@@ -116,7 +130,7 @@ if (require.main === module) {
     for (let i = 0; i < args.length; i += 2) options[args[i]] = args[i + 1];
     let result;
     if (command === 'verify' && options['--directory']) result = verifyRuntime(options['--directory']);
-    else if (command === 'stage' && options['--runtime-directory'] && options['--plugin-directory'] && options['--destination']) result = stageRuntime({ runtimeDirectory: options['--runtime-directory'], pluginDirectory: options['--plugin-directory'], destination: options['--destination'] });
+    else if (command === 'stage' && options['--runtime-directory'] && options['--plugin-directory'] && options['--destination']) result = stageRuntime({ runtimeDirectory: options['--runtime-directory'], pluginDirectory: options['--plugin-directory'], destination: options['--destination'], selectedWindowGuide: options['--selected-window-guide'] });
     else throw new Error('Usage: stage --runtime-directory DIR --plugin-directory DIR --destination DIR | verify --directory DIR');
     console.log(JSON.stringify({ directory: result.directory, manifestSha256: result.manifestSha256 }));
   } catch (error) { console.error(error.message); process.exitCode = 1; }

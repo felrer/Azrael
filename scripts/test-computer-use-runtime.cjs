@@ -19,6 +19,15 @@ try {
   pkg('node_modules/unrelated', 'unrelated');
   for (const rel of ['skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md', '.codex-plugin/plugin.json', 'LICENSE']) write(`plugin/${rel}`, 'fixture instructions');
   const options = { runtimeDirectory: path.join(root, 'source'), pluginDirectory: path.join(root, 'plugin'), destination: path.join(root, 'bundle') };
+  write('mode-guide.md', 'Selected-window guidance');
+  write('plugin/skills/computer-use/SKILL.md', '---\nname: computer-use\ndescription: Existing computer use\n---\nOriginal Sky instructions');
+  const routed = stageRuntime({ ...options, destination: path.join(root, 'routed'), selectedWindowGuide: path.join(root, 'mode-guide.md') });
+  const routedSkill = fs.readFileSync(path.join(routed.directory, 'skills/computer-use/SKILL.md'), 'utf8');
+  assert(routedSkill.startsWith('---\nname: computer-use\n'));
+  assert(routedSkill.includes('azrael_window tools'));
+  assert(routedSkill.includes('Original Sky instructions'));
+  assert.equal(fs.readFileSync(path.join(routed.directory, 'docs/selected-window.md'), 'utf8'), 'Selected-window guidance');
+  assert.equal(verifyRuntime(routed.directory).manifestSha256, routed.manifestSha256);
   const staged = stageRuntime(options);
   assert.equal(staged.manifest.schema, 1);
   assert.equal(staged.manifest.packages.length, 4);

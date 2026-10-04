@@ -181,6 +181,21 @@ test("owned Computer Use replaces transport and external environment while prese
   for (const key of manifest.config.protectedRootKeys) assert.equal(config[key], parseToml(destination)[key]);
 });
 
+test("selected-window owned MCP replaces stale transport while preserving unrelated configuration", () => {
+  const source = stringifyToml({ notify: [], agents: { enabled: true, default_subagent_model: "sol" }, features: { js_repl: true }, desktop: { followUpQueueMode: "steer" }, mcp_servers: { azrael_window: { url: "https://external", env_vars: ["AZRAEL_EX_MANAGEMENT_SOCKET"], env: { EXTERNAL: "secret" } } } });
+  const destination = stringifyToml({ model: "native", model_reasoning_effort: "high", model_catalog_json: "catalog.json", accounts: { keep: "value" }, mcp_servers: { browser: { command: "browser.exe" }, azrael_window: { command: "stale.exe", args: ["stale"], env: { AZRAEL_EX_MANAGEMENT_SOCKET: "socket" } } } });
+  const runtime = { directory: path.resolve("runtime"), home: path.resolve("home"), engine: "engine.exe", windowControl: { mcpScript: path.resolve("window/window-control-mcp.cjs") } };
+  const ownedManifest = structuredClone(manifest);
+  ownedManifest.config.tables.push("mcp_servers.azrael_window");
+  const config = parseToml(selectedConfig(source, destination, ownedManifest, [], runtime));
+  assert.deepEqual(config.mcp_servers.azrael_window, { command: path.join(runtime.directory, "node.exe"), args: [runtime.windowControl.mcpScript], env: { CODEX_HOME: runtime.home }, enabled: false });
+  assert.deepEqual(config.mcp_servers.browser, { command: "browser.exe" });
+  assert.deepEqual(config.accounts, { keep: "value" });
+  assert.equal(config.mcp_servers.node_repl.command, path.join(runtime.directory, "node_repl.exe"));
+  const rollback = parseToml(selectedConfig(source, destination, ownedManifest, [], { ...runtime, windowControl: null }));
+  assert.equal(rollback.mcp_servers.azrael_window, undefined);
+});
+
 test("owned Computer Use supplies js_repl even when ordinary Codex lacks it", () => {
   const source = `notify = ["notify.exe"]\n[agents]\nenabled = true\ndefault_subagent_model = "sol"\n[desktop]\nfollowUpQueueMode = "steer"\n`;
   const result = parseToml(selectedConfig(source, "", manifest, [], { directory: "runtime", home: "state", engine: "engine.exe" }));

@@ -10,6 +10,7 @@
       "mcp_servers.node_repl",
       "mcp_servers.node_repl.env",
       "mcp_servers.laio",
+      "mcp_servers.azrael_window",
       "apps.*"
     ],
     "tableKeys": {

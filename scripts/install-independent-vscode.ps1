@@ -212,6 +212,8 @@ function Get-PreparedPackage {
     & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $RequestedRelease 'engine') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Prepared installation requires an engine built from the current source. Rebuild and prepare again.' }
 
+    & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-host --directory $hostExtension --release $RequestedRelease | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Prepared Window Control host verification failed.' }
     $prepared.HostExtension = $hostExtension
     $prepared.HostVsix = $hostVsix
     $prepared.CompanionVsix = $companionVsix
@@ -343,9 +345,13 @@ $receipt = [ordered]@{
 Write-Receipt -Receipt $receipt -Path $receiptPath
 
 try {
+    & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-release --release $release --source-root (Join-Path (Split-Path $PSScriptRoot -Parent) 'native/window-control') | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Installation requires a verified Window Control runtime when declared.' }
+    $releaseInfo = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $computerUseArguments = @()
     $computerUseDirectory = Join-Path $release 'computer-use'
     if (Test-Path -LiteralPath $computerUseDirectory) { $computerUseArguments = @('--computer-use-directory', $computerUseDirectory) }
+    if ($releaseInfo.sha256.'window-control/manifest.json') { $computerUseArguments += @('--window-control-directory', (Join-Path $release 'window-control')) }
     if ($suppliedPackage) {
         $prepared = Get-PreparedPackage -Directory $suppliedPackage -RequestedRelease $release -RequestedState $state
         if ($DevinExecutable -and [string]$prepared.DevinExecutable -ine (Get-AbsolutePath -Path $DevinExecutable -Name 'DevinExecutable' -MustExist)) { throw 'Prepared DevinExecutable does not match the requested executable.' }

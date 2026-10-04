@@ -1,0 +1,56 @@
+'use strict';
+const assert = require('node:assert/strict');
+const fs = require('node:fs/promises');
+const os = require('node:os');
+const path = require('node:path');
+const { EventEmitter } = require('node:events');
+const { createHost } = require('./window-control-host.cjs');
+const thread = '12345678-1234-1234-1234-123456789abc';
+const descriptor = { hwnd: 'window', pid: 1, processCreated: 'created', executable: 'C:/app.exe', title: '<App>', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
+async function main() {
+  const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-host-'));
+  try {
+    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure;
+    const approvals = require('./computer-use-approvals.cjs').createOwner(home);
+    const receive = approvals.receive; approvals.receive = (request, ...args) => { observedRequest = request; return receive(request, ...args); };
+    const posts = []; const panel = { webview: { html: '', postMessage(value) { posts.push(value); }, onDidReceiveMessage() {} }, onDidDispose() {}, reveal() {}, dispose() {} };
+    const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => values[0] } };
+    const backend = { request: async method => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elements: [], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
+    const createServer = () => { const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => { closed++; }; return server; };
+    const host = createHost({ runtime: { codexHome: home }, vscode, backend, approvals, createServer });
+    let callbacks; const native = { registerProvider(_id, value) { callbacks = value; return { dispose() {} }; } };
+    const requests = []; host.attach(native, (_provider, id, method, params) => { requests.push({ method, params }); const reply = () => callbacks.onResult({ id, result: method === 'thread/start' ? { computerUseMode: echo, thread: { id: thread }, sandbox: { type: sandbox } } : { turn: { id: 'turn-one' } } }); if (method === 'turn/start' && deferTurn) turnReply = reply; else queueMicrotask(reply); });
+    host.open(); const ui = type => host.handleUI({ type, nonce: host.panelNonce });
+    await assert.rejects(host.handleUI({ type: 'start', nonce: 'forged' }), /Invalid panel/); await assert.rejects(ui('arbitrary'), /Unknown panel/); await assert.rejects(host.handleUI({ type: 'select', nonce: host.panelNonce, selection: descriptor }), /Invalid panel/);
+    echo = undefined; await assert.rejects(ui('start'), /did not verify/); assert.equal(host.threads.size, 0); assert.equal(calls, 0);
+    echo = 'selectedWindow'; sandbox = 'workspace-write'; await ui('start'); await assert.rejects(ui('select'), /permission profile/); assert.equal(calls, 1); await ui('clear'); await assert.rejects(fs.stat(path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json')), { code: 'ENOENT' });
+    sandbox = 'danger-full-access'; consent = '거부'; await ui('start'); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'computer-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
+    deferConsent = true; const lateSelection = ui('select'); while (!resolveConsent) await new Promise(r => setImmediate(r)); await ui('pause'); resolveConsent('이 대화에서 허용'); await assert.rejects(lateSelection, /refused/); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
+    consent = '이 대화에서 허용'; await ui('select'); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true); assert.equal(requests.find(r => r.method === 'thread/start').params.sandbox, undefined);
+    await ui('capture'); assert.equal(posts.at(-1).value.image.data, 'YWJj');
+    await host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'Work with this selected window' });
+    assert.equal(posts.at(-1).value.image, undefined); assert.deepEqual(requests.find(r => r.method === 'turn/start').params.input[0].text_elements, []);
+    await assert.rejects(host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'duplicate' }), /현재 실행/);
+    const message = { nonce: host.nonce, threadId: thread, method: 'call', tool: 'status', arguments: { targetId: 'wrong' }, _meta: { threadId: thread, 'x-codex-turn-metadata': { thread_id: thread, turn_id: 'turn-one', sandbox_mode: 'danger-full-access' } } };
+    await assert.rejects(host.handlePipe({ ...message, nonce: '0'.repeat(64) }), /authentication/);
+    await assert.rejects(host.handlePipe({ ...message, method: 'bind' }), /Unknown/);
+    await assert.rejects(host.handlePipe({ ...message, _meta: { ...message._meta, 'x-codex-turn-metadata': { thread_id: thread, turn_id: 'turn-one', sandbox_mode: 'workspace-write' } } }), /denied/);
+    await assert.rejects(host.handlePipe(message), /forged target/);
+    await ui('capture'); const boundTarget = posts.at(-1).value.targetId;
+    backendFailure = 'Native input interference'; let beforeFailure = calls;
+    await assert.rejects(host.handlePipe({ ...message, tool: 'capture', arguments: { targetId: boundTarget } }), /Native input interference/);
+    assert.equal(calls, beforeFailure + 1); assert.equal(posts.at(-1).value.state, 'paused'); assert.equal(posts.at(-1).value.image, undefined); assert.equal(posts.at(-1).value.elements, undefined); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true);
+    backendFailure = undefined; await ui('resume'); assert.equal(posts.at(-1).value.image.data, 'YWJj'); backendFailure = 'Native window read failed'; beforeFailure = calls;
+    await assert.rejects(ui('capture'), /Native window read failed/); assert.equal(calls, beforeFailure + 1); assert.equal(posts.at(-1).value.state, 'paused'); assert.equal(posts.at(-1).value.image, undefined); assert.equal(posts.at(-1).value.observationId, undefined);
+    backendFailure = undefined; await ui('resume');
+    await ui('capture'); const target = posts.at(-1).value.targetId; host.observe(native, { method: 'turn/completed', params: { threadId: thread, turn: { status: 'completed' } } }); assert.equal(posts.at(-1).value.image, undefined); assert.equal(posts.at(-1).value.observationId, undefined); assert.equal(posts.at(-1).value.targetId, target);
+    deferTurn = true; const pendingSend = host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'Race' }); while (!turnReply) await new Promise(r => setImmediate(r)); host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id: 'authoritative-turn' } } }); host.observe(native, { method: 'turn/completed', params: { threadId: thread, turn: { status: 'completed' } } }); turnReply(); await pendingSend; assert.equal(host.threads.get(thread).turnId, undefined); deferTurn = false;
+    await ui('pause'); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); await ui('resume'); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true);
+    await ui('pause'); consent = '항상 허용'; await ui('resume'); await ui('pause'); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true); approvals.removeAppApproval(descriptor.executable); consent = '이 대화에서 허용'; await ui('resume');
+    host.observe(native, { method: 'thread/closed', params: { threadId: 'ordinary-thread' } }); assert.equal(host.threads.size, 1);
+    const file = path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json'); const rendezvous = JSON.parse(await fs.readFile(file, 'utf8')); assert.deepEqual(Object.keys(rendezvous).sort(), ['nonce', 'pipe', 'schema']);
+    await fs.writeFile(file, JSON.stringify({ ...rendezvous, nonce: 'other-owner' })); host.disconnect(native); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); await host.dispose(); assert.equal(JSON.parse(await fs.readFile(file, 'utf8')).nonce, 'other-owner'); assert.equal(closed, 1);
+    console.log('Window host: mocked mode/permission/metadata gates, real approval lifecycle and late consent cancellation, duplicate send and late turn race, stale image invalidation, UI nonce and owner-only rendezvous cleanup passed');
+  } finally { await fs.rm(home, { recursive: true, force: true }); }
+}
+main().catch(e => { console.error(e); process.exitCode = 1; });

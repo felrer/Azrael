@@ -54,6 +54,9 @@ $computerUseText = & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') v
 if ($LASTEXITCODE -ne 0) { throw 'Computer Use bundle validation failed. No host was installed.' }
 $computerUse = $computerUseText | ConvertFrom-Json
 if (-not $manifest.sha256['computer-use/manifest.json'] -or $computerUse.manifestSha256 -ine $manifest.sha256['computer-use/manifest.json']) { throw 'Release Computer Use manifest hash mismatch.' }
+$windowControlText = & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-release --release $release --source-root (Join-Path $projectRoot 'native/window-control')
+if ($LASTEXITCODE -ne 0) { throw 'Window Control bundle validation failed. No host was installed.' }
+$windowControl = $windowControlText | ConvertFrom-Json
 foreach ($file in @('engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe', 'azrael-ex.vsix')) {
     if ((Get-FileHash (Join-Path $release $file)).Hash -cne $manifest.sha256[$file]) { throw "Release hash mismatch: $file" }
 }
@@ -61,6 +64,14 @@ $prepared = & (Join-Path $PSScriptRoot 'prepare-official-ui.ps1') -SourceExtensi
 Copy-Item -LiteralPath $computerUseDirectory -Destination (Join-Path $prepared.Extension 'computer-use') -Recurse
 & node (Join-Path $PSScriptRoot 'computer-use-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'computer-use') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Copied Computer Use bundle validation failed.' }
+if ($windowControl) {
+    Copy-Item -LiteralPath $windowControl.directory -Destination (Join-Path $prepared.Extension 'window-control') -Recurse
+    & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'window-control') | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'Copied Window Control bundle validation failed.' }
+    foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+        Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.Extension "out/$module")
+    }
+}
 $hostFile = Join-Path $prepared.Extension 'out/extension.js'
 $hostText = [IO.File]::ReadAllText($hostFile)
 $hostText = Set-AzraelEngineResolver -HostText $hostText
@@ -85,9 +96,13 @@ if ($DevinExecutable) { $DevinExecutable = (Resolve-Path -LiteralPath $DevinExec
     devinExecutable = $DevinExecutable
     devinNative = $nativeConfig
     providerAccounts = $providerAccountsConfig
+    windowControl = $windowControl
     computerUse = @{ directory = $computerUseDirectory; manifestSha256 = [string]$computerUse.manifestSha256 }
     originalExtension = if ($OriginalExtensionPath) { $OriginalExtensionPath } else { $SourceExtensionPath }
 } | ConvertTo-Json -Depth 8 | Set-Content (Join-Path $prepared.Extension 'out/azrael-runtime.json') -Encoding utf8NoBOM
+
+& node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-host --directory $prepared.Extension --release $release | Out-Null
+if ($LASTEXITCODE -ne 0) { throw 'Prepared Window Control host integrity verification failed.' }
 
 $result = [ordered]@{ OfficialExtension = $prepared.Extension; CompanionVsix = Join-Path $release 'azrael-ex.vsix'; ReleaseDirectory = $release; StateRoot = $state; DevinExecutable = $DevinExecutable }
 $result | ConvertTo-Json | Set-Content (Join-Path $OutputDirectory 'prepared.json') -Encoding utf8NoBOM

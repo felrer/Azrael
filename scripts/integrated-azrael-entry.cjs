@@ -8,11 +8,13 @@ const nativeExtension = require("./out/extension.js");
 const accountUi = require("./account-ui/dist/src/extension.js");
 const { runtime } = require("./out/azrael-runtime.cjs");
 const recovery = require("./out/azrael-recovery.cjs");
+const windowControl = require("./out/window-control-host.cjs");
 
 let nativeActivated = false;
 let accountUiActivationAttempted = false;
 let fallbackWindowSessionId;
 let recoveryActivation;
+let windowControlActivation;
 
 function fileSystemPath(uri, owner) {
   if (!uri || uri.scheme !== "file") {
@@ -118,6 +120,7 @@ exports.activate = async function activate(context) {
   await migrateAccountDefault(stateFiles.defaultFile, stateFiles.previousSessionRoot);
   recoveryActivation = recovery.initialize(context, vscode);
   try {
+    windowControlActivation = windowControl.initialize(context, vscode, runtime);
     const nativeApi = await nativeExtension.activate(context);
     nativeActivated = true;
     accountUiActivationAttempted = true;
@@ -130,6 +133,8 @@ exports.activate = async function activate(context) {
 };
 
 async function deactivate() {
+  await windowControlActivation?.dispose();
+  windowControlActivation = undefined;
   recoveryActivation?.dispose();
   recoveryActivation = undefined;
   const deactivations = [];
