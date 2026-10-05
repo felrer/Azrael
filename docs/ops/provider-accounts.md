@@ -10,7 +10,7 @@ Procedures for provider account management, model discovery and managed inferenc
 
 ## Using the page
 
-`azrael.manageAccounts`, `azrael.usage` and `azrael.devinAccount` open the same page. API keys are entered through a password input; OAuth login uses the upstream provider flow, and cancelling a login stops only that operation's helper. The badge "채팅 연결 설정됨" means the runtime offers model selection, not that inference has succeeded.
+`azrael.manageAccounts`, `azrael.usage` and `azrael.devinAccount` open the same page. API keys are entered through a password input; OAuth login uses the upstream provider flow, and cancelling a login stops only that operation's helper. The badge "채팅 연결 설정됨" appears only on the selected new-chat default account when the provider's inference integration is configured; other accounts show "채팅 미연결". This describes new-chat selection, not successful inference or the account pinned to an existing chat. Automatic-switch permission remains independent of this badge.
 
 To use a newly connected provider: reload the window after installation, open a new chat, expand the provider's section in the model picker, and use the picker's refresh action if discovery is still pending. Selecting a model never rotates accounts; the selected account becomes the binding for the provider's next new thread.
 

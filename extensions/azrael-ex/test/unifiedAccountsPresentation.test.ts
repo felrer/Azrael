@@ -27,6 +27,33 @@ test("OpenRouter spend distinguishes unset, zero, and positive caps without clai
   assert.match(providerAccountHtml(connected, connected.accounts[0], quota), /채팅 연결 설정됨/);
 });
 
+test("chat connection badges follow the selected account without changing provider controls", () => {
+  const accounts = [
+    { id: "account-a", label: "A", selected: true, needsReauth: false },
+    { id: "account-b", label: "B", selected: false, needsReauth: false },
+  ];
+  const connected: ManagedProvider = { ...provider, id: "google-antigravity", inferenceConnected: true, accounts };
+  for (const selectedId of ["account-a", "account-b"]) {
+    const snapshot = { ...connected, accounts: accounts.map(account => ({ ...account, selected: account.id === selectedId })) };
+    for (const account of snapshot.accounts) {
+      for (const expanded of [false, true]) {
+        const html = providerAccountHtml(snapshot, account, undefined, undefined, expanded);
+        assert.equal(html.includes("채팅 연결 설정됨"), account.selected);
+        assert.equal(html.includes("채팅 미연결"), !account.selected);
+        assert.equal(html.includes('class="badge disconnected"'), !account.selected);
+        assert.equal(html.includes('data-action="providerSelect"'), !account.selected);
+        assert.match(html, /자동 전환 허용/);
+      }
+    }
+  }
+  const disconnected = { ...connected, inferenceConnected: false };
+  for (const account of disconnected.accounts) {
+    const html = providerAccountHtml(disconnected, account, undefined);
+    assert.doesNotMatch(html, /채팅 연결 설정됨/);
+    assert.match(html, /채팅 미연결/);
+  }
+});
+
 test("managed provider cards expose safe account actions and explicit chat/default scope", () => {
   const html = providerAccountHtml(provider, provider.accounts[0], undefined, undefined, true);
   assert.doesNotMatch(html, /<script|<img/);
