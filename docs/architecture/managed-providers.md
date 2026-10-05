@@ -12,6 +12,14 @@ Google Antigravity is a separate provider from Google AI Studio. It uses the con
 
 ## Provider instruction adjustments
 
+### Harness identity
+
+Status: `partial` — source adaptation and request-copy contracts are verified without compilation; installed windows require a matching engine.
+
+The common native request boundary identifies the workspace application and agent harness as Azrael: `You are working in Azrael, the application and agent harness for this workspace.` The bundled model instruction catalog uses this introduction. The outgoing copy of saved, configured and catalog instructions replaces the exact Codex/GPT-6 agent introduction, so resumed sessions receive the Azrael description without rewriting their stored conversation. Actual model/provider identities, authentication identifiers and tool/API names remain separate from harness branding. Provider helpers forward the resulting instructions rather than inventing their own application identity.
+
+### Provider reminders
+
 Status: `current` for source and offline adapter request verification; installed-host behavior requires a matching helper bundle.
 
 The Google adapter adds a short reminder to keep intermediate progress concise, with the final answer length governed by the task. This reminder does not prescribe internal reasoning or task persistence. The adapter leaves mathematical notation to the session instructions and client renderer. The pinned UI contains a remarkMath/KaTeX rendering path; support for every delimiter is not established by source inspection.
