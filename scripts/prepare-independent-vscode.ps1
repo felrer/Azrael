@@ -59,6 +59,7 @@ function Assert-IntegratedHostVsixContents {
     try {
         foreach ($requiredEntry in @(
             'extension/integrated-azrael-entry.cjs',
+            'extension/out/session-links.cjs',
             'extension/out/azrael-recovery.cjs',
             'extension/out/recovery-state.cjs',
             'extension/out/url-safety-transport.cjs',
@@ -219,7 +220,7 @@ try {
             foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'window-control-runtime.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
-            foreach ($module in @('azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
+            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }
         }

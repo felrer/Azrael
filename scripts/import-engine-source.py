@@ -29,6 +29,75 @@ QUEUE_ATTRIBUTE_BYTES = b"0003_accepted_user_inputs.sql -text\n"
 REPLAY_PATH = "codex-rs/tui/src/chatwidget/replay.rs"
 PRESERVED_REPLAY = REPLAY_PATH + ".upstream"
 REPLAY_FIX_REASON = "Carry Turn.root_resume_wait through replay to fix E0027/E0063"
+AZRAEL_IDENTITY = "You are working in Azrael, the application and agent harness for this workspace."
+CODEX_IDENTITY_INTROS = (
+    "You are Codex, an agent based on GPT-6.",
+    "You are Codex, an agent based on GPT-5.",
+    "You are Codex, a coding agent based on GPT-5.",
+    "You are Codex, based on GPT-5. You are running as a coding agent in the Codex CLI on a user's computer.",
+    "You are GPT-5.1 running in the Codex CLI, a terminal-based coding assistant. Codex CLI is an open source project led by OpenAI.",
+    "You are GPT-5.2 running in the Codex CLI, a terminal-based coding assistant. Codex CLI is an open source project led by OpenAI.",
+    "You are a coding agent running in the Codex CLI, a terminal-based coding assistant. Codex CLI is an open source project led by OpenAI.",
+)
+IDENTITY_TEMPLATE_PATHS = {
+    "codex-rs/models-manager/models.json",
+    "codex-rs/models-manager/prompt.md",
+    "codex-rs/protocol/src/prompts/base_instructions/default.md",
+    *{"codex-rs/core/" + name for name in (
+        "gpt-5.1-codex-max_prompt.md", "gpt-5.2-codex_prompt.md",
+        "gpt_5_1_prompt.md", "gpt_5_2_prompt.md", "gpt_5_codex_prompt.md")},
+}
+IDENTITY_LIB_PATH = "codex-rs/prompts/src/lib.rs"
+IDENTITY_SESSION_PATH = "codex-rs/core/src/session/mod.rs"
+IDENTITY_FIX_PATHS = IDENTITY_TEMPLATE_PATHS | {IDENTITY_LIB_PATH, IDENTITY_SESSION_PATH}
+IDENTITY_FIX_REASON = "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+IDENTITY_SESSION_OLD = "        let instructions = self.get_base_instructions().await;"
+IDENTITY_SESSION_NEW = """        let mut instructions = self.get_base_instructions().await;
+        instructions.text = codex_prompts::with_azrael_harness_identity(&instructions.text);"""
+IDENTITY_RUST = r'''
+/// Render harness identity on a request copy, preserving model/provider metadata elsewhere.
+pub fn with_azrael_harness_identity(instructions: &str) -> String {
+    const IDENTITY: &str =
+        "You are working in Azrael, the application and agent harness for this workspace.";
+    const LEGACY_INTROS: &[&str] = &[
+''' + "".join("        " + json.dumps(intro) + ",\n" for intro in CODEX_IDENTITY_INTROS) + r'''    ];
+    let mut rendered = instructions.to_owned();
+    for &intro in LEGACY_INTROS {
+        rendered = rendered.replace(intro, IDENTITY);
+    }
+    if !rendered.contains(IDENTITY) {
+        rendered = format!("{IDENTITY}\n\n{rendered}");
+    }
+    rendered
+}
+
+#[cfg(test)]
+mod azrael_identity_tests {
+    use super::with_azrael_harness_identity;
+
+    #[test]
+    fn renders_saved_identity_without_mutating_source() {
+        let saved = "You are Codex, an agent based on GPT-6. Keep provider instructions.";
+        let rendered = with_azrael_harness_identity(saved);
+        assert!(rendered.starts_with("You are working in Azrael,"));
+        assert!(rendered.ends_with("Keep provider instructions."));
+        assert_eq!(
+            saved,
+            "You are Codex, an agent based on GPT-6. Keep provider instructions."
+        );
+        assert_eq!(with_azrael_harness_identity(&rendered), rendered);
+    }
+
+    #[test]
+    fn preserves_other_provider_identity_and_product_names() {
+        let source = "You are Claude. Use the Codex API and GPT-6 model when requested.";
+        let rendered = with_azrael_harness_identity(source);
+        assert!(rendered.starts_with("You are working in Azrael,"));
+        assert!(rendered.ends_with(source));
+        assert_eq!(with_azrael_harness_identity(&rendered), rendered);
+    }
+}
+'''
 ROOT_WAIT_OLD = "codex-rs/state/migrations/0056_root_resume_wait_timestamps.sql"
 ROOT_WAIT_NEW = "codex-rs/state/migrations/0060_root_resume_wait_timestamps.sql"
 STATE_REPAIR_PATH = "codex-rs/state/src/migrations.rs"
@@ -443,7 +512,7 @@ def snapshot(root):
     names = sorted(set(modes) | {os.fsdecode(item) for item in
                    git(root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0") if item})
     reserved = ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY,
-                *(path + ".upstream" for path in STATE_FIX_PATHS))
+                *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS))
     if any(name in names for name in reserved):
         raise ValueError("Source already owns reserved import metadata path")
     files = {name: describe(safe_path(root, name), modes.get(name)) for name in names}
@@ -585,6 +654,25 @@ def replay_fix_bytes(original):
 
 
 def known_source_fix(original_path, original):
+    if original_path in IDENTITY_FIX_PATHS:
+        newline = b"\r\n" if b"\r\n" in original else b"\n"
+        if original_path in IDENTITY_TEMPLATE_PATHS:
+            adapted = original
+            for intro in CODEX_IDENTITY_INTROS:
+                adapted = adapted.replace(intro.encode(), AZRAEL_IDENTITY.encode())
+            if adapted == original:
+                raise ValueError("Harness identity template has no known introduction")
+        elif original_path == IDENTITY_LIB_PATH:
+            if b"fn with_azrael_harness_identity" in original:
+                raise ValueError("Harness identity helper already exists")
+            adapted = original + IDENTITY_RUST.encode().replace(b"\n", newline)
+        else:
+            old = IDENTITY_SESSION_OLD.encode().replace(b"\n", newline)
+            new = IDENTITY_SESSION_NEW.encode().replace(b"\n", newline)
+            if original.count(old) != 1 or b"with_azrael_harness_identity" in original:
+                raise ValueError("Harness identity session anchor is missing or ambiguous")
+            adapted = original.replace(old, new, 1)
+        return original_path, adapted, IDENTITY_FIX_REASON
     if original_path == REPLAY_PATH:
         return original_path, replay_fix_bytes(original), REPLAY_FIX_REASON
     if original_path == ROOT_WAIT_OLD:
@@ -617,7 +705,7 @@ def source_fixes_record(original, original_path=REPLAY_PATH):
     adapted_path, adapted, reason = known_source_fix(original_path, original)
     if adapted == original:
         if adapted_path == original_path:
-            raise ValueError("Replay source fix is not required for these original bytes")
+            raise ValueError("Source fix is not required for these original bytes")
     return {original_path: {"originalPath": original_path, "adaptedPath": adapted_path,
                          "preservedPath": original_path + ".upstream", "reason": reason,
                          "originalSha256": hashlib.sha256(original).hexdigest(), "originalSize": len(original),
@@ -676,6 +764,33 @@ def apply_state_source_fixes(destination, files):
     return records
 
 
+def apply_identity_source_fixes(destination, files):
+    records = {}
+    plans = []
+    for original_path in sorted(IDENTITY_FIX_PATHS & files.keys()):
+        entry = files[original_path]
+        if entry["kind"] == "missing":
+            continue
+        if entry["kind"] != "file" or original_path + ".upstream" in files:
+            raise ValueError("Harness identity adaptation requires regular original files")
+        path = safe_path(destination, original_path)
+        if describe(path, entry["gitMode"]) != entry:
+            raise ValueError(f"Original identity source differs: {original_path}")
+        original = path.read_bytes()
+        _, adapted, _ = known_source_fix(original_path, original)
+        preserved = safe_path(destination, original_path + ".upstream")
+        if preserved.exists():
+            raise ValueError("Harness identity adaptation would overwrite preserved source")
+        plans.append((path, preserved, original, adapted))
+        records.update(source_fixes_record(original, original_path))
+    for path, preserved, original, adapted in plans:
+        with preserved.open("xb") as output:
+            output.write(original)
+        shutil.copystat(path, preserved, follow_symlinks=False)
+        path.write_bytes(adapted)
+    return records or None
+
+
 def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None):
     destination = filesystem_path(destination)
     actual = set()
@@ -687,8 +802,8 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
             actual.add((Path(directory) / name).relative_to(destination).as_posix())
     expected = {name for name, entry in files.items() if entry["kind"] != "missing"}
     if source_fixes is not None:
-        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS):
-            raise ValueError("Malformed source fixes: only the fixed replay/state corrections are supported")
+        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS | IDENTITY_FIX_PATHS):
+            raise ValueError("Malformed source fixes: only the fixed replay/state/identity corrections are supported")
         state_keys = set(source_fixes) & STATE_FIX_PATHS
         if state_keys and state_keys != STATE_FIX_PATHS:
             raise ValueError("State source corrections must include the complete fixed migration recipe")
@@ -701,7 +816,7 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
                 raise ValueError("Preserved source must be a regular file")
             original = preserved.read_bytes()
             if fix != source_fixes_record(original, original_path)[original_path]:
-                raise ValueError("Replay/state source-fix metadata differs")
+                raise ValueError("Replay/state/identity source-fix metadata differs")
             adapted_path, adapted_bytes, _ = known_source_fix(original_path, original)
             adapted = safe_path(destination, adapted_path)
             if adapted.is_symlink() or adapted.read_bytes() != adapted_bytes:
@@ -760,7 +875,7 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
         if not isinstance(name, str) or not name or "\\" in name or ":" in name or PurePosixPath(name).as_posix() != name:
             raise ValueError("Imported source receipt has a malformed path")
         safe_path(destination, name)
-        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
+        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
             raise ValueError(f"Imported inventory claims metadata or build cache: {name}")
         if not isinstance(entry, dict) or entry.get("kind") not in ("missing", "file", "symlink", "git-symlink-placeholder"):
             raise ValueError(f"Malformed imported inventory entry: {name}")
@@ -885,6 +1000,9 @@ def import_source(source, destination, allow_source_advance=False, upstream_tag=
     state_fixes = apply_state_source_fixes(destination, entries)
     if state_fixes:
         source_fixes = {**(source_fixes or {}), **state_fixes}
+    identity_fixes = apply_identity_source_fixes(destination, entries)
+    if identity_fixes:
+        source_fixes = {**(source_fixes or {}), **identity_fixes}
     if source_fixes is not None:
         record["sourceFixes"] = source_fixes
     verify_destination(destination, entries, adaptation=adaptation, distribution_files=distribution_files, source_fixes=source_fixes)

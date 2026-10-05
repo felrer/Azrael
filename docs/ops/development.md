@@ -167,6 +167,18 @@ The current local source scope discovers root `scripts/test-*.cjs` files importi
 
 ### Host transforms
 
+#### Local session link protocol
+
+The normal-profile installer registers `azrael://threads/<UUID>` under `HKCU\Software\Classes\azrael` with the owner `azrael-ex-local.azrael`. Its deployment receipt records `sessionProtocol.receiptPath`; that configuration pins the URL parser hash and VS Code executable. Custom extension directories and isolated user-data profiles skip registration. No build or source test registers the protocol. Existing `codex` ownership is preserved.
+
+The external launcher reuses VS Code's bundled Node runtime for URL validation and forwards the parsed `/local/<UUID>` route to the Azrael extension. Run `pwsh -NoProfile -File scripts/test-session-protocol.ps1` for command quoting, PowerShell syntax, parser handoff and recovery tests without changing the real registry or launching the editor. This does not establish OS click dispatch or installed-host navigation.
+
+To restore or remove the current Azrael registration, dot-source `scripts/session-protocol.ps1` and call `Restore-AzraelSessionProtocol -ReceiptPath '<recorded sessionProtocol.receiptPath>'`. It requires unchanged ownership and the current receipt; an update restores the previous registration, while a first registration removes only the owned `azrael` key. Preserve the current and previous referenced receipt directories, parser payloads and launch scripts with their deployment packages.
+
+Use the Azrael legacy-link conversion command for an old `codex://threads/<UUID>` link. Conversion validates Azrael session ownership and copies a canonical link; it does not edit conversation records or claim ordinary Codex links.
+
+#### Namespace validation
+
 Run `node --test scripts/test-content-fonts.cjs scripts/test-asset-transform-cache.cjs` for dynamic-content typography, local webfont resource hashes/copying, generated source and stylesheet cache dependencies. Regular/Bold Gyeonggi Batang fonts are bundled from the official webfont archive; Consolas resolves locally. Font/source provenance is in `extensions/azrael-ex/media/fonts/provenance.json`. A source check does not update an installed window.
 
 Run `node --test scripts/test-ui-cleanup.cjs scripts/test-pets-cleanup.cjs scripts/test-asset-transform-cache.cjs` for composer action retirement, placeholder and permission presentation, Pets inventory/host boundaries and their cache dependencies. The checks use the pinned pristine UI and installed TypeScript. Candidate design review uses `node scripts/create-ui-design-preview.cjs`, producing local HTML and SVG under `artifacts/visualizations/azrael-ui-identity/`; it does not select or install an icon family or typeface. Source checks and candidate renders do not establish acceptance in an installed host.
