@@ -166,6 +166,28 @@ function renderProviderModelList(React, jsx, Menu, catalog, props) {
     update();
     return unsubscribe;
   }, [catalog, hostId]);
+  // Filtering moves rows under a stationary cursor. The browser then emits hover
+  // boundary and synthetic move events; Radix item handlers react by focusing the
+  // menu content or the row now under the cursor, blurring the search field
+  // mid-typing. Ignore those while the field has focus; a real pointer move
+  // (changed coordinates) still lets items take focus as usual.
+  React.useEffect(() => {
+    const element = root.current;
+    if (!element?.addEventListener) return undefined;
+    const last = {};
+    const guard = event => {
+      if (event.pointerType && event.pointerType !== "mouse") return;
+      const point = `${event.clientX},${event.clientY}`;
+      const moved = point !== last[event.type];
+      last[event.type] = point;
+      if (!element.ownerDocument?.activeElement?.matches?.("[data-azrael-model-search]")) return;
+      if (event.type === "pointermove" || event.type === "mousemove") { if (!moved) event.stopPropagation(); return; }
+      event.stopPropagation();
+    };
+    const types = ["pointermove", "mousemove", "pointerout", "pointerover", "mouseout", "mouseover"];
+    for (const type of types) element.addEventListener(type, guard, true);
+    return () => { for (const type of types) element.removeEventListener(type, guard, true); };
+  }, []);
   const groups = catalog.groups(props.options, query, snapshot.providers);
   const selectedProvider = catalog.providerFor(props.options.find(option => option.selected)?.id ?? "");
   const search = query.trim().length > 0;
