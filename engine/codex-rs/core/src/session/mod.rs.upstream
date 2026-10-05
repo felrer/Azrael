@@ -1495,8 +1495,7 @@ impl Session {
     /// Render the request copy without changing instructions persisted or inherited by forks.
     pub(crate) async fn get_prompt_base_instructions(&self) -> BaseInstructions {
         let config = self.get_config().await;
-        let mut instructions = self.get_base_instructions().await;
-        instructions.text = codex_prompts::with_azrael_harness_identity(&instructions.text);
+        let instructions = self.get_base_instructions().await;
         if !config.update_plan_enabled
             && config.model_catalog.is_none()
             && matches!(

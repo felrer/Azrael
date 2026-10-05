@@ -63604,6 +63604,106 @@
   "sourceAdvanceChangedPaths": [],
   "sourceAdvancedAfterSnapshot": false,
   "sourceFixes": {
+    "codex-rs/core/gpt-5.1-codex-max_prompt.md": {
+      "adaptedPath": "codex-rs/core/gpt-5.1-codex-max_prompt.md",
+      "adaptedSha256": "dfb1a4988d62d937fe98d73ca6aa3f10356d320fd9e5d58616570298c5458b30",
+      "adaptedSize": 7646,
+      "originalPath": "codex-rs/core/gpt-5.1-codex-max_prompt.md",
+      "originalSha256": "17dcee7cf1f11b7d41498131f4ec28b889d1c6fa39ad5ed851ffab6edec73d17",
+      "originalSize": 7669,
+      "preservedPath": "codex-rs/core/gpt-5.1-codex-max_prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/gpt-5.2-codex_prompt.md": {
+      "adaptedPath": "codex-rs/core/gpt-5.2-codex_prompt.md",
+      "adaptedSha256": "dfb1a4988d62d937fe98d73ca6aa3f10356d320fd9e5d58616570298c5458b30",
+      "adaptedSize": 7646,
+      "originalPath": "codex-rs/core/gpt-5.2-codex_prompt.md",
+      "originalSha256": "17dcee7cf1f11b7d41498131f4ec28b889d1c6fa39ad5ed851ffab6edec73d17",
+      "originalSize": 7669,
+      "preservedPath": "codex-rs/core/gpt-5.2-codex_prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/gpt_5_1_prompt.md": {
+      "adaptedPath": "codex-rs/core/gpt_5_1_prompt.md",
+      "adaptedSha256": "1485e7a8cc7965d6255c3dc49ad1e2d93f9cb3d0d3dae6657a029a603db8e7f1",
+      "adaptedSize": 24488,
+      "originalPath": "codex-rs/core/gpt_5_1_prompt.md",
+      "originalSha256": "275bd39beb1cb020bfe58a0c999eced6571f50511c63aa9aa226a5314cb7017e",
+      "originalSize": 24535,
+      "preservedPath": "codex-rs/core/gpt_5_1_prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/gpt_5_2_prompt.md": {
+      "adaptedPath": "codex-rs/core/gpt_5_2_prompt.md",
+      "adaptedSha256": "75a226684f19f14bcd914934449e81cc5cb845d7e762a07d2ec978f8841752a6",
+      "adaptedSize": 21903,
+      "originalPath": "codex-rs/core/gpt_5_2_prompt.md",
+      "originalSha256": "13259f46f7f6b509c827447fef122fe63f2475c0457912341aac76a989e8a526",
+      "originalSize": 21950,
+      "preservedPath": "codex-rs/core/gpt_5_2_prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/gpt_5_codex_prompt.md": {
+      "adaptedPath": "codex-rs/core/gpt_5_codex_prompt.md",
+      "adaptedSha256": "5e0b6ae071dfa17ec3179e7ca7625a0b617cc425a97082a44a020c41c905d7aa",
+      "adaptedSize": 6692,
+      "originalPath": "codex-rs/core/gpt_5_codex_prompt.md",
+      "originalSha256": "e592b97eba9075901b71ee3ce8fec25957e556b4b190cc6774b90b4ab5d71370",
+      "originalSize": 6715,
+      "preservedPath": "codex-rs/core/gpt_5_codex_prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/src/session/mod.rs": {
+      "adaptedPath": "codex-rs/core/src/session/mod.rs",
+      "adaptedSha256": "2541ee587b7eee367b34b668bc66169abb8d8145b500d2bc8425e02616bf1d5d",
+      "adaptedSize": 216286,
+      "originalPath": "codex-rs/core/src/session/mod.rs",
+      "originalSha256": "7d8fd98f61160e6f35c2843a19a64c6bf12a18a0ca5400bc8dc3c50e2f861c33",
+      "originalSize": 216189,
+      "preservedPath": "codex-rs/core/src/session/mod.rs.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/models-manager/models.json": {
+      "adaptedPath": "codex-rs/models-manager/models.json",
+      "adaptedSha256": "cf61261c21499d7597b70239325ddfd7ca735ce215ad9ecd146780df3f04be52",
+      "adaptedSize": 472963,
+      "originalPath": "codex-rs/models-manager/models.json",
+      "originalSha256": "f50ec774afd97457f810c22821b1beb36f09c986d83b3fbd2d1c1ea9d1f8562c",
+      "originalSize": 472518,
+      "preservedPath": "codex-rs/models-manager/models.json.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/models-manager/prompt.md": {
+      "adaptedPath": "codex-rs/models-manager/prompt.md",
+      "adaptedSha256": "bd477802d8f5f348c08b5a4bc8be7911b54819544e74158a291a2a7e602799b5",
+      "adaptedSize": 21124,
+      "originalPath": "codex-rs/models-manager/prompt.md",
+      "originalSha256": "2ed1c769d32e1edd63a3b8262e28fe2e4778d5854014ec24b6780a36eaadc797",
+      "originalSize": 21178,
+      "preservedPath": "codex-rs/models-manager/prompt.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/prompts/src/lib.rs": {
+      "adaptedPath": "codex-rs/prompts/src/lib.rs",
+      "adaptedSha256": "6a639cd04206b374de06bb6fb8cbf559459906e067a36fcff36c86bcf2c6c856",
+      "adaptedSize": 3897,
+      "originalPath": "codex-rs/prompts/src/lib.rs",
+      "originalSha256": "3904095a6f15424819ef8870048076ddcc1bdd1b1cd408f0f0ee47d5953dc890",
+      "originalSize": 1491,
+      "preservedPath": "codex-rs/prompts/src/lib.rs.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/protocol/src/prompts/base_instructions/default.md": {
+      "adaptedPath": "codex-rs/protocol/src/prompts/base_instructions/default.md",
+      "adaptedSha256": "bd477802d8f5f348c08b5a4bc8be7911b54819544e74158a291a2a7e602799b5",
+      "adaptedSize": 21124,
+      "originalPath": "codex-rs/protocol/src/prompts/base_instructions/default.md",
+      "originalSha256": "2ed1c769d32e1edd63a3b8262e28fe2e4778d5854014ec24b6780a36eaadc797",
+      "originalSize": 21178,
+      "preservedPath": "codex-rs/protocol/src/prompts/base_instructions/default.md.upstream",
+      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
     "codex-rs/state/migrations/0056_root_resume_wait_timestamps.sql": {
       "adaptedPath": "codex-rs/state/migrations/0060_root_resume_wait_timestamps.sql",
       "adaptedSha256": "5ceacef0b3e939fcda7cd4955a98052e6388c1c796034e09c131d0f97eb17b60",

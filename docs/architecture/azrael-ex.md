@@ -71,6 +71,18 @@ Generated packages, releases, logs and fixtures live under the Git-ignored proje
 
 ## Storage and host runtime
 
+### Local session links
+
+Status: `partial` — source transforms, migration ownership and external URL translation are verified without a build; installed UI and OS click dispatch require a matching package and user protocol registration.
+
+Azrael generates local session links as `azrael://threads/<UUID>`. Link generation, parsing and click handling use the same protocol. The UUID identifies an existing Azrael session; the URL conveys no authority to import ordinary Codex state. A Windows user protocol handler validates the local URL and forwards it to the existing VS Code extension URI handler as `vscode://azrael-ex-local.azrael/local/<UUID>`. The route translation is necessary because the host navigates the supplied path directly. Supported review parameters retain their route meaning; extra path segments and URL fragments are rejected because that handler does not navigate to their targets. Original Codex protocol ownership, non-thread review/plugin URLs, specialized artifact links, remote-host links and internal storage identifiers retain their respective contracts.
+
+Legacy `codex://threads/<UUID>` conversion is an explicit Azrael command. It validates the URL and checks that the session exists in Azrael before copying a canonical link. Unknown sessions fail without importing or opening ordinary Codex data. Existing conversation JSONL is preserved. Normal Azrael routing uses the canonical protocol; legacy handling is limited to this conversion boundary.
+
+Protocol installation records its owner and launch configuration under the current user, refuses another owner's registration, and preserves a recovery receipt. Isolated/custom profile installations do not replace the ordinary profile's handler. No global `codex` registration is claimed.
+
+### Native state
+
 The engine uses an absolute `CODEX_HOME`, defaulting to `~/.azrael-ex`. Native session paths, JSONL, SQLite schemas and migrations are unchanged, and the root stays fixed across account switches. Config, logs, caches and user skills resolve there; project config and managed policy retain native precedence. No ordinary Codex authentication, account, session, history, rollout, database, log, lock, socket or pipe state is imported.
 
 The host wraps the pinned native implementation with a private process-environment overlay and overrides the native engine resolver; it passes the same runtime to the account module. It never changes user/system environment variables or editor settings. The host runtime registry keys the physical runtime file with case-insensitive normalization on Windows, so loads of the same path with different drive-letter casing receive the identical runtime and process proxy within one extension host; separate extension hosts remain isolated. The private environment canonicalizes Windows `Path`/`PATH` to one `PATH` key before the pinned bundle appends its tool directory.

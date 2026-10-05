@@ -341,6 +341,7 @@ $receipt = [ordered]@{
     hostVersion = $null; hostVsix = $null; companionVsix = $null; companionVsixRole = 'integrated-account-ui-provenance-input'
     accountPayloadVersion = $null; hostInstalled = $false; legacyCompanionPresent = [bool](@($beforeInventory | Where-Object { $_ -like "$companionId@*" }).Count); legacyCompanionUninstalled = $false
     shortcutUpdated = $false; reloadRequired = $false; error = $null
+    sessionProtocol = [ordered]@{ status = 'not-applied'; receiptPath = $null }
 }
 Write-Receipt -Receipt $receipt -Path $receiptPath
 
@@ -489,6 +490,16 @@ try {
     $receipt.originalExtension = [ordered]@{ before = $originalBefore; after = $originalAfter; unchanged = $true }
     $receipt.settings.after = $settingsAfter; $receipt.settings.unchanged = $true
     $receipt.inventory.after = $afterInventory; $receipt.inventory.unrelatedUnchanged = $true
+    if (-not $UserDataDir -and $extensions -ieq $defaultExtensions) {
+        . (Join-Path $PSScriptRoot 'session-protocol.ps1')
+        $protocol = Install-AzraelSessionProtocol -CodePath $resolvedCodePath `
+            -ParserPath (Join-Path $receipt.hostExtension 'out/session-links.cjs') `
+            -ReceiptDirectory $deploymentDirectory
+        $receipt.sessionProtocol.status = 'registered'
+        $receipt.sessionProtocol.receiptPath = $protocol.ReceiptPath
+    } else {
+        $receipt.sessionProtocol.status = 'isolated-profile-skipped'
+    }
     $receipt.status = 'installed-reload-required'; $receipt.reloadRequired = $true
     Write-Receipt -Receipt $receipt -Path $receiptPath
 
@@ -500,6 +511,15 @@ try {
     $global:LASTEXITCODE = 0
 } catch {
     $failure = $_
+    if ($receipt.sessionProtocol.status -eq 'registered') {
+        try {
+            Restore-AzraelSessionProtocol -ReceiptPath $receipt.sessionProtocol.receiptPath
+            $receipt.sessionProtocol.status = 'restored-after-failure'
+        } catch {
+            $receipt.sessionProtocol.status = 'restore-failed'
+            $receipt.validationError = $_.Exception.Message
+        }
+    }
     $receipt.status = 'failed'; $receipt.error = $failure.Exception.Message
     if ($suppliedPackage -and $receipt.preparedPackageVerification.status -ne 'verified') { $receipt.preparedPackageVerification.status = 'failed' }
     try {
