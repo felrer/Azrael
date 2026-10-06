@@ -60,7 +60,9 @@ async function main() {
   const hiddenUi = listed.find(t => t.name === 'ui_operation');
   assert.deepEqual(hiddenUi._meta, { ui: { visibility: ['app'] } });
   assert.deepEqual(hiddenUi.inputSchema.required, ['requestToken']); assert.equal(hiddenUi.inputSchema.additionalProperties, false);
-  assert.equal(listed.length, 12);
+  assert.equal(listed.length, 19);
+  for (const name of ['list_windows','select_window','list_task_macros','save_task_macro']) assert.ok(!listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
+  for (const name of ['inspect','press_key','run_task_macro']) assert.ok(listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
   const uiCall = (args, meta) => protocol({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'ui_operation', arguments: args, _meta: meta } });
   const requestToken = 'a1'.repeat(32);
   const acceptedUi = await uiCall({ requestToken }, { ...proof, threadId, sessionId: threadId });
@@ -84,7 +86,7 @@ async function main() {
   const missing = createRelay({ readFile: async () => { throw new Error('ENOENT'); } }); await assert.rejects(missing(threadId, 'capture', {}, { ...proof, threadId }), /No selected/);
   let output = ''; await runProtocol({ input: Readable.from(['{bad\n', JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'ping' }) + '\n']), output: new Writable({ write(chunk, encoding, done) { output += chunk; done(); } }), protocol });
   const lines = output.trim().split('\n').map(JSON.parse); assert.equal(lines[0].error.code, -32700); assert.deepEqual(lines[1].result, {});
-  const koreanResult = { window: { title: '한국어 창 제목' }, elements: [{ id: 'e', name: '저장 버튼' }], _meta: relayMetadata(nativeMeta) };
+  const koreanResult = { window: { title: '한국어 창 제목' }, elementsTruncated: false, elements: [{ id: 'e', name: '저장 버튼' }], _meta: relayMetadata(nativeMeta) };
   const encoded = Buffer.from(JSON.stringify({ result: koreanResult }) + '\n', 'utf8');
   const byteChunks = Array.from(encoded, byte => Buffer.from([byte]));
   assert.deepEqual(await pipeRequest('mock', {}, { connect: fragmentedConnection(byteChunks) }), koreanResult);
@@ -99,3 +101,9 @@ async function main() {
   console.log('PASS MCP: metadata isolation, session relay, tool boundary, sanitized result, newline JSON-RPC');
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });
+
+const publicOccupancy = {status:'occupied',sessions:[{sessionId:'other',workspaceName:'Workspace',state:'paused',isCurrentSession:false,updatedAt:123,nonce:'private',pipe:'private'}]};
+const projectedOccupancy = JSON.parse(callResult({occupancy:publicOccupancy,candidates:[{candidateId:'opaque',appName:'app',title:'title',minimized:false,hwnd:'private',occupancy:publicOccupancy}]}).content[0].text);
+assert.deepEqual(Object.keys(projectedOccupancy.occupancy.sessions[0]).sort(),['isCurrentSession','sessionId','state','updatedAt','workspaceName']);
+assert.equal(projectedOccupancy.candidates[0].occupancy.status,'occupied'); assert.equal(projectedOccupancy.candidates[0].hwnd,undefined);
+assert.throws(()=>callResult({occupancy:{status:'available',sessions:publicOccupancy.sessions}}),/Invalid occupancy/);

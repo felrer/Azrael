@@ -3742,21 +3742,22 @@ impl ThreadRequestProcessor {
                     .read_thread(StoreReadThreadParams {
                         thread_id: source_id,
                         include_archived: true,
-                        include_history: true,
+                        include_history: false,
                     })
                     .await
                 {
                     Ok(stored) => {
-                        let meta = stored
-                            .history
-                            .as_ref()
-                            .and_then(|history| {
-                                history.items.iter().find_map(|item| match item {
-                                    RolloutItem::SessionMeta(meta) if meta.meta.id == source_id => {
-                                        Some(meta)
-                                    }
-                                    _ => None,
-                                })
+                        let (recorded_history, _) = self
+                            .load_resume_initial_history_from_stored_thread(stored)
+                            .await?;
+                        let meta = recorded_history
+                            .get_rollout_items()
+                            .iter()
+                            .find_map(|item| match item {
+                                RolloutItem::SessionMeta(meta) if meta.meta.id == source_id => {
+                                    Some(meta.clone())
+                                }
+                                _ => None,
                             })
                             .ok_or_else(|| {
                                 invalid_request("cannot verify recorded thread tool mode")
@@ -3764,7 +3765,7 @@ impl ThreadRequestProcessor {
                         if meta.meta.computer_use_mode.is_some()
                             && let InitialHistory::Forked(items) = &mut supplied_history
                         {
-                            items.insert(0, RolloutItem::SessionMeta(meta.clone()));
+                            items.insert(0, RolloutItem::SessionMeta(meta));
                         }
                     }
                     Err(ThreadStoreError::ThreadNotFound { .. }) => {}

@@ -243,6 +243,24 @@ impl AmazonBedrockModelProvider {
         .await
     }
 
+    fn models_manager_catalog(
+        &self,
+        config_model_catalog: Option<ModelsResponse>,
+    ) -> ModelsResponse {
+        let mut catalog = config_model_catalog
+            .map_or_else(|| self.default_model_catalog(), normalize_bedrock_catalog);
+        let provider_id = match self.endpoint {
+            BedrockEndpoint::Mantle => codex_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID,
+            BedrockEndpoint::Runtime => {
+                codex_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID
+            }
+        };
+        for model in &mut catalog.models {
+            model.model_provider = provider_id.to_string();
+        }
+        catalog
+    }
+
     fn default_model_catalog(&self) -> ModelsResponse {
         match self.endpoint {
             BedrockEndpoint::Mantle => {
@@ -429,8 +447,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
     ) -> SharedModelsManager {
         Arc::new(StaticModelsManager::new(
             /*auth_manager*/ None,
-            config_model_catalog
-                .map_or_else(|| self.default_model_catalog(), normalize_bedrock_catalog),
+            self.models_manager_catalog(config_model_catalog),
         ))
     }
 
@@ -440,8 +457,7 @@ impl ModelProvider for AmazonBedrockModelProvider {
     ) -> SharedModelsManager {
         Arc::new(StaticModelsManager::new(
             /*auth_manager*/ None,
-            config_model_catalog
-                .map_or_else(|| self.default_model_catalog(), normalize_bedrock_catalog),
+            self.models_manager_catalog(config_model_catalog),
         ))
     }
 }

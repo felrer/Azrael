@@ -1,6 +1,8 @@
 "use strict";
 const { ACCOUNT_SETTINGS_ASSET, injectAccountSettings } = require("./inject-account-settings.cjs");
 const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings } = require("./inject-instruction-settings.cjs");
+const { DESIGN_ASSETS, injectStudentDesign } = require("./inject-student-design.cjs");
+const { copyStudentAvatarAssets } = require("./student-avatar-assets.cjs");
 const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-links.cjs");
 const fs = require("node:fs");
 const path = require("node:path");
@@ -16,6 +18,7 @@ const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { injectUiInputDiagnostics } = require("./inject-ui-input-diagnostics.cjs");
 const { UI_CLEANUP_ASSETS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
 const { PETS_CLEANUP_ASSETS, injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
 const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET, injectContentFonts } = require("./inject-content-fonts.cjs");
@@ -26,9 +29,11 @@ const { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDE
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification } = require("./inject-deferred-turn.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
-const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
+const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
+const { MAX_REASONING_ASSETS, injectMaxReasoning } = require("./inject-max-reasoning.cjs");
+const { loadManifest, validateManifest, validateTransformReport } = require("./feature-preservation.cjs");
 const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
 const { ASSET: RECENT_CHAT_FILTER_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
@@ -50,12 +55,14 @@ const ACCOUNT_UI_COMMANDS = [
   "azrael.fetchSharedPlaybook",
   "azrael.instructions",
 ];
-const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-9f7d97690e9b.js";
+const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-efe028fd535e.js";
 const RECENT_THREAD_LIST_SCOPE_MARKER = "__azraelWorkspaceThreadList";
 const WORKSPACE_CWD_EXPRESSION = '(require("vscode").workspace.workspaceFolders??[])' +
   '.filter(({uri})=>uri.scheme==="file").map(({uri})=>uri.fsPath)';
 function rewriteValue(value) {
   if (/^(?:https?|wss?):\/\//i.test(value)) return value;
+  // Backend header names are protocol identifiers, independent of UI branding.
+  if (/^(?:OAI-|x-openai-)/i.test(value)) return value;
   return value
     .replaceAll("azrael-ex.manageAccounts", "azrael.manageAccounts")
     .replaceAll("azrael-ex.usage", "azrael.usage")
@@ -100,6 +107,11 @@ function rewriteJavaScript(text, filename, ts) {
   if (file.parseDiagnostics.length) throw new Error(`Cannot parse pinned asset: ${filename}`);
   const edits = [];
   const visit = (node) => {
+    if (ts.isPropertyAssignment(node) && ts.isStringLiteral(node.name) &&
+        node.name.text === "OAI-App-Brand" && ["Nl.toLowerCase()", "tu.toLowerCase()"].includes(node.initializer.getText(file))) {
+      edits.push({ start: node.initializer.getStart(file), end: node.initializer.end, replacement: '"codex"' });
+      return;
+    }
     if (ts.isStringLiteral(node) || ts.isNoSubstitutionTemplateLiteral(node)) {
       let next = rewriteValue(node.text);
       // "chatgpt" also denotes the native authentication type. Only change the
@@ -109,6 +121,7 @@ function rewriteJavaScript(text, filename, ts) {
           node.parent.expression.name.text === "getConfiguration") next = "azrael";
       if (node.text === "Codex" || node.text === "Codex Chat" || node.text === "Codex Agent") next = node.text.replace("Codex", "Azrael");
       if (node.text === "Codex Settings") next = "Azrael Settings";
+      if (["Codex Dark", "Codex Light", "Implement with Codex", "Open Codex Sidebar", "New Codex Agent", "Add to Codex Thread", "Add File to Codex Thread"].includes(node.text)) next = node.text.replace("Codex", "Azrael");
       if (node.text === "azrael" && ts.isVariableDeclaration(node.parent) && node.parent.name.getText(file) === "qOt") next = "Azrael";
       if (ts.isPropertyAssignment(node.parent) && node.parent.initializer === node &&
           (isLocaleAsset || node.parent.name.getText(file) === "defaultMessage")) {
@@ -315,13 +328,14 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET].includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET].includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
-  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(instructionSettings.text, filename, ts) :
-    isRecentThreadListAsset ? markRecentThreadListRequest(instructionSettings.text, filename, ts) :
-      { text: instructionSettings.text, count: 0 };
+  const studentDesign = injectStudentDesign(instructionSettings.text, relativePath, ts);
+  const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(studentDesign.text, filename, ts) :
+    isRecentThreadListAsset ? markRecentThreadListRequest(studentDesign.text, filename, ts) :
+      { text: studentDesign.text, count: 0 };
   const fetchResponse = isHostBundle ? injectFetchResponse(filtered.text) : { text: filtered.text, count: 0 };
   const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
@@ -340,7 +354,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
   const accountQueue = injectAccountSwitchQueue(queueConsumption.text, relativePath);
   const providerPicker = injectProviderModelPicker(accountQueue.text, relativePath);
-  const threadBranch = injectThreadBranch(providerPicker.text, relativePath);
+  const maxReasoning = injectMaxReasoning(providerPicker.text, relativePath);
+  const threadBranch = injectThreadBranch(maxReasoning.text, relativePath);
   const paginatedHistory = injectPaginatedHistory(threadBranch.text, relativePath);
   const recentChatFilter = injectRecentChatFilter(paginatedHistory.text, relativePath);
   const immediateStop = injectImmediateStop(recentChatFilter.text, relativePath);
@@ -359,13 +374,15 @@ function transformAsset(source, relativePath, filename, ts) {
   const uiCleanup = injectUiCleanup(providerContext.text, relativePath, ts);
   const petsCleanup = injectPetsCleanup(uiCleanup.text, relativePath, ts);
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
-  const sessionLinks = injectSessionLinks(contentFonts.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || computerUseManagement.count || windowControl.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || petsCleanup.count || contentFonts.count || sessionLinks.count) {
+  const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
+  const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || computerUseManagement.count || windowControl.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: sessionLinks.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + computerUseManagement.count + windowControl.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + petsCleanup.count + contentFonts.count + sessionLinks.count,
+      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + computerUseManagement.count + windowControl.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
+      studentDesignEdits: studentDesign.count,
       namespaceEdits: namespaced.count,
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
@@ -376,8 +393,10 @@ function transformAsset(source, relativePath, filename, ts) {
       queueRefreshEdits: queueRefresh.count,
       queueRefreshNativeChecks: queueRefresh.nativeChecks ?? 0,
       providerPickerEdits: providerPicker.count,
+      maxReasoningEdits: maxReasoning.count,
       threadBranchEdits: threadBranch.count,
       paginatedHistoryEdits: paginatedHistory.count,
+      recentChatFilterEdits: recentChatFilter.count,
       immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
       queueConsumptionEdits: queueConsumption.count,
@@ -396,6 +415,7 @@ function transformAsset(source, relativePath, filename, ts) {
       uiCleanupEdits: uiCleanup.count,
       petsCleanupEdits: petsCleanup.count,
       contentFontEdits: contentFonts.count,
+      uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
       sha256: sha(sessionLinks.text),
@@ -406,11 +426,14 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
-    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs",
+    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
+    "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
+    "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
+    "inject-student-design.cjs", "student-avatar-assets.cjs",
     "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-pets-cleanup.cjs",
     "inject-content-fonts.cjs", "content-fonts.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
@@ -425,12 +448,15 @@ function getTransformRules() {
 // Unlisted rules (including generic label transforms and helper dependencies)
 // remain shared. The namespace/cache implementations also invalidate every asset.
 const ASSET_RULE_PATHS = {
+  "inject-student-design.cjs": DESIGN_ASSETS,
   "inject-session-links.cjs": SESSION_LINK_ASSETS,
   "session-links.cjs": ["out/extension.js"],
   "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET],
   "window-control-host.cjs": ["out/extension.js"],
   "window-control-backend.cjs": ["out/extension.js"],
   "window-control-policy.cjs": ["out/extension.js"],
+  "window-control-occupancy.cjs": ["out/extension.js"],
+  "window-task-macros.cjs": ["out/extension.js"],
   "inject-recovery.cjs": ["out/extension.js"],
   "inject-fetch-response.cjs": ["out/extension.js"],
   "inject-url-safety-transport.cjs": ["out/extension.js"],
@@ -448,9 +474,12 @@ const ASSET_RULE_PATHS = {
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
   "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
   "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
+  "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"],
+  "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"],
   "inject-queued-compaction.cjs": [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
-  "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET],
+  "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET],
   "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
+  "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,
   "inject-account-settings.cjs": ["out/extension.js", ACCOUNT_SETTINGS_ASSET],
   "inject-instruction-settings.cjs": ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS],
   "inject-provider-context.cjs": [CONTEXT_ASSET, SETTINGS_ASSET],
@@ -491,7 +520,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   const root = fs.realpathSync(directory);
   const manifestPath = path.join(root, "package.json");
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-  if (manifest.publisher !== "openai" || manifest.name !== "chatgpt" || manifest.version !== "26.928.31416") {
+  if (manifest.publisher !== "openai" || manifest.name !== "chatgpt" || manifest.version !== "26.930.61225") {
     throw new Error("Independent transformation requires the prepared pinned original identity.");
   }
   if (!fs.existsSync(path.join(root, "out", "azrael-runtime.cjs")) || !fs.existsSync(path.join(root, ".azrael-official-ui.json"))) {
@@ -514,12 +543,14 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     schema: 1, hostId: HOST_ID, hostVersion, sourceVersion: manifest.version,
     sourceUi: {
       version: sourceUi.sourceVersion,
-      packageSha256: sourceUi.sourcePackageSha256,
-      webviewSha256: sourceUi.sourceWebviewSha256,
+      packageSha256: sourceUi.sourcePackageSha256.toLowerCase(),
+      webviewSha256: sourceUi.sourceWebviewSha256.toLowerCase(),
     },
     transformRules: getTransformRules(),
     assets: [],
   };
+  const featureManifest = loadManifest(path.resolve(__dirname, ".."));
+  validateManifest(featureManifest, path.resolve(__dirname, ".."), report.transformRules);
   const cache = createAssetTransformCache({
     cacheDirectory: options.cacheDirectory,
     typescriptSha256: options.typescriptSha256,
@@ -528,6 +559,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     getAssetTransformRules,
     statistics: performanceReport.cache,
     metrics: stages,
+    pruneUnused: true,
   });
   function* enumerate(folder) {
     for (const entry of measure("enumeration", () => fs.readdirSync(folder, { withFileTypes: true }))) {
@@ -581,6 +613,11 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.providerPickerEdits, 0) !== PROVIDER_PICKER_ASSETS.length) {
     throw new Error("Provider model-picker transformation was incomplete.");
   }
+  for (const assetPath of MAX_REASONING_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.maxReasoningEdits === 1)) {
+      throw new Error(`Max availability transformation was incomplete: ${assetPath}`);
+    }
+  }
   if (report.assets.reduce((total, asset) => total + (asset.threadBranchEdits ?? 0), 0) !== 1) {
     throw new Error("Thread branch transformation was incomplete.");
   }
@@ -612,11 +649,16 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   for (const contextAsset of [CONTEXT_ASSET, SETTINGS_ASSET]) {
     if (!report.assets.some(asset => asset.path === contextAsset && asset.providerContextEdits > 0)) throw new Error("Provider context transformation was incomplete: " + contextAsset);
   }
-  if (report.assets.reduce((total, asset) => total + (asset.accountSwitchQueueEdits ?? 0), 0) !== 2) {
+  if (report.assets.reduce((total, asset) => total + (asset.accountSwitchQueueEdits ?? 0), 0) !== 3) {
     throw new Error("Account-switch queue transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.queueConsumptionEdits, 0) !== 1) {
     throw new Error("Queue-consumption transformation was incomplete.");
+  }
+  for (const assetPath of [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"]) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.uiInputDiagnosticsEdits === 1)) {
+      throw new Error("UI input diagnostics transformation was incomplete: " + assetPath);
+    }
   }
   if (report.assets.reduce((total, asset) => total + (asset.fetchResponseEdits ?? 0), 0) !== 1) {
     throw new Error("Fetch-response transformation was incomplete.");
@@ -642,6 +684,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     throw new Error(`Workspace thread-list transformation was incomplete: expected 2 edits, found ${workspaceThreadListEdits}.`);
   }
   cache.flush();
+  report.studentAvatars = copyStudentAvatarAssets(path.join(root, "webview"));
   report.contentFonts = copyContentFontAssets(root);
   const grammarPath = path.join(root, "syntaxes", "starlark.tmLanguage.json");
   fs.writeFileSync(grammarPath, rewriteValue(fs.readFileSync(grammarPath, "utf8")));
@@ -655,6 +698,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   // package an unused second engine or unsupported Linux executables.
   fs.writeFileSync(path.join(root, ".vscodeignore"), "bin/linux-x86_64/**\nbin/windows-x86_64/codex.exe\n");
   report.manifestSha256 = sha(fs.readFileSync(manifestPath));
+  validateTransformReport(featureManifest, report);
   stages.finalize.elapsedMs = performance.now() - finalizeStarted;
   stages.finalize.count = 1;
   performanceReport.elapsedMs = performance.now() - started;

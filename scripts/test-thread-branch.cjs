@@ -9,7 +9,7 @@ const {inheritThreadBranchSelection} = require("./thread-branch.cjs");
 const {createProviderModelCatalog} = require("./provider-model-picker.cjs");
 const {THREAD_BRANCH_ASSET:asset, THREAD_BRANCH_MARKER:marker, injectThreadBranch} = require("./inject-thread-branch.cjs");
 const {transformAsset} = require("./namespace-azrael-host.cjs");
-const pristine = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.928.31416",asset),"utf8");
+const pristine = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.930.61225",asset),"utf8");
 const transformed = transformAsset(pristine,asset,asset,ts);
 function declarations(source,names) {
   const ast=ts.createSourceFile(asset,source,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),found={};
@@ -17,7 +17,7 @@ function declarations(source,names) {
   for(const name of names)assert.ok(found[name],`pinned declaration ${name}`);
   return found;
 }
-const names=["dEn","mTn","hSn","mEn","fEn","JZ","lxn","uxn","cxn","dxn","iEn"];
+const names=["QTn","tTn","nSn","tEn","$Tn","FQ","Xbn","Zbn","Ybn","Qbn","GTn"];
 const originals=declarations(pristine,names),injected=declarations(transformed.text,names);
 const row=(model,stages=["low","high"],defaultReasoningEffort="high")=>({model,supportedReasoningEfforts:stages.map(reasoningEffort=>({reasoningEffort})),defaultReasoningEffort});
 const source=(model="managed/openrouter/next",provider="azrael-managed",effort="high")=>({conversationId:"source",modelProvider:provider,title:"Source",cwd:"/workspace",historyMode:"paginated",threadRuntimeStatus:{type:"running"},turns:[{turnId:"retained",model:"gpt-old",status:"completed"},{turnId:"later",status:"inProgress"}],latestModel:model,latestReasoningEffort:effort,latestThreadSettings:{model,effort},latestCollaborationMode:{mode:"default",settings:{model,reasoning_effort:effort}}});
@@ -29,12 +29,12 @@ function harness({original=false,src=source(),rows=[row(src.latestModel)],failRe
     async resumeConversationForUnavailableOwner(params){resumes.push(params);if(failResume)throw Error("resume fixture failed");return{status:"ready"};}};
   const capabilities={readTokenBudgetThread:()=>null,readConfig:async()=>({model:"global-default",model_reasoning_effort:"low"}),readPlacement:()=>({status:"ready",placement:null}),readThreadReferences:()=>undefined};
   const sharedCatalog=createProviderModelCatalog();
-  const context={__azraelProviderCatalogV1:sharedCatalog,gEn:"0",hEn:"0",gSn:"0",H:x=>x,$e:e=>e.message,
-    IQ:()=>null,FQ:({responseCwd})=>responseCwd,UZ:t=>t,Obn:o=>({...o,latestModel:o.thread.model??"global-default",latestReasoningEffort:"low"}),xr:x=>x,oxn:(n,model,effort,cwd,collaborationMode)=>({model,effort,cwd,collaborationMode}),Ih:()=>null,Wyn:response=>response.thread.turns??[]};
+  const context={__azraelProviderCatalogV1:sharedCatalog,nEn:"0",rEn:"0",rSn:"0",B:x=>x,c:e=>e.message,
+    C$:()=>null,S$:({responseCwd})=>responseCwd,AQ:t=>t,hbn:o=>({...o,latestModel:o.thread.model??"global-default",latestReasoningEffort:"low"}),Sr:x=>x,qbn:(n,model,effort,cwd,collaborationMode)=>({model,effort,cwd,collaborationMode}),Nh:()=>null,jyn:response=>response.thread.turns??[]};
   vm.createContext(context);
   if(!original){vm.runInContext(transformed.text.slice(transformed.text.indexOf(marker)),context);assert.equal(context.__azraelBranchCatalog,sharedCatalog,"bootstrap reuses the picker global catalog");}
   vm.runInContext(Object.values(original?originals:injected).join("\n"),context);
-  return{context,manager,requests,resumes,states,events,async run(overrides={}){return context.dEn({capabilities,history:{mapThreadTurns:x=>x},hostMode:"default",compareSemanticVersions:()=>1,threadRecognition:{},manager,notificationDeferral:{run:async(_,fn)=>fn(()=>{})},params:{sourceConversationId:"source",lastTurnId:"retained",...overrides},beforeConversationAdded:failBefore?()=>{throw Error("identity fixture failed");}:undefined,workspaceStorage:{}});}};
+  return{context,manager,requests,resumes,states,events,async run(overrides={}){return context.QTn({capabilities,history:{mapThreadTurns:x=>x},hostMode:"default",compareSemanticVersions:()=>1,threadRecognition:{},manager,notificationDeferral:{run:async(_,fn)=>fn(()=>{})},params:{sourceConversationId:"source",lastTurnId:"retained",...overrides},beforeConversationAdded:failBefore?()=>{throw Error("identity fixture failed");}:undefined,workspaceStorage:{}});}};
 }
 test("pinned integrated transform parses; anchors, asset version, marker and idempotence are guarded",()=>{
   assert.equal(transformed.asset.threadBranchEdits,1);
@@ -90,12 +90,12 @@ test("missing helper model, catalog entry and discovery failures abort before na
   }
   await assert.rejects(inheritThreadBranchSelection({},source(),"default",async()=>{throw Error("catalog unavailable");}),/catalog unavailable/);
   assert.equal(await inheritThreadBranchSelection({},null,"default",()=>{throw Error("must not discover");}) instanceof Object,true);
-  const native=harness({original:true});native.manager.getConversation=()=>undefined;await assert.rejects(native.context.hSn(native.manager,{sourceConversationId:"missing"},()=>1),/Source conversation not found/);
+  const native=harness({original:true});native.manager.getConversation=()=>undefined;await assert.rejects(native.context.nSn(native.manager,{sourceConversationId:"missing"},()=>1),/Source conversation not found/);
 });
 test("native modern target-turn path retains lastTurnId without introducing client rollback",async()=>{
   let params;const h=harness();h.manager.forkConversationFromLatest=async p=>(params=p,{status:"created",conversationId:"created"});
-  await h.context.hSn(h.manager,{sourceConversationId:"source",targetTurnId:"retained"},()=>1);assert.equal(params.lastTurnId,"retained");assert.equal(h.requests.length,0);
-  assert.equal(injected.hSn,originals.hSn,"native cutoff routing remains unchanged; engine cutoff is outside this fixture");
+  await h.context.nSn(h.manager,{sourceConversationId:"source",targetTurnId:"retained"},()=>1);assert.equal(params.lastTurnId,"retained");assert.equal(h.requests.length,0);
+  assert.equal(injected.nSn,originals.nSn,"native cutoff routing remains unchanged; engine cutoff is outside this fixture");
 });
 test("native created ID survives identity and post-create resume setup failures",async()=>{
   for(const opts of [{failResume:true},{failBefore:true}]){const h=harness(opts),result=await h.run();assert.equal(result.status,"created");assert.equal(result.conversationId,"created");assert.equal(result.synchronization.status,"failed");assert.match(result.synchronization.message,/fixture failed/);}
@@ -112,11 +112,11 @@ test("absent collaboration mode produces a complete default selection and null e
 
 test("native branch UI gates preserve ordinary turns and release deferred turns",()=>{
  function expressions(relative){
-  const text=fs.readFileSync(path.resolve("artifacts/upstream-ui/26.928.31416",relative),"utf8"),changed=transformAsset(text,relative,relative,ts).text;
+  const text=fs.readFileSync(path.resolve("artifacts/upstream-ui/26.930.61225",relative),"utf8"),changed=transformAsset(text,relative,relative,ts).text;
   function extract(value){const ast=ts.createSourceFile(relative,value,99,true,ts.ScriptKind.JS),out={};function visit(n){
-   if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==="onForkTurnMessage"&&n.initializer.getText(ast).startsWith("!o&&"))out.readOnly=n.initializer.getText(ast);
-   if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==="onFork"&&n.initializer.getText(ast)==="K?void 0:L")out.turn=n.initializer.getText(ast);
-   if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==="K"&&n.initializer?.getText(ast).includes("Ue===`inProgress`"))out.progress=n.initializer.getText(ast);
+   if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==="onForkTurnMessage"&&n.initializer.getText(ast).startsWith("!a&&"))out.readOnly=n.initializer.getText(ast);
+   if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==="onFork"&&n.initializer.getText(ast)==="G?void 0:de")out.turn=n.initializer.getText(ast);
+   if(ts.isVariableDeclaration(n)&&n.name.getText(ast)==="G"&&n.initializer?.getText(ast).includes("qe===`inProgress`"))out.progress=n.initializer.getText(ast);
    ts.forEachChild(n,visit);
   }visit(ast);return out;}
   const original=extract(text),transformed=extract(changed);
@@ -124,10 +124,10 @@ test("native branch UI gates preserve ordinary turns and release deferred turns"
   if(normalized.progress)normalized.progress=normalized.progress.replace(/^y\.status===`deferred`\?false:/,"");
   assert.deepEqual(normalized,original);return transformed;
  }
- const gate=expressions("webview/assets/local-conversation-thread-c46820dac8eb.js").readOnly;assert.ok(gate);
- const callback=()=>{};for(const readOnly of [false,true])assert.equal(vm.runInNewContext(gate,{o:readOnly,H:true,U:true,tt:true,dn:callback}),readOnly?undefined:callback);
- const turn=expressions("webview/assets/local-conversation-turn-cdb7926f70d6.js");assert.ok(turn.progress);assert.ok(turn.turn);
+ const gate=expressions("webview/assets/local-conversation-thread-8f3221bfc636.js").readOnly;assert.ok(gate);
+ const callback=()=>{};for(const readOnly of [false,true])assert.equal(vm.runInNewContext(gate,{a:readOnly,H:true,W:true,it:true,gn:callback}),readOnly?undefined:callback);
+ const turn=expressions("webview/assets/local-conversation-turn-4aa6f571456a.js");assert.ok(turn.progress);assert.ok(turn.turn);
  for(const [status,nativeStatus,blocked] of [["inProgress","completed",true],["completed","in_progress",false],[null,"in_progress",true],[null,"completed",false],["inProgress","deferred",false],[null,"deferred",false]]){
-  const K=vm.runInNewContext(turn.progress,{Ue:status,y:{status:nativeStatus}});assert.equal(K,blocked);assert.equal(vm.runInNewContext(turn.turn,{K,L:callback}),blocked?undefined:callback);
+  const K=vm.runInNewContext(turn.progress,{qe:status,y:{status:nativeStatus}});assert.equal(K,blocked);assert.equal(vm.runInNewContext(turn.turn,{G:K,de:callback}),blocked?undefined:callback);
  }
 });

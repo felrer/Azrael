@@ -24,6 +24,7 @@ async function inputs(config) {
     "ordinary-runtime.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
     "azrael-recovery.cjs", "recovery-state.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
+    "feature-preservation.cjs", "azrael-feature-contracts.json",
   ];
   const { getTransformRules } = require("./namespace-azrael-host.cjs");
   const hashes = Object.fromEntries(await Promise.all(scripts.map(async name =>

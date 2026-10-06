@@ -5933,7 +5933,8 @@ mod tests {
             serde_json::to_value(event).expect("serialize deferred event"),
             serde_json::json!({
                 "turn_id": "turn-1",
-                "reservation_id": "reservation-1"
+                "reservation_id": "reservation-1",
+                "wait": null
             })
         );
     }

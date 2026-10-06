@@ -316,6 +316,10 @@ pub struct TurnContext {
     /// Captured once so later steps do not re-read config layers to detect user preferences.
     pub(crate) use_model_token_budget_defaults: bool,
     pub(crate) auth_manager: Option<Arc<AuthManager>>,
+    /// The task owns admission through cleanup; retained contexts do not extend it.
+    pub(crate) account_lease: Arc<std::sync::Mutex<Option<Arc<codex_login::AzraelTaskAuthLease>>>>,
+    /// Exhausted identities remain excluded across every sampling step of this turn.
+    pub(crate) exhausted_accounts: Arc<Mutex<HashSet<String>>>,
     /// Frozen settings used to construct this context. Legacy turn consumers
     /// keep this view even when later steps use different settings.
     pub(crate) initial_settings: Arc<ResolvedStepSettings>,
@@ -714,6 +718,8 @@ impl TurnContext {
             final_output_json_schema: self.final_output_json_schema.clone(),
             dynamic_tools: self.dynamic_tools.clone(),
             turn_metadata_state: self.turn_metadata_state.clone(),
+            account_lease: Arc::clone(&self.account_lease),
+            exhausted_accounts: Arc::clone(&self.exhausted_accounts),
             extension_data: Arc::clone(&self.extension_data),
             turn_timing_state: Arc::clone(&self.turn_timing_state),
             terminal_error: Arc::clone(&self.terminal_error),
@@ -1033,6 +1039,8 @@ impl Session {
             final_output_json_schema: None,
             dynamic_tools: session_configuration.dynamic_tools.clone(),
             turn_metadata_state,
+            account_lease: Arc::default(),
+            exhausted_accounts: Arc::default(),
             extension_data,
             turn_timing_state: Arc::new(TurnTimingState::default()),
             terminal_error: Arc::new(Mutex::new(None)),

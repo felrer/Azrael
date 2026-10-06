@@ -8,6 +8,14 @@ __pycache__/
 # Azrael build and runtime artifacts
 node_modules/
 /artifacts/
+# Build caches are local state, including alternate Cargo target directories.
+target/
+target-*/
+.cache/
+.sccache/
+.turbo/
+.parcel-cache/
+.pnpm-store/
 dist/
 coverage/
 *.log

@@ -15,10 +15,10 @@ const { getContentFontRules } = require("./content-fonts.cjs");
 const { INSTRUCTION_SETTINGS_ASSETS } = require("./inject-instruction-settings.cjs");
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 const tsPath = require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] });
-const ts = require(tsPath);
+const vp = require(tsPath);
 const rules = transformer.getTransformRules();
 const base = { transformRules: rules, getAssetTransformRules: transformer.getAssetTransformRules,
-  typescriptSha256: sha(fs.readFileSync(tsPath)), typescriptVersion: ts.version };
+  typescriptSha256: sha(fs.readFileSync(tsPath)), typescriptVersion: vp.version };
 const artifacts = path.resolve(__dirname, "../artifacts");
 const root = fs.mkdtempSync(path.join(artifacts, "cache-scope-test-"));
 after(() => fs.rmSync(root, { recursive: true, force: true }));
@@ -29,7 +29,7 @@ const changedSource = 'const id="chatgpt.foo";';
 const noopPath = "webview/assets/cache-noop.js";
 const noopSource = "const value=1;";
 const changeRule = name => ({ transformRules: { ...rules, [name]: "1".repeat(64) } });
-const transform = (asset, source) => transformer.transformAsset(source, asset, asset, ts);
+const transform = (asset, source) => transformer.transformAsset(source, asset, asset, vp);
 const miss = () => { throw Error("expected a cache hit"); };
 
 test("closed path dependencies scope controls/instructions/composer; generic and helper rules stay shared", () => {
@@ -38,6 +38,10 @@ test("closed path dependencies scope controls/instructions/composer; generic and
     ["inject-provider-context.cjs", [CONTEXT_ASSET, SETTINGS_ASSET]],
     ["inject-instruction-settings.cjs", ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS]],
     ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],
+    ["inject-ui-input-diagnostics.cjs", [COMPOSER_DRAFT_ASSET,
+      "webview/assets/app-initial-efe028fd535e.js", "webview/assets/app-initial-5120fa5fe295.js"]],
+    ["ui-input-diagnostics-runtime.cjs", [COMPOSER_DRAFT_ASSET,
+      "webview/assets/app-initial-efe028fd535e.js", "webview/assets/app-initial-5120fa5fe295.js"]],
     ["inject-ui-cleanup.cjs", UI_CLEANUP_ASSETS],
     ["inject-pets-cleanup.cjs", PETS_CLEANUP_ASSETS],
     ["inject-content-fonts.cjs", CONTENT_FONT_ASSETS],
@@ -115,7 +119,7 @@ test("related rules, shared dependencies, source/path and exact TypeScript inval
   assert.equal(calls - before, 17);
 });
 
-test("malformed output/key/result hashes and corrupt no-op index recompute safely; writers merge hints", () => {
+test("malformed output/key/result hashes and corrupt to-op index recompute safely; writers merge hints", () => {
   const directory = path.join(root, "corrupt");
   let calls = 0;
   const recompute = () => { calls++; return transform(changedPath, changedSource); };
@@ -145,19 +149,22 @@ test("malformed output/key/result hashes and corrupt no-op index recompute safel
     assert(recomputed); next.flush();
     cache("corrupt").run(noopPath, noopSource, miss);
   }
-  const a = cache("corrupt"), b = cache("corrupt", changeRule("inject-composer-draft.cjs"));
-  for (const [next, suffix] of [[a, "a"], [b, "b"]]) {
+  const o = cache("corrupt"), b = cache("corrupt", changeRule("inject-composer-draft.cjs"));
+  for (const [next, suffix] of [[o, "o"], [b, "b"]]) {
     next.run(noopPath + suffix, noopSource, () => ({ text: noopSource, asset: null })); next.flush();
   }
   const merged = cache("corrupt");
-  for (const suffix of ["a", "b"]) merged.run(noopPath + suffix, noopSource, miss);
+  for (const suffix of ["o", "b"]) merged.run(noopPath + suffix, noopSource, miss);
 });
 
 test("all pinned injector target fixtures: uncached/cold/warm byte and metadata equality; related edits miss", () => {
-  const original = path.join(artifacts, "upstream-ui/26.928.31416");
+  const original = path.join(artifacts, "upstream-ui/26.930.61225");
   const paths = new Set(["out/extension.js", "webview/assets/ko-KR-669e0b3acfd6.js"]);
   for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
-    for (const value of Object.values(require(`./${name}`))) {
+    // Legacy migration targets ire exercised against their own pinned version
+    // by test-session-links; this cache contract covers the active UI only.
+    for (const [exportName, value] of Object.entries(require(`./${name}`))) {
+      if (exportName.startsWith("LEGACY_")) continue;
       for (const asset of Array.isArray(value) ? value : [value]) {
         if (typeof asset === "string" && /^webview\/assets\/[^\n]+\.js$/.test(asset)) paths.add(asset);
       }

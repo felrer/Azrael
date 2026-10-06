@@ -119,19 +119,20 @@ impl AccountRequestProcessor {
             }
             Ok(Err(_)) | Err(_) => Err(io::Error::other("account login did not complete")),
         };
-        let mut state = self.azrael.inner.lock().await;
-        if state
-            .login
-            .as_ref()
-            .is_some_and(|login| login.login_id == login_id)
         {
-            state.login = None;
-            state.last_error = completion
+            let mut state = self.azrael.inner.lock().await;
+            if state
+                .login
                 .as_ref()
-                .err()
-                .map(|_| "Account login failed.".to_string());
+                .is_some_and(|login| login.login_id == login_id)
+            {
+                state.login = None;
+                state.last_error = completion
+                    .as_ref()
+                    .err()
+                    .map(|_| "Account login failed.".to_string());
+            }
         }
-        drop(state);
         if completion.is_err() || replacement_id.is_some() {
             let _ = self.azrael.store.discard_pending(&staged);
         }
@@ -190,17 +191,18 @@ impl AccountRequestProcessor {
             .map(Uuid::parse_str)
             .transpose()
             .map_err(|_| invalid_params("loginId must be a UUID"))?;
-        let mut state = self.azrael.inner.lock().await;
-        let Some(login) = state.login.take() else {
-            return Err(invalid_request("no account login is pending"));
-        };
-        if expected.is_some_and(|id| id != login.login_id) {
-            state.login = Some(login);
-            return Err(invalid_request("account login does not match loginId"));
+        {
+            let mut state = self.azrael.inner.lock().await;
+            let Some(login) = state.login.take() else {
+                return Err(invalid_request("no account login is pending"));
+            };
+            if expected.is_some_and(|id| id != login.login_id) {
+                state.login = Some(login);
+                return Err(invalid_request("account login does not match loginId"));
+            }
+            login.commit_cancel.cancel();
+            login.shutdown_handle.shutdown();
         }
-        login.commit_cancel.cancel();
-        login.shutdown_handle.shutdown();
-        drop(state);
         self.send_azrael_update().await;
         Ok(())
     }

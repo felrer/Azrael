@@ -55,6 +55,13 @@ impl ToolPolicy {
                 "scroll",
                 "resize",
                 "run_size_macro",
+                "list_windows",
+                "select_window",
+                "inspect",
+                "press_key",
+                "list_task_macros",
+                "save_task_macro",
+                "run_task_macro",
             ] {
                 tools.push(ToolName::namespaced(namespace, name));
             }

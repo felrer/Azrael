@@ -34,9 +34,13 @@ Execution leases follow actual core task lifetimes, including completion and chi
 
 ### Input during an OpenAI account change
 
-Status: `partial`; pinned-host source tests verify composer and receipt routing. Native Rust admission and wakeup changes are implemented but uncompiled; installed-host acceptance is pending.
+Status: `partial`; pinned-host source tests cover composer and receipt routing, new-conversation waiting and queue status presentation. Native Rust admission and wakeup changes are implemented but uncompiled; installed-host acceptance is pending.
 
 While a switch is pending, ordinary composer input enters the existing durable thread queue, including input on an idle thread. Automatic dispatch waits until the switch finishes or is cancelled. A pre-dispatch account-admission rejection carries a dedicated structured marker so the host can enqueue the original input without treating an uncertain delivery as rejection. Account-state query failures remain errors and do not authorize use of the previous account.
+
+Queued messages show **계정 전환 대기 중** while the connected engine is switching. Account updates refresh that status; unchanged snapshots do not trigger repeated queue dispatch. Interrupted threads retain their existing pause and the explicit send-now action.
+
+A new conversation has no durable thread queue before creation. Its original creation request waits in the host with a visible, accessible **계정 전환 대기 중** notice; it creates the thread automatically once the switch finishes or is cancelled. The first turn uses the same waiting guard if a switch begins after creation. These pending closures live for the current Webview lifetime, and request cancellation or host retirement releases the notice. The guard checks account state every 500 ms while waiting and retries only a structured pre-dispatch account-admission rejection; uncertain delivery and unrelated failures retain native error handling. Thread creation retains ordinary engine admission because session startup can initialize authentication-dependent connections.
 
 The queue's explicit send-now action can acquire shared account admission while the switch is waiting for idle, pinning the current account through submission and execution. It cannot enter an exclusive account commit or failed account recovery. A reopened admission wakes eligible loaded queues without overriding an interrupted or deferred thread's pause. Stopping a parked root cancels its reservation and publishes interruption while preserving child work and recorded tool results.
 

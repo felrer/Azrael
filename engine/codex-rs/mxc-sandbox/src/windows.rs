@@ -30,8 +30,8 @@ pub(super) fn run() -> Result<i32> {
         crate::is_available(),
         "native MXC is unavailable on this Windows build"
     );
-    // Read the already-filtered wrapper environment, rejecting lossy values
-    // instead of inheriting a different environment inside the sandbox.
+    // The wrapper carries executor-owned Windows setup values and bounded
+    // transport; the command environment is carried separately in the payload.
     let mut env = std::env::vars_os()
         .map(|(key, value)| {
             let key = key
@@ -46,8 +46,7 @@ pub(super) fn run() -> Result<i32> {
     // Serde errors can quote arbitrary payload values; do not print them to stderr.
     let command = crate::transport::decode(&mut env)
         .map_err(|_| anyhow::anyhow!("invalid MXC launcher request"))?;
-    // The transport itself proves this is an explicit child environment; it
-    // may intentionally contain no variables once launcher state is removed.
+    // An empty command environment is explicit and must remain empty.
     let mask = unsafe { GetLogicalDrives() };
     ensure!(
         mask != 0,
@@ -68,7 +67,9 @@ pub(super) fn run() -> Result<i32> {
     let request = crate::policy::build_request(
         &command,
         &command_cwd,
-        env.into_iter()
+        command
+            .command_environment
+            .iter()
             .map(|(key, value)| format!("{key}={value}"))
             .collect(),
         &volumes,

@@ -182,7 +182,7 @@ mod tests {
     }
 
     #[test]
-    fn gpt_5_bedrock_models_use_bedrock_context_window() {
+    fn bedrock_models_preserve_native_context_capacities() {
         let catalog = static_model_catalog();
 
         assert_eq!(
@@ -199,14 +199,14 @@ mod tests {
             vec![
                 (
                     AMAZON_BEDROCK_GPT_6_1_SOL_MODEL_ID,
-                    Some(GPT_5_BEDROCK_CONTEXT_WINDOW),
-                    Some(872_000),
+                    Some(1_000_000),
+                    Some(1_000_000),
                     WebSearchToolType::Text,
                 ),
                 (
                     AMAZON_BEDROCK_GPT_6_ASTRA_MODEL_ID,
-                    Some(GPT_5_BEDROCK_CONTEXT_WINDOW),
-                    Some(872_000),
+                    Some(1_000_000),
+                    Some(1_000_000),
                     WebSearchToolType::Text,
                 ),
                 (
@@ -217,8 +217,8 @@ mod tests {
                 ),
                 (
                     AMAZON_BEDROCK_GPT_6_LUNA_MODEL_ID,
-                    Some(GPT_5_BEDROCK_CONTEXT_WINDOW),
-                    Some(872_000),
+                    Some(1_000_000),
+                    Some(1_000_000),
                     WebSearchToolType::Text,
                 ),
                 (

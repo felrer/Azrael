@@ -12,10 +12,10 @@ const {
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 
 const projectRoot = path.resolve(__dirname, "..");
-const reducerRelativePath = "webview/assets/app-initial-9f7d97690e9b.js";
+const reducerRelativePath = "webview/assets/app-initial-efe028fd535e.js";
 const defaultPinnedRoot = path.join(
   projectRoot,
-  "artifacts/upstream-ui/26.928.31416",
+  "artifacts/upstream-ui/26.930.61225",
 );
 const pinnedOriginalPath = path.join(
   process.env.AZRAEL_PINNED_HOST_ROOT ?? defaultPinnedRoot,
@@ -60,23 +60,23 @@ function transformReducer(filename) {
 }
 
 function reducerFrom(source, filename) {
-  const reducerText = extractFunction(source, filename, "HCn");
-  const upsertText = extractFunction(source, filename, "gh");
+  const reducerText = extractFunction(source, filename, "kCn");
+  const upsertText = extractFunction(source, filename, "ph");
   const nativeUpsert = new vm.Script(`(${upsertText})`, { filename }).runInNewContext({
-    Fn: () => false,
-    vr: items => items,
+    Rn: () => false,
+    yr: items => items,
   });
   const context = {
-    H: value => value,
-    YX: (conversation, turnId) => conversation.turns.find(turn => turn.turnId === turnId) ?? null,
-    wZ: turn => { turn.items ??= []; return turn; },
-    yh() {},
-    EX: conversation => conversation.turns,
-    TCn() {},
-    VCn: item => item.type !== "userMessage" && item.type !== "hookPrompt",
-    UCn: (_environment, item) => ({ ...item }),
-    xr: item => ({ ...item }),
-    gh: nativeUpsert,
+    B: value => value,
+    LZ: (conversation, turnId) => conversation.turns.find(turn => turn.turnId === turnId) ?? null,
+    uQ: turn => { turn.items ??= []; return turn; },
+    gh() {},
+    hZ: conversation => conversation.turns,
+    fCn() {},
+    OCn: item => item.type !== "userMessage" && item.type !== "hookPrompt",
+    ACn: (_environment, item) => ({ ...item }),
+    Sr: item => ({ ...item }),
+    ph: nativeUpsert,
   };
   return new vm.Script(`(${reducerText})`, { filename }).runInNewContext(context);
 }
@@ -228,8 +228,8 @@ for (const { filename, source } of transformedInputs) {
 
 test("injection is idempotent and fails closed when the pinned reducer anchor changes", () => {
   const first = injectCompactionProgress(
-    "before let d=xr(u.type===`contextCompaction`?{...u,completed:!1,startedAtMs:c,source:a.manualContextCompactions.consumeSource(l)}:u);" +
-    "u.type===`contextCompaction`&&a.manualContextCompactions.removePendingItemFromTurn(r),gh(r,d) after",
+    "before let d=Sr(u.type===`contextCompaction`?{...u,completed:!1,startedAtMs:c,source:a.manualContextCompactions.consumeSource(l)}:u);" +
+    "u.type===`contextCompaction`&&a.manualContextCompactions.removePendingItemFromTurn(r),ph(r,d) after",
   );
   assert.equal(first.count, 1);
   const second = injectCompactionProgress(first.text);

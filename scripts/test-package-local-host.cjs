@@ -12,7 +12,7 @@ const { spawnSync } = require("node:child_process");
 const { textScanFiles, untrustedTextFiles, validateEnvPaths, writeVsix } = require("./package-local-host.cjs");
 
 const source = fs.readFileSync(path.join(__dirname, "package-local-host.cjs"), "utf8");
-const pinnedCli = path.resolve(__dirname, "../artifacts/build/test_reduction_20261002_install/companion/node_modules/@vscode/vsce/vsce");
+const pinnedCli = require.resolve("@vscode/vsce/vsce", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] });
 const pinnedRequire = require("node:module").createRequire(pinnedCli);
 
 async function archiveEntries(filename) {

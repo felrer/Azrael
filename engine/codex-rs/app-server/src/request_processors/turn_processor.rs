@@ -594,6 +594,8 @@ impl TurnRequestProcessor {
 
         let additional_context = map_additional_context(params.additional_context);
         let turn_has_input = !params.input.is_empty();
+        let diagnostics =
+            crate::input_delivery_diagnostics::InputDiagnostics::new(&request_id, "turn/start");
         let input = if let Some(tool_output) = params.tool_output {
             let item = ResponseItem::FunctionCallOutput {
                 id: None,
@@ -648,6 +650,10 @@ impl TurnRequestProcessor {
             )
             .await?;
 
+        let request_trace = self.request_trace_context(&request_id).await;
+        if let Some(diagnostics) = &diagnostics {
+            diagnostics.stage("input.native_call_started");
+        }
         let submission = thread
             .start_or_steer_turn(
                 TurnInputRequest::new(input)
@@ -661,14 +667,17 @@ impl TurnRequestProcessor {
                     })
                     .with_additional_context(additional_context)
                     .with_responses_metadata(params.responsesapi_client_metadata)
-                    .with_trace(self.request_trace_context(&request_id).await),
+                    .with_trace(request_trace),
             )
-            .await
-            .map_err(|err| {
-                let error = internal_error(format!("failed to submit turn input: {err}"));
-                self.track_error_response(&request_id, &error, /*error_type*/ None);
-                error
-            })?;
+            .await;
+        if let Some(diagnostics) = &diagnostics {
+            diagnostics.native_returned(&submission);
+        }
+        let submission = submission.map_err(|err| {
+            let error = internal_error(format!("failed to submit turn input: {err}"));
+            self.track_error_response(&request_id, &error, /*error_type*/ None);
+            error
+        })?;
         let (turn_id, started) = match submission {
             TurnInputSubmission::Started { turn_id } => (turn_id, true),
             TurnInputSubmission::Steered { turn_id } => (turn_id, false),
@@ -1063,6 +1072,11 @@ impl TurnRequestProcessor {
             .collect();
         let additional_context = map_additional_context(params.additional_context);
 
+        let diagnostics =
+            crate::input_delivery_diagnostics::InputDiagnostics::new(request_id, "turn/steer");
+        if let Some(diagnostics) = &diagnostics {
+            diagnostics.stage("input.native_call_started");
+        }
         let submission = thread
             .steer_turn(
                 TurnInputRequest::new(TurnInput::UserInput {
@@ -1073,14 +1087,17 @@ impl TurnRequestProcessor {
                 .with_responses_metadata(params.responsesapi_client_metadata),
                 params.expected_turn_id,
             )
-            .await
-            .map_err(|err| {
-                let error = internal_error(format!("failed to steer turn: {err}"));
-                self.track_error_response(request_id, &error, /*error_type*/ None);
-                error
-            })?;
+            .await;
+        if let Some(diagnostics) = &diagnostics {
+            diagnostics.native_returned(&submission);
+        }
+        let submission = submission.map_err(|err| {
+            let error = internal_error(format!("failed to steer turn: {err}"));
+            self.track_error_response(request_id, &error, /*error_type*/ None);
+            error
+        })?;
         let turn_id = match submission {
-            SteerSubmission::Steered { turn_id } => turn_id,
+            SteerSubmission::Started { turn_id } | SteerSubmission::Steered { turn_id } => turn_id,
             SteerSubmission::NotSubmitted { reason } => {
                 let (message, data, error_type) = match reason {
                     NotSubmittedReason::ServerDraining => {

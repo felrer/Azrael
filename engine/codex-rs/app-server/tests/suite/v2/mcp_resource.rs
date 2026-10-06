@@ -583,6 +583,15 @@ async fn metadata_and_mcp_requests_complete_while_unrelated_resume_loads_config(
         Some("mock_provider"),
         /*git_info*/ None,
     )?;
+    // Supplied history still probes the recorded source for immutable settings.
+    let unrelated_thread_id = create_fake_rollout(
+        codex_home.path(),
+        "2025-01-05T12-00-01",
+        "2025-01-05T12:00:01Z",
+        "Saved unrelated user message",
+        Some("mock_provider"),
+        /*git_info*/ None,
+    )?;
     let resume_cwd = TempDir::new()?;
     let blocked_resume = Arc::new(BlockedResumeConfig {
         cwd: AbsolutePathBuf::from_absolute_path(resume_cwd.path())?,
@@ -612,7 +621,7 @@ async fn metadata_and_mcp_requests_complete_while_unrelated_resume_loads_config(
     let mut resume = pin!(sender.request(ClientRequest::ThreadResume {
         request_id: RequestId::Integer(3),
         params: ThreadResumeParams {
-            thread_id: "00000000-0000-4000-8000-000000000000".to_string(),
+            thread_id: unrelated_thread_id,
             cwd: Some(resume_cwd.path().to_string_lossy().into_owned()),
             history: Some(vec![ResponseItem::Message {
                 id: None,

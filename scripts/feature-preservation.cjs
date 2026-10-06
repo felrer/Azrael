@@ -73,11 +73,15 @@ async function execute(executable, args, options) {
     });
   });
 }
-function selected(manifest, area) {
+function selected(manifest, area, config) {
   if (!['ui', 'engine', 'all'].includes(area)) throw Error('Explicit area ui, engine or all required');
   const features = manifest.features.filter(feature => area === 'all' || feature.area === area);
   for (const required of area === 'all' ? ['ui', 'engine'] : [area]) if (!features.some(feature => feature.area === required)) throw Error(`Missing mandatory area: ${required}`);
-  return features;
+  if (!Object.hasOwn(config, 'featureIds')) return features;
+  const ids = config.featureIds;
+  if (!Array.isArray(ids) || ids.some(id => typeof id !== 'string') || new Set(ids).size !== ids.length) throw Error('featureIds must be an array of unique feature IDs');
+  for (const id of ids) if (!features.some(feature => feature.id === id)) throw Error(`Unknown or wrong-area feature ID: ${id}`);
+  return features.filter(feature => ids.includes(feature.id));
 }
 function rulesFor(config) { return config.transformRules ?? require(path.join(config.projectRoot, 'scripts/namespace-azrael-host.cjs')).getTransformRules(); }
 async function sourceUiIdentity(config) {
@@ -95,14 +99,14 @@ async function identity(config, manifest, rules, features, execution = execute) 
   for (const key of Object.keys(rules).filter(key => !key.includes(':') && /\.(?:cjs|json)$/.test(key))) references.add(`scripts/${key}`);
   const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await snapshotProject(config.projectRoot)).sha256,
     registered: await getDirectoryState(path.resolve(config.projectRoot), [...references].sort()), transformRules: rules };
-  if (features.some(feature => feature.area === 'ui')) {
+  if (['ui', 'all'].includes(config.area)) {
     if (!config.uiRoot || !path.isAbsolute(config.uiRoot)) throw Error('Explicit absolute uiRoot required');
     input.ui = await getDirectoryState(config.uiRoot);
     input.sourceUi = await sourceUiIdentity(config);
     const typescript = config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js');
     input.typeScriptSha256 = await fileHash(typescript);
   }
-  if (features.some(feature => feature.area === 'engine')) {
+  if (['engine', 'all'].includes(config.area)) {
     if (![config.engineSourceRoot, config.engineDirectory].every(value => value && path.isAbsolute(value))) throw Error('Explicit absolute engine source and binary roots required');
     const suffix = crypto.randomUUID();
     const result = await execution('python', [path.join(config.projectRoot, 'scripts/engine-provenance.py'), 'verify', '--root', config.engineSourceRoot, '--engine-dir', config.engineDirectory],
@@ -113,7 +117,7 @@ async function identity(config, manifest, rules, features, execution = execute) 
   return input;
 }
 function expectedReceipt(manifest, features, receipt) {
-  if (receipt.schema !== 1 || receipt.status !== 'passed' || !same(receipt.featureIds, features.map(feature => feature.id))) throw Error('Receipt missing full passing feature scope');
+  if (receipt.schema !== 1 || receipt.status !== 'passed' || !same(receipt.featureIds, features.map(feature => feature.id))) throw Error('Receipt missing requested passing feature scope');
   const required = features.flatMap(feature => feature.checks.map(check => ({ featureId: feature.id, checkId: check.id, area: feature.area })));
   if (!Array.isArray(receipt.checks) || receipt.checks.length !== required.length) throw Error('Receipt mandatory checks missing');
   for (const check of required) {
@@ -149,7 +153,7 @@ async function runPreservation(config) {
     if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
     const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
     validateManifest(manifest, config.projectRoot, rules);
-    const features = selected(manifest, config.area);
+    const features = selected(manifest, config.area, config);
     receipt.featureIds = features.map(feature => feature.id);
     receipt.inputs = await identity(config, manifest, rules, features, execution);
     if (config.expectedInputs && !same(config.expectedInputs, receipt.inputs)) throw Error('Expected input identity differs');
@@ -216,7 +220,8 @@ async function verifyReceipt(config) {
   validateManifest(manifest, config.projectRoot, rules);
   const receipt = readJson(config.receiptPath);
   if (config.area && config.area !== receipt.area) throw Error('Receipt selected area differs');
-  const features = selected(manifest, receipt.area);
+  config.area = config.area ?? receipt.area;
+  const features = selected(manifest, config.area, config);
   expectedReceipt(manifest, features, receipt);
   await verifyLogs(receipt);
   await fs.promises.mkdir(config.outputDirectory, { recursive: true });

@@ -5627,7 +5627,8 @@ mod tests {
     #[test]
     fn durable_wait_updates_retain_originating_turn_metadata_after_interruption() {
         use codex_protocol::protocol::RootResumeWaitUpdatedEvent;
-        use codex_protocol::root_resume::{RootResumeState, RootResumeWait};
+        use codex_protocol::root_resume::RootResumeState;
+        use codex_protocol::root_resume::RootResumeWait;
         let waiting = RootResumeWait {
             reservation_id: "reservation".into(),
             revision: 1,

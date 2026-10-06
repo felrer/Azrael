@@ -1,29 +1,29 @@
 "use strict";
 
 const MAX_REASONING_ASSETS = [
-  "webview/assets/app-initial-8b38f95f65ff.js",
-  "webview/assets/app-initial-7d34126aa1b5.js",
-  "webview/assets/agent-settings-17b70a93dcfc.js",
-  "webview/assets/panel-d29764dc637b.js",
+  "webview/assets/app-initial-532d60c9b397.js",
+  "webview/assets/app-initial-5120fa5fe295.js",
+  "webview/assets/agent-settings-88a967588321.js",
+  "webview/assets/panel-f5a3846c3434.js",
 ];
 const MAX_REASONING_MARKER = "/*azrael-max-reasoning-v1*/";
 // Availability overrides are inside the upstream supported-stage filters. They
 // do not manufacture stages or alter authentication, defaults or selections.
 const RULES = [
   [
-    ["qC(e)&&i.has(e)", "qC(e)&&(e===`max`||i.has(e))"],
+    ["ZC(e)&&i.has(e)", "ZC(e)&&(e===`max`||i.has(e))"],
     ["(t==null||r==null||r.includes($8[t]))", "(t==null||$8[t]===`max`||r==null||r.includes($8[t]))"],
   ],
   [
-    ["new Set([...qg(e,mWe.enabledReasoningEfforts),`persistent`])", "new Set([...qg(e,mWe.enabledReasoningEfforts),`persistent`,`max`])"],
-    ["let p=n==null?u(hSn):new Set([...n,`persistent`])", "let p=new Set([...(n==null?u(hSn):n),`persistent`,`max`])"],
+    ["new Set([...Wg(e,JXe.enabledReasoningEfforts),`persistent`])", "new Set([...Wg(e,JXe.enabledReasoningEfforts),`persistent`,`max`])"],
+    ["let p=n==null?u(_Sn):new Set([...n,`persistent`])", "let p=new Set([...(n==null?u(_Sn):n),`persistent`,`max`])"],
   ],
   [
     ["let r=Z.filter(e),i=l?.models.some(We)", "let r=Z.filter(e).filter(e=>e!==`max`),i=l?.models.some(We)"],
     ["if(l==null||r.length===0&&!i)", "if(l==null||r.length===0&&!i&&l.hasModelSupportingMaxReasoningEffort!==!0)"],
   ],
   [
-    ["h=s==null?void 0:p(s)", "h=s==null?void 0:p(s).filter(e=>e!==`max`)"],
+    ["m=s==null?void 0:f(s)", "m=s==null?void 0:f(s).filter(e=>e!==`max`)"],
   ],
 ];
 function injectMaxReasoning(text, asset) {

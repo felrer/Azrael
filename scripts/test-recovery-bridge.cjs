@@ -8,9 +8,9 @@ const vm = require("node:vm");
 const { injectRecovery } = require("./inject-recovery.cjs");
 
 const projectRoot = path.resolve(__dirname, "..");
-const originalBundle = path.join(projectRoot, "artifacts", "deployments", "original-official-26.908.40401", "out", "extension.js");
-const toolRoot = path.join(projectRoot, "artifacts", "build", "root-resume-validation", "companion");
-const typescriptPath = path.join(toolRoot, "node_modules", "typescript", "lib", "typescript.js");
+const originalBundle = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ??
+  path.join(projectRoot, "artifacts", "upstream-ui", "26.930.61225"), "out", "extension.js");
+const typescriptPath = path.join(projectRoot, "extensions", "azrael-ex", "node_modules", "typescript", "lib", "typescript.js");
 
 function owningClass(ts, source, filename) {
   const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -34,6 +34,22 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   assert.equal(ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
 
   const { ast, owner } = owningClass(ts, transformed.text, originalBundle);
+  // Resolve the two external adapters from the pristine method's argument
+  // contracts rather than binding a retired build's minified symbol names.
+  const originalOwner = owningClass(ts, original, originalBundle).owner;
+  const sendMethod = originalOwner.members.find(n => n.name?.text === "sendProviderRequest");
+  const adapter = parameterIndex => {
+    const names = new Set();
+    const visit = node => {
+      if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && node.arguments.length === 1 &&
+          ts.isIdentifier(node.arguments[0]) && node.arguments[0].text === sendMethod.parameters[parameterIndex].name.text)
+        names.add(node.expression.text);
+      ts.forEachChild(node, visit);
+    };
+    visit(sendMethod.body);
+    assert.equal(names.size, 1, "pinned method must expose one external adapter for each contract");
+    return [...names][0];
+  };
   const classText = transformed.text.slice(owner.getStart(ast), owner.end);
   const recovery = require("./azrael-recovery.cjs");
   const disposed = [];
@@ -58,8 +74,8 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
       return recovery;
     },
     clearTimeout,
-    oG: method => method === "turn/start",
-    _f: params => params?.threadId,
+    [adapter(2)]: method => method === "turn/start",
+    [adapter(3)]: params => params?.threadId,
   });
   const Bridge = new vm.Script(`(${classText})`, { filename: "pinned-bridge-owner.js" }).runInContext(context);
   const bridge = Object.create(Bridge.prototype);
@@ -254,6 +270,36 @@ function recoveryVscodeStub(logRecords, { failingOutput = false } = {}) {
   return { context, disposed, vscode };
 }
 
+test("user item receipt diagnostics hash identities and exclude message contents", () => {
+  const recovery = require("./azrael-recovery.cjs");
+  const { createHash } = require("node:crypto");
+  const records = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const host = {};
+  const notification = { method: "item/completed", params: { threadId: "private-thread", turnId: "private-turn",
+    item: { type: "userMessage", id: "private-item", clientId: "private-client",
+      content: [{ type: "text", text: "DIAGNOSTIC_CONTENT_CANARY" }] } } };
+  try {
+    recovery.observe(host, notification);
+    const record = records.find(r => r.event === "host.user_message_received");
+    assert.equal(record.stage, "completed");
+    assert.equal(record.clientMessageHash, createHash("sha256").update("private-client").digest("hex"));
+    assert.match(record.threadRef, /^[a-f0-9]{16}$/);
+    assert.match(record.turnRef, /^[a-f0-9]{16}$/);
+    assert.match(record.itemRef, /^[a-f0-9]{16}$/);
+    assert.equal(JSON.stringify(record).includes("private-"), false);
+    assert.equal(JSON.stringify(records).includes("DIAGNOSTIC_CONTENT_CANARY"), false);
+    assert.equal(notification.params.item.content[0].text, "DIAGNOSTIC_CONTENT_CANARY");
+    recovery.observe(host, { ...notification, method: "item/started" });
+    assert.equal(records.filter(r => r.event === "host.user_message_received").length, 2);
+  } finally { disposable.dispose(); }
+  const failing = recoveryVscodeStub([], { failingOutput: true });
+  const failingDisposable = recovery.initialize(failing.context, failing.vscode);
+  try { assert.doesNotThrow(() => recovery.observe(host, notification)); }
+  finally { failingDisposable.dispose(); }
+});
+
 function fakeRecoveryHost(delivered, deliveryEvents = []) {
   const host = {
     providers: new Map(),
@@ -271,6 +317,35 @@ function fakeRecoveryHost(delivered, deliveryEvents = []) {
   });
   return host;
 }
+
+test("lost steer response returns actual wake turn through the original bridge request", async t => {
+  const recovery = require("./azrael-recovery.cjs");
+  const records = [], delivered = [], deliveries = [], calls = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered, deliveries);
+  const turn = { id: "new-wake-turn", status: "inProgress", items: [{ type: "userMessage", clientId: "steer-client" }] };
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  const raw = (provider, id, method, params) => {
+    calls.push({ method, params });
+    if (method === "thread/turns/list") queueMicrotask(() => host.providers.get(provider)?.onResult({ id, result: { data: [turn] } }));
+  };
+  try {
+    recovery.dispatch(host, ["client", "original-steer", "turn/steer", {
+      threadId: "wake-thread", expectedTurnId: "parked-turn", clientUserMessageId: "steer-client",
+      input: [{ type: "text", text: "wake instruction" }],
+    }, false, true], raw);
+    await untilDelivered(calls, 1);
+    t.mock.timers.tick(20000);
+    await untilDelivered(delivered, 1);
+    assert.deepEqual(delivered[0], { id: "original-steer", result: { turnId: turn.id } });
+    assert.equal(calls.filter(call => call.method === "turn/steer").length, 1);
+    assert.equal(calls.filter(call => call.method === "thread/turns/list").length, 1);
+    assert.equal(calls[0].params.expectedTurnId, "parked-turn");
+    assert.equal(deliveries[0].delivery.requestId, "original-steer");
+    assert.ok(records.some(record => record.event === "recovery.send_reconciliation" && record.method === "turn/steer" && record.outcome === "matched"));
+  } finally { disposable.dispose(); t.mock.timers.reset(); }
+});
 
 test("lost start response returns native accepted turn through the original bridge request", async t => {
   const recovery = require("./azrael-recovery.cjs");
@@ -319,6 +394,123 @@ async function untilDelivered(delivered, count) {
     await new Promise(resolve => setImmediate(resolve));
   }
 }
+
+test("late steering response logs the same wire reference without changing the failed result", async t => {
+  const { createHash } = require("node:crypto");
+  const recovery = require("./azrael-recovery.cjs");
+  const logRecords = [], delivered = [], deliveryEvents = [], sends = [];
+  const { context, vscode } = recoveryVscodeStub(logRecords);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered, deliveryEvents);
+  const threadId = "01a10677-33be-7521-badb-e3f96abd7577";
+  const secret = "sk-input-response-sentinel-private";
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    recovery.dispatch(host, ["client", "steer-diagnostic", "turn/steer", {
+      threadId, expectedTurnId: "parked-turn", clientUserMessageId: secret,
+      input: [{ type: "text", text: secret }],
+    }, false, true], (...args) => {
+      sends.push(args);
+      if (args[2] === "thread/turns/list") queueMicrotask(() => host.providers.get(args[0])?.onResult({
+        id: args[1], error: { code: -1, message: "fixture readback failed" },
+      }));
+    });
+    await untilDelivered(sends, 1);
+    assert.equal(sends.length, 1);
+    const [provider, id] = sends[0];
+    const requestRef = createHash("sha256").update(`${provider}:${id}`).digest("hex").slice(0, 16);
+    assert.equal(logRecords.find(r => r.event === "recovery.rpc_dispatch").requestRef, requestRef);
+    t.mock.timers.tick(20001);
+    await untilDelivered(delivered, 1);
+    assert.equal(delivered.length, 1);
+    assert.equal(delivered[0].error.code, -32001);
+    assert.equal(deliveryEvents[0].type, "outcome-unknown");
+    const result = { turnId: "accepted-turn", privateBody: secret };
+    recovery.observe(host, { id: `${provider}:${id}`, result });
+    host.providers.get(provider).onResult({ id, result });
+    const received = logRecords.find(r => r.event === "host.rpc_response_received");
+    const late = logRecords.find(r => r.event === "recovery.rpc_late_result");
+    assert.equal(received.requestRef, requestRef);
+    assert.equal(received.tracking, "expired");
+    assert.equal(late.requestRef, requestRef);
+    assert.equal(late.method, "turn/steer");
+    assert.equal(late.disposition, "ignored_after_timeout");
+    assert.equal(late.outcome, "success");
+    assert.equal(delivered.length, 1, "late native acceptance must not produce a second result or replay");
+    assert.equal(sends.filter(args => args[2] === "turn/steer").length, 1);
+    assert.equal(sends.filter(args => args[2] === "thread/turns/list").length, 1);
+    assert.equal(JSON.stringify([received, late]).includes(secret), false);
+    assert.equal(JSON.stringify([received, late]).includes(id), false);
+    assert.equal(JSON.stringify([received, late]).includes(threadId), false);
+    host.providers.get(provider).onResult({ id, result });
+    assert.equal(logRecords.filter(r => r.event === "recovery.rpc_late_result").length, 1);
+  } finally { disposable.dispose(); t.mock.timers.reset(); }
+});
+
+test("native response receipt logs precede normal callback and preserve its payload", async () => {
+  const recovery = require("./azrael-recovery.cjs");
+  const logRecords = [], delivered = [], sends = [];
+  const { context, vscode } = recoveryVscodeStub(logRecords);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered);
+  try {
+    recovery.dispatch(host, ["client", "steer-on-time", "turn/steer", {
+      threadId: "thread", expectedTurnId: "turn", input: [{ type: "text", text: "private-input" }],
+    }, false, true], (...args) => sends.push(args));
+    await untilDelivered(sends, 1);
+    const [provider, id] = sends[0];
+    const result = { turnId: "turn", privateBody: "private-output" };
+    recovery.observe(host, { id: `${provider}:${id}`, result });
+    const received = logRecords.find(r => r.event === "host.rpc_response_received");
+    assert.equal(received.tracking, "pending");
+    assert.equal(delivered.length, 0);
+    host.providers.get(provider).onResult({ id, result });
+    await untilDelivered(delivered, 1);
+    assert.equal(delivered[0].result, result);
+    const completed = logRecords.find(r => r.event === "recovery.rpc_result");
+    assert.equal(completed.requestRef, received.requestRef);
+    assert.equal(JSON.stringify([received, completed]).includes("private-input"), false);
+    assert.equal(JSON.stringify([received, completed]).includes("private-output"), false);
+    assert.equal(logRecords.some(r => r.event === "recovery.rpc_late_result"), false);
+  } finally { disposable.dispose(); }
+});
+
+test("late-response matching respects its count and age limits", async t => {
+  const recovery = require("./azrael-recovery.cjs");
+  const logRecords = [], delivered = [], sends = [];
+  const { context, vscode } = recoveryVscodeStub(logRecords);
+  const disposable = recovery.initialize(context, vscode);
+  const host = fakeRecoveryHost(delivered);
+  let now = Date.now();
+  t.mock.method(Date, "now", () => now);
+  t.mock.timers.enable({ apis: ["setTimeout"] });
+  try {
+    for (let index = 0; index < 65; index++) {
+      recovery.dispatch(host, ["client", `bounded-${index}`, "turn/steer", {
+        threadId: "thread", expectedTurnId: "turn", input: [{ type: "text", text: "fixture" }],
+      }, false, true], (...args) => sends.push(args));
+      await untilDelivered(sends, index + 1);
+      t.mock.timers.tick(20001);
+      await untilDelivered(delivered, index + 1);
+    }
+    const receive = args => {
+      const [provider, id] = args;
+      recovery.observe(host, { id: `${provider}:${id}`, result: { turnId: "turn" } });
+      host.providers.get(provider).onResult({ id, result: { turnId: "turn" } });
+    };
+    receive(sends[0]);
+    assert.equal(logRecords.filter(r => r.event === "host.rpc_response_received").at(-1).tracking, "untracked");
+    assert.equal(logRecords.some(r => r.event === "recovery.rpc_late_result"), false);
+    receive(sends.at(-1));
+    assert.equal(logRecords.filter(r => r.event === "recovery.rpc_late_result").length, 1);
+    now += 300001;
+    receive(sends[1]);
+    assert.equal(logRecords.filter(r => r.event === "host.rpc_response_received").at(-1).tracking, "untracked");
+    assert.equal(logRecords.filter(r => r.event === "recovery.rpc_late_result").length, 1);
+    assert.equal(delivered.length, 65);
+    assert.equal(sends.length, 65);
+  } finally { disposable.dispose(); t.mock.timers.reset(); t.mock.restoreAll(); }
+});
 
 test("runtime identity record reports host configuration without environment secrets", async () => {
   const recovery = require("./azrael-recovery.cjs");

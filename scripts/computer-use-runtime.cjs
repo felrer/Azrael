@@ -2,6 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
+const { SKY_EXECUTABLE, brandComputerUse } = require('./computer-use-branding.cjs');
 const REQUIRED = ['node_repl.exe', 'node.exe', 'node_modules/@oai/sky/package.json', 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md'];
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function relative(value) {
@@ -96,18 +97,25 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
     for (const file of walk(bin, rel)) add(bin, file, file);
     for (const name of Object.keys(pkg.dependencies || {}).sort()) pending.push(resolvePackage(bin, rel, name));
   }
+  const sky = files.get(SKY_EXECUTABLE);
+  const branded = brandComputerUse(fs.readFileSync(sky.source));
+  sky.content = branded.content; sky.transform = branded.transform;
+  sky.sourceSha256 = sky.sha256; sky.sourceBytes = sky.bytes;
+  sky.sha256 = hash(sky.content); sky.bytes = sky.content.length;
   for (const rel of REQUIRED.filter(x => x.startsWith('skills/') || x.startsWith('docs/'))) add(pluginDirectory, rel, rel);
   if (selectedWindowGuide) {
     const guideRoot = path.dirname(path.resolve(selectedWindowGuide));
     add(guideRoot, path.basename(selectedWindowGuide), 'docs/selected-window.md');
     const skill = files.get('skills/computer-use/SKILL.md');
     const original = fs.readFileSync(skill.source, 'utf8');
-    const routing = '\n## Azrael Computer Use mode\n\nFor selected-window sessions, use only the azrael_window tools and follow [selected-window guidance](docs/selected-window.md). The engine must echo computerUseMode: selectedWindow before window actions. For foreground Computer Use sessions, follow the existing Sky instructions below.\n\n';
+    const routing = '\n## Window Use routing\n\nFor control of one window while the user continues using their mouse and keyboard, use the separate window-use skill and azrael_window tools. Computer Use follows the foreground Sky instructions below. Dedicated selectedWindow conversations retain their native tool ceiling.\n\n';
     // Retain plugin front matter so skill discovery metadata remains valid.
     const frontMatter = original.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/);
     const offset = frontMatter ? frontMatter[0].length : 0;
     skill.content = Buffer.from(original.slice(0, offset) + routing + original.slice(offset));
     skill.sha256 = hash(skill.content); skill.bytes = skill.content.length;
+    const windowInstructions = Buffer.from('---\nname: window-use\ndescription: Discover, select and control a Windows window through Window Use while the user works in other apps. Use for window capture and structured task macros with azrael_window tools.\n---\n\n' + fs.readFileSync(selectedWindowGuide, 'utf8'));
+    files.set('skills/window-use/SKILL.md', { path: 'skills/window-use/SKILL.md', source: path.resolve(selectedWindowGuide), sha256: hash(windowInstructions), bytes: windowInstructions.length, content: windowInstructions });
   }
   for (const rel of walk(pluginDirectory).filter(x => /(^|\/)(plugin\.json|LICENSE(?:\.[^/]*)?|NOTICE(?:\.[^/]*)?)$/i.test(x))) add(pluginDirectory, rel, rel);
   const manifest = { schema: 1, scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };

@@ -1,24 +1,75 @@
 "use strict";
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const ms = require("node:fs");
 const path = require("node:path");
-const vm = require("node:vm");
+const _m = require("node:vm");
 const test = require("node:test");
-const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+const vp = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { DESIGN_ASSETS, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, observeStudentCreated } = require("./inject-student-design.cjs");
 const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
-const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.31730"));
+const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225"));
+
+test("production pipeline applies student design and preserves it through Pets retirement", () => {
+  const { transformAsset } = require("./namespace-azrael-host.cjs");
+  const assets = [];
+  for (const asset of DESIGN_ASSETS) {
+    const filename = path.join(root, asset), source = ms.readFileSync(filename, "utf8");
+    const result = transformAsset(source, asset, filename, vp);
+    assert.equal(result.asset.studentDesignEdits, 1, asset);
+    assert.equal(result.asset.petsCleanupEdits, 1, asset);
+    assert.equal(vp.createSourceFile(asset, result.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
+    if (asset === DESIGN_ASSETS[2]) {
+      assert.ok(result.text.includes("personalization.azrael-instructions.azrael-design.usage"));
+      assert.ok(result.text.includes("defaultMessage:`디자인`"));
+      assert.equal(result.text.includes("`azrael-design`,`pets`,`keyboard-shortcuts`"), false);
+    }
+    assets.push(result.asset);
+  }
+  const gate = require("./feature-preservation.cjs"), manifest = gate.loadManifest(path.resolve(__dirname, ".."));
+  gate.validateTransformReport({ features: manifest.features.filter(feature => feature.id === "ui.student-design") }, { assets });
+});
+
+test("injected settings bridges resolve to the pinned module's real exports", () => {
+  const { transformAsset } = require("./namespace-azrael-host.cjs");
+  const parse = (text, asset) => vp.createSourceFile(asset, text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const bridgeAsset = DESIGN_ASSETS[0];
+  const original = ms.readFileSync(path.join(root, bridgeAsset), "utf8");
+  const bridge = transformAsset(original, bridgeAsset, path.join(root, bridgeAsset), vp).text;
+  const exports = new Set(parse(bridge, bridgeAsset).statements.filter(vp.isExportDeclaration)
+    .flatMap(node => node.exportClause?.elements?.map(e => e.name.text) ?? []));
+  assert(exports.has("F3t"));
+  assert(!exports.has("WEe"));
+  const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
+  const settings = transformAsset(ms.readFileSync(filename, "utf8"), asset, filename, vp).text;
+  const injected = parse(settings, asset).statements.filter(vp.isImportDeclaration)
+    .flatMap(node => node.moduleSpecifier.text === "./app-initial-5120fa5fe295.js"
+      ? node.importClause?.namedBindings?.elements ?? [] : [])
+    .filter(e => /^azrael(?:Account|Instruction|Window)Bridge$/.test(e.name.text));
+  assert.equal(injected.length, 3);
+  const navigationAsset = DESIGN_ASSETS[1];
+  const navigation = transformAsset(ms.readFileSync(path.join(root, navigationAsset), "utf8"), navigationAsset, path.join(root, navigationAsset), vp).text;
+  assert(!navigation.includes("azraelInstructionAsset16=O("));
+  assert(navigation.includes("case`pets`:return{visible:!1,pending:!1};"));
+  assert(navigation.includes("commandAsset:Or,navigation:{assets:{16:Or,20:Er}"));
+  for (const imported of injected) assert(exports.has(imported.propertyName.text), imported.name.text);
+});
 
 test("pinned composed assets parse, preserve settings, reject drift and remain idempotent", () => {
   for (const asset of DESIGN_ASSETS) {
-    const source = fs.readFileSync(path.join(root, asset), "utf8");
+    const source = ms.readFileSync(path.join(root, asset), "utf8");
     const composed = injectInstructionSettings(injectAccountSettings(source, asset).text, asset).text;
     const result = injectStudentDesign(composed, asset);
     assert.equal(result.count, 1);
-    assert.equal(ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+    assert.equal(vp.createSourceFile(asset, result.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
     assert.equal(injectStudentDesign(result.text, asset).text, result.text);
     assert.equal(injectStudentDesign(result.text, asset).count, 0);
+    assert.throws(() => injectStudentDesign(result.text + "/*azrael-student-design-v1*/", asset), /Duplicate/);
+    if (asset === "out/extension.js") {
+      assert(source.includes('case"open-vscode-command":{Ge.commands.executeCommand'));
+      assert(result.text.includes('Ge.commands.executeCommand("azrael.designEmbedded"'));
+      assert(result.text.includes('azraelObserveStudentCreated(e,Ge.commands)'));
+    }
     assert.throws(() => injectStudentDesign("", asset), /anchor changed|requires instruction/);
     if (asset === DESIGN_ASSETS[2]) {
       for (const value of ["AzraelAccountSettings", "AzraelInstructionSettings", "AzraelDesignSettings", ".azrael-instructions.azrael-design.pets.", 'defaultMessage:`디자인`']) assert(result.text.includes(value));
@@ -33,6 +84,109 @@ test("pinned composed assets parse, preserve settings, reject drift and remain i
     }
   }
   assert.equal(injectStudentDesign("other", "other").count, 0);
+});
+
+test("pinned design defers cyclic bundle initialization until the first rendered hook", () => {
+  const asset = DESIGN_ASSETS[0];
+  const source = ms.readFileSync(path.join(root, asset), "utf8");
+  const result = injectStudentDesign(source, asset);
+  const ust = vp.createSourceFile(asset, source, 99, true, vp.ScriptKind.JS);
+  const avatar = ust.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "c_i");
+  assert(avatar.getText(ust).includes("(0,d_i.jsx)"));
+  assert(source.includes("function m_i()"));
+  assert(source.includes("Dm=Em.getInstance()"));
+  const start = result.text.indexOf("var azraelDesignStore;function useAzraelDesignState()");
+  assert(start > 0);
+  const calls = [];
+  const context = _m.createContext({
+    m_i: () => { throw new Error("Cyclic avatar owner must not initialize eagerly"); }, Om: () => calls.push("bridge-owner"),
+    Dm: { subscribe: kind => { calls.push(kind); return () => {}; }, dispatchMessage: (_kind, value) => calls.push(value.action) },
+    createDesignStore, crypto: { randomUUID: () => "bootstrap" },
+    q: () => ({ useSyncExternalStore: (_subscribe, get) => get() }),
+    K: () => ({ c: () => [] }),
+    setTimeout: () => 1, clearTimeout: () => {},
+    window: { addEventListener: kind => calls.push(kind) },
+  });
+  _m.runInContext(result.text.slice(start).replace("export{azraelDesignStore,useAzraelDesignState};", ""), context);
+  assert.deepEqual(calls, ["pagehide"]);
+  assert.equal(_m.runInContext("useAzraelDesignState().loading", context), true);
+  assert.deepEqual(calls, ["pagehide", "bridge-owner", "azrael-design-state", "subscribe"]);
+  assert.equal(_m.runInContext("useAzraelDesignState().loading", context), true);
+  assert.equal(calls.filter(value => value === "subscribe").length, 1);
+});
+
+test("injected hooks resolve through pinned React exports, not compiler runtime", () => {
+  const asset = DESIGN_ASSETS[0], source = ms.readFileSync(path.join(root, asset), "utf8");
+  const parse = (text, name) => vp.createSourceFile(name, text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const entry = parse(source, asset);
+  const binding = local => {
+    for (const node of entry.statements.filter(vp.isImportDeclaration)) {
+      const imported = node.importClause?.namedBindings?.elements?.find(e => e.name.text === local);
+      if (imported) return { file: path.resolve(path.dirname(path.join(root, asset)), node.moduleSpecifier.text), exported: imported.propertyName.text };
+    }
+    assert.fail(`Missing pinned import ${local}`);
+  };
+  const reactBinding = binding("q"), compilerBinding = binding("K");
+  assert.equal(reactBinding.file, compilerBinding.file);
+  const owner = parse(ms.readFileSync(reactBinding.file, "utf8"), reactBinding.file);
+  const exportLocal = exported => {
+    const specifier = owner.statements.filter(vp.isExportDeclaration).flatMap(n => n.exportClause?.elements ?? [])
+      .find(e => e.name.text === exported);
+    assert(specifier, `Missing actual export ${exported}`);
+    return specifier.propertyName?.text ?? specifier.name.text;
+  };
+  const declarations = new Map(owner.statements.filter(vp.isVariableStatement)
+    .flatMap(n => n.declarationList.declarations).map(d => [d.name.text, d]));
+  const reactLocal = exportLocal(reactBinding.exported), compilerLocal = exportLocal(compilerBinding.exported);
+  // Evaluate the actual bundled CommonJS factories and their imported loader.
+  // Only React's dispatcher is supplied by the test, as a renderer would do.
+  const factory = local => {
+    const declaration = declarations.get(local);
+    assert(declaration && vp.isCallExpression(declaration.initializer), local);
+    const callback = declaration.initializer.arguments[0];
+    assert(vp.isParenthesizedExpression(callback) && vp.isArrowFunction(callback.expression));
+    const body = callback.expression.body;
+    assert(vp.isBlock(body) && body.statements.length === 1);
+    const assignment = body.statements[0].expression;
+    assert(vp.isBinaryExpression(assignment) && vp.isCallExpression(assignment.right));
+    return assignment.right.expression.text;
+  };
+  const loaderLocal = declarations.get(reactLocal).initializer.expression.text;
+  const loaderImport = owner.statements.filter(vp.isImportDeclaration).find(n => n.importClause?.namedBindings?.elements?.some(e => e.name.text === loaderLocal));
+  const loaderSpecifier = loaderImport.importClause.namedBindings.elements.find(e => e.name.text === loaderLocal);
+  const loaderPath = path.resolve(path.dirname(reactBinding.file), loaderImport.moduleSpecifier.text);
+  const runtime = parse(ms.readFileSync(loaderPath, "utf8"), loaderPath);
+  const loaderExport = runtime.statements.filter(vp.isExportDeclaration).flatMap(n => n.exportClause.elements)
+    .find(e => e.name.text === loaderSpecifier.propertyName.text);
+  const context = _m.createContext({});
+  _m.runInContext(runtime.statements.filter(n => !vp.isExportDeclaration(n)).map(n => n.getText(runtime)).join("\n"), context);
+  _m.runInContext(`var ${loaderLocal}=${loaderExport.propertyName.text};`, context);
+  for (const local of [factory(reactLocal), reactLocal, factory(compilerLocal), compilerLocal]) {
+    _m.runInContext(`var ${declarations.get(local).getText(owner)};`, context);
+  }
+  const react = _m.runInContext(`${reactLocal}()`, context), compiler = _m.runInContext(`${compilerLocal}()`, context);
+  assert.equal(typeof react.useState, "function");
+  assert.equal(typeof react.useSyncExternalStore, "function");
+  assert.equal(typeof compiler.c, "function");
+  assert.equal(compiler.useState, undefined);
+  assert.equal(compiler.useSyncExternalStore, undefined);
+  const hooks = [];
+  react.__CLIENT_INTERNALS_DO_NOT_USE_OR_WARN_USERS_THEY_CANNOT_UPGRADE.H = {
+    useState: value => { hooks.push("useState"); return [value, () => {}]; },
+    useSyncExternalStore: (_subscribe, get) => { hooks.push("useSyncExternalStore"); return get(); },
+  };
+  const injected = injectStudentDesign(source, asset).text;
+  const patched = parse(injected, asset);
+  const avatar = patched.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "AzraelStudentAvatar");
+  const useState = patched.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "useAzraelDesignState");
+  Object.assign(context, {
+    q: _m.runInContext(reactLocal, context), K: _m.runInContext(compilerLocal, context), Om: () => {},
+    azraelDesignStore: { subscribe() {}, getSnapshot: () => ({ students: [{ id: "s", url: "local" }], assignments: { thread: "s" } }) },
+    d_i: { jsx: (type, props) => ({ type, props }) }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: () => {},
+  });
+  _m.runInContext(avatar.getText(patched) + "\n" + useState.getText(patched), context);
+  assert.equal(_m.runInContext('AzraelStudentAvatar({seed:"thread"}).type', context), "img");
+  assert.deepEqual(hooks, ["useSyncExternalStore", "useState"]);
 });
 
 function harness(timing) {
@@ -124,7 +278,7 @@ test("host observes only completed native spawn notifications and safely preserv
   ]) observeStudentCreated(message, commands);
   assert.equal(calls.length, 1);
   const warnings = [];
-  const observe = vm.runInNewContext("(" + observeStudentCreated.toString() + ")", { console: { warn: (...args) => warnings.push(args) }, Promise, Set });
+  const observe = _m.runInNewContext("(" + observeStudentCreated.toString() + ")", { console: { warn: (...args) => warnings.push(args) }, Promise, Set });
   observe(notification, { executeCommand: () => { throw new Error("sync failure"); } });
   observe(notification, { executeCommand: () => Promise.reject(new Error("async failure")) });
   await Promise.resolve();
@@ -135,9 +289,9 @@ const jsx = (type, props, key) => ({ type, props, key });
 test("avatar uses exact assigned seed even when off, preserves props and falls back after image error", () => {
   let state = { enabled: false, students: [{ id: "student", url: "https://webview.local/student.png" }], assignments: { thread: "student" } }, failed = null;
   const original = () => {};
-  const avatar = vm.runInNewContext("(" + AzraelStudentAvatar.toString() + ")", {
-    q: () => ({ useState: () => [failed, next => { failed = next; }] }), useAzraelDesignState: () => state,
-    l_i: { jsx }, ri: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
+  const avatar = _m.runInNewContext("(" + AzraelStudentAvatar.toString() + ")", {
+    q: () => ({ useState: () => [failed, next => { failed = next; }] }), K: () => ({ c: () => [] }), useAzraelDesignState: () => state,
+    d_i: { jsx }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
   });
   const props = { seed: "thread", className: "custom", title: "title", alt: "ignored" };
   const image = avatar(props);
@@ -152,7 +306,7 @@ test("avatar uses exact assigned seed even when off, preserves props and falls b
 
 test("settings renders controlled default-off toggle, loading/saving/error and 20px roster", () => {
   const h = harness(); let state = h.store.getSnapshot();
-  const settings = vm.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
+  const settings = _m.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
     useAzraelDesignState: () => state, azraelDesignStore: h.store, $: { jsx, jsxs: jsx },
   });
   let tree = settings(); let checkbox = tree.props.children[1].props.children[0];

@@ -937,6 +937,12 @@ impl MessageProcessor {
         outbound_initialized: Option<&AtomicBool>,
         request_context: RequestContext,
     ) -> Result<(), JSONRPCErrorError> {
+        if let Some(diagnostics) = crate::input_delivery_diagnostics::InputDiagnostics::for_request(
+            &connection_request_id,
+            &codex_request,
+        ) {
+            diagnostics.stage("input.request_received");
+        }
         let connection_id = connection_request_id.connection_id;
         if let ClientRequest::Initialize { request_id, params } = codex_request {
             let connection_initialized = self
@@ -1023,14 +1029,26 @@ impl MessageProcessor {
         let rpc_gate = Arc::clone(&session.rpc_gate);
         let processor = Arc::clone(self);
         let span = request_context.span();
+        let diagnostics = crate::input_delivery_diagnostics::InputDiagnostics::for_request(
+            &connection_request_id,
+            &codex_request,
+        );
+        let panic_diagnostics = diagnostics.clone();
+        let panic_request_id = connection_request_id.clone();
+        let panic_outgoing = Arc::clone(&self.outgoing);
         let request = QueuedInitializedRequest::new(
             rpc_gate,
             async move {
+                let mut handler_guard =
+                    diagnostics.map(crate::input_delivery_diagnostics::HandlerGuard::start);
                 let _turn_admission = turn_admission;
                 // Runtime changes already admitted before drain finish normally. Turn work
                 // still waiting in serialization must observe the newly closed gate.
                 if recheck_turn_admission && let Err(error) = processor.turn_admission.admit() {
                     processor.outgoing.send_error(error_request_id, error).await;
+                    if let Some(guard) = handler_guard.as_mut() {
+                        guard.complete();
+                    }
                     return;
                 }
                 let processor_for_request = Arc::clone(&processor);
@@ -1046,9 +1064,23 @@ impl MessageProcessor {
                 if let Err(error) = result {
                     processor.outgoing.send_error(error_request_id, error).await;
                 }
+                if let Some(guard) = handler_guard.as_mut() {
+                    guard.complete();
+                }
             }
             .instrument(span),
-        );
+        )
+        .with_panic_handler(async move {
+            if let Some(diagnostics) = panic_diagnostics {
+                diagnostics.handler_panicked();
+            }
+            panic_outgoing
+                .send_error_if_pending(
+                    panic_request_id,
+                    crate::error_code::handler_panicked_error(),
+                )
+                .await;
+        });
 
         if let Some(scope) = serialization_scope {
             let (key, access) = RequestSerializationQueueKey::from_scope(connection_id, scope);

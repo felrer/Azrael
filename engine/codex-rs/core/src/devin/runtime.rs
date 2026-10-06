@@ -108,7 +108,9 @@ pub(crate) async fn stream(
                     "Devin ACP cannot resume the recorded external session",
                 ));
             }
-            let prior = prior.as_ref().expect("resume requires sidecar");
+            let prior = prior
+                .as_ref()
+                .unwrap_or_else(|| panic!("resume requires sidecar"));
             setup_request(
                 &client,
                 &mut messages,

@@ -9,6 +9,147 @@ const continuation = (threadId = "thread-1", text = "continue") => ({
   input: [{ type: "text", text }],
 });
 
+const handlerPanicMarker = () => ({ code: -32603,
+  data: { requestOutcome: "unknown", reason: "handlerPanicked" } });
+
+for (const method of ["turn/start", "turn/steer"]) {
+  for (const marker of [handlerPanicMarker(), { code: -32603 },
+    { code: -32603, data: { requestOutcome: "unknown" } },
+    { code: -32603, data: { requestOutcome: "unknown", reason: "other" } },
+    { code: -32603, data: { requestOutcome: "rejected", reason: "handlerPanicked" } },
+    { code: -1, data: { requestOutcome: "unknown", reason: "handlerPanicked" } },
+    { code: "-32603", data: { requestOutcome: "unknown", reason: "handlerPanicked" } }]) {
+    test(`${method} readback requires exact handler panic marker ${JSON.stringify(marker)}`, async () => {
+      const original = Object.assign(new Error("private handler payload"), { rpcError: marker });
+      const calls = [], logs = [], store = memoryStore();
+      const turn = { id: "wake-turn", status: "inProgress", items: [{ type: "userMessage", clientId: "private-id" }] };
+      const state = new RecoveryState({ store, log: record => logs.push(record), rpc: async (name, params) => {
+        calls.push({ name, params });
+        if (name === method) throw original;
+        assert.equal(name, "thread/turns/list");
+        return { data: [turn] };
+      } });
+      const params = { threadId: "panic-thread", expectedTurnId: "parked-turn", clientUserMessageId: "private-id",
+        input: [{ type: "text", text: "private input" }] };
+      const pending = method === "turn/start" ? state.start(params) : state.steer(params);
+      const accepted = JSON.stringify(marker) === JSON.stringify(handlerPanicMarker());
+      if (accepted) assert.deepEqual(await pending, method === "turn/start" ? { turn } : { turnId: turn.id });
+      else await assert.rejects(pending, error => error === original);
+      assert.equal(calls.filter(call => call.name === method).length, 1);
+      assert.equal(calls.filter(call => call.name === "thread/turns/list").length, accepted ? 1 : 0);
+      assert.equal(params.expectedTurnId, "parked-turn");
+      assert.equal(store.updates.length, 0);
+      assert.equal(logs.find(record => record.event === "recovery.send_reconciliation").method, method);
+      assert.ok(!JSON.stringify(logs).includes("private"));
+    });
+  }
+}
+
+test("normal steering response preserves actual wake turn and all result fields exactly", async () => {
+  const result = { turnId: "new-wake-turn", extra: { value: 7 } }, calls = [];
+  const state = new RecoveryState({ store: memoryStore(), rpc: async (method, params) => {
+    calls.push({ method, params });
+
+for (const method of ["turn/start", "turn/steer"]) {
+  test(`${method} unmatched handler panic keeps original error and observed execution`, async () => {
+    let state;
+    const original = Object.assign(new Error("handler uncertainty"), { rpcError: handlerPanicMarker() });
+    state = new RecoveryState({ store: memoryStore(), pause: async () => {}, rpc: async name => {
+      if (name === method) { state.setStage("observed-panic", "tool", "observed-turn"); throw original; }
+      assert.equal(name, "thread/turns/list"); return { data: [] };
+    } });
+    const params = { threadId: "observed-panic", clientUserMessageId: "unmatched", input: [{ type: "text", text: "new input" }] };
+    await assert.rejects(method === "turn/start" ? state.start(params) : state.steer(params), error => error === original);
+    assert.equal(state.list()[0].phase, "tool");
+    assert.equal(state.list()[0].turnId, "observed-turn");
+  });
+} return result;
+  } });
+  const params = { threadId: "normal-steer", expectedTurnId: "parked-turn", clientUserMessageId: "client-normal" };
+  assert.equal(await state.steer(params), result);
+  assert.deepEqual(calls, [{ method: "turn/steer", params }]);
+  assert.equal(params.expectedTurnId, "parked-turn");
+});
+
+for (const scenario of ["matched", "delayed", "completed", "interrupted", "failed", "missing_id", "empty_id",
+  "wrong_id", "equal_text", "wrong_item", "read_failed", "malformed", "invalid_turn", "invalid_status",
+  "generation_before_read", "generation_during_read", "generation_during_pause", "deadline", "late_match", "attempt_cap", "outside_page"] ) {
+  test(`uncertain steering bounded identity readback: ${scenario}`, async () => {
+    const original = new Error("private acknowledgement timeout"), calls = [], logs = [], store = memoryStore();
+    let state, reads = 0, clock = 0;
+    const params = { threadId: "steer-thread", expectedTurnId: "parked-turn",
+      input: [{ type: "text", text: "private repeated input" }],
+      ...(scenario === "missing_id" ? {} : { clientUserMessageId: scenario === "empty_id" ? "" : "private-client" }) };
+    const turn = { id: "actual-wake-turn", status: ["completed", "interrupted", "failed"].includes(scenario) ? scenario : "inProgress",
+      items: [{ type: scenario === "wrong_item" ? "agentMessage" : "userMessage",
+        clientId: ["wrong_id", "equal_text"].includes(scenario) ? "other" : "private-client", content: params.input }] };
+    state = new RecoveryState({ store, now: () => clock, log: record => logs.push(record),
+      pause: async ms => { clock += ms; if (scenario === "generation_during_pause") state.disconnect(); },
+      rpc: async (method, request, timeout) => {
+        calls.push({ method, request, timeout });
+        if (method === "turn/steer") {
+          state.setStage(params.threadId, "responding", turn.id);
+          if (scenario === "generation_before_read") state.disconnect();
+          throw original;
+        }
+        assert.equal(method, "thread/turns/list");
+        assert.deepEqual(request, { threadId: params.threadId, limit: 20, sortDirection: "desc", itemsView: "full" });
+        assert.ok(timeout > 0 && timeout <= 5000);
+        reads += 1;
+        if (scenario === "read_failed") throw new Error("private read failure");
+        if (scenario === "generation_during_read") state.disconnect();
+        if (scenario === "deadline") clock += 2600;
+        if (scenario === "late_match") clock += 5001;
+        if (scenario === "malformed") return { data: null };
+        if (scenario === "invalid_turn") return { data: [{ ...turn, id: "" }] };
+        if (scenario === "invalid_status") return { data: [{ ...turn, status: "unknown" }] };
+        if (["attempt_cap", "deadline", "generation_during_pause"].includes(scenario) || (scenario === "delayed" && reads === 1)) return { data: [] };
+        if (scenario === "outside_page") return { data: [...Array.from({ length: 20 }, () => ({ items: [] })), turn] };
+        return { data: [turn] };
+      } });
+    const accepted = ["matched", "delayed", "completed", "interrupted", "failed"].includes(scenario);
+    const pending = state.steer(params);
+    if (accepted) assert.deepEqual(await pending, { turnId: turn.id });
+    else await assert.rejects(pending, error => error === original);
+    assert.equal(calls.filter(call => call.method === "turn/steer").length, 1);
+    assert.equal(reads, ["missing_id", "empty_id", "generation_before_read"].includes(scenario) ? 0 :
+      ["wrong_id", "equal_text", "wrong_item", "attempt_cap", "outside_page"].includes(scenario) ? 20 :
+        ["delayed", "deadline"].includes(scenario) ? 2 : 1);
+    assert.equal(params.expectedTurnId, "parked-turn");
+    assert.equal(store.updates.length, 0);
+    assert.equal(state.list()[0].phase, scenario.startsWith("generation_") ? "disconnected" :
+      scenario === "failed" ? "error" : ["completed", "interrupted"].includes(scenario) ? scenario : "responding");
+    assert.ok(!JSON.stringify(logs).includes("private"));
+  });
+}
+
+test("steering readback keeps followup ordered and lets another thread proceed without replay", async () => {
+  let release, entered;
+  const gate = new Promise(resolve => { release = resolve; });
+  const ready = new Promise(resolve => { entered = resolve; });
+  const mutations = [], store = memoryStore();
+  const state = new RecoveryState({ store, rpc: async (method, params) => {
+    if (method === "turn/steer") {
+      mutations.push(params.clientUserMessageId);
+      if (params.clientUserMessageId === "first") throw new Error("ack missing");
+      return { turnId: "followup-turn" };
+    }
+    assert.equal(method, "thread/turns/list"); entered(); await gate;
+    return { data: [{ id: "wake-turn", status: "inProgress", items: [{ type: "userMessage", clientId: "first" }] }] };
+  } });
+  const request = id => ({ threadId: "serial-steer", expectedTurnId: "parked-turn", clientUserMessageId: id });
+  const first = state.steer(request("first")), second = state.steer(request("second"));
+  await ready;
+  await state.steer({ ...request("other"), threadId: "independent" });
+  assert.deepEqual(mutations, ["first", "other"]);
+  release();
+  assert.deepEqual(await first, { turnId: "wake-turn" });
+  assert.deepEqual(await second, { turnId: "followup-turn" });
+  assert.deepEqual(mutations, ["first", "other", "second"]);
+  assert.equal(store.updates.length, 0);
+  assert.equal(state.queues.size, 0);
+});
+
 for (const status of ["completed", "interrupted", "failed"]) {
   test(`persisted uncertain delivery reconciles ${status} by identity without replay`, async () => {
     const store = memoryStore(), calls = [];

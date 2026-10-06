@@ -10,6 +10,7 @@ mod apps;
 mod client;
 mod client_common;
 mod devin;
+mod managed_account_recovery;
 mod managed_catalog;
 mod managed_runtime;
 mod model_request;

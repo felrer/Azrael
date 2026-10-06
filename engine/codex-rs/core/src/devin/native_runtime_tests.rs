@@ -522,9 +522,190 @@ async fn provider_account_helper_process_enforces_protocol_and_failure_modes() {
     );
 }
 
+#[test]
+fn managed_recovery_marker_commits_latest_binding_and_rejects_stale_source() {
+    let root = tempfile::tempdir().unwrap();
+    let cwd = root.path().join("work");
+    pin_native_runtime(
+        root.path(),
+        "thread",
+        RuntimeBinding {
+            model_id: "swe-2-high",
+            cwd: &cwd,
+            credential_scope: "sha1:source",
+            account_id: Some("a"),
+        },
+    )
+    .unwrap();
+    let snapshot = state::recovery_snapshot(root.path(), "thread").unwrap();
+    state::replace_managed_binding(
+        root.path(),
+        "thread",
+        &snapshot,
+        "a",
+        "b",
+        "sha1:destination",
+    )
+    .unwrap();
+    assert_eq!(
+        existing_account_binding(root.path(), "thread").unwrap(),
+        ExistingAccountBinding::Managed("b".into())
+    );
+    // Restart validates the latest credential, while a stale recovery cannot undo it.
+    pin_native_runtime(
+        root.path(),
+        "thread",
+        RuntimeBinding {
+            model_id: "swe-2-high",
+            cwd: &cwd,
+            credential_scope: "sha1:destination",
+            account_id: Some("b"),
+        },
+    )
+    .unwrap();
+    assert!(
+        state::replace_managed_binding(root.path(), "thread", &snapshot, "a", "c", "sha1:other")
+            .is_err()
+    );
+    assert_eq!(
+        existing_account_binding(root.path(), "thread").unwrap(),
+        ExistingAccountBinding::Managed("b".into())
+    );
+    // A fork inherits b and thereafter owns its own marker.
+    pin_native_runtime(
+        root.path(),
+        "fork",
+        RuntimeBinding {
+            model_id: "swe-2-high",
+            cwd: &cwd,
+            credential_scope: "sha1:destination",
+            account_id: Some("b"),
+        },
+    )
+    .unwrap();
+    let fork_snapshot = state::recovery_snapshot(root.path(), "fork").unwrap();
+    state::replace_managed_binding(root.path(), "fork", &fork_snapshot, "b", "c", "sha1:fork")
+        .unwrap();
+    assert_eq!(
+        existing_account_binding(root.path(), "thread").unwrap(),
+        ExistingAccountBinding::Managed("b".into())
+    );
+}
+
+#[tokio::test]
+async fn recovery_credential_requires_consent_and_preserves_null_or_revoked_outcomes() {
+    let root = tempfile::tempdir().unwrap();
+    let capture = root.path().join("request.json");
+    let cancellation = CancellationToken::new();
+    let responses = [
+        r#"{"id":"request","type":"result","value":{"api_key":"secret","api_server_url":"https://example.test","account_id":"account-1"}}"#,
+        r#"{"id":"request","type":"result","value":null}"#,
+        r#"{"id":"request","type":"error","error":"permission revoked"}"#,
+        r#"{"id":"request","type":"result","value":{"api_key":"secret","api_server_url":"https://example.test","account_id":"replaced-account"}}"#,
+    ];
+    for (index, response) in responses.iter().enumerate() {
+        let helper = write_provider_account_helper(
+            root.path(),
+            &capture,
+            FakeProviderResponse::Json(response),
+        );
+        let config = accounts::HelperConfig {
+            helper,
+            bun: fake_provider_runtime(),
+        };
+        let result = accounts::request_recovery_credential_with(
+            root.path(),
+            &config,
+            "account-1",
+            "request",
+            Duration::from_secs(5),
+            &cancellation,
+        )
+        .await;
+        match index {
+            0 => assert_eq!(result.unwrap().unwrap().account_id, "account-1"),
+            1 => assert!(result.unwrap().is_none()),
+            _ => assert!(result.is_err()),
+        }
+        let request: serde_json::Value =
+            serde_json::from_slice(&std::fs::read(&capture).unwrap()).unwrap();
+        assert_eq!(
+            request,
+            serde_json::json!({
+                "protocol": 1, "id": "request", "action": "credential", "providerId": "devin",
+                "accountId": "account-1", "requireAutoSwitch": true,
+            })
+        );
+    }
+}
+
+#[test]
+fn managed_recovery_rejects_cli_marker() {
+    let root = tempfile::tempdir().unwrap();
+    pin_native_runtime(
+        root.path(),
+        "thread",
+        RuntimeBinding {
+            model_id: "swe-2-high",
+            cwd: root.path(),
+            credential_scope: "sha1:cli",
+            account_id: None,
+        },
+    )
+    .unwrap();
+    let snapshot = state::recovery_snapshot(root.path(), "thread").unwrap();
+    assert!(
+        state::replace_managed_binding(
+            root.path(),
+            "thread",
+            &snapshot,
+            "cli",
+            "managed",
+            "sha1:managed"
+        )
+        .is_err()
+    );
+    assert_eq!(
+        existing_account_binding(root.path(), "thread").unwrap(),
+        ExistingAccountBinding::Cli
+    );
+}
+
 enum FakeProviderResponse<'a> {
     Json(&'a str),
     Delay,
+}
+
+#[tokio::test]
+async fn provider_recovery_transport_cancels_running_helper() {
+    let root = tempfile::tempdir().unwrap();
+    let capture = root.path().join("request.json");
+    let helper = write_provider_account_helper(root.path(), &capture, FakeProviderResponse::Delay);
+    let cancellation = CancellationToken::new();
+    let cancel = cancellation.clone();
+    let runtime = fake_provider_runtime();
+    let operation = crate::managed_account_recovery::helper_rpc(
+        root.path(),
+        &helper,
+        &runtime,
+        serde_json::to_vec(&serde_json::json!({
+            "protocol": 1, "id": "r", "action": "recoverAccount", "providerId": "devin",
+            "threadId": "thread", "turnId": "turn", "model": "devin/swe-2-high",
+            "excludedAccountIds": [], "expectedAccountId": "a",
+        }))
+        .unwrap(),
+        Duration::from_secs(5),
+        &cancellation,
+    );
+    let cancel_operation = async move {
+        tokio::time::sleep(Duration::from_millis(30)).await;
+        cancel.cancel();
+    };
+    let (result, _) = tokio::join!(operation, cancel_operation);
+    assert!(matches!(
+        result.unwrap_err().details(),
+        CodexErrorDetails::Interrupted
+    ));
 }
 
 #[cfg(windows)]

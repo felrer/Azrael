@@ -4,8 +4,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const FONT_SOURCE = path.resolve(__dirname, "../extensions/azrael-ex/media/fonts");
-const FONT_FILES = ["gyeonggi-batang-regular.woff", "gyeonggi-batang-bold.woff", "NOTICE.md", "provenance.json"];
-const FONT_FAMILY = 'Consolas, "Azrael Gyeonggi Batang", "Malgun Gothic", "Segoe UI Emoji", monospace';
+const FONT_FILES = ["gyeonggi-title-light.woff", "gyeonggi-batang-regular.woff", "gyeonggi-batang-bold.woff", "NOTICE.md", "provenance.json"];
+const FONT_FAMILY = 'Consolas, "Azrael Gyeonggi Title", "Malgun Gothic", "Segoe UI Emoji", monospace';
 const sha = data => crypto.createHash("sha256").update(data).digest("hex");
 
 function verifiedFontFiles() {
@@ -38,12 +38,18 @@ function copyContentFontAssets(extensionRoot) {
 
 const CONTENT_FONT_CSS = `
 /*azrael-content-fonts-v1*/
-@font-face{font-family:"Azrael Gyeonggi Batang";src:url("./azrael-fonts/gyeonggi-batang-regular.woff") format("woff");font-style:normal;font-weight:400;font-display:swap}
-@font-face{font-family:"Azrael Gyeonggi Batang";src:url("./azrael-fonts/gyeonggi-batang-bold.woff") format("woff");font-style:normal;font-weight:700;font-display:swap}
-:root{--codex-content-font-family:${FONT_FAMILY}!important}
-[data-composer-body] .ProseMirror,[data-thread-title],[data-azrael-dynamic-text]{font-family:${FONT_FAMILY}!important}
-.font-content code,.font-content pre,[data-azrael-dynamic-text] code,[data-azrael-dynamic-text] pre,[data-composer-body] .ProseMirror code{font-family:${FONT_FAMILY}!important}
-:is(.font-content,[data-azrael-dynamic-text]) :is(button,select){font-family:var(--font-ui-family,var(--font-sans))!important}
+@font-face{font-family:"Azrael Gyeonggi Title";src:url("./azrael-fonts/gyeonggi-title-light.woff") format("woff");font-style:normal;font-weight:400;font-display:swap}
+@layer base{
+:root{--codex-content-font-family:${FONT_FAMILY}!important;font-synthesis-weight:none}
+/* Consolas has a 1ch space advance; subtract half without changing character spacing. */
+.font-content,[data-composer-body] .ProseMirror,[data-thread-title],[data-azrael-dynamic-text]{font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:-0.5ch!important}
+/* The message Markdown renderer sets content fonts without a .font-content wrapper. */
+._MarkdownRoot_176oq_2,._Paragraph_176oq_2,._Heading_176oq_2,._ListItem_176oq_2,._Table_176oq_2{word-spacing:-0.5ch!important}
+._MarkdownRoot_176oq_2 :is(code,pre){word-spacing:normal!important}
+._MarkdownRoot_176oq_2 :is(button,select){word-spacing:normal!important}
+.font-content code,.font-content pre,[data-azrael-dynamic-text] code,[data-azrael-dynamic-text] pre,[data-composer-body] .ProseMirror code{font-family:${FONT_FAMILY}!important;font-synthesis-weight:none;word-spacing:normal!important}
+:is(.font-content,[data-azrael-dynamic-text],[data-composer-body] .ProseMirror) :is(button,select){font-family:var(--font-ui-family,var(--font-sans))!important;word-spacing:normal!important}
+}
 `;
 
 module.exports = { FONT_FAMILY, FONT_FILES, CONTENT_FONT_CSS, getContentFontRules, copyContentFontAssets };

@@ -997,7 +997,7 @@ async fn get_context_remaining_returns_token_budget_remaining_fragment() -> Resu
         "get_context_remaining should be exposed when token budget is enabled"
     );
 
-    let remaining_context = "You have 6500 tokens left in this context window.".to_string();
+    let remaining_context = "You have 7000 tokens left in this context window.".to_string();
     let token_budgets = token_budget_contexts(&requests[1]);
     assert_eq!(token_budgets.len(), 1);
     token_budget_window_ids(&token_budgets[0], "/root");

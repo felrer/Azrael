@@ -70,6 +70,10 @@
     },
     "AzraelProfile": {
       "properties": {
+        "autoSwitchAllowed": {
+          "default": false,
+          "type": "boolean"
+        },
         "email": {
           "type": [
             "string",

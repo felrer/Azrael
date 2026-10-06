@@ -1,6 +1,6 @@
 "use strict";
-const CONTEXT_ASSET = "webview/assets/app-initial-9cbfb5c07b41.js";
-const SETTINGS_ASSET = "webview/assets/personalization-settings-22572f5615f8.js";
+const CONTEXT_ASSET = "webview/assets/app-initial-532d60c9b397.js";
+const SETTINGS_ASSET = "webview/assets/personalization-settings-dce4c2bafd78.js";
 const { MARKER, runProviderContext } = require("./provider-context-labels.cjs");
 function once(text, from, to) {
   if (text.split(from).length !== 2) throw Error("Pinned provider context anchor changed: " + from.slice(0, 100));
@@ -27,11 +27,31 @@ function decorateGauge(jsx, node, policy, ko) {
   if (!node || !policy) return node;
   const price = policy.pricing, input = policy.inputTokens;
   const yellow = (price?.status === "confirmed" || price?.status === "reference") && input != null && price.inputTokenThreshold != null && (price.inclusive ? input >= price.inputTokenThreshold : input > price.inputTokenThreshold);
-  const description = policyDescription(policy, ko) + (yellow ? "\n" + (price.status === "reference" ? (ko ? "API 참고: 장기 컨텍스트 요금 구간" : "API reference: long-context pricing tier") : (ko ? "장기 컨텍스트 요금 구간" : "Long-context pricing tier")) : "");
+  const tokens = n => n == null ? (ko ? "알 수 없음" : "unknown") : Number(n).toLocaleString(ko ? "ko-KR" : "en-US");
+  const usage = limit => {
+    const percent = input != null && limit > 0 ? (input / limit * 100).toLocaleString(ko ? "ko-KR" : "en-US", {minimumFractionDigits:1,maximumFractionDigits:1}) + "%" : (ko ? "알 수 없음" : "unknown");
+    return tokens(input) + " / " + tokens(limit) + (ko ? " 토큰" : " tokens") + " (" + percent + ")" + (policy.inputTokensEstimated ? (ko ? " · 추정" : " · estimated") : "");
+  };
+  const rows = [[ko ? "자동 압축 기준" : "Auto-compaction basis", usage(policy.autoCompactTokenLimit)], [ko ? "전체 용량 기준" : "Full capacity basis", usage(policy.contextWindow)]];
+  const model = policy.providerId + " / " + policy.modelId;
+  const known = price?.status === "confirmed" || price?.status === "reference";
+  const pricing = known && price.inputTokenThreshold != null
+    ? (price.status === "reference" ? (ko ? "API 장문 요금 기준" : "API long-context pricing threshold") : (ko ? "장문 요금 기준" : "Long-context pricing threshold")) + ": " + tokens(price.inputTokenThreshold) + (ko ? (price.inclusive ? " 토큰 이상" : " 토큰 초과") : (price.inclusive ? " tokens or more" : " tokens exceeded"))
+    : price?.status === "no-surcharge" || known && price.inputTokenThreshold == null
+      ? (price?.status === "reference" ? (ko ? "API 참고: 길이 추가 요금 없음" : "API reference: no length surcharge") : (ko ? "길이 추가 요금 없음" : "No length surcharge"))
+      : (ko ? "요금 기준 알 수 없음" : "Pricing threshold unknown");
+  const description = [ko ? "사용량" : "Usage", ...rows.map(([label,value]) => label + ": " + value), (ko ? "모델: " : "Model: ") + model, (ko ? "요금 참고: " : "Pricing reference: ") + pricing].join("\n");
+  const row = (label, value) => jsx("div", {style:{display:"grid",gridTemplateColumns:"max-content minmax(0,1fr)",gap:16,alignItems:"baseline"},children:[jsx("span",{children:label}),jsx("span",{style:{textAlign:"right",fontVariantNumeric:"tabular-nums",overflowWrap:"anywhere"},children:value})]});
+  const tooltip = jsx("div", {style:{display:"flex",flexDirection:"column",gap:10,textAlign:"left",maxWidth:"min(440px, calc(100vw - 32px))",whiteSpace:"normal"},children:[
+    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"사용량":"Usage"}),...rows.map(([label,value])=>row(label,value))]}),
+    row(ko?"모델":"Model",model),
+    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"요금 참고":"Pricing reference"}),jsx("span",{children:pricing}),price?.sourceUrl ? jsx("a",{href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",style:{color:"var(--vscode-textLink-foreground)",width:"fit-content"},children:ko?"공식 문서 ↗":"Official documentation ↗"}) : null]})
+  ]});
   const span = node.props.children;
   const css = "[data-azrael-pricing-boundary=true]{color:light-dark(#88732b,#c2ac65)!important}[data-azrael-pricing-boundary=true] svg circle{stroke:currentColor}.vscode-light [data-azrael-pricing-boundary=true]{color:#88732b!important}.vscode-dark [data-azrael-pricing-boundary=true],.dark [data-azrael-pricing-boundary=true]{color:#c2ac65!important}.vscode-high-contrast [data-azrael-pricing-boundary=true]{color:#e8d58a!important}.vscode-high-contrast-light [data-azrael-pricing-boundary=true]{color:#62500d!important}@media(forced-colors:active){[data-azrael-pricing-boundary=true]{color:CanvasText!important;outline:1px solid CanvasText}}";
-  return jsx(node.type, {...node.props, tooltipContent:jsx("div", {style:{whiteSpace:"pre-line"},children:[node.props.tooltipContent, jsx("div",{children:description})]}), children:jsx(span.type, {...span.props,
-    "aria-label":span.props["aria-label"] + ". " + description,
+  return jsx(node.type, {...node.props, interactive:true, keyboardNavigation:true, tooltipContent:tooltip, children:jsx(span.type, {...span.props,
+    tabIndex:0,
+    "aria-label":description + (yellow ? "\n" + (price.status === "reference" ? (ko ? "API 참고: 장기 컨텍스트 요금 구간" : "API reference: long-context pricing tier") : (ko ? "장기 컨텍스트 요금 구간" : "Long-context pricing tier")) : ""),
     "data-azrael-pricing-boundary":yellow ? "true" : "false",
     children:[jsx("style",{children:css}),span.props.children]})});
 }
@@ -62,7 +82,7 @@ function renderSettings(React, jsx, client, ko) {
   const buttonStyle = {padding:"6px 12px",alignSelf:"flex-start",borderRadius:4,background:"var(--vscode-button-background, #305f9b)",color:"var(--vscode-button-foreground, white)"};
   return jsx("section", {"data-azrael-provider-context":true,className:"flex flex-col gap-3",children:[
     jsx("h2",{children:ko?"제공자 자동 압축":"Provider auto-compaction"}),
-    jsx("p",{children:ko?"기본값: 길이 추가 요금 없는 기본 용량의 95%, 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 95% of the no-length-surcharge base, capped at the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
+    jsx("p",{children:ko?"기본값: 길이 추가 요금 없는 기본 용량의 95%, 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 95% of the no-length-surcharge base, capped ot the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
     jsx("style",{children:"[data-azrael-compaction-slider]{appearance:auto!important;-webkit-appearance:auto!important;height:24px;cursor:pointer;accent-color:var(--vscode-button-background,#305f9b)}[data-azrael-compaction-slider]::-webkit-slider-thumb{appearance:auto!important;-webkit-appearance:auto!important}[data-azrael-compaction-slider]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--vscode-button-background,#305f9b)}"}),
     error?jsx("p",{role:"alert",children:error}):null,
     ...Array.from(groups,([id, policies])=>{
@@ -76,7 +96,7 @@ function renderSettings(React, jsx, client, ko) {
         jsx("label",{children:[ko?"자동 압축 백분율 (%)":"Auto-compaction percentage (%)",jsx("input",{style:controlStyle,name:"percentage",type:"text",inputMode:"numeric",pattern:"[1-9][0-9]*",required:true,value:preview.percentage,onChange:update,disabled:pending})]}),
         jsx("label",{children:[(ko?"안전 범위 슬라이더: 1–":"Safe range slider: 1–")+preview.max+"%",jsx("input",{"data-azrael-compaction-slider":true,"aria-label":ko?"자동 압축 백분율 슬라이더":"Auto-compaction percentage slider",type:"range",min:1,max:preview.max,step:1,value:Math.min(preview.max,Math.max(1,Number(preview.percentage)||1)),onChange:update,disabled:pending,style:{display:"block",width:"100%"}})]}),
         jsx("p",{children:(ko?"기본 용량: ":"Base capacity: ")+tokens(preview.base)+(fallback?(ko?" 토큰. 추가 요금 경계가 없거나 알 수 없어 모델 용량을 사용합니다. 가격 상태를 확인하세요.":" tokens. Using model capacity because there is no known length-surcharge boundary; check pricing status."):(ko?" 토큰 (길이 추가 요금 없는 용량).":" tokens (no-length-surcharge capacity)."))}),
-        jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+preview.percentage+"% = "+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped at safe limit)"):"")}),
+        jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+preview.percentage+"% = "+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped ot safe limit)"):"")}),
         override?.token_limit!=null&&override.percentage==null?jsx("p",{children:(ko?"기존 토큰 한도 ":"Legacy token limit ")+tokens(override.token_limit)+(ko?"이 저장되어 있습니다. 저장을 누르면 표시된 백분율로 변경됩니다.":" remains stored until Save replaces it with the displayed percentage.")}):null,
         jsx("div",{style:{display:"flex",gap:8,alignItems:"center"},children:[
           jsx("button",{style:buttonStyle,type:"submit",disabled:pending,children:ko?"저장":"Save"}),
@@ -89,17 +109,17 @@ function renderSettings(React, jsx, client, ko) {
 function injectProviderContextControls(text, asset) {
   let count = 0;
   if (asset === CONTEXT_ASSET) {
-    text=once(text,"function Pea(e){","function __azraelNativeContextUsage(e){");
-    text=once(text,"function Tea(e){","function __azraelNativeContextGauge(e){");
-    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\nfunction Pea(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction Tea(e){return decorateGauge(b7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,ba().locale?.startsWith('ko'))}\n`;
+    text=once(text,"function _ra(e){","function __azraelNativeContextUsage(e){");
+    text=once(text,"function cra(e){","function __azraelNativeContextGauge(e){");
+    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\nfunction _ra(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction cra(e){return decorateGauge(_7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,_d().locale?.startsWith('ko'))}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
-    text=once(text,"function yr(){let e=(0,Cr.c)(9)","function yr(){let e=(0,Cr.c)(10)");
-    text=once(text,"e[7]===s?l=e[8]", "e[7]===s&&e[9]===r?l=e[8]");
-    text=once(text,"e[7]=s,e[8]=l),l}", "e[7]=s,e[8]=l,e[9]=r),l}");
-    text=once(text,"children:[a,o,s,c]", "children:[a,o,s,c,(0,$.jsx)(__AzraelContextSettings,{hostId:r})]");
-    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=o(qe),client=_e(scope,hostId),intl=i();return renderSettings(wr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
+    text=once(text,"function Tr(){let e=(0,Ar.c)(10)","function Tr(){let e=(0,Ar.c)(11)");
+    text=once(text,"e[8]===s?u=e[9]", "e[8]===s&&e[10]===r?u=e[9]");
+    text=once(text,"e[8]=s,e[9]=u),u}", "e[8]=s,e[9]=u,e[10]=r),u}");
+    text=once(text,"children:[a,o,null,s,c]", "children:[a,o,null,s,c,(0,$.jsx)(__AzraelContextSettings,{hostId:r})]");
+    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=u(Zt),client=me(scope,hostId),intl=g();return renderSettings(jr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
     count++;
   }
   return {text,count};

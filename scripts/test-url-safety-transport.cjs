@@ -6,7 +6,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { EventEmitter } = require("node:events");
 const test = require("node:test");
-const { ANCHOR, CURRENT_ANCHOR, STABLE_ANCHOR, MARKER, injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
+const { ANCHOR, CURRENT_ANCHOR, STABLE_ANCHOR, TARGET_ANCHOR, MARKER, injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
 const source = fs.readFileSync(path.join(__dirname, "url-safety-transport.cjs"), "utf8");
 
 function fixture(scenario = {}, env = {}) {
@@ -182,15 +182,15 @@ test("stale host encoding and content length are replaced with actual UTF-8 size
 });
 
 test("pinned real host injector replaces one anchor, remains idempotent, and preserves surrounding policy", () => {
-  const filename = path.join(__dirname, "../artifacts/deployments/original-official-26.908.40401/out/extension.js");
+  const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), "out/extension.js");
   const original = fs.readFileSync(filename, "utf8");
-  assert.equal(original.split(ANCHOR).length - 1, 1);
+  assert.equal(original.split(TARGET_ANCHOR).length - 1, 1);
   const patched = injectUrlSafetyTransport(original);
   assert.equal(patched.count, 1);
   assert.equal(patched.text.split(MARKER).length - 1, 1);
-  const start = original.indexOf(ANCHOR);
+  const start = original.indexOf(TARGET_ANCHOR);
   assert.equal(patched.text.slice(0, start), original.slice(0, start));
-  const suffix = original.slice(start + ANCHOR.length);
+  const suffix = original.slice(start + TARGET_ANCHOR.length);
   assert.ok(patched.text.endsWith(suffix));
   assert.deepEqual(injectUrlSafetyTransport(patched.text), { text: patched.text, count: 0 });
 });
@@ -216,16 +216,16 @@ test("injector refuses missing, duplicated, altered anchor or corrupt marker", (
 });
 
 test("stable official host preserves response classification and identity retry policy", () => {
-  const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416"), "out/extension.js");
+  const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), "out/extension.js");
   const original = fs.readFileSync(filename, "utf8");
-  assert.equal(original.split(STABLE_ANCHOR).length - 1, 1);
+  assert.equal(original.split(TARGET_ANCHOR).length - 1, 1);
   const patched = injectUrlSafetyTransport(original);
   assert.equal(patched.count, 1);
-  const start = original.indexOf(STABLE_ANCHOR);
+  const start = original.indexOf(TARGET_ANCHOR);
   assert.equal(patched.text.slice(0, start), original.slice(0, start));
-  assert.ok(patched.text.endsWith(original.slice(start + STABLE_ANCHOR.length)));
+  assert.ok(patched.text.endsWith(original.slice(start + TARGET_ANCHOR.length)));
   assert.ok(patched.text.includes("Authenticated principal changed"));
   assert.ok(patched.text.includes("(level,event,safe)=>ie()[level](event,{safe,sensitive:{}})"));
-  assert.ok(patched.text.includes(",y=!g.ok&&h?await P4e(g):null"));
+  assert.ok(patched.text.includes(",y=!g.ok&&h?await N4e(g):null"));
   assert.deepEqual(injectUrlSafetyTransport(patched.text), { text: patched.text, count: 0 });
 });

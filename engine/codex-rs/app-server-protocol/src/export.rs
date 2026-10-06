@@ -2386,14 +2386,19 @@ mod tests {
 
                 // If the last non-whitespace before ':' is '?', then this is an
                 // optional field with a nullable type (i.e., "?: T | null").
-                // These are only allowed in *Params types, except the additive stable usage
-                // response field, which older servers omit and newer servers return as null.
+                // Additive response fields may be absent on older servers and null on newer
+                // servers. Preserve compatibility only for these exact fields and types.
                 let legacy_account_usage_response = path
                     == Path::new("v2/GetAccountTokenUsageResponse.ts")
                     && field_prefix.trim() == "threadUsage?";
+                let legacy_root_resume_wait = (path == Path::new("v2/Turn.ts")
+                    || path == Path::new("v2/ThreadTimelineEntry.ts"))
+                    && field_prefix.trim() == "rootResumeWait?"
+                    && contents[colon_idx + 1..abs_idx].trim() == "RootResumeWait";
                 if field_prefix.chars().rev().find(|c| !c.is_whitespace()) == Some('?')
                     && !allow_optional_nullable
                     && !legacy_account_usage_response
+                    && !legacy_root_resume_wait
                 {
                     let line_number =
                         contents[..abs_idx].chars().filter(|c| *c == '\n').count() + 1;

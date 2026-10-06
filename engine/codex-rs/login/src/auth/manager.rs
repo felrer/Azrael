@@ -2068,6 +2068,7 @@ pub struct AuthManager {
     chatgpt_base_url: Option<String>,
     agent_identity_authapi_base_url: Option<String>,
     azrael_admission: Arc<crate::AzraelAuthAdmission>,
+    azrael_quota_recovery: OnceLock<Weak<dyn crate::AzraelQuotaRecovery>>,
     azrael_unmanaged_auth: Option<Arc<AzraelUnmanagedAuthLease>>,
     azrael_auth_usage: Option<Arc<AzraelAuthUsageLease>>,
     azrael_auth_transaction: Option<Arc<AzraelAuthTransaction>>,
@@ -2177,6 +2178,24 @@ impl AuthManager {
             .http_client_factory()
             .clone()
             .with_network_policy(self.application_network_policy().for_current_account())
+    }
+
+    pub fn set_azrael_quota_recovery(&self, owner: Weak<dyn crate::AzraelQuotaRecovery>) {
+        let _ = self.azrael_quota_recovery.set(owner);
+    }
+
+    pub async fn recover_usage_limit(
+        &self,
+        lease: &crate::AzraelTaskAuthLease,
+        context: crate::AzraelQuotaRecoveryContext,
+    ) -> std::io::Result<crate::AzraelQuotaRecoveryOutcome> {
+        if !lease.belongs_to(&self.azrael_admission) {
+            return Ok(crate::AzraelQuotaRecoveryOutcome::Superseded);
+        }
+        let Some(owner) = self.azrael_quota_recovery.get().and_then(Weak::upgrade) else {
+            return Ok(crate::AzraelQuotaRecoveryOutcome::Unavailable);
+        };
+        crate::azrael_quota_recovery::recover(lease, context, owner).await
     }
 
     pub fn azrael_admission(&self) -> Arc<crate::AzraelAuthAdmission> {
@@ -2338,6 +2357,7 @@ impl AuthManager {
             chatgpt_base_url,
             agent_identity_authapi_base_url,
             azrael_admission: Arc::default(),
+            azrael_quota_recovery: OnceLock::new(),
             azrael_unmanaged_auth: None,
             azrael_auth_usage: None,
             azrael_auth_transaction: None,
@@ -2379,6 +2399,7 @@ impl AuthManager {
             chatgpt_base_url: None,
             agent_identity_authapi_base_url: default_agent_identity_authapi_base_url(),
             azrael_admission: Arc::default(),
+            azrael_quota_recovery: OnceLock::new(),
             azrael_unmanaged_auth: None,
             azrael_auth_usage: None,
             azrael_auth_transaction: None,
@@ -2414,6 +2435,7 @@ impl AuthManager {
             chatgpt_base_url: None,
             agent_identity_authapi_base_url: default_agent_identity_authapi_base_url(),
             azrael_admission: Arc::default(),
+            azrael_quota_recovery: OnceLock::new(),
             azrael_unmanaged_auth: None,
             azrael_auth_usage: None,
             azrael_auth_transaction: None,
@@ -2457,6 +2479,7 @@ impl AuthManager {
                     .to_string(),
             ),
             azrael_admission: Arc::default(),
+            azrael_quota_recovery: OnceLock::new(),
             azrael_unmanaged_auth: None,
             azrael_auth_usage: None,
             azrael_auth_transaction: None,
@@ -2490,6 +2513,7 @@ impl AuthManager {
             chatgpt_base_url: None,
             agent_identity_authapi_base_url: default_agent_identity_authapi_base_url(),
             azrael_admission: Arc::default(),
+            azrael_quota_recovery: OnceLock::new(),
             azrael_unmanaged_auth: None,
             azrael_auth_usage: None,
             azrael_auth_transaction: None,

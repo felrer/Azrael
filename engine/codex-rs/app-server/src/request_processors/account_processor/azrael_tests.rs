@@ -269,6 +269,7 @@ fn current_auth_identity_marks_a_saved_profile_active_without_a_window_selection
         workspace_account_id: "workspace-a".to_string(),
         user_id: "user-a".to_string(),
         plan_type: Some("plus".to_string()),
+        auto_switch_allowed: false,
     };
 
     assert_eq!(

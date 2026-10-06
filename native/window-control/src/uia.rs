@@ -1,9 +1,9 @@
 use crate::protocol::{self, Action, Error, Result};
 use serde_json::{json, Value};
-use std::collections::HashMap;
+use std::collections::{HashMap, VecDeque};
 use windows::{
     core::*,
-    Win32::{Foundation::HWND, UI::Accessibility::*},
+    Win32::{Foundation::{HWND, LPARAM, WPARAM}, UI::{Accessibility::*, WindowsAndMessaging::*}},
 };
 
 pub fn assert_descendant(
@@ -39,60 +39,100 @@ pub fn assert_descendant(
     ))
 }
 
+const MAX_ELEMENTS: usize = 2048;
+const MAX_DEPTH: usize = 128;
+
+fn schedule<T>(pending: &mut VecDeque<T>, node: T, retained: usize, depth: usize, siblings: usize) -> bool {
+    if depth >= MAX_DEPTH || siblings >= MAX_ELEMENTS || retained + pending.len() >= MAX_ELEMENTS {
+        return false;
+    }
+    pending.push_back(node);
+    true
+}
+
+// The generated bindings turn successful null walker results into E_POINTER.
+// Read the ABI result so absent children are distinct from actual provider failures.
+unsafe fn related_element(walker: &IUIAutomationTreeWalker, element: &IUIAutomationElement, sibling: bool) -> Result<Option<IUIAutomationElement>> {
+    let mut raw = std::ptr::null_mut();
+    let method = if sibling { walker.vtable().GetNextSiblingElement } else { walker.vtable().GetFirstChildElement };
+    method(walker.as_raw(), element.as_raw(), &mut raw).ok()?;
+    Ok(if raw.is_null() { None } else { Some(IUIAutomationElement::from_raw(raw)) })
+}
+
 pub fn elements(
     automation: &IUIAutomation,
     hwnd: HWND,
-) -> Result<(Vec<Value>, HashMap<String, IUIAutomationElement>)> {
+) -> Result<(Vec<Value>, HashMap<String, IUIAutomationElement>, bool)> {
     unsafe {
         let root = automation.ElementFromHandle(hwnd)?;
         let walker = automation.RawViewWalker()?;
-        let mut pending = vec![(root, 0usize)];
+        let mut pending = VecDeque::from([(root, 0usize, None::<String>)]);
         let mut references = HashMap::new();
         let mut descriptors = Vec::new();
+        let mut truncated = false;
         // Walk incrementally rather than unbounded FindAll allocations from a provider.
-        while let Some((element, depth)) = pending.pop() {
-            if descriptors.len() >= 2048 || depth >= 128 {
-                return Err(Error::new(
-                    "uia-tree-limit",
-                    "Accessibility tree exceeds supported bounds",
-                ));
-            }
+        while let Some((element, depth, parent_id)) = pending.pop_front() {
             assert_descendant(automation, hwnd, &element)?;
             let id = format!("element-{}", descriptors.len() + 1);
             let mut patterns = Vec::new();
+            let is_password = element.CurrentIsPassword()?.as_bool();
+            let enabled = element.CurrentIsEnabled()?.as_bool();
+            let automation_id = element.CurrentAutomationId()?.to_string();
+            let mut properties = serde_json::Map::new();
             if element
                 .GetCurrentPatternAs::<IUIAutomationInvokePattern>(UIA_InvokePatternId)
                 .is_ok()
             {
                 patterns.push("invoke");
             }
-            if element
+            if let Ok(pattern) = element
                 .GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
-                .is_ok()
             {
-                patterns.push("setValue");
+                if enabled && pattern.CurrentIsReadOnly().is_ok_and(|readonly| !readonly.as_bool()) {
+                    patterns.push("setValue");
+                }
+                if !is_password {
+                    if let Ok(value) = pattern.CurrentValue() {
+                        let value = value.to_string();
+                        if value.len() > 65536 {
+                            return Err(Error::new("uia-value-limit", "Accessibility value exceeds supported bounds"));
+                        }
+                        properties.insert("value".into(), Value::String(value));
+                    }
+                }
             }
-            if element
+            if let Ok(pattern) = element
                 .GetCurrentPatternAs::<IUIAutomationTogglePattern>(UIA_TogglePatternId)
-                .is_ok()
             {
                 patterns.push("toggle");
+                if let Ok(state) = pattern.CurrentToggleState() {
+                    let state = match state { ToggleState_Off => Some("off"), ToggleState_On => Some("on"),
+                        ToggleState_Indeterminate => Some("indeterminate"), _ => None };
+                    if let Some(state) = state { properties.insert("toggleState".into(), json!(state)); }
+                }
             }
-            if element
+            if let Ok(pattern) = element
                 .GetCurrentPatternAs::<IUIAutomationSelectionItemPattern>(
                     UIA_SelectionItemPatternId,
                 )
-                .is_ok()
             {
                 patterns.push("select");
+                if let Ok(selected) = pattern.CurrentIsSelected() {
+                    properties.insert("selected".into(), json!(selected.as_bool()));
+                }
             }
-            if element
+            if let Ok(pattern) = element
                 .GetCurrentPatternAs::<IUIAutomationExpandCollapsePattern>(
                     UIA_ExpandCollapsePatternId,
                 )
-                .is_ok()
             {
                 patterns.extend(["expand", "collapse"]);
+                if let Ok(state) = pattern.CurrentExpandCollapseState() {
+                    let state = match state { ExpandCollapseState_Collapsed => Some("collapsed"),
+                        ExpandCollapseState_Expanded => Some("expanded"), ExpandCollapseState_PartiallyExpanded => Some("partial"),
+                        ExpandCollapseState_LeafNode => Some("leaf"), _ => None };
+                    if let Some(state) = state { properties.insert("expandState".into(), json!(state)); }
+                }
             }
             if element
                 .GetCurrentPatternAs::<IUIAutomationScrollPattern>(UIA_ScrollPatternId)
@@ -100,40 +140,146 @@ pub fn elements(
             {
                 patterns.push("scroll");
             }
-            let name = if element.CurrentIsPassword()?.as_bool() {
+            if enabled && key_target(automation, hwnd, &element).is_ok() {
+                patterns.push("pressKey");
+            }
+            let name = if is_password {
                 String::new()
             } else {
                 element.CurrentName()?.to_string()
             };
-            if name.len() > 65536 {
+            if name.len() > 65536 || automation_id.len() > 65536 {
                 return Err(Error::new(
                     "uia-value-limit",
-                    "Accessibility name exceeds supported bounds",
+                    "Accessibility name or AutomationId exceeds supported bounds",
                 ));
             }
-            descriptors.push(json!({ "id": id, "name": name, "controlType": control_type(element.CurrentControlType()?.0), "patterns": patterns }));
-            if let Ok(child) = walker.GetFirstChildElement(&element) {
+            properties.extend(json!({ "id": id, "name": name, "controlType": control_type(element.CurrentControlType()?.0),
+                "patterns": patterns, "automationId": automation_id, "parentId": parent_id,
+                "enabled": enabled, "isPassword": is_password }).as_object().unwrap().clone());
+            descriptors.push(Value::Object(properties));
+            if let Some(child) = related_element(&walker, &element, false)? {
                 let mut child = child;
                 let mut siblings = 0;
                 loop {
-                    pending.push((child.clone(), depth + 1));
-                    siblings += 1;
-                    if siblings > 2048 || pending.len() > 2048 {
-                        return Err(Error::new(
-                            "uia-tree-limit",
-                            "Accessibility tree exceeds supported bounds",
-                        ));
+                    if !schedule(&mut pending, (child.clone(), depth + 1, Some(id.clone())), descriptors.len(), depth + 1, siblings) {
+                        truncated = true;
+                        break;
                     }
-                    match walker.GetNextSiblingElement(&child) {
-                        Ok(next) => child = next,
-                        Err(_) => break,
+                    siblings += 1;
+                    match related_element(&walker, &child, true)? {
+                        Some(next) => child = next,
+                        None => break,
                     }
                 }
             }
             references.insert(id, element);
         }
-        Ok((descriptors, references))
+        Ok((descriptors, references, truncated))
     }
+}
+
+#[cfg(test)]
+mod budget_tests {
+    use super::*;
+
+    fn walk(children: impl Fn(usize) -> Vec<usize>) -> (Vec<(usize, Option<usize>)>, bool) {
+        let mut pending = VecDeque::from([(0, 0, None)]);
+        let mut retained = Vec::new();
+        let mut truncated = false;
+        while let Some((node, depth, parent)) = pending.pop_front() {
+            retained.push((node, parent));
+            for (siblings, child) in children(node).into_iter().enumerate() {
+                if !schedule(&mut pending, (child, depth + 1, Some(node)), retained.len(), depth + 1, siblings) {
+                    truncated = true;
+                    break;
+                }
+            }
+        }
+        (retained, truncated)
+    }
+
+    #[test]
+    fn breadth_first_preserves_shallow_nodes_and_returned_parents() {
+        let (nodes, truncated) = walk(|node| match node { 0 => vec![1, 2], 1 => vec![3, 4], 2 => vec![5], _ => vec![] });
+        assert!(!truncated);
+        assert_eq!(nodes.iter().map(|(node, _)| *node).collect::<Vec<_>>(), vec![0, 1, 2, 3, 4, 5]);
+        for (index, (_, parent)) in nodes.iter().enumerate() {
+            if let Some(parent) = parent { assert!(nodes[..index].iter().any(|(node, _)| node == parent)); }
+        }
+    }
+
+    #[test]
+    fn exact_element_budget_with_complete_leaves_is_not_truncated() {
+        let (nodes, truncated) = walk(|node| if node == 0 { (1..MAX_ELEMENTS).collect() } else { vec![] });
+        assert_eq!(nodes.len(), MAX_ELEMENTS);
+        assert!(!truncated);
+    }
+
+    #[test]
+    fn extra_sibling_returns_bounded_partial_tree() {
+        let (nodes, truncated) = walk(|node| if node == 0 { (1..=MAX_ELEMENTS).collect() } else { vec![] });
+        assert_eq!(nodes.len(), MAX_ELEMENTS);
+        assert!(truncated);
+    }
+
+    #[test]
+    fn exact_depth_leaf_is_complete_but_deeper_child_is_truncated() {
+        let (nodes, truncated) = walk(|node| if node + 1 < MAX_DEPTH { vec![node + 1] } else { vec![] });
+        assert_eq!(nodes.len(), MAX_DEPTH);
+        assert!(!truncated);
+        let (nodes, truncated) = walk(|node| vec![node + 1]);
+        assert_eq!(nodes.len(), MAX_DEPTH);
+        assert!(truncated);
+    }
+
+    #[test]
+    fn full_queue_rejects_additional_work_without_growth() {
+        let mut pending = VecDeque::from(vec![0; MAX_ELEMENTS]);
+        assert!(!schedule(&mut pending, 1, 0, 1, 0));
+        assert_eq!(pending.len(), MAX_ELEMENTS);
+    }
+
+    #[test]
+    fn retained_plus_pending_and_sibling_limits_are_enforced() {
+        let mut pending = VecDeque::from([0]);
+        assert!(!schedule(&mut pending, 1, MAX_ELEMENTS - 1, 1, 0));
+        assert!(!schedule(&mut pending, 1, 0, 1, MAX_ELEMENTS));
+        assert_eq!(pending.len(), 1);
+    }
+}
+
+pub fn key_target(automation: &IUIAutomation, root: HWND, element: &IUIAutomationElement) -> Result<HWND> {
+    unsafe {
+        let target = element.CurrentNativeWindowHandle()?;
+        if !IsWindow(target).as_bool() || (target != root && !IsChild(root, target).as_bool()) {
+            return Err(Error::new("unsupported-action", "Element has no supported window-directed key target"));
+        }
+        // Virtual controls can share an ancestor HWND. A message to that HWND
+        // can reach another focused control, so require the HWND's exact owner.
+        let owner = automation.ElementFromHandle(target)?;
+        if !automation.CompareElements(element, &owner)?.as_bool() {
+            return Err(Error::new("unsupported-action", "Element does not own its window-directed key target"));
+        }
+        assert_descendant(automation, root, element)?;
+        Ok(target)
+    }
+}
+
+pub fn press_key(automation: &IUIAutomation, root: HWND, element: &IUIAutomationElement, value: Option<Value>) -> Result<()> {
+    let (key, scan, extended) = protocol::named_key(value.as_ref())?;
+    unsafe {
+        if !element.CurrentIsEnabled()?.as_bool() {
+            return Err(Error::new("disabled-element", "Element is disabled"));
+        }
+        let target = key_target(automation, root, element)?;
+        let bits = 1u32 | ((scan as u32) << 16) | if extended { 1 << 24 } else { 0 };
+        PostMessageW(target, WM_KEYDOWN, WPARAM(key as usize), LPARAM(bits as isize))?;
+        // A second queue failure leaves delivery uncertain; never retry this mutation.
+        PostMessageW(target, WM_KEYUP, WPARAM(key as usize), LPARAM((bits | (3 << 30)) as isize))
+            .map_err(|_| Error::new("uncertain-delivery", "Key down queued but key up could not be queued"))?;
+    }
+    Ok(())
 }
 
 fn control_type(id: i32) -> String {
@@ -212,6 +358,7 @@ pub fn act(element: &IUIAutomationElement, action: &Action, value: Option<Value>
             return Err(Error::new("disabled-element", "Element is disabled"));
         }
         match action {
+            Action::PressKey => return Err(Error::new("unsupported-action", "pressKey requires a validated window delivery target")),
             Action::Invoke => element
                 .GetCurrentPatternAs::<IUIAutomationInvokePattern>(UIA_InvokePatternId)
                 .map_err(unsupported)?

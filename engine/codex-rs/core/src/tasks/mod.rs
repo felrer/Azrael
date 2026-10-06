@@ -4,6 +4,14 @@ mod regular;
 mod review;
 mod user_shell;
 
+struct TaskAccountLease(Arc<codex_login::AzraelTaskAuthLease>);
+
+impl Drop for TaskAccountLease {
+    fn drop(&mut self) {
+        self.0.finish();
+    }
+}
+
 use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
@@ -298,6 +306,9 @@ impl Session {
             .azrael_admission()
             .enter_task()
             .await;
+        if let Ok(mut lease) = turn_context.account_lease.lock() {
+            *lease = Some(Arc::clone(&account_guard));
+        }
         // Inherited or recovered roots are applied before task start. Otherwise this
         // task owns its turn, including background work. Later mail cannot change it.
         turn_context
@@ -371,7 +382,7 @@ impl Session {
         );
         let handle = tokio::spawn(
             async move {
-                let _account_guard = account_guard;
+                let _account_guard = TaskAccountLease(account_guard);
                 let ctx_for_finish = Arc::clone(&ctx);
                 let task_result = task_for_run
                     .run(
@@ -656,6 +667,7 @@ impl Session {
                 self.emit_turn_error_lifecycle(
                     turn_context.as_ref(),
                     err.to_codex_protocol_error(),
+                    err.details(),
                 )
                 .await;
                 self.track_turn_codex_error(turn_context.as_ref(), &err);
