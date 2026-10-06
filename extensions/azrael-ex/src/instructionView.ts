@@ -15,7 +15,7 @@ export function renderInstructionMarkup(state: InstructionUiState, selected: rea
   const disabled = state.busy ? " disabled" : "";
   const unavailable = !release?.compatible;
   const button = (action: string, title: string, blocked = false) => `<button type="button" data-action="${action}"${disabled || (blocked ? " disabled" : "")}>${title}</button>`;
-  return `<style>${instructionStyles}</style><main aria-label="지침 문서" aria-busy="${!!state.busy}"><h1>지침 문서</h1>
+  return `<style>${instructionStyles}</style><main aria-label="지침 문서" aria-busy="${!!state.busy}"><h1>지침 문서 (미구현)</h1>
   <div class="row"><span>배포 소스</span><span>${escape(state.repository)}</span></div>
   <div class="row"><span>현재 적용 버전</span><span>${escape(state.currentVersion ?? "적용되지 않음")}</span></div>
   <div class="row"><span>최신 호환 버전</span><span>${escape(state.versions.find(v => v.compatible && !v.prerelease)?.version ?? "확인 필요")}</span></div>
@@ -52,7 +52,7 @@ export class InstructionView implements vscode.Disposable {
       });
       panel.onDidDispose(() => { if (this.panel === panel) this.panel = undefined; this.remove(panel.webview); });
       const nonce = randomBytes(18).toString("hex");
-      panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'"><style nonce="${nonce}">${instructionStyles}#content{width:100%}</style></head><body><div class="shell"><aside aria-label="설정"><button data-section="general"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6"/><circle cx="10" cy="10" r="2"/></svg>일반</button><button data-section="instructions" aria-current="true"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h7l3 3v12H5z M8 8h4 M8 11h4 M8 14h4"/></svg>지침 문서</button></aside><div id="content"></div></div><script nonce="${nonce}">(${standaloneClient.toString()})(${JSON.stringify(nonce)},${JSON.stringify(instructionStyles)});</script></body></html>`;
+      panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}'"><style nonce="${nonce}">${instructionStyles}#content{width:100%}</style></head><body><div class="shell"><aside aria-label="설정"><button data-section="general"><svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="6"/><circle cx="10" cy="10" r="2"/></svg>일반</button><button data-section="instructions" aria-current="true"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 2.5h7l3 3v12H5z M8 8h4 M8 11h4 M8 14h4"/></svg>지침 문서 (미구현)</button></aside><div id="content"></div></div><script nonce="${nonce}">(${standaloneClient.toString()})(${JSON.stringify(nonce)},${JSON.stringify(instructionStyles)});</script></body></html>`;
     }
     this.panel.reveal();
   }
