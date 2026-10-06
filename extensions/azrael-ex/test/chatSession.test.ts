@@ -53,6 +53,42 @@ class MockServer extends EventEmitter {
   dispose(): void {}
 }
 
+test("managed connection failures explain safe causes and pause without replaying tools", async () => {
+  const wire = new MockServer();
+  const chat = new ChatSession(wire, "/project");
+  await chat.start();
+  await chat.newThread();
+  const causes = [
+    ["provider_headers_failed", "원인은 확인되지 않았습니다"],
+    ["provider_connection_dns", "DNS 조회"],
+    ["provider_connection_tls", "TLS 연결"],
+    ["provider_connection_reset", "연결이 끊어졌습니다"],
+    ["provider_connection_refused", "연결이 거부됐습니다"],
+    ["provider_connection_timeout", "대기 시간이 초과됐습니다"],
+    ["provider_connection_unreachable", "네트워크 경로"],
+    ["provider_connection_proxy", "프록시 연결"],
+  ];
+  for (const [code, cause] of causes) {
+    wire.emit("notification", "turn/completed", { threadId: "new", turn: {
+      id: code, status: "failed", error: { message: `SECRET_PAYLOAD (${code})`, codexErrorInfo: "other" },
+    } });
+    assert.ok(chat.state.error?.includes(cause));
+    assert.match(chat.state.error ?? "", /기존 작업 결과.*이 세션에서 다시 요청하세요/);
+    assert.doesNotMatch(chat.state.error ?? "", /SECRET|provider_connection|provider_headers/);
+  }
+  wire.emit("notification", "turn/completed", { threadId: "new", turn: {
+    id: "unknown", status: "failed", error: { message: "SECRET (provider_connection_secret)", codexErrorInfo: "other" },
+  } });
+  assert.match(chat.state.error ?? "", /diagnostics/);
+  assert.doesNotMatch(chat.state.error ?? "", /SECRET/);
+  wire.emit("notification", "turn/completed", { threadId: "new", turn: {
+    id: "auth", status: "failed", error: { message: "SECRET (provider_connection_dns)", codexErrorInfo: "unauthorized" },
+  } });
+  assert.match(chat.state.error ?? "", /Authentication expired/);
+  assert.equal(wire.calls.filter(call => call.method === "thread/queue/start").length, 0);
+  chat.dispose();
+});
+
 test("chat selects server models, starts and resumes threads, streams, interrupts and approves", async () => {
   const wire = new MockServer();
   const chat = new ChatSession(wire, "/project");

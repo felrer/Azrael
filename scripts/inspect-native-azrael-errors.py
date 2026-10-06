@@ -40,6 +40,8 @@ PROVIDER_REASONS = frozenset((
     "unrecognized_message",
 ))
 UTC = dt.timezone.utc
+CONNECTION_CATEGORIES = {"dns", "tls", "reset", "refused", "timeout", "unreachable", "proxy"}
+CONNECTION_OUTCOMES = {"provider_connection_" + value for value in CONNECTION_CATEGORIES} | {"provider_headers_failed"}
 
 
 def timestamp(value: int) -> str:
@@ -127,11 +129,11 @@ def inference_diagnostics(body: str, target: str) -> dict:
     fields = body[marker.end():]
     outcome = re.search(r'(?<!\w)outcome="([a-z_]+)"(?=\s|$)', fields)
     if marker[1] in {"native_inference_progress", "native_inference_finished"} and (
-        not outcome or outcome[1] not in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline"}
+        not outcome or outcome[1] not in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline"} | CONNECTION_OUTCOMES
     ):
         return {}
     result: dict = {"event": marker[1]}
-    if outcome and outcome[1] in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline", "retry_scheduled", "retry_exhausted", "failed", "completed"}:
+    if outcome and outcome[1] in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline", "retry_scheduled", "retry_exhausted", "failed", "completed"} | CONNECTION_OUTCOMES:
         result["outcome"] = outcome[1]
     for field in ("elapsed_ms", "network_idle_ms", "event_idle_ms", "bytes_received", "event_count",
                   "frames_received", "output_bytes", "attempt"):
@@ -153,6 +155,12 @@ def inference_diagnostics(body: str, target: str) -> dict:
 
 
 TRANSPORT_ENUMS = {
+    "connection_error": CONNECTION_CATEGORIES,
+    "connection_error_code": {"ENOTFOUND", "EAI_AGAIN", "ECONNRESET", "EPIPE", "UND_ERR_SOCKET", "ECONNREFUSED",
+                              "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "ENETUNREACH", "EHOSTUNREACH", "ENETDOWN",
+                              "ERR_TLS_CERT_ALTNAME_INVALID", "CERT_HAS_EXPIRED", "DEPTH_ZERO_SELF_SIGNED_CERT",
+                              "SELF_SIGNED_CERT_IN_CHAIN", "UNABLE_TO_VERIFY_LEAF_SIGNATURE",
+                              "UNABLE_TO_GET_ISSUER_CERT_LOCALLY", "ERR_SSL_WRONG_VERSION_NUMBER", "ERR_PROXY_CONNECTION_FAILED"},
     "read_state": {"idle", "pending", "received", "eof", "error", "cancelled"},
     "parser_state": {"idle", "pending", "yielded", "done", "error"},
     "last_sse_event": {"none", "message_start", "content_block_start", "content_block_delta",
@@ -203,7 +211,7 @@ def transport_diagnostics(body: str, target: str) -> dict:
     outcome = re.search(r'(?<!\w)outcome="([a-z_]+)"(?=\s|$)', fields)
     if outcome and outcome[1] in {"running", "completed", "inference_output_idle", "engine_deadline",
                                 "provider_request_deadline", "provider_failure", "provider_stream_idle",
-                                "provider_headers_timeout", "cancelled", "helper_error"}:
+                                "provider_headers_timeout", "cancelled", "helper_error"} | CONNECTION_OUTCOMES:
         result["outcome"] = outcome[1]
     return result
 

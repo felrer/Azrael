@@ -15,6 +15,21 @@ SCRIPT = Path(__file__).resolve().parents[1] / "inspect-native-azrael-errors.py"
 
 
 class InspectorTests(unittest.TestCase):
+    def test_connection_evidence_and_outcomes_are_allowlisted(self):
+        outcomes = ["provider_connection_" + category for category in
+                    ("dns", "tls", "reset", "refused", "timeout", "unreachable", "proxy")] + ["provider_headers_failed"]
+        records = [("devin_native_progress", f'event="native_inference_finished" outcome="{outcome}"', "INFO") for outcome in outcomes]
+        records += [("devin_native_progress", 'event="native_inference_transport" outcome="provider_connection_dns" '
+                     'transport={"connection_error":"dns","connection_error_code":"ENOTFOUND","host":"SECRET"}', "INFO"),
+                    ("devin_native_progress", 'event="native_inference_transport" outcome="provider_connection_SECRET" '
+                     'transport={"error_stage":"headers","connection_error":"SECRET","connection_error_code":"SECRET"}', "INFO")]
+        report, stdout = self.inspect(records)
+        events = report["eventsNewestFirst"]
+        self.assertEqual(events[0]["transportDiagnostics"], {"transport": {"error_stage": "headers"}})
+        self.assertEqual(events[1]["transportDiagnostics"], {"transport": {"connection_error": "dns", "connection_error_code": "ENOTFOUND"}, "outcome": "provider_connection_dns"})
+        self.assertEqual({event["inferenceDiagnostics"]["outcome"] for event in events[2:]}, set(outcomes))
+        self.assertNotIn("SECRET", stdout)
+
     def inspect(self, records):
         with tempfile.TemporaryDirectory(prefix="azrael-reason-test-") as root:
             database = Path(root) / "logs_2.sqlite"

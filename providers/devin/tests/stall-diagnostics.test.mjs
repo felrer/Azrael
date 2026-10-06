@@ -1,7 +1,39 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { createStallDiagnostics, observeRawReads, observeParser } from '../stall-diagnostics.mjs';
+import { classifyConnectionError, createStallDiagnostics, observeRawReads, observeParser } from '../stall-diagnostics.mjs';
 import { createProgressMonitor } from '../progress.mjs';
+
+test('connection classification uses exact bounded, cycle-safe cause codes only', () => {
+  const categories = {
+    dns: ['ENOTFOUND', 'EAI_AGAIN'], reset: ['ECONNRESET', 'EPIPE', 'UND_ERR_SOCKET'], refused: ['ECONNREFUSED'],
+    timeout: ['ETIMEDOUT', 'UND_ERR_CONNECT_TIMEOUT'], unreachable: ['ENETUNREACH', 'EHOSTUNREACH', 'ENETDOWN'],
+    tls: ['ERR_TLS_CERT_ALTNAME_INVALID', 'CERT_HAS_EXPIRED', 'DEPTH_ZERO_SELF_SIGNED_CERT', 'SELF_SIGNED_CERT_IN_CHAIN', 'UNABLE_TO_VERIFY_LEAF_SIGNATURE', 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY', 'ERR_SSL_WRONG_VERSION_NUMBER'],
+    proxy: ['ERR_PROXY_CONNECTION_FAILED'],
+  };
+  for (const [category, codes] of Object.entries(categories)) for (const code of codes) {
+    const evidence = classifyConnectionError(new TypeError('SECRET_URL', { cause: { code, host: 'SECRET_HOST', stack: 'SECRET_STACK' } }));
+    assert.deepEqual(evidence, { connection_error: category, connection_error_code: code });
+    assert(!JSON.stringify(evidence).includes('SECRET'));
+  }
+  const wrap = cause => ({ cause });
+  assert.equal(classifyConnectionError(wrap(wrap(wrap(wrap({ code: 'ENOTFOUND' }))))), undefined);
+  assert.equal(classifyConnectionError(wrap(wrap(wrap({ code: 'ENOTFOUND' })))).connection_error, 'dns');
+  const cycle = { code: 'SECRET' }; cycle.cause = cycle;
+  assert.equal(classifyConnectionError(cycle), undefined);
+  for (const error of [null, 'ENOTFOUND', { code: 'enotfound' }, { message: 'ENOTFOUND' }, { get code() { throw Error('SECRET'); } }]) assert.equal(classifyConnectionError(error), undefined);
+});
+
+test('outer parser catch preserves first connection failure evidence and deadline precedence', () => {
+  const tracker = createStallDiagnostics();
+  tracker.error('body_read', new TypeError('SECRET', { cause: { code: 'ECONNRESET' } }));
+  const deadline = new AbortController(); deadline.abort();
+  tracker.error('adapter_parse', new Error('SECRET'), deadline.signal);
+  tracker.error('map', { code: 'ENOTFOUND' });
+  assert.equal(tracker.snapshot().error_stage, 'body_read');
+  assert.equal(tracker.snapshot().error_name, 'type_error');
+  assert.equal(tracker.snapshot().connection_error_code, 'ECONNRESET');
+  assert.equal(tracker.snapshot().abort_source, 'deadline');
+});
 
 test('read demand, wait, exact bytes and source cancellation', async () => {
   let time = 0, source, cancelled, pulls = 0;
