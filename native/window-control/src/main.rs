@@ -5,8 +5,8 @@ use protocol::{Error, Request, Result};
 use serde_json::{json, Value};
 use std::io::{self, Write};
 
-fn dispatch(backend: &mut Option<windows_backend::Backend>, request: Request) -> Result<Value> {
-    protocol::validate_request(&request)?;
+fn validate_dispatch(request: &Request) -> Result<()> {
+    protocol::validate_request(request)?;
     match request.method.as_str() {
         "listWindows" | "shutdown" => {
             if request.params != Value::Null && request.params != json!({}) {
@@ -16,7 +16,7 @@ fn dispatch(backend: &mut Option<windows_backend::Backend>, request: Request) ->
                 ));
             }
         }
-        "observe" | "restore" | "resize" | "act" | "status" => (),
+        "observe" | "inspect" | "restore" | "resize" | "act" | "status" => (),
         _ => {
             return Err(Error::new(
                 "unknown-method",
@@ -24,6 +24,11 @@ fn dispatch(backend: &mut Option<windows_backend::Backend>, request: Request) ->
             ))
         }
     }
+    Ok(())
+}
+
+fn dispatch(backend: &mut Option<windows_backend::Backend>, request: Request) -> Result<Value> {
+    validate_dispatch(&request)?;
     if request.method == "shutdown" {
         return Ok(json!({ "shutdown": true }));
     }
@@ -34,6 +39,25 @@ fn dispatch(backend: &mut Option<windows_backend::Backend>, request: Request) ->
         .as_mut()
         .unwrap()
         .call(&request.method, request.params)
+}
+
+#[cfg(test)]
+mod dispatch_tests {
+    use super::*;
+
+    #[test]
+    fn supported_backend_methods_pass_dispatch_gate_without_desktop_operations() {
+        for method in ["listWindows", "observe", "inspect", "status", "restore", "resize", "act", "shutdown"] {
+            let request = Request { id: json!("dispatch-contract"), method: method.into(), params: json!({}) };
+            assert!(validate_dispatch(&request).is_ok(), "Supported method rejected: {method}");
+        }
+    }
+
+    #[test]
+    fn unsupported_method_remains_rejected() {
+        let request = Request { id: json!("dispatch-contract"), method: "shell".into(), params: json!({}) };
+        assert_eq!(validate_dispatch(&request).unwrap_err().code, "unknown-method");
+    }
 }
 
 fn main() -> io::Result<()> {

@@ -1,5 +1,5 @@
 "use strict";
-const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), os = require("node:os"), vm = require("node:vm");
+const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), Kd = require("node:os"), vm = require("node:vm");
 const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement,
   COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET,
   MANAGEMENT_MARKER, managementReplacements,
@@ -12,7 +12,7 @@ function assetRules(transformer, asset, rules = transformer.getTransformRules())
   return typeof transformer.getAssetTransformRules === "function" ? transformer.getAssetTransformRules(asset, rules) : rules;
 }
 async function run() {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416/out/extension.js"), "utf8");
+  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225/out/extension.js"), "utf8");
   const injected = injectComputerUse(original);
   assert.equal(injected.count, 7); assert.equal(injectComputerUse(injected.text).count, 0);
   new vm.Script(injected.text);
@@ -20,7 +20,7 @@ async function run() {
   assert.throws(() => injectComputerUse(original + replacements[0][0]));
   assert.throws(() => injectComputerUse(injected.text.replace(replacements[1][1], "changed")));
   assert.throws(() => injectComputerUse(original + MARKER));
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-injection-test-"));
+  const home = fs.mkdtempSync(path.join(Kd.tmpdir(), "azrael-injection-test-"));
   try {
     const owner = createOwner(home), sent = [], shown = [], outbound = [];
     const context = vm.createContext({ require: name => { assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, bR: "provider" });
@@ -31,9 +31,16 @@ async function run() {
     vm.runInContext(`host.respond=function(r){switch(r.type){${replacements[1][1]}}}`, context);
     vm.runInContext(`host.outgoing=function(r,e){switch(r.type){case "mcp-request":{${replacements[2][1]}}}}`, context);
     vm.runInContext(`host.interrupt=function(){return ({${replacements[3][1]}}).interruptTurn}.call(host)`, context);
-    const start = injected.text.indexOf("var eF=class extends ut{");
-    const end = injected.text.indexOf(";B();", start);
-    vm.runInContext(injected.text.slice(start, end) + ";settings=new eF", context);
+    const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+    const hostAst = vp.createSourceFile("extension.js", injected.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+    const settingsOwners = [];
+    function findSettingsOwner(node) {
+      if (vp.isVariableDeclaration(node) && node.name?.text === "YN" && vp.isClassExpression(node.initializer)) settingsOwners.push(node);
+      vp.forEachChild(node, findSettingsOwner);
+    }
+    findSettingsOwner(hostAst);
+    assert.equal(settingsOwners.length, 1, "pinned computer-use settings class is unique");
+    vm.runInContext("var " + settingsOwners[0].getText(hostAst) + ";settings=new YN", context);
     context.host.receive(request(1)); assert.equal(shown[0].request.id, 1);
     context.host.respond({ type: "mcp-response", response: { id: 1, result: { action: "accept", content: { persist: "always" } } } });
     context.host.receive(request(2)); assert.equal(sent[1].result.content.scope, "global");
@@ -55,7 +62,7 @@ async function run() {
 test("pinned computer-use approval injection and transformed host handlers", run);
 
 test("pinned computer-use settings visibility preserves eligibility, navigation and redirects", () => {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416", COMPUTER_USE_SETTINGS_ASSET), "utf8");
+  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225", COMPUTER_USE_SETTINGS_ASSET), "utf8");
   const injected = injectComputerUseSettings(original, COMPUTER_USE_SETTINGS_ASSET);
   assert.equal(injected.count, 1);
   assert.deepEqual(injectComputerUseSettings(injected.text, COMPUTER_USE_SETTINGS_ASSET), { text: injected.text, count: 0 });
@@ -76,26 +83,28 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
   ];
   for (const source of invalid) assert.throws(() => injectComputerUseSettings(source, COMPUTER_USE_SETTINGS_ASSET));
 
-  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-  const parsed = ts.createSourceFile(COMPUTER_USE_SETTINGS_ASSET, injected.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  const parsed = vp.createSourceFile(COMPUTER_USE_SETTINGS_ASSET, injected.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   assert.equal(parsed.parseDiagnostics.length, 0);
   const transformer = require("./namespace-azrael-host.cjs");
-  const transformed = transformer.transformAsset(original, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, ts);
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, vp);
   assert.equal(transformed.asset.computerUseSettingsEdits, 1);
   assert.equal(transformed.asset.computerUseApprovalEdits, 0);
   assert.equal(transformed.asset.path, COMPUTER_USE_SETTINGS_ASSET);
   assert(transformed.text.includes(SETTINGS_REPLACEMENT));
   const crypto = require("node:crypto");
   const sha = value => crypto.createHash("sha256").update(value).digest("hex");
-  const namespaced = transformer.rewriteJavaScript(original, COMPUTER_USE_SETTINGS_ASSET, ts);
+  const namespaced = transformer.rewriteJavaScript(original, COMPUTER_USE_SETTINGS_ASSET, vp);
   const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
   const instructions = injectInstructionSettings(namespaced.text, COMPUTER_USE_SETTINGS_ASSET);
   const { injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
-  const pets = injectPetsCleanup(instructions.text, COMPUTER_USE_SETTINGS_ASSET, ts);
+  const { injectStudentDesign } = require("./inject-student-design.cjs");
+  const design = injectStudentDesign(instructions.text, COMPUTER_USE_SETTINGS_ASSET, vp);
+  const pets = injectPetsCleanup(design.text, COMPUTER_USE_SETTINGS_ASSET, vp);
   // Other owned transforms remain in the baseline when reversing only computer-use.
   assert.equal(sha(transformed.text.replace(SETTINGS_REPLACEMENT, SETTINGS_ANCHOR)), sha(pets.text));
   assert.equal(transformed.asset.petsCleanupEdits, pets.count);
-  assert.equal(transformed.asset.edits, namespaced.count + instructions.count + pets.count + 1);
+  assert.equal(transformed.asset.edits, namespaced.count + instructions.count + design.count + pets.count + 1);
   assert.equal(transformed.asset.sourceSha256, sha(original));
   assert.equal(transformed.asset.sha256, sha(transformed.text));
   const rules = transformer.getTransformRules();
@@ -103,14 +112,14 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
   assert.equal(settingsRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
   const changedRules = assetRules(transformer, COMPUTER_USE_SETTINGS_ASSET,
     { ...rules, "inject-computer-use.cjs": "0".repeat(64) });
-  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([o], [b]) => o.localeCompare(b))));
   assert.notEqual(ruleKey(settingsRules), ruleKey(changedRules), "injector changes must invalidate the settings asset cache key");
 
   function inspect(source, eligible, selected = "computer-use") {
     // Run the real hook's visibility/eligibility/selection/navigation tail. Hook data
     // acquisition above it is replaced by controlled inputs; the tail is not reimplemented.
     const functionStart = source.indexOf("function ga(e,t,n){");
-    const tailStart = source.indexOf('let L=ue===`loading`', functionStart);
+    const tailStart = source.indexOf('let L=ce===`loading`', functionStart);
     const tailEnd = source.indexOf("}function _a(e)", tailStart);
     assert(functionStart >= 0 && tailStart > functionStart && tailEnd > tailStart);
     const helpersEnd = source.indexOf("var xa,Sa;", tailEnd);
@@ -118,10 +127,10 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
     const gateStart = source.indexOf("Sa={", helpersEnd) + 3;
     const gateEnd = source.indexOf("}})))()}", gateStart) + 1;
     assert(gateStart > helpersEnd && gateEnd > gateStart);
-    const context = { ue: "denied", i: selected, r: Array(50).fill(Symbol.for("react.memo_cache_sentinel")),
-      Dt: ["general-settings", "computer-use", "browser-use", "mcp-settings"].map(slug => ({ slug })),
-      we: { codexOrWorkLocal: eligible }, N: false, u: false, F: "free", ft: { ENT26: "enterprise" },
-      $r: () => false, _t: "general-settings" };
+    const context = { ce: "denied", i: selected, r: Array(50).fill(Symbol.for("react.memo_cache_sentinel")),
+      bt: ["general-settings", "computer-use", "browser-use", "mcp-settings"].map(slug => ({ slug })),
+      be: { codexOrWorkLocal: eligible }, M: false, u: false, Ae: false, F: "free", Tt: { ENT26: "enterprise" },
+      Zr: () => false, nt: "general-settings" };
     return JSON.parse(JSON.stringify(vm.runInNewContext(
       `var Sa=${source.slice(gateStart, gateEnd)};${helpers};function inspect(){${source.slice(tailStart, tailEnd)}};inspect()`, context)));
   }
@@ -145,7 +154,7 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
 });
 
 test("pinned computer-use approval card cancels the request through the native response closure", async () => {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.928.31416", COMPUTER_USE_APPROVAL_CARD_ASSET), "utf8");
+  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225", COMPUTER_USE_APPROVAL_CARD_ASSET), "utf8");
   const injected = injectComputerUseCancelRequest(original, COMPUTER_USE_APPROVAL_CARD_ASSET);
   assert.equal(injected.count, 1);
   assert.deepEqual(injectComputerUseCancelRequest(injected.text, COMPUTER_USE_APPROVAL_CARD_ASSET), { text: injected.text, count: 0 });
@@ -161,14 +170,14 @@ test("pinned computer-use approval card cancels the request through the native r
     injected.text.replace("disabled:z", "disabled:!1"), injected.text.replace(CANCEL_MARKER, "")]) {
     assert.throws(() => injectComputerUseCancelRequest(text, COMPUTER_USE_APPROVAL_CARD_ASSET));
   }
-  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-  assert.equal(ts.createSourceFile(COMPUTER_USE_APPROVAL_CARD_ASSET, injected.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+  const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  assert.equal(vp.createSourceFile(COMPUTER_USE_APPROVAL_CARD_ASSET, injected.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
   const transformer = require("./namespace-azrael-host.cjs");
-  const transformed = transformer.transformAsset(original, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, ts);
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, vp);
   assert.equal(transformed.asset.computerUseCancelRequestEdits, 1);
   assert.equal(transformed.asset.computerUseSettingsEdits, 0);
   assert(transformed.text.includes(CANCEL_REPLACEMENT));
-  assert.equal(transformed.text.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), transformer.rewriteJavaScript(original, COMPUTER_USE_APPROVAL_CARD_ASSET, ts).text);
+  assert.equal(transformed.text.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), transformer.rewriteJavaScript(original, COMPUTER_USE_APPROVAL_CARD_ASSET, vp).text);
   const crypto = require("node:crypto");
   const sha = value => crypto.createHash("sha256").update(value).digest("hex");
   const rules = transformer.getTransformRules();
@@ -176,13 +185,14 @@ test("pinned computer-use approval card cancels the request through the native r
   assert.equal(cardRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
   const changedRules = assetRules(transformer, COMPUTER_USE_APPROVAL_CARD_ASSET,
     { ...rules, "inject-computer-use.cjs": "0".repeat(64) });
-  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([o], [b]) => o.localeCompare(b))));
   assert.notEqual(ruleKey(cardRules), ruleKey(changedRules), "injector changes must invalidate the approval card cache key");
 
-  const functionStart = transformed.text.indexOf("function E(e){");
-  const functionEnd = transformed.text.indexOf("var D,O,k;", functionStart);
-  assert(functionStart >= 0 && functionEnd > functionStart);
-  const home = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-cancel-card-test-"));
+  const cardAst = vp.createSourceFile("approval-card.js", transformed.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const cardOwners = cardAst.statements.filter(node => vp.isFunctionDeclaration(node) && node.name?.text === "E");
+  assert.equal(cardOwners.length, 1, "unique native approval card renderer");
+  const cardSource = cardOwners[0].getText(cardAst);
+  const home = fs.mkdtempSync(path.join(Kd.tmpdir(), "azrael-cancel-card-test-"));
   try {
     const owner = createOwner(home);
     function harness(id, app) {
@@ -192,11 +202,11 @@ test("pinned computer-use approval card cancels the request through the native r
       owner.receive(request(id, app), () => assert.fail("unexpected automatic approval"), () => {});
       const pending = new Promise(resolve => { finish = resolve; });
       const jsx = (type, props) => ({ type, props });
-      const p = { set: (...args) => flags.push(args) };
+      const _ = { set: (...args) => flags.push(args) };
       const context = { D: { c: () => memo }, O: { useRef: () => ref, useState: () => [state, value => { state = value; }] },
-        k: { jsx, jsxs: jsx, Fragment: "fragment" }, a: "localized-label", r: () => p, y: "owner", n: () => ({ formatMessage: descriptor => descriptor.defaultMessage }),
-        t: () => true, x: "has-approved", S: () => false, w: "plugin-icon", _: "icon", d: "risk-icon",
-        h: (action, content) => { wire.push({ action, content }); return { action, content }; },
+        k: { jsx, jsxs: jsx, Fragment: "fragment" }, c: "localized-label", i: () => _, C: "owner", s: () => ({ formatMessage: descriptor => descriptor.defaultMessage }),
+        r: () => false, v: "has-approved", y: () => false, w: "plugin-icon", h: "icon", d: "risk-icon",
+        f: (action, content) => { wire.push({ action, content }); return { action, content }; },
         m: () => ({ replyWithMcpServerElicitationResponse: (threadId, requestId, response) => {
           sent.push({ threadId, requestId, response: owner.response(requestId, response) }); return pending;
         } }),
@@ -204,7 +214,7 @@ test("pinned computer-use approval card cancels the request through the native r
           request: { riskLevel: "low", connectorName: "Computer Use", appDisplayName: app, persistModes: ["session", "always"] },
           onRequestSettled: action => settled.push(action) } };
       const vmContext = vm.createContext(context);
-      vm.runInContext(transformed.text.slice(functionStart, functionEnd), vmContext);
+      vm.runInContext(cardSource, vmContext);
       return { render: () => vm.runInContext("E(props)", vmContext).props, finish, sent, settled, wire, flags };
     }
     const cancel = harness(201, "cancel-card.exe");
@@ -212,6 +222,7 @@ test("pinned computer-use approval card cancels the request through the native r
     assert.equal(card.body.type, "button");
     assert.equal(card.body.props.type, "button");
     assert.equal(card.body.props.disabled, false);
+    assert.equal(card.body.props.children.type, "localized-label", "cancel uses the native localized label component");
     assert.equal(card.body.props.children.props.id, "azrael.computerUse.cancelRequest");
     assert.equal(card.body.props.children.props.defaultMessage, "Cancel request");
     card.body.props.onClick();
@@ -253,7 +264,7 @@ test("pinned computer-use approval card cancels the request through the native r
 });
 
 test("local Windows approval management preserves native execution gates and memo correctness", async () => {
-  const root = path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
+  const root = path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
   const original = fs.readFileSync(path.join(root, COMPUTER_USE_MANAGEMENT_ASSET), "utf8");
   const injected = injectComputerUseManagement(original, COMPUTER_USE_MANAGEMENT_ASSET);
   assert.equal(injected.count, 1);
@@ -273,26 +284,26 @@ test("local Windows approval management preserves native execution gates and mem
   for (const source of [original + MANAGEMENT_MARKER, injected.text + MANAGEMENT_MARKER, injected.text.replace(MANAGEMENT_MARKER, "")]) {
     assert.throws(() => injectComputerUseManagement(source, COMPUTER_USE_MANAGEMENT_ASSET));
   }
-  const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-  const parse = source => ts.createSourceFile(COMPUTER_USE_MANAGEMENT_ASSET, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+  const parse = source => vp.createSourceFile(COMPUTER_USE_MANAGEMENT_ASSET, source, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   assert.equal(parse(injected.text).parseDiagnostics.length, 0);
   const transformer = require("./namespace-azrael-host.cjs");
-  const transformed = transformer.transformAsset(original, COMPUTER_USE_MANAGEMENT_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, ts);
+  const transformed = transformer.transformAsset(original, COMPUTER_USE_MANAGEMENT_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, vp);
   assert.equal(transformed.asset.computerUseManagementEdits, 1);
   assert.equal(transformed.asset.computerUseSettingsEdits, 0);
   assert.equal(transformed.asset.computerUseCancelRequestEdits, 0);
   restored = transformed.text;
   for (const [before, after] of [...managementReplacements].reverse()) restored = restored.replace(after, before);
-  assert.equal(restored, transformer.rewriteJavaScript(original, COMPUTER_USE_MANAGEMENT_ASSET, ts).text);
+  assert.equal(restored, transformer.rewriteJavaScript(original, COMPUTER_USE_MANAGEMENT_ASSET, vp).text);
   const rules = transformer.getTransformRules(), crypto = require("node:crypto");
   const sha = value => crypto.createHash("sha256").update(value).digest("hex");
-  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([a], [b]) => a.localeCompare(b))));
+  const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([o], [b]) => o.localeCompare(b))));
   const managementRules = assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET, rules);
   assert.equal(managementRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
   assert.notEqual(ruleKey(managementRules), ruleKey(assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET,
     { ...rules, "inject-computer-use.cjs": "0".repeat(64) })));
   function declaration(source, name) {
-    const node = parse(source).statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name);
+    const node = parse(source).statements.find(node => vp.isFunctionDeclaration(node) && node.name.text === name);
     assert(node, `missing native ${name} declaration`);
     return node.getText();
   }
@@ -305,12 +316,12 @@ test("local Windows approval management preserves native execution gates and mem
   const jsx = (type, props) => ({ type, props });
   const K = Object.assign(function Section() {}, { Header: "section-header", Content: "section-content" });
   const context = vm.createContext({ Q: { c: count => { assert.equal(count, 28); return memo; } },
-    Lt: () => ({ selectedHostId: host }), v: () => false, hn: "native-enabled", it: () => availability,
-    Ot: () => ({ platform }), Oe: () => false, a: () => ({ pathname: browser == null ? "/settings/computer-use" : `/settings/computer-use/${browser}` }),
-    r: () => ({ params: { browserFamily: browser } }), tn: "browser-route", en: value => value, d: () => plugin, Ci: "plugin",
-    $: { jsx, jsxs: jsx, Fragment: "fragment" }, ti: "browser-page", x: "redirect", ei: "plugin-page",
-    Ct: "settings-title", _i: "computer-use", u: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
-    Hr: "native-controls", ai: "macos-control", G: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page" });
+    mt: () => ({ selectedHostId: host }), S: () => false, hn: "native-enabled", nt: () => availability,
+    bt: () => ({ platform }), ve: () => false, b: () => ({ pathname: browser == null ? "/settings/computer-use" : `/settings/computer-use/${browser}` }),
+    k: () => ({ params: { browserFamily: browser } }), en: "browser-route", Qt: value => value, h: () => plugin, Ci: "plugin",
+    $: { jsx, jsxs: jsx, Fragment: "fragment" }, ti: "browser-page", _: "redirect", ei: "plugin-page",
+    Kt: "settings-title", _i: "computer-use", x: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
+    Hr: "native-controls", ai: "macos-control", Ot: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page" });
   vm.runInContext(nativeVr, context);
   const render = () => vm.runInContext("Vr()", context);
   function contains(node, type) {
@@ -345,20 +356,29 @@ test("local Windows approval management preserves native execution gates and mem
 
   // Execute the unchanged query factory and ci mount effect: neither requires
   // native availability, and the query invokes the native approval owner directly.
-  const querySource = fs.readFileSync(path.join(root, "webview/assets/computer-use-app-approvals-query-10c4102007f8.js"), "utf8");
-  const queryStart = querySource.indexOf("j=n(o,()=>({queryFn:");
-  const queryEnd = querySource.indexOf(",M=n(", queryStart);
-  assert(queryStart >= 0 && queryEnd > queryStart);
+  const querySource = fs.readFileSync(path.join(root, "webview/assets/computer-use-app-approvals-query-9e56575cd5d5.js"), "utf8");
+  const queryAst = vp.createSourceFile("approval-query.js", querySource, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const queryFactories = [];
+  function findApprovalQuery(node) {
+    if (vp.isBinaryExpression(node) && node.left.getText(queryAst) === "j" &&
+        vp.isCallExpression(node.right) && node.right.expression.getText(queryAst) === "n" &&
+        node.right.arguments[1]?.getText(queryAst).includes('queryKey:[`computer-use-app-approvals`]')) {
+      queryFactories.push(node.right.getText(queryAst));
+    }
+    vp.forEachChild(node, findApprovalQuery);
+  }
+  findApprovalQuery(queryAst);
+  assert.equal(queryFactories.length, 1, "unique native approval query factory");
   let reads = 0, refetches = 0, fetched;
   const approvedApps = [{ bundleIdentifier: "stored.exe", displayName: "Stored app" }];
-  const query = vm.runInNewContext(querySource.slice(queryStart, queryEnd) + ";j", {
-    n: (_owner, factory) => factory(), o: "native-owner", h: value => value,
-    l: { computerUseSettings: { getAppApprovals: () => { reads++; return { approvedApps }; } } }, m: { ONE_MINUTE: 60000 } });
+  const query = vm.runInNewContext(`(${queryFactories[0]})`, {
+    n: (_owner, factory) => factory(), h: "native-owner", m: value => value,
+    i: { computerUseSettings: { getAppApprovals: () => { reads++; return { approvedApps }; } } }, o: { ONE_MINUTE: 60000 } });
   assert.equal(Object.hasOwn(query, "enabled"), false);
   assert.equal(query.refetchOnMount, "always");
   const ciContext = vm.createContext({ Q: { c: () => Array(7).fill(Symbol.for("react.memo_cache_sentinel")) },
-    o: () => ({ get: key => { assert.equal(key, "approval-query"); return { refetch: () => { refetches++; fetched = query.queryFn({ signal: undefined }); } }; } }),
-    Qe: "native-owner", Tn: "approval-query", n: () => ({ isLoading: false, isError: false, data: { approvedApps } }),
+    c: () => ({ get: key => { assert.equal(key, "approval-query"); return { refetch: () => { refetches++; fetched = query.queryFn({ signal: undefined }); } }; } }),
+    Yt: "native-owner", Tn: "approval-query", s: () => ({ isLoading: false, isError: false, data: { approvedApps } }),
     gi: { useEffect: effect => effect() }, $: { jsx }, li: "approval-list" });
   vm.runInContext(declaration(transformed.text, "ci"), ciContext);
   assert.equal(vm.runInContext("ci()", ciContext).type, "approval-list");

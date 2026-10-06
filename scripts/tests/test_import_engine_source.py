@@ -439,6 +439,19 @@ class ImportTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "attribute overlay differs"):
             importer.check_source(self.source, self.destination, snapshot_only=True)
 
+    def test_window_control_policy_fix_preserves_baseline_and_rejects_tampering(self):
+        original = b'impl ToolPolicy {\r\n                "run_size_macro",\r\n}\r\n'
+        path = self.source / importer.TOOL_POLICY_FIX_PATH
+        path.parent.mkdir(parents=True)
+        path.write_bytes(original)
+        self.run_import()
+        adapted = self.destination / importer.TOOL_POLICY_FIX_PATH
+        self.assertEqual(adapted.read_bytes(), importer.known_source_fix(importer.TOOL_POLICY_FIX_PATH, original)[1])
+        self.assertEqual(Path(str(adapted) + ".upstream").read_bytes(), original)
+        adapted.write_bytes(adapted.read_bytes().replace(b'"inspect"', b'"other"'))
+        with self.assertRaisesRegex(ValueError, "Adapted source differs"):
+            importer.check_source(self.source, self.destination, snapshot_only=True)
+
     def replay_fixture(self, original=REPLAY_ORIGINAL):
         path = self.source / importer.REPLAY_PATH
         path.parent.mkdir(parents=True)

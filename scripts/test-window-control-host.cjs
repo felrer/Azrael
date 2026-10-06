@@ -10,15 +10,15 @@ const descriptor = { hwnd: 'window', pid: 1, processCreated: 'created', executab
 async function main() {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-host-'));
   try {
-    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue, permissionProfile = { type: 'disabled' }, skipDelivery = false, deferUI = false, uiReply, latestUIMessage;
+    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue, permissionProfile = { type: 'disabled' }, skipDelivery = false, deferUI = false, uiReply, latestUIMessage, picker;
     const approvals = require('./computer-use-approvals.cjs').createOwner(home);
     const receive = approvals.receive; approvals.receive = (request, ...args) => { observedRequest = request; return receive(request, ...args); };
     const posts = []; const panel = { webview: { html: '', postMessage(value) { posts.push(value); }, onDidReceiveMessage() {} }, onDidDispose() {}, reveal() {}, dispose() {} };
-    const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => values[0] } };
-    const backend = { request: async (method, params) => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'act') actedValue = params.value; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elements: [{ id: 'element', name: '입력 영역', controlType: 'Edit', patterns: ['setValue'] }], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
+    const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => { picker = values; return values[0]; } } };
+    const backend = { request: async (method, params) => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'act') actedValue = params.value; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elementsTruncated: false, elements: [{ id: 'element', name: '입력 영역', controlType: 'Edit', patterns: ['setValue'] }], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
     const createServer = listener => { connectSocket = listener; const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => { closed++; }; return server; };
     async function fragmentedPipe(message) { const socket = new EventEmitter(); socket.setTimeout = () => {}; socket.destroy = () => {}; const reply = new Promise(resolve => { socket.end = bytes => resolve(JSON.parse(bytes)); }); connectSocket(socket); const bytes = Buffer.from(JSON.stringify(message) + '\n'); for (let i = 0; i < bytes.length; i++) socket.emit('data', bytes.subarray(i, i + 1)); return reply; }
-    const host = createHost({ runtime: { codexHome: home }, vscode, backend, approvals, createServer });
+    const host = createHost({ occupancyDirectory: path.join(home, 'occupancy'), runtime: { codexHome: home }, vscode, backend, approvals, createServer });
     let callbacks; const native = { registerProvider(_id, value) { callbacks = value; return { dispose() {} }; } };
     const requests = []; host.attach(native, (_provider, id, method, params) => {
       requests.push({ method, params });
@@ -38,8 +38,17 @@ async function main() {
     permissionProfile = undefined; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled', extra: true }; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled' }; skipDelivery = true; await assert.rejects(ui('select'), /not delivered/); assert.equal(calls, 0); skipDelivery = false;
     await ui('clear'); await assert.rejects(fs.stat(path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json')), { code: 'ENOENT' });
     sandbox = 'read-only'; consent = '거부'; await ui('start'); assert.equal(host.threads.get(thread).sandbox, undefined); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'computer-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
-    deferConsent = true; const lateSelection = ui('select'); while (!resolveConsent) await new Promise(r => setImmediate(r)); await ui('pause'); resolveConsent('이 대화에서 허용'); await assert.rejects(lateSelection, /refused/); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
-    consent = '이 대화에서 허용'; await ui('select'); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true); assert.equal(requests.find(r => r.method === 'thread/start').params.sandbox, undefined);
+    deferConsent = true; const lateSelection = ui('select'); while (!resolveConsent) await new Promise(r => setImmediate(r)); await ui('pause'); resolveConsent('이 대화에서 허용'); await assert.rejects(lateSelection, /refused|cancelled/); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
+    const other = require('./window-control-policy.cjs').createWindowOwner({ backend, authorize: async () => true, codexHome: path.join(home,'other-home'), occupancyDirectory: path.join(home,'occupancy'), workspaceName: 'Other workspace' });
+    await other.bind('other-session', descriptor);
+    consent = '이 대화에서 허용'; await ui('select');
+    assert.equal(picker[0].detail, 'Other workspace · 대화 other-session · 선택됨'); assert.equal(typeof picker[0].id,'string'); assert.equal(picker[0].hwnd,undefined); assert.equal(host.owner.peek(thread).occupancy.status,'occupied'); other.stop('other-session'); await ui('select'); assert.equal(picker[0].detail,'Other workspace · 대화 other-session · 일시정지');
+    other.dispose();
+    let advisoryState = 'ready'; const advisory = require('./window-control-occupancy.cjs').createRegistry({directory:path.join(home,'occupancy'),entries:()=>[{sessionId:'advisory-session',workspaceName:'Other workspace',state:advisoryState,window:descriptor}]});
+    for (const [state,label] of [['ready','준비'],['running','실행 중']]) { advisoryState = state; advisory.publish(); await ui('select'); assert.equal(picker[0].detail,`Other workspace · 대화 advisory-session · ${label}`); }
+    advisory.dispose(); await ui('select'); assert.equal(picker[0].detail,'사용 가능');
+    const malformedRecord = path.join(home,'occupancy','11111111-1111-1111-1111-111111111111.json'); await fs.writeFile(malformedRecord,'{'); await ui('select'); assert.equal(picker[0].detail,'점유 상태 확인 불가'); await fs.unlink(malformedRecord);
+    assert.equal(approvals.hasAppApproval(descriptor.executable, thread), true); assert.equal(requests.find(r => r.method === 'thread/start').params.sandbox, undefined);
     await ui('capture'); assert.equal(posts.at(-1).value.image.data, 'YWJj');
     await assert.rejects(host.handlePipe(latestUIMessage), /token/);
     await host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'Work with this selected window' });

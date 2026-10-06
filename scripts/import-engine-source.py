@@ -16,7 +16,6 @@ import subprocess
 import sys
 
 PROJECT = Path(__file__).resolve().parent.parent
-DEFAULT_SOURCE = PROJECT / "artifacts/worktrees/azrael-0.159.3"
 EXCLUDED = (".ruff_cache", "codex-rs/target", "scripts/.venv",
             "sdk/python/.ruff_cache", "sdk/python/.venv", "sdk/python/__pycache__",
             "sdk/python/src/openai_codex/generated/__pycache__")
@@ -49,6 +48,8 @@ IDENTITY_TEMPLATE_PATHS = {
 }
 IDENTITY_LIB_PATH = "codex-rs/prompts/src/lib.rs"
 IDENTITY_SESSION_PATH = "codex-rs/core/src/session/mod.rs"
+TOOL_POLICY_FIX_PATH = "codex-rs/ext/extension-api/src/tool_policy.rs"
+TOOL_POLICY_FIX_PATHS = {TOOL_POLICY_FIX_PATH}
 IDENTITY_FIX_PATHS = IDENTITY_TEMPLATE_PATHS | {IDENTITY_LIB_PATH, IDENTITY_SESSION_PATH}
 IDENTITY_FIX_REASON = "Render Azrael harness identity without changing stored instructions or model/provider metadata"
 IDENTITY_SESSION_OLD = "        let instructions = self.get_base_instructions().await;"
@@ -512,7 +513,7 @@ def snapshot(root):
     names = sorted(set(modes) | {os.fsdecode(item) for item in
                    git(root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0") if item})
     reserved = ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY,
-                *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS))
+                *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS))
     if any(name in names for name in reserved):
         raise ValueError("Source already owns reserved import metadata path")
     files = {name: describe(safe_path(root, name), modes.get(name)) for name in names}
@@ -654,6 +655,14 @@ def replay_fix_bytes(original):
 
 
 def known_source_fix(original_path, original):
+    if original_path == TOOL_POLICY_FIX_PATH:
+        newline = b"\r\n" if b"\r\n" in original else b"\n"
+        anchor = b'                "run_size_macro",' + newline
+        tools = ("list_windows", "select_window", "inspect", "press_key", "list_task_macros", "save_task_macro", "run_task_macro")
+        if original.count(anchor) != 1 or any(('"' + tool + '"').encode() in original for tool in tools):
+            raise ValueError("Window control policy anchor is missing or already adapted")
+        addition = b"".join(('                "' + tool + '",').encode() + newline for tool in tools)
+        return original_path, original.replace(anchor, anchor + addition, 1), "Expose installed window-control inspection, keyboard and task macro tools through the extension policy"
     if original_path in IDENTITY_FIX_PATHS:
         newline = b"\r\n" if b"\r\n" in original else b"\n"
         if original_path in IDENTITY_TEMPLATE_PATHS:
@@ -767,7 +776,7 @@ def apply_state_source_fixes(destination, files):
 def apply_identity_source_fixes(destination, files):
     records = {}
     plans = []
-    for original_path in sorted(IDENTITY_FIX_PATHS & files.keys()):
+    for original_path in sorted((IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS) & files.keys()):
         entry = files[original_path]
         if entry["kind"] == "missing":
             continue
@@ -802,8 +811,8 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
             actual.add((Path(directory) / name).relative_to(destination).as_posix())
     expected = {name for name, entry in files.items() if entry["kind"] != "missing"}
     if source_fixes is not None:
-        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS | IDENTITY_FIX_PATHS):
-            raise ValueError("Malformed source fixes: only the fixed replay/state/identity corrections are supported")
+        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS):
+            raise ValueError("Malformed source fixes: only the fixed replay/state/identity/tool-policy corrections are supported")
         state_keys = set(source_fixes) & STATE_FIX_PATHS
         if state_keys and state_keys != STATE_FIX_PATHS:
             raise ValueError("State source corrections must include the complete fixed migration recipe")
@@ -875,7 +884,7 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
         if not isinstance(name, str) or not name or "\\" in name or ":" in name or PurePosixPath(name).as_posix() != name:
             raise ValueError("Imported source receipt has a malformed path")
         safe_path(destination, name)
-        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
+        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
             raise ValueError(f"Imported inventory claims metadata or build cache: {name}")
         if not isinstance(entry, dict) or entry.get("kind") not in ("missing", "file", "symlink", "git-symlink-placeholder"):
             raise ValueError(f"Malformed imported inventory entry: {name}")
@@ -1030,7 +1039,7 @@ def import_source(source, destination, allow_source_advance=False, upstream_tag=
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, default=DEFAULT_SOURCE)
+    parser.add_argument("--source", type=Path, help="Explicit source checkout; required except for --check --snapshot-only")
     parser.add_argument("--destination", type=Path, default=PROJECT / "engine")
     parser.add_argument("--check", action="store_true", help="Verify an existing import against latest source without copying")
     parser.add_argument("--snapshot-only", action="store_true", help="With --check, verify only the immutable recorded snapshot")
@@ -1041,8 +1050,10 @@ def main():
         parser.error("--snapshot-only requires --check")
     if args.upstream_tag is not None and args.check:
         parser.error("--upstream-tag is only used when creating an import")
+    if args.source is None and not (args.check and args.snapshot_only):
+        parser.error("--source is required except for --check --snapshot-only")
     if args.check:
-        check_source(args.source, args.destination, snapshot_only=args.snapshot_only)
+        check_source(args.source or args.destination, args.destination, snapshot_only=args.snapshot_only)
     else:
         import_source(args.source, args.destination, allow_source_advance=args.allow_source_advance, upstream_tag=args.upstream_tag)
 

@@ -1,8 +1,8 @@
 "use strict";
 
-const QUEUED_COMPACTION_CORE_ASSET = "webview/assets/app-initial-9f7d97690e9b.js";
-const QUEUED_COMPACTION_PRESENTATION_ASSET = "webview/assets/app-initial-9cbfb5c07b41.js";
-const QUEUED_COMPACTION_LIST_ASSET = "webview/assets/queued-message-list-f673efa2d9a8.js";
+const QUEUED_COMPACTION_CORE_ASSET = "webview/assets/app-initial-efe028fd535e.js";
+const QUEUED_COMPACTION_PRESENTATION_ASSET = "webview/assets/app-initial-532d60c9b397.js";
+const QUEUED_COMPACTION_LIST_ASSET = "webview/assets/queued-message-list-96c634639e8e.js";
 const QUEUED_COMPACTION_EXPECTED_COUNTS = Object.freeze({ core: 1, presentation: 1, list: 1 });
 
 function apply(text, owner, edits, version = 1) {
@@ -30,9 +30,9 @@ function injectQueuedCompactionCore(text) {
 
 function injectQueuedCompactionPresentation(text) {
   const result = apply(text, "presentation", [
-    ["u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?J_(e,`1189013788`):J_(e,`2120612410`)&&Ry(n(),`threadQueue`))", "u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?J_(e,`1189013788`):Ry(n(),`threadQueue`))"],
-    ["function L9t(e,t,n){let{rawText:r,appInput:i}=Xst({input:n.input})", "function L9t(e,t,n){$MARKERif(n.kind===`contextCompaction`)return{id:n.id,text:`컨텍스트 압축`,context:{queuedOperationKind:`contextCompaction`,prompt:``,addedFiles:[],fileAttachments:[],ideContext:null,imageAttachments:[]},cwd:e.getConversationCwd(t)??`/`,createdAt:0};let{rawText:r,appInput:i}=Xst({input:n.input})"],
-    ["if(r){i.get(kx).danger(a.formatMessage({id:`composer.compactSlashCommand.disabledInProgressToast`,defaultMessage:`Compact is disabled while a chat is in progress`,description:`Toast shown when the compact slash command is used while a task is already in progress`}),{errorAnalytics:{toastId:`composer.compactSlashCommand.disabledInProgressToast`}});return}n!=null&&await", "n!=null&&await"],
+    ["u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gg(e,`1189013788`):Gg(e,`2120612410`)&&ob(n(),`threadQueue`))", "u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gg(e,`1189013788`):ob(n(),`threadQueue`))"],
+    ["function Ten(e,t,n){let{rawText:r,appInput:i}=Hct({input:n.input})", "function Ten(e,t,n){$MARKERif(n.kind===`contextCompaction`)return{id:n.id,text:`컨텍스트 압축`,context:{queuedOperationKind:`contextCompaction`,prompt:``,addedFiles:[],fileAttachments:[],ideContext:null,imageAttachments:[]},cwd:e.getConversationCwd(t)??`/`,createdAt:0};let{rawText:r,appInput:i}=Hct({input:n.input})"],
+    ["if(r){i.get(sS).danger(a.formatMessage({id:`composer.compactSlashCommand.disabledInProgressToast`,defaultMessage:`Compact is disabled while a chat is in progress`,description:`Toast shown when the compact slash command is used while a task is already in progress`}),{errorAnalytics:{toastId:`composer.compactSlashCommand.disabledInProgressToast`}});return}n!=null&&await", "n!=null&&await"],
     // Preserve the declaration of every comma-separated local after h. Leaving
     // the original comma after a throw turns the initializer into its operand.
     ["v=async(e,n,a,o,s,c)=>{let h=await g(e),v=a?.messageId", "v=async(e,n,a,o,s,c)=>{let h=await g(e);if(h.items.find(e=>e.id===a?.messageId)?.kind===`contextCompaction`)throw Error(`Queued compaction cannot be edited`);let v=a?.messageId"],
@@ -51,11 +51,11 @@ function injectQueuedCompactionPresentation(text) {
 
 function injectQueuedCompactionList(text) {
   const edits = [[
-    "isSendNowDisabled:c||l&&R(e.context),onEditMessage:p,onDeleteMessage:m,onOpenInSideChatMessage:h,onSendNowMessage:g,onQueueingChange:v},e.clientUserMessageId??e.id)",
-    "$MARKERisSendNowDisabled:c||l&&R(e.context)||e.context.queuedOperationKind===`contextCompaction`,onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:p,onDeleteMessage:m,onOpenInSideChatMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:h,onSendNowMessage:g,onQueueingChange:v},e.clientUserMessageId??e.id)",
+    "isSendNowDisabled:o||s&&L(e.context),onEditMessage:d,onDeleteMessage:f,onOpenInSideChatMessage:m,onSendNowMessage:h,onQueueingChange:_},e.clientUserMessageId??e.id)",
+    "$MARKERisSendNowDisabled:o||s&&L(e.context)||e.context.queuedOperationKind===`contextCompaction`,onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:d,onDeleteMessage:f,onOpenInSideChatMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:m,onSendNowMessage:h,onQueueingChange:_},e.clientUserMessageId??e.id)",
   ], [
-    "className:`sr-only select-none`,role:`status`,children:(0,$.jsx)(s,{id:`composer.queuedMessage.sending`,defaultMessage:`Sending`,description:`Status of a locally saved message waiting for the app server to accept it`})",
-    "className:`text-text-tertiary text-xs select-none shrink-0`,role:`status`,\"aria-live\":`polite`,children:(0,$.jsx)(s,{id:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:`전송 대기 중`,description:`Status of a locally saved message waiting for the engine to accept it`})",
+    "className:`sr-only select-none`,role:`status`,children:(0,$.jsx)(S,{id:`composer.queuedMessage.sending`,defaultMessage:`Sending`,description:`Status of a locally saved message waiting for the app server to accept it`})",
+    "className:`text-text-tertiary text-xs select-none shrink-0`,role:`status`,\"aria-live\":`polite`,children:(0,$.jsx)(S,{id:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:`전송 대기 중`,description:`Status of a locally saved message waiting for the engine to accept it`})",
   ]];
   const result = apply(text, "list", edits, 2);
   // Reused assets must contain every complete replacement, not only the marker.

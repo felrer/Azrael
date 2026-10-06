@@ -12,6 +12,9 @@ doctest = false
 [lints]
 workspace = true
 
+[features]
+test-support = []
+
 [dependencies]
 blake3 = { workspace = true }
 codex-analytics = { workspace = true }

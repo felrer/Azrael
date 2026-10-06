@@ -1,7 +1,7 @@
 "use strict";
 
-const COMPOSER_ASSET = "webview/assets/app-initial-9cbfb5c07b41.js";
-const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-81883922faea.js";
+const COMPOSER_ASSET = "webview/assets/app-initial-532d60c9b397.js";
+const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-50ba72a19bff.js";
 const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET];
 const MARKER = "/*azrael-ui-cleanup-v1*/";
 
@@ -43,25 +43,25 @@ function injectUiCleanup(text, relativePath, ts) {
     }
   }
   if (relativePath === COMPOSER_ASSET) {
-    const placeholder = requireFunction("c_i");
+    const placeholder = requireFunction("pyi");
     if (marked) {
-      if (placeholder.body.getText(file) !== '{return "-";}') throw new Error("Invalid cleaned composer placeholder.");
+      if (placeholder.body.getText(file) !== '{return "^•⩊•^";}') throw new Error("Invalid cleaned composer placeholder.");
     } else {
       if (!placeholder.body.getText(file).includes("composer.placeholder.localFollowUp.locally") || !placeholder.body.getText(file).includes("if(u!=null)return u")) throw new Error("Pinned placeholder variants changed.");
-      edits.push({ start: placeholder.body.getStart(file), end: placeholder.body.end, replacement: '{return "-";}' });
+      edits.push({ start: placeholder.body.getStart(file), end: placeholder.body.end, replacement: '{return "^•⩊•^";}' });
     }
     // These components exclusively register and dispatch the removed actions.
     // Remove their bodies and declarations, then sever every JSX mounting route.
-    for (const [name, id, dispatch] of [["Oaa", "plan-mode", "C"], ["Via", "goal", "y"], ["FQi", "sketch", "b"]]) {
+    for (const [name, id, dispatch] of [["fca", "plan-mode", "C"], ["wsa", "goal", "y"]]) {
       if (marked) {
         if (functions.has(name)) throw new Error(`Removed UI registration restored: ${name}`);
       } else {
         const node = requireFunction(name), source = node.getText(file);
-        if (!source.includes(`id:\`${id}\``) || !source.includes(`D6(${dispatch})`)) throw new Error(`Pinned action registration changed: ${name}`);
+        if (!source.includes(`id:\`${id}\``) || !source.includes(`M6(${dispatch})`)) throw new Error(`Pinned action registration changed: ${name}`);
         edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
       }
     }
-    for (const [name, body] of [["kaa", '{return e.mode==="default"}'], ["Aaa", '{return e.mode===`plan`}'], ["Hia", '{return e.mode==="default"}']]) {
+    for (const [name, body] of [["pca", '{return e.mode==="default"}'], ["mca", '{return e.mode===`plan`}'], ["Tsa", '{return e.mode==="default"}']]) {
       if (marked) {
         if (functions.has(name)) throw new Error(`Removed UI action helper restored: ${name}`);
       } else {
@@ -70,37 +70,48 @@ function injectUiCleanup(text, relativePath, ts) {
         edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
       }
     }
-    replace(requireFunction("Gia"), ',Wia=e=>e.replace(/^go+(?=a?l?$)/i,`go`)', "");
-    replace(null, "var Uia,Wia;", "var Uia;");
-    const launcher = requireFunction("Loa"), composer = requireFunction("Gfa");
-    replace(launcher, "(0,W7.jsx)(Oaa,{conversationId:F,onEnablePlanMode:d})", "null");
-    replace(launcher, "(0,W7.jsx)(Via,{conversationId:F,enabled:Be,isExtendedGoalCommand:k,onOpenGoalEditor:f})", "void 0");
-    replace(composer, "(0,o9.jsx)(FQi,{ref:Se,executionHostId:Kr,canSave:hl,isSubmitting:ec||In,addImageAttachment:Ra.addImageAttachment,onAttachmentAdded:Le})", "void 0");
+    replace(requireFunction("Osa"), ",Dsa=e=>e.replace(/^go+(?=a?l?$)/i,`go`)", "");
+    replace(null, "var Esa,Dsa;", "var Esa;");
+    const launcher = requireFunction("xla"), composer = requireFunction("kha");
+    // Retire only these slash-menu registrations; model/reasoning toolbar
+    // controls and shared fork/init/review services remain independently usable.
+    for (const [name, id] of [["nca", "model"], ["xsa", "fork"], ["Msa", "init"], ["Sca", "reasoning"], ["Xoa", "review-mode"], ["nsa", "review-mode"]]) {
+      if (marked) {
+        if (functions.has(name)) throw new Error(`Removed slash registration restored: ${name}`);
+      } else {
+        const node = requireFunction(name), source = node.getText(file);
+        if (!source.includes(`id:\`${id}\``) || !source.includes("M6(")) throw new Error(`Pinned slash registration changed: ${name}`);
+        edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
+      }
+    }
+    for (const anchor of [
+      "(0,V7.jsx)(nca,{conversationId:P,permissionsCwdOverride:m,permissionsHostId:h,serviceTierDefaults:v})",
+      "(0,V7.jsx)(Sca,{conversationId:P,permissionsCwdOverride:m,permissionsHostId:h})",
+      "(0,V7.jsx)(Msa,{cwd:g,enabled:he,hostId:L.hostId,onSubmitInitPrompt:p})",
+      "(0,V7.jsx)(xsa,{showWorktreeOption:!1,isWorktreeThread:pe,onForkIntoLocal:_e,onForkIntoWorktree:Se})",
+    ]) replace(launcher, anchor, "null");
+    const reviewLauncher = requireFunction("esa");
+    replace(reviewLauncher, "(0,L7.jsx)(Xoa,{conversationId:r,cwd:i,gitRoot:d,hostConfig:a})", "null");
+    replace(reviewLauncher, "(0,L7.jsx)(nsa,{enabled:f})", "null", 2);
+    replace(launcher, "(0,V7.jsx)(fca,{conversationId:P,onEnablePlanMode:d})", "null");
+    replace(launcher, "(0,V7.jsx)(wsa,{conversationId:P,enabled:Be,isExtendedGoalCommand:O,onOpenGoalEditor:f})", "void 0");
     replace(launcher, "onEnablePlanMode:d,onOpenGoalEditor:f,", "");
     // Remove the now-unused callback dependencies from memoized mounts.
-    replace(launcher, "t[86]!==F||t[87]!==d||t[88]!==B", "t[86]!==F||t[88]!==B");
-    replace(launcher, "t[86]=F,t[87]=d,t[88]=B", "t[86]=F,t[88]=B");
-    replace(launcher, "t[92]!==F||t[93]!==k||t[94]!==f||t[95]!==Be", "t[92]!==F||t[93]!==k||t[95]!==Be");
-    replace(launcher, "t[92]=F,t[93]=k,t[94]=f,t[95]=Be", "t[92]=F,t[93]=k,t[95]=Be");
-    replace(composer, "onEnablePlanMode:Tc,onOpenGoalEditor:wc,", "");
-    replace(composer, "wc=Sp(()=>{Yi(`pendingThreadGoalObjective`,``),Ya()}),", "");
-    replace(requireFunction("rPi"), "`command:goal`,`command:plan-mode`,", "");
-    const catalog = requireFunction("RVn");
-    replace(catalog, "UVn(e.system_hint)||e.system_hint===`sketch`&&u?.canEditSketch===!0&&!a&&!o&&!c&&!l", "e.system_hint!==`sketch`&&UVn(e.system_hint)");
-    replace(catalog, "if(e.system_hint===`sketch`)return{kind:`local_action`,systemHint:`sketch`,disabled:u?.canOpenSketch!==!0,description:e.description,Icon:{16:qKt,20:JKt},searchAliases:Array.from(new Set([e.action_label??e.name,e.name,...e.aliases,...e.regex_matches??[]])),title:e.action_label??e.name};", "");
-    replace(requireFunction("sQi"), "if(n.kind===`local_action`){n.disabled||a?.(`sketch`);return}", "if(n.kind===`local_action`)return;");
-    // The shared ChatGPT composer also publishes an imperative capability.
-    // Remove its creation handlers; retain the capability's false result for
-    // consumers while persisted sketch attachment editing remains available.
-    replace(requireFunction("h0i"), ",os;t[280]===gn?os=t[281]:(os=e=>{Ao.current?.openNew()&&Bm(gn,cfe,{systemHintId:`sketch`})},t[280]=gn,t[281]=os);let ss=os,cs=!Ne&&!Me&&!xn&&(an?rs:as)?.some(E0i)===!0,ls;t[282]===cs?ls=t[283]:(ls=e=>cs&&(Ao.current?.openNew(e)??!1),t[282]=cs,t[283]=ls);let us=Sp(ls),", ",ss=void 0,cs=!1,us=()=>!1;let ");
+    replace(launcher, "t[86]!==P||t[87]!==d||t[88]!==z", "t[86]!==P||t[88]!==z");
+    replace(launcher, "t[86]=P,t[87]=d,t[88]=z", "t[86]=P,t[88]=z");
+    replace(launcher, "t[92]!==P||t[93]!==O||t[94]!==f||t[95]!==Be", "t[92]!==P||t[93]!==O||t[95]!==Be");
+    replace(launcher, "t[92]=P,t[93]=O,t[94]=f,t[95]=Be", "t[92]=P,t[93]=O,t[95]=Be");
+    replace(composer, "onEnablePlanMode:Ac,onOpenGoalEditor:kc,", "");
+    replace(composer, "kc=Cm(()=>{na(`pendingThreadGoalObjective`,``),eo()}),", "");
+    replace(requireFunction("iLi"), "`command:goal`,`command:plan-mode`,", "");
   } else {
     // Permission policy, eligibility, confirmation and selection callbacks stay
     // intact. Match the ordinary approval option's neutral presentation.
     replace(null, "At=kt?`warning`:`tertiary`,Y=kt?An:`text-tertiary`", "At=`tertiary`,Y=`text-tertiary`");
-    replace(null, "leftIconClassName:p(`icon-sm`,An)", "leftIconClassName:p(`icon-sm`)");
-    replace(null, "rightIconClassName:p(`icon-xs`,An)", "rightIconClassName:p(`icon-xs`)");
+    replace(null, "leftIconClassName:l(`icon-sm`,An)", "leftIconClassName:l(`icon-sm`)");
+    replace(null, "rightIconClassName:l(`icon-xs`,An)", "rightIconClassName:l(`icon-xs`)");
     replace(null, "className:An,children:!St||q", "className:`text-codex-description`,children:!St||q");
-    replace(null, "className:An,children:(0,$.jsx)(s,{id:`composer.permissionsDropdown.fullAccess.optionLabel`", "className:`text-default`,children:(0,$.jsx)(s,{id:`composer.permissionsDropdown.fullAccess.optionLabel`");
+    replace(null, "className:An,children:(0,$.jsx)(h,{id:`composer.permissionsDropdown.fullAccess.optionLabel`", "className:`text-default`,children:(0,$.jsx)(h,{id:`composer.permissionsDropdown.fullAccess.optionLabel`");
     replace(null, "let o=i.kind===`agent-mode`&&i.agentMode===`full-access`?xn:`text-codex-description`", "let o=`text-codex-description`");
   }
   if (marked) {

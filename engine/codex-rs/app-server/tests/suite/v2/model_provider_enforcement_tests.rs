@@ -315,6 +315,7 @@ async fn malformed_system_defaults_do_not_block_existing_thread_turn() -> Result
             .build()
             .await?,
     );
+    let state_db = codex_rollout::state_db::try_init(config.as_ref()).await?;
     let mut client = in_process::start(InProcessStartArgs {
         arg0_paths: Arg0DispatchPaths::default(),
         config,
@@ -326,7 +327,7 @@ async fn malformed_system_defaults_do_not_block_existing_thread_turn() -> Result
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
         feedback: CodexFeedback::new(),
         log_db: None,
-        state_db: None,
+        state_db: Some(state_db),
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
         config_warnings: Vec::new(),
         session_source: SessionSource::Cli,

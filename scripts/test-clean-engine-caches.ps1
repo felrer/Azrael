@@ -8,10 +8,12 @@ $cleaner = Join-Path $PSScriptRoot 'clean-engine-caches.ps1'
 $links = [Collections.Generic.List[string]]::new()
 $global:EngineCacheFixtureProcesses = @()
 $global:EngineCacheFixtureInspectionFails = $false
+$global:EngineCacheFixtureBeforeInspection = $null
 # Process inspection is deterministic and never terminates a real user process.
 function Get-CimInstance {
     param($ClassName, $ErrorAction)
     if ($global:EngineCacheFixtureInspectionFails) { throw 'Fixture process inspection unavailable' }
+    if ($global:EngineCacheFixtureBeforeInspection) { & $global:EngineCacheFixtureBeforeInspection }
     $global:EngineCacheFixtureProcesses
 }
 function Assert($Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
@@ -24,8 +26,9 @@ function Source([string]$Relative, [string]$Version) {
     [IO.File]::WriteAllText((Join-Path $root 'codex-rs/target/cache.txt'), 'cache')
     return $root
 }
-function Run([switch]$Apply, [string]$Target, [switch]$Prepare, [string]$Root = $sandbox, [string]$Report, [string]$CurrentSource) {
+function Run([switch]$Apply, [string]$Target, [switch]$Prepare, [string]$Root = $sandbox, [string]$Report, [string]$CurrentSource, [string[]]$Protected = @()) {
     $arguments = @{ ProjectRoot = $Root; Apply = [bool]$Apply }
+    $arguments.ProtectedPaths = $Protected
     if ($Target) { $arguments.TargetDirectory = $Target }
     if ($Prepare) { $arguments.PrepareTarget = $true }
     if ($Report) { $arguments.ReportPath = $Report }
@@ -102,7 +105,8 @@ try {
         Assert (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target')) 'Blocked cleanup mutated target'
     }
     $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'engine.exe'; ProcessId = 43; ExecutablePath = (Join-Path $old 'codex-rs/target/debug/engine.exe') })
-    Assert ((Run -Apply).status -eq 'blocked') 'Selected-cache executable did not block'
+    $runningSource = Run -Apply
+    Assert (@($runningSource.candidates | Where-Object { $_.path -eq (Join-Path $old 'codex-rs/target') -and $_.status -eq 'preserved-running' }).Count -eq 1) 'Selected-cache executable did not preserve its cache'
     $global:EngineCacheFixtureProcesses = @()
     $global:EngineCacheFixtureInspectionFails = $true
     Assert ((Run -Apply).status -eq 'blocked') 'Failed process inspection did not block'
@@ -206,11 +210,134 @@ try {
     Assert (-not (Test-Path -LiteralPath $performanceTarget)) 'Performance cache not removed'
     Assert ($timer.Elapsed.TotalSeconds -lt 60) "5000-file cleanup exceeded 60s: $($timer.Elapsed.TotalSeconds)s"
     Write-Output ('PASS: 5000-file cleanup in {0:F3}s (60s regression limit)' -f $timer.Elapsed.TotalSeconds)
+    $alternate = Join-Path $sandbox 'artifacts/build/c1609-rust-target'
+    $alternateTwo = Join-Path $sandbox 'artifacts/build/codex-0160-rust-target'
+    $preserved = Join-Path $sandbox 'artifacts/build/worktree-preserved-caches/previous/codex-rs/target'
+    $protectedCache = Join-Path $sandbox 'artifacts/build/protected-rust-target'
+    $activeCache = Join-Path $sandbox 'artifacts/build/active-rust-target'
+    $unknownCache = Join-Path $sandbox 'artifacts/build/unknown-output'
+    $sourceCache = Join-Path $sandbox 'artifacts/build/source-rust-target'
+    $emptyCache = Join-Path $sandbox 'artifacts/build/empty-rust-target'
+    foreach ($directory in @($alternate, $alternateTwo, $preserved, $protectedCache, $activeCache, $unknownCache, $sourceCache)) {
+        [IO.Directory]::CreateDirectory((Join-Path $directory 'debug')) | Out-Null
+        [IO.File]::WriteAllText((Join-Path $directory 'debug/cache.txt'), 'cache')
+    }
+    [IO.Directory]::CreateDirectory($emptyCache) | Out-Null
+    [IO.File]::WriteAllText((Join-Path $sourceCache 'Cargo.toml'), '[workspace]')
+    # Even current/newer or malformed markers cannot make an unused known target
+    # reusable; its active and explicit path protections decide retention.
+    [IO.File]::WriteAllText((Join-Path $alternateTwo 'azrael-cache-version.json'), '{"engineVersion":"99.0.0"}')
+    [IO.File]::WriteAllText((Join-Path $preserved 'azrael-cache-version.json'), 'invalid')
+    [IO.File]::WriteAllText((Join-Path $target 'azrael-cache-version.json'), '{"engineVersion":"1.0.0"}')
+    $cachePreview = Run -Protected @((Join-Path $protectedCache 'debug/cache.txt'))
+    foreach ($directory in @($alternate, $alternateTwo, $preserved)) {
+        Assert (@($cachePreview.candidates | Where-Object { $_.path -eq $directory -and $_.status -eq 'selected' }).Count -eq 1) 'Known unused Cargo target not discovered'
+        Assert (Test-Path -LiteralPath $directory) 'Preview removed Cargo cache'
+    }
+    Assert (@($cachePreview.candidates | Where-Object { $_.path -eq $target -and $_.status -eq 'preserved-current-or-newer' }).Count -eq 1) 'Current source target not preserved despite stale marker'
+    Assert (@($cachePreview.candidates | Where-Object { $_.path -eq $protectedCache -and $_.status -eq 'preserved-protected' }).Count -eq 1) 'Protected child did not protect cache ancestor'
+    $ancestorPreview = Run -Protected @((Join-Path $sandbox 'artifacts/build'))
+    Assert (@($ancestorPreview.candidates | Where-Object status -eq selected).Count -eq 0) 'Protected ancestor did not protect caches'
+    $activePreview = Run -Target $activeCache
+    Assert (@($activePreview.candidates | Where-Object { $_.path -eq $activeCache -and $_.status -eq 'preserved-protected' }).Count -eq 1) 'Explicit active target not protected'
+    Assert (@($activePreview.candidates | Where-Object { $_.path -eq $target -and $_.status -like 'preserved-*' }).Count -eq 1) 'Explicit alternate target stopped primary target preservation'
+    foreach ($command in @(
+        ('runner.exe "' + (Join-Path $alternate 'debug/cache.txt') + '"'),
+        ('runner.exe --target-dir="\\?\' + $alternate + '"'),
+        ('runner.exe --target-dir=' + $alternate.Replace('\', '/'))
+    )) {
+        $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'runner.exe'; ProcessId = 80; ExecutablePath = 'C:\tools\runner.exe'; CommandLine = $command })
+        Assert (@((Run).candidates | Where-Object { $_.path -eq $alternate -and $_.status -eq 'preserved-running' }).Count -eq 1) 'Command-line cache path did not protect cache'
+        Assert (Test-Path -LiteralPath $alternate) 'Referenced cache removed'
+    }
+    $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'runner.exe'; ProcessId = 81; ExecutablePath = ('\\?\' + (Join-Path $alternate 'debug/runner.exe')); CommandLine = $null })
+    $mixedRetirement = Run -Apply -Target $activeCache -Protected @($protectedCache)
+    Assert (@($mixedRetirement.candidates | Where-Object { $_.path -eq $alternate -and $_.status -eq 'preserved-running' }).Count -eq 1) 'Extended executable path did not protect cache'
+    Assert (Test-Path -LiteralPath $alternate) 'Live alternate cache removed'
+    Assert (-not (Test-Path -LiteralPath $alternateTwo)) 'Live alternate incorrectly blocked unused alternate cleanup'
+    Assert (-not (Test-Path -LiteralPath $preserved)) 'Live alternate incorrectly blocked preserved-cache cleanup'
+    Assert ((Test-Path -LiteralPath $activeCache) -and (Test-Path -LiteralPath $target)) 'Alternate active or reusable primary cache removed'
+    $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'runner.exe'; ProcessId = 82; ExecutablePath = 'C:\tools\runner.exe'; CommandLine = ('runner.exe "' + $alternate + '-backup\debug\cache.txt"') })
+    $boundaryResult = Run -Apply -Target $activeCache -Protected @($protectedCache)
+    Assert ($boundaryResult.status -eq 'completed') 'Sibling path incorrectly blocked cache cleanup'
+    foreach ($directory in @($alternate, $alternateTwo, $preserved)) { Assert (-not (Test-Path -LiteralPath $directory)) 'Unused alternate/preserved target retained' }
+    foreach ($directory in @($activeCache, $protectedCache, $unknownCache, $sourceCache, $emptyCache, $target)) {
+        Assert (Test-Path -LiteralPath $directory) 'Active/protected/current/source/unknown cache removed'
+    }
+    $global:EngineCacheFixtureProcesses = @()
+    [IO.Directory]::CreateDirectory($alternate) | Out-Null
+    [IO.File]::WriteAllText((Join-Path $alternate '.rustc_info.json'), '{}')
+    $global:EngineCacheFixtureInspectionCount = 0
+    $global:EngineCacheFixtureBeforeInspection = {
+        $global:EngineCacheFixtureInspectionCount++
+        if ($global:EngineCacheFixtureInspectionCount -eq 2) {
+            $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'runner.exe'; ProcessId = 83; ExecutablePath = 'C:\tools\runner.exe'; CommandLine = ('runner.exe "' + $alternate + '"') })
+        }
+    }
+    $lateProcess = Run -Apply -Target $activeCache -Protected @($protectedCache)
+    Assert (@($lateProcess.candidates | Where-Object { $_.path -eq $alternate -and $_.status -eq 'preserved-running' }).Count -eq 1 -and (Test-Path -LiteralPath $alternate)) 'Process starting before deletion did not preserve cache'
+    $global:EngineCacheFixtureBeforeInspection = $null
+    $global:EngineCacheFixtureProcesses = @()
+    [IO.Directory]::CreateDirectory((Join-Path $alternateTwo 'debug')) | Out-Null
+    $global:EngineCacheFixtureInspectionCount = 0
+    $global:EngineCacheFixtureBeforeInspection = {
+        $global:EngineCacheFixtureInspectionCount++
+        if ($global:EngineCacheFixtureInspectionCount -eq 2) {
+            $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = 'cargo.exe'; ProcessId = 84; ExecutablePath = 'C:\tools\cargo.exe'; CommandLine = 'cargo.exe build' })
+        }
+    }
+    $lateBuild = Run -Apply -Target $activeCache -Protected @($protectedCache)
+    Assert ($lateBuild.status -eq 'blocked') 'Compilation beginning before deletion did not block remaining cleanup'
+    foreach ($directory in @($alternate, $alternateTwo)) {
+        Assert (Test-Path -LiteralPath $directory) 'Late compilation guard removed a remaining cache'
+        Assert (@($lateBuild.candidates | Where-Object { $_.path -eq $directory -and $_.status -eq 'blocked' }).Count -eq 1) 'Late compilation guard did not block all remaining candidates'
+    }
+    $global:EngineCacheFixtureBeforeInspection = $null
+    $global:EngineCacheFixtureProcesses = @()
+    $global:EngineCacheFixtureInspectionCount = 0
+    $global:EngineCacheFixtureBeforeInspection = {
+        $global:EngineCacheFixtureInspectionCount++
+        if ($global:EngineCacheFixtureInspectionCount -eq 2) { Remove-Item -LiteralPath (Join-Path $alternate '.rustc_info.json') }
+    }
+    $lateChange = Run -Apply -Target $activeCache -Protected @($protectedCache)
+    Assert ($lateChange.status -eq 'warning' -and (Test-Path -LiteralPath $alternate)) 'Disappearing Cargo indicators did not preserve cache'
+    $global:EngineCacheFixtureBeforeInspection = $null
+    $escapeCache = Join-Path $sandbox 'artifacts/build/escape-rust-target'
+    Junction $escapeCache $external
+    $escapePreview = Run -Target $activeCache -Protected @($protectedCache)
+    Assert (@($escapePreview.candidates | Where-Object { $_.path -eq $escapeCache -and $_.status -eq 'rejected' }).Count -eq 1) 'Cargo target junction not rejected'
+    $traversal = Join-Path $sandbox 'artifacts/build/../../../external'
+    Assert ((Run -Apply -Protected @($traversal)).status -eq 'completed') 'Absolute protective traversal should be normalized safely'
+    Assert (Test-Path -LiteralPath $sentinel) 'Traversal or Cargo junction removed external data'
+    Assert ((Run -Apply -Protected @('relative/path')).status -eq 'blocked') 'Relative protection accepted'
+    Write-Output 'PASS: unmarked/nested Cargo caches; primary and alternate active protections; one live cache preserves only itself; command-line and extended paths; sibling boundaries; late process/indicator revalidation; unknown/source/junction/traversal safety'
+    $selectedSnapshot = Source 'artifacts/source-snapshots/selected-current' '3.0.0'
+    $unusedSnapshot = Source 'artifacts/source-snapshots/unused-equal' '3.0.0'
+    $unusedNewer = Source 'artifacts/worktrees/unused-newer' '4.0.0'
+    $explicitSnapshot = Source 'artifacts/source-snapshots/explicit-target' '3.0.0'
+    foreach ($root in @($selectedSnapshot, $unusedSnapshot, $unusedNewer, $explicitSnapshot)) {
+        [IO.Directory]::CreateDirectory((Join-Path $root 'codex-rs/target/debug')) | Out-Null
+    }
+    $snapshotResult = Run -Apply -CurrentSource $selectedSnapshot -Target (Join-Path $explicitSnapshot 'codex-rs/target')
+    Assert ($snapshotResult.status -eq 'completed') 'Unused source-target cleanup failed'
+    foreach ($root in @($unusedSnapshot, $unusedNewer)) {
+        Assert (-not (Test-Path -LiteralPath (Join-Path $root 'codex-rs/target'))) 'Unused same/newer-version source cache retained'
+        Assert (Test-Path -LiteralPath (Join-Path $root 'codex-rs/Cargo.toml')) 'Source-cache cleanup removed source manifest'
+        Assert (Test-Path -LiteralPath (Join-Path $root '.git')) 'Source-cache cleanup removed source git'
+        Assert (@($snapshotResult.candidates | Where-Object { $_.path -eq (Join-Path $root 'codex-rs/target') -and $_.kind -eq 'cargo-target' -and $_.status -eq 'removed' }).Count -eq 1) 'Known source cache was not retired as Cargo target'
+    }
+    foreach ($root in @($current, $selectedSnapshot, $explicitSnapshot)) {
+        Assert (Test-Path -LiteralPath (Join-Path $root 'codex-rs/target')) 'Primary/current-source/explicit snapshot target removed'
+    }
+    Assert (@($snapshotResult.candidates | Where-Object { $_.path -eq $target -and $_.status -eq 'preserved-protected' }).Count -eq 1) 'Snapshot build did not protect older reusable primary target'
+    Assert (Test-Path -LiteralPath (Join-Path $unknown 'codex-rs/target/cache.txt')) 'Unknown source-cache content removed'
+    Assert (Test-Path -LiteralPath (Join-Path $new 'codex-rs/target/cache.txt')) 'Unrecognized equal-version cache content removed'
+    Write-Output 'PASS: unused same/newer-version snapshot/worktree Cargo targets removed; primary/current-source/explicit targets and source/unknown content preserved'
     $null = & pwsh -NoProfile -File $cleaner -ProjectRoot $sandbox -CurrentSourceRoot (Join-Path $sandbox 'missing') -Apply
     Assert ($LASTEXITCODE -eq 0) 'Retirement refusal must not fail successful packaging'
     Write-Output 'PASS: marker migration, equal-version retention, in-place switch, prepare preview, malformed/refused/unmanaged targets'
 } finally {
-    Remove-Variable -Name EngineCacheFixtureProcesses, EngineCacheFixtureInspectionFails -Scope Global -ErrorAction SilentlyContinue
+    Remove-Variable -Name EngineCacheFixtureProcesses, EngineCacheFixtureInspectionFails, EngineCacheFixtureBeforeInspection, EngineCacheFixtureInspectionCount -Scope Global -ErrorAction SilentlyContinue
     foreach ($link in $links) {
         if ([IO.Directory]::Exists($link)) {
             Assert (([IO.File]::GetAttributes($link) -band [IO.FileAttributes]::ReparsePoint) -ne 0) 'Fixture link changed unexpectedly'

@@ -34,8 +34,12 @@ pub struct AzraelSwitchRequest {
 
 impl AzraelAuthAdmission {
     /// Pin an execution task's account until the task and its cleanup finish.
-    pub async fn enter_task(&self) -> OwnedRwLockReadGuard<()> {
-        Arc::clone(&self.work).read_owned().await
+    pub async fn enter_task(self: &Arc<Self>) -> Arc<AzraelTaskAuthLease> {
+        Arc::new(AzraelTaskAuthLease {
+            admission: Arc::clone(self),
+            guard: std::sync::Mutex::new(Some(Arc::clone(&self.work).read_owned().await)),
+            finished: AtomicBool::new(false),
+        })
     }
 
     /// Admit external work only when no manual switch is pending.
@@ -144,3 +148,80 @@ impl Drop for AzraelSwitchRequest {
 #[cfg(test)]
 #[path = "azrael_admission_tests.rs"]
 mod tests;
+
+/// Pins a task identity and permits only that task to yield its own admission.
+pub struct AzraelTaskAuthLease {
+    admission: Arc<AzraelAuthAdmission>,
+    guard: std::sync::Mutex<Option<OwnedRwLockReadGuard<()>>>,
+    finished: AtomicBool,
+}
+
+impl std::fmt::Debug for AzraelTaskAuthLease {
+    fn fmt(&self, formatter: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        formatter
+            .debug_struct("AzraelTaskAuthLease")
+            .field("finished", &self.finished.load(Ordering::Acquire))
+            .finish_non_exhaustive()
+    }
+}
+
+impl AzraelTaskAuthLease {
+    /// Release execution admission after task cleanup, even if contexts retain this lease.
+    pub fn finish(&self) {
+        self.finished.store(true, Ordering::Release);
+        self.guard
+            .lock()
+            .unwrap_or_else(|error| panic!("task authentication lease mutex is poisoned: {error}"))
+            .take();
+    }
+
+    pub(crate) fn belongs_to(&self, admission: &Arc<AzraelAuthAdmission>) -> bool {
+        Arc::ptr_eq(&self.admission, admission)
+    }
+
+    pub(crate) fn begin_recovery(
+        &self,
+    ) -> Result<AzraelTaskRecovery<'_>, crate::AzraelQuotaRecoveryOutcome> {
+        use crate::AzraelQuotaRecoveryOutcome;
+        let mut guard = self
+            .guard
+            .lock()
+            .unwrap_or_else(|error| panic!("task authentication lease mutex is poisoned: {error}"));
+        if self.finished.load(Ordering::Acquire) || guard.is_none() {
+            return Err(AzraelQuotaRecoveryOutcome::Superseded);
+        }
+        let request = self
+            .admission
+            .begin_switch()
+            .map_err(|_| AzraelQuotaRecoveryOutcome::Superseded)?;
+        guard.take();
+        drop(guard);
+        Ok(AzraelTaskRecovery {
+            lease: self,
+            request,
+        })
+    }
+}
+
+pub(crate) struct AzraelTaskRecovery<'a> {
+    lease: &'a AzraelTaskAuthLease,
+    pub(crate) request: AzraelSwitchRequest,
+}
+
+impl Drop for AzraelTaskRecovery<'_> {
+    fn drop(&mut self) {
+        let mut guard =
+            self.lease.guard.lock().unwrap_or_else(|error| {
+                panic!("task authentication lease mutex is poisoned: {error}")
+            });
+        if !self.lease.finished.load(Ordering::Acquire)
+            && !self.lease.admission.failed_closed.load(Ordering::Acquire)
+        {
+            *guard = Arc::clone(&self.lease.admission.work).try_read_owned().ok();
+            if guard.is_none() {
+                self.lease.admission.block_new_work();
+            }
+        }
+        // The request reopens admission after this task has reacquired its pin.
+    }
+}

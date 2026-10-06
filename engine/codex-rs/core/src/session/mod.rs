@@ -241,6 +241,7 @@ mod reasoning_effort;
 mod submission;
 pub(crate) use reasoning_effort::RequestEffortUsage;
 pub(crate) use submission::Submission;
+mod account_recovery;
 mod input_queue;
 mod mcp;
 mod mcp_prewarm;
@@ -664,6 +665,11 @@ impl Session {
                 config.http_client_factory(),
             )
             .await;
+        if model.trim().is_empty() {
+            return Err(CodexErr::InvalidRequest(
+                "No models are available. Set `model` explicitly or check your model catalog configuration.".to_string(),
+            ));
+        }
         crate::devin::select_model(Arc::make_mut(&mut config), &model)
             .map_err(|err| CodexErr::InvalidRequest(err.to_string()))?;
         let trusted_guardian_reviewer = crate::guardian::is_basic_session_source(&session_source)

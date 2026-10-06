@@ -36,9 +36,6 @@ export async function openAzraelSidebar(api: NativeAzraelApi): Promise<void> {
   await api.commands.executeCommand(AZRAEL_OPEN_SIDEBAR_COMMAND);
 }
 
-export async function pickAzraelSetting(api: NativeAzraelApi): Promise<void> {
-  const keys = azraelSettingKeys(api);
-  if (keys.length === 0) throw new Error("No azrael settings were found in the installed host.");
-  const selected = await api.window.showQuickPick(keys.map((key) => ({ label: key, key })), { placeHolder: "Open an azrael host setting" });
-  if (selected) await api.commands.executeCommand("workbench.action.openSettings", selected.key);
+export async function openAzraelSettings(api: NativeAzraelApi): Promise<void> {
+  await api.commands.executeCommand("azrael.openSettingsPanel");
 }

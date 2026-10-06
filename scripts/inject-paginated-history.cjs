@@ -1,9 +1,9 @@
 "use strict";
 
-const PAGINATED_HISTORY_ASSET = "webview/assets/app-initial-9f7d97690e9b.js";
+const PAGINATED_HISTORY_ASSET = "webview/assets/app-initial-efe028fd535e.js";
 const PAGINATED_HISTORY_MARKER = "/*azrael-paginated-history-v1*/";
-const ORIGINAL = 'function LTn(e,t,n,r){let i=e;return(t==null||typeof t.approvalPolicy==`object`&&`granular`in t.approvalPolicy)&&(i={...e,config:{...e.config,"features.request_permissions_tool":!0}}),i.ephemeral!==!0&&(n===`paginated`||xe(r,`defaultPaginatedHistory`))?{...i,historyMode:n}:i}';
-const PATCHED = ORIGINAL.replace('i.ephemeral!==!0&&(n===`paginated`||xe(r,`defaultPaginatedHistory`))?{...i,historyMode:n}:i', 'i.ephemeral!==!0?{...i,historyMode:`paginated`}:i');
+const ORIGINAL = "function wTn(e,t,n,r){let i=e;return(t==null||typeof t.approvalPolicy==`object`&&`granular`in t.approvalPolicy)&&(i={...e,config:{...e.config,\"features.request_permissions_tool\":!0}}),i.ephemeral!==!0&&(n===`paginated`||yt(r,`defaultPaginatedHistory`))?{...i,historyMode:n}:i}";
+const PATCHED = ORIGINAL.replace("i.ephemeral!==!0&&(n===`paginated`||yt(r,`defaultPaginatedHistory`))?{...i,historyMode:n}:i", 'i.ephemeral!==!0?{...i,historyMode:`paginated`}:i');
 
 function occurrences(text, value) {
   return text.split(value).length - 1;

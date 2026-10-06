@@ -64,6 +64,7 @@ pub(crate) struct ConnectionRequestId {
 #[derive(Clone)]
 pub(crate) struct RequestContext {
     request_id: ConnectionRequestId,
+    input_diagnostics: Option<crate::input_delivery_diagnostics::InputDiagnostics>,
     pub(crate) cancellation: tokio_util::sync::CancellationToken,
     cancellation_scope: RequestCancellationScope,
     span: Span,
@@ -85,6 +86,10 @@ impl RequestContext {
         parent_trace: Option<W3cTraceContext>,
     ) -> Self {
         Self {
+            input_diagnostics: crate::input_delivery_diagnostics::InputDiagnostics::new(
+                &request_id,
+                method,
+            ),
             request_id,
             cancellation: tokio_util::sync::CancellationToken::new(),
             cancellation_scope: match method {
@@ -827,6 +832,18 @@ impl OutgoingMessageSender {
             .await;
     }
 
+    /// Claim a still-pending response before sending a panic fallback.
+    pub(crate) async fn send_error_if_pending(
+        &self,
+        request_id: ConnectionRequestId,
+        error: JSONRPCErrorError,
+    ) {
+        if let Some(context) = self.take_request_context(&request_id).await {
+            self.send_error_inner(Some(context), request_id, error)
+                .await;
+        }
+    }
+
     pub(crate) async fn send_result<T, E>(
         &self,
         request_id: ConnectionRequestId,
@@ -869,6 +886,13 @@ impl OutgoingMessageSender {
         message: OutgoingMessage,
         message_kind: &'static str,
     ) {
+        let diagnostics = request_context
+            .as_ref()
+            .and_then(|context| context.input_diagnostics.as_ref())
+            .cloned();
+        if let Some(diagnostics) = &diagnostics {
+            diagnostics.stage("input.response_enqueue_started");
+        }
         let send_fut = self.sender.send(OutgoingEnvelope::ToConnection {
             connection_id,
             message,
@@ -880,8 +904,21 @@ impl OutgoingMessageSender {
             send_fut.await
         };
 
-        if let Err(err) = send_result {
-            warn!("failed to send {message_kind} to client: {err:?}");
+        match send_result {
+            Ok(()) => {
+                if let Some(diagnostics) = diagnostics {
+                    diagnostics.stage("input.response_enqueued");
+                }
+            }
+            Err(_) => {
+                if let Some(diagnostics) = diagnostics {
+                    diagnostics.enqueue_failed();
+                }
+                warn!(
+                    message_kind,
+                    "failed to enqueue outgoing message: channel closed"
+                );
+            }
         }
     }
 }
@@ -1274,6 +1311,91 @@ mod tests {
                 );
             }
             other => panic!("expected targeted response envelope, got: {other:?}"),
+        }
+    }
+
+    #[tokio::test]
+    async fn handler_panic_fallback_only_claims_an_unanswered_request_once() {
+        for response_claimed in [false, true] {
+            let (tx, mut rx) = mpsc::channel::<OutgoingEnvelope>(4);
+            let outgoing = Arc::new(OutgoingMessageSender::new(
+                tx,
+                codex_analytics::AnalyticsEventsClient::disabled(),
+            ));
+            let request_id = ConnectionRequestId {
+                connection_id: ConnectionId(42),
+                request_id: RequestId::Integer(7),
+            };
+            outgoing
+                .register_request_context(RequestContext::new(
+                    request_id.clone(),
+                    "turn/steer",
+                    tracing::info_span!("app_server.request", rpc.method = "turn/steer"),
+                    /*parent_trace*/ None,
+                ))
+                .await;
+            let handler_outgoing = Arc::clone(&outgoing);
+            let handler_id = request_id.clone();
+            let fallback_outgoing = Arc::clone(&outgoing);
+            let fallback_id = request_id.clone();
+            crate::request_serialization::QueuedInitializedRequest::new(
+                Arc::new(crate::connection_rpc_gate::ConnectionRpcGate::new()),
+                async move {
+                    if response_claimed {
+                        handler_outgoing
+                            .send_response(
+                                handler_id,
+                                ClientResponsePayload::ThreadArchive(
+                                    codex_app_server_protocol::ThreadArchiveResponse {},
+                                ),
+                            )
+                            .await;
+                    }
+                    panic!("private RPC panic payload");
+                },
+            )
+            .with_panic_handler(async move {
+                fallback_outgoing
+                    .send_error_if_pending(fallback_id, crate::error_code::handler_panicked_error())
+                    .await;
+            })
+            .run()
+            .await;
+            // A repeated fallback cannot claim this response again.
+            outgoing
+                .send_error_if_pending(
+                    request_id.clone(),
+                    crate::error_code::handler_panicked_error(),
+                )
+                .await;
+            assert_eq!(outgoing.request_context_count().await, 0);
+            let envelope = rx.try_recv().expect("exactly one response");
+            let OutgoingEnvelope::ToConnection {
+                connection_id,
+                message,
+                ..
+            } = envelope
+            else {
+                panic!("expected targeted response");
+            };
+            assert_eq!(connection_id, request_id.connection_id);
+            if response_claimed {
+                assert!(matches!(message, OutgoingMessage::Response(_)));
+            } else {
+                let OutgoingMessage::Error(error) = message else {
+                    panic!("expected fallback error");
+                };
+                assert_eq!(error.id, request_id.request_id);
+                assert_eq!(
+                    serde_json::to_value(error.error).unwrap(),
+                    json!({
+                        "code": -32603,
+                        "message": "Request handler panicked; request outcome is unknown",
+                        "data": { "requestOutcome": "unknown", "reason": "handlerPanicked" },
+                    })
+                );
+            }
+            assert!(rx.try_recv().is_err());
         }
     }
 

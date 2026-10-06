@@ -4,7 +4,7 @@ const { randomUUID } = require('node:crypto');
 const path = require('node:path');
 const { StringDecoder } = require('node:string_decoder');
 const { verifyRuntime } = require('./window-control-runtime.cjs');
-const METHODS = new Set(['listWindows', 'status', 'observe', 'restore', 'resize', 'act']);
+const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act']);
 function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, timeoutMs = 30000, shutdownMs = 3000 } = {}) {
   let child, identity, buffer = '', disposed = false, launching;
   const pending = new Map();

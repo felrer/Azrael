@@ -3,7 +3,7 @@
 param(
     [Parameter(Mandatory)][string]$ReleaseDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
-    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.928.31416'),
+    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225'),
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$OriginalExtensionPath,
     [string]$DevinExecutable
@@ -25,7 +25,8 @@ function Set-AzraelEngineResolver {
     $anchors = @(
         'function yI(t,e){let r=mn("cliExecutable");',
         'function bM(t,e){let r=Mn("cliExecutable");',
-        'function QN(t,e){let r=Jn("cliExecutable");'
+        'function QN(t,e){let r=Jn("cliExecutable");',
+        'function KN(t,e){let r=Jn("cliExecutable");'
     )
     $matchingAnchors = @($anchors | Where-Object { [regex]::Matches($HostText, [regex]::Escape($_)).Count -gt 0 })
     if ($matchingAnchors.Count -ne 1 -or [regex]::Matches($HostText, [regex]::Escape($matchingAnchors[0])).Count -ne 1) { throw 'Pinned engine resolver anchor changed or is ambiguous.' }
@@ -68,7 +69,7 @@ if ($windowControl) {
     Copy-Item -LiteralPath $windowControl.directory -Destination (Join-Path $prepared.Extension 'window-control') -Recurse
     & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'window-control') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Copied Window Control bundle validation failed.' }
-    foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+    foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs')) {
         Copy-Item -LiteralPath (Join-Path $release "host/$module") -Destination (Join-Path $prepared.Extension "out/$module")
     }
 }

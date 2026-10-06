@@ -85,6 +85,7 @@ use codex_protocol::protocol::TokenUsageRecord;
 use codex_protocol::protocol::TurnAbortReason;
 use codex_protocol::protocol::TurnAbortedEvent;
 use codex_protocol::protocol::TurnCompleteEvent;
+use codex_protocol::protocol::TurnEnvironmentSelection;
 use codex_protocol::protocol::TurnEnvironmentSelections;
 use codex_protocol::protocol::TurnStartedEvent;
 use codex_thread_store::ArchiveThreadParams;
@@ -1647,6 +1648,74 @@ async fn spawn_agent_creates_thread_and_sends_prompt() {
         .await
         .expect("thread should be registered");
     wait_for_recorded_user_message(thread.as_ref(), "spawned").await;
+}
+
+#[tokio::test]
+async fn pending_environment_failure_reaches_child_and_grandchild() {
+    let (home, mut config) = test_config().await;
+    for feature in [
+        Feature::DeferredExecutor,
+        Feature::MultiAgentV2,
+        Feature::Sqlite,
+    ] {
+        config.features.enable(feature).expect("enable feature");
+    }
+    config.model = Some("gpt-5.6-sol".to_string());
+    config.agent_max_depth = 2;
+    let harness = AgentControlHarness::new_with_config(home, config).await;
+    let cwd = PathUri::from_abs_path(&harness.config.codex_home);
+    let pending = TurnEnvironmentSelection {
+        environment_id: codex_exec_server::LOCAL_ENVIRONMENT_ID.to_string(),
+        cwd: cwd.clone(),
+        workspace_roots: vec![cwd],
+        config: EnvironmentConfigState::Pending,
+    };
+    let root = harness
+        .manager
+        .start_thread(StartThreadOptions {
+            environments: Some(vec![pending.clone()]),
+            ..StartThreadOptions::new(harness.config.clone())
+        })
+        .await
+        .expect("start root")
+        .thread;
+    let control = root
+        .session
+        .services
+        .local_agent_runtime
+        .control(root.session.session_id());
+    let mut parent = Arc::clone(&root);
+    let mut descendants = Vec::new();
+    for name in ["child", "grandchild"] {
+        let agent =
+            spawn_v2_reload_test_child(&control, harness.config.clone(), &parent, name).await;
+        let thread = harness
+            .manager
+            .get_thread(agent.thread_id)
+            .await
+            .expect("get descendant");
+        assert_eq!(thread.environment_selections().await, vec![pending.clone()]);
+        descendants.push(Arc::clone(&thread));
+        parent = thread;
+    }
+
+    let error = "root could not prepare the environment";
+    root.environment_failed(&pending, error.to_string())
+        .await
+        .expect("fail root environment");
+    let failed = TurnEnvironmentSelection {
+        config: EnvironmentConfigState::Failed(error.to_string()),
+        ..pending
+    };
+    timeout(Duration::from_secs(/*secs*/ 5), async {
+        for thread in descendants {
+            while thread.environment_selections().await != [failed.clone()] {
+                sleep(Duration::from_millis(/*millis*/ 10)).await;
+            }
+        }
+    })
+    .await
+    .expect("both descendants should receive the root failure");
 }
 
 #[tokio::test]
@@ -3783,11 +3852,15 @@ async fn spawn_agent_respects_legacy_max_threads_alias() {
         TomlValue::Integer(max_threads as i64),
     )])
     .await;
-    let manager = ThreadManager::with_models_provider_and_home_for_tests(
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(state_db),
     );
     let control = manager.agent_control();
 
@@ -3835,11 +3908,15 @@ async fn spawn_agent_releases_slot_after_shutdown() {
         TomlValue::Integer(max_threads as i64),
     )])
     .await;
-    let manager = ThreadManager::with_models_provider_and_home_for_tests(
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(state_db),
     );
     let control = manager.agent_control();
 
@@ -3878,11 +3955,15 @@ async fn spawn_agent_limit_shared_across_clones() {
         TomlValue::Integer(max_threads as i64),
     )])
     .await;
-    let manager = ThreadManager::with_models_provider_and_home_for_tests(
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(state_db),
     );
     let control = manager.agent_control();
     let cloned = control.clone();
@@ -3923,11 +4004,15 @@ async fn resume_agent_respects_max_threads_limit() {
         TomlValue::Integer(max_threads as i64),
     )])
     .await;
-    let manager = ThreadManager::with_models_provider_and_home_for_tests(
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(state_db),
     );
     let control = manager.agent_control();
 
@@ -3979,11 +4064,15 @@ async fn resume_agent_releases_slot_after_resume_failure() {
         TomlValue::Integer(max_threads as i64),
     )])
     .await;
-    let manager = ThreadManager::with_models_provider_and_home_for_tests(
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(state_db),
     );
     let control = manager.agent_control();
 
@@ -4828,12 +4917,15 @@ async fn list_agent_subtree_thread_ids_includes_anonymous_and_closed_descendants
 #[tokio::test]
 async fn list_agent_subtree_thread_ids_finds_live_descendants_of_unloaded_root() {
     let (_home, config) = test_config().await;
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
     let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
         CodexAuth::from_api_key("dummy"),
         config.model_provider.clone(),
         config.codex_home.to_path_buf(),
         std::sync::Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
-        /*state_db*/ None,
+        Some(state_db),
     );
     let control = manager.agent_control();
     let parent_thread_id = manager

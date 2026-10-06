@@ -8,8 +8,8 @@ const vm = require("node:vm");
 const { RecoveryState } = require("./recovery-state.cjs");
 
 // Execute the product's labels and redraw closure, rather than duplicating its
-// presentation logic. Reuse the staged parser used by test-recovery-bridge.
-const ts = require(path.resolve(__dirname, "../artifacts/build/root-resume-validation/companion/node_modules/typescript/lib/typescript.js"));
+// presentation logic. Resolve the installed, lockfile-backed project parser.
+const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const filename = path.join(__dirname, "azrael-recovery.cjs");
 const source = fs.readFileSync(filename, "utf8");
 const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);

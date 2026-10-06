@@ -219,6 +219,8 @@ pub enum StartIfIdleSubmission {
 /// What Core did with input submitted only for steering.
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum SteerSubmission {
+    /// Core started a new turn to wake the matching parked root reservation.
+    Started { turn_id: String },
     /// Core steered an active turn. Persistent thread settings were applied for
     /// subsequent turns.
     Steered { turn_id: String },

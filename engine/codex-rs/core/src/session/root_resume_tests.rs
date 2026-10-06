@@ -18,6 +18,9 @@ use codex_login::CodexAuth;
 use codex_protocol::models::AgentMessageInputContent;
 use codex_protocol::models::ContentItem;
 use codex_protocol::models::ResponseItem;
+use codex_protocol::turn_input::NotSubmittedReason;
+use codex_protocol::turn_input::SteerSubmission;
+use codex_protocol::turn_input::TurnInputRequest;
 use codex_protocol::user_input::UserInput;
 use core_test_support::responses::ev_assistant_message;
 use core_test_support::responses::ev_completed;
@@ -27,6 +30,7 @@ use core_test_support::responses::mount_sse_once;
 use core_test_support::responses::mount_sse_sequence;
 use core_test_support::responses::sse;
 use core_test_support::responses::start_mock_server;
+use pretty_assertions::assert_eq;
 use std::sync::atomic::AtomicI64;
 use std::sync::atomic::AtomicUsize;
 use tokio::sync::oneshot;
@@ -237,7 +241,7 @@ async fn stopping_parked_root_emits_one_interruption_and_prevents_wakeup() {
         let requests = mount_sse_once(&server, sse(vec![ev_completed("unused")])).await;
         let clock = Arc::new(FakeClock::new());
         let home = tempfile::tempdir().expect("temporary Codex home");
-        let (session, turn, mut events) =
+        let (session, turn, events) =
             make_persistent_session_and_context_with_time_provider_and_rx(
                 home.path(),
                 InitialHistory::New,
@@ -411,6 +415,103 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
 }
 
 #[tokio::test]
+async fn codex_thread_steer_wakes_matching_parked_root_and_returns_actual_turn_id() {
+    let server = start_mock_server().await;
+    Mock::given(method("POST"))
+        .and(path_regex(".*/responses$"))
+        .respond_with(
+            core_test_support::responses::sse_response(sse(vec![
+                ev_response_created("wake-turn"),
+                ev_completed("wake-turn"),
+            ]))
+            .set_delay(Duration::from_secs(60)),
+        )
+        .mount(&server)
+        .await;
+    let home = tempfile::tempdir().expect("temporary Codex home");
+    let mut config = build_test_config(home.path()).await;
+    config
+        .features
+        .enable(codex_features::Feature::MultiAgentV2)
+        .expect("multi-agent v2 should be enableable in tests");
+    config.multi_agent_v2.tool_namespace =
+        Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE.to_string());
+    config.model_provider.base_url = Some(format!("{}/v1", server.uri()));
+    let state_db = init_state_db(&config).await;
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
+        CodexAuth::from_api_key("Test API Key"),
+        config.model_provider.clone(),
+        config.codex_home.to_path_buf(),
+        Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        state_db,
+    );
+    let root = manager
+        .start_thread(StartThreadOptions::new(config))
+        .await
+        .expect("start root thread");
+    let turn = root.thread.session.new_default_turn().await;
+    park_root(&root.thread.session, &turn, 60_000).await;
+    let parked = root.thread.session.root_resume_record().unwrap();
+
+    let request = || {
+        TurnInputRequest::user_input(vec![UserInput::Text {
+            text: "wake the parked root".to_string(),
+            text_elements: Vec::new(),
+        }])
+    };
+    assert_eq!(
+        root.thread
+            .steer_turn(request(), "different-turn".to_string())
+            .await
+            .expect("mismatched steer should return a typed rejection"),
+        SteerSubmission::NotSubmitted {
+            reason: NotSubmittedReason::NoActiveTurn,
+        }
+    );
+    assert_eq!(root.thread.session.root_resume_record(), Some(parked));
+    assert!(root.thread.session.active_turn.lock().await.is_none());
+
+    let submission = root
+        .thread
+        .steer_turn(request(), turn.sub_id.clone())
+        .await
+        .expect("matching parked-root steer should start a turn without panicking");
+    let SteerSubmission::Started { turn_id } = submission else {
+        panic!("parked-root steer did not start a turn: {submission:?}");
+    };
+    assert_ne!(turn_id, turn.sub_id);
+    let active_turn_id = root
+        .thread
+        .session
+        .active_turn
+        .lock()
+        .await
+        .as_ref()
+        .expect("wake turn remains active")
+        .task
+        .as_ref()
+        .expect("wake task exists")
+        .turn_context
+        .sub_id
+        .clone();
+    assert_eq!(turn_id, active_turn_id);
+    let cancelled = root.thread.session.root_resume_record().unwrap();
+    assert_eq!(cancelled.state, RootResumeState::Cancelled);
+    assert_eq!(cancelled.wake_reason, Some(RootResumeWakeReason::UserInput));
+    assert_eq!(
+        root.thread
+            .steer_turn(request(), turn_id.clone())
+            .await
+            .expect("ordinary active-turn steer should remain accepted"),
+        SteerSubmission::Steered { turn_id }
+    );
+    root.thread
+        .submit(codex_protocol::protocol::Op::Interrupt)
+        .await
+        .expect("interrupt test wake turn");
+}
+
+#[tokio::test]
 async fn selected_child_wakes_only_after_its_pinned_turn_is_terminal() {
     let server = start_mock_server().await;
     Mock::given(method("POST"))
@@ -488,15 +589,17 @@ async fn selected_child_wakes_only_after_its_pinned_turn_is_terminal() {
     .await;
     let pinned = match pinned {
         Ok(pinned) => pinned,
-        Err(_) => panic!(
-            "selected child task identity did not become visible: status={:?}, active_turn={}, request_count={}",
-            child.agent_status().await,
-            child.session.active_turn.lock().await.is_some(),
-            server
+        Err(_) => {
+            let child_status = child.agent_status().await;
+            let active_turn = child.session.active_turn.lock().await.is_some();
+            let request_count = server
                 .received_requests()
                 .await
-                .map_or(0, |requests| requests.len())
-        ),
+                .map_or(0, |requests| requests.len());
+            panic!(
+                "selected child task identity did not become visible: status={child_status:?}, active_turn={active_turn}, request_count={request_count}"
+            );
+        }
     };
     assert!(child.session.active_turn.lock().await.is_some());
 

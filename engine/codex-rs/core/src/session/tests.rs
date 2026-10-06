@@ -3573,16 +3573,19 @@ async fn turn_start_lifecycle_exposes_turn_metadata_and_token_baseline() {
 
 #[tokio::test]
 async fn turn_error_lifecycle_exposes_error_and_stores() {
+    use codex_protocol::error::CodexErrKind;
+
     struct SessionTurnErrorMarker;
     struct ThreadTurnErrorMarker;
 
-    #[derive(Debug, PartialEq, Eq)]
+    #[derive(Clone, Debug, PartialEq, Eq)]
     struct RecordedTurnError {
         session_level_id: String,
         thread_level_id: String,
         turn_level_id: String,
         turn_id: String,
         error: CodexErrorInfo,
+        error_kind: CodexErrKind,
         saw_session_store: bool,
         saw_thread_store: bool,
     }
@@ -3606,6 +3609,7 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
                         turn_level_id: input.turn_store.level_id().to_string(),
                         turn_id: input.turn_id.to_string(),
                         error: input.error,
+                        error_kind: input.error_details.into(),
                         saw_session_store: input
                             .session_store
                             .get::<SessionTurnErrorMarker>()
@@ -3641,12 +3645,30 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
         turn_level_id: turn_context.sub_id.clone(),
         turn_id: turn_context.sub_id.clone(),
         error: CodexErrorInfo::UsageLimitExceeded,
+        error_kind: CodexErrKind::QuotaExceeded,
         saw_session_store: true,
         saw_thread_store: true,
     };
 
     session
-        .emit_turn_error_lifecycle(&turn_context, CodexErrorInfo::UsageLimitExceeded)
+        .emit_turn_error_lifecycle(
+            &turn_context,
+            CodexErrorInfo::UsageLimitExceeded,
+            &CodexErrorDetails::QuotaExceeded,
+        )
+        .await;
+
+    let expected_override = RecordedTurnError {
+        error: CodexErrorInfo::BadRequest,
+        error_kind: CodexErrKind::InvalidImageRequest,
+        ..expected.clone()
+    };
+    session
+        .emit_turn_error_lifecycle(
+            &turn_context,
+            CodexErrorInfo::BadRequest,
+            &CodexErrorDetails::InvalidImageRequest(),
+        )
         .await;
 
     let actual = records
@@ -3654,7 +3676,7 @@ async fn turn_error_lifecycle_exposes_error_and_stores() {
         .expect("turn error records lock")
         .drain(..)
         .collect::<Vec<_>>();
-    assert_eq!(vec![expected], actual);
+    assert_eq!(vec![expected, expected_override], actual);
 }
 
 #[tokio::test]
@@ -6502,6 +6524,9 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
     let (tx_event, _rx_event) = async_channel::unbounded();
     let codex_home = tempfile::tempdir().expect("create temp dir");
     let config = build_test_config(codex_home.path()).await;
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
     let config = Arc::new(config);
     let thread_id = ThreadId::default();
     let auth_manager = AuthManager::from_auth_for_testing(CodexAuth::from_api_key("Test API Key"));
@@ -6676,12 +6701,12 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
         network_proxy_audit_metadata: crate::config::NetworkProxyAuditMetadata::default(),
         managed_network_requirements_configured: false,
         network_approval: Arc::clone(&network_approval),
-        state_db: None,
+        state_db: Some(state_db.clone()),
         live_thread: None,
         image_store: crate::passthrough_image_store(),
         thread_store: Arc::new(codex_thread_store::LocalThreadStore::new(
             codex_thread_store::LocalThreadStoreConfig::from_config(config.as_ref()),
-            /*state_db*/ None,
+            Some(state_db),
         )),
         attestation_provider: None,
         time_provider: Arc::new(crate::current_time::SystemTimeProvider),
@@ -6806,6 +6831,8 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
         "turn_id".to_string(),
         skills_snapshot,
     );
+    // Keep the fixture home alive while SQLite and child sessions use it.
+    session.services.session_extension_data.insert(codex_home);
     session.mark_mcp_runtime_dirty();
     crate::guardian::test_host::install(&session, &turn_context.config);
     (session, turn_context)
@@ -11690,6 +11717,7 @@ async fn make_remote_compaction_session(
         move |config| {
             config.model = Some("gpt-5.2".to_string());
             config.model_provider = provider;
+            config.chatgpt_base_url = server_uri.to_string();
             let _ = config.features.disable(Feature::TokenBudget);
         },
     )

@@ -1947,6 +1947,7 @@ impl From<codex_protocol::ResponseUsageMetadata> for ResponseUsageMetadata {
 #[ts(export_to = "v2/")]
 pub struct ThreadTokenUsage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub context_policy: Option<codex_protocol::context_policy::ContextPolicy>,
     pub total: TokenUsageBreakdown,
     pub last: TokenUsageBreakdown,

@@ -6,16 +6,36 @@ const vm = require('node:vm');
 
 function recentChatCheck() {
   const injector = require('./inject-recent-chat-filter.cjs');
-  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.930.31730');
+  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.930.61225');
   const source = fs.readFileSync(path.join(root, injector.ASSET), 'utf8');
   const result = injector.injectRecentChatFilter(source, injector.ASSET);
+  // Execute the real header setup, including its declarations, so a renamed
+  // local cannot silently shadow a query hook used earlier in the same scope.
+  const ts = require(require.resolve('typescript', { paths: [path.resolve(__dirname, '../extensions/azrael-ex')] }));
+  const ast = ts.createSourceFile(injector.ASSET, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const header = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Fn');
+  const setupEnd = header.body.statements.find(node => ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'S')).end;
+  const setup = result.text.slice(header.body.getStart(ast) + 1, setupEnd);
+  const renderContext = { Bn: { c: () => Array(66).fill(Symbol()) }, h: () => ({ pathname: '/' }), Ln: () => {},
+    $e: () => false, In: null, fe: () => ({ data: [] }), L: () => ({ data: [] }), Me: null,
+    azraelRecentChatTasks: () => ['rendered-header'] };
+  assert.deepEqual(Array.from(vm.runInNewContext(`(function(e){${setup};return S})({})`, renderContext)), ['rendered-header']);
+  assert.throws(() => vm.runInNewContext(`(function(e){${setup.replace('C=u||Me==null,w;', 'C=u||Me==null,L;')};return S})({})`, renderContext), /before initialization/);
   assert.equal(result.count, 1);
   assert.equal(injector.injectRecentChatFilter(result.text, injector.ASSET).count, 0);
   assert.throws(() => injector.injectRecentChatFilter(source + source, injector.ASSET));
   const local = { kind: 'local', conversation: {} }, cloud = { kind: 'cloud' }, orphan = { kind: 'local' };
   let filter = 'recent';
   const environment = { id: 'selected' };
-  const context = { Pt: 'filter', Ft: 'environment', n: atom => atom === 'filter' ? filter : 'selected', k: () => ({ data: [environment] }),
+  // Resolve hook aliases from the actual pinned imports rather than inventing
+  // callable mocks for similarly named module initializers.
+  const importAliases = new Map(ast.statements.filter(ts.isImportDeclaration).flatMap(node =>
+    node.importClause?.namedBindings?.elements?.map(e => [e.propertyName?.text ?? e.name.text, e.name.text]) ?? []));
+  assert.equal(importAliases.get('Nat'), 'o');
+  assert.equal(importAliases.get('tQ'), 'le');
+  assert.match(injector.HELPER, /It\(\);let filter=o\(Pt\)/);
+  assert.match(injector.HELPER, /environmentId=o\(Ft\).*environments}=le\(\)/);
+  const context = { It: () => {}, Pt: 'filter', Ft: 'environment', o: atom => atom === 'filter' ? filter : 'selected', le: () => ({ data: [environment] }),
     fn: (_tasks, _conversations, selected) => { assert.equal(selected, environment); return [local, cloud, orphan]; },
     gn: { useMemo: action => action() }, yn: row => row.kind === 'cloud' };
   vm.createContext(context);
@@ -71,6 +91,53 @@ else {
       assert.equal(commands, 1); assert(receipt.checks.every(check => check.exitCode === 0));
       assert(fs.existsSync(receipt.receiptPath));
     }
+  });
+  test('explicit subset uses manifest order and empty scope executes no behavioral checks', async () => {
+    const { config, manifest } = setup(); config.area = 'all';
+    const extra = structuredClone(manifest.features[0]); extra.id = 'ui.extra'; extra.checks[0].id = 'ui.extra.check';
+    extra.checks[0].args.push('extra'); manifest.features.push(extra);
+    let commands = 0; const execute = config.execute;
+    config.execute = async (...args) => { commands++; return execute(...args); };
+    const scoped = await gate.runPreservation({ ...config, featureIds: ['ui.extra', 'ui.fixture'] });
+    assert.equal(scoped.status, 'passed', scoped.error);
+    assert.deepEqual(scoped.featureIds, ['ui.fixture', 'ui.extra']);
+    assert.equal(scoped.checks.length, 2); assert.equal(commands, 2);
+    commands = 0;
+    const empty = await gate.runPreservation({ ...config, featureIds: [] });
+    assert.equal(empty.status, 'passed', empty.error);
+    assert.deepEqual(empty.featureIds, []); assert.deepEqual(empty.checks, []); assert.equal(commands, 0);
+    assert.equal((await gate.verifyReceipt({ ...config, featureIds: [], receiptPath: empty.receiptPath })).status, 'passed');
+    await assert.rejects(gate.verifyReceipt({ ...config, receiptPath: empty.receiptPath }), /requested passing feature scope/);
+    await assert.rejects(gate.verifyReceipt({ ...config, featureIds: ['ui.fixture'], receiptPath: empty.receiptPath }), /requested passing feature scope/);
+    await assert.rejects(gate.verifyReceipt({ ...config, featureIds: ['ui.fixture'], receiptPath: scoped.receiptPath }), /requested passing feature scope/);
+    await assert.rejects(gate.verifyReceipt({ ...config, receiptPath: scoped.receiptPath }), /requested passing feature scope/);
+    for (const featureIds of [null, 'ui.fixture', [null], ['missing'], ['ui.fixture', 'ui.fixture'], ['engine.fixture']]) {
+      const invalid = await gate.runPreservation({ ...config, area: 'ui', featureIds });
+      assert.equal(invalid.status, 'failed'); assert.match(invalid.error, /featureIds|feature ID/);
+    }
+    const invalidRegistry = structuredClone(manifest); invalidRegistry.features[1].checks = [];
+    const invalid = await gate.runPreservation({ ...config, manifest: invalidRegistry, featureIds: [] });
+    assert.equal(invalid.status, 'failed'); assert.match(invalid.error, /Missing checks/);
+  });
+  test('empty package scope retains full report coverage and rejects differing requested selections', async () => {
+    const { config, root, manifest } = setup();
+    const extra = structuredClone(manifest.features[0]); extra.id = 'ui.extra'; extra.checks[0].id = 'ui.extra.check';
+    extra.reportFields = ['extraEdits']; manifest.features.push(extra);
+    const receipt = await gate.runPreservation({ ...config, featureIds: [] });
+    const bindConfig = { ...config, featureIds: [], receiptPath: receipt.receiptPath,
+      reportPath: path.join(root, 'report.json'), packagePath: path.join(root, 'candidate.vsix') };
+    fs.writeFileSync(bindConfig.packagePath, 'package');
+    fs.writeFileSync(bindConfig.reportPath, JSON.stringify(reportFor(config)));
+    await assert.rejects(gate.bindPackage(bindConfig), /Missing transformation coverage: ui.extra/);
+    const report = reportFor(config); report.assets[0].extraEdits = 1;
+    fs.writeFileSync(bindConfig.reportPath, JSON.stringify(report));
+    await gate.bindPackage(bindConfig); assert.equal((await gate.verifyPackage(bindConfig)).status, 'passed');
+    const fullConfig = { ...bindConfig }; delete fullConfig.featureIds;
+    await assert.rejects(gate.bindPackage(fullConfig), /requested passing feature scope/);
+    await assert.rejects(gate.verifyPackage(fullConfig), /requested passing feature scope/);
+    await assert.rejects(gate.verifyPackage({ ...bindConfig, featureIds: ['ui.fixture'] }), /requested passing feature scope/);
+    fs.writeFileSync(bindConfig.packagePath, 'package drift');
+    await assert.rejects(gate.verifyPackage(bindConfig), /stale/);
   });
   test('failed commands and changed identities produce retained failed receipts', async () => {
     const { config } = setup(); const execute = config.execute;
@@ -180,12 +247,13 @@ else {
     const engineSourceRoot = path.join(root, 'selected-engine-source'), engineDirectory = path.join(root, 'selected-engine-binaries');
     fs.mkdirSync(engineSourceRoot); fs.mkdirSync(engineDirectory);
     fs.writeFileSync(path.join(engineSourceRoot, 'source.rs'), 'selected source'); fs.writeFileSync(path.join(engineDirectory, 'codex.exe'), 'synthetic binary');
+    let provenanceCalls = 0, provenanceVersion = 'verified-selected-binary';
     const realConfig = { ...config, area: 'all', outputDirectory: path.join(root, 'artifacts/output'), typeScriptPath: typescript,
       transformRules: { ...config.transformRules, 'content-font-resource:provenance.json': 'resource-content-digest' },
       identityProvider: undefined, engineSourceRoot, engineDirectory, execute: async (_executable, args, options) => {
         const provenance = args[0].endsWith('engine-provenance.py');
-        if (provenance) { assert.equal(args[3], engineSourceRoot); assert.equal(args[5], engineDirectory); }
-        const stdout = provenance ? JSON.stringify({ source: { sourceSha256: 'verified-selected-source' }, binaries: { 'codex.exe': 'verified-selected-binary' } }) : 'passing synthetic source check';
+        if (provenance) { provenanceCalls++; assert.equal(args[3], engineSourceRoot); assert.equal(args[5], engineDirectory); }
+        const stdout = provenance ? JSON.stringify({ source: { sourceSha256: 'verified-selected-source' }, binaries: { 'codex.exe': provenanceVersion } }) : 'passing synthetic source check';
         fs.writeFileSync(options.logPath, stdout); fs.writeFileSync(options.errorPath, ''); return { exitCode: 0, stdout };
       } };
     const receipt = await gate.runPreservation(realConfig);
@@ -193,7 +261,19 @@ else {
     assert.match(receipt.inputs.projectSha256, /^[a-f0-9]{64}$/); assert.match(receipt.inputs.ui.sha256, /^[a-f0-9]{64}$/);
     assert.equal(receipt.inputs.ui.fileCount, 2); assert.equal(receipt.inputs.engine.sourceRoot, engineSourceRoot);
     assert.equal((await gate.verifyReceipt({ ...realConfig, receiptPath: receipt.receiptPath })).status, 'passed');
+    provenanceCalls = 0;
+    const emptyConfig = { ...realConfig, featureIds: [] };
+    const empty = await gate.runPreservation(emptyConfig);
+    assert.equal(empty.status, 'passed', empty.error); assert.deepEqual(empty.checks, []);
+    assert.equal(provenanceCalls, 2, 'empty scope still checks provenance before and after');
+    for (const key of ['manifestSha256', 'projectSha256', 'transformRules', 'ui', 'sourceUi', 'typeScriptSha256', 'engine'])
+      assert.deepEqual(empty.inputs[key], receipt.inputs[key], `${key} is still bound`);
+    assert.equal((await gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath })).status, 'passed');
+    provenanceVersion = 'changed-binary';
+    await assert.rejects(gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath }), /identity is stale/);
+    provenanceVersion = 'verified-selected-binary';
     fs.writeFileSync(path.join(config.uiRoot, 'picker.js'), 'candidate drift');
+    await assert.rejects(gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath }), /identity is stale/);
     await assert.rejects(gate.verifyReceipt({ ...realConfig, receiptPath: receipt.receiptPath }), /identity is stale/);
   });
   test('CLI retains failure and returns nonzero for incomplete manifest', async () => {

@@ -9,7 +9,7 @@ const { rewriteJavaScript, transformAsset } = require("./namespace-azrael-host.c
 const patch = require("./inject-deferred-turn.cjs");
 const waitHelpers = require("./root-resume-wait.cjs");
 
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
+const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const inputs = [
   [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 6],
   [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 8],
@@ -64,7 +64,7 @@ test("deferred anchors match the pinned host, parse, and fail closed", () => {
 });
 
 test("deferred updates the current turn without terminal side effects and drains before replay", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { H: x => x, ...waitHelpers });
+  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { m: x => x, ...waitHelpers });
   const turn = { turnId: "turn-1", status: "inProgress", error: { message: "stale" }, items: [] };
   const conversation = { turns: [turn] }, conversations = new Map([["thread-1", conversation]]), calls = [];
   let draining = true, replay;
@@ -96,9 +96,9 @@ test("deferred updates the current turn without terminal side effects and drains
 
 test("presentation projects deferred duration and a frozen waiting divider", () => {
   const source = inputs[1].result.text;
-  const status = vm.runInNewContext(`(${functionNamed(source, "Ont")})`);
-  const duration = vm.runInNewContext(`(${functionNamed(source, "Hmt")})`);
-  const divider = vm.runInNewContext(`(${functionNamed(source, "$mt")})`, waitHelpers);
+  const status = vm.runInNewContext(`(${functionNamed(source, "_it")})`);
+  const duration = vm.runInNewContext(`(${functionNamed(source, "jgt")})`);
+  const divider = vm.runInNewContext(`(${functionNamed(source, "Hgt")})`, waitHelpers);
   assert.equal(status("deferred"), "deferred");
   assert.equal(duration({ turnStartedAtMs: 12000, durationMs: 4250 }), 16250);
   assert.deepEqual(JSON.parse(JSON.stringify(divider({ items: [{ type: "agent-message" }], status: "deferred", workStartedAtMs: 12000, finalAssistantStartedAtMs: 16250 })[1])),
@@ -118,11 +118,11 @@ function reservation(overrides = {}) {
 function clockHook() {
   let now = 20000, state, callback, interval;
   const slots = Array(7).fill(Symbol.for("react.memo_cache_sentinel"));
-  const hook = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "cki")})`, {
-    uki: { c: () => slots }, Gn: () => ({ locale: "ko-KR" }),
-    dki: { useState: init => { state ??= init(); return [state, value => { state = value; }]; } },
-    lki: () => now, Date: { now: () => now },
-    Ymn: (fn, delay) => { callback = fn; interval = delay; }, Uyi: ms => `${Math.floor(ms / 1000)}초`,
+  const hook = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "RFi")})`, {
+    BFi: { c: () => slots }, ra: () => ({ locale: "ko-KR" }),
+    VFi: { useState: init => { state ??= init(); return [state, value => { state = value; }]; } },
+    zFi: () => now, Date: { now: () => now },
+    Wbn: (fn, delay) => { callback = fn; interval = delay; }, eCi: ms => `${Math.floor(ms / 1000)}초`,
   });
   return {
     render: item => hook(item),
@@ -150,7 +150,7 @@ test("waiting uses the existing clock hook, then freezes after early resume or c
 });
 
 test("repeated reservations have independent clocks and completed history has no running divider", () => {
-  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "$mt")})`, waitHelpers);
+  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Hgt")})`, waitHelpers);
   const first = divider({ items: [], status: "deferred", workStartedAtMs: 12000, finalAssistantStartedAtMs: 20000,
     rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) });
   const secondWait = reservation({ reservationId: "reservation-2", waitStartedAtMs: 90000, resumeAtMs: 150000 });
@@ -169,7 +169,7 @@ test("repeated reservations have independent clocks and completed history has no
 });
 
 test("late and duplicate reservation notifications cannot restart a finished wait or change its endpoints", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { H: x => x, ...waitHelpers });
+  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { m: x => x, ...waitHelpers });
   const turn = { turnId: "old-turn", status: "deferred", durationMs: 8000, rootResumeWait: reservation() };
   const env = {
     manager: { broadcastConversationSnapshot: () => {} },
@@ -194,8 +194,8 @@ test("late and duplicate reservation notifications cannot restart a finished wai
 });
 
 test("history hydration retains wait metadata including missing historical boundaries", () => {
-  const hydrate = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Kyn")})`, {
-    qyn: x => x, Yyn: x => x == null ? null : x * 1000, re: () => ({}), Wt: () => [],
+  const hydrate = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Nyn")})`, {
+    Pyn: x => x, Iyn: x => x == null ? null : x * 1000, s: () => ({}), Ve: () => [],
   });
   const wait = reservation({ revision: 3, state: "resumed", waitEndedAtMs: 66000 });
   const history = hydrate({ threadId: "thread", turns: [{ id: "old-turn", items: [], status: "deferred", startedAt: 12,
@@ -226,9 +226,9 @@ test("blocked and processing reservations freeze elapsed time independently of t
 test("divider preserves Codex secondary text and border styling while forwarding waiting metadata", () => {
   const source = inputs[1].result.text;
   const slots = Array(14).fill(Symbol.for("react.memo_cache_sentinel"));
-  const render = vm.runInNewContext(`(${functionNamed(source, "ski")})`, {
-    uki: { c: () => slots }, A7: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
-    oki: "clock-label", L3: "chat-padding", xa: (...values) => values.filter(Boolean).join(" "),
+  const render = vm.runInNewContext(`(${functionNamed(source, "LFi")})`, {
+    BFi: { c: () => slots }, k7: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
+    IFi: "clock-label", J3: "chat-padding", ni: (...values) => values.filter(Boolean).join(" "),
   });
   const waiting = waitHelpers.azraelRootResumeWaitItem(reservation());
   const result = render(waiting), container = result.props.children;
@@ -242,17 +242,17 @@ test("divider preserves Codex secondary text and border styling while forwarding
 test("active activity projection cannot resurrect a deferred source turn or discard its waiting divider", () => {
   const presentation = inputs[1].result.text;
   const context = {
-    ...waitHelpers, $ft: () => ({ replyItemIds: new Set() }), hpt: () => [], vpt: x => x,
-    af: () => false, BZe: () => null, HS: () => null,
-    Exe: () => null, uht: { default: (items, predicate) => items.findLast(predicate) },
+    ...waitHelpers, Vmt: () => ({ replyItemIds: new Set() }), bat: x => x,
+    Ihe: () => false, Ol: () => false, LS: () => null, _be: () => -1,
+    $gt: { default: (items, predicate) => items.findLastIndex(predicate) },
   };
-  const declarations = ["Ont", "$mt", "azraelOriginalWorkDivider", "eht", "ipt", "iht", "nht", "tht", "apt", "Hmt", "GS"]
+  const declarations = ["_it", "Hgt", "azraelOriginalWorkDivider", "Ugt", "Kmt", "Wgt", "Ggt", "qgt", "Kgt", "jgt", "rht", "oht", "qmt", "BS"]
     .map(name => functionNamed(presentation, name)).join("\n");
-  const project = vm.runInNewContext(`${declarations}\nGS`, context);
-  const env = { _p: () => [], op: () => false, ae: x => x,
-    Uo: (turn, requests, options) => project(turn, requests, { ...options, includeAeonProjection: false, includeTurnDiff: false }) };
-  const patched = vm.runInNewContext(`(${functionNamed(inputs[4].result.text, "cp")})`, env);
-  const original = vm.runInNewContext(`(${functionNamed(inputs[4].source, "cp")})`, env);
+  const project = vm.runInNewContext(`${declarations}\nBS`, context);
+  const env = { vp: () => [], sp: () => false, ot: x => x,
+    Yo: (turn, requests, options) => project(turn, requests, { ...options, includeAeonProjection: false, includeTurnDiff: false }) };
+  const patched = vm.runInNewContext(`(${functionNamed(inputs[4].result.text, "lp")})`, env);
+  const original = vm.runInNewContext(`(${functionNamed(inputs[4].source, "lp")})`, env);
   const sourceTurn = { status: "deferred", turnId: "old-turn", turnStartedAtMs: 12000, durationMs: 8000,
     firstTurnWorkItemStartedAtMs: 12000, finalAssistantStartedAtMs: null, params: { input: [], threadId: "thread" },
     items: [], rootResumeWait: reservation() };
@@ -276,7 +276,7 @@ test("active activity projection cannot resurrect a deferred source turn or disc
 });
 
 test("interrupted work with a native measured duration uses a fixed stopped divider", () => {
-  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "ipt")})`);
+  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Kmt")})`);
   const stopped = divider({ status: "cancelled", hasStartedWork: true, workStartedAtMs: 12000, workedCompletedAtMs: 20000 });
   assert.equal(stopped.status, "stopped");
   assert.equal(stopped.completedAtMs, 20000);
@@ -297,9 +297,9 @@ test("complete host transform pipeline includes every waiting asset and preserve
 
 test("final completed work has its own fixed duration alongside earlier frozen reservation history", () => {
   const source = inputs[1].result.text;
-  const declarations = ["$mt", "azraelOriginalWorkDivider", "eht", "ipt", "iht", "nht", "tht", "rht"]
+  const declarations = ["Hgt", "azraelOriginalWorkDivider", "Ugt", "Kmt", "Wgt", "Ggt", "qgt", "Kgt"]
     .map(name => functionNamed(source, name)).join("\n");
-  const divide = vm.runInNewContext(`${declarations}\n$mt`, waitHelpers);
+  const divide = vm.runInNewContext(`${declarations}\nHgt`, waitHelpers);
   const items = divide({ items: [{ type: "exec" }, { type: "assistant-message", phase: "final_answer" }],
     status: "complete", workStartedAtMs: 100000, finalAssistantStartedAtMs: 110000 });
   const work = items.find(x => x.type === "worked-for");
@@ -314,7 +314,7 @@ test("final completed work has its own fixed duration alongside earlier frozen r
 test("collapsed chat summary forwards waiting metadata and updates when the reservation state changes", () => {
   const slots = Array(17).fill(Symbol.for("react.memo_cache_sentinel"));
   const render = vm.runInNewContext(`(${functionNamed(inputs[6].result.text, "C")})`, {
-    T: { c: () => slots }, E: { jsx: (type, props) => ({ type, props }) }, h: "clock-label",
+    T: { c: () => slots }, E: { jsx: (type, props) => ({ type, props }) }, v: "clock-label",
   });
   const item = waitHelpers.azraelRootResumeWaitItem(reservation());
   assert.equal(render({ workedForItem: item }).props.rootResumeWait.state, "waiting");

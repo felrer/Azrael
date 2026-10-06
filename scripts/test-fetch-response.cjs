@@ -1,45 +1,45 @@
 "use strict";
 // Offline VM execution of the pinned native host handler and UI response parser.
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const ms = require("node:fs");
 const path = require("node:path");
-const vm = require("node:vm");
+const gm = require("node:vm");
 const crypto = require("node:crypto");
 const test = require("node:test");
-const ts = require("../extensions/azrael-ex/node_modules/typescript");
+const Nf = require("../extensions/azrael-ex/node_modules/typescript");
 const { ANCHOR, NORMALIZED_ANCHOR, MARKER, injectFetchResponse } = require("./inject-fetch-response.cjs");
-const pinnedRoot = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
+const pinnedRoot = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const hostFilename = path.join(pinnedRoot, "out/extension.js");
-const original = fs.readFileSync(hostFilename, "utf8");
+const original = ms.readFileSync(hostFilename, "utf8");
 const patched = injectFetchResponse(original).text;
 
 function extract(source, filename, predicates) {
-  const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  assert.equal(ast.parseDiagnostics.length, 0, `Invalid JavaScript: ${filename}`);
+  const hst = Nf.createSourceFile(filename, source, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS);
+  assert.equal(hst.parseDiagnostics.length, 0, `Invalid JavaScript: ${filename}`);
   const matches = predicates.map(() => []);
   function visit(node) {
-    predicates.forEach((predicate, index) => { if (predicate(node, ast)) matches[index].push(node); });
-    ts.forEachChild(node, visit);
+    predicates.forEach((predicate, index) => { if (predicate(node, hst)) matches[index].push(node); });
+    Nf.forEachChild(node, visit);
   }
-  visit(ast);
+  visit(hst);
   return matches.map(nodes => {
     assert.equal(nodes.length, 1, `Pinned AST target must be unique: ${filename}`);
-    return nodes[0].getText(ast);
+    return nodes[0].getText(hst);
   });
 }
-const servicePredicate = (node, ast) => ts.isMethodDeclaration(node) && node.name.getText(ast) === "fetch" && node.body?.getText(ast).includes("bodyJsonString:JSON.stringify(o");
-const releasePredicate = (node, ast) => ts.isPropertyAssignment(node) && node.name.getText(ast) === '"queued-follow-up-send-lock-release"';
+const servicePredicate = (node, hst) => Nf.isMethodDeclaration(node) && node.name.getText(hst) === "fetch" && node.body?.getText(hst).includes("bodyJsonString:JSON.stringify(o");
+const releasePredicate = (node, hst) => Nf.isPropertyAssignment(node) && node.name.getText(hst) === '"queued-follow-up-send-lock-release"';
 const [originalService, releaseProperty] = extract(original, hostFilename, [servicePredicate, releasePredicate]);
 const [patchedService] = extract(patched, hostFilename, [servicePredicate]);
-const webFilename = path.join(pinnedRoot, "webview/assets/app-initial-4bd9e54bcd58.js");
-const [responseMethod] = extract(fs.readFileSync(webFilename, "utf8"), webFilename, [
-  (node, ast) => ts.isMethodDeclaration(node) && node.name.getText(ast) === "onFetchResponse",
+const webFilename = path.join(pinnedRoot, "webview/assets/app-initial-5120fa5fe295.js");
+const [responseMethod] = extract(ms.readFileSync(webFilename, "utf8"), webFilename, [
+  (node, hst) => Nf.isMethodDeclaration(node) && node.name.getText(hst) === "onFetchResponse",
 ]);
 
 function fixture(service = patchedService) {
   class FetchError extends Error { constructor(message, status) { super(message); this.status = status; } }
-  const context = { JSON, Error, Promise, Map, AbortController, i6e: "vscode://", BH: "source", wpe: () => false, Vh: FetchError };
-  const run = code => vm.runInNewContext(code, context);
+  const context = { JSON, Error, Promise, Map, AbortController, c6e: "vscode://", FH: "source", Tpe: () => false, Hh: FetchError };
+  const run = code => gm.runInNewContext(code, context);
   const host = run(`({${service}})`);
   const ui = run(`({${responseMethod}})`);
   ui.pendingRequests = new Map();
@@ -167,9 +167,9 @@ test("missing, duplicate, mixed, unmarked or drifted serializer envelopes fail c
 
 test("combined host pipeline preserves fetch normalization, recovery hooks and cache fingerprint", () => {
   const { transformAsset, getTransformRules } = require("./namespace-azrael-host.cjs");
-  const combined = transformAsset(original, "out/extension.js", hostFilename, ts);
-  const ast = ts.createSourceFile(hostFilename, combined.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  assert.equal(ast.parseDiagnostics.length, 0);
+  const combined = transformAsset(original, "out/extension.js", hostFilename, Nf);
+  const hst = Nf.createSourceFile(hostFilename, combined.text, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS);
+  assert.equal(hst.parseDiagnostics.length, 0);
   assert.equal(combined.asset.fetchResponseEdits, 1);
   assert.equal(combined.asset.recoveryEdits, 3);
   assert.equal(combined.text.split(MARKER).length - 1, 1);
@@ -178,6 +178,6 @@ test("combined host pipeline preserves fetch normalization, recovery hooks and c
   for (const hook of ["dispatch", "observe", "disconnect"]) {
     assert.equal(combined.text.split(`require("./azrael-recovery.cjs").${hook}(`).length - 1, 1);
   }
-  const injector = fs.readFileSync(path.join(__dirname, "inject-fetch-response.cjs"));
+  const injector = ms.readFileSync(path.join(__dirname, "inject-fetch-response.cjs"));
   assert.equal(getTransformRules()["inject-fetch-response.cjs"], crypto.createHash("sha256").update(injector).digest("hex"));
 });

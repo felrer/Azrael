@@ -7,16 +7,11 @@ use serde::Deserialize;
 use serde::Serialize;
 use std::path::Path;
 use std::path::PathBuf;
-use std::process::Stdio;
 use std::time::Duration;
-use tokio::io::AsyncReadExt;
-use tokio::io::AsyncWriteExt;
-use tokio::process::Command;
 
 const HELPER_ENV: &str = "AZRAEL_PROVIDER_ACCOUNTS_HELPER";
 const BUN_ENV: &str = "AZRAEL_PROVIDER_BUN";
 const PROTOCOL_VERSION: u8 = 1;
-const MAX_RESPONSE_BYTES: usize = 64 * 1024;
 const HELPER_TIMEOUT: Duration = Duration::from_secs(20);
 
 pub(super) struct ResolvedCredential {
@@ -34,6 +29,8 @@ struct CredentialRequest<'a> {
     provider_id: &'static str,
     #[serde(skip_serializing_if = "Option::is_none")]
     account_id: Option<&'a str>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    require_auto_switch: Option<bool>,
 }
 
 #[derive(Deserialize)]
@@ -99,7 +96,7 @@ fn cli_credential() -> CodexResult<ResolvedCredential> {
     })
 }
 
-fn managed_credential(credential: ManagedCredential) -> ResolvedCredential {
+pub(super) fn managed_credential(credential: ManagedCredential) -> ResolvedCredential {
     ResolvedCredential {
         credential: Credential {
             api_key: credential.api_key,
@@ -115,7 +112,7 @@ pub(super) struct HelperConfig {
     pub(super) bun: PathBuf,
 }
 
-fn helper_config() -> CodexResult<Option<HelperConfig>> {
+pub(super) fn helper_config() -> CodexResult<Option<HelperConfig>> {
     let helper = std::env::var_os(HELPER_ENV).filter(|value| !value.is_empty());
     let bun = std::env::var_os(BUN_ENV).filter(|value| !value.is_empty());
     match (helper, bun) {
@@ -138,7 +135,7 @@ fn absolute_path(name: &str, value: std::ffi::OsString) -> CodexResult<PathBuf> 
     Ok(path)
 }
 
-async fn request_credential(
+pub(super) async fn request_credential(
     codex_home: &Path,
     config: &HelperConfig,
     account_id: Option<&str>,
@@ -154,76 +151,81 @@ pub(super) async fn request_credential_with(
     request_id: &str,
     timeout: Duration,
 ) -> CodexResult<Option<ManagedCredential>> {
-    let mut request = serde_json::to_vec(&CredentialRequest {
+    let request = CredentialRequest {
         protocol: PROTOCOL_VERSION,
         id: request_id,
         action: "credential",
         provider_id: "devin",
         account_id,
-    })
-    .map_err(|_| fatal("unable to serialize provider account request"))?;
-    request.push(b'\n');
-    if request.len() > MAX_RESPONSE_BYTES {
-        return Err(invalid("provider account request exceeded the hard limit"));
-    }
-
-    let mut command = Command::new(&config.bun);
-    command
-        .arg(&config.helper)
-        .env("CODEX_HOME", codex_home)
-        .env(
-            "OPENCODEX_HOME",
-            codex_home.join("azrael/providers/opencodex"),
-        )
-        .stdin(Stdio::piped())
-        .stdout(Stdio::piped())
-        .stderr(Stdio::null())
-        .kill_on_drop(true);
-    #[cfg(windows)]
-    command.creation_flags(0x0800_0000);
-    let mut child = command
-        .spawn()
-        .map_err(|_| fatal("failed to start provider account helper"))?;
-    let mut stdin = child
-        .stdin
-        .take()
-        .ok_or_else(|| fatal("provider account helper stdin unavailable"))?;
-    let stdout = child
-        .stdout
-        .take()
-        .ok_or_else(|| fatal("provider account helper stdout unavailable"))?;
-    let output = tokio::time::timeout(timeout, async {
-        stdin
-            .write_all(&request)
-            .await
-            .map_err(|_| fatal("failed to send provider account request"))?;
-        stdin
-            .shutdown()
-            .await
-            .map_err(|_| fatal("failed to finish provider account request"))?;
-        let mut bytes = Vec::new();
-        stdout
-            .take((MAX_RESPONSE_BYTES + 1) as u64)
-            .read_to_end(&mut bytes)
-            .await
-            .map_err(|_| fatal("failed reading provider account helper output"))?;
-        let status = child
-            .wait()
-            .await
-            .map_err(|_| fatal("failed waiting for provider account helper"))?;
-        Ok::<_, CodexErr>((bytes, status.success()))
-    })
+        require_auto_switch: None,
+    };
+    send_credential_request(
+        codex_home,
+        config,
+        request,
+        timeout,
+        &tokio_util::sync::CancellationToken::new(),
+    )
     .await
-    .map_err(|_| fatal("provider account helper timed out"))??;
-    if output.0.len() > MAX_RESPONSE_BYTES {
-        return Err(fatal(
-            "provider account helper output exceeded the hard limit",
-        ));
-    }
-    if !output.1 {
-        return Err(fatal("provider account helper failed"));
-    }
-    decode_response(&output.0, request_id, account_id)
+}
+
+/// The helper admits recovery consent and identity from one coordinated snapshot.
+pub(super) async fn request_recovery_credential(
+    codex_home: &Path,
+    config: &HelperConfig,
+    account_id: &str,
+    cancellation: &tokio_util::sync::CancellationToken,
+) -> CodexResult<Option<ManagedCredential>> {
+    let request_id = uuid::Uuid::new_v4().to_string();
+    request_recovery_credential_with(
+        codex_home,
+        config,
+        account_id,
+        &request_id,
+        HELPER_TIMEOUT,
+        cancellation,
+    )
+    .await
+}
+
+pub(super) async fn request_recovery_credential_with(
+    codex_home: &Path,
+    config: &HelperConfig,
+    account_id: &str,
+    request_id: &str,
+    timeout: Duration,
+    cancellation: &tokio_util::sync::CancellationToken,
+) -> CodexResult<Option<ManagedCredential>> {
+    let request = CredentialRequest {
+        protocol: PROTOCOL_VERSION,
+        id: request_id,
+        action: "credential",
+        provider_id: "devin",
+        account_id: Some(account_id),
+        require_auto_switch: Some(true),
+    };
+    send_credential_request(codex_home, config, request, timeout, cancellation).await
+}
+
+async fn send_credential_request(
+    codex_home: &Path,
+    config: &HelperConfig,
+    request: CredentialRequest<'_>,
+    timeout: Duration,
+    cancellation: &tokio_util::sync::CancellationToken,
+) -> CodexResult<Option<ManagedCredential>> {
+    let bytes = serde_json::to_vec(&request)
+        .map_err(|_| fatal("unable to serialize provider account request"))?;
+    let output = crate::managed_account_recovery::helper_rpc(
+        codex_home,
+        &config.helper,
+        &config.bun,
+        bytes,
+        timeout,
+        cancellation,
+    )
+    .await?;
+    decode_response(&output, request.id, request.account_id)
 }
 
 pub(super) fn decode_response(

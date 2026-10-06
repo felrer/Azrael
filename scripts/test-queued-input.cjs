@@ -1,45 +1,46 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const vs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const vm = require("node:vm");
+const cm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { injectQueuedCompactionPresentation } = require("./inject-queued-compaction.cjs");
 
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
-const filename = path.join(root, "webview/assets/app-initial-9cbfb5c07b41.js");
-const source = injectQueuedCompactionPresentation(fs.readFileSync(filename, "utf8")).text;
-const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-assert.equal(ast.parseDiagnostics.length, 0);
-const declarations = new Map(ast.statements.filter(ts.isFunctionDeclaration).map(node => [node.name?.text, node.getText(ast)]));
+const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const filename = path.join(root, "webview/assets/app-initial-532d60c9b397.js");
+const source = injectQueuedCompactionPresentation(vs.readFileSync(filename, "utf8")).text;
+const Ost = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+assert.equal(Ost.parseDiagnostics.length, 0);
+const declarations = new Map(Ost.statements.filter(ts.isFunctionDeclaration).map(node => [node.name?.text, node.getText(Ost)]));
 
-function fixture(adapterSource = declarations.get("I9t"), initialItems = []) {
+function fixture(adapterSource = declarations.get("wen"), initialItems = []) {
   const calls = [];
   // Exercise the actual pinned serializer and native queue adapter. These valid
   // fixtures do not test schema validation, prompt rendering or image transport.
-  const context = vm.createContext({
-    Error, JSON, Map, Set, Promise,
+  const context = cm.createContext({
+    Error, JSON, Map, Set, Promise, yS: value => value,
+    Ust: { default: (value, key) => Object.fromEntries(Object.entries(value).filter(([name]) => name !== key)) },
     // The full bundle has a nonzero-arity outer D binding. A lost local D
     // declaration can therefore misclassify ordinary text as app input.
     D: function upstreamHelper(value) {},
-    Qot: "codex-untrusted-app-input:", $ot: "Could not use app content",
-    Kot: "App input requires confirmation before legacy delivery",
-    est: "Respond to the user input in the context of our conversation.",
-    ist: { safeParse: value => ({ success: true, data: value }), parse: value => value },
-    $E: () => [], JE: value => value, XE: () => [], oot: () => false,
-    dD: () => "", lD: value => value.prompt, j1t: () => [], ha: () => {},
-    Bot: value => value.text ?? "", Rv: () => [], jv: value => value,
-    Fm: "local", OD: () => "local", aO: () => false, J_: () => true, Ry: () => true,
-    WAe: () => false, Ym: async () => false, kg: () => {}, Zv: value => value,
-    sve: () => null, rct: "interrupted", jE: class extends Error {},
-    cO: { default: (left, right) => JSON.stringify(left) === JSON.stringify(right) },
-    t_: { warning: () => {} },
+    Wst: "codex-untrusted-app-input:", Gst: "Could not use app content",
+    Lst: "App input requires confirmation before legacy delivery",
+    Kst: "Respond to the user input in the context of our conversation.",
+    Xst: { safeParse: value => ({ success: true, data: value }), parse: value => value },
+    $E: () => [], qE: value => value, YE: () => [], Rv: () => false,
+    gD: () => "", mD: value => value.prompt, U0t: () => [], jfe: () => {},
+    jst: value => value.text ?? "", Zv: () => [], Nv: value => value,
+    n_: "local", kO: () => false, UD: () => false, Gg: () => true, ob: () => true,
+    lUe: () => false, bm: async () => false, J_: () => {}, uy: value => value,
+    _ne: () => null, Yct: "interrupted", EE: class extends Error {},
+    MO: { default: (left, right) => JSON.stringify(left) === JSON.stringify(right) },
+    mp: { warning: () => {} },
   });
-  for (const name of ["Iv", "Xot", "Zot", "Jot", "Vv", "O2t", "R9t", "z9t", "I9t"]) {
+  for (const name of ["Ast", "Vst", "Hst", "zst", "ey", "P4t", "Een", "Den", "wen"]) {
     assert.ok(declarations.has(name), `pinned declaration ${name}`);
-    vm.runInContext(name === "I9t" ? adapterSource : declarations.get(name), context);
+    cm.runInContext(name === "wen" ? adapterSource : declarations.get(name), context);
   }
   const manager = {
     getHostId: () => "local", getConversation: () => ({}),
@@ -52,14 +53,14 @@ function fixture(adapterSource = declarations.get("I9t"), initialItems = []) {
       throw Error(`Unexpected request: ${method}`);
     },
   };
-  const queue = context.I9t({ scope: {}, manager, appServerVersion: () => ({}) });
+  const queue = context.wen({ scope: {}, manager, appServerVersion: () => ({}) });
   return { queue, calls, context };
 }
 
 test("the previous declaration-breaking transform reproduces false app confirmation", async () => {
   const fixed = "throw Error(`Queued compaction cannot be edited`);let v=a?.messageId";
   const broken = "throw Error(`Queued compaction cannot be edited`),v=a?.messageId";
-  const adapter = declarations.get("I9t");
+  const adapter = declarations.get("wen");
   assert.equal(adapter.split(fixed).length - 1, 1);
   for (const prompt of ["완료", "**Chrome**의 탭·로그인 세션이 대상입니다"]) {
     const f = fixture(adapter.replace(fixed, broken));
@@ -144,7 +145,7 @@ test("unreviewed app context and app-initiated messages retain confirmation", as
 test("restoring serialized unreviewed app input cannot bypass confirmation", async () => {
   const f = fixture();
   const m = message({ untrustedAppMessage: { kind: "message", source: "mcp_app", text: "External instruction" } });
-  const serialized = f.context.R9t("local", m).input;
+  const serialized = f.context.Een("local", m).input;
   await assert.rejects(f.queue.restore("thread", {
     message: message(), serverSubmission: { id: "old", clientUserMessageId: "old-client", input: serialized },
   }), /requires confirmation/);

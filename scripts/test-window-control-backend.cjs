@@ -20,7 +20,7 @@ async function main() {
     ['status', {}, { window, state: 'normal', foregroundHwnd: '2a', cursorVisible: true }], ['restore', {}, { window, restored: true }], ['resize', { widthDip: 800, heightDip: 600 }, { window, widthPx: 800, heightPx: 600, widthDip: 800, heightDip: 600 }],
     ['act', { observationId: 'observation-1', elementId: 'element-1', action: 'setValue', value: '한글 값' }, { window, acted: true, requiresObservation: true }],
   ]) { const params = { window, ...extra }; replyResult = response; assert.deepEqual(await backend.request(method, params), response); assert.equal(nativeRequests.at(-1).method, method); assert.deepEqual(nativeRequests.at(-1).params, params); }
-  replyResult = { window: { executable: 'C:/프로그램/한글앱.exe', title: '한글 창 제목' }, elements: [{ name: '입력 영역' }] }; assert.deepEqual(await backend.request('observe', {}), replyResult);
+  replyResult = { window: { executable: 'C:/프로그램/한글앱.exe', title: '한글 창 제목' }, elementsTruncated: false, elements: [{ name: '입력 영역' }] }; assert.deepEqual(await backend.request('observe', {}), replyResult);
   assert.equal(options.windowsHide, true); assert.equal(options.env.AZRAEL_EX_MANAGEMENT_SOCKET, undefined); assert.equal(options.env.SKY_SESSION, undefined);
   await assert.rejects(backend.request('shell', {}), /Unsupported/); await backend.dispose(); await assert.rejects(backend.request('status', {}), /disposed/);
   let invalidSpawn = false; const invalid = createBackend(runtime, { spawnChild() { invalidSpawn = true; }, verify: () => ({ ...declaration, manifestSha256: 'wrong' }) });

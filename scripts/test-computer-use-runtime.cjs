@@ -12,7 +12,7 @@ function pkg(rel, name, dependencies = {}) { write(`source/bin/${rel}/package.js
 try {
   write('source/bin/node_repl.exe', 'fixture repl'); write('source/bin/node.exe', 'fixture node');
   pkg('node_modules/@oai/sky', '@oai/sky', { dependency: '^1', transitive: '^1' });
-  write('source/bin/node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'fixture sky service');
+  write('source/bin/node_modules/@oai/sky/bin/windows/codex-computer-use.exe', fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/computer_use_20261004_v6/computer-use/node_modules/@oai/sky/bin/windows/codex-computer-use.exe')));
   pkg('node_modules/dependency', 'dependency', { transitive: '^1' });
   pkg('node_modules/transitive', 'transitive');
   pkg('node_modules/dependency/node_modules/transitive', 'transitive');
@@ -24,13 +24,20 @@ try {
   const routed = stageRuntime({ ...options, destination: path.join(root, 'routed'), selectedWindowGuide: path.join(root, 'mode-guide.md') });
   const routedSkill = fs.readFileSync(path.join(routed.directory, 'skills/computer-use/SKILL.md'), 'utf8');
   assert(routedSkill.startsWith('---\nname: computer-use\n'));
-  assert(routedSkill.includes('azrael_window tools'));
+  const windowSkill = fs.readFileSync(path.join(routed.directory, 'skills/window-use/SKILL.md'), 'utf8');
+  assert(windowSkill.startsWith('---\nname: window-use\n'));
+  assert(windowSkill.includes('Selected-window guidance'));
   assert(routedSkill.includes('Original Sky instructions'));
   assert.equal(fs.readFileSync(path.join(routed.directory, 'docs/selected-window.md'), 'utf8'), 'Selected-window guidance');
   assert.equal(verifyRuntime(routed.directory).manifestSha256, routed.manifestSha256);
   const staged = stageRuntime(options);
   assert.equal(staged.manifest.schema, 1);
   assert.equal(staged.manifest.packages.length, 4);
+  const sky = staged.manifest.files.find(e => e.path.endsWith('/codex-computer-use.exe'));
+  assert.equal(sky.transform.signature, 'unsigned-local-copy');
+  assert.notEqual(sky.sourceSha256, sky.sha256);
+  assert(fs.readFileSync(sky.source).includes(Buffer.from('Codex is using your computer')));
+  assert(fs.readFileSync(path.join(staged.directory, sky.path)).includes(Buffer.from('Azrael is using the computer')));
   assert(!fs.existsSync(path.join(options.destination, 'node_modules/unrelated')));
   assert(fs.existsSync(path.join(options.destination, '.codex-plugin/plugin.json')));
   assert(fs.existsSync(path.join(options.destination, 'LICENSE')));
@@ -57,4 +64,20 @@ try {
   console.log('PASS missing transitive dependency and linked package rejected');
   console.log('Computer Use runtime packaging tests passed');
 } finally { fs.rmSync(root, { recursive: true, force: true }); }
+});
+
+
+test('Sky display branding changes only its label and PE signature metadata and rejects unknown binaries', () => {
+  const { brandComputerUse } = require('./computer-use-branding.cjs');
+  const source = fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/computer_use_20261004_v6/computer-use/node_modules/@oai/sky/bin/windows/codex-computer-use.exe'));
+  const { content, transform } = brandComputerUse(source);
+  const optional = source.readUInt32LE(0x3c) + 24;
+  const ranges = [[transform.labelOffset, transform.labelOffset + Buffer.byteLength(transform.before)], [optional + 64, optional + 68], [optional + 144, optional + 152]];
+  assert.equal(content.length, source.length);
+  for (let i = 0; i < source.length; i++)
+    if (source[i] !== content[i]) assert(ranges.some(([start, end]) => i >= start && i < end), `unexpected modified byte ${i}`);
+  assert(content.includes(Buffer.from('Esc to cancel')));
+  assert.deepEqual(brandComputerUse(content).content, content);
+  const tampered = Buffer.from(source); tampered[0] ^= 1;
+  assert.throws(() => brandComputerUse(tampered), /Unsupported Sky/);
 });

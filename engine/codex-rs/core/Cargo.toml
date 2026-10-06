@@ -142,6 +142,7 @@ openssl-sys = { workspace = true, features = ["vendored"] }
 codex-shell-escalation = { workspace = true }
 
 [dev-dependencies]
+codex-skills-extension = { workspace = true, features = ["test-support"] }
 assert_cmd = { workspace = true }
 assert_matches = { workspace = true }
 codex-exec-server-test-support = { workspace = true }

@@ -77,7 +77,6 @@ use std::sync::atomic::Ordering;
 use std::time::Duration;
 use std::time::Instant;
 use tokio::sync::Mutex;
-use tokio::sync::OwnedRwLockReadGuard;
 use tokio::sync::Semaphore;
 use tokio::task::JoinHandle;
 use tokio_util::sync::CancellationToken;
@@ -511,7 +510,7 @@ impl RealtimeHandoffState {
 
 #[allow(dead_code)]
 struct ConversationState {
-    _account_guard: OwnedRwLockReadGuard<()>,
+    _account_guard: Arc<codex_login::AzraelTaskAuthLease>,
     audio_tx: Sender<RealtimeAudioFrame>,
     text_tx: Sender<ConversationTextParams>,
     session_kind: RealtimeSessionKind,
@@ -635,7 +634,7 @@ impl RealtimeConversationManager {
         &self,
         start: RealtimeStart,
         mode_instructions: RealtimeModeInstructions,
-        account_guard: OwnedRwLockReadGuard<()>,
+        account_guard: Arc<codex_login::AzraelTaskAuthLease>,
     ) -> CodexResult<RealtimeStartOutput> {
         let RealtimeStart {
             api_provider,

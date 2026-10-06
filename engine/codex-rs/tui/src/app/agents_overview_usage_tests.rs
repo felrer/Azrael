@@ -89,6 +89,7 @@ async fn selected_usage_is_cached_and_account_changes_discard_old_results() -> R
             thread_id: selected.to_string(),
             turn_id: "turn".into(),
             token_usage: ThreadTokenUsage {
+                context_policy: None,
                 total: tokens.clone(),
                 last: tokens.clone(),
                 model_context_window: None,
@@ -102,6 +103,7 @@ async fn selected_usage_is_cached_and_account_changes_discard_old_results() -> R
             threads: HashMap::from([(selected, Some(threads[0].clone()))]),
             last_messages: HashMap::new(),
             recent_seed_complete: true,
+            discovery: None,
         }),
     );
     assert_eq!(

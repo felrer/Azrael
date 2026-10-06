@@ -4,4 +4,4 @@
 import type { ContextPolicy } from "../ContextPolicy";
 import type { TokenUsageBreakdown } from "./TokenUsageBreakdown";
 
-export type ThreadTokenUsage = { contextPolicy?: ContextPolicy | null, total: TokenUsageBreakdown, last: TokenUsageBreakdown, modelContextWindow: number | null, };
+export type ThreadTokenUsage = { contextPolicy?: ContextPolicy, total: TokenUsageBreakdown, last: TokenUsageBreakdown, modelContextWindow: number | null, };

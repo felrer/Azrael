@@ -6,34 +6,38 @@ const test = require("node:test");
 const vm = require("node:vm");
 const { QUEUE_CONSUMPTION_ASSET, QUEUE_CONSUMPTION_MARKER, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416"), QUEUE_CONSUMPTION_ASSET);
+const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), QUEUE_CONSUMPTION_ASSET);
 const original = fs.readFileSync(filename, "utf8");
 const patched = injectQueueConsumption(original).text;
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const message = id => ({ id, text: "identical input", context: {} });
 const ids = items => Array.from(items, item => item.id);
 
+const astCache = new Map();
 function fixture(source, initial = [message("accepted"), message("next")], history = new Set()) {
-  const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  if (!astCache.has(source)) astCache.set(source, ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS));
+  const ast = astCache.get(source);
   assert.equal(ast.parseDiagnostics.length, 0);
   let expression;
   function visit(node) {
-    if (ts.isBinaryExpression(node) && node.left.getText(ast) === "Mkn" && ts.isClassExpression(node.right)) expression = node.right;
+    if (ts.isBinaryExpression(node) && node.left.getText(ast) === "ykn" && ts.isClassExpression(node.right)) expression = node.right;
     ts.forEachChild(node, visit);
   }
   visit(ast);
   assert.ok(expression, "pinned coordinator class expression exists");
   class Disposable { constructor(fn) { this.dispose = fn; } }
-  const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "Okn");
+  const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "hkn");
   class Cancelled extends Error {}
+  // Pinned imports distinguish EE/Jxt (oe, admission rejected) from
+  // DE/qxt (en, transport delivery state). Uncertain delivery is not admission rejection.
+  class AdmissionError extends Error {}
   class DeliveryError extends Error { constructor(stage) { super(`delivery ${stage}`); this.delivery = { stage }; } }
-  const submissionContext = { ZQ: Cancelled };
-  const Okn = vm.runInNewContext(`(${source.slice(submissionFactory.getStart(ast), submissionFactory.end)})`, submissionContext);
+  const submissionContext = { R$: Cancelled, Qt: class extends Error {}, wn: () => false, Wt: ({ input }) => input };
+  const hkn = vm.runInNewContext(`(${source.slice(submissionFactory.getStart(ast), submissionFactory.end)})`, submissionContext);
   const Coordinator = vm.runInNewContext(`(${source.slice(expression.getStart(ast), expression.end)})`, {
-    aJ: class {}, Okn, Ye: () => { const disposables = []; return { u: x => disposables.push(x), d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; }, xX: Disposable, mt: () => ({ u() {}, d() {} }), H: x => x, $Q: [], I6t: () => {}, mt: () => false,
-    jkn: "submission-outcome-unknown", de: DeliveryError, QQ: { default: (x,y) => JSON.stringify(x)===JSON.stringify(y) }, Dn: class extends Error {}, ZQ: Cancelled, Ae: class extends Error {}, dkn: () => false,
-    Akn: { default: value => value }, xt: () => { let resolve, reject; const promise = new Promise((a,b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; },
-    d: () => { const disposables = []; return { u: x => disposables.push(x), d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; },
+    YJ: class {}, hkn, Mt: () => { const disposables = []; return { u: x => { disposables.push(x); return x; }, d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; }, dZ: Disposable, B: x => x, B$: [],
+    vkn: "submission-outcome-unknown", oe: AdmissionError, en: DeliveryError, z$: { default: (x,y) => JSON.stringify(x)===JSON.stringify(y) }, R$: Cancelled, Qt: class extends Error {}, tt: () => false,
+    _kn: { default: value => value }, x: () => { let resolve, reject; const promise = new Promise((a,b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; },
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
   let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
@@ -190,8 +194,8 @@ test("injection is idempotent and fails closed for absent, repeated, and partial
   assert.throws(() => injectQueueConsumption(original.replace("#v(e,t){this.messages.set(e,{messages:t,refreshing:!1})", "changed-anchor")), /anchor/);
   assert.throws(() => injectQueueConsumption(patched + QUEUE_CONSUMPTION_MARKER), /Duplicate/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelConsume", "async brokenConsume")), /Partial/);
-  assert.throws(() => injectQueueConsumption(original.replace("Mkn=class extends aJ{", "Mkn=class extends aJ{/*azrael-queue-consumption-v1*/")), /Outdated/);
-  assert.throws(() => injectQueueConsumption(original.replace("Mkn=class extends aJ{", "Mkn=class extends aJ{/*azrael-queue-consumption-v2*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(original.replace("ykn=class extends YJ{", "ykn=class extends YJ{/*azrael-queue-consumption-v1*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(original.replace("ykn=class extends YJ{", "ykn=class extends YJ{/*azrael-queue-consumption-v2*/")), /Outdated/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelCompleteQueued", "async brokenCompleteQueued")), /Partial/);
 });
 
@@ -321,7 +325,7 @@ test("native serverAccepted result registers local receipt and awaits persisted 
   f.queue.dispose();
 });
 
-// Drive only storage adapters; submission and admission decisions execute Mkn/Okn.
+// Drive only storage adapters; submission and admission decisions execute ykn/hkn.
 async function settleSubmission(f, submission, writeFailure) {
   let completed = false, result, failure, written = 0;
   submission.then(value => { result = value; completed = true; }, error => { failure = error; completed = true; });
@@ -352,14 +356,14 @@ function assertLocalCustody(f, item, status, pausedReason) {
   assert.equal(f.queue.accepted.size, 0, "completed locally accepted handle is released");
 }
 
-for (const kind of ["prepare", "not-sent", "outcome-unknown"]) {
+for (const kind of ["prepare", "not-sent", "outcome-unknown", "acknowledgement-lost"]) {
   test(`actual acceptLocally ${kind} failure resolves queued and preserves original custody`, async () => {
     const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
     if (kind === "prepare") f.setPrepareFailure(new Error("preparation rejected"));
-    else f.setFailure(kind === "not-sent" ? new f.DeliveryError("not-sent") : new Error("host acknowledgement lost"));
+    else f.setFailure(kind === "acknowledgement-lost" ? new Error("host acknowledgement lost") : new f.DeliveryError(kind));
     const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));
     assert.equal(result.status, "queued"); assert.equal(result.messageId, item.id);
-    assertLocalCustody(f, item, kind === "outcome-unknown" ? "outcome-unknown" : "queued", kind === "prepare" ? "preparation rejected" : kind === "not-sent" ? "delivery not-sent" : "submission-outcome-unknown");
+    assertLocalCustody(f, item, ["outcome-unknown", "acknowledgement-lost"].includes(kind) ? "outcome-unknown" : "queued", kind === "prepare" ? "preparation rejected" : kind === "not-sent" ? "delivery not-sent" : "submission-outcome-unknown");
     assert.deepEqual(f.sends, kind === "prepare" ? [] : [item.id]);
     const sends = [...f.sends]; f.changed(); f.completed(); await tick();
     assert.deepEqual(f.sends, sends, "paused or uncertain input is not automatically replayed");
@@ -367,7 +371,7 @@ for (const kind of ["prepare", "not-sent", "outcome-unknown"]) {
   });
 }
 
-test("actual acceptLocally ZQ cancellation settles queued without dispatch or duplicate payload", async () => {
+test("actual acceptLocally R$ cancellation settles queued without dispatch or duplicate payload", async () => {
   const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
   f.setPrepareHook(() => f.setReady(false));
   const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));

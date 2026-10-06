@@ -3,7 +3,13 @@ import { EventEmitter } from "node:events";
 import Module from "node:module";
 import test from "node:test";
 
-test("account state emitted by the view's own refresh does not queue an endless refresh", async () => {
+test("visible accounts refresh every two minutes without queuing an endless refresh", async (t) => {
+  const intervals: number[] = [];
+  const originalSetInterval = global.setInterval;
+  t.mock.method(global, "setInterval", (callback: () => void, delay: number) => {
+    intervals.push(delay);
+    return originalSetInterval(callback, delay);
+  });
   const moduleApi = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const originalLoad = moduleApi._load;
   moduleApi._load = function (request, parent, isMain) {
@@ -30,8 +36,9 @@ test("account state emitted by the view's own refresh does not queue an endless 
     const view = new UsageView(service as never, usage as never, devinUsage as never);
     const panel = { visible: true, webview: { html: "" }, dispose() {} };
     (view as unknown as { panel: unknown }).panel = panel;
-    await (view as unknown as { refresh(force?: boolean): Promise<void> }).refresh();
+    (view as unknown as { visibility(): void }).visibility();
     await new Promise(resolve => setImmediate(resolve));
+    assert.deepEqual(intervals, [120_000]);
     assert.equal(service.refreshCalls, 1);
     view.dispose();
   } finally {

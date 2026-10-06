@@ -1945,6 +1945,9 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
     let installation_id = resolve_installation_id(&config.codex_home)
         .await
         .expect("resolve installation id");
+    let state_db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("test state db should initialize");
     let thread_manager = ThreadManager::new(
         &config,
         auth_manager.clone(),
@@ -1956,7 +1959,7 @@ async fn prefers_apikey_when_config_prefers_apikey_even_with_chatgpt_tokens() {
         Arc::new(codex_core::test_support::EmptyUserInstructionsProvider),
         /*analytics_events_client*/ None,
         codex_core::passthrough_image_store(),
-        thread_store_from_config(&config, /*state_db*/ None),
+        thread_store_from_config(&config, Some(state_db)),
         /*agent_graph_store*/ None,
         installation_id,
         /*attestation_provider*/ None,

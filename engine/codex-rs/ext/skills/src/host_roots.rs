@@ -45,7 +45,7 @@ pub(crate) async fn resolve_skill_roots(
     .await
 }
 
-async fn resolve_skill_roots_with_home_dir(
+pub(super) async fn resolve_skill_roots_with_home_dir(
     repository_file_system: Option<Arc<dyn ExecutorFileSystem>>,
     config_layer_stack: &ConfigLayerStack,
     cwd: &AbsolutePathBuf,

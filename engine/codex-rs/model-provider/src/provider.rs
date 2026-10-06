@@ -399,6 +399,12 @@ struct ConfiguredModelProvider {
     gateway_auth_manager: Option<Result<Arc<GatewayAuthManager>, String>>,
 }
 
+enum ModelsCacheConfig {
+    Disk { codex_home: PathBuf },
+    Disabled,
+    Custom(Arc<dyn ModelsCache>),
+}
+
 impl ConfiguredModelProvider {
     fn new(
         info: ModelProviderInfo,
@@ -409,6 +415,40 @@ impl ConfiguredModelProvider {
             info,
             auth_manager,
             gateway_auth_manager,
+        }
+    }
+
+    fn create_models_manager(
+        &self,
+        config_model_catalog: Option<ModelsResponse>,
+        cache: ModelsCacheConfig,
+    ) -> SharedModelsManager {
+        if let Some(model_catalog) = config_model_catalog {
+            return Arc::new(StaticModelsManager::new(
+                self.auth_manager.clone(),
+                model_catalog,
+            ));
+        }
+        let endpoint = Arc::new(OpenAiModelsEndpoint::new(
+            self.info.clone(),
+            self.auth_manager.clone(),
+            self.gateway_auth_manager.clone(),
+        ));
+        let auth_manager = self.auth_manager.clone();
+        let manager = match cache {
+            ModelsCacheConfig::Disk { codex_home } => {
+                OpenAiModelsManager::new(codex_home, endpoint, auth_manager)
+            }
+            ModelsCacheConfig::Disabled => {
+                OpenAiModelsManager::new_without_cache(endpoint, auth_manager)
+            }
+            ModelsCacheConfig::Custom(cache) => {
+                OpenAiModelsManager::new_with_cache(cache, endpoint, auth_manager)
+            }
+        };
+        match &self.info.model_catalog_url {
+            Some(_) => Arc::new(manager.with_provider_catalog()),
+            None => Arc::new(manager),
         }
     }
 }
@@ -559,47 +599,14 @@ impl ModelProvider for ConfiguredModelProvider {
         codex_home: PathBuf,
         config_model_catalog: Option<ModelsResponse>,
     ) -> SharedModelsManager {
-        match config_model_catalog {
-            Some(model_catalog) => Arc::new(StaticModelsManager::new(
-                self.auth_manager.clone(),
-                model_catalog,
-            )),
-            None => {
-                let endpoint = Arc::new(OpenAiModelsEndpoint::new(
-                    self.info.clone(),
-                    self.auth_manager.clone(),
-                    self.gateway_auth_manager.clone(),
-                ));
-                Arc::new(OpenAiModelsManager::new(
-                    codex_home,
-                    endpoint,
-                    self.auth_manager.clone(),
-                ))
-            }
-        }
+        self.create_models_manager(config_model_catalog, ModelsCacheConfig::Disk { codex_home })
     }
 
     fn models_manager_without_cache(
         &self,
         config_model_catalog: Option<ModelsResponse>,
     ) -> SharedModelsManager {
-        match config_model_catalog {
-            Some(model_catalog) => Arc::new(StaticModelsManager::new(
-                self.auth_manager.clone(),
-                model_catalog,
-            )),
-            None => {
-                let endpoint = Arc::new(OpenAiModelsEndpoint::new(
-                    self.info.clone(),
-                    self.auth_manager.clone(),
-                    self.gateway_auth_manager.clone(),
-                ));
-                Arc::new(OpenAiModelsManager::new_without_cache(
-                    endpoint,
-                    self.auth_manager.clone(),
-                ))
-            }
-        }
+        self.create_models_manager(config_model_catalog, ModelsCacheConfig::Disabled)
     }
 
     fn models_manager_with_cache(
@@ -607,24 +614,7 @@ impl ModelProvider for ConfiguredModelProvider {
         config_model_catalog: Option<ModelsResponse>,
         cache: Arc<dyn ModelsCache>,
     ) -> SharedModelsManager {
-        match config_model_catalog {
-            Some(model_catalog) => Arc::new(StaticModelsManager::new(
-                self.auth_manager.clone(),
-                model_catalog,
-            )),
-            None => {
-                let endpoint = Arc::new(OpenAiModelsEndpoint::new(
-                    self.info.clone(),
-                    self.auth_manager.clone(),
-                    self.gateway_auth_manager.clone(),
-                ));
-                Arc::new(OpenAiModelsManager::new_with_cache(
-                    cache,
-                    endpoint,
-                    self.auth_manager.clone(),
-                ))
-            }
-        }
+        self.create_models_manager(config_model_catalog, ModelsCacheConfig::Custom(cache))
     }
 }
 
@@ -648,6 +638,7 @@ mod tests {
     use codex_models_manager::manager::RefreshStrategy;
     use codex_protocol::account::PlanType;
     use codex_protocol::config_types::ModelProviderAuthInfo;
+    use codex_protocol::context_policy::ProviderAutoCompact;
     use codex_protocol::openai_models::ModelInfo;
     use codex_protocol::openai_models::ModelsResponse;
     use codex_protocol::protocol::SessionSource;
@@ -1295,7 +1286,12 @@ printf '%s\n' '{"AccessKeyId":"exported","SecretAccessKey":"secret"}'
             let mut expected_model_info = manager
                 .get_model_info(slug, &ModelsManagerConfig::default())
                 .await;
-            expected_model_info.context_window = Some(872_000);
+            let capacity = match slug {
+                "openai.gpt-6.1-sol" | "openai.gpt-6-luna" | "openai.gpt-6-astra" => 1_000_000,
+                _ => 872_000,
+            };
+            expected_model_info.context_window = Some(capacity);
+            expected_model_info.auto_compact_token_limit = Some(capacity * 95 / 100);
             assert_eq!(model_info, expected_model_info);
         }
 
@@ -1348,6 +1344,106 @@ printf '%s\n' '{"AccessKeyId":"exported","SecretAccessKey":"secret"}'
             .expect("Bedrock catalog should have a default model");
 
         assert_eq!(default_model.model, "openai.gpt-6.1-sol");
+    }
+
+    #[tokio::test]
+    async fn bedrock_models_managers_use_endpoint_provider_auto_compact_policy() {
+        let config = ModelsManagerConfig {
+            provider_auto_compact: std::collections::BTreeMap::from([
+                (
+                    "openai".to_string(),
+                    ProviderAutoCompact {
+                        token_limit: Some(111),
+                        ..Default::default()
+                    },
+                ),
+                (
+                    codex_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID.to_string(),
+                    ProviderAutoCompact {
+                        token_limit: Some(222),
+                        ..Default::default()
+                    },
+                ),
+                (
+                    codex_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID.to_string(),
+                    ProviderAutoCompact {
+                        token_limit: Some(333),
+                        ..Default::default()
+                    },
+                ),
+            ]),
+            ..Default::default()
+        };
+        let configured_model = codex_models_manager::bundled_models_response()
+            .expect("bundled models should parse")
+            .models
+            .into_iter()
+            .find(|model| model.slug == "gpt-5.5")
+            .expect("bundled models should include GPT-5.5");
+        assert_eq!(configured_model.model_provider, "openai");
+        let openai_control: SharedModelsManager = Arc::new(StaticModelsManager::new(
+            None,
+            ModelsResponse {
+                models: vec![configured_model.clone()],
+            },
+        ));
+        assert_eq!(
+            openai_control
+                .get_model_info("gpt-5.5", &config)
+                .await
+                .auto_compact_token_limit,
+            Some(111)
+        );
+
+        for (provider_info, provider_id, token_limit) in [
+            (
+                ModelProviderInfo::create_amazon_bedrock_provider(None),
+                codex_model_provider_info::AMAZON_BEDROCK_PROVIDER_ID,
+                222,
+            ),
+            (
+                ModelProviderInfo::create_amazon_bedrock_runtime_provider(None),
+                codex_model_provider_info::AMAZON_BEDROCK_RUNTIME_PROVIDER_ID,
+                333,
+            ),
+        ] {
+            let provider = create_model_provider(provider_info, None);
+            for configured in [false, true] {
+                for cached in [false, true] {
+                    let catalog = configured.then(|| ModelsResponse {
+                        models: vec![configured_model.clone()],
+                    });
+                    let manager = if cached {
+                        provider.models_manager(test_codex_home(), catalog)
+                    } else {
+                        provider.models_manager_without_cache(catalog)
+                    };
+                    let catalog = manager
+                        .raw_model_catalog(
+                            RefreshStrategy::Online,
+                            HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault),
+                        )
+                        .await;
+                    assert!(!catalog.models.is_empty());
+                    if configured {
+                        assert_eq!(catalog.models.len(), 1);
+                        assert_eq!(catalog.models[0].slug, configured_model.slug);
+                    }
+                    for model in catalog.models {
+                        assert_eq!(model.model_provider, provider_id);
+                        assert_eq!(
+                            manager
+                                .get_model_info(&model.slug, &config)
+                                .await
+                                .auto_compact_token_limit,
+                            Some(token_limit),
+                            "provider={provider_id}, configured={configured}, cached={cached}, model={}",
+                            model.slug,
+                        );
+                    }
+                }
+            }
+        }
     }
 
     #[tokio::test]

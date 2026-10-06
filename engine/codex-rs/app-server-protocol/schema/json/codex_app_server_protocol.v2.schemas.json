@@ -1452,7 +1452,13 @@
         "switch",
         "cancelSwitch",
         "usage",
-        "consumeResetCredit"
+        "consumeResetCredit",
+        "autoSwitchEnable",
+        "autoSwitchDisable",
+        "autoWindowStatus",
+        "autoWindowEnable",
+        "autoWindowDisable",
+        "autoWindowTick"
       ],
       "type": "string"
     },
@@ -1461,6 +1467,12 @@
       "properties": {
         "action": {
           "$ref": "#/definitions/AzraelAccountAction"
+        },
+        "creditId": {
+          "type": [
+            "string",
+            "null"
+          ]
         },
         "idempotencyKey": {
           "type": [
@@ -1493,6 +1505,16 @@
     "AzraelAccountResponse": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "properties": {
+        "autoWindows": {
+          "default": null,
+          "items": {
+            "$ref": "#/definitions/AzraelUsageWindowSchedule"
+          },
+          "type": [
+            "array",
+            "null"
+          ]
+        },
         "login": {
           "anyOf": [
             {
@@ -1743,6 +1765,10 @@
     },
     "AzraelProfile": {
       "properties": {
+        "autoSwitchAllowed": {
+          "default": false,
+          "type": "boolean"
+        },
         "email": {
           "type": [
             "string",
@@ -1771,6 +1797,73 @@
         "workspaceAccountId"
       ],
       "type": "object"
+    },
+    "AzraelUsageWindowSchedule": {
+      "properties": {
+        "basisResetAt": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "enabled": {
+          "type": "boolean"
+        },
+        "error": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "lastAttemptAt": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "nextRunAt": {
+          "format": "int64",
+          "type": [
+            "integer",
+            "null"
+          ]
+        },
+        "profileId": {
+          "type": "string"
+        },
+        "status": {
+          "$ref": "#/definitions/AzraelUsageWindowStatus"
+        },
+        "userId": {
+          "type": "string"
+        },
+        "workspaceAccountId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "enabled",
+        "profileId",
+        "status",
+        "userId",
+        "workspaceAccountId"
+      ],
+      "type": "object"
+    },
+    "AzraelUsageWindowStatus": {
+      "enum": [
+        "disabled",
+        "scheduled",
+        "checking",
+        "confirming",
+        "started",
+        "unconfirmed",
+        "blocked",
+        "error"
+      ],
+      "type": "string"
     },
     "BrowserUseAccessApprovalLifetime": {
       "enum": [

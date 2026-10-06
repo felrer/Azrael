@@ -143,7 +143,21 @@ async fn send_message_to_connection(
     message: OutgoingMessage,
     write_complete_tx: Option<tokio::sync::oneshot::Sender<()>>,
 ) -> bool {
+    let response_ref = match &message {
+        OutgoingMessage::Response(response) => {
+            Some(crate::input_delivery_diagnostics::request_ref(&response.id))
+        }
+        OutgoingMessage::Error(error) => {
+            Some(crate::input_delivery_diagnostics::request_ref(&error.id))
+        }
+        _ => None,
+    };
     let Some(connection_state) = connections.get(&connection_id) else {
+        crate::input_delivery_diagnostics::response_route(
+            response_ref.as_deref(),
+            connection_id.0,
+            "connection_missing",
+        );
         warn!("dropping message for disconnected connection: {connection_id:?}");
         return false;
     };
@@ -159,20 +173,47 @@ async fn send_message_to_connection(
     };
     if connection_state.can_disconnect() {
         match writer.try_send(queued_message) {
-            Ok(()) => false,
+            Ok(()) => {
+                crate::input_delivery_diagnostics::response_route(
+                    response_ref.as_deref(),
+                    connection_id.0,
+                    "queued",
+                );
+                false
+            }
             Err(mpsc::error::TrySendError::Full(_)) => {
+                crate::input_delivery_diagnostics::response_route(
+                    response_ref.as_deref(),
+                    connection_id.0,
+                    "write_failed",
+                );
                 warn!(
                     "disconnecting slow connection after outbound queue filled: {connection_id:?}"
                 );
                 disconnect_connection(connections, connection_id)
             }
             Err(mpsc::error::TrySendError::Closed(_)) => {
+                crate::input_delivery_diagnostics::response_route(
+                    response_ref.as_deref(),
+                    connection_id.0,
+                    "write_failed",
+                );
                 disconnect_connection(connections, connection_id)
             }
         }
     } else if writer.send(queued_message).await.is_err() {
+        crate::input_delivery_diagnostics::response_route(
+            response_ref.as_deref(),
+            connection_id.0,
+            "write_failed",
+        );
         disconnect_connection(connections, connection_id)
     } else {
+        crate::input_delivery_diagnostics::response_route(
+            response_ref.as_deref(),
+            connection_id.0,
+            "queued",
+        );
         false
     }
 }

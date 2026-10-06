@@ -1,8 +1,9 @@
-# Gyeonggi Millennium Title Light
+# Gyeonggi Millennium Title Light and Batang
 
 Copyright holder: Gyeonggi Province (경기도청).
 
-The Light WOFF file is copied unchanged from the official webfont archive.
+The Title Light, Batang Regular and Batang Bold WOFF files are copied unchanged
+from the official webfont archive.
 Source and use conditions: [Gyeonggi Province font page](https://www.gg.go.kr/contents/contents.do?ciIdx=679&menuId=2457).
 
 The official conditions allow free use across media and inclusion and distribution

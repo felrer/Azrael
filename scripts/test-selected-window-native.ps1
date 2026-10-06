@@ -1,9 +1,9 @@
-param([switch]$CompileOnly)
+param([switch]$CompileOnly, [string]$OutputDirectory, [string]$LogDirectory)
 $ErrorActionPreference = 'Stop'
 if (-not $CompileOnly) { throw 'This wrapper only prepares the harness. Actual execution requires root GO and the documented Node --go interface.' }
 $projectRoot = Split-Path -Parent $PSScriptRoot
-$outputDirectory = Join-Path $projectRoot 'artifacts/build/selected-window-native'
-$logDirectory = Join-Path $projectRoot 'artifacts/logs/selected-window-native'
+if ([string]::IsNullOrWhiteSpace($OutputDirectory)) { $OutputDirectory = Join-Path $projectRoot 'artifacts/build/selected-window-native' }
+if ([string]::IsNullOrWhiteSpace($LogDirectory)) { $LogDirectory = Join-Path $projectRoot 'artifacts/logs/selected-window-native' }
 New-Item -ItemType Directory -Force -Path $outputDirectory,$logDirectory | Out-Null
 $compiler = 'C:/Windows/Microsoft.NET/Framework64/v4.0.30319/csc.exe'
 if (-not (Test-Path -LiteralPath $compiler)) { throw 'Installed .NET Framework C# compiler is unavailable.' }

@@ -1,20 +1,20 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const hs = require("node:fs");
 const path = require("node:path");
-const vm = require("node:vm");
+const pm = require("node:vm");
 const util = require("node:util");
 const test = require("node:test");
 const crypto = require("node:crypto");
 const { COMPOSER_DRAFT_ASSET, MARKER, injectComposerDraft } = require("./inject-composer-draft.cjs");
 const repo = path.resolve(__dirname, "..");
 const ts = require(path.join(repo, "extensions/azrael-ex/node_modules/typescript"));
-const original = fs.readFileSync(path.join(repo, "artifacts/upstream-ui/26.928.31416", COMPOSER_DRAFT_ASSET), "utf8");
+const original = hs.readFileSync(path.join(repo, "artifacts/upstream-ui/26.930.61225", COMPOSER_DRAFT_ASSET), "utf8");
 const transformed = injectComposerDraft(original).text;
-const ast = ts.createSourceFile("composer.js", transformed, 99, true, 1);
-assert.equal(ast.parseDiagnostics.length, 0);
-const declarations = new Map(ast.statements.filter(ts.isFunctionDeclaration).map(n => [n.name.text, n.getText(ast)]));
+const Cst = ts.createSourceFile("composer.js", transformed, 99, true, 1);
+assert.equal(Cst.parseDiagnostics.length, 0);
+const declarations = new Map(Cst.statements.filter(ts.isFunctionDeclaration).map(n => [n.name.text, n.getText(Cst)]));
 
 // Execute the entire production submission function, clear function, retention
 // function and comparison functions. Only platform/controller/atom/RPC adapters
@@ -22,19 +22,19 @@ const declarations = new Map(ast.statements.filter(ts.isFunctionDeclaration).map
 function fixture({ type = "local", text = "A", beforePreparation, submission, sidechat, fresh = false, current = true } = {}) {
   const attachmentFields = ["imageAttachments", "imageCommentDrafts", "appshotContexts", "fileAttachments", "pastedTextAttachments", "uploadedFileAttachments", "addedFiles", "mcpAppModelContextAttachments", "selectedTextAttachments", "responseTextAnnotations", "attachmentOrder"];
   const attachments = Object.fromEntries(attachmentFields.map(k => [k, []]));
-  const atoms = new Map([...["PW", "hU", "mU", "GH", "XH"].map(k => [k, []]), ["cU", 0]]);
+  const atoms = new Map([...["kG", "rW", "nW", "NU", "RU"].map(k => [k, []]), ["XU", 0]]);
   let editor = text, draft = { prompt: text, pullRequestChecks: [] }, retained, callback, restores = 0, clears = 0, unsubscribes = 0;
   const events = [], errors = [];
   const scope = {
     value: { kind: "local", conversationId: "thread" },
     get(atom) {
       if (atom === "drafts") return { thread: draft };
-      if (atom === "EW") return attachments;
-      if (atom === "yW" || atom === "vW") return retained;
+      if (atom === "vG") return attachments;
+      if (atom === "lG" || atom === "cG") return retained;
       return atoms.get(atom);
     },
     set(atom, key, value) {
-      if (atom === "vW") retained = value;
+      if (atom === "cG") retained = value;
       else atoms.set(atom, arguments.length === 3 ? value : key);
     },
     watch() { return () => { unsubscribes++; }; },
@@ -46,31 +46,31 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
     setText(value) { editor = value; if (value !== "") draft = { prompt: value, pullRequestChecks: [] }; events.push(["text", value]); },
   };
   const noop = () => {};
-  const context = vm.createContext({
-    Symbol, JSON, performance, Em: () => "thread", KTe: () => "thread", mW: { drafts$: "drafts" }, pW: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
-    ...Object.fromEntries(["EW", "PW", "hU", "mU", "GH", "XH", "cU", "lU", "vW", "yW", "eJ", "Vg", "RA", "zA"].map(k => [k, k])),
-    _S: () => ({ u: x => x, d: noop }), Oat: () => false, cua: x => x, Nca: async () => [],
-    dEe: "dEe", lua: () => ["sidechat"],
-    QX: ({ context, text, messageId }) => ({ id: messageId ?? "input-A", text, context }),
-    WXe: noop, gg: { abort: noop, fail: noop }, bk: noop, fua: noop, pua: noop, Van: noop,
-    ed: {}, t_: { warning: noop, debug: noop },
-    hEe: class extends Error {}, jE: class extends Error {}, ME: class extends Error {}, XX: class extends Error {},
-    f7: noop, k7i: noop, Y8i: noop, rZ: noop, $vr: noop, H2n: noop,
-    L9n() { for (const k of attachmentFields) attachments[k] = []; if (!retained) draft = undefined; },
-    uW(_e, value, _text, options) { if (!retained || options?.discardRetainedDraft) draft = value; },
+  const context = pm.createContext({
+    Symbol, JSON, performance, Sp: () => "thread", lOe: () => "thread", rG: { drafts$: "drafts" }, tG: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
+    ...Object.fromEntries(["vG", "kG", "rW", "nW", "NU", "RU", "XU", "ZU", "cG", "lG", "WJ", "Gp", "Dj", "zA"].map(k => [k, k])),
+    PS: () => ({ u: x => x, d: noop }), _ot: () => false, Kfa: x => x, _da: async () => [],
+    cFe: "cFe", qfa: () => ["sidechat"],
+    jQ: ({ context, text, messageId }) => ({ id: messageId ?? "input-A", text, context }),
+    Kwe: noop, Jg: { abort: noop, fail: noop }, eA: noop, Xfa: noop, Zfa: noop, kan: noop,
+    Md: {}, mp: { warning: noop, debug: noop },
+    hFe: class extends Error {}, EE: class extends Error {}, DE: class extends Error {}, kQ: class extends Error {},
+    l7: noop, pta: noop, N9i: noop, IQ: noop, uxr: noop, X6n: noop,
+    Gnr() { for (const k of attachmentFields) attachments[k] = []; if (!retained) draft = undefined; },
+    QW(_e, value, _text, options) { if (!retained || options?.discardRetainedDraft) draft = value; },
   });
-  for (const name of ["dW", "$9n", "eer", "rer", "D9n", "F7i", "__azraelComposerSnapshot", "__azraelComposerMatches", "uua"]) vm.runInContext(declarations.get(name), context);
-  const clear = context.F7i({ scope, composerController: controller, attachmentGeneration: { current: 0 }, fileAttachments: [], pastedTextAttachments: [], commentAttachments: [], clearPendingAppshotCaptures: noop, setComments: noop, setPendingFileAttachments: noop, setPriorConversation: noop });
+  for (const name of ["$W", "srr", "crr", "drr", "Fnr", "yta", "__azraelComposerSnapshot", "__azraelComposerMatches", "Jfa"]) pm.runInContext(declarations.get(name), context);
+  const clear = context.yta({ scope, composerController: controller, attachmentGeneration: { current: 0 }, fileAttachments: [], pastedTextAttachments: [], commentAttachments: [], clearPendingAppshotCaptures: noop, setComments: noop, setPendingFileAttachments: noop, setPriorConversation: noop });
   const f = {
     attachments, atoms, controller, context, scope, events, errors,
     text: () => editor, retained: () => retained, clears: () => clears, restores: () => restores, unsubscribes: () => unsubscribes,
     edit(value) { controller.setText(value); },
-    added(flags) { assert(callback, "submission callback is available"); callback(flags); },
+    added(flags = {}) { assert(callback, "submission callback is available"); callback(flags); },
     async run() {
-      await context.uua({
+      await context.Jfa({
         scope, composerController: controller, clearStopTurnConfirmation: noop,
         clearComposerUi(nt) { clears++; clear({ submittedContext: nt }); },
-        retainComposerPrompt: () => context.D9n(scope),
+        retainComposerPrompt: options => context.Fnr(scope, options),
         restoreComposerDraft(item) { restores++; controller.setText(item.text); },
         buildLocalContextForPrompt: async prompt => ({ prompt, ...attachments, ideContext: null }),
         prepareGoalSubmit: async () => { await beforePreparation?.(f); return { status: "continue" }; },
@@ -85,13 +85,13 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
       });
     },
   };
-  if (sidechat) atoms.set("dEe", true);
+  if (sidechat) atoms.set("cFe", true);
   return f;
 }
 
 test("unchanged early callback clears once; duplicate callback and final success are safe", async () => {
   const f = fixture({ submission: async f => { f.added(); f.added({ locallyAccepted: true }); f.added({ requestDispatched: true }); return { messageResult: { status: "queued" } }; } });
-  await f.run(); assert.equal(f.text(), ""); assert.equal(f.clears(), 1); assert.equal(f.retained(), undefined); assert.equal(f.unsubscribes(), 1);
+  await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), ""); assert.equal(f.clears(), 1); assert.equal(f.retained(), undefined); assert.equal(f.unsubscribes(), 1);
 });
 test("preparation edits survive the first callback and final success", async () => {
   const f = fixture({ beforePreparation: f => f.edit("B") });
@@ -123,7 +123,7 @@ test("failure after clear preserves B and safely abandons A retention", async ()
   const f = fixture({ submission: async f => { f.added(); f.edit("B"); throw Error("rejected"); } });
   await f.run(); assert.equal(f.text(), "B"); assert.equal(f.restores(), 0); assert.equal(f.retained(), undefined);
 });
-test("app context added after clear survives acceptance without D9n clearing it", async () => {
+test("app context added after clear survives acceptance without err clearing it", async () => {
   const f = fixture({ submission: async f => { f.added(); f.attachments.mcpAppModelContextAttachments.push({ id: "B", kind: "context" }); f.added({ requestDispatched: true }); return { messageResult: { status: "queued" } }; } });
   await f.run(); assert.equal(f.attachments.mcpAppModelContextAttachments[0].id, "B"); assert.equal(f.clears(), 1); assert.equal(f.retained(), undefined);
 });
@@ -132,8 +132,8 @@ test("attachment-only edit after clear prevents failure restoration over the new
   await f.run(); assert.equal(f.text(), ""); assert.equal(f.restores(), 0); assert.equal(f.attachments.mcpAppModelContextAttachments[0].id, "B"); assert.equal(f.retained(), undefined);
 });
 test("an older retention callback cannot abandon a newer same-thread owner", () => {
-  const f = fixture(), releaseA = f.context.D9n(f.scope);
-  f.edit("B"); const releaseB = f.context.D9n(f.scope), ownerB = f.retained();
+  const f = fixture(), releaseA = f.context.Fnr(f.scope);
+  f.edit("B"); const releaseB = f.context.Fnr(f.scope), ownerB = f.retained();
   assert.equal(releaseA(true, false), false); assert.equal(f.retained(), ownerB);
   assert.equal(releaseA(false, false), false); assert.equal(f.retained(), ownerB);
   assert.equal(releaseB(true, false), false); assert.equal(f.retained(), undefined); assert.equal(f.text(), "B");
@@ -161,18 +161,18 @@ test("existing current-submission guard still blocks superseded submission", asy
 });
 test("snapshot detects app selection changes", () => {
   const f = fixture(), snapshot = f.context.__azraelComposerSnapshot(f.scope, f.controller);
-  f.atoms.set("hU", [{ id: "B" }]); assert.equal(f.context.__azraelComposerMatches(f.scope, f.controller, snapshot), false);
+  f.atoms.set("rW", [{ id: "B" }]); assert.equal(f.context.__azraelComposerMatches(f.scope, f.controller, snapshot), false);
 });
 
 test("locally held follow-ups remain visible during the optimistic send window", () => {
   let selector;
   function visit(node) {
-    if (ts.isBinaryExpression(node) && node.left.getText(ast) === "ela") selector = node.right.arguments[1].getText(ast);
+    if (ts.isBinaryExpression(node) && node.left.getText(Cst) === "Rda" && ts.isCallExpression(node.right) && node.right.arguments.length > 1 && ts.isArrowFunction(node.right.arguments[1])) selector = node.right.arguments[1].getText(Cst);
     ts.forEachChild(node, visit);
   }
-  visit(ast);
+  visit(Cst);
   assert.ok(selector, "pinned queue visibility selector exists");
-  const select = vm.runInNewContext(`(${selector})`, { WX: "messages", yRr: "admitted", $ca: "elapsed" });
+  const select = pm.runInNewContext(`(${selector})`, { CQ: "messages", uBr: "admitted", Lda: "elapsed" });
   for (const message of [
     { id: "submitted", submission: { status: "pending" } },
     { id: "submitted", submission: { status: "sending" } },
@@ -199,9 +199,9 @@ test("locally held follow-ups remain visible during the optimistic send window",
 });
 test("pinned transform fails closed for missing, repeated and partial anchors", () => {
   for (const version of [1, 2]) assert.throws(() => injectComposerDraft(original + `/*azrael-composer-draft-v${version}*/`), /Outdated/);
-  assert.throws(() => injectComposerDraft(original.replace("async function uua({", "async function changed({")), /anchor/);
-  assert.throws(() => injectComposerDraft(original + "async function uua({"), /anchor/);
-  assert.throws(() => injectComposerDraft(transformed.replace("__azraelClear(nt)", "l(nt)")), /partial/);
+  assert.throws(() => injectComposerDraft(original.replace("async function Jfa({", "async function changed({")), /anchor/);
+  assert.throws(() => injectComposerDraft(original + "async function Jfa({"), /anchor/);
+  assert.throws(() => injectComposerDraft(transformed.replace("__azraelClear(st)", "l(st)")), /partial/);
   assert.throws(() => injectComposerDraft(transformed + MARKER), /partial/);
   assert.equal(injectComposerDraft(transformed).count, 0);
 });
@@ -209,5 +209,5 @@ test("namespace integrates draft protection and fingerprints its source for cach
   const host = require("./namespace-azrael-host.cjs");
   const result = host.transformAsset(original, COMPOSER_DRAFT_ASSET, "composer.js", ts);
   assert.equal(result.asset.composerDraftEdits, 1);
-  assert.equal(host.getTransformRules()["inject-composer-draft.cjs"], crypto.createHash("sha256").update(fs.readFileSync(path.join(__dirname, "inject-composer-draft.cjs"))).digest("hex"));
+  assert.equal(host.getTransformRules()["inject-composer-draft.cjs"], crypto.createHash("sha256").update(hs.readFileSync(path.join(__dirname, "inject-composer-draft.cjs"))).digest("hex"));
 });

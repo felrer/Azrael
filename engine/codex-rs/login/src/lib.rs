@@ -8,6 +8,11 @@ pub use auth::WorkspaceRoutingResolver;
 pub use auth::WorkspaceRoutingSession;
 
 mod azrael_admission;
+mod azrael_quota_recovery;
+pub use azrael_admission::AzraelTaskAuthLease;
+pub use azrael_quota_recovery::AzraelQuotaRecovery;
+pub use azrael_quota_recovery::AzraelQuotaRecoveryContext;
+pub use azrael_quota_recovery::AzraelQuotaRecoveryOutcome;
 mod callback_params;
 mod device_code_auth;
 mod gateway_auth;

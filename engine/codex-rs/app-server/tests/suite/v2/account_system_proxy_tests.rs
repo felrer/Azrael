@@ -180,6 +180,7 @@ async fn browser_login_bootstraps_through_system_proxy() -> Result<()> {
         .build()
         .await?;
     assert!(!config.respect_system_proxy);
+    let state_db = codex_rollout::state_db::try_init(&config).await?;
     let mut client = in_process::start(InProcessStartArgs {
         arg0_paths: Arg0DispatchPaths::default(),
         config: Arc::new(config),
@@ -191,7 +192,7 @@ async fn browser_login_bootstraps_through_system_proxy() -> Result<()> {
         thread_config_loader: Arc::new(codex_config::NoopThreadConfigLoader),
         feedback: CodexFeedback::new(),
         log_db: None,
-        state_db: None,
+        state_db: Some(state_db),
         environment_manager: Arc::new(EnvironmentManager::default_for_tests()),
         config_warnings: Vec::new(),
         session_source: SessionSource::Cli,

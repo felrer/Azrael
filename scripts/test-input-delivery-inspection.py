@@ -19,6 +19,29 @@ spec.loader.exec_module(inspection)
 
 
 class InputInspectionTests(unittest.TestCase):
+    def test_ui_disappearance_record_hashes_ids_and_omits_payload(self):
+        thread = "01a10677-33be-7521-badb-e3f96abd7577"
+        client = "01a109ca-898c-7601-8cf9-31169588603c"
+        record = inspection.ui_fields("2026-10-05 15:00:00.000 [warning] [azrael-ui-input] " + json.dumps({
+            "event": "state_removed", "threadId": thread, "clientId": client,
+            "beforeRepresentationCount": 1, "afterRepresentationCount": 0,
+            "beforeKinds": ["params", "user"], "afterKinds": [], "mutationKind": "optimized_history",
+            "historyInvalidationType": "entityKeys", "shouldHideCallback": None,
+            "inputClassifier": False, "linkedOpeningSteering": True,
+            "input": "PRIVATE_INPUT_CANARY", "receiptAccepted": "PRIVATE_INPUT_CANARY",
+        }))
+        self.assertEqual(record["threadRef"], hashlib.sha256(thread.encode()).hexdigest()[:16])
+        self.assertEqual(record["clientMessageHash"], hashlib.sha256(client.encode()).hexdigest())
+        self.assertEqual(record["beforeRepresentationCount"], 1)
+        self.assertEqual(record["beforeKinds"], ["params", "user"])
+        self.assertEqual(record["mutationKind"], "optimized_history")
+        self.assertIsNone(record["shouldHideCallback"])
+        self.assertTrue(record["linkedOpeningSteering"])
+        self.assertNotIn(thread, json.dumps(record))
+        self.assertNotIn(client, json.dumps(record))
+        self.assertNotIn("PRIVATE_INPUT_CANARY", json.dumps(record))
+        self.assertEqual(inspection.ui_fields('[azrael-ui-input] {"event":[]}'), {})
+
     def test_host_record_omits_payload_and_unrecognized_values(self):
         private = "sk-private-diagnostic-sentinel"
         fields = inspection.host_fields("2026-10-04 20:00:00.000 [info] " + json.dumps({
@@ -72,6 +95,24 @@ class InputInspectionTests(unittest.TestCase):
             self.assertEqual(output["events"][0]["event"], "response_route")
             self.assertNotIn("private", result.stdout)
             self.assertNotIn(thread, result.stdout)
+            self.assertEqual(database.read_bytes(), before)
+            ui = root / "Azrael.log"
+            ui.write_text(local + " [warning] [azrael-ui-input] " + json.dumps({
+                "event": "opening_suppressed", "threadId": thread,
+                "clientId": "01a109ca-898c-7601-8cf9-31169588603c", "inputHidden": True,
+                "input": "private-ui-body", "beforeKinds": ["params", "private-kind"],
+            }) + "\n", encoding="utf-8")
+            combined = subprocess.run([sys.executable, "-B", str(SCRIPT), "--state", str(root), "--thread", thread,
+                "--host-log", str(host), "--ui-log", str(ui), "--events", "10"],
+                capture_output=True, text=True, encoding="utf-8")
+            self.assertEqual(combined.returncode, 0, combined.stderr)
+            combined_output = json.loads(combined.stdout)
+            self.assertEqual(combined_output["matchedEvents"], 4)
+            ui_event = next(event for event in combined_output["events"] if event["source"] == "ui")
+            self.assertTrue(ui_event["inputHidden"])
+            self.assertNotIn("beforeKinds", ui_event)
+            self.assertNotIn("private", combined.stdout)
+            self.assertNotIn(thread, combined.stdout)
             self.assertEqual(database.read_bytes(), before)
 
 

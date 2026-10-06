@@ -1,7 +1,8 @@
 use super::*;
 use base64::Engine;
 use chrono::Utc;
-use codex_http_client::{DestinationPolicy, NetworkPolicyController};
+use codex_http_client::DestinationPolicy;
+use codex_http_client::NetworkPolicyController;
 use serde_json::json;
 use tempfile::tempdir;
 
@@ -332,6 +333,7 @@ async fn profiles_metadata_is_sanitized_and_listed() {
             "workspaceAccountId": "workspace-1",
             "userId": "user-1",
             "planType": "team",
+            "autoSwitchAllowed": false,
         })
     );
     assert!(!profile.auth_home().join("auth.json").exists());
@@ -571,4 +573,34 @@ async fn profiles_busy_logout_with_revoke_preserves_credentials_and_metadata() {
         .expect("credential clearing succeeds after competing owner releases");
     assert!(profile.manager().auth().await.is_none());
     assert_eq!(profile.info().expect("metadata remains after logout"), info);
+}
+
+#[tokio::test]
+async fn automatic_switch_permission_defaults_off_and_persists_by_identity() {
+    let root = tempdir().unwrap();
+    let template = template(root.path()).await;
+    let store = AzraelProfileStore::new_ephemeral(root.path().join("accounts"));
+    let first = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let alias = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let other = finalized_profile(&store, &template, "workspace-1", "user-2").await;
+    assert!(
+        store
+            .list()
+            .unwrap()
+            .iter()
+            .all(|info| !info.auto_switch_allowed)
+    );
+    store.set_auto_switch_allowed(first.id(), true).unwrap();
+    let reopened = AzraelProfileStore::new_ephemeral(root.path().join("accounts"));
+    for info in reopened.list().unwrap() {
+        assert_eq!(info.auto_switch_allowed, info.id != other.id());
+    }
+    reopened.set_auto_switch_allowed(alias.id(), false).unwrap();
+    assert!(
+        store
+            .list()
+            .unwrap()
+            .iter()
+            .all(|info| !info.auto_switch_allowed)
+    );
 }

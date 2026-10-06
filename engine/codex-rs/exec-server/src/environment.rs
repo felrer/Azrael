@@ -1826,13 +1826,21 @@ mod tests {
     #[tokio::test]
     async fn default_environment_has_ready_local_executor() {
         let environment = Environment::default_for_tests();
+        let argv = if cfg!(windows) {
+            vec!["cmd.exe", "/d", "/c", "exit", "0"]
+        } else {
+            vec!["true"]
+        }
+        .into_iter()
+        .map(str::to_string)
+        .collect();
 
         let response = environment
             .get_exec_backend()
             .start(crate::ExecParams {
                 metadata: Default::default(),
                 process_id: ProcessId::from("default-env-proc"),
-                argv: vec!["true".to_string()],
+                argv,
                 cwd: PathUri::from_host_native_path(
                     std::env::current_dir().expect("read current dir"),
                 )

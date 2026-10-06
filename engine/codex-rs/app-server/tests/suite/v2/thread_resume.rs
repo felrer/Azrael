@@ -97,6 +97,7 @@ use codex_protocol::models::PermissionProfile;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::openai_models::ReasoningEffort;
 use codex_protocol::protocol::AgentMessageEvent;
+use codex_protocol::protocol::ComputerUseMode;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::ImageGenerationEndEvent;
 use codex_protocol::protocol::McpInvocation;
@@ -6117,6 +6118,89 @@ async fn thread_resume_supports_history_and_overrides() -> Result<()> {
     assert_eq!(resumed.preview, history_text);
     assert_eq!(resumed.status, ThreadStatus::Idle);
 
+    Ok(())
+}
+
+#[tokio::test]
+async fn thread_resume_supplied_history_preserves_recorded_mode_in_both_storage_formats()
+-> Result<()> {
+    let server = create_mock_responses_server_repeating_assistant("Done").await;
+    for history_mode in [ThreadHistoryMode::Legacy, ThreadHistoryMode::Paginated] {
+        for computer_use_mode in [None, Some(ComputerUseMode::SelectedWindow)] {
+            let codex_home = TempDir::new()?;
+            mock_responses_config(&server.uri()).write(codex_home.path())?;
+            let create_rollout = match history_mode {
+                ThreadHistoryMode::Legacy => create_fake_rollout,
+                ThreadHistoryMode::Paginated => create_fake_paginated_rollout,
+            };
+            let thread_id = create_rollout(
+                codex_home.path(),
+                "2025-01-05T12-00-00",
+                "2025-01-05T12:00:00Z",
+                "Recorded history",
+                Some("mock_provider"),
+                /*git_info*/ None,
+            )?;
+            let path = rollout_path(codex_home.path(), "2025-01-05T12-00-00", &thread_id);
+            let mut lines = std::fs::read_to_string(&path)?
+                .lines()
+                .map(serde_json::from_str::<serde_json::Value>)
+                .collect::<Result<Vec<_>, _>>()?;
+            lines[0]["payload"]["computer_use_mode"] = serde_json::to_value(computer_use_mode)?;
+            let contents = lines
+                .into_iter()
+                .map(|line| line.to_string())
+                .collect::<Vec<_>>()
+                .join("\n");
+            std::fs::write(&path, format!("{contents}\n"))?;
+
+            let mut mcp = TestAppServer::builder()
+                .with_codex_home(codex_home.path())
+                .build_initialized()
+                .await?;
+            let history = vec![ResponseItem::Message {
+                id: None,
+                role: "user".to_string(),
+                content: vec![ContentItem::InputText {
+                    text: "Supplied history".to_string(),
+                }],
+                phase: None,
+                internal_chat_message_metadata_passthrough: None,
+            }];
+            if computer_use_mode.is_none() {
+                let request_id = mcp
+                    .send_thread_resume_request(ThreadResumeParams {
+                        thread_id: thread_id.clone(),
+                        history: Some(history.clone()),
+                        computer_use_mode: Some(ComputerUseMode::SelectedWindow),
+                        ..Default::default()
+                    })
+                    .await?;
+                let error = timeout(
+                    DEFAULT_READ_TIMEOUT,
+                    mcp.read_stream_until_error_message(RequestId::Integer(request_id)),
+                )
+                .await??;
+                assert_eq!(error.error.code, -32600);
+                assert!(error.error.message.contains("computerUseMode is immutable"));
+            }
+            let request_id = mcp
+                .send_thread_resume_request(ThreadResumeParams {
+                    thread_id,
+                    history: Some(history),
+                    model: Some("mock-model".to_string()),
+                    model_provider: Some("mock_provider".to_string()),
+                    ..Default::default()
+                })
+                .await?;
+            let resumed: ThreadResumeResponse =
+                timeout(DEFAULT_READ_TIMEOUT, mcp.read_response(request_id)).await??;
+            assert_eq!(resumed.computer_use_mode, computer_use_mode);
+            assert_eq!(resumed.model_provider, "mock_provider");
+            assert_eq!(resumed.thread.preview, "Supplied history");
+            assert_eq!(resumed.thread.status, ThreadStatus::Idle);
+        }
+    }
     Ok(())
 }
 

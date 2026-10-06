@@ -1,6 +1,7 @@
 use std::collections::HashMap;
 use std::collections::VecDeque;
 use std::future::Future;
+use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::Arc;
@@ -8,6 +9,7 @@ use std::sync::Arc;
 use codex_app_server_protocol::ClientRequestSerializationScope;
 use codex_diagnostics::Gauge;
 use codex_diagnostics::GaugeGuard;
+use futures::FutureExt;
 use futures::stream::FuturesUnordered;
 use futures::stream::StreamExt;
 use tokio::sync::Mutex;
@@ -112,6 +114,7 @@ impl RequestSerializationQueueKey {
 pub(crate) struct QueuedInitializedRequest {
     gate: Option<Arc<ConnectionRpcGate>>,
     future: BoxFutureUnit,
+    panic_handler: Option<BoxFutureUnit>,
 }
 
 impl QueuedInitializedRequest {
@@ -122,6 +125,7 @@ impl QueuedInitializedRequest {
         Self {
             gate: Some(gate),
             future: Box::pin(future),
+            panic_handler: None,
         }
     }
 
@@ -129,17 +133,55 @@ impl QueuedInitializedRequest {
         Self {
             gate: None,
             future: Box::pin(future),
+            panic_handler: None,
         }
     }
 
+    pub(crate) fn with_panic_handler(
+        mut self,
+        handler: impl Future<Output = ()> + Send + 'static,
+    ) -> Self {
+        self.panic_handler = Some(Box::pin(handler));
+        self
+    }
+
     pub(crate) async fn run(self) {
-        let Self { gate, future } = self;
-        match gate {
-            Some(gate) => gate.run(future).await,
-            None => future.await,
+        let Self {
+            gate,
+            future,
+            panic_handler,
+        } = self;
+        // Own the gated future inside this boundary. Its cleanup (including gate
+        // tokens and admission permits) finishes before fallback or queue advancement.
+        let panicked = {
+            let execution = async move {
+                match gate {
+                    Some(gate) => gate.run(future).await,
+                    None => future.await,
+                }
+            };
+            AssertUnwindSafe(execution).catch_unwind().await.is_err()
+        };
+        if panicked {
+            tracing::error!(
+                stage = "request.handler_panicked",
+                "initialized request handler panicked"
+            );
+            if let Some(handler) = panic_handler
+                && AssertUnwindSafe(handler).catch_unwind().await.is_err()
+            {
+                tracing::error!(
+                    stage = "request.panic_fallback_panicked",
+                    "request panic fallback panicked"
+                );
+            }
         }
     }
 }
+
+#[cfg(test)]
+#[path = "request_serialization_panic_tests.rs"]
+mod panic_tests;
 
 struct QueuedSerializedRequest {
     access: RequestSerializationAccess,

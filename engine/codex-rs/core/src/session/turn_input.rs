@@ -222,6 +222,23 @@ pub(super) async fn handle(
             TurnInputMode::Steer { expected_turn_id }
                 if *expected_turn_id == origin && session.active_turn.lock().await.is_none() =>
             {
+                // This idle steer becomes a start. Check admission while holding the
+                // reservation guard, before superseding or accepting the input.
+                let config = session.get_config().await;
+                let multi_agent_version = session
+                    .multi_agent_version()
+                    .unwrap_or_else(|| config.multi_agent_version_from_features());
+                let session_source = session
+                    .state
+                    .lock()
+                    .await
+                    .session_configuration
+                    .session_source
+                    .clone();
+                session
+                    .services
+                    .agent_control
+                    .check_turn_admission(multi_agent_version, &session_source)?;
                 mode = TurnInputMode::StartOrSteer;
             }
             TurnInputMode::Steer { expected_turn_id } if *expected_turn_id != origin => {

@@ -1,17 +1,21 @@
 "use strict";
 
-const SESSION_LINK_ASSETS = [
+const COMPAT_SESSION_LINK_ASSETS = [
   "out/extension.js",
   "webview/assets/app-initial-4bd9e54bcd58.js",
   "webview/assets/app-initial-9cbfb5c07b41.js",
   "webview/assets/chatgpt-conversation-turn-content-8f307c03dd18.js",
-  "webview/assets/app-initial-7d34126aa1b5.js",
-  "webview/assets/app-initial-8b38f95f65ff.js",
-  "webview/assets/chatgpt-conversation-turn-content-3b059e762d69.js",
+  "webview/assets/app-initial-5120fa5fe295.js",
+  "webview/assets/app-initial-532d60c9b397.js",
+  "webview/assets/chatgpt-conversation-turn-content-4de92774cc27.js",
 ];
+// Namespace and cache contracts list only assets in the active pinned UI.
+// Legacy assets remain supported for migration validation.
+const SESSION_LINK_ASSETS = [COMPAT_SESSION_LINK_ASSETS[0], ...COMPAT_SESSION_LINK_ASSETS.slice(4)];
+const LEGACY_SESSION_LINK_ASSETS = [COMPAT_SESSION_LINK_ASSETS[0], ...COMPAT_SESSION_LINK_ASSETS.slice(1, 4)];
 const MARKER = "/*azrael-local-session-links-v1*/";
 function injectSessionLinks(text, relativePath) {
-  if (!SESSION_LINK_ASSETS.includes(relativePath)) return { text, count: 0 };
+  if (!COMPAT_SESSION_LINK_ASSETS.includes(relativePath)) return { text, count: 0 };
   if (text.includes(MARKER)) return { text, count: 0 };
   let count = 0;
   function once(before, after) {
@@ -24,14 +28,14 @@ function injectSessionLinks(text, relativePath) {
     const current = text.includes("let y=new ZN(t.extensionUri,u);e.push(y);");
     const connection = current ? "ZN" : "XN", api = current ? "kt" : "Mt";
     once(`let y=new ${connection}(t.extensionUri,u);e.push(y);`, `let y=new ${connection}(t.extensionUri,u);e.push(y);e.push(require("./session-links.cjs").registerMigrationCommand(${api},y));`);
-  } else if ([SESSION_LINK_ASSETS[1], SESSION_LINK_ASSETS[4]].includes(relativePath)) {
-    const current = relativePath === SESSION_LINK_ASSETS[4];
-    const name = current ? "f5n" : "B$n", host = current ? "oh" : "eh", copy = current ? "bj" : "qA", decorate = current ? "vW" : "yW";
+  } else if ([COMPAT_SESSION_LINK_ASSETS[1], COMPAT_SESSION_LINK_ASSETS[4]].includes(relativePath)) {
+    const current = relativePath === COMPAT_SESSION_LINK_ASSETS[4];
+    const name = current ? "m5n" : "B$n", host = current ? "ah" : "eh", copy = current ? "hj" : "qA", decorate = current ? "_W" : "yW";
     once(`function ${name}(e,t=${host}){if(!e)return;let n=\`codex://threads/\${e}\`;${copy}(t===\`local\`?n:${decorate}(n,t))}`,
       `function ${name}(e,t=${host}){if(!e)return;let n=t===\`local\`?\`azrael://threads/\${e}\`:\`codex://threads/\${e}\`;${copy}(t===\`local\`?n:${decorate}(n,t))}`);
-  } else if ([SESSION_LINK_ASSETS[2], SESSION_LINK_ASSETS[5]].includes(relativePath)) {
-    const current = relativePath === SESSION_LINK_ASSETS[5];
-    const literal = current ? "Mf" : "xu", parser = current ? "Yut" : "Xlt", classifier = current ? "tlt" : "cct", handoff = current ? "YIn" : "kPn", template = current ? "ZIn" : "jPn", markdown = current ? "Zre" : "tue";
+  } else if ([COMPAT_SESSION_LINK_ASSETS[2], COMPAT_SESSION_LINK_ASSETS[5]].includes(relativePath)) {
+    const current = relativePath === COMPAT_SESSION_LINK_ASSETS[5];
+    const literal = current ? "kf" : "xu", parser = current ? "Hut" : "Xlt", classifier = current ? "elt" : "cct", handoff = current ? "zIn" : "kPn", template = current ? "VIn" : "jPn", markdown = current ? "Zre" : "tue";
     once(`host:${literal}(\`threads\`),protocol:${literal}(\`codex:\`)`, `host:${literal}(\`threads\`),protocol:${literal}(\`azrael:\`)`);
     once('if(n.protocol!==`codex:`||n.host!==`threads`)return null;',
       'if((n.protocol!==`azrael:`&&!(n.protocol===`codex:`&&n.searchParams.has(`hostId`)&&n.searchParams.get(`hostId`)!==`local`&&n.searchParams.get(`hostId`)!==``))||n.host!==`threads`||n.username!==``||n.password!==``||n.port!==``||(n.protocol===`azrael:`&&((n.searchParams.has(`hostId`)&&n.searchParams.get(`hostId`)!==`local`)||n.searchParams.has(`threadAccess`))))return null;');
@@ -58,4 +62,4 @@ function injectSessionLinks(text, relativePath) {
   }
   return { text: `${MARKER}${text}`, count };
 }
-module.exports = { SESSION_LINK_ASSETS, MARKER, injectSessionLinks };
+module.exports = { SESSION_LINK_ASSETS, LEGACY_SESSION_LINK_ASSETS, MARKER, injectSessionLinks };

@@ -27,6 +27,17 @@ pub(crate) fn internal_error(message: impl Into<String>) -> JSONRPCErrorError {
     error(INTERNAL_ERROR_CODE, message)
 }
 
+pub(crate) fn handler_panicked_error() -> JSONRPCErrorError {
+    JSONRPCErrorError {
+        code: INTERNAL_ERROR_CODE,
+        message: "Request handler panicked; request outcome is unknown".to_owned(),
+        data: Some(serde_json::json!({
+            "requestOutcome": "unknown",
+            "reason": "handlerPanicked",
+        })),
+    }
+}
+
 fn error(code: i64, message: impl Into<String>) -> JSONRPCErrorError {
     JSONRPCErrorError {
         code,

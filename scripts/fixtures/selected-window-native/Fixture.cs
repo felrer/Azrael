@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Web.Script.Serialization;
 using System.Windows.Forms;
@@ -30,12 +31,27 @@ internal sealed class TickCanvas : Control {
         e.Graphics.DrawString("Owned selected-window tick: " + Tick, Font, Brushes.White, 10, 35);
     }
 }
+// Records messages processed by this owned control, never injects physical/global input.
+internal sealed class NativeKeyTextBox : TextBox {
+    internal readonly List<object> Messages = new List<object>();
+    // A deliberately willing message receiver; results do not establish Firefox key behavior.
+    protected override bool IsInputKey(Keys keyData) { return true; }
+    protected override void WndProc(ref Message message) {
+        if (message.Msg == 0x100 || message.Msg == 0x101 || message.Msg == 0x102)
+            Messages.Add(new { message=message.Msg, key=message.WParam.ToInt64() });
+        base.WndProc(ref message);
+    }
+}
 internal static class Fixture {
+    [DllImport("user32.dll")] static extern uint GetClipboardSequenceNumber();
     static readonly JavaScriptSerializer Json = new JavaScriptSerializer();
     static readonly object OutputLock = new object();
     static NonActivatingForm form, cover;
     static TickCanvas canvas;
     static TextBox value;
+    static NativeKeyTextBox keys;
+    static TextBox password;
+    static bool coverAll;
     static CheckBox toggle;
     static ListBox list, scroll;
     static TreeView tree;
@@ -52,6 +68,8 @@ internal static class Fixture {
             {"toggled",toggle.Checked}, {"toggles",toggles}, {"selectedIndex",list.SelectedIndex}, {"selections",selections},
             {"treeExpanded",tree.Nodes[0].IsExpanded}, {"expansions",expansions},
             {"scrollTop",scroll.TopIndex}, {"scrollChanges",scrollChanges}, {"coverVisible",cover.Visible},
+            {"coverAll",coverAll}, {"keyValue",keys.Text}, {"keyMessages",keys.Messages.ToArray()},
+            {"clipboardSequence",GetClipboardSequenceNumber()},
             {"widthPx",form.Width}, {"heightPx",form.Height}
         };
     }
@@ -82,16 +100,17 @@ internal static class Fixture {
             object result;
             if (command == "state") result = State();
             else if (command == "minimize") { form.WindowState = FormWindowState.Minimized; result = State(); }
-            else if (command == "cover") { if (!cover.Visible) cover.Show(form); PositionCover(); result = State(); }
+            else if (command == "cover" || command == "coverAll") { coverAll = command == "coverAll"; if (!cover.Visible) cover.Show(form); PositionCover(); result = State(); }
             else if (command == "uncover") { cover.Hide(); result = State(); }
             else if (command == "verifyImage") result = VerifyImage((string)input["path"]);
+            else if (command == "prepareKeys") { keys.Text = (string)input["value"]; keys.Select(keys.Text.Length,0); keys.Messages.Clear(); result = State(); }
             else if (command == "shutdown") { Write(new { id=id, result=new { shutdown=true } }); cover.Close(); form.Close(); return; }
             else throw new InvalidOperationException("Unknown fixture command");
             Write(new { id=id, result=result });
         } catch (Exception error) { Write(new { id=id, error=error.Message }); }
     }
     static void PositionCover() {
-        cover.Bounds = new Rectangle(form.PointToScreen(canvas.Location),canvas.Size);
+        cover.Bounds = coverAll ? form.Bounds : new Rectangle(form.PointToScreen(canvas.Location),canvas.Size);
     }
     [STAThread]
     static void Main(string[] args) {
@@ -106,6 +125,9 @@ internal static class Fixture {
         button.Click += delegate { invokes++; };
         value = new TextBox { AccessibleName="Fixture Value", Bounds=new Rectangle(20,165,260,28) };
         value.TextChanged += delegate { valueChanges++; };
+        keys = new NativeKeyTextBox { Name="fixtureKeys", AccessibleName="Fixture Keys", Bounds=new Rectangle(350,350,230,70), Multiline=true, AcceptsReturn=true, AcceptsTab=true };
+        password = new TextBox { Name="fixturePassword", AccessibleName="Fixture Password", Bounds=new Rectangle(350,440,230,28), UseSystemPasswordChar=true, Text="fixture-secret" };
+        var disabled = new Button { Name="fixtureDisabled", AccessibleName="Fixture Disabled", Text="Disabled", Enabled=false, Bounds=new Rectangle(350,485,180,30) };
         toggle = new CheckBox { Text="Fixture Toggle", AccessibleName="Fixture Toggle", Bounds=new Rectangle(20,205,200,30) };
         toggle.CheckedChanged += delegate { toggles++; };
         list = new ListBox { AccessibleName="Fixture Selection", Bounds=new Rectangle(20,250,200,80) };
@@ -117,7 +139,7 @@ internal static class Fixture {
         scroll = new ListBox { AccessibleName="Fixture Scroll List", Bounds=new Rectangle(350,120,230,190) };
         for (int i=0;i<60;i++) scroll.Items.Add("Fixture Scroll Row " + i);
         scroll.SelectedIndexChanged += delegate { scrollChanges++; };
-        form.Controls.AddRange(new Control[] {canvas,button,value,toggle,list,tree,scroll});
+        form.Controls.AddRange(new Control[] {canvas,button,value,toggle,list,tree,scroll,keys,password,disabled});
         cover = new NonActivatingForm { FormBorderStyle=FormBorderStyle.None, BackColor=TickCanvas.Cover, ShowInTaskbar=false };
         form.Move += delegate { if (cover.Visible) PositionCover(); };
         form.Resize += delegate { if (cover.Visible && form.WindowState != FormWindowState.Minimized) PositionCover(); };

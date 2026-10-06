@@ -171,7 +171,7 @@ function selectedConfig(sourceText, destinationText, manifest, replacements, own
       command: path.join(ownedRuntime.directory, "node.exe"),
       args: [ownedRuntime.windowControl.mcpScript],
       env: { CODEX_HOME: ownedRuntime.home },
-      enabled: false,
+      enabled: true,
     };
   } else if (ownedRuntime) {
     delete merged.mcp_servers.azrael_window;
@@ -343,6 +343,7 @@ function main(argv = process.argv.slice(2)) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (manifest.schema !== 1) fail("Unsupported Codex environment manifest schema.");
   if (computerUseDirectory && manifest.personalSkills.some((skill) => skill.name === "computer-use")) fail("Computer Use skill has conflicting snapshot ownership.");
+  if (windowControl && manifest.personalSkills.some((skill) => skill.name === "window-use")) fail("Window Use skill has conflicting snapshot ownership.");
   const copyGlobalInstructions = manifest.copyGlobalInstructions !== false;
   for (const name of [...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name), ...manifest.personalSkills.map((skill) => skill.name)]) {
     if (!/^[A-Za-z0-9_-]+$/.test(name)) fail(`Invalid managed name: ${name}`);
@@ -362,6 +363,7 @@ function main(argv = process.argv.slice(2)) {
     ...[...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name)].map((name) => path.join(stateRoot, "agents", `${name}.toml`)),
     ...manifest.personalSkills.map((skill) => path.join(stateRoot, "skills", skill.name)),
     ...(computerUseDirectory ? [path.join(stateRoot, "skills", "computer-use")] : []),
+    ...(windowControl ? [path.join(stateRoot, "skills", "window-use")] : []),
     ...[...sourceMarketplaces.keys()].map((name) => localMarketplacePath(stateRoot, name)),
     ...enabledPlugins(sourceConfig).map((plugin) => { const [name, marketplace] = plugin.split("@"); return path.join(stateRoot, "plugins", "cache", marketplace, name); }),
     receiptPath,
@@ -444,7 +446,7 @@ function main(argv = process.argv.slice(2)) {
       const instructions = path.join(skillDirectory, "SKILL.md");
       const visibleDesktopNote = "## Azrael foreground mode visible desktop requirement\n\n" +
         "This requirement applies to foreground Computer Use mode. " +
-        (windowControl ? "Selected-window mode follows docs/selected-window.md and uses azrael_window tools. " : "") +
+        (windowControl ? "Window Use is a separate skill using azrael_window tools. " : "") +
         "Activate the exact selected target window and obtain a fresh observation before capture or input. " +
         "Verify foreground focus before typing and verify that each returned screenshot shows the selected target's content. " +
         "Discard unexpected screenshot content and pause if physical user activity or an unexpected other foreground window is observed. " +
@@ -472,6 +474,15 @@ function main(argv = process.argv.slice(2)) {
       skillHashes["computer-use"] = directoryHash(skillDirectory);
       runtimeEvidence.computerUse = { path: computerUseDirectory, sha256: ownedSourceStates.get(computerUseDirectory).sha256,
         manifestSha256: fileHash(path.join(computerUseDirectory, "manifest.json")) };
+      if (windowControl) {
+        const windowSkillSource = path.join(computerUseDirectory, 'skills', 'window-use');
+        assertFile(path.join(windowSkillSource, 'SKILL.md'), 'owned Window Use skill');
+        const windowSkillDestination = path.join(skillsDirectory, 'window-use');
+        copyDirectory(windowSkillSource, windowSkillDestination);
+        const windowInstructions = path.join(windowSkillDestination, 'SKILL.md');
+        computerUseFiles.set(path.join(stateRoot, 'skills', 'window-use', 'SKILL.md'), fs.readFileSync(windowInstructions));
+        skillHashes['window-use'] = directoryHash(windowSkillDestination);
+      }
     }
     for (const skill of manifest.personalSkills) {
       const source = skill.source === "shared" ? path.join(sharedSkills, skill.name) : path.join(sourceHome, "skills", skill.name);

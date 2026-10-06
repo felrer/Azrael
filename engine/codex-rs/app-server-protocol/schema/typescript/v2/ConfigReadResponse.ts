@@ -6,4 +6,4 @@ import type { Config } from "./Config";
 import type { ConfigLayer } from "./ConfigLayer";
 import type { ConfigLayerMetadata } from "./ConfigLayerMetadata";
 
-export type ConfigReadResponse = { contextPolicies?: Array<ContextPolicy> | null, config: Config, origins: { [key in string]?: ConfigLayerMetadata }, layers: Array<ConfigLayer> | null, };
+export type ConfigReadResponse = { contextPolicies?: Array<ContextPolicy>, config: Config, origins: { [key in string]?: ConfigLayerMetadata }, layers: Array<ConfigLayer> | null, };

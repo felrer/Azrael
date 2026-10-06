@@ -30,7 +30,9 @@ use tokio_util::sync::CancellationToken;
 const MAX_SUMMARY_BYTES: usize = 8_192;
 const SUMMARY_REQUEST: &str = "Prepare a plain-text handoff for another provider. Summarize the user's objective, constraints, decisions, completed work, exact relevant file paths, validation evidence, and remaining work. Do not perform the task or call tools. Distinguish verified facts from uncertainty. Return only the summary, at most 6000 UTF-8 bytes.";
 fn quota_warning(source: &str, target: &str) -> String {
-    format!("{source} usage is exhausted or unavailable for this conversation. Continuing with {target} using saved public messages and tool results only; private reasoning was excluded, encrypted context was omitted and some earlier details may be missing.")
+    format!(
+        "{source} usage is exhausted or unavailable for this conversation. Continuing with {target} using saved public messages and tool results only; private reasoning was excluded, encrypted context was omitted and some earlier details may be missing."
+    )
 }
 
 fn provider_id<'a>(model: &'a str, native_id: &'a str) -> &'a str {
@@ -66,7 +68,7 @@ fn quota_exhausted(error: &CodexErr) -> bool {
     )
 }
 
-fn public_history(items: &[ResponseItemEnvelope]) -> Vec<ResponseItemEnvelope> {
+pub(super) fn public_history(items: &[ResponseItemEnvelope]) -> Vec<ResponseItemEnvelope> {
     let mut calls = HashSet::new();
     items
         .iter()
@@ -275,8 +277,7 @@ pub(crate) async fn prepare(
             .await;
             let normalized = history.for_prompt_annotated(&target.model_info().input_modalities);
             let mut projected = public_history(&normalized);
-            projected
-                .push(ContextualUserFragment::into(CompactionSummary::new(&warning)).into());
+            projected.push(ContextualUserFragment::into(CompactionSummary::new(&warning)).into());
             tracing::warn!(
                 event = "provider_handoff_quota_fallback",
                 from = source_provider,

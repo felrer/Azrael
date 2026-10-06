@@ -6,7 +6,7 @@ import test from "node:test";
 
 const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
 const original = api._load;
-const uri = (fsPath: string) => ({ fsPath, toString: () => `file:${fsPath}` });
+const uri = (fsPath: string) => ({ fsPath, scheme: "file", authority: "", path: fsPath.replace(/\\/g, "/"), toString: () => `file:${fsPath}` });
 api._load = function (request, parent, isMain) {
   return request === "vscode" ? { Uri: { joinPath: (root: { fsPath: string }, ...parts: string[]) => uri(path.join(root.fsPath, ...parts)) } } : original.call(this, request, parent, isMain);
 };
@@ -99,6 +99,18 @@ test("subscription authorizes only its current client and exposes local URLs", a
   f.service.dispose();
 });
 
+test("authorized parent roots keep settings webview options stable", async () => {
+  const f = fixture();
+  const options = { localResourceRoots: [f.context.extensionUri] };
+  f.webview.options = options;
+  await f.send("subscribe");
+  assert.equal(f.webview.options, options, "subscription must not reload an authorized webview");
+  assert.equal(f.sent.at(-1).students.length, 100);
+  await f.send("subscribe");
+  assert.equal(f.webview.options, options);
+  f.service.dispose();
+});
+
 test("failed posts, panel closure and service disposal release subscriptions", async () => {
   const f = fixture(); await f.send("subscribe"); f.delivers = false;
   await f.send("setEnabled", true); assert.equal(f.disposedListeners, 1);
@@ -125,7 +137,7 @@ test("changes broadcast to subscribed webviews and packaged integrated assets us
   } finally { fs.existsSync = exists; }
   await integrated.handleEmbedded(other, { type: "azrael-design", clientId: "integrated", action: "subscribe" });
   assert.match(otherSent.at(-1).students[0].url, /webview[\\/]assets[\\/]azrael-students[\\/]1\.png$/);
-  assert(other.options.localResourceRoots.some((root: { fsPath: string }) => root.fsPath.endsWith(path.join("webview", "assets", "azrael-students"))));
+  assert.equal(other.options.localResourceRoots, undefined, "default extension root already permits integrated assets");
   integrated.dispose();
 });
 

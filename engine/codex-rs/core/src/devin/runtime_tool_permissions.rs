@@ -155,7 +155,7 @@ impl PermissionCorrelator {
         let mut merged = params.clone();
         merged
             .as_object_mut()
-            .expect("validated permission params object")
+            .unwrap_or_else(|| panic!("validated permission params object"))
             .insert("toolCall".to_string(), Value::Object(merged_tool));
         Ok(merged)
     }

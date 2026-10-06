@@ -44,9 +44,37 @@ RPC acknowledgement is bounded at 20 seconds. A turn with no observable progress
 
 Receipts use the extension workspace Memento (global Memento for an empty window), with a versioned key and at most 64 tracked threads. Unresolved receipts are not evicted to admit new work. Storage failure fails resume admission closed. The host logs only operation/thread identifiers, phases and safe error categories through a VS Code log output channel. VS Code owns log rotation and storage access. No conversation or tool payload is logged.
 
+### Input delivery diagnostics
+
+Status: `partial`: native phase logging and host request correlation are included in the integrated host. User-message receipt observation and UI visibility collection are source-verified additions; package acceptance and live-window capture for these additions remain pending.
+
+User input diagnosis connects admission and execution to response delivery without recording conversation contents. The native app-server records input request arrival, serialized handler entry, native input-call return, response enqueue and abnormal handler abandonment. Transport response routing is a DEBUG detail. A handler abandonment record identifies cancellation or panic; it observes that boundary without retrying the mutation or recovering its queue.
+
+The host records the actual wire request reference and response receipt, including late replies discarded after its deadline. It also observes incoming user-message started/completed notifications before UI processing. Native and host use the first 16 lowercase hex digits of SHA-256 over the same wire request ID string. Thread, turn and item references use the same hash format; client message identities use full SHA-256 for acceptance-receipt correlation. Fields are fixed stage/outcome labels, identifiers, connection number, numeric RPC code, elapsed time and counts. Request and response bodies, error text, tool arguments, credentials and environment dumps are excluded.
+
+INFO covers the bounded input stages, WARN covers abandonment and failed delivery, and DEBUG covers all response routing. Records use native tracing and the existing VS Code log output, with their existing storage, rotation and retention limits. Missing records under those limits do not establish non-delivery. Diagnostics do not alter account admission, mutation ordering, timeout handling, response results or replay rules.
+
 The packaging transform locates the pinned bridge methods structurally and refuses changed anchors. A small runtime module wraps the existing request boundary and observes normalized incoming messages; the official source copy stays unchanged. Runtime resources and timers are disposed with the integrated extension.
 
+### UI input visibility diagnostics
+
+Status: `partial`: the pinned-function diagnostic hooks are implemented and source-verified; packaged-host and live-window capture remain pending.
+
+RPC acceptance and visible transcript ownership are separate observations. A local queue receipt can suppress a question before a canonical user message is available. Conversation updates can move one client identity between opening input, a server user message and a steering item; that movement is not input loss. The diagnostic compares those representations around both conversation mutation paths and records when the last representation of a client identity disappears. Queue consumption records whether the conversation already recognizes the accepted identity and whether removal persistence succeeds. Transcript projection separately records opening suppression, because a question can remain in conversation state while the projection hides it.
+
+Records use the existing webview `log-message` transport and Azrael log output. Only UUID identifiers, fixed event labels, representation kinds, counts and suppression booleans are allowed. Text, attachments, serialized conversation state, exception payloads and environment data are excluded. Snapshot limits, repeated-state suppression and an event budget bound work and output; skipped diagnostics are counted. Diagnostic failures never change mutation results or replay input. These observations identify a state or projection boundary; they do not by themselves prove the question is absent from the rendered DOM or durable storage.
+
 ## Acceptance
+
+### Parked-root steering and handler failures
+
+Status: `target` for the approved input-delivery fixes.
+
+A steering request whose expected turn matches the parked root reservation may wake that root by starting a new turn. Internal steering submission results distinguish `Started` from `Steered`; both successful cases return the actual owning turn ID through the existing steering response. Capacity admission runs before converting an idle parked-root steer into a start and before superseding its reservation. A mismatched expected turn remains rejected by the existing steering precondition.
+
+Each initialized handler and serialized background job has a panic boundary. Handler unwinding completes before the queue advances, preserving exclusive ordering and shared-read barriers. A failed job is never replayed. Queued work remains available to the queue owner and the queue is removed when drained. An RPC that panics before its response is claimed receives an internal error with `data.requestOutcome = "unknown"` and `data.reason = "handlerPanicked"`; a response already claimed suppresses the fallback error. Panic diagnostics contain fixed labels and request hashes rather than panic payloads.
+
+Host acceptance readback for uncertain start and steer results is owned by [send acknowledgement reconciliation](#send-acknowledgement-reconciliation).
 
 ### Accepted input durability
 
@@ -118,7 +146,7 @@ comparison facilities; they do not disable typing during preparation.
 
 Status: `current`, verified with the pinned request client and queue coordinator and the isolated native engine's accepted-response and persisted message identity.
 
-The host emits valid JSON for successful fetch routes with no return value by serializing their result as `null`. Native RPC rejection remains an error. A missing turn-start acknowledgement is reconciled with bounded native history polling only when the request has a `clientUserMessageId`: the user-message item's `clientId` must match exactly. Acceptance can precede message-history visibility, so readback waits within a five-second budget instead of treating the first empty snapshot as rejection. Each read loads at most the latest 20 turns. A matching item returns its actual owning turn through the normal success path, allowing the queue coordinator to consume that request. No input is replayed. Missing identity, failed readback, changed connection, or no matching item by the bounded end preserves the uncertain result; an active thread or equal prompt text is not acceptance evidence.
+The host emits valid JSON for successful fetch routes with no return value by serializing their result as `null`. A missing start or steer acknowledgement is reconciled with bounded native history polling only when the request has a `clientUserMessageId`: the user-message item's `clientId` must match exactly. The specific internal error with code `-32603`, `data.requestOutcome = "unknown"` and `data.reason = "handlerPanicked"` is also eligible; ordinary native RPC rejection remains an error without readback. Acceptance can precede message-history visibility, so readback waits within a five-second budget and a hard 20-attempt cap instead of treating the first empty snapshot as rejection. Each read loads at most the latest 20 turns. A matching item returns `{ turn }` for start or `{ turnId }` for steer using the actual owning turn, including a newly started wake turn, allowing the queue coordinator to consume that request. No input is replayed. Missing identity, failed readback, changed connection, invalid history or no matching item by the bounded end preserves the original failure; an active thread or equal prompt text is not acceptance evidence.
 
 Execution observations and request delivery outcomes are distinct. A missing acknowledgement does not erase an already observed live or completed turn. Receipts may remain outcome-unknown while the execution state remains observable. The existing log channel correlates the original UI request, client message, internal RPC and acknowledged turn identifiers without storing prompt or tool content.
 

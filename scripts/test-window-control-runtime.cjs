@@ -4,6 +4,7 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { spawnSync } = require('node:child_process');
 const { hash } = require('./computer-use-runtime.cjs');
 const { fingerprintNativeSource, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost } = require('./window-control-runtime.cjs');
 function fixture(t) {
@@ -12,7 +13,7 @@ function fixture(t) {
   const sourceRoot = path.join(root, 'source'), scriptDirectory = path.join(root, 'scripts'), skillDirectory = path.join(root, 'skill');
   for (const directory of [path.join(sourceRoot, 'src'), scriptDirectory, skillDirectory]) fs.mkdirSync(directory, { recursive: true });
   for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['THIRD_PARTY_NOTICES.md', 'Fixture third-party license notices'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
-  for (const name of ['window-control-mcp.cjs', 'window-control-policy.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
+  for (const name of ['window-control-mcp.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
   const guidance = path.join(skillDirectory, 'selected-window.md');
   fs.writeFileSync(guidance, 'Selected window instructions');
   const executable = path.join(root, 'helper.exe'), provenance = path.join(root, 'build.json'), release = path.join(root, 'release'), destination = path.join(release, 'window-control');
@@ -25,7 +26,7 @@ test('stage closure includes required owned files and release binds provenance',
   const f = fixture(t), result = stageRuntime(f.options);
   const sha256 = { 'window-control/manifest.json': result.manifestSha256 };
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs']) {
     const content = `fixture ${module}`;
     fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -53,8 +54,8 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   const sha256 = { 'window-control/manifest.json': runtime.manifestSha256 };
   fs.mkdirSync(path.join(host, 'out'), { recursive: true });
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs']) {
-    const content = `fixture ${module}`;
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs']) {
+    const content = fs.readFileSync(path.join(__dirname, module));
     fs.writeFileSync(path.join(host, 'out', module), content); fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
   fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256 }));
@@ -62,6 +63,16 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   const configFile = path.join(host, 'out/azrael-runtime.json'), { manifest, ...windowControl } = runtime;
   fs.writeFileSync(configFile, JSON.stringify({ windowControl }));
   assert.equal(verifyPreparedHost(host, f.release).manifestSha256, runtime.manifestSha256);
+  const loadHost = () => spawnSync(process.execPath, ['-e', 'require(process.argv[1])', path.join(host, 'out/window-control-host.cjs')], { encoding: 'utf8' });
+  assert.equal(loadHost().status, 0, 'Copied production host dependency closure must load');
+  const branding = path.join(host, 'out/computer-use-branding.cjs'), brandingBytes = fs.readFileSync(branding);
+  fs.unlinkSync(branding);
+  assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/);
+  const missingBranding = loadHost();
+  assert.notEqual(missingBranding.status, 0);
+  assert.match(missingBranding.stderr, /Cannot find module '\.\/computer-use-branding\.cjs'/);
+  fs.writeFileSync(branding, brandingBytes);
+  assert.equal(loadHost().status, 0);
   const dependency = path.join(host, 'out/computer-use-runtime.cjs'), dependencyBytes = fs.readFileSync(dependency);
   fs.unlinkSync(dependency);
   assert.throws(() => verifyPreparedHost(host, f.release), /ENOENT/);
@@ -103,6 +114,17 @@ test('native license notices bind source provenance and required release payload
   assert.notEqual(fingerprintNativeSource(f.sourceRoot), before);
   assert.throws(() => stageRuntime({ ...f.options, destination: path.join(f.release, 'refreshed') }), /build provenance mismatch/);
 });
+test('task macro code is bound in runtime and host payloads', t => {
+  const f = fixture(t); stageRuntime(f.options);
+  const file = path.join(f.destination, 'window-task-macros.cjs'), bytes = fs.readFileSync(file);
+  fs.writeFileSync(file, 'tampered macros');
+  assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
+  fs.writeFileSync(file, bytes);
+  const target = path.join(f.destination, 'manifest.json'), manifest = JSON.parse(fs.readFileSync(target));
+  manifest.files = manifest.files.filter(entry => entry.path !== 'window-task-macros.cjs');
+  fs.writeFileSync(target, JSON.stringify(manifest));
+  assert.throws(() => verifyRuntime(f.destination), /Required.*window-task-macros/);
+});
 test('missing required entry, unsafe paths and forged binary provenance rejected', t => {
   const f = fixture(t); stageRuntime(f.options);
   const target = path.join(f.destination, 'manifest.json'), manifest = JSON.parse(fs.readFileSync(target));
@@ -119,4 +141,9 @@ test('rollback release without feature is allowed; undeclared or mismatched runt
   stageRuntime(f.options); assert.throws(() => verifyRelease(f.release), /Undeclared/);
   fs.writeFileSync(path.join(f.release, 'build-info.json'), JSON.stringify({ sha256: { 'window-control/manifest.json': 'a'.repeat(64) } }));
   assert.throws(() => verifyRelease(f.release), /manifest hash mismatch/);
+});
+
+test('occupancy dependency is required and its runtime hash is verified',t=>{
+ const f=fixture(t);stageRuntime(f.options); const file=path.join(f.destination,'window-control-occupancy.cjs');fs.writeFileSync(file,'tampered');assert.throws(()=>verifyRuntime(f.destination),/hash mismatch/);
+ const target=path.join(f.destination,'manifest.json'),manifest=JSON.parse(fs.readFileSync(target));manifest.files=manifest.files.filter(e=>e.path!=='window-control-occupancy.cjs');fs.writeFileSync(target,JSON.stringify(manifest));fs.unlinkSync(file);assert.throws(()=>verifyRuntime(f.destination),/Required.*window-control-occupancy/);
 });

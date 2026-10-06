@@ -1,25 +1,25 @@
 "use strict";
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const hs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const vm = require("node:vm");
+const pm = require("node:vm");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ??
-  path.join(__dirname, "../artifacts/upstream-ui/26.928.31416"), QUEUE_REFRESH_ASSET);
-const original = fs.readFileSync(filename, "utf8");
+  path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), QUEUE_REFRESH_ASSET);
+const original = hs.readFileSync(filename, "utf8");
 const patched = injectQueueRefresh(rewriteJavaScript(original, filename, ts).text).text;
 
 function fixture(source) {
-  const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  assert.equal(ast.parseDiagnostics.length, 0);
-  const node = ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "I9t");
+  const Cst = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  assert.equal(Cst.parseDiagnostics.length, 0);
+  const node = Cst.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "wen");
   assert.ok(node);
-  const factory = vm.runInNewContext(`(${source.slice(node.getStart(ast), node.end)})`, {
-    Zv: x => x, aO: () => false, J_: () => true, Ry: () => true, h_: x => x, sve: () => null, L9t: (_manager, _thread, item) => ({ id: item.id }),
-    cO: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) }, t_: { warning() {} },
+  const factory = pm.runInNewContext(`(${source.slice(node.getStart(Cst), node.end)})`, {
+    uy: x => x, kO: () => false, Gg: () => true, ob: () => true, Qx: x => x, _ne: () => null, Ten: (_manager, _thread, item) => ({ id: item.id }),
+    MO: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) }, mp: { warning() {} },
   });
   const requests = [], snapshots = [];
   let notify;

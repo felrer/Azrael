@@ -46,6 +46,7 @@ struct MxcCommand {
     sandbox_policy_cwd: PathBuf,
     managed_network: Option<ManagedNetworkSandboxContext>,
     command: Vec<String>,
+    command_environment: HashMap<String, String>,
 }
 
 /// Inputs used to build an MXC helper invocation.
@@ -59,7 +60,7 @@ pub struct CreateMxcCommandArgsParams<'a> {
 }
 
 /// Wrap exact argv and add bounded launcher-only environment variables. The
-/// helper removes these variables before starting the sandboxed command.
+/// helper starts the sandboxed command with the separately captured environment.
 pub fn create_command_args(args: CreateMxcCommandArgsParams<'_>) -> Result<Vec<String>> {
     let CreateMxcCommandArgsParams {
         command,
@@ -74,15 +75,23 @@ pub fn create_command_args(args: CreateMxcCommandArgsParams<'_>) -> Result<Vec<S
     if let Some(network) = managed_network {
         validate_managed_network(network)?;
     }
+    let mut command_environment = env.clone();
+    command_environment
+        .retain(|key, _| !codex_windows_sandbox::environment_transport::is_key(key.as_ref()));
+    let mut launcher_environment = command_environment.clone();
+    #[cfg(windows)]
+    transport::add_launcher_environment(&mut launcher_environment, |key| std::env::var_os(key))?;
     transport::encode(
         &MxcCommand {
             permissions: permission_profile.clone(),
             sandbox_policy_cwd: sandbox_policy_cwd.to_owned(),
             managed_network: managed_network.cloned(),
             command,
+            command_environment,
         },
-        env,
+        &mut launcher_environment,
     )?;
+    *env = launcher_environment;
     Ok(vec![CODEX_WINDOWS_MXC_ARG1.to_owned()])
 }
 

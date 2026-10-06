@@ -6,17 +6,27 @@ const { spawn, spawnSync } = require("node:child_process");
 const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
 const RECOVERY = ["recovery-state", "recovery-bridge", "fetch-response", "queue-consumption", "send-result-integration", "immediate-stop", "edit-stop-integration"].map(name => `scripts/test-${name}.cjs`);
-const NAMESPACE = ["scripts/test-integrated-entry.cjs", "scripts/test-namespace-source.cjs"];
-const BUILD = ["scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1"];
-const AREAS = ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build"];
+const NAMESPACE = ["scripts/test-integrated-entry.cjs", "scripts/test-namespace-source.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-preservation-integration.cjs"];
+const BUILD = ["scripts/test-build-module-cache.ps1", "scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1"];
+const AREAS = ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build", "settings", "accounts", "window-control", "build-cache"];
+const FEATURE_TESTS = {
+  settings: /(?:test-(?:instruction-settings|account-settings|student-design|student-avatar-assets|pets-cleanup)\.cjs$|\/(?:instructionService|instructionView|studentDesign)\.test\.ts$)/,
+  accounts: /(?:test-(?:account-settings|account-switch-queue|provider-accounts-host|provider-context|provider-model-picker)\.cjs$|\/(?:accountService|accountPresentation|autoAccountSwitch|providerAccountService|resetCredit|unifiedAccountsPresentation|usage[^/]*)\.test\.ts$)/,
+  "window-control": /\/test-(?:window-(?:control|use|task)[^/]*|selected-window-native|computer-use[^/]*)\.cjs$/,
+  "build-cache": /\/test-(?:build-module-cache\.ps1|incremental-extension-build\.cjs|ordered-asset-reader\.cjs|asset-transform-cache(?:-retention)?\.cjs)$/,
+};
+// Approved argument-free fixture scripts that do not import node:test.
+const FEATURE_FIXTURES = ["student-avatar-assets", "window-control-policy", "window-control-host", "window-control-backend", "window-control-mcp", "window-control-approval", "window-task-macros", "computer-use-runtime"]
+  .map(name => `scripts/test-${name}.cjs`);
 const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/asset-transform-cache.cjs", "scripts/test-project.cjs"]);
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
 function parseArgs(args) {
-  const options = { areas: [], changed: [], list: false, logDirectory: "artifacts/logs/project-tests" };
+  const options = { areas: [], changed: [], changedOnly: false, list: false, logDirectory: "artifacts/logs/project-tests" };
   for (let i = 0; i < args.length; i++) {
     const option = args[i];
     if (option === "--list") { options.list = true; continue; }
+    if (option === "--changed-only") { options.changedOnly = true; continue; }
     if (!["--area", "--changed", "--log-directory"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
@@ -55,18 +65,32 @@ function changedFiles(root) {
 }
 
 function select(options, root = ROOT) {
+  // Explicit areas retain their full-area contracts, even with --changed-only.
+  if (options.changedOnly && !options.areas.length) return selectChanged(options, root);
   const discovered = discover(root);
   const files = new Set();
   const areas = new Set();
   const reasons = [];
   const separateChecks = new Set();
-  const ui = discovered.filter(file => file.startsWith("scripts/test-") && ![...QUEUE, ...RECOVERY, ...NAMESPACE].includes(file));
+  const extensionFiles = new Set();
+  let extension;
+  const fixtures = FEATURE_FIXTURES.filter(file => fs.existsSync(path.join(root, file)));
+  const ui = [...new Set([...discovered.filter(file => file.startsWith("scripts/test-") && ![...QUEUE, ...RECOVERY, ...NAMESPACE].includes(file)), ...fixtures])];
   const add = (area, reason) => {
     reasons.push({ area, reason });
     if (areas.has(area)) return;
     areas.add(area);
-    const selected = { queue: QUEUE, recovery: RECOVERY, namespace: NAMESPACE, ui, current: [...discovered, ...NAMESPACE] }[area];
+    const selected = { queue: QUEUE, recovery: RECOVERY, namespace: NAMESPACE, build: BUILD, ui, current: [...discovered, ...NAMESPACE, ...fixtures] }[area];
     if (selected) for (const file of selected) files.add(file);
+    if (FEATURE_TESTS[area]) {
+      for (const file of new Set([...discovered, ...BUILD, ...FEATURE_FIXTURES])) {
+        if (FEATURE_TESTS[area].test(file) && fs.existsSync(path.join(root, file))) files.add(file);
+      }
+      if (["settings", "accounts"].includes(area)) {
+        extension ||= extensionOwners(root);
+        for (const file of extension.tests) if (FEATURE_TESTS[area].test(file)) extensionFiles.add(file);
+      }
+    }
     if (area === "current") areas.add("extension");
   };
   const changed = options.changed.length ? options.changed : options.areas.length ? [] : changedFiles(root);
@@ -110,13 +134,148 @@ function select(options, root = ROOT) {
   }
   if (!changed.length && !options.areas.length) reasons.push({ reason: "No changed paths; no tests selected" });
   const commands = [];
-  if (files.size) commands.push({ name: "source", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...[...files].sort()], cwd: root, files: [...files].sort() });
-  if (areas.has("extension") || areas.has("standalone")) {
+  const scripts = new Set([...files].filter(file => BUILD.includes(file)));
+  if (areas.has("build")) for (const file of BUILD) scripts.add(file);
+  const source = [...files].filter(file => !scripts.has(file)).sort();
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...source], cwd: root, files: source });
+  if (areas.has("standalone") && !areas.has("extension") && extensionFiles.size) {
+    const { STANDALONE_FILES } = require(path.join(extension.extension, "scripts/run-tests.cjs"));
+    for (const file of extension.tests) if (STANDALONE_FILES.includes(path.basename(file).replace(/\.ts$/, ".js"))) extensionFiles.add(file);
+    commands.push(...selectedExtensionCommands([...extensionFiles].sort(), extension.extension, root));
+  } else if (areas.has("extension") || areas.has("standalone")) {
     const both = areas.has("extension") && areas.has("standalone");
     commands.push({ name: both ? "extension-all" : areas.has("extension") ? "extension" : "standalone", executable: "npm", args: ["run", `test:${both ? "all" : areas.has("extension") ? "current" : "standalone"}`], cwd: path.join(root, "extensions/azrael-ex"), files: [] });
+  } else if (extensionFiles.size) {
+    commands.push(...selectedExtensionCommands([...extensionFiles].sort(), extension.extension, root));
   }
-  if (areas.has("build")) for (const file of BUILD) commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath, args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file] : [file], cwd: root, files: [file] });
-  return { changed, areas: [...areas], files: [...files].sort(), reasons, separateChecks: [...separateChecks], commands };
+  for (const file of [...scripts].sort()) commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath, args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file] : [file], cwd: root, files: [file] });
+  return { changed, areas: [...areas], files: [...files].sort(), extensionFiles: [...extensionFiles].sort(), reasons, separateChecks: [...separateChecks], commands };
+}
+
+function selectedExtensionCommands(files, extension, root) {
+  const compiled = files.map(file => normalize(path.relative(extension, path.join(root, file))).replace(/\.ts$/, ".js"));
+  return [
+    { name: "extension-build", executable: "npm", args: ["run", "build:incremental"], cwd: extension, files: [] },
+    { name: "extension-changed", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...compiled.map(file => `dist/${file}`)], cwd: extension, files },
+  ];
+}
+
+function extensionOwners(root) {
+  const extension = path.join(root, "extensions/azrael-ex");
+  const ts = require(require.resolve("typescript", { paths: [extension] }));
+  const configPath = path.join(extension, "tsconfig.json");
+  const config = ts.readConfigFile(configPath, ts.sys.readFile);
+  if (config.error) throw new Error(ts.flattenDiagnosticMessageText(config.error.messageText, "\n"));
+  const parsed = ts.parseJsonConfigFileContent(config.config, ts.sys, extension);
+  if (parsed.errors.length) throw new Error(ts.flattenDiagnosticMessageText(parsed.errors[0].messageText, "\n"));
+  const tests = parsed.fileNames.filter(file => /\.test\.ts$/.test(file));
+  const owners = new Map();
+  for (const file of tests) {
+    const test = normalize(path.relative(root, file));
+    const imports = ts.preProcessFile(fs.readFileSync(file, "utf8"), true, true).importedFiles;
+    for (const imported of imports) {
+      if (!imported.fileName.startsWith(".")) continue;
+      const resolved = ts.resolveModuleName(imported.fileName, file, parsed.options, ts.sys).resolvedModule;
+      if (!resolved) continue;
+      const source = normalize(path.relative(root, resolved.resolvedFileName));
+      if (!owners.has(source)) owners.set(source, new Set());
+      owners.get(source).add(test);
+    }
+  }
+  return { owners, tests: tests.map(file => normalize(path.relative(root, file))), extension };
+}
+
+function selectChanged(options, root) {
+  const changed = options.changed.length ? options.changed : changedFiles(root);
+  const discovered = discover(root);
+  // Script-style build tests are intentionally outside node:test discovery.
+  const candidates = [...new Set([...discovered, ...NAMESPACE, ...BUILD, ...FEATURE_FIXTURES])]
+    .filter(file => fs.existsSync(path.join(root, file)));
+  const operationalTestPhases = {
+    "scripts/test-accepted-input-engine.mjs": "Post-build engine acceptance requires fresh engine and output arguments",
+    "scripts/test-parked-root-steering.mjs": "Post-build parked-root acceptance requires fresh engine and output arguments",
+    "scripts/test-independent-namespace.cjs": "Six-stage host verification requires a prepared extension",
+    "scripts/test-namespace-performance.cjs": "Optional benchmark is disabled for changed-only source verification",
+    "scripts/tests/check-release-source-root.ps1": "Release provenance verification requires explicit source and release context",
+  };
+  const owners = new Map();
+  for (const test of candidates.filter(file => file.endsWith(".cjs"))) {
+    const source = fs.readFileSync(path.join(root, test), "utf8");
+    for (const match of source.matchAll(/require\s*\(\s*["'](\.{1,2}\/[^"']+)["']\s*\)/g)) {
+      const module = path.posix.normalize(path.posix.join(path.posix.dirname(test), match[1]));
+      if (!owners.has(module)) owners.set(module, new Set());
+      owners.get(module).add(test);
+    }
+  }
+  // Owners using dynamic paths or PowerShell dot-sourcing cannot enter require discovery.
+  for (const [source, test] of [
+    ["extensions/azrael-ex/scripts/build-incremental.cjs", "scripts/test-incremental-extension-build.cjs"],
+    ["scripts/build-metrics.ps1", "scripts/test-build-metrics.ps1"],
+    ["scripts/build-module-cache.ps1", "scripts/test-build-module-cache.ps1"],
+    ["scripts/deploy-azrael.ps1", "scripts/test-deploy-azrael.ps1"],
+  ]) {
+    if (candidates.includes(test)) {
+      if (!owners.has(source)) owners.set(source, new Set());
+      owners.get(source).add(test);
+    }
+  }
+  const files = new Set(), extensionFiles = new Set(), reasons = [], separateChecks = new Set();
+  let extension;
+  const add = (file, test, reason) => { files.add(test); reasons.push({ path: file, test, reason }); };
+  for (const file of changed) {
+    if (/\.(md|markdown)$/i.test(file) || /\.(png|jpe?g|gif|webp|svg|ico|woff2?|ttf|mp[34]|wav)$/i.test(file)) {
+      reasons.push({ path: file, reason: "Documentation or static asset only; no code tests selected" });
+      continue;
+    }
+    if (/(?:engine|provider|codex-rs|artifacts\/worktrees|^scripts\/(?:install-|prepare-|deploy-|deployment-input-snapshot|test-deployment-input-snapshot|test-deploy-))/i.test(file))
+      separateChecks.add("Packaged, native, install/preparation and live acceptance belongs to the separate operational checks; source tests do not establish it.");
+    let matched = false;
+    if (candidates.includes(file)) { add(file, file, "changed test selects itself"); matched = true; }
+    else if (file !== "scripts/test-project.cjs" && /^scripts\/(?:test-[^/]+\.(?:cjs|mjs|ps1)|tests\/[^/]+\.(?:test\.(?:cjs|mjs)|ps1))$/.test(file)) {
+      const reason = operationalTestPhases[file] || "Script-style test has no approved argument-free source runner; its owning operational phase must supply context";
+      reasons.push({ path: file, reason });
+      separateChecks.add(`${file}: ${reason}`);
+      continue;
+    }
+    else {
+      for (const test of owners.get(file) || []) { add(file, test, "direct source owner"); matched = true; }
+      if (SHARED.has(file) && file !== "scripts/test-project.cjs") {
+        for (const test of NAMESPACE.filter(test => candidates.includes(test))) add(file, test, "shared namespace identity/registry integration check");
+        matched = true;
+      }
+    }
+    if (/^extensions\/azrael-ex\/(?:src|test)\/.*\.ts$/.test(file)) {
+      try {
+        extension ||= extensionOwners(root);
+        const tests = extension.tests.includes(file) ? [file] : [...(extension.owners.get(file) || [])];
+        for (const test of tests) {
+          extensionFiles.add(test);
+          reasons.push({ path: file, test, reason: test === file ? "changed extension test selects itself" : "direct TypeScript import owner" });
+          matched = true;
+        }
+      } catch (error) {
+        separateChecks.add(`Extension owner discovery requires a separate check for ${file}: ${error.message}`);
+      }
+    }
+    if (!matched) {
+      const reason = "No direct test owner mapped; separate check required (no whole-suite fallback)";
+      reasons.push({ path: file, reason });
+      separateChecks.add(`${file}: ${reason}`);
+    }
+  }
+  if (!changed.length) reasons.push({ reason: "No changed paths; no tests selected" });
+  const commands = [];
+  const source = [...files].filter(file => !BUILD.includes(file)).sort();
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...source], cwd: root, files: source });
+  for (const file of [...files].filter(file => BUILD.includes(file)).sort())
+    commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath,
+      args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file, ...(file === "scripts/test-deploy-azrael.ps1" ? ["-ChangedOnly"] : [])] : [file], cwd: root, files: [file] });
+  const selectedExtension = [...extensionFiles].sort();
+  if (selectedExtension.length) {
+    // Incremental build decides whether compilation is stale; never clean dist or run a partition wholesale.
+    commands.push(...selectedExtensionCommands(selectedExtension, extension.extension, root));
+  }
+  return { changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons, separateChecks: [...separateChecks], commands };
 }
 
 async function runCommand(command, directory, index) {
@@ -128,7 +287,7 @@ async function runCommand(command, directory, index) {
   let executable = command.executable, args = command.args;
   if (process.platform === "win32" && executable === "npm") {
     // Only our fixed npm commands enter cmd.exe; changed paths never enter shell text.
-    if (args.length !== 2 || args[0] !== "run" || !["test:current", "test:standalone", "test:all"].includes(args[1])) throw new Error("Unexpected npm command");
+    if (args.length !== 2 || args[0] !== "run" || !["test:current", "test:standalone", "test:all", "build:incremental"].includes(args[1])) throw new Error("Unexpected npm command");
     executable = process.env.ComSpec || "cmd.exe";
     args = ["/d", "/s", "/c", `npm.cmd run ${args[1]}`];
   }
@@ -155,14 +314,16 @@ async function main(args = process.argv.slice(2)) {
     const result = await runCommand(command, directory, results.length);
     results.push(result);
     console.log(`${command.name}: ${result.status} (exit ${result.exitCode}, ${result.durationMs}ms)`);
+    if (command.name === "extension-build" && result.status !== "passed") break;
   }
   const resultPath = path.join(directory, "results.json");
   fs.writeFileSync(resultPath, JSON.stringify({ ...selection, results }, null, 2) + "\n");
   console.log(`${selection.files.length} source files selected; results: ${resultPath}`);
+  for (const reason of selection.reasons) console.log(`${reason.path ? `${reason.path}: ` : ""}${reason.reason}${reason.test ? ` (${reason.test})` : ""}`);
   for (const check of selection.separateChecks) console.log(check);
   const failure = results.find(result => result.status !== "passed");
   return failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
 }
 
-module.exports = { parseArgs, discover, changedFiles, select, runCommand, main };
+module.exports = { AREAS, parseArgs, discover, changedFiles, select, runCommand, main };
 if (require.main === module) main().then(code => { process.exitCode = code; }, error => { console.error(error.message); process.exitCode = 1; });

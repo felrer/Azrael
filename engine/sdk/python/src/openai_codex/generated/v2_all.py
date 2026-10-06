@@ -410,6 +410,12 @@ class AuthRecoveryNotification(BaseModel):
     turn_id: Annotated[str, Field(alias="turnId")]
 
 
+class AutoCompactSource(Enum):
+    provider = "provider"
+    global_ = "global"
+    default = "default"
+
+
 class AutoCompactTokenLimitScope(Enum):
     total = "total"
     body_after_prefix = "body_after_prefix"
@@ -444,6 +450,13 @@ class AzraelAccountAction(Enum):
     switch = "switch"
     cancel_switch = "cancelSwitch"
     usage = "usage"
+    consume_reset_credit = "consumeResetCredit"
+    auto_switch_enable = "autoSwitchEnable"
+    auto_switch_disable = "autoSwitchDisable"
+    auto_window_status = "autoWindowStatus"
+    auto_window_enable = "autoWindowEnable"
+    auto_window_disable = "autoWindowDisable"
+    auto_window_tick = "autoWindowTick"
 
 
 class AzraelAccountParams(BaseModel):
@@ -451,6 +464,7 @@ class AzraelAccountParams(BaseModel):
         populate_by_name=True,
     )
     action: AzraelAccountAction
+    idempotency_key: Annotated[str | None, Field(alias="idempotencyKey")] = None
     include_details: Annotated[bool | None, Field(alias="includeDetails")] = None
     login_id: Annotated[str | None, Field(alias="loginId")] = None
     profile_id: Annotated[str | None, Field(alias="profileId")] = None
@@ -468,11 +482,23 @@ class AzraelProfile(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    auto_switch_allowed: Annotated[bool | None, Field(alias="autoSwitchAllowed")] = False
     email: str | None = None
     id: str
     plan_type: Annotated[str | None, Field(alias="planType")] = None
     user_id: Annotated[str, Field(alias="userId")]
     workspace_account_id: Annotated[str, Field(alias="workspaceAccountId")]
+
+
+class AzraelUsageWindowStatus(Enum):
+    disabled = "disabled"
+    scheduled = "scheduled"
+    checking = "checking"
+    confirming = "confirming"
+    started = "started"
+    unconfirmed = "unconfirmed"
+    blocked = "blocked"
+    error = "error"
 
 
 class BrowserUseAccessApprovalLifetime(Enum):
@@ -3609,6 +3635,13 @@ class PluginsMigration(BaseModel):
     plugin_names: Annotated[list[str], Field(alias="pluginNames")]
 
 
+class PricingStatus(Enum):
+    confirmed = "confirmed"
+    reference = "reference"
+    no_surcharge = "no-surcharge"
+    unknown = "unknown"
+
+
 class ProcessExitedNotification(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -3686,6 +3719,13 @@ class ProjectRoot(BaseModel):
 class ProjectSortKey(Enum):
     position = "position"
     recency_at = "recencyAt"
+
+
+class ProviderAutoCompact(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    token_limit: Annotated[int | None, Field(ge=1)] = None
 
 
 class ProviderCatalogState(Enum):
@@ -4300,6 +4340,28 @@ class RootResumeState(Enum):
     blocked = "blocked"
 
 
+class RootResumeWait(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    can_wake_early: Annotated[bool, Field(alias="canWakeEarly")]
+    reservation_id: Annotated[str, Field(alias="reservationId")]
+    resume_at_ms: Annotated[int, Field(alias="resumeAtMs")]
+    revision: int
+    state: RootResumeState
+    wait_ended_at_ms: Annotated[int | None, Field(alias="waitEndedAtMs")] = None
+    wait_started_at_ms: Annotated[int | None, Field(alias="waitStartedAtMs")] = None
+
+
+class RootResumeWaitUpdatedNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    thread_id: Annotated[str, Field(alias="threadId")]
+    turn_id: Annotated[str, Field(alias="turnId")]
+    wait: RootResumeWait
+
+
 class RootResumeWakeReason(Enum):
     deadline = "deadline"
     agents_completed = "agents_completed"
@@ -4496,6 +4558,24 @@ class ThreadEnvironmentDisconnectedServerNotification(BaseModel):
         Field(title="Thread/environment/disconnectedNotificationMethod"),
     ]
     params: EnvironmentConnectionNotification
+
+
+class TurnRootResumeWaitUpdatedServerNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    emitted_at_ms: Annotated[
+        int | None,
+        Field(
+            alias="emittedAtMs",
+            description="Unix timestamp (in milliseconds) when app-server emitted this notification.",
+        ),
+    ] = None
+    method: Annotated[
+        Literal["turn/rootResumeWait/updated"],
+        Field(title="Turn/rootResumeWait/updatedNotificationMethod"),
+    ]
+    params: RootResumeWaitUpdatedNotification
 
 
 class ItemAgentMessageDeltaServerNotification(BaseModel):
@@ -6908,6 +6988,21 @@ class AzraelAccountState(BaseModel):
     revision: Annotated[int, Field(ge=0)]
 
 
+class AzraelUsageWindowSchedule(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    basis_reset_at: Annotated[int | None, Field(alias="basisResetAt")] = None
+    enabled: bool
+    error: str | None = None
+    last_attempt_at: Annotated[int | None, Field(alias="lastAttemptAt")] = None
+    next_run_at: Annotated[int | None, Field(alias="nextRunAt")] = None
+    profile_id: Annotated[str, Field(alias="profileId")]
+    status: AzraelUsageWindowStatus
+    user_id: Annotated[str, Field(alias="userId")]
+    workspace_account_id: Annotated[str, Field(alias="workspaceAccountId")]
+
+
 class BrowserUseConfig(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -8146,6 +8241,16 @@ class ContentItem(
     )
 
 
+class ContextPricing(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    inclusive: bool
+    input_token_threshold: Annotated[int | None, Field(alias="inputTokenThreshold")] = None
+    source_url: Annotated[str | None, Field(alias="sourceUrl")] = None
+    status: PricingStatus
+
+
 class ExperimentalFeature(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -9197,6 +9302,8 @@ class RootResumeReservation(BaseModel):
     root_turn_id: Annotated[str, Field(alias="rootTurnId")]
     state: RootResumeState
     updated_at_ms: Annotated[int, Field(alias="updatedAtMs")]
+    wait_ended_at_ms: Annotated[int | None, Field(alias="waitEndedAtMs")] = None
+    wait_started_at_ms: Annotated[int | None, Field(alias="waitStartedAtMs")] = None
     wake_reason: Annotated[RootResumeWakeReason | None, Field(alias="wakeReason")] = None
 
 
@@ -10477,24 +10584,6 @@ class RealtimeThreadTimelineEntry(BaseModel):
     type: Annotated[Literal["realtime"], Field(title="RealtimeThreadTimelineEntryType")]
 
 
-class ThreadTokenUsage(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    last: TokenUsageBreakdown
-    model_context_window: Annotated[int | None, Field(alias="modelContextWindow")] = None
-    total: TokenUsageBreakdown
-
-
-class ThreadTokenUsageUpdatedNotification(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    thread_id: Annotated[str, Field(alias="threadId")]
-    token_usage: Annotated[ThreadTokenUsage, Field(alias="tokenUsage")]
-    turn_id: Annotated[str, Field(alias="turnId")]
-
-
 class ThreadTurnsListParams(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -10731,7 +10820,13 @@ class AzraelAccountResponse(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    auto_windows: Annotated[list[AzraelUsageWindowSchedule] | None, Field(alias="autoWindows")] = (
+        None
+    )
     login: AzraelLogin | None = None
+    reset_credit_outcome: Annotated[
+        ConsumeAccountRateLimitResetCreditOutcome | None, Field(alias="resetCreditOutcome")
+    ] = None
     state: State
     usage: RateLimitsAzraelAccountResponse | None = None
     usage_profile_id: Annotated[str | None, Field(alias="usageProfileId")] = None
@@ -10912,6 +11007,7 @@ class Config(BaseModel):
     model_reasoning_effort: ReasoningEffort | None = None
     model_reasoning_summary: ReasoningSummary | None = None
     model_verbosity: Verbosity | None = None
+    provider_auto_compact: dict[str, ProviderAutoCompact] | None = {}
     review_model: str | None = None
     sandbox_mode: SandboxMode | None = None
     sandbox_workspace_write: SandboxWorkspaceWrite | None = None
@@ -10942,15 +11038,6 @@ class ConfigBatchWriteParams(BaseModel):
     ] = None
 
 
-class ConfigReadResponse(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    config: Config
-    layers: list[ConfigLayer] | None = None
-    origins: dict[str, ConfigLayerMetadata]
-
-
 class ConfigWriteResponse(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -10964,6 +11051,21 @@ class ConfigWriteResponse(BaseModel):
     )
     status: WriteStatus
     version: str
+
+
+class ContextPolicy(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    auto_compact_source: Annotated[AutoCompactSource, Field(alias="autoCompactSource")]
+    auto_compact_token_limit: Annotated[int | None, Field(alias="autoCompactTokenLimit")] = None
+    context_window: Annotated[int | None, Field(alias="contextWindow")] = None
+    input_tokens: Annotated[int | None, Field(alias="inputTokens")] = None
+    input_tokens_estimated: Annotated[bool, Field(alias="inputTokensEstimated")]
+    model_id: Annotated[str, Field(alias="modelId")]
+    pricing: ContextPricing
+    provider_id: Annotated[str, Field(alias="providerId")]
+    safe_context_window: Annotated[int | None, Field(alias="safeContextWindow")] = None
 
 
 class ErrorNotification(BaseModel):
@@ -11406,24 +11508,6 @@ class ThreadSettingsUpdatedServerNotification(BaseModel):
     params: ThreadSettingsUpdatedNotification
 
 
-class ThreadTokenUsageUpdatedServerNotification(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    emitted_at_ms: Annotated[
-        int | None,
-        Field(
-            alias="emittedAtMs",
-            description="Unix timestamp (in milliseconds) when app-server emitted this notification.",
-        ),
-    ] = None
-    method: Annotated[
-        Literal["thread/tokenUsage/updated"],
-        Field(title="Thread/tokenUsage/updatedNotificationMethod"),
-    ]
-    params: ThreadTokenUsageUpdatedNotification
-
-
 class HookCompletedServerNotification(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -11735,6 +11819,7 @@ class TurnCompletedThreadTimelineEntry(BaseModel):
     duration_ms: int | None = None
     error: TurnError | None = None
     position: Annotated[int, Field(ge=0)]
+    root_resume_wait: RootResumeWait | None = None
     started_at: int | None = None
     status: TurnStatus
     turn_id: str
@@ -11759,6 +11844,25 @@ class ThreadTimelineEntry(
         | TurnCompletedThreadTimelineEntry,
         Field(description="EXPERIMENTAL - one item or turn boundary in canonical rollout order."),
     ]
+
+
+class ThreadTokenUsage(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    context_policy: Annotated[ContextPolicy | None, Field(alias="contextPolicy")] = None
+    last: TokenUsageBreakdown
+    model_context_window: Annotated[int | None, Field(alias="modelContextWindow")] = None
+    total: TokenUsageBreakdown
+
+
+class ThreadTokenUsageUpdatedNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    thread_id: Annotated[str, Field(alias="threadId")]
+    token_usage: Annotated[ThreadTokenUsage, Field(alias="tokenUsage")]
+    turn_id: Annotated[str, Field(alias="turnId")]
 
 
 class Turn(BaseModel):
@@ -11794,6 +11898,13 @@ class Turn(BaseModel):
             description="Describes how much of `items` has been loaded for this turn.",
         ),
     ] = "full"
+    root_resume_wait: Annotated[
+        RootResumeWait | None,
+        Field(
+            alias="rootResumeWait",
+            description="Durable wait metadata owned by the engine; absent for turns that never deferred.",
+        ),
+    ] = None
     started_at: Annotated[
         int | None,
         Field(alias="startedAt", description="Unix timestamp (in seconds) when the turn started."),
@@ -11883,6 +11994,16 @@ class ConfigBatchWriteRequest(BaseModel):
     id: RequestId
     method: Annotated[Literal["config/batchWrite"], Field(title="Config/batchWriteRequestMethod")]
     params: ConfigBatchWriteParams
+
+
+class ConfigReadResponse(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    config: Config
+    context_policies: Annotated[list[ContextPolicy] | None, Field(alias="contextPolicies")] = None
+    layers: list[ConfigLayer] | None = None
+    origins: dict[str, ConfigLayerMetadata]
 
 
 class ConfigRequirements(BaseModel):
@@ -12169,6 +12290,24 @@ class ReviewStartResponse(BaseModel):
         ),
     ]
     turn: Turn
+
+
+class ThreadTokenUsageUpdatedServerNotification(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    emitted_at_ms: Annotated[
+        int | None,
+        Field(
+            alias="emittedAtMs",
+            description="Unix timestamp (in milliseconds) when app-server emitted this notification.",
+        ),
+    ] = None
+    method: Annotated[
+        Literal["thread/tokenUsage/updated"],
+        Field(title="Thread/tokenUsage/updatedNotificationMethod"),
+    ]
+    params: ThreadTokenUsageUpdatedNotification
 
 
 class TurnStartedServerNotification(BaseModel):
@@ -13189,6 +13328,7 @@ class ServerNotification(
         | ThreadSettingsUpdatedServerNotification
         | ThreadTokenUsageUpdatedServerNotification
         | TurnStartedServerNotification
+        | TurnRootResumeWaitUpdatedServerNotification
         | TurnDeferredServerNotification
         | HookStartedServerNotification
         | TurnCompletedServerNotification
@@ -13280,6 +13420,7 @@ class ServerNotification(
         | ThreadSettingsUpdatedServerNotification
         | ThreadTokenUsageUpdatedServerNotification
         | TurnStartedServerNotification
+        | TurnRootResumeWaitUpdatedServerNotification
         | TurnDeferredServerNotification
         | HookStartedServerNotification
         | TurnCompletedServerNotification

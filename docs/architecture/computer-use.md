@@ -4,6 +4,8 @@ Status: `partial` — Existing Windows local integration is installed; the selec
 
 ## Selected-window mode
 
+The separate Window Use product requirements and task macro proposal are owned by [Window Use](window-use.md). This section describes the existing prototype and its implementation boundary.
+
 Status: `partial` — The host, native executable, MCP boundary and durable engine ceiling are implemented and covered by scoped source/protocol tests. Behind-window capture, background effects, restore and size changes still require isolated Windows acceptance. The intended contract follows. This is a Computer Use mode within Azrael, using the same skill and package. Users select one exact top-level Windows window. The host binds its HWND, PID, process creation time and executable to a conversation/session generation; the model receives an opaque target ID. Selection expires when the window closes, its identity changes, the host reloads or the user clears it. App approval and selection are separate requirements. A saved app grant does not select another window belonging to that app.
 
 The model's selected-window conversation receives an immutable native tool ceiling. It exposes the owned `azrael_window` MCP tools and any generated orchestration needed to call those tools. Direct Sky/Node REPL, shell execution, arbitrary dynamic tools and general desktop tools are excluded. The ceiling persists across conversation recovery and cannot be relaxed by a later request. Ordinary coding conversations retain their existing tools. Restriction of this managed tool surface does not constitute an OS sandbox for unrelated applications.
@@ -25,6 +27,8 @@ Candidate `0.5.1791090347998` was built and prepared with all nine preparation p
 ## Runtime ownership
 
 Azrael owns a version-pinned Windows Node REPL and Sky runtime in its local extension package. Required executables, dependency closure and Computer Use instructions carry source provenance and SHA-256 identities. Installation resolves paths from the selected package rather than another app's installation. The engine remains the selected Azrael engine with its existing provenance contract.
+
+Windows display branding is source-only until the next build and installation. Packaging changes the pinned Sky 0.7.4 status banner from `Codex is using your computer` to `Azrael is using the computer` using an equal-length byte replacement. The original executable remains untouched. The generated local copy clears its upstream Authenticode certificate directory and optional checksum, and is unsigned; its manifest records the input and output hashes and display transformation. Only the pinned original and exact branded output are accepted. Section offsets, executable instructions, cancellation text, transport identifiers and native interaction behavior are preserved by the transform; real overlay rendering remains unverified.
 
 Computer Use uses the standard MCP Node REPL entry point and imports `@oai/sky`. Sky owns platform interaction and helper transport. Azrael does not implement a second helper protocol. The runtime starts without a copied external native-pipe endpoint. Missing payloads or hash mismatches block preparation or produce an explicit unavailable error.
 

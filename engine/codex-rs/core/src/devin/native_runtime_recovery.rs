@@ -57,8 +57,8 @@ pub(super) async fn start_helper(
             return Err(CodexErr::new(CodexErrorDetails::Interrupted));
         }
         result = tokio::time::timeout(Duration::from_secs(10), async {
-            stdin.write_all(&init).await?;
-            stdin.write_all(&request).await?;
+            stdin.write_all(init).await?;
+            stdin.write_all(request).await?;
             stdin.shutdown().await
         }) => {
             match result {
@@ -128,7 +128,8 @@ pub(super) async fn recover(
                 policy,
                 started,
                 request_id: &request_id,
-                tools: ToolCatalog::from_specs(&prompt.tools).expect("validated tool catalog"),
+                tools: ToolCatalog::from_specs(&prompt.tools)
+                    .unwrap_or_else(|error| panic!("validated tool catalog: {error}")),
                 call_ids: historical_call_ids.clone(),
                 tx,
                 cancellation: &cancellation,

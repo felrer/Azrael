@@ -39,7 +39,6 @@ use codex_protocol::items::TurnItem;
 use codex_protocol::models::ImageReference;
 use codex_protocol::models::ResponseItem;
 use codex_protocol::openai_models::CodeModeToolMessages;
-use codex_protocol::openai_models::ReasoningEffort;
 use codex_protocol::openai_models::ToolMessage;
 use codex_protocol::openai_models::ToolMode;
 use codex_protocol::protocol::EnvironmentConfigState;
@@ -96,17 +95,30 @@ mod mailbox_preemption;
 #[path = "scenarios_guardian_extra_policy.rs"]
 mod guardian_extra_policy;
 
+#[path = "scenarios_guardian_conversation_history_tests.rs"]
+mod guardian_conversation_history;
+
 #[path = "scenarios_indirect_namespace_prefixes.rs"]
 mod indirect_namespace_prefixes;
 
 #[path = "scenarios_mcp_resource_messages.rs"]
 mod mcp_resource_messages;
 
+#[path = "scenarios_guardian_agent_messages_tests.rs"]
+mod guardian_agent_messages;
+
+#[cfg(not(target_os = "windows"))]
+#[path = "scenarios_guardian_handoff.rs"]
+mod guardian_handoff;
+
 #[path = "scenarios_guardian_heartbeat.rs"]
 mod guardian_heartbeat;
 
 #[path = "scenarios_preparation.rs"]
 mod preparation;
+
+#[path = "scenarios_content_filter.rs"]
+mod content_filter;
 
 #[path = "scenarios_shared_instructions.rs"]
 mod shared_instructions;
@@ -116,6 +128,9 @@ mod mxc;
 
 #[path = "scenarios_tools_namespace_budget.rs"]
 mod tools_namespace_budget;
+
+#[path = "scenarios_skill_catalog_dedup.rs"]
+mod skill_catalog_dedup;
 
 fn skills_extensions() -> Arc<ExtensionRegistry<Config>> {
     let mut extensions = ExtensionRegistryBuilder::<Config>::new();
@@ -582,6 +597,12 @@ async fn astra_kickoff_with_skills_plugins_and_remote_compaction() -> Result<()>
         .with_home(home)
         .with_auth(CodexAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
+        .with_thread_manager(|manager| {
+            manager
+                .skills_service()
+                .set_home_dir_for_tests(/*home_dir*/ None);
+            manager
+        })
         .with_workspace_setup(|cwd, fs| async move {
             fs.write_file(
                 &executor_path_uri(cwd.join("AGENTS.md"))?,
@@ -1407,6 +1428,12 @@ async fn astra_refreshes_plugin_tools_and_skills_in_an_existing_thread() -> Resu
         .with_home(Arc::clone(&home))
         .with_auth(CodexAuth::create_dummy_chatgpt_auth_for_testing())
         .with_extensions(skills_extensions())
+        .with_thread_manager(|manager| {
+            manager
+                .skills_service()
+                .set_home_dir_for_tests(/*home_dir*/ None);
+            manager
+        })
         .with_config(configure_scenario_catalog);
     let test = builder.build(&server).await?;
 
@@ -1540,6 +1567,62 @@ async fn guardian_code_mode_messaging_request_history() -> Result<()> {
             .into_owned();
     }
     insta::assert_snapshot!("guardian_code_mode_messaging", snapshot);
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn subagent_waits_for_its_inherited_environment_configuration() -> Result<()> {
+    skip_if_no_network!(Ok(()));
+
+    use super::remote_env::spawn_tests::PendingSpawnCase;
+    use super::remote_env::spawn_tests::pending_subagent_scenario;
+
+    let requests =
+        pending_subagent_scenario(PendingSpawnCase::TurnSettings, configure_scenario_catalog)
+            .await?;
+    let labels = [
+        "parent delegates while the environment is starting",
+        "parent waits for the worker",
+        "child sees the inherited starting environment",
+        "child receives the ready result and updated environment",
+        "parent receives the child result",
+    ];
+    assert_eq!(requests.len(), labels.len());
+    let entries = requests
+        .iter()
+        .zip(labels)
+        .map(|(request, label)| SnapshotEntry::body(request).labeled(label))
+        .collect::<Vec<_>>();
+    let snapshot = context_snapshot::format_context_snapshot(
+        "A parent spawns a child before the selected environment is configured. The child sees it starting, waits, and receives the ready result after an ordinary parent turn-settings update.",
+        &entries,
+        &ContextSnapshotOptions::default(),
+    );
+    // Keep every request and its environment context; collapse unrelated guidance repeated per window.
+    let mut snapshot = snapshot;
+    for (pattern, replacement) in [
+        (
+            r"(?s)<permissions instructions>.*?</permissions instructions>",
+            "<PERMISSIONS_INSTRUCTIONS>",
+        ),
+        (
+            r"(?s)<environments_instructions>.*?</environments_instructions>",
+            "<ENVIRONMENTS_INSTRUCTIONS>",
+        ),
+        (
+            r"(?ms)(^\d+:message/developer:\n    You are (?:`/root`, the primary agent|an agent) in a team of agents[^\n]+)\n.*?(\n^\d+:message/developer:)",
+            "${1}\n    <STANDARD_MULTI_AGENT_INSTRUCTIONS>${2}",
+        ),
+        (
+            r#"(environment_id"\s*:\s*"|<environment id=")(?:local|remote)"#,
+            "${1}<ENVIRONMENT>",
+        ),
+    ] {
+        snapshot = regex_lite::Regex::new(pattern)?
+            .replace_all(&snapshot, replacement)
+            .into_owned();
+    }
+    insta::assert_snapshot!("subagent_inherits_pending_environment", snapshot);
     Ok(())
 }
 

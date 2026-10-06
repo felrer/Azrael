@@ -154,7 +154,7 @@ export class UsageView implements vscode.Disposable {
       this.listening = true;
     }
     void this.refresh();
-    if (!this.timer) this.timer = setInterval(() => { void this.refresh(); }, 60_000);
+    if (!this.timer) this.timer = setInterval(() => { void this.refresh(); }, 120_000);
   }
 
   private async refresh(force = false): Promise<void> {

@@ -185,6 +185,8 @@ pub(super) async fn spawn_review_thread(
         final_output_json_schema: None,
         dynamic_tools: parent_turn_context.dynamic_tools.clone(),
         turn_metadata_state,
+        account_lease: Arc::default(),
+        exhausted_accounts: Arc::default(),
         extension_data,
         turn_timing_state: Arc::new(TurnTimingState::default()),
         terminal_error: Arc::new(Mutex::new(None)),

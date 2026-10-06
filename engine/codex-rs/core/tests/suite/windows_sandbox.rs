@@ -109,11 +109,16 @@ fn stage_windows_sandbox_helpers() -> anyhow::Result<()> {
         let helper = codex_utils_cargo_bin::cargo_bin(helper_name)?;
         let file_name = Path::new(helper_name).with_extension("exe");
         let destination = resources_dir.join(file_name);
+        if destination.is_file() && std::fs::read(&helper)? == std::fs::read(&destination)? {
+            continue;
+        }
         if let Err(err) = std::fs::copy(&helper, &destination) {
-            // A sandbox helper can briefly remain alive after the sandboxed
-            // command exits. Bazel may retry the test while that process still
-            // has the staged executable open, so keep the already-staged copy.
-            if err.kind() == std::io::ErrorKind::PermissionDenied && destination.exists() {
+            // A concurrently staged executable is reusable only with identical bytes.
+            if (err.kind() == std::io::ErrorKind::PermissionDenied
+                || err.raw_os_error() == Some(32))
+                && destination.is_file()
+                && std::fs::read(&helper)? == std::fs::read(&destination)?
+            {
                 continue;
             }
             return Err(err).with_context(|| {

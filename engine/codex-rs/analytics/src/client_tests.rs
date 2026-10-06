@@ -4,7 +4,6 @@ use super::AnalyticsEventsQueue;
 use super::AnalyticsEventsQueueMessage;
 #[cfg(debug_assertions)]
 use super::capture_track_events_request;
-#[cfg(debug_assertions)]
 use super::send_track_events;
 #[cfg(debug_assertions)]
 use super::send_track_events_request;
@@ -60,6 +59,8 @@ use crate::facts::InvocationType;
 use crate::facts::PluginMeasurementRow;
 use crate::facts::PluginMeasurementsInput;
 use crate::facts::TrackEventsContext;
+#[cfg(debug_assertions)]
+use crate::product_attribution::ThreadProducts;
 use crate::reducer::MAX_PLUGIN_MEASUREMENTS_PER_BATCH;
 use codex_app_server_protocol::ApprovalsReviewer as AppServerApprovalsReviewer;
 use codex_app_server_protocol::AskForApproval as AppServerAskForApproval;
@@ -107,6 +108,9 @@ use std::sync::Mutex;
 use std::time::SystemTime;
 use tokio::sync::mpsc;
 use tokio::sync::mpsc::error::TryRecvError;
+
+#[path = "client_product_tests.rs"]
+mod product_tests;
 
 #[cfg(debug_assertions)]
 impl AnalyticsEventsClient {
@@ -289,6 +293,7 @@ fn client_with_receiver() -> (
     let (sender, receiver) = mpsc::channel(8);
     let queue = AnalyticsEventsQueue {
         sender,
+        product_generation: Arc::new(std::sync::atomic::AtomicU64::new(0)),
         app_used_emitted_keys: Arc::new(Mutex::new(HashSet::new())),
         plugin_used_emitted_keys: Arc::new(Mutex::new(HashSet::new())),
     };
@@ -370,7 +375,14 @@ async fn capture_file_writes_exact_serialized_request() {
     let auth = codex_login::CodexAuth::create_dummy_chatgpt_auth_for_testing();
 
     let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
-    send_track_events_request(&auth, &destination, vec![event], &factory).await;
+    send_track_events_request(
+        &auth,
+        &destination,
+        vec![event],
+        &factory,
+        /*product_sku*/ None,
+    )
+    .await;
 
     let contents = fs::read_to_string(&capture_path).expect("read capture file");
     let lines = contents.lines().collect::<Vec<_>>();
@@ -398,7 +410,14 @@ async fn capture_file_writes_final_batches_as_separate_lines() {
 
     for batch in track_event_request_batches(events) {
         let factory = HttpClientFactory::new(OutboundProxyPolicy::ReqwestDefault);
-        send_track_events_request(&auth, &destination, batch, &factory).await;
+        send_track_events_request(
+            &auth,
+            &destination,
+            batch,
+            &factory,
+            /*product_sku*/ None,
+        )
+        .await;
     }
 
     let contents = fs::read_to_string(&capture_path).expect("read capture file");
@@ -474,6 +493,7 @@ async fn api_key_auth_sends_only_plugin_events_to_codex_backend() {
             sample_artifact_operation_event("plugin-artifact"),
             plugin_measurement("plugin-measurement", "sample@test"),
         ],
+        &ThreadProducts::default(),
     )
     .await;
 
@@ -638,6 +658,7 @@ fn sample_thread(thread_id: &str) -> Thread {
 
 fn sample_thread_start_response() -> ClientResponsePayload {
     ClientResponsePayload::ThreadStart(ThreadStartResponse {
+        computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: sample_thread("thread-1"),
         model: "gpt-5".to_string(),
@@ -657,6 +678,7 @@ fn sample_thread_start_response() -> ClientResponsePayload {
 
 fn sample_thread_resume_response() -> ClientResponsePayload {
     ClientResponsePayload::ThreadResume(ThreadResumeResponse {
+        computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: sample_thread("thread-2"),
         model: "gpt-5".to_string(),
@@ -680,6 +702,7 @@ fn sample_thread_resume_response() -> ClientResponsePayload {
 
 fn sample_thread_fork_response() -> ClientResponsePayload {
     ClientResponsePayload::ThreadFork(ThreadForkResponse {
+        computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: sample_thread("thread-3"),
         model: "gpt-5".to_string(),

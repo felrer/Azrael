@@ -1,24 +1,24 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const hs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const vm = require("node:vm");
+const pm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const patch = require("./inject-queued-compaction.cjs");
 const { injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 
 const root = process.env.AZRAEL_PINNED_HOST_ROOT ??
-  path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
+  path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const inputs = [
   [patch.QUEUED_COMPACTION_CORE_ASSET, patch.injectQueuedCompactionCore],
   [patch.QUEUED_COMPACTION_PRESENTATION_ASSET, patch.injectQueuedCompactionPresentation],
   [patch.QUEUED_COMPACTION_LIST_ASSET, patch.injectQueuedCompactionList],
 ].map(([asset, inject]) => {
   const filename = path.join(root, asset);
-  let before = rewriteJavaScript(fs.readFileSync(filename, "utf8"), filename, ts).text;
+  let before = rewriteJavaScript(hs.readFileSync(filename, "utf8"), filename, ts).text;
   if (asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET) before = injectQueueRefresh(before).text;
   return { asset, before, inject, result: inject(before) };
 });
@@ -42,8 +42,8 @@ function compactFunction() {
 
 function fixture({ enabled = true, backlog = [] } = {}) {
   const calls = [];
-  const fn = vm.runInNewContext(`(${compactFunction()})`, {
-    aQ: async () => false,
+  const fn = pm.runInNewContext(`(${compactFunction()})`, {
+    KQ: async () => false,
     crypto: { randomUUID: () => "compaction-id" },
   });
   const manager = {
@@ -97,7 +97,7 @@ test("the three version-pinned UI transforms parse, remain idempotent, and rejec
     assert.throws(() => inject(result.text + result.text), /Duplicate/);
   }
   assert.ok(inputs[1].result.text.includes("kind:s?.kind??T.context.queuedOperationKind"));
-  assert.ok(inputs[2].result.text.includes("isSendNowDisabled:c||l&&R(e.context)||e.context.queuedOperationKind"));
+  assert.ok(inputs[2].result.text.includes("isSendNowDisabled:o||s&&L(e.context)||e.context.queuedOperationKind"));
   const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
   assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(
     "/*azrael-queued-compaction-presentation-v2*/", "/*azrael-queued-compaction-presentation-v1*/",
@@ -130,9 +130,9 @@ test("the actual queued row status is visible only while awaiting engine accepta
     [{ status: "queued" }, false, false], [{ status: "outcome-unknown" }, true, false],
     [{ status: "sending" }, true, false], [null, false, false],
   ]) {
-    const N = vm.runInNewContext(awaiting.getText(ast), { d: submission, u: paused });
+    const N = pm.runInNewContext(awaiting.getText(ast), { o: submission, a: paused });
     assert.equal(N, expected);
-    const rendered = vm.runInNewContext(status.getText(ast), { N, $: { jsx }, s: "localized-message" });
+    const rendered = pm.runInNewContext(status.getText(ast), { N, $: { jsx }, S: "localized-message" });
     if (!expected) {
       assert.equal(rendered, null);
       continue;
@@ -148,28 +148,28 @@ test("the actual queued row status is visible only while awaiting engine accepta
   // The row's conditions, spinner, paused/unknown outcomes and controls stay
   // byte-for-byte upstream behavior; only its existing status span changes.
   const before = listRenderer(list.before);
-  const oldSpan = "className:`sr-only select-none`,role:`status`,children:(0,$.jsx)(s,{id:`composer.queuedMessage.sending`,defaultMessage:`Sending`,description:`Status of a locally saved message waiting for the app server to accept it`})";
+  const oldSpan = "className:`sr-only select-none`,role:`status`,children:(0,$.jsx)(S,{id:`composer.queuedMessage.sending`,defaultMessage:`Sending`,description:`Status of a locally saved message waiting for the app server to accept it`})";
   const newSpan = status.whenTrue.getText(ast);
   assert.equal(renderer.getText(ast).replace(newSpan, `(0,$.jsx)(\`span\`,{${oldSpan}})`), before.renderer.getText(before.ast));
 });
 
 test("the preserved queued spinner dependency respects reduced motion", () => {
   const { ast, renderer } = listRenderer(inputs[2].result.text);
-  assert.ok(renderer.getText(ast).includes("R=N?(0,$.jsx)(j,{className:`icon-2xs text-text-tertiary/70`}):ce"));
+  assert.ok(renderer.getText(ast).includes("R=N?(0,$.jsx)(de,{className:`icon-2xs text-text-tertiary/70`}):F"));
   const imported = ast.statements.filter(ts.isImportDeclaration).find(node =>
-    node.importClause?.namedBindings?.elements?.some(element => element.name.text === "j"));
-  const symbol = imported.importClause.namedBindings.elements.find(element => element.name.text === "j").propertyName.text;
-  const dependency = fs.readFileSync(path.join(root, "webview/assets", imported.moduleSpecifier.text), "utf8");
+    node.importClause?.namedBindings?.elements?.some(element => element.name.text === "de"));
+  const symbol = imported.importClause.namedBindings.elements.find(element => element.name.text === "de").propertyName.text;
+  const dependency = hs.readFileSync(path.join(root, "webview/assets", imported.moduleSpecifier.text), "utf8");
   const dependencyAst = ts.createSourceFile("spinner.js", dependency, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const exported = dependencyAst.statements.filter(ts.isExportDeclaration).flatMap(node => node.exportClause?.elements ?? [])
     .find(element => element.name.text === symbol);
   const spinner = dependencyAst.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === exported.propertyName.text);
   assert.ok(spinner);
   const jsx = (type, props) => ({ type, props });
-  const render = vm.runInNewContext(`(${spinner.getText(dependencyAst)})`, {
-    $Rt: { c: count => Array(count).fill(Symbol("uninitialized")) },
-    X: (...classes) => classes.filter(Boolean).join(" "), fWe: "spinner-icon",
-    ezt: { jsx }, QRt: () => {},
+  const render = pm.runInNewContext(`(${spinner.getText(dependencyAst)})`, {
+    gBt: { c: count => Array(count).fill(Symbol("uninitialized")) },
+    J: (...classes) => classes.filter(Boolean).join(" "), uPe: "spinner-icon",
+    _Bt: { jsx }, hBt: () => {},
   });
   const result = render({ className: "icon-2xs text-text-tertiary/70" });
   assert.ok(result.props.className.split(" ").includes("motion-safe:animate-spin"));
@@ -185,7 +185,7 @@ test("queued list v2 rejects stale, missing and partial waiting-label transforms
     ["azrael.queuedMessage.awaitingAcceptance", "composer.queuedMessage.sending"],
     ["text-text-tertiary text-xs select-none shrink-0", "sr-only select-none"],
     ["\"aria-live\":`polite`,", ""],
-    ["onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:p", "onEditMessage:p"],
+    ["onEditMessage:e.context.queuedOperationKind===`contextCompaction`?void 0:d", "onEditMessage:d"],
   ]) assert.throws(() => inject(result.text.replace(anchor, replacement)), /Invalid.*list replacement/);
   assert.deepEqual(inject(result.text), { text: result.text, count: 0 });
 });

@@ -375,10 +375,19 @@ async fn remote_environment_routes_encrypted_exec_server_rpc() -> Result<()> {
     let connection = relay.connect().await?;
     let client = &connection.client;
 
+    let argv = if cfg!(windows) {
+        vec!["cmd.exe", "/d", "/c", "exit", "0"]
+    } else {
+        vec!["true"]
+    }
+    .into_iter()
+    .map(str::to_string)
+    .collect();
+
     let exec_params = ExecParams {
         metadata: Default::default(),
         process_id: ProcessId::from("proc-1"),
-        argv: vec!["true".to_string()],
+        argv,
         cwd: PathUri::from_host_native_path(std::env::current_dir()?)?,
         shell_snapshot: None,
         env_policy: None,

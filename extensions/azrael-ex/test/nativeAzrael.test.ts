@@ -7,7 +7,7 @@ import {
   azraelHostExtension,
   azraelSettingKeys,
   openAzraelSidebar,
-  pickAzraelSetting
+  openAzraelSettings
 } from "../src/nativeAzrael";
 
 function apiFixture(): { api: NativeAzraelApi; requestedIds: string[]; executed: Array<[string, ...unknown[]]> } {
@@ -58,10 +58,10 @@ test("sidebar and settings use only the azrael host namespace", async () => {
   const { api, requestedIds, executed } = apiFixture();
   assert.deepEqual(azraelSettingKeys(api), ["azrael.model", "azrael.language"]);
   await openAzraelSidebar(api);
-  await pickAzraelSetting(api);
+  await openAzraelSettings(api);
   assert.ok(requestedIds.every((id) => id === AZRAEL_HOST_EXTENSION_ID));
   assert.deepEqual(executed, [
     ["azrael.openSidebar"],
-    ["workbench.action.openSettings", "azrael.model"]
+    ["azrael.openSettingsPanel"]
   ]);
 });

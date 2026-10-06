@@ -19,6 +19,12 @@
 - Reuse sufficient prior evidence. Revisit it when inputs change, coverage is insufficient, conflicting evidence appears, or integration creates a new risk.
 - Preserve verbose execution logs in task-specific files. For successful tests and builds, return the executed scope, outcome, actual exit code, and log or artifact paths. For failures, return failing targets, the first causal error, and the stack or context needed to diagnose it; inspect additional log sections only as needed. Omit routine progress and repeated diagnostics from summaries while preserving required evidence and project retention and cleanup rules.
 
+## Worktree Lifecycle (All Agents)
+
+- When a task uses a newly created worktree, integrate all of its changes into the primary checkout (`main`, or the repository's existing primary branch), preserve existing work, resolve conflicts, and verify the combined result before task completion. Uncommitted changes must also be integrated.
+- You MUST delete the task worktree after integration, without exception. Verify that both its Git worktree registration and its directory are gone. Preserve required provenance and reusable build caches outside the worktree before deleting it.
+- These requirements do not authorize commits or publishing; follow the user's existing instructions for those actions.
+
 ## Delegation and Integration (Parent Only)
 
 These rules authorize the parent to delegate suitable independent work. They do not authorize children to delegate.

@@ -509,7 +509,7 @@ impl CodexThread {
         Ok(outcome)
     }
 
-    /// Steers only if `expected_turn_id` is still the active regular turn.
+    /// Steers the matching active regular turn or starts a turn to wake its parked root.
     pub async fn steer_turn(
         &self,
         request: TurnInputRequest,
@@ -523,9 +523,7 @@ impl CodexThread {
             TurnInputSubmission::NotSubmitted { reason } => {
                 Ok(SteerSubmission::NotSubmitted { reason })
             }
-            TurnInputSubmission::Started { .. } => {
-                unreachable!("steer-only submission cannot start a turn")
-            }
+            TurnInputSubmission::Started { turn_id } => Ok(SteerSubmission::Started { turn_id }),
         }
     }
 

@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { createInterface } from 'node:readline';
 import { OpenAiAutoSwitchFixture, runOpenAiAutoSwitch } from './openai-auto-switch-fixture.mjs';
 import { runAccountControls } from './account-controls-fixture.mjs';
+import { accountFixtureEnvironment } from './account-fixture-environment.mjs';
 
 const WAIT_MS = 30_000;
 const arguments_ = process.argv.slice(2);
@@ -376,7 +377,7 @@ function startMockBackend() {
       send(200, {});
       return;
     }
-    if (autoSwitchOnly && request.method === 'GET' && url.pathname.endsWith('/wham/accounts/check')) {
+    if ((autoSwitchOnly || accountControlsOnly) && request.method === 'GET' && url.pathname.endsWith('/wham/accounts/check')) {
       send(200, { accounts: accounts.map(account => ({ id: account.accountId,
         plan_type: 'team', workspace_backend_origin: 'https://account-fixture.invalid',
         account_routing_override: 'NO_CONSTRAINT' })),
@@ -490,23 +491,9 @@ async function startPair(label) {
   let stdio;
   let management;
   try {
-    const fixtureEnvironment = {
-      ...process.env,
-      CODEX_HOME: stateDirectory,
-      AZRAEL_EX_MANAGEMENT_SOCKET: socketPath,
-      CODEX_REFRESH_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/token`,
-      CODEX_REVOKE_TOKEN_URL_OVERRIDE: `${backend.baseUrl}/oauth/revoke`,
-      HTTPS_PROXY: backend.baseUrl,
-      ALL_PROXY: backend.baseUrl,
-      NO_PROXY: '127.0.0.1,localhost',
-    };
-    if (autoSwitchOnly) {
-      // The installed host forbids endpoint overrides. Exercise the existing
-      // native RPC/callback through ordinary disposable app-server instead.
-      delete fixtureEnvironment.AZRAEL_EX_MANAGEMENT_SOCKET;
-      delete fixtureEnvironment.AZRAEL_EX_ACCOUNT_STATE_FILE;
-      delete fixtureEnvironment.AZRAEL_EX_ACCOUNT_DEFAULT_FILE;
-    }
+    const fixtureEnvironment = accountFixtureEnvironment(process.env, {
+      stateDirectory, socketPath, baseUrl: backend.baseUrl, autoSwitchOnly,
+    });
     engine = spawn(
       enginePath,
       [
@@ -525,9 +512,13 @@ async function startPair(label) {
         '-c',
         `model="${fixtureModel}"`,
         '-c',
-        'model_provider="azrael_mock"',
-        '-c',
-        `model_providers.azrael_mock={name="Azrael mock",base_url="${backend.baseUrl}/v1",wire_api="responses",requires_openai_auth=true,supports_websockets=false,request_max_retries=0,stream_max_retries=0}`,
+        accountControlsOnly ? 'model_provider="openai"' : 'model_provider="azrael_mock"',
+        // Controls exercise the real host bridge without inference; host mode
+        // intentionally rejects custom model-provider transport overrides.
+        ...(accountControlsOnly ? [] : [
+          '-c',
+          `model_providers.azrael_mock={name="Azrael mock",base_url="${backend.baseUrl}/v1",wire_api="responses",requires_openai_auth=true,supports_websockets=false,request_max_retries=0,stream_max_retries=0}`,
+        ]),
         '-c',
         `model_catalog_json="${fixtureModelsPath.replaceAll('\\', '/')}"`,
         'app-server',

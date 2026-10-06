@@ -25,7 +25,12 @@ const server = createServer(async (req, res) => {
   if (req.method !== 'POST' || !req.url.endsWith('/responses')) { res.writeHead(404); res.end('{}'); return; }
   const body = JSON.parse(raw);
   calls += 1;
-  const tools = (body.tools ?? []).flatMap(tool => tool.type === 'namespace'
+  const declaredTools = [...(body.tools ?? []), ...(body.input ?? []).filter(item => item.type === 'additional_tools').flatMap(item => item.tools ?? [])];
+  if (calls === 1) {
+    await writeFile(join(base, 'provider-tools.json'), JSON.stringify(declaredTools, null, 2));
+    report.requestShape = { keys: Object.keys(body), model: body.model, toolChoice: body.tool_choice, toolCount: declaredTools.length };
+  }
+  const tools = declaredTools.flatMap(tool => tool.type === 'namespace'
     ? tool.tools.map(value => ({ ...value, namespace: tool.name })) : [tool]);
   const defer = tools.find(tool => tool.name === 'defer_root');
   const park = calls === 1 || calls === 4;
@@ -46,7 +51,7 @@ await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
 const state = join(base, 'state');
 await writeFile(join(state, 'config.toml'), `model = "gpt-5.6-sol"\nmodel_provider = "fixture_openai"\ncli_auth_credentials_store = "file"\napproval_policy = "never"\nsandbox_mode = "danger-full-access"\n[model_providers.fixture_openai]\nname = "OpenAI"\nbase_url = "http://127.0.0.1:${server.address().port}/v1"\nwire_api = "responses"\nrequires_openai_auth = false\nsupports_websockets = false\nrequest_max_retries = 0\n[features]\nplugins = false\nresponses_websockets = false\n`);
 const env = {};
-for (const key of ['SystemRoot', 'WINDIR', 'PATH', 'PATHEXT', 'COMSPEC', 'PROCESSOR_ARCHITECTURE']) if (process.env[key]) env[key] = process.env[key];
+for (const key of ['SystemRoot', 'SystemDrive', 'WINDIR', 'PATH', 'PATHEXT', 'COMSPEC', 'PROCESSOR_ARCHITECTURE']) if (process.env[key]) env[key] = process.env[key];
 Object.assign(env, { CODEX_HOME: state, USERPROFILE: join(base, 'home'), HOME: join(base, 'home'), APPDATA: join(base, 'appdata'),
   LOCALAPPDATA: join(base, 'localappdata'), TEMP: join(base, 'temp'), TMP: join(base, 'temp'),
   RUST_LOG: 'warn,azrael_input_delivery=debug', AZRAEL_EX_PLAINTEXT_AGENTS: '1' });

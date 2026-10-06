@@ -8,17 +8,23 @@ const ts = require(path.resolve("extensions/azrael-ex/node_modules/typescript/li
 const { createImmediateStopCoordinator } = require("./immediate-stop.cjs");
 const { IMMEDIATE_STOP_ASSET: asset, IMMEDIATE_STOP_MARKER: marker, injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { transformAsset } = require("./namespace-azrael-host.cjs");
-const pristine = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.928.31416", asset), "utf8");
+const pristine = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.930.61225", asset), "utf8");
 const changed = injectImmediateStop(pristine, asset).text;
 function declarations(source) {
   const ast = ts.createSourceFile(asset, source, 99, true, ts.ScriptKind.JS), found = {};
   function visit(n) {
-    if (ts.isFunctionDeclaration(n) && ["yOn", "XSn", "JSn", "ZSn", "QSn", "fQ", "DX"].includes(n.name?.text)) found[n.name.text] = n.getText(ast);
-    if (ts.isMethodDeclaration(n) && n.name.getText(ast) === "interruptConversationSelf") found.method = n.getText(ast);
+    if (ts.isFunctionDeclaration(n) && ["oOn", "LSn", "zSn", "FSn", "RSn", "$Q", "gZ", "hZ"].includes(n.name?.text)) {
+      assert.ok(!Object.hasOwn(found, n.name.text), `Unique pinned declaration: ${n.name.text}`);
+      found[n.name.text] = n.getText(ast);
+    }
+    if (ts.isMethodDeclaration(n) && n.name.getText(ast) === "interruptConversationSelf") {
+      assert.ok(!Object.hasOwn(found, "method"), "Unique pinned interrupt method");
+      found.method = n.getText(ast);
+    }
     ts.forEachChild(n, visit);
   }
   visit(ast);
-  for (const key of ["yOn", "XSn", "JSn", "ZSn", "QSn", "fQ", "DX", "method"]) assert.ok(found[key], key);
+  for (const key of ["oOn", "LSn", "zSn", "FSn", "RSn", "$Q", "gZ", "hZ", "method"]) assert.ok(found[key], key);
   return found;
 }
 const native = declarations(pristine), injected = declarations(changed);
@@ -35,10 +41,10 @@ function harness({ helper, send, start } = {}) {
   const requests = [], updates = [], states = new Map(), cancellations = [];
   const context = {
     setTimeout, clearTimeout, console,
-    $e: e => e.message ?? String(e), $Sn: { default: (rows, predicate) => rows.findLast(predicate) },
-    EX: state => state.turns, Eh: (_rows, overlay) => overlay,
-    Rh: () => null, Nxn() {}, ht: {},
-    bOn: start ?? (() => Promise.resolve({ turn: { id: "accepted" } })),
+    c: e => e.message ?? String(e), BSn: { default: (rows, predicate) => rows.findLast(predicate) },
+    Ch: (_rows, overlay) => overlay,
+    Fh: () => null, bxn() {}, p: {},
+    sOn: start ?? (() => Promise.resolve({ turn: { id: "accepted" } })),
   };
   vm.createContext(context);
   vm.runInContext(changed.slice(changed.indexOf(marker)), context);
@@ -55,7 +61,7 @@ function harness({ helper, send, start } = {}) {
   };
   return { context, manager, requests, updates, states, cancellations,
     turn(id = "accepted", status = "inProgress") { states.set("thread", { id: "thread", turns: [{ turnId: id, status }] }); },
-    start(messageId = "message") { return context.yOn({ manager, conversationId: "thread", clientUserMessageId: messageId, observeRequest: () => ({ cancel: () => cancellations.push(messageId) }) }); },
+    start(messageId = "message") { return context.oOn({ manager, conversationId: "thread", clientUserMessageId: messageId, observeRequest: () => ({ cancel: () => cancellations.push(messageId) }) }); },
     stop(mode = "user-stop", id) { return method.call(manager, "thread", mode, id); }
   };
 }
@@ -74,9 +80,9 @@ test("pinned injection parses through existing pipeline and guards asset, anchor
     changed.replace("let i=()=>__azraelImmediateStop.stop", "let i=()=>missing.stop"),
     changed.replace("expectedTurnId:__azraelExpectedTurnId", "expectedTurnId:null"),
     changed.replace("const managers = new WeakMap();", "const managers = new Map();"),
-    changed + native.yOn,
+    changed + native.oOn,
   ]) assert.throws(() => injectImmediateStop(damaged, asset), /Damaged/);
-  for (const key of ["XSn", "JSn", "ZSn", "QSn", "fQ", "DX"]) assert.equal(injected[key], native[key]);
+  for (const key of ["LSn", "zSn", "FSn", "RSn", "$Q", "gZ", "hZ"]) assert.equal(injected[key], native[key]);
 });
 
 test("actual native pending start is captured once; later submission cannot replace its ID", async () => {
@@ -120,7 +126,7 @@ test("no-active response retries same target until terminal; successful ACK wait
   }
 });
 
-test("terminal state, missing state, newer turn, deferred, disconnect and mismatch guard actual XSn", async () => {
+test("terminal state, missing state, newer turn, deferred, disconnect and mismatch guard actual LSn", async () => {
   const helper = createImmediateStopCoordinator(); let sent = 0;
   for (const status of ["completed", "interrupted", "failed"]) await helper.interrupt({}, "t", "target", () => { sent++; }, () => ({ turnId: "target", status }));
   assert.equal(sent, 0);
@@ -168,17 +174,17 @@ test("actual implicit stop rejects deferred and untracked pending snapshots and 
   }
   const h = harness({ send: (_, m) => { m.getConversation("thread").turns[0].status = "interrupted"; } });
   h.turn(); const expected = [];
-  const original = h.context.XSn;
-  h.context.XSn = params => { expected.push(params.expectedTurnId); return original(params); };
+  const original = h.context.LSn;
+  h.context.LSn = params => { expected.push(params.expectedTurnId); return original(params); };
   assert.equal(await h.stop(), "accepted"); assert.deepEqual(expected, ["accepted"]);
   const missing = harness(); assert.equal(await missing.stop(), null); assert.equal(missing.requests.length, 0);
 });
 
 test("native null result requires matching terminal confirmation for implicit selected turn", async () => {
-  const h = harness(); h.turn(); h.context.XSn = async () => null;
+  const h = harness(); h.turn(); h.context.LSn = async () => null;
   await assert.rejects(h.stop(), /did not confirm/);
-  h.context.XSn = async () => { h.turn("accepted", "completed"); return null; };
+  h.context.LSn = async () => { h.turn("accepted", "completed"); return null; };
   assert.equal(await h.stop(), null);
-  h.turn(); h.context.XSn = async () => { h.turn("newer"); return null; };
+  h.turn(); h.context.LSn = async () => { h.turn("newer"); return null; };
   await assert.rejects(h.stop(), /newer/);
 });

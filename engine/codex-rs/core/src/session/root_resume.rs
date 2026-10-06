@@ -83,7 +83,7 @@ impl Session {
         self.root_resume_control()
             .record
             .lock()
-            .expect("root resume record")
+            .unwrap_or_else(|error| panic!("root resume record: {error}"))
             .clone()
     }
 
@@ -98,13 +98,13 @@ impl Session {
                 .root_resume_control()
                 .parked_context
                 .lock()
-                .expect("parked context") = None;
+                .unwrap_or_else(|error| panic!("parked context: {error}")) = None;
         }
         *self
             .root_resume_control()
             .record
             .lock()
-            .expect("root resume record") = record;
+            .unwrap_or_else(|error| panic!("root resume record: {error}")) = record;
     }
 
     pub(crate) fn has_root_resume_reservation(&self) -> bool {
@@ -123,7 +123,7 @@ impl Session {
         self.root_resume_control()
             .deferred_turn
             .lock()
-            .expect("deferred turn")
+            .unwrap_or_else(|error| panic!("deferred turn: {error}"))
             .as_deref()
             == Some(turn_id)
     }
@@ -145,7 +145,7 @@ impl Session {
             if control
                 .deferred_turn
                 .lock()
-                .expect("deferred turn")
+                .unwrap_or_else(|error| panic!("deferred turn: {error}"))
                 .is_none()
             {
                 return guard;
@@ -165,7 +165,7 @@ impl Session {
         reason: String,
     ) -> CodexResult<RootResumeReservation> {
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         if control.closed.load(Ordering::Acquire) {
             return Err(invalid("root runtime is closing"));
         }
@@ -263,7 +263,10 @@ impl Session {
         db.create_root_resume(&record)
             .await
             .map_err(storage_error)?;
-        *control.parked_context.lock().expect("parked context") = Some(Arc::clone(turn));
+        *control
+            .parked_context
+            .lock()
+            .unwrap_or_else(|error| panic!("parked context: {error}")) = Some(Arc::clone(turn));
         self.set_root_resume_record(Some(record.clone()));
         Ok(record)
     }
@@ -324,7 +327,7 @@ impl Session {
             return Ok(false);
         }
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         let Some(record) = self.root_resume_record().filter(|r| {
             r.originating_turn_id == turn.sub_id && r.state == RootResumeState::Preparing
         }) else {
@@ -377,7 +380,10 @@ impl Session {
         }
         self.transition_root_resume_record(&record, RootResumeState::Waiting, None, None)
             .await?;
-        *control.deferred_turn.lock().expect("deferred turn") = Some(turn.sub_id.clone());
+        *control
+            .deferred_turn
+            .lock()
+            .unwrap_or_else(|error| panic!("deferred turn: {error}")) = Some(turn.sub_id.clone());
         Ok(true)
     }
 
@@ -392,7 +398,7 @@ impl Session {
             return false;
         }
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         if !self.root_turn_is_deferred(&turn.sub_id) {
             if let Some(record) = self.root_resume_record().filter(|r| {
                 r.originating_turn_id == turn.sub_id && r.state == RootResumeState::Preparing
@@ -427,19 +433,20 @@ impl Session {
             )
             .await;
         }
-        let mut active = self.active_turn.lock().await;
-        if active
-            .as_ref()
-            .and_then(|a| a.task.as_ref())
-            .is_some_and(|t| t.turn_context.sub_id == turn.sub_id)
         {
-            if let Some(task) = active.as_mut().and_then(|a| a.task.take()) {
-                task.handle.detach();
+            let mut active = self.active_turn.lock().await;
+            if active
+                .as_ref()
+                .and_then(|a| a.task.as_ref())
+                .is_some_and(|t| t.turn_context.sub_id == turn.sub_id)
+            {
+                if let Some(task) = active.as_mut().and_then(|a| a.task.take()) {
+                    task.handle.detach();
+                }
+                // Accepted input is durable. New parked mail is persisted by enqueue_root_aware_mail.
+                *active = None;
             }
-            // Accepted input is durable. New parked mail is persisted by enqueue_root_aware_mail.
-            *active = None;
         }
-        drop(active);
         turn.turn_metadata_state.cancel_git_enrichment_task();
         if let Some(record) = record.as_ref() {
             let (started_at, deferred_at, duration_ms) =
@@ -467,7 +474,10 @@ impl Session {
                     .await;
             }
         }
-        *control.deferred_turn.lock().expect("deferred turn") = None;
+        *control
+            .deferred_turn
+            .lock()
+            .unwrap_or_else(|error| panic!("deferred turn: {error}")) = None;
         control.parked.notify_waiters();
         if let Some(record) = self
             .root_resume_record()
@@ -483,7 +493,7 @@ impl Session {
             .root_resume_control()
             .timer
             .lock()
-            .expect("root resume timer")
+            .unwrap_or_else(|error| panic!("root resume timer: {error}"))
             .take()
         {
             timer.cancel();
@@ -492,7 +502,7 @@ impl Session {
 
     pub(crate) async fn close_root_resume_runtime(&self) {
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         control.closed.store(true, Ordering::Release);
         self.stop_root_resume_timer();
     }
@@ -505,11 +515,11 @@ impl Session {
         start_options: codex_protocol::turn_input::TurnStartOptions,
     ) {
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         let context = control
             .parked_context
             .lock()
-            .expect("parked context")
+            .unwrap_or_else(|error| panic!("parked context: {error}"))
             .clone();
         if let Some(context) = context.filter(|_| self.has_root_resume_reservation()) {
             self.record_inter_agent_communication(
@@ -551,7 +561,7 @@ impl Session {
             .root_resume_control()
             .timer
             .lock()
-            .expect("root resume timer") = Some(token.clone());
+            .unwrap_or_else(|error| panic!("root resume timer: {error}")) = Some(token.clone());
         let weak = Arc::downgrade(self);
         let clock = Arc::clone(&self.services.time_provider);
         let agent_control = self.services.agent_control.clone();
@@ -626,7 +636,7 @@ impl Session {
                 .admit_request()
                 .await;
             let control = session.root_resume_control();
-            let _guard = control.gate.lock().await;
+            let _guard = Arc::clone(&control.gate).lock_owned().await;
             if control.closed.load(Ordering::Acquire) {
                 return Err(invalid("root runtime is closing"));
             }
@@ -706,20 +716,25 @@ impl Session {
             context
                 .turn_metadata_state
                 .set_turn_trigger("root_resume".to_string());
-            {
+            let busy = {
                 let mut active = session.active_turn.lock().await;
                 if active.is_some() {
-                    session
-                        .transition_root_resume_record(
-                            &claimed,
-                            RootResumeState::Blocked,
-                            None,
-                            Some("root admission changed".to_string()),
-                        )
-                        .await?;
-                    return Err(invalid("root thread is currently active"));
+                    true
+                } else {
+                    *active = Some(ActiveTurn::default());
+                    false
                 }
-                *active = Some(ActiveTurn::default());
+            };
+            if busy {
+                session
+                    .transition_root_resume_record(
+                        &claimed,
+                        RootResumeState::Blocked,
+                        None,
+                        Some("root admission changed".to_string()),
+                    )
+                    .await?;
+                return Err(invalid("root thread is currently active"));
             }
             let wake = match claimed.wake_reason {
                 Some(RootResumeWakeReason::Deadline) => "deadline reached",
@@ -786,7 +801,7 @@ impl Session {
         self.root_resume_control()
             .parked_context
             .lock()
-            .expect("parked context")
+            .unwrap_or_else(|error| panic!("parked context: {error}"))
             .clone()
     }
 
@@ -839,7 +854,7 @@ impl Session {
 
     pub(crate) async fn recover_root_resume(self: &Arc<Self>) -> CodexResult<()> {
         let control = self.root_resume_control();
-        let _guard = control.gate.lock().await;
+        let _guard = Arc::clone(&control.gate).lock_owned().await;
         let Some(db) = self.state_db() else {
             return Ok(());
         };
@@ -866,7 +881,10 @@ impl Session {
                 },
             )
             .await;
-        *control.parked_context.lock().expect("parked context") = Some(context);
+        *control
+            .parked_context
+            .lock()
+            .unwrap_or_else(|error| panic!("parked context: {error}")) = Some(context);
         if matches!(
             record.state,
             RootResumeState::Preparing | RootResumeState::Claimed
@@ -884,7 +902,7 @@ impl Session {
         control
             .terminal_turns
             .lock()
-            .expect("terminal turns")
+            .unwrap_or_else(|error| panic!("terminal turns: {error}"))
             .insert(turn_id.to_string());
         control.terminal_activity.notify_waiters();
     }
@@ -911,7 +929,7 @@ impl Session {
         self.root_resume_control()
             .terminal_turns
             .lock()
-            .expect("terminal turns")
+            .unwrap_or_else(|error| panic!("terminal turns: {error}"))
             .contains(turn_id)
     }
 }

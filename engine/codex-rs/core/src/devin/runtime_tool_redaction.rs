@@ -8,17 +8,20 @@ static SECRET_ASSIGNMENT: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(
         r#"(?i)(["']?(?:api[_-]?key|token|access[_-]?token|refresh[_-]?token|password|passwd|secret)["']?\s*[:=]\s*)(?:"[^"\r\n]*"?|'[^'\r\n]*'?|[^\s,;}\]]+)"#,
     )
-    .expect("secret assignment regex is valid")
+    .unwrap_or_else(|error| panic!("secret assignment regex is valid: {error}"))
 });
 static AUTH_HEADER: LazyLock<Regex> = LazyLock::new(|| {
     Regex::new(r"(?i)\b(authorization|proxy-authorization)\s*:\s*([^\r\n]+)")
-        .expect("authorization header regex is valid")
+        .unwrap_or_else(|error| panic!("authorization header regex is valid: {error}"))
 });
 static BEARER_TOKEN: LazyLock<Regex> = LazyLock::new(|| {
-    Regex::new(r"(?i)\bbearer\s+[a-z0-9._~+/=-]+").expect("bearer token regex is valid")
+    Regex::new(r"(?i)\bbearer\s+[a-z0-9._~+/=-]+")
+        .unwrap_or_else(|error| panic!("bearer token regex is valid: {error}"))
 });
-static OPENAI_TOKEN: LazyLock<Regex> =
-    LazyLock::new(|| Regex::new(r"\bsk-[a-zA-Z0-9_-]{8,}").expect("OpenAI token regex is valid"));
+static OPENAI_TOKEN: LazyLock<Regex> = LazyLock::new(|| {
+    Regex::new(r"\bsk-[a-zA-Z0-9_-]{8,}")
+        .unwrap_or_else(|error| panic!("OpenAI token regex is valid: {error}"))
+});
 
 pub(in super::super) fn bounded_redacted(text: &str, limit: usize) -> String {
     // Bound regex work while leaving enough context to identify secrets before

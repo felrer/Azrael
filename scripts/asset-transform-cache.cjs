@@ -8,11 +8,11 @@ const sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
 const isSha = (value) => typeof value === "string" && /^[a-f\d]{64}$/.test(value);
 const COUNT_FIELDS = ["edits", "namespaceEdits", "workspaceThreadListEdits", "recoveryEdits",
   "deferredTurnEdits", "deferredNativeTimingChecks", "compactionProgressEdits", "queueRefreshEdits",
-  "queueRefreshNativeChecks", "providerPickerEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits", "accountSwitchQueueEdits",
+  "queueRefreshNativeChecks", "providerPickerEdits", "maxReasoningEdits", "recentChatFilterEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits", "uiInputDiagnosticsEdits", "accountSwitchQueueEdits",
   "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits", "uiCleanupEdits", "petsCleanupEdits", "contentFontEdits"];
 
 function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescriptVersion,
-  transformRules, getAssetTransformRules = () => transformRules, statistics = { hits: 0, misses: 0 }, metrics }) {
+  transformRules, getAssetTransformRules = () => transformRules, pruneUnused = false, statistics = { hits: 0, misses: 0 }, metrics }) {
   const initializationStarted = performance.now();
   function measure(stage, action) {
     if (!metrics) return action();
@@ -85,7 +85,8 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
     });
   }
   const noops = readNoops();
-  let dirtyNoops = false;
+  const usedNoops = new Set(), usedEntries = new Set();
+  let dirtyNoops = false, failed = false;
   if (metrics) {
     metrics.cacheInitialization.elapsedMs += performance.now() - initializationStarted;
     metrics.cacheInitialization.count += 1;
@@ -112,6 +113,7 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
         metrics.cacheLookup.count += 1;
       }
       if (noopHit) {
+        usedNoops.add(keyDigest);
         statistics.hits += 1;
         return { text: source, asset: null };
       }
@@ -133,31 +135,48 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
             return result;
           }
           });
-          if (cached) return cached;
+          if (cached) { usedEntries.add(keyDigest); return cached; }
         } catch {
           // Missing, truncated, malformed or corrupt entries rerun the pipeline.
         }
       }
       statistics.misses += 1;
-      const result = transform();
+      let result;
+      try { result = transform(); } catch (error) { failed = true; throw error; }
       if (result.asset === null && result.text === source) {
         noops.add(keyDigest);
+        usedNoops.add(keyDigest);
         dirtyNoops = true;
       } else if (result.asset) {
-        writeAtomic(entryPath, { key, outputSha256: sha(result.text),
-          resultSha256: sha(JSON.stringify(result)), result });
+        try {
+          writeAtomic(entryPath, { key, outputSha256: sha(result.text),
+            resultSha256: sha(JSON.stringify(result)), result });
+          usedEntries.add(keyDigest);
+        } catch (error) { failed = true; throw error; }
       }
       return result;
     },
     flush() {
       return measure("cacheFlush", () => {
-      if (!indexPath || !dirtyNoops) return;
-      // Merge only a validated index; concurrent writers may lose hints, never results.
-      for (const key of readNoops()) noops.add(key);
-      const keys = [...noops].sort();
+      if (!indexPath || failed || (!pruneUnused && !dirtyNoops)) return;
+      // Completed pruning owns its visited set; ordinary writers merge valid hints.
+      if (!pruneUnused) for (const key of readNoops()) noops.add(key);
+      const keys = [...(pruneUnused ? usedNoops : noops)].sort();
       const payload = { fingerprint, keys };
       writeAtomic(indexPath, { ...payload, payloadSha256: sha(JSON.stringify(payload)) });
       dirtyNoops = false;
+      // Commit the current index before deleting obsolete cache files. Never follow
+      // links or remove unknown names, temporary files or directories.
+      if (pruneUnused) {
+        for (const name of fs.readdirSync(directory)) {
+          const entry = /^([a-f0-9]{64})\.json$/.exec(name);
+          const oldIndex = /^noops-[a-f0-9]{64}\.json$/.test(name);
+          if (!(entry || oldIndex) || (entry && usedEntries.has(entry[1])) ||
+              path.join(directory, name) === indexPath) continue;
+          const filename = path.join(directory, name);
+          if (fs.lstatSync(filename).isFile()) fs.unlinkSync(filename);
+        }
+      }
       });
     },
   };

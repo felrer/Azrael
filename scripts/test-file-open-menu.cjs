@@ -1,30 +1,59 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const vo = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
 const { FILE_OPEN_MENU_ASSET, ANCHOR, MARKER, REPLACEMENT, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.928.31416");
-const original = fs.readFileSync(path.join(root, FILE_OPEN_MENU_ASSET), "utf8");
+const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const _s = require("../extensions/azrael-ex/node_modules/typescript");
+const original = vo.readFileSync(path.join(root, FILE_OPEN_MENU_ASSET), "utf8");
 
-function menuFixture({ remote = false } = {}) {
+
+function pinnedExpression(source, name, predicate) {
+  const file = _s.createSourceFile("pinned-expression.js", source, _s.ScriptTarget.Latest, true, _s.ScriptKind.JS);
+  const nodes = [];
+  function visit(node) { if (predicate(node)) nodes.push(node.getText(file)); _s.forEachChild(node, visit); }
+  visit(file);
+  assert.equal(nodes.length, 1, `Unique pinned expression: ${name}`);
+  return nodes[0];
+}
+const descriptors = vm.runInNewContext(`(${pinnedExpression(original, "file descriptors", node =>
+  _s.isCallExpression(node) && node.expression.getText() === "Vn" && node.getText().includes("markdown.fileReference.copyPath")).slice(3, -1)})`);
+const normalizationSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-532d60c9b397.js"), "utf8");
+const normalizeMenu = vm.runInNewContext(`(${pinnedNode(normalizationSource, "iB", node =>
+  _s.isFunctionDeclaration(node) && node.name?.text === "iB")})`);
+const formatterSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-efe028fd535e.js"), "utf8");
+const formatterCode = pinnedExpression(formatterSource, "intl formatter", node =>
+  _s.isBinaryExpression(node) && node.left.getText() === "uQe" && _s.isFunctionExpression(node.right));
+const assertionCode = pinnedNode(formatterSource, "eQe", node => _s.isFunctionDeclaration(node) && node.name?.text === "eQe");
+const formatMessage = vm.runInNewContext(`${assertionCode};${formatterCode};uQe`);
+// Exercise the production formatter's translated-string path and descriptor assertion.
+const intlConfig = { locale: "ko", defaultLocale: "en", messages: {
+  "azrael.workspaceFile.openInVSCode": "VS Code에서 열기",
+  "markdown.fileReference.copyPath": "경로 복사",
+  "markdown.fileReference.copyFileContents": "파일 내용 복사",
+  "markdown.fileReference.openInExplorer": "탐색기에서 열기",
+} };
+const formatMenu = menu => normalizeMenu(menu, (message, values) => formatMessage(intlConfig, {}, message, values));
+
+function menuFixture({ remote = false, file = "report.HTML" } = {}) {
   const text = injectFileOpenMenu(original, FILE_OPEN_MENU_ASSET).text;
-  const menuCode = text.slice(text.indexOf("function lE("), text.indexOf("function uE("));
-  const openCode = text.slice(text.indexOf("function RC("), text.indexOf("function zC("))
+  const menuCode = pinnedNode(text, "QE", node => _s.isFunctionDeclaration(node) && node.name?.text === "QE");
+  const openCode = pinnedNode(text, "ww", node => _s.isFunctionDeclaration(node) && node.name?.text === "ww")
     .replaceAll("import.meta.url", '"file:///pinned-test.js"');
   const calls = [];
   const host = { id: "local", remote };
   const context = {
-    pf: "host", Ms: "capability", pC: "targets", Du: "platform", mh: "thread", kC: "mutation",
-    oE: () => ({ primaryTarget: null, visibleTargets: [] }),
-    Gc: h => h.remote, Ja: () => false, Ef: () => "thread-1",
-    R_: (cwd, file) => path.win32.join(cwd, file), Ai: () => "C:\\project",
-    f: message => message.defaultMessage, uE: () => "탐색기에서 열기",
-    dE: { copyPath: "경로 복사" },
-    W: { clipboard: { writeText: value => { calls.push(["copy-path", value]); return Promise.resolve(); } } },
-    iE: (_query, value) => calls.push(["copy-contents", value]),
+    Cp: "host", Fs: "capability", $C: "targets", vp: "platform", jh: "thread", hw: "mutation",
+    YE: () => ({ primaryTarget: null, visibleTargets: [] }),
+    Tc: h => h.remote, Vo: () => false, hm: () => "thread-1",
+    Kh: (cwd, file) => path.win32.join(cwd, file),
+    Kt: message => message, $E: () => ({ id: "markdown.fileReference.openInExplorer", defaultMessage: "Open in explorer" }),
+    eD: descriptors,
+    H: { clipboard: { writeText: value => { calls.push(["copy-path", value]); return Promise.resolve(); } } },
+    qE: (_query, value) => calls.push(["copy-contents", value]),
   };
   const scope = {
     value: {}, queryClient: {}, query: { getData: () => ({}) },
@@ -37,8 +66,8 @@ function menuFixture({ remote = false } = {}) {
       throw new Error(`Unexpected state: ${key}`);
     },
   };
-  const buildMenu = vm.runInNewContext(`${openCode};${menuCode};lE`, context);
-  return { calls, menu: buildMenu(scope, { hostId: "local", path: "report.HTML", cwd: "C:\\project", line: 7, column: 3 }) };
+  const buildMenu = vm.runInNewContext(`${openCode};${menuCode};QE`, context);
+  return { calls, menu: buildMenu(scope, { hostId: "local", path: file, cwd: "C:\\project", line: 7, column: 3 }) };
 }
 
 test("pinned file menu explicitly routes VS Code with the original path and selection", () => {
@@ -47,7 +76,8 @@ test("pinned file menu explicitly routes VS Code with the original path and sele
     "workspace-file-open-vscode", "workspace-file-copy-path", "workspace-file-copy-contents", "workspace-file-reveal-path",
   ]);
   const item = menu.find(item => item.id === "workspace-file-open-vscode");
-  assert.equal(item.message, "VS Code에서 열기");
+  assert.equal(item.message.id, "azrael.workspaceFile.openInVSCode");
+  assert.equal(item.message.defaultMessage, "VS Code에서 열기");
   item.onSelect();
   assert.equal(calls.length, 1);
   assert.equal(calls[0][0], "open");
@@ -60,6 +90,24 @@ test("pinned file menu explicitly routes VS Code with the original path and sele
   assert.equal(request.hostId, "local");
 });
 
+test("pinned menu normalization formats every MP4 action and rejects the old plain-string payload", () => {
+  const file = "C:/Users/felre/Desktop/long-video/runtime/robot-battle/run-01/final.mp4";
+  const { menu, calls } = menuFixture({ file });
+  const formatted = formatMenu(menu);
+  assert.deepEqual(Array.from(formatted, item => item.nativeLabel), [
+    "VS Code에서 열기", "경로 복사", "파일 내용 복사", "탐색기에서 열기",
+  ]);
+  for (const item of formatted) item.onSelect();
+  assert.equal(calls[0][1].path, file);
+  assert.equal(calls[0][1].target, "vscode");
+  assert.equal(calls[2][1].path, file);
+  assert.equal(calls[3][1].path, file);
+  assert.equal(calls[3][1].target, "fileManager");
+  const malformed = menu.map(item => item.id === "workspace-file-open-vscode"
+    ? { ...item, message: "VS Code에서 열기" } : item);
+  assert.throws(() => formatMenu(malformed), /\[@formatjs\/intl\] An `id` must be provided to format a message/);
+});
+
 test("file menu retains copy and file manager actions and excludes VS Code on remote hosts", () => {
   const { menu, calls } = menuFixture();
   for (const item of menu.slice(1)) item.onSelect();
@@ -70,36 +118,54 @@ test("file menu retains copy and file manager actions and excludes VS Code on re
 });
 
 test("menu transform participates in the host transform and cache fingerprint", () => {
-  const ts = require("../extensions/azrael-ex/node_modules/typescript");
   const { transformAsset, getTransformRules } = require("./namespace-azrael-host.cjs");
-  const result = transformAsset(original, FILE_OPEN_MENU_ASSET, FILE_OPEN_MENU_ASSET, ts);
+  const result = transformAsset(original, FILE_OPEN_MENU_ASSET, FILE_OPEN_MENU_ASSET, _s);
   assert.equal(result.asset.fileOpenMenuEdits, 1);
   assert.ok(result.text.includes(REPLACEMENT));
   assert.ok(Object.hasOwn(getTransformRules(), "inject-file-open-menu.cjs"));
   const { createAssetTransformCache } = require("./asset-transform-cache.cjs");
   const temporaryRoot = path.resolve(__dirname, "../artifacts/tmp");
-  fs.mkdirSync(temporaryRoot, { recursive: true });
-  const cacheDirectory = fs.mkdtempSync(path.join(temporaryRoot, "azrael-file-menu-cache-"));
+  vo.mkdirSync(temporaryRoot, { recursive: true });
+  const cacheDirectory = vo.mkdtempSync(path.join(temporaryRoot, "azrael-file-menu-cache-"));
   try {
     const statistics = { hits: 0, misses: 0 };
     const cache = createAssetTransformCache({ cacheDirectory, typescriptSha256: "a".repeat(64),
-      typescriptVersion: ts.version, transformRules: getTransformRules(), statistics });
+      typescriptVersion: _s.version, transformRules: getTransformRules(), statistics });
     cache.run(FILE_OPEN_MENU_ASSET, original, () => result);
     const cached = cache.run(FILE_OPEN_MENU_ASSET, original, () => { throw new Error("Cache missed"); });
     assert.equal(cached.asset.fileOpenMenuEdits, 1);
     assert.equal(statistics.hits, 1);
   } finally {
     assert.equal(path.dirname(cacheDirectory), temporaryRoot);
-    fs.rmSync(cacheDirectory, { recursive: true, force: true });
+    vo.rmSync(cacheDirectory, { recursive: true, force: true });
   }
 });
 
 test("menu transform is idempotent, scoped to its asset and rejects ambiguous pinned input", () => {
   const result = injectFileOpenMenu(original, FILE_OPEN_MENU_ASSET);
   assert.equal(result.count, 1);
+  assert.equal(_s.createSourceFile(FILE_OPEN_MENU_ASSET, result.text, _s.ScriptTarget.Latest, true, _s.ScriptKind.JS).parseDiagnostics.length, 0);
   assert.equal(injectFileOpenMenu(result.text, FILE_OPEN_MENU_ASSET).count, 0);
   assert.equal(injectFileOpenMenu(original, "other.js").text, original);
   for (const input of ["unrelated", ANCHOR + ANCHOR, MARKER + ANCHOR, REPLACEMENT.replace("vscode", "other")]) {
     assert.throws(() => injectFileOpenMenu(input, FILE_OPEN_MENU_ASSET), /marker|anchor/);
   }
 });
+function pinnedNode(source, ownerName, predicate) {
+  const hst = _s.createSourceFile("pinned-owner.js", source, _s.ScriptTarget.Latest, true, _s.ScriptKind.JS);
+  const owners = [];
+  function findOwner(node) {
+    if (_s.isFunctionDeclaration(node) && node.name?.text === ownerName) owners.push(node);
+    _s.forEachChild(node, findOwner);
+  }
+  findOwner(hst);
+  assert.equal(owners.length, 1, `Unique pinned owner: ${ownerName}`);
+  const matches = [];
+  function visit(node) {
+    if (predicate(node)) matches.push(node.getText(hst));
+    _s.forEachChild(node, visit);
+  }
+  visit(owners[0]);
+  assert.equal(matches.length, 1, `Ambiguous pinned node: ${ownerName}`);
+  return matches[0];
+}
