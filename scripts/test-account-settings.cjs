@@ -19,7 +19,11 @@ test("pinned settings and host transforms parse, reject drift and invalidate the
     assert.equal(injectAccountSettings(result.text, asset).count, 0);
     assert.throws(() => injectAccountSettings(result.text + "/*azrael-account-settings-v1*/", asset), /Duplicate/);
     assert.throws(() => injectAccountSettings("", asset), /anchor changed/);
-    if (asset === ACCOUNT_SETTINGS_ASSET) assert(result.text.includes('if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{})'));
+    if (asset === ACCOUNT_SETTINGS_ASSET) {
+      assert(source.includes('(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F})'));
+      assert(!result.text.includes('(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F})'));
+      assert(result.text.includes('if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{})'));
+    }
     else {
       assert(source.includes('case"open-vscode-command":{Ge.commands.executeCommand'));
       assert(result.text.includes('Ge.commands.executeCommand("azrael.accountsEmbedded",e,r,this.findPanelByWebview(e))'));

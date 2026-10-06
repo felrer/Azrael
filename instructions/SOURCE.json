@@ -14,7 +14,7 @@
     " M skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
     "?? skills/project-bootstrap/assets/playbooks/app-logging.md"
   ],
-  "contentSha256": "cdb41de5007d958a53951f2b75f5e54dd81f74ffd38f2f2af6d48fd3a5666b64",
+  "contentSha256": "cf57ccd8687da7b0a015907146591354e165133e9720fbcff9d00e6155cb5dbf",
   "files": [
     {
       "path": ".gitignore",
@@ -29,8 +29,9 @@
     {
       "path": "CHANGELOG.md",
       "generated": true,
-      "size": 366,
-      "sha256": "87dc992d0c776810908188197e75babe74ef4298efb3a9e55fc81355c117243f"
+      "size": 485,
+      "sha256": "93dd0c79f53521933d8047eff2fea8d35cbd624f404dc93785f6861994001dc2",
+      "adaptation": "Locally maintained unreleased UI guidance entry; historical import and published 1.0.0 metadata preserved."
     },
     {
       "path": "LICENSE",
@@ -108,8 +109,9 @@
         "size": 5389,
         "sha256": "d08dd24163ca97148cc816f32072c71522e6f3762b13677185ec5e28b6769885"
       },
-      "size": 5389,
-      "sha256": "d08dd24163ca97148cc816f32072c71522e6f3762b13677185ec5e28b6769885"
+      "size": 6807,
+      "sha256": "4531f7ff30f6a0624cd7cb4eaaa495469a4d1d463070b80dcefbdc487f4d67d5",
+      "adaptation": "Locally maintained in active Azrael repository: aligned UI delegation example with OpenAI-style component reuse and rendered acceptance."
     },
     {
       "path": "instructions/AGENTS.snippet.md",
@@ -118,8 +120,9 @@
         "size": 6439,
         "sha256": "bf5abc242b3fe092ce8193d679a7e926aa6278fc48700f8250a48f7b974e31dd"
       },
-      "size": 6439,
-      "sha256": "bf5abc242b3fe092ce8193d679a7e926aa6278fc48700f8250a48f7b974e31dd"
+      "size": 7893,
+      "sha256": "7f40b5e9952015614e5a983288fd970b5f11aaedb0ea0d49ce06715debc21f6b",
+      "adaptation": "Locally maintained in active Azrael repository: added OpenAI-style native UI guidance and rendered light/dark acceptance."
     },
     {
       "path": "skills/designing/SKILL.md",

@@ -2,6 +2,12 @@
 
 const DESIGN_ASSETS = ["webview/assets/app-initial-5120fa5fe295.js", "webview/assets/use-visible-settings-sections-4b8b7ed73a1e.js", "webview/assets/settings-page-76344c84191c.js", "out/extension.js"];
 const MARKER = "/*azrael-student-design-v1*/";
+
+function AzraelDesignNavigationIcon(props) {
+  return (0, Z.jsxs)("svg", { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, ...props,
+    children: [(0, Z.jsx)("path", { d: "M10 2.75a7.25 7.25 0 1 0 0 14.5h1a1.75 1.75 0 0 0 1.4-2.8 1.25 1.25 0 0 1 1-2h1.1a2.75 2.75 0 0 0 2.75-2.75A7 7 0 0 0 10 2.75Z" }),
+      ...[[6.25, 8], [9, 5.75], [12.5, 6.25], [14.25, 9]].map(([cx, cy]) => (0, Z.jsx)("circle", { cx, cy, r: .65, fill: "currentColor", stroke: "none" }, `${cx}-${cy}`))] });
+}
 const AVATAR = "function c_i(e){let t=(0,u_i.c)(11),n,r,i,a;t[0]===e?(n=t[1],r=t[2],i=t[3],a=t[4]):({seed:i,className:n,palette:a,...r}=e,t[0]=e,t[1]=n,t[2]=r,t[3]=i,t[4]=a);let o=a===void 0?`codex`:a,s=Xv()===!0,c=o===`chatgpt`?10:f_i.length,l=f_i[l_i(i,c)],u=s?l.dark:l.light,d;t[5]===n?d=t[6]:(d=ni(`size-3.5 shrink-0`,n),t[5]=n,t[6]=d);let f;return t[7]!==u||t[8]!==r||t[9]!==d?(f=(0,d_i.jsx)(`img`,{className:d,alt:``,draggable:!1,src:u,...r}),t[7]=u,t[8]=r,t[9]=d,t[10]=f):f=t[10],f}";
 
 // Host owns all assignments. The store only reads snapshots and sends preference changes.
@@ -50,22 +56,62 @@ function AzraelStudentAvatar(props) {
     onError: event => { setFailed(url); rest.onError?.(event); } });
 }
 
+function pickStudentPreview(students, previousId, random = Math.random) {
+  const others = students.filter(student => student.id !== previousId);
+  const pool = others.length ? others : students;
+  return pool.length ? pool[Math.floor(random() * pool.length)].id : null;
+}
+
 function AzraelDesignSettings() {
+  initAzraelSettingsCard();
+  initAzraelSettingsRow();
+  initAzraelSwitch();
   const state = useAzraelDesignState();
-  return (0, $.jsxs)("section", { "data-azrael-design-settings": true, "aria-busy": state.loading || state.saving, children: [
-    (0, $.jsx)("h2", { children: "디자인" }),
-    (0, $.jsxs)("label", { style: { display: "flex", gap: 8, alignItems: "center" }, children: [
-      (0, $.jsx)("input", { type: "checkbox", checked: state.enabled, disabled: state.loading || state.saving,
-        onChange: event => azraelDesignStore.setEnabled(event.target.checked) }), "학생 아이콘 사용" ] }),
-    (0, $.jsx)("p", { children: "기본값은 꺼짐입니다. 켠 뒤 새로 생성되는 Subagent에만 학생 아이콘이 무작위로 배정됩니다. 끄거나 다시 켜도 이전에 배정된 아이콘은 유지됩니다." }),
-    state.loading ? (0, $.jsx)("p", { role: "status", children: "디자인 설정을 불러오는 중…" }) : null,
-    state.saving ? (0, $.jsx)("p", { role: "status", children: "저장 중…" }) : null,
-    state.error ? (0, $.jsxs)("div", { role: "alert", children: [state.error, (0, $.jsx)("button", { type: "button", disabled: state.loading || state.saving, onClick: () => azraelDesignStore.retry(), children: "다시 불러오기" })] }) : null,
-    (0, $.jsx)("p", { children: "학생 100명 · 아이콘 미리보기" }),
-    (0, $.jsx)("div", { style: { display: "flex", flexWrap: "wrap", gap: 8 }, children: state.students.slice(0, 12).map(student =>
-      (0, $.jsxs)("span", { style: { display: "inline-flex", alignItems: "center", gap: 4 }, children: [
-        (0, $.jsx)("img", { src: student.url, width: 20, height: 20, alt: "", draggable: false }), student.nameKo ] }, student.id)) })
-  ] });
+  const [previewId, setPreviewId] = Q.useState(null);
+  const [failedId, setFailedId] = Q.useState(null);
+  const student = state.students.find(item => item.id === previewId);
+  Q.useEffect(() => {
+    if (!state.loading && state.students.length && !student) setPreviewId(previous => pickStudentPreview(state.students, previous));
+  }, [state.loading, state.students, student]);
+  const busy = state.loading || state.saving;
+  const draw = () => setPreviewId(previous => pickStudentPreview(state.students, previous));
+  return (0, $.jsx)(Tt, { title: "디자인", children: (0, $.jsxs)("div", {
+    className: "flex flex-col gap-10", "data-azrael-design-settings": true, "aria-busy": busy, children: [
+      (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
+        label: "새 subagent에 학생 사진 사용",
+        description: "켜면 새로 생성되는 subagent에 학생 사진을 무작위로 배정합니다. 기본값은 꺼짐이며, 이미 배정된 사진은 유지됩니다.",
+        control: ariaProps => (0, $.jsx)(AzraelSwitch, { ...ariaProps, checked: state.enabled,
+          disabled: busy || state.students.length === 0, onChange: enabled => azraelDesignStore.setEnabled(enabled) })
+      }) }),
+      (0, $.jsxs)("section", { className: "flex flex-col gap-4", "aria-labelledby": "azrael-student-preview-title", children: [
+        (0, $.jsxs)("div", { className: "flex flex-col gap-1", children: [
+          (0, $.jsx)("h2", { id: "azrael-student-preview-title", className: "text-lg font-semibold text-default", children: "사진 미리보기" }),
+          (0, $.jsx)("p", { className: "text-sm text-secondary", children: "학생 사진을 한 장씩 무작위로 확인하세요. 미리보기는 사진 배정이나 설정을 바꾸지 않습니다." })
+        ] }),
+        (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
+          label: (0, $.jsxs)("div", { className: "flex items-center gap-4", children: [
+            (0, $.jsx)("div", { className: "flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-secondary", children:
+              student && failedId !== previewId ? (0, $.jsx)("img", { src: student.url, alt: student.nameKo,
+                className: "size-full object-contain", draggable: false, onError: () => setFailedId(previewId) })
+                : (0, $.jsx)("span", { className: "px-2 text-center text-xs text-secondary", children:
+                  state.loading ? "불러오는 중…" : student ? "사진을 불러오지 못했습니다" : "미리보기 없음" }) }),
+            (0, $.jsxs)("div", { className: "flex min-w-0 flex-col gap-1", "aria-live": "polite", children: [
+              (0, $.jsx)("span", { className: "text-sm font-medium text-default", children: student?.nameKo ?? "학생 사진" }),
+              student?.nameEn ? (0, $.jsx)("span", { className: "text-xs text-secondary", children: student.nameEn }) : null
+            ] })
+          ] }),
+          control: () => (0, $.jsx)(pe, { color: "secondary", size: "default", disabled: state.loading || !state.students.length,
+            onClick: draw, children: "다시 뽑기" })
+        }) })
+      ] }),
+      state.loading || state.saving ? (0, $.jsx)("p", { className: "text-sm text-secondary", role: "status", children:
+        state.loading ? "디자인 설정을 불러오는 중…" : "저장 중…" }) : null,
+      state.error ? (0, $.jsxs)("div", { className: "flex flex-wrap items-center gap-3 text-sm text-secondary", role: "alert", children: [
+        (0, $.jsx)("span", { children: state.error }),
+        (0, $.jsx)(pe, { color: "ghost", size: "toolbar", disabled: busy, onClick: () => azraelDesignStore.retry(), children: "다시 불러오기" })
+      ] }) : null
+    ]
+  }) });
 }
 
 function once(text, from, to) {
@@ -123,7 +169,9 @@ function injectStudentDesign(text, relativePath, vp) {
   text = once(text, 'c=e.slug===`azrael-instructions`?', 'c=e.slug===`azrael-design`?{id:`azrael.settings.design`,defaultMessage:`디자인`}:e.slug===`azrael-instructions`?');
   text = once(text, 'label:e.slug===`azrael-instructions`?', 'label:e.slug===`azrael-design`?`디자인`:e.slug===`azrael-instructions`?');
   text = once(text, 'f=e.slug===`azrael-instructions`?', 'f=e.slug===`azrael-design`?`디자인`:e.slug===`azrael-instructions`?');
-  return { text: 'import{azraelDesignStore,useAzraelDesignState}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + AzraelDesignSettings.toString(), count: 1 };
+  text = once(text, 'icon:e.slug===`azrael-instructions`?', 'icon:e.slug===`azrael-design`?(0,Z.jsx)(AzraelDesignNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):e.slug===`azrael-instructions`?');
+  text = once(text, 'iconAssetSource:e.slug===`azrael-instructions`?', 'iconAssetSource:e.slug===`azrael-design`?void 0:e.slug===`azrael-instructions`?');
+  return { text: 'import{azraelDesignStore,useAzraelDesignState,d3 as AzraelSettingsCard,f3 as initAzraelSettingsCard,y3 as AzraelSettingsRow,x3 as initAzraelSettingsRow}from"./app-initial-5120fa5fe295.js";import{r4 as AzraelSwitch,a4 as initAzraelSwitch}from"./app-initial-532d60c9b397.js";' + text + '\n' + MARKER + '\n' + pickStudentPreview.toString() + '\n' + AzraelDesignSettings.toString() + '\n' + AzraelDesignNavigationIcon.toString(), count: 1 };
 }
 
-module.exports = { DESIGN_ASSETS, MARKER, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, observeStudentCreated };
+module.exports = { DESIGN_ASSETS, MARKER, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, pickStudentPreview, observeStudentCreated, AzraelDesignNavigationIcon };
