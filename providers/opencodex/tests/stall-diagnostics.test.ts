@@ -52,6 +52,30 @@ test('actual inference mock records upstream SSE failure and owns deadline class
     saveConfig(config);
     await saveCredential('anthropic', { access: 'SECRET_ACCESS', refresh: 'SECRET_REFRESH', expires: Date.now() + 3600_000, accountId: 'SECRET_ACCOUNT' });
     const request = () => ({ type: 'request', protocol_version: 1, request_id: 'fixture', thread_id: 'stall-thread', turn_id: 'turn-' + count++, provider_id: 'anthropic', model: 'claude-sonnet-4-6', instructions: 'SECRET_PROMPT', input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: 'SECRET_INPUT' }] }], tools: [], parallel_tool_calls: true });
+    for (const transportEnabled of [true, false]) {
+      for (const code of [undefined, 'ENOTFOUND']) {
+        const monitor = createProgressMonitor(() => {}, { transportEnabled });
+        try {
+          const error = new TypeError('SECRET_FETCH_URL', { cause: { code, host: 'SECRET_HOST' } });
+          await expect(infer(request(), () => {}, (async () => { throw error; }) as typeof fetch, monitor)).rejects.toThrow(code ? 'provider_connection_dns' : 'provider_headers_failed');
+          if (transportEnabled) {
+            expect(monitor.snapshot().transport.error_stage).toBe('headers');
+            expect(monitor.snapshot().transport.connection_error).toBe(code ? 'dns' : undefined);
+            expect(JSON.stringify(monitor.snapshot())).not.toContain('SECRET');
+          }
+        } finally { monitor.stop(); }
+      }
+      const monitor = createProgressMonitor(() => {}, { transportEnabled });
+      try {
+        const body = new ReadableStream({ start(controller) { controller.error(new TypeError('SECRET_BODY_URL', { cause: { code: 'ECONNRESET' } })); } });
+        await expect(infer(request(), () => {}, (async () => new Response(body)) as typeof fetch, monitor)).rejects.toThrow('provider_connection_reset');
+        if (transportEnabled) {
+          expect(monitor.snapshot().transport.error_stage).toBe('body_read');
+          expect(monitor.snapshot().transport.error_name).toBe('type_error');
+          expect(monitor.snapshot().transport.connection_error_code).toBe('ECONNRESET');
+        }
+      } finally { monitor.stop(); }
+    }
     for (const stream of [false, true]) {
       const frames: any[] = [];
       const error = { type: 'usage_limit_reached', message: 'PRIVATE_QUOTA_MESSAGE' };
@@ -137,7 +161,7 @@ test('actual inference mock records upstream SSE failure and owns deadline class
       expect(bodyProgress.snapshot().transport.abort_source).toBe('deadline');
       expect(JSON.stringify(bodyProgress.snapshot())).not.toContain('SECRET');
     } finally { bodyProgress.stop(); }
-    for (const error of [new Error('SECRET_GENERIC'), new DOMException('SECRET_ABORT', 'AbortError'), new DOMException('SECRET_TIMEOUT', 'TimeoutError')]) {
+    for (const error of [new Error('SECRET_GENERIC'), new DOMException('SECRET_ABORT', 'AbortError'), new DOMException('SECRET_TIMEOUT', 'TimeoutError'), new TypeError('SECRET_DNS_DEADLINE', { cause: { code: 'ENOTFOUND' } })]) {
       const deadline = new AbortController();
       const progress = createProgressMonitor(() => {}, { transportEnabled: true });
       try {

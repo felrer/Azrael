@@ -386,6 +386,20 @@ function describeTurnError(value: unknown): string {
   const info = object(value) ? value.codexErrorInfo : undefined;
   const code = typeof info === "string" ? info : object(info) ? Object.keys(info)[0] : undefined;
   const detail = object(value) ? str(value.message) : undefined;
+  const connectionCode = code === "other" ? detail?.match(/\((provider_headers_failed|provider_connection_(?:dns|tls|reset|refused|timeout|unreachable|proxy))\)$/)?.[1] : undefined;
+  if (connectionCode) {
+    const causes: Record<string, string> = {
+      provider_headers_failed: "모델 응답 헤더를 받기 전에 요청이 실패했습니다. 원인은 확인되지 않았습니다.",
+      provider_connection_dns: "모델 서버 주소의 DNS 조회에 실패했습니다.",
+      provider_connection_tls: "모델 서버와의 TLS 연결에 실패했습니다.",
+      provider_connection_reset: "모델 서버와의 연결이 끊어졌습니다.",
+      provider_connection_refused: "모델 서버 연결이 거부됐습니다.",
+      provider_connection_timeout: "모델 서버 연결 대기 시간이 초과됐습니다.",
+      provider_connection_unreachable: "모델 서버에 연결할 네트워크 경로를 사용할 수 없습니다.",
+      provider_connection_proxy: "프록시 연결에 실패했습니다.",
+    };
+    return `${causes[connectionCode]} 연결 상태와 기존 작업 결과를 확인한 뒤 이 세션에서 다시 요청하세요.`;
+  }
   if (detail && /model is not supported when using Codex with a ChatGPT account/i.test(detail)) {
     return "The selected model is unavailable to this ChatGPT account. Choose an available model or sign in with the intended account.";
   }

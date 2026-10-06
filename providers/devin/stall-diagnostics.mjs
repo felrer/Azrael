@@ -3,6 +3,27 @@ import { createHash } from 'node:crypto';
 const sseKinds = ['message_start', 'content_block_start', 'content_block_delta', 'content_block_stop', 'message_delta', 'message_stop', 'ping', 'error', 'google_data'];
 const parserKinds = ['text_delta', 'thinking_delta', 'reasoning_raw_delta', 'thinking_signature', 'tool_call_start', 'tool_call_delta', 'tool_call_end', 'heartbeat', 'usage', 'done', 'error'];
 const integer = value => Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(value)));
+const connectionCodes = new Map([
+  ...['ENOTFOUND', 'EAI_AGAIN'].map(code => [code, 'dns']),
+  ...['ECONNRESET', 'EPIPE', 'UND_ERR_SOCKET'].map(code => [code, 'reset']),
+  ['ECONNREFUSED', 'refused'],
+  ...['ETIMEDOUT', 'UND_ERR_CONNECT_TIMEOUT'].map(code => [code, 'timeout']),
+  ...['ENETUNREACH', 'EHOSTUNREACH', 'ENETDOWN'].map(code => [code, 'unreachable']),
+  ...['ERR_TLS_CERT_ALTNAME_INVALID', 'CERT_HAS_EXPIRED', 'DEPTH_ZERO_SELF_SIGNED_CERT', 'SELF_SIGNED_CERT_IN_CHAIN', 'UNABLE_TO_VERIFY_LEAF_SIGNATURE', 'UNABLE_TO_GET_ISSUER_CERT_LOCALLY', 'ERR_SSL_WRONG_VERSION_NUMBER'].map(code => [code, 'tls']),
+  ['ERR_PROXY_CONNECTION_FAILED', 'proxy'],
+]);
+export function classifyConnectionError(error) {
+  const seen = new Set();
+  for (let depth = 0; depth < 4 && error && typeof error === 'object' && !seen.has(error); depth++) {
+    seen.add(error);
+    try {
+      const code = error.code;
+      if (connectionCodes.has(code)) return { connection_error: connectionCodes.get(code), connection_error_code: code };
+      error = error.cause;
+    } catch { return undefined; }
+  }
+  return undefined;
+}
 export function createStallDiagnostics({ now = () => performance.now() } = {}) {
   const started = now();
   const state = { abort_source: 'none', error_stage: 'none', error_name: 'none' };
@@ -60,9 +81,13 @@ export function createStallDiagnostics({ now = () => performance.now() } = {}) {
       }
     }),
     error: safe((stage, error, signal) => {
-      if (state.error_stage === 'none') state.error_stage = ['build', 'headers', 'body_read', 'sse_decode', 'adapter_parse', 'translate', 'map'].includes(stage) ? stage : 'unknown';
-      state.error_name = error?.name === 'TimeoutError' ? 'timeout' : error?.name === 'AbortError' ? 'abort' : error instanceof TypeError ? 'type_error' : error?.constructor?.name === 'AdapterError' ? 'adapter_error' : 'unknown';
-      state.abort_source = signal?.aborted ? 'deadline' : ['abort', 'timeout'].includes(state.error_name) ? 'transport' : 'unknown';
+      if (state.error_stage === 'none') {
+        state.error_stage = ['build', 'headers', 'body_read', 'sse_decode', 'adapter_parse', 'translate', 'map'].includes(stage) ? stage : 'unknown';
+        state.error_name = error?.name === 'TimeoutError' ? 'timeout' : error?.name === 'AbortError' ? 'abort' : error instanceof TypeError ? 'type_error' : error?.constructor?.name === 'AdapterError' ? 'adapter_error' : 'unknown';
+        state.abort_source = ['abort', 'timeout'].includes(state.error_name) ? 'transport' : 'unknown';
+      }
+      if (signal?.aborted) state.abort_source = 'deadline';
+      if (!state.connection_error) Object.assign(state, classifyConnectionError(error));
       if (stage === 'body_read') {
         if (readStarted !== undefined) state.read_wait_ms = integer(now() - readStarted);
         state.read_state = 'error'; readStarted = undefined;

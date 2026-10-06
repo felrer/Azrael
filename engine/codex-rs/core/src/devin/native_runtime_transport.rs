@@ -101,6 +101,55 @@ pub(super) struct Transport {
     error_stage: Option<ErrorStage>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     error_name: Option<ErrorName>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    connection_error: Option<ConnectionError>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    connection_error_code: Option<ConnectionErrorCode>,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ConnectionError {
+    Dns,
+    Tls,
+    Reset,
+    Refused,
+    Timeout,
+    Unreachable,
+    Proxy,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(try_from = "String")]
+struct ConnectionErrorCode(String);
+
+impl TryFrom<String> for ConnectionErrorCode {
+    type Error = &'static str;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        match value.as_str() {
+            "ENOTFOUND"
+            | "EAI_AGAIN"
+            | "ECONNRESET"
+            | "EPIPE"
+            | "UND_ERR_SOCKET"
+            | "ECONNREFUSED"
+            | "ETIMEDOUT"
+            | "UND_ERR_CONNECT_TIMEOUT"
+            | "ENETUNREACH"
+            | "EHOSTUNREACH"
+            | "ENETDOWN"
+            | "ERR_TLS_CERT_ALTNAME_INVALID"
+            | "CERT_HAS_EXPIRED"
+            | "DEPTH_ZERO_SELF_SIGNED_CERT"
+            | "SELF_SIGNED_CERT_IN_CHAIN"
+            | "UNABLE_TO_VERIFY_LEAF_SIGNATURE"
+            | "UNABLE_TO_GET_ISSUER_CERT_LOCALLY"
+            | "ERR_SSL_WRONG_VERSION_NUMBER"
+            | "ERR_PROXY_CONNECTION_FAILED" => Ok(Self(value)),
+            _ => Err("invalid connection error code"),
+        }
+    }
 }
 
 #[derive(Debug, Deserialize, Serialize)]

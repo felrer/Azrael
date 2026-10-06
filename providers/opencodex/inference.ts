@@ -8,7 +8,7 @@ import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } fro
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
-import { observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
+import { classifyConnectionError, createStallDiagnostics, observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
 import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccounts, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 
@@ -339,7 +339,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     : m.google.createGoogleAdapter(pinned.provider);
   const budget = m.budget.createTranslatorBudget();
   const signal = options.deadlineSignal ?? AbortSignal.timeout(900_000);
-  const tracker = progress?.transport;
+  const tracker = progress?.transport ?? createStallDiagnostics();
   const opaque = { details: [], terminal: false, upstreamSseError: false };
   let stage = 'build';
   try {
@@ -356,12 +356,18 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
-    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker) : observeDetails(response, opaque, false, true, onBytes, request.provider_id);
+    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
     stage = 'map';
     await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque }, emit, request.request_id);
   } catch (error) {
     tracker?.error(stage, error, signal);
     if (managedDeadlineFailure(error, signal, opaque.upstreamSseError)) fail('provider_request_deadline');
+    if (!(error instanceof AdapterError)) {
+      const failureStage = tracker.snapshot()?.error_stage ?? stage;
+      const connection = classifyConnectionError(error);
+      if (['headers', 'body_read'].includes(failureStage) && connection) fail(`provider_connection_${connection.connection_error}`);
+      if (failureStage === 'headers' && error instanceof TypeError) fail('provider_headers_failed');
+    }
     throw error;
   } finally { budget.dispose(); }
 }
