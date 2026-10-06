@@ -68,15 +68,15 @@ mod accounts;
 mod process;
 use process::absolute_env_path;
 use process::sanitize_code;
-#[path = "native_runtime_transport.rs"]
-mod transport;
 #[path = "native_runtime_protocol.rs"]
 mod protocol;
+#[path = "native_runtime_transport.rs"]
+mod transport;
 use protocol::OutputFrame;
-#[path = "native_runtime_errors.rs"]
-mod errors;
 #[path = "native_runtime_capabilities.rs"]
 mod capabilities;
+#[path = "native_runtime_errors.rs"]
+mod errors;
 pub(crate) use capabilities::image_model_ids;
 #[cfg(test)]
 use protocol::Usage;
@@ -146,7 +146,10 @@ pub(crate) async fn stream(
     let thread_id = sess.thread_id().to_string();
     let mut existing_binding =
         existing_account_binding(ctx.config.codex_home.as_path(), &thread_id)?;
-    let ancestor = sess.native_binding_ancestor.map(|id| id.to_string());
+    // Once this fork has a marker, its current binding is authoritative.
+    let ancestor = matches!(existing_binding, state::ExistingAccountBinding::NoMarker)
+        .then(|| sess.native_binding_ancestor.map(|id| id.to_string()))
+        .flatten();
     if matches!(existing_binding, state::ExistingAccountBinding::NoMarker)
         && let Some(ancestor) = ancestor.as_deref()
     {
@@ -910,6 +913,62 @@ pub(crate) fn serialize_frame<T: Serialize>(value: &T) -> CodexResult<Vec<u8>> {
 
 pub(crate) fn ensure_native_history(codex_home: &Path, thread_id: &str) -> CodexResult<()> {
     state::ensure_native_history(codex_home, thread_id)
+}
+
+pub(crate) async fn recover_account(
+    sess: &Session,
+    ctx: &TurnContext,
+    excluded: &mut HashSet<String>,
+    cancellation: &CancellationToken,
+) -> CodexResult<Option<String>> {
+    if !enabled() {
+        return Ok(None);
+    }
+    let home = ctx.config.codex_home.as_path();
+    let thread_id = sess.thread_id().to_string();
+    let state::ExistingAccountBinding::Managed(source) =
+        existing_account_binding(home, &thread_id)?
+    else {
+        // CLI credentials and unpinned threads cannot authorize recovery.
+        return Ok(None);
+    };
+    let snapshot = state::recovery_snapshot(home, &thread_id)?;
+    let model = ctx.model_info().slug.clone();
+    let Some(destination) = crate::managed_account_recovery::request_recovery(
+        home,
+        "devin",
+        &thread_id,
+        &ctx.sub_id,
+        &model,
+        excluded,
+        Some(&source),
+        cancellation,
+    )
+    .await?
+    else {
+        return Ok(None);
+    };
+    let config = accounts::helper_config()?
+        .ok_or_else(|| invalid("managed Devin account helper is required"))?;
+    let credential = tokio::select! {
+        biased;
+        _ = cancellation.cancelled() => return Err(CodexErr::new(CodexErrorDetails::Interrupted)),
+        value = accounts::request_recovery_credential(home, &config, &destination.account_id, cancellation) => value?,
+    }.ok_or_else(|| invalid("managed Devin recovery credential is unavailable"))?;
+    let resolved = accounts::managed_credential(credential);
+    if cancellation.is_cancelled() {
+        return Err(CodexErr::new(CodexErrorDetails::Interrupted));
+    }
+    state::replace_managed_binding(
+        home,
+        &thread_id,
+        &snapshot,
+        &source,
+        &destination.account_id,
+        &resolved.credential.scope_fingerprint(),
+    )?;
+    excluded.insert(destination.exhausted_account_id);
+    Ok(Some(destination.account_id))
 }
 
 pub(crate) fn pin_acp_runtime(codex_home: &Path, thread_id: &str) -> CodexResult<()> {

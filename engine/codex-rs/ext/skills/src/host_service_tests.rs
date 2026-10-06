@@ -25,6 +25,14 @@ use std::sync::Arc;
 use std::sync::Mutex;
 use tempfile::TempDir;
 
+impl HostSkillsService {
+    /// Restricts personal skill discovery to this fixture's explicit home, if any.
+    fn with_fixture_home_dir(self, home_dir: Option<AbsolutePathBuf>) -> Self {
+        self.set_home_dir_for_tests(home_dir);
+        self
+    }
+}
+
 #[derive(Default)]
 struct TestPluginSkillSnapshotCache {
     snapshots: Mutex<HashMap<PluginSkillRoot, LoadedSkillRoot>>,
@@ -346,7 +354,8 @@ async fn snapshot_for_config_merges_extension_host_and_legacy_plugin_roots() {
     let skills_service = HostSkillsService::new(
         codex_home.path().abs(),
         /*bundled_skills_enabled*/ false,
-    );
+    )
+    .with_fixture_home_dir(/*home_dir*/ None);
 
     let snapshot = skills_service
         .snapshot_for_config(&input, Some(Arc::clone(&LOCAL_FS)))
@@ -575,7 +584,8 @@ async fn set_extra_roots_replaces_runtime_roots_and_clears_cache() {
     let skills_service = HostSkillsService::new(
         codex_home.path().abs(),
         /*bundled_skills_enabled*/ true,
-    );
+    )
+    .with_fixture_home_dir(/*home_dir*/ None);
 
     let skills_input =
         HostSkillsLoadInput::new(cwd.path().abs(), Vec::new(), config_layer_stack.clone());
@@ -773,7 +783,8 @@ async fn skills_for_cwd_loads_repo_and_user_roots_with_local_fs() {
     let skills_service = HostSkillsService::new(
         codex_home.path().abs(),
         /*bundled_skills_enabled*/ true,
-    );
+    )
+    .with_fixture_home_dir(/*home_dir*/ None);
 
     let snapshot = skills_service
         .for_request()
@@ -803,6 +814,76 @@ async fn skills_for_cwd_loads_repo_and_user_roots_with_local_fs() {
         .snapshot_for_config(&skills_input, Some(other_file_system))
         .await;
     assert!(!std::ptr::eq(snapshot.outcome(), other_snapshot.outcome()));
+}
+
+#[tokio::test]
+async fn fixture_home_dir_loads_personal_skills_for_config_and_cwd() {
+    let codex_home = tempfile::tempdir().expect("tempdir");
+    let home = tempfile::tempdir().expect("tempdir");
+    let cwd = tempfile::tempdir().expect("tempdir");
+    write_user_skill(
+        &codex_home,
+        "user",
+        "user-skill",
+        "from the fixture user root",
+    );
+    let personal_skill_dir = home.path().join(".agents/skills/personal");
+    fs::create_dir_all(&personal_skill_dir).expect("create personal skill dir");
+    fs::write(
+        personal_skill_dir.join("SKILL.md"),
+        "---\nname: personal-skill\ndescription: from the fixture home\n---\n\n# Body\n",
+    )
+    .expect("write personal skill");
+    let input = HostSkillsLoadInput::new(
+        cwd.path().abs(),
+        Vec::new(),
+        config_stack(&codex_home, "[skills.bundled]\nenabled = false\n"),
+    );
+    let skills_service = HostSkillsService::new(
+        codex_home.path().abs(),
+        /*bundled_skills_enabled*/ false,
+    )
+    .with_fixture_home_dir(Some(home.path().abs()));
+
+    let config_snapshot = skills_service
+        .snapshot_for_config(&input, Some(Arc::clone(&LOCAL_FS)))
+        .await;
+    let cwd_snapshot = skills_service
+        .for_request()
+        .snapshot_for_cwd(&input, /*force_reload*/ true, /*fs*/ None)
+        .await;
+    let personal_skill_path = personal_skill_dir.join("SKILL.md").abs();
+    let user_skill_path = codex_home.path().join("skills/user/SKILL.md").abs();
+    for snapshot in [config_snapshot, cwd_snapshot] {
+        assert_eq!(snapshot.outcome().errors, Vec::new());
+        let skills = snapshot
+            .outcome()
+            .skills
+            .iter()
+            .map(|skill| {
+                (
+                    skill.name.clone(),
+                    skill.path_to_skills_md.clone(),
+                    skill.scope,
+                )
+            })
+            .collect::<Vec<_>>();
+        assert_eq!(
+            skills,
+            vec![
+                (
+                    "personal-skill".to_string(),
+                    personal_skill_path.clone(),
+                    SkillScope::User
+                ),
+                (
+                    "user-skill".to_string(),
+                    user_skill_path.clone(),
+                    SkillScope::User
+                ),
+            ]
+        );
+    }
 }
 
 #[tokio::test]
@@ -840,7 +921,8 @@ async fn skills_for_cwd_without_fs_skips_repo_roots() {
     let skills_service = HostSkillsService::new(
         codex_home.path().abs(),
         /*bundled_skills_enabled*/ true,
-    );
+    )
+    .with_fixture_home_dir(/*home_dir*/ None);
 
     let snapshot = skills_service
         .for_request()

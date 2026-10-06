@@ -52,7 +52,10 @@ export class StudentDesignService implements vscode.Disposable {
     if (request.action === "subscribe") {
       this.remove(webview);
       const roots = webview.options.localResourceRoots ?? [this.context.extensionUri];
-      if (!roots.some(uri => uri.toString() === this.assetRoot.toString())) webview.options = { ...webview.options, localResourceRoots: [...roots, this.assetRoot] };
+      // Parent roots already authorize their descendants. Updating options unnecessarily
+      // reloads the settings webview and resets its active route.
+      if (!roots.some(uri => uri.scheme === this.assetRoot.scheme && uri.authority === this.assetRoot.authority
+        && (uri.path === this.assetRoot.path || this.assetRoot.path.startsWith(uri.path.replace(/\/+$/, "") + "/")))) webview.options = { ...webview.options, localResourceRoots: [...roots, this.assetRoot] };
       const mount: Mount = { clientId };
       this.mounts.set(webview, mount);
       mount.disposal = panel?.onDidDispose(() => { if (this.mounts.get(webview) === mount) this.remove(webview); });

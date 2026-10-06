@@ -1,6 +1,7 @@
 use super::*;
 use rand::RngCore;
 use serde::Serialize;
+use sha2::Digest;
 use std::collections::HashMap;
 use std::fmt::Write as _;
 use std::fs::OpenOptions;
@@ -20,6 +21,8 @@ pub struct AzraelProfileInfo {
     pub workspace_account_id: String,
     pub user_id: String,
     pub plan_type: Option<String>,
+    #[serde(default)]
+    pub auto_switch_allowed: bool,
 }
 
 pub struct AzraelProfileStore {
@@ -127,11 +130,47 @@ impl AzraelProfileStore {
                         "authentication profile metadata has a mismatched id",
                     ));
                 }
+                let mut info = info;
+                info.auto_switch_allowed = match read_info(&self.auto_switch_policy_path(&info)) {
+                    Ok(policy)
+                        if policy.workspace_account_id == info.workspace_account_id
+                            && policy.user_id == info.user_id =>
+                    {
+                        policy.auto_switch_allowed
+                    }
+                    Err(error) if error.kind() == io::ErrorKind::NotFound => false,
+                    Ok(_) => return Err(io::Error::other("auto-switch policy identity mismatch")),
+                    Err(error) => return Err(error),
+                };
                 profiles.push(info);
             }
         }
         profiles.sort_by(|left, right| left.id.cmp(&right.id));
         Ok(profiles)
+    }
+
+    pub fn set_auto_switch_allowed(&self, id: &str, enabled: bool) -> io::Result<()> {
+        validate_id(id)?;
+        let mut info = read_info(&self.root.join(id).join(PROFILE_METADATA))?;
+        if info.id != id {
+            return Err(io::Error::other("profile metadata identity mismatch"));
+        }
+        info.auto_switch_allowed = enabled;
+        write_info_atomically(&self.auto_switch_policy_path(&info), &info)
+    }
+
+    fn auto_switch_policy_path(&self, info: &AzraelProfileInfo) -> PathBuf {
+        // JSON bytes encode the complete identity without filesystem separators.
+        let identity = sha2::Sha256::digest(
+            serde_json::to_vec(&(&info.workspace_account_id, &info.user_id)).unwrap_or_else(
+                |error| panic!("serializing profile identity must succeed: {error}"),
+            ),
+        );
+        let mut key = String::new();
+        for byte in identity {
+            let _ = write!(&mut key, "{byte:02x}");
+        }
+        self.root.join(format!("auto-switch-{key}.json"))
     }
 
     pub async fn capture_current(
@@ -293,6 +332,7 @@ impl AzraelProfileAuth {
             workspace_account_id,
             user_id,
             plan_type,
+            auto_switch_allowed: false,
         };
         write_info_atomically(&self.auth_home.join(PROFILE_METADATA), &info)?;
         Ok(info)

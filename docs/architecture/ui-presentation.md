@@ -2,17 +2,39 @@
 
 ## Composer and feature surface
 
-Status: `partial` — pinned source transforms and scoped runtime fixtures are verified; packaged and installed-host acceptance is pending.
+Status: `partial` — pinned source transforms, scoped runtime fixtures, packaged host acceptance and actual webview startup are verified; full presentation and theme comparisons remain pending.
 
 The independent Azrael distribution uses the pinned upstream UI as an input to its own guarded preparation transforms. The upstream snapshot and the original Codex extension remain separate product inputs.
 
-The empty composer displays the literal ASCII `-` in every composer mode. Its accessible input identity remains available. The add menu offers existing file/folder attachments and supported integration entry points. Goal setting, Plan mode and Sketch registration, selection handlers and their composer mounts are excluded from the Azrael UI. Native engine tools and session protocols retain their own contracts.
+The empty composer displays the cat text emoticon `^•⩊•^` in every composer mode. This placeholder change is source-only until the next build and installation. Its accessible input identity remains available. The add menu offers existing file/folder attachments and supported integration entry points. Goal setting and Plan mode registration, selection handlers and their composer mounts are excluded from the Azrael UI. Sketch registration, selection handlers and composer mounts are preserved, including the slash/mention drawing action and shared composer creation capability. Sketch restoration is source-only until the next build and installation. Native engine tools and session protocols retain their own contracts.
+
+The slash command menu excludes Model, Fork chat, Initialize, Reasoning level and Code review. Their dedicated registrations and mounts are removed, including both code-review variants. Composer toolbar model/reasoning selectors and the shared underlying services remain available through their separate entry points. This additional menu change is source-only until the next build and installation.
 
 Pets integration entries, settings and dedicated UI/host paths are excluded from the Azrael distribution. This presentation boundary does not delete personal skills or saved user data. Generic connector and account/avatar behavior keep their existing contracts.
 
 Shared bundle imports retain disabled empty query/state adapters and empty module exports; these perform no Pets RPC, persistence, subscription or selection mutation. Inert preload metadata, shared avatar/render utilities and built-in artwork remain in the pinned bundle graph. Existing thread-goal state and image/sketch attachment rendering keep the handlers required to display and recover persisted conversations.
 
 Full access uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
+
+## Identity and session links
+
+Backend HTTP protocol identifiers keep their upstream names, including `OAI-*` and `x-openai-*`. The `OAI-App-Brand` value remains `codex`; it must not be derived from the display brand.
+
+The host and conversation UI identify the distribution as Azrael. Theme names, embedded VS Code command titles and the Devin model-picker notification also use Azrael; these additional labels are source-only until the next build and installation. Actual service usage and model names retain their service identity. Local conversation links use `azrael://local/<UUID>`; original Codex links remain accepted for migration. The session-link injector is registered in the preservation manifest, and prepared assets must report `sessionLinkEdits` before package verification succeeds.
+
+## Settings module contracts
+
+Settings injectors import the bridge through the pinned bundle export `A3t`; internal aliases are not module exports. Settings navigation reuses initialized platform icon assets. Retired Pets registry entries retain an inert `{ visible: false, pending: false }` visibility result so shared navigation never dereferences an undefined result.
+
+## Student avatar initialization
+
+Student subscriptions retain webview options when an existing resource root already authorizes the avatar directory. Adding a redundant descendant root reloads the webview and loses the active settings route.
+
+Student avatar preferences use one store per webview. Initialize its bridge and subscribe when the first avatar or design settings hook renders. The pinned UI initializes shared dependencies lazily across cyclic module imports, so the injected module must not call bundle initialization functions during module evaluation. A webview closed before the store is used must also dispose safely.
+
+## Recent-chat header initialization
+
+Recent-chat filtering subscribes to the history menu's persisted type and environment atoms through the pinned atom and environment query hooks. Initialize the atom owner when this hook first renders and reuse the upstream task merge hook. Preserve the header's existing local bindings so injected variables cannot shadow hooks already called in the same render. Authenticated header and persisted conversation rendering use the same packaged module graph.
 
 ## Typography boundary
 
@@ -23,6 +45,8 @@ Fixed headings, menu labels, button text and instructions have a separate candid
 Resolve Consolas from installed system fonts. Bundle unchanged official Gyeonggi Batang Regular/Bold webfonts with their source/use-condition notice and verified hashes. Fonts load from local webview assets, without runtime network requests or system-wide installation. Preserve system fallbacks for unsupported characters and emoji.
 
 Localized visible labels and visible string labels require separate rendering boundaries. Accessibility strings stay strings. Rich text and interpolated values must preserve dynamic spans; applying a font to an entire interpolated message is insufficient. The selected typeface must have a defined local fallback for Korean and Latin text.
+
+Dynamic prose and typed input use half-width spaces through `word-spacing: -0.5ch`, relative to the space advance of the leading Consolas face. Chat Markdown roots and their paragraph, heading, list-item and table classes require explicit spacing rules because they set the content font without a `.font-content` wrapper; preparation checks the pinned prose CSS anchor. Character spacing and font sizes remain unchanged. Code/preformatted text keeps normal spacing for alignment, and nested fixed UI controls reset word spacing. This rule also covers dynamic account/usage values. It is source-only until the next build and installation.
 
 ## Icon policy candidates
 

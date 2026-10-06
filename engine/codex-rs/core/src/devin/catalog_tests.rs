@@ -72,7 +72,8 @@ fn groups_effort_variants_and_keeps_exact_hidden_aliases() {
     } else {
         ConfigShellToolType::Disabled
     };
-    let models = models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
     assert_eq!(
         models
             .iter()
@@ -143,8 +144,11 @@ fn groups_effort_variants_and_keeps_exact_hidden_aliases() {
 
 #[test]
 fn accepts_optional_limits_and_omits_only_unknown_context_variants() {
-    let models = models_from_catalog(REALISTIC_OPTIONAL_LIMITS_CATALOG.as_bytes(), &HashSet::new())
-        .expect("realistic catalog should parse");
+    let models = models_from_catalog(
+        REALISTIC_OPTIONAL_LIMITS_CATALOG.as_bytes(),
+        &HashSet::new(),
+    )
+    .expect("realistic catalog should parse");
     assert_eq!(
         models
             .iter()
@@ -176,14 +180,16 @@ fn accepts_optional_limits_and_omits_only_unknown_context_variants() {
 fn rejects_explicit_non_positive_context_limit() {
     let invalid = REALISTIC_OPTIONAL_LIMITS_CATALOG
         .replace("\"max_context_tokens\":262000", "\"max_context_tokens\":0");
-    let error = models_from_catalog(invalid.as_bytes(), &HashSet::new()).expect_err("zero context must fail");
+    let error = models_from_catalog(invalid.as_bytes(), &HashSet::new())
+        .expect_err("zero context must fail");
     assert!(error.to_string().contains("invalid context limit"));
 }
 
 #[test]
 fn rejects_duplicate_model_ids() {
     let duplicate = CATALOG.replace("swe-2-high", "swe-2-medium");
-    let error = models_from_catalog(duplicate.as_bytes(), &HashSet::new()).expect_err("duplicate must fail");
+    let error = models_from_catalog(duplicate.as_bytes(), &HashSet::new())
+        .expect_err("duplicate must fail");
     assert!(
         error
             .to_string()
@@ -277,7 +283,8 @@ fn separates_fast_priority_and_context_tiers_and_preserves_composites() {
         }
       ]
     }"#;
-    let models = models_from_catalog(catalog.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(catalog.as_bytes(), &HashSet::new()).expect("catalog should parse");
     assert_eq!(
         models
             .iter()
@@ -319,7 +326,8 @@ fn recognizes_all_known_effort_labels_and_escapes_exact_keys() {
         ]
       }]
     }"#;
-    let models = models_from_catalog(catalog.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(catalog.as_bytes(), &HashSet::new()).expect("catalog should parse");
     let visible = models
         .iter()
         .find(|model| model.visibility == ModelVisibility::List)
@@ -403,7 +411,8 @@ async fn online_refresh_failure_preserves_memory_and_snapshot() {
 #[tokio::test]
 async fn offline_missing_snapshot_retains_memory() {
     let codex_home = tempfile::tempdir().expect("temporary codex home");
-    let models = models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
     let manager = manager(codex_home.path(), models.clone());
 
     manager.refresh_devin(RefreshStrategy::Offline).await;
@@ -416,7 +425,8 @@ async fn offline_corrupt_snapshot_retains_memory() {
     let codex_home = tempfile::tempdir().expect("temporary codex home");
     let path = snapshot_path(codex_home.path());
     persist_snapshot(&path, b"not a devin catalog").expect("persist corrupt snapshot");
-    let models = models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
     let manager = manager(codex_home.path(), models.clone());
 
     manager.refresh_devin(RefreshStrategy::Offline).await;
@@ -429,7 +439,8 @@ async fn successful_empty_snapshot_clears_memory() {
     let codex_home = tempfile::tempdir().expect("temporary codex home");
     let path = snapshot_path(codex_home.path());
     persist_snapshot(&path, EMPTY_CATALOG.as_bytes()).expect("persist empty snapshot");
-    let models = models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
+    let models =
+        models_from_catalog(CATALOG.as_bytes(), &HashSet::new()).expect("catalog should parse");
     let manager = manager(codex_home.path(), models);
 
     manager.refresh_devin(RefreshStrategy::Offline).await;

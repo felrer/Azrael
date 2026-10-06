@@ -34,6 +34,17 @@ function ordered(source, anchors) {
   }
 }
 
+test("the real preservation registry covers every production UI injector", () => {
+  const gate = require("./feature-preservation.cjs");
+  const root = path.resolve(__dirname, "..");
+  const manifest = gate.loadManifest(root);
+  const rules = require("./namespace-azrael-host.cjs").getTransformRules();
+  assert.equal(gate.validateManifest(manifest, root, rules), manifest);
+  const links = manifest.features.find(feature => feature.id === "ui.session-links");
+  assert.ok(links.owners.includes("scripts/inject-session-links.cjs"));
+  assert.deepEqual(links.reportFields, ["sessionLinkEdits"]);
+});
+
 test("Max targets reach the pipeline after provider transformation and produce one report edit", () => {
   const assets = vm.runInNewContext(declaration("inject-max-reasoning.cjs", "MAX_REASONING_ASSETS"));
   const body = declaration("namespace-azrael-host.cjs", "transformAsset", namespace);

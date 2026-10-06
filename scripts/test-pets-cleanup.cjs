@@ -1,54 +1,70 @@
 "use strict";
-const assert = require("node:assert/strict"), fs = require("node:fs"), path = require("node:path"), vm = require("node:vm");
+const assert = require("node:assert/strict"), ms = require("node:fs"), path = require("node:path"), Sm = require("node:vm");
 const test = require("node:test");
-const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { PETS_CLEANUP_ASSETS, MARKER, injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
 const { transformAsset } = require("./namespace-azrael-host.cjs");
-const upstream = path.resolve(__dirname, "../artifacts/upstream-ui/26.928.31416");
+const upstream = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const MAIN = PETS_CLEANUP_ASSETS[0];
 function parse(source, name) {
-  const file = ts.createSourceFile(name, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const file = vp.createSourceFile(name, source, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   assert.equal(file.parseDiagnostics.length, 0, name);
   return file;
 }
 function exportsOf(file) {
-  return file.statements.filter(ts.isExportDeclaration).flatMap(n => n.exportClause?.elements?.map(e => e.name.text) ?? []).sort();
+  return file.statements.filter(vp.isExportDeclaration).flatMap(n => n.exportClause?.elements?.map(e => e.name.text) ?? []).sort();
 }
+test("host Pets retirement supports the ordinary runtime process wrapper", () => {
+  const asset = "out/extension.js", source = ms.readFileSync(path.join(upstream, asset), "utf8");
+  const prefix = "(function(process){\n", suffix = "\n}).call(this, require('./azrael-runtime.cjs').process);\n";
+  const wrapped = prefix + source + suffix;
+  const result = transformAsset(wrapped, asset, path.join(upstream, asset), vp);
+  assert.equal(result.asset.petsCleanupEdits, 1);
+  assert.equal(result.text.split(prefix).length - 1, 1);
+  assert.equal(result.text.split(suffix).length - 1, 1);
+  for (const retired of ["async function NFe(", "function FFe(", "function DFe(", "iUt=c.object(", "customAvatars"]) assert.equal(result.text.includes(retired), false, retired);
+  parse(result.text, asset);
+  assert.deepEqual(injectPetsCleanup(result.text, asset, vp), { text: result.text, count: 0 });
+  assert.throws(() => injectPetsCleanup(wrapped + wrapped, asset, vp), /Duplicate ordinary host/);
+  assert.throws(() => injectPetsCleanup(wrapped.replace(".process);", ".unknown);"), asset, vp), /Invalid ordinary host process wrapper/);
+});
 test("Pets retirement in actual generated bundles and shared import contracts", async () => {
   const generated = new Map(), originals = new Map(), parsed = new Map();
   for (const asset of PETS_CLEANUP_ASSETS) {
-    const filename = path.join(upstream, asset), source = fs.readFileSync(filename, "utf8");
+    const filename = path.join(upstream, asset), source = ms.readFileSync(filename, "utf8");
     originals.set(asset, source);
-    const result = transformAsset(source, asset, filename, ts);
+    const result = transformAsset(source, asset, filename, vp);
     assert.equal(result.asset.petsCleanupEdits, 1, asset);
-    assert.ok(result.text.startsWith(MARKER));
-    assert.deepEqual(injectPetsCleanup(result.text, asset, ts), { text: result.text, count: 0 });
+    assert.equal(result.text.split(MARKER).length - 1, 1);
+    assert.deepEqual(injectPetsCleanup(result.text, asset, vp), { text: result.text, count: 0 });
     const file = parse(result.text, asset);
-    assert.deepEqual(exportsOf(file), exportsOf(parse(source, asset)), `${asset} preserves imported export names`);
+    const expectedExports = exportsOf(parse(source, asset));
+    if (asset === "webview/assets/app-initial-5120fa5fe295.js") expectedExports.push("azraelDesignStore", "useAzraelDesignState");
+    assert.deepEqual(exportsOf(file), expectedExports.sort(), `${asset} preserves imported export names and owned design exports`);
     generated.set(asset, result.text); parsed.set(asset, file);
-    console.log(`PASS ${asset}: petsCleanupEdits=1; JS parsed; exports preserved; idempotent; bytes=${Buffer.byteLength(result.text)}`);
+    console.log(`PASS ${asset}: petsCleanupEdits=1; qS parsed; exports preserved; idempotent; bytes=${Buffer.byteLength(result.text)}`);
   }
   const main = generated.get(MAIN), mainFile = parsed.get(MAIN);
-  const functions = new Map(mainFile.statements.filter(ts.isFunctionDeclaration).map(n => [n.name.text, n.getText(mainFile)]));
-  for (const name of ["XEa","QEa","a2r","s2r","c2r","u2r","d2r","f2r","p2r","P2r","F2r","L2r","R2r","z2r"]) assert.equal(functions.has(name), false, name);
+  const functions = new Map(mainFile.statements.filter(vp.isFunctionDeclaration).map(n => [n.name.text, n.getText(mainFile)]));
+  for (const name of ["HAa","WAa","n3r","i3r","a3r","s3r","c3r","l3r","u3r","j3r","M3r","P3r","F3r","I3r"]) assert.equal(functions.has(name), false, name);
   for (const needle of ["vm.customAvatars", "migrated-cloud-pet-ids-v1", "cloud-pet-artwork-cache", "last-observed-cloud-pet-selection-v1", "`/pets`", "accessory_id"]) assert.equal(main.includes(needle), false, needle);
-  assert.ok(functions.get("bDa").includes("o=xDa(e,n),s=cDa(e,t,n,r),l=_Da(e,t,n,r)"));
-  assert.ok(functions.get("bDa").includes("methods:[`skills/changed`"));
-  assert.equal(functions.get("qxi").includes("jsx)(Gxi"), false);
-  assert.equal(functions.get("Kxi"), "function Kxi(){Gxi=()=>null;}");
+  assert.ok(functions.get("fja").includes("o=pja(e,n),s=eja(e,t,n,r),l=lja(e,t,n,r)"));
+  assert.ok(functions.get("fja").includes("methods:[`skills/changed`"));
+  assert.equal(functions.get("RCi").includes("jsx)(ICi"), false);
+  assert.equal(functions.get("LCi"), "function LCi(){ICi=()=>null;}");
   const host = generated.get("out/extension.js");
-  for (const needle of ["customAvatars", "var rF=class", "function PFe", "function kFe", "function EFe", "function a5(", "function eUt(", "function IFe(", "function tUt(", "function rUt(", "function nUt(", "function oUt(", "Jqt=c.object(", "MFe();"]) assert.equal(host.includes(needle), false, needle);
-  for (const asset of PETS_CLEANUP_ASSETS.slice(5)) assert.equal(parsed.get(asset).statements.some(ts.isImportDeclaration), false, `${asset} has no feature imports`);
+  for (const needle of ["customAvatars", "var eF=class", "function NFe", "function FFe", "function DFe", "function c5(", "function sUt(", "function OFe(", "function aUt(", "function uUt(", "function lUt(", "function cUt(", "iUt=c.object(", "LFe();"]) assert.equal(host.includes(needle), false, needle);
+  for (const asset of PETS_CLEANUP_ASSETS.slice(5)) assert.equal(parsed.get(asset).statements.some(vp.isImportDeclaration), false, `${asset} has to feature imports`);
   const settings = generated.get(PETS_CLEANUP_ASSETS[1]), nav = generated.get(PETS_CLEANUP_ASSETS[2]), visible = generated.get(PETS_CLEANUP_ASSETS[3]);
-  assert.equal(settings.includes("pets:_R"), false);
+  assert.equal(settings.includes("pets:IR"), false);
   assert.equal(settings.includes("chatGptPets:"), false);
   assert.equal(settings.includes("settings.nav.miniAndPets"), false);
   assert.equal(nav.includes("personalization.pets.usage"), false);
   assert.equal(nav.includes("`personalization`,`pets`,`keyboard-shortcuts`"), false);
-  assert.equal(visible.includes("pets:{component:Zi"), false);
+  assert.equal(visible.includes("pets:{component:Xi"), false);
   // Evaluate the real normalized inventory and direct actions from the generated bundle.
-  const context = vm.createContext({ Wyn: e => e, Gyn: ({logoUrl}) => logoUrl, Yvn: () => null, $vn: () => [], tyn: x => x });
-  vm.runInContext(["Dk","Uyn","Qvn"].map(n => functions.get(n)).join("\n") + ";this.normalize=Uyn;this.actions=Qvn", context);
+  const context = Sm.createContext({ Rbn: e => e, zbn: ({logoUrl}) => logoUrl, qyn: () => null, Yyn: () => [], Uyn: x => x });
+  Sm.runInContext(["sA","Lbn","Kyn"].map(n => functions.get(n)).join("\n") + ";this.normalize=Lbn;this.actions=Kyn", context);
   const pets = [{id:"connector_openai_chatgpt_pets"},{id:"asdk_app_openai_chatgpt_pets"}];
   const other = [{id:"connector_calendar",name:"Pets"},{id:"connector_drive",name:"Drive"}];
   const inventory = [...other, ...pets];
@@ -56,27 +72,70 @@ test("Pets retirement in actual generated bundles and shared import contracts", 
   assert.equal(context.normalize({apps:other,connectorLogoSrcByCacheKey:{}}), other, "unchanged connector inventory preserves identity");
   const actions = [{name:"create_pet",is_enabled:true},{name:"ordinary",is_enabled:true}];
   for (const app of pets) assert.equal(context.actions({actions,appId:app.id}).length, 0);
-  assert.deepEqual(Array.from(context.actions({actions,appId:"connector_calendar"}), a => a.name), ["create_pet","ordinary"]);
-  assert.deepEqual(Array.from(context.actions({actions,appId:null}), a => a.name), ["create_pet","ordinary"]);
+  assert.deepEqual(Array.from(context.actions({actions,appId:"connector_calendar"}), o => o.name), ["create_pet","ordinary"]);
+  assert.deepEqual(Array.from(context.actions({actions,appId:null}), o => o.name), ["create_pet","ordinary"]);
   console.log("PASS actual app normalization and action bypass: both canonical IDs denied; unrelated connectors/display names/actions preserved");
   // Execute shared neutral adapters with atom constructors, proving no RPC,
   // persistence or subscriptions are required by these exported initializers.
   const definitions = [], queries = [], atom = (_scope, value, options) => {
     assert.equal(options, undefined); definitions.push(value); return value;
   };
-  const adapterContext = vm.createContext({ e: factory => factory, q(){}, rp(){}, lp(){}, K_(){}, $:{}, Gf:atom,
-    Fd:(_scope, define) => { const spec=define(); queries.push(spec); return spec; },
-    sf:(_scope, define) => { const spec=define("custom:test"); queries.push(spec); return spec; },
-    ff:(_scope, define) => { const spec=define("pet_test"); definitions.push(spec); return spec; }
+  const adapterContext = Sm.createContext({ e: factory => factory, K(){}, Mh(){}, Ip(){}, Kg(){}, $:{}, Xd:atom,
+    Fi:(_scope, define) => { const spec=define(); queries.push(spec); return spec; },
+    Ku:(_scope, define) => { const spec=define("custom:test"); queries.push(spec); return spec; },
+    Jo:(_scope, define) => { const spec=define("pet_test"); definitions.push(spec); return spec; }
   });
-  vm.runInContext("var y2r,x2r,w2r,T2r,M2r,G2r,t2r;" + ["S2r","E2r","N2r","K2r","n2r","o2r","l2r","I2r"].map(n=>functions.get(n)).join("\n") + ";S2r();E2r();N2r();K2r();n2r();this.catalog=l2r(null,null)", adapterContext);
+  Sm.runInContext("var g3r,v3r,x3r,S3r,k3r,H3r,Q4r;" + ["y3r","C3r","A3r","U3r","$4r","r3r","o3r","N3r"].map(n=>functions.get(n)).join("\n") + ";y3r();C3r();A3r();U3r();$4r();this.catalog=o3r(null,null)", adapterContext);
   queries.push(adapterContext.catalog);
   for (const query of queries) { assert.equal(query.enabled, false); await query.queryFn(); }
   assert.ok(definitions.some(value=>value?.pet===null));
   console.log("PASS neutral shared exports execute without custom-avatar RPC, persistence, subscriptions, selection mutation or cloud queries");
-  assert.throws(()=>injectPetsCleanup(originals.get(MAIN).replace("let n=!1,r=e.map(e=>", "let n=!1,r=e.slice().map(e=>"), MAIN, ts), /anchor changed/);
-  assert.throws(()=>injectPetsCleanup(main.replace("function I2r(e,t,n){}", "function I2r(e,t,n){throw Error('restored')}"), MAIN, ts), /Invalid retired/);
-  assert.throws(()=>injectPetsCleanup(generated.get(PETS_CLEANUP_ASSETS[5])+";", PETS_CLEANUP_ASSETS[5], ts), /Invalid retired/);
-  assert.deepEqual(injectPetsCleanup("untouched", "unrelated.js", ts), {text:"untouched",count:0});
+  assert.throws(()=>injectPetsCleanup(originals.get(MAIN).replace("let n=!1,r=e.map(e=>", "let n=!1,r=e.slice().map(e=>"), MAIN, vp), /anchor changed/);
+  assert.throws(()=>injectPetsCleanup(main.replace("function N3r(e,t,n){}", "function N3r(e,t,n){throw Error('restored')}"), MAIN, vp), /Invalid retired/);
+  assert.throws(()=>injectPetsCleanup(generated.get(PETS_CLEANUP_ASSETS[5])+";", PETS_CLEANUP_ASSETS[5], vp), /Invalid retired/);
+  assert.deepEqual(injectPetsCleanup("untouched", "unrelated.js", vp), {text:"untouched",count:0});
   console.log("PASS fail-closed drift/tampering and unrelated asset identity");
+});
+
+test("Pets retirement preserves the ordinary host process wrapper and rejects wrapper drift", () => {
+  const asset = "out/extension.js", original = ms.readFileSync(path.join(upstream, asset), "utf8");
+  const prefix = 'if(require("vscode").env.remoteName || require("vscode").workspace.getConfiguration("chatgpt").get("runCodexInWindowsSubsystemForLinux")) throw new Error("This azrael release requires local Windows VS Code. Disable Codex WSL execution for this window or use the official extension in the remote host.");\n(function(process){\n';
+  const suffix = "\n}).call(this, require('./azrael-runtime.cjs').process);\n";
+  const wrapped = prefix + original + suffix, retired = injectPetsCleanup(wrapped, asset, vp);
+  const pristine = injectPetsCleanup(original, asset, vp);
+  assert.equal(retired.count, 1);
+  assert.equal(retired.text.split(MARKER).length, 2);
+  assert.equal(retired.text, MARKER + prefix + pristine.text.slice(MARKER.length) + suffix,
+    "wrapper and every unrelated host byte are preserved");
+  assert.deepEqual(injectPetsCleanup(retired.text, asset, vp), { text: retired.text, count: 0 });
+  const file = parse(retired.text, asset);
+  const wrapper = file.statements.find(n => vp.isExpressionStatement(n) && vp.isCallExpression(n.expression));
+  const body = wrapper.expression.expression.expression.expression.body;
+  for (const name of ["NFe","FFe","DFe","c5","sUt","OFe","aUt","uUt","lUt","cUt"]) {
+    assert.equal(body.statements.some(n => vp.isFunctionDeclaration(n) && n.name?.text === name), false, name);
+  }
+  assert.equal(body.statements.some(n => vp.isVariableStatement(n) &&
+    n.declarationList.declarations.some(u => u.name.text === "LFe")), false);
+  // Execute the preserved wrapper shell without invoking the full extension startup.
+  const proxy = { env: { sentinel: "scoped" } }, ambient = { env: { sentinel: "ambient" } };
+  const context = Sm.createContext({ process: ambient, require: name => {
+    if (name === "vscode") return { env: {}, workspace: { getConfiguration: () => ({ get: () => false }) } };
+    assert.equal(name, "./azrael-runtime.cjs"); return { process: proxy };
+  } });
+  Sm.runInContext(retired.text.slice(0, body.getStart(file) + 1) +
+    "this.observedProcess=process;" + retired.text.slice(body.end - 1), context);
+  assert.equal(context.observedProcess, proxy);
+  assert.equal(context.process, ambient);
+  for (const source of [
+    wrapped.replace("(function(process)", "(function(other)"),
+    wrapped.replace("./azrael-runtime.cjs", "./unexpected-runtime.cjs"),
+    wrapped.replace("}).call(this,", "}).call(null,"),
+    wrapped.replace("}).call(this,", "}).apply(this,"),
+    wrapped + "(function(process){}).call(this, require('./azrael-runtime.cjs').process);",
+    prefix + wrapped + suffix,
+    retired.text.replace("./azrael-runtime.cjs", "./unexpected-runtime.cjs"),
+  ]) assert.throws(() => injectPetsCleanup(source, asset, vp), /(?:Invalid|Duplicate) ordinary host process wrapper/);
+  assert.throws(() => injectPetsCleanup(wrapped.replace('n.join(r,"pets")', 'n.join(r,"changed")'), asset, vp),
+    /Pinned Pets helper changed: NFe/);
+  assert.throws(() => injectPetsCleanup(retired.text + MARKER, asset, vp), /Duplicate Pets cleanup marker/);
 });

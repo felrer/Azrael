@@ -105,6 +105,29 @@ pub enum Action {
     Expand,
     Collapse,
     Scroll,
+    PressKey,
+}
+// Fixed named keys only: no model-supplied virtual keys, scan codes or modifiers.
+pub fn named_key(value: Option<&Value>) -> Result<(u16, u8, bool)> {
+    let key = value.and_then(Value::as_str).ok_or_else(||
+        Error::new("invalid-params", "pressKey requires a supported named key string"))?;
+    match key {
+        "Return" => Ok((0x0d, 0x1c, false)),
+        "Tab" => Ok((0x09, 0x0f, false)),
+        "Escape" => Ok((0x1b, 0x01, false)),
+        "BackSpace" => Ok((0x08, 0x0e, false)),
+        "Delete" => Ok((0x2e, 0x53, true)),
+        "Left" => Ok((0x25, 0x4b, true)),
+        "Right" => Ok((0x27, 0x4d, true)),
+        "Up" => Ok((0x26, 0x48, true)),
+        "Down" => Ok((0x28, 0x50, true)),
+        "Home" => Ok((0x24, 0x47, true)),
+        "End" => Ok((0x23, 0x4f, true)),
+        "PageUp" => Ok((0x21, 0x49, true)),
+        "PageDown" => Ok((0x22, 0x51, true)),
+        "space" => Ok((0x20, 0x39, false)),
+        _ => Err(Error::new("unsupported-key", "Key name or modifier combination is unsupported")),
+    }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -195,6 +218,21 @@ pub fn validate_request(request: &Request) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[test]
+    fn named_keys_are_closed_and_typed() {
+        for key in ["Return", "Tab", "Escape", "BackSpace", "Delete", "Left", "Right",
+            "Up", "Down", "Home", "End", "PageUp", "PageDown", "space"] {
+            assert!(named_key(Some(&Value::String(key.into()))).is_ok());
+        }
+        for key in ["Enter", "Ctrl+Return", "a", "", "return"] {
+            assert!(named_key(Some(&Value::String(key.into()))).is_err());
+        }
+        assert!(named_key(None).is_err());
+        assert!(named_key(Some(&Value::from(13))).is_err());
+        assert!(named_key(Some(&Value::Array(vec![]))).is_err());
+        assert_eq!(named_key(Some(&Value::String("Left".into()))).unwrap(), (0x25, 0x4b, true));
+        assert!(serde_json::from_str::<Action>(r#""pressKey""#).is_ok());
+    }
     #[test]
     fn sizes_are_physical_outer_dimensions() {
         assert_eq!(dip_to_px(640.0, 144).unwrap(), 960);

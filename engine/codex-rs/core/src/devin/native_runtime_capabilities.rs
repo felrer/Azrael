@@ -90,7 +90,10 @@ async fn fetch() -> Result<Vec<String>> {
     let mut child = command
         .spawn()
         .context("failed to start Devin capability helper")?;
-    let mut stdin = child.stdin.take().context("capability helper stdin unavailable")?;
+    let mut stdin = child
+        .stdin
+        .take()
+        .context("capability helper stdin unavailable")?;
     let stdout = child
         .stdout
         .take()
@@ -137,7 +140,9 @@ fn decode(bytes: &[u8], request_id: &str) -> Result<Vec<String>> {
     let frame: CapabilitiesFrame =
         serde_json::from_slice(line).context("Devin capability helper returned invalid JSON")?;
     if frame.protocol_version != PROTOCOL_VERSION || frame.request_id != request_id {
-        return Err(anyhow!("Devin capability helper returned a mismatched frame"));
+        return Err(anyhow!(
+            "Devin capability helper returned a mismatched frame"
+        ));
     }
     if frame.r#type == "error" {
         let code = super::process::sanitize_code(frame.code.as_deref());
@@ -152,7 +157,9 @@ fn decode(bytes: &[u8], request_id: &str) -> Result<Vec<String>> {
                     .all(|byte| byte.is_ascii_alphanumeric() || b"._-".contains(&byte))
         })
     {
-        return Err(anyhow!("Devin capability helper returned invalid capabilities"));
+        return Err(anyhow!(
+            "Devin capability helper returned invalid capabilities"
+        ));
     }
     Ok(frame.image_model_ids)
 }

@@ -10,6 +10,7 @@ param(
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$Resume,
+    [switch]$ChangedOnlyTests,
     [string]$CacheDirectory
 )
 $ErrorActionPreference = 'Stop'
@@ -73,6 +74,7 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/sync-codex-environment.cjs',
             'extension/account-ui/instruction-package.cjs',
             'extension/account-ui/computer-use-runtime.cjs',
+            'extension/account-ui/computer-use-branding.cjs',
             'extension/computer-use/manifest.json',
             'extension/account-ui/node_modules/@xterm/headless/package.json',
             'extension/account-ui/node_modules/node-pty/package.json',
@@ -105,7 +107,7 @@ function Assert-IntegratedHostVsixContents {
                 try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
                 if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
             }
-            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs')) {
                 $entry = $archive.GetEntry("extension/out/$module")
                 if (-not $entry) { throw "Window Control host module missing: $module" }
                 $stream = $entry.Open()
@@ -116,7 +118,7 @@ function Assert-IntegratedHostVsixContents {
     } finally { $archive.Dispose() }
 }
 
-if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.928.31416' }
+if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225' }
 $source = (Resolve-Path -LiteralPath $SourceExtensionPath).Path
 $release = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
 if (-not [IO.Path]::IsPathFullyQualified($OutputDirectory)) { throw 'OutputDirectory must be absolute.' }
@@ -170,8 +172,14 @@ function Invoke-PreparationPhase {
 }
 $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
+$config.changedOnlyTests = [bool]$ChangedOnlyTests
+if ($ChangedOnlyTests) { $config.preservationFeatureIds = @() }
 $configPath = Join-Path $OutputDirectory 'preparation-inputs.json'
 $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
+# Prevent module cache collection while preparation uses cached TypeScript/vsce.
+$moduleCacheLock=Join-Path $project 'artifacts/cache/modules/.lock'
+[IO.Directory]::CreateDirectory((Split-Path $moduleCacheLock -Parent)) | Out-Null
+$moduleCacheLease=[IO.File]::Open($moduleCacheLock,[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::Read,[IO.FileShare]::Read)
 try {
     Invoke-PreparationPhase 'input-verification' {
         & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $build.engineSourceRoot --engine-dir (Join-Path $release 'engine') | Out-Null
@@ -184,6 +192,19 @@ try {
         if ($LASTEXITCODE -ne 0) { throw 'Preparation requires a verified Window Control runtime when declared.' }
         & node $checkpointTool init $OutputDirectory $configPath ([string][bool]$Resume).ToLowerInvariant()
         if ($LASTEXITCODE -ne 0) { throw 'Preparation inputs or checkpoint verification failed.' }
+    }
+    $preservationConfig = [ordered]@{
+        projectRoot = $project; uiRoot = $source; engineSourceRoot = [string]$build.engineSourceRoot
+        engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $OutputDirectory 'feature-preservation')
+        area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')
+    }
+    if ($ChangedOnlyTests) { $preservationConfig.featureIds = @() }
+    $preservationConfigPath = Join-Path $OutputDirectory 'feature-preservation-inputs.json'
+    $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
+    $preservation = Invoke-PreparationPhase 'feature-preservation' {
+        $verified = & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') run --config $preservationConfigPath 2> (Join-Path $OutputDirectory 'feature-preservation.stderr.log')
+        if ($LASTEXITCODE -ne 0) { throw 'UI feature preservation failed. See feature-preservation logs.' }
+        $verified | ConvertFrom-Json
     }
     $namespaceCheckpoint = [pscustomobject]@{ found = $false }
     $completedCheckpoint = [pscustomobject]@{ found = $false }
@@ -217,7 +238,7 @@ try {
         Invoke-PreparationPhase 'account-payload' {
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'window-control-runtime.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
@@ -258,6 +279,20 @@ try {
         }
     }
     Invoke-PreparationPhase 'archive-contract' { Assert-IntegratedHostVsixContents -VsixPath $vsix }
+    $preservationReportPath = Join-Path $prepared.OfficialExtension '.azrael-independent-host.json'
+    $preservationBindingPath = Join-Path $OutputDirectory 'feature-preservation-package.json'
+    $preservationBindingConfig = [ordered]@{}
+    foreach ($key in $preservationConfig.Keys) { $preservationBindingConfig[$key] = $preservationConfig[$key] }
+    $preservationBindingConfig.receiptPath = [string]$preservation.receiptPath
+    $preservationBindingConfig.reportPath = $preservationReportPath
+    $preservationBindingConfig.packagePath = $vsix
+    $preservationBindingConfig.bindingPath = $preservationBindingPath
+    $preservationBindingConfigPath = Join-Path $OutputDirectory 'feature-preservation-binding-inputs.json'
+    $preservationBindingConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationBindingConfigPath -Encoding utf8NoBOM
+    Invoke-PreparationPhase 'feature-preservation-binding' {
+        & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') bind --config $preservationBindingConfigPath | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'UI preservation could not be bound to the prepared package.' }
+    }
     $environmentSnapshot = $null
     if (-not $SkipCodexEnvironmentSnapshot) {
         $environmentSnapshot = Invoke-PreparationPhase 'environment-validation' {
@@ -278,6 +313,9 @@ try {
         EngineSourceSha256 = [string]$build.engineProvenance.source.sourceSha256
         EngineBinarySha256 = [string]$build.sha256.'engine/codex.exe'
         HostSha256 = (Get-FileHash -LiteralPath $vsix).Hash
+        PreservationFeatureIds = @($preservation.featureIds)
+        PreservationReceipt = [string]$preservation.receiptPath
+        PreservationReport = $preservationReportPath; PreservationBinding = $preservationBindingPath
         CodexEnvironmentSnapshot = $environmentSnapshot
     }
     $resultPath = Join-Path $OutputDirectory 'independent-prepared.json'
@@ -293,6 +331,7 @@ try {
     $script:preparationMetrics.status = 'failed'
     throw
 } finally {
+    $moduleCacheLease.Dispose()
     $preparationTimer.Stop()
     $script:preparationMetrics.elapsedMs = $preparationTimer.Elapsed.TotalMilliseconds
     $script:preparationMetrics | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $OutputDirectory 'preparation-metrics.json') -Encoding utf8NoBOM

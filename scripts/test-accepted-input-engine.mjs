@@ -134,7 +134,7 @@ async function setup(opts, mode) {
 
 async function start(opts, state) {
   const env = {};
-  for (const key of ['SystemRoot', 'WINDIR', 'PATH', 'PATHEXT', 'COMSPEC', 'PROCESSOR_ARCHITECTURE']) {
+  for (const key of ['SystemRoot', 'SystemDrive', 'WINDIR', 'PATH', 'PATHEXT', 'COMSPEC', 'PROCESSOR_ARCHITECTURE']) {
     if (process.env[key]) env[key] = process.env[key];
   }
   Object.assign(env, { CODEX_HOME: state.state, APPDATA: state.appdata, LOCALAPPDATA: state.localappdata,

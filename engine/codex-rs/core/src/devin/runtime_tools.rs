@@ -319,7 +319,7 @@ impl ToolTracker {
         if state.terminal_exit_seen {
             let arguments = arguments
                 .as_object_mut()
-                .expect("dynamic tool arguments are an object");
+                .unwrap_or_else(|| panic!("dynamic tool arguments are an object"));
             arguments.insert("exitCode".to_string(), json!(state.exit_code));
             arguments.insert(
                 "signal".to_string(),

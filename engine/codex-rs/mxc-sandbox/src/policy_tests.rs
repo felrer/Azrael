@@ -155,6 +155,7 @@ fn command(permissions: &PermissionProfile, cwd: &Path) -> MxcCommand {
         sandbox_policy_cwd: cwd.to_owned(),
         managed_network: None,
         command: vec!["program.exe".to_owned(), "--arg".to_owned()],
+        command_environment: HashMap::new(),
     }
 }
 

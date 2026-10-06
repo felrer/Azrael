@@ -2,16 +2,16 @@
 
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
-const os = require("node:os");
+const Kd = require("node:os");
 const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
-const ts = require("../extensions/azrael-ex/node_modules/typescript");
+const vp = require("../extensions/azrael-ex/node_modules/typescript");
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, DROP_MARKER, COMPOSER_MARKER, BROWSER_HELPER,
   hasLocalFileTransfer, localFileDescriptors, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 
-const assets = path.join(__dirname, "..", "artifacts", "upstream-ui", "26.928.31416", "webview", "assets");
+const assets = path.join(__dirname, "..", "artifacts", "upstream-ui", "26.930.61225", "webview", "assets");
 
 function transfer(data) {
   return { types: Object.keys(data), getData(type) { return data[type] ?? ""; } };
@@ -64,7 +64,7 @@ test("pinned Webview transformations are unique, repeatable, and syntactically v
     assert.equal(injectLocalFileDrop(injected.text, relative).count, 0);
     const marker = relative === DROP_ASSET ? DROP_MARKER : COMPOSER_MARKER;
     assert.equal(injected.text.split(marker).length - 1, 1);
-    const parsed = ts.createSourceFile(relative, injected.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
+    const parsed = vp.createSourceFile(relative, injected.text, vp.ScriptTarget.Latest, false, vp.ScriptKind.JS);
     assert.equal(parsed.parseDiagnostics.length, 0);
     if (relative === COMPOSER_ASSET) {
       assert.throws(() => injectLocalFileDrop(injected.text.replace(COMPOSER_MARKER, COMPOSER_MARKER + "corrupt"), COMPOSER_ASSET), /Invalid local-file composer marker/);
@@ -77,31 +77,31 @@ test("pinned Webview transformations are unique, repeatable, and syntactically v
 test("file-drop anchors survive the Azrael namespace transform", () => {
   for (const relative of [DROP_ASSET, COMPOSER_ASSET]) {
     const source = fs.readFileSync(path.join(assets, path.basename(relative)), "utf8");
-    const namespaced = rewriteJavaScript(source, relative, ts);
+    const namespaced = rewriteJavaScript(source, relative, vp);
     const injected = injectLocalFileDrop(namespaced.text, relative);
     assert.equal(injected.count, 1);
-    assert.equal(ts.createSourceFile(relative, injected.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+    assert.equal(vp.createSourceFile(relative, injected.text, vp.ScriptTarget.Latest, false, vp.ScriptKind.JS).parseDiagnostics.length, 0);
   }
 });
 
 test("injected composer validates local paths before reusing picked-file attachments", async () => {
   const source = fs.readFileSync(path.join(assets, path.basename(COMPOSER_ASSET)), "utf8");
   const injected = injectLocalFileDrop(source, COMPOSER_ASSET).text;
-  const start = injected.indexOf("addFileReferences:Sp(async e=>{");
-  const end = injected.indexOf("dropTargetPortalTarget:je", start);
+  const start = injected.indexOf("addFileReferences:Cm(async e=>{");
+  const end = injected.indexOf("dropTargetPortalTarget:Ie", start);
   assert.ok(start >= 0 && end > start);
   const calls = [];
   const sandbox = {
-    Sp: callback => callback,
-    vi: null,
-    Jm: async (method, request) => {
+    Cm: callback => callback,
+    Ti: null,
+    qp: async (method, request) => {
       calls.push([method, request.params.path]);
       return { isFile: request.params.path.endsWith("valid.txt") };
     },
-    ye: { get: () => ({ danger: message => calls.push(["toast", message]) }) },
-    kx: Symbol("toast"),
-    Ra: { async addPickedFiles(files, options) { calls.push(["add", files.map(file => file.fsPath), options.imagesOnly]); } },
-    gda: async () => [],
+    be: { get: () => ({ danger: message => calls.push(["toast", message]) }) },
+    sS: Symbol("toast"),
+    Ua: { async addPickedFiles(files, options) { calls.push(["add", files.map(file => file.fsPath), options.imagesOnly]); } },
+    ema: async () => [],
   };
   const object = vm.runInNewContext(`({${injected.slice(start, end)}marker:true})`, sandbox);
   await object.addFileReferences([
@@ -110,28 +110,34 @@ test("injected composer validates local paths before reusing picked-file attachm
   ]);
   assert.deepEqual(calls.map(call => call[0]), ["read-file-metadata", "read-file-metadata", "toast", "add"]);
   assert.deepEqual(JSON.parse(JSON.stringify(calls.at(-1))), ["add", ["C:\\work\\valid.txt"], false]);
+  for (const blocker of ["disabled", "host-setup"]) {
+    calls.length = 0;
+    sandbox.Ti = blocker;
+    await object.addFileReferences([{ fsPath: "C:\\work\\valid.txt" }]);
+    assert.deepEqual(calls, [], `native ${blocker} gate blocks metadata reads and attachment mutations`);
+  }
 });
 
 test("native drop handler captures the composer callback rather than the drag event", () => {
   const source = fs.readFileSync(path.join(assets, path.basename(DROP_ASSET)), "utf8");
   const injected = injectLocalFileDrop(source, DROP_ASSET).text;
-  const ast = ts.createSourceFile(DROP_ASSET, injected, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const ast = vp.createSourceFile(DROP_ASSET, injected, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   let hook;
   function visit(node) {
-    if (ts.isFunctionDeclaration(node) && node.name?.text === "Obi") hook = node;
-    ts.forEachChild(node, visit);
+    if (vp.isFunctionDeclaration(node) && node.name?.text === "EDi") hook = node;
+    vp.forEachChild(node, visit);
   }
   visit(ast);
   assert.ok(hook);
   let attached, prevented = 0;
   const sandbox = {
     URL,
-    kbi: { c: () => Array(46).fill(Symbol("uninitialized")) },
-    X5: { useState: () => [null, () => {}], useEffect() {}, useEffectEvent: callback => callback },
-    PZr: () => false,
-    DTe: () => ({ imageFiles: [], otherFiles: [] }),
-    hve: () => false,
-    As: () => false,
+    DDi: { c: () => Array(46).fill(Symbol("uninitialized")) },
+    Z5: { useState: () => [null, () => {}], useEffect() {}, useEffectEvent: callback => callback },
+    Y6r: () => false,
+    _he: () => ({ imageFiles: [], otherFiles: [] }),
+    xEe: () => false,
+    rf: () => false,
   };
   vm.runInNewContext(BROWSER_HELPER + hook.getText(ast), sandbox);
   const props = {
@@ -141,7 +147,7 @@ test("native drop handler captures the composer callback rather than the drag ev
     setIsDragActive() {}, setShowShiftOverlay() {},
     addFileReferences(files) { attached = files; },
   };
-  const handler = sandbox.Obi(props);
+  const handler = sandbox.EDi(props);
   handler.handleDrop({
     target: null, dataTransfer: transfer({ CodeFiles: JSON.stringify(["C:\\work\\valid.txt"]) }),
     preventDefault() { prevented++; },

@@ -19,6 +19,12 @@ pub enum AzraelAccountAction {
     CancelSwitch,
     Usage,
     ConsumeResetCredit,
+    AutoSwitchEnable,
+    AutoSwitchDisable,
+    AutoWindowStatus,
+    AutoWindowEnable,
+    AutoWindowDisable,
+    AutoWindowTick,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
@@ -33,6 +39,9 @@ pub struct AzraelAccountParams {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional = nullable)]
     pub idempotency_key: Option<String>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub credit_id: Option<String>,
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub include_details: bool,
 }
@@ -46,6 +55,8 @@ pub struct AzraelProfile {
     pub workspace_account_id: String,
     pub user_id: String,
     pub plan_type: Option<String>,
+    #[serde(default)]
+    pub auto_switch_allowed: bool,
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
@@ -84,8 +95,39 @@ pub struct AzraelAccountResponse {
     pub usage: Option<GetAccountRateLimitsResponse>,
     pub usage_profile_id: Option<String>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
-    #[ts(optional = nullable)]
+    #[ts(optional)]
     pub reset_credit_outcome: Option<ConsumeAccountRateLimitResetCreditOutcome>,
+    #[serde(default)]
+    pub auto_windows: Option<Vec<AzraelUsageWindowSchedule>>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct AzraelUsageWindowSchedule {
+    pub profile_id: String,
+    pub workspace_account_id: String,
+    pub user_id: String,
+    pub enabled: bool,
+    pub next_run_at: Option<i64>,
+    pub basis_reset_at: Option<i64>,
+    pub last_attempt_at: Option<i64>,
+    pub status: AzraelUsageWindowStatus,
+    pub error: Option<String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub enum AzraelUsageWindowStatus {
+    Disabled,
+    Scheduled,
+    Checking,
+    Confirming,
+    Started,
+    Unconfirmed,
+    Blocked,
+    Error,
 }
 
 #[cfg(test)]
@@ -119,19 +161,53 @@ fn nullable_usage_schema(
 #[cfg(test)]
 mod reset_credit_tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use serde_json::json;
 
     #[test]
     fn reset_credit_action_and_optional_fields_serialize() {
         let params: AzraelAccountParams = serde_json::from_value(json!({
             "action": "consumeResetCredit", "profileId": "profile",
-            "idempotencyKey": "0197cf1d-2703-7e00-b8fd-941428628c43"
+            "idempotencyKey": "0197cf1d-2703-7e00-b8fd-941428628c43",
+            "creditId": "opaque-ticket-id"
         }))
         .unwrap();
-        assert_eq!(params.action, AzraelAccountAction::ConsumeResetCredit);
         assert_eq!(
-            serde_json::to_value(&params).unwrap()["idempotencyKey"],
-            "0197cf1d-2703-7e00-b8fd-941428628c43"
+            params,
+            AzraelAccountParams {
+                action: AzraelAccountAction::ConsumeResetCredit,
+                profile_id: Some("profile".into()),
+                login_id: None,
+                idempotency_key: Some("0197cf1d-2703-7e00-b8fd-941428628c43".into()),
+                credit_id: Some("opaque-ticket-id".into()),
+                include_details: false,
+            }
+        );
+        assert_eq!(
+            serde_json::to_value(&params).unwrap(),
+            json!({
+                "action": "consumeResetCredit", "profileId": "profile", "loginId": null,
+                "idempotencyKey": "0197cf1d-2703-7e00-b8fd-941428628c43",
+                "creditId": "opaque-ticket-id"
+            })
+        );
+        let legacy_attempt = json!({
+            "action": "consumeResetCredit", "profileId": "profile",
+            "idempotencyKey": "0197cf1d-2703-7e00-b8fd-941428628c43"
+        });
+        let legacy_params: AzraelAccountParams =
+            serde_json::from_value(legacy_attempt.clone()).unwrap();
+        let mut nullable_attempt = legacy_attempt;
+        nullable_attempt["creditId"] = serde_json::Value::Null;
+        let nullable_params: AzraelAccountParams =
+            serde_json::from_value(nullable_attempt).unwrap();
+        assert_eq!(legacy_params, nullable_params);
+        assert!(legacy_params.credit_id.is_none());
+        assert!(
+            serde_json::to_value(legacy_params)
+                .unwrap()
+                .get("creditId")
+                .is_none()
         );
         let old_params: AzraelAccountParams =
             serde_json::from_value(json!({"action": "list"})).unwrap();
@@ -169,6 +245,16 @@ mod reset_credit_tests {
     #[test]
     fn reset_credit_schema_exposes_action_and_optional_fields() {
         let params = serde_json::to_value(schemars::schema_for!(AzraelAccountParams)).unwrap();
+        assert_eq!(
+            params["properties"]["creditId"],
+            json!({"type": ["string", "null"]})
+        );
+        assert!(
+            !params["required"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("creditId"))
+        );
         assert!(params["properties"].get("idempotencyKey").is_some());
         assert!(
             !params["required"]

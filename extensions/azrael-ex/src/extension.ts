@@ -8,7 +8,7 @@ import { AccountView } from "./accountView";
 import { UsageView } from "./usageView";
 import { UsageWindowService } from "./usageWindowService";
 import { DevinUsageService } from "./devinUsage";
-import { openAzraelSidebar, pickAzraelSetting } from "./nativeAzrael";
+import { openAzraelSidebar, openAzraelSettings } from "./nativeAzrael";
 import { parseAccountResponse } from "./protocol";
 import { UsageRefreshCoordinator, validateUsageForWorkspace } from "./usageRefresh";
 import { RootResumeView } from "./rootResumeView";
@@ -30,7 +30,7 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   let instructions: InstructionView | undefined;
   const register = (command: string, action: () => unknown) => context.subscriptions.push(vscode.commands.registerCommand(command, action));
   register("azrael.openCodex", () => guarded(() => standalone ? vscode.commands.executeCommand("azrael.openSidebar") : openAzraelSidebar(vscode)));
-  register("azrael.openCodexSettings", () => guarded(() => standalone ? instructions?.show() : pickAzraelSetting(vscode)));
+  register("azrael.openCodexSettings", () => guarded(() => standalone ? instructions?.show() : openAzraelSettings(vscode)));
 
   if (!runtime && context.extensionPath) {
     try { runtime = buildHostRuntime(context.extensionPath); }

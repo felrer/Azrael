@@ -56,6 +56,8 @@ export type { AzraelAccountResponse } from "./AzraelAccountResponse";
 export type { AzraelAccountState } from "./AzraelAccountState";
 export type { AzraelLogin } from "./AzraelLogin";
 export type { AzraelProfile } from "./AzraelProfile";
+export type { AzraelUsageWindowSchedule } from "./AzraelUsageWindowSchedule";
+export type { AzraelUsageWindowStatus } from "./AzraelUsageWindowStatus";
 export type { BrowserUseAccessApprovalLifetime } from "./BrowserUseAccessApprovalLifetime";
 export type { BrowserUseConfig } from "./BrowserUseConfig";
 export type { BrowserUseOriginPolicy } from "./BrowserUseOriginPolicy";

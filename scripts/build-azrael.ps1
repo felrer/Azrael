@@ -6,13 +6,17 @@ param(
     [switch]$SkipEngineBuild,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$EngineTargetDirectory,
+    [string]$WindowControlTargetDirectory,
     [string]$EngineDirectory,
     [string]$CompanionVsixPath,
     [string]$CodeModeHostPath,
     [string]$ComputerUseRuntimeDirectory,
     [string]$ComputerUsePluginDirectory,
     [switch]$IncludeDevinNative = $true,
-    [switch]$IncludeProviderAccounts = $true
+    [switch]$IncludeProviderAccounts = $true,
+    [ValidateSet('engine','companion','providers','window-control')][string[]]$RebuildModule = @(),
+    [ValidateRange(1,10)][int]$KeepModuleCaches = 2,
+    [switch]$SkipCacheCleanup
 )
 
 $ErrorActionPreference = 'Stop'
@@ -78,7 +82,26 @@ function Get-ProviderVendorManifestFingerprint {
     return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($records.ToString()))).ToLowerInvariant()
 }
 
+. (Join-Path $PSScriptRoot 'build-module-cache.ps1')
+$moduleCache = Open-BuildModuleCache $projectRoot
+$moduleInputs = @((Join-Path $PSScriptRoot 'build-azrael.ps1'), (Join-Path $PSScriptRoot 'build-module-cache.ps1'))
+$moduleTypeScriptPath = $null
 try {
+# Automatically reuse a complete source-verified engine bundle. Explicit reuse
+# still follows the existing required provenance check below.
+if (-not $SkipEngineBuild -and 'engine' -notin $RebuildModule) {
+    $latestPath = Join-Path $artifactRoot 'latest.json'
+    if (Test-Path -LiteralPath $latestPath) {
+        $previousRelease = (Get-Content $latestPath -Raw | ConvertFrom-Json).releaseDirectory
+        $candidateEngine = Join-Path $previousRelease 'engine'
+        if (Test-Path -LiteralPath (Join-Path $candidateEngine 'azrael-engine-build.json')) {
+            & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir $candidateEngine *> (Join-Path $logDirectory 'engine-auto-reuse.log')
+            if ($LASTEXITCODE -eq 0 -and $CodeModeHostPath -and (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash $CodeModeHostPath).Hash -ieq (Get-FileHash (Join-Path $candidateEngine 'codex-code-mode-host.exe')).Hash) {
+                $EngineDirectory=$candidateEngine;$SkipEngineBuild=$true
+            }
+        }
+    }
+}
 if (-not $SkipEngineBuild) {
     $phase = Start-BuildStage $buildMetrics 'engine-build'
     $check = Start-BuildStage $buildMetrics 'engine-host-source-check'
@@ -118,13 +141,20 @@ foreach ($file in @($engine, $bridge, $codeModeHost)) {
 Complete-BuildStage $buildMetrics $phase
 if (-not $CompanionVsixPath) {
     $phase = Start-BuildStage $buildMetrics 'companion-staging'
-    $vsixDirectory = Join-Path $artifactRoot "vsix/$ReleaseName"
+    $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
+    $nodeVersion = (& node --version).Trim()
+    $npmVersion = (& npm.cmd --version).Trim()
+    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource)+$moduleInputs) @($nodeVersion,$npmVersion) -Force:('companion' -in $RebuildModule)
+    $CompanionVsixPath = Join-Path $companionCache.Path 'azrael-ex.vsix'
+    $moduleTypeScriptPath = Join-Path $companionCache.Path 'companion/node_modules/typescript/lib/typescript.js'
+    if (-not $companionCache.Hit) {
+    $vsixDirectory = $companionCache.Path
     New-Item -ItemType Directory -Path $vsixDirectory -Force | Out-Null
     $CompanionVsixPath = Join-Path $vsixDirectory 'azrael-ex.vsix'
     # A running extension/test host can retain node-pty's native DLL. Build from
     # a fresh source copy so npm ci never removes modules used by that host.
     $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
-    $companionBuild = Join-Path $artifactRoot "build/$ReleaseName/companion"
+    $companionBuild = Join-Path $companionCache.Path 'companion'
     New-Item -ItemType Directory -Path $companionBuild -Force | Out-Null
     Invoke-BuildCommand 'robocopy.exe' @($companionSource, $companionBuild, '/E', '/COPY:DAT', '/DCOPY:DAT', '/R:1', '/W:1', '/XD', 'node_modules', 'dist', 'artifacts', '.git', '/NFL', '/NDL', '/NJH', '/NJS', '/NP') 'companion-stage.log' -MaximumSuccessExitCode 7
     $global:LASTEXITCODE = 0
@@ -135,6 +165,8 @@ if (-not $CompanionVsixPath) {
         Invoke-BuildCommand 'npm.cmd' @('ci') 'npm-ci.log'
         Invoke-BuildCommand 'npm.cmd' @('run', 'package', '--', $CompanionVsixPath) 'companion-package.log'
     } finally { Pop-Location }
+    Save-BuildModuleEntry $companionCache @('azrael-ex.vsix','companion/node_modules','companion/dist')
+    }
     Complete-BuildStage $buildMetrics $phase
 }
 
@@ -162,11 +194,15 @@ if (-not $ComputerUsePluginDirectory) {
 }
 Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'computer-use-runtime.cjs'), 'stage', '--runtime-directory', $ComputerUseRuntimeDirectory, '--plugin-directory', $ComputerUsePluginDirectory, '--selected-window-guide', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'computer-use')) 'computer-use-runtime.log'
 $windowSource = Join-Path $projectRoot 'native/window-control'
-Invoke-BuildCommand 'pwsh' @('-NoProfile', '-File', (Join-Path $PSScriptRoot 'build-window-control.ps1')) 'window-control-build.log'
-Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $projectRoot 'artifacts/build/window-control-native/target/release/azrael-window-control.exe'), '--provenance', (Join-Path $projectRoot 'artifacts/build/window-control-native/target/release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'window-control')) 'window-control-runtime.log'
+$windowTarget = if ($WindowControlTargetDirectory) { [IO.Path]::GetFullPath($WindowControlTargetDirectory) } else { Join-Path $projectRoot 'artifacts/build/window-control-native/target' }
+$windowBuildArguments=@('-NoProfile', '-File', (Join-Path $PSScriptRoot 'build-window-control.ps1'))
+if ($WindowControlTargetDirectory) { $windowBuildArguments += @('-TargetDirectory', $windowTarget, '-LogDirectory', (Join-Path $logDirectory 'window-control-native')) }
+if ('window-control' -in $RebuildModule) { $windowBuildArguments += '-Rebuild' }
+Invoke-BuildCommand 'pwsh' $windowBuildArguments 'window-control-build.log'
+Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $windowTarget 'release/azrael-window-control.exe'), '--provenance', (Join-Path $windowTarget 'release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'window-control')) 'window-control-runtime.log'
 $releaseBuildInfoPath = Join-Path $release 'build-info.json'
 $releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
-foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-mcp.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs')) {
+foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs')) {
     $hostDirectory = Join-Path $release 'host'
     New-Item -ItemType Directory -Path $hostDirectory -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $hostDirectory $module)
@@ -206,6 +242,12 @@ if ($IncludeDevinNative) {
     Complete-BuildStage $buildMetrics $phase
 }
 if ($IncludeProviderAccounts) {
+    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
+    if ($providerCache.Hit) {
+        New-Item -ItemType Directory -Path (Join-Path $release 'providers') -Force | Out-Null
+        Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/providers/opencodex') -Destination (Join-Path $release 'providers/opencodex') -Recurse
+        Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/opencodex-accounts-build.json') -Destination $release
+    } else {
     $phase = Start-BuildStage $buildMetrics 'provider-source-and-runtime-checks'
     $providerSource = Join-Path $projectRoot 'providers/opencodex'
     $bunSource = Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'
@@ -236,9 +278,9 @@ if ($IncludeProviderAccounts) {
     }
     Complete-BuildStage $buildMetrics $phase
     $phase = Start-BuildStage $buildMetrics 'provider-staging'
-    $providerStage = Join-Path $artifactRoot "build/$ReleaseName/opencodex"
+    $providerStage = Join-Path $providerCache.Path 'staging/opencodex'
     New-Item -ItemType Directory -Path (Join-Path $providerStage 'vendor') -Force | Out-Null
-    $progressStage = Join-Path $artifactRoot "build/$ReleaseName/devin"
+    $progressStage = Join-Path $providerCache.Path 'staging/devin'
     New-Item -ItemType Directory -Path $progressStage -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs') -Destination $progressStage
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs') -Destination $progressStage
@@ -302,6 +344,12 @@ if ($IncludeProviderAccounts) {
         files = $providerFiles
     } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $release 'opencodex-accounts-build.json') -Encoding utf8NoBOM
     Complete-BuildStage $buildMetrics $phase
+    $cacheOutput=Join-Path $providerCache.Path 'output'
+    New-Item -ItemType Directory (Join-Path $cacheOutput 'providers') -Force | Out-Null
+    Copy-Item -LiteralPath (Join-Path $release 'providers/opencodex') -Destination (Join-Path $cacheOutput 'providers/opencodex') -Recurse
+    Copy-Item -LiteralPath (Join-Path $release 'opencodex-accounts-build.json') -Destination $cacheOutput
+    Save-BuildModuleEntry $providerCache @('output')
+    }
 }
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'
 Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', (Join-Path $release 'engine')) 'packaged-source-check.log'
@@ -319,6 +367,19 @@ $temporaryPointer = Join-Path $artifactRoot ('.latest-' + [guid]::NewGuid().ToSt
 $selection | ConvertTo-Json | Set-Content -LiteralPath $temporaryPointer -Encoding utf8NoBOM
 [IO.File]::Move($temporaryPointer, (Join-Path $artifactRoot 'latest.json'), $true)
 Complete-BuildStage $buildMetrics $phase
+$buildInfoPath=Join-Path $release 'build-info.json'
+$buildInfo=Get-Content $buildInfoPath -Raw | ConvertFrom-Json -AsHashtable
+$buildInfo.moduleBuild=@{typeScriptPath=$moduleTypeScriptPath;modules=$moduleCache.Results;engineReused=[bool]$SkipEngineBuild}
+$buildInfo | ConvertTo-Json -Depth 30 | Set-Content $buildInfoPath -Encoding utf8NoBOM
+$moduleCache.Results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'modules.json') -Encoding utf8NoBOM
+if (-not $SkipCacheCleanup) {
+    try {
+    $protectedCachePaths = @(Get-ProtectedBuildCachePaths $moduleCache)
+    Remove-OldBuildModuleCaches $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'module-cache-cleanup.json') -Encoding utf8NoBOM
+    Remove-OldBuildStaging $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'legacy-cache-cleanup.json') -Encoding utf8NoBOM
+    & (Join-Path $PSScriptRoot 'clean-engine-caches.ps1') -ProjectRoot $projectRoot -CurrentSourceRoot $sourceRoot -TargetDirectory $engineTarget -Apply -ReportPath (Join-Path $logDirectory 'engine-cache-cleanup.json') | Out-Null
+    } catch { Write-Warning "Cache cleanup preserved uncertain paths: $($_.Exception.Message)"; @{status='blocked';reason=$_.Exception.Message}|ConvertTo-Json|Set-Content (Join-Path $logDirectory 'cache-cleanup-warning.json') }
+}
 Complete-BuildMetrics $buildMetrics -Status success
 $global:LASTEXITCODE = 0
 [pscustomobject]@{ ReleaseDirectory = $release; Logs = $logDirectory; EngineReused = [bool]$SkipEngineBuild }
@@ -326,3 +387,4 @@ $global:LASTEXITCODE = 0
     Complete-BuildMetrics $buildMetrics -Status failed
     throw
 }
+finally { $moduleCache.Lease.Dispose() }

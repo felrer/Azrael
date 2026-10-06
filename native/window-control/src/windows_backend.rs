@@ -84,6 +84,10 @@ impl Backend {
                 let p: protocol::Target = protocol::params(params)?;
                 self.observe(&p.window)
             }
+            "inspect" => {
+                let p: protocol::Target = protocol::params(params)?;
+                self.inspect(&p.window)
+            }
             "status" => {
                 let p: protocol::Target = protocol::params(params)?;
                 status(&p.window)
@@ -126,10 +130,9 @@ impl Backend {
             ));
         }
         let hwnd = handle(&current)?;
-        let before = interference_state()?;
         let work = (|| -> Result<Value> {
             // Resolve accessibility first: the subsequent captured frame is after those reads.
-            let (descriptors, elements) = uia::elements(&self.automation, hwnd)?;
+            let (descriptors, elements, elements_truncated) = uia::elements(&self.automation, hwnd)?;
             let identity = format!(
                 "{}:{}:{}:{}",
                 current.hwnd, current.pid, current.process_created, current.executable
@@ -152,17 +155,22 @@ impl Backend {
             Ok(
                 json!({ "window": after_capture, "observationId": id, "frameTimestamp": frame.timestamp.to_string(),
                 "widthPx": frame.width, "heightPx": frame.height, "dpi": after_capture.dpi, "captureProtection": frame.protection,
-                "elements": descriptors, "image": { "mimeType": "image/png", "data": frame.data } }),
+                "elements": descriptors, "elementsTruncated": elements_truncated, "image": { "mimeType": "image/png", "data": frame.data } }),
             )
         })();
-        if interference_state()? != before {
-            self.observation = None;
-            return Err(Error::new(
-                "interference",
-                "Foreground window or cursor visibility changed during observation",
-            ));
-        }
         work
+    }
+    fn inspect(&mut self, requested: &Window) -> Result<Value> {
+        self.observation = None;
+        let current = verify(requested)?;
+        let (descriptors, elements, elements_truncated) = uia::elements(&self.automation, handle(&current)?)?;
+        let after = verify(requested)?;
+        ensure_capture_geometry(&current, &after)?;
+        self.sequence = self.sequence.checked_add(1)
+            .ok_or_else(|| Error::new("backend-exhausted", "Observation sequence exhausted"))?;
+        let id = format!("observation-{}", self.sequence);
+        self.observation = Some(Observation { id: id.clone(), window: after.clone(), elements });
+        Ok(json!({ "window": after, "observationId": id, "elements": descriptors, "elementsTruncated": elements_truncated }))
     }
     fn act(&mut self, p: protocol::Act) -> Result<Value> {
         verify(&p.window)?;
@@ -184,6 +192,11 @@ impl Backend {
         })?;
         guarded(&p.window, |hwnd| {
             uia::assert_descendant(&self.automation, hwnd, element)?;
+            if matches!(p.action, protocol::Action::PressKey) {
+                uia::press_key(&self.automation, hwnd, element, p.value)?;
+                return Ok(json!({ "window": verify(&p.window)?, "acted": true, "requiresObservation": true,
+                    "delivery": "windowMessage", "verified": false, "experimental": true }));
+            }
             uia::act(element, &p.action, p.value)?;
             Ok(json!({ "window": verify(&p.window)?, "acted": true, "requiresObservation": true }))
         })
@@ -391,17 +404,48 @@ fn interference_state() -> Result<Interference> {
 }
 fn guarded(window: &Window, operation: impl FnOnce(HWND) -> Result<Value>) -> Result<Value> {
     verify(window)?;
-    let before = interference_state()?;
-    let result = operation(handle(window)?);
+    let hwnd = handle(window)?;
+    let before = unsafe { GetForegroundWindow() };
+    let result = operation(hwnd);
     // Check even when a provider reports failure: it may have already changed focus.
-    if interference_state()? != before {
+    let after = unsafe { GetForegroundWindow() };
+    if foreground_transition_conflicts(before.0 as usize, after.0 as usize, target_owned_foreground(hwnd, after)) {
         return Err(Error::new(
             "interference",
-            "Foreground window or cursor visibility changed; no focus recovery attempted",
+            "Target or target-owned popup became foreground during mutation; cause is ambiguous, action may have occurred; no focus recovery attempted",
         ));
     }
     verify(window)?;
     result
+}
+// Endpoint evidence cannot attribute a transition or detect transient activation between checks.
+fn foreground_transition_conflicts(before: usize, after: usize, after_is_target: bool) -> bool {
+    before != after && after_is_target
+}
+fn target_owned_foreground(target: HWND, foreground: HWND) -> bool {
+    unsafe {
+        if foreground == target || IsChild(target, foreground).as_bool() { return true; }
+        let mut current = foreground;
+        for _ in 0..256 {
+            current = match GetWindow(current, GW_OWNER) { Ok(owner) => owner, Err(_) => return false };
+            if current == target { return true; }
+            if current.0.is_null() { return false; }
+        }
+        // An unexpectedly unbounded ownership chain is ambiguous; fail conservatively.
+        true
+    }
+}
+#[cfg(test)]
+mod foreground_tests {
+    use super::foreground_transition_conflicts;
+    #[test]
+    fn unrelated_switches_are_allowed_and_target_activation_is_ambiguous() {
+        assert!(!foreground_transition_conflicts(10, 20, false)); // unrelated apps
+        assert!(!foreground_transition_conflicts(1, 1, true));
+        assert!(!foreground_transition_conflicts(1, 2, false)); // target loses foreground
+        assert!(foreground_transition_conflicts(1, 2, true)); // target or owned popup becomes foreground
+        assert!(foreground_transition_conflicts(0, 2, true));
+    }
 }
 fn status(window: &Window) -> Result<Value> {
     let actual = verify(window)?;

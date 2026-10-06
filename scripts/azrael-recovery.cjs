@@ -15,6 +15,7 @@ const controllers = new Map();
 const hostRequests = new WeakMap();
 const MAX_HOST_REQUESTS = 128;
 const HOST_REQUEST_TTL_MS = 5 * 60 * 1000;
+const MAX_LATE_RESPONSES = 64;
 let ui;
 const labels = {
   recovering: "서버 연결 중 · 세션 확인", starting: "전송 대기 중", waiting: "응답 대기 중",
@@ -148,6 +149,9 @@ class BridgeController {
     this.host = host;
     this.raw = raw;
     this.pending = new Map();
+    // Retain only bounded, content-free metadata after a deadline. A late
+    // response is evidence about delivery, never permission to replay a send.
+    this.expired = new Map();
     this.requests = new Map();
     this.provider = `azrael-recovery-${randomUUID()}`;
     this.state = new RecoveryState({ store: ui.store, rpc: (method, params, timeout) => this.rpc(method, params, timeout),
@@ -155,10 +159,23 @@ class BridgeController {
     this.registration = host.registerProvider(this.provider, {
       onResult: message => {
         const pending = this.pending.get(message.id);
-        if (!pending) return;
+        if (!pending) {
+          this.pruneExpired();
+          const expired = this.expired.get(message.id);
+          if (expired) {
+            this.expired.delete(message.id);
+            ui?.log({ event: "recovery.rpc_late_result", ...expired,
+              elapsedMs: Date.now() - expired.started,
+              lateByMs: Date.now() - expired.timedOutAt,
+              outcome: message.error ? "rpc_error" : "success",
+              rpcCode: rpcCode(message.error), disposition: "ignored_after_timeout" });
+          }
+          return;
+        }
         this.pending.delete(message.id);
         clearTimeout(pending.timer);
         ui?.log({ event: "recovery.rpc_result", requestId: message.id, method: pending.method,
+          requestRef: pending.requestRef, threadRef: reference(pending.threadId),
           threadId: pending.threadId, elapsedMs: Date.now() - pending.started,
           outcome: message.error ? "rpc_error" : "success",
           rpcCode: Number.isSafeInteger(message.error?.code) ? message.error.code : undefined });
@@ -177,16 +194,29 @@ class BridgeController {
     });
   }
 
+  pruneExpired() {
+    const cutoff = Date.now() - HOST_REQUEST_TTL_MS;
+    for (const [id, entry] of this.expired) if (entry.timedOutAt < cutoff) this.expired.delete(id);
+  }
+
   rpc(method, params, timeout = 20000) {
     if (this.pending.size >= 64) return Promise.reject(new Error("상태 확인 요청이 많습니다. 잠시 후 다시 시도해주세요."));
     return new Promise((resolve, reject) => {
       const id = randomUUID();
+      const requestRef = reference(`${this.provider}:${id}`);
       ui?.log({ event: "recovery.rpc_dispatch", requestId: id, method, threadId: params.threadId,
+        requestRef, threadRef: reference(params.threadId),
         originalRequestIds: [...this.requests.values()].filter(request =>
           request.method === method && request.threadId === params.threadId).map(request => request.id) });
       const timer = setTimeout(() => {
         ui?.log({ event: "recovery.rpc_timeout", requestId: id, method, threadId: params.threadId,
+          requestRef, threadRef: reference(params.threadId),
           timeoutMs: timeout });
+        this.pruneExpired();
+        if (this.expired.size >= MAX_LATE_RESPONSES) this.expired.delete(this.expired.keys().next().value);
+        const pending = this.pending.get(id);
+        this.expired.set(id, { requestRef, threadRef: reference(params.threadId), method: safeMethod(method),
+          started: pending?.started ?? Date.now(), timedOutAt: Date.now(), timeoutMs: timeout });
         this.forwardDelivery(id, { type: "outcome-unknown", delivery: { requestId: id, method, stage: "outcome-unknown" } });
         this.pending.delete(id);
         // Release native delivery tracking as well as our bounded promise.
@@ -194,7 +224,7 @@ class BridgeController {
         reject(new Error("20초 안에 엔진 응답을 받지 못했습니다. 실행 여부를 확인한 뒤 재개해주세요."));
       }, timeout);
       timer.unref?.();
-      this.pending.set(id, { resolve, reject, timer, method, threadId: params.threadId, started: Date.now() });
+      this.pending.set(id, { resolve, reject, timer, method, threadId: params.threadId, requestRef, started: Date.now() });
       try { this.raw(this.provider, id, method, params, false, true); }
       catch {
         ui?.log({ event: "recovery.rpc_send_failed", requestId: id, method, threadId: params.threadId });
@@ -235,6 +265,7 @@ class BridgeController {
       pending.reject(new Error("엔진 연결이 끊겼습니다. 상태를 다시 확인해주세요."));
     }
     this.pending.clear();
+    this.expired.clear();
     this.state.disconnect();
   }
 
@@ -302,7 +333,31 @@ function dispatch(host, args, raw) {
 function observe(host, message) {
   try {
     if (ui && message && typeof message === "object") {
+      if ((message.method === "item/started" || message.method === "item/completed") &&
+          message.params?.item?.type === "userMessage" &&
+          typeof message.params.threadId === "string" &&
+          typeof message.params.item.clientId === "string") {
+        ui.log({ event: "host.user_message_received", stage: message.method === "item/started" ? "started" : "completed",
+          threadRef: reference(message.params.threadId), turnRef: reference(message.params.turnId),
+          itemRef: reference(message.params.item.id),
+          clientMessageHash: createHash("sha256").update(message.params.item.clientId).digest("hex") });
+      }
       const book = requestBook(host);
+      const controller = controllers.get(host);
+      const prefix = controller && `${controller.provider}:`;
+      if (typeof message.id === "string" && prefix && message.id.startsWith(prefix) &&
+          (Object.hasOwn(message, "result") || Object.hasOwn(message, "error"))) {
+        controller.pruneExpired();
+        const id = message.id.slice(prefix.length);
+        const pending = controller.pending.get(id);
+        // Observe receipt before the native router and private provider callback.
+        // The full wire ID hash is shared with native app-server diagnostics.
+        ui.log({ event: "host.rpc_response_received", requestRef: reference(message.id),
+          threadRef: reference(pending?.threadId) ?? controller.expired.get(id)?.threadRef,
+          method: pending ? safeMethod(pending.method) : controller.expired.get(id)?.method,
+          tracking: pending ? "pending" : controller.expired.has(id) ? "expired" : "untracked",
+          outcome: message.error ? "rpc_error" : "success", rpcCode: rpcCode(message.error) });
+      }
       if (typeof message.id === "string" && book.has(message.id)) {
         const entry = book.get(message.id);
         book.delete(message.id);

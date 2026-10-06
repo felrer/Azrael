@@ -83,6 +83,9 @@ impl HostSkillsLoadInput {
 pub struct HostSkillsService {
     codex_home: AbsolutePathBuf,
     restriction_product: Option<Product>,
+    // Unset uses ambient discovery; Some(None) suppresses the personal home root.
+    #[cfg(any(test, feature = "test-support"))]
+    home_dir_override: RwLock<Option<Option<AbsolutePathBuf>>>,
     extra_roots: RwLock<Vec<AbsolutePathBuf>>,
     cache_by_cwd: RwLock<HashMap<AbsolutePathBuf, HostSkillsSnapshot>>,
     cache_by_config: RwLock<VecDeque<ConfigSkillsCacheEntry>>,
@@ -130,6 +133,8 @@ impl HostSkillsService {
         let service = Self {
             codex_home,
             restriction_product,
+            #[cfg(any(test, feature = "test-support"))]
+            home_dir_override: RwLock::new(None),
             extra_roots: RwLock::new(Vec::new()),
             cache_by_cwd: RwLock::new(HashMap::new()),
             cache_by_config: RwLock::new(VecDeque::new()),
@@ -141,6 +146,21 @@ impl HostSkillsService {
             service.ensure_system_skills_installed();
         }
         service
+    }
+
+    /// Overrides only personal home skill discovery for test fixtures and clears cached skills.
+    ///
+    /// `None` omits the personal `.agents/skills` root; `Some` uses the supplied fixture home.
+    #[cfg(any(test, feature = "test-support"))]
+    pub fn set_home_dir_for_tests(&self, home_dir: Option<AbsolutePathBuf>) {
+        {
+            let mut home_dir_override = self
+                .home_dir_override
+                .write()
+                .unwrap_or_else(std::sync::PoisonError::into_inner);
+            *home_dir_override = Some(home_dir);
+        }
+        self.clear_cache();
     }
 
     /// Creates a request-local view without changing persistent plugin snapshots.
@@ -214,6 +234,39 @@ impl HostSkillsService {
             .collect()
     }
 
+    async fn resolve_skill_roots(
+        &self,
+        input: &HostSkillsLoadInput,
+        fs: Option<Arc<dyn ExecutorFileSystem>>,
+    ) -> Vec<HostSkillRoot> {
+        #[cfg(any(test, feature = "test-support"))]
+        let home_dir_override = self
+            .home_dir_override
+            .read()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .clone();
+        #[cfg(any(test, feature = "test-support"))]
+        if let Some(home_dir) = home_dir_override {
+            return crate::host_roots::resolve_skill_roots_with_home_dir(
+                fs,
+                &input.config_layer_stack,
+                &input.cwd,
+                home_dir.as_ref(),
+                input.effective_skill_roots.clone(),
+                self.extra_roots(),
+            )
+            .await;
+        }
+        resolve_skill_roots(
+            fs,
+            &input.config_layer_stack,
+            &input.cwd,
+            input.effective_skill_roots.clone(),
+            self.extra_roots(),
+        )
+        .await
+    }
+
     async fn skill_roots_for_config(
         &self,
         input: &HostSkillsLoadInput,
@@ -223,14 +276,7 @@ impl HostSkillsService {
         if bundled_skills_enabled {
             self.ensure_system_skills_installed();
         }
-        let mut roots = resolve_skill_roots(
-            fs,
-            &input.config_layer_stack,
-            &input.cwd,
-            input.effective_skill_roots.clone(),
-            self.extra_roots(),
-        )
-        .await;
+        let mut roots = self.resolve_skill_roots(input, fs).await;
         if !bundled_skills_enabled {
             roots.retain(|root| root.scope != SkillScope::System);
         }
@@ -257,14 +303,7 @@ impl HostSkillsService {
             return snapshot;
         }
 
-        let mut roots = resolve_skill_roots(
-            fs.clone(),
-            &input.config_layer_stack,
-            &input.cwd,
-            input.effective_skill_roots.clone(),
-            self.extra_roots(),
-        )
-        .await;
+        let mut roots = self.resolve_skill_roots(input, fs.clone()).await;
         if !bundled_skills_enabled {
             roots.retain(|root| root.scope != SkillScope::System);
         }

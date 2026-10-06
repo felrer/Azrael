@@ -74,12 +74,14 @@ try {
     Import-Function (Join-Path $scripts 'prepare-ordinary-vscode.ps1') 'Set-AzraelEngineResolver'
     $old = 'function yI(t,e){let r=mn("cliExecutable");'
     $latest = 'function bM(t,e){let r=Mn("cliExecutable");'
-    foreach ($anchor in @($old, $latest)) {
+    $recent = 'function QN(t,e){let r=Jn("cliExecutable");'
+    $current = 'function KN(t,e){let r=Jn("cliExecutable");'
+    foreach ($anchor in @($old, $latest, $recent, $current)) {
         $patched = Set-AzraelEngineResolver -HostText $anchor
         Assert-True ($patched.Contains('return require("./azrael-runtime.cjs").runtime.engine;')) 'Resolver injection failed'
         Assert-True ($patched.Contains($anchor.Substring(0, $anchor.IndexOf('let r=')))) 'Resolver name changed'
     }
-    foreach ($text in @('function unknown(){}', "$old$latest", "$old$old")) {
+    foreach ($text in @('function unknown(){}', "$old$latest", "$old$old", "$current$recent", "$current$current")) {
         $rejected = $false
         try { $null = Set-AzraelEngineResolver -HostText $text } catch { $rejected = $true }
         Assert-True $rejected 'Unknown or ambiguous resolver anchor was accepted'

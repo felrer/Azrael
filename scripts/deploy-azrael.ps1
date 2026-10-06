@@ -9,9 +9,9 @@ param(
     [string]$CodeModeHostPath,
     [string]$CompanionVsixPath,
     [string]$TypeScriptPath,
-    [string]$UiSourcePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/upstream-ui/26.928.31416'),
-    [string]$OriginalExtensionPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.chatgpt-26.928.31416-win32-x64'),
-    [string]$OriginalAudioPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.codex-audio-26.928.31416'),
+    [string]$UiSourcePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/upstream-ui/26.930.61225'),
+    [string]$OriginalExtensionPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.chatgpt-26.930.61225-win32-x64'),
+    [string]$OriginalAudioPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.codex-audio-26.930.61225'),
     [string]$CodePath = 'code.cmd',
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
@@ -19,10 +19,14 @@ param(
     [string]$ExtensionsDir = (Join-Path $env:USERPROFILE '.vscode/extensions'),
     [string]$UserDataDir,
     [switch]$VerifyOnly,
+    [switch]$SkipCodexEnvironmentSnapshot,
+    [switch]$FullRegression,
+    [string[]]$ChangedPath,
     [switch]$VerifyAccountControls
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+$UiSourcePath = [IO.Path]::GetFullPath($UiSourcePath)
 $project = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
 $run = "deploy-$ReleaseName"
 $logs = Join-Path $project "artifacts/logs/$run"
@@ -41,6 +45,7 @@ if ($SkipEngineBuild -and (-not $EngineDirectory -or $CodeModeHostPath)) { throw
 if (-not $SkipEngineBuild -and -not $CodeModeHostPath) { throw 'A full build requires CodeModeHostPath.' }
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
+if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
 New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
@@ -115,6 +120,21 @@ function Invoke-Stage {
 function Assert-Package {
     if ((Get-FileHash -LiteralPath $preparedPath).Hash -cne $script:preparedHash) { throw 'Prepared package metadata changed after preparation.' }
     if ((Get-FileHash -LiteralPath $prepared.HostVsix).Hash -ine $prepared.HostSha256) { throw 'Prepared package SHA-256 mismatch.' }
+    $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
+    $preservationConfig = [ordered]@{
+        projectRoot = $project; uiRoot = $UiSourcePath; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
+        engineDirectory = (Join-Path $release 'engine'); area = 'ui'; typeScriptPath = $TypeScriptPath
+        outputDirectory = (Join-Path $logs 'package-preservation')
+        receiptPath = $prepared.PreservationReceipt; reportPath = $prepared.PreservationReport
+        packagePath = $prepared.HostVsix; bindingPath = $prepared.PreservationBinding
+    }
+    if ($prepared.PSObject.Properties['PreservationFeatureIds']) {
+        $preservationConfig.featureIds = @($prepared.PreservationFeatureIds)
+    }
+    $preservationConfigPath = Join-Path $logs 'package-preservation-inputs.json'
+    $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
+    & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') verify --config $preservationConfigPath *> (Join-Path $logs 'package-preservation.log')
+    if ($LASTEXITCODE -ne 0) { throw 'Package feature preservation verification failed. See package-preservation.log.' }
     $archive = [IO.Compression.ZipFile]::OpenRead($prepared.HostVsix)
     try {
         $entry = $archive.GetEntry('extension/package.json')
@@ -131,10 +151,34 @@ try {
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
-    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'test-project.cjs'), '--area', 'current', '--area', 'standalone', '--log-directory', (Join-Path $logs 'source-tests'))
+    $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
+    if ($FullRegression) { $sourceTestArgs += @('--area', 'current', '--area', 'standalone') }
+    else {
+        $sourceTestArgs += '--changed-only'
+        foreach ($path in $ChangedPath) { $sourceTestArgs += @('--changed', $path) }
+    }
+    $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
+    $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
+    $metrics.changedPaths = @($ChangedPath)
+    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     Wait-OwnedCommands @($sourceTests, $build)
     Assert-ProjectSnapshot 'post-build'
+    $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
+    $enginePreservationConfig = [ordered]@{
+        projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
+        engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
+    }
+    if (-not $FullRegression) {
+        $enginePreservationConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
+    }
+    $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
+    $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
+    $enginePreservation = Start-OwnedCommand 'engine-preservation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $enginePreservationConfigPath)
+    Wait-OwnedCommands @($enginePreservation)
+    $enginePreservationResult = Get-Content -LiteralPath $enginePreservation.Record.stdout -Raw | ConvertFrom-Json
+    $enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath
+    $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
     if ($VerifyAccountControls) {
         $enginePath = Join-Path $release 'engine/codex.exe'
         $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
@@ -159,9 +203,17 @@ try {
         if ((Get-FileHash -LiteralPath $enginePath).Hash -cne $metrics.accountControls.engineSha256 -or (Get-FileHash -LiteralPath $bridgePath).Hash -cne $metrics.accountControls.bridgeSha256) { throw 'Account controls binaries changed during verification.' }
         $metrics.accountControls.status = 'passed'
     }
-    if (-not $TypeScriptPath) { $TypeScriptPath = Join-Path $project "artifacts/build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js" }
+    if (-not $TypeScriptPath) {
+        if ($preservationBuild.PSObject.Properties['moduleBuild'] -and $preservationBuild.moduleBuild.PSObject.Properties['typeScriptPath']) {
+            $TypeScriptPath = $preservationBuild.moduleBuild.typeScriptPath
+        }
+        if (-not $TypeScriptPath) { $TypeScriptPath = Join-Path $project "artifacts/build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js" }
+    }
     $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
-    Invoke-Stage 'prepare' 'prepare-independent-vscode.ps1' @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
+    $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
+    if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
+    if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
+    Invoke-Stage 'prepare' 'prepare-independent-vscode.ps1' $prepareArgs
     $preparedPath = Join-Path $package 'independent-prepared.json'
     $prepared = Get-Content -LiteralPath $preparedPath -Raw | ConvertFrom-Json
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
@@ -179,10 +231,12 @@ try {
     if ($acceptance.useFreshState -isnot [bool] -or $acceptance.useFreshState -cne $true -or [IO.Path]::GetFullPath($acceptance.hostPackage.vsix) -ine $prepared.HostVsix -or $acceptance.hostPackage.sha256 -ine $prepared.HostSha256 -or [string]$acceptance.hostPackage.version -cne [string]$prepared.HostVersion) { throw 'Host acceptance package identity or fresh state mismatch.' }
     Assert-Package
     Assert-ProjectSnapshot 'pre-install'
+    $engineRecheck = Start-OwnedCommand 'engine-preservation-recheck' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'verify-receipt', '--config', $enginePreservationConfigPath)
+    Wait-OwnedCommands @($engineRecheck)
     $metrics.acceptanceResult = $acceptancePath
     $metrics.hostPackage = @{ vsix = $prepared.HostVsix; sha256 = $prepared.HostSha256; version = $prepared.HostVersion }
     if (-not $VerifyOnly) {
-        $installArgs = @{ ReleaseDirectory = $release; PreparedPackageDirectory = $package; StateRoot = $StateRoot; SourceCodexHome = $SourceCodexHome; WorkspacePath = $WorkspacePath; ExtensionsDir = $ExtensionsDir; CodePath = $CodePath; NoLaunch = $true }
+        $installArgs = @{ ReleaseDirectory = $release; PreparedPackageDirectory = $package; StateRoot = $StateRoot; SourceCodexHome = $SourceCodexHome; WorkspacePath = $WorkspacePath; ExtensionsDir = $ExtensionsDir; CodePath = $CodePath; NoLaunch = $true; SkipCodexEnvironmentSnapshot = [bool]$SkipCodexEnvironmentSnapshot }
         if ($UserDataDir) { $installArgs.UserDataDir = $UserDataDir }
         $argsPath = Join-Path $logs 'install-arguments.json'
         $installArgs | ConvertTo-Json | Set-Content -LiteralPath $argsPath -Encoding utf8NoBOM
@@ -244,5 +298,27 @@ if ($installExitCode -ne 0) {
     }
     $metrics.wallTimeMs = $timer.Elapsed.TotalMilliseconds
     $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
+    if ($metrics.status -in @('verified', 'installed') -and @($metrics.stages | Where-Object { $null -eq $_.exitCode -or $_.exitCode -ne 0 -or $_.terminated }).Count -eq 0) {
+        try {
+            # Publish the durable acceptance reference before the cleaner inspects
+            # installed/previous deployment dependencies. All children are disposed.
+            $archivedAcceptance = Join-Path $project "artifacts/logs/verification-evidence/$run/check-result.json"
+            for ($cursor = $archivedAcceptance; $cursor; $cursor = [IO.Path]::GetDirectoryName($cursor)) {
+                if ((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Linked acceptance archive path: $cursor" }
+            }
+            New-Item -ItemType Directory -Path (Split-Path $archivedAcceptance -Parent) -Force | Out-Null
+            Copy-Item -LiteralPath $acceptancePath -Destination $archivedAcceptance -Force
+            $acceptancePath = $archivedAcceptance
+            $metrics.acceptanceResult = $archivedAcceptance
+            $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
+            $metrics.verificationCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $fixture -Apply -ReportPath (Join-Path $logs 'verification-cleanup.json')
+            if ($VerifyAccountControls) {
+                $metrics.accountControlsCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $accountControlsState -Apply -ReportPath (Join-Path $logs 'account-controls-cleanup.json')
+                $accountCandidate = @($metrics.accountControlsCleanup.candidates | Where-Object status -eq 'deleted')
+                if ($accountCandidate.Count -eq 1) { $metrics.accountControls.verification = Join-Path $project "artifacts/logs/verification-evidence/account-controls-$ReleaseName/verification.json" }
+            }
+        } catch { $metrics.verificationCleanup = @{ status = 'blocked'; reason = $_.Exception.Message; fixtureRoot = $fixture } }
+        $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
+    }
 }
 [pscustomobject]@{ Status = $metrics.status; ReleaseDirectory = $release; PreparedPackageDirectory = $package; AcceptanceResult = $acceptancePath; Metrics = (Join-Path $logs 'deployment-metrics.json') }

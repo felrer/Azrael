@@ -141,6 +141,7 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{}/metrics", protocol = "json" 
     } else {
         EnvironmentManager::default_for_tests()
     };
+    let state_db = codex_rollout::state_db::try_init(config.as_ref()).await?;
     let mut client = in_process::start(InProcessStartArgs {
         arg0_paths: Arg0DispatchPaths::default(),
         config,
@@ -152,7 +153,7 @@ metrics_exporter = {{ otlp-http = {{ endpoint = "{}/metrics", protocol = "json" 
         thread_config_loader: Arc::new(NoopThreadConfigLoader),
         feedback: CodexFeedback::new(),
         log_db: None,
-        state_db: None,
+        state_db: Some(state_db),
         environment_manager: Arc::new(environment_manager),
         config_warnings: Vec::new(),
         session_source: SessionSource::Cli,

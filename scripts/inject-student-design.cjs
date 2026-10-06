@@ -1,8 +1,8 @@
 "use strict";
 
-const DESIGN_ASSETS = ["webview/assets/app-initial-7d34126aa1b5.js", "webview/assets/use-visible-settings-sections-8c9321d54dd9.js", "webview/assets/settings-page-7a98b277bbdf.js", "out/extension.js"];
+const DESIGN_ASSETS = ["webview/assets/app-initial-5120fa5fe295.js", "webview/assets/use-visible-settings-sections-4b8b7ed73a1e.js", "webview/assets/settings-page-76344c84191c.js", "out/extension.js"];
 const MARKER = "/*azrael-student-design-v1*/";
-const AVATAR = "function o_i(e){let t=(0,c_i.c)(11),n,r,i,a;t[0]===e?(n=t[1],r=t[2],i=t[3],a=t[4]):({seed:i,className:n,palette:a,...r}=e,t[0]=e,t[1]=n,t[2]=r,t[3]=i,t[4]=a);let o=a===void 0?`codex`:a,s=$v()===!0,c=o===`chatgpt`?10:u_i.length,l=u_i[s_i(i,c)],u=s?l.dark:l.light,d;t[5]===n?d=t[6]:(d=ri(`size-3.5 shrink-0`,n),t[5]=n,t[6]=d);let f;return t[7]!==u||t[8]!==r||t[9]!==d?(f=(0,l_i.jsx)(`img`,{className:d,alt:``,draggable:!1,src:u,...r}),t[7]=u,t[8]=r,t[9]=d,t[10]=f):f=t[10],f}";
+const AVATAR = "function c_i(e){let t=(0,u_i.c)(11),n,r,i,a;t[0]===e?(n=t[1],r=t[2],i=t[3],a=t[4]):({seed:i,className:n,palette:a,...r}=e,t[0]=e,t[1]=n,t[2]=r,t[3]=i,t[4]=a);let o=a===void 0?`codex`:a,s=Xv()===!0,c=o===`chatgpt`?10:f_i.length,l=f_i[l_i(i,c)],u=s?l.dark:l.light,d;t[5]===n?d=t[6]:(d=ni(`size-3.5 shrink-0`,n),t[5]=n,t[6]=d);let f;return t[7]!==u||t[8]!==r||t[9]!==d?(f=(0,d_i.jsx)(`img`,{className:d,alt:``,draggable:!1,src:u,...r}),t[7]=u,t[8]=r,t[9]=d,t[10]=f):f=t[10],f}";
 
 // Host owns all assignments. The store only reads snapshots and sends preference changes.
 function createDesignStore(bridge, clientId, timing = globalThis) {
@@ -45,8 +45,8 @@ function AzraelStudentAvatar(props) {
   const student = id == null ? null : state.students.find(item => item.id === id);
   const url = typeof student?.url === "string" ? student.url : null;
   const [failed, setFailed] = react.useState(null);
-  if (!url || failed === url) return (0, l_i.jsx)(azraelOriginalAvatar, props);
-  return (0, l_i.jsx)("img", { ...rest, className: ri("size-3.5 shrink-0", className), alt: "", draggable: false, src: url,
+  if (!url || failed === url) return (0, d_i.jsx)(azraelOriginalAvatar, props);
+  return (0, d_i.jsx)("img", { ...rest, className: ni("size-3.5 shrink-0", className), alt: "", draggable: false, src: url,
     onError: event => { setFailed(url); rest.onError?.(event); } });
 }
 
@@ -83,45 +83,47 @@ function observeStudentCreated(message, commands) {
   }
 }
 
-function injectStudentDesign(text, relativePath, ts) {
+function injectStudentDesign(text, relativePath, vp) {
+  if (DESIGN_ASSETS.includes(relativePath) && text.split(MARKER).length > 2) throw new Error("Duplicate student design marker");
   if (!DESIGN_ASSETS.includes(relativePath) || text.includes(MARKER)) return { text, count: 0 };
   if (relativePath === DESIGN_ASSETS[3]) {
-    text = once(text, 'case"open-vscode-command":{', "case\"azrael-design\":{await Ke.commands.executeCommand(\"azrael.designEmbedded\",e,r,this.findPanelByWebview(e));break}case\"open-vscode-command\":{");
-    ts ??= require(require.resolve("typescript", { paths: [require("node:path").resolve(__dirname, "../extensions/azrael-ex")] }));
-    const source = ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+    text = once(text, 'case"open-vscode-command":{', "case\"azrael-design\":{await Ge.commands.executeCommand(\"azrael.designEmbedded\",e,r,this.findPanelByWebview(e));break}case\"open-vscode-command\":{");
+    vp ??= require(require.resolve("typescript", { paths: [require("node:path").resolve(__dirname, "../extensions/azrael-ex")] }));
+    const source = vp.createSourceFile(relativePath, text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
     const methods = [];
     const visit = node => {
-      if (ts.isMethodDeclaration(node) && node.name?.text === "routeIncomingMessage") methods.push(node);
-      ts.forEachChild(node, visit);
+      if (vp.isMethodDeclaration(node) && node.name?.text === "routeIncomingMessage") methods.push(node);
+      vp.forEachChild(node, visit);
     };
     visit(source);
     const method = methods[0];
-    if (methods.length !== 1 || !method.body || method.parameters.length !== 2 || !ts.isIdentifier(method.parameters[0].name)) throw new Error("Pinned student design anchor changed: routeIncomingMessage");
+    if (methods.length !== 1 || !method.body || method.parameters.length !== 2 || !vp.isIdentifier(method.parameters[0].name)) throw new Error("Pinned student design anchor changed: routeIncomingMessage");
     const position = method.body.getStart(source) + 1;
-    text = text.slice(0, position) + `azraelObserveStudentCreated(${method.parameters[0].name.text},Ke.commands);` + text.slice(position);
+    text = text.slice(0, position) + `azraelObserveStudentCreated(${method.parameters[0].name.text},Ge.commands);` + text.slice(position);
     return { text: text + '\n' + MARKER + '\n' + observeStudentCreated.toString().replace('function observeStudentCreated(', 'function azraelObserveStudentCreated('), count: 1 };
   }
   if (relativePath === DESIGN_ASSETS[0]) {
-    text = once(text, AVATAR, AVATAR.replace("function o_i(e)", 'function azraelOriginalAvatar(e)') + "function o_i(e){return(0,l_i.jsx)(AzraelStudentAvatar,e)}");
-    text = once(text, 'Om as iDe,', 'Om as iDe,');
-    return { text: text + '\n' + MARKER + '\n' + createDesignStore.toString() + '\n' + AzraelStudentAvatar.toString() + "\nkm();var azraelDesignStore=createDesignStore(Om,crypto.randomUUID());function useAzraelDesignState(){return q().useSyncExternalStore(azraelDesignStore.subscribe,azraelDesignStore.getSnapshot,azraelDesignStore.getSnapshot)}window.addEventListener(\"pagehide\",()=>azraelDesignStore.dispose(),{once:true});export{azraelDesignStore,useAzraelDesignState};", count: 1 };
+    text = once(text, AVATAR, AVATAR.replace("function c_i(e)", 'function azraelOriginalAvatar(e)') + "function c_i(e){return(0,d_i.jsx)(AzraelStudentAvatar,e)}");
+    text = once(text, 'Dm as A3t,', 'Dm as A3t,');
+    // The pinned bundle initializes through lazy functions across cyclic imports.
+    // Calling them during module evaluation reaches dependencies before they exist.
+    return { text: text + '\n' + MARKER + '\n' + createDesignStore.toString() + '\n' + AzraelStudentAvatar.toString() + "\nvar azraelDesignStore;function useAzraelDesignState(){Om();azraelDesignStore??=createDesignStore(Dm,crypto.randomUUID());return q().useSyncExternalStore(azraelDesignStore.subscribe,azraelDesignStore.getSnapshot,azraelDesignStore.getSnapshot)}window.addEventListener(\"pagehide\",()=>azraelDesignStore?.dispose(),{once:true});export{azraelDesignStore,useAzraelDesignState};", count: 1 };
   }
   if (!text.includes('/*azrael-instruction-settings-v1*/')) throw new Error("Student design requires instruction settings injection first");
   if (relativePath === DESIGN_ASSETS[1]) {
     text = once(text, 'e.slug===`personalization`?[e,{slug:`azrael-instructions`}]:[e]', 'e.slug===`personalization`?[e,{slug:`azrael-instructions`},{slug:`azrael-design`}]:[e]');
     text = once(text, 'case`azrael-instructions`:case`general-settings`:', 'case`azrael-design`:case`azrael-instructions`:case`general-settings`:');
     // Reuse the existing personalization platform icon at both native sizes.
-    text = once(text, "personalization:{component:qi,commandAsset:Dr,", "\"azrael-design\":{component:qi,commandAsset:Dr,navigation:{assets:{16:Dr,20:Ar},ariaHidden:!1}},personalization:{component:qi,commandAsset:Dr,");
+    text = once(text, "personalization:{component:Ji,commandAsset:Or,", "\"azrael-design\":{component:Ji,commandAsset:Or,navigation:{assets:{16:Or,20:Er},ariaHidden:!1}},personalization:{component:Ji,commandAsset:Or,");
     return { text: text + '\n' + MARKER, count: 1 };
   }
-  text = once(text, "if(y===`azrael-instructions`){Fe=(0,$.jsx)(AzraelInstructionSettings,{});}let Ie;e[77]", "if(y===`azrael-instructions`){Fe=(0,$.jsx)(AzraelInstructionSettings,{});}if(y===`azrael-design`){Fe=(0,$.jsx)(AzraelDesignSettings,{});}let Ie;e[77]");
+  text = once(text, "if(x===`azrael-instructions`){Pe=(0,$.jsx)(AzraelInstructionSettings,{});}let Fe;e[77]", "if(x===`azrael-instructions`){Pe=(0,$.jsx)(AzraelInstructionSettings,{});}if(x===`azrael-design`){Pe=(0,$.jsx)(AzraelDesignSettings,{});}let Fe;e[77]");
   text = once(text, '.personalization.azrael-instructions.pets.', '.personalization.azrael-instructions.azrael-design.pets.');
   text = once(text, '`personalization`,`azrael-instructions`,`pets`', '`personalization`,`azrael-instructions`,`azrael-design`,`pets`');
   text = once(text, 'c=e.slug===`azrael-instructions`?', 'c=e.slug===`azrael-design`?{id:`azrael.settings.design`,defaultMessage:`디자인`}:e.slug===`azrael-instructions`?');
   text = once(text, 'label:e.slug===`azrael-instructions`?', 'label:e.slug===`azrael-design`?`디자인`:e.slug===`azrael-instructions`?');
   text = once(text, 'f=e.slug===`azrael-instructions`?', 'f=e.slug===`azrael-design`?`디자인`:e.slug===`azrael-instructions`?');
-  return { text: 'import{azraelDesignStore,useAzraelDesignState}from"./app-initial-7d34126aa1b5.js";' + text + '\n' + MARKER + '\n' + AzraelDesignSettings.toString(), count: 1 };
+  return { text: 'import{azraelDesignStore,useAzraelDesignState}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + AzraelDesignSettings.toString(), count: 1 };
 }
 
 module.exports = { DESIGN_ASSETS, MARKER, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, observeStudentCreated };
-

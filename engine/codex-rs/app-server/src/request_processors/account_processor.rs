@@ -21,7 +21,11 @@ mod gateway_oauth;
 #[cfg(test)]
 #[path = "account_processor/native_login_tests.rs"]
 mod native_login_tests;
+mod quota_recovery;
 mod rate_limit_resets;
+mod usage_window;
+mod usage_window_inference;
+mod usage_window_store;
 mod workspace_routing;
 
 // Duration before a browser ChatGPT login attempt is abandoned.
@@ -92,7 +96,7 @@ impl ActiveLogin {
             ActiveLogin::Browser { _change_guard, .. }
             | ActiveLogin::DeviceCode { _change_guard, .. } => _change_guard
                 .take()
-                .expect("active login owns its account change guard"),
+                .unwrap_or_else(|| panic!("active login owns its account change guard")),
         }
     }
 }
@@ -197,6 +201,10 @@ impl AccountRequestProcessor {
         processor
             .auth_manager
             .set_workspace_routing_resolver(Arc::downgrade(&resolver));
+        let recovery: Arc<dyn codex_login::AzraelQuotaRecovery> = processor.clone();
+        processor
+            .auth_manager
+            .set_azrael_quota_recovery(Arc::downgrade(&recovery));
         let startup = processor.clone();
         tokio::spawn(async move {
             let _ = startup.read_account(/*request*/ None).await;
@@ -1014,7 +1022,9 @@ impl AccountRequestProcessor {
             if guard.as_ref().map(ActiveLogin::login_id) != Some(login_id) {
                 return Err(CancelLoginError::NotFound);
             }
-            let active = guard.as_ref().expect("matching active login exists");
+            let active = guard
+                .as_ref()
+                .unwrap_or_else(|| panic!("matching active login exists"));
             let completion = active.completion();
             let notified = Arc::clone(&completion).notified_owned();
             active.cancel();

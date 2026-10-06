@@ -11,7 +11,13 @@
         "switch",
         "cancelSwitch",
         "usage",
-        "consumeResetCredit"
+        "consumeResetCredit",
+        "autoSwitchEnable",
+        "autoSwitchDisable",
+        "autoWindowStatus",
+        "autoWindowEnable",
+        "autoWindowDisable",
+        "autoWindowTick"
       ],
       "type": "string"
     }
@@ -19,6 +25,12 @@
   "properties": {
     "action": {
       "$ref": "#/definitions/AzraelAccountAction"
+    },
+    "creditId": {
+      "type": [
+        "string",
+        "null"
+      ]
     },
     "idempotencyKey": {
       "type": [

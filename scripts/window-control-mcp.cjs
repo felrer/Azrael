@@ -41,17 +41,41 @@ function relayMetadata(meta) {
   return selected;
 }
 function toolDefinitions() {
+  const selector = {type:'object',properties:{name:{type:'string'},automationId:{type:'string'},controlType:{type:'string'}},anyOf:[{required:['name']},{required:['automationId']}],additionalProperties:false};
+  const fullSelector = {...selector,properties:{...selector.properties,ancestor:selector}};
+  const parameter = {type:'object',properties:{parameter:{type:'string'}},required:['parameter'],additionalProperties:false};
+  const condition = {type:'object',properties:{selector:fullSelector,property:{enum:['exists','enabled','value','selected','toggleState','expandState']},equals:{anyOf:[{type:'string'},{type:'boolean'},parameter]}},required:['selector','property','equals'],additionalProperties:false};
+  condition.allOf = [{if:{properties:{property:{enum:['exists','enabled','selected']}}},then:{properties:{equals:{type:'boolean'}}}}];
+  const definition = {type:'object',properties:{schema:{const:1},id:{type:'string'},name:{type:'string'},parameters:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:32},steps:{type:'array',minItems:1,maxItems:32,items:{type:'object',properties:{action:{enum:['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','wait_for','assert','capture']},selector:fullSelector,value:{anyOf:[{type:'string',maxLength:32768},parameter,{type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false}]},key:{enum:require('./window-task-macros.cjs').KEYS},condition,postcondition:condition,timeoutMs:{type:'integer',minimum:0,maximum:10000}},required:['action'],additionalProperties:false}}},required:['schema','steps'],additionalProperties:false};
+  const discovery = ['list_windows','select_window','list_task_macros','save_task_macro'];
   const definitions = TOOLS.map(name => {
-    const properties = { targetId: { type: 'string', description: 'Opaque selected target ID from status or capture.' } }; const required = name === 'status' ? [] : ['targetId'];
-    if (['invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll'].includes(name)) {
-      properties.observationId = { type: 'string' }; properties.elementId = { type: 'string' }; required.push('observationId', 'elementId');
-      if (name === 'set_value' || name === 'scroll') { properties.value = name === 'scroll' ? { type: 'object', properties: { horizontal: { type: 'integer', minimum: -2, maximum: 2 }, vertical: { type: 'integer', minimum: -2, maximum: 2 } }, required: ['horizontal', 'vertical'], additionalProperties: false } : { type: 'string', maxLength: 32768 }; required.push('value'); }
+    const properties = discovery.includes(name) ? {} : {targetId:{type:'string',description:'Opaque selected target ID from select_window or status.'}};
+    const required = discovery.includes(name) || name === 'status' ? [] : ['targetId'];
+    if(['invoke','set_value','toggle','select','expand','collapse','scroll','press_key'].includes(name)) {
+      properties.observationId = {type:'string'}; properties.elementId = {type:'string'}; required.push('observationId','elementId');
+      if(name === 'set_value' || name === 'scroll') {properties.value = name === 'scroll' ? {type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false} : {type:'string',maxLength:32768}; required.push('value');}
+      if(name === 'press_key') {properties.key = {enum:require('./window-task-macros.cjs').KEYS};required.push('key');}
     }
-    if (name === 'resize') { properties.widthDip = { type: 'number', minimum: 100, maximum: 8192 }; properties.heightDip = { type: 'number', minimum: 100, maximum: 8192 }; required.push('widthDip', 'heightDip'); }
-    if (name === 'run_size_macro') { properties.macroId = { type: 'string' }; required.push('macroId'); }
-    return { name, description: `Background selected-window ${name}. Requires the user's existing selection and application approval. ${name === 'status' ? 'Call with {} to discover this thread\'s selected target ID and saved macros. ' : ''}UI Automation only; paused windows require user resume. Capture before each element action.`, inputSchema: { type: 'object', properties, required, additionalProperties: false } };
+    if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
+    if(name === 'save_task_macro') {properties.definition = {...definition,required:['schema','id','name','steps']};required.push('definition');}
+    if(name === 'run_task_macro') {properties.definition = definition;properties.macroId = {type:'string'};properties.parameters = {type:'object',additionalProperties:{type:'string',maxLength:32768}};}
+    if(name === 'resize') {properties.widthDip = {type:'number',minimum:100,maximum:8192};properties.heightDip = {type:'number',minimum:100,maximum:8192};required.push('widthDip','heightDip');}
+    if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
+    const descriptions = {
+      list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
+      select_window:'Select a candidate from the latest list_windows. Requests application approval and revalidates exact identity. No targetId needed.',
+      status:'Call with {} to discover whether this thread is unbound and obtain the selected targetId and fresh advisory occupancy. Refresh before each action or macro; defer if occupied by another session or unknown.',
+      inspect:'Inspect current UI Automation elements and states without a screenshot. Returns fresh observationId and element IDs.',
+      press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
+      list_task_macros:'List saved task definitions and storage revision. No targetId needed.',
+      save_task_macro:'Save a schema 1 task definition with stable id/name. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No targetId needed.',
+      run_task_macro:'Run either definition or macroId using an immutable snapshot and string parameters. Maximum 32 steps, 20 seconds total, waits at most 10 seconds. Selectors match exact name or automationId and optional controlType/ancestor, uniquely resolved afresh each step. wait_for/assert need condition; press_key requires explicit postcondition. Unsupported state is an error. Stops on cancellation, revoked permission, changed identity, failed/unknown mutation; never replays. Returns per-step outcomes and final capture when feasible.'
+    };
+    const inputSchema = {type:'object',properties,required,additionalProperties:false};
+    if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
+    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. Paused windows require user resume. Inspect or capture before each element action.`,inputSchema};
   });
-  definitions.push({ name: 'ui_operation', description: 'Complete a prepared application UI operation for the authenticated thread.', inputSchema: { type: 'object', properties: { requestToken: { type: 'string', pattern: '^[a-fA-F0-9]{64}$', minLength: 64, maxLength: 64 } }, required: ['requestToken'], additionalProperties: false }, _meta: { ui: { visibility: ['app'] } } });
+  definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
   return definitions;
 }
 function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
@@ -84,15 +108,26 @@ function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedi
 }
 function callResult(result) {
   if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error('Invalid host result');
-  const text = {};
-  for (const key of ['targetId', 'state', 'window', 'supportedActions', 'observationId', 'frameTimestamp', 'widthPx', 'heightPx', 'dpi', 'elements', 'macros', 'observationRequired']) if (Object.hasOwn(result, key)) text[key] = result[key];
-  // Nested values are projected as well, preventing native identity/extra fields leaking.
-  if (text.window) text.window = Object.fromEntries(['title', 'widthPx', 'heightPx', 'dpi', 'minimized'].filter(k => Object.hasOwn(text.window, k)).map(k => [k, text.window[k]]));
-  if (Array.isArray(text.elements)) text.elements = text.elements.map(e => ({ id: e.id, name: e.name, controlType: e.controlType, patterns: e.patterns }));
-  if (Array.isArray(text.macros)) text.macros = text.macros.map(m => ({ id: m.id, name: m.name, steps: m.steps.map(s => ({ widthDip: s.widthDip, heightDip: s.heightDip })) }));
-  const content = [{ type: 'text', text: JSON.stringify(text) }];
-  if (result.image) { if (result.image.mimeType !== 'image/png' || typeof result.image.data !== 'string') throw new Error('Invalid capture image'); content.push({ type: 'image', mimeType: 'image/png', data: result.image.data }); }
-  return { content, isError: false };
+  const occupancy = value => require('./window-control-occupancy.cjs').publicOccupancy(value);
+  function observation(value) {
+    const projected = {};
+    if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
+    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified']) if(Object.hasOwn(value,key)) projected[key] = value[key];
+    if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
+    if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(k === 'value' && e.isPassword)).map(k => [k,e[k]])));
+    return projected;
+  }
+  const text = observation(result);
+  if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({candidateId:c.candidateId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
+  if(Array.isArray(result.macros)) text.macros = result.schema === 1 ? result.macros.map(m => require('./window-task-macros.cjs').definition(m,true)) : result.macros.map(m => ({id:m.id,name:m.name,steps:m.steps.map(s => ({widthDip:s.widthDip,heightDip:s.heightDip}))}));
+  for(const key of ['schema','revision','runId','status','macroId','error']) if(Object.hasOwn(result,key)) text[key] = result[key];
+  if(result.definition) text.definition = require('./window-task-macros.cjs').definition(result.definition,true);
+  if(Array.isArray(result.steps)) text.steps = result.steps.map(s => ({index:s.index,action:s.action,status:s.status}));
+  if(result.finalObservation) text.finalObservation = observation(result.finalObservation);
+  const content = [{type:'text',text:JSON.stringify(text)}];
+  const image = result.image || result.finalObservation?.image;
+  if(image) {if(image.mimeType !== 'image/png' || typeof image.data !== 'string') throw new Error('Invalid capture image');content.push({type:'image',mimeType:'image/png',data:image.data});}
+  return {content,isError:result.status === 'failed'};
 }
 function createProtocol({ relay = createRelay() } = {}) {
   return async message => {

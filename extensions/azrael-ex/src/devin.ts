@@ -16,7 +16,7 @@ export async function manageDevin(service: AccountService): Promise<void> {
     try {
       const updated = await service.devin(action.action);
       void vscode.window.showInformationMessage(updated.loggedIn
-        ? `Devin connected: ${updated.email ?? "account"}. Models are available in the Codex dropdown. Reload the window to refresh its cached list immediately.`
+        ? `Devin connected: ${updated.email ?? "account"}. Models are available in the Azrael dropdown. Reload the window to refresh its cached list immediately.`
         : "Devin is signed out. Reload the window to refresh the cached model list.", "Reload Window").then(choice => {
           if (choice === "Reload Window") void vscode.commands.executeCommand("workbench.action.reloadWindow");
         });

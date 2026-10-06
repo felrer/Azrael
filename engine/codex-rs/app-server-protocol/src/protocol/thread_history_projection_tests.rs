@@ -323,7 +323,8 @@ fn item_completed(thread_id: ThreadId, turn_id: &str, item: TurnItem) -> Rollout
 #[test]
 fn wait_updates_project_independently_of_turn_lifecycle() {
     use codex_protocol::protocol::RootResumeWaitUpdatedEvent;
-    use codex_protocol::root_resume::{RootResumeState, RootResumeWait};
+    use codex_protocol::root_resume::RootResumeState;
+    use codex_protocol::root_resume::RootResumeWait;
     let update = RootResumeWaitUpdatedEvent {
         turn_id: "origin".into(),
         wait: RootResumeWait {

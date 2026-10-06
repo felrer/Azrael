@@ -28,6 +28,7 @@ impl AccountRequestProcessor {
         let mut usage = None;
         let mut usage_profile_id = None;
         let mut reset_credit_outcome = None;
+        let mut auto_windows = None;
         match params.action {
             AzraelAccountAction::List => {}
             AzraelAccountAction::CaptureCurrent => self.azrael_capture_current().await?,
@@ -54,7 +55,45 @@ impl AccountRequestProcessor {
             AzraelAccountAction::ConsumeResetCredit => {
                 let id = required_profile_id(params.profile_id)?;
                 let key = required_reset_credit_idempotency_key(params.idempotency_key)?;
-                reset_credit_outcome = Some(self.azrael_consume_reset_credit(&id, &key).await?);
+                if params.credit_id.as_deref().is_some_and(str::is_empty) {
+                    return Err(invalid_params("creditId must not be empty"));
+                }
+                reset_credit_outcome = Some(
+                    self.azrael_consume_reset_credit(&id, &key, params.credit_id.as_deref())
+                        .await?,
+                );
+            }
+            AzraelAccountAction::AutoSwitchEnable | AzraelAccountAction::AutoSwitchDisable => {
+                let enabled = params.action == AzraelAccountAction::AutoSwitchEnable;
+                let id = required_profile_id(params.profile_id)?;
+                let permission_guard = self.auth_manager.azrael_admission()
+                    .admit_queued_request()
+                    .map_err(|error| {
+                        if error.kind() == io::ErrorKind::WouldBlock {
+                            invalid_request("An account change is being committed. Retry the automatic-switch setting after it finishes.")
+                        } else {
+                            invalid_request("Account recovery is required before changing automatic-switch settings. Restart the engine.")
+                        }
+                    })?;
+                self.azrael
+                    .store
+                    .set_auto_switch_allowed(&id, enabled)
+                    .map_err(account_mutation_error)?;
+                drop(permission_guard);
+                self.send_azrael_update().await;
+            }
+            AzraelAccountAction::AutoWindowStatus => {
+                auto_windows = Some(self.usage_window_status()?);
+            }
+            AzraelAccountAction::AutoWindowEnable | AzraelAccountAction::AutoWindowDisable => {
+                let enabled = params.action == AzraelAccountAction::AutoWindowEnable;
+                let id = required_profile_id(params.profile_id)?;
+                self.usage_window_set_enabled(&id, enabled)?;
+                auto_windows = Some(self.usage_window_status()?);
+            }
+            AzraelAccountAction::AutoWindowTick => {
+                self.usage_window_tick().await?;
+                auto_windows = Some(self.usage_window_status()?);
             }
         }
         Ok(AzraelAccountResponse {
@@ -63,6 +102,7 @@ impl AccountRequestProcessor {
             usage,
             usage_profile_id,
             reset_credit_outcome,
+            auto_windows,
         })
     }
 
@@ -271,23 +311,34 @@ impl AccountRequestProcessor {
                     .await;
             }
             drop(request);
-            let mut state = processor.azrael.inner.lock().await;
-            state.pending_profile_id = None;
-            state.switch_cancel = None;
-            drop(state);
+            {
+                let mut state = processor.azrael.inner.lock().await;
+                state.pending_profile_id = None;
+                state.switch_cancel = None;
+            }
             processor.send_azrael_update().await;
         });
         self.send_azrael_update().await;
         Ok(())
     }
 
-    async fn commit_azrael_switch(
+    pub(super) async fn commit_azrael_switch(
         &self,
         profile: Arc<AzraelProfileAuth>,
         retire_root_auth: bool,
         guard: OwnedRwLockWriteGuard<()>,
     ) {
-        let previous = self.azrael.inner.lock().await.active_profile.clone();
+        let mut completion = super::quota_recovery::CommitCompletion {
+            admission: self.auth_manager.azrael_admission(),
+            completed: false,
+        };
+        let (previous, previous_selection) = {
+            let state = self.azrael.inner.lock().await;
+            (
+                state.active_profile.clone(),
+                state.selected_profile_id.clone(),
+            )
+        };
         let previous_auth = self.auth_manager.auth_cached();
         if retire_root_auth && self.auth_manager.logout().await.is_err() {
             self.auth_manager.azrael_admission().block_new_work();
@@ -297,65 +348,74 @@ impl AccountRequestProcessor {
                     .to_string(),
             );
             state.failed_closed_guard = Some(guard);
+            completion.completed = true;
             return;
         }
         let external: Arc<dyn ExternalAuth> = profile.clone();
         let switched = self.auth_manager.set_external_auth(external).await.is_ok()
             && profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref());
-        if switched {
-            let selected = profile.id().to_string();
+        let selected = profile.id().to_string();
+        if switched
+            && write_selected_states(
+                &self.azrael.selection_path,
+                self.azrael.default_selection_path.as_deref(),
+                Some(selected.clone()),
+            )
+            .is_ok()
+        {
             {
                 let mut state = self.azrael.inner.lock().await;
                 state.active_profile = Some(Arc::clone(&profile));
-                state.selected_profile_id = Some(selected.clone());
+                state.selected_profile_id = Some(selected);
                 state.last_error = None;
             }
-            if write_selected_states(
-                &self.azrael.selection_path,
-                self.azrael.default_selection_path.as_deref(),
-                Some(selected),
-            )
-            .is_err()
-            {
-                self.azrael.inner.lock().await.last_error =
-                    Some("Account selected, but its selection could not be saved.".to_string());
-            }
             self.refresh_after_azrael_account_change().await;
-            if !profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref()) {
-                self.auth_manager.azrael_admission().block_new_work();
-                let mut state = self.azrael.inner.lock().await;
-                state.last_error = Some(
-                    "Account identity changed during refresh. New work is blocked until restart."
-                        .to_string(),
-                );
-                state.failed_closed_guard = Some(guard);
-                return;
-            }
-            self.auth_manager.release_azrael_unmanaged_auth_lease();
-            drop(guard);
-            return;
-        }
-        if let Some(previous) = previous {
-            let external: Arc<dyn ExternalAuth> = previous.clone();
-            if self.auth_manager.set_external_auth(external).await.is_ok()
-                && profile_identity_matches(&previous, self.auth_manager.auth_cached().as_ref())
-            {
-                self.refresh_after_azrael_account_change().await;
-                self.azrael.inner.lock().await.last_error =
-                    Some("Account switch failed; the previous account was restored.".to_string());
+            if profile_identity_matches(&profile, self.auth_manager.auth_cached().as_ref()) {
+                self.auth_manager.release_azrael_unmanaged_auth_lease();
+                completion.completed = true;
                 drop(guard);
                 return;
             }
-        } else if !retire_root_auth
-            && same_auth_identity(
+        }
+        // Restore both binding and durable selection before reopening execution.
+        let restored = if let Some(previous) = previous.as_ref() {
+            let external: Arc<dyn ExternalAuth> = previous.clone();
+            self.auth_manager.set_external_auth(external).await.is_ok()
+                && profile_identity_matches(previous, self.auth_manager.auth_cached().as_ref())
+        } else if !retire_root_auth {
+            self.auth_manager.clear_external_auth();
+            self.auth_manager.reload().await;
+            same_auth_identity(
                 previous_auth.as_ref(),
                 self.auth_manager.auth_cached().as_ref(),
             )
+        } else {
+            false
+        };
+        if restored
+            && write_selected_states(
+                &self.azrael.selection_path,
+                self.azrael.default_selection_path.as_deref(),
+                previous_selection.clone(),
+            )
+            .is_ok()
         {
-            self.azrael.inner.lock().await.last_error =
-                Some("Account switch failed; the previous account was retained.".to_string());
-            drop(guard);
-            return;
+            {
+                let mut state = self.azrael.inner.lock().await;
+                state.active_profile = previous;
+                state.selected_profile_id = previous_selection;
+                state.last_error =
+                    Some("Account switch failed; the previous account was restored.".to_string());
+            }
+            self.refresh_after_azrael_account_change().await;
+            if same_auth_identity(
+                previous_auth.as_ref(),
+                self.auth_manager.auth_cached().as_ref(),
+            ) {
+                completion.completed = true;
+                drop(guard);
+                return;
+            }
         }
         self.auth_manager.azrael_admission().block_new_work();
         let mut state = self.azrael.inner.lock().await;
@@ -364,6 +424,7 @@ impl AccountRequestProcessor {
                 .to_string(),
         );
         state.failed_closed_guard = Some(guard);
+        completion.completed = true;
     }
 
     async fn azrael_cancel_switch(&self) -> Result<(), JSONRPCErrorError> {
@@ -375,7 +436,7 @@ impl AccountRequestProcessor {
         Ok(())
     }
 
-    async fn azrael_profile_auth(
+    pub(super) async fn azrael_profile_auth(
         &self,
         profile_id: &str,
     ) -> Result<Arc<AzraelProfileAuth>, JSONRPCErrorError> {
@@ -402,6 +463,7 @@ impl AccountRequestProcessor {
         &self,
         profile_id: &str,
         idempotency_key: &str,
+        credit_id: Option<&str>,
     ) -> Result<ConsumeAccountRateLimitResetCreditOutcome, JSONRPCErrorError> {
         tokio::time::timeout(Duration::from_secs(10), async {
             let profile = self.azrael_profile_auth(profile_id).await?;
@@ -421,10 +483,20 @@ impl AccountRequestProcessor {
                     &auth,
                     manager.http_client_factory(),
                 );
-                match client
-                    .consume_rate_limit_reset_credit(idempotency_key)
-                    .await
-                {
+                let result = match credit_id {
+                    Some(credit_id) => {
+                        client
+                            .consume_rate_limit_reset_credit_by_id(idempotency_key, credit_id)
+                            .await
+                    }
+                    // Replay old unresolved extension attempts that saved only a key.
+                    None => {
+                        client
+                            .consume_rate_limit_reset_credit(idempotency_key)
+                            .await
+                    }
+                };
+                match result {
                     Ok(response) => return Ok(reset_credit_outcome_from_backend(response.code)),
                     Err(err)
                         if err
@@ -444,7 +516,7 @@ impl AccountRequestProcessor {
                                 "account profile identity changed during authentication recovery",
                             ));
                         }
-                        // Recovery retries the same logical mutation with the original key.
+                        // Recovery retries the same logical mutation with the original key and credit ID.
                     }
                     Err(error) => return Err(internal_error(azrael_usage_error(&error))),
                 }
@@ -454,11 +526,12 @@ impl AccountRequestProcessor {
         .map_err(|_| internal_error("OpenAI reset credit request timed out"))?
     }
 
-    async fn azrael_usage(
+    pub(super) async fn azrael_usage(
         &self,
         profile_id: &str,
         include_details: bool,
     ) -> Result<GetAccountRateLimitsResponse, JSONRPCErrorError> {
+        let observed_at = chrono::Utc::now().timestamp();
         let profile = self.azrael_profile_auth(profile_id).await?;
         let manager = profile.manager();
         let mut auth = manager
@@ -520,6 +593,7 @@ impl AccountRequestProcessor {
                                 })?;
                         }
                     }
+                    self.usage_window_observe(profile_id, &usage, observed_at);
                     return Ok(usage);
                 }
                 Err(err)
@@ -584,15 +658,32 @@ impl AccountRequestProcessor {
                 Vec::new()
             }
         };
-        let state = self.azrael.inner.lock().await;
-        let managed_active_profile_id = state.active_profile.as_ref().map(|p| p.id().to_string());
-        let pending_profile_id = state.pending_profile_id.clone();
-        let login_pending = state.login.is_some();
-        let last_error = state.last_error.clone();
-        let is_switching = self.auth_manager.azrael_admission().is_pending()
-            || state.failed_closed_guard.is_some();
-        let has_active_turns = self.auth_manager.azrael_admission().has_active_work();
-        drop(state);
+        let (
+            managed_active_profile_id,
+            pending_profile_id,
+            login_pending,
+            last_error,
+            is_switching,
+            has_active_turns,
+        ) = {
+            let state = self.azrael.inner.lock().await;
+            let managed_active_profile_id =
+                state.active_profile.as_ref().map(|p| p.id().to_string());
+            let pending_profile_id = state.pending_profile_id.clone();
+            let login_pending = state.login.is_some();
+            let last_error = state.last_error.clone();
+            let is_switching = self.auth_manager.azrael_admission().is_pending()
+                || state.failed_closed_guard.is_some();
+            let has_active_turns = self.auth_manager.azrael_admission().has_active_work();
+            (
+                managed_active_profile_id,
+                pending_profile_id,
+                login_pending,
+                last_error,
+                is_switching,
+                has_active_turns,
+            )
+        };
         let cached_auth = self.auth_manager.auth_cached();
         let active_profile_id = resolve_active_profile_id(
             &profiles,
@@ -699,6 +790,7 @@ fn azrael_profile(profile: AzraelProfileInfo) -> AzraelProfile {
         workspace_account_id: profile.workspace_account_id,
         user_id: profile.user_id,
         plan_type: profile.plan_type,
+        auto_switch_allowed: profile.auto_switch_allowed,
     }
 }
 

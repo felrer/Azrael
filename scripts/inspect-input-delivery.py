@@ -17,6 +17,7 @@ METHODS = frozenset(("turn/start", "turn/steer", "thread/resume", "thread/turns/
 HOST_EVENTS = frozenset((
     "recovery.rpc_dispatch", "recovery.rpc_result", "recovery.rpc_timeout",
     "recovery.rpc_send_failed", "recovery.rpc_late_result", "host.rpc_response_received",
+    "host.user_message_received",
 ))
 NATIVE_EVENTS = frozenset((
     "input.request_received", "input.handler_started", "input.handler_completed",
@@ -30,9 +31,9 @@ LABELS = frozenset((
     "enqueued", "queued", "connection_missing", "write_failed", "closed", "cancelled",
     "panicked", "response", "connection_closed", "channel_closed", "writer_queue", "handler_abandoned", "handler_started",
 ))
-HASH_FIELDS = {"requestRef": 16, "threadRef": 16, "clientMessageHash": 64}
+HASH_FIELDS = {"requestRef": 16, "threadRef": 16, "turnRef": 16, "itemRef": 16, "clientMessageHash": 64}
 NUMBER_FIELDS = frozenset(("hostPid", "connectionId", "elapsedMs", "lateByMs", "timeoutMs", "rpcCode", "pendingRequests"))
-LABEL_FIELDS = frozenset(("outcome", "tracking", "disposition", "boundary", "messageKind"))
+LABEL_FIELDS = frozenset(("outcome", "tracking", "disposition", "boundary", "messageKind", "stage"))
 ALIASES = {
     "request_ref": "requestRef", "thread_ref": "threadRef", "client_message_hash": "clientMessageHash",
     "connection_id": "connectionId", "connection": "connectionId", "elapsed_ms": "elapsedMs", "rpc_code": "rpcCode",
@@ -97,6 +98,47 @@ def host_fields(line: str) -> dict:
     return safe
 
 
+def ui_fields(line: str) -> dict:
+    marker = "[azrael-ui-input] "
+    position = line.find(marker)
+    if position < 0:
+        return {}
+    try:
+        record = json.loads(line[position + len(marker):])
+    except (ValueError, RecursionError):
+        return {}
+    if not isinstance(record, dict) or not isinstance(record.get("event"), str) or record["event"] not in {
+        "state_removed", "representation_changed", "queue_consumed", "opening_suppressed",
+    }:
+        return {}
+    safe = {"event": record["event"]}
+    for field, value in record.items():
+        if field in {"threadId", "clientId"} and isinstance(value, str) and re.fullmatch(
+            r"[0-9a-fA-F]{8}(?:-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}", value
+        ):
+            digest = hashlib.sha256(value.encode()).hexdigest()
+            safe["threadRef" if field == "threadId" else "clientMessageHash"] = digest[:16] if field == "threadId" else digest
+        elif field in {"beforeRepresentationCount", "afterRepresentationCount", "droppedCount",
+                       "matchingUserCount", "matchingSteeringCount", "malformedCount"} and type(value) is int and 0 <= value <= 2**53 - 1:
+            safe[field] = value
+        elif field in {"receiptAccepted", "persistenceSucceeded", "aeonClassified", "inputHidden",
+                       "openingPresent", "inputNonempty"} and type(value) is bool:
+            safe[field] = value
+        elif field in {"shouldHideCallback", "inputClassifier", "linkedOpeningSteering"} and (
+            value is None or type(value) is bool
+        ):
+            safe[field] = value
+        elif field in {"beforeKinds", "afterKinds"} and isinstance(value, list) and len(value) <= 3 and all(
+            isinstance(kind, str) and kind in {"params", "user", "steering"} for kind in value
+        ):
+            safe[field] = value
+        elif field == "mutationKind" and isinstance(value, str) and value in {"ordinary", "history", "optimized_history"}:
+            safe[field] = value
+        elif field == "historyInvalidationType" and (value is None or isinstance(value, str) and value in {"entityKeys", "other"}):
+            safe[field] = value
+    return safe
+
+
 def iso(value: dt.datetime) -> str:
     return value.astimezone(UTC).isoformat(timespec="milliseconds").replace("+00:00", "Z")
 
@@ -106,6 +148,7 @@ def main() -> None:
     parser.add_argument("--state", type=Path, default=Path.home() / ".azrael-ex")
     parser.add_argument("--thread", required=True)
     parser.add_argument("--host-log", type=Path, required=True)
+    parser.add_argument("--ui-log", type=Path, help="Exact window Azrael.log containing UI diagnostics")
     parser.add_argument("--minutes", type=int, default=60)
     parser.add_argument("--limit", type=int, default=5000)
     parser.add_argument("--events", type=int, default=200)
@@ -121,6 +164,8 @@ def main() -> None:
     database = state / "logs_2.sqlite"
     if not database.is_file() or not args.host_log.is_file():
         parser.error("native database or exact host log is missing")
+    if args.ui_log and not args.ui_log.is_file():
+        parser.error("exact UI log is missing")
     since = dt.datetime.now(UTC) - dt.timedelta(minutes=args.minutes)
     thread_ref = hashlib.sha256(args.thread.encode()).hexdigest()[:16]
     records = []
@@ -139,17 +184,20 @@ def main() -> None:
             native_time = dt.datetime.fromtimestamp(ts, UTC) + dt.timedelta(microseconds=nanos // 1000)
             records.append({"source": "native", "time": iso(native_time),
                             "level": level if level in {"INFO", "WARN", "ERROR", "DEBUG"} else "unknown", **fields})
-    with args.host_log.open(encoding="utf-8-sig", errors="replace") as stream:
-        for line in stream:
-            try:
-                time = dt.datetime.strptime(line[:23], "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=HOST_TIMEZONE)
-            except ValueError:
-                continue
-            if time < since:
-                continue
-            fields = host_fields(line)
-            if fields and fields.get("threadRef") == thread_ref:
-                records.append({"source": "host", "time": iso(time), **fields})
+    for log_path, source, parse in [(args.host_log, "host", host_fields), (args.ui_log, "ui", ui_fields)]:
+        if log_path is None:
+            continue
+        with log_path.open(encoding="utf-8-sig", errors="replace") as stream:
+            for line in stream:
+                try:
+                    time = dt.datetime.strptime(line[:23], "%Y-%m-%d %H:%M:%S.%f").replace(tzinfo=HOST_TIMEZONE)
+                except ValueError:
+                    continue
+                if time < since:
+                    continue
+                fields = parse(line)
+                if fields and fields.get("threadRef") == thread_ref:
+                    records.append({"source": source, "time": iso(time), **fields})
     request_refs = {r["requestRef"] for r in records if r.get("threadRef") == thread_ref and "requestRef" in r}
     selected = [r for r in records if r.get("threadRef") == thread_ref or r.get("requestRef") in request_refs]
     selected.sort(key=lambda r: r["time"])

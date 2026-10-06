@@ -8,14 +8,41 @@ const vm = require("node:vm");
 const test = require("node:test");
 
 // Synthetic guards and pinned source compatibility, without a prepared host.
-const originalRoot = path.resolve(__dirname, "../artifacts/upstream-ui/26.928.31416");
+const originalRoot = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const transformer = require("./namespace-azrael-host.cjs");
+
+test("Azrael theme and command labels preserve model and command identities", () => {
+  const source = 'const themes=[{name:"Codex Dark"},{name:"Codex Light"}];const commands=[{id:"codex.run",title:"Implement with Codex"},{title:"Open Codex Sidebar"},{title:"New Codex Agent"},{title:"Add to Codex Thread"},{title:"Add File to Codex Thread"}];const model="GPT-5-Codex";';
+  const result = transformer.rewriteJavaScript(source, "branding-labels.js", ts);
+  const values = vm.runInNewContext(`${result.text};({themes,commands,model})`);
+  assert.equal(values.themes[0].name, "Azrael Dark");
+  assert.equal(values.themes[1].name, "Azrael Light");
+  assert(values.commands.every(command => command.title.includes("Azrael") && !command.title.includes("Codex")));
+  assert.equal(values.commands[0].id, "codex.run");
+  assert.equal(values.model, "GPT-5-Codex");
+  assert.equal(transformer.rewriteJavaScript(result.text, "branding-labels.js", ts).count, 0);
+});
+
+test("display branding preserves backend HTTP header names and accepted app brand", () => {
+  const source = 'const Nl="Codex";const headers={"OAI-App-Brand":Nl.toLowerCase(),"x-openai-codex-pricing-chooser":"1"};';
+  const rewritten = transformer.rewriteJavaScript(source, "protocol-brand.js", ts).text;
+  const headers = vm.runInNewContext(`${rewritten};headers`);
+  assert.equal(headers["OAI-App-Brand"], "codex");
+  assert.equal(headers["x-openai-codex-pricing-chooser"], "1");
+  assert.ok(rewritten.includes('Nl="Azrael"'));
+  const asset = "webview/assets/app-initial-5120fa5fe295.js";
+  const pinned = fs.readFileSync(path.join(originalRoot, asset), "utf8");
+  const result = transformer.rewriteJavaScript(pinned, asset, ts).text;
+  assert.equal((result.match(/"OAI-App-Brand":"codex"/g) || []).length, 2);
+  assert.equal(result.includes('"OAI-App-Brand":Nl.toLowerCase()'), false);
+  assert.equal((result.match(/"x-openai-codex-pricing-chooser"/g) || []).length, 2);
+});
 
 test("namespace transforms preserve URLs, filter workspace history and reject unsupported anchors", () => {
   const originalBundle = fs.readFileSync(path.join(originalRoot, "out/extension.js"), "utf8");
   const originalRecentThreadBundle = fs.readFileSync(path.join(originalRoot,
-    "webview/assets/app-initial-9f7d97690e9b.js"), "utf8");
+    "webview/assets/app-initial-efe028fd535e.js"), "utf8");
   assert.equal(transformer.getTransformRules()["inject-composer-draft.cjs"],
     crypto.createHash("sha256").update(fs.readFileSync(path.join(__dirname, "inject-composer-draft.cjs"))).digest("hex"),
     "composer draft transform must invalidate cached assets when its source changes");

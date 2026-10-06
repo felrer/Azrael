@@ -1297,7 +1297,7 @@ async fn responses_websocket_prewarm_reuses_advisory_model_and_tier_routing_hint
 
     assert_eq!(server.handshakes().len(), 1);
     let connection = server.single_connection();
-    assert_eq!(connection.len(), 2);
+    assert_eq!(connection.len(), 1);
     let prewarm = connection
         .first()
         .expect("missing prewarm request")

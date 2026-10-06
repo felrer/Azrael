@@ -27,6 +27,8 @@ const diagnosticErrors = new Map([
 const diagnosticError = error => !error ? "none" :
   error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" : diagnosticErrors.get(error.message) ?? "other";
 const knownStatus = (value, allowed) => allowed.includes(value) ? value : "unknown";
+const handlerOutcomeUnknown = error => error?.rpcError?.code === -32603 &&
+  error.rpcError.data?.requestOutcome === "unknown" && error.rpcError.data?.reason === "handlerPanicked";
 
 function admitsContinuation(thread, latest) {
   if (["idle", "notLoaded"].includes(thread.status?.type)) return true;
@@ -140,11 +142,15 @@ class RecoveryState {
   }
 
   async dispatchStart(params, generation) {
-    try { return await this.rpc("turn/start", params); }
+    return this.dispatchSend("turn/start", params, generation);
+  }
+
+  async dispatchSend(method, params, generation) {
+    try { return await this.rpc(method, params); }
     catch (error) {
       const outcome = (result, turnId) => this.log({ event: "recovery.send_reconciliation",
-        threadId: params.threadId, outcome: result, turnId });
-      if (error.rpcError) { outcome("rpc_rejected"); throw error; }
+        method, threadId: params.threadId, outcome: result, turnId });
+      if (error.rpcError && !handlerOutcomeUnknown(error)) { outcome("rpc_rejected"); throw error; }
       if (generation !== this.generation) { outcome("generation_changed"); throw error; }
       if (typeof params.clientUserMessageId !== "string" || !params.clientUserMessageId.length) {
         outcome("missing_client_id"); throw error;
@@ -188,7 +194,7 @@ class RecoveryState {
         this.setStage(params.threadId, "waiting", turn.id);
       }
       outcome("matched", turn.id);
-      return { turn };
+      return method === "turn/steer" ? { turnId: turn.id } : { turn };
     }
   }
 
@@ -283,7 +289,7 @@ class RecoveryState {
         let result;
         try { result = await this.dispatchStart(params, generation); }
         catch (error) {
-          if (error.rpcError) this.setStage(params.threadId, "error");
+          if (error.rpcError && !handlerOutcomeUnknown(error)) this.setStage(params.threadId, "error");
           else this.markStartUncertain(params.threadId);
           throw error;
         }
@@ -308,7 +314,7 @@ class RecoveryState {
       const generation = this.generation;
       await Promise.all(recovering);
       this.checkGeneration(generation);
-      return this.rpc("turn/steer", params);
+      return this.dispatchSend("turn/steer", params, generation);
     });
   }
 

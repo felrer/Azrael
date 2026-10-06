@@ -210,6 +210,13 @@ impl ManagedModelsManager {
 }
 
 impl ModelsManager for ManagedModelsManager {
+    fn refresh_after_auth_change(
+        &self,
+        http_client_factory: HttpClientFactory,
+    ) -> ModelsManagerFuture<'_, ()> {
+        self.inner.refresh_after_auth_change(http_client_factory)
+    }
+
     fn provider_catalogs(&self) -> ModelsManagerFuture<'_, Vec<ProviderCatalogStatus>> {
         Box::pin(async move { self.provider_catalogs.read().await.clone() })
     }

@@ -15,7 +15,7 @@ async function main() {
     if (method === 'listWindows') return [current];
     if (method === 'restore') { restores++; current.minimized = false; }
     if (method === 'resize') { current.widthPx = args.widthDip; current.heightPx = args.heightDip; }
-    if (method === 'observe') return { window: { ...current }, observationId: 'o' + ++observations, frameTimestamp: 'now', widthPx: current.widthPx, heightPx: current.heightPx, dpi: 96, elements: [{ id: 'e', name: 'Button', controlType: 'Button', patterns: ['Invoke'], secret: 'strip' }], image: { mimeType: 'image/png', data: 'YQ==' }, unrelated: 'private', ...frameOverride };
+    if (method === 'observe' || method === 'inspect') return { window: { ...current }, observationId: 'o' + ++observations, frameTimestamp: 'now', widthPx: current.widthPx, heightPx: current.heightPx, dpi: 96, elementsTruncated: false, elements: [{ id: 'e', name: 'Button', controlType: 'Button', patterns: ['Invoke'], secret: 'strip' }], image: { mimeType: 'image/png', data: 'YQ==' }, unrelated: 'private', ...frameOverride };
     return { window: { ...current } };
   } };
   const owner = createWindowOwner({ backend, authorize: async () => approved, codexHome: home });
@@ -23,7 +23,7 @@ async function main() {
     let target = await owner.bind('thread', current); const args = { targetId: target.targetId };
     assert.equal((await owner.call('thread', 'status', {})).targetId, target.targetId);
     await assert.rejects(owner.call('thread', 'status', { targetId: 'forged' }), /forged/);
-    await assert.rejects(owner.call('unbound', 'status', {}), /No selected/);
+    assert.equal((await owner.call('unbound', 'status', {})).state, 'unbound');
     await assert.rejects(owner.call('thread', 'capture', {}), /Invalid arguments/);
     assert.equal((await owner.listWindows()).length, 1);
     await assert.rejects(owner.call('thread', 'capture', { ...args, hwnd: '999' }), /Invalid arguments/);
@@ -38,8 +38,24 @@ async function main() {
       frameOverride = { heightPx: bad }; await assert.rejects(owner.call('thread', 'capture', args), /Invalid selected-window observation/);
     }
     frameOverride = { dpi: 120 }; await assert.rejects(owner.call('thread', 'capture', args), /Invalid selected-window observation/);
+    for (const invalid of [undefined, null, 0, 1, 'false', 'true', {}, []]) {
+      frameOverride = { elementsTruncated: invalid };
+      await assert.rejects(owner.call('thread', 'capture', args), /Invalid elementsTruncated/);
+      await assert.rejects(owner.call('thread', 'inspect', args), /Invalid elementsTruncated/);
+    }
+    frameOverride = { elementsTruncated: true };
+    const partialCapture = await owner.call('thread', 'capture', args);
+    assert.equal(partialCapture.elementsTruncated, true);
+    const partialInspect = await owner.call('thread', 'inspect', args);
+    assert.equal(partialInspect.elementsTruncated, true);
+    await assert.rejects(owner.call('thread', 'invoke', { ...args, observationId: partialInspect.observationId, elementId: 'unobserved' }), /Fresh/);
+    const partialActs = calls.filter(method => method === 'act').length;
+    await owner.call('thread', 'invoke', { ...args, observationId: partialInspect.observationId, elementId: 'e' });
+    assert.equal(calls.filter(method => method === 'act').length - partialActs, 1);
     frameOverride = undefined;
     const captured = await owner.call('thread', 'capture', args);
+    assert.equal(captured.elementsTruncated, false);
+    assert.equal((await owner.call('thread', 'inspect', args)).elementsTruncated, false);
     assert.equal(captured.unrelated, undefined); assert.equal(captured.window.executable, undefined); assert.equal(captured.elements[0].secret, undefined);
     current.widthPx++;
     await assert.rejects(owner.call('thread', 'invoke', { ...args, observationId: captured.observationId, elementId: 'e' }), /Fresh/);

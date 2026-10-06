@@ -42,7 +42,7 @@ pub(super) enum ExistingAccountBinding {
     Managed(String),
 }
 
-#[derive(Deserialize, Serialize)]
+#[derive(Deserialize, Serialize, PartialEq)]
 struct RuntimeMarker {
     version: u8,
     thread_id: String,
@@ -151,6 +151,7 @@ fn pin_runtime(
     runtime: &str,
     binding: Option<RuntimeBinding<'_>>,
 ) -> CodexResult<()> {
+    let _guard = marker_lock(codex_home, thread_id)?;
     let path = runtime_marker_path(codex_home, thread_id);
     if let Some(marker) = read_runtime_marker(&path)? {
         return validate_runtime_marker(marker, thread_id, runtime, binding);
@@ -196,6 +197,77 @@ fn pin_runtime(
             Err(fatal("unable to commit Devin runtime marker"))
         }
     }
+}
+
+pub(super) fn recovery_snapshot(codex_home: &Path, thread_id: &str) -> CodexResult<Vec<u8>> {
+    std::fs::read(runtime_marker_path(codex_home, thread_id))
+        .map_err(|_| fatal("Devin runtime marker is unavailable for recovery"))
+}
+
+/// Compare the complete source marker under the same lock used by initial pinning.
+/// Atomic replacement gives readers either the old or new credential binding.
+pub(super) fn replace_managed_binding(
+    codex_home: &Path,
+    thread_id: &str,
+    expected_snapshot: &[u8],
+    expected_account: &str,
+    account: &str,
+    credential_scope: &str,
+) -> CodexResult<()> {
+    let _guard = marker_lock(codex_home, thread_id)?;
+    let path = runtime_marker_path(codex_home, thread_id);
+    let expected: RuntimeMarker = serde_json::from_slice(expected_snapshot)
+        .map_err(|_| fatal("invalid Devin recovery source marker"))?;
+    let mut marker = read_runtime_marker(&path)?
+        .ok_or_else(|| fatal("Devin recovery source marker disappeared"))?;
+    if marker != expected
+        || marker.version != 2
+        || marker.runtime != "native"
+        || marker.thread_id != thread_id
+        || marker.account_id.as_deref() != Some(expected_account)
+        || expected_account == account
+        || account.trim().is_empty()
+        || credential_scope.is_empty()
+    {
+        return Err(invalid("Devin recovery source binding changed"));
+    }
+    marker.account_id = Some(account.to_string());
+    marker.credential_scope = Some(credential_scope.to_string());
+    let parent = path
+        .parent()
+        .ok_or_else(|| fatal("invalid Devin runtime marker path"))?;
+    let mut temp = tempfile::NamedTempFile::new_in(parent)
+        .map_err(|_| fatal("unable to prepare Devin recovery marker"))?;
+    use std::io::Write;
+    serde_json::to_writer(&mut temp, &marker)
+        .map_err(|_| fatal("unable to serialize Devin recovery marker"))?;
+    temp.flush()
+        .map_err(|_| fatal("unable to flush Devin recovery marker"))?;
+    temp.as_file()
+        .sync_all()
+        .map_err(|_| fatal("unable to sync Devin recovery marker"))?;
+    temp.persist(&path)
+        .map_err(|_| fatal("unable to commit Devin recovery marker"))?;
+    Ok(())
+}
+
+fn marker_lock(codex_home: &Path, thread_id: &str) -> CodexResult<std::fs::File> {
+    let path = runtime_marker_path(codex_home, thread_id);
+    let parent = path
+        .parent()
+        .ok_or_else(|| fatal("invalid Devin runtime marker path"))?;
+    std::fs::create_dir_all(parent)
+        .map_err(|_| fatal("unable to create Devin runtime marker directory"))?;
+    let lock = std::fs::File::options()
+        .read(true)
+        .write(true)
+        .create(true)
+        .truncate(false)
+        .open(path.with_extension("lock"))
+        .map_err(|_| fatal("unable to open Devin runtime marker lock"))?;
+    lock.try_lock()
+        .map_err(|_| invalid("another Devin binding operation is in progress"))?;
+    Ok(lock)
 }
 
 fn validate_runtime_marker(

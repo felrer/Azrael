@@ -676,11 +676,17 @@ async fn node_elicitations_attribute_independent_reviews_without_changing_action
                 "tool_name": meta[index]["tool_name"], "arguments": meta[index]["tool_params"],
                 "connector_id": "inner-connector", "connector_name": "Inner Connector",
                 "tool_title": "Inner action",
-                "tool_description": "Review this action independently from JavaScript".repeat(220),
             })
         );
-        assert!(prompt.contains("<guardian_tool_descriptions>"));
-        assert!(prompt.contains("Connector for the reviewed inner action"));
+        let descriptions = prompt
+            .split_once("<guardian_tool_descriptions>")
+            .context("Guardian separate descriptions")?
+            .1
+            .split_once("</guardian_tool_descriptions>")
+            .context("Guardian descriptions end")?
+            .0;
+        assert!(descriptions.contains("Review this action independently from JavaScript"));
+        assert!(descriptions.contains("Connector for the reviewed inner action"));
     }
     let [tool_item] = tool_items.as_slice() else {
         panic!("expected one completed enclosing tool item: {tool_items:?}");

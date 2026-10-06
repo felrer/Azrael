@@ -3,8 +3,10 @@ const crypto = require('node:crypto');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const os = require('node:os');
+const tasks = require('./window-task-macros.cjs');
+const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['capture', 'status', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const fail = message => { throw new Error(message); };
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 function keys(value, allowed, required = []) {
@@ -26,16 +28,19 @@ function macro(value) {
   if (!Array.isArray(value.steps) || value.steps.length < 1 || value.steps.length > 10) fail('Macros require 1 to 10 steps');
   return { id: value.id, name: value.name, steps: value.steps.map(step => { keys(step, ['widthDip', 'heightDip'], ['widthDip', 'heightDip']); return { widthDip: size(step.widthDip), heightDip: size(step.heightDip) }; }) };
 }
-function createWindowOwner({ backend, authorize, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now }) {
+function createWindowOwner({ backend, authorize, approve, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now, occupancyDirectory, workspaceName = 'Azrael' }) {
   if (!backend || typeof backend.request !== 'function' || typeof authorize !== 'function') fail('Backend and authorization required');
-  const bindings = new Map(); let queue = Promise.resolve(); let disposed = false;
+  const bindings = new Map(); const candidates = new Map(); const selections = new Map(); const taskStore = tasks.createStore(codexHome); let queue = Promise.resolve(); let disposed = false;
+  workspaceName = path.win32.basename(String(workspaceName).replace(/[\x00-\x1f]/g, '')).slice(0,256) || 'Azrael';
+  const occupancy = createRegistry({ directory: occupancyDirectory || path.join(codexHome, 'azrael', 'window-use', 'occupancy'), now, entries: () => [...bindings].map(([sessionId,b]) => ({ sessionId, workspaceName, state: b.running && b.state !== 'paused' ? 'running' : b.state, window: Object.fromEntries(['hwnd','pid','processCreated','executable'].map(k => [k,b.identity[k]])) })) });
+  const occupancyOf = (w, thread) => { occupancy.publish(); return occupancy.read(w, thread); };
   const macroPath = path.join(codexHome, 'azrael', 'computer-use', 'window-macros.json');
   const serial = fn => { const result = queue.then(() => { if (disposed) fail('Owner disposed'); return fn(); }); queue = result.catch(() => {}); return result; };
   const get = id => { str(id); const b = bindings.get(id); if (!b) fail('No selected window'); return b; };
-  const view = b => ({ targetId: b.targetId, state: b.state, window: safeWindow(b.window), supportedActions: [...ACTIONS] });
+  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, window: safeWindow(b.window), supportedActions: [...ACTIONS] });
   async function guard(b, thread, generation) {
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
-    if (!await authorize({ ...b.identity }, thread)) { b.state = 'paused'; b.observation = null; b.generation++; fail('Application authorization revoked'); }
+    if (!await authorize({ ...b.identity }, thread)) { b.state = 'paused'; b.observation = null; b.generation++; occupancy.publish(); fail('Application authorization revoked'); }
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
   }
   async function request(b, thread, generation, method, params = {}) {
@@ -43,16 +48,16 @@ function createWindowOwner({ backend, authorize, codexHome = process.env.CODEX_H
     let result;
     try { result = await backend.request(method, { ...params, window: { ...b.identity } }); }
     catch (error) {
-      if (!disposed && bindings.get(thread) === b && b.generation === generation) { b.state = 'paused'; b.observation = null; b.generation++; }
+      if (!disposed && bindings.get(thread) === b && b.generation === generation) { b.state = 'paused'; b.observation = null; b.generation++; occupancy.publish(); }
       throw error;
     }
     await guard(b, thread, generation);
-    const w = descriptor(result?.window || result);
-    if (!same(b.identity, w)) { b.state = 'paused'; b.generation++; b.observation = null; fail('Selected window identity changed'); }
+    let w; try {w = descriptor(result?.window || result);} catch(e) {b.state='paused';b.generation++;b.observation=null;occupancy.publish();throw e;}
+    if (!same(b.identity, w)) { b.state = 'paused'; b.generation++; b.observation = null; occupancy.publish(); fail('Selected window identity changed'); }
     if (b.observation && (b.window.widthPx !== w.widthPx || b.window.heightPx !== w.heightPx || b.window.dpi !== w.dpi)) b.observation = null;
     b.window = w;
     if (w.minimized && b.used && method === 'status') { b.state = 'paused'; b.observation = null; }
-    return result;
+    occupancy.publish(); return result;
   }
   async function ready(b, thread, generation, allowRestore) {
     await request(b, thread, generation, 'status');
@@ -69,10 +74,67 @@ function createWindowOwner({ backend, authorize, codexHome = process.env.CODEX_H
     str(r.observationId); str(r.frameTimestamp);
     const frameDimension = value => Number.isInteger(value) && value > 0 && value <= 16384;
     if (r.window.minimized || !frameDimension(r.widthPx) || !frameDimension(r.heightPx) || r.dpi !== b.window.dpi || !Array.isArray(r.elements) || !plain(r.image) || r.image.mimeType !== 'image/png' || typeof r.image.data !== 'string' || !r.image.data.length || !/^[A-Za-z0-9+/]*={0,2}$/.test(r.image.data)) fail('Invalid selected-window observation');
-    const elements = r.elements.map(e => { str(e.id); if (typeof e.name !== 'string' || typeof e.controlType !== 'string' || !Array.isArray(e.patterns) || e.patterns.some(p => typeof p !== 'string')) fail('Invalid element'); return { id: e.id, name: e.name, controlType: e.controlType, patterns: [...e.patterns] }; });
-    if (new Set(elements.map(e => e.id)).size !== elements.length) fail('Duplicate element IDs');
+    const elements = elementsOf(r);
     b.observation = { id: r.observationId, generation, ids: new Set(elements.map(e => e.id)) }; b.used = true;
-    return { ...view(b), observationId: r.observationId, frameTimestamp: r.frameTimestamp, widthPx: r.widthPx, heightPx: r.heightPx, dpi: r.dpi, elements, image: { mimeType: 'image/png', data: r.image.data } };
+    return { ...view(b), observationId: r.observationId, frameTimestamp: r.frameTimestamp, widthPx: r.widthPx, heightPx: r.heightPx, dpi: r.dpi, elementsTruncated: r.elementsTruncated, elements, image: { mimeType: 'image/png', data: r.image.data } };
+  }
+  function elementsOf(r) {
+    if (!Array.isArray(r.elements)) fail('Invalid elements');
+    if (typeof r.elementsTruncated !== 'boolean') fail('Invalid elementsTruncated');
+    const elements = r.elements.map(e => {
+      str(e.id); if (typeof e.name !== 'string' || typeof e.controlType !== 'string' || !Array.isArray(e.patterns) || e.patterns.some(p => typeof p !== 'string')) fail('Invalid element');
+      const out = { id:e.id, name:e.name, controlType:e.controlType, patterns:[...e.patterns] };
+      for (const key of ['automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState']) if (Object.hasOwn(e,key)) out[key] = e[key];
+      for (const key of ['enabled','isPassword','selected']) if (Object.hasOwn(out,key) && typeof out[key] !== 'boolean') fail('Invalid element property');
+      for (const key of ['automationId','value']) if (Object.hasOwn(out,key) && typeof out[key] !== 'string') fail('Invalid element property');
+      if (Object.hasOwn(out,'parentId') && out.parentId !== null && typeof out.parentId !== 'string') fail('Invalid element parent');
+      if (Object.hasOwn(out,'toggleState') && !['off','on','indeterminate'].includes(out.toggleState)) fail('Invalid toggle state');
+      if (Object.hasOwn(out,'expandState') && !['collapsed','expanded','partial','leaf'].includes(out.expandState)) fail('Invalid expand state');
+      if (out.isPassword) delete out.value;
+      return out;
+    });
+    if (new Set(elements.map(e => e.id)).size !== elements.length) fail('Duplicate element IDs'); return elements;
+  }
+  async function inspect(b, thread, generation) {
+    const r = await request(b, thread, generation, 'inspect'); str(r.observationId); const elements = elementsOf(r);
+    b.observation = {id:r.observationId,generation,ids:new Set(elements.map(e => e.id))}; b.used = true;
+    return {...view(b),observationId:r.observationId,elementsTruncated:r.elementsTruncated,elements};
+  }
+  async function bindInternal(thread, selected) {
+    str(thread); const identity = descriptor(selected);
+    const generation = 0; const b = {thread,identity,window:identity,targetId:crypto.randomUUID(),state:'selected',generation,used:false,restoreAttempted:false,observation:null,selectedAt:now()};
+    const old = bindings.get(thread); if(old) {old.generation++; old.observation = null;} bindings.set(thread,b);
+    occupancy.publish();
+    try { await request(b,thread,generation,'status'); return view(b); } catch(e) {if(bindings.get(thread) === b) bindings.delete(thread); occupancy.publish(); throw e;}
+  }
+  function cancelSelection(thread) { selections.set(thread,(selections.get(thread) || 0)+1); candidates.delete(thread); }
+  function discovery(thread,tool,args) {
+    try {
+      str(thread);
+      if(tool === 'list_windows' || tool === 'list_task_macros') keys(args,[]);
+      if(tool === 'select_window') {keys(args,['candidateId'],['candidateId']);str(args.candidateId);}
+      if(tool === 'save_task_macro') {keys(args,['definition'],['definition']);args = {definition:tasks.definition(args.definition,true)};}
+    } catch(e) {return Promise.reject(e);}
+    const selection = selections.get(thread) || 0;
+    return serial(async () => {
+      if(tool === 'list_task_macros') return taskStore.read();
+      if(tool === 'save_task_macro') return taskStore.save(args.definition);
+      if(tool === 'list_windows') {
+        candidates.delete(thread); const raw = await backend.request('listWindows',{}); if(!Array.isArray(raw)) fail('Invalid window list');
+        if((selections.get(thread) || 0) !== selection) fail('Operation cancelled');
+        const entries = new Map(raw.map(w => [crypto.randomUUID(),descriptor(w)])); candidates.set(thread,entries);
+        return {candidates:[...entries].map(([candidateId,w]) => ({candidateId,appName:path.win32.basename(w.executable),title:w.title,minimized:w.minimized,occupancy:occupancyOf(w,thread)}))};
+      }
+      const identity = candidates.get(thread)?.get(args.candidateId); if(!identity) fail('Stale or forged window candidate');
+      const old = bindings.get(thread); if(old) {old.generation++;old.observation = null;}
+      const check = () => {if(disposed || (selections.get(thread) || 0) !== selection || candidates.get(thread)?.get(args.candidateId) !== identity) fail('Operation cancelled');};
+      check(); const raw = await backend.request('listWindows',{}); check();
+      if(!Array.isArray(raw) || !raw.map(descriptor).some(w => same(w,identity))) fail('Window candidate identity changed');
+      if(approve) {if(!await approve({...identity},thread)) fail('Application approval declined');check();}
+      const current = await backend.request('status',{window:{...identity}});check();
+      const fresh = descriptor(current?.window || current); if(!same(fresh,identity)) fail('Window candidate identity changed');
+      const result = await bindInternal(thread,fresh); check(); candidates.delete(thread); return result;
+    });
   }
   async function locked(fn) {
     await fs.mkdir(path.dirname(macroPath), { recursive: true });
@@ -93,38 +155,37 @@ function createWindowOwner({ backend, authorize, codexHome = process.env.CODEX_H
     try { await fs.writeFile(temp, JSON.stringify({ schema: 1, macros }), { flag: 'wx', mode: 0o600 }); await fs.rename(temp, macroPath); } finally { await fs.unlink(temp).catch(e => { if (e.code !== 'ENOENT') throw e; }); }
   }
   return {
-    listWindows: () => serial(async () => { const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(descriptor); }),
-    bind: (thread, selected) => serial(async () => {
-      str(thread); const identity = descriptor(selected);
-      const generation = 0; const b = { identity, window: identity, targetId: crypto.randomUUID(), state: 'selected', generation, used: false, restoreAttempted: false, observation: null, selectedAt: now() };
-      const old = bindings.get(thread); if (old) old.generation++;
-      bindings.set(thread, b);
-      try { await request(b, thread, generation, 'status'); return view(b); } catch (e) { if (bindings.get(thread) === b) bindings.delete(thread); throw e; }
-    }),
-    status: thread => serial(async () => { const b = get(thread); await request(b, thread, b.generation, 'status'); return view(b); }),
+    listWindows: thread => serial(async () => { const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),occupancy:occupancyOf(w,thread)})); }),
+    bind: (thread, selected) => { cancelSelection(thread); const selection = selections.get(thread); return serial(() => { if (selections.get(thread) !== selection) fail('Operation cancelled'); return bindInternal(thread, selected); }); },
+    status: thread => serial(async () => { if (!bindings.has(thread)) return {state:'unbound',supportedActions:[...ACTIONS]}; const b = get(thread); await request(b, thread, b.generation, 'status'); return view(b); }),
     resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.observation = null; b.restoreAttempted = false; await ready(b, thread, generation, true); return observe(b, thread, generation); }),
-    stop: thread => { const b = get(thread); b.generation++; b.state = 'paused'; b.observation = null; return view(b); },
-    clear: thread => { const b = bindings.get(thread); if (b) b.generation++; bindings.delete(thread); },
+    stop: thread => { cancelSelection(thread); const b = bindings.get(thread); if(!b) return {state:'unbound'}; b.generation++; b.state = 'paused'; b.observation = null; return view(b); },
+    clear: thread => { cancelSelection(thread); const b = bindings.get(thread); if (b) b.generation++; bindings.delete(thread); occupancy.publish(); },
     invalidateObservation: thread => { const b = bindings.get(thread); if (b) { b.generation++; b.observation = null; return view(b); } },
     peek: thread => { const b = bindings.get(thread); return b ? view(b) : undefined; },
-    dispose: () => { disposed = true; for (const b of bindings.values()) b.generation++; bindings.clear(); },
+    dispose: () => { disposed = true; for (const b of bindings.values()) b.generation++; bindings.clear(); candidates.clear(); selections.clear(); occupancy.dispose(); },
     getMacros: () => serial(() => locked(readMacros)),
     saveMacro: entry => { const checked = macro(entry); return serial(() => locked(async () => { const entries = await readMacros(); const next = entries.filter(m => m.id !== checked.id).concat(checked); if (next.length > 100) fail('Too many macros'); await writeMacros(next); return checked; })); },
     deleteMacro: id => { str(id, 128); return serial(() => locked(async () => { const entries = await readMacros(); await writeMacros(entries.filter(m => m.id !== id)); })); },
     call: (thread, tool, args) => {
       if (!TOOLS.includes(tool)) return Promise.reject(new Error('Unsupported selected-window tool'));
-      const action = tool === 'set_value' ? 'setValue' : tool;
+      if (['list_windows','select_window','list_task_macros','save_task_macro'].includes(tool)) return discovery(thread,tool,args);
+      if (tool === 'status' && !bindings.has(thread)) { try { keys(args,['targetId']); if(Object.hasOwn(args,'targetId')) fail('Stale or forged target'); } catch(e) {return Promise.reject(e);} return serial(() => ({state:'unbound',supportedActions:[...ACTIONS]})); }
+      const action = tool === 'set_value' ? 'setValue' : tool === 'press_key' ? 'pressKey' : tool;
       try {
         const allowed = ['targetId']; const required = tool === 'status' ? [] : ['targetId'];
-        if (ACTIONS.includes(action)) { allowed.push('observationId', 'elementId'); required.push('observationId', 'elementId'); if (action === 'setValue' || action === 'scroll') { allowed.push('value'); required.push('value'); } }
+        if (ACTIONS.includes(action) || action === 'pressKey') { allowed.push('observationId', 'elementId'); required.push('observationId', 'elementId'); if (action === 'setValue' || action === 'scroll') { allowed.push('value'); required.push('value'); } }
+        if (action === 'pressKey') {allowed.push('key');required.push('key');}
+        if (tool === 'run_task_macro') {allowed.push('definition','macroId','parameters');if(Boolean(args?.definition) === Boolean(args?.macroId)) fail('Provide definition or macroId');if(args?.definition) args = {...args,definition:tasks.definition(args.definition)};if(args?.macroId) str(args.macroId,128);if(args?.parameters !== undefined && !plain(args.parameters)) fail('Invalid task parameters');args = {...args,parameters:{...(args.parameters || {})}};}
         if (tool === 'resize') { allowed.push('widthDip', 'heightDip'); required.push('widthDip', 'heightDip'); }
         if (tool === 'run_size_macro') { allowed.push('macroId'); required.push('macroId'); }
         keys(args, allowed, required); if (Object.hasOwn(args, 'targetId')) str(args.targetId);
-        if (ACTIONS.includes(action)) {
+        if (ACTIONS.includes(action) || action === 'pressKey') {
           str(args.observationId); str(args.elementId);
           if (action === 'setValue' && (typeof args.value !== 'string' || args.value.length > 32768)) fail('Invalid value');
           if (action === 'scroll') { keys(args.value, ['horizontal', 'vertical'], ['horizontal', 'vertical']); if ([args.value.horizontal, args.value.vertical].some(v => !Number.isInteger(v) || v < -2 || v > 2)) fail('Invalid scroll amount'); }
         }
+        if (action === 'pressKey' && !tasks.KEYS.includes(args.key)) fail('Unsupported key');
         if (tool === 'resize') { size(args.widthDip); size(args.heightDip); }
         if (tool === 'run_size_macro') str(args.macroId, 128);
         args = { ...args, ...(action === 'scroll' ? { value: { ...args.value } } : {}) };
@@ -137,20 +198,30 @@ function createWindowOwner({ backend, authorize, codexHome = process.env.CODEX_H
         if (Object.hasOwn(args, 'targetId') && args.targetId !== b.targetId) fail('Stale or forged target');
         if (tool === 'status') { await request(b, thread, generation, 'status'); const macros = await locked(readMacros); await guard(b, thread, generation); return { ...view(b), macros }; }
         if (b.state === 'paused') fail('Selected window paused; user resume required');
+        b.running = true; occupancy.publish();
+        try {
+        if (tool === 'run_task_macro') {
+          const stored = args.definition ? null : await taskStore.read(); const snapshot = args.definition || stored.macros.find(m => m.id === args.macroId);if(!snapshot) fail('Unknown task macro');
+          const result = await tasks.run(snapshot,args.parameters,{cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;b.state='paused';b.observation=null;}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,!b.used);return inspect(b,thread,generation);},capture:async() => {await ready(b,thread,generation,!b.used);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
+          return {...result,occupancy:occupancyOf(b.identity,thread),...(stored ? {revision:stored.revision,macroId:args.macroId} : {})};
+        }
         await ready(b, thread, generation, !b.used);
-        if (tool === 'capture') return observe(b, thread, generation);
-        if (ACTIONS.includes(action)) {
+        if (tool === 'capture') return await observe(b, thread, generation);
+        if (tool === 'inspect') return await inspect(b,thread,generation);
+        if (ACTIONS.includes(action) || action === 'pressKey') {
           const observation = b.observation;
           if (!observation || observation.generation !== generation || observation.id !== args.observationId || !observation.ids.has(args.elementId)) fail('Fresh selected-window observation required');
           b.observation = null;
-          await request(b, thread, generation, 'act', { observationId: args.observationId, elementId: args.elementId, action, ...(Object.hasOwn(args, 'value') ? { value: args.value } : {}) });
-          b.used = true; return { ...view(b), observationRequired: true };
+          await request(b, thread, generation, 'act', { observationId: args.observationId, elementId: args.elementId, action, ...(action === 'pressKey' ? {value:args.key} : Object.hasOwn(args, 'value') ? { value: args.value } : {}) });
+          b.used = true; return { ...view(b), observationRequired: true, ...(action === 'pressKey' ? {delivery:'windowMessage',verified:false} : {}) };
         }
         b.observation = null;
         const steps = tool === 'resize' ? [{ widthDip: args.widthDip, heightDip: args.heightDip }] : await locked(async () => { const entry = (await readMacros()).find(m => m.id === args.macroId); if (!entry) fail('Unknown macro'); return entry.steps; });
         let result;
         for (const step of steps) { await guard(b, thread, generation); await ready(b, thread, generation, false); await request(b, thread, generation, 'resize', step); result = await observe(b, thread, generation); }
         return result;
+        }
+        finally { b.running = false; occupancy.publish(); }
       });
     },
   };

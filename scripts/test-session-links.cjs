@@ -6,7 +6,7 @@ const vm = require("node:vm");
 const test = require("node:test");
 const { spawnSync } = require("node:child_process");
 const { UUID, parseSessionLink, registerMigrationCommand } = require("./session-links.cjs");
-const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-links.cjs");
+const { SESSION_LINK_ASSETS, LEGACY_SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-links.cjs");
 // The fixture excludes font resource discovery: font binaries are not checked
 // into this checkout. All actual namespace/injector code still runs unchanged.
 const namespaceModule = { exports: {} };
@@ -31,9 +31,9 @@ test("strict local parser, explicit migration boundary and launcher CLI", () => 
   assert.throws(() => parseSessionLink(legacy));
   assert.equal(parseSessionLink(legacy, { allowLegacy: true }).canonicalUrl, base);
   for (const invalid of [base + "/turn/1", base + "/", base + "#turn", base + "?hostId=remote", base + "?threadAccess=read", base + "?artifact=document", base + "?view=other", base + "?diffFilter=commit", base + "?path=a", base + "?view=review&view=review", base.replace(id, "not-uuid"), base.replace("threads/", "user@threads/"), base.replace("threads/", "threads:80/"), base.replace(id, `other/../${id}`), ` ${base}`]) assert.throws(() => parseSessionLink(invalid), invalid);
-  const cli = spawnSync(process.execPath, [path.join(__dirname, "session-links.cjs"), base], { encoding: "utf8" });
-  assert.equal(cli.status, 0, cli.stderr);
-  assert.deepEqual(JSON.parse(cli.stdout), parseSessionLink(base));
+  const fli = spawnSync(process.execPath, [path.join(__dirname, "session-links.cjs"), base], { encoding: "utf8" });
+  assert.equal(fli.status, 0, fli.stderr);
+  assert.deepEqual(JSON.parse(fli.stdout), parseSessionLink(base));
   assert.equal(spawnSync(process.execPath, [path.join(__dirname, "session-links.cjs"), legacy]).status, 1);
 });
 
@@ -43,7 +43,7 @@ function functionText(source, name) {
   const file = ts.createSourceFile("pinned.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   assert.equal(file.parseDiagnostics.length, 0);
   const result = new Map();
-  const names = new Set(["B$n", "f5n", "Xlt", "Yut", "cct", "tlt", "OPr", "GLr", "kPn", "YIn"]);
+  const names = new Set(["B$n", "m5n", "Xlt", "Hut", "cct", "elt", "OPr", "DIr", "kPn", "zIn"]);
   function visit(node) {
     if (ts.isFunctionDeclaration(node) && names.has(node.name?.text)) result.set(node.name.text, node.getText(file));
     if (ts.isObjectLiteralExpression(node) && node.properties.some(property =>
@@ -56,10 +56,10 @@ function functionText(source, name) {
   return result.get(name);
 }
 
-for (const [version, current] of [["26.928.31416", false], ["26.930.31730", true]]) {
+for (const [version, current] of [["26.928.31416", false], ["26.930.61225", true]]) {
   test(`guarded pinned ${version} outgoing links, parsing, allowlists and preservation`, () => {
     const root = path.join(__dirname, "../artifacts/upstream-ui", version);
-    const selected = [SESSION_LINK_ASSETS[0], ...SESSION_LINK_ASSETS.slice(current ? 4 : 1, current ? 7 : 4)];
+    const selected = current ? SESSION_LINK_ASSETS : LEGACY_SESSION_LINK_ASSETS;
     const transformed = new Map();
     for (const asset of selected) {
       const source = fs.readFileSync(path.join(root, asset), "utf8");
@@ -72,19 +72,19 @@ for (const [version, current] of [["26.928.31416", false], ["26.930.31730", true
       transformed.set(asset, result.text);
       assert.equal(fs.readFileSync(path.join(root, asset), "utf8"), source, "upstream source changed");
     }
-    const copyName = current ? "f5n" : "B$n", copy = current ? "bj" : "qA", decorate = current ? "vW" : "yW";
+    const copyName = current ? "m5n" : "B$n", copy = current ? "hj" : "qA", decorate = current ? "_W" : "yW";
     let copied;
-    const copyScope = { [current ? "oh" : "eh"]: "local", [copy]: value => { copied = value; }, [decorate]: (url, host) => `${url}?hostId=${host}` };
+    const copyScope = { [current ? "ah" : "eh"]: "local", [copy]: value => { copied = value; }, [decorate]: (url, host) => `${url}?hostId=${host}` };
     vm.runInNewContext(functionText(transformed.get(selected[1]), copyName) + `;${copyName}(${JSON.stringify(id)});`, copyScope);
     assert.equal(copied, base);
     vm.runInNewContext(functionText(transformed.get(selected[1]), copyName) + `;${copyName}(${JSON.stringify(id)},"remote");`, copyScope);
     assert.equal(copied, `codex://threads/${id}?hostId=remote`);
     const core = transformed.get(selected[2]);
-    const parser = current ? "Yut" : "Xlt", classifier = current ? "tlt" : "cct", allowlist = current ? "GLr" : "OPr", handoff = current ? "YIn" : "kPn";
-    assert(core.includes(`protocol:${current ? "Mf" : "xu"}(\`azrael:\`)`));
-    const scope = { URL, [current ? "cy" : "Zv"]: value => value, [current ? "uft" : "ddt"]: {
+    const parser = current ? "Hut" : "Xlt", classifier = current ? "elt" : "cct", allowlist = current ? "DIr" : "OPr", handoff = current ? "zIn" : "kPn";
+    assert(core.includes(`protocol:${current ? "kf" : "xu"}(\`azrael:\`)`));
+    const scope = { URL, URLSearchParams, [current ? "uy" : "Zv"]: value => value, [current ? "eft" : "ddt"]: {
       safeParse(data) { return { success: UUID.test(data.conversationId) && data.protocol === "azrael:", data }; },
-    }, [current ? "KLr" : "kPr"]: value => value.startsWith("/") && !value.startsWith("//"), [current ? "ZIn" : "jPn"]: "{{ thread_url }}" };
+    }, [current ? "OIr" : "kPr"]: value => value.startsWith("/") && !value.startsWith("//"), [current ? "VIn" : "jPn"]: "{{ thread_url }}" };
     for (const name of [parser, classifier, allowlist, handoff]) vm.runInNewContext(functionText(core, name), scope);
     assert.equal(scope[parser](base).conversationId, id);
     assert.equal(scope[parser](base.replace("azrael:", "codex:")), null);
@@ -129,7 +129,7 @@ test("migration reads only the native Azrael store, copies owned threads and dis
   let handler, callback, copied, requested;
   const disposed = [];
   const messages = [];
-  const vscode = { commands: { registerCommand(name, fn) { assert.equal(name, "azrael.migrateSessionLink"); handler = fn; return { dispose() { disposed.push("command"); } }; } },
+  const vscode = { commands: { registerCommand(name, Qr) { assert.equal(name, "azrael.migrateSessionLink"); handler = Qr; return { dispose() { disposed.push("command"); } }; } },
     env: { clipboard: { async writeText(value) { copied = value; } } },
     window: { async showInputBox() { return undefined; }, async showInformationMessage(value) { messages.push(value); }, async showErrorMessage(value) { messages.push(value); } } };
   let owned = true;
@@ -149,7 +149,7 @@ test("migration reads only the native Azrael store, copies owned threads and dis
   assert.equal(await handler(), undefined);
   registration.dispose();
   assert.deepEqual(disposed, ["command", "provider"]);
-  const root = path.join(__dirname, "../artifacts/upstream-ui/26.930.31730");
+  const root = path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
   const accountManifest = JSON.parse(fs.readFileSync(path.join(__dirname, "../extensions/azrael-ex/package.json")));
   const manifest = namespace.transformManifest(JSON.parse(fs.readFileSync(path.join(root, "package.json"))), "0.5.0", accountManifest);
   assert(manifest.contributes.commands.some(value => value.command === "azrael.migrateSessionLink"));

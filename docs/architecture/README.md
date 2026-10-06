@@ -19,6 +19,7 @@ Each document labels its own state (see [document states](../README.md#document-
 - [UI presentation](ui-presentation.md): composer surface cleanup, fixed/dynamic typography boundary and icon style candidates.
 
 - [Computer Use](computer-use.md): package-owned Windows Node REPL/Sky runtime, native app approvals, settings, child environment isolation and recovery.
+- [Window Use](window-use.md): distinct window discovery/control requirements, occluded-window capture, task macro proposal and concurrent-use acceptance boundaries.
 - [Instruction distribution and settings](instructions.md): complete instruction releases, GitHub downloads, version selection, protected application and settings UI.
 - [Azrael runtime and providers](azrael-runtime.md): one Azrael-owned engine for subscription providers, dynamic model discovery, recovery and independent VS Code chat. Replaces parts of the current implementation as each boundary is verified.
 

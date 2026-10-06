@@ -1,43 +1,47 @@
 "use strict";
 const assert = require("node:assert/strict");
-const fs = require("node:fs");
+const ms = require("node:fs");
 const path = require("node:path");
-const vm = require("node:vm");
+const gm = require("node:vm");
 const test = require("node:test");
 const { EventEmitter } = require("node:events");
 const { injectAccountSettings, ACCOUNT_SETTINGS_ASSET, AzraelAccountSettings } = require("./inject-account-settings.cjs");
 const namespace = require("./namespace-azrael-host.cjs");
-const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.928.31416");
+const Nf = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
 
 test("pinned settings and host transforms parse, reject drift and invalidate the cache", () => {
   for (const asset of [ACCOUNT_SETTINGS_ASSET, "out/extension.js"]) {
-    const source = fs.readFileSync(path.join(root, asset), "utf8");
+    const source = ms.readFileSync(path.join(root, asset), "utf8");
     const result = injectAccountSettings(source, asset);
     assert.equal(result.count, 1);
-    assert.equal(ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+    assert.equal(Nf.createSourceFile(asset, result.text, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS).parseDiagnostics.length, 0);
     assert.equal(injectAccountSettings(result.text, asset).count, 0);
+    assert.throws(() => injectAccountSettings(result.text + "/*azrael-account-settings-v1*/", asset), /Duplicate/);
     assert.throws(() => injectAccountSettings("", asset), /anchor changed/);
-    if (asset === ACCOUNT_SETTINGS_ASSET) assert(result.text.includes('if(ne===`usage`)Ne=(0,$.jsx)(AzraelAccountSettings,{})'));
-    else assert(result.text.includes('executeCommand("azrael.accountsEmbedded",e,r,this.findPanelByWebview(e))'));
+    if (asset === ACCOUNT_SETTINGS_ASSET) assert(result.text.includes('if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{})'));
+    else {
+      assert(source.includes('case"open-vscode-command":{Ge.commands.executeCommand'));
+      assert(result.text.includes('Ge.commands.executeCommand("azrael.accountsEmbedded",e,r,this.findPanelByWebview(e))'));
+    }
   }
   assert(namespace.getTransformRules()["inject-account-settings.cjs"]);
 });
 
 test("display branding preserves backend identifiers, URLs and model names", () => {
   const source = 'const settings="Codex Settings",brand="Codex";const qOt=`azrael`;const auth="chatgpt",home="CODEX_HOME",url="https://chatgpt.com/Codex";const memory={id:"settings.memory",defaultMessage:"Delete Codex memories"};const model={defaultMessage:"Codex Spark"};';
-  const text = namespace.rewriteJavaScript(source, "branding.js", ts).text;
+  const text = namespace.rewriteJavaScript(source, "branding.js", Nf).text;
   for (const expected of ["Azrael Settings", 'brand="Azrael"', 'qOt=`Azrael`', "Delete Azrael memories", 'auth="chatgpt"', 'home="CODEX_HOME"', "https://chatgpt.com/Codex", "Codex Spark"]) assert(text.includes(expected), expected);
-  const host = fs.readFileSync(path.join(root, "out/extension.js"), "utf8");
-  assert(namespace.rewriteJavaScript(host, "extension.js", ts).text.includes('new SR("Azrael Settings")'));
-  const memory = fs.readFileSync(path.join(root, "webview/assets/app-initial-4bd9e54bcd58.js"), "utf8");
-  const rewrittenMemory = namespace.rewriteJavaScript(memory, "memory.js", ts).text;
+  const host = ms.readFileSync(path.join(root, "out/extension.js"), "utf8");
+  assert(namespace.rewriteJavaScript(host, "extension.js", Nf).text.includes('new SR("Azrael Settings")'));
+  const memory = ms.readFileSync(path.join(root, "webview/assets/app-initial-5120fa5fe295.js"), "utf8");
+  const rewrittenMemory = namespace.rewriteJavaScript(memory, "memory.js", Nf).text;
   for (const label of ["Azrael memory", "Enable Azrael memories", "Delete Azrael memories"]) assert(rewrittenMemory.includes(label), label);
   const koreanPath = "webview/assets/ko-KR-669e0b3acfd6.js";
-  const korean = namespace.rewriteJavaScript(fs.readFileSync(path.join(root, koreanPath), "utf8"), koreanPath, ts).text;
+  const korean = namespace.rewriteJavaScript(ms.readFileSync(path.join(root, koreanPath), "utf8"), koreanPath, Nf).text;
   for (const label of ["Azrael 메모리", "Azrael 설정"]) assert(korean.includes(label), label);
   assert(!korean.includes("Codex 메모리"));
-  const manifest = namespace.transformManifest(JSON.parse(fs.readFileSync(path.join(root, "package.json"), "utf8")), "1.0.0");
+  const manifest = namespace.transformManifest(JSON.parse(ms.readFileSync(path.join(root, "package.json"), "utf8")), "1.0.0");
   assert.equal(manifest.displayName, "Azrael");
   assert(manifest.contributes.commands.every(command => command.category === "Azrael"));
   for (const containers of Object.values(manifest.contributes.viewsContainers)) {
@@ -53,12 +57,12 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
   class HTMLInputElement extends HTMLElement { type = "checkbox"; checked = true; dataset = { action: "setAutoSwitch", provider: "provider", account: "saved" }; }
-  const component = vm.runInNewContext("(" + AzraelAccountSettings.toString() + ")", {
+  const component = gm.runInNewContext("(" + AzraelAccountSettings.toString() + ")", {
     Q: { useRef: () => ({ current: element }), useEffect: fn => { effect = fn; } },
     $: { jsx: (tag, props) => ({ tag, props }) },
     crypto: { randomUUID: () => "mount-1" }, Element, HTMLElement, HTMLInputElement,
     azraelAccountBridge: { dispatchMessage: (type, message) => sent.push({ type, ...message }),
-      subscribe: (_, fn) => { receiver = fn; return () => { receiver = undefined; }; } },
+      subscribe: (v, fn) => { receiver = fn; return () => { receiver = undefined; }; } },
   });
   assert.equal(component().tag, "div");
   cleanup = effect();
@@ -89,7 +93,7 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
 
 function loadUsageView() {
   const filename = path.resolve(__dirname, "../extensions/azrael-ex/src/usageView.ts");
-  const source = ts.transpileModule(fs.readFileSync(filename, "utf8"), { compilerOptions: { module: ts.ModuleKind.CommonJS, target: ts.ScriptTarget.ES2022 } }).outputText;
+  const source = Nf.transpileModule(ms.readFileSync(filename, "utf8"), { compilerOptions: { module: Nf.ModuleKind.CommonJS, target: Nf.ScriptTarget.ES2022 } }).outputText;
   const module = { exports: {} };
   let timerCount = 0;
   const context = {
@@ -97,12 +101,12 @@ function loadUsageView() {
     require: name => {
       if (name === "vscode") return {};
       if (name === "node:crypto") return require(name);
-      if (name === "./protocol") return { isRecord: v => v !== null && typeof v === "object" && !Array.isArray(v) };
+      if (name === "./protocol") return { isRecord: y => y !== null && typeof y === "object" && !Array.isArray(y) };
       if (name === "./resetCredit") return { ResetCreditService: class {} };
       return {};
     },
   };
-  vm.runInNewContext(source, context, { filename });
+  gm.runInNewContext(source, context, { filename });
   return { UsageView: module.exports.UsageView, timers: () => timerCount };
 }
 

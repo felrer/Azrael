@@ -69,6 +69,7 @@ where
             "result": {
                 "queuedSubmission": {
                     "id": "queued-submission-id",
+                    "kind": "userInput",
                     "input": request["params"]["input"],
                     "clientUserMessageId": request["params"]["clientUserMessageId"],
                 },

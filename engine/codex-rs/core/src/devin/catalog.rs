@@ -131,17 +131,16 @@ pub(crate) fn wrap(inner: SharedModelsManager, codex_home: PathBuf) -> SharedMod
 impl DevinModelsManager {
     async fn refresh_devin(&self, refresh_strategy: RefreshStrategy) {
         match refresh_strategy {
-            RefreshStrategy::Offline => match load_snapshot(
-                &self.snapshot_path,
-                &self.capabilities_path,
-            ) {
-                Ok(models) => *self.devin_models.write().await = models,
-                Err(error) => {
-                    warn!(
-                        "failed to load Devin model catalog; retaining previous catalog: {error:#}"
-                    );
+            RefreshStrategy::Offline => {
+                match load_snapshot(&self.snapshot_path, &self.capabilities_path) {
+                    Ok(models) => *self.devin_models.write().await = models,
+                    Err(error) => {
+                        warn!(
+                            "failed to load Devin model catalog; retaining previous catalog: {error:#}"
+                        );
+                    }
                 }
-            },
+            }
             RefreshStrategy::OnlineIfUncached if !self.devin_models.read().await.is_empty() => {}
             RefreshStrategy::Online | RefreshStrategy::OnlineIfUncached => {
                 let catalog = fetch_catalog(&self.executable).await;
@@ -179,7 +178,9 @@ impl DevinModelsManager {
                 }
             }
             Some(Err(error)) => {
-                warn!("failed to refresh Devin model capabilities; retaining previous capabilities: {error:#}");
+                warn!(
+                    "failed to refresh Devin model capabilities; retaining previous capabilities: {error:#}"
+                );
             }
         }
     }
@@ -190,6 +191,13 @@ impl DevinModelsManager {
 }
 
 impl ModelsManager for DevinModelsManager {
+    fn refresh_after_auth_change(
+        &self,
+        http_client_factory: HttpClientFactory,
+    ) -> ModelsManagerFuture<'_, ()> {
+        self.inner.refresh_after_auth_change(http_client_factory)
+    }
+
     fn raw_model_catalog(
         &self,
         refresh_strategy: RefreshStrategy,

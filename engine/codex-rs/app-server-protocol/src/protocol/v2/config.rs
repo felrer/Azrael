@@ -404,6 +404,7 @@ pub struct ConfigReadParams {
 #[ts(export_to = "v2/")]
 pub struct ConfigReadResponse {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub context_policies: Option<Vec<codex_protocol::context_policy::ContextPolicy>>,
     #[experimental(nested)]
     pub config: Config,

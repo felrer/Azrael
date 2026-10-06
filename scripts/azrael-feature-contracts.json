@@ -628,6 +628,29 @@
       ]
     },
     {
+      "id": "ui.session-links",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-session-links.cjs",
+        "scripts/session-links.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.session-links.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-session-links.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "sessionLinkEdits"
+      ]
+    },
+    {
       "id": "engine.provider-context",
       "area": "engine",
       "owners": [
@@ -778,6 +801,29 @@
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "ui.input-diagnostics",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-ui-input-diagnostics.cjs",
+        "scripts/ui-input-diagnostics-runtime.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.input-diagnostics.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-ui-input-diagnostics.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "uiInputDiagnosticsEdits"
+      ]
     }
   ]
 }

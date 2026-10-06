@@ -10,7 +10,7 @@ const project = path.resolve(__dirname, "..");
 const tsPath = path.resolve(process.argv[2] || path.join(project,
   "artifacts/build/pdf_chrome_20261001_v2/companion/node_modules/typescript/lib/typescript.js"));
 const original = path.resolve(process.argv[3] || path.join(process.env.USERPROFILE,
-  ".vscode/extensions/openai.chatgpt-26.928.31416-win32-x64"));
+  ".vscode/extensions/openai.chatgpt-26.930.61225-win32-x64"));
 const ts = require(tsPath);
 const sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
 async function main() {
@@ -29,8 +29,8 @@ const legacyRewrite = vm.runInNewContext(`(${transformer.rewriteJavaScript.toStr
 for (const edits of [[], [{ start: 1, end: 3, replacement: "韓😀" }],
   [{ start: 1, end: 3, replacement: "X" }, { start: 5, end: 7, replacement: "long" }],
   [{ start: 1, end: 6, replacement: "a" }, { start: 3, end: 5, replacement: "😀bbb" }],
-  [{ start: 2, end: 2, replacement: "A" }, { start: 2, end: 2, replacement: "B" }],
-  [{ start: 0, end: 8, replacement: "A" }, { start: 1, end: 8, replacement: "B" }]]) {
+  [{ start: 2, end: 2, replacement: "A" }, { start: 2, end: 2, replacement: "H" }],
+  [{ start: 0, end: 8, replacement: "A" }, { start: 1, end: 8, replacement: "H" }]]) {
   const text = "a韓😀bcdefghi";
   assert.equal(transformer.applyEdits(text, edits), legacyEdits(text, edits));
 }
@@ -95,7 +95,7 @@ assert.throws(() => createAssetTransformCache({ ...base, cacheDirectory: path.jo
 console.log("PASS content cache: cold/warm counts and bytes, source/path/rule/helper/TS invalidation, malformed/wrong-key/hash/count corruption and missing-entry recovery");
 
 const assetPaths = new Set([
-  "out/extension.js", "webview/assets/app-initial-9f7d97690e9b.js",
+  "out/extension.js", "webview/assets/app-initial-efe028fd535e.js",
   ...Object.values(transformer.ASSET_RULE_PATHS).flat(),
 ]);
 for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
@@ -119,8 +119,8 @@ function prepare(name, accountVersion = "0.4.0") {
     put(relative, fs.readFileSync(path.join(original, relative)));
   }
   const packageBytes = fs.readFileSync(path.join(original, "package.json"));
-  put(".azrael-official-ui.json", JSON.stringify({ schema: 1, sourceVersion: "26.928.31416",
-    sourcePackageSha256: sha(packageBytes), sourceWebviewSha256: sha(fs.readFileSync(path.join(original, assets[1]))) }));
+  put(".azrael-official-ui.json", JSON.stringify({ schema: 1, sourceVersion: "26.930.61225",
+    sourcePackageSha256: sha(packageBytes).toUpperCase(), sourceWebviewSha256: sha(fs.readFileSync(path.join(original, assets[1]))).toUpperCase() }));
   put("out/azrael-runtime.cjs", "// test runtime placeholder; not executed\n");
   put("integrated-azrael-entry.cjs", "// test integrated entry placeholder; not executed\n");
   put("account-ui/dist/src/extension.js", "// test account entry placeholder; not executed\n");
@@ -157,6 +157,8 @@ assert.deepEqual(accountReport.assets, uncached.value.assets);
 assert.equal(accountReport.performance.cache.hits, assets.length);
 for (const [directory, report] of [[uncachedRoot, uncached.value], [coldRoot, coldPipeline.value],
   [warmRoot, warmPipeline.value], [accountRoot, accountReport]]) {
+  assert.equal(report.sourceUi.packageSha256, sha(fs.readFileSync(path.join(original, "package.json"))));
+  assert.equal(report.sourceUi.webviewSha256, sha(fs.readFileSync(path.join(original, assets[1]))));
   assert.equal(report.assets.reduce((sum, asset) => sum + (asset.windowControlEdits ?? 0), 0), 5);
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, "package.json")));
   assert.equal(manifest.contributes.commands.filter(command => command.command === "azrael.windowControl").length, 1);

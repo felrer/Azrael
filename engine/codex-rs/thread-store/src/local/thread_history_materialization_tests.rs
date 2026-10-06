@@ -2976,11 +2976,32 @@ fn append_suffix(rollout_path: &std::path::Path, suffix: &str) {
 
 #[tokio::test]
 async fn cancelled_wait_survives_paginated_turn_and_timeline_reads() {
-    use codex_protocol::protocol::{RootResumeWaitUpdatedEvent, TurnAbortReason, TurnAbortedEvent};
-    use codex_protocol::root_resume::{RootResumeState, RootResumeWait};
+    use codex_protocol::protocol::RootResumeWaitUpdatedEvent;
+    use codex_protocol::protocol::TurnAbortReason;
+    use codex_protocol::protocol::TurnAbortedEvent;
+    use codex_protocol::root_resume::RootResumeState;
+    use codex_protocol::root_resume::RootResumeWait;
     let home = TempDir::new().expect("temp dir");
-    let store = projection_store(home.path()).await;
+    let config = test_config(home.path());
     let thread_id = ThreadId::default();
+    let runtime = codex_state::StateRuntime::init(
+        config.sqlite.clone(),
+        config.default_model_provider_id.clone(),
+    )
+    .await
+    .expect("state runtime");
+    let mut builder = codex_state::ThreadMetadataBuilder::new(
+        thread_id,
+        home.path().join("missing-rollout.jsonl"),
+        Utc::now(),
+        SessionSource::Cli,
+    );
+    builder.history_mode = ThreadHistoryMode::Paginated;
+    runtime
+        .upsert_thread(&builder.build(config.default_model_provider_id.as_str()))
+        .await
+        .expect("seed thread metadata");
+    let store = LocalThreadStore::new(config, Some(runtime));
     create_paginated_thread(&store, thread_id).await;
     store
         .persist_thread(thread_id, PersistContext::Standard)
