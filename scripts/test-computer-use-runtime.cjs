@@ -8,9 +8,11 @@ const { stageRuntime, verifyRuntime } = require('./computer-use-runtime.cjs');
 test('Computer Use packaging preserves dependency provenance and rejects unsafe or corrupt payloads after relocation', () => {
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-computer-use-packaging-'));
 function write(rel, text) { const target = path.join(root, rel); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); }
-function pkg(rel, name, dependencies = {}) { write(`source/bin/${rel}/package.json`, JSON.stringify({ name, version: '1.2.3', dependencies })); write(`source/bin/${rel}/LICENSE`, 'fixture license'); }
+function pkg(rel, name, dependencies = {}) { write(`source/bin/${rel}/package.json`, JSON.stringify({ name, version: name === '@oai/sky' ? '0.7.4' : '1.2.3', dependencies })); write(`source/bin/${rel}/LICENSE`, 'fixture license'); }
 try {
   write('source/bin/node_repl.exe', 'fixture repl'); write('source/bin/node.exe', 'fixture node');
+  const { TRANSPORT } = require('./inject-sky-control-policy.cjs');
+  write('source/bin/' + TRANSPORT, fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/turn_render_fix_20261006_r1/computer-use', TRANSPORT)));
   pkg('node_modules/@oai/sky', '@oai/sky', { dependency: '^1', transitive: '^1' });
   write('source/bin/node_modules/@oai/sky/bin/windows/codex-computer-use.exe', fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/computer_use_20261004_v6/computer-use/node_modules/@oai/sky/bin/windows/codex-computer-use.exe')));
   pkg('node_modules/dependency', 'dependency', { transitive: '^1' });
@@ -33,6 +35,13 @@ try {
   const staged = stageRuntime(options);
   assert.equal(staged.manifest.schema, 1);
   assert.equal(staged.manifest.packages.length, 4);
+  const { TRANSPORT_POLICY_MODULES } = require('./inject-sky-control-policy.cjs');
+  for (const rel of TRANSPORT_POLICY_MODULES) {
+    const rootEntry = staged.manifest.files.find(entry => entry.path === path.posix.basename(rel));
+    const packageEntry = staged.manifest.files.find(entry => entry.path === rel);
+    assert.equal(packageEntry.sha256, rootEntry.sha256);
+    assert.equal(packageEntry.source, rootEntry.source);
+  }
   const sky = staged.manifest.files.find(e => e.path.endsWith('/codex-computer-use.exe'));
   assert.equal(sky.transform.signature, 'unsigned-local-copy');
   assert.notEqual(sky.sourceSha256, sky.sha256);
@@ -47,6 +56,10 @@ try {
   console.log('PASS relocated bundle verification without access to original source');
   fs.renameSync(path.join(root, 'source'), path.join(root, 'removed-source'));
   assert.equal(verifyRuntime(moved).manifestSha256, staged.manifestSha256);
+  const wrapper = path.join(moved, 'sky-controlled-service.mjs'), wrapperBytes = fs.readFileSync(wrapper);
+  fs.unlinkSync(wrapper); assert.throws(() => verifyRuntime(moved), /ENOENT|missing/); fs.writeFileSync(wrapper, wrapperBytes);
+  const transportPath = path.join(moved, TRANSPORT), transportBytes = fs.readFileSync(transportPath);
+  fs.writeFileSync(transportPath, 'tampered transport'); assert.throws(() => verifyRuntime(moved), /hash mismatch/); fs.writeFileSync(transportPath, transportBytes);
   const executable = path.join(moved, 'node.exe'); const original = fs.readFileSync(executable);
   fs.writeFileSync(executable, 'tamper'); assert.throws(() => verifyRuntime(moved), /hash mismatch/); fs.writeFileSync(executable, original);
   fs.unlinkSync(executable); assert.throws(() => verifyRuntime(moved), /ENOENT|missing/); fs.writeFileSync(executable, original);

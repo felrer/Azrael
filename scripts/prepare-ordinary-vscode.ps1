@@ -69,7 +69,7 @@ if ($windowControl) {
     Copy-Item -LiteralPath $windowControl.directory -Destination (Join-Path $prepared.Extension 'window-control') -Recurse
     & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify --directory (Join-Path $prepared.Extension 'window-control') | Out-Null
     if ($LASTEXITCODE -ne 0) { throw 'Copied Window Control bundle validation failed.' }
-    foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs')) {
+    foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
         Copy-Item -LiteralPath (Join-Path $release "host/$module") -Destination (Join-Path $prepared.Extension "out/$module")
     }
 }

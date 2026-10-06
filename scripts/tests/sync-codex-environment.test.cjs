@@ -166,7 +166,7 @@ test("owned Computer Use replaces transport and external environment while prese
     NODE_REPL_NODE_PATH: path.join(runtime.directory, "node.exe"),
     NODE_REPL_NODE_MODULE_DIRS: path.join(runtime.directory, "node_modules"),
     NODE_REPL_TRUSTED_CODE_PATHS: [runtime.directory, runtime.home].join(";"),
-    NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ sky: "@oai/sky/service" }), CODEX_CLI_PATH: runtime.engine, CODEX_HOME: runtime.home,
+    NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ sky: path.join(runtime.directory, "sky-controlled-service.mjs") }), CODEX_CLI_PATH: runtime.engine, CODEX_HOME: runtime.home,
   });
   assert.equal(server.env_vars, undefined);
   assert.equal(server.args, undefined);
@@ -218,7 +218,7 @@ test("owned Computer Use preserves browser and Chrome configuration with home pa
   for (const home of [stageHome, finalHome]) {
     const config = parseToml(selectedConfig(source, "", manifest, [[sourceHome, home]], { directory: runtime, home, engine: "engine.exe" }));
     const env = config.mcp_servers.node_repl.env;
-    assert.deepEqual(JSON.parse(env.NODE_REPL_TRUSTED_SERVICES), { browser: path.join(home, "plugins/browser/scripts/browser-service.mjs"), sky: "@oai/sky/service" });
+    assert.deepEqual(JSON.parse(env.NODE_REPL_TRUSTED_SERVICES), { browser: path.join(home, "plugins/browser/scripts/browser-service.mjs"), sky: path.join(runtime, "sky-controlled-service.mjs") });
     assert.equal(env.NODE_REPL_NODE_MODULE_DIRS, path.join(runtime, "node_modules"));
     assert.equal(env.CODEX_HOME, home);
     assert.equal(env.NODE_REPL_TRUSTED_CODE_PATHS, [runtime, home].join(";"));
@@ -240,18 +240,27 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   const fixtureManifest = { schema: 1, config: { rootKeys: ["notify"], tables: ["mcp_servers.node_repl", "mcp_servers.node_repl.env"], tableKeys: { features: ["js_repl"] }, protectedRootKeys: ["model", "model_reasoning_effort"] }, agentRoles: [], generatedAgentRoles: [], personalSkills: [], copyGlobalInstructions: false };
   const files = {
     "node_repl.exe": "fixture repl", "node.exe": "fixture node",
-    "node_modules/@oai/sky/package.json": JSON.stringify({ name: "@oai/sky", version: "1.0.0" }),
+    "node_modules/@oai/sky/package.json": JSON.stringify({ name: "@oai/sky", version: "0.7.4" }),
     "node_modules/@oai/sky/bin/windows/codex-computer-use.exe": "fixture helper",
     "skills/computer-use/SKILL.md": "---\nname: computer-use\ndescription: fixture\n---\nRead [guidance](../../docs/guidance.md).\nWindows.Graphics.Capture screenshots that work even when windows are occluded.\nLicense: fixture attribution.\n",
     "skills/window-use/SKILL.md": "---\nname: window-use\ndescription: fixture window control\n---\nUse azrael_window tools for the selected window.\n",
     "docs/guidance.md": "fixture guidance", "docs/api.md": "fixture api", "docs/confirmations.md": "fixture confirmations",
   };
+  const { TRANSPORT, TRANSPORT_POLICY_MODULES, transformTransport, generateSettingsModule } = require('../inject-sky-control-policy.cjs');
+  const policyTransport = transformTransport(fs.readFileSync(path.resolve(__dirname, '../../artifacts/releases/turn_render_fix_20261006_r1/computer-use', TRANSPORT)), '0.7.4');
+  files[TRANSPORT] = policyTransport.content.toString('utf8');
+  for (const name of ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs']) files[name] = fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
+  const settingsEsm = generateSettingsModule(Buffer.from(files['use-control-settings.cjs']));
+  files['use-control-settings.mjs'] = settingsEsm.content.toString('utf8');
+  for (const rel of TRANSPORT_POLICY_MODULES) files[rel] = rel.endsWith('/use-control-settings.mjs') ? files['use-control-settings.mjs'] : fs.readFileSync(path.join(__dirname, '..', path.posix.basename(rel)), 'utf8');
   for (const [relative, contents] of Object.entries(files)) {
     const target = path.join(runtime, relative);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, contents);
   }
-  const runtimeManifest = { schema: 1, packages: [{ name: "@oai/sky", version: "1.0.0", path: "node_modules/@oai/sky" }], files: Object.entries(files).map(([relative, contents]) => ({ path: relative, source: "synthetic fixture", sha256: crypto.createHash("sha256").update(contents).digest("hex"), bytes: Buffer.byteLength(contents) })) };
+  const runtimeManifest = { schema: 1, packages: [{ name: "@oai/sky", version: "0.7.4", path: "node_modules/@oai/sky" }], files: Object.entries(files).map(([relative, contents]) => ({ path: relative, source: "synthetic fixture", sha256: crypto.createHash("sha256").update(contents).digest("hex"), bytes: Buffer.byteLength(contents) })) };
+  Object.assign(runtimeManifest.files.find(entry => entry.path === TRANSPORT), { transform: policyTransport.transform, sourceSha256: policyTransport.transform.sourceSha256 });
+  for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) Object.assign(runtimeManifest.files.find(entry => entry.path === rel), { transform: settingsEsm.transform, sourceSha256: settingsEsm.transform.sourceSha256 });
   const runtimeManifestPath = path.join(runtime, "manifest.json");
   fs.writeFileSync(runtimeManifestPath, JSON.stringify(runtimeManifest));
   const runtimeBefore = pathState(runtime);
@@ -261,7 +270,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   fs.mkdirSync(path.join(windowSource, "src"), { recursive: true });
   fs.mkdirSync(windowScripts, { recursive: true });
   for (const [relative, contents] of [["Cargo.toml", "[package]"], ["Cargo.lock", "fixture lock"], ["THIRD_PARTY_NOTICES.md", "Fixture native notices"], ["src/main.rs", "fn main() {}"]]) fs.writeFileSync(path.join(windowSource, relative), contents);
-  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs"]) fs.writeFileSync(path.join(windowScripts, name), "'use strict';\n");
+  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs", "use-control-settings.cjs", "window-use-approvals.cjs", "computer-use-approvals.cjs", "use-settings-host.cjs"]) fs.copyFileSync(path.join(__dirname, "..", name), path.join(windowScripts, name));
   const windowExecutable = path.join(root, "fixture-window-helper.exe"), windowProvenance = path.join(root, "window-build.json"), windowGuide = path.join(root, "selected-window.md");
   fs.writeFileSync(windowExecutable, "fixture native helper; never executed");
   fs.writeFileSync(windowGuide, "Fixture Window Use guidance");

@@ -65,6 +65,9 @@ function Assert-IntegratedHostVsixContents {
             'extension/out/recovery-state.cjs',
             'extension/out/url-safety-transport.cjs',
             'extension/out/computer-use-approvals.cjs',
+            'extension/out/use-control-settings.cjs',
+            'extension/out/window-use-approvals.cjs',
+            'extension/out/use-settings-host.cjs',
             'extension/out/pdf-file-open.cjs',
             'extension/out/devin-native-host.cjs',
             'extension/out/provider-accounts-host.cjs',
@@ -75,6 +78,11 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/instruction-package.cjs',
             'extension/account-ui/computer-use-runtime.cjs',
             'extension/account-ui/computer-use-branding.cjs',
+            'extension/account-ui/inject-sky-control-policy.cjs',
+            'extension/computer-use/sky-controlled-service.mjs',
+            'extension/computer-use/sky-control-policy.mjs',
+            'extension/computer-use/use-control-settings.cjs',
+            'extension/computer-use/use-control-settings.mjs',
             'extension/computer-use/manifest.json',
             'extension/account-ui/node_modules/@xterm/headless/package.json',
             'extension/account-ui/node_modules/node-pty/package.json',
@@ -107,7 +115,7 @@ function Assert-IntegratedHostVsixContents {
                 try { $actual = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) } finally { $stream.Dispose() }
                 if ($actual -ine $file.sha256) { throw "Window Control VSIX hash mismatch: $entryName" }
             }
-            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs')) {
+            foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 $entry = $archive.GetEntry("extension/out/$module")
                 if (-not $entry) { throw "Window Control host module missing: $module" }
                 $stream = $entry.Open()
@@ -238,7 +246,7 @@ try {
         Invoke-PreparationPhase 'account-payload' {
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {

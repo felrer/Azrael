@@ -40,6 +40,14 @@ The selected Azrael package supplies the `node_repl` executable, Node executable
 
 Package paths and hashes identify the runtime used by a prepared host and installation receipt. Configuration changes retain existing concurrent-change checks and recovery records. User/system environment variables and editor settings are not runtime configuration channels.
 
+## Control enable setting
+
+Status: `partial` — managed service and pinned transport checks pass with a synthetic native socket, including initialized clients, queued requests and stale consent. The official trusted-service loader and packaged host acceptance pass. Full installed settings navigation and native desktop capture/input checks remain separate.
+
+The Computer Use settings page has a switch that enables desktop capture and input, initially on. It applies to all hosts sharing the Azrael state home. Disabling rejects new capture and input operations even when the Sky service was initialized or app consent was previously granted. Pending consent is invalidated and later acceptance cannot reinstate authority. Reenabling retains persistent app approvals. Ordinary code execution, browser services and Window Use retain their separate availability and authorization.
+
+The control boundary checks current policy before each operation, including later operations of an already-running sequence. Already-delivered input is not reversible. A corrupt or unreadable policy rejects control. Computer Use retains the existing app approval file; Window Use has a separate app approval owner and does not inherit its grants.
+
 ## User approval
 
 Sky's MCP elicitation request is forwarded by the native engine to the existing app approval card. The user sees the app identity and chooses approval or refusal. The card's Cancel request sends native `cancel` and settles that request; the model turn can continue. Existing session and persistent choices use the runtime's native approval contract; Azrael does not silently persist an approval or approve requests automatically.

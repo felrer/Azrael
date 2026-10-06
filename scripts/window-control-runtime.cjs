@@ -2,7 +2,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 const { checked, walk, relative, hash } = require('./computer-use-runtime.cjs');
-const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md', 'THIRD_PARTY_NOTICES.md', 'window-task-macros.cjs', 'window-control-occupancy.cjs'];
+const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md', 'THIRD_PARTY_NOTICES.md', 'window-task-macros.cjs', 'window-control-occupancy.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs'];
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 function sourceFingerprint(sourceRoot) {
   const files = ['Cargo.lock', 'Cargo.toml', 'THIRD_PARTY_NOTICES.md', ...walk(path.join(sourceRoot, 'src')).map(rel => `src/${rel}`)].sort();
@@ -39,7 +39,7 @@ function verifyRelease(release, sourceRoot) {
   const result = verifyRuntime(path.join(release, 'window-control'));
   if (result.manifestSha256 !== expected.toLowerCase()) throw new Error('Release Window Control manifest hash mismatch');
   if (sourceRoot && sourceFingerprint(sourceRoot) !== result.manifest.source.sourceSha256) throw new Error('Window Control source provenance mismatch');
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(release, `host/${module}`))) !== wanted.toLowerCase()) throw new Error(`Release Window Control host module mismatch: ${module}`);
   }
@@ -57,7 +57,7 @@ function verifyPreparedHost(directory, release) {
   }
   if (verifyRuntime(path.join(directory, 'window-control')).manifestSha256 !== expected.manifestSha256) throw new Error('Prepared Window Control manifest mismatch');
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(directory, `out/${module}`))) !== wanted.toLowerCase()) throw new Error(`Prepared Window Control host module mismatch: ${module}`);
   }
@@ -79,6 +79,7 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   const sourceSha256 = sourceFingerprint(sourceRoot), executableSha256 = hash(fs.readFileSync(executable));
   if (evidence.schema !== 1 || evidence.sourceSha256 !== sourceSha256 || evidence.executableSha256 !== executableSha256) throw new Error('Window Control build provenance mismatch');
   const inputs = [[REQUIRED[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance], [REQUIRED[4], checked(sourceRoot, REQUIRED[4])], [REQUIRED[5], checked(scriptDirectory, REQUIRED[5])], [REQUIRED[6], checked(scriptDirectory, REQUIRED[6])]];
+  for (const rel of ['use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) inputs.push([rel, checked(scriptDirectory, rel)]);
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); }

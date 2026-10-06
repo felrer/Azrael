@@ -11,7 +11,7 @@ async function main() {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-host-'));
   try {
     let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue, permissionProfile = { type: 'disabled' }, skipDelivery = false, deferUI = false, uiReply, latestUIMessage, picker;
-    const approvals = require('./computer-use-approvals.cjs').createOwner(home);
+    const approvals = require('./window-use-approvals.cjs').createOwner(home);
     const receive = approvals.receive; approvals.receive = (request, ...args) => { observedRequest = request; return receive(request, ...args); };
     const posts = []; const panel = { webview: { html: '', postMessage(value) { posts.push(value); }, onDidReceiveMessage() {} }, onDidDispose() {}, reveal() {}, dispose() {} };
     const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => { picker = values; return values[0]; } } };
@@ -37,7 +37,7 @@ async function main() {
     echo = 'selectedWindow'; sandbox = 'danger-full-access'; permissionProfile = { type: 'managed', sandbox: 'danger-full-access' }; await ui('start'); await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0);
     permissionProfile = undefined; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled', extra: true }; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled' }; skipDelivery = true; await assert.rejects(ui('select'), /not delivered/); assert.equal(calls, 0); skipDelivery = false;
     await ui('clear'); await assert.rejects(fs.stat(path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json')), { code: 'ENOENT' });
-    sandbox = 'read-only'; consent = '거부'; await ui('start'); assert.equal(host.threads.get(thread).sandbox, undefined); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'computer-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
+    sandbox = 'read-only'; consent = '거부'; await ui('start'); assert.equal(host.threads.get(thread).sandbox, undefined); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'window-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
     deferConsent = true; const lateSelection = ui('select'); while (!resolveConsent) await new Promise(r => setImmediate(r)); await ui('pause'); resolveConsent('이 대화에서 허용'); await assert.rejects(lateSelection, /refused|cancelled/); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
     const other = require('./window-control-policy.cjs').createWindowOwner({ backend, authorize: async () => true, codexHome: path.join(home,'other-home'), occupancyDirectory: path.join(home,'occupancy'), workspaceName: 'Other workspace' });
     await other.bind('other-session', descriptor);

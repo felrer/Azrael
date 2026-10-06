@@ -8,7 +8,7 @@ async function fixture(t, delayed = false, occupancyDirectory) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-use-host-'));
   let releaseListen, panels = 0; const calls = [];
   const window = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
-  const approvals = require('./computer-use-approvals.cjs').createOwner(home);
+  const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace' }, approvals,
     vscode: { window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: async () => '이 대화에서 허용' } },
     backend: { request: async (method, params) => { calls.push({ method, params }); return method === 'listWindows' ? [window] : window; }, dispose: async () => {} },

@@ -118,7 +118,20 @@ try {
         $candidate = [ordered]@{ path = $target; status = 'retained'; reason = $null; archived = @(); acceptanceResult = $null }
         $report.candidates += $candidate
         try {
-            if ($target -ieq $root -or -not (Test-Within $target $root) -or [IO.Path]::GetDirectoryName($target) -ine $root) { throw 'Fixture must be an exact immediate child of artifacts/verification.' }
+            $transactionRoot = Normalize-Path (Join-Path $root 'computer-use-integration/config-transaction-fixture')
+            $ownedTransaction = $FixtureRoot -and $IncludeDiagnosedFixtures -and [IO.Path]::GetDirectoryName($target) -ieq $transactionRoot -and [IO.Path]::GetFileName($target) -cmatch '^run-[0-9]+$'
+            $packageRoot = [IO.Path]::GetDirectoryName($target)
+            $deploymentRoot = [IO.Path]::GetDirectoryName($packageRoot)
+            $ownedPackageStage = $FixtureRoot -and $IncludeDiagnosedFixtures -and [IO.Path]::GetFileName($packageRoot) -ceq 'package' -and [IO.Path]::GetDirectoryName($deploymentRoot) -ieq $deployments -and [IO.Path]::GetFileName($deploymentRoot) -cmatch '^deploy-[A-Za-z0-9_.-]+$' -and [IO.Path]::GetFileName($target) -cmatch '^stage-[0-9a-f]{32}$'
+            if (-not $ownedPackageStage -and ($target -ieq $root -or -not (Test-Within $target $root) -or ([IO.Path]::GetDirectoryName($target) -ine $root -and -not $ownedTransaction))) { throw 'Fixture must be an immediate verification child, an explicitly selected diagnosed config transaction run, or a diagnosed deployment package stage.' }
+            if ($ownedPackageStage) {
+                Assert-Unlinked $deploymentRoot
+                $deploymentReceipt = Join-Path $deploymentRoot 'deployment.json'
+                if (Test-Path -LiteralPath $deploymentReceipt) {
+                    $deployment = Read-Json $deploymentReceipt
+                    if ($deployment.hostInstalled -eq $true) { throw 'Installed deployment package stage is protected.' }
+                }
+            }
             Assert-Unlinked $target
             if (-not (Test-Path -LiteralPath $target -PathType Container)) { throw 'Fixture does not exist.' }
             $resultPath = Join-Path $target 'check-result.json'

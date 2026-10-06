@@ -3,7 +3,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 const crypto = require('node:crypto');
 const { SKY_EXECUTABLE, brandComputerUse } = require('./computer-use-branding.cjs');
-const REQUIRED = ['node_repl.exe', 'node.exe', 'node_modules/@oai/sky/package.json', 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md'];
+const { TRANSPORT, TRANSPORT_POLICY_MODULES, transformTransport, generateSettingsModule } = require('./inject-sky-control-policy.cjs');
+const POLICY_MODULES = ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs'];
+const REQUIRED = ['node_repl.exe', 'node.exe', 'node_modules/@oai/sky/package.json', 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md', TRANSPORT, ...POLICY_MODULES, 'use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES];
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function relative(value) {
   if (typeof value !== 'string' || !value || value.includes('\\') || value.includes(':') || value.startsWith('/') || value.split('/').some(x => !x || x === '.' || x === '..')) throw new Error(`Unsafe runtime path: ${value}`);
@@ -51,6 +53,15 @@ function verifyRuntime(directory) {
     if (actual.name !== pkg.name || actual.version !== pkg.version) throw new Error(`Runtime package identity mismatch: ${pkgRel}`);
     for (const name of Object.keys(actual.dependencies || {})) resolvePackage(directory, pkgRel, name);
   }
+  const skyPackage = JSON.parse(fs.readFileSync(checked(directory, 'node_modules/@oai/sky/package.json')));
+  const transportEntry = manifest.files.find(entry => entry.path === TRANSPORT);
+  const transformed = transformTransport(fs.readFileSync(checked(directory, TRANSPORT)), skyPackage.version);
+  if (JSON.stringify(transportEntry.transform) !== JSON.stringify(transformed.transform) || transportEntry.sourceSha256 !== transformed.transform.sourceSha256 || transportEntry.sha256 !== transformed.transform.outputSha256) throw new Error('Sky policy transform provenance mismatch');
+  const settingsModule = generateSettingsModule(fs.readFileSync(checked(directory, 'use-control-settings.cjs')));
+  for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) {
+    const entry = manifest.files.find(entry => entry.path === rel);
+    if (!fs.readFileSync(checked(directory, rel)).equals(settingsModule.content) || JSON.stringify(entry.transform) !== JSON.stringify(settingsModule.transform) || entry.sourceSha256 !== settingsModule.transform.sourceSha256) throw new Error('Settings owner ESM provenance mismatch');
+  }
   return { directory, manifestSha256: hash(manifestBytes), manifest };
 }
 function packageName(name) {
@@ -97,6 +108,19 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
     for (const file of walk(bin, rel)) add(bin, file, file);
     for (const name of Object.keys(pkg.dependencies || {}).sort()) pending.push(resolvePackage(bin, rel, name));
   }
+  for (const rel of POLICY_MODULES) add(__dirname, rel, rel);
+  for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) add(__dirname, path.posix.basename(rel), rel);
+  const settingsModule = generateSettingsModule(fs.readFileSync(files.get('use-control-settings.cjs').source));
+  for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) {
+    add(__dirname, 'use-control-settings.cjs', rel);
+    Object.assign(files.get(rel), { content: settingsModule.content, transform: settingsModule.transform, sourceSha256: settingsModule.transform.sourceSha256, sourceBytes: files.get(rel).bytes, sha256: hash(settingsModule.content), bytes: settingsModule.content.length });
+  }
+  const transport = files.get(TRANSPORT);
+  if (!transport) throw new Error('Missing Sky policy transport');
+  const transformed = transformTransport(fs.readFileSync(transport.source), packages.find(pkg => pkg.name === '@oai/sky').version);
+  transport.content = transformed.content; transport.transform = transformed.transform;
+  transport.sourceSha256 = transformed.transform.sourceSha256; transport.sourceBytes = transport.bytes;
+  transport.sha256 = hash(transport.content); transport.bytes = transport.content.length;
   const sky = files.get(SKY_EXECUTABLE);
   const branded = brandComputerUse(fs.readFileSync(sky.source));
   sky.content = branded.content; sky.transform = branded.transform;

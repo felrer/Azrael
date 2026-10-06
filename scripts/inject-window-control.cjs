@@ -1,18 +1,71 @@
 'use strict';
 const SETTINGS_ASSET = 'webview/assets/settings-page-76344c84191c.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v1*/';
-const PAGE_MARKER = '/*azrael-window-control-launcher-v1*/';
+const PAGE_MARKER = '/*azrael-window-control-launcher-v2*/';
 const HOST_ANCHOR = 'case"open-vscode-command":{';
-const HOST_PATCH = 'case"azrael-window-control":{await Ge.commands.executeCommand("azrael.windowControl");break}' + HOST_MARKER + HOST_ANCHOR;
+const HOST_PATCH = 'case"azrael-window-control":{await Ge.commands.executeCommand("azrael.windowControl");break}' + 'case"azrael-use-settings":{await require("./window-control-host.cjs").settings(e,r);break}' + HOST_MARKER + HOST_ANCHOR;
 const PAGE_ANCHOR = 'if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{});';
 const PAGE_PATCH = PAGE_ANCHOR + 'if(x===`computer-use`)Pe=(0,$.jsxs)($.Fragment,{children:[Pe,(0,$.jsx)(AzraelWindowControlLauncher,{})]});';
+function createUseSettingsStore(bridge, clientId, timing = globalThis, createRequestId = () => globalThis.crypto.randomUUID()) {
+  let state = { settings: null, approvedApps: [], loading: true, saving: false, error: null };
+  let disposed = false, timer, polling, awaiting = false, pendingRequestId, pendingQuiet = false;
+  const listeners = new Set();
+  const publish = value => { state = value; for (const listener of listeners) listener(); };
+  const cancel = () => { if (timer !== undefined) timing.clearTimeout(timer); timer = undefined; };
+  const receive = message => {
+    if (disposed || !awaiting || message?.clientId !== clientId || message.requestId !== pendingRequestId) return;
+    const s = message.settings;
+    if (!message.error && (!s || s.schema !== 1 || !Number.isSafeInteger(s.revision) || typeof s.computerUseEnabled !== 'boolean' || typeof s.windowUseAllowAll !== 'boolean' || !Array.isArray(message.approvedApps))) return;
+    cancel(); awaiting = false; pendingRequestId = undefined; pendingQuiet = false;
+    publish({ settings: s || state.settings, approvedApps: Array.isArray(message.approvedApps) ? message.approvedApps : state.approvedApps, loading: false, saving: false, error: typeof message.error === 'string' ? message.error : null });
+  };
+  const unsubscribe = bridge.subscribe('azrael-use-settings-state', receive);
+  const send = (action, args = {}, quiet = false) => {
+    if (disposed || (awaiting && (quiet || !pendingQuiet))) return;
+    if (awaiting) cancel();
+    const requestId = createRequestId();
+    pendingRequestId = requestId; pendingQuiet = quiet; awaiting = true;
+    if (!quiet) publish({ ...state, loading: action === 'read', saving: action !== 'read', error: null });
+    timer = timing.setTimeout(() => { if (pendingRequestId !== requestId) return; timer = undefined; awaiting = false; pendingRequestId = undefined; pendingQuiet = false; if (!disposed) publish({ ...state, loading: false, saving: false, error: '설정 응답을 받지 못했습니다. 다시 불러와 주세요.' }); }, 10000);
+    timer?.unref?.();
+    try { bridge.dispatchMessage('azrael-use-settings', { clientId, requestId, action, ...args }); }
+    catch (e) { cancel(); awaiting = false; pendingRequestId = undefined; pendingQuiet = false; publish({ ...state, loading: false, saving: false, error: e.message || String(e) }); }
+  };
+  send('read');
+  polling = timing.setInterval(() => { if (!awaiting && !state.error) send('read', {}, true); }, 3000); polling?.unref?.();
+  return { getSnapshot: () => state, subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); },
+    update: patch => { if (!state.settings || state.loading || state.saving) return; send('update', { patch, expectedRevision: state.settings.revision }); },
+    addApp: () => send('addApp'), removeApp: bundleIdentifier => send('removeApp', { bundleIdentifier }), open: () => send('open'), retry: () => send('read'),
+    dispose: () => { if (disposed) return; disposed = true; pendingRequestId = undefined; pendingQuiet = false; awaiting = false; cancel(); timing.clearInterval(polling); unsubscribe(); listeners.clear(); } };
+}
 function AzraelWindowControlLauncher() {
-  return (0, $.jsxs)('section', { 'data-azrael-window-control': true, className: 'mt-6 flex flex-col gap-2', children: [
-    (0, $.jsx)('h3', { className: 'font-medium', children: 'Window Use' }),
-    (0, $.jsx)('p', { className: 'text-sm text-token-text-secondary', children: '모델이 창을 찾아 선택하고, 사용자 입력과 별도로 해당 창을 캡처·제어합니다. 작업 매크로와 창 크기 매크로를 지원합니다.' }),
-    (0, $.jsx)('button', { type: 'button', className: 'self-start rounded-md border px-3 py-2 text-sm', onClick: () => azraelWindowBridge.dispatchMessage('azrael-window-control', {}), children: 'Window Use 열기' }),
+  initAzraelUseCard(); initAzraelUseRow(); initAzraelUseSwitch(); initAzraelUseButton();
+  const [store] = Q.useState(() => createUseSettingsStore(azraelWindowBridge, crypto.randomUUID()));
+  Q.useEffect(() => () => store.dispose(), [store]);
+  const state = Q.useSyncExternalStore(store.subscribe, store.getSnapshot, store.getSnapshot);
+  const busy = state.loading || state.saving;
+  const button = (label, onClick, props = {}) => (0, $.jsx)(AzraelUseButton, { color: 'secondary', size: 'default', disabled: busy, onClick, ...props, children: label });
+  const row = (label, description, control) => (0, $.jsx)(AzraelUseRow, { label, description, control });
+  return (0, $.jsxs)('section', { 'data-azrael-window-control': true, className: 'mt-10 flex flex-col gap-10', 'aria-busy': busy, children: [
+    (0, $.jsx)(AzraelUseCard, { children: row('Computer Use', '컴퓨터 제어 도구 사용을 허용합니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.computerUseEnabled ?? true, disabled: busy || !state.settings, onChange: enabled => store.update({ computerUseEnabled: enabled }) })) }),
+    (0, $.jsxs)('section', { className: 'flex flex-col gap-4', 'aria-labelledby': 'azrael-window-use-heading', children: [
+      (0, $.jsxs)('div', { className: 'flex flex-col gap-1', children: [
+        (0, $.jsx)('h2', { id: 'azrael-window-use-heading', className: 'text-lg font-semibold text-default', children: 'Window Use' }),
+        (0, $.jsx)('p', { className: 'text-sm text-secondary', children: '선택한 창을 캡처·제어합니다. Computer Use 설정과 별도로 적용됩니다.' })
+      ] }),
+      (0, $.jsx)(AzraelUseCard, { children: row('모든 앱 허용', '켜면 Window Use가 모든 앱을 사용할 수 있습니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.windowUseAllowAll ?? false, disabled: busy || !state.settings, onChange: enabled => store.update({ windowUseAllowAll: enabled }) })) }),
+      (0, $.jsxs)(AzraelUseCard, { children: [
+        row('항상 허용한 앱', 'Window Use에만 적용되는 앱 목록입니다.', () => button('실행 중인 창에서 추가', store.addApp)),
+        ...state.approvedApps.map(app => (0, $.jsx)(AzraelUseRow, { label: app.displayName, description: (0, $.jsx)('span', { className: 'break-all', children: app.bundleIdentifier }), control: () => button('삭제', () => store.removeApp(app.bundleIdentifier), { 'aria-label': `${app.displayName} 허용 삭제` }) }, app.bundleIdentifier)),
+        !state.loading && !state.approvedApps.length ? (0, $.jsx)('p', { className: 'px-4 py-3 text-sm text-secondary', children: '항상 허용한 앱이 없습니다.' }) : null
+      ] }),
+      (0, $.jsx)('div', { className: 'flex', children: button('Window Use 열기', store.open) })
+    ] }),
+    busy ? (0, $.jsx)('p', { role: 'status', className: 'text-sm text-secondary', children: state.loading ? '설정을 불러오는 중…' : '저장 중…' }) : null,
+    state.error ? (0, $.jsxs)('div', { role: 'alert', className: 'flex items-center gap-3 text-sm text-secondary', children: [(0, $.jsx)('span', { children: state.error }), button('다시 불러오기', store.retry)] }) : null
   ] });
 }
+
 function once(text, from, to) {
   if (text.split(from).length !== 2) throw new Error('Pinned selected-window anchor changed: ' + from.slice(0, 60));
   return text.replace(from, to);
@@ -20,10 +73,10 @@ function once(text, from, to) {
 function injectWindowControl(text, relativePath, ts) {
   if (relativePath === SETTINGS_ASSET) {
     if (text.includes(PAGE_MARKER)) {
-      if (text.split(PAGE_MARKER).length !== 2 || !text.includes(PAGE_PATCH) || !text.includes(AzraelWindowControlLauncher.toString())) throw new Error('Invalid selected-window launcher marker');
+      if (text.split(PAGE_MARKER).length !== 2 || !text.includes(PAGE_PATCH) || !text.includes(AzraelWindowControlLauncher.toString()) || !text.includes(createUseSettingsStore.toString())) throw new Error('Invalid selected-window launcher marker');
       return { text, count: 0 };
     }
-    return { text: 'import{A3t as azraelWindowBridge}from"./app-initial-5120fa5fe295.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
+    return { text: 'import{A3t as azraelWindowBridge,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow}from"./app-initial-5120fa5fe295.js";import{r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton}from"./app-initial-532d60c9b397.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
   }
   if (relativePath !== 'out/extension.js') return { text, count: 0 };
   if (text.includes(HOST_MARKER)) {
@@ -61,4 +114,4 @@ function injectWindowControl(text, relativePath, ts) {
   if (ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length) throw new Error('Invalid selected-window bridge transform');
   return { text, count: 4 };
 }
-module.exports = { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, HOST_ANCHOR, HOST_PATCH, PAGE_ANCHOR, PAGE_PATCH, AzraelWindowControlLauncher };
+module.exports = { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, HOST_ANCHOR, HOST_PATCH, PAGE_ANCHOR, PAGE_PATCH, AzraelWindowControlLauncher, createUseSettingsStore };

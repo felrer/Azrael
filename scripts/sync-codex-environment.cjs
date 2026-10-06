@@ -160,7 +160,7 @@ function selectedConfig(sourceText, destinationText, manifest, replacements, own
         NODE_REPL_NODE_PATH: path.join(ownedRuntime.directory, "node.exe"),
         NODE_REPL_NODE_MODULE_DIRS: path.join(ownedRuntime.directory, "node_modules"),
         NODE_REPL_TRUSTED_CODE_PATHS: [...new Set([ownedRuntime.directory, ownedRuntime.home, ...trustedPaths])].join(";"),
-        NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ ...retainedServices, sky: "@oai/sky/service" }),
+        NODE_REPL_TRUSTED_SERVICES: JSON.stringify({ ...retainedServices, sky: path.join(ownedRuntime.directory, "sky-controlled-service.mjs") }),
         CODEX_CLI_PATH: ownedRuntime.engine,
         CODEX_HOME: ownedRuntime.home,
       },

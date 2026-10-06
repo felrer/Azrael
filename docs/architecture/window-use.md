@@ -12,6 +12,16 @@ Capturing a target behind another window must return the target's own content wi
 
 Task macros support both immediate execution of a supplied definition and saving a definition for reuse. The host implementation supports both paths; real-window acceptance remains pending.
 
+## App authorization settings
+
+Status: `partial` — separate approvals, settings persistence and native component interactions pass scoped tests and packaged host acceptance. Full installed settings navigation and consent for real user windows remain separate.
+
+The Computer Use settings page manages Window Use separately from desktop Computer Use. Window Use keeps its own app approvals. Its initial allow-all setting is off and its persistent app list is empty; Computer Use approvals do not grant Window Use authority. Apps are identified by their absolute Windows executable path. An always-approved app covers its other windows and windows created after restarting the app, while selection still binds one exact live window.
+
+Before a previously unapproved app is selected for capture, inspection or input, the user chooses approval for the conversation, always approve, or decline. Always-approved apps can be added from the live window picker and removed on the settings page. Enabling all-window control skips app consent while retaining exact target identity, native permission checks and session occupancy guidance. Turning it off reevaluates authority before the next action; explicit app and conversation grants remain effective.
+
+Settings apply to hosts sharing the same Azrael state home. Revoking an app invalidates its conversation grants and pending approvals across hosts on the next authority check. A late approval cannot restore revoked authority. Active macros check authority before subsequent steps. Already-delivered actions cannot be undone. Invalid or unreadable settings fail closed.
+
 ## Session occupancy
 
 Status: `current` — Source, host integration and separate-process behavior are verified. Installed UI acceptance is pending.

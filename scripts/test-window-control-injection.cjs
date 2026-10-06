@@ -40,11 +40,13 @@ test('Computer Use settings launcher is scoped, idempotent and dispatches the ow
   assert.throws(() => injectWindowControl(result.text.replace(AzraelWindowControlLauncher.toString(), 'tampered'), SETTINGS_ASSET, ts));
   assert.throws(() => injectWindowControl(account.text + PAGE_MARKER, SETTINGS_ASSET, ts));
   assert.equal(injectWindowControl(original, 'unrelated.js', ts).count, 0);
-  const dispatched = [];
-  const context = vm.createContext({ $: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) }, azraelWindowBridge: { dispatchMessage: (...args) => dispatched.push(args) } });
-  vm.runInContext(AzraelWindowControlLauncher.toString() + ';section=AzraelWindowControlLauncher()', context);
-  context.section.props.children[2].props.onClick();
-  assert.equal(dispatched[0][0], 'azrael-window-control');
+  assert(result.text.includes('Zjt as AzraelUseButton,$jt as initAzraelUseButton'));
+  assert(result.text.includes('createUseSettingsStore'));
+  assert.equal(ts.createSourceFile('settings.js', result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+  for (const [asset, aliases] of [['app-initial-5120fa5fe295.js', ['A3t','d3','f3','y3','x3']], ['app-initial-532d60c9b397.js', ['r4','a4','Zjt','$jt']]]) {
+    const bundle = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/webview/assets', asset), 'utf8');
+    for (const alias of aliases) assert(bundle.includes(' as ' + alias + ',') || bundle.includes(' as ' + alias + '}'), `Missing native export ${alias}`);
+  }
 });
 test('window boundary observer failure clears the selected owner and preserves ordinary native delivery', () => {
   const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';

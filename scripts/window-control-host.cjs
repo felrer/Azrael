@@ -33,7 +33,7 @@ class Bridge {
   }); }
   dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(new Error('Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
 }
-function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./computer-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory }) {
+function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory }) {
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map();
   const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
@@ -121,7 +121,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   async function consent(descriptor, thread = current) {
     const t = threads.get(thread), version = t?.turnVersion, permission = scope.getStore();
     if (!t || permission?.threadId !== thread || permission.disabled !== true) return false;
-    const id = randomUUID(); const request = { id, method: 'mcpServer/elicitation/request', params: { serverName: 'node_repl', threadId: thread, _meta: { connector_id: 'computer-use', tool_params: { app: descriptor.executable }, tool_params_display: [{ name: 'app', value: descriptor.title }], persist: ['session', 'always'] } } };
+    const id = randomUUID(); const request = { id, method: 'mcpServer/elicitation/request', params: { serverName: 'azrael_window', threadId: thread, _meta: { connector_id: 'window-use', tool_params: { app: descriptor.executable }, tool_params_display: [{ name: 'app', value: descriptor.title }], persist: ['session', 'always'] } } };
     let stored, needsPrompt = false; approvals.receive(request, (_id, result) => { stored = result; }, () => { needsPrompt = true; });
     if (stored) return stored.action === 'accept' && approvals.hasAppApproval(descriptor.executable, thread);
     if (!needsPrompt) return false;
@@ -231,11 +231,12 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   }
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
   function disconnect(native) { lifecycleRequests.delete(native); const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
-  async function dispose() { if (disposed) return; disposed = true; invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await backend.dispose(); }
-  return { open, attach, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
+  const settingsHost = require('./use-settings-host.cjs').createSettingsHost({ runtime, vscode, backend, approvals, open });
+  async function dispose() { if (disposed) return; disposed = true; settingsHost.dispose(); invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await backend.dispose(); }
+  return { settings: settingsHost.receive, open, attach, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;
 function initialize(context, vscode, runtime) { if (active) throw new Error('Window Control already initialized'); active = createHost({ runtime, vscode }); const command = vscode.commands.registerCommand('azrael.windowControl', () => active.open()); let disposal; const disposable = { dispose() { if (disposal) return disposal; command.dispose(); const old = active; active = undefined; disposal = old?.dispose() || Promise.resolve(); return disposal; } }; context.subscriptions.push(disposable); return disposable; }
-module.exports = { initialize, attach: (native, raw) => active?.attach(native, raw), request: (native, ...args) => active?.request(native, ...args), beforeResult: (native, message, replay) => active?.beforeResult(native, message, replay), observe: (native, message) => active?.observe(native, message), disconnect: native => active?.disconnect(native), createHost, Bridge };
+module.exports = { initialize, settings: (webview, request) => active ? active.settings(webview, request) : require('./use-settings-host.cjs').unavailable(webview, request), attach: (native, raw) => active?.attach(native, raw), request: (native, ...args) => active?.request(native, ...args), beforeResult: (native, message, replay) => active?.beforeResult(native, message, replay), observe: (native, message) => active?.observe(native, message), disconnect: native => active?.disconnect(native), createHost, Bridge };
 registry.set(runtimeKey, module.exports);
 }
