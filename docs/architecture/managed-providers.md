@@ -10,6 +10,14 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Connection failure evidence and guidance
+
+Status: `partial` — helper and host source tests cover the classification and safe messages; native protocol acceptance requires a matching engine build. Installed windows require an updated release.
+
+Managed inference inspects at most four objects in a cycle-safe exception cause chain and accepts only enumerated transport codes. DNS, TLS, connection reset/refusal, connection timeout, unreachable network and proxy failures become `provider_connection_<category>`. The transport snapshot carries only `connection_error` and `connection_error_code`; arbitrary exception messages, stacks, addresses and unknown codes are discarded. A header-stage `TypeError` without an accepted cause becomes `provider_headers_failed`, which identifies the observed stage without asserting a network cause or whether the server received the request. Confirmed HTTP/provider errors and local deadline outcomes remain authoritative.
+
+The engine and native chat host explain the recognized cause, or explicitly state that the cause is unknown, and advise reviewing existing work before requesting continuation in the same session. These outcomes remain terminal and do not enable automatic retries, account switching or tool replay. Diagnostic lookup procedures are in [Native diagnostics](../ops/native-diagnostics.md).
+
 ## Provider instruction adjustments
 
 ### Harness identity

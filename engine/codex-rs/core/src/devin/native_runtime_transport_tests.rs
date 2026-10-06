@@ -12,6 +12,26 @@ use tracing_subscriber::Layer;
 use tracing_subscriber::layer::SubscriberExt;
 
 #[test]
+fn connection_diagnostics_roundtrip_only_allowlisted_evidence() {
+    let evidence = json!({
+        "error_stage": "headers",
+        "connection_error": "dns",
+        "connection_error_code": "ENOTFOUND",
+    });
+    let transport: Transport = serde_json::from_value(evidence.clone()).unwrap();
+    assert_eq!(serde_json::to_value(transport).unwrap(), evidence);
+    for untrusted in [
+        json!({"connection_error": "SECRET_HOST"}),
+        json!({"connection_error_code": "SECRET_TOKEN"}),
+        json!({"connection_error_code": "ENOTFOUND SECRET_URL"}),
+        json!({"connection_error_code": 404}),
+        json!({"connection_error": "dns", "message": "SECRET_PROMPT"}),
+    ] {
+        assert!(serde_json::from_value::<Transport>(untrusted).is_err());
+    }
+}
+
+#[test]
 fn transport_roundtrips_every_observed_field_and_enum() {
     let cases: &[(&str, &[serde_json::Value])] = &[
         ("headers_status", &[json!(100), json!(599)]),

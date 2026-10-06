@@ -16,7 +16,7 @@
 Role: luna_explorer
 Objective: 재시도 횟수 설정이 요청 처리까지 전달되는 경로와 기본값 적용 조건을 확인한다.
 Scope: src/config/와 src/client/를 읽기 전용으로 조사한다.
-Constraints: 코드 변경·테스트 실행·설계 결정은 하지 않는다. 범위 밖 의존성이 필요하면 위치와 이유를 보고한다.
+Constraints: 코드 변경·테스트 실행·설계 결정은 하지 않는다. 범위 밖 의존성이 필요하면 위치와 이유를 보고한다. 병렬 조회의 합산 출력량을 실행 전에 제한하고, 전체 Git 상태와 상세 로그는 작업 파일에 보관한다. Windows의 rg 검색은 디렉터리와 -g 필터를 사용한다.
 References: src/config/retry.ts의 loadRetryConfig, src/client/request.ts의 sendRequest
 Done when: 설정 로딩부터 재시도 분기까지의 경로, 기본값 조건, 미확인 부분이 근거와 함께 정리된다.
 Return format: STATUS / ANSWER / EVIDENCE / SEARCHED / UNRESOLVED
