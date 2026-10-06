@@ -53,6 +53,7 @@ function injectAccountSettings(text, relativePath) {
   if (text.split(MARKER).length > 2) throw new Error("Duplicate account settings marker");
   if (text.includes(MARKER)) return { text, count: 0 };
   if (relativePath === "out/extension.js") return { text: once(text, HOST_ANCHOR, HOST_PATCH), count: 1 };
+  text = once(text, 'e.key===(S?`personal`:`settings`)?(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F}):null', 'null');
   const imported = 'import{A3t as azraelAccountBridge}from"./app-initial-5120fa5fe295.js";';
   return { text: imported + once(text, PAGE_ANCHOR, PAGE_PATCH) + "\n" + MARKER + "\n" + AzraelAccountSettings.toString(), count: 1 };
 }

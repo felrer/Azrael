@@ -5,10 +5,38 @@ const path = require("node:path");
 const _m = require("node:vm");
 const test = require("node:test");
 const vp = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { DESIGN_ASSETS, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, observeStudentCreated } = require("./inject-student-design.cjs");
+const { DESIGN_ASSETS, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, pickStudentPreview, observeStudentCreated } = require("./inject-student-design.cjs");
 const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
 const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225"));
+
+test("native navigation custom icons retain active class and suppress assets only for their slugs", () => {
+  const { transformAsset } = require("./namespace-azrael-host.cjs");
+  const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
+  const text = transformAsset(ms.readFileSync(filename, "utf8"), asset, filename, vp).text;
+  const ast = vp.createSourceFile(asset, text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const expressions = {};
+  const visit = node => {
+    if (vp.isPropertyAssignment(node) && ["icon", "iconAssetSource"].includes(node.name.getText(ast)) && node.initializer.getText(ast).includes('e.slug===`azrael-design`')) expressions[node.name.getText(ast)] = node.initializer.getText(ast);
+    vp.forEachChild(node, visit);
+  };
+  visit(ast);
+  assert(expressions.icon && expressions.iconAssetSource);
+  for (const slug of ["azrael-design", "azrael-instructions", "usage", "general-settings", "pets"]) {
+    for (const active of [false, true]) {
+      const context = { e: { slug }, t: active, i: slug === "pets" && active,
+        s: { 16: "native-icon" }, r: { navigation: "native-assets" },
+        Z: { jsx: (type, props) => ({ type, props }) }, he: "native-icon-renderer",
+        AzraelInstructionNavigationIcon: "instruction", AzraelDesignNavigationIcon: "design" };
+      const icon = _m.runInNewContext(expressions.icon, context);
+      const assets = _m.runInNewContext(expressions.iconAssetSource, context);
+      const custom = slug === "azrael-design" || slug === "azrael-instructions";
+      assert.equal(icon.type, custom ? (slug === "azrael-design" ? "design" : "instruction") : "native-icon-renderer");
+      assert.equal(icon.props.className, active ? "text-codex-icon-active" : undefined);
+      assert.equal(assets, custom || context.i ? undefined : "native-assets");
+    }
+  }
+});
 
 test("production pipeline applies student design and preserves it through Pets retirement", () => {
   const { transformAsset } = require("./namespace-azrael-host.cjs");
@@ -304,25 +332,177 @@ test("avatar uses exact assigned seed even when off, preserves props and falls b
   state = { ...state, assignments: {} }; assert.equal(avatar({ seed: "toString" }).type, original);
 });
 
-test("settings renders controlled default-off toggle, loading/saving/error and 20px roster", () => {
-  const h = harness(); let state = h.store.getSnapshot();
-  const settings = _m.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
-    useAzraelDesignState: () => state, azraelDesignStore: h.store, $: { jsx, jsxs: jsx },
+// Model React's indexed hooks, queued effects and functional local updates. Native
+// component symbols remain opaque so assertions inspect their public prop contracts.
+function settingsHarness(initialState, randomValues = [0]) {
+  let state = initialState, cursor = 0, dirty = false, randomIndex = 0;
+  const slots = [], effects = [], calls = [], initializers = [];
+  const native = Object.fromEntries(["Tt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "pe"].map(name => [name, Symbol(name)]));
+  const react = {
+    useState(initial) {
+      const index = cursor++;
+      if (!(index in slots)) slots[index] = typeof initial === "function" ? initial() : initial;
+      return [slots[index], value => {
+        const next = typeof value === "function" ? value(slots[index]) : value;
+        if (!Object.is(next, slots[index])) { slots[index] = next; dirty = true; }
+      }];
+    },
+    useEffect(callback, dependencies) {
+      const index = cursor++, previous = slots[index];
+      if (!previous || dependencies.some((value, i) => !Object.is(value, previous[i]))) {
+        slots[index] = dependencies; effects.push(callback);
+      }
+    },
+  };
+  const choose = (students, previous) => pickStudentPreview(students, previous, () => randomValues[randomIndex++ % randomValues.length]);
+  const component = _m.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
+    ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose,
+    initAzraelSettingsCard: () => initializers.push("card"), initAzraelSettingsRow: () => initializers.push("row"), initAzraelSwitch: () => initializers.push("switch"),
+    useAzraelDesignState: () => state,
+    azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), retry: () => calls.push(["retry"]) },
   });
-  let tree = settings(); let checkbox = tree.props.children[1].props.children[0];
-  assert.equal(checkbox.props.checked, false); assert.equal(checkbox.props.disabled, true);
-  const students = [{ id: "s", nameKo: "학생", nameEn: "Student", url: "local" }];
-  h.receive({ clientId: "client", enabled: false, students, assignments: {} }); state = h.store.getSnapshot();
-  tree = settings(); checkbox = tree.props.children[1].props.children[0];
-  assert.equal(checkbox.props.disabled, false);
-  checkbox.props.onChange({ target: { checked: true } }); assert.equal(h.sent[1].enabled, true);
-  state = h.store.getSnapshot(); assert.equal(settings().props.children[4].props.children, "저장 중…");
-  h.receive({ clientId: "client", enabled: false, students, assignments: {}, error: "error" }); state = h.store.getSnapshot();
-  tree = settings(); assert.equal(tree.props.children[5].props.role, "alert");
-  assert.match(tree.props.children[2].props.children, /새로 생성되는 Subagent/);
-  tree.props.children[5].props.children[1].props.onClick();
-  assert.equal(h.sent[2].action, "subscribe");
-  const sample = tree.props.children[7].props.children[0].props.children[0];
-  assert.equal(sample.props.width, 20); assert.equal(sample.props.height, 20);
-  h.store.dispose();
+  const render = () => {
+    let tree, passes = 0;
+    do {
+      assert(++passes < 10, "Settings effects must settle"); dirty = false; cursor = 0; tree = component();
+      effects.splice(0).forEach(effect => effect());
+    } while (dirty);
+    return tree;
+  };
+  return { native, calls, initializers, render, update: next => { state = next; return render(); } };
+}
+function treeNodes(tree) {
+  if (!tree || typeof tree !== "object") return [];
+  return [tree, ...[tree.props?.children, tree.props?.label].flat(Infinity).flatMap(treeNodes)];
+}
+function findNode(tree, predicate) {
+  const node = treeNodes(tree).find(predicate); assert(node, "Expected settings tree node"); return node;
+}
+function settingsControls(h, tree) {
+  const rows = treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsRow);
+  assert.equal(rows.length, 2);
+  return { toggle: rows[0].props.control({ "aria-labelledby": "native-label", "aria-describedby": "native-description", id: "native-control" }),
+    draw: rows[1].props.control({}), rows };
+}
+const previewStudents = [
+  { id: "a", nameKo: "학생 가", nameEn: "Student A", url: "local-a" },
+  { id: "b", nameKo: "학생 나", nameEn: "Student B", url: "local-b" },
+];
+const loadedDesignState = () => ({ enabled: false, loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+
+test("settings uses native page/card/row/switch/button and controlled boolean toggle with busy locks", () => {
+  const base = loadedDesignState(), h = settingsHarness({ ...base, loading: true });
+  let tree = h.render(), controls = settingsControls(h, tree);
+  assert.equal(tree.type, h.native.Tt); assert.equal(tree.props.title, "디자인");
+  assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 2);
+  assert.equal(treeNodes(tree).some(node => node.type === "input"), false);
+  assert.equal(controls.toggle.type, h.native.AzraelSwitch);
+  assert.equal(controls.toggle.props.checked, false); assert.equal(controls.toggle.props.disabled, true);
+  assert.equal(controls.toggle.props["aria-labelledby"], "native-label");
+  assert.equal(controls.toggle.props["aria-describedby"], "native-description"); assert.equal(controls.toggle.props.id, "native-control");
+  assert.equal(controls.draw.type, h.native.pe); assert.equal(controls.draw.props.disabled, true);
+  assert.match(findNode(tree, node => node.props?.role === "status").props.children, /불러오는/);
+  tree = h.update(base); controls = settingsControls(h, tree);
+  assert.equal(controls.toggle.props.disabled, false);
+  controls.toggle.props.onChange(true); controls.toggle.props.onChange(false);
+  assert.deepEqual(h.calls, [["setEnabled", true], ["setEnabled", false]]);
+  tree = h.update({ ...base, enabled: true, saving: true }); controls = settingsControls(h, tree);
+  assert.equal(controls.toggle.props.checked, true); assert.equal(controls.toggle.props.disabled, true);
+  assert.equal(controls.draw.props.disabled, false); // Preview remains usable while persistence is busy.
+  assert.equal(findNode(tree, node => node.props?.role === "status").props.children, "저장 중…");
+  assert.equal(findNode(tree, node => node.props?.["aria-busy"] !== undefined).props["aria-busy"], true);
+  tree = h.update({ ...base, error: "host unavailable" });
+  const alert = findNode(tree, node => node.props?.role === "alert");
+  assert.equal(alert.props.children[0].props.children, "host unavailable");
+  const retry = findNode(alert, node => node.type === h.native.pe);
+  assert.equal(retry.props.disabled, false); retry.props.onClick(); assert.deepEqual(h.calls.at(-1), ["retry"]);
+  tree = h.update({ ...base, saving: true, error: "failed" });
+  assert.equal(findNode(findNode(tree, node => node.props?.role === "alert"), node => node.type === h.native.pe).props.disabled, true);
+  assert.deepEqual(h.initializers.slice(0, 3), ["card", "row", "switch"]);
+});
+
+test("preview initializes once after loading, draws independently while off, and never mutates or dispatches", () => {
+  const bridge = harness(), base = loadedDesignState();
+  bridge.receive({ clientId: "client", ...base });
+  const before = bridge.store.getSnapshot(), snapshot = JSON.stringify(before), sent = bridge.sent.length;
+  const h = settingsHarness({ ...before, loading: true }, [0, 0.99]);
+  let tree = h.render(); assert.equal(treeNodes(tree).filter(node => node.type === "img").length, 0);
+  tree = h.update(before);
+  assert.equal(findNode(tree, node => node.type === "img").props.src, "local-a");
+  tree = h.render(); assert.equal(findNode(tree, node => node.type === "img").props.src, "local-a");
+  settingsControls(h, tree).draw.props.onClick(); tree = h.render();
+  assert.equal(findNode(tree, node => node.type === "img").props.src, "local-b");
+  assert.equal(findNode(tree, node => node.type === "img").props.alt, "학생 나");
+  assert.equal(treeNodes(tree).filter(node => node.type === "img").length, 1);
+  assert.equal(settingsControls(h, tree).toggle.props.checked, false);
+  assert.deepEqual(h.calls, []); assert.equal(bridge.sent.length, sent);
+  assert.equal(bridge.store.getSnapshot(), before); assert.equal(JSON.stringify(before), snapshot);
+  bridge.store.dispose();
+});
+
+test("preview excludes the previous student with alternatives and handles empty/single rosters", () => {
+  assert.equal(pickStudentPreview([], null, () => { throw new Error("No draw needed"); }), null);
+  assert.equal(pickStudentPreview(previewStudents, null, () => 0), "a");
+  assert.equal(pickStudentPreview(previewStudents, null, () => 0.999), "b");
+  for (const random of [0, 0.5, 0.999]) {
+    assert.equal(pickStudentPreview(previewStudents, "a", () => random), "b");
+    assert.equal(pickStudentPreview(previewStudents, "b", () => random), "a");
+    assert.equal(pickStudentPreview([previewStudents[0]], "a", () => random), "a");
+  }
+  const base = loadedDesignState(), h = settingsHarness({ ...base, students: [] });
+  let tree = h.render();
+  assert.equal(settingsControls(h, tree).toggle.props.disabled, true); assert.equal(settingsControls(h, tree).draw.props.disabled, true);
+  assert.equal(findNode(tree, node => node.props?.children === "미리보기 없음").type, "span");
+  tree = h.update({ ...base, students: [previewStudents[0]] });
+  settingsControls(h, tree).draw.props.onClick(); tree = h.render();
+  assert.equal(findNode(tree, node => node.type === "img").props.src, "local-a");
+  assert.deepEqual(h.calls, []);
+});
+
+test("preview shows image error fallback, recovers on a different draw, and handles removed roster", () => {
+  const base = loadedDesignState(), h = settingsHarness(base);
+  let tree = h.render(); findNode(tree, node => node.type === "img").props.onError(); tree = h.render();
+  assert.equal(treeNodes(tree).filter(node => node.type === "img").length, 0);
+  assert.equal(findNode(tree, node => node.props?.children === "사진을 불러오지 못했습니다").type, "span");
+  settingsControls(h, tree).draw.props.onClick(); tree = h.render();
+  assert.equal(findNode(tree, node => node.type === "img").props.src, "local-b");
+  tree = h.update({ ...base, students: [] });
+  assert.equal(findNode(tree, node => node.props?.children === "미리보기 없음").type, "span");
+});
+
+test("native settings imports bind to actual pinned exports and retain native page, button and React owners", () => {
+  const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
+  const text = injectStudentDesign(injectInstructionSettings(injectAccountSettings(ms.readFileSync(filename, "utf8"), asset).text, asset).text, asset).text;
+  const parse = (source, name) => vp.createSourceFile(name, source, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
+  const ast = parse(text, asset), imports = ast.statements.filter(vp.isImportDeclaration);
+  const expected = {
+    AzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "d3"], initAzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "f3"],
+    AzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "y3"], initAzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "x3"],
+    AzraelSwitch: ["./app-initial-532d60c9b397.js", "r4"], initAzraelSwitch: ["./app-initial-532d60c9b397.js", "a4"],
+  };
+  for (const local of [...Object.keys(expected), "Tt", "pe", "Q", "$"]) {
+    let importLocal = local;
+    if (local === "Q" || local === "$") {
+      const assignments = [];
+      const visit = node => {
+        if (vp.isBinaryExpression(node) && node.left.getText(ast) === local && vp.isCallExpression(node.right)) assignments.push(node.right);
+        vp.forEachChild(node, visit);
+      };
+      visit(ast); assert.equal(assignments.length, 1, `Unique pinned initializer for ${local}`);
+      importLocal = assignments[0].expression.text;
+      assert.equal(importLocal, local === "Q" ? "h" : "s");
+    }
+    const ownerImport = imports.find(node => node.importClause?.namedBindings?.elements?.some(e => e.name.text === importLocal));
+    assert(ownerImport, `Missing native import ${local} via ${importLocal}`);
+    const imported = ownerImport.importClause.namedBindings.elements.find(e => e.name.text === importLocal);
+    const binding = [ownerImport.moduleSpecifier.text, imported.propertyName?.text ?? imported.name.text];
+    if (expected[local]) assert.deepEqual(binding, expected[local]);
+    const ownerPath = path.resolve(path.dirname(filename), binding[0]);
+    const owner = parse(ms.readFileSync(ownerPath, "utf8"), ownerPath);
+    const exported = owner.statements.filter(vp.isExportDeclaration).flatMap(node => node.exportClause?.elements ?? []).find(e => e.name.text === binding[1]);
+    assert(exported, `${local} must resolve to real pinned export ${binding[1]}`);
+    const exportLocal = exported.propertyName?.text ?? exported.name.text;
+    assert(owner.statements.some(node => (vp.isFunctionDeclaration(node) && node.name?.text === exportLocal) ||
+      (vp.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.text === exportLocal))), `${local} export must have an implementation`);
+  }
 });

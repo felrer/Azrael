@@ -5,6 +5,7 @@
 - Before substantive work, select applicable [project playbooks](docs/playbooks/README.md). Read only matching routes and owner sections.
 - Use [Work Artifacts](docs/README.md#work-artifacts) for the configured external work-document owner and active planning conventions.
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
+- Design Azrael UI in the OpenAI style. Reuse the pinned UI's existing page layouts, settings rows, switches, buttons, spacing and theme tokens; verify the actual rendered page in light and dark themes. Follow [UI presentation](docs/architecture/ui-presentation.md) for the project contract.
 - When editing any document, update its current content in place. Integrate confirmed answers into the relevant section; remove resolved questions, superseded text, and duplicates. Do not append response histories, dated confirmation notes, copied investigations, or detailed logs unless that history is itself the document's purpose. Keep only content needed to understand, execute, or verify the current work.
 
 ## Instruction Library Ownership

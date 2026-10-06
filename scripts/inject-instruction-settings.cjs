@@ -5,6 +5,11 @@ const MARKER = "/*azrael-instruction-settings-v1*/";
 const PAGE_ANCHOR = "}let Fe;e[77]";
 const HOST_ANCHOR = 'case"open-vscode-command":{';
 
+function AzraelInstructionNavigationIcon(props) {
+  return (0, Z.jsx)("svg", { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, ...props,
+    children: (0, Z.jsx)("path", { d: "M11.5 2.75H5.5a1.5 1.5 0 0 0-1.5 1.5v11.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-8.5Zm0 0v4.5H16M7 10h6M7 13h6" }) });
+}
+
 function AzraelInstructionSettings() {
   const target = Q.useRef(null);
   Q.useEffect(() => {
@@ -78,11 +83,13 @@ function injectInstructionSettings(text, relativePath) {
     : once(text, PAGE_ANCHOR, '}' + instructionContent);
   text = once(text, '.agent.personalization.pets.', '.agent.personalization.azrael-instructions.pets.');
   text = once(text, '`agent`,`personalization`,`pets`', '`agent`,`personalization`,`azrael-instructions`,`pets`');
-  text = once(text, "c=nt(e.slug,E,!1),l=e.slug===", "c=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:`지침 문서`}:nt(e.slug,E,!1),l=e.slug===");
+  text = once(text, "c=nt(e.slug,E,!1),l=e.slug===", "c=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:`지침 문서 (미구현)`}:nt(e.slug,E,!1),l=e.slug===");
   const label = "label:(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})";
-  text = once(text, label, "label:e.slug===`azrael-instructions`?`지침 문서`:(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})");
-  text = once(text, "f=F?(0,Z.jsx)(Ue,", "f=e.slug===`azrael-instructions`?`지침 문서`:F?(0,Z.jsx)(Ue,");
-  return { text: 'import{A3t as azraelInstructionBridge}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + AzraelInstructionSettings.toString(), count: 1 };
+  text = once(text, label, "label:e.slug===`azrael-instructions`?`지침 문서 (미구현)`:(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})");
+  text = once(text, "f=F?(0,Z.jsx)(Ue,", "f=e.slug===`azrael-instructions`?`지침 문서 (미구현)`:F?(0,Z.jsx)(Ue,");
+  text = once(text, 'icon:16 in s?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in s?');
+  text = once(text, 'iconAssetSource:i?void 0:r.navigation', 'iconAssetSource:e.slug===`azrael-instructions`?void 0:i?void 0:r.navigation');
+  return { text: 'import{A3t as azraelInstructionBridge}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
 }
 
-module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings };
+module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelInstructionNavigationIcon };

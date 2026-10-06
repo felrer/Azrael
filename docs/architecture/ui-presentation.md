@@ -24,7 +24,19 @@ The host and conversation UI identify the distribution as Azrael. Theme names, e
 
 ## Settings module contracts
 
+Azrael settings use the OpenAI native page layout, heading hierarchy, settings rows, switches, buttons, spacing and semantic theme tokens. Reuse the pinned bundle's actual components and verified exports. Rendered light/dark layout and interaction checks are required for presentation acceptance.
+
 Settings injectors import the bridge through the pinned bundle export `A3t`; internal aliases are not module exports. Settings navigation reuses initialized platform icon assets. Retired Pets registry entries retain an inert `{ visible: false, pending: false }` visibility result so shared navigation never dereferences an undefined result.
+
+## Design settings
+
+Status: `current` in source — native settings presentation and single-photo random preview.
+
+The production component was rendered with the pinned native modules and styles in a local browser fixture in light and dark themes. Toggle, random draw, empty roster, retry and unavailable-photo interactions passed. Packaging and installed-profile verification were intentionally omitted for this change.
+
+The Design page has a native settings row for using student photos on newly created subagents. Its switch defaults to off for unset preferences and persists changes through the existing host-owned student service. Turning it on affects future authoritative subagent creation events; previous photo assignments and recorded off decisions remain stable when toggling or reopening the page.
+
+The preview shows one randomly selected student photo and name at a time, with a button to draw another. Preview is available while the switch is off and does not change saved preferences or subagent assignments. Loading, save failure and unavailable-photo states remain visible and accessible. Images use the bundled roster and local webview resource URLs.
 
 ## Student avatar initialization
 
