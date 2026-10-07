@@ -2,7 +2,7 @@
 
 - Review the [documentation guide](docs/README.md) before starting non-trivial work.
 - Record detailed designs, code structure, and operational procedures in the appropriate `docs` category rather than at the project root.
-- Before substantive work, select applicable [project playbooks](docs/playbooks/README.md). Read only matching routes and owner sections.
+- Before substantive work, select applicable [project playbooks](docs/playbooks/README.md). For development work, apply the installed `implementation` skill together with the [Work playbook](docs/playbooks/work.md). Read only matching routes and owner sections.
 - Use [Work Artifacts](docs/README.md#work-artifacts) for the configured external work-document owner and active planning conventions.
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
 - Design Azrael UI in the OpenAI style. Reuse the pinned UI's existing page layouts, settings rows, switches, buttons, spacing and theme tokens; verify the actual rendered page in light and dark themes. Follow [UI presentation](docs/architecture/ui-presentation.md) for the project contract.
@@ -18,7 +18,7 @@
 
 - If you create a worktree for a task, bring all of its changes back into the primary checkout (`main`, or the repository's existing primary branch) and verify the integrated result before completing the task. Preserve existing changes and resolve conflicts; an uncommitted change still must be integrated.
 - After integration, you MUST delete that worktree. This cleanup is mandatory without exception; do not leave task worktrees behind. Verify both removal from Git's worktree registry and removal of the worktree directory. Preserve required source provenance and build caches outside the worktree before removal.
-- Integration and cleanup do not authorize commits or publishing. Leave changes uncommitted unless the user explicitly requests otherwise.
+- After integration and verification, follow the [Work playbook's task-level commit policy](docs/playbooks/work.md#작업별-커밋과-완료). Integration and cleanup do not authorize remote push, publishing or deployment.
 
 ## Generated artifact cleanup
 
