@@ -71,9 +71,9 @@ function toolDefinitions() {
     const descriptions = {
       list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
       select_window:'Select a candidate from the latest list_windows. Requests application approval and revalidates exact identity. No targetId needed. approval_timeout means awaiting the user response; the user has not declined. Tell the user and await an explicit retry; avoid repeated calls.',
-      status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and other pauses require explicit user resume.',
+      status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed, observationRequired and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. Failures with recovery observe_again permit a fresh capture or inspect after status; never reuse old elements or replay input. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and genuine error pauses require explicit user resume.',
       restore_window:'Restore the exact selected window after minimization only when fresh status reports restoreAllowed true and no other occupying session. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
-      inspect:'Inspect current UI Automation elements and states without a screenshot. Returns fresh observationId and element IDs.',
+      inspect:'Inspect current UI Automation elements and states without a screenshot. Returns fresh observationId and element IDs. A failure with recovery observe_again retains selection and permits a new observation after checking status/occupancy; it does not guarantee success.',
       press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
       list_task_macros:'List saved task definitions and storage revision. No targetId needed.',
       save_task_macro:'Save a schema 1 task definition with stable id/name. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No targetId needed.',
@@ -81,7 +81,7 @@ function toolDefinitions() {
     };
     const inputSchema = {type:'object',properties,required,additionalProperties:false};
     if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
-    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. A window_minimized error with restoreAllowed true permits restore_window; other pauses require user resume. Inspect or capture before each element action.`,inputSchema};
+    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. A failure with recovery observe_again permits a fresh capture or inspect after status/occupancy checks; discard prior elements and never replay input automatically. A window_minimized error with restoreAllowed true permits restore_window; genuine pauses require user resume. Inspect or capture before each element action.`,inputSchema};
   });
   definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
   return definitions;

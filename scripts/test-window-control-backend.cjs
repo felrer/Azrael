@@ -29,6 +29,7 @@ async function main() {
   const stalled = createBackend(runtime, { verify: () => declaration, timeoutMs: 10, shutdownMs: 10, spawnChild() { timeoutChild = new EventEmitter(); timeoutChild.exitCode = null; timeoutChild.stdout = new EventEmitter(); timeoutChild.stderr = new EventEmitter(); timeoutChild.stdin = { write() {}, end() {} }; timeoutChild.kill = () => { killed++; timeoutChild.exitCode = 1; timeoutChild.emit('exit', 1); }; return timeoutChild; } });
   await assert.rejects(stalled.request('status', {}), /timed out/); await new Promise(r => setTimeout(r, 30)); assert.equal(killed, 1);
   await errorChecks(runtime, declaration);
+  await recoveryChecks(runtime, declaration);
   console.log('Window backend: envelope, UTF8, manifest, lifecycle, native error classification, exit metadata and mutation uncertainty checks passed');
 }
 async function errorChecks(runtime, declaration) {
@@ -46,6 +47,8 @@ async function errorChecks(runtime, declaration) {
   };
   for (const [nativeCode, code, uncertain] of [
     ['unsupported-action', 'unsupported_action', false], ['unsupported-key', 'unsupported_action', false],
+    ['disabled-element', 'unsupported_action', false], ['readonly-element', 'unsupported_action', false],
+    ['unknown-element', 'state_changed', false], ['stale-element', 'state_changed', false],
     ['stale-observation', 'state_changed', false], ['stale-target', 'state_changed', false],
     ['capture-timeout', 'timeout', true], ['provider-timeout', 'timeout', true],
     ['uncertain-delivery', 'connection_error', true], ['native-error', 'unclassified', true],
@@ -56,6 +59,7 @@ async function errorChecks(runtime, declaration) {
     await assert.rejects(backend.request('act', {}), error => {
       assert.equal(error.code, code); assert.equal(error.nativeCode, nativeCode); assert.equal(error.stage, 'native');
       assert.equal(error.mutationOutcome, uncertain ? 'unknown' : undefined); assert.ok(!error.message.includes('private'));
+      assert.equal(error.actionExecuted, uncertain ? undefined : false);
       if (code === 'unclassified') assert.equal(error.message, '미분류된 오류'); return true;
     });
     await backend.dispose();
@@ -134,6 +138,85 @@ async function errorChecks(runtime, declaration) {
   for (const stream of ['stdout', 'stderr']) {
     const failedRead = fixture(child => child[stream].emit('error', new Error('private stream detail')));
     await assert.rejects(failedRead.request('restore', {}), error => error.code === 'connection_error' && error.stage === 'native' && error.mutationOutcome === 'unknown' && !error.message.includes('private')); await failedRead.dispose();
+  }
+  for (const nativeCode of ['disabled-element', 'readonly-element', 'stale-observation', 'unknown-element', 'stale-element', 'unsupported-action', 'unsupported-key']) {
+    const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: nativeCode, mutationOutcome: 'unknown' } }) + '\n')));
+    await assert.rejects(backend.request('act', {}), error => error.mutationOutcome === 'unknown' && !Object.hasOwn(error, 'actionExecuted'));
+    await backend.dispose();
+  }
+  for (const [nativeCode, code] of [['unobservable-target', 'state_changed'], ['uia-value-limit', 'unsupported_action'], ['capture-unsupported', 'unsupported_action'], ['protected-target', 'unsupported_action'], ...['capture-device', 'capture-format', 'capture-encode', 'capture-clock', 'capture-size'].map(code => [code, 'state_changed']), ['native-error', 'unclassified']]) {
+    const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: nativeCode, message: 'private observation detail' } }) + '\n')));
+    await assert.rejects(backend.request('observe', {}), error => error.code === code && error.nativeCode === nativeCode && error.mutationOutcome === undefined && !error.message.includes('private'));
+    await backend.dispose();
+  }
+}
+async function recoveryChecks(runtime, declaration) {
+  for (const failure of ['timeout', 'malformed', 'stdout', 'stdin', 'exit', 'cancelled']) {
+    const helpers = [], sent = [], killed = [];
+    const backend = createBackend(runtime, { verify: () => declaration, timeoutMs: 20, shutdownMs: 10, spawnChild() {
+      const helper = new EventEmitter(); helper.exitCode = null; helper.stdout = new EventEmitter(); helper.stderr = new EventEmitter(); helper.stdin = new EventEmitter();
+      const generation = helpers.length; helpers.push(helper);
+      helper.stdin.write = line => { const request = JSON.parse(line); sent.push({ generation, request }); queueMicrotask(() => {
+        if (generation) helper.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, result: { generation } }) + '\n'));
+        else if (failure === 'malformed') helper.stdout.emit('data', Buffer.from('private malformed reply\n'));
+        else if (failure === 'stdout' || failure === 'stdin') helper[failure].emit('error', new Error('private connection detail'));
+        else if (failure === 'exit') { helper.exitCode = 17; helper.emit('exit', 17, null); }
+        else if (failure === 'cancelled') helper.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: 'operation-cancelled' } }) + '\n'));
+      }); };
+      helper.stdin.end = () => { if (generation) { helper.exitCode = 0; queueMicrotask(() => helper.emit('exit', 0)); } };
+      helper.kill = () => { killed.push(generation); helper.exitCode = 1; helper.emit('exit', 1); };
+      return helper;
+    } });
+    const initial = assert.rejects(backend.request('observe', {}), error => error.code === (failure === 'timeout' ? 'timeout' : failure === 'cancelled' ? 'cancelled' : 'connection_error') && error.mutationOutcome === undefined);
+    if (failure === 'timeout') await Promise.all([initial, assert.rejects(backend.request('act', {}), error => error.code === 'timeout' && error.mutationOutcome === 'unknown')]);
+    else if (failure === 'cancelled') await Promise.all([initial, assert.rejects(backend.request('status', {}), error => error.code === 'cancelled')]);
+    else await initial;
+    const next = Promise.all([backend.request('inspect', {}), backend.request('status', {})]);
+    const old = helpers[0];
+    old.stdout.emit('data', Buffer.from(JSON.stringify({ id: sent[0].request.id, result: { generation: 'late' } }) + '\n'));
+    old.stdout.emit('error', new Error('late private error'));
+    assert.deepEqual(await next, [{ generation: 1 }, { generation: 1 }]);
+    assert.equal(helpers.length, 2); assert.equal(sent.filter(entry => entry.generation === 0).length, ['timeout', 'cancelled'].includes(failure) ? 2 : 1);
+    assert.equal(sent.filter(entry => entry.request.method === 'act').length, failure === 'timeout' ? 1 : 0);
+    await backend.dispose(); assert.deepEqual(killed, failure === 'exit' ? [] : [0]);
+    await assert.rejects(backend.request('observe', {}), error => error.code === 'cancelled');
+  }
+  // Explicit disposal during failed-helper shutdown remains terminal for waiters.
+  let launched = 0;
+  const backend = createBackend(runtime, { verify: () => declaration, timeoutMs: 5, shutdownMs: 10, spawnChild() {
+    launched++; const helper = new EventEmitter(); helper.exitCode = null; helper.stdout = new EventEmitter(); helper.stderr = new EventEmitter();
+    helper.stdin = { write() {}, end() {} }; helper.kill = () => { helper.exitCode = 1; helper.emit('exit', 1); }; return helper;
+  } });
+  await assert.rejects(backend.request('status', {}), error => error.code === 'timeout');
+  const waiting = backend.request('observe', {});
+  const rejected = assert.rejects(waiting, error => error.code === 'cancelled');
+  await Promise.all([backend.dispose(), backend.dispose(), rejected]); assert.equal(launched, 1);
+  // A delayed exit after kill must finish before spawning a replacement.
+  let old, signalKill; const killRequested = new Promise(resolve => { signalKill = resolve; }); let starts = 0;
+  const delayed = createBackend(runtime, { verify: () => declaration, timeoutMs: 5, shutdownMs: 5, spawnChild() {
+    const helper = new EventEmitter(); helper.exitCode = null; helper.stdout = new EventEmitter(); helper.stderr = new EventEmitter(); const generation = starts++;
+    helper.stdin = { write(line) { const request = JSON.parse(line); if (generation) queueMicrotask(() => helper.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, result: 'fresh' }) + '\n'))); }, end() { if (generation) { helper.exitCode = 0; helper.emit('exit', 0); } } };
+    helper.kill = () => { signalKill(); return true; }; if (!generation) old = helper; return helper;
+  } });
+  await assert.rejects(delayed.request('inspect', {}), error => error.code === 'timeout');
+  const fresh = delayed.request('observe', {}); await killRequested; assert.equal(starts, 1);
+  old.exitCode = 1; old.emit('exit', 1); assert.equal(await fresh, 'fresh'); assert.equal(starts, 2); await delayed.dispose();
+  for (const failure of ['never-exits', 'throwing-kill', 'spawn-error']) {
+    let previous, starts = 0, kills = 0;
+    const recovering = createBackend(runtime, { verify: () => declaration, timeoutMs: 5, shutdownMs: 5, spawnChild() {
+      const helper = new EventEmitter(); helper.exitCode = null; helper.stdout = new EventEmitter(); helper.stderr = new EventEmitter(); const generation = starts++;
+      helper.stdin = { write(line) { const request = JSON.parse(line); if (generation) queueMicrotask(() => helper.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, result: 'fresh' }) + '\n'))); }, end() { if (generation) { helper.exitCode = 0; helper.emit('exit', 0); } } };
+      helper.kill = () => { kills++; if (failure === 'throwing-kill') throw new Error('private kill failure'); return true; };
+      if (!generation) { previous = helper; if (failure === 'spawn-error') queueMicrotask(() => helper.emit('error', new Error('private spawn failure'))); }
+      return helper;
+    } });
+    await assert.rejects(recovering.request('status', {}), error => error.code === (failure === 'spawn-error' ? 'connection_error' : 'timeout'));
+    await assert.rejects(recovering.request('observe', {}), error => error.code === 'connection_error' && !error.message.includes('private'));
+    await assert.rejects(recovering.request('inspect', {}), error => error.code === 'connection_error');
+    assert.equal(starts, 1); assert.equal(kills, failure === 'spawn-error' ? 0 : 1);
+    if (failure === 'spawn-error') previous.emit('close');
+    else { previous.exitCode = 1; previous.emit('exit', 1); }
+    assert.equal(await recovering.request('observe', {}), 'fresh'); assert.equal(starts, 2); await recovering.dispose();
   }
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });

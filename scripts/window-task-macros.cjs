@@ -306,7 +306,7 @@ async function run(input, parameters, io) {
       await capture();
     } catch {}
     const failure = errorPayload(error);
-    if (mutationAttempted && !failure.mutationOutcome) failure.mutationOutcome = 'unknown';
+    if (mutationAttempted && !failure.mutationOutcome && failure.actionExecuted !== false) failure.mutationOutcome = 'unknown';
     return {
       runId,
       status: 'failed',

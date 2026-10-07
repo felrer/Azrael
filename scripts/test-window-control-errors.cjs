@@ -46,6 +46,26 @@ function socketFixture() {
   socket.setTimeout = (ms, callback) => { socket.expire = callback; socket.timeoutMs = ms; };
   return socket;
 }
+test('recovery instructions round trip through host transport and MCP with strict field validation', async () => {
+  for (const recovery of ['observe_again', 'reselect', 'user_resume']) {
+    for (const observationRequired of [true, false]) {
+      const payload = { code: 'state_changed', message: 'Observe the selected window again', recovery, observationRequired, actionExecuted: false };
+      assert.deepEqual(errorPayload(windowError(payload.code, payload.message, payload)), payload);
+      assert.deepEqual(errorPayload(fromPayload(payload)), payload);
+      const socket = socketFixture();
+      const protocol = createProtocol({ relay: () => pipeRequest('fixture', {}, { connect: () => socket }) });
+      const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: meta } });
+      socket.emit('connect'); socket.emit('data', Buffer.from(JSON.stringify({ error: payload }) + '\n'));
+      assert.deepEqual(JSON.parse((await reply).result.content[0].text), payload);
+    }
+  }
+  const plain = { code: 'state_changed', message: 'State changed' };
+  for (const invalid of [{ recovery: 'private arbitrary content', observationRequired: 'true' }, { recovery: 'OBSERVE_AGAIN', observationRequired: 1 }, { recovery: null, observationRequired: null }]) {
+    assert.deepEqual(errorPayload(windowError(plain.code, plain.message, invalid)), plain);
+    assert.deepEqual(errorPayload(fromPayload({ ...plain, ...invalid })), plain);
+    assert.deepEqual(errorPayload({ ...plain, ...invalid }), plain);
+  }
+});
 test('minimized pause metadata round trips with strict enum and boolean validation', () => {
   for (const pauseReason of ['minimized', 'user_stopped', 'error']) {
     for (const restoreAllowed of [true, false]) {

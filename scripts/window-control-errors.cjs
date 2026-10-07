@@ -7,9 +7,11 @@ const UNCLASSIFIED = '미분류된 오류';
 const APPROVAL_STATES = new Set(['waiting', 'expired', 'declined', 'cancelled', 'accepted']);
 const NATIVE_PERMISSION_REASONS = new Set(['missing', 'malformed', 'not_disabled']);
 const PAUSE_REASONS = new Set(['minimized', 'user_stopped', 'error']);
+const RECOVERIES = new Set(['observe_again', 'reselect', 'user_resume']);
 function copyApprovalDetails(source, target) {
   if (APPROVAL_STATES.has(source?.approvalState)) target.approvalState = source.approvalState;
-  for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
+  for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed', 'observationRequired']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
+  if (RECOVERIES.has(source?.recovery)) target.recovery = source.recovery;
   if (PAUSE_REASONS.has(source?.pauseReason)) target.pauseReason = source.pauseReason;
   if (NATIVE_PERMISSION_REASONS.has(source?.nativePermissionReason)) target.nativePermissionReason = source.nativePermissionReason;
 }

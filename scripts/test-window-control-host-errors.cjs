@@ -5,14 +5,37 @@ const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const app = 'C:/fixture/app.exe';
-async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, registerThread = true) {
+test('recoverable observation failure survives the host pipe and permits the next capture', async t => {
+  const { windowError } = require('./window-control-errors.cjs');
+  let failed = true, sequence = 0;
+  const f = await fixture(t, 1000, {}, true, (method, _args, descriptor) => {
+    if (method === 'listWindows') return [descriptor];
+    if (method !== 'observe') return { window: descriptor };
+    if (failed) throw windowError('state_changed', 'Accessibility element unavailable', { nativeCode: 'stale-element' });
+    return { window: descriptor, observationId: 'host-observation-' + ++sequence, frameTimestamp: 'now',
+      widthPx: 800, heightPx: 600, dpi: 96, elementsTruncated: false, elements: [], image: { mimeType: 'image/png', data: 'YQ==' } };
+  });
+  const selecting = f.socketCall('select_window', { candidateId: await f.candidate() });
+  await f.prompted(); f.answer('이번 대화');
+  const selected = (await selecting.reply).result;
+  assert.ok(selected.targetId);
+  const args = { targetId: selected.targetId };
+  const response = await f.socketCall('capture', args).reply;
+  assert.equal(response.error.recovery, 'observe_again'); assert.equal(response.error.observationRequired, true); assert.equal(response.error.actionExecuted, false);
+  const status = (await f.socketCall('status', {}).reply).result;
+  assert.equal(status.state, 'ready'); assert.equal(status.observationRequired, true); assert.equal(status.targetId, selected.targetId);
+  failed = false;
+  const captured = (await f.socketCall('capture', args).reply).result;
+  assert.equal(captured.state, 'ready'); assert.equal(captured.observationId, 'host-observation-1');
+});
+async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, registerThread = true, requestBackend) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-errors-'));
   let connect, resolveAnswer, latestRequest, promptCount = 0, posts = [], turn = 'turn-one';
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: app, title: 'Fixture', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const host = createHost({ runtime: { codexHome: home, ...runtimeOverrides }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
     vscode: { window: { showInformationMessage() { throw Error('External consent modal forbidden'); } } },
-    backend: { async request(method) { return method === 'listWindows' ? [descriptor] : descriptor; }, async dispose() {} },
+    backend: { async request(method, args) { return requestBackend ? requestBackend(method, args, descriptor) : method === 'listWindows' ? [descriptor] : descriptor; }, async dispose() {} },
     createServer(listener) { connect = listener; const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => {}; return server; }
   });
   const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});

@@ -8,6 +8,12 @@ const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
 const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
+const OBSERVATION_FAILURES = new Set(['stale-element', 'stale-observation', 'unknown-element', 'uia-value-limit',
+  'capture-size-changed', 'capture-timeout', 'provider-timeout', 'backend-timeout', 'native-error',
+  'capture-device', 'capture-format', 'capture-encode', 'capture-clock', 'capture-size',
+  'capture-unsupported', 'protected-target', 'unobservable-target']);
+const INPUT_REJECTIONS = new Set(['stale-observation', 'unknown-element', 'stale-element',
+  'unsupported-action', 'unsupported-key', 'disabled-element', 'readonly-element']);
 const { expectedError, windowError } = require('./window-control-errors.cjs');
 const fail = message => { throw expectedError(message); };
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
@@ -42,7 +48,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
   const get = id => { str(id); const b = bindings.get(id); if (!b) fail('No selected window'); return b; };
   const canRestore = b => !b.userStopped && (b.state !== 'paused' || b.pauseReason === 'minimized');
   const restoreAllowed = b => canRestore(b) && (b.window.minimized || (b.state === 'paused' && b.pauseReason === 'minimized'));
-  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, ...(b.state === 'paused' ? { pauseReason: b.pauseReason || 'error' } : {}), restoreAllowed: restoreAllowed(b), window: safeWindow(b.window), supportedActions: [...ACTIONS] });
+  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, ...(b.state === 'paused' ? { pauseReason: b.pauseReason || 'error' } : {}), ...(b.state === 'ready' && !b.observation ? { observationRequired: true } : {}), restoreAllowed: restoreAllowed(b), window: safeWindow(b.window), supportedActions: [...ACTIONS] });
   const pause = (b, reason) => {
     const previous = b.state === 'paused' ? b.pauseReason : undefined;
     b.state = 'paused'; b.observation = null;
@@ -97,12 +103,23 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
       const minimized = error.code === 'window_minimized' || error.nativeCode === 'window-minimized';
       const current = !disposed && bindings.get(thread) === b && b.generation === generation;
       const geometryChanged = ['observe','inspect'].includes(method) && error.code === 'state_changed' && error.nativeCode === 'capture-size-changed' && error.mutationOutcome !== 'unknown';
+      const observationFailed = ['observe','inspect','status'].includes(method) && error.mutationOutcome !== 'unknown' &&
+        (OBSERVATION_FAILURES.has(error.nativeCode) || (!error.nativeCode && ['timeout','connection_error'].includes(error.code))) &&
+        !['cancelled','permission_denied'].includes(error.code);
+      const inputRejected = method === 'act' && INPUT_REJECTIONS.has(error.nativeCode) && error.mutationOutcome !== 'unknown' &&
+        !['cancelled','permission_denied'].includes(error.code);
       const resizeRejected = method === 'resize' && error.mutationOutcome !== 'unknown' &&
         ((error.nativeCode === 'not-resizable' && error.code === 'unsupported_action') || (error.nativeCode === 'resize-bounds' && error.code === 'invalid_request'));
-      if (['act','resize','restore'].includes(method) && !minimized && !['unsupported_action','state_changed','invalid_request'].includes(error.code)) error.mutationOutcome = 'unknown';
+      if (['act','resize','restore'].includes(method) && !minimized && !inputRejected && !['unsupported_action','state_changed','invalid_request'].includes(error.code)) error.mutationOutcome = 'unknown';
       if (current) {
         b.observation = null;
-        if (!geometryChanged && !resizeRejected) { pause(b, minimized ? 'minimized' : 'error'); b.generation++; }
+        if (!minimized && !b.userStopped && b.state !== 'paused' && (observationFailed || inputRejected || resizeRejected)) {
+          // No input is replayed. The next observation revalidates identity and
+          // authority in ready(); a late failure must not clear Stop/revocation.
+          await guard(b, thread, generation);
+          b.state = 'ready'; delete b.pauseReason;
+          error.recovery = 'observe_again'; error.observationRequired = true; error.actionExecuted = false;
+        } else if (!geometryChanged && !resizeRejected) { pause(b, minimized ? 'minimized' : 'error'); b.generation++; }
         occupancy.publish();
       }
       if (minimized && current) throw minimizedError(b, error);

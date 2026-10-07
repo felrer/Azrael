@@ -169,7 +169,7 @@ async function geometryRecoveryChecks(home) {
         hook = null; await stale(args, old);
         const fresh = await owner.call('geometry', tool, args); assert.equal(fresh.state, 'ready');
       }
-      for (const failure of [nativeError('timeout', 'capture-timeout'), nativeError('state_changed', 'stale-target'), nativeError('unclassified'), nativeError('state_changed', 'capture-size-changed', 'unknown')]) {
+      for (const failure of [nativeError('state_changed', 'stale-target'), nativeError('unclassified', 'unexpected-provider-code'), nativeError('state_changed', 'capture-size-changed', 'unknown')]) {
         const args = await reset(); await owner.call('geometry', tool, args); calls.length = 0;
         hook = requested => { if (requested === method) throw failure; };
         await assert.rejects(owner.call('geometry', tool, args), error => error === failure);
