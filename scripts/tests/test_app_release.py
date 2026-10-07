@@ -3,6 +3,8 @@ import hashlib
 import importlib.util
 import io
 import json
+import os
+import shutil
 from pathlib import Path
 import subprocess
 import sys
@@ -24,7 +26,7 @@ def sha(data):
 class AppReleaseTests(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory(prefix='azrael-app-release-test-')
-        self.addCleanup(self.temp.cleanup)
+        self.addCleanup(self.cleanup_fixture)
         self.root = Path(self.temp.name)
         self.release = self.root / 'source'
         self.host = self.root / 'host.vsix'
@@ -61,6 +63,10 @@ class AppReleaseTests(unittest.TestCase):
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_bytes(data)
 
+    def cleanup_fixture(self):
+        self.temp.cleanup()
+        self.assertFalse(self.root.exists(), 'Synthetic fixture cleanup incomplete')
+
     def write_json(self, path, value):
         self.write(path, json.dumps(value).encode())
 
@@ -69,8 +75,42 @@ class AppReleaseTests(unittest.TestCase):
             for name, data in self.host_entries.items():
                 archive.writestr(name, data)
 
+    def run_process(self, command, env=None):
+        # Never inherit a developer's recipient overrides or touch their state.
+        isolated = {key: value for key, value in os.environ.items()
+                    if not key.upper().startswith('AZRAEL_')}
+        isolated.update(USERPROFILE=str(self.root / 'recipient'),
+                        LOCALAPPDATA=str(self.root / 'recipient-local'))
+        isolated.update(env or {})
+        return subprocess.run(command, env=isolated, capture_output=True, text=True,
+                              encoding='utf-8', errors='replace')
+
+    def run_installer(self, extracted, options=(), env=None, expected=0, prepare=True):
+        command = ['pwsh', '-NoProfile', '-File', str(extracted / 'install.ps1')]
+        if prepare:
+            command.append('-PrepareOnly')
+        command.extend(str(option) for option in options)
+        result = self.run_process(command, env)
+        self.assertEqual(result.returncode, expected, result.stderr)
+        return result
+
+    def installed_config(self, destination):
+        receipt = json.loads((destination / 'installer-receipt.json').read_bytes())
+        with zipfile.ZipFile(receipt['customizedVsix']) as archive:
+            config = json.loads(archive.read('extension/out/azrael-runtime.json'))
+        self.assertEqual(config, receipt['runtimeConfig'])
+        self.assertEqual(config, json.loads((destination / 'runtime-config.json').read_bytes()))
+        return receipt, config
+
+    def fake_code(self, name, exit_code=0):
+        cli = self.root / 'fake-code' / name
+        self.write(cli, ("ConvertTo-Json -InputObject @($args) -Compress | "
+                         "Set-Content -LiteralPath (Join-Path $PSScriptRoot '" + name + ".calls.json')\n"
+                         "$global:LASTEXITCODE = " + str(exit_code) + "\n").encode())
+        return cli
+
     def package(self, expected=0, version='2026.0.0'):
-        result = subprocess.run([sys.executable, '-B', str(SCRIPTS / 'package-app-release.py'), '--release-directory', str(self.release), '--host-vsix', str(self.host), '--version', version, '--output', str(self.output)], capture_output=True, text=True, encoding='utf-8', errors='replace')
+        result = self.run_process([sys.executable, '-B', str(SCRIPTS / 'package-app-release.py'), '--release-directory', str(self.release), '--host-vsix', str(self.host), '--version', version, '--output', str(self.output)])
         self.assertEqual(result.returncode, expected, result.stderr)
         return result
 
@@ -85,7 +125,7 @@ class AppReleaseTests(unittest.TestCase):
         state = self.root / 'isolated-state'
         state.mkdir(exist_ok=True)
         self.write(state / 'auth-sentinel', b'preserve')
-        result = subprocess.run(['pwsh', '-NoProfile', '-File', str(extracted / 'install.ps1'), '-PrepareOnly', '-InstallRoot', str(destination), '-StateRoot', str(state), '-CodePath', str(self.root / 'missing-code.cmd')], capture_output=True, text=True, encoding='utf-8', errors='replace')
+        result = self.run_process(['pwsh', '-NoProfile', '-File', str(extracted / 'install.ps1'), '-PrepareOnly', '-InstallRoot', str(destination), '-StateRoot', str(state), '-CodePath', str(self.root / 'missing-code.cmd')])
         self.assertEqual(result.returncode, expected, result.stderr)
         self.assertEqual((state / 'auth-sentinel').read_bytes(), b'preserve')
         return result
@@ -179,13 +219,184 @@ class AppReleaseTests(unittest.TestCase):
         self.assertIn('template version/configuration mismatch', self.install(extracted, destination, 1).stderr)
         self.assertFalse(destination.exists())
 
+    def test_recipient_environment_paths_are_frozen_and_portable(self):
+        extracted = self.extract()
+        # Remove the synthetic publisher's source and external Node using native
+        # PowerShell, with containment checked before each recursive deletion.
+        cleanup = self.root / 'remove-packaging-inputs.ps1'
+        self.write(cleanup, b'''param([string]$FixtureRoot, [string]$Source, [string]$NodeRoot)
+$ErrorActionPreference = 'Stop'
+foreach ($path in @($Source, $NodeRoot)) {
+    $full = [IO.Path]::GetFullPath($path)
+    if (-not $full.StartsWith([IO.Path]::GetFullPath($FixtureRoot).TrimEnd('\\') + '\\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Outside fixture' }
+    Remove-Item -LiteralPath $full -Recurse -Force
+}
+''')
+        result = self.run_process(['pwsh', '-NoProfile', '-File', str(cleanup),
+                                   '-FixtureRoot', str(self.root), '-Source', str(self.release),
+                                   '-NodeRoot', str(self.node.parent)])
+        self.assertEqual(result.returncode, 0, result.stderr)
+        self.assertFalse(self.release.exists())
+        self.assertFalse(self.node.parent.exists())
+        snapshots = []
+        for user in ('Alice 공간', 'Bob 사용자'):
+            with self.subTest(user=user):
+                recipient = self.root / user
+                releases = recipient / 'custom releases'
+                state = recipient / 'persistent 상태'
+                devin = recipient / 'cli 도구' / 'devin.exe'
+                self.write(devin, b'fake recipient CLI')
+                self.write(state / 'auth-sentinel', b'preserve recipient state')
+                ordinary = recipient / '.codex' / 'auth-sentinel'
+                self.write(ordinary, b'ordinary Codex remains separate')
+                env = {'USERPROFILE': str(recipient), 'AZRAEL_RELEASES_ROOT': str(releases),
+                       'AZRAEL_STATE_ROOT': str(state), 'AZRAEL_DEVIN_EXECUTABLE': str(devin)}
+                self.run_installer(extracted, env=env)
+                destination = releases / '2026.0.0'
+                receipt, config = self.installed_config(destination)
+                self.assertEqual(config['codexHome'], str(state))
+                self.assertEqual(config['devinExecutable'], str(devin))
+                self.assertEqual(config['engine'], str(destination / 'runtime/engine/codex.exe'))
+                self.assertEqual(config['devinNative']['releaseDirectory'], str(destination / 'runtime'))
+                devin_manifest = json.loads((destination / 'runtime/devin-native-build.json').read_bytes())
+                self.assertEqual(devin_manifest['node']['path'], str(destination / 'runtime/node/node.exe'))
+                self.assertEqual((destination / 'runtime/node/node.exe').read_bytes(), b'fake node')
+                self.assertEqual((state / 'auth-sentinel').read_bytes(), b'preserve recipient state')
+                self.assertEqual(ordinary.read_bytes(), b'ordinary Codex remains separate')
+                self.assertTrue(receipt['preparedOnly'])
+                self.assertFalse(receipt['installed'])
+                snapshots.append((destination, config))
+        # A later install for another recipient never rewrites the earlier config.
+        for destination, frozen in snapshots:
+            self.assertEqual(self.installed_config(destination)[1], frozen)
+        self.assertNotEqual(snapshots[0][1]['codexHome'], snapshots[1][1]['codexHome'])
+
+    def test_default_roots_follow_current_recipient(self):
+        extracted = self.extract()
+        for user in ('default Alice', 'default Bob 사용자'):
+            with self.subTest(user=user):
+                home = self.root / user
+                local = home / 'Local AppData'
+                self.run_installer(extracted, env={'USERPROFILE': str(home), 'LOCALAPPDATA': str(local)})
+                destination = local / 'azrael-ex/releases/2026.0.0'
+                _, config = self.installed_config(destination)
+                self.assertEqual(config['codexHome'], str(home / '.azrael-ex'))
+                self.assertNotIn('devinExecutable', config)
+                self.assertFalse((home / '.codex').exists())
+
+    def test_explicit_options_override_environment_and_installroot_wins(self):
+        extracted = self.extract()
+        explicit_devin = self.root / 'explicit CLI 공간' / 'devin.exe'
+        self.write(explicit_devin, b'explicit CLI')
+        state = self.root / 'explicit state 상태'
+        releases = self.root / 'explicit releases 공간'
+        env = {'AZRAEL_RELEASES_ROOT': 'invalid-relative-env-release',
+               'AZRAEL_STATE_ROOT': 'invalid-relative-env-state',
+               'AZRAEL_DEVIN_EXECUTABLE': str(self.root / 'missing-env-devin.exe')}
+        options = ['-StateRoot', state, '-DevinExecutable', explicit_devin]
+        self.run_installer(extracted, ['-ReleasesRoot', releases, *options], env)
+        _, config = self.installed_config(releases / '2026.0.0')
+        self.assertEqual(config['codexHome'], str(state))
+        self.assertEqual(config['devinExecutable'], str(explicit_devin))
+        destination = self.root / 'exact destination 사용자'
+        self.run_installer(extracted, ['-InstallRoot', destination,
+                                       '-ReleasesRoot', 'invalid-ignored-option', *options], env)
+        self.assertEqual(self.installed_config(destination)[1]['engine'],
+                         str(destination / 'runtime/engine/codex.exe'))
+
+    def test_invalid_recipient_paths_fail_before_destination_creation(self):
+        extracted = self.extract()
+        state = self.root / 'safe-state'
+        home = self.root / 'recipient'
+        ordinary = home / '.codex' / 'auth-sentinel'
+        self.write(ordinary, b'preserve ordinary state')
+        self.write(state / 'auth-sentinel', b'preserve Azrael state')
+        cases = [
+            (lambda destination: ['-ReleasesRoot', 'relative-release'], {}, 'absolute Windows path'),
+            (lambda destination: ['-StateRoot', 'relative-state'], {}, 'absolute Windows path'),
+            (lambda destination: ['-StateRoot', destination / 'state'], {}, 'separate'),
+            (lambda destination: ['-StateRoot', self.root], {}, 'separate'),
+            (lambda destination: ['-StateRoot', extracted / 'state'], {}, 'separate'),
+            (lambda destination: ['-StateRoot', home / '.codex'], {}, 'ordinary Codex'),
+            (lambda destination: ['-StateRoot', home / '.codex' / 'nested'], {}, 'ordinary Codex'),
+            (lambda destination: ['-DevinExecutable', 'relative-cli.exe'], {}, 'absolute Windows path'),
+            (lambda destination: [], {'AZRAEL_DEVIN_EXECUTABLE': str(self.root / 'missing-cli.exe')}, 'missing'),
+            (lambda destination: ['-DevinExecutable', self.root], {}, 'missing'),
+        ]
+        for index, (make_options, env, error) in enumerate(cases):
+            destination = self.root / ('never-created-' + str(index))
+            options = make_options(destination)
+            with self.subTest(options=options, env=env):
+                # ReleasesRoot case must exercise release-root resolution.
+                base = [] if '-ReleasesRoot' in options else ['-InstallRoot', destination]
+                if '-InstallRoot' in options:
+                    base = []
+                if '-StateRoot' not in options:
+                    base += ['-StateRoot', state]
+                result = self.run_installer(extracted, [*base, *options], env, expected=1)
+                self.assertIn(error, result.stderr)
+                self.assertFalse(destination.exists())
+                self.assertFalse((extracted / 'state').exists())
+                self.assertEqual(ordinary.read_bytes(), b'preserve ordinary state')
+                self.assertEqual((state / 'auth-sentinel').read_bytes(), b'preserve Azrael state')
+
+    def test_reparse_devin_parent_rejected_before_creation(self):
+        extracted = self.extract()
+        real = self.root / 'real-cli'
+        self.write(real / 'devin.exe', b'fake CLI')
+        junction = self.root / 'linked-cli'
+        result = self.run_process(['pwsh', '-NoProfile', '-Command',
+                                  'New-Item -ItemType Junction -Path $env:TEST_LINK -Target $env:TEST_TARGET -ErrorAction Stop | Out-Null',],
+                                 {'TEST_LINK': str(junction), 'TEST_TARGET': str(real)})
+        if result.returncode:
+            self.skipTest('Fixture junction unavailable: ' + result.stderr.strip())
+        # Remove only the junction itself before TemporaryDirectory cleanup.
+        self.addCleanup(os.rmdir, junction)
+        destination = self.root / 'reparse-never-created'
+        result = self.run_installer(extracted, ['-InstallRoot', destination,
+                                               '-DevinExecutable', junction / 'devin.exe'], expected=1)
+        self.assertIn('Reparse point forbidden', result.stderr)
+        self.assertFalse(destination.exists())
+        self.assertEqual((real / 'devin.exe').read_bytes(), b'fake CLI')
+
+    def test_codepath_selection_uses_only_local_mock_cli(self):
+        extracted = self.extract()
+        env_cli = self.fake_code('env-code.ps1')
+        explicit_cli = self.fake_code('explicit-code.ps1')
+        default_cli = self.fake_code('code.ps1')
+        for name, options, env, selected in (
+            ('environment', [], {'AZRAEL_CODE_PATH': str(env_cli)}, env_cli),
+            ('explicit', ['-CodePath', explicit_cli], {'AZRAEL_CODE_PATH': str(self.root / 'missing-code')}, explicit_cli),
+            ('default', [], {'PATH': str(default_cli.parent) + os.pathsep + str(Path(shutil.which('pwsh')).parent)}, default_cli),
+        ):
+            with self.subTest(selection=name):
+                destination = self.root / ('mock-install-' + name)
+                self.run_installer(extracted, ['-InstallRoot', destination, *options], env, prepare=False)
+                receipt, _ = self.installed_config(destination)
+                self.assertTrue(receipt['installed'])
+                self.assertFalse(receipt['preparedOnly'])
+                calls = json.loads((selected.parent / (selected.name + '.calls.json')).read_text(encoding='utf-8-sig'))
+                self.assertEqual(calls, ['--install-extension', receipt['customizedVsix']])
+        missing = self.root / 'missing-code-destination'
+        result = self.run_installer(extracted, ['-InstallRoot', missing],
+                                    {'AZRAEL_CODE_PATH': str(self.root / 'missing-cli')}, expected=1, prepare=False)
+        self.assertIn('Get-Command', result.stderr)
+        self.assertFalse(missing.exists())
+        failed_cli = self.fake_code('failed-code.ps1', exit_code=17)
+        retained = self.root / 'mock-cli-failed'
+        result = self.run_installer(extracted, ['-InstallRoot', retained, '-CodePath', failed_cli],
+                                    expected=1, prepare=False)
+        self.assertIn('exit code 17', result.stderr)
+        self.assertTrue((retained / 'runtime').exists())
+        self.assertFalse((retained / 'installer-receipt.json').exists())
+
     def test_orchestrator_rejects_mismatched_receipt_before_packaging(self):
         receipt = self.root / 'prepared.json'
         configured_version = json.loads((SCRIPTS / 'azrael-app-release.json').read_bytes())['version']
         mismatched_version = '0.0.0' if configured_version != '0.0.0' else '0.0.1'
         self.write_json(receipt, {'HostVersion': mismatched_version, 'ReleaseDirectory': str(self.release), 'HostVsix': str(self.host), 'HostSha256': sha(self.host.read_bytes())})
         output = self.root / 'orchestrated'
-        result = subprocess.run(['pwsh', '-NoProfile', '-File', str(SCRIPTS / 'prepare-app-release.ps1'), '-ReleaseDirectory', str(self.release), '-OutputDirectory', str(output), '-PreparedHostReceipt', str(receipt)], capture_output=True, text=True, encoding='utf-8', errors='replace')
+        result = self.run_process(['pwsh', '-NoProfile', '-File', str(SCRIPTS / 'prepare-app-release.ps1'), '-ReleaseDirectory', str(self.release), '-OutputDirectory', str(output), '-PreparedHostReceipt', str(receipt)])
         self.assertEqual(result.returncode, 1)
         self.assertIn('does not match', result.stderr)
         self.assertFalse((output / 'assets').exists())
@@ -238,7 +449,7 @@ $global:LASTEXITCODE = 2
                    '-GhPath', str(shim), '-PreflightOnly']
         if allow_public:
             command.append('-AllowPublicRepository')
-        result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        result = self.run_process(command)
         recorded = [json.loads(line) for line in calls.read_text().splitlines()] if calls.exists() else []
         self.assertFalse((self.output / 'publish-receipt.json').exists())
         # Every simulated remote call must be a read; an unexpected mutation fails the shim.

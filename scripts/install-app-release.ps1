@@ -2,8 +2,10 @@
 param(
     [switch]$PrepareOnly,
     [string]$InstallRoot,
+    [string]$ReleasesRoot,
     [string]$StateRoot,
-    [string]$CodePath = 'code'
+    [string]$CodePath,
+    [string]$DevinExecutable
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -73,13 +75,31 @@ try {
     foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/codex.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/codex-code-mode-host.exe')) {
         if (-not $known.ContainsKey($required)) { throw "Missing package dependency: $required" }
     }
-    if (-not $InstallRoot) { $InstallRoot = Join-Path $env:LOCALAPPDATA ('azrael-ex/releases/' + $manifest.releaseVersion) }
-    if (-not $StateRoot) { $StateRoot = Join-Path $env:USERPROFILE '.azrael-ex' }
+    # Only recipient-owned settings are read here. The public template contains
+    # relative payload paths; no build-machine location is used for execution.
+    if (-not $PSBoundParameters.ContainsKey('InstallRoot')) {
+        if (-not $PSBoundParameters.ContainsKey('ReleasesRoot')) {
+            $ReleasesRoot = if ($env:AZRAEL_RELEASES_ROOT) { $env:AZRAEL_RELEASES_ROOT } else { Join-Path $env:LOCALAPPDATA 'azrael-ex/releases' }
+        }
+        $ReleasesRoot = Absolute-Path $ReleasesRoot
+        $InstallRoot = Join-Path $ReleasesRoot $manifest.releaseVersion
+    }
+    if (-not $PSBoundParameters.ContainsKey('StateRoot')) {
+        $StateRoot = if ($env:AZRAEL_STATE_ROOT) { $env:AZRAEL_STATE_ROOT } else { Join-Path $env:USERPROFILE '.azrael-ex' }
+    }
+    if (-not $PSBoundParameters.ContainsKey('CodePath')) {
+        $CodePath = if ($env:AZRAEL_CODE_PATH) { $env:AZRAEL_CODE_PATH } else { 'code' }
+    }
+    if (-not $PSBoundParameters.ContainsKey('DevinExecutable')) { $DevinExecutable = $env:AZRAEL_DEVIN_EXECUTABLE }
+    if ($DevinExecutable) {
+        $DevinExecutable = Absolute-Path $DevinExecutable
+        if (-not (Test-Path -LiteralPath $DevinExecutable -PathType Leaf)) { throw "Devin executable is missing: $DevinExecutable" }
+    }
     $destination = Absolute-Path $InstallRoot
     $state = Absolute-Path $StateRoot
     $ordinaryState = Absolute-Path (Join-Path $env:USERPROFILE '.codex')
     if (Is-Within $state $ordinaryState) { throw 'Azrael requires a state directory separate from ordinary Codex.' }
-    if ((Is-Within $destination $packageRoot) -or (Is-Within $packageRoot $destination) -or (Is-Within $destination $state) -or (Is-Within $state $destination)) { throw 'Installation must be separate from the extracted package and state directory.' }
+    if ((Is-Within $destination $packageRoot) -or (Is-Within $packageRoot $destination) -or (Is-Within $destination $state) -or (Is-Within $state $destination) -or (Is-Within $state $packageRoot) -or (Is-Within $packageRoot $state)) { throw 'Installation, extracted package and state directories must be separate.' }
     if (Test-Path -LiteralPath $destination) { throw "Installation destination is occupied: $destination" }
     # Resolve the installer CLI before creating anything; PrepareOnly needs no VS Code.
     $codeCommand = $null
@@ -117,6 +137,7 @@ try {
         $config.engine = Relative-File $runtimeDirectory $config.engine
         $config.bridge = Relative-File $runtimeDirectory $config.bridge
         $config.codexHome = $state
+        if ($DevinExecutable) { $config | Add-Member -NotePropertyName devinExecutable -NotePropertyValue $DevinExecutable }
         foreach ($provider in @('devinNative', 'providerAccounts')) {
             if ($config.$provider.releaseDirectory -cne '.') { throw "Invalid provider template: $provider" }
             $config.$provider.releaseDirectory = $runtimeDirectory

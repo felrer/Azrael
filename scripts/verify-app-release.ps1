@@ -53,7 +53,8 @@ New-Item -ItemType Directory -Path $fixture | Out-Null
 try {
     Add-Type -AssemblyName System.IO.Compression.FileSystem
     [IO.Compression.ZipFile]::ExtractToDirectory($zip, $extracted)
-    & (Join-Path $extracted 'install.ps1') -PrepareOnly -InstallRoot $installed -StateRoot $state *> (Join-Path $logs 'relocation.log')
+    # Isolated acceptance does not inherit the recipient's optional live CLI.
+    & (Join-Path $extracted 'install.ps1') -PrepareOnly -InstallRoot $installed -StateRoot $state -DevinExecutable '' *> (Join-Path $logs 'relocation.log')
     $installer = Get-Content -LiteralPath (Join-Path $installed 'installer-receipt.json') -Raw | ConvertFrom-Json
     if ($installer.hostVersion -cne $manifest.releaseVersion -or $installer.installed -ne $false) { throw 'Unexpected relocation receipt.' }
     $arguments = @{

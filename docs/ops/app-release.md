@@ -12,7 +12,26 @@ Each release identifies its source build and engine source fingerprint. The buil
 
 The Windows x64 ZIP contains the integrated host template, runtime dependency closure, bundled Node, file inventory, provenance and available licenses/NOTICE files. It excludes user accounts, conversations, settings and build caches. The installer verifies the complete inventory before copying runtime files and preparing a VSIX whose runtime settings resolve to the selected installation location. Runtime and provider code bytes retain their original hashes; installation-specific settings are recorded separately.
 
-The installer accepts `-PrepareOnly`, `-InstallRoot`, `-StateRoot` and `-CodePath`. Its default runtime location is `%LOCALAPPDATA%/azrael-ex/releases/<version>` and its state location is `%USERPROFILE%/.azrael-ex`. Existing installation destinations are refused. A preparation failure removes only the newly created destination; a failed VS Code installation retains runtime paths because the extension may already reference them. Preserve those paths until the partial installation has been assessed. Installation preserves existing authentication and state and does not close or reload active windows.
+The installer accepts `-PrepareOnly`, `-InstallRoot`, `-ReleasesRoot`, `-StateRoot`, `-CodePath` and `-DevinExecutable`. It resolves paths from the recipient's environment and saves the resolved locations in the installed configuration and receipt. The public host template retains relative runtime paths and the `@STATE@` placeholder; build-machine paths in provenance are historical evidence, not runtime locations to resolve on the recipient's PC.
+
+| Setting | Explicit option | User environment variable | Default |
+| --- | --- | --- | --- |
+| Parent of versioned runtime installations | `-ReleasesRoot` | `AZRAEL_RELEASES_ROOT` | `%LOCALAPPDATA%/azrael-ex/releases` |
+| Accounts, conversations and settings | `-StateRoot` | `AZRAEL_STATE_ROOT` | `%USERPROFILE%/.azrael-ex` |
+| VS Code CLI command or path | `-CodePath` | `AZRAEL_CODE_PATH` | `code` |
+| Optional existing Devin CLI executable | `-DevinExecutable` | `AZRAEL_DEVIN_EXECUTABLE` | Unset |
+
+Explicit options take precedence over their environment variables. The installer appends the release version to the selected releases root. `-InstallRoot` instead selects the exact version directory and takes precedence over both `-ReleasesRoot` and `AZRAEL_RELEASES_ROOT`. Directory overrides and the optional Devin executable must be absolute paths. The Devin executable must exist; Node remains the verified bundled runtime. `-PrepareOnly` does not require a VS Code CLI. Variables are read at installation, so later environment changes do not redirect an existing installation or its state.
+
+For example, set these process variables in the recipient's PowerShell session before running the extracted installer. User-level Windows environment variables with the same names may also be set for future installer processes.
+
+```powershell
+$env:AZRAEL_RELEASES_ROOT = Join-Path $env:LOCALAPPDATA 'azrael-ex/releases'
+$env:AZRAEL_STATE_ROOT = Join-Path $env:USERPROFILE '.azrael-ex'
+./install.ps1
+```
+
+Existing installation destinations are refused. Runtime, extracted package and state directories must be separate, and ordinary `.codex` state is prohibited. A preparation failure removes only the newly created destination; a failed VS Code installation retains runtime paths because the extension may already reference them. Preserve those paths until the partial installation has been assessed. Installation preserves existing authentication and state and does not close or reload active windows. Changing the state path does not migrate existing accounts or conversations.
 
 ## Local publication flow
 
