@@ -1,6 +1,6 @@
 # Local app release
 
-Status: `current` — local packaging, relocated runtime, isolated trusted-workspace host acceptance and private GitHub publication are verified. Full clean-machine acceptance and public redistribution permission remain separate.
+Status: `current` — local packaging, relocated runtime, isolated trusted-workspace host acceptance and private/public GitHub publication are verified. Public repositories require an explicit publication option. Full clean-machine acceptance and third-party redistribution evidence remain separate.
 
 ## Version and source ownership
 
@@ -18,9 +18,9 @@ The installer accepts `-PrepareOnly`, `-InstallRoot`, `-StateRoot` and `-CodePat
 
 Select an existing build through `-ReleaseDirectory` or the configured `artifacts/latest.json` pointer. That pointer identifies packaging success, so validation of the release package remains mandatory. `prepare-app-release.ps1` reads the version owner, prepares an integrated host at that version and packages the selected runtime. A supplied `-PreparedHostReceipt` must bind the selected build, version and host SHA-256. Output paths must be new.
 
-`publish-app-release.ps1` requires a verification receipt bound to the exact release manifest and asset hashes. It checks the existing private repository's access, confirms the selected remote target commit, and refuses an existing release or tag. It creates a draft, verifies every uploaded asset's size and SHA-256, then publishes only when `-Publish` is specified. `-PreflightOnly` performs validation and access checks without creating a release. On an upload or verification failure, preserve the reported draft/tag state for recovery; do not replace files under the same version.
+`publish-app-release.ps1` requires a verification receipt bound to the exact release manifest and asset hashes. It checks the existing repository's access, confirms the selected remote target commit, and refuses an existing release or tag. Public repositories additionally require `-AllowPublicRepository`; the script never changes repository visibility and records the destination's visibility in its receipt. It creates a draft, verifies every uploaded asset's size and SHA-256, then publishes only when `-Publish` is specified. `-PreflightOnly` performs validation and access checks without creating a release. On an upload or verification failure, preserve the reported draft/tag state for recovery; do not replace files under the same version.
 
-The GitHub tag identifies the specified remote commit; binary provenance identifies the reused build independently. Remote branch pushes, repository visibility changes and public redistribution are separate actions. Missing proprietary redistribution evidence remains explicit in package provenance; a private release does not establish public redistribution permission.
+The GitHub tag identifies the specified remote commit; binary provenance identifies the reused build independently. Remote branch pushes and repository visibility changes are separate actions. Apply `-AllowPublicRepository` when the user's publication request covers the existing public destination. Missing third-party redistribution evidence remains explicit in package provenance; successful publication does not establish that evidence.
 
 Run from the project root in PowerShell 7 after updating the version owner. These commands prepare and verify the selected local build, then upload its certified files. Supply available matching third-party notices through `-LicenseDirectory` when packaging.
 
@@ -31,7 +31,7 @@ $verificationOutput = Join-Path $PWD "artifacts/logs/app-release-$($releaseConfi
 ./scripts/prepare-app-release.ps1 -OutputDirectory $releaseOutput
 ./scripts/verify-app-release.ps1 -ManifestPath "$releaseOutput/assets/release-manifest.json" -OutputDirectory $verificationOutput
 $releaseTarget = gh api "repos/$($releaseConfig.repository)/commits/master" --jq .sha
-./scripts/publish-app-release.ps1 -ManifestPath "$releaseOutput/assets/release-manifest.json" -VerificationPath "$verificationOutput/verification.json" -NotesFile ./release-notes.txt -Repository $releaseConfig.repository -TargetCommit $releaseTarget -Publish
+./scripts/publish-app-release.ps1 -ManifestPath "$releaseOutput/assets/release-manifest.json" -VerificationPath "$verificationOutput/verification.json" -NotesFile ./release-notes.txt -Repository $releaseConfig.repository -TargetCommit $releaseTarget -AllowPublicRepository -Publish
 ```
 
 Create the release notes file before publication; its location is caller-selected. Omit `-Publish` to retain a verified draft. Preparation and verification outputs must be new on retry. To verify outside the development checkout, pass an absolute `-FixtureRoot` under a unique temporary owner's `artifacts/verification/<new-name>` directory. Inspect `verification.json` for `fixtureRoot` and `cleanupProjectRoot`, then remove the reviewed fixture with `clean-verification-artifacts.ps1 -ProjectRoot <cleanupProjectRoot> -FixtureRoot <fixtureRoot> -IncludeDiagnosedFixtures -Apply`. The cleanup checks process and installation references before deletion.

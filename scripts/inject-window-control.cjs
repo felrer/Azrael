@@ -1,11 +1,11 @@
 'use strict';
-const SETTINGS_ASSET = 'webview/assets/settings-page-76344c84191c.js';
+const SETTINGS_ASSET = 'webview/assets/computer-use-settings-f7844e8d05eb.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v1*/';
-const PAGE_MARKER = '/*azrael-window-control-launcher-v2*/';
+const PAGE_MARKER = '/*azrael-window-control-launcher-v3*/';
 const HOST_ANCHOR = 'case"open-vscode-command":{';
 const HOST_PATCH = 'case"azrael-window-control":{await Ge.commands.executeCommand("azrael.windowControl");break}' + 'case"azrael-use-settings":{await require("./window-control-host.cjs").settings(e,r);break}' + HOST_MARKER + HOST_ANCHOR;
-const PAGE_ANCHOR = 'if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{});';
-const PAGE_PATCH = PAGE_ANCHOR + 'if(x===`computer-use`)Pe=(0,$.jsxs)($.Fragment,{children:[Pe,(0,$.jsx)(AzraelWindowControlLauncher,{})]});';
+const PAGE_ANCHOR = '(0,$.jsxs)(Gt,{title:d,subtitle:f,children:[v,y]})';
+const PAGE_PATCH = '(0,$.jsxs)(Gt,{title:d,subtitle:f,children:[v,y,(0,$.jsx)(AzraelWindowControlLauncher,{})]})';
 function createUseSettingsStore(bridge, clientId, timing = globalThis, createRequestId = () => globalThis.crypto.randomUUID()) {
   let state = { settings: null, approvedApps: [], loading: true, saving: false, error: null };
   let disposed = false, timer, polling, awaiting = false, pendingRequestId, pendingQuiet = false;
@@ -39,6 +39,7 @@ function createUseSettingsStore(bridge, clientId, timing = globalThis, createReq
     dispose: () => { if (disposed) return; disposed = true; pendingRequestId = undefined; pendingQuiet = false; awaiting = false; cancel(); timing.clearInterval(polling); unsubscribe(); listeners.clear(); } };
 }
 function AzraelWindowControlLauncher() {
+  const Q = getAzraelUseReact();
   initAzraelUseCard(); initAzraelUseRow(); initAzraelUseSwitch(); initAzraelUseButton();
   const [store] = Q.useState(() => createUseSettingsStore(azraelWindowBridge, crypto.randomUUID()));
   Q.useEffect(() => () => store.dispose(), [store]);
@@ -46,7 +47,7 @@ function AzraelWindowControlLauncher() {
   const busy = state.loading || state.saving;
   const button = (label, onClick, props = {}) => (0, $.jsx)(AzraelUseButton, { color: 'secondary', size: 'default', disabled: busy, onClick, ...props, children: label });
   const row = (label, description, control) => (0, $.jsx)(AzraelUseRow, { label, description, control });
-  return (0, $.jsxs)('section', { 'data-azrael-window-control': true, className: 'mt-10 flex flex-col gap-10', 'aria-busy': busy, children: [
+  return (0, $.jsxs)('section', { 'data-azrael-window-control': true, className: 'flex flex-col gap-10', 'aria-busy': busy, children: [
     (0, $.jsx)(AzraelUseCard, { children: row('Computer Use', '컴퓨터 제어 도구 사용을 허용합니다.', ariaProps => (0, $.jsx)(AzraelUseSwitch, { ...ariaProps, checked: state.settings?.computerUseEnabled ?? true, disabled: busy || !state.settings, onChange: enabled => store.update({ computerUseEnabled: enabled }) })) }),
     (0, $.jsxs)('section', { className: 'flex flex-col gap-4', 'aria-labelledby': 'azrael-window-use-heading', children: [
       (0, $.jsxs)('div', { className: 'flex flex-col gap-1', children: [
@@ -76,7 +77,7 @@ function injectWindowControl(text, relativePath, ts) {
       if (text.split(PAGE_MARKER).length !== 2 || !text.includes(PAGE_PATCH) || !text.includes(AzraelWindowControlLauncher.toString()) || !text.includes(createUseSettingsStore.toString())) throw new Error('Invalid selected-window launcher marker');
       return { text, count: 0 };
     }
-    return { text: 'import{A3t as azraelWindowBridge,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow}from"./app-initial-5120fa5fe295.js";import{r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton}from"./app-initial-532d60c9b397.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
+    return { text: 'import{ZOt as getAzraelUseReact}from"./app-initial-efe028fd535e.js";import{A3t as azraelWindowBridge,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow}from"./app-initial-5120fa5fe295.js";import{r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton}from"./app-initial-532d60c9b397.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
   }
   if (relativePath !== 'out/extension.js') return { text, count: 0 };
   if (text.includes(HOST_MARKER)) {

@@ -106,7 +106,9 @@ function injectUiCleanup(text, relativePath, ts) {
     replace(requireFunction("iLi"), "`command:goal`,`command:plan-mode`,", "");
   } else {
     // Permission policy, eligibility, confirmation and selection callbacks stay
-    // intact. Match the ordinary approval option's neutral presentation.
+    // intact. Keep text neutral and tint only the leading menu icons.
+    replace(null, "LeftIcon:Dt,rightIconAsset", "LeftIcon:azraelApproveIcon,rightIconAsset");
+    replace(null, "LeftIcon:Fe,leftIconClassName", "LeftIcon:azraelFullAccessIcon,leftIconClassName");
     replace(null, "At=kt?`warning`:`tertiary`,Y=kt?An:`text-tertiary`", "At=`tertiary`,Y=`text-tertiary`");
     replace(null, "leftIconClassName:l(`icon-sm`,An)", "leftIconClassName:l(`icon-sm`)");
     replace(null, "rightIconClassName:l(`icon-xs`,An)", "rightIconClassName:l(`icon-xs`)");
@@ -123,6 +125,9 @@ function injectUiCleanup(text, relativePath, ts) {
     if (seen.has(edit.start)) throw new Error("Overlapping UI cleanup edits.");
     seen.add(edit.start);
     text = text.slice(0, edit.start) + edit.replacement + text.slice(edit.end);
+  }
+  if (relativePath === PERMISSIONS_ASSET) {
+    text += '\nfunction azraelApproveIcon(e){return (0,$.jsx)(`span`,{style:{display:`inline-flex`,color:`color-mix(in srgb, var(--blue-300) 55%, var(--color-token-description-foreground))`},children:(0,$.jsx)(Dt,e)})}\nfunction azraelFullAccessIcon(e){return (0,$.jsx)(`span`,{style:{display:`inline-flex`,color:`color-mix(in srgb, var(--orange-300) 55%, var(--color-token-description-foreground))`},children:(0,$.jsx)(Fe,e)})}';
   }
   text = MARKER + text;
   parse(text, ts);

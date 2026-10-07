@@ -50,6 +50,7 @@ pub(crate) struct TurnTimingState {
 struct TurnTimingStateInner {
     started_at: Option<Instant>,
     started_at_unix_secs: Option<i64>,
+    deferred_at: Option<(Instant, i64)>,
     item_started_at_ms: HashMap<String, i64>,
     first_token_at: Option<Instant>,
     first_message_at: Option<Instant>,
@@ -92,6 +93,7 @@ impl TurnTimingState {
         let mut state = self.state.lock().await;
         state.started_at = Some(started_at);
         state.started_at_unix_secs = Some(started_at_unix_ms / 1000);
+        state.deferred_at = None;
         state.item_started_at_ms.clear();
         state.first_token_at = None;
         state.first_message_at = None;
@@ -120,9 +122,11 @@ impl TurnTimingState {
     pub(crate) async fn complete_profile_and_duration_ms(
         &self,
     ) -> (Option<i64>, Option<i64>, TurnProfile) {
-        let completed_at_instant = Instant::now();
         let state = self.state.lock().await;
-        let completed_at = Some(now_unix_timestamp_secs());
+        let (completed_at_instant, completed_at_unix_secs) = state
+            .deferred_at
+            .unwrap_or_else(|| (Instant::now(), now_unix_timestamp_secs()));
+        let completed_at = Some(completed_at_unix_secs);
         let duration_ms = state.started_at.map(|started_at| {
             i64::try_from(
                 completed_at_instant
@@ -136,8 +140,11 @@ impl TurnTimingState {
     }
 
     pub(crate) async fn defer_timing(&self) -> (Option<i64>, Option<i64>, Option<i64>) {
-        let deferred_at_instant = Instant::now();
-        let state = self.state.lock().await;
+        let mut state = self.state.lock().await;
+        // A parked turn keeps this boundary through subsequent interruption or completion.
+        let (deferred_at_instant, deferred_at_unix_secs) = *state
+            .deferred_at
+            .get_or_insert_with(|| (Instant::now(), now_unix_timestamp_secs()));
         let duration_ms = state.started_at.map(|started_at| {
             i64::try_from(
                 deferred_at_instant
@@ -146,9 +153,10 @@ impl TurnTimingState {
             )
             .unwrap_or(i64::MAX)
         });
+        self.profile_state().complete(deferred_at_instant);
         (
             state.started_at_unix_secs,
-            Some(now_unix_timestamp_secs()),
+            Some(deferred_at_unix_secs),
             duration_ms,
         )
     }

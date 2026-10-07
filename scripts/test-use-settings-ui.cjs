@@ -25,7 +25,8 @@ test('bounded polling, response timeout, and disposal own all subscriptions and 
 test('native component initializes lazily and passes row aria props, switch booleans, and secondary button props', () => {
   const f = fixture(); f.receive({ approvedApps: [{ displayName: 'Example', bundleIdentifier: 'c:\\apps\\example.exe' }] });
   const initializers = [], effects = [];
-  const context = vm.createContext({ Q: { useState: () => [f.store], useEffect: fn => effects.push(fn), useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() }, crypto: { randomUUID: () => 'client' },
+  const hooks = { useState: () => [f.store], useEffect: fn => effects.push(fn), useSyncExternalStore: (_subscribe, getSnapshot) => getSnapshot() };
+  const context = vm.createContext({ getAzraelUseReact: () => hooks, crypto: { randomUUID: () => 'client' },
     initAzraelUseCard: () => initializers.push('card'), initAzraelUseRow: () => initializers.push('row'), initAzraelUseSwitch: () => initializers.push('switch'), initAzraelUseButton: () => initializers.push('button'),
     AzraelUseCard: 'NativeCard', AzraelUseRow: 'NativeRow', AzraelUseSwitch: 'NativeSwitch', AzraelUseButton: 'NativeButton',
     $: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) } });

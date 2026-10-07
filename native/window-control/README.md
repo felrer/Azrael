@@ -11,12 +11,24 @@ at a time. No desktop API is called merely by starting the executable: COM/UIA i
 `shutdown` needs no native initialization. The request line limit is 16 MiB; oversized lines are drained.
 
 Internal requests are `{id,method,params}`. Results are `{id,result}` or `{id,error:{code,message}}`.
-Methods: `listWindows`, `observe`, `inspect`, `status`, `restore`, `resize`, `act`, `shutdown`.
+Methods: `listWindows`, `observe`, `inspect`, `status`, `restore`, `resize`, `act`, `overlayShow`, `overlayHide`, `shutdown`.
 Window descriptors returned by `listWindows` contain `hwnd`, `pid`, `processCreated`, `executable`,
 `title`, `minimized`, `widthPx`, `heightPx`, `dpi`. HWND and FILETIME are lowercase hexadecimal without
 `0x`. Each targeted method takes the full descriptor as `params.window`; mutable title/state/size do
 not determine identity. Identity is HWND + PID + process creation FILETIME + executable path.
 Only exact top-level HWNDs qualify; titles never rebind targets.
+
+`overlayShow` is host-internal and takes the verified full descriptor plus `targetId`,
+`generation` and a bounded non-sensitive `label`. It starts a nonactivating, click-through
+corner glow and a translucent Escape hint at the target monitor work area's lower left.
+`overlayHide` matches the exact `targetId`/`generation`. Neither method is a model tool.
+A dedicated native UI thread owns the layered windows and foreground-scoped Escape hotkey,
+independently of UIA calls. Atomic newline output may also carry
+`{event:{type:'overlayStop',targetId,generation}}`; events never settle a pending request.
+The host must invalidate that exact run and require explicit user resume. Already-issued
+application actions may complete. Internal overlay HWNDs are excluded from discovery.
+The visual/stop contract and verification boundaries are owned by
+[Window Use visualization](../../docs/architecture/window-use-visualization.md).
 An out-of-context read-only WinEvent watcher retires destroyed HWNDs for the lifetime of this backend,
 including same-process handle reuse. A queue barrier brackets requests. Retired HWNDs are excluded from
 new listings and remain stale until the host starts a new owned backend session. Event delivery and
@@ -79,14 +91,12 @@ queueing reports `uncertain-delivery`; an already queued message is not rolled b
 No keyboard-state changes are made; app behavior and interaction with concurrent modifier state
 require live acceptance tests.
 
-Capture and inspection permit foreground and cursor-visibility changes while preserving their
-target validity checks. Mutations permit unrelated foreground switches. An observed transition into
-the target or its owned popup reports `interference`, including after provider errors; the action may
-already have occurred. The source of that transition is ambiguous. Cursor visibility is diagnostic
-only and cannot establish target interference. The backend never takes focus back. UIA providers may
-hang; the host process deadline is the isolation boundary. Endpoint checks cannot detect transient
-activation between samples, prove independence from concurrent edits inside the target, or eliminate
-OS handle races during one API call.
+Capture, inspection and mutations permit foreground and cursor-visibility changes while preserving
+their target validity checks. Activating the target or its owned popup is normal app behavior and
+does not report an error or pause control. Foreground and cursor visibility are diagnostic only;
+they cannot establish user interference. The backend never takes focus back. UIA providers may
+hang; the host process deadline is the isolation boundary. Target checks cannot prove independence
+from concurrent edits inside the target or eliminate OS handle races during one API call.
 Live Windows capture, restore, resize, and provider behavior require isolated native verification;
 compilation and deterministic tests do not establish those runtime behaviors.
 

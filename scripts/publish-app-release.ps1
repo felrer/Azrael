@@ -3,8 +3,9 @@
 .SYNOPSIS
 Uploads a verified Azrael package to a new draft GitHub release, optionally publishing it.
 .DESCRIPTION
-Requires an existing private repository, an existing remote commit and a verification
-receipt for the exact manifest. Never replaces an existing tag or release.
+Requires an existing active repository, an existing remote commit and a verification
+receipt for the exact manifest. Public repositories require -AllowPublicRepository.
+Never changes repository visibility or replaces an existing tag or release.
 #>
 [CmdletBinding()]
 param(
@@ -15,6 +16,7 @@ param(
     [Parameter(Mandatory)][string]$TargetCommit,
     [switch]$Publish,
     [switch]$PreflightOnly,
+    [switch]$AllowPublicRepository,
     [string]$ReceiptPath,
     [string]$GhPath = 'gh'
 )
@@ -182,17 +184,21 @@ try {
     if ($ReceiptPath -in @($verificationFile,$notesPath) -or $ReceiptPath -in @($uploadAssets.path)) { throw 'Receipt must not replace publication inputs.' }
 
     $repositoryInfo = Read-GhJson @('api', "repos/$Repository")
-    if ($repositoryInfo.private -isnot [bool] -or -not $repositoryInfo.private -or
-        -not $repositoryInfo.permissions.pull -or -not $repositoryInfo.permissions.push -or $repositoryInfo.archived) {
-        throw 'Repository must be private, active and accessible with read/write permissions.'
+    if ($repositoryInfo.private -isnot [bool]) { throw 'Repository visibility must be a Boolean.' }
+    if (-not $repositoryInfo.private -and -not $AllowPublicRepository) {
+        throw 'Public repository requires explicit -AllowPublicRepository.'
     }
+    if (-not $repositoryInfo.permissions.pull -or -not $repositoryInfo.permissions.push -or $repositoryInfo.archived) {
+        throw 'Repository must be active and accessible with read/write permissions.'
+    }
+    $repositoryVisibility = if ($repositoryInfo.private) { 'private' } else { 'public' }
     $remoteCommit = Read-GhJson @('api', "repos/$Repository/commits/$TargetCommit")
     if ($remoteCommit.sha -cne $TargetCommit) { throw 'Target remote commit was not confirmed.' }
     Assert-RemoteAbsent "repos/$Repository/git/ref/tags/$tag" "Tag $tag"
     if ($null -ne (Get-ReleaseForTag)) { throw "Release $tag already exists; refusing to overwrite it." }
     Assert-LocalUnchanged
     if ($PreflightOnly) {
-        @{ tag = $tag; repository = $Repository; targetCommit = $TargetCommit; manifestSha256 = $manifestArtifact.sha256; preflightPassed = $true } | ConvertTo-Json -Depth 8
+        @{ tag = $tag; repository = $Repository; repositoryVisibility = $repositoryVisibility; targetCommit = $TargetCommit; manifestSha256 = $manifestArtifact.sha256; preflightPassed = $true } | ConvertTo-Json -Depth 8
         exit 0
     }
 
@@ -253,7 +259,7 @@ try {
     }
     $receipt = [ordered]@{ tag = $tag; url = $confirmed.html_url; isDraft = [bool]$confirmed.draft;
         assets = @($uploadAssets | ForEach-Object { @{name=$_.name;size=$_.size;sha256=$_.sha256} });
-        manifestSha256 = $manifestArtifact.sha256; targetCommit = $TargetCommit }
+        manifestSha256 = $manifestArtifact.sha256; targetCommit = $TargetCommit; repositoryVisibility = $repositoryVisibility }
     $receiptJson = $receipt | ConvertTo-Json -Depth 8
     [IO.File]::WriteAllText($ReceiptPath, $receiptJson + "`n", [Text.UTF8Encoding]::new($false))
     Write-Output $receiptJson

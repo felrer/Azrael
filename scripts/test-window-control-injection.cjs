@@ -2,8 +2,9 @@
 const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs'), path = require('node:path'), vm = require('node:vm');
 const ts = require('../extensions/azrael-ex/node_modules/typescript');
-const { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, PAGE_ANCHOR, AzraelWindowControlLauncher } = require('./inject-window-control.cjs');
+const { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, PAGE_ANCHOR, PAGE_PATCH, AzraelWindowControlLauncher } = require('./inject-window-control.cjs');
 const { injectAccountSettings } = require('./inject-account-settings.cjs');
+const { injectComputerUseManagement } = require('./inject-computer-use.cjs');
 const { injectRecovery } = require('./inject-recovery.cjs');
 test('native window bridge hooks compose with recovery and reject pinned-source drift', () => {
   const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/out/extension.js'), 'utf8');
@@ -32,18 +33,28 @@ test('injected bridge calls preserve native request and lifecycle behavior', asy
 });
 test('Computer Use settings launcher is scoped, idempotent and dispatches the owned UI command', () => {
   const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225', SETTINGS_ASSET), 'utf8');
-  const account = injectAccountSettings(original, SETTINGS_ASSET);
-  assert(account.text.includes(PAGE_ANCHOR));
-  const result = injectWindowControl(account.text, SETTINGS_ASSET, ts);
+  const management = injectComputerUseManagement(original, SETTINGS_ASSET);
+  assert.equal(management.count, 1);
+  assert(management.text.includes(PAGE_ANCHOR));
+  const result = injectWindowControl(management.text, SETTINGS_ASSET, ts);
   assert.equal(result.count, 1);
-  assert.equal(injectWindowControl(result.text, SETTINGS_ASSET, ts).count, 0);
+  assert.deepEqual(injectWindowControl(result.text, SETTINGS_ASSET, ts), { text: result.text, count: 0 });
+  assert.equal(result.text.split(PAGE_PATCH).length - 1, 1, 'launcher mounts once within the native settings-page children');
+  assert.equal(result.text.includes(PAGE_ANCHOR), false);
+  assert(result.text.replace(PAGE_PATCH, PAGE_ANCHOR).includes(management.text), 'native page content is preserved around the launcher mount');
   assert.throws(() => injectWindowControl(result.text.replace(AzraelWindowControlLauncher.toString(), 'tampered'), SETTINGS_ASSET, ts));
-  assert.throws(() => injectWindowControl(account.text + PAGE_MARKER, SETTINGS_ASSET, ts));
+  assert.throws(() => injectWindowControl(result.text.replace(PAGE_PATCH, PAGE_ANCHOR), SETTINGS_ASSET, ts));
+  assert.throws(() => injectWindowControl(management.text + PAGE_MARKER, SETTINGS_ASSET, ts));
+  for (const source of [management.text.replace(PAGE_ANCHOR, 'changed-page'), management.text + PAGE_ANCHOR]) {
+    assert.throws(() => injectWindowControl(source, SETTINGS_ASSET, ts), /Pinned selected-window anchor changed/);
+  }
   assert.equal(injectWindowControl(original, 'unrelated.js', ts).count, 0);
+  assert(result.text.includes('ZOt as getAzraelUseReact'));
+  assert(result.text.includes('const Q = getAzraelUseReact();'));
   assert(result.text.includes('Zjt as AzraelUseButton,$jt as initAzraelUseButton'));
   assert(result.text.includes('createUseSettingsStore'));
   assert.equal(ts.createSourceFile('settings.js', result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-  for (const [asset, aliases] of [['app-initial-5120fa5fe295.js', ['A3t','d3','f3','y3','x3']], ['app-initial-532d60c9b397.js', ['r4','a4','Zjt','$jt']]]) {
+  for (const [asset, aliases] of [['app-initial-efe028fd535e.js', ['ZOt']], ['app-initial-5120fa5fe295.js', ['A3t','d3','f3','y3','x3']], ['app-initial-532d60c9b397.js', ['r4','a4','Zjt','$jt']]]) {
     const bundle = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/webview/assets', asset), 'utf8');
     for (const alias of aliases) assert(bundle.includes(' as ' + alias + ',') || bundle.includes(' as ' + alias + '}'), `Missing native export ${alias}`);
   }

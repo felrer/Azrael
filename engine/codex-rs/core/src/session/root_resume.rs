@@ -380,6 +380,7 @@ impl Session {
         }
         self.transition_root_resume_record(&record, RootResumeState::Waiting, None, None)
             .await?;
+        turn.turn_timing_state.defer_timing().await;
         *control
             .deferred_turn
             .lock()

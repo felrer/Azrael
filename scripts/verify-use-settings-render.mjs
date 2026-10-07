@@ -7,8 +7,8 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/use-settings-render-20261007');
-const logs=join(root,'artifacts/logs/use-settings-render-20261007');
+const fixture=join(root,'artifacts/verification/computer-use-spacing');
+const logs=join(root,'artifacts/logs/computer-use-spacing');
 const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
 const require=createRequire(import.meta.url);
 const {AzraelWindowControlLauncher,createUseSettingsStore}=require('./inject-window-control.cjs');
@@ -24,18 +24,21 @@ const executable='C:\\Synthetic Applications\\'+ 'Long descriptive application d
 const windowDescriptor={hwnd:'fixture-window',pid:12345,processCreated:'synthetic-20261007',executable,title:'Acceptance fixture'};
 let hold=false,rejectUpdate=false,held=[],requests=[],responses=[];
 const host=createSettingsHost({runtime:{codexHome:home},vscode:{window:{showQuickPick:async choices=>choices[0],showWarningMessage:async()=> '삭제'}},backend:{request:async()=>[windowDescriptor]}});
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><h1 class="text-2xl font-semibold text-default">Computer Use</h1><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
 const moduleSource=`import {ZOt,KEt,UEt} from '/assets/app-initial-efe028fd535e.js';
-import {d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow} from '/assets/app-initial-5120fa5fe295.js';
+import {oa as NativePage,ca as initNativePage,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow} from '/assets/app-initial-5120fa5fe295.js';
 import {r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton} from '/assets/app-initial-532d60c9b397.js';
 const Q=ZOt(),$=KEt(),ReactDOM=UEt();
+const getAzraelUseReact=ZOt;
 const listeners=new Set();window.fixtureRequests=[];window.fixtureReceived=[];
 const azraelWindowBridge={subscribe(type,callback){listeners.add(callback);return()=>listeners.delete(callback)},dispatchMessage(type,data){window.fixtureRequests.push({...data,type});fetch('/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,type})}).then(r=>r.json()).then(message=>{window.fixtureReceived.push(message);for(const l of listeners)l(message)}).catch(e=>{window.fixtureErrors.push(String(e))})}};
 const actualFactory=${createUseSettingsStore.toString()};
 const createUseSettingsStore=(...args)=>{window.actualStore=actualFactory(...args);return window.actualStore};
 ${AzraelWindowControlLauncher.toString()}
 window.emit=message=>{for(const l of listeners)l(message)};
-window.reactRoot=ReactDOM.createRoot(document.getElementById('root'));window.reactRoot.render($.jsx(AzraelWindowControlLauncher,{}));window.fixtureReady=true;`;
+initNativePage();initAzraelUseCard();initAzraelUseRow();
+const previous=$.jsxs('section',{id:'previous-settings',className:'flex flex-col gap-4',children:[$.jsx('h1',{className:'text-2xl font-semibold text-default',children:'Computer Use'}),$.jsx(AzraelUseCard,{children:$.jsx(AzraelUseRow,{label:'Always-allowed apps',description:'Existing approval management'})})]});
+window.reactRoot=ReactDOM.createRoot(document.getElementById('root'));window.reactRoot.render($.jsxs(NativePage,{children:[previous,$.jsx(AzraelWindowControlLauncher,{})]}));window.fixtureReady=true;`;
 const server=createServer(async(req,res)=>{try{
   if(req.url==='/host') { let body='';for await(const c of req)body+=c;const request=JSON.parse(body);requests.push(request);if(rejectUpdate&&request.action==='update'){request.expectedRevision=-1;rejectUpdate=false}
     await host.receive({postMessage:async message=>{responses.push(message);const finish=()=>{res.setHeader('Content-Type','application/json');res.end(JSON.stringify(message))};if(hold)held.push({finish,message,action:request.action});else finish()}},request);return;
@@ -94,7 +97,7 @@ try{
  const wrapping=await evaluate("(()=>{const e=[...document.querySelectorAll('span')].find(e=>e.classList.contains('break-all'));return {scroll:e.scrollWidth,width:e.clientWidth,height:e.getBoundingClientRect().height,sectionWidth:document.querySelector('[data-azrael-window-control]').getBoundingClientRect().width,pageOverflow:document.documentElement.scrollWidth>innerWidth}})()");
  check('long executable path wraps within page',wrapping.height>30&&!wrapping.pageOverflow);
  summary.wrapping=wrapping;
- for(const theme of ['light','dark']){await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}'`);await new Promise(r=>setTimeout(r,150));const shot=await send('Page.captureScreenshot',{format:'png'});await writeFile(join(logs,theme+'.png'),Buffer.from(shot.data,'base64'));summary[theme]=await evaluate("({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.querySelector('h1')).color,switchBackground:getComputedStyle(document.querySelector('[role=switch]')).backgroundColor})")}
+ for(const theme of ['light','dark']){await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}'`);await new Promise(r=>setTimeout(r,150));const shot=await send('Page.captureScreenshot',{format:'png'});await writeFile(join(logs,theme+'.png'),Buffer.from(shot.data,'base64'));summary[theme]=await evaluate("({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.querySelector('h1')).color,switchBackground:getComputedStyle(document.querySelector('[role=switch]')).backgroundColor,gap:document.querySelector('[data-azrael-window-control]').getBoundingClientRect().top-document.querySelector('#previous-settings').getBoundingClientRect().bottom})");check(theme+' native page keeps added settings within normal section gap',summary[theme].gap>0&&summary[theme].gap<=48)}
  check('light and dark theme tokens differ',summary.light.color!==summary.dark.color);
  await clickSwitch(1);check('dark-theme native switch interaction persists',settings.getSettings().windowUseAllowAll);await clickSwitch(1);
  await evaluate("document.querySelector('button[aria-label$=\"허용 삭제\"]').click()");await wait('!actualStore.getSnapshot().saving && actualStore.getSnapshot().approvedApps.length===0');check('confirmed app removal persisted',(await snapshot()).approvedApps.length===0&&approvals.getPersistentAppApprovals().approvedApps.length===0);

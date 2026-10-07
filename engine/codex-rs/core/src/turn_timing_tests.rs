@@ -308,3 +308,56 @@ async fn defer_timing_captures_a_finite_elapsed_duration() {
     assert!(deferred_at.is_some());
     assert!(duration_ms.is_some_and(|duration_ms| duration_ms >= 100));
 }
+
+#[tokio::test]
+async fn deferred_turn_timing_excludes_waiting_through_interruption_and_completion() {
+    let state = TurnTimingState::default();
+    state
+        .mark_turn_started(Instant::now() - Duration::from_millis(100))
+        .await;
+    let deferred_timing = state.defer_timing().await;
+    let completed_timing = state.complete_profile_and_duration_ms().await;
+
+    tokio::time::sleep(Duration::from_millis(20)).await;
+
+    // Parked interruption uses the same method as the original deferred event.
+    assert_eq!(state.defer_timing().await, deferred_timing);
+    assert_eq!(
+        state.complete_profile_and_duration_ms().await,
+        completed_timing
+    );
+    assert_eq!(
+        (completed_timing.0, completed_timing.1),
+        (deferred_timing.1, deferred_timing.2)
+    );
+    assert_eq!(
+        completed_timing.1,
+        Some(i64::try_from(completed_timing.2.before_first_sampling_ms).unwrap())
+    );
+}
+
+#[tokio::test]
+async fn starting_a_new_turn_resets_the_deferred_boundary() {
+    let state = TurnTimingState::default();
+    state
+        .mark_turn_started(Instant::now() - Duration::from_secs(60))
+        .await;
+    let previous_timing = state.defer_timing().await;
+
+    state.mark_turn_started(Instant::now()).await;
+    tokio::time::sleep(Duration::from_millis(20)).await;
+    let current_timing = state.defer_timing().await;
+
+    assert!(
+        current_timing
+            .2
+            .is_some_and(|duration_ms| duration_ms >= 20)
+    );
+    assert!(current_timing.2 < previous_timing.2);
+    let (_, duration_ms, profile) = state.complete_profile_and_duration_ms().await;
+    assert_eq!(duration_ms, current_timing.2);
+    assert_eq!(
+        duration_ms,
+        Some(i64::try_from(profile.before_first_sampling_ms).unwrap())
+    );
+}

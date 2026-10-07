@@ -11,7 +11,7 @@ const waitHelpers = require("./root-resume-wait.cjs");
 
 const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const inputs = [
-  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 6],
+  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 7],
   [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 8],
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
@@ -208,6 +208,36 @@ test("history hydration retains wait metadata including missing historical bound
   const unknown = reservation({ state: "resumed", waitStartedAtMs: null, waitEndedAtMs: null });
   assert.equal(waitHelpers.azraelRootResumeWaitLabel(unknown, 0), "재개됨 · 대기 시간 확인 불가");
   assert.equal(waitHelpers.azraelRootResumeWaitItem(unknown).status, "azraelWaitEnded");
+});
+
+test("late active snapshots cannot restart a deferred work clock on resume or refresh", () => {
+  const context = { ...waitHelpers, vue: { default: () => true }, wh: () => null,
+    gue: (existing, incoming) => incoming.params, bh: (existing, incoming) => incoming };
+  const merge = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "mue")})`, context);
+  const original = vm.runInNewContext(`(${functionNamed(inputs[0].source, "mue")})`, context);
+  const frozen = { turnId: "old-turn", status: "deferred", items: [], params: {},
+    turnStartedAtMs: 12000, durationMs: 8000, rootResumeWait: reservation() };
+  const stale = { ...frozen, status: "inProgress", durationMs: 99000, rootResumeWait: null };
+  // This is the race that used to reactivate a non-paginated turn after deferral.
+  assert.equal(original(frozen, stale, { isResumeSnapshot: true }).status, "inProgress");
+  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Hgt")})`, waitHelpers);
+  const end = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "jgt")})`);
+  for (const isResumeSnapshot of [false, true]) {
+    const turn = merge(frozen, stale, { isResumeSnapshot });
+    assert.equal(turn.status, "deferred");
+    assert.equal(turn.durationMs, 8000);
+    assert.equal(turn.rootResumeWait, frozen.rootResumeWait);
+    const work = divider({ items: [], status: turn.status, workStartedAtMs: turn.turnStartedAtMs,
+      finalAssistantStartedAtMs: end(turn), rootResumeWait: turn.rootResumeWait })[0];
+    const clock = clockHook();
+    assert.equal(clock.render(work).elapsedMs, 8000);
+    assert.equal(clock.interval(), null);
+    clock.advance(3600000);
+    assert.equal(clock.render(work).elapsedMs, 8000);
+  }
+  const stopped = merge(frozen, { ...stale, status: "interrupted", durationMs: 8000 }, {});
+  assert.equal(stopped.status, "interrupted");
+  assert.equal(stopped.durationMs, 8000);
 });
 
 test("blocked and processing reservations freeze elapsed time independently of the scheduled deadline", () => {

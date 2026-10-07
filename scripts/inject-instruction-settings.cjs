@@ -88,10 +88,10 @@ function injectInstructionSettings(text, relativePath) {
     : once(text, PAGE_ANCHOR, '}' + instructionContent);
   text = once(text, '.agent.personalization.pets.', '.agent.personalization.azrael-instructions.pets.');
   text = once(text, '`agent`,`personalization`,`pets`', '`agent`,`personalization`,`azrael-instructions`,`pets`');
-  text = once(text, "c=nt(e.slug,E,!1),l=e.slug===", "c=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(O.locale,`Instruction documents (Not implemented)`,`지침 문서 (미구현)`)}:nt(e.slug,E,!1),l=e.slug===");
+  text = once(text, "c=nt(e.slug,E,!1),l=e.slug===", "c=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`)}:nt(e.slug,E,!1),l=e.slug===");
   const label = "label:(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})";
-  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction documents (Not implemented)`,`지침 문서 (미구현)`):(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})");
-  text = once(text, "f=F?(0,Z.jsx)(Ue,", "f=e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction documents (Not implemented)`,`지침 문서 (미구현)`):F?(0,Z.jsx)(Ue,");
+  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`):(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})");
+  text = once(text, "f=F?(0,Z.jsx)(Ue,", "f=e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`):F?(0,Z.jsx)(Ue,");
   text = once(text, 'icon:16 in s?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in s?');
   text = once(text, 'iconAssetSource:i?void 0:r.navigation', 'iconAssetSource:e.slug===`azrael-instructions`?void 0:i?void 0:r.navigation');
   return { text: 'import{A3t as azraelInstructionBridge}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };

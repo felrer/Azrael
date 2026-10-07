@@ -6,6 +6,7 @@ const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelReq
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   replacements, MARKER } = require("./inject-computer-use.cjs");
 const { createOwner } = require("./computer-use-approvals.cjs");
+const { injectWindowControl } = require("./inject-window-control.cjs");
 const { request } = require("./test-computer-use-approvals.cjs");
 const test = require('node:test');
 function assetRules(transformer, asset, rules = transformer.getTransformRules()) {
@@ -290,11 +291,13 @@ test("local Windows approval management preserves native execution gates and mem
   const transformer = require("./namespace-azrael-host.cjs");
   const transformed = transformer.transformAsset(original, COMPUTER_USE_MANAGEMENT_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, vp);
   assert.equal(transformed.asset.computerUseManagementEdits, 1);
+  assert.equal(transformed.asset.windowControlEdits, 1);
   assert.equal(transformed.asset.computerUseSettingsEdits, 0);
   assert.equal(transformed.asset.computerUseCancelRequestEdits, 0);
   restored = transformed.text;
   for (const [before, after] of [...managementReplacements].reverse()) restored = restored.replace(after, before);
-  assert.equal(restored, transformer.rewriteJavaScript(original, COMPUTER_USE_MANAGEMENT_ASSET, vp).text);
+  assert.equal(restored, injectWindowControl(transformer.rewriteJavaScript(original, COMPUTER_USE_MANAGEMENT_ASSET, vp).text,
+    COMPUTER_USE_MANAGEMENT_ASSET, vp).text);
   const rules = transformer.getTransformRules(), crypto = require("node:crypto");
   const sha = value => crypto.createHash("sha256").update(value).digest("hex");
   const ruleKey = value => sha(JSON.stringify(Object.entries(value).sort(([o], [b]) => o.localeCompare(b))));
@@ -302,6 +305,9 @@ test("local Windows approval management preserves native execution gates and mem
   assert.equal(managementRules["inject-computer-use.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-computer-use.cjs"))));
   assert.notEqual(ruleKey(managementRules), ruleKey(assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET,
     { ...rules, "inject-computer-use.cjs": "0".repeat(64) })));
+  assert.equal(managementRules["inject-window-control.cjs"], sha(fs.readFileSync(path.join(__dirname, "inject-window-control.cjs"))));
+  assert.notEqual(ruleKey(managementRules), ruleKey(assetRules(transformer, COMPUTER_USE_MANAGEMENT_ASSET,
+    { ...rules, "inject-window-control.cjs": "0".repeat(64) })));
   function declaration(source, name) {
     const node = parse(source).statements.find(node => vp.isFunctionDeclaration(node) && node.name.text === name);
     assert(node, `missing native ${name} declaration`);
@@ -321,7 +327,8 @@ test("local Windows approval management preserves native execution gates and mem
     k: () => ({ params: { browserFamily: browser } }), en: "browser-route", Qt: value => value, h: () => plugin, Ci: "plugin",
     $: { jsx, jsxs: jsx, Fragment: "fragment" }, ti: "browser-page", _: "redirect", ei: "plugin-page",
     Kt: "settings-title", _i: "computer-use", x: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
-    Hr: "native-controls", ai: "macos-control", Ot: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page" });
+    Hr: "native-controls", ai: "macos-control", Ot: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page",
+    AzraelWindowControlLauncher: "window-control-launcher" });
   vm.runInContext(nativeVr, context);
   const render = () => vm.runInContext("Vr()", context);
   function contains(node, type) {

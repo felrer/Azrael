@@ -181,12 +181,124 @@ class AppReleaseTests(unittest.TestCase):
 
     def test_orchestrator_rejects_mismatched_receipt_before_packaging(self):
         receipt = self.root / 'prepared.json'
-        self.write_json(receipt, {'HostVersion': '2026.0.1', 'ReleaseDirectory': str(self.release), 'HostVsix': str(self.host), 'HostSha256': sha(self.host.read_bytes())})
+        configured_version = json.loads((SCRIPTS / 'azrael-app-release.json').read_bytes())['version']
+        mismatched_version = '0.0.0' if configured_version != '0.0.0' else '0.0.1'
+        self.write_json(receipt, {'HostVersion': mismatched_version, 'ReleaseDirectory': str(self.release), 'HostVsix': str(self.host), 'HostSha256': sha(self.host.read_bytes())})
         output = self.root / 'orchestrated'
         result = subprocess.run(['pwsh', '-NoProfile', '-File', str(SCRIPTS / 'prepare-app-release.ps1'), '-ReleaseDirectory', str(self.release), '-OutputDirectory', str(output), '-PreparedHostReceipt', str(receipt)], capture_output=True, text=True, encoding='utf-8', errors='replace')
         self.assertEqual(result.returncode, 1)
         self.assertIn('does not match', result.stderr)
         self.assertFalse((output / 'assets').exists())
+
+    def publisher_preflight(self, repository_info, allow_public=False, verification_hash=None, tag_exists=False):
+        if not self.output.exists():
+            self.package()
+        manifest_path = self.output / 'release-manifest.json'
+        manifest = json.loads(manifest_path.read_bytes())
+        verification = self.root / 'verification.json'
+        self.write_json(verification, {
+            'schemaVersion': 1, 'passed': True, 'releaseVersion': manifest['releaseVersion'],
+            'manifestSha256': verification_hash or sha(manifest_path.read_bytes()),
+            'assets': manifest['assets'],
+        })
+        notes = self.root / 'notes.md'
+        self.write(notes, b'Synthetic release notes')
+        fixture = self.root / 'github.json'
+        self.write_json(fixture, {'repository': repository_info, 'commit': 'a' * 40, 'tagExists': tag_exists})
+        calls = self.root / 'github-calls.jsonl'
+        shim = self.root / 'gh-fixture.ps1'
+        # The publisher invokes this shim in-process; return preserves its caller.
+        self.write(shim, b'''$global:LASTEXITCODE = 0
+$fixture = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'github.json') -Raw | ConvertFrom-Json -AsHashtable
+ConvertTo-Json -InputObject @($args) -Compress | Add-Content -LiteralPath (Join-Path $PSScriptRoot 'github-calls.jsonl')
+if ($args.Count -eq 2 -and $args[0] -eq 'api' -and $args[1] -eq 'repos/felrer/Azrael') {
+    $fixture.repository | ConvertTo-Json -Depth 4 -Compress
+    return
+}
+if ($args.Count -eq 2 -and $args[1] -eq "repos/felrer/Azrael/commits/$($fixture.commit)") {
+    @{sha=$fixture.commit} | ConvertTo-Json -Compress
+    return
+}
+if ($args.Count -eq 3 -and $args[0] -eq 'api' -and $args[1] -eq '--include' -and $args[2] -like 'repos/felrer/Azrael/git/ref/tags/*') {
+    if ($fixture.tagExists) { '{}'; return }
+    $global:LASTEXITCODE = 1
+    'HTTP/2.0 404 Not Found'
+    return
+}
+if ($args.Count -eq 4 -and $args[0] -eq 'api' -and $args[1] -eq '--paginate' -and $args[2] -eq '--slurp' -and $args[3] -eq 'repos/felrer/Azrael/releases?per_page=100') {
+    '[[]]'
+    return
+}
+$global:LASTEXITCODE = 2
+'Unexpected GitHub operation'
+''')
+        command = ['pwsh', '-NoProfile', '-File', str(SCRIPTS / 'publish-app-release.ps1'),
+                   '-ManifestPath', str(manifest_path), '-VerificationPath', str(verification),
+                   '-NotesFile', str(notes), '-TargetCommit', 'a' * 40,
+                   '-GhPath', str(shim), '-PreflightOnly']
+        if allow_public:
+            command.append('-AllowPublicRepository')
+        result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8', errors='replace')
+        recorded = [json.loads(line) for line in calls.read_text().splitlines()] if calls.exists() else []
+        self.assertFalse((self.output / 'publish-receipt.json').exists())
+        # Every simulated remote call must be a read; an unexpected mutation fails the shim.
+        self.assertTrue(all(call[0] == 'api' and '--method' not in call for call in recorded))
+        return result, recorded
+
+    @staticmethod
+    def publisher_repository(private=True, archived=False, pull=True, push=True):
+        return {'private': private, 'archived': archived, 'permissions': {'pull': pull, 'push': push}}
+
+    def test_publisher_private_repository_allowed_by_default(self):
+        result, calls = self.publisher_preflight(self.publisher_repository())
+        self.assertEqual(result.returncode, 0, result.stderr)
+        preflight = json.loads(result.stdout)
+        self.assertTrue(preflight['preflightPassed'])
+        self.assertEqual(preflight['repositoryVisibility'], 'private')
+        self.assertEqual(preflight['targetCommit'], 'a' * 40)
+        self.assertEqual(len(calls), 4)
+
+    def test_publisher_public_repository_requires_explicit_switch(self):
+        result, calls = self.publisher_preflight(self.publisher_repository(private=False))
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn('requires explicit -AllowPublicRepository', result.stderr)
+        self.assertEqual(len(calls), 1)
+
+    def test_publisher_public_repository_allowed_with_explicit_switch(self):
+        result, calls = self.publisher_preflight(self.publisher_repository(private=False), allow_public=True)
+        self.assertEqual(result.returncode, 0, result.stderr)
+        preflight = json.loads(result.stdout)
+        self.assertTrue(preflight['preflightPassed'])
+        self.assertEqual(preflight['repositoryVisibility'], 'public')
+        self.assertEqual(len(calls), 4)
+
+    def test_publisher_public_switch_preserves_repository_safety_checks(self):
+        for overrides in ({'archived': True}, {'pull': False}, {'push': False}):
+            with self.subTest(overrides=overrides):
+                result, calls = self.publisher_preflight(self.publisher_repository(private=False, **overrides), allow_public=True)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn('active and accessible with read/write permissions', result.stderr)
+                self.assertEqual(len(calls), 1)
+                (self.root / 'github-calls.jsonl').unlink()
+
+    def test_publisher_public_switch_requires_boolean_visibility(self):
+        for private in ('false', 0, None):
+            with self.subTest(private=private):
+                result, calls = self.publisher_preflight(self.publisher_repository(private=private), allow_public=True)
+                self.assertEqual(result.returncode, 1, result.stderr)
+                self.assertIn('visibility must be a Boolean', result.stderr)
+                self.assertEqual(len(calls), 1)
+                (self.root / 'github-calls.jsonl').unlink()
+
+    def test_publisher_public_switch_preserves_exact_manifest_and_tag_checks(self):
+        result, calls = self.publisher_preflight(self.publisher_repository(private=False), allow_public=True, verification_hash='0' * 64)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn('does not certify this exact release manifest', result.stderr)
+        self.assertEqual(calls, [])
+        result, calls = self.publisher_preflight(self.publisher_repository(private=False), allow_public=True, tag_exists=True)
+        self.assertEqual(result.returncode, 1, result.stderr)
+        self.assertIn('already exists; refusing to overwrite', result.stderr)
+        self.assertEqual(len(calls), 3)
 
 
 if __name__ == '__main__':

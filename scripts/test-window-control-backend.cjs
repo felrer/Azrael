@@ -59,6 +59,31 @@ async function errorChecks(runtime, declaration) {
     });
     await backend.dispose();
   }
+  for (const [nativeCode, code] of [['not-resizable', 'unsupported_action'], ['resize-bounds', 'invalid_request']]) {
+    for (const mutationOutcome of [undefined, 'unknown']) {
+      const backend = fixture((child, request) => {
+        assert.equal(request.method, 'resize');
+        assert.equal(request.params.widthDip, 900);
+        child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: nativeCode, message: 'private resize detail', ...(mutationOutcome ? { mutationOutcome } : {}) } }) + '\n'));
+      });
+      await assert.rejects(backend.request('resize', { widthDip: 900, heightDip: 700 }), error => {
+        assert.equal(error.code, code); assert.equal(error.nativeCode, nativeCode); assert.equal(error.stage, 'native');
+        assert.equal(error.mutationOutcome, mutationOutcome); assert.equal(Object.hasOwn(error, 'mutationOutcome'), mutationOutcome === 'unknown');
+        assert.ok(!error.message.includes('private')); return true;
+      });
+      await backend.dispose();
+    }
+  }
+  for (const method of ['observe', 'inspect']) {
+    for (const mutationOutcome of [undefined, 'unknown']) {
+      const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: 'capture-size-changed', ...(mutationOutcome ? { mutationOutcome } : {}) } }) + '\n')));
+      await assert.rejects(backend.request(method, {}), error => {
+        assert.equal(error.code, 'state_changed'); assert.equal(error.nativeCode, 'capture-size-changed');
+        assert.equal(error.mutationOutcome, mutationOutcome); assert.equal(error.stage, 'native'); return true;
+      });
+      await backend.dispose();
+    }
+  }
   for (const [exitCode, signal] of [[17, null], [null, 'SIGTERM']]) {
     const backend = fixture(child => { child.exitCode = exitCode; child.emit('exit', exitCode, signal); });
     await assert.rejects(backend.request('resize', {}), error => {

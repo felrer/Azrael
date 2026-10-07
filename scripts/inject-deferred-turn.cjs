@@ -48,12 +48,16 @@ function injectDeferredTurn(text) {
   text = replaceOnce(text, "durationMs:t.durationMs,finalAssistantStartedAtMs:Iyn(t.completedAt),status:t.status",
     "durationMs:t.durationMs,rootResumeWait:t.rootResumeWait??null,finalAssistantStartedAtMs:Iyn(t.completedAt),status:t.status");
   text = replaceOnce(text, "durationMs:e.durationMs??t.durationMs,finalAssistantStartedAtMs:",
-    "durationMs:t.durationMs??e.durationMs,rootResumeWait:azraelMergeRootResumeWait(e.rootResumeWait,t.rootResumeWait),finalAssistantStartedAtMs:");
+    "durationMs:e.status===`deferred`&&t.status===`inProgress`?e.durationMs:t.durationMs??e.durationMs,rootResumeWait:azraelMergeRootResumeWait(e.rootResumeWait,t.rootResumeWait),finalAssistantStartedAtMs:");
+  // A snapshot fetched before the defer boundary can arrive after its notification.
+  // The same turn never becomes active again: resumption starts a new turn.
+  text = replaceOnce(text, "status:s&&(i||!n&&c!=null)?e.status:t.status",
+    "status:s&&(e.status===`deferred`||i||!n&&c!=null)?e.status:t.status");
   text = replaceOnce(text, "durationMs:e.durationMs??null});let s=n=>e.sendRequest(`thread/timeline/list`",
     "durationMs:e.durationMs??null,rootResumeWait:e.rootResumeWait??null});let s=n=>e.sendRequest(`thread/timeline/list`");
   text = replaceOnce(text, "completedAt:e.completedAt,durationMs:e.durationMs}));let p=new Set",
     "completedAt:e.completedAt,durationMs:e.durationMs,rootResumeWait:e.rootResumeWait??o.get(e.turnId)?.rootResumeWait??null}));let p=new Set");
-  return { text, count: 6, nativeTimingChecks: 1 };
+  return { text, count: 7, nativeTimingChecks: 1 };
 }
 
 function injectDeferredPresentation(text) {

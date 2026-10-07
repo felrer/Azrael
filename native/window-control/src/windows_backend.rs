@@ -78,6 +78,9 @@ impl Backend {
             .map(protocol::params)
             .transpose()?;
         self.watcher.barrier()?;
+        if matches!(method, "act" | "restore" | "resize") {
+            if let Some(window) = selected.as_ref() { crate::overlay::guard(window)?; }
+        }
         let result = match method {
             "listWindows" => list_windows(),
             "observe" => {
@@ -274,7 +277,7 @@ impl Drop for Process {
         }
     }
 }
-fn describe(hwnd: HWND) -> Result<Window> {
+pub(crate) fn describe(hwnd: HWND) -> Result<Window> {
     unsafe {
         if !IsWindow(hwnd).as_bool() {
             return Err(Error::new(
@@ -333,7 +336,7 @@ fn describe(hwnd: HWND) -> Result<Window> {
         })
     }
 }
-fn verify(window: &Window) -> Result<Window> {
+pub(crate) fn verify(window: &Window) -> Result<Window> {
     let hwnd = handle(window)?;
     lifetime::validate(hwnd)?;
     let actual = describe(hwnd)?;
@@ -360,7 +363,8 @@ fn list_windows() -> Result<Value> {
         if windows.len() >= 4096 {
             return BOOL(1);
         }
-        if lifetime::validate(hwnd).is_ok()
+        if !crate::overlay::owns(hwnd)
+            && lifetime::validate(hwnd).is_ok()
             && IsWindowVisible(hwnd).as_bool()
             && GetAncestor(hwnd, GA_ROOT) == hwnd
         {
@@ -400,47 +404,11 @@ fn interference_state() -> Result<Interference> {
 fn guarded(window: &Window, operation: impl FnOnce(HWND) -> Result<Value>) -> Result<Value> {
     verify(window)?;
     let hwnd = handle(window)?;
-    let before = unsafe { GetForegroundWindow() };
+    // UIA actions can activate the target or its popup. Foreground changes are
+    // ordinary app behavior, not a failure or evidence of user interference.
     let result = operation(hwnd);
-    // Check even when a provider reports failure: it may have already changed focus.
-    let after = unsafe { GetForegroundWindow() };
-    if foreground_transition_conflicts(before.0 as usize, after.0 as usize, target_owned_foreground(hwnd, after)) {
-        return Err(Error::new(
-            "interference",
-            "Target or target-owned popup became foreground during mutation; cause is ambiguous, action may have occurred; no focus recovery attempted",
-        ));
-    }
     verify(window).map_err(Error::uncertain)?;
     result
-}
-// Endpoint evidence cannot attribute a transition or detect transient activation between checks.
-fn foreground_transition_conflicts(before: usize, after: usize, after_is_target: bool) -> bool {
-    before != after && after_is_target
-}
-fn target_owned_foreground(target: HWND, foreground: HWND) -> bool {
-    unsafe {
-        if foreground == target || IsChild(target, foreground).as_bool() { return true; }
-        let mut current = foreground;
-        for _ in 0..256 {
-            current = match GetWindow(current, GW_OWNER) { Ok(owner) => owner, Err(_) => return false };
-            if current == target { return true; }
-            if current.0.is_null() { return false; }
-        }
-        // An unexpectedly unbounded ownership chain is ambiguous; fail conservatively.
-        true
-    }
-}
-#[cfg(test)]
-mod foreground_tests {
-    use super::foreground_transition_conflicts;
-    #[test]
-    fn unrelated_switches_are_allowed_and_target_activation_is_ambiguous() {
-        assert!(!foreground_transition_conflicts(10, 20, false)); // unrelated apps
-        assert!(!foreground_transition_conflicts(1, 1, true));
-        assert!(!foreground_transition_conflicts(1, 2, false)); // target loses foreground
-        assert!(foreground_transition_conflicts(1, 2, true)); // target or owned popup becomes foreground
-        assert!(foreground_transition_conflicts(0, 2, true));
-    }
 }
 fn status(window: &Window) -> Result<Value> {
     let actual = verify(window)?;

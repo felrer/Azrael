@@ -279,10 +279,15 @@ async function run(input, parameters, io) {
       const step = task.steps[index];
       await check();
       try {
+        if (io.progress) await bounded(() => io.progress({ index, total: task.steps.length, action: step.action, phase: 'executing' }));
+        await check();
         if (step.action === 'capture') await capture();
         else if (step.action === 'wait_for' || step.action === 'assert') await waitFor(step);
         else await act(step);
-        if (step.postcondition && !evaluate((await inspect()).elements, step.postcondition, values)) fail('Task postcondition not met');
+        if (step.postcondition) {
+          if (io.progress) await bounded(() => io.progress({ index, total: task.steps.length, action: step.action, phase: 'verifying' }));
+          if (!evaluate((await inspect()).elements, step.postcondition, values)) fail('Task postcondition not met');
+        }
         outcomes.push({ index, action: step.action, status: 'completed' });
       } catch (error) {
         outcomes.push({ index, action: step.action, status: 'failed' });

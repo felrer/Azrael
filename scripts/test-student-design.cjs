@@ -23,7 +23,7 @@ test("native navigation descriptor, row label and collapsed label use current ap
   assert.deepEqual(Object.keys(expressions).sort(), ["c", "f", "label"]);
   assert.equal(ast.statements.filter(n => vp.isFunctionDeclaration(n) && n.name?.text === "azraelSettingsText").length, 1);
   for (const locale of ["en-US", "ko", "KO-KR", "ko_KR", "ja-JP", undefined]) {
-    for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Instruction documents (Not implemented)", "지침 문서 (미구현)"]]) {
+    for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Instruction Documents", "지침 문서"]]) {
       const context = { e: { slug }, O: { locale }, azraelSettingsText };
       const expected = azraelSettingsText(locale, en, ko);
       for (const [kind, expression] of Object.entries(expressions)) {
@@ -98,13 +98,21 @@ test("injected settings bridges resolve to the pinned module's real exports", ()
     .flatMap(node => node.moduleSpecifier.text === "./app-initial-5120fa5fe295.js"
       ? node.importClause?.namedBindings?.elements ?? [] : [])
     .filter(e => /^azrael(?:Account|Instruction|Window)Bridge$/.test(e.name.text));
-  assert.equal(injected.length, 3);
+  assert.deepEqual(injected.map(e => e.name.text).sort(), ["azraelAccountBridge", "azraelInstructionBridge"]);
+  const { SETTINGS_ASSET } = require("./inject-window-control.cjs");
+  const windowFilename = path.join(root, SETTINGS_ASSET);
+  const windowSettings = transformAsset(ms.readFileSync(windowFilename, "utf8"), SETTINGS_ASSET, windowFilename, vp).text;
+  const windowBridges = parse(windowSettings, SETTINGS_ASSET).statements.filter(vp.isImportDeclaration)
+    .flatMap(node => node.moduleSpecifier.text === "./app-initial-5120fa5fe295.js"
+      ? node.importClause?.namedBindings?.elements ?? [] : [])
+    .filter(e => e.name.text === "azraelWindowBridge");
+  assert.equal(windowBridges.length, 1);
   const navigationAsset = DESIGN_ASSETS[1];
   const navigation = transformAsset(ms.readFileSync(path.join(root, navigationAsset), "utf8"), navigationAsset, path.join(root, navigationAsset), vp).text;
   assert(!navigation.includes("azraelInstructionAsset16=O("));
   assert(navigation.includes("case`pets`:return{visible:!1,pending:!1};"));
   assert(navigation.includes("commandAsset:Or,navigation:{assets:{16:Or,20:Er}"));
-  for (const imported of injected) assert(exports.has(imported.propertyName.text), imported.name.text);
+  for (const imported of [...injected, ...windowBridges]) assert(exports.has(imported.propertyName.text), imported.name.text);
 });
 
 test("pinned composed assets parse, preserve settings, reject drift and remain idempotent", () => {

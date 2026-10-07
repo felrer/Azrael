@@ -75,9 +75,9 @@ test("per-mount locales normalize variants, preserve generated and source text, 
   assert.equal(normalizeInstructionLocale(), "en");
   const state = { ...base, busy: "download", message: [{ en: "<Generated English>", ko: "<생성된 한국어>" }, "<raw diagnostic>"], error: { en: "English error", ko: "한국어 오류" } };
   const en = renderInstructionMarkup(state, undefined, "en"), ko = renderInstructionMarkup(state, undefined, "ko_KR");
-  assert.match(en, /lang="en" aria-label="Instruction documents"/);
+  assert.match(en, /lang="en" aria-label="Instruction Documents"/);
   assert.match(ko, /lang="ko" aria-label="지침 문서"/);
-  assert.match(en, /Instruction documents \(Not implemented\)/); assert.match(ko, /지침 문서 \(미구현\)/);
+  assert.match(en, /Instruction Documents \(Not implemented\)/); assert.match(ko, /지침 문서 \(미구현\)/);
   assert.match(en, /Downloading…/); assert.match(ko, /다운로드 중…/);
   assert.match(en, /&lt;Generated English&gt;/); assert.match(ko, /&lt;생성된 한국어&gt;/);
   assert.match(en, /English error/); assert.match(ko, /한국어 오류/);

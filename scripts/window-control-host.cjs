@@ -38,7 +38,17 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map();
   const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
-  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael', approve: async (w, thread) => { const allowed = await consent(w, thread); if (allowed) selections.set(thread, w); return allowed; }, authorize: (w, thread) => {
+  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
+    onUserStop: (thread, value) => {
+      invalidateUI(thread); approvals.stop(thread);
+      if (current === thread) render({ ...value, status: 'Esc로 이 창의 제어를 중지했습니다. 이미 전달한 동작은 적용됐을 수 있습니다.' });
+    },
+    onOverlayError: (thread, error) => {
+      if (disposed) return;
+      if (current === thread && panel) void panel.webview.postMessage({ type: 'error', text: errorPayload(error).message });
+      else void vscode.window.showWarningMessage?.('Window Use 오버레이 연결이 끊겼습니다. 창 제어 상태를 확인해주세요.');
+    },
+    approve: async (w, thread) => { const allowed = await consent(w, thread); if (allowed) selections.set(thread, w); return allowed; }, authorize: (w, thread) => {
     const permission = scope.getStore(), t = threads.get(thread); return permission?.threadId === thread && permission.disabled === true && !permission.signal?.aborted && t && (!permission.uiRecord || !permission.uiRecord.cancelled) && (!permission.turnId || t.turnId === permission.turnId) && approvals.hasAppApproval(w.executable, thread);
   } });
   const serial = fn => { const result = queue.then(fn); queue = result.catch(() => {}); return result; };

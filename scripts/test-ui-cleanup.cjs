@@ -122,10 +122,10 @@ test("actual transformed permission description, chip and menu use neutral color
     assert.equal(declaration.length, 1);
     assert.equal(pm.runInNewContext(`(()=>{let ${declaration[0]};return ${name}})()`), expected);
   }
-  const object = nodes(text, n => ts.isObjectLiteralExpression(n) && n.properties.some(p => ts.isPropertyAssignment(p) && p.name.getText() === "LeftIcon" && p.initializer.getText() === "Fe"));
+  const object = nodes(text, n => ts.isObjectLiteralExpression(n) && n.properties.some(p => ts.isPropertyAssignment(p) && p.name.getText() === "LeftIcon" && p.initializer.getText() === "azraelFullAccessIcon"));
   assert.equal(object.length, 1);
   const selected = [], callback = () => selected.push("full-access");
-  const item = pm.runInNewContext(`(${object[0]})`, { Fe: "icon", l: (...v) => v.join(" "), J: null, K: "full-access", vt: "check", qt: callback, St: true, q: false, $: { jsx }, h: "message" });
+  const item = pm.runInNewContext(`(${object[0]})`, { azraelFullAccessIcon: "icon", l: (...v) => v.join(" "), J: null, K: "full-access", vt: "check", qt: callback, St: true, q: false, $: { jsx }, h: "message" });
   assert.equal(item.leftIconClassName, "icon-sm"); assert.equal(item.rightIconClassName, "icon-xs");
   assert.equal(item.SubText.props.className, "text-codex-description"); assert.equal(item.children.props.className, "text-default");
   assert.equal(item.RightIcon, "check"); assert.equal(item.disabled, false); item.onClick(); assert.deepEqual(selected, ["full-access"]);

@@ -5,23 +5,26 @@ const path = require('node:path');
 const { StringDecoder } = require('node:string_decoder');
 const { verifyRuntime } = require('./window-control-runtime.cjs');
 const { windowError } = require('./window-control-errors.cjs');
-const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act']);
+const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act', 'overlayShow', 'overlayHide']);
 const MUTATIONS = new Set(['act', 'resize', 'restore']);
 function nativeError(payload, method, uncorrelated = false) {
   const nativeCode = typeof payload?.code === 'string' && /^[a-z][a-z0-9-]{0,127}$/.test(payload.code) ? payload.code : undefined;
   let code = 'unclassified', message;
   if (!uncorrelated) {
-    if (['unsupported-action', 'unsupported-key', 'unsupported-method'].includes(nativeCode)) { code = 'unsupported_action'; message = 'The selected window does not support this action'; }
+    if (nativeCode === 'operation-cancelled') { code = 'cancelled'; message = 'Window control stopped by the user'; }
+    else if (['unsupported-action', 'unsupported-key', 'unsupported-method', 'not-resizable'].includes(nativeCode)) { code = 'unsupported_action'; message = 'The selected window does not support this action'; }
+    else if (nativeCode === 'resize-bounds') { code = 'invalid_request'; message = 'Requested window size exceeds app constraints or monitor work area'; }
     else if (['stale-observation', 'stale-target', 'stale-element', 'unknown-element', 'window-closed', 'capture-size-changed'].includes(nativeCode)) { code = 'state_changed'; message = 'The selected window state changed; select or observe it again'; }
     else if (['capture-timeout', 'provider-timeout', 'backend-timeout'].includes(nativeCode)) { code = 'timeout'; message = 'The selected window operation timed out'; }
     else if (nativeCode === 'uncertain-delivery') { code = 'connection_error'; message = 'Window action delivery could not be confirmed'; }
   }
   return windowError(code, message, { stage: 'native', nativeCode,
-    ...(MUTATIONS.has(method) && (payload?.mutationOutcome === 'unknown' || !['unsupported_action', 'state_changed'].includes(code)) ? { mutationOutcome: 'unknown' } : {}) });
+    ...(payload?.mutationOutcome === 'unknown' || (MUTATIONS.has(method) && !['unsupported_action', 'state_changed', 'invalid_request'].includes(code)) ? { mutationOutcome: 'unknown' } : {}) });
 }
 function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, timeoutMs = 30000, shutdownMs = 3000 } = {}) {
   let child, identity, buffer = '', disposed = false, launching;
   const pending = new Map();
+  const overlayListeners = new Set();
   const transportError = (code, message, options = {}) => windowError(code, message, { ...options, stage: 'native' });
   const rejectPending = (p, error) => { clearTimeout(p.timer); p.reject(MUTATIONS.has(p.method) ? windowError(error.code, error.message, { ...error, mutationOutcome: 'unknown' }) : error); };
   const failPending = error => { for (const p of pending.values()) rejectPending(p, error); pending.clear(); };
@@ -49,6 +52,18 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
           buffer += decoder.write(part); if (newline < 0) break;
           const line = buffer.slice(0, -1); buffer = ''; frameBytes = 0;
           let message; try { message = JSON.parse(line); if (!message || typeof message !== 'object') throw new Error(); } catch { failPending(transportError('connection_error', 'Invalid Window backend response')); void dispose(); return; }
+          if (Object.hasOwn(message, 'event')) {
+            const event = message.event;
+            if (Object.keys(message).length !== 1 || !event || typeof event !== 'object' || Array.isArray(event) ||
+                event.type !== 'overlayStop' || Object.keys(event).some(key => !['type', 'targetId', 'generation'].includes(key)) ||
+                typeof event.targetId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(event.targetId) || !Number.isSafeInteger(event.generation) || event.generation < 0) {
+              failPending(transportError('connection_error', 'Invalid Window overlay event')); void dispose(); return;
+            }
+            // Events originate only from the exact owned, verified helper. They never settle requests.
+            try { for (const listener of overlayListeners) listener({ ...event }); }
+            catch { failPending(transportError('connection_error', 'Window overlay stop handling failed')); void dispose(); return; }
+            continue;
+          }
           if (message.id == null && message.error) {
             for (const p of pending.values()) { clearTimeout(p.timer); p.reject(nativeError(message.error, p.method, true)); }
             pending.clear(); void dispose(); return;
@@ -86,6 +101,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
   }
   async function dispose() {
     if (disposed) return; disposed = true;
+    overlayListeners.clear();
     failPending(transportError('cancelled', 'Window backend disposed'));
     if (launching) { try { await launching; } catch {} }
     const owned = identity; if (!owned || child !== owned.handle) return;
@@ -96,6 +112,14 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
       try { active.stdin.end(JSON.stringify({ id: randomUUID(), method: 'shutdown', params: {} }) + '\n'); } catch { /* The exact owned handle alone may be terminated by the timer. */ }
     });
   }
-  return { request, dispose };
+  return {
+    request, dispose,
+    showOverlay: params => request('overlayShow', params),
+    hideOverlay: params => request('overlayHide', params),
+    onOverlayStop(listener) {
+      overlayListeners.add(listener);
+      return { dispose() { overlayListeners.delete(listener); } };
+    },
+  };
 }
 module.exports = { createBackend };
