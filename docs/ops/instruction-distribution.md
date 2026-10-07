@@ -8,7 +8,7 @@ release. Existing integrated UI redistribution permission remains a release gate
 
 Development uses the private `felrer/Azrael` repository. This visibility choice
 does not replace third-party license conditions or establish redistribution
-permission. Commits and uploads are managed through GitHub Desktop.
+permission. App release versions and authorized local upload automation are owned by [Local app release](app-release.md). Instruction publication follows its independent workflow below.
 
 ## Source ownership
 
@@ -141,6 +141,7 @@ native settings acceptance. Test counts, exact logs and artifact hashes belong t
 the external work plan.
 
 The standalone host understands relative runtime schema 3 with binary hashes.
-The existing integrated local package still uses its established development
-runtime paths. A redistributable integrated portable installer and clean-machine
-acceptance remain release work, alongside UI/runtime permission.
+Integrated development packages use their established development runtime paths;
+the [app release installer](app-release.md#package-and-installation-contract) prepares
+installation-specific paths from a portable distribution. Full clean-machine acceptance
+and public UI/runtime redistribution permission remain separate release gates.

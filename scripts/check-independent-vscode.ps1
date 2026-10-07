@@ -140,9 +140,15 @@ try {
     }
     if (@($inventory | Where-Object { $_ -match '^azrael-ex-local\.azrael-ex@' }).Count -ne 0) { throw 'Final fixture inventory contained the retired companion extension.' }
     if ($exitCodes.finalInventory -ne 0) { throw "Final fixture inventory failed with exit code $($exitCodes.finalInventory)." }
-    $hostInventory = @($inventory | Where-Object { $_ -match '^azrael-ex-local\.azrael@(0\.5\.\d+)$' })
+    $hostInventory = @($inventory | Where-Object { $_ -match '^azrael-ex-local\.azrael@((0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*))$' })
     if ($hostInventory.Count -ne 1) { throw "Expected one independently versioned azrael host inventory entry, found $($hostInventory.Count)." }
     $hostVersion = ([regex]::Match($hostInventory[0], '^azrael-ex-local\.azrael@(.+)$')).Groups[1].Value
+    foreach ($component in $hostVersion.Split('.')) {
+        [long]$numericComponent = 0
+        if (-not [long]::TryParse($component, [ref]$numericComponent) -or $numericComponent -gt 9007199254740991) {
+            throw 'Host inventory version components must be safe integers.'
+        }
+    }
 
     $installedHost = Find-InstalledExtension -ExtensionsDir $extensions -Id 'azrael-ex-local.azrael' -Version $hostVersion
     $namespaceOutput = @(& node (Join-Path $PSScriptRoot 'test-independent-namespace.cjs') $uiSource $installedHost $typescript 2>&1)
@@ -216,7 +222,9 @@ exports.deactivate = function () {};
         # Only the test runner is a development extension. The original and
         # integrated host activate as installed, without proposed-API elevation.
         $env:SAME_WINDOW_CHECK_MODE = 'standalone'
-        $standaloneOutput = @(& $code --disable-updates --user-data-dir $standaloneUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
+        # The generated test workspace is owned by this fixture. Test normal trusted
+        # activation without changing trust settings in any user profile.
+        $standaloneOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $standaloneUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
             --disable-extension 'openai.chatgpt' --extensionDevelopmentPath $runner $workspace 2>&1)
         $exitCodes.standaloneHost = $LASTEXITCODE
         @($standaloneOutput) | Add-Content -LiteralPath $logPath -Encoding utf8NoBOM
@@ -226,7 +234,7 @@ exports.deactivate = function () {};
         if ($standaloneResult['passed'] -ne $true) { throw "Standalone host result failed: $($standaloneResult['error'])" }
 
         $env:SAME_WINDOW_CHECK_MODE = 'coexistence'
-        $hostOutput = @(& $code --disable-updates --user-data-dir $coexistenceUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
+        $hostOutput = @(& $code --disable-updates --disable-workspace-trust --user-data-dir $coexistenceUserData --extensions-dir $extensions --new-window --wait --skip-welcome --skip-release-notes `
             --extensionDevelopmentPath $runner $workspace 2>&1)
         $exitCodes.host = $LASTEXITCODE
         @($hostOutput) | Add-Content -LiteralPath $logPath -Encoding utf8NoBOM

@@ -518,8 +518,9 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
       stages[stage].count += 1;
     }
   }
-  if (!/^0\.5\.\d+$/.test(hostVersion ?? "") || !Number.isSafeInteger(Number(hostVersion.split(".")[2]))) {
-    throw new Error("A unique 0.5.<build> host version is required.");
+  if (!/^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/.test(hostVersion ?? "") ||
+      hostVersion.split(".").some(part => !Number.isSafeInteger(Number(part)))) {
+    throw new Error("A numeric major.minor.patch host version is required.");
   }
   const root = fs.realpathSync(directory);
   const manifestPath = path.join(root, "package.json");

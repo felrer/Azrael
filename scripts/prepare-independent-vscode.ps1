@@ -7,6 +7,8 @@ param(
     [string]$SourceExtensionPath,
     [string]$TypeScriptPath,
     [string]$DevinExecutable,
+    [ValidatePattern('^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$')]
+    [string]$HostVersion,
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$Resume,
@@ -181,6 +183,7 @@ function Invoke-PreparationPhase {
 $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
 $config.changedOnlyTests = [bool]$ChangedOnlyTests
+$config.hostVersion = $HostVersion
 if ($ChangedOnlyTests) { $config.preservationFeatureIds = @() }
 $configPath = Join-Path $OutputDirectory 'preparation-inputs.json'
 $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
@@ -254,7 +257,7 @@ try {
             }
         }
         $typescript = Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js'
-        $hostVersion = '0.5.' + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $hostVersion = if ($HostVersion) { $HostVersion } else { '0.5.' + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
         Invoke-PreparationPhase 'namespace' {
             & node (Join-Path $PSScriptRoot 'namespace-azrael-host.cjs') $prepared.OfficialExtension $typescript $hostVersion $CacheDirectory *> (Join-Path $OutputDirectory 'namespace.log')
             if ($LASTEXITCODE -ne 0) { throw 'Independent host transformation failed. See namespace.log.' }

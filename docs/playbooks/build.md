@@ -2,6 +2,9 @@
 
 적용 범위: Azrael 엔진·브리지·계정 모듈 변경을 패키징하거나, 로컬 개발 배포본을 설치·업데이트·롤백할 때 사용한다. 실행 명령의 소유자는 [개발 운영 문서](../ops/development.md#build)다.
 
+검증한 로컬 빌드를 GitHub Releases에 올릴 때는 [앱 배포 절차](../ops/app-release.md)를 함께 적용한다.
+배포 버전, 태그와 파일 해시를 일치시키고, 기존 게시 버전의 파일을 덮어쓰지 않는다.
+
 ## 산출물과 빌드 범위
 
 - 배포 실행파일은 프로젝트 `artifacts/releases/<이름>/`, VSIX는 `artifacts/vsix/<이름>/`, 로그는 `artifacts/logs/<이름>/`, 격리 검증 상태는 `artifacts/verification/`에 저장한다. 전체 `artifacts/`는 Git에서 제외한다.

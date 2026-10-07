@@ -106,7 +106,9 @@ const accountBundle = ["extension.js", "accountView.js", "usageView.js", "rootRe
 assert.equal(`${originalManifest.publisher}.${originalManifest.name}`, "openai.chatgpt");
 assert.equal(originalManifest.version, "26.930.61225");
 assert.equal(`${hostManifest.publisher}.${hostManifest.name}`, "azrael-ex-local.azrael");
-assert.match(hostManifest.version, /^0\.5\.\d+$/, "host package version is not independently updateable");
+assert.match(hostManifest.version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/, "host package version is not independently updateable");
+assert(hostManifest.version.split(".").every(part => Number.isSafeInteger(Number(part))),
+  "host package version components must be safe integers");
 assert.equal(hostManifest.azraelIntegratedAccounts, true, "host did not declare its integrated account UI");
 assert.equal(hostManifest.main, "./integrated-azrael-entry.cjs", "host main bypassed the integration wrapper");
 assert.match(payloadManifest.version, /^0\.4\.\d+$/, "embedded account payload version differed");
