@@ -67,7 +67,8 @@ function injectAccountSwitchQueue(text, relativePath) {
     ["y??u)).turn.id", "y??u),g??l)).turn.id"],
     ["let{conversationId:h,message:g}=e,_=await s(e);", "let{conversationId:h,message:g}=e;try{let _=await s(e);"],
     ["return{status:`sent`,messageId:g.id,turnId:x.turnId}}async function o", "return{status:`sent`,messageId:g.id,turnId:x.turnId}}catch(t){if(t?.name===`AppServerRequestError(${String(t.code)})`&&t.jsonRpcCode===t.code&&Number.isInteger(t.code)&&t.data?.azraelAdmission===`accountChangePending`)return i(h,g,e.editPosition,d,p,m);throw t}}async function o"],
-    ["async function s(e){let t=await r(e);return t===`send-only`?t:e.queueModeOverride??t}", "async function s(t){if(await e.accountChangePending?.())return`queue-only`;let n=await r(t);return n===`send-only`?n:t.queueModeOverride??n}"],
+    ["queueModeOverride:n==null?r.submission.queueModeOverride:`send-now`,editPosition:", "queueModeOverride:n==null?r.submission.queueModeOverride:`send-now`,explicitQueuedSteer:n!=null,editPosition:"],
+    ["async function s(e){let t=await r(e);return t===`send-only`?t:e.queueModeOverride??t}", "async function s(t){if(await e.accountChangePending?.())return t.explicitQueuedSteer===!0&&t.queueModeOverride===`send-now`&&e.getActiveTurnId(t.conversationId)!=null?`send-now`:`queue-only`;let n=await r(t);return n===`send-only`?n:t.queueModeOverride??n}"],
     ["submissionHost:{needsResume:", "submissionHost:{accountChangePending:async()=>{let t=await e.sendRequest(`azrael/account`,{action:`list`});if(typeof t?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);return t.state.isSwitching},needsResume:"],
   ]);
   if (relativePath === ACCOUNT_QUEUE_PRESENTATION_ASSET) return apply(text, "presentation", [

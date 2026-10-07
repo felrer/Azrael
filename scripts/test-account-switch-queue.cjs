@@ -15,15 +15,16 @@ const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) &
 const creationGuard = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "__azraelCreateAfterAccountChange").getText(ast);
 const preparedSource = asset => asset === list ? injectQueuedCompactionList(source(asset)).text : source(asset);
 
-function fixture({ pending = false, mode = "queue", error, queryError } = {}) {
+function fixture({ pending = false, mode = "queue", error, queryError, activeTurnId = null } = {}) {
   const calls = [];
   const context = vm.createContext({ R$: Error, Qt: Error, wn: () => false, Wt: value => value });
   vm.runInContext(declaration + ";globalThis.create = hkn", context);
   const host = {
     accountChangePending: async () => { calls.push("query"); if (queryError) throw queryError; return pending; },
-    needsResume: () => false, getActiveTurnId: () => null, hasPendingTurnStart: () => false,
+    needsResume: () => false, getActiveTurnId: () => activeTurnId, hasPendingTurnStart: () => false,
     hasFinalAnswer: () => false,
     start: async () => { calls.push("start"); if (error) throw error; return "turn"; },
+    steer: async () => { calls.push("steer"); if (error) throw error; return activeTurnId; },
   };
   const api = context.create({ host, isActive: () => true, isDurableThread: () => true,
     getQueueMode: async () => mode, enqueue: async (thread, message) => { calls.push("enqueue"); return { status: "queued", messageId: message.id }; } });
@@ -106,6 +107,26 @@ test("automatic native queue resume waits for switch; explicit send-now stays av
   assert.equal(sent.turnId, "old-account-turn");
   assert.deepEqual(calls, ["azrael/account", "thread/queue/start"]);
   assert.equal(queue.items.length, 0);
+});
+
+test("explicit queued steer uses the active old-account turn during a pending switch", async () => {
+  const f = fixture({ pending: true, activeTurnId: "old-account-turn" });
+  f.request.explicitQueuedSteer = true;
+  assert.equal((await f.send()).turnId, "old-account-turn");
+  assert.deepEqual(f.calls, ["query", "steer"]);
+});
+
+test("ordinary input still queues during a pending switch with an active turn", async () => {
+  const f = fixture({ pending: true, activeTurnId: "old-account-turn" });
+  assert.equal((await f.send()).status, "queued");
+  assert.deepEqual(f.calls, ["query", "enqueue"]);
+});
+
+test("explicit queued steer without an active turn still waits for the switch", async () => {
+  const f = fixture({ pending: true });
+  f.request.explicitQueuedSteer = true;
+  assert.equal((await f.send()).status, "queued");
+  assert.deepEqual(f.calls, ["query", "enqueue"]);
 });
 
 function creationFixture(states) {
