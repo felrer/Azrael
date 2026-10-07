@@ -43,6 +43,15 @@ test("the real preservation registry covers every production UI injector", () =>
   const links = manifest.features.find(feature => feature.id === "ui.session-links");
   assert.ok(links.owners.includes("scripts/inject-session-links.cjs"));
   assert.deepEqual(links.reportFields, ["sessionLinkEdits"]);
+  const missingImage = manifest.features.find(feature => feature.id === "ui.missing-image");
+  assert.equal(missingImage.area, "ui");
+  assert.deepEqual(missingImage.owners, ["scripts/inject-missing-image.cjs"]);
+  assert.equal(missingImage.contract, "docs/architecture/ui-presentation.md");
+  assert.deepEqual(missingImage.reportFields, ["missingImageEdits"]);
+  assert.deepEqual(missingImage.checks, [{ id: "ui.missing-image.behavior", executable: "node",
+    args: ["--test", "scripts/test-missing-image.cjs"], level: "source" }]);
+  const unregistered = { ...manifest, features: manifest.features.filter(feature => feature !== missingImage) };
+  assert.throws(() => gate.validateManifest(unregistered, root, rules), /Unregistered UI injector: inject-missing-image\.cjs/);
 });
 
 test("Max targets reach the pipeline after provider transformation and produce one report edit", () => {
@@ -78,9 +87,9 @@ test("Max targets reach the pipeline after provider transformation and produce o
 
 test("cache and checkpoints bind Max, report counts, and registry inputs", () => {
   const fields = vm.runInNewContext(declaration("asset-transform-cache.cjs", "COUNT_FIELDS"));
-  for (const field of ["maxReasoningEdits", "recentChatFilterEdits"]) assert.ok(fields.includes(field));
+  for (const field of ["maxReasoningEdits", "recentChatFilterEdits", "missingImageEdits"]) assert.ok(fields.includes(field));
   const rules = declaration("namespace-azrael-host.cjs", "getTransformRules", namespace);
-  for (const input of ["inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(rules.includes(`"${input}"`));
+  for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(rules.includes(`"${input}"`));
   assert.match(namespace, /"inject-max-reasoning\.cjs": MAX_REASONING_ASSETS/);
   const inputs = declaration("preparation-state.cjs", "inputs");
   for (const input of ["feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(inputs.includes(`"${input}"`));

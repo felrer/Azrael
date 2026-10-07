@@ -31,6 +31,14 @@ For this development checkout, automatic maintenance is disabled with `git confi
 
 ## Build
 
+### Integrated engine source inventory
+
+Status: `current` in source — explicit local integration recording and strict validation pass recorder and importer tests. Release acceptance remains separate.
+
+Imported engine provenance preserves the original upstream receipt and its fixed distribution/source adaptations. Reviewed local edits require a separate integration record containing the repository revision, source prefix and exact before/after inventory entries. The recorder validates the immutable imported baseline, current tracked source bytes and the explicitly expected delta paths before updating the primary receipt. Migration SQL changes, unexpected deltas and malformed integration metadata fail validation. Subsequent source edits invalidate the new receipt and prevent packaging or binary reuse. Original upstream identity and the repository integration revision remain distinct.
+
+Use `python -B scripts/record-engine-local-changes.py --destination <primary-engine> --baseline <independent-immutable-import> --baseline-receipt-sha256 <reviewed-receipt-hash> --expected-path <relative-source-path>` with one `--expected-path` for each reviewed edit. This initial recording requires the current receipt to match the original import and rejects a repeated operation. It embeds the original receipt in `localIntegration` while updating the measured inventory. Verify the result with `engine-provenance.py snapshot` before building. Preserve the immutable baseline while current or previous releases reference it.
+
 ### Module reuse and automatic cache cleanup
 
 Status: `current` — cache contracts, legacy/new deployment tool routing and repeated real release builds pass. The first build took 306 seconds; the unchanged repeat took 94 seconds and reused engine, companion, providers and Window Control. Evidence: `artifacts/logs/modular-build-cache/` and `artifacts/logs/module_cache_20261005_{b,c}/`.

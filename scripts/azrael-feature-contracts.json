@@ -231,6 +231,28 @@
       ]
     },
     {
+      "id": "ui.missing-image",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-missing-image.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.missing-image.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-missing-image.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "missingImageEdits"
+      ]
+    },
+    {
       "id": "ui.local-file-drop",
       "area": "ui",
       "owners": [

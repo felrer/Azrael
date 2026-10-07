@@ -1046,8 +1046,8 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
             raise ValueError(f"Copied source differs: {name}")
 
 
-def validate_receipt(destination, receipt, allow_build_caches=False):
-    """Validate an imported inventory without consulting a surrounding Git repo."""
+def validate_inventory(destination, receipt):
+    """Validate receipt metadata independently of its destination bytes."""
     if not isinstance(receipt, dict) or type(receipt.get("schema")) is not int or receipt["schema"] != 1:
         raise ValueError("Unsupported imported source receipt schema")
     entries = receipt.get("files")
@@ -1080,14 +1080,56 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
     digest = hashlib.sha256(canonical(entries)).hexdigest()
     if receipt.get("inventorySha256") != digest:
         raise ValueError("Source receipt inventory digest differs")
-    validate_upstream_integration(receipt, digest)
+    if "localIntegration" not in receipt:
+        validate_upstream_integration(receipt, digest)
     missing = [name for name, entry in entries.items() if entry["kind"] == "missing"]
     expected = {"missingTrackedPaths": missing, "fileCount": len(entries) - len(missing),
                 "inventoryCount": len(entries), "byteCount": sum(entry.get("size", 0) for entry in entries.values()),
                 "coverageVerified": True}
     if any(receipt.get(key) != value for key, value in expected.items()):
         raise ValueError("Source receipt coverage totals differ")
-    verify_destination(destination, entries, has_receipt=True, allow_build_caches=allow_build_caches,
+    return digest
+
+
+def validate_local_integration(destination, receipt):
+    record = receipt["localIntegration"]
+    keys = {"schema", "originalReceipt", "originalReceiptSha256", "repositoryHead", "sourcePrefix", "changes"}
+    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] != 1:
+        raise ValueError("Malformed local integration metadata")
+    original = record["originalReceipt"]
+    if not isinstance(original, dict) or "localIntegration" in original:
+        raise ValueError("Local integration requires an original import receipt")
+    if hashlib.sha256(canonical(original)).hexdigest() != record["originalReceiptSha256"]:
+        raise ValueError("Original import receipt digest differs")
+    validate_inventory(destination, original)
+    head = record["repositoryHead"]
+    if not isinstance(head, str) or len(head) != 40 or any(char not in "0123456789abcdef" for char in head):
+        raise ValueError("Malformed local repository HEAD")
+    prefix = record["sourcePrefix"]
+    if not isinstance(prefix, str) or not prefix or prefix == "." or "\\" in prefix or ":" in prefix or PurePosixPath(prefix).as_posix() != prefix:
+        raise ValueError("Malformed local source prefix")
+    safe_path(destination, prefix)
+    mutable = {"files", "inventorySha256", "missingTrackedPaths", "fileCount", "inventoryCount", "byteCount", "localIntegration"}
+    if {k: v for k, v in receipt.items() if k not in mutable} != {k: v for k, v in original.items() if k not in mutable}:
+        raise ValueError("Original import provenance or adaptations differ")
+    before, after = original["files"], receipt["files"]
+    if set(before) != set(after):
+        raise ValueError("Local integration cannot add or remove inventory paths")
+    changes = {name: {"before": before[name], "after": after[name]} for name in sorted(before) if before[name] != after[name]}
+    if not changes or record["changes"] != changes:
+        raise ValueError("Local integration delta differs from inventories")
+    protected = {".gitignore"} | set(original.get("sourceFixes", {}))
+    for name, change in changes.items():
+        if name in protected or name.endswith(".sql") or change["before"]["kind"] != "file" or change["after"]["kind"] != "file" or change["before"]["gitMode"] != change["after"]["gitMode"]:
+            raise ValueError(f"Local integration changes protected source: {name}")
+
+
+def validate_receipt(destination, receipt, allow_build_caches=False):
+    """Validate an imported inventory without consulting a surrounding Git repo."""
+    digest = validate_inventory(destination, receipt)
+    if "localIntegration" in receipt:
+        validate_local_integration(destination, receipt)
+    verify_destination(destination, receipt["files"], has_receipt=True, allow_build_caches=allow_build_caches,
                        adaptation=receipt.get("distributionAdaptation"), distribution_files=receipt.get("distributionFiles"),
                        source_fixes=receipt.get("sourceFixes"))
     return digest

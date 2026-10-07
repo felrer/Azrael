@@ -176,17 +176,24 @@ test("all pinned injector target fixtures: uncached/cold/warm byte and metadata 
   const statistics = { hits: 0, misses: 0 };
   const cold = cache("pinned", { statistics });
   const results = new Map();
+  const missingImageAssets = require("./inject-missing-image.cjs").ASSETS;
   for (const asset of paths) {
     const source = fs.readFileSync(path.join(original, asset), "utf8");
     const expected = transform(asset, source);
+    if (missingImageAssets.includes(asset)) assert.equal(expected.asset.missingImageEdits, 1, asset);
     assert.deepEqual(cold.run(asset, source, () => transform(asset, source)), expected, asset);
     results.set(asset, { source, expected });
   }
   cold.flush();
   const warm = cache("pinned", { statistics });
   for (const [asset, { source, expected }] of results) assert.deepEqual(warm.run(asset, source, miss), expected, asset);
-  assert.deepEqual(statistics, { hits: paths.size, misses: paths.size });
+  for (const asset of missingImageAssets) {
+    const { source } = results.get(asset);
+    assert.equal(warm.run(asset, source, miss).asset.missingImageEdits, 1, asset);
+  }
+  assert.deepEqual(statistics, { hits: paths.size + missingImageAssets.length, misses: paths.size });
   for (const [rule, targets] of [["inject-provider-context.cjs", [CONTEXT_ASSET, SETTINGS_ASSET]],
+    ["inject-missing-image.cjs", missingImageAssets],
     ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],
     ["inject-instruction-settings.cjs", INSTRUCTION_SETTINGS_ASSETS]]) {
     const stats = { hits: 0, misses: 0 };
@@ -203,4 +210,25 @@ test("all pinned injector target fixtures: uncached/cold/warm byte and metadata 
     console.log(`${rule} edit: ${stats.hits} retained hits, ${stats.misses} target misses across ${paths.size} pinned fixtures`);
   }
   console.log(`uncached/cold/warm equality: ${paths.size} pinned fixtures`);
+});
+
+test("missing-image cache counts reject absent or invalid metadata even with intact hashes", () => {
+  const directory = path.join(root, "missing-image-counts");
+  const expected = cache("missing-image-counts").run(changedPath, changedSource,
+    () => transform(changedPath, changedSource));
+  const entryPath = path.join(directory, fs.readdirSync(directory)[0]);
+  const intact = JSON.parse(fs.readFileSync(entryPath));
+  for (const count of [undefined, -1, 0.5, "1", null]) {
+    const broken = JSON.parse(JSON.stringify(intact));
+    if (count === undefined) delete broken.result.asset.missingImageEdits;
+    else broken.result.asset.missingImageEdits = count;
+    broken.resultSha256 = sha(JSON.stringify(broken.result));
+    fs.writeFileSync(entryPath, JSON.stringify(broken));
+    const statistics = { hits: 0, misses: 0 };
+    const next = cache("missing-image-counts", { statistics });
+    assert.deepEqual(next.run(changedPath, changedSource,
+      () => transform(changedPath, changedSource)), expected);
+    assert.deepEqual(statistics, { hits: 0, misses: 1 });
+    assert.deepEqual(cache("missing-image-counts").run(changedPath, changedSource, miss), expected);
+  }
 });

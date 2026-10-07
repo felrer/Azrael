@@ -9,7 +9,7 @@ const isSha = (value) => typeof value === "string" && /^[a-f\d]{64}$/.test(value
 const COUNT_FIELDS = ["edits", "namespaceEdits", "workspaceThreadListEdits", "recoveryEdits",
   "deferredTurnEdits", "deferredNativeTimingChecks", "compactionProgressEdits", "queueRefreshEdits",
   "queueRefreshNativeChecks", "providerPickerEdits", "maxReasoningEdits", "recentChatFilterEdits", "paginatedHistoryEdits", "immediateStopEdits", "queuedCompactionEdits", "queueConsumptionEdits", "uiInputDiagnosticsEdits", "accountSwitchQueueEdits",
-  "urlSafetyTransportEdits", "imageFileOpenEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits", "uiCleanupEdits", "petsCleanupEdits", "contentFontEdits"];
+  "urlSafetyTransportEdits", "imageFileOpenEdits", "missingImageEdits", "fileOpenMenuEdits", "localFileDropEdits", "composerDraftEdits", "providerContextEdits", "uiCleanupEdits", "petsCleanupEdits", "contentFontEdits"];
 
 function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescriptVersion,
   transformRules, getAssetTransformRules = () => transformRules, pruneUnused = false, statistics = { hits: 0, misses: 0 }, metrics }) {
