@@ -25,11 +25,16 @@ function injectDeferredTurn(text) {
   // Native stable turns retain timing fields; the old lossy thin-turn projection is gone.
   const timingSchema = "turnStartedAtMs:Date.now(),durationMs:null,firstTurnWorkItemStartedAtMs:null,finalAssistantStartedAtMs:null,status:`inProgress`,error:null,diff:null,items:[]";
   if (text.split(timingSchema).length !== 2) throw new Error("Pinned deferred-turn native timing anchor must occur exactly once.");
+  // Reuse the native completion handler's converter, rather than a minified
+  // alias from another module (the error classifier also accepts one argument).
+  const converters = [...text.matchAll(/let\{threadId:s,turn:c\}=t\.params,l=([A-Za-z_$][\w$]*)\(s\);if\(!o\.threadStore\.conversations\.has\(l\)\)/g)];
+  if (converters.length !== 1) throw new Error("Pinned deferred-turn native conversation converter anchor must occur exactly once.");
+  const conversationId = converters[0][1];
   text = azraelMergeRootResumeWait.toString() + "\n" + text;
   text = replaceOnce(text, "case`turn/completed`:{if(o.itemStreamState.drainBefore",
     "case`turn/deferred`:{" +
     "if(o.itemStreamState.drainBefore(()=>{a.onNotification(`turn/deferred`,t.params,n,i,r)}))return`deferred`;" +
-    "let{threadId:s,turn:c}=t.params,l=m(s);" +
+    `let{threadId:s,turn:c}=t.params,l=${conversationId}(s);` +
     "if(!o.threadStore.conversations.has(l)){a.logger.error(`Received turn/deferred for unknown conversation`,{safe:{conversationId:l},sensitive:{}});break}" +
     "o.updateTurnState(l,c.id,e=>{if(e.status===`completed`||e.status===`interrupted`||e.status===`failed`)return;" +
     "e.turnId=c.id;e.status=`deferred`;e.error=null;e.durationMs=c.durationMs;" +
@@ -38,7 +43,7 @@ function injectDeferredTurn(text) {
     "a.broadcastConversationSnapshot(l);break}" +
     "case`turn/rootResumeWait/updated`:{" +
     "if(o.itemStreamState.drainBefore(()=>{a.onNotification(`turn/rootResumeWait/updated`,t.params,n,i,r)}))return`deferred`;" +
-    "let{threadId:s,turnId:c,wait:w}=t.params,l=m(s);" +
+    `let{threadId:s,turnId:c,wait:w}=t.params,l=${conversationId}(s);` +
     "if(!o.threadStore.conversations.has(l))break;" +
     "o.updateTurnState(l,c,e=>{e.rootResumeWait=azraelMergeRootResumeWait(e.rootResumeWait,w)});" +
     "a.broadcastConversationSnapshot(l);break}" +

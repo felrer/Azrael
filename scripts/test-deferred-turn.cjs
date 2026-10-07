@@ -53,6 +53,26 @@ function functionNamed(source, name) {
   return source.slice(found.getStart(ast), found.end);
 }
 
+// Resolve the pinned module's real export. Replacing a converter with an
+// identity stub would hide a mistaken import of the error classifier.
+function importedReducerFunction(alias) {
+  const ast = sourceAst(inputs[0].source);
+  const declaration = ast.statements.find(node => ts.isImportDeclaration(node) &&
+    node.importClause?.namedBindings?.elements?.some(item => item.name.text === alias));
+  assert.ok(declaration, alias);
+  const binding = declaration.importClause.namedBindings.elements.find(item => item.name.text === alias);
+  const modulePath = path.resolve(path.dirname(inputs[0].file), declaration.moduleSpecifier.text);
+  const moduleSource = fs.readFileSync(modulePath, "utf8"), moduleAst = sourceAst(moduleSource);
+  const exportedName = binding.propertyName?.text ?? binding.name.text;
+  const exportDeclaration = moduleAst.statements.find(node => ts.isExportDeclaration(node) &&
+    node.exportClause?.elements?.some(item => item.name.text === exportedName));
+  assert.ok(exportDeclaration, exportedName);
+  const exported = exportDeclaration.exportClause.elements.find(item => item.name.text === exportedName);
+  return vm.runInNewContext(`(${functionNamed(moduleSource, exported.propertyName?.text ?? exported.name.text)})`);
+}
+const nativeConverter = inputs[0].source.match(/let\{threadId:s,turn:c\}=t\.params,l=([A-Za-z_$][\w$]*)\(s\);if\(!o\.threadStore\.conversations\.has\(l\)\)/)[1];
+const reducerBindings = { [nativeConverter]: importedReducerFunction(nativeConverter), m: importedReducerFunction("m") };
+
 test("deferred anchors match the pinned host, parse, and fail closed", () => {
   for (const { file, source, result, inject, count } of inputs) {
     assert.equal(result.count, count, file);
@@ -64,7 +84,7 @@ test("deferred anchors match the pinned host, parse, and fail closed", () => {
 });
 
 test("deferred updates the current turn without terminal side effects and drains before replay", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { m: x => x, ...waitHelpers });
+  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
   const turn = { turnId: "turn-1", status: "inProgress", error: { message: "stale" }, items: [] };
   const conversation = { turns: [turn] }, conversations = new Map([["thread-1", conversation]]), calls = [];
   let draining = true, replay;
@@ -92,6 +112,16 @@ test("deferred updates the current turn without terminal side effects and drains
   assert.equal(turn.turnStartedAtMs, 12000);
   assert.equal(turn.error, null);
   assert.equal(conversation.turns.length, 1);
+});
+
+test("both live notifications use the native conversation converter and reject a missing anchor", () => {
+  assert.equal(reducerBindings[nativeConverter]("thread-1"), "thread-1");
+  assert.equal(reducerBindings.m("thread-1"), undefined);
+  const handler = functionContaining(inputs[0].result.text, "case`turn/deferred`:");
+  assert.equal(handler.split(`l=${nativeConverter}(s);`).length, 4); // native completion + two added notifications
+  assert.ok(!handler.includes("l=m(s);"));
+  const changed = inputs[0].source.replace(`let{threadId:s,turn:c}=t.params,l=${nativeConverter}(s);`, "let{threadId:s,turn:c}=t.params,l=s;");
+  assert.throws(() => patch.injectDeferredTurn(changed), /native conversation converter anchor/);
 });
 
 test("presentation projects deferred duration and a frozen waiting divider", () => {
@@ -169,7 +199,7 @@ test("repeated reservations have independent clocks and completed history has no
 });
 
 test("late and duplicate reservation notifications cannot restart a finished wait or change its endpoints", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { m: x => x, ...waitHelpers });
+  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
   const turn = { turnId: "old-turn", status: "deferred", durationMs: 8000, rootResumeWait: reservation() };
   const env = {
     manager: { broadcastConversationSnapshot: () => {} },

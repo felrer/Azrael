@@ -13,7 +13,7 @@ async function main() {
     calls.push(method); if (onRequest) await onRequest(method, args);
     if (pending && method === 'observe') await pending;
     if (method === 'listWindows') return [current];
-    if (method === 'restore') { restores++; current.minimized = false; }
+    if (method === 'restore') { restores++; const restored = current.minimized; current.minimized = false; return { window: { ...current }, restored }; }
     if (method === 'resize') { current.widthPx = args.widthDip; current.heightPx = args.heightDip; }
     if (method === 'observe' || method === 'inspect') return { window: { ...current }, observationId: 'o' + ++observations, frameTimestamp: 'now', widthPx: current.widthPx, heightPx: current.heightPx, dpi: 96, elementsTruncated: false, elements: [{ id: 'e', name: 'Button', controlType: 'Button', patterns: ['Invoke'], secret: 'strip' }], image: { mimeType: 'image/png', data: 'YQ==' }, unrelated: 'private', ...frameOverride };
     return { window: { ...current } };
@@ -83,12 +83,15 @@ async function main() {
     const resumedAfterFailure = await owner.resume('thread'); assert.equal(resumedAfterFailure.state, 'ready');
     assert.notEqual(resumedAfterFailure.observationId, beforeFailure.observationId);
     current.minimized = true;
-    await assert.rejects(owner.call('thread', 'capture', args), /user resume/);
-    await assert.rejects(owner.call('thread', 'capture', args), /paused/); assert.equal(restores, 0);
+    await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized');
+    await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized'); assert.equal(restores, 0);
     await owner.resume('thread'); assert.equal(restores, 1);
-    current.minimized = true; await assert.rejects(owner.call('thread', 'capture', args), /user resume/); assert.equal(restores, 1);
+    current.minimized = true; await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized'); assert.equal(restores, 1);
     owner.clear('thread'); current = { ...window(), minimized: true };
     target = await owner.bind('thread', current); args.targetId = target.targetId;
+    assert.equal(target.pauseReason, 'minimized'); assert.equal(target.restoreAllowed, true);
+    await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'window_minimized');
+    await owner.call('thread', 'restore_window', args);
     await owner.call('thread', 'capture', args); assert.equal(restores, 2);
     let release, started; const began = new Promise(r => { started = r; }); pending = new Promise(r => { release = r; }); onRequest = method => { if (method === 'observe') started(); };
     const flight = owner.call('thread', 'capture', args); await began; owner.stop('thread'); release(); await assert.rejects(flight, /cancelled/); pending = null; onRequest = null;
@@ -183,7 +186,7 @@ async function geometryRecoveryChecks(home) {
           if (interrupt === 'identity') current.pid++;
           throw nativeError();
         } };
-        await assert.rejects(owner.call('geometry', tool, args), interrupt === 'stop' ? /cancelled/ : interrupt === 'revoke' ? /revoked/ : interrupt === 'minimize' ? /user resume/ : /identity changed/);
+        await assert.rejects(owner.call('geometry', tool, args), interrupt === 'stop' ? /cancelled/ : interrupt === 'revoke' ? /revoked/ : interrupt === 'minimize' ? error => error.code === 'window_minimized' : /identity changed/);
         assert.equal(methods().filter(requested => requested === method).length, 1);
         assert.equal(methods().includes('restore'), false, 'Recovery must not restore a minimized window');
         hook = null; approved = true;

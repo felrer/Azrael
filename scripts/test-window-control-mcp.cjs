@@ -42,25 +42,27 @@ async function main() {
   assert.deepEqual(received._meta, { ...proof, threadId });
   assert.deepEqual(relayMetadata({ ...proof, threadId }), { ...proof, threadId });
   assert.throws(() => relayMetadata(undefined), /metadata/);
-  assert.throws(() => relayMetadata({ threadId }), /Disabled permission profile/);
+  assert.throws(() => relayMetadata({ threadId }), e => e.code === 'permission_denied' && e.nativePermissionReason === 'missing' && e.stage === 'permission' && e.actionExecuted === false);
   await assert.rejects(relay(threadId, 'capture', {}, { threadId, 'x-codex-turn-metadata': { thread_id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', sandbox_mode: 'danger-full-access' } }), /Conflicting/);
   assert.throws(() => relayMetadata({ ...proof, threadId, 'x-codex-turn-metadata': { thread_id: threadId, turn_id: {} } }), /context/);
-  for (const invalid of [undefined, null, 'disabled', {}, [], { permissionProfile: null }, { permissionProfile: 'disabled' }, { permissionProfile: {} }, { permissionProfile: { type: 'managed' } }, { permissionProfile: { type: 'external' } }, { permissionProfile: { type: 'disabled', unexpected: true } }]) {
+  for (const [invalid, reason] of [[undefined, 'malformed'], [null, 'malformed'], ['disabled', 'malformed'], [{}, 'missing'], [[], 'malformed'], [{ permissionProfile: null }, 'malformed'], [{ permissionProfile: 'disabled' }, 'malformed'], [{ permissionProfile: {} }, 'malformed'], [{ permissionProfile: [] }, 'malformed'], [{ permissionProfile: { type: null } }, 'malformed'], [{ permissionProfile: { type: '' } }, 'malformed'], [{ permissionProfile: { type: 'managed' } }, 'not_disabled'], [{ permissionProfile: { type: 'external' } }, 'not_disabled'], [{ permissionProfile: { type: 'disabled', unexpected: true } }, 'malformed'], [{ permissionProfile: { type: 'managed', unexpected: true } }, 'malformed']]) {
     const invalidMeta = { threadId, 'x-codex-turn-metadata': { thread_id: threadId, sandbox_mode: 'danger-full-access' }, 'codex/sandbox-state-meta': invalid };
-    assert.throws(() => relayMetadata(invalidMeta), /Disabled permission profile/);
+    assert.throws(() => relayMetadata(invalidMeta), e => e.code === 'permission_denied' && e.message === 'Native Disabled permission profile required' && e.stage === 'permission' && e.nativePermissionReason === reason && e.actionExecuted === false);
     const previousReceived = received;
     const denied = await protocol({ jsonrpc: '2.0', id: 6, method: 'tools/call', params: { name: 'capture', arguments: { targetId: 'opaque' }, _meta: invalidMeta } });
     assert.equal(denied.result.isError, true); assert.equal(received, previousReceived);
+    assert.deepEqual(JSON.parse(denied.result.content[0].text), { code: 'permission_denied', message: 'Native Disabled permission profile required', stage: 'permission', actionExecuted: false, nativePermissionReason: reason });
   }
   assert.equal((await call({ targetId: 'opaque', threadId })).result.isError, true);
   assert.equal((await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'capture', arguments: { targetId: 'opaque' } } })).result.isError, true);
   assert.equal((await protocol({ jsonrpc: '2.0', id: 1, method: 'initialize', params: { protocolVersion: '2024-11-05' } })).result.capabilities.tools.constructor, Object);
   assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'initialize' })).result.capabilities.experimental, { 'codex/sandbox-state-meta': {} });
   const listed = (await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools;
+  assert.match(listed.find(t => t.name === 'select_window').description, /approval_timeout.*awaiting the user response.*has not declined.*explicit retry.*avoid repeated calls/);
   const hiddenUi = listed.find(t => t.name === 'ui_operation');
   assert.deepEqual(hiddenUi._meta, { ui: { visibility: ['app'] } });
   assert.deepEqual(hiddenUi.inputSchema.required, ['requestToken']); assert.equal(hiddenUi.inputSchema.additionalProperties, false);
-  assert.equal(listed.length, 19);
+  assert.equal(listed.length, 20);
   for (const name of ['list_windows','select_window','list_task_macros','save_task_macro']) assert.ok(!listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
   for (const name of ['inspect','press_key','run_task_macro']) assert.ok(listed.find(t => t.name === name).inputSchema.required.includes('targetId'));
   const uiCall = (args, meta) => protocol({ jsonrpc: '2.0', id: 7, method: 'tools/call', params: { name: 'ui_operation', arguments: args, _meta: meta } });
@@ -77,6 +79,12 @@ async function main() {
   assert.equal((await uiCall({ requestToken }, { ...proof, threadId, 'x-codex-turn-metadata': null })).result.isError, true);
   assert.deepEqual(listed.find(t => t.name === 'status').inputSchema.required, []);
   assert.ok(listed.find(t => t.name === 'capture').inputSchema.required.includes('targetId'));
+  const restore = listed.find(t => t.name === 'restore_window');
+  assert.deepEqual(restore.inputSchema.required, ['targetId']);
+  assert.deepEqual(Object.keys(restore.inputSchema.properties), ['targetId']);
+  assert.equal(restore.inputSchema.additionalProperties, false);
+  assert.match(restore.description, /Never resumes a user stop/);
+  assert.deepEqual(JSON.parse(callResult({state:'paused',pauseReason:'minimized',restoreAllowed:true,restored:false,window:{minimized:true}}).content[0].text), {state:'paused',window:{minimized:true},pauseReason:'minimized',restoreAllowed:true,restored:false});
   const initialStatus = await protocol({ jsonrpc: '2.0', id: 5, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: { ...proof, threadId } } });
   assert.equal(initialStatus.result.isError, false); assert.deepEqual(received.arguments, {});
   assert.equal((await call({})).result.isError, true);

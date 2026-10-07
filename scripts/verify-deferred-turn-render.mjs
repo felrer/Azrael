@@ -7,12 +7,12 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const fixture=join(root,'artifacts/verification/deferred-timer-ui');
-const logs=join(root,'artifacts/logs/deferred-timer-20261007/ui');
+const logs=join(root,'artifacts/logs/deferred-timer-hotfix-20261007/ui');
 const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
-const {injectDeferredPresentation,injectDeferredTurn,DEFERRED_PRESENTATION_ASSET,DEFERRED_REDUCER_ASSET}=require('./inject-deferred-turn.cjs');
+const {injectDeferredPresentation,injectDeferredTurn,injectDeferredThread,DEFERRED_PRESENTATION_ASSET,DEFERRED_REDUCER_ASSET,DEFERRED_THREAD_ASSET}=require('./inject-deferred-turn.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const mainName=DEFERRED_PRESENTATION_ASSET.split('/').at(-1);
 const main=injectDeferredPresentation(await readFile(join(assets,mainName),'utf8')).text;
@@ -22,31 +22,43 @@ const adaptations={ra:'fixtureLocale',X:'FixtureMessage',RFi:'fixtureClock',IFi:
 const adapt=owner=>{let source=owner.getText(ast),edits=[];function visit(n){if(ts.isIdentifier(n)&&adaptations[n.text]&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(ast)-owner.getStart(ast),end:n.end-owner.getStart(ast),text:adaptations[n.text]});ts.forEachChild(n,visit)}visit(owner);for(const e of edits.sort((a,b)=>b.start-a.start))source=source.slice(0,e.start)+e.text+source.slice(e.end);return source};
 const reducer=injectDeferredTurn(await readFile(join(assets,DEFERRED_REDUCER_ASSET.split('/').at(-1)),'utf8')).text;
 const reducerAst=ts.createSourceFile('reducer.js',reducer,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
-const merge=named(reducerAst,'mue').getText(reducerAst).replace('function mue(','function fixtureMerge(');
+const reducerName=DEFERRED_REDUCER_ASSET.split('/').at(-1);
+const threadName=DEFERRED_THREAD_ASSET.split('/').at(-1);
+const thread=injectDeferredThread(await readFile(join(assets,threadName),'utf8')).text;
+// Append exports in the original module scope: converters, merge helpers and
+// projection dependencies retain their real pinned imports and implementation.
+const reducerAdapter=String.raw`
+export {uwn as fixtureNotification,mue as fixtureMergeSnapshot,Nyn as fixtureHistory,Eh as fixtureInitializeReducer};
+export const fixtureWrongNotification=${named(reducerAst,'uwn').getText(reducerAst).replace('function uwn(', 'function fixtureWrongNotification(').replaceAll('l=B(s);','l=m(s);')};`;
+const threadAdapter=String.raw`
+export function fixtureActivity(turn){return lp({requests:[],generatedImages:[],isBackgroundSubagentsEnabled:false},turn,{key:turn.turnId,itemIds:turn.items.map(item=>item.id),state:'active',presentation:'codex',startedAtMs:turn.turnStartedAtMs,completedAtMs:null},null,false).turnState;}`;
 const adapterSource=String.raw`
+import {fixtureNotification,fixtureWrongNotification,fixtureMergeSnapshot,fixtureHistory,fixtureInitializeReducer} from './${reducerName}';
+import {fixtureActivity} from './${threadName}';
 const fixtureLocale=()=>({locale:'en-US'});
+let fixtureStoreReady=false;
 function FixtureMessage({defaultMessage,values={}}){return defaultMessage.replace(/\{(\w+)\}/g,(_,key)=>values[key]??key)}
 ${['RFi','IFi','LFi'].map(n=>adapt(named(ast,n))).join(String.fromCharCode(10))}
-const fixtureMergeSnapshot=(()=>{const vue={default:()=>true},wh=()=>null,gue=(existing,incoming)=>incoming.params,bh=(existing,incoming)=>incoming;
-${named(reducerAst,'azraelMergeRootResumeWait').getText(reducerAst)}
-${merge}
-return fixtureMerge;})();
 window.fixtureNow=20000;Date.now=()=>fixtureNow;
-window.fixtureState={old:{turnId:'old',status:'inProgress',turnStartedAtMs:12000,durationMs:null,items:[],params:{}},current:null};
-window.fixtureDefer=()=>{fixtureState.old={...fixtureState.old,status:'deferred',durationMs:8000,rootResumeWait:{reservationId:'r1',revision:1,waitStartedAtMs:20000,waitEndedAtMs:null,resumeAtMs:80000,state:'waiting',canWakeEarly:false}};fixtureRerender()};
+window.fixtureReset=()=>{window.fixtureState={old:{turnId:'old',status:'inProgress',turnStartedAtMs:12000,durationMs:null,items:[{id:'reason',type:'reasoning',summary:['Timer verification'],content:[]}],params:{threadId:'thread-live',input:[],attachments:[]}},current:null};window.fixtureReceipt={updates:[],broadcasts:[],errors:[]};};fixtureReset();
+const fixtureEnvironment={manager:{logger:{error:(...args)=>fixtureReceipt.errors.push(args)},broadcastConversationSnapshot:id=>fixtureReceipt.broadcasts.push(id)},notificationContext:{threadStore:{conversations:new Map([['thread-live',{}]])},itemStreamState:{drainBefore:()=>false},updateTurnState:(threadId,turnId,update)=>{if(threadId!=='thread-live')throw Error('Native converter failed: '+threadId);fixtureReceipt.updates.push({threadId,turnId});update(turnId==='old'?fixtureState.old:fixtureState.current)}}};
+window.fixtureEmit=(method,params)=>{fixtureNotification(fixtureEnvironment,{method,params:{threadId:'thread-live',...params}});fixtureRerender()};
+window.fixtureDefer=()=>fixtureEmit('turn/deferred',{turn:{id:'old',durationMs:8000,startedAt:12,rootResumeWait:{reservationId:'r1',revision:1,waitStartedAtMs:20000,waitEndedAtMs:null,resumeAtMs:80000,state:'waiting',canWakeEarly:false}}});
+window.fixtureBugProbe=()=>{fixtureWrongNotification(fixtureEnvironment,{method:'turn/deferred',params:{threadId:'thread-live',turn:{id:'old',durationMs:8000,startedAt:12}}});return fixtureState.old.status==='inProgress'&&fixtureReceipt.updates.length===0&&fixtureReceipt.errors.length===1};
 window.fixtureStale=resume=>{fixtureState.old=fixtureMergeSnapshot(fixtureState.old,{...fixtureState.old,status:'inProgress',durationMs:99000,rootResumeWait:null},{isResumeSnapshot:resume});fixtureRerender()};
-window.fixtureResume=()=>{fixtureState.old={...fixtureState.old,rootResumeWait:{...fixtureState.old.rootResumeWait,state:'resumed',revision:2,waitEndedAtMs:fixtureNow}};fixtureState.current={status:'inProgress',turnStartedAtMs:fixtureNow};fixtureRerender()};
-function Fixture(){HFi();const [,update]=VFi.useState(0);window.fixtureRerender=()=>update(n=>n+1);const old=fixtureState.old;const projected=old.status==='inProgress'?[Kmt({status:'in_progress',hasStartedWork:true,workStartedAtMs:old.turnStartedAtMs,workedCompletedAtMs:null})]:Hgt({items:[],status:old.status,workStartedAtMs:old.turnStartedAtMs,finalAssistantStartedAtMs:jgt(old),rootResumeWait:old.rootResumeWait});return k7.jsxs('div',{children:[k7.jsx('div',{'data-fixture-old':'',children:projected.map((item,i)=>k7.jsx(fixtureDivider,item,i))},document.documentElement.dataset.theme),fixtureState.current&&k7.jsx('div',{'data-fixture-new':'',children:k7.jsx(fixtureDivider,Kmt({status:'in_progress',hasStartedWork:true,workStartedAtMs:fixtureState.current.turnStartedAtMs,workedCompletedAtMs:null}))})]})}
+window.fixtureResume=()=>{fixtureEmit('turn/rootResumeWait/updated',{turnId:'old',wait:{...fixtureState.old.rootResumeWait,state:'resumed',revision:2,waitEndedAtMs:fixtureNow}});fixtureState.current={...fixtureState.old,turnId:'new',status:'inProgress',turnStartedAtMs:fixtureNow,durationMs:null,rootResumeWait:null};fixtureRerender()};
+window.fixtureReload=()=>{const old=fixtureState.old;fixtureState.old=fixtureHistory({threadId:'thread-live',permissions:{approvalPolicy:'never',approvalsReviewer:'user',sandboxPolicy:{type:'dangerFullAccess'}},turns:[{id:old.turnId,status:old.status,startedAt:old.turnStartedAtMs/1000,completedAt:null,durationMs:old.durationMs,rootResumeWait:old.rootResumeWait,items:[]} ]})[0];fixtureRerender()};
+function Fixture(){if(!fixtureStoreReady){VS();fixtureInitializeReducer();Qm();h4e({},()=>{});fixtureStoreReady=true}HFi();const [,update]=VFi.useState(0);window.fixtureRerender=()=>update(n=>n+1);const projected=fixtureActivity(fixtureState.old).items.filter(item=>item.type==='worked-for');return k7.jsxs('div',{children:[k7.jsx('div',{'data-fixture-old':'',children:projected.map((item,i)=>k7.jsx(fixtureDivider,item,i))},document.documentElement.dataset.theme),fixtureState.current&&k7.jsx('div',{'data-fixture-new':'',children:fixtureActivity(fixtureState.current).items.filter(item=>item.type==='worked-for').map((item,i)=>k7.jsx(fixtureDivider,item,i))})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5e7be244bca.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {KEt,UEt} from '/assets/app-initial-efe028fd535e.js';import {Fixture} from '/assets/${mainName}';const $=KEt();window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
- if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
+ if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;if(pathname===join(assets,reducerName))source=reducer+reducerAdapter;if(pathname===join(assets,threadName))source=thread+threadAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
  res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Pinned production deferred work divider, clock hook and snapshot merge rendered with native React/CSS in light/dark; synthetic host/localization and advanced clock. No installed app or release build.',checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Actual transformed module-bound notifications and native imported converter -> synthetic host store -> native lp/Yo/BS/Hgt projection, history mapper, snapshot merge and React clock/divider with native CSS in light/dark. Synthetic host/localization and advanced clock; no installed app or release build.',checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -63,10 +75,13 @@ try{
  const advance=async ms=>{await evaluate('fixtureNow+='+ms);await new Promise(r=>setTimeout(r,1100))};
  const screenshot=async name=>writeFile(join(logs,name+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
  for(const theme of ['light','dark']){
-  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureState={old:{turnId:'old',status:'inProgress',turnStartedAtMs:12000,durationMs:null,items:[],params:{}},current:null};fixtureRerender()`);
+  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureReset();fixtureRerender()`);
+  check(theme+' actual native error-classifier alias misses deferred notification',await evaluate('fixtureBugProbe()'));
+  await evaluate('fixtureReset();fixtureRerender()');
   await wait("document.querySelector('[data-fixture-old]').innerText.includes('Working')");
   const active=await oldText();await advance(3000);check(theme+' active work clock ticks',(await oldText())!==active);
   await evaluate('fixtureNow=20000;fixtureDefer()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('Worked for 8s')");
+  check(theme+' native notification targets actual thread and turn',await evaluate("fixtureReceipt.updates.length===1&&fixtureReceipt.updates[0].threadId==='thread-live'&&fixtureReceipt.updates[0].turnId==='old'&&fixtureReceipt.broadcasts[0]==='thread-live'&&fixtureReceipt.errors.length===0"));
   await advance(4000);check(theme+' waiting ticks independently',(await oldText()).includes('현재 4초 대기함'));
   check(theme+' old work freezes',(await oldText()).includes('Worked for 8s'));
   for(const resume of [false,true]){await evaluate('fixtureStale('+resume+')');await advance(3000);check(theme+' stale snapshot '+resume+' keeps deferred clock',await evaluate("fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===8000")&&(await oldText()).includes('Worked for 8s'))}
@@ -75,6 +90,9 @@ try{
   const ended=await oldText();const newText=await evaluate("document.querySelector('[data-fixture-new]').innerText");await advance(5000);
   check(theme+' resumed wait and old work stay fixed',(await oldText())===ended);
   check(theme+' new work clock ticks',await evaluate("document.querySelector('[data-fixture-new]').innerText")!==newText);
+  check(theme+' resumed notification reaches native thread',await evaluate("fixtureReceipt.updates.length===2&&fixtureReceipt.broadcasts.length===2"));
+  await evaluate('fixtureReload()');await advance(3000);
+  check(theme+' native history reload preserves frozen work and wait',(await oldText())===ended&&await evaluate("fixtureState.old.durationMs===8000&&fixtureState.old.rootResumeWait.waitEndedAtMs===30000"));
   const style=await evaluate("(()=>{const e=document.querySelector('[data-fixture-old] span'),s=getComputedStyle(e),line=document.querySelector('[data-fixture-old] .border-t');return {color:s.color,font:s.fontFamily,height:e.getBoundingClientRect().height,width:e.getBoundingClientRect().width,line:getComputedStyle(line).borderTopWidth}})()");
   check(theme+' native divider geometry',style.height>10&&style.width>20&&style.line==='1px');summary[theme]={text:await oldText(),style};await screenshot(theme+'-resumed');
  }

@@ -34,7 +34,7 @@ The integrated extension shows pending reservations, local resume times, selecte
 
 ### Chat work and waiting durations
 
-Status: `partial`. Pinned UI fixtures, native timing regressions and actual light/dark work-divider rendering are verified; release build and installed-host acceptance remain pending.
+Status: `partial`. Native timing source regressions, actual module-bound deferred/wait notifications, native activity projection and light/dark work-divider rendering are verified. The corrected UI package passed all six isolated host acceptance stages and is installed; existing user windows require reload and live confirmation. This UI package reuses the existing verified engine binaries and does not establish acceptance of newer native cancellation/timing changes.
 
 Chat retains a fixed work duration for each deferred turn and measures resumed work from the new turn's start. A reservation's waiting divider shows its planned duration and elapsed waiting seconds; selected-child wake conditions use a maximum planned duration because children may finish early. Only the currently waiting reservation advances. Resume, cancellation, interruption and blocked admission freeze its elapsed duration and display the corresponding outcome. Completed work leaves every preceding segment frozen, including after history reload.
 

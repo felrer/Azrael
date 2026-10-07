@@ -24,7 +24,13 @@ function relayMetadata(meta) {
   parseThreadMetadata(meta);
   const sandboxState = meta?.['codex/sandbox-state-meta'];
   const permissionProfile = sandboxState?.permissionProfile;
-  if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState) || !Object.hasOwn(sandboxState, 'permissionProfile') || !permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || permissionProfile.type !== 'disabled' || Object.keys(permissionProfile).some(key => key !== 'type')) throw expectedError('Native Disabled permission profile required');
+  let nativePermissionReason;
+  if (!Object.hasOwn(meta, 'codex/sandbox-state-meta')) nativePermissionReason = 'missing';
+  else if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState)) nativePermissionReason = 'malformed';
+  else if (!Object.hasOwn(sandboxState, 'permissionProfile')) nativePermissionReason = 'missing';
+  else if (!permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || typeof permissionProfile.type !== 'string' || !permissionProfile.type.length || Object.keys(permissionProfile).some(key => key !== 'type')) nativePermissionReason = 'malformed';
+  else if (permissionProfile.type !== 'disabled') nativePermissionReason = 'not_disabled';
+  if (nativePermissionReason) throw windowError('permission_denied', 'Native Disabled permission profile required', { stage: 'permission', nativePermissionReason, actionExecuted: false });
   const selected = {};
   selected['codex/sandbox-state-meta'] = { permissionProfile: { type: 'disabled' } };
   if (Object.hasOwn(meta, 'threadId')) selected.threadId = meta.threadId;
@@ -64,8 +70,9 @@ function toolDefinitions() {
     if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
     const descriptions = {
       list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
-      select_window:'Select a candidate from the latest list_windows. Requests application approval and revalidates exact identity. No targetId needed.',
-      status:'Call with {} to discover whether this thread is unbound and obtain the selected targetId and fresh advisory occupancy. Refresh before each action or macro; defer if occupied by another session or unknown.',
+      select_window:'Select a candidate from the latest list_windows. Requests application approval and revalidates exact identity. No targetId needed. approval_timeout means awaiting the user response; the user has not declined. Tell the user and await an explicit retry; avoid repeated calls.',
+      status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and other pauses require explicit user resume.',
+      restore_window:'Restore the exact selected window after minimization only when fresh status reports restoreAllowed true and no other occupying session. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
       inspect:'Inspect current UI Automation elements and states without a screenshot. Returns fresh observationId and element IDs.',
       press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
       list_task_macros:'List saved task definitions and storage revision. No targetId needed.',
@@ -74,7 +81,7 @@ function toolDefinitions() {
     };
     const inputSchema = {type:'object',properties,required,additionalProperties:false};
     if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
-    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. Paused windows require user resume. Inspect or capture before each element action.`,inputSchema};
+    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. A window_minimized error with restoreAllowed true permits restore_window; other pauses require user resume. Inspect or capture before each element action.`,inputSchema};
   });
   definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
   return definitions;
@@ -83,8 +90,8 @@ function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs 
   return new Promise((resolve, reject) => {
     const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false; let stage = 'connection';
     const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
-    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','run_size_macro','run_task_macro','ui_operation'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
-    const timeout = () => windowError(stage === 'approval' ? 'approval_timeout' : 'timeout', stage === 'approval' ? '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.' : stage === 'queued' ? '앞선 Window Use 작업을 기다리다 시간이 초과됐습니다.' : 'Window Use 호스트의 응답 대기 시간이 초과됐습니다.', { stage, ...uncertainty() });
+    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','restore_window','run_size_macro','run_task_macro','ui_operation'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
+    const timeout = () => windowError(stage === 'approval' ? 'approval_timeout' : 'timeout', stage === 'approval' ? '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.' : stage === 'queued' ? '앞선 Window Use 작업을 기다리다 시간이 초과됐습니다.' : 'Window Use 호스트의 응답 대기 시간이 초과됐습니다.', { stage, ...(stage === 'approval' ? { approvalState: 'expired', userResponded: false, actionExecuted: false } : {}), ...uncertainty() });
     socket.setTimeout(timeoutMs, () => finish(timeout()));
     socket.on('connect', () => { stage = 'queued'; socket.write(JSON.stringify(message) + '\n'); });
     socket.on('error', e => finish(windowError('connection_error', stage === 'connection' ? 'Window Use 호스트에 연결하지 못했습니다.' : 'Window Use 호스트 연결에 오류가 발생했습니다.', { stage, cause: e, ...uncertainty() })));
@@ -123,7 +130,7 @@ function callResult(result) {
   function observation(value) {
     const projected = {};
     if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
-    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated']) if(Object.hasOwn(value,key)) projected[key] = value[key];
+    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated','pauseReason','restoreAllowed','restored']) if(Object.hasOwn(value,key)) projected[key] = value[key];
     if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
     if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(k === 'value' && e.isPassword)).map(k => [k,e[k]])));
     return projected;

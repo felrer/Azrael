@@ -1,4 +1,15 @@
 'use strict';
+const APPROVAL_CLASSIFIER_ASSET = 'webview/assets/app-initial-5120fa5fe295.js';
+const CLASSIFIER_MARKER = '/*azrael-window-native-approval-v1*/';
+const CLASSIFIER_ANCHOR = 'return t===`computer-use`||t.startsWith(`computer-use-`)';
+const CLASSIFIER_PATCH = CLASSIFIER_ANCHOR + '||t===`window-use`' + CLASSIFIER_MARKER;
+function injectWindowApprovalClassifier(text, relativePath) {
+  if(relativePath!==APPROVAL_CLASSIFIER_ASSET)return {text,count:0};
+  const markers=text.split(CLASSIFIER_MARKER).length-1;
+  if(markers){if(markers!==1||text.split(CLASSIFIER_PATCH).length-1!==1)throw Error('Invalid Window Use native approval classifier marker');return {text,count:0};}
+  if(text.split(CLASSIFIER_ANCHOR).length-1!==1)throw Error('Pinned Window Use native approval classifier changed');
+  return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH),count:1};
+}
 const SETTINGS_ASSET = 'webview/assets/computer-use-settings-f7844e8d05eb.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v1*/';
 const PAGE_MARKER = '/*azrael-window-control-launcher-v3*/';
@@ -81,7 +92,7 @@ function injectWindowControl(text, relativePath, ts) {
   }
   if (relativePath !== 'out/extension.js') return { text, count: 0 };
   if (text.includes(HOST_MARKER)) {
-    const hooks = [['require("./window-control-host.cjs").attach(this,', 1], ['require("./window-control-host.cjs").request(this,', 1], ['require("./window-control-host.cjs").beforeResult(this,', 1], ['require("./window-control-host.cjs").observe(this,', 1], ['require("./window-control-host.cjs").disconnect(this);', 2]];
+    const hooks = [['require("./window-control-host.cjs").prepareRequest(', 1], ['require("./window-control-host.cjs").attach(this,', 1], ['require("./window-control-host.cjs").request(this,', 1], ['require("./window-control-host.cjs").beforeResult(this,', 1], ['require("./window-control-host.cjs").observe(this,', 1], ['require("./window-control-host.cjs").disconnect(this);', 2]];
     if (text.split(HOST_MARKER).length !== 2 || !text.includes(HOST_PATCH) || hooks.some(([hook, count]) => text.split(hook).length !== count + 1)) throw new Error('Invalid selected-window bridge marker');
     return { text, count: 0 };
   }
@@ -92,7 +103,8 @@ function injectWindowControl(text, relativePath, ts) {
       if (!node.body || node.parameters.length !== 6) throw new Error('Pinned selected-window bridge request signature changed');
       if (node.parameters.some(p => !ts.isIdentifier(p.name))) throw new Error('Window Use request parameters changed');
       const parameterNames = node.parameters.slice(0, 4).map(p => p.name.text).join(',');
-      edits.push({ start: node.body.getStart(source) + 1, code: `try{require("./window-control-host.cjs").attach(this,(...azraelWindowArgs)=>this.sendProviderRequest(...azraelWindowArgs));require("./window-control-host.cjs").request(this,${parameterNames});}catch(azraelWindowError){console.error("Azrael selected-window bridge unavailable");}` });
+      const methodName=node.parameters[2].name.text, paramsName=node.parameters[3].name.text;
+      edits.push({ start: node.body.getStart(source) + 1, code: `${paramsName}=require("./window-control-host.cjs").prepareRequest(${methodName},${paramsName});try{require("./window-control-host.cjs").attach(this,(...azraelWindowArgs)=>this.sendProviderRequest(...azraelWindowArgs));require("./window-control-host.cjs").request(this,${parameterNames});}catch(azraelWindowError){console.error("Azrael selected-window bridge unavailable");}` });
       counts.send++;
       for (const sibling of node.parent.members) {
         if (sibling.name?.text === 'routeIncomingMessage' && sibling.body && sibling.parameters.length === 2 && ts.isIdentifier(sibling.parameters[0].name)) {
@@ -116,3 +128,5 @@ function injectWindowControl(text, relativePath, ts) {
   return { text, count: 4 };
 }
 module.exports = { injectWindowControl, SETTINGS_ASSET, HOST_MARKER, PAGE_MARKER, HOST_ANCHOR, HOST_PATCH, PAGE_ANCHOR, PAGE_PATCH, AzraelWindowControlLauncher, createUseSettingsStore };
+
+Object.assign(module.exports,{injectWindowApprovalClassifier,APPROVAL_CLASSIFIER_ASSET,CLASSIFIER_MARKER,CLASSIFIER_ANCHOR,CLASSIFIER_PATCH});

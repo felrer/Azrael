@@ -24,7 +24,8 @@ async function run() {
   const home = fs.mkdtempSync(path.join(Kd.tmpdir(), "azrael-injection-test-"));
   try {
     const owner = createOwner(home), sent = [], shown = [], outbound = [];
-    const context = vm.createContext({ require: name => { assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, bR: "provider" });
+    const registered = [];
+    const context = vm.createContext({ require: name => { if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, bR: "provider" });
     context.host = { codexMcpConnection: { sendResponse: (id, result) => sent.push({ id, result }), sendRequest: (...args) => outbound.push(args) }, broadcastToAllViews: value => shown.push(value), pendingMcpRequests: new Map(), sendInternalAppServerRequest: (...args) => outbound.push(args) };
     // Evaluate the exact transformed handlers obtained from the full pinned bundle.
     const onRequest = replacements[0][1];
@@ -42,7 +43,7 @@ async function run() {
     findSettingsOwner(hostAst);
     assert.equal(settingsOwners.length, 1, "pinned computer-use settings class is unique");
     vm.runInContext("var " + settingsOwners[0].getText(hostAst) + ";settings=new YN", context);
-    context.host.receive(request(1)); assert.equal(shown[0].request.id, 1);
+    context.host.receive(request(1)); assert.equal(registered[0].native,context.host.codexMcpConnection);registered[0].publish({type:"fixture"});assert.equal(shown.pop().type,"fixture"); assert.equal(shown[0].request.id, 1);
     context.host.respond({ type: "mcp-response", response: { id: 1, result: { action: "accept", content: { persist: "always" } } } });
     context.host.receive(request(2)); assert.equal(sent[1].result.content.scope, "global");
     assert.equal((await context.settings.getAppApprovals()).approvedApps.length, 1);
@@ -56,6 +57,8 @@ async function run() {
     assert.equal(sent.at(-1).result.action, "cancel");
     const unrelated = { id: 90, method: "unrelated", params: { value: "unchanged" } }; context.host.receive(unrelated); assert.equal(shown.at(-1).request, unrelated);
     const ordinary = { action: "accept", content: { x: "unchanged" } }; context.host.respond({ type: "mcp-response", response: { id: 90, result: ordinary } }); assert.equal(sent.at(-1).result, ordinary);
+    const sentBefore=sent.length;context.host.respond({type:"mcp-response",response:{id:"azrael-window-consent-fixture",result:{action:"accept"}}});assert.equal(sent.length,sentBefore,"local Window Use response never reaches native engine");
+    assert(registered.length>=2,"outgoing requests bind publication before native send");assert(registered.every(entry=>entry.publish===registered[0].publish),"publication callback stays stable on repeated binding");
     assert.equal((await context.settings.getAppApprovals()).approvedApps.length, 0);
     console.log("PASS full pinned injection parsing/idempotency/fail-closed anchors and actual transformed request/response/settings/interrupt handlers in VM");
   } finally { fs.rmSync(home, { recursive: true, force: true }); }
@@ -175,10 +178,12 @@ test("pinned computer-use approval card cancels the request through the native r
   assert.equal(vp.createSourceFile(COMPUTER_USE_APPROVAL_CARD_ASSET, injected.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
   const transformer = require("./namespace-azrael-host.cjs");
   const transformed = transformer.transformAsset(original, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, vp);
+  assert.equal(transformed.asset.windowApprovalTitleEdits,1);
   assert.equal(transformed.asset.computerUseCancelRequestEdits, 1);
   assert.equal(transformed.asset.computerUseSettingsEdits, 0);
   assert(transformed.text.includes(CANCEL_REPLACEMENT));
-  assert.equal(transformed.text.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), transformer.rewriteJavaScript(original, COMPUTER_USE_APPROVAL_CARD_ASSET, vp).text);
+  let reversedTitle=transformed.text;for(const [before,after] of require("./inject-computer-use.cjs").windowTitleReplacements)reversedTitle=reversedTitle.replace(after,before);
+  assert.equal(reversedTitle.replace(CANCEL_REPLACEMENT, CANCEL_ANCHOR), transformer.rewriteJavaScript(original, COMPUTER_USE_APPROVAL_CARD_ASSET, vp).text);
   const crypto = require("node:crypto");
   const sha = value => crypto.createHash("sha256").update(value).digest("hex");
   const rules = transformer.getTransformRules();
@@ -391,4 +396,9 @@ test("local Windows approval management preserves native execution gates and mem
   assert.equal(vm.runInContext("ci()", ciContext).type, "approval-list");
   assert.equal(refetches, 1); assert.equal(reads, 1); assert.deepEqual(await fetched, { approvedApps });
   console.log("PASS pinned Vr local Windows management, preserved native gates/sound, host/platform/availability memo invalidation and ungated native ci query mount");
+});
+test('Window Use Azrael title is guarded and leaves Computer Use native title intact',()=>{
+ const {injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements}=require('./inject-computer-use.cjs');const original=fs.readFileSync(path.join(__dirname,'../artifacts/upstream-ui/26.930.61225',COMPUTER_USE_APPROVAL_CARD_ASSET),'utf8');
+ const result=injectWindowApprovalTitle(original,COMPUTER_USE_APPROVAL_CARD_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalTitle(result.text,COMPUTER_USE_APPROVAL_CARD_ASSET).count,0);assert(result.text.includes('Allow Azrael to use {appDisplayName}?'));assert(result.text.includes('Allow ChatGPT to use {appDisplayName}?'));
+ assert.throws(()=>injectWindowApprovalTitle(original+WINDOW_TITLE_MARKER,COMPUTER_USE_APPROVAL_CARD_ASSET));assert.throws(()=>injectWindowApprovalTitle(result.text.replace(windowTitleReplacements[2][1],'tampered'),COMPUTER_USE_APPROVAL_CARD_ASSET));assert.equal(injectWindowApprovalTitle(original,'unrelated.js').count,0);
 });

@@ -36,6 +36,7 @@ const miss = () => { throw Error("expected a cache hit"); };
 test("closed path dependencies scope controls/instructions/composer; generic and helper rules stay shared", () => {
   assert.equal(CACHE_SCHEMA, 3);
   for (const [rule, paths] of [
+    ["inject-missing-image.cjs", require("./inject-missing-image.cjs").ASSETS],
     ["inject-provider-context.cjs", [CONTEXT_ASSET, SETTINGS_ASSET]],
     ["inject-instruction-settings.cjs", ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS]],
     ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],

@@ -16,6 +16,12 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). This icon change is source-only until the next build and installation. Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## Missing local chat images
+
+Status: `current` in source — native component rendering and interaction verified in light and dark themes; build and installation pending.
+
+When a local image referenced by a chat thumbnail is absent, the thumbnail displays `파일 없음` in its existing bordered tile using native theme tokens. The missing-file tile has no image-opening action. File absence is distinguished from permission, transport and cancellation errors. Loading and available-image behavior retain their existing presentation. A change to the image source, host or conversation clears the previous missing-file identity.
+
 ## Astra response speed
 
 Status: `current` in source — native control rendering and interaction verified; build and installation pending.
@@ -45,6 +51,8 @@ Status: `partial` — the production settings section passes actual pinned React
 The existing Computer Use page contains separate Computer Use and Window Use sections. Computer Use has an enabled switch, initially on. Window Use has an allow-all switch, initially off, and an always-approved app list with add-from-running-window and remove actions. Settings use the pinned native rows, switches, buttons, spacing and semantic theme tokens. Loading, saving, empty-list and failed-save states are visible; a failed save does not display the proposed value as saved. User actions supersede quiet background reads; late replies cannot replace the acknowledged result. Keyboard interaction and both themes require actual rendered acceptance.
 
 Window Use settings use its separate approval owner. The existing Computer Use approval-management surface remains available. The runtime authorization contract is owned by [Window Use](window-use.md#app-authorization-settings) and [Computer Use](computer-use.md#control-enable-setting).
+
+Window Use consent reuses the native in-conversation elicitation card with the app name, Window Use identity and existing permission scopes. The dedicated Window Use panel presents consent within its own view using semantic theme tokens. Waiting, expiry, denial and cancellation remain visible states; a terminal request cannot retain active approval buttons. Source light/dark rendering and interaction acceptance pass at normal and narrow widths. The exact package passed six isolated host acceptance stages and is installed; real-user consent after reload remains unverified. Its authority and model-visible result contract is owned by [in-app consent](window-use.md#in-app-consent).
 
 ## Design settings
 

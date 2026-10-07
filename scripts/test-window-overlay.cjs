@@ -129,11 +129,14 @@ test('host stop callback revokes only stopped thread approval during stalled act
   const f = await policy(t); f.owner.dispose();
   const approvals = require('./window-use-approvals.cjs').createOwner(f.home);
   const host = createHost({ runtime: { codexHome: f.home }, occupancyDirectory: path.join(f.home, 'host-occupancy'), approvals,
-    vscode: { window: { showInformationMessage: async () => '이 대화에서 허용' } }, backend: { ...f.backend, dispose: async () => {} },
+    vscode: { window: { showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } }, backend: { ...f.backend, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => ready(); server.close = () => {}; return server; },
   });
   t.after(() => host.dispose());
   const native = { registerProvider: () => ({ dispose() {} }) }; host.attach(native, () => {});
+  host.registerApprovalUI(native, envelope => {
+    if (envelope.type === 'mcp-request') assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);
+  });
   const ids = [randomUUID(), randomUUID()];
   for (const threadId of ids) { host.observe(native, { method: 'turn/started', params: { threadId, turn: { id: 'turn' } } }); await host.threads.get(threadId).ready; }
   const call = (threadId, tool, args = {}) => host.handlePipe({ nonce: host.nonce, threadId, method: 'call', tool, arguments: args, _meta: { threadId, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: threadId, turn_id: 'turn' } } });

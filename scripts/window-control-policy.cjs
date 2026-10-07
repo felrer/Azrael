@@ -6,7 +6,7 @@ const os = require('node:os');
 const tasks = require('./window-task-macros.cjs');
 const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
 const { expectedError, windowError } = require('./window-control-errors.cjs');
 const fail = message => { throw expectedError(message); };
@@ -40,7 +40,18 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
   const macroPath = path.join(codexHome, 'azrael', 'computer-use', 'window-macros.json');
   const serial = fn => { const result = queue.then(() => { if (disposed) fail('Owner disposed'); return fn(); }); queue = result.catch(() => {}); return result; };
   const get = id => { str(id); const b = bindings.get(id); if (!b) fail('No selected window'); return b; };
-  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, window: safeWindow(b.window), supportedActions: [...ACTIONS] });
+  const canRestore = b => !b.userStopped && (b.state !== 'paused' || b.pauseReason === 'minimized');
+  const restoreAllowed = b => canRestore(b) && (b.window.minimized || (b.state === 'paused' && b.pauseReason === 'minimized'));
+  const view = b => ({ occupancy: occupancyOf(b.identity, b.thread), targetId: b.targetId, state: b.state, ...(b.state === 'paused' ? { pauseReason: b.pauseReason || 'error' } : {}), restoreAllowed: restoreAllowed(b), window: safeWindow(b.window), supportedActions: [...ACTIONS] });
+  const pause = (b, reason) => {
+    const previous = b.state === 'paused' ? b.pauseReason : undefined;
+    b.state = 'paused'; b.observation = null;
+    b.pauseReason = b.userStopped ? 'user_stopped' : reason === 'minimized' && previous && previous !== 'minimized' ? previous : reason;
+  };
+  const minimizedError = (b, cause) => {
+    pause(b, 'minimized');
+    return windowError('window_minimized', '선택한 창이 최소화되었습니다. restore_window로 복원 가능 여부를 확인해주세요.', { pauseReason: b.pauseReason, restoreAllowed: restoreAllowed(b), ...(cause?.mutationOutcome === 'unknown' ? {} : { actionExecuted: false }), ...(cause ? { cause, nativeCode: cause.nativeCode, mutationOutcome: cause.mutationOutcome } : {}) });
+  };
   const hideOverlay = (b, generation) => {
     if (typeof backend.hideOverlay === 'function') return backend.hideOverlay({ targetId: b.targetId, generation }).catch(error => onOverlayError(b.thread, error));
   };
@@ -48,13 +59,14 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     cancelSelection(thread);
     const b = bindings.get(thread); if (!b) return { state: 'unbound' };
     const generation = b.generation;
-    b.generation++; b.state = 'paused'; b.observation = null;
+    b.generation++;
     if (userStopped) {
       b.userStopped = true;
       const stopped = userStoppedTargets.get(thread) || [];
       if (!stopped.some(identity => same(identity, b.identity))) stopped.push({ ...b.identity });
       userStoppedTargets.set(thread, stopped);
     }
+    pause(b, userStopped ? 'user_stopped' : 'error');
     void hideOverlay(b, generation);
     return view(b);
   };
@@ -74,7 +86,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
   }
   async function guard(b, thread, generation) {
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
-    if (!await authorize({ ...b.identity }, thread)) { b.state = 'paused'; b.observation = null; b.generation++; occupancy.publish(); fail('Application authorization revoked'); }
+    if (!await authorize({ ...b.identity }, thread)) { pause(b, 'error'); b.generation++; occupancy.publish(); fail('Application authorization revoked'); }
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
   }
   async function request(b, thread, generation, method, params = {}) {
@@ -82,34 +94,40 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     let result;
     try { result = await backend.request(method, { ...params, window: { ...b.identity } }); }
     catch (error) {
+      const minimized = error.code === 'window_minimized' || error.nativeCode === 'window-minimized';
+      const current = !disposed && bindings.get(thread) === b && b.generation === generation;
       const geometryChanged = ['observe','inspect'].includes(method) && error.code === 'state_changed' && error.nativeCode === 'capture-size-changed' && error.mutationOutcome !== 'unknown';
       const resizeRejected = method === 'resize' && error.mutationOutcome !== 'unknown' &&
         ((error.nativeCode === 'not-resizable' && error.code === 'unsupported_action') || (error.nativeCode === 'resize-bounds' && error.code === 'invalid_request'));
-      if (['act','resize','restore'].includes(method) && !['unsupported_action','state_changed','invalid_request'].includes(error.code)) error.mutationOutcome = 'unknown';
-      if (!disposed && bindings.get(thread) === b && b.generation === generation) {
+      if (['act','resize','restore'].includes(method) && !minimized && !['unsupported_action','state_changed','invalid_request'].includes(error.code)) error.mutationOutcome = 'unknown';
+      if (current) {
         b.observation = null;
-        if (!geometryChanged && !resizeRejected) { b.state = 'paused'; b.generation++; }
+        if (!geometryChanged && !resizeRejected) { pause(b, minimized ? 'minimized' : 'error'); b.generation++; }
         occupancy.publish();
       }
+      if (minimized && current) throw minimizedError(b, error);
       throw error;
     }
     try { await guard(b, thread, generation); } catch (error) { if (['act','resize','restore'].includes(method)) error.mutationOutcome = 'unknown'; throw error; }
-    let w; try {w = descriptor(result?.window || result);} catch(e) {b.state='paused';b.generation++;b.observation=null;occupancy.publish();throw e;}
-    if (!same(b.identity, w)) { b.state = 'paused'; b.generation++; b.observation = null; occupancy.publish(); fail('Selected window identity changed'); }
+    let w; try {w = descriptor(result?.window || result);} catch(e) {pause(b,'error');b.generation++;occupancy.publish();throw e;}
+    if (!same(b.identity, w)) { pause(b, 'error'); b.generation++; occupancy.publish(); fail('Selected window identity changed'); }
     if (b.observation && (b.window.widthPx !== w.widthPx || b.window.heightPx !== w.heightPx || b.window.dpi !== w.dpi)) b.observation = null;
     b.window = w;
-    if (w.minimized && b.used && method === 'status') { b.state = 'paused'; b.observation = null; }
+    if (w.minimized) {
+      pause(b, 'minimized');
+      if (method !== 'status') throw minimizedError(b);
+    }
     occupancy.publish(); return result;
   }
   async function ready(b, thread, generation, allowRestore) {
     await request(b, thread, generation, 'status');
     if (b.window.minimized) {
-      if (!allowRestore || b.restoreAttempted) { b.state = 'paused'; b.observation = null; fail('Window minimized; user resume required'); }
+      if (!allowRestore || b.restoreAttempted) throw minimizedError(b);
       b.restoreAttempted = true;
       await request(b, thread, generation, 'restore');
-      if (b.window.minimized) { b.state = 'paused'; fail('Window remains minimized; user resume required'); }
+      if (b.window.minimized) throw minimizedError(b);
     }
-    b.state = 'ready';
+    b.state = 'ready'; delete b.pauseReason;
   }
   async function observe(b, thread, generation) {
     const r = await requestObservation(b, thread, generation, 'observe');
@@ -215,7 +233,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     listWindows: thread => serial(async () => { const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),occupancy:occupancyOf(w,thread)})); }),
     bind: (thread, selected) => { cancelSelection(thread); const selection = selections.get(thread); return serial(async () => { if (selections.get(thread) !== selection) fail('Operation cancelled'); const result = await bindInternal(thread, selected); userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, selected))); return result; }); },
     status: thread => serial(async () => { if (!bindings.has(thread)) return {state:'unbound',supportedActions:[...ACTIONS]}; const b = get(thread); await request(b, thread, b.generation, 'status'); return view(b); }),
-    resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.userStopped = false; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; await ready(b, thread, generation, true); return observe(b, thread, generation); }),
+    resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.userStopped = false; b.state = 'selected'; delete b.pauseReason; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; await ready(b, thread, generation, true); return observe(b, thread, generation); }),
     stop: thread => stopBinding(thread, true),
     clear: thread => { cancelSelection(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; } bindings.delete(thread); userStoppedTargets.delete(thread); occupancy.publish(); },
     invalidateObservation: thread => { const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; b.observation = null; return view(b); } },
@@ -254,16 +272,36 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
         await guard(b, thread, generation);
         if (Object.hasOwn(args, 'targetId') && args.targetId !== b.targetId) fail('Stale or forged target');
         if (tool === 'status') { await request(b, thread, generation, 'status'); const macros = await locked(readMacros); await guard(b, thread, generation); return { ...view(b), macros }; }
-        if (b.state === 'paused') fail('Selected window paused; user resume required');
+        if (tool === 'restore_window') {
+          if (!canRestore(b)) fail('Selected window paused; user resume required');
+          await request(b, thread, generation, 'status');
+          if (!canRestore(b)) fail('Selected window paused; user resume required');
+          b.observation = null;
+          let restored = false;
+          if (b.window.minimized) {
+            const result = await request(b, thread, generation, 'restore');
+            if (typeof result?.restored !== 'boolean') {
+              pause(b, 'error'); b.generation++; occupancy.publish();
+              throw windowError('unclassified', '', { mutationOutcome: 'unknown' });
+            }
+            restored = result.restored;
+          }
+          await guard(b, thread, generation);
+          if (b.window.minimized) throw minimizedError(b);
+          b.state = 'ready'; delete b.pauseReason;
+          occupancy.publish();
+          return { ...view(b), restored, observationRequired: true };
+        }
+        if (b.state === 'paused') { if (b.pauseReason === 'minimized') throw minimizedError(b); fail('Selected window paused; user resume required'); }
         b.running = true; occupancy.publish();
         try {
         await showOverlay(b, thread, generation, tool);
         if (tool === 'run_task_macro') {
           const stored = args.definition ? null : await taskStore.read(); const snapshot = args.definition || stored.macros.find(m => m.id === args.macroId);if(!snapshot) fail('Unknown task macro');
-          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;b.state='paused';b.observation=null;}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,!b.used);return inspect(b,thread,generation);},capture:async() => {await ready(b,thread,generation,!b.used);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
+          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;pause(b,'error');}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,false);return inspect(b,thread,generation);},capture:async() => {await ready(b,thread,generation,false);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
           return {...result,occupancy:occupancyOf(b.identity,thread),...(stored ? {revision:stored.revision,macroId:args.macroId} : {})};
         }
-        await ready(b, thread, generation, !b.used);
+        await ready(b, thread, generation, false);
         if (tool === 'capture') return await observe(b, thread, generation);
         if (tool === 'inspect') return await inspect(b,thread,generation);
         if (ACTIONS.includes(action) || action === 'pressKey') {

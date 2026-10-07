@@ -21,7 +21,7 @@ test('native window bridge hooks compose with recovery and reject pinned-source 
 test('injected bridge calls preserve native request and lifecycle behavior', async () => {
   const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
   const calls = [], result = injectWindowControl(fixture, 'out/extension.js', ts);
-  const context = vm.createContext({ require: name => { assert.equal(name, './window-control-host.cjs'); return { ...Object.fromEntries(['attach', 'request', 'observe', 'disconnect'].map(method => [method, (...args) => { calls.push({ method, args }); }])), beforeResult(...args) { calls.push({ method: 'beforeResult', args }); return false; } }; }, Ge: { commands: { executeCommand: async command => calls.push({ command }) } } });
+  const context = vm.createContext({ require: name => { assert.equal(name, './window-control-host.cjs'); return { prepareRequest(method,params){return params;},...Object.fromEntries(['attach', 'request', 'observe', 'disconnect'].map(method => [method, (...args) => { calls.push({ method, args }); }])), beforeResult(...args) { calls.push({ method: 'beforeResult', args }); return false; } }; }, Ge: { commands: { executeCommand: async command => calls.push({ command }) } } });
   vm.runInContext(result.text + ';bridge=new Bridge;', context);
   assert.equal(context.bridge.sendProviderRequest('p', 'id', 'thread/start', {}, false, true), 'thread/start');
   assert.equal(calls[0].method, 'attach');
@@ -63,7 +63,7 @@ test('window boundary observer failure clears the selected owner and preserves o
   const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
   const calls = [];
   const result = injectWindowControl(fixture, 'out/extension.js', ts);
-  const context = vm.createContext({ console: { error: value => calls.push(value) }, require: () => ({ attach() {}, request() {}, beforeResult() { return false; }, observe() { throw new Error('simulated boundary failure'); }, disconnect() { calls.push('disconnected'); } }) });
+  const context = vm.createContext({ console: { error: value => calls.push(value) }, require: () => ({ prepareRequest(method,params){return params;},attach() {}, request() {}, beforeResult() { return false; }, observe() { throw new Error('simulated boundary failure'); }, disconnect() { calls.push('disconnected'); } }) });
   vm.runInContext(result.text + ';bridge=new Bridge;', context);
   assert.equal(context.bridge.routeIncomingMessage('ordinary notification', {}), 'ordinary notification');
   assert.equal(calls[0], 'disconnected');
@@ -73,7 +73,7 @@ test('result publication defers native dispatch once and retains bridge context'
   const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){this.deliveries.push([a,w]);return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
   const order = []; let replay, deferred = false;
   const response = { id: 'provider:request', result: { thread: { id: '12345678-1234-1234-1234-123456789abc' } } }, deliveryContext = { source: 'native' };
-  const context = vm.createContext({ require: () => ({ attach() {}, request() {}, beforeResult(native, message, callback) { order.push('beforeResult'); if (!deferred) { deferred = true; replay = callback; return true; } return false; }, observe() { order.push('observe'); }, disconnect() {} }) });
+  const context = vm.createContext({ require: () => ({ prepareRequest(method,params){return params;},attach() {}, request() {}, beforeResult(native, message, callback) { order.push('beforeResult'); if (!deferred) { deferred = true; replay = callback; return true; } return false; }, observe() { order.push('observe'); }, disconnect() {} }) });
   vm.runInContext(injectWindowControl(fixture, 'out/extension.js', ts).text + ';bridge=new Bridge;bridge.deliveries=[];', context);
   assert.equal(context.bridge.routeIncomingMessage(response, deliveryContext), undefined);
   assert.equal(context.bridge.deliveries.length, 0);
@@ -83,4 +83,19 @@ test('result publication defers native dispatch once and retains bridge context'
   assert.equal(context.bridge.deliveries[0][0], response);
   assert.equal(context.bridge.deliveries[0][1], deliveryContext);
   assert.deepEqual(order, ['beforeResult', 'beforeResult', 'observe']);
+});
+const {injectWindowApprovalClassifier,APPROVAL_CLASSIFIER_ASSET,CLASSIFIER_PATCH}=require('./inject-window-control.cjs');
+test('Window Use classifier is exact, guarded and tracked by packaging',()=>{
+ const original=fs.readFileSync(path.join(__dirname,'../artifacts/upstream-ui/26.930.61225',APPROVAL_CLASSIFIER_ASSET),'utf8');
+ const result=injectWindowApprovalClassifier(original,APPROVAL_CLASSIFIER_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalClassifier(result.text,APPROVAL_CLASSIFIER_ASSET).count,0);
+ assert.throws(()=>injectWindowApprovalClassifier(result.text.replace(CLASSIFIER_PATCH,'tampered /*azrael-window-native-approval-v1*/'),APPROVAL_CLASSIFIER_ASSET));
+ const start=result.text.indexOf('function Z_t('),end=result.text.indexOf('function Q_t(',start);const context=vm.createContext({});vm.runInContext(result.text.slice(start,end),context);
+ for(const name of ['Computer Use','computer-use-plugin','Window Use'])assert.equal(context.Z_t(name),true);
+ for(const name of ['window-use-other','browser-use','other'])assert.equal(context.Z_t(name),false);
+ const transformer=require('./namespace-azrael-host.cjs'),ts=require('../extensions/azrael-ex/node_modules/typescript');const prepared=transformer.transformAsset(original,APPROVAL_CLASSIFIER_ASSET,APPROVAL_CLASSIFIER_ASSET,ts);assert.equal(prepared.asset.windowApprovalClassifierEdits,1);assert(transformer.getAssetTransformRules(APPROVAL_CLASSIFIER_ASSET)['inject-window-control.cjs']);
+});
+test('selected runtime request preparation precedes registration and actual native send',()=>{
+ const fixture='class Bridge{sendProviderRequest(a,w,c,d,e,f){this.sent=d;return d}routeIncomingMessage(a,w){return a}teardownProcess(){}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
+ const order=[],prepared={selectedRuntime:true};const context=vm.createContext({require:()=>({prepareRequest(method,params){order.push('prepare');assert.equal(method,'thread/start');assert.deepEqual(params,{original:true});return prepared},attach(){order.push('attach')},request(native,provider,id,method,params){order.push('register');assert.equal(params,prepared)}})});
+ vm.runInContext(injectWindowControl(fixture,'out/extension.js',ts).text+';bridge=new Bridge',context);assert.equal(context.bridge.sendProviderRequest('provider','id','thread/start',{original:true},false,true),prepared);assert.equal(context.bridge.sent,prepared);assert.deepEqual(order,['prepare','attach','register']);
 });

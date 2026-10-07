@@ -12,10 +12,11 @@ const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
 const { injectUrlSafetyTransport } = require("./inject-url-safety-transport.cjs");
-const { injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET } = require("./inject-computer-use.cjs");
-const { injectWindowControl, SETTINGS_ASSET: WINDOW_CONTROL_SETTINGS_ASSET } = require("./inject-window-control.cjs");
+const { injectWindowApprovalTitle, injectComputerUse, injectComputerUseSettings, injectComputerUseCancelRequest, injectComputerUseManagement, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET } = require("./inject-computer-use.cjs");
+const { injectWindowApprovalClassifier, APPROVAL_CLASSIFIER_ASSET, injectWindowControl, SETTINGS_ASSET: WINDOW_CONTROL_SETTINGS_ASSET } = require("./inject-window-control.cjs");
 const { FILE_OPEN_MENU_ASSET, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
 const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
+const { injectMissingImage, ASSETS: MISSING_IMAGE_ASSETS } = require("./inject-missing-image.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { injectUiInputDiagnostics } = require("./inject-ui-input-diagnostics.cjs");
@@ -329,7 +330,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET].includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -364,11 +365,14 @@ function transformAsset(source, relativePath, filename, ts) {
   const computerUse = isHostBundle ? injectComputerUse(urlSafety.text) : { text: urlSafety.text, count: 0 };
   const computerUseSettings = injectComputerUseSettings(computerUse.text, relativePath);
   const computerUseCancelRequest = injectComputerUseCancelRequest(computerUseSettings.text, relativePath);
-  const computerUseManagement = injectComputerUseManagement(computerUseCancelRequest.text, relativePath);
+  const windowApprovalTitle = injectWindowApprovalTitle(computerUseCancelRequest.text, relativePath);
+  const computerUseManagement = injectComputerUseManagement(windowApprovalTitle.text, relativePath);
   const windowControl = injectWindowControl(computerUseManagement.text, relativePath, ts);
-  const fileOpenMenu = injectFileOpenMenu(windowControl.text, relativePath);
+  const windowApprovalClassifier = injectWindowApprovalClassifier(windowControl.text, relativePath);
+  const fileOpenMenu = injectFileOpenMenu(windowApprovalClassifier.text, relativePath);
   const imageFileOpen = isHostBundle ? injectImageFileOpen(fileOpenMenu.text) : { text: fileOpenMenu.text, count: 0 };
-  const localFileDrop = injectLocalFileDrop(imageFileOpen.text, relativePath);
+  const missingImage = injectMissingImage(imageFileOpen.text, relativePath);
+  const localFileDrop = injectLocalFileDrop(missingImage.text, relativePath);
   const composerDraft = relativePath === COMPOSER_DRAFT_ASSET ? injectComposerDraft(localFileDrop.text) : { text: localFileDrop.text, count: 0 };
   const providerContext = runProviderContext(composerDraft.text, relativePath,
     [CONTEXT_ASSET, SETTINGS_ASSET].includes(relativePath) ? injectProviderContextControls : undefined);
@@ -378,10 +382,10 @@ function transformAsset(source, relativePath, filename, ts) {
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
   const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || computerUseManagement.count || windowControl.count || fileOpenMenu.count || imageFileOpen.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: sessionLinks.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + computerUseManagement.count + windowControl.count + fileOpenMenu.count + imageFileOpen.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -407,9 +411,12 @@ function transformAsset(source, relativePath, filename, ts) {
       computerUseApprovalEdits: computerUse.count,
       computerUseSettingsEdits: computerUseSettings.count,
       computerUseCancelRequestEdits: computerUseCancelRequest.count,
+      windowApprovalTitleEdits: windowApprovalTitle.count,
       computerUseManagementEdits: computerUseManagement.count,
       windowControlEdits: windowControl.count,
+      windowApprovalClassifierEdits: windowApprovalClassifier.count,
       imageFileOpenEdits: imageFileOpen.count,
+      missingImageEdits: missingImage.count,
       fileOpenMenuEdits: fileOpenMenu.count,
       localFileDropEdits: localFileDrop.count,
       composerDraftEdits: composerDraft.count,
@@ -430,7 +437,7 @@ function transformAsset(source, relativePath, filename, ts) {
 function getTransformRules() {
   const transformSources = [
     "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
@@ -454,7 +461,7 @@ const ASSET_RULE_PATHS = {
   "inject-student-design.cjs": DESIGN_ASSETS,
   "inject-session-links.cjs": SESSION_LINK_ASSETS,
   "session-links.cjs": ["out/extension.js"],
-  "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET],
+  "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET, APPROVAL_CLASSIFIER_ASSET],
   "window-control-host.cjs": ["out/extension.js"],
   "window-control-backend.cjs": ["out/extension.js"],
   "window-control-policy.cjs": ["out/extension.js"],
@@ -465,6 +472,7 @@ const ASSET_RULE_PATHS = {
   "inject-fetch-response.cjs": ["out/extension.js"],
   "inject-url-safety-transport.cjs": ["out/extension.js"],
   "inject-image-file-open.cjs": ["out/extension.js"],
+  "inject-missing-image.cjs": MISSING_IMAGE_ASSETS,
   "inject-file-open-menu.cjs": [FILE_OPEN_MENU_ASSET],
   "inject-local-file-drop.cjs": [DROP_ASSET, COMPOSER_ASSET],
   "inject-composer-draft.cjs": [COMPOSER_DRAFT_ASSET],
@@ -636,6 +644,8 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + (asset.computerUseSettingsEdits ?? 0), 0) !== 1) throw new Error("Computer-use settings transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseCancelRequestEdits ?? 0), 0) !== 1) throw new Error("Computer-use cancel-request transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseManagementEdits ?? 0), 0) !== 1) throw new Error("Computer-use local-management transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowApprovalTitleEdits ?? 0), 0) !== 1) throw new Error("Window Use approval title transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.windowApprovalClassifierEdits ?? 0), 0) !== 1) throw new Error("Window Use native approval classifier transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.windowControlEdits ?? 0), 0) !== 5) throw new Error("Selected-window Computer Use transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + asset.urlSafetyTransportEdits, 0) !== 1) {
     throw new Error("URL safety transport transformation was incomplete.");
@@ -645,6 +655,11 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + asset.imageFileOpenEdits, 0) !== 1) {
     throw new Error("Image file-open transformation was incomplete.");
+  }
+  for (const assetPath of MISSING_IMAGE_ASSETS) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.missingImageEdits === 1)) {
+      throw new Error("Missing-image transformation was incomplete: " + assetPath);
+    }
   }
   if (report.assets.reduce((total, asset) => total + asset.localFileDropEdits, 0) !== 2) {
     throw new Error("Local file-drop transformation was incomplete.");

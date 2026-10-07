@@ -10,12 +10,15 @@ async function fixture(t, delayed = false, occupancyDirectory) {
   const window = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace' }, approvals,
-    vscode: { window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: async () => '이 대화에서 허용' } },
+    vscode: { window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } },
     backend: { request: async (method, params) => { calls.push({ method, params }); return method === 'listWindows' ? [window] : window; }, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } };
   host.attach(native, () => {});
+  host.registerApprovalUI(native, envelope => {
+    if (envelope.type === 'mcp-request') assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);
+  });
   t.after(async () => { releaseListen?.(); await host.dispose(); await fs.rm(home, { recursive: true, force: true }); });
   const file = id => path.join(home, 'azrael/computer-use/window-sessions', id + '.json');
   const started = (id = ids[0], turn = 'turn-one', engine = native) => host.observe(engine, { method: 'turn/started', params: { threadId: id, turn: { id: turn } } });

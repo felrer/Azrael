@@ -46,11 +46,63 @@ function socketFixture() {
   socket.setTimeout = (ms, callback) => { socket.expire = callback; socket.timeoutMs = ms; };
   return socket;
 }
+test('minimized pause metadata round trips with strict enum and boolean validation', () => {
+  for (const pauseReason of ['minimized', 'user_stopped', 'error']) {
+    for (const restoreAllowed of [true, false]) {
+      const payload = { code: 'window_minimized', message: '선택한 창이 최소화되었습니다.', pauseReason, restoreAllowed, actionExecuted: false };
+      assert.deepEqual(errorPayload(windowError(payload.code, payload.message, payload)), payload);
+      assert.deepEqual(errorPayload(fromPayload(JSON.parse(JSON.stringify(payload)))), payload);
+    }
+  }
+  const plain = { code: 'window_minimized', message: '선택한 창이 최소화되었습니다.' };
+  for (const invalid of [
+    { pauseReason: 'unknown', restoreAllowed: 'true', actionExecuted: 0 },
+    { pauseReason: 'MINIMIZED', restoreAllowed: 1, actionExecuted: null },
+  ]) {
+    assert.deepEqual(errorPayload(windowError(plain.code, plain.message, invalid)), plain);
+    assert.deepEqual(errorPayload(fromPayload({ ...plain, ...invalid })), plain);
+    assert.deepEqual(errorPayload({ ...plain, ...invalid }), plain);
+  }
+});
+test('approval and native permission details survive serialization with strict field types', () => {
+  for (const approvalState of ['waiting', 'expired', 'declined', 'cancelled', 'accepted']) {
+    const payload = { code: approvalState === 'declined' ? 'approval_declined' : 'approval_timeout', message: 'Approval response', stage: 'approval', approvalState, userResponded: approvalState === 'declined', actionExecuted: false };
+    assert.deepEqual(errorPayload(windowError(payload.code, payload.message, payload)), payload);
+    assert.deepEqual(errorPayload(fromPayload(JSON.parse(JSON.stringify(payload)))), payload);
+  }
+  for (const nativePermissionReason of ['missing', 'malformed', 'not_disabled']) {
+    const payload = { code: 'permission_denied', message: 'Native Disabled permission profile required', stage: 'permission', nativePermissionReason, actionExecuted: false };
+    assert.deepEqual(errorPayload(fromPayload(payload)), payload);
+  }
+  const invalid = { approvalState: 'unknown', nativePermissionReason: 'secret', userResponded: 'false', actionExecuted: 0 };
+  const plain = { code: 'approval_timeout', message: 'Awaiting approval' };
+  assert.deepEqual(errorPayload(windowError(plain.code, plain.message, invalid)), plain);
+  assert.deepEqual(errorPayload(fromPayload({ ...plain, ...invalid })), plain);
+  assert.deepEqual(errorPayload({ ...plain, ...invalid }), plain);
+  assert.deepEqual(errorPayload(windowError('cancelled', 'Cancelled', { approvalState: 'cancelled', userResponded: true, actionExecuted: true })), { code: 'cancelled', message: 'Cancelled', approvalState: 'cancelled', userResponded: true, actionExecuted: true });
+});
 test('approval progress is not a terminal result and expiry reports awaiting approval', async () => {
   const socket = socketFixture(); const request = pipeRequest('fixture', {}, { connect: () => socket });
   socket.emit('connect'); socket.emit('data', Buffer.from('{"progress":{"stage":"queued"}}\n{"progress":{"stage":"approval"}}\n'));
   socket.expire();
-  await assert.rejects(request, e => e.code === 'approval_timeout' && e.stage === 'approval' && !e.message.includes('host timed out'));
+  await assert.rejects(request, e => e.code === 'approval_timeout' && e.stage === 'approval' && e.approvalState === 'expired' && e.userResponded === false && e.actionExecuted === false && !e.message.includes('host timed out'));
+});
+
+test('connection closing during approval reports expiry rather than user decline', async () => {
+  for (const event of ['end', 'close']) {
+    const socket = socketFixture(); const request = pipeRequest('fixture', { tool: 'select_window' }, { connect: () => socket });
+    socket.emit('connect'); socket.emit('data', Buffer.from('{"progress":{"stage":"approval"}}\n')); socket.emit(event);
+    await assert.rejects(request, e => e.code === 'approval_timeout' && e.approvalState === 'expired' && e.userResponded === false && e.actionExecuted === false);
+  }
+});
+
+test('explicit decline stays distinct through host transport and model protocol', async () => {
+  const payload = { code: 'approval_declined', message: 'Window Use approval declined', stage: 'approval', approvalState: 'declined', userResponded: true, actionExecuted: false };
+  const socket = socketFixture();
+  const protocol = createProtocol({ relay: () => pipeRequest('fixture', {}, { connect: () => socket }) });
+  const reply = protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'status', arguments: {}, _meta: meta } });
+  socket.emit('connect'); socket.emit('data', Buffer.from(JSON.stringify({ error: payload }) + '\n'));
+  assert.deepEqual(JSON.parse((await reply).result.content[0].text), payload);
 });
 test('fragmented progress and terminal response share a stream without losing structured cause', async () => {
   const socket = socketFixture(); const request = pipeRequest('fixture', {}, { connect: () => socket }); socket.emit('connect');

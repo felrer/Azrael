@@ -126,10 +126,11 @@ impl Backend {
     fn observe(&mut self, requested: &Window) -> Result<Value> {
         self.observation = None;
         let current = verify(requested)?;
-        if current.minimized || current.width_px <= 0 || current.height_px <= 0 {
+        ensure_not_minimized(&current)?;
+        if current.width_px <= 0 || current.height_px <= 0 {
             return Err(Error::new(
                 "unobservable-target",
-                "Restore a minimized window before observing",
+                "Window dimensions must be positive before observing",
             ));
         }
         let hwnd = handle(&current)?;
@@ -166,6 +167,7 @@ impl Backend {
     fn inspect(&mut self, requested: &Window) -> Result<Value> {
         self.observation = None;
         let current = verify(requested)?;
+        ensure_not_minimized(&current)?;
         let (descriptors, elements, elements_truncated) = uia::elements(&self.automation, handle(&current)?)?;
         let after = verify(requested)?;
         ensure_capture_geometry(&current, &after)?;
@@ -176,7 +178,7 @@ impl Backend {
         Ok(json!({ "window": after, "observationId": id, "elements": descriptors, "elementsTruncated": elements_truncated }))
     }
     fn act(&mut self, p: protocol::Act) -> Result<Value> {
-        verify(&p.window)?;
+        ensure_not_minimized(&verify(&p.window)?)?;
         let observation = self
             .observation
             .take()
@@ -194,6 +196,7 @@ impl Backend {
             )
         })?;
         guarded(&p.window, |hwnd| {
+            ensure_not_minimized(&verify(&p.window)?)?;
             uia::assert_descendant(&self.automation, hwnd, element)?;
             if matches!(p.action, protocol::Action::PressKey) {
                 uia::press_key(&self.automation, hwnd, element, p.value)?;
@@ -204,6 +207,15 @@ impl Backend {
             Ok(json!({ "window": verify(&p.window).map_err(Error::uncertain)?, "acted": true, "requiresObservation": true }))
         })
     }
+}
+fn ensure_not_minimized(window: &Window) -> Result<()> {
+    if window.minimized {
+        return Err(Error::new(
+            "window-minimized",
+            "Selected window is minimized; restore it before continuing",
+        ));
+    }
+    Ok(())
 }
 fn ensure_capture_geometry(before: &Window, after: &Window) -> Result<()> {
     if before.width_px != after.width_px
@@ -222,9 +234,8 @@ fn ensure_capture_geometry(before: &Window, after: &Window) -> Result<()> {
 #[cfg(test)]
 mod geometry_tests {
     use super::*;
-    #[test]
-    fn rejects_outer_geometry_changes_without_equating_outer_and_frame_sizes() {
-        let before = Window {
+    fn window() -> Window {
+        Window {
             hwnd: "1234".into(),
             pid: 42,
             process_created: "abcd".into(),
@@ -234,7 +245,29 @@ mod geometry_tests {
             width_px: 1016,
             height_px: 768,
             dpi: 144,
-        };
+        }
+    }
+    #[test]
+    fn minimized_guard_uses_current_state_and_keeps_geometry_distinct() {
+        let mut current = window();
+        assert!(ensure_not_minimized(&current).is_ok());
+        current.width_px = 0;
+        current.height_px = -1;
+        assert!(ensure_not_minimized(&current).is_ok());
+        current.minimized = true;
+        let error = ensure_not_minimized(&current).unwrap_err();
+        assert_eq!(error.code, "window-minimized");
+        assert_eq!(error.mutation_outcome, None);
+        let payload = serde_json::to_value(error).unwrap();
+        assert_eq!(payload["code"], "window-minimized");
+        assert!(payload.get("mutationOutcome").is_none());
+        assert!(payload.get("restoreAllowed").is_none());
+        current.minimized = false;
+        assert!(ensure_not_minimized(&current).is_ok());
+    }
+    #[test]
+    fn rejects_outer_geometry_changes_without_equating_outer_and_frame_sizes() {
+        let before = window();
         let mut after = before.clone();
         after.title = "after".into();
         assert!(ensure_capture_geometry(&before, &after).is_ok());

@@ -2,14 +2,24 @@
 
 // Classify ordinary recovery paths; unexpected implementation/provider failures
 // share one public fallback instead of exposing arbitrary exception text.
-const CODES = new Set(['approval_timeout', 'approval_declined', 'cancelled', 'selection_required', 'state_changed', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
+const CODES = new Set(['approval_timeout', 'approval_declined', 'cancelled', 'selection_required', 'state_changed', 'window_minimized', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
 const UNCLASSIFIED = '미분류된 오류';
+const APPROVAL_STATES = new Set(['waiting', 'expired', 'declined', 'cancelled', 'accepted']);
+const NATIVE_PERMISSION_REASONS = new Set(['missing', 'malformed', 'not_disabled']);
+const PAUSE_REASONS = new Set(['minimized', 'user_stopped', 'error']);
+function copyApprovalDetails(source, target) {
+  if (APPROVAL_STATES.has(source?.approvalState)) target.approvalState = source.approvalState;
+  for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
+  if (PAUSE_REASONS.has(source?.pauseReason)) target.pauseReason = source.pauseReason;
+  if (NATIVE_PERMISSION_REASONS.has(source?.nativePermissionReason)) target.nativePermissionReason = source.nativePermissionReason;
+}
 function windowError(code, message, options = {}) {
   const error = new Error(CODES.has(code) && code !== 'unclassified' ? message : UNCLASSIFIED, options.cause ? { cause: options.cause } : undefined);
   error.code = CODES.has(code) ? code : 'unclassified';
   for (const key of ['stage', 'nativeCode', 'mutationOutcome']) if (typeof options[key] === 'string') error[key] = options[key];
   if (options.exitCode === null || Number.isSafeInteger(options.exitCode)) error.exitCode = options.exitCode;
   if (options.signal === null || (typeof options.signal === 'string' && /^SIG[A-Z0-9]+$/.test(options.signal))) error.signal = options.signal;
+  copyApprovalDetails(options, error);
   return error;
 }
 function errorPayload(error) {
@@ -18,6 +28,7 @@ function errorPayload(error) {
   for (const key of ['stage', 'nativeCode', 'mutationOutcome']) if (typeof error?.[key] === 'string' && error[key].length <= 128 && !/[\x00-\x1f]/.test(error[key])) result[key] = error[key];
   if (error?.exitCode === null || Number.isSafeInteger(error?.exitCode)) result.exitCode = error.exitCode;
   if (error?.signal === null || (typeof error?.signal === 'string' && /^SIG[A-Z0-9]+$/.test(error.signal))) result.signal = error.signal;
+  copyApprovalDetails(error, result);
   return result;
 }
 function fromPayload(value) {

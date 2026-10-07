@@ -17,14 +17,16 @@ const managementReplacements = [
   ['(0,$.jsx)(ri,{})', 'i.available&&(0,$.jsx)(ri,{})'],
   ['e[21]=i.available,e[22]=y', 'e[21]=i.available,e[26]=t,e[27]=a,e[22]=y'],
 ];
+const windowAccess = 'require("./window-control-host.cjs")';
+const bindWindowApproval = `if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope)}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish);`;
 const access = 'require("./computer-use-approvals.cjs")';
 const replacements = [
-  ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],
-  ['case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,o);break}', `case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,${access}.response(n,o));break}`],
-  ['let{id:n,method:o,params:i}=r.request;this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(bR,String(n),o,i,r.retainResponse);break', `let{id:n,method:o,params:i}=r.request;${access}.outgoing(o,i);this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(bR,String(n),o,i,r.retainResponse);break`],
+  ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${bindWindowApproval}${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],
+  ['case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,o);break}', `case"mcp-response":{let{id:n,result:o}=r.response;if(${windowAccess}.respondApproval(this.codexMcpConnection,n,o))break;this.codexMcpConnection.sendResponse(n,${access}.response(n,o));break}`],
+  ['let{id:n,method:o,params:i}=r.request;this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(bR,String(n),o,i,r.retainResponse);break', `let{id:n,method:o,params:i}=r.request;${bindWindowApproval}${access}.outgoing(o,i);this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(bR,String(n),o,i,r.retainResponse);break`],
   ['interruptTurn:e=>this.sendInternalAppServerRequest("turn/interrupt",e)', `interruptTurn:e=>{${access}.stop(e?.threadId);return this.sendInternalAppServerRequest("turn/interrupt",e)}`],
   ['onFatalError:(F,V)=>{this.logger.error("Fatal error"', `onFatalError:(F,V)=>{${access}.reset();this.logger.error("Fatal error"`],
-  ["onRawNotification:F=>{let{method:V,params:J}=F;this.broadcastToAllViews", `onRawNotification:F=>{let{method:V,params:J}=F;${access}.notification(V,J);this.broadcastToAllViews`],
+  ["onRawNotification:F=>{let{method:V,params:J}=F;this.broadcastToAllViews", `onRawNotification:F=>{let{method:V,params:J}=F;${bindWindowApproval}${access}.notification(V,J);this.broadcastToAllViews`],
   ["var YN=class extends ut{async getAppApprovals(){return null}async removeAppApproval(){return null}", `var YN=class extends ut{async getAppApprovals(){return ${access}.getAppApprovals()}async removeAppApproval(e){return ${access}.removeAppApproval(e)}`],
 ];
 function injectComputerUse(text) {
@@ -64,6 +66,21 @@ function injectComputerUseCancelRequest(text, relativePath) {
   if (anchors !== 1) throw new Error("Pinned computer-use cancel-request anchor must occur exactly once");
   return { text: text.replace(CANCEL_ANCHOR, CANCEL_REPLACEMENT), count: 1 };
 }
+const WINDOW_TITLE_MARKER = "/*azrael-window-approval-title-v1*/";
+const windowTitleReplacements = [
+  ['function E(e){let t=(0,D.c)(42)', 'function E(e){let t=(0,D.c)(43)' + WINDOW_TITLE_MARKER],
+  ['t[18]===d.appDisplayName?L=t[19]', 't[18]===d.appDisplayName&&t[42]===d.connectorName?L=t[19]'],
+  ['id:`composer.computerUseAppApproval.title.chatgpt`,defaultMessage:`Allow ChatGPT to use {appDisplayName}?`', 'id:d.connectorName===`Window Use`?`azrael.windowUse.appApproval.title`:`composer.computerUseAppApproval.title.chatgpt`,defaultMessage:d.connectorName===`Window Use`?`Allow Azrael to use {appDisplayName}?`:`Allow ChatGPT to use {appDisplayName}?`'],
+  ['t[18]=d.appDisplayName,t[19]=L', 't[18]=d.appDisplayName,t[42]=d.connectorName,t[19]=L'],
+];
+function injectWindowApprovalTitle(text,relativePath){
+  if(relativePath!==COMPUTER_USE_APPROVAL_CARD_ASSET)return {text,count:0};
+  const markers=text.split(WINDOW_TITLE_MARKER).length-1;
+  if(markers){if(markers!==1||windowTitleReplacements.some(([,after])=>text.split(after).length-1!==1))throw Error('Invalid Window Use approval title marker');return {text,count:0};}
+  for(const [before] of windowTitleReplacements)if(text.split(before).length-1!==1)throw Error('Pinned Window Use approval title changed');
+  for(const [before,after] of windowTitleReplacements)text=text.replace(before,after);
+  return {text,count:1};
+}
 function injectComputerUseManagement(text, relativePath) {
   if (relativePath !== COMPUTER_USE_MANAGEMENT_ASSET) return { text, count: 0 };
   const markers = text.split(MANAGEMENT_MARKER).length - 1;
@@ -85,3 +102,5 @@ module.exports = { injectComputerUse, injectComputerUseSettings, injectComputerU
   MANAGEMENT_MARKER, managementReplacements,
   SETTINGS_MARKER, SETTINGS_ANCHOR, SETTINGS_REPLACEMENT, CANCEL_MARKER, CANCEL_ANCHOR, CANCEL_REPLACEMENT,
   MARKER, replacements };
+
+Object.assign(module.exports,{injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements});

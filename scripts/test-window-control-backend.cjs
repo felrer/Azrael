@@ -50,6 +50,7 @@ async function errorChecks(runtime, declaration) {
     ['capture-timeout', 'timeout', true], ['provider-timeout', 'timeout', true],
     ['uncertain-delivery', 'connection_error', true], ['native-error', 'unclassified', true],
     ['new-provider-code', 'unclassified', true],
+    ['unobservable-target', 'unclassified', true],
   ]) {
     const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: nativeCode, message: 'private window content' } }) + '\n')));
     await assert.rejects(backend.request('act', {}), error => {
@@ -58,6 +59,23 @@ async function errorChecks(runtime, declaration) {
       if (code === 'unclassified') assert.equal(error.message, '미분류된 오류'); return true;
     });
     await backend.dispose();
+  }
+  for (const method of ['observe', 'inspect', 'act']) {
+    for (const mutationOutcome of [undefined, 'unknown']) {
+      const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: {
+        code: 'window-minimized', message: 'private window content', restoreAllowed: true,
+        ...(mutationOutcome ? { mutationOutcome } : {}),
+      } }) + '\n')));
+      await assert.rejects(backend.request(method, {}), error => {
+        assert.equal(error.code, 'window_minimized'); assert.equal(error.nativeCode, 'window-minimized');
+        assert.equal(error.message, '선택한 창이 최소화되었습니다.'); assert.ok(!error.message.includes('private'));
+        assert.equal(error.pauseReason, 'minimized'); assert.equal(error.actionExecuted, mutationOutcome === 'unknown' ? undefined : false);
+        assert.equal(Object.hasOwn(error, 'actionExecuted'), mutationOutcome !== 'unknown');
+        assert.equal(error.restoreAllowed, undefined); assert.equal(error.mutationOutcome, mutationOutcome);
+        assert.equal(Object.hasOwn(error, 'mutationOutcome'), mutationOutcome === 'unknown'); return true;
+      });
+      await backend.dispose();
+    }
   }
   for (const [nativeCode, code] of [['not-resizable', 'unsupported_action'], ['resize-bounds', 'invalid_request']]) {
     for (const mutationOutcome of [undefined, 'unknown']) {
@@ -99,9 +117,10 @@ async function errorChecks(runtime, declaration) {
   for (const reply of [
     { id: null, error: { code: 'request-too-large', message: 'private parse content' } },
     { error: { code: 'invalid-request', message: 'private parse content' } },
+    { id: null, error: { code: 'window-minimized', message: 'private minimized detail', restoreAllowed: true } },
   ]) {
     const backend = fixture(child => child.stdout.emit('data', Buffer.from(JSON.stringify(reply) + '\n')));
-    await assert.rejects(backend.request('restore', {}), error => error.code === 'unclassified' && error.stage === 'native' && error.nativeCode === reply.error.code && error.mutationOutcome === 'unknown');
+    await assert.rejects(backend.request('restore', {}), error => error.code === 'unclassified' && error.stage === 'native' && error.nativeCode === reply.error.code && error.mutationOutcome === 'unknown' && error.pauseReason === undefined && error.restoreAllowed === undefined && error.actionExecuted === undefined);
     await backend.dispose();
   }
   const postMutation = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: 'stale-target', mutationOutcome: 'unknown' } }) + '\n')));

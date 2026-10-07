@@ -12,6 +12,7 @@ function nativeError(payload, method, uncorrelated = false) {
   let code = 'unclassified', message;
   if (!uncorrelated) {
     if (nativeCode === 'operation-cancelled') { code = 'cancelled'; message = 'Window control stopped by the user'; }
+    else if (nativeCode === 'window-minimized') { code = 'window_minimized'; message = '선택한 창이 최소화되었습니다.'; }
     else if (['unsupported-action', 'unsupported-key', 'unsupported-method', 'not-resizable'].includes(nativeCode)) { code = 'unsupported_action'; message = 'The selected window does not support this action'; }
     else if (nativeCode === 'resize-bounds') { code = 'invalid_request'; message = 'Requested window size exceeds app constraints or monitor work area'; }
     else if (['stale-observation', 'stale-target', 'stale-element', 'unknown-element', 'window-closed', 'capture-size-changed'].includes(nativeCode)) { code = 'state_changed'; message = 'The selected window state changed; select or observe it again'; }
@@ -19,7 +20,8 @@ function nativeError(payload, method, uncorrelated = false) {
     else if (nativeCode === 'uncertain-delivery') { code = 'connection_error'; message = 'Window action delivery could not be confirmed'; }
   }
   return windowError(code, message, { stage: 'native', nativeCode,
-    ...(payload?.mutationOutcome === 'unknown' || (MUTATIONS.has(method) && !['unsupported_action', 'state_changed', 'invalid_request'].includes(code)) ? { mutationOutcome: 'unknown' } : {}) });
+    ...(code === 'window_minimized' ? { pauseReason: 'minimized', ...(payload?.mutationOutcome === 'unknown' ? {} : { actionExecuted: false }) } : {}),
+    ...(payload?.mutationOutcome === 'unknown' || (MUTATIONS.has(method) && !['unsupported_action', 'state_changed', 'invalid_request', 'window_minimized'].includes(code)) ? { mutationOutcome: 'unknown' } : {}) });
 }
 function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, timeoutMs = 30000, shutdownMs = 3000 } = {}) {
   let child, identity, buffer = '', disposed = false, launching;

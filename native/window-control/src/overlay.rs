@@ -13,7 +13,7 @@ use windows::{
     core::*,
     Win32::{
         Foundation::*,
-        Graphics::Gdi::*,
+        Graphics::{Dwm::*, Gdi::*},
         UI::{HiDpi::*, Input::KeyboardAndMouse::*, WindowsAndMessaging::*},
     },
 };
@@ -223,6 +223,11 @@ unsafe fn fitted_hint(label: &str, registered: bool, height: i32, available: i32
     primary.to_owned()
 }
 struct Layer(HWND);
+#[derive(Clone, Copy)]
+struct Glow {
+    extent: i32,
+    corner_radius: i32,
+}
 impl Layer {
     unsafe fn new(owner: HWND) -> Result<Self> {
         let hwnd = CreateWindowExW(
@@ -254,7 +259,7 @@ impl Layer {
         y: i32,
         width: i32,
         height: i32,
-        corner: Option<usize>,
+        glow: Option<Glow>,
         text: Option<&str>,
     ) -> Result<()> {
         let dc = CreateCompatibleDC(None);
@@ -272,22 +277,34 @@ impl Layer {
         let bitmap = CreateDIBSection(dc, &info, DIB_RGB_COLORS, &mut bits, None, 0)?;
         let previous = SelectObject(dc, bitmap);
         let pixels = std::slice::from_raw_parts_mut(bits as *mut u32, (width * height) as usize);
-        for py in 0..height {
-            for px in 0..width {
-                pixels[(py * width + px) as usize] = if let Some(c) = corner {
-                    let dx = if c % 2 == 0 { px } else { width - 1 - px };
-                    let dy = if c < 2 { py } else { height - 1 - py };
-                    glow_pixel(dx, dy, width, height)
-                } else {
+        pixels.fill(0);
+        if let Some(glow) = glow {
+            // One continuous surface owns the entire visible frame. Paint only
+            // its corner areas; the untouched centre remains fully transparent.
+            let extent = glow.extent.min(width / 2).min(height / 2).max(1);
+            for c in 0..4 {
+                for dy in 0..extent {
+                    for dx in 0..extent {
+                        let px = if c % 2 == 0 { dx } else { width - 1 - dx };
+                        let py = if c < 2 { dy } else { height - 1 - dy };
+                        pixels[(py * width + px) as usize] =
+                            corner_glow_pixel(dx, dy, extent, glow.corner_radius);
+                    }
+                }
+            }
+        } else {
+            for py in 0..height {
+                for px in 0..width {
                     let r = (height.min(width) as f64) / 2.0;
                     let cx = (px as f64).clamp(r, width as f64 - r);
                     let cy = height as f64 / 2.0;
-                    if ((px as f64 - cx).powi(2) + (py as f64 - cy).powi(2)).sqrt() < r {
-                        0xc02b2725
-                    } else {
-                        0
-                    }
-                };
+                    pixels[(py * width + px) as usize] =
+                        if ((px as f64 - cx).powi(2) + (py as f64 - cy).powi(2)).sqrt() < r {
+                            0xc02b2725
+                        } else {
+                            0
+                        };
+                }
             }
         }
         if let Some(text) = text {
@@ -345,6 +362,19 @@ impl Layer {
         let _ = ShowWindow(self.0, SW_SHOWNOACTIVATE);
         Ok(())
     }
+    unsafe fn move_to(&self, x: i32, y: i32) -> Result<()> {
+        SetWindowPos(
+            self.0,
+            None,
+            x,
+            y,
+            0,
+            0,
+            SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER,
+        )?;
+        let _ = ShowWindow(self.0, SW_SHOWNOACTIVATE);
+        Ok(())
+    }
 }
 impl Drop for Layer {
     fn drop(&mut self) {
@@ -358,16 +388,91 @@ impl Drop for Layer {
 fn glow_pixel(x: i32, y: i32, w: i32, h: i32) -> u32 {
     let radius = ((x as f64 / w as f64).powi(2) + (y as f64 / h as f64).powi(2)).sqrt();
     let alpha = ((1.0 - radius).max(0.0).powi(2) * 105.0) as u32;
+    premultiplied_glow(alpha)
+}
+fn premultiplied_glow(alpha: u32) -> u32 {
     let red = 125 * alpha / 255;
     let green = 133 * alpha / 255;
     let blue = 250 * alpha / 255;
     alpha << 24 | red << 16 | green << 8 | blue
 }
+fn corner_glow_pixel(x: i32, y: i32, extent: i32, rounding: i32) -> u32 {
+    let radius = rounding.min(extent).max(0) as f64;
+    let coverage = if (x as f64) < radius && (y as f64) < radius {
+        let distance = (radius - x as f64 - 0.5).hypot(radius - y as f64 - 0.5);
+        (radius + 0.5 - distance).clamp(0.0, 1.0)
+    } else {
+        1.0
+    };
+    let alpha = (glow_pixel(x, y, extent, extent) >> 24) as f64 * coverage;
+    premultiplied_glow(alpha.round() as u32)
+}
+unsafe fn visible_frame(target: HWND) -> Result<RECT> {
+    let mut rect = RECT::default();
+    if DwmGetWindowAttribute(
+        target,
+        DWMWA_EXTENDED_FRAME_BOUNDS,
+        &mut rect as *mut _ as *mut _,
+        size_of::<RECT>() as u32,
+    )
+    .is_err()
+        || rect.right <= rect.left
+        || rect.bottom <= rect.top
+    {
+        GetWindowRect(target, &mut rect)?;
+    }
+    Ok(rect)
+}
+unsafe fn corner_radius(target: HWND, rect: RECT, dpi: u32) -> i32 {
+    if IsZoomed(target).as_bool() {
+        return 0;
+    }
+    let mut preference = DWMWCP_DEFAULT;
+    if DwmGetWindowAttribute(
+        target,
+        DWMWA_WINDOW_CORNER_PREFERENCE,
+        &mut preference as *mut _ as *mut _,
+        size_of::<DWM_WINDOW_CORNER_PREFERENCE>() as u32,
+    )
+    .is_err()
+    {
+        return 0;
+    }
+    let style = GetWindowLongW(target, GWL_STYLE) as u32;
+    let radius = if preference == DWMWCP_ROUNDSMALL {
+        4.0
+    } else if preference == DWMWCP_ROUND
+        || (preference == DWMWCP_DEFAULT
+            && style & (WS_THICKFRAME.0 | WS_CAPTION.0) == (WS_THICKFRAME.0 | WS_CAPTION.0))
+    {
+        8.0
+    } else {
+        0.0
+    };
+    // DWM removes rounding on snapped windows spanning the work area's height.
+    let mut monitor = MONITORINFO {
+        cbSize: size_of::<MONITORINFO>() as u32,
+        ..Default::default()
+    };
+    if GetMonitorInfoW(
+        MonitorFromWindow(target, MONITOR_DEFAULTTONEAREST),
+        &mut monitor,
+    )
+    .as_bool()
+        && rect.top <= monitor.rcWork.top
+        && rect.bottom >= monitor.rcWork.bottom
+    {
+        return 0;
+    }
+    ((radius * dpi as f64 / 96.0).round() as i32)
+        .min((rect.right - rect.left) / 2)
+        .min((rect.bottom - rect.top) / 2)
+}
 struct Active {
     show: Show,
     layers: Vec<Layer>,
     hotkey: bool,
-    last: Option<(i32, i32, i32, i32, u32, bool, bool)>,
+    last: Option<(i32, i32, i32, i32, u32, bool, bool, i32)>,
 }
 impl Active {
     unsafe fn refresh(&mut self) -> Result<()> {
@@ -391,12 +496,12 @@ impl Active {
                 let _ = UnregisterHotKey(None, 1);
                 self.hotkey = false;
             }
-            let _ = ShowWindow(self.layers[4].0, SW_HIDE);
+            let _ = ShowWindow(self.layers[1].0, SW_HIDE);
         } else if !self.hotkey {
             self.hotkey = RegisterHotKey(None, 1, MOD_NOREPEAT, 0x1b).is_ok();
         }
-        let mut rect = RECT::default();
-        GetWindowRect(target, &mut rect)?;
+        let rect = visible_frame(target)?;
+        let rounding = corner_radius(target, rect, current.dpi);
         let geometry = (
             rect.left,
             rect.top,
@@ -405,6 +510,7 @@ impl Active {
             current.dpi,
             self.hotkey,
             foreground,
+            rounding,
         );
         if self.last == Some(geometry) {
             return Ok(());
@@ -414,25 +520,29 @@ impl Active {
             .min((rect.right - rect.left) / 2)
             .min((rect.bottom - rect.top) / 2)
             .max(1);
-        let corners_changed = self.last.is_none_or(|old| {
-            (old.0, old.1, old.2, old.3, old.4)
-                != (geometry.0, geometry.1, geometry.2, geometry.3, geometry.4)
+        let pixels_changed = self.last.is_none_or(|old| {
+            (old.2 - old.0, old.3 - old.1, old.4, old.7)
+                != (
+                    rect.right - rect.left,
+                    rect.bottom - rect.top,
+                    current.dpi,
+                    rounding,
+                )
         });
-        if corners_changed {
-            for i in 0..4 {
-                self.layers[i].paint(
-                    if i % 2 == 0 {
-                        rect.left
-                    } else {
-                        rect.right - size
-                    },
-                    if i < 2 { rect.top } else { rect.bottom - size },
-                    size,
-                    size,
-                    Some(i),
-                    None,
-                )?;
-            }
+        if pixels_changed {
+            self.layers[0].paint(
+                rect.left,
+                rect.top,
+                rect.right - rect.left,
+                rect.bottom - rect.top,
+                Some(Glow {
+                    extent: size,
+                    corner_radius: rounding,
+                }),
+                None,
+            )?;
+        } else {
+            self.layers[0].move_to(rect.left, rect.top)?;
         }
         if !foreground {
             self.last = Some(geometry);
@@ -467,7 +577,7 @@ impl Active {
             height,
             monitor.rcWork.right - monitor.rcWork.left - 2 * margin,
         );
-        self.layers[4].paint(
+        self.layers[1].paint(
             monitor.rcWork.left + margin,
             monitor.rcWork.bottom - height - margin,
             width,
@@ -536,7 +646,7 @@ unsafe fn run(rx: mpsc::Receiver<Command>) {
                         active = None;
                         let hwnd = HWND(protocol::hex(&p.window.hwnd)? as usize as *mut _);
                         let mut layers = Vec::new();
-                        for _ in 0..5 {
+                        for _ in 0..2 {
                             layers.push(Layer::new(hwnd)?);
                         }
                         let mut a = Active {
@@ -601,6 +711,24 @@ mod tests {
         }
     }
     #[test]
+    fn rounded_mask_removes_spill_and_preserves_smooth_fade() {
+        for radius in [4, 8, 12, 16] {
+            assert_eq!(corner_glow_pixel(0, 0, 190, radius), 0);
+            assert!(corner_glow_pixel(radius, 0, 190, radius) >> 24 > 0);
+            for x in 0..190 {
+                assert_eq!(corner_glow_pixel(x, 189, 190, radius), 0);
+                assert_eq!(corner_glow_pixel(189, x, 190, radius), 0);
+                for y in 0..190 {
+                    let pixel = corner_glow_pixel(x, y, 190, radius);
+                    for shift in [0, 8, 16] {
+                        assert!((pixel >> shift) & 255 <= pixel >> 24);
+                    }
+                }
+            }
+        }
+        assert_eq!(corner_glow_pixel(0, 0, 190, 0), glow_pixel(0, 0, 190, 190));
+    }
+    #[test]
     fn identity_validation_is_bounded() {
         assert!(valid_id("12345678-1234-1234-1234-123456789abc"));
         assert!(!valid_id("../../desktop"));
@@ -611,6 +739,16 @@ mod tests {
 mod fixture {
     use super::*;
     unsafe extern "system" fn fixture_proc(h: HWND, m: u32, w: WPARAM, l: LPARAM) -> LRESULT {
+        let color = GetWindowLongPtrW(h, GWLP_USERDATA);
+        if m == WM_PAINT && color != 0 {
+            let mut paint = PAINTSTRUCT::default();
+            let dc = BeginPaint(h, &mut paint);
+            let brush = CreateSolidBrush(COLORREF((color - 1) as u32));
+            FillRect(dc, &paint.rcPaint, brush);
+            let _ = DeleteObject(brush);
+            let _ = EndPaint(h, &paint);
+            return LRESULT(0);
+        }
         DefWindowProcW(h, m, w, l)
     }
     unsafe fn pump() {
@@ -754,7 +892,7 @@ mod fixture {
                 .iter()
                 .copied()
                 .collect();
-            assert_eq!(handles.len(), 5);
+            assert_eq!(handles.len(), 2);
             for hwnd in &handles {
                 let hwnd = HWND(*hwnd as *mut _);
                 assert_eq!(
@@ -815,7 +953,7 @@ mod fixture {
                     .iter()
                     .filter(|h| IsWindowVisible(HWND(**h as *mut _)).as_bool())
                     .count(),
-                4
+                1
             );
             SetWindowPos(
                 second.0,
@@ -866,17 +1004,17 @@ mod fixture {
                     .iter()
                     .filter(|h| IsWindowVisible(HWND(**h as *mut _)).as_bool())
                     .count(),
-                4
+                1
             );
             assert_eq!(GetForegroundWindow(), second.0);
-            keybd_event(0x1b, 0, KEYBD_EVENT_FLAGS(0), 0);
-            keybd_event(0x1b, 0, KEYEVENTF_KEYUP, 0);
+            // Exercise the worker's foreground/identity stop checks without
+            // injecting keys into the user's global keyboard stream.
+            PostMessageW(HWND(handles[0] as *mut _), WM_HOTKEY, WPARAM(1), LPARAM(0)).unwrap();
             pump();
             assert!(guard(&descriptor).is_ok());
             assert!(SetForegroundWindow(first.0).as_bool());
             pump();
-            keybd_event(0x1b, 0, KEYBD_EVENT_FLAGS(0), 0);
-            keybd_event(0x1b, 0, KEYEVENTF_KEYUP, 0);
+            PostMessageW(HWND(handles[0] as *mut _), WM_HOTKEY, WPARAM(1), LPARAM(0)).unwrap();
             pump();
             assert_eq!(guard(&descriptor).unwrap_err().code, "operation-cancelled");
             assert_eq!(
@@ -987,6 +1125,214 @@ mod fixture {
             let _ = UnregisterHotKey(None, 2);
             assert!(RegisterHotKey(None, 1, MOD_NOREPEAT, 0x1b).is_ok());
             let _ = UnregisterHotKey(None, 1);
+            thread::scope(|scope| {
+                let task = scope.spawn(move || drop(overlay));
+                while !task.is_finished() {
+                    pump();
+                }
+                task.join().unwrap();
+            });
+        }
+    }
+
+    #[test]
+    #[ignore = "opens only owned framed windows; explicit visual geometry acceptance"]
+    fn native_overlay_geometry_fixture() {
+        unsafe {
+            SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            RegisterClassW(&WNDCLASSW {
+                lpfnWndProc: Some(fixture_proc),
+                lpszClassName: w!("AzraelOverlayGeometryFixture"),
+                ..Default::default()
+            });
+            let mut monitor = MONITORINFO {
+                cbSize: size_of::<MONITORINFO>() as u32,
+                ..Default::default()
+            };
+            assert!(GetMonitorInfoW(
+                MonitorFromPoint(POINT::default(), MONITOR_DEFAULTTOPRIMARY),
+                &mut monitor
+            )
+            .as_bool());
+            let x = monitor.rcWork.left + 80;
+            let y = monitor.rcWork.top + 80;
+            let window = Fixture(
+                CreateWindowExW(
+                    WINDOW_EX_STYLE(0),
+                    w!("AzraelOverlayGeometryFixture"),
+                    w!("Azrael owned rounded-frame visual test"),
+                    WS_OVERLAPPEDWINDOW,
+                    x,
+                    y,
+                    900,
+                    640,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .unwrap(),
+            );
+            let out = std::env::var("AZRAEL_OVERLAY_FIXTURE_OUTPUT")
+                .expect("fixture output directory required");
+            let _ = ShowWindow(window.0, SW_SHOW);
+            assert!(SetForegroundWindow(window.0).as_bool());
+            pump();
+            let descriptor = crate::windows_backend::describe(window.0).unwrap();
+            let overlay = Overlay::new();
+            let target = "22345678-1234-1234-1234-123456789abc";
+            let mut geometries = Vec::new();
+            for (index, (name, color, preference, width, height, maximized)) in [
+                (
+                    "rounded-light",
+                    0x00f7f7f7u32,
+                    DWMWCP_ROUND,
+                    900,
+                    640,
+                    false,
+                ),
+                ("rounded-dark", 0x00212121, DWMWCP_ROUND, 900, 640, false),
+                ("default-light", 0x00f7f7f7, DWMWCP_DEFAULT, 900, 640, false),
+                (
+                    "small-radius-dark",
+                    0x00212121,
+                    DWMWCP_ROUNDSMALL,
+                    900,
+                    640,
+                    false,
+                ),
+                (
+                    "square-light",
+                    0x00f7f7f7,
+                    DWMWCP_DONOTROUND,
+                    900,
+                    640,
+                    false,
+                ),
+                (
+                    "moved-light",
+                    0x00f7f7f7,
+                    DWMWCP_DONOTROUND,
+                    900,
+                    640,
+                    false,
+                ),
+                ("resized-dark", 0x00212121, DWMWCP_ROUND, 560, 360, false),
+                ("maximized-dark", 0x00212121, DWMWCP_ROUND, 900, 640, true),
+            ]
+            .into_iter()
+            .enumerate()
+            {
+                assert_eq!(
+                    GetForegroundWindow(),
+                    window.0,
+                    "physical user focus changed; stop fixture"
+                );
+                DwmSetWindowAttribute(
+                    window.0,
+                    DWMWA_WINDOW_CORNER_PREFERENCE,
+                    &preference as *const _ as *const _,
+                    size_of::<DWM_WINDOW_CORNER_PREFERENCE>() as u32,
+                )
+                .unwrap();
+                let dark = BOOL((color == 0x00212121) as i32);
+                DwmSetWindowAttribute(
+                    window.0,
+                    DWMWA_USE_IMMERSIVE_DARK_MODE,
+                    &dark as *const _ as *const _,
+                    size_of::<BOOL>() as u32,
+                )
+                .unwrap();
+                SetWindowLongPtrW(window.0, GWLP_USERDATA, color as isize + 1);
+                let case_x = if name == "moved-light" { x + 60 } else { x };
+                SetWindowPos(
+                    window.0,
+                    None,
+                    case_x,
+                    y,
+                    width,
+                    height,
+                    SWP_NOACTIVATE | SWP_NOZORDER,
+                )
+                .unwrap();
+                if maximized {
+                    let _ = ShowWindow(window.0, SW_MAXIMIZE);
+                }
+                let _ = InvalidateRect(window.0, None, true);
+                pump();
+                capture(window.0, &format!("{out}/{name}-base.png"));
+                let generation = index as u64 + 1;
+                call(
+                    &overlay,
+                    "overlayShow",
+                    json!({"window":descriptor,"targetId":target,
+                    "generation":generation,"label":"Window Use visual test"}),
+                )
+                .unwrap();
+                pump();
+                if name == "moved-light" {
+                    SetWindowPos(
+                        window.0,
+                        None,
+                        case_x + 40,
+                        y + 40,
+                        0,
+                        0,
+                        SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER,
+                    )
+                    .unwrap();
+                    pump();
+                }
+                let handles: Vec<usize> = OWNED
+                    .get_or_init(Default::default)
+                    .lock()
+                    .unwrap()
+                    .iter()
+                    .copied()
+                    .collect();
+                for h in &handles {
+                    SetWindowDisplayAffinity(HWND(*h as *mut _), WDA_NONE).unwrap();
+                }
+                pump();
+                let mut outer = RECT::default();
+                GetWindowRect(window.0, &mut outer).unwrap();
+                let mut frame = RECT::default();
+                DwmGetWindowAttribute(
+                    window.0,
+                    DWMWA_EXTENDED_FRAME_BOUNDS,
+                    &mut frame as *mut _ as *mut _,
+                    size_of::<RECT>() as u32,
+                )
+                .unwrap();
+                let rect_array = |r: RECT| [r.left, r.top, r.right, r.bottom];
+                let mut layer_rects = Vec::new();
+                for h in &handles {
+                    let mut r = RECT::default();
+                    GetWindowRect(HWND(*h as *mut _), &mut r).unwrap();
+                    layer_rects.push(rect_array(r));
+                }
+                assert_eq!(handles.len(), 2);
+                assert!(
+                    layer_rects.contains(&rect_array(frame)),
+                    "glow must match DWM visible frame exactly"
+                );
+                geometries.push(json!({"case":name,"outer":rect_array(outer),
+                    "frame":rect_array(frame),"dpi":GetDpiForWindow(window.0),
+                    "layers":layer_rects,"preference":preference.0}));
+                capture(window.0, &format!("{out}/{name}-glow.png"));
+                assert_eq!(GetForegroundWindow(), window.0);
+                call(
+                    &overlay,
+                    "overlayHide",
+                    json!({"targetId":target,"generation":generation}),
+                )
+                .unwrap();
+            }
+            std::fs::write(
+                format!("{out}/geometry.json"),
+                serde_json::to_vec_pretty(&geometries).unwrap(),
+            )
+            .unwrap();
             thread::scope(|scope| {
                 let task = scope.spawn(move || drop(overlay));
                 while !task.is_finished() {
