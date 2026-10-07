@@ -46,6 +46,7 @@ receipt matching the exact root-wait checksum, and rejects an occupied version
 and unknown receipts are preserved; original source files remain in recorded
 `.upstream` copies. `SOURCE.json` binds each corrected and preserved path.
 
+The fixed source recipes also reproduce the local `gpt-6-astra` Ultrafast service tier, its routing override and the matching protocol/core tests. Preserved `.upstream` originals retain their recorded hashes and notices; `SOURCE.json` records the exact adapted bytes while keeping the original inventory and upstream integration metadata. Arbitrary catalog, routing or test changes still fail source verification.
 `instructions/` contains the complete maintained shared library. Its `SOURCE.json`
 retains the original import from `C:/Users/felre/codex-efficient-subagents-share`.
 The five current skill directories come from the active installed Azrael skills;

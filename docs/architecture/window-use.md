@@ -22,6 +22,18 @@ Before a previously unapproved app is selected for capture, inspection or input,
 
 Settings apply to hosts sharing the same Azrael state home. Revoking an app invalidates its conversation grants and pending approvals across hosts on the next authority check. A late approval cannot restore revoked authority. Active macros check authority before subsequent steps. Already-delivered actions cannot be undone. Invalid or unreadable settings fail closed.
 
+## Error reporting
+
+Status: `partial` — structured tool errors, native classifications, consent cancellation and deadlines pass source and mock integration tests. The production panel's error display and existing interaction pass in light and dark browser fixtures. Installed-host and real-window approval acceptance remain separate.
+
+Window Use returns a structured error with a recovery category and a message describing the observed failure. Ordinary recovery paths cover approval waiting, refusal and cancellation; missing selection and changed window/observation state; permission denial; unsupported actions and invalid input; unmet task conditions; connection failure and operation deadlines. Unexpected provider, storage and implementation exceptions use the common message `미분류된 오류`. Classification is intentionally limited to these groups rather than an exhaustive catalog of platform exceptions.
+
+Approval time limits report that no approval response was received, without asserting that the dialog was visible or that the user refused. Explicit refusal, dismissing the dialog, lifecycle cancellation and failure to read or save approval state are distinct outcomes. Approval waits have their own deadline. Deadline expiry, request disconnection and turn cancellation release the wait and block late answers from granting authority or selecting a window. A request waiting behind an earlier operation reports queue waiting rather than a host crash. Progress envelopes identify queued, running and approval stages; only terminal envelopes settle the tool call.
+
+Native error codes and safe exit metadata are retained across the backend, host and MCP boundaries. An operation that may already have changed the app includes `mutationOutcome: unknown`; failure does not establish that the action had no effect. Task macro failures carry the same error payload as individual operations. Partial accessibility observations retain `elementsTruncated`, and experimental key delivery retains its experimental and verification flags in model-visible results.
+
+Saved state validation failures are internal errors rather than invalid caller input. Request size limits report an invalid request before dropping the connection. Native UIA pattern lookup reports unsupported behavior only for the platform's explicit unsupported result; other provider exceptions use the unclassified category. Resize validation distinguishes size mismatch from a change in window position.
+
 ## Session occupancy
 
 Status: `current` — Source, host integration and separate-process behavior are verified. Installed UI acceptance is pending.

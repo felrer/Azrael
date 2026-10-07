@@ -330,11 +330,23 @@ fn control_type(id: i32) -> String {
     .into()
 }
 
-fn unsupported(_: windows::core::Error) -> Error {
-    Error::new(
-        "unsupported-action",
-        "Element does not support the requested UIA pattern",
-    )
+fn unsupported(error: windows::core::Error) -> Error {
+    if error.code().0 as u32 == UIA_E_NOTSUPPORTED {
+        Error::new("unsupported-action", "Element does not support the requested UIA pattern")
+    } else {
+        error.into()
+    }
+}
+
+#[cfg(test)]
+mod pattern_error_tests {
+    use super::*;
+    #[test]
+    fn only_pattern_not_supported_is_an_unsupported_action() {
+        assert_eq!(unsupported(windows::core::Error::from_hresult(HRESULT(UIA_E_NOTSUPPORTED as i32))).code, "unsupported-action");
+        assert_eq!(unsupported(windows::core::Error::from_hresult(windows::Win32::Foundation::E_ACCESSDENIED)).code, "native-error");
+        assert_eq!(unsupported(windows::core::Error::from_hresult(windows::Win32::Foundation::E_NOINTERFACE)).code, "native-error");
+    }
 }
 fn scroll_amount(value: i32) -> Result<ScrollAmount> {
     match value {

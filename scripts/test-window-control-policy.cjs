@@ -34,14 +34,14 @@ async function main() {
     assert.equal(distinctGeometry.widthPx, 784); assert.equal(distinctGeometry.heightPx, 562);
     assert.equal(distinctGeometry.window.widthPx, 800); assert.equal(distinctGeometry.window.heightPx, 600);
     for (const bad of [0, -1, 16385, 1.5, '800', null]) {
-      frameOverride = { widthPx: bad }; await assert.rejects(owner.call('thread', 'capture', args), /Invalid selected-window observation/);
-      frameOverride = { heightPx: bad }; await assert.rejects(owner.call('thread', 'capture', args), /Invalid selected-window observation/);
+      frameOverride = { widthPx: bad }; await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'unclassified' && e.message === '미분류된 오류');
+      frameOverride = { heightPx: bad }; await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'unclassified' && e.message === '미분류된 오류');
     }
-    frameOverride = { dpi: 120 }; await assert.rejects(owner.call('thread', 'capture', args), /Invalid selected-window observation/);
+    frameOverride = { dpi: 120 }; await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'unclassified' && e.message === '미분류된 오류');
     for (const invalid of [undefined, null, 0, 1, 'false', 'true', {}, []]) {
       frameOverride = { elementsTruncated: invalid };
-      await assert.rejects(owner.call('thread', 'capture', args), /Invalid elementsTruncated/);
-      await assert.rejects(owner.call('thread', 'inspect', args), /Invalid elementsTruncated/);
+      await assert.rejects(owner.call('thread', 'capture', args), e => e.code === 'unclassified' && e.message === '미분류된 오류');
+      await assert.rejects(owner.call('thread', 'inspect', args), e => e.code === 'unclassified' && e.message === '미분류된 오류');
     }
     frameOverride = { elementsTruncated: true };
     const partialCapture = await owner.call('thread', 'capture', args);
@@ -105,8 +105,8 @@ async function main() {
     let resized = 0; onRequest = method => { if (method === 'resize' && ++resized === 1) owner.stop('thread'); };
     await assert.rejects(owner.call('thread', 'run_size_macro', { ...args, macroId: 'two' }), /cancelled/); assert.equal(resized, 1); onRequest = null;
     const macroPath = path.join(home, 'azrael', 'computer-use', 'window-macros.json'); await fs.writeFile(macroPath + '.lock', 'held');
-    await assert.rejects(owner.getMacros(), /busy/); await fs.unlink(macroPath + '.lock');
-    await fs.writeFile(macroPath, '{bad'); await assert.rejects(owner.getMacros(), /corrupt/);
+    await assert.rejects(owner.getMacros(), e => e.code === 'unclassified' && e.message === '미분류된 오류'); await fs.unlink(macroPath + '.lock');
+    await fs.writeFile(macroPath, '{bad'); await assert.rejects(owner.getMacros(), e => e.code === 'unclassified' && e.message === '미분류된 오류');
     console.log('PASS policy: identity, argument isolation, observation lifetime, minimize/resume, Stop, revocation, macro storage and cancellation');
   } finally { owner.dispose(); await fs.rm(home, { recursive: true, force: true }); }
 }

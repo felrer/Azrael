@@ -28,6 +28,68 @@ async function main() {
   let killed = 0; let timeoutChild;
   const stalled = createBackend(runtime, { verify: () => declaration, timeoutMs: 10, shutdownMs: 10, spawnChild() { timeoutChild = new EventEmitter(); timeoutChild.exitCode = null; timeoutChild.stdout = new EventEmitter(); timeoutChild.stderr = new EventEmitter(); timeoutChild.stdin = { write() {}, end() {} }; timeoutChild.kill = () => { killed++; timeoutChild.exitCode = 1; timeoutChild.emit('exit', 1); }; return timeoutChild; } });
   await assert.rejects(stalled.request('status', {}), /timed out/); await new Promise(r => setTimeout(r, 30)); assert.equal(killed, 1);
-  console.log('Window backend: exact native listWindows envelope normalization and malformed rejection, other-method passthrough, fragmented Korean UTF8, manifest gate and owned-child lifecycle passed');
+  await errorChecks(runtime, declaration);
+  console.log('Window backend: envelope, UTF8, manifest, lifecycle, native error classification, exit metadata and mutation uncertainty checks passed');
+}
+async function errorChecks(runtime, declaration) {
+  const fixture = (respond, extra = {}) => {
+    let child;
+    const backend = createBackend(runtime, { verify: () => declaration, shutdownMs: 5, ...extra, spawnChild() {
+      child = new EventEmitter(); child.exitCode = null; child.stdout = new EventEmitter(); child.stderr = new EventEmitter();
+      child.stdin = new EventEmitter();
+      child.stdin.write = line => { const request = JSON.parse(line); queueMicrotask(() => respond(child, request)); };
+      child.stdin.end = () => { child.exitCode = 0; queueMicrotask(() => child.emit('exit', 0, null)); };
+      child.kill = () => { child.exitCode = 1; child.emit('exit', 1, null); };
+      return child;
+    } });
+    return backend;
+  };
+  for (const [nativeCode, code, uncertain] of [
+    ['unsupported-action', 'unsupported_action', false], ['unsupported-key', 'unsupported_action', false],
+    ['stale-observation', 'state_changed', false], ['stale-target', 'state_changed', false],
+    ['capture-timeout', 'timeout', true], ['provider-timeout', 'timeout', true],
+    ['uncertain-delivery', 'connection_error', true], ['native-error', 'unclassified', true],
+    ['new-provider-code', 'unclassified', true],
+  ]) {
+    const backend = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: nativeCode, message: 'private window content' } }) + '\n')));
+    await assert.rejects(backend.request('act', {}), error => {
+      assert.equal(error.code, code); assert.equal(error.nativeCode, nativeCode); assert.equal(error.stage, 'native');
+      assert.equal(error.mutationOutcome, uncertain ? 'unknown' : undefined); assert.ok(!error.message.includes('private'));
+      if (code === 'unclassified') assert.equal(error.message, '미분류된 오류'); return true;
+    });
+    await backend.dispose();
+  }
+  for (const [exitCode, signal] of [[17, null], [null, 'SIGTERM']]) {
+    const backend = fixture(child => { child.exitCode = exitCode; child.emit('exit', exitCode, signal); });
+    await assert.rejects(backend.request('resize', {}), error => {
+      assert.equal(error.code, 'connection_error'); assert.equal(error.stage, 'native'); assert.equal(error.exitCode, exitCode);
+      assert.equal(error.signal, signal); assert.equal(error.mutationOutcome, 'unknown'); return true;
+    }); await backend.dispose();
+  }
+  for (const mutation of ['act', 'resize', 'restore']) {
+    const backend = fixture(() => {}, { timeoutMs: 5 });
+    await assert.rejects(backend.request(mutation, {}), error => error.code === 'timeout' && error.stage === 'native' && error.mutationOutcome === 'unknown');
+    await backend.dispose();
+  }
+  for (const reply of [
+    { id: null, error: { code: 'request-too-large', message: 'private parse content' } },
+    { error: { code: 'invalid-request', message: 'private parse content' } },
+  ]) {
+    const backend = fixture(child => child.stdout.emit('data', Buffer.from(JSON.stringify(reply) + '\n')));
+    await assert.rejects(backend.request('restore', {}), error => error.code === 'unclassified' && error.stage === 'native' && error.nativeCode === reply.error.code && error.mutationOutcome === 'unknown');
+    await backend.dispose();
+  }
+  const postMutation = fixture((child, request) => child.stdout.emit('data', Buffer.from(JSON.stringify({ id: request.id, error: { code: 'stale-target', mutationOutcome: 'unknown' } }) + '\n')));
+  await assert.rejects(postMutation.request('act', {}), error => error.code === 'state_changed' && error.mutationOutcome === 'unknown'); await postMutation.dispose();
+  for (const response of ['malformed-json\n', 'null\n']) {
+    const backend = fixture(child => child.stdout.emit('data', Buffer.from(response)));
+    await assert.rejects(backend.request('act', {}), error => error.code === 'connection_error' && error.stage === 'native' && error.mutationOutcome === 'unknown'); await backend.dispose();
+  }
+  const failedWrite = fixture(child => child.stdin.emit('error', new Error('private transport detail')));
+  await assert.rejects(failedWrite.request('act', {}), error => error.code === 'connection_error' && error.stage === 'native' && error.mutationOutcome === 'unknown' && !error.message.includes('private')); await failedWrite.dispose();
+  for (const stream of ['stdout', 'stderr']) {
+    const failedRead = fixture(child => child[stream].emit('error', new Error('private stream detail')));
+    await assert.rejects(failedRead.request('restore', {}), error => error.code === 'connection_error' && error.stage === 'native' && error.mutationOutcome === 'unknown' && !error.message.includes('private')); await failedRead.dispose();
+  }
 }
 main().catch(e => { console.error(e); process.exitCode = 1; });

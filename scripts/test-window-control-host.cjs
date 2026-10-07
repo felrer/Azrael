@@ -10,14 +10,14 @@ const descriptor = { hwnd: 'window', pid: 1, processCreated: 'created', executab
 async function main() {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-host-'));
   try {
-    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue, permissionProfile = { type: 'disabled' }, skipDelivery = false, deferUI = false, uiReply, latestUIMessage, picker;
+    let consent = '이 대화에서 허용', echo = 'selectedWindow', sandbox = 'danger-full-access', calls = 0, closed = 0, observedRequest, resolveConsent, deferConsent = false, deferTurn = false, turnReply, backendFailure, connectSocket, actedValue, permissionProfile = { type: 'disabled' }, skipDelivery = false, deferUI = false, uiReply, latestUIMessage, picker, proofSocket;
     const approvals = require('./window-use-approvals.cjs').createOwner(home);
     const receive = approvals.receive; approvals.receive = (request, ...args) => { observedRequest = request; return receive(request, ...args); };
     const posts = []; const panel = { webview: { html: '', postMessage(value) { posts.push(value); }, onDidReceiveMessage() {} }, onDidDispose() {}, reveal() {}, dispose() {} };
     const vscode = { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [{ uri: { fsPath: 'C:/workspace' } }] }, window: { createWebviewPanel: () => panel, showInformationMessage: async () => deferConsent ? new Promise(r => { resolveConsent = r; }) : consent, showQuickPick: async values => { picker = values; return values[0]; } } };
     const backend = { request: async (method, params) => { calls++; if (backendFailure) throw new Error(backendFailure); if (method === 'listWindows') return [descriptor]; if (method === 'act') actedValue = params.value; if (method === 'observe') return { window: descriptor, observationId: 'observation', frameTimestamp: 'fresh', widthPx: 800, heightPx: 600, dpi: 96, elementsTruncated: false, elements: [{ id: 'element', name: '입력 영역', controlType: 'Edit', patterns: ['setValue'] }], image: { mimeType: 'image/png', data: 'YWJj' } }; return descriptor; }, dispose: async () => {} };
     const createServer = listener => { connectSocket = listener; const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => { closed++; }; return server; };
-    async function fragmentedPipe(message) { const socket = new EventEmitter(); socket.setTimeout = () => {}; socket.destroy = () => {}; const reply = new Promise(resolve => { socket.end = bytes => resolve(JSON.parse(bytes)); }); connectSocket(socket); const bytes = Buffer.from(JSON.stringify(message) + '\n'); for (let i = 0; i < bytes.length; i++) socket.emit('data', bytes.subarray(i, i + 1)); return reply; }
+    async function fragmentedPipe(message) { const socket = new EventEmitter(); socket.setTimeout = () => {}; let finish; socket.destroy = () => { socket.destroyed = true; socket.emit('close'); finish({ error: { code: 'cancelled', message: 'Selected-window request cancelled' } }); }; const reply = new Promise(resolve => { finish = resolve; socket.end = bytes => resolve(JSON.parse(bytes)); }); proofSocket = socket; connectSocket(socket); const bytes = Buffer.from(JSON.stringify(message) + '\n'); for (let i = 0; i < bytes.length; i++) socket.emit('data', bytes.subarray(i, i + 1)); return reply; }
     const host = createHost({ occupancyDirectory: path.join(home, 'occupancy'), runtime: { codexHome: home }, vscode, backend, approvals, createServer });
     let callbacks; const native = { registerProvider(_id, value) { callbacks = value; return { dispose() {} }; } };
     const requests = []; host.attach(native, (_provider, id, method, params) => {
@@ -26,7 +26,7 @@ async function main() {
         assert.deepEqual(Object.keys(params.arguments), ['requestToken']); assert.equal(params.server, 'azrael_window'); assert.equal(params.tool, 'ui_operation');
         latestUIMessage = { nonce: host.nonce, threadId: params.threadId, method: 'call', tool: 'ui_operation', arguments: params.arguments, _meta: { threadId: params.threadId, ...(permissionProfile ? { 'codex/sandbox-state-meta': { permissionProfile } } : {}) } };
         const proofMessage = latestUIMessage;
-        const deliver = async () => { const response = skipDelivery ? { result: {} } : await fragmentedPipe(proofMessage); callbacks.onResult({ id, ...(response.error ? { error: { message: response.error } } : { result: { content: [] } }) }); };
+        const deliver = async () => { const response = skipDelivery ? { result: {} } : await fragmentedPipe(proofMessage); callbacks.onResult({ id, ...(response.error ? { error: { message: response.error.message } } : { result: { content: [] } }) }); };
         if (deferUI) uiReply = deliver; else queueMicrotask(() => { void deliver(); }); return;
       }
       const reply = () => callbacks.onResult({ id, result: method === 'thread/start' ? { computerUseMode: echo, thread: { id: thread }, sandbox: { type: sandbox } } : { turn: { id: 'turn-one' } } }); if (method === 'turn/start' && deferTurn) turnReply = reply; else queueMicrotask(reply);
@@ -37,8 +37,13 @@ async function main() {
     echo = 'selectedWindow'; sandbox = 'danger-full-access'; permissionProfile = { type: 'managed', sandbox: 'danger-full-access' }; await ui('start'); await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0);
     permissionProfile = undefined; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled', extra: true }; await assert.rejects(ui('select'), /denied/); assert.equal(calls, 0); permissionProfile = { type: 'disabled' }; skipDelivery = true; await assert.rejects(ui('select'), /not delivered/); assert.equal(calls, 0); skipDelivery = false;
     await ui('clear'); await assert.rejects(fs.stat(path.join(home, 'azrael', 'computer-use', 'window-sessions', thread + '.json')), { code: 'ENOENT' });
-    sandbox = 'read-only'; consent = '거부'; await ui('start'); assert.equal(host.threads.get(thread).sandbox, undefined); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'window-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
+    sandbox = 'read-only'; consent = '거부'; await ui('start'); assert.equal(host.threads.get(thread).sandbox, undefined); await assert.rejects(ui('resume'), { code: 'selection_required' }); await assert.rejects(ui('select'), /refused/); assert.equal(observedRequest.params._meta.connector_id, 'window-use'); assert.deepEqual(observedRequest.params._meta.persist, ['session', 'always']);
     deferConsent = true; const lateSelection = ui('select'); while (!resolveConsent) await new Promise(r => setImmediate(r)); await ui('pause'); resolveConsent('이 대화에서 허용'); await assert.rejects(lateSelection, /refused|cancelled/); assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
+    deferConsent = true; resolveConsent = undefined;
+    const disconnectedSelection = ui('select'); const disconnectedCheck = assert.rejects(disconnectedSelection, /cancelled/);
+    while (!resolveConsent) await new Promise(r => setImmediate(r)); proofSocket.destroy(); await disconnectedCheck;
+    resolveConsent('항상 허용'); await new Promise(r => setImmediate(r));
+    assert.equal(approvals.hasAppApproval(descriptor.executable, thread), false); deferConsent = false;
     const other = require('./window-control-policy.cjs').createWindowOwner({ backend, authorize: async () => true, codexHome: path.join(home,'other-home'), occupancyDirectory: path.join(home,'occupancy'), workspaceName: 'Other workspace' });
     await other.bind('other-session', descriptor);
     consent = '이 대화에서 허용'; await ui('select');
@@ -53,8 +58,8 @@ async function main() {
     await assert.rejects(host.handlePipe(latestUIMessage), /token/);
     await host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'Work with this selected window' });
     assert.equal(posts.at(-1).value.image, undefined); assert.deepEqual(requests.find(r => r.method === 'turn/start').params.input[0].text_elements, []);
-    await assert.rejects(host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'duplicate' }), /현재 실행/);
-    const beforeActiveUI = calls; await assert.rejects(ui('capture'), /현재 실행/); await assert.rejects(ui('select'), /현재 실행/); assert.equal(calls, beforeActiveUI);
+    await assert.rejects(host.handleUI({ nonce: host.panelNonce, type: 'send', text: 'duplicate' }), { code: 'state_changed', message: /현재 실행/ });
+    const beforeActiveUI = calls; await assert.rejects(ui('capture'), { code: 'state_changed', message: /현재 실행/ }); await assert.rejects(ui('select'), { code: 'state_changed', message: /현재 실행/ }); assert.equal(calls, beforeActiveUI);
     const message = { nonce: host.nonce, threadId: thread, method: 'call', tool: 'status', arguments: { targetId: 'wrong' }, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: 'turn-one', sandbox_mode: 'danger-full-access' } } };
     const modelCapture = () => host.handlePipe({ ...message, tool: 'capture', arguments: { targetId: posts.filter(p => p.type === 'state' && p.value.targetId).at(-1).value.targetId } });
     await assert.rejects(host.handlePipe({ ...message, nonce: '0'.repeat(64) }), /authentication/);

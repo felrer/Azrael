@@ -6,6 +6,7 @@ const net = require('node:net');
 const { StringDecoder } = require('node:string_decoder');
 const { randomUUID, randomBytes, timingSafeEqual } = require('node:crypto');
 const { AsyncLocalStorage } = require('node:async_hooks');
+const { windowError, errorPayload, fromPayload, expectedError } = require('./window-control-errors.cjs');
 const physicalPath = fs.realpathSync.native(__filename);
 const runtimeKey = process.platform === 'win32' ? physicalPath.toLowerCase() : physicalPath;
 const registry = globalThis[Symbol.for('azrael-ex.window-control-runtimes.v1')] ??= new Map();
@@ -22,34 +23,34 @@ class Bridge {
   constructor(native, raw, fatal = () => this.dispose()) {
     this.native = native; this.raw = raw; this.provider = 'azrael-window-' + randomUUID(); this.pending = new Map();
     this.registration = native.registerProvider(this.provider, {
-      onResult: m => { const p = this.pending.get(m.id); if (!p) return; this.pending.delete(m.id); clearTimeout(p.timer); m.error ? p.reject(new Error(m.error.message || 'Engine request failed')) : p.resolve(m.result); },
+      onResult: m => { const p = this.pending.get(m.id); if (!p) return; this.pending.delete(m.id); clearTimeout(p.timer); m.error ? p.reject(expectedError(m.error.message || 'Engine request failed')) : p.resolve(m.result); },
       onRequestDelivery: fatal, onFatalError: fatal,
     });
   }
   rpc(method, params) { return new Promise((resolve, reject) => {
-    const id = randomUUID(); const timer = setTimeout(() => { this.pending.delete(id); reject(new Error('Engine request timed out')); }, 30000);
+    const id = randomUUID(); const timer = setTimeout(() => { this.pending.delete(id); reject(windowError('timeout', 'Engine request timed out')); }, 30000);
     this.pending.set(id, { resolve, reject, timer });
     try { this.raw(this.provider, id, method, params, false, true); } catch (e) { clearTimeout(timer); this.pending.delete(id); reject(e); }
   }); }
-  dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(new Error('Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
+  dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(windowError('connection_error', 'Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
 }
-function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory }) {
-  const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map();
+function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 25000 }) {
+  const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map();
   const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
   const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael', approve: async (w, thread) => { const allowed = await consent(w, thread); if (allowed) selections.set(thread, w); return allowed; }, authorize: (w, thread) => {
-    const permission = scope.getStore(), t = threads.get(thread); return permission?.threadId === thread && permission.disabled === true && t && (!permission.uiRecord || !permission.uiRecord.cancelled) && (!permission.turnId || t.turnId === permission.turnId) && approvals.hasAppApproval(w.executable, thread);
+    const permission = scope.getStore(), t = threads.get(thread); return permission?.threadId === thread && permission.disabled === true && !permission.signal?.aborted && t && (!permission.uiRecord || !permission.uiRecord.cancelled) && (!permission.turnId || t.turnId === permission.turnId) && approvals.hasAppApproval(w.executable, thread);
   } });
   const serial = fn => { const result = queue.then(fn); queue = result.catch(() => {}); return result; };
-  function invalidateUI(thread) { for (const record of activeUI) if (!thread || record.thread === thread) { record.cancelled = true; uiTokens.delete(record.token); } }
+  function invalidateUI(thread) { for (const consent of activeConsents) if (!thread || consent.thread === thread) consent.controller.abort(); for (const record of activeUI) if (!thread || record.thread === thread) { record.cancelled = true; uiTokens.delete(record.token); } }
   const uiScope = async fn => {
     const thread = current, t = threads.get(thread); let record;
     try {
-      if (disposed || !t || t.turnId || t.starting) throw new Error('현재 실행이 끝난 뒤 창을 제어해주세요');
+      if (disposed || !t || t.turnId || t.starting) throw windowError('state_changed', '현재 실행이 끝난 뒤 창을 제어해주세요');
       const token = randomBytes(32).toString('hex'); record = { token, thread, t, fn, completed: false, cancelled: false }; uiTokens.set(token, record); activeUI.add(record);
       await t.bridge.rpc('mcpServer/tool/call', { threadId: thread, server: 'azrael_window', tool: 'ui_operation', arguments: { requestToken: token } });
-      if (record.cancelled || disposed || current !== thread || threads.get(thread) !== t || t.turnId || t.starting) throw new Error('Selected-window UI operation cancelled');
-      if (!record.completed) throw new Error('Native permission proof was not delivered');
+      if (record.cancelled || disposed || current !== thread || threads.get(thread) !== t || t.turnId || t.starting) throw windowError('cancelled', 'Selected-window UI operation cancelled');
+      if (!record.completed) throw windowError('permission_denied', 'Native permission proof was not delivered');
       if (record.error) throw record.error;
       return record.result;
     } catch (error) { renderFailure(thread); throw error; } finally { if (record) { record.cancelled = true; uiTokens.delete(record.token); activeUI.delete(record); } }
@@ -72,32 +73,39 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (file) { try { const stored = JSON.parse(await fsp.readFile(file, 'utf8')); if (stored.nonce === nonce) await fsp.unlink(file); } catch (e) { if (e.code !== 'ENOENT') throw e; } }
     if (current === thread) { current = undefined; last = undefined; render(); }
   }
-  async function handlePipe(message) {
-    if (!message || Object.keys(message).some(k => !['nonce', 'threadId', 'method', 'tool', 'arguments', '_meta'].includes(k)) || typeof message.nonce !== 'string' || !/^[a-f0-9]{64}$/.test(message.nonce) || !timingSafeEqual(Buffer.from(message.nonce), Buffer.from(nonce))) throw new Error('Invalid selected-window authentication');
-    if (message.method !== 'call' || !threads.has(message.threadId)) throw new Error('Unknown selected-window session');
+  async function handlePipe(message, request = {}) {
+    if (request.signal?.aborted) throw windowError('cancelled', 'Selected-window request cancelled');
+    request.progress?.('running');
+    if (!message || Object.keys(message).some(k => !['nonce', 'threadId', 'method', 'tool', 'arguments', '_meta'].includes(k)) || typeof message.nonce !== 'string' || !/^[a-f0-9]{64}$/.test(message.nonce) || !timingSafeEqual(Buffer.from(message.nonce), Buffer.from(nonce))) throw windowError('permission_denied', 'Invalid selected-window authentication');
+    if (message.method !== 'call' || !threads.has(message.threadId)) throw windowError('selection_required', 'Unknown selected-window session');
     const t = threads.get(message.threadId);
     await t.ready;
-    if (disposed || threads.get(message.threadId) !== t || message._meta?.threadId !== message.threadId || !actualDisabled(message._meta)) throw new Error('Native permission context denied');
+    if (request.signal?.aborted) throw windowError('cancelled', 'Selected-window request cancelled');
+    if (disposed || threads.get(message.threadId) !== t || message._meta?.threadId !== message.threadId || !actualDisabled(message._meta)) throw windowError('permission_denied', 'Native permission context denied');
     if (message.tool === 'ui_operation') {
       const args = message.arguments;
-      if (Object.hasOwn(message._meta, 'x-codex-turn-metadata') || !args || Object.keys(args).length !== 1 || typeof args.requestToken !== 'string' || !/^[a-f0-9]{64}$/.test(args.requestToken)) throw new Error('Invalid UI operation proof');
+      if (Object.hasOwn(message._meta, 'x-codex-turn-metadata') || !args || Object.keys(args).length !== 1 || typeof args.requestToken !== 'string' || !/^[a-f0-9]{64}$/.test(args.requestToken)) throw windowError('permission_denied', 'Invalid UI operation proof');
       const record = uiTokens.get(args.requestToken);
-      if (!record || record.thread !== message.threadId || record.t !== t || record.cancelled || current !== record.thread || t.turnId || t.starting) throw new Error('Unknown or cancelled UI operation token');
+      if (!record || record.thread !== message.threadId || record.t !== t || record.cancelled || current !== record.thread || t.turnId || t.starting) throw windowError('cancelled', 'Unknown or cancelled UI operation token');
       uiTokens.delete(record.token);
-      try { record.result = await scope.run({ threadId: record.thread, disabled: true, uiRecord: record }, record.fn); } catch (error) { record.error = error; renderFailure(record.thread); } finally { record.completed = true; }
+      try { record.result = await scope.run({ ...request, threadId: record.thread, disabled: true, uiRecord: record }, record.fn); } catch (error) { record.error = error; renderFailure(record.thread); } finally { record.completed = true; }
       return {};
     }
-    let meta = message._meta?.['x-codex-turn-metadata']; if (typeof meta === 'string') { try { meta = JSON.parse(meta); } catch { throw new Error('Invalid native metadata'); } }
-    if (!meta || meta.thread_id !== message.threadId || typeof meta.turn_id !== 'string' || !t.turnId || meta.turn_id !== t.turnId) throw new Error('Native permission context denied');
-    return scope.run({ threadId: message.threadId, disabled: true, turnId: meta.turn_id }, async () => { try { const result = await owner.call(message.threadId, message.tool, message.arguments); if (current === message.threadId) render(result); return result; } catch (error) { renderFailure(message.threadId); throw error; } });
+    let meta = message._meta?.['x-codex-turn-metadata']; if (typeof meta === 'string') { try { meta = JSON.parse(meta); } catch { throw windowError('permission_denied', 'Invalid native metadata'); } }
+    if (!meta || meta.thread_id !== message.threadId || typeof meta.turn_id !== 'string' || !t.turnId || meta.turn_id !== t.turnId) throw windowError('permission_denied', 'Native permission context denied');
+    return scope.run({ ...request, threadId: message.threadId, disabled: true, turnId: meta.turn_id }, async () => { try { const result = await owner.call(message.threadId, message.tool, message.arguments); if (current === message.threadId) render(result); return result; } catch (error) { renderFailure(message.threadId); throw error; } });
   }
   async function listen() {
     if (listening) return listening;
     server = createServer(socket => {
-      let buffer = '', used = false, requestBytes = 0; const decoder = new StringDecoder('utf8'); socket.setTimeout(30000, () => socket.destroy()); socket.on('error', () => {});
-      socket.on('data', data => { if (used) return; const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); const end = bytes.indexOf(10); const part = end < 0 ? bytes : bytes.subarray(0, end + 1); requestBytes += part.length; if (requestBytes > 65536) { used = true; socket.destroy(); return; } buffer += decoder.write(part); const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
-        let message; try { message = JSON.parse(buffer.slice(0, newline)); } catch { socket.end(JSON.stringify({ error: 'Invalid selected-window request' }) + '\n'); return; }
-        const deliver = async () => { let response; try { response = { result: await handlePipe(message) }; } catch (e) { response = { error: e.message }; } const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: 'Response too large' }) + '\n' : bytes + '\n'); };
+      const controller = new AbortController(); let disconnected = false;
+      const cancel = () => { disconnected = true; controller.abort(); };
+      const progress = stage => { if (!disconnected && !socket.destroyed) socket.write?.(JSON.stringify({ progress: { stage } }) + '\n'); };
+      let buffer = '', used = false, requestBytes = 0; const decoder = new StringDecoder('utf8'); socket.setTimeout(30000, () => { cancel(); socket.destroy(); }); socket.on('error', cancel); socket.on('close', cancel);
+      socket.on('data', data => { if (used) return; const bytes = Buffer.isBuffer(data) ? data : Buffer.from(data); const end = bytes.indexOf(10); const part = end < 0 ? bytes : bytes.subarray(0, end + 1); requestBytes += part.length; if (requestBytes > 65536) { used = true; socket.end(JSON.stringify({ error: errorPayload(windowError('invalid_request', '요청 크기가 Window Use 제한을 초과했습니다.', { stage: 'connection' })) }) + '\n'); return; } buffer += decoder.write(part); const newline = buffer.indexOf('\n'); if (newline < 0) return; used = true;
+        progress('queued');
+        let message; try { message = JSON.parse(buffer.slice(0, newline)); } catch { socket.end(JSON.stringify({ error: errorPayload(windowError('invalid_request', 'Invalid selected-window request')) }) + '\n'); return; }
+        const deliver = async () => { if (disconnected || socket.destroyed) return; let response; try { response = { result: await handlePipe(message, { signal: controller.signal, progress }) }; } catch (e) { response = { error: errorPayload(e) }; } if (disconnected || socket.destroyed) return; const bytes = JSON.stringify(response); socket.end(Buffer.byteLength(bytes) > 32 * 1024 * 1024 ? JSON.stringify({ error: errorPayload(windowError('unclassified', '', { stage: 'running' })) }) + '\n' : bytes + '\n'); };
         void (message?.tool === 'ui_operation' ? deliver() : serial(deliver));
       });
     });
@@ -114,37 +122,54 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (existing) { if (existing.bridge !== bridge || existing.closed) throw new Error('Window Use thread belongs to another engine or is closing'); return existing; }
     const t = { bridge, turnId: undefined, starting: false, turnVersion: 0 };
     threads.set(thread, t);
-    t.ready = publish(thread).then(() => { if (disposed || t.closed || threads.get(thread) !== t || bridges.get(bridge.native) !== bridge) throw new Error('Window Use registration cancelled'); });
+    t.ready = publish(thread).then(() => { if (disposed || t.closed || threads.get(thread) !== t || bridges.get(bridge.native) !== bridge) throw windowError('cancelled', 'Window Use registration cancelled'); });
     void t.ready.catch(() => {});
     return t;
   }
   async function consent(descriptor, thread = current) {
     const t = threads.get(thread), version = t?.turnVersion, permission = scope.getStore();
-    if (!t || permission?.threadId !== thread || permission.disabled !== true) return false;
+    if (!t || permission?.threadId !== thread || permission.disabled !== true) throw windowError('permission_denied', 'Native permission context denied', { stage: 'approval' });
     const id = randomUUID(); const request = { id, method: 'mcpServer/elicitation/request', params: { serverName: 'azrael_window', threadId: thread, _meta: { connector_id: 'window-use', tool_params: { app: descriptor.executable }, tool_params_display: [{ name: 'app', value: descriptor.title }], persist: ['session', 'always'] } } };
     let stored, needsPrompt = false; approvals.receive(request, (_id, result) => { stored = result; }, () => { needsPrompt = true; });
-    if (stored) return stored.action === 'accept' && approvals.hasAppApproval(descriptor.executable, thread);
-    if (!needsPrompt) return false;
-    const answer = await vscode.window.showInformationMessage(`Window Use: ${descriptor.title || descriptor.executable} 앱의 창 제어를 허용할까요?`, { modal: true }, '이 대화에서 허용', '항상 허용', '거부');
-    if (disposed || threads.get(thread) !== t || t.turnVersion !== version || permission.uiRecord?.cancelled || (permission.turnId && t.turnId !== permission.turnId)) { approvals.stop(thread); return false; }
-    const result = approvals.response(id, answer === '이 대화에서 허용' || answer === '항상 허용' ? { action: 'accept', content: { persist: answer === '항상 허용' ? 'always' : 'session' } } : { action: 'cancel' });
-    return result?.action === 'accept' && approvals.hasAppApproval(descriptor.executable, thread);
+    const denied = result => { if (result?.content?.windowError) throw fromPayload(result.content.windowError); throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' }); };
+    if (stored) { if (stored.action !== 'accept') denied(stored); if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); return true; }
+    if (!needsPrompt) denied();
+    const controller = new AbortController(), record = { thread, controller }; activeConsents.add(record);
+    const abort = () => controller.abort(); permission.signal?.addEventListener('abort', abort, { once: true });
+    let timer, onAbort;
+    try {
+      if (permission.signal?.aborted || permission.uiRecord?.cancelled || disposed || threads.get(thread) !== t || t.turnVersion !== version) controller.abort();
+      if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' });
+      const interrupted = new Promise((_, reject) => {
+        onAbort = () => reject(windowError('cancelled', 'Application approval cancelled', { stage: 'approval' }));
+        controller.signal.addEventListener('abort', onAbort, { once: true });
+        timer = setTimeout(() => reject(windowError('approval_timeout', '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.', { stage: 'approval' })), approvalTimeoutMs);
+      });
+      permission.progress?.('approval');
+      const answer = await Promise.race([Promise.resolve().then(() => { if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' }); return vscode.window.showInformationMessage(`Window Use: ${descriptor.title || descriptor.executable} 앱의 창 제어를 허용할까요?`, { modal: true }, '이 대화에서 허용', '항상 허용', '거부'); }), interrupted]);
+      if (controller.signal.aborted || disposed || threads.get(thread) !== t || t.turnVersion !== version || permission.uiRecord?.cancelled || (permission.turnId && t.turnId !== permission.turnId)) throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' });
+      if (answer !== '이 대화에서 허용' && answer !== '항상 허용') throw windowError(answer === '거부' ? 'approval_declined' : 'cancelled', answer === '거부' ? 'Application approval refused' : 'Application approval cancelled', { stage: 'approval' });
+      const result = approvals.response(id, { action: 'accept', content: { persist: answer === '항상 허용' ? 'always' : 'session' } });
+      if (result?.action !== 'accept') denied(result);
+      if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); return true;
+    } catch (error) { approvals.response(id, { action: 'cancel' }); throw error; }
+    finally { clearTimeout(timer); if (onAbort) controller.signal.removeEventListener('abort', onAbort); permission.signal?.removeEventListener('abort', abort); activeConsents.delete(record); }
   }
   async function startThread() {
-    const bridge = [...bridges.values()][0]; if (!bridge) throw new Error('Native engine is not connected');
+    const bridge = [...bridges.values()][0]; if (!bridge) throw windowError('connection_error', 'Native engine is not connected');
     const result = await bridge.rpc('thread/start', { computerUseMode: 'selectedWindow', config: { 'mcp_servers.azrael_window.enabled': true }, developerInstructions: GUIDE, cwd: runtime.workspacePath || vscode.workspace.workspaceFolders?.[0]?.uri.fsPath });
     if (result?.computerUseMode !== 'selectedWindow' || !UUID.test(result.thread?.id || '')) throw new Error('Engine did not verify selectedWindow mode; update the engine before selecting a window');
     const thread = result.thread.id;
-    try { await registerThread(thread, bridge).ready; } catch (e) { await cleanup(thread); throw e; } if (disposed) { await cleanup(thread); throw new Error('Window host disposed'); } current = thread; render({ state: '창을 선택하거나 요청을 입력해주세요' });
+    try { await registerThread(thread, bridge).ready; } catch (e) { await cleanup(thread); throw e; } if (disposed) { await cleanup(thread); throw windowError('cancelled', 'Window host disposed'); } current = thread; render({ state: '창을 선택하거나 요청을 입력해주세요' });
   }
   async function handleUI(message) {
-    if (!message || message.nonce !== panelNonce || Object.keys(message).some(k => !['nonce', 'type', ...(message.type === 'send' ? ['text'] : [])].includes(k))) throw new Error('Invalid panel message');
-    const allowed = ['start', 'select', 'capture', 'pause', 'resume', 'clear', 'send', 'macro', 'action']; if (!allowed.includes(message.type)) throw new Error('Unknown panel operation');
+    if (!message || message.nonce !== panelNonce || Object.keys(message).some(k => !['nonce', 'type', ...(message.type === 'send' ? ['text'] : [])].includes(k))) throw windowError('invalid_request', 'Invalid panel message');
+    const allowed = ['start', 'select', 'capture', 'pause', 'resume', 'clear', 'send', 'macro', 'action']; if (!allowed.includes(message.type)) throw windowError('unsupported_action', 'Unknown panel operation');
     if (message.type === 'pause') { if (current) { invalidateUI(current); approvals.stop(current); if (last?.targetId) render(owner.stop(current)); const t = threads.get(current); if (t) { t.turnVersion++; t.starting = false; } if (t?.turnId) { const turnId = t.turnId; t.turnId = undefined; await t.bridge.rpc('turn/interrupt', { threadId: current, turnId }); } } return; }
     if (message.type === 'clear' && current) { invalidateUI(current); approvals.stop(current); owner.clear(current); last = undefined; render(); }
-    if (message.type === 'send' && (threads.get(current)?.turnId || threads.get(current)?.starting)) throw new Error('현재 실행이 끝난 뒤 메시지를 보내주세요');
+    if (message.type === 'send' && (threads.get(current)?.turnId || threads.get(current)?.starting)) throw windowError('state_changed', '현재 실행이 끝난 뒤 메시지를 보내주세요');
     return serial(async () => {
-      if (disposed) throw new Error('Window host disposed');
+      if (disposed) throw windowError('cancelled', 'Window host disposed');
       if (message.type === 'start') { if (current) throw new Error('Clear the current selection before creating another conversation'); return startThread(); }
       if (message.type === 'select') {
         if (!current) throw new Error('Create a selected-window conversation first');
@@ -156,11 +181,11 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       if (message.type === 'clear') { if (current) await cleanup(current); return; }
       if (message.type === 'send') {
         if (typeof message.text !== 'string' || !message.text.trim() || message.text.length > 32768 || !current) throw new Error('Create a Window Use conversation and enter a prompt');
-        const t = threads.get(current); if (t.turnId || t.starting) throw new Error('현재 실행이 끝난 뒤 메시지를 보내주세요');
+        const t = threads.get(current); if (t.turnId || t.starting) throw windowError('state_changed', '현재 실행이 끝난 뒤 메시지를 보내주세요');
         const version = t.turnVersion; t.starting = true; render(publicState('실행 중'));
         try { const result = await t.bridge.rpc('turn/start', { threadId: current, input: [{ type: 'text', text: message.text, text_elements: [] }] }); if (t.turnVersion === version && !t.turnId && result?.turn?.status !== 'completed' && typeof result?.turn?.id === 'string') t.turnId = result.turn.id; } finally { t.starting = false; } return;
       }
-      if (message.type === 'resume') { const descriptor = selections.get(current); if (!descriptor) throw new Error('Application approval refused'); render(await uiScope(async () => { if (!await consent(descriptor)) throw new Error('Application approval refused'); return owner.resume(current); })); return; }
+      if (message.type === 'resume') { const descriptor = selections.get(current); if (!descriptor) throw windowError('selection_required', '창을 먼저 선택해주세요.'); render(await uiScope(async () => { if (!await consent(descriptor)) throw new Error('Application approval refused'); return owner.resume(current); })); return; }
       if (message.type === 'capture') { render(await uiScope(() => owner.call(current, 'capture', { targetId: last?.targetId }))); return; }
       if (message.type === 'action') {
         const observationId = last?.observationId; const elements = last?.elements || []; const choice = await vscode.window.showQuickPick(elements.flatMap(e => e.patterns.map(pattern => ({ label: `${e.name || e.controlType}: ${pattern}`, element: e.id, pattern }))), { title: '지원되는 UI 자동화 동작 선택' }); if (!choice) return;
@@ -186,8 +211,8 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (panel) { panel.reveal(); return; } panelNonce = randomBytes(32).toString('hex');
     panel = vscode.window.createWebviewPanel('azraelWindowControl', 'Azrael Window Use', vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
     const web = panel.webview;
-    web.html = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${panelNonce}'; script-src 'nonce-${panelNonce}'"><style nonce="${panelNonce}">body{font:14px sans-serif;padding:16px;color:var(--vscode-foreground)}button{margin:4px}img{max-width:100%}textarea{width:95%;height:80px}pre{white-space:pre-wrap}</style></head><body><h2>Window Use</h2><p>${escape(runtime.windowControl?.acceptanceVerified === true ? '네이티브 런타임을 검증했습니다.' : '실험 기능: 실제 창 캡처와 백그라운드 입력 검증이 아직 완료되지 않았습니다.')}</p><p>선택한 창만 캡처합니다. 다시 시작하면 처음 최소화된 창을 한 번 복원합니다. 다시 최소화하면 제어가 일시 중지됩니다. 크기는 창 바깥쪽 기준 DIP입니다.</p>${['start','select','capture','pause','resume','clear','action','macro'].map(type => `<button data-type="${type}">${({start:'Window Use 전용 대화 시작',select:'창 선택',capture:'캡처',pause:'중지',resume:'다시 시작',clear:'선택 해제',action:'지원되는 동작',macro:'크기 매크로'})[type]}</button>`).join('')}<pre id="status"></pre><img id="image"><pre id="elements"></pre><textarea id="prompt" placeholder="제어할 창과 작업을 설명해주세요"></textarea><button data-type="send">보내기</button><pre id="conversation"></pre><script nonce="${panelNonce}">const api=acquireVsCodeApi();document.querySelectorAll('button').forEach(b=>b.onclick=()=>api.postMessage({nonce:'${panelNonce}',type:b.dataset.type,...(b.dataset.type==='send'?{text:document.getElementById('prompt').value}:{})}));window.addEventListener('message',e=>{const m=e.data;if(m.type==='state'){document.getElementById('status').textContent=JSON.stringify({thread:m.threadId,state:m.value.state,status:m.value.status,window:m.value.window},null,2);document.getElementById('image').src=m.value.image?'data:image/png;base64,'+m.value.image.data:'';document.getElementById('elements').textContent=JSON.stringify(m.value.elements||[],null,2);}if(m.type==='text'||m.type==='error')document.getElementById('conversation').textContent+='\n'+m.text;});</script></body></html>`;
-    web.onDidReceiveMessage(message => { void handleUI(message).catch(e => panel?.webview.postMessage({ type: 'error', text: e.message })); });
+    web.html = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${panelNonce}'; script-src 'nonce-${panelNonce}'"><style nonce="${panelNonce}">body{font:14px sans-serif;padding:16px;color:var(--vscode-foreground)}button{margin:4px}img{max-width:100%}textarea{width:95%;height:80px}pre{white-space:pre-wrap}</style></head><body><h2>Window Use</h2><p>${escape(runtime.windowControl?.acceptanceVerified === true ? '네이티브 런타임을 검증했습니다.' : '실험 기능: 실제 창 캡처와 백그라운드 입력 검증이 아직 완료되지 않았습니다.')}</p><p>선택한 창만 캡처합니다. 다시 시작하면 처음 최소화된 창을 한 번 복원합니다. 다시 최소화하면 제어가 일시 중지됩니다. 크기는 창 바깥쪽 기준 DIP입니다.</p>${['start','select','capture','pause','resume','clear','action','macro'].map(type => `<button data-type="${type}">${({start:'Window Use 전용 대화 시작',select:'창 선택',capture:'캡처',pause:'중지',resume:'다시 시작',clear:'선택 해제',action:'지원되는 동작',macro:'크기 매크로'})[type]}</button>`).join('')}<pre id="status"></pre><img id="image"><pre id="elements"></pre><textarea id="prompt" placeholder="제어할 창과 작업을 설명해주세요"></textarea><button data-type="send">보내기</button><pre id="conversation"></pre><script nonce="${panelNonce}">const api=acquireVsCodeApi();document.querySelectorAll('button').forEach(b=>b.onclick=()=>api.postMessage({nonce:'${panelNonce}',type:b.dataset.type,...(b.dataset.type==='send'?{text:document.getElementById('prompt').value}:{})}));window.addEventListener('message',e=>{const m=e.data;if(m.type==='state'){document.getElementById('status').textContent=JSON.stringify({thread:m.threadId,state:m.value.state,status:m.value.status,window:m.value.window},null,2);document.getElementById('image').src=m.value.image?'data:image/png;base64,'+m.value.image.data:'';document.getElementById('elements').textContent=JSON.stringify(m.value.elements||[],null,2);}if(m.type==='text'||m.type==='error')document.getElementById('conversation').textContent+='\\n'+m.text;});</script></body></html>`;
+    web.onDidReceiveMessage(message => { void handleUI(message).catch(e => panel?.webview.postMessage({ type: 'error', text: errorPayload(e).message })); });
     panel.onDidDispose(() => { panel = undefined; panelNonce = undefined; }); render();
   }
   function observe(native, message) {
@@ -198,7 +223,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     const t = threads.get(thread); if (!t || t.bridge.native !== native) return;
     if (message.method === 'turn/started') { invalidateUI(thread); t.turnVersion++; t.starting = false; t.turnId = params.turn?.id; }
     if (message.method === 'thread/closed') { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); void serial(() => cleanup(thread)); }
-    if (message.method === 'turn/completed') { t.turnVersion++; t.starting = false; t.turnId = undefined; owner.invalidateObservation(thread); if (current === thread) { render(publicState(params.turn?.status || '완료')); if (params.turn?.error?.message) void panel?.webview.postMessage({ type: 'error', text: params.turn.error.message }); } }
+    if (message.method === 'turn/completed') { invalidateUI(thread); t.turnVersion++; t.starting = false; t.turnId = undefined; owner.invalidateObservation(thread); if (current === thread) { render(publicState(params.turn?.status || '완료')); if (params.turn?.error?.message) void panel?.webview.postMessage({ type: 'error', text: params.turn.error.message }); } }
     if (current !== thread) return;
     if (message.method === 'item/agentMessage/delta' && typeof params.delta === 'string') void panel?.webview.postMessage({ type: 'text', text: params.delta });
     if (message.method === 'error') void panel?.webview.postMessage({ type: 'error', text: params.error?.message || params.message || 'Engine error' });
@@ -223,9 +248,9 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       if (!UUID.test(thread || '') || (record.expectedThread && record.expectedThread !== thread)) throw new Error('Invalid Window Use lifecycle response');
       ready = registerThread(thread, bridge).ready;
     } catch (error) { ready = Promise.reject(error); }
-    void ready.then(() => { if (!disposed && bridges.get(native) === bridge) replay(message); }).catch(async () => {
+    void ready.then(() => { if (!disposed && bridges.get(native) === bridge) replay(message); }).catch(async error => {
       if (threads.get(thread)?.bridge === bridge) { try { await cleanup(thread); } catch {} }
-      if (!disposed && bridges.get(native) === bridge) replay({ id: message.id, error: { code: -32000, message: 'Window Use conversation initialization failed' } });
+      if (!disposed && bridges.get(native) === bridge) replay({ id: message.id, error: errorPayload(error) });
     });
     return true;
   }

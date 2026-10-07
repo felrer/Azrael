@@ -194,11 +194,11 @@ impl Backend {
             uia::assert_descendant(&self.automation, hwnd, element)?;
             if matches!(p.action, protocol::Action::PressKey) {
                 uia::press_key(&self.automation, hwnd, element, p.value)?;
-                return Ok(json!({ "window": verify(&p.window)?, "acted": true, "requiresObservation": true,
+                return Ok(json!({ "window": verify(&p.window).map_err(Error::uncertain)?, "acted": true, "requiresObservation": true,
                     "delivery": "windowMessage", "verified": false, "experimental": true }));
             }
             uia::act(element, &p.action, p.value)?;
-            Ok(json!({ "window": verify(&p.window)?, "acted": true, "requiresObservation": true }))
+            Ok(json!({ "window": verify(&p.window).map_err(Error::uncertain)?, "acted": true, "requiresObservation": true }))
         })
     }
 }
@@ -336,12 +336,7 @@ fn describe(hwnd: HWND) -> Result<Window> {
 fn verify(window: &Window) -> Result<Window> {
     let hwnd = handle(window)?;
     lifetime::validate(hwnd)?;
-    let actual = describe(hwnd).map_err(|_| {
-        Error::new(
-            "stale-target",
-            "Selected identity is unavailable or no longer matches",
-        )
-    })?;
+    let actual = describe(hwnd)?;
     if !actual.same_identity(window) {
         return Err(Error::new(
             "stale-target",
@@ -415,7 +410,7 @@ fn guarded(window: &Window, operation: impl FnOnce(HWND) -> Result<Value>) -> Re
             "Target or target-owned popup became foreground during mutation; cause is ambiguous, action may have occurred; no focus recovery attempted",
         ));
     }
-    verify(window)?;
+    verify(window).map_err(Error::uncertain)?;
     result
 }
 // Endpoint evidence cannot attribute a transition or detect transient activation between checks.
@@ -482,7 +477,7 @@ fn restore(hwnd: HWND) -> Result<Value> {
                 SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER,
             )?;
         }
-        Ok(json!({ "window": describe(hwnd)?, "restored": true }))
+        Ok(json!({ "window": describe(hwnd).map_err(Error::uncertain)?, "restored": true }))
     }
 }
 fn resize(hwnd: HWND, width: i32, height: i32, dpi: u32) -> Result<Value> {
@@ -552,7 +547,7 @@ fn resize(hwnd: HWND, width: i32, height: i32, dpi: u32) -> Result<Value> {
             height,
             SWP_NOACTIVATE | SWP_NOZORDER | SWP_NOOWNERZORDER,
         )?;
-        let actual = describe(hwnd)?;
+        let actual = describe(hwnd).map_err(Error::uncertain)?;
         let mut after = RECT::default();
         GetWindowRect(hwnd, &mut after)?;
         if actual.width_px != width
@@ -562,14 +557,31 @@ fn resize(hwnd: HWND, width: i32, height: i32, dpi: u32) -> Result<Value> {
         {
             return Err(Error::new(
                 "resize-rejected",
-                format!(
-                    "App returned {}x{} instead of {}x{} pixels",
-                    actual.width_px, actual.height_px, width, height
-                ),
+                resize_rejection_message(actual.width_px, actual.height_px, width, height, &rect, &after),
             ));
         }
         Ok(
             json!({ "window": actual, "widthPx": actual.width_px, "heightPx": actual.height_px, "widthDip": actual.width_px as f64 * 96.0 / actual.dpi as f64, "heightDip": actual.height_px as f64 * 96.0 / actual.dpi as f64 }),
         )
+    }
+}
+
+fn resize_rejection_message(actual_width: i32, actual_height: i32, width: i32, height: i32, before: &RECT, after: &RECT) -> String {
+    if actual_width == width && actual_height == height {
+        format!("Window position changed from ({}, {}) to ({}, {}) during resize", before.left, before.top, after.left, after.top)
+    } else {
+        format!("App returned {}x{} instead of {}x{} pixels", actual_width, actual_height, width, height)
+    }
+}
+
+#[cfg(test)]
+mod resize_error_tests {
+    use super::*;
+    #[test]
+    fn position_only_rejection_reports_position_change() {
+        let before = RECT { left: 10, top: 20, ..Default::default() };
+        let after = RECT { left: 30, top: 20, ..Default::default() };
+        assert_eq!(resize_rejection_message(800, 600, 800, 600, &before, &after), "Window position changed from (10, 20) to (30, 20) during resize");
+        assert_eq!(resize_rejection_message(700, 600, 800, 600, &before, &after), "App returned 700x600 instead of 800x600 pixels");
     }
 }

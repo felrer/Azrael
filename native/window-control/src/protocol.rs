@@ -8,13 +8,20 @@ pub const MAX_LINE: usize = 16 * 1024 * 1024;
 pub struct Error {
     pub code: &'static str,
     pub message: String,
+    #[serde(rename = "mutationOutcome", skip_serializing_if = "Option::is_none")]
+    pub mutation_outcome: Option<&'static str>,
 }
 impl Error {
     pub fn new(code: &'static str, message: impl Into<String>) -> Self {
         Self {
             code,
             message: message.into(),
+            mutation_outcome: None,
         }
+    }
+    pub fn uncertain(mut self) -> Self {
+        self.mutation_outcome = Some("unknown");
+        self
     }
 }
 impl From<windows::core::Error> for Error {

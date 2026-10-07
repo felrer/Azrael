@@ -83,7 +83,7 @@ async function main() {
   assert.ok(!listed.some(t => ['bind', 'resume', 'listWindows'].includes(t.name)));
   const sanitized = callResult({ window: { title: 'selected', hwnd: 'secret' }, unrelated: 'secret', image: { mimeType: 'image/png', data: 'YQ==' } });
   assert.ok(!sanitized.content[0].text.includes('secret')); assert.equal(sanitized.content[1].type, 'image');
-  const missing = createRelay({ readFile: async () => { throw new Error('ENOENT'); } }); await assert.rejects(missing(threadId, 'capture', {}, { ...proof, threadId }), /No selected/);
+  const missing = createRelay({ readFile: async () => { throw Object.assign(new Error('missing'), { code: 'ENOENT' }); } }); await assert.rejects(missing(threadId, 'capture', {}, { ...proof, threadId }), /No selected/);
   let output = ''; await runProtocol({ input: Readable.from(['{bad\n', JSON.stringify({ jsonrpc: '2.0', id: 2, method: 'ping' }) + '\n']), output: new Writable({ write(chunk, encoding, done) { output += chunk; done(); } }), protocol });
   const lines = output.trim().split('\n').map(JSON.parse); assert.equal(lines[0].error.code, -32700); assert.deepEqual(lines[1].result, {});
   const koreanResult = { window: { title: '한국어 창 제목' }, elementsTruncated: false, elements: [{ id: 'e', name: '저장 버튼' }], _meta: relayMetadata(nativeMeta) };
@@ -93,7 +93,7 @@ async function main() {
   const limit = 32 * 1024 * 1024;
   const oversizedMultibyte = Buffer.from('한'.repeat(Math.floor(limit / 3) + 1), 'utf8');
   assert.ok(oversizedMultibyte.length > limit); assert.ok(oversizedMultibyte.toString('utf8').length < limit);
-  await assert.rejects(pipeRequest('mock', {}, { connect: fragmentedConnection([oversizedMultibyte.subarray(0, limit), oversizedMultibyte.subarray(limit)]) }), /Host response too large/);
+  await assert.rejects(pipeRequest('mock', {}, { connect: fragmentedConnection([oversizedMultibyte.subarray(0, limit), oversizedMultibyte.subarray(limit)]) }), e => e.code === 'unclassified' && e.message === '미분류된 오류');
   const prefix = '{"result":{"text":"'; const suffix = '"}}\n';
   const atLimit = Buffer.from(prefix + 'x'.repeat(limit - Buffer.byteLength(prefix + suffix)) + suffix);
   assert.equal(atLimit.length, limit);

@@ -41,11 +41,11 @@ test('ordinary start publishes the exact session before replay with no panel and
 });
 test('resume mismatch and cross-bridge ownership fail without replacing an existing session', async t => {
   const f = await fixture(t); f.started(); await f.host.threads.get(ids[0]).ready;
-  const mismatch = await replayResult(f, 'thread/resume', ids[0], ids[1]); assert.match((await mismatch.reply).error.message, /initialization failed/); assert.equal(f.host.threads.has(ids[1]), false);
+  const mismatch = await replayResult(f, 'thread/resume', ids[0], ids[1]); assert.deepEqual((await mismatch.reply).error, { code: 'unclassified', message: '미분류된 오류' }); assert.equal(f.host.threads.has(ids[1]), false);
   const other = { registerProvider() { return { dispose() {} }; } }; f.host.attach(other, () => {});
   f.host.request(other, 'ordinary', 'other', 'thread/resume', { threadId: ids[0] });
   const reply = await new Promise(resolve => f.host.beforeResult(other, { id: 'ordinary:other', result: { thread: { id: ids[0] } } }, resolve));
-  assert.match(reply.error.message, /initialization failed/); assert.equal(f.host.threads.get(ids[0]).bridge.native, f.native);
+  assert.deepEqual(reply.error, { code: 'unclassified', message: '미분류된 오류' }); assert.equal(f.host.threads.get(ids[0]).bridge.native, f.native);
 });
 test('ordinary lifecycle tracks active turns and denies stale or inexact permission proof each call', async t => {
   const f = await fixture(t); f.started(); await f.host.threads.get(ids[0]).ready;
@@ -76,7 +76,7 @@ test('ordinary threads select independently with app consent and reject stale ca
 });
 test('session-file collision fails closed and preserves the other owner', async t => {
   const f = await fixture(t); await fs.mkdir(path.dirname(f.file(ids[0])), { recursive: true }); await fs.writeFile(f.file(ids[0]), '{"nonce":"other-owner"}');
-  const result = await replayResult(f, 'thread/start', ids[0]); assert.match((await result.reply).error.message, /initialization failed/);
+  const result = await replayResult(f, 'thread/start', ids[0]); assert.deepEqual((await result.reply).error, { code: 'unclassified', message: '미분류된 오류' });
   assert.equal(f.host.threads.size, 0); assert.equal(await fs.readFile(f.file(ids[0]), 'utf8'), '{"nonce":"other-owner"}');
 });
 for (const boundary of ['disconnect', 'thread/closed']) test(`${boundary} during publication cancels ownership and removes its session`, async t => {
@@ -93,7 +93,7 @@ for (const boundary of ['disconnect', 'thread/closed']) test(`${boundary} during
   }
   f.release(); await assert.rejects(ready, /cancelled/); await f.host.dispose();
   assert.equal(f.host.threads.size, 0); await assert.rejects(fs.stat(f.file(ids[0])), { code: 'ENOENT' });
-  if (boundary === 'disconnect') assert.equal(replies.length, 0); else { assert.ok(replies.length >= 1); for (const reply of replies) assert.match(reply.error.message, /initialization failed/); }
+  if (boundary === 'disconnect') assert.equal(replies.length, 0); else { assert.ok(replies.length >= 1); for (const reply of replies) assert.equal(reply.error.code, 'cancelled'); }
 });
 
 test('different host code homes share occupancy and disconnect releases it', async t => {

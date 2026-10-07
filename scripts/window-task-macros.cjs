@@ -8,22 +8,24 @@ const PROPERTIES = ['exists', 'enabled', 'value', 'selected', 'toggleState', 'ex
 const BOOLEAN_PROPERTIES = ['exists', 'enabled', 'selected'];
 const STORAGE_MAX_BYTES = 1024 * 1024;
 const TIMEOUT_ERROR = 'Task time limit exceeded; mutation outcome may be unknown';
-const fail = message => { throw new Error(message); };
+const { expectedError, windowError, errorPayload } = require('./window-control-errors.cjs');
+const fail = message => { throw message === TIMEOUT_ERROR ? windowError('timeout', message, { stage: 'task' }) : expectedError(message); };
+const invalid = message => { throw windowError('invalid_request', message); };
 const object = value => value && typeof value === 'object' && !Array.isArray(value);
 
 function shape(value, allowed, required = []) {
   if (!object(value) || Object.keys(value).some(key => !allowed.includes(key)) || required.some(key => !Object.hasOwn(value, key))) {
-    fail('Invalid task definition');
+    invalid('Invalid task definition');
   }
 }
 
 function string(value) {
-  if (typeof value !== 'string' || !value.length || value.length > 256 || /[\x00-\x1f]/.test(value)) fail('Invalid task string');
+  if (typeof value !== 'string' || !value.length || value.length > 256 || /[\x00-\x1f]/.test(value)) invalid('Invalid task string');
 }
 
 function selector(value, ancestor = true) {
   shape(value, ancestor ? ['name', 'automationId', 'controlType', 'ancestor'] : ['name', 'automationId', 'controlType']);
-  if (!Object.hasOwn(value, 'name') && !Object.hasOwn(value, 'automationId')) fail('Exact name or automationId selector required');
+  if (!Object.hasOwn(value, 'name') && !Object.hasOwn(value, 'automationId')) invalid('Exact name or automationId selector required');
   for (const key of ['name', 'automationId', 'controlType']) {
     if (Object.hasOwn(value, key)) string(value[key]);
   }
@@ -32,62 +34,62 @@ function selector(value, ancestor = true) {
 
 function parameter(value, names) {
   shape(value, ['parameter'], ['parameter']);
-  if (!names.includes(value.parameter)) fail('Unknown task parameter');
+  if (!names.includes(value.parameter)) invalid('Unknown task parameter');
 }
 
 function condition(value, names) {
   shape(value, ['selector', 'property', 'equals'], ['selector', 'property', 'equals']);
   selector(value.selector);
-  if (!PROPERTIES.includes(value.property)) fail('Invalid condition property');
+  if (!PROPERTIES.includes(value.property)) invalid('Invalid condition property');
   if (object(value.equals)) {
-    if (BOOLEAN_PROPERTIES.includes(value.property)) fail('Boolean conditions require literal booleans');
+    if (BOOLEAN_PROPERTIES.includes(value.property)) invalid('Boolean conditions require literal booleans');
     parameter(value.equals, names);
   } else if (BOOLEAN_PROPERTIES.includes(value.property)) {
-    if (typeof value.equals !== 'boolean') fail('Invalid condition value');
+    if (typeof value.equals !== 'boolean') invalid('Invalid condition value');
   } else if (value.property === 'toggleState') {
-    if (!['off', 'on', 'indeterminate'].includes(value.equals)) fail('Invalid toggle state');
+    if (!['off', 'on', 'indeterminate'].includes(value.equals)) invalid('Invalid toggle state');
   } else if (value.property === 'expandState') {
-    if (!['collapsed', 'expanded', 'partial', 'leaf'].includes(value.equals)) fail('Invalid expand state');
+    if (!['collapsed', 'expanded', 'partial', 'leaf'].includes(value.equals)) invalid('Invalid expand state');
   } else if (typeof value.equals !== 'string' || value.equals.length > 32768) {
-    fail('Invalid condition value');
+    invalid('Invalid condition value');
   }
 }
 
 function definition(input, saved = false) {
   shape(input, ['schema', 'id', 'name', 'parameters', 'steps'], ['schema', 'steps', ...(saved ? ['id', 'name'] : [])]);
-  if (input.schema !== 1) fail('Unsupported task schema');
+  if (input.schema !== 1) invalid('Unsupported task schema');
   for (const key of ['id', 'name']) {
     if (Object.hasOwn(input, key)) string(input[key]);
   }
   const names = input.parameters || [];
-  if (!Array.isArray(names) || names.length > 32 || new Set(names).size !== names.length) fail('Invalid parameters');
+  if (!Array.isArray(names) || names.length > 32 || new Set(names).size !== names.length) invalid('Invalid parameters');
   names.forEach(string);
-  if (!Array.isArray(input.steps) || !input.steps.length || input.steps.length > 32) fail('Tasks require 1 to 32 steps');
+  if (!Array.isArray(input.steps) || !input.steps.length || input.steps.length > 32) invalid('Tasks require 1 to 32 steps');
 
   for (const step of input.steps) {
     shape(step, ['action', 'selector', 'value', 'key', 'condition', 'postcondition', 'timeoutMs'], ['action']);
-    if (!ACTIONS.includes(step.action)) fail('Invalid task action');
+    if (!ACTIONS.includes(step.action)) invalid('Invalid task action');
     const mutation = !['wait_for', 'assert', 'capture'].includes(step.action);
     if (mutation) selector(step.selector);
-    else if (step.selector !== undefined) fail('Unexpected task selector');
+    else if (step.selector !== undefined) invalid('Unexpected task selector');
     if (['wait_for', 'assert'].includes(step.action)) condition(step.condition, names);
-    else if (step.condition !== undefined) fail('Unexpected condition');
+    else if (step.condition !== undefined) invalid('Unexpected condition');
     if (step.postcondition !== undefined) condition(step.postcondition, names);
 
     if (step.action === 'press_key') {
-      if (!KEYS.includes(step.key) || !step.postcondition) fail('Key requires supported key and explicit postcondition');
-    } else if (step.key !== undefined) fail('Unexpected key');
+      if (!KEYS.includes(step.key) || !step.postcondition) invalid('Key requires supported key and explicit postcondition');
+    } else if (step.key !== undefined) invalid('Unexpected key');
 
     if (step.action === 'set_value') {
       if (object(step.value)) parameter(step.value, names);
-      else if (typeof step.value !== 'string' || step.value.length > 32768) fail('Invalid task value');
+      else if (typeof step.value !== 'string' || step.value.length > 32768) invalid('Invalid task value');
     } else if (step.action === 'scroll') {
       shape(step.value, ['horizontal', 'vertical'], ['horizontal', 'vertical']);
-      if ([step.value.horizontal, step.value.vertical].some(value => !Number.isInteger(value) || value < -2 || value > 2)) fail('Invalid scroll value');
-    } else if (step.value !== undefined) fail('Unexpected task value');
+      if ([step.value.horizontal, step.value.vertical].some(value => !Number.isInteger(value) || value < -2 || value > 2)) invalid('Invalid scroll value');
+    } else if (step.value !== undefined) invalid('Unexpected task value');
 
     if (step.timeoutMs !== undefined && (step.action !== 'wait_for' || !Number.isInteger(step.timeoutMs) || step.timeoutMs < 0 || step.timeoutMs > 10000)) {
-      fail('Wait limit is 10000 ms');
+      invalid('Wait limit is 10000 ms');
     }
   }
   return JSON.parse(JSON.stringify({ ...input, parameters: names }));
@@ -131,6 +133,9 @@ function createStore(home) {
   const file = path.join(home, 'azrael', 'computer-use', 'window-task-macros.json');
 
   async function read() {
+    try { return await readStored(); } catch (cause) { throw windowError('unclassified', '', { stage: 'storage', cause }); }
+  }
+  async function readStored() {
     let raw;
     try {
       raw = await fs.readFile(file, 'utf8');
@@ -167,7 +172,7 @@ function createStore(home) {
       if (stored.revision === Number.MAX_SAFE_INTEGER) fail('Task storage revision exhausted');
       stored.revision++;
       const serialized = JSON.stringify(stored);
-      if (Buffer.byteLength(serialized, 'utf8') > STORAGE_MAX_BYTES) fail('Task storage size limit exceeded');
+      if (Buffer.byteLength(serialized, 'utf8') > STORAGE_MAX_BYTES) invalid('Task storage size limit exceeded');
       await fs.writeFile(temp, serialized, { flag: 'wx', mode: 0o600 });
       await fs.rename(temp, file);
       return { revision: stored.revision, definition: checked };
@@ -194,6 +199,7 @@ async function run(input, parameters, io) {
   const outcomes = [];
   const deadline = Date.now() + 20000;
   let finalObservation;
+  let mutationAttempted = false;
 
   async function bounded(operation) {
     const remaining = deadline - Date.now();
@@ -208,7 +214,7 @@ async function run(input, parameters, io) {
         new Promise((_, reject) => {
           timer = setTimeout(() => {
             io.cancel?.();
-            reject(new Error(TIMEOUT_ERROR));
+            reject(windowError('timeout', TIMEOUT_ERROR, { stage: 'task' }));
           }, remaining);
         }),
       ]);
@@ -263,6 +269,7 @@ async function run(input, parameters, io) {
       args.value = object(step.value) && Object.hasOwn(step.value, 'parameter') ? values[step.value.parameter] : step.value;
     }
     if (step.key) args.value = step.key;
+    mutationAttempted = true;
     await bounded(() => io.act(args));
     await check();
   }
@@ -293,17 +300,13 @@ async function run(input, parameters, io) {
       await check();
       await capture();
     } catch {}
-    const known = [
-      'Ambiguous task selector', 'Task selector missing', 'Condition property unsupported',
-      'Task condition not met', 'Task postcondition not met', TIMEOUT_ERROR,
-      'Task requires a complete accessibility observation',
-      'Password control excluded', 'Operation cancelled', 'Application authorization revoked',
-    ];
+    const failure = errorPayload(error);
+    if (mutationAttempted && !failure.mutationOutcome) failure.mutationOutcome = 'unknown';
     return {
       runId,
       status: 'failed',
       steps: outcomes,
-      error: known.includes(error.message) ? error.message : 'Task operation failed; mutation outcome may be unknown',
+      error: failure,
       ...(finalObservation ? { finalObservation } : {}),
     };
   }

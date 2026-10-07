@@ -3,6 +3,9 @@
 const ACCOUNT_QUEUE_CORE_ASSET = "webview/assets/app-initial-efe028fd535e.js";
 const ACCOUNT_QUEUE_PRESENTATION_ASSET = "webview/assets/app-initial-532d60c9b397.js";
 const ACCOUNT_QUEUE_LIST_ASSET = "webview/assets/queued-message-list-96c634639e8e.js";
+const ACCOUNT_QUEUE_PRESENTATION_PREFIX = "function wen({scope:e,manager:t,appServerVersion:n}){";
+const ACCOUNT_QUEUE_PRESENTATION_MARKER = "/*azrael-account-switch-queue-presentation-v2*/";
+const ACCOUNT_QUEUE_PRESENTATION_PRELUDE = ACCOUNT_QUEUE_PRESENTATION_MARKER + "let __azraelPending=false;const __azraelRefreshAccount=async()=>{let n=await t.sendRequest(`azrael/account`,{action:`list`});if(typeof n?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);if(l)return __azraelPending;if(__azraelPending!==n.state.isSwitching){__azraelPending=n.state.isSwitching;for(let e of a.keys())d(e)}return __azraelPending};";
 
 // New conversations have no thread queue until creation succeeds. Retain the
 // original creation closure while admission is pending, without using old auth.
@@ -68,7 +71,7 @@ function injectAccountSwitchQueue(text, relativePath) {
     ["submissionHost:{needsResume:", "submissionHost:{accountChangePending:async()=>{let t=await e.sendRequest(`azrael/account`,{action:`list`});if(typeof t?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);return t.state.isSwitching},needsResume:"],
   ]);
   if (relativePath === ACCOUNT_QUEUE_PRESENTATION_ASSET) return apply(text, "presentation", [
-    ["function wen({scope:e,manager:t,appServerVersion:n}){", "function wen({scope:e,manager:t,appServerVersion:n}){$MARKERlet __azraelPending=false;const __azraelRefreshAccount=async()=>{let n=await t.sendRequest(`azrael/account`,{action:`list`});if(typeof n?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);if(l)return __azraelPending;if(__azraelPending!==n.state.isSwitching){__azraelPending=n.state.isSwitching;for(let e of a.keys())d(e)}return __azraelPending};"],
+    [ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_PREFIX + ACCOUNT_QUEUE_PRESENTATION_PRELUDE],
     ["canSendNow:!i};if(o)", "canSendNow:!i,...__azraelPending?{submission:{status:`queued`,accountChangePending:true}}:{}};if(o)"],
     ["v=async(e,n,a,o,s,c)=>{let h=await g(e)", "v=async(e,n,a,o,s,c)=>{await __azraelRefreshAccount();let h=await g(e)"],
     ["dispose(){l=!0,x(),h?.(),a.clear()", "dispose(){l=!0,__azraelAccountSubscription(),x(),h?.(),a.clear()"],
@@ -85,4 +88,4 @@ function injectAccountSwitchQueue(text, relativePath) {
   return { text, count: 0 };
 }
 
-module.exports = { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue };
+module.exports = { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE, injectAccountSwitchQueue };

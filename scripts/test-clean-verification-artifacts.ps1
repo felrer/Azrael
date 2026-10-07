@@ -68,25 +68,37 @@ try {
     'preserve me' | Set-Content -LiteralPath $sentinel
     Assert ((Run-Clean $outside).candidates[0].reason -match 'immediate verification child') 'Outside containment not rejected.'
     Assert ((Run-Clean (Join-Path $testRoot 'artifacts/verification')).candidates[0].reason -match 'immediate verification child') 'Verification root selected.'
-    $stage = Join-Path $testRoot ('artifacts/deployments/deploy-interrupted/package/stage-' + [guid]::NewGuid().ToString('N'))
-    New-Item -ItemType Directory -Path $stage -Force | Out-Null
-    Assert ((Run-Clean $stage).candidates[0].reason -match 'immediate verification child') 'Package stage allowed without explicit diagnosis.'
-    $proc = Start-Reference $stage
-    try {
+    foreach ($ownerPrefix in @('deploy', 'manual')) {
+        $stage = Join-Path $testRoot ("artifacts/deployments/${ownerPrefix}-interrupted/package/stage-" + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $stage -Force | Out-Null
+        Assert ((Run-Clean $stage).candidates[0].reason -match 'immediate verification child') 'Package stage allowed without explicit diagnosis.'
+        $proc = Start-Reference $stage
+        try {
+            $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $stage -IncludeDiagnosedFixtures -Apply
+            Assert ($diagnosed.candidates[0].reason -match 'Active command' -and (Test-Path -LiteralPath $stage)) 'Active package stage removed.'
+        } finally { if (-not $proc.HasExited) { $proc.Kill($true) }; $proc.WaitForExit(); $proc.Dispose() }
         $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $stage -IncludeDiagnosedFixtures -Apply
-        Assert ($diagnosed.candidates[0].reason -match 'Active command' -and (Test-Path -LiteralPath $stage)) 'Active package stage removed.'
-    } finally { if (-not $proc.HasExited) { $proc.Kill($true) }; $proc.WaitForExit(); $proc.Dispose() }
-    $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $stage -IncludeDiagnosedFixtures -Apply
-    Assert ($diagnosed.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $stage)) 'Diagnosed package stage not removed.'
-    $stage = Join-Path $testRoot ('artifacts/deployments/deploy-installed/package/stage-' + [guid]::NewGuid().ToString('N'))
-    New-Item -ItemType Directory -Path $stage -Force | Out-Null
-    Write-Json (Join-Path (Split-Path (Split-Path $stage -Parent) -Parent) 'deployment.json') @{hostInstalled=$true}
-    $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $stage -IncludeDiagnosedFixtures -Apply
-    Assert ($diagnosed.candidates[0].reason -match 'Installed deployment' -and (Test-Path -LiteralPath $stage)) 'Installed package stage removed.'
-    $badStage = Join-Path (Split-Path $stage -Parent) 'stage-invalid'
-    New-Item -ItemType Directory -Path $badStage -Force | Out-Null
-    $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $badStage -IncludeDiagnosedFixtures -Apply
-    Assert ($diagnosed.candidates[0].reason -match 'immediate verification child') 'Malformed package stage selected.'
+        Assert ($diagnosed.candidates[0].status -eq 'deleted' -and -not (Test-Path -LiteralPath $stage)) 'Diagnosed package stage not removed.'
+        $stage = Join-Path $testRoot ("artifacts/deployments/${ownerPrefix}-installed/package/stage-" + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $stage -Force | Out-Null
+        Write-Json (Join-Path (Split-Path (Split-Path $stage -Parent) -Parent) 'deployment.json') @{hostInstalled=$true}
+        $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $stage -IncludeDiagnosedFixtures -Apply
+        Assert ($diagnosed.candidates[0].reason -match 'Installed deployment' -and (Test-Path -LiteralPath $stage)) 'Installed package stage removed.'
+        $badStage = Join-Path (Split-Path $stage -Parent) 'stage-invalid'
+        New-Item -ItemType Directory -Path $badStage -Force | Out-Null
+        $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $badStage -IncludeDiagnosedFixtures -Apply
+        Assert ($diagnosed.candidates[0].reason -match 'immediate verification child') 'Malformed package stage selected.'
+    }
+    foreach ($invalidOwner in @('manual-', 'unowned-stage')) {
+        $invalidStage = Join-Path $testRoot ('artifacts/deployments/' + $invalidOwner + '/package/stage-' + [guid]::NewGuid().ToString('N'))
+        New-Item -ItemType Directory -Path $invalidStage -Force | Out-Null
+        $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $invalidStage -IncludeDiagnosedFixtures -Apply
+        Assert ($diagnosed.candidates[0].reason -match 'immediate verification child' -and (Test-Path -LiteralPath $invalidStage)) 'Malformed deployment owner selected.'
+    }
+    $outsideManualStage = Join-Path $testRoot ('outside/deployments/manual-other/package/stage-' + [guid]::NewGuid().ToString('N'))
+    New-Item -ItemType Directory -Path $outsideManualStage -Force | Out-Null
+    $diagnosed = & $cleaner -ProjectRoot $testRoot -FixtureRoot $outsideManualStage -IncludeDiagnosedFixtures -Apply
+    Assert ($diagnosed.candidates[0].reason -match 'immediate verification child' -and (Test-Path -LiteralPath $outsideManualStage)) 'Manual stage outside deployments boundary selected.'
     $fixture = New-Fixture 'nested-junction'
     New-Item -ItemType Junction -Path (Join-Path $fixture 'extensions/outside-link') -Target $outside | Out-Null
     Assert ((Run-Clean $fixture).candidates[0].status -eq 'deleted') 'Nested junction prevented safe fixture removal.'

@@ -107,7 +107,7 @@ test("view validates fresh identities, suppresses duplicates and rolls failed pe
     const listeners = new Map<string, (event: unknown) => void>();
     const sent: unknown[] = [];
     const script = panel.webview.html.match(/<script[^>]*>([\s\S]*)<\/script>/)![1];
-    vm.runInNewContext(script, { HTMLInputElement, acquireVsCodeApi: () => ({ postMessage: (message: unknown) => sent.push(message) }), document: { addEventListener: (name: string, fn: (event: unknown) => void) => listeners.set(name, fn) } });
+    vm.runInNewContext(script, { HTMLInputElement, acquireVsCodeApi: () => ({ postMessage: (message: unknown) => sent.push(message) }), document: { addEventListener: (name: string, fn: (event: unknown) => void) => listeners.set(name, fn), querySelector: () => null } });
     const input = new HTMLInputElement();
     listeners.get("change")!({ target: input });
     assert.equal(input.disabled, true);

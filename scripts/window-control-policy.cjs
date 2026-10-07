@@ -7,7 +7,8 @@ const tasks = require('./window-task-macros.cjs');
 const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
 const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
-const fail = message => { throw new Error(message); };
+const { expectedError, windowError } = require('./window-control-errors.cjs');
+const fail = message => { throw expectedError(message); };
 const plain = value => value && typeof value === 'object' && !Array.isArray(value);
 function keys(value, allowed, required = []) {
   if (!plain(value) || Object.keys(value).some(key => !allowed.includes(key)) || required.some(key => !Object.hasOwn(value, key))) fail('Invalid arguments');
@@ -48,10 +49,11 @@ function createWindowOwner({ backend, authorize, approve, codexHome = process.en
     let result;
     try { result = await backend.request(method, { ...params, window: { ...b.identity } }); }
     catch (error) {
+      if (['act','resize','restore'].includes(method) && !['unsupported_action','state_changed'].includes(error.code)) error.mutationOutcome = 'unknown';
       if (!disposed && bindings.get(thread) === b && b.generation === generation) { b.state = 'paused'; b.observation = null; b.generation++; occupancy.publish(); }
       throw error;
     }
-    await guard(b, thread, generation);
+    try { await guard(b, thread, generation); } catch (error) { if (['act','resize','restore'].includes(method)) error.mutationOutcome = 'unknown'; throw error; }
     let w; try {w = descriptor(result?.window || result);} catch(e) {b.state='paused';b.generation++;b.observation=null;occupancy.publish();throw e;}
     if (!same(b.identity, w)) { b.state = 'paused'; b.generation++; b.observation = null; occupancy.publish(); fail('Selected window identity changed'); }
     if (b.observation && (b.window.widthPx !== w.widthPx || b.window.heightPx !== w.heightPx || b.window.dpi !== w.dpi)) b.observation = null;
@@ -143,6 +145,9 @@ function createWindowOwner({ backend, authorize, approve, codexHome = process.en
     try { return await fn(); } finally { await lock.close(); await fs.unlink(macroPath + '.lock'); }
   }
   async function readMacros() {
+    try { return await readStoredMacros(); } catch (cause) { throw windowError('unclassified', '', { stage: 'storage', cause }); }
+  }
+  async function readStoredMacros() {
     let raw; try { raw = await fs.readFile(macroPath, 'utf8'); } catch (e) { if (e.code === 'ENOENT') return []; throw e; }
     if (raw.length > 1024 * 1024) fail('Macro storage corrupt');
     let parsed; try { parsed = JSON.parse(raw); } catch { fail('Macro storage corrupt'); }

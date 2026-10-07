@@ -62656,14 +62656,14 @@
       "reason": "Expose installed window-control inspection, keyboard and task macro tools through the extension policy"
     },
     "codex-rs/models-manager/models.json": {
-      "adaptedPath": "codex-rs/models-manager/models.json",
-      "adaptedSha256": "cf61261c21499d7597b70239325ddfd7ca735ce215ad9ecd146780df3f04be52",
-      "adaptedSize": 472963,
       "originalPath": "codex-rs/models-manager/models.json",
+      "adaptedPath": "codex-rs/models-manager/models.json",
+      "preservedPath": "codex-rs/models-manager/models.json.upstream",
+      "reason": "Render Azrael harness identity and add the local gpt-6-astra Ultrafast service tier",
       "originalSha256": "f50ec774afd97457f810c22821b1beb36f09c986d83b3fbd2d1c1ea9d1f8562c",
       "originalSize": 472518,
-      "preservedPath": "codex-rs/models-manager/models.json.upstream",
-      "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+      "adaptedSha256": "c74872795dff3d0061d56edc7b88ba4bd3192526ea803ff8e22556206f7b7ebb",
+      "adaptedSize": 473092
     },
     "codex-rs/models-manager/prompt.md": {
       "adaptedPath": "codex-rs/models-manager/prompt.md",
@@ -62694,6 +62694,26 @@
       "originalSize": 21178,
       "preservedPath": "codex-rs/protocol/src/prompts/base_instructions/default.md.upstream",
       "reason": "Render Azrael harness identity without changing stored instructions or model/provider metadata"
+    },
+    "codex-rs/core/tests/suite/model_switching.rs": {
+      "originalPath": "codex-rs/core/tests/suite/model_switching.rs",
+      "adaptedPath": "codex-rs/core/tests/suite/model_switching.rs",
+      "preservedPath": "codex-rs/core/tests/suite/model_switching.rs.upstream",
+      "reason": "Preserve the local Astra Ultrafast routing override and its protocol/core regression tests",
+      "originalSha256": "a830469c312b673650e5373d01782fb4396ba68b5d957429c3abad55dc26a72d",
+      "originalSize": 52428,
+      "adaptedSha256": "a21b07e8096d9f870acc509e94f9060c66176f0a775e311062319de060e1c356",
+      "adaptedSize": 54274
+    },
+    "codex-rs/protocol/src/openai_models.rs": {
+      "originalPath": "codex-rs/protocol/src/openai_models.rs",
+      "adaptedPath": "codex-rs/protocol/src/openai_models.rs",
+      "preservedPath": "codex-rs/protocol/src/openai_models.rs.upstream",
+      "reason": "Preserve the local Astra Ultrafast routing override and its protocol/core regression tests",
+      "originalSha256": "4bd13baed430067272d6f34c23aaa9a640f9c0cd9569532fb75149416341c57b",
+      "originalSize": 78482,
+      "adaptedSha256": "f2eb9bd7b3cad182e075f44f4ee98c0fbe1a3731e3402d09ecaab374dee434d0",
+      "adaptedSize": 79910
     }
   },
   "upstreamIntegration": {

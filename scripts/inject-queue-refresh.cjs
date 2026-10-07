@@ -1,4 +1,5 @@
 "use strict";
+const { ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE } = require("./inject-account-switch-queue.cjs");
 
 const QUEUE_REFRESH_ASSET = "webview/assets/app-initial-532d60c9b397.js";
 // The stable upstream coordinator now implements the invalidation algorithm.
@@ -10,8 +11,19 @@ const NATIVE_QUEUE_REFRESH_ANCHORS = Object.freeze([
   "})().finally(()=>{o.delete(e),s.delete(e)});o.set(e,i),await i}",
 ]);
 function injectQueueRefresh(text) {
+  let nativeText = text;
+  const count = value => text.split(value).length - 1;
+  if (count(ACCOUNT_QUEUE_PRESENTATION_PREFIX) !== 1) throw new Error("Pinned native queue-refresh function prefix must occur exactly once");
+  const markers = count(ACCOUNT_QUEUE_PRESENTATION_MARKER);
+  if (markers !== 0) {
+    const transformedPrefix = ACCOUNT_QUEUE_PRESENTATION_PREFIX + ACCOUNT_QUEUE_PRESENTATION_PRELUDE;
+    if (markers !== 1 || count(ACCOUNT_QUEUE_PRESENTATION_PRELUDE) !== 1 || count(transformedPrefix) !== 1) {
+      throw new Error("Pinned native queue-refresh presentation prelude is malformed or duplicated");
+    }
+    nativeText = text.replace(transformedPrefix, ACCOUNT_QUEUE_PRESENTATION_PREFIX);
+  }
   for (const anchor of NATIVE_QUEUE_REFRESH_ANCHORS) {
-    const found = text.split(anchor).length - 1;
+    const found = nativeText.split(anchor).length - 1;
     if (found !== 1) throw new Error(`Pinned native queue-refresh anchor must occur exactly once: found ${found}`);
   }
   return { text, count: 0, nativeChecks: 1 };

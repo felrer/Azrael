@@ -6,24 +6,25 @@ const net = require('node:net');
 const readline = require('node:readline');
 const { StringDecoder } = require('node:string_decoder');
 const { TOOLS } = require('./window-control-policy.cjs');
+const { windowError, expectedError, errorPayload, fromPayload } = require('./window-control-errors.cjs');
 function parseThreadMetadata(meta) {
   const hasHeader = meta && Object.hasOwn(meta, 'x-codex-turn-metadata');
   let value = meta?.['x-codex-turn-metadata'];
   if (hasHeader) {
-    if (typeof value === 'string') { try { value = JSON.parse(value); } catch { throw new Error('Trusted Codex turn metadata required'); } }
-    if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('Trusted Codex turn metadata required');
+    if (typeof value === 'string') { try { value = JSON.parse(value); } catch { throw expectedError('Trusted Codex turn metadata required'); } }
+    if (!value || typeof value !== 'object' || Array.isArray(value)) throw expectedError('Trusted Codex turn metadata required');
   }
   const threadId = hasHeader ? value.thread_id : meta?.threadId;
-  if (threadId === undefined && !hasHeader) throw new Error('Trusted Codex turn metadata required');
-  if (typeof threadId !== 'string' || !/^(?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|[A-Za-z0-9_-]{32,128})$/.test(threadId)) throw new Error('Invalid trusted thread identifier');
-  if (meta.threadId !== undefined && meta.threadId !== threadId) throw new Error('Conflicting trusted thread identifier');
+  if (threadId === undefined && !hasHeader) throw expectedError('Trusted Codex turn metadata required');
+  if (typeof threadId !== 'string' || !/^(?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}|[A-Za-z0-9_-]{32,128})$/.test(threadId)) throw expectedError('Invalid trusted thread identifier');
+  if (meta.threadId !== undefined && meta.threadId !== threadId) throw expectedError('Conflicting trusted thread identifier');
   return threadId;
 }
 function relayMetadata(meta) {
   parseThreadMetadata(meta);
   const sandboxState = meta?.['codex/sandbox-state-meta'];
   const permissionProfile = sandboxState?.permissionProfile;
-  if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState) || !Object.hasOwn(sandboxState, 'permissionProfile') || !permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || permissionProfile.type !== 'disabled' || Object.keys(permissionProfile).some(key => key !== 'type')) throw new Error('Native Disabled permission profile required');
+  if (!sandboxState || typeof sandboxState !== 'object' || Array.isArray(sandboxState) || !Object.hasOwn(sandboxState, 'permissionProfile') || !permissionProfile || typeof permissionProfile !== 'object' || Array.isArray(permissionProfile) || !Object.hasOwn(permissionProfile, 'type') || permissionProfile.type !== 'disabled' || Object.keys(permissionProfile).some(key => key !== 'type')) throw expectedError('Native Disabled permission profile required');
   const selected = {};
   selected['codex/sandbox-state-meta'] = { permissionProfile: { type: 'disabled' } };
   if (Object.hasOwn(meta, 'threadId')) selected.threadId = meta.threadId;
@@ -32,7 +33,7 @@ function relayMetadata(meta) {
     const trusted = { thread_id: nested.thread_id };
     for (const key of ['turn_id']) {
       if (Object.hasOwn(nested, key)) {
-        if (typeof nested[key] !== 'string' || !nested[key].length || nested[key].length > 256 || /[\x00-\x1f]/.test(nested[key])) throw new Error('Invalid native turn context');
+        if (typeof nested[key] !== 'string' || !nested[key].length || nested[key].length > 256 || /[\x00-\x1f]/.test(nested[key])) throw expectedError('Invalid native turn context');
         trusted[key] = nested[key];
       }
     }
@@ -80,17 +81,27 @@ function toolDefinitions() {
 }
 function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs = 30000 } = {}) {
   return new Promise((resolve, reject) => {
-    const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false;
+    const socket = connect(pipe); const decoder = new StringDecoder('utf8'); let buffer = ''; let receivedBytes = 0; let settled = false; let stage = 'connection';
     const finish = (error, result) => { if (settled) return; settled = true; socket.destroy(); error ? reject(error) : resolve(result); };
-    socket.setTimeout(timeoutMs, () => finish(new Error('Selected-window host timed out')));
-    socket.on('connect', () => socket.write(JSON.stringify(message) + '\n'));
-    socket.on('error', e => finish(e));
-    socket.on('end', () => finish(new Error('Selected-window host closed without response')));
+    const uncertainty = () => stage === 'running' && ['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','resize','run_size_macro','run_task_macro','ui_operation'].includes(message.tool) ? { mutationOutcome: 'unknown' } : {};
+    const timeout = () => windowError(stage === 'approval' ? 'approval_timeout' : 'timeout', stage === 'approval' ? '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.' : stage === 'queued' ? '앞선 Window Use 작업을 기다리다 시간이 초과됐습니다.' : 'Window Use 호스트의 응답 대기 시간이 초과됐습니다.', { stage, ...uncertainty() });
+    socket.setTimeout(timeoutMs, () => finish(timeout()));
+    socket.on('connect', () => { stage = 'queued'; socket.write(JSON.stringify(message) + '\n'); });
+    socket.on('error', e => finish(windowError('connection_error', stage === 'connection' ? 'Window Use 호스트에 연결하지 못했습니다.' : 'Window Use 호스트 연결에 오류가 발생했습니다.', { stage, cause: e, ...uncertainty() })));
+    const closed = () => finish(stage === 'approval' ? timeout() : windowError('connection_error', 'Window Use 호스트 연결이 응답 전에 종료됐습니다.', { stage, ...uncertainty() }));
+    socket.on('end', closed); socket.on('close', closed);
     socket.on('data', data => {
-      receivedBytes += data.length; if (receivedBytes > 32 * 1024 * 1024) return finish(new Error('Host response too large'));
+      receivedBytes += data.length; if (receivedBytes > 32 * 1024 * 1024) return finish(windowError('unclassified', '', { stage }));
       buffer += decoder.write(data);
-      const newline = buffer.indexOf('\n'); if (newline < 0) return;
-      try { const result = JSON.parse(buffer.slice(0, newline)); if (result.error) finish(new Error(typeof result.error === 'string' ? result.error : 'Selected-window operation failed')); else finish(null, result.result); } catch { finish(new Error('Invalid selected-window host response')); }
+      while (!settled) {
+        const newline = buffer.indexOf('\n'); if (newline < 0) return;
+        let result;
+        try { result = JSON.parse(buffer.slice(0, newline)); } catch (cause) { return finish(windowError('unclassified', '', { stage, cause })); }
+        buffer = buffer.slice(newline + 1);
+        if (result?.progress && ['queued', 'running', 'approval'].includes(result.progress.stage)) { stage = result.progress.stage; continue; }
+        if (!result || typeof result !== 'object' || (!Object.hasOwn(result, 'result') && !Object.hasOwn(result, 'error'))) return finish(windowError('unclassified', '', { stage }));
+        if (result.error) finish(fromPayload(result.error)); else finish(null, result.result);
+      }
     });
   });
 }
@@ -99,20 +110,20 @@ function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedi
     // The model cannot choose the session path; only validated native turn metadata can.
     parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId } });
     const trustedMeta = relayMetadata(meta);
-    if (meta !== undefined && parseThreadMetadata(meta) !== threadId) throw new Error('Conflicting trusted thread identifier');
+    if (meta !== undefined && parseThreadMetadata(meta) !== threadId) throw expectedError('Conflicting trusted thread identifier');
     let session;
-    try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw new Error(); session = JSON.parse(raw); } catch { throw new Error('No selected-window session for this thread'); }
-    if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !/^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw new Error('Invalid selected-window session');
+    try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw windowError('unclassified', ''); session = JSON.parse(raw); } catch (cause) { if (cause.code === 'ENOENT') throw windowError('selection_required', 'No selected-window session for this thread', { stage: 'session' }); throw windowError('unclassified', '', { stage: 'session', cause }); }
+    if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !/^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
     return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta });
   };
 }
 function callResult(result) {
-  if (!result || typeof result !== 'object' || Array.isArray(result)) throw new Error('Invalid host result');
+  if (!result || typeof result !== 'object' || Array.isArray(result)) throw expectedError('Invalid host result');
   const occupancy = value => require('./window-control-occupancy.cjs').publicOccupancy(value);
   function observation(value) {
     const projected = {};
     if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
-    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified']) if(Object.hasOwn(value,key)) projected[key] = value[key];
+    for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated']) if(Object.hasOwn(value,key)) projected[key] = value[key];
     if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
     if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(k === 'value' && e.isPassword)).map(k => [k,e[k]])));
     return projected;
@@ -126,7 +137,7 @@ function callResult(result) {
   if(result.finalObservation) text.finalObservation = observation(result.finalObservation);
   const content = [{type:'text',text:JSON.stringify(text)}];
   const image = result.image || result.finalObservation?.image;
-  if(image) {if(image.mimeType !== 'image/png' || typeof image.data !== 'string') throw new Error('Invalid capture image');content.push({type:'image',mimeType:'image/png',data:image.data});}
+  if(image) {if(image.mimeType !== 'image/png' || typeof image.data !== 'string') throw expectedError('Invalid capture image');content.push({type:'image',mimeType:'image/png',data:image.data});}
   return {content,isError:result.status === 'failed'};
 }
 function createProtocol({ relay = createRelay() } = {}) {
@@ -140,14 +151,14 @@ function createProtocol({ relay = createRelay() } = {}) {
     else if (message.method === 'tools/list') result = { tools: toolDefinitions() };
     else if (message.method === 'tools/call') {
       try {
-        const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw new Error('Unsupported selected-window tool');
+        const params = message.params; if (!params || (!TOOLS.includes(params.name) && params.name !== 'ui_operation')) throw expectedError('Unsupported selected-window tool');
         const args = params.arguments || {}; const definition = toolDefinitions().find(t => t.name === params.name);
-        if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw new Error('Invalid tool arguments');
-        if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw new Error('Invalid prepared UI request token');
+        if (!args || typeof args !== 'object' || Array.isArray(args) || Object.keys(args).some(k => !Object.hasOwn(definition.inputSchema.properties, k)) || definition.inputSchema.required.some(k => !Object.hasOwn(args, k))) throw expectedError('Invalid tool arguments');
+        if (params.name === 'ui_operation' && (typeof args.requestToken !== 'string' || !/^[a-fA-F0-9]{64}$/.test(args.requestToken))) throw expectedError('Invalid prepared UI request token');
         const threadId = parseThreadMetadata(params._meta);
         const trustedMeta = relayMetadata(params._meta);
         result = callResult(await relay(threadId, params.name, args, trustedMeta));
-      } catch (e) { result = { content: [{ type: 'text', text: e.message }], isError: true }; }
+      } catch (e) { result = { content: [{ type: 'text', text: JSON.stringify(errorPayload(e)) }], isError: true }; }
     } else return { jsonrpc: '2.0', id, error: { code: -32601, message: 'Method not found' } };
     return { jsonrpc: '2.0', id, result };
   };

@@ -5,7 +5,8 @@ const path = require("node:path");
 const test = require("node:test");
 const pm = require("node:vm");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
-const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
+const { rewriteJavaScript, transformAsset } = require("./namespace-azrael-host.cjs");
+const { ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE } = require("./inject-account-switch-queue.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ??
   path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), QUEUE_REFRESH_ASSET);
@@ -69,7 +70,22 @@ test("disposal suppresses publication and invalidated retry", async () => {
 
 test("native refresh validation does not modify source and refuses missing or duplicate anchors", () => {
   assert.deepEqual(injectQueueRefresh(patched), { text: patched, count: 0, nativeChecks: 1 });
-  assert.throws(() => injectQueueRefresh("changed host"), /anchor/);
-  assert.throws(() => injectQueueRefresh(original + original), /anchor/);
+  assert.throws(() => injectQueueRefresh("changed host"), /prefix/);
+  assert.throws(() => injectQueueRefresh(original + original), /prefix/);
+});
+
+test("production repeat validates the exact owned presentation prelude and rejects damaged boundaries", () => {
+  const transformed = transformAsset(original, QUEUE_REFRESH_ASSET, filename, ts).text;
+  assert.equal(transformAsset(transformed, QUEUE_REFRESH_ASSET, filename, ts).asset, null);
+  assert.equal(injectQueueRefresh(transformed).text, transformed);
+  for (const damaged of [
+    transformed.replace(ACCOUNT_QUEUE_PRESENTATION_PRELUDE, ACCOUNT_QUEUE_PRESENTATION_MARKER),
+    transformed.replace("let __azraelPending=false", "let __azraelPending=true"),
+    transformed.replace(ACCOUNT_QUEUE_PRESENTATION_MARKER, ""),
+    transformed.replace(ACCOUNT_QUEUE_PRESENTATION_PRELUDE, ACCOUNT_QUEUE_PRESENTATION_PRELUDE.repeat(2)),
+    transformed + ACCOUNT_QUEUE_PRESENTATION_PREFIX,
+    transformed + ACCOUNT_QUEUE_PRESENTATION_MARKER,
+    transformed.replace("o.delete(e),s.delete(e)", "o.delete(e)"),
+  ]) assert.throws(() => injectQueueRefresh(damaged), /queue-refresh/);
 });
 

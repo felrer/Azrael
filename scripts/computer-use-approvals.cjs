@@ -41,7 +41,7 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
       const state = read(), policy = settingsOwner.getSettings();
       Object.defineProperty(state, "policy", { value: policy });
       for (const grants of sessions.values()) for (const [key, grant] of grants) if (grant.generation !== appGeneration(state, key) || (mode === "computer" && grant.policyGeneration !== generation(policy))) grants.delete(key);
-      for (const p of pending.values()) if (p.generation !== appGeneration(state, p.key) || p.policyGeneration !== generation(policy)) p.cancelled = true;
+      for (const p of pending.values()) if (p.generation !== appGeneration(state, p.key) || p.policyGeneration !== generation(policy)) { if (!p.cancelled && mode === "window") p.cancelCode = "permission_denied"; p.cancelled = true; }
       return state;
     } catch (e) { reset(); throw e; }
   }
@@ -62,7 +62,7 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
   }
   function stop(threadId) {
     sessions.delete(threadId);
-    for (const p of pending.values()) if (p.threadId === threadId) p.cancelled = true;
+    for (const p of pending.values()) if (p.threadId === threadId) { p.cancelled = true; p.cancelCode = "cancelled"; }
   }
   function reset() { sessions.clear(); for (const p of pending.values()) p.cancelled = true; }
   function outgoing(method, params) {
@@ -71,6 +71,8 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
   function notification(method, params) {
     if (method === "thread/closed") stop(params?.threadId);
   }
+  // Window-only metadata preserves Computer Use response semantics.
+  const cancelled = (code = "cancelled") => mode === "window" ? { action: "cancel", content: { windowError: { code, message: code === "unclassified" ? "미분류된 오류" : code === "permission_denied" ? "Application authorization revoked" : "Application approval cancelled" } } } : { action: "cancel" };
   function receive(request, send, broadcast) {
     const params = request.params, meta = params?._meta;
     if (request.method !== "mcpServer/elicitation/request" || params?.serverName !== server || meta?.connector_id !== connector) return broadcast(request);
@@ -80,7 +82,7 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
       key = keyForApp(meta.tool_params?.app ?? meta.tool_params?.executable); state = fresh();
       if (mode === "computer" && !state.policy.computerUseEnabled) throw new Error("Computer Use is disabled");
     }
-    catch { return send(request.id, { action: "cancel" }); }
+    catch { return send(request.id, cancelled("unclassified")); }
     if (mode === "window" && state.policy.windowUseAllowAll) return send(request.id, { action: "accept", content: { source: "window-use-allow-all-state", scope: "global" } });
     const offered = Array.isArray(meta.persist) ? meta.persist.filter(p => p === "session" || p === "always") : [];
     const threadId = typeof params.threadId === "string" && params.threadId ? params.threadId : null;
@@ -94,16 +96,16 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
   function response(id, result) {
     const p = pending.get(JSON.stringify(id));
     if (!p) return result;
-    try { fresh(); } catch { p.cancelled = true; }
+    try { fresh(); } catch { pending.delete(JSON.stringify(id)); return cancelled("unclassified"); }
     pending.delete(JSON.stringify(id));
-    if (p.cancelled) return { action: "cancel" };
+    if (p.cancelled) return cancelled(p.cancelCode);
     if (result?.action !== "accept") return result;
     const persist = result.content?.persist ?? result._meta?.persist;
     if (!p.offered.includes(persist)) return result;
     try {
       if (persist === "always") write(state => { if (generation(settingsOwner.getSettings()) !== p.policyGeneration || appGeneration(state, p.key) !== p.generation) throw new Error("App approval revoked during request"); state.apps = state.apps.filter(a => a.bundleIdentifier !== p.key); state.apps.push({ bundleIdentifier: p.key, displayName: p.displayName }); });
       if (persist === "session" && p.threadId) { if (!sessions.has(p.threadId)) sessions.set(p.threadId, new Map()); sessions.get(p.threadId).set(p.key, { displayName: p.displayName, generation: p.generation, policyGeneration: p.policyGeneration }); }
-    } catch { reset(); return { action: "cancel" }; }
+    } catch { reset(); return cancelled("unclassified"); }
     return result;
   }
   function getAppApprovals() {

@@ -513,7 +513,7 @@ def snapshot(root):
     names = sorted(set(modes) | {os.fsdecode(item) for item in
                    git(root, "ls-files", "--others", "--exclude-standard", "-z").split(b"\0") if item})
     reserved = ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY,
-                *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS))
+                *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS | ULTRAFAST_FIX_PATHS))
     if any(name in names for name in reserved):
         raise ValueError("Source already owns reserved import metadata path")
     files = {name: describe(safe_path(root, name), modes.get(name)) for name in names}
@@ -654,7 +654,167 @@ def replay_fix_bytes(original):
     raise ValueError("Replay compile-fix anchors are missing, partial or ambiguous")
 
 
+ULTRAFAST_SOURCE_RECIPES = {'codex-rs/core/tests/suite/model_switching.rs': [('    let body = request.body_json();\r\n'
+                                                   '    assert_eq!(body["service_tier"].as_str(), '
+                                                   'Some("flex"));\r\n'
+                                                   '\r\n'
+                                                   '    Ok(())\r\n',
+                                                   '    let body = request.body_json();\r\n'
+                                                   '    assert_eq!(body["service_tier"].as_str(), '
+                                                   'Some("flex"));\r\n'
+                                                   '\r\n'
+                                                   '    Ok(())\r\n'
+                                                   '}\r\n'
+                                                   '\r\n'
+                                                   '#[tokio::test(flavor = "multi_thread", '
+                                                   'worker_threads = 2)]\r\n'
+                                                   'async fn '
+                                                   'ultrafast_service_tier_routes_only_astra_without_catalog_support() '
+                                                   '-> Result<()> {\r\n'
+                                                   '    skip_if_no_network!(Ok(()));\r\n'
+                                                   '\r\n'
+                                                   '    for model_slug in ["gpt-6-astra", '
+                                                   '"gpt-6.1-sol"] {\r\n'
+                                                   '        let server = start_mock_server().await;\r\n'
+                                                   '        let model = test_model_info(\r\n'
+                                                   '            model_slug,\r\n'
+                                                   '            model_slug,\r\n'
+                                                   '            "no advertised service tiers",\r\n'
+                                                   '            default_input_modalities(),\r\n'
+                                                   '        );\r\n'
+                                                   '        let resp_mock = mount_sse_sequence(\r\n'
+                                                   '            &server,\r\n'
+                                                   '            vec![\r\n'
+                                                   '                sse_completed("resp-1"),\r\n'
+                                                   '                sse_completed("resp-2"),\r\n'
+                                                   '                sse_completed("resp-3"),\r\n'
+                                                   '            ],\r\n'
+                                                   '        )\r\n'
+                                                   '        .await;\r\n'
+                                                   '        let mut builder = test_codex()\r\n'
+                                                   '            .with_model(model_slug)\r\n'
+                                                   '            .with_config(move |config| {\r\n'
+                                                   '                config.service_tier = '
+                                                   'Some("ultrafast".to_string());\r\n'
+                                                   '                config.model_catalog = '
+                                                   'Some(ModelsResponse {\r\n'
+                                                   '                    models: vec![model],\r\n'
+                                                   '                });\r\n'
+                                                   '            });\r\n'
+                                                   '        let test = '
+                                                   'builder.build(&server).await?;\r\n'
+                                                   '\r\n'
+                                                   '        test.submit_turn("configured ultrafast '
+                                                   'turn").await?;\r\n'
+                                                   '        '
+                                                   'test.submit_turn_with_service_tier("ultrafast '
+                                                   'turn", Some("ultrafast"))\r\n'
+                                                   '            .await?;\r\n'
+                                                   '        '
+                                                   'test.submit_turn_with_service_tier("standard turn", '
+                                                   '/*service_tier*/ None)\r\n'
+                                                   '            .await?;\r\n'
+                                                   '\r\n'
+                                                   '        let requests = resp_mock.requests();\r\n'
+                                                   '        assert_eq!(requests.len(), 3, "expected '
+                                                   'three model requests");\r\n'
+                                                   '        for request in &requests[..2] {\r\n'
+                                                   '            assert_eq!(\r\n'
+                                                   '                '
+                                                   'request.body_json().get("service_tier").cloned(),\r\n'
+                                                   '                (model_slug == '
+                                                   '"gpt-6-astra").then(|| json!("ultrafast"))\r\n'
+                                                   '            );\r\n'
+                                                   '        }\r\n'
+                                                   '        '
+                                                   'assert_eq!(requests[2].body_json().get("service_tier"), '
+                                                   'None);\r\n'
+                                                   '    }\r\n'
+                                                   '\r\n'
+                                                   '    Ok(())\r\n')],
+ 'codex-rs/protocol/src/openai_models.rs': [('impl ModelInfo {\n'
+                                             '    pub fn supports_service_tier(&self, service_tier: '
+                                             '&str) -> bool {\n'
+                                             '        // Flex is an API request option, even when the '
+                                             'Codex catalog does not advertise it.\n'
+                                             '        service_tier == '
+                                             'ServiceTier::Flex.request_value()\n',
+                                             'impl ModelInfo {\n'
+                                             '    pub fn supports_service_tier(&self, service_tier: '
+                                             '&str) -> bool {\n'
+                                             "        // Account-discovered catalogs can omit Astra's "
+                                             'ultrafast tier. Keep this\n'
+                                             '        // explicit routing option available without '
+                                             'requiring catalog support.\n'
+                                             '        if service_tier == "ultrafast" && self.slug == '
+                                             '"gpt-6-astra" {\n'
+                                             '            return true;\n'
+                                             '        }\n'
+                                             '        // Flex is an API request option, even when the '
+                                             'Codex catalog does not advertise it.\n'
+                                             '        service_tier == '
+                                             'ServiceTier::Flex.request_value()\n'),
+                                            ('\n'
+                                             '    #[test]\n'
+                                             '    fn '
+                                             'service_tier_for_request_filters_unsupported_tiers() {\n'
+                                             '        let model = ModelInfo {\n',
+                                             '\n'
+                                             '    #[test]\n'
+                                             '    fn '
+                                             'service_tier_for_request_preserves_astra_ultrafast_and_advertised_tiers() '
+                                             '{\n'
+                                             '        for slug in [\n'
+                                             '            "gpt-6-astra",\n'
+                                             '            "gpt-6.1-sol",\n'
+                                             '            "gpt-6-luna",\n'
+                                             '            "gpt-6-astra-other",\n'
+                                             '        ] {\n'
+                                             '            for advertised in [false, true] {\n'
+                                             '                let model = ModelInfo {\n'
+                                             '                    slug: slug.to_string(),\n'
+                                             '                    service_tiers: if advertised {\n'
+                                             '                        vec![ModelServiceTier {\n'
+                                             '                            id: "ultrafast".to_string(),\n'
+                                             '                            name: '
+                                             '"Ultrafast".to_string(),\n'
+                                             '                            description: "Ultrafast '
+                                             'processing.".to_string(),\n'
+                                             '                        }]\n'
+                                             '                    } else {\n'
+                                             '                        Vec::new()\n'
+                                             '                    },\n'
+                                             '                    ..test_model(/*spec*/ None)\n'
+                                             '                };\n'
+                                             '\n'
+                                             '                assert_eq!(\n'
+                                             '                    '
+                                             'model.service_tier_for_request(Some("ultrafast".to_string())),\n'
+                                             '                    (slug == "gpt-6-astra" || '
+                                             'advertised).then(|| "ultrafast".to_string()),\n'
+                                             '                    "model={slug}, '
+                                             'advertised={advertised}"\n'
+                                             '                );\n'
+                                             '            }\n'
+                                             '        }\n'
+                                             '    }\n'
+                                             '\n'
+                                             '    #[test]\n'
+                                             '    fn '
+                                             'service_tier_for_request_filters_unsupported_tiers() {\n'
+                                             '        let model = ModelInfo {\n')]}
+ULTRAFAST_FIX_PATHS = set(ULTRAFAST_SOURCE_RECIPES)
+
+
 def known_source_fix(original_path, original):
+    if original_path in ULTRAFAST_FIX_PATHS:
+        adapted = original
+        for old, new in ULTRAFAST_SOURCE_RECIPES[original_path]:
+            old, new = old.encode(), new.encode()
+            if adapted.count(old) != 1 or new in adapted:
+                raise ValueError("Ultrafast routing source anchor is missing, ambiguous or already adapted")
+            adapted = adapted.replace(old, new, 1)
+        return original_path, adapted, "Preserve the local Astra Ultrafast routing override and its protocol/core regression tests"
     if original_path == TOOL_POLICY_FIX_PATH:
         newline = b"\r\n" if b"\r\n" in original else b"\n"
         anchor = b'                "run_size_macro",' + newline
@@ -671,6 +831,24 @@ def known_source_fix(original_path, original):
                 adapted = adapted.replace(intro.encode(), AZRAEL_IDENTITY.encode())
             if adapted == original:
                 raise ValueError("Harness identity template has no known introduction")
+            if original_path == "codex-rs/models-manager/models.json":
+                models = json.loads(original)["models"]
+                matches = [model for model in models if model.get("slug") == "gpt-6-astra"]
+                tier = {"id": "priority", "name": "Fast", "description": "2x speed, increased usage"}
+                if len(matches) != 1 or matches[0].get("service_tiers") != [tier]:
+                    raise ValueError("Ultrafast catalog model or priority tier is missing, ambiguous or already adapted")
+                start_anchor = b'    {' + newline + b'      "slug": "gpt-6-astra",'
+                if adapted.count(start_anchor) != 1:
+                    raise ValueError("Ultrafast catalog model section is missing or ambiguous")
+                start = adapted.index(start_anchor)
+                end = adapted.index(newline + b'    }', start) + len(newline + b'    }')
+                section = adapted[start:end]
+                anchor = b'      "service_tiers": [\n        {\n          "id": "priority",\n          "name": "Fast",\n          "description": "2x speed, increased usage"\n        }\n      ],'.replace(b"\n", newline)
+                addition = b'      "service_tiers": [\n        {\n          "id": "priority",\n          "name": "Fast",\n          "description": "2x speed, increased usage"\n        },\n        {\n          "id": "ultrafast",\n          "name": "Ultrafast",\n          "description": "Ultrafast processing"\n        }\n      ],'.replace(b"\n", newline)
+                if section.count(anchor) != 1:
+                    raise ValueError("Ultrafast catalog priority tier anchor is missing or ambiguous")
+                adapted = adapted[:start] + section.replace(anchor, addition, 1) + adapted[end:]
+                return original_path, adapted, "Render Azrael harness identity and add the local gpt-6-astra Ultrafast service tier"
         elif original_path == IDENTITY_LIB_PATH:
             if b"fn with_azrael_harness_identity" in original:
                 raise ValueError("Harness identity helper already exists")
@@ -776,7 +954,7 @@ def apply_state_source_fixes(destination, files):
 def apply_identity_source_fixes(destination, files):
     records = {}
     plans = []
-    for original_path in sorted((IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS) & files.keys()):
+    for original_path in sorted((IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS | ULTRAFAST_FIX_PATHS) & files.keys()):
         entry = files[original_path]
         if entry["kind"] == "missing":
             continue
@@ -811,7 +989,7 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
             actual.add((Path(directory) / name).relative_to(destination).as_posix())
     expected = {name for name, entry in files.items() if entry["kind"] != "missing"}
     if source_fixes is not None:
-        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS):
+        if not isinstance(source_fixes, dict) or not source_fixes or not set(source_fixes).issubset({REPLAY_PATH} | STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS | ULTRAFAST_FIX_PATHS):
             raise ValueError("Malformed source fixes: only the fixed replay/state/identity/tool-policy corrections are supported")
         state_keys = set(source_fixes) & STATE_FIX_PATHS
         if state_keys and state_keys != STATE_FIX_PATHS:
@@ -884,7 +1062,7 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
         if not isinstance(name, str) or not name or "\\" in name or ":" in name or PurePosixPath(name).as_posix() != name:
             raise ValueError("Imported source receipt has a malformed path")
         safe_path(destination, name)
-        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
+        if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS | ULTRAFAST_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
             raise ValueError(f"Imported inventory claims metadata or build cache: {name}")
         if not isinstance(entry, dict) or entry.get("kind") not in ("missing", "file", "symlink", "git-symlink-placeholder"):
             raise ValueError(f"Malformed imported inventory entry: {name}")

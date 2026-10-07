@@ -58,7 +58,7 @@ async function main() {
   assert.throws(()=>tasks.definition(task(Array(33).fill({action:'capture'}))),/32/);
   for(const [flag,message] of [['duplicate','Ambiguous'],['missing','missing'],['unsupported','unsupported']]) {
    duplicate=flag==='duplicate';missing=flag==='missing';unsupported=flag==='unsupported';
-   const r=await run(task(flag === 'missing' ? [{action:'invoke',selector}] : [{action:'assert',condition:condition('value','submitted')}]));assert.equal(r.status,'failed');assert.match(r.error,new RegExp(message));
+   const r=await run(task(flag === 'missing' ? [{action:'invoke',selector}] : [{action:'assert',condition:condition('value','submitted')}]));assert.equal(r.status,'failed');assert.match(r.error.message,new RegExp(message));
   }
   duplicate=missing=unsupported=false;
   elementsTruncated=true;
@@ -71,23 +71,23 @@ async function main() {
   ];
   for (const partialDefinition of partialDefinitions) {
    const partial=await run(partialDefinition);
-   assert.equal(partial.status,'failed');assert.equal(partial.error,'Task requires a complete accessibility observation');
+   assert.equal(partial.status,'failed');assert.equal(partial.error.message,'Task requires a complete accessibility observation');
    assert.equal(partial.finalObservation.elementsTruncated,true);assert.equal(actions.length,beforePartialActions);
   }
   missing=true;
   const incompleteMissing=await run(task([{action:'assert',condition:condition('exists',false)}]));
-  assert.equal(incompleteMissing.status,'failed');assert.equal(incompleteMissing.error,'Task requires a complete accessibility observation');assert.equal(actions.length,beforePartialActions);
+  assert.equal(incompleteMissing.status,'failed');assert.equal(incompleteMissing.error.message,'Task requires a complete accessibility observation');assert.equal(actions.length,beforePartialActions);
   missing=false;
   const partialCaptureOnly=await run(task([{action:'capture'}]));
   assert.equal(partialCaptureOnly.status,'completed');assert.equal(partialCaptureOnly.finalObservation.elementsTruncated,true);assert.equal(actions.length,beforePartialActions);
   elementsTruncated=false;
-  const badKey=await run(task([{action:'press_key',selector,key:'Tab',postcondition:condition('value','unexpected')} ]));assert.equal(badKey.status,'failed');assert.match(badKey.error,/postcondition/);
+  const badKey=await run(task([{action:'press_key',selector,key:'Tab',postcondition:condition('value','unexpected')} ]));assert.equal(badKey.status,'failed');assert.match(badKey.error.message,/postcondition/);
   const beforeWaitCaptures=captures;onInspect=()=>{if(inspectCount%3===0)value='ready';};value='pending';
   const waited=await run(task([{action:'wait_for',condition:condition('value','ready'),timeoutMs:1000}]));assert.equal(waited.status,'completed');assert.equal(captures-beforeWaitCaptures,1);onInspect=null;
-  const timeout=await run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:0}]));assert.equal(timeout.status,'failed');assert.match(timeout.error,/condition/);
+  const timeout=await run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:0}]));assert.equal(timeout.status,'failed');assert.match(timeout.error.message,/condition/);
   let signal;const started=new Promise(r=>signal=r);onInspect=()=>signal();value='pending';
-  const cancelled=run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));await started;owner.stop('t');const cancellation=await cancelled;assert.equal(cancellation.status,'failed');assert.match(cancellation.error,/cancelled/);onInspect=null;
-  await bind();onInspect=()=>{granted=false;};const revoked=await run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));assert.match(revoked.error,/revoked/);onInspect=null;granted=true;
+  const cancelled=run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));await started;owner.stop('t');const cancellation=await cancelled;assert.equal(cancellation.status,'failed');assert.match(cancellation.error.message,/cancelled/);onInspect=null;
+  await bind();onInspect=()=>{granted=false;};const revoked=await run(task([{action:'wait_for',condition:condition('value','never'),timeoutMs:1000},{action:'invoke',selector}]));assert.match(revoked.error.message,/revoked/);onInspect=null;granted=true;
   await bind();throwing=true;const beforeFailure=actions.length;const failed=await run(task([{action:'set_value',selector,value:'SECRET'},{action:'invoke',selector}]));assert.equal(actions.length-beforeFailure,1);assert.equal(failed.status,'failed');assert.ok(!JSON.stringify(failed).includes('SECRET'));assert.equal(owner.peek('t').state,'paused');throwing=false;
   await bind();let release;pendingApproval=new Promise(r=>release=r);let approveSignal;const reached=new Promise(r=>approveSignal=r);const previous=backend.request;backend.request=async(method,p)=>{if(method==='listWindows' && pendingApproval) approveSignal();return previous(method,p);};
   const candidate=(await owner.call('t','list_windows',{})).candidates[0];const selecting=owner.call('t','select_window',{candidateId:candidate.candidateId});await reached;owner.stop('t');release();await assert.rejects(selecting,/cancelled|Stale/);pendingApproval=null;
@@ -105,14 +105,14 @@ async function main() {
   assert.equal((await store.read()).revision,2);
   const exhausted=JSON.parse(validStored);exhausted.revision=Number.MAX_SAFE_INTEGER;
   const exhaustedRaw=JSON.stringify(exhausted);await fs.writeFile(store.file,exhaustedRaw);
-  await assert.rejects(store.save(def),/revision exhausted/);
+  await assert.rejects(store.save(def),e => e.code === 'unclassified' && e.message === '미분류된 오류');
   assert.equal(await fs.readFile(store.file,'utf8'),exhaustedRaw);
   await fs.writeFile(store.file,validStored);
   let regressionCaptures=0,regressionActions=0;
   const regressionObservation={observationId:'regression',elementsTruncated:false,elements:[{id:'panel',name:'Panel',controlType:'Pane'},{id:'query',name:'Query',automationId:'query',controlType:'Edit',parentId:'panel',value:'ready'}]};
   const regressionIo={guard:async()=>{},inspect:async()=>regressionObservation,act:async()=>{regressionActions++;throw new Error('Unknown mutation');},capture:async()=>{regressionCaptures++;if(regressionCaptures>1)throw new Error('Capture unavailable');return {...regressionObservation,image:{mimeType:'image/png',data:'old-image'}};}};
   const staleImageResult=await tasks.run(task([{action:'capture'},{action:'invoke',selector}]),{},regressionIo);
-  assert.equal(staleImageResult.status,'failed');assert.equal(regressionActions,1);assert.equal(regressionCaptures,2);assert.equal(staleImageResult.finalObservation,undefined);
+  assert.equal(staleImageResult.status,'failed');assert.equal(regressionActions,1);assert.equal(regressionCaptures,2);assert.equal(staleImageResult.finalObservation,undefined);assert.equal(staleImageResult.error.code,'unclassified');assert.equal(staleImageResult.error.message,'미분류된 오류');assert.equal(staleImageResult.error.mutationOutcome,'unknown');
   regressionCaptures=0;
   const captureOnlyResult=await tasks.run(task([{action:'capture'},{action:'assert',condition:condition('value','ready')}]),{},regressionIo);
   assert.equal(captureOnlyResult.status,'completed');assert.equal(regressionCaptures,1);
@@ -120,7 +120,7 @@ async function main() {
   const afterMutation=await tasks.run(task([{action:'capture'},{action:'invoke',selector}]),{}, {...regressionIo,act:async()=>{},capture:async()=>{regressionCaptures++;return regressionObservation;}});
   assert.equal(afterMutation.status,'completed');assert.equal(regressionCaptures,2);
   const realNow=Date.now;let clock=realNow();let cancelCount=0,deadlineActions=0,advanced=false;
-  try {Date.now=()=>clock;const deadlineResult=await tasks.run(task([{action:'invoke',selector}]),{}, {guard:async()=>{if(cancelCount) throw new Error('Operation cancelled');if(!advanced){clock+=19995;advanced=true;}},inspect:async()=>new Promise(()=>{}),capture:async()=>new Promise(()=>{}),act:async()=>{deadlineActions++;},cancel:()=>{cancelCount++;}});assert.equal(deadlineResult.status,'failed');assert.match(deadlineResult.error,/time limit/);assert.ok(cancelCount>0);assert.equal(deadlineActions,0);} finally {Date.now=realNow;}
+  try {Date.now=()=>clock;const deadlineResult=await tasks.run(task([{action:'invoke',selector}]),{}, {guard:async()=>{if(cancelCount) throw new Error('Operation cancelled');if(!advanced){clock+=19995;advanced=true;}},inspect:async()=>new Promise(()=>{}),capture:async()=>new Promise(()=>{}),act:async()=>{deadlineActions++;},cancel:()=>{cancelCount++;}});assert.equal(deadlineResult.status,'failed');assert.match(deadlineResult.error.message,/time limit/);assert.ok(cancelCount>0);assert.equal(deadlineActions,0);} finally {Date.now=realNow;}
   console.log('Window task macros: discovery, exact identity, selector/state, snapshots/revisions, privacy, waits, cancellation/revocation and no-replay checks passed');
  } finally {owner.dispose();await fs.rm(home,{recursive:true,force:true});}
 }

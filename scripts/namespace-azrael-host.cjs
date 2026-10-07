@@ -429,7 +429,7 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
-    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
+    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs",
@@ -458,6 +458,7 @@ const ASSET_RULE_PATHS = {
   "window-control-host.cjs": ["out/extension.js"],
   "window-control-backend.cjs": ["out/extension.js"],
   "window-control-policy.cjs": ["out/extension.js"],
+  "window-control-errors.cjs": ["out/extension.js"],
   "window-control-occupancy.cjs": ["out/extension.js"],
   "window-task-macros.cjs": ["out/extension.js"],
   "inject-recovery.cjs": ["out/extension.js"],
