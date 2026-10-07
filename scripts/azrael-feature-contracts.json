@@ -275,6 +275,28 @@
       ]
     },
     {
+      "id": "ui.auto-review",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-auto-review.cjs"
+      ],
+      "contract": "docs/architecture/auto-review.md",
+      "checks": [
+        {
+          "id": "ui.auto-review.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-auto-review.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "autoReviewEdits"
+      ]
+    },
+    {
       "id": "ui.ui-cleanup",
       "area": "ui",
       "owners": [

@@ -41,7 +41,7 @@ Use [Work documents](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harne
 모든 작업 계획 문서는 위 외부 경로에 저장한다. 저장소 내부에는 작업 계획 파일이나
 `docs/implementation/` 대체 디렉터리를 만들지 않는다.
 
-경로 확인, 파일 할당 및 작성 절차는 활성화된 `planning` 스킬을 따른다. 외부 경로를 사용할 수
+경로 확인, 파일 할당 및 작성 절차는 활성화된 `development-workflow` 스킬을 따른다. 외부 경로를 사용할 수
 없으면 저장소나 다른 위치로 대체하지 말고 실패 원인을 보고한다.
 
 설계·아키텍처·운영 문서는 기존 `docs/` 분류에 유지한다.

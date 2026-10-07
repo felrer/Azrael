@@ -672,6 +672,57 @@ async fn flex_service_tier_is_applied_to_http_turn() -> Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn ultrafast_service_tier_routes_only_astra_without_catalog_support() -> Result<()> {
+    skip_if_no_network!(Ok(()));
+
+    for model_slug in ["gpt-6-astra", "gpt-6.1-sol"] {
+        let server = start_mock_server().await;
+        let model = test_model_info(
+            model_slug,
+            model_slug,
+            "no advertised service tiers",
+            default_input_modalities(),
+        );
+        let resp_mock = mount_sse_sequence(
+            &server,
+            vec![
+                sse_completed("resp-1"),
+                sse_completed("resp-2"),
+                sse_completed("resp-3"),
+            ],
+        )
+        .await;
+        let mut builder = test_codex()
+            .with_model(model_slug)
+            .with_config(move |config| {
+                config.service_tier = Some("ultrafast".to_string());
+                config.model_catalog = Some(ModelsResponse {
+                    models: vec![model],
+                });
+            });
+        let test = builder.build(&server).await?;
+
+        test.submit_turn("configured ultrafast turn").await?;
+        test.submit_turn_with_service_tier("ultrafast turn", Some("ultrafast"))
+            .await?;
+        test.submit_turn_with_service_tier("standard turn", /*service_tier*/ None)
+            .await?;
+
+        let requests = resp_mock.requests();
+        assert_eq!(requests.len(), 3, "expected three model requests");
+        for request in &requests[..2] {
+            assert_eq!(
+                request.body_json().get("service_tier").cloned(),
+                (model_slug == "gpt-6-astra").then(|| json!("ultrafast"))
+            );
+        }
+        assert_eq!(requests[2].body_json().get("service_tier"), None);
+    }
+
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn unsupported_service_tier_is_omitted_from_http_turn() -> Result<()> {
     skip_if_no_network!(Ok(()));
 

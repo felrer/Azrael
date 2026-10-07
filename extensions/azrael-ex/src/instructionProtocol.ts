@@ -1,4 +1,5 @@
-export interface InstructionVersion { version: string; compatible: boolean; prerelease: boolean; notes: string }
+export type InstructionUiText = string | { en: string; ko: string };
+export interface InstructionVersion { version: string; compatible: boolean; prerelease: boolean; notes: InstructionUiText }
 export interface InstructionComponent { id: string; title: string; kind: string; scope: "home" | "workspace"; default: boolean }
 export interface InstructionDocument { path: string; title: string; kind: string }
 export interface InstructionConflict { target: string; reason: string; current?: string; proposed?: string }
@@ -14,8 +15,8 @@ export interface InstructionUiState {
   documents: InstructionDocument[];
   preview?: { path: string; text: string };
   conflicts: InstructionConflict[];
-  error?: string;
-  message?: string;
+  error?: InstructionUiText;
+  message?: InstructionUiText | readonly InstructionUiText[];
   busy?: string;
 }
 export type InstructionAction = "refresh" | "selectVersion" | "preview" | "download" | "apply" | "pin" | "unpin" | "rollback";

@@ -1,0 +1,207 @@
+{
+  "schemaVersion": 1,
+  "sourceKind": "installed-skills",
+  "sourceDescription": "Active Azrael skill installation selected by the user; paths are relative to the installed skills directory.",
+  "files": [
+    {
+      "path": "skills/development-workflow/references/task-artifacts.md",
+      "source": "development-workflow/references/task-artifacts.md",
+      "original": {
+        "size": 3647,
+        "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4"
+      },
+      "size": 3647,
+      "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4",
+      "adaptations": []
+    },
+    {
+      "path": "skills/development-workflow/scripts/new_task_plan.py",
+      "source": "development-workflow/scripts/new_task_plan.py",
+      "original": {
+        "size": 623,
+        "sha256": "8e3834fac88229c82e1ddf223db6702f0a4a2dad59421ed95abc4475b325b084"
+      },
+      "size": 623,
+      "sha256": "8e3834fac88229c82e1ddf223db6702f0a4a2dad59421ed95abc4475b325b084",
+      "adaptations": []
+    },
+    {
+      "path": "skills/development-workflow/scripts/tests/test_work_artifacts.py",
+      "source": "development-workflow/scripts/tests/test_work_artifacts.py",
+      "original": {
+        "size": 14199,
+        "sha256": "1fbc7b28727197fb2c566fe2a9edcc1bd4a2b8da3db2310b355463a31db8faaf"
+      },
+      "size": 14199,
+      "sha256": "1fbc7b28727197fb2c566fe2a9edcc1bd4a2b8da3db2310b355463a31db8faaf",
+      "adaptations": []
+    },
+    {
+      "path": "skills/development-workflow/scripts/work_artifacts.py",
+      "source": "development-workflow/scripts/work_artifacts.py",
+      "original": {
+        "size": 14203,
+        "sha256": "cd6446cddfd6aac25c5a2075f6276beb1b6c99170339d0ade2ea47ddfeceab87"
+      },
+      "size": 14203,
+      "sha256": "cd6446cddfd6aac25c5a2075f6276beb1b6c99170339d0ade2ea47ddfeceab87",
+      "adaptations": []
+    },
+    {
+      "path": "skills/development-workflow/SKILL.md",
+      "source": "development-workflow/SKILL.md",
+      "original": {
+        "size": 9579,
+        "sha256": "16b22db7b34483419031dcadbc24c46aa5f454f9c75a6e5926d4f9dd0b7054a7"
+      },
+      "size": 9579,
+      "sha256": "16b22db7b34483419031dcadbc24c46aa5f454f9c75a6e5926d4f9dd0b7054a7",
+      "adaptations": []
+    },
+    {
+      "path": "skills/design-collaboration/SKILL.md",
+      "source": "design-collaboration/SKILL.md",
+      "original": {
+        "size": 12919,
+        "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c"
+      },
+      "size": 12919,
+      "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c",
+      "adaptations": []
+    },
+    {
+      "path": "skills/design-documentation/SKILL.md",
+      "source": "design-documentation/SKILL.md",
+      "original": {
+        "size": 6609,
+        "sha256": "1317c2ece87ed4c862933e3d826163565330b2a49e9ebb920002491ed5603a68"
+      },
+      "size": 6581,
+      "sha256": "ff89dbf478d89a418a04b4062cd54cc49b375f5eaa2886f236c450ab5e88174a",
+      "adaptations": [
+        "Normalize CRLF line endings to LF for repository text validation."
+      ]
+    },
+    {
+      "path": "skills/implementation/SKILL.md",
+      "source": "implementation/SKILL.md",
+      "original": {
+        "size": 11931,
+        "sha256": "0a5f2880c6d481fe8e4cefe4c331c0ab4daa4e616bf05853654af634e9d1da32"
+      },
+      "size": 11931,
+      "sha256": "0a5f2880c6d481fe8e4cefe4c331c0ab4daa4e616bf05853654af634e9d1da32",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/playbooks/app-logging.md",
+      "source": "project-bootstrap/assets/playbooks/app-logging.md",
+      "original": {
+        "size": 4951,
+        "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343"
+      },
+      "size": 4951,
+      "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/AGENTS.md",
+      "source": "project-bootstrap/assets/project-template/AGENTS.md",
+      "original": {
+        "size": 978,
+        "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5"
+      },
+      "size": 978,
+      "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/architecture/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/architecture/README.md",
+      "original": {
+        "size": 2757,
+        "sha256": "3183b85f923ef780aa03e9059bccb910f0ce2840c06df3c8473afad82dbea1e4"
+      },
+      "size": 2757,
+      "sha256": "3183b85f923ef780aa03e9059bccb910f0ce2840c06df3c8473afad82dbea1e4",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/maps/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/maps/README.md",
+      "original": {
+        "size": 814,
+        "sha256": "5d2eaa365a7e690b2b86f0b04411445242e03e227ebcf5fc622db4691cdc756c"
+      },
+      "size": 814,
+      "sha256": "5d2eaa365a7e690b2b86f0b04411445242e03e227ebcf5fc622db4691cdc756c",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/ops/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/ops/README.md",
+      "original": {
+        "size": 890,
+        "sha256": "4a2eb9f4fa22f654cce8313e054e9c22bf5bf4ef9f38015ecdbe7ba87e4cdee0"
+      },
+      "size": 890,
+      "sha256": "4a2eb9f4fa22f654cce8313e054e9c22bf5bf4ef9f38015ecdbe7ba87e4cdee0",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/playbooks/README.md",
+      "original": {
+        "size": 2964,
+        "sha256": "c6fa116684b68512544a6a67f82dedaaecdf23d4bac65ba5cd29b81ff7581f0d"
+      },
+      "size": 2939,
+      "sha256": "628a98b2001cd32c445dcbe75e47a36e295dafedb91d3063fb0e14f87e987add",
+      "adaptations": [
+        "Normalize CRLF line endings to LF for repository text validation."
+      ]
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/README.md",
+      "original": {
+        "size": 3754,
+        "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae"
+      },
+      "size": 3754,
+      "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae",
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
+      "source": "project-bootstrap/assets/project-template/docs/work/README.md",
+      "original": {
+        "size": 2424,
+        "sha256": "a6548c62b16935b4923f5f4ae16416c623c4d65498019d0467e867c3b942a478"
+      },
+      "size": 2399,
+      "sha256": "6a262d74d8a393e98dbe2ae8864252cae7f5baa2e001a2c3ed04566c3672eb25",
+      "adaptations": [
+        "Normalize CRLF line endings to LF for repository text validation."
+      ]
+    },
+    {
+      "path": "skills/project-bootstrap/SKILL.md",
+      "source": "project-bootstrap/SKILL.md",
+      "original": {
+        "size": 8595,
+        "sha256": "bc7824d3e5fa68bd6fb8e9d1f04d16fc223bea2ee31e9152a2f784146a9cb308"
+      },
+      "size": 8487,
+      "sha256": "c609038e52c1bd3eb778541426c5e75ef262bc5e93e3097963c3d4ffb5e3778d",
+      "adaptations": [
+        "Resolve sibling skill links within the distributed skills directory.",
+        "Normalize CRLF line endings to LF for repository text validation."
+      ]
+    }
+  ],
+  "exclusions": [
+    "__pycache__/",
+    "*.pyc"
+  ]
+}

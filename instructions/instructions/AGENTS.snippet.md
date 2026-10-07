@@ -4,10 +4,11 @@
 
 ## Work Entry and Skills (Parent Only)
 
-- Use the installed `planning` skill as the entry point for code changes. Carry forward confirmed requirements and authorization; clarify consequential unknowns before implementation without reopening settled decisions.
-- Follow planning through requirements and code-grounded feasibility in one work plan, relevant design updates with `designing`, implementation, and verification. Do not invent a second plan or a design document merely to satisfy a workflow step.
-- Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code.
-- Keep the three skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
+- Use the installed `development-workflow` skill to lead complex code changes: requirements, scope, investigation, decisions, progress, and final acceptance. Carry forward confirmed requirements, records, and authorization; clarify consequential unknowns without reopening settled decisions.
+- Select `design-collaboration` for unresolved design choices, `design-documentation` for recording agreed design in its owning documents, and `implementation` for execution preparation, implementation, verification, and cleanup. These are cooperating responsibilities, not four mandatory sequential stages. Use existing project design-discussion guidance within the same work; do not invent a second plan, design document, or approval stage.
+- Use `implementation` directly for clear, small changes. Reuse existing decisions and execution authority; return only missing consequential decisions to the parent or user as appropriate.
+- Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code or copy common implementation rules into project playbooks.
+- Keep all five skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
 
 ## Document Editing (All Agents)
 

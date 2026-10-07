@@ -66,6 +66,30 @@ test("serialized settings and concurrent creation preserve every decision", asyn
   f.service.dispose();
 });
 
+test("chat font defaults, persists, broadcasts and survives student mutations and reload", async () => {
+  const f = fixture({ enabled: false, decisions: { old: null } });
+  await f.send("subscribe");
+  assert.equal(f.sent.at(-1).chatFont, "gyeonggi-consolas");
+  const secondMessages: any[] = [];
+  const second = { ...f.webview, postMessage: async (m: unknown) => { secondMessages.push(m); return true; } };
+  await f.service.handleEmbedded(second, { type: "azrael-design", clientId: "two", action: "subscribe" });
+  const setFont = (chatFont: unknown, clientId = "one") => f.service.handleEmbedded(f.webview, { type: "azrael-design", clientId, action: "setChatFont", chatFont });
+  await setFont("unknown"); await setFont("openai", "stale");
+  assert.equal(f.writes.length, 0);
+  await Promise.all([setFont("openai"), f.send("setEnabled", true), f.service.recordCreated("new")]);
+  assert.equal(f.sent.at(-1).chatFont, "openai");
+  assert.equal(secondMessages.at(-1).chatFont, "openai");
+  assert.deepEqual((f.value as any).decisions, { old: null, new: 1 });
+  const reload = fixture(f.value); await reload.send("subscribe");
+  assert.equal(reload.sent.at(-1).chatFont, "openai");
+  f.fail = true; await assert.rejects(setFont("gyeonggi-consolas"), /disk unavailable/);
+  assert.equal(f.sent.at(-1).chatFont, "openai");
+  assert.match(f.sent.at(-1).error, /could not be saved/);
+  f.fail = false; await setFont("gyeonggi-consolas");
+  assert.equal(f.sent.at(-1).chatFont, "gyeonggi-consolas");
+  f.service.dispose(); reload.service.dispose();
+});
+
 test("persistence failures report unsaved state and do not poison the mutation queue", async () => {
   const f = fixture(); await f.send("subscribe"); f.fail = true;
   await assert.rejects(f.send("setEnabled", true), /disk unavailable/);
@@ -145,6 +169,8 @@ test("invalid saved settings and invalid roster fail safely without replacing du
   const f = fixture({ enabled: true, decisions: { old: 999 } }); await f.send("subscribe");
   assert.equal(f.sent.at(-1).enabled, false); assert.match(f.sent.at(-1).error, /Invalid saved/);
   await f.send("setEnabled", true); await f.service.recordCreated("a"); assert.equal(f.writes.length, 0);
+  await f.service.handleEmbedded(f.webview, { type: "azrael-design", clientId: "one", action: "setChatFont", chatFont: "openai" });
+  assert.equal(f.writes.length, 0, "font changes must not replace invalid durable settings");
   f.service.dispose();
   for (const invalid of [{ ...manifest, schemaVersion: 2 }, { ...manifest, students: manifest.students.slice(1) }, { ...manifest, students: manifest.students.map(s => ({ ...s, id: 1, asset: "1.png" })) }, { ...manifest, students: manifest.students.map(s => ({ ...s, asset: "../remote.png" })) }]) {
     const service = new StudentDesignService(f.context, { manifest: invalid });

@@ -42,6 +42,8 @@ UNRESOLVED: None
 
 ## 구현을 맡길 때
 
+복합 개발 작업의 목표·미결 결정·최종 수용은 부모가 `development-workflow`로 관리합니다. 미결 설계는 `design-collaboration`, 합의된 설계의 문서 반영은 `design-documentation`, 정해진 구현·검증·정리는 `implementation`을 사용합니다. 명확한 작은 변경은 `implementation`으로 바로 처리하며, 스킬 전환이나 위임 때문에 별도 계획·승인 단계를 만들지 않습니다.
+
 탐색 결과를 바탕으로 부모가 요구사항과 수정 범위를 결정한 뒤 전달합니다. Codex와 Azrael 모두 `sol_executor`(GPT-6.1 Sol, medium)를 사용합니다. 아래 0 처리 규칙은 예시의 합의된 조건입니다.
 
 ```text

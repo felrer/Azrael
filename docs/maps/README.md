@@ -51,6 +51,7 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `scripts/inject-recovery.cjs` | Structurally pin request, notification and teardown hooks in the reused host bundle. |
 | `scripts/inject-fetch-response.cjs`, `test-fetch-response.cjs` | Serialize void host route results as JSON null at the producer boundary; verify the pinned fetch handler and webview response parser together. |
 | `scripts/inject-ui-cleanup.cjs`, `inject-pets-cleanup.cjs` | Azrael composer placeholders, retired add-menu actions, permission presentation and Pets distribution boundaries; registered in namespace preparation with per-asset cache dependencies. |
+| `scripts/inject-auto-review.cjs`, `test-auto-review.cjs`, `verify-auto-review-render.mjs`, `check-auto-review-engine.mjs` | OpenAI-only native permission selection and approval nudge, saved preference preservation, and atomic next-turn reviewer restriction in the native request manager. Source, rendered UI and isolated engine checks have separate acceptance scopes. Contract: [Auto-Review](../architecture/auto-review.md). |
 | `scripts/create-ui-design-preview.cjs` | Local SVG icon and static-label font comparisons governed by [UI presentation](../architecture/ui-presentation.md). |
 | `scripts/content-fonts.cjs`, `inject-content-fonts.cjs` | Verified local Gyeonggi Batang font resources and semantic content/leaf typography; preserve fixed UI typography through namespace CSS/JS preparation and shared account rendering. |
 | `scripts/inject-queue-refresh.cjs`, `inject-queued-compaction.cjs`, `test-queued-input.cjs` | Preserve queue-change notifications during list requests; route manual compaction to typed server queue items, preserve enqueue local declarations, and verify ordinary input and app review boundaries. |
@@ -85,7 +86,7 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `scripts/provider-accounts-host.cjs` | Provider bundle verification and scoped helper/Bun/state environment. |
 | `codex-rs/core/src/session/account_recovery.rs`, `codex-rs/core/src/managed_account_recovery.rs`, `login/src/azrael_quota_recovery.rs`, `app-server/src/request_processors/account_processor/quota_recovery.rs` | Same-turn recovery on confirmed quota exhaustion, task admission, account-owner commits and public-history boundary; source is the active development engine worktree. |
 | `providers/opencodex/auto-switch.ts`, `inference.ts::recoverAccount` | Identity-scoped permission and bounded provider binding recovery without default selection rewriting. |
-| `extensions/azrael-ex/src/usagePresentation.ts` | Remaining quota bars, reset/ticket formatting and Spark exclusion. |
+| `extensions/azrael-ex/src/usagePresentation.ts`, `resetCredit.ts` | Remaining quota bars, native ticket rows, exact selected-ticket consumption and persistent retry identity, with Spark exclusion. Render checks: `scripts/verify-ticket-usage-render.mjs`. |
 | `extensions/azrael-ex/src/devinUsage.ts` | Bounded CLI-owned quota helper, PTY screen parsing and process cleanup. |
 | `scripts/check-launcher.ps1` | Verify path refusal, settings preservation and child/caller environment isolation. |
 | `scripts/check-engine.mjs` | Exercise native stdio and dedicated config/state without login or model requests. |

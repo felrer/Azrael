@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Import the shared instruction working tree, including uncommitted files.
+"""Check the maintained Azrael library or explicitly import a historical source tree.
 
 Uses only Python's standard library. Never modifies the source checkout.
 """
@@ -15,6 +15,7 @@ from urllib.parse import unquote
 SOURCE_URL = "https://github.com/felrer/codex-efficient-subagents"
 IGNORED_DIRS = {".git", "__pycache__", "node_modules"}
 COMPILED = {".pyc", ".pyo"}
+ACTIVE_SKILLS = ["design-collaboration", "design-documentation", "development-workflow", "implementation", "project-bootstrap"]
 LICENSE = """MIT License
 
 Copyright (c) 2026 felrer
@@ -123,7 +124,7 @@ def inventory(root):
     return sorted(included), sorted(ignored, key=lambda x: x["path"]), sorted(excluded, key=lambda x: x["path"])
 
 
-def components(paths):
+def components(paths, legacy=False):
     def component(cid, title, kind, scope, default, mappings):
         return dict(id=cid, title=title, kind=kind, scope=scope, default=default,
                     files=[dict(source=s, target=t) for s, t in mappings])
@@ -134,12 +135,12 @@ def components(paths):
             name = Path(path).stem
             result.append(component("agent-" + name, name, "agent", "home", True, [(path, path)]))
     names = sorted({p.split("/")[1] for p in paths if p.startswith("skills/")})
-    if names != ["designing", "planning", "project-bootstrap"]:
+    if names != (["designing", "planning", "project-bootstrap"] if legacy else ACTIVE_SKILLS):
         raise ValueError(f"Unexpected skill contract: {names}")
     for name in names:
         result.append(component("skill-" + name, name, "skill", "home", True,
                                 [(p, p) for p in paths if p.startswith(f"skills/{name}/")]))
-    for name in ["work", "app-logging"]:
+    for name in (["work", "app-logging"] if legacy else ["app-logging"]):
         result.append(component("playbook-" + name, name, "playbook", "workspace", False,
                                 [(f"skills/project-bootstrap/assets/playbooks/{name}.md", f"docs/playbooks/{name}.md")]))
     config = component("agent-config", "Agent configuration", "config", "home", True,
@@ -165,7 +166,7 @@ def validate(destination, source):
         if "source" in entry:
             assert info((source / entry["source"]).read_bytes()) == entry["original"], entry["source"]
     environment = json.loads((destination / "azrael-environment.json").read_text(encoding="utf-8"))
-    assert environment == dict(schemaVersion=1, instructionVersion="1.0.0", minimumAppVersion="0.4.0", components=components(paths))
+    assert environment == dict(schemaVersion=1, instructionVersion="1.0.0", minimumAppVersion="0.4.0", components=components(paths, legacy=True))
     for component in environment["components"]:
         for mapping in component["files"]:
             assert (destination / mapping["source"]).is_file(), mapping
@@ -181,13 +182,62 @@ def validate(destination, source):
     print(f"PASS source HEAD {record['sourceHead']}; content SHA-256 {record['contentSha256']}; {len(excluded)} explicit exclusions; {len(ignored)} ignored entries")
 
 
+def validate_maintained(destination):
+    historical = json.loads((destination / "SOURCE.json").read_text(encoding="utf-8"))
+    digest = hashlib.sha256(json.dumps(historical["files"], sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+    if digest != historical["contentSha256"]:
+        raise ValueError("Historical source inventory digest mismatch")
+    for entry in historical["files"]:
+        if entry["path"].startswith("SOURCE-") or entry["path"] == "LICENSE":
+            if info((destination / entry["path"]).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
+                raise ValueError(f"Historical source document changed: {entry['path']}")
+    receipt = json.loads((destination / "SKILLS-SOURCE.json").read_text(encoding="utf-8"))
+    if receipt["schemaVersion"] != 1 or receipt["sourceKind"] != "installed-skills":
+        raise ValueError("Unsupported installed-skill provenance")
+    paths, _, _ = inventory(destination)
+    skill_paths = [p for p in paths if p.startswith("skills/")]
+    recorded_paths = [entry["path"] for entry in receipt["files"]]
+    if len(recorded_paths) != len(set(recorded_paths)) or sorted(recorded_paths) != skill_paths:
+        raise ValueError("Incomplete installed-skill inventory")
+    for entry in receipt["files"]:
+        if info((destination / entry["path"]).read_bytes()) != {k: entry[k] for k in ["size", "sha256"]}:
+            raise ValueError(f"Installed-skill bytes changed: {entry['path']}")
+    environment = json.loads((destination / "azrael-environment.json").read_text(encoding="utf-8"))
+    expected = {c["id"]: c for c in components(paths)}
+    actual = {c["id"]: c for c in environment["components"]}
+    if len(actual) != len(environment["components"]) or actual != expected:
+        raise ValueError("Maintained component mappings differ from the active library")
+    for component in environment["components"]:
+        for mapping in component["files"]:
+            if mapping["source"] not in paths:
+                raise ValueError(f"Missing component source: {mapping['source']}")
+    links = 0
+    for path in destination.rglob("*.md"):
+        if path.name.startswith("SOURCE-"):
+            continue  # Preserved historical documents describe the original imported layout.
+        for target in re.findall(r"\[[^\]]*\]\(([^)]+)\)", path.read_text(encoding="utf-8")):
+            target = target.strip().strip("<>").split("#", 1)[0]
+            if not target or re.match(r"[a-zA-Z][a-zA-Z0-9+.-]*:", target):
+                continue
+            if not (path.parent / unquote(target)).exists():
+                raise ValueError(f"Missing reference: {path.relative_to(destination)} -> {target}")
+            links += 1
+    print(f"PASS maintained library: {len(skill_paths)} skill files, {len(actual)} components, {links} local document links; historical provenance digest retained")
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--source", type=Path, required=True)
+    parser.add_argument("--source", type=Path, help="Explicit historical Git checkout; omit for maintained-library --check")
     parser.add_argument("--destination", type=Path, default=Path(__file__).resolve().parents[1] / "instructions")
     parser.add_argument("--check", action="store_true")
     args = parser.parse_args()
-    source, destination = args.source.resolve(), args.destination.resolve()
+    destination = args.destination.resolve()
+    if args.source is None:
+        if not args.check:
+            parser.error("Import requires an explicitly selected --source; use --check for the maintained library")
+        validate_maintained(destination)
+        return
+    source = args.source.resolve()
     if source == destination or source in destination.parents or destination in source.parents:
         raise ValueError("Source and destination must be separate trees")
     if args.check:
@@ -223,7 +273,7 @@ def main():
     outputs["CHANGELOG.md"] = b"# Instruction changelog\n\n## 1.0.0\n\n- Complete Azrael instruction distribution with global guidance, agent roles, three skills and their support resources, examples, and optional workspace playbooks.\n- Versioned component mappings and complete working-tree provenance inventory.\n- Original shared-source history remains in [SOURCE-CHANGELOG.md](SOURCE-CHANGELOG.md).\n"
     if "LICENSE" not in outputs:
         outputs["LICENSE"] = LICENSE.encode()
-    environment = dict(schemaVersion=1, instructionVersion="1.0.0", minimumAppVersion="0.4.0", components=components(paths))
+    environment = dict(schemaVersion=1, instructionVersion="1.0.0", minimumAppVersion="0.4.0", components=components(paths, legacy=True))
     outputs["azrael-environment.json"] = (json.dumps(environment, indent=2) + "\n").encode()
     for path, data in sorted(outputs.items()):
         if not any(e["path"] == path for e in entries):

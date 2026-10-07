@@ -1,28 +1,13 @@
 import { randomUUID } from "node:crypto";
 import type { Memento } from "vscode";
 import { AccountService } from "./accountService";
-import { AccountProfile, AccountUsage, isRecord, ResetCreditOutcome } from "./protocol";
+import { AccountProfile, isRecord, ResetCreditOutcome } from "./protocol";
 import { validateUsageForWorkspace } from "./usageRefresh";
 
 const STORAGE_KEY = "azrael.usage.resetCreditAttempts";
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
-type ResetCredit = NonNullable<NonNullable<AccountUsage["rateLimitResetCredits"]>["credits"]>[number];
 interface ResetCreditAttempt { id: string; creditId?: string }
-
-export function earliestExpiringResetCredit(credits: readonly ResetCredit[], nowSeconds: number): ResetCredit | undefined {
-  return credits.filter(credit => credit.status === "available" && credit.resetType === "codexRateLimits"
-    && typeof credit.id === "string" && credit.id.trim().length > 0 && Number.isSafeInteger(credit.grantedAt)
-    && (credit.expiresAt === null || (Number.isSafeInteger(credit.expiresAt) && credit.expiresAt > nowSeconds)))
-    .sort((a, b) => {
-      if (a.expiresAt !== b.expiresAt) {
-        if (a.expiresAt === null) return 1;
-        if (b.expiresAt === null) return -1;
-        return a.expiresAt - b.expiresAt;
-      }
-      return a.grantedAt - b.grantedAt || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0);
-    })[0];
-}
 
 /** Keeps one logical attempt's identity across uncertain transport results and restarts. */
 export class ResetCreditService {
@@ -43,14 +28,22 @@ export class ResetCreditService {
 
   busy(profile: AccountProfile): boolean { return this.pending.has(this.identity(profile)); }
   retrying(profile: AccountProfile): boolean { return this.attempts.has(this.identity(profile)); }
+  retryCreditId(profile: AccountProfile): string | undefined { return this.attempts.get(this.identity(profile))?.creditId; }
 
-  async consume(profile: AccountProfile): Promise<ResetCreditOutcome> {
+  async consume(profile: AccountProfile, creditId: string): Promise<ResetCreditOutcome> {
     const identity = this.identity(profile);
     if (this.pending.has(identity)) throw new Error("리셋 티켓 사용 요청이 이미 진행 중입니다.");
     this.pending.add(identity);
     try {
       this.validateProfile(profile);
+      if (typeof creditId !== "string" || creditId.trim().length === 0) throw new Error("사용할 리셋 티켓 ID를 확인할 수 없습니다.");
       let attempt = this.attempts.get(identity);
+      if (attempt && attempt.creditId === undefined) {
+        throw new Error("이전 리셋 티켓 요청의 대상 ID를 확인할 수 없어 선택한 티켓을 사용할 수 없습니다. 이전 요청 결과를 먼저 확인해 주세요.");
+      }
+      if (attempt && attempt.creditId !== creditId) {
+        throw new Error("처리 결과가 확인되지 않은 다른 리셋 티켓 요청이 있습니다. 해당 티켓을 먼저 다시 시도해 주세요.");
+      }
       if (!attempt) {
         const response = await this.service.call({ action: "usage", profileId: profile.id, includeDetails: true });
         this.validateProfile(profile);
@@ -60,8 +53,12 @@ export class ResetCreditService {
         if (!tickets || !Number.isSafeInteger(tickets.availableCount) || !Array.isArray(tickets.credits)) {
           throw new Error("리셋 티켓 상세 목록을 확인할 수 없습니다.");
         }
-        const credit = tickets.availableCount > 0 ? earliestExpiringResetCredit(tickets.credits, Date.now() / 1000) : undefined;
-        if (!credit) return "noCredit";
+        const matches = tickets.credits.filter(credit => isRecord(credit) && credit.id === creditId);
+        if (matches.length > 1) throw new Error("선택한 리셋 티켓의 상세 정보가 중복되어 확인할 수 없습니다.");
+        const credit = matches[0];
+        if (tickets.availableCount <= 0 || !credit || credit.status !== "available" || credit.resetType !== "codexRateLimits"
+          || !Number.isSafeInteger(credit.grantedAt)
+          || (credit.expiresAt !== null && (!Number.isSafeInteger(credit.expiresAt) || credit.expiresAt <= Date.now() / 1000))) return "noCredit";
         attempt = { id: randomUUID(), creditId: credit.id };
         this.attempts.set(identity, attempt);
       }
@@ -69,7 +66,7 @@ export class ResetCreditService {
       await this.save();
       this.validateProfile(profile);
       const response = await this.service.call({ action: "consumeResetCredit", profileId: profile.id, idempotencyKey: attempt.id,
-        ...(attempt.creditId === undefined ? {} : { creditId: attempt.creditId }) });
+        creditId: attempt.creditId });
       if (!response.resetCreditOutcome) throw new Error("리셋 티켓 사용 결과를 확인할 수 없습니다.");
       this.attempts.delete(identity);
       try { await this.save(); }

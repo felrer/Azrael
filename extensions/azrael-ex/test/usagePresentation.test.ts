@@ -93,15 +93,20 @@ test("dynamic typography escapes content and leaves fixed fallbacks and controls
   assert.match(html, />재인증<\/button>/);
 });
 
-test("ticket details and consumption share a wrapping row with 16px spacing", () => {
+test("ticket details use native settings rows and per-ticket actions without the account-level reset controls", () => {
   const data = usage(null);
-  data.rateLimitResetCredits = { availableCount: 2, credits: null };
-  const action = '<button data-action="consumeResetCredit">리셋 티켓 사용</button>';
-  const html = openAIUsageHtml(data, "profile", action);
-  assert.match(html, /리셋 티켓<\/span><strong data-azrael-dynamic-text>2개<\/strong>/);
-  assert.match(html, /<div class="ticket-actions"><button[^>]*data-action="details"[^>]*>티켓 상세 보기<\/button><button data-action="consumeResetCredit">리셋 티켓 사용<\/button><\/div>/);
-  assert.match(usageStyles, /\.ticket-actions\{[^}]*display:flex;[^}]*flex-wrap:wrap;gap:16px/);
-  assert.match(openAIUsageHtml(null, "profile", action), /<div class="ticket-actions"><button data-action="consumeResetCredit"/);
+  const credit = { id: '<ticket>', resetType: 'codexRateLimits', status: 'available', grantedAt: 1, expiresAt: null, title: 'Full reset available', description: null };
+  data.rateLimitResetCredits = { availableCount: 2, credits: [credit, { ...credit, id: 'used', status: 'redeemed' }] };
+  const html = openAIUsageHtml(data, "profile", { workspaceAccountId: '<workspace>', expanded: true, confirmingCreditId: '<ticket>' });
+  assert.match(html, /<details class="ticket-details"[^>]* open><summary>티켓 상세<\/summary><div class="reset-ticket-list">/);
+  assert.match(html, /class="ticket-title"><span data-azrael-dynamic-text>Full reset available/);
+  assert.match(html, /class="ticket-use confirming"[^>]*data-workspace="&lt;workspace&gt;" data-credit="&lt;ticket&gt;"[^>]*>확인<\/button>/);
+  assert.doesNotMatch(html, /data-credit="used"|리셋 티켓|만료일 없음|available ·|ticket-actions/);
+  assert.match(usageStyles, /\.reset-ticket\{[^}]*gap:24px;padding:12px 16px/);
+  assert.match(usageStyles, /\.ticket-use\{[^}]*height:var\(--spacing-token-button-composer,28px\)/);
+  data.rateLimitResetCredits.credits = null;
+  assert.match(openAIUsageHtml(data, 'profile', { workspaceAccountId: 'workspace' }), /티켓 상세를 불러오는 중/);
+  assert.doesNotMatch(openAIUsageHtml(null, 'profile'), /consumeResetCredit|ticket-details/);
 });
 
 test("Anthropic Fable shows remaining usage, accessible bars and reset time", () => {
@@ -175,18 +180,19 @@ test("usage HTML escapes backend content and preserves a real zero ticket count"
   data.rateLimitResetCredits = {
     availableCount: 0,
     credits: [{
-      id: "ticket",
-      resetType: "codex_rate_limits",
-      status: '<img src=x onerror="bad">',
+      id: 'ticket"><script>bad</script>',
+      resetType: "codexRateLimits",
+      status: "available",
       grantedAt: 0,
       expiresAt: null,
       title: "A&B's <ticket>",
       description: null,
     }],
   };
-  const html = openAIUsageHtml(data, 'profile"><script>bad</script>');
+  const html = openAIUsageHtml(data, 'profile"><script>bad</script>', { workspaceAccountId: '<workspace>' });
   assert.doesNotMatch(html, /<script|<img/);
-  assert.match(html, /0개/);
+  assert.doesNotMatch(html, /0개|<span>리셋 티켓<\/span>/);
+  assert.match(html, /data-credit="ticket&quot;&gt;&lt;script&gt;bad&lt;\/script&gt;"[^>]*disabled/);
   assert.match(html, /&lt;script data-x=&quot;limit&quot;&gt;bad&lt;\/script&gt;/);
   assert.match(html, /A&amp;B&#39;s &lt;ticket&gt;/);
   assert.equal(escapeHtml('&<>"\''), "&amp;&lt;&gt;&quot;&#39;");

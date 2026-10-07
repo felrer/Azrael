@@ -6,6 +6,7 @@ const vm = require("node:vm");
 const {test} = require("node:test");
 const {createProviderModelCatalog, renderProviderModelList} = require("./provider-model-picker.cjs");
 const injection = require("./inject-provider-model-picker.cjs");
+const {renderAstraSpeedToggle} = require("./astra-speed-toggle.cjs");
 const client = fn => () => ({sendRequest: async (method, params) => { assert.equal(method,"model/list"); return fn(params); }});
 const status = (providerId,state) => ({providerId,state,modelCount:0,observedAt:123});
 function harness(catalog,props) {
@@ -15,6 +16,31 @@ function harness(catalog,props) {
   return {render(){index=0;refIndex=0;return renderProviderModelList(React,jsx,{Item:"item"},catalog,props);},refs,states};
 }
 function nodes(tree,predicate){const output=[];function visit(node){if(!node||typeof node!=="object")return;if(predicate(node))output.push(node);const children=node.props?.children;for(const child of Array.isArray(children)?children:[children])visit(child);}visit(tree);return output;}
+test("Astra speed cycles standard, priority, ultrafast and standard through native selection",()=>{
+ const jsx=(type,props)=>({type,props}),intl={formatMessage:({defaultMessage})=>defaultMessage};
+ let selectedServiceTier=null,prevented=0;const chosen=[];
+ const render=(extra={})=>renderAstraSpeedToggle(jsx,{Item:"native-item"},{standard:"outline-bolt",fast:"filled-bolt"},{FastModeToggle:"native-toggle",FastModeToggleContent:"native-content"},{selectedServiceTier,intl,onSelectServiceTier:value=>{chosen.push(value);selectedServiceTier=value;},...extra});
+ for(const mode of ["default","fast","ultrafast","default"]){
+  const tree=render();assert.equal(tree.type,"native-item");assert.equal(tree.props["data-azrael-astra-speed"],mode);
+  assert.equal(tree.props.style?.color,mode==="ultrafast"?"var(--color-purple)":undefined);
+  assert.equal(tree.props.children.props.style?.color,mode==="ultrafast"?"var(--color-purple)":undefined);
+  assert.equal(tree.props.children.props.children.type,mode==="default"?"outline-bolt":"filled-bolt");
+  tree.props.onSelect({preventDefault(){prevented++;}});
+ }
+ assert.deepEqual(chosen,["priority","ultrafast",null,"priority"]);assert.equal(prevented,4);
+ const before=chosen.length;render({disabled:true}).props.onSelect({preventDefault(){}});assert.equal(chosen.length,before);
+ selectedServiceTier="fast";assert.equal(render().props["aria-label"],"Enable ultrafast mode");
+});
+test("Astra account discovery retains ultrafast selection metadata without mutating source rows",async()=>{
+ const c=createProviderModelCatalog(),tiers=[{id:"priority",name:"Fast"}];
+ const rows=[{model:"gpt-6-astra",serviceTiers:tiers},{model:"gpt-6.1-sol",serviceTiers:tiers}];
+ const result=await c.query("astra-host",client(()=>({data:rows,nextCursor:null})),100,()=>{});
+ assert.deepEqual(result.data[0].serviceTiers.map(tier=>tier.id),["priority","ultrafast"]);
+ assert.equal(result.data[1].serviceTiers,tiers);assert.equal(rows[0].serviceTiers,tiers);assert.equal(tiers.length,1);
+ const existing={id:"ultrafast",name:"Ultrafast",description:"Account metadata"};
+ const advertised=await createProviderModelCatalog().query("b",client(()=>({data:[{model:"gpt-6-astra",serviceTiers:[existing]}],nextCursor:null})),100,()=>{});
+ assert.deepEqual(advertised.data[0].serviceTiers,[existing]);
+});
 test("complete pagination retains hidden aliases and late OpenRouter models; deduplicates",async()=>{
  const c=createProviderModelCatalog(),calls=[]; const models=Array.from({length:230},(_,i)=>({model:i<210?`alias-${i}`:`managed/openrouter/model-${i}`,hidden:i<210}));
  const result=await c.query("host-a",client(p=>{calls.push(p);const start=Number(p.cursor??0);return {data:[...models.slice(start,start+100),models[start]],nextCursor:start+100<models.length?String(start+100):null,providerCatalogs:[status("openrouter","ready")]};}),100,()=>{});

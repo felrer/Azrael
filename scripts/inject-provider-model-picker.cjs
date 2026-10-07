@@ -1,6 +1,7 @@
 "use strict";
 
 const { createProviderModelCatalog, renderProviderModelList } = require("./provider-model-picker.cjs");
+const { renderAstraSpeedToggle } = require("./astra-speed-toggle.cjs");
 const PROVIDER_PICKER_ASSET = "webview/assets/app-initial-532d60c9b397.js";
 const PROVIDER_QUERY_ASSET = "webview/assets/app-initial-5120fa5fe295.js";
 const PROVIDER_PICKER_ASSETS = [PROVIDER_PICKER_ASSET, PROVIDER_QUERY_ASSET];
@@ -71,9 +72,14 @@ function injectProviderModelPicker(text, asset) {
     text = once(text, '"data-model-selected":e.selected||void 0,disabled:e.disabled,', '"data-model-selected":e.selected||void 0,"data-azrael-model-option":e.__azraelModelOption||void 0,disabled:e.disabled,');
     const nativeEffort = "t.supportedReasoningEfforts.find(e=>{let{reasoningEffort:t}=e;return t===j})?.reasoningEffort??t.defaultReasoningEffort";
     text = once(text, nativeEffort, `__azraelProviderCatalog.modelEffort(t,j,()=>${nativeEffort})`);
+    // Override only Astra's speed control after the native compiled memo blocks.
+    // Both the two-tier toggle and the multi-tier submenu become one cycling item.
+    text = once(text, "let ae;t[69]!==m||t[70]!==F",
+      "if(l?.model===`gpt-6-astra`&&o!=null){re=null;ie=(0,G8.jsx)(__AzraelAstraSpeedToggle,{selectedServiceTier:u,onSelectServiceTier:o,disabled:F||f,hidden:F,maximum:I,intl:m})}let ae;t[69]!==m||t[70]!==F");
     text += bootstrap() + `
 function __azraelReasoningLabel(e){return F8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
 function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (K8,q8.jsx,nB,__azraelProviderCatalog,props)}
+function __AzraelAstraSpeedToggle(props){return (${renderAstraSpeedToggle.toString()})(G8.jsx,nB,{standard:DGt,fast:kGt},z8,props)}
 `;
   }
   return { text: text + "\n" + MARKER, count: 1 };

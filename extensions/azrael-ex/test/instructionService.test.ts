@@ -3,7 +3,10 @@ import fs from "node:fs/promises";
 import path from "node:path";
 import Module from "node:module";
 import test, { type TestContext } from "node:test";
-import type { InstructionAction, InstructionRequest, InstructionUiState } from "../src/instructionProtocol";
+import type { InstructionAction, InstructionRequest, InstructionUiState, InstructionUiText } from "../src/instructionProtocol";
+
+const uiText = (value: InstructionUiText | readonly InstructionUiText[] | undefined, locale: "en" | "ko" = "ko"): string =>
+  Array.isArray(value) ? value.map(entry => uiText(entry, locale)).join(" ") : typeof value === "string" ? value : value ? (value as { en: string; ko: string })[locale] : "";
 
 const root = path.resolve(__dirname, "../../../..");
 const backendFile = path.join(root, "scripts/instruction-package.cjs");
@@ -79,6 +82,7 @@ test("real host adapter maps generated release, preview, download and selected a
   assert.equal(state.repository, f.manifest.repository); assert.equal(state.currentVersion, null);
   assert.deepEqual(state.downloadedVersions, []); assert.deepEqual(state.conflicts, []);
   state = await dispatch("refresh");
+  assert.match(sent.at(-1).html, /Available instruction versions have been checked\./);
   assert.equal(state.selectedVersion, "1.0.0"); assert.equal(state.versions[0].notes, "Generated release notes");
   assert.equal(state.versions[0].compatible, true); assert.equal(state.versions[0].prerelease, false);
   assert.deepEqual(state.components, f.manifest.components);
@@ -120,22 +124,23 @@ test("pin, unpin, cached rollback and empty selections persist through a fresh a
   const switched = await f.service.snapshot();
   assert.equal(switched.currentVersion, "1.0.0"); assert.deepEqual(switched.selectedComponentIds, []);
   assert.equal(switched.selectedVersion, null); assert.deepEqual(switched.documents, []);
-  assert.match(switched.message ?? "", new RegExp(f.manifest.repository));
+  assert.match(uiText(switched.message), new RegExp(f.manifest.repository));
 });
 
 test("invalid repository and retryable backend failures return error state without changing data", async t => {
   const f = await fixture(t);
   f.control.repository = "invalid repository";
-  const invalid = await f.service.snapshot(); assert.match(invalid.error ?? "", /owner\/name/);
-  assert.match((await f.service.request("refresh", {})).error ?? "", /owner\/name/);
+  const invalid = await f.service.snapshot(); assert.match(uiText(invalid.error), /owner\/name/);
+  assert.match(uiText((await f.service.request("refresh", {})).error), /owner\/name/);
+  assert.equal(uiText(invalid.error, "en"), "Set the GitHub repository in owner/name format.");
   assert.equal(f.options.length, 0); assert.equal(f.requests.length, 0);
   f.control.repository = f.manifest.repository;
   f.control.failure = "offline fixture";
   assert.equal((await f.service.request("refresh", {})).error, "offline fixture");
   f.control.failure = undefined;
   assert.equal((await f.service.request("refresh", {})).error, undefined);
-  assert.match((await f.service.request("preview", { path: "missing" })).error ?? "", /문서/);
-  assert.match((await f.service.request("selectVersion", { version: "../bad" })).error ?? "", /버전/);
+  assert.match(uiText((await f.service.request("preview", { path: "missing" })).error), /문서/);
+  assert.match(uiText((await f.service.request("selectVersion", { version: "../bad" })).error), /버전/);
   assert.equal((await f.service.snapshot()).currentVersion, null);
   await assert.rejects(fs.access(path.join(f.home, "AGENTS.md")), { code: "ENOENT" });
 });
@@ -152,7 +157,7 @@ test("changing workspace maps its own selection and preserves retained workspace
   f.control.workspace = secondWorkspace;
   const second = await f.service.snapshot();
   assert.deepEqual(second.selectedComponentIds, ["global-instructions"]);
-  assert.match(second.message ?? "", /다른 작업공간/); assert.equal(second.selectedVersion, "1.0.0");
+  assert.match(uiText(second.message), /다른 작업공간/); assert.equal(second.selectedVersion, "1.0.0");
   const homeOnly = await f.service.request("apply", { version: "1.0.0", componentIds: ["global-instructions"] });
   assert.equal(homeOnly.error, undefined);
   assert.deepEqual(await fs.readFile(target), original);
@@ -175,6 +180,7 @@ test("restarted adapter browses and rolls back verified cached instructions with
   const state = await restarted.snapshot();
   assert.equal(state.error, undefined); assert.equal(state.currentVersion, "1.0.0");
   assert.equal(state.selectedVersion, "1.0.0"); assert.deepEqual(state.downloadedVersions, ["1.0.0"]);
+  assert.deepEqual(state.versions[0].notes, { en: "This instruction package is downloaded locally.", ko: "로컬에 다운로드된 지침 패키지입니다." });
   assert.equal(state.versions[0].version, "1.0.0"); assert.equal(state.versions[0].compatible, true);
   assert.deepEqual(state.components, f.manifest.components);
   assert.equal(state.documents.length, f.manifest.documents.length);
@@ -193,7 +199,7 @@ test("adapter busy gate and real local conflicts preserve installed file and rec
   f.control.gate = new Promise<void>(resolve => { release = resolve; });
   const operation = f.service.request("refresh", {});
   const busy = await f.service.request("unpin", {});
-  assert.match(busy.error ?? "", /진행 중/);
+  assert.match(uiText(busy.error), /진행 중/);
   release(); f.control.gate = undefined;
   assert.equal((await operation).error, undefined);
   await f.service.request("download", {});
@@ -203,11 +209,11 @@ test("adapter busy gate and real local conflicts preserve installed file and rec
   await fs.writeFile(path.join(f.home, "AGENTS.md"), "local edit preserved");
   const result = await f.service.request("apply", { componentIds: ["global-instructions"] });
   assert.equal(result.conflicts.length, 1); assert.equal(result.conflicts[0].current, "local edit preserved");
-  assert(result.conflicts[0].proposed?.length); assert.match(result.message ?? "", /수정된 파일/);
+  assert(result.conflicts[0].proposed?.length); assert.match(uiText(result.message), /수정된 파일/);
   assert.equal(result.currentVersion, "1.0.0");
   assert.deepEqual(await fs.readFile(stateFile), receipt);
   assert.equal(await fs.readFile(path.join(f.home, "AGENTS.md"), "utf8"), "local edit preserved");
   const rollback = await f.service.request("rollback", { version: "1.0.0" });
-  assert.match(rollback.error ?? "", /conflict/i);
+  assert.match(uiText(rollback.error), /conflict/i);
   assert.deepEqual(await fs.readFile(stateFile), receipt);
 });

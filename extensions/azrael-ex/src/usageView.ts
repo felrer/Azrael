@@ -28,7 +28,9 @@ export class UsageView implements vscode.Disposable {
   private readonly resetCredits: ResetCreditService;
   private readonly autoSwitchPending = new Set<string>();
   private readonly automaticWindowPending = new Set<string>();
-  private readonly ticketConfirming = new Set<string>();
+  private readonly ticketConfirmations = new Map<string, string>();
+  private readonly ticketDetailsExpanded = new Set<string>();
+  private readonly ticketConsuming = new Map<string, string>();
   private readonly expanded = new Set<string>();
   private panel: vscode.WebviewPanel | undefined;
   private readonly embedded = new Map<vscode.Webview, EmbeddedTarget>();
@@ -272,6 +274,7 @@ export class UsageView implements vscode.Disposable {
       if (message.action === "setAutoSwitch") { await this.setAutoSwitch(message); return; }
       if (message.action === "toggleUsage") { await this.toggleUsage(message); return; }
       if (message.action === "consumeResetCredit") { await this.consumeResetCredit(message); return; }
+      if (message.action === "ticketDetails") { await this.toggleTicketDetails(message); return; }
       if (message.action === "autoWindowEnable" || message.action === "autoWindowDisable") {
         const profile = this.service.state?.profiles.find(item => item.id === message.profileId && item.workspaceAccountId === message.workspaceAccountId);
         if (!profile || !this.usageWindows || !this.service.changesEnabled
@@ -292,10 +295,7 @@ export class UsageView implements vscode.Disposable {
       if (message.action === "refresh") await this.refresh(true);
       else if (message.action === "devinBilling") await vscode.env.openExternal(vscode.Uri.parse("https://app.devin.ai/settings/usage"));
       else if (message.action === "manageDevin") { await manageDevin(this.service); await this.refresh(true); }
-      else if (message.action === "details" && typeof message.profileId === "string") {
-        const profile = this.service.state?.profiles.find(item => item.id === message.profileId);
-        if (profile && this.expanded.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId))) { await this.usage.refresh(profile.id, profile.workspaceAccountId, true, true); this.render(); }
-      } else if (PROVIDER_ACTIONS.has(message.action)) {
+      else if (PROVIDER_ACTIONS.has(message.action)) {
         await this.handleProviderAction(message);
         await this.refresh(true);
       }
@@ -355,6 +355,8 @@ export class UsageView implements vscode.Disposable {
     if (opening) this.expanded.add(key);
     else {
       this.expanded.delete(key);
+      this.ticketDetailsExpanded.delete(key);
+      this.ticketConfirmations.delete(key);
       if (message.kind === "devin-cli") this.devinUsage.cancelRefresh();
     }
     this.render();
@@ -364,23 +366,33 @@ export class UsageView implements vscode.Disposable {
 
   private async consumeResetCredit(message: Record<string, unknown>): Promise<void> {
     const profile = this.service.state?.profiles.find(item => item.id === message.profileId && item.workspaceAccountId === message.workspaceAccountId);
-    if (!profile) return;
+    if (!profile || typeof message.creditId !== "string" || !message.creditId.trim() || !this.service.changesEnabled) return;
     const key = usageExpansionKey("openai", profile.id, profile.workspaceAccountId);
-    if (!this.expanded.has(key) || this.ticketConfirming.has(key) || this.resetCredits.busy(profile)) return;
-    const retry = this.resetCredits.retrying(profile);
-    if (!retry && (this.usage.get(profile.id, profile.workspaceAccountId)?.data?.rateLimitResetCredits?.availableCount ?? 0) <= 0) return;
-    this.ticketConfirming.add(key);
-    this.render();
+    if (!this.expanded.has(key) || !this.ticketDetailsExpanded.has(key) || this.resetCredits.busy(profile) || this.ticketConsuming.has(key)) return;
+    const creditId = message.creditId;
+    const retryId = this.resetCredits.retryCreditId(profile);
+    if (this.resetCredits.retrying(profile) && retryId === undefined) throw new Error("이전 티켓 요청의 대상 ID를 확인할 수 없습니다. 이전 요청 결과를 먼저 확인해 주세요.");
+    if (this.resetCredits.retrying(profile) && retryId !== creditId) return;
+    if (!retryId) {
+      const tickets = this.usage.get(profile.id, profile.workspaceAccountId)?.data?.rateLimitResetCredits;
+      const credit = tickets?.credits?.find(item => item.id === creditId);
+      if (!tickets || tickets.availableCount <= 0 || !credit || credit.status !== "available" || credit.resetType !== "codexRateLimits"
+        || (credit.expiresAt !== null && credit.expiresAt <= Date.now() / 1000)) return;
+    }
+    if (this.ticketConfirmations.get(key) !== creditId) {
+      this.ticketConfirmations.set(key, creditId);
+      this.render();
+      return;
+    }
+    this.ticketConfirmations.delete(key);
+    this.ticketConsuming.set(key, creditId);
     try {
-      const action = retry ? "사용 결과 재확인" : "티켓 사용";
-      const answer = await vscode.window.showWarningMessage(
-        `${profile.email ?? profile.id} (${profile.workspaceAccountId})${retry ? "의 이전 리셋 티켓 사용 요청을 같은 요청 ID로 재확인할까요?" : "의 사용 가능한 리셋 티켓 중 만료일이 가장 가까운 티켓 1개를 사용해 한도를 초기화할까요? (만료일 없는 티켓은 마지막에 사용)"}`,
-        { modal: true }, action,
-      );
-      if (answer !== action) return;
-      if (!this.service.state?.profiles.some(item => item.id === profile.id && item.workspaceAccountId === profile.workspaceAccountId)) return;
       let outcome;
-      try { outcome = await this.resetCredits.consume(profile); }
+      try {
+        const pending = this.resetCredits.consume(profile, creditId);
+        this.render();
+        outcome = await pending;
+      }
       catch (error) {
         if (!this.resetCredits.retrying(profile)) throw error;
         throw new Error(`${error instanceof Error ? error.message : String(error)} · 사용 결과가 확인되지 않았습니다. 재확인 버튼은 같은 요청 ID를 사용합니다.`);
@@ -389,7 +401,26 @@ export class UsageView implements vscode.Disposable {
       void vscode.window.showInformationMessage(resetCreditMessage(outcome));
       if (this.expanded.has(key)) await this.usage.refresh(profile.id, profile.workspaceAccountId, false, true);
     } finally {
-      this.ticketConfirming.delete(key);
+      this.ticketConsuming.delete(key);
+      this.render();
+    }
+  }
+
+  private async toggleTicketDetails(message: Record<string, unknown>): Promise<void> {
+    const profile = this.service.state?.profiles.find(item => item.id === message.profileId && item.workspaceAccountId === message.workspaceAccountId);
+    if (!profile || typeof message.open !== "boolean") return;
+    const key = usageExpansionKey("openai", profile.id, profile.workspaceAccountId);
+    if (!this.expanded.has(key)) return;
+    if (!message.open) {
+      const changed = this.ticketDetailsExpanded.delete(key);
+      const confirmed = this.ticketConfirmations.delete(key);
+      if (changed || confirmed) this.render();
+      return;
+    }
+    if (this.ticketDetailsExpanded.has(key)) return;
+    this.ticketDetailsExpanded.add(key);
+    if (this.usage.get(profile.id, profile.workspaceAccountId)?.data?.rateLimitResetCredits?.credits === null) {
+      await this.usage.refresh(profile.id, profile.workspaceAccountId, true, true);
       this.render();
     }
   }
@@ -433,7 +464,7 @@ export class UsageView implements vscode.Disposable {
     const schedule = this.usageWindows.forProfile(profile);
     const enabled = schedule?.enabled === true;
     const pending = this.automaticWindowPending.has(JSON.stringify([profile.workspaceAccountId, profile.userId]));
-    const label = pending ? "변경 중…" : schedule ? `자동 타이머: ${enabled ? "켜짐" : "꺼짐"}` : "상태 확인 필요";
+    const label = pending ? "변경 중…" : schedule ? `자동 실행: ${enabled ? "켜짐" : "꺼짐"}` : "상태 확인 필요";
     return `<button data-action="${enabled ? "autoWindowDisable" : "autoWindowEnable"}" data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}" ${this.service.changesEnabled && !pending ? "" : "disabled"}>${label}</button>`;
   }
 
@@ -452,7 +483,7 @@ export class UsageView implements vscode.Disposable {
         const uri = webview.asWebviewUri(vscode.Uri.joinPath(this.fontRoot!, file));
         return `@font-face{font-family:"Azrael Gyeonggi Title";src:url("${escapeHtml(uri.toString())}") format("woff");font-weight:400;font-style:normal;font-display:swap}`;
       }).join("") : "";
-      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind});});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});</script></body></html>`;
+      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit});});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus();</script></body></html>`;
     }
     for (const [webview, target] of this.embedded) {
       try {
@@ -468,12 +499,12 @@ export class UsageView implements vscode.Disposable {
       const entry = this.usage.get(profile.id, profile.workspaceAccountId);
       const expanded = this.expanded.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId));
       const active = profile.id === state.activeProfileId;
-      const retry = this.resetCredits.retrying(profile);
-      const busy = this.ticketConfirming.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId)) || this.resetCredits.busy(profile);
-      const ticketAction = retry || (entry?.data?.rateLimitResetCredits?.availableCount ?? 0) > 0
-        ? `<button data-action="consumeResetCredit" data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}" ${busy ? "disabled" : ""}>${busy ? "처리 중…" : retry ? "티켓 사용 결과 재확인" : "리셋 티켓 사용"}</button>` : "";
+      const ticketKey = usageExpansionKey("openai", profile.id, profile.workspaceAccountId);
+      const ticketState = { workspaceAccountId: profile.workspaceAccountId, expanded: this.ticketDetailsExpanded.has(ticketKey),
+        confirmingCreditId: this.ticketConfirmations.get(ticketKey), retryCreditId: this.resetCredits.retryCreditId(profile),
+        busy: this.resetCredits.busy(profile) || this.ticketConsuming.has(ticketKey), busyCreditId: this.ticketConsuming.get(ticketKey), changesEnabled: this.service.changesEnabled };
       const switchAction = active ? "" : `<button class="account-switch" data-action="openaiSwitch" data-profile="${escapeHtml(profile.id)}">현재 엔진 계정으로 전환</button>`;
-      return `<section class="card account-card${expanded ? " expanded" : " collapsed"}"><div class="identity"><div class="account-heading">${usageToggleHtml(expanded, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`)}<div class="account-name"><h2>${dynamicTextHtml(profile.email ?? profile.id)}</h2>${expanded ? `<p class="muted">${planLabelHtml(entry?.data)} · ${dynamicTextHtml(profile.workspaceAccountId)}</p>` : `<span class="muted account-provider">${planLabelHtml(entry?.data)}</span>`}</div></div><div class="identity-actions">${active ? '<span class="badge">현재 엔진 계정</span>' : ""}${switchAction}${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`, this.autoSwitchPending.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId)))}</div></div>${expanded ? `<div class="usage-details">${openAIUsageHtml(entry?.data ?? null, profile.id, ticketAction)}${this.automaticWindowErrorHtml(profile)}${entry?.error ? `<p class="error">갱신 실패 · ${dynamicTextHtml(entry.error)}</p>` : ""}${entry?.lastSuccessAt ? `<p class="muted updated">${entry.error || this.error ? "이전 조회 값 · " : ""}마지막 갱신 ${dynamicTextHtml(new Date(entry.lastSuccessAt).toLocaleString())}</p>` : ""}</div><div class="card-actions">${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div>` : ""}</section>`;
+      return `<section class="card account-card${expanded ? " expanded" : " collapsed"}"><div class="identity"><div class="account-heading">${usageToggleHtml(expanded, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`)}<div class="account-name"><h2>${dynamicTextHtml(profile.email ?? profile.id)}</h2>${expanded ? `<p class="muted">${planLabelHtml(entry?.data)} · ${dynamicTextHtml(profile.workspaceAccountId)}</p>` : `<span class="muted account-provider">${planLabelHtml(entry?.data)}</span>`}</div></div><div class="identity-actions">${active ? '<span class="badge">현재 엔진 계정</span>' : ""}${switchAction}${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`, this.autoSwitchPending.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId)))}</div></div>${expanded ? `<div class="usage-details">${openAIUsageHtml(entry?.data ?? null, profile.id, ticketState)}${this.automaticWindowErrorHtml(profile)}${entry?.error ? `<p class="error">갱신 실패 · ${dynamicTextHtml(entry.error)}</p>` : ""}${entry?.lastSuccessAt ? `<p class="muted updated">${entry.error || this.error ? "이전 조회 값 · " : ""}마지막 갱신 ${dynamicTextHtml(new Date(entry.lastSuccessAt).toLocaleString())}</p>` : ""}</div><div class="card-actions">${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div>` : ""}</section>`;
     }).join("") ?? "";
     const openAIState = `${state?.pendingProfileId ? `<p class="notice">현재 엔진의 계정 전환 대기 중 · ${escapeHtml(state.pendingProfileId)} <button data-action="openaiCancelSwitch">전환 취소</button></p>` : ""}${state?.loginPending ? '<p class="notice">OpenAI 로그인 대기 중 <button data-action="openaiLoginCancel">로그인 취소</button></p>' : ""}`;
     const providerCards = this.providerSnapshot?.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai").flatMap(provider => provider.accounts.map(account => {

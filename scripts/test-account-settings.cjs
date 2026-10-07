@@ -54,17 +54,18 @@ test("display branding preserves backend identifiers, URLs and model names", () 
 });
 
 test("settings mount renders scoped markup, forwards actions and cleans subscriptions", () => {
-  let effect, cleanup, receiver, click, change;
+  let effect, cleanup, receiver, click, change, toggle;
   const sent = [];
-  const shadow = { innerHTML: "", addEventListener: (type, fn) => { if (type === "click") click = fn; else change = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : change); if (type === "click") click = undefined; else change = undefined; } };
+  const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else toggle = undefined; } };
   const element = { attachShadow: () => shadow };
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
   class HTMLInputElement extends HTMLElement { type = "checkbox"; checked = true; dataset = { action: "setAutoSwitch", provider: "provider", account: "saved" }; }
+  class HTMLDetailsElement extends HTMLElement { open = true; classList = { contains: value => value === "ticket-details" }; dataset = { profile: 'profile-1', workspace: 'workspace-1' }; }
   const component = gm.runInNewContext("(" + AzraelAccountSettings.toString() + ")", {
     Q: { useRef: () => ({ current: element }), useEffect: fn => { effect = fn; } },
     $: { jsx: (tag, props) => ({ tag, props }) },
-    crypto: { randomUUID: () => "mount-1" }, Element, HTMLElement, HTMLInputElement,
+    crypto: { randomUUID: () => "mount-1" }, Element, HTMLElement, HTMLInputElement, HTMLDetailsElement,
     azraelAccountBridge: { dispatchMessage: (type, message) => sent.push({ type, ...message }),
       subscribe: (v, fn) => { receiver = fn; return () => { receiver = undefined; }; } },
   });
@@ -88,11 +89,18 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   assert.equal(input.disabled, true);
   change({ target: input });
   assert.equal(sent.length, 3);
+  toggle({ target: new HTMLDetailsElement() });
+  assert.deepEqual(JSON.parse(JSON.stringify(sent[3].message)), { action: 'ticketDetails', profileId: 'profile-1', workspaceAccountId: 'workspace-1', open: true });
+  button.disabled = false;
+  button.dataset = { action: 'consumeResetCredit', profile: 'profile-1', workspace: 'workspace-1', credit: 'selected-ticket' };
+  click({ target: button });
+  assert.equal(sent[4].message.creditId, 'selected-ticket');
   cleanup();
-  assert.equal(sent[3].action, "unmount");
+  assert.equal(sent[5].action, "unmount");
   assert.equal(change, undefined);
   assert.equal(receiver, undefined);
   assert.equal(click, undefined);
+  assert.equal(toggle, undefined);
 });
 
 function loadUsageView() {

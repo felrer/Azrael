@@ -46,9 +46,11 @@ receipt matching the exact root-wait checksum, and rejects an occupied version
 and unknown receipts are preserved; original source files remain in recorded
 `.upstream` copies. `SOURCE.json` binds each corrected and preserved path.
 
-`instructions/` contains the complete maintained shared library imported from
-`C:/Users/felre/codex-efficient-subagents-share`. Its `SOURCE.json` records every
-source mapping, hash, adaptation and exclusion. Environment-specific instructions
+`instructions/` contains the complete maintained shared library. Its `SOURCE.json`
+retains the original import from `C:/Users/felre/codex-efficient-subagents-share`.
+The five current skill directories come from the active installed Azrael skills;
+`SKILLS-SOURCE.json` records their source-relative paths, original and copied hashes,
+adaptations and exclusions. Environment-specific instructions
 remain maintained copies, rather than filesystem links. Root project working
 agreements are not overwritten by downloading a package.
 
@@ -66,7 +68,10 @@ python -B scripts/import-instructions.py --check
 ```
 
 Read the importers' `--help` before refreshing either source. Refreshing instructions
-must include review of local adaptations; refreshing engine creates a new selected
+from an explicit historical source must include review of local adaptations.
+The source-free instruction check validates the maintained skill hashes, component
+mappings and current document links without requiring the archived checkout.
+Refreshing engine creates a new selected
 snapshot. Build caches and deployment artifacts are excluded from source distribution.
 
 `scripts/build-engine-source-release.py --output <new ZIP path>` creates a
@@ -82,7 +87,7 @@ version and component definitions. Update that version and the current
 published version with different bytes.
 
 ```powershell
-node scripts/build-instruction-release.cjs --output artifacts/instructions/release-1.0.0 --repository felrer/Azrael
+node scripts/build-instruction-release.cjs --output artifacts/instructions/release-1.1.0 --repository felrer/Azrael
 ```
 
 The builder creates a ZIP of the entire library, a file/hash manifest and a text

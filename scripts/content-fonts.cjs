@@ -41,14 +41,16 @@ const CONTENT_FONT_CSS = `
 @font-face{font-family:"Azrael Gyeonggi Title";src:url("./azrael-fonts/gyeonggi-title-light.woff") format("woff");font-style:normal;font-weight:400;font-display:swap}
 @layer base{
 :root{--codex-content-font-family:${FONT_FAMILY}!important;font-synthesis-weight:none}
+:root[data-azrael-chat-font="openai"]{--codex-content-font-family:var(--font-sans)!important}
 /* Consolas has a 1ch space advance; subtract half without changing character spacing. */
-.font-content,[data-composer-body] .ProseMirror,[data-thread-title],[data-azrael-dynamic-text]{font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:-0.5ch!important}
+:root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]),[data-thread-title],[data-azrael-dynamic-text]:not([data-azrael-chat-text]){font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:-0.5ch!important}
 /* The message Markdown renderer sets content fonts without a .font-content wrapper. */
-._MarkdownRoot_176oq_2,._Paragraph_176oq_2,._Heading_176oq_2,._ListItem_176oq_2,._Table_176oq_2{word-spacing:-0.5ch!important}
+:root:not([data-azrael-chat-font="openai"]) :is(._MarkdownRoot_176oq_2,._Paragraph_176oq_2,._Heading_176oq_2,._ListItem_176oq_2,._Table_176oq_2){word-spacing:-0.5ch!important}
+:root[data-azrael-chat-font="openai"] :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text],._MarkdownRoot_176oq_2){font-synthesis-weight:auto}
 ._MarkdownRoot_176oq_2 :is(code,pre){word-spacing:normal!important}
 ._MarkdownRoot_176oq_2 :is(button,select){word-spacing:normal!important}
-.font-content code,.font-content pre,[data-azrael-dynamic-text] code,[data-azrael-dynamic-text] pre,[data-composer-body] .ProseMirror code{font-family:${FONT_FAMILY}!important;font-synthesis-weight:none;word-spacing:normal!important}
-:is(.font-content,[data-azrael-dynamic-text],[data-composer-body] .ProseMirror) :is(button,select){font-family:var(--font-ui-family,var(--font-sans))!important;word-spacing:normal!important}
+:root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]) :is(code,pre),[data-azrael-dynamic-text]:not([data-azrael-chat-text]) :is(code,pre){font-family:${FONT_FAMILY}!important;font-synthesis-weight:none;word-spacing:normal!important}
+:root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]) :is(button,select),[data-azrael-dynamic-text]:not([data-azrael-chat-text]) :is(button,select){font-family:var(--font-ui-family,var(--font-sans))!important;word-spacing:normal!important}
 }
 `;
 

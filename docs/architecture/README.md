@@ -14,6 +14,10 @@ Each document labels its own state (see [document states](../README.md#document-
 
 - [Provider context policy](context-policy.md): provider-specific 95% compaction defaults, context capacity, pricing tiers and settings/gauge contracts.
 
+## Partial implementation
+
+- [Auto-Review](auto-review.md): OpenAI-only native permission selection and turn submission guard; existing Guardian binary verified separately from new package and installed acceptance.
+
 ## Target
 
 - [UI presentation](ui-presentation.md): composer surface cleanup, fixed/dynamic typography boundary and icon style candidates.

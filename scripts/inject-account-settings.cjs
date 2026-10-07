@@ -18,13 +18,16 @@ function AzraelAccountSettings() {
     const clientId = crypto.randomUUID();
     const send = (action, message) => azraelAccountBridge.dispatchMessage("azrael-accounts", { clientId, action, message });
     const unsubscribe = azraelAccountBridge.subscribe("azrael-accounts-html", message => {
-      if (message.clientId === clientId && typeof message.html === "string") root.innerHTML = message.html;
+      if (message.clientId === clientId && typeof message.html === "string") {
+        root.innerHTML = message.html;
+        root.querySelector('button[data-ticket-confirming="true"]')?.focus();
+      }
     });
     const onClick = event => {
       const button = event.target instanceof Element ? event.target.closest("button[data-action]") : null;
       if (!(button instanceof HTMLElement) || button.disabled) return;
       send("action", { action: button.dataset.action, profileId: button.dataset.profile, providerId: button.dataset.provider,
-        accountId: button.dataset.account, workspaceAccountId: button.dataset.workspace, kind: button.dataset.kind });
+        accountId: button.dataset.account, workspaceAccountId: button.dataset.workspace, kind: button.dataset.kind, creditId: button.dataset.credit });
     };
     const onChange = event => {
       const input = event.target;
@@ -34,11 +37,17 @@ function AzraelAccountSettings() {
       send("action", { action: input.dataset.action, profileId: input.dataset.profile, providerId: input.dataset.provider,
         accountId: input.dataset.account, workspaceAccountId: input.dataset.workspace, enabled });
     };
+    const onToggle = event => {
+      const details = event.target;
+      if (!(details instanceof HTMLDetailsElement) || !details.classList.contains("ticket-details")) return;
+      send("action", { action: "ticketDetails", profileId: details.dataset.profile, workspaceAccountId: details.dataset.workspace, open: details.open });
+    };
     root.addEventListener("click", onClick);
     root.addEventListener("change", onChange);
+    root.addEventListener("toggle", onToggle, true);
     root.innerHTML = '<p role="status">계정 및 사용량을 불러오는 중…</p>';
     send("mount");
-    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("change", onChange); root.innerHTML = ""; };
+    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("change", onChange); root.removeEventListener("toggle", onToggle, true); root.innerHTML = ""; };
   }, []);
   return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-account-settings": true });
 }

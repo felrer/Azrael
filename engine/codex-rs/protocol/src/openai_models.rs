@@ -1012,6 +1012,11 @@ impl ModelPreset {
 
 impl ModelInfo {
     pub fn supports_service_tier(&self, service_tier: &str) -> bool {
+        // Account-discovered catalogs can omit Astra's ultrafast tier. Keep this
+        // explicit routing option available without requiring catalog support.
+        if service_tier == "ultrafast" && self.slug == "gpt-6-astra" {
+            return true;
+        }
         // Flex is an API request option, even when the Codex catalog does not advertise it.
         service_tier == ServiceTier::Flex.request_value()
             || self
@@ -2009,6 +2014,38 @@ mod tests {
             model.service_tier_for_request(Some(ServiceTier::Flex.request_value().to_string())),
             Some(ServiceTier::Flex.request_value().to_string())
         );
+    }
+
+    #[test]
+    fn service_tier_for_request_preserves_astra_ultrafast_and_advertised_tiers() {
+        for slug in [
+            "gpt-6-astra",
+            "gpt-6.1-sol",
+            "gpt-6-luna",
+            "gpt-6-astra-other",
+        ] {
+            for advertised in [false, true] {
+                let model = ModelInfo {
+                    slug: slug.to_string(),
+                    service_tiers: if advertised {
+                        vec![ModelServiceTier {
+                            id: "ultrafast".to_string(),
+                            name: "Ultrafast".to_string(),
+                            description: "Ultrafast processing.".to_string(),
+                        }]
+                    } else {
+                        Vec::new()
+                    },
+                    ..test_model(/*spec*/ None)
+                };
+
+                assert_eq!(
+                    model.service_tier_for_request(Some("ultrafast".to_string())),
+                    (slug == "gpt-6-astra" || advertised).then(|| "ultrafast".to_string()),
+                    "model={slug}, advertised={advertised}"
+                );
+            }
+        }
     }
 
     #[test]

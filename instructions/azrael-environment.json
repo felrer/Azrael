@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "instructionVersion": "1.0.0",
+  "instructionVersion": "1.1.0",
   "minimumAppVersion": "0.4.0",
   "components": [
     {
@@ -43,48 +43,70 @@
       ]
     },
     {
-      "id": "skill-designing",
-      "title": "designing",
+      "id": "skill-development-workflow",
+      "title": "development-workflow",
       "kind": "skill",
       "scope": "home",
       "default": true,
       "files": [
         {
-          "source": "skills/designing/SKILL.md",
-          "target": "skills/designing/SKILL.md"
+          "source": "skills/development-workflow/SKILL.md",
+          "target": "skills/development-workflow/SKILL.md"
+        },
+        {
+          "source": "skills/development-workflow/references/task-artifacts.md",
+          "target": "skills/development-workflow/references/task-artifacts.md"
+        },
+        {
+          "source": "skills/development-workflow/scripts/new_task_plan.py",
+          "target": "skills/development-workflow/scripts/new_task_plan.py"
+        },
+        {
+          "source": "skills/development-workflow/scripts/tests/test_work_artifacts.py",
+          "target": "skills/development-workflow/scripts/tests/test_work_artifacts.py"
+        },
+        {
+          "source": "skills/development-workflow/scripts/work_artifacts.py",
+          "target": "skills/development-workflow/scripts/work_artifacts.py"
         }
       ]
     },
     {
-      "id": "skill-planning",
-      "title": "planning",
+      "id": "skill-design-collaboration",
+      "title": "design-collaboration",
       "kind": "skill",
       "scope": "home",
       "default": true,
       "files": [
         {
-          "source": "skills/planning/SKILL.md",
-          "target": "skills/planning/SKILL.md"
-        },
+          "source": "skills/design-collaboration/SKILL.md",
+          "target": "skills/design-collaboration/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "skill-design-documentation",
+      "title": "design-documentation",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
         {
-          "source": "skills/planning/references/implementation-plans.md",
-          "target": "skills/planning/references/implementation-plans.md"
-        },
+          "source": "skills/design-documentation/SKILL.md",
+          "target": "skills/design-documentation/SKILL.md"
+        }
+      ]
+    },
+    {
+      "id": "skill-implementation",
+      "title": "implementation",
+      "kind": "skill",
+      "scope": "home",
+      "default": true,
+      "files": [
         {
-          "source": "skills/planning/references/task-artifacts.md",
-          "target": "skills/planning/references/task-artifacts.md"
-        },
-        {
-          "source": "skills/planning/scripts/new_task_plan.py",
-          "target": "skills/planning/scripts/new_task_plan.py"
-        },
-        {
-          "source": "skills/planning/scripts/tests/test_work_artifacts.py",
-          "target": "skills/planning/scripts/tests/test_work_artifacts.py"
-        },
-        {
-          "source": "skills/planning/scripts/work_artifacts.py",
-          "target": "skills/planning/scripts/work_artifacts.py"
+          "source": "skills/implementation/SKILL.md",
+          "target": "skills/implementation/SKILL.md"
         }
       ]
     },
@@ -102,10 +124,6 @@
         {
           "source": "skills/project-bootstrap/assets/playbooks/app-logging.md",
           "target": "skills/project-bootstrap/assets/playbooks/app-logging.md"
-        },
-        {
-          "source": "skills/project-bootstrap/assets/playbooks/work.md",
-          "target": "skills/project-bootstrap/assets/playbooks/work.md"
         },
         {
           "source": "skills/project-bootstrap/assets/project-template/AGENTS.md",
@@ -134,19 +152,6 @@
         {
           "source": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
           "target": "skills/project-bootstrap/assets/project-template/docs/work/README.md"
-        }
-      ]
-    },
-    {
-      "id": "playbook-work",
-      "title": "work",
-      "kind": "playbook",
-      "scope": "workspace",
-      "default": false,
-      "files": [
-        {
-          "source": "skills/project-bootstrap/assets/playbooks/work.md",
-          "target": "docs/playbooks/work.md"
         }
       ]
     },

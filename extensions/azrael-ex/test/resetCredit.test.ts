@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { AccountParams, AccountProfile, AccountUsage, parseAccountResponse } from "../src/protocol";
-import { earliestExpiringResetCredit, ResetCreditService } from "../src/resetCredit";
+import { ResetCreditService } from "../src/resetCredit";
 
 const profile: AccountProfile = { id: "a".repeat(32), workspaceAccountId: "workspace", userId: "user", email: "account@example.com", planType: "plus" };
 const expiresAt = Math.floor(Date.now() / 1000) + 3600;
@@ -39,19 +39,24 @@ test("uncertain consumption retains its request identity across restart, termina
     return { resetCreditOutcome: "alreadyRedeemed" };
   } };
   let tickets = new ResetCreditService(service as never, saved as never);
-  await assert.rejects(tickets.consume(profile), /timeout/);
+  await assert.rejects(tickets.consume(profile, "soon"), /timeout/);
   assert.equal(tickets.busy(profile), false);
   tickets = new ResetCreditService(service as never, saved as never);
   assert.equal(tickets.retrying(profile), true);
+  assert.equal(tickets.retryCreditId(profile), "soon");
+  await assert.rejects(tickets.consume(profile, "later"), /다른 리셋 티켓/);
+  assert.equal(calls.length, 1);
+  assert.equal(queries, 1);
   selectedCredits = [credit("new-earliest", expiresAt - 60)];
   fail = false;
-  assert.equal(await tickets.consume(profile), "alreadyRedeemed");
+  assert.equal(await tickets.consume(profile, "soon"), "alreadyRedeemed");
   assert.deepEqual(calls[0], calls[1]);
   assert.equal(calls[1].creditId, "soon");
   assert.equal(queries, 1);
   assert.equal(calls[1].profileId, profile.id);
   assert.equal(tickets.retrying(profile), false);
-  await tickets.consume(profile);
+  assert.equal(tickets.retryCreditId(profile), undefined);
+  await tickets.consume(profile, "new-earliest");
   assert.notEqual(calls[1].idempotencyKey, calls[2].idempotencyKey);
   assert.equal(calls[2].creditId, "new-earliest");
   assert.equal(queries, 2);
@@ -62,9 +67,9 @@ test("concurrent duplicate clicks send only one request", async () => {
   let calls = 0;
   const service = withUsage(async () => { ++calls; return new Promise(done => { resolve = done; }); });
   const tickets = new ResetCreditService(service as never, storage() as never);
-  const first = tickets.consume(profile);
+  const first = tickets.consume(profile, "soon");
   await new Promise(done => setImmediate(done));
-  await assert.rejects(tickets.consume(profile), /이미 진행/);
+  await assert.rejects(tickets.consume(profile, "soon"), /이미 진행/);
   resolve({ resetCreditOutcome: "reset" });
   await first;
   assert.equal(calls, 1);
@@ -74,20 +79,20 @@ test("storage failure prevents dispatch; profiles and workspaces have separate a
   let calls = 0;
   const service = withUsage(async () => { ++calls; throw new Error("uncertain"); });
   const brokenStorage = { get() {}, async update() { throw new Error("disk failure"); } };
-  await assert.rejects(new ResetCreditService(service as never, brokenStorage as never).consume(profile), /disk failure/);
+  await assert.rejects(new ResetCreditService(service as never, brokenStorage as never).consume(profile, "soon"), /disk failure/);
   assert.equal(calls, 0);
   const saved = storage();
   const ids: string[] = [];
   const identities = withUsage(async params => { ids.push(params.idempotencyKey!); throw new Error("uncertain"); });
   const tickets = new ResetCreditService(identities as never, saved as never);
-  await assert.rejects(tickets.consume(profile));
+  await assert.rejects(tickets.consume(profile, "soon"));
   identities.state.profiles[0] = { ...profile, workspaceAccountId: "other" };
   const other = identities.state.profiles[0];
   identities.call = async params => {
     if (params.action === "usage") return usageResponse([credit()], other);
     ids.push(params.idempotencyKey!); throw new Error("uncertain");
   };
-  await assert.rejects(tickets.consume(other));
+  await assert.rejects(tickets.consume(other, "soon"));
   assert.notEqual(ids[0], ids[1]);
 });
 
@@ -111,34 +116,52 @@ test("failed terminal cleanup retains a safe replay identity without hiding conf
   const calls: AccountParams[] = [];
   const service = withUsage(async params => { calls.push(params); return { resetCreditOutcome: "reset" }; });
   const tickets = new ResetCreditService(service as never, saved as never);
-  assert.equal(await tickets.consume(profile), "reset");
+  assert.equal(await tickets.consume(profile, "soon"), "reset");
   assert.equal(tickets.retrying(profile), true);
-  await tickets.consume(profile);
+  await tickets.consume(profile, "soon");
   assert.deepEqual(calls[0], calls[1]);
 });
 
-test("selection orders expiration, grant time and ID without mutating details", () => {
-  const credits = [credit("no-expiry", null, 0), credit("later", 300), credit("b", 200, 2), credit("a", 200, 2), credit("oldest", 200, 1)];
+test("explicit selection consumes the chosen later or nonexpiring ticket without mutating details", async () => {
+  const credits = [credit(), credit("later", expiresAt + 3600), credit("no-expiry", null)];
   const original = structuredClone(credits);
-  assert.equal(earliestExpiringResetCredit(credits, 100)?.id, "oldest");
-  assert.equal(earliestExpiringResetCredit(credits.slice(0, 4), 100)?.id, "a");
-  assert.equal(earliestExpiringResetCredit([...credits].reverse(), 100)?.id, "oldest");
+  const calls: AccountParams[] = [];
+  const service = { state: { profiles: [profile] }, async call(params: AccountParams) {
+    calls.push(params);
+    return params.action === "usage" ? usageResponse(credits) : { resetCreditOutcome: "reset" };
+  } };
+  const tickets = new ResetCreditService(service as never, storage() as never);
+  for (const id of ["later", "no-expiry"]) {
+    assert.equal(await tickets.consume(profile, id), "reset");
+    assert.equal(calls.at(-1)?.creditId, id);
+    assert.deepEqual(calls.at(-2), { action: "usage", profileId: profile.id, includeDetails: true });
+  }
   assert.deepEqual(credits, original);
-  assert.equal(earliestExpiringResetCredit([credit("permanent", null)], 100)?.id, "permanent");
 });
 
-test("selection excludes expired, ineligible and malformed tickets", () => {
-  const invalid = [credit("expired", 99), credit("expires-now", 100), credit("invalid-expiry", NaN),
-    credit("fractional-expiry", 200.5), credit("invalid-grant", 200, NaN), credit(" ", 200),
+test("selected expired, ineligible or malformed tickets never fall back to another eligible ticket", async () => {
+  const invalid = [credit("expired", 99), credit("expires-now", Math.floor(Date.now() / 1000)), credit("invalid-expiry", NaN),
+    credit("fractional-expiry", expiresAt + 0.5), credit("invalid-grant", expiresAt, NaN),
     { ...credit(), status: "redeeming" }, { ...credit(), status: "redeemed" }, { ...credit(), status: "unknown" },
     { ...credit(), resetType: "unknown" }];
-  assert.equal(earliestExpiringResetCredit(invalid, 100), undefined);
-  assert.equal(earliestExpiringResetCredit([...invalid, credit("eligible", 200)], 100)?.id, "eligible");
+  for (const selected of [...invalid, credit("missing")]) {
+    const calls: AccountParams[] = [];
+    const service = { state: { profiles: [profile] }, async call(params: AccountParams) {
+      calls.push(params);
+      return usageResponse([...(selected.id === "missing" ? [] : [selected]), credit("eligible")]);
+    } };
+    const tickets = new ResetCreditService(service as never, storage() as never);
+    assert.equal(await tickets.consume(profile, selected.id), "noCredit");
+    assert.deepEqual(calls.map(call => call.action), ["usage"]);
+    assert.equal(tickets.retrying(profile), false);
+  }
 });
 
 test("failed or missing details never spend or create an uncertain attempt", async () => {
   for (const response of [new Error("details timeout"), { usageProfileId: profile.id, usage: null },
-    { ...usageResponse(), usage: { ...usageResponse().usage, rateLimitResetCredits: { availableCount: 1, credits: null } } }]) {
+    ...[null, undefined, "invalid"].map(credits => ({ ...usageResponse(), usage: {
+      ...usageResponse().usage, rateLimitResetCredits: { availableCount: 1, credits } } })),
+    { ...usageResponse(), usage: { ...usageResponse().usage, rateLimitResetCredits: { availableCount: NaN, credits: [credit()] } } }]) {
     const calls: AccountParams[] = [];
     const service = { state: { profiles: [profile] }, async call(params: AccountParams) {
       calls.push(params);
@@ -146,10 +169,26 @@ test("failed or missing details never spend or create an uncertain attempt", asy
       return response;
     } };
     const tickets = new ResetCreditService(service as never, storage() as never);
-    await assert.rejects(tickets.consume(profile));
+    await assert.rejects(tickets.consume(profile, "soon"));
     assert.deepEqual(calls.map(call => call.action), ["usage"]);
     assert.equal(tickets.retrying(profile), false);
   }
+});
+
+test("empty ticket IDs and duplicate selected details fail without spending", async () => {
+  const calls: AccountParams[] = [];
+  const service = { state: { profiles: [profile] }, async call(params: AccountParams) {
+    calls.push(params);
+    return usageResponse([credit(), credit(), credit("other")]);
+  } };
+  const tickets = new ResetCreditService(service as never, storage() as never);
+  for (const id of ["", " ", undefined, null]) {
+    await assert.rejects(tickets.consume(profile, id as string), /티켓 ID/);
+  }
+  assert.equal(calls.length, 0);
+  await assert.rejects(tickets.consume(profile, "soon"), /중복/);
+  assert.deepEqual(calls.map(call => call.action), ["usage"]);
+  assert.equal(tickets.retrying(profile), false);
 });
 
 test("no eligible ticket or zero available count returns noCredit without a spend", async () => {
@@ -160,7 +199,7 @@ test("no eligible ticket or zero available count returns noCredit without a spen
       return { ...usageResponse(), usage: { ...usageResponse().usage, rateLimitResetCredits: details } };
     } };
     const tickets = new ResetCreditService(service as never, storage() as never);
-    assert.equal(await tickets.consume(profile), "noCredit");
+    assert.equal(await tickets.consume(profile, "soon"), "noCredit");
     assert.deepEqual(calls.map(call => call.action), ["usage"]);
     assert.equal(tickets.retrying(profile), false);
   }
@@ -178,23 +217,22 @@ test("changed profile and mismatched usage identities cannot spend", async () =>
       if (mismatch === "workspace") response.usage.accountId = "other";
       return response;
     } };
-    await assert.rejects(new ResetCreditService(service as never, storage() as never).consume(profile));
+    await assert.rejects(new ResetCreditService(service as never, storage() as never).consume(profile, "soon"));
     assert.deepEqual(calls.map(call => call.action), ["usage"]);
   }
 });
 
-test("legacy uncertain attempts replay the exact original request without selecting a ticket", async () => {
+test("legacy uncertain attempts with unknown ticket identity reject new selection without dispatch", async () => {
   const saved = storage();
   const id = "a5b0b1b5-9bf1-4b01-8f02-781cf6d40539";
   await saved.update("azrael.usage.resetCreditAttempts", [{ identity: JSON.stringify([profile.id, profile.workspaceAccountId]), id }]);
   const calls: AccountParams[] = [];
-  const service = withUsage(async params => { calls.push(params); return { resetCreditOutcome: "alreadyRedeemed" }; });
+  const service = { state: { profiles: [profile] }, async call(params: AccountParams) { calls.push(params); return {}; } };
   const tickets = new ResetCreditService(service as never, saved as never);
-  assert.equal(await tickets.consume(profile), "alreadyRedeemed");
-  assert.deepEqual(calls, [{ action: "consumeResetCredit", profileId: profile.id, idempotencyKey: id }]);
-  await tickets.consume(profile);
-  assert.equal(calls[1].creditId, "soon");
-  assert.notEqual(calls[1].idempotencyKey, id);
+  await assert.rejects(tickets.consume(profile, "soon"), /대상 ID/);
+  assert.equal(calls.length, 0);
+  assert.equal(tickets.retrying(profile), true);
+  assert.equal(tickets.retryCreditId(profile), undefined);
 });
 
 test("missing outcome retains both IDs and a confirmed noCredit settles that attempt", async () => {
@@ -206,10 +244,10 @@ test("missing outcome retains both IDs and a confirmed noCredit settles that att
     return confirmed ? { resetCreditOutcome: "noCredit" } : {};
   });
   const first = new ResetCreditService(service as never, saved as never);
-  await assert.rejects(first.consume(profile), /결과/);
+  await assert.rejects(first.consume(profile, "soon"), /결과/);
   const restarted = new ResetCreditService(service as never, saved as never);
   confirmed = true;
-  assert.equal(await restarted.consume(profile), "noCredit");
+  assert.equal(await restarted.consume(profile, "soon"), "noCredit");
   assert.deepEqual(calls[0], calls[1]);
   assert.equal(restarted.retrying(profile), false);
 });

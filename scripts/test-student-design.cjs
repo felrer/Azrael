@@ -6,9 +6,33 @@ const _m = require("node:vm");
 const test = require("node:test");
 const vp = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { DESIGN_ASSETS, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, pickStudentPreview, observeStudentCreated } = require("./inject-student-design.cjs");
-const { injectInstructionSettings } = require("./inject-instruction-settings.cjs");
+const { injectInstructionSettings, azraelSettingsText } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
 const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225"));
+
+test("native navigation descriptor, row label and collapsed label use current application locale", () => {
+  const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
+  const text = injectStudentDesign(injectInstructionSettings(ms.readFileSync(filename, "utf8"), asset).text, asset).text;
+  const ast = vp.createSourceFile(asset, text, 99, true, vp.ScriptKind.JS), expressions = {};
+  const visit = node => {
+    if (vp.isVariableDeclaration(node) && ["c", "f"].includes(node.name.getText(ast)) && node.initializer?.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.name.getText(ast)] = node.initializer.getText(ast);
+    if (vp.isBinaryExpression(node) && ["c", "f"].includes(node.left.getText(ast)) && node.right.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.left.getText(ast)] = node.right.getText(ast);
+    if (vp.isPropertyAssignment(node) && node.name.getText(ast) === "label" && node.initializer.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions.label = node.initializer.getText(ast);
+    vp.forEachChild(node, visit);
+  }; visit(ast);
+  assert.deepEqual(Object.keys(expressions).sort(), ["c", "f", "label"]);
+  assert.equal(ast.statements.filter(n => vp.isFunctionDeclaration(n) && n.name?.text === "azraelSettingsText").length, 1);
+  for (const locale of ["en-US", "ko", "KO-KR", "ko_KR", "ja-JP", undefined]) {
+    for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Instruction documents (Not implemented)", "지침 문서 (미구현)"]]) {
+      const context = { e: { slug }, O: { locale }, azraelSettingsText };
+      const expected = azraelSettingsText(locale, en, ko);
+      for (const [kind, expression] of Object.entries(expressions)) {
+        const actual = _m.runInNewContext(expression, context);
+        assert.equal(kind === "c" ? actual.defaultMessage : actual, expected, `${kind}/${slug}/${locale}`);
+      }
+    }
+  }
+});
 
 test("native navigation custom icons retain active class and suppress assets only for their slugs", () => {
   const { transformAsset } = require("./namespace-azrael-host.cjs");
@@ -49,7 +73,7 @@ test("production pipeline applies student design and preserves it through Pets r
     assert.equal(vp.createSourceFile(asset, result.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
     if (asset === DESIGN_ASSETS[2]) {
       assert.ok(result.text.includes("personalization.azrael-instructions.azrael-design.usage"));
-      assert.ok(result.text.includes("defaultMessage:`디자인`"));
+      assert.ok(result.text.includes("defaultMessage:azraelSettingsText(O.locale,`Design`,`디자인`)"));
       assert.equal(result.text.includes("`azrael-design`,`pets`,`keyboard-shortcuts`"), false);
     }
     assets.push(result.asset);
@@ -100,7 +124,7 @@ test("pinned composed assets parse, preserve settings, reject drift and remain i
     }
     assert.throws(() => injectStudentDesign("", asset), /anchor changed|requires instruction/);
     if (asset === DESIGN_ASSETS[2]) {
-      for (const value of ["AzraelAccountSettings", "AzraelInstructionSettings", "AzraelDesignSettings", ".azrael-instructions.azrael-design.pets.", 'defaultMessage:`디자인`']) assert(result.text.includes(value));
+      for (const value of ["AzraelAccountSettings", "AzraelInstructionSettings", "AzraelDesignSettings", ".azrael-instructions.azrael-design.pets.", 'defaultMessage:azraelSettingsText(O.locale,`Design`,`디자인`)']) assert(result.text.includes(value));
     }
     if (asset === DESIGN_ASSETS[1]) {
       assert(result.text.includes('{slug:`azrael-instructions`},{slug:`azrael-design`}'));
@@ -259,7 +283,8 @@ test("lost replies time out, retry only reads host state, and disposal cancels p
   assert.equal(timers.size, 1);
   expire();
   assert.equal(h.store.getSnapshot().loading, false);
-  assert.match(h.store.getSnapshot().error, /다시 불러오기/);
+  assert.match(h.store.getSnapshot().error.ko, /다시 불러오기/);
+  assert.match(h.store.getSnapshot().error.en, /Reload/);
   h.store.retry();
   assert.equal(h.sent[1].action, "subscribe");
   assert.equal(h.store.getSnapshot().loading, true);
@@ -288,6 +313,21 @@ test("unavailable host reports error and exits loading", () => {
   const store = createDesignStore({ subscribe: () => () => {}, dispatchMessage: () => { throw new Error("host unavailable"); } }, "client");
   assert.equal(store.getSnapshot().loading, false);
   assert.equal(store.getSnapshot().error, "host unavailable");
+});
+
+test("host observes completed v2 creation items without assigning for later activity or history", () => {
+  const calls = [], commands = { executeCommand: (...args) => { calls.push(args); } };
+  // multi_agents_v2 emits a completed activity item whose kind is "started".
+  const notification = { method: "item/completed", params: { item: { type: "subAgentActivity", kind: "started", agentThreadId: "new-v2-thread", agentPath: "/root/worker" } } };
+  observeStudentCreated(notification, commands);
+  assert.deepEqual(calls, [["azrael.studentCreated", "new-v2-thread"]]);
+  for (const message of [
+    { ...notification, method: "item/started" },
+    { ...notification, method: "thread/read" },
+    ...["completed", "interrupted", "interacted", "unknown"].map(kind => ({ ...notification, params: { item: { ...notification.params.item, kind } } })),
+    ...[undefined, null, 42, "", " bad "].map(agentThreadId => ({ ...notification, params: { item: { ...notification.params.item, agentThreadId } } })),
+  ]) observeStudentCreated(message, commands);
+  assert.equal(calls.length, 1);
 });
 
 test("host observes only completed native spawn notifications and safely preserves fanout on failures", async () => {
@@ -332,12 +372,66 @@ test("avatar uses exact assigned seed even when off, preserves props and falls b
   state = { ...state, assignments: {} }; assert.equal(avatar({ seed: "toString" }).type, original);
 });
 
+test("v2 creation reaches the host store and avatar while duplicate and off decisions stay durable", async () => {
+  const filename = path.resolve(__dirname, "../extensions/azrael-ex/src/studentDesign.ts");
+  const module = { exports: {} };
+  const uri = fsPath => ({ fsPath, scheme: "file", authority: "", path: fsPath.replace(/\\/g, "/"), toString: () => `file:${fsPath}` });
+  _m.runInNewContext(vp.transpileModule(ms.readFileSync(filename, "utf8"), {
+    compilerOptions: { module: vp.ModuleKind.CommonJS, target: vp.ScriptTarget.ES2022 },
+  }).outputText, { module, exports: module.exports, require: name => name === "vscode"
+    ? { Uri: { joinPath: (root, ...parts) => uri(path.join(root.fsPath, ...parts)) } } : require(name) });
+  const { StudentDesignService } = module.exports;
+  let saved, picks = 0, receive;
+  const pending = [];
+  const context = { extensionUri: uri(path.resolve(__dirname, "../extensions/azrael-ex")), globalState: {
+    get: () => saved, update: async (_key, value) => { saved = value; },
+  } };
+  const service = new StudentDesignService(context, { randomInt: () => { picks++; return 0; } });
+  const webview = { options: {}, asWebviewUri: local => ({ toString: () => `local-resource:${local.fsPath}` }),
+    postMessage: async message => { receive(message); return true; } };
+  const store = createDesignStore({ subscribe: (_kind, listener) => { receive = listener; return () => {}; },
+    dispatchMessage: (type, request) => { pending.push(service.handleEmbedded(webview, { type, ...request })); } }, "integration");
+  const settle = () => Promise.all(pending.splice(0));
+  const commands = { executeCommand: (name, id) => {
+    assert.equal(name, "azrael.studentCreated");
+    const operation = service.recordCreated(id); pending.push(operation); return operation;
+  } };
+  const started = id => ({ method: "item/completed", params: { item: { type: "subAgentActivity", kind: "started", agentThreadId: id, agentPath: "/root/worker" } } });
+  try {
+    await settle();
+    observeStudentCreated(started("off-thread"), commands); await settle();
+    store.setEnabled(true); await settle();
+    observeStudentCreated(started("new-thread"), commands);
+    observeStudentCreated(started("new-thread"), commands);
+    observeStudentCreated({ method: "item/completed", params: { item: { type: "collabAgentToolCall", tool: "spawnAgent", status: "completed", receiverThreadIds: ["new-thread"] } } }, commands);
+    observeStudentCreated(started("off-thread"), commands); await settle();
+    assert.equal(picks, 1, "both notification forms share one durable assignment");
+    const snapshot = store.getSnapshot(), student = snapshot.students[0];
+    assert.equal(snapshot.assignments["new-thread"], student.id);
+    assert.equal(saved.decisions["off-thread"], null);
+    const original = () => {};
+    const avatar = _m.runInNewContext("(" + AzraelStudentAvatar.toString() + ")", {
+      q: () => ({ useState: () => [null, () => {}] }), useAzraelDesignState: store.getSnapshot,
+      d_i: { jsx }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
+    });
+    assert.equal(avatar({ seed: "new-thread" }).props.src, student.url);
+    assert.equal(avatar({ seed: "off-thread" }).type, original);
+    store.setEnabled(false); await settle();
+    assert.equal(avatar({ seed: "new-thread" }).props.src, student.url);
+    observeStudentCreated(started("later-off-thread"), commands); await settle();
+    assert.equal(avatar({ seed: "later-off-thread" }).type, original);
+    const reloaded = new StudentDesignService(context, { randomInt: () => { throw new Error("Must reuse saved decision"); } });
+    try { await reloaded.recordCreated("new-thread"); await reloaded.recordCreated("off-thread"); }
+    finally { reloaded.dispose(); }
+  } finally { store.dispose(); await settle(); service.dispose(); }
+});
+
 // Model React's indexed hooks, queued effects and functional local updates. Native
 // component symbols remain opaque so assertions inspect their public prop contracts.
 function settingsHarness(initialState, randomValues = [0]) {
-  let state = initialState, cursor = 0, dirty = false, randomIndex = 0;
+  let state = initialState, locale = "ko-KR", cursor = 0, dirty = false, randomIndex = 0;
   const slots = [], effects = [], calls = [], initializers = [];
-  const native = Object.fromEntries(["Tt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "pe"].map(name => [name, Symbol(name)]));
+  const native = Object.fromEntries(["Tt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "AzraelFontChoice", "pe"].map(name => [name, Symbol(name)]));
   const react = {
     useState(initial) {
       const index = cursor++;
@@ -356,10 +450,11 @@ function settingsHarness(initialState, randomValues = [0]) {
   };
   const choose = (students, previous) => pickStudentPreview(students, previous, () => randomValues[randomIndex++ % randomValues.length]);
   const component = _m.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
-    ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose,
+    ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose, te: () => ({ locale }), azraelSettingsText,
     initAzraelSettingsCard: () => initializers.push("card"), initAzraelSettingsRow: () => initializers.push("row"), initAzraelSwitch: () => initializers.push("switch"),
+    initAzraelFontChoice: () => initializers.push("font-choice"),
     useAzraelDesignState: () => state,
-    azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), retry: () => calls.push(["retry"]) },
+    azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), setChatFont: value => calls.push(["setChatFont", value]), retry: () => calls.push(["retry"]) },
   });
   const render = () => {
     let tree, passes = 0;
@@ -369,7 +464,7 @@ function settingsHarness(initialState, randomValues = [0]) {
     } while (dirty);
     return tree;
   };
-  return { native, calls, initializers, render, update: next => { state = next; return render(); } };
+  return { native, calls, initializers, render, setLocale: next => { locale = next; return render(); }, update: next => { state = next; return render(); } };
 }
 function treeNodes(tree) {
   if (!tree || typeof tree !== "object") return [];
@@ -380,21 +475,91 @@ function findNode(tree, predicate) {
 }
 function settingsControls(h, tree) {
   const rows = treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsRow);
-  assert.equal(rows.length, 2);
-  return { toggle: rows[0].props.control({ "aria-labelledby": "native-label", "aria-describedby": "native-description", id: "native-control" }),
-    draw: rows[1].props.control({}), rows };
+  assert.equal(rows.length, 3);
+  return { font: rows[0].props.control({ "aria-labelledby": "font-label" }),
+    toggle: rows[1].props.control({ "aria-labelledby": "native-label", "aria-describedby": "native-description", id: "native-control" }),
+    draw: rows[2].props.control({}), rows: rows.slice(1) };
 }
 const previewStudents = [
   { id: "a", nameKo: "학생 가", nameEn: "Student A", url: "local-a" },
   { id: "b", nameKo: "학생 나", nameEn: "Student B", url: "local-b" },
 ];
-const loadedDesignState = () => ({ enabled: false, loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+const loadedDesignState = () => ({ enabled: false, chatFont: "gyeonggi-consolas", loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+
+test("font choice uses native segmented control, translated labels and saving lock", () => {
+  const h = settingsHarness(loadedDesignState());
+  let choice = settingsControls(h, h.render()).font;
+  assert.equal(choice.type, h.native.AzraelFontChoice);
+  assert.equal(choice.props.selectedId, "gyeonggi-consolas");
+  assert.equal(choice.props.ariaLabelledBy, "font-label");
+  assert.equal(choice.props.options[0].label, "OpenAI 기본 폰트");
+  choice.props.onSelect("openai"); assert.deepEqual(h.calls, [["setChatFont", "openai"]]);
+  choice = settingsControls(h, h.setLocale("en-US")).font;
+  assert.equal(choice.props.options[0].label, "OpenAI default");
+  choice = settingsControls(h, h.update({ ...loadedDesignState(), chatFont: "openai", saving: true })).font;
+  assert.equal(choice.props.selectedId, "openai");
+  assert(choice.props.options.every(option => option.disabled));
+});
+
+test("host-confirmed font snapshot updates document, while failed save retains current font", () => {
+  let receive; const messages = [], applied = [];
+  const create = _m.runInNewContext("(" + createDesignStore.toString() + ")", {
+    document: { documentElement: { setAttribute: (...args) => applied.push(args) } },
+    setTimeout: () => 1, clearTimeout: () => {},
+  });
+  const store = create({ subscribe: (_type, handler) => { receive = handler; return () => {}; },
+    dispatchMessage: (type, payload) => messages.push({ type, ...payload }) }, "font");
+  assert.equal(store.getSnapshot().chatFont, "gyeonggi-consolas");
+  receive({ clientId: "font", ...loadedDesignState() });
+  store.setChatFont("invalid"); assert.equal(messages.length, 1);
+  store.setChatFont("openai");
+  assert.equal(store.getSnapshot().saving, true);
+  assert.equal(store.getSnapshot().chatFont, "gyeonggi-consolas");
+  assert.deepEqual(messages.at(-1), { type: "azrael-design", clientId: "font", action: "setChatFont", chatFont: "openai" });
+  receive({ clientId: "font", ...loadedDesignState(), error: "save failed" });
+  assert.equal(store.getSnapshot().chatFont, "gyeonggi-consolas");
+  store.setChatFont("openai");
+  receive({ clientId: "font", ...loadedDesignState(), chatFont: "openai" });
+  assert.deepEqual(applied.at(-1), ["data-azrael-chat-font", "openai"]);
+  store.dispose();
+});
+
+test("live locale switch retranslates timeout, loading, empty and controls without resetting preview or assignments", () => {
+  let expire;
+  const bridge = harness({ setTimeout: callback => { expire = callback; return 1; }, clearTimeout() {} });
+  const base = loadedDesignState(); bridge.receive({ clientId: "client", ...base }); bridge.store.setEnabled(true); expire();
+  const snapshot = bridge.store.getSnapshot(), sent = bridge.sent.length, h = settingsHarness(snapshot, [0, .99]);
+  let tree = h.setLocale("en-US");
+  assert.equal(tree.props.title, "Design");
+  assert.equal(settingsControls(h, tree).rows[0].props.label, "Use student photos for new subagents");
+  assert.equal(settingsControls(h, tree).draw.props.children, "Draw again");
+  assert.match(findNode(tree, n => n.props?.role === "alert").props.children[0].props.children, /Select Reload/);
+  settingsControls(h, tree).draw.props.onClick(); tree = h.render();
+  const source = findNode(tree, n => n.type === "img").props.src;
+  for (const locale of ["ko", "KO-kr", "ko_KR", "ko-KR"]) {
+    tree = h.setLocale(locale); assert.equal(tree.props.title, "디자인");
+    assert.match(findNode(tree, n => n.props?.role === "alert").props.children[0].props.children, /다시 불러오기/);
+    assert.equal(settingsControls(h, tree).draw.props.children, "다시 뽑기");
+    assert.equal(findNode(tree, n => n.type === "img").props.src, source);
+    assert.equal(findNode(tree, n => n.type === "img").props.alt, "Student B");
+  }
+  tree = h.setLocale("fr-FR"); assert.equal(tree.props.title, "Design");
+  assert.equal(findNode(tree, n => n.type === "img").props.src, source);
+  assert.equal(bridge.store.getSnapshot(), snapshot); assert.equal(snapshot.assignments, base.assignments); assert.equal(bridge.sent.length, sent);
+  for (const [locale, loading, saving, empty] of [["en", "Loading design settings…", "Saving…", "No preview"], ["ko", "디자인 설정을 불러오는 중…", "저장 중…", "미리보기 없음"]]) {
+    h.setLocale(locale); tree = h.update({ ...base, loading: true }); assert.equal(findNode(tree, n => n.props?.role === "status").props.children, loading);
+    tree = h.update({ ...base, saving: true }); assert.equal(findNode(tree, n => n.props?.role === "status").props.children, saving);
+    tree = h.update({ ...base, students: [] }); assert(findNode(tree, n => n.props?.children === empty));
+    tree = h.update({ ...base, error: "External <error> 그대로" }); assert.equal(findNode(tree, n => n.props?.role === "alert").props.children[0].props.children, "External <error> 그대로");
+  }
+  bridge.store.dispose();
+});
 
 test("settings uses native page/card/row/switch/button and controlled boolean toggle with busy locks", () => {
   const base = loadedDesignState(), h = settingsHarness({ ...base, loading: true });
   let tree = h.render(), controls = settingsControls(h, tree);
   assert.equal(tree.type, h.native.Tt); assert.equal(tree.props.title, "디자인");
-  assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 2);
+  assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 3);
   assert.equal(treeNodes(tree).some(node => node.type === "input"), false);
   assert.equal(controls.toggle.type, h.native.AzraelSwitch);
   assert.equal(controls.toggle.props.checked, false); assert.equal(controls.toggle.props.disabled, true);
@@ -432,7 +597,7 @@ test("preview initializes once after loading, draws independently while off, and
   tree = h.render(); assert.equal(findNode(tree, node => node.type === "img").props.src, "local-a");
   settingsControls(h, tree).draw.props.onClick(); tree = h.render();
   assert.equal(findNode(tree, node => node.type === "img").props.src, "local-b");
-  assert.equal(findNode(tree, node => node.type === "img").props.alt, "학생 나");
+  assert.equal(findNode(tree, node => node.type === "img").props.alt, "Student B");
   assert.equal(treeNodes(tree).filter(node => node.type === "img").length, 1);
   assert.equal(settingsControls(h, tree).toggle.props.checked, false);
   assert.deepEqual(h.calls, []); assert.equal(bridge.sent.length, sent);
@@ -479,8 +644,9 @@ test("native settings imports bind to actual pinned exports and retain native pa
     AzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "d3"], initAzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "f3"],
     AzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "y3"], initAzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "x3"],
     AzraelSwitch: ["./app-initial-532d60c9b397.js", "r4"], initAzraelSwitch: ["./app-initial-532d60c9b397.js", "a4"],
+    AzraelFontChoice: ["./app-initial-532d60c9b397.js", "Tf"], initAzraelFontChoice: ["./app-initial-532d60c9b397.js", "Ef"],
   };
-  for (const local of [...Object.keys(expected), "Tt", "pe", "Q", "$"]) {
+  for (const local of [...Object.keys(expected), "Tt", "pe", "te", "Q", "$"]) {
     let importLocal = local;
     if (local === "Q" || local === "$") {
       const assignments = [];

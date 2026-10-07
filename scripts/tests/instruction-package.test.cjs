@@ -221,8 +221,9 @@ test("interruption journal blocks mutations; recovery restores backups",async t=
 });
 
 test("actual generated release assets agree with backend and native staged validation",async t=>{
-  const assetRoot=process.env.AZRAEL_INSTRUCTION_RELEASE_ASSETS || path.join(__dirname,"../../artifacts/instructions/review-1.0.0");
-  const manifestFile=path.join(assetRoot,"azrael-instructions-1.0.0-manifest.json");
+  const metadata=JSON.parse(await text(path.join(__dirname,"../../instructions/azrael-environment.json")));
+  const assetRoot=process.env.AZRAEL_INSTRUCTION_RELEASE_ASSETS || path.join(__dirname,`../../artifacts/instructions/review-${metadata.instructionVersion}`);
+  const manifestFile=path.join(assetRoot,`azrael-instructions-${metadata.instructionVersion}-manifest.json`);
   if (!await exists(manifestFile)) {t.skip("Generate release assets or set AZRAEL_INSTRUCTION_RELEASE_ASSETS for integration coverage");return;}
   const manifest=JSON.parse(await text(manifestFile));const v=manifest.instructionVersion;
   const urls={manifest:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/azrael-instructions-${v}-manifest.json`,archive:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.archive.name}`,docs:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.documentsAsset.name}`};
@@ -236,8 +237,9 @@ test("actual generated release assets agree with backend and native staged valid
   const {store,home,workspace}=await context(t,[f],{store:{repository:manifest.repository,...engine && {engine}}});
   const docs=await store.getDocuments(v);assert.equal(docs.length,manifest.documents.length);await store.download(v);
   const offline=new InstructionStore({stateRoot:home,appVersion:"0.4.0",repository:manifest.repository,request:async()=>{assert.fail("Generated cached-only preview attempted network");}});assert.deepEqual(await offline.getDocuments(v,{cachedOnly:true}),docs);
-  const ids=manifest.components.map(c=>c.id);const plan=await store.planApply(v,ids);assert.deepEqual(plan.conflicts,[]);assert.equal(plan.components.length,9);
-  const state=await store.apply(v,ids);assert.equal(state.appliedVersion,v);assert.deepEqual(state.selectedComponentIds,ids);assert.equal(state.installedRepository,manifest.repository);assert.ok(Object.keys(state.managed).length>9);
+  assert.deepEqual(manifest.components,metadata.components);
+  const ids=manifest.components.map(c=>c.id);const plan=await store.planApply(v,ids);assert.deepEqual(plan.conflicts,[]);assert.equal(plan.components.length,ids.length);
+  const state=await store.apply(v,ids);assert.equal(state.appliedVersion,v);assert.deepEqual(state.selectedComponentIds,ids);assert.equal(state.installedRepository,manifest.repository);assert.equal(Object.keys(state.managed).length,manifest.components.reduce((count,c)=>count+c.files.length,0));
   for(const c of manifest.components)for(const file of c.files){const target=path.join(c.scope==="home" ? home : workspace,file.target);assert.equal(await exists(target),true);}
   const receipt=JSON.parse(await text(store.file("state.json")));assert.equal(receipt.appliedVersion,v);assert.deepEqual(receipt.selectedComponentIds,ids);assert.deepEqual((await store.planApply(v,ids)).diffs,[]);
   t.diagnostic(`Verified generated assets ${assetRoot}; ${manifest.files.length} archive files; ${ids.length} components; ${Object.keys(receipt.managed).length} managed targets`);

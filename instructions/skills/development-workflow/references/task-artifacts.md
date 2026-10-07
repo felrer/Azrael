@@ -4,7 +4,7 @@
 
 Each folder holds one work session on a specific target. Start a new folder for a new target or separate session. Keep requirements, feasibility findings, approach, and verification for one task in its current `nn-plan.md`; create the next numbered document only for a distinct follow-up task. Update ongoing work in place.
 
-`planning` creates and updates the single work document for each task; `designing` applies the approved plan to durable design documents. Hand off both the session folder and current document paths.
+`development-workflow` maintains the single work document for each task. `design-documentation` maintains the agreed design in its durable owners, and `implementation` records execution evidence in the existing work record. Hand off both the session folder and current document paths without creating a second plan.
 
 ## Storage
 
@@ -33,4 +33,4 @@ Do not overwrite or rename existing documents during allocation; edit contents w
 
 ## Verification
 
-When changing creation commands or numbering, run `python -B scripts/tests/test_work_artifacts.py` from the planning skill folder. It requires only the Python standard library. Tests use temporary directories and local processes, clean up on exit, and do not modify real work documents. This targeted contract check usually takes seconds and covers new sessions, follow-up numbering, concurrency, existing-data preservation, and configuration.
+When changing creation commands or numbering, run `python -B scripts/tests/test_work_artifacts.py` from the development-workflow skill folder. It requires only the Python standard library. Tests use temporary directories and local processes, clean up on exit, and do not modify real work documents. This targeted contract check usually takes seconds and covers new sessions, follow-up numbering, concurrency, existing-data preservation, and configuration.

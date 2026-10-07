@@ -72,7 +72,15 @@ function createProviderModelCatalog() {
             if (typeof model?.model !== "string") throw new Error("invalid_model_catalog");
             if (!seenIds.has(model.model)) {
               seenIds.add(model.model);
-              data.push({ ...model, __azraelCatalogHost: id });
+              const tagged = { ...model, __azraelCatalogHost: id };
+              // Account catalogs may lag behind Astra's API capabilities. The
+              // native tier resolver needs this row to retain the selected tier.
+              if (model.model === "gpt-6-astra" && !(model.serviceTiers ?? []).some(tier => tier.id === "ultrafast")) {
+                tagged.serviceTiers = [...(model.serviceTiers ?? []), {
+                  id: "ultrafast", name: "Ultrafast", description: "Ultrafast processing",
+                }];
+              }
+              data.push(tagged);
             }
           }
           if (data.length > 10000) throw new Error("model_catalog_limit");

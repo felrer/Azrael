@@ -5,9 +5,49 @@ const path = require("node:path");
 const vm = require("node:vm");
 const test = require("node:test");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings } = require("./inject-instruction-settings.cjs");
+const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
 const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
+
+test("application locale recognizes Korean variants and falls back to English", () => {
+  for (const locale of ["ko", "ko-KR", "KO-kr", "ko_KR"]) assert.equal(azraelSettingsText(locale, "English", "한국어"), "한국어");
+  for (const locale of ["en", "en-US", "ja", "korean", "", undefined, null, 42]) assert.equal(azraelSettingsText(locale, "English", "한국어"), "English");
+});
+
+test("application locale change cleans the old instruction mount and ignores late callbacks", () => {
+  let locale = "en-US", dependencies, pendingEffect, cleanup, timer, serial = 0;
+  const sent = [], receivers = [], listeners = new Map(), unsubscribed = [];
+  const shadow = { innerHTML: "", querySelector: () => null, querySelectorAll: () => [],
+    addEventListener: (kind, callback) => listeners.set(kind, callback),
+    removeEventListener: (kind, callback) => { if (listeners.get(kind) === callback) listeners.delete(kind); } };
+  const element = { shadowRoot: shadow };
+  class Element { closest() { return this; } }
+  class HTMLElement extends Element { dataset = { action: "selectVersion" }; }
+  const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
+    te: () => ({ locale }), azraelSettingsText, Element, HTMLElement,
+    Q: { useRef: () => ({ current: element }), useEffect: (effect, next) => {
+      if (!dependencies || next.some((value, i) => value !== dependencies[i])) { dependencies = next; pendingEffect = effect; }
+    } }, $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount-" + ++serial },
+    setTimeout: callback => { timer = callback; return 1; }, clearTimeout: () => { timer = undefined; },
+    azraelInstructionBridge: { dispatchMessage: (type, message) => sent.push({ type, ...message }), subscribe: (_type, callback) => {
+      const index = receivers.push(callback) - 1; return () => unsubscribed.push(index);
+    } },
+  });
+  const render = next => { locale = next; component(); if (pendingEffect) { cleanup?.(); cleanup = pendingEffect(); pendingEffect = undefined; } };
+  render("en-US"); assert.match(shadow.innerHTML, /Loading instruction documents/);
+  assert.equal(sent[0].locale, "en-US");
+  receivers[0]({ clientId: "mount-1", requestId: "1", html: "English host" });
+  listeners.get("change")({ target: new HTMLElement() }); const delayed = timer;
+  render("ko-KR"); assert.match(shadow.innerHTML, /지침 문서를 불러오는/);
+  assert.deepEqual(sent.map(x => [x.action, x.locale]), [["mount", "en-US"], ["unmount", "en-US"], ["mount", "ko-KR"]]);
+  assert.deepEqual(unsubscribed, [0]); assert.equal(listeners.size, 2); assert.equal(timer, undefined);
+  delayed(); receivers[0]({ clientId: "mount-1", requestId: "2", html: "late English host" });
+  receivers[1]({ clientId: "mount-1", requestId: "1", html: "wrong client" });
+  assert.match(shadow.innerHTML, /지침 문서를 불러오는/); assert.equal(sent.length, 3);
+  receivers[1]({ clientId: "mount-2", requestId: "1", html: "한국어 host" }); assert.equal(shadow.innerHTML, "한국어 host");
+  render("ko-KR"); assert.equal(sent.length, 3);
+  cleanup(); assert.equal(shadow.innerHTML, ""); assert.equal(listeners.size, 0); assert.deepEqual(unsubscribed, [0, 1]);
+});
 
 test("settings command opens the existing native settings panel for pristine and namespaced hosts", async () => {
   const pristine = fs.readFileSync(path.join(root, "out/extension.js"), "utf8");
@@ -65,6 +105,7 @@ test("native mount request correlation, action payload, busy gate, delayed respo
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "download", path: "AGENTS.md" }; disabled = false; }
   const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
+    te: () => ({ locale: "en-US" }), azraelSettingsText,
     Q: { useRef: () => ({ current: { attachShadow: () => shadow } }), useEffect: mn => { effect = mn; } },
     $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount" }, Element, HTMLElement,
     setTimeout: mn => { timer = mn; return 1; }, clearTimeout: () => { timer = undefined; },

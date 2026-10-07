@@ -9,6 +9,7 @@ const { createAssetTransformCache, CACHE_SCHEMA } = require("./asset-transform-c
 const { CONTEXT_ASSET, SETTINGS_ASSET } = require("./inject-provider-context.cjs");
 const { COMPOSER_DRAFT_ASSET } = require("./inject-composer-draft.cjs");
 const { UI_CLEANUP_ASSETS } = require("./inject-ui-cleanup.cjs");
+const { AUTO_REVIEW_ASSETS } = require("./inject-auto-review.cjs");
 const { PETS_CLEANUP_ASSETS } = require("./inject-pets-cleanup.cjs");
 const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET } = require("./inject-content-fonts.cjs");
 const { getContentFontRules } = require("./content-fonts.cjs");
@@ -43,6 +44,7 @@ test("closed path dependencies scope controls/instructions/composer; generic and
     ["ui-input-diagnostics-runtime.cjs", [COMPOSER_DRAFT_ASSET,
       "webview/assets/app-initial-efe028fd535e.js", "webview/assets/app-initial-5120fa5fe295.js"]],
     ["inject-ui-cleanup.cjs", UI_CLEANUP_ASSETS],
+    ["inject-auto-review.cjs", AUTO_REVIEW_ASSETS],
     ["inject-pets-cleanup.cjs", PETS_CLEANUP_ASSETS],
     ["inject-content-fonts.cjs", CONTENT_FONT_ASSETS],
     ["content-fonts.cjs", [CONTENT_FONT_CSS_ASSET]],

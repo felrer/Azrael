@@ -166,6 +166,11 @@
           "id": "priority",
           "name": "Fast",
           "description": "2x speed, increased usage"
+        },
+        {
+          "id": "ultrafast",
+          "name": "Ultrafast",
+          "description": "Ultrafast processing"
         }
       ],
       "additional_speed_tiers": [
