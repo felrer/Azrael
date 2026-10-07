@@ -49,7 +49,8 @@ test("the real preservation registry covers every production UI injector", () =>
   assert.equal(missingImage.contract, "docs/architecture/ui-presentation.md");
   assert.deepEqual(missingImage.reportFields, ["missingImageEdits"]);
   assert.deepEqual(missingImage.checks, [{ id: "ui.missing-image.behavior", executable: "node",
-    args: ["--test", "scripts/test-missing-image.cjs"], level: "source" }]);
+    args: ["--test", "scripts/test-missing-image.cjs"], level: "source",
+    cacheInputs: { schema: 1, files: ["scripts/test-missing-image.cjs", "scripts/inject-missing-image.cjs"] } }]);
   const unregistered = { ...manifest, features: manifest.features.filter(feature => feature !== missingImage) };
   assert.throws(() => gate.validateManifest(unregistered, root, rules), /Unregistered UI injector: inject-missing-image\.cjs/);
 });

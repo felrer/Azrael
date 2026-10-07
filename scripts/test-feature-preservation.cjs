@@ -11,7 +11,7 @@ function recentChatCheck() {
   const result = injector.injectRecentChatFilter(source, injector.ASSET);
   // Execute the real header setup, including its declarations, so a renamed
   // local cannot silently shadow a query hook used earlier in the same scope.
-  const ts = require(require.resolve('typescript', { paths: [path.resolve(__dirname, '../extensions/azrael-ex')] }));
+  const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || require.resolve('typescript', { paths: [path.resolve(__dirname, '../extensions/azrael-ex')] }));
   const ast = ts.createSourceFile(injector.ASSET, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const header = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Fn');
   const setupEnd = header.body.statements.find(node => ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'S')).end;

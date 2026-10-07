@@ -39,6 +39,14 @@ Imported engine provenance preserves the original upstream receipt and its fixed
 
 Use `python -B scripts/record-engine-local-changes.py --destination <primary-engine> --baseline <independent-immutable-import> --baseline-receipt-sha256 <reviewed-receipt-hash> --expected-path <relative-source-path>` with one `--expected-path` for each reviewed edit. This initial recording requires the current receipt to match the original import and rejects a repeated operation. It embeds the original receipt in `localIntegration` while updating the measured inventory. Verify the result with `engine-provenance.py snapshot` before building. Preserve the immutable baseline while current or previous releases reference it.
 
+### UI source verification result reuse
+
+The preservation runner reuses passing results for explicitly declared UI source checks: URL safety transport, image file open, max reasoning, recent chat filter and missing image. `cacheInputs` in `scripts/azrael-feature-contracts.json` declares each check's repository dependencies. Other source checks, native checks and installed-host acceptance continue to execute.
+
+Each key binds the check command and arguments, owning contracts and dependencies, pristine UI contents, Node executable/version/platform, complete selected TypeScript runtime and effective child environment digest. The runner retains its complete project input checks before and after verification and the package binding checks. Only successful, unchanged runs publish results. Receipts record executed/reused counts and keys; validated cached stdout/stderr are copied into the current run's evidence directory.
+
+`artifacts/cache/verification-results/` keeps one key per check. When inputs change, the old key is removed before the replacement check executes, including when that check later fails. Removed check entries and obsolete cache schemas are collected automatically. Leases protect active readers and writers; uncertain paths and abandoned leases are retained with a reason, and caching is bypassed when unavailable. This cache contains verification evidence, not release binaries or user state. Use `reuseSourceChecks: false` in the runner configuration to force execution.
+
 ### Module reuse and automatic cache cleanup
 
 Status: `current` — cache contracts, legacy/new deployment tool routing and repeated real release builds pass. The first build took 306 seconds; the unchanged repeat took 94 seconds and reused engine, companion, providers and Window Control. Evidence: `artifacts/logs/modular-build-cache/` and `artifacts/logs/module_cache_20261005_{b,c}/`.

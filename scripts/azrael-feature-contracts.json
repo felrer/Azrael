@@ -128,7 +128,15 @@
             "--test",
             "scripts/test-url-safety-transport.cjs"
           ],
-          "level": "source"
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/test-url-safety-transport.cjs",
+              "scripts/inject-url-safety-transport.cjs",
+              "scripts/url-safety-transport.cjs"
+            ]
+          }
         }
       ],
       "reportFields": [
@@ -223,7 +231,14 @@
             "--test",
             "scripts/test-image-file-open.cjs"
           ],
-          "level": "source"
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/test-image-file-open.cjs",
+              "scripts/inject-image-file-open.cjs"
+            ]
+          }
         }
       ],
       "reportFields": [
@@ -245,7 +260,14 @@
             "--test",
             "scripts/test-missing-image.cjs"
           ],
-          "level": "source"
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/test-missing-image.cjs",
+              "scripts/inject-missing-image.cjs"
+            ]
+          }
         }
       ],
       "reportFields": [
@@ -642,7 +664,17 @@
             "--test",
             "scripts/test-max-reasoning.cjs"
           ],
-          "level": "source"
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/test-max-reasoning.cjs",
+              "scripts/inject-max-reasoning.cjs",
+              "scripts/inject-provider-model-picker.cjs",
+              "scripts/provider-model-picker.cjs",
+              "scripts/astra-speed-toggle.cjs"
+            ]
+          }
         }
       ],
       "reportFields": [
@@ -664,7 +696,14 @@
             "scripts/test-feature-preservation.cjs",
             "--recent-chat-check"
           ],
-          "level": "source"
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/test-feature-preservation.cjs",
+              "scripts/inject-recent-chat-filter.cjs"
+            ]
+          }
         }
       ],
       "reportFields": [

@@ -4,9 +4,9 @@ const fs=require('node:fs');
 const path=require('node:path');
 const vm=require('node:vm');
 const test=require('node:test');
-const ts=require('../extensions/azrael-ex/node_modules/typescript');
+const ts=require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || '../extensions/azrael-ex/node_modules/typescript');
 const {ASSETS,injectMissingImage,MARKER}=require('./inject-missing-image.cjs');
-const root=path.join(__dirname,'../artifacts/upstream-ui/26.930.61225');
+const root=process.env.AZRAEL_PRESERVATION_UI_ROOT || path.join(__dirname,'../artifacts/upstream-ui/26.930.61225');
 const inputs=ASSETS.map(asset=>{const source=fs.readFileSync(path.join(root,asset),'utf8');return {asset,source,result:injectMissingImage(source,asset)}});
 function named(source,name){const ast=ts.createSourceFile('fixture.js',source,99,true,1);const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node,name);return node.getText(ast)}
 test('pinned transforms parse, are idempotent and reject anchor drift',()=>{

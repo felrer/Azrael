@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
 const { getDirectoryState } = require('./directory-state.cjs');
 const { snapshotProject } = require('./deployment-input-snapshot.cjs');
+const verificationCache = require('./verification-result-cache.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -43,6 +44,13 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       const sources = checkSources(check);
       if (!sources.length) throw Error(`Missing executable check source: ${check.id}`);
       sources.forEach(source => reference(projectRoot, source));
+      if (Object.hasOwn(check, 'cacheInputs')) {
+        const inputs = check.cacheInputs;
+        if (feature.area !== 'ui' || check.level !== 'source' || !inputs || typeof inputs !== 'object' || Array.isArray(inputs) ||
+            !same(Object.keys(inputs).sort(), ['files', 'schema']) || inputs.schema !== 1 || !Array.isArray(inputs.files) || !inputs.files.length ||
+            new Set(inputs.files).size !== inputs.files.length || check.args.some(arg => arg.includes('{fixture}'))) throw Error(`Invalid source cache inputs: ${check.id}`);
+        inputs.files.forEach(source => reference(projectRoot, source));
+      }
       for (const arg of check.args) for (const match of arg.matchAll(/\{([^}]+)\}/g)) {
         if (!['projectRoot', 'uiRoot', 'engineSourceRoot', 'engineDirectory', 'engine', 'fixture'].includes(match[1])) throw Error(`Unknown placeholder: ${match[1]}`);
       }
@@ -130,6 +138,34 @@ async function verifyLogs(receipt) {
     if (!check.logPath || !check.errorPath || await fileHash(check.logPath) !== check.logSha256 || await fileHash(check.errorPath) !== check.errorSha256) throw Error(`Check evidence changed: ${check.checkId}`);
   }
 }
+function checkEnvironment(config) {
+  return { ...process.env, AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
+    AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') };
+}
+async function sourceCacheRuntime(config) {
+  const typescriptPath = path.resolve(checkEnvironment(config).AZRAEL_PRESERVATION_TYPESCRIPT_PATH);
+  const typescriptRoot = path.dirname(path.dirname(typescriptPath));
+  const pkg = readJson(path.join(typescriptRoot, 'package.json'));
+  if (pkg.name !== 'typescript' || typeof pkg.version !== 'string') throw Error('Source cache requires the actual TypeScript runtime');
+  return { node: { executable: process.execPath, sha256: await fileHash(process.execPath), version: process.version,
+    platform: process.platform, arch: process.arch }, typescript: { entry: typescriptPath, version: pkg.version,
+    state: await getDirectoryState(typescriptRoot) },
+    ...(process.env.AZRAEL_PINNED_HOST_ROOT && path.resolve(process.env.AZRAEL_PINNED_HOST_ROOT) !== path.resolve(config.uiRoot)
+      ? { pinnedHostOverride: await getDirectoryState(process.env.AZRAEL_PINNED_HOST_ROOT) } : {}),
+    environmentSha256: hash(canonical(checkEnvironment(config))) };
+}
+async function sourceCacheKey(config, group, inputs, runtime) {
+  const files = new Set(['scripts/feature-preservation.cjs', 'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+  for (const { feature, check } of group.entries) {
+    feature.owners.forEach(file => files.add(file)); files.add(feature.contract);
+    checkSources(check).forEach(file => files.add(file)); check.cacheInputs.files.forEach(file => files.add(file));
+  }
+  const declared = group.entries.map(({ feature, check }) => ({ featureId: feature.id, owners: feature.owners,
+    contract: feature.contract, reportFields: feature.reportFields, check }));
+  return hash(canonical({ schema: verificationCache.CACHE_SCHEMA, declared, executable: group.check.executable, args: group.args,
+    projectRoot: path.resolve(config.projectRoot), files: await getDirectoryState(config.projectRoot, [...files].sort()),
+    ui: inputs.ui, runtime }));
+}
 async function runPreservation(config) {
   const receipt = { schema: 1, status: 'running', area: config.area, featureIds: [], checks: [] };
   const execution = config.execute ?? execute;
@@ -137,6 +173,8 @@ async function runPreservation(config) {
   await fs.promises.mkdir(config.outputDirectory, { recursive: true });
   const runDirectory = await fs.promises.mkdtemp(path.join(config.outputDirectory, 'preservation-'));
   const receiptPath = path.join(runDirectory, 'receipt.json');
+  const cacheHandles = [];
+  let activeCacheCheckIds;
   let checkpoint = Promise.resolve();
   const persist = () => {
     const contents = JSON.stringify(receipt, null, 2) + '\n';
@@ -151,6 +189,7 @@ async function runPreservation(config) {
   try {
     const concurrency = config.sourceConcurrency ?? 4;
     if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
+    if (config.reuseSourceChecks !== undefined && typeof config.reuseSourceChecks !== 'boolean') throw Error('reuseSourceChecks must be boolean');
     const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
     validateManifest(manifest, config.projectRoot, rules);
     const features = selected(manifest, config.area, config);
@@ -180,19 +219,49 @@ async function runPreservation(config) {
       group.entries.push({ feature, check, index: records.length });
       records.push(undefined);
     }
+    const cacheRoot = path.join(config.projectRoot, 'artifacts', 'cache', 'verification-results');
+    const eligibleGroups = [...shared.values()].filter(group => !group.native && config.reuseSourceChecks !== false &&
+      group.entries.every(({ feature, check }) => feature.area === 'ui' && check.level === 'source' && check.cacheInputs));
+    let cacheRuntime;
+    receipt.cache = { schema: verificationCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: eligibleGroups.length, deferred: [] };
+    if (eligibleGroups.length) {
+      try { cacheRuntime = await sourceCacheRuntime(config); }
+      catch (error) { receipt.cache.disabledReason = error.message; }
+    }
+    if (config.reuseSourceChecks !== false) {
+      const options = { projectRoot: config.projectRoot, cacheRoot };
+      activeCacheCheckIds = manifest.features.flatMap(feature => feature.checks.filter(check => feature.area === 'ui' && check.level === 'source' && check.cacheInputs).map(check => check.id));
+      for (const method of ['pruneObsoleteVersions', 'pruneRemovedChecks']) {
+        try { const result = await verificationCache[method]({ ...options,
+          checkIds: activeCacheCheckIds });
+          receipt.cache.deferred.push(...(result?.deferred || [])); }
+        catch (error) { receipt.cache.deferred.push({ operation: method, reason: error.message }); }
+      }
+    }
     const runGroup = async group => {
         const { check, args } = group;
         const logPath = path.join(runDirectory, `${check.id}.log`), errorPath = path.join(runDirectory, `${check.id}.stderr.log`);
-        const result = { ...await execution(check.executable, args, { cwd: config.projectRoot, env: { ...process.env,
-          AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
-          AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') }, logPath, errorPath }), logPath, errorPath };
+        let handle, key;
+        if (cacheRuntime && eligibleGroups.includes(group)) {
+          try { key = await sourceCacheKey(config, group, receipt.inputs, cacheRuntime);
+            handle = await verificationCache.begin({ projectRoot: config.projectRoot, cacheRoot, checkId: check.id, key, runDirectory });
+            cacheHandles.push({ handle, group, key }); receipt.cache.deferred.push(...(handle.deferred || [])); }
+          catch (error) { receipt.cache.deferred.push({ checkId: check.id, reason: error.message }); }
+        }
+        const reused = Boolean(handle?.hit);
+        const started = performance.now();
+        const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
+          env: checkEnvironment(config), logPath, errorPath })), logPath, errorPath };
+        if (handle) cacheHandles.find(entry => entry.handle === handle).record = result;
+        receipt.cache[reused ? 'reused' : 'executed']++;
         result.logSha256 = await fileHash(logPath); result.errorSha256 = await fileHash(errorPath);
         const { stdout, stderr, ...record } = result;
         for (const entry of group.entries) {
           const ownLog = path.join(runDirectory, `${entry.check.id}.log`), ownError = path.join(runDirectory, `${entry.check.id}.stderr.log`);
           if (ownLog !== logPath) { await fs.promises.copyFile(logPath, ownLog); await fs.promises.copyFile(errorPath, ownError); }
           records[entry.index] = { featureId: entry.feature.id, checkId: entry.check.id, area: entry.feature.area,
-            level: entry.check.level, executable: entry.check.executable, args, ...record, logPath: ownLog, errorPath: ownError };
+            level: entry.check.level, executable: entry.check.executable, args, ...record, reused,
+            ...(key ? { cacheKey: key } : {}), durationMs: performance.now() - started, logPath: ownLog, errorPath: ownError };
         }
         receipt.checks = records.filter(Boolean);
         await persist();
@@ -210,7 +279,27 @@ async function runPreservation(config) {
     if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
     receipt.status = 'passed';
     expectedReceipt(manifest, features, receipt);
+    if (cacheRuntime && cacheHandles.length) {
+      const finalRuntime = await sourceCacheRuntime(config);
+      for (const entry of cacheHandles) if (entry.key !== await sourceCacheKey(config, entry.group, receipt.inputs, finalRuntime)) throw Error('Source cache inputs changed during verification');
+      for (const entry of cacheHandles) if (!entry.handle.hit) {
+        try { const published = await entry.handle.publish(entry.record);
+          if (!published.published) receipt.cache.deferred.push({ checkId: entry.group.check.id, reason: published.reason }); }
+        catch (error) { receipt.cache.deferred.push({ checkId: entry.group.check.id, reason: error.message }); }
+      }
+    }
   } catch (error) { receipt.status = 'failed'; receipt.error = error.message; }
+  finally {
+    for (const entry of cacheHandles) {
+      await entry.handle.close().catch(error => receipt.cache?.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
+      for (const reason of entry.handle.deferred || []) if (!receipt.cache.deferred.includes(reason)) receipt.cache.deferred.push(reason);
+    }
+    if (activeCacheCheckIds) {
+      try { const cleanup = await verificationCache.pruneRemovedChecks({ projectRoot: config.projectRoot,
+        checkIds: activeCacheCheckIds }); receipt.cache.deferred.push(...cleanup.deferred); }
+      catch (error) { receipt.cache.deferred.push({ operation: 'final removed-check cleanup', reason: error.message }); }
+    }
+  }
   await persist();
   return { ...receipt, receiptPath };
 }

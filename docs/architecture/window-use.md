@@ -74,7 +74,7 @@ Each usable image must belong to the current target identity and carry a fresh o
 
 ### Minimized-window recovery
 
-Status: `partial` — native preflight, structured errors, exact-target recovery and protected user-stop behavior pass source tests. Changed panel guidance and state display were verified in light and dark themes. Package and installed real-window acceptance are unverified; this change has not been built into a release or installed.
+Status: `partial` — native preflight, structured errors, exact-target recovery and protected user-stop behavior pass source tests. Changed panel guidance and state display were verified in light and dark themes. The exact release package passed six isolated host acceptance stages and is installed with matching runtime hashes and updated model guidance. Existing windows require reload; real-window minimized recovery after reload remains unverified.
 
 Occlusion and minimization are separate cases. A minimized target pauses observation and control with `window_minimized`; it is not a fresh capture source. Status and errors expose the minimized pause reason and whether restoration is allowed. The model can call `restore_window` for that exact target when restoration is allowed and fresh occupancy permits use. The host reuses non-activating native restoration, revalidates identity and authorization, discards old observations and requires a fresh observation before input. Restoration does not replay a failed input or macro.
 
