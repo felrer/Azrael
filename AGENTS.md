@@ -5,6 +5,7 @@
 - Before substantive work, select applicable [project playbooks](docs/playbooks/README.md). For development work, apply the installed `implementation` skill together with the [Work playbook](docs/playbooks/work.md). Read only matching routes and owner sections.
 - Use [Work Artifacts](docs/README.md#work-artifacts) for the configured external work-document owner and active planning conventions.
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
+- Test builds needed to verify the change are allowed. Run a full application or release build only when the user explicitly instructs it; implementation or verification requests alone do not authorize a full build. Follow the [build scope rules](docs/playbooks/build.md#산출물과-빌드-범위).
 - Design Azrael UI in the OpenAI style. Reuse the pinned UI's existing page layouts, settings rows, switches, buttons, spacing and theme tokens; verify the actual rendered page in light and dark themes. Follow [UI presentation](docs/architecture/ui-presentation.md) for the project contract.
 - When editing any document, update its current content in place. Integrate confirmed answers into the relevant section; remove resolved questions, superseded text, and duplicates. Do not append response histories, dated confirmation notes, copied investigations, or detailed logs unless that history is itself the document's purpose. Keep only content needed to understand, execute, or verify the current work.
 
