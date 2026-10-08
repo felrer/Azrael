@@ -196,7 +196,18 @@ When comparing receipts with `thread_history_1.sqlite`, use the active rollout l
 
 ## Rollback and cleanup
 
-Reinstall the previous verified release with the same install command and prepared package; this restores the executable selection, while releases that change state schemas need a separate compatibility review. Keep the currently installed release, the previous verified release and any release still referenced by a running engine or shortcut. Failed builds, fixtures and logs may be removed after diagnosis and handoff. Build and install commands never delete recursively.
+Reinstall the previous verified release with the same install command and prepared package; this restores the executable selection, while releases that change state schemas need a separate compatibility review. Keep the currently installed release, the previous verified release and any release still referenced by a running engine or shortcut. Failed builds and fixtures may be removed after diagnosis and handoff, preserving required compact evidence. Release collection is separate from module-cache and verification-fixture collection.
+
+### Legacy release cleanup
+
+After verifying and installing a new version, complete release cleanup in the same task. `scripts/clean-legacy-releases.ps1` previews owned immediate children of `artifacts/releases/` and `artifacts/vsix/`; apply the reviewed selection after confirming actual installation references. Preserve the actual registered extension's runtime paths, current/previous installed release receipts, latest selected release, shortcuts, live processes and active task inputs. Add active task paths or additional profile references using `-ProtectedPaths`; use `-ExtensionsDirectory` for a different VS Code extension registry. A recent directory name or `latest.json` alone does not prove installation.
+
+```powershell
+./scripts/clean-legacy-releases.ps1 -ProjectRoot "$PWD"
+./scripts/clean-legacy-releases.ps1 -ProjectRoot "$PWD" -Apply
+```
+
+Each run writes a uniquely named receipt under `artifacts/logs/legacy-release-cleanup/`; an explicit `-ReportPath` must stay under that owner and must not replace required earlier evidence. Inspect the returned `status`, `errors` and candidate reasons; a zero shell exit code does not accept a `blocked` report. The cleaner checks ownership, absolute containment, nested links and fresh process references before removal, then verifies absence. Unknown ownership or failed inspection preserves the path with its reason; record the condition for future removal. Keep compact package/release identity receipts and exit/result summaries in the log owner, without copying binaries there. Source snapshots, deployment evidence, isolated workspaces, user settings, authentication and conversations are outside this cleaner's scope. Separate installation roots such as `%LOCALAPPDATA%/azrael-ex/releases` require their own ownership/reference verification. Never delete a rollback release based on a failed or unconfirmed replacement installation.
 
 ## Shared environment sync
 

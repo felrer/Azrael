@@ -22,6 +22,7 @@
 
 ## Generated artifact cleanup
 
+- After a new release passes verification and installation, clean unused older release directories and VSIX packages in the same task using the [build playbook](docs/playbooks/build.md#업데이트복구정리). Preserve the actual installed runtime, the previous verified rollback release, latest selected release, active task inputs, shortcuts and live process references. Keep compact identity/result receipts; record each retained path's reason and removal condition.
 - After verification and handoff, immediately delete completed verification copies, isolated VS Code profiles, copied extensions/plugins/skills and temporary packages. Archive only compact result summaries, exit codes and required receipts in the owning log directory; do not move bulky fixtures into logs.
 - Immediately remove unused alternate Rust build/test targets and caches preserved from task worktrees. Reuse the current selected build cache; preserve paths required by running processes, the current/previous installed release or an active task. Record every temporary retention reason and its removal condition.
 - Use the existing guarded cleanup scripts in `scripts/` and the [build playbook](docs/playbooks/build.md). Verify absolute path containment and process/installation references before deleting; inspection failures preserve uncertain paths. Never delete source changes or user authentication, conversations and settings as build artifacts.
