@@ -11,13 +11,14 @@ const waitHelpers = require("./root-resume-wait.cjs");
 
 const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
 const inputs = [
-  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 9],
+  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 11],
   [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 9],
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
-  [patch.DEFERRED_THREAD_ASSET, patch.injectDeferredThread, 4],
+  [patch.DEFERRED_THREAD_ASSET, patch.injectDeferredThread, 8],
   [patch.DEFERRED_TURN_ASSET, patch.injectDeferredTurnView, 3],
   [patch.DEFERRED_COLLAPSED_ASSET, patch.injectDeferredCollapsed, 2],
+  [patch.DEFERRED_NOTIFICATION_ASSET, patch.injectDeferredRendererNotification, 1],
 ].map(([asset, inject, count]) => {
   const file = path.join(root, asset);
   const source = rewriteJavaScript(fs.readFileSync(file, "utf8"), file, ts).text;
@@ -118,10 +119,238 @@ function recoveryFixture(canonical = false, includeOld = true) {
     { method: "turn/started", params: { threadId: "thread", turn: { id: "new-turn", status: "inProgress", durationMs: null, error: null } } }, null, 66000);
   const settle = async () => {
     const journal = waitHelpers.azraelDeferredJournals.get(manager);
-    await Promise.all([...journal.records.values()].map(record => record.inFlight));
+    if (journal == null) return;
+    await Promise.all([journal.trailing, ...journal.restorations.values(), ...[...journal.records.values()].map(record => record.inFlight)]);
   };
   return { old, fresh, conversation, loadOld, manager, emit, start, pages, requests, logs, broadcasts, settle, reducer, context };
 }
+
+function restoreFixture(canonical = false, includeOld = true) {
+  const f = recoveryFixture(canonical, includeOld);
+  f.manager.notificationContext = f.context;
+  // Execute the injected lifecycle call with the native converter and Fh.
+  const hook = inputs[0].result.text.match(/azraelReconcileDeferredRestoration\(e,e\.notificationContext,Fh,[\w$]+\(tt\.thread\.id\),tt\.thread\.id\);/)[0];
+  f.restore = vm.runInNewContext(`(function(e,tt){return ${hook}})`, { ...waitHelpers, ...reducerBindings }).bind(null, f.manager, { thread: { id: "thread" } });
+  return f;
+}
+
+for (const canonical of [false, true]) {
+  test(`new turn started recovers lost defer and wait notices in ${canonical ? "canonical" : "legacy"} history`, async () => {
+    const f = recoveryFixture(canonical);
+    f.pages.push({ response: { data: [
+      { id: "new-turn", status: "inProgress", durationMs: 999999 },
+      { id: "old-turn-prefix", status: "deferred", durationMs: 1, rootResumeWait: reservation({ reservationId: "unrelated" }) },
+      { id: "old-turn", status: "deferred", durationMs: 560903, startedAt: 12,
+        rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) },
+    ], nextCursor: null } });
+    f.start();
+    await f.settle();
+    assert.equal(f.requests.length, 1);
+    assert.equal(f.requests[0].id, "thread");
+    assert.deepEqual(f.requests[0].options, { cursor: null, limit: 100, itemsView: "notLoaded", sortDirection: "desc" });
+    assert.equal(f.old.status, "deferred");
+    assert.equal(f.old.durationMs, 560903);
+    assert.equal(f.old.rootResumeWait.state, "resumed");
+    assert.equal(f.old.finalAssistantStartedAtMs, null);
+    assert.equal(f.fresh.status, "inProgress");
+    assert.equal(f.fresh.durationMs, null);
+    assert.equal(f.fresh.rootResumeWait, undefined);
+    for (let i = 0; i < 10; i++) f.manager.broadcastConversationSnapshot("thread");
+    assert.equal(f.requests.length, 1);
+  });
+}
+
+test("new turn started scans only with an older loaded active suspect and coalesces restoration", async () => {
+  for (const canonical of [false, true]) {
+    for (const includeOld of [false, true]) {
+      const f = recoveryFixture(canonical, includeOld);
+      f.old.status = "completed";
+      f.start();
+      await f.settle();
+      assert.equal(f.requests.length, 0);
+      assert.equal(f.fresh.status, "inProgress");
+    }
+  }
+  const f = restoreFixture();
+  let resolve;
+  f.manager.listThreadTurns = (id, options) => { f.requests.push({ id, options }); return new Promise(r => { resolve = r; }); };
+  const restoration = f.restore();
+  f.start();
+  assert.equal(waitHelpers.azraelDeferredJournals.get(f.manager).restorations.get("thread"), restoration);
+  await Promise.resolve();
+  assert.equal(f.requests.length, 1);
+  resolve({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 8000,
+    rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) }], nextCursor: null } });
+  await restoration;
+  assert.equal(f.requests.length, 1);
+  assert.equal(f.old.status, "deferred");
+  assert.equal(f.fresh.status, "inProgress");
+  assert.equal(f.fresh.rootResumeWait, undefined);
+});
+
+test("new turn started reconciles restored waiting or unmeasured deferred origins without reopening ended clocks", async () => {
+  for (const state of ["waiting", "claimed", "resumed"]) {
+    const f = recoveryFixture();
+    Object.assign(f.old, { status: "deferred", durationMs: state === "resumed" ? null : 8000,
+      rootResumeWait: reservation({ state, revision: state === "waiting" ? 1 : 2,
+        waitEndedAtMs: state === "waiting" ? null : 66000 }), finalAssistantStartedAtMs: null });
+    f.pages.push({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 8000,
+      rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) }], nextCursor: null } });
+    f.start();
+    await f.settle();
+    assert.equal(f.requests.length, 1);
+    assert.equal(f.old.status, "deferred");
+    assert.equal(f.old.durationMs, 8000);
+    assert.equal(f.old.rootResumeWait.state, "resumed");
+    assert.equal(f.old.rootResumeWait.waitEndedAtMs, 66000);
+    assert.equal(f.fresh.status, "inProgress");
+    assert.equal(f.fresh.rootResumeWait, undefined);
+    f.start();
+    await f.settle();
+    assert.equal(f.requests.length, 1);
+  }
+  for (const status of ["deferred", "completed", "interrupted", "failed"]) {
+    const f = recoveryFixture();
+    Object.assign(f.old, { status, durationMs: 8000,
+      rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) });
+    f.start();
+    await f.settle();
+    assert.equal(f.requests.length, 0);
+    assert.equal(f.old.status, status);
+    assert.equal(f.old.durationMs, 8000);
+  }
+});
+
+test("new turn retains one trailing refresh when an older query returns stale waiting metadata", async () => {
+  for (const fullScan of [false, true]) {
+    const f = restoreFixture();
+    let resolve;
+    f.manager.listThreadTurns = (id, options) => {
+      f.requests.push({ id, options });
+      if (f.requests.length === 1) return new Promise(r => { resolve = r; });
+      return Promise.resolve({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 8000,
+        rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) }], nextCursor: null } });
+    };
+    if (fullScan) { f.restore(); await Promise.resolve(); } else f.emit(reservation());
+    f.start();
+    f.start();
+    assert.equal(f.requests.length, 1);
+    resolve({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 8000,
+      rootResumeWait: reservation() }], nextCursor: null } });
+    await f.settle();
+    assert.equal(f.requests.length, 2);
+    assert.equal(f.old.rootResumeWait.state, "resumed");
+    assert.equal(f.old.rootResumeWait.waitEndedAtMs, 66000);
+    assert.equal(f.old.durationMs, 8000);
+    assert.equal(f.fresh.rootResumeWait, undefined);
+    f.start();
+    await f.settle();
+    assert.equal(f.requests.length, 2);
+  }
+});
+
+for (const canonical of [false, true]) {
+  test(`fresh manager restores ended wait before ${canonical ? "canonical" : "legacy"} origin hydration without notification replay`, async () => {
+    for (const state of ["waiting", "cancelled", "resumed"]) {
+      const f = restoreFixture(canonical, false);
+      const wait = reservation({ state, revision: 3, waitEndedAtMs: state === "waiting" ? null : 66000 });
+      f.pages.push({ response: { data: [{ id: "new-turn", status: "inProgress" },
+        { id: "old-turn", status: "deferred", durationMs: 8000, startedAt: 12, rootResumeWait: wait }], nextCursor: null } });
+      await f.restore();
+      assert.equal(f.requests.length, 1);
+      assert.equal(f.fresh.status, "inProgress");
+      assert.equal(f.fresh.rootResumeWait, undefined);
+      assert.equal(waitHelpers.azraelDeferredJournals.get(f.manager).records.size, 1);
+      f.loadOld();
+      f.manager.broadcastConversationSnapshot("thread");
+      assert.equal(f.old.status, "deferred");
+      assert.equal(f.old.durationMs, 8000);
+      assert.equal(f.old.rootResumeWait.state, state);
+      assert.equal(f.old.rootResumeWait.waitEndedAtMs, wait.waitEndedAtMs);
+      assert.equal(f.requests.length, 1);
+    }
+  });
+}
+
+test("restoration freezes authoritative active origin boundaries without inventing duration or completion", async () => {
+  for (const state of ["waiting", "cancelled", "resumed"]) {
+    const f = restoreFixture();
+    const wait = reservation({ state, revision: 3, waitEndedAtMs: state === "waiting" ? null : 66000 });
+    f.pages.push({ response: { data: [{ id: "old-turn", status: "inProgress", durationMs: 999999, rootResumeWait: wait }], nextCursor: null } });
+    await f.restore();
+    assert.equal(f.old.status, "deferred");
+    assert.equal(f.old.durationMs, null);
+    assert.equal(f.old.finalAssistantStartedAtMs, null);
+    assert.equal(f.old.completedAt, undefined);
+    assert.equal(f.old.rootResumeWait.state, state);
+    for (let i = 0; i < 10; i++) f.manager.broadcastConversationSnapshot("thread");
+    assert.equal(f.requests.length, 1);
+  }
+});
+
+test("restoration coalesces in flight, bounds cursor loops and handles query errors without polling", async () => {
+  const f = restoreFixture();
+  let resolve;
+  f.manager.listThreadTurns = (id, options) => { f.requests.push({ id, options }); return new Promise(r => { resolve = r; }); };
+  const first = f.restore(), duplicate = f.restore();
+  assert.equal(first, duplicate);
+  await Promise.resolve();
+  f.emit(reservation());
+  assert.equal(f.requests.length, 1);
+  resolve({ response: { data: [], nextCursor: "loop" } });
+  await first;
+  f.manager.listThreadTurns = async (id, options) => { f.requests.push({ id, options }); const page = f.pages.shift(); if (page instanceof Error) throw page; return page; };
+  f.pages.push(new Error("offline"));
+  await f.restore();
+  assert.equal(f.old.status, "deferred");
+  assert.ok(f.logs.some(log => log.safe.outcome === "restoration_query_failed"));
+  f.pages.push(...[1, 2].map(() => ({ response: { data: [{ id: "unrelated" }], nextCursor: "loop" } })));
+  await f.restore();
+  assert.equal(f.requests.length, 4);
+  for (let i = 0; i < 10; i++) f.manager.broadcastConversationSnapshot("thread");
+  assert.equal(f.requests.length, 4);
+  assert.equal(waitHelpers.azraelDeferredJournals.get(f.manager).restorations.size, 0);
+  const bounded = restoreFixture();
+  bounded.manager.listThreadTurns = async (id, options) => {
+    bounded.requests.push({ id, options });
+    return { response: { data: [{ id: "unrelated" }], nextCursor: `page-${bounded.requests.length}` } };
+  };
+  await bounded.restore();
+  assert.equal(bounded.requests.length, 100);
+  assert.ok(bounded.logs.some(log => log.safe.outcome === "restoration_page_limit"));
+});
+
+test("restoration preserves terminal timing and reservation/revision guards through immutable updates", async () => {
+  for (const status of ["completed", "interrupted", "failed"]) {
+    const f = restoreFixture();
+    Object.assign(f.old, { status, durationMs: 9000, completedAt: 21, finalAssistantStartedAtMs: 21000, rootResumeWait: reservation() });
+    let updates = 0;
+    f.context.updateTurnState = (id, turnId, update) => {
+      updates++;
+      f.conversation.turns = f.conversation.turns.map(turn => { if (turn.turnId !== turnId) return turn; const draft = { ...turn }; update(draft); return draft; });
+    };
+    f.pages.push({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 8000,
+      rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) }], nextCursor: null } });
+    await f.restore();
+    const origin = nativeLookup(f.conversation, turn => turn.turnId === "old-turn");
+    assert.equal(updates, 1);
+    assert.equal(origin.status, status);
+    assert.equal(origin.durationMs, 9000);
+    assert.equal(origin.completedAt, 21);
+    assert.equal(origin.finalAssistantStartedAtMs, 21000);
+    assert.equal(origin.rootResumeWait.state, "resumed");
+    assert.equal(f.fresh.rootResumeWait, undefined);
+  }
+  const f = restoreFixture();
+  Object.assign(f.old, { status: "deferred", durationMs: 8000, rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) });
+  for (const wait of [reservation(), reservation({ reservationId: "wrong", revision: 99 })]) {
+    f.pages.push({ response: { data: [{ id: "old-turn", status: "deferred", durationMs: 77777, rootResumeWait: wait }], nextCursor: null } });
+    await f.restore();
+    assert.equal(f.old.rootResumeWait.state, "resumed");
+    assert.equal(f.old.rootResumeWait.revision, 3);
+    assert.equal(f.old.durationMs, 8000);
+  }
+});
 
 for (const canonical of [false, true]) {
   test(`wait-only recovery uses native ${canonical ? "canonical" : "legacy"} lookup and native started reducer`, async () => {
@@ -367,6 +596,36 @@ test("deferred anchors match the pinned host, parse, and fail closed", () => {
     assert.throws(() => inject("anchor missing"), /anchor must occur exactly once/);
     assert.notEqual(source, result.text);
   }
+});
+
+test("renderer ingress admits both deferred methods before the native reducer", () => {
+  const input = inputs.find(input => input.file.endsWith(path.basename(patch.DEFERRED_NOTIFICATION_ASSET)));
+  const tableSource = source => {
+    const ast = sourceAst(source);
+    let table;
+    function visit(node) {
+      if (ts.isBinaryExpression(node) && node.left.getText(ast) === "qyt" &&
+          node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isObjectLiteralExpression(node.right)) table = node.right.getText(ast);
+      if (table == null) ts.forEachChild(node, visit);
+    }
+    visit(ast);
+    assert.ok(table);
+    return table;
+  };
+  const admission = source => vm.runInNewContext("const qyt=" + tableSource(source) + ";" +
+    functionNamed(source, "Gyt") + functionNamed(source, "Kyt") + ";Kyt");
+  const before = admission(input.source), after = admission(input.result.text);
+  const presentation = inputs[1].source;
+  assert.ok(/if\(!eFe\(e\.method\)\)return/.test(presentation));
+  assert.ok(presentation.includes("ZUt as eFe"));
+  assert.ok(input.source.includes("Kyt as ZUt"));
+  for (const method of ["turn/deferred", "turn/rootResumeWait/updated"]) {
+    assert.equal(before(method), false);
+    assert.equal(after(method), true);
+  }
+  assert.equal(after("turn/completed"), true);
+  assert.equal(after("unknown/notification"), false);
+  assert.equal(after("thread/project/updated"), before("thread/project/updated"));
 });
 
 test("deferred updates the current turn without terminal side effects and drains before replay", () => {
@@ -622,6 +881,40 @@ test("divider preserves Codex secondary text and border styling while forwarding
   assert.equal(container.props.children[0].props.rootResumeWait, waiting.rootResumeWait);
   const processing = { ...waiting, rootResumeWait: reservation({ revision: 2, state: "claimed", waitEndedAtMs: 32000 }) };
   assert.equal(render(processing).props.children.props.children[0].props.rootResumeWait.state, "claimed");
+});
+
+test("historical rows rematerialize when only deferred wait details change", () => {
+  const input = inputs.find(input => input.file.endsWith(path.basename(patch.DEFERRED_THREAD_ASSET)));
+  const sourceModule = fs.readFileSync(path.join(root, patch.DEFERRED_NOTIFICATION_ASSET), "utf8");
+  assert.ok(input.source.includes("P_t as Ge"));
+  assert.ok(sourceModule.includes("_O as P_t"));
+  const detailsSelector = sourceModule.indexOf("_O=Jo(");
+  assert.ok(detailsSelector >= 0);
+  assert.match(sourceModule.slice(detailsSelector, detailsSelector + 190), /R7t.*\.at\(e\.entityKey\)/);
+  for (const [source, corrected] of [[input.source, false], [input.result.text, true]]) {
+    const nativeRow = functionNamed(source, "Zm");
+    const start = nativeRow.indexOf("ue=A(Ne,le)"), end = nativeRow.indexOf("let me=X", start);
+    assert.ok(start >= 0 && end > start);
+    const slots = Array(corrected ? 103 : 102).fill(Symbol.for("react.memo_cache_sentinel"));
+    const ids = [], subscriptions = new Set(), manager = {}, entry = {}, key = "turn:origin";
+    let details = { turnId: "origin", status: "deferred", durationMs: 8000, rootResumeWait: reservation() }, reads = 0;
+    const context = { slots, manager, entry, key, Ne: "items", Te: "id", et: "status", Ge: "details", Nm: "filter", Fm: "voice",
+      A(selector) { subscriptions.add(selector); return selector === "items" ? ids : selector === "id" ? details.turnId : selector === "status" ? details.status : selector === "details" ? details : null; },
+      ce() { reads++; return { ...details, items: ids }; }
+    };
+    const render = vm.runInNewContext("(function(){const t=slots,s=manager,U=entry,le=key,oe=false,f='thread';let " + nativeRow.slice(start, end) + "return X;})", context);
+    assert.equal(render().rootResumeWait.state, "waiting");
+    details = { ...details, rootResumeWait: reservation({ revision: 2, state: "claimed", waitEndedAtMs: 32000 }) };
+    const processing = render();
+    assert.equal(processing.rootResumeWait.state, corrected ? "claimed" : "waiting");
+    details = { ...details, rootResumeWait: reservation({ revision: 3, state: "resumed", waitEndedAtMs: 32000 }) };
+    const resumed = render();
+    assert.equal(resumed.rootResumeWait.state, corrected ? "resumed" : "waiting");
+    assert.equal(resumed.durationMs, 8000);
+    assert.equal(reads, corrected ? 3 : 1);
+    assert.equal(subscriptions.has("details"), corrected);
+    assert.equal(render(), resumed, "Unchanged details retain the native materialization cache");
+  }
 });
 
 test("active activity projection cannot resurrect a deferred source turn or discard its waiting divider", () => {

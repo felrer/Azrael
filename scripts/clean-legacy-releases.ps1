@@ -264,7 +264,7 @@ function Invoke-LegacyReleaseCleanup {
                         $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8NoBOM
                         $reason = Get-LegacyProcessReason $target @(Get-LegacyProcesses)
                         if ($reason) { throw $reason }
-                        Remove-Item -LiteralPath $target -Recurse -Force -ErrorAction Stop
+                        Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
                         $row.absent = -not (Test-Path -LiteralPath $target -ErrorAction Stop)
                         if (-not $row.absent) { throw 'Deletion returned but candidate still exists.' }
                         $row.status = 'deleted'

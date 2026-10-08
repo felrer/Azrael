@@ -158,7 +158,7 @@ try {
                 Assert-Unlinked $target
                 # Native PowerShell 7 removal unlinks nested junctions without walking
                 # their targets. Candidate and every ancestor have been rejected if linked.
-                Remove-Item -LiteralPath $target -Recurse -Force -ErrorAction Stop
+                Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
                 $candidate.status = 'deleted'
             }
         } catch { $candidate.status = 'retained'; $candidate.reason = $_.Exception.Message }

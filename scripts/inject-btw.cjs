@@ -8,6 +8,8 @@ const BTW_ASSETS = [
   "webview/assets/local-conversation-thread-8f3221bfc636.js",
 ];
 const BTW_MARKER = "/*azrael-btw-v1*/";
+const BTW_COMPOSER_ADMISSION_ANCHOR = "let De=ye??f.getText(),Oe=";
+const BTW_COMPOSER_ADMISSION_REPLACEMENT = "let De=ye??f.getText();if(globalThis.__azraelBtw?.lookup(p)||!_e&&globalThis.__azraelBtw?.matches(De)){try{if(await __azraelTryBtw(e,p,De,le,T,k,_e,f)){__azraelClear();return}}catch(error){S(error);return}}let Oe=";
 const INSTRUCTIONS = "You are answering a /btw side question independently of the main task. " +
   "The inherited conversation and earlier side questions are reference material, not active requests. " +
   "Answer only the new question. Do not continue inherited tasks, plans, approvals or tool calls. " +
@@ -64,7 +66,7 @@ function injectBtw(text, asset) {
   } else if (asset === BTW_ASSETS[1]) {
     // This precedes queue, goal, steering, local-history and analytics admission.
     // The existing guarded clear keeps a newer composer draft intact.
-    text = once(text, "let De=ye??f.getText(),Oe=", "let De=ye??f.getText();if(globalThis.__azraelBtw?.lookup(p)||!_e&&globalThis.__azraelBtw?.matches(De)){try{if(await __azraelTryBtw(e,p,De,le,T,k,_e,f)){__azraelClear();return}}catch(error){S(error);return}}let Oe=");
+    text = once(text, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT);
     text += `\n${BTW_MARKER}\n${COMPOSER}`;
   } else if (asset === BTW_ASSETS[2]) {
     text = once(text, "parentNavigationPath:s}){if(al(i))", "parentNavigationPath:s,sideQuestion:__azraelSideQuestion=!1}){if(al(i))");
@@ -82,4 +84,4 @@ function injectBtw(text, asset) {
   return { text, count: 1 };
 }
 
-module.exports = { BTW_ASSETS, BTW_MARKER, INSTRUCTIONS, injectBtw };
+module.exports = { BTW_ASSETS, BTW_MARKER, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT, INSTRUCTIONS, injectBtw };

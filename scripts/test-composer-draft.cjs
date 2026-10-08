@@ -8,6 +8,7 @@ const util = require("node:util");
 const test = require("node:test");
 const crypto = require("node:crypto");
 const { COMPOSER_DRAFT_ASSET, MARKER, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { BTW_MARKER, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT, injectBtw } = require("./inject-btw.cjs");
 const { injectQueuedCompactionPresentation } = require("./inject-queued-compaction.cjs");
 const repo = path.resolve(__dirname, "..");
 const ts = require(path.join(repo, "extensions/azrael-ex/node_modules/typescript"));
@@ -319,5 +320,31 @@ test("namespace integrates draft protection and fingerprints its source for cach
   const host = require("./namespace-azrael-host.cjs");
   const result = host.transformAsset(original, COMPOSER_DRAFT_ASSET, "composer.js", ts);
   assert.equal(result.asset.composerDraftEdits, 1);
+  assert.deepEqual(host.transformAsset(result.text, COMPOSER_DRAFT_ASSET, "composer.js", ts), { text: result.text, asset: null });
   assert.equal(host.getTransformRules()["inject-composer-draft.cjs"], crypto.createHash("sha256").update(hs.readFileSync(path.join(__dirname, "inject-composer-draft.cjs"))).digest("hex"));
+});
+
+test("draft validation accepts complete btw composition and rejects damaged custody or admission", () => {
+  const composed = injectBtw(draftOnly, COMPOSER_DRAFT_ASSET).text;
+  assert.deepEqual(injectComposerDraft(composed), { text: composed, count: 0 });
+  assert.deepEqual(injectBtw(composed, COMPOSER_DRAFT_ASSET), { text: composed, count: 0 });
+  const custodyPrefix = draftOnly.slice(draftOnly.indexOf("let __azraelSubmitted="), draftOnly.indexOf(BTW_COMPOSER_ADMISSION_ANCHOR));
+  assert.ok(custodyPrefix.startsWith("let __azraelSubmitted="));
+  const custodyOriginal = custodyPrefix + BTW_COMPOSER_ADMISSION_ANCHOR;
+  const custodyComposed = custodyPrefix + BTW_COMPOSER_ADMISSION_REPLACEMENT;
+  assert.ok(composed.includes(custodyComposed));
+  for (const damaged of [
+    composed.replace("if(!__azraelOwns())return!1", "if(!__azraelOwns())return!0"),
+    composed.replace("__azraelBtw?.matches(De)", "__azraelBtw?.matches(ye)"),
+    composed.replace(BTW_COMPOSER_ADMISSION_REPLACEMENT, "let De=ye??f.getText();let Oe="),
+    composed.replace(custodyPrefix, ""),
+    composed.replace(BTW_MARKER, ""),
+    composed + BTW_MARKER,
+    composed + custodyComposed,
+    composed + custodyOriginal,
+    draftOnly + custodyOriginal,
+    draftOnly + custodyComposed + BTW_MARKER,
+    draftOnly + BTW_MARKER,
+    composed.replace("__azraelClear(st)", "l(st)"),
+  ]) assert.throws(() => injectComposerDraft(damaged), /Invalid or partial/);
 });

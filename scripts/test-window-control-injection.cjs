@@ -75,7 +75,7 @@ test('result publication defers native dispatch once and retains bridge context'
   const response = { id: 'provider:request', result: { thread: { id: '12345678-1234-1234-1234-123456789abc' } } }, deliveryContext = { source: 'native' };
   const context = vm.createContext({ require: () => ({ prepareRequest(method,params){return params;},attach() {}, request() {}, beforeResult(native, message, callback) { order.push('beforeResult'); if (!deferred) { deferred = true; replay = callback; return true; } return false; }, observe() { order.push('observe'); }, disconnect() {} }) });
   vm.runInContext(injectWindowControl(fixture, 'out/extension.js', ts).text + ';bridge=new Bridge;bridge.deliveries=[];', context);
-  assert.equal(context.bridge.routeIncomingMessage(response, deliveryContext), undefined);
+  assert.deepEqual({ ...context.bridge.routeIncomingMessage(response, deliveryContext) }, { routeKind: 'response', method: null });
   assert.equal(context.bridge.deliveries.length, 0);
   assert.deepEqual(order, ['beforeResult']);
   replay(response);
@@ -83,6 +83,61 @@ test('result publication defers native dispatch once and retains bridge context'
   assert.equal(context.bridge.deliveries[0][0], response);
   assert.equal(context.bridge.deliveries[0][1], deliveryContext);
   assert.deepEqual(order, ['beforeResult', 'beforeResult', 'observe']);
+});
+
+test('deferred lifecycle responses preserve the pinned dispatcher receipt and line queue', async () => {
+  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/out/extension.js'), 'utf8');
+  const source = ts.createSourceFile('host.js', original, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const methods = new Map(); let queueSource;
+  const names = new Set(['routeIncomingMessage', 'isMcpResponseMessage', 'isMcpRequestMessage', 'isMcpNotificationMessage', 'dispatchParsedMessage', 'drainLineQueue', 'scheduleLineDrain']);
+  function visit(node) {
+    if (ts.isMethodDeclaration(node) && names.has(node.name?.text)) {
+      assert.equal(methods.has(node.name.text), false, `Pinned method must be unique: ${node.name.text}`);
+      methods.set(node.name.text, node.getText(source));
+    }
+    if (ts.isBinaryExpression(node) && node.left.getText(source) === 'vC' && ts.isClassExpression(node.right)) queueSource = node.right.getText(source);
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  assert.equal(methods.size, names.size); assert(queueSource, 'Pinned line queue must exist');
+  const routerMethods = ['routeIncomingMessage', 'isMcpResponseMessage', 'isMcpRequestMessage', 'isMcpNotificationMessage'].map(name => methods.get(name)).join('\n');
+  const fixture = `class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}teardownProcess(){}${routerMethods}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}`;
+  const transformed = injectWindowControl(fixture, 'out/extension.js', ts).text;
+  for (const lifecycleMethod of ['thread/start', 'thread/resume']) {
+    const events = [], receipts = []; let publish, replayed = false;
+    const response = { id: 'provider:request', result: { thread: { id: '12345678-1234-1234-1234-123456789abc' } } };
+    const notification = { method: 'thread/status/changed', params: { threadId: response.result.thread.id, status: { type: 'idle' } } };
+    const deliveryContext = { receivedAtMs: 42 };
+    const context = vm.createContext({ setImmediate, Date,
+      lO: () => false, dO: () => null, oy: params => params.threadId,
+      require: () => ({ beforeResult(native, message, callback) {
+        if (message === response && !replayed) { events.push(`defer:${lifecycleMethod}`); publish = () => { replayed = true; return callback(message); }; return true; }
+        return false;
+      }, observe(native, message) { events.push(message === response ? 'observe:response' : 'observe:notification'); }, disconnect() { assert.fail('Observer must not fail'); } })
+    });
+    vm.runInContext(`${transformed};bridge=new Bridge;LineQueue=${queueSource};class Dispatcher{${['dispatchParsedMessage', 'drainLineQueue', 'scheduleLineDrain'].map(name => methods.get(name)).join('\n')}};dispatcher=Object.create(Dispatcher.prototype);`, context);
+    Object.assign(context.bridge, {
+      pendingRequests: new Set([response.id]), pendingTurnStartRequestIds: new Set(), pendingPrewarmedThreadStartRequestIds: new Set(),
+      providers: new Map([['provider', { onResult(value) { events.push('deliver:response'); assert.equal(value.id, 'request'); }, onRawNotification(value) { events.push('deliver:notification'); assert.equal(value, notification); } }]]),
+      requestUserInputAutoResolutionCoordinator: { observeServerNotification() {} }, internalNotificationHandlers: [], ephemeralThreadTimeouts: new Map()
+    });
+    const queue = new context.LineQueue({ depthThresholds: [], compactionMinConsumedItems: 16 });
+    Object.assign(context.dispatcher, { lineQueue: queue, lineDrainHandle: null,
+      options: { onMessage(message, bytes, timing) { assert.equal(timing, deliveryContext); return context.bridge.routeIncomingMessage(message); }, drainMaxLinesPerSlice: 16, drainMaxSliceMs: 1000, slowDrainSliceMs: Infinity, drainRemainingLogThreshold: Infinity, queueDepthThresholds: [] },
+      trackIncomingLineBytes() {}, maybeLogIncomingLineProcessing(receipt) { receipts.push(receipt); }
+    });
+    queue.enqueueMany([{ message: response, lineBytes: 100, timing: deliveryContext }, { message: notification, lineBytes: 80, timing: deliveryContext }]);
+    // Execute the native scheduled drain: an undefined receipt throws before the next queued item.
+    context.dispatcher.scheduleLineDrain();
+    await new Promise(resolve => setImmediate(resolve));
+    assert.equal(queue.getDepth(), 0);
+    assert.deepEqual(events, [`defer:${lifecycleMethod}`, 'observe:notification', 'deliver:notification']);
+    assert.deepEqual(receipts.map(receipt => [receipt.routeKind, receipt.method]), [['response', null], ['notification', notification.method]]);
+    assert.equal(context.bridge.pendingRequests.has(response.id), true, 'Native response publication remains deferred');
+    assert.deepEqual({ ...publish() }, { routeKind: 'response', method: null });
+    assert.equal(context.bridge.pendingRequests.has(response.id), false);
+    assert.deepEqual(events.slice(-2), ['observe:response', 'deliver:response']);
+  }
 });
 const {injectWindowApprovalClassifier,APPROVAL_CLASSIFIER_ASSET,CLASSIFIER_PATCH}=require('./inject-window-control.cjs');
 test('Window Use classifier is exact, guarded and tracked by packaging',()=>{

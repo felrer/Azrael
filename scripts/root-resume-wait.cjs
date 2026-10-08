@@ -20,7 +20,7 @@ function azraelNormalizeDeferredTurn(turn) {
 function azraelDeferredJournal(manager) {
   let journal = azraelDeferredJournals.get(manager);
   if (journal == null) {
-    journal = { records: new Map(), flushing: false };
+    journal = { records: new Map(), restorations: new Map(), startedTurns: new Map(), flushing: false };
     azraelDeferredJournals.set(manager, journal);
   }
   return journal;
@@ -92,7 +92,7 @@ function azraelFlushDeferred(manager, conversationId) {
   } finally { journal.flushing = false; }
 }
 
-function azraelReceiveDeferred(manager, context, findTurn, conversationId, nativeThreadId, turnId, wait, metadata) {
+function azraelReceiveDeferred(manager, context, findTurn, conversationId, nativeThreadId, turnId, wait, metadata, skipQuery = false) {
   const journal = azraelDeferredJournal(manager);
   const key = JSON.stringify([conversationId, turnId]);
   const conversation = manager.getConversation(conversationId);
@@ -125,7 +125,7 @@ function azraelReceiveDeferred(manager, context, findTurn, conversationId, nativ
     record.metadata = { ...metadata, durationMs: Number.isFinite(metadata.durationMs) ? metadata.durationMs : null };
   }
   azraelFlushDeferred(manager, conversationId);
-  if (record.metadata != null || !journal.records.has(key) || !azraelHasDeferredBoundary({ rootResumeWait: record.wait }) || record.inFlight != null) return;
+  if (skipQuery || journal.restorations.has(conversationId) || record.metadata != null || !journal.records.has(key) || !azraelHasDeferredBoundary({ rootResumeWait: record.wait }) || record.inFlight != null) return;
   if (typeof manager.listThreadTurns !== "function") {
     azraelDeferredLog(manager, record, "query_unavailable");
     return;
@@ -166,6 +166,69 @@ function azraelReceiveDeferred(manager, context, findTurn, conversationId, nativ
       azraelDeferredLog(manager, record, "query_failed", pages);
     } finally { record.inFlight = null; }
   })();
+}
+
+// Restoration is an explicit lifecycle opportunity, never a token/snapshot hook.
+// Keep unloaded origins in the journal until the native history loader finds them.
+function azraelReconcileDeferredRestoration(manager, context, findTurn, conversationId, nativeThreadId, startedTurnId = null) {
+  const journal = azraelDeferredJournal(manager);
+  if (startedTurnId != null) {
+    if (journal.startedTurns.get(conversationId) === startedTurnId) return journal.restorations.get(conversationId) ?? Promise.resolve();
+    journal.startedTurns.set(conversationId, startedTurnId);
+    const pending = [...journal.records.values()].filter(record => record.conversationId === conversationId && record.inFlight != null)
+      .map(record => record.inFlight);
+    const active = journal.restorations.get(conversationId);
+    if (active != null) pending.push(active);
+    if (pending.length > 0) {
+      // A page requested before this new-turn boundary can contain an old waiting
+      // state. Preserve one trailing opportunity if that response leaves it open.
+      const trailing = Promise.all(pending).then(() => {
+        const conversation = manager.getConversation(conversationId);
+        const unresolved = conversation != null && findTurn(conversation, turn => turn.turnId != null && turn.turnId !== startedTurnId &&
+          (turn.status === "inProgress" || turn.status === "deferred" && azraelHasDeferredBoundary(turn) &&
+            (turn.rootResumeWait.state === "waiting" || turn.rootResumeWait.state === "claimed" || !Number.isFinite(turn.durationMs))));
+        if (unresolved) return azraelReconcileDeferredRestoration(manager, context, findTurn, conversationId, nativeThreadId);
+      });
+      journal.trailing = trailing;
+      return trailing;
+    }
+  }
+  if (journal.restorations.has(conversationId)) return journal.restorations.get(conversationId);
+  if (typeof manager.listThreadTurns !== "function") return Promise.resolve();
+  const scan = Promise.resolve().then(async () => {
+    let cursor = null, pages = 0;
+    const seen = new Set();
+    const receipt = { conversationId, turnId: null, wait: null };
+    try {
+      // A finite page budget also bounds malformed servers with unique cursors.
+      while (pages < 100) {
+        const { response } = await manager.listThreadTurns(nativeThreadId,
+          { cursor, limit: 100, itemsView: "notLoaded", sortDirection: "desc" });
+        pages++;
+        if (!Array.isArray(response?.data)) break;
+        for (const candidate of response.data) {
+          if (candidate.id == null || candidate.rootResumeWait == null) continue;
+          const conversation = manager.getConversation(conversationId);
+          const current = conversation == null ? null : findTurn(conversation, turn => turn.turnId === candidate.id);
+          const staleMeasured = current?.status === "deferred" && Number.isFinite(current.durationMs) &&
+            current.rootResumeWait != null && candidate.rootResumeWait.revision < current.rootResumeWait.revision;
+          const metadata = !staleMeasured && candidate.status === "deferred" && Number.isFinite(candidate.durationMs) ? candidate : null;
+          azraelReceiveDeferred(manager, context, findTurn, conversationId, nativeThreadId,
+            candidate.id, candidate.rootResumeWait, metadata, true);
+        }
+        manager.broadcastConversationSnapshot(conversationId);
+        const next = response.nextCursor;
+        if (response.data.length === 0 || next == null || seen.has(next)) break;
+        seen.add(next);
+        cursor = next;
+      }
+      azraelDeferredLog(manager, receipt, pages === 100 ? "restoration_page_limit" : "restoration_scanned", pages);
+    } catch {
+      azraelDeferredLog(manager, receipt, "restoration_query_failed", pages);
+    } finally { journal.restorations.delete(conversationId); }
+  });
+  journal.restorations.set(conversationId, scan);
+  return scan;
 }
 
 const azraelDeferredJournals = new WeakMap();
@@ -218,5 +281,5 @@ function azraelRootResumeWaitLabel(wait, elapsedMs) {
 }
 
 module.exports = { azraelDeferredJournals, azraelDeferredJournal, azraelDeferredLog, azraelMergeEndedRootResumeWait,
-  azraelFlushDeferred, azraelReceiveDeferred, azraelHasDeferredBoundary, azraelNormalizeDeferredTurn,
+  azraelFlushDeferred, azraelReceiveDeferred, azraelReconcileDeferredRestoration, azraelHasDeferredBoundary, azraelNormalizeDeferredTurn,
   azraelMergeRootResumeWait, azraelRootResumeWaitItem, azraelRootResumeWaitLabel };

@@ -1,5 +1,7 @@
 "use strict";
 
+const { BTW_MARKER, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT } = require("./inject-btw.cjs");
+
 const COMPOSER_DRAFT_ASSET = "webview/assets/app-initial-532d60c9b397.js";
 const MARKER = "/*azrael-composer-draft-v3*/";
 // Read the same editable payload used by the pinned host. Clone it immediately:
@@ -12,7 +14,7 @@ const edits = [
   // the input. Accepted removal belongs to the queue coordinator.
   ["return n.filter(e=>(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t(Lda,e.createdAt)))", "return n.filter(e=>e.pausedReason!=null||e.submission?.status===`pending`||e.submission?.status===`sending`||e.submission?.status===`queued`||e.submission?.status===`outcome-unknown`||(e.submissionOptions?.clientUserMessageId??e.id)!==r&&(e.submissionIntent!==`send-now`||t(Lda,e.createdAt)))"],
   ["async function Jfa({", SNAPSHOT + "async function Jfa({"],
-  ["let De=ye??f.getText(),Oe=", "let __azraelSubmitted=__azraelComposerSnapshot(e,f),__azraelCleared;const __azraelOwns=()=>__azraelComposerMatches(e,f,__azraelSubmitted),__azraelClear=n=>{if(!__azraelOwns())return!1;l(n);__azraelCleared=__azraelComposerSnapshot(e,f);return!0},__azraelRelease=(c,Ik)=>c?.(Ik,__azraelComposerMatches(e,f,__azraelCleared));let De=ye??f.getText(),Oe="],
+  [BTW_COMPOSER_ADMISSION_ANCHOR, "let __azraelSubmitted=__azraelComposerSnapshot(e,f),__azraelCleared;const __azraelOwns=()=>__azraelComposerMatches(e,f,__azraelSubmitted),__azraelClear=n=>{if(!__azraelOwns())return!1;l(n);__azraelCleared=__azraelComposerSnapshot(e,f);return!0},__azraelRelease=(c,Ik)=>c?.(Ik,__azraelComposerMatches(e,f,__azraelCleared));" + BTW_COMPOSER_ADMISSION_ANCHOR],
   ["await H(Ie)&&(l(),t=he&&Ie.length>0)", "await H(Ie)&&(__azraelClear(),t=he&&Ie.length>0)"],
   ["ut||(dt=Me&&e?.optimisticSteer===!0,mt=w({clearSavedDraft:dt}),ut=!0,l(st),re(!1),he&&_())", "ut||(dt=Me&&e?.optimisticSteer===!0,mt=__azraelOwns()?w({clearSavedDraft:dt}):void 0,ut=!0,__azraelClear(st),re(!1),he&&_())"],
   ["(mt(!0),mt=void 0,Ve()", "(__azraelRelease(mt,!0),mt=void 0,Ve()"],
@@ -28,10 +30,17 @@ const edits = [
 ];
 
 const count = (text, token) => text.split(token).length - 1;
+function validReplacement(text, anchor, replacement) {
+  if (anchor !== BTW_COMPOSER_ADMISSION_ANCHOR) return count(text, replacement) === 1;
+  const composed = replacement.replace(BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT);
+  const originalCount = count(text, replacement), composedCount = count(text, composed), markers = count(text, BTW_MARKER);
+  return originalCount === 1 && composedCount === 0 && markers === 0 ||
+    originalCount === 0 && composedCount === 1 && markers === 1;
+}
 function injectComposerDraft(text) {
   if (/\/\*azrael-composer-draft-v[12]\*\//.test(text)) throw new Error("Outdated composer draft injection; use the original pinned asset.");
   if (count(text, MARKER)) {
-    if (count(text, MARKER) !== 1 || edits.some(([, replacement]) => count(text, replacement) !== 1)) {
+    if (count(text, MARKER) !== 1 || edits.some(([anchor, replacement]) => !validReplacement(text, anchor, replacement))) {
       throw new Error("Invalid or partial composer draft injection.");
     }
     return { text, count: 0 };

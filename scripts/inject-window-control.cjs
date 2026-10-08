@@ -110,7 +110,8 @@ function injectWindowControl(text, relativePath, ts) {
         if (sibling.name?.text === 'routeIncomingMessage' && sibling.body && sibling.parameters.length === 2 && ts.isIdentifier(sibling.parameters[0].name)) {
           if (!ts.isIdentifier(sibling.parameters[1].name)) throw new Error('Window Use response context changed');
           const responseName = sibling.parameters[0].name.text, contextName = sibling.parameters[1].name.text;
-          edits.push({ start: sibling.body.getStart(source) + 1, code: `try{if(require("./window-control-host.cjs").beforeResult(this,${responseName},azraelWindowResponse=>this.routeIncomingMessage(azraelWindowResponse,${contextName})))return;require("./window-control-host.cjs").observe(this,${responseName});}catch(azraelWindowError){try{require("./window-control-host.cjs").disconnect(this);}catch{}console.error("Azrael selected-window observer failed closed");}` }); counts.observe++;
+          // The native line dispatcher reads routeKind and method even when publication is deferred.
+          edits.push({ start: sibling.body.getStart(source) + 1, code: `try{if(require("./window-control-host.cjs").beforeResult(this,${responseName},azraelWindowResponse=>this.routeIncomingMessage(azraelWindowResponse,${contextName})))return{routeKind:"response",method:null};require("./window-control-host.cjs").observe(this,${responseName});}catch(azraelWindowError){try{require("./window-control-host.cjs").disconnect(this);}catch{}console.error("Azrael selected-window observer failed closed");}` }); counts.observe++;
         }
         if (sibling.name?.text === 'teardownProcess' && sibling.body && sibling.parameters.length === 0) {
           edits.push({ start: sibling.body.getStart(source) + 1, code: 'try{require("./window-control-host.cjs").disconnect(this);}catch(azraelWindowError){console.error("Azrael selected-window disconnect failed");}' }); counts.disconnect++;
