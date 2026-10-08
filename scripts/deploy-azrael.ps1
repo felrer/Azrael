@@ -168,6 +168,7 @@ try {
     $enginePreservationConfig = [ordered]@{
         projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
+        reuseNativeChecks = -not [bool]$FullRegression
     }
     if (-not $FullRegression) {
         $enginePreservationConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')

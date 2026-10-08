@@ -175,15 +175,14 @@ test("child failures retain their actual exit status and bounded file logs", asy
   } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
 
-test("changed-only selects direct queue/recovery owners without whole-area expansion", () => {
+test("changed-only selects transitive queue/recovery owners without whole-area expansion", () => {
   const result = selection(["--changed-only", "--changed", "scripts/inject-queue-consumption.cjs"]);
   assert.equal(result.areas.length, 0);
   assert.ok(result.files.includes("scripts/test-queue-consumption.cjs"));
   assert.ok(!result.files.includes("scripts/test-queue-refresh.cjs"));
   assert.ok(!result.files.includes("scripts/test-recovery-state.cjs"));
-  for (const file of result.files) {
-    assert.match(fs.readFileSync(path.join(__dirname, "..", file), "utf8"), /require\(["']\.\/inject-queue-consumption\.cjs["']\)/);
-  }
+  assert.ok(!result.files.includes("scripts/test-project-selection.cjs"));
+  assert.equal(new Set(result.files).size, result.files.length);
 });
 
 test("changed-only shared inputs retain namespace checks without selecting current or extension", () => {
@@ -195,19 +194,115 @@ test("changed-only shared inputs retain namespace checks without selecting curre
   assert.deepEqual(result.areas, []);
 });
 
-test("changed-only unknowns are visible, docs/assets select none, changed tests select only themselves", () => {
+test("changed-only unknowns and unowned assets are visible, Markdown selects none, changed tests select only themselves", () => {
   const unknown = selection(["--changed-only", "--changed", "some-new-source.js"]);
   assert.equal(unknown.commands.length, 0);
   assert.match(unknown.reasons[0].reason, /No direct test owner/);
   assert.ok(unknown.separateChecks.some(reason => reason.includes("some-new-source.js")));
+  assert.equal(unknown.coverageStatus, "requires-separate-checks");
+  assert.equal(selection(["--changed-only", "--changed", "docs/README.md"]).coverageStatus, "selected-source-scope");
   const docs = selection(["--changed-only", "--changed", "docs/README.md", "--changed", "extensions/azrael-ex/media/chat.svg"]);
   assert.equal(docs.commands.length, 0);
   assert.equal(docs.reasons.length, 2);
+  assert.ok(docs.separateChecks.some(reason => reason.includes("media/chat.svg")));
   const changedTest = selection(["--changed-only", "--changed", "scripts/test-queue-consumption.cjs"]);
   assert.deepEqual(changedTest.files, ["scripts/test-queue-consumption.cjs"]);
   const runner = selection(["--changed-only", "--changed", "scripts/test-project.cjs"]);
   assert.deepEqual(runner.files, ["scripts/test-project-selection.cjs"]);
   assert.deepEqual(selection(["--changed-only", "--area", "standalone"]).commands.at(-1).args, ["run", "test:standalone"]);
+});
+
+test("namespace composition respects declared feature and cache inputs without inheriting unrelated owners", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-composition-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    const namespaceRequire = `require(${JSON.stringify("./namespace-azrael-host.cjs")});`;
+    for (const name of ["owner", "other"]) {
+      fs.writeFileSync(path.join(directory, `scripts/test-${name}.cjs`), `require('node:test'); ${namespaceRequire}`);
+      fs.writeFileSync(path.join(directory, `scripts/inject-${name}.cjs`), "module.exports = {};");
+    }
+    fs.writeFileSync(path.join(directory, "scripts/namespace-azrael-host.cjs"), "require('./inject-owner.cjs'); require('./inject-other.cjs'); require('./cache.cjs');");
+    fs.writeFileSync(path.join(directory, "scripts/cache.cjs"), "module.exports = {};");
+    fs.writeFileSync(path.join(directory, "scripts/inject-owner.cjs"), "require('./helper.cjs');");
+    fs.writeFileSync(path.join(directory, "scripts/helper.cjs"), "module.exports = {};");
+    fs.writeFileSync(path.join(directory, "scripts/input.json"), "{}");
+    fs.writeFileSync(path.join(directory, "scripts/azrael-feature-contracts.json"), JSON.stringify({ features: [{ area: "ui", owners: ["scripts/inject-owner.cjs"], checks: [{ level: "source", args: ["--test", "scripts/test-owner.cjs"], cacheInputs: { files: ["scripts/input.json"] } }] }] }));
+    for (const input of ["scripts/inject-owner.cjs", "scripts/input.json", "scripts/helper.cjs"]) {
+      assert.deepEqual(select(parseArgs(["--changed-only", "--changed", input]), directory).files, ["scripts/test-owner.cjs"]);
+    }
+    const unmapped = select(parseArgs(["--changed-only", "--changed", "scripts/cache.cjs"]), directory);
+    assert.deepEqual(unmapped.files, []);
+    assert.equal(unmapped.coverageStatus, "requires-separate-checks");
+    assert.deepEqual(select(parseArgs(["--changed-only", "--changed", "scripts/namespace-azrael-host.cjs"]), directory).files, ["scripts/test-other.cjs", "scripts/test-owner.cjs"]);
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("btw and native cache deltas select their actual owners without unrelated UI composition", () => {
+  const btw = selection(["--changed-only", "--changed", "scripts/inject-btw.cjs"]);
+  assert.deepEqual(btw.files, ["scripts/test-asset-transform-cache.cjs", "scripts/test-btw.cjs", "scripts/test-composer-draft.cjs", "scripts/test-send-result-integration.cjs"]);
+  const native = selection(["--changed-only", "--changed", "scripts/native-verification-cache.cjs"]);
+  assert.deepEqual(native.files, ["scripts/test-feature-preservation-cache.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-native-verification-cache.cjs", "scripts/test-preservation-integration.cjs", "scripts/test-student-design.cjs"]);
+  // Student design explicitly imports the preservation gate; other UI tests do not.
+  assert.ok(!native.files.includes("scripts/test-btw.cjs"));
+  assert.ok(!native.files.includes("scripts/test-account-settings.cjs"));
+  assert.equal(native.coverageStatus, native.separateChecks.length ? "requires-separate-checks" : "selected-source-scope");
+});
+
+test("student avatar manifests, provenance and images select their asset contract", () => {
+  for (const name of ["manifest.json", "provenance.json", "NOTICE.txt", "1.png"]) {
+    const result = selection(["--changed-only", "--changed", `extensions/azrael-ex/media/student-avatars/${name}`]);
+    assert.deepEqual(result.files, ["scripts/test-student-avatar-assets.cjs"]);
+    assert.deepEqual(result.extensionFiles, []);
+  }
+});
+
+test("changed-only walks cyclic CommonJS dependencies, resolves directories and retains deleted owners", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-transitive-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts/lib"), { recursive: true });
+    fs.writeFileSync(path.join(directory, "scripts/test-owner.cjs"), "require('node:test'); require('./bridge.cjs');");
+    fs.writeFileSync(path.join(directory, "scripts/test-other.cjs"), "require('node:test');");
+    fs.writeFileSync(path.join(directory, "scripts/bridge.cjs"), "require('./lib'); require('./deleted.cjs');");
+    fs.writeFileSync(path.join(directory, "scripts/lib/index.js"), "require('../bridge.cjs');");
+    const result = select(parseArgs(["--changed-only", "--changed", "scripts/lib/index.js", "--changed", "scripts/deleted.cjs", "--changed", "scripts/new.cjs"]), directory);
+    assert.deepEqual(result.files, ["scripts/test-owner.cjs"]);
+    assert.equal(result.commands.length, 1);
+    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/deleted.cjs") && /New or deleted/.test(reason)));
+    assert.ok(result.separateChecks.some(reason => reason.includes("scripts/new.cjs") && /No direct test owner/.test(reason)));
+    assert.deepEqual(select(parseArgs(["--changed-only", "--changed", "scripts/test-owner.cjs"]), directory).files, ["scripts/test-owner.cjs"]);
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("changed-only known dynamic owners remain bounded", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-dynamic-selection-"));
+  try {
+    fs.mkdirSync(path.join(directory, "scripts"));
+    for (const name of ["feature-preservation", "verification-result-cache", "native-verification-cache"]) {
+      fs.writeFileSync(path.join(directory, `scripts/test-${name}.cjs`), "require('node:test'); require(process.env.OWNER);");
+      fs.writeFileSync(path.join(directory, `scripts/${name}.cjs`), "module.exports = {};");
+      assert.deepEqual(select(parseArgs(["--changed-only", "--changed", `scripts/${name}.cjs`]), directory).files, [`scripts/test-${name}.cjs`]);
+    }
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+});
+
+test("changed-only TypeScript discovery follows transitive NodeNext imports and deleted sources", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-typescript-selection-"));
+  try {
+    const extension = path.join(directory, "extensions/azrael-ex");
+    fs.mkdirSync(path.join(directory, "scripts"));
+    for (const folder of ["src", "test", "node_modules"]) fs.mkdirSync(path.join(extension, folder), { recursive: true });
+    const installed = path.dirname(require.resolve("typescript/package.json", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+    fs.symlinkSync(installed, path.join(extension, "node_modules/typescript"), "junction");
+    fs.writeFileSync(path.join(extension, "tsconfig.json"), JSON.stringify({ compilerOptions: { module: "NodeNext", moduleResolution: "NodeNext" }, include: ["src/**/*.ts", "test/**/*.ts"] }));
+    fs.writeFileSync(path.join(extension, "test/owner.test.ts"), "import '../src/bridge.js';");
+    fs.writeFileSync(path.join(extension, "test/other.test.ts"), "export {};");
+    fs.writeFileSync(path.join(extension, "src/bridge.ts"), "import './leaf.js'; import './deleted.js';");
+    fs.writeFileSync(path.join(extension, "src/leaf.ts"), "import './bridge.js';");
+    const result = select(parseArgs(["--changed-only", "--changed", "extensions/azrael-ex/src/leaf.ts", "--changed", "extensions/azrael-ex/src/deleted.ts"]), directory);
+    assert.deepEqual(result.extensionFiles, ["extensions/azrael-ex/test/owner.test.ts"]);
+    assert.equal(result.commands.filter(command => command.name === "extension-changed").length, 1);
+    assert.ok(result.separateChecks.some(reason => reason.includes("src/deleted.ts") && /New or deleted/.test(reason)));
+  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
 });
 
 test("changed-only build owners do not select deployment mocks by association", () => {
@@ -218,8 +313,9 @@ test("changed-only build owners do not select deployment mocks by association", 
     ["extensions/azrael-ex/scripts/build-incremental.cjs", "scripts/test-incremental-extension-build.cjs"],
   ]) {
     const result = selection(["--changed-only", "--changed", source]);
-    assert.deepEqual(result.files, [owner]);
-    assert.equal(result.commands.length, 1);
+    assert.ok(result.files.includes(owner));
+    assert.ok(!result.files.includes("scripts/test-deploy-azrael.ps1"));
+    assert.equal(new Set(result.commands.flatMap(command => command.files)).size, result.files.length);
   }
   const changedTest = selection(["--changed-only", "--changed", "scripts/test-deploy-azrael.ps1"]);
   assert.deepEqual(changedTest.files, ["scripts/test-deploy-azrael.ps1"]);
@@ -275,6 +371,12 @@ test("changed-only without explicit paths discovers current Git changes and list
     const result = select(parseArgs(["--changed-only"]), directory);
     assert.deepEqual(result.changed, ["scripts/test-new.cjs"]);
     assert.deepEqual(result.files, ["scripts/test-new.cjs"]);
+    assert.ok(result.separateChecks.some(reason => reason.includes("test-new.cjs") && /New or deleted/.test(reason)));
+    const staged = spawnSync("git", ["add", "scripts/test-new.cjs"], { cwd: directory, encoding: "utf8" });
+    assert.equal(staged.status, 0, staged.stderr);
+    const added = select(parseArgs(["--changed-only"]), directory);
+    assert.deepEqual(added.files, ["scripts/test-new.cjs"]);
+    assert.ok(added.separateChecks.some(reason => reason.includes("test-new.cjs") && /New or deleted/.test(reason)));
     const logs = path.join(directory, "unused-logs");
     const listed = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--changed-only", "--changed", "docs/README.md", "--list", "--log-directory", logs], { encoding: "utf8" });
     assert.equal(listed.status, 0, listed.stderr);

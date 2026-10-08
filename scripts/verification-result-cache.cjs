@@ -159,6 +159,7 @@ async function begin(options) {
   const { cacheRoot } = configuration(options);
   const { checkId, key } = options, logName = options.logName || checkId;
   if (!safeId(checkId) || !safeId(logName) || !isHash(key)) throw Error('Invalid verification cache check ID, log name or key');
+  if (options.force !== undefined && typeof options.force !== 'boolean') throw Error('Verification cache force must be boolean');
   if (typeof options.runDirectory !== 'string' || !options.runDirectory) throw Error('Verification cache requires runDirectory');
   const runDirectory = path.resolve(options.runDirectory), deferred = [];
   if (inside(cacheRoot, runDirectory)) throw Error('Run evidence must be outside the verification result cache');
@@ -187,12 +188,16 @@ async function begin(options) {
     if (!releaseCheck) { handle.reason = 'busy: check lease'; return handle; }
     await directory(slot, true);
     await pruneKeys(cacheRoot, slot, key, deferred);
+    // A forced probe must revoke the old pass before executing, so a later
+    // failure cannot leave that same input key eligible for reuse.
+    if (options.force && await inspect(entry, 'directory', true)) await remove(cacheRoot, entry);
   } catch (error) { handle.reason = message(error); await handle.close(); return handle; }
   finally {
     if (releaseLifecycle) await releaseLifecycle().catch(error => deferred.push(`lifecycle release: ${message(error)}`));
     releaseLifecycle = null;
   }
   try {
+    if (options.force) throw Error('forced execution');
     const cached = await readEntry(entry, checkId, key);
     await directory(runDirectory, true);
     const logPath = path.join(runDirectory, `${logName}.log`), errorPath = path.join(runDirectory, `${logName}.stderr.log`);

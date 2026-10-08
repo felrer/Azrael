@@ -768,6 +768,10 @@
         {
           "id": "engine.provider-context.native",
           "executable": "node",
+          "nativeCacheInputs": {
+            "schema": 1,
+            "files": ["scripts/test-provider-context-engine.mjs"]
+          },
           "args": [
             "scripts/test-provider-context-engine.mjs",
             "{engine}",
@@ -789,6 +793,10 @@
         {
           "id": "engine.recovery.native",
           "executable": "node",
+          "nativeCacheInputs": {
+            "schema": 1,
+            "files": ["scripts/test-recovery-engine.mjs", "scripts/recovery-state.cjs"]
+          },
           "args": [
             "scripts/test-recovery-engine.mjs",
             "{engine}",
@@ -810,6 +818,10 @@
         {
           "id": "engine.accepted-input.native",
           "executable": "node",
+          "nativeCacheInputs": {
+            "schema": 1,
+            "files": ["scripts/test-accepted-input-engine.mjs", "scripts/fixtures/accepted-input-helper.mjs", "providers/devin/mapping.mjs"]
+          },
           "args": [
             "scripts/test-accepted-input-engine.mjs",
             "--engine",

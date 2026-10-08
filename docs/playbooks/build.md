@@ -29,6 +29,8 @@ azrael 설치·업데이트는 계정·사용량 모듈을 포함한 독립 호�
 
 UI 소스 검사 결과 캐시는 `artifacts/cache/verification-results/`에서 검사별 현재 입력 key만 유지한다. 입력이 바뀌면 이전 key를 대체 검사 실행 전에 삭제하며, 실패 결과는 저장하지 않는다. Manifest에서 제거된 검사와 구 schema도 자동 정리한다. 실행 중인 lease가 보호하는 항목은 완료 직후 정리하고, 경로·소유권 확인 실패나 abandoned lease는 보존 이유를 보고하며 캐시를 우회한다. 이 정리는 배포본·사용자 데이터와 별개다.
 
+네이티브 검사 결과 재사용은 [운영 문서의 별도 계약](../ops/development.md#native-verification-result-reuse)을 따른다. 명시된 provider-context·recovery·accepted-input 검사만 동일 바이너리·카탈로그·검사 의존성과 실행 환경의 통과 결과를 재사용한다. 출처·소스 변경·최종 패키지 동일성 확인은 매번 유지한다. `-FullRegression`은 네이티브 검사를 강제 실행하며 실제 설치 전 호스트 검증 6단계는 축소하지 않는다. 로컬 패키징 반복은 설치 검증과 구분하고, 일반 빌드가 테스트를 실행한다고 해석하지 않는다.
+
 중단된 배포의 패키징 stage도 `clean-verification-artifacts.ps1`로 정리합니다. 진단이 끝난 `artifacts/deployments/{deploy,manual}-<이름>/package/stage-<32자리 소문자 hex>` 경로를 `-FixtureRoot`로 명시하고 `-IncludeDiagnosedFixtures`로 미리보기한 뒤 적용합니다. 자동 탐색으로 선택하지 않으며, 설치된 배포의 stage와 실행 중인 프로세스·보호 경로가 참조하는 stage는 보존합니다.
 
 - 실행 중인 배포본을 덮어쓰거나 프로세스를 강제 종료하지 않는다. 새 버전의 독립 확장을 설치하고, 사용자가 진행 중인 작업을 마친 뒤 기존 창을 다시 로드해 적용한다.

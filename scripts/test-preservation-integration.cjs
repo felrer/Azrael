@@ -86,11 +86,16 @@ test("Max targets reach the pipeline after provider transformation and produce o
   assert.match(namespace, /for \(const assetPath of MAX_REASONING_ASSETS\)[\s\S]*?asset\.path === assetPath && asset\.maxReasoningEdits === 1/);
 });
 
-test("cache and checkpoints bind Max, report counts, and registry inputs", () => {
+test("transform fingerprints and checkpoint publication bind registry inputs", () => {
+  // Missing-image metadata rejection is exercised by test-asset-transform-cache;
+  // Max and recent-chat required-field registration remain unique coverage.
   const fields = vm.runInNewContext(declaration("asset-transform-cache.cjs", "COUNT_FIELDS"));
-  for (const field of ["maxReasoningEdits", "recentChatFilterEdits", "missingImageEdits"]) assert.ok(fields.includes(field));
-  const rules = declaration("namespace-azrael-host.cjs", "getTransformRules", namespace);
-  for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(rules.includes(`"${input}"`));
+  for (const field of ["maxReasoningEdits", "recentChatFilterEdits"]) assert.ok(fields.includes(field));
+  // Inspect the public fingerprints rather than the implementation spelling.
+  const rules = require("./namespace-azrael-host.cjs").getTransformRules();
+  for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) {
+    assert.match(rules[input] ?? "", /^[a-f\d]{64}$/i, input);
+  }
   assert.match(namespace, /"inject-max-reasoning\.cjs": MAX_REASONING_ASSETS/);
   const inputs = declaration("preparation-state.cjs", "inputs");
   for (const input of ["feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(inputs.includes(`"${input}"`));

@@ -361,6 +361,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $preservationCalls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         Assert-True (($preservationCalls.action -join '|') -ceq 'run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
+            Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $FullRegression)) 'native preservation reuse policy lost'
             if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
             else{Assert-True ((@($call.config.featureIds) -join '|') -ceq 'engine.provider-context|engine.recovery|engine.accepted-input') 'changed engine preservation scope lost'}
         }

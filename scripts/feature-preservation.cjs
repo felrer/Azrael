@@ -7,6 +7,7 @@ const { spawn } = require('node:child_process');
 const { getDirectoryState } = require('./directory-state.cjs');
 const { snapshotProject } = require('./deployment-input-snapshot.cjs');
 const verificationCache = require('./verification-result-cache.cjs');
+const nativeCache = require('./native-verification-cache.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -51,6 +52,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
             new Set(inputs.files).size !== inputs.files.length || check.args.some(arg => arg.includes('{fixture}'))) throw Error(`Invalid source cache inputs: ${check.id}`);
         inputs.files.forEach(source => reference(projectRoot, source));
       }
+      if (Object.hasOwn(check, 'nativeCacheInputs')) nativeCache.validateInputs(feature, check, source => reference(projectRoot, source));
       for (const arg of check.args) for (const match of arg.matchAll(/\{([^}]+)\}/g)) {
         if (!['projectRoot', 'uiRoot', 'engineSourceRoot', 'engineDirectory', 'engine', 'fixture'].includes(match[1])) throw Error(`Unknown placeholder: ${match[1]}`);
       }
@@ -167,6 +169,7 @@ async function sourceCacheKey(config, group, inputs, runtime) {
     ui: inputs.ui, runtime }));
 }
 async function runPreservation(config) {
+  const runStarted = performance.now();
   const receipt = { schema: 1, status: 'running', area: config.area, featureIds: [], checks: [] };
   const execution = config.execute ?? execute;
   if (!config.outputDirectory || !path.isAbsolute(config.outputDirectory)) throw Error('Absolute outputDirectory required');
@@ -174,7 +177,7 @@ async function runPreservation(config) {
   const runDirectory = await fs.promises.mkdtemp(path.join(config.outputDirectory, 'preservation-'));
   const receiptPath = path.join(runDirectory, 'receipt.json');
   const cacheHandles = [];
-  let activeCacheCheckIds;
+  let activeCacheCheckIds, activeNativeCheckIds, nativeRuntime;
   let checkpoint = Promise.resolve();
   const persist = () => {
     const contents = JSON.stringify(receipt, null, 2) + '\n';
@@ -190,11 +193,17 @@ async function runPreservation(config) {
     const concurrency = config.sourceConcurrency ?? 4;
     if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
     if (config.reuseSourceChecks !== undefined && typeof config.reuseSourceChecks !== 'boolean') throw Error('reuseSourceChecks must be boolean');
+    if (config.reuseNativeChecks !== undefined && typeof config.reuseNativeChecks !== 'boolean') throw Error('reuseNativeChecks must be boolean');
     const manifest = config.manifest ?? loadManifest(config.projectRoot), rules = rulesFor(config);
     validateManifest(manifest, config.projectRoot, rules);
     const features = selected(manifest, config.area, config);
     receipt.featureIds = features.map(feature => feature.id);
+    receipt.notApplicableFeatureIds = manifest.features.filter(feature =>
+      (config.area === 'all' || feature.area === config.area) && !receipt.featureIds.includes(feature.id)).map(feature => feature.id);
+    receipt.timings = { identityBeforeMs: 0, identityAfterMs: 0, checkExecutionMs: 0, cacheLookupMs: 0, cacheInputMs: 0 };
+    let identityStarted = performance.now();
     receipt.inputs = await identity(config, manifest, rules, features, execution);
+    receipt.timings.identityBeforeMs = performance.now() - identityStarted;
     if (config.expectedInputs && !same(config.expectedInputs, receipt.inputs)) throw Error('Expected input identity differs');
     await persist();
     const shared = new Map(), records = [];
@@ -222,11 +231,30 @@ async function runPreservation(config) {
     const cacheRoot = path.join(config.projectRoot, 'artifacts', 'cache', 'verification-results');
     const eligibleGroups = [...shared.values()].filter(group => !group.native && config.reuseSourceChecks !== false &&
       group.entries.every(({ feature, check }) => feature.area === 'ui' && check.level === 'source' && check.cacheInputs));
+    const nativeGroups = [...shared.values()].filter(group => group.native &&
+      group.entries.every(({ feature, check }) => feature.area === 'engine' && check.level === 'native' && check.nativeCacheInputs));
     let cacheRuntime;
     receipt.cache = { schema: verificationCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: eligibleGroups.length, deferred: [] };
+    receipt.nativeCache = { schema: nativeCache.CACHE_SCHEMA, executed: 0, reused: 0, eligible: nativeGroups.length, deferred: [] };
+    if (nativeGroups.length) {
+      const started = performance.now();
+      try { nativeRuntime = await nativeCache.runtime(config, checkEnvironment(config)); }
+      catch (error) { receipt.nativeCache.disabledReason = error.message; }
+      receipt.timings.cacheInputMs += performance.now() - started;
+    }
+    if (config.reuseNativeChecks !== false) {
+      activeNativeCheckIds = manifest.features.flatMap(feature => feature.checks.filter(check => check.nativeCacheInputs).map(check => check.id));
+      for (const method of ['pruneObsoleteVersions', 'pruneRemovedChecks']) {
+        try { const result = await nativeCache[method]({ ...nativeCache.options(config), checkIds: activeNativeCheckIds });
+          receipt.nativeCache.deferred.push(...(result?.deferred || [])); }
+        catch (error) { receipt.nativeCache.deferred.push({ operation: method, reason: error.message }); }
+      }
+    }
     if (eligibleGroups.length) {
+      const started = performance.now();
       try { cacheRuntime = await sourceCacheRuntime(config); }
       catch (error) { receipt.cache.disabledReason = error.message; }
+      receipt.timings.cacheInputMs += performance.now() - started;
     }
     if (config.reuseSourceChecks !== false) {
       const options = { projectRoot: config.projectRoot, cacheRoot };
@@ -241,19 +269,30 @@ async function runPreservation(config) {
     const runGroup = async group => {
         const { check, args } = group;
         const logPath = path.join(runDirectory, `${check.id}.log`), errorPath = path.join(runDirectory, `${check.id}.stderr.log`);
-        let handle, key;
+        let handle, key, kind;
+        const lookupStarted = performance.now();
         if (cacheRuntime && eligibleGroups.includes(group)) {
           try { key = await sourceCacheKey(config, group, receipt.inputs, cacheRuntime);
             handle = await verificationCache.begin({ projectRoot: config.projectRoot, cacheRoot, checkId: check.id, key, runDirectory });
-            cacheHandles.push({ handle, group, key }); receipt.cache.deferred.push(...(handle.deferred || [])); }
+            kind = 'source'; cacheHandles.push({ handle, group, key, kind }); receipt.cache.deferred.push(...(handle.deferred || [])); }
           catch (error) { receipt.cache.deferred.push({ checkId: check.id, reason: error.message }); }
         }
+        if (nativeRuntime && nativeGroups.includes(group)) {
+          try { key = await nativeCache.key(config, group, nativeRuntime);
+            handle = await nativeCache.begin({ ...nativeCache.options(config), checkId: check.id, key, runDirectory,
+              force: config.reuseNativeChecks === false });
+            kind = 'native'; cacheHandles.push({ handle, group, key, kind }); receipt.nativeCache.deferred.push(...(handle.deferred || [])); }
+          catch (error) { receipt.nativeCache.deferred.push({ checkId: check.id, reason: error.message }); }
+        }
+        receipt.timings.cacheLookupMs += performance.now() - lookupStarted;
         const reused = Boolean(handle?.hit);
         const started = performance.now();
         const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
           env: checkEnvironment(config), logPath, errorPath })), logPath, errorPath };
         if (handle) cacheHandles.find(entry => entry.handle === handle).record = result;
         receipt.cache[reused ? 'reused' : 'executed']++;
+        if (group.native) receipt.nativeCache[reused ? 'reused' : 'executed']++;
+        if (!reused) receipt.timings.checkExecutionMs += performance.now() - started;
         result.logSha256 = await fileHash(logPath); result.errorSha256 = await fileHash(errorPath);
         const { stdout, stderr, ...record } = result;
         for (const entry of group.entries) {
@@ -261,6 +300,9 @@ async function runPreservation(config) {
           if (ownLog !== logPath) { await fs.promises.copyFile(logPath, ownLog); await fs.promises.copyFile(errorPath, ownError); }
           records[entry.index] = { featureId: entry.feature.id, checkId: entry.check.id, area: entry.feature.area,
             level: entry.check.level, executable: entry.check.executable, args, ...record, reused,
+            executionStatus: reused ? 'reused' : 'executed',
+            executionReason: reused ? 'unchanged declared inputs and passing evidence' : handle?.reason ||
+              (group.native && config.reuseNativeChecks === false ? 'native reuse disabled' : 'no reusable passing evidence'),
             ...(key ? { cacheKey: key } : {}), durationMs: performance.now() - started, logPath: ownLog, errorPath: ownError };
         }
         receipt.checks = records.filter(Boolean);
@@ -276,30 +318,47 @@ async function runPreservation(config) {
     }));
     if (executionError) throw executionError;
     for (const group of [...shared.values()].filter(group => group.native)) await runGroup(group);
+    identityStarted = performance.now();
     if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
+    receipt.timings.identityAfterMs = performance.now() - identityStarted;
     receipt.status = 'passed';
     expectedReceipt(manifest, features, receipt);
-    if (cacheRuntime && cacheHandles.length) {
-      const finalRuntime = await sourceCacheRuntime(config);
-      for (const entry of cacheHandles) if (entry.key !== await sourceCacheKey(config, entry.group, receipt.inputs, finalRuntime)) throw Error('Source cache inputs changed during verification');
+    if (cacheHandles.length) {
+      const started = performance.now();
+      const finalRuntime = cacheRuntime ? await sourceCacheRuntime(config) : null;
+      const finalNativeRuntime = nativeRuntime ? await nativeCache.runtime(config, checkEnvironment(config)) : null;
+      for (const entry of cacheHandles) {
+        const finalKey = entry.kind === 'native' ? await nativeCache.key(config, entry.group, finalNativeRuntime) :
+          await sourceCacheKey(config, entry.group, receipt.inputs, finalRuntime);
+        if (entry.key !== finalKey) throw Error(`${entry.kind} cache inputs changed during verification`);
+      }
+      receipt.timings.cacheInputMs += performance.now() - started;
       for (const entry of cacheHandles) if (!entry.handle.hit) {
+        const summary = entry.kind === 'native' ? receipt.nativeCache : receipt.cache;
         try { const published = await entry.handle.publish(entry.record);
-          if (!published.published) receipt.cache.deferred.push({ checkId: entry.group.check.id, reason: published.reason }); }
-        catch (error) { receipt.cache.deferred.push({ checkId: entry.group.check.id, reason: error.message }); }
+          if (!published.published) summary.deferred.push({ checkId: entry.group.check.id, reason: published.reason }); }
+        catch (error) { summary.deferred.push({ checkId: entry.group.check.id, reason: error.message }); }
       }
     }
   } catch (error) { receipt.status = 'failed'; receipt.error = error.message; }
   finally {
     for (const entry of cacheHandles) {
-      await entry.handle.close().catch(error => receipt.cache?.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
-      for (const reason of entry.handle.deferred || []) if (!receipt.cache.deferred.includes(reason)) receipt.cache.deferred.push(reason);
+      const summary = entry.kind === 'native' ? receipt.nativeCache : receipt.cache;
+      await entry.handle.close().catch(error => summary?.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
+      for (const reason of entry.handle.deferred || []) if (!summary.deferred.includes(reason)) summary.deferred.push(reason);
     }
     if (activeCacheCheckIds) {
       try { const cleanup = await verificationCache.pruneRemovedChecks({ projectRoot: config.projectRoot,
         checkIds: activeCacheCheckIds }); receipt.cache.deferred.push(...cleanup.deferred); }
       catch (error) { receipt.cache.deferred.push({ operation: 'final removed-check cleanup', reason: error.message }); }
     }
+    if (activeNativeCheckIds) {
+      try { const cleanup = await nativeCache.pruneRemovedChecks({ ...nativeCache.options(config), checkIds: activeNativeCheckIds });
+        receipt.nativeCache.deferred.push(...cleanup.deferred); }
+      catch (error) { receipt.nativeCache.deferred.push({ operation: 'final removed-check cleanup', reason: error.message }); }
+    }
   }
+  if (receipt.timings) receipt.timings.totalMs = performance.now() - runStarted;
   await persist();
   return { ...receipt, receiptPath };
 }
