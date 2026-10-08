@@ -2,6 +2,8 @@
 
 Status: `current` — local packaging, relocated runtime, isolated trusted-workspace host acceptance and private/public GitHub publication are verified. Public repositories require an explicit publication option. Full clean-machine acceptance and third-party redistribution evidence remain separate.
 
+Current published app: [Azrael 2026.0.2](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.2), Windows x64, from source build `latest_20261008_r2`. Exact ZIP relocation and six isolated host acceptance stages passed using the official Windows archive VS Code runtime; uploaded asset sizes and hashes were verified. Publication evidence: `artifacts/logs/app-publication-2026.0.2/publish-receipt.json`; package certification: `artifacts/logs/app-release-2026.0.2-worker/verification-r5/verification.json`.
+
 ## Version and source ownership
 
 [`scripts/azrael-app-release.json`](../../scripts/azrael-app-release.json) owns the app release version and destination repository. The integrated host, release manifest, ZIP filename and `azrael-v<version>` tag use that version. Internal engine, pinned UI and account payload versions remain independent. Instruction releases retain their separate version owner in [instruction distribution](instruction-distribution.md#instruction-release-assets).
