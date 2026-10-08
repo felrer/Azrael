@@ -160,6 +160,102 @@ test("malformed output/key/result hashes and corrupt to-op index recompute safel
   for (const suffix of ["o", "b"]) merged.run(noopPath + suffix, noopSource, miss);
 });
 
+const transformedEntries = directory => fs.readdirSync(directory).filter(name => /^[a-f0-9]{64}\.json$/.test(name));
+
+test("successful replacement removes only previous versions immediately, even when a later transform fails", () => {
+  const name = "immediate-replacement", directory = path.join(root, name);
+  const old = cache(name);
+  old.run(changedPath, changedSource, () => transform(changedPath, changedSource));
+  const previous = transformedEntries(directory)[0];
+  const unrelatedPath = changedPath + ".unrelated.js";
+  old.run(unrelatedPath, changedSource, () => transform(unrelatedPath, changedSource));
+  const unrelated = transformedEntries(directory).find(entry => entry !== previous);
+  const next = cache(name, { pruneUnused: true });
+  const source = changedSource + "//replacement";
+  const expected = next.run(changedPath, source, () => transform(changedPath, source));
+  assert.equal(fs.existsSync(path.join(directory, previous)), false);
+  assert.equal(fs.existsSync(path.join(directory, unrelated)), true);
+  assert.equal(next.cleanup.removed, 1);
+  assert.deepEqual(cache(name).run(changedPath, source, miss), expected);
+  assert.throws(() => next.run("webview/assets/later.js", "later", () => { throw Error("later failure"); }), /later failure/);
+  next.flush();
+  assert.equal(fs.existsSync(path.join(directory, unrelated)), true);
+  assert.equal(next.cleanup.removed, 1);
+});
+
+test("failed replacement preserves the previous usable transformed entry", () => {
+  const name = "failed-replacement", directory = path.join(root, name);
+  const old = cache(name);
+  const expected = old.run(changedPath, changedSource, () => transform(changedPath, changedSource));
+  const before = fs.readdirSync(directory);
+  const next = cache(name, { pruneUnused: true });
+  assert.throws(() => next.run(changedPath, changedSource + "//failed", () => { throw Error("replacement failure"); }), /replacement failure/);
+  next.flush();
+  assert.deepEqual(fs.readdirSync(directory), before);
+  assert.equal(next.cleanup.removed, 0);
+  assert.deepEqual(cache(name).run(changedPath, changedSource, miss), expected);
+});
+
+test("changed-to-noop replacement publishes its index before removing the previous transformed entry", () => {
+  const name = "noop-replacement", directory = path.join(root, name);
+  cache(name).run(changedPath, changedSource, () => transform(changedPath, changedSource));
+  const previous = path.join(directory, transformedEntries(directory)[0]);
+  const next = cache(name, { pruneUnused: true });
+  const unlink = fs.unlinkSync;
+  let observedRemoval = false;
+  fs.unlinkSync = filename => {
+    if (filename === previous) {
+      assert.deepEqual(cache(name).run(changedPath, noopSource, miss), { text: noopSource, asset: null });
+      observedRemoval = true;
+    }
+    return unlink(filename);
+  };
+  try { next.run(changedPath, noopSource, () => ({ text: noopSource, asset: null })); }
+  finally { fs.unlinkSync = unlink; }
+  assert(observedRemoval);
+  assert.equal(fs.existsSync(previous), false);
+  assert.equal(next.cleanup.removed, 1);
+  assert.deepEqual(cache(name).run(changedPath, noopSource, miss), { text: noopSource, asset: null });
+});
+
+test("busy writer defers publication and deletion; completed cleanup preserves unknown files, directories and links", () => {
+  const name = "guarded-replacement", directory = path.join(root, name);
+  const expectedOld = cache(name).run(changedPath, changedSource, () => transform(changedPath, changedSource));
+  const previous = transformedEntries(directory)[0];
+  const unknown = path.join(directory, "user-file.txt");
+  fs.writeFileSync(unknown, "preserve");
+  const unknownDirectory = path.join(directory, "a".repeat(64) + ".json");
+  fs.mkdirSync(unknownDirectory);
+  const target = path.join(root, "link-target");
+  fs.mkdirSync(target);
+  fs.writeFileSync(path.join(target, "keep.txt"), "linked content");
+  const link = path.join(directory, "b".repeat(64) + ".json");
+  fs.symlinkSync(target, link, "junction");
+  const writer = path.join(directory, ".writer");
+  fs.mkdirSync(writer);
+  const next = cache(name, { pruneUnused: true });
+  const source = changedSource + "//busy";
+  const expected = next.run(changedPath, source, () => transform(changedPath, source));
+  next.flush();
+  assert.deepEqual(transformedEntries(directory).sort(), [previous, path.basename(unknownDirectory), path.basename(link)].sort());
+  assert.equal(next.cleanup.removed, 0);
+  assert(next.cleanup.deferred.includes("active or abandoned cache writer"));
+  assert.equal(fs.readdirSync(directory).some(entry => entry.startsWith("noops-")), false);
+  assert.deepEqual(cache(name).run(changedPath, changedSource, miss), expectedOld);
+  fs.rmdirSync(writer);
+  next.flush();
+  assert.equal(fs.existsSync(path.join(directory, previous)), true);
+  assert.equal(fs.readdirSync(directory).some(entry => entry.startsWith("noops-")), false);
+  const completed = cache(name, { pruneUnused: true });
+  assert.deepEqual(completed.run(changedPath, source, () => transform(changedPath, source)), expected);
+  assert.equal(fs.existsSync(path.join(directory, previous)), false);
+  completed.flush();
+  assert.equal(fs.readFileSync(unknown, "utf8"), "preserve");
+  assert(fs.lstatSync(unknownDirectory).isDirectory());
+  assert(fs.lstatSync(link).isSymbolicLink());
+  assert.equal(fs.readFileSync(path.join(target, "keep.txt"), "utf8"), "linked content");
+});
+
 test("all pinned injector target fixtures: uncached/cold/warm byte and metadata equality; related edits miss", () => {
   const original = path.join(artifacts, "upstream-ui/26.930.61225");
   const paths = new Set(["out/extension.js", "webview/assets/ko-KR-669e0b3acfd6.js"]);

@@ -19,7 +19,7 @@ function Open-BuildModuleCache([string]$ProjectRoot) {
     $root=Assert-BuildCachePath (Join-Path $ProjectRoot 'artifacts/cache/modules') $ProjectRoot
     [IO.Directory]::CreateDirectory($root)|Out-Null
     try{$lease=[IO.File]::Open((Join-Path $root '.lock'),[IO.FileMode]::OpenOrCreate,[IO.FileAccess]::ReadWrite,[IO.FileShare]::None)}catch{throw 'Another modular build or cache cleanup is active. Retry after it completes.'}
-    return @{Root=$root;Project=[IO.Path]::GetFullPath($ProjectRoot);Lease=$lease;Entries=@();Results=@()}
+    return @{Root=$root;Project=[IO.Path]::GetFullPath($ProjectRoot);Lease=$lease;Entries=@();Results=@();Keep=0;SkipCleanup=$false;CleanupResults=@();StagingCleanupResults=@();LogDirectory=$null}
 }
 function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
     $records=[Collections.Generic.List[string]]::new()
@@ -37,7 +37,7 @@ function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
 }
 function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][string]$Module,[string[]]$Inputs,[string[]]$Values=@(),[switch]$Force) {
     $key=Get-BuildModuleKey $Inputs $Values;$path=Assert-BuildCachePath (Join-Path $Cache.Root "$Module/$key") $Cache.Root
-    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;Values=$Values;Hit=$false}
+    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;Values=$Values;Hit=$false;Cache=$Cache}
     $receiptPath=Join-Path $path 'cache.json'
     if(-not $Force -and (Test-Path -LiteralPath $receiptPath)){
       try{
@@ -70,14 +70,41 @@ function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
       foreach($file in $items){@{path=[IO.Path]::GetRelativePath($Entry.Path,$file.FullName);sha256=(Get-FileHash -LiteralPath $file.FullName).Hash}}
     })
     if((Get-BuildModuleKey $Entry.Inputs $Entry.Values) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
-    @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files}|ConvertTo-Json -Depth 6|Set-Content (Join-Path $Entry.Path 'cache.json') -Encoding utf8NoBOM
+    $temporary=Join-Path $Entry.Path ('cache-'+[guid]::NewGuid().ToString('N')+'.tmp')
+    try {
+      @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files}|ConvertTo-Json -Depth 6|Set-Content $temporary -Encoding utf8NoBOM
+      [IO.File]::Move($temporary,(Join-Path $Entry.Path 'cache.json'),$true)
+    } finally {if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -Force}}
+    $cache=$Entry.Cache
+    if($cache -and -not $cache.SkipCleanup){
+      try {
+        $protected=@(Get-ProtectedBuildCachePaths $cache)
+        $cache.CleanupResults+=@(Remove-OldBuildModuleCaches $cache -Module $Entry.Module -Keep $cache.Keep -ProtectedPaths $protected)
+        $cache.StagingCleanupResults+=@(Remove-OldBuildStaging $cache -Keep $cache.Keep -ProtectedPaths $protected)
+      } catch {
+        $cache.CleanupResults+=@{path=$Entry.Path;status='preserved';reason=$_.Exception.Message}
+        $cache.StagingCleanupResults+=@{path=(Join-Path $cache.Project 'artifacts/build');status='preserved';reason=$_.Exception.Message}
+      }
+      if($cache.LogDirectory){
+        $cache.CleanupResults|ConvertTo-Json -Depth 5|Set-Content (Join-Path $cache.LogDirectory 'module-cache-cleanup.json') -Encoding utf8NoBOM
+        $cache.StagingCleanupResults|ConvertTo-Json -Depth 5|Set-Content (Join-Path $cache.LogDirectory 'legacy-cache-cleanup.json') -Encoding utf8NoBOM
+      }
+    }
 }
-function Remove-OldBuildModuleCaches($Cache,[int]$Keep=2,[string[]]$ProtectedPaths=@(),[switch]$Preview) {
+function Assert-BuildCacheTree([string]$Path,[string]$Root) {
+    Assert-BuildCachePath $Path $Root|Out-Null
+    foreach($item in Get-ChildItem -LiteralPath $Path -Recurse -Force -ErrorAction Stop){
+      if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "Linked cache content: $($item.FullName)"}
+    }
+}
+function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[string[]]$ProtectedPaths=@(),[switch]$Preview,[ValidateSet('companion','providers')][string[]]$Module=@('companion','providers')) {
     if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
-    $protected=@($ProtectedPaths)+@($Cache.Entries|ForEach-Object Path);$report=@()
-    $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+    $selected=@(foreach($name in @('companion','providers')){$Cache.Entries|Where-Object Module -EQ $name|Select-Object -Last 1})
+    $protected=@($ProtectedPaths)+@($selected|ForEach-Object Path);$report=@()
+    try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$Cache.Root;status='preserved';reason="Process inspection failed: $($_.Exception.Message)"}}
     $compilerActive=@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$'}).Count -gt 0
-    foreach($module in @('companion','providers')){
+    foreach($moduleName in $Module){
+      $module=$moduleName
       $container=Join-Path $Cache.Root $module;if(-not(Test-Path -LiteralPath $container)){continue}
       $entries=@(Get-ChildItem -LiteralPath $container -Directory|Where-Object {$_.Name -match '^[a-f0-9]{64}$'}|Sort-Object LastWriteTimeUtc -Descending)
       $retained=0
@@ -90,8 +117,8 @@ function Remove-OldBuildModuleCaches($Cache,[int]$Keep=2,[string[]]$ProtectedPat
           $used=@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($path+'\',[StringComparison]::OrdinalIgnoreCase))}).Count -gt 0
           $used=$used -or $compilerActive -or @($processes|Where-Object {$_.CommandLine -and $_.CommandLine.IndexOf($path,[StringComparison]::OrdinalIgnoreCase) -ge 0}).Count -gt 0
           $complete=Test-Path -LiteralPath (Join-Path $path 'cache.json')
-          if($used -or ($complete -and $retained -lt $Keep)){if($complete){$retained++};$status='preserved'}else{$status=if($Preview){'selected'}else{Remove-Item -LiteralPath $path -Recurse -Force;'removed'}}
-          $report+=@{path=$path;status=$status}
+          if($used -or ($complete -and $retained -lt $Keep)){if($complete){$retained++};$status='preserved';$reason=if($used){'Selected, installed, running process or compiler reference'}else{'Explicit retention'}}else{Assert-BuildCacheTree $path $Cache.Root;$status=if($Preview){'selected'}else{Remove-Item -LiteralPath $path -Recurse -Force;'removed'};$reason=$null}
+          $report+=@{path=$path;status=$status;reason=$reason}
         }catch{$report+=@{path=$path;status='preserved';reason=$_.Exception.Message}}
       }
     }
@@ -100,31 +127,35 @@ function Remove-OldBuildModuleCaches($Cache,[int]$Keep=2,[string[]]$ProtectedPat
 function Get-ProtectedBuildCachePaths($Cache) {
     $paths=@();$deployments=Join-Path $Cache.Project 'artifacts/deployments'
     if(Test-Path $deployments){
-      $receipts=@(Get-ChildItem $deployments -Directory|ForEach-Object {$p=Join-Path $_.FullName 'deployment.json';if(Test-Path $p){try{$r=Get-Content $p -Raw|ConvertFrom-Json;if($r.hostInstalled){[pscustomobject]@{Receipt=$r;Time=$r.generatedAt}}}catch{}}}|Sort-Object Time -Descending|Select-Object -First 2)
+      $receipts=@(Get-ChildItem $deployments -Directory -ErrorAction Stop|ForEach-Object {$p=Join-Path $_.FullName 'deployment.json';if(Test-Path $p){$r=Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop;if($r.hostInstalled){[pscustomobject]@{Receipt=$r;Time=$r.generatedAt}}}}|Sort-Object Time -Descending|Select-Object -First 2)
       foreach($item in $receipts){
-        $p=Join-Path $item.Receipt.packageDirectory 'preparation-inputs.json';if(Test-Path $p){try{$paths+=(Get-Content $p -Raw|ConvertFrom-Json).toolDirectory}catch{}}
-        $p=Join-Path $item.Receipt.releaseDirectory 'build-info.json';if(Test-Path $p){try{$paths+=(Get-Content $p -Raw|ConvertFrom-Json).moduleBuild.typeScriptPath}catch{}}
+        $p=Join-Path $item.Receipt.packageDirectory 'preparation-inputs.json';if(-not(Test-Path $p)){throw "Missing installed tool receipt: $p"};$paths+=(Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop).toolDirectory
+        $p=Join-Path $item.Receipt.releaseDirectory 'build-info.json';if(-not(Test-Path $p)){throw "Missing installed build receipt: $p"};$paths+=(Get-Content $p -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop).moduleBuild.typeScriptPath
       }
     }
     return @($paths|Where-Object {$_})
 }
-function Remove-OldBuildStaging($Cache,[int]$Keep=2,[string[]]$ProtectedPaths=@(),[switch]$Preview) {
+function Remove-OldBuildStaging($Cache,[ValidateRange(0,10)][int]$Keep=0,[string[]]$ProtectedPaths=@(),[switch]$Preview) {
     if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
     $container=Join-Path $Cache.Project 'artifacts/build';$report=@();if(-not(Test-Path $container)){return $report}
-    $candidates=@(Get-ChildItem $container -Directory|Where-Object {Test-Path (Join-Path $_.FullName 'companion/package.json')}|Sort-Object LastWriteTimeUtc -Descending)
-    $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+    $candidates=@(Get-ChildItem $container -Directory|Where-Object {(Test-Path (Join-Path $_.FullName 'companion/package.json')) -or (Test-Path (Join-Path $_.FullName 'opencodex/package.json'))}|Sort-Object LastWriteTimeUtc -Descending)
+    try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$container;status='preserved';reason="Process inspection failed: $($_.Exception.Message)"}}
+    $compilerActive=@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$'}).Count -gt 0
     $retained=0
     foreach($candidate in $candidates){
       $path=$candidate.FullName
       try{
         Assert-BuildCachePath $path $container|Out-Null
-        $manifest=Get-Content (Join-Path $path 'companion/package.json') -Raw|ConvertFrom-Json
-        if($manifest.publisher -cne 'azrael-ex-local' -or $manifest.name -cne 'azrael'){throw 'Unknown staging owner'}
+        $companion=Test-Path (Join-Path $path 'companion/package.json')
+        $manifest=Get-Content (Join-Path $path $(if($companion){'companion/package.json'}else{'opencodex/package.json'})) -Raw|ConvertFrom-Json
+        if($companion){if($manifest.publisher -cne 'azrael-ex-local' -or $manifest.name -cne 'azrael'){throw 'Unknown staging owner'}}
+        elseif($manifest.name -cne '@bitkyc08/opencodex'){throw 'Unknown provider staging owner'}
         $protected=@($ProtectedPaths|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($path+'\',[StringComparison]::OrdinalIgnoreCase))}).Count -gt 0
         $running=@($processes|Where-Object {$_.CommandLine -and $_.CommandLine.IndexOf($path,[StringComparison]::OrdinalIgnoreCase) -ge 0}).Count -gt 0
-        if($protected -or $running -or $retained -lt $Keep){$retained++;$report+=@{path=$path;status='preserved'};continue}
-        foreach($name in @('companion','opencodex','devin')){
+        if($protected -or $running -or $compilerActive -or $retained -lt $Keep){$retained++;$report+=@{path=$path;status='preserved';reason='Installed, running process, compiler reference or explicit retention'};continue}
+        foreach($name in $(if($companion){@('companion','opencodex/node_modules','devin')}else{@('opencodex/node_modules')})){
           $child=Join-Path $path $name;if(-not(Test-Path $child)){continue};Assert-BuildCachePath $child $path|Out-Null
+          Assert-BuildCacheTree $child $path
           if($Preview){$report+=@{path=$child;status='selected'}}else{Remove-Item -LiteralPath $child -Recurse -Force;$report+=@{path=$child;status='removed'}}
         }
       }catch{$report+=@{path=$path;status='preserved';reason=$_.Exception.Message}}

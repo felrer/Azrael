@@ -15,7 +15,7 @@ param(
     [switch]$IncludeDevinNative = $true,
     [switch]$IncludeProviderAccounts = $true,
     [ValidateSet('engine','companion','providers','window-control')][string[]]$RebuildModule = @(),
-    [ValidateRange(1,10)][int]$KeepModuleCaches = 2,
+    [ValidateRange(0,10)][int]$KeepModuleCaches = 0,
     [switch]$SkipCacheCleanup
 )
 
@@ -84,6 +84,9 @@ function Get-ProviderVendorManifestFingerprint {
 
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $moduleCache = Open-BuildModuleCache $projectRoot
+$moduleCache.Keep = $KeepModuleCaches
+$moduleCache.SkipCleanup = [bool]$SkipCacheCleanup
+$moduleCache.LogDirectory = $logDirectory
 $moduleInputs = @((Join-Path $PSScriptRoot 'build-azrael.ps1'), (Join-Path $PSScriptRoot 'build-module-cache.ps1'))
 $moduleTypeScriptPath = $null
 try {
@@ -375,8 +378,10 @@ $moduleCache.Results | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDire
 if (-not $SkipCacheCleanup) {
     try {
     $protectedCachePaths = @(Get-ProtectedBuildCachePaths $moduleCache)
-    Remove-OldBuildModuleCaches $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'module-cache-cleanup.json') -Encoding utf8NoBOM
-    Remove-OldBuildStaging $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'legacy-cache-cleanup.json') -Encoding utf8NoBOM
+    $moduleCache.CleanupResults += @(Remove-OldBuildModuleCaches $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths)
+    $moduleCache.CleanupResults | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'module-cache-cleanup.json') -Encoding utf8NoBOM
+    $moduleCache.StagingCleanupResults += @(Remove-OldBuildStaging $moduleCache -Keep $KeepModuleCaches -ProtectedPaths $protectedCachePaths)
+    $moduleCache.StagingCleanupResults | ConvertTo-Json -Depth 4 | Set-Content (Join-Path $logDirectory 'legacy-cache-cleanup.json') -Encoding utf8NoBOM
     & (Join-Path $PSScriptRoot 'clean-engine-caches.ps1') -ProjectRoot $projectRoot -CurrentSourceRoot $sourceRoot -TargetDirectory $engineTarget -Apply -ReportPath (Join-Path $logDirectory 'engine-cache-cleanup.json') | Out-Null
     } catch { Write-Warning "Cache cleanup preserved uncertain paths: $($_.Exception.Message)"; @{status='blocked';reason=$_.Exception.Message}|ConvertTo-Json|Set-Content (Join-Path $logDirectory 'cache-cleanup-warning.json') }
 }

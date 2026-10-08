@@ -86,12 +86,69 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
   }
   const noops = readNoops();
   const usedNoops = new Set(), usedEntries = new Set();
+  const cleanup = { removed: 0, deferred: [] };
+  function mutate(action) {
+    // Serialize publishers and collectors. An uncertain/abandoned writer keeps
+    // existing evidence intact and bypasses cache publication.
+    const lock = path.join(directory, '.writer');
+    let acquired = false;
+    try {
+      for (let cursor = directory; cursor; cursor = path.dirname(cursor)) {
+        if (fs.lstatSync(cursor).isSymbolicLink()) throw Error(`Linked cache path: ${cursor}`);
+        if (path.dirname(cursor) === cursor) break;
+      }
+      fs.mkdirSync(lock); acquired = true;
+      action();
+      return true;
+    } catch (error) {
+      cleanup.deferred.push(error.code === 'EEXIST' ? 'active or abandoned cache writer' : error.message);
+      return false;
+    } finally {
+      if (acquired) try { fs.rmdirSync(lock); } catch (error) { cleanup.deferred.push(error.message); }
+    }
+  }
+  let entriesByPath;
+  function loadEntries() {
+    if (!entriesByPath) {
+      entriesByPath = new Map();
+      for (const name of fs.readdirSync(directory)) {
+        const match = /^([a-f0-9]{64})\.json$/.exec(name);
+        if (!match) continue;
+        try {
+          const filename = path.join(directory, name);
+          if (!fs.lstatSync(filename).isFile()) continue;
+          const entry = JSON.parse(fs.readFileSync(filename, 'utf8'));
+          if (typeof entry.key?.relativePath !== 'string' || sha(JSON.stringify(entry.key)) !== match[1]) continue;
+          const names = entriesByPath.get(entry.key.relativePath) || new Set();
+          names.add(name); entriesByPath.set(entry.key.relativePath, names);
+        } catch (error) { cleanup.deferred.push(`${name}: ${error.message}`); }
+      }
+    }
+  }
+  function pruneReplaced(relativePath, currentDigest) {
+    loadEntries();
+    const names = entriesByPath.get(relativePath) || new Set();
+    for (const name of names) {
+      const match = /^([a-f0-9]{64})\.json$/.exec(name);
+      if (!match || match[1] === currentDigest) continue;
+      const filename = path.join(directory, name);
+      try {
+        if (!fs.lstatSync(filename).isFile()) continue;
+        const entry = JSON.parse(fs.readFileSync(filename, 'utf8'));
+        if (entry.key?.relativePath !== relativePath || sha(JSON.stringify(entry.key)) !== match[1]) continue;
+        fs.unlinkSync(filename); names.delete(name); cleanup.removed++;
+      } catch (error) { cleanup.deferred.push(`${name}: ${error.message}`); }
+    }
+    if (fs.existsSync(path.join(directory, `${currentDigest}.json`))) names.add(`${currentDigest}.json`);
+    entriesByPath.set(relativePath, names);
+  }
   let dirtyNoops = false, failed = false;
   if (metrics) {
     metrics.cacheInitialization.elapsedMs += performance.now() - initializationStarted;
     metrics.cacheInitialization.count += 1;
   }
   return {
+    cleanup,
     run(relativePath, source, transform, sourceContentSha256) {
       if (sourceContentSha256 === undefined) sourceContentSha256 = measure("sourceHash", () => sha(source));
       if (!directory) {
@@ -147,11 +204,23 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
         noops.add(keyDigest);
         usedNoops.add(keyDigest);
         dirtyNoops = true;
+        if (pruneUnused) loadEntries();
+        // Most assets are no-ops. Persist early only when replacing a stored
+        // transformed asset; ordinary hints are batched by flush.
+        if (pruneUnused && entriesByPath.get(relativePath)?.size && !mutate(() => {
+          for (const key of readNoops()) noops.add(key);
+          const payload = { fingerprint, keys: [...noops].sort() };
+          writeAtomic(indexPath, { ...payload, payloadSha256: sha(JSON.stringify(payload)) });
+          pruneReplaced(relativePath, keyDigest);
+        })) failed = true;
       } else if (result.asset) {
         try {
-          writeAtomic(entryPath, { key, outputSha256: sha(result.text),
-            resultSha256: sha(JSON.stringify(result)), result });
-          usedEntries.add(keyDigest);
+          if (!mutate(() => {
+            writeAtomic(entryPath, { key, outputSha256: sha(result.text),
+              resultSha256: sha(JSON.stringify(result)), result });
+            usedEntries.add(keyDigest);
+            if (pruneUnused) pruneReplaced(relativePath, keyDigest);
+          })) failed = true;
         } catch (error) { failed = true; throw error; }
       }
       return result;
@@ -159,6 +228,7 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
     flush() {
       return measure("cacheFlush", () => {
       if (!indexPath || failed || (!pruneUnused && !dirtyNoops)) return;
+      mutate(() => {
       // Completed pruning owns its visited set; ordinary writers merge valid hints.
       if (!pruneUnused) for (const key of readNoops()) noops.add(key);
       const keys = [...(pruneUnused ? usedNoops : noops)].sort();
@@ -174,9 +244,10 @@ function createAssetTransformCache({ cacheDirectory, typescriptSha256, typescrip
           if (!(entry || oldIndex) || (entry && usedEntries.has(entry[1])) ||
               path.join(directory, name) === indexPath) continue;
           const filename = path.join(directory, name);
-          if (fs.lstatSync(filename).isFile()) fs.unlinkSync(filename);
+          if (fs.lstatSync(filename).isFile()) { fs.unlinkSync(filename); cleanup.removed++; }
         }
       }
+      });
       });
     },
   };

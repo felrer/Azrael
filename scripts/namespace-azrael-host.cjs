@@ -581,6 +581,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     metrics: stages,
     pruneUnused: true,
   });
+  report.cacheCleanup = cache.cleanup;
   function* enumerate(folder) {
     for (const entry of measure("enumeration", () => fs.readdirSync(folder, { withFileTypes: true }))) {
       const filename = path.join(folder, entry.name);
