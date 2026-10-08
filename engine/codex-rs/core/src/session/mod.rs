@@ -234,6 +234,7 @@ mod daemon_recovery;
 mod environment;
 mod extension_interruption;
 pub(crate) mod extension_metrics;
+mod fork_metadata;
 mod guardian_checkpoint;
 mod handlers;
 mod inject;
@@ -2141,6 +2142,9 @@ impl Session {
     }
 
     pub(crate) async fn refresh_hooks(&self, config: Arc<Config>) {
+        if self.tool_policy.denies_all_tools() {
+            return;
+        }
         let disabled_plugin_ids = self.state.lock().await.active_disabled_plugin_ids.clone();
         let environments = self.services.turn_environments.snapshot().await;
         let hooks_config = build_hooks_config(

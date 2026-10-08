@@ -4519,6 +4519,10 @@
             "null"
           ]
         },
+        "sideQuestion": {
+          "description": "Fork a live model-context snapshot for an isolated, tool-free side question. Requires `ephemeral` and `excludeTurns`, and disallows history boundaries, a rollout path, and inherited goal continuation.",
+          "type": "boolean"
+        },
         "threadId": {
           "type": "string"
         },

@@ -142,6 +142,10 @@ pub(crate) enum HistoryReplacement {
 }
 
 impl ConversationHistorySnapshot for SharedConversationHistory {
+    fn model_context_items(&self) -> Vec<ResponseItemEnvelope> {
+        self.items.to_vec()
+    }
+
     fn latest_compaction(&self) -> Option<codex_history::CompactionCheckpoint<'_>> {
         codex_history::CompactionCheckpoint::latest(&self.items)
     }

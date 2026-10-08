@@ -26,6 +26,9 @@ use test_case::test_case;
 use tokio_util::sync::CancellationToken;
 use tokio_util::task::TaskTracker;
 
+#[path = "managed_threads_no_tools_tests.rs"]
+mod no_tools_tests;
+
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn dropping_startup_cleans_up_while_required_mcp_is_stalled() -> anyhow::Result<()> {
     skip_if_no_network!(Ok(()));

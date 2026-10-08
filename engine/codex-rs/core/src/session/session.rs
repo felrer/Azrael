@@ -1660,13 +1660,17 @@ impl Session {
             let mcp_runtime = Arc::new(McpRuntime::empty(
                 mcp_projection.config.prefix_mcp_tool_names,
             ));
-            let hooks_config = build_hooks_config(
-                &config,
-                plugins_manager.as_ref(),
-                resolved_environments.single_local_environment(),
-                &session_configuration.disabled_plugin_ids,
-            )
-            .await;
+            let hooks_config = if tool_policy.denies_all_tools() {
+                codex_hooks::HooksConfig::default()
+            } else {
+                build_hooks_config(
+                    &config,
+                    plugins_manager.as_ref(),
+                    resolved_environments.single_local_environment(),
+                    &session_configuration.disabled_plugin_ids,
+                )
+                .await
+            };
             let (hooks, async_hook_results) = Hooks::new(
                 hooks_config,
                 thread_id,

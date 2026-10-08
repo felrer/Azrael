@@ -4,6 +4,9 @@ mod daemon_continuation;
 #[path = "daemon_snapshot.rs"]
 mod daemon_snapshot;
 
+#[path = "side_question.rs"]
+mod side_question;
+
 use super::persisted_resume_settings::PersistedResumeSettings;
 use super::persisted_resume_settings::latest_persisted_resume_settings;
 use super::thread_enrichment::enrich_loaded_threads;
@@ -4962,21 +4965,65 @@ impl ThreadRequestProcessor {
             ephemeral,
             thread_source,
             exclude_turns,
+            side_question,
             defer_goal_continuation,
         } = params;
+        if side_question
+            && (!ephemeral
+                || !exclude_turns
+                || path.is_some()
+                || last_turn_id.is_some()
+                || before_turn_id.is_some()
+                || defer_goal_continuation)
+        {
+            return Err(invalid_request(
+                "`sideQuestion` requires `ephemeral: true` and `excludeTurns: true`, and cannot be combined with `path`, `lastTurnId`, `beforeTurnId`, or `deferGoalContinuation`",
+            ));
+        }
+        let live_side_question = if side_question {
+            let source_id = ThreadId::from_string(&thread_id)
+                .map_err(|err| invalid_request(format!("invalid session id: {err}")))?;
+            let parent = self
+                .thread_manager
+                .get_thread(source_id)
+                .await
+                .map_err(|_| {
+                    invalid_request("`sideQuestion` requires an available live source thread")
+                })?;
+            let snapshot = parent.conversation_history_snapshot().await;
+            let (metadata, name) = parent.fork_metadata_snapshot().await.map_err(|_| {
+                invalid_request("`sideQuestion` requires an available live source thread")
+            })?;
+            Some((parent, snapshot, metadata, name))
+        } else {
+            None
+        };
         let include_turns = !exclude_turns;
         if sandbox.is_some() && permissions.is_some() {
             return Err(invalid_request(
                 "`permissions` cannot be combined with `sandbox`",
             ));
         }
-        let source_thread = self
-            .read_stored_thread_for_resume(
+        let source_thread = if let Some((parent, _, metadata, name)) = live_side_question.as_ref() {
+            side_question::ForkSource {
+                thread_id: metadata.meta.id,
+                name: name.clone(),
+                cwd: metadata.meta.cwd.clone(),
+                rollout_path: parent.rollout_path(),
+                history_mode: metadata.meta.history_mode,
+                preview: String::new(),
+                project_id: None,
+                daybreak_enabled: None,
+            }
+        } else {
+            self.read_stored_thread_for_resume(
                 &thread_id,
                 path.as_ref(),
                 /*include_history*/ false,
             )
-            .await?;
+            .await?
+            .into()
+        };
         let paginated_source = matches!(source_thread.history_mode, ThreadHistoryMode::Paginated);
         if last_turn_id.is_some() && before_turn_id.is_some() {
             return Err(invalid_request(
@@ -5005,7 +5052,7 @@ impl ThreadRequestProcessor {
             .name
             .as_deref()
             .and_then(codex_core::util::normalize_thread_name);
-        let mut prepared_fork = if paginated_source {
+        let mut prepared_fork = if paginated_source && !side_question {
             let boundary = match (last_turn_id.as_deref(), before_turn_id.as_deref()) {
                 (Some(turn_id), None) => {
                     codex_thread_store::ForkBoundary::ThroughTurn(turn_id.to_string())
@@ -5037,18 +5084,23 @@ impl ThreadRequestProcessor {
         } else {
             None
         };
-        let source_history_items = if let Some(prepared_fork) = prepared_fork.as_ref() {
-            Arc::clone(&prepared_fork.model_context)
-        } else {
-            let mut source_thread = self
-                .read_stored_thread_for_resume(
-                    &thread_id,
-                    path.as_ref(),
-                    /*include_history*/ true,
-                )
-                .await?;
-            Arc::new(
-                source_thread
+        let source_history_items =
+            if let Some((_, snapshot, metadata, _)) = live_side_question.as_ref() {
+                Arc::new(side_question::live_fork_history(
+                    &[RolloutItem::SessionMeta(metadata.clone())],
+                    snapshot.as_ref(),
+                ))
+            } else if let Some(prepared_fork) = prepared_fork.as_ref() {
+                Arc::clone(&prepared_fork.model_context)
+            } else {
+                let mut source_thread = self
+                    .read_stored_thread_for_resume(
+                        &thread_id,
+                        path.as_ref(),
+                        /*include_history*/ true,
+                    )
+                    .await?;
+                let metadata_history = source_thread
                     .history
                     .take()
                     .map(|history| history.items)
@@ -5056,9 +5108,9 @@ impl ThreadRequestProcessor {
                         internal_error(format!(
                             "thread {source_thread_id} did not include persisted history"
                         ))
-                    })?,
-            )
-        };
+                    })?;
+                Arc::new(metadata_history)
+            };
         let history_cwd = Some(source_thread.cwd.clone());
 
         // Persist Windows sandbox mode.
@@ -5107,8 +5159,13 @@ impl ThreadRequestProcessor {
             !has_permission_override(request_overrides.as_ref(), &typesafe_overrides);
         let needs_latest_settings =
             restore_approval_policy || restore_approvals_reviewer || restore_permission_profile;
-        let loaded_parent = self.thread_manager.get_thread(source_thread_id).await.ok();
-        let loaded_parent_settings = if paginated_source && needs_latest_settings {
+        let loaded_parent = if let Some((parent, _, _, _)) = live_side_question.as_ref() {
+            Some(Arc::clone(parent))
+        } else {
+            self.thread_manager.get_thread(source_thread_id).await.ok()
+        };
+        let loaded_parent_settings = if (paginated_source || side_question) && needs_latest_settings
+        {
             if let Some(parent) = loaded_parent.as_ref() {
                 let snapshot = parent.thread_settings_snapshot().await;
                 Some(PersistedResumeSettings {
@@ -5183,7 +5240,11 @@ impl ThreadRequestProcessor {
 
         let fallback_model_provider = config.model_provider_id.clone();
         let parent_trace = self.request_trace_context(&request_id).await;
-        let thread_source = thread_source.map(Into::into);
+        let thread_source = if side_question {
+            Some(codex_protocol::protocol::ThreadSource::User)
+        } else {
+            thread_source.map(Into::into)
+        };
 
         let mut history_items = if prepared_fork.is_some() {
             source_history_items
@@ -5253,11 +5314,19 @@ impl ThreadRequestProcessor {
             .await?
         };
 
+        let mut thread_extension_init = ExtensionDataInit::new();
+        if side_question {
+            thread_extension_init.insert(codex_extension_api::ToolPolicy {
+                allowed_tools: Some(Vec::new()),
+                ..Default::default()
+            });
+        }
         let fork_options = StartThreadOptions {
             thread_source,
             parent_trace,
             client_mcp_extensions,
             reserved_thread_id,
+            thread_extension_init,
             ..StartThreadOptions::new(config)
         };
         let new_thread = if let Some(prepared_fork) = prepared_fork {
@@ -5443,6 +5512,7 @@ impl ThreadRequestProcessor {
             thread_response_active_permission_profile(config_snapshot.active_permission_profile);
         let thread_originator = config_snapshot.originator.clone();
         let response = ThreadForkResponse {
+            side_question,
             computer_use_mode: config_snapshot.computer_use_mode,
             thread: thread.clone(),
             disabled_plugin_ids: config_snapshot.disabled_plugin_ids,

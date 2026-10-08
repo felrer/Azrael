@@ -628,6 +628,11 @@ pub struct ThreadForkParams {
     /// and `thread/items/list` instead.
     #[serde(default, skip_serializing_if = "std::ops::Not::not")]
     pub exclude_turns: bool,
+    /// Fork a live model-context snapshot for an isolated, tool-free side question.
+    /// Requires `ephemeral` and `excludeTurns`, and disallows history boundaries,
+    /// a rollout path, and inherited goal continuation.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub side_question: bool,
     /// When true, carry the source thread's current goal into the fork without
     /// starting its initial automatic continuation. The next explicit turn owns
     /// the goal lifecycle, and normal automatic continuation resumes after it.
@@ -640,6 +645,10 @@ pub struct ThreadForkParams {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadForkResponse {
+    /// Confirms that the fork uses a live snapshot and an immutable deny-all tool policy.
+    /// Clients must require this acknowledgment before starting a side-question turn.
+    #[serde(default, skip_serializing_if = "std::ops::Not::not")]
+    pub side_question: bool,
     pub computer_use_mode: Option<ComputerUseMode>,
     pub thread: Thread,
     pub model: String,

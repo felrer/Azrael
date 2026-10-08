@@ -24,6 +24,12 @@ pub trait ConversationHistorySnapshot: Send + Sync {
     /// Returns the snapshot's response items in conversation order.
     fn items(&self) -> Box<dyn Iterator<Item = &ResponseItem> + Send + '_>;
 
+    /// Copies the current model window with its host-owned provenance for an independent fork.
+    /// Implementations with envelope metadata must preserve it, including compaction producers.
+    fn model_context_items(&self) -> Vec<codex_history::ResponseItemEnvelope> {
+        self.items().cloned().map(Into::into).collect()
+    }
+
     /// Host-owned retained facts captured atomically with the parent model window.
     /// These facts may be available while review still uses a legacy transcript.
     fn retained_context(&self) -> Option<&RetainedContext> {

@@ -98,6 +98,17 @@ pub async fn run_user_shell_command(
     command: String,
     timeout_ms: Option<u64>,
 ) {
+    if sess.tool_policy.denies_all_tools() {
+        sess.send_event_raw(Event {
+            id: sub_id,
+            msg: EventMsg::Error(
+                CodexErr::InvalidRequest("tools are disabled for this thread".to_string())
+                    .to_error_event(None),
+            ),
+        })
+        .await;
+        return;
+    }
     let _reservation_guard = sess.root_resume_submission_guard().await;
     if let Err(error) = sess.supersede_root_resume().await {
         sess.send_event_raw(Event {

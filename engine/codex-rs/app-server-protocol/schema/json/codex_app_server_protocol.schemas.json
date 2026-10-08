@@ -22464,6 +22464,10 @@
               "null"
             ]
           },
+          "sideQuestion": {
+            "description": "Fork a live model-context snapshot for an isolated, tool-free side question. Requires `ephemeral` and `excludeTurns`, and disallows history boundaries, a rollout path, and inherited goal continuation.",
+            "type": "boolean"
+          },
           "threadId": {
             "type": "string"
           },
@@ -22557,6 +22561,10 @@
               "string",
               "null"
             ]
+          },
+          "sideQuestion": {
+            "description": "Confirms that the fork uses a live snapshot and an immutable deny-all tool policy. Clients must require this acknowledgment before starting a side-question turn.",
+            "type": "boolean"
           },
           "thread": {
             "$ref": "#/definitions/v2/Thread"

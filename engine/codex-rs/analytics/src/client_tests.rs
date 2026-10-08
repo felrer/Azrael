@@ -702,6 +702,7 @@ fn sample_thread_resume_response() -> ClientResponsePayload {
 
 fn sample_thread_fork_response() -> ClientResponsePayload {
     ClientResponsePayload::ThreadFork(ThreadForkResponse {
+        side_question: false,
         computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: sample_thread("thread-3"),

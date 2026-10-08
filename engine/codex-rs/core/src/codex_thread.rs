@@ -986,6 +986,16 @@ impl CodexThread {
         self.session.conversation_history_snapshot().await
     }
 
+    /// Captures live session/provider provenance without requiring persisted history.
+    pub async fn fork_metadata_snapshot(
+        &self,
+    ) -> CodexResult<(codex_protocol::protocol::SessionMetaLine, Option<String>)> {
+        if !self.is_running() {
+            return Err(CodexErr::ThreadNotFound(self.session.thread_id));
+        }
+        Ok(self.session.fork_metadata_snapshot().await)
+    }
+
     /// Returns the current user-authorization revision for Guardian.
     pub async fn guardian_authorization_version(&self) -> GuardianAuthorizationVersion {
         let history = self.conversation_history_snapshot().await;

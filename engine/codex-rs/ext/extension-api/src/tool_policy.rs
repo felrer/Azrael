@@ -35,6 +35,11 @@ impl Default for ToolPolicy {
 }
 
 impl ToolPolicy {
+    /// Whether this immutable startup policy denies every tool and automatic hook.
+    pub fn denies_all_tools(&self) -> bool {
+        self.allowed_tools.as_ref().is_some_and(Vec::is_empty)
+    }
+
     /// Selected-window ceiling; approval and sandbox settings remain independent.
     pub fn selected_window() -> Self {
         let mut tools = vec![

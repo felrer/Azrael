@@ -562,6 +562,29 @@
       ]
     },
     {
+      "id": "ui.btw",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-btw.cjs",
+        "scripts/btw-conversation.cjs"
+      ],
+      "contract": "docs/architecture/side-questions.md",
+      "checks": [
+        {
+          "id": "ui.btw.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-btw.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "btwEdits"
+      ]
+    },
+    {
       "id": "ui.thread-branch",
       "area": "ui",
       "owners": [

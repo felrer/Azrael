@@ -16,6 +16,8 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Partial implementation
 
+- [Side questions with /btw](side-questions.md): independent tool-free questions using the main task's live context and the native Side chat panel; source and rendered controls verified, Rust and installed acceptance pending.
+
 - [Auto-Review](auto-review.md): OpenAI-only native permission selection and turn submission guard; existing Guardian binary verified separately from new package and installed acceptance.
 
 ## Target

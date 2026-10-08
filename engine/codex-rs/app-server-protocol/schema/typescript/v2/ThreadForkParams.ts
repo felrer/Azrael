@@ -40,4 +40,9 @@ threadSource?: ThreadSource | null, /**
  * is deprecated for paginated threads; use this with `thread/turns/list`
  * and `thread/items/list` instead.
  */
-excludeTurns?: boolean};
+excludeTurns?: boolean, /**
+ * Fork a live model-context snapshot for an isolated, tool-free side question.
+ * Requires `ephemeral` and `excludeTurns`, and disallows history boundaries,
+ * a rollout path, and inherited goal continuation.
+ */
+sideQuestion?: boolean};

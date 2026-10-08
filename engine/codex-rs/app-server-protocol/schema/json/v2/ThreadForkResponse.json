@@ -3154,6 +3154,10 @@
         "null"
       ]
     },
+    "sideQuestion": {
+      "description": "Confirms that the fork uses a live snapshot and an immutable deny-all tool policy. Clients must require this acknowledgment before starting a side-question turn.",
+      "type": "boolean"
+    },
     "thread": {
       "$ref": "#/definitions/Thread"
     }

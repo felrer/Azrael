@@ -10,7 +10,11 @@ import type { ComputerUseMode } from "./ComputerUseMode";
 import type { SandboxPolicy } from "./SandboxPolicy";
 import type { Thread } from "./Thread";
 
-export type ThreadForkResponse = {computerUseMode: ComputerUseMode | null, thread: Thread, model: string, modelProvider: string, serviceTier: string | null, /**
+export type ThreadForkResponse = {/**
+ * Confirms that the fork uses a live snapshot and an immutable deny-all tool policy.
+ * Clients must require this acknowledgment before starting a side-question turn.
+ */
+sideQuestion?: boolean, computerUseMode: ComputerUseMode | null, thread: Thread, model: string, modelProvider: string, serviceTier: string | null, /**
  * Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
  */
 disabledPluginIds: Array<string>, cwd: AbsolutePathBuf, /**
