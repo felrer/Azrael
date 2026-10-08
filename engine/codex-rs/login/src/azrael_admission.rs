@@ -113,6 +113,48 @@ impl AzraelAuthAdmission {
         })
     }
 
+    pub fn begin_explicit_recovery(self: &Arc<Self>) -> io::Result<AzraelSwitchRequest> {
+        self.pending
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .map_err(|_| {
+                io::Error::new(
+                    io::ErrorKind::WouldBlock,
+                    "An account change is already pending.",
+                )
+            })?;
+        self.changes
+            .send_modify(|epoch| *epoch = epoch.wrapping_add(1));
+        Ok(AzraelSwitchRequest {
+            admission: Arc::clone(self),
+        })
+    }
+
+    pub fn has_pending_switch(&self) -> bool {
+        self.pending.load(Ordering::Acquire)
+    }
+
+    pub fn requires_recovery(&self) -> bool {
+        self.failed_closed.load(Ordering::Acquire)
+    }
+
+    /// Retirement blocks every admission, including queues and children, before interruption.
+    pub fn begin_retirement(self: &Arc<Self>) -> AzraelSwitchRequest {
+        self.failed_closed.store(true, Ordering::Release);
+        self.pending.store(true, Ordering::Release);
+        self.changes
+            .send_modify(|epoch| *epoch = epoch.wrapping_add(1));
+        AzraelSwitchRequest {
+            admission: Arc::clone(self),
+        }
+    }
+
+    /// Call only after the replacement and durable selection are verified under the writer.
+    pub fn complete_retirement(&self, _guard: &OwnedRwLockWriteGuard<()>) {
+        self.failed_closed.store(false, Ordering::Release);
+        self.changes
+            .send_modify(|epoch| *epoch = epoch.wrapping_add(1));
+    }
+
     pub fn is_pending(&self) -> bool {
         self.pending.load(Ordering::Acquire) || self.failed_closed.load(Ordering::Acquire)
     }

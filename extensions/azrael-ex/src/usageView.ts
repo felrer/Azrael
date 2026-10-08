@@ -437,7 +437,7 @@ export class UsageView implements vscode.Disposable {
     else if (message.action === "providerReauth" && provider.authKind === "oauth") await backend.login(provider.id, account.id);
     else if (message.action === "providerRemove") {
       const answer = await vscode.window.showWarningMessage(
-        `${provider.label}의 ${account.label} 계정을 제거할까요?`,
+        `${provider.label}의 ${account.label} 계정을 모든 Azrael 세션에서 제거할까요? 이 계정을 사용 중인 작업은 중지되고 사용 가능한 대체 계정이 있으면 전환됩니다. 대체 계정이 없으면 중지 상태로 남으며, 작업은 자동으로 재개되지 않습니다.`,
         { modal: true }, "제거",
       );
       if (answer === "제거") await backend.remove(provider.id, account.id);

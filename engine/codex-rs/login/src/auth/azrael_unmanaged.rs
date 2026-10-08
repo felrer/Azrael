@@ -287,13 +287,6 @@ impl AzraelAuthMutationGuard {
         Self::acquire_inner(usage, transaction, Some(process_permit)).await
     }
 
-    pub(super) async fn acquire_without_process_semaphore(
-        usage: Arc<AzraelAuthUsageLease>,
-        transaction: Arc<AzraelAuthTransaction>,
-    ) -> io::Result<Self> {
-        Self::acquire_inner(usage, transaction, None).await
-    }
-
     async fn acquire_inner(
         usage: Arc<AzraelAuthUsageLease>,
         transaction: Arc<AzraelAuthTransaction>,

@@ -318,6 +318,8 @@ pub struct TurnContext {
     pub(crate) auth_manager: Option<Arc<AuthManager>>,
     /// The task owns admission through cleanup; retained contexts do not extend it.
     pub(crate) account_lease: Arc<std::sync::Mutex<Option<Arc<codex_login::AzraelTaskAuthLease>>>>,
+    /// Credential-free Devin identity pinned to this turn, never its future thread binding.
+    pub(crate) devin_account_pin: Arc<std::sync::Mutex<Option<String>>>,
     /// Exhausted identities remain excluded across every sampling step of this turn.
     pub(crate) exhausted_accounts: Arc<Mutex<HashSet<String>>>,
     /// Frozen settings used to construct this context. Legacy turn consumers
@@ -719,6 +721,7 @@ impl TurnContext {
             dynamic_tools: self.dynamic_tools.clone(),
             turn_metadata_state: self.turn_metadata_state.clone(),
             account_lease: Arc::clone(&self.account_lease),
+            devin_account_pin: Arc::clone(&self.devin_account_pin),
             exhausted_accounts: Arc::clone(&self.exhausted_accounts),
             extension_data: Arc::clone(&self.extension_data),
             turn_timing_state: Arc::clone(&self.turn_timing_state),
@@ -844,6 +847,17 @@ fn local_time_context() -> (String, String) {
 }
 
 impl Session {
+    pub(crate) async fn current_execution_model(&self) -> String {
+        self.state
+            .lock()
+            .await
+            .session_configuration
+            .step_settings
+            .collaboration_mode
+            .model()
+            .to_string()
+    }
+
     /// Don't expand the number of mutated arguments on config. We are in the process of getting rid of it.
     pub(crate) fn build_per_turn_config(
         &self,
@@ -1040,6 +1054,7 @@ impl Session {
             dynamic_tools: session_configuration.dynamic_tools.clone(),
             turn_metadata_state,
             account_lease: Arc::default(),
+            devin_account_pin: Arc::default(),
             exhausted_accounts: Arc::default(),
             extension_data,
             turn_timing_state: Arc::new(TurnTimingState::default()),

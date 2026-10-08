@@ -16,7 +16,7 @@ impl AccountRequestProcessor {
     ) -> Result<AzraelLogin, JSONRPCErrorError> {
         {
             let state = self.azrael.inner.lock().await;
-            if state.login.is_some() || self.auth_manager.azrael_admission().is_pending() {
+            if state.login.is_some() || self.auth_manager.azrael_admission().has_pending_switch() {
                 return Err(invalid_request("an account change is already pending"));
             }
         }

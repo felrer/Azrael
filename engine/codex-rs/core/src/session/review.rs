@@ -186,6 +186,7 @@ pub(super) async fn spawn_review_thread(
         dynamic_tools: parent_turn_context.dynamic_tools.clone(),
         turn_metadata_state,
         account_lease: Arc::default(),
+        devin_account_pin: Arc::default(),
         exhausted_accounts: Arc::default(),
         extension_data,
         turn_timing_state: Arc::new(TurnTimingState::default()),

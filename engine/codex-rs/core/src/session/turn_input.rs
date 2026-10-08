@@ -209,6 +209,22 @@ pub(super) async fn handle(
     mut mode: TurnInputMode,
     submission_id: String,
 ) -> CodexResult<TurnInputSubmission> {
+    let model = request
+        .thread_settings
+        .collaboration_mode
+        .as_ref()
+        .map(|mode| mode.settings.model.clone())
+        .or_else(|| request.thread_settings.model.clone())
+        .unwrap_or(session.current_execution_model().await);
+    if session.account_is_retired_for_model(&model)
+        || session
+            .execution_admission_for_model(&model)
+            .requires_recovery()
+    {
+        return Err(CodexErr::new(codex_protocol::error::CodexErrorDetails::InvalidRequest(
+            "The account is unavailable. Sign in again or select a healthy account before continuing.".to_string(),
+        )));
+    }
     let _reservation_guard = session.root_resume_submission_guard().await;
     let origin = UserInputOrigin::from_turn_trigger(request.start.turn_trigger.as_deref());
     if let Some(turn_id) = session
@@ -311,6 +327,21 @@ pub(super) async fn handle_recovery(
     start_options: TurnStartOptions,
     submission_id: String,
 ) -> CodexResult<TurnInputSubmission> {
+    let model = thread_settings
+        .collaboration_mode
+        .as_ref()
+        .map(|mode| mode.settings.model.clone())
+        .or_else(|| thread_settings.model.clone())
+        .unwrap_or(session.current_execution_model().await);
+    if session.account_is_retired_for_model(&model)
+        || session
+            .execution_admission_for_model(&model)
+            .requires_recovery()
+    {
+        return Err(CodexErr::new(codex_protocol::error::CodexErrorDetails::InvalidRequest(
+            "The account is unavailable. Sign in again or select a healthy account before continuing.".to_string(),
+        )));
+    }
     let _reservation_guard = session.root_resume_submission_guard().await;
     if session.has_root_resume_reservation() {
         return Ok(TurnInputSubmission::NotSubmitted {

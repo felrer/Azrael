@@ -91,6 +91,7 @@ pub use workspace_routing::WorkspaceRoutingSession;
 mod profiles;
 pub use profiles::AzraelProfileAuth;
 pub use profiles::AzraelProfileInfo;
+pub use profiles::AzraelProfileStatus;
 pub use profiles::AzraelProfileStore;
 
 #[path = "azrael_unmanaged.rs"]
@@ -287,6 +288,10 @@ pub struct ExternalAuthRefreshContext {
 ///
 /// Implementations own the current auth value and any source-specific refresh mechanism.
 pub trait ExternalAuth: Send + Sync {
+    /// Synchronous source admission check; cached credentials never override retirement.
+    fn is_available(&self) -> bool {
+        true
+    }
     /// Returns the provider's current auth value.
     fn resolve(&self) -> ExternalAuthFuture<'_, CodexAuth>;
 
@@ -2533,6 +2538,18 @@ impl AuthManager {
 
     /// Current cached auth (clone) without attempting a refresh.
     pub fn auth_cached(&self) -> Option<CodexAuth> {
+        if self.azrael_auth_transaction.is_some()
+            && !profiles::profile_status(&self.codex_home)
+                .is_ok_and(|status| status == profiles::AzraelProfileStatus::Available)
+        {
+            return None;
+        }
+        if self
+            .external_auth_provider()
+            .is_some_and(|provider| !provider.is_available())
+        {
+            return None;
+        }
         self.inner
             .read()
             .ok()
@@ -2582,7 +2599,8 @@ impl AuthManager {
     /// Refreshes auth, then captures credentials and their account-bound factory together.
     /// The auth read lock prevents an identity change between the two snapshots.
     pub async fn auth_with_http_client_factory(&self) -> Option<(CodexAuth, HttpClientFactory)> {
-        self.auth().await;
+        self.auth().await?;
+        self.auth_cached()?;
         let cached = self.inner.read().ok()?;
         Some((cached.auth.clone()?, self.http_client_factory()))
     }
@@ -2880,6 +2898,25 @@ impl AuthManager {
             guard.permanent_refresh_failure = None;
         }
         self.commit_external_auth(auth)
+    }
+
+    /// Blocks implicit root authentication after durable retirement without erasing credentials.
+    pub fn install_unavailable_external_auth(
+        &self,
+        owner: Arc<dyn ExternalAuth>,
+    ) -> std::io::Result<()> {
+        if owner.is_available() {
+            return Err(std::io::Error::other(
+                "recovery authentication owner must be unavailable",
+            ));
+        }
+        *self
+            .external_auth
+            .write()
+            .map_err(|_| std::io::Error::other("external authentication lock is poisoned"))? =
+            Some(owner);
+        self.set_cached_auth(None);
+        Ok(())
     }
 
     pub fn clear_external_auth(&self) {
@@ -3388,6 +3425,9 @@ impl AuthManager {
         refresh_token: String,
     ) -> Result<(), RefreshTokenError> {
         let refresh_response = request_chatgpt_token_refresh(refresh_token, auth.client()).await?;
+
+        profiles::ensure_profile_not_removed(&self.codex_home)
+            .map_err(RefreshTokenError::Transient)?;
 
         persist_tokens(
             auth.storage(),

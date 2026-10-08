@@ -85,9 +85,25 @@ test('same-turn selection and replaced or removed OAuth identity fail closed', a
   await store.saveAccountCredential('anthropic', account, credential('replacement'));
   await expect(infer(request('anthropic', 'turn-2'), () => {}, fetcher)).rejects.toThrow('pinned_account_changed');
   await store.removeAccount('anthropic', account);
-  await expect(infer(request('anthropic', 'turn-3'), () => {}, fetcher)).rejects.toThrow('pinned_account_missing');
+  await expect(infer(request('anthropic', 'turn-3'), () => {}, fetcher)).rejects.toThrow('provider_account_removed');
   expect(fetched).toBeFalse();
 });
+
+test('authoritative retirement aborts an active header wait promptly with a fixed code', async () => {
+  for (const revoked of [false, true]) {
+    const account = await setup(); let entered!: () => void;
+    const started = new Promise<void>(resolve => { entered = resolve; });
+    const fetcher = ((_url: any, init: any) => new Promise<Response>((_resolve, reject) => {
+      init.signal.addEventListener('abort', () => reject(init.signal.reason), { once: true }); entered();
+    })) as typeof fetch;
+    const pending = infer(request(), () => {}, fetcher).catch(error => error);
+    await started;
+    if (revoked) await store.markAccountNeedsReauth('anthropic', account, true);
+    else await store.removeAccount('anthropic', account);
+    expect((await pending).message).toBe(revoked ? 'provider_account_revoked' : 'provider_account_removed');
+    const old = root; root = ''; rmSync(old, { recursive: true, force: true });
+  }
+}, 15_000);
 
 test('configured retired Google, xAI and OpenRouter never fetch or enter catalog', async () => {
   await setup(); const cfg = config.loadConfig(); cfg.providers = {};

@@ -188,6 +188,24 @@ pub(super) async fn request_recovery_credential(
     .await
 }
 
+pub(super) async fn request_retirement_credential(
+    home: &Path,
+    config: &HelperConfig,
+    account_id: &str,
+    cancellation: &tokio_util::sync::CancellationToken,
+) -> CodexResult<Option<ManagedCredential>> {
+    let id = uuid::Uuid::new_v4().to_string();
+    let request = CredentialRequest {
+        protocol: PROTOCOL_VERSION,
+        id: &id,
+        action: "credential",
+        provider_id: "devin",
+        account_id: Some(account_id),
+        require_auto_switch: None,
+    };
+    send_credential_request(home, config, request, HELPER_TIMEOUT, cancellation).await
+}
+
 pub(super) async fn request_recovery_credential_with(
     codex_home: &Path,
     config: &HelperConfig,

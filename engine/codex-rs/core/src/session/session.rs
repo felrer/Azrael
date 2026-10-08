@@ -58,6 +58,10 @@ type McpToolApprovalMetadataMap =
 ///
 /// A session has at most 1 running task at a time, and can be interrupted by user input.
 pub(crate) struct Session {
+    pub(crate) account_retired: std::sync::atomic::AtomicBool,
+    pub(crate) retired_provider: std::sync::Mutex<Option<String>>,
+    pub(crate) managed_auth_admissions:
+        std::sync::Mutex<std::collections::HashMap<String, Arc<codex_login::AzraelAuthAdmission>>>,
     pub(crate) thread_id: ThreadId,
     pub(crate) installation_id: String,
     pub(super) tx_event: Sender<Event>,
@@ -1865,6 +1869,9 @@ impl Session {
             };
             let (mcp_prewarm_tx, mcp_prewarm_rx) = async_channel::bounded(1);
             let sess = Arc::new(Session {
+                account_retired: std::sync::atomic::AtomicBool::new(false),
+                retired_provider: std::sync::Mutex::new(None),
+                managed_auth_admissions: std::sync::Mutex::new(std::collections::HashMap::new()),
                 thread_id,
                 installation_id,
                 tx_event: tx_event.clone(),

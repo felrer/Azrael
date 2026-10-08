@@ -265,7 +265,7 @@ impl QueuedItemService {
                             let Ok(thread) = manager.get_thread(thread_id).await else {
                                 return;
                             };
-                            if thread.auth_admission().is_pending() {
+                            if thread.auth_admission().await.is_pending() {
                                 return;
                             }
                             if matches!(
@@ -453,6 +453,7 @@ impl QueuedItemService {
         let _dispatch_guard = self.dispatch_guard(thread_id).await;
         let _account_guard = thread
             .auth_admission()
+            .await
             .admit_queued_request()
             .map_err(QueueServiceError::AdmissionDenied)?;
         let item = self
@@ -500,7 +501,7 @@ impl QueuedItemService {
         thread_id: ThreadId,
     ) -> Result<(), QueueServiceError> {
         loop {
-            let _account_guard = match thread.auth_admission().admit_request().await {
+            let _account_guard = match thread.auth_admission().await.admit_request().await {
                 Ok(guard) => guard,
                 Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(()),
                 Err(error) => return Err(QueueServiceError::AdmissionDenied(error)),

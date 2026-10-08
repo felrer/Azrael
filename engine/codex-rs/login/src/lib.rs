@@ -54,6 +54,7 @@ pub use auth::AzraelAuthMutationGuard;
 pub use auth::AzraelAuthRefreshGuard;
 pub use auth::AzraelProfileAuth;
 pub use auth::AzraelProfileInfo;
+pub use auth::AzraelProfileStatus;
 pub use auth::AzraelProfileStore;
 pub use auth::CLIENT_ID;
 pub use auth::CLIENT_ID_OVERRIDE_ENV_VAR;

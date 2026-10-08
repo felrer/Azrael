@@ -22,7 +22,7 @@ const object = (value: any) => value !== null && typeof value === 'object' && !A
 const validPin = (value: any) => object(value) && typeof value.account_id === 'string' && /^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test(value.account_id) && typeof value.fingerprint === 'string' && /^[a-f0-9]{64}$/.test(value.fingerprint);
 const validModel = (value: any) => typeof value === 'string' && value.trim().length > 0 && Buffer.byteLength(value) <= 256 && !/[\x00-\x1f\x7f-\x9f]/.test(value);
 
-function readBinding(path: string, thread: string, directory: string): Binding {
+export function readBinding(path: string, thread: string, directory: string): Binding {
   const rel = relative(realpathSync(directory), realpathSync(path));
   if (rel.startsWith('..') || isAbsolute(rel)) fail('invalid_binding');
   const fd = openSync(path, 'r');
@@ -65,7 +65,7 @@ async function modules() {
   return { config, router, google, budget, antigravity, oauth, store, anthropic };
 }
 
-async function resolvePin(config: any, providerId: string, retained: Pin | undefined, m: any) {
+export async function resolvePin(config: any, providerId: string, retained: Pin | undefined, m: any) {
   const provider = config.providers[providerId];
   let accountId: string, routed: any, fingerprint: string;
   if (providerId === 'anthropic') {
@@ -126,6 +126,11 @@ export async function pinAccount(config: any, request: any, m: any) {
     const previous = binding.turns[request.turn_id];
     if (previous && (previous.provider_id !== request.provider_id || previous.model !== request.model)) fail('turn_selection_mismatch');
     const retained = previous ?? binding.providers[request.provider_id];
+    if (retained && m.store.readAuthStoreForRetirement) {
+      const account = m.store.readAuthStoreForRetirement()[request.provider_id]?.accounts.find((entry: any) => entry.id === retained.account_id);
+      if (!account) fail('provider_account_removed');
+      if (account.needsReauth) fail('provider_account_revoked');
+    }
     const { accountId, routed, fingerprint } = await resolvePin(config, request.provider_id, retained, m);
     if (retained && retained.fingerprint !== fingerprint) fail('pinned_account_changed');
     const pin = { account_id: accountId, fingerprint };
@@ -137,7 +142,7 @@ export async function pinAccount(config: any, request: any, m: any) {
     if (Buffer.byteLength(serialized) > MAX_BINDING_BYTES) fail('binding_limit');
     writeFileSync(temporary, serialized, { mode: 0o600 });
     renameSync(temporary, path);
-    return { provider: routed, fingerprint };
+    return { provider: routed, fingerprint, accountId };
   } finally { guard!.release(); }
 }
 
@@ -338,11 +343,25 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
     : m.google.createGoogleAdapter(pinned.provider);
   const budget = m.budget.createTranslatorBudget();
-  const signal = options.deadlineSignal ?? AbortSignal.timeout(900_000);
+  const retirementAbort = new AbortController();
+  let retirementCode: string | undefined;
+  const checkRetirement = () => {
+    try {
+      const account = m.store.readAuthStoreForRetirement()[request.provider_id]?.accounts.find(entry => entry.id === pinned.accountId);
+      if (!account || account.needsReauth) {
+        retirementCode = account ? 'provider_account_revoked' : 'provider_account_removed';
+        retirementAbort.abort(new AdapterError(retirementCode));
+      }
+    } catch { /* Unreadable or malformed store cannot establish deletion. */ }
+  };
+  checkRetirement();
+  const retirementTimer = setInterval(checkRetirement, 250);
+  const signal = AbortSignal.any([options.deadlineSignal ?? AbortSignal.timeout(900_000), retirementAbort.signal]);
   const tracker = progress?.transport ?? createStallDiagnostics();
   const opaque = { details: [], terminal: false, upstreamSseError: false };
   let stage = 'build';
   try {
+    if (retirementCode) fail(retirementCode);
     progress?.observe({ kind: 'phase', phase: 'headers' });
     const built = await adapter.buildRequest(parsed, { headers: new Headers(), translatorBudget: budget, abortSignal: signal, providerFetch: fetcher });
     const wireBody = JSON.parse(built.body);
@@ -360,6 +379,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     stage = 'map';
     await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque }, emit, request.request_id);
   } catch (error) {
+    if (retirementCode) fail(retirementCode);
     tracker?.error(stage, error, signal);
     if (managedDeadlineFailure(error, signal, opaque.upstreamSseError)) fail('provider_request_deadline');
     if (!(error instanceof AdapterError)) {
@@ -369,7 +389,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
       if (failureStage === 'headers' && error instanceof TypeError) fail('provider_headers_failed');
     }
     throw error;
-  } finally { budget.dispose(); }
+  } finally { clearInterval(retirementTimer); budget.dispose(); }
 }
 
 export async function catalog(options: { refresh?: boolean; fetch?: typeof fetch; now?: number } = {}) {

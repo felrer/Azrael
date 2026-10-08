@@ -180,6 +180,12 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
   const providerId = typeof request.providerId === "string" ? request.providerId : "";
   const accountId = typeof request.accountId === "string" ? request.accountId : undefined;
   switch (request.action) {
+    case "retirementStatus": return (await import('./retirement.ts')).retirementStatus(request, m);
+    case "retireAccount": {
+      if (!activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      const antigravity = await import('./antigravity.ts');
+      return (await import('./retirement.ts')).retireAccount(request, { ...m, antigravity });
+    }
     case "list": return snapshot(m);
     case "setAutoSwitch": {
       if (!providerId || !accountId || typeof request.enabled !== 'boolean') throw new Error(SAFE_ERRORS.invalid);
@@ -211,8 +217,12 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
     case "remove": {
       if (!providerId || !accountId) throw new Error(SAFE_ERRORS.invalid);
       if (!activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
-      const ok = await m.store.removeAccount(providerId, accountId);
+      const ok = await m.store.removeAccount(providerId, accountId, { deferSelection: true });
       if (!ok) throw new Error(SAFE_ERRORS.missing);
+      if (m.store.getAccountSet(providerId)?.activeAccountId === '') {
+        const antigravity = await import('./antigravity.ts');
+        await (await import('./retirement.ts')).selectAfterRemoval(providerId, accountId, { ...m, antigravity });
+      }
       return null;
     }
     case "addKey": throw new Error(SAFE_ERRORS.unsupported);

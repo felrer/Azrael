@@ -10,6 +10,7 @@ import shutil
 import subprocess
 import tempfile
 import unittest
+from unittest import mock
 
 spec = importlib.util.spec_from_file_location("recorder", Path(__file__).resolve().parents[1] / "record-engine-local-changes.py")
 recorder = importlib.util.module_from_spec(spec)
@@ -56,6 +57,201 @@ class RecorderTests(unittest.TestCase):
 
     def receipt(self):
         return json.loads((self.destination / "SOURCE.json").read_bytes())
+
+    def current_digest(self):
+        return hashlib.sha256((self.destination / "SOURCE.json").read_bytes()).hexdigest()
+
+    def add_module(self, name="new.rs"):
+        path = self.destination / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"pub fn reviewed() {}\n")
+        self.git(self.repo, "add", "engine/" + name)
+
+    def update(self, expected, digest=None):
+        return recorder.record_changes(self.destination, self.baseline, self.digest, expected,
+                                       digest or self.current_digest())
+
+    def test_additions_and_update_preserve_original_and_prior_reviews(self):
+        self.record()
+        prior = self.receipt()
+        self.assertEqual(prior["localIntegration"]["schema"], 1)
+        self.add_module("nested/new.rs")
+        (self.destination / "other.rs").write_bytes(b"second review\n")
+        self.update(("nested/new.rs", "other.rs"))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["schema"], 2)
+        self.assertEqual(receipt["localIntegration"]["originalReceipt"], self.original)
+        self.assertEqual(receipt["localIntegration"]["changes"]["edit.rs"], prior["localIntegration"]["changes"]["edit.rs"])
+        self.assertIsNone(receipt["localIntegration"]["changes"]["nested/new.rs"]["before"])
+        self.assertEqual(receipt["inventoryCount"], self.original["inventoryCount"] + 1)
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / "nested/new.rs").write_bytes(b"pub fn reviewed_again() {}\n")
+        self.update(("nested/new.rs",))
+        importer.validate_receipt(self.destination, self.receipt())
+        self.assertIsNone(self.receipt()["localIntegration"]["changes"]["nested/new.rs"]["before"])
+        self.add_module("another.rs")
+        self.update(("another.rs",))
+        importer.validate_receipt(self.destination, self.receipt())
+
+    def test_initial_addition_and_schema1_compatibility(self):
+        self.add_module()
+        self.record(("edit.rs", "new.rs"))
+        receipt = self.receipt()
+        importer.validate_receipt(self.destination, receipt)
+        receipt["localIntegration"]["schema"] = 1
+        with self.assertRaisesRegex(ValueError, "cannot add"):
+            importer.validate_receipt(self.destination, receipt)
+
+    def test_explicit_adapted_content_update_preserves_fixed_provenance(self):
+        path = self.destination / importer.REPLAY_PATH
+        fixed = path.read_bytes()
+        path.write_bytes(fixed + b"// reviewed inherited content\n")
+        with self.assertRaisesRegex(ValueError, "Reviewed adapted delta differs"):
+            self.record()
+        recorder.record_changes(self.destination, self.baseline, self.digest, ("edit.rs",),
+                                expected_adapted_paths=(importer.REPLAY_PATH,))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["schema"], 3)
+        self.assertEqual(receipt["sourceFixes"], self.original["sourceFixes"])
+        self.assertEqual(receipt["files"][importer.REPLAY_PATH], self.original["files"][importer.REPLAY_PATH])
+        original_before = receipt["localIntegration"]["adaptedChanges"][importer.REPLAY_PATH]["before"]
+        self.assertEqual(original_before["sha256"], hashlib.sha256(fixed).hexdigest())
+        importer.validate_receipt(self.destination, receipt)
+        path.write_bytes(fixed + b"// second explicit content review\n")
+        recorder.record_changes(self.destination, self.baseline, self.digest, (), self.current_digest(),
+                                (importer.REPLAY_PATH,))
+        self.assertEqual(self.receipt()["localIntegration"]["adaptedChanges"][importer.REPLAY_PATH]["before"], original_before)
+        self.add_module()
+        self.update(("new.rs",))
+        importer.validate_receipt(self.destination, self.receipt())
+        path.write_bytes(b"unreviewed subsequent drift\n")
+        with self.assertRaisesRegex(ValueError, "Reviewed adapted source differs"):
+            importer.validate_receipt(self.destination, self.receipt())
+
+    def test_adapted_only_record_and_metadata_tampering_are_rejected(self):
+        (self.destination / "edit.rs").write_bytes(b"original\n")
+        path = self.destination / importer.REPLAY_PATH
+        path.write_bytes(path.read_bytes() + b"// explicit content delta\n")
+        recorder.record_changes(self.destination, self.baseline, self.digest, (),
+                                expected_adapted_paths=(importer.REPLAY_PATH,))
+        good = self.receipt()
+        importer.validate_receipt(self.destination, good)
+        self.assertEqual(good["localIntegration"]["changes"], {})
+        for mutation in ("before", "after", "mode", "permissions", "path", "schema", "fix"):
+            with self.subTest(mutation=mutation):
+                bad = copy.deepcopy(good)
+                change = bad["localIntegration"]["adaptedChanges"][importer.REPLAY_PATH]
+                if mutation in ("before", "after"):
+                    change[mutation]["sha256"] = "0" * 64
+                elif mutation == "mode":
+                    change["after"]["gitMode"] = "100755"
+                elif mutation == "permissions":
+                    change["after"]["permissions"] += 1
+                elif mutation == "path":
+                    bad["localIntegration"]["adaptedChanges"]["edit.rs"] = bad["localIntegration"]["adaptedChanges"].pop(importer.REPLAY_PATH)
+                elif mutation == "schema":
+                    bad["localIntegration"]["schema"] = 2
+                else:
+                    bad["sourceFixes"][importer.REPLAY_PATH]["adaptedSha256"] = "0" * 64
+                with self.assertRaises(ValueError):
+                    importer.validate_receipt(self.destination, bad)
+        preserved = self.destination / (importer.REPLAY_PATH + ".upstream")
+        preserved.write_bytes(preserved.read_bytes() + b"// changed immutable upstream\n")
+        with self.assertRaises(ValueError):
+            importer.validate_receipt(self.destination, good)
+
+    def test_adapted_paths_are_explicit_unique_and_mode_protected(self):
+        path = self.destination / importer.REPLAY_PATH
+        path.write_bytes(path.read_bytes() + b"// changed\n")
+        for expected in (("edit.rs",), (importer.REPLAY_PATH, importer.REPLAY_PATH), ("migrations/1.sql",)):
+            with self.subTest(expected=expected), self.assertRaises(ValueError):
+                recorder.record_changes(self.destination, self.baseline, self.digest, ("edit.rs",),
+                                        expected_adapted_paths=expected)
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/" + importer.REPLAY_PATH)
+        with self.assertRaises(ValueError):
+            recorder.record_changes(self.destination, self.baseline, self.digest, ("edit.rs",),
+                                    expected_adapted_paths=(importer.REPLAY_PATH,))
+        self.git(self.repo, "update-index", "--chmod=-x", "engine/" + importer.REPLAY_PATH)
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/" + importer.REPLAY_PATH + ".upstream")
+        with self.assertRaisesRegex(ValueError, "Unreviewed preserved source"):
+            recorder.record_changes(self.destination, self.baseline, self.digest, ("edit.rs",),
+                                    expected_adapted_paths=(importer.REPLAY_PATH,))
+
+    def test_update_requires_prior_review_anchor_and_exact_new_delta(self):
+        self.record()
+        prior_bytes = (self.destination / "SOURCE.json").read_bytes()
+        self.add_module()
+        (self.destination / "other.rs").write_bytes(b"unreviewed\n")
+        for expected, digest in ((("new.rs",), None), (("new.rs", "other.rs", "edit.rs"), None),
+                                 (("new.rs", "other.rs"), "0" * 64)):
+            with self.subTest(expected=expected, digest=digest), self.assertRaises(ValueError):
+                self.update(expected, digest)
+            self.assertEqual((self.destination / "SOURCE.json").read_bytes(), prior_bytes)
+        self.update(("new.rs", "other.rs"))
+        (self.destination / "new.rs").write_bytes(b"stale\n")
+        with self.assertRaisesRegex(ValueError, "Copied source differs"):
+            importer.validate_receipt(self.destination, self.receipt())
+
+    def test_addition_modes_types_and_untracked_source_are_rejected(self):
+        for name in ("new.rs", "new.sql", "new.txt"):
+            with self.subTest(name=name):
+                self.add_module(name)
+                if name == "new.rs":
+                    self.git(self.repo, "update-index", "--chmod=+x", "engine/" + name)
+                with self.assertRaises(ValueError):
+                    self.record(("edit.rs", name))
+                self.git(self.repo, "rm", "--cached", "engine/" + name)
+                (self.destination / name).unlink()
+        (self.destination / "new.rs").write_bytes(b"untracked\n")
+        with self.assertRaisesRegex(ValueError, "Git-tracked"):
+            self.record(("edit.rs", "new.rs"))
+
+    def test_update_rejects_sql_modes_and_adaptation_changes(self):
+        self.record()
+        for name in ("migrations/1.sql", ".gitignore", importer.REPLAY_PATH):
+            with self.subTest(name=name):
+                path = self.destination / name
+                old = path.read_bytes()
+                path.write_bytes(b"not reviewed adaptation\n")
+                with self.assertRaises(ValueError):
+                    self.update((name,))
+                path.write_bytes(old)
+        (self.destination / "other.rs").write_bytes(b"second review\n")
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/other.rs")
+        with self.assertRaisesRegex(ValueError, "original mode"):
+            self.update(("other.rs",))
+
+    def test_inputs_are_rechecked_before_publishing(self):
+        original_validate = importer.validate_receipt
+        calls = 0
+        def mutate_after_validation(destination, receipt, **kwargs):
+            nonlocal calls
+            result = original_validate(destination, receipt, **kwargs)
+            calls += 1
+            if calls == 2:
+                self.git(self.repo, "update-index", "--chmod=+x", "engine/edit.rs")
+            return result
+        with mock.patch.object(importer, "validate_receipt", side_effect=mutate_after_validation):
+            with self.assertRaisesRegex(ValueError, "index changed"):
+                self.record()
+        self.assertEqual(self.receipt(), self.original)
+
+    def test_unchanged_imported_executable_accepts_committed_mode_normalization(self):
+        # Model a Windows import whose primary Git tree normalized an upstream executable.
+        self.original["files"]["other.rs"]["gitMode"] = "100755"
+        self.original["inventorySha256"] = hashlib.sha256(importer.canonical(self.original["files"])).hexdigest()
+        for directory in (self.baseline, self.destination):
+            (directory / "SOURCE.json").write_text(json.dumps(self.original), encoding="utf-8")
+        self.digest = hashlib.sha256((self.baseline / "SOURCE.json").read_bytes()).hexdigest()
+        self.assertEqual(self.git(self.repo, "ls-tree", "HEAD", "engine/other.rs").decode().split()[0], "100644")
+        self.record()
+        self.assertEqual(self.receipt()["files"]["other.rs"]["gitMode"], "100755")
+        importer.validate_receipt(self.destination, self.receipt())
+        self.add_module()
+        # Even matching the upstream mode is an unreviewed change since the primary HEAD.
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/other.rs")
+        with self.assertRaisesRegex(ValueError, "Unreviewed Git index mode change"):
+            self.update(("new.rs",))
 
     def test_records_exact_delta_and_preserves_adaptations(self):
         result = self.record()
@@ -158,7 +354,7 @@ class RecorderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Copied source differs"):
             importer.validate_receipt(self.destination, self.original)
         self.record()
-        with self.assertRaisesRegex(ValueError, "still match"):
+        with self.assertRaisesRegex(ValueError, "reviewed SHA256"):
             self.record()
 
 

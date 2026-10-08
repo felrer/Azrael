@@ -14,6 +14,16 @@ pub(super) async fn handle(
     session: &Arc<Session>,
     submission_id: String,
 ) -> CodexResult<CompactIfIdleSubmission> {
+    let model = session.current_execution_model().await;
+    if session.account_is_retired_for_model(&model)
+        || session.execution_admission_for_model(&model).requires_recovery()
+    {
+        return Err(codex_protocol::error::CodexErr::new(
+            codex_protocol::error::CodexErrorDetails::InvalidRequest(
+                "The account is unavailable. Select a healthy account before continuing.".to_string(),
+            ),
+        ));
+    }
     let _reservation_guard = session.root_resume_submission_guard().await;
     if session.has_root_resume_reservation() {
         return Ok(CompactIfIdleSubmission::NotSubmitted {

@@ -631,9 +631,7 @@ impl Session {
         Box::pin(async move {
             // Account switching must not hold the root gate hostage to an admission wait.
             let admission = session
-                .services
-                .auth_manager
-                .azrael_admission()
+                .execution_admission().await
                 .admit_request()
                 .await;
             let control = session.root_resume_control();

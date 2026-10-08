@@ -23,6 +23,7 @@ mod gateway_oauth;
 mod native_login_tests;
 mod quota_recovery;
 mod rate_limit_resets;
+mod retirement;
 mod usage_window;
 mod usage_window_inference;
 mod usage_window_store;
@@ -91,6 +92,15 @@ impl ActiveLogin {
         }
     }
 
+    fn change_guard(&self) -> &tokio::sync::OwnedRwLockWriteGuard<()> {
+        match self {
+            ActiveLogin::Browser { _change_guard, .. }
+            | ActiveLogin::DeviceCode { _change_guard, .. } => _change_guard
+                .as_ref()
+                .expect("active login owns its account change guard"),
+        }
+    }
+
     fn into_change_guard(mut self) -> tokio::sync::OwnedRwLockWriteGuard<()> {
         match &mut self {
             ActiveLogin::Browser { _change_guard, .. }
@@ -149,6 +159,8 @@ pub(crate) struct AccountRequestProcessor {
     gateway_client: Arc<std::sync::Mutex<Option<Arc<codex_login::GatewayAuthManager>>>>,
     _gateway_notifications: Arc<tokio_util::task::AbortOnDropHandle<()>>,
     azrael: Arc<azrael_state::AzraelAccountRuntime>,
+    retirement_gate: Arc<Mutex<()>>,
+    retirement_monitor: Arc<std::sync::Mutex<Option<tokio_util::task::AbortOnDropHandle<()>>>>,
 }
 
 async fn wait_for_native_account_change(
@@ -176,12 +188,15 @@ impl AccountRequestProcessor {
         config: Arc<Config>,
         config_manager: ConfigManager,
     ) -> Arc<Self> {
+        let azrael = Arc::new(azrael_state::AzraelAccountRuntime::new(&config));
+        if azrael.requires_startup_recovery() {
+            let _ = retirement::block_saved_recovery(&auth_manager);
+        }
         let gateway_notifications = crate::gateway_oauth_notifications::spawn(
             Arc::clone(&auth_manager),
             config_manager.clone(),
             Arc::clone(&outgoing),
         );
-        let azrael = Arc::new(azrael_state::AzraelAccountRuntime::new(&config));
         let processor = Arc::new(Self {
             _gateway_notifications: Arc::new(gateway_notifications),
             auth_manager,
@@ -196,6 +211,8 @@ impl AccountRequestProcessor {
             workspace_routing_fetches: Arc::new(Mutex::new(HashMap::new())),
             workspace_routing_shutdown: CancellationToken::new(),
             azrael,
+            retirement_gate: Arc::new(Mutex::new(())),
+            retirement_monitor: Arc::new(std::sync::Mutex::new(None)),
         });
         let resolver: Arc<dyn codex_login::WorkspaceRoutingResolver> = processor.clone();
         processor
@@ -205,6 +222,7 @@ impl AccountRequestProcessor {
         processor
             .auth_manager
             .set_azrael_quota_recovery(Arc::downgrade(&recovery));
+        retirement::start_monitor(&processor);
         let startup = processor.clone();
         tokio::spawn(async move {
             let _ = startup.read_account(/*request*/ None).await;
@@ -508,7 +526,7 @@ impl AccountRequestProcessor {
         let request = self
             .auth_manager
             .azrael_admission()
-            .begin_switch()
+            .begin_explicit_recovery()
             .map_err(|_| invalid_request("an account change is already pending"))?;
         // A completed turn can still be releasing its execution lease. Keep the
         // switch pending until that cleanup finishes, without queueing a writer
@@ -576,7 +594,13 @@ impl AccountRequestProcessor {
             Ok(()) => {
                 self.auth_manager.clear_external_auth();
                 self.auth_manager.reload().await;
-                self.azrael.clear_after_native_login().await;
+                self.azrael
+                    .clear_after_native_login()
+                    .await
+                    .map_err(azrael::account_mutation_error)?;
+                self.auth_manager
+                    .azrael_admission()
+                    .complete_retirement(&change_guard);
                 self.config_manager.clear_cloud_config_bundle_loader();
                 drop(change_guard);
                 drop(change_request);
@@ -688,7 +712,13 @@ impl AccountRequestProcessor {
             .map_err(|err| internal_error(format!("failed to save Amazon Bedrock auth: {err}")))?;
             self.auth_manager.clear_external_auth();
             self.auth_manager.reload().await;
-            self.azrael.clear_after_native_login().await;
+            self.azrael
+                .clear_after_native_login()
+                .await
+                .map_err(azrael::account_mutation_error)?;
+            self.auth_manager
+                .azrael_admission()
+                .complete_retirement(&_change_guard);
             self.config_manager.clear_cloud_config_bundle_loader();
             Ok(LoginAccountResponse::AmazonBedrock {})
         }
@@ -710,7 +740,7 @@ impl AccountRequestProcessor {
     ) -> std::result::Result<LoginServerOptions, JSONRPCErrorError> {
         let config = self.config.as_ref();
 
-        if self.auth_manager.azrael_admission().is_pending() {
+        if self.auth_manager.azrael_admission().has_pending_switch() {
             return Err(invalid_request("an account change is already pending"));
         }
         self.auth_manager
@@ -877,7 +907,7 @@ impl AccountRequestProcessor {
                 NativeLoginSettlement::RestoreFailed | NativeLoginSettlement::Stale => return,
             };
 
-            processor
+            let login_completed = processor
                 .send_chatgpt_login_completion_notifications(AccountLoginCompletedNotification {
                     login_id: Some(login_id.to_string()),
                     success,
@@ -885,6 +915,13 @@ impl AccountRequestProcessor {
                     onboarding_entrypoint,
                 })
                 .await;
+
+            if login_completed {
+                processor
+                    .auth_manager
+                    .azrael_admission()
+                    .complete_retirement(active_owner.change_guard());
+            }
 
             // Clear the active login if it matches this attempt. It may have been replaced or cancelled.
             drop(active_owner);
@@ -986,7 +1023,7 @@ impl AccountRequestProcessor {
                 NativeLoginSettlement::RestoreFailed | NativeLoginSettlement::Stale => return,
             };
 
-            processor
+            let login_completed = processor
                 .send_chatgpt_login_completion_notifications(AccountLoginCompletedNotification {
                     login_id: Some(login_id.to_string()),
                     success,
@@ -995,6 +1032,12 @@ impl AccountRequestProcessor {
                 })
                 .await;
 
+            if login_completed {
+                processor
+                    .auth_manager
+                    .azrael_admission()
+                    .complete_retirement(active_owner.change_guard());
+            }
             drop(active_owner);
             completion.notify_waiters();
         });
@@ -1161,7 +1204,13 @@ impl AccountRequestProcessor {
             )))
             .await
             .map_err(|err| internal_error(format!("failed to set external auth: {err}")))?;
-        self.azrael.clear_after_external_login().await;
+        self.azrael
+            .clear_after_external_login()
+            .await
+            .map_err(azrael::account_mutation_error)?;
+        self.auth_manager
+            .azrael_admission()
+            .complete_retirement(&_change_guard);
         self.auth_manager.release_azrael_unmanaged_auth_lease();
         self.config_manager.replace_cloud_config_bundle_loader(
             self.auth_manager.clone(),
@@ -1232,11 +1281,14 @@ impl AccountRequestProcessor {
     async fn send_chatgpt_login_completion_notifications(
         &self,
         mut payload_v2: AccountLoginCompletedNotification,
-    ) {
+    ) -> bool {
         if payload_v2.success {
             self.auth_manager.clear_external_auth();
             self.auth_manager.reload().await;
-            self.azrael.clear_after_native_login().await;
+            if self.azrael.clear_after_native_login().await.is_err() {
+                payload_v2.success = false;
+                payload_v2.error = Some("failed to save account recovery state".into());
+            }
             let auth_changes = self.auth_manager.auth_change_state_receiver();
             let owner_generation = auth_changes.borrow().owner_generation;
             self.config_manager.replace_cloud_config_bundle_loader(
@@ -1252,7 +1304,9 @@ impl AccountRequestProcessor {
                 payload_v2.error = Some("account changed before sign-in completed".into());
             }
         }
+        let success = payload_v2.success;
         self.send_account_login_notifications(payload_v2).await;
+        success
     }
 
     async fn logout_common(&self) -> std::result::Result<Option<AuthMode>, JSONRPCErrorError> {

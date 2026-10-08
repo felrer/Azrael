@@ -386,6 +386,47 @@ export function peekAuthStore(): AuthStore {
   return snapshot.kind === "ready" ? snapshot.store : {};
 }
 
+/** Authoritative retirement reads must never interpret unreadable/corrupt data as deletion. */
+export function readAuthStoreForRetirement(): AuthStore {
+  let bytes: Buffer;
+  try { bytes = readFileSync(getAuthStorePath()); }
+  catch {
+    throw new Error('Provider account storage is unavailable');
+  }
+  const snapshot = normalizeAuthStoreBuffer(bytes);
+  if (snapshot.kind !== 'ready') throw new Error('Provider account storage is unavailable');
+  const raw = JSON.parse(authStoreDecoder.decode(bytes));
+  // Normalization may discard invalid slots. That is not evidence of removal.
+  for (const [provider, value] of Object.entries(raw) as [string, any][]) {
+    const normalized = snapshot.store[provider];
+    if (!normalized || (Array.isArray(value?.accounts) && (value.accounts.length !== normalized.accounts.length
+      || value.accounts.some((account: any) => !normalized.accounts.some(entry => entry.id === account?.id))))) {
+      throw new Error('Provider account storage is unavailable');
+    }
+  }
+  return snapshot.store;
+}
+
+/** Commit selection and a caller-owned future binding under the credential mutation lock. */
+export async function commitAccountRetirement(provider: string, sourceId: string, reason: 'removed' | 'revoked',
+  destination: { accountId: string; generation: string } | null, commitBinding: () => void, expectedSourceGeneration?: string, expectedActiveAccountId?: string, preserveSelection = false): Promise<boolean> {
+  readAuthStoreForRetirement();
+  return mutateStore(store => {
+    const source = store[provider]?.accounts.find(account => account.id === sourceId);
+    if (reason === 'removed' ? !!source : !source?.needsReauth) return false;
+    if (expectedSourceGeneration !== undefined && (!source || credentialGeneration(source.credential) !== expectedSourceGeneration)) return false;
+    const set = store[provider];
+    if (expectedActiveAccountId !== undefined && set?.activeAccountId !== expectedActiveAccountId) return false;
+    if (destination) {
+      const account = set?.accounts.find(account => account.id === destination.accountId);
+      if (!account || account.needsReauth || credentialGeneration(account.credential) !== destination.generation) return false;
+    }
+    commitBinding();
+    if (destination && set && !preserveSelection) { set.activeAccountId = destination.accountId; set.selectionRevision = randomUUID(); }
+    return true;
+  }, [provider, sourceId, reason, destination], { authoritative: true });
+}
+
 function persist(store: AuthStore): void {
   const dir = getConfigDir();
   assertNotRealHomeUnderTest(dir);
@@ -562,7 +603,7 @@ function normalizeAccountSet(raw: unknown): { set: ProviderAccountSet | null; wa
   if (Array.isArray(candidate.accounts)) {
     const accounts = candidate.accounts.map(normalizeAccount).filter((a): a is ProviderAccount => a !== null);
     if (accounts.length === 0) return { set: null, wasLegacy: false };
-    const active = typeof candidate.activeAccountId === "string" && accounts.some(a => a.id === candidate.activeAccountId)
+    const active = typeof candidate.activeAccountId === "string" && (candidate.activeAccountId === '' || accounts.some(a => a.id === candidate.activeAccountId))
       ? candidate.activeAccountId
       : accounts[0]!.id;
     const set: ProviderAccountSet = { activeAccountId: active, accounts };
@@ -704,7 +745,8 @@ function serializeMutation<T>(work: () => Promise<T>, retainedValues: readonly u
   drainOAuthMutations();
   return result;
 }
-export function mutateStore<T>(fn:(store:AuthStore)=>T|Promise<T>, retainedValues: readonly unknown[] = [], options?: { waitMs?: number; assertBeforePersist?: () => void }):Promise<T>{return serializeMutation(async()=>{const guard=await createOAuthFileLock({path:getAuthStoreLockPath(),staleAfterMs:30000}).acquire();try{
+export function mutateStore<T>(fn:(store:AuthStore)=>T|Promise<T>, retainedValues: readonly unknown[] = [], options?: { waitMs?: number; assertBeforePersist?: () => void; authoritative?: boolean }):Promise<T>{return serializeMutation(async()=>{const guard=await createOAuthFileLock({path:getAuthStoreLockPath(),staleAfterMs:30000}).acquire();try{
+    if (options?.authoritative) readAuthStoreForRetirement();
     const { store, hadLegacy } = loadAuthStoreInternal();
     if (hadLegacy) backupLegacyOnce();
     const selections = new Map(Object.entries(store).map(([provider, set]) => [provider, {
@@ -1019,8 +1061,8 @@ export async function setAccountAlias(provider: string, accountId: string, alias
   }, [provider, accountId, alias]);
 }
 
-/** Remove one account by id; active removal promotes the first remaining account. */
-export async function removeAccount(provider: string, accountId: string): Promise<boolean> {
+/** Remove one account; managed callers defer selection until a replacement is validated. */
+export async function removeAccount(provider: string, accountId: string, options: { deferSelection?: boolean } = {}): Promise<boolean> {
   const removed = await mutateStore(store => {
     const set = store[provider];
     if (!set) return false;
@@ -1031,9 +1073,9 @@ export async function removeAccount(provider: string, accountId: string): Promis
       delete store[provider];
       return true;
     }
-    if (set.activeAccountId === accountId) set.activeAccountId = set.accounts[0]!.id;
+    if (set.activeAccountId === accountId) set.activeAccountId = options.deferSelection ? '' : set.accounts[0]!.id;
     return true;
-  }, [provider, accountId]);
+  }, [provider, accountId], { authoritative: options.deferSelection === true });
   return removed;
 }
 

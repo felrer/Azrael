@@ -282,6 +282,9 @@ impl Session {
         input: Vec<TurnInput>,
         task: T,
     ) {
+        if self.account_is_retired_for_model(&turn_context.model_info().slug) {
+            return;
+        }
         self.abort_all_tasks(TurnAbortReason::Replaced).await;
         self.clear_connector_selection().await;
         self.start_task(turn_context, input, task).await;
@@ -297,15 +300,27 @@ impl Session {
         input: Vec<TurnInput>,
         task: T,
     ) {
+        let admission = self.execution_admission_for_model(&turn_context.model_info().slug);
+        if self.account_is_retired_for_model(&turn_context.model_info().slug)
+            || admission.requires_recovery()
+        {
+            let mut active = self.active_turn.lock().await;
+            if active.as_ref().is_some_and(|turn| turn.task.is_none()) {
+                *active = None;
+            }
+            drop(active);
+            self.send_event(&turn_context, codex_protocol::protocol::EventMsg::Error(
+                codex_protocol::protocol::ErrorEvent {
+                    message: "The account is unavailable. Work was stopped. Select a healthy account before continuing.".to_string(),
+                    codex_error_info: Some(codex_protocol::protocol::CodexErrorInfo::Other), misalignment: None,
+                },
+            )).await;
+            return;
+        }
         self.activate_plugin_selection(&turn_context).await;
         // Account changes wait for actual tasks, including child work and approval
         // waits, rather than the asynchronous app-server status projection.
-        let account_guard = self
-            .services
-            .auth_manager
-            .azrael_admission()
-            .enter_task()
-            .await;
+        let account_guard = admission.enter_task().await;
         if let Ok(mut lease) = turn_context.account_lease.lock() {
             *lease = Some(Arc::clone(&account_guard));
         }
@@ -472,6 +487,14 @@ impl Session {
         self: &Arc<Self>,
         sub_id: String,
     ) {
+        let model = self.current_execution_model().await;
+        if self.account_is_retired_for_model(&model)
+            || self
+                .execution_admission_for_model(&model)
+                .requires_recovery()
+        {
+            return;
+        }
         if self.has_root_resume_reservation() {
             return;
         }

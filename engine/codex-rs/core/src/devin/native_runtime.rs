@@ -146,6 +146,14 @@ pub(crate) async fn stream(
     let thread_id = sess.thread_id().to_string();
     let mut existing_binding =
         existing_account_binding(ctx.config.codex_home.as_path(), &thread_id)?;
+    if let Some(account) = ctx
+        .devin_account_pin
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner)
+        .clone()
+    {
+        existing_binding = state::ExistingAccountBinding::Managed(account);
+    }
     // Once this fork has a marker, its current binding is authoritative.
     let ancestor = matches!(existing_binding, state::ExistingAccountBinding::NoMarker)
         .then(|| sess.native_binding_ancestor.map(|id| id.to_string()))
@@ -162,6 +170,16 @@ pub(crate) async fn stream(
         account_id,
         _turn_guard,
     } = accounts::resolve(ctx.config.codex_home.as_path(), existing_binding).await?;
+    if let Some(account) = account_id.as_ref() {
+        let mut pin = ctx
+            .devin_account_pin
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner);
+        if pin.as_ref().is_some_and(|pinned| pinned != account) {
+            return Err(invalid("Devin turn account binding changed"));
+        }
+        *pin = Some(account.clone());
+    }
     let credential_scope = credential.scope_fingerprint();
     if let Some(ancestor) = ancestor.as_deref() {
         state::validate_ancestor_binding(
@@ -967,12 +985,68 @@ pub(crate) async fn recover_account(
         &destination.account_id,
         &resolved.credential.scope_fingerprint(),
     )?;
+    *ctx.devin_account_pin
+        .lock()
+        .unwrap_or_else(std::sync::PoisonError::into_inner) = Some(destination.account_id.clone());
     excluded.insert(destination.exhausted_account_id);
     Ok(Some(destination.account_id))
 }
 
 pub(crate) fn pin_acp_runtime(codex_home: &Path, thread_id: &str) -> CodexResult<()> {
     state::pin_acp_runtime(codex_home, thread_id)
+}
+
+pub(crate) fn retirement_binding(home: &Path, thread_id: &str) -> CodexResult<Option<String>> {
+    match existing_account_binding(home, thread_id)? {
+        state::ExistingAccountBinding::Managed(account) => Ok(Some(account)),
+        _ => Ok(None),
+    }
+}
+
+pub(crate) async fn retire_binding(
+    home: &Path,
+    thread_id: &str,
+    source: &str,
+    destination: &str,
+    cancellation: &CancellationToken,
+) -> CodexResult<()> {
+    let current = retirement_binding(home, thread_id)?
+        .ok_or_else(|| invalid("Devin future account binding disappeared"))?;
+    if current == destination {
+        // A peer already installed the validated future binding. Never undo it.
+        return Ok(());
+    }
+    if current != source
+        && !crate::account_retirement::devin_source_is_retired(
+            home,
+            thread_id,
+            &current,
+            cancellation,
+        )
+        .await?
+    {
+        // Preserve a healthy concurrent manual/peer choice. The old turn remains stopped.
+        return Ok(());
+    }
+    let snapshot = state::recovery_snapshot(home, thread_id)?;
+    let config = accounts::helper_config()?
+        .ok_or_else(|| invalid("managed Devin account helper is required"))?;
+    let credential =
+        accounts::request_retirement_credential(home, &config, destination, cancellation)
+            .await?
+            .ok_or_else(|| invalid("retirement replacement account is unavailable"))?;
+    let resolved = accounts::managed_credential(credential);
+    if cancellation.is_cancelled() {
+        return Err(CodexErr::new(CodexErrorDetails::Interrupted));
+    }
+    state::replace_managed_binding(
+        home,
+        thread_id,
+        &snapshot,
+        &current,
+        destination,
+        &resolved.credential.scope_fingerprint(),
+    )
 }
 
 fn invalid(message: impl Into<String>) -> CodexErr {

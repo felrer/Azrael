@@ -11,6 +11,55 @@ use std::sync::Weak;
 
 const PROFILE_METADATA: &str = "profile.json";
 const PROFILE_LEASE: &str = "profile.lock";
+const REMOVED_MARKER: &str = "removed.v1";
+const REAUTH_MARKER: &str = "reauth.v1";
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AzraelProfileStatus {
+    Available,
+    Removed,
+    ReauthenticationRequired,
+}
+
+pub(super) fn profile_status(home: &Path) -> io::Result<AzraelProfileStatus> {
+    for (name, status) in [
+        (REMOVED_MARKER, AzraelProfileStatus::Removed),
+        (REAUTH_MARKER, AzraelProfileStatus::ReauthenticationRequired),
+    ] {
+        match std::fs::metadata(home.join(name)) {
+            Ok(metadata) if metadata.is_file() => return Ok(status),
+            Ok(_) => return Err(io::Error::other("invalid account retirement marker")),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
+    }
+    Ok(AzraelProfileStatus::Available)
+}
+
+fn publish_marker(home: &Path, name: &str) -> io::Result<()> {
+    match OpenOptions::new()
+        .write(true)
+        .create_new(true)
+        .open(home.join(name))
+    {
+        Ok(mut file) => {
+            file.write_all(b"1\n")?;
+            file.sync_all()
+        }
+        Err(error) if error.kind() == io::ErrorKind::AlreadyExists => Ok(()),
+        Err(error) => Err(error),
+    }
+}
+
+pub(super) fn ensure_profile_not_removed(home: &Path) -> io::Result<()> {
+    if profile_status(home)? == AzraelProfileStatus::Removed {
+        return Err(io::Error::new(
+            io::ErrorKind::NotFound,
+            "account profile was removed",
+        ));
+    }
+    Ok(())
+}
 
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
@@ -91,6 +140,7 @@ impl AzraelProfileStore {
         template: &AuthManager,
     ) -> io::Result<Arc<AzraelProfileAuth>> {
         validate_id(id)?;
+        ensure_profile_not_removed(&self.root.join(id))?;
         if let Some(profile) = self.cached(id) {
             return Ok(profile);
         }
@@ -119,6 +169,9 @@ impl AzraelProfileStore {
                 continue;
             };
             if validate_id(&id).is_err() {
+                continue;
+            }
+            if profile_status(&entry.path())? == AzraelProfileStatus::Removed {
                 continue;
             }
             let metadata = entry.path().join(PROFILE_METADATA);
@@ -205,32 +258,37 @@ impl AzraelProfileStore {
     }
 
     pub async fn remove(&self, id: &str) -> io::Result<()> {
-        validate_id(id)?;
-        if self.cached(id).is_some() {
-            return Err(io::Error::new(
-                io::ErrorKind::WouldBlock,
-                "authentication profile is currently in use",
-            ));
-        }
+        self.publish_removal(id)?;
         let auth_home = self.root.join(id);
         let metadata = auth_home.join(PROFILE_METADATA);
-        if !metadata.is_file() {
-            return Err(io::Error::new(
-                io::ErrorKind::NotFound,
-                "authentication profile does not exist",
-            ));
-        }
-        let lease = acquire_lease(&auth_home)?;
         let transaction = AzraelAuthTransaction::for_home(&auth_home)?;
-        let _mutation_guard =
-            AzraelAuthMutationGuard::acquire_without_process_semaphore(lease, transaction).await?;
+        // Retirement outranks usage leases. Serialize only with credential writers.
+        let _mutation_guard = transaction.lock().await?;
         logout(
             &auth_home,
             self.credentials_mode,
             AuthKeyringBackendKind::default(),
         )?;
-        std::fs::remove_file(metadata)?;
+        match std::fs::remove_file(metadata) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
         Ok(())
+    }
+
+    pub fn publish_removal(&self, id: &str) -> io::Result<()> {
+        validate_id(id)?;
+        let home = self.root.join(id);
+        if profile_status(&home)? != AzraelProfileStatus::Removed {
+            read_info(&home.join(PROFILE_METADATA))?;
+        }
+        publish_marker(&home, REMOVED_MARKER)
+    }
+
+    pub fn status(&self, id: &str) -> io::Result<AzraelProfileStatus> {
+        validate_id(id)?;
+        profile_status(&self.root.join(id))
     }
 
     async fn open_pending(
@@ -296,6 +354,65 @@ impl AzraelProfileStore {
 }
 
 impl AzraelProfileAuth {
+    pub async fn mark_reauthentication_required(&self) -> io::Result<bool> {
+        let _refresh_guard = self.manager.refresh_lock.acquire().await.map_err(|_| {
+            io::Error::other("authentication profile refresh coordination is unavailable")
+        })?;
+        let _transaction_guard = self
+            .manager
+            .lock_azrael_unmanaged_refresh()
+            .await?
+            .ok_or_else(|| io::Error::other("authentication profile transaction is unavailable"))?;
+        ensure_profile_not_removed(&self.auth_home)?;
+        if profile_status(&self.auth_home)? == AzraelProfileStatus::ReauthenticationRequired {
+            return Ok(true);
+        }
+        let observed = self
+            .manager
+            .auth_cached()
+            .and_then(|auth| auth.get_current_auth_json());
+        let stored = load_auth_dot_json(
+            &self.auth_home,
+            self.credentials_mode,
+            AuthKeyringBackendKind::default(),
+        )?;
+        if observed.is_none() || observed != stored {
+            return Ok(false);
+        }
+        publish_marker(&self.auth_home, REAUTH_MARKER)?;
+        Ok(true)
+    }
+    pub fn status(&self) -> io::Result<AzraelProfileStatus> {
+        let status = profile_status(&self.auth_home)?;
+        if status != AzraelProfileStatus::Available {
+            return Ok(status);
+        }
+        if let Some(auth) = self
+            .manager
+            .auth_cached()
+            .filter(|auth| self.manager.refresh_failure_for_auth(auth).is_some())
+        {
+            let stored = load_auth_dot_json(
+                &self.auth_home,
+                self.credentials_mode,
+                AuthKeyringBackendKind::default(),
+            )?;
+            if auth
+                .get_current_auth_json()
+                .is_some_and(|observed| Some(observed) == stored)
+            {
+                return Ok(AzraelProfileStatus::ReauthenticationRequired);
+            }
+        }
+        match std::fs::metadata(self.auth_home.join(PROFILE_METADATA)) {
+            Ok(_) => Ok(AzraelProfileStatus::Available),
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {
+                Ok(AzraelProfileStatus::Removed)
+            }
+            Err(error) => Err(error),
+        }
+    }
+
     pub fn id(&self) -> &str {
         &self.id
     }
@@ -309,6 +426,7 @@ impl AzraelProfileAuth {
     }
 
     pub async fn finalize(&self) -> io::Result<AzraelProfileInfo> {
+        ensure_profile_not_removed(&self.auth_home)?;
         self.manager.reload().await;
         let auth = require_native_chatgpt(self.manager.auth().await)?;
         let workspace_account_id = auth.get_account_id().ok_or_else(|| {
@@ -392,6 +510,7 @@ impl AzraelProfileAuth {
             .lock_azrael_unmanaged_refresh()
             .await?
             .ok_or_else(|| io::Error::other("authentication profile transaction is unavailable"))?;
+        ensure_profile_not_removed(&self.auth_home)?;
         save_auth(
             &self.auth_home,
             &snapshot,
@@ -399,6 +518,12 @@ impl AzraelProfileAuth {
             AuthKeyringBackendKind::default(),
         )?;
         self.manager.reload().await;
+        // Only explicit, identity-matching reauthentication heals permanent failure.
+        match std::fs::remove_file(self.auth_home.join(REAUTH_MARKER)) {
+            Ok(()) => {}
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
         drop(transaction_guard);
         drop(refresh_guard);
         self.finalize().await
@@ -425,12 +550,44 @@ impl AzraelProfileAuth {
 }
 
 impl ExternalAuth for AzraelProfileAuth {
+    fn is_available(&self) -> bool {
+        self.status()
+            .is_ok_and(|status| status == AzraelProfileStatus::Available)
+    }
+
     fn resolve(&self) -> ExternalAuthFuture<'_, CodexAuth> {
-        Box::pin(async move { require_native_chatgpt(self.manager.auth().await) })
+        Box::pin(async move {
+            if !self.is_available() {
+                return Err(io::Error::other(
+                    "account profile was removed or requires reauthentication",
+                ));
+            }
+            if self
+                .manager
+                .auth_cached()
+                .as_ref()
+                .is_some_and(|auth| self.manager.refresh_failure_for_auth(auth).is_some())
+            {
+                // Another engine may have explicitly replaced these credentials.
+                self.manager.reload().await;
+            }
+            let auth = require_native_chatgpt(self.manager.auth().await)?;
+            if !self.is_available() {
+                return Err(io::Error::other(
+                    "account profile was removed or requires reauthentication",
+                ));
+            }
+            Ok(auth)
+        })
     }
 
     fn refresh(&self, _context: ExternalAuthRefreshContext) -> ExternalAuthFuture<'_, CodexAuth> {
         Box::pin(async move {
+            if !self.is_available() {
+                return Err(io::Error::other(
+                    "account profile was removed or requires reauthentication",
+                ));
+            }
             self.manager
                 .refresh_token()
                 .await

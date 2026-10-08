@@ -98,6 +98,32 @@ async fn pending_switch_can_be_cancelled_without_waiting_for_active_work() {
     drop(active_work);
 }
 
+#[tokio::test]
+async fn no_candidate_retirement_stays_settled_across_ticks_and_allows_explicit_recovery() {
+    let admission = Arc::new(codex_login::AzraelAuthAdmission::default());
+    let retirement = admission.begin_retirement();
+    let guard = retirement.try_commit().unwrap();
+    assert!(account_switch_in_progress(&admission, false));
+    drop(guard);
+    drop(retirement);
+    for _ in 0..32 {
+        tokio::task::yield_now().await;
+        assert!(!account_switch_in_progress(&admission, false));
+        assert!(admission.requires_recovery());
+        assert!(admission.admit_request().await.is_err());
+    }
+    let recovery = admission.begin_explicit_recovery().unwrap();
+    assert!(account_switch_in_progress(&admission, false));
+    let verified_replacement = recovery.try_commit().unwrap();
+    admission.complete_retirement(&verified_replacement);
+    drop(verified_replacement);
+    drop(recovery);
+    assert!(!account_switch_in_progress(&admission, false));
+    assert!(admission.admit_request().await.is_ok());
+    // An unrelated failed manual rollback still exposes its retained writer.
+    assert!(account_switch_in_progress(&admission, true));
+}
+
 #[test]
 fn selected_profile_state_round_trips_only_the_sanitized_id() {
     let temp = tempfile::tempdir().expect("temporary directory");

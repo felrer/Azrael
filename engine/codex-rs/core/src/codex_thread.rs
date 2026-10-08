@@ -199,6 +199,7 @@ pub struct CodexThread {
     startup_metadata: ThreadStartupMetadata,
     rollout_path: Option<PathBuf>,
     out_of_band_elicitations: Mutex<OutOfBandElicitations>,
+    retirement_state: std::sync::Mutex<RetirementState>,
     _diagnostics_guard: GaugeGuard,
 }
 
@@ -214,6 +215,62 @@ pub struct BackgroundTerminalInfo {
     pub process_id: String,
     pub command: String,
     pub cwd: PathUri,
+}
+
+pub struct AccountExecutionContext {
+    pub model: String,
+    pub turn_id: Option<String>,
+    pub devin_account_id: Option<String>,
+    pub uses_openai_profile: bool,
+}
+
+#[derive(Default)]
+struct RetirementState {
+    source: Option<(String, String, Option<String>)>,
+    repaired_turn: Option<(String, String)>,
+}
+
+impl RetirementState {
+    fn record(&mut self, provider: &str, account: &str, turn: Option<&str>) -> bool {
+        let source = (
+            provider.to_owned(),
+            account.to_owned(),
+            turn.map(str::to_owned),
+        );
+        if self.source.as_ref() == Some(&source) {
+            return false;
+        }
+        self.source = Some(source);
+        true
+    }
+
+    fn complete(&mut self, provider: &str, account: &str, turn: Option<&str>) -> bool {
+        if let Some(turn) = turn {
+            self.repaired_turn = Some((provider.to_owned(), turn.to_owned()));
+        }
+        self.source.as_ref().is_some_and(|source| {
+            source.0 == provider && source.1 == account && source.2.as_deref() == turn
+        })
+    }
+}
+
+#[cfg(test)]
+mod retirement_state_tests {
+    use super::RetirementState;
+
+    #[test]
+    fn repaired_parked_source_keeps_future_retirement_observable_and_rejects_late_repair() {
+        let mut state = RetirementState::default();
+        assert!(state.record("anthropic", "a", Some("turn-a")));
+        assert!(!state.record("anthropic", "a", Some("turn-a")));
+        assert!(state.complete("anthropic", "a", Some("turn-a")));
+        assert!(state.record("anthropic", "b", None));
+        assert_eq!(state.repaired_turn.as_ref().unwrap().1, "turn-a");
+        assert!(!state.complete("anthropic", "a", Some("turn-a")));
+        assert!(state.complete("anthropic", "b", None));
+        assert!(state.record("anthropic", "a", Some("turn-new")));
+        assert!(state.record("google", "a", Some("turn-new")));
+    }
 }
 
 /// Conduit for the bidirectional stream of messages that compose a thread
@@ -234,6 +291,7 @@ impl CodexThread {
             startup_metadata,
             rollout_path,
             out_of_band_elicitations: Mutex::new(OutOfBandElicitations::default()),
+            retirement_state: Default::default(),
             _diagnostics_guard: LIVE_THREADS.track(),
         }
     }
@@ -816,8 +874,125 @@ impl CodexThread {
     }
 
     /// Returns the account admission owner used by this thread's execution tasks.
-    pub fn auth_admission(&self) -> Arc<codex_login::AzraelAuthAdmission> {
-        self.session.services.auth_manager.azrael_admission()
+    pub async fn auth_admission(&self) -> Arc<codex_login::AzraelAuthAdmission> {
+        self.session.execution_admission().await
+    }
+
+    pub fn auth_admission_for_model(&self, model: &str) -> Arc<codex_login::AzraelAuthAdmission> {
+        self.session.execution_admission_for_model(model)
+    }
+
+    pub async fn account_execution_context(&self) -> AccountExecutionContext {
+        let context = self
+            .session
+            .active_turn
+            .lock()
+            .await
+            .as_ref()
+            .and_then(|turn| turn.task.as_ref().map(|task| task.turn_context.clone()))
+            .or_else(|| self.session.parked_root_context());
+        if let Some(context) = context {
+            let provider =
+                crate::account_retirement::provider_for_model(&context.model_info().slug);
+            let repaired = self
+                .retirement_state
+                .lock()
+                .unwrap_or_else(std::sync::PoisonError::into_inner)
+                .repaired_turn
+                .as_ref()
+                .is_some_and(|source| source.0 == provider && source.1 == context.sub_id);
+            if !repaired {
+                return AccountExecutionContext {
+                    model: context.model_info().slug.clone(),
+                    turn_id: Some(context.sub_id.clone()),
+                    devin_account_id: context
+                        .devin_account_pin
+                        .lock()
+                        .unwrap_or_else(std::sync::PoisonError::into_inner)
+                        .clone(),
+                    uses_openai_profile: context.config.model_provider.requires_openai_auth,
+                };
+            }
+        }
+        AccountExecutionContext {
+            model: self.session.current_execution_model().await,
+            turn_id: None,
+            devin_account_id: None,
+            uses_openai_profile: self.config().await.model_provider.requires_openai_auth,
+        }
+    }
+
+    pub fn close_account_retirement_admission(&self, model: &str) {
+        if crate::account_retirement::is_managed_execution_model(model) {
+            self.session
+                .execution_admission_for_model(model)
+                .block_new_work();
+        }
+        *self
+            .session
+            .retired_provider
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner) =
+            Some(crate::account_retirement::provider_for_model(model));
+        self.session
+            .account_retired
+            .store(true, std::sync::atomic::Ordering::Release);
+    }
+
+    pub async fn interrupt_retired_work(&self) {
+        self.session.interrupt_task().await;
+    }
+
+    pub async fn account_binding_available(&self, model: &str) {
+        let admission = self.session.execution_admission_for_model(model);
+        if crate::account_retirement::is_managed_execution_model(model)
+            && admission.requires_recovery()
+        {
+            let Ok(request) = admission.begin_explicit_recovery() else {
+                return;
+            };
+            let Some(guard) = request.try_commit() else {
+                return;
+            };
+            admission.complete_retirement(&guard);
+        }
+        self.session
+            .account_retired
+            .store(false, std::sync::atomic::Ordering::Release);
+    }
+
+    pub fn record_retired_source(&self, provider: &str, account: &str, turn: Option<&str>) -> bool {
+        self.retirement_state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .record(provider, account, turn)
+    }
+
+    pub fn complete_retired_source(
+        &self,
+        provider: &str,
+        account: &str,
+        turn: Option<&str>,
+    ) -> bool {
+        self.retirement_state
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .complete(provider, account, turn)
+    }
+
+    pub fn clear_native_account_retirement(&self) {
+        if self
+            .session
+            .retired_provider
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .as_deref()
+            == Some("openai")
+        {
+            self.session
+                .account_retired
+                .store(false, std::sync::atomic::Ordering::Release);
+        }
     }
 
     pub(crate) fn is_running(&self) -> bool {

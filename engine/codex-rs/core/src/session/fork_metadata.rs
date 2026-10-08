@@ -24,7 +24,7 @@ impl Session {
                     .collect(),
             ),
             originator: config.originator.clone(),
-            source: config.session_source,
+            source: config.session_source.clone(),
             thread_source: config.thread_source.clone(),
             model_provider: Some(config.original_config_do_not_use.model_provider_id.clone()),
             base_instructions: Some(BaseInstructions {

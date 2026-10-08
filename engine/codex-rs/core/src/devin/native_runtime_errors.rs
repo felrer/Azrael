@@ -8,6 +8,12 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
     // provider_http_429 may originate from a generic Connect resource failure;
     // only the transport can distinguish that from a confirmed usage limit.
     let details = match code {
+        Some("provider_account_removed") => CodexErrorDetails::InvalidRequest(
+            "The provider account was removed. Work was stopped. Select a healthy account before continuing.".to_string(),
+        ),
+        Some("provider_account_revoked") => CodexErrorDetails::InvalidRequest(
+            "The provider account requires reauthentication. Work was stopped. Sign in again or select a healthy account before continuing.".to_string(),
+        ),
         Some("provider_usage_limit") => {
             CodexErrorDetails::UsageLimitReached(UsageLimitReachedError {
                 plan_type: None,
@@ -74,6 +80,17 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
 mod tests {
     use super::helper_error;
     use codex_protocol::protocol::CodexErrorInfo;
+
+    #[test]
+    fn retirement_errors_are_terminal_and_actionable() {
+        for code in ["provider_account_removed", "provider_account_revoked"] {
+            let error = helper_error(Some(code));
+            assert!(error.retry_delay(1).is_none());
+            let message = error.to_error_event(None).message;
+            assert!(message.contains("Work was stopped."));
+            assert!(message.contains("healthy account"));
+        }
+    }
 
     #[test]
     fn connection_guidance_keeps_errors_terminal_and_does_not_guess_unknown_causes() {

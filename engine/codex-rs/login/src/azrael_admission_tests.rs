@@ -2,6 +2,41 @@ use super::*;
 use pretty_assertions::assert_eq;
 
 #[tokio::test]
+async fn retirement_blocks_queued_admission_until_verified_replacement_and_preserves_existing_lease()
+ {
+    let admission = Arc::new(AzraelAuthAdmission::default());
+    let active = admission.enter_task().await;
+    let retirement = admission.begin_retirement();
+    assert!(admission.admit_request().await.is_err());
+    assert!(admission.admit_queued_request().is_err());
+    assert!(retirement.try_commit().is_none());
+    active.finish();
+    let guard = retirement.try_commit().unwrap();
+    admission.complete_retirement(&guard);
+    drop(guard);
+    drop(retirement);
+    assert!(admission.admit_request().await.is_ok());
+    assert!(admission.admit_queued_request().is_ok());
+}
+
+#[tokio::test]
+async fn no_retirement_replacement_stays_blocked_but_allows_explicit_user_recovery() {
+    let admission = Arc::new(AzraelAuthAdmission::default());
+    let retirement = admission.begin_retirement();
+    drop(retirement.try_commit().unwrap());
+    drop(retirement);
+    assert!(admission.admit_request().await.is_err());
+    assert!(admission.admit_queued_request().is_err());
+    assert!(admission.begin_switch().is_err());
+    let recovery = admission.begin_explicit_recovery().unwrap();
+    let guard = recovery.try_commit().unwrap();
+    admission.complete_retirement(&guard);
+    drop(guard);
+    drop(recovery);
+    assert!(admission.admit_request().await.is_ok());
+}
+
+#[tokio::test]
 async fn pending_switch_allows_child_completion_and_rejects_new_requests() {
     let admission = Arc::new(AzraelAuthAdmission::default());
     let parent = admission.enter_task().await;

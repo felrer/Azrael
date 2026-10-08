@@ -978,7 +978,12 @@ def apply_identity_source_fixes(destination, files):
     return records or None
 
 
-def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None):
+def adapted_source_entry(entry, fix):
+    """Descriptor of the immutable fixed transform, preserving original file metadata."""
+    return {**entry, "sha256": fix["adaptedSha256"], "size": fix["adaptedSize"]}
+
+
+def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None, adapted_changes=None):
     destination = filesystem_path(destination)
     actual = set()
     for directory, children, entries in os.walk(destination, followlinks=False):
@@ -1006,7 +1011,11 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
                 raise ValueError("Replay/state/identity source-fix metadata differs")
             adapted_path, adapted_bytes, _ = known_source_fix(original_path, original)
             adapted = safe_path(destination, adapted_path)
-            if adapted.is_symlink() or adapted.read_bytes() != adapted_bytes:
+            change = (adapted_changes or {}).get(adapted_path)
+            if change is not None:
+                if change["before"] != adapted_source_entry(entry, fix) or describe(adapted, entry["gitMode"]) != change["after"]:
+                    raise ValueError("Reviewed adapted source differs from integration record")
+            elif adapted.is_symlink() or adapted.read_bytes() != adapted_bytes:
                 raise ValueError("Adapted source differs from the fixed compile correction")
             expected.discard(original_path)
             expected.update((adapted_path, original_path + ".upstream"))
@@ -1094,7 +1103,9 @@ def validate_inventory(destination, receipt):
 def validate_local_integration(destination, receipt):
     record = receipt["localIntegration"]
     keys = {"schema", "originalReceipt", "originalReceiptSha256", "repositoryHead", "sourcePrefix", "changes"}
-    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] != 1:
+    if isinstance(record, dict) and record.get("schema") == 3:
+        keys.add("adaptedChanges")
+    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] not in (1, 2, 3):
         raise ValueError("Malformed local integration metadata")
     original = record["originalReceipt"]
     if not isinstance(original, dict) or "localIntegration" in original:
@@ -1113,15 +1124,39 @@ def validate_local_integration(destination, receipt):
     if {k: v for k, v in receipt.items() if k not in mutable} != {k: v for k, v in original.items() if k not in mutable}:
         raise ValueError("Original import provenance or adaptations differ")
     before, after = original["files"], receipt["files"]
-    if set(before) != set(after):
+    if not set(before).issubset(after) or (record["schema"] == 1 and set(before) != set(after)):
         raise ValueError("Local integration cannot add or remove inventory paths")
-    changes = {name: {"before": before[name], "after": after[name]} for name in sorted(before) if before[name] != after[name]}
-    if not changes or record["changes"] != changes:
+    changes = {name: {"before": before.get(name), "after": after[name]} for name in sorted(after) if before.get(name) != after[name]}
+    adapted_changes = record.get("adaptedChanges", {})
+    if (not changes and not adapted_changes) or record["changes"] != changes:
         raise ValueError("Local integration delta differs from inventories")
     protected = {".gitignore"} | set(original.get("sourceFixes", {}))
     for name, change in changes.items():
+        if change["before"] is None:
+            if not name.endswith(".rs") or change["after"]["kind"] != "file" or change["after"]["gitMode"] != "100644":
+                raise ValueError(f"Local integration addition is not ordinary Rust source: {name}")
+            continue
         if name in protected or name.endswith(".sql") or change["before"]["kind"] != "file" or change["after"]["kind"] != "file" or change["before"]["gitMode"] != change["after"]["gitMode"]:
             raise ValueError(f"Local integration changes protected source: {name}")
+    if record["schema"] == 3:
+        if not isinstance(adapted_changes, dict) or not adapted_changes:
+            raise ValueError("Malformed reviewed adapted changes")
+        fixes = {fix["adaptedPath"]: (name, fix) for name, fix in original.get("sourceFixes", {}).items()}
+        for name, change in adapted_changes.items():
+            if name not in fixes or not name.endswith(".rs"):
+                raise ValueError(f"Reviewed adapted path is not fixed Rust source: {name}")
+            original_name, fix = fixes[name]
+            before = adapted_source_entry(original["files"][original_name], fix)
+            if not isinstance(change, dict) or set(change) != {"before", "after"} or change["before"] != before:
+                raise ValueError("Reviewed adapted before descriptor differs from fixed transform")
+            after = change["after"]
+            if (not isinstance(after, dict) or set(after) != set(before) or before["kind"] != "file" or
+                    before["gitMode"] not in ("100644", "100755") or
+                    any(after.get(key) != before[key] for key in ("kind", "gitMode", "permissions")) or
+                    type(after.get("size")) is not int or after["size"] < 0 or after == before or
+                    not isinstance(after.get("sha256"), str) or len(after["sha256"]) != 64 or
+                    any(char not in "0123456789abcdef" for char in after["sha256"])):
+                raise ValueError("Malformed reviewed adapted content descriptor")
 
 
 def validate_receipt(destination, receipt, allow_build_caches=False):
@@ -1131,7 +1166,8 @@ def validate_receipt(destination, receipt, allow_build_caches=False):
         validate_local_integration(destination, receipt)
     verify_destination(destination, receipt["files"], has_receipt=True, allow_build_caches=allow_build_caches,
                        adaptation=receipt.get("distributionAdaptation"), distribution_files=receipt.get("distributionFiles"),
-                       source_fixes=receipt.get("sourceFixes"))
+                       source_fixes=receipt.get("sourceFixes"),
+                       adapted_changes=receipt.get("localIntegration", {}).get("adaptedChanges"))
     return digest
 
 

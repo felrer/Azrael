@@ -376,6 +376,13 @@ impl MessageProcessor {
                 None => manager,
             }
         });
+        let account_processor = AccountRequestProcessor::new(
+            auth_manager.clone(),
+            Arc::clone(&thread_manager),
+            outgoing.clone(),
+            Arc::clone(&config),
+            config_manager.clone(),
+        );
         let model_catalog = Arc::new(crate::model_catalog::ModelCatalog::new(
             config_manager.clone(),
             Arc::clone(&config),
@@ -413,13 +420,6 @@ impl MessageProcessor {
                 config_processor.clone(),
                 request_serialization_queues.clone(),
             );
-        let account_processor = AccountRequestProcessor::new(
-            auth_manager.clone(),
-            Arc::clone(&thread_manager),
-            outgoing.clone(),
-            Arc::clone(&config),
-            config_manager.clone(),
-        );
         let apps_processor = AppsRequestProcessor::new(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
@@ -1115,7 +1115,10 @@ impl MessageProcessor {
             connection_id,
             request_id: codex_request.id().clone(),
         };
-        let admission = self.account_processor.auth_manager().azrael_admission();
+        let admission = self
+            .account_processor
+            .execution_admission_for_request(&codex_request)
+            .await;
         let _account_admission = if matches!(&codex_request, ClientRequest::ThreadQueueStart { .. })
         {
             Some(

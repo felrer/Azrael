@@ -261,7 +261,7 @@ async fn profile_reload_does_not_revoke_the_shared_application_policy() {
 }
 
 #[tokio::test]
-async fn profiles_remove_waits_for_every_cross_store_owner_to_release_the_lease() {
+async fn profiles_remove_retires_every_cross_store_owner_even_with_active_usage() {
     let root = tempdir().expect("tempdir");
     let template = template(root.path()).await;
     let accounts = root.path().join("accounts");
@@ -277,28 +277,37 @@ async fn profiles_remove_waits_for_every_cross_store_owner_to_release_the_lease(
         .await
         .expect("independent store shares profile usage");
     let id = profile.id().to_string();
-    let info = profile.info().expect("profile info");
-
-    assert_eq!(
+    let external: Arc<dyn ExternalAuth> = profile.clone();
+    template
+        .set_external_auth(external)
+        .await
+        .expect("bind root manager");
+    assert!(template.auth_cached().is_some());
+    removing_store
+        .remove(&id)
+        .await
+        .expect("retirement overrides active usage");
+    assert!(
         removing_store
-            .remove(&id)
-            .await
-            .expect_err("cross-store lease should prevent removal")
-            .kind(),
-        io::ErrorKind::WouldBlock
+            .list()
+            .expect("retired profile is hidden")
+            .is_empty()
     );
-    assert_eq!(
-        removing_store.list().expect("profile remains listed"),
-        vec![info]
-    );
+    assert!(profile.resolve().await.is_err());
+    assert!(reused.resolve().await.is_err());
+    assert!(independently_opened.resolve().await.is_err());
+    assert!(profile.manager().auth_cached().is_none());
+    assert!(template.auth_cached().is_none());
+    assert!(template.auth_with_http_client_factory().await.is_none());
+    assert!(owning_store.open(&id, &template).await.is_err());
     assert!(
         load_auth_dot_json(
             profile.auth_home(),
             AuthCredentialsStoreMode::Ephemeral,
             AuthKeyringBackendKind::default(),
         )
-        .expect("load credentials after busy removal")
-        .is_some()
+        .expect("load credentials after retirement")
+        .is_none()
     );
 
     drop(reused);
@@ -307,7 +316,7 @@ async fn profiles_remove_waits_for_every_cross_store_owner_to_release_the_lease(
     removing_store
         .remove(&id)
         .await
-        .expect("removal should succeed after every owner drops");
+        .expect("retirement is idempotent");
     assert_eq!(
         removing_store.list().expect("list after removal"),
         Vec::new()
@@ -341,6 +350,225 @@ async fn profiles_metadata_is_sanitized_and_listed() {
         store.list().expect("list profiles"),
         vec![profile.info().unwrap()]
     );
+}
+
+#[tokio::test]
+async fn retirement_marker_precedes_refresh_lock_and_prevents_reauthentication_resurrection() {
+    let root = tempdir().expect("tempdir");
+    let template = template(root.path()).await;
+    let store = Arc::new(AzraelProfileStore::new_ephemeral(
+        root.path().join("accounts"),
+    ));
+    let profile = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let staged = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let manager = profile.manager();
+    let transaction = manager
+        .lock_azrael_unmanaged_refresh()
+        .await
+        .unwrap()
+        .unwrap();
+    let removing_store = store.clone();
+    let id = profile.id().to_string();
+    let removal = tokio::spawn(async move { removing_store.remove(&id).await });
+    tokio::time::timeout(std::time::Duration::from_secs(2), async {
+        while profile.status().unwrap() != AzraelProfileStatus::Removed {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .expect("marker published before waiting for writer");
+    assert!(!removal.is_finished());
+    assert!(profile.resolve().await.is_err());
+    let replacing_profile = profile.clone();
+    let reauthentication =
+        tokio::spawn(async move { replacing_profile.replace_from(&staged).await });
+    drop(transaction);
+    removal.await.unwrap().unwrap();
+    assert!(reauthentication.await.unwrap().is_err());
+    assert!(
+        load_auth_dot_json(
+            profile.auth_home(),
+            AuthCredentialsStoreMode::Ephemeral,
+            AuthKeyringBackendKind::default()
+        )
+        .unwrap()
+        .is_none()
+    );
+    assert!(profile.manager().auth_cached().is_none());
+}
+
+#[tokio::test]
+async fn permanent_unavailability_heals_only_by_matching_explicit_reauthentication() {
+    let root = tempdir().expect("tempdir");
+    let template = template(root.path()).await;
+    let store = AzraelProfileStore::new_ephemeral(root.path().join("accounts"));
+    let profile = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let other = finalized_profile(&store, &template, "workspace-2", "user-2").await;
+    let replacement = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    assert!(profile.mark_reauthentication_required().await.unwrap());
+    assert_eq!(store.list().unwrap().len(), 3);
+    assert!(profile.resolve().await.is_err());
+    assert!(profile.replace_from(&other).await.is_err());
+    assert_eq!(
+        profile.status().unwrap(),
+        AzraelProfileStatus::ReauthenticationRequired
+    );
+    profile.replace_from(&replacement).await.unwrap();
+    assert_eq!(profile.status().unwrap(), AzraelProfileStatus::Available);
+    assert!(profile.resolve().await.is_ok());
+    store.remove(profile.id()).await.unwrap();
+    assert!(profile.replace_from(&replacement).await.is_err());
+    assert!(profile.resolve().await.is_err());
+}
+
+#[tokio::test]
+async fn stale_permanent_failure_cannot_republish_after_matching_peer_reauthentication() {
+    let root = tempdir().unwrap();
+    let template = template(root.path()).await;
+    let home = root.path().join("accounts");
+    let store = AzraelProfileStore::new_ephemeral(home.clone());
+    let profile = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    let peer_store = AzraelProfileStore::new_ephemeral(home);
+    let peer = peer_store.open(profile.id(), &template).await.unwrap();
+    let old = peer.manager.auth().await.unwrap();
+    peer.manager.record_permanent_refresh_failure_if_unchanged(
+        &old,
+        &RefreshTokenFailedError::new(
+            RefreshTokenFailedReason::Other,
+            "confirmed synthetic failure",
+        ),
+    );
+    assert!(peer.mark_reauthentication_required().await.unwrap());
+    let staged = finalized_profile(&store, &template, "workspace-1", "user-1").await;
+    save_auth(
+        staged.auth_home(),
+        &auth_json_with_tokens(
+            "person@example.com",
+            "workspace-1",
+            "user-1",
+            "new-access",
+            "new-refresh",
+        ),
+        AuthCredentialsStoreMode::Ephemeral,
+        AuthKeyringBackendKind::default(),
+    )
+    .unwrap();
+    staged.manager.reload().await;
+    profile.replace_from(&staged).await.unwrap();
+    assert!(!peer.mark_reauthentication_required().await.unwrap());
+    assert_eq!(peer.status().unwrap(), AzraelProfileStatus::Available);
+    assert_eq!(
+        access_token(Some(peer.resolve().await.unwrap())).as_deref(),
+        Some("new-access")
+    );
+}
+
+#[tokio::test]
+async fn retirement_cross_process_usage_owner() {
+    let Some(home) = std::env::var_os("AZRAEL_RETIREMENT_TEST_HOME") else {
+        return;
+    };
+    let home = PathBuf::from(home);
+    let id = std::env::var("AZRAEL_RETIREMENT_TEST_PROFILE").unwrap();
+    let template = template(&home).await;
+    let store = AzraelProfileStore::with_credentials_mode(
+        home.join("accounts"),
+        AuthCredentialsStoreMode::File,
+    );
+    let profile = store.open(&id, &template).await.unwrap();
+    let external: Arc<dyn ExternalAuth> = profile.clone();
+    template.set_external_auth(external).await.unwrap();
+    assert!(template.auth_cached().is_some());
+    let manager = profile.manager();
+    let transaction = manager
+        .lock_azrael_unmanaged_refresh()
+        .await
+        .unwrap()
+        .unwrap();
+    std::fs::write(home.join("ready"), b"ready").unwrap();
+    tokio::time::timeout(std::time::Duration::from_secs(15), async {
+        while profile.status().unwrap() != AzraelProfileStatus::Removed {
+            tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+        }
+    })
+    .await
+    .unwrap();
+    assert!(profile.resolve().await.is_err());
+    assert!(template.auth_cached().is_none());
+    assert!(template.auth_with_http_client_factory().await.is_none());
+    // A refresh writer in a different process observes retirement before it can persist.
+    assert!(ensure_profile_not_removed(profile.auth_home()).is_err());
+    std::fs::write(home.join("observed"), b"retired").unwrap();
+    drop(transaction);
+}
+
+#[tokio::test]
+async fn removal_retires_real_second_process_before_waiting_for_credential_writer() {
+    let root = tempdir().unwrap();
+    let template = template(root.path()).await;
+    let store = Arc::new(AzraelProfileStore::with_credentials_mode(
+        root.path().join("accounts"),
+        AuthCredentialsStoreMode::File,
+    ));
+    let profile = store.create(&template).await.unwrap();
+    save_auth(
+        profile.auth_home(),
+        &auth_json("fixture@example.com", "fixture-workspace", "fixture-user"),
+        AuthCredentialsStoreMode::File,
+        AuthKeyringBackendKind::default(),
+    )
+    .unwrap();
+    profile.finalize().await.unwrap();
+    let mut child = std::process::Command::new(std::env::current_exe().unwrap())
+        .args([
+            "--exact",
+            "auth::manager::profiles::tests::retirement_cross_process_usage_owner",
+            "--nocapture",
+        ])
+        .env("AZRAEL_RETIREMENT_TEST_HOME", root.path())
+        .env("AZRAEL_RETIREMENT_TEST_PROFILE", profile.id())
+        .stdout(std::process::Stdio::null())
+        .stderr(std::process::Stdio::null())
+        .spawn()
+        .unwrap();
+    let ready = tokio::time::timeout(std::time::Duration::from_secs(15), async {
+        while !root.path().join("ready").exists() {
+            if child.try_wait().unwrap().is_some() {
+                panic!("second process exited before admission")
+            }
+            tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+        }
+    })
+    .await;
+    if ready.is_err() {
+        let _ = child.kill();
+        panic!("second process did not acquire shared profile")
+    }
+    let removing = store.clone();
+    let id = profile.id().to_string();
+    let remove = tokio::spawn(async move { removing.remove(&id).await });
+    let observed = tokio::time::timeout(std::time::Duration::from_secs(15), async {
+        while !root.path().join("observed").exists() {
+            tokio::time::sleep(std::time::Duration::from_millis(20)).await;
+        }
+    })
+    .await;
+    if observed.is_err() {
+        let _ = child.kill();
+        panic!("second process did not observe retirement")
+    }
+    remove.await.unwrap().unwrap();
+    assert!(child.wait().unwrap().success());
+    assert!(
+        load_auth_dot_json(
+            profile.auth_home(),
+            AuthCredentialsStoreMode::File,
+            AuthKeyringBackendKind::default()
+        )
+        .unwrap()
+        .is_none()
+    );
+    assert!(store.list().unwrap().is_empty());
 }
 
 #[tokio::test]

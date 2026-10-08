@@ -42,6 +42,7 @@ if (
 }
 
 const enginePath = resolve(engineArgument);
+const standaloneAppServer = /^codex-app-server(?:-[a-z0-9-]+)?(?:\.exe)?$/i.test(basename(enginePath));
 const bridgePath = resolve(bridgeArgument);
 const stateDirectory = resolve(stateArgument);
 const socketPath = resolve(socketArgument);
@@ -377,7 +378,7 @@ function startMockBackend() {
       send(200, {});
       return;
     }
-    if ((autoSwitchOnly || accountControlsOnly) && request.method === 'GET' && url.pathname.endsWith('/wham/accounts/check')) {
+    if (request.method === 'GET' && url.pathname.endsWith('/wham/accounts/check')) {
       send(200, { accounts: accounts.map(account => ({ id: account.accountId,
         plan_type: 'team', workspace_backend_origin: 'https://account-fixture.invalid',
         account_routing_override: 'NO_CONSTRAINT' })),
@@ -512,17 +513,16 @@ async function startPair(label) {
         '-c',
         `model="${fixtureModel}"`,
         '-c',
-        accountControlsOnly ? 'model_provider="openai"' : 'model_provider="azrael_mock"',
-        // Controls exercise the real host bridge without inference; host mode
+        (accountControlsOnly || (!autoSwitchOnly && standaloneAppServer)) ? 'model_provider="openai"' : 'model_provider="azrael_mock"',
+        // Host checks exercise the real bridge without inference; host mode
         // intentionally rejects custom model-provider transport overrides.
-        ...(accountControlsOnly ? [] : [
+        ...((accountControlsOnly || (!autoSwitchOnly && standaloneAppServer)) ? [] : [
           '-c',
           `model_providers.azrael_mock={name="Azrael mock",base_url="${backend.baseUrl}/v1",wire_api="responses",requires_openai_auth=true,supports_websockets=false,request_max_retries=0,stream_max_retries=0}`,
         ]),
         '-c',
         `model_catalog_json="${fixtureModelsPath.replaceAll('\\', '/')}"`,
-        'app-server',
-        '--analytics-default-enabled',
+        ...(standaloneAppServer ? [] : ['app-server', '--analytics-default-enabled']),
       ],
       {
         cwd: stateDirectory,
@@ -808,15 +808,17 @@ try {
 
   const inactiveUsage = await azrael(currentPair.management, 'usage', first.profileId);
   const activeUsage = await azrael(currentPair.stdio, 'usage', second.profileId);
+  // Native admission visibility belongs to the current account/user identity;
+  // inactive profile usage retains attribution but reports admission as unknown.
   if (
     inactiveUsage.usageProfileId !== first.profileId ||
     inactiveUsage.usage?.accountId !== accounts[0].accountId ||
     activeUsage.usageProfileId !== second.profileId ||
     activeUsage.usage?.accountId !== accounts[1].accountId ||
-    inactiveUsage.usage?.ordinaryUsageAllowed !== true ||
+    inactiveUsage.usage?.ordinaryUsageAllowed !== null ||
     activeUsage.usage?.ordinaryUsageAllowed !== true
   ) {
-    throw new Error('Per-profile usage was not attributed to the requested synthetic identity');
+    throw new Error(`Per-profile usage was not attributed to the requested synthetic identity: ${JSON.stringify({ inactiveProfileId: inactiveUsage.usageProfileId, inactiveAccountId: inactiveUsage.usage?.accountId, inactiveAllowed: inactiveUsage.usage?.ordinaryUsageAllowed, activeProfileId: activeUsage.usageProfileId, activeAccountId: activeUsage.usage?.accountId, activeAllowed: activeUsage.usage?.ordinaryUsageAllowed })}`);
   }
   if (
     (usageCounts.get(accounts[0].accountId) ?? 0) < 2 ||
@@ -854,10 +856,6 @@ try {
   await expectRpcError(
     azrael(currentPair.stdio, 'switch', '00000000000000000000000000000000'),
     'Wrong profile switch',
-  );
-  await expectRpcError(
-    azrael(currentPair.stdio, 'remove', second.profileId),
-    'Active profile removal',
   );
   await expectRpcError(
     currentPair.management.request('account/login/start', { type: 'chatgpt' }),
@@ -931,6 +929,30 @@ try {
   );
   await stopPair(currentPair);
 
+  currentPair = await startPair('active retirement');
+  await azrael(currentPair.stdio, 'remove', first.profileId);
+  capturedProfileIds.delete(first.profileId);
+  const afterRemoval = await waitForState(
+    currentPair.management,
+    state => !state.isSwitching && state.activeProfileId === second.profileId &&
+      !state.profiles.some(profile => profile.id === first.profileId),
+    'active account removal and replacement',
+  );
+  if (afterRemoval.profiles.length !== 1) throw new Error('Active removal changed unrelated profiles');
+  assertIdentityAccount(
+    await currentPair.management.request('account/read', { refreshToken: false }),
+    accounts[1],
+  );
+  await stopPair(currentPair);
+  currentPair = await startPair('retirement restore');
+  await waitForState(
+    currentPair.management,
+    state => !state.isSwitching && state.activeProfileId === second.profileId &&
+      !state.profiles.some(profile => profile.id === first.profileId),
+    'replacement persists after restart',
+  );
+  await stopPair(currentPair);
+
   if (consumeRequests !== 0) throw new Error('Account usage unexpectedly consumed a credit');
   if (modelRequests !== 0) throw new Error('Account verification unexpectedly made a model request');
   if (/\b(?:https|wss):\/\//i.test(stderrSections.join('\n'))) {
@@ -951,7 +973,8 @@ try {
       'inactive and active profile usage identity headers',
       'inactive profile bounded 401 recovery with refreshed identity',
       '429 usage refusal without refresh or retry',
-      'wrong profile and active removal rejection',
+      'wrong profile switch rejection',
+      'active profile removal, validated replacement and restart persistence',
       'bridge direct authentication rejection',
       'switch and server reconnect restore of fixed-home config and empty persisted thread',
       'persisted native thread survives account switch and server restart',
