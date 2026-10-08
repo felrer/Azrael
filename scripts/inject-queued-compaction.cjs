@@ -5,9 +5,17 @@ const QUEUED_COMPACTION_PRESENTATION_ASSET = "webview/assets/app-initial-532d60c
 const QUEUED_COMPACTION_LIST_ASSET = "webview/assets/queued-message-list-96c634639e8e.js";
 const QUEUED_COMPACTION_EXPECTED_COUNTS = Object.freeze({ core: 1, presentation: 1, list: 1 });
 
+// Selecting an inline command clears its text before awaiting the host RPC.
+// Keep custody of that action so a second submit cannot send the remaining
+// draft and attachments while the compaction request is still in flight.
+const COMPOSER_COMPACTION_HELPERS = `const __azraelCompactActions=new WeakMap;
+function __azraelCompactAction(controller,action){let pending=__azraelCompactActions.get(controller);if(pending)return pending;pending=Promise.resolve().then(action).finally(()=>{if(__azraelCompactActions.get(controller)===pending)__azraelCompactActions.delete(controller)});__azraelCompactActions.set(controller,pending);return pending}
+function __azraelRunSlashSelection(command,controller,action){return command.id===\`compact\`?__azraelCompactAction(controller,action):action()}
+async function __azraelSubmitCompaction(scope,controller,threadId,hostId,text,override){if(threadId==null)throw Error(\`Context compaction requires an existing conversation\`);await __azraelCompactAction(controller,async()=>{await Hx(scope,hostId).compactThread(threadId);if(override==null&&controller.getText()===text)controller.setText(text.replace(/^\\s*\\/compact[ \\t]*/,\`\`))})}`;
+
 function apply(text, owner, edits, version = 1) {
   const marker = `/*azrael-queued-compaction-${owner}-v${version}*/`;
-  if (version !== 1 && text.includes(`/*azrael-queued-compaction-${owner}-v1*/`)) {
+  if (Array.from({ length: version - 1 }, (_, index) => index + 1).some(old => text.includes(`/*azrael-queued-compaction-${owner}-v${old}*/`))) {
     throw new Error(`Stale queued-compaction ${owner} transform; use the pinned original asset`);
   }
   const count = text.split(marker).length - 1;
@@ -33,18 +41,24 @@ function injectQueuedCompactionPresentation(text) {
     ["u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gg(e,`1189013788`):Gg(e,`2120612410`)&&ob(n(),`threadQueue`))", "u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gg(e,`1189013788`):ob(n(),`threadQueue`))"],
     ["function Ten(e,t,n){let{rawText:r,appInput:i}=Hct({input:n.input})", "function Ten(e,t,n){$MARKERif(n.kind===`contextCompaction`)return{id:n.id,text:`컨텍스트 압축`,context:{queuedOperationKind:`contextCompaction`,prompt:``,addedFiles:[],fileAttachments:[],ideContext:null,imageAttachments:[]},cwd:e.getConversationCwd(t)??`/`,createdAt:0};let{rawText:r,appInput:i}=Hct({input:n.input})"],
     ["if(r){i.get(sS).danger(a.formatMessage({id:`composer.compactSlashCommand.disabledInProgressToast`,defaultMessage:`Compact is disabled while a chat is in progress`,description:`Toast shown when the compact slash command is used while a task is already in progress`}),{errorAnalytics:{toastId:`composer.compactSlashCommand.disabledInProgressToast`}});return}n!=null&&await", "n!=null&&await"],
+    ["await THi(r,{queryRange:{from:t,to:u.range.to},replacementRange:u.range},{clearReplacementRange:()=>n.clearSuggestion(u),insertMention:e=>{e.onSelectFromInlineSlash(u)},openSubmenu:e=>{n.setSuggestionSource(e,u)},replaceQuery:e=>{n.completeSuggestionQuery(e,u)}})", "await __azraelRunSlashSelection(e,n,()=>THi(r,{queryRange:{from:t,to:u.range.to},replacementRange:u.range},{clearReplacementRange:()=>n.clearSuggestion(u),insertMention:e=>{e.onSelectFromInlineSlash(u)},openSubmenu:e=>{n.setSuggestionSource(e,u)},replaceQuery:e=>{n.completeSuggestionQuery(e,u)}}))"],
+    ["if(e.get(WJ))return;u();", "if(e.get(WJ))return;u();if(__azraelCompactActions.has(f))return;if(!_e&&t==null&&le.type===`local`&&/^\\s*\\/compact(?=\\s|$)/.test(ye??f.getText())){try{await __azraelSubmitCompaction(e,f,p??v?.localConversationId,T,ye??f.getText(),ye)}catch(error){S(error)}return}"],
     // Preserve the declaration of every comma-separated local after h. Leaving
     // the original comma after a throw turns the initializer into its operand.
     ["v=async(e,n,a,o,s,c)=>{let h=await g(e),v=a?.messageId", "v=async(e,n,a,o,s,c)=>{let h=await g(e);if(h.items.find(e=>e.id===a?.messageId)?.kind===`contextCompaction`)throw Error(`Queued compaction cannot be edited`);let v=a?.messageId"],
     ["clientUserMessageId:s?.clientUserMessageId??T.id})).queuedSubmission", "clientUserMessageId:s?.clientUserMessageId??T.id,kind:s?.kind??T.context.queuedOperationKind??`userInput`})).queuedSubmission"],
     ["if(t.isConversationStreaming(e)){if(h=await i({...p,serverQueuedMessageId:c.id},c.clientUserMessageId,m),", "if(t.isConversationStreaming(e)){if(c.kind===`contextCompaction`)return null;if(h=await i({...p,serverQueuedMessageId:c.id},c.clientUserMessageId,m),"],
     ["let{turn:r}=await t.sendRequest(`thread/queue/start`,{threadId:e,queuedSubmissionId:n});h={status:`sent`,messageId:n,turnId:r.id}", "let{turn:r,skipped:i}=await t.sendRequest(`thread/queue/start`,{threadId:e,queuedSubmissionId:n});if(i!==!0&&r==null)throw Error(`Queue start returned no turn without skipping`);h=i?{status:`sent`,messageId:n}:{status:`sent`,messageId:n,turnId:r.id}"],
-  ], 2);
+  ], 3);
+  if (result.count) result.text += "\n" + COMPOSER_COMPACTION_HELPERS + "\n";
   // A marker proves that a transform ran, not that its declarations survived.
   // Check reused assets too: the enqueue guard must end before the local let.
   const declaration = "throw Error(`Queued compaction cannot be edited`);let v=a?.messageId";
   if (result.text.split(declaration).length - 1 !== 1) {
     throw new Error("Invalid queued-compaction presentation enqueue declaration; use the pinned original asset");
+  }
+  if (result.text.split(COMPOSER_COMPACTION_HELPERS).length !== 2 || !result.text.includes("await __azraelRunSlashSelection(e,n,()=>THi(") || !result.text.includes("if(__azraelCompactActions.has(f))return;if(!_e&&t==null&&le.type===`local`&&/^\\s*\\/compact(?=\\s|$)/.test(ye??f.getText()))")) {
+    throw new Error("Invalid queued-compaction composer isolation; use the pinned original asset");
   }
   return result;
 }

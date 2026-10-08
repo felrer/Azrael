@@ -100,8 +100,16 @@ test("the three version-pinned UI transforms parse, remain idempotent, and rejec
   assert.ok(inputs[2].result.text.includes("isSendNowDisabled:o||s&&L(e.context)||e.context.queuedOperationKind"));
   const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
   assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(
-    "/*azrael-queued-compaction-presentation-v2*/", "/*azrael-queued-compaction-presentation-v1*/",
+    "/*azrael-queued-compaction-presentation-v3*/", "/*azrael-queued-compaction-presentation-v2*/",
   )), /Stale/);
+});
+
+test("marked compaction assets reject incomplete composer isolation", () => {
+  const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
+  for (const token of ["if(__azraelCompactActions.has(f))return;", "const __azraelCompactActions=new WeakMap;", "await __azraelRunSlashSelection(e,n,()=>THi("]) {
+    assert.ok(presentation.result.text.includes(token));
+    assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(token, "")), /composer isolation/);
+  }
 });
 
 function listRenderer(source) {

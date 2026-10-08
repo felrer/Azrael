@@ -4,12 +4,36 @@ Status: `current`, verified in scoped source and host-function tests; live
 compaction UI behavior is user-verified. Procedure and verification scope are in
 [operations](../ops/development.md#queue-and-compaction).
 
-Manual compaction from the chat composer enters the durable server queue alongside
+Manual compaction from the context gauge card or chat composer enters the durable server queue alongside
 user messages. Items execute in queue order without interrupting the current turn.
 An idle thread may immediately consume the head. Compaction is a distinct operation,
 never a prompt instructing the model to compress its context. The existing queue
 owns persistence, cancellation, reordering, cross-window notifications and pause
 after interruption. Repeated requests remain individually cancelable items.
+
+## Manual request isolation
+
+Status: `current` in source, verified with scoped pinned-function fixtures and
+native context-card rendering/interactions in light and dark themes. Build and
+installation were not performed; installed-window acceptance remains separate.
+
+The card's compaction button invokes the existing queue operation for the active
+conversation without reading or submitting the composer. Draft text and all
+attachments remain editable. Pending requests prevent duplicate button activation;
+success acknowledges the request, and a failure exposes a retryable error.
+An active response does not prevent enqueueing compaction.
+
+An inline `/compact` selection owns its composer action until the host request
+finishes. A concurrent ordinary submit cannot serialize the remaining draft or
+attachments during that action. An ordinary local submit beginning with the
+standalone `/compact` command is handled before context construction or message
+submission. It sends only the conversation identity to the existing compaction
+entry point. Success removes only the command prefix when the editor still matches
+the submitted text, preserving remaining text and every attachment. Failure and
+newer editor changes preserve the draft. Literal prompt submissions retain their
+ordinary message meaning.
+
+## Queue execution
 
 Automatic compaction uses the [provider context policy](context-policy.md); the queue's manual skip threshold remains independent of the automatic setting.
 

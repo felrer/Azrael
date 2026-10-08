@@ -35,3 +35,11 @@ Status: `partial` — source implementation; packaged and installed rendering re
 The tooltip uses a left-aligned layout with labels and right-aligned values. Under Usage, two rows show the same full input-token count divided by the effective automatic compaction threshold and by full model capacity, respectively. Each row includes the token count, denominator and percentage rounded to one decimal place. Tooltip ratios are independent of the native donut's existing ratio and are not clamped at 100%. Estimated input is marked on both rows; missing input or a missing/nonpositive denominator yields an unknown percentage.
 
 A Model row shows provider and model identity. The Pricing reference section describes the length-surcharge threshold with its inclusive/exclusive operator, known absence of a length surcharge or unknown pricing. API reference rules retain the API label. The official source appears as a short Official documentation link rather than a raw URL. Context, Auto-compaction and Model information section titles, settings/source labels, a separate model-capacity row and subscription-billing explanatory text are omitted. The upstream tooltip summary is replaced rather than repeated. Accessible text includes both usage rows, model and pricing status, including the active pricing-boundary state.
+
+The interactive card includes a native compaction button for the active conversation,
+with keyboard access, a pending state and request/error feedback. It uses the
+[manual request isolation](queued-compaction.md#manual-request-isolation) contract:
+draft text and attachments remain in the composer, and streaming conversations can
+queue the operation. This entry is `current` in source with native light/dark
+rendering and interaction verification using synthetic host state. Build and
+installation were not performed; installed-window acceptance remains separate.

@@ -23,8 +23,13 @@ function policyDescription(p, ko, detail = "full") {
     (ko ? "가격: " : "Pricing: ") + pricing + (price?.inputTokenThreshold == null ? "" : " · " + (price.inclusive ? "≥ " : "> ") + tokens(price.inputTokenThreshold)),
     price?.sourceUrl ?? ""].filter(Boolean).join("\n");
 }
-function decorateGauge(jsx, node, policy, ko) {
-  if (!node || !policy) return node;
+function decorateGauge(jsx, node, policy, ko, action = null) {
+  if (!node) return node;
+  if (!policy) {
+    if (!action) return node;
+    const span=node.props.children;
+    return jsx(node.type,{...node.props,interactive:true,keyboardNavigation:true,tooltipContent:jsx("div",{className:"flex flex-col gap-2",children:[node.props.tooltipContent,action]}),children:jsx(span.type,{...span.props,tabIndex:0})});
+  }
   const price = policy.pricing, input = policy.inputTokens;
   const yellow = (price?.status === "confirmed" || price?.status === "reference") && input != null && price.inputTokenThreshold != null && (price.inclusive ? input >= price.inputTokenThreshold : input > price.inputTokenThreshold);
   const tokens = n => n == null ? (ko ? "알 수 없음" : "unknown") : Number(n).toLocaleString(ko ? "ko-KR" : "en-US");
@@ -45,7 +50,8 @@ function decorateGauge(jsx, node, policy, ko) {
   const tooltip = jsx("div", {style:{display:"flex",flexDirection:"column",gap:10,textAlign:"left",maxWidth:"min(440px, calc(100vw - 32px))",whiteSpace:"normal"},children:[
     jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"사용량":"Usage"}),...rows.map(([label,value])=>row(label,value))]}),
     row(ko?"모델":"Model",model),
-    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"요금 참고":"Pricing reference"}),jsx("span",{children:pricing}),price?.sourceUrl ? jsx("a",{href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",style:{color:"var(--vscode-textLink-foreground)",width:"fit-content"},children:ko?"공식 문서 ↗":"Official documentation ↗"}) : null]})
+    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"요금 참고":"Pricing reference"}),jsx("span",{children:pricing}),price?.sourceUrl ? jsx("a",{href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",style:{color:"var(--vscode-textLink-foreground)",width:"fit-content"},children:ko?"공식 문서 ↗":"Official documentation ↗"}) : null]}),
+    action
   ]});
   const span = node.props.children;
   const css = "[data-azrael-pricing-boundary=true]{color:light-dark(#88732b,#c2ac65)!important}[data-azrael-pricing-boundary=true] svg circle{stroke:currentColor}.vscode-light [data-azrael-pricing-boundary=true]{color:#88732b!important}.vscode-dark [data-azrael-pricing-boundary=true],.dark [data-azrael-pricing-boundary=true]{color:#c2ac65!important}.vscode-high-contrast [data-azrael-pricing-boundary=true]{color:#e8d58a!important}.vscode-high-contrast-light [data-azrael-pricing-boundary=true]{color:#62500d!important}@media(forced-colors:active){[data-azrael-pricing-boundary=true]{color:CanvasText!important;outline:1px solid CanvasText}}";
@@ -54,6 +60,36 @@ function decorateGauge(jsx, node, policy, ko) {
     "aria-label":description + (yellow ? "\n" + (price.status === "reference" ? (ko ? "API 참고: 장기 컨텍스트 요금 구간" : "API reference: long-context pricing tier") : (ko ? "장기 컨텍스트 요금 구간" : "Long-context pricing tier")) : ""),
     "data-azrael-pricing-boundary":yellow ? "true" : "false",
     children:[jsx("style",{children:css}),span.props.children]})});
+}
+function renderCompactionAction(React, jsx, Button, store, conversationId, ko, entries, compact) {
+  const [, update] = React.useState(0);
+  React.useEffect(() => {
+    if (conversationId == null) return;
+    let entry = entries.get(conversationId);
+    if (!entry) entries.set(conversationId, entry = {status:"idle", listeners:new Set()});
+    const notify = () => update(n => n + 1);
+    entry.listeners.add(notify);
+    return () => { entry.listeners.delete(notify); if (!entry.listeners.size && entry.status !== "pending") entries.delete(conversationId); };
+  }, [conversationId, entries]);
+  const entry = entries.get(conversationId), pending = entry?.status === "pending";
+  const status = pending ? (ko ? "압축 요청 중…" : "Requesting compaction…") : entry?.status === "requested" ? (ko ? "압축 요청됨" : "Compaction requested") : entry?.status === "error" ? (ko ? "압축 요청 실패. 다시 시도하세요." : "Compaction request failed. Try again.") : conversationId == null ? (ko ? "대화를 선택하세요." : "Select a chat.") : "";
+  const onClick = async event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if (conversationId == null) return;
+    let current = entries.get(conversationId);
+    if (!current) entries.set(conversationId, current = {status:"idle", listeners:new Set()});
+    if (current.status === "pending") return;
+    const notify = () => { for (const listener of current.listeners) listener(); };
+    current.status = "pending"; notify();
+    try { await compact(store, conversationId); current.status = "requested"; }
+    catch { current.status = "error"; }
+    finally { notify(); if (!current.listeners.size) entries.delete(conversationId); }
+  };
+  return jsx("div", {className:"flex flex-col gap-2", "data-azrael-context-compaction":conversationId ?? "", children:[
+    jsx(Button, {type:"button",color:"secondary",size:"compact",disabled:conversationId == null || pending,onClick,children:pending ? (ko?"요청 중…":"Requesting…") : entry?.status === "error" ? (ko?"압축 다시 시도":"Retry compaction") : (ko?"컨텍스트 압축":"Compact context")}),
+    jsx("span", {role:entry?.status === "error" ? "alert" : "status","aria-live":"polite",className:"text-xs text-token-description-foreground",children:status})
+  ]});
 }
 async function savePolicy(client, id, value) {
   if (value !== "" && !/^[1-9]\d*$/.test(value)) throw Error("Enter a positive integer percentage");
@@ -111,7 +147,11 @@ function injectProviderContextControls(text, asset) {
   if (asset === CONTEXT_ASSET) {
     text=once(text,"function _ra(e){","function __azraelNativeContextUsage(e){");
     text=once(text,"function cra(e){","function __azraelNativeContextGauge(e){");
-    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\nfunction _ra(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction cra(e){return decorateGauge(_7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,_d().locale?.startsWith('ko'))}\n`;
+    text=once(text,"function mia(e){let t=(0,w7.c)(41)","function mia(e){let t=(0,w7.c)(42)");
+    text=once(text,"t[22]!==y||t[23]!==H?", "t[22]!==y||t[23]!==H||t[41]!==h?");
+    text=once(text,"(cra,{contextUsage:y})", "(cra,{contextUsage:y,conversationId:h})");
+    text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
+    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction _ra(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction cra(e){Jw();Wx();Lj();const ko=_d().locale?.startsWith('ko'),store=Wl($),action=renderCompactionAction(ad(),_7.jsx,Kw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Hx(store,store.get(Nj,id)).compactThread(id));return decorateGauge(_7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,ko,action)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
@@ -127,4 +167,4 @@ function injectProviderContextControls(text, asset) {
 function injectProviderContext(text, asset) {
   return runProviderContext(text, asset, injectProviderContextControls);
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,savePolicy};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,renderCompactionAction,savePolicy};
