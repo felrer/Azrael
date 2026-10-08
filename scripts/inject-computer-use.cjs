@@ -18,7 +18,7 @@ const managementReplacements = [
   ['e[21]=i.available,e[22]=y', 'e[21]=i.available,e[26]=t,e[27]=a,e[22]=y'],
 ];
 const windowAccess = 'require("./window-control-host.cjs")';
-const bindWindowApproval = `if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope)}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish);`;
+const bindWindowApproval = `if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope);this.azraelWindowApprovalNavigate=async(threadId,isPending)=>{if(!isPending())return;await require("vscode").commands.executeCommand("azrael.openSidebar");if(isPending())this.navigateToRoute("/local/"+threadId)}}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish,this.azraelWindowApprovalNavigate);`;
 const access = 'require("./computer-use-approvals.cjs")';
 const replacements = [
   ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${bindWindowApproval}${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],

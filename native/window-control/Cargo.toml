@@ -11,8 +11,9 @@ serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 base64 = "0.22"
 png = "0.17"
+windows-core = "=0.58.0"
 windows = { version = "=0.58.0", features = [
-    "Foundation", "Graphics_Capture", "Graphics_DirectX", "Graphics_DirectX_Direct3D11",
+    "implement", "Data_Xml_Dom", "UI_Notifications", "Foundation_Collections", "Win32_UI_Notifications", "Win32_UI_Shell", "Win32_System_Registry", "Win32_Security", "Foundation", "Graphics_Capture", "Graphics_DirectX", "Graphics_DirectX_Direct3D11",
     "Win32_Foundation", "Win32_Graphics_Direct3D", "Win32_Graphics_Direct3D11",
     "Win32_Graphics_Dxgi", "Win32_Graphics_Dxgi_Common", "Win32_Graphics_Gdi", "Win32_Graphics_Dwm",
     "Win32_System_Com", "Win32_System_Threading", "Win32_System_Performance", "Win32_System_WinRT",

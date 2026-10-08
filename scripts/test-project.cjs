@@ -12,7 +12,7 @@ const AREAS = ["current", "extension", "standalone", "queue", "recovery", "ui", 
 const FEATURE_TESTS = {
   settings: /(?:test-(?:instruction-settings|account-settings|student-design|student-avatar-assets|pets-cleanup)\.cjs$|\/(?:instructionService|instructionView|studentDesign)\.test\.ts$)/,
   accounts: /(?:test-(?:account-settings|account-switch-queue|provider-accounts-host|provider-context|provider-model-picker)\.cjs$|\/(?:accountService|accountPresentation|autoAccountSwitch|providerAccountService|resetCredit|unifiedAccountsPresentation|usage[^/]*)\.test\.ts$)/,
-  "window-control": /\/test-(?:window-(?:control|use|task)[^/]*|selected-window-native|computer-use[^/]*)\.cjs$/,
+  "window-control": /\/test-(?:window-(?:control|use|task)[^/]*|window-approval-notifications|selected-window-native|computer-use[^/]*)\.cjs$/,
   "build-cache": /\/test-(?:build-module-cache\.ps1|incremental-extension-build\.cjs|ordered-asset-reader\.cjs|asset-transform-cache(?:-retention)?\.cjs)$/,
 };
 // Approved argument-free fixture scripts that do not import node:test.

@@ -34,6 +34,16 @@ On thread creation or resume, the host binds its owned Window Use MCP command, r
 
 If no response arrives before the existing approval deadline, the tool reports `approval_timeout`, `approvalState: expired`, `userResponded: false` and `actionExecuted: false`. The model can explain that consent was not received and wait for the user's explicit retry. Explicit refusal reports `approval_declined`, `approvalState: declined` and `userResponded: true`. Cancellation and native permission rejection remain distinct. Native permission failures identify whether trusted metadata was missing, malformed or not Disabled without exposing transport metadata.
 
+### Windows approval notifications
+
+Status: `partial` — source lifecycle, native service delivery, cross-process COM activation routing, countdown data and notification-history cleanup pass scoped acceptance. Actual visible banners, physical clicks and installed-host end-to-end navigation remain unverified.
+
+Every new Window Use app consent request displays one Windows system notification after its in-app approval card is delivered, including when Azrael is active. Existing app grants and allow-all settings skip consent and notification together. The notification identifies Window Use, the target app and the remaining approval time. The host retains its existing 25-second default approval deadline.
+
+Clicking the notification opens the matching approval screen in the originating Azrael window; the user still approves or declines inside Azrael. Activation checks the live request, connection, thread, turn and deadline, including after asynchronous window focus. Expired, cancelled or otherwise resolved requests cannot grant permission or reopen pending consent. Approval, refusal, cancellation, expiry, disconnect and shutdown remove the corresponding notification. A notification delivered late is also removed. Notification failure does not settle or extend consent; Windows notification settings control whether the system displays the banner.
+
+All hosts use the same Windows notification identity. COM activation signals a per-request event in the current Windows session, and only the worker owning that live request emits its activation. Notification shutdown closes the owned event handles and revokes its live COM class registration. Expired notifications cannot cold-launch an approval host.
+
 ## Error reporting
 
 Status: `partial` — structured tool errors, native classifications, consent cancellation and deadlines have source and mock integration coverage. The production panel's existing error display and interaction have light and dark browser fixture coverage. Recoverable observation, input-rejection and owned-helper reconnection behavior pass source fixtures; the exact package passed all six isolated host acceptance stages and is installed with matching Window Use runtime hashes. Existing user windows require reload; live observation recovery remains unverified. Live model error delivery and real-window approval after reload remain separate.

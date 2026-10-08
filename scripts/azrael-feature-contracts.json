@@ -184,6 +184,7 @@
           "args": [
             "--test",
             "scripts/test-window-control-injection.cjs",
+            "scripts/test-window-approval-notifications.cjs",
             "scripts/test-window-control-policy.cjs",
             "scripts/test-window-control-runtime.cjs"
           ],

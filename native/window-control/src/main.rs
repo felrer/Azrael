@@ -1,3 +1,4 @@
+mod approval_notification;
 mod overlay;
 mod protocol;
 mod windows_backend;
@@ -17,8 +18,16 @@ fn validate_dispatch(request: &Request) -> Result<()> {
                 ));
             }
         }
-        "observe" | "inspect" | "restore" | "resize" | "act" | "status" | "overlayShow"
-        | "overlayHide" => (),
+        "observe"
+        | "inspect"
+        | "restore"
+        | "resize"
+        | "act"
+        | "status"
+        | "overlayShow"
+        | "overlayHide"
+        | "approvalNotificationShow"
+        | "approvalNotificationHide" => (),
         _ => {
             return Err(Error::new(
                 "unknown-method",
@@ -32,11 +41,28 @@ fn validate_dispatch(request: &Request) -> Result<()> {
 fn dispatch(
     backend: &mut Option<windows_backend::Backend>,
     overlays: &mut Option<overlay::Overlay>,
+    notifications: &mut Option<approval_notification::Notifications>,
     request: Request,
 ) -> Result<Value> {
     validate_dispatch(&request)?;
     if request.method == "shutdown" {
         return Ok(json!({ "shutdown": true }));
+    }
+    if request.method == "approvalNotificationHide" {
+        return match notifications.as_ref() {
+            Some(notifications) => notifications.call(&request.method, request.params),
+            None => approval_notification::hide_without_notification(request.params),
+        };
+    }
+    if request.method == "approvalNotificationShow" {
+        approval_notification::validate_show(&request.params)?;
+        if notifications.is_none() {
+            *notifications = Some(approval_notification::Notifications::new()?);
+        }
+        return notifications
+            .as_ref()
+            .unwrap()
+            .call(&request.method, request.params);
     }
     if request.method == "overlayHide" {
         return match overlays.as_ref() {
@@ -78,6 +104,8 @@ mod dispatch_tests {
             "act",
             "overlayShow",
             "overlayHide",
+            "approvalNotificationShow",
+            "approvalNotificationHide",
             "shutdown",
         ] {
             let request = Request {
@@ -96,7 +124,12 @@ mod dispatch_tests {
     fn hide_and_shutdown_do_not_initialize_desktop_services() {
         let mut backend = None;
         let mut overlay = None;
+        let mut notifications = None;
         for (method, params) in [
+            (
+                "approvalNotificationHide",
+                json!({"requestId":"12345678-1234-1234-1234-123456789abc"}),
+            ),
             (
                 "overlayHide",
                 json!({"targetId":"12345678-1234-1234-1234-123456789abc","generation":0}),
@@ -108,7 +141,7 @@ mod dispatch_tests {
                 method: method.into(),
                 params,
             };
-            assert!(dispatch(&mut backend, &mut overlay, request).is_ok());
+            assert!(dispatch(&mut backend, &mut overlay, &mut notifications, request).is_ok());
             assert!(backend.is_none() && overlay.is_none());
         }
         let invalid = Request {
@@ -117,7 +150,7 @@ mod dispatch_tests {
             params: json!({}),
         };
         assert_eq!(
-            dispatch(&mut backend, &mut overlay, invalid)
+            dispatch(&mut backend, &mut overlay, &mut notifications, invalid)
                 .unwrap_err()
                 .code,
             "invalid-params"
@@ -142,6 +175,7 @@ fn main() -> io::Result<()> {
     let stdin = io::stdin();
     let mut reader = stdin.lock();
     let mut overlays = None;
+    let mut notifications = None;
     let mut backend = None;
     while let Some(line) = protocol::read_line(&mut reader)? {
         let request = line.and_then(|line| {
@@ -153,7 +187,7 @@ fn main() -> io::Result<()> {
             Ok(request) => {
                 let id = request.id.clone();
                 let shutdown = request.method == "shutdown";
-                let result = dispatch(&mut backend, &mut overlays, request);
+                let result = dispatch(&mut backend, &mut overlays, &mut notifications, request);
                 let stop = shutdown && result.is_ok();
                 (id, result, stop)
             }

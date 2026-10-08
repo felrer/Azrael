@@ -5,7 +5,7 @@ const path = require('node:path');
 const { StringDecoder } = require('node:string_decoder');
 const { verifyRuntime } = require('./window-control-runtime.cjs');
 const { windowError } = require('./window-control-errors.cjs');
-const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act', 'overlayShow', 'overlayHide']);
+const METHODS = new Set(['listWindows', 'status', 'observe', 'inspect', 'restore', 'resize', 'act', 'overlayShow', 'overlayHide', 'approvalNotificationShow', 'approvalNotificationHide']);
 const MUTATIONS = new Set(['act', 'resize', 'restore']);
 function nativeError(payload, method, uncorrelated = false) {
   const nativeCode = typeof payload?.code === 'string' && /^[a-z][a-z0-9-]{0,127}$/.test(payload.code) ? payload.code : undefined;
@@ -33,6 +33,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
   let child, identity, buffer = '', disposed = false, launching, resetting, retiring;
   const pending = new Map();
   const overlayListeners = new Set();
+  const approvalNotificationListeners = new Set();
   const transportError = (code, message, options = {}) => windowError(code, message, { ...options, stage: 'native' });
   const rejectPending = (p, error) => { clearTimeout(p.timer); p.reject(MUTATIONS.has(p.method) ? windowError(error.code, error.message, { ...error, mutationOutcome: 'unknown' }) : error); };
   const failPending = error => { for (const p of pending.values()) rejectPending(p, error); pending.clear(); };
@@ -65,6 +66,13 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
           let message; try { message = JSON.parse(line); if (!message || typeof message !== 'object') throw new Error(); } catch { failPending(transportError('connection_error', 'Invalid Window backend response')); void reset(); return; }
           if (Object.hasOwn(message, 'event')) {
             const event = message.event;
+            if (Object.keys(message).length === 1 && event?.type === 'approvalNotificationActivated' &&
+                Object.keys(event).length === 2 && typeof event.requestId === 'string' &&
+                /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(event.requestId)) {
+              // Activation is navigation only; the host checks its live consent owner.
+              for (const listener of approvalNotificationListeners) { try { listener({ ...event }); } catch {} }
+              continue;
+            }
             if (Object.keys(message).length !== 1 || !event || typeof event !== 'object' || Array.isArray(event) ||
                 event.type !== 'overlayStop' || Object.keys(event).some(key => !['type', 'targetId', 'generation'].includes(key)) ||
                 typeof event.targetId !== 'string' || !/^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(event.targetId) || !Number.isSafeInteger(event.generation) || event.generation < 0) {
@@ -152,6 +160,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
   async function dispose() {
     disposed = true;
     overlayListeners.clear();
+    approvalNotificationListeners.clear();
     failPending(transportError('cancelled', 'Window backend disposed'));
     if (launching) { try { await launching; } catch {} }
     await reset();
@@ -160,6 +169,12 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
     request, dispose,
     showOverlay: params => request('overlayShow', params),
     hideOverlay: params => request('overlayHide', params),
+    showApprovalNotification: params => request('approvalNotificationShow', params),
+    hideApprovalNotification: params => request('approvalNotificationHide', params),
+    onApprovalNotificationActivated(listener) {
+      approvalNotificationListeners.add(listener);
+      return { dispose() { approvalNotificationListeners.delete(listener); } };
+    },
     onOverlayStop(listener) {
       overlayListeners.add(listener);
       return { dispose() { overlayListeners.delete(listener); } };

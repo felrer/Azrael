@@ -39,6 +39,43 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map(), approvalUIs = new Map(), pendingConsents = new Map();
   const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
+  const approvalNavigation = new Map(), notificationTasks = new Set();
+  function consentIsPending(record) {
+    const t = threads.get(record.thread);
+    return !disposed && pendingConsents.get(record.id) === record && !record.controller.signal.aborted &&
+      t === record.t && t.turnVersion === record.version && (!record.turnId || t.turnId === record.turnId) &&
+      !record.uiRecord?.cancelled && Date.now() < record.deadline;
+  }
+  const notificationSubscription = backend.onApprovalNotificationActivated?.(event => {
+    const record = pendingConsents.get(CONSENT_PREFIX + event.requestId);
+    if (!record || !consentIsPending(record)) return;
+    void Promise.resolve().then(async () => {
+      await vscode.commands?.executeCommand('workbench.action.focusWindow');
+      if (!consentIsPending(record)) return;
+      if (record.route === 'panel') {
+        if (panel && panelNonce === record.panelNonce && current === record.thread) panel.reveal(undefined, false);
+      } else await approvalNavigation.get(record.native)?.(record.thread, () => consentIsPending(record));
+    }).catch(() => {});
+  });
+  function hideConsentNotification(record) {
+    return Promise.resolve().then(() => backend.hideApprovalNotification?.({ requestId: record.id.slice(CONSENT_PREFIX.length) })).catch(() => {});
+  }
+  function trackNotification(task) {
+    notificationTasks.add(task); void task.finally(() => notificationTasks.delete(task)); return task;
+  }
+  function notifyConsent(record, appTitle) {
+    if (!backend.showApprovalNotification || !consentIsPending(record)) return;
+    record.notificationTask = trackNotification(Promise.resolve().then(() => {
+      if (!consentIsPending(record)) return;
+      return backend.showApprovalNotification({ requestId: record.id.slice(CONSENT_PREFIX.length), appTitle, timeoutMs: Math.max(1, record.deadline - Date.now()) });
+    }).catch(() => {}).then(() => {
+      // Remove a Show that completed after the approval ended.
+      if (!consentIsPending(record)) return hideConsentNotification(record);
+    }));
+  }
+  function dismissConsentNotification(record) {
+    if (record.notificationTask) trackNotification(record.notificationTask.then(() => hideConsentNotification(record)));
+  }
   const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
     onUserStop: (thread, value) => {
       invalidateUI(thread); approvals.stop(thread);
@@ -137,7 +174,8 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     void t.ready.catch(() => {});
     return t;
   }
-  function registerApprovalUI(native, publish) {
+  function registerApprovalUI(native, publish, navigate) {
+    if (typeof navigate === 'function' && !disposed) approvalNavigation.set(native, navigate); else approvalNavigation.delete(native);
     const previous = approvalUIs.get(native);
     if (previous === publish) return;
     for (const record of activeConsents) if (record.native === native && record.route === 'ordinary') record.controller.abort();
@@ -163,7 +201,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (stored) { if (stored.action !== 'accept') denied(stored); if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); return true; }
     if (!needsPrompt) denied();
     const controller = new AbortController(), native = t.bridge.native, dedicated = panel && current === thread, publisher = approvalUIs.get(native);
-    const record = { id, thread, native, t, version, turnId: permission.turnId, uiRecord: permission.uiRecord, controller, route: dedicated ? 'panel' : 'ordinary', panelNonce, publisher }; activeConsents.add(record);
+    const record = { id, thread, native, t, version, turnId: permission.turnId, uiRecord: permission.uiRecord, controller, route: dedicated ? 'panel' : 'ordinary', panelNonce, publisher, deadline: Date.now() + approvalTimeoutMs }; activeConsents.add(record);
     const abort = () => controller.abort(); permission.signal?.addEventListener('abort', abort, { once: true });
     let timer, onAbort, terminalState = 'cancelled';
     const details = (approvalState, userResponded = false) => ({ stage: 'approval', approvalState, userResponded, actionExecuted: false });
@@ -178,7 +216,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       });
       permission.progress?.('approval');
       const response = new Promise(resolve => { record.answer = resolve; pendingConsents.set(id, record); });
-      const delivery = Promise.resolve().then(() => { if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', details('cancelled')); return publishUI(record.route === 'panel' ? { type: 'approval', request } : { type: 'mcp-request', hostId: 'local', request }); }).then(delivered => { if (delivered === false) throw windowError('connection_error', 'Window Use approval UI is not connected', details('cancelled')); return response; }, error => { if (error.code === 'cancelled') throw error; throw windowError('connection_error', 'Window Use approval UI is not connected', { ...details('cancelled'), cause: error }); });
+      const delivery = Promise.resolve().then(() => { if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', details('cancelled')); return publishUI(record.route === 'panel' ? { type: 'approval', request } : { type: 'mcp-request', hostId: 'local', request }); }).then(delivered => { if (delivered === false) throw windowError('connection_error', 'Window Use approval UI is not connected', details('cancelled')); notifyConsent(record, appTitle); return response; }, error => { if (error.code === 'cancelled') throw error; throw windowError('connection_error', 'Window Use approval UI is not connected', { ...details('cancelled'), cause: error }); });
       const answer = await Promise.race([delivery, interrupted]);
       if (controller.signal.aborted || disposed || threads.get(thread) !== t || t.turnVersion !== version || permission.uiRecord?.cancelled || (permission.turnId && t.turnId !== permission.turnId)) throw windowError('cancelled', 'Application approval cancelled', details('cancelled'));
       if (answer.action !== 'accept') throw windowError(answer.action === 'decline' ? 'approval_declined' : 'cancelled', answer.action === 'decline' ? 'Application approval refused' : 'Application approval cancelled', details(answer.action === 'decline' ? 'declined' : 'cancelled', true));
@@ -186,7 +224,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       if (result?.action !== 'accept') denied(result);
       if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); terminalState = 'accepted'; return true;
     } catch (error) { terminalState = error.approvalState || 'cancelled'; approvals.response(id, { action: 'cancel' }); throw error; }
-    finally { pendingConsents.delete(id); clearTimeout(timer); if (onAbort) controller.signal.removeEventListener('abort', onAbort); permission.signal?.removeEventListener('abort', abort); activeConsents.delete(record); try { void Promise.resolve(publishUI(record.route === 'panel' ? { type: 'approval-resolved', requestId: id, threadId: thread, approvalState: terminalState } : { type: 'mcp-notification', hostId: 'local', notification: { method: 'serverRequest/resolved', params: { threadId: thread, requestId: id } } })).catch(() => {}); } catch { /* Disconnected views cannot receive terminal cleanup. */ } }
+    finally { pendingConsents.delete(id); dismissConsentNotification(record); clearTimeout(timer); if (onAbort) controller.signal.removeEventListener('abort', onAbort); permission.signal?.removeEventListener('abort', abort); activeConsents.delete(record); try { void Promise.resolve(publishUI(record.route === 'panel' ? { type: 'approval-resolved', requestId: id, threadId: thread, approvalState: terminalState } : { type: 'mcp-notification', hostId: 'local', notification: { method: 'serverRequest/resolved', params: { threadId: thread, requestId: id } } })).catch(() => {}); } catch { /* Disconnected views cannot receive terminal cleanup. */ } }
   }
   function prepareRequest(method, params) {
     if (!['thread/start', 'thread/resume'].includes(method) || runtime.windowControl === undefined) return params;
@@ -308,13 +346,13 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     return true;
   }
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
-  function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
+  function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
   const settingsHost = require('./use-settings-host.cjs').createSettingsHost({ runtime, vscode, backend, approvals, open });
-  async function dispose() { if (disposed) return; disposed = true; settingsHost.dispose(); invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await backend.dispose(); }
+  async function dispose() { if (disposed) return; disposed = true; notificationSubscription?.dispose(); settingsHost.dispose(); invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); }
   return { settings: settingsHost.receive, open, attach, prepareRequest, registerApprovalUI, respondApproval, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;
 function initialize(context, vscode, runtime) { if (active) throw new Error('Window Control already initialized'); active = createHost({ runtime, vscode }); const command = vscode.commands.registerCommand('azrael.windowControl', () => active.open()); let disposal; const disposable = { dispose() { if (disposal) return disposal; command.dispose(); const old = active; active = undefined; disposal = old?.dispose() || Promise.resolve(); return disposal; } }; context.subscriptions.push(disposable); return disposable; }
-module.exports = { initialize, settings: (webview, request) => active ? active.settings(webview, request) : require('./use-settings-host.cjs').unavailable(webview, request), attach: (native, raw) => active?.attach(native, raw), prepareRequest: (method, params) => active ? active.prepareRequest(method, params) : params, registerApprovalUI: (native, publish) => active?.registerApprovalUI(native, publish), respondApproval: (native, id, result) => active ? active.respondApproval(native, id, result) : typeof id === 'string' && id.startsWith(CONSENT_PREFIX), request: (native, ...args) => active?.request(native, ...args), beforeResult: (native, message, replay) => active?.beforeResult(native, message, replay), observe: (native, message) => active?.observe(native, message), disconnect: native => active?.disconnect(native), createHost, Bridge };
+module.exports = { initialize, settings: (webview, request) => active ? active.settings(webview, request) : require('./use-settings-host.cjs').unavailable(webview, request), attach: (native, raw) => active?.attach(native, raw), prepareRequest: (method, params) => active ? active.prepareRequest(method, params) : params, registerApprovalUI: (native, publish, navigate) => active?.registerApprovalUI(native, publish, navigate), respondApproval: (native, id, result) => active ? active.respondApproval(native, id, result) : typeof id === 'string' && id.startsWith(CONSENT_PREFIX), request: (native, ...args) => active?.request(native, ...args), beforeResult: (native, message, replay) => active?.beforeResult(native, message, replay), observe: (native, message) => active?.observe(native, message), disconnect: native => active?.disconnect(native), createHost, Bridge };
 registry.set(runtimeKey, module.exports);
 }
