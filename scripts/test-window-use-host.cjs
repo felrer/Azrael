@@ -4,13 +4,13 @@ const fs = require('node:fs/promises'), path = require('node:path'), os = requir
 const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
 const ids = ['12345678-1234-1234-1234-123456789abc', '22345678-1234-1234-1234-123456789abc'];
-async function fixture(t, delayed = false, occupancyDirectory) {
+async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-use-host-'));
   let releaseListen, panels = 0; const calls = [];
   const window = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace' }, approvals,
-    vscode: { window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } },
+    vscode: { workspace: {workspaceFile: workspaceFile ? {fsPath:workspaceFile} : undefined}, window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } },
     backend: { request: async (method, params) => { calls.push({ method, params }); return method === 'listWindows' ? [window] : window; }, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
   });
@@ -31,6 +31,23 @@ async function replayResult(f, method, expected, returned = expected) {
   const reply = new Promise(resolve => assert.equal(f.host.beforeResult(f.native, result, resolve), true));
   return { reply, result };
 }
+test('host task macros use the runtime workspace', async t => {
+  const f = await fixture(t);
+  const definition = {schema:1,id:'workspace',name:'Workspace',steps:[{action:'capture'}]};
+  await f.host.owner.call(ids[0],'save_task_macro',{definition});
+  const tasks = require('./window-task-macros.cjs');
+  assert.equal((await tasks.createStore(f.home,'C:/private/Workspace').read()).macros[0].id,'workspace');
+  assert.deepEqual((await tasks.createStore(f.home,'C:/private/Other').read()).macros,[]);
+});
+test('saved multi-root workspace owns macros rather than its first folder', async t => {
+  const workspaceFile = 'C:/private/Team.code-workspace';
+  const f = await fixture(t,false,undefined,workspaceFile);
+  const definition = {schema:1,id:'team',name:'Team',steps:[{action:'capture'}]};
+  await f.host.owner.call(ids[0],'save_task_macro',{definition});
+  const tasks = require('./window-task-macros.cjs');
+  assert.equal((await tasks.createStore(f.home,workspaceFile).read()).macros[0].id,'team');
+  assert.deepEqual((await tasks.createStore(f.home,'C:/private/Workspace').read()).macros,[]);
+});
 test('ordinary start publishes the exact session before replay with no panel and repeats safely', async t => {
   const f = await fixture(t); const { reply, result } = await replayResult(f, 'thread/start', ids[0]);
   assert.equal(await reply, result);

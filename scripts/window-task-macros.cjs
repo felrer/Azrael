@@ -1,7 +1,7 @@
 'use strict';
 const fs = require('node:fs/promises');
 const path = require('node:path');
-const { randomUUID } = require('node:crypto');
+const { randomUUID, createHash } = require('node:crypto');
 const KEYS = Object.freeze(['Return', 'Tab', 'Escape', 'BackSpace', 'Delete', 'Left', 'Right', 'Up', 'Down', 'Home', 'End', 'PageUp', 'PageDown', 'space']);
 const ACTIONS = ['invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'press_key', 'wait_for', 'assert', 'capture'];
 const PROPERTIES = ['exists', 'enabled', 'value', 'selected', 'toggleState', 'expandState'];
@@ -129,13 +129,21 @@ function evaluate(elements, expectedState, values) {
   return element[expectedState.property] === expected;
 }
 
-function createStore(home) {
-  const file = path.join(home, 'azrael', 'computer-use', 'window-task-macros.json');
+function createStore(home, workspacePath) {
+  // Match Windows path identity without using folder names, which can collide.
+  const paths = process.platform === 'win32' ? path.win32 : path;
+  const normalized = typeof workspacePath === 'string' && paths.isAbsolute(workspacePath) ? paths.normalize(workspacePath) : null;
+  const workspace = normalized && (normalized === paths.parse(normalized).root ? normalized : normalized.replace(/[\\/]+$/, ''));
+  const key = workspace && createHash('sha256').update(process.platform === 'win32' ? workspace.toLowerCase() : workspace).digest('hex');
+  const file = key ? path.join(home, 'azrael', 'computer-use', 'workspaces', key, 'window-task-macros.json') : null;
+  const requireWorkspace = () => { if (!file) invalid('Task macros require an open workspace'); };
 
   async function read() {
+    requireWorkspace();
     try { return await readStored(); } catch (cause) { throw windowError('unclassified', '', { stage: 'storage', cause }); }
   }
   async function readStored() {
+    requireWorkspace();
     let raw;
     try {
       raw = await fs.readFile(file, 'utf8');
@@ -155,6 +163,7 @@ function createStore(home) {
   }
 
   async function save(input) {
+    requireWorkspace();
     const checked = definition(input, true);
     await fs.mkdir(path.dirname(file), { recursive: true });
     let lock;

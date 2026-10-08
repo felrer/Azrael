@@ -76,7 +76,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   function dismissConsentNotification(record) {
     if (record.notificationTask) trackNotification(record.notificationTask.then(() => hideConsentNotification(record)));
   }
-  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
+  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
     onUserStop: (thread, value) => {
       invalidateUI(thread); approvals.stop(thread);
       if (current === thread) render({ ...value, status: 'Esc로 이 창의 제어를 중지했습니다. 이미 전달한 동작은 적용됐을 수 있습니다.' });

@@ -21,7 +21,7 @@ test('session absence differs from unreadable or corrupt session state', async (
 test('corrupt saved task definitions are internal errors rather than invalid caller input', async t => {
   const prefix = path.join(os.tmpdir(), 'window-errors-store-'), home = await fs.mkdtemp(prefix);
   t.after(async () => { assert(path.resolve(home).startsWith(path.resolve(prefix))); await fs.rm(home, { recursive: true, force: true }); });
-  const store = require('./window-task-macros.cjs').createStore(home);
+  const store = require('./window-task-macros.cjs').createStore(home, home);
   await fs.mkdir(path.dirname(store.file), { recursive: true });
   await fs.writeFile(store.file, JSON.stringify({ schema: 1, revision: 0, macros: [{ schema: 1 }] }));
   await assert.rejects(store.read(), e => e.code === 'unclassified' && e.stage === 'storage' && e.message === '미분류된 오류');

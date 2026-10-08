@@ -26,7 +26,7 @@ async function main() {
   if(method === 'act') {actions.push({...p});if(throwing) throw new Error('native failed with SECRET'); if(p.action === 'setValue') value=p.value; if(p.action === 'pressKey') value='submitted';}
   return {window:{...current}};
  }};
- const owner=createWindowOwner({backend,authorize:async()=>granted,approve:async()=>{approvals++;if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home});
+ const owner=createWindowOwner({backend,authorize:async()=>granted,approve:async()=>{approvals++;if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home,workspacePath:home});
  async function bind(){return owner.bind('t',current);}
  async function run(def,extra={}) {const target=owner.peek('t');return owner.call('t','run_task_macro',{targetId:target.targetId,definition:def,...extra});}
  try {
@@ -50,8 +50,35 @@ async function main() {
   const saved=await owner.call('t','save_task_macro',{definition:def});assert.equal(saved.revision,1);
   const updated=await owner.call('t','save_task_macro',{definition:{...def,name:'Updated'}});assert.equal(updated.revision,2);
   assert.equal((await owner.call('t','list_task_macros',{})).macros.length,1);
-  const raw=await fs.readFile(tasks.createStore(home).file,'utf8');assert.ok(!raw.includes('SECRET'));
+  const raw=await fs.readFile(tasks.createStore(home,home).file,'utf8');assert.ok(!raw.includes('SECRET'));
   const reused=await owner.call('t','run_task_macro',{targetId:owner.peek('t').targetId,macroId:'search',parameters:{query:'again'}});assert.equal(reused.status,'completed');assert.equal(reused.revision,2);
+  assert.equal((await owner.call('other-thread','list_task_macros',{})).macros[0].name,'Updated');
+  assert.equal(tasks.createStore(home,path.join(home,'.')+path.sep).file,tasks.createStore(home,home).file);
+  if(process.platform==='win32') assert.equal(tasks.createStore(home,home.toUpperCase()).file,tasks.createStore(home,home).file);
+  const legacyFile=path.join(home,'azrael','computer-use','window-task-macros.json');
+  const legacyRaw=JSON.stringify({schema:1,revision:1,macros:[{...def,id:'legacy'}]});
+  await fs.writeFile(legacyFile,legacyRaw);
+  const otherOwner=createWindowOwner({backend,authorize:async()=>true,codexHome:home,workspacePath:path.join(home,'other-project'),occupancyDirectory:path.join(home,'other-occupancy')});
+  try {
+   assert.deepEqual((await otherOwner.call('other','list_task_macros',{})).macros,[]);
+   const otherTarget=await otherOwner.bind('other',current);
+   await assert.rejects(otherOwner.call('other','run_task_macro',{targetId:otherTarget.targetId,macroId:'search',parameters:{query:'x'}}),/Unknown task macro/);
+   await otherOwner.call('other','save_task_macro',{definition:{...def,name:'Other project'}});
+   assert.equal((await owner.call('t','list_task_macros',{})).macros[0].name,'Updated');
+   assert.equal((await otherOwner.call('other','list_task_macros',{})).macros[0].name,'Other project');
+   const refreshedOtherTarget=await otherOwner.bind('other',current);
+   const otherRun=await otherOwner.call('other','run_task_macro',{targetId:refreshedOtherTarget.targetId,macroId:'search',parameters:{query:'other'}});
+   assert.equal(otherRun.status,'completed');assert.equal(otherRun.revision,1);
+   assert.equal(await fs.readFile(legacyFile,'utf8'),legacyRaw);
+  } finally {otherOwner.dispose();}
+  const unscoped=createWindowOwner({backend,authorize:async()=>true,codexHome:home,occupancyDirectory:path.join(home,'unscoped-occupancy')});
+  try {
+   await assert.rejects(unscoped.call('empty','list_task_macros',{}),e=>e.code==='invalid_request' && /open workspace/.test(e.message));
+   await assert.rejects(unscoped.call('empty','save_task_macro',{definition:def}),/open workspace/);
+   const target=await unscoped.bind('empty',current);
+   assert.equal((await unscoped.call('empty','run_task_macro',{targetId:target.targetId,definition:task([{action:'capture'}])})).status,'completed');
+   await assert.rejects(unscoped.call('empty','run_task_macro',{targetId:target.targetId,macroId:'search'}),e=>e.code==='invalid_request' && /open workspace/.test(e.message));
+  } finally {unscoped.dispose();}
   await assert.rejects(run(def,{parameters:{query:'x',extra:'x'}}),/Invalid task/);
   assert.throws(()=>tasks.definition(task([{action:'press_key',selector,key:'Return'}])),/postcondition/);
   assert.throws(()=>tasks.definition(task([{action:'wait_for',condition:condition('exists',true),timeoutMs:10001}])),/limit/);
@@ -95,7 +122,7 @@ async function main() {
   for (const property of ['exists','enabled','selected']) {
     assert.throws(() => tasks.definition({schema:1,parameters:['state'],steps:[{action:'assert',condition:condition(property,{parameter:'state'})}]}), /literal booleans/);
   }
-  const store=tasks.createStore(home);
+  const store=tasks.createStore(home,home);
   const validStored=await fs.readFile(store.file,'utf8');
   const tooLarge={schema:1,id:'oversized',name:'Oversized',steps:Array.from({length:11},()=>({action:'set_value',selector,value:'\uD55C'.repeat(32768)}))};
   assert.ok(Buffer.byteLength(JSON.stringify(tooLarge),'utf8')>1024*1024);
