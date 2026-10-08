@@ -42,6 +42,16 @@ Waiting is keyed by reservation ID and its originating/resume turn identities. A
 
 The reservation stores its first waiting timestamp and freezes the end on its first transition from waiting to claimed, cancelled or blocked. A claim marks the beginning of resume processing, so later admission retries retain that same elapsed waiting duration. The optional `Turn.rootResumeWait` carries reservation identity, revision, both nullable timestamps, deadline, state and whether selected children can wake it early. `turn/rootResumeWait/updated` changes this metadata without completing the deferred turn. Durable history and paginated turn/timeline metadata retain the same field. Segment presentation respects the source turn's deferred or terminal boundary instead of restoring an active work timer.
 
+### Reconciliation of a missing defer notification
+
+Status: `current` in source. Canonical/legacy history lookup, deferred recovery and native work-divider rendering are verified in light/dark themes. Packaging and installed-window acceptance are pending.
+
+An originating turn with a waiting, claimed or resumed reservation has stopped working even if its local status still says `inProgress`. Cancellation or blocked admission establishes this boundary only when the reservation has a recorded waiting start; a reservation cancelled during preparation does not stop unrelated active work. Presentation freezes the originating work segment immediately. Its work duration remains unavailable until the engine supplies the measured value; waiting timestamps are not used to estimate work duration.
+
+The host reconciles the exact conversation, originating turn and reservation through the existing native turn metadata query and history merge path. Concurrent queries for the same originating turn are shared. Reservation updates and a new resume turn provide reconciliation opportunities without model calls, periodic requests or automatic task execution. A missing local turn retains its reservation boundary until authoritative metadata or normal history loading can apply it. Late snapshots cannot reactivate a reconciled deferred turn, and terminal interruption or completion remains authoritative.
+
+Reconciliation records correlation IDs, reservation revision, outcome and page count through the existing host logger. Lookup or metadata failure leaves the previous work clock frozen with an unavailable duration and keeps the resumed turn independent. A newer matching wait end can update a completed or interrupted turn's waiting divider while retaining its work status and measured duration. Reconciliation does not generate completion notifications or completion side effects.
+
 ## Cost characteristics
 
 A parked root holds no ongoing inference. Resuming makes a new request from retained conversation state, and provider prompt-cache reuse is independent of the reservation, so a cache miss can raise the input cost of the first resumed request. Savings come from avoiding repeated model wakeups and status checks, not from elapsed wall time. Prefer waking on selected child completion with a useful fallback deadline over short repeated timed wakeups intended only to keep a cache warm.

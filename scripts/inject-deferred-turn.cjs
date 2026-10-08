@@ -9,7 +9,11 @@ const DEFERRED_WAIT_RENDERER_ASSET = "webview/assets/connector-asset-title-query
 const DEFERRED_THREAD_ASSET = "webview/assets/local-conversation-thread-8f3221bfc636.js";
 const DEFERRED_TURN_ASSET = "webview/assets/local-conversation-turn-4aa6f571456a.js";
 const DEFERRED_COLLAPSED_ASSET = "webview/assets/collapsed-turn-disclosure-2f7026e8d6c9.js";
-const { azraelMergeRootResumeWait, azraelRootResumeWaitItem, azraelRootResumeWaitLabel } = require("./root-resume-wait.cjs");
+const { azraelHasDeferredBoundary, azraelNormalizeDeferredTurn, azraelMergeRootResumeWait,
+  azraelRootResumeWaitItem, azraelRootResumeWaitLabel } = require("./root-resume-wait.cjs");
+const recoveryHelpers = require("./root-resume-wait.cjs");
+
+const boundaryHelpers = () => azraelHasDeferredBoundary.toString() + "\n" + azraelNormalizeDeferredTurn.toString() + "\n";
 
 function replaceOnce(text, anchor, replacement) {
   if (text.split(anchor).length !== 2) {
@@ -30,28 +34,31 @@ function injectDeferredTurn(text) {
   const converters = [...text.matchAll(/let\{threadId:s,turn:c\}=t\.params,l=([A-Za-z_$][\w$]*)\(s\);if\(!o\.threadStore\.conversations\.has\(l\)\)/g)];
   if (converters.length !== 1) throw new Error("Pinned deferred-turn native conversation converter anchor must occur exactly once.");
   const conversationId = converters[0][1];
-  text = azraelMergeRootResumeWait.toString() + "\n" + text;
+  text = boundaryHelpers() + azraelMergeRootResumeWait.toString() + "\n" +
+    "const azraelDeferredJournals=new WeakMap();\n" +
+    ["azraelDeferredJournal", "azraelDeferredLog", "azraelMergeEndedRootResumeWait", "azraelFlushDeferred", "azraelReceiveDeferred"]
+      .map(name => recoveryHelpers[name].toString()).join("\n") + "\n" + text;
   text = replaceOnce(text, "case`turn/completed`:{if(o.itemStreamState.drainBefore",
     "case`turn/deferred`:{" +
     "if(o.itemStreamState.drainBefore(()=>{a.onNotification(`turn/deferred`,t.params,n,i,r)}))return`deferred`;" +
     `let{threadId:s,turn:c}=t.params,l=${conversationId}(s);` +
-    "if(!o.threadStore.conversations.has(l)){a.logger.error(`Received turn/deferred for unknown conversation`,{safe:{conversationId:l},sensitive:{}});break}" +
-    "o.updateTurnState(l,c.id,e=>{if(e.status===`completed`||e.status===`interrupted`||e.status===`failed`)return;" +
-    "e.turnId=c.id;e.status=`deferred`;e.error=null;e.durationMs=c.durationMs;" +
-    "e.rootResumeWait=azraelMergeRootResumeWait(e.rootResumeWait,c.rootResumeWait);" +
-    "if(c.startedAt!=null)e.turnStartedAtMs=c.startedAt*1e3});" +
+    "azraelReceiveDeferred(a,o,Fh,l,s,c.id,c.rootResumeWait,c);" +
     "a.broadcastConversationSnapshot(l);break}" +
     "case`turn/rootResumeWait/updated`:{" +
     "if(o.itemStreamState.drainBefore(()=>{a.onNotification(`turn/rootResumeWait/updated`,t.params,n,i,r)}))return`deferred`;" +
     `let{threadId:s,turnId:c,wait:w}=t.params,l=${conversationId}(s);` +
-    "if(!o.threadStore.conversations.has(l))break;" +
-    "o.updateTurnState(l,c,e=>{e.rootResumeWait=azraelMergeRootResumeWait(e.rootResumeWait,w)});" +
+    "azraelReceiveDeferred(a,o,Fh,l,s,c,w,null);" +
     "a.broadcastConversationSnapshot(l);break}" +
     "case`turn/completed`:{if(o.itemStreamState.drainBefore");
   text = replaceOnce(text, "case`turn/started`:case`turn/completed`:case`turn/diff/updated`:",
     "case`turn/started`:case`turn/deferred`:case`turn/rootResumeWait/updated`:case`turn/completed`:case`turn/diff/updated`:");
   text = replaceOnce(text, "durationMs:t.durationMs,finalAssistantStartedAtMs:Iyn(t.completedAt),status:t.status",
-    "durationMs:t.durationMs,rootResumeWait:t.rootResumeWait??null,finalAssistantStartedAtMs:Iyn(t.completedAt),status:t.status");
+    "durationMs:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?null:t.durationMs,rootResumeWait:t.rootResumeWait??null,finalAssistantStartedAtMs:Iyn(t.completedAt),status:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?`deferred`:t.status");
+  text = replaceOnce(text, "policy:o}){let s=e.status!==`inProgress`&&t.status===`inProgress`",
+    "policy:o}){if((e.status===`completed`||e.status===`interrupted`||e.status===`failed`)&&(t.status===`inProgress`||t.status===`deferred`))" +
+    "t={...t,status:e.status,error:e.error,durationMs:e.durationMs,turnStartedAtMs:e.turnStartedAtMs," +
+    "firstTurnWorkItemStartedAtMs:e.firstTurnWorkItemStartedAtMs,finalAssistantStartedAtMs:e.finalAssistantStartedAtMs,completedAt:e.completedAt};" +
+    "e=azraelNormalizeDeferredTurn(e);t=azraelNormalizeDeferredTurn(t);let s=e.status!==`inProgress`&&t.status===`inProgress`");
   text = replaceOnce(text, "durationMs:e.durationMs??t.durationMs,finalAssistantStartedAtMs:",
     "durationMs:e.status===`deferred`&&t.status===`inProgress`?e.durationMs:t.durationMs??e.durationMs,rootResumeWait:azraelMergeRootResumeWait(e.rootResumeWait,t.rootResumeWait),finalAssistantStartedAtMs:");
   // A snapshot fetched before the defer boundary can arrive after its notification.
@@ -62,11 +69,15 @@ function injectDeferredTurn(text) {
     "durationMs:e.durationMs??null,rootResumeWait:e.rootResumeWait??null});let s=n=>e.sendRequest(`thread/timeline/list`");
   text = replaceOnce(text, "completedAt:e.completedAt,durationMs:e.durationMs}));let p=new Set",
     "completedAt:e.completedAt,durationMs:e.durationMs,rootResumeWait:e.rootResumeWait??o.get(e.turnId)?.rootResumeWait??null}));let p=new Set");
-  return { text, count: 7, nativeTimingChecks: 1 };
+  text = replaceOnce(text, "broadcastConversationSnapshot(e){return this.streamState.broadcastConversationSnapshot(e)}",
+    "broadcastConversationSnapshot(e){azraelFlushDeferred(this,e);return this.streamState.broadcastConversationSnapshot(e)}");
+  return { text, count: 9, nativeTimingChecks: 1 };
 }
 
 function injectDeferredPresentation(text) {
-  text = azraelRootResumeWaitItem.toString() + "\n" + azraelRootResumeWaitLabel.toString() + "\n" + text;
+  text = boundaryHelpers() + azraelRootResumeWaitItem.toString() + "\n" + azraelRootResumeWaitLabel.toString() + "\n" + text;
+  text = replaceOnce(text, "y=v?.turn??e,{replyItemIds:b}=Vmt(y.items)",
+    "y=azraelNormalizeDeferredTurn(v?.turn??e),{replyItemIds:b}=Vmt(y.items)");
   text = replaceOnce(text, "function _it(e){switch(e){case`completed`:",
     "function _it(e){switch(e){case`deferred`:return`deferred`;case`completed`:");
   text = replaceOnce(text,
@@ -86,12 +97,13 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "function LFi(e){let t=(0,BFi.c)(13)", "function LFi(e){let t=(0,BFi.c)(14)");
   text = replaceOnce(text, "t[0]!==a||t[1]!==i||t[2]!==r?(o=(0,k7.jsx)(IFi,{status:r,startedAtMs:i,completedAtMs:a}),t[0]=a,t[1]=i,t[2]=r,t[3]=o)",
     "t[0]!==a||t[1]!==i||t[2]!==r||t[13]!==e.rootResumeWait?(o=(0,k7.jsx)(IFi,{status:r,startedAtMs:i,completedAtMs:a,rootResumeWait:e.rootResumeWait}),t[0]=a,t[1]=i,t[2]=r,t[3]=o,t[13]=e.rootResumeWait)");
-  return { text, count: 8 };
+  return { text, count: 9 };
 }
 
 function injectDeferredThread(text) {
+  text = boundaryHelpers() + text;
   text = replaceOnce(text, "function lp(e,t,n,r,i,a){let o=new Set(n.itemIds)",
-    "function lp(e,t,n,r,i,a){let azraelDeferred=t.status===`deferred`,azraelWait=t.rootResumeWait!=null;" +
+    "function lp(e,t,n,r,i,a){t=azraelNormalizeDeferredTurn(t);let azraelDeferred=t.status===`deferred`,azraelWait=t.rootResumeWait!=null;" +
     "if(n.state===`active`&&(azraelDeferred||t.status===`completed`||t.status===`interrupted`||t.status===`failed`)){" +
     "let end=t.turnStartedAtMs!=null&&t.durationMs!=null?t.turnStartedAtMs+t.durationMs:t.finalAssistantStartedAtMs??null;" +
     "n={...n,state:`terminal`,terminalReason:`turn`,completedAtMs:end}}" +
