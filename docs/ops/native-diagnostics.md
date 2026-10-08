@@ -23,3 +23,13 @@ The inspector's `transportDiagnostics` exports allowlisted `connection_error` ca
 The **Azrael provider accounts** VS Code Output channel records account action start/completion/failure and elapsed time without credential values or failure details. The **Azrael Recovery** Output channel records host version and bounded RPC diagnostics. `host.rpc_error`, `host.rpc_send_failed`, and `host.transport_disconnected` include a hashed request/thread reference, method, elapsed time, numeric RPC code when available, and one broad category (`auth`, `usage_rate_limit`, `timeout`, `connection`, `tool`, `protocol`, or `unknown`). `host.notification_error` records method, code, and category without the notification body. Use the timestamp and request reference to correlate these records with the visible chat error and native SQLite metadata. The host keeps at most 128 pending request references for five minutes and clears them on disconnect; an unanswered request is reported as an unknown outcome, not a proven failed tool action.
 
 VS Code's **Log (Extension Host)** can show extension activation faults. The host still discards app-server stderr content because upstream messages may include secrets; only a capped byte count survives a disconnect. A missing row in `logs_2.sqlite` or the Output channel does not prove that no error occurred. These records improve host/provider error attribution but do not yet satisfy the full AZ-01 injected-failure and safe-resume matrix.
+
+## Window overlay layered API regression
+
+Run the owned desktop regression explicitly from the project root, using the selected Window Control Cargo cache:
+
+```powershell
+cargo test --locked --manifest-path native/window-control/Cargo.toml --target-dir artifacts/build/window-control-native/target layered_attributes_refresh_recovers_same_windows -- --ignored --nocapture --test-threads=1
+```
+
+The test opens a non-activating owned window, induces real alpha/color-key mode conflicts, and checks the product Overlay thread preserves layer HWNDs, extended styles, target identity, movement/resizing, rendered glow on light/dark backgrounds and the existing foreground. It pumps target messages during worker shutdown and destroys its windows. It reads pixels only inside its owned window and saves no screenshots. Run desktop fixtures serially. The test accepts the scoped API recovery in source; installed-host behavior, general refresh-error reporting and occupancy-duration display require separate verification. See the [visualization contract](../architecture/window-use-visualization.md#layered-api-충돌-복구).

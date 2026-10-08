@@ -52,6 +52,14 @@ native main loop의 UIA 호출이 오래 걸려도 overlay UI thread가 메시�
 
 기존 `windows = 0.58.0`의 Win32/GDI/HiDpi 기능을 재사용한다. 비활성·입력 통과 표시에는 layered window와 transparent/noactivate/toolwindow 스타일을 사용하고, Escape는 OS hotkey 등록을 사용한다. 근거: [Window features](https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features), [Extended styles](https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles), [RegisterHotKey](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey).
 
+### Layered API 충돌 복구
+
+Status: `current` in source — 실제 native renderer의 밝은·어두운 테스트 창에서 충돌 복구를 검증했다. 패키징·설치 수용은 별도다.
+
+`UpdateLayeredWindow` 갱신이 실패하고 `GetLayeredWindowAttributes`가 constant alpha 또는 color-key mode를 확인하면, 같은 surface의 `WS_EX_LAYERED`를 해제·재설정하고 동일한 픽셀 갱신을 한 번 재시도한다. 나머지 extended style과 HWND를 보존한다. 스타일 변경이나 재시도가 실패하면 오류를 반환하며 다른 오류를 성공으로 처리하지 않는다. 이 복구는 `SetLayeredWindowAttributes` 이후 픽셀 갱신이 막히는 [Win32 API 계약](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-setlayeredwindowattributes)에 한정된다. 점유 수명주기와 일반적인 주기 갱신 오류 처리 계약은 별도다.
+
+### 검증 범위
+
 컴파일·unit test는 실제 앱의 입력 통과·겹침 순서·DPI·캡처 동작을 증명하지 않는다. 제품 native renderer를 소유한 fixture 창에 띄워 밝고 어두운 배경, 반투명 픽셀, 클릭 통과, foreground 보존, 대상 전환·중지·후속 입력 차단, 이동·최소화·종료·cleanup을 검증한다. native renderer와 실제 입력 동작의 근거를 구분한다. 앱별 WGC에 표시가 포함되는지와 설치된 host에서 모델 도구로 실행되는지는 별도 수용 항목이다. 이번 작업의 근거는 외부 작업 문서와 task 로그가 소유한다.
 
 ## 추가 시각화 제안

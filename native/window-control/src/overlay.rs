@@ -336,25 +336,50 @@ impl Layer {
             SelectObject(dc, old_font);
             let _ = DeleteObject(font);
         }
-        let result = UpdateLayeredWindow(
-            self.0,
-            None,
-            Some(&POINT { x, y }),
-            Some(&SIZE {
-                cx: width,
-                cy: height,
-            }),
-            dc,
-            Some(&POINT::default()),
-            COLORREF(0),
-            Some(&BLENDFUNCTION {
-                BlendOp: AC_SRC_OVER as u8,
-                BlendFlags: 0,
-                SourceConstantAlpha: 255,
-                AlphaFormat: AC_SRC_ALPHA as u8,
-            }),
-            ULW_ALPHA,
-        );
+        let update = || {
+            UpdateLayeredWindow(
+                self.0,
+                None,
+                Some(&POINT { x, y }),
+                Some(&SIZE {
+                    cx: width,
+                    cy: height,
+                }),
+                dc,
+                Some(&POINT::default()),
+                COLORREF(0),
+                Some(&BLENDFUNCTION {
+                    BlendOp: AC_SRC_OVER as u8,
+                    BlendFlags: 0,
+                    SourceConstantAlpha: 255,
+                    AlphaFormat: AC_SRC_ALPHA as u8,
+                }),
+                ULW_ALPHA,
+            )
+        };
+        let mut result = update();
+        if result.is_err() {
+            let mut flags = LAYERED_WINDOW_ATTRIBUTES_FLAGS::default();
+            if GetLayeredWindowAttributes(self.0, None, None, Some(&mut flags)).is_ok()
+                && flags.0 & (LWA_ALPHA.0 | LWA_COLORKEY.0) != 0
+            {
+                // SetLayeredWindowAttributes blocks per-pixel updates until
+                // WS_EX_LAYERED is cleared and set again. Keep the same HWND
+                // and all its other extended styles, and retry just once.
+                result = (|| -> windows::core::Result<()> {
+                    let style = GetWindowLongPtrW(self.0, GWL_EXSTYLE);
+                    for value in [style & !(WS_EX_LAYERED.0 as isize), style] {
+                        SetLastError(ERROR_SUCCESS);
+                        let previous = SetWindowLongPtrW(self.0, GWL_EXSTYLE, value);
+                        let error = GetLastError();
+                        if previous == 0 && error != ERROR_SUCCESS {
+                            return Err(windows::core::Error::from(error));
+                        }
+                    }
+                    update()
+                })();
+            }
+        }
         SelectObject(dc, previous);
         let _ = DeleteObject(bitmap);
         let _ = DeleteDC(dc);
@@ -777,6 +802,183 @@ mod fixture {
             }
             task.join().unwrap()
         })
+    }
+    // The overlay worker queries the target synchronously while exiting.
+    // Keep dispatching target messages while joining, including on assertion failure.
+    struct PumpedOverlay(Option<Overlay>);
+    impl Drop for PumpedOverlay {
+        fn drop(&mut self) {
+            if let Some(overlay) = self.0.take() {
+                thread::scope(|scope| {
+                    let task = scope.spawn(move || drop(overlay));
+                    while !task.is_finished() {
+                        unsafe { pump() };
+                    }
+                    task.join().unwrap();
+                });
+            }
+        }
+    }
+    #[test]
+    #[ignore = "owned-desktop regression: opens only owned windows without activating them; run explicitly"]
+    fn layered_attributes_refresh_recovers_same_windows() {
+        unsafe {
+            SetThreadDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+            let foreground = GetForegroundWindow();
+            let class = WNDCLASSW {
+                lpfnWndProc: Some(fixture_proc),
+                lpszClassName: w!("AzraelLayeredApiFixture"),
+                ..Default::default()
+            };
+            RegisterClassW(&class);
+            let mut monitor = MONITORINFO {
+                cbSize: size_of::<MONITORINFO>() as u32,
+                ..Default::default()
+            };
+            assert!(GetMonitorInfoW(
+                MonitorFromPoint(POINT::default(), MONITOR_DEFAULTTOPRIMARY),
+                &mut monitor
+            )
+            .as_bool());
+            let x = monitor.rcWork.left + 30;
+            let y = monitor.rcWork.top + 30;
+            let target = Fixture(
+                CreateWindowExW(
+                    WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW | WS_EX_TOPMOST,
+                    w!("AzraelLayeredApiFixture"),
+                    w!("Azrael owned layered API regression"),
+                    WS_POPUP,
+                    x,
+                    y,
+                    420,
+                    300,
+                    None,
+                    None,
+                    None,
+                    None,
+                )
+                .unwrap(),
+            );
+            SetWindowLongPtrW(target.0, GWLP_USERDATA, 0x00f7f7f7 + 1);
+            let _ = ShowWindow(target.0, SW_SHOWNOACTIVATE);
+            pump();
+            let descriptor = crate::windows_backend::describe(target.0).unwrap();
+            let overlay = PumpedOverlay(Some(Overlay::new()));
+            let show = call(
+                overlay.0.as_ref().unwrap(),
+                "overlayShow",
+                json!({
+                    "window": descriptor, "targetId": "12345678-1234-1234-1234-123456789abc",
+                    "generation": 1, "label": "Layered API regression"
+                }),
+            )
+            .unwrap();
+            assert_eq!(show["visible"], true);
+            pump();
+            let mut handles: Vec<usize> = OWNED
+                .get_or_init(Default::default)
+                .lock()
+                .unwrap()
+                .iter()
+                .copied()
+                .collect();
+            handles.sort_unstable();
+            assert_eq!(handles.len(), 2);
+            let glow = *handles
+                .iter()
+                .find(|h| IsWindowVisible(HWND(**h as *mut _)).as_bool())
+                .unwrap();
+            let glow = HWND(glow as *mut _);
+            SetWindowDisplayAffinity(glow, WDA_NONE).unwrap();
+            let styles: Vec<isize> = handles
+                .iter()
+                .map(|h| GetWindowLongPtrW(HWND(*h as *mut _), GWL_EXSTYLE))
+                .collect();
+            let required = (WS_EX_LAYERED | WS_EX_TRANSPARENT | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW)
+                .0 as isize;
+            for style in &styles {
+                assert_eq!(style & required, required);
+            }
+            for (theme, color, flags) in [
+                ("light", 0x00f7f7f7, LWA_ALPHA),
+                ("dark", 0x00212121, LWA_COLORKEY),
+            ] {
+                SetWindowLongPtrW(target.0, GWLP_USERDATA, color as isize + 1);
+                let _ = InvalidateRect(target.0, None, false);
+                let _ = UpdateWindow(target.0);
+                SetLayeredWindowAttributes(glow, COLORREF(0), 255, flags).unwrap();
+                let mut observed = LAYERED_WINDOW_ATTRIBUTES_FLAGS::default();
+                GetLayeredWindowAttributes(glow, None, None, Some(&mut observed)).unwrap();
+                assert_eq!(observed, flags, "induction must set the actual native mode");
+                // Resizing forces per-pixel repaint on the real Overlay UI thread.
+                for (dx, dy, width, height) in
+                    [(0, 0, 440, 320), (24, 18, 440, 320), (40, 26, 460, 340)]
+                {
+                    SetWindowPos(
+                        target.0,
+                        None,
+                        x + dx,
+                        y + dy,
+                        width,
+                        height,
+                        SWP_NOACTIVATE | SWP_NOZORDER,
+                    )
+                    .unwrap();
+                    pump();
+                    let mut current: Vec<usize> = OWNED
+                        .get_or_init(Default::default)
+                        .lock()
+                        .unwrap()
+                        .iter()
+                        .copied()
+                        .collect();
+                    current.sort_unstable();
+                    assert_eq!(current, handles, "refresh must preserve both layer HWNDs");
+                    assert!(crate::windows_backend::verify(&descriptor).is_ok());
+                    assert_eq!(GetForegroundWindow(), foreground);
+                    for (h, style) in handles.iter().zip(&styles) {
+                        let hwnd = HWND(*h as *mut _);
+                        assert!(IsWindow(hwnd).as_bool());
+                        assert_eq!(GetWindowLongPtrW(hwnd, GWL_EXSTYLE), *style);
+                    }
+                    assert!(IsWindowVisible(glow).as_bool());
+                    let mut rect = RECT::default();
+                    GetWindowRect(glow, &mut rect).unwrap();
+                    let frame = visible_frame(target.0).unwrap();
+                    assert_eq!(
+                        (rect.left, rect.top, rect.right, rect.bottom),
+                        (frame.left, frame.top, frame.right, frame.bottom)
+                    );
+                    let screen = GetDC(None);
+                    // Sample only within the owned popup, with capture exclusion
+                    // disabled only on its owned glow. No image of user windows.
+                    let pixel = GetPixel(screen, rect.left + 24, rect.top + 24).0;
+                    let background = GetPixel(
+                        screen,
+                        (rect.left + rect.right) / 2,
+                        (rect.top + rect.bottom) / 2,
+                    )
+                    .0;
+                    ReleaseDC(None, screen);
+                    assert_eq!(background, color, "owned {theme} background must render");
+                    assert_ne!(pixel, CLR_INVALID);
+                    assert!(
+                        (pixel >> 16) & 255 > (pixel & 255) + 8,
+                        "{theme} background must show the blue corner glow: {pixel:#x}"
+                    );
+                }
+                eprintln!("layered API recovery: {theme}, mode={flags:?}, same HWNDs, styles, geometry, glow and foreground verified");
+            }
+            drop(overlay);
+            for h in handles {
+                assert!(!IsWindow(HWND(h as *mut _)).as_bool());
+            }
+            assert_eq!(GetForegroundWindow(), foreground);
+            let hwnd = target.0;
+            drop(target);
+            assert!(!IsWindow(hwnd).as_bool());
+            assert_eq!(GetForegroundWindow(), foreground);
+        }
     }
     unsafe fn capture(hwnd: HWND, path: &str) {
         let mut r = RECT::default();
