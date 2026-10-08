@@ -49,7 +49,7 @@ test("ticket rows confirm twice and consume exactly the selected ticket, preserv
     data.rateLimitResetCredits.credits = null;
     internal.render();
     assert.doesNotMatch(panel.webview.html, /리셋 티켓 사용|<span>리셋 티켓<\/span>/);
-    assert.match(panel.webview.html, /free<\/span> · <span data-azrael-dynamic-text>workspace<\/span>/);
+    assert.doesNotMatch(panel.webview.html, /free<\/span> · <span data-azrael-dynamic-text>workspace<\/span>|요금제 확인 필요/);
     await internal.onMessage({ action: "ticketDetails", ...identity, open: true });
     assert.deepEqual(refreshes, [[profile.id, profile.workspaceAccountId, true, true]]);
     assert.match(panel.webview.html, /<details class="ticket-details"[^>]* open>/);

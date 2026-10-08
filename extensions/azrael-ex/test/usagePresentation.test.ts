@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { AccountUsage, RateLimitSnapshot, RateLimitWindow } from "../src/protocol";
 import { ProviderAccountQuota } from "../src/providerAccountProtocol";
-import { escapeHtml, dynamicTextHtml, planLabelHtml, openAIPlanLabel, openAIUsageHtml, providerAccountHtml, providerQuotaHtml, providerQuotaRowHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageToggleHtml, usageStyles } from "../src/usagePresentation";
+import { accountSummaryHtml, providerHeadingHtml, providerIconHtml, openAIQuotaHtml, autoSwitchCheckboxHtml, escapeHtml, dynamicTextHtml, openAIUsageHtml, providerAccountHtml, providerQuotaHtml, providerQuotaRowHtml, quotaHtml, resetText, visibleLimits, usageExpansionKey, usageStyles } from "../src/usagePresentation";
 
 function window(usedPercent: number, windowDurationMins: number | null = 300, resetsAt: number | null = null): RateLimitWindow {
   return { usedPercent, windowDurationMins, resetsAt };
@@ -71,8 +71,6 @@ function providerQuota(overrides: Partial<ProviderAccountQuota> = {}): ProviderA
 
 test("dynamic typography escapes content and leaves fixed fallbacks and controls in UI fonts", () => {
   assert.equal(dynamicTextHtml('<계정 & "Account">'), '<span data-azrael-dynamic-text>&lt;계정 &amp; &quot;Account&quot;&gt;</span>');
-  assert.equal(planLabelHtml(undefined), "요금제 확인 필요");
-  assert.equal(planLabelHtml(usage(null, limit({ planType: "pro" }))), '<span data-azrael-dynamic-text>pro</span>');
   assert.doesNotMatch(quotaHtml(window(NaN), "기본 한도"), /data-azrael-dynamic-text/);
   assert.match(quotaHtml(window(75, 300, 1_900_000_000), "기본 한도"), /<strong data-azrael-dynamic-text>25% 남음<\/strong>/);
   assert.match(quotaHtml(window(75, 42), "기본 한도"), /<span data-azrael-dynamic-text>42분 한도<\/span>/);
@@ -135,13 +133,13 @@ test("Fable missing or invalid percent stays unavailable without a bar", () => {
 test("missing Fable does not fabricate a quota and other provider rows stay generic", () => {
   for (const rows of [[], [{ label: "Weekly", usedPercent: 25 }]]) {
     const html = providerQuotaHtml(providerQuota({ rows }));
-    assert.doesNotMatch(html, /Fable|role="progressbar"/);
-    if (rows.length) assert.match(html, /provider-quota-row.*Weekly.*25% 사용/);
+    assert.doesNotMatch(html, /Fable/);
+    if (rows.length) assert.match(html, /Weekly.*75% 남음/);
     else assert.match(html, /제공된 한도 항목이 없습니다/);
   }
   const html = providerQuotaHtml(providerQuota({ providerId: "openrouter" }));
-  assert.match(html, /provider-quota-row.*Fable.*25% 사용/);
-  assert.doesNotMatch(html, /Fable 주간 한도|role="progressbar"/);
+  assert.match(html, /Fable.*75% 남음/);
+  assert.doesNotMatch(html, /Fable 주간 한도/);
 });
 
 test("Fable preserves the prior quota with latest failure and error observations", () => {
@@ -150,24 +148,24 @@ test("Fable preserves the prior quota with latest failure and error observations
   const html = providerQuotaHtml(previous, failure);
   assert.match(html, /Fable 주간 한도/);
   assert.match(html, /aria-valuenow="75"/);
-  assert.match(html, /이전 조회 값 · 출처 <span data-azrael-dynamic-text>account probe<\/span> · 관측/);
+  assert.match(html, /이전 조회 값/);
   assert.match(html, /최신 한도 조회 실패 · <span data-azrael-dynamic-text>denied &lt;access&gt;<\/span>/);
-  assert.match(html, /실패 출처 <span data-azrael-dynamic-text>latest &lt;probe&gt;<\/span> · 관측/);
-  assert.ok(html.includes(new Date(previous.observedAt).toLocaleString()));
-  assert.ok(html.includes(new Date(failure.observedAt).toLocaleString()));
+  assert.doesNotMatch(html, /출처|관측/);
+  assert.ok(!html.includes(new Date(previous.observedAt).toLocaleString()));
+  assert.ok(!html.includes(new Date(failure.observedAt).toLocaleString()));
   const errorOnly = providerQuotaHtml(failure);
   assert.match(errorOnly, /한도 조회 실패 · <span data-azrael-dynamic-text>denied &lt;access&gt;<\/span>/);
-  assert.match(errorOnly, /출처 <span data-azrael-dynamic-text>latest &lt;probe&gt;<\/span> · 관측/);
+  assert.doesNotMatch(errorOnly, /출처|관측/);
   assert.doesNotMatch(errorOnly, /Fable|role="progressbar"|이전 조회 값/);
 });
 
 test("reset copy handles missing, passed, minute, hour, and day windows", () => {
   const now = Date.UTC(2026, 8, 13, 0, 0, 0);
   assert.equal(resetText(null, now), "리셋 시간 미제공");
-  assert.match(resetText(now / 1000 - 1, now), /^리셋 시간 경과 · 갱신 대기 · /);
-  assert.match(resetText(now / 1000 + 30 * 60, now), /^30분 후 리셋 · /);
-  assert.match(resetText(now / 1000 + 90 * 60, now), /^1시간 30분 후 리셋 · /);
-  assert.match(resetText(now / 1000 + 26 * 60 * 60, now), /^1일 2시간 후 리셋 · /);
+  assert.match(resetText(now / 1000 - 1, now), /^리셋 시간 경과 · 갱신 대기$/);
+  assert.match(resetText(now / 1000 + 30 * 60, now), /^30분 후 리셋$/);
+  assert.match(resetText(now / 1000 + 90 * 60, now), /^1시간 30분 후 리셋$/);
+  assert.match(resetText(now / 1000 + 26 * 60 * 60, now), /^1일 2시간 후 리셋$/);
 });
 
 test("usage HTML escapes backend content and preserves a real zero ticket count", () => {
@@ -203,16 +201,65 @@ test("usage identity keys separate provider namespaces, workspaces and delimiter
   assert.notEqual(usageExpansionKey("openai", "a", "w"), usageExpansionKey("provider", "a", "w"));
   assert.notEqual(usageExpansionKey("openai", "a", "w1"), usageExpansionKey("openai", "a", "w2"));
   assert.notEqual(usageExpansionKey("provider", "a\u0000b", "c"), usageExpansionKey("provider", "a", "b\u0000c"));
-  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /aria-expanded="false" aria-label="사용량 펼치기"/);
-  assert.match(usageToggleHtml(false, 'data-profile="safe"'), /<span aria-hidden="true">▸<\/span>/);
-  assert.match(usageToggleHtml(true, 'data-profile="safe"'), /aria-expanded="true" aria-label="사용량 접기"/);
 });
 
 
-test("OpenAI plan label uses current usage and requires confirmation when absent or inconsistent", () => {
-  assert.equal(openAIPlanLabel(usage(null, limit({ planType: "free" }))), "free");
-  assert.equal(openAIPlanLabel(undefined), "요금제 확인 필요");
-  assert.equal(openAIPlanLabel(usage(null)), "요금제 확인 필요");
-  assert.equal(openAIPlanLabel(usage({ a: limit({ planType: "pro" }), b: limit({ planType: "pro" }) })), "pro");
-  assert.equal(openAIPlanLabel(usage({ a: limit({ planType: "pro" }), b: limit({ planType: "free" }) })), "요금제 확인 필요");
+
+
+test("account summary escapes labels and keeps passive quota gauges visible", () => {
+  const html = accountSummaryHtml('<email&>', false, 'data-profile="p"', openAIQuotaHtml(usage(null)), true);
+  assert.match(html, /role="button" tabindex="0" data-action="toggleUsage" aria-expanded="false"/);
+  assert.match(html, /<h2><span data-azrael-dynamic-text>&lt;email&amp;&gt;<\/span><\/h2>/);
+  assert.match(html, /badge current-login/);
+  assert.match(html, /usage-overview.*role="progressbar"/);
+  assert.doesNotMatch(html, /<button|<input/);
+  assert.doesNotMatch(accountSummaryHtml('email', true, '', '', false), /현재 로그인/);
+  assert.match(usageStyles, /badge.current-login\{[^}]*background:#eeeef0/);
+});
+
+test("provider icons and heading escape dynamic content without network assets", () => {
+  for (const id of ['openai', 'anthropic', 'google', 'gemini', 'devin', '<unknown>']) {
+    assert.match(providerIconHtml(id), /<svg viewBox="0 0 24 24">/);
+    assert.doesNotMatch(providerIconHtml(id), /<img|https?:|<unknown>/);
+  }
+  const html = providerHeadingHtml('a"b', '<provider>', 2, '<button>추가</button>');
+  assert.match(html, /data-provider="a&quot;b"/);
+  assert.match(html, /&lt;provider&gt;/);
+  assert.match(html, /2<\/span>개 계정/);
+  assert.match(html, /<button>추가<\/button>/);
+});
+
+test("provider badges require connected selected authenticated accounts and management expands", () => {
+  for (const connected of [false, true]) for (const selected of [false, true]) for (const needsReauth of [false, true]) {
+    const provider = { id: 'anthropic', label: 'Anthropic', authKind: 'oauth', inferenceConnected: connected } as never;
+    const account = { id: 'private-id', label: 'email@example.com', selected, needsReauth, autoSwitchAllowed: true } as never;
+    const html = providerAccountHtml(provider, account, providerQuota());
+    assert.equal(html.includes('현재 로그인'), connected && selected && !needsReauth);
+    assert.match(html, /role="progressbar"/);
+    assert.doesNotMatch(html, /providerSelect|providerReauth|providerRemove|setAutoSwitch/);
+    const expanded = providerAccountHtml(provider, account, providerQuota(), undefined, true, true);
+    assert.match(expanded, /providerReauth/);
+    assert.match(expanded, /providerRemove/);
+    assert.doesNotMatch(expanded, /<span data-azrael-dynamic-text>private-id/);
+    if (connected) assert.match(expanded, /data-action="setAutoSwitch"[^>]*checked[^>]*disabled/);
+  }
+  assert.match(autoSwitchCheckboxHtml(true, 'data-account="a"', true), /checked disabled><span class="switch-track"/);
+});
+
+test("provider gauges distinguish zero missing invalid and unlimited values", () => {
+  assert.match(providerQuotaRowHtml({ label: 'Count', remaining: 0, limit: 100 }), /aria-valuenow="0"/);
+  assert.match(providerQuotaRowHtml({ label: 'Count', remaining: 25, limit: 100 }), /aria-valuenow="25"/);
+  assert.match(providerQuotaRowHtml({ label: 'Percent', usedPercent: 0 }), /aria-valuenow="100"/);
+  for (const row of [{ remaining: 0 }, { remaining: 2, limit: 0 }, { remaining: -1, limit: 100 }, { remaining: 101, limit: 100 }, { usedPercent: NaN }, { usedPercent: -1 }, { usedPercent: 101 }, { usedPercent: 25, unlimited: true }, { remaining: 50, limit: 100, limitUnset: true }]) {
+    assert.doesNotMatch(providerQuotaRowHtml({ label: 'Unavailable', ...row }), /role="progressbar"/);
+  }
+});
+
+test("OpenAI detail-only usage preserves tickets and omits quota duplication", () => {
+  const data = usage(null);
+  data.rateLimitResetCredits = { availableCount: 1, credits: [{ id: 'credit', resetType: 'codexRateLimits', status: 'available', grantedAt: 1, expiresAt: null, title: 'Reset', description: null }] };
+  const html = openAIUsageHtml(data, 'profile', { workspaceAccountId: 'workspace' }, false);
+  assert.match(html, /consumeResetCredit/);
+  assert.doesNotMatch(html, /role="progressbar"/);
+  assert.equal(openAIUsageHtml(null, 'profile', undefined, false), '');
 });

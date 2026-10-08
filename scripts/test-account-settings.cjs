@@ -54,9 +54,9 @@ test("display branding preserves backend identifiers, URLs and model names", () 
 });
 
 test("settings mount renders scoped markup, forwards actions and cleans subscriptions", () => {
-  let effect, cleanup, receiver, click, change, toggle;
+  let effect, cleanup, receiver, click, change, toggle, keydown;
   const sent = [];
-  const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else toggle = undefined; } };
+  const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else if (type === "keydown") keydown = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : type === "keydown" ? keydown : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else if (type === "keydown") keydown = undefined; else toggle = undefined; } };
   const element = { attachShadow: () => shadow };
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
@@ -95,12 +95,22 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   button.dataset = { action: 'consumeResetCredit', profile: 'profile-1', workspace: 'workspace-1', credit: 'selected-ticket' };
   click({ target: button });
   assert.equal(sent[4].message.creditId, 'selected-ticket');
+  let activated = 0, prevented = 0;
+  const summary = new HTMLElement();
+  summary.dataset = { action: 'toggleUsage', profile: 'profile-1', workspace: 'workspace-1' };
+  summary.getAttribute = () => 'button';
+  summary.click = () => { ++activated; };
+  for (const key of ['Enter', ' ']) keydown({ target: summary, key, preventDefault: () => { ++prevented; } });
+  keydown({ target: summary, key: 'ArrowDown' });
+  assert.equal(activated, 2);
+  assert.equal(prevented, 2);
   cleanup();
   assert.equal(sent[5].action, "unmount");
   assert.equal(change, undefined);
   assert.equal(receiver, undefined);
   assert.equal(click, undefined);
   assert.equal(toggle, undefined);
+  assert.equal(keydown, undefined);
 });
 
 function loadUsageView() {

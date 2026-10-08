@@ -5,7 +5,7 @@ import { AccountView } from "./accountView";
 import { UsageRefreshCoordinator } from "./usageRefresh";
 import { DevinStatus } from "./devinProtocol";
 import { isRecord } from "./protocol";
-import { escapeHtml, dynamicTextHtml, planLabelHtml, openAIUsageHtml, providerAccountHtml, quotaHtml, usageStyles, usageExpansionKey, usageToggleHtml, autoSwitchCheckboxHtml } from "./usagePresentation";
+import { escapeHtml, dynamicTextHtml, openAIUsageHtml, openAIQuotaHtml, providerAccountHtml, accountSummaryHtml, providerHeadingHtml, quotaHtml, usageStyles, usageExpansionKey, autoSwitchCheckboxHtml } from "./usagePresentation";
 import { DevinUsageService } from "./devinUsage";
 import { ProviderAccountQuota, ProviderAccountsBackend, ProviderAccountSnapshot } from "./providerAccountProtocol";
 import { manageDevin } from "./devin";
@@ -184,7 +184,7 @@ export class UsageView implements vscode.Disposable {
   private async refreshOpenAI(force: boolean): Promise<void> {
     try {
       const state = await this.service.refresh();
-      const identities = state.profiles.filter(profile => this.expanded.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId))).map(profile => ({ profileId: profile.id, workspaceAccountId: profile.workspaceAccountId }));
+      const identities = state.profiles.map(profile => ({ profileId: profile.id, workspaceAccountId: profile.workspaceAccountId }));
       const due = this.usage.dueResetProfiles(identities);
       await Promise.all(identities.map(identity => this.usage.refresh(
         identity.profileId,
@@ -202,7 +202,7 @@ export class UsageView implements vscode.Disposable {
       const before = await this.service.devin("status");
       this.devin = before;
       if (before.email !== this.devinQuotaEmail) this.devinUsage.snapshot = undefined;
-      if (before.loggedIn && this.expanded.has(usageExpansionKey("devin-cli", before.email ?? ""))) {
+      if (before.loggedIn) {
         await this.devinUsage.refresh();
         const after = await this.service.devin("status");
         if (!after.loggedIn || before.email !== after.email) {
@@ -233,7 +233,7 @@ export class UsageView implements vscode.Disposable {
       this.render();
       const identities = snapshot.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai")
         .flatMap(provider => provider.accounts.map(account => ({ providerId: provider.id, accountId: account.id })));
-      await Promise.all(identities.filter(identity => this.expanded.has(usageExpansionKey("provider", identity.providerId, identity.accountId))).map(async identity => {
+      await Promise.all(identities.map(async identity => {
         const key = providerKey(identity.providerId, identity.accountId);
         try {
           const quota = await backend.quota(identity.providerId, identity.accountId, force);
@@ -357,11 +357,10 @@ export class UsageView implements vscode.Disposable {
       this.expanded.delete(key);
       this.ticketDetailsExpanded.delete(key);
       this.ticketConfirmations.delete(key);
-      if (message.kind === "devin-cli") this.devinUsage.cancelRefresh();
     }
     this.render();
     await this.globalState?.update(EXPANSION_STATE, [...this.expanded]);
-    if (opening) await this.refresh(true);
+    if (opening) await this.refresh();
   }
 
   private async consumeResetCredit(message: Record<string, unknown>): Promise<void> {
@@ -483,7 +482,7 @@ export class UsageView implements vscode.Disposable {
         const uri = webview.asWebviewUri(vscode.Uri.joinPath(this.fontRoot!, file));
         return `@font-face{font-family:"Azrael Gyeonggi Title";src:url("${escapeHtml(uri.toString())}") format("woff");font-weight:400;font-style:normal;font-display:swap}`;
       }).join("") : "";
-      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit});});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus();</script></body></html>`;
+      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action], [role="button"][data-action="toggleUsage"]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit});});document.addEventListener('keydown',e=>{const s=e.target;if((e.key==='Enter'||e.key===' ')&&s instanceof HTMLElement&&s.dataset.action==='toggleUsage'&&s.getAttribute('role')==='button'){e.preventDefault();s.click();}});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus();</script></body></html>`;
     }
     for (const [webview, target] of this.embedded) {
       try {
@@ -503,22 +502,31 @@ export class UsageView implements vscode.Disposable {
       const ticketState = { workspaceAccountId: profile.workspaceAccountId, expanded: this.ticketDetailsExpanded.has(ticketKey),
         confirmingCreditId: this.ticketConfirmations.get(ticketKey), retryCreditId: this.resetCredits.retryCreditId(profile),
         busy: this.resetCredits.busy(profile) || this.ticketConsuming.has(ticketKey), busyCreditId: this.ticketConsuming.get(ticketKey), changesEnabled: this.service.changesEnabled };
-      const switchAction = active ? "" : `<button class="account-switch" data-action="openaiSwitch" data-profile="${escapeHtml(profile.id)}">현재 엔진 계정으로 전환</button>`;
-      return `<section class="card account-card${expanded ? " expanded" : " collapsed"}"><div class="identity"><div class="account-heading">${usageToggleHtml(expanded, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`)}<div class="account-name"><h2>${dynamicTextHtml(profile.email ?? profile.id)}</h2>${expanded ? `<p class="muted">${planLabelHtml(entry?.data)} · ${dynamicTextHtml(profile.workspaceAccountId)}</p>` : `<span class="muted account-provider">${planLabelHtml(entry?.data)}</span>`}</div></div><div class="identity-actions">${active ? '<span class="badge">현재 엔진 계정</span>' : ""}${switchAction}${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`, this.autoSwitchPending.has(usageExpansionKey("openai", profile.id, profile.workspaceAccountId)))}</div></div>${expanded ? `<div class="usage-details">${openAIUsageHtml(entry?.data ?? null, profile.id, ticketState)}${this.automaticWindowErrorHtml(profile)}${entry?.error ? `<p class="error">갱신 실패 · ${dynamicTextHtml(entry.error)}</p>` : ""}${entry?.lastSuccessAt ? `<p class="muted updated">${entry.error || this.error ? "이전 조회 값 · " : ""}마지막 갱신 ${dynamicTextHtml(new Date(entry.lastSuccessAt).toLocaleString())}</p>` : ""}</div><div class="card-actions">${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div>` : ""}</section>`;
+      const attributes = `data-profile="${escapeHtml(profile.id)}" data-workspace="${escapeHtml(profile.workspaceAccountId)}"`;
+      const switchAction = active ? "" : `<button data-action="openaiSwitch" data-profile="${escapeHtml(profile.id)}">이 계정으로 전환</button>`;
+      const warning = entry?.error ? `<p class="error">${entry.data ? "이전 조회 값 · " : ""}사용량 조회 실패 · ${dynamicTextHtml(entry.error)}</p>` : "";
+      const summary = accountSummaryHtml(profile.email ?? "OpenAI 계정", expanded, attributes, openAIQuotaHtml(entry?.data ?? null), active);
+      return `<section class="account-card${expanded ? " expanded" : " collapsed"}">${summary}${warning}${expanded ? `<div class="usage-details"><h3>계정 상세정보</h3>${openAIUsageHtml(entry?.data ?? null, profile.id, ticketState, false)}${this.automaticWindowErrorHtml(profile)}<div class="settings-row">${autoSwitchCheckboxHtml(profile.autoSwitchAllowed, attributes, this.autoSwitchPending.has(ticketKey))}</div><div class="card-actions">${switchAction}${this.automaticWindowHtml(profile)}<button data-action="openaiReauth" data-profile="${escapeHtml(profile.id)}">재인증</button><button class="remove-account" data-action="openaiRemove" data-profile="${escapeHtml(profile.id)}">제거</button></div></div>` : ""}</section>`;
     }).join("") ?? "";
-    const openAIState = `${state?.pendingProfileId ? `<p class="notice">현재 엔진의 계정 전환 대기 중 · ${escapeHtml(state.pendingProfileId)} <button data-action="openaiCancelSwitch">전환 취소</button></p>` : ""}${state?.loginPending ? '<p class="notice">OpenAI 로그인 대기 중 <button data-action="openaiLoginCancel">로그인 취소</button></p>' : ""}`;
-    const providerCards = this.providerSnapshot?.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai").flatMap(provider => provider.accounts.map(account => {
-      const key = providerKey(provider.id, account.id);
-      return providerAccountHtml(provider, account, this.providerQuotas.get(key) ?? this.providerQuotaErrors.get(key), this.providerQuotas.has(key) ? this.providerQuotaErrors.get(key) : undefined, this.expanded.has(usageExpansionKey("provider", provider.id, account.id)), this.autoSwitchPending.has(usageExpansionKey("provider", provider.id, account.id)));
-    })).join("") ?? "";
-    const managedSection = this.providers?.enabled ? `<div class="provider"><span>관리형 공급자 계정</span><span class="actions"><button data-action="providerLoginCancel">로그인 취소</button><button data-action="providerAdd">공급자 계정 추가</button></span></div>${this.providerError || this.providers.error ? `<p class="error">${dynamicTextHtml(this.providerError ?? this.providers.error)}</p>` : ""}${providerCards || '<section class="card"><p class="muted">등록된 관리형 공급자 계정이 없습니다. 공급자 계정 추가에서 사용 가능한 공급자를 확인하세요.</p></section>'}` : "";
+    const openAIState = `${state?.pendingProfileId ? `<p class="notice">현재 엔진의 계정 전환 대기 중 <button data-action="openaiCancelSwitch">전환 취소</button></p>` : ""}${state?.loginPending ? '<p class="notice">OpenAI 로그인 대기 중 <button data-action="openaiLoginCancel">로그인 취소</button></p>' : ""}`;
+    const managedGroups = this.providerSnapshot?.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai").map(provider => {
+      const cards = provider.accounts.map(account => {
+        const key = providerKey(provider.id, account.id);
+        return providerAccountHtml(provider, account, this.providerQuotas.get(key) ?? this.providerQuotaErrors.get(key), this.providerQuotas.has(key) ? this.providerQuotaErrors.get(key) : undefined, this.expanded.has(usageExpansionKey("provider", provider.id, account.id)), this.autoSwitchPending.has(usageExpansionKey("provider", provider.id, account.id)));
+      }).join("");
+      const add = `<button data-action="providerAdd" data-provider="${escapeHtml(provider.id)}">계정 추가</button>`;
+      return `${providerHeadingHtml(provider.id, provider.label, provider.accounts.length, add)}<div class="provider-group">${cards || '<p class="empty-state muted">등록된 계정이 없습니다.</p>'}</div>`;
+    }).join("") ?? "";
+    const managedSection = this.providers?.enabled ? `${this.providerError || this.providers.error ? `<p class="error">${dynamicTextHtml(this.providerError ?? this.providers.error)}</p>` : ""}${managedGroups}<div class="provider-management"><button data-action="providerAdd">공급자 계정 추가</button><button class="text-button" data-action="providerLoginCancel">로그인 취소</button></div>` : "";
     const devin = this.devin;
     const devinQuota = devin?.loggedIn ? this.devinUsage.snapshot : undefined;
     const devinExpanded = !!devin?.loggedIn && !!devin.email && this.expanded.has(usageExpansionKey("devin-cli", devin.email));
-    const devinToggle = devin?.loggedIn && devin.email ? usageToggleHtml(devinExpanded, `data-kind="devin-cli" data-account="${escapeHtml(devin.email)}"`) : "";
     const devinActions = `<div class="card-actions"><button data-action="manageDevin">Devin CLI 로그인 관리</button><button class="text-button" data-action="devinBilling">Devin 사용량 열기 ↗</button></div>`;
-    const devinCard = `<section class="card account-card${devinExpanded ? " expanded" : " collapsed"}"><div class="identity"><div class="account-heading">${devinToggle}<div class="account-name"><h2>${devin?.email ? dynamicTextHtml(devin.email) : "Devin CLI"}</h2>${devinExpanded ? `<p class="muted">CLI identity${devin?.plan ? ` · ${dynamicTextHtml(devin.plan)}` : ""} · 관리형 Devin 계정과 별도</p>` : ""}</div></div>${devin?.loggedIn ? '<span class="badge">CLI 로그인됨</span>' : ""}</div>${devinExpanded ? `<div class="usage-details">${devinQuota ? `${quotaHtml(devinQuota.daily, "일일 한도")}${quotaHtml(devinQuota.weekly, "주간 한도")}<p class="muted updated">${this.devinError ? "이전 조회 값 · " : ""}마지막 갱신 ${dynamicTextHtml(new Date(devinQuota.updatedAt).toLocaleString())}</p>` : `<p class="muted">${this.refreshing ? "CLI 사용량을 불러오는 중…" : devin?.enabled === false ? "Devin CLI 연결이 비활성화되어 있습니다." : "CLI 사용량을 가져오지 못했습니다."}</p>`}${this.devinError ? `<p class="error">${dynamicTextHtml(this.devinError)}</p>` : ""}</div>` : ""}${devinExpanded || !devinToggle ? devinActions : ""}</section>`;
-    return `<style>${usageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정을 관리하고 계정별 한도를 확인합니다.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}<div class="provider"><span>OpenAI</span><span class="actions"><button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button></span></div>${openAIState}${openAICards || '<section class="card"><p class="muted">저장된 OpenAI 계정이 없습니다. 현재 엔진 계정을 저장하거나 계정을 추가하세요.</p></section>'}${managedSection}<div class="provider"><span>Devin CLI</span></div>${devinCard}</main>`;
+    const devinGauges = devinQuota ? `<div class="limit">${quotaHtml(devinQuota.daily, "일일 한도")}${quotaHtml(devinQuota.weekly, "주간 한도")}</div>` : `<p class="muted">${this.refreshing ? "CLI 사용량을 불러오는 중…" : devin?.enabled === false ? "Devin CLI 연결이 비활성화되어 있습니다." : "CLI 사용량을 가져오지 못했습니다."}</p>`;
+    const devinSummary = devin?.loggedIn && devin.email ? accountSummaryHtml(devin.email, devinExpanded, `data-kind="devin-cli" data-account="${escapeHtml(devin.email)}"`, devinGauges, true) : '<div class="empty-state muted">로그인된 Devin CLI 계정이 없습니다.</div>';
+    const devinCard = `<section class="account-card${devinExpanded ? " expanded" : " collapsed"}">${devinSummary}${this.devinError ? `<p class="error">${devinQuota ? "이전 조회 값 · " : ""}${dynamicTextHtml(this.devinError)}</p>` : ""}${devinExpanded || !devin?.loggedIn ? `<div class="usage-details"><p class="muted">Devin CLI 계정은 관리형 Devin 계정과 별도로 사용됩니다.</p>${devinActions}</div>` : ""}</section>`;
+    const openAIHeading = providerHeadingHtml("openai", "OpenAI", state?.profiles.length ?? 0, '<button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button>');
+    return `<style>${usageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정별 잔여 사용량을 한눈에 확인하세요.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p></main>`;
   }
 }
 

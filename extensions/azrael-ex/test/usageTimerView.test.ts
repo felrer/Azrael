@@ -62,7 +62,7 @@ test("timer action shows confirmed state, guards pending clicks and keeps safe e
     internal.panel = panel;
     internal.expanded.add(usageExpansionKey("openai", profile.id, profile.workspaceAccountId));
     internal.render();
-    assert.match(panel.webview.html, /class="card-actions"><button[^>]*>상태 확인 필요<\/button><button data-action="openaiReauth"/);
+    assert.match(panel.webview.html, /class="card-actions">.*<button[^>]*>상태 확인 필요<\/button><button data-action="openaiReauth"/);
     assert.doesNotMatch(panel.webview.html, /자동 실행: 꺼짐|리셋 후 짧은|다음 확인|automatic-window/);
     assert.match(panel.webview.html, /<p class="error"><span data-azrael-dynamic-text>자동 타이머 상태를 확인하지 못했습니다\.<\/span><\/p>/);
     assert.match(panel.webview.html, /data-action="openaiSwitch"/);

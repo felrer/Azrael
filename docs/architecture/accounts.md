@@ -4,13 +4,23 @@ Status: `current` for OpenAI multi-account management, provider account manageme
 
 ## One account and usage page
 
-The sidebar profile dropdown has one **계정 및 사용량** entry above the native settings entry; it opens the host-owned account/usage Webview through `azrael.usage`. The command palette exposes the same page once; `azrael.manageAccounts` and `azrael.devinAccount` remain callable aliases hidden from the palette. The page is the single account management surface for every provider: login, switch, removal and quota controls. It keeps Codex-like neutral themed surfaces, typography, spacing and remaining-percentage bars. The status-bar QuickPick remains an OpenAI shortcut. Existing native settings, shortcuts and logout keep their behavior. Tokens never enter Webviews or logs.
+The sidebar profile dropdown has one **계정 및 사용량** entry above the native settings entry; it opens the host-owned account/usage Webview through `azrael.usage`. The command palette exposes the same page once; `azrael.manageAccounts` and `azrael.devinAccount` remain callable aliases hidden from the palette. The page is the single account management surface for every provider: login, switch, removal and quota controls. The status-bar QuickPick remains an OpenAI shortcut. Existing native settings, shortcuts and logout keep their behavior. Tokens never enter Webviews or logs.
+
+### Provider groups and account summaries
+
+Status: `current` in source — compiled account summaries, handlers and settings embedding verified in light/dark themes and desktop/narrow layouts; packaging and installed-host verification pending.
+
+The page keeps a white content surface in either host theme. Provider icons and headings identify groups of account rows separated by thin borders. Every row displays its account label, observed remaining-usage gauges and relative reset durations while management details are collapsed. Multiple quota windows share a responsive grid. An unavailable observation shows an explicit unavailable state rather than a zero or fabricated gauge. Zero remaining usage remains a real, empty gauge. Previous successful values remain distinguishable when the latest refresh fails; timestamps and source-observation metadata are omitted from the page.
+
+The active OpenAI profile, connected selected provider account without a reauthentication requirement, and logged-in Devin CLI identity receive a gray **현재 로그인** badge. A selected provider without inference connection retains its default-account information in details. Clicking an account summary or gauge, or pressing Enter/Space on the focused summary, toggles its management details without selecting another account. Details contain existing account switching, auto-switch permission, reauthentication, removal and applicable automatic-action/reset-ticket controls. Emails remain visible for account recognition; internal user/workspace IDs, unknown-plan copy, absolute reset dates and last-updated labels are omitted. Reset-ticket expiry information retains its operational meaning.
+
+Visible account surfaces refresh quota summaries for every displayed identity, independently of detail expansion. Existing caching, reset-due checks, identity attribution, refresh coordination and hidden-surface suspension retain their owners. Expansion preferences still persist by provider/account/workspace identity; closing management details does not cancel a visible quota summary.
 
 ## OpenAI profiles
 
 Profiles distinguish the login identity and workspace account; email alone is not identity. Outside the native secure credential store only IDs and display metadata are stored.
 
-Saved profile plan metadata is a login-time claim, not proof of a current subscription. The usage page displays the plan from an account-attributed usage response, or **요금제 확인 필요** before an observation is available. Successful native usage queries persist an observed plan only after checking the profile's workspace and user identity; absent plans and failed requests do not infer a subscription.
+Saved profile plan metadata is a login-time claim, not proof of a current subscription. Successful native usage queries persist an observed plan only after checking the profile's workspace and user identity; absent plans and failed requests do not infer a subscription. Account-summary presentation is defined above; plan confirmation metadata is not required for displaying an observed quota.
 
 Profile authentication homes live under `CODEX_HOME/azrael/accounts`, separate from the fixed execution home. Each profile uses a native AuthManager with strict keyring storage on the platform's native backend; there is no plaintext fallback. The engine's native external-auth provider seam resolves the selected managed ChatGPT authentication without changing the native account type or rollout root. Profile managers use the root manager's application network policy for outbound requests; loading a profile's stored identity does not invalidate that shared policy, and root account changes remain responsible for policy invalidation and reload.
 

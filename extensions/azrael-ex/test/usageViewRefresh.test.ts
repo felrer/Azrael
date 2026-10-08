@@ -113,10 +113,10 @@ test("provider view ignores key-mode helper data and only offers browser OAuth",
     assert.deepEqual(calls, ["login:oauth-provider"]);
     assert.equal(inputCalls, 0);
     await privateView.refreshProviders(false);
-    assert.equal(calls.join(","), "login:oauth-provider");
+    assert.equal(calls.join(","), "login:oauth-provider,quota:oauth-provider");
     (view as unknown as { expanded: Set<string> }).expanded.add(JSON.stringify(["provider", "oauth-provider", "account"]));
     await privateView.refreshProviders(false);
-    assert.equal(calls.join(","), "login:oauth-provider,quota:oauth-provider");
+    assert.equal(calls.join(","), "login:oauth-provider,quota:oauth-provider,quota:oauth-provider");
     view.dispose();
   } finally {
     moduleApi._load = originalLoad;
@@ -124,7 +124,7 @@ test("provider view ignores key-mode helper data and only offers browser OAuth",
 });
 
 
-test("usage defaults collapsed, validates toggles, selectively refreshes and restores sanitized expansion", async () => {
+test("usage summaries refresh every visible identity while details remain collapsed and expansion is sanitized", async () => {
   const moduleApi = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const originalLoad = moduleApi._load;
   moduleApi._load = function (request, parent, isMain) {
@@ -141,7 +141,7 @@ test("usage defaults collapsed, validates toggles, selectively refreshes and res
     }
     const service = new Service();
     const calls: string[] = [];
-    const usage = { get() {}, dueResetProfiles() { return []; }, async refresh(id: string) { calls.push(`openai:${id}`); } };
+    const usage = { get() { return { data: { rateLimits: { primary: { usedPercent: 25, windowDurationMins: 300, resetsAt: null }, secondary: null }, rateLimitResetCredits: null } }; }, dueResetProfiles() { return []; }, async refresh(id: string) { calls.push(`openai:${id}`); } };
     let cancels = 0;
     const devin = { snapshot: undefined, error: undefined, async refresh() { calls.push("cli"); }, cancelRefresh() { ++cancels; }, dispose() {} };
     let accounts = [{ id: "a", label: "managed-a" }, { id: "b", label: "managed-b" }];
@@ -160,61 +160,55 @@ test("usage defaults collapsed, validates toggles, selectively refreshes and res
       return { view, internal, panel };
     };
     let current = make();
+    const all = ["cli", "managed:a", "managed:b", "openai:a", "openai:b"];
     await current.internal.refresh();
-    assert.deepEqual(calls, []);
-    assert.match(current.panel.webview.html, /account-provider">요금제 확인 필요<\/span>/);
+    assert.deepEqual([...calls].sort(), all);
     assert.match(current.panel.webview.html, /aria-expanded="false"/);
-    assert.doesNotMatch(current.panel.webview.html, /usage-details|마지막 갱신|계정별 한도를 불러오는 중/);
-    assert.doesNotMatch(current.panel.webview.html, /data-action="(?:openaiReauth|openaiRemove|providerReauth|providerRemove|manageDevin)"/);
-    assert.match(current.panel.webview.html, /identity-actions.*data-action="openaiSwitch"/);
-    assert.match(current.panel.webview.html, /account-heading.*usage-toggle.*<h2><span data-azrael-dynamic-text>cli<\/span><\/h2>/);
+    assert.match(current.panel.webview.html, /75% 남음/);
+    assert.match(current.panel.webview.html, /badge current-login/);
+    assert.doesNotMatch(current.panel.webview.html, /요금제 확인 필요|마지막 갱신|data-action="(?:openaiReauth|openaiRemove|providerReauth|providerRemove|manageDevin)"/);
+    assert.doesNotMatch(current.panel.webview.html, /data-action="openaiSwitch"/);
+    assert.match(current.panel.webview.html, /role="button"[^>]*data-action="toggleUsage"/);
+    calls.length = 0;
     await current.internal.onMessage({ action: "toggleUsage", profileId: "a", workspaceAccountId: "wrong" });
     await current.internal.onMessage({ action: "toggleUsage", providerId: "missing", accountId: "a" });
     assert.deepEqual(calls, []);
     await current.internal.onMessage({ action: "toggleUsage", profileId: "a", workspaceAccountId: "w" });
-    assert.deepEqual(calls, ["openai:a"]);
-    assert.match(current.panel.webview.html, /aria-expanded="true" aria-label="사용량 접기"/);
+    assert.deepEqual([...calls].sort(), all);
+    assert.match(current.panel.webview.html, /aria-expanded="true"/);
     assert.match(current.panel.webview.html, /data-action="openaiReauth"/);
     assert.match(current.panel.webview.html, /data-action="openaiRemove"/);
     await current.internal.onMessage({ action: "toggleUsage", providerId: "devin", accountId: "a" });
     assert.match(current.panel.webview.html, /data-action="providerReauth"/);
     assert.match(current.panel.webview.html, /data-action="providerRemove"/);
-    assert.deepEqual(calls.slice(-2), ["openai:a", "managed:a"]);
-    assert.equal(current.internal.providerQuotas.size, 1);
+    assert.equal(current.internal.providerQuotas.size, 2);
     await current.internal.onMessage({ action: "toggleUsage", providerId: "devin", accountId: "a" });
     calls.length = 0;
     await current.internal.onMessage({ action: "refresh" });
-    assert.deepEqual(calls, ["openai:a"]);
-    assert.equal(current.internal.providerQuotas.size, 1, "collapsed current account keeps cached quota");
+    assert.deepEqual([...calls].sort(), all);
+    assert.equal(current.internal.providerQuotas.size, 2, "collapsed rows retain current quotas");
     accounts = [{ id: "b", label: "managed-b" }];
     await current.internal.refresh();
-    assert.equal(current.internal.providerQuotas.size, 0, "removed identity clears cached quota even when collapsed");
+    assert.equal(current.internal.providerQuotas.size, 1, "removed identity is evicted while remaining summary refreshes");
     accounts = [{ id: "a", label: "managed-a" }, { id: "b", label: "managed-b" }];
     await current.internal.onMessage({ action: "toggleUsage", kind: "devin-cli", accountId: "cli" });
-    assert.match(calls.join(","), /cli/);
     assert.match(current.panel.webview.html, /data-action="manageDevin"/);
     await current.internal.onMessage({ action: "toggleUsage", kind: "devin-cli", accountId: "cli" });
-    assert.equal(cancels, 1);
-    calls.length = 0;
-    await current.internal.refresh();
-    assert.deepEqual(calls, ["openai:a"]);
+    assert.equal(cancels, 0, "closing details keeps visible CLI summary refreshes available");
     assert.deepEqual(saved, [JSON.stringify(["openai", "a", "w"])]);
-    // Replacing the panel models close/reopen; a new view models extension restart.
     current.internal.panel = { visible: true, webview: { html: "" }, dispose() {} };
     calls.length = 0;
     await current.internal.refresh();
-    assert.deepEqual(calls, ["openai:a"]);
+    assert.deepEqual([...calls].sort(), all);
     current.view.dispose();
     saved = [...saved as string[], 12, "not json"];
     current = make();
     calls.length = 0;
     await current.internal.refresh();
-    assert.deepEqual(calls, ["openai:a"]);
+    assert.deepEqual([...calls].sort(), all);
+    assert.match(current.panel.webview.html, /aria-expanded="true"/);
     await current.internal.onMessage({ action: "toggleUsage", profileId: "a", workspaceAccountId: "w" });
     assert.deepEqual(saved, []);
-    accounts = [{ id: "b", label: "managed-b" }];
-    await current.internal.refresh();
-    assert.equal(current.internal.providerQuotas.size, 0);
     current.view.dispose();
   } finally { moduleApi._load = originalLoad; }
 });
