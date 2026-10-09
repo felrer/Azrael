@@ -300,7 +300,7 @@ export async function* translate(events: AsyncIterable<any>, opaque: UsageObserv
 
 // Anthropic's parser tolerates a terminal message_delta without message_stop.
 // The managed native stream requires the actual terminal frame before tool calls execute.
-export function observeAnthropic(response: Response, opaque: UsageObservation & { upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any) {
+export function observeAnthropic(response: Response, opaque: UsageObservation & { upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any, onThinking?: (event: { kind: string; open?: boolean }) => void) {
   if (!response.body) fail('provider_eof');
   const decoder = new TextDecoder();
   let pending = '', data: string[] = [], dataBytes = 0, frameBytes = 0;
@@ -329,6 +329,9 @@ export function observeAnthropic(response: Response, opaque: UsageObservation & 
     }
     if (value.type === 'content_block_start' && !['text', 'thinking', 'redacted_thinking', 'tool_use'].includes(value.content_block?.type)) fail('unsupported_provider_output');
     if (value.type === 'content_block_delta' && !['text_delta', 'thinking_delta', 'reasoning_delta', 'signature_delta', 'input_json_delta'].includes(value.delta?.type)) fail('unsupported_provider_output');
+    if (value.type === 'content_block_start') onThinking?.({ kind: 'thinking_block', open: value.content_block?.type === 'thinking' });
+    if (value.type === 'content_block_stop' || value.type === 'message_stop' || value.type === 'error') onThinking?.({ kind: 'thinking_block', open: false });
+    if (value.type === 'ping') onThinking?.({ kind: 'thinking_heartbeat' });
   };
   const consume = (chunk: string) => {
     pending += chunk;
@@ -400,7 +403,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
-    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
+    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event)) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
     stage = 'map';
     await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque }, emit, request.request_id);
   } catch (error) {
@@ -516,7 +519,7 @@ export async function runCli() {
       const [init, request] = lines.map(line => JSON.parse(line));
       requestId = typeof request.request_id === 'string' && request.request_id.length <= 128 && !/[\x00-\x1f]/.test(request.request_id) ? request.request_id : '';
       if (init.type !== 'init' || init.protocol_version !== 1 || init.request_id !== requestId || !requestId) fail('invalid_init');
-      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true });
+      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true, thinkingWaitEnabled: request.provider_id === 'anthropic' });
       await infer(request, emit, globalThis.fetch, progress);
     }
   } catch (error: any) {

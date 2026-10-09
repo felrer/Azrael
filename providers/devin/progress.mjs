@@ -1,7 +1,7 @@
 import { createStallDiagnostics } from './stall-diagnostics.mjs';
 // Structural diagnostics only. Never put provider text, tool arguments or IDs here.
 export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => performance.now(),
-  bufferedBytes = () => 0, transportEnabled = false } = {}) {
+  bufferedBytes = () => 0, transportEnabled = false, thinkingWaitEnabled = false } = {}) {
   const started = now();
   const transport = transportEnabled ? createStallDiagnostics({ now }) : undefined;
   let phase = 'preflight', bytes = 0, count = 0, lastEvent = 'none';
@@ -9,6 +9,7 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
   let firstByteMs, firstEventMs;
   let framesEmitted = 0, outputBytes = 0, backpressureCount = 0;
   let lastNetwork = started, lastDecoded = started, stopped = false;
+  let thinkingOpen = false, thinkingHeartbeats = 0, lastThinkingHeartbeat = started;
   const snapshot = () => {
     const time = now();
     // Sample the live stdout queue at snapshot time; a cached value from the
@@ -25,6 +26,9 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
       frames_emitted: framesEmitted, output_bytes: outputBytes };
     if (firstByteMs !== undefined) progress.first_byte_ms = firstByteMs;
     if (firstEventMs !== undefined) progress.first_event_ms = firstEventMs;
+    // Connection liveness during opaque thinking is separate from generation.
+    if (thinkingWaitEnabled) progress.thinking_wait = { open: thinkingOpen,
+      heartbeat_count: thinkingHeartbeats, heartbeat_idle_ms: Math.floor(time - lastThinkingHeartbeat) };
     const evidence = transport?.snapshot();
     if (evidence) progress.transport = evidence;
     return progress;
@@ -35,6 +39,12 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
   return {
     transport,
     observe(event) {
+      if (thinkingWaitEnabled && event.kind === 'thinking_block' && typeof event.open === 'boolean') {
+        thinkingOpen = event.open;
+      } else if (thinkingWaitEnabled && thinkingOpen && event.kind === 'thinking_heartbeat') {
+        thinkingHeartbeats++;
+        lastThinkingHeartbeat = now();
+      }
       if (event.kind === 'phase' && ['preflight', 'headers', 'stream'].includes(event.phase)) {
         lastNetwork = now();
         if (event.phase !== phase) {

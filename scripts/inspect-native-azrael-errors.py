@@ -123,7 +123,7 @@ def inference_diagnostics(body: str, target: str) -> dict:
     """Export bounded inactivity evidence without provider content."""
     if target != "devin_native_progress":
         return {}
-    marker = re.search(r'event="(native_inference_progress|native_inference_finished|native_inference_attempt_finished|native_inference_recovery_finished)"', body)
+    marker = re.search(r'event="(native_inference_progress|native_inference_finished|native_inference_attempt_finished|native_inference_recovery_finished|native_inference_thinking_wait|native_inference_wait_extended)"', body)
     if not marker:
         return {}
     fields = body[marker.end():]
@@ -143,6 +143,16 @@ def inference_diagnostics(body: str, target: str) -> dict:
     retry = re.search(r'(?<!\w)retry_used=(true|false)(?=\s|$)', fields)
     if retry:
         result["retry_used"] = retry[1] == "true"
+    if marker[1] in {"native_inference_thinking_wait", "native_inference_wait_extended"}:
+        for field in ("heartbeat_count", "heartbeat_idle_ms", "generation_idle_ms", "generation_event_count"):
+            match = re.search(rf'(?<!\w){field}=(\d{{1,16}})(?=\s|$)', fields)
+            if match and int(match[1]) <= 9_007_199_254_740_991:
+                result[field] = int(match[1])
+        opened = re.search(r'(?<!\w)open=(true|false)(?=\s|$)', fields)
+        if opened:
+            result["open"] = opened[1] == "true"
+        if re.search(r'(?<!\w)reason="anthropic_thinking_heartbeat"(?=\s|$)', fields):
+            result["reason"] = "anthropic_thinking_heartbeat"
     last = re.search(r'(?<!\w)last_event="?([A-Za-z_]+)"?(?=\s|$)', fields)
     labels = {"None": "none", "Text": "text", "Reasoning": "reasoning",
               "ReasoningSignature": "reasoning_signature", "ToolCallStart": "tool_call_start",
@@ -257,6 +267,8 @@ def main() -> None:
         if inference:
             kind = "inference_recovery" if inference["event"] in {
                 "native_inference_attempt_finished", "native_inference_recovery_finished"
+            } else "inference_wait" if inference["event"] in {
+                "native_inference_thinking_wait", "native_inference_wait_extended"
             } else "inference_idle" if inference.get("outcome") in {
                 "inference_output_idle", "provider_stream_idle"
             } else "inference_failure"

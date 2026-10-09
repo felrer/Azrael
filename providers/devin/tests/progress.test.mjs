@@ -250,3 +250,42 @@ test('frames_emitted and output_bytes exclude the frame carrying the snapshot', 
   assert.equal(frames[0].progress.output_bytes, 40);
   mon.stop();
 });
+
+
+test('scoped hidden thinking heartbeats survive a 100 second semantic silence without content', () => {
+  let time = 0;
+  const frames = [];
+  const mon = createProgressMonitor(frame => frames.push(frame), {
+    thinkingWaitEnabled: true, now: () => time,
+  });
+  try {
+    mon.observe({ kind: 'phase', phase: 'stream' });
+    mon.observe({ kind: 'thinking_heartbeat' });
+    mon.observe({ kind: 'thinking_block', open: true, text: 'SECRET_THINKING' });
+    for (let i = 1; i <= 4; i++) {
+      time = i * 90_000;
+      mon.observe({ kind: 'thinking_heartbeat', text: 'SECRET_PING' });
+      assert.deepEqual(mon.snapshot().thinking_wait, { open: true, heartbeat_count: i, heartbeat_idle_ms: 0 });
+    }
+    time += 1_000;
+    assert.equal(mon.snapshot().thinking_wait.heartbeat_idle_ms, 1_000);
+    assert.equal(mon.snapshot().event_count, 0);
+    assert.equal(mon.snapshot().last_event, 'none');
+    assert.equal(mon.snapshot().event_idle_ms, time);
+    mon.observe({ kind: 'thinking_block', open: false });
+    mon.observe({ kind: 'thinking_heartbeat' });
+    assert.equal(mon.snapshot().thinking_wait.open, false);
+    assert.equal(mon.snapshot().thinking_wait.heartbeat_count, 4);
+    assert(!JSON.stringify(mon.snapshot()).includes('SECRET'));
+  } finally { mon.stop(); }
+});
+
+test('ordinary monitors omit thinking wait even when given thinking events', () => {
+  const mon = createProgressMonitor(() => {});
+  try {
+    mon.observe({ kind: 'thinking_block', open: true });
+    mon.observe({ kind: 'thinking_heartbeat' });
+    assert.equal(mon.snapshot().thinking_wait, undefined);
+    assert.equal(mon.snapshot().event_count, 0);
+  } finally { mon.stop(); }
+});

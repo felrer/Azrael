@@ -47,6 +47,14 @@ else if (mode === 'full_terminal' || mode === 'full_pending') {{
     for (let i=0; i < (mode === 'full_terminal' ? 63 : 80); i++) tool(`buffered-${{i}}`);
     emit({{type:'completed',usage:{{input_tokens:1,cached_input_tokens:0,output_tokens:1,reasoning_output_tokens:0,total_tokens:2}}}});
 }}
+else if (mode.startsWith('thinking_')) {{
+    let count=0;
+    const heartbeat = () => emit({{type:'progress',progress:{{phase:'stream',elapsed_ms:0,network_idle_ms:0,event_idle_ms:seq*70,bytes_received:seq*1000,event_count:0,last_event:'none',thinking_wait:{{open:true,heartbeat_count:++count,heartbeat_idle_ms:0}}}}}});
+    heartbeat();
+    for (let i=0; i < (mode === 'thinking_finish' ? 12 : mode === 'thinking_silence' ? 2 : 70); i++) {{await wait(70);heartbeat();}}
+    if (mode === 'thinking_finish') finish();
+    else await wait(5000);
+}}
 else if (mode === 'http') emit({{type:'error',code:'provider_http_400'}});
 else if (mode === 'protocol') emit({{type:'bogus'}});
 else if (mode === 'active' || mode === 'deadline' || (mode === 'retry_deadline' && n === 2)) {{
@@ -66,6 +74,7 @@ else if (mode === 'active' || mode === 'deadline' || (mode === 'retry_deadline' 
     let finished = CancellationToken::new();
     let stream = run_helper_with_policy(
         HelperRequest {
+            anthropic_thinking: mode.starts_with("thinking_") && mode != "thinking_unscoped",
             executable: &runtime,
             helper: &helper,
             codex_home: root,
@@ -269,4 +278,159 @@ async fn full_output_queue_releases_turn_on_cancellation_or_deadline_without_ret
             );
         }
     }
+}
+
+#[tokio::test]
+async fn anthropic_hidden_thinking_survives_idle_and_publishes_once() {
+    let root = tempfile::tempdir().unwrap();
+    let (mut stream, _) = fixture(
+        root.path(),
+        "thinking_finish",
+        policy(),
+        CancellationToken::new(),
+    )
+    .await;
+    let mut calls = Vec::new();
+    let mut completed = 0;
+    while let Some(event) = stream.next().await {
+        match event.unwrap() {
+            ResponseEvent::OutputItemDone(ResponseItem::FunctionCall { call_id, .. }) => {
+                calls.push(call_id)
+            }
+            ResponseEvent::Completed { .. } => completed += 1,
+            _ => {}
+        }
+    }
+    assert_eq!(calls, vec!["success".to_string()]);
+    assert_eq!(completed, 1);
+    assert_eq!(
+        std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+        "1"
+    );
+}
+
+#[tokio::test]
+async fn anthropic_permanent_thinking_obeys_shared_deadline_without_retry() {
+    use std::collections::BTreeMap;
+    use std::sync::Mutex;
+    use tracing::field::{Field, Visit};
+    use tracing_subscriber::Layer;
+    use tracing_subscriber::layer::SubscriberExt;
+
+    #[derive(Clone, Default)]
+    struct Capture(Arc<Mutex<Vec<BTreeMap<String, String>>>>);
+    impl<S: tracing::Subscriber> Layer<S> for Capture {
+        fn on_event(
+            &self,
+            event: &tracing::Event<'_>,
+            _: tracing_subscriber::layer::Context<'_, S>,
+        ) {
+            #[derive(Default)]
+            struct Fields(BTreeMap<String, String>);
+            impl Visit for Fields {
+                fn record_str(&mut self, field: &Field, value: &str) {
+                    self.0.insert(field.name().to_string(), value.to_string());
+                }
+                fn record_debug(&mut self, field: &Field, value: &dyn std::fmt::Debug) {
+                    self.0
+                        .insert(field.name().to_string(), format!("{value:?}"));
+                }
+            }
+            let mut fields = Fields::default();
+            event.record(&mut fields);
+            self.0.lock().unwrap().push(fields.0);
+        }
+    }
+
+    let capture = Capture::default();
+    let subscriber = tracing_subscriber::registry().with(capture.clone());
+    async {
+        let root = tempfile::tempdir().unwrap();
+        let started = tokio::time::Instant::now();
+        let (mut stream, _) = fixture(
+            root.path(),
+            "thinking_forever",
+            policy(),
+            CancellationToken::new(),
+        )
+        .await;
+        let error = stream.next().await.unwrap().unwrap_err();
+        assert!(error.to_string().contains("deadline"));
+        assert!(error.retry_delay(1).is_none());
+        assert!(started.elapsed() < policy().deadline + Duration::from_millis(250));
+        assert!(stream.next().await.is_none());
+        assert_eq!(
+            std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+            "1"
+        );
+    }
+    .with_subscriber(subscriber)
+    .await;
+    let records = capture.0.lock().unwrap();
+    for name in [
+        "native_inference_thinking_wait",
+        "native_inference_wait_extended",
+    ] {
+        let matching: Vec<_> = records
+            .iter()
+            .filter(|record| record.get("event").map(String::as_str) == Some(name))
+            .collect();
+        assert!(!matching.is_empty(), "missing actual {name} diagnostics");
+        for record in &matching {
+            assert_eq!(
+                record.get("generation_event_count").map(String::as_str),
+                Some("0")
+            );
+            assert!(record.contains_key("generation_idle_ms"));
+        }
+        println!(
+            "thinking diagnostic records={}: {}",
+            matching.len(),
+            serde_json::to_string(matching[0]).unwrap()
+        );
+    }
+}
+
+#[tokio::test]
+async fn thinking_silence_and_unscoped_pings_still_exhaust_idle_recovery() {
+    for mode in ["thinking_silence", "thinking_unscoped"] {
+        let root = tempfile::tempdir().unwrap();
+        let mut timing = policy();
+        timing.deadline = Duration::from_secs(3);
+        let (mut stream, _) = fixture(root.path(), mode, timing, CancellationToken::new()).await;
+        let error = stream.next().await.unwrap().unwrap_err();
+        assert!(
+            error.to_string().contains("retry=exhausted"),
+            "{mode}: {error}"
+        );
+        assert!(stream.next().await.is_none());
+        assert_eq!(
+            std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+            "2"
+        );
+    }
+}
+
+#[tokio::test]
+async fn cancellation_interrupts_ping_only_anthropic_thinking_without_retry() {
+    let root = tempfile::tempdir().unwrap();
+    let cancellation = CancellationToken::new();
+    let (mut stream, finished) = fixture(
+        root.path(),
+        "thinking_forever",
+        policy(),
+        cancellation.clone(),
+    )
+    .await;
+    tokio::time::sleep(Duration::from_millis(700)).await;
+    cancellation.cancel();
+    let error = stream.next().await.unwrap().unwrap_err();
+    assert!(matches!(error.details(), CodexErrorDetails::Interrupted));
+    tokio::time::timeout(Duration::from_millis(300), finished.cancelled())
+        .await
+        .unwrap();
+    assert_eq!(
+        std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+        "1"
+    );
 }

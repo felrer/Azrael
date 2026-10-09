@@ -180,3 +180,39 @@ test('actual inference mock records upstream SSE failure and owns deadline class
     rmSync(root, { recursive: true, force: true });
   }
 });
+
+
+test('Anthropic thinking wait stays durable without transport diagnostics across ping-only silence', async () => {
+  let time = 0;
+  const monitor = createProgressMonitor(() => {}, { thinkingWaitEnabled: true, now: () => time });
+  let controller!: ReadableStreamDefaultController<Uint8Array>;
+  const response = new Response(new ReadableStream<Uint8Array>({ start(c) { controller = c; } }, { highWaterMark: 0 }));
+  const reader = observeAnthropic(response, { terminal: false }, undefined, undefined,
+    event => monitor.observe(event)).body!.getReader();
+  const put = async (value: any) => {
+    const pending = reader.read();
+    controller.enqueue(new TextEncoder().encode(wire(value)));
+    await pending;
+  };
+  try {
+    await put({ type: 'ping' });
+    await put({ type: 'content_block_start', index: 0, content_block: { type: 'thinking', thinking: '' } });
+    expect(monitor.snapshot().thinking_wait.open).toBe(true);
+    for (let i = 1; i <= 4; i++) {
+      time = i * 90_000;
+      await put({ type: 'ping', content: 'SECRET_PING' });
+      expect(monitor.snapshot().thinking_wait).toEqual({ open: true, heartbeat_count: i, heartbeat_idle_ms: 0 });
+    }
+    expect(monitor.snapshot().event_count).toBe(0);
+    expect(monitor.snapshot().last_event).toBe('none');
+    expect(monitor.snapshot().transport).toBeUndefined();
+    await put({ type: 'content_block_stop', index: 0 });
+    await put({ type: 'ping' });
+    expect(monitor.snapshot().thinking_wait.open).toBe(false);
+    expect(monitor.snapshot().thinking_wait.heartbeat_count).toBe(4);
+    await put({ type: 'message_stop' });
+    controller.close();
+    await reader.read();
+    expect(JSON.stringify(monitor.snapshot())).not.toContain('SECRET');
+  } finally { monitor.stop(); await reader.cancel(); }
+});

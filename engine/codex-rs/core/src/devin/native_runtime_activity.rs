@@ -27,6 +27,9 @@ pub(super) struct InferenceActivity {
     pub(super) last_event: &'static str,
     started: Instant,
     high_water: u64,
+    thinking_high_water: u64,
+    thinking_wait_at: Option<Instant>,
+    thinking_open: bool,
 }
 
 impl InferenceActivity {
@@ -36,7 +39,49 @@ impl InferenceActivity {
             started,
             last_event: "none",
             high_water: 0,
+            thinking_high_water: 0,
+            thinking_wait_at: None,
+            thinking_open: false,
         }
+    }
+
+    pub(super) fn idle_deadline(&self, idle: Duration) -> Instant {
+        let last = if self.thinking_open {
+            self.thinking_wait_at
+                .unwrap_or(self.last_activity)
+                .max(self.last_activity)
+        } else {
+            self.last_activity
+        };
+        last + idle
+    }
+
+    pub(super) fn observe_thinking_wait(
+        &mut self,
+        progress: &Progress,
+        now: Instant,
+        idle: Duration,
+        enabled: bool,
+    ) -> bool {
+        let Some(wait) = progress.thinking_wait.as_ref().filter(|_| enabled) else {
+            self.thinking_open = false;
+            return false;
+        };
+        let fresh = wait.heartbeat_count > self.thinking_high_water;
+        self.thinking_high_water = self.thinking_high_water.max(wait.heartbeat_count);
+        self.thinking_open = wait.open && matches!(progress.phase, ProgressPhase::Stream);
+        if !self.thinking_open || !fresh || Duration::from_millis(wait.heartbeat_idle_ms) >= idle {
+            return false;
+        }
+        let heartbeat_at = now
+            .checked_sub(Duration::from_millis(wait.heartbeat_idle_ms))
+            .unwrap_or(self.started)
+            .max(self.started);
+        if self.thinking_wait_at.is_none_or(|last| heartbeat_at > last) {
+            self.thinking_wait_at = Some(heartbeat_at);
+            return true;
+        }
+        false
     }
 
     pub(super) fn observe(&mut self, progress: &Progress, now: Instant, idle: Duration) {

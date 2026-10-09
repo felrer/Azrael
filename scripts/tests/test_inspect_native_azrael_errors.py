@@ -15,6 +15,30 @@ SCRIPT = Path(__file__).resolve().parents[1] / "inspect-native-azrael-errors.py"
 
 
 class InspectorTests(unittest.TestCase):
+    def test_thinking_wait_evidence_is_separate_bounded_and_private(self):
+        records = [
+            ("devin_native_progress", 'event="native_inference_thinking_wait" outcome="inference_output_idle" '
+             'open=true heartbeat_count=3 heartbeat_idle_ms=7345 generation_idle_ms=100020 generation_event_count=0 '
+             'thinking="SECRET"', "INFO"),
+            ("devin_native_progress", 'event="native_inference_wait_extended" reason="anthropic_thinking_heartbeat" '
+             'generation_idle_ms=110000 generation_event_count=0', "INFO"),
+            ("devin_native_progress", 'event="native_inference_wait_extended" reason="SECRET" '
+             'heartbeat_count=9999999999999999', "INFO"),
+        ]
+        report, stdout = self.inspect(records)
+        self.assertEqual(report["categories"], {"inference_wait": 3})
+        events = report["eventsNewestFirst"]
+        self.assertEqual(events[0]["inferenceDiagnostics"], {"event": "native_inference_wait_extended"})
+        self.assertEqual(events[1]["inferenceDiagnostics"], {
+            "event": "native_inference_wait_extended", "reason": "anthropic_thinking_heartbeat",
+            "generation_idle_ms": 110000, "generation_event_count": 0,
+        })
+        self.assertEqual(events[2]["inferenceDiagnostics"], {
+            "event": "native_inference_thinking_wait", "outcome": "inference_output_idle", "open": True,
+            "heartbeat_count": 3, "heartbeat_idle_ms": 7345, "generation_idle_ms": 100020, "generation_event_count": 0,
+        })
+        self.assertNotIn("SECRET", stdout)
+
     def test_connection_evidence_and_outcomes_are_allowlisted(self):
         outcomes = ["provider_connection_" + category for category in
                     ("dns", "tls", "reset", "refused", "timeout", "unreachable", "proxy")] + ["provider_headers_failed"]

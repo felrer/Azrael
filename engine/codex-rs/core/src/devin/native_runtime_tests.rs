@@ -43,6 +43,7 @@ process.exitCode = 1;
         let mut prompt = Prompt::default();
         prompt.tools = vec![function("exec")].into();
         let mut stream = run_helper(HelperRequest {
+            anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
             codex_home: root.path(),
@@ -107,6 +108,7 @@ if (MODE === 'exit') process.exitCode=1;
         let mut prompt = Prompt::default();
         prompt.tools = vec![function("exec")].into();
         let mut stream = run_helper(HelperRequest {
+            anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
             codex_home: root.path(),
@@ -1178,6 +1180,7 @@ async fn run_consume_case(
     let helper = root.join(format!("{request_id}.mjs"));
     std::fs::write(&helper, script).unwrap();
     let mut stream = run_helper(HelperRequest {
+        anthropic_thinking: false,
         executable: runtime,
         helper: &helper,
         codex_home: root,
@@ -1319,6 +1322,7 @@ const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, r
     init.push(b'\n');
     assert!(
         run_helper(HelperRequest {
+            anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
             codex_home: root.path(),
@@ -1335,6 +1339,7 @@ const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, r
     let missing = root.path().join("missing-runtime.exe");
     assert!(
         run_helper(HelperRequest {
+            anthropic_thinking: false,
             executable: &missing,
             helper: &helper,
             codex_home: root.path(),
@@ -1489,6 +1494,7 @@ async fn native_subprocess_receives_scoped_storage_environment() {
     );
     std::fs::write(&helper, script).unwrap();
     let mut stream = run_helper(HelperRequest {
+        anthropic_thinking: false,
         executable: &runtime,
         helper: &helper,
         codex_home: &home,

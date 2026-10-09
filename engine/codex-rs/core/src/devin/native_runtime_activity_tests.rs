@@ -53,3 +53,79 @@ fn reported_age_is_clamped_without_moving_activity_backwards() {
     );
     assert_eq!(activity.last_activity, started);
 }
+
+fn thinking_progress(count: u64, age: u64, open: bool, phase: &str) -> Progress {
+    serde_json::from_value(serde_json::json!({
+        "phase": phase, "elapsed_ms": 0, "network_idle_ms": 0,
+        "event_idle_ms": 0, "bytes_received": 99999, "event_count": 0,
+        "last_event": "none", "thinking_wait": {
+            "open": open, "heartbeat_count": count, "heartbeat_idle_ms": age
+        }
+    }))
+    .unwrap()
+}
+
+#[test]
+fn thinking_heartbeats_extend_idle_beyond_100_seconds_without_semantic_activity() {
+    let started = Instant::now();
+    let idle = Duration::from_secs(100);
+    let mut activity = InferenceActivity::new(started);
+    for count in 1..=5 {
+        let now = started + Duration::from_secs(count * 90);
+        assert!(activity.observe_thinking_wait(
+            &thinking_progress(count, 1000, true, "stream"),
+            now,
+            idle,
+            true
+        ));
+        assert_eq!(
+            activity.idle_deadline(idle),
+            now + idle - Duration::from_secs(1)
+        );
+        assert_eq!(
+            (activity.last_activity, activity.last_event),
+            (started, "none")
+        );
+    }
+    activity.observe_thinking_wait(
+        &thinking_progress(5, 0, false, "stream"),
+        started + Duration::from_secs(451),
+        idle,
+        true,
+    );
+    assert_eq!(activity.idle_deadline(idle), started + idle);
+}
+
+#[test]
+fn thinking_wait_rejects_repeated_regressed_stale_closed_and_unscoped_heartbeats() {
+    let started = Instant::now();
+    let idle = Duration::from_secs(100);
+    let now = started + Duration::from_secs(90);
+    let mut activity = InferenceActivity::new(started);
+    assert!(activity.observe_thinking_wait(
+        &thinking_progress(5, 0, true, "stream"),
+        now,
+        idle,
+        true
+    ));
+    for (report, enabled) in [
+        (thinking_progress(5, 0, true, "stream"), true),
+        (thinking_progress(4, 0, true, "stream"), true),
+        (thinking_progress(6, 100000, true, "stream"), true),
+        (thinking_progress(7, 0, true, "headers"), true),
+        (thinking_progress(8, 0, true, "stream"), false),
+        (thinking_progress(9, 0, false, "stream"), true),
+        (progress(10, 0, "stream", "none"), true),
+    ] {
+        assert!(!activity.observe_thinking_wait(
+            &report,
+            now + Duration::from_secs(10),
+            idle,
+            enabled
+        ));
+        assert_eq!(
+            (activity.last_activity, activity.last_event),
+            (started, "none")
+        );
+    }
+}

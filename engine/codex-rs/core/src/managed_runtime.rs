@@ -107,6 +107,7 @@ pub(crate) async fn stream(
         fork_provider_ids: &sess.fork_provider_ids,
     })?;
     crate::devin::native_runtime::run_helper(crate::devin::native_runtime::HelperRequest {
+        anthropic_thinking: provider == "anthropic",
         executable: bun.as_path(),
         helper: helper.as_path(),
         codex_home: ctx.config.codex_home.as_path(),

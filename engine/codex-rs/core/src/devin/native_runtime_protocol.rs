@@ -28,6 +28,8 @@ pub(super) struct OutputFrame {
 #[serde(deny_unknown_fields)]
 pub(super) struct Progress {
     #[serde(default)]
+    pub(super) thinking_wait: Option<ThinkingWait>,
+    #[serde(default)]
     transport: Option<super::transport::Transport>,
     pub(super) phase: ProgressPhase,
     pub(super) elapsed_ms: u64,
@@ -50,6 +52,15 @@ pub(super) struct Progress {
     pub(super) frames_emitted: Option<u64>,
     #[serde(default)]
     pub(super) output_bytes: Option<u64>,
+}
+
+/// Liveness of opaque thinking; never a claim of generated content.
+#[derive(Debug, Deserialize)]
+#[serde(deny_unknown_fields)]
+pub(super) struct ThinkingWait {
+    pub(super) open: bool,
+    pub(super) heartbeat_count: u64,
+    pub(super) heartbeat_idle_ms: u64,
 }
 
 #[derive(Debug, Deserialize)]
@@ -87,6 +98,12 @@ impl Progress {
             stdout_backpressure_count = ?self.stdout_backpressure_count,
             frames_emitted = ?self.frames_emitted,
             output_bytes = ?self.output_bytes);
+        if let Some(wait) = &self.thinking_wait {
+            tracing::info!(target: "devin_native_progress", event = "native_inference_thinking_wait",
+                request_id, outcome, open = wait.open,
+                heartbeat_count = wait.heartbeat_count, heartbeat_idle_ms = wait.heartbeat_idle_ms,
+                generation_idle_ms = self.event_idle_ms, generation_event_count = self.event_count);
+        }
         if let Some(transport) = &self.transport
             && let Ok(transport) = serde_json::to_string(transport)
         {

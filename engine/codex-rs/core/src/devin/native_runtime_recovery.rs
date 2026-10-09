@@ -112,6 +112,7 @@ pub(super) async fn recover(
     tx: &mpsc::Sender<CodexResult<ResponseEvent>>,
     parent_span: tracing::Span,
     policy: TimingPolicy,
+    anthropic_thinking: bool,
     started: tokio::time::Instant,
     child: Child,
     stdout: tokio::process::ChildStdout,
@@ -126,6 +127,7 @@ pub(super) async fn recover(
             process.1,
             ConsumeContext {
                 policy,
+                anthropic_thinking,
                 started,
                 request_id: &request_id,
                 tools: ToolCatalog::from_specs(&prompt.tools)

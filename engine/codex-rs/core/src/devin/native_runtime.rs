@@ -234,6 +234,7 @@ pub(crate) async fn stream(
         parallel_tool_calls: prompt.parallel_tool_calls,
     })?;
     run_helper(HelperRequest {
+        anthropic_thinking: false,
         executable: node.as_path(),
         helper: helper.as_path(),
         codex_home: ctx.config.codex_home.as_path(),
@@ -250,6 +251,7 @@ pub(crate) async fn stream(
 /// Shared bounded JSONL transport. The guard keeps the turn's credentials pinned
 /// until the child and its validated terminal frame have completed.
 pub(crate) struct HelperRequest<'a, G> {
+    pub(crate) anthropic_thinking: bool,
     pub(crate) executable: &'a Path,
     pub(crate) helper: &'a Path,
     pub(crate) codex_home: &'a Path,
@@ -272,6 +274,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
     policy: TimingPolicy,
 ) -> CodexResult<ResponseStream> {
     let HelperRequest {
+        anthropic_thinking,
         executable,
         helper,
         codex_home,
@@ -333,6 +336,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
                 &tx,
                 parent_span,
                 policy,
+                anthropic_thinking,
                 started,
                 child,
                 stdout,
@@ -352,6 +356,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
 
 struct ConsumeContext<'a> {
     policy: TimingPolicy,
+    anthropic_thinking: bool,
     started: tokio::time::Instant,
     parent_span: tracing::Span,
     request_id: &'a str,
@@ -371,6 +376,7 @@ async fn consume(
 ) -> CodexResult<AttemptOutcome> {
     let ConsumeContext {
         policy,
+        anthropic_thinking,
         started,
         request_id,
         tools,
@@ -393,7 +399,7 @@ async fn consume(
     tokio::pin!(deadline);
     let mut activity = activity::InferenceActivity::new(tokio::time::Instant::now());
     loop {
-        let idle = tokio::time::sleep_until(activity.last_activity + policy.idle);
+        let idle = tokio::time::sleep_until(activity.idle_deadline(policy.idle));
         tokio::pin!(idle);
         let frame = tokio::select! {
             biased;
@@ -492,7 +498,14 @@ async fn consume(
                         .await);
                     }
                 };
-                activity.observe(&progress, tokio::time::Instant::now(), policy.idle);
+                let now = tokio::time::Instant::now();
+                activity.observe(&progress, now, policy.idle);
+                if activity.observe_thinking_wait(&progress, now, policy.idle, anthropic_thinking) {
+                    tracing::info!(target: "devin_native_progress", event = "native_inference_wait_extended",
+                        request_id, reason = "anthropic_thinking_heartbeat",
+                        generation_idle_ms = progress.event_idle_ms,
+                        generation_event_count = progress.event_count);
+                }
                 progress.log(request_id, "running");
                 last_progress = Some(progress);
             }

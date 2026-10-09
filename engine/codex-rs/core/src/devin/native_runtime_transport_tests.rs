@@ -296,6 +296,7 @@ else emit({{type:'completed',progress}});
         let (events, errors) = async {
             let mut stream = run_helper_with_policy(
                 HelperRequest {
+                    anthropic_thinking: false,
                     executable: &runtime,
                     helper: &helper,
                     codex_home: root.path(),
