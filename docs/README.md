@@ -10,6 +10,7 @@ This document is the category-based entry point for project documentation.
 | `maps/` | Identifies code areas and major entry points. | [Code maps](maps/README.md) |
 | `ops/` | Covers development, deployment, and operational procedures. | [Operations](ops/README.md) |
 | `playbooks/` | Work principles, verification selection, and closeout. | [Project playbooks](playbooks/README.md) |
+| `boards/` | Lightweight programs that help users provide structured requirements and information; program registry and shared creation guidance. | [보드](boards/README.md) |
 | `archive/` | Historical designs and per-release verification records. | [Archive](archive/README.md) |
 
 Add detailed documents to the appropriate category and link them from that category's README.
@@ -25,6 +26,7 @@ These routes are starting points, not a required reading sequence. Read only the
 | Set up, build, verify, install, operate or recover the app | [Operations](ops/README.md), then the applicable procedure and its environment requirements. |
 | Perform or verify substantive work | [Project playbooks](playbooks/README.md), then only the applicable operational owners. |
 | Prepare or update a task plan | Relevant design/code owners and [Work Artifacts](#work-artifacts). |
+| Create or find a lightweight program for gathering user requirements and information | [보드](boards/README.md). |
 | Consult retired designs or previous release evidence | [Archive](archive/README.md); establish current behavior from active code and operational evidence. |
 
 ## Document State And Ownership
