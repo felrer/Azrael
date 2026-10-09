@@ -2070,6 +2070,8 @@ async fn spawn_agent_fork_sanitizes_inherited_compaction_metadata() {
         .session
         .record_observed_response_completed(
             turn_context.as_ref(),
+            &turn_context.initial_settings,
+            &turn_context.initial_environments,
             "child-response",
             Some(&child_usage),
             /*usage_metadata*/ None,
@@ -5662,4 +5664,102 @@ async fn resume_agent_from_rollout_skips_descendants_when_parent_resume_fails() 
         .shutdown_agent_tree(parent_thread_id)
         .await
         .expect("tree shutdown after partial subtree resume should succeed");
+}
+
+#[test]
+fn project_usage_observed_responses_persist_priced_deduplicated_and_unpriced_usage() {
+    // Session fixtures create large debug futures on Windows test threads.
+    std::thread::Builder::new()
+        .stack_size(32 * 1024 * 1024)
+        .spawn(|| {
+            tokio::runtime::Builder::new_current_thread()
+                .enable_all()
+                .build()
+                .expect("test runtime")
+                .block_on(async {
+                    use chrono::Datelike;
+                    use chrono::FixedOffset;
+                    use chrono::Utc;
+                    use codex_protocol::ResponseUsageMetadata;
+
+                    let harness = AgentControlHarness::new().await;
+                    let (_, thread) = harness.start_thread().await;
+                    let store = harness.state_db.as_ref().expect("shared state database");
+                    let context = thread.session.new_default_turn().await;
+                    let mut settings = context.initial_settings.as_ref().clone();
+                    Arc::make_mut(&mut settings.model_info).slug = "gpt-6.1-sol".to_string();
+                    settings.service_tier = None;
+                    let usage = TokenUsage {
+                        input_tokens: 1_000,
+                        output_tokens: 200,
+                        total_tokens: 1_200,
+                        ..TokenUsage::default()
+                    };
+                    let now = Utc::now().with_timezone(&FixedOffset::east_opt(9 * 3600).unwrap());
+                    let year = now.year();
+                    let date = now.format("%Y-%m-%d").to_string();
+                    assert!(store.project_usage_daily(year).await.unwrap().is_empty());
+
+                    thread
+                        .session
+                        .record_observed_response_completed(
+                            context.as_ref(),
+                            &settings,
+                            &context.initial_environments,
+                            "project-usage-priced-response",
+                            Some(&usage),
+                            None,
+                        )
+                        .await;
+                    let priced_rows = store.project_usage_daily(year).await.unwrap();
+                    assert_eq!(priced_rows.len(), 1);
+                    let priced = &priced_rows[0];
+                    assert_eq!(priced.date, date);
+                    assert_eq!(priced.provider, "openai");
+                    assert_eq!(priced.model, "gpt-6.1-sol");
+                    assert_eq!(priced.amount_nano_usd, 4_000_000);
+                    assert_eq!(priced.priced_requests, 1);
+                    assert_eq!(priced.unpriced_requests, 0);
+
+                    thread
+                        .session
+                        .record_observed_response_completed(
+                            context.as_ref(),
+                            &settings,
+                            &context.initial_environments,
+                            "project-usage-priced-response",
+                            Some(&usage),
+                            None,
+                        )
+                        .await;
+                    assert_eq!(store.project_usage_daily(year).await.unwrap(), priced_rows);
+
+                    let estimated_metadata = ResponseUsageMetadata {
+                        metadata: Some(
+                            serde_json::json!({ "azraelPricing": { "estimated": true } }),
+                        ),
+                        ..ResponseUsageMetadata::default()
+                    };
+                    thread
+                        .session
+                        .record_observed_response_completed(
+                            context.as_ref(),
+                            &settings,
+                            &context.initial_environments,
+                            "project-usage-estimated-response",
+                            Some(&usage),
+                            Some(&estimated_metadata),
+                        )
+                        .await;
+                    let mut expected_rows = priced_rows;
+                    expected_rows[0].unpriced_requests = 1;
+                    assert_eq!(
+                        store.project_usage_daily(year).await.unwrap(),
+                        expected_rows
+                    );
+                });
+        })
+        .expect("test thread")
+        .join()
+        .expect("accounting assertions");
 }

@@ -2,6 +2,8 @@ import * as path from "node:path";
 import { EventEmitter } from "node:events";
 import { BridgeTransport } from "./bridgeTransport";
 import { DevinAction, DevinStatus, parseDevinStatus } from "./devinProtocol";
+import { PROJECT_USAGE_METHOD, parseProjectUsageSnapshot, validateProjectUsageYear } from "./projectUsageProtocol";
+import type { ProjectUsageSnapshot } from "./projectUsagePresentation";
 import {
   ACCOUNT_METHOD, ACCOUNT_UPDATED_METHOD, AccountAction, AccountParams,
   AccountResponse, AccountState, parseAccountResponse, isRecord, accountStateChanged
@@ -60,6 +62,16 @@ export class AccountService extends EventEmitter {
   }
 
   async refresh(): Promise<AccountState> { return (await this.call({ action: "list" })).state; }
+
+  async projectUsage(year: number): Promise<ProjectUsageSnapshot> {
+    validateProjectUsageYear(year);
+    if (!this.transport || !this.transportVerified || !this.instanceId) throw new Error("The engine connection has not been verified.");
+    const transport = this.transport;
+    const instanceId = this.instanceId;
+    const response = await transport.request(PROJECT_USAGE_METHOD, { year });
+    if (this.transport !== transport || !this.transportVerified || this.instanceId !== instanceId) throw new Error("The engine connection changed during project usage refresh.");
+    return parseProjectUsageSnapshot(response, year);
+  }
 
   async rootResume(params: RootResumeParams): Promise<RootResumeResponse> {
     if (!this.transport || !this.transportVerified || !this.instanceId) throw new Error("The engine connection has not been verified.");

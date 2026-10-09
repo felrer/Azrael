@@ -2294,6 +2294,30 @@
             },
             "method": {
               "enum": [
+                "azrael/projectUsage"
+              ],
+              "title": "Azrael/projectUsageRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/v2/ProjectUsageParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Azrael/projectUsageRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/v2/RequestId"
+            },
+            "method": {
+              "enum": [
                 "account/rateLimits/read"
               ],
               "title": "Account/rateLimits/readRequestMethod",
@@ -18588,6 +18612,83 @@
           "recencyAt"
         ],
         "type": "string"
+      },
+      "ProjectUsageDay": {
+        "properties": {
+          "date": {
+            "type": "string"
+          },
+          "projects": {
+            "items": {
+              "$ref": "#/definitions/v2/ProjectUsageProject"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "date",
+          "projects"
+        ],
+        "type": "object"
+      },
+      "ProjectUsageParams": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "year": {
+            "format": "int32",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "year"
+        ],
+        "title": "ProjectUsageParams",
+        "type": "object"
+      },
+      "ProjectUsageProject": {
+        "properties": {
+          "amount": {
+            "format": "double",
+            "type": "number"
+          },
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "unpriced": {
+            "format": "int64",
+            "type": "integer"
+          }
+        },
+        "required": [
+          "amount",
+          "id",
+          "name",
+          "unpriced"
+        ],
+        "type": "object"
+      },
+      "ProjectUsageResponse": {
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "properties": {
+          "currency": {
+            "type": "string"
+          },
+          "days": {
+            "items": {
+              "$ref": "#/definitions/v2/ProjectUsageDay"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "currency",
+          "days"
+        ],
+        "title": "ProjectUsageResponse",
+        "type": "object"
       },
       "ProviderAutoCompact": {
         "description": "A present empty entry selects the dynamic default, independently of global settings.",

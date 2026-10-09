@@ -140,6 +140,7 @@ fn reject_removed_permission_profile(request: &JSONRPCRequest) -> Result<(), JSO
 
 pub(crate) struct MessageProcessor {
     pub(crate) turn_admission: TurnAdmission,
+    project_usage_db: Option<StateDbHandle>,
     user_verification: Arc<crate::user_verification::Service>,
     outgoing: Arc<OutgoingMessageSender>,
     models_refresh_worker: ModelsRefreshWorker,
@@ -269,6 +270,65 @@ pub(crate) struct MessageProcessorArgs {
 }
 
 impl MessageProcessor {
+    async fn project_usage(
+        &self,
+        year: i32,
+    ) -> Result<codex_app_server_protocol::ProjectUsageResponse, JSONRPCErrorError> {
+        use codex_app_server_protocol::ProjectUsageDay;
+        use codex_app_server_protocol::ProjectUsageProject;
+        use codex_app_server_protocol::ProjectUsageResponse;
+        use std::collections::BTreeMap;
+
+        if !(1..=9999).contains(&year) {
+            return Err(invalid_params("Project usage year must be between 1 and 9999"));
+        }
+        let state_db = self.project_usage_db.as_ref().ok_or_else(|| {
+            internal_error("Project usage is unavailable: state database is not initialized")
+        })?;
+        let rows = state_db.project_usage_daily(year).await.map_err(|error| {
+            tracing::warn!(%error, "Project usage query failed");
+            internal_error("Project usage is unavailable: state database query failed")
+        })?;
+        let mut days: BTreeMap<String, BTreeMap<String, (String, i64, i64)>> = BTreeMap::new();
+        for row in rows {
+            if row.amount_nano_usd < 0 || row.unpriced_requests < 0 {
+                return Err(internal_error("Project usage contains invalid aggregates"));
+            }
+            let project = days
+                .entry(row.date)
+                .or_default()
+                .entry(row.project_id)
+                .or_insert((row.project_name, 0, 0));
+            project.1 = project
+                .1
+                .checked_add(row.amount_nano_usd)
+                .ok_or_else(|| internal_error("Project usage amount overflow"))?;
+            project.2 = project
+                .2
+                .checked_add(row.unpriced_requests)
+                .filter(|value| *value <= 9_007_199_254_740_991)
+                .ok_or_else(|| internal_error("Project usage count overflow"))?;
+        }
+        Ok(ProjectUsageResponse {
+            currency: "USD".to_owned(),
+            days: days
+                .into_iter()
+                .map(|(date, projects)| ProjectUsageDay {
+                    date,
+                    projects: projects
+                        .into_iter()
+                        .map(|(id, (name, amount, unpriced))| ProjectUsageProject {
+                            id,
+                            name,
+                            amount: amount as f64 / 1_000_000_000.0,
+                            unpriced,
+                        })
+                        .collect(),
+                })
+                .collect(),
+        })
+    }
+
     /// Create a new `MessageProcessor`, retaining a handle to the outgoing
     /// `Sender` so handlers can enqueue messages to be written to stdout.
     pub(crate) fn new(args: MessageProcessorArgs) -> Self {
@@ -560,6 +620,7 @@ impl MessageProcessor {
                     Some(on_effective_plugins_changed),
                 );
         }
+        let project_usage_db = state_db.clone();
         let external_agent_config_processor =
             ExternalAgentConfigRequestProcessor::new(ExternalAgentConfigRequestProcessorArgs {
                 outgoing: outgoing.clone(),
@@ -586,6 +647,7 @@ impl MessageProcessor {
 
         Self {
             turn_admission,
+            project_usage_db,
             user_verification,
             outgoing,
             models_refresh_worker,
@@ -1854,6 +1916,11 @@ impl MessageProcessor {
             }
             ClientRequest::GetAccount { params, .. } => {
                 self.account_processor.get_account(params).await
+            }
+            ClientRequest::ProjectUsage { params, .. } => {
+                self.project_usage(params.year)
+                    .await
+                    .map(|response| Some(response.into()))
             }
             ClientRequest::GetAuthStatus { params, .. } => {
                 self.account_processor.get_auth_status(params).await

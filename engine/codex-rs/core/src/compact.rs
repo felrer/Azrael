@@ -841,8 +841,16 @@ async fn drain_to_completed(
                 usage_metadata,
                 ..
             }) => {
+                let mut usage_settings = (*turn_context.initial_settings).clone();
+                if !crate::managed_catalog::is_managed(&turn_context.model_info().slug)
+                    && !crate::devin::catalog::is_devin(&turn_context.model_info().slug)
+                {
+                    usage_settings.service_tier = turn_context.config.service_tier.clone();
+                }
                 sess.record_observed_response_completed(
                     turn_context,
+                    &usage_settings,
+                    &turn_context.initial_environments,
                     &response_id,
                     token_usage.as_ref(),
                     usage_metadata.as_ref(),

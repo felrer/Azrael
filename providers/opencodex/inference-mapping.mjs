@@ -255,12 +255,23 @@ export async function mapStream(events, compiled, emit, requestId) {
         active.arguments = bounded(active.arguments + bounded(event.argsDelta));
         break;
       case 'usage': {
-        usage ??= { input_tokens: 0, output_tokens: 0, cached_input_tokens: 0, reasoning_output_tokens: 0, total_tokens: 0 };
+        usage ??= { input_tokens: 0, output_tokens: 0, cached_input_tokens: 0, cache_write_input_tokens: 0, reasoning_output_tokens: 0, total_tokens: 0, estimated: false };
         for (const [wire, native] of [['promptTokens', 'input_tokens'], ['completionTokens', 'output_tokens'], ['cachedInputTokens', 'cached_input_tokens'], ['reasoningTokens', 'reasoning_output_tokens']]) {
           const value = event[wire];
           if (value !== undefined && (!Number.isSafeInteger(value) || value < 0)) fail('invalid_usage');
-          if (value !== undefined) usage[native] = Math.max(usage[native], value);
+          if (value !== undefined) usage[native] = Math.max(usage[native] ?? 0, value);
         }
+        for (const [wire, native] of [['cacheCreationInputTokens', 'cache_write_input_tokens'], ['cacheWrite1hInputTokens', 'cache_write_1h_input_tokens']]) {
+          const value = event[wire];
+          if (value === undefined) continue;
+          if (!Number.isSafeInteger(value) || value < 0) {
+            usage.estimated = true;
+            if (native === 'cache_write_input_tokens') usage[native] = 0;
+            else delete usage[native];
+          } else usage[native] = Math.max(usage[native] ?? 0, value);
+        }
+        if (event.usageEstimated !== undefined && typeof event.usageEstimated !== 'boolean') usage.estimated = true;
+        usage.estimated ||= event.usageEstimated === true;
         usage.total_tokens = usage.input_tokens + usage.output_tokens;
         break;
       }
@@ -272,6 +283,16 @@ export async function mapStream(events, compiled, emit, requestId) {
     }
   }
   if (!terminal) fail('provider_eof');
+  if (usage && !Number.isSafeInteger(usage.total_tokens)) fail('invalid_usage');
+  if (usage) {
+    if (!Number.isSafeInteger(usage.cached_input_tokens + usage.cache_write_input_tokens) ||
+        usage.cached_input_tokens + usage.cache_write_input_tokens > usage.input_tokens ||
+        usage.reasoning_output_tokens > usage.output_tokens) usage.estimated = true;
+    if (usage.cache_write_1h_input_tokens !== undefined && usage.cache_write_1h_input_tokens > usage.cache_write_input_tokens) {
+      delete usage.cache_write_1h_input_tokens;
+      usage.estimated = true;
+    }
+  }
   if (reasoning || signature || opaqueCalls.length || compiled.opaque?.details?.length) emit({ type: 'item_done', item: {
     type: 'reasoning', summary: reasoning ? [{ type: 'summary_text', text: reasoning }] : [],
     encrypted_content: signature || opaqueCalls.length || compiled.opaque?.details?.length ? 'azrael-managed-v1:' + Buffer.from(JSON.stringify({ provider: compiled.provider, model: compiled.model, thread: compiled.thread, turn: compiled.turn, account: compiled.account, signature, calls: opaqueCalls, reasoning_details: compiled.opaque?.details })).toString('base64') : null,

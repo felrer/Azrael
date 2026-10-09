@@ -4,6 +4,7 @@ use crate::client_common::ResponseStream;
 use crate::session::session::Session;
 use crate::session::turn_context::TurnContext;
 use codex_api::ResponseEvent;
+use codex_protocol::ResponseUsageMetadata;
 use codex_protocol::error::CodexErr;
 use codex_protocol::error::CodexErrorDetails;
 use codex_protocol::error::Result as CodexResult;
@@ -743,10 +744,19 @@ async fn consume(
             return Err(error);
         }
     }
+    let usage_metadata = completed.usage.as_ref().map(|usage| ResponseUsageMetadata {
+        amount: None,
+        metadata: Some(serde_json::json!({
+            "azraelPricing": {
+                "cacheWrite1hInputTokens": usage.cache_write_1h_input_tokens,
+                "estimated": usage.estimated,
+            }
+        })),
+    });
     let usage = completed.usage.map(|usage| TokenUsage {
         input_tokens: usage.input_tokens,
         cached_input_tokens: usage.cached_input_tokens,
-        cache_write_input_tokens: 0,
+        cache_write_input_tokens: usage.cache_write_input_tokens,
         output_tokens: usage.output_tokens,
         reasoning_output_tokens: usage.reasoning_output_tokens,
         total_tokens: usage.total_tokens,
@@ -755,7 +765,7 @@ async fn consume(
     let completed_event = ResponseEvent::Completed {
         response_id: format!("devin-native-{request_id}"),
         token_usage: usage,
-        usage_metadata: None,
+        usage_metadata,
         end_turn: Some(true),
     };
     let result = tokio::select! {

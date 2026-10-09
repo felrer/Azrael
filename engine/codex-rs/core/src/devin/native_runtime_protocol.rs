@@ -219,14 +219,79 @@ impl FailureDiagnostics {
 }
 
 #[derive(Debug, Deserialize)]
+#[serde(from = "RawUsage")]
 pub(super) struct Usage {
     pub(super) input_tokens: i64,
     pub(super) output_tokens: i64,
     #[serde(default)]
     pub(super) cached_input_tokens: i64,
     #[serde(default)]
+    pub(super) cache_write_input_tokens: i64,
+    #[serde(default)]
+    pub(super) cache_write_1h_input_tokens: Option<i64>,
+    #[serde(default)]
+    pub(super) estimated: bool,
+    #[serde(default)]
     pub(super) reasoning_output_tokens: i64,
     pub(super) total_tokens: i64,
+}
+
+#[derive(Deserialize)]
+struct RawUsage {
+    input_tokens: i64,
+    output_tokens: i64,
+    #[serde(default)]
+    cached_input_tokens: i64,
+    #[serde(default)]
+    reasoning_output_tokens: i64,
+    total_tokens: i64,
+    #[serde(default)]
+    cache_write_input_tokens: serde_json::Value,
+    #[serde(default)]
+    cache_write_1h_input_tokens: serde_json::Value,
+    #[serde(default)]
+    estimated: serde_json::Value,
+}
+
+impl From<RawUsage> for Usage {
+    fn from(raw: RawUsage) -> Self {
+        let count = |value: &serde_json::Value| {
+            value
+                .as_i64()
+                .filter(|count| (0..=9_007_199_254_740_991).contains(count))
+        };
+        let write = count(&raw.cache_write_input_tokens);
+        let one_hour = count(&raw.cache_write_1h_input_tokens);
+        let mut usage = Self {
+            input_tokens: raw.input_tokens,
+            output_tokens: raw.output_tokens,
+            cached_input_tokens: raw.cached_input_tokens,
+            reasoning_output_tokens: raw.reasoning_output_tokens,
+            total_tokens: raw.total_tokens,
+            cache_write_input_tokens: write.unwrap_or(0),
+            cache_write_1h_input_tokens: one_hour,
+            estimated: raw.estimated.as_bool().unwrap_or(false)
+                || (!raw.estimated.is_null() && !raw.estimated.is_boolean())
+                || (!raw.cache_write_input_tokens.is_null() && write.is_none())
+                || (!raw.cache_write_1h_input_tokens.is_null() && one_hour.is_none()),
+        };
+        if usage
+            .cached_input_tokens
+            .checked_add(usage.cache_write_input_tokens)
+            .is_none_or(|cached| cached > usage.input_tokens)
+            || usage.reasoning_output_tokens > usage.output_tokens
+        {
+            usage.estimated = true;
+        }
+        if usage
+            .cache_write_1h_input_tokens
+            .is_some_and(|one_hour| one_hour > usage.cache_write_input_tokens)
+        {
+            usage.cache_write_1h_input_tokens = None;
+            usage.estimated = true;
+        }
+        usage
+    }
 }
 
 pub(super) fn validate_usage(usage: Option<&Usage>) -> CodexResult<()> {

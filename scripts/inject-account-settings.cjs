@@ -27,7 +27,7 @@ function AzraelAccountSettings() {
       const button = event.target instanceof Element ? event.target.closest('button[data-action], [role="button"][data-action="toggleUsage"]') : null;
       if (!(button instanceof HTMLElement) || button.disabled) return;
       send("action", { action: button.dataset.action, profileId: button.dataset.profile, providerId: button.dataset.provider,
-        accountId: button.dataset.account, workspaceAccountId: button.dataset.workspace, kind: button.dataset.kind, creditId: button.dataset.credit });
+        accountId: button.dataset.account, workspaceAccountId: button.dataset.workspace, kind: button.dataset.kind, creditId: button.dataset.credit, month: button.dataset.month });
     };
     const onChange = event => {
       const input = event.target;

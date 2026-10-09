@@ -438,20 +438,26 @@ async fn summarize(
                 token_usage,
                 usage_metadata,
                 ..
-            } if !summary.trim().is_empty() => {
+            } => {
+                let mut usage_settings = (*source.initial_settings).clone();
+                if !crate::managed_catalog::is_managed(model) && !crate::devin::catalog::is_devin(model) {
+                    usage_settings.service_tier = source.config.service_tier.clone();
+                }
                 sess.record_observed_response_completed(
                     &source,
+                    &usage_settings,
+                    &source.initial_environments,
                     &response_id,
                     token_usage.as_ref(),
                     usage_metadata.as_ref(),
                 )
                 .await;
+                if summary.trim().is_empty() {
+                    return Err(CodexErr::Stream(
+                        "Provider handoff returned no summary; history was preserved".into(),
+                    ));
+                }
                 return Ok((summary, response_id));
-            }
-            ResponseEvent::Completed { .. } => {
-                return Err(CodexErr::Stream(
-                    "Provider handoff returned no summary; history was preserved".into(),
-                ));
             }
             _ => {}
         }

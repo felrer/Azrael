@@ -12,6 +12,7 @@ import { manageDevin } from "./devin";
 import { ResetCreditService, resetCreditMessage } from "./resetCredit";
 import { UsageWindowService } from "./usageWindowService";
 import type { AccountProfile } from "./protocol";
+import { projectUsageHtml, projectUsageStyles, ProjectUsageSnapshot } from "./projectUsagePresentation";
 
 const EXPANSION_STATE = "azrael.usage.expandedAccounts";
 
@@ -49,6 +50,14 @@ export class UsageView implements vscode.Disposable {
   private readonly providerQuotas = new Map<string, ProviderAccountQuota>();
   private readonly providerQuotaErrors = new Map<string, ProviderAccountQuota>();
   private providerGeneration = 0;
+  private costMonth = new Intl.DateTimeFormat("en", { timeZone: "Asia/Seoul", year: "numeric", month: "2-digit" })
+    .formatToParts(new Date()).filter(part => part.type === "year" || part.type === "month")
+    .sort((a, b) => a.type === "year" ? -1 : b.type === "year" ? 1 : 0).map(part => part.value).join("-");
+  private costSnapshot: ProjectUsageSnapshot | undefined;
+  private readonly costSnapshots = new Map<number, ProjectUsageSnapshot>();
+  private costYear: number | undefined;
+  private costError = false;
+  private costGeneration = 0;
   private readonly stateListener = () => { if (this.hasVisibleTarget()) { this.render(); if (!this.refreshing) void this.refresh(); } };
   private readonly windowListener = () => this.render();
 
@@ -145,6 +154,7 @@ export class UsageView implements vscode.Disposable {
 
   private visibility(): void {
     if (!this.hasVisibleTarget()) {
+      ++this.costGeneration;
       this.stopTimer();
       if (this.listening) this.service.off("state", this.stateListener);
       this.listening = false;
@@ -169,7 +179,7 @@ export class UsageView implements vscode.Disposable {
     this.refreshing = true;
     this.render();
     try {
-      await Promise.allSettled([this.refreshOpenAI(force), this.refreshDevin(), this.refreshProviders(force), this.usageWindows?.refresh()]);
+      await Promise.allSettled([this.refreshOpenAI(force), this.refreshDevin(), this.refreshProviders(force), this.refreshProjectUsage(), this.usageWindows?.refresh()]);
     } finally {
       this.refreshing = false;
       this.render();
@@ -194,6 +204,24 @@ export class UsageView implements vscode.Disposable {
       )));
       this.error = undefined;
     } catch (error) { this.error = error instanceof Error ? error.message : String(error); }
+    this.render();
+  }
+
+  private async refreshProjectUsage(): Promise<void> {
+    if (!this.hasVisibleTarget()) return;
+    const year = Number(this.costMonth.slice(0, 4));
+    const generation = ++this.costGeneration;
+    try {
+      const snapshot = await this.service.projectUsage(year);
+      if (generation !== this.costGeneration || !this.hasVisibleTarget() || year !== Number(this.costMonth.slice(0, 4))) return;
+      this.costSnapshot = snapshot;
+      this.costSnapshots.set(year, snapshot);
+      this.costYear = year;
+      this.costError = false;
+    } catch {
+      if (generation !== this.costGeneration || !this.hasVisibleTarget() || year !== Number(this.costMonth.slice(0, 4))) return;
+      this.costError = true;
+    }
     this.render();
   }
 
@@ -271,6 +299,20 @@ export class UsageView implements vscode.Disposable {
   private async onMessage(message: unknown): Promise<void> {
     if (!isRecord(message) || typeof message.action !== "string") return;
     try {
+      if (message.action === "costMonth") {
+        if (typeof message.month !== "string" || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(message.month) || !this.hasVisibleTarget()) return;
+        const previousYear = Number(this.costMonth.slice(0, 4));
+        this.costMonth = message.month;
+        if (previousYear !== Number(this.costMonth.slice(0, 4))) {
+          ++this.costGeneration;
+          this.costYear = Number(this.costMonth.slice(0, 4));
+          this.costSnapshot = this.costSnapshots.get(this.costYear);
+          this.costError = false;
+          void this.refresh();
+        }
+        this.render();
+        return;
+      }
       if (message.action === "setAutoSwitch") { await this.setAutoSwitch(message); return; }
       if (message.action === "toggleUsage") { await this.toggleUsage(message); return; }
       if (message.action === "consumeResetCredit") { await this.consumeResetCredit(message); return; }
@@ -482,7 +524,7 @@ export class UsageView implements vscode.Disposable {
         const uri = webview.asWebviewUri(vscode.Uri.joinPath(this.fontRoot!, file));
         return `@font-face{font-family:"Azrael Gyeonggi Title";src:url("${escapeHtml(uri.toString())}") format("woff");font-weight:400;font-style:normal;font-display:swap}`;
       }).join("") : "";
-      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action], [role="button"][data-action="toggleUsage"]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit});});document.addEventListener('keydown',e=>{const s=e.target;if((e.key==='Enter'||e.key===' ')&&s instanceof HTMLElement&&s.dataset.action==='toggleUsage'&&s.getAttribute('role')==='button'){e.preventDefault();s.click();}});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus();</script></body></html>`;
+      this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'unsafe-inline'; font-src ${this.fontRoot ? escapeHtml(webview.cspSource) : "'none'"}; script-src 'nonce-${nonce}';"><style>${fonts}</style></head><body>${html}<script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',e=>{if(!(e.target instanceof Element))return;const b=e.target.closest('button[data-action], [role="button"][data-action="toggleUsage"]');if(b instanceof HTMLElement&&!b.disabled)vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,kind:b.dataset.kind,creditId:b.dataset.credit,month:b.dataset.month});});document.addEventListener('keydown',e=>{const s=e.target;if((e.key==='Enter'||e.key===' ')&&s instanceof HTMLElement&&s.dataset.action==='toggleUsage'&&s.getAttribute('role')==='button'){e.preventDefault();s.click();}});document.addEventListener('change',e=>{const b=e.target;if(!(b instanceof HTMLInputElement)||b.type!=='checkbox'||b.dataset.action!=='setAutoSwitch'||b.disabled)return;const enabled=b.checked;b.disabled=true;vscode.postMessage({action:b.dataset.action,profileId:b.dataset.profile,providerId:b.dataset.provider,accountId:b.dataset.account,workspaceAccountId:b.dataset.workspace,enabled});});document.addEventListener('toggle',e=>{const d=e.target;if(d instanceof HTMLDetailsElement&&d.classList.contains('ticket-details'))vscode.postMessage({action:'ticketDetails',profileId:d.dataset.profile,workspaceAccountId:d.dataset.workspace,open:d.open});},true);document.querySelector('button[data-ticket-confirming="true"]')?.focus();</script></body></html>`;
     }
     for (const [webview, target] of this.embedded) {
       try {
@@ -490,6 +532,17 @@ export class UsageView implements vscode.Disposable {
           .then(sent => { if (!sent) this.removeEmbedded(webview, target); }, () => this.removeEmbedded(webview, target));
       } catch { this.removeEmbedded(webview, target); }
     }
+  }
+
+  private costUnavailableHtml(): string {
+    const [year, month] = this.costMonth.split("-").map(Number);
+    const nav = (offset: number) => {
+      const index = (year - 1) * 12 + month - 1 + offset;
+      const allowed = index >= 0 && index < 9999 * 12;
+      const next = allowed ? `${String(Math.floor(index / 12) + 1).padStart(4, "0")}-${String(index % 12 + 1).padStart(2, "0")}` : this.costMonth;
+      return `<button class="puc-nav" data-action="costMonth" data-month="${next}" aria-label="${offset < 0 ? "이전 달" : "다음 달"}"${allowed ? "" : " disabled"}><svg viewBox="0 0 16 16" aria-hidden="true"><path d="${offset < 0 ? "m10 3-5 5 5 5" : "m6 3 5 5-5 5"}"/></svg></button>`;
+    };
+    return `<section class="project-usage" aria-label="프로젝트 사용량"><div class="puc-heading"><div class="puc-month">${nav(-1)}<span>${this.costMonth.replace("-", ".")}</span>${nav(1)}</div><span class="muted">${this.costError ? "조회 실패" : "불러오는 중…"}</span></div></section>`;
   }
 
   private renderMarkup(): string {
@@ -526,7 +579,8 @@ export class UsageView implements vscode.Disposable {
     const devinSummary = devin?.loggedIn && devin.email ? accountSummaryHtml(devin.email, devinExpanded, `data-kind="devin-cli" data-account="${escapeHtml(devin.email)}"`, devinGauges, true) : '<div class="empty-state muted">로그인된 Devin CLI 계정이 없습니다.</div>';
     const devinCard = `<section class="account-card${devinExpanded ? " expanded" : " collapsed"}">${devinSummary}${this.devinError ? `<p class="error">${devinQuota ? "이전 조회 값 · " : ""}${dynamicTextHtml(this.devinError)}</p>` : ""}${devinExpanded || !devin?.loggedIn ? `<div class="usage-details"><p class="muted">Devin CLI 계정은 관리형 Devin 계정과 별도로 사용됩니다.</p>${devinActions}</div>` : ""}</section>`;
     const openAIHeading = providerHeadingHtml("openai", "OpenAI", state?.profiles.length ?? 0, '<button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button>');
-    return `<style>${usageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정별 잔여 사용량을 한눈에 확인하세요.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p></main>`;
+    const cost = this.costYear === Number(this.costMonth.slice(0, 4)) && this.costSnapshot ? `${this.costError ? '<p class="muted">이전 조회 값 · 갱신 실패</p>' : ""}${projectUsageHtml(this.costSnapshot, this.costMonth)}` : this.costUnavailableHtml();
+    return `<style>${usageStyles}${projectUsageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정별 잔여 사용량을 한눈에 확인하세요.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p>${cost}</main>`;
   }
 }
 

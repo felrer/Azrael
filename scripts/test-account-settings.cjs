@@ -95,6 +95,10 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   button.dataset = { action: 'consumeResetCredit', profile: 'profile-1', workspace: 'workspace-1', credit: 'selected-ticket' };
   click({ target: button });
   assert.equal(sent[4].message.creditId, 'selected-ticket');
+  button.dataset = { action: 'costMonth', month: '2026-09' };
+  click({ target: button });
+  assert.equal(sent[5].message.action, 'costMonth');
+  assert.equal(sent[5].message.month, '2026-09');
   let activated = 0, prevented = 0;
   const summary = new HTMLElement();
   summary.dataset = { action: 'toggleUsage', profile: 'profile-1', workspace: 'workspace-1' };
@@ -105,7 +109,7 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   assert.equal(activated, 2);
   assert.equal(prevented, 2);
   cleanup();
-  assert.equal(sent[5].action, "unmount");
+  assert.equal(sent[6].action, "unmount");
   assert.equal(change, undefined);
   assert.equal(receiver, undefined);
   assert.equal(click, undefined);

@@ -419,7 +419,17 @@ async fn run_remote_compaction_request_v2(
             .await
         {
             Ok(stream) => {
-                collect_compaction_output(sess, turn_context, stream, compaction_item).await
+                let mut usage_settings = (*turn_context.initial_settings).clone();
+                usage_settings.service_tier = step_context.settings.service_tier.clone();
+                collect_compaction_output(
+                    sess,
+                    turn_context,
+                    &usage_settings,
+                    &step_context.environments,
+                    stream,
+                    compaction_item,
+                )
+                .await
             }
             Err(err) => Err(err),
         };
@@ -445,6 +455,8 @@ async fn run_remote_compaction_request_v2(
 async fn collect_compaction_output(
     sess: &Session,
     turn_context: &TurnContext,
+    usage_settings: &crate::session::step_settings::ResolvedStepSettings,
+    usage_environments: &crate::environment_selection::TurnEnvironmentSnapshot,
     mut stream: ResponseStream,
     compaction_item: &TurnItem,
 ) -> CodexResult<RemoteCompactionV2Output> {
@@ -480,6 +492,8 @@ async fn collect_compaction_output(
             } => {
                 sess.record_observed_response_completed(
                     turn_context,
+                    usage_settings,
+                    usage_environments,
                     &response_id,
                     token_usage.as_ref(),
                     usage_metadata.as_ref(),
@@ -1277,7 +1291,7 @@ mod tests {
         let (sess, turn_context, rx) =
             crate::session::tests::make_session_and_context_with_rx().await;
         let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
-        let output = collect_compaction_output(&sess, &turn_context, stream, &compaction_item)
+        let output = collect_compaction_output(&sess, &turn_context, &turn_context.initial_settings, &turn_context.initial_environments, stream, &compaction_item)
             .await
             .expect("compaction should be collected");
 

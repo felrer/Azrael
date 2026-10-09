@@ -1,0 +1,1569 @@
+{
+  "verified_at": "2026-10-09",
+  "rate_unit": "nano_USD_per_million_tokens",
+  "rounding": "Nearest nanoUSD per request; half rounds up after summing all token categories and applying tier.",
+  "scope": "API-equivalent token list prices, global routing; excludes taxes, negotiated discounts, tool fees, Gemini cache storage and subscription charges.",
+  "alias_evidence": "Exact IDs only. Antigravity mappings: providers/opencodex/vendor/src/providers/antigravity-models.ts. gpt-5.6 alias: its official model page. Snapshot IDs: official model documentation.",
+  "tier_evidence": [
+    "https://developers.openai.com/api/docs/pricing",
+    "https://developers.openai.com/api/docs/guides/fast-mode",
+    "https://platform.claude.com/docs/en/about-claude/pricing",
+    "https://ai.google.dev/gemini-api/docs/pricing"
+  ],
+  "models": [
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-6.1-sol"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-6.1-sol",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 100000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 2500000000,
+            "output": 10000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": 5000000000,
+            "cache_write_1h": 5000000000,
+            "output": 15000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        },
+        {
+          "names": [
+            "flex",
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        },
+        {
+          "names": [
+            "ultrafast"
+          ],
+          "multipliers_per_mille": [
+            6000,
+            6000,
+            6000,
+            6000,
+            6000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-6-sol"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-sol",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 2500000000,
+            "output": 10000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 400000000,
+            "cache_write_5m": 5000000000,
+            "cache_write_1h": 5000000000,
+            "output": 15000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        },
+        {
+          "names": [
+            "flex",
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-6-astra"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-astra",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 10000000000,
+            "cache_read": 1000000000,
+            "cache_write_5m": 12500000000,
+            "cache_write_1h": 12500000000,
+            "output": 50000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 20000000000,
+            "cache_read": 2000000000,
+            "cache_write_5m": 25000000000,
+            "cache_write_1h": 25000000000,
+            "output": 75000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        },
+        {
+          "names": [
+            "flex",
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        },
+        {
+          "names": [
+            "ultrafast"
+          ],
+          "multipliers_per_mille": [
+            6000,
+            6000,
+            6000,
+            6000,
+            6000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-6-luna"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-6-luna",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 100000000,
+            "cache_read": 10000000,
+            "cache_write_5m": 125000000,
+            "cache_write_1h": 125000000,
+            "output": 500000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 200000000,
+            "cache_read": 20000000,
+            "cache_write_5m": 250000000,
+            "cache_write_1h": 250000000,
+            "output": 750000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        },
+        {
+          "names": [
+            "flex",
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-5.6-sol",
+        "gpt-5.6"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-sol",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 400000000,
+            "cache_write_5m": 5000000000,
+            "cache_write_1h": 5000000000,
+            "output": 20000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 8000000000,
+            "cache_read": 800000000,
+            "cache_write_5m": 10000000000,
+            "cache_write_1h": 10000000000,
+            "output": 30000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "fast",
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-5.6-terra"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-terra",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 2500000000,
+            "output": 12000000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 400000000,
+            "cache_write_5m": 5000000000,
+            "cache_write_1h": 5000000000,
+            "output": 18000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-5.6-luna"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.6-luna",
+      "policy": "per_request",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 200000000,
+            "cache_read": 20000000,
+            "cache_write_5m": 250000000,
+            "cache_write_1h": 250000000,
+            "output": 1200000000
+          }
+        },
+        {
+          "over_input_tokens": 272000,
+          "rates": {
+            "input": 400000000,
+            "cache_read": 40000000,
+            "cache_write_5m": 500000000,
+            "cache_write_1h": 500000000,
+            "output": 1800000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-fable-5-1"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 10000000000,
+            "cache_read": 250000000,
+            "cache_write_5m": 12500000000,
+            "cache_write_1h": 20000000000,
+            "output": 50000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-mythos-5-1"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 10000000000,
+            "cache_read": 250000000,
+            "cache_write_5m": 12500000000,
+            "cache_write_1h": 20000000000,
+            "output": 50000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-fable-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 10000000000,
+            "cache_read": 1000000000,
+            "cache_write_5m": 12500000000,
+            "cache_write_1h": 20000000000,
+            "output": 50000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-mythos-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 10000000000,
+            "cache_read": 1000000000,
+            "cache_write_5m": 12500000000,
+            "cache_write_1h": 20000000000,
+            "output": 50000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-opus-5-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": 5000000000,
+            "cache_write_1h": 8000000000,
+            "output": 20000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        },
+        {
+          "names": [
+            "fast"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-sonnet-5-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 100000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 4000000000,
+            "output": 10000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-opus-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 5000000000,
+            "cache_read": 500000000,
+            "cache_write_5m": 6250000000,
+            "cache_write_1h": 10000000000,
+            "output": 25000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        },
+        {
+          "names": [
+            "fast"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-opus-4-8"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 5000000000,
+            "cache_read": 500000000,
+            "cache_write_5m": 6250000000,
+            "cache_write_1h": 10000000000,
+            "output": 25000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        },
+        {
+          "names": [
+            "fast"
+          ],
+          "multipliers_per_mille": [
+            2000,
+            2000,
+            2000,
+            2000,
+            2000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-opus-4-7"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 5000000000,
+            "cache_read": 500000000,
+            "cache_write_5m": 6250000000,
+            "cache_write_1h": 10000000000,
+            "output": 25000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-opus-4-6"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 5000000000,
+            "cache_read": 500000000,
+            "cache_write_5m": 6250000000,
+            "cache_write_1h": 10000000000,
+            "output": 25000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-sonnet-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": 2500000000,
+            "cache_write_1h": 4000000000,
+            "output": 10000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-sonnet-4-6"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 3000000000,
+            "cache_read": 300000000,
+            "cache_write_5m": 3750000000,
+            "cache_write_1h": 6000000000,
+            "output": 15000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-haiku-4-5",
+        "claude-haiku-4-5-20251001"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 1000000000,
+            "cache_read": 100000000,
+            "cache_write_5m": 1250000000,
+            "cache_write_1h": 2000000000,
+            "output": 5000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "anthropic",
+      "model_ids": [
+        "claude-haiku-5-5"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 100000000,
+            "cache_read": 10000000,
+            "cache_write_5m": 125000000,
+            "cache_write_1h": 200000000,
+            "output": 500000000
+          }
+        },
+        {
+          "over_input_tokens": 100000,
+          "rates": {
+            "input": 500000000,
+            "cache_read": 50000000,
+            "cache_write_5m": 625000000,
+            "cache_write_1h": 1000000000,
+            "output": 2500000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "batch"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "gemini-3.8-flash",
+        "gemini-3.8-flash-low",
+        "gemini-3.8-flash-medium",
+        "gemini-3.8-flash-high"
+      ],
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "policy": "token_only_no_cache_storage_or_tool_fees",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 750000000,
+            "cache_read": 75000000,
+            "cache_write_5m": null,
+            "cache_write_1h": null,
+            "output": 3750000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            1800,
+            1800,
+            1800,
+            1800,
+            1800
+          ]
+        },
+        {
+          "names": [
+            "batch",
+            "flex"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "gemini-3.7-flash",
+        "gemini-3.7-flash-tiered"
+      ],
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "policy": "token_only_no_cache_storage_or_tool_fees",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 750000000,
+            "cache_read": 75000000,
+            "cache_write_5m": null,
+            "cache_write_1h": null,
+            "output": 3750000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            1800,
+            1800,
+            1800,
+            1800,
+            1800
+          ]
+        },
+        {
+          "names": [
+            "batch",
+            "flex"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "gemini-3.6-flash"
+      ],
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "policy": "token_only_no_cache_storage_or_tool_fees",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 750000000,
+            "cache_read": 75000000,
+            "cache_write_5m": null,
+            "cache_write_1h": null,
+            "output": 3750000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            1800,
+            1800,
+            1800,
+            1800,
+            1800
+          ]
+        },
+        {
+          "names": [
+            "batch",
+            "flex"
+          ],
+          "multipliers_per_mille": [
+            500,
+            500,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "gemini-3.1-pro",
+        "gemini-3.1-pro-preview",
+        "gemini-3.1-pro-preview-customtools",
+        "gemini-3.1-pro-low",
+        "gemini-3.1-pro-high",
+        "gemini-pro-agent"
+      ],
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "policy": "token_only_no_cache_storage_or_tool_fees",
+      "requires_cache_write_split": false,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 2000000000,
+            "cache_read": 200000000,
+            "cache_write_5m": null,
+            "cache_write_1h": null,
+            "output": 12000000000
+          }
+        },
+        {
+          "over_input_tokens": 200000,
+          "rates": {
+            "input": 4000000000,
+            "cache_read": 400000000,
+            "cache_write_5m": null,
+            "cache_write_1h": null,
+            "output": 18000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        },
+        {
+          "names": [
+            "priority"
+          ],
+          "multipliers_per_mille": [
+            1800,
+            1800,
+            1800,
+            1800,
+            1800
+          ]
+        },
+        {
+          "names": [
+            "batch",
+            "flex"
+          ],
+          "multipliers_per_mille": [
+            500,
+            1000,
+            500,
+            500,
+            500
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "claude-sonnet-4-6"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 3000000000,
+            "cache_read": 300000000,
+            "cache_write_5m": 3750000000,
+            "cache_write_1h": 6000000000,
+            "output": 15000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        }
+      ]
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "claude-opus-4-6-thinking",
+        "claude-opus-4-6"
+      ],
+      "source": "https://platform.claude.com/docs/en/about-claude/pricing",
+      "policy": "anthropic_ttl_split",
+      "requires_cache_write_split": true,
+      "bands": [
+        {
+          "over_input_tokens": -1,
+          "rates": {
+            "input": 5000000000,
+            "cache_read": 500000000,
+            "cache_write_5m": 6250000000,
+            "cache_write_1h": 10000000000,
+            "output": 25000000000
+          }
+        }
+      ],
+      "tiers": [
+        {
+          "names": [
+            "default",
+            "standard"
+          ],
+          "multipliers_per_mille": [
+            1000,
+            1000,
+            1000,
+            1000,
+            1000
+          ]
+        }
+      ]
+    }
+  ],
+  "unpriced": [
+    {
+      "provider": "devin",
+      "source": "https://devin.ai/pricing",
+      "reason": "No public model token tariff verified. Do not infer SWE or routed Claude/OpenAI prices."
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-5.5"
+      ],
+      "source": "https://developers.openai.com/api/docs/models/gpt-5.5",
+      "reason": "Long-context policy applies for full session; per-request usage lacks session pricing band."
+    },
+    {
+      "provider": "openai",
+      "model_ids": [
+        "gpt-daybreak-blue-latest",
+        "gpt-daybreak-red-latest",
+        "daybreak-blue-latest",
+        "daybreak-red-latest"
+      ],
+      "source": "https://developers.openai.com/api/docs/guides/daybreak",
+      "reason": "Latest resolution depends on approved access; requires authoritative served model."
+    },
+    {
+      "provider": "google-antigravity",
+      "model_ids": [
+        "gemini-3.1-flash-image",
+        "gpt-oss-120b-medium"
+      ],
+      "source": "https://ai.google.dev/gemini-api/docs/pricing",
+      "reason": "Image output needs modality split; no official GPT-OSS120B hosted token tariff verified."
+    }
+  ]
+}

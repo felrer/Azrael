@@ -4805,10 +4805,22 @@ impl Session {
     pub(crate) async fn record_observed_response_completed(
         &self,
         turn_context: &TurnContext,
+        request_settings: &ResolvedStepSettings,
+        request_environments: &TurnEnvironmentSnapshot,
         response_id: &str,
         usage: Option<&TokenUsage>,
         usage_metadata: Option<&ResponseUsageMetadata>,
     ) {
+        crate::project_usage::record(
+            self,
+            turn_context,
+            request_settings,
+            request_environments,
+            response_id,
+            usage,
+            usage_metadata,
+        )
+        .await;
         self.send_event(
             turn_context,
             EventMsg::RawResponseCompleted(RawResponseCompletedEvent {

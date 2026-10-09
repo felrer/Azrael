@@ -2843,6 +2843,18 @@
       ],
       "type": "string"
     },
+    "ProjectUsageParams": {
+      "properties": {
+        "year": {
+          "format": "int32",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "year"
+      ],
+      "type": "object"
+    },
     "QueuedSubmissionKind": {
       "enum": [
         "userInput",
@@ -8215,6 +8227,30 @@
         "params"
       ],
       "title": "Azrael/rootResumeRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "azrael/projectUsage"
+          ],
+          "title": "Azrael/projectUsageRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ProjectUsageParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Azrael/projectUsageRequest",
       "type": "object"
     },
     {

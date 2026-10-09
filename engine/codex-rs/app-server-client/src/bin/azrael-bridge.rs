@@ -61,7 +61,7 @@ async fn run(socket_path: AbsolutePathBuf) -> io::Result<()> {
                 let envelope: Value = serde_json::from_str(&line)?;
                 let id = envelope.get("id").cloned().unwrap_or(Value::Null);
                 let timeout_seconds = if envelope["method"] == "azrael/devin" { 200 } else { 60 };
-                let response = if !matches!(envelope["method"].as_str(), Some("account/read" | "config/read" | "azrael/account" | "azrael/devin" | "azrael/rootResume")) {
+                let response = if !matches!(envelope["method"].as_str(), Some("account/read" | "config/read" | "azrael/account" | "azrael/devin" | "azrael/rootResume" | "azrael/projectUsage")) {
                     json!({"id":id,"error":{"code":-32601,"message":"method is not allowed by the azrael bridge"}})
                 } else if pending.len() >= 8 {
                     json!({"id":id,"error":{"code":-32000,"message":"too many pending management requests"}})

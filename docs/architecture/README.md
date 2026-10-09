@@ -6,6 +6,7 @@ Each document labels its own state (see [document states](../README.md#document-
 
 - [azrael-ex host and storage](azrael-ex.md): single-extension host, pinned UI and engine provenance, installation, native storage, Codex and shared environment snapshots, recent-chat list, chat content handling.
 - [Accounts and usage](accounts.md): unified account/usage page, OpenAI profiles and multi-window leases, switching, provider accounts, quota semantics.
+- [Project usage value](project-usage.md): daily API-equivalent project totals, contribution calendar and monthly comparisons in Settings Usage.
 - [Devin and mixed-provider agents](devin.md): catalog and model selection, native inference with Codex tools and sessions, permissions, storage/resume, legacy ACP threads, collaboration tool contract.
 - [Managed providers and provider switching](managed-providers.md): managed inference, provider-grouped picker, reasoning controls, turn bindings, history projection and handoff.
 - [Root resume scheduling](root-resume.md): deferring the root while subagents run, durable reservations and deferred-turn timing.

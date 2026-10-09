@@ -84,6 +84,8 @@ pub use runtime::GoalAccountingOutcome;
 pub use runtime::GoalStore;
 pub use runtime::GoalUpdate;
 pub use runtime::MemoryStore;
+pub use runtime::ProjectUsageDailyRow;
+pub use runtime::ProjectUsageDelta;
 pub use runtime::RemoteControlEnrollmentRecord;
 pub use runtime::SqliteIntegrityCheck;
 pub use runtime::SqliteQueueStore;

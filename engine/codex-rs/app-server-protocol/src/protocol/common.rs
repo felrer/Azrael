@@ -1324,6 +1324,12 @@ client_request_definitions! {
         response: v2::RootResumeResponse,
     },
 
+    ProjectUsage => "azrael/projectUsage" {
+        params: v2::ProjectUsageParams,
+        serialization: None,
+        response: v2::ProjectUsageResponse,
+    },
+
     GetAccountRateLimits => "account/rateLimits/read" {
         params: #[ts(optional, as = "Option<GetAccountRateLimitsParamsTypeScript>", inline)] #[serde(default, skip_serializing_if = "Option::is_none")] v2::NullableGetAccountRateLimitsParams,
         serialization: None,

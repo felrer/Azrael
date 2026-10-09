@@ -257,7 +257,9 @@ export function observeDetails(response: Response, opaque: { details: any[]; ter
   return new Response(body, { status: response.status, headers: response.headers });
 }
 
-async function* translate(events: AsyncIterable<any>, opaque: { terminal: boolean }, onEvent?: (event: string) => void, tracker?: any) {
+type UsageObservation = { terminal: boolean; cacheWrite1hInputTokens?: number; cacheWrite5mInputTokens?: number; billingInvalid?: boolean };
+
+export async function* translate(events: AsyncIterable<any>, opaque: UsageObservation, onEvent?: (event: string) => void, tracker?: any) {
   let tools = false;
   try { for await (const event of events) {
     const progressEvent = ({ text_delta: 'text', thinking_delta: 'reasoning', reasoning_raw_delta: 'reasoning', thinking_signature: 'reasoning_signature', tool_call_start: 'tool_call_start', tool_call_delta: 'tool_call_args', done: 'finish' } as Record<string, string>)[event.type];
@@ -275,7 +277,19 @@ async function* translate(events: AsyncIterable<any>, opaque: { terminal: boolea
       case 'done':
         if (!opaque.terminal) fail('provider_eof');
         if (event.stopReason && !['stop', 'tool_calls', 'end_turn', 'tool_use'].includes(event.stopReason)) fail('provider_incomplete');
-        if (event.usage) yield { kind: 'usage', promptTokens: event.usage.inputTokens, completionTokens: event.usage.outputTokens, cachedInputTokens: event.usage.cachedInputTokens, reasoningTokens: event.usage.reasoningOutputTokens };
+        if (event.usage) {
+          const oneHour = opaque.cacheWrite1hInputTokens, fiveMinutes = opaque.cacheWrite5mInputTokens;
+          let splitKnown = !opaque.billingInvalid && oneHour !== undefined && fiveMinutes !== undefined;
+          if (splitKnown && (!Number.isSafeInteger(oneHour! + fiveMinutes!) || oneHour! + fiveMinutes! !== event.usage.cacheCreationInputTokens)) {
+            opaque.billingInvalid = true;
+            splitKnown = false;
+          }
+          yield { kind: 'usage', promptTokens: event.usage.inputTokens, completionTokens: event.usage.outputTokens,
+            cachedInputTokens: event.usage.cacheReadInputTokens ?? event.usage.cachedInputTokens,
+            cacheCreationInputTokens: event.usage.cacheCreationInputTokens,
+            cacheWrite1hInputTokens: splitKnown ? oneHour : undefined,
+            usageEstimated: opaque.billingInvalid ? true : event.usage.usageEstimated, reasoningTokens: event.usage.reasoningOutputTokens };
+        }
         yield { kind: 'finish', reason: tools ? 'tool_calls' : 'stop' }; break;
       case 'error': if (Number.isInteger(event.status)) fail('provider_http_' + event.status); fail('provider_failure');
       case 'incomplete': fail('provider_incomplete');
@@ -286,7 +300,7 @@ async function* translate(events: AsyncIterable<any>, opaque: { terminal: boolea
 
 // Anthropic's parser tolerates a terminal message_delta without message_stop.
 // The managed native stream requires the actual terminal frame before tool calls execute.
-export function observeAnthropic(response: Response, opaque: { terminal: boolean; upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any) {
+export function observeAnthropic(response: Response, opaque: UsageObservation & { upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any) {
   if (!response.body) fail('provider_eof');
   const decoder = new TextDecoder();
   let pending = '', data: string[] = [], dataBytes = 0, frameBytes = 0;
@@ -302,6 +316,17 @@ export function observeAnthropic(response: Response, opaque: { terminal: boolean
       if (code) fail(code);
     }
     if (value.type === 'message_stop') opaque.terminal = true;
+    if (value.type === 'message_start' || value.type === 'message_delta') {
+      const usage = value.type === 'message_start' ? value.message?.usage : value.usage;
+      const split = usage?.cache_creation;
+      for (const [wire, field] of [['ephemeral_1h_input_tokens', 'cacheWrite1hInputTokens'], ['ephemeral_5m_input_tokens', 'cacheWrite5mInputTokens']] as const) {
+        const count = split?.[wire];
+        if (count !== undefined) {
+          if (!Number.isSafeInteger(count) || count < 0) opaque.billingInvalid = true;
+          else opaque[field] = count;
+        }
+      }
+    }
     if (value.type === 'content_block_start' && !['text', 'thinking', 'redacted_thinking', 'tool_use'].includes(value.content_block?.type)) fail('unsupported_provider_output');
     if (value.type === 'content_block_delta' && !['text_delta', 'thinking_delta', 'reasoning_delta', 'signature_delta', 'input_json_delta'].includes(value.delta?.type)) fail('unsupported_provider_output');
   };

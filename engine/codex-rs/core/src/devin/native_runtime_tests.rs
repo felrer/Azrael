@@ -789,6 +789,9 @@ fn token_usage_rejects_negative_and_inconsistent_totals() {
         input_tokens: -1,
         output_tokens: 1,
         cached_input_tokens: 0,
+        cache_write_input_tokens: 0,
+        cache_write_1h_input_tokens: None,
+        estimated: false,
         reasoning_output_tokens: 0,
         total_tokens: 0,
     };
@@ -797,10 +800,73 @@ fn token_usage_rejects_negative_and_inconsistent_totals() {
         input_tokens: 1,
         output_tokens: 1,
         cached_input_tokens: 0,
+        cache_write_input_tokens: 0,
+        cache_write_1h_input_tokens: None,
+        estimated: false,
         reasoning_output_tokens: 0,
         total_tokens: 3,
     };
     assert!(validate_usage(Some(&inconsistent)).is_err());
+}
+
+#[test]
+fn token_usage_cache_fields_default_and_sanitize_billing_counts() {
+    let old = serde_json::json!({"input_tokens": 10, "output_tokens": 2, "total_tokens": 12});
+    let usage: Usage = serde_json::from_value(old).unwrap();
+    assert_eq!(usage.cache_write_input_tokens, 0);
+    assert_eq!(usage.cache_write_1h_input_tokens, None);
+    assert!(!usage.estimated);
+    assert!(validate_usage(Some(&usage)).is_ok());
+    let valid = serde_json::json!({
+        "input_tokens": 10, "output_tokens": 2, "total_tokens": 12,
+        "cached_input_tokens": 4, "cache_write_input_tokens": 6,
+        "cache_write_1h_input_tokens": 2, "estimated": true
+    });
+    let usage: Usage = serde_json::from_value(valid.clone()).unwrap();
+    assert!(validate_usage(Some(&usage)).is_ok());
+    assert!(usage.estimated);
+    for (field, value) in [
+        ("cache_write_input_tokens", -1),
+        ("cache_write_input_tokens", 7),
+        ("cache_write_1h_input_tokens", -1),
+        ("cache_write_1h_input_tokens", 7),
+        ("reasoning_output_tokens", 3),
+    ] {
+        let mut malformed_billing = valid.clone();
+        malformed_billing[field] = serde_json::json!(value);
+        let usage: Usage = serde_json::from_value(malformed_billing).unwrap();
+        assert!(validate_usage(Some(&usage)).is_ok(), "{field}={value}");
+        assert!(usage.estimated, "{field}={value}");
+        assert!(usage.cache_write_input_tokens >= 0);
+        assert!(usage.cache_write_1h_input_tokens.is_none_or(|count| count >= 0));
+    }
+    let overflow: Usage = serde_json::from_value(serde_json::json!({
+        "input_tokens": i64::MAX, "output_tokens": 1, "total_tokens": i64::MAX
+    }))
+    .unwrap();
+    assert!(validate_usage(Some(&overflow)).is_ok());
+    for field in [
+        "input_tokens",
+        "output_tokens",
+        "cached_input_tokens",
+        "reasoning_output_tokens",
+    ] {
+        let mut invalid_base = valid.clone();
+        invalid_base[field] = serde_json::json!(-1);
+        let usage: Usage = serde_json::from_value(invalid_base).unwrap();
+        assert!(validate_usage(Some(&usage)).is_err());
+    }
+    for (field, value) in [
+        ("cache_write_input_tokens", serde_json::json!("bad")),
+        ("cache_write_1h_input_tokens", serde_json::json!(1.5)),
+        ("estimated", serde_json::json!("bad")),
+    ] {
+        let mut malformed_billing = valid.clone();
+        malformed_billing[field] = value;
+        let usage: Usage = serde_json::from_value(malformed_billing).unwrap();
+        assert!(validate_usage(Some(&usage)).is_ok());
+        assert!(usage.estimated);
+    }
 }
 
 #[test]

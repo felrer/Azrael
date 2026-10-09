@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "properties": {
+    "year": {
+      "format": "int32",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "year"
+  ],
+  "title": "ProjectUsageParams",
+  "type": "object"
+}

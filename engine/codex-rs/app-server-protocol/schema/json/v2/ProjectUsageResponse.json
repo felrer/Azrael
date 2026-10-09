@@ -1,0 +1,65 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "ProjectUsageDay": {
+      "properties": {
+        "date": {
+          "type": "string"
+        },
+        "projects": {
+          "items": {
+            "$ref": "#/definitions/ProjectUsageProject"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "date",
+        "projects"
+      ],
+      "type": "object"
+    },
+    "ProjectUsageProject": {
+      "properties": {
+        "amount": {
+          "format": "double",
+          "type": "number"
+        },
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "unpriced": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amount",
+        "id",
+        "name",
+        "unpriced"
+      ],
+      "type": "object"
+    }
+  },
+  "properties": {
+    "currency": {
+      "type": "string"
+    },
+    "days": {
+      "items": {
+        "$ref": "#/definitions/ProjectUsageDay"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "currency",
+    "days"
+  ],
+  "title": "ProjectUsageResponse",
+  "type": "object"
+}

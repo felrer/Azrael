@@ -1,3 +1,4 @@
 codex-rs/state/**/*.sql text eol=crlf
 codex-rs/state/migrations/0055_root_resume_reservations.sql text eol=lf
+codex-rs/state/migrations/0062_project_usage_daily.sql text eol=lf
 codex-rs/state/thread_history_migrations/0007_projection_version.sql text eol=lf
