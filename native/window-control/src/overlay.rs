@@ -384,7 +384,6 @@ impl Layer {
         let _ = DeleteObject(bitmap);
         let _ = DeleteDC(dc);
         result?;
-        let _ = ShowWindow(self.0, SW_SHOWNOACTIVATE);
         Ok(())
     }
     unsafe fn move_to(&self, x: i32, y: i32) -> Result<()> {
@@ -397,7 +396,6 @@ impl Layer {
             0,
             SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER,
         )?;
-        let _ = ShowWindow(self.0, SW_SHOWNOACTIVATE);
         Ok(())
     }
 }
@@ -500,6 +498,44 @@ struct Active {
     last: Option<(i32, i32, i32, i32, u32, bool, bool, i32)>,
 }
 impl Active {
+    unsafe fn external_predecessor(&self, hwnd: HWND) -> Result<HWND> {
+        let mut previous = GetWindow(hwnd, GW_HWNDPREV).unwrap_or_default();
+        // Ignore our own surfaces when locating the target's place among app windows.
+        // Bound traversal because another thread can change Z order while we read it.
+        for _ in 0..=self.layers.len() {
+            if !self.layers.iter().any(|layer| layer.0 == previous) {
+                return Ok(previous);
+            }
+            previous = GetWindow(previous, GW_HWNDPREV).unwrap_or_default();
+        }
+        Err(Error::new(
+            "overlay-unavailable",
+            "Window order changed while positioning overlay",
+        ))
+    }
+
+    unsafe fn sync_z_order(&self, target: HWND, foreground: bool) -> Result<()> {
+        for layer in self.layers.iter().take(if foreground { 2 } else { 1 }) {
+            let previous = self.external_predecessor(target)?;
+            if !IsWindowVisible(layer.0).as_bool()
+                || self.external_predecessor(layer.0)? != previous
+            {
+                // Show at the target's current position in Z order, without raising
+                // or activating its owner. A null predecessor means HWND_TOP.
+                SetWindowPos(
+                    layer.0,
+                    previous,
+                    0,
+                    0,
+                    0,
+                    0,
+                    SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOOWNERZORDER | SWP_SHOWWINDOW,
+                )?;
+            }
+        }
+        Ok(())
+    }
+
     unsafe fn refresh(&mut self) -> Result<()> {
         let current = crate::windows_backend::verify(&self.show.window)?;
         let target = HWND(protocol::hex(&current.hwnd)? as usize as *mut _);
@@ -538,7 +574,8 @@ impl Active {
             rounding,
         );
         if self.last == Some(geometry) {
-            return Ok(());
+            // Other windows can change order without changing target geometry/focus.
+            return self.sync_z_order(target, foreground);
         }
         let scale = current.dpi as f64 / 96.0;
         let size = ((190.0 * scale) as i32)
@@ -570,6 +607,7 @@ impl Active {
             self.layers[0].move_to(rect.left, rect.top)?;
         }
         if !foreground {
+            self.sync_z_order(target, foreground)?;
             self.last = Some(geometry);
             return Ok(());
         }
@@ -610,6 +648,7 @@ impl Active {
             None,
             Some(&hint),
         )?;
+        self.sync_z_order(target, foreground)?;
         self.last = Some(geometry);
         Ok(())
     }
