@@ -791,6 +791,7 @@ const terminalErrors = [
   { name: "quota", error: { codexErrorInfo: "usageLimitExceeded", message: "Usage limit reached" } },
   { name: "provider-rejection", error: { codexErrorInfo: "other",
     message: "미분류 오류: native inference helper failed (provider_http_400)" } },
+  { name: "rate-limit", error: { codexErrorInfo: "rateLimitExceeded", message: "Provider request rate limit reached. Try again later." } },
 ];
 
 for (const text of [null, "continue", "계속"]) {
@@ -824,31 +825,60 @@ for (const message of ["native inference helper failed (provider_http_400)",
   });
 }
 
-for (const message of [undefined, "Usage limit reached", "unrelated private engine text", timeoutMessages[0]]) {
-  for (const text of [null, "continue", "계속"]) {
-    test(`structured quota failure admits ${text ?? "empty play"} regardless of message ${JSON.stringify(message)}`, async () => {
-      const calls = [], records = [], store = memoryStore();
-      const state = new RecoveryState({ store, log: record => records.push(record),
-        rpc: systemErrorRpc(calls, { error: { codexErrorInfo: "usageLimitExceeded", message } }) });
-      const params = text === null ? { threadId: "thread-quota", input: [] } : continuation("thread-quota", text);
+for (const [category, kind] of [["usageLimitExceeded", "usage_limit_exceeded"], ["rateLimitExceeded", "rate_limit_exceeded"]]) {
+  for (const message of [undefined, "Usage limit reached", "Provider request rate limit reached. Try again later.", "unrelated private engine text", timeoutMessages[0]]) {
+    for (const text of [null, "continue", "계속"]) {
+      test(`structured ${category} failure admits ${text ?? "empty play"} regardless of message ${JSON.stringify(message)}`, async () => {
+        const calls = [], records = [], store = memoryStore();
+        const state = new RecoveryState({ store, log: record => records.push(record),
+          rpc: systemErrorRpc(calls, { error: { codexErrorInfo: category, message } }) });
+        const params = text === null ? { threadId: "thread-quota", input: [] } : continuation("thread-quota", text);
 
-      // No account transition or additional request is needed for explicit retry.
-      assert.equal(calls.length, 0);
-      const result = await state.start({ ...params, model: "selected-model" });
-      const starts = calls.filter(call => call.method === "turn/start");
-      assert.equal(result.turn.id, "turn-new");
-      assert.equal(starts.length, 1);
-      assert.deepEqual(starts[0].params.input, [{ type: "text", text: text ?? "continue" }]);
-      assert.equal(starts[0].params.model, "selected-model");
-      assert.equal(store.updates.at(-1)[0].phase, "accepted");
-      const admission = records.find(record => record.event === "recovery.admission");
-      assert.equal(admission.outcome, "admitted");
-      assert.equal(admission.errorKind, "usage_limit_exceeded");
-      assert.equal("message" in admission, false);
-      if (message) assert.equal(JSON.stringify(records).includes(message), false);
-      assert.ok(calls.every(call => ["thread/read", "thread/turns/list", "turn/start"].includes(call.method)));
+        // No account transition or additional request is needed for explicit retry.
+        assert.equal(calls.length, 0);
+        const result = await state.start({ ...params, model: "selected-model" });
+        const starts = calls.filter(call => call.method === "turn/start");
+        assert.equal(result.turn.id, "turn-new");
+        assert.equal(starts.length, 1);
+        assert.deepEqual(starts[0].params.input, [{ type: "text", text: text ?? "continue" }]);
+        assert.equal(starts[0].params.model, "selected-model");
+        assert.equal(store.updates.at(-1)[0].phase, "accepted");
+        const admission = records.find(record => record.event === "recovery.admission");
+        assert.equal(admission.outcome, "admitted");
+        assert.equal(admission.errorKind, kind);
+        assert.equal("message" in admission, false);
+        if (message) assert.equal(JSON.stringify(records).includes(message), false);
+        assert.ok(calls.every(call => ["thread/read", "thread/turns/list", "turn/start"].includes(call.method)));
+      });
+    }
+  }
+
+}
+
+for (const { name, error } of [terminalErrors[3]]) {
+  for (const latestStatus of ["completed", "interrupted", "inProgress"]) {
+    test(`${name} category on a ${latestStatus} latest turn stays blocked`, async () => {
+      const calls = [];
+      const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls, { latestStatus, error }) });
+      await assert.rejects(state.start(continuation("thread-limit-notfailed")), /엔진 상태를 확인/);
+      assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
     });
   }
+  test(`live turn with ${name} attaches without dispatch`, async () => {
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+      { threadStatus: "active", latestStatus: "inProgress", error }) });
+    assert.equal((await state.start(continuation("thread-limit-active"))).turn.id, "turn-failed");
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+  test(`${name} message alone stays blocked`, async () => {
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+      { error: { ...error, codexErrorInfo: "other" } }) });
+    await assert.rejects(state.start(continuation("thread-limit-text")), /엔진 상태를 확인/);
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+
 }
 
 test("quota message with category other remains blocked", async () => {

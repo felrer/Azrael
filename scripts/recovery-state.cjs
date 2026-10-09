@@ -25,18 +25,19 @@ const diagnosticErrors = new Map([
   ["Fatal error: native inference helper failed (provider_failure)", "provider_failure"],
 ]);
 const diagnosticError = error => !error ? "none" :
-  error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" : diagnosticErrors.get(error.message) ?? "other";
+  error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" :
+  error.codexErrorInfo === "rateLimitExceeded" ? "rate_limit_exceeded" : diagnosticErrors.get(error.message) ?? "other";
 const knownStatus = (value, allowed) => allowed.includes(value) ? value : "unknown";
 const handlerOutcomeUnknown = error => error?.rpcError?.code === -32603 &&
   error.rpcError.data?.requestOutcome === "unknown" && error.rpcError.data?.reason === "handlerPanicked";
 
 function admitsContinuation(thread, latest) {
   if (["idle", "notLoaded"].includes(thread.status?.type)) return true;
-  // Usage exhaustion has a structured category; explicit user requests may retry
-  // with the engine's current account. Native timeout failures still use Other.
+  // Usage exhaustion and rate limits have structured categories; explicit user
+  // requests may retry with the current account/model. Native timeouts use Other.
   // Match only known terminal errors; transport silence alone is not admission.
   return thread.status?.type === "systemError" && latest?.status === "failed" &&
-    (latest.error?.codexErrorInfo === "usageLimitExceeded" ||
+    (["usageLimitExceeded", "rateLimitExceeded"].includes(latest.error?.codexErrorInfo) ||
       (latest.error?.codexErrorInfo === "other" &&
         (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message))));
 }
