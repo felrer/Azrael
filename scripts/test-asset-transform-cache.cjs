@@ -22,7 +22,11 @@ const base = { transformRules: rules, getAssetTransformRules: transformer.getAss
   typescriptSha256: sha(fs.readFileSync(tsPath)), typescriptVersion: vp.version };
 const artifacts = path.resolve(__dirname, "../artifacts");
 const root = fs.mkdtempSync(path.join(artifacts, "cache-scope-test-"));
-after(() => fs.rmSync(root, { recursive: true, force: true }));
+after(() => {
+  assert.equal(path.dirname(path.resolve(root)), artifacts);
+  assert.ok(path.basename(root).startsWith("cache-scope-test-"));
+  fs.rmSync(root, { recursive: true });
+});
 const cache = (name, overrides = {}) => createAssetTransformCache({ ...base,
   cacheDirectory: path.join(root, name), ...overrides });
 const changedPath = "webview/assets/cache-changed.js";
@@ -41,9 +45,9 @@ test("closed path dependencies scope controls/instructions/composer; generic and
     ["inject-instruction-settings.cjs", ["out/extension.js", ...INSTRUCTION_SETTINGS_ASSETS]],
     ["inject-composer-draft.cjs", [COMPOSER_DRAFT_ASSET]],
     ["inject-ui-input-diagnostics.cjs", [COMPOSER_DRAFT_ASSET,
-      "webview/assets/app-initial-efe028fd535e.js", "webview/assets/app-initial-5120fa5fe295.js"]],
+      "webview/assets/app-initial-97d3534ad35f.js", "webview/assets/app-initial-c014f9ee4429.js"]],
     ["ui-input-diagnostics-runtime.cjs", [COMPOSER_DRAFT_ASSET,
-      "webview/assets/app-initial-efe028fd535e.js", "webview/assets/app-initial-5120fa5fe295.js"]],
+      "webview/assets/app-initial-97d3534ad35f.js", "webview/assets/app-initial-c014f9ee4429.js"]],
     ["inject-ui-cleanup.cjs", UI_CLEANUP_ASSETS],
     ["inject-auto-review.cjs", AUTO_REVIEW_ASSETS],
     ["inject-pets-cleanup.cjs", PETS_CLEANUP_ASSETS],
@@ -257,8 +261,8 @@ test("busy writer defers publication and deletion; completed cleanup preserves u
 });
 
 test("all pinned injector target fixtures: uncached/cold/warm byte and metadata equality; related edits miss", () => {
-  const original = path.join(artifacts, "upstream-ui/26.930.61225");
-  const paths = new Set(["out/extension.js", "webview/assets/ko-KR-669e0b3acfd6.js"]);
+  const original = path.join(artifacts, "upstream-ui/26.1007.21434");
+  const paths = new Set(["out/extension.js", "webview/assets/ko-KR-ebd6264cb102.js"]);
   for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
     // Legacy migration targets ire exercised against their own pinned version
     // by test-session-links; this cache contract covers the active UI only.

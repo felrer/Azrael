@@ -29,6 +29,7 @@ const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContextControls } = require
 const { runProviderContext } = require("./provider-context-labels.cjs");
 const { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification } = require("./inject-deferred-turn.cjs");
+const { WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, injectWorkSegmentFolding, injectWorkSegmentWaiting } = require("./inject-work-segment-folding.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
@@ -347,8 +348,10 @@ function transformAsset(source, relativePath, filename, ts) {
     relativePath === DEFERRED_THREAD_ASSET ? injectDeferredThread(recovered.text) :
     relativePath === DEFERRED_TURN_ASSET ? injectDeferredTurnView(recovered.text) :
     relativePath === DEFERRED_COLLAPSED_ASSET ? injectDeferredCollapsed(recovered.text) : { text: recovered.text, count: 0 };
+  const workSegmentFolding = relativePath === WORK_SEGMENT_FOLDING_ASSET ? injectWorkSegmentFolding(deferred.text) :
+    relativePath === WORK_SEGMENT_FOLDING_ACTIVITY_ASSET ? injectWorkSegmentWaiting(deferred.text) : { text: deferred.text, count: 0 };
   const compactionProgress = relativePath === COMPACTION_PROGRESS_REDUCER_ASSET ?
-    injectCompactionProgress(deferred.text) : { text: deferred.text, count: 0 };
+    injectCompactionProgress(workSegmentFolding.text) : { text: workSegmentFolding.text, count: 0 };
   const queueRefresh = relativePath === QUEUE_REFRESH_ASSET ?
     injectQueueRefresh(compactionProgress.text) : { text: compactionProgress.text, count: 0 };
   const queuedCompaction = relativePath === QUEUED_COMPACTION_CORE_ASSET ? injectQueuedCompactionCore(queueRefresh.text) :
@@ -384,10 +387,10 @@ function transformAsset(source, relativePath, filename, ts) {
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
   const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: sessionLinks.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -396,6 +399,7 @@ function transformAsset(source, relativePath, filename, ts) {
       recoveryEdits: recovered.count,
       fetchResponseEdits: fetchResponse.count,
       deferredTurnEdits: deferred.count,
+      workSegmentFoldingEdits: workSegmentFolding.count,
       deferredNativeTimingChecks: deferred.nativeTimingChecks ?? 0,
       compactionProgressEdits: compactionProgress.count,
       queueRefreshEdits: queueRefresh.count,
@@ -441,7 +445,7 @@ function getTransformRules() {
   const transformSources = [
     "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
-    "inject-deferred-turn.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
+    "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs",
     "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
@@ -488,6 +492,7 @@ const ASSET_RULE_PATHS = {
   ...Object.fromEntries(Object.keys(getContentFontRules()).map(name => [name, [CONTENT_FONT_CSS_ASSET]])),
   "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
     DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET],
+  "inject-work-segment-folding.cjs": [WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET],
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
   "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
   "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
@@ -704,6 +709,9 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 37) {
     throw new Error("Deferred-turn transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.workSegmentFoldingEdits ?? 0), 0) !== 7) {
+    throw new Error("Work-segment folding transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.deferredNativeTimingChecks, 0) !== 1) {
     throw new Error("Native deferred timing validation was incomplete.");

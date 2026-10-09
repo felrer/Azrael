@@ -258,6 +258,8 @@ test("integrated entry preserves activation, account storage migration and failu
   try {
     await testWrapperLifecycle();
   } finally {
-    fs.rmSync(wrapperTestRoot, { recursive: true, force: true });
+    assert.equal(path.dirname(path.resolve(wrapperTestRoot)), path.resolve(os.tmpdir()));
+    assert.ok(path.basename(wrapperTestRoot).startsWith("azrael-wrapper-test-"));
+    fs.rmSync(wrapperTestRoot, { recursive: true });
   }
 });

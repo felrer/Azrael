@@ -46,12 +46,21 @@ function recentChatCheck() {
 }
 if (process.argv.includes('--recent-chat-check')) { recentChatCheck(); console.log('Recent chat filtering behavior passed'); }
 else {
-  const { test } = require('node:test');
+  const { test, after } = require('node:test');
   const gate = require('./feature-preservation.cjs');
   const artifactRoot = path.resolve(__dirname, '../artifacts/logs/feature-preservation');
   fs.mkdirSync(artifactRoot, { recursive: true });
+  const ownedFixtureRoots = [];
+  after(() => {
+    for (const root of ownedFixtureRoots) {
+      assert.equal(path.dirname(path.resolve(root)), artifactRoot);
+      assert.ok(path.basename(root).startsWith('mock-'));
+      fs.rmSync(root, { recursive: true });
+    }
+  });
   function setup() {
     const root = fs.mkdtempSync(path.join(artifactRoot, 'mock-'));
+    ownedFixtureRoots.push(root);
     fs.mkdirSync(path.join(root, 'scripts')); fs.mkdirSync(path.join(root, 'docs')); fs.mkdirSync(path.join(root, 'ui'));
     for (const file of ['scripts/inject-fixture.cjs', 'scripts/check.cjs', 'scripts/engine.cjs', 'docs/contract.md']) fs.writeFileSync(path.join(root, file), 'fixture');
     fs.writeFileSync(path.join(root, 'scripts/inject-provider-model-picker.cjs'), 'module.exports = { PROVIDER_PICKER_ASSET: "picker.js" };');

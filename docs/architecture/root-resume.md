@@ -48,7 +48,7 @@ Historical rows subscribe to the native full turn-details selector and include t
 
 ### Reconciliation of a missing defer notification
 
-Status: `current` for canonical/legacy history reconciliation and restored row invalidation in exact isolated r12. The native full turn-details subscription correction covers wait-only changes with unchanged status, ID and items. Installed waiting-time reload verification confirms that the canonical resumed update reaches the restored row and freezes the old wait, including while the new turn continues. New packages are installed only in a task-owned VS Code profile and state root; the ordinary profile retains its previous package. Additional work-segment folding remains a separate proposed change.
+Status: `current` for canonical/legacy history reconciliation and restored row invalidation. The native full turn-details subscription covers wait-only changes with unchanged status, ID and items. Waiting-time reload verification confirms that the canonical resumed update reaches the restored row and freezes the old wait while the new turn continues. Current installed package and verification scope are owned by [development operations](../ops/development.md#current-state).
 
 An originating turn with a waiting, claimed or resumed reservation has stopped working even if its local status still says `inProgress`. Cancellation or blocked admission establishes this boundary only when the reservation has a recorded waiting start; a reservation cancelled during preparation does not stop unrelated active work. Presentation freezes the originating work segment immediately. Its work duration remains unavailable until the engine supplies the measured value; waiting timestamps are not used to estimate work duration.
 
@@ -61,6 +61,18 @@ The new-turn opportunity also covers deferred origins whose reservation is still
 If both origin wait metadata and its deferred event are absent from durable history, the existing active-reservation list cannot reconstruct an ended reservation. Recovery of that storage failure requires a separate authoritative reservation-read contract covering ended states; inference from neighboring turns or a scheduled deadline does not establish a work boundary.
 
 Reconciliation records correlation IDs, reservation revision, outcome and page count through the existing host logger. Lookup or metadata failure leaves the previous work clock frozen with an unavailable duration and keeps the resumed turn independent. A newer matching wait end can update a completed or interrupted turn's waiting divider while retaining its work status and measured duration. Reconciliation does not generate completion notifications or completion side effects.
+
+### Work segment folding
+
+Status: `current` in the source transformation and verified native activity/disclosure rendering for UI 26.1007.21434. Full turn-page and installed-window acceptance remain separate; the installed package identity is owned by development operations.
+
+A closed activity segment or a deferred work segment with renderable activity can be collapsed before a final answer starts. It uses the native work header, disclosure button, chevron and keyboard behavior. Its initial contents stay expanded; an explicit native collapse preference takes precedence. Normal active turns retain their existing expansion policy. Empty groups, a standalone context compaction, full transcript views and intro-only presentations retain the native exclusions.
+
+An unfinished approval, user-input question, server elicitation or permission request excludes the affected segment from the new folding eligibility, preserving its existing request presentation. Running child activity retains the native automatic-collapse protection while allowing manual folding of its parked parent's work.
+
+Collapse state belongs to the existing native conversation and segment search key. A resumed turn or another closed segment has independent state. Wait updates, history hydration and late child activity keep the original segment's key and its manual preference. Session switching within the same application scope retains that preference; a new scope uses the native initial policy. Folding does not add persistent preferences across application restarts.
+
+Work and waiting measurements remain owned by the turn and reservation contracts. Folding changes neither their identities nor their status or duration. Work headers and reservation waiting/resume dividers remain visible when the activity contents are collapsed, so the reservation's state can be checked without expanding the work.
 
 ## Cost characteristics
 

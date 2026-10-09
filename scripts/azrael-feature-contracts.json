@@ -453,6 +453,28 @@
       ]
     },
     {
+      "id": "ui.work-segment-folding",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-work-segment-folding.cjs"
+      ],
+      "contract": "docs/architecture/root-resume.md",
+      "checks": [
+        {
+          "id": "ui.work-segment-folding.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-work-segment-folding.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "workSegmentFoldingEdits"
+      ]
+    },
+    {
       "id": "ui.compaction-progress",
       "area": "ui",
       "owners": [
