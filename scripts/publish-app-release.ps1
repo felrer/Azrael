@@ -281,7 +281,7 @@ try {
 } finally {
     if ($downloadDirectory -and (Test-Path -LiteralPath $downloadDirectory)) {
         # Delete only our direct download files; never recursively traverse links.
-        Get-ChildItem -LiteralPath $downloadDirectory -File -Force | Remove-Item -Force
-        Remove-Item -LiteralPath $downloadDirectory -Force
+        Get-ChildItem -LiteralPath $downloadDirectory -File -Force | Remove-Item
+        Remove-Item -LiteralPath $downloadDirectory
     }
 }

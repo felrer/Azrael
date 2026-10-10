@@ -174,7 +174,7 @@ try {
         foreach ($item in Get-ChildItem -LiteralPath $checked -Recurse -Force) {
             if ($item.Attributes -band [IO.FileAttributes]::ReparsePoint) { throw 'Rollback encountered a reparse point; preserving uncertain path.' }
         }
-        Remove-Item -LiteralPath $checked -Recurse -Force
+        Remove-Item -LiteralPath $checked -Recurse
     }
     throw
 }
