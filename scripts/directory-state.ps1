@@ -16,6 +16,6 @@ function Get-AzraelDirectoryState {
         $state = ($output -join "`n") | ConvertFrom-Json -AsHashtable -ErrorAction Stop
         [ordered]@{ path = $Path; sha256 = $state.sha256; fileCount = $state.fileCount; bytes = $state.bytes }
     } finally {
-        Remove-Item -LiteralPath $manifest -Force -ErrorAction Stop
+        Remove-Item -LiteralPath $manifest -ErrorAction Stop
     }
 }
