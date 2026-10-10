@@ -5,6 +5,92 @@ import * as os from "node:os";
 import * as path from "node:path";
 import test from "node:test";
 import { buildHostRuntime } from "../src/hostRuntime";
+const { platformIdentity, resolvePlatform } = require("../platform-runtime.cjs");
+
+function onPlatform(platform: string, arch: string, action: () => void): void {
+  const originalPlatform = Object.getOwnPropertyDescriptor(process, "platform")!;
+  const originalArch = Object.getOwnPropertyDescriptor(process, "arch")!;
+  const originalReport = Object.getOwnPropertyDescriptor(process.report, "getReport")!;
+  if (platform === "linux") Object.defineProperty(process.report, "getReport", { ...originalReport, value: () => ({ header: { glibcVersionRuntime: "2.36" } }) });
+  Object.defineProperty(process, "platform", { ...originalPlatform, value: platform });
+  Object.defineProperty(process, "arch", { ...originalArch, value: arch });
+  try { action(); } finally {
+    Object.defineProperty(process, "platform", originalPlatform);
+    Object.defineProperty(process, "arch", originalArch);
+    Object.defineProperty(process.report, "getReport", originalReport);
+  }
+}
+
+test("runtime identity rejects mismatched OS, CPU and target before payload access", () => {
+  const f = fixture();
+  try {
+    const valid = platformIdentity();
+    for (const mismatch of [{ ...valid, os: "other" }, { ...valid, arch: "other" }, { ...valid, target: "other" }]) {
+      f.config.platform = mismatch;
+      f.config.engine = path.join(f.directory, "missing");
+      f.write();
+      assert.throws(() => buildHostRuntime(f.directory), /platform does not match/);
+    }
+  } finally { f.dispose(); }
+});
+
+test("Windows legacy manifests remain valid; Unix manifests require explicit identity", () => {
+  const f = fixture();
+  try {
+    delete f.config.platform;
+    f.write();
+    onPlatform("win32", "x64", () => assert.ok(buildHostRuntime(f.directory)));
+    onPlatform("linux", "x64", () => assert.throws(() => buildHostRuntime(f.directory), /no platform identity/));
+    onPlatform("darwin", "arm64", () => assert.throws(() => buildHostRuntime(f.directory), /no platform identity/));
+  } finally { f.dispose(); }
+});
+
+test("Unix checks native execute permission while scripts remain readable payloads", t => {
+  const f = fixture();
+  const accessCalls: string[] = [];
+  const deniedExecutable = f.config.bridge;
+  const helper = path.join(f.directory, "helper.mjs");
+  fs.writeFileSync(helper, "helper");
+  t.mock.method(require("node:fs"), "accessSync", (file: string, mode: number) => {
+    assert.equal(mode, fs.constants.X_OK);
+    accessCalls.push(file);
+    if (file === deniedExecutable) throw new Error("execute denied");
+  });
+  try {
+    onPlatform("linux", "x64", () => {
+      f.config.platform = platformIdentity(resolvePlatform());
+      f.config.helpers = { devinNativeHelper: helper };
+      f.write();
+      assert.throws(() => buildHostRuntime(f.directory), /execute denied/);
+      f.config.bridge = f.config.engine;
+      f.write();
+      const runtime = buildHostRuntime(f.directory);
+      assert.equal(runtime.env.TMPDIR, path.join(f.config.codexHome as string, "tmp", "devin-native"));
+      assert.equal(accessCalls.includes(helper), false);
+    });
+  } finally { f.dispose(); }
+});
+
+test("Unix state protection distinguishes case while Windows rejects aliases", t => {
+  const f = fixture();
+  t.mock.method(require("node:os"), "homedir", () => f.directory);
+  try {
+    f.config.codexHome = path.join(f.directory, ".CODEX");
+    onPlatform("win32", "x64", () => {
+      f.config.platform = platformIdentity(resolvePlatform());
+      f.write();
+      assert.throws(() => buildHostRuntime(f.directory), /requires its own state home/);
+    });
+    onPlatform("linux", "x64", () => {
+      f.config.platform = platformIdentity(resolvePlatform());
+      f.write();
+      assert.ok(buildHostRuntime(f.directory));
+      f.config.codexHome = path.join(f.directory, ".codex", "nested");
+      f.write();
+      assert.throws(() => buildHostRuntime(f.directory), /requires its own state home/);
+    });
+  } finally { f.dispose(); }
+});
 
 function fixture(): { directory: string; config: Record<string, unknown>; write(): void; dispose(): void } {
   const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-standalone-runtime-"));
@@ -12,12 +98,14 @@ function fixture(): { directory: string; config: Record<string, unknown>; write(
   const bridge = path.join(directory, "azrael-bridge.exe");
   fs.writeFileSync(engine, "engine");
   fs.writeFileSync(bridge, "bridge");
-  const config: Record<string, unknown> = { schema: 2, engine, bridge, codexHome: path.join(directory, "azrael-state"), engineVersion: "0.157.1" };
+  fs.chmodSync(engine, 0o755);
+  fs.chmodSync(bridge, 0o755);
+  const config: Record<string, unknown> = { platform: platformIdentity(), schema: 2, engine, bridge, codexHome: path.join(directory, "azrael-state"), engineVersion: "0.157.1" };
   return {
     directory,
     config,
     write() { fs.writeFileSync(path.join(directory, "azrael-runtime.json"), JSON.stringify(config)); },
-    dispose() { fs.rmSync(directory, { recursive: true, force: true }); },
+    dispose() { fs.rmSync(directory, { recursive: true }); },
   };
 }
 
@@ -30,6 +118,7 @@ test("standalone runtime isolates identity and parent environment", () => {
     const providerBun = path.join(f.directory, "bun.exe");
     fs.writeFileSync(helper, "helper");
     for (const candidate of [providerHelper, inferenceHelper, providerBun]) fs.writeFileSync(candidate, "helper");
+    fs.chmodSync(providerBun, 0o755);
     f.config.helpers = { devinNativeHelper: helper, providerAccountsHelper: providerHelper, providerInferenceHelper: inferenceHelper, providerBun };
     f.write();
     const inherited: NodeJS.ProcessEnv = {
@@ -129,10 +218,11 @@ function portableFixture() {
   for (const [relative, content] of Object.entries(contents)) {
     fs.mkdirSync(path.dirname(path.join(bundle, relative)), { recursive: true });
     fs.writeFileSync(path.join(bundle, relative), content);
+    if (relative.endsWith(".exe")) fs.chmodSync(path.join(bundle, relative), 0o755);
     sha256[relative] = createHash("sha256").update(content).digest("hex");
   }
   const config: Record<string, unknown> = {
-    schema: 3, engine: "runtime/engine/codex.exe", bridge: "runtime/engine/azrael-bridge.exe",
+    platform: platformIdentity(), schema: 3, engine: "runtime/engine/codex.exe", bridge: "runtime/engine/azrael-bridge.exe",
     engineVersion: "0.159.3", stateDirectory: ".azrael-ex", sha256,
     helpers: {
       nodeExecutable: "runtime/helpers/node.exe", devinNativeHelper: "runtime/helpers/devin.mjs",
@@ -143,7 +233,7 @@ function portableFixture() {
   return {
     directory, bundle, home, config, sha256,
     write() { fs.writeFileSync(path.join(bundle, "azrael-runtime.json"), JSON.stringify(config)); },
-    dispose() { fs.rmSync(directory, { recursive: true, force: true }); },
+    dispose() { fs.rmSync(directory, { recursive: true }); },
   };
 }
 

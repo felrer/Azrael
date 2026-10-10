@@ -25,7 +25,7 @@ async function run() {
   try {
     const owner = createOwner(home), sent = [], shown = [], outbound = [];
     const registered = [];
-    const context = vm.createContext({ require: name => { if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, IR: "provider" });
+    const context = vm.createContext({ require: name => { if(name === "./azrael-runtime.cjs")return {runtime:{windowControl:{}}};if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, IR: "provider" });
     context.host = { codexMcpConnection: { sendResponse: (id, result) => sent.push({ id, result }), sendRequest: (...args) => outbound.push(args) }, broadcastToAllViews: value => shown.push(value), pendingMcpRequests: new Map(), sendInternalAppServerRequest: (...args) => outbound.push(args) };
     // Evaluate the exact transformed handlers obtained from the full pinned bundle.
     const onRequest = replacements[0][1];
@@ -61,9 +61,58 @@ async function run() {
     assert(registered.length>=2,"outgoing requests bind publication before native send");assert(registered.every(entry=>entry.publish===registered[0].publish),"publication callback stays stable on repeated binding");
     assert.equal((await context.settings.getAppApprovals()).approvedApps.length, 0);
     console.log("PASS full pinned injection parsing/idempotency/fail-closed anchors and actual transformed request/response/settings/interrupt handlers in VM");
-  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+  } finally { fs.rmSync(home, { recursive: true }); }
 }
 test("pinned computer-use approval injection and transformed host handlers", run);
+
+test("transformed core notifications and MCP flow never load an absent Window Use backend", () => {
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "out/extension.js"), "utf8");
+  const transformed = injectComputerUse(original).text;
+  const ts = require("../extensions/azrael-ex/node_modules/typescript"), source = ts.createSourceFile('host.js', transformed, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const notifications = [];
+  function visit(node) {
+    if (ts.isPropertyAssignment(node) && node.name?.text === 'onRawNotification') notifications.push(node.getText(source));
+    ts.forEachChild(node, visit);
+  }
+  visit(source);
+  assert.equal(notifications.length, 1);
+  for (const windowControl of [undefined, null]) {
+    const home = fs.mkdtempSync(path.join(Kd.tmpdir(), 'azrael-injection-no-desktop-'));
+    try {
+      const owner = createOwner(home), loads = [], sent = [], outbound = [], shown = [];
+      const context = vm.createContext({ IR: 'provider', require(name) {
+        loads.push(name);
+        if (name === './azrael-runtime.cjs') return { runtime: { windowControl } };
+        if (name === './computer-use-approvals.cjs') return owner;
+        throw new Error('Missing Window Use module must never load: ' + name);
+      } });
+      context.host = { codexMcpConnection: { sendResponse: (...args) => sent.push(args), sendRequest: (...args) => outbound.push(args) }, pendingMcpRequests: new Map(), broadcastToAllViews: value => shown.push(value) };
+      for (const [index, name] of [[0, 'receive']]) {
+        vm.runInContext(`host.${name}=function(){return ({${replacements[index][1]}}).onRequest}.call(host)`, context);
+      }
+      vm.runInContext(`host.notify=function(){return ({${notifications[0]}}).onRawNotification}.call(host);host.respond=function(r){switch(r.type){${replacements[1][1]}}};host.outgoing=function(r,e){switch(r.type){case"mcp-request":{${replacements[2][1]}}}}`, context);
+      const notification = { method: 'thread/status/changed', params: { threadId: 'thread-a', status: { type: 'idle' } } };
+      context.host.notify(notification);
+      assert.equal(shown[0].method, notification.method);
+      assert.equal(shown[0].params, notification.params);
+      const request = { id: 'core-request', method: 'ordinary/request', params: { core: true } };
+      context.host.receive(request);
+      assert.equal(shown[1].request, request);
+      const result = { ordinary: true };
+      context.host.respond({ type: 'mcp-response', response: { id: request.id, result } });
+      assert.deepEqual(sent[0], [request.id, result]);
+      const view = { native: true };
+      context.host.outgoing({ type: 'mcp-request', request, retainResponse: true }, view);
+      assert.deepEqual(outbound[0], ['provider', request.id, request.method, request.params, true]);
+      assert.equal(context.host.pendingMcpRequests.get(request.id), view);
+      context.host.respond({ type: 'mcp-response', response: { id: 'azrael-window-consent-forged', result: { action: 'accept' } } });
+      assert.equal(sent.length, 1, 'Reserved local consent IDs remain fail closed without a desktop backend');
+      assert.equal(loads.filter(name => name === './window-control-host.cjs').length, 0);
+      assert.equal(context.host.azraelWindowApprovalNative, undefined);
+    } finally { fs.rmSync(home, { recursive: true }); }
+  }
+  assert.throws(() => injectComputerUse(transformed.replace(MARKER, '/*azrael-computer-use-approvals-v1*/')), /verified correction/);
+});
 
 test("pinned computer-use settings visibility preserves eligibility, navigation and redirects", () => {
   const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_SETTINGS_ASSET), "utf8");
@@ -266,7 +315,7 @@ test("pinned computer-use approval card cancels the request through the native r
     always.finish(); await Promise.resolve(); assert.deepEqual(always.settled, ["accept"]);
     assert(owner.getAppApprovals().approvedApps.some(app => app.bundleIdentifier === "always-card.exe"));
     console.log("PASS pinned native card cancel/disabled/settlement/no persistence and unchanged deny/session/always approval actions");
-  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+  } finally { fs.rmSync(home, { recursive: true }); }
 });
 
 test("local Windows approval management preserves native execution gates and memo correctness", async () => {

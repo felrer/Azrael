@@ -739,10 +739,17 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   const oldVsixManifest = path.join(root, ".vsixmanifest");
   if (fs.existsSync(oldVsixManifest)) fs.unlinkSync(oldVsixManifest);
   fs.writeFileSync(path.join(root, "readme.md"), "# azrael\n\nIndependent local azrael extension. Runs beside the original Codex extension with separate accounts and conversations.\n\nDerived from the locally installed, pinned Codex extension; original notices are retained in LICENSE.md.\n");
-  // The guarded Windows host always resolves the source-verified external
-  // runtime.engine. Keep its existing Windows tools, including rg, but do not
-  // package an unused second engine or unsupported Linux executables.
-  fs.writeFileSync(path.join(root, ".vscodeignore"), "bin/linux-x86_64/**\nbin/windows-x86_64/codex.exe\n");
+  const runtime = JSON.parse(fs.readFileSync(path.join(root, "out/azrael-runtime.json"), "utf8").replace(/^\uFEFF/, ""));
+  const { validateRuntimePlatform, executableName } = require("./platform-runtime.cjs");
+  const selected = validateRuntimePlatform(runtime.platform);
+  const tools = { win32: "windows-x86_64", linux: "linux-x86_64", darwin: "macos-aarch64" };
+  const ignored = Object.values(tools).filter(name => name !== tools[selected.os]).map(name => `bin/${name}/**`);
+  const prebuilds = path.join(root, "account-ui/node_modules/node-pty/prebuilds");
+  if (fs.existsSync(prebuilds)) {
+    for (const name of fs.readdirSync(prebuilds)) if (name !== selected.vsixTarget) ignored.push(`account-ui/node_modules/node-pty/prebuilds/${name}/**`);
+  }
+  ignored.push(`bin/${tools[selected.os]}/${executableName("codex", selected)}`);
+  fs.writeFileSync(path.join(root, ".vscodeignore"), ignored.join("\n") + "\n");
   report.manifestSha256 = sha(fs.readFileSync(manifestPath));
   validateTransformReport(featureManifest, report);
   stages.finalize.elapsedMs = performance.now() - finalizeStarted;

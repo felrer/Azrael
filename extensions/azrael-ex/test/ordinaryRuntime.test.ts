@@ -42,7 +42,7 @@ test("ordinary runtime preserves Windows Path when the host appends bundled tool
       assert.deepEqual(sourceEnv, { [key]: inheritedPath }, "host environment must remain unchanged");
     }
   } finally {
-    fs.rmSync(fixture.directory, { recursive: true, force: true });
+    cleanupRuntimeFixture(fixture.directory);
   }
 });
 
@@ -55,6 +55,8 @@ function makeRuntimeFixture(): { directory: string; modulePath: string } {
   fs.copyFileSync(runtimeSource, path.join(directory, "azrael-runtime.cjs"));
   fs.copyFileSync(path.join(path.dirname(runtimeSource), "devin-native-host.cjs"), path.join(directory, "devin-native-host.cjs"));
   fs.copyFileSync(path.join(path.dirname(runtimeSource), "provider-accounts-host.cjs"), path.join(directory, "provider-accounts-host.cjs"));
+  fs.copyFileSync(path.join(path.dirname(runtimeSource), "platform-runtime.cjs"), path.join(directory, "platform-runtime.cjs"));
+  fs.copyFileSync(path.join(path.dirname(runtimeSource), "azrael-platforms.json"), path.join(directory, "azrael-platforms.json"));
   fs.writeFileSync(path.join(directory, "azrael-runtime.json"), JSON.stringify({
     schema: 1,
     engine,
@@ -63,6 +65,25 @@ function makeRuntimeFixture(): { directory: string; modulePath: string } {
     codexHome: path.join(directory, "state"),
   }));
   return { directory, modulePath: path.join(directory, "azrael-runtime.cjs") };
+}
+
+function cleanupRuntimeFixture(directory: string): void {
+  const target = path.resolve(directory);
+  const owner = path.resolve(os.tmpdir());
+  const relative = path.relative(owner, target);
+  assert(relative && !relative.startsWith("..") && !path.isAbsolute(relative), "fixture must remain within the temporary directory");
+  assert(path.basename(target).startsWith("azrael-ordinary-runtime-"), "unexpected fixture directory");
+  const assertUnlinked = (entry: string): void => {
+    const stat = fs.lstatSync(entry);
+    assert(!stat.isSymbolicLink(), "fixture must not contain symbolic links or junctions");
+    if (stat.isDirectory()) for (const name of fs.readdirSync(entry)) assertUnlinked(path.join(entry, name));
+  };
+  assertUnlinked(target);
+  const realOwner = fs.realpathSync.native(owner);
+  const realRelative = path.relative(realOwner, fs.realpathSync.native(target));
+  assert(realRelative && !realRelative.startsWith("..") && !path.isAbsolute(realRelative), "resolved fixture must remain within its owner");
+  fs.rmSync(target, { recursive: true });
+  assert(!fs.existsSync(target), "fixture cleanup must remove its directory");
 }
 
 test("ordinary runtime keeps process.env unchanged and reuses one socket per host", () => {
@@ -126,6 +147,6 @@ test("ordinary runtime keeps process.env unchanged and reuses one socket per hos
     else process.env.AZRAEL_PROVIDER_BUN = originalProviderBun;
     if (originalOpencodexHome === undefined) delete process.env.OPENCODEX_HOME;
     else process.env.OPENCODEX_HOME = originalOpencodexHome;
-    fs.rmSync(fixture.directory, { recursive: true, force: true });
+    cleanupRuntimeFixture(fixture.directory);
   }
 });

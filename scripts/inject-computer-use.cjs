@@ -1,5 +1,6 @@
 "use strict";
-const MARKER = "/*azrael-computer-use-approvals-v1*/";
+const MARKER = "/*azrael-computer-use-approvals-v2*/";
+const windowEnabled = 'require("./azrael-runtime.cjs").runtime.windowControl';
 const COMPUTER_USE_SETTINGS_ASSET = "webview/assets/use-visible-settings-sections-7686bdcccd03.js";
 const SETTINGS_MARKER = "/*azrael-computer-use-settings-v1*/";
 const SETTINGS_ANCHOR = 'case`computer-use`:return{visible:!1,pending:!1};';
@@ -18,11 +19,11 @@ const managementReplacements = [
   ['e[21]=a.available,e[22]=b', 'e[21]=a.available,e[26]=t,e[27]=o,e[22]=b'],
 ];
 const windowAccess = 'require("./window-control-host.cjs")';
-const bindWindowApproval = `if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope);this.azraelWindowApprovalNavigate=async(threadId,isPending)=>{if(!isPending())return;await require("vscode").commands.executeCommand("azrael.openSidebar");if(isPending())this.navigateToRoute("/local/"+threadId)}}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish,this.azraelWindowApprovalNavigate);`;
+const bindWindowApproval = `if(${windowEnabled}){if(this.azraelWindowApprovalNative!==this.codexMcpConnection){this.azraelWindowApprovalNative=this.codexMcpConnection;this.azraelWindowApprovalPublish=envelope=>this.broadcastToAllViews(envelope);this.azraelWindowApprovalNavigate=async(threadId,isPending)=>{if(!isPending())return;await require("vscode").commands.executeCommand("azrael.openSidebar");if(isPending())this.navigateToRoute("/local/"+threadId)}}${windowAccess}.registerApprovalUI(this.codexMcpConnection,this.azraelWindowApprovalPublish,this.azraelWindowApprovalNavigate);}`;
 const access = 'require("./computer-use-approvals.cjs")';
 const replacements = [
   ['onRequest:F=>{this.broadcastToAllViews({type:"mcp-request",hostId:"local",request:F})}', `onRequest:F=>{${bindWindowApproval}${access}.receive(F,(id,result)=>this.codexMcpConnection.sendResponse(id,result),request=>this.broadcastToAllViews({type:"mcp-request",hostId:"local",request}))}${MARKER}`],
-  ['case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,o);break}', `case"mcp-response":{let{id:n,result:o}=r.response;if(${windowAccess}.respondApproval(this.codexMcpConnection,n,o))break;this.codexMcpConnection.sendResponse(n,${access}.response(n,o));break}`],
+  ['case"mcp-response":{let{id:n,result:o}=r.response;this.codexMcpConnection.sendResponse(n,o);break}', `case"mcp-response":{let{id:n,result:o}=r.response;if(${windowEnabled}?${windowAccess}.respondApproval(this.codexMcpConnection,n,o):typeof n==="string"&&n.startsWith("azrael-window-consent-"))break;this.codexMcpConnection.sendResponse(n,${access}.response(n,o));break}`],
   ['let{id:n,method:o,params:i}=r.request;this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(IR,String(n),o,i,r.retainResponse);break', `let{id:n,method:o,params:i}=r.request;${bindWindowApproval}${access}.outgoing(o,i);this.pendingMcpRequests.set(String(n),e),this.codexMcpConnection.sendRequest(IR,String(n),o,i,r.retainResponse);break`],
   ['interruptTurn:e=>this.sendInternalAppServerRequest("turn/interrupt",e)', `interruptTurn:e=>{${access}.stop(e?.threadId);return this.sendInternalAppServerRequest("turn/interrupt",e)}`],
   ['onFatalError:(F,V)=>{this.logger.error("Fatal error"', `onFatalError:(F,V)=>{${access}.reset();this.logger.error("Fatal error"`],
@@ -30,6 +31,7 @@ const replacements = [
   ["var dF=class extends ut{async getAppApprovals(){return null}async removeAppApproval(){return null}", `var dF=class extends ut{async getAppApprovals(){return ${access}.getAppApprovals()}async removeAppApproval(e){return ${access}.removeAppApproval(e)}`],
 ];
 function injectComputerUse(text) {
+  if (text.includes("/*azrael-computer-use-approvals-v1*/")) throw new Error("Old computer-use approval injection requires a verified correction");
   const markers = text.split(MARKER).length - 1;
   if (markers) {
     if (markers !== 1 || replacements.some(([, value]) => text.split(value).length - 1 !== 1)) throw new Error("Invalid computer-use approval injection marker");

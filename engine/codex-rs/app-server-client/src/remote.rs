@@ -173,8 +173,7 @@ pub struct RemoteAppServerRequestHandle {
 
 enum SocketPeerPolicy {
     ExplicitEndpoint,
-    #[cfg(windows)]
-    NonElevatedCurrentUser,
+    LocalDaemon,
 }
 
 impl RemoteAppServerClient {
@@ -182,9 +181,8 @@ impl RemoteAppServerClient {
         Self::connect_with_policy(args, SocketPeerPolicy::ExplicitEndpoint).await
     }
 
-    /// Connects to an implicitly discovered Windows daemon, verifying its peer
-    /// token before the WebSocket handshake or any session requests.
-    #[cfg(windows)]
+    /// Connects to an implicitly discovered daemon, verifying its current-user
+    /// peer before the WebSocket handshake or any session requests.
     pub async fn connect_local_daemon(args: RemoteAppServerConnectArgs) -> IoResult<Self> {
         if !matches!(args.endpoint, RemoteAppServerEndpoint::UnixSocket { .. }) {
             return Err(IoError::new(
@@ -192,7 +190,7 @@ impl RemoteAppServerClient {
                 "local daemon requires a Unix socket",
             ));
         }
-        Self::connect_with_policy(args, SocketPeerPolicy::NonElevatedCurrentUser).await
+        Self::connect_with_policy(args, SocketPeerPolicy::LocalDaemon).await
     }
 
     async fn connect_with_policy(
@@ -771,7 +769,16 @@ async fn connect_unix_socket_endpoint(
                 format!("invalid UDS websocket handshake URL: {err}"),
             )
         })?;
-    let stream = timeout(CONNECT_TIMEOUT, UnixStream::connect(socket_path.as_path()))
+    let connect = async {
+        match peer_policy {
+            #[cfg(unix)]
+            SocketPeerPolicy::LocalDaemon => {
+                UnixStream::connect_private(socket_path.as_path()).await
+            }
+            _ => UnixStream::connect(socket_path.as_path()).await,
+        }
+    };
+    let stream = timeout(CONNECT_TIMEOUT, connect)
         .await
         .map_err(|_| {
             IoError::new(
@@ -787,7 +794,9 @@ async fn connect_unix_socket_endpoint(
     match peer_policy {
         SocketPeerPolicy::ExplicitEndpoint => {}
         #[cfg(windows)]
-        SocketPeerPolicy::NonElevatedCurrentUser => stream.ensure_non_elevated_peer()?,
+        SocketPeerPolicy::LocalDaemon => stream.ensure_non_elevated_peer()?,
+        #[cfg(unix)]
+        SocketPeerPolicy::LocalDaemon => {}
     }
     let websocket_config = remote_websocket_config();
     let stream = timeout(
@@ -1040,6 +1049,56 @@ fn websocket_close_error_is_already_closed(err: &TungsteniteError) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn local_daemon_upgrades_private_current_user_socket() {
+        let temp = tempfile::TempDir::new().unwrap();
+        let directory = temp.path().join("private");
+        codex_uds::prepare_private_socket_directory(&directory)
+            .await
+            .unwrap();
+        let socket_path = directory.join("socket");
+        let mut listener = codex_uds::UnixListener::bind(&socket_path).await.unwrap();
+        let server = tokio::spawn(async move {
+            let stream = listener.accept().await.unwrap();
+            tokio_tungstenite::accept_async(stream).await.unwrap()
+        });
+        let (_, stream) = connect_unix_socket_endpoint(
+            AbsolutePathBuf::try_from(socket_path).unwrap(),
+            SocketPeerPolicy::LocalDaemon,
+        )
+        .await
+        .unwrap();
+        drop(stream);
+        drop(server.await.unwrap());
+    }
+
+    #[cfg(unix)]
+    #[tokio::test]
+    async fn local_daemon_rejects_public_directory_before_connecting() {
+        use std::os::unix::fs::PermissionsExt;
+
+        let temp = tempfile::TempDir::new().unwrap();
+        let directory = temp.path().join("public");
+        std::fs::create_dir(&directory).unwrap();
+        std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(0o755)).unwrap();
+        let socket_path = directory.join("socket");
+        let mut listener = codex_uds::UnixListener::bind(&socket_path).await.unwrap();
+        let error = connect_unix_socket_endpoint(
+            AbsolutePathBuf::try_from(socket_path).unwrap(),
+            SocketPeerPolicy::LocalDaemon,
+        )
+        .await
+        .err()
+        .unwrap();
+        assert!(error.to_string().contains("private directory"));
+        assert!(
+            timeout(Duration::from_millis(100), listener.accept())
+                .await
+                .is_err()
+        );
+    }
 
     #[tokio::test]
     async fn shutdown_tolerates_worker_exit_after_command_is_queued() {

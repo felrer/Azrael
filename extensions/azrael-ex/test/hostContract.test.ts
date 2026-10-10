@@ -6,6 +6,7 @@ const ACCOUNT_COMMANDS = [
   "azrael.openSidebar",
   "azrael.rootResume",
   "azrael.usage",
+  "azrael.apiConnections",
   "azrael.devinAccount",
   "azrael.manageAccounts",
   "azrael.accountQuickPick",
@@ -48,6 +49,12 @@ test("activation uses the injected runtime and exposes invalid runtime failures"
     assert.match(errors.at(-1) ?? "", /absolute bridge, engine, socket, and CODEX_HOME paths/);
     assert.equal(subscriptions.length, ACCOUNT_COMMANDS.length - 1);
     extension.deactivate();
+    await extension.activate(
+      { extensionUri: { scheme: "file" }, subscriptions: [] } as never,
+      { platform: { os: "other", arch: "x64", target: "other" }, bridge: "relative-bridge", engine: "relative-engine", socket: "relative-socket", codexHome: "relative-home", engineVersion: "0.157.1", env: {} },
+    );
+    await registered.get("azrael.manageAccounts")?.();
+    assert.match(errors.at(-1) ?? "", /platform does not match/);
   } finally {
     moduleApi._load = originalLoad;
   }

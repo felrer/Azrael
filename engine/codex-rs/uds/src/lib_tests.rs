@@ -6,6 +6,211 @@ use tokio::io::AsyncWriteExt;
 
 use super::*;
 
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_accepts_current_user_peer_without_sending_data() {
+    let temp = tempfile::TempDir::new().unwrap();
+    let directory = temp.path().join("private");
+    prepare_private_socket_directory(&directory).await.unwrap();
+    let socket_path = directory.join("socket");
+    let mut listener = UnixListener::bind(&socket_path).await.unwrap();
+    let client = UnixStream::connect_private(&socket_path).await.unwrap();
+    drop(client);
+    let mut server = listener.accept().await.unwrap();
+    let mut byte = [0];
+    assert_eq!(server.read(&mut byte).await.unwrap(), 0);
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_rejects_insecure_directory_without_repair() {
+    use std::os::unix::fs::PermissionsExt;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let directory = temp.path().join("private");
+    prepare_private_socket_directory(&directory).await.unwrap();
+    let socket_path = directory.join("socket");
+    let _listener = UnixListener::bind(&socket_path).await.unwrap();
+    for mode in [0o755, 0o600] {
+        std::fs::set_permissions(&directory, std::fs::Permissions::from_mode(mode)).unwrap();
+        assert_eq!(
+            UnixStream::connect_private(&socket_path)
+                .await
+                .err()
+                .unwrap()
+                .kind(),
+            ErrorKind::PermissionDenied,
+        );
+        assert_eq!(
+            std::fs::metadata(&directory).unwrap().permissions().mode() & 0o777,
+            mode
+        );
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_rejects_directory_symlinks_and_regular_files() {
+    use std::os::unix::fs::symlink;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let directory = temp.path().join("private");
+    prepare_private_socket_directory(&directory).await.unwrap();
+    let socket_path = directory.join("socket");
+    let _listener = UnixListener::bind(&socket_path).await.unwrap();
+    let linked_directory = temp.path().join("linked-directory");
+    symlink(&directory, &linked_directory).unwrap();
+    let regular_file = directory.join("file");
+    std::fs::write(&regular_file, b"not a socket").unwrap();
+    for path in [linked_directory.join("socket"), regular_file] {
+        assert_eq!(
+            UnixStream::connect_private(path)
+                .await
+                .err()
+                .unwrap()
+                .kind(),
+            ErrorKind::PermissionDenied,
+        );
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_accepts_owned_absolute_and_relative_rendezvous_links() {
+    use std::os::unix::fs::symlink;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let advertised = temp.path().join("advertised");
+    let physical = temp.path().join("physical");
+    prepare_private_socket_directory(&advertised).await.unwrap();
+    prepare_private_socket_directory(&physical).await.unwrap();
+    let socket_path = physical.join("socket");
+    let mut listener = UnixListener::bind(&socket_path).await.unwrap();
+    for (name, target) in [
+        ("absolute", socket_path),
+        ("relative", std::path::PathBuf::from("../physical/socket")),
+    ] {
+        let alias = advertised.join(name);
+        symlink(target, &alias).unwrap();
+        let client = UnixStream::connect_private(alias).await.unwrap();
+        drop(client);
+        let mut server = listener.accept().await.unwrap();
+        assert_eq!(server.read(&mut [0]).await.unwrap(), 0);
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_rejects_unsafe_advertised_or_physical_parent() {
+    use std::os::unix::fs::PermissionsExt;
+    use std::os::unix::fs::symlink;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let advertised = temp.path().join("advertised");
+    let physical = temp.path().join("physical");
+    prepare_private_socket_directory(&advertised).await.unwrap();
+    prepare_private_socket_directory(&physical).await.unwrap();
+    let socket_path = physical.join("socket");
+    let _listener = UnixListener::bind(&socket_path).await.unwrap();
+    let alias = advertised.join("alias");
+    symlink(socket_path, &alias).unwrap();
+    for directory in [&advertised, &physical] {
+        std::fs::set_permissions(directory, std::fs::Permissions::from_mode(0o755)).unwrap();
+        assert_eq!(
+            UnixStream::connect_private(&alias)
+                .await
+                .err()
+                .unwrap()
+                .kind(),
+            ErrorKind::PermissionDenied,
+        );
+        assert_eq!(
+            std::fs::metadata(directory).unwrap().permissions().mode() & 0o777,
+            0o755
+        );
+        std::fs::set_permissions(directory, std::fs::Permissions::from_mode(0o700)).unwrap();
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_rejects_chained_dangling_and_regular_file_links() {
+    use std::os::unix::fs::symlink;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let directory = temp.path().join("private");
+    prepare_private_socket_directory(&directory).await.unwrap();
+    let socket_path = directory.join("socket");
+    let _listener = UnixListener::bind(&socket_path).await.unwrap();
+    let first = directory.join("first");
+    symlink(socket_path, &first).unwrap();
+    let chained = directory.join("chained");
+    symlink(first, &chained).unwrap();
+    let dangling = directory.join("dangling");
+    symlink(directory.join("missing"), &dangling).unwrap();
+    let file = directory.join("file");
+    std::fs::write(&file, b"not a socket").unwrap();
+    let file_link = directory.join("file-link");
+    symlink(file, &file_link).unwrap();
+    for (path, kind) in [
+        (chained, ErrorKind::PermissionDenied),
+        (dangling, ErrorKind::NotFound),
+        (file_link, ErrorKind::PermissionDenied),
+    ] {
+        assert_eq!(
+            UnixStream::connect_private(path)
+                .await
+                .err()
+                .unwrap()
+                .kind(),
+            kind
+        );
+    }
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn private_connection_recheck_rejects_replaced_or_retargeted_alias() {
+    use std::os::unix::fs::symlink;
+
+    let temp = tempfile::TempDir::new().unwrap();
+    let directory = temp.path().join("private");
+    prepare_private_socket_directory(&directory).await.unwrap();
+    let socket_path = directory.join("socket");
+    let second_path = directory.join("second-socket");
+    let _listener = UnixListener::bind(&socket_path).await.unwrap();
+    let _second_listener = UnixListener::bind(&second_path).await.unwrap();
+    let alias = directory.join("alias");
+    symlink(&socket_path, &alias).unwrap();
+    for target in [&socket_path, &second_path] {
+        let validated = platform::validate_private_socket_path(&alias)
+            .await
+            .unwrap();
+        validated.ensure_unchanged(&alias).await.unwrap();
+        let replacement = directory.join("replacement");
+        symlink(target, &replacement).unwrap();
+        std::fs::rename(replacement, &alias).unwrap();
+        assert_eq!(
+            validated.ensure_unchanged(&alias).await.unwrap_err().kind(),
+            ErrorKind::PermissionDenied,
+        );
+    }
+}
+
+#[cfg(unix)]
+#[test]
+fn private_connection_rejects_another_user() {
+    // SAFETY: geteuid has no preconditions and does not access caller memory.
+    let uid = unsafe { libc::geteuid() };
+    assert!(platform::ensure_current_user(uid).is_ok());
+    assert_eq!(
+        platform::ensure_current_user(uid.wrapping_add(1))
+            .unwrap_err()
+            .kind(),
+        ErrorKind::PermissionDenied,
+    );
+}
+
 #[cfg(windows)]
 #[tokio::test]
 async fn private_directory_rejects_volume_roots() {
@@ -71,10 +276,9 @@ async fn socket_validation_rejects_broad_acl_without_repairing_it() {
     let temp = tempfile::TempDir::new().expect("temp directory");
     let directory = temp.path().join("private");
     prepare_private_socket_directory(&directory).await.unwrap();
-    let inspect = |script: &str| {
-        let output = std::process::Command::new("powershell.exe")
-            .args(["-NoProfile", "-NonInteractive", "-Command", script])
-            .env("CODEX_TEST_DIRECTORY", &directory)
+    let inspect = || {
+        let output = std::process::Command::new("icacls.exe")
+            .arg(&directory)
             .output()
             .unwrap();
         assert!(
@@ -84,17 +288,19 @@ async fn socket_validation_rejects_broad_acl_without_repairing_it() {
         );
         output.stdout
     };
-    let before = inspect(
-        r#"
-$ErrorActionPreference = 'Stop'
-$acl = Get-Acl -LiteralPath $env:CODEX_TEST_DIRECTORY
-$everyone = [System.Security.Principal.SecurityIdentifier]::new('S-1-1-0')
-$rule = [System.Security.AccessControl.FileSystemAccessRule]::new($everyone, 'FullControl', 'ContainerInherit,ObjectInherit', 'None', 'Allow')
-$acl.AddAccessRule($rule)
-Set-Acl -LiteralPath $env:CODEX_TEST_DIRECTORY -AclObject $acl
-(Get-Acl -LiteralPath $env:CODEX_TEST_DIRECTORY).Sddl
-"#,
+    // icacls modifies only the DACL: no SACL privilege or PowerShell module
+    // environment is needed by a non-elevated fixture process.
+    let output = std::process::Command::new("icacls.exe")
+        .arg(&directory)
+        .args(["/grant", "*S-1-1-0:(OI)(CI)F"])
+        .output()
+        .unwrap();
+    assert!(
+        output.status.success(),
+        "{}",
+        String::from_utf8_lossy(&output.stderr)
     );
+    let before = inspect();
     assert_eq!(
         validate_private_socket_path(&directory.join("socket"))
             .unwrap_err()
@@ -108,12 +314,7 @@ Set-Acl -LiteralPath $env:CODEX_TEST_DIRECTORY -AclObject $acl
             .kind(),
         ErrorKind::PermissionDenied,
     );
-    assert_eq!(
-        before,
-        inspect(
-            "$ErrorActionPreference = 'Stop'; (Get-Acl -LiteralPath $env:CODEX_TEST_DIRECTORY).Sddl"
-        )
-    );
+    assert_eq!(before, inspect());
 }
 
 #[cfg(windows)]

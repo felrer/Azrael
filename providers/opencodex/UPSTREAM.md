@@ -2,7 +2,7 @@
 
 `vendor/src` originates from `lidge-jun/opencodex` commit `9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19` (package version 2.54.0, MIT). `package.json`, `bun.lock`, and `LICENSE.opencodex` are copied without modification. Narrow account-selection, account-retirement and OpenRouter usage patches are applied to the source import.
 
-The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The patched vendor tree manifest digest is `d0600827099c6d2a14cadb2ac13804761ec53c7f69ffe7dd7feaca2c895b86d8`, computed as SHA-256 over the concatenation of `relative/path NUL lowercase-file-sha256 LF` records ordered by the build script's PowerShell `Sort-Object FullName`.
+The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The reviewed patched vendor tree digest is `d0600827099c6d2a14cadb2ac13804761ec53c7f69ffe7dd7feaca2c895b86d8`, originally computed over `relative/path NUL lowercase-file-sha256 LF` records ordered by PowerShell `Sort-Object FullName`. The checked-in `vendor-source-manifest.json` preserves the exact reviewed path/hash mapping. Its portable canonical digest is `7d80d0d42b49d8c4e22cb4ef21087f037134882e6e93ad2799359004be1a9b0f`, using the same record format with ordinal path ordering. The shared build guard verifies that identity and every source entry; release receipts retain the original reviewed digest. No vendor source bytes changed during this ordering conversion.
 
 | Artifact | SHA-256 |
 | --- | --- |

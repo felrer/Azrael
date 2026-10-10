@@ -6,6 +6,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { platformIdentity } = require("./platform-runtime.cjs");
 const { configureEnvironment, readBundle } = require("./provider-accounts-host.cjs");
 
 const REVISION = "9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19";
@@ -13,7 +14,7 @@ const sha256 = file => createHash("sha256").update(fs.readFileSync(file)).digest
 
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-provider-accounts-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const release = path.join(root, "release");
   const helper = path.join(release, "providers", "opencodex", "helper.ts");
   const inferenceHelper = path.join(release, "providers", "opencodex", "inference-helper.ts");
@@ -23,8 +24,10 @@ function fixture(t) {
   fs.writeFileSync(helper, "export const fixture = true;\n");
   fs.writeFileSync(inferenceHelper, "export const inferenceFixture = true;\n");
   fs.writeFileSync(bun, "synthetic bun\n");
+  fs.chmodSync(bun, 0o755);
   const manifestPath = path.join(release, "opencodex-accounts-build.json");
   const writeManifest = (overrides = {}) => fs.writeFileSync(manifestPath, JSON.stringify({
+    platform: platformIdentity(),
     schema: 1,
     upstreamRevision: REVISION,
     helper: "providers/opencodex/helper.ts",
@@ -48,6 +51,37 @@ function fixture(t) {
   });
   return { root, release, helper, inferenceHelper, bun, manifestPath, writeManifest, writeInferenceManifest };
 }
+
+test("provider bundle rejects mismatched platform before executable validation", t => {
+  const value = fixture(t);
+  for (const field of ["os", "arch", "target"]) {
+    value.writeManifest({ platform: { ...platformIdentity(), [field]: "other" } });
+    assert.throws(() => readBundle(value.release, true), /platform does not match/);
+  }
+});
+
+test("Unix provider executes Bun and keeps helper scripts as readable files", t => {
+  const value = fixture(t);
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform");
+  const arch = Object.getOwnPropertyDescriptor(process, "arch");
+  t.mock.method(process.report, "getReport", () => ({ header: { glibcVersionRuntime: "2.36" } }));
+  Object.defineProperty(process, "platform", { ...descriptor, value: "linux" });
+  Object.defineProperty(process, "arch", { ...arch, value: "x64" });
+  try {
+    value.writeManifest();
+    const calls = [];
+    t.mock.method(fs, "accessSync", file => { calls.push(file); });
+    readBundle(value.release, true);
+    assert.deepEqual(calls, [fs.realpathSync.native(value.bun)]);
+    t.mock.method(fs, "accessSync", () => { throw new Error("execute denied"); });
+    assert.throws(() => readBundle(value.release, true), /execute denied/);
+    value.writeManifest({ platform: undefined });
+    assert.throws(() => readBundle(value.release, true), /no platform identity/);
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    Object.defineProperty(process, "arch", arch);
+  }
+});
 
 test("verified bundle configures only the private host environment", (t) => {
   const value = fixture(t);

@@ -44,6 +44,9 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     return;
   }
 
+  try { require("../platform-runtime.cjs").validateRuntimePlatform(runtime.platform); }
+  catch (error) { registerUnavailable(register, message(error)); return; }
+
   const { bridge: bridgeExecutable, socket, codexHome, engine, engineVersion, env: runtimeEnv } = runtime;
   if (!path.isAbsolute(bridgeExecutable) || !fs.existsSync(bridgeExecutable) || !path.isAbsolute(socket) || !path.isAbsolute(codexHome) || !path.isAbsolute(engine)) {
     registerUnavailable(register, "The azrael host runtime must provide absolute bridge, engine, socket, and CODEX_HOME paths.");
@@ -144,6 +147,7 @@ async function guarded(action: () => unknown): Promise<void> {
 function message(error: unknown): string { return error instanceof Error ? error.message : String(error); }
 
 export interface HostRuntime {
+  platform?: { os: string; arch: string; target: string; libc?: string };
   bridge: string;
   engine: string;
   socket: string;

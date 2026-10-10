@@ -17,6 +17,8 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Partial implementation
 
+- [Multi-platform runtime and maintenance](multi-platform.md): shared platform identity, OS-specific runtime/build boundaries and requirement applicability; local Linux x64/macOS ARM64 acceptance is separate, macOS public distribution is deferred.
+
 - [사용자 API 모델](custom-api-models.md): 빈 초기 연결 목록, 사용자 endpoint·모델 등록, API picker 그룹과 native subagent 실행. 설치·실서버 수용은 별도 검증한다.
 
 - [Side questions with /btw](side-questions.md): independent tool-free questions using the main task's live context and the native Side chat panel; source and rendered controls verified, Rust and installed acceptance pending.

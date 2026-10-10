@@ -4,8 +4,12 @@ import * as os from "node:os";
 import * as path from "node:path";
 import type { HostRuntime } from "./extension";
 
+const { validateRuntimePlatform, requireExecutable, engineBinaryNames } = require("../platform-runtime.cjs");
+const nativeHelpers = new Set(["devinExecutable", "nodeExecutable", "providerBun"]);
+
 interface RuntimeManifest {
   schema: 2;
+  platform?: HostRuntime["platform"];
   engine: string;
   bridge: string;
   codexHome: string;
@@ -39,6 +43,7 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
     throw new Error("Missing or invalid azrael runtime configuration.");
   }
   if (!isRecord(raw) || (raw.schema !== 2 && raw.schema !== 3)) throw new Error("Unsupported azrael runtime configuration.");
+  validateRuntimePlatform(raw.platform);
   if (raw.schema === 3) raw = resolvePortableManifest(raw, extensionDirectory);
   // Both manifest formats converge on the existing absolute runtime contract.
   const resolved = raw as Record<string, unknown>;
@@ -52,11 +57,14 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
   const config = resolved as unknown as RuntimeManifest;
   requireFile(config.engine, "engine");
   requireFile(config.bridge, "bridge");
+  requireExecutable(config.engine);
+  requireExecutable(config.bridge);
   for (const key of Object.keys(helperEnv) as Array<keyof typeof helperEnv>) {
     const candidate = config.helpers?.[key];
     if (candidate !== undefined) {
       if (!isAbsolutePath(candidate)) throw new Error(`Invalid azrael ${key} path.`);
       requireFile(candidate, key);
+      if (nativeHelpers.has(key)) requireExecutable(candidate);
     }
   }
 
@@ -82,6 +90,13 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
     for (const key of Object.keys(env)) if (key.toUpperCase() === "PATH") delete env[key];
     if (inheritedPath !== undefined) env.PATH = inheritedPath;
   }
+  if (config.helpers?.devinNativeHelper) {
+    const temporary = path.join(config.codexHome, "tmp", "devin-native");
+    fs.mkdirSync(temporary, { recursive: true });
+    env.TMP = temporary;
+    env.TEMP = temporary;
+    if (process.platform !== "win32") env.TMPDIR = temporary;
+  }
   env.CODEX_HOME = config.codexHome;
   env.AZRAEL_EX_MANAGEMENT_SOCKET = socket;
   env.OPENCODEX_HOME = path.join(config.codexHome, "azrael", "providers", "opencodex");
@@ -89,7 +104,7 @@ export function buildHostRuntime(extensionDirectory: string, inheritedEnv: NodeJ
     const candidate = config.helpers?.[key];
     if (candidate) env[helperEnv[key]] = candidate;
   }
-  return { engine: config.engine, bridge: config.bridge, codexHome: config.codexHome, engineVersion: config.engineVersion, socket, env };
+  return { platform: config.platform, engine: config.engine, bridge: config.bridge, codexHome: config.codexHome, engineVersion: config.engineVersion, socket, env };
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -114,6 +129,7 @@ function resolvePortableManifest(raw: Record<string, unknown>, extensionDirector
     }
     const actual = createHash("sha256").update(fs.readFileSync(candidate)).digest("hex");
     if (actual !== expected) throw new Error("Azrael payload hash mismatch.");
+    if ([...engineBinaryNames(), "code-mode-host.exe"].includes(path.basename(relative))) requireExecutable(candidate);
     payloads.set(relative, candidate);
   }
   function executable(value: unknown, name: string): string {
@@ -128,6 +144,7 @@ function resolvePortableManifest(raw: Record<string, unknown>, extensionDirector
   }
   return {
     schema: 2,
+    platform: raw.platform,
     engine: executable(raw.engine, "engine"),
     bridge: executable(raw.bridge, "bridge"),
     engineVersion: raw.engineVersion,

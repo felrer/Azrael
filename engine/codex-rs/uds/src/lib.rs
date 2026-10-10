@@ -59,6 +59,15 @@ pub struct UnixStream {
 }
 
 impl UnixStream {
+    /// Connects to a private Unix daemon socket or its owned rendezvous symlink.
+    /// Validates the path and connected peer before any application data is sent.
+    #[cfg(unix)]
+    pub async fn connect_private(socket_path: impl AsRef<Path>) -> IoResult<Self> {
+        platform::connect_private_stream(socket_path.as_ref())
+            .await
+            .map(|inner| Self { inner })
+    }
+
     /// Requires the Windows peer to belong to the current user, with neither
     /// process elevated. Call before sending any application data.
     #[cfg(windows)]
@@ -104,8 +113,10 @@ mod platform {
     use std::io::ErrorKind;
     use std::io::Result as IoResult;
     use std::os::unix::fs::FileTypeExt;
+    use std::os::unix::fs::MetadataExt;
     use std::os::unix::fs::PermissionsExt;
     use std::path::Path;
+    use std::path::PathBuf;
 
     use tokio::fs;
     use tokio::net::UnixListener;
@@ -172,6 +183,128 @@ mod platform {
             }
             result => result,
         }
+    }
+
+    pub(super) fn ensure_current_user(uid: u32) -> IoResult<()> {
+        // SAFETY: geteuid has no preconditions and does not access caller memory.
+        if uid != unsafe { libc::geteuid() } {
+            return Err(io::Error::new(
+                ErrorKind::PermissionDenied,
+                "local daemon socket must belong to the effective user",
+            ));
+        }
+        Ok(())
+    }
+
+    // Include ctime so replacing a rendezvous entry with a new link to the same
+    // target is rejected even if its inode number is immediately reused.
+    type PathIdentity = (u64, u64, u32, u32, i64, i64);
+    type DirectoryIdentity = (u64, u64, u32, u32);
+
+    fn path_identity(metadata: &std::fs::Metadata) -> PathIdentity {
+        (
+            metadata.dev(),
+            metadata.ino(),
+            metadata.uid(),
+            metadata.mode(),
+            metadata.ctime(),
+            metadata.ctime_nsec(),
+        )
+    }
+
+    #[derive(Debug, PartialEq, Eq)]
+    pub(super) struct ValidatedPrivateSocket {
+        physical_path: PathBuf,
+        advertised_parent: DirectoryIdentity,
+        advertised_entry: PathIdentity,
+        link_target: Option<PathBuf>,
+        physical_parent: DirectoryIdentity,
+        physical_socket: PathIdentity,
+    }
+
+    impl ValidatedPrivateSocket {
+        pub(super) async fn ensure_unchanged(&self, socket_path: &Path) -> IoResult<()> {
+            if *self != validate_private_socket_path(socket_path).await? {
+                return Err(io::Error::new(
+                    ErrorKind::PermissionDenied,
+                    "local daemon socket rendezvous changed during connection",
+                ));
+            }
+            Ok(())
+        }
+    }
+
+    async fn validate_private_parent(socket_path: &Path) -> IoResult<DirectoryIdentity> {
+        let parent = socket_path.parent().ok_or_else(|| {
+            io::Error::new(
+                ErrorKind::InvalidInput,
+                "daemon socket requires a parent directory",
+            )
+        })?;
+        let directory = fs::symlink_metadata(parent).await?;
+        if !directory.is_dir()
+            || directory.permissions().mode() & SOCKET_DIR_PERMISSION_BITS != SOCKET_DIR_MODE
+        {
+            return Err(io::Error::new(
+                ErrorKind::PermissionDenied,
+                "local daemon socket parent must be a private directory (0700), not a symlink",
+            ));
+        }
+        ensure_current_user(directory.uid())?;
+        // Other private daemon sockets may be created concurrently in this
+        // directory; only its identity, owner and permissions must remain stable.
+        Ok((
+            directory.dev(),
+            directory.ino(),
+            directory.uid(),
+            directory.mode(),
+        ))
+    }
+
+    pub(super) async fn validate_private_socket_path(
+        socket_path: &Path,
+    ) -> IoResult<ValidatedPrivateSocket> {
+        let advertised_parent = validate_private_parent(socket_path).await?;
+        let advertised_entry = fs::symlink_metadata(socket_path).await?;
+        ensure_current_user(advertised_entry.uid())?;
+        let link_target = if advertised_entry.file_type().is_symlink() {
+            Some(fs::read_link(socket_path).await?)
+        } else {
+            None
+        };
+        let physical_path = match &link_target {
+            Some(target) if target.is_absolute() => target.clone(),
+            Some(target) => socket_path.parent().unwrap().join(target),
+            None => socket_path.to_path_buf(),
+        };
+        let physical_parent = validate_private_parent(&physical_path).await?;
+        let socket = fs::symlink_metadata(&physical_path).await?;
+        if !socket.file_type().is_socket() {
+            return Err(io::Error::new(
+                ErrorKind::PermissionDenied,
+                "local daemon target must be a socket, not a chained symlink or regular file",
+            ));
+        }
+        ensure_current_user(socket.uid())?;
+        Ok(ValidatedPrivateSocket {
+            physical_path,
+            advertised_parent,
+            advertised_entry: path_identity(&advertised_entry),
+            link_target,
+            physical_parent,
+            physical_socket: path_identity(&socket),
+        })
+    }
+
+    pub(super) async fn connect_private_stream(socket_path: &Path) -> IoResult<Stream> {
+        let validated = validate_private_socket_path(socket_path).await?;
+        // Connect only the inspected physical socket, never canonicalize through
+        // arbitrary links or retry against an unvalidated endpoint.
+        let stream = UnixStream::connect(&validated.physical_path).await?;
+        ensure_current_user(stream.peer_cred()?.uid())?;
+        // Recheck after connection to reject path/permission changes during connect.
+        validated.ensure_unchanged(socket_path).await?;
+        Ok(stream)
     }
 
     pub(super) async fn is_stale_socket_path(socket_path: &Path) -> IoResult<bool> {

@@ -11,10 +11,11 @@ function injectWindowApprovalClassifier(text, relativePath) {
   return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH),count:1};
 }
 const SETTINGS_ASSET = 'webview/assets/computer-use-settings-a06e6e547020.js';
-const HOST_MARKER = '/*azrael-window-control-bridge-v1*/';
+const HOST_MARKER = '/*azrael-window-control-bridge-v2*/';
+const windowEnabled = 'require("./azrael-runtime.cjs").runtime.windowControl';
 const PAGE_MARKER = '/*azrael-window-control-launcher-v3*/';
 const HOST_ANCHOR = 'case"open-vscode-command":{';
-const HOST_PATCH = 'case"azrael-window-control":{await je.commands.executeCommand("azrael.windowControl");break}' + 'case"azrael-use-settings":{await require("./window-control-host.cjs").settings(e,r);break}' + HOST_MARKER + HOST_ANCHOR;
+const HOST_PATCH = `case"azrael-window-control":{if(${windowEnabled})await je.commands.executeCommand("azrael.windowControl");else await je.window.showErrorMessage("Window Use is unavailable on this runtime.");break}case"azrael-use-settings":{if(${windowEnabled})await require("./window-control-host.cjs").settings(e,r);else await require("../account-ui/use-settings-host.cjs").unavailable(e,r);break}` + HOST_MARKER + HOST_ANCHOR;
 const PAGE_ANCHOR = '(0,$.jsxs)(Yt,{title:p,subtitle:m,children:[y,b]})';
 const PAGE_PATCH = '(0,$.jsxs)(Yt,{title:p,subtitle:m,children:[y,b,(0,$.jsx)(AzraelWindowControlLauncher,{})]})';
 function createUseSettingsStore(bridge, clientId, timing = globalThis, createRequestId = () => globalThis.crypto.randomUUID()) {
@@ -91,10 +92,11 @@ function injectWindowControl(text, relativePath, ts) {
     return { text: 'import{nLt as getAzraelUseReact}from"./app-initial-97d3534ad35f.js";import{X9t as azraelWindowBridge,W3 as AzraelUseCard,G3 as initAzraelUseCard,Q3 as AzraelUseRow,t6 as initAzraelUseRow}from"./app-initial-c014f9ee4429.js";import{l9 as AzraelUseSwitch,d9 as initAzraelUseSwitch,ZIt as AzraelUseButton,$It as initAzraelUseButton}from"./app-initial-7a199c66e670.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
   }
   if (relativePath !== 'out/extension.js') return { text, count: 0 };
-  if (text.includes(HOST_MARKER)) {
+  if (text.includes('/*azrael-window-control-bridge-v1*/')) throw new Error('Old selected-window bridge requires a verified correction');
+  const alreadyInjected = text.includes(HOST_MARKER);
+  if (alreadyInjected) {
     const hooks = [['require("./window-control-host.cjs").prepareRequest(', 1], ['require("./window-control-host.cjs").attach(this,', 1], ['require("./window-control-host.cjs").request(this,', 1], ['require("./window-control-host.cjs").beforeResult(this,', 1], ['require("./window-control-host.cjs").observe(this,', 1], ['require("./window-control-host.cjs").disconnect(this);', 2]];
     if (text.split(HOST_MARKER).length !== 2 || !text.includes(HOST_PATCH) || hooks.some(([hook, count]) => text.split(hook).length !== count + 1)) throw new Error('Invalid selected-window bridge marker');
-    return { text, count: 0 };
   }
   const source = ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const edits = [], counts = { send: 0, observe: 0, disconnect: 0 };
@@ -104,17 +106,17 @@ function injectWindowControl(text, relativePath, ts) {
       if (node.parameters.some(p => !ts.isIdentifier(p.name))) throw new Error('Window Use request parameters changed');
       const parameterNames = node.parameters.slice(0, 4).map(p => p.name.text).join(',');
       const methodName=node.parameters[2].name.text, paramsName=node.parameters[3].name.text;
-      edits.push({ start: node.body.getStart(source) + 1, code: `${paramsName}=require("./window-control-host.cjs").prepareRequest(${methodName},${paramsName});try{require("./window-control-host.cjs").attach(this,(...azraelWindowArgs)=>this.sendProviderRequest(...azraelWindowArgs));require("./window-control-host.cjs").request(this,${parameterNames});}catch(azraelWindowError){console.error("Azrael selected-window bridge unavailable");}` });
+      edits.push({ start: node.body.getStart(source) + 1, code: `if(${windowEnabled}){${paramsName}=require("./window-control-host.cjs").prepareRequest(${methodName},${paramsName});try{require("./window-control-host.cjs").attach(this,(...azraelWindowArgs)=>this.sendProviderRequest(...azraelWindowArgs));require("./window-control-host.cjs").request(this,${parameterNames});}catch(azraelWindowError){console.error("Azrael selected-window bridge unavailable");}}` });
       counts.send++;
       for (const sibling of node.parent.members) {
         if (sibling.name?.text === 'routeIncomingMessage' && sibling.body && sibling.parameters.length === 2 && ts.isIdentifier(sibling.parameters[0].name)) {
           if (!ts.isIdentifier(sibling.parameters[1].name)) throw new Error('Window Use response context changed');
           const responseName = sibling.parameters[0].name.text, contextName = sibling.parameters[1].name.text;
           // The native line dispatcher reads routeKind and method even when publication is deferred.
-          edits.push({ start: sibling.body.getStart(source) + 1, code: `try{if(require("./window-control-host.cjs").beforeResult(this,${responseName},azraelWindowResponse=>this.routeIncomingMessage(azraelWindowResponse,${contextName})))return{routeKind:"response",method:null};require("./window-control-host.cjs").observe(this,${responseName});}catch(azraelWindowError){try{require("./window-control-host.cjs").disconnect(this);}catch{}console.error("Azrael selected-window observer failed closed");}` }); counts.observe++;
+          edits.push({ start: sibling.body.getStart(source) + 1, code: `if(${windowEnabled}){try{if(require("./window-control-host.cjs").beforeResult(this,${responseName},azraelWindowResponse=>this.routeIncomingMessage(azraelWindowResponse,${contextName})))return{routeKind:"response",method:null};require("./window-control-host.cjs").observe(this,${responseName});}catch(azraelWindowError){try{require("./window-control-host.cjs").disconnect(this);}catch{}console.error("Azrael selected-window observer failed closed");}}` }); counts.observe++;
         }
         if (sibling.name?.text === 'teardownProcess' && sibling.body && sibling.parameters.length === 0) {
-          edits.push({ start: sibling.body.getStart(source) + 1, code: 'try{require("./window-control-host.cjs").disconnect(this);}catch(azraelWindowError){console.error("Azrael selected-window disconnect failed");}' }); counts.disconnect++;
+          edits.push({ start: sibling.body.getStart(source) + 1, code: `if(${windowEnabled}){try{require("./window-control-host.cjs").disconnect(this);}catch(azraelWindowError){console.error("Azrael selected-window disconnect failed");}}` }); counts.disconnect++;
         }
       }
       return;
@@ -123,6 +125,10 @@ function injectWindowControl(text, relativePath, ts) {
   }
   visit(source);
   if (Object.values(counts).some(n => n !== 1)) throw new Error('Pinned selected-window bridge changed: ' + JSON.stringify(counts));
+  if (alreadyInjected) {
+    if (edits.some(edit => text.slice(edit.start, edit.start + edit.code.length) !== edit.code)) throw new Error('Invalid selected-window bridge guard');
+    return { text, count: 0 };
+  }
   for (const edit of edits.sort((a, S) => S.start - a.start)) text = text.slice(0, edit.start) + edit.code + text.slice(edit.start);
   text = once(text, HOST_ANCHOR, HOST_PATCH);
   if (ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length) throw new Error('Invalid selected-window bridge transform');

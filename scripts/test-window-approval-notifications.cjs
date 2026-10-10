@@ -121,13 +121,14 @@ for (const event of [{ type: 'approvalNotificationActivated', requestId: 'window
   await assert.rejects(pending, { code: 'connection_error' }); assert.equal(activated, false); await f.backend.dispose();
 });
 test('transformed native callback binds stable navigation and checks pending state after opening sidebar', async () => {
-  const vm = require('node:vm'), { injectComputerUse } = require('./inject-computer-use.cjs');
+  const vm = require('node:vm'), { injectComputerUse, MARKER } = require('./inject-computer-use.cjs');
   const original = await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, '../artifacts/upstream-ui/26.1007.21434'), 'out/extension.js'), 'utf8');
   const transformed = injectComputerUse(original).text;
-  const start = transformed.indexOf('onRequest:F=>{'), end = transformed.indexOf('/*azrael-computer-use-approvals-v1*/', start);
+  const start = transformed.indexOf('onRequest:F=>{'), end = transformed.indexOf(MARKER, start);
   assert.ok(start >= 0 && end > start);
   const registrations = [], commands = [], routes = []; let finishOpen;
   const context = vm.createContext({ require(name) {
+    if (name === './azrael-runtime.cjs') return { runtime: { windowControl: {} } };
     if (name === './window-control-host.cjs') return { registerApprovalUI(...args) { registrations.push(args); } };
     if (name === './computer-use-approvals.cjs') return { receive() {} };
     assert.equal(name, 'vscode'); return { commands: { executeCommand(command) { commands.push(command); return new Promise(resolve => { finishOpen = resolve; }); } } };

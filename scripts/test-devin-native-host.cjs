@@ -6,6 +6,7 @@ const fs = require("node:fs");
 const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
+const { platformIdentity } = require("./platform-runtime.cjs");
 const { configureEnvironment, readBundle } = require("./devin-native-host.cjs");
 
 function sha256(file) {
@@ -20,16 +21,18 @@ function environmentDigest() {
 
 function syntheticBundle(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-devin-native-host-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const releaseDirectory = path.join(root, "release");
   const helper = path.join(releaseDirectory, "providers", "devin", "helper.mjs");
   const node = path.join(root, "node.exe");
   fs.mkdirSync(path.dirname(helper), { recursive: true });
   fs.writeFileSync(helper, "export const fixture = true;\n");
   fs.writeFileSync(node, "synthetic node runtime\n");
+  fs.chmodSync(node, 0o755);
   const manifestPath = path.join(releaseDirectory, "devin-native-build.json");
   const writeManifest = (overrides = {}) => {
     const manifest = {
+      platform: platformIdentity(),
       schema: 1,
       model: "devin/swe-2-high",
       files: { "providers/devin/helper.mjs": sha256(helper) },
@@ -51,6 +54,40 @@ test("readBundle accepts a verified synthetic release", (t) => {
     helper: bundle.helper,
     node: bundle.node,
   });
+});
+
+test("native bundle rejects mismatched platform before executable validation", t => {
+  const bundle = syntheticBundle(t);
+  for (const field of ["os", "arch", "target"]) {
+    bundle.writeManifest({ platform: { ...platformIdentity(), [field]: "other" } });
+    assert.throws(() => readBundle(bundle.releaseDirectory, true), /platform does not match/);
+  }
+});
+
+test("Unix native runtime checks Node execution and owns TMPDIR", t => {
+  const bundle = syntheticBundle(t);
+  const descriptor = Object.getOwnPropertyDescriptor(process, "platform");
+  const arch = Object.getOwnPropertyDescriptor(process, "arch");
+  t.mock.method(process.report, "getReport", () => ({ header: { glibcVersionRuntime: "2.36" } }));
+  Object.defineProperty(process, "platform", { ...descriptor, value: "linux" });
+  Object.defineProperty(process, "arch", { ...arch, value: "x64" });
+  try {
+    bundle.writeManifest();
+    const calls = [];
+    t.mock.method(fs, "accessSync", file => { calls.push(file); });
+    const env = {};
+    const home = path.join(bundle.root, "state");
+    configureEnvironment(env, { codexHome: home, devinNative: { releaseDirectory: bundle.releaseDirectory } });
+    assert.deepEqual(calls, [bundle.node]);
+    assert.equal(env.TMPDIR, path.join(home, "tmp", "devin-native"));
+    t.mock.method(fs, "accessSync", () => { throw new Error("execute denied"); });
+    assert.throws(() => readBundle(bundle.releaseDirectory, true), /execute denied/);
+    bundle.writeManifest({ platform: undefined });
+    assert.throws(() => readBundle(bundle.releaseDirectory, true), /no platform identity/);
+  } finally {
+    Object.defineProperty(process, "platform", descriptor);
+    Object.defineProperty(process, "arch", arch);
+  }
 });
 
 test("legacy host clears ambient native selection without changing the caller process", () => {
@@ -85,7 +122,7 @@ test("legacy host clears ambient native selection without changing the caller pr
 
 test("ordinary runtime loads its native host dependency with a private environment", (t) => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-ordinary-runtime-"));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const runtimePath = path.join(root, "ordinary-runtime.cjs");
   const nativeHostPath = path.join(root, "devin-native-host.cjs");
   const engine = path.join(root, "codex.exe");
@@ -94,10 +131,14 @@ test("ordinary runtime loads its native host dependency with a private environme
   fs.copyFileSync(path.join(__dirname, "ordinary-runtime.cjs"), runtimePath);
   fs.copyFileSync(path.join(__dirname, "devin-native-host.cjs"), nativeHostPath);
   fs.copyFileSync(path.join(__dirname, "provider-accounts-host.cjs"), path.join(root, "provider-accounts-host.cjs"));
+  for (const name of ["platform-runtime.cjs", "azrael-platforms.json"]) fs.copyFileSync(path.join(__dirname, name), path.join(root, name));
   fs.writeFileSync(engine, "synthetic engine\n");
   fs.writeFileSync(bridge, "synthetic bridge\n");
+  fs.chmodSync(engine, 0o755);
+  fs.chmodSync(bridge, 0o755);
   fs.writeFileSync(path.join(root, "azrael-runtime.json"), JSON.stringify({
     schema: 1,
+    platform: platformIdentity(),
     engine,
     bridge,
     codexHome: state,
@@ -235,7 +276,7 @@ test("manifest files cannot escape through a directory link", (t) => {
   const outsideHelper = path.join(outsideProviders, "devin", "helper.mjs");
   fs.mkdirSync(path.dirname(outsideHelper), { recursive: true });
   fs.writeFileSync(outsideHelper, "export const outside = true;\n");
-  fs.rmSync(providers, { recursive: true, force: true });
+  fs.rmSync(providers, { recursive: true });
   fs.symlinkSync(outsideProviders, providers, process.platform === "win32" ? "junction" : "dir");
   bundle.writeManifest({
     files: { "providers/devin/helper.mjs": sha256(outsideHelper) },

@@ -3,6 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { createHash } = require("node:crypto");
+const { validateRuntimePlatform, requireExecutable } = require("./platform-runtime.cjs");
 
 const MANIFEST = "opencodex-accounts-build.json";
 const REVISION = "9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19";
@@ -52,6 +53,7 @@ function readBundle(releaseDirectory, required = false) {
   } catch {
     throw new Error("Invalid provider accounts bundle. Rebuild and redeploy Azrael.");
   }
+  validateRuntimePlatform(manifest.platform);
   if (![1, 2].includes(manifest.schema) || manifest.upstreamRevision !== REVISION ||
       manifest.bun?.version !== BUN_VERSION || typeof manifest.helper !== "string" ||
       typeof manifest.bun?.path !== "string" || !manifest.files ||
@@ -68,6 +70,7 @@ function readBundle(releaseDirectory, required = false) {
   for (const [relative, expected] of Object.entries(manifest.files)) {
     verified.set(relative, containedFile(release, relative, expected));
   }
+  requireExecutable(verified.get(manifest.bun.path));
   return Object.freeze({
     releaseDirectory: release,
     helper: verified.get(manifest.helper),

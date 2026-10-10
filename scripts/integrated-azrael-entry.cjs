@@ -8,7 +8,7 @@ const nativeExtension = require("./out/extension.js");
 const accountUi = require("./account-ui/dist/src/extension.js");
 const { runtime } = require("./out/azrael-runtime.cjs");
 const recovery = require("./out/azrael-recovery.cjs");
-const windowControl = require("./out/window-control-host.cjs");
+const { validateRuntimePlatform } = require("./out/platform-runtime.cjs");
 
 let nativeActivated = false;
 let accountUiActivationAttempted = false;
@@ -17,7 +17,11 @@ let recoveryActivation;
 let windowControlActivation;
 
 function fileSystemPath(uri, owner) {
-  if (!uri || uri.scheme !== "file") {
+  // Local desktop VS Code routes vscode-userdata to its file provider without
+  // changing the path. Remote or authority-bearing providers are not this contract.
+  const localUserData = uri?.scheme === "vscode-userdata" && uri.authority === "" &&
+    !vscode.env.remoteName;
+  if (!uri || (uri.scheme !== "file" && !localUserData)) {
     throw new Error(`${owner} must be an absolute file URI.`);
   }
   if (typeof uri.fsPath !== "string" || !path.isAbsolute(uri.fsPath)) {
@@ -120,7 +124,10 @@ exports.activate = async function activate(context) {
   await migrateAccountDefault(stateFiles.defaultFile, stateFiles.previousSessionRoot);
   recoveryActivation = recovery.initialize(context, vscode);
   try {
-    windowControlActivation = windowControl.initialize(context, vscode, runtime);
+    const platform = validateRuntimePlatform(runtime.platform);
+    if (platform.desktopControl && runtime.windowControl) {
+      windowControlActivation = require("./out/window-control-host.cjs").initialize(context, vscode, runtime);
+    }
     const nativeApi = await nativeExtension.activate(context);
     nativeActivated = true;
     accountUiActivationAttempted = true;

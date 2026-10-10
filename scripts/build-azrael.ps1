@@ -55,7 +55,8 @@ function Get-ProviderAccountsSourceFingerprint {
     $providerRoot = Join-Path $projectRoot 'providers/opencodex'
     $files = @(
         Get-ChildItem -LiteralPath $providerRoot -File | Where-Object Extension -In '.ts', '.mjs'
-        Get-Item -LiteralPath (Join-Path $providerRoot 'package.json'), (Join-Path $providerRoot 'bun.lock'), (Join-Path $providerRoot 'LICENSE.opencodex'), (Join-Path $providerRoot 'UPSTREAM.md')
+        Get-Item -LiteralPath (Join-Path $providerRoot 'package.json'), (Join-Path $providerRoot 'bun.lock'), (Join-Path $providerRoot 'LICENSE.opencodex'), (Join-Path $providerRoot 'UPSTREAM.md'), (Join-Path $providerRoot 'vendor-source-manifest.json')
+        Get-Item -LiteralPath (Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'), (Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs')
         Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs')
         Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs')
         Get-ChildItem -LiteralPath (Join-Path $providerRoot 'vendor/src') -File -Recurse
@@ -73,13 +74,7 @@ function Get-ProviderAccountsSourceFingerprint {
 
 function Get-ProviderVendorManifestFingerprint {
     $vendorRoot = Join-Path $projectRoot 'providers/opencodex/vendor/src'
-    $records = [Text.StringBuilder]::new()
-    foreach ($file in Get-ChildItem -LiteralPath $vendorRoot -File -Recurse | Sort-Object FullName) {
-        $relative = [IO.Path]::GetRelativePath($vendorRoot, $file.FullName).Replace('\', '/')
-        $hash = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-        [void]$records.Append($relative).Append([char]0).Append($hash).Append("`n")
-    }
-    return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($records.ToString()))).ToLowerInvariant()
+    return (Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'), $vendorRoot) 'provider-vendor-manifest.log' -CaptureOutput).Trim()
 }
 
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
@@ -210,7 +205,7 @@ Invoke-BuildCommand 'pwsh' $windowBuildArguments 'window-control-build.log'
 Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'window-control-runtime.cjs'), 'stage', '--source-root', $windowSource, '--executable', (Join-Path $windowTarget 'release/azrael-window-control.exe'), '--provenance', (Join-Path $windowTarget 'release/azrael-window-control-build.json'), '--script-directory', $PSScriptRoot, '--guidance', (Join-Path $projectRoot 'instructions/computer-use-selected-window.md'), '--destination', (Join-Path $release 'window-control')) 'window-control-runtime.log'
 $releaseBuildInfoPath = Join-Path $release 'build-info.json'
 $releaseBuildInfo = Get-Content -LiteralPath $releaseBuildInfoPath -Raw | ConvertFrom-Json -AsHashtable
-foreach ($module in @('window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+foreach ($module in @('platform-runtime.cjs', 'azrael-platforms.json', 'window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
     $hostDirectory = Join-Path $release 'host'
     New-Item -ItemType Directory -Path $hostDirectory -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $hostDirectory $module)
@@ -250,7 +245,7 @@ if ($IncludeDevinNative) {
     Complete-BuildStage $buildMetrics $phase
 }
 if ($IncludeProviderAccounts) {
-    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
+    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'),(Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
     if ($providerCache.Hit) {
         New-Item -ItemType Directory -Path (Join-Path $release 'providers') -Force | Out-Null
         Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/providers/opencodex') -Destination (Join-Path $release 'providers/opencodex') -Recurse
@@ -293,7 +288,7 @@ if ($IncludeProviderAccounts) {
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs') -Destination $progressStage
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs') -Destination $progressStage
     Get-ChildItem -LiteralPath $providerSource -File | Where-Object Extension -In '.ts', '.mjs' | Copy-Item -Destination $providerStage
-    Copy-Item -LiteralPath (Join-Path $providerSource 'package.json'), (Join-Path $providerSource 'bun.lock'), (Join-Path $providerSource 'LICENSE.opencodex'), (Join-Path $providerSource 'UPSTREAM.md') -Destination $providerStage
+    Copy-Item -LiteralPath (Join-Path $providerSource 'package.json'), (Join-Path $providerSource 'bun.lock'), (Join-Path $providerSource 'LICENSE.opencodex'), (Join-Path $providerSource 'UPSTREAM.md'), (Join-Path $providerSource 'vendor-source-manifest.json') -Destination $providerStage
     Copy-Item -LiteralPath (Join-Path $providerSource 'vendor/src') -Destination (Join-Path $providerStage 'vendor/src') -Recurse
     Complete-BuildStage $buildMetrics $phase
     Push-Location $providerStage
@@ -313,7 +308,7 @@ if ($IncludeProviderAccounts) {
     Invoke-BuildCommand $bunSource @('build', (Join-Path $providerStage 'inference.ts'), '--target=bun', '--external=@napi-rs/keyring', ('--outfile=' + (Join-Path $providerDestination 'inference.js'))) 'opencodex-inference-bundle.log'
     $phase = Start-BuildStage $buildMetrics 'provider-release-copy'
     Get-ChildItem -LiteralPath $providerStage -File | Where-Object Extension -In '.ts', '.mjs' | Copy-Item -Destination $providerDestination
-    Copy-Item -LiteralPath (Join-Path $providerStage 'package.json'), (Join-Path $providerStage 'bun.lock'), (Join-Path $providerStage 'LICENSE.opencodex'), (Join-Path $providerStage 'UPSTREAM.md') -Destination $providerDestination
+    Copy-Item -LiteralPath (Join-Path $providerStage 'package.json'), (Join-Path $providerStage 'bun.lock'), (Join-Path $providerStage 'LICENSE.opencodex'), (Join-Path $providerStage 'UPSTREAM.md'), (Join-Path $providerStage 'vendor-source-manifest.json') -Destination $providerDestination
     Copy-Item -LiteralPath $keyring -Destination (Join-Path $providerDestination 'node_modules/@napi-rs/keyring') -Recurse
     Copy-Item -LiteralPath $keyringNative -Destination (Join-Path $providerDestination 'node_modules/@napi-rs/keyring-win32-x64-msvc') -Recurse
     $runtimeDirectory = Join-Path $providerDestination 'runtime'

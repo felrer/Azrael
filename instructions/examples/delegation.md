@@ -50,15 +50,27 @@ UNRESOLVED: None
 
 ```text
 Role: sol_executor
-Objective: 재시도 횟수 0을 유효한 설정으로 처리한다.
+Objective: 공통 큐 설정에서 재시도 횟수 0을 유효한 설정으로 처리한다.
 Scope: src/config/retry.ts와 tests/retry.test.ts만 수정한다.
-Constraints: undefined일 때만 기본값을 사용한다. 0은 재시도하지 않음을 뜻한다. 공개 함수 시그니처는 유지한다. 다른 작업자와 기존 변경을 보존한다.
+Constraints: 요구 의미는 지원 정책의 모든 플랫폼에 공통이다. undefined일 때만 기본값을 사용하고 0은 재시도하지 않음을 뜻한다. 공개 함수 시그니처는 유지한다. OS별 기본값·저장 경로·프로세스 코드는 변경하지 않는다. 공통 함수 소비자가 있는 모든 플랫폼을 회귀 영향으로 기록한다. 다른 작업자와 기존 변경을 보존한다.
 References: src/config/retry.ts의 loadRetryConfig; tests/retry.test.ts
-Done when: 미지정·0·양수 각각의 동작을 해당 테스트로 확인하고 결과를 보고한다.
+Done when: 미지정·0·양수의 공통 입출력 계약이 통과하고 플랫폼 어댑터에 추가 변경이 필요한지 보고한다. 실제 실행한 OS/CPU·검사·종료 코드와 타 환경의 미검증 범위를 구분한다. OS 한정 차이가 발견되면 임의로 제외하지 말고 부모에게 반환한다.
 Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
 ```
 
 요구사항 전달에 도움이 되면 짧은 코드 조각, 평가 알고리즘, 입출력 예시, 기존 테스트 참조 등을 선택적으로 덧붙입니다. 예를 들어 위 작업은 `undefined → 기본값`, `0 → 0`, `양수 → 입력값 유지`라는 입출력 예시로 판정 기준을 설명할 수 있습니다.
+
+혼합 기능은 부모가 공통 계약을 확정하고 작업자가 특정 환경의 구현만 소유하도록 전달합니다. 다음 예시는 Windows 백엔드 변경의 수용을 다른 OS의 네이티브 실행 성공으로 확대하지 않습니다.
+
+```text
+Role: sol_executor
+Objective: 합의된 창 캡처 계약의 Windows 백엔드를 구현한다.
+Scope: src/capture/windows.ts와 해당 백엔드 계약 테스트만 수정한다.
+Constraints: 혼합 요구다. 공통 승인·응답 스키마는 부모가 소유하며 작업자는 변경하지 않는다. 요구 대상은 Windows x64 로컬 대화형 데스크톱의 사용자 승인 창이다. 원격·비대화형 실행과 다른 OS 백엔드는 제외한다. 공통 스키마 소비 환경은 회귀 영향으로 기록하고 권한·데스크톱 조건 차이를 임의로 숨기지 않는다. 기존 변경과 다른 작업자의 소유권을 보존한다.
+References: src/capture/windows.ts; docs/capture.md의 공통 승인·응답 계약과 Windows 데스크톱 조건
+Done when: 공통 응답 계약과 대상 Windows의 네이티브 캡처·권한 동작을 확인한다. 실제 OS/CPU·버전·데스크톱·검사·종료 코드와 다른 환경의 미검증 범위를 보고한다. 다른 백엔드나 공통 계약 변경이 필요하면 부모에게 반환한다.
+Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
+```
 
 UI 작업을 위임할 때는 OpenAI 스타일과 재사용할 기존 페이지·설정 행·토글·버튼·테마 토큰의 소유 위치를 함께 전달합니다. 완료 기준에는 밝은 테마와 어두운 테마의 실제 렌더링 및 주요 상호작용 확인을 포함합니다. 사용자가 다른 스타일을 요청한 경우 해당 요구를 우선합니다.
 

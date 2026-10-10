@@ -9,6 +9,7 @@ const ACCOUNT_COMMANDS = [
   "azrael.usage",
   "azrael.devinAccount",
   "azrael.manageAccounts",
+  "azrael.apiConnections",
   "azrael.accountQuickPick",
   "azrael.refreshAccounts",
   "azrael.openCodex",

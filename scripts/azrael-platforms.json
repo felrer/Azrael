@@ -1,0 +1,8 @@
+{
+  "schema": 1,
+  "platforms": [
+    { "os": "win32", "arch": "x64", "target": "x86_64-pc-windows-msvc", "vsixTarget": "win32-x64", "executableSuffix": ".exe", "libc": null, "desktopControl": true, "state": "verified-baseline" },
+    { "os": "linux", "arch": "x64", "target": "x86_64-unknown-linux-gnu", "vsixTarget": "linux-x64", "executableSuffix": "", "libc": "glibc", "desktopControl": false, "state": "target" },
+    { "os": "darwin", "arch": "arm64", "target": "aarch64-apple-darwin", "vsixTarget": "darwin-arm64", "executableSuffix": "", "libc": null, "desktopControl": false, "state": "target", "publicDistribution": "deferred" }
+  ]
+}

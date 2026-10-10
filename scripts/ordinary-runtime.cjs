@@ -5,6 +5,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const crypto = require("node:crypto");
+const { validateRuntimePlatform, requireExecutable, canonicalPath } = require("./platform-runtime.cjs");
 const registryKey = Symbol.for("azrael-ex.host-runtimes.v1");
 const registry = globalThis[registryKey] ??= new Map();
 const physicalPath = fs.realpathSync.native(__filename);
@@ -13,6 +14,7 @@ if (registry.has(runtimeKey)) {
   module.exports = registry.get(runtimeKey);
 } else {
   const config = JSON.parse(fs.readFileSync(path.join(__dirname, "azrael-runtime.json"), "utf8"));
+  validateRuntimePlatform(config.platform);
   if (config.schema !== 1) throw new Error("Unsupported azrael runtime configuration.");
   for (const key of ["engine", "bridge", "codexHome"]) {
     if (typeof config[key] !== "string" || !path.isAbsolute(config[key])) throw new Error(`Invalid azrael ${key}.`);
@@ -21,12 +23,15 @@ if (registry.has(runtimeKey)) {
     throw new Error("Invalid azrael engine version.");
   }
   for (const key of ["engine", "bridge"]) {
-    if (!fs.statSync(config[key]).isFile()) throw new Error(`Missing azrael ${key}. Redeploy azrael.`);
+    requireExecutable(config[key]);
   }
-  const ordinaryHome = path.resolve(os.homedir(), ".codex").toLowerCase();
-  const state = path.resolve(config.codexHome).toLowerCase();
+  const ordinaryHome = canonicalPath(path.join(os.homedir(), ".codex"));
+  const state = canonicalPath(config.codexHome);
   if (state === ordinaryHome || state.startsWith(ordinaryHome + path.sep)) throw new Error("azrael requires its own state home.");
   fs.mkdirSync(config.codexHome, { recursive: true });
+  const physicalState = canonicalPath(fs.realpathSync.native(config.codexHome));
+  const physicalOrdinary = fs.existsSync(ordinaryHome) ? canonicalPath(fs.realpathSync.native(ordinaryHome)) : ordinaryHome;
+  if (physicalState === physicalOrdinary || physicalState.startsWith(physicalOrdinary + path.sep)) throw new Error("azrael requires its own state home.");
   const socket = path.join(os.tmpdir(), `azo-${crypto.randomBytes(6).toString("hex")}`, "m.sock");
   const env = { ...process.env, CODEX_HOME: config.codexHome, AZRAEL_EX_MANAGEMENT_SOCKET: socket };
   // Spreading process.env loses Windows' case-insensitive property lookup.

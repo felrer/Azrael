@@ -1,0 +1,73 @@
+name: Platform contracts
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - '.github/workflows/platform-contracts.yml'
+      - 'scripts/**'
+      - 'providers/**'
+      - 'extensions/azrael-ex/**'
+      - 'engine/codex-rs/**'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: platform-contracts-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - runner: windows-2022
+            os: win32
+            arch: x64
+          - runner: ubuntu-24.04
+            os: linux
+            arch: x64
+          - runner: macos-15
+            os: darwin
+            arch: arm64
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 15
+    env:
+      EXPECTED_OS: ${{ matrix.os }}
+      EXPECTED_ARCH: ${{ matrix.arch }}
+      PYTHONUTF8: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22.18.0'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm native runner identity
+        run: node -e "if(process.platform!==process.env.EXPECTED_OS || process.arch!==process.env.EXPECTED_ARCH) throw Error('Unexpected runner platform');"
+      - name: Shared platform and immutable input contracts
+        run: node --test scripts/test-platform-runtime.cjs scripts/test-build-platform.cjs
+      - name: Native packaging and installation contracts
+        run: node --test scripts/test-platform-packaging.cjs
+      - name: Engine provenance contracts
+        run: python -B -m unittest discover -s scripts/tests -p test_engine_provenance.py
+
+  transport:
+    strategy:
+      fail-fast: false
+      matrix:
+        runner: [windows-2022, ubuntu-24.04, macos-15]
+    runs-on: ${{ matrix.runner }}
+    timeout-minutes: 40
+    defaults:
+      run:
+        working-directory: engine/codex-rs
+    steps:
+      - uses: actions/checkout@v4
+      - name: Private local transport tests
+        run: cargo test --locked -p codex-uds
+      - name: Native management bridge compilation
+        run: cargo check --locked -p codex-app-server-client --bin azrael-bridge

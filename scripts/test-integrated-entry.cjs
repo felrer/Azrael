@@ -17,7 +17,7 @@ test("integrated entry preserves activation, account storage migration and failu
   let wrapperFixtureIndex = 0;
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
-    fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa" } = {}) {
+    fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
     const context = {
@@ -26,7 +26,7 @@ test("integrated entry preserves activation, account storage migration and failu
       globalStorageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "global-storage") },
     };
     const runtimeEnvironment = { EXISTING_VALUE: "preserved" };
-    const runtime = Object.freeze({ marker: "shared-runtime", env: runtimeEnvironment });
+    const runtime = Object.freeze({ marker: "shared-runtime", windowControl, env: runtimeEnvironment });
     const nativeApi = { marker: "native-api" };
     const nativeExtension = {
       async activate(value) {
@@ -55,12 +55,14 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "node:path") return path;
         if (request === "node:crypto") return { createHash: crypto.createHash, randomUUID: () => fallbackUuid };
         if (request === "node:fs/promises") return fs.promises;
-        if (request === "vscode") return { env: { sessionId } };
+        if (request === "vscode") return { env: { sessionId, remoteName } };
         if (request === "./out/extension.js") return nativeExtension;
         if (request === "./account-ui/dist/src/extension.js") return accountUi;
+        if (request === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl }) };
         if (request === "./out/azrael-runtime.cjs") return { runtime };
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
         if (request === "./out/window-control-host.cjs") return { initialize: (receivedContext, receivedVscode, receivedRuntime) => {
+          events.push(["window.initialize"]);
           assert.equal(receivedContext, context);
           assert.equal(receivedRuntime, runtime);
           assert.equal(receivedVscode.env.sessionId, sessionId);
@@ -83,6 +85,20 @@ test("integrated entry preserves activation, account storage migration and failu
   async function testWrapperLifecycle() {
     const originalProcessEnvironment = process.env.AZRAEL_EX_ACCOUNT_STATE_FILE;
     const originalDefaultEnvironment = process.env.AZRAEL_EX_ACCOUNT_DEFAULT_FILE;
+    for (const windowControl of [undefined, null]) {
+      const disabled = wrapperFixture({ windowControl });
+      await disabled.api.activate(disabled.context);
+      assert.equal(disabled.events.some(event => event[0] === "window.initialize"), false);
+      await disabled.api.deactivate();
+    }
+    const unix = wrapperFixture({ windowControl: {}, desktopControl: false });
+    await unix.api.activate(unix.context);
+    assert.equal(unix.events.some(event => event[0] === "window.initialize"), false);
+    await unix.api.deactivate();
+    const desktop = wrapperFixture({ windowControl: {} });
+    await desktop.api.activate(desktop.context);
+    assert.equal(desktop.events.some(event => event[0] === "window.initialize"), true);
+    await desktop.api.deactivate();
     const success = wrapperFixture();
     assert.equal(await success.api.activate(success.context), success.nativeApi,
       "integration wrapper did not preserve the native activation API");
@@ -167,11 +183,30 @@ test("integrated entry preserves activation, account storage migration and failu
         "55555555-5555-4555-8555-555555555555", "azrael-account-state.json"),
     "unavailable VS Code session ID did not use the per-window fallback UUID");
 
+    for (const scope of ["workspace", "global"]) {
+      const local = wrapperFixture();
+      const field = scope === "workspace" ? "storageUri" : "globalStorageUri";
+      if (scope === "global") local.context.storageUri = undefined;
+      local.context[field] = { ...local.context[field], scheme: "vscode-userdata", authority: "" };
+      await local.api.activate(local.context);
+      assert(local.runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE.startsWith(local.context[field].fsPath + path.sep),
+        "local VS Code user data must keep its selected storage path");
+      await local.api.deactivate();
+    }
+    const remote = wrapperFixture({ remoteName: "ssh-remote" });
+    remote.context.storageUri = { ...remote.context.storageUri, scheme: "vscode-userdata", authority: "" };
+    await assert.rejects(remote.api.activate(remote.context), /absolute file/);
+    assert.equal(remote.events.length, 0, "remote user data reached native activation");
+
     for (const [label, invalidContext] of [
       ["non-file workspace storage", { ...success.context, storageUri: { scheme: "untitled", fsPath: "ignored" } }],
       ["relative workspace storage", { ...success.context, storageUri: { scheme: "file", fsPath: "relative" } }],
       ["non-file global storage", { ...success.context, storageUri: undefined,
         globalStorageUri: { scheme: "vscode-userdata", fsPath: "ignored" } }],
+      ["authority-bearing user data", { ...success.context,
+        storageUri: { scheme: "vscode-userdata", authority: "remote", fsPath: path.resolve("storage") } }],
+      ["relative user data", { ...success.context,
+        storageUri: { scheme: "vscode-userdata", authority: "", fsPath: "relative" } }],
     ]) {
       const invalid = wrapperFixture();
       await assert.rejects(invalid.api.activate(invalidContext), /absolute file|absolute file-system/,

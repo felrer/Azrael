@@ -102,7 +102,7 @@ function reconcileOutputs(project) {
   for (const target of stale) fs.unlinkSync(target);
   if (stale.length || missing.length) {
     // TypeScript otherwise trusts its cache even when emitted files disappeared.
-    fs.rmSync(project.buildInfoPath, { force: true });
+    if (fs.existsSync(project.buildInfoPath)) fs.unlinkSync(project.buildInfoPath);
   }
   return { removed: stale, missing, invalidated: stale.length > 0 || missing.length > 0 };
 }
@@ -116,6 +116,7 @@ function runBuild(projectRoot = path.join(__dirname, "..")) {
   });
   if (result.error) throw result.error;
   if (result.signal) throw new Error(`TypeScript terminated by ${result.signal}`);
+  if (result.status === 0) require("./stage-platform-runtime.cjs").stagePlatformRuntime(project.root);
   return result.status ?? 1;
 }
 

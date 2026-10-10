@@ -3,6 +3,7 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { createHash } = require("node:crypto");
+const { validateRuntimePlatform, requireExecutable } = require("./platform-runtime.cjs");
 
 function digest(file) {
   return createHash("sha256").update(fs.readFileSync(file)).digest("hex");
@@ -14,6 +15,7 @@ function readBundle(releaseDirectory, required = false) {
   const manifestPath = path.join(release, "devin-native-build.json");
   if (!fs.existsSync(manifestPath) && !required) return undefined;
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8").replace(/^\uFEFF/, ""));
+  validateRuntimePlatform(manifest.platform);
   if (manifest.schema !== 1 || manifest.model !== "devin/swe-2-high" ||
       !manifest.files || !manifest.files["providers/devin/helper.mjs"] ||
       !manifest.node || !path.isAbsolute(manifest.node.path)) {
@@ -36,6 +38,7 @@ function readBundle(releaseDirectory, required = false) {
   if (typeof manifest.node.sha256 !== "string" || digest(manifest.node.path) !== manifest.node.sha256.toLowerCase()) {
     throw new Error("Devin native Node runtime changed. Rebuild and redeploy Azrael.");
   }
+  requireExecutable(manifest.node.path);
   return {
     releaseDirectory: release,
     helper: path.join(release, "providers/devin/helper.mjs"),
@@ -57,6 +60,7 @@ function configureEnvironment(env, config) {
   if (!env.RUST_LOG?.trim()) env.RUST_LOG = "error,devin_native_progress=info";
   env.TMP = temporary;
   env.TEMP = temporary;
+  if (process.platform !== "win32") env.TMPDIR = temporary;
   delete env.WINDSURF_API_KEY;
 }
 

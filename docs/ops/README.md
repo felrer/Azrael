@@ -7,6 +7,7 @@
 - [Native diagnostics](native-diagnostics.md): safe error inspection, log locations and coverage limits in VS Code.
 - [Instruction and source distribution](instruction-distribution.md): imported source inventories, independent instruction releases, settings installation and public distribution gates.
 - [Local app release](app-release.md): release version ownership, portable Windows packaging, verification and upload to the existing private GitHub repository.
+- [Multi-platform candidates](multi-platform.md): verified native preparation and portable package contracts, producer prerequisites and remaining installed-host gates.
 
 Related: [build playbook](../playbooks/build.md) for choosing build and verification scope, [work playbook](../playbooks/work.md) for implementation and closeout. Historical records: [retired Pi operations](../archive/2026-09-12-pi-harness/docs/ops/README.md) and [per-release verification history](../archive/2026-09-29-verification-history/README.md).
 
