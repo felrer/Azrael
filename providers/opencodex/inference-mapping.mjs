@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { anthropicPromptSection } from './anthropic-prompt-format.mjs';
 
 // Native protocol/tool projection adapted from providers/devin/mapping.mjs.
 // Managed transport and provider-private replay remain owned by inference.ts.
@@ -65,7 +66,7 @@ function multimodal(content, budget) {
 
 // The model-facing alias is request-scoped; the digest keeps history stable as
 // lazy tools are added. Only exact declared aliases are accepted on return.
-export function compileRequest(request) {
+export function compileRequest(request, { promptFormat } = {}) {
   if (!object(request) || request.protocol_version !== 1 || request.type !== 'request' ||
       !string(request.request_id) || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (!string(request.model) || !request.model.trim() || bytes(request.model) > 256 ||
@@ -99,8 +100,10 @@ export function compileRequest(request) {
     tools.push({ name: wireName, description: bounded(description), parameters });
   }
   for (const tool of request.tools) declare(tool);
+  const format = promptFormat === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
+  const currentTaskIndex = request.input.findLastIndex(item => item?.type === 'message' && item.role === 'user');
   const messages = [];
-  if (request.instructions) messages.push({ role: 'system', content: bounded(request.instructions) });
+  if (request.instructions) messages.push({ role: 'system', content: format('common_instructions', bounded(request.instructions)) });
   const calls = new Set();
   const results = new Set();
   const images = { count: 0, bytes: 0 };
@@ -118,7 +121,7 @@ export function compileRequest(request) {
     // with newlines, independently for visible text and reasoning.
     if (text) message[field] = message[field] ? message[field] + '\n' + text : text;
   }
-  for (const item of request.input) {
+  for (const [index, item] of request.input.entries()) {
     if (!object(item)) fail('invalid_history_item');
     switch (item.type) {
       case 'message': {
@@ -127,13 +130,15 @@ export function compileRequest(request) {
         else {
           assistant = undefined;
           messages.push({ role: item.role === 'developer' ? 'system' : item.role,
-            content: item.role === 'user' ? multimodal(item.content, images) : plainText(item.content) });
+            content: item.role === 'user'
+              ? format(index === currentTaskIndex ? 'current_task' : 'user_input', multimodal(item.content, images))
+              : format('runtime_instructions', plainText(item.content)) });
         }
         break;
       }
       case 'agent_message':
         assistant = undefined;
-        messages.push({ role: 'user', content: `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n${plainText(item.content)}` });
+        messages.push({ role: 'user', content: format('agent_message', `Agent message from ${bounded(item.author)} to ${bounded(item.recipient)}:\n${plainText(item.content)}`) });
         break;
       case 'function_call':
       case 'custom_tool_call':
@@ -156,13 +161,13 @@ export function compileRequest(request) {
         if (!calls.has(item.call_id) || results.has(item.call_id)) fail('orphan_or_duplicate_tool_result');
         results.add(item.call_id);
         assistant = undefined;
-        messages.push({ role: 'tool', tool_call_id: item.call_id, content: multimodal(item.output, images) });
+        messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', multimodal(item.output, images)) });
         break;
       case 'tool_search_output':
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        messages.push({ role: 'tool', tool_call_id: item.call_id, content: bounded(JSON.stringify({ status: item.status, tools: item.tools })) });
+        messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify({ status: item.status, tools: item.tools }))) });
         break;
       case 'additional_tools':
         // Catalog already assembled by native Codex. These are history entries,

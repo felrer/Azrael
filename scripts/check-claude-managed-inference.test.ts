@@ -6,6 +6,7 @@ import { infer, catalog } from '../providers/opencodex/inference.ts';
 import { handleRequest } from '../providers/opencodex/helper.ts';
 import { loadConfig, saveConfig } from '../providers/opencodex/vendor/src/config.ts';
 import { getAccountSet, replaceProviderAccountSet, saveCredential } from '../providers/opencodex/vendor/src/oauth/store.ts';
+import { CLAUDE_CODE_SYSTEM_INSTRUCTION } from '../providers/opencodex/vendor/src/oauth/anthropic.ts';
 
 test('managed Claude uses pinned OAuth, native prompt and tool frames', async () => {
   const root = mkdtempSync(join(tmpdir(), 'azrael-claude-fixture-'));
@@ -23,14 +24,18 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
     expect(discovered.models.some((model: any) => model.provider_id === 'anthropic' && model.model_id === 'claude-sonnet-4-6')).toBeTrue();
     const accountState = async () => (await handleRequest({ protocol: 1, id: 'account-fixture', action: 'list' }, { send() {}, async answer() { return null; } }) as any).providers.find((provider: any) => provider.id === 'anthropic');
     expect((await accountState()).inferenceConnected).toBeTrue();
-    const request = { type: 'request', protocol_version: 1, request_id: 'claude-fixture', thread_id: 'claude-thread', turn_id: 'claude-turn', provider_id: 'anthropic', model: 'claude-sonnet-4-6', instructions: 'Azrael base prompt fixture', input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Use the fixture tool' }] }], tools: [{ type: 'function', name: 'fixture_tool', description: 'fixture', parameters: { type: 'object', properties: { value: { type: 'string' } } } }], parallel_tool_calls: true };
+    const request = { type: 'request', protocol_version: 1, request_id: 'claude-fixture', thread_id: 'claude-thread', turn_id: 'claude-turn', provider_id: 'anthropic', model: 'claude-sonnet-4-6', instructions: 'Azrael base prompt fixture', input: [{ type: 'message', role: 'developer', content: [{ type: 'input_text', text: '<multi_agent_role>Use V2 tools.</multi_agent_role>' }] }, { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'Use the fixture tool' }] }], tools: [{ type: 'function', name: 'fixture_tool', description: 'fixture', parameters: { type: 'object', properties: { value: { type: 'string' } } } }], parallel_tool_calls: true };
     const frames: any[] = [];
     const fetcher = (async (url: any, init: any) => {
       expect(String(url)).toBe('https://api.anthropic.com/v1/messages');
       expect(init.headers.Authorization).toBe('Bearer fixture-oauth-access');
       expect(init.headers['x-api-key']).toBeUndefined();
       const body = JSON.parse(init.body);
-      expect(body.system.some((part: any) => part.text.includes(request.instructions))).toBeTrue();
+      expect(body.system[0].text).toBe(CLAUDE_CODE_SYSTEM_INSTRUCTION);
+      expect(body.system.some((part: any) => part.text.includes(`<common_instructions>\n<![CDATA[${request.instructions}]]>\n</common_instructions>`))).toBeTrue();
+      expect(body.system.some((part: any) => part.text.includes('<runtime_instructions>'))).toBeTrue();
+      expect(body.system.some((part: any) => part.text.includes('<multi_agent_role>Use V2 tools.</multi_agent_role>'))).toBeTrue();
+      expect(body.messages[0]).toEqual({ role: 'user', content: '<current_task>\n<![CDATA[Use the fixture tool]]>\n</current_task>' });
       expect(body.tools).toHaveLength(1);
       const tool = body.tools[0].name;
       const events = [
@@ -62,6 +67,7 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
       const blocks = body.messages.flatMap((message: any) => typeof message.content === 'string' ? [] : message.content);
       expect(blocks.filter((block: any) => block.type === 'tool_use' && block.id === call.call_id)).toHaveLength(1);
       expect(blocks.filter((block: any) => block.type === 'tool_result' && block.tool_use_id === call.call_id)).toHaveLength(1);
+      expect(blocks.find((block: any) => block.type === 'tool_result').content).toBe('<tool_result>\n<![CDATA[fixture tool result]]>\n</tool_result>');
       const events = [
         { type: 'message_start', message: { usage: { input_tokens: 4 } } },
         { type: 'content_block_start', index: 0, content_block: { type: 'text', text: '' } },
@@ -100,6 +106,6 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
     saveConfig(rejected);
     await expect(infer({ ...request, turn_id: 'rejected-turn' }, () => {}, fetcher)).rejects.toThrow('provider_unavailable');
   } finally {
-    rmSync(root, { recursive: true, force: true });
+    rmSync(root, { recursive: true });
   }
 }, 15_000);

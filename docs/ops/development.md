@@ -342,6 +342,14 @@ and run `cargo test -p codex-prompts --lib --locked --offline`, then focused
 on Windows for session fixtures. These checks do not update the installed host or
 establish live provider inference acceptance.
 
+For the [Anthropic XML delivery format](../architecture/managed-providers.md#anthropic-xml-prompt-format),
+run `node --test scripts/test-anthropic-prompt-format.cjs scripts/test-common-agent-instructions.cjs`
+and `bun test ./scripts/check-claude-managed-inference.test.ts` from the selected source
+snapshot, using the pinned provider dependencies. Keep the explicit `./` in the Bun test
+path so the runner does not select matching tests from other artifact directories. The
+checks cover text preservation, roles, native images, call/result pairing, context limits
+and the final OAuth HTTP body. They use fixture credentials and a mocked transport.
+
 ### Root resume reservations
 
 #### Root coordination guidance

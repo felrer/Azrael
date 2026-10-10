@@ -149,7 +149,7 @@ export async function pinAccount(config: any, request: any, m: any) {
   } finally { guard!.release(); }
 }
 
-export function projectRequest(request: any, fingerprint: string) {
+export function projectRequest(request: any, fingerprint: string, promptFormat?: 'anthropic-xml') {
   const opaqueCalls = new Map<string, any>();
   const replayDetails: { details: any[]; callIds: string[] }[] = [];
   const projected = { ...request, credential_scope: fingerprint, input: request.input.map((item: any) => {
@@ -165,7 +165,7 @@ export function projectRequest(request: any, fingerprint: string) {
     // Public reasoning survives switching; private replay has an exact origin and turn.
     return { ...item, encrypted_content: valid ? item.encrypted_content : null };
   }) };
-  const compiled = compileRequest(projected);
+  const compiled = compileRequest(projected, { promptFormat });
   for (const replay of replayDetails) for (const id of replay.callIds) {
     const original = opaqueCalls.get(id);
     const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === id);
@@ -371,7 +371,8 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   if (isApiProvider(request.provider_id)) return inferApi(request, emit, fetcher, progress, options);
   const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
-  const { compiled, parsed } = projectRequest(request, pinned.fingerprint);
+  const { compiled, parsed } = projectRequest(request, pinned.fingerprint,
+    pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined);
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
     : m.google.createGoogleAdapter(pinned.provider);
   const budget = m.budget.createTranslatorBudget();

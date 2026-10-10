@@ -43,6 +43,31 @@ threads select V2 for every provider, including resumed and forked V1 threads; e
 flags do not select a different multi-agent version. Internal review and Guardian reviewer
 sessions explicitly disable agents so they cannot start nested multi-agent work.
 
+### Anthropic XML prompt format
+
+Status: `partial` — request formatting is verified with Windows mapping and Anthropic HTTP mocks; installed-host acceptance requires a matching helper bundle.
+
+Native requests routed to the Anthropic adapter label text with XML sections following
+the [Anthropic prompt guidance](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags).
+The common behavior remains provider-independent. `<common_instructions>` contains the
+base instructions and `<runtime_instructions>` contains runtime system/developer guidance.
+The latest user message is `<current_task>` and earlier user messages are `<user_input>`;
+inter-agent messages use `<agent_message>`. This classification labels message origin and
+recency, without extracting or rewriting the task from the user's text.
+
+Text inside tool results uses `<tool_result>`. The Anthropic API's `tool_use`/`tool_result`
+blocks and call IDs still bind calls to their results. Images remain native content blocks;
+each accompanying text part is labeled separately in its existing order. Assistant output
+and private thinking replay keep their existing representation. XML never promotes user or
+tool content to system authority, and does not itself establish a security boundary.
+
+Section contents use CDATA, splitting embedded `]]>` terminators to preserve the original
+text. Formatting happens on the request copy before the existing size validation. The actual
+configured adapter selects this format; model names do not select it. Other adapters retain
+their existing format, including Claude models served through a different provider protocol.
+OAuth's required leading identity block remains outside these sections. Conversation files
+and the maintained common behavior source are unchanged by request formatting.
+
 ### Harness identity
 
 Status: `partial` — common prompt and request-copy contracts are verified by focused Windows engine tests; installed windows require a matching engine.
