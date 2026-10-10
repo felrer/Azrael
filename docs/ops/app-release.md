@@ -2,7 +2,7 @@
 
 Status: `current` — local packaging, relocated runtime, isolated trusted-workspace host acceptance and private/public GitHub publication are verified. Public repositories require an explicit publication option. Full clean-machine acceptance and third-party redistribution evidence remain separate.
 
-Current published app: [Azrael 2026.0.2](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.2), Windows x64, from source build `latest_20261008_r2`. Exact ZIP relocation and six isolated host acceptance stages passed using the official Windows archive VS Code runtime; uploaded asset sizes and hashes were verified. Publication evidence: `artifacts/logs/app-publication-2026.0.2/publish-receipt.json`; package certification: `artifacts/logs/app-release-2026.0.2-worker/verification-r5/verification.json`.
+Current published app: [Azrael 2026.0.3](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.3), Windows x64, from verified source build `codex_latest_20261010_r15_isolated` (engine 0.162.0, official UI 26.1007.21434). Packaging reused those runtime binaries from fixed inputs; later concurrent development was excluded. Exact ZIP relocation and six isolated host acceptance stages passed using the official Windows archive VS Code runtime, and uploaded asset sizes and SHA-256 hashes matched. The release tag identifies source commit `795ac950cafc07f045006d47ee1ab79d3c693821`; binary provenance separately identifies engine source `43964513e69adc0c215c259a932cdd98b97decc9`. Publication evidence: `artifacts/logs/app-publication-2026.0.3/publish-receipt.json`; package certification: `artifacts/logs/app-release-2026.0.3/verification-r3/verification.json`.
 
 ## Version and source ownership
 
