@@ -35,8 +35,8 @@
   <text x="65" y="347" font-weight="600">Anthropic</text>
   <rect x="481" y="330" width="30" height="24" rx="20" fill="#fafafa"/>
   <text x="496" y="347" text-anchor="middle" font-size="12" fill="#77787b">5</text>
-  <text x="60" y="378">Claude Opus 5</text>
-  <text x="60" y="399" font-family="Consolas, monospace" font-size="12" fill="#77787b">managed/anthropic/claude-opus-5</text>
+  <text x="60" y="378">Claude Opus 5.5</text>
+  <text x="60" y="399" font-family="Consolas, monospace" font-size="12" fill="#77787b">managed/anthropic/claude-opus-5-5</text>
   <text x="60" y="430">Claude Sonnet 5.5</text>
   <text x="60" y="451" font-family="Consolas, monospace" font-size="12" fill="#77787b">managed/anthropic/claude-sonnet-5-5</text>
 
