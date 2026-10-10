@@ -21,7 +21,7 @@ Azrael runs as one integrated extension. Accounts, conversations, and settings l
 | Session flags | Mark conversations with a red flag so they are easier to find in the Chats list. |
 | Recovery and queues | Keep queued inputs, reconcile accepted turns, and recover conversations after a reload. |
 
-The images below are **illustrative UI reproductions with invented accounts, conversations, models, and usage values**. They contain no private session data and do not establish that every illustrated interaction is verified in an installed release. Implementation and acceptance details remain in the linked feature documents.
+The UI screenshots below are **captured from Azrael's production components and pinned app styles with the existing development renderers**. Account identities, conversations, usage, model catalogs, and Window Use target state use synthetic data; no personal accounts or sessions are captured. The collaboration and token-efficiency images are explanatory diagrams. Renderer screenshots establish their displayed UI, while installed-host and real-service acceptance remain separate. See [screenshot sources and reproduction](docs/images/README.md).
 
 ## Agent collaboration with clear ownership
 
@@ -62,7 +62,7 @@ See [root coordination](docs/architecture/root-coordination.md), [root resume sc
 
 Open **Accounts and usage** (`계정 및 사용량`) from the profile menu to connect, switch, or remove accounts and review provider-specific usage. Multiple saved accounts let you choose the account appropriate to the next task without repeating setup. Available quotas and reset windows depend on the provider; unavailable observations are shown explicitly.
 
-![Illustrative account groups with multiple saved accounts and remaining usage](docs/images/accounts-usage.svg)
+![Production account and usage page rendered with synthetic accounts and quotas](docs/images/accounts-usage.png)
 
 Account and usage controls share one page. Credentials stay out of Webviews and logs. Account switching does not silently redirect a running request to another account, and managed thread bindings preserve their provider/account identity according to each provider's contract.
 
@@ -72,7 +72,7 @@ See [accounts and usage](docs/architecture/accounts.md) and [provider account op
 
 Azrael combines native OpenAI and Devin paths with managed provider integrations, including Anthropic subscription OAuth, Google Antigravity, Google AI Studio, xAI, and OpenRouter. User-configured Chat Completions and Responses API connections have a separate identity and model group. Actual model availability, reasoning settings, authentication, and account limits depend on the connection.
 
-![Illustrative provider-grouped model picker with reasoning selection](docs/images/model-picker.svg)
+![Native model picker with OpenAI and Anthropic groups, including Claude Opus 5.5](docs/images/model-picker.png)
 
 Switch models from the picker and use supported models as subagents. Provider changes occur at a turn boundary, with a bounded handoff summary when earlier output or a compaction checkpoint needs to cross providers. The same engine retains tool execution, permissions, and conversation ownership through the handoff.
 
@@ -82,7 +82,7 @@ See [managed providers](docs/architecture/managed-providers.md), [custom API mod
 
 Provider-specific automatic compaction settings resolve against the selected model's capacity and context policy. You can also queue a manual compaction request between turns, alongside queued messages, instead of interrupting active work. Subagents resolve their own provider/model policy from the inherited configuration.
 
-![Illustrative context gauge and manual compaction control](docs/images/context-compaction.svg)
+![Native context usage popover and compaction control with synthetic usage](docs/images/context-compaction.png)
 
 Compaction carries a bounded summary into the continuing conversation; it does not preserve every original detail. Reload recovery and accepted-input reconciliation help continue work without blindly replaying already accepted messages. Deferred work segments can be folded while their waiting and resume state remains visible.
 
@@ -92,9 +92,9 @@ See [context policy](docs/architecture/context-policy.md), [queued compaction](d
 
 Whole-desktop Computer Use can compete with a person's foreground applications, cursor, and keyboard. **Window Use** is a separate Windows feature designed to address that friction: the agent discovers and selects one approved window, observes that target, and uses supported application controls while you work in another application.
 
-![Illustrative Window Use demo showing a selected target behind a person's foreground workspace](docs/images/window-use.svg)
+![Production Window Use panel with a synthetic selected target and observation preview](docs/images/window-use.png)
 
-The demo reproduction shows the intended collaboration: one selected target, a separate human workspace, and visible control state. Windows Graphics Capture can obtain the target's content while another window covers it. Structured actions reuse UI Automation where supported, with app approvals, occupancy information, pause/recovery controls, and reusable task macros.
+The screenshot comes from a browser renderer fixture of the production selected-window panel. Its selected target and state are synthetic, including a preview captured from the production account page. It shows the panel's controls and observation preview; native execution and concurrency are covered by the acceptance limits below. Windows Graphics Capture can obtain a target's content while another window covers it. Structured actions reuse UI Automation where supported, with app approvals, occupancy information, pause/recovery controls, and reusable task macros.
 
 **Window Use is experimental and partially verified.** Actual Firefox and File Explorer observation and some Explorer actions have been checked. General concurrent physical-input isolation, installed GUI/tool acceptance, approval notifications, overlays, and real-window macros still have open acceptance work. Some actions can activate a target; background key delivery is experimental. Availability and reliability depend on the application exposing usable controls. Selected-window failures do not automatically expand authority to the whole desktop.
 
@@ -106,7 +106,7 @@ See [Window Use](docs/architecture/window-use.md) and [Computer Use](docs/archit
 
 Use a conversation row's flag button in **Chats** to add or remove a red flag. The marker stays visible on flagged conversations and is stored by host and conversation identity. Combine the visible markers with chat search to return to an important task quickly.
 
-![Illustrative Chats list with flagged conversations and search](docs/images/session-flags.svg)
+![Native recent-chat row with a persistent red flag and a synthetic conversation](docs/images/session-flags.png)
 
 ## Platforms and current limits
 

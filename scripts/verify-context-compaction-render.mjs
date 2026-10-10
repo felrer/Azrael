@@ -66,6 +66,12 @@ try{
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.id='chat-${theme}';fixtureState.locale='en';fixtureState.mode='pending';fixtureRerender()`);await open();
   check(theme+' auto-compaction donut and tooltip agree',await evaluate("(()=>{const gauge=document.querySelector('[data-azrael-pricing-boundary]'),circle=gauge.querySelectorAll('circle')[1];return Math.abs(Number(circle.getAttribute('stroke-dashoffset'))-58.7895)<0.0001&&gauge.getAttribute('aria-label').includes('600,000 tokens (41.2%)')&&gauge.getAttribute('aria-label').includes('1,000,000 tokens (24.7%)')})()"));
   const idle=await card();check(theme+' native button geometry and non-submit type',idle.type==='button'&&idle.width>80&&idle.height>20);summary[theme]={idle};
+  if(process.env.AZRAEL_RENDER_README_CAPTURE==='1'){
+   const clip=await evaluate("(()=>{const nodes=['[data-azrael-pricing-boundary]','[data-azrael-context-compaction]'].map(s=>document.querySelector(s).getBoundingClientRect());const x=Math.max(0,Math.floor(Math.min(...nodes.map(r=>r.left))-8)),y=Math.max(0,Math.floor(Math.min(...nodes.map(r=>r.top))-8));return {x,y,width:Math.ceil(Math.max(...nodes.map(r=>r.right))+8)-x,height:Math.ceil(Math.max(...nodes.map(r=>r.bottom))+8)-y,scale:2}})()");
+   assert.ok(clip.width>0&&clip.height>0,'README capture has visible native content');
+   await writeFile(join(logs,theme+'-readme-card.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png',clip,captureBeyondViewport:true})).data,'base64'));
+   summary[theme].readmeCapture={file:theme+'-readme-card.png',clip};
+  }
   await click();await wait("document.querySelector('[data-azrael-context-compaction] button').disabled");check(theme+' visible pending status',(await card()).text.includes('Requesting compaction'));await click();check(theme+' duplicate guard',await evaluate(`fixtureEvents.filter(e=>e.args[0]==='chat-${theme}').length===1`));
   await evaluate('fixtureResolve()');await wait("document.querySelector('[data-azrael-context-compaction]').innerText.includes('Compaction requested')");
   await writeFile(join(logs,theme+'-card.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));

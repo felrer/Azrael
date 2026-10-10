@@ -7,7 +7,9 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/session-flags'),logs=join(root,'artifacts/logs/session-flags'),profile=join(fixture,'chrome-profile');
+const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
+const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/session-flags','artifacts/verification','Renderer fixture');
+const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/session-flags','artifacts/logs','Renderer logs'),profile=join(fixture,'chrome-profile');
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
@@ -72,7 +74,7 @@ try{
  const click=async(selector)=>{await mouse(selector);const p=await point(selector);await send('Input.dispatchMouseEvent',{type:'mousePressed',...p,button:'left',clickCount:1});await send('Input.dispatchMouseEvent',{type:'mouseReleased',...p,button:'left',clickCount:1})};
  const leave=async()=>{await evaluate('document.activeElement?.blur()');await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:10,y:10});await new Promise(r=>setTimeout(r,200))};
  const active=()=>evaluate('document.querySelector('+JSON.stringify(flag)+').getAttribute("aria-pressed")==="true"');
- const shot=async name=>{const path=join(logs,name+'.png');await writeFile(path,Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));summary.screenshots??=[];summary.screenshots.push(path)};
+ const shot=async name=>{const path=join(logs,name+'.png');const clip=name==='light-flagged'?await evaluate('(()=>{const r=document.querySelector("main").getBoundingClientRect(),row=document.querySelector("[role=button]").getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:Math.ceil(row.bottom-r.y+32),scale:1}})()'):undefined;await writeFile(path,Buffer.from((await send('Page.captureScreenshot',{format:'png',...(clip?{clip}:{})})).data,'base64'));summary.screenshots??=[];summary.screenshots.push(path);if(clip){summary.screenshotClips??={};summary.screenshotClips[name]=clip}};
  const noActions=()=>evaluate('fixtureEvents.every(e=>!["archive","navigate","archive-success"].includes(e.type))');
  for(const theme of ['light','dark']){
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));await leave();
@@ -123,12 +125,12 @@ finally{
  if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
  summary.browserExitCode=chrome?.exitCode;summary.browserSignalCode=chrome?.signalCode;
  const allowed=join(root,'artifacts/verification')+sep;
- if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.startsWith(allowed)){const cleanupScript=String.raw`try {
+ if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){const cleanupScript=String.raw`try {
 $ErrorActionPreference='Stop'
-$taskRoot = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification/session-flags'))
+$taskRoot = [IO.Path]::GetFullPath($env:AZRAEL_FLAGS_FIXTURE)
 $expectedParent = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))
-if ([IO.Path]::GetDirectoryName($taskRoot) -ine $expectedParent) { throw 'Unexpected cleanup target' }
-$preview = & ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $taskRoot -IncludeDiagnosedFixtures -ReportPath (Join-Path (Get-Location) 'artifacts/logs/session-flags/cleanup-preview.json')
+if (-not $taskRoot.StartsWith($expectedParent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected cleanup target' }
+$preview = & ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $taskRoot -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_FLAGS_CLEANUP_REPORT
 if ($preview.status -ne 'preview' -or $preview.candidates.Count -ne 1 -or $preview.candidates[0].status -ne 'selected') { throw ('Cleanup guarded preview refused: '+($preview|ConvertTo-Json -Depth 8 -Compress)) }
 # Use native removal after the project guard; its Apply archives evidence into
 # a different owner's log directory, while this task must retain only its own logs.
@@ -140,6 +142,6 @@ Write-Output 'Guarded preview selected owned fixture; native PowerShell removal 
 } catch { [Console]::Error.WriteLine($_); exit 1 }
 
 `;
- const cleanup=spawn('pwsh',['-NoLogo','-NoProfile','-NonInteractive','-Command','-'],{cwd:root,windowsHide:true,stdio:['pipe','pipe','pipe']});let output='';cleanup.stdout.on('data',b=>output+=b);cleanup.stderr.on('data',b=>output+=b);cleanup.stdin.end(cleanupScript);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});await writeFile(join(logs,'cleanup.txt'),output);summary.cleanup=summary.cleanupExitCode===0?'Owned browser exited; project guarded preview passed; native PowerShell fixture/profile removal confirmed absent':'Cleanup failed; see cleanup.txt';if(summary.cleanupExitCode!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
+ const cleanup=spawn('pwsh',['-NoLogo','-NoProfile','-NonInteractive','-Command','-'],{cwd:root,windowsHide:true,env:{...process.env,AZRAEL_FLAGS_FIXTURE:fixture,AZRAEL_FLAGS_CLEANUP_REPORT:join(logs,'cleanup-preview.json')},stdio:['pipe','pipe','pipe']});let output='';cleanup.stdout.on('data',b=>output+=b);cleanup.stderr.on('data',b=>output+=b);cleanup.stdin.end(cleanupScript);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});await writeFile(join(logs,'cleanup.txt'),output);summary.cleanup=summary.cleanupExitCode===0?'Owned browser exited; project guarded preview passed; native PowerShell fixture/profile removal confirmed absent':'Cleanup failed; see cleanup.txt';if(summary.cleanupExitCode!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

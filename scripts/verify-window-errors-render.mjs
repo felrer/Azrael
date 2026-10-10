@@ -2,14 +2,18 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, writeFile, rm } from 'node:fs/promises';
-import { resolve, join, sep } from 'node:path';
+import { mkdir, writeFile, readFile, access } from 'node:fs/promises';
+import { resolve, join, sep, dirname } from 'node:path';
 import { Script } from 'node:vm';
 
 const root = resolve(import.meta.dirname, '..');
-const fixture = join(root, 'artifacts/verification/window-errors-render');
-const logs = join(root, 'artifacts/logs/window-use-errors/ui');
-assert(fixture.startsWith(join(root, 'artifacts/verification') + sep));
+const fixture = resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT || join(root, 'artifacts/verification/window-errors-render'));
+const logs = resolve(process.env.AZRAEL_RENDER_LOG_ROOT || join(root, 'artifacts/logs/window-use-errors/ui'));
+assert.equal(dirname(fixture).toLowerCase(), join(root, 'artifacts/verification').toLowerCase(), 'fixture must be an immediate verification child');
+assert(logs.toLowerCase().startsWith((join(root, 'artifacts/logs') + sep).toLowerCase()), 'logs must stay inside project artifact logs');
+const readmeTarget = process.env.AZRAEL_RENDER_README_TARGET_IMAGE;
+const targetImagePath = join(root, 'artifacts/logs/readme-native-ui-20261011/accounts/standalone-light-1050-collapsed.png');
+if (readmeTarget) assert.equal(resolve(readmeTarget).toLowerCase(), targetImagePath.toLowerCase(), 'README target must be the privacy-safe account fixture');
 await mkdir(fixture, { recursive: true }); await mkdir(logs, { recursive: true });
 const require = createRequire(import.meta.url);
 const { createHost } = require('./window-control-host.cjs');
@@ -55,13 +59,55 @@ try {
     check(theme + ' host error reaches displayed conversation', (await evaluate('document.getElementById("conversation").textContent')).includes(actualError.text));
     const shot = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(join(logs, theme + '.png'), Buffer.from(shot.data, 'base64'));
   }
+  if (readmeTarget) {
+    const png = await readFile(targetImagePath);
+    assert(png.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])), 'README target must be PNG');
+    const widthPx = png.readUInt32BE(16), heightPx = png.readUInt32BE(20);
+    const stateMessage = { type: 'state', threadId: 'demo-fixture', value: {
+      targetId: 'demo-fixture', state: 'ready', status: 'Demo fixture — no native input executed',
+      window: { title: 'Azrael accounts — demo fixture', widthPx, heightPx, dpi: 96, minimized: false },
+      restoreAllowed: false, observationId: 'demo-observation', frameTimestamp: '2026-10-11T00:00:00.000Z',
+      widthPx, heightPx, dpi: 96, elementsTruncated: false, elements: [],
+      image: { mimeType: 'image/png', data: png.toString('base64') }
+    } };
+    summary.readmeBoundary = 'Production Window Use panel rendered in an isolated Windows browser with synthetic selected-window state and a production account UI preview containing example.com demo data. No real window selection, capture, native input or native-control acceptance is demonstrated.';
+    summary.readmeTarget = { path: targetImagePath, widthPx, heightPx, title: stateMessage.value.window.title };
+    await send('Emulation.setDeviceMetricsOverride', { width: 1150, height: 900, deviceScaleFactor: 1, mobile: false });
+    for (const theme of ['light', 'dark']) {
+      await evaluate(`document.documentElement.style.setProperty('--vscode-foreground','${theme === 'light' ? '#202020' : '#ececec'}');document.body.style.background='${theme === 'light' ? '#ffffff' : '#181818'}';document.body.dataset.vscodeThemeKind='vscode-${theme}';document.getElementById('conversation').textContent='';window.postMessage(${JSON.stringify(stateMessage)},'*');new Promise(r=>setTimeout(r,0))`);
+      await evaluate(`document.getElementById('image').decode()`);
+      const layout = await evaluate(`({title:document.getElementById('status').textContent,imageWidth:document.getElementById('image').naturalWidth,imageHeight:document.getElementById('image').naturalHeight,elements:document.getElementById('elements').textContent,overflow:document.documentElement.scrollWidth>innerWidth,height:document.documentElement.scrollHeight})`);
+      check(theme + ' README synthetic selected target rendered', layout.title.includes('Azrael accounts — demo fixture') && layout.title.includes('ready'));
+      check(theme + ' README account preview decoded', layout.imageWidth === widthPx && layout.imageHeight === heightPx);
+      check(theme + ' README no fabricated automation elements', layout.elements === '[]');
+      check(theme + ' README controls and preview fit width', !layout.overflow);
+      const shot = await send('Page.captureScreenshot', { format: 'png', captureBeyondViewport: true, clip: { x: 0, y: 0, width: 1150, height: layout.height, scale: 1 } });
+      await writeFile(join(logs, theme + '-readme-panel.png'), Buffer.from(shot.data, 'base64'));
+    }
+  }
   summary.outcome = 'passed'; await send('Browser.close', {}, null).catch(() => {});
 } catch (error) { summary.outcome = 'failed'; summary.error = error.message; process.exitCode = 1; }
 finally {
   if (socket?.readyState === WebSocket.OPEN && chrome && !exited()) await send('Browser.close', {}, null).catch(() => {});
   socket?.close(); for (const p of pending.values()) clearTimeout(p.timer); await host.dispose(); await new Promise(r => server?.close(r) ?? r());
   if (chrome && !exited()) await Promise.race([new Promise(r => chrome.once('exit', r)), new Promise(r => setTimeout(r, 5000))]);
-  if (!chrome || exited()) { await rm(fixture, { recursive: true, force: true }); summary.fixtureRemoved = true; }
+  if (!chrome || exited()) {
+    const cleanup = async apply => {
+      const reportPath = join(logs, apply ? 'cleanup.json' : 'cleanup-preview.json');
+      // Keep the cleanup command static: its process guard must not mistake its
+      // own literal argument path for a process still using the browser profile.
+      const child = spawn('pwsh', ['-NoProfile', '-Command', '& $env:AZRAEL_RENDER_CLEANUP_SCRIPT -ProjectRoot $env:AZRAEL_RENDER_PROJECT_ROOT -FixtureRoot $env:AZRAEL_RENDER_FIXTURE_ROOT -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_RENDER_CLEANUP_REPORT -Apply:([bool]::Parse($env:AZRAEL_RENDER_CLEANUP_APPLY))'], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, AZRAEL_RENDER_CLEANUP_SCRIPT: join(root, 'scripts/clean-verification-artifacts.ps1'), AZRAEL_RENDER_PROJECT_ROOT: root, AZRAEL_RENDER_FIXTURE_ROOT: fixture, AZRAEL_RENDER_CLEANUP_REPORT: reportPath, AZRAEL_RENDER_CLEANUP_APPLY: String(apply) } });
+      let output = ''; child.stdout.on('data', data => { output += data; }); child.stderr.on('data', data => { output += data; });
+      const exitCode = await new Promise((r, j) => { child.once('error', j); child.once('exit', r); });
+      await writeFile(join(logs, apply ? 'cleanup.log' : 'cleanup-preview.log'), output);
+      check('guarded cleanup ' + (apply ? 'apply' : 'preview') + ' succeeded', exitCode === 0);
+    };
+    try {
+      await cleanup(false); await cleanup(true);
+      summary.fixtureRemoved = await access(fixture).then(() => false, error => { if (error.code === 'ENOENT') return true; throw error; });
+      check('fixture absence verified after cleanup', summary.fixtureRemoved);
+    } catch (error) { summary.fixtureRemoved = false; summary.retentionReason = error.message; summary.outcome = 'failed'; process.exitCode = 1; }
+  }
   else { summary.fixtureRemoved = false; summary.retentionReason = 'Owned browser has not confirmed exit; remove after its exit.'; process.exitCode = 1; }
   summary.exitCode = process.exitCode || 0; await writeFile(join(logs, 'result.json'), JSON.stringify(summary, null, 2) + '\n');
 }
