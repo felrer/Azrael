@@ -14,6 +14,12 @@ The engine owns at most one active reservation per root. Its durable record hold
 
 New user input supersedes the reservation and is handled promptly. Resume-now and cancel act on a reservation ID and expected revision; cancelling affects only the reservation and leaves subagent work running. Matching terminal results are collected from native agent state and mailbox, not synthesized as a user message. Resume keeps task lineage and passes normal model, provider, account and permission admission without silently choosing another account; admission or recovery failure leaves a visible blocked reservation instead of a polling loop.
 
+### Cancelling an unloaded root
+
+Status: `current` in source — Windows native cancellation and conversation reload regressions pass; packaging, installation and process-restart acceptance remain separate.
+
+Reservation cancellation accepts loaded and unloaded roots through the same ID and expected-revision contract. Loaded roots use the session's existing cancellation boundary. An unloaded root's reservation transitions durably to cancelled and leaves the active reservation list, without loading the conversation, arming an overdue timer or starting inference. Loading the root later cannot resume a cancelled reservation. Concurrent cancellation, claim and thread loading preserve revision checks and authoritative storage state; stale requests require refresh. Conversation history and child work are retained. Cancellation requires the manager's reservation storage to be available; manual resume retains its loaded-root admission contract.
+
 Timers run inside the engine on the existing async clock. Reservations are reconciled when their root thread is loaded after an engine restart, and deadlines that passed while the engine was down become eligible then. There is no always-on service and no execution while the engine is stopped. Recovery never discards accepted input, and explicit user cancellation or stop survives restart and prevents stale wakeups.
 
 ### Stopping a parked execution

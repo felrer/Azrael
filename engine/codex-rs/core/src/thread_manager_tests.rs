@@ -55,6 +55,179 @@ use wiremock::MockServer;
 
 const TEST_INSTALLATION_ID: &str = "11111111-1111-4111-8111-111111111111";
 
+fn root_resume_test_reservation(
+    id: &str,
+    root_thread_id: ThreadId,
+    state: RootResumeState,
+) -> RootResumeReservation {
+    RootResumeReservation {
+        id: id.to_string(),
+        root_thread_id: root_thread_id.to_string(),
+        originating_turn_id: format!("origin-{id}"),
+        root_turn_id: format!("root-{id}"),
+        call_id: format!("call-{id}"),
+        resume_turn_id: format!("resume-{id}"),
+        resume_at_ms: chrono::Utc::now().timestamp_millis() + 86_400_000,
+        created_at_ms: 1_000,
+        updated_at_ms: 1_000,
+        wait_started_at_ms: Some(1_000),
+        wait_ended_at_ms: None,
+        revision: 0,
+        state,
+        agent_tasks: Vec::new(),
+        reason: "test wait".to_string(),
+        final_output_json_schema: None,
+        wake_reason: None,
+        last_error: None,
+    }
+}
+
+#[tokio::test]
+async fn cancel_root_reservation_handles_unloaded_roots_and_survives_reload() {
+    let temp_dir = tempdir().expect("tempdir");
+    let mut config = test_config().await;
+    config.codex_home = temp_dir.path().join("codex-home").abs();
+    config.cwd = config.codex_home.abs();
+    config.sqlite = codex_state::SqliteConfig::new_for_testing(config.codex_home.clone());
+    std::fs::create_dir_all(&config.codex_home).expect("create codex home");
+    let db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("initialize state db");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
+        CodexAuth::from_api_key("dummy"),
+        config.model_provider.clone(),
+        config.codex_home.to_path_buf(),
+        Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(Arc::clone(&db)),
+    );
+    let anchor = manager
+        .start_thread(StartThreadOptions::new(config.clone()))
+        .await
+        .expect("start anchor");
+    let root = manager
+        .start_thread(StartThreadOptions {
+            history_mode: Some(ThreadHistoryMode::Legacy),
+            ..StartThreadOptions::new(config.clone())
+        })
+        .await
+        .expect("start root");
+    root.thread.ensure_rollout_materialized().await;
+    root.thread.flush_rollout().await.expect("flush root");
+    let rollout_path = root.thread.rollout_path().expect("root rollout");
+    root.thread.shutdown_and_wait().await.expect("stop root");
+    manager.remove_thread(&root.thread_id).await;
+
+    for (index, state) in [
+        RootResumeState::Preparing,
+        RootResumeState::Waiting,
+        RootResumeState::Claimed,
+        RootResumeState::Blocked,
+    ]
+    .into_iter()
+    .enumerate()
+    {
+        let id = format!("cold-{index}");
+        db.create_root_resume(&root_resume_test_reservation(&id, root.thread_id, state))
+            .await
+            .expect("create cold reservation");
+        assert!(manager.resume_root_reservation(&id, 0).await.is_err());
+        assert!(manager.cancel_root_reservation(&id, 1).await.is_err());
+        assert_eq!(db.get_root_resume(&id).await.unwrap().unwrap().revision, 0);
+        manager
+            .cancel_root_reservation(&id, 0)
+            .await
+            .expect("cancel cold root");
+        let cancelled = db
+            .get_root_resume(&id)
+            .await
+            .unwrap()
+            .expect("row retained");
+        assert_eq!(cancelled.state, RootResumeState::Cancelled);
+        assert_eq!(cancelled.revision, 1);
+        assert!(manager.list_root_resumes().await.unwrap().is_empty());
+        assert!(manager.cancel_root_reservation(&id, 0).await.is_err());
+        assert!(manager.cancel_root_reservation(&id, 1).await.is_err());
+        assert_eq!(manager.list_thread_ids().await, vec![anchor.thread_id]);
+    }
+    assert!(manager.cancel_root_reservation("missing", 0).await.is_err());
+    let resumed = manager
+        .resume_legacy_thread_from_rollout(
+            config,
+            rollout_path,
+            Arc::clone(&manager.state.auth_manager),
+            None,
+            ClientMcpExtensions::default(),
+        )
+        .await
+        .expect("reload cancelled root");
+    assert!(!resumed.thread.session.has_root_resume_reservation());
+    assert!(
+        db.get_active_root_resume(&root.thread_id.to_string())
+            .await
+            .unwrap()
+            .is_none()
+    );
+    resumed
+        .thread
+        .shutdown_and_wait()
+        .await
+        .expect("stop resumed root");
+    anchor
+        .thread
+        .shutdown_and_wait()
+        .await
+        .expect("stop anchor");
+}
+
+#[tokio::test]
+async fn cancel_root_reservation_keeps_loaded_session_state_in_sync() {
+    let temp_dir = tempdir().expect("tempdir");
+    let mut config = test_config().await;
+    config.codex_home = temp_dir.path().join("codex-home").abs();
+    config.cwd = config.codex_home.abs();
+    config.sqlite = codex_state::SqliteConfig::new_for_testing(config.codex_home.clone());
+    std::fs::create_dir_all(&config.codex_home).expect("create codex home");
+    let db = codex_rollout::state_db::try_init(&config)
+        .await
+        .expect("initialize state db");
+    let manager = ThreadManager::with_models_provider_home_and_state_for_tests(
+        CodexAuth::from_api_key("dummy"),
+        config.model_provider.clone(),
+        config.codex_home.to_path_buf(),
+        Arc::new(codex_exec_server::EnvironmentManager::default_for_tests()),
+        Some(Arc::clone(&db)),
+    );
+    let root = manager
+        .start_thread(StartThreadOptions::new(config))
+        .await
+        .expect("start root");
+    db.create_root_resume(&root_resume_test_reservation(
+        "loaded",
+        root.thread_id,
+        RootResumeState::Waiting,
+    ))
+    .await
+    .expect("create loaded reservation");
+    root.thread
+        .session
+        .recover_root_resume()
+        .await
+        .expect("recover loaded reservation");
+    assert!(root.thread.session.has_root_resume_reservation());
+    assert!(manager.cancel_root_reservation("loaded", 1).await.is_err());
+    assert!(root.thread.session.has_root_resume_reservation());
+    manager
+        .cancel_root_reservation("loaded", 0)
+        .await
+        .expect("cancel loaded reservation");
+    assert!(!root.thread.session.has_root_resume_reservation());
+    assert_eq!(
+        db.get_root_resume("loaded").await.unwrap().unwrap().state,
+        RootResumeState::Cancelled
+    );
+    root.thread.shutdown_and_wait().await.expect("stop root");
+}
+
 struct ParentInstructionsProvider(codex_extension_api::Instructions);
 
 impl codex_extension_api::UserInstructionsProvider for ParentInstructionsProvider {

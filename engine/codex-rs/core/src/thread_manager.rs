@@ -90,6 +90,7 @@ use codex_protocol::protocol::TurnEnvironmentRequest;
 use codex_protocol::protocol::TurnEnvironmentSelection;
 use codex_protocol::protocol::W3cTraceContext;
 use codex_protocol::root_resume::RootResumeReservation;
+use codex_protocol::root_resume::RootResumeState;
 use codex_rollout::state_db::StateDbHandle;
 use codex_skills_extension::HostSkillsService;
 use codex_thread_store::InMemoryThreadStore;
@@ -967,10 +968,41 @@ impl ThreadManager {
         thread.session.manually_resume_root(id, revision).await
     }
 
-    /// Cancels a loaded root's durable reservation without affecting its subagents.
+    /// Cancels a durable reservation without loading its root or affecting its subagents.
     pub async fn cancel_root_reservation(&self, id: &str, revision: i64) -> CodexResult<()> {
-        let thread = self.root_resume_thread(id).await?;
-        thread.session.cancel_root_reservation(id, revision).await
+        let (state_db, reservation) = self.root_resume_reservation(id).await?;
+        let root_thread_id = ThreadId::from_string(&reservation.root_thread_id).map_err(|err| {
+            CodexErr::Fatal(format!(
+                "root resume reservation `{id}` has invalid root thread id: {err}"
+            ))
+        })?;
+        // Keep registration ordered after the cold CAS. A concurrently loading session
+        // must recover the cancelled durable state rather than arm a stale reservation.
+        let threads = self.state.threads.read().await;
+        if let Some(thread) = threads.get(&root_thread_id).cloned() {
+            drop(threads);
+            return thread.session.cancel_root_reservation(id, revision).await;
+        }
+        state_db
+            .transition_root_resume(
+                id,
+                revision,
+                RootResumeState::Cancelled,
+                None,
+                None,
+                chrono::Utc::now().timestamp_millis(),
+            )
+            .await
+            .map_err(|err| {
+                CodexErr::Fatal(format!(
+                    "failed to cancel root resume reservation `{id}`: {err}"
+                ))
+            })?
+            .ok_or_else(|| {
+                CodexErr::InvalidRequest("reservation changed; refresh before retrying".to_string())
+            })?;
+        drop(threads);
+        Ok(())
     }
 
     async fn first_loaded_state_db(&self) -> Option<StateDbHandle> {
@@ -979,6 +1011,23 @@ impl ThreadManager {
     }
 
     async fn root_resume_thread(&self, id: &str) -> CodexResult<Arc<CodexThread>> {
+        let (_, reservation) = self.root_resume_reservation(id).await?;
+        let root_thread_id = ThreadId::from_string(&reservation.root_thread_id).map_err(|err| {
+            CodexErr::Fatal(format!(
+                "root resume reservation `{id}` has invalid root thread id: {err}"
+            ))
+        })?;
+        self.get_thread(root_thread_id).await.map_err(|_| {
+            CodexErr::InvalidRequest(format!(
+                "root thread {root_thread_id} is not loaded; open the thread before updating reservation `{id}`"
+            ))
+        })
+    }
+
+    async fn root_resume_reservation(
+        &self,
+        id: &str,
+    ) -> CodexResult<(StateDbHandle, RootResumeReservation)> {
         let state_db = self.first_loaded_state_db().await.ok_or_else(|| {
             CodexErr::InvalidRequest(
                 "root resume reservation storage is unavailable; open its root thread first"
@@ -996,16 +1045,7 @@ impl ThreadManager {
             .ok_or_else(|| {
                 CodexErr::InvalidRequest(format!("root resume reservation not found: {id}"))
             })?;
-        let root_thread_id = ThreadId::from_string(&reservation.root_thread_id).map_err(|err| {
-            CodexErr::Fatal(format!(
-                "root resume reservation `{id}` has invalid root thread id: {err}"
-            ))
-        })?;
-        self.get_thread(root_thread_id).await.map_err(|_| {
-            CodexErr::InvalidRequest(format!(
-                "root thread {root_thread_id} is not loaded; open the thread before updating reservation `{id}`"
-            ))
-        })
+        Ok((state_db, reservation))
     }
 
     /// Updates metadata for loaded and cold threads through one entrypoint.
