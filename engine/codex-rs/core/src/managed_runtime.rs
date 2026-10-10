@@ -36,6 +36,121 @@ struct RequestFrame<'a> {
     forked_from_thread_id: Option<String>,
     forked_from_ordinal_exclusive: Option<u64>,
     fork_provider_ids: &'a [String],
+    #[serde(skip_serializing_if = "Option::is_none")]
+    api_options: Option<&'a serde_json::Value>,
+}
+
+/// Credential-free options captured at turn admission, shared by its steps and handoff.
+#[derive(Clone, Default)]
+pub(crate) struct ApiTurnOptions(std::collections::HashMap<String, serde_json::Value>);
+
+impl ApiTurnOptions {
+    pub(crate) fn capture(home: &std::path::Path) -> Self {
+        let mut snapshot = Self::default();
+        let Ok(bytes) = std::fs::read(home.join("azrael/providers/api/connections.json")) else {
+            return snapshot;
+        };
+        if bytes.len() > 1024 * 1024 {
+            return snapshot;
+        }
+        let Ok(value) = serde_json::from_slice::<serde_json::Value>(&bytes) else {
+            return snapshot;
+        };
+        if value["version"].as_u64() != Some(1) {
+            return snapshot;
+        }
+        let Some(connections) = value["connections"].as_array() else {
+            return snapshot;
+        };
+        for connection in connections {
+            if connection["enabled"].as_bool() != Some(true) {
+                continue;
+            }
+            let Some(id) = connection["id"].as_str() else {
+                continue;
+            };
+            let Some(models) = connection["models"].as_array() else {
+                continue;
+            };
+            for model in models {
+                let Some(remote) = model["id"].as_str() else {
+                    continue;
+                };
+                let key = format!("api/{id}/{remote}");
+                if crate::managed_catalog::selection(&key).is_err()
+                    || model["supportsTools"].as_bool().is_none()
+                    || !connection
+                        .get("timeoutMs")
+                        .and_then(serde_json::Value::as_u64)
+                        .is_none_or(|ms| (1..=900_000).contains(&ms))
+                {
+                    continue;
+                }
+                let mut options = serde_json::Map::new();
+                for field in [
+                    "id",
+                    "name",
+                    "baseUrl",
+                    "protocol",
+                    "enabled",
+                    "timeoutMs",
+                    "maxConcurrent",
+                    "stream",
+                ] {
+                    if let Some(value) = connection.get(field) {
+                        options.insert(field.into(), value.clone());
+                    }
+                }
+                let mut auth = serde_json::Map::new();
+                for field in ["kind", "filePath"] {
+                    if let Some(value) = connection["auth"].get(field) {
+                        auth.insert(field.into(), value.clone());
+                    }
+                }
+                options.insert("auth".into(), auth.into());
+                let mut selected = serde_json::Map::new();
+                for field in [
+                    "id",
+                    "name",
+                    "contextWindow",
+                    "maxOutputTokens",
+                    "supportsTools",
+                    "enableThinking",
+                    "sendThinkingParameter",
+                    "parallelToolCalls",
+                ] {
+                    if let Some(value) = model.get(field) {
+                        selected.insert(field.into(), value.clone());
+                    }
+                }
+                selected
+                    .entry("sendThinkingParameter".to_string())
+                    .or_insert(serde_json::Value::Bool(false));
+                options.insert("models".into(), serde_json::json!([selected]));
+                snapshot.0.insert(key, options.into());
+            }
+        }
+        snapshot
+    }
+
+    pub(crate) fn selected(&self, key: &str) -> Option<&serde_json::Value> {
+        self.0.get(key)
+    }
+}
+
+pub(crate) fn api_options(ctx: &TurnContext, key: &str) -> CodexResult<Option<serde_json::Value>> {
+    if !key.starts_with("api/") {
+        return Ok(None);
+    }
+    ctx.extension_data
+        .get::<ApiTurnOptions>()
+        .and_then(|snapshot| snapshot.selected(key).cloned())
+        .map(Some)
+        .ok_or_else(|| {
+            CodexErr::new(CodexErrorDetails::InvalidRequest(
+                "API model is unavailable in this turn's configuration snapshot".into(),
+            ))
+        })
 }
 
 pub(crate) async fn stream(
@@ -77,6 +192,14 @@ pub(crate) async fn stream(
     // The helper still validates its immutable turn/model/account binding.
     let (provider, model) =
         crate::managed_catalog::selection(model_key).map_err(|error| invalid(error.to_string()))?;
+    let api_options = api_options(ctx, model_key)?;
+    if api_options
+        .as_ref()
+        .is_some_and(|options| options["models"][0]["supportsTools"].as_bool() != Some(true))
+        && !prompt.tools.is_empty()
+    {
+        return Err(invalid("API model does not support tools".into()));
+    }
     let (helper, bun) =
         crate::managed_catalog::runtime_paths().map_err(|error| invalid(error.to_string()))?;
     let request_id = uuid::Uuid::new_v4().to_string();
@@ -92,12 +215,15 @@ pub(crate) async fn stream(
         request_id: &request_id,
         thread_id: &thread_id,
         turn_id: &ctx.sub_id,
-        provider_id: provider,
+        provider_id: &provider,
         model,
         instructions: &prompt.base_instructions.text,
         input: &prompt.input,
         tools: &prompt.tools,
-        parallel_tool_calls: prompt.parallel_tool_calls,
+        parallel_tool_calls: prompt.parallel_tool_calls
+            && api_options.as_ref().is_none_or(|options| {
+                options["models"][0]["parallelToolCalls"].as_bool() == Some(true)
+            }),
         reasoning_effort: reasoning_effort.map(ToString::to_string),
         forked_from_thread_id: metadata
             .forked_from_thread_id
@@ -105,8 +231,9 @@ pub(crate) async fn stream(
             .map(ToString::to_string),
         forked_from_ordinal_exclusive: metadata.forked_from_ordinal_exclusive,
         fork_provider_ids: &sess.fork_provider_ids,
+        api_options: api_options.as_ref(),
     })?;
-    crate::devin::native_runtime::run_helper(crate::devin::native_runtime::HelperRequest {
+    let helper_request = crate::devin::native_runtime::HelperRequest {
         anthropic_thinking: provider == "anthropic",
         executable: bun.as_path(),
         helper: helper.as_path(),
@@ -117,8 +244,18 @@ pub(crate) async fn stream(
         request_id,
         cancellation,
         turn_guard: (),
-    })
-    .await
+    };
+    if let Some(options) = api_options {
+        let timeout = options["timeoutMs"].as_u64().unwrap_or(180_000);
+        crate::devin::native_runtime::run_api_helper(
+            helper_request,
+            timeout,
+            options["stream"].as_bool().unwrap_or(false),
+        )
+        .await
+    } else {
+        crate::devin::native_runtime::run_helper(helper_request).await
+    }
 }
 
 fn unsupported_media(item: &ResponseItem) -> bool {

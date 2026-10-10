@@ -65,6 +65,33 @@ fn failed_first_input_does_not_call_the_failed_source_again() {
 #[test]
 fn provider_changes_are_separate_from_model_changes() {
     assert_eq!(
+        provider_id(
+            "api/0123456789abcdef0123456789abcdef/vendor/model",
+            "openai"
+        ),
+        provider_id(
+            "api/0123456789abcdef0123456789abcdef/vendor/other",
+            "openai"
+        )
+    );
+    assert_ne!(
+        provider_id(
+            "api/0123456789abcdef0123456789abcdef/vendor/model",
+            "openai"
+        ),
+        provider_id(
+            "api/abcdef0123456789abcdef0123456789ab/vendor/model",
+            "openai"
+        )
+    );
+    assert_ne!(
+        provider_id(
+            "api/0123456789abcdef0123456789abcdef/vendor/model",
+            "openai"
+        ),
+        provider_id("managed/anthropic/vendor/model", "openai")
+    );
+    assert_eq!(
         provider_id("managed/google/gemini-a", "openai"),
         provider_id("managed/google/gemini-b", "openai")
     );

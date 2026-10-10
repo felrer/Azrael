@@ -840,7 +840,11 @@ fn token_usage_cache_fields_default_and_sanitize_billing_counts() {
         assert!(validate_usage(Some(&usage)).is_ok(), "{field}={value}");
         assert!(usage.estimated, "{field}={value}");
         assert!(usage.cache_write_input_tokens >= 0);
-        assert!(usage.cache_write_1h_input_tokens.is_none_or(|count| count >= 0));
+        assert!(
+            usage
+                .cache_write_1h_input_tokens
+                .is_none_or(|count| count >= 0)
+        );
     }
     let overflow: Usage = serde_json::from_value(serde_json::json!({
         "input_tokens": i64::MAX, "output_tokens": 1, "total_tokens": i64::MAX

@@ -142,7 +142,10 @@ pub(super) async fn recover(
         .await;
         let outcome = match result {
             Ok(AttemptOutcome::Completed) => "completed",
-            Ok(AttemptOutcome::InferenceIdle { .. }) if attempt == 1 => "retry_scheduled",
+            Ok(AttemptOutcome::InferenceIdle { .. }) if attempt == 1 && policy.retry_idle => {
+                "retry_scheduled"
+            }
+            Ok(AttemptOutcome::InferenceIdle { .. }) if !policy.retry_idle => "retry_disabled",
             Ok(AttemptOutcome::InferenceIdle { .. }) => "retry_exhausted",
             Err(_) => "failed",
         };
@@ -151,10 +154,15 @@ pub(super) async fn recover(
             Ok(AttemptOutcome::InferenceIdle {
                 last_event,
                 inactivity,
-            }) if attempt == 2 => {
+            }) if attempt == 2 || !policy.retry_idle => {
                 break Err(fatal(format!(
-                    "native inference idle: last_event={last_event}, inactivity_ms={}, retry=exhausted (2 attempts)",
-                    inactivity.as_millis()
+                    "native inference idle: last_event={last_event}, inactivity_ms={}, retry={}",
+                    inactivity.as_millis(),
+                    if policy.retry_idle {
+                        "exhausted (2 attempts)"
+                    } else {
+                        "disabled (1 attempt)"
+                    }
                 )));
             }
             Ok(AttemptOutcome::InferenceIdle { .. }) => {

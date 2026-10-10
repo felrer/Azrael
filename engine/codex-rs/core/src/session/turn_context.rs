@@ -425,6 +425,9 @@ impl TurnContext {
         let session_telemetry = step_settings.telemetry(&self.session_telemetry);
         let extension_data = Arc::new(codex_extension_api::ExtensionData::new(sub_id.clone()));
         extension_data.insert(self.skills_snapshot().as_ref().clone());
+        extension_data.insert(crate::managed_runtime::ApiTurnOptions::capture(
+            &config.codex_home,
+        ));
 
         Self {
             sub_id,
@@ -1125,6 +1128,9 @@ impl Session {
             session_configuration.turn_extension_init.clone(),
         ));
         extension_data.insert(skills_snapshot);
+        extension_data.insert(crate::managed_runtime::ApiTurnOptions::capture(
+            &per_turn_config.codex_home,
+        ));
         TurnContext {
             sub_id,
             trace_id: current_span_trace_id(),

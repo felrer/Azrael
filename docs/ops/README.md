@@ -3,6 +3,7 @@
 - [Development](development.md): current installed state, source and state locations, build, prepare/verify/install, rollback, environment sync and per-feature checks.
 - [Devin native inference](devin-native.md): prerequisites, launch, validation, limits and diagnostics for native Devin.
 - [Provider accounts and managed inference](provider-accounts.md): account page use, provider storage, discovery and caching, validation and diagnostics.
+- [Custom API models](custom-api-models.md): manual connection registration, model selection, subagent keys and safe diagnostics.
 - [Native diagnostics](native-diagnostics.md): safe error inspection, log locations and coverage limits in VS Code.
 - [Instruction and source distribution](instruction-distribution.md): imported source inventories, independent instruction releases, settings installation and public distribution gates.
 - [Local app release](app-release.md): release version ownership, portable Windows packaging, verification and upload to the existing private GitHub repository.

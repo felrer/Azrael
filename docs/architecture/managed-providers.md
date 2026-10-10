@@ -4,6 +4,8 @@ Status: `partial`. Managed inference, catalog/picker, reasoning selectors and pr
 
 ## Managed inference
 
+사용자가 직접 등록하는 Chat Completions·Responses 연결과 `API` 모델 그룹의 별도 계약은 [사용자 API 모델](custom-api-models.md)이 소유한다. 해당 연결은 기존 managed OAuth 계정과 독립적인 identity를 사용한다.
+
 Google AI Studio (`google`), xAI public API (`xai`), OpenRouter (`openrouter`), Google Antigravity (`google-antigravity`) and Anthropic subscription OAuth use the isolated opencodex account store and vendored provider adapters. Model keys are `managed/<provider>/<remote-model-id>`; the suffix stays opaque, including OpenRouter slashes. Authentication management stays in the account helper. A private Bun inference helper performs transport and representation conversion only; Codex remains the sole tool executor, permission authority and conversation writer. No management HTTP server exists.
 
 The native request stream boundary supplies the effective model, instructions, ResponseItem history and ToolSpec catalog. The bounded native helper protocol shared with [Devin](devin.md#native-inference) is reused: versioned init/request frames, ordered output frames, exact request IDs, complete validated tool calls and one terminal result. Its [inference activity and bounded recovery](devin.md#inference-activity-and-bounded-recovery) contract also owns inactivity handling for managed streams. Credentials travel only in private pipes or are resolved inside the helper, never in argv, model catalogs, rollouts or diagnostics. Release hashes cover the helper and its reachable vendored dependencies; a missing or modified configured helper fails closed. Runtime availability, account registration and successful inference are distinct states.

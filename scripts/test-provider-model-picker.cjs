@@ -61,20 +61,36 @@ test("loading, shared pending request, host isolation, retry refresh only first 
 });
 test("group order, duplicate display names, name and ID search, status-only groups",()=>{
  const c=createProviderModelCatalog(),options=[{id:"managed/openrouter/a",label:"Same"},{id:"devin/b",label:{props:{displayName:"Same"}}},{id:"gpt",label:"GPT"}];
- assert.deepEqual(c.groups(options,"",[status("xai","empty")]).map(g=>g.id),["openai","devin","openrouter","xai"]);
+ assert.deepEqual(c.groups(options,"",[status("xai","empty")]).map(g=>g.id),["openai","api","devin","openrouter","xai"]);
  assert.equal(c.groups(options,"same").flatMap(g=>g.options).length,2);assert.equal(c.groups(options,"OPENROUTER/A")[0].options[0].id,options[0].id);
+});
+test("API slash model identities stay in API group and status IDs aggregate safely",()=>{
+ const c=createProviderModelCatalog(),id="a".repeat(32),option={id:`api/${id}/vendor/model`,label:"Local API · My model"};
+ assert.equal(c.providerFor(option.id),"api");
+ const groups=c.groups([option],"",[status(`api-${id}`,"error")]);
+ assert.deepEqual(groups.map(g=>g.id),["api"]);assert.equal(groups[0].status.state,"error");
+ assert.equal(c.groups([option],"local API")[0].options[0],option);
+ assert.equal(c.groups([],"")[0].id,"api");
+ assert.equal(c.efforts([{model:option.id,supportedReasoningEfforts:[]}],option.id,()=>["wrong"]).length,0);
+});
+test("API manage button dispatches registered command from empty picker",()=>{
+ let called=0;globalThis.__azraelOpenApiConnections=()=>called++;
+ try {const h=harness(createProviderModelCatalog(),{options:[],renderOption:o=>o}),tree=h.render();
+ const button=nodes(tree,n=>n.props?.["data-azrael-api-manage"])[0];assert.ok(button);
+ button.props.onClick({preventDefault(){},stopPropagation(){}});assert.equal(called,1);
+ } finally {delete globalThis.__azraelOpenApiConnections;}
 });
 test("Google Antigravity groups next to AI Studio and searches by provider and opaque ID",()=>{
  const c=createProviderModelCatalog(),options=[{id:"managed/google-antigravity/vendor/model:alias",label:"Shared"},{id:"managed/google/gemini",label:"Shared"},{id:"managed/xai/grok",label:"Grok"}];
  const groups=c.groups(options,"");
- assert.deepEqual(groups.map(g=>g.id),["google","google-antigravity","xai"]);
- assert.deepEqual(groups.map(g=>g.label),["Google AI Studio","Google Antigravity","xAI"]);
+ assert.deepEqual(groups.map(g=>g.id),["api","google","google-antigravity","xai"]);
+ assert.deepEqual(groups.map(g=>g.label),["API","Google AI Studio","Google Antigravity","xAI"]);
  assert.equal(c.providerFor(options[0].id),"google-antigravity");
  assert.deepEqual(c.groups(options,"ANTIGRAVITY").map(g=>g.id),["google-antigravity"]);
  assert.equal(c.groups(options,"vendor/model:alias")[0].options[0],options[0]);
  assert.deepEqual(c.groups(options,"AI Studio").map(g=>g.id),["google"]);
  const empty=c.groups([],"",[status("google-antigravity","empty"),status("google","empty")]);
- assert.deepEqual(empty.map(g=>g.id),["google","google-antigravity"]);
+ assert.deepEqual(empty.map(g=>g.id),["api","google","google-antigravity"]);
  assert.equal(empty[1].status.state,"empty");
 });
 test("selected provider expands, callbacks preserved, headings toggle and search expands",()=>{
@@ -96,7 +112,7 @@ test("search keyboard ArrowDown focuses model, Escape propagates; empty message"
  const h=harness(createProviderModelCatalog(),{options:[],renderOption:o=>o});let tree=h.render(),focused=0,stopped=0,prevented=0;
  h.refs[0].current={querySelectorAll(selector){assert.equal(selector,'[data-azrael-model-option]:not([data-disabled])');return [{closest(){return {};},focus(){throw Error("hidden model focused");}},{closest(){return null;},focus(){focused++;}}];}};
  const input=nodes(tree,n=>n.type==="input")[0];input.props.onKeyDown({key:"ArrowDown",stopPropagation(){stopped++;},preventDefault(){prevented++;}});input.props.onKeyDown({key:"Escape",stopPropagation(){stopped++;}});
- assert.deepEqual([focused,stopped,prevented],[1,1,1]);assert.ok(nodes(tree,n=>n.props?.children==="표시할 모델이 없습니다.").length);
+ assert.deepEqual([focused,stopped,prevented],[1,1,1]);assert.ok(nodes(tree,n=>n.props?.["data-azrael-provider"]==="api").length);
 });
 test("loading/stale/error/empty render status and retry callback",async()=>{
  const c=createProviderModelCatalog();await c.query("a",client(()=>({data:[],nextCursor:null,providerCatalogs:[status("openrouter","stale"),status("devin","error"),status("openai","empty")]})),100,()=>{});
@@ -190,7 +206,7 @@ test("pinned upstream already accepts max and ultra effort labels",()=>{
  const transformed=injection.injectProviderModelPicker(source,injection.PROVIDER_PICKER_ASSET).text;
  assert.ok(transformed.includes("function IJr({additionalAvailableModels:e"));
  assert.ok(transformed.includes("__azraelProviderCatalog"));
- assert.ok(transformed.includes("G=(R===void 0||R)&&(!p?.startsWith(`managed/`)||dQ(h,p).length>0)"));
+ assert.ok(transformed.includes("G=(R===void 0||R)&&(!(p?.startsWith(`managed/`)||p?.startsWith(`api/`))||dQ(h,p).length>0)"));
 });
 test("actual unified native options preserve provider efforts, saving guard and completion",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;

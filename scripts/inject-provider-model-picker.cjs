@@ -24,7 +24,7 @@ function injectProviderModelPicker(text, asset) {
     // zJe pinned event bus is lazy. Register only after its singleton exists;
     // module-level subscriptions run before the Webview bootstrap initializes it.
     text = once(text, "vm=_m.getInstance(),j4e((e,t)=>{vm.dispatchMessage(e,t)})",
-      "vm=_m.getInstance(),vm.subscribe(\"mcp-notification\",event=>__azraelProviderCatalog.notification(event)),j4e((e,t)=>{vm.dispatchMessage(e,t)})");
+      "vm=_m.getInstance(),globalThis.__azraelOpenApiConnections=()=>vm.dispatchMessage(\"open-vscode-command\",{command:\"azrael.apiConnections\"}),vm.subscribe(\"mcp-notification\",event=>__azraelProviderCatalog.notification(event)),j4e((e,t)=>{vm.dispatchMessage(e,t)})");
     text = once(text,
       "Bp(f,i).sendRequest(`model/list`,{includeHidden:!0,cursor:null,limit:s},{priority:t})",
       "__azraelProviderCatalog.query(i,()=>Bp(f,i),s,()=>d.invalidateQueries({queryKey:g}),{priority:t})");
@@ -35,9 +35,9 @@ function injectProviderModelPicker(text, asset) {
     text = once(text, "emitRequestLifecycleEvent(e){for(let t of this.requestLifecycleListeners)",
       "emitRequestLifecycleEvent(e){if(e.type===`completed`&&e.method===`thread/start`)__azraelProviderCatalog.sessionCreated(e.hostId);for(let t of this.requestLifecycleListeners)");
     const visible = "function IJr({additionalAvailableModels:e,apiKeyDaybreakSupported:t,authMethod:n,availableModels:r,hasConfiguredModelCatalog:i,isCustomModelProvider:a,model:o,useHiddenModels:s}){let c=o.availableAccessPrograms?.cyber;return";
-    text = once(text, visible, visible.replace("{let c=", "{if(!o.hidden&&(o.model.startsWith(`managed/`)||o.model.startsWith(`devin/`)))return!0;let c="));
+    text = once(text, visible, visible.replace("{let c=", "{if(!o.hidden&&(o.model.startsWith(`managed/`)||o.model.startsWith(`devin/`)||o.model.startsWith(`api/`)))return!0;let c="));
     const effortOptions = "t=(n===`copilot`?[e.find(e=>e.reasoningEffort===`medium`)??{reasoningEffort:`medium`,description:`medium effort`}]:e).filter(({reasoningEffort:e})=>yC(e)&&a.has(e))";
-    text = once(text, effortOptions, "t=i.model.startsWith(`managed/`)?e.filter(({reasoningEffort:e})=>yC(e)&&e!==`persistent`):" + effortOptions.slice(2));
+    text = once(text, effortOptions, "t=(i.model.startsWith(`managed/`)||i.model.startsWith(`api/`))?e.filter(({reasoningEffort:e})=>yC(e)&&e!==`persistent`):" + effortOptions.slice(2));
     const efforts = "function dQ(e,t){let n=e?.find(e=>e.model===t);return n==null?Pzt.map(e=>({description:``,reasoningEffort:e})):n.supportedReasoningEfforts.filter(e=>yC(e.reasoningEffort)&&e.reasoningEffort!==`persistent`)}";
     text = once(text, efforts, "function dQ(e,t){return __azraelProviderCatalog.efforts(e,t,()=>{" + efforts.slice(efforts.indexOf("let n="), -1) + "})}");
     const selection = "function Z6r(e,t){return yC(e)&&t.some(t=>t.reasoningEffort===e)?e:s2e(e,t.map(e=>e.reasoningEffort))}";
@@ -46,12 +46,12 @@ function injectProviderModelPicker(text, asset) {
     text = once(text, "function rca(e){return ica[e]}", "function rca(e){return ica[e==null?`none`:e]}");
     text = once(text, "a=r.flatMap(({reasoningEffort:e})=>", "a=(r??[]).flatMap(({reasoningEffort:e})=>");
     text = once(text, "(a.length>0?a:[`medium`]).map(e=>({id:`${n}:${e}`",
-      "(n.startsWith(`managed/`)?a:a.length?a:[`medium`]).map(e=>({id:`${n}:${e}`");
-    text = once(text, "G=R===void 0||R", "G=(R===void 0||R)&&(!p?.startsWith(`managed/`)||dQ(h,p).length>0)");
+      "((n.startsWith(`managed/`)||n.startsWith(`api/`))?a:a.length?a:[`medium`]).map(e=>({id:`${n}:${e}`");
+    text = once(text, "G=R===void 0||R", "G=(R===void 0||R)&&(!(p?.startsWith(`managed/`)||p?.startsWith(`api/`))||dQ(h,p).length>0)");
     const powerReset = "function _Jr({canInitializePowerPicker:e,fallbackPowerSelection:t,menuView:n,selectedPowerSelection:r,showXHighInSimplePicker:i}){";
-    text = once(text, powerReset, powerReset + "if(r?.model?.startsWith(`managed/`))return;");
+    text = once(text, powerReset, powerReset + "if(r?.model?.startsWith(`managed/`)||r?.model?.startsWith(`api/`))return;");
     text = once(text, "let kt=TX(Ot,Tt==null?void 0:`${Tt.model}:${Tt.defaultReasoningEffort}`)",
-      "let kt=TX(Ot,Oe.startsWith(`managed/`)?`${Oe}:${__azraelProviderCatalog.efforts(yt,Oe,()=>[]).__azraelDefaultEffort??null}`:Tt==null?void 0:`${Tt.model}:${Tt.defaultReasoningEffort}`)");
+      "let kt=TX(Ot,(Oe.startsWith(`managed/`)||Oe.startsWith(`api/`))?`${Oe}:${__azraelProviderCatalog.efforts(yt,Oe,()=>[]).__azraelDefaultEffort??null}`:Tt==null?void 0:`${Tt.model}:${Tt.defaultReasoningEffort}`)");
     // Native max/ultra translations remain; provider-default null gets a label.
     for (const [key, count] of [["l.reasoningEffort", 1], ["u.reasoningEffort", 1], ["n", 1], ["Ze", 1], ["bt", 2], ["e.reasoningEffort", 1], ["t", 1], ["w", 1]]) {
       text = once(text, `P8[${key}]`, `__azraelReasoningLabel(${key})`, count);

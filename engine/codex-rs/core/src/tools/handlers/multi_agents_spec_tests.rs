@@ -252,6 +252,40 @@ fn mixed_provider_spawn_models_remain_discoverable_after_native_suggestions() {
 }
 
 #[test]
+fn managed_and_api_spawn_suggestions_are_bounded_per_provider() {
+    let mut models: Vec<_> = (0..7)
+        .map(|index| {
+            let mut model = model_preset("api", true);
+            model.model = format!("api/0123456789abcdef0123456789abcdef/vendor/model-{index}");
+            model
+        })
+        .collect();
+    for key in [
+        "managed/google/gemini",
+        "managed/anthropic/claude",
+        "api/abcdef0123456789abcdef0123456789ab/vendor/model",
+    ] {
+        let mut model = model_preset("mixed", true);
+        model.model = key.into();
+        models.push(model);
+    }
+    let mut tool_free = model_preset("no-tools", true);
+    tool_free.model = "api/abcdefabcdefabcdefabcdefabcdefab/no-tools".into();
+    models.push(tool_free);
+    let description = spawn_agent_models_description(&models, MultiAgentVersion::V2);
+    assert!(description.contains("vendor/model-4`"));
+    assert!(!description.contains("vendor/model-5`"));
+    assert!(description.contains("managed/google/gemini"));
+    assert!(description.contains("managed/anthropic/claude"));
+    assert!(description.contains("abcdef0123456789abcdef0123456789ab/vendor/model"));
+    assert!(description.contains("/no-tools"));
+    assert!(model_supports_multi_agent_backend(
+        models.last().unwrap(),
+        MultiAgentVersion::V1
+    ));
+}
+
+#[test]
 fn spawn_agent_tool_caps_reasoning_effort_value_length() {
     let mut model = model_preset("visible", /*show_in_picker*/ true);
     let custom_effort = ReasoningEffort::Custom(

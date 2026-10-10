@@ -4,7 +4,7 @@
 // into the pinned webview; keep it independent of Node and module-scope state.
 function createProviderModelCatalog() {
   const hosts = new Map();
-  const labels = { openai: "OpenAI", devin: "Devin", anthropic: "Anthropic", openrouter: "OpenRouter", google: "Google AI Studio", "google-antigravity": "Google Antigravity", xai: "xAI" };
+  const labels = { openai: "OpenAI", api: "API", devin: "Devin", anthropic: "Anthropic", openrouter: "OpenRouter", google: "Google AI Studio", "google-antigravity": "Google Antigravity", xai: "xAI" };
   const empty = Object.freeze({ loading: false, providers: [], updatedAt: 0, error: false });
   function host(id) {
     if (!hosts.has(id)) hosts.set(id, { snapshot: empty, listeners: new Set(), force: false, pending: null, result: null, refreshAfterPending: false });
@@ -16,6 +16,7 @@ function createProviderModelCatalog() {
     for (const listener of item.listeners) listener();
   }
   function providerFor(id) {
+    if (id.startsWith("api/")) return "api";
     if (id.startsWith("devin/")) return "devin";
     if (id.startsWith("managed/")) return id.split("/")[1] || "other";
     return "openai";
@@ -27,6 +28,7 @@ function createProviderModelCatalog() {
   function groups(options, query, providers = []) {
     const needle = query.trim().toLocaleLowerCase();
     const rows = new Map();
+    rows.set("api", { id: "api", label: "API", total: 0, options: [] });
     for (const option of options) {
       const id = providerFor(option.id);
       if (!rows.has(id)) rows.set(id, { id, label: labels[id] ?? id, total: 0, options: [] });
@@ -35,10 +37,16 @@ function createProviderModelCatalog() {
       if (!needle || `${title(option)} ${option.id} ${group.label}`.toLocaleLowerCase().includes(needle)) group.options.push(option);
     }
     for (const status of providers) {
+      if (/^api-[a-f0-9]{32}$/.test(status.providerId)) {
+        const group = rows.get("api");
+        const severity = { empty: 0, ready: 1, stale: 2, error: 3 };
+        if (!group.status || (severity[status.state] ?? 0) > (severity[group.status.state] ?? 0)) group.status = { ...status, providerId: "api" };
+        continue;
+      }
       if (!rows.has(status.providerId)) rows.set(status.providerId, { id: status.providerId, label: labels[status.providerId] ?? status.providerId, total: 0, options: [] });
       rows.get(status.providerId).status = status;
     }
-    const order = ["openai", "devin", "anthropic", "openrouter", "google", "google-antigravity", "xai"];
+    const order = ["openai", "api", "devin", "anthropic", "openrouter", "google", "google-antigravity", "xai"];
     return [...rows.values()].sort((a, b) => {
       const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
       return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi) || a.label.localeCompare(b.label);
@@ -112,7 +120,7 @@ function createProviderModelCatalog() {
   return {
     query, groups, title, providerFor,
     efforts(models, id, fallback) {
-      if (!id?.startsWith("managed/")) return fallback();
+      if (!id?.startsWith("managed/") && !id?.startsWith("api/")) return fallback();
       const model = models?.find(model => model.model === id);
       const allowed = ["none", "minimal", "low", "medium", "high", "xhigh", "max"];
       const efforts = (model?.supportedReasoningEfforts ?? []).filter(option => allowed.includes(option.reasoningEffort));
@@ -212,7 +220,7 @@ function renderProviderModelList(React, jsx, Menu, catalog, props) {
       if (!["Tab", "ArrowDown", "ArrowUp"].includes(event.key)) return;
       if (event.target.matches?.("[data-azrael-model-search]") && event.key !== "Tab") return;
       const menu = root.current?.closest('[role="menu"]') ?? root.current;
-      const items = Array.from(menu?.querySelectorAll('[role^="menuitem"]:not([data-disabled]):not([data-interactive="false"]),[data-azrael-model-search],[data-azrael-model-refresh]:not(:disabled)') ?? [])
+      const items = Array.from(menu?.querySelectorAll('[role^="menuitem"]:not([data-disabled]):not([data-interactive="false"]),[data-azrael-model-search],[data-azrael-model-refresh]:not(:disabled),[data-azrael-api-manage]') ?? [])
         .filter(item => !item.closest('[inert],[hidden],[aria-hidden="true"]'));
       const current = items.findIndex(item => item === event.target || item.contains(event.target));
       if (current < 0 || items.length === 0) return;
@@ -252,10 +260,12 @@ function renderProviderModelList(React, jsx, Menu, catalog, props) {
             children: jsx("span", { className: "azrael-provider-heading", children: [jsx("span", { children: `${open ? "▾" : "▸"} ${group.label}` }), jsx("span", { children: search ? `${group.options.length}/${group.total}` : String(group.total) })] }),
           }),
           status ? jsx("div", { className: "azrael-model-status", role: "status", children: status }) : null,
+          group.id === "api" && group.total === 0 ? jsx("div", { className: "azrael-model-status", role: "status", children: "등록된 API 모델이 없습니다." }) : null,
           ...(open ? group.options.map(option => props.renderOption({ ...option, __azraelModelOption: true })) : []),
         ] }, group.id);
       }),
       groups.length === 0 ? jsx("div", { className: "azrael-model-status", role: "status", children: search ? "검색 결과가 없습니다." : snapshot.loading ? "모델 목록을 불러오는 중입니다." : "표시할 모델이 없습니다." }) : null,
+      jsx("div", { className: "azrael-model-toolbar", children: jsx("button", { type: "button", "data-azrael-api-manage": true, onClick: event => { event.preventDefault(); event.stopPropagation(); globalThis.__azraelOpenApiConnections?.(); }, onKeyDown: event => { if (event.key !== "Escape") event.stopPropagation(); }, children: "API 연결 관리" }) }),
     ],
   });
 }

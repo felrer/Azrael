@@ -11,8 +11,11 @@ import { createProgressMonitor } from '../devin/progress.mjs';
 import { classifyConnectionError, createStallDiagnostics, observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
 import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccounts, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { classifyManagedError, providerHttpError } from './inference-errors.ts';
+import { apiCatalog, apiConfigCommand, isApiProvider } from './custom-api-config.ts';
+import { inferApi } from './custom-api.ts';
 
 const supported = MANAGED_PROVIDERS;
+const bindingProvider = (id: unknown) => supported.includes(id as string) || isApiProvider(id);
 const digest = (value: string) => createHash('sha256').update(value).digest('hex');
 const safeId = (value: unknown) => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(value) && !['__proto__', 'prototype', 'constructor'].includes(value);
 type Pin = { account_id: string; fingerprint: string };
@@ -40,11 +43,11 @@ export function readBinding(path: string, thread: string, directory: string): Bi
   if (!object(binding) || binding.version !== 1 || binding.thread_id !== thread || !safeId(thread) || !object(binding.providers) || !object(binding.turns)) fail('invalid_binding');
   const providers: Record<string, Pin> = Object.create(null), turns: Binding['turns'] = Object.create(null);
   for (const [id, pin] of Object.entries(binding.providers)) {
-    if (!supported.includes(id) || !validPin(pin) || Object.keys(pin as any).some(key => !['account_id', 'fingerprint'].includes(key))) fail('invalid_binding');
+    if (!bindingProvider(id) || !validPin(pin) || Object.keys(pin as any).some(key => !['account_id', 'fingerprint'].includes(key))) fail('invalid_binding');
     providers[id] = pin as Pin;
   }
   for (const [id, turn] of Object.entries(binding.turns) as [string, any][]) {
-    if (!safeId(id) || !validPin(turn) || !supported.includes(turn.provider_id) || !validModel(turn.model) || Object.keys(turn).some(key => !['provider_id', 'model', 'account_id', 'fingerprint'].includes(key))) fail('invalid_binding');
+    if (!safeId(id) || !validPin(turn) || !bindingProvider(turn.provider_id) || !validModel(turn.model) || Object.keys(turn).some(key => !['provider_id', 'model', 'account_id', 'fingerprint'].includes(key))) fail('invalid_binding');
     const pin = providers[turn.provider_id];
     if (!pin) fail('invalid_binding');
     turns[id] = turn;
@@ -112,7 +115,7 @@ export async function pinAccount(config: any, request: any, m: any) {
   try {
     let binding: Binding = existsSync(path) ? readBinding(path, request.thread_id, directory) : { version: 1, thread_id: request.thread_id, providers: Object.create(null), turns: Object.create(null) };
     if (!existsSync(path) && request.forked_from_thread_id) {
-      if (!safeId(request.forked_from_thread_id) || !Array.isArray(request.fork_provider_ids) || request.fork_provider_ids.length > supported.length || request.fork_provider_ids.some((id: any) => !supported.includes(id))) fail('fork_binding_unavailable');
+      if (!safeId(request.forked_from_thread_id) || !Array.isArray(request.fork_provider_ids) || request.fork_provider_ids.length > 130 || request.fork_provider_ids.some((id: any) => !bindingProvider(id))) fail('fork_binding_unavailable');
       if (request.fork_provider_ids.length) {
         const ancestorPath = join(directory, request.forked_from_thread_id + '.json');
         if (!existsSync(ancestorPath)) fail('fork_binding_unavailable');
@@ -364,8 +367,9 @@ export function managedDeadlineFailure(error: any, signal: AbortSignal, upstream
 }
 
 export async function infer(request: any, emit: (frame: any) => void, fetcher = globalThis.fetch, progress?: ReturnType<typeof createProgressMonitor>, options: { deadlineSignal?: AbortSignal } = {}) {
-  const m = await modules();
   if (!request || request.type !== 'request' || request.protocol_version !== 1 || typeof request.request_id !== 'string' || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
+  if (isApiProvider(request.provider_id)) return inferApi(request, emit, fetcher, progress, options);
+  const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
   const { compiled, parsed } = projectRequest(request, pinned.fingerprint);
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
@@ -485,6 +489,7 @@ export async function catalog(options: { refresh?: boolean; fetch?: typeof fetch
     const count = models.length - start;
     provider_statuses.push({ provider_id, state: count ? 'ready' : 'empty', model_count: count, observed_at: options.now ?? Date.now() });
   }
+  models.push(...apiCatalog());
   if (Buffer.byteLength(JSON.stringify({ models, provider_statuses })) > 1024 * 1024) fail('catalog_limit');
   return { models, provider_statuses };
 }
@@ -510,7 +515,13 @@ export async function runCli() {
   // Vendored readers can warn with unsafe config diagnostics. Boundary diagnostics are codes only.
   console.warn = console.error = console.log = console.info = console.debug = () => {};
   try {
-    if (process.argv.includes('--catalog')) process.stdout.write(JSON.stringify(await catalog({ refresh: process.argv.includes('--refresh') })) + '\n');
+    if (process.argv.includes('--api-config')) {
+      let size = 0; const chunks: Buffer[] = [];
+      for await (const chunk of process.stdin) { size += chunk.length; if (size > 1024 * 1024) fail('request_limit'); chunks.push(Buffer.from(chunk)); }
+      let command: any; try { command = JSON.parse(Buffer.concat(chunks).toString('utf8')); } catch { fail('invalid_api_command'); }
+      process.stdout.write(JSON.stringify(await apiConfigCommand(command)) + '\n');
+    }
+    else if (process.argv.includes('--catalog')) process.stdout.write(JSON.stringify(await catalog({ refresh: process.argv.includes('--refresh') })) + '\n');
     else {
       let size = 0; const chunks: Buffer[] = [];
       for await (const chunk of process.stdin) { size += chunk.length; if (size > MAX_REQUEST_BYTES) fail('request_limit'); chunks.push(Buffer.from(chunk)); }

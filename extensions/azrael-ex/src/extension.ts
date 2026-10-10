@@ -21,6 +21,8 @@ import { ChatView } from "./chatView";
 import { InstructionService } from "./instructionService";
 import { InstructionView } from "./instructionView";
 import { StudentDesignService } from "./studentDesign";
+import { CustomApiService } from "./customApiService";
+import { CustomApiManagement } from "./customApiManagement";
 
 let service: AccountService | undefined;
 
@@ -110,11 +112,18 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
   const contentFontRoot = standalone
     ? vscode.Uri.joinPath(context.extensionUri, "media", "fonts")
     : vscode.Uri.joinPath(context.extensionUri, "webview", "assets", "azrael-fonts");
-  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view, context.globalState, usageWindows, contentFontRoot);
+  const customApi = new CustomApiManagement(new CustomApiService(runtimeEnv), {
+    text: async (prompt, value, password) => vscode.window.showInputBox({ prompt, value, password, ignoreFocusOut: true }),
+    choose: async (title, choices) => vscode.window.showQuickPick(choices, { title, ignoreFocusOut: true }),
+    checks: async (title, choices) => (await vscode.window.showQuickPick(choices, { title, canPickMany: true, ignoreFocusOut: true }))?.map(item => item.label),
+    confirm: async message => await vscode.window.showWarningMessage(message, { modal: true }, "삭제") === "삭제",
+  }, () => usageView.updateApi());
+  const usageView = new UsageView(service, usage, new DevinUsageService(runtimeEnv.AZRAEL_EX_DEVIN_EXECUTABLE, codexHome), providerAccounts, view, context.globalState, usageWindows, contentFontRoot, customApi);
   const rootResumeView = new RootResumeView(service);
   view.initialize();
   context.subscriptions.push(view, usageView, rootResumeView, usageWindows, { dispose: () => service?.dispose() });
   register("azrael.usage", () => usageView.show());
+  register("azrael.apiConnections", () => usageView.show());
   context.subscriptions.push(vscode.commands.registerCommand("azrael.accountsEmbedded",
     (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => usageView.handleEmbedded(webview, request, panel)));
   register("azrael.devinAccount", () => usageView.show());
@@ -150,7 +159,7 @@ function isHostRuntime(value: unknown): value is HostRuntime {
 }
 
 function registerUnavailable(register: (command: string, action: () => unknown) => void, reason: string): void {
-  for (const command of ["azrael.manageAccounts", "azrael.usage", "azrael.devinAccount", "azrael.rootResume", "azrael.accountQuickPick", "azrael.refreshAccounts", "azrael.syncSharedEnvironment", "azrael.fetchSharedPlaybook", "azrael.instructions"]) {
+  for (const command of ["azrael.manageAccounts", "azrael.usage", "azrael.apiConnections", "azrael.devinAccount", "azrael.rootResume", "azrael.accountQuickPick", "azrael.refreshAccounts", "azrael.syncSharedEnvironment", "azrael.fetchSharedPlaybook", "azrael.instructions"]) {
     register(command, () => vscode.window.showErrorMessage(reason));
   }
 }

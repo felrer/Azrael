@@ -13,6 +13,7 @@ import { ResetCreditService, resetCreditMessage } from "./resetCredit";
 import { UsageWindowService } from "./usageWindowService";
 import type { AccountProfile } from "./protocol";
 import { projectUsageHtml, projectUsageStyles, ProjectUsageSnapshot } from "./projectUsagePresentation";
+import { CustomApiManagement, customApiHtml } from "./customApiManagement";
 
 const EXPANSION_STATE = "azrael.usage.expandedAccounts";
 
@@ -70,6 +71,7 @@ export class UsageView implements vscode.Disposable {
     private readonly globalState?: vscode.Memento,
     private readonly usageWindows?: UsageWindowService,
     private readonly fontRoot?: vscode.Uri,
+    private readonly api?: CustomApiManagement,
   ) {
     this.resetCredits = new ResetCreditService(service, globalState);
     const saved: unknown = globalState?.get(EXPANSION_STATE);
@@ -99,6 +101,8 @@ export class UsageView implements vscode.Disposable {
     this.render();
     this.visibility();
   }
+
+  updateApi(): void { this.render(); }
 
   async handleEmbedded(webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel): Promise<void> {
     if (this.disposed || !webview || typeof webview.postMessage !== "function" || !isRecord(request)
@@ -147,6 +151,7 @@ export class UsageView implements vscode.Disposable {
     this.embedded.clear();
     this.devinUsage.dispose();
     this.providers?.dispose();
+    this.api?.backend.dispose();
     this.panel?.dispose();
   }
 
@@ -179,7 +184,7 @@ export class UsageView implements vscode.Disposable {
     this.refreshing = true;
     this.render();
     try {
-      await Promise.allSettled([this.refreshOpenAI(force), this.refreshDevin(), this.refreshProviders(force), this.refreshProjectUsage(), this.usageWindows?.refresh()]);
+      await Promise.allSettled([this.refreshOpenAI(force), this.refreshDevin(), this.refreshProviders(force), this.refreshProjectUsage(), this.usageWindows?.refresh(), this.api?.refresh()]);
     } finally {
       this.refreshing = false;
       this.render();
@@ -298,6 +303,7 @@ export class UsageView implements vscode.Disposable {
 
   private async onMessage(message: unknown): Promise<void> {
     if (!isRecord(message) || typeof message.action !== "string") return;
+    if (await this.api?.handle(message)) return;
     try {
       if (message.action === "costMonth") {
         if (typeof message.month !== "string" || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(message.month) || !this.hasVisibleTarget()) return;
@@ -580,7 +586,7 @@ export class UsageView implements vscode.Disposable {
     const devinCard = `<section class="account-card${devinExpanded ? " expanded" : " collapsed"}">${devinSummary}${this.devinError ? `<p class="error">${devinQuota ? "이전 조회 값 · " : ""}${dynamicTextHtml(this.devinError)}</p>` : ""}${devinExpanded || !devin?.loggedIn ? `<div class="usage-details"><p class="muted">Devin CLI 계정은 관리형 Devin 계정과 별도로 사용됩니다.</p>${devinActions}</div>` : ""}</section>`;
     const openAIHeading = providerHeadingHtml("openai", "OpenAI", state?.profiles.length ?? 0, '<button data-action="openaiCapture">현재 계정 저장</button><button data-action="openaiLogin">계정 추가</button>');
     const cost = this.costYear === Number(this.costMonth.slice(0, 4)) && this.costSnapshot ? `${this.costError ? '<p class="muted">이전 조회 값 · 갱신 실패</p>' : ""}${projectUsageHtml(this.costSnapshot, this.costMonth)}` : this.costUnavailableHtml();
-    return `<style>${usageStyles}${projectUsageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정별 잔여 사용량을 한눈에 확인하세요.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p>${cost}</main>`;
+    return `<style>${usageStyles}${projectUsageStyles}</style><main><header><div><h1>계정 및 사용량</h1><p class="muted subtitle">계정별 잔여 사용량을 한눈에 확인하세요.</p></div><div class="actions"><button data-action="refresh" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></div></header>${this.error ? `<p class="error">${dynamicTextHtml(this.error)}</p>` : ""}${openAIHeading}${openAIState}<div class="provider-group">${openAICards || '<p class="empty-state muted">저장된 OpenAI 계정이 없습니다. 현재 계정을 저장하거나 계정을 추가하세요.</p>'}</div>${managedSection}${providerHeadingHtml("devin-cli", "Devin CLI", devin?.loggedIn ? 1 : 0)}<div class="provider-group">${devinCard}</div><p class="usage-hint muted">게이지를 누르면 계정 상세정보가 펼쳐집니다. 표시된 비율은 남은 사용량입니다.</p>${cost}${this.api ? customApiHtml(this.api) : ""}</main>`;
   }
 }
 

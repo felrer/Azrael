@@ -65,6 +65,10 @@ pub(crate) async fn recover(
         return Ok(None);
     }
     let slug = ctx.model_info().slug.clone();
+    // Custom API authentication has no managed OAuth account rotation.
+    if slug.starts_with("api/") {
+        return Ok(None);
+    }
     if crate::devin::catalog::is_devin(&slug) {
         return crate::devin::native_runtime::recover_account(sess, ctx, excluded, cancellation)
             .await;
@@ -76,7 +80,7 @@ pub(crate) async fn recover(
         .map_err(|_| invalid("invalid managed recovery model"))?;
     let result = request_recovery(
         ctx.config.codex_home.as_path(),
-        provider,
+        &provider,
         &sess.thread_id().to_string(),
         &ctx.sub_id,
         model,

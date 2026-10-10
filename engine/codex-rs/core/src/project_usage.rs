@@ -67,14 +67,17 @@ fn project_identity(cwd: &PathUri, roots: &[PathUri]) -> (String, String) {
     (format!("{:x}", Sha256::digest(identity.as_bytes())), name)
 }
 
-fn attribution<'a>(model: &'a str, native_provider: &'a str) -> (&'a str, &'a str) {
+fn attribution<'a>(
+    model: &'a str,
+    native_provider: &'a str,
+) -> (std::borrow::Cow<'a, str>, &'a str) {
     if let Ok(selection) = crate::managed_catalog::selection(model) {
         return selection;
     }
     if let Some(model) = model.strip_prefix("devin/") {
-        return ("devin", model);
+        return ("devin".into(), model);
     }
-    (native_provider, model)
+    (native_provider.into(), model)
 }
 
 pub(crate) async fn record(
@@ -122,7 +125,7 @@ pub(crate) async fn record(
         .and_then(serde_json::Value::as_i64);
     let amount_nano_usd = usage.filter(|_| !estimated).and_then(|usage| {
         crate::project_usage_pricing::estimate_nano_usd(
-            provider,
+            &provider,
             model,
             settings.service_tier.as_deref(),
             usage,
@@ -183,15 +186,15 @@ mod tests {
     fn namespaces_select_the_actual_provider() {
         assert_eq!(
             attribution("managed/anthropic/claude-sonnet-5", "openai"),
-            ("anthropic", "claude-sonnet-5")
+            (std::borrow::Cow::Borrowed("anthropic"), "claude-sonnet-5")
         );
         assert_eq!(
             attribution("devin/gpt-6.1-sol", "openai"),
-            ("devin", "gpt-6.1-sol")
+            (std::borrow::Cow::Borrowed("devin"), "gpt-6.1-sol")
         );
         assert_eq!(
             attribution("gpt-6.1-sol", "openai"),
-            ("openai", "gpt-6.1-sol")
+            (std::borrow::Cow::Borrowed("openai"), "gpt-6.1-sol")
         );
     }
     #[test]

@@ -303,6 +303,32 @@ async fn role_model_with_effort_replaces_effort_inherited_from_another_model() {
 }
 
 #[tokio::test]
+async fn api_inherited_model_does_not_override_fixed_role_model() {
+    let (home, mut config) = test_config_with_cli_overrides(Vec::new()).await;
+    let role_path = write_role_config(
+        &home,
+        "fixed-role.toml",
+        "model = \"gpt-role\"\nmodel_reasoning_effort = \"high\"",
+    )
+    .await;
+    config.agent_roles.insert(
+        "fixed-role".into(),
+        AgentRoleConfig {
+            description: None,
+            config_file: Some(role_path),
+            nickname_candidates: None,
+        },
+    );
+    config.model = Some("api/0123456789abcdef0123456789abcdef/vendor/model".into());
+    config.model_reasoning_effort = Some(ReasoningEffort::None);
+    apply_role_to_config(&mut config, Some("fixed-role"))
+        .await
+        .unwrap();
+    assert_eq!(config.model.as_deref(), Some("gpt-role"));
+    assert_eq!(config.model_reasoning_effort, Some(ReasoningEffort::High));
+}
+
+#[tokio::test]
 async fn apply_role_preserves_unspecified_keys() {
     let (home, mut config) = test_config_with_cli_overrides(vec![(
         "model".to_string(),

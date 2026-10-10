@@ -269,6 +269,31 @@ pub(crate) async fn run_helper<G: Send + 'static>(
     run_helper_with_policy(request, TimingPolicy::default()).await
 }
 
+pub(crate) async fn run_api_helper<G: Send + 'static>(
+    request: HelperRequest<'_, G>,
+    timeout_ms: u64,
+    streaming: bool,
+) -> CodexResult<ResponseStream> {
+    if !(1..=900_000).contains(&timeout_ms) {
+        return Err(invalid("invalid API request timeout"));
+    }
+    let deadline = Duration::from_millis(timeout_ms) + Duration::from_secs(15);
+    run_helper_with_policy(
+        request,
+        TimingPolicy {
+            idle: if streaming {
+                Duration::from_secs(100)
+            } else {
+                deadline
+            },
+            deadline,
+            backoff: Duration::ZERO,
+            retry_idle: false,
+        },
+    )
+    .await
+}
+
 async fn run_helper_with_policy<G: Send + 'static>(
     request: HelperRequest<'_, G>,
     policy: TimingPolicy,

@@ -8,6 +8,7 @@ fn policy() -> TimingPolicy {
         idle: Duration::from_millis(350),
         deadline: Duration::from_millis(1600),
         backoff: Duration::from_millis(40),
+        retry_idle: true,
     }
 }
 
@@ -56,6 +57,7 @@ else if (mode.startsWith('thinking_')) {{
     else await wait(5000);
 }}
 else if (mode === 'http') emit({{type:'error',code:'provider_http_400'}});
+else if (mode === 'json_wait') {{await wait(700);finish();}}
 else if (mode === 'protocol') emit({{type:'bogus'}});
 else if (mode === 'active' || mode === 'deadline' || (mode === 'retry_deadline' && n === 2)) {{
     for (let i=1; i <= (mode === 'active' ? 10 : 50); i++) {{await wait(70); progress(i,0,i%2 ? 'reasoning' : 'tool_call_args');}}
@@ -90,6 +92,42 @@ else if (mode === 'active' || mode === 'deadline' || (mode === 'retry_deadline' 
     .await
     .unwrap();
     (stream, finished)
+}
+
+#[tokio::test]
+async fn api_idle_watchdog_never_retries_and_nonstream_wait_obeys_deadline() {
+    let root = tempfile::tempdir().unwrap();
+    let mut timing = policy();
+    timing.retry_idle = false;
+    let (mut stream, finished) =
+        fixture(root.path(), "heartbeat", timing, CancellationToken::new()).await;
+    let error = stream.next().await.unwrap().unwrap_err();
+    assert!(error.to_string().contains("retry=disabled (1 attempt)"));
+    assert!(error.retry_delay(1).is_none());
+    assert!(stream.next().await.is_none());
+    finished.cancelled().await;
+    assert_eq!(
+        std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+        "1"
+    );
+
+    let root = tempfile::tempdir().unwrap();
+    timing.idle = timing.deadline;
+    let (mut stream, finished) =
+        fixture(root.path(), "json_wait", timing, CancellationToken::new()).await;
+    let mut completed = false;
+    while let Some(event) = stream.next().await {
+        completed |= matches!(event.unwrap(), ResponseEvent::Completed { .. });
+    }
+    finished.cancelled().await;
+    assert!(
+        completed,
+        "silent JSON wait beyond the usual idle window must complete"
+    );
+    assert_eq!(
+        std::fs::read_to_string(root.path().join("attempts")).unwrap(),
+        "1"
+    );
 }
 
 #[tokio::test]

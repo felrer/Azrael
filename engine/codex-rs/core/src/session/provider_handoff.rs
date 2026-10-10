@@ -35,13 +35,13 @@ fn quota_warning(source: &str, target: &str) -> String {
     )
 }
 
-fn provider_id<'a>(model: &'a str, native_id: &'a str) -> &'a str {
+fn provider_id<'a>(model: &'a str, native_id: &'a str) -> std::borrow::Cow<'a, str> {
     if let Ok((provider, _)) = crate::managed_catalog::selection(model) {
         provider
     } else if crate::devin::catalog::is_devin(model) {
-        crate::devin::PROVIDER_ID
+        crate::devin::PROVIDER_ID.into()
     } else {
-        native_id
+        native_id.into()
     }
 }
 
@@ -245,11 +245,21 @@ pub(crate) async fn prepare(
     }
     tracing::info!(
         event = "provider_handoff_started",
-        from = source_provider,
-        to = target_provider
+        from = %source_provider,
+        to = %target_provider
     );
+    let summary_deadline = crate::managed_runtime::api_options(target, &source_model)?
+        .map(|options| {
+            Duration::from_millis(
+                options["timeoutMs"]
+                    .as_u64()
+                    .unwrap_or(180_000)
+                    .min(900_000),
+            ) + Duration::from_secs(15)
+        })
+        .unwrap_or(Duration::from_secs(180));
     let result = tokio::time::timeout(
-        Duration::from_secs(180),
+        summary_deadline,
         summarize(sess, target, &source_model, cancellation),
     )
     .or_cancel(cancellation)
@@ -268,7 +278,7 @@ pub(crate) async fn prepare(
             )
         }
         Err(error) if quota_exhausted(&error) => {
-            let warning = quota_warning(source_provider, target_provider);
+            let warning = quota_warning(&source_provider, &target_provider);
             sess.send_event(
                 target,
                 EventMsg::Warning(WarningEvent {
@@ -281,8 +291,8 @@ pub(crate) async fn prepare(
             projected.push(ContextualUserFragment::into(CompactionSummary::new(&warning)).into());
             tracing::warn!(
                 event = "provider_handoff_quota_fallback",
-                from = source_provider,
-                to = target_provider
+                from = %source_provider,
+                to = %target_provider
             );
             (projected, warning, None)
         }
@@ -332,8 +342,8 @@ pub(crate) async fn prepare(
     sess.recompute_token_usage(target).await;
     tracing::info!(
         event = "provider_handoff_completed",
-        from = source_provider,
-        to = target_provider
+        from = %source_provider,
+        to = %target_provider
     );
     Ok(())
 }
@@ -455,7 +465,9 @@ async fn summarize(
                 ..
             } => {
                 let mut usage_settings = (*source.initial_settings).clone();
-                if !crate::managed_catalog::is_managed(model) && !crate::devin::catalog::is_devin(model) {
+                if !crate::managed_catalog::is_managed(model)
+                    && !crate::devin::catalog::is_devin(model)
+                {
                     usage_settings.service_tier = source.config.service_tier.clone();
                 }
                 sess.record_observed_response_completed(

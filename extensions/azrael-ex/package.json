@@ -93,6 +93,11 @@
         "category": "Azrael"
       },
       {
+        "command": "azrael.apiConnections",
+        "title": "API 연결 관리",
+        "category": "Azrael"
+      },
+      {
         "command": "azrael.accountQuickPick",
         "title": "Switch OpenAI Account",
         "category": "Azrael"

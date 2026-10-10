@@ -624,6 +624,48 @@ async fn reviewer_tool_policy_exclude_optional_core_tools() {
 }
 
 #[tokio::test]
+async fn api_tool_free_model_closes_catalog_and_native_dispatch_registry() {
+    let (session, mut turn) = make_session_and_context().await;
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("azrael/providers/api/connections.json");
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let key = "api/0123456789abcdef0123456789abcdef/vendor/model";
+    std::fs::write(&path, serde_json::to_vec(&json!({"version":1,"connections":[{"id":"0123456789abcdef0123456789abcdef","enabled":true,"models":[{"id":"vendor/model","supportsTools":false}]}]})).unwrap()).unwrap();
+    turn.extension_data
+        .insert(crate::managed_runtime::ApiTurnOptions::capture(root.path()));
+    set_feature(&mut turn, Feature::CodeMode, true);
+    set_feature(&mut turn, Feature::ViewImage, true);
+    turn.dynamic_tools
+        .push(dynamic_tool(None, "dynamic_echo", false));
+    turn.multi_agent_version = MultiAgentVersion::V2;
+    update_turn_settings_for_test(&mut turn, |settings| {
+        Arc::make_mut(&mut settings.model_info).slug = key.into()
+    });
+    // A refresh during the admitted turn cannot relax the captured ceiling.
+    std::fs::write(&path, b"{\"version\":1,\"connections\":[]}").unwrap();
+    let turn = Arc::new(turn);
+    let step = StepContext::for_test(turn.clone());
+    let router = super::build_tool_router(
+        &session,
+        &turn,
+        &step.settings.model_info,
+        &step.environments,
+        &step.mcp,
+        false,
+        &turn.extension_data,
+        None,
+    )
+    .unwrap();
+    let plan = ToolPlanProbe::from_router(router);
+    assert!(plan.visible_specs.is_empty());
+    assert!(
+        plan.registered_names.is_empty(),
+        "a forged native tool call has no dispatcher to invoke"
+    );
+    assert!(plan.code_mode_tool_names.is_empty());
+}
+
+#[tokio::test]
 async fn reviewer_tool_policy_respect_managed_shell_restrictions() {
     for (disabled_feature, shell_type) in [
         (Some(Feature::ShellTool), ConfigShellToolType::UnifiedExec),

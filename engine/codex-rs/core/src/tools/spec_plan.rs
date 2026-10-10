@@ -137,8 +137,15 @@ pub(crate) fn build_tool_router(
         .services
         .thread_extension_data
         .get::<crate::WaitForEnvironmentToolConfig>();
+    let mut model_tool_policy = (*session.tool_policy).clone();
+    if crate::managed_runtime::api_options(turn_context, &model_info.slug)?
+        .is_some_and(|options| options["models"][0]["supportsTools"].as_bool() != Some(true))
+    {
+        model_tool_policy.allowed_tools = Some(Vec::new());
+    }
+    let model_tool_policy = Arc::new(model_tool_policy);
     let context = CoreToolPlanContext {
-        tool_policy: &session.tool_policy,
+        tool_policy: &model_tool_policy,
         turn_context,
         model_info,
         environments,
@@ -148,7 +155,7 @@ pub(crate) fn build_tool_router(
         default_agent_type_description: &default_agent_type_description,
         wait_agent_timeouts: wait_agent_timeout_options(turn_context),
     };
-    let mut registry = ToolRegistry::with_tool_policy(Arc::clone(&session.tool_policy));
+    let mut registry = ToolRegistry::with_tool_policy(model_tool_policy.clone());
     add_core_tool_sources(&context, &mut registry);
 
     let registered_mcp_tools = session.services.mcp_handler_cache.append_mcp_tools(

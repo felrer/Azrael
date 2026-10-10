@@ -311,6 +311,7 @@ else emit({{type:'completed',progress}});
                     idle: Duration::from_secs(2),
                     deadline: Duration::from_secs(4),
                     backoff: Duration::from_millis(10),
+                    retry_idle: true,
                 },
             )
             .await

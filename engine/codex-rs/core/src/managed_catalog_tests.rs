@@ -1,4 +1,31 @@
 use super::*;
+
+#[test]
+fn api_catalog_preserves_opaque_remote_ids_and_connection_identity() {
+    let bytes = br#"{"models":[{"provider_id":"api-0123456789abcdef0123456789abcdef","model_id":"vendor/model:alias","display_name":"Local Model","context_window":8192,"supports_tools":false,"stream":false,"timeout_ms":180000}]}"#;
+    let models = models_from_catalog(bytes).unwrap();
+    assert_eq!(
+        models[0].slug,
+        "api/0123456789abcdef0123456789abcdef/vendor/model:alias"
+    );
+    let (provider, remote) = selection(&models[0].slug).unwrap();
+    assert_eq!(provider, "api-0123456789abcdef0123456789abcdef");
+    assert_eq!(remote, "vendor/model:alias");
+    assert_eq!(
+        models[0].multi_agent_version, None,
+        "text-only API children remain eligible"
+    );
+    assert!(is_managed(&models[0].slug));
+    for invalid in [
+        "api/short/model",
+        "api/0123456789ABCDEF0123456789abcdef/model",
+        "api/0123456789abcdef0123456789abcdef/",
+        "api/0123456789abcdef0123456789abcdef/model\n",
+    ] {
+        assert!(selection(invalid).is_err());
+    }
+    assert!(models_from_catalog(br#"{"models":[{"provider_id":"api-0123456789abcdef0123456789abcdef","model_id":"model","display_name":"Fixture","context_window":8192}]}"#).is_err());
+}
 use pretty_assertions::assert_eq;
 
 #[test]
@@ -44,7 +71,10 @@ fn opaque_remote_id_and_catalog_metadata_are_preserved() {
     let models = models_from_catalog(bytes).unwrap();
     assert_eq!(
         selection(&models[0].slug).unwrap(),
-        ("openrouter", "vendor/model:free")
+        (
+            std::borrow::Cow::Borrowed("openrouter"),
+            "vendor/model:free"
+        )
     );
     let mut expected = unavailable_model_info("managed/openrouter/vendor/model:free");
     expected.display_name = "Fixture".to_string();
@@ -108,11 +138,14 @@ fn control_characters_and_blank_remote_ids_are_rejected() {
     }
     assert_eq!(
         selection("managed/openrouter/vendor/model:free").unwrap(),
-        ("openrouter", "vendor/model:free")
+        (
+            std::borrow::Cow::Borrowed("openrouter"),
+            "vendor/model:free"
+        )
     );
     assert_eq!(
         selection("managed/anthropic/claude-sonnet-5").unwrap(),
-        ("anthropic", "claude-sonnet-5")
+        (std::borrow::Cow::Borrowed("anthropic"), "claude-sonnet-5")
     );
 }
 
@@ -161,7 +194,7 @@ fn anthropic_removed_model_is_retained_for_continuation_but_hidden_from_catalog(
     assert!(old.supported_in_api);
     assert_eq!(
         selection(&old.slug).unwrap(),
-        ("anthropic", "claude-sonnet-4-6")
+        (std::borrow::Cow::Borrowed("anthropic"), "claude-sonnet-4-6")
     );
     let statuses = load_statuses(&path).unwrap();
     assert_eq!(statuses.len(), 1);

@@ -18,6 +18,7 @@ use codex_protocol::openai_models::ModelsResponse;
 use codex_protocol::openai_models::ReasoningEffort;
 use codex_protocol::openai_models::ReasoningEffortPreset;
 use codex_protocol::openai_models::TruncationPolicyConfig;
+use std::borrow::Cow;
 use std::collections::HashSet;
 use std::path::Path;
 use std::path::PathBuf;
@@ -54,10 +55,21 @@ struct ManagedModelsManager {
 }
 
 pub(crate) fn is_managed(key: &str) -> bool {
-    key.starts_with("managed/")
+    key.starts_with("managed/") || key.starts_with("api/")
 }
 
-pub(crate) fn selection(key: &str) -> Result<(&str, &str)> {
+pub(crate) fn selection(key: &str) -> Result<(Cow<'_, str>, &str)> {
+    if let Some(value) = key.strip_prefix("api/") {
+        let (id, model) = value.split_once('/').context("invalid API model key")?;
+        if !valid_api_id(id)
+            || model.trim().is_empty()
+            || model.chars().any(char::is_control)
+            || model.len() > 256
+        {
+            return Err(anyhow!("invalid API model selection"));
+        }
+        return Ok((Cow::Owned(format!("api-{id}")), model));
+    }
     let (provider, model) = key
         .strip_prefix("managed/")
         .and_then(|value| value.split_once('/'))
@@ -71,7 +83,21 @@ pub(crate) fn selection(key: &str) -> Result<(&str, &str)> {
     {
         return Err(anyhow!("invalid managed model selection"));
     }
-    Ok((provider, model))
+    Ok((Cow::Borrowed(provider), model))
+}
+
+fn valid_api_id(id: &str) -> bool {
+    id.len() == 32
+        && id
+            .bytes()
+            .all(|c| c.is_ascii_digit() || (b'a'..=b'f').contains(&c))
+}
+
+fn entry_key(entry: &Entry) -> String {
+    match entry.provider_id.strip_prefix("api-") {
+        Some(id) => format!("api/{id}/{}", entry.model_id),
+        None => format!("managed/{}/{}", entry.provider_id, entry.model_id),
+    }
 }
 
 pub(crate) fn provider_info() -> codex_model_provider_info::ModelProviderInfo {
@@ -328,6 +354,12 @@ struct Entry {
     display_name: String,
     context_window: i64,
     #[serde(default)]
+    supports_tools: Option<bool>,
+    #[serde(default)]
+    stream: Option<bool>,
+    #[serde(default)]
+    timeout_ms: Option<u64>,
+    #[serde(default)]
     reasoning: Option<EntryReasoning>,
     /// Helper-declared prompt modalities. Omitted means text-only so that an
     /// unverified model is blocked in the composer before any image is sent.
@@ -487,8 +519,17 @@ fn models_from_entries(entries: Vec<Entry>, visibility: ModelVisibility) -> Resu
         .into_iter()
         .enumerate()
         .map(|(index, entry)| {
-            let slug = format!("managed/{}/{}", entry.provider_id, entry.model_id);
+            let slug = entry_key(&entry);
             selection(&slug)?;
+            if slug.starts_with("api/")
+                && (entry.supports_tools.is_none()
+                    || entry.stream.is_none()
+                    || !entry
+                        .timeout_ms
+                        .is_some_and(|ms| (1..=900_000).contains(&ms)))
+            {
+                return Err(anyhow!("invalid API model capabilities"));
+            }
             if entry.display_name.is_empty()
                 || entry.display_name.len() > 4096
                 || entry.context_window <= 0
@@ -521,7 +562,7 @@ fn unavailable_model_info(model: &str) -> ModelInfo {
     // Reuse the text-only native helper metadata contract.
     let mut info = crate::devin::catalog::unavailable_model_info(model);
     info.model_provider = PROVIDER_ID.to_string();
-    if matches!(selection(model), Ok(("anthropic", _))) {
+    if selection(model).is_ok_and(|(provider, _)| provider == "anthropic") {
         info.node_repl_disabled = false;
     }
     info
@@ -559,7 +600,11 @@ fn statuses_from_catalog(bytes: &[u8]) -> Result<Vec<ProviderCatalogStatus>> {
         if !matches!(
             status.provider_id.as_str(),
             "google" | "google-antigravity" | "xai" | "openrouter" | "anthropic"
-        ) || !seen.insert(status.provider_id.clone())
+        ) && !status
+            .provider_id
+            .strip_prefix("api-")
+            .is_some_and(valid_api_id)
+            || !seen.insert(status.provider_id.clone())
             || status.observed_at < 0
             || matches!(
                 status.state,
@@ -599,11 +644,7 @@ fn persist_snapshot(path: &Path, bytes: &[u8]) -> Result<()> {
     std::fs::create_dir_all(parent)?;
     let mut current: serde_json::Value = serde_json::from_slice(bytes)?;
     let next: Catalog = serde_json::from_slice(bytes)?;
-    let active: HashSet<String> = next
-        .models
-        .iter()
-        .map(|entry| format!("managed/{}/{}", entry.provider_id, entry.model_id))
-        .collect();
+    let active: HashSet<String> = next.models.iter().map(entry_key).collect();
     let previous: Option<Catalog> = std::fs::read(path)
         .ok()
         .and_then(|old| serde_json::from_slice(&old).ok());
@@ -614,7 +655,7 @@ fn persist_snapshot(path: &Path, bytes: &[u8]) -> Result<()> {
     }
     let mut seen = HashSet::new();
     retained.retain(|entry| {
-        let slug = format!("managed/{}/{}", entry.provider_id, entry.model_id);
+        let slug = entry_key(entry);
         !active.contains(&slug) && seen.insert(slug)
     });
     models_from_entries(retained.clone(), ModelVisibility::Hide)?;
@@ -692,13 +733,16 @@ mod antigravity_tests {
     fn google_antigravity_selection_preserves_opaque_model() {
         assert_eq!(
             selection("managed/google-antigravity/vendor/model:alias").unwrap(),
-            ("google-antigravity", "vendor/model:alias")
+            (
+                std::borrow::Cow::Borrowed("google-antigravity"),
+                "vendor/model:alias"
+            )
         );
         assert!(selection("managed/google-antigravity/").is_err());
         assert!(selection("managed/google-antigravity/model\n").is_err());
         assert_eq!(
             selection("managed/google/gemini").unwrap(),
-            ("google", "gemini")
+            (std::borrow::Cow::Borrowed("google"), "gemini")
         );
     }
 

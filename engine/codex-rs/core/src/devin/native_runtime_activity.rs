@@ -9,6 +9,7 @@ pub(super) struct TimingPolicy {
     pub(super) idle: Duration,
     pub(super) deadline: Duration,
     pub(super) backoff: Duration,
+    pub(super) retry_idle: bool,
 }
 
 impl Default for TimingPolicy {
@@ -18,6 +19,7 @@ impl Default for TimingPolicy {
             // Helper owns 900s; allow bounded delivery/cleanup grace.
             deadline: Duration::from_secs(915),
             backoff: Duration::from_secs(1),
+            retry_idle: true,
         }
     }
 }

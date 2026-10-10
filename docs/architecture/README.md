@@ -17,6 +17,8 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Partial implementation
 
+- [사용자 API 모델](custom-api-models.md): 빈 초기 연결 목록, 사용자 endpoint·모델 등록, API picker 그룹과 native subagent 실행. 설치·실서버 수용은 별도 검증한다.
+
 - [Side questions with /btw](side-questions.md): independent tool-free questions using the main task's live context and the native Side chat panel; source and rendered controls verified, Rust and installed acceptance pending.
 
 - [Auto-Review](auto-review.md): OpenAI-only native permission selection and turn submission guard; existing Guardian binary verified separately from new package and installed acceptance.

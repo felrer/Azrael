@@ -1,4 +1,37 @@
 use super::*;
+
+#[test]
+fn api_turn_options_are_immutable_and_credential_free() {
+    let root = tempfile::tempdir().unwrap();
+    let path = root.path().join("azrael/providers/api/connections.json");
+    std::fs::create_dir_all(path.parent().unwrap()).unwrap();
+    let value = serde_json::json!({"version":1,"connections":[{"id":"0123456789abcdef0123456789abcdef","name":"Fixture","baseUrl":"http://localhost:1234/v1","protocol":"chat","enabled":true,"timeoutMs":240000,"stream":false,"auth":{"kind":"secret","token":"must-never-cross"},"models":[{"id":"vendor/model","name":"Model","contextWindow":8192,"maxOutputTokens":1024,"supportsTools":false,"enableThinking":false,"sendThinkingParameter":true,"parallelToolCalls":false},{"id":"default-model","supportsTools":true}]}]});
+    std::fs::write(&path, serde_json::to_vec(&value).unwrap()).unwrap();
+    let snapshot = ApiTurnOptions::capture(root.path());
+    std::fs::write(&path, b"{\"version\":1,\"connections\":[]}").unwrap();
+    let selected = snapshot
+        .selected("api/0123456789abcdef0123456789abcdef/vendor/model")
+        .unwrap();
+    assert_eq!(selected["timeoutMs"], 240000);
+    assert_eq!(selected["models"][0]["supportsTools"], false);
+    assert_eq!(selected["models"][0]["sendThinkingParameter"], true);
+    assert_eq!(
+        snapshot
+            .selected("api/0123456789abcdef0123456789abcdef/default-model")
+            .unwrap()["models"][0]["sendThinkingParameter"],
+        false
+    );
+    assert!(
+        !serde_json::to_string(selected)
+            .unwrap()
+            .contains("must-never-cross")
+    );
+    assert!(
+        ApiTurnOptions::capture(root.path())
+            .selected("api/0123456789abcdef0123456789abcdef/vendor/model")
+            .is_none()
+    );
+}
 use pretty_assertions::assert_eq;
 use serde_json::json;
 
@@ -43,10 +76,16 @@ fn retained_fork_context_limits_provider_inheritance() {
         RolloutItem::TurnContext(context("gpt-5.4")),
         RolloutItem::TurnContext(context("managed/google/other")),
         RolloutItem::TurnContext(context("managed/openrouter/vendor/model")),
+        RolloutItem::TurnContext(context("api/0123456789abcdef0123456789abcdef/vendor/model")),
+        RolloutItem::TurnContext(context("api/0123456789abcdef0123456789abcdef/vendor/other")),
     ];
     assert_eq!(
         fork_provider_ids(&retained),
-        vec!["google".to_string(), "openrouter".to_string()]
+        vec![
+            "api-0123456789abcdef0123456789abcdef".to_string(),
+            "google".to_string(),
+            "openrouter".to_string()
+        ]
     );
 }
 

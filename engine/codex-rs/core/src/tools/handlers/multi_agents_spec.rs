@@ -670,7 +670,7 @@ fn spawn_agent_common_properties_v2(
         (
             "fork_turns".to_string(),
             JsonSchema::string(Some(
-                "Parent history to inherit. Defaults to `all`; use `none` to start without parent history. Only `all` and `none` are supported.".to_string(),
+                "Parent history to inherit. Defaults to `all`; use `none` to start without parent history. A positive integer string is accepted as `all` and does not trim history.".to_string(),
             )),
         ),
         (
@@ -838,27 +838,29 @@ fn spawn_agent_models_description(
     models: &[ModelPreset],
     multi_agent_version: MultiAgentVersion,
 ) -> String {
-    let mut visible_models: Vec<&ModelPreset> = models
+    let mut provider_counts = BTreeMap::<String, usize>::new();
+    let visible_models: Vec<&ModelPreset> = models
         .iter()
         .filter(|model| model.show_in_picker)
         .filter(|model| model_supports_multi_agent_backend(model, multi_agent_version))
-        .take(MAX_SPAWN_AGENT_MODEL_OVERRIDES)
+        .filter(|model| {
+            let provider =
+                if let Ok((provider, _)) = crate::managed_catalog::selection(&model.model) {
+                    provider.into_owned()
+                } else if crate::devin::catalog::is_devin(&model.model) {
+                    "devin".into()
+                } else {
+                    "native".into()
+                };
+            // Bound both each provider and the total number of provider groups.
+            if !provider_counts.contains_key(&provider) && provider_counts.len() >= 16 {
+                return false;
+            }
+            let count = provider_counts.entry(provider).or_default();
+            *count += 1;
+            *count <= MAX_SPAWN_AGENT_MODEL_OVERRIDES
+        })
         .collect();
-    // Keep native suggestions while making the supported mixed-provider path discoverable.
-    for model in models.iter().filter(|model| {
-        model.show_in_picker
-            && matches!(
-                model.model.as_str(),
-                "devin/swe-2-medium" | "devin/swe-2-high" | "devin/swe-2-max"
-            )
-    }) {
-        if !visible_models
-            .iter()
-            .any(|existing| existing.model == model.model)
-        {
-            visible_models.push(model);
-        }
-    }
     if visible_models.is_empty() {
         return "No picker-visible model overrides are currently loaded.".to_string();
     }
