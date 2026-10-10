@@ -14,6 +14,57 @@ const { azraelHasDeferredBoundary, azraelNormalizeDeferredTurn, azraelMergeRootR
   azraelRootResumeWaitItem, azraelRootResumeWaitLabel } = require("./root-resume-wait.cjs");
 const recoveryHelpers = require("./root-resume-wait.cjs");
 
+// The management API owns selected agent tasks and optimistic revisions. Do not
+// infer wake conditions from live child state or allocate new photo assignments.
+function createRootResumeStore(bridge, clientId) {
+  let state = { reservations: [], pending: null, error: null, available: false };
+  const listeners = new Set();
+  let timer;
+  const publish = next => { state = next; for (const listener of listeners) listener(); };
+  const receive = message => {
+    if (message.clientId !== clientId || !Array.isArray(message.reservations)) return;
+    clearTimeout(timer);
+    publish({ reservations: message.reservations, available: message.available === true,
+      pending: message.pending ?? null, error: message.error ?? null });
+  };
+  const unsubscribe = bridge.subscribe("azrael-root-resume-state", receive);
+  const send = request => {
+    try { bridge.dispatchMessage("azrael-root-resume", { clientId, ...request }); }
+    catch (error) { publish({ ...state, pending: null, error: String(error.message ?? error) }); }
+  };
+  send({ action: "subscribe" });
+  return { getSnapshot: () => state, subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); },
+    refresh: () => send({ action: "list" }),
+    resume: reservation => {
+      if (state.pending || !state.available || reservation.state !== "waiting") return;
+      publish({ ...state, pending: reservation.id, error: null });
+      timer = setTimeout(() => { publish({ ...state, pending: null, error: "재개 응답을 받지 못했습니다. 다시 눌러 상태를 확인해 주세요." }); send({ action: "list" }); }, 10000);
+      send({ action: "resume", reservationId: reservation.id, revision: reservation.revision });
+    },
+    dispose: () => { clearTimeout(timer); send({ action: "unsubscribe" }); unsubscribe(); listeners.clear(); } };
+}
+
+function AzraelRootResumeControls({ wait, label, className }) {
+  const react = X();
+  ym(); Qo(); qSi();
+  azraelRootResumeStore ??= createRootResumeStore(vm, crypto.randomUUID());
+  const state = react.useSyncExternalStore(azraelRootResumeStore.subscribe, azraelRootResumeStore.getSnapshot, azraelRootResumeStore.getSnapshot);
+  react.useEffect(() => { azraelRootResumeStore.refresh(); }, [wait.reservationId, wait.revision]);
+  const reservation = state.reservations.find(item => item.id === wait.reservationId);
+  const active = wait.state === "waiting" && (!reservation || reservation.state === "waiting");
+  const tasks = active && wait.canWakeEarly ? reservation?.agentTasks ?? [] : [];
+  const busy = state.pending === wait.reservationId || wait.state === "claimed" || reservation?.state === "claimed";
+  return (0, E7.jsxs)("div", { className: "flex w-full min-w-0 flex-col gap-1", "data-azrael-root-resume": wait.reservationId, children: [
+    (0, E7.jsxs)("div", { className: "flex w-full min-w-0 items-center gap-2", children: [
+      (0, E7.jsx)("span", { className, children: label }),
+      tasks.length > 0 && (0, E7.jsx)("span", { className: "flex shrink-0 items-center", "aria-label": "응답을 기다리는 subagent", children: tasks.map((task, index) =>
+        (0, E7.jsx)("span", { title: task.agentPath, style: { marginLeft: index ? -8 : 0, position: "relative", zIndex: tasks.length - index, width: 24, height: 24 }, children:
+          (0, E7.jsx)(VSi, { seed: task.threadId, className: "size-6 rounded-full border-2 border-default", style: { width: 24, height: 24 }, "aria-label": task.agentPath }) }, task.threadId + ":" + task.turnId)) }),
+      (active || busy) && (0, E7.jsx)("span", { className: "ml-auto shrink-0", children: (0, E7.jsx)(Ou, { color: "secondary", size: "default", disabled: busy || !!state.pending || !state.available || !reservation || reservation.revision < wait.revision,
+        onClick: () => azraelRootResumeStore.resume(reservation), children: busy ? "재개 중…" : "재개" }) }) ] }),
+    active && state.error && (0, E7.jsx)("span", { role: "alert", className: "text-sm text-danger", children: state.error }) ] });
+}
+
 const boundaryHelpers = () => azraelHasDeferredBoundary.toString() + "\n" + azraelNormalizeDeferredTurn.toString() + "\n";
 
 function replaceOnce(text, anchor, replacement) {
@@ -106,8 +157,11 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "e===`cancelled`?{type:`worked-for`,status:`unknown`,startedAtMs:n,completedAtMs:null}",
     "e===`cancelled`?{type:`worked-for`,status:r==null?`unknown`:`stopped`,startedAtMs:n,completedAtMs:r}");
   text = replaceOnce(text, "function Bzi(e){let t=(0,Uzi.c)(13)", "function Bzi(e){let t=(0,Uzi.c)(14)");
+  text = replaceOnce(text, "let u=a??`text-tertiary`,d;", "if(e.rootResumeWait!=null)return(0,E7.jsx)(AzraelRootResumeControls,{wait:e.rootResumeWait,label:l,className:a??`text-tertiary`});let u=a??`text-tertiary`,d;");
+  text = replaceOnce(text, "flex min-h-0 flex-col items-start gap-2 text-size-chat text-secondary", "flex w-full min-h-0 flex-col items-start gap-2 text-size-chat text-secondary");
   text = replaceOnce(text, "t[0]!==a||t[1]!==i||t[2]!==r?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a}),t[0]=a,t[1]=i,t[2]=r,t[3]=o)",
     "t[0]!==a||t[1]!==i||t[2]!==r||t[13]!==e.rootResumeWait?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a,rootResumeWait:e.rootResumeWait}),t[0]=a,t[1]=i,t[2]=r,t[3]=o,t[13]=e.rootResumeWait)");
+  text += "\n" + createRootResumeStore.toString() + "\n" + AzraelRootResumeControls.toString() + "\nvar azraelRootResumeStore;window.addEventListener('pagehide',()=>azraelRootResumeStore?.dispose(),{once:true});";
   return { text, count: 9 };
 }
 
@@ -171,7 +225,9 @@ function injectDeferredHostNotification(text) {
     }
     throw new Error("Pinned deferred-turn anchor must occur exactly once: incomplete or duplicated notification admission.");
   }
-  return { text: replaceOnce(text, '"turn/completed":!0', admission), count: 1 };
+  text = replaceOnce(text, '"turn/completed":!0', admission);
+  if (text.includes('case"open-vscode-command":{')) text = replaceOnce(text, 'case"open-vscode-command":{', 'case"azrael-root-resume":{await je.commands.executeCommand("azrael.rootResumeEmbedded",e,r,this.findPanelByWebview(e));break}case"open-vscode-command":{');
+  return { text, count: 1 };
 }
 
 // The renderer has its own notification admission table before the reducer.
@@ -179,4 +235,4 @@ function injectDeferredHostNotification(text) {
 const injectDeferredRendererNotification = injectDeferredHostNotification;
 
 module.exports = { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
-  injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification, injectDeferredHistoricalRow };
+  injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification, injectDeferredHistoricalRow, createRootResumeStore };

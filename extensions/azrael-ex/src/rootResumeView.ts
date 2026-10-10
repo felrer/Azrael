@@ -18,11 +18,14 @@ export class RootResumeView implements vscode.Disposable {
   private refreshing = false;
   private mutating = false;
   private error: string | undefined;
-  private readonly reservationListener = () => { this.error = undefined; this.render(); };
+  private readonly embedded = new Map<vscode.Webview, { clientId: string; pending: string | null; error: string | null; disposal?: vscode.Disposable }>();
+  private readonly reservationListener = () => { this.error = undefined; this.render(); void this.broadcastEmbedded(); };
   private readonly connectionListener = (connected: boolean) => {
     if (!connected) this.error = "엔진 연결이 끊어졌습니다. 다시 연결되면 자동으로 갱신합니다.";
     this.render();
+    void this.broadcastEmbedded();
     if (connected && this.panel?.visible) void this.refresh();
+    if (connected && this.embedded.size) void this.service.rootResume({ action: "list" }).catch(() => this.broadcastEmbedded());
   };
   private readonly accountErrorListener = (error: string) => { this.error = rootResumeError(error); this.render(); };
 
@@ -46,12 +49,50 @@ export class RootResumeView implements vscode.Disposable {
     this.onVisibility();
   }
 
+  async handleEmbedded(webview: vscode.Webview, value: unknown, panel?: vscode.WebviewPanel): Promise<void> {
+    if (!value || typeof value !== "object") return;
+    const message = value as Record<string, unknown>;
+    if (message.type !== "azrael-root-resume" || typeof message.clientId !== "string" || !message.clientId || message.clientId.length > 512) return;
+    if (message.action === "subscribe") {
+      this.embedded.get(webview)?.disposal?.dispose();
+      const mount = { clientId: message.clientId, pending: null, error: null } as { clientId: string; pending: string | null; error: string | null; disposal?: vscode.Disposable };
+      this.embedded.set(webview, mount);
+      mount.disposal = panel?.onDidDispose(() => { if (this.embedded.get(webview) === mount) this.embedded.delete(webview); });
+    }
+    const mount = this.embedded.get(webview);
+    if (!mount || mount.clientId !== message.clientId) return;
+    if (message.action === "unsubscribe") { mount.disposal?.dispose(); this.embedded.delete(webview); return; }
+    const request = message.action === "subscribe" ? { action: "list" as const } : parseRootResumeMessage(
+      message.action === "list" ? { action: message.action } : { action: message.action, reservationId: message.reservationId, revision: message.revision });
+    if (!request || request.action === "cancel") return;
+    if (request.action === "resume" && this.mutating) { mount.error = "다른 재개 요청을 처리 중입니다. 잠시 후 다시 시도해 주세요."; await this.broadcastEmbedded(); return; }
+    if (request.action === "resume") { this.mutating = true; mount.pending = request.reservationId; mount.error = null; }
+    await this.broadcastEmbedded();
+    try { await this.service.rootResume(request); mount.error = null; }
+    catch (error) {
+      mount.error = rootResumeError(error);
+      // Losing an optimistic revision race must update the displayed targets
+      // before another click. Never retry a mutation with a newer revision.
+      if (request.action === "resume") await this.service.rootResume({ action: "list" }).catch(() => {});
+    } finally {
+      if (request.action === "resume") { this.mutating = false; mount.pending = null; }
+      await this.broadcastEmbedded();
+    }
+  }
+
+  private async broadcastEmbedded(): Promise<void> {
+    await Promise.all([...this.embedded].map(([webview, mount]) => webview.postMessage({ type: "azrael-root-resume-state", clientId: mount.clientId,
+      reservations: this.service.rootResumeReservations ?? [], available: this.service.rootResumeAvailable, pending: mount.pending, error: mount.error })));
+  }
+
   dispose(): void {
     this.stopPolling();
     this.service.off("rootResume", this.reservationListener);
     this.service.off("rootResumeConnection", this.connectionListener);
     this.service.off("errorState", this.accountErrorListener);
     this.panel?.dispose();
+    for (const mount of this.embedded.values()) mount.disposal?.dispose();
+    this.embedded.clear();
   }
 
   private onVisibility(): void {

@@ -17,7 +17,8 @@ const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azra
 const {injectDeferredPresentation,injectDeferredTurn,injectDeferredThread,DEFERRED_PRESENTATION_ASSET,DEFERRED_REDUCER_ASSET,DEFERRED_THREAD_ASSET}=require('./inject-deferred-turn.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const mainName=DEFERRED_PRESENTATION_ASSET.split('/').at(-1);
-const main=injectDeferredPresentation(await readFile(join(assets,mainName),'utf8')).text;
+const {injectStudentDesign}=require('./inject-student-design.cjs');
+const main=injectStudentDesign(injectDeferredPresentation(await readFile(join(assets,mainName),'utf8')).text,DEFERRED_PRESENTATION_ASSET,ts).text;
 const ast=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 const named=(tree,name)=>{const owner=tree.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(owner,'Pinned function '+name);return owner};
 const adaptations={le:'fixtureLocale',U:'FixtureMessage',Vzi:'fixtureClock',zzi:'fixtureLabel',Bzi:'fixtureDivider'};
@@ -38,11 +39,22 @@ import {fixtureNotification,fixtureWrongNotification,fixtureMergeSnapshot,fixtur
 import {fixtureActivity} from './${threadName}';
 const fixtureLocale=()=>({locale:'en-US'});
 let fixtureStoreReady=false;
+const fixtureReservations=()=>[{id:'r1',revision:1,state:'waiting',agentTasks:[{threadId:'child-a',turnId:'a1',agentPath:'/root/first'},{threadId:'child-b',turnId:'b1',agentPath:'/root/second'}]}];
+window.fixtureResumeRequests=[];window.fixtureResumeFailure=false;
+let fixtureResumeReceive;
+azraelRootResumeStore=createRootResumeStore({subscribe:(_type,receive)=>{fixtureResumeReceive=receive;return()=>{}},dispatchMessage:(_type,request)=>{
+ if(request.action==='unsubscribe')return;
+ if(request.action==='resume'){fixtureResumeRequests.push(request);window.fixtureCompleteManualResume=()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations().map(r=>({...r,state:fixtureResumeFailure?'waiting':'resumed',revision:fixtureResumeFailure?2:3})),error:fixtureResumeFailure?'예약 revision이 변경되었습니다. 다시 확인해 주세요.':null});return}
+ queueMicrotask(()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations()}));
+}},'fixture');
+const fixturePhoto='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24" fill="#747cc5"/><circle cx="12" cy="9" r="5" fill="#f5d4bc"/><path d="M3 24a9 9 0 0118 0" fill="#394271"/></svg>');
+azraelDesignStore={subscribe:()=>()=>{},getSnapshot:()=>fixtureDesignSnapshot,dispose:()=>{}};
+const fixtureDesignSnapshot={students:[{id:1,url:fixturePhoto}],assignments:{'child-a':1,'child-b':1}};
 function FixtureMessage({defaultMessage,values={}}){return defaultMessage.replace(/\{(\w+)\}/g,(_,key)=>values[key]??key)}
 ${["Vzi","zzi","Bzi"].map(n=>adapt(named(ast,n))).join(String.fromCharCode(10))}
 window.fixtureNow=20000;Date.now=()=>fixtureNow;
 
-const waitValue=(state='waiting',revision=1)=>({reservationId:'r1',revision,waitStartedAtMs:20000,waitEndedAtMs:state==='resumed'?fixtureNow:null,resumeAtMs:80000,state,canWakeEarly:false});
+const waitValue=(state='waiting',revision=1)=>({reservationId:'r1',revision,waitStartedAtMs:20000,waitEndedAtMs:state==='resumed'?fixtureNow:null,resumeAtMs:80000,state,canWakeEarly:true});
 const nativeOld=()=>({id:'old',status:'deferred',durationMs:8000,startedAt:12,rootResumeWait:waitValue(),items:[]});
 const oldTurn=()=>({turnId:'old',status:'inProgress',turnStartedAtMs:12000,durationMs:null,items:[{id:'reason',type:'reasoning',summary:['Timer verification'],content:[]}],params:{threadId:'thread-live',input:[],attachments:[]}});
 let fixtureEnvironment;
@@ -91,12 +103,37 @@ try{
   await evaluate('fixtureReset();fixtureRerender()');
   await wait("document.querySelector('[data-fixture-old]').innerText.includes('Working')");
   const active=await oldText();await advance(3000);check(theme+' active work clock ticks',(await oldText())!==active);
-  await evaluate('fixtureNow=20000;fixtureDefer()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('Worked for 8s')");
+  await evaluate('fixtureNow=20000;fixtureDefer()');await wait("document.querySelector('[data-fixture-old]')?.innerText.includes('Worked for 8s')");
   check(theme+' native notification targets actual thread and turn',await evaluate("fixtureReceipt.updates.length===1&&fixtureReceipt.updates[0].threadId==='thread-live'&&fixtureReceipt.updates[0].turnId==='old'&&fixtureReceipt.broadcasts[0]==='thread-live'&&fixtureReceipt.errors.length===0"));
   await advance(4000);check(theme+' waiting ticks independently',(await oldText()).includes('현재 4초 대기함'));
   check(theme+' old work freezes',(await oldText()).includes('Worked for 8s'));
   for(const resume of [false,true]){await evaluate('fixtureStale('+resume+')');await advance(3000);check(theme+' stale snapshot '+resume+' keeps deferred clock',await evaluate("fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===8000")&&(await oldText()).includes('Worked for 8s'))}
   await screenshot(theme+'-waiting');
+  await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===2");
+  check(theme+' selected child photos overlap by one third',await evaluate("(()=>{const a=[...document.querySelectorAll('[data-azrael-root-resume] img')].map(e=>e.getBoundingClientRect());return a[0].width===24&&Math.abs(a[1].left-a[0].left-16)<1})()"));
+  check(theme+' resume is native and right aligned',await evaluate("(()=>{const b=document.querySelector('[data-azrael-root-resume] button'),row=b.closest('[data-azrael-root-resume]').firstElementChild,r=b.getBoundingClientRect();return b.textContent==='재개'&&!b.disabled&&r.height>=22&&r.width>=35&&Math.abs(r.right-row.getBoundingClientRect().right)<1})()"));
+  await screenshot(theme+'-waiting-controls');
+  await send('Emulation.setDeviceMetricsOverride',{width:360,height:740,deviceScaleFactor:1,mobile:false});
+  await wait("window.innerWidth===360");
+  check(theme+' narrow wait photos and resume stay within row',await evaluate("(()=>{const e=document.querySelector('[data-azrael-root-resume]'),r=e.getBoundingClientRect(),b=e.querySelector('button'),images=[...e.querySelectorAll('img')];return document.documentElement.scrollWidth<=360&&r.left>=0&&r.right<=360&&b&&!b.disabled&&[b,...images].every(n=>{const a=n.getBoundingClientRect();return a.left>=r.left&&a.right<=r.right+1&&a.height>=22})})()"));
+  await screenshot(theme+'-narrow-waiting-controls');
+  await evaluate("fixtureState.old.rootResumeWait={...fixtureState.old.rootResumeWait,canWakeEarly:false};fixtureRerender()");
+  await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===0");
+  check(theme+' deadline only wait has no child photos',await evaluate("document.querySelector('[data-azrael-root-resume] button').textContent==='재개'"));
+  await evaluate("fixtureState.old.rootResumeWait={...fixtureState.old.rootResumeWait,canWakeEarly:true};fixtureRerender()");
+  await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===2");
+  await evaluate("fixtureResumeFailure=true;document.querySelector('[data-azrael-root-resume] button').click()");
+  check(theme+' manual resume locks pending action',await evaluate("document.querySelector('[data-azrael-root-resume] button').disabled&&fixtureResumeRequests.at(-1).reservationId==='r1'&&fixtureResumeRequests.at(-1).revision===1"));
+  await evaluate('fixtureCompleteManualResume()');await wait("!!document.querySelector('[data-azrael-root-resume] [role=alert]')");
+  check(theme+' race error keeps native retry available',await evaluate("!document.querySelector('[data-azrael-root-resume] button').disabled"));
+  await evaluate("fixtureResumeFailure=false;document.querySelector('[data-azrael-root-resume] button').focus()");
+  await send('Page.bringToFront');
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13,text:'\r',unmodifiedText:'\r'});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await wait('fixtureResumeRequests.at(-1).revision===2');await evaluate('fixtureCompleteManualResume()');
+  await wait("!document.querySelector('[data-azrael-root-resume] button')");
+  check(theme+' successful resume removes controls',await evaluate("!document.querySelector('[data-azrael-root-resume] [role=alert]')"));
+  check(theme+' narrow mouse and keyboard resume remain usable',await evaluate("fixtureResumeRequests.at(-1).revision===2&&document.documentElement.scrollWidth<=360"));
+  await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});
   await evaluate('fixtureResume()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('10초 대기 후 재개됨')");
   const ended=await oldText();const newText=await evaluate("document.querySelector('[data-fixture-new]').innerText");await advance(5000);
   check(theme+' resumed wait and old work stay fixed',(await oldText())===ended);

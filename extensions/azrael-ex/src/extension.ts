@@ -128,6 +128,8 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => usageView.handleEmbedded(webview, request, panel)));
   register("azrael.devinAccount", () => usageView.show());
   register("azrael.rootResume", () => rootResumeView.show());
+  context.subscriptions.push(vscode.commands.registerCommand("azrael.rootResumeEmbedded",
+    (webview: vscode.Webview, request: unknown, panel?: vscode.WebviewPanel) => rootResumeView.handleEmbedded(webview, request, panel)));
   register("azrael.manageAccounts", () => usageView.show());
   register("azrael.accountQuickPick", () => guarded(() => view.quickPick()));
   register("azrael.refreshAccounts", () => guarded(() => view.refreshAll()));

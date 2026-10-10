@@ -32,6 +32,14 @@ The engine owns the boundary and duration. It captures the first durable waiting
 
 The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
 
+### Waiting agents and manual resume
+
+Status: `current` in source — native Windows light/dark rendering and resume interactions verified at normal and 360px widths; packaging, installation and other platform acceptance remain separate.
+
+While a reservation is waiting, its chat divider shows the selected child agents after the waiting duration when selected-child completion can wake the root. It reuses each child's existing assigned photo and avatar fallback, with adjacent avatars overlapping by one third of their width. Accessible names identify the selected agents. Timed-only reservations have no agent group.
+
+The same row places a native **재개** action at the right edge. It resumes the displayed reservation through the existing reservation-ID and revision-checked management contract. A pending request prevents repeated submission; failures remain visible, and an automatic resume or stale-revision result reconciles authoritative state. Ended reservations have no active resume action. Manual resume keeps the selected children running and passes the engine's normal admission checks.
+
 ### Chat work and waiting durations
 
 Status: `current` for the verified reused engine and pinned UI. Exact isolated package r12 (`0.5.1791491963456`) passed 89 selected regressions, all six archive-runtime host checks and actual subagent/scheduled-resume verification with a waiting-time Reload Window. The old work boundary remained frozen and the restored wait changed to its ended state; its displayed 179 seconds stayed fixed while resumed work continued. Actual light/dark rendering and existing wait disclosure interactions passed. These UI changes reuse the existing verified engine binaries and do not establish acceptance of newer native cancellation/timing changes. Evidence: `artifacts/logs/resume-timer-deploy-20261008/`.
