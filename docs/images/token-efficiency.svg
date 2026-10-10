@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="520" viewBox="0 0 980 520" role="img" aria-label="Polling loop compared with a deferred root resume">
+  <rect x="0" y="0" width="980" height="520" fill="#ffffff"/>
+
+  <text x="40" y="44" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="22" font-weight="600" fill="#202123">Where the saved tokens come from</text>
+  <text x="40" y="70" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="13" fill="#77787b">Both rows wait the same eight minutes for the same render. Only the number of model requests differs.</text>
+
+  <!-- Row A -->
+  <rect x="40" y="96" width="900" height="166" rx="14" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="64" y="124" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="600" fill="#a24949">Without deferral &#183; the root keeps checking</text>
+  <text x="64" y="145" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" fill="#77787b">Every check is a full request that re-sends the conversation, then answers &#8220;still running&#8221;.</text>
+
+  <line x1="64" y1="196" x2="872" y2="196" stroke="#e6e6e8" stroke-width="2"/>
+
+  <g font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#a24949" text-anchor="middle">
+    <circle cx="64" cy="196" r="6" fill="#a24949"/>
+    <circle cx="165" cy="196" r="6" fill="#a24949"/>
+    <circle cx="266" cy="196" r="6" fill="#a24949"/>
+    <circle cx="367" cy="196" r="6" fill="#a24949"/>
+    <circle cx="468" cy="196" r="6" fill="#a24949"/>
+    <circle cx="569" cy="196" r="6" fill="#a24949"/>
+    <circle cx="670" cy="196" r="6" fill="#a24949"/>
+    <circle cx="771" cy="196" r="6" fill="#a24949"/>
+    <circle cx="872" cy="196" r="6" fill="#a24949"/>
+    <text x="64" y="220">start</text>
+    <text x="165" y="220">check</text>
+    <text x="266" y="220">check</text>
+    <text x="367" y="220">check</text>
+    <text x="468" y="220">check</text>
+    <text x="569" y="220">check</text>
+    <text x="670" y="220">check</text>
+    <text x="771" y="220">check</text>
+    <text x="872" y="220">done</text>
+  </g>
+  <text x="64" y="246" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="600" fill="#a24949">9 model requests &#183; 7 of them produced no progress</text>
+
+  <!-- Row B -->
+  <rect x="40" y="282" width="900" height="166" rx="14" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="64" y="310" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" font-weight="600" fill="#16805d">With defer_root &#183; the root parks</text>
+  <text x="64" y="331" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" fill="#77787b">The host watches the signal and the engine wakes the root once, on the completion event.</text>
+
+  <line x1="64" y1="382" x2="872" y2="382" stroke="#e6e6e8" stroke-width="2"/>
+  <line x1="64" y1="382" x2="872" y2="382" stroke="#16805d" stroke-width="2" stroke-dasharray="6 6"/>
+  <circle cx="64" cy="382" r="6" fill="#16805d"/>
+  <circle cx="872" cy="382" r="6" fill="#16805d"/>
+  <text x="64" y="406" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#16805d">defer</text>
+  <text x="872" y="406" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#16805d">resume</text>
+  <text x="468" y="372" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#77787b">parked &#183; host checks the signal file about once a second, with no model call</text>
+  <text x="64" y="432" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="600" fill="#16805d">2 model requests &#183; the root is free to do other ready work before it parks</text>
+
+  <text x="40" y="482" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11.5" fill="#77787b">The saving comes from removing repeated wake-ups and status checks, not from the elapsed time itself. A resumed request is a</text>
+  <text x="40" y="500" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11.5" fill="#77787b">fresh request built from retained conversation state, so a provider prompt-cache miss can still raise the cost of that first turn.</text>
+</svg>

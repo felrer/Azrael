@@ -1,0 +1,97 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="760" viewBox="0 0 1180 760" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="14" fill="#202123">
+  <rect width="1180" height="760" fill="#ffffff"/>
+  <title>Azrael accounts and usage with fictional accounts</title>
+  <desc>Three provider groups with remaining quota, reset time, and an expanded automatic switching option.</desc>
+  <path d="M250 0V760" stroke="#e6e6e8"/>
+  <text x="28" y="51" font-size="20" font-weight="600">Azrael</text>
+  <g fill="none" stroke="#77787b" stroke-width="1.5">
+    <rect x="28" y="91" width="16" height="14" rx="4"/>
+    <path d="M32 105v3l4-3"/>
+    <circle cx="36" cy="201" r="7"/><circle cx="36" cy="201" r="2"/>
+    <rect x="29" y="241" width="14" height="16" rx="2"/>
+    <path d="M32 246h8m-8 4h8m-8 4h5"/>
+  </g>
+  <text x="58" y="104">Chat</text>
+  <rect x="16" y="126" width="218" height="44" rx="12" fill="#ededee"/>
+  <g fill="none" stroke="#77787b" stroke-width="1.5">
+    <circle cx="36" cy="143" r="4"/>
+    <path d="M28 156c0-7 16-7 16 0"/>
+  </g>
+  <text x="58" y="153">Accounts and usage</text>
+  <text x="58" y="206">Settings</text>
+  <text x="58" y="254">Instructions</text>
+  <text x="294" y="66" font-size="24" font-weight="600">Accounts and usage</text>
+  <text x="294" y="98" fill="#77787b">Sign in, switch, and remove accounts for every provider in one place.</text>
+
+  <rect x="294" y="130" width="30" height="30" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+  <text x="309" y="151" text-anchor="middle" font-size="17" font-weight="600">O</text>
+  <text x="337" y="151" font-size="17" font-weight="600">OpenAI</text>
+  <rect x="294" y="173" width="842" height="278" rx="18" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="318" y="215" font-family="Consolas, monospace">alex@example.com</text>
+  <rect x="467" y="193" width="78" height="28" rx="20" fill="#ededee"/>
+  <text x="506" y="212" text-anchor="middle" font-size="12" fill="#66676b">Signed in</text>
+  <g font-size="11" fill="#66676b">
+    <text x="736" y="193">Remaining</text><text x="912" y="193">Resets in</text>
+  </g>
+  <text x="736" y="214">72%</text><text x="912" y="214">4h 20m</text>
+  <rect x="736" y="228" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="736" y="228" width="108" height="6" rx="3" fill="#252526"/>
+  <rect x="912" y="228" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="912" y="228" width="108" height="6" rx="3" fill="#252526"/>
+  <path d="m1094 211 5-5 5 5" fill="none" stroke="#9c9c9f" stroke-width="1.5"/>
+  <rect x="310" y="247" width="810" height="54" rx="10" fill="#fcfcfc"/>
+  <rect x="326" y="259" width="14" height="14" rx="3" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="350" y="271">Allow automatic switching</text>
+  <text x="350" y="291" font-size="12" fill="#77787b">Recover only from a confirmed quota-exhaustion response, within the same provider.</text>
+  <path d="M294 311H1136M294 381H1136" stroke="#e6e6e8"/>
+  <text x="318" y="353" font-family="Consolas, monospace">alex.work@example.com</text>
+  <g font-size="11" fill="#66676b">
+    <text x="736" y="331">Remaining</text><text x="912" y="331">Resets in</text>
+  </g>
+  <text x="736" y="352">48%</text><text x="912" y="352">2d 6h</text>
+  <rect x="736" y="366" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="736" y="366" width="72" height="6" rx="3" fill="#252526"/>
+  <rect x="912" y="366" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="912" y="366" width="72" height="6" rx="3" fill="#252526"/>
+  <path d="m1096 341 5 5-5 5" fill="none" stroke="#9c9c9f" stroke-width="1.5"/>
+  <text x="318" y="423" font-family="Consolas, monospace">team@example.org</text>
+  <g font-size="11" fill="#66676b">
+    <text x="736" y="401">Remaining</text><text x="912" y="401">Resets in</text>
+  </g>
+  <text x="736" y="422">91%</text><text x="912" y="422">6h 10m</text>
+  <rect x="736" y="436" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="736" y="436" width="136.5" height="6" rx="3" fill="#252526"/>
+  <rect x="912" y="436" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="912" y="436" width="136.5" height="6" rx="3" fill="#252526"/>
+  <path d="m1096 411 5 5-5 5" fill="none" stroke="#9c9c9f" stroke-width="1.5"/>
+
+  <rect x="294" y="478" width="30" height="30" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+  <text x="309" y="499" text-anchor="middle" font-size="17" font-weight="600">A</text>
+  <text x="337" y="499" font-size="17" font-weight="600">Anthropic</text>
+  <rect x="294" y="521" width="842" height="70" rx="18" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="318" y="563" font-family="Consolas, monospace">dev@example.com</text>
+  <g font-size="11" fill="#66676b">
+    <text x="736" y="541">Remaining</text><text x="912" y="541">Resets in</text>
+  </g>
+  <text x="736" y="562">64%</text><text x="912" y="562">3h 45m</text>
+  <rect x="736" y="576" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="736" y="576" width="96" height="6" rx="3" fill="#252526"/>
+  <rect x="912" y="576" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="912" y="576" width="96" height="6" rx="3" fill="#252526"/>
+  <path d="m1096 551 5 5-5 5" fill="none" stroke="#9c9c9f" stroke-width="1.5"/>
+
+  <rect x="294" y="618" width="30" height="30" rx="8" fill="#fafafa" stroke="#e6e6e8"/>
+  <text x="309" y="639" text-anchor="middle" font-size="17" font-weight="600">G</text>
+  <text x="337" y="639" font-size="17" font-weight="600">Google Antigravity</text>
+  <rect x="294" y="661" width="842" height="70" rx="18" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="318" y="703" font-family="Consolas, monospace">research@example.net</text>
+  <g font-size="11" fill="#66676b">
+    <text x="736" y="681">Remaining</text><text x="912" y="681">Resets in</text>
+  </g>
+  <text x="736" y="702" fill="#9b6423">8%</text><text x="912" y="702">18m</text>
+  <rect x="736" y="716" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="736" y="716" width="12" height="6" rx="3" fill="#b57728"/>
+  <rect x="912" y="716" width="150" height="6" rx="3" fill="#ececee"/>
+  <rect x="912" y="716" width="12" height="6" rx="3" fill="#b57728"/>
+  <path d="m1096 691 5 5-5 5" fill="none" stroke="#9c9c9f" stroke-width="1.5"/>
+</svg>

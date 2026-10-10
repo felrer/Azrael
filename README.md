@@ -1,106 +1,227 @@
 # Azrael
 
-Azrael은 VS Code에서 AI 에이전트와 함께 코드와 프로젝트 작업을 수행하기 위한 독립 호스트입니다. Codex 기반 엔진과 UI를 바탕으로 채팅, 계정·사용량 관리, 여러 제공자의 모델 사용, 에이전트 협업과 대화 복구 기능을 통합합니다.
+**[English](README.md) | [한국어](README.ko.md)**
 
-하나의 통합 확장으로 실행하며, 계정·대화·설정은 `~/.azrael-ex`에 보관합니다. 기존 Codex와 별도의 상태를 사용하며, 설치 절차는 기존 Codex 확장과 다른 확장, VS Code 설정을 보존하도록 구성되어 있습니다.
+Azrael is an independent VS Code host for working with AI agents on code and projects. It brings a Codex-based engine and interface together with multiple accounts, models from different providers, coordinated subagents, context management, and conversation recovery.
 
-## 주요 기능
+The workflow is designed for both agents and people: assign independent work, keep shared decisions with one root agent, switch accounts and models from the same interface, and return to important conversations quickly. Window Use explores letting an agent operate a selected application while you continue working elsewhere.
 
-| 기능 | 설명 |
+Azrael runs as one integrated extension. Accounts, conversations, and settings live in `~/.azrael-ex`, separate from ordinary Codex state. Installation preserves existing Codex extensions, other extensions, and VS Code settings.
+
+## Major features
+
+| Feature | What it helps you do |
 | --- | --- |
-| 통합 채팅과 작업 실행 | VS Code 안에서 대화를 이어가며 파일 편집, 명령 실행, 도구 호출을 수행합니다. |
-| 계정·사용량 관리 | **계정 및 사용량** 화면에서 계정 로그인·전환·삭제와 제공자별 사용량을 관리합니다. |
-| 여러 제공자와 모델 | OpenAI, Devin 및 관리형 제공자 연동을 통해 모델을 선택합니다. 사용 가능한 모델과 인증 방식은 제공자와 계정에 따라 다릅니다. |
-| 에이전트 협업 | 하위 에이전트에 작업을 맡기고 진행·완료 결과를 받아 작업을 이어갑니다. 지원되는 경로에서는 서로 다른 제공자의 모델을 함께 사용할 수 있습니다. |
-| 대화 복구와 입력 큐 | 실행 상태를 확인하고 중단된 대화를 복구하며, 대기 입력과 컨텍스트 압축 요청을 관리합니다. |
-| 작업 환경 설정 | 제공자별 컨텍스트 압축 기준, 작업 지침 문서, Computer Use와 Window Use 관련 설정을 제공합니다. |
+| Chat and development tools | Edit files, run commands, and use tools from a conversation inside VS Code. |
+| Root and subagent collaboration | Give workers bounded assignments while the root owns shared decisions, integration, and final acceptance. |
+| Scheduled root resume | Park the root during dependent work and resume on selected completion signals or a fallback deadline. |
+| Multiple accounts and providers | Connect accounts, compare available usage, switch accounts, and choose models across providers. |
+| Context management | Configure provider-specific automatic compaction and queue a manual compaction request between turns. |
+| Window Use | Discover, capture, and control one approved Windows application through a separate tool surface. |
+| Session flags | Mark conversations with a red flag so they are easier to find in the Chats list. |
+| Recovery and queues | Keep queued inputs, reconcile accepted turns, and recover conversations after a reload. |
 
-기능의 구현·설치·실제 서비스 검증 범위는 서로 다를 수 있습니다. 현재 상태는 [개발 상태와 제한사항](#개발-상태와-제한사항), 상세 동작은 [아키텍처 문서](docs/architecture/README.md)에서 확인할 수 있습니다.
+The images below are **illustrative UI reproductions with invented accounts, conversations, models, and usage values**. They contain no private session data and do not establish that every illustrated interaction is verified in an installed release. Implementation and acceptance details remain in the linked feature documents.
 
-## 시작하기
+## Agent collaboration with clear ownership
 
-현재 문서화된 빌드·설치 환경은 **Windows와 VS Code**입니다. 로컬 개발 환경에서 통합 호스트를 빌드하고 검증한 뒤 설치하는 절차를 제공합니다.
+Azrael separates coordination from execution. The **root agent** decides the scope, shared contracts, work order, resource constraints, integration, and final acceptance. **Subagents** receive a defined outcome, owned files or read boundaries, prerequisites, authority limits, and completion criteria. Read-only exploration and implementation can use different roles and models.
 
-### 필요한 환경
+Independent assignments can run in parallel. Shared files, build locks, CPU, memory, and other dependencies still determine the useful level of concurrency. The root continues useful independent work while workers execute, then waits for their completion at a dependency boundary. Completion reports carry the actual scope, exit codes, evidence paths, and remaining uncertainty, reducing repeated investigation and unnecessary status exchanges.
 
-- PowerShell 7, Git, Node.js/npm, Python 3.11 이상
-- 프로젝트에서 지정한 Rust 도구 체인과 MSVC Build Tools
-- VS Code와 `code.cmd`
-- 지정된 버전의 원본 Codex UI 스냅샷과 호환되는 `codex-code-mode-host.exe`
-- 설치 절차에서 참조할 공식 Codex 확장 및 같은 버전의 오디오 확장 경로
+![Root coordinating independent subagents and external work, parking, and resuming for integration](docs/images/agent-collaboration.svg)
 
-Devin 연동에는 외부 Node.js 22.18 이상이 필요하고, 관리형 제공자 연동에는 프로젝트에서 지정한 Bun 런타임을 사용합니다. 정확한 버전과 준비 조건은 [개발 환경 요구사항](docs/ops/development.md#prerequisites)을 따릅니다. 원본 UI와 실행 파일은 별도 준비가 필요하므로 저장소 복제만으로 설치 준비가 완료되지는 않습니다.
+### Resume on subagent completion or a code completion signal
 
-### 빌드·검증·설치
+The root resume mechanism supports two kinds of selected work:
 
-프로젝트 루트에서 PowerShell 7로 실행합니다. 아래 `<...>` 값은 실행 전에 실제 경로와 새로운 릴리스 이름으로 바꿉니다.
+- **Subagents:** `defer_root.wake_on.agent_paths` identifies the child tasks to wait for.
+- **External code work:** `azrael_agents.work_completion` registers a fresh `workId` and `signalPath`. A build, render, or other producer publishes its actual terminal result through the registered signal, for example with [`scripts/complete-work.cjs`](scripts/complete-work.cjs). `defer_root.wake_on.work_ids` selects those executions.
+
+With `condition: all_terminal`, the root wakes early when **every selected child and external execution has ended**. Success, failure, and cancellation are terminal outcomes; the root must inspect the results before proceeding. A scheduled time or delay provides a fallback deadline. Progress updates alone do not wake it. The host checks external signal files about once a second without making model requests.
+
+For example, the root can start a video render, assign a worker to prepare accompanying material, finish its own independent edits, and then park. Once both selected tasks end, it resumes to inspect the output and integrate the result. The render keeps running during the wait.
+
+The **Root resume reservations** view (`azrael.rootResume`) shows pending reservations, reasons, local resume times, and available resume/cancel controls. Cancelling a reservation leaves its producers running. The engine must be running with the root loaded for automatic resume to execute; durable reservations support recovery after reload.
+
+Scheduled deferral is exposed on verified native tool transports, currently the **native OpenAI root path**. External work signals are verified in Windows native source; their packaging, installed-host acceptance, and other-platform acceptance are separate gates. Other providers' normal subagent collaboration does not imply access to this scheduling tool.
+
+### Why this can be faster and use fewer tokens
+
+Independent work overlaps instead of waiting in sequence. Clear ownership reduces duplicate edits, competing builds, and re-reading another agent's investigation. At a dependency boundary, a parked root performs **no ongoing inference**: it avoids repeatedly waking a model to ask whether a render or build has finished.
+
+![Illustrative comparison of repeated model checks with one deferred wait and resume](docs/images/token-efficiency.svg)
+
+The eight-minute example illustrates request counts, not a measured benchmark or a promised token reduction. A render takes the same time in both rows. Savings come from removing unnecessary model requests and status exchanges. Resume makes a fresh request from retained conversation state; provider prompt-cache reuse is independent and a cache miss can increase its input cost.
+
+See [root coordination](docs/architecture/root-coordination.md), [root resume scheduling](docs/architecture/root-resume.md), and the maintained [instruction library](instructions/README.md).
+
+## A smoother workflow for people
+
+### Accounts and usage in one place
+
+Open **Accounts and usage** (`계정 및 사용량`) from the profile menu to connect, switch, or remove accounts and review provider-specific usage. Multiple saved accounts let you choose the account appropriate to the next task without repeating setup. Available quotas and reset windows depend on the provider; unavailable observations are shown explicitly.
+
+![Illustrative account groups with multiple saved accounts and remaining usage](docs/images/accounts-usage.svg)
+
+Account and usage controls share one page. Credentials stay out of Webviews and logs. Account switching does not silently redirect a running request to another account, and managed thread bindings preserve their provider/account identity according to each provider's contract.
+
+See [accounts and usage](docs/architecture/accounts.md) and [provider account operations](docs/ops/provider-accounts.md).
+
+### Choose models across providers
+
+Azrael combines native OpenAI and Devin paths with managed provider integrations, including Anthropic subscription OAuth, Google Antigravity, Google AI Studio, xAI, and OpenRouter. User-configured Chat Completions and Responses API connections have a separate identity and model group. Actual model availability, reasoning settings, authentication, and account limits depend on the connection.
+
+![Illustrative provider-grouped model picker with reasoning selection](docs/images/model-picker.svg)
+
+Switch models from the picker and use supported models as subagents. Provider changes occur at a turn boundary, with a bounded handoff summary when earlier output or a compaction checkpoint needs to cross providers. The same engine retains tool execution, permissions, and conversation ownership through the handoff.
+
+See [managed providers](docs/architecture/managed-providers.md), [custom API models](docs/architecture/custom-api-models.md), and [Devin integration](docs/architecture/devin.md).
+
+### Manage context without breaking the workflow
+
+Provider-specific automatic compaction settings resolve against the selected model's capacity and context policy. You can also queue a manual compaction request between turns, alongside queued messages, instead of interrupting active work. Subagents resolve their own provider/model policy from the inherited configuration.
+
+![Illustrative context gauge and manual compaction control](docs/images/context-compaction.svg)
+
+Compaction carries a bounded summary into the continuing conversation; it does not preserve every original detail. Reload recovery and accepted-input reconciliation help continue work without blindly replaying already accepted messages. Deferred work segments can be folded while their waiting and resume state remains visible.
+
+See [context policy](docs/architecture/context-policy.md), [queued compaction](docs/architecture/queued-compaction.md), and [reload recovery](docs/architecture/reload-recovery.md).
+
+### Window Use: collaborate around a selected application
+
+Whole-desktop Computer Use can compete with a person's foreground applications, cursor, and keyboard. **Window Use** is a separate Windows feature designed to address that friction: the agent discovers and selects one approved window, observes that target, and uses supported application controls while you work in another application.
+
+![Illustrative Window Use demo showing a selected target behind a person's foreground workspace](docs/images/window-use.svg)
+
+The demo reproduction shows the intended collaboration: one selected target, a separate human workspace, and visible control state. Windows Graphics Capture can obtain the target's content while another window covers it. Structured actions reuse UI Automation where supported, with app approvals, occupancy information, pause/recovery controls, and reusable task macros.
+
+**Window Use is experimental and partially verified.** Actual Firefox and File Explorer observation and some Explorer actions have been checked. General concurrent physical-input isolation, installed GUI/tool acceptance, approval notifications, overlays, and real-window macros still have open acceptance work. Some actions can activate a target; background key delivery is experimental. Availability and reliability depend on the application exposing usable controls. Selected-window failures do not automatically expand authority to the whole desktop.
+
+Computer Use remains a separate feature with its own authorization. Neither desktop-control backend is included in Linux or macOS core packages.
+
+See [Window Use](docs/architecture/window-use.md) and [Computer Use](docs/architecture/computer-use.md).
+
+### Flag conversations to find them again
+
+Use a conversation row's flag button in **Chats** to add or remove a red flag. The marker stays visible on flagged conversations and is stored by host and conversation identity. Combine the visible markers with chat search to return to an important task quickly.
+
+![Illustrative Chats list with flagged conversations and search](docs/images/session-flags.svg)
+
+## Platforms and current limits
+
+The local runtime targets **Windows x64, glibc Linux x64, and Apple Silicon macOS**. Their distribution and acceptance states differ:
+
+| Platform | Distribution and verified scope | Unavailable or outside the accepted scope |
+| --- | --- | --- |
+| Windows x64 | Published [2026.0.3](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.3); existing Windows acceptance is the baseline. | Window Use retains the experimental limits described above. |
+| Linux x64 / glibc | Published [2026.0.1](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.1); accepted on Ubuntu 24.04 / glibc 2.39 using native Linux VS Code through WSLg. | Computer Use, Window Use, and Windows desktop-control approval notifications are unavailable. Standalone desktops, older distributions, and live provider authentication/inference remain unverified. |
+| macOS ARM64 | Partial internal acceptance; public distribution is deferred. | Computer Use, Window Use, and Windows desktop-control approval notifications are unavailable. Public installation, signing, and notarization are outside the released scope. |
+
+Linux requires **glibc 2.39 or newer and OpenSSL 3** for the published package. Managed account storage requires a desktop Secret Service; Korean labels require CJK fonts. Intel Macs, Linux ARM64, Alpine/musl, general WSL product support, remote extension hosts, and containers are separate follow-up targets. WSLg acceptance does not establish those additional targets.
+
+Shared chat, provider management, development tools, collaboration, queues, and recovery have common product contracts. Source tests, native execution, installed-host UI checks, and real-provider inference are distinct evidence; support for a target does not establish every feature on it. Full upstream `codex-core` and workspace regression acceptance is not established.
+
+See the [multi-platform contract](docs/architecture/multi-platform.md), [platform operations](docs/ops/multi-platform.md), and [current development state](docs/ops/development.md#current-state).
+
+## Installation
+
+### Windows: install the published package
+
+1. Install VS Code and PowerShell 7, and make the VS Code `code` command available.
+2. Download `Azrael-2026.0.3-windows-x64.zip` and `SHA256SUMS.txt` from the [Windows release](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.3). Check the archive's SHA-256 against the checksum file, then extract it into a new directory.
+3. In PowerShell 7, open the extracted package directory and run:
+
+   ```powershell
+   ./install.ps1
+   ```
+
+4. In VS Code, run **Developer: Reload Window** to activate the installed host.
+
+The package includes its verified runtime dependencies and bundled Node. The installer checks its inventory, creates a versioned runtime installation, and prepares the integrated VSIX. It preserves existing authentication and conversations and does not close or reload active windows automatically.
+
+Default runtime releases live under `%LOCALAPPDATA%/azrael-ex/releases`; state lives under `%USERPROFILE%/.azrael-ex`. `-ReleasesRoot`, `-StateRoot`, and `-CodePath` override the locations. `-PrepareOnly` prepares the installation without invoking VS Code. Changing the state path does not migrate existing accounts or conversations. Follow [app release installation](docs/ops/app-release.md#package-and-installation-contract) for options and recovery.
+
+### Linux: use the platform package instructions
+
+Download all four Linux assets from the [Linux release](https://github.com/felrer/Azrael/releases/tag/azrael-v2026.0.1): the `.tar.gz` archive, `.manifest.json`, `.SHA256SUMS.txt`, and **`Azrael-2026.0.1-linux-x64.INSTALL.md`**. Keep them in the same directory. After satisfying the dependencies above, verify and extract the package:
+
+```sh
+sha256sum -c Azrael-2026.0.1-linux-x64.SHA256SUMS.txt
+mkdir Azrael-2026.0.1-linux-x64
+tar -xzf Azrael-2026.0.1-linux-x64.tar.gz -C Azrael-2026.0.1-linux-x64
+cd Azrael-2026.0.1-linux-x64
+```
+
+Close existing Azrael sessions before selecting a new runtime, then use the bundled Node installer:
+
+```sh
+./runtime/runtime/node/node install-platform-release.cjs \
+  --package "$PWD" \
+  --install-root "$HOME/.local/share/azrael/releases" \
+  --state-root "$HOME/.azrael-ex" \
+  --code /usr/bin/code
+```
+
+Replace `/usr/bin/code` with the absolute path to your local VS Code CLI, then restart VS Code after installation. Use a new runtime directory and a separate Azrael state directory. Follow the downloaded `INSTALL.md` for Secret Service setup, prepare-only installation, and recovery details.
+
+macOS has no public installation package yet. Developers preparing an internal candidate should use [platform operations](docs/ops/multi-platform.md) and retain its partial acceptance status.
+
+## First use
+
+1. Open the Azrael sidebar after reloading VS Code.
+2. Connect an account from **Accounts and usage** (`계정 및 사용량`) in the profile menu.
+3. Select an available model and request a task. Explain the desired outcome and relevant constraints; independent work can be assigned to subagents where enabled.
+4. Adjust context policy, instruction components, and applicable desktop-control settings in **Azrael settings**.
+5. Flag important Chats rows. For a scheduled root, inspect its reservation and use the available resume/cancel controls as needed.
+
+For Windows Window Use, enable it and approve the intended application before selecting a window. Read its experimental limits before relying on simultaneous desktop work. Provider-specific connection requirements remain in [provider account operations](docs/ops/provider-accounts.md); Devin setup is described in [Devin operations](docs/ops/devin-native.md).
+
+## Development
+
+### Project structure
+
+| Path | Responsibility |
+| --- | --- |
+| [`engine/`](engine/) | Codex-based Azrael engine and source provenance. |
+| [`extensions/azrael-ex/`](extensions/azrael-ex/) | Account, usage, and settings module embedded in the integrated host. |
+| [`providers/`](providers/) | Provider authentication and inference integrations. |
+| [`native/`](native/) | Windows native functionality. |
+| [`plugins/`](plugins/) | Plugins and associated skills/tools. |
+| [`instructions/`](instructions/) | Maintained coordination guidance, roles, skills, and examples. |
+| [`scripts/`](scripts/) | Build, package, verification, installation, and release tools. |
+| [`docs/`](docs/) | Architecture, code maps, operations, and project playbooks. |
+| `artifacts/` | Ignored build outputs, immutable release inputs, packages, and logs. |
+
+### Build and verify from source
+
+Cloning the repository alone does not supply all build inputs. Windows development requires PowerShell 7, Git, Node/npm, Python 3.11+, the pinned Rust toolchain and MSVC Build Tools, VS Code, the pinned official UI snapshot, a compatible code-mode host, and matching official extension/audio inputs. Devin requires the specified Node runtime; managed integrations use the pinned Bun runtime. Exact requirements and provenance rules live in [development operations](docs/ops/development.md#prerequisites).
+
+From the project root, replace the placeholders with real absolute paths and a fresh release name:
 
 ```powershell
-./scripts/deploy-azrael.ps1 -ReleaseName '<새 릴리스 이름>' `
+./scripts/deploy-azrael.ps1 -ReleaseName '<new-release-name>' `
   -SourceRoot "$PWD/engine" `
-  -EngineTargetDirectory '<Rust 빌드 캐시의 절대 경로>' `
-  -CodeModeHostPath '<호환되는 codex-code-mode-host.exe의 절대 경로>' `
-  -OriginalExtensionPath '<설치된 공식 Codex 확장 경로>' `
-  -OriginalAudioPath '<같은 버전의 공식 오디오 확장 경로>' `
+  -EngineTargetDirectory '<absolute-rust-cache-path>' `
+  -CodeModeHostPath '<absolute-compatible-code-mode-host.exe>' `
+  -OriginalExtensionPath '<official-extension-path>' `
+  -OriginalAudioPath '<matching-official-audio-extension-path>' `
   -VerifyOnly
 ```
 
-`-VerifyOnly`는 빌드, 소스 검사, 패키지 준비와 격리된 호스트 검증까지 수행합니다. 실제 사용자 프로필에 설치하려면 새로운 릴리스 이름으로 같은 절차를 실행하면서 `-VerifyOnly`를 제외합니다. 전체 배포 절차가 빌드를 포함하므로 별도의 전체 빌드를 먼저 실행할 필요는 없습니다.
+`-VerifyOnly` builds, prepares the package, and performs isolated host verification. Installing into a user profile is a separate invocation with a fresh release name and without `-VerifyOnly`. The full deployment already includes its build; a separate full build is unnecessary. The account module's `azrael-ex.vsix` is an intermediate package; install the verified integrated host.
 
-설치가 끝나면 기존 VS Code 창에서 **Developer: Reload Window**를 실행해 새 호스트를 활성화합니다. 설치 도구는 사용 중인 창을 자동으로 종료하거나 다시 로드하지 않습니다.
+Read [AGENTS.md](AGENTS.md) and select the applicable [project playbooks](docs/playbooks/README.md) before contributing. Freeze inputs, retain source provenance, verify the actual changed scope, and preserve active and rollback runtime paths. For Linux/macOS candidate builds, use [platform operations](docs/ops/multi-platform.md). Source changes, packaging, installed-host acceptance, and public release certification remain separate stages.
 
-계정 모듈의 `azrael-ex.vsix`는 통합 호스트를 만드는 중간 패키지입니다. 설치 대상은 검증된 통합 호스트 패키지이며, 계정 모듈을 별도로 설치하지 않습니다.
+### Documentation
 
-세부 옵션, 기존 빌드 재사용, 설치와 롤백은 [개발·설치 안내](docs/ops/development.md)에서 확인할 수 있습니다.
+- [Documentation guide](docs/README.md): routes, document ownership, and state conventions.
+- [Architecture](docs/architecture/README.md): feature behavior and system contracts.
+- [Code maps](docs/maps/README.md): implementation owners and entry points.
+- [Operations](docs/ops/README.md): development, installation, accounts, and diagnosis.
+- [Project playbooks](docs/playbooks/README.md): verification, cleanup, and work requirements.
+- [Instruction library](instructions/README.md): redistributable roles, skills, and coordination guidance.
 
-### 처음 사용하기
+## License and provenance
 
-1. 통합 호스트 설치 후 VS Code 창을 다시 로드합니다.
-2. 프로필 메뉴의 **계정 및 사용량**에서 사용할 제공자의 계정을 연결합니다.
-3. 채팅에서 사용 가능한 모델을 선택하고 작업을 요청합니다.
-4. **Azrael 설정**에서 작업 환경을 조정합니다.
-
-계정별 연결 조건과 제공자 검증 범위는 [계정 및 제공자 운영 안내](docs/ops/provider-accounts.md), Devin 연결 조건은 [Devin 운영 안내](docs/ops/devin-native.md)를 참고합니다.
-
-## 프로젝트 구조
-
-| 경로 | 역할 |
-| --- | --- |
-| [`engine/`](engine/) | Codex 기반 Azrael 엔진 소스와 출처 정보 |
-| [`extensions/azrael-ex/`](extensions/azrael-ex/) | 통합 호스트에 포함되는 계정·사용량 및 설정 모듈 |
-| [`providers/`](providers/) | 제공자 인증·추론 연동 모듈 |
-| [`native/`](native/) | Windows 네이티브 기능 |
-| [`plugins/`](plugins/) | 플러그인과 관련 스킬·도구 구성 |
-| [`instructions/`](instructions/) | 공통 작업 지침, 스킬과 사용 예시 |
-| [`scripts/`](scripts/) | 빌드·패키징·검증·설치 도구 |
-| [`docs/`](docs/) | 아키텍처, 코드 지도, 운영 절차와 작업 지침 |
-| `artifacts/` | Git에서 제외되는 빌드 결과, 릴리스, 패키지와 로그 |
-
-## 문서 안내
-
-[프로젝트 문서 안내](docs/README.md)를 시작점으로 목적에 맞는 문서를 찾아볼 수 있습니다.
-
-- [아키텍처](docs/architecture/README.md): 시스템 구조, 기능별 동작과 설계 상태
-- [코드 지도](docs/maps/README.md): 구현 위치와 주요 진입점
-- [운영 안내](docs/ops/README.md): 개발, 설치, 계정 연결과 오류 진단
-- [프로젝트 플레이북](docs/playbooks/README.md): 작업 원칙과 검증·정리 기준
-- [공통 작업 지침과 스킬](instructions/README.md): 유지·배포하는 지침 라이브러리
-- [기여·작업 안내](AGENTS.md): 저장소에서 작업할 때 적용하는 규칙
-
-## 개발 상태와 제한사항
-
-Azrael은 개발 중인 프로젝트입니다. 통합 호스트의 설치, 계정·사용량 화면, 제공자 연동과 일부 네이티브 기능에 대한 검증이 진행되어 있으며, 기능별로 확인된 범위가 다릅니다.
-
-- 현재 문서화된 빌드·설치 대상은 Windows입니다. 다른 운영체제의 지원 여부는 별도 검증이 필요합니다.
-- 소스 검사나 격리된 테스트 통과가 실제 계정 인증, 모든 모델의 추론·도구 호출, 설치된 화면의 전체 동작을 보장하지는 않습니다.
-- 전체 upstream `codex-core` 및 워크스페이스 테스트의 완전한 통과는 확인되지 않았습니다.
-- Computer Use와 Window Use는 설정 제공, 네이티브 동작, 실제 모델 요청의 검증 범위를 구분합니다. 특히 선택한 창을 대상으로 하는 제어 모드는 별도 설치 검증 조건이 남아 있습니다.
-- 공개 릴리스 배포와 GitHub에서의 실제 릴리스 다운로드 검증은 별도 단계입니다. 통합 UI의 재배포 조건도 확인이 필요합니다.
-
-설치된 버전과 남은 검증 항목은 [현재 개발 상태](docs/ops/development.md#current-state), 제공자별 확인 범위는 [제공자 운영 안내](docs/ops/provider-accounts.md), 공개 배포 조건은 [지침·소스 배포 안내](docs/ops/instruction-distribution.md)에 유지합니다.
-
-## 라이선스와 출처
-
-Azrael 자체 코드와 작업 지침에는 [MIT 라이선스](LICENSE)가 적용됩니다. 가져온 소스, 의존성과 에셋에는 각 구성요소의 라이선스와 이용 조건이 적용됩니다.
-
-Codex 기반 엔진은 [Apache-2.0 라이선스](engine/LICENSE)와 [NOTICE](engine/NOTICE)를 유지하며, 정확한 소스 정보는 [`engine/SOURCE.json`](engine/SOURCE.json)에 기록합니다. 제공자 연동 코드, 런타임, 글꼴과 공식 UI 관련 조건은 [제3자 고지](THIRD_PARTY_NOTICES.md)를 참고합니다.
+Azrael's own code and instructions use the [MIT license](LICENSE). Imported components retain their individual licenses and terms. The Codex-based engine retains its [Apache-2.0 license](engine/LICENSE) and [NOTICE](engine/NOTICE), with source identity in [`engine/SOURCE.json`](engine/SOURCE.json). Provider integrations, runtimes, fonts, and official UI redistribution conditions are covered by [third-party notices](THIRD_PARTY_NOTICES.md).

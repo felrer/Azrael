@@ -1,0 +1,83 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="870" viewBox="0 0 980 870" role="img" aria-label="Root and subagent collaboration flow with deferred resume">
+  <rect x="0" y="0" width="980" height="870" fill="#ffffff"/>
+
+  <text x="40" y="46" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="22" font-weight="600" fill="#202123">How root and subagents divide the work</text>
+  <text x="40" y="72" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="13" fill="#77787b">Root owns shared contracts and final acceptance. Workers own disjoint write sets. Neither side polls for status.</text>
+
+  <!-- Step 1 -->
+  <rect x="270" y="100" width="440" height="64" rx="12" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="490" y="126" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="15" font-weight="600" fill="#202123">1 · Root plans the work</text>
+  <text x="490" y="147" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" fill="#77787b">Decides scope, assigns disjoint files, fixes the shared contract</text>
+
+  <path d="M490 164 V182" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <path d="M260 182 H720" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <path d="M260 182 V190" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <path d="M720 182 V190" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="255,190 265,190 260,198" fill="#9c9c9f"/>
+  <polygon points="715,190 725,190 720,198" fill="#9c9c9f"/>
+
+  <!-- Step 2a -->
+  <rect x="60" y="200" width="400" height="210" rx="14" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="80" y="226" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="13" font-weight="600" fill="#202123">2a · spawn_agent — subagent work</text>
+  <text x="80" y="246" font-family="Consolas, monospace" font-size="11" fill="#77787b">agent_type: luna_explorer | sol_executor</text>
+  <rect x="80" y="260" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="96" y="283" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Worker A · read-only evidence</text>
+  <rect x="80" y="304" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="96" y="327" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Worker B · owns extensions/</text>
+  <rect x="80" y="348" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="96" y="371" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Worker C · owns scripts/</text>
+
+  <!-- Step 2b -->
+  <rect x="520" y="200" width="400" height="210" rx="14" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="540" y="226" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="13" font-weight="600" fill="#202123">2b · work_completion — non-agent work</text>
+  <text x="540" y="246" font-family="Consolas, monospace" font-size="11" fill="#77787b">action: create &#8594; workId + signalPath</text>
+  <rect x="540" y="260" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="556" y="283" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Release build · 6 min</text>
+  <rect x="540" y="304" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="556" y="327" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Video render · 8 min</text>
+  <rect x="540" y="348" width="360" height="36" rx="10" fill="#ffffff" stroke="#e6e6e8"/>
+  <text x="556" y="371" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12.5" fill="#202123">Integration test suite</text>
+
+  <path d="M260 410 V450" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="255,450 265,450 260,458" fill="#9c9c9f"/>
+  <path d="M720 410 V450" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="715,450 725,450 720,458" fill="#9c9c9f"/>
+
+  <!-- Step 3 -->
+  <rect x="170" y="460" width="640" height="78" rx="12" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="490" y="486" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="15" font-weight="600" fill="#202123">3 · Root reserves a wake-up, then stops talking</text>
+  <text x="490" y="510" text-anchor="middle" font-family="Consolas, monospace" font-size="11.5" fill="#202123">defer_root({ wake_on: { agent_paths, work_ids }, resume_after_ms })</text>
+  <text x="490" y="529" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#77787b">condition: all_terminal · the deadline is only a fallback</text>
+
+  <path d="M490 538 V576" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="485,576 495,576 490,584" fill="#9c9c9f"/>
+
+  <!-- Step 4 -->
+  <rect x="270" y="580" width="440" height="62" rx="12" fill="#f6f6f6" stroke="#9c9c9f" stroke-dasharray="5 4"/>
+  <text x="490" y="606" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="15" font-weight="600" fill="#202123">4 · Root is parked</text>
+  <text x="490" y="627" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" fill="#77787b">No inference, no status calls, no file or log polling</text>
+
+  <path d="M490 642 V664" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="485,664 495,664 490,672" fill="#9c9c9f"/>
+
+  <!-- wake-up feeds -->
+  <path d="M90 410 V694 H288" stroke="#9c9c9f" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+  <polygon points="288,689 288,699 296,694" fill="#9c9c9f"/>
+  <text x="110" y="686" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#77787b">children terminal</text>
+  <path d="M890 410 V694 H692" stroke="#9c9c9f" stroke-width="1.2" stroke-dasharray="4 4" fill="none"/>
+  <polygon points="692,689 692,699 684,694" fill="#9c9c9f"/>
+  <text x="870" y="686" text-anchor="end" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#77787b">work IDs terminal</text>
+
+  <!-- Step 5 gate -->
+  <rect x="300" y="668" width="380" height="52" rx="26" fill="#ffffff" stroke="#3086e9" stroke-width="1.5"/>
+  <text x="490" y="690" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="13" font-weight="600" fill="#202123">all_terminal reached</text>
+  <text x="490" y="708" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#77787b">every selected child and work ID has finished</text>
+
+  <path d="M490 720 V748" stroke="#9c9c9f" stroke-width="1.4" fill="none"/>
+  <polygon points="485,748 495,748 490,756" fill="#9c9c9f"/>
+
+  <!-- Step 6 -->
+  <rect x="250" y="758" width="480" height="68" rx="12" fill="#fcfcfc" stroke="#e6e6e8"/>
+  <text x="490" y="784" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="15" font-weight="600" fill="#202123">5 · Root resumes exactly once</text>
+  <text x="490" y="805" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" fill="#77787b">Reads the returns, integrates, verifies, owns final acceptance</text>
+</svg>
