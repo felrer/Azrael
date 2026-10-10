@@ -21,6 +21,7 @@ use crate::context::world_state::PermissionsState;
 use crate::context::world_state::PersistentModeState;
 use crate::context::world_state::PluginsInstructionsState;
 use crate::context::world_state::RealtimeState;
+use crate::context::world_state::RootCoordinationState;
 use crate::context::world_state::ToolsState;
 use crate::context::world_state::TopLevelToolsState;
 use crate::context::world_state::WorldState;
@@ -347,6 +348,9 @@ impl Session {
             {
                 world_state.add_extension_section(section);
             }
+        }
+        if !turn_context.session_source.is_non_root_agent() {
+            world_state.add_section(RootCoordinationState);
         }
         let mut multi_agent_mode = MultiAgentModeState::new(
             super::multi_agents::effective_multi_agent_mode(step_context),

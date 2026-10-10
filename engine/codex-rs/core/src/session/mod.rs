@@ -4422,7 +4422,10 @@ impl Session {
                         managed_developer_instructions = Some(fragment);
                     }
                     "developer"
-                        if fragment.markers().0 == MultiAgentRoleInstructions::type_markers().0 =>
+                        if fragment.markers().0 == MultiAgentRoleInstructions::type_markers().0
+                            || fragment.markers().0
+                                == codex_prompts::RootCoordinationInstructions::type_markers()
+                                    .0 =>
                     {
                         separate_developer_sections.push(fragment.render_fragment());
                     }

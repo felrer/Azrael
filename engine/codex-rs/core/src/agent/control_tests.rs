@@ -2571,6 +2571,11 @@ async fn spawn_agent_can_fork_parent_thread_history_with_sanitized_items() {
         .as_object()
         .unwrap()
         .clone();
+    let mut parent_tool_state = tool_state.clone();
+    parent_tool_state.insert(
+        "azrael_root_coordination".to_string(),
+        serde_json::json!("parent-root-fingerprint"),
+    );
     let standalone_output = ResponseItem::FunctionCallOutput {
         id: None,
         call_id: None,
@@ -2584,6 +2589,7 @@ async fn spawn_agent_can_fork_parent_thread_history_with_sanitized_items() {
         .record_conversation_items(
             turn_context.as_ref(), turn_context.model_info(),
             &[
+                ContextualUserFragment::into(codex_prompts::RootCoordinationInstructions),
                 ResponseItem::Message {
                     id: None,
                     role: "developer".to_string(),
@@ -2668,7 +2674,7 @@ async fn spawn_agent_can_fork_parent_thread_history_with_sanitized_items() {
     parent_thread
         .session
         .persist_rollout_items(&[
-            RolloutItem::WorldState(WorldStateItem::full(tool_state.clone())),
+            RolloutItem::WorldState(WorldStateItem::full(parent_tool_state)),
             RolloutItem::TurnContext(parent_reference_context_item.clone()),
         ])
         .await;
@@ -2959,6 +2965,7 @@ async fn spawn_agent_fork_strips_parent_usage_hints_from_compacted_history(marke
     };
     let replacement_history = vec![
         tool_declarations.clone(),
+        ContextualUserFragment::into(codex_prompts::RootCoordinationInstructions),
         ContextualUserFragment::into(crate::context::GuardianApprovedAction::new("parent-private-release".to_owned())),
         ResponseItem::Message {
             id: None,
@@ -3122,6 +3129,10 @@ async fn spawn_agent_fork_strips_parent_usage_hints_from_compacted_history(marke
     assert!(
         !history_contains_text(history.raw_items(), "parent-private-release"),
         "a subagent must not inherit parent-local approval messages",
+    );
+    assert!(
+        !history_contains_text(history.raw_items(), "<azrael_root_coordination>"),
+        "forked child history must strip root scheduling guidance from compaction checkpoints",
     );
     let mut inherited_context = codex_history::RetainedContext::default();
     inherited_context.reserve_order();

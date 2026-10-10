@@ -69,6 +69,7 @@ pub use codex_context_fragments::ContextualUserFragment;
 pub(crate) use codex_guardian_context::PermissionContext as GuardianPermissionContext;
 pub(crate) use codex_prompts::MultiAgentRoleInstructions;
 pub use codex_prompts::PermissionsInstructions;
+pub(crate) use codex_prompts::RootCoordinationInstructions;
 pub(crate) use compaction_summary::CompactionSummary;
 pub(crate) use content_filter_guidance::ContentFilterGuidance;
 pub(crate) use contextual_user_message::is_contextual_user_fragment;

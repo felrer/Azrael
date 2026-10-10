@@ -20,6 +20,7 @@ use crate::context::DeveloperInstructions;
 use crate::context::ManagedDeveloperInstructions;
 use crate::context::MultiAgentModeInstructions;
 use crate::context::MultiAgentRoleInstructions;
+use crate::context::RootCoordinationInstructions;
 use crate::context::world_state::PersistentModeState;
 use crate::session::multi_agents::resolve_usage_hints;
 use codex_context_fragments::set_annotated_content;
@@ -143,7 +144,10 @@ fn retain_forked_developer_message(item: &mut ResponseItem, usage_hint_texts: &[
         // Persisted role hints can predate the current bundled wording and lack markers.
         if matches!(
             content_item.kind().as_str(),
-            "guardian.approved_action" | "multi_agent.role_instructions" | "multi_agent.usage_hint"
+            "guardian.approved_action"
+                | "multi_agent.role_instructions"
+                | "multi_agent.usage_hint"
+                | "azrael.root_coordination"
         ) {
             return false;
         }
@@ -151,7 +155,8 @@ fn retain_forked_developer_message(item: &mut ResponseItem, usage_hint_texts: &[
             return true;
         };
 
-        !(MultiAgentRoleInstructions::matches_text(text)
+        !(RootCoordinationInstructions::matches_text(text)
+            || MultiAgentRoleInstructions::matches_text(text)
             || text
                 .starts_with(crate::guardian::AUTO_REVIEW_DENIED_ACTION_APPROVAL_DEVELOPER_PREFIX)
             || MultiAgentModeInstructions::matches_text(text)
@@ -1257,6 +1262,7 @@ impl LocalAgentControl {
                     true
                 }
                 RolloutItem::WorldState(world_state) => {
+                    world_state.state.remove("azrael_root_coordination");
                     if multi_agent_version == MultiAgentVersion::V2 {
                         world_state.state.remove("multi_agent_usage_hint");
                     }
@@ -1531,5 +1537,56 @@ impl LocalAgentControl {
         .await;
 
         Ok((resumed_thread.thread_id, multi_agent_version))
+    }
+}
+
+#[cfg(test)]
+mod root_coordination_tests {
+    use super::*;
+
+    #[test]
+    fn root_coordination_fork_sanitation_removes_markers_and_kind_but_preserves_other_fragments() {
+        for annotated in [false, true] {
+            let mut item = ResponseItem::Message {
+                id: None,
+                role: "developer".to_string(),
+                content: vec![
+                    ContentItem::InputText {
+                        text: if annotated {
+                            "older root scheduling wording".to_string()
+                        } else {
+                            RootCoordinationInstructions.render()
+                        },
+                    },
+                    ContentItem::InputText {
+                        text: "preserved configured instructions".to_string(),
+                    },
+                ],
+                phase: None,
+                internal_chat_message_metadata_passthrough: annotated.then(|| {
+                    codex_protocol::models::InternalChatMessageMetadataPassthrough {
+                        content_item_kinds: Some(vec![
+                            codex_protocol::models::ContentItemKind(
+                                "azrael.root_coordination".to_string(),
+                            ),
+                            codex_protocol::models::ContentItemKind(
+                                "generic.developer_instructions".to_string(),
+                            ),
+                        ]),
+                        ..Default::default()
+                    }
+                }),
+            };
+            assert!(retain_forked_developer_message(&mut item, &[]));
+            let ResponseItem::Message { content, .. } = item else {
+                panic!("developer message expected")
+            };
+            assert_eq!(
+                content,
+                vec![ContentItem::InputText {
+                    text: "preserved configured instructions".to_string()
+                }]
+            );
+        }
     }
 }

@@ -332,6 +332,7 @@ fn known_segment_name(text: &str, source: TextSource<'_>) -> Option<String> {
             "permissions instructions"
                 | "collaboration_mode"
                 | "multi_agent_role"
+                | "azrael_root_coordination"
                 | "multi_agent_mode"
                 | "model_catalog"
                 | "apps_instructions"

@@ -7,6 +7,7 @@ mod permissions_instructions;
 mod realtime;
 mod review_exit;
 mod review_request;
+mod root_coordination_instructions;
 mod update_plan_instructions;
 
 pub use compact::SUMMARIZATION_PROMPT;
@@ -33,6 +34,8 @@ pub use review_request::ResolvedReviewRequest;
 pub use review_request::resolve_review_request;
 pub use review_request::review_prompt;
 pub use review_request::user_facing_hint;
+pub use root_coordination_instructions::ROOT_COORDINATION_INSTRUCTIONS;
+pub use root_coordination_instructions::RootCoordinationInstructions;
 pub use update_plan_instructions::without_update_plan_instructions;
 
 /// Render harness identity on a request copy, preserving model/provider metadata elsewhere.
