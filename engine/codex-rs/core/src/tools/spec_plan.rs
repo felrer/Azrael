@@ -31,6 +31,7 @@ use crate::tools::handlers::TestSyncHandler;
 use crate::tools::handlers::ToolSearchHandlerCache;
 use crate::tools::handlers::ViewImageHandler;
 use crate::tools::handlers::WaitForEnvironmentHandler;
+use crate::tools::handlers::WorkCompletionHandler;
 use crate::tools::handlers::WriteStdinHandler;
 use crate::tools::handlers::extension_tools::ExtensionToolAdapter;
 use crate::tools::handlers::multi_agents::CloseAgentHandler;
@@ -1502,6 +1503,10 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
                 exposure,
             );
             if root_resume_tool_enabled(turn_context) {
+                registry.register_trusted_with_exposure(
+                    multi_agent_v2_handler(WorkCompletionHandler, tool_namespace, None, None),
+                    ToolExposure::DirectModelOnly,
+                );
                 registry.register_trusted_with_exposure(
                     multi_agent_v2_handler(RootResumeHandler, tool_namespace, None, None),
                     ToolExposure::DirectModelOnly,

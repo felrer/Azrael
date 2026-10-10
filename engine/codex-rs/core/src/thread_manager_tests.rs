@@ -75,6 +75,7 @@ fn root_resume_test_reservation(
         revision: 0,
         state,
         agent_tasks: Vec::new(),
+        completion_tasks: Vec::new(),
         reason: "test wait".to_string(),
         final_output_json_schema: None,
         wake_reason: None,

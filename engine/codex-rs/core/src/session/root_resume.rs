@@ -155,6 +155,7 @@ impl Session {
         }
     }
 
+    #[cfg(test)]
     pub(crate) async fn prepare_root_resume(
         self: &Arc<Self>,
         turn: &Arc<TurnContext>,
@@ -162,6 +163,28 @@ impl Session {
         resume_after_ms: Option<u64>,
         resume_at: Option<String>,
         agent_paths: Vec<String>,
+        reason: String,
+    ) -> CodexResult<RootResumeReservation> {
+        self.prepare_root_resume_with_work(
+            turn,
+            call_id,
+            resume_after_ms,
+            resume_at,
+            agent_paths,
+            Vec::new(),
+            reason,
+        )
+        .await
+    }
+
+    pub(crate) async fn prepare_root_resume_with_work(
+        self: &Arc<Self>,
+        turn: &Arc<TurnContext>,
+        call_id: &str,
+        resume_after_ms: Option<u64>,
+        resume_at: Option<String>,
+        agent_paths: Vec<String>,
+        work_ids: Vec<String>,
         reason: String,
     ) -> CodexResult<RootResumeReservation> {
         let control = self.root_resume_control();
@@ -178,9 +201,9 @@ impl Session {
             ));
         }
         let reason = reason.trim().to_string();
-        if reason.is_empty() || reason.len() > 512 || agent_paths.len() > 32 {
+        if reason.is_empty() || reason.len() > 512 || agent_paths.len() + work_ids.len() > 32 {
             return Err(invalid(
-                "reason must contain 1..512 bytes; at most 32 child tasks are supported",
+                "reason must contain 1..512 bytes; at most 32 wake targets are supported",
             ));
         }
         let db = self
@@ -203,6 +226,17 @@ impl Session {
             .map_err(storage_error)?
             .timestamp_millis();
         let resume_at_ms = deadline(now, resume_after_ms, resume_at)?;
+        let store = self.work_completion_store().await;
+        let mut seen_work = HashSet::new();
+        for id in &work_ids {
+            if !seen_work.insert(id) {
+                return Err(invalid("completion work IDs must be distinct"));
+            }
+            store
+                .status(id.clone())
+                .await
+                .map_err(|error| invalid(format!("invalid completion work target: {error}")))?;
+        }
         let descendants = if agent_paths.is_empty() {
             Vec::new()
         } else {
@@ -255,6 +289,7 @@ impl Session {
             revision: 0,
             state: RootResumeState::Preparing,
             agent_tasks,
+            completion_tasks: work_ids,
             reason,
             wake_reason: None,
             last_error: None,
@@ -578,8 +613,8 @@ impl Session {
                 clock.sleep(thread_id, Duration::from_millis(delay)).await?;
                 anyhow::Ok(RootResumeWakeReason::Deadline)
             };
-            let agents = async {
-                if record.agent_tasks.is_empty() {
+            let dependencies = async {
+                if record.agent_tasks.is_empty() && record.completion_tasks.is_empty() {
                     return std::future::pending().await;
                 }
                 futures::future::join_all(
@@ -589,13 +624,22 @@ impl Session {
                         .map(|task| agent_control.wait_root_resume_agent_task(task)),
                 )
                 .await;
-                anyhow::Ok(RootResumeWakeReason::AgentsCompleted)
+                if record.completion_tasks.is_empty() {
+                    return anyhow::Ok(RootResumeWakeReason::AgentsCompleted);
+                }
+                let store = weak
+                    .upgrade()
+                    .ok_or_else(|| anyhow::anyhow!("root runtime closed"))?
+                    .work_completion_store()
+                    .await;
+                store.wait_all(&record.completion_tasks).await?;
+                anyhow::Ok(RootResumeWakeReason::WorkCompleted)
             };
             let reason = tokio::select! {
                 biased;
                 _ = token.cancelled() => return,
                 result = timed => result,
-                result = agents => result,
+                result = dependencies => result,
             };
             if let Some(session) = weak.upgrade() {
                 match reason {
@@ -736,6 +780,9 @@ impl Session {
             let wake = match claimed.wake_reason {
                 Some(RootResumeWakeReason::Deadline) => "deadline reached",
                 Some(RootResumeWakeReason::AgentsCompleted) => "selected child tasks terminated",
+                Some(RootResumeWakeReason::WorkCompleted) => {
+                    "selected work executions and child tasks terminated"
+                }
                 _ => "manual resume",
             };
             let input = TurnInput::ResponseItem(codex_history::ResponseItemEnvelope::new(
@@ -744,7 +791,8 @@ impl Session {
                     role: "developer".to_string(),
                     content: vec![codex_protocol::models::ContentItem::InputText {
                         text: format!(
-                            "Root wait ended: {wake}. Continue the same task using any pending child results."
+                            "Root wait ended: {wake}. Continue the same task using any pending child results. Read work_completion status for these work IDs before continuing dependent work: {:?}. A deadline or manual resume does not establish completion or success.",
+                            claimed.completion_tasks
                         ),
                     }],
                     phase: None,
@@ -960,3 +1008,7 @@ mod tests {
 #[cfg(test)]
 #[path = "root_resume_tests.rs"]
 mod lifecycle_tests;
+
+#[cfg(test)]
+#[path = "root_resume_work_tests.rs"]
+mod work_lifecycle_tests;

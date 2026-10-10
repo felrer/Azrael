@@ -134,7 +134,7 @@ export class RootResumeView implements vscode.Disposable {
     if (request.action === "list") { await this.refresh(); return; }
     if (request.action === "cancel") {
       const answer = await vscode.window.showWarningMessage(
-        "재개 예약만 취소합니다. 실행 중인 하위 에이전트는 계속 작업합니다.",
+        "재개 예약만 취소합니다. 실행 중인 하위 에이전트와 작업은 계속 실행됩니다.",
         { modal: true },
         "예약 취소"
       );
@@ -162,12 +162,15 @@ export class RootResumeView implements vscode.Disposable {
     const empty = this.service.rootResumeReservations
       ? '<section class="empty">활성 재개 예약이 없습니다.</section>'
       : '<section class="empty">예약을 불러오는 중입니다.</section>';
-    this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';"><style nonce="${nonce}">${styles}</style></head><body><main><header><div><h1>루트 재개 예약</h1><p>예약 시각과 하위 에이전트 대기 상태</p></div><button data-action="list" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></header>${this.error ? `<p class="error" role="alert">${escapeHtml(this.error)}</p>` : ""}${cards || empty}</main><script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',event=>{if(!(event.target instanceof Element))return;const button=event.target.closest('button[data-action]');if(!(button instanceof HTMLButtonElement))return;const revision=Number(button.dataset.revision);const message={action:button.dataset.action};if(button.dataset.id){message.reservationId=button.dataset.id;message.revision=revision;}vscode.postMessage(message);});const formatter=new Intl.RelativeTimeFormat('ko',{numeric:'auto'});function updateCountdowns(){const now=Date.now();document.querySelectorAll('[data-resume-at]').forEach(element=>{const remaining=Number(element.dataset.resumeAt)-now;let value,unit;if(Math.abs(remaining)>=3600000){value=Math.round(remaining/3600000);unit='hour';}else if(Math.abs(remaining)>=60000){value=Math.round(remaining/60000);unit='minute';}else{value=Math.round(remaining/1000);unit='second';}element.textContent=remaining<=0?'재개 시각 도달':formatter.format(value,unit);});}updateCountdowns();setInterval(updateCountdowns,1000);</script></body></html>`;
+    this.panel.webview.html = `<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'none'; style-src 'nonce-${nonce}'; script-src 'nonce-${nonce}';"><style nonce="${nonce}">${styles}</style></head><body><main><header><div><h1>루트 재개 예약</h1><p>예약 시각과 하위 에이전트·작업 대기 상태</p></div><button data-action="list" ${this.refreshing ? "disabled" : ""}>${this.refreshing ? "갱신 중…" : "새로고침"}</button></header>${this.error ? `<p class="error" role="alert">${escapeHtml(this.error)}</p>` : ""}${cards || empty}</main><script nonce="${nonce}">const vscode=acquireVsCodeApi();document.addEventListener('click',event=>{if(!(event.target instanceof Element))return;const button=event.target.closest('button[data-action]');if(!(button instanceof HTMLButtonElement))return;const revision=Number(button.dataset.revision);const message={action:button.dataset.action};if(button.dataset.id){message.reservationId=button.dataset.id;message.revision=revision;}vscode.postMessage(message);});const formatter=new Intl.RelativeTimeFormat('ko',{numeric:'auto'});function updateCountdowns(){const now=Date.now();document.querySelectorAll('[data-resume-at]').forEach(element=>{const remaining=Number(element.dataset.resumeAt)-now;let value,unit;if(Math.abs(remaining)>=3600000){value=Math.round(remaining/3600000);unit='hour';}else if(Math.abs(remaining)>=60000){value=Math.round(remaining/60000);unit='minute';}else{value=Math.round(remaining/1000);unit='second';}element.textContent=remaining<=0?'재개 시각 도달':formatter.format(value,unit);});}updateCountdowns();setInterval(updateCountdowns,1000);</script></body></html>`;
   }
 }
 
 function reservationHtml(reservation: RootResumeReservation): string {
-  const tasks = reservation.agentTasks.length
+  const completionTasks = reservation.completionTasks ?? [];
+  const tasks = completionTasks.length
+    ? `<p class="condition">다음 ${reservation.agentTasks.length ? "하위 에이전트와 작업" : "작업"}이 모두 종료되면 조기 재개 · 예약 시각에 재개</p><ul>${reservation.agentTasks.map((task) => `<li><strong>${escapeHtml(task.agentPath)}</strong><br><code>${escapeHtml(task.threadId)}</code><br><span>작업 ${escapeHtml(task.turnId)}</span></li>`).join("")}${completionTasks.map((task) => `<li>작업 <code>${escapeHtml(task)}</code></li>`).join("")}</ul>`
+    : reservation.agentTasks.length
     ? `<p class="condition">다음 하위 에이전트가 모두 종료되면 조기 재개</p><ul>${reservation.agentTasks.map((task) => `<li><strong>${escapeHtml(task.agentPath)}</strong><br><code>${escapeHtml(task.threadId)}</code><br><span>작업 ${escapeHtml(task.turnId)}</span></li>`).join("")}</ul>`
     : '<p class="condition">예약 시각에 재개</p>';
   const disabled = reservation.state === "claimed" ? "disabled" : "";

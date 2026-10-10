@@ -57,22 +57,24 @@ impl ToolExecutor<ToolInvocation> for RootResumeHandler {
                 reason,
                 wake_on,
             } = args;
-            let agent_paths = wake_on
+            let (agent_paths, work_ids) = wake_on
                 .map(
                     |RootResumeWakeOn {
                          agent_paths,
+                         work_ids,
                          condition: RootResumeWakeCondition::AllTerminal,
-                     }| agent_paths,
+                     }| (agent_paths, work_ids),
                 )
                 .unwrap_or_default();
 
             let reservation = session
-                .prepare_root_resume(
+                .prepare_root_resume_with_work(
                     &turn,
                     &call_id,
                     resume_after_ms,
                     resume_at,
                     agent_paths,
+                    work_ids,
                     reason,
                 )
                 .await
@@ -122,6 +124,15 @@ impl RootResumeArgs {
                 "provide exactly one of `resume_after_ms` or `resume_at`".to_string(),
             ));
         }
+        if self
+            .wake_on
+            .as_ref()
+            .is_some_and(|wake| wake.agent_paths.is_empty() && wake.work_ids.is_empty())
+        {
+            return Err(FunctionCallError::RespondToModel(
+                "wake_on must select at least one agent path or work ID".to_string(),
+            ));
+        }
         Ok(())
     }
 }
@@ -129,7 +140,10 @@ impl RootResumeArgs {
 #[derive(Debug, Deserialize)]
 #[serde(deny_unknown_fields)]
 struct RootResumeWakeOn {
+    #[serde(default)]
     agent_paths: Vec<String>,
+    #[serde(default)]
+    work_ids: Vec<String>,
     condition: RootResumeWakeCondition,
 }
 
@@ -156,6 +170,13 @@ enum RootResumePreparingState {
 pub(crate) fn create_root_resume_tool() -> ToolSpec {
     let wake_on_properties = BTreeMap::from([
         (
+            "work_ids".to_string(),
+            JsonSchema::array(
+                JsonSchema::string(Some("Exact workId returned by work_completion.create in this root thread.".to_string())),
+                Some("Registered non-subagent work executions that must all end to wake early; use only when a producer publishes actual terminal signals.".to_string()),
+            ),
+        ),
+        (
             "agent_paths".to_string(),
             JsonSchema::array(
                 JsonSchema::string(Some(
@@ -168,7 +189,7 @@ pub(crate) fn create_root_resume_tool() -> ToolSpec {
             "condition".to_string(),
             JsonSchema::string_enum(
                 vec![json!("all_terminal")],
-                Some("Wake only after every selected child reaches a terminal state.".to_string()),
+                Some("Wake after all selected agents AND work IDs become terminal. Select at least one target.".to_string()),
             ),
         ),
     ]);
@@ -197,7 +218,7 @@ pub(crate) fn create_root_resume_tool() -> ToolSpec {
             "wake_on".to_string(),
             JsonSchema::object(
                 wake_on_properties,
-                Some(vec!["agent_paths".to_string(), "condition".to_string()]),
+                Some(vec!["condition".to_string()]),
                 Some(false.into()),
             ),
         ),
@@ -221,7 +242,7 @@ pub(crate) fn create_root_resume_tool() -> ToolSpec {
     ToolSpec::Function(ResponsesApiTool {
         name: ROOT_RESUME_TOOL_NAME.to_string(),
         description: format!(
-            "Defer the root task while sub-agents continue. {AZRAEL_ROOT_DEFER_GUIDANCE}"
+            "Defer the root task until a deadline or all selected subagents and registered work reach terminal states. {AZRAEL_ROOT_DEFER_GUIDANCE}"
         ),
         strict: false,
         defer_loading: None,
@@ -325,5 +346,29 @@ mod tests {
                 "state": "preparing"
             })
         );
+    }
+
+    #[test]
+    fn work_only_and_mixed_wakes_are_accepted_but_empty_wakes_are_rejected() {
+        for arguments in [
+            r#"{"resume_after_ms":900000,"reason":"build","wake_on":{"work_ids":["work"],"condition":"all_terminal"}}"#,
+            r#"{"resume_after_ms":900000,"reason":"build","wake_on":{"agent_paths":["/root/check"],"work_ids":["work"],"condition":"all_terminal"}}"#,
+        ] {
+            parse_arguments::<RootResumeArgs>(arguments)
+                .unwrap()
+                .validate_schedule()
+                .unwrap();
+        }
+        let empty = parse_arguments::<RootResumeArgs>(
+            r#"{"resume_after_ms":900000,"reason":"build","wake_on":{"condition":"all_terminal"}}"#,
+        )
+        .unwrap();
+        assert!(empty.validate_schedule().is_err());
+        let ToolSpec::Function(tool) = create_root_resume_tool() else {
+            panic!("function tool required")
+        };
+        let wake = &tool.parameters.properties.unwrap()["wake_on"];
+        assert_eq!(wake.required, Some(vec!["condition".to_string()]));
+        assert!(wake.properties.as_ref().unwrap().contains_key("work_ids"));
     }
 }

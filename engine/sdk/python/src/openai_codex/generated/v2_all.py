@@ -4412,6 +4412,7 @@ class RootResumeWaitUpdatedNotification(BaseModel):
 class RootResumeWakeReason(Enum):
     deadline = "deadline"
     agents_completed = "agents_completed"
+    work_completed = "work_completed"
     user_input = "user_input"
     manual = "manual"
 
@@ -9459,6 +9460,7 @@ class RootResumeReservation(BaseModel):
     )
     agent_tasks: Annotated[list[RootResumeAgentTask], Field(alias="agentTasks")]
     call_id: Annotated[str, Field(alias="callId")]
+    completion_tasks: Annotated[list[str] | None, Field(alias="completionTasks")] = []
     created_at_ms: Annotated[int, Field(alias="createdAtMs")]
     final_output_json_schema: Annotated[Any | None, Field(alias="finalOutputJsonSchema")] = None
     id: str

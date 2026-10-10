@@ -269,6 +269,7 @@ mod review;
 mod rollout_budget;
 mod rollout_reconstruction;
 mod root_resume;
+pub(crate) mod work_completion;
 #[allow(clippy::module_inception)]
 pub(crate) mod session;
 pub(crate) mod startup_prewarm;

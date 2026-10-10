@@ -5,7 +5,7 @@ export const ROOT_RESUME_UPDATED_METHOD = "azrael/rootResume/updated";
 
 export type RootResumeAction = "list" | "resume" | "cancel";
 export type RootResumeState = "preparing" | "waiting" | "claimed" | "resumed" | "cancelled" | "blocked";
-export type RootResumeWakeReason = null | "deadline" | "agents_completed" | "user_input" | "manual";
+export type RootResumeWakeReason = null | "deadline" | "agents_completed" | "work_completed" | "user_input" | "manual";
 export type JsonValue = null | boolean | number | string | JsonValue[] | { [key: string]: JsonValue };
 
 export interface RootResumeAgentTask {
@@ -27,6 +27,7 @@ export interface RootResumeReservation {
   revision: number;
   state: RootResumeState;
   agentTasks: RootResumeAgentTask[];
+  completionTasks: string[];
   reason: string;
   wakeReason: RootResumeWakeReason;
   lastError: string | null;
@@ -43,7 +44,7 @@ export interface RootResumeResponse {
 
 const STATES = new Set<RootResumeState>(["preparing", "waiting", "claimed", "resumed", "cancelled", "blocked"]);
 const ACTIVE_STATES = new Set<RootResumeState>(["preparing", "waiting", "claimed", "blocked"]);
-const WAKE_REASONS = new Set<Exclude<RootResumeWakeReason, null>>(["deadline", "agents_completed", "user_input", "manual"]);
+const WAKE_REASONS = new Set<Exclude<RootResumeWakeReason, null>>(["deadline", "agents_completed", "work_completed", "user_input", "manual"]);
 const REQUIRED_RESERVATION_KEYS = new Set([
   "id", "rootThreadId", "originatingTurnId", "rootTurnId", "callId", "resumeTurnId",
   "resumeAtMs", "createdAtMs", "updatedAtMs", "revision", "state", "agentTasks", "reason",
@@ -82,12 +83,16 @@ function parseReservation(value: unknown): RootResumeReservation {
   if (typeof value.state !== "string" || !STATES.has(value.state as RootResumeState)) throw new Error("Invalid root resume reservation state.");
   if (!Array.isArray(value.agentTasks)) throw new Error("Invalid root resume reservation agentTasks.");
   const agentTasks = value.agentTasks.map(parseAgentTask);
+  const completionTasks = Object.prototype.hasOwnProperty.call(value, "completionTasks") ? value.completionTasks : [];
+  if (!Array.isArray(completionTasks) || !completionTasks.every((task) => typeof task === "string")) {
+    throw new Error("Invalid root resume reservation completionTasks.");
+  }
   if (value.wakeReason !== null && (typeof value.wakeReason !== "string" || !WAKE_REASONS.has(value.wakeReason as Exclude<RootResumeWakeReason, null>))) {
     throw new Error("Invalid root resume reservation wakeReason.");
   }
   if (value.lastError !== null && typeof value.lastError !== "string") throw new Error("Invalid root resume reservation lastError.");
   if ("finalOutputJsonSchema" in value && !isJsonValue(value.finalOutputJsonSchema)) throw new Error("Invalid root resume reservation finalOutputJsonSchema.");
-  return { ...value, agentTasks } as RootResumeReservation;
+  return { ...value, agentTasks, completionTasks } as RootResumeReservation;
 }
 
 function parseAgentTask(value: unknown): RootResumeAgentTask {

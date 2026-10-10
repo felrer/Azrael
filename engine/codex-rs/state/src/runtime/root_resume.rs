@@ -23,6 +23,7 @@ const ROOT_RESUME_COLUMNS: &str = r#"
     revision,
     state,
     agent_tasks_json,
+    completion_tasks_json,
     reason,
     final_output_json_schema,
     wake_reason,
@@ -32,6 +33,7 @@ const ROOT_RESUME_COLUMNS: &str = r#"
 impl StateRuntime {
     pub async fn create_root_resume(&self, record: &RootResumeReservation) -> anyhow::Result<()> {
         let agent_tasks_json = serde_json::to_string(&record.agent_tasks)?;
+        let completion_tasks_json = serde_json::to_string(&record.completion_tasks)?;
         let final_output_json_schema = record
             .final_output_json_schema
             .as_ref()
@@ -54,11 +56,12 @@ INSERT INTO root_resume_reservations (
     revision,
     state,
     agent_tasks_json,
+    completion_tasks_json,
     reason,
     final_output_json_schema,
     wake_reason,
     last_error
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(&record.id)
@@ -75,6 +78,7 @@ INSERT INTO root_resume_reservations (
         .bind(record.revision)
         .bind(root_resume_state_as_str(&record.state))
         .bind(agent_tasks_json)
+        .bind(completion_tasks_json)
         .bind(&record.reason)
         .bind(final_output_json_schema)
         .bind(
@@ -222,6 +226,7 @@ fn root_resume_wake_reason_as_str(reason: &RootResumeWakeReason) -> &'static str
     match reason {
         RootResumeWakeReason::Deadline => "deadline",
         RootResumeWakeReason::AgentsCompleted => "agents_completed",
+        RootResumeWakeReason::WorkCompleted => "work_completed",
         RootResumeWakeReason::UserInput => "user_input",
         RootResumeWakeReason::Manual => "manual",
     }
@@ -231,6 +236,7 @@ fn root_resume_wake_reason_from_str(value: &str) -> anyhow::Result<RootResumeWak
     match value {
         "deadline" => Ok(RootResumeWakeReason::Deadline),
         "agents_completed" => Ok(RootResumeWakeReason::AgentsCompleted),
+        "work_completed" => Ok(RootResumeWakeReason::WorkCompleted),
         "user_input" => Ok(RootResumeWakeReason::UserInput),
         "manual" => Ok(RootResumeWakeReason::Manual),
         _ => anyhow::bail!("unknown root resume wake reason: {value}"),
@@ -241,6 +247,7 @@ fn root_resume_from_row(row: &SqliteRow) -> anyhow::Result<RootResumeReservation
     let state: String = row.try_get("state")?;
     let wake_reason: Option<String> = row.try_get("wake_reason")?;
     let agent_tasks_json: String = row.try_get("agent_tasks_json")?;
+    let completion_tasks_json: String = row.try_get("completion_tasks_json")?;
     let final_output_json_schema: Option<String> = row.try_get("final_output_json_schema")?;
     Ok(RootResumeReservation {
         id: row.try_get("id")?,
@@ -257,6 +264,7 @@ fn root_resume_from_row(row: &SqliteRow) -> anyhow::Result<RootResumeReservation
         revision: row.try_get("revision")?,
         state: root_resume_state_from_str(&state)?,
         agent_tasks: serde_json::from_str::<Vec<RootResumeAgentTask>>(&agent_tasks_json)?,
+        completion_tasks: serde_json::from_str(&completion_tasks_json)?,
         reason: row.try_get("reason")?,
         final_output_json_schema: final_output_json_schema
             .as_deref()
@@ -305,6 +313,7 @@ mod tests {
                 agent_path: "/root/child".to_string(),
                 turn_id: "child-turn".to_string(),
             }],
+            completion_tasks: vec!["d640335a-f9b8-4f44-8b78-76932200bad0".to_string()],
             reason: "wait for child".to_string(),
             final_output_json_schema: Some(serde_json::json!({
                 "type": "object",
@@ -322,6 +331,116 @@ mod tests {
         )
         .await
         .expect("state runtime should initialize")
+    }
+
+    #[tokio::test]
+    async fn completion_tasks_and_work_completed_survive_state_round_trip() {
+        let codex_home = unique_temp_dir();
+        let runtime = test_runtime(&codex_home).await;
+        let mut expected = reservation("completion", "root-thread", RootResumeState::Waiting);
+        expected.agent_tasks.clear();
+        runtime
+            .create_root_resume(&expected)
+            .await
+            .expect("completion reservation should be stored");
+        assert_eq!(
+            runtime
+                .get_root_resume(&expected.id)
+                .await
+                .expect("read reservation"),
+            Some(expected.clone())
+        );
+        let claimed = runtime
+            .transition_root_resume(
+                &expected.id,
+                0,
+                RootResumeState::Claimed,
+                Some(RootResumeWakeReason::WorkCompleted),
+                None,
+                3000,
+            )
+            .await
+            .expect("work completion should claim reservation")
+            .expect("claim should succeed");
+        assert_eq!(claimed.completion_tasks, expected.completion_tasks);
+        assert_eq!(
+            claimed.wake_reason,
+            Some(RootResumeWakeReason::WorkCompleted)
+        );
+        assert_eq!(
+            runtime
+                .get_root_resume(&expected.id)
+                .await
+                .expect("read claimed reservation"),
+            Some(claimed)
+        );
+        runtime.close().await;
+        let _ = tokio::fs::remove_dir_all(codex_home).await;
+    }
+
+    #[tokio::test]
+    async fn completion_migration_preserves_existing_reservations_and_defaults_tasks() {
+        let pool = sqlx::SqlitePool::connect("sqlite::memory:")
+            .await
+            .expect("in-memory database should open");
+        for migration in [
+            include_str!("../../migrations/0055_root_resume_reservations.sql"),
+            include_str!("../../migrations/0060_root_resume_wait_timestamps.sql"),
+        ] {
+            sqlx::raw_sql(migration)
+                .execute(&pool)
+                .await
+                .expect("old schema should apply");
+        }
+        sqlx::query(
+            "INSERT INTO root_resume_reservations (
+                id, root_thread_id, originating_turn_id, root_turn_id, call_id, resume_turn_id,
+                resume_at_ms, created_at_ms, updated_at_ms, revision, state, agent_tasks_json,
+                reason, wake_reason, wait_started_at_ms, wait_ended_at_ms
+            ) VALUES ('old', 'root', 'origin', 'turn', 'call', 'resume',
+                2000, 1000, 3000, 2, 'claimed', '[]', 'wait', 'agents_completed', 1000, 3000)",
+        )
+        .execute(&pool)
+        .await
+        .expect("old reservation should insert");
+        sqlx::raw_sql(include_str!(
+            "../../migrations/0063_root_resume_completion_tasks.sql"
+        ))
+        .execute(&pool)
+        .await
+        .expect("completion migration should apply");
+        let mut query = QueryBuilder::<Sqlite>::new("SELECT ");
+        query
+            .push(ROOT_RESUME_COLUMNS)
+            .push(" FROM root_resume_reservations");
+        let row = query
+            .build()
+            .fetch_one(&pool)
+            .await
+            .expect("old reservation should remain");
+        let record = root_resume_from_row(&row).expect("migrated reservation should decode");
+        assert_eq!(record.id, "old");
+        assert_eq!(record.revision, 2);
+        assert_eq!(record.wait_started_at_ms, Some(1000));
+        assert_eq!(record.wait_ended_at_ms, Some(3000));
+        assert_eq!(
+            record.wake_reason,
+            Some(RootResumeWakeReason::AgentsCompleted)
+        );
+        assert!(record.completion_tasks.is_empty());
+        sqlx::query("UPDATE root_resume_reservations SET wake_reason = 'work_completed'")
+            .execute(&pool)
+            .await
+            .expect("expanded wake reason constraint should allow completion");
+        let indexes: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index'
+                AND name IN ('root_resume_one_active_per_root', 'root_resume_active_due')",
+        )
+        .fetch_one(&pool)
+        .await
+        .expect("migration indexes should be readable");
+        assert_eq!(indexes, 2);
+        pool.close().await;
     }
 
     #[tokio::test]

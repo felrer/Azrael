@@ -41,25 +41,25 @@ use wiremock::matchers::path_regex;
 const START_MS: i64 = 1_800_000_000_000;
 
 #[derive(Default)]
-struct FakeClock {
+pub(super) struct FakeClock {
     now_ms: AtomicI64,
     sleeps: AtomicUsize,
     waiters: StdMutex<Vec<(i64, oneshot::Sender<()>)>>,
 }
 
 impl FakeClock {
-    fn new() -> Self {
+    pub(super) fn new() -> Self {
         Self {
             now_ms: AtomicI64::new(START_MS),
             ..Self::default()
         }
     }
 
-    fn sleep_count(&self) -> usize {
+    pub(super) fn sleep_count(&self) -> usize {
         self.sleeps.load(Ordering::Acquire)
     }
 
-    fn advance(&self, duration: Duration) {
+    pub(super) fn advance(&self, duration: Duration) {
         let now = self
             .now_ms
             .fetch_add(duration.as_millis() as i64, Ordering::AcqRel)
@@ -108,7 +108,7 @@ impl TimeProvider for FakeClock {
     }
 }
 
-async fn wait_for_state(session: &Session, expected: RootResumeState) -> RootResumeReservation {
+pub(super) async fn wait_for_state(session: &Session, expected: RootResumeState) -> RootResumeReservation {
     tokio::time::timeout(Duration::from_secs(10), async {
         loop {
             if let Some(record) = session.root_resume_record()
@@ -821,6 +821,7 @@ async fn queued_compact_preserves_root_resume_reservation() {
         revision: 1,
         state: RootResumeState::Waiting,
         agent_tasks: Vec::new(),
+        completion_tasks: Vec::new(),
         reason: "reservation test".to_string(),
         final_output_json_schema: None,
         wake_reason: None,

@@ -31,6 +31,13 @@
         "callId": {
           "type": "string"
         },
+        "completionTasks": {
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
         "createdAtMs": {
           "format": "int64",
           "type": "integer"
@@ -136,6 +143,7 @@
       "enum": [
         "deadline",
         "agents_completed",
+        "work_completed",
         "user_input",
         "manual"
       ],
