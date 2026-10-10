@@ -395,7 +395,7 @@ async fn user_turn_unified_image_budget_enforces_dimension_and_patch_limits() ->
 
     assert_user_turn_local_image_resizes_to(
         (6401, 1),
-        (6000, 1),
+        (2560, 1),
         ImageBudgetPolicy::Unified,
         ResizeNoticeExpectation::Enabled,
     )

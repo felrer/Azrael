@@ -281,7 +281,7 @@ fn data_url_processing_rejects_malformed_input() {
 async fn detail_modes_apply_expected_budgets() {
     for (mode, input_dimensions, expected_dimensions) in [
         (PromptImageMode::HIGH_DETAIL, (2048, 2048), (1600, 1600)),
-        (PromptImageMode::ORIGINAL_DETAIL, (6401, 100), (6000, 94)),
+        (PromptImageMode::ORIGINAL_DETAIL, (6401, 100), (2560, 40)),
     ] {
         let image = ImageBuffer::from_pixel(
             input_dimensions.0,
@@ -307,6 +307,123 @@ async fn detail_modes_apply_expected_budgets() {
             )
         );
     }
+}
+
+fn noisy_image(alpha: u8) -> ImageBuffer<Rgba<u8>, Vec<u8>> {
+    let mut state = 123456789u32;
+    ImageBuffer::from_fn(768, 768, |_, _| {
+        let mut channel = || {
+            state ^= state << 13;
+            state ^= state >> 17;
+            state ^= state << 5;
+            state as u8
+        };
+        Rgba([channel(), channel(), channel(), alpha])
+    })
+}
+
+#[test]
+fn large_opaque_png_converts_to_smaller_jpeg_and_preserves_replay() {
+    let source =
+        image_bytes_with_metadata(&noisy_image(255), ImageFormat::Png, TEST_RGB_ICC_PROFILE);
+    assert!(source.len() > JPEG_CONVERSION_THRESHOLD);
+    let processed = load_for_prompt_bytes(
+        Path::new("noise.png"),
+        source.clone(),
+        PromptImageMode::ORIGINAL_DETAIL,
+    )
+    .unwrap();
+    assert_eq!(processed.mime, "image/jpeg");
+    assert!(processed.bytes.len() < source.len());
+    assert_eq!((processed.width, processed.height), (768, 768));
+    let mut decoder = ImageReader::with_format(Cursor::new(&processed.bytes), ImageFormat::Jpeg)
+        .into_decoder()
+        .unwrap();
+    assert_eq!(
+        decoder.icc_profile().unwrap().unwrap(),
+        TEST_RGB_ICC_PROFILE
+    );
+    assert_eq!(decoder.exif_metadata().unwrap().unwrap(), ROTATE_90_EXIF);
+    // Baseline JPEG SOF: all three components have 1x1 sampling (4:4:4).
+    let sof = processed
+        .bytes
+        .windows(2)
+        .position(|bytes| bytes == [0xff, 0xc0])
+        .unwrap();
+    assert_eq!(processed.bytes[sof + 9], 3);
+    for offset in [11, 14, 17] {
+        assert_eq!(processed.bytes[sof + offset], 0x11);
+    }
+    let cached = load_for_prompt_bytes(
+        Path::new("noise.png"),
+        source,
+        PromptImageMode::ORIGINAL_DETAIL,
+    )
+    .unwrap();
+    assert_eq!(processed.bytes, cached.bytes);
+    let replayed = load_for_prompt_bytes(
+        Path::new("prepared.jpg"),
+        processed.bytes.to_vec(),
+        PromptImageMode::ORIGINAL_DETAIL,
+    )
+    .unwrap();
+    assert_eq!(replayed.bytes, processed.bytes);
+}
+
+#[test]
+fn transparent_large_png_stays_unchanged() {
+    let source = image_bytes(&noisy_image(254), ImageFormat::Png);
+    assert!(source.len() > JPEG_CONVERSION_THRESHOLD);
+    let processed = load_for_prompt_bytes(
+        Path::new("transparent.png"),
+        source.clone(),
+        PromptImageMode::ORIGINAL_DETAIL,
+    )
+    .unwrap();
+    assert_eq!(processed.mime, "image/png");
+    assert_eq!(processed.bytes.as_ref(), source.as_slice());
+    let rgba16 = DynamicImage::ImageRgba16(ImageBuffer::from_pixel(
+        1,
+        1,
+        image::Rgba([0u16, 0, 0, 65534]),
+    ));
+    assert!(has_transparency(&rgba16));
+}
+
+#[test]
+fn existing_jpeg_ignores_byte_size_within_pixel_limits() {
+    let mut source = image_bytes_with_metadata(
+        &ImageBuffer::from_pixel(32, 16, Rgba([20u8, 120, 220, 255])),
+        ImageFormat::Jpeg,
+        TEST_RGB_ICC_PROFILE,
+    );
+    source.resize(JPEG_CONVERSION_THRESHOLD + 1, 0);
+    let processed = load_for_prompt_bytes(
+        Path::new("large.jpg"),
+        source.clone(),
+        PromptImageMode::ORIGINAL_DETAIL,
+    )
+    .unwrap();
+    assert_eq!(processed.mime, "image/jpeg");
+    assert_eq!(processed.bytes.as_ref(), source.as_slice());
+}
+
+#[test]
+fn custom_upload_limits_cannot_exceed_qhd_long_edge() {
+    let source = image_bytes(
+        &ImageBuffer::from_pixel(3000, 100, Rgba([20u8, 120, 220, 255])),
+        ImageFormat::Png,
+    );
+    let processed = load_for_prompt_bytes(
+        Path::new("wide.png"),
+        source,
+        PromptImageMode::ResizeWithLimits(PromptImageResizeLimits {
+            max_dimension: 6000,
+            max_patches: 10_000,
+        }),
+    )
+    .unwrap();
+    assert_eq!((processed.width, processed.height), (2560, 85));
 }
 
 #[tokio::test(flavor = "multi_thread")]

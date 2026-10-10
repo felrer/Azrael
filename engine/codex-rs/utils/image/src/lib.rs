@@ -24,6 +24,9 @@ const DATA_URL_PREFIX: &str = "data:";
 pub const PROMPT_IMAGE_PATCH_SIZE: u32 = 32;
 /// Maximum width or height used when resizing images before uploading.
 pub const MAX_DIMENSION: u32 = 2048;
+pub const MAX_UPLOAD_IMAGE_DIMENSION: u32 = 2560;
+const JPEG_CONVERSION_THRESHOLD: usize = 1024 * 1024;
+const PROMPT_JPEG_QUALITY: u8 = 95;
 /// Maximum accepted byte length for prompt image input representations.
 ///
 /// This is a high sanity guard against pathological inputs, not a protocol
@@ -78,11 +81,12 @@ impl PromptImageMode {
     });
     /// Resize policy for original-detail prompt images.
     pub const ORIGINAL_DETAIL: Self = Self::ResizeWithLimits(PromptImageResizeLimits {
-        max_dimension: 6000,
+        max_dimension: MAX_UPLOAD_IMAGE_DIMENSION,
         max_patches: 10_000,
     });
 }
 
+#[derive(Clone)]
 struct ImageMetadata {
     icc_profile: Option<Vec<u8>>,
     exif: Option<Vec<u8>>,
@@ -165,6 +169,10 @@ fn load_for_prompt_bytes_uncached(
                 Some((resized.width(), resized.height(), resized))
             }
             PromptImageMode::ResizeWithLimits(limits) => {
+                let limits = PromptImageResizeLimits {
+                    max_dimension: limits.max_dimension.min(MAX_UPLOAD_IMAGE_DIMENSION),
+                    ..limits
+                };
                 let (target_width, target_height) =
                     prompt_image_output_dimensions_for_limits(width, height, limits);
                 if (target_width, target_height) == (width, height) {
@@ -178,11 +186,17 @@ fn load_for_prompt_bytes_uncached(
             PromptImageMode::ResizeToFit | PromptImageMode::Original => None,
         };
 
-        let encoded = if let Some((prepared_width, prepared_height, resized)) = target_dimensions {
+        let prepared = target_dimensions
+            .as_ref()
+            .map(|(_, _, image)| image)
+            .unwrap_or(&dynamic);
+        let mut encoded = if let Some((prepared_width, prepared_height, ref resized)) =
+            target_dimensions
+        {
             let target_format = format
                 .filter(|format| can_preserve_source_bytes(*format))
                 .unwrap_or(ImageFormat::Png);
-            let (bytes, output_format) = encode_image(&resized, target_format, metadata)?;
+            let (bytes, output_format) = encode_image(resized, target_format, metadata.clone())?;
             let mime = format_to_mime(output_format);
             EncodedImage {
                 bytes: bytes.into(),
@@ -204,7 +218,8 @@ fn load_for_prompt_bytes_uncached(
                     height,
                 }
             } else {
-                let (bytes, output_format) = encode_image(&dynamic, ImageFormat::Png, metadata)?;
+                let (bytes, output_format) =
+                    encode_image(&dynamic, ImageFormat::Png, metadata.clone())?;
                 let mime = format_to_mime(output_format);
                 EncodedImage {
                     bytes: bytes.into(),
@@ -217,6 +232,19 @@ fn load_for_prompt_bytes_uncached(
             }
         };
 
+        // Raw Original is also used for validation. Upload modes apply the size policy,
+        // while JPEG inputs are governed solely by their pixel limits.
+        if mode != PromptImageMode::Original
+            && guessed_format != ImageFormat::Jpeg
+            && encoded.bytes.len() > JPEG_CONVERSION_THRESHOLD
+            && !has_transparency(prepared)
+        {
+            let (jpeg, _) = encode_image(prepared, ImageFormat::Jpeg, metadata)?;
+            if jpeg.len() < encoded.bytes.len() {
+                encoded.bytes = jpeg.into();
+                encoded.mime = format_to_mime(ImageFormat::Jpeg);
+            }
+        }
         Ok(encoded)
     })()
 }
@@ -360,6 +388,17 @@ fn can_preserve_source_bytes(format: ImageFormat) -> bool {
     )
 }
 
+fn has_transparency(image: &DynamicImage) -> bool {
+    match image {
+        DynamicImage::ImageLumaA8(image) => image.pixels().any(|pixel| pixel.0[1] != u8::MAX),
+        DynamicImage::ImageLumaA16(image) => image.pixels().any(|pixel| pixel.0[1] != u16::MAX),
+        DynamicImage::ImageRgba8(image) => image.pixels().any(|pixel| pixel.0[3] != u8::MAX),
+        DynamicImage::ImageRgba16(image) => image.pixels().any(|pixel| pixel.0[3] != u16::MAX),
+        DynamicImage::ImageRgba32F(image) => image.pixels().any(|pixel| pixel.0[3] != 1.0),
+        _ => false,
+    }
+}
+
 fn encode_image(
     image: &DynamicImage,
     preferred_format: ImageFormat,
@@ -392,7 +431,7 @@ fn encode_image(
                 })?;
         }
         ImageFormat::Jpeg => {
-            let mut encoder = JpegEncoder::new_with_quality(&mut buffer, 85);
+            let mut encoder = JpegEncoder::new_with_quality(&mut buffer, PROMPT_JPEG_QUALITY);
             apply_image_metadata(&mut encoder, icc_profile, exif, target_format)?;
             encoder
                 .encode_image(image)

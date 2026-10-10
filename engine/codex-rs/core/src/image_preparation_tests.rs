@@ -158,13 +158,13 @@ async fn detail_policies_apply_the_expected_budgets() {
             Some(ImageDetail::Original),
             ImageDetailSetting::Original,
             (6401, 100),
-            (6000, 94),
+            (2560, 40),
         ),
         (
             Some(ImageDetail::Original),
             ImageDetailSetting::Original,
             (3201, 3201),
-            (3200, 3200),
+            (2560, 2560),
         ),
         (
             Some(ImageDetail::Auto),
