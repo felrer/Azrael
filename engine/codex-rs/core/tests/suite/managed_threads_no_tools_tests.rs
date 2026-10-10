@@ -1,4 +1,6 @@
 use super::*;
+use pretty_assertions::assert_eq;
+use test_case::test_case;
 
 #[test_case(false; "direct_tools")]
 #[test_case(true; "code_mode")]
@@ -9,7 +11,7 @@ async fn deny_all_startup_policy_survives_extension_mutation_and_rejects_dispatc
     skip_if_no_network!(Ok(()));
     let server = responses::start_mock_server().await;
     let fixture = test_codex()
-        .with_config(|config| {
+        .with_config(move |config| {
             config
                 .features
                 .set_enabled(codex_features::Feature::CodeMode, code_mode);
@@ -18,7 +20,15 @@ async fn deny_all_startup_policy_survives_extension_mutation_and_rejects_dispatc
         .await?;
     let mut options = StartThreadOptions::new(fixture.config.clone());
     options.config.ephemeral = true;
-    options.environments = Some(fixture.codex.environment_selections().await);
+    options.environments = Some(
+        fixture
+            .codex
+            .environment_selections()
+            .await
+            .into_iter()
+            .map(|selection| selection.into_request())
+            .collect(),
+    );
     options
         .thread_extension_init
         .insert(SessionIsolation::Isolated);

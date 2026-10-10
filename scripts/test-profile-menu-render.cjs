@@ -6,9 +6,9 @@ const vm = require("node:vm");
 const { spawnSync } = require("node:child_process");
 const test = require("node:test");
 const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434");
 
-test("production profile menu patch binds both commands to the real component despite local F boolean", () => {
+test("production profile menu patch binds both commands to the real component despite local N boolean", () => {
   const verificationRoot = path.resolve(__dirname, "../artifacts/verification");
   fs.mkdirSync(verificationRoot, { recursive: true });
   const fixture = fs.mkdtempSync(path.join(verificationRoot, "profile-menu-render-"));
@@ -47,12 +47,12 @@ test("production profile menu patch binds both commands to the real component de
     const relative = run.stdout.trim();
     const originalFilename = path.resolve(root, relative), transformed = fs.readFileSync(path.join(fixture, relative), "utf8");
     const marker = JSON.parse(fs.readFileSync(path.join(fixture, ".azrael-profile-menu.json"), "utf8"));
-    assert.equal(marker.schema, 5);
+    assert.equal(marker.schema, 6);
     // Resolve only the menu and its component owner. Loading the owner's whole
     // UI graph adds no evidence about this import's lexical binding.
     const compilerOptions = { allowJs: true, noLib: true, noEmit: true, target: ts.ScriptTarget.Latest, module: ts.ModuleKind.ESNext };
     const host = ts.createCompilerHost(compilerOptions);
-    host.resolveModuleNames = (names, containingFile) => names.map(name => path.resolve(containingFile) === originalFilename && name === "./app-initial-532d60c9b397.js"
+    host.resolveModuleNames = (names, containingFile) => names.map(name => path.resolve(containingFile) === originalFilename && name === "./app-initial-7a199c66e670.js"
       ? { resolvedFileName: path.resolve(path.dirname(originalFilename), name), extension: ts.Extension.Js }
       : undefined);
     const readSource = host.getSourceFile;
@@ -63,12 +63,12 @@ test("production profile menu patch binds both commands to the real component de
     const checker = program.getTypeChecker(), source = program.getSourceFile(originalFilename);
     assert.equal(source.parseDiagnostics.length, 0);
     const imported = source.statements.filter(ts.isImportDeclaration).flatMap(n => n.importClause?.namedBindings?.elements ?? [])
-      .find(e => e.name.text === "azraelProfileMenuItem");
+      .find(e => e.name.text === "L");
     assert(imported, "Profile component needs a distinct import binding");
-    assert.equal(imported.propertyName.text, "EAt");
+    assert.equal(imported.propertyName.text, "a9");
     const component = checker.getAliasedSymbol(checker.getSymbolAtLocation(imported.name));
     assert(component.declarations?.length, "Pinned component export must resolve to an actual declaration");
-    assert(component.declarations.some(d => path.basename(d.getSourceFile().fileName) === "app-initial-532d60c9b397.js"));
+    assert(component.declarations.some(d => path.basename(d.getSourceFile().fileName) === "app-initial-7a199c66e670.js"));
     assert(component.declarations.some(d => ts.isFunctionDeclaration(d) || ts.isVariableDeclaration(d)), "Component must have a value declaration");
     const calls = [];
     const visit = node => {
@@ -83,22 +83,22 @@ test("production profile menu patch binds both commands to the real component de
     for (const call of calls) {
       assert(ts.isIdentifier(call.arguments[0]));
       const symbol = checker.getSymbolAtLocation(call.arguments[0]);
-      assert.equal(checker.getAliasedSymbol(symbol), component, "Rendered component must resolve to the actual EAt export");
+      assert.equal(checker.getAliasedSymbol(symbol), component, "Rendered component must resolve to the actual a9 export");
       let owner = call.parent;
       while (owner && !ts.isFunctionDeclaration(owner)) owner = owner.parent;
       assert(owner);
       const shadowed = [];
       const findShadow = node => {
-        if (ts.isVariableDeclaration(node) && node.name.text === "F") shadowed.push(node);
+        if (ts.isVariableDeclaration(node) && node.name.text === "N") shadowed.push(node);
         ts.forEachChild(node, findShadow);
       };
       findShadow(owner);
       assert.equal(shadowed.length, 1);
       assert.equal(shadowed[0].initializer.getText(source), 'x===`apikey`');
-      for (const F of [false, true]) {
-        const context = { F, azraelProfileMenuItem: menuItem, ne: {}, i: () => {},
-          Xe: { dispatchMessage: (kind, payload) => { assert.equal(kind, "open-vscode-command"); commands.push(payload.command); } },
-          Q: { jsx: (type, props) => { assert.equal(typeof type, "function", "React rejects boolean element types"); return { type, props }; } } };
+      for (const N of [false, true]) {
+        const context = { N, L: menuItem, ne: {}, s: () => {},
+          yt: { dispatchMessage: (kind, payload) => { assert.equal(kind, "open-vscode-command"); commands.push(payload.command); } },
+          $: { jsx: (type, props) => { assert.equal(typeof type, "function", "React rejects boolean element types"); return { type, props }; } } };
         const rendered = vm.runInNewContext(call.getText(source), context);
         assert.equal(rendered.type, menuItem);
         rendered.props.onClick();
@@ -108,7 +108,7 @@ test("production profile menu patch binds both commands to the real component de
   } finally {
     const resolved = fs.realpathSync(fixture), owner = fs.realpathSync(verificationRoot);
     assert(resolved.startsWith(owner + path.sep) && path.basename(resolved).startsWith("profile-menu-render-"), "Unsafe fixture cleanup path");
-    fs.rmSync(resolved, { recursive: true, force: true });
+    fs.rmSync(resolved, { recursive: true });
     assert.equal(fs.existsSync(resolved), false);
   }
 });

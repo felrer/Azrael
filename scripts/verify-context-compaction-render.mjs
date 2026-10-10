@@ -6,20 +6,21 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/context-compaction-ui');
-const logs=join(root,'artifacts/logs/context-compaction/ui');
-const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
+const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
+const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/context-compaction-ui','artifacts/verification','Renderer fixture');
+const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/context-compaction/ui','artifacts/logs','Renderer logs');
+const assets=join(root,"artifacts/upstream-ui/26.1007.21434/webview/assets");
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {injectProviderContext,CONTEXT_ASSET}=require('./inject-provider-context.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
-const mainName='app-initial-532d60c9b397.js';
+const mainName="app-initial-7a199c66e670.js";
 const main=injectProviderContext(await readFile(join(assets,mainName),'utf8'),CONTEXT_ASSET).text;
 const ast=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 function adapt(name,replacements,newName){const owner=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(owner,name);let render=owner.getText(ast),edits=[];function visit(n){if(ts.isIdentifier(n)&&replacements[n.text]&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(ast)-owner.getStart(ast),end:n.end-owner.getStart(ast),text:replacements[n.text]});ts.forEachChild(n,visit)}visit(owner);for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)+e.text+render.slice(e.end);return render.replace('function '+name+'(','function '+newName+'(')}
-const native=adapt('__azraelNativeContextGauge',{_d:'fixtureIntl',Q:'FixtureMessage',_f:'FixtureNumber'},'fixtureNativeGauge');
-const wrapper=adapt('cra',{_d:'fixtureIntl',Wl:'fixtureWl',Hx:'fixtureHx',__azraelNativeContextGauge:'fixtureNativeGauge'},'fixtureGauge');
+const native=adapt('__azraelNativeContextGauge',{st:'fixtureIntl',q:'FixtureMessage',wr:'FixtureNumber'},'fixtureNativeGauge');
+const wrapper=adapt('XSa',{st:'fixtureIntl',Ou:'fixtureWl',Px:'fixtureHx',__azraelNativeContextGauge:'fixtureNativeGauge'},'fixtureGauge');
 // Only host/store and localization are adapted. The transformed card/action,
 // native gauge, hover card, button, React and pinned theme CSS render directly.
 const adapterSource=`
@@ -33,9 +34,9 @@ const fixtureHx=(store,host)=>({compactThread(...args){window.fixtureEvents.push
 ${native}
 ${wrapper}
 const policy={providerId:'openai',modelId:'gpt-6-astra',contextWindow:400000,safeContextWindow:380000,autoCompactTokenLimit:361000,inputTokens:272001,inputTokensEstimated:true,pricing:{status:'confirmed',inputTokenThreshold:272000,sourceUrl:'https://example.com/pricing'}};
-function Fixture(){dra();const React=ad(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return _7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[_7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),_7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),_7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:{percent:68,usedTokens:272001,contextWindow:400000,contextPolicy:policy}})]})}
+function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:{percent:68,usedTokens:272001,contextWindow:400000,contextPolicy:policy}})]})}
 export {Fixture};`;
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5e7be244bca.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {KEt,UEt} from '/assets/app-initial-efe028fd535e.js';import {Fixture} from '/assets/${mainName}';const $=KEt();window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
  if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
@@ -76,9 +77,9 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome?.exitCode===null)await new Promise(r=>{const t=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(t);r()})});
+ if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,10000);chrome.once('exit',finish)});
  const allowed=join(root,'artifacts/verification')+sep;
- if(chrome?.exitCode!==null&&fixture.startsWith(allowed)){
+ if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){
   await writeFile(join(fixture,'check-result.json'),JSON.stringify({passed:summary.outcome==='passed',scope:summary.scope,checks:summary.checks})+'\n');
   const cleanup=async apply=>{const report=join(logs,apply?'cleanup-result.json':'cleanup-preview.json');const proc=spawn('pwsh',['-NoProfile','-Command','& $env:AZRAEL_CARD_CLEANUP_SCRIPT -ProjectRoot $env:AZRAEL_CARD_PROJECT -FixtureRoot $env:AZRAEL_CARD_FIXTURE -IncludeDiagnosedFixtures '+(apply?'-Apply ':'')+'-ReportPath $env:AZRAEL_CARD_REPORT'],{windowsHide:true,env:{...process.env,AZRAEL_CARD_CLEANUP_SCRIPT:join(root,'scripts/clean-verification-artifacts.ps1'),AZRAEL_CARD_PROJECT:root,AZRAEL_CARD_FIXTURE:fixture,AZRAEL_CARD_REPORT:report},stdio:['ignore','pipe','pipe']});let output='';proc.stdout.on('data',c=>output+=c);proc.stderr.on('data',c=>output+=c);const exit=await new Promise((r,j)=>{proc.once('error',j);proc.once('exit',r)});await writeFile(join(logs,apply?'cleanup.log':'cleanup-preview.log'),output);assert.equal(exit,0,'cleanup script exit');return JSON.parse(await readFile(report,'utf8'))};
   try { const preview=await cleanup(false);assert.equal(preview.candidates[0]?.status,'selected','owned fixture selected by guarded cleanup');const result=await cleanup(true);assert.equal(result.candidates[0]?.status,'deleted','owned fixture deleted');assert.equal(await access(fixture).then(()=>true,()=>false),false,'fixture/profile absent');summary.cleanup='Owned browser exited; project guarded cleanup removed fixture/profile'; }

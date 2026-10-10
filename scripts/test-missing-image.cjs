@@ -6,7 +6,7 @@ const vm=require('node:vm');
 const test=require('node:test');
 const ts=require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || '../extensions/azrael-ex/node_modules/typescript');
 const {ASSETS,injectMissingImage,MARKER}=require('./inject-missing-image.cjs');
-const root=process.env.AZRAEL_PRESERVATION_UI_ROOT || path.join(__dirname,'../artifacts/upstream-ui/26.930.61225');
+const root=process.env.AZRAEL_PRESERVATION_UI_ROOT || path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434');
 const inputs=ASSETS.map(asset=>{const source=fs.readFileSync(path.join(root,asset),'utf8');return {asset,source,result:injectMissingImage(source,asset)}});
 function named(source,name){const ast=ts.createSourceFile('fixture.js',source,99,true,1);const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node,name);return node.getText(ast)}
 test('pinned transforms parse, are idempotent and reject anchor drift',()=>{
@@ -17,19 +17,19 @@ test('actual host read route separates absent files from permission failures',as
  const source=inputs[0].result.text,ast=ts.createSourceFile('host.js',source,99,true,1);let route;
  function visit(n){if(ts.isPropertyAssignment(n)&&n.name.getText(ast)==='"read-file-binary"')route=n.initializer.getText(ast);ts.forEachChild(n,visit)}visit(ast);assert.ok(route);
  let failure=null;
- const context={Buffer,Error,TN:async()=>null,bX:x=>x,oA:async()=>null,LZ:{isAbsolute:()=>true},BZ:()=>[],Yf:{Uri:{file:x=>x},workspace:{}},wn:{workspace:{fs:{readFile:async()=>{if(failure)throw failure;return Buffer.from('image')}}}}};
- context.FZ=vm.runInNewContext('('+named(source,'FZ')+')',context);
- context.jl=vm.runInNewContext('('+named(source,'jl')+')',context);
+ const context={Buffer,Error,LN:async()=>null,WX:x=>x,pA:async()=>null,sQ:{isAbsolute:()=>true},aQ:()=>[],lh:{Uri:{file:x=>x},workspace:{}},An:{workspace:{fs:{readFile:async()=>{if(failure)throw failure;return Buffer.from('image')}}}}};
+ context.iQ=vm.runInNewContext('('+named(source,'iQ')+')',context);
+ context.Ql=vm.runInNewContext('('+named(source,'Ql')+')',context);
  const read=vm.runInNewContext('('+route+')',context).bind({appServerClient:{}});
  assert.equal((await read({path:'/image.png'})).contentsBase64,Buffer.from('image').toString('base64'));
  for(const code of ['ENOENT','FileNotFound']){failure=Object.assign(new Error('absent'),{code});assert.deepEqual(JSON.parse(JSON.stringify(await read({path:'/absent.png'}))),{contentsBase64:null,fileNotFound:true})}
  for(const code of ['EACCES','ABORT_ERR']){failure=Object.assign(new Error(code),{code});await assert.rejects(read({path:'/image.png'}),/Unable to read file/)}
  assert.deepEqual(JSON.parse(JSON.stringify(await read({path:'https://example.com/image.png'}))),{contentsBase64:null});
 });
-test('actual BC/mSt invoke missing callback only for explicit absence',async()=>{
+test('actual nw/Zwt invoke missing callback only for explicit absence',async()=>{
  const source=inputs[1].result.text;let response,signalSeen,warnings=0;
- const context={VC:x=>x,gSt:()=> 'image/png',hg:async(_,{signal})=>{signalSeen=signal;if(response instanceof Error)throw response;return response},dg:()=>[],uh:{FIVE_MINUTES:1},al:()=>false,Eh:{warning:()=>warnings++},AbortSignal};
- context.mSt=vm.runInNewContext('('+named(source,'mSt')+')',context);const read=vm.runInNewContext('('+named(source,'BC')+')',context);
+ const context={rw:x=>x,$wt:()=> 'image/png',mg:async(_,{signal})=>{signalSeen=signal;if(response instanceof Error)throw response;return response},ug:()=>[],Bh:{FIVE_MINUTES:1},bc:()=>false,vh:{warning:()=>warnings++},AbortSignal};
+ context.Zwt=vm.runInNewContext('('+named(source,'Zwt')+')',context);const read=vm.runInNewContext('('+named(source,'nw')+')',context);
  const query={fetchQuery:({queryFn})=>queryFn({signal:new AbortController().signal})};let missing=0;
  const call=()=>read('/image.png','local',query,undefined,'thread',undefined,()=>missing++);
  response={contentsBase64:null,fileNotFound:true};assert.equal(await call(),null);assert.equal(missing,1);

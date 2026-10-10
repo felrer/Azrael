@@ -86,7 +86,8 @@ async fn same_id_returns_original_turn_and_new_id_accepts_same_text() {
     assert_eq!(
         result,
         TurnInputSubmission::Steered {
-            turn_id: "original".into()
+            turn_id: "original".into(),
+            root_turn_id: "original".into()
         }
     );
     assert!(session.active_turn.lock().await.is_none());
@@ -284,6 +285,7 @@ async fn pending_receipt_survives_session_drop_and_explicit_resume() {
             InitialHistory::Resumed(codex_history::ResumedHistory {
                 conversation_id: thread_id,
                 history: Arc::new(Vec::new()),
+                history_revision: None,
                 rollout_path: None,
             }),
             Arc::new(crate::current_time::SystemTimeProvider),
@@ -519,6 +521,121 @@ async fn raw_user_crash_midpoint_repairs_identity_and_spans_without_duplicate_mo
         assert_eq!(
             serde_json::to_value(&again.history).unwrap(),
             serde_json::to_value(&repaired.history).unwrap()
+        );
+    }
+}
+
+#[tokio::test]
+async fn accepted_retry_retains_admitted_causal_root() {
+    let home = tempfile::tempdir().unwrap();
+    let session = persistent_session(home.path()).await;
+    session
+        .journal_user_input_with_root(
+            &submitted("one"),
+            &BTreeMap::new(),
+            "continued-turn",
+            "original-root",
+            UserInputOrigin::User,
+        )
+        .await
+        .unwrap();
+    assert_eq!(
+        session
+            .accepted_input_retry_with_root(
+                &mut submitted("one"),
+                &BTreeMap::new(),
+                UserInputOrigin::User
+            )
+            .await
+            .unwrap(),
+        Some(("continued-turn".into(), "original-root".into()))
+    );
+}
+
+#[tokio::test]
+async fn historical_receipt_requires_explicit_canonical_causal_root() {
+    for canonical_root in [None, Some("original-root")] {
+        let home = tempfile::tempdir().unwrap();
+        let session = persistent_session(home.path()).await;
+        let SubmittedTurnInput::UserInput { content, .. } = submitted("one") else {
+            unreachable!()
+        };
+        let payload = serde_json::to_string(&AcceptedPayload {
+            content,
+            additional_context: BTreeMap::new(),
+            origin: UserInputOrigin::User,
+        })
+        .unwrap();
+        session
+            .state_db()
+            .unwrap()
+            .thread_queue()
+            .accept_user_input(
+                session.thread_id,
+                Some("one"),
+                "continued-turn",
+                1,
+                &payload,
+                &format!("{:x}", Sha256::digest(payload.as_bytes())),
+            )
+            .await
+            .unwrap();
+        if let Some(root) = canonical_root {
+            session
+                .services
+                .thread_store
+                .append_items(codex_thread_store::AppendThreadItemsParams {
+                    thread_id: session.thread_id,
+                    items: vec![RolloutItem::EventMsg(
+                        codex_protocol::protocol::EventMsg::TurnComplete(
+                            codex_protocol::protocol::TurnCompleteEvent {
+                                root_turn_id: Some(root.into()),
+                                turn_id: "continued-turn".into(),
+                                last_agent_message: None,
+                                error: None,
+                                started_at: None,
+                                completed_at: None,
+                                duration_ms: None,
+                                time_to_first_token_ms: None,
+                            },
+                        ),
+                    )],
+                })
+                .await
+                .unwrap();
+            session
+                .services
+                .thread_store
+                .flush_thread(session.thread_id)
+                .await
+                .unwrap();
+        }
+        let retry = session
+            .accepted_input_retry_with_root(
+                &mut submitted("one"),
+                &BTreeMap::new(),
+                UserInputOrigin::User,
+            )
+            .await;
+        if canonical_root.is_some() {
+            assert_eq!(
+                retry.unwrap(),
+                Some(("continued-turn".into(), "original-root".into()))
+            );
+        } else {
+            let error = retry.unwrap_err().to_string();
+            assert!(error.contains("no authoritative causal root"), "{error}");
+        }
+        assert_eq!(
+            session
+                .state_db()
+                .unwrap()
+                .thread_queue()
+                .pending_user_inputs(session.thread_id)
+                .await
+                .unwrap()
+                .len(),
+            1
         );
     }
 }

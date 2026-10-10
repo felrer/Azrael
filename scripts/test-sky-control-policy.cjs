@@ -5,11 +5,12 @@ const { pathToFileURL } = require('node:url');
 const { EventEmitter } = require('node:events');
 const { transformTransport, TRANSPORT, TRANSPORT_POLICY_MODULES, generateSettingsModule } = require('./inject-sky-control-policy.cjs');
 const { createSettingsOwner } = require('./use-control-settings.cjs');
-const pinned = path.resolve(__dirname, '../artifacts/releases/turn_render_fix_20261006_r1/computer-use');
+// Pristine Sky 0.7.4 input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
+const pinned = path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77/bin');
 test('cached managed service and pinned native queue/writer reread policy and fail closed', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-sky-gate-'));
   const oldHome = process.env.CODEX_HOME, oldRepl = globalThis.nodeRepl;
-  t.after(() => { if (oldHome === undefined) delete process.env.CODEX_HOME; else process.env.CODEX_HOME = oldHome; globalThis.nodeRepl = oldRepl; if (path.dirname(path.resolve(root)) !== path.resolve(os.tmpdir()) || !path.basename(root).startsWith('azrael-sky-gate-')) throw new Error('Unsafe fixture cleanup path'); fs.rmSync(root, { recursive: true, force: true }); });
+  t.after(() => { if (oldHome === undefined) delete process.env.CODEX_HOME; else process.env.CODEX_HOME = oldHome; globalThis.nodeRepl = oldRepl; if (path.dirname(path.resolve(root)) !== path.resolve(os.tmpdir()) || !path.basename(root).startsWith('azrael-sky-gate-')) throw new Error('Unsafe fixture cleanup path'); fs.rmSync(root, { recursive: true }); });
   process.env.CODEX_HOME = path.join(root, 'home');
   const settings = createSettingsOwner(process.env.CODEX_HOME);
   const toggle = computerUseEnabled => settings.updateSettings({ computerUseEnabled }, settings.getSettings().revision);

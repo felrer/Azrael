@@ -1,7 +1,7 @@
 "use strict";
 
-const COMPOSER_ASSET = "webview/assets/app-initial-532d60c9b397.js";
-const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-50ba72a19bff.js";
+const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
+const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-66a2c48ceb22.js";
 const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET];
 const MARKER = "/*azrael-ui-cleanup-v1*/";
 
@@ -12,7 +12,7 @@ function parse(text, ts) {
 }
 function injectUiCleanup(text, relativePath, ts) {
   if (!UI_CLEANUP_ASSETS.includes(relativePath)) return { text, count: 0 };
-  const file = parse(text, ts), edits = [], seen = new Set();
+  const file = parse(text, ts), edits = [];
   const functions = new Map();
   for (const node of file.statements) {
     if (ts.isFunctionDeclaration(node) && node.name) {
@@ -43,94 +43,74 @@ function injectUiCleanup(text, relativePath, ts) {
     }
   }
   if (relativePath === COMPOSER_ASSET) {
-    const placeholder = requireFunction("pyi");
+    const placeholder = requireFunction("mPi");
     if (marked) {
       if (placeholder.body.getText(file) !== '{return "^•⩊•^";}') throw new Error("Invalid cleaned composer placeholder.");
     } else {
-      if (!placeholder.body.getText(file).includes("composer.placeholder.localFollowUp.locally") || !placeholder.body.getText(file).includes("if(u!=null)return u")) throw new Error("Pinned placeholder variants changed.");
-      edits.push({ start: placeholder.body.getStart(file), end: placeholder.body.end, replacement: '{return "^•⩊•^";}' });
+      const source = placeholder.body.getText(file);
+      if (!source.includes("composer.placeholder.localFollowUp.locally") || !source.includes("if(u!=null)return u")) throw new Error("Pinned placeholder variants changed.");
+      edits.push({start:placeholder.body.getStart(file),end:placeholder.body.end,replacement:'{return "^•⩊•^";}'});
     }
-    // These components exclusively register and dispatch the removed actions.
-    // Remove their bodies and declarations, then sever every JSX mounting route.
-    for (const [name, id, dispatch] of [["fca", "plan-mode", "C"], ["wsa", "goal", "y"]]) {
-      if (marked) {
-        if (functions.has(name)) throw new Error(`Removed UI registration restored: ${name}`);
-      } else {
-        const node = requireFunction(name), source = node.getText(file);
-        if (!source.includes(`id:\`${id}\``) || !source.includes(`M6(${dispatch})`)) throw new Error(`Pinned action registration changed: ${name}`);
-        edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
+    const retired = [["aOa","plan-mode"],["uDa","goal"],["YDa","model"],["sDa","fork"],["vDa","init"],["hOa","reasoning"],["FEa","review-mode"],["HEa","review-mode"]];
+    for (const [name,id] of retired) {
+      if(marked){if(functions.has(name))throw new Error("Removed UI registration restored: "+name);continue}
+      const node=requireFunction(name),source=node.getText(file);
+      if(!source.includes('id:\x60'+id+'\x60') || !source.includes("J3(")) throw new Error("Pinned action registration changed: "+name);
+      edits.push({start:node.getStart(file),end:node.end,replacement:""});
+    }
+    for(const [name,body] of [["oOa",'{return e.mode==="default"}'],["sOa",'{return e.mode===\x60plan\x60}'],["dDa",'{return e.mode==="default"}']]){
+      if(marked){if(functions.has(name))throw new Error("Removed UI action helper restored: "+name);continue}
+      const node=requireFunction(name);if(node.body.getText(file)!==body)throw new Error("Pinned action helper changed: "+name);
+      edits.push({start:node.getStart(file),end:node.end,replacement:""});
+    }
+    // Resolve the native JSX mounts structurally so unrelated toolbar and review services survive.
+    const expected = new Map(retired.map(([name])=>[name,name==="HEa"?3:1]));
+    const mounts=new Map();
+    function visit(node){
+      if(ts.isFunctionDeclaration(node)&&retired.some(([name])=>name===node.name?.text))return;
+      if(ts.isCallExpression(node)&&node.arguments[0]&&ts.isIdentifier(node.arguments[0])&&expected.has(node.arguments[0].text)){
+        const name=node.arguments[0].text,call=node.expression.getText(file);
+        if(!/\.jsx\)$/.test(call))throw new Error("Pinned retired component mount changed: "+name);
+        mounts.set(name,(mounts.get(name)||0)+1);
+        edits.push({start:node.getStart(file),end:node.end,replacement:"null"});return;
       }
+      ts.forEachChild(node,visit);
     }
-    for (const [name, body] of [["pca", '{return e.mode==="default"}'], ["mca", '{return e.mode===`plan`}'], ["Tsa", '{return e.mode==="default"}']]) {
-      if (marked) {
-        if (functions.has(name)) throw new Error(`Removed UI action helper restored: ${name}`);
-      } else {
-        const node = requireFunction(name);
-        if (node.body.getText(file) !== body) throw new Error(`Pinned action helper changed: ${name}`);
-        edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
-      }
-    }
-    replace(requireFunction("Osa"), ",Dsa=e=>e.replace(/^go+(?=a?l?$)/i,`go`)", "");
-    replace(null, "var Esa,Dsa;", "var Esa;");
-    const launcher = requireFunction("xla"), composer = requireFunction("kha");
-    // Retire only these slash-menu registrations; model/reasoning toolbar
-    // controls and shared fork/init/review services remain independently usable.
-    for (const [name, id] of [["nca", "model"], ["xsa", "fork"], ["Msa", "init"], ["Sca", "reasoning"], ["Xoa", "review-mode"], ["nsa", "review-mode"]]) {
-      if (marked) {
-        if (functions.has(name)) throw new Error(`Removed slash registration restored: ${name}`);
-      } else {
-        const node = requireFunction(name), source = node.getText(file);
-        if (!source.includes(`id:\`${id}\``) || !source.includes("M6(")) throw new Error(`Pinned slash registration changed: ${name}`);
-        edits.push({ start: node.getStart(file), end: node.end, replacement: "" });
-      }
-    }
-    for (const anchor of [
-      "(0,V7.jsx)(nca,{conversationId:P,permissionsCwdOverride:m,permissionsHostId:h,serviceTierDefaults:v})",
-      "(0,V7.jsx)(Sca,{conversationId:P,permissionsCwdOverride:m,permissionsHostId:h})",
-      "(0,V7.jsx)(Msa,{cwd:g,enabled:he,hostId:L.hostId,onSubmitInitPrompt:p})",
-      "(0,V7.jsx)(xsa,{showWorktreeOption:!1,isWorktreeThread:pe,onForkIntoLocal:_e,onForkIntoWorktree:Se})",
-    ]) replace(launcher, anchor, "null");
-    const reviewLauncher = requireFunction("esa");
-    replace(reviewLauncher, "(0,L7.jsx)(Xoa,{conversationId:r,cwd:i,gitRoot:d,hostConfig:a})", "null");
-    replace(reviewLauncher, "(0,L7.jsx)(nsa,{enabled:f})", "null", 2);
-    replace(launcher, "(0,V7.jsx)(fca,{conversationId:P,onEnablePlanMode:d})", "null");
-    replace(launcher, "(0,V7.jsx)(wsa,{conversationId:P,enabled:Be,isExtendedGoalCommand:O,onOpenGoalEditor:f})", "void 0");
-    replace(launcher, "onEnablePlanMode:d,onOpenGoalEditor:f,", "");
-    // Remove the now-unused callback dependencies from memoized mounts.
-    replace(launcher, "t[86]!==P||t[87]!==d||t[88]!==z", "t[86]!==P||t[88]!==z");
-    replace(launcher, "t[86]=P,t[87]=d,t[88]=z", "t[86]=P,t[88]=z");
-    replace(launcher, "t[92]!==P||t[93]!==O||t[94]!==f||t[95]!==Be", "t[92]!==P||t[93]!==O||t[95]!==Be");
-    replace(launcher, "t[92]=P,t[93]=O,t[94]=f,t[95]=Be", "t[92]=P,t[93]=O,t[95]=Be");
-    replace(composer, "onEnablePlanMode:Ac,onOpenGoalEditor:kc,", "");
-    replace(composer, "kc=Cm(()=>{na(`pendingThreadGoalObjective`,``),eo()}),", "");
-    replace(requireFunction("iLi"), "`command:goal`,`command:plan-mode`,", "");
+    visit(file);
+    for(const [name,count]of expected)if((mounts.get(name)||0)!==(marked?0:count))throw new Error("Pinned retired mount count changed: "+name);
+    replace(null,"onEnablePlanMode:d,onOpenGoalEditor:f,","");
+    replace(null,"t[86]!==P||t[87]!==d||t[88]!==z","t[86]!==P||t[88]!==z");
+    replace(null,"t[86]=P,t[87]=d,t[88]=z","t[86]=P,t[88]=z");
+    replace(null,"t[92]!==P||t[93]!==O||t[94]!==f||t[95]!==ze","t[92]!==P||t[93]!==O||t[95]!==ze");
+    replace(null,"t[92]=P,t[93]=O,t[94]=f,t[95]=ze","t[92]=P,t[93]=O,t[95]=ze");
+    replace(null,"onEnablePlanMode:rc,onOpenGoalEditor:jee,","");
+    replace(null,"jee=Jm(()=>{Gi(\x60pendingThreadGoalObjective\x60,\x60\x60),Pa()}),","");
+    replace(requireFunction("mDa"),",pDa=e=>e.replace(/^go+(?=a?l?$)/i,\x60go\x60)","");
+    replace(null,"var fDa,pDa;","var fDa;");
+    replace(requireFunction("dZi"),"\x60command:goal\x60,\x60command:plan-mode\x60,","");
   } else {
-    // Permission policy, eligibility, confirmation and selection callbacks stay
-    // intact. Keep text neutral and tint only the leading menu icons.
-    replace(null, "LeftIcon:Dt,rightIconAsset", "LeftIcon:azraelApproveIcon,rightIconAsset");
-    replace(null, "LeftIcon:Fe,leftIconClassName", "LeftIcon:azraelFullAccessIcon,leftIconClassName");
-    replace(null, "At=kt?`warning`:`tertiary`,Y=kt?An:`text-tertiary`", "At=`tertiary`,Y=`text-tertiary`");
-    replace(null, "leftIconClassName:l(`icon-sm`,An)", "leftIconClassName:l(`icon-sm`)");
-    replace(null, "rightIconClassName:l(`icon-xs`,An)", "rightIconClassName:l(`icon-xs`)");
-    replace(null, "className:An,children:!St||q", "className:`text-codex-description`,children:!St||q");
-    replace(null, "className:An,children:(0,$.jsx)(h,{id:`composer.permissionsDropdown.fullAccess.optionLabel`", "className:`text-default`,children:(0,$.jsx)(h,{id:`composer.permissionsDropdown.fullAccess.optionLabel`");
-    replace(null, "let o=i.kind===`agent-mode`&&i.agentMode===`full-access`?xn:`text-codex-description`", "let o=`text-codex-description`");
+    replace(null,"LeftIcon:Dt,rightIconAsset","LeftIcon:azraelApproveIcon,rightIconAsset");
+    replace(null,"LeftIcon:bt,","LeftIcon:azraelFullAccessIcon,");
+    replace(null,"f=d?\x60warning\x60:\x60tertiary\x60,p=d?gn:\x60text-tertiary\x60","f=\x60tertiary\x60,p=\x60text-tertiary\x60");
+    replace(null,"leftIconClassName:l(\x60icon-sm\x60,Tn)","leftIconClassName:l(\x60icon-sm\x60)");
+    replace(null,"rightIconClassName:l(\x60icon-xs\x60,Tn)","rightIconClassName:l(\x60icon-xs\x60)");
+    replace(null,"let s=i.kind===\x60agent-mode\x60&&i.agentMode===\x60full-access\x60?gn:\x60text-codex-description\x60","let s=\x60text-codex-description\x60");
+    replace(null,"className:Tn,children:!vt||q","className:\x60text-codex-description\x60,children:!vt||q");
+    replace(null,"className:Tn,children:(0,$.jsx)(a,{id:\x60composer.permissionsDropdown.fullAccess.optionLabel\x60","className:\x60text-default\x60,children:(0,$.jsx)(a,{id:\x60composer.permissionsDropdown.fullAccess.optionLabel\x60");
+    replace(requireFunction("on"),"let d=u,f=c.kind===\x60agent-mode\x60&&c.agentMode===\x60full-access\x60","let d=c.kind===\x60agent-mode\x60&&c.agentMode===\x60full-access\x60?azraelFullAccessIcon:u,f=c.kind===\x60agent-mode\x60&&c.agentMode===\x60full-access\x60");
+    // Native custom permission profiles use a shared menu row as well.
+    replace(requireFunction("on"),"if(f){p=gn;","if(f){p=\x60text-default\x60;");
+    replace(requireFunction("on"),"l(\x60icon-sm\x60,gn)","l(\x60icon-sm\x60)");
+    replace(requireFunction("on"),"l(\x60icon-xs\x60,gn)","l(\x60icon-xs\x60)");
   }
-  if (marked) {
-    if (text.split(MARKER).length !== 2) throw new Error("Duplicate UI cleanup marker.");
-    return { text, count: 0 };
+
+  if(marked){if(text.split(MARKER).length!==2)throw new Error("Duplicate UI cleanup marker.");return {text,count:0}}
+  edits.sort((a,b)=>b.start-a.start);
+  let previous=text.length;
+  for(const edit of edits){if(edit.end>previous)throw new Error("Overlapping UI cleanup edits: "+text.slice(edit.start,edit.end)+" at "+edit.start+".."+edit.end+" previous "+previous);previous=edit.start;text=text.slice(0,edit.start)+edit.replacement+text.slice(edit.end)}
+  if(relativePath===PERMISSIONS_ASSET){
+    text+='\nfunction azraelApproveIcon(e){return (0,$.jsx)(\x60span\x60,{style:{display:\x60inline-flex\x60,color:\x60color-mix(in srgb, var(--blue-300) 55%, var(--color-token-description-foreground))\x60},children:(0,$.jsx)(Dt,e)})}\nfunction azraelFullAccessIcon(e){return (0,$.jsx)(\x60span\x60,{style:{display:\x60inline-flex\x60,color:\x60color-mix(in srgb, var(--orange-300) 55%, var(--color-token-description-foreground))\x60},children:(0,$.jsx)(bt,e)})}';
   }
-  edits.sort((a, b) => b.start - a.start);
-  for (const edit of edits) {
-    if (seen.has(edit.start)) throw new Error("Overlapping UI cleanup edits.");
-    seen.add(edit.start);
-    text = text.slice(0, edit.start) + edit.replacement + text.slice(edit.end);
-  }
-  if (relativePath === PERMISSIONS_ASSET) {
-    text += '\nfunction azraelApproveIcon(e){return (0,$.jsx)(`span`,{style:{display:`inline-flex`,color:`color-mix(in srgb, var(--blue-300) 55%, var(--color-token-description-foreground))`},children:(0,$.jsx)(Dt,e)})}\nfunction azraelFullAccessIcon(e){return (0,$.jsx)(`span`,{style:{display:`inline-flex`,color:`color-mix(in srgb, var(--orange-300) 55%, var(--color-token-description-foreground))`},children:(0,$.jsx)(Fe,e)})}';
-  }
-  text = MARKER + text;
-  parse(text, ts);
-  return { text, count: 1 };
+  text=MARKER+text;parse(text,ts);return {text,count:1};
 }
-module.exports = { UI_CLEANUP_ASSETS, COMPOSER_ASSET, PERMISSIONS_ASSET, MARKER, injectUiCleanup };
+module.exports={UI_CLEANUP_ASSETS,COMPOSER_ASSET,PERMISSIONS_ASSET,MARKER,injectUiCleanup};

@@ -2,19 +2,25 @@ import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir,rm} from 'node:fs/promises';
-import {resolve,dirname,join,extname,sep} from 'node:path';
+import {resolve,dirname,join,extname,sep,relative,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/btw-ui'),logs=join(root,'artifacts/logs/btw/render');
-const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets'),profile=join(fixture,'chrome-profile');
+function containedOutput(value,fallback,allowed){
+ const candidate=resolve(value||fallback),within=relative(allowed,candidate);
+ if(!within||within==='..'||within.startsWith('..'+sep)||isAbsolute(within))throw Error('Render output must be contained beneath '+allowed);
+ return candidate;
+}
+const fixture=containedOutput(process.env.AZRAEL_RENDER_FIXTURE_ROOT,join(root,'artifacts/verification/btw-ui'),join(root,'artifacts/verification'));
+const logs=containedOutput(process.env.AZRAEL_RENDER_LOG_ROOT,join(root,'artifacts/logs/btw/render'),join(root,'artifacts/logs'));
+const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets'),profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const {injectBtw,BTW_ASSETS}=require('./inject-btw.cjs');
 const {createBtwController}=require('./btw-conversation.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const mainName=BTW_ASSETS[2].split('/').at(-1),main=injectBtw(await readFile(join(assets,mainName),'utf8'),BTW_ASSETS[2]).text;
 const adapterSource=`
-import {ZOt as fixtureReact,KEt as fixtureJsx} from './app-initial-efe028fd535e.js';
+import {nLt as fixtureReact,$At as fixtureJsx} from './app-initial-97d3534ad35f.js';
 ${createBtwController.toString()}
 const fixtureCallbacks=new Set();
 window.fixtureState={running:false,messages:[{role:'assistant',text:'The retry policy keeps the task running. Only confirmed failures trigger recovery.'}],fail:false};
@@ -27,7 +33,7 @@ function FixtureChat(){return jsx.jsxs('article',{className:'flex flex-col gap-4
 let FixturePanel;
 function Fixture(){jsx??=fixtureJsx();React??=fixtureReact();__azraelInitBtwButton();FixturePanel??=createBtwPanel(React,jsx,__azraelBtwButton,FixtureChat,fixtureController);const[,update]=React.useState(0);window.fixtureRerender=()=>{update(n=>n+1);for(const fn of fixtureCallbacks)fn()};return jsx.jsx(FixturePanel,{conversationId:'side'})}
 export{Fixture};`;
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;html,body,#root{height:100%;margin:0}</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5e7be244bca.css"></head><body data-vscode-theme-kind="vscode-light"><div id="root"></div><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import{KEt,UEt}from'/assets/app-initial-efe028fd535e.js';import{Fixture}from'/assets/${mainName}';window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render(KEt().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;html,body,#root{height:100%;margin:0}</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><div id="root"></div><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import{$At as KEt,XAt as UEt}from'/assets/app-initial-97d3534ad35f.js';import{Fixture}from'/assets/${mainName}';window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render(KEt().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
  if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
@@ -74,8 +80,8 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome?.exitCode===null)await new Promise(r=>{const t=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- const allowed=join(root,'artifacts/verification')+sep;
- if(chrome?.exitCode!==null&&fixture.startsWith(allowed)){await rm(fixture,{recursive:true,force:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser exited; guarded fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
+ if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
+ const browserExited=chrome!=null&&(chrome.exitCode!==null||chrome.signalCode!==null);
+ if(browserExited){await rm(fixture,{recursive:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser exited; guarded fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

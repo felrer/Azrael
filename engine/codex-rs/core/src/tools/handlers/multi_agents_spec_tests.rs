@@ -1,5 +1,4 @@
 use super::*;
-use codex_protocol::openai_models::ModelPreset;
 use codex_protocol::openai_models::ModelServiceTier;
 use codex_protocol::openai_models::ReasoningEffort;
 use codex_protocol::openai_models::ReasoningEffortPreset;
@@ -41,25 +40,15 @@ fn model_preset(id: &str, show_in_picker: bool) -> ModelPreset {
 }
 
 #[test]
-fn spawn_agent_tool_v2_requires_task_name_and_lists_visible_models() {
-    let mut legacy = model_preset("legacy", /*show_in_picker*/ true);
-    legacy.multi_agent_version = Some(MultiAgentVersion::V1);
-    let mut disabled = model_preset("disabled", /*show_in_picker*/ true);
-    disabled.multi_agent_version = Some(MultiAgentVersion::Disabled);
+fn spawn_agent_tool_v2_requires_task_name() {
     let tool = create_spawn_agent_tool_v2(
         SpawnAgentToolOptions {
-            available_models: vec![
-                model_preset("visible", /*show_in_picker*/ true),
-                model_preset("hidden", /*show_in_picker*/ false),
-                legacy,
-                disabled,
-            ],
             agent_type_description: "role help".to_string(),
             expose_agent_type: true,
             hide_agent_type_model_reasoning: false,
             expose_spawn_agent_model_overrides: true,
-            multi_agent_version: MultiAgentVersion::V2,
             usage_hint_text: None,
+            ..Default::default()
         },
         /*description_override*/ None,
     );
@@ -85,18 +74,6 @@ fn spawn_agent_tool_v2_requires_task_name_and_lists_visible_models() {
     assert!(description.contains("The spawned agent will have the same tools as you"));
     assert!(!description.contains("max_concurrent_threads_per_session"));
     assert!(description.contains(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE));
-    assert!(
-        description
-            .contains("Available model overrides (optional; inherited parent model is preferred):")
-    );
-    assert!(description.contains(
-        "- `visible-model`: visible description Reasoning efforts: medium (default). Service tiers: priority."
-    ));
-    assert!(description.contains(
-        "- `legacy-model`: legacy description Reasoning efforts: medium (default). Service tiers: priority."
-    ));
-    assert!(!description.contains("hidden-model"));
-    assert!(!description.contains("disabled-model"));
     assert!(properties.contains_key("task_name"));
     assert!(properties.contains_key("message"));
     assert_eq!(
@@ -134,10 +111,8 @@ fn spawn_agent_tool_v2_requires_task_name_and_lists_visible_models() {
 #[test]
 fn spawn_agent_catalog_description_preserves_generated_context() {
     let options = SpawnAgentToolOptions {
-        available_models: vec![model_preset("visible", /*show_in_picker*/ true)],
         agent_type_description: "Available agent roles: explorer".to_string(),
         expose_spawn_agent_model_overrides: true,
-        multi_agent_version: MultiAgentVersion::V2,
         usage_hint_text: Some("Local usage hint.".to_string()),
         ..Default::default()
     };
@@ -156,7 +131,6 @@ fn spawn_agent_catalog_description_preserves_generated_context() {
             .description
             .contains("Catalog spawning guidance.")
     );
-    assert!(configured_tool.description.contains("`visible-model`"));
     assert!(
         configured_tool
             .description
@@ -175,13 +149,12 @@ fn spawn_agent_catalog_description_preserves_generated_context() {
 #[test]
 fn spawn_agent_tool_v1_keeps_legacy_fork_context_field() {
     let tool = create_spawn_agent_tool_v1(SpawnAgentToolOptions {
-        available_models: Vec::new(),
         agent_type_description: "role help".to_string(),
         expose_agent_type: true,
         hide_agent_type_model_reasoning: false,
         expose_spawn_agent_model_overrides: true,
-        multi_agent_version: MultiAgentVersion::V1,
         usage_hint_text: None,
+        ..Default::default()
     });
 
     let ToolSpec::Namespace(namespace) = tool else {
@@ -229,6 +202,7 @@ fn spawn_agent_tool_v1_keeps_legacy_fork_context_field() {
 fn spawn_agent_tool_caps_visible_model_summaries() {
     let tool = create_spawn_agent_tool_v2(
         SpawnAgentToolOptions {
+            model_catalog_in_context: false,
             available_models: vec![
                 model_preset("first", /*show_in_picker*/ true),
                 model_preset("second", /*show_in_picker*/ true),
@@ -298,17 +272,20 @@ fn spawn_agent_tool_caps_reasoning_effort_value_length() {
     );
 }
 
-#[test]
-fn spawn_agent_tool_keeps_model_controls_when_spawn_metadata_is_hidden() {
+#[test_case::test_case(false; "inline_catalog")]
+#[test_case::test_case(true; "context_catalog")]
+fn spawn_agent_tool_keeps_model_controls_when_spawn_metadata_is_hidden(
+    model_catalog_in_context: bool,
+) {
     let tool = create_spawn_agent_tool_v2(
         SpawnAgentToolOptions {
-            available_models: vec![model_preset("visible", /*show_in_picker*/ true)],
             agent_type_description: "role help".to_string(),
             expose_agent_type: false,
             hide_agent_type_model_reasoning: true,
             expose_spawn_agent_model_overrides: true,
-            multi_agent_version: MultiAgentVersion::V2,
+            model_catalog_in_context,
             usage_hint_text: None,
+            ..Default::default()
         },
         /*description_override*/ None,
     );
@@ -331,20 +308,22 @@ fn spawn_agent_tool_keeps_model_controls_when_spawn_metadata_is_hidden() {
     assert!(properties.contains_key("reasoning_effort"));
     assert!(!properties.contains_key("service_tier"));
     assert!(!description.contains(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE));
-    assert!(description.contains("Available model overrides"));
+    assert_eq!(
+        description.contains(SPAWN_AGENT_INHERITED_MODEL_GUIDANCE_V2),
+        model_catalog_in_context
+    );
 }
 
 #[test]
 fn spawn_agent_tool_hides_model_controls_without_override_exposure() {
     let tool = create_spawn_agent_tool_v2(
         SpawnAgentToolOptions {
-            available_models: vec![model_preset("visible", /*show_in_picker*/ true)],
             agent_type_description: "role help".to_string(),
             expose_agent_type: false,
             hide_agent_type_model_reasoning: true,
             expose_spawn_agent_model_overrides: false,
-            multi_agent_version: MultiAgentVersion::V2,
             usage_hint_text: None,
+            ..Default::default()
         },
         Some(""),
     );

@@ -238,6 +238,7 @@ mod tests {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items,
                 items_view: TurnItemsView::Full,
                 status: TurnStatus::Completed,

@@ -32,7 +32,7 @@ async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = fa
   if (dedicated) { host.open(); host.attach(native).rpc = async () => ({ computerUseMode: 'selectedWindow', thread: { id: thread } }); await host.startThread(); }
   function started(id) { turn = id; host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id } } }); }
   started(turn); await host.threads.get(thread).ready;
-  t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true, force: true }); });
+  t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const call = (tool, args = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: turn } } });
   async function select() { const candidate = (await call('list_windows')).candidates[0].candidateId; const result = call('select_window', { candidateId: candidate }); result.catch(() => {}); await until(() => posts.some(p => ['mcp-request', 'approval'].includes(p.type))); return { result, request: posts.find(p => ['mcp-request', 'approval'].includes(p.type)).request }; }
   return { host, native, approvals, descriptor, publisher, navigate, posts, shows, hides, navigation, commands, backendCalls, reveals, call, select, started, click: id => listener({ requestId: id }), subscriptionDisposed: () => subscriptionDisposed,
@@ -122,7 +122,7 @@ for (const event of [{ type: 'approvalNotificationActivated', requestId: 'window
 });
 test('transformed native callback binds stable navigation and checks pending state after opening sidebar', async () => {
   const vm = require('node:vm'), { injectComputerUse } = require('./inject-computer-use.cjs');
-  const original = await fs.readFile(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/out/extension.js'), 'utf8');
+  const original = await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, '../artifacts/upstream-ui/26.1007.21434'), 'out/extension.js'), 'utf8');
   const transformed = injectComputerUse(original).text;
   const start = transformed.indexOf('onRequest:F=>{'), end = transformed.indexOf('/*azrael-computer-use-approvals-v1*/', start);
   assert.ok(start >= 0 && end > start);

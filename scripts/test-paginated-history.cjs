@@ -11,7 +11,7 @@ const {
   PAGINATED_HISTORY_MARKER: marker,
   injectPaginatedHistory,
 } = require("./inject-paginated-history.cjs");
-const pristine = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.930.61225", asset), "utf8");
+const pristine = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"), asset), "utf8");
 const transformed = injectPaginatedHistory(pristine, asset);
 
 function creationDeclaration(source) {
@@ -19,7 +19,7 @@ function creationDeclaration(source) {
   assert.equal(ast.parseDiagnostics.length, 0, "pinned bundle parses");
   const found = [];
   function visit(node) {
-    if (ts.isFunctionDeclaration(node) && node.name?.text === "wTn") found.push(node.getText(ast));
+    if (ts.isFunctionDeclaration(node) && node.name?.text === "CDn") found.push(node.getText(ast));
     ts.forEachChild(node, visit);
   }
   visit(ast);
@@ -31,10 +31,10 @@ const patchedDeclaration = creationDeclaration(transformed.text);
 
 function harness(declaration = patchedDeclaration) {
   const flags = [];
-  const context = { yt(config, name) { flags.push(name); return config?.[name] === true; } };
+  const context = { Te: config => config, On(config, name) { flags.push(name); return config?.[name] === true; } };
   vm.createContext(context);
   vm.runInContext(declaration, context);
-  return { create: context.wTn, flags };
+  return { create: context.CDn, flags };
 }
 
 test("pinned transform parses, is idempotent, and ignores other assets", () => {
@@ -47,7 +47,7 @@ test("pinned transform parses, is idempotent, and ignores other assets", () => {
 test("missing, duplicate, altered, and damaged marked anchors fail closed", () => {
   assert.throws(() => injectPaginatedHistory("", asset), /anchor/);
   assert.throws(() => injectPaginatedHistory(pristine + originalDeclaration, asset), /anchor/);
-  assert.throws(() => injectPaginatedHistory(pristine.replace("function wTn(e,t,n,r)", "function wTn(e,t,n,x)"), asset), /anchor/);
+  assert.throws(() => injectPaginatedHistory(pristine.replace("function CDn(e,t,n,r,i)", "function CDn(e,t,n,x,i)"), asset), /anchor/);
   assert.throws(() => injectPaginatedHistory(transformed.text + marker, asset), /Duplicate/);
   assert.throws(() => injectPaginatedHistory(pristine + marker, asset), /Damaged/);
   assert.throws(() => injectPaginatedHistory(transformed.text.replace(patchedDeclaration, ""), asset), /Damaged/);

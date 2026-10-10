@@ -7,18 +7,18 @@ const test = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { ACCOUNT_QUEUE_CORE_ASSET: core, ACCOUNT_QUEUE_PRESENTATION_ASSET: presentation, ACCOUNT_QUEUE_LIST_ASSET: list, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const { injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
-const root = path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const source = asset => fs.readFileSync(path.join(root, asset), "utf8");
 const transformed = injectAccountSwitchQueue(source(core), core).text;
 const ast = ts.createSourceFile(core, transformed, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "hkn").getText(ast);
+const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "ajn").getText(ast);
 const creationGuard = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "__azraelCreateAfterAccountChange").getText(ast);
 const preparedSource = asset => asset === list ? injectQueuedCompactionList(source(asset)).text : source(asset);
 
 function fixture({ pending = false, mode = "queue", error, queryError, activeTurnId = null } = {}) {
   const calls = [];
-  const context = vm.createContext({ R$: Error, Qt: Error, wn: () => false, Wt: value => value });
-  vm.runInContext(declaration + ";globalThis.create = hkn", context);
+  const context = vm.createContext({ P1: Error, Oe: Error, Nt: () => false, qt: value => value });
+  vm.runInContext(declaration + ";globalThis.create = ajn", context);
   const host = {
     accountChangePending: async () => { calls.push("query"); if (queryError) throw queryError; return pending; },
     needsResume: () => false, getActiveTurnId: () => activeTurnId, hasPendingTurnStart: () => false,
@@ -97,8 +97,8 @@ test("automatic native queue resume waits for switch; explicit send-now stays av
   const explicitStart = end + ",sendNow:i?void 0:".length;
   const explicitEnd = text.indexOf(",subscribe(e){", explicitStart);
   const item = { id: "queued", kind: "userInput" }, queue = { items: [item], messagesById: { queued: {} } };
-  Object.assign(context, { g: async () => queue, f: () => [item], l: false, u: () => true,
-    MO: { default: (a, b) => a === b }, EE: Error, _: async () => {}, d: () => {} });
+  Object.assign(context, { _: async () => queue, p: () => [item], l: false, u: () => true,
+    RD: { default: (a, b) => a === b }, HT: Error, v: async () => {}, f: () => {} });
   context.t.sendRequest = async (method, params) => {
     calls.push(method); assert.equal(params.queuedSubmissionId, "queued"); return { turn: { id: "old-account-turn" } };
   };
@@ -199,15 +199,15 @@ test("new conversation state lookup failure never starts a thread", async () => 
 test("queue rows show account wait state and account updates release the display", async () => {
   const text = injectAccountSwitchQueue(injectQueuedCompactionPresentation(source(presentation)).text, presentation).text;
   const ast = ts.createSourceFile(presentation, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "wen").getText(ast);
+  const declaration = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === "vsn").getText(ast);
   const callbacks = new Map(); let pending = true, changes = 0, disposed = 0;
   const manager = { getHostId: () => "local", getConversation: () => ({ ephemeral: false }), getStreamRole: () => ({ role: "owner" }),
     addNotificationCallback: (name, callback) => { callbacks.set(name, callback); return () => { disposed++; callbacks.delete(name); }; },
     sendRequest: async method => method === "azrael/account" ? { state: { isSwitching: pending } } : { data: [{ id: "q", clientUserMessageId: "c", kind: "userInput" }], nextCursor: null },
   };
-  const context = vm.createContext({ kO: () => false, ob: () => true, _ne: () => null, uy: x => x,
-    Ten: () => ({ id: "q", context: {} }), MO: { default: (a,b) => a === b }, mp: { warning: assert.fail } });
-  vm.runInContext(declaration + ";globalThis.create=wen", context);
+  const context = vm.createContext({ AE: () => false, Sy: () => true, nt: () => null, Nv: x => x,
+    ysn: () => ({ id: "q", context: {} }), RD: { default: (a,b) => a === b }, Uh: { warning: assert.fail } });
+  vm.runInContext(declaration + ";globalThis.create=vsn", context);
   const queue = context.create({ manager, appServerVersion: () => "v" });
   queue.subscribe(() => { changes++; }); await queue.load("thread");
   await callbacks.get("azrael/account/updated")(); await new Promise(resolve => setImmediate(resolve));
@@ -221,5 +221,5 @@ test("queue rows show account wait state and account updates release the display
   queue.dispose(); assert.equal(disposed, 2);
   const row = injectAccountSwitchQueue(preparedSource(list), list).text;
   assert.ok(row.includes('defaultMessage:N===`account-change`?`계정 전환 대기 중`:`전송 대기 중`'));
-  assert.ok(row.includes('G=(!N||N===`account-change`)&&h?'), "account wait keeps the explicit send-now action visible");
+  assert.ok(row.includes('K=(!N||N===`account-change`)&&te?'), "account wait keeps the explicit send-now action visible");
 });

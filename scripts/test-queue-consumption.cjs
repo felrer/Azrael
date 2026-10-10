@@ -6,7 +6,7 @@ const test = require("node:test");
 const vm = require("node:vm");
 const { QUEUE_CONSUMPTION_ASSET, QUEUE_CONSUMPTION_MARKER, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), QUEUE_CONSUMPTION_ASSET);
+const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), QUEUE_CONSUMPTION_ASSET);
 const original = fs.readFileSync(filename, "utf8");
 const patched = injectQueueConsumption(original).text;
 const tick = () => new Promise(resolve => setImmediate(resolve));
@@ -20,24 +20,24 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
   assert.equal(ast.parseDiagnostics.length, 0);
   let expression;
   function visit(node) {
-    if (ts.isBinaryExpression(node) && node.left.getText(ast) === "ykn" && ts.isClassExpression(node.right)) expression = node.right;
+    if (ts.isBinaryExpression(node) && node.left.getText(ast) === "ljn" && ts.isClassExpression(node.right)) expression = node.right;
     ts.forEachChild(node, visit);
   }
   visit(ast);
   assert.ok(expression, "pinned coordinator class expression exists");
   class Disposable { constructor(fn) { this.dispose = fn; } }
-  const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "hkn");
+  const submissionFactory = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "ajn");
   class Cancelled extends Error {}
   // Pinned imports distinguish EE/Jxt (oe, admission rejected) from
   // DE/qxt (en, transport delivery state). Uncertain delivery is not admission rejection.
   class AdmissionError extends Error {}
   class DeliveryError extends Error { constructor(stage) { super(`delivery ${stage}`); this.delivery = { stage }; } }
-  const submissionContext = { R$: Cancelled, Qt: class extends Error {}, wn: () => false, Wt: ({ input }) => input };
-  const hkn = vm.runInNewContext(`(${source.slice(submissionFactory.getStart(ast), submissionFactory.end)})`, submissionContext);
+  const submissionContext = { P1: Cancelled, Oe: class extends Error {}, Nt: () => false, qt: ({ input }) => input };
+  const ajn = vm.runInNewContext(`(${source.slice(submissionFactory.getStart(ast), submissionFactory.end)})`, submissionContext);
   const Coordinator = vm.runInNewContext(`(${source.slice(expression.getStart(ast), expression.end)})`, {
-    YJ: class {}, hkn, Mt: () => { const disposables = []; return { u: x => { disposables.push(x); return x; }, d() { disposables.reverse().forEach(x => x.dispose()); if (this.e) throw this.e; }, e: null }; }, dZ: Disposable, B: x => x, B$: [],
-    vkn: "submission-outcome-unknown", oe: AdmissionError, en: DeliveryError, z$: { default: (x,y) => JSON.stringify(x)===JSON.stringify(y) }, R$: Cancelled, Qt: class extends Error {}, tt: () => false,
-    _kn: { default: value => value }, x: () => { let resolve, reject; const promise = new Promise((a,b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; },
+    DY: class {}, ajn, h: () => { const disposables = []; return { u: se => { disposables.push(se); return se; }, d() { disposables.reverse().forEach(se => se.dispose()); if (this.e) throw this.e; }, e: null }; }, ZZ: Disposable, B: se => se, I1: [],
+    cjn: "submission-outcome-unknown", me: AdmissionError, Ft: DeliveryError, F1: { default: (se,y) => JSON.stringify(se)===JSON.stringify(y) }, P1: Cancelled, Oe: class extends Error {}, hn: () => false,
+    sjn: { default: value => value }, se: () => { let resolve, reject; const promise = new Promise((a,b) => { resolve = a; reject = b; }); return { promise, resolve, reject }; },
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
   let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
@@ -110,7 +110,7 @@ test("patched coordinator persists accepted ID removal before releasing both loc
   const f = fixture(patched); let finished = false;
   const sending = f.send().then(result => { finished = true; return result; }); await tick();
   assert.deepEqual(ids(f.queue.readMessages("thread")), ["next"]);
-  assert.equal(finished, false); assert.ok(!f.events.some(x => x.startsWith("lock-released")));
+  assert.equal(finished, false); assert.ok(!f.events.some(se => se.startsWith("lock-released")));
   assert.ok(!f.events.includes("start-released"));
   await finishWrite(f); assert.equal((await sending).status, "sent");
   assert.ok(f.events.indexOf("storage-committed") < f.events.indexOf("lock-released:accepted:true"));
@@ -132,7 +132,7 @@ test("stale storage refresh cannot resurrect or resend accepted ID; identical te
 test("accepted submission remains sent when persistence fails and stale state cannot resend it", async () => {
   const f = fixture(patched), sending = f.send(); await tick();
   assert.equal(f.writes.length, 1);
-  assert.ok(!f.events.some(x => x.startsWith("lock-released")));
+  assert.ok(!f.events.some(se => se.startsWith("lock-released")));
   f.writes[0].reject(new Error("storage unavailable"));
   assert.equal((await sending).status, "sent"); await tick();
   assert.ok(f.warnings.some(args => args[0] === "Failed to execute queued message" && args[1].sensitive.error.message === "storage unavailable"));
@@ -191,11 +191,11 @@ test("injection is idempotent and fails closed for absent, repeated, and partial
   assert.deepEqual(injectQueueConsumption(patched), { text: patched, count: 0 });
   assert.throws(() => injectQueueConsumption("changed host"), /anchor/);
   assert.throws(() => injectQueueConsumption(original + original), /anchor/);
-  assert.throws(() => injectQueueConsumption(original.replace("#v(e,t){this.messages.set(e,{messages:t,refreshing:!1})", "changed-anchor")), /anchor/);
+  assert.throws(() => injectQueueConsumption(original.replace("#y(e,t){this.messages.set(e,{messages:t,refreshing:!1})", "changed-anchor")), /anchor/);
   assert.throws(() => injectQueueConsumption(patched + QUEUE_CONSUMPTION_MARKER), /Duplicate/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelConsume", "async brokenConsume")), /Partial/);
-  assert.throws(() => injectQueueConsumption(original.replace("ykn=class extends YJ{", "ykn=class extends YJ{/*azrael-queue-consumption-v1*/")), /Outdated/);
-  assert.throws(() => injectQueueConsumption(original.replace("ykn=class extends YJ{", "ykn=class extends YJ{/*azrael-queue-consumption-v2*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(original.replace("ljn=class extends DY{", "ljn=class extends DY{/*azrael-queue-consumption-v1*/")), /Outdated/);
+  assert.throws(() => injectQueueConsumption(original.replace("ljn=class extends DY{", "ljn=class extends DY{/*azrael-queue-consumption-v2*/")), /Outdated/);
   assert.throws(() => injectQueueConsumption(patched.replace("async __azraelCompleteQueued", "async brokenCompleteQueued")), /Partial/);
 });
 
@@ -371,7 +371,7 @@ for (const kind of ["prepare", "not-sent", "outcome-unknown", "acknowledgement-l
   });
 }
 
-test("actual acceptLocally R$ cancellation settles queued without dispatch or duplicate payload", async () => {
+test("actual acceptLocally P1 cancellation settles queued without dispatch or duplicate payload", async () => {
   const f = fixture(patched, [pausedNext()]), item = richMessage(); f.setReady(true);
   f.setPrepareHook(() => f.setReady(false));
   const result = await settleSubmission(f, f.submit(item, { nextMessageId: "next" }));

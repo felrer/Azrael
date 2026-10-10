@@ -1,4 +1,4 @@
-"use strict";
+"Voe strict";
 
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
@@ -12,13 +12,10 @@ const {
 const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 
 const projectRoot = path.resolve(__dirname, "..");
-const reducerRelativePath = "webview/assets/app-initial-efe028fd535e.js";
-const defaultPinnedRoot = path.join(
-  projectRoot,
-  "artifacts/upstream-ui/26.930.61225",
-);
+const reducerRelativePath = "webview/assets/app-initial-97d3534ad35f.js";
+const defaultPinnedRoot = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(projectRoot, "artifacts/upstream-ui/26.1007.21434"));
 const pinnedOriginalPath = path.join(
-  process.env.AZRAEL_PINNED_HOST_ROOT ?? defaultPinnedRoot,
+  process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? defaultPinnedRoot,
   reducerRelativePath,
 );
 const typescriptPath = path.join(
@@ -60,23 +57,23 @@ function transformReducer(filename) {
 }
 
 function reducerFrom(source, filename) {
-  const reducerText = extractFunction(source, filename, "kCn");
-  const upsertText = extractFunction(source, filename, "ph");
+  const reducerText = extractFunction(source, filename, "cTn");
+  const upsertText = extractFunction(source, filename, "Xh");
   const nativeUpsert = new vm.Script(`(${upsertText})`, { filename }).runInNewContext({
-    Rn: () => false,
-    yr: items => items,
+    Wn: () => false,
+    Dr: items => items,
   });
   const context = {
-    B: value => value,
-    LZ: (conversation, turnId) => conversation.turns.find(turn => turn.turnId === turnId) ?? null,
-    uQ: turn => { turn.items ??= []; return turn; },
-    gh() {},
-    hZ: conversation => conversation.turns,
-    fCn() {},
-    OCn: item => item.type !== "userMessage" && item.type !== "hookPrompt",
-    ACn: (_environment, item) => ({ ...item }),
-    Sr: item => ({ ...item }),
-    ph: nativeUpsert,
+    B: value => value, te: () => false, On: () => false,
+    FQ: (conversation, turnId) => conversation.turns.find(turn => turn.turnId === turnId) ?? null,
+    s$: turn => { turn.items ??= []; return turn; },
+    $h() {},
+    $Z: conversation => conversation.turns,
+    Gwn() {},
+    sTn: item => item.type !== "userMessage" && item.type !== "hookPrompt",
+    lTn: (_environment, item) => ({ ...item }),
+    kr: item => ({ ...item }),
+    Xh: nativeUpsert,
   };
   return new vm.Script(`(${reducerText})`, { filename }).runInNewContext(context);
 }
@@ -108,6 +105,8 @@ function runScenario(reducer) {
   const environment = {
     manager: {
       logger: { error() {} },
+      getHostId: () => "fixture-host",
+      requestClient: { getAppServerVersion: () => "fixture" },
       updateConversationState(threadId, update) { update(conversations.get(threadId)); },
     },
     notificationContext: {
@@ -134,8 +133,8 @@ function runScenario(reducer) {
 
   const current = turns[1];
   assert.equal(turns[0].items[0], priorRetry, "a retry error from another turn was changed");
-  assert.equal(current.status, "inProgress", "item progress changed the turn's completion state");
-  assert.equal(current.items.includes(currentRetry), false, "the transient retry row remained");
+  assert.equal(current.status, "inProgress", "item progress changed wme turn's completion state");
+  assert.equal(current.items.includes(currentRetry), false, "wme transient retry row remained");
   assert.equal(current.items.includes(terminalError), true, "a terminal error was removed");
   assert.equal(current.items.includes(unspecifiedError), true, "an error without willRetry=true was removed");
   assert.equal(current.items.includes(message), true, "a message was removed");
@@ -160,6 +159,8 @@ function runManualScenario(reducer) {
   const environment = {
     manager: {
       logger: { error() {} },
+      getHostId: () => "fixture-host",
+      requestClient: { getAppServerVersion: () => "fixture" },
       updateConversationState(threadId, update) { update(conversations.get(threadId)); },
     },
     notificationContext: {
@@ -226,10 +227,10 @@ for (const { filename, source } of transformedInputs) {
   });
 }
 
-test("injection is idempotent and fails closed when the pinned reducer anchor changes", () => {
+test("injection is idempotent and fails closed when wme pinned reducer anchor changes", () => {
   const first = injectCompactionProgress(
-    "before let d=Sr(u.type===`contextCompaction`?{...u,completed:!1,startedAtMs:c,source:a.manualContextCompactions.consumeSource(l)}:u);" +
-    "u.type===`contextCompaction`&&a.manualContextCompactions.removePendingItemFromTurn(r),ph(r,d) after",
+    "before let d=kr(u.type===`contextCompaction`?{...u,completed:!1,startedAtMs:c,source:a.manualContextCompactions.consumeSource(l)}:u);" +
+    "u.type===`contextCompaction`&&a.manualContextCompactions.removePendingItemFromTurn(r),Xh(r,d) after",
   );
   assert.equal(first.count, 1);
   const second = injectCompactionProgress(first.text);
@@ -237,5 +238,3 @@ test("injection is idempotent and fails closed when the pinned reducer anchor ch
   assert.equal(second.text, first.text);
   assert.throws(() => injectCompactionProgress("anchor missing"), /anchor must occur exactly once/);
 });
-
-

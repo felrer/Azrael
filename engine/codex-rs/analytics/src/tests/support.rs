@@ -269,6 +269,7 @@ pub(super) fn sample_turn_start_response(turn_id: &str) -> ClientResponsePayload
             root_resume_wait: None,
 
             id: turn_id.to_string(),
+            root_turn_id: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status: AppServerTurnStatus::InProgress,
@@ -290,6 +291,7 @@ pub(super) fn sample_turn_started_notification(
             root_resume_wait: None,
 
             id: turn_id.to_string(),
+            root_turn_id: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status: AppServerTurnStatus::InProgress,
@@ -329,6 +331,7 @@ pub(super) fn sample_turn_completed_notification(
             root_resume_wait: None,
 
             id: turn_id.to_string(),
+            root_turn_id: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status,
@@ -368,6 +371,7 @@ pub(super) fn sample_turn_resolved_config(
         approval_policy: AskForApproval::OnRequest,
         approvals_reviewer: ApprovalsReviewer::AutoReview,
         guardian_v2_enabled: false,
+        multi_agent_version: codex_protocol::protocol::MultiAgentVersion::Disabled,
         sandbox_network_access: true,
         collaboration_mode: ModeKind::Plan,
         personality: None,
@@ -386,6 +390,7 @@ pub(super) fn sample_turn_profile() -> TurnProfile {
         after_last_sampling_ms: 94,
         sampling_request_count: 2,
         sampling_retry_count: 1,
+        tools_change_count: 2,
     }
 }
 

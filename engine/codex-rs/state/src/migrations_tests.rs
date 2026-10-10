@@ -614,6 +614,15 @@ async fn realtime_items_preserve_older_thread_history_writers() {
     .await
     .expect("existing turn-scoped item should be inserted");
 
+    sqlx::query("INSERT INTO thread_turns (thread_id, turn_id, rollout_ordinal, status) VALUES ('thread-1', 'turn-1', 0, 'completed')")
+        .execute(&pool)
+        .await
+        .expect("insert an existing turn before migration");
+    sqlx::query("INSERT INTO thread_history_projection_state (thread_id, next_rollout_byte_offset, next_rollout_ordinal) VALUES ('thread-1', 42, 3)")
+        .execute(&pool)
+        .await
+        .expect("insert an existing projection checkpoint");
+
     THREAD_HISTORY_MIGRATOR
         .run(&pool)
         .await
@@ -632,12 +641,13 @@ async fn realtime_items_preserve_older_thread_history_writers() {
     .execute(&pool)
     .await
     .expect("thread-scoped realtime item should be inserted separately");
-    sqlx::query(
-        "INSERT INTO thread_history_projection_state (thread_id, next_rollout_byte_offset, next_rollout_ordinal) VALUES ('thread-1', 0, 0)",
+    let checkpoint = sqlx::query_as::<_, (i64, i64)>(
+        "SELECT next_rollout_byte_offset, next_rollout_ordinal FROM thread_history_projection_state WHERE thread_id = 'thread-1'",
     )
-    .execute(&pool)
+    .fetch_one(&pool)
     .await
-    .expect("thread projection checkpoint should be inserted");
+    .expect("existing projection checkpoint survives migration");
+    assert_eq!(checkpoint, (42, 3));
 
     let older_pool = sqlite
         .open_thread_history_db(&older_migrator, /*telemetry_override*/ None)
@@ -649,6 +659,17 @@ async fn realtime_items_preserve_older_thread_history_writers() {
     .execute(&older_pool)
     .await
     .expect("older binaries should continue writing ordinary turn-scoped items");
+    sqlx::query("INSERT INTO thread_turns (thread_id, turn_id, rollout_ordinal, status) VALUES ('thread-1', 'turn-2', 4, 'completed')")
+        .execute(&older_pool)
+        .await
+        .expect("older writers can still insert turns without roots");
+    let roots = sqlx::query_scalar::<_, Option<String>>(
+        "SELECT root_turn_id FROM thread_turns ORDER BY rollout_ordinal",
+    )
+    .fetch_all(&older_pool)
+    .await
+    .expect("old turns and older writers leave causal roots unknown");
+    assert_eq!(roots, vec![None, None]);
     let ordinary_items = sqlx::query_as::<_, (String, String)>(
         "SELECT item_id, turn_id FROM thread_items WHERE thread_id = ? ORDER BY rollout_ordinal",
     )
@@ -1337,4 +1358,136 @@ async fn root_wait_state_startup_future_is_send() {
     );
     opened.close().await;
     pool.close().await;
+}
+
+#[tokio::test]
+async fn thread_history_fresh_database_has_unique_causal_root_migrations() {
+    let sqlite_home = crate::runtime::test_support::unique_temp_dir();
+    std::fs::create_dir_all(&sqlite_home).unwrap();
+    let _cleanup = scopeguard::guard(sqlite_home.clone(), |home| {
+        let _ = std::fs::remove_dir_all(home);
+    });
+    let sqlite = crate::SqliteConfig::new_for_testing(sqlite_home.as_path().abs());
+    let pool = crate::runtime::open_thread_history_db(&sqlite)
+        .await
+        .unwrap();
+    let columns: Vec<String> =
+        sqlx::query_scalar("SELECT name FROM pragma_table_info('thread_items')")
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+    assert!(columns.contains(&"started_at_ms".to_owned()));
+    assert!(columns.contains(&"completed_at_ms".to_owned()));
+    let turn_columns: Vec<String> =
+        sqlx::query_scalar("SELECT name FROM pragma_table_info('thread_turns')")
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+    assert!(turn_columns.contains(&"root_turn_id".to_owned()));
+    let versions: Vec<i64> =
+        sqlx::query_scalar("SELECT version FROM _sqlx_migrations ORDER BY version")
+            .fetch_all(&pool)
+            .await
+            .unwrap();
+    assert_eq!(versions, (1..=10).collect::<Vec<_>>());
+    pool.close().await;
+}
+
+#[tokio::test]
+async fn thread_history_upgrade_preserves_azrael_roots_and_migration_checksums() {
+    let sqlite_home = crate::runtime::test_support::unique_temp_dir();
+    std::fs::create_dir_all(&sqlite_home).unwrap();
+    let _cleanup = scopeguard::guard(sqlite_home.clone(), |home| {
+        let _ = std::fs::remove_dir_all(home);
+    });
+    let sqlite = crate::SqliteConfig::new_for_testing(sqlite_home.as_path().abs());
+    let shipped = Migrator::with_migrations(
+        THREAD_HISTORY_MIGRATOR
+            .iter()
+            .filter(|migration| migration.version <= 9)
+            .cloned()
+            .collect(),
+    );
+    let pool = sqlite.open_thread_history_db(&shipped, None).await.unwrap();
+    sqlx::query("INSERT INTO thread_turns (thread_id, turn_id, rollout_ordinal, status, root_resume_wait_json) VALUES ('legacy-thread', 'continued-turn', 1, 'deferred', '{\"reservationId\":\"old-wait\"}')")
+        .execute(&pool).await.unwrap();
+    let before: Vec<(i64, Vec<u8>)> = sqlx::query_as(
+        "SELECT version, checksum FROM _sqlx_migrations WHERE version IN (8, 9) ORDER BY version",
+    )
+    .fetch_all(&pool)
+    .await
+    .unwrap();
+    assert_eq!(before.len(), 2);
+    pool.close().await;
+    let upgraded = crate::runtime::open_thread_history_db(&sqlite)
+        .await
+        .unwrap();
+    let after: Vec<(i64, Vec<u8>)> = sqlx::query_as(
+        "SELECT version, checksum FROM _sqlx_migrations WHERE version IN (8, 9) ORDER BY version",
+    )
+    .fetch_all(&upgraded)
+    .await
+    .unwrap();
+    assert_eq!(after, before);
+    let retained: (Option<String>, String) = sqlx::query_as("SELECT root_turn_id, root_resume_wait_json FROM thread_turns WHERE thread_id = 'legacy-thread' AND turn_id = 'continued-turn'")
+        .fetch_one(&upgraded).await.unwrap();
+    assert_eq!(retained, (None, "{\"reservationId\":\"old-wait\"}".into()));
+    let columns: Vec<String> =
+        sqlx::query_scalar("SELECT name FROM pragma_table_info('thread_items')")
+            .fetch_all(&upgraded)
+            .await
+            .unwrap();
+    assert!(columns.contains(&"started_at_ms".to_owned()));
+    assert!(columns.contains(&"completed_at_ms".to_owned()));
+    upgraded.close().await;
+}
+
+#[tokio::test]
+async fn thread_history_runtime_rejects_modified_known_migration_checksums() {
+    let sqlite_home = crate::runtime::test_support::unique_temp_dir();
+    std::fs::create_dir_all(&sqlite_home).unwrap();
+    let _cleanup = scopeguard::guard(sqlite_home.clone(), |home| {
+        let _ = std::fs::remove_dir_all(home);
+    });
+    let sqlite = crate::SqliteConfig::new_for_testing(sqlite_home.as_path().abs());
+    let pool = crate::runtime::open_thread_history_db(&sqlite)
+        .await
+        .unwrap();
+    pool.close().await;
+    let migrations = THREAD_HISTORY_MIGRATOR
+        .iter()
+        .map(|migration| {
+            if migration.version == 8 {
+                // Change the fixture's source checksum, leaving the applied ledger untouched.
+                Migration::new(
+                    migration.version,
+                    migration.description.clone(),
+                    migration.migration_type,
+                    sqlx::SqlSafeStr::into_sql_str(sqlx::AssertSqlSafe(format!(
+                        "{}\n-- changed fixture source",
+                        migration.sql.as_str()
+                    ))),
+                    migration.no_tx,
+                )
+            } else {
+                migration.clone()
+            }
+        })
+        .collect();
+    let error = sqlite
+        .open_thread_history_db(&Migrator::with_migrations(migrations), None)
+        .await
+        .expect_err("modified known migration must fail closed");
+    assert!(
+        error.chain().any(|cause| matches!(
+            cause.downcast_ref::<sqlx::migrate::MigrateError>(),
+            Some(sqlx::migrate::MigrateError::VersionMismatch(8))
+        )),
+        "{error:#}"
+    );
+    // The failure must neither rewrite the known ledger nor prevent a valid reopen.
+    let valid = crate::runtime::open_thread_history_db(&sqlite)
+        .await
+        .unwrap();
+    valid.close().await;
 }

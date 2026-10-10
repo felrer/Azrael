@@ -45,10 +45,10 @@ const CONTENT_FONT_CSS = `
 /* Consolas has a 1ch space advance; subtract half without changing character spacing. */
 :root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]),[data-thread-title],[data-azrael-dynamic-text]:not([data-azrael-chat-text]){font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:-0.5ch!important}
 /* The message Markdown renderer sets content fonts without a .font-content wrapper. */
-:root:not([data-azrael-chat-font="openai"]) :is(._MarkdownRoot_176oq_2,._Paragraph_176oq_2,._Heading_176oq_2,._ListItem_176oq_2,._Table_176oq_2){word-spacing:-0.5ch!important}
-:root[data-azrael-chat-font="openai"] :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text],._MarkdownRoot_176oq_2){font-synthesis-weight:auto}
-._MarkdownRoot_176oq_2 :is(code,pre){word-spacing:normal!important}
-._MarkdownRoot_176oq_2 :is(button,select){word-spacing:normal!important}
+:root:not([data-azrael-chat-font="openai"]) :is(._MarkdownRoot_63g8m_2,._Paragraph_63g8m_2,._Heading_63g8m_2,._ListItem_63g8m_2,._Table_63g8m_2){word-spacing:-0.5ch!important}
+:root[data-azrael-chat-font="openai"] :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text],._MarkdownRoot_63g8m_2){font-synthesis-weight:auto}
+._MarkdownRoot_63g8m_2 :is(code,pre){word-spacing:normal!important}
+._MarkdownRoot_63g8m_2 :is(button,select){word-spacing:normal!important}
 :root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]) :is(code,pre),[data-azrael-dynamic-text]:not([data-azrael-chat-text]) :is(code,pre){font-family:${FONT_FAMILY}!important;font-synthesis-weight:none;word-spacing:normal!important}
 :root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]) :is(button,select),[data-azrael-dynamic-text]:not([data-azrael-chat-text]) :is(button,select){font-family:var(--font-ui-family,var(--font-sans))!important;word-spacing:normal!important}
 }

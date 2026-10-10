@@ -61,6 +61,17 @@ const store = { get: () => structuredClone(receiptRecords), update: async (_key,
 } };
 const counts = {};
 
+async function bounded(promise, milliseconds, phase) {
+  let timer;
+  try {
+    return await Promise.race([promise, new Promise((_, reject) => {
+      timer = setTimeout(() => reject(new Error(`Fixture ${phase} timed out after ${milliseconds}ms (engine PID ${client?.child.pid ?? 'not spawned'}, exit ${client?.child.exitCode}, signal ${client?.child.signalCode}, provider sockets ${sockets.size})`)), milliseconds);
+    })]);
+  } finally {
+    clearTimeout(timer);
+  }
+}
+
 async function waitForProviderRequests(expected) {
   const deadline = Date.now() + 10000;
   while (providerRequests < expected) {
@@ -82,10 +93,18 @@ async function connect() {
   const pending = new Map();
   let next = 0;
   let stderr = '';
+  let terminalError;
+  let settled = false;
+  const rejectPending = error => {
+    for (const wait of pending.values()) { clearTimeout(wait.timer); wait.reject(error); }
+    pending.clear();
+  };
   child.stderr.on('data', chunk => { stderr = (stderr + chunk).slice(-12000); });
   const lines = createInterface({ input: child.stdout });
   lines.on('line', line => {
-    const message = JSON.parse(line);
+    let message;
+    try { message = JSON.parse(line); }
+    catch (error) { terminalError = error; rejectPending(error); return; }
     if (message.method) state?.observe(message);
     const wait = pending.get(message.id);
     if (!wait) return;
@@ -94,27 +113,46 @@ async function connect() {
     if (message.error) wait.reject(new Error(JSON.stringify(message.error)));
     else wait.resolve(message.result);
   });
-  const exited = new Promise(resolveExit => child.once('exit', code => {
-    for (const wait of pending.values()) { clearTimeout(wait.timer); wait.reject(new Error(`Fixture engine exited ${code}`)); }
-    pending.clear();
-    lines.close();
-    resolveExit(code);
-  }));
-  child.on('error', error => { for (const wait of pending.values()) wait.reject(error); });
+  const exited = new Promise(resolveExit => {
+    const finish = (code, error) => {
+      if (settled) return;
+      settled = true;
+      terminalError = error ?? new Error(`Fixture engine exited ${code} (signal ${child.signalCode})`);
+      rejectPending(terminalError);
+      lines.close();
+      resolveExit({ code, signal: child.signalCode, error });
+    };
+    child.once('exit', code => finish(code));
+    // A failed spawn emits error and close, but may never emit exit.
+    child.once('error', error => finish(null, error));
+  });
+  child.stdin.on('error', error => { terminalError = error; rejectPending(error); });
   const rpc = (method, params, timeout = 20000) => new Promise((resolveRpc, reject) => {
+    if (terminalError) { reject(terminalError); return; }
     counts[method] = (counts[method] ?? 0) + 1;
     const id = ++next;
     const timer = setTimeout(() => { pending.delete(id); reject(new Error(`Fixture ${method} timed out`)); }, timeout);
     pending.set(id, { resolve: resolveRpc, reject, timer });
-    child.stdin.write(JSON.stringify({ id, method, params }) + '\n');
+    child.stdin.write(JSON.stringify({ id, method, params }) + '\n', error => {
+      if (error) { terminalError = error; rejectPending(error); }
+    });
   });
-  const result = { child, rpc, exited, stderr: () => stderr };
+  const disposeStreams = () => {
+    rejectPending(new Error('Fixture connection closed'));
+    lines.close();
+    child.stdin.destroy();
+    child.stdout.destroy();
+    child.stderr.destroy();
+  };
+  const result = { child, rpc, exited, disposeStreams, settled: () => settled, stderr: () => stderr };
   client = result;
   await rpc('initialize', { clientInfo: { name: 'azrael-recovery-fixture', version: '1.0.0' }, capabilities: { experimentalApi: true } });
   child.stdin.write(JSON.stringify({ method: 'initialized' }) + '\n');
   return result;
 }
 
+let result;
+let failure;
 try {
   client = await connect();
   state = new RecoveryState({ store, rpc: (...args) => client.rpc(...args) });
@@ -141,7 +179,8 @@ try {
   await waitForProviderRequests(1);
   // Crash only this test-owned child, leaving an accepted unfinished receipt.
   client.child.kill();
-  await client.exited;
+  await bounded(client.exited, 3000, 'crashed engine exit');
+  client.disposeStreams();
   state.disconnect();
   receiptRecords = JSON.parse(await readFile(receiptFile, 'utf8'));
   state = undefined;
@@ -166,20 +205,44 @@ try {
     if (Date.now() >= deadline) throw new Error('Fixture turn did not become idle');
     await new Promise(resolvePause => setTimeout(resolvePause, 100));
   }
-  const result = { passed: true, engine: resolve(engine), threadId, counts, providerRequests, providerPaths,
+  result = { passed: true, engine: resolve(engine), threadId, counts, providerRequests, providerPaths,
     checks: ['native orphan normalization', 'one concurrent resume dispatch', 'live attachment', 'engine crash and persisted receipt reload', 'new continuation after crash', 'confirmed interruption'], externalModelCalls: false };
-  await writeFile(join(directory, 'result.json'), JSON.stringify(result, null, 2));
-  console.log(JSON.stringify(result));
 } catch (error) {
-  await writeFile(join(directory, 'failure.log'), `${error.stack}\nprovider paths: ${JSON.stringify(providerPaths)}\n${client?.stderr() ?? ''}`);
-  throw error;
+  failure = error;
 } finally {
-  if (client?.child.exitCode === null && client.child.signalCode === null) {
-    client.child.stdin.end();
-    const timer = setTimeout(() => client.child.kill(), 3000);
-    await client.exited;
-    clearTimeout(timer);
+  const cleanupErrors = [];
+  try {
+    if (client && !client.settled()) {
+      client.child.stdin.end();
+      const timer = setTimeout(() => client.child.kill(), 3000);
+      try { await bounded(client.exited, 6000, 'engine teardown'); }
+      finally { clearTimeout(timer); }
+    }
+  } catch (error) {
+    cleanupErrors.push(error);
+    // Do not let an unresponsive test-owned child keep a failed validator alive.
+    // The timeout remains a failure, and its diagnostic identifies the PID.
+    client?.child.kill();
+    client?.child.unref();
+  } finally {
+    client?.disposeStreams();
   }
   for (const socket of sockets) socket.destroy();
-  await new Promise(resolveClose => server.close(resolveClose));
+  try {
+    await bounded(new Promise((resolveClose, rejectClose) => server.close(error => error ? rejectClose(error) : resolveClose())), 3000, 'provider server teardown');
+  } catch (error) {
+    cleanupErrors.push(error);
+    server.unref();
+  }
+  if (cleanupErrors.length) {
+    const cleanup = new AggregateError(cleanupErrors, 'Fixture teardown failed');
+    failure = failure ? new AggregateError([failure, cleanup], 'Fixture validation and teardown failed', { cause: failure }) : cleanup;
+  }
 }
+if (failure) {
+  const details = error => `${error.stack}${error.errors ? '\n' + error.errors.map(details).join('\n') : ''}`;
+  await writeFile(join(directory, 'failure.log'), `${details(failure)}\nprovider paths: ${JSON.stringify(providerPaths)}\n${client?.stderr() ?? ''}`);
+  throw failure;
+}
+await writeFile(join(directory, 'result.json'), JSON.stringify(result, null, 2));
+console.log(JSON.stringify(result));

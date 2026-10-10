@@ -230,7 +230,6 @@ async fn config_summary_entries_include_runtime_workspace_roots() {
         active_permission_profile: None,
         cwd,
         reasoning_effort: None,
-        initial_messages: None,
         network_proxy: None,
         rollout_path: None,
     };
@@ -323,6 +322,7 @@ fn turn_completed_recovers_final_message_from_turn_items() {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::AgentMessage {
                     id: "msg-1".to_string(),
@@ -375,6 +375,7 @@ fn turn_completed_overwrites_stale_final_message_from_turn_items() {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::AgentMessage {
                     id: "msg-1".to_string(),
@@ -428,6 +429,7 @@ fn turn_completed_preserves_streamed_final_message_when_turn_items_are_empty() {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Completed,
@@ -474,6 +476,7 @@ fn turn_failed_clears_stale_final_message() {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Failed,
@@ -521,6 +524,7 @@ fn turn_interrupted_clears_stale_final_message() {
                 root_resume_wait: None,
 
                 id: "turn-1".to_string(),
+                root_turn_id: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Interrupted,

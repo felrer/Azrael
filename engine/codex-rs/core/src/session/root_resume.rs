@@ -455,6 +455,7 @@ impl Session {
             self.send_event(
                 turn,
                 EventMsg::TurnDeferred(TurnDeferredEvent {
+                    root_turn_id: Some(turn.root_turn_id()),
                     turn_id: turn.sub_id.clone(),
                     reservation_id: record.id.clone(),
                     wait: Some(record.into()),
@@ -630,10 +631,7 @@ impl Session {
         let session = Arc::clone(self);
         Box::pin(async move {
             // Account switching must not hold the root gate hostage to an admission wait.
-            let admission = session
-                .execution_admission().await
-                .admit_request()
-                .await;
+            let admission = session.execution_admission().await.admit_request().await;
             let control = session.root_resume_control();
             let _guard = Arc::clone(&control.gate).lock_owned().await;
             if control.closed.load(Ordering::Acquire) {
@@ -816,6 +814,7 @@ impl Session {
         self.send_event(
             &turn,
             EventMsg::TurnAborted(TurnAbortedEvent {
+                root_turn_id: Some(turn.root_turn_id()),
                 turn_id: Some(turn.sub_id.clone()),
                 reason: TurnAbortReason::Interrupted,
                 error: None,

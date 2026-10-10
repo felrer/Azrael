@@ -6,6 +6,7 @@ fn turn(id: &str, status: TurnStatus) -> Turn {
         root_resume_wait: None,
 
         id: id.to_string(),
+        root_turn_id: None,
         items: Vec::new(),
         items_view: TurnItemsView::Full,
         status,

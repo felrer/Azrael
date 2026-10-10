@@ -1,6 +1,6 @@
 "use strict";
-const CONTEXT_ASSET = "webview/assets/app-initial-532d60c9b397.js";
-const SETTINGS_ASSET = "webview/assets/personalization-settings-dce4c2bafd78.js";
+const CONTEXT_ASSET = "webview/assets/app-initial-7a199c66e670.js";
+const SETTINGS_ASSET = "webview/assets/personalization-settings-8b2df7633ad3.js";
 const { MARKER, runProviderContext } = require("./provider-context-labels.cjs");
 function once(text, from, to) {
   if (text.split(from).length !== 2) throw Error("Pinned provider context anchor changed: " + from.slice(0, 100));
@@ -145,21 +145,21 @@ function renderSettings(React, jsx, client, ko) {
 function injectProviderContextControls(text, asset) {
   let count = 0;
   if (asset === CONTEXT_ASSET) {
-    text=once(text,"function _ra(e){","function __azraelNativeContextUsage(e){");
-    text=once(text,"function cra(e){","function __azraelNativeContextGauge(e){");
-    text=once(text,"function mia(e){let t=(0,w7.c)(41)","function mia(e){let t=(0,w7.c)(42)");
+    text=once(text,"function aCa(e){","function __azraelNativeContextUsage(e){");
+    text=once(text,"function XSa(e){","function __azraelNativeContextGauge(e){");
+    text=once(text,"function cwa(e){let t=(0,E7.c)(41)","function cwa(e){let t=(0,E7.c)(42)");
     text=once(text,"t[22]!==y||t[23]!==H?", "t[22]!==y||t[23]!==H||t[41]!==h?");
-    text=once(text,"(cra,{contextUsage:y})", "(cra,{contextUsage:y,conversationId:h})");
+    text=once(text,"(XSa,{contextUsage:y})", "(XSa,{contextUsage:y,conversationId:h})");
     text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
-    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction _ra(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction cra(e){Jw();Wx();Lj();const ko=_d().locale?.startsWith('ko'),store=Wl($),action=renderCompactionAction(ad(),_7.jsx,Kw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Hx(store,store.get(Nj,id)).compactThread(id));return decorateGauge(_7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,ko,action)}\n`;
+    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){return {...__azraelNativeContextUsage(e),contextPolicy:e?.contextPolicy??null}}\nfunction XSa(e){gw();_A();const ko=st().locale?.startsWith('ko'),store=Ou($),action=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id));return decorateGauge(y7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,ko,action)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
     text=once(text,"function Tr(){let e=(0,Ar.c)(10)","function Tr(){let e=(0,Ar.c)(11)");
-    text=once(text,"e[8]===s?u=e[9]", "e[8]===s&&e[10]===r?u=e[9]");
-    text=once(text,"e[8]=s,e[9]=u),u}", "e[8]=s,e[9]=u,e[10]=r),u}");
+    text=once(text,"e[8]===s?l=e[9]", "e[8]===s&&e[10]===r?l=e[9]");
+    text=once(text,"e[8]=s,e[9]=l),l}", "e[8]=s,e[9]=l,e[10]=r),l}");
     text=once(text,"children:[a,o,null,s,c]", "children:[a,o,null,s,c,(0,$.jsx)(__AzraelContextSettings,{hostId:r})]");
-    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=u(Zt),client=me(scope,hostId),intl=g();return renderSettings(jr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
+    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=ee(vt),client=He(scope,hostId),intl=i();return renderSettings(jr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
     count++;
   }
   return {text,count};

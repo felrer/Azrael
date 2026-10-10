@@ -51,8 +51,7 @@ try {
     [IO.Directory]::CreateDirectory($external) | Out-Null
     $sentinel = Join-Path $external 'sentinel.txt'
     [IO.File]::WriteAllText($sentinel, 'external survives')
-    foreach ($primitive in @('powershell', 'dotnet')) {
-        $nativeSucceeded = $true
+    foreach ($primitive in @('powershell')) {
         $probe = Join-Path $fixture ('primitive-' + $primitive)
         $probeLong = Join-Path $probe ('long-segment/' * 24)
         [IO.Directory]::CreateDirectory($probeLong) | Out-Null
@@ -64,27 +63,10 @@ try {
             $links.Add($symbolicLink)
             Write-Output "INFO: $primitive directory symlink fixture created"
         } catch { Write-Output "LIMITATION: $primitive directory symlink creation unavailable: $($_.Exception.Message)" }
-        if ($primitive -eq 'powershell') {
-            $readOnlyFile = Join-Path $probe 'readonly.txt'
-            [IO.File]::WriteAllText($readOnlyFile, 'readonly cache')
-            [IO.File]::SetAttributes($readOnlyFile, [IO.FileAttributes]::ReadOnly)
-            Remove-Item -LiteralPath $probe -Recurse -Force -ErrorAction Stop
-        } else {
-            try { [IO.Directory]::Delete($probe, $true) }
-            catch {
-                $nativeSucceeded = $false
-                Write-Output "INFO: .NET recursive delete unavailable for this link fixture: $($_.Exception.Message)"
-                # The PowerShell primitive was independently verified above.
-                Remove-Item -LiteralPath $probe -Recurse -Force -ErrorAction Stop
-            }
-        }
+        Remove-Item -LiteralPath $probe -Recurse -ErrorAction Stop
         Assert (-not (Test-Path -LiteralPath $probe)) "$primitive did not remove fixture"
         Assert ([IO.File]::ReadAllText($sentinel) -eq 'external survives') "$primitive followed a nested link"
-        if ($nativeSucceeded) {
-            Write-Output "PASS: $primitive recursive primitive preserves external sentinel and supports long paths"
-        } else {
-            Write-Output 'PASS: rejected .NET candidate safely cleaned using the verified PowerShell primitive'
-        }
+        Write-Output "PASS: ordinary $primitive recursive deletion preserves external sentinel and supports long paths"
     }
     Junction (Join-Path $old 'codex-rs/target/external-link') $external
     [IO.File]::SetAttributes((Join-Path $old 'codex-rs/target/cache.txt'), [IO.FileAttributes]::ReadOnly)
@@ -115,8 +97,14 @@ try {
 
     $reportFile = Join-Path $fixture 'report.json'
     $result = Run -Apply -Report $reportFile
-    Assert ($result.status -eq 'completed') 'Apply failed'
-    Assert (-not (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target'))) 'Older cache retained'
+    Assert ($result.status -eq 'warning') 'Readonly deletion failure was not reported'
+    $failed = @($result.candidates | Where-Object { $_.path -eq (Join-Path $old 'codex-rs/target') -and $_.status -eq 'failed' })
+    Assert ($failed.Count -eq 1 -and $failed[0].reason -like '*Ordinary cache deletion failed*') 'Readonly failure diagnosis missing'
+    $readOnlyCacheFile = Join-Path $old 'codex-rs/target/cache.txt'
+    Assert (Test-Path -LiteralPath $readOnlyCacheFile) 'Readonly cache file removed'
+    $attributes = (Get-Item -LiteralPath $readOnlyCacheFile).Attributes
+    Assert (($attributes -band [IO.FileAttributes]::ReadOnly) -ne 0) 'Cleaner modified readonly attributes'
+    Assert ([IO.File]::ReadAllText($readOnlyCacheFile) -eq 'cache') 'Readonly cache content changed'
     Assert (-not (Test-Path -LiteralPath (Join-Path $pre 'codex-rs/target'))) 'Prerelease cache retained'
     foreach ($root in @($current, $equal, $new, $unknown)) {
         Assert (Test-Path -LiteralPath (Join-Path $root 'codex-rs/target/cache.txt')) 'Current/newer/unknown removed'
@@ -124,8 +112,15 @@ try {
     Assert (Test-Path -LiteralPath (Join-Path $old '.git')) 'Source git removed'
     Assert (Test-Path -LiteralPath (Join-Path $old 'codex-rs/Cargo.toml')) 'Source manifest removed'
     Assert ([IO.File]::ReadAllText($sentinel) -eq 'external survives') 'Nested junction traversed'
-    Assert ((Get-Content -LiteralPath $reportFile -Raw | ConvertFrom-Json).status -eq 'completed') 'Report JSON mismatch'
-    Write-Output 'PASS: older removed; source/current/newer/unknown preserved; nested junction sentinel and long paths'
+    Assert ((Get-Content -LiteralPath $reportFile -Raw | ConvertFrom-Json).status -eq 'warning') 'Report JSON mismatch'
+    Write-Output 'PASS: readonly deletion diagnosed and retained; regular prerelease cache removed; source/current/newer/unknown and external sentinel preserved'
+    # Only this diagnosed synthetic file has its readonly bit restored for the
+    # remaining tests and ordinary fixture cleanup. The cleaner never does this.
+    Set-ItemProperty -LiteralPath $readOnlyCacheFile -Name Attributes -Value ($attributes -band (-bnot [IO.FileAttributes]::ReadOnly))
+    $retry = Run -Apply
+    Assert ($retry.status -eq 'completed' -and -not (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target'))) 'Ordinary deletion after fixture attribute correction failed'
+    Assert (Test-Path -LiteralPath $sentinel) 'Retry traversed external junction'
+    Write-Output 'PASS: diagnosed synthetic readonly attribute corrected; ordinary older-cache deletion succeeds'
 
     $alias = Join-Path $fixture 'alias'
     Junction $alias $sandbox
@@ -341,12 +336,12 @@ try {
     foreach ($link in $links) {
         if ([IO.Directory]::Exists($link)) {
             Assert (([IO.File]::GetAttributes($link) -band [IO.FileAttributes]::ReparsePoint) -ne 0) 'Fixture link changed unexpectedly'
-            [IO.Directory]::Delete($link, $false)
+            Remove-Item -LiteralPath $link -ErrorAction Stop
         }
     }
     $resolved = [IO.Path]::GetFullPath($fixture)
     $allowed = [IO.Path]::GetFullPath((Join-Path $project 'artifacts/verification')) + [IO.Path]::DirectorySeparatorChar
     Assert ($resolved.StartsWith($allowed, [StringComparison]::OrdinalIgnoreCase) -and [IO.Path]::GetFileName($resolved) -like 'engine-cache-cleanup-*') 'Fixture cleanup escaped verification root'
-    if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -Force }
+    if (Test-Path -LiteralPath $resolved) { Remove-Item -LiteralPath $resolved -Recurse -ErrorAction Stop }
 }
 exit 0

@@ -312,6 +312,12 @@ impl PreparedMcpCall {
             codex_linux_sandbox_exe: self.config.codex_linux_sandbox_exe.clone(),
             sandbox_cwd,
             use_legacy_landlock: self.config.use_legacy_landlock,
+            use_mxc: self
+                .config
+                .environment_use_mxc
+                .get(self.server_environment_id())
+                .copied()
+                .context("MCP call has no configured environment execution mode")?,
         })
     }
 

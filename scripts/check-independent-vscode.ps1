@@ -2,9 +2,9 @@
 [CmdletBinding()]
 param(
     [Parameter(Mandatory)][string]$HostVsixPath,
-    [string]$OriginalExtensionPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.chatgpt-26.930.61225-win32-x64'),
+    [string]$OriginalExtensionPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.chatgpt-26.1007.21434-win32-x64'),
     [string]$UiSourcePath,
-    [string]$OriginalAudioPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.codex-audio-26.930.61225'),
+    [string]$OriginalAudioPath = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.vscode/extensions/openai.codex-audio-26.1007.21434'),
     [string]$StateRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.azrael-ex'),
     [switch]$UseFreshState,
     [string]$CodePath = 'code.cmd',

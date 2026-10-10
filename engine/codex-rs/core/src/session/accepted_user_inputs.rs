@@ -110,12 +110,113 @@ impl Session {
         self.live_thread().is_some() && self.services.thread_store.as_any().is::<LocalThreadStore>()
     }
 
+    #[cfg(test)]
     pub(super) async fn accepted_input_retry(
+        &self,
+        input: &mut SubmittedTurnInput,
+        context: &BTreeMap<String, AdditionalContextEntry>,
+        origin: UserInputOrigin,
+    ) -> Result<Option<String>> {
+        Ok(self
+            .accepted_input_receipt(input, context, origin)
+            .await?
+            .map(|receipt| receipt.turn_id))
+    }
+
+    pub(super) async fn accepted_input_retry_with_root(
+        &self,
+        input: &mut SubmittedTurnInput,
+        context: &BTreeMap<String, AdditionalContextEntry>,
+        origin: UserInputOrigin,
+    ) -> Result<Option<(String, String)>> {
+        let Some(receipt) = self.accepted_input_receipt(input, context, origin).await? else {
+            return Ok(None);
+        };
+        let root = match receipt.root_turn_id {
+            Some(root) => root,
+            None => {
+                // Historical receipts predate causal-root storage. Only canonical attribution
+                // may recover their root; never infer it from a caller's retry settings.
+                self.flush_rollout().await.map_err(storage_error)?;
+                let live_thread = self
+                    .live_thread()
+                    .ok_or_else(|| storage_error("accepted input has no live canonical thread"))?;
+                let items = if let Some(path) = live_thread
+                    .local_rollout_path()
+                    .await
+                    .map_err(storage_error)?
+                {
+                    let (items, _, _) = codex_rollout::RolloutRecorder::load_rollout_items(&path)
+                        .await
+                        .map_err(|error| {
+                            if error.kind() == std::io::ErrorKind::NotFound {
+                                storage_error(
+                                    "historical accepted input has no authoritative causal root",
+                                )
+                            } else {
+                                storage_error(error)
+                            }
+                        })?;
+                    items
+                } else {
+                    // A local thread without a materialized canonical rollout has no
+                    // authoritative attribution to inspect. Its paginated store deliberately
+                    // does not implement the legacy load_history API.
+                    return Err(storage_error(
+                        "no authoritative causal root for accepted input",
+                    ));
+                };
+                let mut root = None;
+                for item in items {
+                    let candidate = match item {
+                        codex_history::RolloutItem::TurnContext(context)
+                            if context.turn_id.as_deref() == Some(receipt.turn_id.as_str()) =>
+                        {
+                            context.root_turn_id
+                        }
+                        codex_history::RolloutItem::EventMsg(
+                            codex_protocol::protocol::EventMsg::TurnStarted(event),
+                        ) if event.turn_id == receipt.turn_id => event.root_turn_id,
+                        codex_history::RolloutItem::EventMsg(
+                            codex_protocol::protocol::EventMsg::TurnComplete(event),
+                        ) if event.turn_id == receipt.turn_id => event.root_turn_id,
+                        _ => None,
+                    };
+                    if let Some(candidate) = candidate {
+                        if root.as_ref().is_some_and(|known| known != &candidate) {
+                            return Err(storage_error(
+                                "conflicting canonical causal roots for accepted input",
+                            ));
+                        }
+                        root = Some(candidate);
+                    }
+                }
+                root.ok_or_else(|| {
+                    storage_error("historical accepted input has no authoritative causal root")
+                })?
+            }
+        };
+        Ok(Some((receipt.turn_id, root)))
+    }
+
+    #[cfg(test)]
+    pub(super) async fn journal_user_input(
+        &self,
+        input: &SubmittedTurnInput,
+        context: &BTreeMap<String, AdditionalContextEntry>,
+        turn_id: &str,
+        origin: UserInputOrigin,
+    ) -> Result<Option<u64>> {
+        self.journal_user_input_with_root(input, context, turn_id, turn_id, origin)
+            .await
+    }
+
+    async fn accepted_input_receipt(
         &self,
         input: &mut SubmittedTurnInput,
         additional_context: &BTreeMap<String, AdditionalContextEntry>,
         origin: UserInputOrigin,
-    ) -> Result<Option<String>> {
+    ) -> Result<Option<codex_state::AcceptedUserInputRecord>> {
         if !self.journals_user_input() {
             return Ok(None);
         }
@@ -149,16 +250,17 @@ impl Session {
                     "client input ID was already accepted with a different payload".into(),
                 ));
             }
-            return Ok(Some(receipt.turn_id));
+            return Ok(Some(receipt));
         }
         Ok(None)
     }
 
-    pub(super) async fn journal_user_input(
+    pub(super) async fn journal_user_input_with_root(
         &self,
         input: &SubmittedTurnInput,
         additional_context: &BTreeMap<String, AdditionalContextEntry>,
         turn_id: &str,
+        root_turn_id: &str,
         origin: UserInputOrigin,
     ) -> Result<Option<u64>> {
         let SubmittedTurnInput::UserInput { content, client_id } = input else {
@@ -181,10 +283,11 @@ impl Session {
             let digest = format!("{:x}", Sha256::digest(json.as_bytes()));
             match db
                 .thread_queue()
-                .accept_user_input(
+                .accept_user_input_with_root(
                     self.thread_id,
                     client_id.as_deref(),
                     turn_id,
+                    Some(root_turn_id),
                     order,
                     &json,
                     &digest,

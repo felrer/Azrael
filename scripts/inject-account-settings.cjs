@@ -1,11 +1,11 @@
 "use strict";
 
-const ACCOUNT_SETTINGS_ASSET = "webview/assets/settings-page-76344c84191c.js";
+const ACCOUNT_SETTINGS_ASSET = "webview/assets/settings-page-f0054e44de3c.js";
 const MARKER = "/*azrael-account-settings-v1*/";
 const HOST_ANCHOR = 'case"open-vscode-command":{';
-const HOST_PATCH = "case\"azrael-accounts\":{await Ge.commands.executeCommand(\"azrael.accountsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR;
-const PAGE_ANCHOR = "}let Fe;e[77]";
-const PAGE_PATCH = "}if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{});let Fe;e[77]";
+const HOST_PATCH = "case\"azrael-accounts\":{await je.commands.executeCommand(\"azrael.accountsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR;
+const PAGE_ANCHOR = "}let B;e[72]";
+const PAGE_PATCH = "}if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{});let B;e[72]";
 
 // Share the account module's markup and actions, with CSS isolated from settings.
 // The mount ID rejects stale updates after navigating away and back.
@@ -70,8 +70,8 @@ function injectAccountSettings(text, relativePath) {
   if (text.split(MARKER).length > 2) throw new Error("Duplicate account settings marker");
   if (text.includes(MARKER)) return { text, count: 0 };
   if (relativePath === "out/extension.js") return { text: once(text, HOST_ANCHOR, HOST_PATCH), count: 1 };
-  text = once(text, 'e.key===(S?`personal`:`settings`)?(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F}):null', 'null');
-  const imported = 'import{A3t as azraelAccountBridge}from"./app-initial-5120fa5fe295.js";';
+  text = once(text, 'e.key===(x?`personal`:`settings`)?(0,Z.jsx)(tr,{canCollapse:b,externalTooltip:He,hideLabels:A}):null', 'null');
+  const imported = 'import{X9t as azraelAccountBridge}from"./app-initial-c014f9ee4429.js";';
   return { text: imported + once(text, PAGE_ANCHOR, PAGE_PATCH) + "\n" + MARKER + "\n" + AzraelAccountSettings.toString(), count: 1 };
 }
 

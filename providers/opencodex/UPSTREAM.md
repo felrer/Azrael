@@ -1,8 +1,8 @@
 # OpenCodex account helper provenance
 
-`vendor/src` originates from `lidge-jun/opencodex` commit `9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19` (package version 2.54.0, MIT). `package.json`, `bun.lock`, and `LICENSE.opencodex` are copied without modification. Narrow account-selection and OpenRouter usage patches are applied to the source import.
+`vendor/src` originates from `lidge-jun/opencodex` commit `9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19` (package version 2.54.0, MIT). `package.json`, `bun.lock`, and `LICENSE.opencodex` are copied without modification. Narrow account-selection, account-retirement and OpenRouter usage patches are applied to the source import.
 
-The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The patched vendor tree manifest digest is `a7ff6113f52727bde0a9a5b76b476b33e0e059b2ea45478bec8c8e267b571a60`, computed as SHA-256 over the concatenation of sorted `relative/path NUL lowercase-file-sha256 LF` records.
+The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The patched vendor tree manifest digest is `d0600827099c6d2a14cadb2ac13804761ec53c7f69ffe7dd7feaca2c895b86d8`, computed as SHA-256 over the concatenation of `relative/path NUL lowercase-file-sha256 LF` records ordered by the build script's PowerShell `Sort-Object FullName`.
 
 | Artifact | SHA-256 |
 | --- | --- |
@@ -16,7 +16,7 @@ Account-selection behavior remains unchanged unless the helper supplies the new 
 
 | Path | Upstream SHA-256 | Patched SHA-256 | Patch |
 | --- | --- | --- | --- |
-| `vendor/src/oauth/store.ts` | `0e79d7afa4e4219fd6208e7013dea78a71d6cf66a9234b554ff60a5aca9d1d24` | `779ca696cdd2aa33dd2a7caadc3139011e042b99f22769be20dfd3a6ece118df` | Adds `saveCredential(..., { preserveSelection: true })`; a new account is inserted or updated inside the existing serialized store mutation while the prior usable selection and its revision are retained in that same commit. |
+| `vendor/src/oauth/store.ts` | `0e79d7afa4e4219fd6208e7013dea78a71d6cf66a9234b554ff60a5aca9d1d24` | `f005bb6966c8da5b4bab35bdd1dc815434d7f2805ff94f39eb74bd1a0979db02` | Adds `saveCredential(..., { preserveSelection: true })`, retaining the prior usable selection and revision in the serialized mutation. Adds authoritative retirement reads that reject unreadable or partially invalid stores, guarded replacement/binding commits under the credential mutation lock, and `removeAccount(..., { deferSelection: true })`, preserving an empty active selection until a replacement is validated. The retirement changes originate from Azrael commit `51a9c14812095e93a64c23bc4b001c889b30c4e7`. |
 | `vendor/src/providers/api-keys.ts` | `926c5004b355edec7434afdef1e28fdbb9b01b7071a0ad3e3f02f13b7185e190` | `b13c6fe6e2c88bffd8cf19a541a9e7bb75783a42dfd2f80eec0d52dd9ba8a620` | Adds `addProviderApiKey(..., { preserveSelection: true })`; the key is added through the existing serialized config mutation without replacing an existing active key. |
 | `vendor/src/providers/quota.ts` | `f0a40c740b7976e5162a716dc78e2a41f72694deee043e4c5d31832c4488bd95` | `68f005f39be85128451cadeb7ce99a87f9910744eb8a2ff06a91108bfd63851f` | Preserves OpenRouter lifetime/period USD spend and nullable key cap; zero is a cap, null is uncapped, and only authoritative remaining-cap data supplies routing evidence. |
 | `vendor/src/providers/quota-types.ts` | `c090ab2a1ea06e67f2d5c6997fdaa6ebf848ca0e3deb2170b1e1a8c7992d9fbe` | `b15a2202ca066e1c0e4c29a714a5a704e3b0f46de98537c793371379e1af191c` | Adds typed, display-only OpenRouter spend and key-cap fields. |

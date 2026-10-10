@@ -8,7 +8,7 @@ const vm = require("node:vm");
 const { test } = require("node:test");
 const { ANCHOR, MARKER, REPLACEMENT, injectImageFileOpen } = require("./inject-image-file-open.cjs");
 
-const originalPath = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), "out", "extension.js");
+const originalPath = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), "out", "extension.js");
 assert.ok(fs.existsSync(originalPath), `Pinned original extension bundle missing: ${originalPath}`);
 const original = fs.readFileSync(originalPath, "utf8");
 const methodStart = "async open({path:e,line:r,column:n,cwd:o,target:i})";
@@ -37,8 +37,8 @@ function fixture(bundle, workspacePaths = [], { platform = "linux", pdfError } =
     },
     window: { async showTextDocument(document, options) { calls.push(["show", document, options]); } },
   };
-  const context = { lo: vscode, process: { platform }, x3e: filePath.isAbsolute, L4e: filePath,
-    _c: value => /^\/[A-Za-z]:[\\/]/.test(value) ? value.slice(1) : value,
+  const context = { mo: vscode, process: { platform }, d4e: filePath.isAbsolute, T6e: filePath,
+    Fc: value => /^\/[A-Za-z]:[\\/]/.test(value) ? value.slice(1) : value,
     require(id) {
       assert.equal(id, "./pdf-file-open.cjs");
       return { async openFileInChrome(value) {
@@ -46,7 +46,7 @@ function fixture(bundle, workspacePaths = [], { platform = "linux", pdfError } =
         if (pdfError) throw pdfError;
       } };
     },
-    BZ(relative, folders) {
+    aQ(relative, folders) {
       assert.equal(filePath.isAbsolute(relative), false);
       assert.equal(folders.length, workspaceFolders.length);
       return folders.map(folder => uri(filePath.join(folder.uri.fsPath, relative)));

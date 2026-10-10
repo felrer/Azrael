@@ -22,9 +22,9 @@ test("OpenRouter spend distinguishes unset, zero, and positive caps without clai
   assert.match(html, /0 USD 사용/);
   assert.doesNotMatch(html, /무제한|조회 실패/);
   assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 0, remaining: 0, unit: "USD" }] }), /0 USD 남음 \/ 0 USD/);
-  assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 10, remaining: 7, unit: "USD" }] }), /7 USD 남음 \/ 10 USD/);
+  assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 10, remaining: 7, unit: "USD" }] }), /70% 남음/);
   const connected = { ...provider, inferenceConnected: true };
-  assert.match(providerAccountHtml(connected, connected.accounts[0], quota), /채팅 연결 설정됨/);
+  assert.match(providerAccountHtml(connected, { ...connected.accounts[0], needsReauth: false }, quota, undefined, true), /채팅 연결 설정됨/);
 });
 
 test("chat connection badges follow the selected account without changing provider controls", () => {
@@ -38,17 +38,18 @@ test("chat connection badges follow the selected account without changing provid
     for (const account of snapshot.accounts) {
       for (const expanded of [false, true]) {
         const html = providerAccountHtml(snapshot, account, undefined, undefined, expanded);
-        assert.equal(html.includes("채팅 연결 설정됨"), account.selected);
-        assert.equal(html.includes("채팅 미연결"), !account.selected);
-        assert.equal(html.includes('class="badge disconnected"'), !account.selected);
-        assert.equal(html.includes('data-action="providerSelect"'), !account.selected);
-        assert.match(html, /자동 전환 허용/);
+        assert.equal(html.includes("현재 로그인"), account.selected);
+        assert.equal(html.includes("채팅 연결 설정됨"), expanded && account.selected);
+        assert.equal(html.includes("채팅 미연결"), expanded && !account.selected);
+        assert.doesNotMatch(html, /class="badge disconnected"/);
+        assert.equal(html.includes('data-action="providerSelect"'), expanded && !account.selected);
+        assert.equal(html.includes("자동 전환 허용"), expanded);
       }
     }
   }
   const disconnected = { ...connected, inferenceConnected: false };
   for (const account of disconnected.accounts) {
-    const html = providerAccountHtml(disconnected, account, undefined);
+    const html = providerAccountHtml(disconnected, account, undefined, undefined, true);
     assert.doesNotMatch(html, /채팅 연결 설정됨/);
     assert.match(html, /채팅 미연결/);
   }
@@ -75,7 +76,7 @@ test("API-key account cards are not rendered", () => {
   assert.equal(html, "");
 });
 
-test("provider quota keeps numeric units and never converts used tokens into remaining quota", () => {
+test("provider quota displays remaining gauges for bounded ratios and numeric values otherwise", () => {
   const quota: ProviderAccountQuota = {
     providerId: "devin",
     accountId: "account",
@@ -85,37 +86,42 @@ test("provider quota keeps numeric units and never converts used tokens into rem
     rows: [
       { label: "Window", usedPercent: 37.5 },
       { label: "Credits", remaining: 12, limit: 50, unit: "requests" },
+      { label: "Consumed", used: 123, unit: "tokens" },
       { label: "Enterprise", unlimited: true, remaining: 0, limit: 0, unit: "requests" },
     ],
   };
   const html = providerQuotaHtml(quota);
-  assert.match(html, /37\.5% 사용/);
-  assert.doesNotMatch(html, /62\.5% 남음/);
-  assert.match(html, /12 requests 남음 \/ 50 requests/);
+  assert.match(html, /62\.5% 남음/);
+  assert.doesNotMatch(html, /37\.5% 사용/);
+  assert.match(html, /24% 남음/);
+  assert.match(html, /aria-valuenow="24"/);
+  assert.match(html, /123 tokens 사용/);
+  assert.doesNotMatch(html, /123 tokens 남음/);
   assert.match(html, /<span data-azrael-dynamic-text>Enterprise<\/span><\/span><span class="provider-quota-value"><strong>무제한<\/strong>/);
-  assert.match(html, /출처 <span data-azrael-dynamic-text>account probe<\/span> · 관측/);
+  assert.doesNotMatch(html, /출처|관측|account probe/);
 });
 
-test("unsupported and error quota observations retain source and observed time", () => {
+test("unsupported and error observations preserve status and escaped errors without source metadata", () => {
   const unsupported = providerQuotaHtml({
     providerId: "devin", accountId: "managed", status: "unsupported", source: "managed account", observedAt: 1_789_516_800_000, rows: [],
   });
   assert.match(unsupported, /계정별 한도 조회를 지원하지 않습니다/);
-  assert.match(unsupported, /출처 <span data-azrael-dynamic-text>managed account<\/span>/);
+  assert.doesNotMatch(unsupported, /출처|관측|managed account/);
 
   const failed = providerQuotaHtml({
     providerId: "other", accountId: "a", status: "error", source: "quota API", observedAt: 1_789_516_800_000, rows: [], error: "denied <unsafe>",
   });
   assert.match(failed, /한도 조회 실패/);
   assert.match(failed, /denied &lt;unsafe&gt;/);
-  assert.match(failed, /출처 <span data-azrael-dynamic-text>quota API<\/span>/);
+  assert.doesNotMatch(failed, /출처|관측|quota API|<unsafe>/);
 });
 
 test("never-observed provider results do not display the Unix epoch", () => {
   const html = providerQuotaHtml({
     providerId: "devin", accountId: "managed", status: "unsupported", source: "managed account", observedAt: 0, rows: [],
   });
-  assert.match(html, /관측 기록 없음/);
+  assert.match(html, /계정별 한도 조회를 지원하지 않습니다/);
+  assert.doesNotMatch(html, /관측|출처/);
   assert.doesNotMatch(html, /1970/);
 });
 
@@ -139,9 +145,9 @@ test("a failed refresh labels and preserves the previous successful provider quo
   };
   const html = providerQuotaHtml(prior, failure);
   assert.match(html, /8 requests 남음/);
-  assert.match(html, /이전 조회 값 · 출처 <span data-azrael-dynamic-text>cached probe<\/span>/);
+  assert.match(html, /이전 조회 값/);
   assert.match(html, /최신 한도 조회 실패 · <span data-azrael-dynamic-text>temporarily unavailable<\/span>/);
-  assert.match(html, /실패 출처 <span data-azrael-dynamic-text>live probe<\/span>/);
+  assert.doesNotMatch(html, /출처|관측|cached probe|live probe/);
 });
 
 
@@ -149,15 +155,18 @@ test("provider usage disclosure keeps collapsed identity compact and shows manag
   const quota: ProviderAccountQuota = { providerId: provider.id, accountId: provider.accounts[0].id, status: "ok", source: "probe", observedAt: 1, rows: [{ label: "Private quota", remaining: 8 }] };
   const collapsed = providerAccountHtml(provider, provider.accounts[0], quota);
   assert.match(collapsed, /aria-expanded="false"/);
-  assert.match(collapsed, /사용량 펼치기/);
-  assert.doesNotMatch(collapsed, /Private quota|출처/);
-  assert.match(collapsed, /account-heading.*usage-toggle.*<h2><span data-azrael-dynamic-text>A&amp;B<\/span><\/h2>/);
+  assert.match(collapsed, /role="button" tabindex="0" data-action="toggleUsage"/);
+  assert.match(collapsed, /Private quota/);
+  assert.match(collapsed, /8 남음/);
+  assert.doesNotMatch(collapsed, /출처/);
+  assert.match(collapsed, /account-summary.*account-identity.*<h2><span data-azrael-dynamic-text>A&amp;B<\/span><\/h2>/);
   assert.doesNotMatch(collapsed, /providerReauth|providerRemove|card-actions/);
   const unselected = providerAccountHtml(provider, { ...provider.accounts[0], selected: false }, quota);
-  assert.match(unselected, /identity-actions.*data-action="providerSelect"/);
+  assert.doesNotMatch(unselected, /data-action="providerSelect"/);
+  assert.match(providerAccountHtml(provider, { ...provider.accounts[0], selected: false }, quota, undefined, true), /data-action="providerSelect"/);
   const expanded = providerAccountHtml(provider, provider.accounts[0], quota, undefined, true);
   assert.match(expanded, /aria-expanded="true"/);
-  assert.match(expanded, /aria-label="사용량 접기"/);
+  assert.match(expanded, /role="button" tabindex="0" data-action="toggleUsage" aria-expanded="true"/);
   assert.match(expanded, /Private quota/);
   assert.match(expanded, /8 남음/);
   assert.match(expanded, /providerReauth/);

@@ -369,6 +369,7 @@ async fn apply_change_set(
 INSERT INTO thread_turns (
     thread_id,
     turn_id,
+    root_turn_id,
     rollout_ordinal,
     rollout_byte_offset,
     rollout_end_ordinal,
@@ -379,8 +380,9 @@ INSERT INTO thread_turns (
     completed_at,
     duration_ms,
     root_resume_wait_json
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(thread_id, turn_id) DO UPDATE SET
+    root_turn_id = COALESCE(thread_turns.root_turn_id, excluded.root_turn_id),
     rollout_end_ordinal = excluded.rollout_end_ordinal,
     rollout_end_byte_offset = excluded.rollout_end_byte_offset,
     root_resume_wait_json = COALESCE(excluded.root_resume_wait_json, thread_turns.root_resume_wait_json),
@@ -403,6 +405,7 @@ WHERE (thread_turns.rollout_end_ordinal IS NULL AND thread_turns.status = 'inPro
         )
         .bind(thread_id)
         .bind(turn_id.as_str())
+        .bind(turn.root_turn_id)
         .bind(rollout_ordinal)
         .bind(rollout_byte_offset)
         .bind(terminal_ordinal)
@@ -586,7 +589,7 @@ WHERE thread_id = ?
                 .map_err(thread_history_error)?;
             }
             ThreadItem::AgentMessage {
-                phase: Some(MessagePhase::Commentary) | None,
+                phase: Some(MessagePhase::Commentary | MessagePhase::PartialAnswer) | None,
                 ..
             }
             | ThreadItem::HookPrompt { .. }

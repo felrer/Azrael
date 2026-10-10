@@ -1,29 +1,29 @@
 "use strict";
 
 const MAX_REASONING_ASSETS = [
-  "webview/assets/app-initial-532d60c9b397.js",
-  "webview/assets/app-initial-5120fa5fe295.js",
-  "webview/assets/agent-settings-88a967588321.js",
-  "webview/assets/panel-f5a3846c3434.js",
+  "webview/assets/app-initial-7a199c66e670.js",
+  "webview/assets/app-initial-c014f9ee4429.js",
+  "webview/assets/agent-settings-4d2487cc749f.js",
+  "webview/assets/panel-8862779ad4db.js",
 ];
 const MAX_REASONING_MARKER = "/*azrael-max-reasoning-v1*/";
 // Availability overrides are inside the upstream supported-stage filters. They
 // do not manufacture stages or alter authentication, defaults or selections.
 const RULES = [
   [
-    ["ZC(e)&&i.has(e)", "ZC(e)&&(e===`max`||i.has(e))"],
-    ["(t==null||r==null||r.includes($8[t]))", "(t==null||$8[t]===`max`||r==null||r.includes($8[t]))"],
+    ["yC(e)&&a.has(e)", "yC(e)&&(e===`max`||a.has(e))"],
+    ["(t==null||r==null||r.includes(t5[t]))", "(t==null||t5[t]===`max`||r==null||r.includes(t5[t]))"],
   ],
   [
-    ["new Set([...Wg(e,JXe.enabledReasoningEfforts),`persistent`])", "new Set([...Wg(e,JXe.enabledReasoningEfforts),`persistent`,`max`])"],
-    ["let p=n==null?u(_Sn):new Set([...n,`persistent`])", "let p=new Set([...(n==null?u(_Sn):n),`persistent`,`max`])"],
+    ["new Set([...vg(e,Pbe.enabledReasoningEfforts),`persistent`])", "new Set([...vg(e,Pbe.enabledReasoningEfforts),`persistent`,`max`])"],
+    ["_=n==null?u(AMn):new Set([...n,`persistent`])", "_=new Set([...(n==null?u(AMn):n),`persistent`,`max`])"],
   ],
   [
-    ["let r=Z.filter(e),i=l?.models.some(We)", "let r=Z.filter(e).filter(e=>e!==`max`),i=l?.models.some(We)"],
-    ["if(l==null||r.length===0&&!i)", "if(l==null||r.length===0&&!i&&l.hasModelSupportingMaxReasoningEffort!==!0)"],
+    ["let r=Q.filter(e),a=d?.models.some(Ge)", "let r=Q.filter(e).filter(e=>e!==`max`),a=d?.models.some(Ge)"],
+    ["if(d==null||r.length===0&&!a)", "if(d==null||r.length===0&&!a&&d.hasModelSupportingMaxReasoningEffort!==!0)"],
   ],
   [
-    ["m=s==null?void 0:f(s)", "m=s==null?void 0:f(s).filter(e=>e!==`max`)"],
+    ["g=s==null?void 0:re(s)", "g=s==null?void 0:re(s).filter(e=>e!==`max`)"],
   ],
 ];
 function injectMaxReasoning(text, asset) {

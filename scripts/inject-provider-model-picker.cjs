@@ -2,10 +2,10 @@
 
 const { createProviderModelCatalog, renderProviderModelList } = require("./provider-model-picker.cjs");
 const { renderAstraSpeedToggle } = require("./astra-speed-toggle.cjs");
-const PROVIDER_PICKER_ASSET = "webview/assets/app-initial-532d60c9b397.js";
-const PROVIDER_QUERY_ASSET = "webview/assets/app-initial-5120fa5fe295.js";
+const PROVIDER_PICKER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
+const PROVIDER_QUERY_ASSET = "webview/assets/app-initial-c014f9ee4429.js";
 const PROVIDER_PICKER_ASSETS = [PROVIDER_PICKER_ASSET, PROVIDER_QUERY_ASSET];
-const MARKER = "/*azrael-provider-model-picker-v1*/";
+const MARKER = "/*azrael-provider-model-picker-xQ*/";
 
 function once(text, before, after, expected = 1) {
   const count = text.split(before).length - 1;
@@ -21,65 +21,65 @@ function injectProviderModelPicker(text, asset) {
   if (markerCount === 1) return { text, count: 0 };
   if (markerCount > 1) throw new Error("Duplicate provider model-picker marker");
   if (asset === PROVIDER_QUERY_ASSET) {
-    // The pinned event bus is lazy. Register only after its singleton exists;
+    // zJe pinned event bus is lazy. Register only after its singleton exists;
     // module-level subscriptions run before the Webview bootstrap initializes it.
-    text = once(text, "Dm=Em.getInstance(),B2e((e,t)=>{Dm.dispatchMessage(e,t)})",
-      "Dm=Em.getInstance(),Dm.subscribe(\"mcp-notification\",event=>__azraelProviderCatalog.notification(event)),B2e((e,t)=>{Dm.dispatchMessage(e,t)})");
+    text = once(text, "vm=_m.getInstance(),j4e((e,t)=>{vm.dispatchMessage(e,t)})",
+      "vm=_m.getInstance(),vm.subscribe(\"mcp-notification\",event=>__azraelProviderCatalog.notification(event)),j4e((e,t)=>{vm.dispatchMessage(e,t)})");
     text = once(text,
-      "zu(f,i).sendRequest(`model/list`,{includeHidden:!0,cursor:null,limit:s},{priority:n})",
-      "__azraelProviderCatalog.query(i,()=>zu(f,i),s,()=>d.invalidateQueries({queryKey:nPt(i,t,s)}),{priority:n})");
-    const select = "KUe({additionalAvailableModels:new Set(e),authMethod:t,availableModels:m.availableModels,defaultModel:m.defaultModel,enabledReasoningEfforts:p,hasConfiguredModelCatalog:r,includeUltraReasoningEffort:h,isCustomModelProvider:o,models:n,useHiddenModels:m.useHiddenModels})";
+      "Bp(f,i).sendRequest(`model/list`,{includeHidden:!0,cursor:null,limit:s},{priority:t})",
+      "__azraelProviderCatalog.query(i,()=>Bp(f,i),s,()=>d.invalidateQueries({queryKey:g}),{priority:t})");
+    const select = "Cbe({additionalAvailableModels:new Set(e),apiKeyDaybreakSupported:h,authMethod:t,availableModels:v.availableModels,defaultModel:v.defaultModel,enabledReasoningEfforts:_,hasConfiguredModelCatalog:r,includeUltraReasoningEffort:y,isCustomModelProvider:o,models:n,useHiddenModels:v.useHiddenModels})";
     text = once(text, select, `__azraelProviderCatalog.tag(${select},i)`);
     text += bootstrap();
   } else {
     text = once(text, "emitRequestLifecycleEvent(e){for(let t of this.requestLifecycleListeners)",
       "emitRequestLifecycleEvent(e){if(e.type===`completed`&&e.method===`thread/start`)__azraelProviderCatalog.sessionCreated(e.hostId);for(let t of this.requestLifecycleListeners)");
-    const visible = "function ibr({additionalAvailableModels:e,authMethod:t,availableModels:n,hasConfiguredModelCatalog:r,isCustomModelProvider:i,model:a,useHiddenModels:o}){return";
-    text = once(text, visible, visible.replace("{return", "{if(!a.hidden&&(a.model.startsWith(`managed/`)||a.model.startsWith(`devin/`)))return!0;return"));
-    const effortOptions = "n=(t===`copilot`?[e.find(e=>e.reasoningEffort===`medium`)??{reasoningEffort:`medium`,description:`medium effort`}]:e).filter(({reasoningEffort:e})=>ZC(e)&&i.has(e))";
-    text = once(text, effortOptions, "n=r.model.startsWith(`managed/`)?e.filter(({reasoningEffort:e})=>ZC(e)&&e!==`persistent`):" + effortOptions.slice(2));
-    const efforts = "function HQ(e,t){let n=e?.find(e=>e.model===t);return n==null?UPt.map(e=>({description:``,reasoningEffort:e})):n.supportedReasoningEfforts.filter(e=>ZC(e.reasoningEffort)&&e.reasoningEffort!==`persistent`)}";
-    text = once(text, efforts, "function HQ(e,t){return __azraelProviderCatalog.efforts(e,t,()=>{" + efforts.slice(efforts.indexOf("let n="), -1) + "})}");
-    const selection = "function NVr(e,t){return ZC(e)&&t.some(t=>t.reasoningEffort===e)?e:S5e(e,t.map(e=>e.reasoningEffort))}";
-    text = once(text, selection, "function NVr(e,t){return __azraelProviderCatalog.selectEffort(e,t,()=>" + selection.slice(selection.indexOf("return ") + 7, -1) + ")}");
+    const visible = "function IJr({additionalAvailableModels:e,apiKeyDaybreakSupported:t,authMethod:n,availableModels:r,hasConfiguredModelCatalog:i,isCustomModelProvider:a,model:o,useHiddenModels:s}){let c=o.availableAccessPrograms?.cyber;return";
+    text = once(text, visible, visible.replace("{let c=", "{if(!o.hidden&&(o.model.startsWith(`managed/`)||o.model.startsWith(`devin/`)))return!0;let c="));
+    const effortOptions = "t=(n===`copilot`?[e.find(e=>e.reasoningEffort===`medium`)??{reasoningEffort:`medium`,description:`medium effort`}]:e).filter(({reasoningEffort:e})=>yC(e)&&a.has(e))";
+    text = once(text, effortOptions, "t=i.model.startsWith(`managed/`)?e.filter(({reasoningEffort:e})=>yC(e)&&e!==`persistent`):" + effortOptions.slice(2));
+    const efforts = "function dQ(e,t){let n=e?.find(e=>e.model===t);return n==null?Pzt.map(e=>({description:``,reasoningEffort:e})):n.supportedReasoningEfforts.filter(e=>yC(e.reasoningEffort)&&e.reasoningEffort!==`persistent`)}";
+    text = once(text, efforts, "function dQ(e,t){return __azraelProviderCatalog.efforts(e,t,()=>{" + efforts.slice(efforts.indexOf("let n="), -1) + "})}");
+    const selection = "function Z6r(e,t){return yC(e)&&t.some(t=>t.reasoningEffort===e)?e:s2e(e,t.map(e=>e.reasoningEffort))}";
+    text = once(text, selection, "function Z6r(e,t){return __azraelProviderCatalog.selectEffort(e,t,()=>" + selection.slice(selection.indexOf("return ") + 7, -1) + ")}");
     // Provider-default effort stays null; the compact trigger uses the neutral icon.
-    text = once(text, "function UQi(e){return WQi[e]}", "function UQi(e){return WQi[e==null?`none`:e]}");
+    text = once(text, "function rca(e){return ica[e]}", "function rca(e){return ica[e==null?`none`:e]}");
     text = once(text, "a=r.flatMap(({reasoningEffort:e})=>", "a=(r??[]).flatMap(({reasoningEffort:e})=>");
     text = once(text, "(a.length>0?a:[`medium`]).map(e=>({id:`${n}:${e}`",
       "(n.startsWith(`managed/`)?a:a.length?a:[`medium`]).map(e=>({id:`${n}:${e}`");
-    text = once(text, "ne=R===void 0||R", "ne=(R===void 0||R)&&(!p?.startsWith(`managed/`)||HQ(h,p).length>0)");
-    const powerReset = "function Ryr({canInitializePowerPicker:e,fallbackPowerSelection:t,menuView:n,selectedPowerSelection:r,showXHighInSimplePicker:i}){";
+    text = once(text, "G=R===void 0||R", "G=(R===void 0||R)&&(!p?.startsWith(`managed/`)||dQ(h,p).length>0)");
+    const powerReset = "function _Jr({canInitializePowerPicker:e,fallbackPowerSelection:t,menuView:n,selectedPowerSelection:r,showXHighInSimplePicker:i}){";
     text = once(text, powerReset, powerReset + "if(r?.model?.startsWith(`managed/`))return;");
-    text = once(text, "let pt=YJ(ft,lt==null?void 0:`${lt.model}:${lt.defaultReasoningEffort}`)",
-      "let pt=YJ(ft,Ee.startsWith(`managed/`)?`${Ee}:${__azraelProviderCatalog.efforts(we,Ee,()=>[]).__azraelDefaultEffort??null}`:lt==null?void 0:`${lt.model}:${lt.defaultReasoningEffort}`)");
+    text = once(text, "let kt=TX(Ot,Tt==null?void 0:`${Tt.model}:${Tt.defaultReasoningEffort}`)",
+      "let kt=TX(Ot,Oe.startsWith(`managed/`)?`${Oe}:${__azraelProviderCatalog.efforts(yt,Oe,()=>[]).__azraelDefaultEffort??null}`:Tt==null?void 0:`${Tt.model}:${Tt.defaultReasoningEffort}`)");
     // Native max/ultra translations remain; provider-default null gets a label.
-    for (const [key, count] of [["l.reasoningEffort", 2], ["n", 1], ["Xe", 1], ["it", 2], ["e.reasoningEffort", 1], ["t", 1], ["w", 1]]) {
-      text = once(text, `F8[${key}]`, `__azraelReasoningLabel(${key})`, count);
+    for (const [key, count] of [["l.reasoningEffort", 1], ["u.reasoningEffort", 1], ["n", 1], ["Ze", 1], ["bt", 2], ["e.reasoningEffort", 1], ["t", 1], ["w", 1]]) {
+      text = once(text, `P8[${key}]`, `__azraelReasoningLabel(${key})`, count);
     }
-    text = once(text, "VZi[e.reasoningEffort]", "VZi[e.reasoningEffort]??__azraelReasoningLabel(e.reasoningEffort)");
+    text = once(text, "toa[e.reasoningEffort]", "toa[e.reasoningEffort]??__azraelReasoningLabel(e.reasoningEffort)");
     text = once(text, "id:t.model,isLocked:t.model===u,label:", "id:t.model,catalogHost:t.__azraelCatalogHost,isLocked:t.model===u,label:");
-    text = once(text, "Ce={beforeModels:me,defaultOption:xe,options:Se}", "Ce={beforeModels:me,defaultOption:xe,options:Se,providerGroups:!0,catalogHost:g?.__azraelCatalogHost}");
+    text = once(text, "Te={beforeModels:he,defaultOption:Ce,options:we}", "Te={beforeModels:he,defaultOption:Ce,options:we,providerGroups:!0,catalogHost:g?.__azraelCatalogHost}");
     // The unified native options keep their original selection/lock callbacks.
     // Include the model catalog in the compiled memo dependency for host tagging.
-    text = once(text, "function xra(e){let t=(0,Sra.c)(131)", "function xra(e){let t=(0,Sra.c)(132)");
-    text = once(text, "t[56]!==me||t[57]!==xe||t[58]!==Se?", "t[56]!==me||t[57]!==xe||t[58]!==Se||t[131]!==g?");
-    text = once(text, "t[56]=me,t[57]=xe,t[58]=Se,t[59]=Ce", "t[56]=me,t[57]=xe,t[58]=Se,t[131]=g,t[59]=Ce");
-    text = once(text, "function mQi(e){let t=(0,vQi.c)(129)", "function mQi(e){let t=(0,vQi.c)(130)");
-    text = once(text, "Ue=c.options.map(e)", "Ue=c.providerGroups?(0,q8.jsx)(__AzraelProviderModelList,{hostId:c.catalogHost,options:c.options,renderOption:e}):c.options.map(e)");
-    text = once(text, "t[98]!==D||t[99]!==c.options||t[100]!==h", "t[98]!==D||t[99]!==c||t[100]!==h");
-    text = once(text, "t[98]=D,t[99]=c.options,t[100]=h,t[101]=Ue", "t[98]=D,t[99]=c,t[100]=h,t[101]=Ue");
-    text = once(text, "if(!(t instanceof HTMLElement))return;if(e.key===`Enter`", "if(!(t instanceof HTMLElement)||t.closest(`[data-azrael-provider-models]`))return;if(e.key===`Enter`");
+    text = once(text, "function lCa(e){let t=(0,uCa.c)(134)", "function lCa(e){let t=(0,uCa.c)(135)");
+    text = once(text, "t[59]!==he||t[60]!==Ce||t[61]!==we?", "t[59]!==he||t[60]!==Ce||t[61]!==we||t[134]!==g?");
+    text = once(text, "t[59]=he,t[60]=Ce,t[61]=we,t[62]=Te", "t[59]=he,t[60]=Ce,t[61]=we,t[134]=g,t[62]=Te");
+    text = once(text, "function ssa(e){let t=(0,dsa.c)(130)", "function ssa(e){let t=(0,dsa.c)(131)");
+    text = once(text, "He=c.options.map(e)", "He=c.providerGroups?(0,K8.jsx)(__AzraelProviderModelList,{hostId:c.catalogHost,options:c.options,renderOption:e}):c.options.map(e)");
+    text = once(text, "t[99]!==D||t[100]!==c.options||t[101]!==h", "t[99]!==D||t[100]!==c||t[101]!==h");
+    text = once(text, "t[99]=D,t[100]=c.options,t[101]=h,t[102]=He", "t[99]=D,t[100]=c,t[101]=h,t[102]=He");
+    text = once(text, "if(!(t instanceof HTMLElement)||e.key===`Tab`", "if(!(t instanceof HTMLElement)||t.closest(`[data-azrael-provider-models]`)||e.key===`Tab`");
     text = once(text, '"data-model-selected":e.selected||void 0,disabled:e.disabled,', '"data-model-selected":e.selected||void 0,"data-azrael-model-option":e.__azraelModelOption||void 0,disabled:e.disabled,');
     const nativeEffort = "t.supportedReasoningEfforts.find(e=>{let{reasoningEffort:t}=e;return t===j})?.reasoningEffort??t.defaultReasoningEffort";
     text = once(text, nativeEffort, `__azraelProviderCatalog.modelEffort(t,j,()=>${nativeEffort})`);
     // Override only Astra's speed control after the native compiled memo blocks.
     // Both the two-tier toggle and the multi-tier submenu become one cycling item.
-    text = once(text, "let ae;t[69]!==m||t[70]!==F",
-      "if(l?.model===`gpt-6-astra`&&o!=null){re=null;ie=(0,G8.jsx)(__AzraelAstraSpeedToggle,{selectedServiceTier:u,onSelectServiceTier:o,disabled:F||f,hidden:F,maximum:I,intl:m})}let ae;t[69]!==m||t[70]!==F");
+    text = once(text, "let ae;t[69]!==m||t[70]!==a",
+      "if(l?.model===`gpt-6-astra`&&o!=null){re=null;ie=(0,W8.jsx)(__AzraelAstraSpeedToggle,{selectedServiceTier:u,onSelectServiceTier:o,disabled:I||f,hidden:I,maximum:L,intl:m})}let ae;t[69]!==m||t[70]!==a");
     text += bootstrap() + `
-function __azraelReasoningLabel(e){return F8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
-function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (K8,q8.jsx,nB,__azraelProviderCatalog,props)}
-function __AzraelAstraSpeedToggle(props){return (${renderAstraSpeedToggle.toString()})(G8.jsx,nB,{standard:DGt,fast:kGt},z8,props)}
+function __azraelReasoningLabel(e){return P8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
+function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (G8,K8.jsx,PR,__azraelProviderCatalog,props)}
+function __AzraelAstraSpeedToggle(props){return (${renderAstraSpeedToggle.toString()})(W8.jsx,PR,{standard:BXt,fast:HXt},R8,props)}
 `;
   }
   return { text: text + "\n" + MARKER, count: 1 };

@@ -6,7 +6,7 @@ const vm = require('node:vm');
 
 function recentChatCheck() {
   const injector = require('./inject-recent-chat-filter.cjs');
-  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.930.61225');
+  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.1007.21434');
   const source = fs.readFileSync(path.join(root, injector.ASSET), 'utf8');
   const result = injector.injectRecentChatFilter(source, injector.ASSET);
   // Execute the real header setup, including its declarations, so a renamed
@@ -16,11 +16,11 @@ function recentChatCheck() {
   const header = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Fn');
   const setupEnd = header.body.statements.find(node => ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'S')).end;
   const setup = result.text.slice(header.body.getStart(ast) + 1, setupEnd);
-  const renderContext = { Bn: { c: () => Array(66).fill(Symbol()) }, h: () => ({ pathname: '/' }), Ln: () => {},
-    $e: () => false, In: null, fe: () => ({ data: [] }), L: () => ({ data: [] }), Me: null,
+  const renderContext = { Bn: { c: () => Array(66).fill(Symbol()) }, p: () => ({ pathname: '/' }), Ln: () => {},
+    nt: () => false, In: null, z: () => ({ data: [] }), te: () => ({ data: [] }), Fe: null,
     azraelRecentChatTasks: () => ['rendered-header'] };
   assert.deepEqual(Array.from(vm.runInNewContext(`(function(e){${setup};return S})({})`, renderContext)), ['rendered-header']);
-  assert.throws(() => vm.runInNewContext(`(function(e){${setup.replace('C=u||Me==null,w;', 'C=u||Me==null,L;')};return S})({})`, renderContext), /before initialization/);
+  assert.throws(() => vm.runInNewContext(`(function(e){${setup.replace('C=l||Fe==null,w;', 'C=l||Fe==null,te;')};return S})({})`, renderContext), /before initialization/);
   assert.equal(result.count, 1);
   assert.equal(injector.injectRecentChatFilter(result.text, injector.ASSET).count, 0);
   assert.throws(() => injector.injectRecentChatFilter(source + source, injector.ASSET));
@@ -31,11 +31,11 @@ function recentChatCheck() {
   // callable mocks for similarly named module initializers.
   const importAliases = new Map(ast.statements.filter(ts.isImportDeclaration).flatMap(node =>
     node.importClause?.namedBindings?.elements?.map(e => [e.propertyName?.text ?? e.name.text, e.name.text]) ?? []));
-  assert.equal(importAliases.get('Nat'), 'o');
-  assert.equal(importAliases.get('tQ'), 'le');
-  assert.match(injector.HELPER, /It\(\);let filter=o\(Pt\)/);
-  assert.match(injector.HELPER, /environmentId=o\(Ft\).*environments}=le\(\)/);
-  const context = { It: () => {}, Pt: 'filter', Ft: 'environment', o: atom => atom === 'filter' ? filter : 'selected', le: () => ({ data: [environment] }),
+  assert.equal(importAliases.get('Slt'), 'l');
+  assert.equal(importAliases.get('t$'), 'ce');
+  assert.match(injector.HELPER, /It\(\);let filter=l\(Pt\)/);
+  assert.match(injector.HELPER, /environmentId=l\(Ft\).*environments}=ce\(\)/);
+  const context = { It: () => {}, Pt: 'filter', Ft: 'environment', l: atom => atom === 'filter' ? filter : 'selected', ce: () => ({ data: [environment] }),
     fn: (_tasks, _conversations, selected) => { assert.equal(selected, environment); return [local, cloud, orphan]; },
     gn: { useMemo: action => action() }, yn: row => row.kind === 'cloud' };
   vm.createContext(context);

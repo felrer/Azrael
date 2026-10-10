@@ -10,7 +10,7 @@ const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { RecoveryState } = require("./recovery-state.cjs");
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
-const hostRoot = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const hostRoot = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434");
 const tick = () => new Promise(resolve => setImmediate(resolve));
 
 function parse(filename) {
@@ -21,7 +21,7 @@ function parse(filename) {
 }
 
 function requestClient() {
-  const { Ost } = parse(path.join(hostRoot, "webview/assets/app-initial-532d60c9b397.js"));
+  const { Ost } = parse(path.join(hostRoot, "webview/assets/app-initial-7a199c66e670.js"));
   const methods = new Map();
   function visit(node) {
     if (ts.isMethodDeclaration(node) && ["onDelivery", "onResult"].includes(node.name?.getText(Ost))) {
@@ -34,8 +34,8 @@ function requestClient() {
   assert.equal(methods.size, 2);
   const logs = [], events = [];
   const Client = cm.runInNewContext(`(class {${[...methods.values()].join("\n")}})`, {
-    ly: id => id, DE: class extends Error {}, Gx() {},
-    mp: { debug() {}, warning: (...args) => logs.push(args), error: (...args) => logs.push(args) },
+    Mv: id => id, UT: class extends Error {}, Lx() {},
+    Uh: { debug() {}, warning: (...args) => logs.push(args), error: (...args) => logs.push(args) },
   });
   const client = new Client();
   client.requestPromises = new Map();
@@ -94,7 +94,7 @@ function composerFixture(options) {
   const declarations = new Map(Ost.statements.filter(ts.isFunctionDeclaration).map(node => [node.name.text, node.getText(Ost)]));
   const testSource = parse(path.join(__dirname, "test-composer-draft.cjs"));
   const factory = testSource.Ost.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "fixture");
-  const fixture = cm.runInNewContext(`(${factory.getText(testSource.Ost)})`, { pm: cm, assert, util, declarations, performance });
+  const fixture = cm.runInNewContext(`(${factory.getText(testSource.Ost)})`, { pm: cm, assert, util, declarations, performance, DOMException });
   return fixture(options);
 }
 

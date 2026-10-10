@@ -6,9 +6,11 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const logs=join(root,'artifacts/logs/missing-image');
-const fixture=join(logs,'temporary-profile');
-const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
+const logs=resolve(process.env.AZRAEL_RENDER_LOG_ROOT||join(root,'artifacts/logs/missing-image'));
+const fixture=resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT||join(root,'artifacts/verification/missing-image-render'));
+assert(fixture.startsWith(join(root,'artifacts/verification')+sep));
+assert(logs.startsWith(join(root,'artifacts/logs')+sep));
+const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const profile=fixture;
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
@@ -20,28 +22,28 @@ const attachment=injectMissingImage(await readFile(join(assets,attachmentName),'
 function named(source,name){const ast=ts.createSourceFile('fixture.js',source,99,true,1);const node=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(node,name);return node.getText(ast)}
 const mainAdapter=`
 export function fixtureRead(...args){
- const hg=async(_,{params})=>new Promise(resolve=>{window.fixtureReads.push({path:params.path,resolve})});
- const Eh={warning:()=>{}};
- ${named(main,'mSt')}
- ${named(main,'BC')}
- return BC(...args);
+ const mg=async(_,{params})=>new Promise(resolve=>{window.fixtureReads.push({path:params.path,resolve})});
+ const vh={warning:()=>{}};
+ ${named(main,'Zwt')}
+ ${named(main,'nw')}
+ return nw(...args);
 }
-export function FixtureDialog(props){const ra=()=>window.fixtureLocale;${named(main,'Osi')}return l8.jsx(Osi,props)}
+export function FixtureDialog(props){const le=()=>window.fixtureLocale;${named(main,'Cpi')}return k8.jsx(Cpi,props)}
 `;
 const attachmentAdapter=`
 import {fixtureRead,FixtureDialog} from './${mainName}';
 export function Fixture(){
- xn();
- const a=()=>({value:{kind:'local',routeKind:'local-thread',conversationId:'fixture'}}),d=()=>window.fixtureLocale;
- const ne=()=>window.fixtureQuery,h=()=> 'local',i=()=>false,st=()=>false,at=()=>({get:()=>false});
- const $e=()=>({isError:false,src:null}),ke=fixtureRead,Qe=FixtureDialog,Ee=({children})=>children,nt=()=>{};
- ${named(attachment,'ln')}
- ${named(attachment,'un')}
- const [src,setSrc]=yn.useState('/missing.png');window.fixtureSetSource=setSrc;
- return $.jsx(un,{srcs:[src],conversationId:'fixture',hostId:'local',alt:'Verification image',imageSource:'uploaded',useImageDialog:true});
+ Rn();
+ const f=()=>({value:{kind:'local',routeKind:'local-thread',conversationId:'fixture'}}),i=()=>window.fixtureLocale;
+ const p=()=>window.fixtureQuery,m=()=> 'local',u=()=>false,wt=()=>false,vt=()=>({get:()=>false});
+ const Pe=()=>({isError:false,src:null}),Je=fixtureRead,Be=FixtureDialog,te=({children})=>children,Ae=()=>{};
+ ${named(attachment,'En')}
+ ${named(attachment,'Dn')}
+ const [src,setSrc]=In.useState('/missing.png');window.fixtureSetSource=setSrc;
+ return $.jsx(Dn,{srcs:[src],conversationId:'fixture',hostId:'local',alt:'Verification image',imageSource:'uploaded',useImageDialog:true});
 }
 `;
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5e7be244bca.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureLocale={};window.fixtureReads=[];window.fixtureQuery={fetchQuery:({queryFn})=>queryFn({signal:new AbortController().signal})};window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {KEt,UEt} from '/assets/app-initial-efe028fd535e.js';import {Fixture} from '/assets/${attachmentName}';const $=KEt();window.fixtureLocale={formatMessage:({defaultMessage})=>defaultMessage,formatNumber:(n,o)=>new Intl.NumberFormat('en-US',o).format(n)};window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-1805ad19110d.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureLocale={};window.fixtureReads=[];window.fixtureQuery={fetchQuery:({queryFn})=>queryFn({signal:new AbortController().signal})};window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${attachmentName}';const $=$At();window.fixtureLocale={formatMessage:({defaultMessage})=>defaultMessage,formatNumber:(n,o)=>new Intl.NumberFormat('en-US',o).format(n)};window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
  if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+mainAdapter;if(pathname===join(assets,attachmentName))source=attachment+attachmentAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
@@ -49,7 +51,7 @@ const server=createServer(async(req,res)=>{try{
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Transformed pinned native ln/un, BC/mSt and image dialog with native React/CSS; synthetic host query, locale, route/feature providers, telemetry sink and context-menu wrapper. No installed app/build.',checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Transformed pinned native En/Dn, nw/Zwt and image dialog with native React/CSS; synthetic host query, locale, route/feature providers, telemetry sink and context-menu wrapper. No installed app/build.',checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -75,7 +77,7 @@ try{
   await wait("document.querySelector('#root').innerText.includes('파일 없음')");
   check(theme+' missing text replaces spinner and trigger',await evaluate("document.querySelector('#root').innerText==='파일 없음'&&!document.querySelector('#root svg')&&!document.querySelector('#root [role=button]')"));
   const style=await evaluate("(()=>{let e=document.querySelector('#root [role=img]'),s=getComputedStyle(e),r=e.getBoundingClientRect();return {width:r.width,height:r.height,color:s.color,border:s.borderTopWidth,radius:s.borderRadius,label:e.getAttribute('aria-label')}})()");
-  check(theme+' native missing geometry and accessibility',style.width===80&&style.height===80&&style.border==='1px'&&parseFloat(style.radius)>0&&style.label==='파일 없음');summary[theme]={style};
+  check(theme+' native missing geometry and accessibility',style.width===64&&style.height===64&&style.border==='1px'&&parseFloat(style.radius)>0&&style.label==='파일 없음');summary[theme]={style};
   await screenshot(theme+'-missing');await setSource('/valid-'+theme+'.png');
   check(theme+' new source clears missing immediately',await evaluate("!document.querySelector('#root').innerText.includes('파일 없음')&&!!document.querySelector('#root svg')"));
   await complete(false);await wait("!!document.querySelector('#root img')&&document.querySelector('#root img').complete&&document.querySelector('#root img').naturalWidth>0");
@@ -94,9 +96,10 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome?.exitCode===null)await new Promise(r=>{const t=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- const allowed=logs+sep;
- if(chrome?.exitCode!==null&&fixture.startsWith(allowed)){const cleanupCommand=String.raw`$ErrorActionPreference='Stop'; $target=[IO.Path]::GetFullPath($env:AZRAEL_MISSING_IMAGE_FIXTURE); $allowed=[IO.Path]::GetFullPath($env:AZRAEL_MISSING_IMAGE_PARENT).TrimEnd('\')+'\'; if(-not $target.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Fixture containment failed'}; for($cursor=$target;$cursor;$cursor=[IO.Path]::GetDirectoryName($cursor)){if((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Linked cleanup path'}}; for($attempt=0;$attempt -lt 20;$attempt++){ $references=@(Get-CimInstance Win32_Process | Where-Object {$_.Name -eq 'chrome.exe' -and $_.CommandLine -and $_.CommandLine.Contains($target)}); if($references.Count -eq 0){break}; Start-Sleep -Milliseconds 250 }; if($references.Count -ne 0){throw 'Owned browser still references fixture'}; Remove-Item -LiteralPath $target -Recurse -Force; if(Test-Path -LiteralPath $target){throw 'Fixture remains'}`;
- const cleanup=spawn('powershell.exe',['-NoProfile','-NonInteractive','-Command',cleanupCommand],{windowsHide:true,env:{...process.env,AZRAEL_MISSING_IMAGE_FIXTURE:fixture,AZRAEL_MISSING_IMAGE_PARENT:logs},stdio:['ignore','pipe','pipe']});let cleanupOutput='';cleanup.stdout.on('data',c=>cleanupOutput+=c);cleanup.stderr.on('data',c=>cleanupOutput+=c);const cleanupExit=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});summary.cleanupExitCode=cleanupExit;summary.cleanup=cleanupExit===0?'Owned browser exited; guarded native PowerShell fixture/profile removal verified':cleanupOutput; if(cleanupExit!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
+ if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
+ summary.browserExitCode=chrome?.exitCode;summary.browserSignalCode=chrome?.signalCode;
+ const allowed=join(root,'artifacts/verification')+sep;
+ if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.startsWith(allowed)){const cleanupCommand=String.raw`$ErrorActionPreference='Stop'; $target=[IO.Path]::GetFullPath($env:AZRAEL_MISSING_IMAGE_FIXTURE); $allowed=[IO.Path]::GetFullPath($env:AZRAEL_MISSING_IMAGE_PARENT).TrimEnd('\')+'\'; if(-not $target.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Fixture containment failed'}; for($cursor=$target;$cursor;$cursor=[IO.Path]::GetDirectoryName($cursor)){if((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Linked cleanup path'}}; for($attempt=0;$attempt -lt 20;$attempt++){ $references=@(Get-CimInstance Win32_Process | Where-Object {$_.Name -eq 'chrome.exe' -and $_.CommandLine -and $_.CommandLine.Contains($target)}); if($references.Count -eq 0){break}; Start-Sleep -Milliseconds 250 }; if($references.Count -ne 0){throw 'Owned browser still references fixture'}; Remove-Item -LiteralPath $target -Recurse; if(Test-Path -LiteralPath $target){throw 'Fixture remains'}`;
+ const cleanup=spawn('powershell.exe',['-NoProfile','-NonInteractive','-Command',cleanupCommand],{windowsHide:true,env:{...process.env,AZRAEL_MISSING_IMAGE_FIXTURE:fixture,AZRAEL_MISSING_IMAGE_PARENT:join(root,'artifacts/verification')},stdio:['ignore','pipe','pipe']});let cleanupOutput='';cleanup.stdout.on('data',c=>cleanupOutput+=c);cleanup.stderr.on('data',c=>cleanupOutput+=c);const cleanupExit=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});summary.cleanupExitCode=cleanupExit;summary.cleanup=cleanupExit===0?'Owned browser exited; guarded native PowerShell fixture/profile removal verified':cleanupOutput; if(cleanupExit!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

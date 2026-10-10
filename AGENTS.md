@@ -22,6 +22,8 @@
 
 ## Generated artifact cleanup
 
+- Freeze all source, scripts, lockfiles and build inputs at build start, including the selected uncommitted changes. Build, package, verify and install from that immutable snapshot. Changes added afterward belong to the next build; do not refresh the running build from the live checkout or restart it merely because another task changed the checkout. A correction that changes a frozen input starts a new build with a new input identity. Follow the [build playbook](docs/playbooks/build.md) for snapshot and provenance checks.
+
 - After a new release passes verification and installation, clean unused older release directories and VSIX packages in the same task using the [build playbook](docs/playbooks/build.md#업데이트복구정리). Preserve the actual installed runtime, the previous verified rollback release, latest selected release, active task inputs, shortcuts and live process references. Keep compact identity/result receipts; record each retained path's reason and removal condition.
 - After verification and handoff, immediately delete completed verification copies, isolated VS Code profiles, copied extensions/plugins/skills and temporary packages. Archive only compact result summaries, exit codes and required receipts in the owning log directory; do not move bulky fixtures into logs.
 - Immediately remove unused alternate Rust build/test targets and caches preserved from task worktrees. Reuse the current selected build cache; preserve paths required by running processes, the current/previous installed release or an active task. Record every temporary retention reason and its removal condition.

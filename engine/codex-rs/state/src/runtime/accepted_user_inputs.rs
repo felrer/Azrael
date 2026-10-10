@@ -12,6 +12,8 @@ pub struct AcceptedUserInputRecord {
     pub thread_id: ThreadId,
     pub client_id: Option<String>,
     pub turn_id: String,
+    /// Exact admitted causal root; absent only on historical receipts.
+    pub root_turn_id: Option<String>,
     pub acceptance_order: u64,
     pub payload_json: Option<String>,
     pub payload_sha256: String,
@@ -38,6 +40,7 @@ impl AcceptedUserInputRecord {
             thread_id: ThreadId::try_from(row.try_get::<String, _>("thread_id")?)?,
             client_id: row.try_get("client_id")?,
             turn_id: row.try_get("turn_id")?,
+            root_turn_id: row.try_get("root_turn_id")?,
             acceptance_order: u64::try_from(row.try_get::<i64, _>("acceptance_order")?)?,
             payload_json: row.try_get("payload_json")?,
             payload_sha256: row.try_get("payload_sha256")?,
@@ -58,6 +61,28 @@ impl SqliteQueueStore {
         thread_id: ThreadId,
         client_id: Option<&str>,
         turn_id: &str,
+        acceptance_order: u64,
+        payload_json: &str,
+        payload_sha256: &str,
+    ) -> anyhow::Result<AcceptUserInputOutcome> {
+        self.accept_user_input_with_root(
+            thread_id,
+            client_id,
+            turn_id,
+            None,
+            acceptance_order,
+            payload_json,
+            payload_sha256,
+        )
+        .await
+    }
+
+    pub async fn accept_user_input_with_root(
+        &self,
+        thread_id: ThreadId,
+        client_id: Option<&str>,
+        turn_id: &str,
+        root_turn_id: Option<&str>,
         acceptance_order: u64,
         payload_json: &str,
         payload_sha256: &str,
@@ -94,14 +119,15 @@ impl SqliteQueueStore {
         );
         let row = sqlx::query(
             "INSERT INTO accepted_user_inputs
-             (receipt_id, thread_id, client_id, turn_id, acceptance_order,
+             (receipt_id, thread_id, client_id, turn_id, root_turn_id, acceptance_order,
               payload_json, payload_sha256, state)
-             VALUES (?, ?, ?, ?, ?, ?, ?, 'pending') RETURNING *",
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'pending') RETURNING *",
         )
         .bind(Uuid::now_v7().to_string())
         .bind(thread_id.to_string())
         .bind(client_id)
         .bind(turn_id)
+        .bind(root_turn_id)
         .bind(order)
         .bind(payload_json)
         .bind(payload_sha256)

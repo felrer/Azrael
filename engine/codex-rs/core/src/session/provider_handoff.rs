@@ -177,6 +177,7 @@ pub(crate) async fn prepare(
         return Ok(());
     };
     let history = sess.clone_history().await;
+    let input_goal_ids = crate::context::UserGoalUpdate::message_ids(history.raw_items());
     let mut source_model = previous.model;
     // Failed target requests also record TurnContext. For an existing encrypted
     // checkpoint, recover its actual producer instead of treating the last
@@ -290,14 +291,28 @@ pub(crate) async fn prepare(
     if cancellation.is_cancelled() {
         return Err(CodexErr::TurnAborted);
     }
+    let replacement_step_context = sess
+        .capture_step_context(Arc::clone(target), cancellation)
+        .await?;
+    let world_state = sess
+        .build_world_state_for_step(&replacement_step_context, /*new_window*/ true)
+        .await?;
+    let (replacement, world_state_baseline) = crate::compact::build_compaction_replacement_history(
+        sess,
+        &replacement_step_context,
+        &world_state,
+        replacement,
+    )
+    .await;
     let (window_number, window_ids) = sess.advance_auto_compact_window().await;
-    // Reset the context baseline so ordinary turn admission reinjects the target
-    // instructions. The replacement is persisted without editing original records.
+    // Checkpoint the target native context and world-state baseline together with
+    // the public replacement, without editing original records.
     sess.replace_compacted_history(
         replacement,
-        None,
-        None,
+        replacement_step_context.to_turn_context_item(),
+        world_state_baseline,
         CompactedHistoryMetadata {
+            input_goal_ids,
             message,
             window_number,
             window_ids,

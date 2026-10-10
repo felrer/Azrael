@@ -10,7 +10,7 @@ const state = require("./preparation-state.cjs");
 test("numeric release and legacy generated host versions pass the transform boundary", async () => {
   const missing = path.join(os.tmpdir(), "azrael-version-absent-" + require("node:crypto").randomUUID());
   for (const version of ["2026.0.0", "0.5.1791324000000", "0.0.0", "9007199254740991.0.0"]) {
-    const original = JSON.parse(fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225/package.json"), "utf8"));
+    const original = JSON.parse(fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "package.json"), "utf8"));
     assert.equal(transformer.transformManifest(original, version).version, version);
     // A missing source must be reached only after accepting the version.
     await assert.rejects(transformer.transformExtension(missing, {}, version), error => error.code === "ENOENT");
@@ -28,7 +28,7 @@ test("preparation checkpoint binds explicit host version and invalidates changes
   t.after(() => {
     assert.equal(path.dirname(root), path.resolve(os.tmpdir()));
     assert(path.basename(root).startsWith("azrael-version-checkpoint-"));
-    fs.rmSync(root, { recursive: true, force: true });
+    fs.rmSync(root, { recursive: true });
   });
   const config = { hostVersion: "2026.0.0", release: path.join(root, "release"), source: path.join(root, "source"), toolDirectory: path.join(root, "tools") };
   const write = (file, data) => { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, data); };

@@ -81,6 +81,40 @@ class ImportTests(unittest.TestCase):
         (self.source / "azrael.txt").write_bytes(b"local adaptation\n")
         return base, target
 
+    def test_integrated_source_fixes_require_release_ancestry_before_copy(self):
+        with self.assertRaisesRegex(ValueError, "exact upstream release tag"):
+            importer.import_source(self.source, self.destination, preserve_source_fixes=True)
+        self.assertFalse(self.destination.exists())
+        self.prepare_upstream_delta()
+        with self.assertRaises(subprocess.CalledProcessError):
+            importer.import_source(self.source, self.destination, upstream_tag="rust-v0.160.0",
+                                   preserve_source_fixes=True)
+        self.assertFalse(self.destination.exists())
+
+    def test_integrated_source_fixes_are_copied_once_and_remain_hash_checked(self):
+        prompt = self.source / "codex-rs/models-manager/prompt.md"
+        prompt.parent.mkdir(parents=True)
+        prompt.write_bytes(importer.AZRAEL_IDENTITY.encode() + b"\nKeep integrated instructions.\n")
+        ignore = self.source / ".gitignore"
+        ignore.write_bytes(ignore.read_bytes() + importer.IGNORE_SUFFIX)
+        self.git("add", ".")
+        self.git("commit", "--quiet", "-m", "integrated source")
+        self.git("tag", "rust-v0.160.0")
+        with contextlib.redirect_stdout(io.StringIO()):
+            importer.import_source(self.source, self.destination, upstream_tag="rust-v0.160.0",
+                                   preserve_source_fixes=True)
+        receipt = json.loads((self.destination / "SOURCE.json").read_text())
+        self.assertEqual(receipt["sourceFixPolicy"], "integrated-git-bytes")
+        self.assertNotIn("sourceFixes", receipt)
+        self.assertEqual((self.destination / "codex-rs/models-manager/prompt.md").read_bytes(),
+                         prompt.read_bytes())
+        self.assertEqual((self.destination / ".gitignore").read_bytes(), ignore.read_bytes())
+        self.assertFalse((self.destination / ".gitignore.upstream").exists())
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / "codex-rs/models-manager/prompt.md").write_bytes(b"unreviewed drift\n")
+        with self.assertRaisesRegex(ValueError, "Copied source differs"):
+            importer.validate_receipt(self.destination, receipt)
+
     def test_selected_upstream_delta_is_distinct_from_head_ancestry(self):
         base, target = self.prepare_upstream_delta()
         self.run_import(upstream_tag="rust-v0.160.0")

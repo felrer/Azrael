@@ -150,16 +150,31 @@ pub(super) async fn recover(
         "사용량이 소진되어 허용된 계정 {destination}으로 자동 전환했습니다. 같은 모델과 턴에서 저장된 공개 대화와 도구 결과로 계속합니다. 계정 전용 추론과 암호화된 문맥은 제외했습니다."
     );
     let history = sess.clone_history().await;
+    let input_goal_ids = crate::context::UserGoalUpdate::message_ids(history.raw_items());
     let replacement =
         public_history(&history.for_prompt_annotated(&ctx.model_info().input_modalities));
+    let replacement_step_context = sess
+        .capture_step_context(Arc::clone(ctx), cancellation)
+        .await?;
+    let world_state = sess
+        .build_world_state_for_step(&replacement_step_context, /*new_window*/ true)
+        .await?;
+    let (replacement, world_state_baseline) = crate::compact::build_compaction_replacement_history(
+        sess,
+        &replacement_step_context,
+        &world_state,
+        replacement,
+    )
+    .await;
     let (window_number, window_ids) = sess.advance_auto_compact_window().await;
     // Append a native checkpoint; original rollout records and executed tool
     // identities remain intact. Future sampling steps cannot revive old replay.
     sess.replace_compacted_history(
         replacement,
-        None,
-        None,
+        replacement_step_context.to_turn_context_item(),
+        world_state_baseline,
         CompactedHistoryMetadata {
+            input_goal_ids,
             message: warning.clone(),
             window_number,
             window_ids,

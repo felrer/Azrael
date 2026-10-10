@@ -9,8 +9,8 @@ const { createAssetTransformCache } = require("./asset-transform-cache.cjs");
 const project = path.resolve(__dirname, "..");
 const tsPath = path.resolve(process.argv[2] || path.join(project,
   "artifacts/build/pdf_chrome_20261001_v2/companion/node_modules/typescript/lib/typescript.js"));
-const original = path.resolve(process.argv[3] || path.join(process.env.USERPROFILE,
-  ".vscode/extensions/openai.chatgpt-26.930.61225-win32-x64"));
+const original = path.resolve(process.argv[3] || path.join(project,
+  "artifacts/upstream-ui/26.1007.21434"));
 const ts = require(tsPath);
 const sha = (value) => crypto.createHash("sha256").update(value).digest("hex");
 async function main() {
@@ -95,7 +95,7 @@ assert.throws(() => createAssetTransformCache({ ...base, cacheDirectory: path.jo
 console.log("PASS content cache: cold/warm counts and bytes, source/path/rule/helper/TS invalidation, malformed/wrong-key/hash/count corruption and missing-entry recovery");
 
 const assetPaths = new Set([
-  "out/extension.js", "webview/assets/app-initial-efe028fd535e.js",
+  "out/extension.js", "webview/assets/app-initial-97d3534ad35f.js",
   ...Object.values(transformer.ASSET_RULE_PATHS).flat(),
 ]);
 for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))) {
@@ -105,9 +105,18 @@ for (const name of Object.keys(rules).filter(name => name.startsWith("inject-"))
     }
   }
 }
-const localePath = "webview/assets/ko-KR-669e0b3acfd6.js";
+const localePath = "webview/assets/ko-KR-ebd6264cb102.js";
 assetPaths.add(localePath);
-const assets = [...assetPaths];
+const optionalLegacyAssets = new Set([
+  "webview/assets/app-initial-4bd9e54bcd58.js",
+  "webview/assets/app-initial-9cbfb5c07b41.js",
+  "webview/assets/chatgpt-conversation-turn-content-8f307c03dd18.js",
+]);
+const assets = [...assetPaths].filter(relative => {
+  const present = fs.existsSync(path.join(original, relative));
+  assert(present || optionalLegacyAssets.has(relative), `Required pinned asset missing: ${relative}`);
+  return present;
+});
 function prepare(name, accountVersion = "0.4.0") {
   const directory = path.join(runRoot, name);
   function put(relative, data) {
@@ -119,8 +128,8 @@ function prepare(name, accountVersion = "0.4.0") {
     put(relative, fs.readFileSync(path.join(original, relative)));
   }
   const packageBytes = fs.readFileSync(path.join(original, "package.json"));
-  put(".azrael-official-ui.json", JSON.stringify({ schema: 1, sourceVersion: "26.930.61225",
-    sourcePackageSha256: sha(packageBytes).toUpperCase(), sourceWebviewSha256: sha(fs.readFileSync(path.join(original, assets[1]))).toUpperCase() }));
+  put(".azrael-official-ui.json", JSON.stringify({ schema: 1, sourceVersion: "26.1007.21434",
+    sourcePackageSha256: sha(packageBytes).toUpperCase(), sourceWebviewSha256: sha(fs.readFileSync(path.join(original, require("./inject-provider-model-picker.cjs").PROVIDER_PICKER_ASSET))).toUpperCase() }));
   put("out/azrael-runtime.cjs", "// test runtime placeholder; not executed\n");
   put("integrated-azrael-entry.cjs", "// test integrated entry placeholder; not executed\n");
   put("account-ui/dist/src/extension.js", "// test account entry placeholder; not executed\n");
@@ -158,7 +167,7 @@ assert.equal(accountReport.performance.cache.hits, assets.length);
 for (const [directory, report] of [[uncachedRoot, uncached.value], [coldRoot, coldPipeline.value],
   [warmRoot, warmPipeline.value], [accountRoot, accountReport]]) {
   assert.equal(report.sourceUi.packageSha256, sha(fs.readFileSync(path.join(original, "package.json"))));
-  assert.equal(report.sourceUi.webviewSha256, sha(fs.readFileSync(path.join(original, assets[1]))));
+  assert.equal(report.sourceUi.webviewSha256, sha(fs.readFileSync(path.join(original, require("./inject-provider-model-picker.cjs").PROVIDER_PICKER_ASSET))));
   assert.equal(report.assets.reduce((sum, asset) => sum + (asset.windowControlEdits ?? 0), 0), 5);
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, "package.json")));
   assert.equal(manifest.contributes.commands.filter(command => command.command === "azrael.windowControl").length, 1);

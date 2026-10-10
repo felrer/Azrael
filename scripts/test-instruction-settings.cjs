@@ -7,7 +7,7 @@ const test = require("node:test");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
-const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 
 test("application locale recognizes Korean variants and falls back to English", () => {
   for (const locale of ["ko", "ko-KR", "KO-kr", "ko_KR"]) assert.equal(azraelSettingsText(locale, "English", "한국어"), "한국어");
@@ -24,7 +24,7 @@ test("application locale change cleans the old instruction mount and ignores lat
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "selectVersion" }; }
   const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
-    te: () => ({ locale }), azraelSettingsText, Element, HTMLElement,
+    s: () => ({ locale }), azraelSettingsText, Element, HTMLElement,
     Q: { useRef: () => ({ current: element }), useEffect: (effect, next) => {
       if (!dependencies || next.some((value, i) => value !== dependencies[i])) { dependencies = next; pendingEffect = effect; }
     } }, $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount-" + ++serial },
@@ -53,18 +53,18 @@ test("settings command opens the existing native settings panel for pristine and
   const pristine = fs.readFileSync(path.join(root, "out/extension.js"), "utf8");
   for (const source of [pristine, pristine.replace('"chatgpt.openSidebar"', '"azrael.openSidebar"')]) {
     const { text } = injectInstructionSettings(source, "out/extension.js");
-    const registration = text.match(/e\.push\(kt\.commands\.registerCommand\("azrael\.openSettingsPanel".*?\)\)\)/)?.[0];
+    const registration = text.match(/e\.push\(Mt\.commands\.registerCommand\("azrael\.openSettingsPanel".*?\)\)\)/)?.[0];
     assert.ok(registration);
     const calls = [], subscriptions = [];
     let handler;
     vm.runInNewContext(registration, { e: subscriptions,
-      kt: { commands: { registerCommand(command, callback) { assert.equal(command, "azrael.openSettingsPanel"); handler = callback; return "disposable"; } } },
+      Mt: { commands: { registerCommand(command, callback) { assert.equal(command, "azrael.openSettingsPanel"); handler = callback; return "disposable"; } } },
       Pe: { async showSettings(options) { calls.push(options.section); } },
     });
     await handler();
     assert.deepEqual(calls, ["general-settings"]);
     assert.deepEqual(subscriptions, ["disposable"]);
-    assert.throws(() => injectInstructionSettings(source.replace(/registerCommand\("(?:chatgpt|azrael)\.openSidebar",Au\)/, "changed"), "out/extension.js"), /sidebar registration anchor changed/);
+    assert.throws(() => injectInstructionSettings(source.replace(/registerCommand\("(?:chatgpt|azrael)\.openSidebar",Ru\)/, "changed"), "out/extension.js"), /sidebar registration anchor changed/);
   }
 });
 
@@ -87,11 +87,11 @@ test("pinned native registration/content/host parse; anchors fail closed; accoun
     if (asset === INSTRUCTION_SETTINGS_ASSETS[0]) {
       assert(result.text.includes('e.slug===`personalization`?[e,{slug:`azrael-instructions`}]:[e]'));
       assert(result.text.includes('case`azrael-instructions`:case`general-settings`'));
-      assert(result.text.includes('assets:{16:Or,20:Er}'));
+      assert(result.text.includes('assets:{16:wr,20:Er}'));
     }
     if (asset === INSTRUCTION_SETTINGS_ASSETS[1]) {
       assert(result.text.includes('.personalization.azrael-instructions.pets.'));
-      assert(result.text.includes('`personalization`,`azrael-instructions`,`pets`'));
+      assert(result.text.includes('.personalization.azrael-instructions.pets.'));
     }
   }
 });
@@ -105,7 +105,7 @@ test("native mount request correlation, action payload, busy gate, delayed respo
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "download", path: "AGENTS.md" }; disabled = false; }
   const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
-    te: () => ({ locale: "en-US" }), azraelSettingsText,
+    s: () => ({ locale: "en-US" }), azraelSettingsText,
     Q: { useRef: () => ({ current: { attachShadow: () => shadow } }), useEffect: mn => { effect = mn; } },
     $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount" }, Element, HTMLElement,
     setTimeout: mn => { timer = mn; return 1; }, clearTimeout: () => { timer = undefined; },

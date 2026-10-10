@@ -6,7 +6,7 @@ const { UI_INPUT_DIAGNOSTICS_ASSETS: assets, UI_INPUT_DIAGNOSTICS_MARKER: marker
 const { injectQueueConsumption } = require("./inject-queue-consumption.cjs");
 const thread = "11111111-1111-4111-8111-111111111111", id = "22222222-2222-4222-8222-222222222222", canary = "PRIVATE-CANARY-input-and-error";
 const turn = (kinds = ["params"]) => ({ params: { threadId: thread, clientUserMessageId: kinds.includes("params") ? id : undefined, input: kinds.includes("params") ? [canary] : [] }, items: kinds.filter(k=>k!=="params").map(k=>k==="user"?{type:"userMessage",clientId:id,content:[canary]}:{type:"steeringUserMessage",clientUserMessageId:id,input:[canary]}) });
-const roots = [path.join(__dirname,"../artifacts/upstream-ui/26.930.61225")];
+const roots = [path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"))];
 const transformed = new Map();
 function method(source, name, signature) {
   const ast = ts.createSourceFile("asset.js",source,99,true,1); let found=[];
@@ -31,7 +31,7 @@ test("selected pinned assets transform, parse, and reject partial or duplicate i
 });
 test("serialized initialization uses the real host channel and catches sync and async failures", async () => {
   const source=transformed.get(roots[0]+assets[0]), start=source.indexOf(marker), end=source.indexOf("export{",start);
-  const logs=[], context={xp:{dispatchMessage:(channel,payload)=>logs.push({channel,payload})}};
+  const logs=[], context={Dm:{dispatchMessage:(channel,payload)=>logs.push({channel,payload})}};
   vm.runInNewContext(source.slice(start,end),context);
   context.__azraelUiInputDiagnostics.queue(thread,id,true,false);
   assert.equal(logs[0].channel,"log-message");assert.equal(logs[0].payload.level,"warning");assert.ok(logs[0].payload.message.startsWith("[azrael-ui-input] "));
@@ -60,7 +60,7 @@ test("identity remains while representations change, invalid identifiers and mal
 test("actual state method observes both update branches, no-op, exceptions and unavailable diagnostics", () => {
   for(const root of roots){
     const real=method(transformed.get(root+assets[1]),"updateConversationState","this.conversations.get(e)"), logs=[],d=createUiInputDiagnostics(x=>logs.push(x));
-    const context={globalThis:{__azraelUiInputDiagnostics:d},hZ:s=>s.turns,Ir:(s,fn)=>{const n={...s,turns:[...s.turns]};fn(n);return n},nee:(s,fn)=>{const n={...s,turns:[...s.turns]};fn(n);return[n,[]]},Ryn:()=>[],Fbn:()=>({})};
+    const context={globalThis:{__azraelUiInputDiagnostics:d},$Z:s=>s.turns,Ur:(s,fn)=>{const n={...s,turns:[...s.turns]};fn(n);return n},Wr:(s,fn)=>{const n={...s,turns:[...s.turns]};fn(n);return[n,[]]},cxn:()=>[],sSn:()=>({})};
     const Store=vm.runInNewContext(`(class{${real}})`,context);
     for(const fast of [true,false]){
       const obj=new Store();obj.conversations=new Map([[thread,{turns:[turn(["params","user"])]}]]);obj.params={logger:{error(){}},canBroadcastPatchesToFollowers:()=>false,reconcileServerQueueReceipts(){}};obj.setConversation=s=>obj.conversations.set(thread,s);obj.notifyConversationCallbacks=()=>{};
@@ -78,7 +78,7 @@ test("actual state method observes both update branches, no-op, exceptions and u
 });
 test("actual queue method preserves persistence return/error and captures receipt before consume", async () => {
   const real=method(transformed.get(roots[0]+assets[1]),"__azraelConsume"),logs=[],d=createUiInputDiagnostics(x=>logs.push(x));
-  const Queue=vm.runInNewContext(`(class{__azraelAccepted=new Map;running=new Set;rerun=new Set;options;writes=[];failure;async #_(e,fn,n){this.writes.push(fn([{id:${JSON.stringify(id)}},{id:'next'}]));if(this.failure)throw this.failure}${real}})`,{globalThis:{__azraelUiInputDiagnostics:d}});
+  const Queue=vm.runInNewContext(`(class{__azraelAccepted=new Map;running=new Set;rerun=new Set;options;writes=[];failure;async #v(e,fn,n){this.writes.push(fn([{id:${JSON.stringify(id)}},{id:'next'}]));if(this.failure)throw this.failure}${real}})`,{globalThis:{__azraelUiInputDiagnostics:d}});
   const q=new Queue();q.options={wasMessageAccepted:()=>!q.__azraelAccepted.has(thread)};
   assert.equal(await q.__azraelConsume(thread,{id},"owner"),undefined);assert.equal(q.writes[0].length,1);assert.equal(logs[0].receiptAccepted,true);assert.equal(logs[0].persistenceSucceeded,true);
   const boom=Error(canary);q.failure=boom;await assert.rejects(q.__azraelConsume(thread,{id},"owner"),e=>e===boom);assert.equal(logs[1].persistenceSucceeded,false);
@@ -92,19 +92,19 @@ test("actual renderer hook deduplicates unchanged suppression and logs changed r
 });
 test("actual renderer suppression operands retain short-circuit order, return values and thrown exceptions", () => {
   const source=transformed.get(roots[0]+assets[2])??inject(fs.readFileSync(path.join(roots[0],assets[2]),"utf8"),assets[2],ts).text,ast=ts.createSourceFile("renderer.js",source,99,true,1);let expression;
-  function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==="BS"){for(const stmt of n.body.statements)if(ts.isVariableStatement(stmt))for(const decl of stmt.declarationList.declarations)if(decl.name.getText(ast)==="I")expression=decl.initializer.getText(ast);}ts.forEachChild(n,visit)}visit(ast);assert.ok(expression);
+  function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text==="nC"){for(const stmt of n.body.statements)if(ts.isVariableStatement(stmt))for(const decl of stmt.declarationList.declarations)if(decl.name.getText(ast)==="I")expression=decl.initializer.getText(ast);}ts.forEachChild(n,visit)}visit(ast);assert.ok(expression);
   const declaration="let __azraelHideCallback=null,__azraelInputClassified=null,__azraelInputClassificationValue,__azraelLinkedSteering=null;";
   const body="(()=>{"+declaration+"let I="+expression+";globalThis.__azraelUiInputDiagnostics.render(y,false,I,false,__azraelHideCallback,__azraelInputClassified,__azraelLinkedSteering);return({I,callback:__azraelHideCallback,classifier:__azraelInputClassified,linked:__azraelLinkedSteering})})()";
   for(const [callback,classified,linked,expected]of [[true,true,true,[true,null,null]],[false,true,true,[false,true,null]],[false,false,true,[false,false,true]],[false,false,false,[false,false,false]]]){
     const calls=[],logs=[],y=turn();if(linked)y.items.push({type:"steeringUserMessage",clientUserMessageId:id,serverUserMessageId:"server-private-id",input:[canary]});
     const nativeSome=y.items.some;y.items.some=function(fn){calls.push("linked");return nativeSome.call(this,fn)};
-    const ctx={y,_:()=>{calls.push("callback");return callback},Ol:()=>{calls.push("classifier");return classified},__azraelUiInputDiagnostics:createUiInputDiagnostics(x=>logs.push(x))};
+    const ctx={y,_:()=>{calls.push("callback");return callback},Cl:()=>{calls.push("classifier");return classified},__azraelUiInputDiagnostics:createUiInputDiagnostics(x=>logs.push(x))};
     const result=vm.runInNewContext(body,ctx);assert.deepEqual([result.callback,result.classifier,result.linked],expected);assert.deepEqual(calls,callback?["callback"]:classified?["callback","classifier"]:["callback","classifier","linked"]);
     assert.equal(logs[0].shouldHideCallback,expected[0]);assert.equal(logs[0].inputClassifier,expected[1]);assert.equal(logs[0].linkedOpeningSteering,expected[2]);assert.ok(!JSON.stringify(logs).includes(canary));assert.ok(!JSON.stringify(logs).includes("server-private-id"));
   }
-  const value={private:canary},ctx={y:turn(),_:()=>false,Ol:()=>value,__azraelUiInputDiagnostics:createUiInputDiagnostics(()=>{})};assert.equal(vm.runInNewContext(body,ctx).I,value);
+  const value={private:canary},ctx={y:turn(),_:()=>false,Cl:()=>value,__azraelUiInputDiagnostics:createUiInputDiagnostics(()=>{})};assert.equal(vm.runInNewContext(body,ctx).I,value);
   const boom=Error(canary);ctx._=()=>{throw boom};assert.throws(()=>vm.runInNewContext(body,ctx),e=>e===boom);
-  ctx._=()=>false;ctx.Ol=()=>{throw boom};assert.throws(()=>vm.runInNewContext(body,ctx),e=>e===boom);
+  ctx._=()=>false;ctx.Cl=()=>{throw boom};assert.throws(()=>vm.runInNewContext(body,ctx),e=>e===boom);
 });
 test("bounded rate, repeat and render caches, without timers", () => {
   let time=0;const logs=[],d=createUiInputDiagnostics(x=>logs.push(x),()=>time);

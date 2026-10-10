@@ -7,11 +7,13 @@ param(
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
     [string]$CodeModeHostPath,
+    [string]$ComputerUseRuntimeDirectory,
+    [string]$ComputerUsePluginDirectory,
     [string]$CompanionVsixPath,
     [string]$TypeScriptPath,
-    [string]$UiSourcePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/upstream-ui/26.930.61225'),
-    [string]$OriginalExtensionPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.chatgpt-26.930.61225-win32-x64'),
-    [string]$OriginalAudioPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.codex-audio-26.930.61225'),
+    [string]$UiSourcePath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/upstream-ui/26.1007.21434'),
+    [string]$OriginalExtensionPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.chatgpt-26.1007.21434-win32-x64'),
+    [string]$OriginalAudioPath = (Join-Path $env:USERPROFILE '.vscode/extensions/openai.codex-audio-26.1007.21434'),
     [string]$CodePath = 'code.cmd',
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$SourceCodexHome = (Join-Path $env:USERPROFILE '.codex'),
@@ -149,6 +151,8 @@ try {
     $metrics.projectInputSha256 = $inputSnapshot
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot)
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
+    if ($ComputerUseRuntimeDirectory) { $buildArgs += @('-ComputerUseRuntimeDirectory', $ComputerUseRuntimeDirectory) }
+    if ($ComputerUsePluginDirectory) { $buildArgs += @('-ComputerUsePluginDirectory', $ComputerUsePluginDirectory) }
     if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))

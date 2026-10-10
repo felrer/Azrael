@@ -60,7 +60,7 @@ const ACCOUNT_UI_COMMANDS = [
   "azrael.fetchSharedPlaybook",
   "azrael.instructions",
 ];
-const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-efe028fd535e.js";
+const RECENT_THREAD_LIST_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
 const RECENT_THREAD_LIST_SCOPE_MARKER = "__azraelWorkspaceThreadList";
 const WORKSPACE_CWD_EXPRESSION = '(require("vscode").workspace.workspaceFolders??[])' +
   '.filter(({uri})=>uri.scheme==="file").map(({uri})=>uri.fsPath)';
@@ -113,7 +113,7 @@ function rewriteJavaScript(text, filename, ts) {
   const edits = [];
   const visit = (node) => {
     if (ts.isPropertyAssignment(node) && ts.isStringLiteral(node.name) &&
-        node.name.text === "OAI-App-Brand" && ["Nl.toLowerCase()", "tu.toLowerCase()"].includes(node.initializer.getText(file))) {
+        node.name.text === "OAI-App-Brand" && ["Nl.toLowerCase()", "tu.toLowerCase()", "Ud.toLowerCase()"].includes(node.initializer.getText(file))) {
       edits.push({ start: node.initializer.getStart(file), end: node.initializer.end, replacement: '"codex"' });
       return;
     }
@@ -500,8 +500,8 @@ const ASSET_RULE_PATHS = {
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
   "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
   "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
-  "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"],
-  "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"],
+  "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
+  "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
   "inject-queued-compaction.cjs": [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
   "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET],
   "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
@@ -550,7 +550,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   const root = fs.realpathSync(directory);
   const manifestPath = path.join(root, "package.json");
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
-  if (manifest.publisher !== "openai" || manifest.name !== "chatgpt" || manifest.version !== "26.930.61225") {
+  if (manifest.publisher !== "openai" || manifest.name !== "chatgpt" || manifest.version !== "26.1007.21434") {
     throw new Error("Independent transformation requires the prepared pinned original identity.");
   }
   if (!fs.existsSync(path.join(root, "out", "azrael-runtime.cjs")) || !fs.existsSync(path.join(root, ".azrael-official-ui.json"))) {
@@ -698,7 +698,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.queueConsumptionEdits, 0) !== 1) {
     throw new Error("Queue-consumption transformation was incomplete.");
   }
-  for (const assetPath of [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-5120fa5fe295.js"]) {
+  for (const assetPath of [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"]) {
     if (!report.assets.some(asset => asset.path === assetPath && asset.uiInputDiagnosticsEdits === 1)) {
       throw new Error("UI input diagnostics transformation was incomplete: " + assetPath);
     }

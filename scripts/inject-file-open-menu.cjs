@@ -1,9 +1,9 @@
 "use strict";
 
-const FILE_OPEN_MENU_ASSET = "webview/assets/app-initial-f49764b7a5fc.js";
+const FILE_OPEN_MENU_ASSET = "webview/assets/app-initial-7e993b0ceb18.js";
 const MARKER = "/*azrael-file-open-menu-v2*/";
-const ANCHOR = "_.push({id:`workspace-file-copy-path`,message:eD.copyPath";
-const REPLACEMENT = `${MARKER}Tc(m)||_.push({id:\`workspace-file-open-vscode\`,message:{id:\`azrael.workspaceFile.openInVSCode\`,defaultMessage:\`VS Code에서 열기\`},onSelect:()=>{b(\`vscode\`)}}),${ANCHOR}`;
+const ANCHOR = "_.push({id:`workspace-file-copy-path`,message:bE.copyPath";
+const REPLACEMENT = `${MARKER}Yu(m)||_.push({id:\`workspace-file-open-vscode\`,message:{id:\`azrael.workspaceFile.openInVSCode\`,defaultMessage:\`VS Code에서 열기\`},onSelect:()=>{b(\`vscode\`)}}),${ANCHOR}`;
 
 function injectFileOpenMenu(text, relativePath) {
   if (relativePath !== FILE_OPEN_MENU_ASSET) return { text, count: 0 };

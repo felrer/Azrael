@@ -65,7 +65,6 @@ pub(super) async fn start_window(
         );
         let request = ResponsesApiRequest {
             model,
-            instructions: String::new(),
             input: vec![ResponseItem::Message {
                 id: None,
                 role: "user".to_owned(),

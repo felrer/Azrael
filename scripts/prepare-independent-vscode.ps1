@@ -128,7 +128,7 @@ function Assert-IntegratedHostVsixContents {
     } finally { $archive.Dispose() }
 }
 
-if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225' }
+if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.1007.21434' }
 $source = (Resolve-Path -LiteralPath $SourceExtensionPath).Path
 $release = (Resolve-Path -LiteralPath $ReleaseDirectory).Path
 if (-not [IO.Path]::IsPathFullyQualified($OutputDirectory)) { throw 'OutputDirectory must be absolute.' }

@@ -8,7 +8,7 @@ const { EventEmitter } = require("node:events");
 const { injectAccountSettings, ACCOUNT_SETTINGS_ASSET, AzraelAccountSettings } = require("./inject-account-settings.cjs");
 const namespace = require("./namespace-azrael-host.cjs");
 const Nf = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 
 test("pinned settings and host transforms parse, reject drift and invalidate the cache", () => {
   for (const asset of [ACCOUNT_SETTINGS_ASSET, "out/extension.js"]) {
@@ -20,16 +20,30 @@ test("pinned settings and host transforms parse, reject drift and invalidate the
     assert.throws(() => injectAccountSettings(result.text + "/*azrael-account-settings-v1*/", asset), /Duplicate/);
     assert.throws(() => injectAccountSettings("", asset), /anchor changed/);
     if (asset === ACCOUNT_SETTINGS_ASSET) {
-      assert(source.includes('(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F})'));
-      assert(!result.text.includes('(0,Z.jsx)(fr,{canCollapse:x,externalTooltip:$e,hideLabels:F})'));
-      assert(result.text.includes('if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{})'));
+      assert(source.includes('(0,Z.jsx)(tr,{canCollapse:b,externalTooltip:He,hideLabels:A})'));
+      assert(!result.text.includes('(0,Z.jsx)(tr,{canCollapse:b,externalTooltip:He,hideLabels:A})'));
+      assert(result.text.includes('if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{})'));
     }
     else {
-      assert(source.includes('case"open-vscode-command":{Ge.commands.executeCommand'));
-      assert(result.text.includes('Ge.commands.executeCommand("azrael.accountsEmbedded",e,r,this.findPanelByWebview(e))'));
+      assert(source.includes('case"open-vscode-command":{je.commands.executeCommand'));
+      assert(result.text.includes('je.commands.executeCommand("azrael.accountsEmbedded",e,r,this.findPanelByWebview(e))'));
     }
   }
   assert(namespace.getTransformRules()["inject-account-settings.cjs"]);
+});
+
+test("settings imports the initialized native dispatch/subscribe bridge", () => {
+  const owner = ms.readFileSync(path.join(root, "webview/assets/app-initial-c014f9ee4429.js"), "utf8");
+  assert.equal(owner.split("vm as X9t").length - 1, 1);
+  assert.equal(owner.split("vm=_m.getInstance()").length - 1, 1);
+  const ast = Nf.createSourceFile("bridge.js", owner, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS);
+  const classes=[];
+  function visit(node) { if (Nf.isBinaryExpression(node) && node.left.getText(ast)==="_m" && Nf.isClassExpression(node.right)) classes.push(node.right); Nf.forEachChild(node,visit); }
+  visit(ast);
+  assert.equal(classes.length,1);
+  for(const name of ["subscribe","dispatchMessage"]) assert(classes[0].members.some(node=>node.name?.text===name),name);
+  const page=injectAccountSettings(ms.readFileSync(path.join(root,ACCOUNT_SETTINGS_ASSET),"utf8"),ACCOUNT_SETTINGS_ASSET).text;
+  assert(page.includes('X9t as azraelAccountBridge'));
 });
 
 test("display branding preserves backend identifiers, URLs and model names", () => {
@@ -37,11 +51,11 @@ test("display branding preserves backend identifiers, URLs and model names", () 
   const text = namespace.rewriteJavaScript(source, "branding.js", Nf).text;
   for (const expected of ["Azrael Settings", 'brand="Azrael"', 'qOt=`Azrael`', "Delete Azrael memories", 'auth="chatgpt"', 'home="CODEX_HOME"', "https://chatgpt.com/Codex", "Codex Spark"]) assert(text.includes(expected), expected);
   const host = ms.readFileSync(path.join(root, "out/extension.js"), "utf8");
-  assert(namespace.rewriteJavaScript(host, "extension.js", Nf).text.includes('new SR("Azrael Settings")'));
-  const memory = ms.readFileSync(path.join(root, "webview/assets/app-initial-5120fa5fe295.js"), "utf8");
+  assert(namespace.rewriteJavaScript(host, "extension.js", Nf).text.match(/new [\w$]+\("Azrael Settings"\)/));
+  const memory = ms.readFileSync(path.join(root, "webview/assets/app-initial-c014f9ee4429.js"), "utf8");
   const rewrittenMemory = namespace.rewriteJavaScript(memory, "memory.js", Nf).text;
   for (const label of ["Azrael memory", "Enable Azrael memories", "Delete Azrael memories"]) assert(rewrittenMemory.includes(label), label);
-  const koreanPath = "webview/assets/ko-KR-669e0b3acfd6.js";
+  const koreanPath = "webview/assets/ko-KR-ebd6264cb102.js";
   const korean = namespace.rewriteJavaScript(ms.readFileSync(path.join(root, koreanPath), "utf8"), koreanPath, Nf).text;
   for (const label of ["Azrael 메모리", "Azrael 설정"]) assert(korean.includes(label), label);
   assert(!korean.includes("Codex 메모리"));

@@ -13,8 +13,8 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   const native={registerProvider(){return {dispose(){}}},sendRequest(...args){engine.push({request:args})},sendResponse(id,result){engine.push({id,result})}};
   host=createHost({runtime:{codexHome:home},approvalTimeoutMs:150,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){const server=new EventEmitter();server.listen=(_name,done)=>done();server.close=()=>{};return server}});
   host.attach(native,()=>assert.fail('unexpected internal engine RPC'));
-  const original=await fs.readFile(path.join(__dirname,'../artifacts/upstream-ui/26.930.61225/out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
-  const context=vm.createContext({require(name){if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},bR:'native-provider'});
+  const original=await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434'),'out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
+  const context=vm.createContext({require(name){if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
   context.host={codexMcpConnection:native,broadcastToAllViews(envelope){shown.push(envelope)},pendingMcpRequests:new Map()};
   vm.runInContext(`host.outgoing=function(r,e){switch(r.type){case'mcp-request':{${replacements[2][1]}}}};host.respond=function(r){switch(r.type){${replacements[1][1]}}};host.receive=function(){return ({${replacements[0][1]}}).onRequest}.call(host);`,context);
   context.host.outgoing({type:'mcp-request',request:{id:'normal-request',method:'thread/read',params:{threadId:thread}}},{});
@@ -37,5 +37,5 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.threadId===thread&&e.notification.params.requestId===request.id));
   context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist:'always'}}}});assert.equal(engine.length,1);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),false);
   context.host.respond({type:'mcp-response',response:{id:'ordinary',result:{action:'accept'}}});assert.equal(engine.at(-1).id,'ordinary');
- }finally{await host?.dispose();await fs.rm(home,{recursive:true,force:true})}
+ }finally{await host?.dispose();await fs.rm(home,{recursive:true})}
 });

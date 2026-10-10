@@ -9,6 +9,7 @@ fn turn(id: &str, status: TurnStatus, item_ids: &[&str]) -> Turn {
         root_resume_wait: None,
 
         id: id.to_string(),
+        root_turn_id: None,
         items: item_ids
             .iter()
             .map(|id| ThreadItem::UserMessage {

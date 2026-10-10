@@ -6,7 +6,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
 const { FILE_OPEN_MENU_ASSET, ANCHOR, MARKER, REPLACEMENT, injectFileOpenMenu } = require("./inject-file-open-menu.cjs");
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const _s = require("../extensions/azrael-ex/node_modules/typescript");
 const original = vo.readFileSync(path.join(root, FILE_OPEN_MENU_ASSET), "utf8");
 
@@ -20,15 +20,15 @@ function pinnedExpression(source, name, predicate) {
   return nodes[0];
 }
 const descriptors = vm.runInNewContext(`(${pinnedExpression(original, "file descriptors", node =>
-  _s.isCallExpression(node) && node.expression.getText() === "Vn" && node.getText().includes("markdown.fileReference.copyPath")).slice(3, -1)})`);
-const normalizationSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-532d60c9b397.js"), "utf8");
-const normalizeMenu = vm.runInNewContext(`(${pinnedNode(normalizationSource, "iB", node =>
-  _s.isFunctionDeclaration(node) && node.name?.text === "iB")})`);
-const formatterSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-efe028fd535e.js"), "utf8");
+  _s.isCallExpression(node) && node.expression.getText() === "nr" && node.getText().includes("markdown.fileReference.copyPath")).slice(3, -1)})`);
+const normalizationSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-7a199c66e670.js"), "utf8");
+const normalizeMenu = vm.runInNewContext(`(${pinnedNode(normalizationSource, "IR", node =>
+  _s.isFunctionDeclaration(node) && node.name?.text === "IR")})`);
+const formatterSource = vo.readFileSync(path.join(root, "webview/assets/app-initial-97d3534ad35f.js"), "utf8");
 const formatterCode = pinnedExpression(formatterSource, "intl formatter", node =>
-  _s.isBinaryExpression(node) && node.left.getText() === "uQe" && _s.isFunctionExpression(node.right));
-const assertionCode = pinnedNode(formatterSource, "eQe", node => _s.isFunctionDeclaration(node) && node.name?.text === "eQe");
-const formatMessage = vm.runInNewContext(`${assertionCode};${formatterCode};uQe`);
+  _s.isBinaryExpression(node) && node.left.getText() === "wQe" && _s.isFunctionExpression(node.right));
+const assertionCode = pinnedNode(formatterSource, "mQe", node => _s.isFunctionDeclaration(node) && node.name?.text === "mQe");
+const formatMessage = vm.runInNewContext(`${assertionCode};${formatterCode};wQe`);
 // Exercise the production formatter's translated-string path and descriptor assertion.
 const intlConfig = { locale: "ko", defaultLocale: "en", messages: {
   "azrael.workspaceFile.openInVSCode": "VS Code에서 열기",
@@ -40,20 +40,20 @@ const formatMenu = menu => normalizeMenu(menu, (message, values) => formatMessag
 
 function menuFixture({ remote = false, file = "report.HTML" } = {}) {
   const text = injectFileOpenMenu(original, FILE_OPEN_MENU_ASSET).text;
-  const menuCode = pinnedNode(text, "QE", node => _s.isFunctionDeclaration(node) && node.name?.text === "QE");
-  const openCode = pinnedNode(text, "ww", node => _s.isFunctionDeclaration(node) && node.name?.text === "ww")
+  const menuCode = pinnedNode(text, "vE", node => _s.isFunctionDeclaration(node) && node.name?.text === "vE");
+  const openCode = pinnedNode(text, "MT", node => _s.isFunctionDeclaration(node) && node.name?.text === "MT")
     .replaceAll("import.meta.url", '"file:///pinned-test.js"');
   const calls = [];
   const host = { id: "local", remote };
   const context = {
-    Cp: "host", Fs: "capability", $C: "targets", vp: "platform", jh: "thread", hw: "mutation",
-    YE: () => ({ primaryTarget: null, visibleTargets: [] }),
-    Tc: h => h.remote, Vo: () => false, hm: () => "thread-1",
-    Kh: (cwd, file) => path.win32.join(cwd, file),
-    Kt: message => message, $E: () => ({ id: "markdown.fileReference.openInExplorer", defaultMessage: "Open in explorer" }),
-    eD: descriptors,
-    H: { clipboard: { writeText: value => { calls.push(["copy-path", value]); return Promise.resolve(); } } },
-    qE: (_query, value) => calls.push(["copy-contents", value]),
+    vd: "host", is: "capability", sT: "targets", Yh: "platform", Lf: "thread", CT: "mutation",
+    hE: () => ({ primaryTarget: null, visibleTargets: [] }),
+    Yu: h => h.remote, xs: () => false, s_: () => "thread-1",
+    e_: (cwd, file) => path.win32.join(cwd, file),
+    Ue: message => message, yE: () => ({ id: "markdown.fileReference.openInExplorer", defaultMessage: "Open in explorer" }),
+    bE: descriptors,
+    U: { clipboard: { writeText: value => { calls.push(["copy-path", value]); return Promise.resolve(); } } },
+    pE: (_query, value) => calls.push(["copy-contents", value]),
   };
   const scope = {
     value: {}, queryClient: {}, query: { getData: () => ({}) },
@@ -66,7 +66,7 @@ function menuFixture({ remote = false, file = "report.HTML" } = {}) {
       throw new Error(`Unexpected state: ${key}`);
     },
   };
-  const buildMenu = vm.runInNewContext(`${openCode};${menuCode};QE`, context);
+  const buildMenu = vm.runInNewContext(`${openCode};${menuCode};vE`, context);
   return { calls, menu: buildMenu(scope, { hostId: "local", path: file, cwd: "C:\\project", line: 7, column: 3 }) };
 }
 

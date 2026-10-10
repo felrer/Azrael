@@ -1,5 +1,5 @@
 'use strict';
-const APPROVAL_CLASSIFIER_ASSET = 'webview/assets/app-initial-5120fa5fe295.js';
+const APPROVAL_CLASSIFIER_ASSET = 'webview/assets/app-initial-c014f9ee4429.js';
 const CLASSIFIER_MARKER = '/*azrael-window-native-approval-v1*/';
 const CLASSIFIER_ANCHOR = 'return t===`computer-use`||t.startsWith(`computer-use-`)';
 const CLASSIFIER_PATCH = CLASSIFIER_ANCHOR + '||t===`window-use`' + CLASSIFIER_MARKER;
@@ -10,13 +10,13 @@ function injectWindowApprovalClassifier(text, relativePath) {
   if(text.split(CLASSIFIER_ANCHOR).length-1!==1)throw Error('Pinned Window Use native approval classifier changed');
   return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH),count:1};
 }
-const SETTINGS_ASSET = 'webview/assets/computer-use-settings-f7844e8d05eb.js';
+const SETTINGS_ASSET = 'webview/assets/computer-use-settings-a06e6e547020.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v1*/';
 const PAGE_MARKER = '/*azrael-window-control-launcher-v3*/';
 const HOST_ANCHOR = 'case"open-vscode-command":{';
-const HOST_PATCH = 'case"azrael-window-control":{await Ge.commands.executeCommand("azrael.windowControl");break}' + 'case"azrael-use-settings":{await require("./window-control-host.cjs").settings(e,r);break}' + HOST_MARKER + HOST_ANCHOR;
-const PAGE_ANCHOR = '(0,$.jsxs)(Gt,{title:d,subtitle:f,children:[v,y]})';
-const PAGE_PATCH = '(0,$.jsxs)(Gt,{title:d,subtitle:f,children:[v,y,(0,$.jsx)(AzraelWindowControlLauncher,{})]})';
+const HOST_PATCH = 'case"azrael-window-control":{await je.commands.executeCommand("azrael.windowControl");break}' + 'case"azrael-use-settings":{await require("./window-control-host.cjs").settings(e,r);break}' + HOST_MARKER + HOST_ANCHOR;
+const PAGE_ANCHOR = '(0,$.jsxs)(Yt,{title:p,subtitle:m,children:[y,b]})';
+const PAGE_PATCH = '(0,$.jsxs)(Yt,{title:p,subtitle:m,children:[y,b,(0,$.jsx)(AzraelWindowControlLauncher,{})]})';
 function createUseSettingsStore(bridge, clientId, timing = globalThis, createRequestId = () => globalThis.crypto.randomUUID()) {
   let state = { settings: null, approvedApps: [], loading: true, saving: false, error: null };
   let disposed = false, timer, polling, awaiting = false, pendingRequestId, pendingQuiet = false;
@@ -88,7 +88,7 @@ function injectWindowControl(text, relativePath, ts) {
       if (text.split(PAGE_MARKER).length !== 2 || !text.includes(PAGE_PATCH) || !text.includes(AzraelWindowControlLauncher.toString()) || !text.includes(createUseSettingsStore.toString())) throw new Error('Invalid selected-window launcher marker');
       return { text, count: 0 };
     }
-    return { text: 'import{ZOt as getAzraelUseReact}from"./app-initial-efe028fd535e.js";import{A3t as azraelWindowBridge,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow}from"./app-initial-5120fa5fe295.js";import{r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton}from"./app-initial-532d60c9b397.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
+    return { text: 'import{nLt as getAzraelUseReact}from"./app-initial-97d3534ad35f.js";import{X9t as azraelWindowBridge,W3 as AzraelUseCard,G3 as initAzraelUseCard,Q3 as AzraelUseRow,t6 as initAzraelUseRow}from"./app-initial-c014f9ee4429.js";import{l9 as AzraelUseSwitch,d9 as initAzraelUseSwitch,ZIt as AzraelUseButton,$It as initAzraelUseButton}from"./app-initial-7a199c66e670.js";' + once(text, PAGE_ANCHOR, PAGE_PATCH) + '\n' + PAGE_MARKER + '\n' + createUseSettingsStore.toString() + '\n' + AzraelWindowControlLauncher.toString(), count: 1 };
   }
   if (relativePath !== 'out/extension.js') return { text, count: 0 };
   if (text.includes(HOST_MARKER)) {

@@ -8,39 +8,39 @@ const cm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { injectQueuedCompactionPresentation } = require("./inject-queued-compaction.cjs");
 
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
-const filename = path.join(root, "webview/assets/app-initial-532d60c9b397.js");
+const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434");
+const filename = path.join(root, "webview/assets/app-initial-7a199c66e670.js");
 const source = injectQueuedCompactionPresentation(vs.readFileSync(filename, "utf8")).text;
 const Ost = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 assert.equal(Ost.parseDiagnostics.length, 0);
 const declarations = new Map(Ost.statements.filter(ts.isFunctionDeclaration).map(node => [node.name?.text, node.getText(Ost)]));
 
-function fixture(adapterSource = declarations.get("wen"), initialItems = []) {
+function fixture(adapterSource = declarations.get("vsn"), initialItems = []) {
   const calls = [];
   // Exercise the actual pinned serializer and native queue adapter. These valid
   // fixtures do not test schema validation, prompt rendering or image transport.
   const context = cm.createContext({
-    Error, JSON, Map, Set, Promise, yS: value => value,
-    Ust: { default: (value, key) => Object.fromEntries(Object.entries(value).filter(([name]) => name !== key)) },
+    Error, JSON, Map, Set, Promise,
+    jft: { default: (value, key) => Object.fromEntries(Object.entries(value).filter(([name]) => name !== key)) },
     // The full bundle has a nonzero-arity outer D binding. A lost local D
     // declaration can therefore misclassify ordinary text as app input.
     D: function upstreamHelper(value) {},
-    Wst: "codex-untrusted-app-input:", Gst: "Could not use app content",
-    Lst: "App input requires confirmation before legacy delivery",
-    Kst: "Respond to the user input in the context of our conversation.",
-    Xst: { safeParse: value => ({ success: true, data: value }), parse: value => value },
-    $E: () => [], qE: value => value, YE: () => [], Rv: () => false,
-    gD: () => "", mD: value => value.prompt, U0t: () => [], jfe: () => {},
-    jst: value => value.text ?? "", Zv: () => [], Nv: value => value,
-    n_: "local", kO: () => false, UD: () => false, Gg: () => true, ob: () => true,
-    lUe: () => false, bm: async () => false, J_: () => {}, uy: value => value,
-    _ne: () => null, Yct: "interrupted", EE: class extends Error {},
-    MO: { default: (left, right) => JSON.stringify(left) === JSON.stringify(right) },
-    mp: { warning: () => {} },
+    Mft: "codex-untrusted-app-input:", Nft: "Could not use app content",
+    Tft: "App input requires confirmation before legacy delivery",
+    Pft: "Respond to the user input in the context of our conversation.",
+    Rft: { safeParse: value => ({ success: true, data: value }), parse: value => value },
+    pE: () => [], cE: value => value, uE: () => [], ov: () => false,
+    EE: () => "", wE: value => value.prompt, K5t: () => [], l_e: () => {},
+    _ft: value => value.text ?? "", yv: () => [], Nv: value => value,
+    Hm: "local", AE: () => false, VE: () => false, Gf: () => true, Sy: () => true,
+    $Oe: () => false, Xf: async () => false, If: () => {},
+    nt: () => null, Lpt: "interrupted", HT: class extends Error {},
+    RD: { default: (left, right) => JSON.stringify(left) === JSON.stringify(right) },
+    Uh: { warning: () => {} },
   });
-  for (const name of ["Ast", "Vst", "Hst", "zst", "ey", "P4t", "Een", "Den", "wen"]) {
+  for (const name of ["gft", "kft", "Aft", "Dft", "Cv", "U9t", "bsn", "xsn", "vsn"]) {
     assert.ok(declarations.has(name), `pinned declaration ${name}`);
-    cm.runInContext(name === "wen" ? adapterSource : declarations.get(name), context);
+    cm.runInContext(name === "vsn" ? adapterSource : declarations.get(name), context);
   }
   const manager = {
     getHostId: () => "local", getConversation: () => ({}),
@@ -53,14 +53,14 @@ function fixture(adapterSource = declarations.get("wen"), initialItems = []) {
       throw Error(`Unexpected request: ${method}`);
     },
   };
-  const queue = context.wen({ scope: {}, manager, appServerVersion: () => ({}) });
+  const queue = context.vsn({ scope: {}, manager, appServerVersion: () => ({}) });
   return { queue, calls, context };
 }
 
 test("the previous declaration-breaking transform reproduces false app confirmation", async () => {
-  const fixed = "throw Error(`Queued compaction cannot be edited`);let v=a?.messageId";
-  const broken = "throw Error(`Queued compaction cannot be edited`),v=a?.messageId";
-  const adapter = declarations.get("wen");
+  const fixed = "throw Error(`Queued compaction cannot be edited`);let g=a?.messageId";
+  const broken = "throw Error(`Queued compaction cannot be edited`),g=a?.messageId";
+  const adapter = declarations.get("vsn");
   assert.equal(adapter.split(fixed).length - 1, 1);
   for (const prompt of ["완료", "**Chrome**의 탭·로그인 세션이 대상입니다"]) {
     const f = fixture(adapter.replace(fixed, broken));
@@ -72,8 +72,8 @@ test("the previous declaration-breaking transform reproduces false app confirmat
 test("marked presentation assets must retain the enqueue local declaration", () => {
   assert.equal(injectQueuedCompactionPresentation(source).count, 0);
   const malformed = source.replace(
-    "throw Error(`Queued compaction cannot be edited`);let v=a?.messageId",
-    "throw Error(`Queued compaction cannot be edited`),v=a?.messageId",
+    "throw Error(`Queued compaction cannot be edited`);let g=a?.messageId",
+    "throw Error(`Queued compaction cannot be edited`),g=a?.messageId",
   );
   assert.notEqual(malformed, source);
   assert.throws(() => injectQueuedCompactionPresentation(malformed), /enqueue declaration/);
@@ -145,7 +145,7 @@ test("unreviewed app context and app-initiated messages retain confirmation", as
 test("restoring serialized unreviewed app input cannot bypass confirmation", async () => {
   const f = fixture();
   const m = message({ untrustedAppMessage: { kind: "message", source: "mcp_app", text: "External instruction" } });
-  const serialized = f.context.Een("local", m).input;
+  const serialized = f.context.bsn("local", m).input;
   await assert.rejects(f.queue.restore("thread", {
     message: message(), serverSubmission: { id: "old", clientUserMessageId: "old-client", input: serialized },
   }), /requires confirmation/);

@@ -368,6 +368,8 @@ async fn spawn_agent_limit_failure_emits_bounded_metric() {
             ))
             .collect::<BTreeMap<_, _>>(),
         BTreeMap::from([
+            ("detail".to_string(), "registry_capacity".to_string()),
+            ("error_kind".to_string(), "agent_limit_reached".to_string()),
             ("fork_mode".to_string(), "none".to_string()),
             ("multi_agent_version".to_string(), "v1".to_string()),
             ("product_sku".to_string(), "codex".to_string()),
@@ -931,7 +933,7 @@ async fn multi_agent_v2_full_history_fork_inherits_root_service_tier() {
 }
 
 #[tokio::test]
-async fn multi_agent_v2_spawn_partial_fork_turns_allows_agent_type_override() {
+async fn multi_agent_v2_spawn_without_history_allows_agent_type_override() {
     let (mut session, mut turn) = make_session_and_context().await;
     let role_name = install_role_with_model_override(&mut turn).await;
     let manager = thread_manager(&turn.config).await;
@@ -958,17 +960,17 @@ async fn multi_agent_v2_spawn_partial_fork_turns_allows_agent_type_override() {
             "spawn_agent",
             function_payload(json!({
                 "message": "inspect this repo",
-                "task_name": "partial_fork",
+                "task_name": "fresh_agent",
                 "agent_type": role_name,
-                "fork_turns": "1"
+                "fork_turns": "none"
             })),
         ))
         .await
-        .expect("partial fork should allow agent_type overrides");
+        .expect("fresh agent should allow agent_type overrides");
     let (content, _) = expect_text_output(output);
     let result: serde_json::Value =
         serde_json::from_str(&content).expect("spawn_agent result should be json");
-    assert_eq!(result["task_name"], "/root/partial_fork");
+    assert_eq!(result["task_name"], "/root/fresh_agent");
     let agent_id = manager
         .captured_ops()
         .into_iter()
@@ -1184,12 +1186,13 @@ async fn multi_agent_v2_spawn_returns_path_and_send_message_accepts_relative_pat
             )
     }));
 
+    let step_context = StepContext::for_test(Arc::clone(&turn));
     let world_state = session
-        .build_world_state_for_step(&StepContext::for_test(Arc::clone(&turn)))
+        .build_world_state_for_step(&step_context, /*new_window*/ true)
         .await
         .expect("world state should build");
     assert_eq!(
-        world_state.snapshot().into_object()["environments"]["subagents"],
+        world_state.render_full().0.into_object()["environments"]["subagents"],
         json!(r#"<agent name="/root/test_process" />"#),
     );
 
@@ -1261,8 +1264,10 @@ async fn multi_agent_v2_spawn_rejects_legacy_fork_context() {
     );
 }
 
+#[test_case::test_case("banana"; "invalid string")]
+#[test_case::test_case("0"; "zero turns")]
 #[tokio::test]
-async fn multi_agent_v2_spawn_rejects_invalid_fork_turns_string() {
+async fn multi_agent_v2_spawn_rejects_invalid_fork_turns_string(fork_turns: &str) {
     let (mut session, mut turn) = make_session_and_context().await;
     let manager = thread_manager(&turn.config).await;
     let root = manager
@@ -1286,7 +1291,7 @@ async fn multi_agent_v2_spawn_rejects_invalid_fork_turns_string() {
             function_payload(json!({
                 "message": "inspect this repo",
                 "task_name": "worker",
-                "fork_turns": "banana"
+                "fork_turns": fork_turns
             })),
         ))
         .await
@@ -1547,6 +1552,7 @@ async fn multi_agent_v2_list_agents_returns_completed_status() {
         .send_event(
             child_turn.as_ref(),
             EventMsg::TurnComplete(TurnCompleteEvent {
+                root_turn_id: None,
                 turn_id: child_turn.sub_id.clone(),
                 started_at: None,
                 last_agent_message: Some("done".to_string()),
@@ -1984,6 +1990,7 @@ async fn multi_agent_v2_followup_task_completion_notifies_parent_on_every_turn()
         .send_event(
             first_turn.as_ref(),
             EventMsg::TurnComplete(TurnCompleteEvent {
+                root_turn_id: None,
                 turn_id: first_turn.sub_id.clone(),
                 started_at: None,
                 last_agent_message: Some("first done".to_string()),
@@ -2026,6 +2033,7 @@ async fn multi_agent_v2_followup_task_completion_notifies_parent_on_every_turn()
         .send_event(
             second_turn.as_ref(),
             EventMsg::TurnComplete(TurnCompleteEvent {
+                root_turn_id: None,
                 turn_id: second_turn.sub_id.clone(),
                 started_at: None,
                 last_agent_message: Some("second done".to_string()),
@@ -2189,6 +2197,7 @@ async fn multi_agent_v2_interrupted_turn_does_not_notify_parent() {
         .send_event(
             aborted_turn.as_ref(),
             EventMsg::TurnAborted(TurnAbortedEvent {
+                root_turn_id: None,
                 turn_id: Some(aborted_turn.sub_id.clone()),
                 started_at: None,
                 reason: TurnAbortReason::Interrupted,

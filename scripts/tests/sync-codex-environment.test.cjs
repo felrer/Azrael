@@ -7,6 +7,12 @@ const path = require("node:path");
 const test = require("node:test");
 const { spawnSync } = require("node:child_process");
 const crypto = require("node:crypto");
+// Pristine supported transport recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
+const officialComputerUseBin = path.join(process.env.LOCALAPPDATA, "OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77/bin");
+function cleanupOwnedFixture(directory, parent, prefix) {
+  if (path.dirname(path.resolve(directory)) !== path.resolve(parent) || !path.basename(directory).startsWith(prefix)) throw new Error("Unsafe fixture cleanup path");
+  fs.rmSync(directory, { recursive: true });
+}
 const {
   assertManagedTarget,
   assertUnchanged,
@@ -104,7 +110,7 @@ test("generated Devin role reuses only the effective Sol developer instructions"
 
 test("artifact state detects changed and deleted paths", (t) => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "codex-environment-state-"));
-  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  t.after(() => cleanupOwnedFixture(temporary, os.tmpdir(), "codex-environment-state-"));
   const changed = path.join(temporary, "changed.txt");
   const deleted = path.join(temporary, "deleted.txt");
   fs.writeFileSync(changed, "before");
@@ -121,7 +127,7 @@ test("artifact state detects changed and deleted paths", (t) => {
 
 test("managed targets reject an ordinary-state junction in their parent path", (t) => {
   const temporary = fs.mkdtempSync(path.join(os.tmpdir(), "codex-environment-target-"));
-  t.after(() => fs.rmSync(temporary, { recursive: true, force: true }));
+  t.after(() => cleanupOwnedFixture(temporary, os.tmpdir(), "codex-environment-target-"));
   const stateRoot = path.join(temporary, "azrael-state");
   const ordinaryState = path.join(temporary, "ordinary-codex-state");
   const alias = path.join(stateRoot, "ordinary-state-alias");
@@ -234,8 +240,11 @@ test("owned Computer Use preserves browser and Chrome configuration with home pa
 
 test("owned snapshot transaction installs instructions, repairs drift, and rejects invalid payloads", {
   skip: !process.env.AZRAEL_CONFIG_TEST_ENGINE && "Set AZRAEL_CONFIG_TEST_ENGINE to a verified engine for isolated transaction acceptance",
-}, () => {
-  const root = path.resolve("artifacts/verification/computer-use-integration/config-transaction-fixture", `run-${Date.now()}`);
+}, (t) => {
+  const fixtureParent = path.resolve("artifacts/verification/computer-use-integration/config-transaction-fixture");
+  fs.mkdirSync(fixtureParent, { recursive: true });
+  const root = fs.mkdtempSync(path.join(fixtureParent, "run-"));
+  t.after(() => cleanupOwnedFixture(root, fixtureParent, "run-"));
   const source = path.join(root, "ordinary"), state = path.join(root, "azrael"), runtime = path.join(root, "runtime");
   const fixtureManifest = { schema: 1, config: { rootKeys: ["notify"], tables: ["mcp_servers.node_repl", "mcp_servers.node_repl.env"], tableKeys: { features: ["js_repl"] }, protectedRootKeys: ["model", "model_reasoning_effort"] }, agentRoles: [], generatedAgentRoles: [], personalSkills: [], copyGlobalInstructions: false };
   const files = {
@@ -247,7 +256,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
     "docs/guidance.md": "fixture guidance", "docs/api.md": "fixture api", "docs/confirmations.md": "fixture confirmations",
   };
   const { TRANSPORT, TRANSPORT_POLICY_MODULES, transformTransport, generateSettingsModule } = require('../inject-sky-control-policy.cjs');
-  const policyTransport = transformTransport(fs.readFileSync(path.resolve(__dirname, '../../artifacts/releases/turn_render_fix_20261006_r1/computer-use', TRANSPORT)), '0.7.4');
+  const policyTransport = transformTransport(fs.readFileSync(path.join(officialComputerUseBin, TRANSPORT)), '0.7.4');
   files[TRANSPORT] = policyTransport.content.toString('utf8');
   for (const name of ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs']) files[name] = fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
   const settingsEsm = generateSettingsModule(Buffer.from(files['use-control-settings.cjs']));
@@ -270,7 +279,7 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   fs.mkdirSync(path.join(windowSource, "src"), { recursive: true });
   fs.mkdirSync(windowScripts, { recursive: true });
   for (const [relative, contents] of [["Cargo.toml", "[package]"], ["Cargo.lock", "fixture lock"], ["THIRD_PARTY_NOTICES.md", "Fixture native notices"], ["src/main.rs", "fn main() {}"]]) fs.writeFileSync(path.join(windowSource, relative), contents);
-  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs", "use-control-settings.cjs", "window-use-approvals.cjs", "computer-use-approvals.cjs", "use-settings-host.cjs"]) fs.copyFileSync(path.join(__dirname, "..", name), path.join(windowScripts, name));
+  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs", "use-control-settings.cjs", "window-use-approvals.cjs", "computer-use-approvals.cjs", "use-settings-host.cjs"]) fs.copyFileSync(path.join(__dirname, "..", name), path.join(windowScripts, name));
   const windowExecutable = path.join(root, "fixture-window-helper.exe"), windowProvenance = path.join(root, "window-build.json"), windowGuide = path.join(root, "selected-window.md");
   fs.writeFileSync(windowExecutable, "fixture native helper; never executed");
   fs.writeFileSync(windowGuide, "Fixture Window Use guidance");

@@ -10,13 +10,16 @@ use pretty_assertions::assert_eq;
 #[tokio::test]
 async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admission() {
     let (session, _) = make_session_and_context().await;
-    let mut config = (*session.get_config().await).clone();
+    let expected_config = session.get_config().await;
+    let mut config = (*expected_config).clone();
     config.model_context_window = Some(1_000);
     config.model_auto_compact_token_limit = Some(100);
     config
         .provider_auto_compact
         .insert("openai".into(), ProviderAutoCompact::default());
-    session.refresh_runtime_config(config).await;
+    session
+        .refresh_runtime_config(expected_config, config)
+        .await;
     let (turn, _) = session
         .new_turn_with_sub_id(
             "policy-default".into(),
@@ -49,7 +52,8 @@ async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admissi
             (Some(950), reached)
         );
     }
-    let mut config = (*session.get_config().await).clone();
+    let expected_config = session.get_config().await;
+    let mut config = (*expected_config).clone();
     config.provider_auto_compact.insert(
         "openai".into(),
         ProviderAutoCompact {
@@ -57,7 +61,9 @@ async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admissi
             ..Default::default()
         },
     );
-    session.refresh_runtime_config(config).await;
+    session
+        .refresh_runtime_config(expected_config, config)
+        .await;
     let (percentage_turn, _) = session
         .new_turn_with_sub_id(
             "policy-percentage".into(),
@@ -71,7 +77,8 @@ async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admissi
         Some(500)
     );
     assert_eq!(turn.model_info().auto_compact_token_limit(), Some(950));
-    let mut config = (*session.get_config().await).clone();
+    let expected_config = session.get_config().await;
+    let mut config = (*expected_config).clone();
     config.provider_auto_compact.insert(
         "openai".into(),
         ProviderAutoCompact {
@@ -79,7 +86,9 @@ async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admissi
             ..Default::default()
         },
     );
-    session.refresh_runtime_config(config).await;
+    session
+        .refresh_runtime_config(expected_config, config)
+        .await;
     let (next, _) = session
         .new_turn_with_sub_id(
             "policy-custom".into(),

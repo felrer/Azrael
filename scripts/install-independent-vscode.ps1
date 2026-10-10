@@ -313,7 +313,7 @@ $extensionBackupPlan = Get-AzraelExtensionBackupPlan -ExtensionsDirectory $exten
 
 $source = $null
 if (-not $PreparedPackageDirectory) {
-    if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225' }
+    if (-not $SourceExtensionPath) { $SourceExtensionPath = Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.1007.21434' }
     $source = Get-AbsolutePath -Path $SourceExtensionPath -Name 'SourceExtensionPath' -MustExist
 } elseif ($SourceExtensionPath) {
     throw 'SourceExtensionPath cannot be combined with PreparedPackageDirectory.'

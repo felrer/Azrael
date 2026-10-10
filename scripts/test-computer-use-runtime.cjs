@@ -5,6 +5,28 @@ const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
 const { stageRuntime, verifyRuntime } = require('./computer-use-runtime.cjs');
+// Pristine official input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
+// Sky 0.7.4 is the supported transform input; the installed Azrael executable is already branded.
+const officialRuntime = path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77');
+const officialBin = path.join(officialRuntime, 'bin');
+const officialPlugin = path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.930.21537');
+function cleanup(root) {
+  if (path.dirname(path.resolve(root)) !== path.resolve(os.tmpdir()) || !path.basename(root).startsWith('azrael-computer-use-packaging-')) throw new Error('Unsafe fixture cleanup path');
+  fs.rmSync(root, { recursive: true });
+}
+test('recorded official Computer Use inputs stage with their complete dependency provenance', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-computer-use-packaging-'));
+  try {
+    const staged = stageRuntime({ runtimeDirectory: officialRuntime, pluginDirectory: officialPlugin, destination: path.join(root, 'bundle') });
+    assert.equal(staged.manifest.source.runtimeDirectory, officialRuntime);
+    assert.equal(staged.manifest.source.pluginDirectory, officialPlugin);
+    assert.equal(staged.manifest.packages.find(pkg => pkg.name === '@oai/sky').version, '0.7.4');
+    const sky = staged.manifest.files.find(entry => entry.path.endsWith('/codex-computer-use.exe'));
+    assert.equal(sky.sourceSha256, require('./computer-use-branding.cjs').SOURCE_SHA256);
+    assert.notEqual(sky.sha256, sky.sourceSha256);
+    assert.equal(verifyRuntime(staged.directory).manifestSha256, staged.manifestSha256);
+  } finally { cleanup(root); }
+});
 test('Computer Use packaging preserves dependency provenance and rejects unsafe or corrupt payloads after relocation', () => {
 const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-computer-use-packaging-'));
 function write(rel, text) { const target = path.join(root, rel); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.writeFileSync(target, text); }
@@ -12,9 +34,9 @@ function pkg(rel, name, dependencies = {}) { write(`source/bin/${rel}/package.js
 try {
   write('source/bin/node_repl.exe', 'fixture repl'); write('source/bin/node.exe', 'fixture node');
   const { TRANSPORT } = require('./inject-sky-control-policy.cjs');
-  write('source/bin/' + TRANSPORT, fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/turn_render_fix_20261006_r1/computer-use', TRANSPORT)));
+  write('source/bin/' + TRANSPORT, fs.readFileSync(path.join(officialBin, TRANSPORT)));
   pkg('node_modules/@oai/sky', '@oai/sky', { dependency: '^1', transitive: '^1' });
-  write('source/bin/node_modules/@oai/sky/bin/windows/codex-computer-use.exe', fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/computer_use_20261004_v6/computer-use/node_modules/@oai/sky/bin/windows/codex-computer-use.exe')));
+  write('source/bin/node_modules/@oai/sky/bin/windows/codex-computer-use.exe', fs.readFileSync(path.join(officialBin, 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe')));
   pkg('node_modules/dependency', 'dependency', { transitive: '^1' });
   pkg('node_modules/transitive', 'transitive');
   pkg('node_modules/dependency/node_modules/transitive', 'transitive');
@@ -76,13 +98,13 @@ try {
   assert.throws(() => stageRuntime({ ...options, destination: path.join(root, 'linked') }), /symlink forbidden/);
   console.log('PASS missing transitive dependency and linked package rejected');
   console.log('Computer Use runtime packaging tests passed');
-} finally { fs.rmSync(root, { recursive: true, force: true }); }
+} finally { cleanup(root); }
 });
 
 
 test('Sky display branding changes only its label and PE signature metadata and rejects unknown binaries', () => {
   const { brandComputerUse } = require('./computer-use-branding.cjs');
-  const source = fs.readFileSync(path.resolve(__dirname, '../artifacts/releases/computer_use_20261004_v6/computer-use/node_modules/@oai/sky/bin/windows/codex-computer-use.exe'));
+  const source = fs.readFileSync(path.join(officialBin, 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe'));
   const { content, transform } = brandComputerUse(source);
   const optional = source.readUInt32LE(0x3c) + 24;
   const ranges = [[transform.labelOffset, transform.labelOffset + Buffer.byteLength(transform.before)], [optional + 64, optional + 68], [optional + 144, optional + 152]];

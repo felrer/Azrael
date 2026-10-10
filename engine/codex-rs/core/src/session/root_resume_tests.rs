@@ -323,6 +323,7 @@ async fn user_supersede_cancels_wait_without_sampling() {
             InitialHistory::Resumed(ResumedHistory {
                 conversation_id: thread_id,
                 history: Arc::new(Vec::new()),
+                history_revision: None,
                 rollout_path: None,
             }),
             clock.clone(),
@@ -381,6 +382,7 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
             InitialHistory::Resumed(ResumedHistory {
                 conversation_id: thread_id,
                 history: Arc::new(Vec::new()),
+                history_revision: None,
                 rollout_path: None,
             }),
             clock.clone(),

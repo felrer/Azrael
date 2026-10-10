@@ -10,7 +10,11 @@ const tsPath = process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolv
 const ts = require(tsPath);
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 const root = fs.mkdtempSync(path.resolve(__dirname, "../artifacts/cache-retention-test-"));
-after(() => fs.rmSync(root, { recursive: true, force: true }));
+after(() => {
+  assert.equal(path.dirname(path.resolve(root)), path.resolve(__dirname, "../artifacts"));
+  assert.ok(path.basename(root).startsWith("cache-retention-test-"));
+  fs.rmSync(root, { recursive: true });
+});
 const base = { typescriptSha256: sha(fs.readFileSync(tsPath)), typescriptVersion: ts.version,
   transformRules: { rule: "current" } };
 const cache = (name, options = {}) => createAssetTransformCache({ ...base,
@@ -72,7 +76,7 @@ test("pruning filters old no-op hints even when all visited assets hit", () => {
 
 test("failed unflushed transformation and failed index commit preserve previous cache files", () => {
   const cold = cache("failure");
-  cold.run(assetPath, source, () => transform());
+  const expected = cold.run(assetPath, source, () => transform());
   cold.run("old.js", "noop", () => ({ text: "noop", asset: null }));
   cold.flush();
   const directory = path.join(root, "failure");
@@ -85,8 +89,25 @@ test("failed unflushed transformation and failed index commit preserve previous 
   const fingerprint = { schema: CACHE_SCHEMA, typescriptSha256: "f".repeat(64), typescriptVersion: ts.version };
   const blockedIndex = path.join(directory, `noops-${sha(JSON.stringify(fingerprint))}.json`);
   fs.mkdirSync(blockedIndex);
-  assert.throws(() => cannotFlush.flush());
+  // Publication failures bypass the cache and report deferred cleanup. The
+  // blocker must be the actual index destination, not an unrelated stale key.
+  assert.doesNotThrow(() => cannotFlush.flush());
+  assert.equal(cannotFlush.cleanup.deferred.length, 1);
+  assert.match(cannotFlush.cleanup.deferred[0], /rename/);
+  assert.ok(cannotFlush.cleanup.deferred[0].includes(blockedIndex));
+  assert.equal(cannotFlush.cleanup.removed, 0);
+  assert.ok(fs.lstatSync(blockedIndex).isDirectory());
+  assert.deepEqual(fs.readdirSync(directory).sort(), [...before.keys(), path.basename(blockedIndex)].sort());
   for (const [file, bytes] of before) assert.deepEqual(fs.readFileSync(path.join(directory, file)), bytes);
+  assert.deepEqual(cache("failure").run(assetPath, source, hit), expected);
+  // The failed atomic write released its writer and removed its temporary file;
+  // after removing the blocker, the same invocation can commit and then prune.
+  fs.rmdirSync(blockedIndex);
+  cannotFlush.flush();
+  assert.deepEqual(fs.readdirSync(directory), [path.basename(blockedIndex)]);
+  assert.deepEqual(index("failure").fingerprint, fingerprint);
+  assert.deepEqual(index("failure").keys, []);
+  assert.equal(cannotFlush.cleanup.removed, before.size);
 });
 
 test("pruning preserves unknown files, temporary files, directories and directory links", () => {

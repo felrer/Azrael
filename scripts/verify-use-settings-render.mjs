@@ -1,15 +1,17 @@
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
-import {readFile,writeFile,mkdir,rm} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,rm,realpath} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/computer-use-spacing');
-const logs=join(root,'artifacts/logs/computer-use-spacing');
-const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
+const fixture=resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT ?? join(root,'artifacts/verification/computer-use-spacing'));
+const logs=resolve(process.env.AZRAEL_RENDER_LOG_ROOT ?? join(root,'artifacts/logs/computer-use-spacing'));
+const assets=join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? join(root,'artifacts/upstream-ui/26.1007.21434'),'webview/assets');
+assert.ok(fixture.startsWith(join(root,'artifacts/verification')+sep),'Fixture containment');
+assert.ok(logs.startsWith(join(root,'artifacts/logs')+sep),'Log containment');
 const require=createRequire(import.meta.url);
 const {AzraelWindowControlLauncher,createUseSettingsStore}=require('./inject-window-control.cjs');
 const {createSettingsHost}=require('./use-settings-host.cjs');
@@ -18,18 +20,20 @@ const {createOwner}=require('./window-use-approvals.cjs');
 await mkdir(fixture,{recursive:true}); await mkdir(logs,{recursive:true});
 const home=join(fixture,'home'),profile=join(fixture,'chrome-profile');
 await mkdir(profile,{recursive:true});
+const fixtureRealPath=await realpath(fixture),verificationRealPath=await realpath(join(root,'artifacts/verification'));
+assert.ok(fixtureRealPath.startsWith(verificationRealPath+sep),'Real fixture containment');
 const settings=createSettingsOwner(home);
 const approvals=createOwner(home);
 const executable='C:\\Synthetic Applications\\'+ 'Long descriptive application directory '.repeat(6)+'\\fixture.exe';
 const windowDescriptor={hwnd:'fixture-window',pid:12345,processCreated:'synthetic-20261007',executable,title:'Acceptance fixture'};
 let hold=false,rejectUpdate=false,held=[],requests=[],responses=[];
 const host=createSettingsHost({runtime:{codexHome:home},vscode:{window:{showQuickPick:async choices=>choices[0],showWarningMessage:async()=> '삭제'}},backend:{request:async()=>[windowDescriptor]}});
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
-const moduleSource=`import {ZOt,KEt,UEt} from '/assets/app-initial-efe028fd535e.js';
-import {oa as NativePage,ca as initNativePage,d3 as AzraelUseCard,f3 as initAzraelUseCard,y3 as AzraelUseRow,x3 as initAzraelUseRow} from '/assets/app-initial-5120fa5fe295.js';
-import {r4 as AzraelUseSwitch,a4 as initAzraelUseSwitch,Zjt as AzraelUseButton,$jt as initAzraelUseButton} from '/assets/app-initial-532d60c9b397.js';
-const Q=ZOt(),$=KEt(),ReactDOM=UEt();
-const getAzraelUseReact=ZOt;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
+const moduleSource=`import {nLt,$At,XAt} from '/assets/app-initial-97d3534ad35f.js';
+import {ti as NativePage,ri as initNativePage,W3 as AzraelUseCard,G3 as initAzraelUseCard,Q3 as AzraelUseRow,t6 as initAzraelUseRow} from '/assets/app-initial-c014f9ee4429.js';
+import {l9 as AzraelUseSwitch,d9 as initAzraelUseSwitch,ZIt as AzraelUseButton,$It as initAzraelUseButton} from '/assets/app-initial-7a199c66e670.js';
+const Q=nLt(),$=$At(),ReactDOM=XAt();
+const getAzraelUseReact=nLt;
 const listeners=new Set();window.fixtureRequests=[];window.fixtureReceived=[];
 const azraelWindowBridge={subscribe(type,callback){listeners.add(callback);return()=>listeners.delete(callback)},dispatchMessage(type,data){window.fixtureRequests.push({...data,type});fetch('/host',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({...data,type})}).then(r=>r.json()).then(message=>{window.fixtureReceived.push(message);for(const l of listeners)l(message)}).catch(e=>{window.fixtureErrors.push(String(e))})}};
 const actualFactory=${createUseSettingsStore.toString()};
@@ -49,10 +53,26 @@ const server=createServer(async(req,res)=>{try{
   res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
+
+async function confirmOwnedBrowserExit(child,profilePath){
+ if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
+ if(child.exitCode===null&&child.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,10000);child.once('exit',()=>{clearTimeout(timer);r()})});
+ const result={confirmed:child.exitCode!==null||child.signalCode!==null,exitCode:child.exitCode,signalCode:child.signalCode};
+ if(process.platform==='win32'){
+  const query=spawn('pwsh',['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $ownedChrome=@(Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe'\" | Where-Object { $_.ProcessId -eq [int]$env:AZRAEL_RENDER_BROWSER_PID -or ($_.CommandLine -and $_.CommandLine.Contains($env:AZRAEL_RENDER_BROWSER_PROFILE)) } | Select-Object -ExpandProperty ProcessId); ConvertTo-Json -Compress -InputObject $ownedChrome"],{windowsHide:true,timeout:15000,env:{...process.env,AZRAEL_RENDER_BROWSER_PID:String(child.pid),AZRAEL_RENDER_BROWSER_PROFILE:profilePath},stdio:['ignore','pipe','pipe']});
+  let output='',error='';query.stdout.on('data',c=>output+=c);query.stderr.on('data',c=>error+=c);
+  const queryExit=await new Promise(r=>{query.once('error',e=>{error+=String(e);r(null)});query.once('exit',r)});
+  result.processInspectionExitCode=queryExit;
+  try{if(queryExit!==0)throw Error(error||'Process inspection failed');result.processIds=JSON.parse(output);assert.ok(Array.isArray(result.processIds));result.confirmed=result.processIds.length===0}catch(e){result.confirmed=false;result.inspectionError=String(e)}
+ }
+ if(result.confirmed){child.unref();child.stderr?.destroy()}
+ return result;
+}
+
 let socket,session,id=0,chrome,summary={scope:'Actual production settings section, real pinned React/native components/CSS and production settings host/store/persistence; synthetic running-window and confirmation decisions. No full installed VS Code navigation.',checks:[]};
 const pending=new Map(),exceptions=[];
 try{
- chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
+ chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--disable-background-mode','--disable-extensions','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
  socket=new WebSocket(endpoint);await new Promise((r,j)=>{socket.addEventListener('open',r,{once:true});socket.addEventListener('error',j,{once:true})});
  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThrown')exceptions.push(m.params.exceptionDetails);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')exceptions.push(m.params.args);if(m.id){const p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.t);m.error?p.j(Error(JSON.stringify(m.error))):p.r(m.result)}}});
@@ -109,7 +129,7 @@ finally{
  host.dispose();held.splice(0).forEach(entry=>entry.finish());server.closeAllConnections();await new Promise(r=>server.close(r));
  if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome&&!chrome.exitCode&&chrome.exitCode!==0)await new Promise(r=>{const t=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- if(chrome?.exitCode!==null){await rm(profile,{recursive:true,force:true,maxRetries:5,retryDelay:200});await rm(home,{recursive:true,force:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser closed; isolated profile and host fixtures removed'}else{summary.cleanup='Browser exit uncertain; owned profile retained until confirmed closed';process.exitCode=1}
+ summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+ if(summary.browserExit.confirmed){assert.equal(await realpath(fixture),fixtureRealPath);await rm(fixture,{recursive:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser closed; isolated profile and host fixtures removed'}else{summary.cleanup='Browser exit uncertain; owned profile retained until confirmed closed';process.exitCode=1}
  await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify(summary));
 }

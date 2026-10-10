@@ -8,7 +8,7 @@ const crypto = require("node:crypto");
 const test = require("node:test");
 const Nf = require("../extensions/azrael-ex/node_modules/typescript");
 const { ANCHOR, NORMALIZED_ANCHOR, MARKER, injectFetchResponse } = require("./inject-fetch-response.cjs");
-const pinnedRoot = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const pinnedRoot = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const hostFilename = path.join(pinnedRoot, "out/extension.js");
 const original = ms.readFileSync(hostFilename, "utf8");
 const patched = injectFetchResponse(original).text;
@@ -31,14 +31,14 @@ const servicePredicate = (node, hst) => Nf.isMethodDeclaration(node) && node.nam
 const releasePredicate = (node, hst) => Nf.isPropertyAssignment(node) && node.name.getText(hst) === '"queued-follow-up-send-lock-release"';
 const [originalService, releaseProperty] = extract(original, hostFilename, [servicePredicate, releasePredicate]);
 const [patchedService] = extract(patched, hostFilename, [servicePredicate]);
-const webFilename = path.join(pinnedRoot, "webview/assets/app-initial-5120fa5fe295.js");
+const webFilename = path.join(pinnedRoot, "webview/assets/app-initial-c014f9ee4429.js");
 const [responseMethod] = extract(ms.readFileSync(webFilename, "utf8"), webFilename, [
   (node, hst) => Nf.isMethodDeclaration(node) && node.name.getText(hst) === "onFetchResponse",
 ]);
 
 function fixture(service = patchedService) {
   class FetchError extends Error { constructor(message, status) { super(message); this.status = status; } }
-  const context = { JSON, Error, Promise, Map, AbortController, c6e: "vscode://", FH: "source", Tpe: () => false, Hh: FetchError };
+  const context = { JSON, Error, Promise, Map, AbortController, X6e: "vscode://", XH: "source", Ume: () => false, og: FetchError };
   const run = code => gm.runInNewContext(code, context);
   const host = run(`({${service}})`);
   const ui = run(`({${responseMethod}})`);

@@ -8,27 +8,27 @@ const vp = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.re
 const { DESIGN_ASSETS, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, pickStudentPreview, observeStudentCreated } = require("./inject-student-design.cjs");
 const { injectInstructionSettings, azraelSettingsText } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
-const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225"));
+const root = (process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 
 test("native navigation descriptor, row label and collapsed label use current application locale", () => {
   const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
   const text = injectStudentDesign(injectInstructionSettings(ms.readFileSync(filename, "utf8"), asset).text, asset).text;
   const ast = vp.createSourceFile(asset, text, 99, true, vp.ScriptKind.JS), expressions = {};
   const visit = node => {
-    if (vp.isVariableDeclaration(node) && ["c", "f"].includes(node.name.getText(ast)) && node.initializer?.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.name.getText(ast)] = node.initializer.getText(ast);
-    if (vp.isBinaryExpression(node) && ["c", "f"].includes(node.left.getText(ast)) && node.right.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.left.getText(ast)] = node.right.getText(ast);
+    if (vp.isVariableDeclaration(node) && ["s", "f"].includes(node.name.getText(ast)) && node.initializer?.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.name.getText(ast)] = node.initializer.getText(ast);
+    if (vp.isBinaryExpression(node) && ["s", "f"].includes(node.left.getText(ast)) && node.right.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions[node.left.getText(ast)] = node.right.getText(ast);
     if (vp.isPropertyAssignment(node) && node.name.getText(ast) === "label" && node.initializer.getText(ast).startsWith('e.slug===`azrael-design`?')) expressions.label = node.initializer.getText(ast);
     vp.forEachChild(node, visit);
   }; visit(ast);
-  assert.deepEqual(Object.keys(expressions).sort(), ["c", "f", "label"]);
+  assert.deepEqual(Object.keys(expressions).sort(), ["f", "label", "s"]);
   assert.equal(ast.statements.filter(n => vp.isFunctionDeclaration(n) && n.name?.text === "azraelSettingsText").length, 1);
   for (const locale of ["en-US", "ko", "KO-KR", "ko_KR", "ja-JP", undefined]) {
     for (const [slug, en, ko] of [["azrael-design", "Design", "디자인"], ["azrael-instructions", "Instruction Documents", "지침 문서"]]) {
-      const context = { e: { slug }, O: { locale }, azraelSettingsText };
+      const context = { e: { slug }, T: { locale }, azraelSettingsText };
       const expected = azraelSettingsText(locale, en, ko);
       for (const [kind, expression] of Object.entries(expressions)) {
         const actual = _m.runInNewContext(expression, context);
-        assert.equal(kind === "c" ? actual.defaultMessage : actual, expected, `${kind}/${slug}/${locale}`);
+        assert.equal(kind === "s" ? actual.defaultMessage : actual, expected, `${kind}/${slug}/${locale}`);
       }
     }
   }
@@ -49,8 +49,8 @@ test("native navigation custom icons retain active class and suppress assets onl
   for (const slug of ["azrael-design", "azrael-instructions", "usage", "general-settings", "pets"]) {
     for (const active of [false, true]) {
       const context = { e: { slug }, t: active, i: slug === "pets" && active,
-        s: { 16: "native-icon" }, r: { navigation: "native-assets" },
-        Z: { jsx: (type, props) => ({ type, props }) }, he: "native-icon-renderer",
+        a: { 16: "native-icon" }, r: { navigation: "native-assets" },
+        Z: { jsx: (type, props) => ({ type, props }) }, ye: "native-icon-renderer",
         AzraelInstructionNavigationIcon: "instruction", AzraelDesignNavigationIcon: "design" };
       const icon = _m.runInNewContext(expressions.icon, context);
       const assets = _m.runInNewContext(expressions.iconAssetSource, context);
@@ -73,7 +73,7 @@ test("production pipeline applies student design and preserves it through Pets r
     assert.equal(vp.createSourceFile(asset, result.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS).parseDiagnostics.length, 0);
     if (asset === DESIGN_ASSETS[2]) {
       assert.ok(result.text.includes("personalization.azrael-instructions.azrael-design.usage"));
-      assert.ok(result.text.includes("defaultMessage:azraelSettingsText(O.locale,`Design`,`디자인`)"));
+      assert.ok(result.text.includes("defaultMessage:azraelSettingsText(T.locale,`Design`,`디자인`)"));
       assert.equal(result.text.includes("`azrael-design`,`pets`,`keyboard-shortcuts`"), false);
     }
     assets.push(result.asset);
@@ -90,12 +90,13 @@ test("injected settings bridges resolve to the pinned module's real exports", ()
   const bridge = transformAsset(original, bridgeAsset, path.join(root, bridgeAsset), vp).text;
   const exports = new Set(parse(bridge, bridgeAsset).statements.filter(vp.isExportDeclaration)
     .flatMap(node => node.exportClause?.elements?.map(e => e.name.text) ?? []));
-  assert(exports.has("F3t"));
-  assert(!exports.has("WEe"));
+  assert(exports.has("X9t"));
+  const bridgeSpecifier = parse(bridge, bridgeAsset).statements.filter(vp.isExportDeclaration).flatMap(node => node.exportClause?.elements ?? []).find(node => node.name.text === "X9t");
+  assert.equal(bridgeSpecifier.propertyName.text, "vm");
   const asset = DESIGN_ASSETS[2], filename = path.join(root, asset);
   const settings = transformAsset(ms.readFileSync(filename, "utf8"), asset, filename, vp).text;
   const injected = parse(settings, asset).statements.filter(vp.isImportDeclaration)
-    .flatMap(node => node.moduleSpecifier.text === "./app-initial-5120fa5fe295.js"
+    .flatMap(node => node.moduleSpecifier.text === "./app-initial-c014f9ee4429.js"
       ? node.importClause?.namedBindings?.elements ?? [] : [])
     .filter(e => /^azrael(?:Account|Instruction|Window)Bridge$/.test(e.name.text));
   assert.deepEqual(injected.map(e => e.name.text).sort(), ["azraelAccountBridge", "azraelInstructionBridge"]);
@@ -103,7 +104,7 @@ test("injected settings bridges resolve to the pinned module's real exports", ()
   const windowFilename = path.join(root, SETTINGS_ASSET);
   const windowSettings = transformAsset(ms.readFileSync(windowFilename, "utf8"), SETTINGS_ASSET, windowFilename, vp).text;
   const windowBridges = parse(windowSettings, SETTINGS_ASSET).statements.filter(vp.isImportDeclaration)
-    .flatMap(node => node.moduleSpecifier.text === "./app-initial-5120fa5fe295.js"
+    .flatMap(node => node.moduleSpecifier.text === "./app-initial-c014f9ee4429.js"
       ? node.importClause?.namedBindings?.elements ?? [] : [])
     .filter(e => e.name.text === "azraelWindowBridge");
   assert.equal(windowBridges.length, 1);
@@ -111,7 +112,7 @@ test("injected settings bridges resolve to the pinned module's real exports", ()
   const navigation = transformAsset(ms.readFileSync(path.join(root, navigationAsset), "utf8"), navigationAsset, path.join(root, navigationAsset), vp).text;
   assert(!navigation.includes("azraelInstructionAsset16=O("));
   assert(navigation.includes("case`pets`:return{visible:!1,pending:!1};"));
-  assert(navigation.includes("commandAsset:Or,navigation:{assets:{16:Or,20:Er}"));
+  assert(navigation.includes("commandAsset:wr,navigation:{assets:{16:wr,20:Er}"));
   for (const imported of [...injected, ...windowBridges]) assert(exports.has(imported.propertyName.text), imported.name.text);
 });
 
@@ -126,13 +127,13 @@ test("pinned composed assets parse, preserve settings, reject drift and remain i
     assert.equal(injectStudentDesign(result.text, asset).count, 0);
     assert.throws(() => injectStudentDesign(result.text + "/*azrael-student-design-v1*/", asset), /Duplicate/);
     if (asset === "out/extension.js") {
-      assert(source.includes('case"open-vscode-command":{Ge.commands.executeCommand'));
-      assert(result.text.includes('Ge.commands.executeCommand("azrael.designEmbedded"'));
-      assert(result.text.includes('azraelObserveStudentCreated(e,Ge.commands)'));
+      assert(source.includes('case"open-vscode-command":{je.commands.executeCommand'));
+      assert(result.text.includes('je.commands.executeCommand("azrael.designEmbedded"'));
+      assert(result.text.includes('azraelObserveStudentCreated(e,je.commands)'));
     }
     assert.throws(() => injectStudentDesign("", asset), /anchor changed|requires instruction/);
     if (asset === DESIGN_ASSETS[2]) {
-      for (const value of ["AzraelAccountSettings", "AzraelInstructionSettings", "AzraelDesignSettings", ".azrael-instructions.azrael-design.pets.", 'defaultMessage:azraelSettingsText(O.locale,`Design`,`디자인`)']) assert(result.text.includes(value));
+      for (const value of ["AzraelAccountSettings", "AzraelInstructionSettings", "AzraelDesignSettings", ".azrael-instructions.azrael-design.pets.", 'defaultMessage:azraelSettingsText(T.locale,`Design`,`디자인`)']) assert(result.text.includes(value));
     }
     if (asset === DESIGN_ASSETS[1]) {
       assert(result.text.includes('{slug:`azrael-instructions`},{slug:`azrael-design`}'));
@@ -151,19 +152,19 @@ test("pinned design defers cyclic bundle initialization until the first rendered
   const source = ms.readFileSync(path.join(root, asset), "utf8");
   const result = injectStudentDesign(source, asset);
   const ust = vp.createSourceFile(asset, source, 99, true, vp.ScriptKind.JS);
-  const avatar = ust.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "c_i");
-  assert(avatar.getText(ust).includes("(0,d_i.jsx)"));
-  assert(source.includes("function m_i()"));
-  assert(source.includes("Dm=Em.getInstance()"));
+  const avatar = ust.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "VSi");
+  assert(avatar.getText(ust).includes("(0,WSi.jsx)"));
+  assert(source.includes("function qSi()"));
+  assert(source.includes("vm=_m.getInstance()"));
   const start = result.text.indexOf("var azraelDesignStore;function useAzraelDesignState()");
   assert(start > 0);
   const calls = [];
   const context = _m.createContext({
-    m_i: () => { throw new Error("Cyclic avatar owner must not initialize eagerly"); }, Om: () => calls.push("bridge-owner"),
-    Dm: { subscribe: kind => { calls.push(kind); return () => {}; }, dispatchMessage: (_kind, value) => calls.push(value.action) },
+    qSi: () => { throw new Error("Cyclic avatar owner must not initialize eagerly"); }, ym: () => calls.push("bridge-owner"),
+    vm: { subscribe: kind => { calls.push(kind); return () => {}; }, dispatchMessage: (_kind, value) => calls.push(value.action) },
     createDesignStore, crypto: { randomUUID: () => "bootstrap" },
-    q: () => ({ useSyncExternalStore: (_subscribe, get) => get() }),
-    K: () => ({ c: () => [] }),
+    X: () => ({ useSyncExternalStore: (_subscribe, get) => get() }),
+    Z: () => ({ c: () => [] }),
     setTimeout: () => 1, clearTimeout: () => {},
     window: { addEventListener: kind => calls.push(kind) },
   });
@@ -186,7 +187,7 @@ test("injected hooks resolve through pinned React exports, not compiler runtime"
     }
     assert.fail(`Missing pinned import ${local}`);
   };
-  const reactBinding = binding("q"), compilerBinding = binding("K");
+  const reactBinding = binding("X"), compilerBinding = binding("Z");
   assert.equal(reactBinding.file, compilerBinding.file);
   const owner = parse(ms.readFileSync(reactBinding.file, "utf8"), reactBinding.file);
   const exportLocal = exported => {
@@ -240,9 +241,9 @@ test("injected hooks resolve through pinned React exports, not compiler runtime"
   const avatar = patched.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "AzraelStudentAvatar");
   const useState = patched.statements.find(n => vp.isFunctionDeclaration(n) && n.name?.text === "useAzraelDesignState");
   Object.assign(context, {
-    q: _m.runInContext(reactLocal, context), K: _m.runInContext(compilerLocal, context), Om: () => {},
+    X: _m.runInContext(reactLocal, context), Z: _m.runInContext(compilerLocal, context), ym: () => {},
     azraelDesignStore: { subscribe() {}, getSnapshot: () => ({ students: [{ id: "s", url: "local" }], assignments: { thread: "s" } }) },
-    d_i: { jsx: (type, props) => ({ type, props }) }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: () => {},
+    WSi: { jsx: (type, props) => ({ type, props }) }, wi: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: () => {},
   });
   _m.runInContext(avatar.getText(patched) + "\n" + useState.getText(patched), context);
   assert.equal(_m.runInContext('AzraelStudentAvatar({seed:"thread"}).type', context), "img");
@@ -366,8 +367,8 @@ test("avatar uses exact assigned seed even when off, preserves props and falls b
   let state = { enabled: false, students: [{ id: "student", url: "https://webview.local/student.png" }], assignments: { thread: "student" } }, failed = null;
   const original = () => {};
   const avatar = _m.runInNewContext("(" + AzraelStudentAvatar.toString() + ")", {
-    q: () => ({ useState: () => [failed, next => { failed = next; }] }), K: () => ({ c: () => [] }), useAzraelDesignState: () => state,
-    d_i: { jsx }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
+    X: () => ({ useState: () => [failed, next => { failed = next; }] }), Z: () => ({ c: () => [] }), useAzraelDesignState: () => state,
+    WSi: { jsx }, wi: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
   });
   const props = { seed: "thread", className: "custom", title: "title", alt: "ignored" };
   const image = avatar(props);
@@ -419,8 +420,8 @@ test("v2 creation reaches the host store and avatar while duplicate and off deci
     assert.equal(saved.decisions["off-thread"], null);
     const original = () => {};
     const avatar = _m.runInNewContext("(" + AzraelStudentAvatar.toString() + ")", {
-      q: () => ({ useState: () => [null, () => {}] }), useAzraelDesignState: store.getSnapshot,
-      d_i: { jsx }, ni: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
+      X: () => ({ useState: () => [null, () => {}] }), useAzraelDesignState: store.getSnapshot,
+      WSi: { jsx }, wi: (...values) => values.filter(Boolean).join(" "), azraelOriginalAvatar: original,
     });
     assert.equal(avatar({ seed: "new-thread" }).props.src, student.url);
     assert.equal(avatar({ seed: "off-thread" }).type, original);
@@ -439,7 +440,7 @@ test("v2 creation reaches the host store and avatar while duplicate and off deci
 function settingsHarness(initialState, randomValues = [0]) {
   let state = initialState, locale = "ko-KR", cursor = 0, dirty = false, randomIndex = 0;
   const slots = [], effects = [], calls = [], initializers = [];
-  const native = Object.fromEntries(["Tt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "AzraelFontChoice", "pe"].map(name => [name, Symbol(name)]));
+  const native = Object.fromEntries(["kt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "AzraelFontChoice", "pe"].map(name => [name, Symbol(name)]));
   const react = {
     useState(initial) {
       const index = cursor++;
@@ -458,7 +459,7 @@ function settingsHarness(initialState, randomValues = [0]) {
   };
   const choose = (students, previous) => pickStudentPreview(students, previous, () => randomValues[randomIndex++ % randomValues.length]);
   const component = _m.runInNewContext("(" + AzraelDesignSettings.toString() + ")", {
-    ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose, te: () => ({ locale }), azraelSettingsText,
+    ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose, s: () => ({ locale }), azraelSettingsText,
     initAzraelSettingsCard: () => initializers.push("card"), initAzraelSettingsRow: () => initializers.push("row"), initAzraelSwitch: () => initializers.push("switch"),
     initAzraelFontChoice: () => initializers.push("font-choice"),
     useAzraelDesignState: () => state,
@@ -566,7 +567,7 @@ test("live locale switch retranslates timeout, loading, empty and controls witho
 test("settings uses native page/card/row/switch/button and controlled boolean toggle with busy locks", () => {
   const base = loadedDesignState(), h = settingsHarness({ ...base, loading: true });
   let tree = h.render(), controls = settingsControls(h, tree);
-  assert.equal(tree.type, h.native.Tt); assert.equal(tree.props.title, "디자인");
+  assert.equal(tree.type, h.native.kt); assert.equal(tree.props.title, "디자인");
   assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 3);
   assert.equal(treeNodes(tree).some(node => node.type === "input"), false);
   assert.equal(controls.toggle.type, h.native.AzraelSwitch);
@@ -649,12 +650,12 @@ test("native settings imports bind to actual pinned exports and retain native pa
   const parse = (source, name) => vp.createSourceFile(name, source, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   const ast = parse(text, asset), imports = ast.statements.filter(vp.isImportDeclaration);
   const expected = {
-    AzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "d3"], initAzraelSettingsCard: ["./app-initial-5120fa5fe295.js", "f3"],
-    AzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "y3"], initAzraelSettingsRow: ["./app-initial-5120fa5fe295.js", "x3"],
-    AzraelSwitch: ["./app-initial-532d60c9b397.js", "r4"], initAzraelSwitch: ["./app-initial-532d60c9b397.js", "a4"],
-    AzraelFontChoice: ["./app-initial-532d60c9b397.js", "Tf"], initAzraelFontChoice: ["./app-initial-532d60c9b397.js", "Ef"],
+    AzraelSettingsCard: ["./app-initial-c014f9ee4429.js", "W3"], initAzraelSettingsCard: ["./app-initial-c014f9ee4429.js", "G3"],
+    AzraelSettingsRow: ["./app-initial-c014f9ee4429.js", "Q3"], initAzraelSettingsRow: ["./app-initial-c014f9ee4429.js", "t6"],
+    AzraelSwitch: ["./app-initial-7a199c66e670.js", "l9"], initAzraelSwitch: ["./app-initial-7a199c66e670.js", "d9"],
+    AzraelFontChoice: ["./app-initial-7a199c66e670.js", "Wp"], initAzraelFontChoice: ["./app-initial-7a199c66e670.js", "Gp"],
   };
-  for (const local of [...Object.keys(expected), "Tt", "pe", "te", "Q", "$"]) {
+  for (const local of [...Object.keys(expected), "kt", "pe", "s", "Q", "$"]) {
     let importLocal = local;
     if (local === "Q" || local === "$") {
       const assignments = [];
@@ -664,7 +665,7 @@ test("native settings imports bind to actual pinned exports and retain native pa
       };
       visit(ast); assert.equal(assignments.length, 1, `Unique pinned initializer for ${local}`);
       importLocal = assignments[0].expression.text;
-      assert.equal(importLocal, local === "Q" ? "h" : "s");
+      assert.equal(importLocal, local === "Q" ? "y" : "r");
     }
     const ownerImport = imports.find(node => node.importClause?.namedBindings?.elements?.some(e => e.name.text === importLocal));
     assert(ownerImport, `Missing native import ${local} via ${importLocal}`);

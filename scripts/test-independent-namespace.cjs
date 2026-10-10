@@ -86,7 +86,7 @@ assert.equal(count(originalBundle, require("./inject-image-file-open.cjs").MARKE
   "original Codex host unexpectedly contains the Azrael image link patch");
 assert.equal(count(hostBundle, require("./inject-image-file-open.cjs").MARKER), 1,
   "packaged Azrael host must contain exactly one image link patch");
-const recentThreadAsset = "webview/assets/app-initial-efe028fd535e.js";
+const recentThreadAsset = "webview/assets/app-initial-97d3534ad35f.js";
 const hostRecentThreadBundle = hs.readFileSync(path.join(hostRoot, recentThreadAsset), "utf8");
 const composerDraftTransform = require("./inject-composer-draft.cjs");
 const originalComposer = hs.readFileSync(path.join(originalRoot, composerDraftTransform.COMPOSER_DRAFT_ASSET), "utf8");
@@ -104,7 +104,7 @@ const accountBundle = ["extension.js", "accountView.js", "usageView.js", "rootRe
   .join("\n");
 
 assert.equal(`${originalManifest.publisher}.${originalManifest.name}`, "openai.chatgpt");
-assert.equal(originalManifest.version, "26.930.61225");
+assert.equal(originalManifest.version, "26.1007.21434");
 assert.equal(`${hostManifest.publisher}.${hostManifest.name}`, "azrael-ex-local.azrael");
 assert.match(hostManifest.version, /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/, "host package version is not independently updateable");
 assert(hostManifest.version.split(".").every(part => Number.isSafeInteger(Number(part))),

@@ -306,6 +306,7 @@ fn evicted_voice_delegation_marker_still_suppresses_private_replay() {
         root_resume_wait: None,
 
         id: "voice-turn".into(),
+        root_turn_id: None,
         items: vec![voice_request],
         items_view: codex_app_server_protocol::TurnItemsView::Summary,
         status: TurnStatus::InProgress,
@@ -349,6 +350,7 @@ fn saved_voice_turn_suppresses_reasoning_without_hiding_typed_reasoning() {
         root_resume_wait: None,
 
         id: id.into(),
+        root_turn_id: None,
         items,
         items_view: codex_app_server_protocol::TurnItemsView::Full,
         status: TurnStatus::Completed,
@@ -396,6 +398,7 @@ fn snapshot_keeps_typed_output_before_voice_handoff_in_the_same_turn() {
         root_resume_wait: None,
 
         id: "shared".into(),
+        root_turn_id: None,
         items: vec![typed.clone(), marker.clone(), private.clone()],
         items_view: codex_app_server_protocol::TurnItemsView::Full,
         status: TurnStatus::InProgress,

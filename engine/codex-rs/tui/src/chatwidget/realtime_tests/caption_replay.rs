@@ -12,6 +12,7 @@ async fn replay_preserves_typed_updates_before_voice_steers_the_turn() {
             root_resume_wait: None,
 
             id: "typed-then-voice".into(),
+            root_turn_id: None,
             items: vec![
                 user_item("Typed question"),
                 agent_item(
@@ -83,6 +84,7 @@ async fn in_progress_voice_replay_restores_the_late_reasoning_guard() {
             root_resume_wait: None,
 
             id: "saved-voice-turn".into(),
+            root_turn_id: None,
             items: vec![voice_request.clone()],
             items_view: TurnItemsView::Full,
             status: TurnStatus::InProgress,

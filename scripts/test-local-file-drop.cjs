@@ -11,7 +11,7 @@ const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, DROP_MARKER, COMPOSER_MARKER, BROWSER_HELPER,
   hasLocalFileTransfer, localFileDescriptors, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 
-const assets = path.join(__dirname, "..", "artifacts", "upstream-ui", "26.930.61225", "webview", "assets");
+const assets = path.join(__dirname, "..", "artifacts", "upstream-ui", "26.1007.21434", "webview", "assets");
 
 function transfer(data) {
   return { types: Object.keys(data), getData(type) { return data[type] ?? ""; } };
@@ -87,21 +87,21 @@ test("file-drop anchors survive the Azrael namespace transform", () => {
 test("injected composer validates local paths before reusing picked-file attachments", async () => {
   const source = fs.readFileSync(path.join(assets, path.basename(COMPOSER_ASSET)), "utf8");
   const injected = injectLocalFileDrop(source, COMPOSER_ASSET).text;
-  const start = injected.indexOf("addFileReferences:Cm(async e=>{");
+  const start = injected.indexOf("addFileReferences:Jm(async e=>{");
   const end = injected.indexOf("dropTargetPortalTarget:Ie", start);
   assert.ok(start >= 0 && end > start);
   const calls = [];
   const sandbox = {
-    Cm: callback => callback,
-    Ti: null,
-    qp: async (method, request) => {
+    Jm: callback => callback,
+    vi: null,
+    Im: async (method, request) => {
       calls.push([method, request.params.path]);
       return { isFile: request.params.path.endsWith("valid.txt") };
     },
-    be: { get: () => ({ danger: message => calls.push(["toast", message]) }) },
-    sS: Symbol("toast"),
-    Ua: { async addPickedFiles(files, options) { calls.push(["add", files.map(file => file.fsPath), options.imagesOnly]); } },
-    ema: async () => [],
+    he: { get: () => ({ danger: message => calls.push(["toast", message]) }) },
+    hx: Symbol("toast"),
+    wa: { async addPickedFiles(files, options) { calls.push(["add", files.map(file => file.fsPath), options.imagesOnly]); } },
+    GNa: async () => [],
   };
   const object = vm.runInNewContext(`({${injected.slice(start, end)}marker:true})`, sandbox);
   await object.addFileReferences([
@@ -112,7 +112,7 @@ test("injected composer validates local paths before reusing picked-file attachm
   assert.deepEqual(JSON.parse(JSON.stringify(calls.at(-1))), ["add", ["C:\\work\\valid.txt"], false]);
   for (const blocker of ["disabled", "host-setup"]) {
     calls.length = 0;
-    sandbox.Ti = blocker;
+    sandbox.vi = blocker;
     await object.addFileReferences([{ fsPath: "C:\\work\\valid.txt" }]);
     assert.deepEqual(calls, [], `native ${blocker} gate blocks metadata reads and attachment mutations`);
   }
@@ -124,7 +124,7 @@ test("native drop handler captures the composer callback rather than the drag ev
   const ast = vp.createSourceFile(DROP_ASSET, injected, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   let hook;
   function visit(node) {
-    if (vp.isFunctionDeclaration(node) && node.name?.text === "EDi") hook = node;
+    if (vp.isFunctionDeclaration(node) && node.name?.text === "SFi") hook = node;
     vp.forEachChild(node, visit);
   }
   visit(ast);
@@ -132,12 +132,12 @@ test("native drop handler captures the composer callback rather than the drag ev
   let attached, prevented = 0;
   const sandbox = {
     URL,
-    DDi: { c: () => Array(46).fill(Symbol("uninitialized")) },
-    Z5: { useState: () => [null, () => {}], useEffect() {}, useEffectEvent: callback => callback },
-    Y6r: () => false,
-    _he: () => ({ imageFiles: [], otherFiles: [] }),
-    xEe: () => false,
-    rf: () => false,
+    CFi: { c: () => Array(46).fill(Symbol("uninitialized")) },
+    v7: { useState: () => [null, () => {}], useEffect() {}, useEffectEvent: callback => callback },
+    pei: () => false,
+    Bme: () => ({ imageFiles: [], otherFiles: [] }),
+    kPe: () => false,
+    Sl: () => false,
   };
   vm.runInNewContext(BROWSER_HELPER + hook.getText(ast), sandbox);
   const props = {
@@ -147,7 +147,7 @@ test("native drop handler captures the composer callback rather than the drag ev
     setIsDragActive() {}, setShowShiftOverlay() {},
     addFileReferences(files) { attached = files; },
   };
-  const handler = sandbox.EDi(props);
+  const handler = sandbox.SFi(props);
   handler.handleDrop({
     target: null, dataTransfer: transfer({ CodeFiles: JSON.stringify(["C:\\work\\valid.txt"]) }),
     preventDefault() { prevented++; },

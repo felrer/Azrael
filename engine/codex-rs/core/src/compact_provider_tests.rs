@@ -279,9 +279,25 @@ async fn local_compact_routes_to_current_turn_provider() {
     )
     .await;
 
+    let step_context = fixture
+        .sess
+        .capture_step_context(
+            Arc::clone(&fixture.turn_context),
+            &tokio_util::sync::CancellationToken::new(),
+        )
+        .await
+        .expect("capture current provider context");
+    let world_state = Arc::new(
+        fixture
+            .sess
+            .build_world_state_for_step(&step_context, /*new_window*/ true)
+            .await
+            .expect("capture compaction world state"),
+    );
     crate::compact::run_compact_task(
         Arc::clone(&fixture.sess),
-        Arc::clone(&fixture.turn_context),
+        step_context,
+        world_state,
         vec![UserInput::Text {
             text: "compact".to_string(),
             text_elements: Vec::new(),
@@ -325,9 +341,25 @@ async fn remote_compact_v2_routes_to_current_turn_provider() {
 
     // Covers the standalone path, which creates its own client session via
     // `session_for_provider(turn_context.provider)`.
+    let step_context = fixture
+        .sess
+        .capture_step_context(
+            Arc::clone(&fixture.turn_context),
+            &tokio_util::sync::CancellationToken::new(),
+        )
+        .await
+        .expect("capture current provider context");
+    let world_state = Arc::new(
+        fixture
+            .sess
+            .build_world_state_for_step(&step_context, /*new_window*/ true)
+            .await
+            .expect("capture compaction world state"),
+    );
     crate::compact_remote_v2::run_remote_compact_task(
         Arc::clone(&fixture.sess),
-        Arc::clone(&fixture.turn_context),
+        step_context,
+        world_state,
     )
     .await
     .expect("remote compaction v2 should succeed on provider C");

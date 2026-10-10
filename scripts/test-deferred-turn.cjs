@@ -1,15 +1,15 @@
-"use strict";
+"Voe strict";
 const assert = require("node:assert/strict");
 const fs = require("node:fs");
 const path = require("node:path");
 const test = require("node:test");
-const vm = require("node:vm");
+const xm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { rewriteJavaScript, transformAsset } = require("./namespace-azrael-host.cjs");
 const patch = require("./inject-deferred-turn.cjs");
 const waitHelpers = require("./root-resume-wait.cjs");
 
-const root = process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const inputs = [
   [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 11],
   [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 9],
@@ -69,18 +69,18 @@ function importedReducerFunction(alias) {
     node.exportClause?.elements?.some(item => item.name.text === exportedName));
   assert.ok(exportDeclaration, exportedName);
   const exported = exportDeclaration.exportClause.elements.find(item => item.name.text === exportedName);
-  return vm.runInNewContext(`(${functionNamed(moduleSource, exported.propertyName?.text ?? exported.name.text)})`);
+  return xm.runInNewContext(`(${functionNamed(moduleSource, exported.propertyName?.text ?? exported.name.text)})`);
 }
 const nativeConverter = inputs[0].source.match(/let\{threadId:s,turn:c\}=t\.params,l=([A-Za-z_$][\w$]*)\(s\);if\(!o\.threadStore\.conversations\.has\(l\)\)/)[1];
-const reducerBindings = { [nativeConverter]: importedReducerFunction(nativeConverter), m: importedReducerFunction("m") };
-const nativeLookup = vm.runInNewContext(["zh", "Ih", "Fh"].map(name => functionNamed(inputs[0].source, name)).join("\n") + "\nFh");
-reducerBindings.Fh = nativeLookup;
+const reducerBindings = { [nativeConverter]: importedReducerFunction(nativeConverter), _e: importedReducerFunction("_e") };
+const nativeLookup = xm.runInNewContext(["Sg", "yg", "vg"].map(name => functionNamed(inputs[0].source, name)).join("\n") + "\nvg");
+reducerBindings.vg = nativeLookup;
 
 function recoveryFixture(canonical = false, includeOld = true) {
   const source = inputs[0].result.text;
-  const bindings = vm.runInNewContext(["zh", "Ih", "Fh", "Nh", "Aue", "Ah", "Ph", "Lh", "uQ"]
-    .map(name => functionNamed(source, name)).join("\n") + "\n({Fh,Nh,Ph,Lh,uQ})");
-  const reducer = vm.runInNewContext(`(${functionContaining(source, "case\u0060turn/deferred\u0060:")})`,
+  const bindings = xm.runInNewContext(["Sg", "yg", "vg", "gg", "$le", "pg", "_g", "bg", "s$"]
+    .map(name => functionNamed(source, name)).join("\n") + "\n({vg,gg,_g,bg,s$})");
+  const reducer = xm.runInNewContext(`(${functionContaining(source, "case\u0060turn/deferred\u0060:")})`,
     { ...reducerBindings, ...waitHelpers, ...bindings });
   const old = { turnId: "old-turn", status: "inProgress", durationMs: 777777, items: [], params: {}, turnStartedAtMs: 12000 };
   const fresh = { turnId: "new-turn", status: "inProgress", durationMs: null, items: [], params: {}, turnStartedAtMs: 66000 };
@@ -99,20 +99,20 @@ function recoveryFixture(canonical = false, includeOld = true) {
   const logs = [], requests = [], pages = [], broadcasts = [];
   const context = {
     itemStreamState: { drainBefore: () => false }, threadStore: { conversations: new Map([["thread", conversation]]) },
-    updateTurnState: (id, turnId, update) => { const turn = bindings.Fh(conversation, t => t.turnId === turnId); if (turn) update(turn); },
+    updateTurnState: (id, turnId, update) => { const turn = bindings.vg(conversation, t => t.turnId === turnId); if (turn) update(turn); },
   };
   const manager = {
     getConversation: id => id === "thread" ? conversation : null,
     logger: { info: (event, fields) => logs.push(fields), error: () => assert.fail("unexpected error") },
     updateConversationState: (id, update) => update(conversation),
     listThreadTurns: async (id, options) => { requests.push({ id, options }); const page = pages.shift(); if (page instanceof Error) throw page; return page; },
-    broadcastConversationSnapshot: vm.runInNewContext("(function(e){" +
+    broadcastConversationSnapshot: xm.runInNewContext("(function(e){" +
       "azraelFlushDeferred(this,e);return this.streamState.broadcastConversationSnapshot(e)})", waitHelpers),
     streamState: { broadcastConversationSnapshot: id => broadcasts.push(id) },
   };
   // Execute the exact injected native manager method, including its flush hook.
   const method = source.match(/broadcastConversationSnapshot\(e\)\{azraelFlushDeferred\(this,e\);return this\.streamState\.broadcastConversationSnapshot\(e\)\}/)[0];
-  manager.broadcastConversationSnapshot = vm.runInNewContext(`({${method}}).broadcastConversationSnapshot`, waitHelpers);
+  manager.broadcastConversationSnapshot = xm.runInNewContext(`({${method}}).broadcastConversationSnapshot`, waitHelpers);
   const emit = (wait, id = "old-turn") => reducer({ manager, notificationContext: context },
     { method: "turn/rootResumeWait/updated", params: { threadId: "thread", turnId: id, wait } });
   const start = () => reducer({ manager, notificationContext: context },
@@ -129,8 +129,8 @@ function restoreFixture(canonical = false, includeOld = true) {
   const f = recoveryFixture(canonical, includeOld);
   f.manager.notificationContext = f.context;
   // Execute the injected lifecycle call with the native converter and Fh.
-  const hook = inputs[0].result.text.match(/azraelReconcileDeferredRestoration\(e,e\.notificationContext,Fh,[\w$]+\(tt\.thread\.id\),tt\.thread\.id\);/)[0];
-  f.restore = vm.runInNewContext(`(function(e,tt){return ${hook}})`, { ...waitHelpers, ...reducerBindings }).bind(null, f.manager, { thread: { id: "thread" } });
+  const hook = inputs[0].result.text.match(/azraelReconcileDeferredRestoration\(e,e\.notificationContext,vg,[\w$]+\(\$e\.thread\.id\),\$e\.thread\.id\);/)[0];
+  f.restore = xm.runInNewContext(`(function(e,$e){return ${hook}})`, { ...waitHelpers, ...reducerBindings }).bind(null, f.manager, { thread: { id: "thread" } });
   return f;
 }
 
@@ -391,8 +391,8 @@ for (const canonical of [false, true]) {
     await f.settle();
     assert.equal(nativeLookup(f.conversation, t => t.turnId === "old-turn"), null);
     assert.equal(f.fresh.status, "inProgress");
-    const hydrate = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Nyn")})`, {
-      ...waitHelpers, Pyn: x => x, Iyn: x => x == null ? null : x * 1000, s: () => ({}), Ve: () => [],
+    const hydrate = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "rxn")})`, {
+      ...waitHelpers, ixn: x => x, oxn: x => x == null ? null : x * 1000, gt: () => ({}), Ge: () => [],
     });
     Object.assign(f.old, hydrate({ threadId: "thread", turns: [{ id: "old-turn", items: [],
       status: "inProgress", startedAt: 12, completedAt: null, durationMs: 777777 }], permissions: {} })[0]);
@@ -570,17 +570,17 @@ test("pending metadata flush ends terminal waits while preserving measured termi
 });
 
 test("wait boundaries normalize native hydration and stale snapshots without inventing duration", () => {
-  const hydrate = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Nyn")})`, {
-    ...waitHelpers, Pyn: x => x, Iyn: x => x == null ? null : x * 1000, s: () => ({}), Ve: () => [],
+  const hydrate = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "rxn")})`, {
+    ...waitHelpers, ixn: x => x, oxn: x => x == null ? null : x * 1000, gt: () => ({}), Ge: () => [],
   });
   const wait = reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 });
   const turn = hydrate({ threadId: "thread", turns: [{ id: "old-turn", items: [],
     status: "inProgress", startedAt: 12, completedAt: null, durationMs: 777777, rootResumeWait: wait }], permissions: {} })[0];
   assert.equal(turn.status, "deferred");
   assert.equal(turn.durationMs, null);
-  const merge = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "mue")})`, {
-    ...waitHelpers, vue: { default: () => true }, wh: () => null,
-    gue: (existing, incoming) => incoming.params, bh: (existing, incoming) => incoming,
+  const merge = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Lle")})`, {
+    ...waitHelpers, Vle: { default: () => true }, sg: () => null,
+    zle: (existing, incoming) => incoming.params, rg: (existing, incoming) => incoming,
   });
   const result = merge({ ...turn, params: {} }, { ...turn, params: {}, status: "inProgress", durationMs: 999999, rootResumeWait: null }, { isResumeSnapshot: true });
   assert.equal(result.status, "deferred");
@@ -592,7 +592,10 @@ test("deferred anchors match the pinned host, parse, and fail closed", () => {
   for (const { file, source, result, inject, count } of inputs) {
     assert.equal(result.count, count, file);
     assert.equal(ts.createSourceFile(file, result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-    assert.throws(() => inject(result.text), /anchor must occur exactly once/);
+    if (inject === patch.injectDeferredHostNotification || inject === patch.injectDeferredRendererNotification) {
+      assert.deepEqual(inject(result.text), { text: result.text, count: 0 });
+      assert.throws(() => inject(result.text.replace('"turn/rootResumeWait/updated":!0,', '')), /anchor must occur exactly once/);
+    } else assert.throws(() => inject(result.text), /anchor must occur exactly once/);
     assert.throws(() => inject("anchor missing"), /anchor must occur exactly once/);
     assert.notEqual(source, result.text);
   }
@@ -604,7 +607,7 @@ test("renderer ingress admits both deferred methods before the native reducer", 
     const ast = sourceAst(source);
     let table;
     function visit(node) {
-      if (ts.isBinaryExpression(node) && node.left.getText(ast) === "qyt" &&
+      if (ts.isBinaryExpression(node) && node.left.getText(ast) === "xTt" &&
           node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isObjectLiteralExpression(node.right)) table = node.right.getText(ast);
       if (table == null) ts.forEachChild(node, visit);
     }
@@ -612,13 +615,13 @@ test("renderer ingress admits both deferred methods before the native reducer", 
     assert.ok(table);
     return table;
   };
-  const admission = source => vm.runInNewContext("const qyt=" + tableSource(source) + ";" +
-    functionNamed(source, "Gyt") + functionNamed(source, "Kyt") + ";Kyt");
+  const admission = source => xm.runInNewContext("const xTt=" + tableSource(source) + ";" +
+    functionNamed(source, "vTt") + functionNamed(source, "yTt") + ";yTt");
   const before = admission(input.source), after = admission(input.result.text);
   const presentation = inputs[1].source;
-  assert.ok(/if\(!eFe\(e\.method\)\)return/.test(presentation));
-  assert.ok(presentation.includes("ZUt as eFe"));
-  assert.ok(input.source.includes("Kyt as ZUt"));
+  assert.ok(/if\(!Mwe\(e\.method\)\)return/.test(presentation));
+  assert.ok(presentation.includes("MJt as Mwe"));
+  assert.ok(input.source.includes("yTt as MJt"));
   for (const method of ["turn/deferred", "turn/rootResumeWait/updated"]) {
     assert.equal(before(method), false);
     assert.equal(after(method), true);
@@ -629,7 +632,7 @@ test("renderer ingress admits both deferred methods before the native reducer", 
 });
 
 test("deferred updates the current turn without terminal side effects and drains before replay", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
+  const reducer = xm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
   const turn = { turnId: "turn-1", status: "inProgress", error: { message: "stale" }, items: [] };
   const conversation = { turns: [turn] }, conversations = new Map([["thread-1", conversation]]), calls = [];
   let draining = true, replay;
@@ -662,19 +665,19 @@ test("deferred updates the current turn without terminal side effects and drains
 
 test("both live notifications use the native conversation converter and reject a missing anchor", () => {
   assert.equal(reducerBindings[nativeConverter]("thread-1"), "thread-1");
-  assert.equal(reducerBindings.m("thread-1"), undefined);
+  assert.equal(reducerBindings._e("thread-1"), undefined);
   const handler = functionContaining(inputs[0].result.text, "case`turn/deferred`:");
   assert.equal(handler.split(`l=${nativeConverter}(s);`).length, 4); // native completion + two added notifications
-  assert.ok(!handler.includes("l=m(s);"));
+  assert.ok(!handler.includes("l=_e(s);"));
   const changed = inputs[0].source.replace(`let{threadId:s,turn:c}=t.params,l=${nativeConverter}(s);`, "let{threadId:s,turn:c}=t.params,l=s;");
   assert.throws(() => patch.injectDeferredTurn(changed), /native conversation converter anchor/);
 });
 
 test("presentation projects deferred duration and a frozen waiting divider", () => {
   const source = inputs[1].result.text;
-  const status = vm.runInNewContext(`(${functionNamed(source, "_it")})`);
-  const duration = vm.runInNewContext(`(${functionNamed(source, "jgt")})`);
-  const divider = vm.runInNewContext(`(${functionNamed(source, "Hgt")})`, waitHelpers);
+  const status = xm.runInNewContext(`(${functionNamed(source, "Qit")})`);
+  const duration = xm.runInNewContext(`(${functionNamed(source, "fyt")})`);
+  const divider = xm.runInNewContext(`(${functionNamed(source, "Cyt")})`, waitHelpers);
   assert.equal(status("deferred"), "deferred");
   assert.equal(duration({ turnStartedAtMs: 12000, durationMs: 4250 }), 16250);
   assert.deepEqual(JSON.parse(JSON.stringify(divider({ items: [{ type: "agent-message" }], status: "deferred", workStartedAtMs: 12000, finalAssistantStartedAtMs: 16250 })[1])),
@@ -694,11 +697,11 @@ function reservation(overrides = {}) {
 function clockHook() {
   let now = 20000, state, callback, interval;
   const slots = Array(7).fill(Symbol.for("react.memo_cache_sentinel"));
-  const hook = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "RFi")})`, {
-    BFi: { c: () => slots }, ra: () => ({ locale: "ko-KR" }),
-    VFi: { useState: init => { state ??= init(); return [state, value => { state = value; }]; } },
-    zFi: () => now, Date: { now: () => now },
-    Wbn: (fn, delay) => { callback = fn; interval = delay; }, eCi: ms => `${Math.floor(ms / 1000)}초`,
+  const hook = xm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Vzi")})`, {
+    Uzi: { c: () => slots }, le: () => ({ locale: "ko-KR" }),
+    Wzi: { useState: init => { state ??= init(); return [state, value => { state = value; }]; } },
+    Hzi: () => now, Date: { now: () => now },
+    pMn: (fn, delay) => { callback = fn; interval = delay; }, bCi: ms => `${Math.floor(ms / 1000)}초`,
   });
   return {
     render: item => hook(item),
@@ -726,7 +729,7 @@ test("waiting uses the existing clock hook, then freezes after early resume or c
 });
 
 test("repeated reservations have independent clocks and completed history has no running divider", () => {
-  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Hgt")})`, waitHelpers);
+  const divider = xm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Cyt")})`, waitHelpers);
   const first = divider({ items: [], status: "deferred", workStartedAtMs: 12000, finalAssistantStartedAtMs: 20000,
     rootResumeWait: reservation({ state: "resumed", revision: 3, waitEndedAtMs: 66000 }) });
   const secondWait = reservation({ reservationId: "reservation-2", waitStartedAtMs: 90000, resumeAtMs: 150000 });
@@ -745,7 +748,7 @@ test("repeated reservations have independent clocks and completed history has no
 });
 
 test("late and duplicate reservation notifications cannot restart a finished wait or change its endpoints", () => {
-  const reducer = vm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
+  const reducer = xm.runInNewContext(`(${functionContaining(inputs[0].result.text, "case`turn/deferred`:")})`, { ...reducerBindings, ...waitHelpers });
   const turn = { turnId: "old-turn", status: "deferred", durationMs: 8000, rootResumeWait: reservation() };
   const env = {
     manager: { getConversation: () => ({ turns: [turn] }), broadcastConversationSnapshot: () => {} },
@@ -770,8 +773,8 @@ test("late and duplicate reservation notifications cannot restart a finished wai
 });
 
 test("history hydration retains wait metadata including missing historical boundaries", () => {
-  const hydrate = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Nyn")})`, {
-    ...waitHelpers, Pyn: x => x, Iyn: x => x == null ? null : x * 1000, s: () => ({}), Ve: () => [],
+  const hydrate = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "rxn")})`, {
+    ...waitHelpers, ixn: x => x, oxn: x => x == null ? null : x * 1000, gt: () => ({}), Ge: () => [],
   });
   const wait = reservation({ revision: 3, state: "resumed", waitEndedAtMs: 66000 });
   const history = hydrate({ threadId: "thread", turns: [{ id: "old-turn", items: [], status: "deferred", startedAt: 12,
@@ -787,9 +790,9 @@ test("history hydration retains wait metadata including missing historical bound
 });
 
 test("terminal merge preserves state and timing against active or deferred wait snapshots", () => {
-  const merge = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "mue")})`, {
-    ...waitHelpers, vue: { default: () => true }, wh: () => null,
-    gue: (existing, incoming) => incoming.params, bh: (existing, incoming) => incoming,
+  const merge = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Lle")})`, {
+    ...waitHelpers, Vle: { default: () => true }, sg: () => null,
+    zle: (existing, incoming) => incoming.params, rg: (existing, incoming) => incoming,
   });
   for (const status of ["interrupted", "completed", "failed"])
     for (const incomingStatus of ["inProgress", "deferred"])
@@ -825,17 +828,17 @@ test("pending unknown duration skips unchanged snapshot updates", async () => {
 });
 
 test("late active snapshots cannot restart a deferred work clock on resume or refresh", () => {
-  const context = { ...waitHelpers, vue: { default: () => true }, wh: () => null,
-    gue: (existing, incoming) => incoming.params, bh: (existing, incoming) => incoming };
-  const merge = vm.runInNewContext(`(${functionNamed(inputs[0].result.text, "mue")})`, context);
-  const original = vm.runInNewContext(`(${functionNamed(inputs[0].source, "mue")})`, context);
+  const context = { ...waitHelpers, Vle: { default: () => true }, sg: () => null,
+    zle: (existing, incoming) => incoming.params, rg: (existing, incoming) => incoming };
+  const merge = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Lle")})`, context);
+  const original = xm.runInNewContext(`(${functionNamed(inputs[0].source, "Lle")})`, context);
   const frozen = { turnId: "old-turn", status: "deferred", items: [], params: {},
     turnStartedAtMs: 12000, durationMs: 8000, rootResumeWait: reservation() };
   const stale = { ...frozen, status: "inProgress", durationMs: 99000, rootResumeWait: null };
   // This is the race that used to reactivate a non-paginated turn after deferral.
   assert.equal(original(frozen, stale, { isResumeSnapshot: true }).status, "inProgress");
-  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Hgt")})`, waitHelpers);
-  const end = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "jgt")})`);
+  const divider = xm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Cyt")})`, waitHelpers);
+  const end = xm.runInNewContext(`(${functionNamed(inputs[1].result.text, "fyt")})`);
   for (const isResumeSnapshot of [false, true]) {
     const turn = merge(frozen, stale, { isResumeSnapshot });
     assert.equal(turn.status, "deferred");
@@ -870,9 +873,9 @@ test("blocked and processing reservations freeze elapsed time independently of t
 test("divider preserves Codex secondary text and border styling while forwarding waiting metadata", () => {
   const source = inputs[1].result.text;
   const slots = Array(14).fill(Symbol.for("react.memo_cache_sentinel"));
-  const render = vm.runInNewContext(`(${functionNamed(source, "LFi")})`, {
-    BFi: { c: () => slots }, k7: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
-    IFi: "clock-label", J3: "chat-padding", ni: (...values) => values.filter(Boolean).join(" "),
+  const render = xm.runInNewContext(`(${functionNamed(source, "Bzi")})`, {
+    Uzi: { c: () => slots }, E7: { jsx: (type, props) => ({ type, props }), jsxs: (type, props) => ({ type, props }) },
+    zzi: "clock-label", s6: "chat-padding", wi: (...values) => values.filter(Boolean).join(" "),
   });
   const waiting = waitHelpers.azraelRootResumeWaitItem(reservation());
   const result = render(waiting), container = result.props.children;
@@ -886,23 +889,23 @@ test("divider preserves Codex secondary text and border styling while forwarding
 test("historical rows rematerialize when only deferred wait details change", () => {
   const input = inputs.find(input => input.file.endsWith(path.basename(patch.DEFERRED_THREAD_ASSET)));
   const sourceModule = fs.readFileSync(path.join(root, patch.DEFERRED_NOTIFICATION_ASSET), "utf8");
-  assert.ok(input.source.includes("P_t as Ge"));
-  assert.ok(sourceModule.includes("_O as P_t"));
-  const detailsSelector = sourceModule.indexOf("_O=Jo(");
+  assert.ok(input.source.includes("VSt as kt"));
+  assert.ok(sourceModule.includes("fD as VSt"));
+  const detailsSelector = sourceModule.indexOf("fD=_c(");
   assert.ok(detailsSelector >= 0);
-  assert.match(sourceModule.slice(detailsSelector, detailsSelector + 190), /R7t.*\.at\(e\.entityKey\)/);
+  assert.match(sourceModule.slice(detailsSelector, detailsSelector + 190), /srn.*\.at\(e\.entityKey\)/);
   for (const [source, corrected] of [[input.source, false], [input.result.text, true]]) {
-    const nativeRow = functionNamed(source, "Zm");
-    const start = nativeRow.indexOf("ue=A(Ne,le)"), end = nativeRow.indexOf("let me=X", start);
+    const nativeRow = functionNamed(source, "eh");
+    const start = nativeRow.indexOf("ue=C(Mt,le)"), end = nativeRow.indexOf("let he=me", start);
     assert.ok(start >= 0 && end > start);
     const slots = Array(corrected ? 103 : 102).fill(Symbol.for("react.memo_cache_sentinel"));
     const ids = [], subscriptions = new Set(), manager = {}, entry = {}, key = "turn:origin";
     let details = { turnId: "origin", status: "deferred", durationMs: 8000, rootResumeWait: reservation() }, reads = 0;
-    const context = { slots, manager, entry, key, Ne: "items", Te: "id", et: "status", Ge: "details", Nm: "filter", Fm: "voice",
-      A(selector) { subscriptions.add(selector); return selector === "items" ? ids : selector === "id" ? details.turnId : selector === "status" ? details.status : selector === "details" ? details : null; },
-      ce() { reads++; return { ...details, items: ids }; }
+    const context = { slots, manager, entry, key, Mt: "items", Et: "id", Se: "status", kt: "details", Im: "filter", Rm: "voice",
+      C(selector) { subscriptions.add(selector); return selector === "items" ? ids : selector === "id" ? details.turnId : selector === "status" ? details.status : selector === "details" ? details : null; },
+      Tn() { reads++; return { ...details, items: ids }; }
     };
-    const render = vm.runInNewContext("(function(){const t=slots,s=manager,U=entry,le=key,oe=false,f='thread';let " + nativeRow.slice(start, end) + "return X;})", context);
+    const render = xm.runInNewContext("(function(){const t=slots,s=manager,te=entry,le=key,se=false,p='thread';let " + nativeRow.slice(start, end) + "return me;})", context);
     assert.equal(render().rootResumeWait.state, "waiting");
     details = { ...details, rootResumeWait: reservation({ revision: 2, state: "claimed", waitEndedAtMs: 32000 }) };
     const processing = render();
@@ -920,17 +923,17 @@ test("historical rows rematerialize when only deferred wait details change", () 
 test("active activity projection cannot resurrect a deferred source turn or discard its waiting divider", () => {
   const presentation = inputs[1].result.text;
   const context = {
-    ...waitHelpers, Vmt: () => ({ replyItemIds: new Set() }), bat: x => x,
-    Ihe: () => false, Ol: () => false, LS: () => null, _be: () => -1,
-    $gt: { default: (items, predicate) => items.findLastIndex(predicate) },
+    ...waitHelpers, D_t: () => ({ replyItemIds: new Set() }), eot: x => x,
+    OMe: () => false, Cl: () => false, $S: () => null, IDe: () => -1,
+    Pyt: { default: (items, predicate) => items.findLastIndex(predicate) },
   };
-  const declarations = ["_it", "Hgt", "azraelOriginalWorkDivider", "Ugt", "Kmt", "Wgt", "Ggt", "qgt", "Kgt", "jgt", "rht", "oht", "qmt", "BS"]
+  const declarations = ["Qit", "Cyt", "azraelOriginalWorkDivider", "wyt", "O_t", "Tyt", "Eyt", "Oyt", "Dyt", "fyt", "z_t", "H_t", "k_t", "nC"]
     .map(name => functionNamed(presentation, name)).join("\n");
-  const project = vm.runInNewContext(`${declarations}\nBS`, context);
-  const env = { ...waitHelpers, vp: () => [], sp: () => false, ot: x => x,
-    Yo: (turn, requests, options) => project(turn, requests, { ...options, includeAeonProjection: false, includeTurnDiff: false }) };
-  const patched = vm.runInNewContext(`(${functionNamed(inputs[4].result.text, "lp")})`, env);
-  const original = vm.runInNewContext(`(${functionNamed(inputs[4].source, "lp")})`, env);
+  const project = xm.runInNewContext(`${declarations}\nnC`, context);
+  const env = { ...waitHelpers, xp: () => [], up: () => false, kn: x => x,
+    Ns: (turn, requests, options) => project(turn, requests, { ...options, includeAeonProjection: false, includeTurnDiff: false }) };
+  const patched = xm.runInNewContext(`(${functionNamed(inputs[4].result.text, "fp")})`, env);
+  const original = xm.runInNewContext(`(${functionNamed(inputs[4].source, "fp")})`, env);
   const sourceTurn = { status: "deferred", turnId: "old-turn", turnStartedAtMs: 12000, durationMs: 8000,
     firstTurnWorkItemStartedAtMs: 12000, finalAssistantStartedAtMs: null, params: { input: [], threadId: "thread" },
     items: [], rootResumeWait: reservation() };
@@ -954,7 +957,7 @@ test("active activity projection cannot resurrect a deferred source turn or disc
 });
 
 test("interrupted work with a native measured duration uses a fixed stopped divider", () => {
-  const divider = vm.runInNewContext(`(${functionNamed(inputs[1].result.text, "Kmt")})`);
+  const divider = xm.runInNewContext(`(${functionNamed(inputs[1].result.text, "O_t")})`);
   const stopped = divider({ status: "cancelled", hasStartedWork: true, workStartedAtMs: 12000, workedCompletedAtMs: 20000 });
   assert.equal(stopped.status, "stopped");
   assert.equal(stopped.completedAtMs, 20000);
@@ -975,9 +978,9 @@ test("complete host transform pipeline includes every waiting asset and preserve
 
 test("final completed work has its own fixed duration alongside earlier frozen reservation history", () => {
   const source = inputs[1].result.text;
-  const declarations = ["Hgt", "azraelOriginalWorkDivider", "Ugt", "Kmt", "Wgt", "Ggt", "qgt", "Kgt"]
+  const declarations = ["Cyt", "azraelOriginalWorkDivider", "wyt", "O_t", "Tyt", "Eyt", "Oyt", "Dyt"]
     .map(name => functionNamed(source, name)).join("\n");
-  const divide = vm.runInNewContext(`${declarations}\nHgt`, waitHelpers);
+  const divide = xm.runInNewContext(`${declarations}\nCyt`, waitHelpers);
   const items = divide({ items: [{ type: "exec" }, { type: "assistant-message", phase: "final_answer" }],
     status: "complete", workStartedAtMs: 100000, finalAssistantStartedAtMs: 110000 });
   const work = items.find(x => x.type === "worked-for");
@@ -991,8 +994,8 @@ test("final completed work has its own fixed duration alongside earlier frozen r
 
 test("collapsed chat summary forwards waiting metadata and updates when the reservation state changes", () => {
   const slots = Array(17).fill(Symbol.for("react.memo_cache_sentinel"));
-  const render = vm.runInNewContext(`(${functionNamed(inputs[6].result.text, "C")})`, {
-    T: { c: () => slots }, E: { jsx: (type, props) => ({ type, props }) }, v: "clock-label",
+  const render = xm.runInNewContext(`(${functionNamed(inputs[6].result.text, "C")})`, {
+    T: { c: () => slots }, E: { jsx: (type, props) => ({ type, props }) }, p: "clock-label",
   });
   const item = waitHelpers.azraelRootResumeWaitItem(reservation());
   assert.equal(render({ workedForItem: item }).props.rootResumeWait.state, "waiting");

@@ -214,7 +214,7 @@ test("account summary escapes labels and keeps passive quota gauges visible", ()
   assert.match(html, /usage-overview.*role="progressbar"/);
   assert.doesNotMatch(html, /<button|<input/);
   assert.doesNotMatch(accountSummaryHtml('email', true, '', '', false), /현재 로그인/);
-  assert.match(usageStyles, /badge.current-login\{[^}]*background:#eeeef0/);
+  assert.match(usageStyles, /badge.current-login\{[^}]*background:var\(--usage-track\)/);
 });
 
 test("provider icons and heading escape dynamic content without network assets", () => {
@@ -262,4 +262,18 @@ test("OpenAI detail-only usage preserves tickets and omits quota duplication", (
   assert.match(html, /consumeResetCredit/);
   assert.doesNotMatch(html, /role="progressbar"/);
   assert.equal(openAIUsageHtml(null, 'profile', undefined, false), '');
+});
+
+
+test("usage themes inherit native tokens without replacing the embedding palette", () => {
+  assert.doesNotMatch(usageStyles, /(?:^|[;{])--color-[\w-]+:/);
+  assert.doesNotMatch(usageStyles, /background:#(?:fff|fafafa|fcfcfc)|:root,:host\{color-scheme:light/);
+  assert.match(usageStyles, /:host\{display:block;color-scheme:inherit\}/);
+  assert.match(usageStyles, /body\.vscode-dark[^}]*color-scheme:dark/);
+  assert.match(usageStyles, /--usage-ink:var\(--color-text,var\(--vscode-foreground,light-dark\(/);
+  assert.match(usageStyles, /--usage-panel:var\(--color-background-panel,var\(--vscode-editor-background,light-dark\(/);
+  for (const selector of ["provider-group", "card", "reset-ticket-list"]) {
+    assert.match(usageStyles, new RegExp(`\\.${selector}\\{[^}]*background:var\\(--usage-panel\\)`));
+  }
+  assert.match(usageStyles, /\.ticket-use\.confirming\{[^}]*color:var\(--usage-on-primary\)/);
 });

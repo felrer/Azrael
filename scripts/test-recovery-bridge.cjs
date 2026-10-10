@@ -9,7 +9,7 @@ const { injectRecovery } = require("./inject-recovery.cjs");
 
 const projectRoot = path.resolve(__dirname, "..");
 const originalBundle = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ??
-  path.join(projectRoot, "artifacts", "upstream-ui", "26.930.61225"), "out", "extension.js");
+  path.join(projectRoot, "artifacts", "upstream-ui", "26.1007.21434"), "out", "extension.js");
 const typescriptPath = path.join(projectRoot, "extensions", "azrael-ex", "node_modules", "typescript", "lib", "typescript.js");
 
 function owningClass(ts, source, filename) {

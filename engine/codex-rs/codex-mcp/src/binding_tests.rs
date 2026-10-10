@@ -134,6 +134,9 @@ async fn test_step_with_visibility(
         format!("{label}-environment"),
         codex_utils_path_uri::PathUri::parse("file:///configured-test-cwd").unwrap(),
     );
+    config
+        .environment_use_mxc
+        .insert(format!("{label}-environment"), label == "new");
     let config = Arc::new(config);
     let prepared = PreparedMcpCall::new(
         Arc::clone(&connections),
@@ -196,6 +199,7 @@ async fn selected_window_hidden_ui_calls_retain_exact_prepared_authority() {
         .await
         .unwrap();
     assert_eq!(state.permission_profile, PermissionProfile::Disabled);
+    assert!(!state.use_mxc);
     assert_eq!(
         state.sandbox_cwd,
         codex_utils_path_uri::PathUri::parse("file:///configured-test-cwd").unwrap()
@@ -264,6 +268,18 @@ async fn selected_window_prepared_ui_authority_requires_capability_and_configure
         call.sandbox_state_for_configured_environment()
             .await
             .is_err()
+    );
+    let mut call = supported
+        .step
+        .prepare_direct_call(SERVER_NAME, TOOL_NAME)
+        .unwrap();
+    Arc::make_mut(&mut call.config).environment_use_mxc.clear();
+    assert!(
+        call.sandbox_state_for_configured_environment()
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("configured environment execution mode")
     );
 }
 
@@ -340,19 +356,26 @@ async fn prepared_call_keeps_captured_connection_and_authority_after_refresh() -
             old_call.config().approval_policy.value(),
             old_call.permission_profile(),
             old_call.config().approvals_reviewer,
+            old_call.config().environment_use_mxc.get("old-environment"),
         ),
         (
             AskForApproval::Never,
             &PermissionProfile::Disabled,
             ApprovalsReviewer::User,
+            Some(&false),
         )
     );
     assert_eq!(
         (
             new_call.config().approval_policy.value(),
             new_call.config().approvals_reviewer,
+            new_call.config().environment_use_mxc.get("new-environment"),
         ),
-        (AskForApproval::OnRequest, ApprovalsReviewer::AutoReview)
+        (
+            AskForApproval::OnRequest,
+            ApprovalsReviewer::AutoReview,
+            Some(&true)
+        )
     );
 
     drop(old.step);

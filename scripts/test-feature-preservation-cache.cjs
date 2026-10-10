@@ -6,6 +6,7 @@ const crypto = require('node:crypto');
 const { test, after } = require('node:test');
 const { spawnSync } = require('node:child_process');
 const gate = require('./feature-preservation.cjs');
+const verificationCache = require('./verification-result-cache.cjs');
 const { getDirectoryState } = require('./directory-state.cjs');
 const repository = path.resolve(__dirname, '..');
 const fixtures = path.join(repository, 'artifacts/verification');
@@ -29,7 +30,10 @@ function setup() {
     return { id, area: id === 'native' ? 'engine' : 'ui', owners: [`scripts/owner-${id}.cjs`], contract: `docs/${id}.md`, reportFields: id === 'native' ? [] : [`${id}Edits`], checks: [check] };
   });
   let calls = []; let hook;
-  const config = { projectRoot: root, uiRoot: path.join(root, 'ui'), outputDirectory: path.join(root, 'output'), area: 'all', manifest: { schema: 1, features }, transformRules: {},
+  // Exact invalidation counts require uncontended cache acquisition. The sync
+  // child fixture can otherwise block another worker's lifecycle lease release.
+  // Parallel cache safety is exercised separately with an intentional lease.
+  const config = { projectRoot: root, uiRoot: path.join(root, 'ui'), outputDirectory: path.join(root, 'output'), sourceConcurrency: 1, area: 'all', manifest: { schema: 1, features }, transformRules: {},
     typeScriptPath: require.resolve('typescript', { paths: [path.join(repository, 'extensions/azrael-ex')] }),
     identityProvider: async () => ({ project: await getDirectoryState(root, ['portable/unrelated.txt', ...features.flatMap(f => [...f.owners, f.contract]), 'scripts/shared.cjs']), ui: await getDirectoryState(path.join(root, 'ui')) }),
     execute: async (_executable, args, options) => {
@@ -114,6 +118,44 @@ test('reuseSourceChecks requires an explicit boolean', async () => {
   }
 });
 
+test('parallel checks execute safely when a held cache lease prevents reuse', async () => {
+  const f = setup(); const cold = await f.run(); counts(cold, 5, 0);
+  const warm = await f.run(); counts(warm, 2, 3);
+  const gammaEntry = entry(f, 'gamma', warm);
+  const previous = new Map(['receipt.json', 'stdout.log', 'stderr.log'].map(name => [name, fs.readFileSync(path.join(gammaEntry, name))]));
+  const held = await verificationCache.begin({ projectRoot: f.root, checkId: 'gamma.check',
+    key: warm.checks.find(record => record.checkId === 'gamma.check').cacheKey,
+    runDirectory: path.join(f.root, 'held-reader') });
+  try {
+    assert.equal(held.hit?.reused, true);
+    f.config.sourceConcurrency = 4;
+    const parallel = await f.run();
+    assert.equal(parallel.checks.find(record => record.checkId === 'gamma.check').reused, false);
+    for (const record of parallel.checks) {
+      const baseline = warm.checks.find(previous => previous.checkId === record.checkId);
+      assert.equal(record.logSha256, baseline.logSha256);
+      assert.equal(record.errorSha256, baseline.errorSha256);
+      assert.equal(sha(fs.readFileSync(record.logPath)), record.logSha256);
+      assert.equal(sha(fs.readFileSync(record.errorPath)), record.errorSha256);
+      if (['alpha.check', 'beta.check', 'gamma.check'].includes(record.checkId) && !record.reused) {
+        assert.ok(parallel.cache.deferred.some(reason => reason.checkId === record.checkId && /^busy: (check|lifecycle) lease$/.test(reason.reason)),
+          `${record.checkId} must either reuse valid evidence or report a busy lease`);
+      }
+    }
+    assert.ok(f.calls().includes('scripts/gamma.cjs'));
+    assert.equal(parallel.cache.executed, f.calls().length);
+    assert.equal(parallel.cache.reused, parallel.checks.filter(record => record.reused).length);
+    assert.equal(parallel.cache.executed + parallel.cache.reused, 5);
+    for (const [name, bytes] of previous) assert.deepEqual(fs.readFileSync(path.join(gammaEntry, name)), bytes);
+    for (const record of warm.checks) {
+      assert.equal(sha(fs.readFileSync(record.logPath)), record.logSha256);
+      assert.equal(sha(fs.readFileSync(record.errorPath)), record.errorSha256);
+    }
+  } finally { await held.close(); }
+  f.config.sourceConcurrency = 1;
+  counts(await f.run(), 2, 3);
+});
+
 after(() => {
   const directory = path.join(repository, 'artifacts/logs/verification-result-cache/integration');
   fs.mkdirSync(directory, { recursive: true }); fs.writeFileSync(path.join(directory, 'fixture-receipts.json'), JSON.stringify(evidence, null, 2) + '\n');
@@ -121,7 +163,7 @@ after(() => {
   for (const root of roots) {
     assert.equal(path.dirname(root), fixtures); assert.match(path.basename(root), /^preservation-cache-/);
     const quoted = root.replace(/'/g, "''");
-    const result = spawnSync('pwsh', ['-NoProfile', '-Command', `Remove-Item -LiteralPath '${quoted}' -Recurse -Force`], { encoding: 'utf8' });
+    const result = spawnSync('pwsh', ['-NoProfile', '-Command', `Remove-Item -LiteralPath '${quoted}' -Recurse -ErrorAction Stop`], { encoding: 'utf8' });
     assert.equal(result.status, 0, result.stderr); assert.equal(fs.existsSync(root), false);
   }
 });

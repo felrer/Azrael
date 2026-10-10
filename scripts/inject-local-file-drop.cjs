@@ -2,14 +2,14 @@
 
 const { fileURLToPath } = require("node:url");
 
-const DROP_ASSET = "webview/assets/app-initial-5120fa5fe295.js";
-const COMPOSER_ASSET = "webview/assets/app-initial-532d60c9b397.js";
+const DROP_ASSET = "webview/assets/app-initial-c014f9ee4429.js";
+const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const DROP_MARKER = "/*azrael-local-file-drop-v1*/";
 const COMPOSER_MARKER = "/*azrael-local-file-reference-v1*/";
 
-const DROP_GATE = "m=e=>n!=null||xEe(e)||rf(e)";
-const DROP_ACTION = "if(o.length===0&&s.length===0&&c.length===0&&xEe(e.dataTransfer))";
-const COMPOSER_CALL = "dropTargetPortalTarget:Ie,isDragActive:bo,onAttachmentAdded:He,setIsDragActive:xo,setShowShiftOverlay:Co";
+const DROP_GATE = "m=e=>n!=null||kPe(e)||Sl(e)";
+const DROP_ACTION = "if(o.length===0&&s.length===0&&c.length===0&&kPe(e.dataTransfer))";
+const COMPOSER_CALL = "dropTargetPortalTarget:Ie,isDragActive:Xa,onAttachmentAdded:Ve,setIsDragActive:Za,setShowShiftOverlay:$a";
 
 function count(text, needle) { return text.split(needle).length - 1; }
 
@@ -74,7 +74,7 @@ function injectDropAsset(text) {
   if (count(text, DROP_GATE) !== 1 || count(text, DROP_ACTION) !== 1) {
     throw new Error("Pinned local-file drop anchors changed.");
   }
-  const functionAnchor = "function EDi(e){";
+  const functionAnchor = "function SFi(e){";
   if (count(text, functionAnchor) !== 1) throw new Error("Pinned composer drop function changed.");
   const result = text.replace(functionAnchor, BROWSER_HELPER + functionAnchor + "const __azraelAddFileReferences=e.addFileReferences;")
     .replace(DROP_GATE, gated)
@@ -83,7 +83,7 @@ function injectDropAsset(text) {
 }
 
 function injectComposerAsset(text) {
-  const callback = `addFileReferences:Cm(async e=>{${COMPOSER_MARKER}if(Ti!=null)return;if(e.length===0){be.get(sS).danger("Only saved local files can be attached");return}let t=[],n=!1;for(let r of e)try{let i=await qp("read-file-metadata",{params:{path:r.fsPath}});i?.isFile===!0?t.push(r):n=!0}catch{n=!0}n&&be.get(sS).danger("Unable to attach one or more files");if(t.length>0)await Ua.addPickedFiles(t,{imagesOnly:!1,loadImageDataUrls:async e=>{let t=await ema(e);t.some(e=>e==null)&&be.get(sS).danger("Unable to attach one or more files");return t}})}),`;
+  const callback = `addFileReferences:Jm(async e=>{${COMPOSER_MARKER}if(vi!=null)return;if(e.length===0){he.get(hx).danger("Only saved local files can be attached");return}let t=[],n=!1;for(let r of e)try{let i=await Im("read-file-metadata",{params:{path:r.fsPath}});i?.isFile===!0?t.push(r):n=!0}catch{n=!0}n&&he.get(hx).danger("Unable to attach one or more files");if(t.length>0)await wa.addPickedFiles(t,{imagesOnly:!1,loadImageDataUrls:async e=>{let t=await GNa(e);t.some(e=>e==null)&&he.get(hx).danger("Unable to attach one or more files");return t}})}),`;
   if (count(text, COMPOSER_MARKER) === 1 && count(text, callback + COMPOSER_CALL) === 1) return { text, count: 0 };
   if (count(text, COMPOSER_MARKER)) throw new Error("Invalid local-file composer marker.");
   if (count(text, COMPOSER_CALL) !== 1) throw new Error("Pinned local-file composer anchor changed.");

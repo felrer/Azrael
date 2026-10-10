@@ -9,7 +9,7 @@ const { createBtwController } = require("./btw-conversation.cjs");
 const { BTW_ASSETS, BTW_MARKER, INSTRUCTIONS, injectBtw } = require("./inject-btw.cjs");
 const { injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { transformAsset } = require("./namespace-azrael-host.cjs");
-const root = path.resolve(__dirname, "../artifacts/upstream-ui/26.930.61225");
+const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const originals = BTW_ASSETS.map(asset => fs.readFileSync(path.join(root, asset), "utf8"));
 const patched = originals.map((source, i) => transformAsset(source, BTW_ASSETS[i], BTW_ASSETS[i], ts));
 function declaration(source, name) {
@@ -17,6 +17,30 @@ function declaration(source, name) {
   const node = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name);
   assert.ok(node, name); return node.getText(ast);
 }
+test("btw imports the actual latest native button wrapper and initializer", () => {
+  const ast = ts.createSourceFile("composer.js", originals[1], 99, true, ts.ScriptKind.JS);
+  const exports = new Map(ast.statements.filter(ts.isExportDeclaration).flatMap(node =>
+    node.exportClause?.elements?.map(spec => [spec.name.text, spec.propertyName?.text ?? spec.name.text]) ?? []));
+  assert.equal(exports.get("ZIt"), "mw");
+  assert.equal(exports.get("$It"), "gw");
+  assert.equal(patched[2].text.split('import{ZIt as __azraelBtwButton,$It as __azraelInitBtwButton}').length, 2);
+  const noop = () => {};
+  const context = {
+    e: fn => fn, Q: () => ({ c: count => Array(count).fill(Symbol("empty React cache")) }),
+    ha: noop, wd: () => ({}), zl: noop, $Wt: noop, pw: noop,
+    m: () => ({ jsx: (type, props) => ({ type, props }) }), DGt: Symbol("native button base"),
+  };
+  vm.createContext(context);
+  vm.runInContext(declaration(originals[1], "gw") + "\n" + declaration(originals[1], "mw"), context);
+  context.gw();
+  assert.match(context.AGt.composerPrimary, /bg-composer-primary/);
+  const onClick = () => {}, props = { children: "Transfer answer", disabled: true, onClick };
+  const rendered = context.mw(props);
+  assert.equal(rendered.type, context.DGt);
+  assert.equal(rendered.props.children, props.children);
+  assert.equal(rendered.props.disabled, true);
+  assert.equal(rendered.props.onClick, onClick);
+});
 function fixture() {
   const controller = createBtwController(), requests = [], openings = [], disposed = [];
   const parent = { cwd: "/workspace", latestModel: "managed/anthropic/current", threadRuntimeStatus: { type: "running" }, turns: [{ status: "inProgress" }] };
@@ -112,11 +136,11 @@ test("cached reference history is bounded, and repeated submission cannot race a
 
 test("actual native side creator forwards tool-free RPC, selected helper model and task boundary", async () => {
   const requests = [], manager = { getConversation: () => ({ modelProvider: "azrael-managed" }) };
-  const context = { al: () => false, Jje: async () => ["/workspace"], hg: async () => ({ instructions: "inherited task instructions" }), zqe: () => false,
-    SBi: "ordinary side instructions", zu: () => manager,
-    jqe: async (_scope, _host, params) => { requests.push(params); return { conversationId: "child", synchronization: { status: "complete" } }; } };
-  vm.createContext(context); vm.runInContext(declaration(patched[2].text, "bBi"), context);
-  await context.bBi({ scope: {}, sourceConversationId: "parent", hostId: "local", cwd: "/workspace", sideQuestion: true, collaborationMode: { mode: "default", settings: { model: "managed/anthropic/current", reasoning_effort: "high" } } });
+  const context = { bc: () => false, MYe: async () => ["/workspace"], mg: async () => ({ instructions: "inherited task instructions" }), Uye: () => false,
+    eJi: "ordinary side instructions", Bp: () => manager,
+    $Ze: async (_scope, _host, params) => { requests.push(params); return { conversationId: "child", synchronization: { status: "complete" } }; } };
+  vm.createContext(context); vm.runInContext(declaration(patched[2].text, "Qqi"), context);
+  await context.Qqi({ scope: {}, sourceConversationId: "parent", hostId: "local", cwd: "/workspace", sideQuestion: true, collaborationMode: { mode: "default", settings: { model: "managed/anthropic/current", reasoning_effort: "high" } } });
   const request = requests[0];
   assert.equal(request.sideQuestion, true); assert.equal(request.ephemeral, true); assert.equal(request.sideConversation, true);
   assert.equal(request.addForkedSyntheticItem, false); assert.equal(request.model, "managed/anthropic/current"); assert.equal(request.modelProvider, undefined);
@@ -125,9 +149,9 @@ test("actual native side creator forwards tool-free RPC, selected helper model a
 });
 
 test("actual native fork request preserves ephemeral/excludeTurns, sends sideQuestion and has no goal continuation", async () => {
-  const context = { u$: x => x, Uwn: x => x, ct: "native side-conversation boundary" };
-  vm.createContext(context); vm.runInContext(declaration(patched[0].text, "tTn"), context);
-  const native = context.tTn({ getHostId: () => "local", requestClient: { getAppServerVersion: () => "0.160.1" }, getConversation: () => ({ cwd: "/workspace" }) },
+  const context = { n1: x => x, NEn: x => x, Lt: "native side-conversation boundary" };
+  vm.createContext(context); vm.runInContext(declaration(patched[0].text, "$En"), context);
+  const native = context.$En({ getHostId: () => "local", requestClient: { getAppServerVersion: () => "0.160.1" }, getConversation: () => ({ cwd: "/workspace" }) },
     { sourceConversationId: "parent", sideQuestion: true, sideConversation: true, ephemeral: true, model: "managed/anthropic/current" },
     { readTokenBudgetThread: () => false, readConfig: async () => ({}) }, { mapThreadTurns: x => x });
   const { request } = await native.prepareRequest();
@@ -147,29 +171,24 @@ test("unacknowledged older engine forks are discarded before side inference, whi
 });
 
 test("expired /btw panels cannot recreate an ordinary tool-enabled side chat", () => {
-  const notices = []; let forks = 0;
-  const ctx = { Rg: { c: size => Array(size).fill(Symbol.for("react.memo_cache_sentinel")) }, zg: { useState: () => [false, () => {}] },
-    qs: {}, ne: {}, Jn: {}, pe: {}, ht: {}, p: () => ({ get: () => ({ danger: message => notices.push(message) }) }),
-    w: () => ({}), A: () => undefined, Ta: () => ({ tabById$: {} }),
-    $: { jsx: (type, props) => ({ type, props }) }, k: "label", kt: "button", en: "banner", fn: "page", Eg: {},
-    os: () => { forks++; }, __azraelBtw: { lookup: id => id === "side" ? {} : undefined } };
-  vm.createContext(ctx); vm.runInContext(declaration(patched[3].text, "Dg"), ctx);
-  const panel = ctx.Dg({ conversationId: "side", sourceConversationId: "parent", presentation: "banner" });
-  panel.props.customCtas.props.onClick();
-  assert.equal(forks, 0); assert.match(notices[0], /\/btw/);
+  const notices=[];let forks=0;
+  const ast=ts.createSourceFile("thread.js",patched[3].text,99,true,1);let callback;
+  function visit(node){if(ts.isArrowFunction(node)&&node.getText(ast).startsWith("()=>{if(globalThis.__azraelBtw?.lookup(n))"))callback=node.getText(ast);ts.forEachChild(node,visit)}visit(ast);assert.ok(callback);
+  const ctx={n:"side",i:"parent",h:false,g(){},Hr:()=>{forks++;return Promise.resolve(null)},bg:{},c:{get:()=>({danger:message=>notices.push(message)})},un:{},__azraelBtw:{lookup:id=>id==="side"?{}:undefined}};
+  vm.runInNewContext(callback,ctx)();assert.equal(forks,0);assert.match(notices[0],/\/btw/);
 });
 
 test("actual composer routes /btw before queue, goal, history and steering and clears only its owned draft", async () => {
   const composer = injectBtw(injectComposerDraft(originals[1]).text, BTW_ASSETS[1]).text;
-  const names = ["Jfa", "__azraelComposerSnapshot", "__azraelComposerMatches"], code = names.map(n => declaration(composer, n)).join("\n");
+  const names = ["zMa", "__azraelComposerSnapshot", "__azraelComposerMatches"], code = names.map(n => declaration(composer, n)).join("\n");
   let text = "/btw explain", routed = 0, cleared = 0, admission = 0; const errors = [];
-  const ctx = { performance, PS: () => ({ u: () => ({}), e: e => { throw e; }, d() {} }), WJ: "blocked", vG: "attachments", rG: { drafts$: "drafts" },
-    Sp: () => "parent", $W: x => x, tG: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
-    kG: 1, rW: 2, nW: 3, NU: 4, RU: 5, ZU: 6, XU: 7, lOe: x => x,
+  const ctx = { performance, Nx: () => ({ u: () => ({}), e: e => { throw e; }, d() {} }), dq: "blocked", QG: "attachments", RG: { drafts$: "drafts" },
+    g_: () => "parent", PG: x => x, IG: { default: (a, b) => JSON.stringify(a) === JSON.stringify(b) },
+    uK: 1, OW: 2, DW: 3, iW: 4, lW: 5, SW: 6, xW: 7, jnt: x => x,
     __azraelBtw: { lookup: () => undefined, matches: text => /^\s*\/btw(?:\s|$)/.test(text) }, __azraelTryBtw: async () => { routed++; return true; } };
   vm.createContext(ctx); vm.runInContext(code, ctx);
   const scope = { value: {}, get: atom => atom === "drafts" ? { parent: {} } : atom === "attachments" ? {} : undefined };
-  const submit = () => ctx.Jfa({ scope, composerController: { getText: () => text, getPersistedText: () => text }, clearStopTurnConfirmation() {},
+  const submit = () => ctx.zMa({ scope, composerController: { getText: () => text, getPersistedText: () => text }, clearStopTurnConfirmation() {},
     conversationId: "parent", submitTarget: { type: "local" }, clearComposerUi: () => { text = ""; cleared++; }, options: {},
     prepareGoalSubmit: () => { admission++; }, appendPromptToHistory: () => { admission++; }, handleSubmitError: e => errors.push(e) });
   await submit(); assert.deepEqual(errors, []); assert.equal(routed, 1); assert.equal(cleared, 1); assert.equal(admission, 0);

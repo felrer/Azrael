@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225'),
+    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.1007.21434'),
     [Parameter(Mandatory = $true)]
     [ValidateNotNullOrEmpty()]
     [string]$ExtensionsDir
@@ -9,21 +9,21 @@ param(
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 
-$expectedVersion = '26.930.61225'
-$expectedPackageHash = 'F2B6E8372A763374BE83549D7981384EB99B7008D8101329FF99864A68722C97'
-$expectedScriptRelativePath = 'webview/assets/app-initial-532d60c9b397.js'
-$expectedScriptHash = 'C19B16EEC9CF6F5E0D85ACD68A579D36BE0A95EF81648B4A59F1813E90AF46E9'
+$expectedVersion = '26.1007.21434'
+$expectedPackageHash = 'FA0B6DF79BE88E4C7EC18FB647CD305EDEF557A3CC96D89E60C297C6F0990AE3'
+$expectedScriptRelativePath = 'webview/assets/app-initial-7a199c66e670.js'
+$expectedScriptHash = '59B909377A370E09CB8523AB99A1F4FF282A0126527BD339DB31E6D9AC7C9C26'
 $destinationName = "openai.chatgpt-$expectedVersion-win32-x64"
 $markerName = '.azrael-official-ui.json'
-$menuScriptRelativePath = 'webview/assets/profile-dropdown-items-f253b4660520.js'
-$menuSourceHash = 'DA911B569D61E84F57BC1C5AD0848B26CFE15EC4D3E44EC88E577B8543C491E3'
+$menuScriptRelativePath = 'webview/assets/profile-dropdown-items-93d2a2e5b8d6.js'
+$menuSourceHash = 'E1D433655601FC050140D42F7FFFADB10B594263BB8D765A28403888411A3321'
 
 function Set-StartupNoticesDismissed {
     param([Parameter(Mandatory = $true)][string]$Destination)
 
     $asset = Join-Path $Destination 'out/extension.js'
     $noticeMarkerPath = Join-Path $Destination '.azrael-startup-notices.json'
-    $sourceHash = '1F051B97E1388816133BA9A5070832BF77CCD3E47B47FBDA88F7A3D0BE809E40'
+    $sourceHash = 'A8069DE80C8F8141481D033F94C3A95E1B59F399143CB2554D3F68469DFBE5B8'
     if (Test-Path -LiteralPath $noticeMarkerPath) {
         $noticeMarker = Get-Content -LiteralPath $noticeMarkerPath -Raw | ConvertFrom-Json -AsHashtable
         if ($noticeMarker['schema'] -ne 1 -or $noticeMarker['sourceSha256'] -cne $sourceHash) {
@@ -59,11 +59,11 @@ function Set-AccountMenuEntry {
 
     $asset = Join-Path $Destination $menuScriptRelativePath
     $menuMarkerPath = Join-Path $Destination '.azrael-profile-menu.json'
-    $original = 'children:[Y,$,null,Gn,Kn,qn,Xn,null,null,null,null,Zn]'
-    $replacement = 'children:[Y,$,null,(0,Q.jsx)(azraelProfileMenuItem,{leftIconAsset:ne,onClick:()=>{i(),Xe.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.usage`})},children:`계정 및 사용량`}),(0,Q.jsx)(azraelProfileMenuItem,{leftIconAsset:ne,onClick:()=>{i(),Xe.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.rootResume`})},children:`루트 재개 예약`}),Gn,Kn,qn,Xn,null,null,null,null,Zn]'
+    $original = 'children:[Y,Q,null,Bn,qn,Jn,Zn,null,null,null,Qn,$n]'
+    $replacement = 'children:[Y,Q,null,(0,$.jsx)(L,{leftIconAsset:ne,onClick:()=>{s(),yt.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.usage`})},children:`계정 및 사용량`}),(0,$.jsx)(L,{leftIconAsset:ne,onClick:()=>{s(),yt.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.rootResume`})},children:`루트 재개 예약`}),Bn,qn,Jn,Zn,null,null,null,Qn,$n]'
     if (Test-Path -LiteralPath $menuMarkerPath) {
         $menuMarker = Get-Content -LiteralPath $menuMarkerPath -Raw | ConvertFrom-Json -AsHashtable
-        if ($menuMarker['schema'] -ne 5 -or $menuMarker['sourceSha256'] -cne $menuSourceHash) {
+        if ($menuMarker['schema'] -ne 6 -or $menuMarker['sourceSha256'] -cne $menuSourceHash) {
             throw 'Unknown profile menu patch marker.'
         }
         Assert-Hash -Path $asset -Expected $menuMarker['patchedSha256'] -Description 'Account menu webview'
@@ -76,14 +76,13 @@ function Set-AccountMenuEntry {
     if ([regex]::Matches($text, [regex]::Escape($needle)).Count -ne 1) {
         throw 'Pinned profile menu anchor must occur exactly once.'
     }
-    $componentImport = 'EAt as F,'
+    $componentImport = 'a9 as L,'
     if ([regex]::Matches($text, [regex]::Escape($componentImport)).Count -ne 1) {
         throw 'Pinned profile menu component import must occur exactly once.'
     }
-    $text = $text.Replace($componentImport, 'EAt as F,EAt as azraelProfileMenuItem,')
     [IO.File]::WriteAllText($asset, $text.Replace($needle, $replacement), [Text.UTF8Encoding]::new($false))
     [ordered]@{
-        schema = 5
+        schema = 6
         sourceSha256 = $menuSourceHash
         patchedSha256 = Get-Sha256 -Path $asset
         command = 'azrael-ex.usage'
@@ -203,12 +202,12 @@ try {
     $manifest | ConvertTo-Json -Depth 100 | Set-Content -LiteralPath $stagedPackagePath -Encoding utf8NoBOM
 
     $scriptText = [IO.File]::ReadAllText($stagedScriptPath)
-    $needle = 'Fkt=`Codex`'
+    $needle = 'uyn=`Codex`'
     $matches = ([regex]::Matches($scriptText, [regex]::Escape($needle))).Count
     if ($matches -ne 1) {
         throw "Pinned webview branding token count mismatch: expected 1, found $matches."
     }
-    [IO.File]::WriteAllText($stagedScriptPath, $scriptText.Replace($needle, 'Fkt=`Azrael`'), [Text.UTF8Encoding]::new($false))
+    [IO.File]::WriteAllText($stagedScriptPath, $scriptText.Replace($needle, 'uyn=`Azrael`'), [Text.UTF8Encoding]::new($false))
     Set-AccountMenuEntry -Destination $stage
     Set-StartupNoticesDismissed -Destination $stage
 

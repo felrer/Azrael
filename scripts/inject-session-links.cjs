@@ -5,9 +5,9 @@ const COMPAT_SESSION_LINK_ASSETS = [
   "webview/assets/app-initial-4bd9e54bcd58.js",
   "webview/assets/app-initial-9cbfb5c07b41.js",
   "webview/assets/chatgpt-conversation-turn-content-8f307c03dd18.js",
-  "webview/assets/app-initial-5120fa5fe295.js",
-  "webview/assets/app-initial-532d60c9b397.js",
-  "webview/assets/chatgpt-conversation-turn-content-4de92774cc27.js",
+  "webview/assets/app-initial-c014f9ee4429.js",
+  "webview/assets/app-initial-7a199c66e670.js",
+  "webview/assets/chatgpt-conversation-turn-content-98ef46df30fd.js",
 ];
 // Namespace and cache contracts list only assets in the active pinned UI.
 // Legacy assets remain supported for migration validation.
@@ -25,17 +25,21 @@ function injectSessionLinks(text, relativePath) {
   }
   if (relativePath === SESSION_LINK_ASSETS[0]) {
     once('host:c.literal("threads"),protocol:c.literal("codex:")', 'host:c.literal("threads"),protocol:c.literal("azrael:")');
-    const current = text.includes("let y=new ZN(t.extensionUri,u);e.push(y);");
-    const connection = current ? "ZN" : "XN", api = current ? "kt" : "Mt";
+    const current = text.includes("let y=new uF(t.extensionUri,u);e.push(y);");
+    const connection = current ? "uF" : "XN", api = "Mt";
     once(`let y=new ${connection}(t.extensionUri,u);e.push(y);`, `let y=new ${connection}(t.extensionUri,u);e.push(y);e.push(require("./session-links.cjs").registerMigrationCommand(${api},y));`);
   } else if ([COMPAT_SESSION_LINK_ASSETS[1], COMPAT_SESSION_LINK_ASSETS[4]].includes(relativePath)) {
     const current = relativePath === COMPAT_SESSION_LINK_ASSETS[4];
-    const name = current ? "m5n" : "B$n", host = current ? "ah" : "eh", copy = current ? "hj" : "qA", decorate = current ? "_W" : "yW";
-    once(`function ${name}(e,t=${host}){if(!e)return;let n=\`codex://threads/\${e}\`;${copy}(t===\`local\`?n:${decorate}(n,t))}`,
-      `function ${name}(e,t=${host}){if(!e)return;let n=t===\`local\`?\`azrael://threads/\${e}\`:\`codex://threads/\${e}\`;${copy}(t===\`local\`?n:${decorate}(n,t))}`);
+    if(current){
+      once('function d2n(e,t=$m,n){if(!e)return;let r=`codex://threads/${e}`;yk(t===`local`&&n==null?r:HG(r,t,n))}',
+        'function d2n(e,t=$m,n){if(!e)return;let r=t===`local`&&n==null?`azrael://threads/${e}`:`codex://threads/${e}`;yk(t===`local`&&n==null?r:HG(r,t,n))}');
+    }else{
+      once('function B$n(e,t=eh){if(!e)return;let n=`codex://threads/${e}`;qA(t===`local`?n:yW(n,t))}',
+        'function B$n(e,t=eh){if(!e)return;let n=t===`local`?`azrael://threads/${e}`:`codex://threads/${e}`;qA(t===`local`?n:yW(n,t))}');
+    }
   } else if ([COMPAT_SESSION_LINK_ASSETS[2], COMPAT_SESSION_LINK_ASSETS[5]].includes(relativePath)) {
     const current = relativePath === COMPAT_SESSION_LINK_ASSETS[5];
-    const literal = current ? "kf" : "xu", parser = current ? "Hut" : "Xlt", classifier = current ? "elt" : "cct", handoff = current ? "zIn" : "kPn", template = current ? "VIn" : "jPn", markdown = current ? "Zre" : "tue";
+    const literal = current ? "Bu" : "xu", parser = current ? "Bht" : "Xlt", classifier = current ? "Hpt" : "cct", handoff = current ? "QGn" : "kPn", template = current ? "eKn" : "jPn", markdown = current ? "_o" : "tue";
     once(`host:${literal}(\`threads\`),protocol:${literal}(\`codex:\`)`, `host:${literal}(\`threads\`),protocol:${literal}(\`azrael:\`)`);
     once('if(n.protocol!==`codex:`||n.host!==`threads`)return null;',
       'if((n.protocol!==`azrael:`&&!(n.protocol===`codex:`&&n.searchParams.has(`hostId`)&&n.searchParams.get(`hostId`)!==`local`&&n.searchParams.get(`hostId`)!==``))||n.host!==`threads`||n.username!==``||n.password!==``||n.port!==``||(n.protocol===`azrael:`&&((n.searchParams.has(`hostId`)&&n.searchParams.get(`hostId`)!==`local`)||n.searchParams.has(`threadAccess`))))return null;');

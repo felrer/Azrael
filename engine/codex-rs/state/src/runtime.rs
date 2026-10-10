@@ -44,6 +44,7 @@ mod backfill;
 mod external_agent_config_imports;
 mod goals;
 mod logs;
+mod logs_maintenance;
 mod memories;
 mod memory_versions;
 mod project_usage;
@@ -57,6 +58,7 @@ mod root_resume;
 #[cfg(test)]
 pub(crate) mod test_support;
 mod thread_attachments;
+mod thread_metadata;
 mod thread_section_order;
 mod thread_sections;
 mod threads;
@@ -77,9 +79,9 @@ pub use project_usage::ProjectUsageDailyRow;
 pub use project_usage::ProjectUsageDelta;
 pub use queued_items::SqliteQueueStore;
 pub use recovery::backup_runtime_db_for_fresh_start;
+pub use recovery::collect_runtime_db_backups;
 pub use recovery::is_sqlite_corruption_error;
 pub use recovery::runtime_db_path_for_corruption_error;
-pub use recovery::sqlite_error_detail_is_corruption;
 pub use recovery::sqlite_error_detail_is_lock;
 pub use remote_control::RemoteControlEnrollmentRecord;
 pub use threads::ThreadFilterOptions;
@@ -283,12 +285,7 @@ impl StateRuntime {
             runtime.close().await;
             return Err(err);
         }
-        if let Err(err) = runtime.run_logs_startup_maintenance().await {
-            warn!(
-                "failed to run startup maintenance for logs db at {}: {err}",
-                logs_path.display(),
-            );
-        }
+        runtime.start_periodic_logs_maintenance(std::time::Duration::from_secs(30 * 60));
         Ok(runtime)
     }
 
@@ -632,6 +629,55 @@ mod tests {
             ]),
         );
         let _ = tokio::fs::remove_dir_all(codex_home).await;
+    }
+
+    #[tokio::test]
+    async fn upgrade_preserves_shipped_local_migrations_and_adds_reverse_lookup() {
+        let codex_home = unique_temp_dir();
+        tokio::fs::create_dir_all(&codex_home).await.unwrap();
+        let sqlite = crate::SqliteConfig::new_for_testing(codex_home.as_path().abs());
+        let pool = sqlite
+            .open_read_write_pool(&sqlite.state_db_path())
+            .await
+            .unwrap();
+        let mut shipped = runtime_state_migrator();
+        shipped.migrations = std::borrow::Cow::Owned(
+            STATE_MIGRATOR
+                .iter()
+                .filter(|migration| migration.version <= 60)
+                .cloned()
+                .collect(),
+        );
+        shipped
+            .run(&pool)
+            .await
+            .expect("apply shipped migrations through local 0060");
+        let prior: Vec<(i64, Vec<u8>)> = sqlx::query_as(
+            "SELECT version, checksum FROM _sqlx_migrations WHERE version IN (59, 60) ORDER BY version",
+        ).fetch_all(&pool).await.unwrap();
+        assert_eq!(prior.len(), 2);
+        pool.close().await;
+        let upgraded = sqlite
+            .open_state_db(&runtime_state_migrator(), None)
+            .await
+            .expect("upgrade without changing shipped checksums");
+        let after: Vec<(i64, Vec<u8>)> = sqlx::query_as(
+            "SELECT version, checksum FROM _sqlx_migrations WHERE version IN (59, 60) ORDER BY version",
+        ).fetch_all(&upgraded).await.unwrap();
+        assert_eq!(after, prior);
+        let index: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM sqlite_master WHERE type = 'index' AND name = 'idx_thread_attachments_identity_thread'",
+        ).fetch_one(&upgraded).await.unwrap();
+        assert_eq!(index, 1);
+        let applied: i64 = sqlx::query_scalar(
+            "SELECT COUNT(*) FROM _sqlx_migrations WHERE version = 61 AND success = 1",
+        )
+        .fetch_one(&upgraded)
+        .await
+        .unwrap();
+        assert_eq!(applied, 1);
+        upgraded.close().await;
+        tokio::fs::remove_dir_all(codex_home).await.unwrap();
     }
 
     #[tokio::test]

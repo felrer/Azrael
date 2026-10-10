@@ -7,7 +7,7 @@ const { injectAccountSettings } = require('./inject-account-settings.cjs');
 const { injectComputerUseManagement } = require('./inject-computer-use.cjs');
 const { injectRecovery } = require('./inject-recovery.cjs');
 test('native window bridge hooks compose with recovery and reject pinned-source drift', () => {
-  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/out/extension.js'), 'utf8');
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "out/extension.js"), 'utf8');
   const account = injectAccountSettings(original, 'out/extension.js');
   const recovery = injectRecovery(account.text, 'out/extension.js', ts);
   const result = injectWindowControl(recovery.text, 'out/extension.js', ts);
@@ -21,7 +21,7 @@ test('native window bridge hooks compose with recovery and reject pinned-source 
 test('injected bridge calls preserve native request and lifecycle behavior', async () => {
   const fixture = 'class Bridge{sendProviderRequest(a,w,c,d,e,f){return c}routeIncomingMessage(a,w){return a}teardownProcess(){return 7}}async function route(r){switch(r.type){case"open-vscode-command":{break}}}';
   const calls = [], result = injectWindowControl(fixture, 'out/extension.js', ts);
-  const context = vm.createContext({ require: name => { assert.equal(name, './window-control-host.cjs'); return { prepareRequest(method,params){return params;},...Object.fromEntries(['attach', 'request', 'observe', 'disconnect'].map(method => [method, (...args) => { calls.push({ method, args }); }])), beforeResult(...args) { calls.push({ method: 'beforeResult', args }); return false; } }; }, Ge: { commands: { executeCommand: async command => calls.push({ command }) } } });
+  const context = vm.createContext({ require: name => { assert.equal(name, './window-control-host.cjs'); return { prepareRequest(method,params){return params;},...Object.fromEntries(['attach', 'request', 'observe', 'disconnect'].map(method => [method, (...args) => { calls.push({ method, args }); }])), beforeResult(...args) { calls.push({ method: 'beforeResult', args }); return false; } }; }, je: { commands: { executeCommand: async command => calls.push({ command }) } } });
   vm.runInContext(result.text + ';bridge=new Bridge;', context);
   assert.equal(context.bridge.sendProviderRequest('p', 'id', 'thread/start', {}, false, true), 'thread/start');
   assert.equal(calls[0].method, 'attach');
@@ -32,7 +32,7 @@ test('injected bridge calls preserve native request and lifecycle behavior', asy
   assert.equal(calls.at(-1).command, 'azrael.windowControl');
 });
 test('Computer Use settings launcher is scoped, idempotent and dispatches the owned UI command', () => {
-  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225', SETTINGS_ASSET), 'utf8');
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), SETTINGS_ASSET), 'utf8');
   const management = injectComputerUseManagement(original, SETTINGS_ASSET);
   assert.equal(management.count, 1);
   assert(management.text.includes(PAGE_ANCHOR));
@@ -49,13 +49,13 @@ test('Computer Use settings launcher is scoped, idempotent and dispatches the ow
     assert.throws(() => injectWindowControl(source, SETTINGS_ASSET, ts), /Pinned selected-window anchor changed/);
   }
   assert.equal(injectWindowControl(original, 'unrelated.js', ts).count, 0);
-  assert(result.text.includes('ZOt as getAzraelUseReact'));
+  assert(result.text.includes('nLt as getAzraelUseReact'));
   assert(result.text.includes('const Q = getAzraelUseReact();'));
-  assert(result.text.includes('Zjt as AzraelUseButton,$jt as initAzraelUseButton'));
+  assert(result.text.includes('ZIt as AzraelUseButton,$It as initAzraelUseButton'));
   assert(result.text.includes('createUseSettingsStore'));
   assert.equal(ts.createSourceFile('settings.js', result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
-  for (const [asset, aliases] of [['app-initial-efe028fd535e.js', ['ZOt']], ['app-initial-5120fa5fe295.js', ['A3t','d3','f3','y3','x3']], ['app-initial-532d60c9b397.js', ['r4','a4','Zjt','$jt']]]) {
-    const bundle = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/webview/assets', asset), 'utf8');
+  for (const [asset, aliases] of [['app-initial-97d3534ad35f.js', ['ZOt']], ['app-initial-c014f9ee4429.js', ['A3t','d3','f3','y3','x3']], ['app-initial-7a199c66e670.js', ['r4','a4','Zjt','$jt']]]) {
+    const bundle = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "webview/assets", asset), 'utf8');
     for (const alias of aliases) assert(bundle.includes(' as ' + alias + ',') || bundle.includes(' as ' + alias + '}'), `Missing native export ${alias}`);
   }
 });
@@ -86,7 +86,7 @@ test('result publication defers native dispatch once and retains bridge context'
 });
 
 test('deferred lifecycle responses preserve the pinned dispatcher receipt and line queue', async () => {
-  const original = fs.readFileSync(path.join(__dirname, '../artifacts/upstream-ui/26.930.61225/out/extension.js'), 'utf8');
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "out/extension.js"), 'utf8');
   const source = ts.createSourceFile('host.js', original, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const methods = new Map(); let queueSource;
   const names = new Set(['routeIncomingMessage', 'isMcpResponseMessage', 'isMcpRequestMessage', 'isMcpNotificationMessage', 'dispatchParsedMessage', 'drainLineQueue', 'scheduleLineDrain']);
@@ -95,7 +95,7 @@ test('deferred lifecycle responses preserve the pinned dispatcher receipt and li
       assert.equal(methods.has(node.name.text), false, `Pinned method must be unique: ${node.name.text}`);
       methods.set(node.name.text, node.getText(source));
     }
-    if (ts.isBinaryExpression(node) && node.left.getText(source) === 'vC' && ts.isClassExpression(node.right)) queueSource = node.right.getText(source);
+    if (ts.isBinaryExpression(node) && node.right.members?.some(member => member.name?.text === 'enqueueMany') && node.right.members?.some(member => member.name?.text === 'getDepth') && ts.isClassExpression(node.right)) queueSource = node.right.getText(source);
     ts.forEachChild(node, visit);
   }
   visit(source);
@@ -109,7 +109,7 @@ test('deferred lifecycle responses preserve the pinned dispatcher receipt and li
     const notification = { method: 'thread/status/changed', params: { threadId: response.result.thread.id, status: { type: 'idle' } } };
     const deliveryContext = { receivedAtMs: 42 };
     const context = vm.createContext({ setImmediate, Date,
-      lO: () => false, dO: () => null, oy: params => params.threadId,
+      yO: () => false, bO: () => null, bf: params => params.threadId,
       require: () => ({ beforeResult(native, message, callback) {
         if (message === response && !replayed) { events.push(`defer:${lifecycleMethod}`); publish = () => { replayed = true; return callback(message); }; return true; }
         return false;
@@ -141,12 +141,12 @@ test('deferred lifecycle responses preserve the pinned dispatcher receipt and li
 });
 const {injectWindowApprovalClassifier,APPROVAL_CLASSIFIER_ASSET,CLASSIFIER_PATCH}=require('./inject-window-control.cjs');
 test('Window Use classifier is exact, guarded and tracked by packaging',()=>{
- const original=fs.readFileSync(path.join(__dirname,'../artifacts/upstream-ui/26.930.61225',APPROVAL_CLASSIFIER_ASSET),'utf8');
+ const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), APPROVAL_CLASSIFIER_ASSET),'utf8');
  const result=injectWindowApprovalClassifier(original,APPROVAL_CLASSIFIER_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalClassifier(result.text,APPROVAL_CLASSIFIER_ASSET).count,0);
  assert.throws(()=>injectWindowApprovalClassifier(result.text.replace(CLASSIFIER_PATCH,'tampered /*azrael-window-native-approval-v1*/'),APPROVAL_CLASSIFIER_ASSET));
- const start=result.text.indexOf('function Z_t('),end=result.text.indexOf('function Q_t(',start);const context=vm.createContext({});vm.runInContext(result.text.slice(start,end),context);
- for(const name of ['Computer Use','computer-use-plugin','Window Use'])assert.equal(context.Z_t(name),true);
- for(const name of ['window-use-other','browser-use','other'])assert.equal(context.Z_t(name),false);
+ const parsed=require('../extensions/azrael-ex/node_modules/typescript').createSourceFile('classifier.js',result.text,99,true,1),owner=parsed.statements.find(node=>require('../extensions/azrael-ex/node_modules/typescript').isFunctionDeclaration(node)&&node.getText(parsed).includes(CLASSIFIER_PATCH));assert(owner);const context=vm.createContext({});vm.runInContext(owner.getText(parsed),context);
+ for(const name of ['Computer Use','computer-use-plugin','Window Use'])assert.equal(context[owner.name.text](name),true);
+ for(const name of ['window-use-other','browser-use','other'])assert.equal(context[owner.name.text](name),false);
  const transformer=require('./namespace-azrael-host.cjs'),ts=require('../extensions/azrael-ex/node_modules/typescript');const prepared=transformer.transformAsset(original,APPROVAL_CLASSIFIER_ASSET,APPROVAL_CLASSIFIER_ASSET,ts);assert.equal(prepared.asset.windowApprovalClassifierEdits,1);assert(transformer.getAssetTransformRules(APPROVAL_CLASSIFIER_ASSET)['inject-window-control.cjs']);
 });
 test('selected runtime request preparation precedes registration and actual native send',()=>{

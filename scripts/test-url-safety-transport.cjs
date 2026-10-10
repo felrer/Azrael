@@ -182,7 +182,7 @@ test("stale host encoding and content length are replaced with actual UTF-8 size
 });
 
 test("pinned real host injector replaces one anchor, remains idempotent, and preserves surrounding policy", () => {
-  const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), "out/extension.js");
+  const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), "out/extension.js");
   const original = fs.readFileSync(filename, "utf8");
   assert.equal(original.split(TARGET_ANCHOR).length - 1, 1);
   const patched = injectUrlSafetyTransport(original);
@@ -216,7 +216,7 @@ test("injector refuses missing, duplicated, altered anchor or corrupt marker", (
 });
 
 test("stable official host preserves response classification and identity retry policy", () => {
-  const filename = path.join(process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.930.61225"), "out/extension.js");
+  const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), "out/extension.js");
   const original = fs.readFileSync(filename, "utf8");
   assert.equal(original.split(TARGET_ANCHOR).length - 1, 1);
   const patched = injectUrlSafetyTransport(original);
@@ -226,6 +226,6 @@ test("stable official host preserves response classification and identity retry 
   assert.ok(patched.text.endsWith(original.slice(start + TARGET_ANCHOR.length)));
   assert.ok(patched.text.includes("Authenticated principal changed"));
   assert.ok(patched.text.includes("(level,event,safe)=>ie()[level](event,{safe,sensitive:{}})"));
-  assert.ok(patched.text.includes(",y=!g.ok&&h?await N4e(g):null"));
+  assert.ok(patched.text.includes(",y=!g.ok&&h?await w6e(g):null"));
   assert.deepEqual(injectUrlSafetyTransport(patched.text), { text: patched.text, count: 0 });
 });

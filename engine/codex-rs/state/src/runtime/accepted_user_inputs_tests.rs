@@ -453,3 +453,54 @@ async fn out_of_range_order_fails_without_insertion() {
             .is_empty()
     );
 }
+
+#[tokio::test]
+async fn causal_root_survives_restart_consumption_and_retry() {
+    let runtime = runtime().await;
+    let thread = ThreadId::new();
+    let record = added(
+        runtime
+            .thread_queue()
+            .accept_user_input_with_root(
+                thread,
+                Some("client"),
+                "continued-turn",
+                Some("original-root"),
+                8,
+                "{}",
+                "digest",
+            )
+            .await
+            .unwrap(),
+    );
+    assert_eq!(record.root_turn_id.as_deref(), Some("original-root"));
+    let config = runtime.sqlite().clone();
+    runtime.close().await;
+    let reopened = StateRuntime::init(config, "test-provider".into())
+        .await
+        .unwrap();
+    reopened
+        .thread_queue()
+        .consume_user_input(thread, &record.receipt_id)
+        .await
+        .unwrap();
+    let retry = reopened
+        .thread_queue()
+        .accept_user_input_with_root(
+            thread,
+            Some("client"),
+            "other-turn",
+            Some("other-root"),
+            9,
+            "{}",
+            "digest",
+        )
+        .await
+        .unwrap();
+    let AcceptUserInputOutcome::Existing(retry) = retry else {
+        panic!("retry must reuse its tombstone")
+    };
+    assert_eq!(retry.turn_id, "continued-turn");
+    assert_eq!(retry.root_turn_id.as_deref(), Some("original-root"));
+    assert_eq!(retry.payload_json, None);
+}

@@ -862,6 +862,7 @@ fn session_event_to_analytics_notification(
                 thread_id: thread_id.to_string(),
                 turn: Turn {
                     started_at: started.started_at,
+                    root_turn_id: started.root_turn_id.clone(),
                     ..analytics_turn(&started.turn_id, TurnStatus::InProgress)
                 },
             })
@@ -926,6 +927,7 @@ fn analytics_turn(turn_id: &str, status: TurnStatus) -> Turn {
         root_resume_wait: None,
 
         id: turn_id.to_string(),
+        root_turn_id: None,
         items: Vec::new(),
         items_view: TurnItemsView::NotLoaded,
         status,

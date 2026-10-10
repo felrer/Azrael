@@ -1,8 +1,8 @@
 "use strict";
 
-const INSTRUCTION_SETTINGS_ASSETS = ["webview/assets/use-visible-settings-sections-4b8b7ed73a1e.js", "webview/assets/settings-page-76344c84191c.js"];
+const INSTRUCTION_SETTINGS_ASSETS = ["webview/assets/use-visible-settings-sections-7686bdcccd03.js", "webview/assets/settings-page-f0054e44de3c.js"];
 const MARKER = "/*azrael-instruction-settings-v1*/";
-const PAGE_ANCHOR = "}let Fe;e[77]";
+const PAGE_ANCHOR = "}let B;e[72]";
 const HOST_ANCHOR = 'case"open-vscode-command":{';
 
 function azraelSettingsText(locale, english, korean) {
@@ -15,7 +15,7 @@ function AzraelInstructionNavigationIcon(props) {
 }
 
 function AzraelInstructionSettings() {
-  const locale = te().locale;
+  const locale = s().locale;
   const target = Q.useRef(null);
   Q.useEffect(() => {
     const element = target.current;
@@ -64,37 +64,37 @@ function injectInstructionSettings(text, relativePath) {
   if (text.split(MARKER).length > 2) throw new Error("Duplicate instruction settings marker");
   if (text.includes(MARKER)) return { text, count: 0 };
   if (relativePath === "out/extension.js") {
-    const sidebarAnchor = /e\.push\(kt\.commands\.registerCommand\("(?:chatgpt|azrael)\.openSidebar",Au\)\)/g;
+    const sidebarAnchor = /e\.push\(Mt\.commands\.registerCommand\("(?:chatgpt|azrael)\.openSidebar",Ru\)\)/g;
     const registrations = text.match(sidebarAnchor);
     if (registrations?.length !== 1) throw new Error("Pinned instruction settings sidebar registration anchor changed");
-    text = once(text, registrations[0], registrations[0] + ',e.push(kt.commands.registerCommand("azrael.openSettingsPanel",()=>Pe.showSettings({section:"general-settings"})))');
+    text = once(text, registrations[0], registrations[0] + ',e.push(Mt.commands.registerCommand("azrael.openSettingsPanel",()=>Pe.showSettings({section:"general-settings"})))');
     return { text: once(text, HOST_ANCHOR,
-      "case\"azrael-instructions\":{await Ge.commands.executeCommand(\"azrael.instructionsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR), count: 1 };
+      "case\"azrael-instructions\":{await je.commands.executeCommand(\"azrael.instructionsEmbedded\",e,r,this.findPanelByWebview(e));break}" + MARKER + HOST_ANCHOR), count: 1 };
   }
   if (relativePath === INSTRUCTION_SETTINGS_ASSETS[0]) {
     // Registration happens before visibility selection, so route fallback recognizes the section.
-    text = once(text, "Ue=bt.map(e=>", "Ue=bt.flatMap(e=>e.slug===`personalization`?[e,{slug:`azrael-instructions`}]:[e]).map(e=>");
+    text = once(text, "We=Qe.map(e=>", "We=Qe.flatMap(e=>e.slug===`personalization`?[e,{slug:`azrael-instructions`}]:[e]).map(e=>");
     text = once(text, 'case`general-settings`:case`personalization`:', 'case`azrael-instructions`:case`general-settings`:case`personalization`:');
-    text = once(text, "personalization:{component:Ji,commandAsset:Or,navigation:{assets:{16:Or,20:Er},ariaHidden:!1}},",
-      "\"azrael-instructions\":{component:azraelInstructionIcon,commandAsset:Or,navigation:{assets:{16:Or,20:Er},ariaHidden:!1}},personalization:{component:Ji,commandAsset:Or,navigation:{assets:{16:Or,20:Er},ariaHidden:!1}},");
-    // Reuse initialized platform icon assets; O is a bundle value, not a factory.
-    text += '\n' + MARKER + '\nfunction azraelInstructionIcon(props){return(0,m().jsx)("svg",{width:20,height:20,viewBox:"0 0 20 20",fill:"none",stroke:"currentColor",strokeWidth:1.3,...props,children:(0,m().jsx)("path",{d:"M5 2.5h7l3 3v12H5z M12 2.5v3h3 M8 8h4 M8 11h4 M8 14h4"})})}';
+    text = once(text, "personalization:{component:Ki,commandAsset:wr,navigation:{assets:{16:wr,20:Er},ariaHidden:!1}},",
+      "\"azrael-instructions\":{component:azraelInstructionIcon,commandAsset:wr,navigation:{assets:{16:wr,20:Er},ariaHidden:!1}},personalization:{component:Ki,commandAsset:wr,navigation:{assets:{16:wr,20:Er},ariaHidden:!1}},");
+    // Reuse initialized platform icon assets and the native JSX getter.
+    text += '\n' + MARKER + '\nfunction azraelInstructionIcon(props){return(0,t().jsx)("svg",{width:20,height:20,viewBox:"0 0 20 20",fill:"none",stroke:"currentColor",strokeWidth:1.3,...props,children:(0,t().jsx)("path",{d:"M5 2.5h7l3 3v12H5z M12 2.5v3h3 M8 8h4 M8 11h4 M8 14h4"})})}';
     return { text, count: 1 };
   }
-  const instructionContent = "if(x===`azrael-instructions`){Pe=(0,$.jsx)(AzraelInstructionSettings,{});}let Fe;e[77]";
-  const accountTail = "if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{});let Fe;e[77]";
+  const instructionContent = "if(y===`azrael-instructions`){Me=(0,$.jsx)(AzraelInstructionSettings,{});}let B;e[72]";
+  const accountTail = "if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{});let B;e[72]";
   text = text.includes('/*azrael-account-settings-v1*/')
-    ? once(text, accountTail, "if(x===`usage`)Pe=(0,$.jsx)(AzraelAccountSettings,{});" + instructionContent)
+    ? once(text, accountTail, "if(y===`usage`)Me=(0,$.jsx)(AzraelAccountSettings,{});" + instructionContent)
     : once(text, PAGE_ANCHOR, '}' + instructionContent);
-  text = once(text, '.agent.personalization.pets.', '.agent.personalization.azrael-instructions.pets.');
-  text = once(text, '`agent`,`personalization`,`pets`', '`agent`,`personalization`,`azrael-instructions`,`pets`');
-  text = once(text, "c=nt(e.slug,E,!1),l=e.slug===", "c=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`)}:nt(e.slug,E,!1),l=e.slug===");
-  const label = "label:(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})";
-  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`):(0,Z.jsx)(Ue,{codexMicroDeviceModel:T,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:E,slug:e.slug})");
-  text = once(text, "f=F?(0,Z.jsx)(Ue,", "f=e.slug===`azrael-instructions`?azraelSettingsText(O.locale,`Instruction Documents`,`지침 문서`):F?(0,Z.jsx)(Ue,");
-  text = once(text, 'icon:16 in s?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in s?');
+  text = once(text, '.appshots.agent.personalization.pets.', '.appshots.agent.personalization.azrael-instructions.pets.');
+  text = once(text, '.voice.storage.agent.personalization.pets.', '.voice.storage.agent.personalization.azrael-instructions.pets.');
+  text = once(text, "s=Xe(e.slug,w,!1),c=e.slug===", "s=e.slug===`azrael-instructions`?{id:`azrael.settings.instructions`,defaultMessage:azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`)}:Xe(e.slug,w,!1),c=e.slug===");
+  const label = "label:(0,Z.jsx)(qe,{codexMicroDeviceModel:C,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:w,slug:e.slug})";
+  text = once(text, label, "label:e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`):(0,Z.jsx)(qe,{codexMicroDeviceModel:C,showChatGptDataControlsLabel:!1,showEnterpriseUsageLabel:w,slug:e.slug})");
+  text = once(text, "f=A?(0,Z.jsx)(qe,", "f=e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`):A?(0,Z.jsx)(qe,");
+  text = once(text, 'icon:16 in a?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in a?');
   text = once(text, 'iconAssetSource:i?void 0:r.navigation', 'iconAssetSource:e.slug===`azrael-instructions`?void 0:i?void 0:r.navigation');
-  return { text: 'import{A3t as azraelInstructionBridge}from"./app-initial-5120fa5fe295.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
+  return { text: 'import{X9t as azraelInstructionBridge}from"./app-initial-c014f9ee4429.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
 }
 
 module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelInstructionNavigationIcon, azraelSettingsText };

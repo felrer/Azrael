@@ -1,11 +1,11 @@
 "use strict";
 
-const ACCOUNT_QUEUE_CORE_ASSET = "webview/assets/app-initial-efe028fd535e.js";
-const ACCOUNT_QUEUE_PRESENTATION_ASSET = "webview/assets/app-initial-532d60c9b397.js";
-const ACCOUNT_QUEUE_LIST_ASSET = "webview/assets/queued-message-list-96c634639e8e.js";
-const ACCOUNT_QUEUE_PRESENTATION_PREFIX = "function wen({scope:e,manager:t,appServerVersion:n}){";
+const ACCOUNT_QUEUE_CORE_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
+const ACCOUNT_QUEUE_PRESENTATION_ASSET = "webview/assets/app-initial-7a199c66e670.js";
+const ACCOUNT_QUEUE_LIST_ASSET = "webview/assets/queued-message-list-616ed03f7f35.js";
+const ACCOUNT_QUEUE_PRESENTATION_PREFIX = "function vsn({scope:e,manager:t,appServerVersion:n}){";
 const ACCOUNT_QUEUE_PRESENTATION_MARKER = "/*azrael-account-switch-queue-presentation-v2*/";
-const ACCOUNT_QUEUE_PRESENTATION_PRELUDE = ACCOUNT_QUEUE_PRESENTATION_MARKER + "let __azraelPending=false;const __azraelRefreshAccount=async()=>{let n=await t.sendRequest(`azrael/account`,{action:`list`});if(typeof n?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);if(l)return __azraelPending;if(__azraelPending!==n.state.isSwitching){__azraelPending=n.state.isSwitching;for(let e of a.keys())d(e)}return __azraelPending};";
+const ACCOUNT_QUEUE_PRESENTATION_PRELUDE = ACCOUNT_QUEUE_PRESENTATION_MARKER + "let __azraelPending=false;const __azraelRefreshAccount=async()=>{let n=await t.sendRequest(`azrael/account`,{action:`list`});if(typeof n?.state?.isSwitching!==`boolean`)throw Error(`Account switch state is unavailable`);if(l)return __azraelPending;if(__azraelPending!==n.state.isSwitching){__azraelPending=n.state.isSwitching;for(let e of a.keys())f(e)}return __azraelPending};";
 
 // New conversations have no thread queue until creation succeeds. Retain the
 // original creation closure while admission is pending, without using old auth.
@@ -60,11 +60,11 @@ function apply(text, owner, edits) {
 
 function injectAccountSwitchQueue(text, relativePath) {
   if (relativePath === ACCOUNT_QUEUE_CORE_ASSET) return apply(text, "core", [
-    ["async function vDn(e,t,n,", "$MARKER" + __azraelCreateAfterAccountChange.toString() + ";async function vDn(e,t,n,"],
-    ["()=>t.threadCreation.createConversation({clientUserMessageId:D", "()=>__azraelCreateAfterAccountChange(e,()=>t.threadCreation.createConversation({clientUserMessageId:D"],
-    ["ve,A,g??l));v!=null", "ve,A,g??l),g??l));v!=null"],
-    ["(await t.executeTurnStart(be,{request:", "(await __azraelCreateAfterAccountChange(e,()=>t.executeTurnStart(be,{request:"],
-    ["y??u)).turn.id", "y??u),g??l)).turn.id"],
+    ["async function fkn(e,t,n,", "$MARKER" + __azraelCreateAfterAccountChange.toString() + ";async function fkn(e,t,n,"],
+    ["()=>t.threadCreation.createConversation(se,r,", "()=>__azraelCreateAfterAccountChange(e,()=>t.threadCreation.createConversation(se,r,"],
+    ["ce,N,v??c));w!=null", "ce,N,v??c),v??c));w!=null"],
+    ["(await t.executeTurnStart(le,{request:", "(await __azraelCreateAfterAccountChange(e,()=>t.executeTurnStart(le,{request:"],
+    ["x??l)).turn.id", "x??l),v??c)).turn.id"],
     ["let{conversationId:h,message:g}=e,_=await s(e);", "let{conversationId:h,message:g}=e;try{let _=await s(e);"],
     ["return{status:`sent`,messageId:g.id,turnId:x.turnId}}async function o", "return{status:`sent`,messageId:g.id,turnId:x.turnId}}catch(t){if(t?.name===`AppServerRequestError(${String(t.code)})`&&t.jsonRpcCode===t.code&&Number.isInteger(t.code)&&t.data?.azraelAdmission===`accountChangePending`)return i(h,g,e.editPosition,d,p,m);throw t}}async function o"],
     ["queueModeOverride:n==null?r.submission.queueModeOverride:`send-now`,editPosition:", "queueModeOverride:n==null?r.submission.queueModeOverride:`send-now`,explicitQueuedSteer:n!=null,editPosition:"],
@@ -74,17 +74,17 @@ function injectAccountSwitchQueue(text, relativePath) {
   if (relativePath === ACCOUNT_QUEUE_PRESENTATION_ASSET) return apply(text, "presentation", [
     [ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_PREFIX + ACCOUNT_QUEUE_PRESENTATION_PRELUDE],
     ["canSendNow:!i};if(o)", "canSendNow:!i,...__azraelPending?{submission:{status:`queued`,accountChangePending:true}}:{}};if(o)"],
-    ["v=async(e,n,a,o,s,c)=>{let h=await g(e)", "v=async(e,n,a,o,s,c)=>{await __azraelRefreshAccount();let h=await g(e)"],
-    ["dispose(){l=!0,x(),h?.(),a.clear()", "dispose(){l=!0,__azraelAccountSubscription(),x(),h?.(),a.clear()"],
-    ["return{isEnabled:u,canEnqueue:", "const __azraelAccountSubscription=t.addNotificationCallback(`azrael/account/updated`,()=>{__azraelRefreshAccount().catch(e=>mp.warning(`Failed to refresh account queue status`,{safe:{},sensitive:{error:e}}))});return{isEnabled:u,canEnqueue:"],
+    ["y=async(e,n,a,o,s,c)=>{let d=await _(e)", "y=async(e,n,a,o,s,c)=>{await __azraelRefreshAccount();let d=await _(e)"],
+    ["dispose(){l=!0,S(),g?.(),a.clear()", "dispose(){l=!0,__azraelAccountSubscription(),S(),g?.(),a.clear()"],
+    ["return{isEnabled:u,canEnqueue:", "const __azraelAccountSubscription=t.addNotificationCallback(`azrael/account/updated`,()=>{__azraelRefreshAccount().catch(e=>Uh.warning(`Failed to refresh account queue status`,{safe:{},sensitive:{error:e}}))});return{isEnabled:u,canEnqueue:"],
     [
     "resume:i?void 0:async(e,n)=>{if(t.isConversationStreaming(e))return;",
     "resume:i?void 0:async(e,n)=>{if(await __azraelRefreshAccount()||t.isConversationStreaming(e))return;",
   ]]);
   if (relativePath === ACCOUNT_QUEUE_LIST_ASSET) return apply(text, "list", [
-    ["N=(o?.status===`pending`||o?.status===`sending`)&&!a", "$MARKERN=o?.accountChangePending?`account-change`:(o?.status===`pending`||o?.status===`sending`)&&!a"],
-    ["G=!N&&h?", "G=(!N||N===`account-change`)&&h?"],
-    ["children:(0,$.jsx)(S,{id:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:`전송 대기 중`", "children:(0,$.jsx)(S,{id:N===`account-change`?`azrael.queuedMessage.accountChangePending`:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:N===`account-change`?`계정 전환 대기 중`:`전송 대기 중`"],
+    ["N=(u?.status===`pending`||u?.status===`sending`)&&!l", "$MARKERN=u?.accountChangePending?`account-change`:(u?.status===`pending`||u?.status===`sending`)&&!l"],
+    ["K=!N&&te?", "K=(!N||N===`account-change`)&&te?"],
+    ["children:(0,$.jsx)(c,{id:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:`전송 대기 중`", "children:(0,$.jsx)(c,{id:N===`account-change`?`azrael.queuedMessage.accountChangePending`:`azrael.queuedMessage.awaitingAcceptance`,defaultMessage:N===`account-change`?`계정 전환 대기 중`:`전송 대기 중`"],
   ]);
   return { text, count: 0 };
 }

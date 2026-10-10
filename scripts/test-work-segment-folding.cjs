@@ -11,7 +11,7 @@ const ts = require(require.resolve("typescript", { paths: [path.join(root, "exte
 // Shared by the browser harness: derive the actual transformed Ks prop
 // expressions, rather than maintaining a second implementation of its policy.
 function productionPolicy() {
-  const source = fs.readFileSync(path.join(root, "artifacts/upstream-ui/26.1007.21434", WORK_SEGMENT_FOLDING_ASSET), "utf8");
+  const source = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), WORK_SEGMENT_FOLDING_ASSET), "utf8");
   const deferred = injectDeferredTurnView(source).text;
   const result = injectWorkSegmentFolding(deferred);
   const ast = ts.createSourceFile("turn.js", result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -49,7 +49,7 @@ if (require.main === module) {
   for (const flag of ["G", "Pe"]) check("native " + flag + " exclusion", () => assert.equal(evalCase({ [flag]: true }).disableCollapse, true));
   check("active segment retains native policy", () => { const p = evalCase({ l: "active" }); assert.equal(p.azraelStoppedFold, false); assert.equal(p.allowCollapseBeforeFinal, false); assert.equal(p.forceExpanded, true); assert.equal(p.disableCollapse, true); });
   check("normal unsliced completed baseline retains native policy", () => { const p = evalCase({ l: null, K: false, U: false, A: 1, j: 4 }); assert.equal(p.azraelStoppedFold, false); assert.equal(p.disableCollapse, false); });
-  const native = fs.readFileSync(path.join(root, "artifacts/upstream-ui/26.1007.21434/webview/assets/sites-end-resource-90d3046b3014.js"), "utf8");
+  const native = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), "webview/assets/sites-end-resource-90d3046b3014.js"), "utf8");
   const ast = ts.createSourceFile("activity.js", native, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const yo = ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "YO");
   const resolve = new Function("return (" + yo.getText(ast) + ")")();
@@ -57,7 +57,7 @@ if (require.main === module) {
   check("native empty activity remains excluded", () => assert.equal(resolve({ ...evalCase({}), hasRenderableAgentItems: false }).shouldAllowCollapse, false));
   check("transform changes no timing or key expressions", () => { for (const word of ["durationMs", "turnKey", "turnSearchKey", "startedAtMs", "completedAtMs"]) assert.equal(policy.result.text.split(word).length, policy.deferred.split(word).length); assert.ok(policy.result.text.includes("persistedCollapsed:P,onSetCollapsed:F")); assert.ok(native.includes("te[0]?.kind===`standalone`&&te[0].item.item.type===`context-compaction`")); });
   check("composed native thread preserves segment keys and collapse store", () => {
-    const thread = fs.readFileSync(path.join(root, "artifacts/upstream-ui/26.1007.21434/webview/assets/local-conversation-thread-2429c4b61076.js"), "utf8");
+    const thread = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), "webview/assets/local-conversation-thread-2429c4b61076.js"), "utf8");
     const projected = injectDeferredThread(thread).text;
     const keys = text => [...text.matchAll(/turn(?:Search)?Key:[^,}]+/g)].map(m => m[0]);
     assert.deepEqual(keys(projected), keys(thread));
@@ -69,7 +69,7 @@ if (require.main === module) {
     check("missing anchor fails closed " + anchor.split(":")[0], () => assert.throws(() => injectWorkSegmentFolding(policy.deferred.replace(anchor, "tampered")), /exactly once/));
     check("duplicate anchor fails closed " + anchor.split(":")[0], () => assert.throws(() => injectWorkSegmentFolding(policy.deferred + anchor), /exactly once/));
   }
-  const activityPath = path.join(root, "artifacts/upstream-ui/26.1007.21434", WORK_SEGMENT_FOLDING_ACTIVITY_ASSET);
+  const activityPath = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), WORK_SEGMENT_FOLDING_ACTIVITY_ASSET);
   const activityDeferred = injectDeferredWaitRenderer(fs.readFileSync(activityPath, "utf8")).text;
   const waiting = injectWorkSegmentWaiting(activityDeferred);
   const waitingAst = ts.createSourceFile("waiting.js", waiting.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -91,7 +91,7 @@ if (require.main === module) {
   const transformer = require("./namespace-azrael-host.cjs"), rule = "inject-work-segment-folding.cjs";
   for (const [asset, expected] of [[WORK_SEGMENT_FOLDING_ASSET, 6], [WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, 1]]) {
     check("full namespace pipeline accounts for work folding " + asset, () => {
-      const source = fs.readFileSync(path.join(root, "artifacts/upstream-ui/26.1007.21434", asset), "utf8");
+      const source = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), asset), "utf8");
       const transformed = transformer.transformAsset(source, asset, asset, ts);
       assert.equal(transformed.asset.workSegmentFoldingEdits, expected);
       const sum = Object.entries(transformed.asset).filter(([name]) => name.endsWith("Edits")).reduce((total, [, value]) => total + value, 0);

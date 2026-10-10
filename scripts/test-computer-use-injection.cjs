@@ -13,7 +13,7 @@ function assetRules(transformer, asset, rules = transformer.getTransformRules())
   return typeof transformer.getAssetTransformRules === "function" ? transformer.getAssetTransformRules(asset, rules) : rules;
 }
 async function run() {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225/out/extension.js"), "utf8");
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), "out/extension.js"), "utf8");
   const injected = injectComputerUse(original);
   assert.equal(injected.count, 7); assert.equal(injectComputerUse(injected.text).count, 0);
   new vm.Script(injected.text);
@@ -25,7 +25,7 @@ async function run() {
   try {
     const owner = createOwner(home), sent = [], shown = [], outbound = [];
     const registered = [];
-    const context = vm.createContext({ require: name => { if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, bR: "provider" });
+    const context = vm.createContext({ require: name => { if(name === "./window-control-host.cjs")return {registerApprovalUI(native,publish){registered.push({native,publish});},respondApproval(native,id,result){return String(id).startsWith("azrael-window-consent-");}}; assert.equal(name, "./computer-use-approvals.cjs"); return owner; }, ut: class {}, IR: "provider" });
     context.host = { codexMcpConnection: { sendResponse: (id, result) => sent.push({ id, result }), sendRequest: (...args) => outbound.push(args) }, broadcastToAllViews: value => shown.push(value), pendingMcpRequests: new Map(), sendInternalAppServerRequest: (...args) => outbound.push(args) };
     // Evaluate the exact transformed handlers obtained from the full pinned bundle.
     const onRequest = replacements[0][1];
@@ -37,12 +37,12 @@ async function run() {
     const hostAst = vp.createSourceFile("extension.js", injected.text, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
     const settingsOwners = [];
     function findSettingsOwner(node) {
-      if (vp.isVariableDeclaration(node) && node.name?.text === "YN" && vp.isClassExpression(node.initializer)) settingsOwners.push(node);
+      if (vp.isVariableDeclaration(node) && node.name?.text === "dF" && vp.isClassExpression(node.initializer)) settingsOwners.push(node);
       vp.forEachChild(node, findSettingsOwner);
     }
     findSettingsOwner(hostAst);
     assert.equal(settingsOwners.length, 1, "pinned computer-use settings class is unique");
-    vm.runInContext("var " + settingsOwners[0].getText(hostAst) + ";settings=new YN", context);
+    vm.runInContext("var " + settingsOwners[0].getText(hostAst) + ";settings=new dF", context);
     context.host.receive(request(1)); assert.equal(registered[0].native,context.host.codexMcpConnection);registered[0].publish({type:"fixture"});assert.equal(shown.pop().type,"fixture"); assert.equal(shown[0].request.id, 1);
     context.host.respond({ type: "mcp-response", response: { id: 1, result: { action: "accept", content: { persist: "always" } } } });
     context.host.receive(request(2)); assert.equal(sent[1].result.content.scope, "global");
@@ -66,7 +66,7 @@ async function run() {
 test("pinned computer-use approval injection and transformed host handlers", run);
 
 test("pinned computer-use settings visibility preserves eligibility, navigation and redirects", () => {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225", COMPUTER_USE_SETTINGS_ASSET), "utf8");
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_SETTINGS_ASSET), "utf8");
   const injected = injectComputerUseSettings(original, COMPUTER_USE_SETTINGS_ASSET);
   assert.equal(injected.count, 1);
   assert.deepEqual(injectComputerUseSettings(injected.text, COMPUTER_USE_SETTINGS_ASSET), { text: injected.text, count: 0 });
@@ -122,21 +122,21 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
   function inspect(source, eligible, selected = "computer-use") {
     // Run the real hook's visibility/eligibility/selection/navigation tail. Hook data
     // acquisition above it is replaced by controlled inputs; the tail is not reimplemented.
-    const functionStart = source.indexOf("function ga(e,t,n){");
-    const tailStart = source.indexOf('let L=ce===`loading`', functionStart);
+    const functionStart = source.indexOf("function ma(e,t,r){");
+    const tailStart = source.indexOf('let F=ue===`loading`', functionStart);
     const tailEnd = source.indexOf("}function _a(e)", tailStart);
     assert(functionStart >= 0 && tailStart > functionStart && tailEnd > tailStart);
-    const helpersEnd = source.indexOf("var xa,Sa;", tailEnd);
+    const helpersEnd = source.indexOf("var ya,ba;", tailEnd);
     const helpers = source.slice(tailEnd + 1, helpersEnd);
-    const gateStart = source.indexOf("Sa={", helpersEnd) + 3;
+    const gateStart = source.indexOf("ba={", helpersEnd) + 3;
     const gateEnd = source.indexOf("}})))()}", gateStart) + 1;
     assert(gateStart > helpersEnd && gateEnd > gateStart);
-    const context = { ce: "denied", i: selected, r: Array(50).fill(Symbol.for("react.memo_cache_sentinel")),
-      bt: ["general-settings", "computer-use", "browser-use", "mcp-settings"].map(slug => ({ slug })),
-      be: { codexOrWorkLocal: eligible }, M: false, u: false, Ae: false, F: "free", Tt: { ENT26: "enterprise" },
-      Zr: () => false, nt: "general-settings" };
+    const context = { ue: "denied", a: selected, i: Array(50).fill(Symbol.for("react.memo_cache_sentinel")),
+      Qe: ["general-settings", "computer-use", "browser-use", "mcp-settings"].map(slug => ({ slug })),
+      Se: { codexOrWorkLocal: eligible }, k: false, l: false, Pe: false, j: "free", Ze: { ENT26: "enterprise" },
+      Yr: () => false, Tt: "general-settings" };
     return JSON.parse(JSON.stringify(vm.runInNewContext(
-      `var Sa=${source.slice(gateStart, gateEnd)};${helpers};function inspect(){${source.slice(tailStart, tailEnd)}};inspect()`, context)));
+      `var ba=${source.slice(gateStart, gateEnd)};${helpers};function inspect(){${source.slice(tailStart, tailEnd)}};inspect()`, context)));
   }
   const before = inspect(original, true);
   assert.equal(before.activeSettingsSection, "general-settings");
@@ -158,7 +158,7 @@ test("pinned computer-use settings visibility preserves eligibility, navigation 
 });
 
 test("pinned computer-use approval card cancels the request through the native response closure", async () => {
-  const original = fs.readFileSync(path.join(__dirname, "../artifacts/upstream-ui/26.930.61225", COMPUTER_USE_APPROVAL_CARD_ASSET), "utf8");
+  const original = fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_APPROVAL_CARD_ASSET), "utf8");
   const injected = injectComputerUseCancelRequest(original, COMPUTER_USE_APPROVAL_CARD_ASSET);
   assert.equal(injected.count, 1);
   assert.deepEqual(injectComputerUseCancelRequest(injected.text, COMPUTER_USE_APPROVAL_CARD_ASSET), { text: injected.text, count: 0 });
@@ -210,10 +210,10 @@ test("pinned computer-use approval card cancels the request through the native r
       const jsx = (type, props) => ({ type, props });
       const _ = { set: (...args) => flags.push(args) };
       const context = { D: { c: () => memo }, O: { useRef: () => ref, useState: () => [state, value => { state = value; }] },
-        k: { jsx, jsxs: jsx, Fragment: "fragment" }, c: "localized-label", i: () => _, C: "owner", s: () => ({ formatMessage: descriptor => descriptor.defaultMessage }),
-        r: () => false, v: "has-approved", y: () => false, w: "plugin-icon", h: "icon", d: "risk-icon",
-        f: (action, content) => { wire.push({ action, content }); return { action, content }; },
-        m: () => ({ replyWithMcpServerElicitationResponse: (threadId, requestId, response) => {
+        k: { jsx, jsxs: jsx, Fragment: "fragment" }, a: "localized-label", c: () => _, C: "owner", r: () => ({ formatMessage: descriptor => descriptor.defaultMessage }),
+        s: () => false, v: () => {}, y: "has-approved", S: () => false, w: "plugin-icon", m: "icon", o: "risk-icon",
+        h: (action, content) => { wire.push({ action, content }); return { action, content }; },
+        _: () => ({ replyWithMcpServerElicitationResponse: (threadId, requestId, response) => {
           sent.push({ threadId, requestId, response: owner.response(requestId, response) }); return pending;
         } }),
         props: { ApprovalCard: "approval-card", conversationId: "thread-a", hostId: "local", requestId: id,
@@ -270,7 +270,7 @@ test("pinned computer-use approval card cancels the request through the native r
 });
 
 test("local Windows approval management preserves native execution gates and memo correctness", async () => {
-  const root = path.join(__dirname, "../artifacts/upstream-ui/26.930.61225");
+  const root = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
   const original = fs.readFileSync(path.join(root, COMPUTER_USE_MANAGEMENT_ASSET), "utf8");
   const injected = injectComputerUseManagement(original, COMPUTER_USE_MANAGEMENT_ASSET);
   assert.equal(injected.count, 1);
@@ -318,8 +318,8 @@ test("local Windows approval management preserves native execution gates and mem
     assert(node, `missing native ${name} declaration`);
     return node.getText();
   }
-  const nativeVr = declaration(transformed.text, "Vr");
-  assert.equal(declaration(transformed.text, "Hr"), declaration(original, "Hr"));
+  const nativeVr = declaration(transformed.text, "Hr");
+  assert.equal(declaration(transformed.text, "Ur"), declaration(original, "Ur"));
   assert.equal(declaration(transformed.text, "ci"), declaration(original, "ci"));
   assert.equal(declaration(transformed.text, "ui"), declaration(original, "ui"));
   const memo = Array(28).fill(Symbol.for("react.memo_cache_sentinel"));
@@ -327,15 +327,15 @@ test("local Windows approval management preserves native execution gates and mem
   const jsx = (type, props) => ({ type, props });
   const K = Object.assign(function Section() {}, { Header: "section-header", Content: "section-content" });
   const context = vm.createContext({ Q: { c: count => { assert.equal(count, 28); return memo; } },
-    mt: () => ({ selectedHostId: host }), S: () => false, hn: "native-enabled", nt: () => availability,
-    bt: () => ({ platform }), ve: () => false, b: () => ({ pathname: browser == null ? "/settings/computer-use" : `/settings/computer-use/${browser}` }),
-    k: () => ({ params: { browserFamily: browser } }), en: "browser-route", Qt: value => value, h: () => plugin, Ci: "plugin",
-    $: { jsx, jsxs: jsx, Fragment: "fragment" }, ti: "browser-page", _: "redirect", ei: "plugin-page",
-    Kt: "settings-title", _i: "computer-use", x: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
-    Hr: "native-controls", ai: "macos-control", Ot: "boundary", ci: "approvals", ri: "sound", Gt: "settings-page",
+    tt: () => ({ selectedHostId: host }), w: () => false, fn: "native-enabled", qe: () => availability,
+    lt: () => ({ platform }), R: () => false, C: () => ({ pathname: browser == null ? "/settings/computer-use" : `/settings/computer-use/${browser}` }),
+    r: () => ({ params: { browserFamily: browser } }), Pt: "browser-route", Ut: value => value, A: () => plugin, yi: "plugin",
+    $: { jsx, jsxs: jsx, Fragment: "fragment" }, ni: "browser-page", _: "redirect", ti: "plugin-page",
+    nt: "settings-title", _i: "computer-use", u: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
+    Ur: "native-controls", oi: "macos-control", St: "boundary", li: "approvals", ii: "sound", Yt: "settings-page",
     AzraelWindowControlLauncher: "window-control-launcher" });
   vm.runInContext(nativeVr, context);
-  const render = () => vm.runInContext("Vr()", context);
+  const render = () => vm.runInContext("Hr()", context);
   function contains(node, type) {
     if (Array.isArray(node)) return node.some(child => contains(child, type));
     return !!node && typeof node === "object" && (node.type === type || contains(node.props?.children, type));
@@ -368,12 +368,12 @@ test("local Windows approval management preserves native execution gates and mem
 
   // Execute the unchanged query factory and ci mount effect: neither requires
   // native availability, and the query invokes the native approval owner directly.
-  const querySource = fs.readFileSync(path.join(root, "webview/assets/computer-use-app-approvals-query-9e56575cd5d5.js"), "utf8");
+  const querySource = fs.readFileSync(path.join(root, "webview/assets/computer-use-app-approvals-query-b2ff6be10a1a.js"), "utf8");
   const queryAst = vp.createSourceFile("approval-query.js", querySource, vp.ScriptTarget.Latest, true, vp.ScriptKind.JS);
   const queryFactories = [];
   function findApprovalQuery(node) {
-    if (vp.isBinaryExpression(node) && node.left.getText(queryAst) === "j" &&
-        vp.isCallExpression(node.right) && node.right.expression.getText(queryAst) === "n" &&
+    if (vp.isBinaryExpression(node) && node.left.getText(queryAst) === "b" &&
+        vp.isCallExpression(node.right) && node.right.expression.getText(queryAst) === "t" &&
         node.right.arguments[1]?.getText(queryAst).includes('queryKey:[`computer-use-app-approvals`]')) {
       queryFactories.push(node.right.getText(queryAst));
     }
@@ -384,21 +384,21 @@ test("local Windows approval management preserves native execution gates and mem
   let reads = 0, refetches = 0, fetched;
   const approvedApps = [{ bundleIdentifier: "stored.exe", displayName: "Stored app" }];
   const query = vm.runInNewContext(`(${queryFactories[0]})`, {
-    n: (_owner, factory) => factory(), h: "native-owner", m: value => value,
-    i: { computerUseSettings: { getAppApprovals: () => { reads++; return { approvedApps }; } } }, o: { ONE_MINUTE: 60000 } });
+    t: (_owner, factory) => factory(), o: "native-owner", c: value => value,
+    i: { computerUseSettings: { getAppApprovals: () => { reads++; return { approvedApps }; } } }, a: { ONE_MINUTE: 60000 } });
   assert.equal(Object.hasOwn(query, "enabled"), false);
   assert.equal(query.refetchOnMount, "always");
   const ciContext = vm.createContext({ Q: { c: () => Array(7).fill(Symbol.for("react.memo_cache_sentinel")) },
-    c: () => ({ get: key => { assert.equal(key, "approval-query"); return { refetch: () => { refetches++; fetched = query.queryFn({ signal: undefined }); } }; } }),
-    Yt: "native-owner", Tn: "approval-query", s: () => ({ isLoading: false, isError: false, data: { approvedApps } }),
-    gi: { useEffect: effect => effect() }, $: { jsx }, li: "approval-list" });
-  vm.runInContext(declaration(transformed.text, "ci"), ciContext);
-  assert.equal(vm.runInContext("ci()", ciContext).type, "approval-list");
+    x: () => ({ get: key => { assert.equal(key, "approval-query"); return { refetch: () => { refetches++; fetched = query.queryFn({ signal: undefined }); } }; } }),
+    Ct: "native-owner", En: "approval-query", g: () => ({ isLoading: false, isError: false, data: { approvedApps } }),
+    gi: { useEffect: effect => effect() }, $: { jsx }, ui: "approval-list" });
+  vm.runInContext(declaration(transformed.text, "li"), ciContext);
+  assert.equal(vm.runInContext("li()", ciContext).type, "approval-list");
   assert.equal(refetches, 1); assert.equal(reads, 1); assert.deepEqual(await fetched, { approvedApps });
   console.log("PASS pinned Vr local Windows management, preserved native gates/sound, host/platform/availability memo invalidation and ungated native ci query mount");
 });
 test('Window Use Azrael title is guarded and leaves Computer Use native title intact',()=>{
- const {injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements}=require('./inject-computer-use.cjs');const original=fs.readFileSync(path.join(__dirname,'../artifacts/upstream-ui/26.930.61225',COMPUTER_USE_APPROVAL_CARD_ASSET),'utf8');
+ const {injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements}=require('./inject-computer-use.cjs');const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_APPROVAL_CARD_ASSET),'utf8');
  const result=injectWindowApprovalTitle(original,COMPUTER_USE_APPROVAL_CARD_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalTitle(result.text,COMPUTER_USE_APPROVAL_CARD_ASSET).count,0);assert(result.text.includes('Allow Azrael to use {appDisplayName}?'));assert(result.text.includes('Allow ChatGPT to use {appDisplayName}?'));
  assert.throws(()=>injectWindowApprovalTitle(original+WINDOW_TITLE_MARKER,COMPUTER_USE_APPROVAL_CARD_ASSET));assert.throws(()=>injectWindowApprovalTitle(result.text.replace(windowTitleReplacements[2][1],'tampered'),COMPUTER_USE_APPROVAL_CARD_ASSET));assert.equal(injectWindowApprovalTitle(original,'unrelated.js').count,0);
 });

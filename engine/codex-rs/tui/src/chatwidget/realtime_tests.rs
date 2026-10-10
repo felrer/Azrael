@@ -128,6 +128,7 @@ fn finish_turn(
                 root_resume_wait: None,
 
                 id: turn_id.to_string(),
+                root_turn_id: None,
                 items,
                 items_view: TurnItemsView::Summary,
                 status,

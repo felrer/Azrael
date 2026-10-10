@@ -224,8 +224,11 @@ impl ThreadQueueRequestProcessor {
             )
             .await
             .map_err(queue_error)?;
-        let turn_id = match submission {
-            QueuedItemSubmission::Started { turn_id } => turn_id,
+        let (turn_id, root_turn_id) = match submission {
+            QueuedItemSubmission::Started {
+                turn_id,
+                root_turn_id,
+            } => (turn_id, root_turn_id),
             QueuedItemSubmission::Skipped => {
                 return Ok(ThreadQueueStartResponse {
                     turn: None,
@@ -256,6 +259,7 @@ impl ThreadQueueRequestProcessor {
                 root_resume_wait: None,
 
                 id: turn_id,
+                root_turn_id: Some(root_turn_id),
                 items: vec![],
                 items_view: TurnItemsView::NotLoaded,
                 error: None,

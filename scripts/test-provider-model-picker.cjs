@@ -145,7 +145,7 @@ test("account notification subscription waits for the pinned lazy event bus init
  assert.equal(ast.parseDiagnostics.length,0);
  const subscriptions=[];
  function visit(node){
-  if(vp.isCallExpression(node)&&node.expression.getText(ast)==="Dm.subscribe"&&node.arguments[0]?.text==="mcp-notification")subscriptions.push(node);
+  if(vp.isCallExpression(node)&&node.expression.getText(ast)==="vm.subscribe"&&node.arguments[0]?.text==="mcp-notification")subscriptions.push(node);
   vp.forEachChild(node,visit);
  }
  visit(ast);assert.equal(subscriptions.length,1);
@@ -153,14 +153,14 @@ test("account notification subscription waits for the pinned lazy event bus init
  let initializer=subscription.parent;
  while(initializer&&!vp.isFunctionDeclaration(initializer))initializer=initializer.parent;
  assert.ok(initializer,"subscription must belong to the lazy initializer, not module evaluation");
- const creation=initializer.getText(ast).indexOf("Dm=Em.getInstance()");
+ const creation=initializer.getText(ast).indexOf("vm=_m.getInstance()");
  assert.ok(creation>=0&&creation<subscription.getStart(ast)-initializer.getStart(ast));
  const picker=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,injection.PROVIDER_PICKER_ASSET),"utf8"),injection.PROVIDER_PICKER_ASSET).text;
  assert.ok(!picker.includes('ym.subscribe("mcp-notification"'));
  let callback,received,created=0,registered=0;
- const context={Em:{getInstance(){created++;return {subscribe(name,listener){assert.equal(created,1);registered++;assert.equal(name,"mcp-notification");callback=listener;}};}},__azraelProviderCatalog:{notification(event){received=event;}}};
+ const context={_m:{getInstance(){created++;return {subscribe(name,listener){assert.equal(created,1);registered++;assert.equal(name,"mcp-notification");callback=listener;}};}},__azraelProviderCatalog:{notification(event){received=event;}}};
  // Evaluate registration in a lazy function with the actual transformed calls.
- vm.runInNewContext(`var Dm;function initialize(){Dm=Em.getInstance(),${subscription.getText(ast)}}`,context);
+ vm.runInNewContext(`var vm;function initialize(){vm=_m.getInstance(),${subscription.getText(ast)}}`,context);
  assert.equal(created,0);assert.equal(registered,0);
  context.initialize();assert.equal(registered,1);
  const event={hostId:"local",method:"account/updated"};callback(event);assert.equal(received,event);
@@ -181,21 +181,22 @@ test("failed session refresh retains cached result and retry state",async()=>{
  assert.equal(await c.query("a",fn,100,invalidate),initial);
 });
 
-const original=process.env.PROVIDER_PICKER_ORIGINAL||path.resolve("artifacts/upstream-ui/26.930.61225");
+const original=process.env.AZRAEL_PRESERVATION_UI_ROOT||process.env.PROVIDER_PICKER_ORIGINAL||path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve("artifacts/upstream-ui/26.1007.21434"));
 const vp=require(path.resolve("extensions/azrael-ex/node_modules/typescript/lib/typescript.js"));
+const astCache=new Map();function pickerAst(source){let tree=astCache.get(source);if(!tree){tree=vp.createSourceFile("picker.js",source,99,true,vp.ScriptKind.JS);astCache.set(source,tree)}return tree;}
 test("pinned upstream already accepts max and ultra effort labels",()=>{
  const source=fs.readFileSync(path.join(original,injection.PROVIDER_PICKER_ASSET),"utf8");
- assert.ok(source.includes("function ZC(e){return e===`none`||e===`minimal`||e===`low`||e===`medium`||e===`high`||e===`xhigh`||e===`max`||e===`ultra`"));
+ assert.ok(source.includes("function yC(e){return e===`none`||e===`minimal`||e===`low`||e===`medium`||e===`high`||e===`xhigh`||e===`max`||e===`ultra`"));
  const transformed=injection.injectProviderModelPicker(source,injection.PROVIDER_PICKER_ASSET).text;
- assert.ok(transformed.includes("function ibr({additionalAvailableModels:e"));
+ assert.ok(transformed.includes("function IJr({additionalAvailableModels:e"));
  assert.ok(transformed.includes("__azraelProviderCatalog"));
- assert.ok(transformed.includes("ne=(R===void 0||R)&&(!p?.startsWith(`managed/`)||HQ(h,p).length>0)"));
+ assert.ok(transformed.includes("G=(R===void 0||R)&&(!p?.startsWith(`managed/`)||dQ(h,p).length>0)"));
 });
 test("actual unified native options preserve provider efforts, saving guard and completion",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS);let callback;
+ const ast=pickerAst(source);let callback;
  function visit(n){if(vp.isCallExpression(n)&&n.expression.getText(ast)==="__azraelProviderCatalog.modelEffort"){let p=n;while(p&&!vp.isArrowFunction(p))p=p.parent;callback=p;}vp.forEachChild(n,visit);}visit(ast);assert.ok(callback);
- let chosen,complete=0;const context={t:null,s:null,p:"gpt",u:"gpt",j:"high",ge:(...args)=>{chosen=args;return true;},E:()=>complete++,__azraelProviderCatalog:createProviderModelCatalog()};
+ let chosen,complete=0;const context={t:null,s:null,p:"gpt",u:"gpt",j:"high",ye:(...args)=>{chosen=args;return true;},E:()=>complete++,__azraelProviderCatalog:createProviderModelCatalog()};
  const select=()=>vm.runInNewContext(callback.getText(ast),context)();
  context.t={model:"devin/a",supportedReasoningEfforts:[{reasoningEffort:"high"},{reasoningEffort:"low"}],defaultReasoningEffort:"low"};select();assert.deepEqual(chosen,["devin/a","high"]);assert.equal(complete,1);
  context.j="unsupported";select();assert.deepEqual(chosen,["devin/a","low"]);
@@ -210,13 +211,13 @@ test("actual unified native options preserve provider efforts, saving guard and 
 });
 test("native React binding and unified compiled memo/key contract remain intact",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS),functions={};
- function visit(n){if(vp.isFunctionDeclaration(n)&&["mQi","xra","__AzraelProviderModelList"].includes(n.name?.text))functions[n.name.text]=n.getText(ast);vp.forEachChild(n,visit);}visit(ast);
- assert.ok(functions.mQi.includes("(0,K8.useId)"));assert.ok(functions.mQi.includes("Ue=c.providerGroups?(0,q8.jsx)(__AzraelProviderModelList"));assert.ok(functions.mQi.includes("t[99]!==c||"));
+ const ast=pickerAst(source),functions={};
+ function visit(n){if(vp.isFunctionDeclaration(n)&&["ssa","lCa","__AzraelProviderModelList"].includes(n.name?.text))functions[n.name.text]=n.getText(ast);vp.forEachChild(n,visit);}visit(ast);
+ assert.ok(functions.ssa.includes("(0,G8.useId)"));assert.ok(functions.ssa.includes("He=c.providerGroups?(0,K8.jsx)(__AzraelProviderModelList"));assert.ok(functions.ssa.includes("t[100]!==c||"));
  assert.ok(source.includes("if(e.type===`completed`&&e.method===`thread/start`)__azraelProviderCatalog.sessionCreated(e.hostId)"));
- assert.ok(functions.xra.includes("t[131]!==g?"));assert.ok(functions.xra.includes("t[131]=g"));assert.ok(functions.xra.includes("(0,Sra.c)(132)"));
- assert.ok(functions.mQi.includes('t.closest(`[data-azrael-provider-models]`)'));
- assert.ok(functions.mQi.includes('children:e.label},e.id)'));assert.ok(functions.__AzraelProviderModelList.includes('(K8,q8.jsx,nB,__azraelProviderCatalog,props)'));
+ assert.ok(functions.lCa.includes("t[134]!==g?"));assert.ok(functions.lCa.includes("t[134]=g"));assert.ok(functions.lCa.includes("(0,uCa.c)(135)"));
+ assert.ok(functions.ssa.includes('t.closest(`[data-azrael-provider-models]`)'));
+ assert.ok(functions.ssa.includes('children:e.label},e.id)'));assert.ok(functions.__AzraelProviderModelList.includes('(G8,K8.jsx,PR,__azraelProviderCatalog,props)'));
 });
 test("empty scoped host shows remote error, retry refreshes correct host",async()=>{
  const c=createProviderModelCatalog();let retried,calls=0;
@@ -239,7 +240,7 @@ test("post-sharing tag scopes empty arrays without polluting enumerable data",()
  assert.equal(c.tag(result,"a"),result);assert.equal(shared.__azraelCatalogHost,"a");assert.deepEqual(Object.keys(shared),[]);
  c.tag(result,"b");assert.equal(shared.__azraelCatalogHost,"b");assert.equal(c.tag({data:undefined},"a").data,undefined);
  const asset=injection.PROVIDER_QUERY_ASSET,transformed=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- assert.ok(transformed.includes("__azraelProviderCatalog.tag(KUe({"));assert.ok(transformed.includes("useHiddenModels:m.useHiddenModels}),i)"));
+ assert.ok(transformed.includes("__azraelProviderCatalog.tag(Cbe({"));assert.ok(transformed.includes("useHiddenModels:v.useHiddenModels}),i)"));
 });
 test("capture keyboard reaches search and refresh while skipping hidden or inert rows",()=>{
  const h=harness(createProviderModelCatalog(),{hostId:"a",options:[],renderOption:o=>o}),tree=h.render();let focused;
@@ -255,7 +256,7 @@ for(const asset of injection.PROVIDER_PICKER_ASSETS)test(`pinned transformation 
  assert.deepEqual(injection.injectProviderModelPicker(result.text,asset),{text:result.text,count:0});
  assert.throws(()=>injection.injectProviderModelPicker("",asset),/anchor/);assert.throws(()=>injection.injectProviderModelPicker(source+source,asset),/anchor/);
  const out=path.resolve("artifacts/verification/provider-model-picker-transformed");fs.mkdirSync(out,{recursive:true});fs.writeFileSync(path.join(out,path.basename(asset)),result.text);
- if(asset===injection.PROVIDER_PICKER_ASSET){assert.ok(result.text.includes("ge(t.model,__azraelProviderCatalog.modelEffort"));assert.ok(result.text.includes("Ue=c.providerGroups?"));}
+ if(asset===injection.PROVIDER_PICKER_ASSET){assert.ok(result.text.includes("ye(t.model,__azraelProviderCatalog.modelEffort"));assert.ok(result.text.includes("He=c.providerGroups?"));}
 });
 
 
@@ -283,45 +284,45 @@ test("managed model efforts use exact declared stages and defaults; native model
 
 test("transformed reasoning choices expose declared managed slider stages and defaults",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS),functions={};
- function visit(n){if(vp.isFunctionDeclaration(n)&&["HQ","NVr","Lyr","Ryr","__azraelReasoningLabel"].includes(n.name?.text))functions[n.name.text]=n.getText(ast);vp.forEachChild(n,visit);}visit(ast);
- const context={__azraelProviderCatalog:createProviderModelCatalog(),ZC:()=>true,UPt:["medium"],S5e:()=>"medium",zp:value=>value,F8:{max:{defaultMessage:"Max"}}};
+ const ast=pickerAst(source),functions={};
+ function visit(n){if(vp.isFunctionDeclaration(n)&&["dQ","Z6r","gJr","_Jr","__azraelReasoningLabel"].includes(n.name?.text))functions[n.name.text]=n.getText(ast);vp.forEachChild(n,visit);}visit(ast);
+ const context={__azraelProviderCatalog:createProviderModelCatalog(),yC:()=>true,Pzt:["medium"],s2e:()=>"medium",c_:value=>value,P8:{max:{defaultMessage:"Max"}}};
  vm.createContext(context);vm.runInContext(Object.values(functions).join("\n"),context);
  for(const model of ["z-ai/glm-5.3","z-ai/glm-5.3:batch","z-ai/glm-5.3-flash","z-ai/glm-5.3-flash:batch"]){
   const row={model:`managed/openrouter/${model}`,displayName:model,supportedReasoningEfforts:["low","high","max"].map(reasoningEffort=>({reasoningEffort})),defaultReasoningEffort:"max"};
-  const options=context.HQ([row],row.model),power=context.Lyr([row]);
-  assert.deepEqual(Array.from(options,e=>e.reasoningEffort),["low","high","max"]);assert.equal(context.NVr("medium",options),"max");assert.equal(power.length,3);assert.equal(power.find(e=>e.reasoningEffort==="max").model,row.model);
+  const options=context.dQ([row],row.model),power=context.gJr([row]);
+  assert.deepEqual(Array.from(options,e=>e.reasoningEffort),["low","high","max"]);assert.equal(context.Z6r("medium",options),"max");assert.equal(power.length,3);assert.equal(power.find(e=>e.reasoningEffort==="max").model,row.model);
  }
- assert.equal(context.Ryr({selectedPowerSelection:{model:"managed/openrouter/model",reasoningEffort:"xhigh"},fallbackPowerSelection:{id:"low"}}),undefined);
- const automatic=context.Lyr([{model:"managed/openrouter/unknown",supportedReasoningEfforts:[]}]);assert.equal(automatic.length,0);assert.equal(context.__azraelReasoningLabel(null).defaultMessage,"Automatic");
+ assert.equal(context._Jr({selectedPowerSelection:{model:"managed/openrouter/model",reasoningEffort:"xhigh"},fallbackPowerSelection:{id:"low"}}),undefined);
+ const automatic=context.gJr([{model:"managed/openrouter/unknown",supportedReasoningEfforts:[]}]);assert.equal(automatic.length,0);assert.equal(context.__azraelReasoningLabel(null).defaultMessage,"Automatic");
  const anthropic={model:"managed/anthropic/claude-opus-5-5",displayName:"Opus 5.5",supportedReasoningEfforts:["low","medium","high","xhigh","max"].map(reasoningEffort=>({reasoningEffort})),defaultReasoningEffort:"medium"};
- assert.deepEqual(Array.from(context.HQ([anthropic],anthropic.model),e=>e.reasoningEffort),["low","medium","high","xhigh","max"]);
- assert.equal(context.NVr("unsupported",context.HQ([anthropic],anthropic.model)),"medium");
- assert.deepEqual(Array.from(context.Lyr([anthropic]),e=>e.reasoningEffort),["low","medium","high","xhigh","max"]);
- assert.deepEqual(Array.from(context.Lyr([{model:"managed/anthropic/claude-unknown-future",supportedReasoningEfforts:[]}]),e=>e.reasoningEffort),[]);
+ assert.deepEqual(Array.from(context.dQ([anthropic],anthropic.model),e=>e.reasoningEffort),["low","medium","high","xhigh","max"]);
+ assert.equal(context.Z6r("unsupported",context.dQ([anthropic],anthropic.model)),"medium");
+ assert.deepEqual(Array.from(context.gJr([anthropic]),e=>e.reasoningEffort),["low","medium","high","xhigh","max"]);
+ assert.deepEqual(Array.from(context.gJr([{model:"managed/anthropic/claude-unknown-future",supportedReasoningEfforts:[]}]),e=>e.reasoningEffort),[]);
  for(const row of [
   {model:"managed/google/gemini",supportedReasoningEfforts:["low","high"].map(reasoningEffort=>({reasoningEffort})),defaultReasoningEffort:"high"},
   {model:"managed/google-antigravity/gemini-pro",supportedReasoningEfforts:["medium","high","max"].map(reasoningEffort=>({reasoningEffort})),defaultReasoningEffort:"medium"},
  ]){
   const expected=row.supportedReasoningEfforts.map(option=>option.reasoningEffort);
-  assert.deepEqual(Array.from(context.HQ([row],row.model),e=>e.reasoningEffort),expected);
-  assert.deepEqual(Array.from(context.Lyr([row]),e=>e.reasoningEffort),expected);
-  assert.equal(context.NVr("unsupported",context.HQ([row],row.model)),row.defaultReasoningEffort);
+  assert.deepEqual(Array.from(context.dQ([row],row.model),e=>e.reasoningEffort),expected);
+  assert.deepEqual(Array.from(context.gJr([row]),e=>e.reasoningEffort),expected);
+  assert.equal(context.Z6r("unsupported",context.dQ([row],row.model)),row.defaultReasoningEffort);
  }
 });
 
 
 test("actual native managed selection, power options and slider gate handle missing defaults and stages",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS),declarations=[];let callback,sliderGate;
+ const ast=pickerAst(source),declarations=[];let callback,sliderGate;
  function visit(n){
-  if(vp.isFunctionDeclaration(n)&&["HQ","NVr","Lyr","RZi","__azraelReasoningLabel"].includes(n.name?.text))declarations.push(n.getText(ast));
+  if(vp.isFunctionDeclaration(n)&&["dQ","Z6r","gJr","Moa","__azraelReasoningLabel"].includes(n.name?.text))declarations.push(n.getText(ast));
   if(vp.isCallExpression(n)&&n.expression.getText(ast)==="__azraelProviderCatalog.modelEffort"){let p=n;while(p&&!vp.isArrowFunction(p))p=p.parent;callback=p?.getText(ast);}
-  if(vp.isVariableDeclaration(n)&&n.name?.getText(ast)==="ne"&&n.initializer?.getText(ast).includes("HQ(h,p).length>0"))sliderGate=n.initializer.getText(ast);
+  if(vp.isVariableDeclaration(n)&&n.name?.getText(ast)==="G"&&n.initializer?.getText(ast).includes("dQ(h,p).length>0"))sliderGate=n.initializer.getText(ast);
   vp.forEachChild(n,visit);
  }visit(ast);assert.ok(callback,"native model-selection callback");assert.ok(sliderGate,"native slider visibility condition");
  let chosen,completed=0;
- const context={__azraelProviderCatalog:createProviderModelCatalog(),ZC:e=>["none","minimal","low","medium","high","xhigh","max","ultra"].includes(e),UPt:["medium"],S5e:()=>"medium",zp:value=>value,F8:{low:{defaultMessage:"Low"}},VZi:{low:{defaultMessage:"Low"}},t:null,s:null,p:"gpt",u:"gpt",j:"medium",R:undefined,h:[],ge:(...args)=>{chosen=args;return true;},E:()=>completed++};
+ const context={__azraelProviderCatalog:createProviderModelCatalog(),yC:e=>["none","minimal","low","medium","high","xhigh","max","ultra"].includes(e),Pzt:["medium"],s2e:()=>"medium",c_:value=>value,P8:{low:{defaultMessage:"Low"}},toa:{low:{defaultMessage:"Low"}},t:null,s:null,p:"gpt",u:"gpt",j:"medium",R:undefined,h:[],ye:(...args)=>{chosen=args;return true;},E:()=>completed++};
  vm.createContext(context);vm.runInContext(declarations.join("\n"),context);
  const rows=[
   [{model:"managed/anthropic/claude-opus-5",supportedReasoningEfforts:["low","medium","high","max"]},"medium","medium"],
@@ -341,10 +342,10 @@ test("actual native managed selection, power options and slider gate handle miss
   if(row.supportedReasoningEfforts)row.supportedReasoningEfforts=row.supportedReasoningEfforts.map(reasoningEffort=>({reasoningEffort}));
   const stages=fixture.supportedReasoningEfforts??[];
   context.t=row;context.j=previous;context.p="gpt";context.h=[row];context.R=undefined;
-  const choices=context.HQ([row],row.model),power=context.Lyr([row]);
+  const choices=context.dQ([row],row.model),power=context.gJr([row]);
   assert.deepEqual(Array.from(choices,e=>e.reasoningEffort),stages,row.model);
   assert.deepEqual(Array.from(power,e=>e.reasoningEffort),stages,row.model);
-  assert.equal(context.NVr(previous,choices),expected,row.model);
+  assert.equal(context.Z6r(previous,choices),expected,row.model);
   chosen=undefined;const before=completed;vm.runInContext(callback,context)();
   assert.deepEqual(chosen,[row.model,expected],row.model);assert.equal(completed,before+1);
   assert.ok(chosen[1]===null||stages.includes(chosen[1]),"selection must not send a stale unsupported effort");
@@ -357,59 +358,59 @@ test("actual native managed selection, power options and slider gate handle miss
 test("actual compact trigger renders a neutral icon for managed provider-default effort",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,pristine=fs.readFileSync(path.join(original,asset),"utf8");
  const source=injection.injectProviderModelPicker(pristine,asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS),declarations=[];let iconTable,triggerIcon,iconConsumer;
+ const ast=pickerAst(source),declarations=[];let iconTable,triggerIcon,iconConsumer;
  function visit(n){
-  if(vp.isFunctionDeclaration(n)&&["HQ","NVr","UQi"].includes(n.name?.text))declarations.push(n.getText(ast));
-  if(vp.isBinaryExpression(n)&&n.left.getText(ast)==="WQi")iconTable=n.getText(ast);
-  if(vp.isFunctionDeclaration(n)&&n.name?.text==="Dra"){
+  if(vp.isFunctionDeclaration(n)&&["dQ","Z6r","rca"].includes(n.name?.text))declarations.push(n.getText(ast));
+  if(vp.isBinaryExpression(n)&&n.left.getText(ast)==="ica")iconTable=n.getText(ast);
+  if(vp.isFunctionDeclaration(n)&&n.name?.text==="hCa"){
    function triggerVisit(child){
-    if(vp.isVariableDeclaration(child)&&child.name?.getText(ast)==="St"&&child.initializer?.getText(ast)==="UQi(it)")triggerIcon=child.getText(ast);
-    if(vp.isCallExpression(child)&&child.arguments[0]?.getText(ast)==="St"&&child.expression.getText(ast)==="(0,b7.jsx)")iconConsumer=child.getText(ast);
+    if(vp.isVariableDeclaration(child)&&child.name?.getText(ast)==="Rt"&&child.initializer?.getText(ast)==="rca(bt)")triggerIcon=child.getText(ast);
+    if(vp.isCallExpression(child)&&child.arguments[0]?.getText(ast)==="Rt"&&child.expression.getText(ast)==="(0,S7.jsx)")iconConsumer=child.getText(ast);
     vp.forEachChild(child,triggerVisit);
    }triggerVisit(n);
   }
   vp.forEachChild(n,visit);
  }visit(ast);
  assert.ok(iconTable,"native effort icon table");assert.ok(triggerIcon,"compact trigger icon lookup");assert.ok(iconConsumer,"compact trigger JSX consumer");
- const context={__azraelProviderCatalog:createProviderModelCatalog(),ZC:e=>["none","minimal","low","medium","high","xhigh","max","ultra"].includes(e),UPt:["medium"],S5e:()=>"medium"};
- for(const name of ["PNe","jze","_Ge","MZe","Y3e"])context[name]=props=>({type:"svg",props:{...props,"data-native-icon":name}});
- context.b7={jsx(type,props){assert.equal(typeof type,"function","React icon element type must be defined");return type(props);}};
+ const context={__azraelProviderCatalog:createProviderModelCatalog(),yC:e=>["none","minimal","low","medium","high","xhigh","max","ultra"].includes(e),Pzt:["medium"],s2e:()=>"medium"};
+ for(const name of ["KYe","Qrt","uOe","pnt","PZe"])context[name]=props=>({type:"svg",props:{...props,"data-native-icon":name}});
+ context.S7={jsx(type,props){assert.equal(typeof type,"function","React icon element type must be defined");return type(props);}};
  vm.createContext(context);vm.runInContext(declarations.join("\n")+"\n"+iconTable,context);
- const render=effort=>{context.it=effort;return vm.runInContext(`(()=>{let ${triggerIcon};return ${iconConsumer}})()`,context);};
+ const render=effort=>{context.bt=effort;return vm.runInContext(`(()=>{let ${triggerIcon};return ${iconConsumer}})()`,context);};
  for(const fixture of [{supportedReasoningEfforts:[]},{}]){
-  const row={model:"managed/openrouter/provider-default",...fixture},options=context.HQ([row],row.model);
-  assert.equal(options.length,0);const selected=context.NVr("medium",options);
+  const row={model:"managed/openrouter/provider-default",...fixture},options=context.dQ([row],row.model);
+  assert.equal(options.length,0);const selected=context.Z6r("medium",options);
   assert.equal(selected,null);assert.equal(JSON.stringify({model:row.model,reasoningEffort:selected}),`{"model":"${row.model}","reasoningEffort":null}`);
-  assert.equal(context.UQi(selected),context.PNe);const icon=render(selected);
-  assert.equal(icon.type,"svg");assert.equal(icon.props["data-native-icon"],"PNe");assert.equal(icon.props.className,"icon-leading text-tertiary");
+  assert.equal(context.rca(selected),context.KYe);const icon=render(selected);
+  assert.equal(icon.type,"svg");assert.equal(icon.props["data-native-icon"],"KYe");assert.equal(icon.props.className,"icon-leading text-tertiary");
  }
- assert.equal(context.UQi(undefined),context.PNe);assert.equal(render(undefined).props["data-native-icon"],"PNe");
- for(const [effort,name] of Object.entries({none:"PNe",minimal:"PNe",low:"jze",medium:"_Ge",high:"MZe",xhigh:"Y3e",max:"Y3e",ultra:"Y3e",persistent:"Y3e"})){
-  assert.equal(context.UQi(effort),context[name]);assert.equal(render(effort).props["data-native-icon"],name);
+ assert.equal(context.rca(undefined),context.KYe);assert.equal(render(undefined).props["data-native-icon"],"KYe");
+ for(const [effort,name] of Object.entries({none:"KYe",minimal:"KYe",low:"Qrt",medium:"uOe",high:"pnt",xhigh:"PZe",max:"PZe",ultra:"PZe",persistent:"PZe"})){
+  assert.equal(context.rca(effort),context[name]);assert.equal(render(effort).props["data-native-icon"],name);
  }
- assert.equal(context.UQi("unsupported"),undefined,"unknown non-null effort behavior is preserved");
- const anchor="function UQi(e){return WQi[e]}";
- assert.throws(()=>injection.injectProviderModelPicker(pristine.replace(anchor,"function UQi(e){return WQi?.[e]}"),asset),/anchor/);
+ assert.equal(context.rca("unsupported"),undefined,"unknown non-null effort behavior is preserved");
+ const anchor="function rca(e){return ica[e]}";
+ assert.throws(()=>injection.injectProviderModelPicker(pristine.replace(anchor,"function rca(e){return ica?.[e]}"),asset),/anchor/);
  assert.throws(()=>injection.injectProviderModelPicker(pristine+anchor,asset),/anchor/);
 });
 
 test("actual native reasoning aria labels safely format null and unsupported efforts",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS),declarations=[];
- function visit(n){if(vp.isFunctionDeclaration(n)&&["RZi","__azraelReasoningLabel"].includes(n.name?.text))declarations.push(n.getText(ast));vp.forEachChild(n,visit);}visit(ast);
- const nativeLabel={id:"test.reasoning.low",defaultMessage:"Low"},context={VZi:{low:nativeLabel},F8:{},intl:{formatMessage(message,values){assert.ok(message,"formatMessage requires a label descriptor");assert.ok(message.id,"FormatJS requires a message id");return values?`${values.model}, locked`:message.defaultMessage;}}};
+ const ast=pickerAst(source),declarations=[];
+ function visit(n){if(vp.isFunctionDeclaration(n)&&["Moa","__azraelReasoningLabel"].includes(n.name?.text))declarations.push(n.getText(ast));vp.forEachChild(n,visit);}visit(ast);
+ const nativeLabel={id:"test.reasoning.low",defaultMessage:"Low"},context={toa:{low:nativeLabel},P8:{},intl:{formatMessage(message,values){assert.ok(message,"formatMessage requires a label descriptor");assert.ok(message.id,"FormatJS requires a message id");return values?`${values.model}, locked`:message.defaultMessage;}}};
  vm.createContext(context);vm.runInContext(declarations.join("\n"),context);
- for(const effort of [null,undefined,"unsupported"]){assert.equal(context.RZi({modelLabel:"Opus 5",reasoningEffort:effort},context.intl),"Opus 5 Automatic");}
- assert.equal(context.RZi({modelLabel:"Opus 5",reasoningEffort:"low"},context.intl),"Opus 5 Low");
- assert.equal(context.RZi({modelLabel:"Opus 5",reasoningEffort:null,sliderLabel:"Custom slider label"},context.intl),"Custom slider label");
- assert.equal(context.RZi({modelLabel:"Opus 5",reasoningEffort:null,isLocked:true},context.intl),"Opus 5, locked");
+ for(const effort of [null,undefined,"unsupported"]){assert.equal(context.Moa({modelLabel:"Opus 5",reasoningEffort:effort},context.intl),"Opus 5 Automatic");}
+ assert.equal(context.Moa({modelLabel:"Opus 5",reasoningEffort:"low"},context.intl),"Opus 5 Low");
+ assert.equal(context.Moa({modelLabel:"Opus 5",reasoningEffort:null,sliderLabel:"Custom slider label"},context.intl),"Custom slider label");
+ assert.equal(context.Moa({modelLabel:"Opus 5",reasoningEffort:null,isLocked:true},context.intl),"Opus 5, locked");
 });
 
 test("native reset selects the declared OpenRouter default or first stage and has no selection without stages",()=>{
  const asset=injection.PROVIDER_PICKER_ASSET,source=injection.injectProviderModelPicker(fs.readFileSync(path.join(original,asset),"utf8"),asset).text;
- const ast=vp.createSourceFile(asset,source,99,true,vp.ScriptKind.JS);let reset;const declarations=[];
- function visit(n){if(vp.isFunctionDeclaration(n)&&["YJ","Lyr","HQ"].includes(n.name?.text))declarations.push(n.getText(ast));if(vp.isVariableDeclaration(n)&&n.name?.text==="pt"&&n.initializer?.getText(ast).startsWith("YJ(ft,"))reset=n.initializer.getText(ast);vp.forEachChild(n,visit);}visit(ast);assert.ok(reset);
- const model="managed/openrouter/~openai/gpt-sol-latest",context={Ee:model,lt:{model:"gpt",defaultReasoningEffort:"medium"},__azraelProviderCatalog:createProviderModelCatalog(),zp:value=>value,ZC:()=>true};
+ const ast=pickerAst(source);let reset;const declarations=[];
+ function visit(n){if(vp.isFunctionDeclaration(n)&&["TX","gJr","dQ"].includes(n.name?.text))declarations.push(n.getText(ast));if(vp.isVariableDeclaration(n)&&n.name?.text==="kt"&&n.initializer?.getText(ast).startsWith("TX(Ot,"))reset=n.initializer.getText(ast);vp.forEachChild(n,visit);}visit(ast);assert.ok(reset);
+ const model="managed/openrouter/~openai/gpt-sol-latest",context={Oe:model,Tt:{model:"gpt",defaultReasoningEffort:"medium"},__azraelProviderCatalog:createProviderModelCatalog(),c_:value=>value,yC:()=>true};
  vm.createContext(context);vm.runInContext(declarations.join("\n"),context);
  for(const [fixture,expected] of [
   [{supportedReasoningEfforts:[{reasoningEffort:"high"},{reasoningEffort:"max"}]},"high"],
@@ -418,12 +419,12 @@ test("native reset selects the declared OpenRouter default or first stage and ha
   [{},null],
  ]){
   const row={model,displayName:"GPT Sol",...fixture};
-  context.we=[row];
-  context.et=context.HQ([row],model);context.ft=context.Lyr([row]);
+  context.yt=[row];
+  context.et=context.dQ([row],model);context.Ot=context.gJr([row]);
   assert.equal(context.et.__azraelDefaultEffort,expected);
   const selected=vm.runInContext(reset,context);
-  if(expected===null){assert.equal(context.ft.length,0);assert.equal(selected,undefined);}
-  else{assert.equal(selected.reasoningEffort,expected);assert.ok(context.ft.includes(selected));}
+  if(expected===null){assert.equal(context.Ot.length,0);assert.equal(selected,undefined);}
+  else{assert.equal(selected.reasoningEffort,expected);assert.ok(context.Ot.includes(selected));}
  }
 });
 

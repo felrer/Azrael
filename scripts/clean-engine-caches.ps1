@@ -69,9 +69,21 @@ function Remove-CacheEntry([string]$Path) {
     if (-not (Test-InProject ([IO.Path]::GetFullPath($Path)))) { throw 'Cache escapes ProjectRoot.' }
     Assert-NoReparseAncestor $Path
     # PowerShell 7's filesystem provider unlinks nested junctions/symlinks without
-    # following them; Force also handles readonly files. Fixture regression verifies
-    # these semantics and long paths. Avoid ancestor metadata queries per cache file.
-    Remove-Item -LiteralPath $Path -Recurse -Force -ErrorAction Stop
+    # following them. Ordinary deletion preserves failures for inspection rather
+    # than overriding file attributes or retrying with a different deletion API.
+    try { Remove-Item -LiteralPath $Path -Recurse -ErrorAction Stop }
+    catch {
+        $failure = $_
+        $diagnosis = ''
+        $failedPath = [string]$failure.TargetObject
+        if ($failedPath -and [IO.Path]::IsPathFullyQualified($failedPath) -and (Test-PathWithin $failedPath $Path)) {
+            try {
+                $attributes = (Get-Item -LiteralPath $failedPath -ErrorAction Stop).Attributes
+                $diagnosis = " Failed entry: $failedPath; attributes: $attributes."
+            } catch { $diagnosis = " Failed entry inspection unavailable: $failedPath." }
+        }
+        throw "Ordinary cache deletion failed; remaining cache preserved at $Path.$diagnosis $($failure.Exception.Message)"
+    }
 }
 function Get-CacheMarkerVersion([string]$Target) {
     $marker = Join-Path $Target 'azrael-cache-version.json'

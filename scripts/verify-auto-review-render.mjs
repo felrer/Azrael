@@ -6,71 +6,73 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=join(root,'artifacts/verification/auto-review-20261007-ui');
-const logs=join(root,'artifacts/logs/auto-review-20261007/ui');
-const assets=join(root,'artifacts/upstream-ui/26.930.61225/webview/assets');
+const fixture=resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT||join(root,'artifacts/verification/auto-review-20261007-ui'));
+const logs=resolve(process.env.AZRAEL_RENDER_LOG_ROOT||join(root,'artifacts/logs/auto-review-20261007/ui'));
+assert(fixture.startsWith(join(root,'artifacts/verification')+sep));
+assert(logs.startsWith(join(root,'artifacts/logs')+sep));
+const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {AUTO_REVIEW_ASSETS}=require('./inject-auto-review.cjs');
 const {transformAsset}=require('./namespace-azrael-host.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
-const dropdownName='permissions-mode-dropdown-50ba72a19bff.js';
-const mainName='app-initial-532d60c9b397.js';
+const dropdownName='permissions-mode-dropdown-66a2c48ceb22.js';
+const mainName='app-initial-7a199c66e670.js';
 const production=new Map();
 // Shared exports injected into the main bundle come from this native owner.
-for(const relativePath of [...AUTO_REVIEW_ASSETS,'webview/assets/app-initial-5120fa5fe295.js']){
- const filename=join(root,'artifacts/upstream-ui/26.930.61225',relativePath);
+for(const relativePath of [...AUTO_REVIEW_ASSETS,'webview/assets/app-initial-c014f9ee4429.js']){
+ const filename=join(root,'artifacts/upstream-ui/26.1007.21434',relativePath);
  production.set(relativePath.split('/').at(-1),transformAsset(await readFile(filename,'utf8'),relativePath,filename,ts).text);
 }
 const dropdown=production.get(dropdownName),main=production.get(mainName);
 const mainFile=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
-const configOwner=mainFile.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='ZSr');
+const configOwner=mainFile.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='QXr');
 let configRender=configOwner.getText(mainFile),configEdits=[];
-const configHooks=new Set(['wh','q','Qd','gm','e9e','LWe']);
+const configHooks=new Set(['gh','X','Hu','Jg','m4e','xrt']);
 function configVisit(n){if(ts.isIdentifier(n)&&configHooks.has(n.text)&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))configEdits.push({start:n.getStart(mainFile)-configOwner.getStart(mainFile),end:n.end-configOwner.getStart(mainFile),text:'azraelFixture_'+n.text});ts.forEachChild(n,configVisit)}configVisit(configOwner);
 for(const e of configEdits.sort((a,b)=>b.start-a.start))configRender=configRender.slice(0,e.start)+e.text+configRender.slice(e.end);
-configRender=configRender.replace('function ZSr(','function azraelFixtureConfigEligibility(').replace('(0,eCr.use)(Tm)','null');
-const configSource=`\nconst azraelFixture_wh=()=>({modelSettings:window.fixtureModelSettings}),azraelFixture_q=()=>false,azraelFixture_Qd=fn=>fn===mm?{data:{requirements:window.fixtureConfig.requirements},isPending:false}:null,azraelFixture_gm=()=>[{}],azraelFixture_e9e=()=>true,azraelFixture_LWe=()=>({data:{config:window.fixtureConfig.resolvedConfig},isPending:window.fixtureConfig.isConfigDataPending});\n${configRender}\nwindow.fixtureConfigEligibility=azraelFixtureConfigEligibility;`;
+configRender=configRender.replace('function QXr(','function azraelFixtureConfigEligibility(').replace('(0,tZr.use)(R7e)','null');
+const configSource=`\nconst azraelFixture_gh=()=>({modelSettings:window.fixtureModelSettings}),azraelFixture_X=()=>false,azraelFixture_Hu=fn=>fn===fPe?{data:{requirements:window.fixtureConfig.requirements},isPending:false}:null,azraelFixture_Jg=()=>[{}],azraelFixture_m4e=()=>true,azraelFixture_xrt=()=>({data:{config:window.fixtureConfig.resolvedConfig},isPending:window.fixtureConfig.isConfigDataPending});\n${configRender}\nwindow.fixtureConfigEligibility=azraelFixtureConfigEligibility;`;
 const file=ts.createSourceFile('dropdown.js',dropdown,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
-const owner=file.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='wn');
+const owner=file.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='yn');
 assert.ok(owner,'Pinned native permission component');
 // Fixture-only adapters replace host state/query/telemetry/localization, while
 // the actual native render body, menu components and selection handlers run.
-const adapters=new Set(['g','s','c','m','Ee','Se','_e','Be','Ke','Ze','oe','h']);
+const adapters=new Set(['p','c','d','i','ge','I','P','ce','ot','mt','be','Xe','a']);
 let render=owner.getText(file),edits=[];
 function visit(n){if(ts.isIdentifier(n)&&adapters.has(n.text)&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(file)-owner.getStart(file),end:n.end-owner.getStart(file),text:'fixture_'+n.text});ts.forEachChild(n,visit)}
 visit(owner);for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)+e.text+render.slice(e.end);
-render=render.replace('function wn(','function fixtureNativePermissions(');
+render=render.replace('function yn(','function fixtureNativePermissions(');
 const adapterSource=`
-import {fixtureInitObserver,fixtureMakeObserver,Tct as fixtureResizeContext} from './app-initial-5120fa5fe295.js';
+import {fixtureInitObserver,fixtureMakeObserver,tEt as fixtureResizeContext} from './app-initial-c014f9ee4429.js';
 fixtureInitObserver();
-const fixture_h=({defaultMessage})=>defaultMessage;
-const fixture_m=()=>({formatMessage:({defaultMessage})=>defaultMessage});
-const fixture_s=()=>null,fixture_c=()=>({}),fixture_Be=()=>null,fixture_oe=()=>null;
-const fixture_g=(fn)=>fn===Qe?{data:[]}:fn===st?{isRequired:false}:null;
-const fixture_Ee=e=>window.fixtureConfigEligibility(e);
-const fixture_Ke=(...args)=>window.fixtureEvents.push({type:'telemetry',args});
-const fixture_Ze=(hostId,value)=>window.fixtureEvents.push({type:'persist',hostId,value});
-const fixture_Se=()=>({...window.fixtureState,hasSetInitialAgentMode:true,isAutoReviewRequiredForSelectedModel:false,isThreadSandboxed:true,permissionProfileId:null,shouldSendPermissionOverrides:true,shouldUseAppServerPermissionDefault:false,setAgentMode:mode=>{window.fixtureState.agentMode=mode;window.fixtureEvents.push({type:'mode',mode});window.fixtureRerender()},setHasSetInitialAgentMode(){},setPermissionProfileId(){}});
-const fixture__e=()=>({preferredNonFullAccessMode:window.fixtureState.preferred,setPreferredNonFullAccessMode:mode=>{window.fixtureState.preferred=mode;window.fixtureEvents.push({type:'preferred',mode})}});
+const fixture_a=({defaultMessage})=>defaultMessage;
+const fixture_i=()=>({formatMessage:({defaultMessage})=>defaultMessage});
+const fixture_c=()=>null,fixture_d=()=>({}),fixture_ce=()=>false,fixture_be=()=>null,fixture_Xe=()=>null;
+const fixture_p=(fn)=>fn===Ve?{data:[]}:fn===Qe?{isRequired:false}:null;
+const fixture_ge=e=>window.fixtureConfigEligibility(e);
+const fixture_ot=(...args)=>window.fixtureEvents.push({type:'telemetry',args});
+const fixture_mt=(hostId,value)=>window.fixtureEvents.push({type:'persist',hostId,value});
+const fixture_I=()=>({...window.fixtureState,isAutoReviewRequiredForSelectedModel:false,permissionProfileId:null,shouldSendPermissionOverrides:true,setAgentMode:mode=>{window.fixtureState.agentMode=mode;window.fixtureEvents.push({type:'mode',mode});window.fixtureRerender()},setPermissionProfileId(){}});
+const fixture_P=()=>({preferredNonFullAccessMode:window.fixtureState.preferred,setPreferredNonFullAccessMode:mode=>{window.fixtureState.preferred=mode;window.fixtureEvents.push({type:'preferred',mode})}});
 ${render}
 window.fixtureConfig={isConfigDataPending:false,isGuardianApprovalEnabledByStatsig:false,resolvedConfig:{}};
 window.fixtureModelSettings={isLoading:false,model:'gpt-5'};
 window.fixtureState={agentMode:'auto',preferred:null};window.fixtureEvents=[];
-const fixtureReact=p();let fixtureRevision=0;
+const fixtureReact=h();let fixtureRevision=0;
 function Fixture(){const [,update]=fixtureReact.useState(0);window.fixtureRerender=()=>update(++fixtureRevision);return $.jsx(fixtureResizeContext.Provider,{value:fixtureObserver,children:$.jsx(fixtureNativePermissions,{hostId:'local',cwdOverride:'C:/synthetic-workspace',permissionProfilesOverride:[],defaultOpen:true})})}
 const fixtureObserver=fixtureMakeObserver();
 export {Fixture};`;
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-668342ae9abd.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><h1 class="text-2xl font-semibold text-default">Permissions</h1><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {KEt,UEt} from '/assets/app-initial-efe028fd535e.js';import {Fixture} from '/assets/${dropdownName}';const $=KEt();window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><h1 class="text-2xl font-semibold text-default">Permissions</h1><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${dropdownName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
- if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=production.get(pathname.split(sep).at(-1))??await readFile(pathname);if(pathname===join(assets,dropdownName))source=dropdown+adapterSource;else if(pathname===join(assets,mainName))source=main+configSource;else if(pathname===join(assets,'app-initial-5120fa5fe295.js'))source=source.toString()+'\nexport{Lz as fixtureInitObserver,$hn as fixtureMakeObserver};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
+ if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=production.get(pathname.split(sep).at(-1))??await readFile(pathname);if(pathname===join(assets,dropdownName))source=dropdown+adapterSource;else if(pathname===join(assets,mainName))source=main+configSource;else if(pathname===join(assets,'app-initial-c014f9ee4429.js'))source=source.toString()+'\nexport{fj as fixtureInitObserver,V$t as fixtureMakeObserver};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
  res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Production transformAsset output for Auto-review main/dropdown/manager and shared export owner: actual native ZSr/FSr eligibility, permission render/menu/selection handlers, React, ResizeObserver and CSS; synthetic host hooks/default-message localization. Submission manager tested separately; no installed VS Code or model call.',checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Production transformAsset output for Auto-review main/dropdown/manager and shared export owner: actual native QXr/FXr eligibility, permission render/menu/selection handlers, React, ResizeObserver and CSS; synthetic host hooks/default-message localization. Submission manager tested separately; no installed VS Code or model call.',checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -124,8 +126,9 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome?.exitCode===null)await new Promise(r=>{const t=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(t);r()})});
+ if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
+ summary.browserExitCode=chrome?.exitCode;summary.browserSignalCode=chrome?.signalCode;
  const allowed=join(root,'artifacts/verification')+sep;
- if(chrome?.exitCode!==null&&fixture.startsWith(allowed)){await rm(fixture,{recursive:true,force:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser exited; guarded fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
+ if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.startsWith(allowed)){await rm(fixture,{recursive:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser exited; guarded fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

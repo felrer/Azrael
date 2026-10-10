@@ -3,7 +3,7 @@
 param(
     [Parameter(Mandatory)][string]$ReleaseDirectory,
     [Parameter(Mandatory)][string]$OutputDirectory,
-    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.930.61225'),
+    [string]$SourceExtensionPath = (Join-Path $PSScriptRoot '../artifacts/upstream-ui/26.1007.21434'),
     [string]$StateRoot = (Join-Path $env:USERPROFILE '.azrael-ex'),
     [string]$OriginalExtensionPath,
     [string]$DevinExecutable
@@ -26,7 +26,8 @@ function Set-AzraelEngineResolver {
         'function yI(t,e){let r=mn("cliExecutable");',
         'function bM(t,e){let r=Mn("cliExecutable");',
         'function QN(t,e){let r=Jn("cliExecutable");',
-        'function KN(t,e){let r=Jn("cliExecutable");'
+        'function KN(t,e){let r=Jn("cliExecutable");',
+        'function aF(t,e){let r=void 0;'
     )
     $matchingAnchors = @($anchors | Where-Object { [regex]::Matches($HostText, [regex]::Escape($_)).Count -gt 0 })
     if ($matchingAnchors.Count -ne 1 -or [regex]::Matches($HostText, [regex]::Escape($matchingAnchors[0])).Count -ne 1) { throw 'Pinned engine resolver anchor changed or is ambiguous.' }

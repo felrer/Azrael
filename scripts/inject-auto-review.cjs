@@ -1,24 +1,22 @@
 "use strict";
 
-const AUTO_REVIEW_ASSETS = ["webview/assets/app-initial-532d60c9b397.js", "webview/assets/permissions-mode-dropdown-50ba72a19bff.js", "webview/assets/app-initial-efe028fd535e.js"];
+const AUTO_REVIEW_ASSETS = ["webview/assets/app-initial-7a199c66e670.js", "webview/assets/permissions-mode-dropdown-66a2c48ceb22.js", "webview/assets/app-initial-97d3534ad35f.js"];
 const MARKER = "/*azrael-auto-review-v1*/";
 const CHANGES = {
-  FSr: [
+  FXr: [
     ["{isConfigDataPending:e,requirements:t", "{isAzraelAutoReviewSupported:z=!1,isConfigDataPending:e,requirements:t"],
-    ["let c=e?[`read-only`,`auto`,`granular`,`full-access`,`custom`]:qft(t,n),", "let c=(e?[`read-only`,`auto`,`granular`,`full-access`,`custom`]:qft(t,n)).filter(e=>z||e!==`guardian-approvals`),"],
-    ["u=i||r||a", "u=z"],
+    ["let l=e?[`read-only`,`auto`,`granular`,`full-access`,`custom`]:K_t(t,n),", "let l=(e?[`read-only`,`auto`,`granular`,`full-access`,`custom`]:K_t(t,n)).filter(e=>z||e!==`guardian-approvals`),"],
+    ["d=a||r||o", "d=z"],
   ],
-  ZSr: [
-    ["{let t=(0,kY.c)(21)", "{const azraelAutoReviewModel=wh(e.conversationId).modelSettings;let t=(0,kY.c)(21)"],
-    ["let I=m||h||g||A||T||F,", "let I=m||h||g||A||T||azraelAutoReviewModel.isLoading,"],
-    ["R):R=t[20],R}", "R):R=t[20],{...R,isAzraelAutoReviewSupported:!I&&azraelAutoReviewModel.isLoading===!1&&typeof azraelAutoReviewModel.model===`string`&&azraelAutoReviewModel.model.trim().length>0&&!azraelAutoReviewModel.model.startsWith(`devin/`)&&!azraelAutoReviewModel.model.startsWith(`managed/`)&&(M?.model_provider==null||M.model_provider===`openai`)}}"],
+  QXr: [
+    ["{let t=(0,WX.c)(24)", "{const azraelAutoReviewModel=gh(e.conversationId).modelSettings;let t=(0,WX.c)(24)"],
+    ["let F=m||h||g||j||E||T==null||P,", "let F=m||h||g||j||E||T==null||azraelAutoReviewModel.isLoading,"],
+    ["L):L=t[23],L}", "L):L=t[23],{...L,isAzraelAutoReviewSupported:!F&&azraelAutoReviewModel.isLoading===!1&&typeof azraelAutoReviewModel.model===`string`&&azraelAutoReviewModel.model.trim().length>0&&!azraelAutoReviewModel.model.startsWith(`devin/`)&&!azraelAutoReviewModel.model.startsWith(`managed/`)&&(N?.model_provider==null||N.model_provider===`openai`)}}"],
   ],
-  wn: [
-    ["}),ot=Nt({availableAgentModes:Xe", "}),azraelPreserveGuardian=A.isAzraelAutoReviewSupported===!1&&me({...A,isAzraelAutoReviewSupported:!0}).isGuardianModeAvailable,ot=Nt({availableAgentModes:Xe"],
-    ["Ot=J==null&&ut&&K!==`guardian-approvals`&&K!==`full-access`&&K!==`custom`", "Ot=J==null&&ut&&(azraelPreserveGuardian&&K===`guardian-approvals`||K!==`guardian-approvals`&&K!==`full-access`&&K!==`custom`)"],
-    ["()=>{bt&&pt(null)},[pt,bt]", "()=>{bt&&!azraelPreserveGuardian&&pt(null)},[pt,bt,azraelPreserveGuardian]"],
-    ["()=>{if(rt||ee||J!=null", "()=>{if(azraelPreserveGuardian&&K===`guardian-approvals`||rt||ee||J!=null"],
-    ["[n,Ne,nt,Je,Pe,r,Ht,q,rt,ee,Ie,K,Ut,Ye,gt,J,ut,Wt,ze,Ve,lt,Ue,He,zt,_t]", "[n,Ne,nt,Je,Pe,r,Ht,q,rt,ee,Ie,K,Ut,Ye,gt,J,ut,Wt,ze,Ve,lt,Ue,He,zt,_t,azraelPreserveGuardian]"],
+  // Native preference writes occur only in selection callbacks; project the saved mode into the manual label.
+  yn: [
+    ["}),ct=N({availableAgentModes:tt", "}),azraelPreserveGuardian=B.isAzraelAutoReviewSupported===!1&&ae({...B,isAzraelAutoReviewSupported:!0}).isGuardianModeAvailable,ct=N({availableAgentModes:tt"],
+    ["J=k&&He!==`full-access`&&gt?`guardian-approvals`:He", "J=azraelPreserveGuardian&&He===`guardian-approvals`?`auto`:k&&He!==`full-access`&&gt?`guardian-approvals`:He"],
   ],
 };
 const SUBMISSION_BEFORE='this.assertActive();let r=await this.requestClient.sendRequest(e,t,n);';
@@ -42,22 +40,22 @@ function injectAutoReview(text, relativePath, ts) {
   }
   // Policy eligibility must remain separate from the local rollout switch.
   const edits=[];
-  const targets=relativePath===AUTO_REVIEW_ASSETS[0]?['FSr','ZSr']:['wn'];
+  const targets=relativePath===AUTO_REVIEW_ASSETS[0]?['FXr','QXr']:['yn'];
   for (const name of targets) {
     const changes=CHANGES[name];
     const functions=file.statements.filter(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);
     if(functions.length!==1)throw new Error(`Pinned auto-review ${name} function drift.`);
     const owner=functions[0],source=owner.getText(file),start=owner.getStart(file);
-    if(name==="FSr")for(const guard of ["l=Xy(n??void 0)??!0","qft(t,n)","p=u&&l||f?c:d","showGuardianOption:u"])
+    if(name==="FXr")for(const guard of ["u=rvt(n??void 0)??!0","K_t(t,n)","m=d&&u||p?l:f","showGuardianOption:d"])
       if(source.split(guard).length!==2)throw new Error(`Pinned auto-review policy anchor drift: ${guard}`);
     for(const [before,after] of changes){
       const expected=marked?after:before;
       if(source.split(expected).length!==2)throw new Error(`Pinned auto-review ${name} anchor drift: ${expected.slice(0,80)}`);
       if(!marked){const pos=start+source.indexOf(before);edits.push({start:pos,end:pos+before.length,text:after})}
     }
-    if(name==="FSr"){
-      const declarations=[];function visit(node){if(ts.isVariableDeclaration(node)&&ts.isIdentifier(node.name)&&node.name.text==="u")declarations.push(node);ts.forEachChild(node,visit)}visit(owner);
-      if(declarations.length!==1||declarations[0].getText(file)!==(marked?"u=z":"u=i||r||a"))throw new Error("Pinned auto-review rollout declaration drift.");
+    if(name==="FXr"){
+      const declarations=[];function visit(node){if(ts.isVariableDeclaration(node)&&ts.isIdentifier(node.name)&&node.name.text==="d")declarations.push(node);ts.forEachChild(node,visit)}visit(owner);
+      if(declarations.length!==1||declarations[0].getText(file)!==(marked?"d=z":"d=a||r||o"))throw new Error("Pinned auto-review rollout declaration drift.");
     }
   }
   if (marked) return { text, count: 0 };

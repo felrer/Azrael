@@ -56,8 +56,13 @@ pub enum QueuedInput {
 /// Result of attempting to execute a queued operation.
 #[derive(Clone, Debug, PartialEq)]
 pub enum QueuedItemSubmission {
-    Started { turn_id: String },
-    NotSubmitted { reason: NotSubmittedReason },
+    Started {
+        turn_id: String,
+        root_turn_id: String,
+    },
+    NotSubmitted {
+        reason: NotSubmittedReason,
+    },
     Skipped,
 }
 
@@ -600,9 +605,13 @@ async fn submit_queued_input(
                     ))
                     .await?
                 {
-                    StartIfIdleSubmission::Started { turn_id } => {
-                        QueuedItemSubmission::Started { turn_id }
-                    }
+                    StartIfIdleSubmission::Started {
+                        turn_id,
+                        root_turn_id,
+                    } => QueuedItemSubmission::Started {
+                        turn_id,
+                        root_turn_id,
+                    },
                     StartIfIdleSubmission::NotSubmitted { reason } => {
                         QueuedItemSubmission::NotSubmitted { reason }
                     }
@@ -613,7 +622,10 @@ async fn submit_queued_input(
             Ok(match thread.compact_if_idle().await? {
                 CompactIfIdleSubmission::Started { turn_id } => {
                     tracing::info!(%turn_id, %client_id, "started queued context compaction");
-                    QueuedItemSubmission::Started { turn_id }
+                    QueuedItemSubmission::Started {
+                        root_turn_id: turn_id.clone(),
+                        turn_id,
+                    }
                 }
                 CompactIfIdleSubmission::NotSubmitted { reason } => {
                     tracing::debug!(?reason, %client_id, "queued context compaction not admitted");

@@ -19,14 +19,15 @@ test("native profile permissions default off and reject non-boolean values", () 
   assert.throws(() => parseAccountResponse({ state: { ...response.state, profiles: [{ ...profile, autoSwitchAllowed: "true" }] } }), /profile/);
 });
 
-test("connected saved accounts expose an accessible opt-in even collapsed", () => {
-  const html = providerAccountHtml(provider, account, undefined);
-  assert.match(html, /<label[^>]*><input type="checkbox"[^>]*>자동 전환 허용<\/label>/);
+test("connected saved accounts expose an accessible opt-in in expanded management details", () => {
+  assert.doesNotMatch(providerAccountHtml(provider, account, undefined), /data-action="setAutoSwitch"/);
+  const html = providerAccountHtml(provider, account, undefined, undefined, true);
+  assert.match(html, /<label[^>]*><input type="checkbox"[^>]*><span class="switch-track" aria-hidden="true"><\/span>자동 전환 허용<\/label>/);
   assert.doesNotMatch(html, /checked/);
-  assert.match(providerAccountHtml(provider, { ...account, autoSwitchAllowed: true }, undefined, undefined, false, true), /checked.*disabled/);
-  assert.match(providerAccountHtml(provider, { ...account, autoSwitchAvailable: true }, undefined), /자동 전환 허용/);
-  assert.doesNotMatch(providerAccountHtml(provider, { ...account, autoSwitchAvailable: false, autoSwitchAllowed: true }, undefined), /자동 전환 허용/);
-  assert.doesNotMatch(providerAccountHtml({ ...provider, inferenceConnected: false }, account, undefined), /자동 전환 허용/);
+  assert.match(providerAccountHtml(provider, { ...account, autoSwitchAllowed: true }, undefined, undefined, true, true), /checked.*disabled/);
+  assert.match(providerAccountHtml(provider, { ...account, autoSwitchAvailable: true }, undefined, undefined, true), /자동 전환 허용/);
+  assert.doesNotMatch(providerAccountHtml(provider, { ...account, autoSwitchAvailable: false, autoSwitchAllowed: true }, undefined, undefined, true), /자동 전환 허용/);
+  assert.doesNotMatch(providerAccountHtml({ ...provider, inferenceConnected: false }, account, undefined, undefined, true), /자동 전환 허용/);
 });
 
 test("permission parsing and helper submission retain only a boolean for a saved identity", async () => {
@@ -84,6 +85,8 @@ test("view validates fresh identities, suppresses duplicates and rolls failed pe
     await internal.onMessage({ ...message, enabled: "true" });
     await internal.onMessage({ ...message, workspaceAccountId: "wrong" });
     assert.equal(calls.length, 0);
+    await internal.onMessage({ action: "toggleUsage", profileId: profile.id, workspaceAccountId: "workspace" });
+    assert.match(internal.renderMarkup(), /aria-expanded="true"/);
     const pending = internal.onMessage(message);
     await new Promise(resolve => setImmediate(resolve));
     assert.match(internal.renderMarkup(), /data-profile="a+"[^>]*disabled/);

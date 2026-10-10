@@ -4,9 +4,9 @@ const MARKER = "/*azrael-url-safety-transport-v1*/";
 const ANCHOR = "let f=await fetch(o,{method:r.method,headers:p,body:r.body,signal:n});if(f.ok)";
 const CURRENT_ANCHOR = "let h=await fetch(o,{method:r.method,headers:m,body:r.body,signal:n});if(h.ok)";
 const STABLE_ANCHOR = "let g=await fetch(o,{method:r.method,headers:m,body:r.body,signal:n}),y=!g.ok&&h?await D4e(g):null";
-const TARGET_ANCHOR = "let g=await fetch(o,{method:r.method,headers:m,body:r.body,signal:n}),y=!g.ok&&h?await N4e(g):null";
+const TARGET_ANCHOR = "let g=await fetch(o,{method:r.method,headers:m,body:r.body,signal:n}),y=!g.ok&&h?await w6e(g):null";
 const PINNED = [
-  { anchor: TARGET_ANCHOR, logger: "function ie(){return sM}", response: "g", headers: "m", tail: ",y=!g.ok&&h?await N4e(g):null" },
+  { anchor: TARGET_ANCHOR, logger: "function ie(){return fM}", response: "g", headers: "m", tail: ",y=!g.ok&&h?await w6e(g):null" },
   { anchor: STABLE_ANCHOR, logger: "function ie(){return uM}", response: "g", headers: "m", tail: ",y=!g.ok&&h?await D4e(g):null" },
   { anchor: ANCHOR, logger: "function Z(){return eC}", response: "f", headers: "p" },
   { anchor: CURRENT_ANCHOR, logger: "function J(){return XC}", response: "h", headers: "m" },

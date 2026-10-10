@@ -23,8 +23,12 @@ async function fixture(t: TestContext) {
   await fs.mkdir(verification, { recursive: true });
   const dir = await fs.mkdtemp(path.join(verification, "instruction-service-"));
   t.after(async () => {
-    assert(dir.startsWith(verification + path.sep));
-    await fs.rm(dir, { recursive: true, force: true });
+    const relative = path.relative(verification, dir);
+    assert(relative && !relative.startsWith("..") && !path.isAbsolute(relative));
+    const stat = await fs.lstat(dir);
+    assert(stat.isDirectory() && !stat.isSymbolicLink());
+    await fs.rm(dir, { recursive: true });
+    await assert.rejects(fs.access(dir), { code: "ENOENT" });
   });
   const home = path.join(dir, "home"), workspace = path.join(dir, "workspace");
   await fs.mkdir(home); await fs.mkdir(workspace);
@@ -147,7 +151,9 @@ test("invalid repository and retryable backend failures return error state witho
 
 test("changing workspace maps its own selection and preserves retained workspace files and notices", async t => {
   const f = await fixture(t);
-  await f.service.request("download", { version: "1.0.0" });
+  const downloaded = await f.service.request("download", { version: "1.0.0" });
+  assert.equal(downloaded.error, undefined, `Prerequisite download failed: ${uiText(downloaded.error, "en")}; ${f.warnings.join("; ")}`);
+  assert.equal(downloaded.selectedVersion, "1.0.0");
   const ids = ["global-instructions", "playbook-work"];
   const applied = await f.service.request("apply", { componentIds: ids });
   assert.equal(applied.error, undefined); assert.deepEqual(applied.selectedComponentIds, ids);

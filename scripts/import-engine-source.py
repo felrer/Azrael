@@ -1062,6 +1062,10 @@ def validate_inventory(destination, receipt):
     entries = receipt.get("files")
     if not isinstance(entries, dict) or not entries:
         raise ValueError("Imported source receipt has no file inventory")
+    if "sourceFixPolicy" in receipt:
+        if (receipt["sourceFixPolicy"] != "integrated-git-bytes" or
+                "sourceFixes" in receipt or "upstreamIntegration" not in receipt):
+            raise ValueError("Malformed integrated source-fix policy")
     queue = entries.get(QUEUE_MIGRATION)
     if isinstance(queue, dict) and queue.get("kind") != "missing" and receipt.get("distributionFiles") is None:
         raise ValueError("Missing required queue distribution attribute overlay metadata")
@@ -1207,7 +1211,8 @@ def check_source(source, destination, snapshot_only=False):
                       "verificationScope": "immutable-snapshot" if snapshot_only else "latest-source"}, indent=2))
 
 
-def import_source(source, destination, allow_source_advance=False, upstream_tag=None):
+def import_source(source, destination, allow_source_advance=False, upstream_tag=None,
+                  preserve_source_fixes=False):
     source, destination = canonical_path(source), canonical_path(destination)
     if source == destination or source.is_relative_to(destination) or destination.is_relative_to(source):
         raise ValueError("Source and destination must not overlap")
@@ -1219,6 +1224,12 @@ def import_source(source, destination, allow_source_advance=False, upstream_tag=
     captured_utc = datetime.now(timezone.utc).isoformat()
     before = snapshot(source)
     pinned = upstream_integration(source, before, upstream_tag) if upstream_tag is not None else None
+    if preserve_source_fixes:
+        if pinned is None:
+            raise ValueError("Preserving integrated source fixes requires an exact upstream release tag")
+        # An integrated Git tree owns its Azrael fixes already. Require the actual
+        # release in its ancestry rather than trusting a declared applied delta.
+        git(source, "merge-base", "--is-ancestor", pinned[0]["targetCommit"], before["head"])
     io_destination.mkdir(parents=True, exist_ok=True)
     for name, entry in before["files"].items():
         if entry["kind"] == "missing":
@@ -1255,17 +1266,22 @@ def import_source(source, destination, allow_source_advance=False, upstream_tag=
               "sourceAdvanceChangedMetadata": [key for key in before if key != "files" and before[key] != after[key]]}
     if pinned is not None:
         record["upstreamIntegration"] = pinned[0]
-    adaptation = apply_distribution_adaptation(destination, entries)
+    if preserve_source_fixes:
+        record["sourceFixPolicy"] = "integrated-git-bytes"
+    # Renewing an already integrated tree must not duplicate the fixed ignore suffix.
+    integrated_ignore = (preserve_source_fixes and ".gitignore" in entries and
+                         safe_path(destination, ".gitignore").read_bytes().endswith(IGNORE_SUFFIX))
+    adaptation = None if integrated_ignore else apply_distribution_adaptation(destination, entries)
     if adaptation is not None:
         record["distributionAdaptation"] = adaptation
     distribution_files = apply_distribution_files(destination, entries)
     if distribution_files is not None:
         record["distributionFiles"] = distribution_files
-    source_fixes = apply_source_fixes(destination, entries)
-    state_fixes = apply_state_source_fixes(destination, entries)
+    source_fixes = None if preserve_source_fixes else apply_source_fixes(destination, entries)
+    state_fixes = None if preserve_source_fixes else apply_state_source_fixes(destination, entries)
     if state_fixes:
         source_fixes = {**(source_fixes or {}), **state_fixes}
-    identity_fixes = apply_identity_source_fixes(destination, entries)
+    identity_fixes = None if preserve_source_fixes else apply_identity_source_fixes(destination, entries)
     if identity_fixes:
         source_fixes = {**(source_fixes or {}), **identity_fixes}
     if source_fixes is not None:
@@ -1301,17 +1317,22 @@ def main():
     parser.add_argument("--snapshot-only", action="store_true", help="With --check, verify only the immutable recorded snapshot")
     parser.add_argument("--allow-source-advance", action="store_true", help="Accept verified before-inventory bytes even if original source later advances")
     parser.add_argument("--upstream-tag", help="Declare a reviewed applied upstream release delta, distinct from HEAD ancestry and runtime acceptance")
+    parser.add_argument("--preserve-source-fixes", action="store_true",
+                        help="Copy already integrated Azrael fixes unchanged; requires release-tag ancestry")
     args = parser.parse_args()
     if args.snapshot_only and not args.check:
         parser.error("--snapshot-only requires --check")
     if args.upstream_tag is not None and args.check:
         parser.error("--upstream-tag is only used when creating an import")
+    if args.preserve_source_fixes and (args.check or args.upstream_tag is None):
+        parser.error("--preserve-source-fixes requires an import with --upstream-tag")
     if args.source is None and not (args.check and args.snapshot_only):
         parser.error("--source is required except for --check --snapshot-only")
     if args.check:
         check_source(args.source or args.destination, args.destination, snapshot_only=args.snapshot_only)
     else:
-        import_source(args.source, args.destination, allow_source_advance=args.allow_source_advance, upstream_tag=args.upstream_tag)
+        import_source(args.source, args.destination, allow_source_advance=args.allow_source_advance,
+                      upstream_tag=args.upstream_tag, preserve_source_fixes=args.preserve_source_fixes)
 
 
 if __name__ == "__main__":

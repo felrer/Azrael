@@ -8,7 +8,7 @@ const ts = require(path.resolve("extensions/azrael-ex/node_modules/typescript/li
 const { transformAsset, getTransformRules } = require("./namespace-azrael-host.cjs");
 const { createAssetTransformCache } = require("./asset-transform-cache.cjs");
 const { PAGINATED_HISTORY_ASSET: asset } = require("./inject-paginated-history.cjs");
-const source = fs.readFileSync(path.resolve("artifacts/upstream-ui/26.930.61225", asset), "utf8");
+const source = fs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? "artifacts/upstream-ui/26.1007.21434", asset), "utf8");
 const transformed = transformAsset(source, asset, asset, ts);
 const ast = ts.createSourceFile(asset, transformed.text, 99, true, ts.ScriptKind.JS);
 function declaration(name) {
@@ -19,11 +19,11 @@ function declaration(name) {
 function editHarness(turns, historyMode = "paginated") {
   const calls = [], starts = [], state = { turns, historyMode, cwd: "/workspace" };
   const context = {
-    hZ: state => state.turns, yt: () => true, Re: (_old, message) => message,
-    GTn: mode => { if (mode === "paginated") throw Error("unsupported history"); },
+    $Z: state => state.turns, On: () => true, _: (_old, message) => message,
+    WDn: mode => { if (mode === "paginated") throw Error("unsupported history"); },
   };
   vm.createContext(context);
-  vm.runInContext(["gZ", "_Z", "KTn"].map(declaration).join("\n"), context);
+  vm.runInContext(["eQ", "tQ", "GDn"].map(declaration).join("\n"), context);
   const manager = {
     getConversation: () => state, getStreamRole: () => ({ role: "owner" }),
     requestClient: { getAppServerVersion: () => "0.159.3" },
@@ -36,7 +36,7 @@ function editHarness(turns, historyMode = "paginated") {
     },
     applyRevertResponseToConversation: result => { calls.push({ apply: result }); },
   };
-  return { calls, starts, run: () => context.KTn({ manager, conversationId: "thread", options: {
+  return { calls, starts, run: () => context.GDn({ manager, conversationId: "thread", options: {
     turnId: "target", message: "edited", shouldSendPermissionOverrides: false,
   }, startTurn: async (...args) => starts.push(args), ownerWindowError: "owner required" }) };
 }
@@ -50,8 +50,8 @@ test("integrated source parses, records both transforms, and fingerprints every 
   const rules = getTransformRules();
   for (const file of ["inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs"])
     assert.match(rules[file], /^[a-f0-9]{64}$/);
-  const context = {}; vm.createContext(context); vm.runInContext(declaration("wTn"), context);
-  assert.equal(context.wTn({}, { approvalPolicy: "on-request" }, "legacy", "0.159.3").historyMode, "paginated");
+  const context = {Te: config => config}; vm.createContext(context); vm.runInContext(declaration("CDn"), context);
+  assert.equal(context.CDn({}, { approvalPolicy: "on-request" }, "legacy", "0.159.3").historyMode, "paginated");
 });
 test("integrated native edit of interrupted turn uses exact revert boundary then resubmits", async () => {
   const turns = [turn("previous", "completed"), turn("target", "interrupted"), turn("continuation", "interrupted", [])];
@@ -92,6 +92,6 @@ test("cached integrated asset retains edit/stop counters on an unchanged second 
   } finally {
     assert.equal(path.dirname(fs.realpathSync(directory)), fs.realpathSync("artifacts/verification"));
     assert.ok(path.basename(directory).startsWith("azrael-edit-stop-cache-"));
-    fs.rmSync(directory, { recursive: true, force: true });
+    fs.rmSync(directory, { recursive: true });
   }
 });

@@ -67,6 +67,7 @@ fn selected_window_ui_metadata_replaces_spoofs_without_collapsing_managed_author
             codex_linux_sandbox_exe: None,
             sandbox_cwd: PathUri::parse("file:///selected-window-tests").unwrap(),
             use_legacy_landlock: false,
+            use_mxc: false,
         };
         let expected_state = serde_json::to_value(&state).unwrap();
         let meta = ui_request_meta(

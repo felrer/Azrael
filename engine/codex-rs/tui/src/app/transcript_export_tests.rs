@@ -85,6 +85,7 @@ fn transcript_export_excludes_hidden_review_prompts_and_nested_duplicates() {
         root_resume_wait: None,
 
         id: id.to_string(),
+        root_turn_id: None,
         items,
         items_view: TurnItemsView::Full,
         status,
