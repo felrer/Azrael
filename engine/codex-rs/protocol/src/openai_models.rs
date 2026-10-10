@@ -1128,6 +1128,72 @@ mod tests {
         }
     }
     #[test]
+    fn anthropic_compaction_defaults_to_400k_with_safe_cap_and_overrides() {
+        use crate::context_policy::AutoCompactSource;
+        use crate::context_policy::ProviderAutoCompact;
+        use crate::context_policy::resolve_auto_compact;
+        use std::collections::BTreeMap;
+
+        for (slug, provider) in [
+            ("claude-sonnet-4-6", "anthropic"),
+            ("managed/anthropic/claude-opus-4-6", "managed"),
+        ] {
+            let mut model = test_model(None);
+            model.slug = slug.into();
+            model.model_provider = provider.into();
+            model.context_window = Some(1_000_000);
+            let mut entries = BTreeMap::new();
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, None),
+                (Some(400_000), AutoCompactSource::Default)
+            );
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, Some(120_000)),
+                (Some(120_000), AutoCompactSource::Global)
+            );
+            entries.insert("anthropic".into(), ProviderAutoCompact::default());
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, Some(120_000)),
+                (Some(400_000), AutoCompactSource::Default)
+            );
+            model.context_window = Some(200_000);
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, None),
+                (Some(190_000), AutoCompactSource::Default)
+            );
+            entries.insert(
+                "anthropic".into(),
+                ProviderAutoCompact {
+                    percentage: None,
+                    token_limit: Some(150_000),
+                },
+            );
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, None),
+                (Some(150_000), AutoCompactSource::Provider)
+            );
+            entries.insert(
+                "anthropic".into(),
+                ProviderAutoCompact {
+                    percentage: Some(50),
+                    token_limit: Some(150_000),
+                },
+            );
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, None),
+                (Some(100_000), AutoCompactSource::Provider)
+            );
+            entries.clear();
+            model.slug = "other-model".into();
+            model.model_provider = "openrouter".into();
+            assert_eq!(
+                resolve_auto_compact(&model, &entries, None),
+                (Some(190_000), AutoCompactSource::Default)
+            );
+        }
+    }
+
+    #[test]
     fn model_messages_deserialize_without_optional_sections() {
         let messages: ModelMessages =
             from_str(r#"{"instructions_template":null,"persistent_instructions":null}"#)

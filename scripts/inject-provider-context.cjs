@@ -100,12 +100,15 @@ async function savePolicy(client, id, value) {
 }
 function compactionPreview(policy, override, draft) {
   const base = policy.autoCompactBaseTokens ?? policy.contextWindow;
-  const percentage = draft ?? String(override?.percentage ?? (override?.token_limit != null && base > 0 ? Math.max(1, Math.round(override.token_limit * 100 / base)) : 95));
+  const defaultTokens = policy.providerId === "anthropic" ? 400000 : null;
+  const defaultPercentage = defaultTokens != null && base > 0 ? Math.max(1, Math.round(defaultTokens * 100 / base)) : 95;
+  const isTokenDefault = defaultTokens != null && draft == null && override?.percentage == null && override?.token_limit == null;
+  const percentage = draft ?? String(override?.percentage ?? (override?.token_limit != null && base > 0 ? Math.max(1, Math.round(override.token_limit * 100 / base)) : defaultPercentage));
   const valid = /^[1-9]\d*$/.test(percentage) && Number.isSafeInteger(Number(percentage));
-  const requested = valid && base > 0 ? Math.max(1, Math.floor(base * (Number(percentage) / 100))) : null;
+  const requested = isTokenDefault ? defaultTokens : valid && base > 0 ? Math.max(1, Math.floor(base * (Number(percentage) / 100))) : null;
   const effective = requested == null ? null : policy.safeContextWindow == null ? requested : Math.min(requested, policy.safeContextWindow);
   const max = base > 0 && policy.safeContextWindow != null ? Math.max(1, Math.floor(policy.safeContextWindow * 100 / base)) : 100;
-  return {base,percentage,requested,effective,max};
+  return {base,percentage,requested,effective,max,isTokenDefault};
 }
 function renderSettings(React, jsx, client, ko) {
   const [data, setData] = React.useState(null), [error, setError] = React.useState(""), [pending, setPending] = React.useState(false), [drafts, setDrafts] = React.useState({});
@@ -118,7 +121,7 @@ function renderSettings(React, jsx, client, ko) {
   const buttonStyle = {padding:"6px 12px",alignSelf:"flex-start",borderRadius:4,background:"var(--vscode-button-background, #305f9b)",color:"var(--vscode-button-foreground, white)"};
   return jsx("section", {"data-azrael-provider-context":true,className:"flex flex-col gap-3",children:[
     jsx("h2",{children:ko?"제공자 자동 압축":"Provider auto-compaction"}),
-    jsx("p",{children:ko?"기본값: 길이 추가 요금 없는 기본 용량의 95%, 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 95% of the no-length-surcharge base, capped ot the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
+    jsx("p",{children:ko?"기본값: Anthropic은 400,000토큰, 그 외 제공자는 길이 추가 요금 없는 기본 용량의 95%이며 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 400,000 tokens for Anthropic; 95% of the no-length-surcharge base for other providers, capped at the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
     jsx("style",{children:"[data-azrael-compaction-slider]{appearance:auto!important;-webkit-appearance:auto!important;height:24px;cursor:pointer;accent-color:var(--vscode-button-background,#305f9b)}[data-azrael-compaction-slider]::-webkit-slider-thumb{appearance:auto!important;-webkit-appearance:auto!important}[data-azrael-compaction-slider]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--vscode-button-background,#305f9b)}"}),
     error?jsx("p",{role:"alert",children:error}):null,
     ...Array.from(groups,([id, policies])=>{
@@ -132,7 +135,7 @@ function renderSettings(React, jsx, client, ko) {
         jsx("label",{children:[ko?"자동 압축 백분율 (%)":"Auto-compaction percentage (%)",jsx("input",{style:controlStyle,name:"percentage",type:"text",inputMode:"numeric",pattern:"[1-9][0-9]*",required:true,value:preview.percentage,onChange:update,disabled:pending})]}),
         jsx("label",{children:[(ko?"안전 범위 슬라이더: 1–":"Safe range slider: 1–")+preview.max+"%",jsx("input",{"data-azrael-compaction-slider":true,"aria-label":ko?"자동 압축 백분율 슬라이더":"Auto-compaction percentage slider",type:"range",min:1,max:preview.max,step:1,value:Math.min(preview.max,Math.max(1,Number(preview.percentage)||1)),onChange:update,disabled:pending,style:{display:"block",width:"100%"}})]}),
         jsx("p",{children:(ko?"기본 용량: ":"Base capacity: ")+tokens(preview.base)+(fallback?(ko?" 토큰. 추가 요금 경계가 없거나 알 수 없어 모델 용량을 사용합니다. 가격 상태를 확인하세요.":" tokens. Using model capacity because there is no known length-surcharge boundary; check pricing status."):(ko?" 토큰 (길이 추가 요금 없는 용량).":" tokens (no-length-surcharge capacity)."))}),
-        jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+preview.percentage+"% = "+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped ot safe limit)"):"")}),
+        jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+(preview.isTokenDefault?(ko?"기본값 = ":"default = "):preview.percentage+"% = ")+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped ot safe limit)"):"")}),
         override?.token_limit!=null&&override.percentage==null?jsx("p",{children:(ko?"기존 토큰 한도 ":"Legacy token limit ")+tokens(override.token_limit)+(ko?"이 저장되어 있습니다. 저장을 누르면 표시된 백분율로 변경됩니다.":" remains stored until Save replaces it with the displayed percentage.")}):null,
         jsx("div",{style:{display:"flex",gap:8,alignItems:"center"},children:[
           jsx("button",{style:buttonStyle,type:"submit",disabled:pending,children:ko?"저장":"Save"}),
