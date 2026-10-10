@@ -102,6 +102,31 @@ class RecorderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot add"):
             importer.validate_receipt(self.destination, receipt)
 
+    def test_reviewed_prompt_addition_preserves_provenance(self):
+        name = "codex-rs/prompts/templates/agent_behavior.md"
+        self.add_module(name)
+        (self.destination / name).write_text("Shared agent behavior.\n", encoding="utf-8")
+        self.record(("edit.rs", name))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["schema"], 2)
+        self.assertEqual(receipt["localIntegration"]["originalReceipt"], self.original)
+        self.assertIsNone(receipt["localIntegration"]["changes"][name]["before"])
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / name).write_text("Updated shared agent behavior.\n", encoding="utf-8")
+        self.update((name,))
+        importer.validate_receipt(self.destination, self.receipt())
+
+    def test_reviewed_source_addition_path_scope(self):
+        for name in ("new.md", "codex-rs/prompts/agent_behavior.md",
+                     "codex-rs/prompts/templates-other/agent_behavior.md",
+                     "codex-rs/prompts/templates/agent_behavior.sql"):
+            with self.subTest(name=name):
+                self.add_module(name)
+                with self.assertRaisesRegex(ValueError, "Rust/prompt source"):
+                    self.record(("edit.rs", name))
+                self.git(self.repo, "rm", "--cached", "engine/" + name)
+                (self.destination / name).unlink()
+
     def test_explicit_adapted_content_update_preserves_fixed_provenance(self):
         path = self.destination / importer.REPLAY_PATH
         fixed = path.read_bytes()
@@ -193,10 +218,11 @@ class RecorderTests(unittest.TestCase):
             importer.validate_receipt(self.destination, self.receipt())
 
     def test_addition_modes_types_and_untracked_source_are_rejected(self):
-        for name in ("new.rs", "new.sql", "new.txt"):
+        prompt = "codex-rs/prompts/templates/agent_behavior.md"
+        for name in ("new.rs", "new.sql", "new.txt", prompt):
             with self.subTest(name=name):
                 self.add_module(name)
-                if name == "new.rs":
+                if name in ("new.rs", prompt):
                     self.git(self.repo, "update-index", "--chmod=+x", "engine/" + name)
                 with self.assertRaises(ValueError):
                     self.record(("edit.rs", name))
@@ -205,6 +231,10 @@ class RecorderTests(unittest.TestCase):
         (self.destination / "new.rs").write_bytes(b"untracked\n")
         with self.assertRaisesRegex(ValueError, "Git-tracked"):
             self.record(("edit.rs", "new.rs"))
+        (self.destination / "new.rs").unlink()
+        (self.destination / prompt).write_bytes(b"untracked prompt\n")
+        with self.assertRaisesRegex(ValueError, "Git-tracked"):
+            self.record(("edit.rs", prompt))
 
     def test_update_rejects_sql_modes_and_adaptation_changes(self):
         self.record()

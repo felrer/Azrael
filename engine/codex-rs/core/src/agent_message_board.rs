@@ -61,7 +61,7 @@ pub fn install_agent_message_board(
             let in_memory = config.multi_agent_v2.message_board_in_memory;
             // MAv2 supplies tree paths; ephemeral runtimes must not open local SQLite.
             if !config.features.enabled(Feature::AgentMessageBoard)
-                || !config.features.enabled(Feature::MultiAgentV2)
+                || !config.agents_enabled
                 || (config.ephemeral
                     && !in_memory
                     && config.multi_agent_v2.message_board_remote.is_none())

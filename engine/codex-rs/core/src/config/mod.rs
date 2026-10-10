@@ -1609,32 +1609,23 @@ impl Config {
     }
 
     pub(crate) fn multi_agent_version_override(&self) -> Option<MultiAgentVersion> {
-        if self.features.enabled(Feature::MultiAgentV2) {
-            Some(MultiAgentVersion::V2)
-        } else if !self.agents_enabled {
-            Some(MultiAgentVersion::Disabled)
-        } else {
-            None
-        }
+        // Apply the current agent policy before persisted or inherited session versions.
+        Some(self.multi_agent_version_from_features())
     }
 
     pub(crate) fn multi_agent_version_from_features(&self) -> MultiAgentVersion {
-        self.multi_agent_version_override().unwrap_or_else(|| {
-            if self.features.enabled(Feature::Collab) {
-                MultiAgentVersion::V1
-            } else {
-                MultiAgentVersion::Disabled
-            }
-        })
+        if self.agents_enabled {
+            MultiAgentVersion::V2
+        } else {
+            MultiAgentVersion::Disabled
+        }
     }
 
     pub(crate) fn multi_agent_version_for_model(
         &self,
-        model_multi_agent_version: Option<MultiAgentVersion>,
+        _model_multi_agent_version: Option<MultiAgentVersion>,
     ) -> MultiAgentVersion {
-        self.multi_agent_version_override()
-            .or(model_multi_agent_version)
-            .unwrap_or_else(|| self.multi_agent_version_from_features())
+        self.multi_agent_version_from_features()
     }
 
     pub(crate) fn effective_agent_max_threads(

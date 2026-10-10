@@ -12149,6 +12149,68 @@ smart_approvals = true
 }
 
 #[tokio::test]
+async fn multi_agent_v2_selection_ignores_provider_model_and_legacy_versions() -> std::io::Result<()>
+{
+    for (agents_config, expected) in [
+        ("", MultiAgentVersion::V2),
+        ("[agents]\nenabled = true\n", MultiAgentVersion::V2),
+        ("[agents]\nenabled = false\n", MultiAgentVersion::Disabled),
+    ] {
+        let codex_home = TempDir::new()?;
+        std::fs::write(codex_home.path().join(CONFIG_TOML_FILE), agents_config)?;
+        let mut config = ConfigBuilder::without_managed_config_for_tests()
+            .codex_home(codex_home.path().to_path_buf())
+            .fallback_cwd(Some(codex_home.path().to_path_buf()))
+            .build()
+            .await?;
+
+        for provider in ["openai", "devin", "opencodex", "custom-api"] {
+            config.model_provider_id = provider.to_string();
+            for model in ["first-model", "switched-model"] {
+                config.model = Some(model.to_string());
+                for feature_enabled in [false, true] {
+                    if feature_enabled {
+                        config
+                            .features
+                            .enable(Feature::Collab)
+                            .expect("enable collab");
+                        config
+                            .features
+                            .enable(Feature::MultiAgentV2)
+                            .expect("enable V2");
+                    } else {
+                        config
+                            .features
+                            .disable(Feature::Collab)
+                            .expect("disable collab");
+                        config
+                            .features
+                            .disable(Feature::MultiAgentV2)
+                            .expect("disable V2");
+                    }
+                    // The override wins before resume/fork history is consulted.
+                    assert_eq!(config.multi_agent_version_override(), Some(expected));
+                    assert_eq!(config.multi_agent_version_from_features(), expected);
+                    for catalog_or_session_version in [
+                        None,
+                        Some(MultiAgentVersion::Disabled),
+                        Some(MultiAgentVersion::V1),
+                        Some(MultiAgentVersion::V2),
+                    ] {
+                        assert_eq!(
+                            config.multi_agent_version_for_model(catalog_or_session_version),
+                            expected,
+                            "provider={provider}, model={model}, version={catalog_or_session_version:?}"
+                        );
+                    }
+                }
+            }
+        }
+    }
+    Ok(())
+}
+
+#[tokio::test]
 async fn multi_agent_v2_config_from_feature_table() -> std::io::Result<()> {
     let codex_home = TempDir::new()?;
     std::fs::write(

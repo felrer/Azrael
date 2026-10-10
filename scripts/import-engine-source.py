@@ -1104,6 +1104,10 @@ def validate_inventory(destination, receipt):
     return digest
 
 
+def is_reviewed_source_addition(name):
+    return name.endswith(".rs") or (name.startswith("codex-rs/prompts/templates/") and name.endswith(".md"))
+
+
 def validate_local_integration(destination, receipt):
     record = receipt["localIntegration"]
     keys = {"schema", "originalReceipt", "originalReceiptSha256", "repositoryHead", "sourcePrefix", "changes"}
@@ -1137,8 +1141,8 @@ def validate_local_integration(destination, receipt):
     protected = {".gitignore"} | set(original.get("sourceFixes", {}))
     for name, change in changes.items():
         if change["before"] is None:
-            if not name.endswith(".rs") or change["after"]["kind"] != "file" or change["after"]["gitMode"] != "100644":
-                raise ValueError(f"Local integration addition is not ordinary Rust source: {name}")
+            if not is_reviewed_source_addition(name) or change["after"]["kind"] != "file" or change["after"]["gitMode"] != "100644":
+                raise ValueError(f"Local integration addition is not ordinary Rust/prompt source: {name}")
             continue
         if name in protected or name.endswith(".sql") or change["before"]["kind"] != "file" or change["after"]["kind"] != "file" or change["before"]["gitMode"] != change["after"]["gitMode"]:
             raise ValueError(f"Local integration changes protected source: {name}")

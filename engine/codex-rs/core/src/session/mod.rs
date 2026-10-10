@@ -269,7 +269,6 @@ mod review;
 mod rollout_budget;
 mod rollout_reconstruction;
 mod root_resume;
-pub(crate) mod work_completion;
 #[allow(clippy::module_inception)]
 pub(crate) mod session;
 pub(crate) mod startup_prewarm;
@@ -283,6 +282,7 @@ pub(crate) mod turn;
 pub(crate) mod turn_context;
 mod turn_input;
 mod turn_suspension;
+pub(crate) mod work_completion;
 mod world_state;
 use self::code_mode_warning::unsupported_code_mode_warning;
 pub(crate) use self::environment::ThreadEnvironmentDefaults;
@@ -1557,11 +1557,16 @@ impl Session {
         }
     }
 
-    /// Render the request copy without changing instructions persisted or inherited by forks.
+    /// Refresh common behavior on the request copy, preserving explicit custom instructions.
     pub(crate) async fn get_prompt_base_instructions(&self) -> BaseInstructions {
         let config = self.get_config().await;
         let mut instructions = self.get_base_instructions().await;
-        instructions.text = codex_prompts::with_azrael_harness_identity(&instructions.text);
+        let custom = (!matches!(
+            instructions.provenance,
+            Some(BaseInstructionsProvenance::Model { .. })
+        ))
+        .then_some(instructions.text.as_str());
+        instructions.text = codex_prompts::compose_agent_instructions(custom);
         if !config.update_plan_enabled
             && config.model_catalog.is_none()
             && matches!(

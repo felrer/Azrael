@@ -22,11 +22,32 @@ The engine and native chat host explain the recognized cause, or explicitly stat
 
 ## Provider instruction adjustments
 
+### Common agent behavior and multi-agent runtime
+
+Status: `partial` — common source behavior is verified by focused Windows engine and provider-request tests; installed-host acceptance requires a matching engine.
+
+Azrael owns the shared behavior in `instructions/instructions/agent-behavior.md`, embedded
+in the engine prompt library. OpenAI, Devin, managed providers and user API models receive
+the same behavior, including user-language progress and final responses. Remote catalog
+templates and policy messages do not replace the common behavior. Permissions, approval
+guidance, collaboration modes, multi-agent roles and modes, persistence, recovery and
+Guardian policy use the common bundled messages and runtime configuration. Model catalog
+technical tool descriptions and parameter schemas remain available; capability selection,
+reasoning, tool representation and provider wire requirements stay at their existing boundaries.
+
+Request composition refreshes saved model-owned behavior without rewriting conversation
+history. Explicit custom instructions are preserved as additions to common behavior.
+Incremental context refreshes changed behavior in an existing context window. Agent-enabled
+threads select V2 for every provider, including resumed and forked V1 threads; explicit
+`agents.enabled=false` disables agents. Provider/model catalog values and legacy feature
+flags do not select a different multi-agent version. Internal review and Guardian reviewer
+sessions explicitly disable agents so they cannot start nested multi-agent work.
+
 ### Harness identity
 
-Status: `partial` — source adaptation and request-copy contracts are verified without compilation; installed windows require a matching engine.
+Status: `partial` — common prompt and request-copy contracts are verified by focused Windows engine tests; installed windows require a matching engine.
 
-The common native request boundary identifies the workspace application and agent harness as Azrael: `You are working in Azrael, the application and agent harness for this workspace.` The bundled model instruction catalog uses this introduction. The outgoing copy of saved, configured and catalog instructions replaces the exact Codex/GPT-6 agent introduction, so resumed sessions receive the Azrael description without rewriting their stored conversation. Actual model/provider identities, authentication identifiers and tool/API names remain separate from harness branding. Provider helpers forward the resulting instructions rather than inventing their own application identity.
+The common native request boundary identifies the workspace application and agent harness as Azrael: `You are working in Azrael, the application and agent harness for this workspace.` The common behavior source uses this introduction. Request composition refreshes saved model-owned instructions and preserves custom instructions as additions, so resumed sessions receive the Azrael description without rewriting their stored conversation. Actual model/provider identities, authentication identifiers and tool/API names remain separate from harness branding. Provider helpers forward the resulting instructions rather than inventing their own application identity.
 
 ### Provider reminders
 

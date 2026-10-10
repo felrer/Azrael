@@ -1,13 +1,14 @@
-//! Covers literal instruction templates and missing-versus-empty inputs.
+//! Covers provider-independent behavior and custom instruction preservation.
 
 use super::*;
+use crate::ResolvedModelMessages;
 use codex_protocol::openai_models::ConfigShellToolType;
 use codex_protocol::openai_models::ModelMessages;
 use codex_protocol::openai_models::ModelVisibility;
 use codex_protocol::openai_models::TruncationPolicyConfig;
 use pretty_assertions::assert_eq;
 
-fn test_model(model_messages: Option<ModelMessages>) -> ModelInfo {
+pub(crate) fn test_model(model_messages: Option<ModelMessages>) -> ModelInfo {
     ModelInfo {
         model_provider: "openai".to_string(),
         slug: "test-model".to_string(),
@@ -61,7 +62,7 @@ fn test_model(model_messages: Option<ModelMessages>) -> ModelInfo {
 }
 
 #[test]
-fn renders_literal_templates() {
+fn catalog_templates_cannot_replace_common_behavior() {
     let template = "Hello {{ personality }}\n\n# Personality\n\nFixed instructions";
     let model = test_model(Some(ModelMessages {
         instructions_template: Some(template.to_string()),
@@ -72,30 +73,41 @@ fn renders_literal_templates() {
             ResolvedModelMessages::from_model(&model).instructions_template(),
             render_model_instructions(&model)
         ),
-        (Some(template), template.to_string()),
+        (
+            Some(COMMON_AGENT_INSTRUCTIONS),
+            COMMON_AGENT_INSTRUCTIONS.to_string()
+        ),
     );
 }
 
 #[test]
-fn missing_and_empty_templates_render_empty_but_retain_presence() {
-    for (messages, template) in [
-        (None, None),
-        (Some(ModelMessages::default()), None),
-        (
-            Some(ModelMessages {
-                instructions_template: Some(String::new()),
-                ..Default::default()
-            }),
-            Some(""),
-        ),
+fn every_provider_receives_common_behavior_for_missing_and_empty_templates() {
+    for messages in [
+        None,
+        Some(ModelMessages::default()),
+        Some(ModelMessages {
+            instructions_template: Some(String::new()),
+            ..Default::default()
+        }),
     ] {
-        let model = test_model(messages);
-        assert_eq!(
-            (
-                render_model_instructions(&model),
-                ResolvedModelMessages::from_model(&model).instructions_template()
-            ),
-            (String::new(), template),
-        );
+        for provider in ["openai", "azrael-devin", "azrael-managed", "api-test"] {
+            let mut model = test_model(messages.clone());
+            model.model_provider = provider.to_string();
+            assert_eq!(render_model_instructions(&model), COMMON_AGENT_INSTRUCTIONS);
+        }
     }
+}
+
+#[test]
+fn custom_instructions_supplement_common_behavior_without_duplication() {
+    assert_eq!(compose_agent_instructions(None), COMMON_AGENT_INSTRUCTIONS);
+    assert_eq!(
+        compose_agent_instructions(Some("")),
+        COMMON_AGENT_INSTRUCTIONS
+    );
+    let custom = "Use the workspace conventions.";
+    let rendered = compose_agent_instructions(Some(custom));
+    assert!(rendered.starts_with(COMMON_AGENT_INSTRUCTIONS));
+    assert!(rendered.contains(custom));
+    assert_eq!(compose_agent_instructions(Some(&rendered)), rendered);
 }

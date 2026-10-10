@@ -21,6 +21,20 @@ use std::time::Duration;
 
 struct StaleDenials(ModelInfo);
 
+#[tokio::test]
+async fn reviewer_configuration_disables_agents_for_every_provider() -> anyhow::Result<()> {
+    let home = tempfile::tempdir()?;
+    let mut parent = core_test_support::load_default_config_for_test(&home).await;
+    parent.agents_enabled = true;
+    for provider in ["openai", "azrael-managed", "azrael-devin"] {
+        parent.model_provider_id = provider.to_owned();
+        let reviewer = reviewer_config::build_reviewer_config(&parent)?;
+        assert!(!reviewer.agents_enabled);
+        assert!(parent.agents_enabled);
+    }
+    Ok(())
+}
+
 impl TurnLifecycleContributor for StaleDenials {
     fn on_turn_start<'a>(&'a self, input: TurnStartInput<'a>) -> ExtensionFuture<'a, ()> {
         Box::pin(async move {

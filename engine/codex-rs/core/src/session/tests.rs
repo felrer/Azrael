@@ -11630,6 +11630,48 @@ async fn build_initial_context_uses_retained_step_after_model_change() {
 }
 
 #[tokio::test]
+async fn common_agent_behavior_refreshes_saved_model_instructions_on_resume() {
+    let (session, _) = make_session_and_context().await;
+    for saved in ["", "Obsolete provider-specific instructions"] {
+        {
+            let mut state = session.state.lock().await;
+            state.session_configuration.base_instructions = saved.to_string();
+            state.base_instructions_provenance = Some(BaseInstructionsProvenance::Model {
+                model: "managed/anthropic/claude-opus-5".to_string(),
+            });
+        }
+        let rendered = session.get_prompt_base_instructions().await;
+        assert!(
+            rendered
+                .text
+                .contains("Use the language of the user's current request")
+        );
+        assert!(rendered.text.contains("# Autonomy and persistence"));
+        assert!(
+            !rendered
+                .text
+                .contains("Obsolete provider-specific instructions")
+        );
+        assert_eq!(session.get_base_instructions().await.text, saved);
+    }
+}
+
+#[tokio::test]
+async fn common_agent_behavior_preserves_explicit_custom_instructions() {
+    let (session, _) = make_session_and_context().await;
+    let custom = "Follow the user's workspace conventions.";
+    {
+        let mut state = session.state.lock().await;
+        state.session_configuration.base_instructions = custom.to_string();
+        state.base_instructions_provenance = Some(BaseInstructionsProvenance::Custom);
+    }
+    let rendered = session.get_prompt_base_instructions().await;
+    assert!(rendered.text.contains("# Autonomy and persistence"));
+    assert!(rendered.text.contains(custom));
+    assert_eq!(session.get_base_instructions().await.text, custom);
+}
+
+#[tokio::test]
 async fn build_initial_context_prepends_model_switch_message() {
     let (session, turn_context) = make_session_and_context().await;
     let previous_turn_settings = PreviousTurnSettings {

@@ -52,8 +52,8 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
             raise ValueError(f"Expected adapted path is not fixed Rust source: {name}")
     for name in expected:
         importer.safe_path(destination, name)
-        if name.endswith(".sql") or (name not in current["files"] and not name.endswith(".rs")):
-            raise ValueError(f"Expected path is not ordinary Rust source or is protected: {name}")
+        if name.endswith(".sql") or (name not in current["files"] and not importer.is_reviewed_source_addition(name)):
+            raise ValueError(f"Expected path is not ordinary Rust/prompt source or is protected: {name}")
     root = importer.canonical_path(importer.git(destination, "rev-parse", "--show-toplevel").decode().strip())
     prefix = destination.relative_to(root).as_posix()
     if prefix == ".":

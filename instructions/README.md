@@ -36,6 +36,13 @@ Work guidance as local constraints; common execution rules belong to `implementa
 
 ## Provenance and maintenance
 
+Common agent behavior is maintained in [agent-behavior.md](instructions/agent-behavior.md).
+The engine embeds an identical copy at `engine/codex-rs/prompts/templates/agent_behavior.md`;
+`scripts/test-common-agent-instructions.cjs` verifies that the copies agree. This behavior
+is delivered by the engine to every provider, independently of optional instruction
+components and remote model catalogs. Technical tool schemas and provider protocol
+reminders remain with their owning adapters.
+
 Maintain shared instructions in this Azrael repository’s `instructions/` directory. `felrer/Azrael` is the active owner; the archived `felrer/codex-efficient-subagents` checkout is historical import evidence and is not an update destination. Preserve source provenance and original notices. Keep `instructions/AGENTS.snippet.md` and `examples/delegation.md` consistent. When changing installed skills, update their maintained copies, `SKILLS-SOURCE.json` and component mappings; preserve unrelated installed configuration.
 
 Global instructions keep always-applicable constraints and conditional entry routes. Detailed UI, build-input, worktree and delegation guidance lives in `skills/implementation/references/`; load only the matching references before that work. Project procedures remain with their project owners.
