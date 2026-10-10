@@ -2,6 +2,14 @@
   "schema": 1,
   "features": [
     {
+      "id": "ui.session-flags",
+      "area": "ui",
+      "owners": ["scripts/inject-session-flags.cjs"],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [{"id": "ui.session-flags.behavior", "executable": "node", "args": ["--test", "scripts/test-session-flags.cjs"], "level": "source"}],
+      "reportFields": ["sessionFlagEdits"]
+    },
+    {
       "id": "ui.account-settings",
       "area": "ui",
       "owners": [

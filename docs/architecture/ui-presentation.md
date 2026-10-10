@@ -16,6 +16,16 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). This icon change is source-only until the next build and installation. Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## Session flags
+
+Status: `current` in source — native row rendering and interactions verified in light and dark themes; build and installation pending.
+
+Local sessions in the recent-chat menu have a Flag toggle immediately before the time or native hover actions, with extra spacing before Archive. Unset flags show an outlined flag in a darker rounded tile when the row is hovered or contains keyboard focus. Set flags show a filled red flag even without hover. Clicking again clears the flag; flag actions do not navigate, close the menu or archive the session.
+
+Flags use the native persisted UI preference store, keyed by host and conversation ID. They preserve menu ordering and other hosts' flags. The button exposes its pressed state and supports keyboard activation. Native time, running indicators and Archive keep their existing behavior.
+
+`scripts/verify-session-flags-render.mjs` exercises the production Flag helper with the pinned native React, preference atom, row components and CSS. Host services and localization are synthetic; installed VS Code and real host persistence remain separate checks.
+
 ## Missing local chat images
 
 Status: `current` in source — native component rendering and interaction verified in light and dark themes; build and installation pending.
