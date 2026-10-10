@@ -54,6 +54,12 @@ Azrael 고유의 제약과 담당 문서를 연결한다.
 - 종료 코드만으로 삭제 완료를 판단하지 않는다. 정리 결과의 삭제·보존 상태와 대상 경로의 실제 부재를
   확인한다. 보존할 소형 영수증은 담당 로그 위치에 두고, 사용자 인증·대화·설정은 정리 대상으로 포함하지 않는다.
 
+## Worktree lifecycle
+
+- When a task uses a newly created worktree, integrate all of its changes into the primary checkout (`main`, or the repository's existing primary branch), preserve existing work, resolve conflicts, and verify the combined result before task completion. Uncommitted changes must also be integrated.
+- You MUST delete the task worktree after integration, without exception. Verify that both its Git worktree registration and its directory are gone. Preserve required provenance and reusable build caches outside the worktree before deleting it.
+- These requirements do not authorize commits or publishing; follow the user's existing instructions for those actions.
+
 ## 작업별 커밋과 완료
 
 - 각 개발 작업의 구현, 필요한 검증과 정리를 마친 뒤 해당 작업의 변경사항을 묶어 커밋한다.
@@ -62,6 +68,6 @@ Azrael 고유의 제약과 담당 문서를 연결한다.
   이번 작업에 속한 파일이나 변경 부분만 명시적으로 스테이징한다. 임시 검증물과 빌드 산출물은 포함하지 않는다.
 - 커밋 메시지는 작업의 목적과 결과를 설명한다. 완료 보고에는 커밋 식별자와 검증 결과를 남긴다.
   필수 검증 실패나 변경 분리 문제로 커밋하지 못하면 그 이유와 남은 작업을 보고한다.
-- worktree를 사용했다면 [프로젝트 작업 지침](../../AGENTS.md#worktree-lifecycle)에 따라 기본 checkout에
+- worktree를 사용했다면 [Worktree lifecycle](#worktree-lifecycle)에 따라 기본 checkout에
   변경을 통합하고 검증한 뒤 worktree를 제거한다.
 - 작업별 커밋 규칙은 원격 push나 게시·배포 권한을 부여하지 않는다. 해당 작업은 사용자의 별도 지시를 따른다.

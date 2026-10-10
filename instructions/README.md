@@ -36,6 +36,10 @@ Work guidance as local constraints; common execution rules belong to `implementa
 
 ## Provenance and maintenance
 
+Maintain shared instructions in this Azrael repository’s `instructions/` directory. `felrer/Azrael` is the active owner; the archived `felrer/codex-efficient-subagents` checkout is historical import evidence and is not an update destination. Preserve source provenance and original notices. Keep `instructions/AGENTS.snippet.md` and `examples/delegation.md` consistent. When changing installed skills, update their maintained copies, `SKILLS-SOURCE.json` and component mappings; preserve unrelated installed configuration.
+
+Global instructions keep always-applicable constraints and conditional entry routes. Detailed UI, build-input, worktree and delegation guidance lives in `skills/implementation/references/`; load only the matching references before that work. Project procedures remain with their project owners.
+
 Imported from [Codex Efficient Subagents](https://github.com/felrer/codex-efficient-subagents),
 including the source checkout's uncommitted changes. [SOURCE.json](SOURCE.json)
 records the source HEAD, working-tree status, complete copy mapping, original and

@@ -1,6 +1,6 @@
 ## UI Design (All Agents)
 
-- Use OpenAI-style UI design unless the user explicitly requests another style. Reuse existing native layouts, settings rows, switches, buttons, typography, spacing and theme tokens. Verify the rendered page and its interactions in light and dark themes; plain unstyled controls or source-only tests do not establish visual acceptance.
+- Use OpenAI-style UI design unless the user explicitly requests another style. Before UI work, read `CODEX_HOME/skills/implementation/references/ui.md` and the project UI contract.
 
 ## Work Entry and Skills (Parent Only)
 
@@ -17,11 +17,11 @@
 
 ## Build Inputs (All Agents)
 
-- At build start, freeze the selected source, scripts, lockfiles and other inputs, including selected uncommitted changes. Use that immutable snapshot through packaging, verification and installation. Exclude changes added afterward until the next build; do not refresh or restart a running build to follow concurrent checkout edits. A correction to a frozen input requires a new build identity.
+- Before building, packaging, verifying a build or installing it, read `CODEX_HOME/skills/implementation/references/build-inputs.md` and the applicable project build playbook.
 
 ## Document Editing (All Agents)
 
-- Update the document's current content in place. Integrate confirmed answers into the relevant section; remove resolved questions, superseded text, and duplicates. Do not append response histories, dated confirmation notes, copied investigations, or detailed logs unless that history is itself the document's purpose. Keep only content needed to understand, execute, or verify the current work.
+- Update current document content in place. For document changes, apply the installed `implementation` skill’s document guidance and the project documentation owner.
 
 ## Evidence and Tool Output (All Agents)
 
@@ -35,22 +35,16 @@
 
 ## Worktree Lifecycle (All Agents)
 
-- When a task uses a newly created worktree, integrate all of its changes into the primary checkout (`main`, or the repository's existing primary branch), preserve existing work, resolve conflicts, and verify the combined result before task completion. Uncommitted changes must also be integrated.
-- You MUST delete the task worktree after integration, without exception. Verify that both its Git worktree registration and its directory are gone. Preserve required provenance and reusable build caches outside the worktree before deleting it.
-- These requirements do not authorize commits or publishing; follow the user's existing instructions for those actions.
+- Before creating or using a task worktree, read `CODEX_HOME/skills/implementation/references/worktrees.md`. Integrate and verify all changes, then delete the worktree and verify removal before completion.
 
 ## Delegation and Integration (Parent Only)
 
-These rules authorize the parent to delegate suitable independent work. They do not authorize children to delegate.
+- Delegate bounded independent work when useful. Before dispatch, read `CODEX_HOME/skills/implementation/references/delegation.md`; the parent owns shared contracts, integration and final acceptance. Children are not authorized to delegate.
 
-- Delegate bounded, independent work when parallel progress or isolation materially helps. Handle single lookups and small edits directly when delegation would cost more than completion. A concurrency limit is a ceiling, not a quota.
-- Always set `agent_type` explicitly on `spawn_agent`; never rely on the default role, which inherits the parent model and full history and has been observed crashing the inference helper. Use `luna_explorer` (GPT-6.1 Sol, low) for read-only evidence retrieval within named boundaries and `sol_executor` (GPT-6.1 Sol, medium) for settled implementation and validation in Codex and Azrael. Select `devin_swe2_medium` only when explicitly requested by the user. Preserve role-owned model and reasoning defaults; use supported overrides only for a concrete need. Keep requirements, architecture, shared interfaces, authority, and final acceptance with the parent.
-- Resolve shared contracts and exclusive write ownership before dispatch. Do not parallelize tasks that depend on an unresolved decision. Tell workers they share the workspace and must preserve existing and concurrent work.
-- Include agreed platform applicability and exclusions, implementation ownership, regression impact and required verification in each relevant handoff. Keep requested targets separate from actually tested environments; return consequential unresolved scope changes to the parent.
-- Use this handoff contract: Objective (one outcome), Scope (read boundary and owned files), Constraints (agreed behavior, interfaces and authority limits), References (exact paths or symbols), Done when (observable completion criteria), Return format (the selected role's fields). Pass decisions and references rather than full conversations or copied documents. State these requirements together in natural language when delegating. When useful for communicating requirements efficiently, optionally include short code snippets, evaluation algorithms, input/output examples, or references to existing tests.
-- For a materially different independent objective that warrants delegation, create a fresh child with `fork_turns="none"`. If unsupported, use the smallest supported history scope and disclose the limitation. Reuse the same child for corrections and validation of its objective; send only the delta. Completion alone does not require another child. Do not split coupled unfinished work merely to refresh context.
-- Dispatch already-decided independent tasks together. Send dependent instructions only after the required result arrives.
-- After delegation, all root status checks are prohibited until the worker reports completion or a blocker. This includes messages, status queries, and indirect checks through files, logs, or processes. Root must perform independent work or wait for completion events. Maintain user-facing progress from already available task state and completion notifications; avoid acknowledgement-only messages.
-- Intervene before completion only for changed user requirements, confirmed requirement or contract errors, risk of data loss, or expiry of a predefined time limit. After completion, review the results and consolidate necessary correction requests into one handoff.
-- Reuse adequate child evidence without repeating its investigation. Review the combined result and run additional checks only for uncovered requirements or distinct integration risks.
-- Maintain a compact current-state record when it helps continuation: decisions, ownership, completed evidence, next action, and unresolved items. Do not accumulate conversation diaries or duplicate logs.
+## File Deletion (All Agents)
+
+- Do not use force-delete options (`Remove-Item -Force`, `rm -f`, `del /f`, etc.) when deleting files or directories. If ordinary deletion fails, investigate the cause; do not add force options or bypass the failure through another shell or API.
+
+## Shared Instruction Maintenance
+
+- Before changing shared instructions, read the active Azrael repository’s `instructions/README.md`. Update its maintained `instructions/` library and related examples; keep active installed copies consistent. Do not mirror updates to the archived Codex Efficient Subagents repository.

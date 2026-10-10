@@ -8,29 +8,20 @@
 - Keep requested targets, code ownership, regression impact and actually tested environments distinct in the current task record. An unspecified platform does not imply current-host-only scope. Reuse settled decisions; resolve consequential changes to support, behavior or permissions within the same work, with a recommendation and its impact.
 - Reuse common product logic and handle platform behavior at its owning boundary. Select verification for the actual change and integration risk, including Windows regression for common changes. Follow the [multi-platform contract](docs/architecture/multi-platform.md); current verified support remains Windows only until target environments pass verification. Do not report untested environments as accepted.
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
-- Design Azrael UI in the OpenAI style. Reuse the pinned UI's existing page layouts, settings rows, switches, buttons, spacing and theme tokens; verify the actual rendered page in light and dark themes. Follow [UI presentation](docs/architecture/ui-presentation.md) for the project contract.
-- When editing any document, update its current content in place. Integrate confirmed answers into the relevant section; remove resolved questions, superseded text, and duplicates. Do not append response histories, dated confirmation notes, copied investigations, or detailed logs unless that history is itself the document's purpose. Keep only content needed to understand, execute, or verify the current work.
+- Design Azrael UI in the OpenAI style. Before UI changes, apply [UI presentation](docs/architecture/ui-presentation.md).
+- For document changes, follow [document state and ownership](docs/README.md#document-state-and-ownership) and update current content in place.
 
 ## Instruction Library Ownership
 
-- Maintain shared instructions in this repository's `instructions/` directory. `felrer/Azrael` is the active repository; `felrer/codex-efficient-subagents` is archived.
-- The former shared checkout is historical import evidence, not an active maintenance destination. Do not mirror new changes there. Preserve recorded source provenance and original notices.
-- Keep related examples in `instructions/examples/delegation.md` consistent when changing `instructions/instructions/AGENTS.snippet.md`.
+- Before changing shared instructions, read [instruction maintenance](instructions/README.md#provenance-and-maintenance) and update the Azrael `instructions/` library and related examples. Keep active installed copies consistent; the archived shared repository is not a maintenance destination.
 
 ## Worktree Lifecycle
 
-- If you create a worktree for a task, bring all of its changes back into the primary checkout (`main`, or the repository's existing primary branch) and verify the integrated result before completing the task. Preserve existing changes and resolve conflicts; an uncommitted change still must be integrated.
-- After integration, you MUST delete that worktree. This cleanup is mandatory without exception; do not leave task worktrees behind. Verify both removal from Git's worktree registry and removal of the worktree directory. Preserve required source provenance and build caches outside the worktree before removal.
-- After integration and verification, follow the [Work playbook's task-level commit policy](docs/playbooks/work.md#작업별-커밋과-완료). Integration and cleanup do not authorize remote push, publishing or deployment.
+- Before task worktree work, read [Worktree lifecycle](docs/playbooks/work.md#worktree-lifecycle). Integrate and verify all changes, then delete the worktree before completion. Follow the [task-level commit policy](docs/playbooks/work.md#작업별-커밋과-완료); remote push, publishing and deployment require separate authority.
 
-## Generated artifact cleanup
+## Build and artifact cleanup
 
-- Freeze all source, scripts, lockfiles and build inputs at build start, including the selected uncommitted changes. Build, package, verify and install from that immutable snapshot. Changes added afterward belong to the next build; do not refresh the running build from the live checkout or restart it merely because another task changed the checkout. A correction that changes a frozen input starts a new build with a new input identity. Follow the [build playbook](docs/playbooks/build.md) for snapshot and provenance checks.
-
-- After a new release passes verification and installation, clean unused older release directories and VSIX packages in the same task using the [build playbook](docs/playbooks/build.md#업데이트복구정리). Preserve the actual installed runtime, the previous verified rollback release, latest selected release, active task inputs, shortcuts and live process references. Keep compact identity/result receipts; record each retained path's reason and removal condition.
-- After verification and handoff, immediately delete completed verification copies, isolated VS Code profiles, copied extensions/plugins/skills and temporary packages. Archive only compact result summaries, exit codes and required receipts in the owning log directory; do not move bulky fixtures into logs.
-- Immediately remove unused alternate Rust build/test targets and caches preserved from task worktrees. Reuse the current selected build cache; preserve paths required by running processes, the current/previous installed release or an active task. Record every temporary retention reason and its removal condition.
-- Use the existing guarded cleanup scripts in `scripts/` and the [build playbook](docs/playbooks/build.md). Verify absolute path containment and process/installation references before deleting; inspection failures preserve uncertain paths. Never delete source changes or user authentication, conversations and settings as build artifacts.
+- Before building, packaging, installing, updating, rolling back or cleaning generated artifacts, apply the [build playbook](docs/playbooks/build.md). It owns immutable inputs, provenance, protected paths, retention and required cleanup.
 
 ## Temporary snippets
 

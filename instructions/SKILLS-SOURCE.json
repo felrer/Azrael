@@ -86,11 +86,11 @@
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 14096,
-        "sha256": "f8b6a7f7640257a826c03d14d124d4ded8f6d62af798926a11de441c7b161972"
+        "size": 15058,
+        "sha256": "2ef4b261b2ab4130ba9299292f9e5345a90549cccf500b13f4eef30cbd80211e"
       },
-      "size": 14096,
-      "sha256": "f8b6a7f7640257a826c03d14d124d4ded8f6d62af798926a11de441c7b161972",
+      "size": 15058,
+      "sha256": "2ef4b261b2ab4130ba9299292f9e5345a90549cccf500b13f4eef30cbd80211e",
       "adaptations": []
     },
     {
@@ -198,6 +198,50 @@
         "Resolve sibling skill links within the distributed skills directory.",
         "Normalize CRLF line endings to LF for repository text validation."
       ]
+    },
+    {
+      "path": "skills/implementation/references/build-inputs.md",
+      "source": "implementation/references/build-inputs.md",
+      "adaptations": [],
+      "original": {
+        "size": 425,
+        "sha256": "ee1f0afd949dd4c0f555c49a2c50c027be23f3e67434da86c8dfb332be9c7ed1"
+      },
+      "size": 425,
+      "sha256": "ee1f0afd949dd4c0f555c49a2c50c027be23f3e67434da86c8dfb332be9c7ed1"
+    },
+    {
+      "path": "skills/implementation/references/delegation.md",
+      "source": "implementation/references/delegation.md",
+      "adaptations": [],
+      "original": {
+        "size": 3975,
+        "sha256": "a35aa1766b71c037cb8e9717ec4f5d07da52a130988c70231ab8cbbfcdd75a05"
+      },
+      "size": 3975,
+      "sha256": "a35aa1766b71c037cb8e9717ec4f5d07da52a130988c70231ab8cbbfcdd75a05"
+    },
+    {
+      "path": "skills/implementation/references/ui.md",
+      "source": "implementation/references/ui.md",
+      "adaptations": [],
+      "original": {
+        "size": 362,
+        "sha256": "5b694658d236323ef93e6878b5304dc62ff0610718cb11578bce9057131b148e"
+      },
+      "size": 362,
+      "sha256": "5b694658d236323ef93e6878b5304dc62ff0610718cb11578bce9057131b148e"
+    },
+    {
+      "path": "skills/implementation/references/worktrees.md",
+      "source": "implementation/references/worktrees.md",
+      "adaptations": [],
+      "original": {
+        "size": 698,
+        "sha256": "db3dd687be460347fdefae90748d19963c6dc98ab8494f009229bb029a00bfc1"
+      },
+      "size": 698,
+      "sha256": "db3dd687be460347fdefae90748d19963c6dc98ab8494f009229bb029a00bfc1"
     }
   ],
   "exclusions": [

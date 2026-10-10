@@ -33,6 +33,8 @@ These routes are starting points, not a required reading sequence. Read only the
 
 Distinguish `draft` proposals, `target` intended behavior, `current` verified implementation, and `partial` documents with explicitly separated states. Label state once per document or section, not per sentence. Approval does not establish implementation. Keep verification evidence in the work plan or operational owner and link to it; do not add dated verification notes to design documents. Each durable contract has one owning document; routers link to it. Historical documents are reference material, not evidence of replacement behavior.
 
+문서를 수정할 때는 현재 내용을 직접 갱신한다. 확정된 답을 관련 절에 통합하고 해결된 질문·폐기된 내용·중복을 제거한다. 이력 자체가 문서 목적이 아니면 응답 기록·날짜별 확인 메모·조사나 상세 로그를 덧붙이지 않으며, 현재 이해·실행·검증에 필요한 내용만 유지한다.
+
 ## Work Artifacts
 
 - Work directory: G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2

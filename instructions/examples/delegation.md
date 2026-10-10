@@ -1,5 +1,7 @@
 # 위임 예시
 
+위임 전에 [위임·통합 지침](../skills/implementation/references/delegation.md)을 읽습니다. worktree는 [수명 주기 지침](../skills/implementation/references/worktrees.md), 빌드는 [입력 고정 지침](../skills/implementation/references/build-inputs.md), UI 작업은 [UI 검증 지침](../skills/implementation/references/ui.md)을 함께 적용합니다. 작업자에게 적용되는 제약과 해당 참조를 전달합니다.
+
 아래 경로와 심볼은 설명을 위한 가상 예시입니다. 실제 프로젝트의 경로로 바꿔 사용하세요.
 
 ## 직접 처리할 때

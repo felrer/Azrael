@@ -107,6 +107,22 @@
         {
           "source": "skills/implementation/SKILL.md",
           "target": "skills/implementation/SKILL.md"
+        },
+        {
+          "source": "skills/implementation/references/build-inputs.md",
+          "target": "skills/implementation/references/build-inputs.md"
+        },
+        {
+          "source": "skills/implementation/references/delegation.md",
+          "target": "skills/implementation/references/delegation.md"
+        },
+        {
+          "source": "skills/implementation/references/ui.md",
+          "target": "skills/implementation/references/ui.md"
+        },
+        {
+          "source": "skills/implementation/references/worktrees.md",
+          "target": "skills/implementation/references/worktrees.md"
         }
       ]
     },
