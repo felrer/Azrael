@@ -19,6 +19,7 @@ const mainName="app-initial-7a199c66e670.js";
 const main=injectProviderContext(await readFile(join(assets,mainName),'utf8'),CONTEXT_ASSET).text;
 const ast=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 function adapt(name,replacements,newName){const owner=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(owner,name);let render=owner.getText(ast),edits=[];function visit(n){if(ts.isIdentifier(n)&&replacements[n.text]&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(ast)-owner.getStart(ast),end:n.end-owner.getStart(ast),text:replacements[n.text]});ts.forEachChild(n,visit)}visit(owner);for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)+e.text+render.slice(e.end);return render.replace('function '+name+'(','function '+newName+'(')}
+const usage=adapt('aCa',{},'fixtureUsage');
 const native=adapt('__azraelNativeContextGauge',{st:'fixtureIntl',q:'FixtureMessage',wr:'FixtureNumber'},'fixtureNativeGauge');
 const wrapper=adapt('XSa',{st:'fixtureIntl',Ou:'fixtureWl',Px:'fixtureHx',__azraelNativeContextGauge:'fixtureNativeGauge'},'fixtureGauge');
 // Only host/store and localization are adapted. The transformed card/action,
@@ -31,10 +32,11 @@ window.fixtureState={id:'chat-a',locale:'en',mode:'pending'};window.fixtureEvent
 const fixtureStore={get(atom,id){return 'local'}};
 const fixtureWl=()=>fixtureStore;
 const fixtureHx=(store,host)=>({compactThread(...args){window.fixtureEvents.push({args,host});if(fixtureState.mode==='error')return Promise.reject(Error('synthetic failure'));return new Promise(resolve=>window.fixtureResolve=resolve)}});
+${usage}
 ${native}
 ${wrapper}
-const policy={providerId:'openai',modelId:'gpt-6-astra',contextWindow:400000,safeContextWindow:380000,autoCompactTokenLimit:361000,inputTokens:272001,inputTokensEstimated:true,pricing:{status:'confirmed',inputTokenThreshold:272000,sourceUrl:'https://example.com/pricing'}};
-function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:{percent:68,usedTokens:272001,contextWindow:400000,contextPolicy:policy}})]})}
+const policy={providerId:'openai',modelId:'gpt-6-astra',contextWindow:1000000,safeContextWindow:950000,autoCompactTokenLimit:600000,inputTokens:247263,inputTokensEstimated:true,pricing:{status:'confirmed',inputTokenThreshold:272000,sourceUrl:'https://example.com/pricing'}};
+function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:fixtureUsage({modelContextWindow:1000000,last:{totalTokens:247263},contextPolicy:policy})})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
@@ -62,6 +64,7 @@ try{
  const click=()=>evaluate("document.querySelector('[data-azrael-context-compaction] button').click()");
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.id='chat-${theme}';fixtureState.locale='en';fixtureState.mode='pending';fixtureRerender()`);await open();
+  check(theme+' auto-compaction donut and tooltip agree',await evaluate("(()=>{const gauge=document.querySelector('[data-azrael-pricing-boundary]'),circle=gauge.querySelectorAll('circle')[1];return Math.abs(Number(circle.getAttribute('stroke-dashoffset'))-58.7895)<0.0001&&gauge.getAttribute('aria-label').includes('600,000 tokens (41.2%)')&&gauge.getAttribute('aria-label').includes('1,000,000 tokens (24.7%)')})()"));
   const idle=await card();check(theme+' native button geometry and non-submit type',idle.type==='button'&&idle.width>80&&idle.height>20);summary[theme]={idle};
   await click();await wait("document.querySelector('[data-azrael-context-compaction] button').disabled");check(theme+' visible pending status',(await card()).text.includes('Requesting compaction'));await click();check(theme+' duplicate guard',await evaluate(`fixtureEvents.filter(e=>e.args[0]==='chat-${theme}').length===1`));
   await evaluate('fixtureResolve()');await wait("document.querySelector('[data-azrael-context-compaction]').innerText.includes('Compaction requested')");
