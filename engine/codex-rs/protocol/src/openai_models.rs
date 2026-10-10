@@ -1128,7 +1128,7 @@ mod tests {
         }
     }
     #[test]
-    fn anthropic_compaction_defaults_to_400k_with_safe_cap_and_overrides() {
+    fn anthropic_compaction_defaults_to_600k_with_safe_cap_and_overrides() {
         use crate::context_policy::AutoCompactSource;
         use crate::context_policy::ProviderAutoCompact;
         use crate::context_policy::resolve_auto_compact;
@@ -1145,7 +1145,7 @@ mod tests {
             let mut entries = BTreeMap::new();
             assert_eq!(
                 resolve_auto_compact(&model, &entries, None),
-                (Some(400_000), AutoCompactSource::Default)
+                (Some(600_000), AutoCompactSource::Default)
             );
             assert_eq!(
                 resolve_auto_compact(&model, &entries, Some(120_000)),
@@ -1154,7 +1154,7 @@ mod tests {
             entries.insert("anthropic".into(), ProviderAutoCompact::default());
             assert_eq!(
                 resolve_auto_compact(&model, &entries, Some(120_000)),
-                (Some(400_000), AutoCompactSource::Default)
+                (Some(600_000), AutoCompactSource::Default)
             );
             model.context_window = Some(200_000);
             assert_eq!(

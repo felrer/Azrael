@@ -89,14 +89,14 @@ test("native percentage preview clamps a tiny valid base to at least one token",
   const preview=h.compactionPreview({...policy(null),autoCompactBaseTokens:1,safeContextWindow:1},{percentage:1});
   assert.equal(preview.requested,1);assert.equal(preview.effective,1);assert.equal(preview.percentage,"1");
 });
-test("Anthropic default preview requests exactly 400k and preserves caps and overrides",()=>{
+test("Anthropic default preview requests exactly 600k and preserves caps and overrides",()=>{
   const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;
   const h={};pm.createContext(h);pm.runInContext(declaration(settings,"compactionPreview"),h);
   const p={...policy(null),providerId:"anthropic",autoCompactBaseTokens:1048576,safeContextWindow:996147};
   let preview=h.compactionPreview(p,{});
-  assert.equal(preview.percentage,"38");assert.equal(preview.requested,400000);assert.equal(preview.effective,400000);assert.equal(preview.isTokenDefault,true);
+  assert.equal(preview.percentage,"57");assert.equal(preview.requested,600000);assert.equal(preview.effective,600000);assert.equal(preview.isTokenDefault,true);
   preview=h.compactionPreview({...p,autoCompactBaseTokens:200000,safeContextWindow:190000});
-  assert.equal(preview.percentage,"200");assert.equal(preview.requested,400000);assert.equal(preview.effective,190000);
+  assert.equal(preview.percentage,"300");assert.equal(preview.requested,600000);assert.equal(preview.effective,190000);
   preview=h.compactionPreview(p,{percentage:50});assert.equal(preview.requested,524288);assert.equal(preview.isTokenDefault,false);
   preview=h.compactionPreview(p,{},"50");assert.equal(preview.requested,524288);
   preview=h.compactionPreview(p,{token_limit:200000});assert.equal(preview.isTokenDefault,false);

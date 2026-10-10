@@ -113,7 +113,7 @@ pub fn resolve_auto_compact(
     };
     let desired = custom.or_else(|| {
         if policy_provider_id(model) == "anthropic" {
-            Some(400_000)
+            Some(600_000)
         } else {
             base.map(|base| percentage_tokens(base, /*percentage*/ 95))
         }

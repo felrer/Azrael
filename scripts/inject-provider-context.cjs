@@ -100,7 +100,7 @@ async function savePolicy(client, id, value) {
 }
 function compactionPreview(policy, override, draft) {
   const base = policy.autoCompactBaseTokens ?? policy.contextWindow;
-  const defaultTokens = policy.providerId === "anthropic" ? 400000 : null;
+  const defaultTokens = policy.providerId === "anthropic" ? 600000 : null;
   const defaultPercentage = defaultTokens != null && base > 0 ? Math.max(1, Math.round(defaultTokens * 100 / base)) : 95;
   const isTokenDefault = defaultTokens != null && draft == null && override?.percentage == null && override?.token_limit == null;
   const percentage = draft ?? String(override?.percentage ?? (override?.token_limit != null && base > 0 ? Math.max(1, Math.round(override.token_limit * 100 / base)) : defaultPercentage));
@@ -121,7 +121,7 @@ function renderSettings(React, jsx, client, ko) {
   const buttonStyle = {padding:"6px 12px",alignSelf:"flex-start",borderRadius:4,background:"var(--vscode-button-background, #305f9b)",color:"var(--vscode-button-foreground, white)"};
   return jsx("section", {"data-azrael-provider-context":true,className:"flex flex-col gap-3",children:[
     jsx("h2",{children:ko?"제공자 자동 압축":"Provider auto-compaction"}),
-    jsx("p",{children:ko?"기본값: Anthropic은 400,000토큰, 그 외 제공자는 길이 추가 요금 없는 기본 용량의 95%이며 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 400,000 tokens for Anthropic; 95% of the no-length-surcharge base for other providers, capped at the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
+    jsx("p",{children:ko?"기본값: Anthropic은 600,000토큰, 그 외 제공자는 길이 추가 요금 없는 기본 용량의 95%이며 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 600,000 tokens for Anthropic; 95% of the no-length-surcharge base for other providers, capped at the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
     jsx("style",{children:"[data-azrael-compaction-slider]{appearance:auto!important;-webkit-appearance:auto!important;height:24px;cursor:pointer;accent-color:var(--vscode-button-background,#305f9b)}[data-azrael-compaction-slider]::-webkit-slider-thumb{appearance:auto!important;-webkit-appearance:auto!important}[data-azrael-compaction-slider]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--vscode-button-background,#305f9b)}"}),
     error?jsx("p",{role:"alert",children:error}):null,
     ...Array.from(groups,([id, policies])=>{
