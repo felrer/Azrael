@@ -12,8 +12,8 @@ function azraelFlaggedSessionRow(props){
   const flagged=flags[key]===true;
   const label=intl.formatMessage({id:flagged?"azrael.sessionFlag.remove":"azrael.sessionFlag.set",defaultMessage:flagged?"Remove flag":"Set flag"});
   const button=(0,Z.jsx)("button",{type:"button","data-azrael-session-flag":key,"aria-label":label,"aria-pressed":flagged,title:label,
-    className:"flex size-7 shrink-0 cursor-interaction items-center justify-center rounded-md transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "+(flagged?"text-danger":"text-tertiary opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"),
-    style:{marginInlineEnd:12,background:flagged?"transparent":"color-mix(in srgb, var(--color-token-foreground) 8%, transparent)",boxShadow:flagged?"none":"inset 0 0 0 1px color-mix(in srgb, var(--color-token-foreground) 12%, transparent)"},
+    className:"flex size-7 shrink-0 cursor-interaction items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "+(flagged?"text-danger":"text-tertiary opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"),
+    style:{marginInlineEnd:12,background:"transparent",boxShadow:"none"},
     onPointerDown:event=>event.stopPropagation(),onDoubleClick:event=>event.stopPropagation(),
     onClick:event=>{event.preventDefault();event.stopPropagation();store.set(azraelSessionFlagsAtom,current=>{const next={...current};if(next[key]===true)delete next[key];else next[key]=true;return next})},
     children:(0,Z.jsx)("svg",{width:18,height:18,viewBox:"0 0 24 24",fill:"none","aria-hidden":true,children:[(0,Z.jsx)("path",{d:"M5 21V4",stroke:"currentColor",strokeWidth:1.8,strokeLinecap:"round"},"pole"),(0,Z.jsx)("path",{d:"M5 4C9 1.5 13 6.5 19 3.5V14C13 17 9 12 5 14.5Z",fill:flagged?"currentColor":"none",stroke:"currentColor",strokeWidth:1.8,strokeLinejoin:"round"},"cloth")]})});

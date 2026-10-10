@@ -24,7 +24,7 @@ Full access text uses the same foreground tokens as Request approval in the perm
 
 Status: `current` in source — native row rendering and interactions verified in light and dark themes; build and installation pending.
 
-Local sessions in the recent-chat menu have a Flag toggle immediately before the time or native hover actions, with extra spacing before Archive. Unset flags show an outlined flag in a darker rounded tile when the row is hovered or contains keyboard focus. Set flags show a filled red flag even without hover. Clicking again clears the flag; flag actions do not navigate, close the menu or archive the session.
+Local sessions in the recent-chat menu have a Flag toggle immediately before the time or native hover actions, with extra spacing before Archive. Unset flags show only an outlined flag, without a button background or tile border, when the row is hovered or contains keyboard focus. Keyboard focus retains its visible outline. Set flags show a filled red flag even without hover. Clicking again clears the flag; flag actions do not navigate, close the menu or archive the session.
 
 Flags use the native persisted UI preference store, keyed by host and conversation ID. They preserve menu ordering and other hosts' flags. The button exposes its pressed state and supports keyboard activation. Native time, running indicators and Archive keep their existing behavior.
 
