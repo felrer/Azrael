@@ -10,6 +10,105 @@ use std::time::Duration;
 
 const TEST_MODEL_ID: &str = "swe-2-high";
 
+#[test]
+fn request_limit_is_selected_only_for_anthropic() {
+    for provider in [
+        "anthropic",
+        "google",
+        "google-antigravity",
+        "xai",
+        "openrouter",
+        "api",
+        "devin",
+    ] {
+        let limit = RequestLimit::for_provider(provider);
+        let expected = if provider == "anthropic" { 12 } else { 8 } * 1024 * 1024;
+        assert_eq!(limit.bytes(), expected, "{provider}");
+        // JSON string quotes count towards the limit; the delivery check also
+        // accounts for the init frame and the trailing JSONL newline.
+        assert!(serialize_frame_with_limit(&"x".repeat(expected - 2), limit).is_ok());
+        assert!(serialize_frame_with_limit(&"x".repeat(expected - 1), limit).is_err());
+    }
+    assert!(serialize_frame(&"x".repeat(9 * 1024 * 1024)).is_err());
+}
+
+#[tokio::test]
+async fn request_limit_bounds_combined_frames_before_spawning_helper() {
+    let root = tempfile::tempdir().unwrap();
+    let missing = root.path().join("missing-runtime");
+    for limit in [RequestLimit::Default, RequestLimit::Anthropic] {
+        let init = b"{}\n";
+        let request = vec![b' '; limit.bytes() - init.len() + 1];
+        let result = recovery::start_helper(
+            &mut Command::new(&missing),
+            &missing,
+            &missing,
+            init,
+            &request,
+            limit,
+            "oversized-request",
+            &CancellationToken::new(),
+        )
+        .await;
+        let error = result.expect_err("oversized frames must fail before spawn");
+        assert_eq!(
+            error.to_string(),
+            "native inference request exceeded the hard limit"
+        );
+    }
+}
+
+#[tokio::test]
+async fn request_limit_delivers_large_anthropic_frame_to_helper() {
+    use futures::StreamExt;
+    let root = tempfile::tempdir().unwrap();
+    let helper = root.path().join("large-request.mjs");
+    let runtime = std::env::var_os("AZRAEL_DEVIN_NODE")
+        .map(PathBuf::from)
+        .unwrap_or_else(|| PathBuf::from("node"));
+    std::fs::write(&helper, r#"
+let bytes = 0;
+for await (const chunk of process.stdin) bytes += chunk.length;
+if (bytes !== 12 * 1024 * 1024) process.exit(2);
+let seq = 0;
+const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, request_id:'large-request', seq:seq++, ...frame})+'\n');
+emit({type:'created'});
+emit({type:'completed'});
+"#).unwrap();
+    let init = b"{}\n".to_vec();
+    let request = serialize_frame_with_limit(
+        &"x".repeat(RequestLimit::Anthropic.bytes() - init.len() - 3),
+        RequestLimit::Anthropic,
+    )
+    .unwrap();
+    for limit in [RequestLimit::Default, RequestLimit::Anthropic] {
+        let result = run_helper(HelperRequest {
+            request_limit: limit,
+            anthropic_thinking: true,
+            executable: &runtime,
+            helper: &helper,
+            codex_home: root.path(),
+            init: init.clone(),
+            request: request.clone(),
+            prompt: Prompt::default(),
+            request_id: "large-request".to_string(),
+            cancellation: CancellationToken::new(),
+            turn_guard: (),
+        })
+        .await;
+        if matches!(limit, RequestLimit::Default) {
+            assert!(result.is_err());
+        } else {
+            let mut stream = result.unwrap();
+            let mut completed = false;
+            while let Some(event) = stream.next().await {
+                completed |= matches!(event.unwrap(), ResponseEvent::Completed { .. });
+            }
+            assert!(completed);
+        }
+    }
+}
+
 #[tokio::test]
 async fn helper_failures_preserve_precise_client_error_categories() {
     use codex_protocol::protocol::CodexErrorInfo;
@@ -43,6 +142,7 @@ process.exitCode = 1;
         let mut prompt = Prompt::default();
         prompt.tools = vec![function("exec")].into();
         let mut stream = run_helper(HelperRequest {
+            request_limit: RequestLimit::Default,
             anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
@@ -108,6 +208,7 @@ if (MODE === 'exit') process.exitCode=1;
         let mut prompt = Prompt::default();
         prompt.tools = vec![function("exec")].into();
         let mut stream = run_helper(HelperRequest {
+            request_limit: RequestLimit::Default,
             anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
@@ -1184,6 +1285,7 @@ async fn run_consume_case(
     let helper = root.join(format!("{request_id}.mjs"));
     std::fs::write(&helper, script).unwrap();
     let mut stream = run_helper(HelperRequest {
+        request_limit: RequestLimit::Default,
         anthropic_thinking: false,
         executable: runtime,
         helper: &helper,
@@ -1326,6 +1428,7 @@ const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, r
     init.push(b'\n');
     assert!(
         run_helper(HelperRequest {
+            request_limit: RequestLimit::Default,
             anthropic_thinking: false,
             executable: &runtime,
             helper: &helper,
@@ -1343,6 +1446,7 @@ const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, r
     let missing = root.path().join("missing-runtime.exe");
     assert!(
         run_helper(HelperRequest {
+            request_limit: RequestLimit::Default,
             anthropic_thinking: false,
             executable: &missing,
             helper: &helper,
@@ -1498,6 +1602,7 @@ async fn native_subprocess_receives_scoped_storage_environment() {
     );
     std::fs::write(&helper, script).unwrap();
     let mut stream = run_helper(HelperRequest {
+        request_limit: RequestLimit::Default,
         anthropic_thinking: false,
         executable: &runtime,
         helper: &helper,

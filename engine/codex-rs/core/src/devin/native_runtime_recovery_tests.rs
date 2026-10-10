@@ -76,6 +76,7 @@ else if (mode === 'active' || mode === 'deadline' || (mode === 'retry_deadline' 
     let finished = CancellationToken::new();
     let stream = run_helper_with_policy(
         HelperRequest {
+            request_limit: RequestLimit::Default,
             anthropic_thinking: mode.starts_with("thinking_") && mode != "thinking_unscoped",
             executable: &runtime,
             helper: &helper,

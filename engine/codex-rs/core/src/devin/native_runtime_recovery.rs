@@ -14,9 +14,17 @@ pub(super) async fn start_helper(
     executable: &Path,
     init: &[u8],
     request: &[u8],
+    request_limit: RequestLimit,
     request_id: &str,
     cancellation: &CancellationToken,
 ) -> CodexResult<(Child, tokio::process::ChildStdout)> {
+    if init.len().saturating_add(request.len()) > request_limit.bytes() {
+        tracing::warn!(target: "devin_native_progress", event = "native_input_failed",
+            %request_id, reason = "request_too_large",
+            init_bytes = init.len(), request_bytes = request.len(),
+            limit_bytes = request_limit.bytes());
+        return Err(invalid("native inference request exceeded the hard limit"));
+    }
     let mut child = match command.spawn() {
         Ok(child) => child,
         Err(error) => {
@@ -41,12 +49,6 @@ pub(super) async fn start_helper(
             return Err(fatal("native inference helper stdin unavailable"));
         }
     };
-    if init.len() + request.len() > MAX_FRAME_BYTES {
-        tracing::warn!(target: "devin_native_progress", event = "native_input_failed",
-            %request_id, reason = "request_too_large",
-            init_bytes = init.len(), request_bytes = request.len());
-        return Err(invalid("native inference request exceeded the hard limit"));
-    }
     tokio::select! {
         biased;
         _ = cancellation.cancelled() => {
@@ -105,6 +107,7 @@ pub(super) async fn recover(
     executable: std::path::PathBuf,
     init: Vec<u8>,
     request: Vec<u8>,
+    request_limit: RequestLimit,
     prompt: Prompt,
     request_id: String,
     cancellation: CancellationToken,
@@ -183,7 +186,7 @@ pub(super) async fn recover(
                     _ = cancellation.cancelled() => Err(CodexErr::new(CodexErrorDetails::Interrupted)),
                     _ = dropped.cancelled() => Err(CodexErr::new(CodexErrorDetails::Interrupted)),
                     _ = tokio::time::sleep_until(started + policy.deadline) => Err(fatal("native inference request exceeded its deadline")),
-                    result = recovery::start_helper(&mut command, &helper, &executable, &init, &request, &request_id, &cancellation) => result,
+                    result = recovery::start_helper(&mut command, &helper, &executable, &init, &request, request_limit, &request_id, &cancellation) => result,
                 };
                 match restart {
                     Ok(child) => process = child,

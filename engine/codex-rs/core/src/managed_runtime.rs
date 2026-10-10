@@ -209,31 +209,36 @@ pub(crate) async fn stream(
         protocol_version: 1,
         request_id: &request_id,
     })?;
-    let request = crate::devin::native_runtime::serialize_frame(&RequestFrame {
-        r#type: "request",
-        protocol_version: 1,
-        request_id: &request_id,
-        thread_id: &thread_id,
-        turn_id: &ctx.sub_id,
-        provider_id: &provider,
-        model,
-        instructions: &prompt.base_instructions.text,
-        input: &prompt.input,
-        tools: &prompt.tools,
-        parallel_tool_calls: prompt.parallel_tool_calls
-            && api_options.as_ref().is_none_or(|options| {
-                options["models"][0]["parallelToolCalls"].as_bool() == Some(true)
-            }),
-        reasoning_effort: reasoning_effort.map(ToString::to_string),
-        forked_from_thread_id: metadata
-            .forked_from_thread_id
-            .as_ref()
-            .map(ToString::to_string),
-        forked_from_ordinal_exclusive: metadata.forked_from_ordinal_exclusive,
-        fork_provider_ids: &sess.fork_provider_ids,
-        api_options: api_options.as_ref(),
-    })?;
+    let request_limit = crate::devin::native_runtime::RequestLimit::for_provider(&provider);
+    let request = crate::devin::native_runtime::serialize_frame_with_limit(
+        &RequestFrame {
+            r#type: "request",
+            protocol_version: 1,
+            request_id: &request_id,
+            thread_id: &thread_id,
+            turn_id: &ctx.sub_id,
+            provider_id: &provider,
+            model,
+            instructions: &prompt.base_instructions.text,
+            input: &prompt.input,
+            tools: &prompt.tools,
+            parallel_tool_calls: prompt.parallel_tool_calls
+                && api_options.as_ref().is_none_or(|options| {
+                    options["models"][0]["parallelToolCalls"].as_bool() == Some(true)
+                }),
+            reasoning_effort: reasoning_effort.map(ToString::to_string),
+            forked_from_thread_id: metadata
+                .forked_from_thread_id
+                .as_ref()
+                .map(ToString::to_string),
+            forked_from_ordinal_exclusive: metadata.forked_from_ordinal_exclusive,
+            fork_provider_ids: &sess.fork_provider_ids,
+            api_options: api_options.as_ref(),
+        },
+        request_limit,
+    )?;
     let helper_request = crate::devin::native_runtime::HelperRequest {
+        request_limit,
         anthropic_thinking: provider == "anthropic",
         executable: bun.as_path(),
         helper: helper.as_path(),

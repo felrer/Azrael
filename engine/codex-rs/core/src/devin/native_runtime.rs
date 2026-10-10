@@ -34,6 +34,29 @@ const NODE_ENV: &str = "AZRAEL_DEVIN_NODE";
 const PROTOCOL_VERSION: u8 = 1;
 const STREAM_CAPACITY: usize = 64;
 const MAX_FRAME_BYTES: usize = 8 * 1024 * 1024;
+#[derive(Clone, Copy, Debug)]
+pub(crate) enum RequestLimit {
+    Default,
+    Anthropic,
+}
+
+impl RequestLimit {
+    pub(crate) fn for_provider(provider: &str) -> Self {
+        if provider == "anthropic" {
+            Self::Anthropic
+        } else {
+            Self::Default
+        }
+    }
+
+    fn bytes(self) -> usize {
+        match self {
+            Self::Default => MAX_FRAME_BYTES,
+            Self::Anthropic => 12 * 1024 * 1024,
+        }
+    }
+}
+
 const MAX_OUTPUT_BYTES: usize = 16 * 1024 * 1024;
 const HELPER_SCRUBBED_ENV: &[&str] = &[
     "BUN_OPTIONS",
@@ -234,6 +257,7 @@ pub(crate) async fn stream(
         parallel_tool_calls: prompt.parallel_tool_calls,
     })?;
     run_helper(HelperRequest {
+        request_limit: RequestLimit::Default,
         anthropic_thinking: false,
         executable: node.as_path(),
         helper: helper.as_path(),
@@ -251,6 +275,7 @@ pub(crate) async fn stream(
 /// Shared bounded JSONL transport. The guard keeps the turn's credentials pinned
 /// until the child and its validated terminal frame have completed.
 pub(crate) struct HelperRequest<'a, G> {
+    pub(crate) request_limit: RequestLimit,
     pub(crate) anthropic_thinking: bool,
     pub(crate) executable: &'a Path,
     pub(crate) helper: &'a Path,
@@ -299,6 +324,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
     policy: TimingPolicy,
 ) -> CodexResult<ResponseStream> {
     let HelperRequest {
+        request_limit,
         anthropic_thinking,
         executable,
         helper,
@@ -336,6 +362,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
         executable,
         &init,
         &request,
+        request_limit,
         &request_id,
         &cancellation,
     )
@@ -354,6 +381,7 @@ async fn run_helper_with_policy<G: Send + 'static>(
                 executable,
                 init,
                 request,
+                request_limit,
                 prompt,
                 request_id,
                 cancellation,
@@ -968,9 +996,16 @@ async fn send(
 }
 
 pub(crate) fn serialize_frame<T: Serialize>(value: &T) -> CodexResult<Vec<u8>> {
+    serialize_frame_with_limit(value, RequestLimit::Default)
+}
+
+pub(crate) fn serialize_frame_with_limit<T: Serialize>(
+    value: &T,
+    limit: RequestLimit,
+) -> CodexResult<Vec<u8>> {
     let mut bytes = serde_json::to_vec(value)
         .map_err(|_| invalid("unable to serialize native inference request"))?;
-    if bytes.len() > MAX_FRAME_BYTES {
+    if bytes.len() > limit.bytes() {
         return Err(invalid("native inference request exceeded the hard limit"));
     }
     bytes.push(b'\n');
