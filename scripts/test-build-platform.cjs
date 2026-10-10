@@ -5,8 +5,19 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const { spawnSync } = require("node:child_process");
-const { buildPlan, parse, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs } = require("./build-platform.cjs");
+const { buildPlan, parse, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild } = require("./build-platform.cjs");
 const { freezeProject, hash, inventoryTree, copyTree } = require("./freeze-platform-inputs.cjs");
+test("only Linux rebuilds node-pty with frozen headers and the selected npm node-gyp", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-pty-input-"));
+  try {
+    for (const osName of ["win32", "darwin"]) assert.equal(linuxPtyBuild({ os: osName }, root, root), null);
+    assert.throws(() => linuxPtyBuild({ os: "linux" }, root, root), /frozen selected Node headers/);
+    for (const relative of ["npm/node_modules/node-gyp/bin/node-gyp.js", "node-headers/include/node/node.h", "node-headers/include/node/node_version.h"]) {
+      const file = path.join(root, relative); fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, "frozen input");
+    }
+    assert.deepEqual(linuxPtyBuild({ os: "linux" }, root, root), { args: [path.join(root, "npm/node_modules/node-gyp/bin/node-gyp.js"), "rebuild", "--nodedir=" + path.join(root, "node-headers")], cwd: path.join(root, "node_modules/node-pty") });
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
 test("reviewed vendor mapping is independent of traversal order and rejects source or manifest tampering", () => {
   const { vendorSourceManifest, validateVendorEntries } = require("./provider-vendor-manifest.cjs");
   const provider = path.join(__dirname, "../providers/opencodex");

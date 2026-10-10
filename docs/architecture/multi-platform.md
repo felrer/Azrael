@@ -1,6 +1,6 @@
 # Multi-platform runtime and maintenance
 
-Status: `partial` — platform identity, shared runtime/build contracts and Windows-preserving migration are implemented. Native Unix core checks have partial acceptance; Linux x64 and macOS ARM64 remain product targets until installed-host and release acceptance passes. Windows local execution retains its existing acceptance evidence. macOS public distribution is deferred.
+Status: `partial` across the complete platform matrix. Shared identity/runtime/build contracts are implemented. Linux x64 2026.0.1 passed exact-package and actual installed-host/light-dark acceptance on Ubuntu 24.04/glibc 2.39 through WSLg and is publicly distributed; standalone desktops, older distributions and live provider authentication/inference remain unverified. macOS ARM64 retains partial internal acceptance and public distribution is deferred. Windows local execution retains its existing acceptance evidence.
 
 ## Product scope
 

@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 92938148,
+  "byteCount": 92938123,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11021,8 +11021,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "91d89b5f734e886f1558cf2c376f31ce90e9b539345f6a1ba17d8dfde9435617",
-      "size": 67554
+      "sha256": "1f8ce75a16531968d8597fcfb1a683046ec120217a3016032e763fe7bad7ccd4",
+      "size": 67529
     },
     "codex-rs/app-server/src/log_write_warning.rs": {
       "gitMode": "100644",
@@ -64318,7 +64318,7 @@
   },
   "head": "a299dc56ffeba6e2b84284cd3a869a4be4c8379a",
   "inventoryCount": 9186,
-  "inventorySha256": "afc3e8627b3f9b5d0872c1488bd3ac14febfdab6e60b8b7e84f3497b27d15251",
+  "inventorySha256": "d3dc4445ffb46cff885adbed205f5b5cbe3c62b9133f85b9f16b8d229699fc9d",
   "localIntegration": {
     "changes": {
       "codex-rs/app-server-client/src/remote.rs": {
@@ -64399,6 +64399,22 @@
           "permissions": 438,
           "sha256": "d13153a63332f0c0bddeab0ee060f251684c3263cbffd95d8568459178dfd7c4",
           "size": 180460
+        }
+      },
+      "codex-rs/app-server/src/lib.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "1f8ce75a16531968d8597fcfb1a683046ec120217a3016032e763fe7bad7ccd4",
+          "size": 67529
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "91d89b5f734e886f1558cf2c376f31ce90e9b539345f6a1ba17d8dfde9435617",
+          "size": 67554
         }
       },
       "codex-rs/core/src/agent/child_config.rs": {
@@ -129142,7 +129158,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "9bfbf6ad2c229a78d844f5e8b99bb3e3da3797f91d4a1043ccc9953d83cfd933",
-    "repositoryHead": "18d1c957f65de80bdf0e5712a2fb71bb9c162c40",
+    "repositoryHead": "651a413f742f3aaee3fa470e0bd29b55ab89f253",
     "schema": 1,
     "sourcePrefix": "engine"
   },

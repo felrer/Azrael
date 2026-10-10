@@ -68,6 +68,15 @@ function buildPlan(options, platform = process.platform, arch = process.arch, en
   return { settings, platform: platformIdentity(descriptor), binaries: engineBinaryNames(descriptor), descriptor, engineReuse: false };
 }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(value, null, 2) + "\n"); }
+function linuxPtyBuild(platform, input, companion) {
+  if (platform.os !== "linux") return null;
+  const headers = path.join(input, "node-headers");
+  const nodeGyp = path.join(input, "npm/node_modules/node-gyp/bin/node-gyp.js");
+  for (const file of [nodeGyp, path.join(headers, "include/node/node.h"), path.join(headers, "include/node/node_version.h")]) {
+    if (!fs.existsSync(file)) throw new Error("Linux node-pty requires frozen selected Node headers and npm node-gyp: " + file);
+  }
+  return { args: [nodeGyp, "rebuild", "--nodedir=" + headers], cwd: path.join(companion, "node_modules/node-pty") };
+}
 async function build(options) {
   const plan = buildPlan(options), s = plan.settings, root = s["project-root"], identity = plan.platform;
   if (s.plan) return plan;
@@ -105,6 +114,11 @@ async function build(options) {
   const npmCli = s["npm-cli"] || [path.join(path.dirname(s.node), "node_modules/npm/bin/npm-cli.js"), path.resolve(path.dirname(s.node), "../lib/node_modules/npm/bin/npm-cli.js")].find(fs.existsSync);
   if (!npmCli) throw new Error("Selected Node's npm CLI is missing; provide --npm-cli");
   copyTree(path.resolve(path.dirname(npmCli), ".."), path.join(input, "npm"), []);
+  if (identity.os === "linux") {
+    const nodeInclude = path.resolve(path.dirname(s.node), "../include/node");
+    if (!fs.existsSync(path.join(nodeInclude, "node.h"))) throw new Error("Selected Linux Node distribution must include its native headers");
+    copyTree(nodeInclude, path.join(input, "node-headers/include/node"), []);
+  }
   const frozenProject = path.join(input, "project"), frozenEngine = path.join(input, "engine"), frozenProvenance = path.join(frozenProject, "scripts/engine-provenance.py");
   const sourceSnapshot = path.join(logs, "engine-frozen.json");
   run(python, ["-B", frozenProvenance, "snapshot", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot], root, "verify-frozen-engine");
@@ -139,6 +153,13 @@ async function build(options) {
   const companion = path.join(work, "project/extensions/azrael-ex");
   const toolEnv = { PATH: path.dirname(node) + path.delimiter + process.env.PATH, npm_node_execpath: node };
   run(node, [path.join(input, "npm/bin/npm-cli.js"), "ci", "--ignore-scripts"], companion, "companion-npm-ci", toolEnv);
+  const ptyBuild = linuxPtyBuild(identity, input, companion);
+  if (ptyBuild) {
+    const header = fs.readFileSync(path.join(input, "node-headers/include/node/node_version.h"), "utf8");
+    const headerVersion = ["MAJOR", "MINOR", "PATCH"].map(part => header.match(new RegExp("#define NODE_" + part + "_VERSION\\s+(\\d+)"))?.[1]).join(".");
+    if ("v" + headerVersion !== nodeVersion) throw new Error("Frozen Node headers do not match the selected Node version");
+    run(node, ptyBuild.args, ptyBuild.cwd, "companion-linux-node-pty", { ...toolEnv, PYTHONDONTWRITEBYTECODE: "1" });
+  }
   run(node, [path.join(companion, "node_modules/typescript/bin/tsc"), "-p", "tsconfig.json"], companion, "companion-typescript", toolEnv);
   run(node, [path.join(companion, "scripts/stage-platform-runtime.cjs")], companion, "companion-platform-module", toolEnv);
   copyTree(path.join(companion, "dist"), path.join(s.output, "companion/dist"));
@@ -172,4 +193,4 @@ async function build(options) {
   return { release: s.output, inputs: input, work, logs, platform: identity };
 }
 if (require.main === module) build(parse(process.argv.slice(2))).then(result => console.log(JSON.stringify(result))).catch(error => { console.error(error.message); process.exitCode = 1; });
-module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs };
+module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild };
