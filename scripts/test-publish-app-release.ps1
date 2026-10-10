@@ -134,5 +134,5 @@ try {
   $env:AZRAEL_PUBLISH_TEST_FIXTURE = $oldFixture
   $resolved = [IO.Path]::GetFullPath($root)
   if ([IO.Path]::GetDirectoryName($resolved) -ne [IO.Path]::GetTempPath().TrimEnd('\') -or [IO.Path]::GetFileName($resolved) -notlike 'azrael-publisher-test-*') { throw 'Unsafe fixture cleanup path' }
-  Remove-Item -LiteralPath $resolved -Recurse -Force
+  Remove-Item -LiteralPath $resolved -Recurse
 }
