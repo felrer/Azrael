@@ -51,11 +51,11 @@
       "path": "skills/development-workflow/SKILL.md",
       "source": "development-workflow/SKILL.md",
       "original": {
-        "size": 9579,
-        "sha256": "16b22db7b34483419031dcadbc24c46aa5f454f9c75a6e5926d4f9dd0b7054a7"
+        "size": 11179,
+        "sha256": "60825b05a70c9f9a58628025c08e64a292e7388367b6fc53fcd94bcb0738c590"
       },
-      "size": 9579,
-      "sha256": "16b22db7b34483419031dcadbc24c46aa5f454f9c75a6e5926d4f9dd0b7054a7",
+      "size": 11179,
+      "sha256": "60825b05a70c9f9a58628025c08e64a292e7388367b6fc53fcd94bcb0738c590",
       "adaptations": []
     },
     {
@@ -86,11 +86,11 @@
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 11931,
-        "sha256": "0a5f2880c6d481fe8e4cefe4c331c0ab4daa4e616bf05853654af634e9d1da32"
+        "size": 14096,
+        "sha256": "f8b6a7f7640257a826c03d14d124d4ded8f6d62af798926a11de441c7b161972"
       },
-      "size": 11931,
-      "sha256": "0a5f2880c6d481fe8e4cefe4c331c0ab4daa4e616bf05853654af634e9d1da32",
+      "size": 14096,
+      "sha256": "f8b6a7f7640257a826c03d14d124d4ded8f6d62af798926a11de441c7b161972",
       "adaptations": []
     },
     {
