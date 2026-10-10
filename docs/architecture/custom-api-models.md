@@ -1,6 +1,6 @@
 # 사용자 API 모델
 
-Status: `partial` — 연결 관리·helper·picker의 source 및 로컬 검증을 완료했으며 native subagent 최종 검증과 설치·실서버 수용 결과는 지정 작업 계획에서 관리한다.
+Status: `partial` — 연결 관리·helper·picker·native subagent의 source 및 로컬 검증을 완료했다. 설치·실서버 수용은 수행하지 않았으며 결과는 지정 작업 계획에서 관리한다.
 
 ## 연결 관리와 모델 선택
 
@@ -21,6 +21,8 @@ API helper는 기존 Chat/Responses adapter와 bounded native 프레임 프로�
 비스트리밍 JSON 응답과 SSE 스트리밍을 구분한다. 비스트리밍 대기는 token/activity를 만들어내지 않고 고정된 제한시간으로 끝낸다. root와 자식의 요청에 연결별 동시 실행 상한을 적용하고 대기·실행 중 취소를 전달한다. 사용자 API는 자동 추론 재시도나 계정/provider fallback을 하지 않는다. 응답 유실 후 원격 생성이 종료됐는지는 확정하지 않는다.
 
 ## Continuity와 실패
+
+도구 응답은 기존 native 검증을 유지한다. 선언된 이름·종류, 중복 call ID, JSON 객체 arguments를 확인하고 실행 시 각 handler의 typed arguments 파싱을 적용한다. 전체 JSON Schema의 properties·required·$ref·strict 제약을 강제하는 새 validator를 추가하지 않는다. 서버의 도구 지원 선언도 이러한 제약 준수를 보증하지 않는다.
 
 한 요청의 연결·endpoint·인증 identity·모델·옵션은 실행 중 고정한다. 새 턴·resume·fork에서 기존 binding과 identity를 대조한다. 제거된 연결이나 변경된 endpoint/auth identity는 명시 실패하며 다른 연결을 대신 쓰지 않는다. 연결의 표시 이름 변경은 identity를 바꾸지 않는다. provider handoff는 연결 ID별로 구분하고 foreign opaque replay를 전달하지 않는다. 이력의 도구 call/result identity를 보존하고 도구를 재실행하지 않는다.
 
