@@ -52,7 +52,7 @@ impl RequestLimit {
     fn bytes(self) -> usize {
         match self {
             Self::Default => MAX_FRAME_BYTES,
-            Self::Anthropic => 12 * 1024 * 1024,
+            Self::Anthropic => 16 * 1024 * 1024,
         }
     }
 }

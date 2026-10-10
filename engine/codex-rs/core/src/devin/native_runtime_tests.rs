@@ -22,7 +22,7 @@ fn request_limit_is_selected_only_for_anthropic() {
         "devin",
     ] {
         let limit = RequestLimit::for_provider(provider);
-        let expected = if provider == "anthropic" { 12 } else { 8 } * 1024 * 1024;
+        let expected = if provider == "anthropic" { 16 } else { 8 } * 1024 * 1024;
         assert_eq!(limit.bytes(), expected, "{provider}");
         // JSON string quotes count towards the limit; the delivery check also
         // accounts for the init frame and the trailing JSONL newline.
@@ -69,7 +69,7 @@ async fn request_limit_delivers_large_anthropic_frame_to_helper() {
     std::fs::write(&helper, r#"
 let bytes = 0;
 for await (const chunk of process.stdin) bytes += chunk.length;
-if (bytes !== 12 * 1024 * 1024) process.exit(2);
+if (bytes !== 16 * 1024 * 1024) process.exit(2);
 let seq = 0;
 const emit = frame => process.stdout.write(JSON.stringify({protocol_version:1, request_id:'large-request', seq:seq++, ...frame})+'\n');
 emit({type:'created'});
