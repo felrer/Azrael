@@ -147,7 +147,7 @@ if (-not $CompanionVsixPath) {
     $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
     $nodeVersion = (& node --version).Trim()
     $npmVersion = (& npm.cmd --version).Trim()
-    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource)+$moduleInputs) @($nodeVersion,$npmVersion) -Force:('companion' -in $RebuildModule)
+    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource, (Join-Path $PSScriptRoot 'platform-runtime.cjs'), (Join-Path $PSScriptRoot 'azrael-platforms.json'))+$moduleInputs) @($nodeVersion,$npmVersion) -Force:('companion' -in $RebuildModule)
     $CompanionVsixPath = Join-Path $companionCache.Path 'azrael-ex.vsix'
     $moduleTypeScriptPath = Join-Path $companionCache.Path 'companion/node_modules/typescript/lib/typescript.js'
     if (-not $companionCache.Hit) {
@@ -164,10 +164,15 @@ if (-not $CompanionVsixPath) {
     Complete-BuildStage $buildMetrics $phase
     $phase = Start-BuildStage $buildMetrics 'companion-build'
     Push-Location $companionBuild
+    $previousPlatformRuntimeSource = $env:AZRAEL_PLATFORM_RUNTIME_SOURCE
     try {
         Invoke-BuildCommand 'npm.cmd' @('ci') 'npm-ci.log'
+        $env:AZRAEL_PLATFORM_RUNTIME_SOURCE = $PSScriptRoot
         Invoke-BuildCommand 'npm.cmd' @('run', 'package', '--', $CompanionVsixPath) 'companion-package.log'
-    } finally { Pop-Location }
+    } finally {
+        $env:AZRAEL_PLATFORM_RUNTIME_SOURCE = $previousPlatformRuntimeSource
+        Pop-Location
+    }
     Save-BuildModuleEntry $companionCache @('azrael-ex.vsix','companion/node_modules','companion/dist')
     }
     Complete-BuildStage $buildMetrics $phase

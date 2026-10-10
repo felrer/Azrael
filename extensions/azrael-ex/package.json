@@ -135,8 +135,8 @@
     ]
   },
   "scripts": {
-    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
-    "build": "npm run clean && tsc -p tsconfig.json",
+    "clean": "node scripts/clean-build.cjs",
+    "build": "npm run clean && tsc -p tsconfig.json && node scripts/stage-platform-runtime.cjs",
     "build:incremental": "node scripts/build-incremental.cjs",
     "test": "npm run build:incremental && node scripts/run-tests.cjs current",
     "test:compiled": "node scripts/run-tests.cjs current",

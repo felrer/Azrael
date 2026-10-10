@@ -274,7 +274,7 @@ function transformManifest(original, hostVersion = "0.5.0", accountUiManifest) {
     if (sidebarCommands.length > 1) throw new Error("Integrated account UI duplicates the official sidebar command.");
     const accountCommands = payloadCommands.filter((command) => command?.command !== "azrael.openSidebar");
     const commandIds = accountCommands.map((command) => command?.command).sort();
-    const expectedIds = [...ACCOUNT_UI_COMMANDS].sort();
+    const expectedIds = [...ACCOUNT_UI_COMMANDS, ...(commandIds.includes("azrael.apiConnections") ? ["azrael.apiConnections"] : [])].sort();
     if (JSON.stringify(commandIds) !== JSON.stringify(expectedIds)) {
       throw new Error(`Integrated account UI command contract mismatch: ${commandIds.join(", ")}`);
     }

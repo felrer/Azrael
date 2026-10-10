@@ -303,7 +303,7 @@ export class UsageView implements vscode.Disposable {
 
   private async onMessage(message: unknown): Promise<void> {
     if (!isRecord(message) || typeof message.action !== "string") return;
-    if (await this.api?.handle(message)) return;
+    if (this.api && await this.api.handle(message)) return;
     try {
       if (message.action === "costMonth") {
         if (typeof message.month !== "string" || !/^(?!0000)\d{4}-(0[1-9]|1[0-2])$/.test(message.month) || !this.hasVisibleTarget()) return;
