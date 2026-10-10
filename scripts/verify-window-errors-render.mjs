@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, writeFile, readFile, access } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, access, realpath } from 'node:fs/promises';
 import { resolve, join, sep, dirname } from 'node:path';
 import { Script } from 'node:vm';
 
@@ -12,8 +12,13 @@ const logs = resolve(process.env.AZRAEL_RENDER_LOG_ROOT || join(root, 'artifacts
 assert.equal(dirname(fixture).toLowerCase(), join(root, 'artifacts/verification').toLowerCase(), 'fixture must be an immediate verification child');
 assert(logs.toLowerCase().startsWith((join(root, 'artifacts/logs') + sep).toLowerCase()), 'logs must stay inside project artifact logs');
 const readmeTarget = process.env.AZRAEL_RENDER_README_TARGET_IMAGE;
-const targetImagePath = join(root, 'artifacts/logs/readme-native-ui-20261011/accounts/standalone-light-1050-collapsed.png');
-if (readmeTarget) assert.equal(resolve(readmeTarget).toLowerCase(), targetImagePath.toLowerCase(), 'README target must be the privacy-safe account fixture');
+const targetImagePath = readmeTarget ? await realpath(resolve(readmeTarget)) : undefined;
+if (targetImagePath) {
+  assert(targetImagePath.toLowerCase().startsWith((join(root, 'artifacts/logs') + sep).toLowerCase()), 'README target must stay inside project verification logs');
+  assert.equal(targetImagePath, join(dirname(targetImagePath), 'standalone-light-1050-collapsed.png'), 'README target must be the synthetic account fixture');
+  const accountSummary = JSON.parse(await readFile(join(dirname(targetImagePath), 'overview-render-summary.json'), 'utf8'));
+  assert(accountSummary.outcome === 'passed' && accountSummary.exitCode === 0 && accountSummary.screenshots.includes('standalone-light-1050-collapsed.png'), 'README target requires a successful production account capture');
+}
 await mkdir(fixture, { recursive: true }); await mkdir(logs, { recursive: true });
 const require = createRequire(import.meta.url);
 const { createHost } = require('./window-control-host.cjs');

@@ -218,10 +218,13 @@ test("account summary escapes labels and keeps passive quota gauges visible", ()
 });
 
 test("provider icons and heading escape dynamic content without network assets", () => {
-  for (const id of ['openai', 'anthropic', 'google', 'gemini', 'devin', '<unknown>']) {
-    assert.match(providerIconHtml(id), /<svg viewBox="0 0 24 24">/);
-    assert.doesNotMatch(providerIconHtml(id), /<img|https?:|<unknown>/);
+  for (const id of ['openai', 'anthropic', 'google', 'gemini', 'google-antigravity', 'devin-cli', 'openrouter', 'xai', '<unknown>', '__proto__']) {
+    assert.match(providerIconHtml(id), /<svg |<img /);
+    assert.doesNotMatch(providerIconHtml(id), /src="https?:|<unknown>/);
   }
+  assert.notEqual(providerIconHtml('google'), providerIconHtml('google-antigravity'));
+  assert.notEqual(providerIconHtml('google'), providerIconHtml('gemini'));
+  assert.equal(providerIconHtml('devin-cli'), providerIconHtml('devin'));
   const html = providerHeadingHtml('a"b', '<provider>', 2, '<button>추가</button>');
   assert.match(html, /data-provider="a&quot;b"/);
   assert.match(html, /&lt;provider&gt;/);

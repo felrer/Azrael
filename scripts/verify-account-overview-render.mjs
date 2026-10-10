@@ -22,6 +22,7 @@ Module._load = function(request, parent, main) {
   return originalLoad.call(this, request, parent, main);
 };
 const { UsageView } = require('../extensions/azrael-ex/dist/src/usageView.js');
+const { providerHeadingHtml } = require('../extensions/azrael-ex/dist/src/usagePresentation.js');
 Module._load = originalLoad;
 const { AzraelAccountSettings } = require('./inject-account-settings.cjs');
 const resetAt = Math.floor(Date.now() / 1000) + 5 * 86400 + 18 * 3600;
@@ -114,6 +115,19 @@ try {
     await evaluate("fixtureNode('.account-summary').click()");await wait("fixtureNode('.account-summary').getAttribute('aria-expanded')==='true'&&fixturePending===0");
     const expanded=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(join(logs,prefix+'-expanded.png'),Buffer.from(expanded.data,'base64'));summary.screenshots.push(prefix+'-expanded.png');
     check(prefix+' no browser page errors',await evaluate('fixtureErrors.length===0'));
+    await wait("fixtureNodes('.provider-icon img').every(e=>e.complete&&e.naturalWidth>0)");
+    check(prefix+' official logos loaded and one variant visible',await evaluate("fixtureNodes('.provider-icon').every(e=>Array.from(e.children).filter(c=>getComputedStyle(c).display!=='none').length===1)"));
+    if(process.env.AZRAEL_RENDER_PROVIDER_BRAND_CAPTURE==='1'&&surfaceName==='standalone'&&width===1050){
+      const brands=[['openai','OpenAI'],['anthropic','Anthropic'],['google','Google'],['google-antigravity','Google Antigravity'],['google-gemini-cli','Gemini CLI'],['devin-cli','Devin'],['openrouter','OpenRouter'],['xai','xAI']];
+      const markup='<section id="brand-capture">'+brands.map(([id,label])=>providerHeadingHtml(id,label,0)).join('')+'</section>';
+      await evaluate(`fixtureNode('main').insertAdjacentHTML('beforeend',${JSON.stringify(markup)});document.getElementById('brand-capture').scrollIntoView()`);
+      await wait("Array.from(document.querySelectorAll('#brand-capture img')).every(e=>e.complete&&e.naturalWidth>0)");
+      check(prefix+' all original provider assets decode',await evaluate("Array.from(document.querySelectorAll('#brand-capture .provider-icon')).every(e=>Array.from(e.children).filter(c=>getComputedStyle(c).display!=='none').length===1)"));
+      const clip=await evaluate("(()=>{const r=document.getElementById('brand-capture').getBoundingClientRect();return{x:r.x,y:r.y+scrollY,width:r.width,height:r.height,scale:2};})()");
+      const brandsShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:true,clip});
+      await writeFile(join(logs,'provider-brands-'+theme+'.png'),Buffer.from(brandsShot.data,'base64'));
+      summary.screenshots.push('provider-brands-'+theme+'.png');
+    }
   }
   check('collapsed summary identities refreshed',profiles.every(p=>requests.some(r=>r[0]==='openai'&&r[1]===p.id&&r[2]===p.workspaceAccountId))&&requests.some(r=>r[0]==='anthropic')&&requests.some(r=>r[0]==='google')&&requests.some(r=>r[0]==='devin-cli'));
   summary.outcome='passed';await send('Browser.close',{},null);
