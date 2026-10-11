@@ -3047,12 +3047,26 @@ impl AuthManager {
                 .map_err(std::io::Error::from)?;
             manager.release_azrael_unmanaged_auth_lease();
         } else if owns_lease {
-            manager.reload().await;
+            manager.reload_azrael_startup_auth().await?;
         }
         if manager.auth_cached().is_none() {
             manager.release_azrael_unmanaged_auth_lease();
         }
         Ok(manager)
+    }
+
+    pub(super) async fn reload_azrael_startup_auth(&self) -> std::io::Result<()> {
+        let transaction = self.lock_azrael_unmanaged_refresh().await?.ok_or_else(|| {
+            std::io::Error::other("authentication startup transaction is unavailable")
+        })?;
+        super::storage::migrate_azrael_keyring_auth(
+            &self.codex_home,
+            self.auth_credentials_store_mode,
+            self.keyring_backend_kind,
+            &transaction,
+        )?;
+        self.reload().await;
+        Ok(())
     }
 
     /// Activates workload identity against an auth config resolved before full runtime config.

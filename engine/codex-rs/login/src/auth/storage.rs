@@ -362,6 +362,22 @@ impl Debug for SecretsKeyringAuthStorage {
 }
 
 impl SecretsKeyringAuthStorage {
+    fn migrate_direct_auth(&self) -> std::io::Result<()> {
+        // An existing encrypted file is authoritative, including an empty file
+        // committed by logout. Never resurrect a stale direct-keyring identity.
+        match std::fs::metadata(self.codex_home.join("secrets").join("codex_auth.age")) {
+            Ok(_) => return Ok(()),
+            Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
+        }
+        if let Some(auth) = self.direct_storage.load()? {
+            self.save(&auth)?;
+            // Keep the source until the encrypted destination has committed.
+            self.direct_storage.delete()?;
+        }
+        Ok(())
+    }
+
     fn new(
         codex_home: PathBuf,
         keyring_store: Arc<dyn KeyringStore>,
@@ -590,6 +606,28 @@ pub(super) fn create_auth_storage(
 ) -> Arc<dyn AuthStorageBackend> {
     let keyring_store: Arc<dyn KeyringStore> = Arc::new(DefaultKeyringStore);
     create_auth_storage_with_store(codex_home, mode, keyring_store, keyring_backend_kind)
+}
+
+pub(super) fn migrate_azrael_keyring_auth(
+    codex_home: &Path,
+    mode: AuthCredentialsStoreMode,
+    backend: AuthKeyringBackendKind,
+    _transaction: &super::AzraelAuthRefreshGuard,
+) -> std::io::Result<()> {
+    if backend == AuthKeyringBackendKind::Secrets
+        && matches!(
+            mode,
+            AuthCredentialsStoreMode::Keyring | AuthCredentialsStoreMode::Auto
+        )
+    {
+        SecretsKeyringAuthStorage::new(
+            codex_home.to_path_buf(),
+            Arc::new(DefaultKeyringStore),
+            mode,
+        )
+        .migrate_direct_auth()?;
+    }
+    Ok(())
 }
 
 fn create_auth_storage_with_store(

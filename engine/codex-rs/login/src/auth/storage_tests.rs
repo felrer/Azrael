@@ -478,6 +478,110 @@ fn secrets_keyring_auth_storage_load_returns_deserialized_auth() -> anyhow::Resu
 }
 
 #[test]
+fn secrets_keyring_auth_startup_migrates_direct_credentials_once() -> anyhow::Result<()> {
+    let home = tempdir()?;
+    let keyring = MockKeyringStore::default();
+    let direct = DirectKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    let storage = SecretsKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    let original = auth_with_prefix("saved-login");
+    direct.save(&original)?;
+    assert_eq!(
+        storage.load()?,
+        None,
+        "ordinary reads must use only the current backend"
+    );
+    storage.migrate_direct_auth()?;
+    assert_eq!(storage.load()?, Some(original));
+    assert_eq!(direct.load()?, None);
+    assert!(encrypted_auth_file(home.path()).exists());
+    assert!(!get_auth_file(home.path()).exists());
+
+    let current = auth_with_prefix("current-login");
+    storage.save(&current)?;
+    direct.save(&auth_with_prefix("stale-login"))?;
+    storage.migrate_direct_auth()?;
+    assert_eq!(
+        storage.load()?,
+        Some(current),
+        "startup must preserve the latest login"
+    );
+    storage.delete()?;
+    direct.save(&auth_with_prefix("late-legacy-login"))?;
+    storage.migrate_direct_auth()?;
+    assert_eq!(
+        storage.load()?,
+        None,
+        "an explicit logout must not resurrect legacy auth"
+    );
+    Ok(())
+}
+
+#[test]
+fn secrets_keyring_auth_startup_preserves_direct_on_destination_failure() -> anyhow::Result<()> {
+    let home = tempdir()?;
+    let keyring = MockKeyringStore::default();
+    let direct = DirectKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    let storage = SecretsKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    let original = auth_with_prefix("saved-login");
+    direct.save(&original)?;
+    keyring.set_error(
+        &compute_keyring_account(home.path(), LocalSecretsNamespace::CodexAuth),
+        KeyringError::NoStorageAccess(Box::new(std::io::Error::other("test storage unavailable"))),
+    );
+    assert!(storage.migrate_direct_auth().is_err());
+    assert_eq!(direct.load()?, Some(original));
+    assert!(!encrypted_auth_file(home.path()).exists());
+    assert!(!get_auth_file(home.path()).exists());
+    Ok(())
+}
+
+#[test]
+fn secrets_keyring_auth_startup_does_not_overwrite_invalid_destination() -> anyhow::Result<()> {
+    let home = tempdir()?;
+    let keyring = MockKeyringStore::default();
+    let direct = DirectKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    let storage = SecretsKeyringAuthStorage::new(
+        home.path().to_path_buf(),
+        Arc::new(keyring.clone()),
+        AuthCredentialsStoreMode::Keyring,
+    );
+    direct.save(&auth_with_prefix("stale-login"))?;
+    std::fs::create_dir_all(home.path().join("secrets"))?;
+    std::fs::write(
+        encrypted_auth_file(home.path()),
+        "damaged encrypted credentials",
+    )?;
+    storage.migrate_direct_auth()?;
+    assert!(storage.load().is_err());
+    assert_eq!(
+        std::fs::read_to_string(encrypted_auth_file(home.path()))?,
+        "damaged encrypted credentials"
+    );
+    assert!(direct.load()?.is_some());
+    Ok(())
+}
+
+#[test]
 fn keyring_auth_storage_compute_store_key_for_home_directory() -> anyhow::Result<()> {
     let codex_home = PathBuf::from("~/.codex");
 

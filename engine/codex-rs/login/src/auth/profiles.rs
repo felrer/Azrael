@@ -643,7 +643,7 @@ async fn profile_manager(
     manager.invalidates_shared_network_policy = false;
     manager.azrael_auth_usage = Some(usage);
     manager.azrael_auth_transaction = Some(transaction);
-    manager.reload().await;
+    manager.reload_azrael_startup_auth().await?;
     Ok(manager)
 }
 
