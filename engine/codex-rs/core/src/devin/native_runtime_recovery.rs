@@ -8,6 +8,35 @@ pub(super) enum AttemptOutcome {
     },
 }
 
+pub(super) fn idle_error(
+    last_event: &'static str,
+    inactivity: Duration,
+    retry_idle: bool,
+) -> CodexErr {
+    let retry = if retry_idle {
+        "exhausted (2 attempts)"
+    } else {
+        "disabled (1 attempt)"
+    };
+    let detail = format!(
+        "native inference idle: last_event={last_event}, inactivity_ms={}, retry={retry}",
+        inactivity.as_millis()
+    );
+    if matches!(last_event, "tool_call_start" | "tool_call_args") {
+        let outcome = if retry_idle {
+            "재시도 포함 총 2회의 시도를 소진했습니다."
+        } else {
+            "요청을 종료했습니다."
+        };
+        fatal(format!(
+            "도구 인자 생성·전달이 {:.1}초 동안 진행되지 않아 {outcome} 기존 작업 결과를 확인한 뒤 이 세션에서 다시 요청하세요. ({detail})",
+            inactivity.as_secs_f64()
+        ))
+    } else {
+        fatal(detail)
+    }
+}
+
 pub(super) async fn start_helper(
     command: &mut Command,
     helper: &Path,
@@ -158,15 +187,7 @@ pub(super) async fn recover(
                 last_event,
                 inactivity,
             }) if attempt == 2 || !policy.retry_idle => {
-                break Err(fatal(format!(
-                    "native inference idle: last_event={last_event}, inactivity_ms={}, retry={}",
-                    inactivity.as_millis(),
-                    if policy.retry_idle {
-                        "exhausted (2 attempts)"
-                    } else {
-                        "disabled (1 attempt)"
-                    }
-                )));
+                break Err(idle_error(last_event, inactivity, policy.retry_idle));
             }
             Ok(AttemptOutcome::InferenceIdle { .. }) => {
                 let retry = tokio::select! {

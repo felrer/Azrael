@@ -12,6 +12,14 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Anthropic tool input streaming
+
+Status: `partial` — implemented in source; installation requires a matching helper release.
+
+Managed Anthropic requests enable `eager_input_streaming: true` on user-defined tools at the owned request projection boundary after the vendored adapter builds the request. This includes namespaced functions, client tool search and custom tools represented as an `input` JSON string. OAuth headers, wire aliases and input schemas remain adapter-owned. Other provider requests retain their existing projection.
+
+The option avoids server buffering of a large parameter until its generation completes. Fragments remain incomplete input: the adapter and mapper must assemble and validate the full JSON/object/custom wrapper, and the engine must accept a valid terminal response before native tool execution. Invalid JSON, truncated parameters, missing termination, cancellation and size limits remain failures. The 100-second generation inactivity limit, one bounded retry and absolute deadline remain unchanged; pings do not count as generated tool input. See [Anthropic fine-grained tool streaming](https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming).
+
 ## Tool invocation diagnostics
 
 Status: `partial` — focused Windows helper, adapter and native protocol tests cover the source implementation. Installed use requires a matching engine/helper release.

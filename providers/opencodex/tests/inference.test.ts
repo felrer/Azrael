@@ -11,7 +11,7 @@ const catalogFixture = (async () => { throw new Error('LIVE_NETWORK_FORBIDDEN');
 let root = '';
 const oldHome = process.env.CODEX_HOME, oldProviderHome = process.env.OPENCODEX_HOME;
 afterEach(() => {
-  if (root) rmSync(root, { recursive: true, force: true });
+  if (root) rmSync(root, { recursive: true });
   root = '';
   if (oldHome === undefined) delete process.env.CODEX_HOME; else process.env.CODEX_HOME = oldHome;
   if (oldProviderHome === undefined) delete process.env.OPENCODEX_HOME; else process.env.OPENCODEX_HOME = oldProviderHome;
@@ -147,6 +147,7 @@ test('namespaced function, custom and client tool-search calls restore exact nat
     const args = i === 1 ? { input: 'exact\npatch' } : { value: 'fixture' };
     await infer(req, frame => frames.push(frame), (async (_url: any, init: any) => {
       const body = JSON.parse(init.body);
+      expect(body.tools.every((tool: any) => tool.eager_input_streaming === true)).toBeTrue();
       return sse(start, { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'call-fixture', name: body.tools[i].name, input: {} } }, { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: JSON.stringify(args) } }, { type: 'content_block_stop', index: 0 }, ...finish('tool_use'));
     }) as typeof fetch);
     const item = frames.find(frame => frame.type === 'item_done' && ['function_call', 'custom_tool_call', 'tool_search_call'].includes(frame.item.type))!.item;
@@ -154,6 +155,38 @@ test('namespaced function, custom and client tool-search calls restore exact nat
     if (i < 2) expect(item.namespace).toBe('functions');
     if (i === 1) expect(item.input).toBe('exact\npatch');
     if (i === 2) expect(item.execution).toBe('client');
+  }
+});
+
+test('Anthropic eager custom patch fragments validate completely; malformed and incomplete calls never complete', async () => {
+  await setup();
+  const patch = '*** Begin Patch\n*** Add File: fixture.txt\n' + '+Escaped "value" and 한글 \\ text\n'.repeat(4000) + '*** End Patch\n';
+  const args = JSON.stringify({ input: patch });
+  const tools = [{ type: 'custom', name: 'apply_patch', description: 'Exact patch input' }];
+  for (const mode of ['complete', 'invalid_json', 'max_tokens', 'max_tokens_complete', 'eof']) {
+    const frames: any[] = [];
+    const execution = infer(request('anthropic', 'eager-' + mode, undefined, tools), frame => frames.push(frame), (async (_url: any, init: any) => {
+      const body = JSON.parse(init.body);
+      expect(body.tools[0].eager_input_streaming).toBeTrue();
+      expect(body.tools[0].input_schema).toEqual({ type: 'object', properties: { input: { type: 'string', description: 'Exact freeform tool input; preserve code and newlines.' } }, required: ['input'], additionalProperties: false });
+      expect(init.headers.Authorization).toBe('Bearer fixture-access-a');
+      const payload = mode === 'invalid_json' ? '{"input":broken}' : mode === 'max_tokens' ? args.slice(0, -4) : args;
+      const deltas = [payload.slice(0, 13), payload.slice(13, 73), payload.slice(73, 3007), payload.slice(3007)];
+      const events: any[] = [start, { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'eager-call', name: body.tools[0].name, input: {} } }];
+      for (const partial_json of deltas) events.push({ type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json } });
+      if (mode !== 'eof') events.push({ type: 'content_block_stop', index: 0 }, ...finish(mode.startsWith('max_tokens') ? 'max_tokens' : 'tool_use'));
+      return sse(...events);
+    }) as typeof fetch);
+    if (mode === 'complete') {
+      await execution;
+      const calls = frames.filter(frame => frame.type === 'item_done' && frame.item?.type === 'custom_tool_call');
+      expect(calls).toHaveLength(1);
+      expect(calls[0].item.input).toBe(patch);
+      expect(frames.at(-1).type).toBe('completed');
+    } else {
+      await expect(execution).rejects.toThrow();
+      expect(frames.some(frame => frame.type === 'completed' || frame.item?.type === 'custom_tool_call')).toBeFalse();
+    }
   }
 });
 

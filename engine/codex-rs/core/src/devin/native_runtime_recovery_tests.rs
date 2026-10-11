@@ -1,8 +1,35 @@
+use super::recovery::idle_error;
 use super::*;
 use futures::StreamExt;
 use pretty_assertions::assert_eq;
 use std::path::PathBuf;
 
+#[test]
+fn tool_input_idle_guidance_is_specific_terminal_and_preserves_diagnostic_detail() {
+    for event in ["tool_call_start", "tool_call_args"] {
+        for retry_idle in [true, false] {
+            let error = idle_error(event, Duration::from_millis(100026), retry_idle);
+            let message = error.to_error_event(None).message;
+            assert!(message.contains("도구 인자 생성·전달이 100.0초"));
+            assert!(message.contains("기존 작업 결과를 확인한 뒤 이 세션에서 다시 요청하세요"));
+            assert!(message.contains(&format!("last_event={event}, inactivity_ms=100026")));
+            assert!(message.contains(if retry_idle {
+                "재시도 포함 총 2회의 시도"
+            } else {
+                "요청을 종료"
+            }));
+            assert_eq!(
+                error.to_codex_protocol_error(),
+                codex_protocol::protocol::CodexErrorInfo::Other
+            );
+            assert!(error.retry_delay(1).is_none());
+        }
+    }
+    assert_eq!(
+        idle_error("text", Duration::from_secs(100), true).to_string(),
+        "Fatal error: native inference idle: last_event=text, inactivity_ms=100000, retry=exhausted (2 attempts)"
+    );
+}
 fn policy() -> TimingPolicy {
     TimingPolicy {
         idle: Duration::from_millis(350),

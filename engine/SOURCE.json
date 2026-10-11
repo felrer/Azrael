@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 93141020,
+  "byteCount": 93142929,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -21073,15 +21073,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "39729fa6b22a454196e794e3b9fe68cf3f54f2030d0c6d7d18d044b6922f6c05",
-      "size": 9571
+      "sha256": "d5500874188aa44f74d5cef14e436bf989342961d50567f17b45444a89dae99b",
+      "size": 10199
     },
     "codex-rs/core/src/devin/native_runtime_recovery_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "08dff585728e095162c97029f583969638d406022245cfee04adac237f1773da",
-      "size": 17883
+      "sha256": "8f3dfaff989c173077725a45b8fe97885f9330bef4494814d871ba750a50e385",
+      "size": 19164
     },
     "codex-rs/core/src/devin/native_runtime_state.rs": {
       "gitMode": "100644",
@@ -64423,7 +64423,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9201,
-  "inventorySha256": "6f408ed91a448cd54f5c552b2edb31cd550e14c5725131bb9c91d49368c7e2cb",
+  "inventorySha256": "8d522a1ae8225f8ba2f721c2c5c16b2ea6a59042d036acf4c1943e67db458603",
   "localIntegration": {
     "changes": {
       "codex-rs/core/src/client.rs": {
@@ -64482,6 +64482,38 @@
           "permissions": 438,
           "sha256": "3676ed2a34478d19d2f75b2f34fadc76d91b551119b02e13363403df7f5fc278",
           "size": 12101
+        }
+      },
+      "codex-rs/core/src/devin/native_runtime_recovery.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d5500874188aa44f74d5cef14e436bf989342961d50567f17b45444a89dae99b",
+          "size": 10199
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "39729fa6b22a454196e794e3b9fe68cf3f54f2030d0c6d7d18d044b6922f6c05",
+          "size": 9571
+        }
+      },
+      "codex-rs/core/src/devin/native_runtime_recovery_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8f3dfaff989c173077725a45b8fe97885f9330bef4494814d871ba750a50e385",
+          "size": 19164
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "08dff585728e095162c97029f583969638d406022245cfee04adac237f1773da",
+          "size": 17883
         }
       },
       "codex-rs/core/src/devin/native_runtime_state.rs": {
@@ -129022,7 +129054,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "ccbcbf93906a72cc7654aa9c57c670d5e2e3831d",
+    "repositoryHead": "1734d652753059dcd1f15dd7118148af40c9b76f",
     "schema": 2,
     "sourcePrefix": "engine"
   },

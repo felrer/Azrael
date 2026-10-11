@@ -404,6 +404,13 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     progress?.observe({ kind: 'phase', phase: 'headers' });
     const built = await adapter.buildRequest(parsed, { headers: new Headers(), translatorBudget: budget, abortSignal: signal, providerFetch: fetcher });
     const wireBody = JSON.parse(built.body);
+    if (request.provider_id === 'anthropic' && Array.isArray(wireBody.tools)) {
+      // A large custom-tool input is one JSON string. Buffered delivery can
+      // hide generation from the native idle watchdog until that string ends.
+      // Stream fragments early; mapStream still validates the complete call.
+      for (const tool of wireBody.tools) tool.eager_input_streaming = true;
+      built.body = JSON.stringify(wireBody);
+    }
     if ((wireBody.request ?? wireBody).generationConfig?.responseModalities?.some((modality: string) => modality !== 'TEXT')) fail('unsupported_output_modality');
     if (request.provider_id === 'anthropic' && (typeof request.instructions !== 'string'
       || wireBody.messages?.some((message: any) => typeof message.content !== 'string' && (!Array.isArray(message.content) || message.content.some((part: any) => !['text', 'image', 'tool_use', 'tool_result', 'thinking', 'redacted_thinking'].includes(part.type))))
