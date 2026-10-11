@@ -51,11 +51,11 @@
       "path": "skills/development-workflow/SKILL.md",
       "source": "development-workflow/SKILL.md",
       "original": {
-        "size": 10910,
-        "sha256": "b435daee538a8ecdb4bbb1d8ff447debada3df382cba402335097ac3a9d63391"
+        "size": 11226,
+        "sha256": "584680f34255278abb58ae8c67c3e27e9a600c53153c38015e02380e9ebfa1ba"
       },
-      "size": 10910,
-      "sha256": "b435daee538a8ecdb4bbb1d8ff447debada3df382cba402335097ac3a9d63391",
+      "size": 11226,
+      "sha256": "584680f34255278abb58ae8c67c3e27e9a600c53153c38015e02380e9ebfa1ba",
       "adaptations": []
     },
     {
@@ -204,22 +204,22 @@
       "source": "implementation/references/build-inputs.md",
       "adaptations": [],
       "original": {
-        "size": 425,
-        "sha256": "ee1f0afd949dd4c0f555c49a2c50c027be23f3e67434da86c8dfb332be9c7ed1"
+        "size": 1826,
+        "sha256": "5a5e6c73ac9f6210f258416af39bdfe2ca4e7c609fd7639d279f6f71d8c58883"
       },
-      "size": 425,
-      "sha256": "ee1f0afd949dd4c0f555c49a2c50c027be23f3e67434da86c8dfb332be9c7ed1"
+      "size": 1826,
+      "sha256": "5a5e6c73ac9f6210f258416af39bdfe2ca4e7c609fd7639d279f6f71d8c58883"
     },
     {
       "path": "skills/implementation/references/delegation.md",
       "source": "implementation/references/delegation.md",
       "adaptations": [],
       "original": {
-        "size": 2371,
-        "sha256": "580b3fd4e534d0e594053f1d4e81f9ec177a2c81934e1ef2e56573709dc1ca1e"
+        "size": 4381,
+        "sha256": "d8d5430adb1c22e8ddc7deb13eec2d33d9ec75a0322794a89e1c24e8e0687a25"
       },
-      "size": 2371,
-      "sha256": "580b3fd4e534d0e594053f1d4e81f9ec177a2c81934e1ef2e56573709dc1ca1e"
+      "size": 4381,
+      "sha256": "d8d5430adb1c22e8ddc7deb13eec2d33d9ec75a0322794a89e1c24e8e0687a25"
     },
     {
       "path": "skills/implementation/references/ui.md",

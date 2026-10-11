@@ -12,16 +12,24 @@ Workers receive their assigned outcome, owned scope, settled contracts, authorit
 
 ## Scheduling behavior
 
-The root identifies prerequisites, inputs, outputs, exclusive writes and shared resources only as far as execution needs. It starts ready work on the path that controls total completion time and runs independent work alongside it. Small relevant preflight checks reduce avoidable rebuilds without creating a mandatory serial barrier for unrelated components. Completion of one assignment can release its dependent work before every other assignment finishes.
+The root identifies prerequisites, owners, inputs, outputs, downstream consumers, exclusive writes and shared resources only as far as execution needs. It starts ready work on the path that controls total completion time and runs independent work alongside it. Small relevant preflight checks reduce avoidable rebuilds without creating a mandatory serial barrier for unrelated components. Completion of one assignment can release its dependent work before every other assignment finishes.
 
 Concurrency follows actual process dependencies, CPU, memory, disk, network and cache locks. Separate caches or execution environments are chosen by their expected waiting reduction and preparation or duplicate-compilation cost. Already-running builds and checks are not duplicated. Fixed inputs and reusable evidence follow their owning contracts; changes invalidate affected outputs rather than automatically repeating every completed stage.
+
+Before expensive execution, the root confirms the downstream consumer’s required inputs, settings, environment, paths and validation conditions. Preflight outputs may be reused when their identity and coverage meet the final consumer’s contract; reuse is optional and must not make a small diagnostic unnecessarily expensive. Preparation cost is weighed against early failure detection. Fixed-input and reuse details remain with the implementation build-input reference.
+
+Verification dependencies, data, fixtures, services and installation/browser/desktop environments that do not require the final output are prepared in parallel within existing authority. A small real execution checks readiness; environment readiness is distinct from final product acceptance.
 
 ## Waiting, intervention and acceptance
 
 The root works independently while workers execute, then waits on completion events when no useful ready work remains. It avoids repeated messages, status calls and indirect file/log/process polling. A reasonable expected duration or first-check point can be set without pretending that an uncertain completion time is guaranteed.
 
-Targeted checks and intervention are permitted for changed user requirements, confirmed contract errors, data-loss risk, a predefined check point or time limit, newly reported execution failures or resource conflicts, and evidenced suspicion of a missing completion signal. Corrections go to the existing owner as a consolidated delta. Slow work alone does not justify duplicate assignments.
+Workers distinguish overall completion from readiness of an output that will remain unchanged while downstream work consumes it. Readiness reports include the fixed output identity, satisfied consumer conditions and remaining checks; path existence or partial file output is insufficient. Ordinary progress/readiness messages do not wake a parked root. When the current runtime/provider supports stage completion events, the root waits only on stages required by the next action, observes the `all_terminal` contract, and checks result state after resuming. Source implementation does not establish installed capability. The parent does not mark the overall assignment complete merely to wake a dependent action.
+
+Targeted checks and intervention are permitted for changed user requirements, confirmed contract errors, data-loss risk, a predefined check point or time limit, newly reported execution failures or resource conflicts, and evidenced suspicion of a missing completion signal. Failures or changed prerequisites trigger reassessment of their effect on total completion and the remaining sequence. Corrections go to the existing owner as a consolidated delta. Slow work alone does not justify duplicate assignments.
 
 Completion reports identify actual scope, inputs and outputs, exit codes, log locations and unverified items. The root reuses sufficient evidence, verifies gaps or new integration risks, and reports completion only after all success criteria, mandatory checks and cleanup are satisfied. Product performance improvement is not established by instruction transport tests.
+
+For long-running or connected assignments, existing logs and work records retain concise start/end times, dependency/resource waiting reasons and rerun causes. Performance is assessed by total elapsed time and reduced waiting/rework, not summed overlapping durations. Estimates are separate from measured improvements. Small edits require no detailed schedule, separate timing document or repeated polling for measurement.
 
 Root deferral and its provider/tool availability follow [root resume scheduling](root-resume.md). Instruction distribution follows [instruction ownership](instructions.md).
