@@ -60,10 +60,10 @@ function Set-AccountMenuEntry {
     $asset = Join-Path $Destination $menuScriptRelativePath
     $menuMarkerPath = Join-Path $Destination '.azrael-profile-menu.json'
     $original = 'children:[Y,Q,null,Bn,qn,Jn,Zn,null,null,null,Qn,$n]'
-    $replacement = 'children:[Y,Q,null,(0,$.jsx)(L,{leftIconAsset:ne,onClick:()=>{s(),yt.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.usage`})},children:`계정 및 사용량`}),(0,$.jsx)(L,{leftIconAsset:ne,onClick:()=>{s(),yt.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.rootResume`})},children:`루트 재개 예약`}),Bn,qn,Jn,Zn,null,null,null,Qn,$n]'
+    $replacement = 'children:[Y,Q,null,(0,$.jsx)(L,{leftIconAsset:ne,onClick:()=>{s(),yt.dispatchMessage(`open-vscode-command`,{command:`azrael-ex.usage`})},children:`계정 및 사용량`}),Bn,qn,Jn,Zn,null,null,null,Qn,$n]'
     if (Test-Path -LiteralPath $menuMarkerPath) {
         $menuMarker = Get-Content -LiteralPath $menuMarkerPath -Raw | ConvertFrom-Json -AsHashtable
-        if ($menuMarker['schema'] -ne 6 -or $menuMarker['sourceSha256'] -cne $menuSourceHash) {
+        if ($menuMarker['schema'] -ne 7 -or $menuMarker['sourceSha256'] -cne $menuSourceHash) {
             throw 'Unknown profile menu patch marker.'
         }
         Assert-Hash -Path $asset -Expected $menuMarker['patchedSha256'] -Description 'Account menu webview'
@@ -82,11 +82,10 @@ function Set-AccountMenuEntry {
     }
     [IO.File]::WriteAllText($asset, $text.Replace($needle, $replacement), [Text.UTF8Encoding]::new($false))
     [ordered]@{
-        schema = 6
+        schema = 7
         sourceSha256 = $menuSourceHash
         patchedSha256 = Get-Sha256 -Path $asset
         command = 'azrael-ex.usage'
-        rootResumeCommand = 'azrael-ex.rootResume'
     } | ConvertTo-Json | Set-Content -LiteralPath $menuMarkerPath -Encoding utf8NoBOM
 }
 

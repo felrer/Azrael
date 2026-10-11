@@ -8,7 +8,7 @@ const test = require("node:test");
 const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434");
 
-test("production profile menu patch binds both commands to the real component despite local N boolean", () => {
+test("production profile menu keeps account usage bound to the real component and omits root resume", () => {
   const verificationRoot = path.resolve(__dirname, "../artifacts/verification");
   fs.mkdirSync(verificationRoot, { recursive: true });
   const fixture = fs.mkdtempSync(path.join(verificationRoot, "profile-menu-render-"));
@@ -47,7 +47,10 @@ test("production profile menu patch binds both commands to the real component de
     const relative = run.stdout.trim();
     const originalFilename = path.resolve(root, relative), transformed = fs.readFileSync(path.join(fixture, relative), "utf8");
     const marker = JSON.parse(fs.readFileSync(path.join(fixture, ".azrael-profile-menu.json"), "utf8"));
-    assert.equal(marker.schema, 6);
+    assert.equal(marker.schema, 7);
+    assert.equal(marker.rootResumeCommand, undefined);
+    assert(!transformed.includes("루트 재개 예약"));
+    assert(!transformed.includes("azrael-ex.rootResume"));
     // Resolve only the menu and its component owner. Loading the owner's whole
     // UI graph adds no evidence about this import's lexical binding.
     const compilerOptions = { allowJs: true, noLib: true, noEmit: true, target: ts.ScriptTarget.Latest, module: ts.ModuleKind.ESNext };
@@ -77,7 +80,7 @@ test("production profile menu patch binds both commands to the real component de
       ts.forEachChild(node, visit);
     };
     visit(source);
-    assert.equal(calls.length, 2);
+    assert.equal(calls.length, 1);
     const commands = [];
     const menuItem = () => {};
     for (const call of calls) {
@@ -104,7 +107,7 @@ test("production profile menu patch binds both commands to the real component de
         rendered.props.onClick();
       }
     }
-    assert.deepEqual(commands, ["azrael-ex.usage", "azrael-ex.usage", "azrael-ex.rootResume", "azrael-ex.rootResume"]);
+    assert.deepEqual(commands, ["azrael-ex.usage", "azrael-ex.usage"]);
   } finally {
     const resolved = fs.realpathSync(fixture), owner = fs.realpathSync(verificationRoot);
     assert(resolved.startsWith(owner + path.sep) && path.basename(resolved).startsWith("profile-menu-render-"), "Unsafe fixture cleanup path");

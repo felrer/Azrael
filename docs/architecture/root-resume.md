@@ -64,7 +64,7 @@ The recent-chat row and header progress indicator remain active while the latest
 
 ### Reservation management
 
-The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
+The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. The page remains available through the command palette; the account profile menu does not expose it. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
 
 ### Waiting agents and manual resume
 

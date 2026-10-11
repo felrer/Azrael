@@ -215,8 +215,10 @@ const webviewAssets = [];
 for (const entry of hs.readdirSync(path.join(hostRoot, "webview", "assets"))) {
   if (entry.endsWith(".js")) webviewAssets.push(hs.readFileSync(path.join(hostRoot, "webview", "assets", entry), "utf8"));
 }
-const menuAsset = webviewAssets.find((text) => text.includes("계정 및 사용량") && text.includes("루트 재개 예약"));
-assert(menuAsset, "host webview omitted the integrated profile menu entries");
+const menuAsset = webviewAssets.find((text) => text.includes('children:`계정 및 사용량`'));
+assert(menuAsset, "host webview omitted the integrated account profile menu entry");
+assert(!menuAsset.includes("루트 재개 예약"), "host profile menu retained the root resume entry");
+assert(!menuAsset.includes("azrael.rootResume"), "host profile menu retained the root resume command");
 function evaluateMenuClick(label, expectedCommand) {
   const escapedLabel = label.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const pattern = 'onClick:\\(\\)=>\\{([A-Za-z_$][\\w$]*)\\(\\),([A-Za-z_$][\\w$]*)\\.dispatchMessage\\(`open-vscode-command`,\\{command:`([^`]+)`\\}\\)\\},children:`' + escapedLabel + '`';
@@ -241,7 +243,6 @@ for (const command of ["azrael.manageAccounts", "azrael.devinAccount"]) {
     `host command palette exposed duplicate page command ${command}`);
 }
 evaluateMenuClick("계정 및 사용량", "azrael.usage");
-evaluateMenuClick("루트 재개 예약", "azrael.rootResume");
 
 const originalLiterals = inspectStringLiterals(originalBundle, "original-extension.js");
 const hostLiterals = inspectStringLiterals(hostBundle, "azrael-extension.js");
