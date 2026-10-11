@@ -202,14 +202,15 @@ impl AccountRequestProcessor {
                 .windows
                 .iter()
                 .all(|window| window.reset.is_some_and(|reset| reset > now));
-            if future && !record.confirm_started(&observation) {
+            let started = record.confirm_started(&observation);
+            if future && !started && record.needs_start_check(&observation) {
                 record.schedule.status = Status::Checking;
                 record.schedule.next_run_at = Some(now + 15);
                 record.suspected_slots.clear();
                 record.observation = observation;
                 return store.save(record).map_err(reservation_error);
             }
-            record.schedule.status = if future {
+            record.schedule.status = if future && started {
                 Status::Started
             } else {
                 Status::Unconfirmed

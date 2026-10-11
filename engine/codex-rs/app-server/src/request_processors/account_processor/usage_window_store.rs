@@ -16,6 +16,8 @@ use std::path::Path;
 use std::path::PathBuf;
 
 pub(super) const GRACE_SECONDS: i64 = 45;
+const POLICY_VERSION: u32 = 1;
+const CHECK_SECONDS: i64 = 15;
 
 #[derive(Clone, Debug, Default, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
@@ -36,6 +38,10 @@ pub(super) struct Window {
 #[derive(Clone, Debug, Deserialize, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub(super) struct Record {
+    #[serde(default)]
+    policy_version: u32,
+    #[serde(skip)]
+    owner_changed: bool,
     // Old records have no provenance: their saved enabled value is authoritative.
     #[serde(default)]
     choice: Choice,
@@ -67,6 +73,7 @@ impl Store {
         let snapshot = Self::snapshot(root, profile)?;
         if let Some(record) = &snapshot
             && !record.needs_default(profile)
+            && !record.needs_repair()
         {
             return Ok(record.clone());
         }
@@ -121,7 +128,11 @@ impl Store {
     }
 
     pub(super) fn load(&self, profile: &AzraelProfileInfo) -> io::Result<Option<Record>> {
-        Self::read_record(&self.path, profile)
+        let mut record = Self::read_record(&self.path, profile)?;
+        if let Some(record) = &mut record {
+            record.repair(chrono::Utc::now().timestamp());
+        }
+        Ok(record)
     }
 
     fn read_record(path: &Path, profile: &AzraelProfileInfo) -> io::Result<Option<Record>> {
@@ -154,6 +165,7 @@ impl Store {
             ));
         }
         // A surviving alias can own the same account reservation after a profile is removed.
+        record.owner_changed = record.schedule.profile_id != profile.id;
         record.schedule.profile_id.clone_from(&profile.id);
         Ok(Some(record))
     }
@@ -178,6 +190,8 @@ impl Record {
 
     fn pending(profile: &AzraelProfileInfo) -> Self {
         Self {
+            policy_version: POLICY_VERSION,
+            owner_changed: false,
             choice: Choice::DefaultPolicy,
             schedule: AzraelUsageWindowSchedule {
                 profile_id: profile.id.clone(),
@@ -203,6 +217,44 @@ impl Record {
         self.choice == Choice::DefaultPolicy
             && !self.schedule.enabled
             && Self::confirmed_paid(profile)
+    }
+
+    fn needs_repair(&self) -> bool {
+        self.policy_version < POLICY_VERSION || self.owner_changed
+    }
+
+    fn repair(&mut self, now: i64) {
+        if !self.needs_repair() {
+            return;
+        }
+        // Repair only the query reservation. Consent and uncertain request guards survive.
+        if self.schedule.enabled
+            && !matches!(
+                self.schedule.status,
+                AzraelUsageWindowStatus::Checking | AzraelUsageWindowStatus::Confirming
+            )
+        {
+            self.schedule.status = AzraelUsageWindowStatus::Scheduled;
+            self.schedule.next_run_at = Some(now);
+            self.schedule.basis_reset_at = None;
+        }
+        self.policy_version = POLICY_VERSION;
+        self.owner_changed = false;
+    }
+
+    pub(super) fn needs_start_check(&self, observation: &Observation) -> bool {
+        observation.windows.iter().any(|window| {
+            window.used == 0
+                && self.attempt_until[window.slot] <= observation.observed_at
+                && !(window
+                    .reset
+                    .is_some_and(|reset| reset > observation.observed_at)
+                    && self.observation.windows.iter().any(|prior| {
+                        prior.slot == window.slot
+                            && prior.reset == window.reset
+                            && observation.observed_at - self.observation.observed_at >= 10
+                    }))
+        })
     }
 
     pub(super) fn confirmed_paid(profile: &AzraelProfileInfo) -> bool {
@@ -329,6 +381,18 @@ impl Record {
         {
             return;
         }
+        if self.schedule.enabled && self.needs_start_check(&observation) {
+            let check_at = observation.observed_at + CHECK_SECONDS;
+            self.schedule.next_run_at = Some(
+                self.schedule
+                    .next_run_at
+                    .map_or(check_at, |at| at.min(check_at)),
+            );
+            self.schedule.basis_reset_at = None;
+            self.schedule.status = AzraelUsageWindowStatus::Scheduled;
+            self.observation = observation;
+            return;
+        }
         let candidate = observation
             .windows
             .iter()
@@ -350,6 +414,21 @@ impl Record {
             if self.schedule.next_run_at.is_some() {
                 self.schedule.status = AzraelUsageWindowStatus::Scheduled;
             }
+        }
+        // A guarded, unconfirmed window may report a missing or sliding reset.
+        // Wake for a new read when its guard expires instead of polling indefinitely.
+        if self.schedule.enabled
+            && let Some(guard_at) = observation
+                .windows
+                .iter()
+                .map(|window| self.attempt_until[window.slot])
+                .filter(|at| *at > observation.observed_at)
+                .min()
+            && self.schedule.next_run_at.is_none_or(|at| guard_at < at)
+        {
+            self.schedule.next_run_at = Some(guard_at);
+            self.schedule.basis_reset_at = None;
+            self.schedule.status = AzraelUsageWindowStatus::Scheduled;
         }
         self.observation = observation;
     }
