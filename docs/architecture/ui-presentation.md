@@ -82,21 +82,25 @@ Window Use consent reuses the native in-conversation elicitation card with the a
 
 ## Design settings
 
-Status: `current` in source — native settings presentation and single-photo random preview.
+Status: `current` in source — custom photo sets and single-photo random preview verified on Windows with host tests and native light/dark rendering; packaging, installed-profile and Linux/macOS acceptance pending.
 
-The production component was rendered with the pinned native modules and styles in a local browser fixture in light and dark themes. Toggle, random draw, empty roster, retry and unavailable-photo interactions passed. Packaging and installed-profile verification were intentionally omitted for this change.
+Presentation acceptance uses the production component and pinned native modules/styles with a synthetic host in light and dark themes. Source tests and browser fixtures do not establish packaged or installed-profile acceptance.
 
-The Design page has a native settings row for using student photos on newly created subagents. Its switch defaults to off for unset preferences and persists changes through the existing host-owned student service. Turning it on affects future authoritative subagent creation events; previous photo assignments and recorded off decisions remain stable when toggling or reopening the page.
+The Design page has a native **Use custom photos for new subagents** settings row. Its switch defaults to off for unset preferences and persists changes through the host-owned photo service. Turning it on affects future authoritative subagent creation events; previous photo assignments and recorded off decisions remain stable when toggling or reopening the page.
 
 The chat and input font row uses the native segmented control to select `OpenAI default` or `Gyeonggi + Consolas` together for message text and the composer. Unset and existing preferences default to `gyeonggi-consolas`; `openai` restores the pinned UI's native content, composer and code typography and normal word spacing. The host stores `chatFont` alongside student preferences, serializes changes and broadcasts confirmed snapshots to open webviews. Failed saves retain the previous font and expose the existing retry/error state. Native bridge initialization subscribes even when no settings page or subagent avatar renders, so reopening a chat restores its saved font. Other dynamic labels retain their existing typography.
 
 The host observes `item/completed` notifications for both `subAgentActivity` with `kind: started` (v2 creation) and successful `collabAgentToolCall` with `tool: spawnAgent`. Both paths use the same per-thread saved decision, so duplicate notifications do not redraw a photo. Later activity and history reads do not allocate photos.
 
-The preview shows one randomly selected student photo and its English name, with a button to draw another. Each side of the photo box is one third of the native `size-20` box, using the same spacing token; image alternative text also uses the English name. Preview is available while the switch is off and does not change saved preferences or subagent assignments. Loading, save failure and unavailable-photo states remain visible and accessible. Images use the bundled roster and local webview resource URLs.
+The Photo preview section selects the persisted image set through a native segmented control, then shows one randomly selected photo and its display name, with a button to draw another. Blue Archive is the bundled default set. Selecting a set changes future subagent assignments and the preview; existing assignments, including saved off decisions, remain stable. Each side of the photo box is one third of the native `size-20` box, using the same spacing token; image alternative text also uses the English name. Preview is available while the switch is off and does not change saved preferences or subagent assignments. Loading, save failure and unavailable-photo states remain visible and accessible. Images use bundled assets or copied user assets through local webview resource URLs.
+
+**Add image set** opens a native multi-file chooser and a set-name prompt. PNG, JPEG, WebP and GIF imports allow up to 200 regular raster files, 1 MiB each and 20 MiB total. The host checks format signatures and stores copies beneath extension global storage `subagent-photos/<set-id>/`, so source files can be moved after import. File stems supply display names. Successful import persists metadata and selects the new set. Cancellation and validation/storage failures preserve the previous selection and assignments and clear the busy state. Native dialogs do not hold the mutation queue or expire on the short bridge-response timer. There is no archive extraction or runtime network request.
+
+Snapshots carry all photos so old assignments can still render when another set is selected. Bundled photo IDs remain numeric; imported IDs include their immutable set identity. Existing preferences default to Blue Archive while preserving enabled/font values and saved decisions.
 
 ## Student avatar initialization
 
-Student subscriptions retain webview options when an existing resource root already authorizes the avatar directory. Adding a redundant descendant root reloads the webview and loses the active settings route.
+Photo subscriptions authorize the bundled avatar directory and custom storage root at initial subscription, retaining webview options when existing resource roots already cover both. Imports do not add new resource roots. Adding a redundant descendant root reloads the webview and loses the active settings route.
 
 Design preferences use one store per webview. Subscribe in a microtask after the native bridge initializes, or when the first avatar or design settings hook renders, whichever comes first. The pinned UI initializes shared dependencies lazily across cyclic module imports, so the injected module must not call bundle initialization functions during module evaluation. A webview closed before the store is used must also dispose safely.
 

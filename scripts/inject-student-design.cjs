@@ -12,7 +12,7 @@ const AVATAR = "function VSi(e){let t=(0,USi.c)(11),n,r,i,a;t[0]===e?(n=t[1],r=t
 
 // Host owns all assignments. The store only reads snapshots and sends preference changes.
 function createDesignStore(bridge, clientId, timing = globalThis) {
-  let state = { enabled: false, chatFont: "gyeonggi-consolas", students: [], assignments: {}, loading: true, saving: false, error: null };
+  let state = { enabled: false, chatFont: "gyeonggi-consolas", students: [], photoSets: [], selectedPhotoSetId: "blue-archive", assignments: {}, loading: true, saving: false, error: null };
   let timer, disposed = false;
   const listeners = new Set();
   const cancelTimer = () => { if (timer !== undefined) timing.clearTimeout(timer); timer = undefined; };
@@ -22,13 +22,13 @@ function createDesignStore(bridge, clientId, timing = globalThis) {
     cancelTimer();
     const chatFont = message.chatFont === "openai" ? "openai" : "gyeonggi-consolas";
     globalThis.document?.documentElement?.setAttribute("data-azrael-chat-font", chatFont);
-    publish({ enabled: message.enabled, chatFont, students: message.students, assignments: message.assignments, loading: false, saving: false, error: typeof message.error === "string" ? message.error : null });
+    publish({ enabled: message.enabled, chatFont, students: message.students, photoSets: message.photoSets ?? [], selectedPhotoSetId: message.selectedPhotoSetId ?? "blue-archive", assignments: message.assignments, loading: false, saving: false, error: typeof message.error === "string" ? message.error : null });
   };
   const unsubscribe = bridge.subscribe("azrael-design-state", receive);
   const send = (action, value) => {
     if (disposed && action !== "unsubscribe") return;
     cancelTimer();
-    if (action !== "unsubscribe") {
+    if (action !== "unsubscribe" && action !== "importPhotoSet") {
       timer = timing.setTimeout(() => {
         timer = undefined;
         if (!disposed) publish({ ...state, loading: false, saving: false, error: {
@@ -37,13 +37,15 @@ function createDesignStore(bridge, clientId, timing = globalThis) {
       }, 10000);
       timer?.unref?.();
     }
-    try { bridge.dispatchMessage("azrael-design", { clientId, action, ...(action === "setEnabled" ? { enabled: value } : action === "setChatFont" ? { chatFont: value } : {}) }); }
+    try { bridge.dispatchMessage("azrael-design", { clientId, action, ...(action === "setEnabled" ? { enabled: value } : action === "setChatFont" ? { chatFont: value } : action === "setPhotoSet" ? { photoSetId: value } : {}) }); }
     catch (error) { cancelTimer(); if (!disposed) publish({ ...state, loading: false, saving: false, error: String(error.message ?? error) }); }
   };
   send("subscribe");
   return { getSnapshot: () => state, subscribe: listener => { listeners.add(listener); return () => listeners.delete(listener); },
     setEnabled: enabled => { if (disposed || state.loading || state.saving) return; publish({ ...state, saving: true, error: null }); send("setEnabled", enabled); },
     setChatFont: chatFont => { if (disposed || state.loading || state.saving || !["openai", "gyeonggi-consolas"].includes(chatFont)) return; publish({ ...state, saving: true, error: null }); send("setChatFont", chatFont); },
+    setPhotoSet: photoSetId => { if (disposed || state.loading || state.saving || !state.photoSets.some(set => set.id === photoSetId)) return; publish({ ...state, saving: true, error: null }); send("setPhotoSet", photoSetId); },
+    importPhotoSet: () => { if (disposed || state.loading || state.saving) return; publish({ ...state, saving: true, error: null }); send("importPhotoSet"); },
     retry: () => { if (disposed || state.loading || state.saving) return; publish({ ...state, loading: true, error: null }); send("subscribe"); },
     dispose: () => { if (disposed) return; disposed = true; cancelTimer(); send("unsubscribe"); unsubscribe(); listeners.clear(); } };
 }
@@ -77,12 +79,13 @@ function AzraelDesignSettings() {
   const state = useAzraelDesignState();
   const [previewId, setPreviewId] = Q.useState(null);
   const [failedId, setFailedId] = Q.useState(null);
-  const student = state.students.find(item => item.id === previewId);
+  const photos = state.students.filter(item => (item.photoSetId ?? "blue-archive") === state.selectedPhotoSetId);
+  const student = photos.find(item => item.id === previewId);
   Q.useEffect(() => {
-    if (!state.loading && state.students.length && !student) setPreviewId(previous => pickStudentPreview(state.students, previous));
-  }, [state.loading, state.students, student]);
+    if (!state.loading && photos.length && !student) setPreviewId(previous => pickStudentPreview(photos, previous));
+  }, [state.loading, state.students, state.selectedPhotoSetId, student]);
   const busy = state.loading || state.saving;
-  const draw = () => setPreviewId(previous => pickStudentPreview(state.students, previous));
+  const draw = () => { setFailedId(null); setPreviewId(previous => pickStudentPreview(photos, previous)); };
   return (0, $.jsx)(kt, { title: t("Design", "디자인"), children: (0, $.jsxs)("div", {
     className: "flex flex-col gap-10", "data-azrael-design-settings": true, "aria-busy": busy, children: [
       (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
@@ -95,15 +98,26 @@ function AzraelDesignSettings() {
             { id: "gyeonggi-consolas", label: t("Gyeonggi + Consolas", "경기천년체 + Consolas"), disabled: busy }] })
       }) }),
       (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
-        label: t("Use student photos for new subagents", "새 subagent에 학생 사진 사용"),
-        description: t("Randomly assign student photos to newly created subagents. Off by default; existing photo assignments are retained.", "켜면 새로 생성되는 subagent에 학생 사진을 무작위로 배정합니다. 기본값은 꺼짐이며, 이미 배정된 사진은 유지됩니다."),
+        label: t("Use custom photos for new subagents", "새 subagent에 사용자 지정 사진 사용"),
+        description: t("Randomly assign photos from the selected image set to new subagents. Off by default; existing photo assignments are retained.", "선택한 이미지 셋에서 새 subagent의 사진을 무작위로 배정합니다. 기본값은 꺼짐이며, 이미 배정된 사진은 유지됩니다."),
         control: ariaProps => (0, $.jsx)(AzraelSwitch, { ...ariaProps, checked: state.enabled,
-          disabled: busy || state.students.length === 0, onChange: enabled => azraelDesignStore.setEnabled(enabled) })
+          disabled: busy || photos.length === 0, onChange: enabled => azraelDesignStore.setEnabled(enabled) })
       }) }),
       (0, $.jsxs)("section", { className: "flex flex-col gap-4", "aria-labelledby": "azrael-student-preview-title", children: [
         (0, $.jsxs)("div", { className: "flex flex-col gap-1", children: [
           (0, $.jsx)("h2", { id: "azrael-student-preview-title", className: "text-lg font-semibold text-default", children: t("Photo preview", "사진 미리보기") }),
-          (0, $.jsx)("p", { className: "text-sm text-secondary", children: t("Preview one random student photo at a time. The preview does not change photo assignments or settings.", "학생 사진을 한 장씩 무작위로 확인하세요. 미리보기는 사진 배정이나 설정을 바꾸지 않습니다.") })
+          (0, $.jsx)("p", { className: "text-sm text-secondary", children: t("Choose an image set for new subagents and preview its photos. Existing assignments are retained.", "새 subagent에 사용할 이미지 셋을 선택하고 사진을 미리 확인하세요. 기존 사진 배정은 유지됩니다.") })
+        ] }),
+        (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
+          label: t("Image set", "이미지 셋"),
+          control: ariaProps => (0, $.jsx)("div", { className: "max-w-full overflow-x-auto", children: (0, $.jsx)(AzraelFontChoice, {
+            ariaLabelledBy: ariaProps["aria-labelledby"], ariaLabel: t("Image set", "이미지 셋"), variant: "inset",
+            selectedId: state.selectedPhotoSetId, onSelect: value => azraelDesignStore.setPhotoSet(value),
+            options: state.photoSets.map(set => ({ id: set.id, label: set.name, disabled: busy })) }) })
+        }) }),
+        (0, $.jsxs)("div", { className: "flex flex-wrap items-center gap-3", children: [
+          (0, $.jsx)(pe, { color: "secondary", size: "default", disabled: busy, onClick: () => azraelDesignStore.importPhotoSet(), children: t("Add image set", "이미지 셋 추가") }),
+          (0, $.jsx)("p", { className: "text-sm text-secondary", children: t("Select PNG, JPEG, WebP or GIF files. Up to 200 photos, 1 MiB each and 20 MiB per set.", "PNG, JPEG, WebP 또는 GIF 파일을 선택하세요. 셋당 최대 200장, 파일당 1MiB, 총 20MiB까지 지원합니다.") })
         ] }),
         (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
           label: (0, $.jsxs)("div", { className: "flex items-center gap-4", children: [
@@ -114,9 +128,9 @@ function AzraelDesignSettings() {
                 : (0, $.jsx)("span", { className: "px-2 text-center text-xs text-secondary", children:
                   state.loading ? t("Loading…", "불러오는 중…") : student ? t("Unable to load photo", "사진을 불러오지 못했습니다") : t("No preview", "미리보기 없음") }) }),
             (0, $.jsx)("div", { className: "flex min-w-0 flex-col gap-1", "aria-live": "polite", children:
-              (0, $.jsx)("span", { className: "text-sm font-medium text-default", children: student?.nameEn ?? t("Student photo", "학생 사진") }) })
+              (0, $.jsx)("span", { className: "text-sm font-medium text-default", children: student?.nameEn ?? t("Custom photo", "사용자 지정 사진") }) })
           ] }),
-          control: () => (0, $.jsx)(pe, { color: "secondary", size: "default", disabled: state.loading || !state.students.length,
+          control: () => (0, $.jsx)(pe, { color: "secondary", size: "default", disabled: state.loading || !photos.length,
             onClick: draw, children: t("Draw again", "다시 뽑기") })
         }) })
       ] }),

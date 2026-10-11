@@ -392,7 +392,7 @@ test("v2 creation reaches the host store and avatar while duplicate and off deci
   const { StudentDesignService } = module.exports;
   let saved, picks = 0, receive;
   const pending = [];
-  const context = { extensionUri: uri(path.resolve(__dirname, "../extensions/azrael-ex")), globalState: {
+  const context = { extensionUri: uri(path.resolve(__dirname, "../extensions/azrael-ex")), globalStorageUri: uri(path.resolve(__dirname, "../artifacts/verification/design-storage")), globalState: {
     get: () => saved, update: async (_key, value) => { saved = value; },
   } };
   const service = new StudentDesignService(context, { randomInt: () => { picks++; return 0; } });
@@ -463,7 +463,7 @@ function settingsHarness(initialState, randomValues = [0]) {
     initAzraelSettingsCard: () => initializers.push("card"), initAzraelSettingsRow: () => initializers.push("row"), initAzraelSwitch: () => initializers.push("switch"),
     initAzraelFontChoice: () => initializers.push("font-choice"),
     useAzraelDesignState: () => state,
-    azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), setChatFont: value => calls.push(["setChatFont", value]), retry: () => calls.push(["retry"]) },
+    azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), setChatFont: value => calls.push(["setChatFont", value]), setPhotoSet: value => calls.push(["setPhotoSet", value]), importPhotoSet: () => calls.push(["importPhotoSet"]), retry: () => calls.push(["retry"]) },
   });
   const render = () => {
     let tree, passes = 0;
@@ -484,16 +484,52 @@ function findNode(tree, predicate) {
 }
 function settingsControls(h, tree) {
   const rows = treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsRow);
-  assert.equal(rows.length, 3);
+  assert.equal(rows.length, 4);
   return { font: rows[0].props.control({ "aria-labelledby": "font-label" }),
     toggle: rows[1].props.control({ "aria-labelledby": "native-label", "aria-describedby": "native-description", id: "native-control" }),
-    draw: rows[2].props.control({}), rows: rows.slice(1) };
+    imageSet: rows[2].props.control({ "aria-labelledby": "image-set-label" }).props.children,
+    draw: rows[3].props.control({}), rows: rows.slice(1) };
 }
 const previewStudents = [
   { id: "a", nameKo: "학생 가", nameEn: "Student A", url: "local-a" },
   { id: "b", nameKo: "학생 나", nameEn: "Student B", url: "local-b" },
 ];
-const loadedDesignState = () => ({ enabled: false, chatFont: "gyeonggi-consolas", loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+const loadedDesignState = () => ({ enabled: false, chatFont: "gyeonggi-consolas", selectedPhotoSetId: "blue-archive", photoSets: [{ id: "blue-archive", name: "Blue Archive", count: 2 }], loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+
+test("photo set changes use confirmed snapshots and native dialogs do not expire while open", () => {
+  const timers = [];
+  const h = harness({ setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {} });
+  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Blue Archive" }, { id: "custom", name: "Characters" }] };
+  h.receive({ clientId: "client", ...base });
+  h.store.setPhotoSet("missing"); assert.equal(h.sent.length, 1);
+  h.store.setPhotoSet("custom");
+  assert.equal(h.store.getSnapshot().selectedPhotoSetId, "blue-archive");
+  assert.deepEqual(h.sent.at(-1), { type: "azrael-design", clientId: "client", action: "setPhotoSet", photoSetId: "custom" });
+  h.receive({ clientId: "client", ...base, error: "Save failed" });
+  assert.equal(h.store.getSnapshot().selectedPhotoSetId, "blue-archive");
+  const timerCount = timers.length;
+  h.store.importPhotoSet(); assert.equal(timers.length, timerCount);
+  assert.equal(h.store.getSnapshot().saving, true); assert.equal(h.sent.at(-1).action, "importPhotoSet");
+  h.receive({ clientId: "client", ...base }); assert.equal(h.store.getSnapshot().saving, false);
+  h.store.dispose();
+});
+
+test("selected set scopes preview while existing avatar assignments retain all photos", () => {
+  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Blue Archive" }, { id: "custom", name: "Characters" }],
+    students: [...previewStudents, { id: "custom:cat", photoSetId: "custom", nameEn: "Cat", url: "local-cat" }] };
+  const h = settingsHarness(base);
+  let tree = h.render(); assert.notEqual(findNode(tree, n => n.type === "img").props.src, "local-cat");
+  const choice = settingsControls(h, tree).imageSet;
+  assert.equal(choice.type, h.native.AzraelFontChoice); assert.equal(choice.props.ariaLabelledBy, "image-set-label");
+  choice.props.onSelect("custom"); assert.deepEqual(h.calls, [["setPhotoSet", "custom"]]);
+  tree = h.update({ ...base, selectedPhotoSetId: "custom" });
+  assert.equal(findNode(tree, n => n.type === "img").props.src, "local-cat");
+  settingsControls(h, tree).draw.props.onClick(); tree = h.render();
+  assert.equal(findNode(tree, n => n.type === "img").props.src, "local-cat");
+  findNode(tree, n => n.props?.children === "이미지 셋 추가").props.onClick();
+  assert.deepEqual(h.calls.at(-1), ["importPhotoSet"]);
+  assert.equal(base.assignments.existing, "a");
+});
 
 test("font choice uses native segmented control, translated labels and saving lock", () => {
   const h = settingsHarness(loadedDesignState());
@@ -540,7 +576,7 @@ test("live locale switch retranslates timeout, loading, empty and controls witho
   const snapshot = bridge.store.getSnapshot(), sent = bridge.sent.length, h = settingsHarness(snapshot, [0, .99]);
   let tree = h.setLocale("en-US");
   assert.equal(tree.props.title, "Design");
-  assert.equal(settingsControls(h, tree).rows[0].props.label, "Use student photos for new subagents");
+  assert.equal(settingsControls(h, tree).rows[0].props.label, "Use custom photos for new subagents");
   assert.equal(settingsControls(h, tree).draw.props.children, "Draw again");
   assert.match(findNode(tree, n => n.props?.role === "alert").props.children[0].props.children, /Select Reload/);
   settingsControls(h, tree).draw.props.onClick(); tree = h.render();
@@ -568,7 +604,7 @@ test("settings uses native page/card/row/switch/button and controlled boolean to
   const base = loadedDesignState(), h = settingsHarness({ ...base, loading: true });
   let tree = h.render(), controls = settingsControls(h, tree);
   assert.equal(tree.type, h.native.kt); assert.equal(tree.props.title, "디자인");
-  assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 3);
+  assert.equal(treeNodes(tree).filter(node => node.type === h.native.AzraelSettingsCard).length, 4);
   assert.equal(treeNodes(tree).some(node => node.type === "input"), false);
   assert.equal(controls.toggle.type, h.native.AzraelSwitch);
   assert.equal(controls.toggle.props.checked, false); assert.equal(controls.toggle.props.disabled, true);
