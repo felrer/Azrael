@@ -11,14 +11,15 @@ const waitHelpers = require("./root-resume-wait.cjs");
 
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const inputs = [
-  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 11],
-  [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 9],
+  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 14],
+  [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 10],
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
   [patch.DEFERRED_THREAD_ASSET, patch.injectDeferredThread, 8],
   [patch.DEFERRED_TURN_ASSET, patch.injectDeferredTurnView, 3],
   [patch.DEFERRED_COLLAPSED_ASSET, patch.injectDeferredCollapsed, 2],
   [patch.DEFERRED_NOTIFICATION_ASSET, patch.injectDeferredRendererNotification, 1],
+  [patch.DEFERRED_HEADER_ASSET, patch.injectDeferredHeader, 1],
 ].map(([asset, inject, count]) => {
   const file = path.join(root, asset);
   const source = rewriteJavaScript(fs.readFileSync(file, "utf8"), file, ts).text;
@@ -26,6 +27,39 @@ const inputs = [
 });
 
 const astCache = new Map();
+test("pending root resume is display-only and ends on terminal reservation or turn", () => {
+  const pending = waitHelpers.azraelIsRootResumePending;
+  const header = xm.runInNewContext(`(${functionNamed(inputs.at(-1).result.text, "kn")})`, {
+    a: e => e.nativeRunning === true, azraelIsRootResumePending: pending, azraelLatestTurn: e => e.turns?.at(-1),
+  });
+  for (const status of ["inProgress", "deferred", "completed", "interrupted", "failed"])
+    for (const state of ["preparing", "waiting", "claimed", "resumed", "cancelled", "blocked"]) {
+      const expected = ["inProgress", "deferred"].includes(status) && ["waiting", "claimed"].includes(state);
+      assert.equal(pending({ status, rootResumeWait: { state } }), expected, status + ":" + state);
+      assert.equal(header({ turns: [{ status, rootResumeWait: { state } }] }), expected);
+    }
+  assert.equal(pending(null), false);
+  assert.equal(pending({ status: "deferred" }), false);
+  assert.equal(header({ nativeRunning: true }), true);
+  const listState = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Pbn")})`, {
+    rQ: e => e.turns.at(-1), uQ: () => null, __n: e => e.turns.length, T_n: () => null,
+    azraelIsRootResumePending: pending,
+  });
+  const project = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "F_n")})`, {
+    aQ: e => e.turns.at(-1), rQ: e => e.turns.at(-1), gQ: () => false,
+  });
+  const turn = { status: "deferred", turnId: "origin", rootResumeWait: { state: "waiting" } };
+  const conversation = { turns: [turn], requests: [] };
+  const summary = listState(conversation);
+  assert.equal(summary.isRootResumePending, true);
+  const view = project(conversation, summary, null);
+  assert.equal(view.isRootResumePending, true);
+  assert.equal(view.isResponseInProgress, false);
+  assert.equal(view.isConversationInProgress, false);
+  turn.rootResumeWait.state = "cancelled";
+  assert.equal(listState(conversation).isRootResumePending, false);
+  assert.ok(inputs[0].result.text.includes("e.isRootResumePending===t.isRootResumePending"));
+});
 function sourceAst(source) {
   if (!astCache.has(source)) astCache.set(source, ts.createSourceFile("fixture.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS));
   return astCache.get(source);

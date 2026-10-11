@@ -13,11 +13,12 @@ const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/ses
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
+const {injectDeferredPresentation,injectDeferredHeader}=require('./inject-deferred-turn.cjs');
 const headerName=ASSET.split('/').at(-1),rowsName='app-initial-c014f9ee4429.js';
-const original=await readFile(join(assets,headerName),'utf8'),header=injectSessionFlags(original,ASSET).text;
+const original=await readFile(join(assets,headerName),'utf8'),header=injectSessionFlags(injectDeferredHeader(original).text,ASSET).text;
 assert.equal(header.split('(0,Z.jsx)(azraelFlaggedSessionRow,{').length-1,2);
 assert.equal(injectSessionFlags(header,ASSET).text,header);
-const rows=await readFile(join(assets,rowsName),'utf8'),file=ts.createSourceFile('rows.js',rows,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+const rows=injectDeferredPresentation(await readFile(join(assets,rowsName),'utf8')).text,file=ts.createSourceFile('rows.js',rows,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
 const owner=file.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='Gjr');assert(owner);
 // Adapt only external host state, navigation and archive services. Keep Gjr's
 // render body, native rQ/Bkr markup, archive confirmation, and production helper.
@@ -28,7 +29,7 @@ for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)
 render=render.replace('function Gjr(','function fixtureGjr(');
 const rowAdapter=`
 const fixture_ta=()=>({get:()=>false}),fixture_K=()=>false,fixture_le=()=>({formatMessage:({defaultMessage})=>defaultMessage}),fixture_VC=()=>null,fixture_Ajr=()=>null,fixture_Gqn=()=>false;
-const fixture_J=(atom,key)=>atom===Yj?'idle':atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
+const fixture_J=(atom,key)=>atom===Yj?'idle':atom===Ap?{summary:{hasUnreadTurn:false},isRootResumePending:window.fixturePending}:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
 const fixture_Rjr=()=> 'local';
 const fixture_n2n=()=>()=>{},fixture_M4t=()=>{},fixture_j4t=()=>null;
 const fixture_cIe=(_store,id,host)=>{window.fixtureEvents.push({type:'navigate',id,host});return true};
@@ -36,13 +37,24 @@ const fixture_s2n=async(_store,{conversationId,hostId})=>{window.fixtureEvents.p
 ${render}
 export {fixtureGjr,Yjr as fixtureInitRow,a3e as fixtureInitPreferences};
 `;
+// Render the native recent-chat trigger; adapt its host/query hooks only.
+const headerTree=ts.createSourceFile('header.js',header,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
+const triggerOwner=headerTree.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='On');assert(triggerOwner);
+let trigger=triggerOwner.getText(headerTree),triggerEdits=[];
+const triggerAdapters=new Set(['i','se','p','l','z','mt','Ve','te','un','nt','le','vn']);
+function visitTrigger(n){if(ts.isIdentifier(n)&&triggerAdapters.has(n.text)&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))triggerEdits.push({start:n.getStart(headerTree)-triggerOwner.getStart(headerTree),end:n.end-triggerOwner.getStart(headerTree),text:'fixture_header_'+n.text});ts.forEachChild(n,visitTrigger)}visitTrigger(triggerOwner);
+for(const e of triggerEdits.sort((a,b)=>b.start-a.start))trigger=trigger.slice(0,e.start)+e.text+trigger.slice(e.end);
+trigger=trigger.replace('function On(','function FixtureTrigger(');
 const headerAdapter=`
 import {fixtureGjr,fixtureInitRow,fixtureInitPreferences} from './${rowsName}';
 import {Clt as FixtureScope,Hbt as FixtureIntlContext,fixtureInitScope} from './app-initial-97d3534ad35f.js';
 const FixtureReact=v();window.fixtureEvents=[];window.fixtureHost='local';window.fixtureOpen=true;
-function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return window.fixtureOpen?(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})}):null}
+window.fixturePending=false;
+const fixture_header_i=()=>({formatMessage:({defaultMessage},values)=>values?'Count: '+values.count:defaultMessage}),fixture_header_se=()=>({authMethod:'chatgpt'}),fixture_header_p=()=>({pathname:'/local/session'}),fixture_header_l=()=>false,fixture_header_z=()=>({data:[{id:'same-id',turns:window.fixturePending?[{status:'deferred',rootResumeWait:{state:'waiting'}}]:[],resumeState:'ready'}]}),fixture_header_mt=()=>false,fixture_header_Ve=f=>f,fixture_header_te=()=>({data:[]}),fixture_header_un=()=>true,fixture_header_nt=()=>false,fixture_header_le=props=>props.triggerButton,fixture_header_vn=()=>null;
+${trigger}
+function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null]})}
 let fixtureInitialized=false;
-function Fixture(){Dn();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
+function Fixture(){Pn();Dn();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
 export {Fixture};
 `;
 // Helper is copied verbatim by injectSessionFlags. Only the native imported row
@@ -54,7 +66,7 @@ const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8">
 const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,headerName)?servedHeader:pathname===join(assets,rowsName)?rows+rowAdapter:await readFile(pathname);if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Pinned native React, CSS, Gjr/rQ/Bkr rows and verbatim production session flag helper; fixture-only host/query/localization services. No installed VS Code or real session mutation.',inputSha256:createHash('sha256').update(header).update(rows).digest('hex'),checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Pinned native React, CSS, Gjr/rQ/Bkr rows, On recent-chat trigger with production kn predicate and verbatim session flag helper; fixture-only host/query/localization services. No installed VS Code or real session mutation.',inputSha256:createHash('sha256').update(header).update(rows).digest('hex'),checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -76,6 +88,17 @@ try{
  const active=()=>evaluate('document.querySelector('+JSON.stringify(flag)+').getAttribute("aria-pressed")==="true"');
  const shot=async name=>{const path=join(logs,name+'.png');const clip=name==='light-flagged'?await evaluate('(()=>{const r=document.querySelector("main").getBoundingClientRect(),row=document.querySelector("[role=button]").getBoundingClientRect();return {x:r.x,y:r.y,width:r.width,height:Math.ceil(row.bottom-r.y+32),scale:1}})()'):undefined;await writeFile(path,Buffer.from((await send('Page.captureScreenshot',{format:'png',...(clip?{clip}:{})})).data,'base64'));summary.screenshots??=[];summary.screenshots.push(path);if(clip){summary.screenshotClips??={};summary.screenshotClips[name]=clip}};
  const noActions=()=>evaluate('fixtureEvents.every(e=>!["archive","navigate","archive-success"].includes(e.type))');
+ for(const theme of ['light','dark']){
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme)+';fixturePending=true;fixtureRerender()');
+  const spinning=scope=>evaluate(`Array.from(document.querySelectorAll('${scope} *')).some(e=>getComputedStyle(e).animationName!=='none')`);
+  await wait("document.querySelector('[data-fixture-trigger] [aria-live]').textContent==='Count: 1'");
+  check(theme+' pending reservation spins native recent-chat row',await spinning('[data-fixture-row]'));
+  check(theme+' pending reservation spins native header trigger',await spinning('[data-fixture-trigger]'));
+  await shot(theme+'-deferred-indicators');
+  await evaluate('fixturePending=false;fixtureRerender()');
+  await wait("document.querySelector('[data-fixture-trigger] [aria-live]').textContent==='Count: 0'");
+  check(theme+' ended wait removes native row and header spinners',!(await spinning('[data-fixture-row]'))&&!(await spinning('[data-fixture-trigger]')));
+ }
  for(const theme of ['light','dark']){
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));await leave();
   check(theme+' inactive hidden until row hover/focus',await evaluate('getComputedStyle(document.querySelector('+JSON.stringify(flag)+')).opacity==="0"'));

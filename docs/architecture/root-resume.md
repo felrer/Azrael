@@ -48,6 +48,14 @@ The engine owns the boundary and duration. It captures the first durable waiting
 
 ## User interface
 
+### Recent-chat waiting indicators
+
+Status: `current` in source — native rows and header trigger verified in light/dark on Windows; packaging and installation pending.
+
+The recent-chat row and header progress indicator remain active while the latest turn is waiting for root resume or its reservation is claimed for resume processing. This is a presentation state shared across platforms: the native deferred turn, frozen work duration and composer input behavior keep their existing meaning. Resumed, cancelled and blocked reservations, and completed, interrupted or failed turns, do not retain this waiting indicator. Normal running work keeps the native progress presentation.
+
+### Reservation management
+
 The integrated extension shows pending reservations, local resume times, selected child conditions, reason and blocked conditions on the **루트 재개 예약** page (`azrael.rootResume`), with resume-now and cancel actions. Countdowns and refreshes use engine events and ordinary UI timers, never model requests. The management bridge exposes the bounded `azrael/rootResume` list/resume/cancel contract; mutations carry reservation ID and revision.
 
 ### Waiting agents and manual resume

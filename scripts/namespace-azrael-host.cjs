@@ -27,7 +27,7 @@ const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET, injectContentFonts } = requ
 const { getContentFontRules, copyContentFontAssets } = require("./content-fonts.cjs");
 const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContextControls } = require("./inject-provider-context.cjs");
 const { runProviderContext } = require("./provider-context-labels.cjs");
-const { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
+const { DEFERRED_HEADER_ASSET, injectDeferredHeader, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification } = require("./inject-deferred-turn.cjs");
 const { WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, injectWorkSegmentFolding, injectWorkSegmentWaiting } = require("./inject-work-segment-folding.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
@@ -348,7 +348,8 @@ function transformAsset(source, relativePath, filename, ts) {
     relativePath === DEFERRED_WAIT_RENDERER_ASSET ? injectDeferredWaitRenderer(recovered.text) :
     relativePath === DEFERRED_THREAD_ASSET ? injectDeferredThread(recovered.text) :
     relativePath === DEFERRED_TURN_ASSET ? injectDeferredTurnView(recovered.text) :
-    relativePath === DEFERRED_COLLAPSED_ASSET ? injectDeferredCollapsed(recovered.text) : { text: recovered.text, count: 0 };
+    relativePath === DEFERRED_COLLAPSED_ASSET ? injectDeferredCollapsed(recovered.text) :
+    relativePath === DEFERRED_HEADER_ASSET ? injectDeferredHeader(recovered.text) : { text: recovered.text, count: 0 };
   const workSegmentFolding = relativePath === WORK_SEGMENT_FOLDING_ASSET ? injectWorkSegmentFolding(deferred.text) :
     relativePath === WORK_SEGMENT_FOLDING_ACTIVITY_ASSET ? injectWorkSegmentWaiting(deferred.text) : { text: deferred.text, count: 0 };
   const compactionProgress = relativePath === COMPACTION_PROGRESS_REDUCER_ASSET ?
@@ -712,7 +713,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.queueRefreshNativeChecks, 0) !== 1) {
     throw new Error("Native queue-refresh validation was incomplete.");
   }
-  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 37) {
+  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 42) {
     throw new Error("Deferred-turn transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + (asset.workSegmentFoldingEdits ?? 0), 0) !== 7) {

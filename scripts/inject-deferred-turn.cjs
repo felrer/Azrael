@@ -10,6 +10,7 @@ const DEFERRED_THREAD_ASSET = "webview/assets/local-conversation-thread-2429c4b6
 const DEFERRED_TURN_ASSET = "webview/assets/local-conversation-turn-9fb266d5c020.js";
 const DEFERRED_COLLAPSED_ASSET = "webview/assets/collapsed-turn-disclosure-de639e3d6c71.js";
 const DEFERRED_NOTIFICATION_ASSET = "webview/assets/app-initial-7a199c66e670.js";
+const DEFERRED_HEADER_ASSET = "webview/assets/header-57b689833777.js";
 const { azraelHasDeferredBoundary, azraelNormalizeDeferredTurn, azraelMergeRootResumeWait,
   azraelRootResumeWaitItem, azraelRootResumeWaitLabel } = require("./root-resume-wait.cjs");
 const recoveryHelpers = require("./root-resume-wait.cjs");
@@ -86,7 +87,7 @@ function injectDeferredTurn(text) {
   const converters = [...text.matchAll(/let\{threadId:s,turn:c\}=t\.params,l=([A-Za-z_$][\w$]*)\(s\);if\(!o\.threadStore\.conversations\.has\(l\)\)/g)];
   if (converters.length !== 1) throw new Error("Pinned deferred-turn native conversation converter anchor must occur exactly once.");
   const conversationId = converters[0][1];
-  text = boundaryHelpers() + azraelMergeRootResumeWait.toString() + "\n" +
+  text = boundaryHelpers() + recoveryHelpers.azraelIsRootResumePending.toString() + "\n" + azraelMergeRootResumeWait.toString() + "\n" +
     "const azraelDeferredJournals=new WeakMap();\n" +
     ["azraelDeferredJournal", "azraelDeferredLog", "azraelMergeEndedRootResumeWait", "azraelFlushDeferred", "azraelReceiveDeferred", "azraelReconcileDeferredRestoration"]
       .map(name => recoveryHelpers[name].toString()).join("\n") + "\n" + text;
@@ -133,7 +134,14 @@ function injectDeferredTurn(text) {
   text = replaceOnce(text, "e.broadcastConversationSnapshot(f);let St=e.getConversation(f)?.turnsPagination??null",
     `azraelReconcileDeferredRestoration(e,e.notificationContext,vg,${conversationId}($e.thread.id),$e.thread.id);` +
     "e.broadcastConversationSnapshot(f);let St=e.getConversation(f)?.turnsPagination??null");
-  return { text, count: 11, nativeTimingChecks: 1 };
+  // Display-only state: keep native execution, input and timer predicates intact.
+  text = replaceOnce(text, "lastTurnStatus:t?.status??null,hasPendingTurnSubmission:",
+    "lastTurnStatus:t?.status??null,isRootResumePending:azraelIsRootResumePending(t),hasPendingTurnSubmission:");
+  text = replaceOnce(text, "e.lastTurnStatus===t.lastTurnStatus&&e.hasPendingTurnSubmission",
+    "e.lastTurnStatus===t.lastTurnStatus&&e.isRootResumePending===t.isRootResumePending&&e.hasPendingTurnSubmission");
+  text = replaceOnce(text, "isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:",
+    "isRootResumePending:t.isRootResumePending,isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:");
+  return { text, count: 14, nativeTimingChecks: 1 };
 }
 
 function injectDeferredPresentation(text) {
@@ -162,7 +170,17 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "t[0]!==a||t[1]!==i||t[2]!==r?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a}),t[0]=a,t[1]=i,t[2]=r,t[3]=o)",
     "t[0]!==a||t[1]!==i||t[2]!==r||t[13]!==e.rootResumeWait?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a,rootResumeWait:e.rootResumeWait}),t[0]=a,t[1]=i,t[2]=r,t[3]=o,t[13]=e.rootResumeWait)");
   text += "\n" + createRootResumeStore.toString() + "\n" + AzraelRootResumeControls.toString() + "\nvar azraelRootResumeStore;window.addEventListener('pagehide',()=>azraelRootResumeStore?.dispose(),{once:true});";
-  return { text, count: 9 };
+  text = replaceOnce(text, "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At;",
+    "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At===`idle`&&ut?.isRootResumePending?`loading`:At;");
+  return { text, count: 10 };
+}
+
+function injectDeferredHeader(text) {
+  text = 'import {BW as azraelLatestTurn} from "./app-initial-97d3534ad35f.js";\n' +
+    recoveryHelpers.azraelIsRootResumePending.toString() + "\n" + text;
+  text = replaceOnce(text, "function kn(e){return a(e)}",
+    "function kn(e){return azraelIsRootResumePending(azraelLatestTurn(e))||a(e)}");
+  return { text, count: 1 };
 }
 
 function injectDeferredHistoricalRow(text) {
@@ -234,5 +252,5 @@ function injectDeferredHostNotification(text) {
 // Both transport boundaries must admit these methods.
 const injectDeferredRendererNotification = injectDeferredHostNotification;
 
-module.exports = { DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
+module.exports = { DEFERRED_HEADER_ASSET, injectDeferredHeader, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification, injectDeferredHistoricalRow, createRootResumeStore };

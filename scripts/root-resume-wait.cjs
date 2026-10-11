@@ -2,6 +2,11 @@
 
 // These functions are injected into the pinned UI and exercised directly by
 // source fixtures. Keep them self-contained: the host has no CommonJS loader.
+function azraelIsRootResumePending(turn) {
+  return turn != null && (turn.status === "deferred" || turn.status === "inProgress") &&
+    (turn.rootResumeWait?.state === "waiting" || turn.rootResumeWait?.state === "claimed");
+}
+
 function azraelHasDeferredBoundary(turn) {
   const wait = turn.rootResumeWait;
   return wait != null && (wait.state === "waiting" || wait.state === "claimed" ||
@@ -280,6 +285,6 @@ function azraelRootResumeWaitLabel(wait, elapsedMs) {
   }
 }
 
-module.exports = { azraelDeferredJournals, azraelDeferredJournal, azraelDeferredLog, azraelMergeEndedRootResumeWait,
+module.exports = { azraelIsRootResumePending, azraelDeferredJournals, azraelDeferredJournal, azraelDeferredLog, azraelMergeEndedRootResumeWait,
   azraelFlushDeferred, azraelReceiveDeferred, azraelReconcileDeferredRestoration, azraelHasDeferredBoundary, azraelNormalizeDeferredTurn,
   azraelMergeRootResumeWait, azraelRootResumeWaitItem, azraelRootResumeWaitLabel };
