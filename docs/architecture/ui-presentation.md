@@ -24,7 +24,9 @@ Full access text uses the same foreground tokens as Request approval in the perm
 
 Status: `current` in source — native row rendering and interactions verified in light and dark themes; build and installation pending.
 
-Local sessions in the recent-chat menu have a Flag toggle immediately before the time or native hover actions, with extra spacing before Archive. Unset flags show only an outlined flag, without a button background or tile border, when the row is hovered or contains keyboard focus. Keyboard focus retains its visible outline. Set flags show a filled red flag even without hover. Clicking again clears the flag; flag actions do not navigate, close the menu or archive the session.
+Local sessions in the recent-chat menu and the new-chat screen's recent-chat preview have a Flag toggle immediately before the time or native hover actions, with extra spacing before Archive. Unset flags show only an outlined flag, without a button background or tile border, when the row is hovered or contains keyboard focus. Keyboard focus retains its visible outline. Set flags show a filled red flag even without hover. Clicking again clears the flag; flag actions do not navigate, close the menu or archive the session.
+
+The recent-chat menu offers a persisted **Flagged only** toggle beside the chat-type selector. It combines with the existing type, environment and title-search filters while preserving native ordering. Only saved local conversations with a matching host and conversation flag are included; cloud and pending items without a saved conversation are excluded. Clearing a flag immediately removes its row from the filtered list. The preview shares the same flags and updates immediately.
 
 Flags use the native persisted UI preference store, keyed by host and conversation ID. They preserve menu ordering and other hosts' flags. The button exposes its pressed state and supports keyboard activation. Native time, running indicators and Archive keep their existing behavior.
 

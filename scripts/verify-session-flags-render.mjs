@@ -29,7 +29,7 @@ for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)
 render=render.replace('function Gjr(','function fixtureGjr(');
 const rowAdapter=`
 const fixture_ta=()=>({get:()=>false}),fixture_K=()=>false,fixture_le=()=>({formatMessage:({defaultMessage})=>defaultMessage}),fixture_VC=()=>null,fixture_Ajr=()=>null,fixture_Gqn=()=>false;
-const fixture_J=(atom,key)=>atom===Yj?'idle':atom===Ap?{summary:{hasUnreadTurn:false},isRootResumePending:window.fixturePending}:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
+const fixture_J=(atom,key)=>atom===oDr?(key?.threadId==='unflagged'?'Unflagged chat':'Review session changes'):atom===Yj?'idle':atom===Ap?{summary:{hasUnreadTurn:false},isRootResumePending:window.fixturePending}:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
 const fixture_Rjr=()=> 'local';
 const fixture_n2n=()=>()=>{},fixture_M4t=()=>{},fixture_j4t=()=>null;
 const fixture_cIe=(_store,id,host)=>{window.fixtureEvents.push({type:'navigate',id,host});return true};
@@ -45,16 +45,31 @@ const triggerAdapters=new Set(['i','se','p','l','z','mt','Ve','te','un','nt','le
 function visitTrigger(n){if(ts.isIdentifier(n)&&triggerAdapters.has(n.text)&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))triggerEdits.push({start:n.getStart(headerTree)-triggerOwner.getStart(headerTree),end:n.end-triggerOwner.getStart(headerTree),text:'fixture_header_'+n.text});ts.forEachChild(n,visitTrigger)}visitTrigger(triggerOwner);
 for(const e of triggerEdits.sort((a,b)=>b.start-a.start))trigger=trigger.slice(0,e.start)+e.text+trigger.slice(e.end);
 trigger=trigger.replace('function On(','function FixtureTrigger(');
+function adaptHeaderFunction(name,adapters){
+ const owner=headerTree.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert(owner);
+ let source=owner.getText(headerTree),edits=[];
+ function visit(n){if(ts.isIdentifier(n)&&adapters.has(n.text)&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(headerTree)-owner.getStart(headerTree),end:n.end-owner.getStart(headerTree),text:'fixture_menu_'+n.text});ts.forEachChild(n,visit)}visit(owner);
+ for(const e of edits.sort((a,b)=>b.start-a.start))source=source.slice(0,e.start)+e.text+source.slice(e.end);
+ return source.replace('function '+name+'(','function Fixture_'+name+'(');
+}
+const menuRender=adaptHeaderFunction('vn',new Set(['st','se','y','ce','mt','un','fn','qt']));
+const previewRender=adaptHeaderFunction('Et',new Set(['st','p','Je']));
 const headerAdapter=`
 import {fixtureGjr,fixtureInitRow,fixtureInitPreferences} from './${rowsName}';
 import {Clt as FixtureScope,Hbt as FixtureIntlContext,fixtureInitScope} from './app-initial-97d3534ad35f.js';
 const FixtureReact=v();window.fixtureEvents=[];window.fixtureHost='local';window.fixtureOpen=true;
 window.fixturePending=false;
+window.fixtureMenu=false;window.fixturePreview=false;
+const fixtureConversations=[{id:'same-id',hostId:'local',title:'Review session changes',createdAt:Date.now(),updatedAt:Date.now(),turns:[]},{id:'unflagged',hostId:'local',title:'Unflagged chat',createdAt:Date.now(),updatedAt:Date.now(),turns:[]}];
+const fixtureMerged=fixtureConversations.map(conversation=>({kind:'local',key:conversation.id,conversation}));
+const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=()=>fixtureMerged,fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
+${menuRender}
+${previewRender}
 const fixture_header_i=()=>({formatMessage:({defaultMessage},values)=>values?'Count: '+values.count:defaultMessage}),fixture_header_se=()=>({authMethod:'chatgpt'}),fixture_header_p=()=>({pathname:'/local/session'}),fixture_header_l=()=>false,fixture_header_z=()=>({data:[{id:'same-id',turns:window.fixturePending?[{status:'deferred',rootResumeWait:{state:'waiting'}}]:[],resumeState:'ready'}]}),fixture_header_mt=()=>false,fixture_header_Ve=f=>f,fixture_header_te=()=>({data:[]}),fixture_header_un=()=>true,fixture_header_nt=()=>false,fixture_header_le=props=>props.triggerButton,fixture_header_vn=()=>null;
 ${trigger}
-function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null]})}
+function FixtureRows(){const[,update]=FixtureReact.useState(0);window.fixtureRerender=()=>update(n=>n+1);return Z.jsxs('div',{children:[Z.jsx('div',{'data-fixture-trigger':true,children:Z.jsx(FixtureTrigger,{})}),window.fixtureOpen?Z.jsx('div',{'data-fixture-row':true,children:(0,Z.jsx)(azraelFlaggedSessionRow,{conversationId:'same-id',hostId:window.fixtureHost,threadSummary:{id:'same-id',title:'Review session changes',hostId:window.fixtureHost},disableHoverCard:true,disableEnvTooltip:true,useStableTrailingRail:true,metaContent:(0,Z.jsx)('span',{'data-fixture-time':true,children:'12m'}),onArchiveSuccess:()=>window.fixtureEvents.push({type:'archive-success'})})}):null,window.fixtureMenu?Z.jsx('div',{'data-fixture-menu':true,children:Z.jsx(Fixture_vn,{localConversations:fixtureConversations,cloudtasksQuery:{data:[],isLoading:false,isError:false},onClose:()=>window.fixtureEvents.push({type:'close'})})}):null,window.fixturePreview?Z.jsx('div',{'data-fixture-preview':true,children:Z.jsx(Fixture_Et,{mergedTasks:fixtureMerged,tasksQuery:{isLoading:false,isError:false}})}):null]})}
 let fixtureInitialized=false;
-function Fixture(){Pn();Dn();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
+function Fixture(){Pn();Dn();Nt();fixtureInitRow();fixtureInitScope();if(!fixtureInitialized){fixtureInitialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem("fixture-preferences")||"{}"),(key,value)=>{const prefs=JSON.parse(localStorage.getItem("fixture-preferences")||"{}");if(value===undefined)delete prefs[key];else prefs[key]=value;localStorage.setItem("fixture-preferences",JSON.stringify(prefs));window.fixtureEvents.push({type:"persist",key,value})})}return Z.jsx(FixtureScope,{scope:Re,children:Z.jsx(FixtureIntlContext,{value:{locale:"en",formatMessage:({defaultMessage})=>defaultMessage},children:Z.jsx(FixtureRows,{})})})}
 export {Fixture};
 `;
 // Helper is copied verbatim by injectSessionFlags. Only the native imported row
@@ -138,6 +153,24 @@ try{
  check(theme+' native archive confirmation invokes original service boundary',await evaluate('fixtureEvents.some(e=>e.type==="archive"&&e.conversationId==="same-id"&&e.hostId==="local")&&!fixtureEvents.some(e=>e.type==="navigate")'));
  }
  await evaluate('fixtureOpen=false;fixtureRerender()');await wait('!document.querySelector('+JSON.stringify(flag)+')');await evaluate('fixtureOpen=true;fixtureRerender()');await wait('!!document.querySelector('+JSON.stringify(flag)+')');await click('[data-thread-title]');await wait('fixtureEvents.some(e=>e.type==="navigate")');check('native row navigation remains available',true);
+ await evaluate('fixtureOpen=false;fixtureMenu=true;fixturePreview=true;fixtureEvents=[];fixtureRerender()');
+ await wait('!!document.querySelector("[data-azrael-session-flag-filter]")');
+ for(const theme of ['light','dark']){
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
+  check(theme+' native menu starts with both chats',await evaluate('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2'));
+  check(theme+' native new-chat preview displays saved red flag',await evaluate('document.querySelector("[data-fixture-preview] [data-azrael-session-flag]").getAttribute("aria-pressed")==="true"'));
+  await click('[data-azrael-session-flag-filter]');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===1');
+  check(theme+' flagged-only filter retains the marked chat',await evaluate('document.querySelector("[data-fixture-menu] [data-thread-title]").textContent==="Review session changes"'));
+  await shot(theme+'-filter-preview');
+  await click('[data-fixture-preview] [data-azrael-session-flag]');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===0');
+  check(theme+' unflagging preview updates filtered menu without navigation',await noActions());
+  await click('[data-fixture-preview] [data-azrael-session-flag]');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===1');
+  await click('[data-azrael-session-flag-filter]');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
+ }
  check('no browser errors',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.events=await evaluate('fixtureEvents');
 summary.visualFindings='Hover shows only the outlined flag without a button tile in both themes; keyboard focus remains visible and archive stays separated. Active red flag precedes the time label. Native trailing-inset parent token is required by the reused row.';summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});

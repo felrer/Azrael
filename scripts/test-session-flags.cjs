@@ -18,7 +18,7 @@ test("native preference writes isolate hosts, retain other flags, and prevent ro
   let saved = {}, atom, prevent = 0, stop = 0;
   const jsx = (type, props) => ({ type, props });
   const context = { It() {}, Ce: (key, initial) => (atom = { key, initial }), l: () => saved,
-    f: () => ({ set: (target, update) => { assert.equal(target, atom); saved = update(saved); } }),
+    f: () => ({ set: (target, update) => { assert.equal(target.key, "azrael-session-flags"); saved = update(saved); } }),
     Re: {}, i: () => ({ formatMessage: message => message.defaultMessage }), Z: { jsx }, qe: "nativeRow" };
   vm.createContext(context); vm.runInContext(HELPER, context);
   const render = hostId => context.azraelFlaggedSessionRow({ hostId, conversationId: "thread", metaContent: "1h", onClick: "nativeNavigate" });
@@ -34,7 +34,19 @@ test("native preference writes isolate hosts, retain other flags, and prevent ro
   assert.equal(prevent, 3); assert.equal(stop, 3);
   assert.equal(render("local").props.metaContent, "1h");
   assert.equal(render("local").props.onClick, "nativeNavigate");
-  assert.equal(atom.key, "azrael-session-flags");
+  assert.equal(atom.key, "azrael-session-flag-only");
+});
+
+test("flag predicate scopes hosts and excludes remote and pending items without a conversation", () => {
+  const context = {}; vm.createContext(context); vm.runInContext(HELPER, context);
+  const flags = {'["local","a"]':true,'["remote-host","b"]':true};
+  assert.equal(context.azraelSessionIsFlagged(flags,{id:"a"}),true);
+  assert.equal(context.azraelSessionIsFlagged(flags,{id:"a",hostId:"remote-host"}),false);
+  assert.equal(context.azraelSessionIsFlagged(flags,{id:"b",hostId:"remote-host"}),true);
+  assert.equal(context.azraelSessionIsFlagged(flags,null),false);
+  const result=injectSessionFlags(original,ASSET).text;
+  assert.equal(result.split('(0,J.jsx)(azraelFlaggedSessionRow,{').length-1,1);
+  assert.equal(result.split('(0,Z.jsx)(azraelSessionFlagFilter,{').length-1,1);
 });
 
 test("production pipeline reports flags and binds its owner to the header asset cache", () => {

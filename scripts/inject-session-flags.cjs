@@ -1,12 +1,19 @@
 "use strict";
 
 const ASSET = "webview/assets/header-57b689833777.js";
-const MARKER = "/*azrael-session-flags-v1*/";
+const MARKER = "/*azrael-session-flags-v2*/";
 // Use the native persisted preference atom, scoped by host and conversation.
 // A title suffix occupies the trailing title slot immediately before native metadata/actions.
-const HELPER = `var azraelSessionFlagsAtom;
+const HELPER = `var azraelSessionFlagsAtom,azraelSessionFlagOnlyAtom;
+function azraelInitSessionFlags(){It();azraelSessionFlagsAtom??=Ce("azrael-session-flags",{});azraelSessionFlagOnlyAtom??=Ce("azrael-session-flag-only",false)}
+function azraelSessionIsFlagged(flags,conversation){return conversation!=null&&flags[JSON.stringify([conversation.hostId??"local",conversation.id])]===true}
+function azraelSessionFlagFilter(props){
+  azraelInitSessionFlags();const enabled=l(azraelSessionFlagOnlyAtom)===true,store=f(Re),intl=i();
+  const label=intl.formatMessage({id:"azrael.sessionFlag.only",defaultMessage:intl.locale?.startsWith("ko")?"플래그만 보기":"Flagged only"});
+  return(0,Z.jsxs)("div",{className:"flex items-center gap-2",children:[(0,Z.jsx)(Qt,props),(0,Z.jsx)(ee,{size:"toolbar",color:enabled?"ghostActive":"ghost","data-azrael-session-flag-filter":true,"aria-pressed":enabled,onClick:()=>store.set(azraelSessionFlagOnlyAtom,!enabled),children:label})]});
+}
 function azraelFlaggedSessionRow(props){
-  It();azraelSessionFlagsAtom??=Ce("azrael-session-flags",{});
+  azraelInitSessionFlags();
   const flags=l(azraelSessionFlagsAtom)??{},store=f(Re),intl=i();
   const key=JSON.stringify([props.hostId??"local",props.conversationId]);
   const flagged=flags[key]===true;
@@ -23,14 +30,18 @@ function azraelFlaggedSessionRow(props){
 function injectSessionFlags(text, asset) {
   if (asset !== ASSET) return { text, count: 0 };
   const original = "(0,Z.jsx)(qe,{", patched = "(0,Z.jsx)(azraelFlaggedSessionRow,{";
+  const preview = "(0,J.jsx)(qe,{", patchedPreview = "(0,J.jsx)(azraelFlaggedSessionRow,{";
+  const filter = "(0,Z.jsx)(Qt,{", patchedFilter = "(0,Z.jsx)(azraelSessionFlagFilter,{";
+  const feed = "let D=r.filter(E),O=fn(n.data,r,T),";
+  const filteredFeed = "azraelInitSessionFlags();let azraelFlags=l(azraelSessionFlagsAtom)??{},azraelFlagPreference=l(azraelSessionFlagOnlyAtom),azraelFlagOnly=d&&azraelFlagPreference===true;let D=r.filter(E).filter(e=>!azraelFlagOnly||azraelSessionIsFlagged(azraelFlags,e)),O=fn(n.data,r,T).filter(e=>!azraelFlagOnly||e.kind===`local`&&azraelSessionIsFlagged(azraelFlags,e.conversation)),";
   const occurrences = value => text.split(value).length - 1;
   if (occurrences(MARKER)) {
-    if (occurrences(MARKER) !== 1 || occurrences(HELPER) !== 1 || occurrences(patched) !== 2 || occurrences(original) !== 1)
+    if (occurrences(MARKER) !== 1 || occurrences(HELPER) !== 1 || occurrences(patched) !== 2 || occurrences(original) !== 1 || occurrences(patchedPreview) !== 1 || occurrences(preview) || occurrences(patchedFilter) !== 1 || occurrences(filteredFeed) !== 1)
       throw new Error("Session flag transform is damaged");
     return { text, count: 0 };
   }
-  if (occurrences(original) !== 2 || occurrences(patched) || text.includes("function azraelFlaggedSessionRow"))
+  if (occurrences(original) !== 2 || occurrences(preview) !== 1 || occurrences(filter) !== 1 || occurrences(feed) !== 1 || occurrences(patched) || text.includes("function azraelFlaggedSessionRow"))
     throw new Error("Pinned session row anchors changed");
-  return { text: text.split(original).join(patched) + "\n" + HELPER + "\n" + MARKER + "\n", count: 1 };
+  return { text: text.split(original).join(patched).replace(preview,patchedPreview).replace(filter,patchedFilter).replace(feed,filteredFeed) + "\n" + HELPER + "\n" + MARKER + "\n", count: 1 };
 }
 module.exports = { ASSET, MARKER, HELPER, injectSessionFlags };
