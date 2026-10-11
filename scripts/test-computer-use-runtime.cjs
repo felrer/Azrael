@@ -7,7 +7,7 @@ const test = require('node:test');
 const { stageRuntime, verifyRuntime } = require('./computer-use-runtime.cjs');
 // Pristine official input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
 // Sky 0.7.4 is the supported transform input; the installed Azrael executable is already branded.
-const officialRuntime = path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77');
+const officialRuntime = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77'));
 const officialBin = path.join(officialRuntime, 'bin');
 const officialPlugin = path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.930.21537');
 function cleanup(root) {

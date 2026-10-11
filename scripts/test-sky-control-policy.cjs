@@ -6,7 +6,7 @@ const { EventEmitter } = require('node:events');
 const { transformTransport, TRANSPORT, TRANSPORT_POLICY_MODULES, generateSettingsModule } = require('./inject-sky-control-policy.cjs');
 const { createSettingsOwner } = require('./use-control-settings.cjs');
 // Pristine Sky 0.7.4 input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
-const pinned = path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77/bin');
+const pinned = path.join(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77'), 'bin');
 test('cached managed service and pinned native queue/writer reread policy and fail closed', async t => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-sky-gate-'));
   const oldHome = process.env.CODEX_HOME, oldRepl = globalThis.nodeRepl;

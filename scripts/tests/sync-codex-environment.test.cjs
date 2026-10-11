@@ -8,7 +8,7 @@ const test = require("node:test");
 const { spawnSync } = require("node:child_process");
 const crypto = require("node:crypto");
 // Pristine supported transport recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
-const officialComputerUseBin = path.join(process.env.LOCALAPPDATA, "OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77/bin");
+const officialComputerUseBin = path.join(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, "OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77"), "bin");
 function cleanupOwnedFixture(directory, parent, prefix) {
   if (path.dirname(path.resolve(directory)) !== path.resolve(parent) || !path.basename(directory).startsWith(prefix)) throw new Error("Unsafe fixture cleanup path");
   fs.rmSync(directory, { recursive: true });

@@ -15,6 +15,7 @@ const reservation = {
   revision: 7,
   state: "waiting",
   agentTasks: [{ threadId: "child-thread", agentPath: "/root/worker", turnId: "child-turn" }],
+  completionTasks: [],
   reason: "하위 작업 결과 대기",
   wakeReason: null,
   lastError: null
@@ -23,6 +24,8 @@ const reservation = {
 test("root resume response strictly parses the complete camelCase DTO", () => {
   const parsed = parseRootResumeResponse({ reservations: [reservation] });
   assert.deepEqual(parsed, { reservations: [reservation] });
+  const { completionTasks, ...legacy } = reservation;
+  assert.deepEqual(parseRootResumeResponse({ reservations: [legacy] }), parsed);
 });
 
 test("root resume response tolerates additive fields but rejects missing and malformed fields", () => {
