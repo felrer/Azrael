@@ -24,6 +24,31 @@ The **Azrael provider accounts** VS Code Output channel records account action s
 
 VS Code's **Log (Extension Host)** can show extension activation faults. The host still discards app-server stderr content because upstream messages may include secrets; only a capped byte count survives a disconnect. A missing row in `logs_2.sqlite` or the Output channel does not prove that no error occurred. These records improve host/provider error attribution but do not yet satisfy the full AZ-01 injected-failure and safe-resume matrix.
 
+## Root resume timing
+
+Status: `partial` — Windows source tests verify resume phases, native HTTP request correlation, the SQLite sink and safe export. A matching engine and window reload are required for installed sessions; live-server and WebSocket runtime acceptance remain separate.
+
+The native OpenAI root emits `root_resume_timing` events under target `azrael_root_resume` to the existing `logs_2.sqlite` sink. INFO events use the existing level, buffering, retention and size limits above. The same read-only inspector command exports them as category `root_resume_timing` with `rootResumeTiming`. No additional logging level or storage configuration is required.
+
+| Phase | Observed boundary |
+| --- | --- |
+| `wake_detected` | Dispatcher observes a matching reservation after deadline/dependency/manual wake. |
+| `resume_dispatch` | Overall dispatcher entry/return. |
+| `execution_admission` | Account execution admission call, including its wait. |
+| `submission_gate` | Acquisition of the root submission gate. |
+| `history_flush` | Flush of retained rollout before claim. |
+| `reservation_claim` | Durable claim transition and its event publication. |
+| `turn_context` | Saved-context lookup and resumed turn-context preparation. |
+| `turn_start` | Construction and publication of the actual `TurnStarted` event. |
+| `model_request` | First resumed sampling-client call path, including request-effort resolution, ending when a stream/error is returned. |
+| `model_request_submit` | First non-warmup HTTP/WebSocket transport-method invocation after core request preparation. |
+
+All records carry `thread_id`, `phase`, `outcome`, `wake_reason`, `reservation_id`, `resume_turn_id`, `duration_ms` and `elapsed_ms`. Explicit thread identity keeps timer/dispatcher events in the root's existing per-thread retention partition even without an inherited tracing span. Outcomes are `started`, `completed`, `failed` and `cancelled`; a dropped in-flight phase records cancellation rather than success. `wake_detected` is a completed milestone, and `model_request_submit` is a started milestone; their `duration_ms` is zero. For completed/failed/cancelled phases, duration measures that phase. Cumulative elapsed time starts at observed wake and uses a monotonic clock. Subtract successive boundary elapsed values to identify gaps outside individual phases; stages can overlap with asynchronous task execution. Overall dispatch completion indicates its return, not model generation completion.
+
+Safe export requires recognized labels, strict UUID correlation and unsigned 64-bit timing fields. `reservationRef` and `turnRef` are the first ten SHA-256 characters of those UUIDs; raw IDs and log bodies are excluded. The exporter retains existing time-range and event limits, so increase `--events` within its supported bound or narrow the time range when correlating a complete attempt. Missing stages are unobserved, not zero-duration successes. The first sampling attempt can fail before any transport invocation; a later retry still receives the single first-transport milestone. The first transport marker excludes warmup and is emitted once across retries/follow-ups; it does not establish server receipt, time to first token or network health. Existing rows without these events cannot recover unrecorded phase timings.
+
+Source checks use `python -B -m unittest discover -s scripts/tests -p test_inspect_native_azrael_errors.py -v` and, from frozen `codex-rs/`, `cargo test -p codex-core --lib root_resume_timing --locked --offline -- --test-threads=1`. On Windows use `RUST_MIN_STACK=33554432` for session fixtures and the selected shared engine cache. Coverage includes emitted correlation/outcome fields and a mocked native request after manual resume; installed/live-server acceptance is separate.
+
 ## Tool invocation evidence
 
 Status: `partial` — source tests cover helper/adapter events, native validation and safe export. A matching engine/helper release and window reload are required before a real session contains these fields.

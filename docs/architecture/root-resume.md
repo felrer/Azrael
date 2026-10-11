@@ -40,6 +40,14 @@ Status: `target`; Rust execution verification and installed-host acceptance are 
 
 A manual stop or explicit reservation cancellation first persists cancellation, stops its timer, and then emits a canonical interruption for the parked segment. The execution status becomes interrupted even though there is no active inference task to abort. Repeated stops emit no duplicate terminal event; children and recorded tool results remain available. Cancellation storage failure cannot publish a successful interruption. The terminal duration stays frozen at the defer boundary. An interrupted idle thread without subscribers can use normal unload and release its writer ownership.
 
+## Resume diagnostics
+
+Status: `partial` — Windows source tests verify phase/outcome fields and a resumed native HTTP request. Installed-host, live-server, macOS/Linux and WebSocket runtime acceptance remain separate.
+
+Each observed resume attempt records content-free phase boundaries in the existing native tracing sink. Reservation and resumed-turn identities connect completion detection, execution admission, submission-gate acquisition, history flush, durable claim, turn-context preparation, publication of `TurnStarted`, the first sampling-client call and its first non-warmup transport invocation. Overall dispatch has its own outcome. Phase and cumulative durations use a monotonic clock; UTC timestamps remain the sink's responsibility. Detection means the waiter has observed its wake condition, not the external producer's actual completion time.
+
+In-flight phases distinguish completion, failure and dropped/cancelled work. The first transport marker is shared across the resumed turn and emitted once across retries and later sampling steps. The HTTP/WebSocket marker denotes invocation of the native transport method after request preparation, not server receipt or an actual socket write. The sampling-client duration ends when it returns a stream or error, not when generation completes. Logs preserve execution, persistence and retry behavior and contain fixed labels, UUID correlation and numeric durations, without prompts, responses, credentials, file paths or error text. Retention and safe export are owned by [native diagnostics](../ops/native-diagnostics.md#root-resume-timing).
+
 ## Deferred turn timing
 
 A deferred execution segment stops its elapsed-time counter at the durable defer boundary, both live and after history reload; only the resumed segment advances. The engine publishes `turn/deferred` with a `deferred` turn status and the measured duration, leaving `completedAt` unset. The host freezes that segment and labels it as waiting to resume, without completion, interruption, unread-completion or automation-completion side effects. An unknown historical duration is shown as waiting without inventing a time.

@@ -293,6 +293,7 @@ pub struct ModelClient {
 /// contract and can cause routing bugs.
 pub struct ModelClientSession {
     client: ModelClient,
+    root_resume_timing: Option<Arc<crate::session::root_resume_timing::RootResumeTiming>>,
     websocket_session: WebsocketSession,
     /// Turn state for sticky routing.
     ///
@@ -616,6 +617,7 @@ impl ModelClient {
         }
         ModelClientSession {
             client: self.clone(),
+            root_resume_timing: None,
             websocket_session,
             turn_state: Arc::new(OnceLock::new()),
         }
@@ -1391,6 +1393,13 @@ impl Drop for ModelClientSession {
 }
 
 impl ModelClientSession {
+    pub(crate) fn set_root_resume_timing(
+        &mut self,
+        timing: Option<Arc<crate::session::root_resume_timing::RootResumeTiming>>,
+    ) {
+        self.root_resume_timing = timing;
+    }
+
     pub(crate) fn is_for_provider(&self, provider: &SharedModelProvider) -> bool {
         self.client.state.provider.info() == provider.info()
     }
@@ -1831,6 +1840,9 @@ impl ModelClientSession {
                 client_setup.api_auth,
             )
             .with_telemetry(Some(request_telemetry), Some(sse_telemetry));
+            if let Some(timing) = &self.root_resume_timing {
+                timing.model_request_submitted();
+            }
             let stream_result = client.stream_request(request, options).await;
 
             match stream_result {
@@ -2141,6 +2153,9 @@ impl ModelClientSession {
                     ),
                 ],
             );
+            if !warmup && let Some(timing) = &self.root_resume_timing {
+                timing.model_request_submitted();
+            }
             let stream_result = websocket_connection
                 .stream_request(
                     ws_request,

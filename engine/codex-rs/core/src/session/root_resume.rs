@@ -3,6 +3,8 @@ use super::Session;
 use super::TurnContext;
 use super::input_queue::InputQueueActivity;
 use super::input_queue::TurnInput;
+use super::root_resume_timing::RootResumePhase;
+use super::root_resume_timing::RootResumeTiming;
 use super::turn_context::NewTurnContextOptions;
 use crate::state::ActiveTurn;
 use crate::tasks::RegularTask;
@@ -674,144 +676,170 @@ impl Session {
     ) -> BoxFuture<'static, CodexResult<()>> {
         let session = Arc::clone(self);
         Box::pin(async move {
-            // Account switching must not hold the root gate hostage to an admission wait.
-            let admission = session.execution_admission().await.admit_request().await;
-            let control = session.root_resume_control();
-            let _guard = Arc::clone(&control.gate).lock_owned().await;
-            if control.closed.load(Ordering::Acquire) {
-                return Err(invalid("root runtime is closing"));
-            }
-            let record = session
+            // Observe identity without changing the existing admission/validation order.
+            let timing = session
                 .root_resume_record()
-                .filter(|r| r.id == id && r.revision == revision)
-                .ok_or_else(|| invalid("reservation changed; refresh before retrying"))?;
-            if !matches!(
-                record.state,
-                RootResumeState::Waiting | RootResumeState::Blocked
-            ) {
-                return Err(invalid("reservation is not ready to resume"));
-            }
-            if session.active_turn.lock().await.is_some() {
-                return Err(invalid("root thread is currently active"));
-            }
-            let _account_admission = match admission {
-                Ok(guard) => guard,
-                Err(error) => {
-                    if record.state == RootResumeState::Waiting {
-                        session
-                            .transition_root_resume_record(
-                                &record,
-                                RootResumeState::Blocked,
-                                None,
-                                Some(error.to_string()),
-                            )
-                            .await?;
+                .filter(|record| record.id == id && record.revision == revision)
+                .map(|record| RootResumeTiming::new(&record, &reason));
+            let dispatch_phase = RootResumePhase::new(timing.as_ref(), "resume_dispatch");
+            let result = async {
+                // Account switching must not hold the root gate hostage to an admission wait.
+                let phase = RootResumePhase::new(timing.as_ref(), "execution_admission");
+                let admission = session.execution_admission().await.admit_request().await;
+                phase.finish(admission.is_ok());
+                let control = session.root_resume_control();
+                let phase = RootResumePhase::new(timing.as_ref(), "submission_gate");
+                let _guard = Arc::clone(&control.gate).lock_owned().await;
+                phase.finish(true);
+                if control.closed.load(Ordering::Acquire) {
+                    return Err(invalid("root runtime is closing"));
+                }
+                let record = session
+                    .root_resume_record()
+                    .filter(|r| r.id == id && r.revision == revision)
+                    .ok_or_else(|| invalid("reservation changed; refresh before retrying"))?;
+                if !matches!(
+                    record.state,
+                    RootResumeState::Waiting | RootResumeState::Blocked
+                ) {
+                    return Err(invalid("reservation is not ready to resume"));
+                }
+                if session.active_turn.lock().await.is_some() {
+                    return Err(invalid("root thread is currently active"));
+                }
+                let _account_admission = match admission {
+                    Ok(guard) => guard,
+                    Err(error) => {
+                        if record.state == RootResumeState::Waiting {
+                            session
+                                .transition_root_resume_record(
+                                    &record,
+                                    RootResumeState::Blocked,
+                                    None,
+                                    Some(error.to_string()),
+                                )
+                                .await?;
+                        }
+                        return Err(invalid(error.to_string()));
                     }
-                    return Err(invalid(error.to_string()));
+                };
+                // A manual retry of a blocked write must first establish durable history.
+                let phase = RootResumePhase::new(timing.as_ref(), "history_flush");
+                let flushed = session.flush_rollout().await.map_err(storage_error);
+                phase.finish(flushed.is_ok());
+                flushed?;
+                let phase = RootResumePhase::new(timing.as_ref(), "reservation_claim");
+                let claimed = session
+                    .transition_root_resume_record(
+                        &record,
+                        RootResumeState::Claimed,
+                        Some(reason),
+                        None,
+                    )
+                    .await;
+                phase.finish(claimed.is_ok());
+                let claimed = claimed?;
+                session.stop_root_resume_timer();
+                // Normal thread configuration carries source, permissions, provider and account admission.
+                let phase = RootResumePhase::new(timing.as_ref(), "turn_context");
+                let previous = session.reference_context_item().await;
+                let context = session
+                    .new_turn_with_default_settings(
+                        claimed.resume_turn_id.clone(),
+                        NewTurnContextOptions {
+                            final_output_json_schema: claimed.final_output_json_schema.clone(),
+                            cyber_access_program: previous.and_then(|c| c.cyber_access_program),
+                        },
+                    )
+                    .await;
+                phase.finish(true);
+                if let Some(timing) = &timing {
+                    context.extension_data.insert(timing.clone());
                 }
-            };
-            // A manual retry of a blocked write must first establish durable history.
-            session.flush_rollout().await.map_err(storage_error)?;
-            let claimed = session
-                .transition_root_resume_record(
-                    &record,
-                    RootResumeState::Claimed,
-                    Some(reason),
-                    None,
-                )
-                .await?;
-            session.stop_root_resume_timer();
-            // Normal thread configuration carries source, permissions, provider and account admission.
-            let previous = session.reference_context_item().await;
-            let context = session
-                .new_turn_with_default_settings(
-                    claimed.resume_turn_id.clone(),
-                    NewTurnContextOptions {
-                        final_output_json_schema: claimed.final_output_json_schema.clone(),
-                        cyber_access_program: previous.and_then(|c| c.cyber_access_program),
+                if !context.provider.info().is_openai() {
+                    session
+                        .transition_root_resume_record(
+                            &claimed,
+                            RootResumeState::Blocked,
+                            None,
+                            Some(
+                                "the thread provider changed; native OpenAI execution is required"
+                                    .to_string(),
+                            ),
+                        )
+                        .await?;
+                    return Err(invalid(
+                        "root reservation requires the native OpenAI execution path",
+                    ));
+                }
+                context
+                    .turn_metadata_state
+                    .set_root_turn_id(claimed.root_turn_id.clone());
+                context
+                    .turn_metadata_state
+                    .set_parent_turn_id(claimed.originating_turn_id.clone());
+                context
+                    .turn_metadata_state
+                    .set_turn_trigger("root_resume".to_string());
+                let busy = {
+                    let mut active = session.active_turn.lock().await;
+                    if active.is_some() {
+                        true
+                    } else {
+                        *active = Some(ActiveTurn::default());
+                        false
+                    }
+                };
+                if busy {
+                    session
+                        .transition_root_resume_record(
+                            &claimed,
+                            RootResumeState::Blocked,
+                            None,
+                            Some("root admission changed".to_string()),
+                        )
+                        .await?;
+                    return Err(invalid("root thread is currently active"));
+                }
+                let wake = match claimed.wake_reason {
+                    Some(RootResumeWakeReason::Deadline) => "deadline reached",
+                    Some(RootResumeWakeReason::AgentsCompleted) => "selected child tasks terminated",
+                    Some(RootResumeWakeReason::WorkCompleted) => {
+                        "selected work executions and child tasks terminated"
+                    }
+                    _ => "manual resume",
+                };
+                let input = TurnInput::ResponseItem(codex_history::ResponseItemEnvelope::new(
+                    codex_protocol::models::ResponseItem::Message {
+                        id: None,
+                        role: "developer".to_string(),
+                        content: vec![codex_protocol::models::ContentItem::InputText {
+                            text: format!(
+                                "Root wait ended: {wake}. Continue the same task using any pending child results. Read work_completion status for these work IDs before continuing dependent work: {:?}. A deadline or manual resume does not establish completion or success.",
+                                claimed.completion_tasks
+                            ),
+                        }],
+                        phase: None,
+                        internal_chat_message_metadata_passthrough: None,
                     },
-                )
-                .await;
-            if !context.provider.info().is_openai() {
-                session
-                    .transition_root_resume_record(
-                        &claimed,
-                        RootResumeState::Blocked,
-                        None,
-                        Some(
-                            "the thread provider changed; native OpenAI execution is required"
-                                .to_string(),
-                        ),
-                    )
-                    .await?;
-                return Err(invalid(
-                    "root reservation requires the native OpenAI execution path",
                 ));
-            }
-            context
-                .turn_metadata_state
-                .set_root_turn_id(claimed.root_turn_id.clone());
-            context
-                .turn_metadata_state
-                .set_parent_turn_id(claimed.originating_turn_id.clone());
-            context
-                .turn_metadata_state
-                .set_turn_trigger("root_resume".to_string());
-            let busy = {
-                let mut active = session.active_turn.lock().await;
-                if active.is_some() {
-                    true
-                } else {
-                    *active = Some(ActiveTurn::default());
-                    false
-                }
-            };
-            if busy {
+                session
+                    .start_task(context, vec![input], RegularTask::new())
+                    .await;
+                // An ambiguous crash before this acknowledgement stays claimed and needs review.
                 session
                     .transition_root_resume_record(
                         &claimed,
-                        RootResumeState::Blocked,
+                        RootResumeState::Resumed,
+                        claimed.wake_reason.clone(),
                         None,
-                        Some("root admission changed".to_string()),
                     )
                     .await?;
-                return Err(invalid("root thread is currently active"));
+                Ok(())
             }
-            let wake = match claimed.wake_reason {
-                Some(RootResumeWakeReason::Deadline) => "deadline reached",
-                Some(RootResumeWakeReason::AgentsCompleted) => "selected child tasks terminated",
-                Some(RootResumeWakeReason::WorkCompleted) => {
-                    "selected work executions and child tasks terminated"
-                }
-                _ => "manual resume",
-            };
-            let input = TurnInput::ResponseItem(codex_history::ResponseItemEnvelope::new(
-                codex_protocol::models::ResponseItem::Message {
-                    id: None,
-                    role: "developer".to_string(),
-                    content: vec![codex_protocol::models::ContentItem::InputText {
-                        text: format!(
-                            "Root wait ended: {wake}. Continue the same task using any pending child results. Read work_completion status for these work IDs before continuing dependent work: {:?}. A deadline or manual resume does not establish completion or success.",
-                            claimed.completion_tasks
-                        ),
-                    }],
-                    phase: None,
-                    internal_chat_message_metadata_passthrough: None,
-                },
-            ));
-            session
-                .start_task(context, vec![input], RegularTask::new())
-                .await;
-            // An ambiguous crash before this acknowledgement stays claimed and needs review.
-            session
-                .transition_root_resume_record(
-                    &claimed,
-                    RootResumeState::Resumed,
-                    claimed.wake_reason.clone(),
-                    None,
-                )
-                .await?;
-            Ok(())
+            .await;
+            dispatch_phase.finish(result.is_ok());
+            result
         })
     }
 

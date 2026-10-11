@@ -2,6 +2,7 @@
 
 import datetime as dt
 from contextlib import closing
+import hashlib
 import json
 from pathlib import Path
 import sqlite3
@@ -15,6 +16,76 @@ SCRIPT = Path(__file__).resolve().parents[1] / "inspect-native-azrael-errors.py"
 
 
 class InspectorTests(unittest.TestCase):
+    def timing_body(self, **changes):
+        fields = {
+            "event": '"root_resume_timing"', "phase": '"wake_detected"',
+            "outcome": '"completed"', "wake_reason": '"deadline"',
+            "reservation_id": '"01234567-0123-4567-89ab-0123456789ab"',
+            "resume_turn_id": "abcdef01-2345-6789-abcd-ef0123456789", "elapsed_ms": "0",
+        }
+        fields.update(changes)
+        return " ".join(f"{key}={value}" for key, value in fields.items() if value is not None)
+
+    def test_root_resume_stages_are_correlated_and_private(self):
+        phases = ["wake_detected", "execution_admission", "submission_gate", "history_flush",
+                  "reservation_claim", "turn_context", "turn_start", "model_request", "model_request_submit",
+                  "resume_dispatch"]
+        wakes = ["deadline", "agents_completed", "work_completed", "manual", "user_input"]
+        records = [("azrael_root_resume", self.timing_body(
+            phase=json.dumps(phase), wake_reason=json.dumps(wakes[index % len(wakes)]),
+            duration_ms="0", elapsed_ms=str(2**64 - 1)) +
+            ' body="SECRET request_id=SECRET phase=failed" unknown="SECRET"', "INFO")
+            for index, phase in enumerate(phases)]
+        report, stdout = self.inspect(records)
+        self.assertEqual(report["categories"], {"root_resume_timing": len(phases)})
+        reservation = "01234567-0123-4567-89ab-0123456789ab"
+        turn = "abcdef01-2345-6789-abcd-ef0123456789"
+        for event, phase in zip(report["eventsNewestFirst"], reversed(phases)):
+            index = phases.index(phase)
+            self.assertEqual(event["rootResumeTiming"], {
+                "phase": phase, "outcome": "completed", "wakeReason": wakes[index % len(wakes)],
+                "durationMs": 0, "elapsedMs": 2**64 - 1,
+                "reservationRef": hashlib.sha256(reservation.encode()).hexdigest()[:10],
+                "turnRef": hashlib.sha256(turn.encode()).hexdigest()[:10],
+            })
+        for raw in ("SECRET", reservation, turn, "body", "unknown"):
+            self.assertNotIn(raw, stdout)
+
+    def test_root_resume_started_failure_and_cancellation(self):
+        records = [("azrael_root_resume", self.timing_body(
+            phase='"resume_dispatch"', outcome=json.dumps(outcome)), "INFO")
+            for outcome in ("started", "failed", "cancelled")]
+        report, _ = self.inspect(records)
+        self.assertEqual([event["rootResumeTiming"]["outcome"] for event in report["eventsNewestFirst"]],
+                         ["cancelled", "failed", "started"])
+        for event in report["eventsNewestFirst"]:
+            self.assertNotIn("durationMs", event["rootResumeTiming"])
+            self.assertEqual(event["rootResumeTiming"]["elapsedMs"], 0)
+
+    def test_root_resume_invalid_fixed_fields_and_counts_are_rejected(self):
+        invalid = []
+        for field in ("event", "phase", "outcome", "wake_reason", "reservation_id", "resume_turn_id", "elapsed_ms"):
+            invalid.extend([self.timing_body(**{field: None}), self.timing_body(**{field: '"SECRET"'})])
+        for field in ("duration_ms", "elapsed_ms"):
+            for value in ("-1", "1.5", "true", '"0"', str(2**64), "9" * 100, "0SECRET"):
+                invalid.append(self.timing_body(**{field: value}))
+        for field in ("reservation_id", "resume_turn_id"):
+            for value in ('"01234567-0123-4567-89ab-0123456789ab',
+                          "01234567-0123-4567-89ab-0123456789abSECRET", "012345670123456789ab0123456789ab"):
+                invalid.append(self.timing_body(**{field: value}))
+        invalid.extend([
+            self.timing_body() + ' phase="failed"',
+            self.timing_body() + ' elapsed_ms=-1',
+            self.timing_body(phase=None) + ' body="phase=\\"wake_detected\\""',
+            'body="' + self.timing_body().replace('"', '\\"') + '"',
+        ])
+        records = [("azrael_root_resume", body, "INFO") for body in invalid]
+        records.append(("other_target", self.timing_body(), "INFO"))
+        report, stdout = self.inspect(records)
+        self.assertNotIn("root_resume_timing", report["categories"])
+        self.assertFalse(any("rootResumeTiming" in event for event in report["eventsNewestFirst"]))
+        self.assertNotIn("SECRET", stdout)
+
     def test_thinking_wait_evidence_is_separate_bounded_and_private(self):
         records = [
             ("devin_native_progress", 'event="native_inference_thinking_wait" outcome="inference_output_idle" '

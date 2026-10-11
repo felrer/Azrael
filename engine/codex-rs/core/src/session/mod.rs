@@ -269,6 +269,7 @@ mod review;
 mod rollout_budget;
 mod rollout_reconstruction;
 mod root_resume;
+pub(crate) mod root_resume_timing;
 #[allow(clippy::module_inception)]
 pub(crate) mod session;
 pub(crate) mod startup_prewarm;
@@ -2306,6 +2307,12 @@ impl Session {
     }
 
     pub(crate) async fn emit_turn_started(&self, turn_context: &TurnContext, task_kind: TaskKind) {
+        let timing = turn_context
+            .extension_data
+            .get::<root_resume_timing::RootResumeTiming>();
+        let phase = timing.as_ref().map(|timing| {
+            root_resume_timing::RootResumePhase::new(Some(timing.as_ref()), "turn_start")
+        });
         let event = TurnStartedEvent {
             turn_attribution: (task_kind == TaskKind::Regular).then(|| turn_context.attribution()),
             turn_id: turn_context.sub_id.clone(),
@@ -2317,6 +2324,9 @@ impl Session {
         };
         self.send_event(turn_context, EventMsg::TurnStarted(event))
             .await;
+        if let Some(phase) = phase {
+            phase.finish(true);
+        }
     }
 
     /// Persist the event to rollout and send it to clients.

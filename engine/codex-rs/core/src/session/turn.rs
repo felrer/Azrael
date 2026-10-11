@@ -2635,7 +2635,14 @@ async fn try_run_sampling_request(
         )
         .await?
     } else {
-        client_session
+        let timing = turn_context
+            .extension_data
+            .get::<super::root_resume_timing::RootResumeTiming>();
+        client_session.set_root_resume_timing(timing.clone());
+        let phase = timing
+            .as_ref()
+            .and_then(|timing| timing.first_model_request());
+        let result = client_session
             .stream(
                 prompt,
                 &step_context.settings.model_info,
@@ -2652,7 +2659,14 @@ async fn try_run_sampling_request(
             )
             .instrument(trace_span!("stream_request"))
             .or_cancel(&cancellation_token)
-            .await??
+            .await;
+        if let Some(phase) = phase {
+            match &result {
+                Ok(stream) => phase.finish(stream.is_ok()),
+                Err(_) => drop(phase),
+            }
+        }
+        result??
     };
     if cancellation_token.is_cancelled() {
         return Err(CodexErr::TurnAborted);

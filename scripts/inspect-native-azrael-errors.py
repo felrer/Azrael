@@ -119,6 +119,56 @@ def tool_diagnostics(body: str, target: str) -> dict:
     return result
 
 
+def root_resume_timing(body: str, target: str) -> dict:
+    """Export only validated root-resume fields, never quoted message content."""
+    if target != "azrael_root_resume":
+        return {}
+    # Keep quoted values together so body="phase=..." cannot supply fields.
+    tokens = re.finditer(r'(?:[^\s"]|"(?:\\.|[^"\\])*")+', body)
+    fields = {}
+    known = {"event", "phase", "outcome", "wake_reason", "reservation_id",
+             "resume_turn_id", "duration_ms", "elapsed_ms"}
+    end = 0
+    for token in tokens:
+        if body[end:token.start()].strip():
+            return {}
+        end = token.end()
+        key, separator, value = token[0].partition("=")
+        if separator and key in known:
+            if key in fields:
+                return {}
+            fields[key] = value
+    if body[end:].strip():
+        return {}
+    labels = {
+        "event": {"root_resume_timing"},
+        "phase": {"wake_detected", "execution_admission", "submission_gate", "history_flush",
+                  "reservation_claim", "turn_context", "turn_start", "model_request", "model_request_submit",
+                  "resume_dispatch"},
+        "outcome": {"started", "completed", "failed", "cancelled"},
+        "wake_reason": {"deadline", "agents_completed", "work_completed", "manual", "user_input"},
+    }
+    for key, allowed in labels.items():
+        if fields.get(key) not in {'"' + label + '"' for label in allowed}:
+            return {}
+    result = {"phase": fields["phase"][1:-1], "outcome": fields["outcome"][1:-1],
+              "wakeReason": fields["wake_reason"][1:-1]}
+    for source, output in (("duration_ms", "durationMs"), ("elapsed_ms", "elapsedMs")):
+        if source == "duration_ms" and source not in fields:
+            continue
+        value = fields.get(source, "")
+        if not re.fullmatch(r"[0-9]{1,20}", value) or int(value) > 2**64 - 1:
+            return {}
+        result[output] = int(value)
+    uuid_pattern = r"[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}"
+    for source, output in (("reservation_id", "reservationRef"), ("resume_turn_id", "turnRef")):
+        value = fields.get(source, "")
+        if not (re.fullmatch(uuid_pattern, value) or re.fullmatch('"' + uuid_pattern + '"', value)):
+            return {}
+        result[output] = hashlib.sha256(value.strip('"').encode()).hexdigest()[:10]
+    return result
+
+
 def inference_diagnostics(body: str, target: str) -> dict:
     """Export bounded inactivity evidence without provider content."""
     if target != "devin_native_progress":
@@ -321,6 +371,7 @@ def main() -> None:
         inference = inference_diagnostics(body or "", target)
         transport = transport_diagnostics(body or "", target)
         invocation = tool_invocation_diagnostics(body or "", target)
+        timing = root_resume_timing(body or "", target)
         kind = category(body or "")
         if schema:
             kind = "tool_schema"
@@ -338,6 +389,8 @@ def main() -> None:
             kind = "tool_invocation"
         if detail.get("code") in {"invalid_argument", "failed_precondition", "out_of_range", "invalid_request_error"}:
             kind = "provider_request"
+        if timing:
+            kind = "root_resume_timing"
         if level not in ("WARN", "ERROR") and kind is None:
             continue
         kind = kind or "other"
@@ -360,6 +413,8 @@ def main() -> None:
                 event["transportDiagnostics"] = transport
             if invocation:
                 event["toolInvocationDiagnostics"] = invocation
+            if timing:
+                event["rootResumeTiming"] = timing
             if schema or detail or inference or transport or invocation:
                 request = re.search(r'(?<!\w)request_id="?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"?(?=\s|$)', body or "")
                 if request:
