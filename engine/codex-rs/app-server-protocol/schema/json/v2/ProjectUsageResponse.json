@@ -19,6 +19,31 @@
       ],
       "type": "object"
     },
+    "ProjectUsageModel": {
+      "properties": {
+        "amount": {
+          "format": "double",
+          "type": "number"
+        },
+        "model": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "unpriced": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "amount",
+        "model",
+        "provider",
+        "unpriced"
+      ],
+      "type": "object"
+    },
     "ProjectUsageProject": {
       "properties": {
         "amount": {
@@ -27,6 +52,12 @@
         },
         "id": {
           "type": "string"
+        },
+        "models": {
+          "items": {
+            "$ref": "#/definitions/ProjectUsageModel"
+          },
+          "type": "array"
         },
         "name": {
           "type": "string"
@@ -39,6 +70,7 @@
       "required": [
         "amount",
         "id",
+        "models",
         "name",
         "unpriced"
       ],

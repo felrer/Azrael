@@ -22,9 +22,20 @@ export function parseProjectUsageSnapshot(value: unknown, year: number): Project
       if (!isRecord(project) || typeof project.id !== "string" || !project.id || ids.has(project.id)
         || typeof project.name !== "string" || !project.name || typeof project.amount !== "number"
         || !Number.isFinite(project.amount) || project.amount < 0 || typeof project.unpriced !== "number"
-        || !Number.isSafeInteger(project.unpriced) || project.unpriced < 0) throw new Error("Invalid project usage project.");
+        || !Number.isSafeInteger(project.unpriced) || project.unpriced < 0 || !Array.isArray(project.models)) throw new Error("Invalid project usage project.");
       ids.add(project.id);
-      return { id: project.id, name: project.name, amount: project.amount, unpriced: project.unpriced };
+      const identities = new Set<string>();
+      const models = project.models.map(model => {
+        if (!isRecord(model) || typeof model.provider !== "string" || !model.provider
+          || typeof model.model !== "string" || !model.model || typeof model.amount !== "number"
+          || !Number.isFinite(model.amount) || model.amount < 0 || typeof model.unpriced !== "number"
+          || !Number.isSafeInteger(model.unpriced) || model.unpriced < 0) throw new Error("Invalid project usage model.");
+        const identity = JSON.stringify([model.provider, model.model]);
+        if (identities.has(identity)) throw new Error("Duplicate project usage model.");
+        identities.add(identity);
+        return { provider: model.provider, model: model.model, amount: model.amount, unpriced: model.unpriced };
+      });
+      return { id: project.id, name: project.name, amount: project.amount, unpriced: project.unpriced, models };
     });
     return { date: day.date, projects };
   });

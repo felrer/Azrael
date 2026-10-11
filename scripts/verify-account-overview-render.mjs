@@ -36,15 +36,26 @@ const snapshot = { providers: [
   { id: 'anthropic', label: 'Anthropic', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'claude-a', label: 'claude@example.com', selected: true, needsReauth: false, autoSwitchAllowed: true }] },
   { id: 'google', label: 'Google', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'gemini-a', label: 'gemini@example.com', selected: true, needsReauth: false }] },
 ], availableProviders: [] };
+const unsafeModel = '<img src=x onerror="globalThis.modelInjectionExecuted=true">';
+const model = (provider, name, amount, unpriced = 0) => ({ provider, model: name, amount, unpriced });
+const dayOneModels = [model('openai', 'shared-model', 1.25), model('other-provider', 'shared-model', 2.5), model('openai', 'unknown-model', 0, 2), model('openai', unsafeModel, .75), ...Array.from({ length: 26 }, (_, i) => model('openai', `extra-model-${String(i).padStart(2, '0')}`, 0))];
+const dayTwoModels = [model('openai', 'shared-model', 3.75), model('other-provider', 'shared-model', 1.5), model('openai', 'unknown-model', 0, 1), model('openai', unsafeModel, .25)];
+const projectSnapshot = { currency: 'USD', days: [
+  { date: '2024-02-05', projects: [{ id: 'alpha', name: 'Alpha project', amount: 4.5, unpriced: 2, models: dayOneModels }, { id: 'beta', name: 'Beta project', amount: 7, unpriced: 0, models: [model('openai', 'beta-only', 7)] }] },
+  { date: '2024-02-06', projects: [{ id: 'alpha', name: 'Alpha project', amount: 5.5, unpriced: 1, models: dayTwoModels }] },
+  { date: '2024-01-31', projects: [{ id: 'alpha', name: 'Alpha project', amount: 999, unpriced: 0, models: [model('openai', 'outside-month', 999)] }] },
+] };
+const monthlyModels = dayOneModels.map(value => { const other = dayTwoModels.find(item => item.provider === value.provider && item.model === value.model); return { ...value, amount: value.amount + (other?.amount ?? 0), unpriced: value.unpriced + (other?.unpriced ?? 0) }; });
 let view, panel, surface, subscriber, emitted, updates = 0;
 const actions = [], requests = [];
 function createView() {
   view?.dispose();
-  const service = Object.assign(new EventEmitter(), { changesEnabled: true, state: { profiles, activeProfileId: 'saved-a' }, async refresh() { return this.state; }, async devin() { return { enabled: true, loggedIn: true, email: 'cli@example.com' }; } });
+  const service = Object.assign(new EventEmitter(), { changesEnabled: true, state: { profiles, activeProfileId: 'saved-a' }, async refresh() { return this.state; }, async projectUsage(year) { requests.push(['projectUsage', year]); return structuredClone(projectSnapshot); }, async devin() { return { enabled: true, loggedIn: true, email: 'cli@example.com' }; } });
   const usage = { get: id => ({ data: usageData(id) }), dueResetProfiles: () => [], async refresh(id, ws) { requests.push(['openai', id, ws]); } };
   const providers = { enabled: true, snapshot, async refresh() { return snapshot; }, async quota(providerId, accountId) { requests.push([providerId, accountId]); return { providerId, accountId, status: 'ok', source: 'synthetic', observedAt: Date.now(), rows: providerId === 'anthropic' ? [{ label: '5시간', usedPercent: 1, resetsAt: resetAt }, { label: 'Fable', usedPercent: 0, resetsAt: resetAt }] : [{ label: 'Pro', usedPercent: 0, resetsAt: resetAt }] }; }, async setAutoSwitch(providerId, accountId, enabled) { actions.push({ providerId, accountId, enabled }); }, dispose() {} };
   const devin = { snapshot: undefined, async refresh() { requests.push(['devin-cli']); this.snapshot = { daily: window(0, 1440), weekly: window(24, 10080) }; }, cancelRefresh() {}, dispose() {} };
   view = new UsageView(service, usage, devin, providers);
+  view.costMonth = '2024-02';
   let source = '';
   panel = { visible: true, webview: {}, dispose() {} };
   Object.defineProperty(panel.webview, 'html', { get: () => source, set: value => { source = value; if (surface === 'standalone') { emitted = value.slice(value.indexOf('<body>') + 6, value.lastIndexOf('<script nonce=')); updates++; } } });
@@ -117,6 +128,59 @@ try {
     check(prefix+' no browser page errors',await evaluate('fixtureErrors.length===0'));
     await wait("fixtureNodes('.provider-icon img').every(e=>e.complete&&e.naturalWidth>0)");
     check(prefix+' official logos loaded and one variant visible',await evaluate("fixtureNodes('.provider-icon').every(e=>Array.from(e.children).filter(c=>getComputedStyle(c).display!=='none').length===1)"));
+    await wait("fixtureNode('.puc-month').textContent.includes('2024.02')&&fixtureNodes('.puc-project').length===2");
+    check(prefix+' project month total preserves incomplete status',await evaluate("fixtureNode('.puc-total').textContent===new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(17)+' · ?×3'"));
+    const tooltipCases = [
+      { name: 'monthly-alpha', selector: '.puc-project', models: monthlyModels, amount: 10, unpriced: 3, label: 'Alpha project', projects: [] },
+      { name: 'monthly-beta', selector: '.puc-project:nth-child(2)', models: [model('openai', 'beta-only', 7)], amount: 7, unpriced: 0, label: 'Beta project', projects: [] },
+      { name: 'day-one', selector: '.puc-cell[data-date="2024-02-05"]', models: [...dayOneModels, model('openai', 'beta-only', 7)], amount: 11.5, unpriced: 2, label: '2024-02-05', projects: [['Beta project', 7, 0], ['Alpha project', 4.5, 2]] },
+      { name: 'day-two', selector: '.puc-cell[data-date="2024-02-06"]', models: dayTwoModels, amount: 5.5, unpriced: 1, label: '2024-02-06', projects: [['Alpha project', 5.5, 1]] },
+    ];
+    for (const item of tooltipCases) {
+      const selector=JSON.stringify(item.selector);
+      await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:width-2,y:2});
+      await evaluate(`fixtureNode(${selector}).scrollIntoView({block:'center',inline:'center'})`);
+      await send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+      await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+      await evaluate(`fixtureNode(${selector}).focus()`);
+      check(prefix+' '+item.name+' keyboard focus reveals tooltip',await evaluate(`fixtureNode(${selector}).matches(':focus-visible')&&getComputedStyle(fixtureNode(${selector}).querySelector('.puc-tooltip')).display==='block'`));
+      const initialBounds=await evaluate(`(()=>{const r=fixtureNode(${selector}).querySelector('.puc-tooltip').getBoundingClientRect();return{left:r.left,right:r.right,top:r.top,bottom:r.bottom,viewportHeight:innerHeight};})()`);
+      summary.initialTooltipBounds??=[];summary.initialTooltipBounds.push({prefix,name:item.name,...initialBounds});
+      if(initialBounds.top<0||initialBounds.bottom>1100){
+        const naturalShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});const naturalName=prefix+'-'+item.name+'-natural-bounds.png';await writeFile(join(logs,naturalName),Buffer.from(naturalShot.data,'base64'));summary.screenshots.push(naturalName);
+        await evaluate(`fixtureNode(${selector}).querySelector('.puc-tooltip').scrollIntoView({block:'nearest',inline:'nearest'})`);
+      }
+      const expected={ models:item.models, amount:item.amount, unpriced:item.unpriced, label:item.label, projects:item.projects };
+      check(prefix+' '+item.name+' exact monetary model and project scope',await evaluate(`(()=>{const expected=${JSON.stringify(expected)},tip=fixtureNode(${selector}).querySelector('.puc-tooltip'),money=value=>new Intl.NumberFormat(undefined,{style:'currency',currency:'USD'}).format(value),amount=(value,count)=>(value===0&&count>0?'—':money(value))+(count?' · ?×'+count:'');const rows=Array.from(tip.querySelectorAll('.puc-tip-model')).map(row=>Array.from(row.children).map(child=>child.textContent));const wanted=expected.models.map(item=>[item.model+' · '+item.provider,amount(item.amount,item.unpriced)]);const projectRows=Array.from(tip.querySelectorAll('.puc-tip-row:not(.puc-tip-model)')).map(row=>Array.from(row.children).map(child=>child.textContent));return tip.querySelector('strong').textContent===expected.label&&tip.querySelector('.puc-tip-total').textContent===amount(expected.amount,expected.unpriced)&&JSON.stringify(rows.sort())===JSON.stringify(wanted.sort())&&JSON.stringify(projectRows)===JSON.stringify(expected.projects.map(([name,value,count])=>[name,amount(value,count)]));})()`));
+      check(prefix+' '+item.name+' model HTML escaped',await evaluate(`!fixtureNode(${selector}).querySelector('.puc-tooltip img')&&!globalThis.modelInjectionExecuted`));
+      check(prefix+' '+item.name+' incomplete styling preserved',await evaluate(`fixtureNode(${selector}).${item.selector.startsWith('.puc-project') ? "querySelector('.puc-bar')." : ''}classList.contains('puc-incomplete')===${item.unpriced>0}`));
+      await evaluate(`fixtureNode(${selector}).blur();new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
+      await evaluate(`fixtureNode(${selector}).scrollIntoView({block:'center',inline:'center'});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
+      const target=await evaluate(`(()=>{const r=fixtureNode(${selector}).getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+      await send('Input.dispatchMouseEvent',{type:'mouseMoved',...target});
+      check(prefix+' '+item.name+' mouse hover reveals tooltip',await evaluate(`getComputedStyle(fixtureNode(${selector}).querySelector('.puc-tooltip')).display==='block'`));
+      const geometry=await evaluate(`(()=>{const t=fixtureNode(${selector}).querySelector('.puc-tooltip'),r=t.getBoundingClientRect(),s=getComputedStyle(t);return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,scrollHeight:t.scrollHeight,clientHeight:t.clientHeight,overflow:s.overflowY,color:s.color,background:s.backgroundColor};})()`);
+      summary.tooltipGeometry??=[];summary.tooltipGeometry.push({prefix,name:item.name,...geometry});
+      check(prefix+' '+item.name+' visible tooltip fits viewport',geometry.left>=0&&geometry.right<=width&&geometry.top>=0&&geometry.bottom<=1100);
+      check(prefix+' '+item.name+' tooltip uses theme palette',geometry.color!==geometry.background);
+      if(item.models.length>20){
+        check(prefix+' '+item.name+' long list has bounded scrolling',geometry.scrollHeight>geometry.clientHeight&&geometry.clientHeight<=360&&geometry.overflow==='auto');
+        const tipTarget=await evaluate(`(()=>{const r=fixtureNode(${selector}).querySelector('.puc-tooltip').getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
+        if(item.selector.startsWith('.puc-project')){
+          const gap=await evaluate(`(()=>{const r=fixtureNode(${selector}).getBoundingClientRect();return{x:r.x+20,y:r.y-4};})()`);
+          await send('Input.dispatchMouseEvent',{type:'mouseMoved',...gap});
+          check(prefix+' '+item.name+' hover survives gap into model tooltip',await evaluate(`getComputedStyle(fixtureNode(${selector}).querySelector('.puc-tooltip')).display==='block'`));
+        }
+        await send('Input.dispatchMouseEvent',{type:'mouseMoved',...tipTarget});
+        await send('Input.dispatchMouseEvent',{type:'mouseWheel',...tipTarget,deltaX:0,deltaY:180});
+        await wait(`fixtureNode(${selector}).querySelector('.puc-tooltip').scrollTop>0`);
+        check(prefix+' '+item.name+' mouse scroll keeps tooltip open',await evaluate(`getComputedStyle(fixtureNode(${selector}).querySelector('.puc-tooltip')).display==='block'`));
+        await evaluate(`fixtureNode(${selector}).querySelector('.puc-tooltip').scrollTop=0`);
+      }
+      const tooltipShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
+      const screenshotName=prefix+'-'+item.name+'-models.png';await writeFile(join(logs,screenshotName),Buffer.from(tooltipShot.data,'base64'));summary.screenshots.push(screenshotName);
+    }
+    check(prefix+' project model fixture has no browser errors',await evaluate('fixtureErrors.length===0'));
     if(process.env.AZRAEL_RENDER_PROVIDER_BRAND_CAPTURE==='1'&&surfaceName==='standalone'&&width===1050){
       const brands=[['openai','OpenAI'],['anthropic','Anthropic'],['google','Google'],['google-antigravity','Google Antigravity'],['google-gemini-cli','Gemini CLI'],['devin-cli','Devin'],['openrouter','OpenRouter'],['xai','xAI']];
       const markup='<section id="brand-capture">'+brands.map(([id,label])=>providerHeadingHtml(id,label,0)).join('')+'</section>';
@@ -130,6 +194,7 @@ try {
     }
   }
   check('collapsed summary identities refreshed',profiles.every(p=>requests.some(r=>r[0]==='openai'&&r[1]===p.id&&r[2]===p.workspaceAccountId))&&requests.some(r=>r[0]==='anthropic')&&requests.some(r=>r[0]==='google')&&requests.some(r=>r[0]==='devin-cli'));
+  check('production project usage refresh requests deterministic fixture year',requests.filter(r=>r[0]==='projectUsage').length>=8&&requests.filter(r=>r[0]==='projectUsage').every(r=>r[1]===2024));
   summary.outcome='passed';await send('Browser.close',{},null);
 } catch(e) { summary.outcome='failed';summary.error=String(e.stack||e);process.exitCode=1; }
 finally {

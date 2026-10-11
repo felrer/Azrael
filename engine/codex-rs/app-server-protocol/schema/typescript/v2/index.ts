@@ -423,6 +423,7 @@ export type { ProjectChangedNotification } from "./ProjectChangedNotification";
 export type { ProjectRoot } from "./ProjectRoot";
 export type { ProjectSortKey } from "./ProjectSortKey";
 export type { ProjectUsageDay } from "./ProjectUsageDay";
+export type { ProjectUsageModel } from "./ProjectUsageModel";
 export type { ProjectUsageParams } from "./ProjectUsageParams";
 export type { ProjectUsageProject } from "./ProjectUsageProject";
 export type { ProjectUsageResponse } from "./ProjectUsageResponse";

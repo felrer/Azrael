@@ -1,11 +1,12 @@
 import { dynamicTextHtml, escapeHtml } from "./usagePresentation";
 
+export interface ProjectUsageModel { provider: string; model: string; amount: number; unpriced: number }
 export interface ProjectUsageSnapshot {
   currency: string;
-  days: Array<{ date: string; projects: Array<{ id: string; name: string; amount: number; unpriced: number }> }>;
+  days: Array<{ date: string; projects: Array<{ id: string; name: string; amount: number; unpriced: number; models: ProjectUsageModel[] }> }>;
 }
 
-interface Cost { id: string; name: string; amount: number; unpriced: number }
+interface Cost { id: string; name: string; amount: number; unpriced: number; models?: ProjectUsageModel[] }
 const datePattern = /^(\d{4})-(\d{2})-(\d{2})$/;
 function utcDate(year: number, month: number, day: number): Date {
   const date = new Date(0);
@@ -20,10 +21,20 @@ function validDate(value: string): boolean {
 }
 function merge(target: Map<string, Cost>, value: Cost): void {
   const existing = target.get(value.id);
-  if (!existing) { target.set(value.id, { ...value }); return; }
+  if (!existing) { target.set(value.id, { ...value, models: value.models?.map(model => ({ ...model })) }); return; }
   const sum = existing.amount + value.amount;
   existing.amount = Number.isFinite(sum) ? sum : existing.amount;
   existing.unpriced += value.unpriced + (Number.isFinite(sum) ? 0 : 1);
+  if (value.models) {
+    existing.models ??= [];
+    for (const model of value.models) {
+      const prior = existing.models.find(item => item.provider === model.provider && item.model === model.model);
+      if (!prior) { existing.models.push({ ...model }); continue; }
+      const amount = prior.amount + model.amount;
+      prior.amount = Number.isFinite(amount) ? amount : prior.amount;
+      prior.unpriced += model.unpriced + (Number.isFinite(amount) ? 0 : 1);
+    }
+  }
 }
 function ranked(values: Iterable<Cost>): Cost[] {
   return [...values].sort((a, b) => b.amount - a.amount || a.name.localeCompare(b.name) || a.id.localeCompare(b.id));
@@ -42,7 +53,7 @@ export function projectUsageHtml(snapshot: ProjectUsageSnapshot, month: string, 
     for (const project of day.projects) {
       const priced = Number.isFinite(project.amount) && project.amount >= 0;
       const unpriced = Number.isSafeInteger(project.unpriced) && project.unpriced >= 0 ? project.unpriced : 1;
-      merge(projects, { id: project.id, name: project.name, amount: priced ? project.amount : 0, unpriced: unpriced + (priced ? 0 : 1) });
+      merge(projects, { id: project.id, name: project.name, amount: priced ? project.amount : 0, unpriced: unpriced + (priced ? 0 : 1), models: project.models });
     }
     days.set(day.date, projects);
   }
@@ -61,14 +72,17 @@ export function projectUsageHtml(snapshot: ProjectUsageSnapshot, month: string, 
   const amount = (cost: Cost): string => `${cost.amount === 0 && cost.unpriced > 0 ? "—" : money(cost.amount)}${cost.unpriced ? ` · ?×${cost.unpriced}` : ""}`;
   const total = (values: Iterable<Cost>): Cost => {
     const totals = new Map<string, Cost>();
-    for (const value of values) merge(totals, { ...value, id: "total" });
+    for (const value of values) merge(totals, { ...value, id: "total", models: undefined });
     return totals.get("total") ?? { id: "total", name: "", amount: 0, unpriced: 0 };
   };
   const monthly = new Map<string, Cost>();
   for (const [date, projects] of days) if (date.startsWith(month + "-")) for (const project of projects.values()) merge(monthly, project);
   const projects = ranked(monthly.values());
   const peak = Math.max(0, ...[...days].filter(([date]) => date.startsWith(`${year.toString().padStart(4, "0")}-`)).map(([, values]) => total(values.values()).amount));
-  const tooltip = (label: string, values: Cost[], known: boolean, compare = true): string => `<span class="puc-tooltip" role="tooltip"><strong>${dynamicTextHtml(label)}</strong><span class="puc-tip-total">${dynamicTextHtml(known ? amount(total(values)) : "—")}</span>${compare ? values.map(value => `<span class="puc-tip-row">${dynamicTextHtml(value.name)}${dynamicTextHtml(amount(value))}</span>`).join("") : ""}</span>`;
+  const modelRows = (cost: Cost): string => [...(cost.models ?? [])]
+    .sort((a, b) => b.amount - a.amount || a.model.localeCompare(b.model) || a.provider.localeCompare(b.provider))
+    .map(model => `<span class="puc-tip-row puc-tip-model">${dynamicTextHtml(`${model.model} · ${model.provider}`)}${dynamicTextHtml(amount({ ...model, id: "", name: "" }))}</span>`).join("");
+  const tooltip = (label: string, values: Cost[], known: boolean, compare = true): string => `<span class="puc-tooltip" role="tooltip"><strong>${dynamicTextHtml(label)}</strong><span class="puc-tip-total">${dynamicTextHtml(known ? amount(total(values)) : "—")}</span>${values.map(value => `${compare ? `<span class="puc-tip-row">${dynamicTextHtml(value.name)}${dynamicTextHtml(amount(value))}</span>` : ""}${modelRows(value)}`).join("")}</span>`;
   const nav = (offset: number): string => {
     const date = utcDate(year, +month.slice(5) - 1 + offset, 1);
     const allowed = date.getUTCFullYear() >= 1 && date.getUTCFullYear() <= 9999;
@@ -101,8 +115,8 @@ export const projectUsageStyles = `
 .project-usage .puc-calendar-scroll{max-width:100%;overflow-x:auto;padding:3px 3px 8px;box-sizing:border-box}.project-usage .puc-calendar{display:grid;grid-template-rows:repeat(7,11px);grid-auto-flow:column;grid-auto-columns:11px;gap:3px;width:max-content}
 .project-usage .puc-cell,.project-usage .puc-gap{width:11px;height:11px;padding:0;border:0;border-radius:2px;box-sizing:border-box}.project-usage .puc-cell{background:var(--usage-track)}.project-usage .puc-missing{background:var(--usage-soft);box-shadow:inset 0 0 0 1px var(--usage-border)}.project-usage .puc-level-1{background:color-mix(in oklab,var(--usage-primary) 25%,var(--usage-panel))}.project-usage .puc-level-2{background:color-mix(in oklab,var(--usage-primary) 45%,var(--usage-panel))}.project-usage .puc-level-3{background:color-mix(in oklab,var(--usage-primary) 70%,var(--usage-panel))}.project-usage .puc-level-4{background:var(--usage-primary)}.project-usage .puc-incomplete{box-shadow:inset 0 0 0 1px var(--usage-warning)}
 .project-usage .puc-cell:hover,.project-usage .puc-cell:focus-visible,.project-usage .puc-project:focus-visible{outline:2px solid var(--color-ring,var(--vscode-focusBorder,#3086e9));outline-offset:1px}
-.project-usage .puc-tooltip{display:none;position:absolute;z-index:5;left:0;top:154px;width:min(320px,100%);box-sizing:border-box;padding:12px;border:1px solid var(--usage-border);border-radius:var(--radius-lg,10px);background:var(--usage-panel);color:var(--usage-ink);font-size:12px;font-weight:400;text-align:left;line-height:1.5;box-shadow:0 4px 16px color-mix(in oklab,var(--usage-ink) 12%,transparent);overflow-wrap:anywhere;pointer-events:none}.project-usage .puc-tooltip strong{font-weight:500}.project-usage .puc-tip-total{display:block;color:var(--usage-secondary);margin-bottom:6px}.project-usage .puc-tip-row{display:flex;justify-content:space-between;gap:16px}.project-usage .puc-tip-row>span:first-child{min-width:0}.project-usage .puc-tip-row>span:last-child{flex-shrink:0}
-.project-usage .puc-cell:hover>.puc-tooltip,.project-usage .puc-project:hover>.puc-tooltip,.project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-cell:focus-visible>.puc-tooltip,.project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-project:focus-visible>.puc-tooltip{display:block}
-.project-usage .puc-projects{display:flex;flex-direction:column;gap:12px;margin-top:20px}.project-usage .puc-project{position:relative;display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr);align-items:center;gap:16px;border-radius:4px;min-width:0}.project-usage .puc-project-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.project-usage .puc-bar-track{display:block;height:8px;border-radius:4px;background:var(--usage-soft);min-width:0}.project-usage .puc-bar{display:block;height:100%;border-radius:4px;background:var(--usage-primary)}.project-usage .puc-project>.puc-tooltip{top:auto;bottom:calc(100% + 8px)}.project-usage .puc-empty{margin:0;color:var(--usage-secondary)}
+.project-usage .puc-tooltip{display:none;position:absolute;z-index:5;left:0;top:154px;width:min(320px,100%);box-sizing:border-box;padding:12px;border:1px solid var(--usage-border);border-radius:var(--radius-lg,10px);background:var(--usage-panel);color:var(--usage-ink);font-size:12px;font-weight:400;text-align:left;line-height:1.5;box-shadow:0 4px 16px color-mix(in oklab,var(--usage-ink) 12%,transparent);overflow-wrap:anywhere;pointer-events:auto;max-height:min(360px,60vh);overflow-y:auto}.project-usage .puc-tooltip strong{font-weight:500}.project-usage .puc-tip-total{display:block;color:var(--usage-secondary);margin-bottom:6px}.project-usage .puc-tip-row{display:flex;justify-content:space-between;gap:16px}.project-usage .puc-tip-model{padding-left:8px;color:var(--usage-secondary)}.project-usage .puc-tip-row>span:first-child{min-width:0}.project-usage .puc-tip-row>span:last-child{flex-shrink:0}
+.project-usage .puc-cell>.puc-tooltip{top:44px;transform:translateY(calc(-100% - 8px))}.project-usage .puc-cell:hover>.puc-tooltip,.project-usage .puc-project:hover>.puc-tooltip,.project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-cell:focus-visible>.puc-tooltip,.project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-project:focus-visible>.puc-tooltip{display:block}
+.project-usage .puc-projects{display:flex;flex-direction:column;gap:12px;margin-top:20px}.project-usage .puc-project{position:relative;display:grid;grid-template-columns:minmax(0,140px) minmax(0,1fr);align-items:center;gap:16px;border-radius:4px;min-width:0}.project-usage .puc-project::before{content:"";position:absolute;bottom:100%;left:0;width:min(320px,100%);height:8px}.project-usage .puc-project-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.project-usage .puc-bar-track{display:block;height:8px;border-radius:4px;background:var(--usage-soft);min-width:0}.project-usage .puc-bar{display:block;height:100%;border-radius:4px;background:var(--usage-primary)}.project-usage .puc-project>.puc-tooltip{top:auto;bottom:calc(100% + 8px)}.project-usage .puc-empty{margin:0;color:var(--usage-secondary)}
 @media(max-width:480px){.project-usage .puc-project{grid-template-columns:minmax(0,100px) minmax(0,1fr);gap:12px}}
 `;

@@ -3,7 +3,7 @@ import test from "node:test";
 import { ProjectUsageSnapshot, projectUsageHtml, projectUsageStyles } from "../src/projectUsagePresentation";
 
 const snapshot = (days: ProjectUsageSnapshot["days"] = []): ProjectUsageSnapshot => ({ currency: "USD", days });
-const project = (id: string, amount: number, unpriced = 0, name = id) => ({ id, name, amount, unpriced });
+const project = (id: string, amount: number, unpriced = 0, name = id) => ({ id, name, amount, unpriced, models: [] as import("../src/projectUsagePresentation").ProjectUsageModel[] });
 const usd = (amount: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(amount);
 
 test("Sunday-first annual calendar aligns weekdays and includes leap day", () => {
@@ -122,4 +122,28 @@ test("bar tooltip shows project and amount once; mouse hover suppresses other fo
   assert.ok(!tip.includes("puc-tip-row"));
   assert.ok(projectUsageStyles.includes(".project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-cell:focus-visible>.puc-tooltip"));
   assert.ok(projectUsageStyles.includes(".project-usage:not(:has(.puc-cell:hover,.puc-project:hover)) .puc-project:focus-visible>.puc-tooltip"));
+});
+
+test("monthly model costs merge by provider and model; daily details stay scoped and escaped", () => {
+  const first = { ...project("a", 5, 1), models: [
+    { provider: "openai", model: "shared", amount: 3, unpriced: 0 },
+    { provider: "other", model: "shared", amount: 2, unpriced: 0 },
+    { provider: "devin", model: "<img src=x>", amount: 0, unpriced: 1 },
+  ] };
+  const data = snapshot([
+    { date: "2024-02-01", projects: [first] },
+    { date: "2024-02-02", projects: [{ ...project("a", 4), models: [{ provider: "openai", model: "shared", amount: 4, unpriced: 0 }] }] },
+    { date: "2024-03-01", projects: [{ ...project("a", 100), models: [{ provider: "openai", model: "shared", amount: 100, unpriced: 0 }] }] },
+  ]);
+  const before = JSON.stringify(data);
+  const html = projectUsageHtml(data, "2024-02");
+  const bars = html.split('class="puc-projects"')[1];
+  assert.ok(bars.includes(`shared · openai</span><span data-azrael-dynamic-text>${usd(7)}`));
+  assert.ok(bars.includes(`shared · other</span><span data-azrael-dynamic-text>${usd(2)}`));
+  assert.match(bars, /&lt;img src=x&gt; · devin<\/span><span[^>]*>— · \?×1/);
+  assert.doesNotMatch(html, /<img/);
+  const day = html.split('data-date="2024-02-01"')[1].split('</button>')[0];
+  assert.ok(day.includes(`shared · openai</span><span data-azrael-dynamic-text>${usd(3)}`));
+  assert.ok(!day.includes(usd(7)) && !day.includes(usd(100)));
+  assert.equal(JSON.stringify(data), before, "monthly merging must not mutate refreshed daily snapshots");
 });

@@ -5,7 +5,7 @@ import test from "node:test";
 import { AccountService } from "../src/accountService";
 import { parseProjectUsageSnapshot } from "../src/projectUsageProtocol";
 
-const snapshot = (year: number) => ({ currency: "USD", days: [{ date: `${year}-01-01`, projects: [{ id: "a", name: "Alpha", amount: 1.5, unpriced: 2 }] }] });
+const snapshot = (year: number) => ({ currency: "USD", days: [{ date: `${year}-01-01`, projects: [{ id: "a", name: "Alpha", amount: 1.5, unpriced: 2, models: [{ provider: "openai", model: "gpt-6-sol", amount: 1.5, unpriced: 2 }] }] }] });
 
 test("project usage validates USD, dates, unique identities and finite nonnegative aggregates", () => {
   assert.deepEqual(parseProjectUsageSnapshot(snapshot(2026), 2026), snapshot(2026));
@@ -13,11 +13,25 @@ test("project usage validates USD, dates, unique identities and finite nonnegati
     { ...snapshot(2026), currency: "EUR" }, snapshot(2025),
     { currency: "USD", days: [{ date: "2026-02-30", projects: [] }] },
     { currency: "USD", days: [...snapshot(2026).days, ...snapshot(2026).days] },
-    ...[NaN, Infinity, -1].map(amount => ({ currency: "USD", days: [{ date: "2026-01-01", projects: [{ id: "a", name: "A", amount, unpriced: 0 }] }] })),
-    ...[-1, 0.5, Number.MAX_SAFE_INTEGER + 1].map(unpriced => ({ currency: "USD", days: [{ date: "2026-01-01", projects: [{ id: "a", name: "A", amount: 0, unpriced }] }] })),
+    ...[NaN, Infinity, -1].map(amount => ({ currency: "USD", days: [{ date: "2026-01-01", projects: [{ id: "a", name: "A", amount, unpriced: 0, models: [] }] }] })),
+    ...[-1, 0.5, Number.MAX_SAFE_INTEGER + 1].map(unpriced => ({ currency: "USD", days: [{ date: "2026-01-01", projects: [{ id: "a", name: "A", amount: 0, unpriced, models: [] }] }] })),
   ]) assert.throws(() => parseProjectUsageSnapshot(value, 2026));
   for (const year of [0, 10000, 1.5]) assert.throws(() => parseProjectUsageSnapshot({ currency: "USD", days: [] }, year));
   assert.deepEqual(parseProjectUsageSnapshot({ currency: "USD", days: [{ date: "0001-01-01", projects: [] }] }, 1).days.length, 1);
+});
+
+test("model breakdown validates identity, amounts, counts and required detail", () => {
+  const model = snapshot(2026).days[0].projects[0].models[0];
+  for (const models of [undefined, {}, [{ ...model, provider: "" }], [{ ...model, model: "" }],
+    [model, model], ...[NaN, Infinity, -1].map(amount => [{ ...model, amount }]),
+    ...[-1, 0.5, Number.MAX_SAFE_INTEGER + 1].map(unpriced => [{ ...model, unpriced }])]) {
+    const data = snapshot(2026);
+    (data.days[0].projects[0] as { models: unknown }).models = models;
+    assert.throws(() => parseProjectUsageSnapshot(data, 2026));
+  }
+  const data = snapshot(2026);
+  data.days[0].projects[0].models.push({ ...model, provider: "other" });
+  assert.deepEqual(parseProjectUsageSnapshot(data, 2026), data, "same model on separate providers retains both identities");
 });
 
 test("account service requires identity and uses the project usage read contract", async () => {
