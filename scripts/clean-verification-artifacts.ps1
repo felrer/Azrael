@@ -109,7 +109,7 @@ try {
             if ($metrics.packageDirectory -ine $receipt.data.packageDirectory) { continue }
             # Once acceptance evidence has been archived, fixtureRoot is historical
             # provenance rather than a live dependency of the installed package.
-            if ($metrics.acceptanceResult -and (Test-Within (Normalize-Path $metrics.acceptanceResult) $root)) { Add-References $metrics }
+            if ($metrics.ContainsKey('acceptanceResult') -and $metrics.acceptanceResult -and (Test-Within (Normalize-Path $metrics.acceptanceResult) $root)) { Add-References $metrics }
         }
     }
     $processes = Get-Processes

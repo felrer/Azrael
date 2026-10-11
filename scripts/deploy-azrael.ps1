@@ -24,7 +24,8 @@ param(
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
     [string[]]$ChangedPath,
-    [switch]$VerifyAccountControls
+    [switch]$VerifyAccountControls,
+    [string]$HostVersion
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
@@ -216,6 +217,7 @@ try {
     }
     $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
     $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
+    if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
     if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
     Invoke-Stage 'prepare' 'prepare-independent-vscode.ps1' $prepareArgs

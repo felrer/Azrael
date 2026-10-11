@@ -350,7 +350,7 @@ function transformAsset(source, relativePath, filename, ts) {
     relativePath === DEFERRED_THREAD_ASSET ? injectDeferredThread(recovered.text) :
     relativePath === DEFERRED_TURN_ASSET ? injectDeferredTurnView(recovered.text) :
     relativePath === DEFERRED_COLLAPSED_ASSET ? injectDeferredCollapsed(recovered.text) :
-    relativePath === DEFERRED_HEADER_ASSET ? injectDeferredHeader(recovered.text) : { text: recovered.text, count: 0 };
+    relativePath === DEFERRED_HEADER_ASSET ? injectDeferredHeader(recovered.text, { allowAlreadyTransformed: true }) : { text: recovered.text, count: 0 };
   const workSegmentFolding = relativePath === WORK_SEGMENT_FOLDING_ASSET ? injectWorkSegmentFolding(deferred.text) :
     relativePath === WORK_SEGMENT_FOLDING_ACTIVITY_ASSET ? injectWorkSegmentWaiting(deferred.text) : { text: deferred.text, count: 0 };
   const taskWorkTime = injectTaskWorkTime(workSegmentFolding.text, relativePath);

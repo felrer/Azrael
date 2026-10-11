@@ -175,7 +175,17 @@ function injectDeferredPresentation(text) {
   return { text, count: 10 };
 }
 
-function injectDeferredHeader(text) {
+function injectDeferredHeader(text, { allowAlreadyTransformed = false } = {}) {
+  const patchedHeader = "function kn(e){return azraelIsRootResumePending(azraelLatestTurn(e))||a(e)}";
+  const headerImport = 'import {BW as azraelLatestTurn} from "./app-initial-97d3534ad35f.js";';
+  const helper = recoveryHelpers.azraelIsRootResumePending.toString();
+  if (allowAlreadyTransformed && text.includes(patchedHeader)) {
+    if (text.split(patchedHeader).length !== 2 || text.split(headerImport).length !== 2 ||
+        text.split(helper).length !== 2 || text.includes("function kn(e){return a(e)}")) {
+      throw new Error("Pinned deferred-turn anchor must occur exactly once: incomplete or duplicated header.");
+    }
+    return { text, count: 0 };
+  }
   text = 'import {BW as azraelLatestTurn} from "./app-initial-97d3534ad35f.js";\n' +
     recoveryHelpers.azraelIsRootResumePending.toString() + "\n" + text;
   text = replaceOnce(text, "function kn(e){return a(e)}",
