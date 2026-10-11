@@ -34,7 +34,7 @@ export class StudentDesignService implements vscode.Disposable {
       ? integrated : vscode.Uri.joinPath(context.extensionUri, "media", "student-avatars");
     try {
       const manifest: unknown = options.manifest ?? JSON.parse(fs.readFileSync(vscode.Uri.joinPath(this.assetRoot, "manifest.json").fsPath, "utf8"));
-      if (!record(manifest) || manifest.schemaVersion !== 1 || !Array.isArray(manifest.students) || manifest.students.length !== 100) throw new Error("Invalid student roster.");
+      if (!record(manifest) || manifest.schemaVersion !== 1 || !Array.isArray(manifest.students) || !manifest.students.length) throw new Error("Invalid student roster.");
       const ids = new Set<number>();
       for (const student of manifest.students) {
         if (!record(student) || !Number.isSafeInteger(student.id) || (student.id as number) <= 0 || ids.has(student.id as number)

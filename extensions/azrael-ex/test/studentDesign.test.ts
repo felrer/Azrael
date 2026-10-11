@@ -16,7 +16,7 @@ api._load = function (request, parent, isMain) {
 };
 const { StudentDesignService } = require("../src/studentDesign") as typeof import("../src/studentDesign");
 api._load = original;
-const manifest = { schemaVersion: 1, students: Array.from({ length: 100 }, (_, index) => ({ id: index + 1, nameKo: `학생 ${index + 1}`, nameEn: `Student ${index + 1}`, school: "School", asset: `${index + 1}.png` })) };
+const manifest = { schemaVersion: 1, students: Array.from({ length: 200 }, (_, index) => ({ id: index + 1, nameKo: `학생 ${index + 1}`, nameEn: `Student ${index + 1}`, school: "School", asset: `${index + 1}.png` })) };
 
 function fixture(stored?: unknown, storage = path.resolve("fixture-storage")) {
   let value = stored, calls = 0, fail = false, disposedListeners = 0;
@@ -60,6 +60,23 @@ test("disabled default, future creation, durable off decisions, duplicates and s
   await reload.service.recordCreated("old"); await reload.service.recordCreated("new"); await reload.service.recordCreated("off");
   assert.equal(reload.calls, 0);
   f.service.dispose(); reload.service.dispose();
+});
+
+test("nonempty bundled rosters retain costume labels and stable saved IDs", async () => {
+  for (const count of [1, 99, 200]) {
+    const f = fixture({ enabled: true, decisions: { existing: 1 } });
+    const roster = { ...manifest, students: manifest.students.slice(0, count).map((student, index) => index === count - 1
+      ? { ...student, nameEn: "Student (Swimsuit)", nameKo: "학생 (수영복)", variant: "Swimsuit", baseName: "Student" } : student) };
+    const service = new StudentDesignService(f.context, { manifest: roster, randomInt: max => max - 1 });
+    await service.handleEmbedded(f.webview, { type: "azrael-design", clientId: "one", action: "subscribe" });
+    assert.equal(f.sent.at(-1).students.length, count);
+    assert.equal(f.sent.at(-1).students.at(-1).nameEn, "Student (Swimsuit)");
+    assert.equal(f.sent.at(-1).students.at(-1).nameKo, "학생 (수영복)");
+    assert.deepEqual(f.sent.at(-1).assignments, { existing: 1 });
+    await service.recordCreated("new");
+    assert.deepEqual(f.sent.at(-1).assignments, { existing: 1, new: count });
+    service.dispose(); f.service.dispose();
+  }
 });
 
 test("serialized settings and concurrent creation preserve every decision", async () => {
@@ -110,7 +127,7 @@ test("subscription authorizes only its current client and exposes local URLs", a
   const f = fixture();
   await f.send("setEnabled", true); assert.equal(f.writes.length, 0);
   await f.send("subscribe");
-  assert.equal(f.sent.at(-1).students.length, 100);
+  assert.equal(f.sent.at(-1).students.length, manifest.students.length);
   assert.match(f.sent.at(-1).students[0].url, /^local-resource:.*student-avatars[\\/]1\.png$/);
   assert.equal(f.webview.options.localResourceRoots[0].fsPath, "existing-root");
   assert.equal(f.webview.options.localResourceRoots.length, 3);
@@ -133,7 +150,7 @@ test("authorized parent roots keep settings webview options stable", async () =>
   f.webview.options = options;
   await f.send("subscribe");
   assert.equal(f.webview.options, options, "subscription must not reload an authorized webview");
-  assert.equal(f.sent.at(-1).students.length, 100);
+  assert.equal(f.sent.at(-1).students.length, manifest.students.length);
   await f.send("subscribe");
   assert.equal(f.webview.options, options);
   f.service.dispose();
@@ -176,7 +193,7 @@ test("invalid saved settings and invalid roster fail safely without replacing du
   await f.service.handleEmbedded(f.webview, { type: "azrael-design", clientId: "one", action: "setChatFont", chatFont: "openai" });
   assert.equal(f.writes.length, 0, "font changes must not replace invalid durable settings");
   f.service.dispose();
-  for (const invalid of [{ ...manifest, schemaVersion: 2 }, { ...manifest, students: manifest.students.slice(1) }, { ...manifest, students: manifest.students.map(s => ({ ...s, id: 1, asset: "1.png" })) }, { ...manifest, students: manifest.students.map(s => ({ ...s, asset: "../remote.png" })) }]) {
+  for (const invalid of [{ ...manifest, schemaVersion: 2 }, { ...manifest, students: [] }, { ...manifest, students: manifest.students.map(s => ({ ...s, id: 1, asset: "1.png" })) }, { ...manifest, students: manifest.students.map(s => ({ ...s, asset: "../remote.png" })) }]) {
     const service = new StudentDesignService(f.context, { manifest: invalid });
     await service.handleEmbedded(f.webview, { type: "azrael-design", clientId: "one", action: "subscribe" });
     assert.equal(f.sent.at(-1).enabled, false); assert.deepEqual(f.sent.at(-1).students, []); assert.match(f.sent.at(-1).error, /Invalid student roster/);
@@ -226,9 +243,9 @@ test("imports copy assets, select custom roster, preserve all old assignments an
   const state = f.sent.at(-1), customId = state.selectedPhotoSetId;
   assert.match(customId, /^custom-/);
   assert.equal(otherMessages.at(-1).selectedPhotoSetId, customId);
-  assert.deepEqual(state.photoSets.map((s: any) => [s.name, s.count]), [["Blue Archive", 100], ["Friends", 2]]);
-  assert.equal(state.students.length, 102);
-  assert.equal(state.students[100].photoSetId, customId);
+  assert.deepEqual(state.photoSets.map((s: any) => [s.name, s.count]), [["Blue Archive", manifest.students.length], ["Friends", 2]]);
+  assert.equal(state.students.length, manifest.students.length + 2);
+  assert.equal(state.students[manifest.students.length].photoSetId, customId);
   const saved: any = f.value;
   const asset = path.join(f.context.globalStorageUri.fsPath, "subagent-photos", saved.customPhotoSets[0].photos[0].asset);
   assert.deepEqual(fs.readFileSync(asset), png);
@@ -245,7 +262,7 @@ test("imports copy assets, select custom roster, preserve all old assignments an
   const reload = fixture(f.value, f.context.globalStorageUri.fsPath); t.after(() => reload.service.dispose());
   await reload.send("subscribe");
   assert.deepEqual(reload.sent.at(-1).assignments, f.sent.at(-1).assignments);
-  assert.equal(reload.sent.at(-1).students.length, 102);
+  assert.equal(reload.sent.at(-1).students.length, manifest.students.length + 2);
   await reload.service.handleEmbedded(reload.webview, { type: "azrael-design", clientId: "one", action: "setPhotoSet", photoSetId: customId });
   await reload.service.recordCreated("after-restart");
   assert.equal(reload.sent.at(-1).assignments["after-restart"], `${customId}:1.png`);
@@ -331,6 +348,6 @@ test("all supported raster signatures import under generated safe names with sta
   await request("importPhotoSet"); await request("importPhotoSet");
   const snapshot = f.sent.at(-1);
   assert.equal(snapshot.photoSets.length, 3); assert.notEqual(snapshot.photoSets[1].id, snapshot.photoSets[2].id);
-  assert.equal(new Set(snapshot.students.map((s: any) => s.id)).size, 108);
+  assert.equal(new Set(snapshot.students.map((s: any) => s.id)).size, manifest.students.length + 8);
   assert.deepEqual((f.value as any).customPhotoSets[0].photos.map((s: any) => s.asset.split("/")[1]), ["1.png", "2.jpg", "3.gif", "4.webp"]);
 });

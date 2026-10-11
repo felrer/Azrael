@@ -37,15 +37,29 @@ try {
     fs.writeFileSync(manifestPath, JSON.stringify(fixture));
     assert.throws(() => validateStudentAvatarAssets(copied), pattern);
   }
-  invalid(m => m.students.pop(), /exactly 100/);
-  invalid(m => m.students[1].id = m.students[0].id, /unique/);
-  invalid(m => m.students[0].variant = "Swimsuit", /variants/);
+  invalid(m => m.students = [], /nonempty/);
+  invalid(m => m.students.push(structuredClone(m.students[0])), /unique/);
+  for (const variant of ["", " ", 1, false, {}, []]) {
+    invalid(m => m.students[0].variant = variant, /variant must be a nonempty string/);
+  }
+  for (const baseName of ["", " ", 1, false, {}, []]) {
+    invalid(m => m.students[0].baseName = baseName, /baseName must be a nonempty string/);
+  }
+  const variant = structuredClone(manifest);
+  variant.students[0].variant = "Swimsuit";
+  variant.students[0].baseName = "Base student";
+  variant.students[0].nameEn = "Base student (Swimsuit)";
+  fs.writeFileSync(manifestPath, JSON.stringify(variant));
+  assert.deepEqual(validateStudentAvatarAssets(copied), variant);
+  const single = { ...variant, students: variant.students.slice(0, 1) };
+  fs.writeFileSync(manifestPath, JSON.stringify(single));
+  assert.deepEqual(validateStudentAvatarAssets(copied), single);
   invalid(m => m.students[0].asset = "../outside.png", /basename/);
   invalid(m => m.students[0].assetSHA256 = "0".repeat(64), /SHA256 mismatch/);
   const hashed = structuredClone(manifest);
   hashed.students[0].assetSHA256 = approved.sources[0].assetSHA256;
   fs.writeFileSync(manifestPath, JSON.stringify(hashed));
-  assert.equal(validateStudentAvatarAssets(copied).students.length, 100);
+  assert.equal(validateStudentAvatarAssets(copied).students.length, manifest.students.length);
   fs.writeFileSync(manifestPath, JSON.stringify(manifest));
   const firstAsset = path.join(copied, manifest.students[0].asset);
   fs.writeFileSync(firstAsset, "not PNG");
@@ -57,7 +71,9 @@ try {
   assert.throws(() => copyStudentAvatarAssets(blocked), /regular file/);
   assert.equal(fs.readdirSync(path.join(blocked, "assets", "azrael-students")).length, 1);
   assert.throws(() => copyStudentAvatarAssets(""), /destination/);
-  console.log("PASS: committed provenance protects 100 approved IDs and PNG hashes; complete byte-identical 103-file copy including manifest, notice and provenance; malformed count, IDs, variants, paths, hashes, PNGs, missing assets and unsafe output fail closed.");
+  console.log(`PASS: committed provenance protects ${manifest.students.length} approved IDs and PNG hashes; complete byte-identical ${manifest.students.length + 3}-file copy including manifest, notice and provenance; nonempty rosters and costume variants accepted; empty rosters, malformed IDs, variant metadata, paths, hashes, PNGs, missing assets and unsafe output fail closed.`);
 } finally {
-  fs.rmSync(temporary, { recursive: true, force: true });
+  assert.ok(temporary.startsWith(path.resolve(os.tmpdir()) + path.sep));
+  fs.rmSync(temporary, { recursive: true });
+  assert.equal(fs.existsSync(temporary), false);
 }

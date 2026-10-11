@@ -18,8 +18,8 @@ function readStudentAvatarAssets(sourceRoot = SOURCE_ROOT, includeNotices = fals
   }
   const manifestBytes = readFile("manifest.json");
   const manifest = JSON.parse(manifestBytes.toString("utf8"));
-  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.students) || manifest.students.length !== 100) {
-    throw new Error("Student avatar manifest requires schemaVersion 1 and exactly 100 students.");
+  if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.students) || !manifest.students.length) {
+    throw new Error("Student avatar manifest requires schemaVersion 1 and a nonempty student roster.");
   }
   const ids = new Set();
   const assets = [];
@@ -31,8 +31,11 @@ function readStudentAvatarAssets(sourceRoot = SOURCE_ROOT, includeNotices = fals
     if (["nameKo", "nameEn", "school"].some(key => typeof student[key] !== "string" || !student[key].trim())) {
       throw new Error(`Student avatar identity is incomplete: ${student.id}`);
     }
-    if (student.variant != null || (student.baseName != null && student.baseName !== student.nameEn)) {
-      throw new Error(`Student avatar variants are forbidden: ${student.id}`);
+    if (student.variant != null && (typeof student.variant !== "string" || !student.variant.trim())) {
+      throw new Error(`Student avatar variant must be a nonempty string: ${student.id}`);
+    }
+    if (student.baseName != null && (typeof student.baseName !== "string" || !student.baseName.trim())) {
+      throw new Error(`Student avatar baseName must be a nonempty string: ${student.id}`);
     }
     if (student.asset !== `${student.id}.png`) {
       throw new Error(`Student avatar asset must be its ID basename: ${student.id}`);

@@ -700,6 +700,1006 @@
       "nameEn": "Chise",
       "school": "Hyakkiyako",
       "asset": "13001.png"
+    },
+    {
+      "id": 10100,
+      "nameKo": "시로코*테러",
+      "nameEn": "Shiroko*Terror",
+      "school": "Abydos",
+      "baseName": "Shiroko*Terror",
+      "variant": null,
+      "asset": "10100.png",
+      "assetSHA256": "292a51aa9ad0a0119485bb3c85e4e02095dc9487c5e0fbc118792b5a4c95f412"
+    },
+    {
+      "id": 10110,
+      "nameKo": "세이아",
+      "nameEn": "Seia",
+      "school": "Trinity",
+      "baseName": "Seia",
+      "variant": null,
+      "asset": "10110.png",
+      "assetSHA256": "ca52311582eb9090f6cf2e54830d962242bb0ab863330d77ae29db8bc852abad"
+    },
+    {
+      "id": 13003,
+      "nameKo": "하스미",
+      "nameEn": "Hasumi",
+      "school": "Trinity",
+      "baseName": "Hasumi",
+      "variant": null,
+      "asset": "13003.png",
+      "assetSHA256": "4dbd43c11ba3926c698bd3fdbbae9d825e259496b8d3f257ea0ffa7d9988b30f"
+    },
+    {
+      "id": 13009,
+      "nameKo": "츠바키",
+      "nameEn": "Tsubaki",
+      "school": "Hyakkiyako",
+      "baseName": "Tsubaki",
+      "variant": null,
+      "asset": "13009.png",
+      "assetSHA256": "cc2ce2ee9a60b6893d5e21b6b8ce6a10495ef9fa3a215bff09b6ff966a2310f8"
+    },
+    {
+      "id": 13011,
+      "nameKo": "모모이",
+      "nameEn": "Momoi",
+      "school": "Millennium",
+      "baseName": "Momoi",
+      "variant": null,
+      "asset": "13011.png",
+      "assetSHA256": "cd18921bdaefdfd90b9f4dbc915d83c4188d625f60178818db58afc3d0698222"
+    },
+    {
+      "id": 16000,
+      "nameKo": "하루카",
+      "nameEn": "Haruka",
+      "school": "Gehenna",
+      "baseName": "Haruka",
+      "variant": null,
+      "asset": "16000.png",
+      "assetSHA256": "625cf95ed0573d192dc48834dea4f2d0c220d8eddebdb04a30dc01a1b83089fc"
+    },
+    {
+      "id": 16001,
+      "nameKo": "아스나",
+      "nameEn": "Asuna",
+      "school": "Millennium",
+      "baseName": "Asuna",
+      "variant": null,
+      "asset": "16001.png",
+      "assetSHA256": "e3f58de7acbbcdce3a7dd94d17a2c9ee8951b7e53266756356b65040c4af45cb"
+    },
+    {
+      "id": 16002,
+      "nameKo": "코토리",
+      "nameEn": "Kotori",
+      "school": "Millennium",
+      "baseName": "Kotori",
+      "variant": null,
+      "asset": "16002.png",
+      "assetSHA256": "2e99208e8f946f3f6d42a3a6ab111d52351e7c9ca74ea402060f11b2a17b7bf0"
+    },
+    {
+      "id": 16003,
+      "nameKo": "스즈미",
+      "nameEn": "Suzumi",
+      "school": "Trinity",
+      "baseName": "Suzumi",
+      "variant": null,
+      "asset": "16003.png",
+      "assetSHA256": "39ad642ca44caca219abfa0ae105032fd85ebcb39ecb560b3dd6fba22dad94b7"
+    },
+    {
+      "id": 16004,
+      "nameKo": "피나",
+      "nameEn": "Pina",
+      "school": "Hyakkiyako",
+      "baseName": "Pina",
+      "variant": null,
+      "asset": "16004.png",
+      "assetSHA256": "cb2b3c85d88b0d43fb92afa81a62f4b3829180d2753b860d6d859e9f680dcee9"
+    },
+    {
+      "id": 16009,
+      "nameKo": "미치루",
+      "nameEn": "Michiru",
+      "school": "Hyakkiyako",
+      "baseName": "Michiru",
+      "variant": null,
+      "asset": "16009.png",
+      "assetSHA256": "b9e3aad7358195a895a0dbf9be1aac96391d89f47a21a9924704b527071ad600"
+    },
+    {
+      "id": 16014,
+      "nameKo": "이부키",
+      "nameEn": "Ibuki",
+      "school": "Gehenna",
+      "baseName": "Ibuki",
+      "variant": null,
+      "asset": "16014.png",
+      "assetSHA256": "92a7488bd2947402b1e47ea38c068dfc9ef7ff49f48773e886edfe0b3dfce92e"
+    },
+    {
+      "id": 16018,
+      "nameKo": "라브",
+      "nameEn": "Rabu",
+      "school": "Trinity",
+      "baseName": "Rabu",
+      "variant": null,
+      "asset": "16018.png",
+      "assetSHA256": "7e24bd4bd09cfa2146fcca7078cf30a9513a4c3cec0ad0cb753427c5b78db401"
+    },
+    {
+      "id": 20000,
+      "nameKo": "히비키",
+      "nameEn": "Hibiki",
+      "school": "Millennium",
+      "baseName": "Hibiki",
+      "variant": null,
+      "asset": "20000.png",
+      "assetSHA256": "d5f01b72ef604338938d85802c71e1e670c3b9f1ea06eff9998917ba218564dd"
+    },
+    {
+      "id": 20001,
+      "nameKo": "카린",
+      "nameEn": "Karin",
+      "school": "Millennium",
+      "baseName": "Karin",
+      "variant": null,
+      "asset": "20001.png",
+      "assetSHA256": "95e8257b4617e5aba945e7c4eeb34495b981c762388fb0d1f3201ffd90ac243d"
+    },
+    {
+      "id": 20003,
+      "nameKo": "마시로",
+      "nameEn": "Mashiro",
+      "school": "Trinity",
+      "baseName": "Mashiro",
+      "variant": null,
+      "asset": "20003.png",
+      "assetSHA256": "50b97492eefc2ff0727dcb069e5659e294373c3b953c29e3dac9e9e4e9a07380"
+    },
+    {
+      "id": 20008,
+      "nameKo": "아코",
+      "nameEn": "Ako",
+      "school": "Gehenna",
+      "baseName": "Ako",
+      "variant": null,
+      "asset": "20008.png",
+      "assetSHA256": "fbcd75534b31e5236894b09bf8816aff9bce876a19ff16bf97882902dc70f37a"
+    },
+    {
+      "id": 20012,
+      "nameKo": "세나",
+      "nameEn": "Sena",
+      "school": "Gehenna",
+      "baseName": "Sena",
+      "variant": null,
+      "asset": "20012.png",
+      "assetSHA256": "9f7586908947019e6a483f08d28558c01c8985379a35394171fdb9cea776b171"
+    },
+    {
+      "id": 20013,
+      "nameKo": "치히로",
+      "nameEn": "Chihiro",
+      "school": "Millennium",
+      "baseName": "Chihiro",
+      "variant": null,
+      "asset": "20013.png",
+      "assetSHA256": "03af5161e5e9d2a00585b75c2839ef68dcbd3af6b9045e9bd4bd504ee26e2d88"
+    },
+    {
+      "id": 20015,
+      "nameKo": "카에데",
+      "nameEn": "Kaede",
+      "school": "Hyakkiyako",
+      "baseName": "Kaede",
+      "variant": null,
+      "asset": "20015.png",
+      "assetSHA256": "abfe9835c7b86c08f09bdb2f6b9b52613a42ea8247852df268079ef54592902d"
+    },
+    {
+      "id": 20016,
+      "nameKo": "이로하",
+      "nameEn": "Iroha",
+      "school": "Gehenna",
+      "baseName": "Iroha",
+      "variant": null,
+      "asset": "20016.png",
+      "assetSHA256": "f22f6873730e57b597b102fb2c15b9beba2faa34aa931417a52f897318a4a3f4"
+    },
+    {
+      "id": 20020,
+      "nameKo": "히마리",
+      "nameEn": "Himari",
+      "school": "Millennium",
+      "baseName": "Himari",
+      "variant": null,
+      "asset": "20020.png",
+      "assetSHA256": "98938b54bb0128d0b4c4cb4556c86741cccdcff9769ef413d940cdc9134bc0a5"
+    },
+    {
+      "id": 20024,
+      "nameKo": "나기사",
+      "nameEn": "Nagisa",
+      "school": "Trinity",
+      "baseName": "Nagisa",
+      "variant": null,
+      "asset": "20024.png",
+      "assetSHA256": "6d4dcc3310c7731835a788951c1650256283012c6271e074610fea8aa8669f10"
+    },
+    {
+      "id": 20033,
+      "nameKo": "마코토",
+      "nameEn": "Makoto",
+      "school": "Gehenna",
+      "baseName": "Makoto",
+      "variant": null,
+      "asset": "20033.png",
+      "assetSHA256": "eb7faf7ecf65ef60600b4674b09c757dae6014734431b2b29e645edabd5b6a09"
+    },
+    {
+      "id": 20040,
+      "nameKo": "사츠키",
+      "nameEn": "Satsuki",
+      "school": "Gehenna",
+      "baseName": "Satsuki",
+      "variant": null,
+      "asset": "20040.png",
+      "assetSHA256": "2c687d98a38c942b4831fddf44d1bca49b22974c195eb0c994e7ef8cbf89683f"
+    },
+    {
+      "id": 20041,
+      "nameKo": "리오",
+      "nameEn": "Rio",
+      "school": "Millennium",
+      "baseName": "Rio",
+      "variant": null,
+      "asset": "20041.png",
+      "assetSHA256": "7265dde328d19f3093db1137a0d6c751eaf83b2c47df800cd279b3a43ba24ac9"
+    },
+    {
+      "id": 20046,
+      "nameKo": "니야",
+      "nameEn": "Niya",
+      "school": "Hyakkiyako",
+      "baseName": "Niya",
+      "variant": null,
+      "asset": "20046.png",
+      "assetSHA256": "bdd36ccda48f2c2cf07896977fc593b73b5218ddc60bfb495032d31e8f18f73c"
+    },
+    {
+      "id": 20058,
+      "nameKo": "에리카",
+      "nameEn": "Erika",
+      "school": "Gehenna",
+      "baseName": "Erika",
+      "variant": null,
+      "asset": "20058.png",
+      "assetSHA256": "de2e0ff441d70ee125f8fbf8975ca3f101cf062e63f809c9351193434f5953a7"
+    },
+    {
+      "id": 20062,
+      "nameKo": "에리나",
+      "nameEn": "Erina",
+      "school": "RedWinter",
+      "baseName": "Erina",
+      "variant": null,
+      "asset": "20062.png",
+      "assetSHA256": "1b7d49f8a6a4d35b48d1c68b54258733151dbdaf44e89db10ffd4262cc54c592"
+    },
+    {
+      "id": 23000,
+      "nameKo": "아이리",
+      "nameEn": "Airi",
+      "school": "Trinity",
+      "baseName": "Airi",
+      "variant": null,
+      "asset": "23000.png",
+      "assetSHA256": "17dd40020fd9ae9814e697b91c1e64252e6e6d85eec6da0d30c6e1fcc8889dff"
+    },
+    {
+      "id": 23001,
+      "nameKo": "후우카",
+      "nameEn": "Fuuka",
+      "school": "Gehenna",
+      "baseName": "Fuuka",
+      "variant": null,
+      "asset": "23001.png",
+      "assetSHA256": "8274f14d33324d536b0c17243a1342fe717d8e6fe33384bf5790d97b2f98c088"
+    },
+    {
+      "id": 23002,
+      "nameKo": "하나에",
+      "nameEn": "Hanae",
+      "school": "Trinity",
+      "baseName": "Hanae",
+      "variant": null,
+      "asset": "23002.png",
+      "assetSHA256": "23529501de889377aa5d90c9a1bed37b3351a00057b5a50cc9bef4dd45a2abda"
+    },
+    {
+      "id": 23003,
+      "nameKo": "하레",
+      "nameEn": "Hare",
+      "school": "Millennium",
+      "baseName": "Hare",
+      "variant": null,
+      "asset": "23003.png",
+      "assetSHA256": "2cca2163888cd636f67fd15c576a5b3d467bcc1c08bd757f5f726225cf7b4fc0"
+    },
+    {
+      "id": 23004,
+      "nameKo": "우타하",
+      "nameEn": "Utaha",
+      "school": "Millennium",
+      "baseName": "Utaha",
+      "variant": null,
+      "asset": "23004.png",
+      "assetSHA256": "ec9ea1734a1ea5b8000949cc9acf5515a04a6f2b123aeb3a47ff530812c760ca"
+    },
+    {
+      "id": 23006,
+      "nameKo": "시즈코",
+      "nameEn": "Shizuko",
+      "school": "Hyakkiyako",
+      "baseName": "Shizuko",
+      "variant": null,
+      "asset": "23006.png",
+      "assetSHA256": "018f7ceee08319eba88c8cf95fb613c07cc0e97f1954ed0999b39ceaa1f29e17"
+    },
+    {
+      "id": 23007,
+      "nameKo": "하나코",
+      "nameEn": "Hanako",
+      "school": "Trinity",
+      "baseName": "Hanako",
+      "variant": null,
+      "asset": "23007.png",
+      "assetSHA256": "33ca48047e801d119ba984ba9295a8b253b2ca891af2296485270a5f72ad6a24"
+    },
+    {
+      "id": 23008,
+      "nameKo": "마리",
+      "nameEn": "Mari",
+      "school": "Trinity",
+      "baseName": "Mari",
+      "variant": null,
+      "asset": "23008.png",
+      "assetSHA256": "7d85d864a420dfdac27b6a24c8945d3b59dd072e5ddb74be4341bbe6921e4d11"
+    },
+    {
+      "id": 26000,
+      "nameKo": "치나츠",
+      "nameEn": "Chinatsu",
+      "school": "Gehenna",
+      "baseName": "Chinatsu",
+      "variant": null,
+      "asset": "26000.png",
+      "assetSHA256": "df82e0cfac1b5b6dd23410dd4117a4b6894786a92811158105b9c7912da38437"
+    },
+    {
+      "id": 26001,
+      "nameKo": "코타마",
+      "nameEn": "Kotama",
+      "school": "Millennium",
+      "baseName": "Kotama",
+      "variant": null,
+      "asset": "26001.png",
+      "assetSHA256": "6d30885349cde551ca33209b184ffabcdd78df81a8175671fb11611b8e36e1e8"
+    },
+    {
+      "id": 26002,
+      "nameKo": "주리",
+      "nameEn": "Juri",
+      "school": "Gehenna",
+      "baseName": "Juri",
+      "variant": null,
+      "asset": "26002.png",
+      "assetSHA256": "ac4a5559fbc8c721ce4546e260a0c8e04f5214d30fe77b62151028e2657f7eae"
+    },
+    {
+      "id": 26003,
+      "nameKo": "세리나",
+      "nameEn": "Serina",
+      "school": "Trinity",
+      "baseName": "Serina",
+      "variant": null,
+      "asset": "26003.png",
+      "assetSHA256": "0e88301a79581f3765506cab63277911681565b33819ba82e969828f256a2acb"
+    },
+    {
+      "id": 26004,
+      "nameKo": "시미코",
+      "nameEn": "Shimiko",
+      "school": "Trinity",
+      "baseName": "Shimiko",
+      "variant": null,
+      "asset": "26004.png",
+      "assetSHA256": "2bd004acc3086ce8c1a344b1d75ee9e875b9af63528b81e30704ec8287858672"
+    },
+    {
+      "id": 26005,
+      "nameKo": "요시미",
+      "nameEn": "Yoshimi",
+      "school": "Trinity",
+      "baseName": "Yoshimi",
+      "variant": null,
+      "asset": "26005.png",
+      "assetSHA256": "7dc2f48757aa70caf100c0e614c394102d254d256fe02e77d0ff98d661f291c1"
+    },
+    {
+      "id": 26006,
+      "nameKo": "노도카",
+      "nameEn": "Nodoka",
+      "school": "RedWinter",
+      "baseName": "Nodoka",
+      "variant": null,
+      "asset": "26006.png",
+      "assetSHA256": "ec2c62ceeabdb79485bf3a1a5613100cd5bb2f7386fe4c25d2a6d77b581b44d5"
+    },
+    {
+      "id": 10021,
+      "nameKo": "아즈사(수영복)",
+      "nameEn": "Azusa (Swimsuit)",
+      "school": "Trinity",
+      "baseName": "Azusa",
+      "variant": "Swimsuit",
+      "asset": "10021.png",
+      "assetSHA256": "07519730e10cca31e9bd37c320db46b4077c5b15ce4ab55706905e6a40d4e57d"
+    },
+    {
+      "id": 10022,
+      "nameKo": "히나(수영복)",
+      "nameEn": "Hina (Swimsuit)",
+      "school": "Gehenna",
+      "baseName": "Hina",
+      "variant": "Swimsuit",
+      "asset": "10022.png",
+      "assetSHA256": "ef35f04d05e69eb9da9a9d7f0eaba23674c5cbccdfb1a21c3ebbb87334c1c5d4"
+    },
+    {
+      "id": 10023,
+      "nameKo": "이오리(수영복)",
+      "nameEn": "Iori (Swimsuit)",
+      "school": "Gehenna",
+      "baseName": "Iori",
+      "variant": "Swimsuit",
+      "asset": "10023.png",
+      "assetSHA256": "33d6e9d8af50b038afa07cb02fa0cbbf8420a1e4adeb4346dace3b60358c7b1a"
+    },
+    {
+      "id": 10024,
+      "nameKo": "시로코(라이딩)",
+      "nameEn": "Shiroko (Cycling)",
+      "school": "Abydos",
+      "baseName": "Shiroko",
+      "variant": "Cycling",
+      "asset": "10024.png",
+      "assetSHA256": "236bc089022482d581737ccc71de418417a3806146d24dfce1596275a444ff87"
+    },
+    {
+      "id": 10025,
+      "nameKo": "슌(어린이)",
+      "nameEn": "Shun (Small)",
+      "school": "Shanhaijing",
+      "baseName": "Shun",
+      "variant": "Small",
+      "asset": "10025.png",
+      "assetSHA256": "42f3bed6e2e1f9d790f390726ec2ced3973e5aeb95cb547772e4eff07736095e"
+    },
+    {
+      "id": 10026,
+      "nameKo": "네루(바니걸)",
+      "nameEn": "Neru (Bunny)",
+      "school": "Millennium",
+      "baseName": "Neru",
+      "variant": "Bunny",
+      "asset": "10026.png",
+      "assetSHA256": "0af2ff369bee3e271dc3dca2df1ffffdbb822d1e37600acff0296d676c66c260"
+    },
+    {
+      "id": 10027,
+      "nameKo": "카린(바니걸)",
+      "nameEn": "Karin (Bunny)",
+      "school": "Millennium",
+      "baseName": "Karin",
+      "variant": "Bunny",
+      "asset": "10027.png",
+      "assetSHA256": "32dcac87b9ee26d77fa979d623d83ba15459fcd1a166344b2091e2112c0ae1da"
+    },
+    {
+      "id": 10028,
+      "nameKo": "아스나(바니걸)",
+      "nameEn": "Asuna (Bunny)",
+      "school": "Millennium",
+      "baseName": "Asuna",
+      "variant": "Bunny",
+      "asset": "10028.png",
+      "assetSHA256": "dfbcd45c62f79e0721558817b786d96e32ff5fcf12a8d5d52cada02810d3de17"
+    },
+    {
+      "id": 10030,
+      "nameKo": "치나츠(온천)",
+      "nameEn": "Chinatsu (Hot Spring)",
+      "school": "Gehenna",
+      "baseName": "Chinatsu",
+      "variant": "Hot Spring",
+      "asset": "10030.png",
+      "assetSHA256": "223aaf3d1a45a62e9537eaec6d90c76788af2e74916f6a2aa14ef14a34c0d11e"
+    },
+    {
+      "id": 10031,
+      "nameKo": "아루(새해)",
+      "nameEn": "Aru (New Year)",
+      "school": "Gehenna",
+      "baseName": "Aru",
+      "variant": "New Year",
+      "asset": "10031.png",
+      "assetSHA256": "9deda62a7cab837fcec7a35ac7dca7d16ba7e598610d2a0402038becb20a65f7"
+    },
+    {
+      "id": 10032,
+      "nameKo": "무츠키(새해)",
+      "nameEn": "Mutsuki (New Year)",
+      "school": "Gehenna",
+      "baseName": "Mutsuki",
+      "variant": "New Year",
+      "asset": "10032.png",
+      "assetSHA256": "5b54487e60ddbcefe05f08cd63cace8472936a129e401fd24d99b3458734e06f"
+    },
+    {
+      "id": 10043,
+      "nameKo": "와카모(수영복)",
+      "nameEn": "Wakamo (Swimsuit)",
+      "school": "Hyakkiyako",
+      "baseName": "Wakamo",
+      "variant": "Swimsuit",
+      "asset": "10043.png",
+      "assetSHA256": "28b874b018fdec6418313c5a9e6e021adcedf0290504062a17539a6d848b554c"
+    },
+    {
+      "id": 10044,
+      "nameKo": "노노미(수영복)",
+      "nameEn": "Nonomi (Swimsuit)",
+      "school": "Abydos",
+      "baseName": "Nonomi",
+      "variant": "Swimsuit",
+      "asset": "10044.png",
+      "assetSHA256": "706a24dafcd0db4150e9f004fa795d5fc3168534452dd61edc456e29cab6e2f7"
+    },
+    {
+      "id": 10045,
+      "nameKo": "호시노(수영복)",
+      "nameEn": "Hoshino (Swimsuit)",
+      "school": "Abydos",
+      "baseName": "Hoshino",
+      "variant": "Swimsuit",
+      "asset": "10045.png",
+      "assetSHA256": "03abd9c59aad64378f2716a74294f1fb2031556d0ba220b0dd4c1c6149c6799d"
+    },
+    {
+      "id": 10046,
+      "nameKo": "이즈나(수영복)",
+      "nameEn": "Izuna (Swimsuit)",
+      "school": "Hyakkiyako",
+      "baseName": "Izuna",
+      "variant": "Swimsuit",
+      "asset": "10046.png",
+      "assetSHA256": "7d4282375d699fb209d69bc7169d0ef028474efa61bfa1f50431fadcc1e6f710"
+    },
+    {
+      "id": 10047,
+      "nameKo": "치세(수영복)",
+      "nameEn": "Chise (Swimsuit)",
+      "school": "Hyakkiyako",
+      "baseName": "Chise",
+      "variant": "Swimsuit",
+      "asset": "10047.png",
+      "assetSHA256": "aeed3274b3dfce342324ff7a958e4d3da3be5753fc9a4bd68b81ecfcb40bbd99"
+    },
+    {
+      "id": 10051,
+      "nameKo": "우타하(응원단)",
+      "nameEn": "Utaha (Cheer Squad)",
+      "school": "Millennium",
+      "baseName": "Utaha",
+      "variant": "Cheer Squad",
+      "asset": "10051.png",
+      "assetSHA256": "85989c477ed0451a4c83dda0b8a7a47549dcde1b5b5382cc47136f9dcef76a73"
+    },
+    {
+      "id": 10053,
+      "nameKo": "유우카(체육복)",
+      "nameEn": "Yuuka (Track)",
+      "school": "Millennium",
+      "baseName": "Yuuka",
+      "variant": "Track",
+      "asset": "10053.png",
+      "assetSHA256": "bc939d60de28366c77a8311fefc442a4b4c791b01c1cf54f5175417a6c5601a1"
+    },
+    {
+      "id": 10054,
+      "nameKo": "마리(체육복)",
+      "nameEn": "Mari (Track)",
+      "school": "Trinity",
+      "baseName": "Mari",
+      "variant": "Track",
+      "asset": "10054.png",
+      "assetSHA256": "b227d9d44213e36e245d51bcd242cf3307700f49903caa7922308e739062e4dd"
+    },
+    {
+      "id": 10056,
+      "nameKo": "세리나(크리스마스)",
+      "nameEn": "Serina (Christmas)",
+      "school": "Trinity",
+      "baseName": "Serina",
+      "variant": "Christmas",
+      "asset": "10056.png",
+      "assetSHA256": "6740457932d9bd3a777c6549789d9062e8147c815a30c567ee0aee5be196392f"
+    },
+    {
+      "id": 10057,
+      "nameKo": "하루나(새해)",
+      "nameEn": "Haruna (New Year)",
+      "school": "Gehenna",
+      "baseName": "Haruna",
+      "variant": "New Year",
+      "asset": "10057.png",
+      "assetSHA256": "681841d1d0eaeeaa9c84f7c53c6aefb7241e9cd71be6957a38d44110be9c370e"
+    },
+    {
+      "id": 10064,
+      "nameKo": "카요코(새해)",
+      "nameEn": "Kayoko (New Year)",
+      "school": "Gehenna",
+      "baseName": "Kayoko",
+      "variant": "New Year",
+      "asset": "10064.png",
+      "assetSHA256": "f9a2d57900fbf2f3bea9013de91a414c16f7619d2585849e9680b56774dafcb8"
+    },
+    {
+      "id": 10066,
+      "nameKo": "아리스(메이드)",
+      "nameEn": "Aris (Maid)",
+      "school": "Millennium",
+      "baseName": "Aris",
+      "variant": "Maid",
+      "asset": "10066.png",
+      "assetSHA256": "96e0dcda1284ec0438d445a64431915d911fb79feefc0e8236f02366bf144564"
+    },
+    {
+      "id": 10067,
+      "nameKo": "토키(바니걸)",
+      "nameEn": "Toki (Bunny)",
+      "school": "Millennium",
+      "baseName": "Toki",
+      "variant": "Bunny",
+      "asset": "10067.png",
+      "assetSHA256": "6d3925cc8542a994450ce33a19005776131e8e1dda1207c8f0169d984fe2196b"
+    },
+    {
+      "id": 10071,
+      "nameKo": "미야코(수영복)",
+      "nameEn": "Miyako (Swimsuit)",
+      "school": "SRT",
+      "baseName": "Miyako",
+      "variant": "Swimsuit",
+      "asset": "10071.png",
+      "assetSHA256": "3362f448a2efb82ec5e1f269bdebc60b1cd2e1f14144c2b01b484de150590928"
+    },
+    {
+      "id": 10072,
+      "nameKo": "사키(수영복)",
+      "nameEn": "Saki (Swimsuit)",
+      "school": "SRT",
+      "baseName": "Saki",
+      "variant": "Swimsuit",
+      "asset": "10072.png",
+      "assetSHA256": "88d5b6ba4829ff4779fdba29db79ceb28963cd0accac375f24d3ece2ad0c9f71"
+    },
+    {
+      "id": 10073,
+      "nameKo": "우이(수영복)",
+      "nameEn": "Ui (Swimsuit)",
+      "school": "Trinity",
+      "baseName": "Ui",
+      "variant": "Swimsuit",
+      "asset": "10073.png",
+      "assetSHA256": "9fa81f4c85ed42194b60599c8a5443c4fce1ba155ebbef02a3bd7ce35cc5335e"
+    },
+    {
+      "id": 10074,
+      "nameKo": "하나코(수영복)",
+      "nameEn": "Hanako (Swimsuit)",
+      "school": "Trinity",
+      "baseName": "Hanako",
+      "variant": "Swimsuit",
+      "asset": "10074.png",
+      "assetSHA256": "d019bb4da273dae3190778b5479a480dc7c166bcec3d567fdbb942aedab133a1"
+    },
+    {
+      "id": 10076,
+      "nameKo": "코토리(응원단)",
+      "nameEn": "Kotori (Cheer Squad)",
+      "school": "Millennium",
+      "baseName": "Kotori",
+      "variant": "Cheer Squad",
+      "asset": "10076.png",
+      "assetSHA256": "6b718b79b8cba06b87522e2b4715fafb4a6f31cde9495ce41b475beb3693814c"
+    },
+    {
+      "id": 10084,
+      "nameKo": "코타마(캠핑)",
+      "nameEn": "Kotama (Camp)",
+      "school": "Millennium",
+      "baseName": "Kotama",
+      "variant": "Camp",
+      "asset": "10084.png",
+      "assetSHA256": "c358d1a20a9a5a3426af5598861d6caa970dd64b0645dfcbb90896dcf2712ad5"
+    },
+    {
+      "id": 10085,
+      "nameKo": "하레(캠핑)",
+      "nameEn": "Hare (Camp)",
+      "school": "Millennium",
+      "baseName": "Hare",
+      "variant": "Camp",
+      "asset": "10085.png",
+      "assetSHA256": "b1e9d8c52a46ca1fa949d758164ca78fc5b1f1c0a70218aef78e7da2c24712a9"
+    },
+    {
+      "id": 10086,
+      "nameKo": "히나(드레스)",
+      "nameEn": "Hina (Dress)",
+      "school": "Gehenna",
+      "baseName": "Hina",
+      "variant": "Dress",
+      "asset": "10086.png",
+      "assetSHA256": "e4efba4ef214b5755feb051ccc8203779225002c3f07fcf33021f7c854e612c1"
+    },
+    {
+      "id": 10087,
+      "nameKo": "아코(드레스)",
+      "nameEn": "Ako (Dress)",
+      "school": "Gehenna",
+      "baseName": "Ako",
+      "variant": "Dress",
+      "asset": "10087.png",
+      "assetSHA256": "5cde9f4acd9bbff0da391cc92cbafe0efa6d8aa9abbdedc9aa945d4ab91129f0"
+    },
+    {
+      "id": 10088,
+      "nameKo": "카요코(드레스)",
+      "nameEn": "Kayoko (Dress)",
+      "school": "Gehenna",
+      "baseName": "Kayoko",
+      "variant": "Dress",
+      "asset": "10088.png",
+      "assetSHA256": "ce4c85dfbc2cf248a6cebf99910f5f8d450dadb1be69fb6dc327e49869ffcca9"
+    },
+    {
+      "id": 10089,
+      "nameKo": "아루(드레스)",
+      "nameEn": "Aru (Dress)",
+      "school": "Gehenna",
+      "baseName": "Aru",
+      "variant": "Dress",
+      "asset": "10089.png",
+      "assetSHA256": "2f6f05886773b16f36f1cf59755e689eb5c713b9693719f238e872ded261704a"
+    },
+    {
+      "id": 10091,
+      "nameKo": "카즈사(밴드)",
+      "nameEn": "Kazusa (Band)",
+      "school": "Trinity",
+      "baseName": "Kazusa",
+      "variant": "Band",
+      "asset": "10091.png",
+      "assetSHA256": "46bd916e37ee559425ca17f3c0043b423ea572ca843e1109f5b268371c018ba5"
+    },
+    {
+      "id": 10092,
+      "nameKo": "요시미(밴드)",
+      "nameEn": "Yoshimi (Band)",
+      "school": "Trinity",
+      "baseName": "Yoshimi",
+      "variant": "Band",
+      "asset": "10092.png",
+      "assetSHA256": "1b5a57113f2803d4ed34cdc52417f09bcf44b4250d34f754c6d84e2fe9b06fea"
+    },
+    {
+      "id": 10094,
+      "nameKo": "모모이(메이드)",
+      "nameEn": "Momoi (Maid)",
+      "school": "Millennium",
+      "baseName": "Momoi",
+      "variant": "Maid",
+      "asset": "10094.png",
+      "assetSHA256": "1a75f41bc18878fe69969a52c8c95e616203152202a8c11b0477f8324adfde49"
+    },
+    {
+      "id": 10095,
+      "nameKo": "미도리(메이드)",
+      "nameEn": "Midori (Maid)",
+      "school": "Millennium",
+      "baseName": "Midori",
+      "variant": "Maid",
+      "asset": "10095.png",
+      "assetSHA256": "c537aa784d6317a991efc0b0d5414fd78ef2fa92bb465fab1fe608d299bcae55"
+    },
+    {
+      "id": 10096,
+      "nameKo": "칸나(수영복)",
+      "nameEn": "Kanna (Swimsuit)",
+      "school": "Valkyrie",
+      "baseName": "Kanna",
+      "variant": "Swimsuit",
+      "asset": "10096.png",
+      "assetSHA256": "0723759f00976e58021028b69db4447efec380272eae3932744f5dda9a9c4ae6"
+    },
+    {
+      "id": 10097,
+      "nameKo": "모에(수영복)",
+      "nameEn": "Moe (Swimsuit)",
+      "school": "SRT",
+      "baseName": "Moe",
+      "variant": "Swimsuit",
+      "asset": "10097.png",
+      "assetSHA256": "ca326fefa296049f568a1383ecd9150ed2e8c70af2720983a0be8767cfd91b91"
+    },
+    {
+      "id": 10098,
+      "nameKo": "호시노(무장)",
+      "nameEn": "Hoshino (Armed)",
+      "school": "Abydos",
+      "baseName": "Hoshino",
+      "variant": "Armed",
+      "asset": "10098.png",
+      "assetSHA256": "5c6edce55a36af3f6a6ce5e745cae55e6890052564fe3a8b8a8207d75d06bce7"
+    },
+    {
+      "id": 10101,
+      "nameKo": "사오리(수영복)",
+      "nameEn": "Saori (Swimsuit)",
+      "school": "Arius",
+      "baseName": "Saori",
+      "variant": "Swimsuit",
+      "asset": "10101.png",
+      "assetSHA256": "644adb261e19709fdd60be5edd5b816bd021c9ff715785d4fabf125516181307"
+    },
+    {
+      "id": 10102,
+      "nameKo": "히요리(수영복)",
+      "nameEn": "Hiyori (Swimsuit)",
+      "school": "Arius",
+      "baseName": "Hiyori",
+      "variant": "Swimsuit",
+      "asset": "10102.png",
+      "assetSHA256": "3f7f5a32505400facd1c9ba3111d1588e162600f6143773af3684609ad0d1bea"
+    },
+    {
+      "id": 10103,
+      "nameKo": "마리나(치파오)",
+      "nameEn": "Marina (Qipao)",
+      "school": "RedWinter",
+      "baseName": "Marina",
+      "variant": "Qipao",
+      "asset": "10103.png",
+      "assetSHA256": "66bfcbcf85c7570a40ce5daa052515ba35d91056e692b66decf5657d7bea0e37"
+    },
+    {
+      "id": 10105,
+      "nameKo": "마리(아이돌)",
+      "nameEn": "Mari (Pop Idol)",
+      "school": "Trinity",
+      "baseName": "Mari",
+      "variant": "Pop Idol",
+      "asset": "10105.png",
+      "assetSHA256": "a02cff20635001974f36d82fdae3a5dd932fac79a6ca270beffae73a15508e6f"
+    },
+    {
+      "id": 10106,
+      "nameKo": "사쿠라코(아이돌)",
+      "nameEn": "Sakurako (Pop Idol)",
+      "school": "Trinity",
+      "baseName": "Sakurako",
+      "variant": "Pop Idol",
+      "asset": "10106.png",
+      "assetSHA256": "f20600a68590c1af1b2e911dd6b4ea7926b1c4d186157f3ff56155c5b246a8b3"
+    },
+    {
+      "id": 10108,
+      "nameKo": "유우카(파자마)",
+      "nameEn": "Yuuka (Pajamas)",
+      "school": "Millennium",
+      "baseName": "Yuuka",
+      "variant": "Pajamas",
+      "asset": "10108.png",
+      "assetSHA256": "0ed40bd87db8895e2cba68875eda69e081d2a1939a3dc9606b3f2a04e114e787"
+    },
+    {
+      "id": 10109,
+      "nameKo": "노아(파자마)",
+      "nameEn": "Noa (Pajamas)",
+      "school": "Millennium",
+      "baseName": "Noa",
+      "variant": "Pajamas",
+      "asset": "10109.png",
+      "assetSHA256": "3498fd7975492b340ede6488439303c7c4855000e8e1ea1837d5e23fd2721b1f"
+    },
+    {
+      "id": 10111,
+      "nameKo": "네루(교복)",
+      "nameEn": "Neru (School)",
+      "school": "Millennium",
+      "baseName": "Neru",
+      "variant": "School",
+      "asset": "10111.png",
+      "assetSHA256": "bdf1b581f602621b1902c10b1da61aedeafcc91fbca18b30b425443ac3c43898"
+    },
+    {
+      "id": 10112,
+      "nameKo": "아스나(교복)",
+      "nameEn": "Asuna (School)",
+      "school": "Millennium",
+      "baseName": "Asuna",
+      "variant": "School",
+      "asset": "10112.png",
+      "assetSHA256": "90e0025e10965b8359a9efc93bb3dd159ac3997260dfad093843b047c4cd2d7a"
+    },
+    {
+      "id": 10113,
+      "nameKo": "세나(사복)",
+      "nameEn": "Sena (Casual)",
+      "school": "Gehenna",
+      "baseName": "Sena",
+      "variant": "Casual",
+      "asset": "10113.png",
+      "assetSHA256": "398a2d9313e5b1828fb7193b58bc8fa2d4c1a1a672c7f8da33b78218a850ddd2"
+    },
+    {
+      "id": 10114,
+      "nameKo": "주리(아르바이트)",
+      "nameEn": "Juri (Part-Timer)",
+      "school": "Gehenna",
+      "baseName": "Juri",
+      "variant": "Part-Timer",
+      "asset": "10114.png",
+      "assetSHA256": "8abec64e4480bd409071f4cf29e52e6eee303ae949580b9af14a58d255277f6e"
+    },
+    {
+      "id": 10116,
+      "nameKo": "사오리(드레스)",
+      "nameEn": "Saori (Dress)",
+      "school": "Arius",
+      "baseName": "Saori",
+      "variant": "Dress",
+      "asset": "10116.png",
+      "assetSHA256": "9b1b2729ed5584c6d9e9033fa3eee91edc15fb90754e6b293a2cb1cd79617e7e"
+    },
+    {
+      "id": 10120,
+      "nameKo": "나츠(밴드)",
+      "nameEn": "Natsu (Band)",
+      "school": "Trinity",
+      "baseName": "Natsu",
+      "variant": "Band",
+      "asset": "10120.png",
+      "assetSHA256": "5dc0d9224948dbb729d8fc010b9f3042981bbd7902366531251f655df4450caa"
+    },
+    {
+      "id": 10121,
+      "nameKo": "유카리(수영복)",
+      "nameEn": "Yukari (Swimsuit)",
+      "school": "Hyakkiyako",
+      "baseName": "Yukari",
+      "variant": "Swimsuit",
+      "asset": "10121.png",
+      "assetSHA256": "ffdccaae4d0aa01d6dcb0381a1a9bd906cf1e9c12e5499eb7428c0d95d0dd332"
     }
   ]
 }
