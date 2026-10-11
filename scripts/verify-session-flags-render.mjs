@@ -59,10 +59,10 @@ import {fixtureGjr,fixtureInitRow,fixtureInitPreferences} from './${rowsName}';
 import {Clt as FixtureScope,Hbt as FixtureIntlContext,fixtureInitScope} from './app-initial-97d3534ad35f.js';
 const FixtureReact=v();window.fixtureEvents=[];window.fixtureHost='local';window.fixtureOpen=true;
 window.fixturePending=false;
-window.fixtureMenu=false;window.fixturePreview=false;
+window.fixtureMenu=false;window.fixturePreview=false;window.fixtureCurrentId=null;
 const fixtureConversations=[{id:'same-id',hostId:'local',title:'Review session changes',createdAt:Date.now(),updatedAt:Date.now(),turns:[]},{id:'unflagged',hostId:'local',title:'Unflagged chat',createdAt:Date.now(),updatedAt:Date.now(),turns:[]}];
 const fixtureMerged=fixtureConversations.map(conversation=>({kind:'local',key:conversation.id,conversation}));
-const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=()=>fixtureMerged,fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
+const fixture_menu_st=()=>()=>{},fixture_menu_se=()=>({authMethod:'chatgpt'}),fixture_menu_y=()=>window.fixtureCurrentId?{params:{conversationId:window.fixtureCurrentId}}:null,fixture_menu_ce=()=>({data:[]}),fixture_menu_mt=()=>false,fixture_menu_un=()=>true,fixture_menu_fn=()=>fixtureMerged,fixture_menu_p=()=>({pathname:'/new'}),fixture_menu_Je=()=>({cancelPendingWorktree(){}}),fixture_menu_qt=()=>null;
 ${menuRender}
 ${previewRender}
 const fixture_header_i=()=>({formatMessage:({defaultMessage},values)=>values?'Count: '+values.count:defaultMessage}),fixture_header_se=()=>({authMethod:'chatgpt'}),fixture_header_p=()=>({pathname:'/local/session'}),fixture_header_l=()=>false,fixture_header_z=()=>({data:[{id:'same-id',turns:window.fixturePending?[{status:'deferred',rootResumeWait:{state:'waiting'}}]:[],resumeState:'ready'}]}),fixture_header_mt=()=>false,fixture_header_Ve=f=>f,fixture_header_te=()=>({data:[]}),fixture_header_un=()=>true,fixture_header_nt=()=>false,fixture_header_le=props=>props.triggerButton,fixture_header_vn=()=>null;
@@ -154,22 +154,31 @@ try{
  }
  await evaluate('fixtureOpen=false;fixtureRerender()');await wait('!document.querySelector('+JSON.stringify(flag)+')');await evaluate('fixtureOpen=true;fixtureRerender()');await wait('!!document.querySelector('+JSON.stringify(flag)+')');await click('[data-thread-title]');await wait('fixtureEvents.some(e=>e.type==="navigate")');check('native row navigation remains available',true);
  await evaluate('fixtureOpen=false;fixtureMenu=true;fixturePreview=true;fixtureEvents=[];fixtureRerender()');
- await wait('!!document.querySelector("[data-azrael-session-flag-filter]")');
+ await wait('!!document.querySelector("[data-fixture-menu] button")');
+ const openScope=async()=>{await evaluate('[...document.querySelectorAll("[data-fixture-menu] button")].find(e=>/^(All|Local|Cloud) chats$/.test(e.textContent.trim())).setAttribute("data-fixture-scope-trigger","true")');await click('[data-fixture-scope-trigger]');await wait('!!document.querySelector("[data-azrael-session-flag-filter]")')};
  for(const theme of ['light','dark']){
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
   check(theme+' native menu starts with both chats',await evaluate('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2'));
   check(theme+' native new-chat preview displays saved red flag',await evaluate('document.querySelector("[data-fixture-preview] [data-azrael-session-flag]").getAttribute("aria-pressed")==="true"'));
+  check(theme+' flag filter stays inside closed dropdown',await evaluate('!document.querySelector("[data-azrael-session-flag-filter]")'));
+  await openScope();await shot(theme+'-dropdown-unchecked');
   await click('[data-azrael-session-flag-filter]');
   await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===1');
   check(theme+' flagged-only filter retains the marked chat',await evaluate('document.querySelector("[data-fixture-menu] [data-thread-title]").textContent==="Review session changes"'));
-  await shot(theme+'-filter-preview');
   await click('[data-fixture-preview] [data-azrael-session-flag]');
   await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===0');
   check(theme+' unflagging preview updates filtered menu without navigation',await noActions());
   await click('[data-fixture-preview] [data-azrael-session-flag]');
   await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===1');
+  await evaluate('fixtureCurrentId="unflagged";fixtureRerender()');
+  await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
+  check(theme+' unflagged current session remains visible',await evaluate('[...document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]")].some(e=>e.dataset.azraelSessionFlag.includes("unflagged")&&e.getAttribute("aria-pressed")==="false")'));
+  await openScope();
+  check(theme+' dropdown exposes checked filter state',await evaluate('document.querySelector("[data-azrael-session-flag-filter]").getAttribute("aria-checked")==="true"'));
+  await shot(theme+'-filter-preview');
   await click('[data-azrael-session-flag-filter]');
   await wait('document.querySelectorAll("[data-fixture-menu] [data-azrael-session-flag]").length===2');
+  await evaluate('fixtureCurrentId=null;fixtureRerender()');
  }
  check('no browser errors',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.events=await evaluate('fixtureEvents');

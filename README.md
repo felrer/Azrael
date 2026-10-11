@@ -171,7 +171,7 @@ Details: [Window Use](docs/architecture/window-use.md), [Computer Use](docs/arch
 
 ## Session flags
 
-Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** beside the history menu's chat-type selector to show just marked chats within the current filters and search. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
+Long-running projects produce many conversations. Hover a row in **Chats** and click the flag before its timestamp to mark it; flagged rows show a **filled red flag** at all times, including the new-chat screen's recent-chat preview. Enable **Flagged only** inside the history menu's chat-type dropdown to show marked chats plus the current chat within the current filters and search. The current chat stays visible even without a flag. Click a flag again to clear it. Flagging never opens, closes or archives anything, works from the keyboard, and is stored per host and conversation.
 
 <p align="center"><img src="docs/images/session-flags.png" alt="Chats list row with a red flag" width="576"></p>
 

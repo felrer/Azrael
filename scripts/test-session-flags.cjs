@@ -46,7 +46,10 @@ test("flag predicate scopes hosts and excludes remote and pending items without 
   assert.equal(context.azraelSessionIsFlagged(flags,null),false);
   const result=injectSessionFlags(original,ASSET).text;
   assert.equal(result.split('(0,J.jsx)(azraelFlaggedSessionRow,{').length-1,1);
-  assert.equal(result.split('(0,Z.jsx)(azraelSessionFlagFilter,{').length-1,1);
+  assert.equal(result.split('(0,X.jsx)(azraelSessionFlagFilter,{').length-1,1);
+  assert.equal(context.azraelSessionMatchesFlagFilter(flags,{id:"current"},"current"),true);
+  assert.equal(context.azraelSessionMatchesFlagFilter(flags,{id:"other"},"current"),false);
+  assert.equal(context.azraelSessionMatchesFlagFilter(flags,null,null),false);
 });
 
 test("production pipeline reports flags and binds its owner to the header asset cache", () => {

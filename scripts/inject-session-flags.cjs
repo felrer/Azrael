@@ -1,16 +1,17 @@
 "use strict";
 
 const ASSET = "webview/assets/header-57b689833777.js";
-const MARKER = "/*azrael-session-flags-v2*/";
+const MARKER = "/*azrael-session-flags-v3*/";
 // Use the native persisted preference atom, scoped by host and conversation.
 // A title suffix occupies the trailing title slot immediately before native metadata/actions.
 const HELPER = `var azraelSessionFlagsAtom,azraelSessionFlagOnlyAtom;
 function azraelInitSessionFlags(){It();azraelSessionFlagsAtom??=Ce("azrael-session-flags",{});azraelSessionFlagOnlyAtom??=Ce("azrael-session-flag-only",false)}
 function azraelSessionIsFlagged(flags,conversation){return conversation!=null&&flags[JSON.stringify([conversation.hostId??"local",conversation.id])]===true}
+function azraelSessionMatchesFlagFilter(flags,conversation,currentId){return azraelSessionIsFlagged(flags,conversation)||(currentId!=null&&conversation?.id===currentId)}
 function azraelSessionFlagFilter(props){
   azraelInitSessionFlags();const enabled=l(azraelSessionFlagOnlyAtom)===true,store=f(Re),intl=i();
   const label=intl.formatMessage({id:"azrael.sessionFlag.only",defaultMessage:intl.locale?.startsWith("ko")?"플래그만 보기":"Flagged only"});
-  return(0,Z.jsxs)("div",{className:"flex items-center gap-2",children:[(0,Z.jsx)(Qt,props),(0,Z.jsx)(ee,{size:"toolbar",color:enabled?"ghostActive":"ghost","data-azrael-session-flag-filter":true,"aria-pressed":enabled,onClick:()=>store.set(azraelSessionFlagOnlyAtom,!enabled),children:label})]});
+  return(0,X.jsxs)(ee,{color:"ghostActive",size:"medium",className:u(Gt,enabled&&"font-medium"),"data-azrael-session-flag-filter":true,role:"menuitemcheckbox","aria-checked":enabled,onClick:()=>{store.set(azraelSessionFlagOnlyAtom,!enabled);props.onSelect()},children:[(0,X.jsx)("span",{className:"min-w-0 flex-1 truncate",children:label}),enabled?(0,X.jsx)(xe,{className:"icon-2xs shrink-0 opacity-75"}):null]});
 }
 function azraelFlaggedSessionRow(props){
   azraelInitSessionFlags();
@@ -31,9 +32,9 @@ function injectSessionFlags(text, asset) {
   if (asset !== ASSET) return { text, count: 0 };
   const original = "(0,Z.jsx)(qe,{", patched = "(0,Z.jsx)(azraelFlaggedSessionRow,{";
   const preview = "(0,J.jsx)(qe,{", patchedPreview = "(0,J.jsx)(azraelFlaggedSessionRow,{";
-  const filter = "(0,Z.jsx)(Qt,{", patchedFilter = "(0,Z.jsx)(azraelSessionFlagFilter,{";
+  const filter = "children:[m,v,S]", patchedFilter = "children:[m,v,S,(0,X.jsx)(azraelSessionFlagFilter,{onSelect:()=>s(!1)})]";
   const feed = "let D=r.filter(E),O=fn(n.data,r,T),";
-  const filteredFeed = "azraelInitSessionFlags();let azraelFlags=l(azraelSessionFlagsAtom)??{},azraelFlagPreference=l(azraelSessionFlagOnlyAtom),azraelFlagOnly=d&&azraelFlagPreference===true;let D=r.filter(E).filter(e=>!azraelFlagOnly||azraelSessionIsFlagged(azraelFlags,e)),O=fn(n.data,r,T).filter(e=>!azraelFlagOnly||e.kind===`local`&&azraelSessionIsFlagged(azraelFlags,e.conversation)),";
+  const filteredFeed = "azraelInitSessionFlags();let azraelFlags=l(azraelSessionFlagsAtom)??{},azraelFlagPreference=l(azraelSessionFlagOnlyAtom),azraelFlagOnly=d&&azraelFlagPreference===true;let D=r.filter(E).filter(e=>!azraelFlagOnly||azraelSessionMatchesFlagFilter(azraelFlags,e,x)),O=fn(n.data,r,T).filter(e=>!azraelFlagOnly||e.kind===`local`&&azraelSessionMatchesFlagFilter(azraelFlags,e.conversation??(e.pendingThreadStart?{id:e.pendingThreadStart.clientThreadId}:null),x)),";
   const occurrences = value => text.split(value).length - 1;
   if (occurrences(MARKER)) {
     if (occurrences(MARKER) !== 1 || occurrences(HELPER) !== 1 || occurrences(patched) !== 2 || occurrences(original) !== 1 || occurrences(patchedPreview) !== 1 || occurrences(preview) || occurrences(patchedFilter) !== 1 || occurrences(filteredFeed) !== 1)
