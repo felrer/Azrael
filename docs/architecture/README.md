@@ -4,6 +4,8 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Current implementation
 
+- [연속 작업 시간](task-work-time.md): 연속 턴 묶음과 사용자 응답 대기를 제외한 전체 시간, 작업 경계와 부분 기록 표시.
+
 - [azrael-ex host and storage](azrael-ex.md): single-extension host, pinned UI and engine provenance, installation, native storage, Codex and shared environment snapshots, recent-chat list, chat content handling.
 - [Accounts and usage](accounts.md): unified account/usage page, OpenAI profiles and multi-window leases, switching, provider accounts, quota semantics.
 - [Project usage value](project-usage.md): daily API-equivalent project totals, contribution calendar and monthly comparisons in Settings Usage.

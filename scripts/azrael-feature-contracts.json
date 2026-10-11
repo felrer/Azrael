@@ -2,6 +2,14 @@
   "schema": 1,
   "features": [
     {
+      "id": "ui.task-work-time",
+      "area": "ui",
+      "owners": ["scripts/inject-task-work-time.cjs", "scripts/task-work-time.cjs", "scripts/task-work-time-history.cjs"],
+      "contract": "docs/architecture/task-work-time.md",
+      "checks": [{"id": "ui.task-work-time.behavior", "executable": "node", "args": ["--test", "scripts/test-task-work-time.cjs", "scripts/test-task-work-time-history.cjs", "scripts/test-task-work-time-ui.cjs"], "level": "source"}],
+      "reportFields": ["taskWorkTimeEdits"]
+    },
+    {
       "id": "ui.session-flags",
       "area": "ui",
       "owners": ["scripts/inject-session-flags.cjs"],
