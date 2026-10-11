@@ -49,6 +49,14 @@ Home support is unresolved across environments. On the tested Windows 11 Home 10
 
 Power Automate and LibreAutomate exclude Home from their supported PiP configurations, which does not establish that every direct Windows implementation is impossible. Native feature enablement, connection, child-process execution, capture, input isolation and data behavior determine the accepted environment. Stage 2 availability requires those capabilities; a successful enablement API alone does not make it available. Until the gates pass, the UI reports the observed prerequisite or failure and keeps observation available; the user can explicitly authorize a different stage. Pro/Enterprise remain verification candidates rather than accepted Azrael environments. The investigation, experiment evidence and implementation sequence are in the [implementation plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/DU-01-window-use-stages/01-plan.md>).
 
+## Home workaround candidates
+
+Status: `draft` — backend choice and production acceptance remain open in the implementation plan.
+
+An alternate Win32 desktop in the same `WinSta0` is a candidate for supported apps when child-session connection is unavailable. It launches a new app instance under the same user and profile while the user's input desktop remains active. Desktops in one window station share its clipboard, so this candidate does not provide clipboard isolation. Structured or window-message adapters and capture compatibility must be verified for each app. It cannot assume arbitrary keyboard/mouse injection into an inactive desktop, and must not switch the user's desktop to perform a model action. A UIA pattern's presence is insufficient: native control proxies can implement Invoke through focus and physical input. The private WinForms experiment supports a limited compatibility candidate rather than general app or production WGC acceptance; its evidence is in the existing implementation plan.
+
+External RDP compatibility tools are another investigation candidate. A matching version section does not establish compatibility with the installed DLL hash or child-session support. Adoption requires a separate, explicit service-change and restoration scope; the stock installer must not be treated as a routine app dependency because its process termination and inbound firewall changes affect the host. No wrapper was installed, and neither candidate changes the agreed four-stage authority or silently routes failed isolated actions into the user's input desktop.
+
 ## App authorization settings
 
 Status: `partial` — separate approvals, settings persistence and native component interactions pass scoped tests and packaged host acceptance. Full installed settings navigation and consent for real user windows remain separate.
