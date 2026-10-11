@@ -51,6 +51,8 @@ Use the code investigation to add the implementation approach, main work sequenc
 
 Record the main dependencies, owners, outputs, downstream consumers and verification methods concisely in the existing plan. For long-running or connected assignments, retain concise actual timing, waiting and rerun evidence in the existing work record; do not create another plan, approval stage, detailed schedule for a small edit, or separate time-management document solely for this record. Root scheduling guidance owns execution ordering and resource coordination.
 
+During planning, identify the authorization required for each task and when it is needed. Where sufficient information is available for the user to decide, obtain the necessary authorizations together before starting the related work, and reflect the authorized scope in the execution schedule. Confirm only new decisions or additional authority that arise from investigation.
+
 Before implementation, check that the requirements, implementation approach, and success criteria are settled and execution is authorized. Present the concrete plan for confirmation when that authority is missing or the approach introduces a consequential choice outside the existing agreement. Carry forward authorization already given; do not request the same decisions or permission again merely because work moves from design to implementation. A design-only request or an answer to a design question does not itself authorize implementation. Reflect material changes in the same plan and confirm only the changed decisions or additional authority needed.
 
 ## 4. Update Design Documents
