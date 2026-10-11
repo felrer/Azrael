@@ -37,6 +37,10 @@ Each document labels its own state (see [document states](../README.md#document-
 - [Instruction distribution and settings](instructions.md): complete instruction releases, GitHub downloads, version selection, protected application and settings UI.
 - [Azrael runtime and providers](azrael-runtime.md): one Azrael-owned engine for subscription providers, dynamic model discovery, recovery and independent VS Code chat. Replaces parts of the current implementation as each boundary is verified.
 
+## Draft
+
+- [대화 중심의 비동기 작업 운영](work-orchestration.md): 요구·설계 접수 세션과 실행 root 분리, 사전 준비 기준, 세션 묶음과 공통 기록, 직접 개입과 변경 충돌 제어 제안.
+
 ## Reference
 
 - [Restart ideas](restart-ideas.md): candidate lessons from the retired implementations, with Codex contracts to verify before adoption.

@@ -44,7 +44,7 @@
   <circle cx="872" cy="382" r="6" fill="#16805d"/>
   <text x="64" y="406" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#16805d">defer</text>
   <text x="872" y="406" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="10" fill="#16805d">resume</text>
-  <text x="468" y="372" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#77787b">parked &#183; host checks the signal file about once a second, with no model call</text>
+  <text x="468" y="364" text-anchor="middle" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11" fill="#77787b">parked &#183; host checks the signal file about once a second, with no model call</text>
   <text x="64" y="432" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="12" font-weight="600" fill="#16805d">2 model requests &#183; the root is free to do other ready work before it parks</text>
 
   <text x="40" y="482" font-family="Segoe UI, Malgun Gothic, sans-serif" font-size="11.5" fill="#77787b">The saving comes from removing repeated wake-ups and status checks, not from the elapsed time itself. A resumed request is a</text>

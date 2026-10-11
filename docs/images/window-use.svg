@@ -55,11 +55,11 @@
   <path d="M623 430V447" stroke="#202123" stroke-width="1.5"/>
   <g font-size="12" fill="#77787b">
     <text x="46" y="81">Selected target — captured and controlled without raising it</text>
-    <text x="500" y="574">Your mouse, keyboard, and clipboard stay yours</text>
+    <text x="500" y="572">Your mouse, keyboard, and clipboard stay yours</text>
   </g>
   <g fill="none" stroke="#77787b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
     <path d="M66 95V104L82 118"/>
-    <path d="M705 550V536H945V438H632"/>
+    <path d="M705 550V486H648V438H632"/>
   </g>
   <rect x="46" y="548" width="202" height="38" rx="20" fill="#202123" fill-opacity="0.82" pointer-events="none"/>
   <text x="147" y="572" text-anchor="middle" font-size="12" fill="#ffffff" pointer-events="none">Press Esc to stop control</text>
