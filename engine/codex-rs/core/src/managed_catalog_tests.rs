@@ -16,6 +16,7 @@ fn api_catalog_preserves_opaque_remote_ids_and_connection_identity() {
         "text-only API children remain eligible"
     );
     assert!(is_managed(&models[0].slug));
+    assert!(!models[0].supports_search_tool);
     for invalid in [
         "api/short/model",
         "api/0123456789ABCDEF0123456789abcdef/model",
@@ -25,6 +26,15 @@ fn api_catalog_preserves_opaque_remote_ids_and_connection_identity() {
         assert!(selection(invalid).is_err());
     }
     assert!(models_from_catalog(br#"{"models":[{"provider_id":"api-0123456789abcdef0123456789abcdef","model_id":"model","display_name":"Fixture","context_window":8192}]}"#).is_err());
+}
+
+#[test]
+fn tool_capable_api_models_enable_host_tool_discovery() {
+    let bytes = br#"{"models":[{"provider_id":"api-0123456789abcdef0123456789abcdef","model_id":"heretic2","display_name":"Heretic2","context_window":262144,"supports_tools":true,"stream":true,"timeout_ms":900000}]}"#;
+    let model = models_from_catalog(bytes).unwrap().remove(0);
+    assert!(model.supports_search_tool);
+    assert_eq!(model.context_window, Some(262144));
+    assert_eq!(model.model_provider, PROVIDER_ID);
 }
 use pretty_assertions::assert_eq;
 

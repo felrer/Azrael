@@ -26,6 +26,10 @@ import { CustomApiManagement } from "./customApiManagement";
 
 let service: AccountService | undefined;
 
+export async function reconnectAfterEngineRestart(): Promise<void> {
+  await service?.reconnectAfterEngineRestart();
+}
+
 let fallbackWindowSessionId: string | undefined;
 export async function activate(context: vscode.ExtensionContext, runtime?: HostRuntime): Promise<void> {
   const standalone = runtime === undefined;
@@ -67,12 +71,15 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     }
   }
 
+  let standaloneTransport: AppServerTransport | undefined;
   if (standalone) {
     const cwd = vscode.workspace.workspaceFolders?.[0]?.uri.fsPath ?? os.homedir();
-    const chat = new ChatView(new ChatSession(new AppServerTransport({
+    standaloneTransport = new AppServerTransport({
       executable: engine, cwd, env: runtimeEnv,
+      restartDelayMs: 1_000,
       clientInfo: { name: "azrael-vscode", version: "0.4.0", title: "Azrael VS Code" },
-    }), cwd));
+    });
+    const chat = new ChatView(new ChatSession(standaloneTransport, cwd));
     context.subscriptions.push(chat, vscode.window.registerWebviewViewProvider("azrael.chat", chat));
     register("azrael.openSidebar", () => vscode.commands.executeCommand("workbench.view.extension.azraelViewContainer"));
     chat.start();
@@ -94,6 +101,10 @@ export async function activate(context: vscode.ExtensionContext, runtime?: HostR
     vscode.commands.registerCommand("azrael.studentCreated", (threadId: unknown) => studentDesign.recordCreated(threadId)));
 
   service = new AccountService({ executable: bridgeExecutable, socket, codexHome, expectedServerVersion: engineVersion, env: { ...runtimeEnv, AZRAEL_EX_MANAGEMENT_SOCKET: socket, CODEX_HOME: codexHome } });
+  const accountService = service;
+  standaloneTransport?.on("reconnect", () => {
+    void accountService.reconnectAfterEngineRestart().catch(() => undefined);
+  });
   const usage = new UsageRefreshCoordinator(async (profileId, workspaceAccountId, includeDetails) => {
     const response = parseAccountResponse(await service!.call({ action: "usage", profileId, includeDetails }));
     if (response.usageProfileId !== profileId || !response.usage) throw new Error("Usage response did not match the requested profile.");

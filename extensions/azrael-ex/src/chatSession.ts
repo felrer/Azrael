@@ -91,6 +91,23 @@ export class ChatSession extends EventEmitter {
     wire.on("notification", (method: string, params: unknown) => this.notification(method, params));
     wire.on("serverRequest", (id: number | string, method: string, params: unknown) => this.serverRequest(id, method, params));
     wire.on("disconnect", () => { this.state.status = "Disconnected"; this.state.error = "Azrael connection closed. Reopen the chat to reconnect; check the last turn before resending it."; this.state.turnId = undefined; this.fullAccessTurns.clear(); this.queuePaused = true; this.queueVersion++; this.publish(); });
+    wire.on("restarting", () => { this.state.status = "Reconnecting…"; this.publish(); });
+    wire.on("reconnect", () => { void this.recoverConnection(); });
+  }
+  private async recoverConnection(): Promise<void> {
+    const threadId = this.state.threadId;
+    this.state.status = "Connected";
+    this.state.error = undefined;
+    this.state.approvals = [];
+    this.approvalMethods.clear();
+    this.verifiedFullAccessThreads.clear();
+    try {
+      await Promise.all([this.refreshModels(), this.refreshThreads()]);
+      if (threadId && this.state.threads.some(candidate => candidate.id === threadId)) await this.openThread(threadId);
+    } catch {
+      this.state.error ??= "Azrael reconnected, but could not restore the thread. Refresh the thread before continuing.";
+    }
+    this.publish();
   }
   private publish(): void { if (!this.disposed) { this.state.modelSelectionLocked = this.queueLocked(); this.emit("change", this.state); } }
   private async call(method: string, params: unknown): Promise<unknown> {

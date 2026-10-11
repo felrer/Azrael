@@ -85,3 +85,39 @@ test("malformed and oversized lines disconnect without retaining raw output", as
     } finally { server.dispose(); }
   }
 });
+
+test("supervised app-server restarts after SIGKILL and performs a new handshake", async () => {
+  const server = new AppServerTransport({
+    executable: process.execPath, args: [path.join(__dirname, "appServer-fixture.js")],
+    cwd: __dirname, env: { ...process.env, FIXTURE_MODE: "normal" },
+    clientInfo: { name: "azrael", version: "0.1.0" }, restartDelayMs: 10,
+  });
+  try {
+    await server.start();
+    const firstPid = server.pid!;
+    const oldChild = (server as any).child;
+    const originalWrite = oldChild.stdin.write.bind(oldChild.stdin);
+    let delayedWriteError: ((error: Error) => void) | undefined;
+    oldChild.stdin.write = (data: string, callback: (error: Error) => void) => {
+      delayedWriteError = callback;
+      return originalWrite(data, () => {});
+    };
+    server.notify("fixture/notification");
+    const reconnected = event(server, "reconnect");
+    process.kill(firstPid, "SIGKILL");
+    await reconnected;
+    assert.notEqual(server.pid, firstPid);
+    assert.equal(server.isConnected, true);
+    assert.ok(delayedWriteError);
+    delayedWriteError(new Error("late write error from terminated child"));
+    assert.equal(server.isConnected, true, "old write callback cannot disconnect the new child");
+    assert.deepEqual(await server.request("fixture/roundtrip", { recovered: true }),
+      { received: { recovered: true }, requestCount: 1 });
+    const disconnected = event(server, "disconnect");
+    process.kill(server.pid!, "SIGKILL");
+    await disconnected;
+    server.dispose();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    assert.equal(server.pid, undefined, "disposal cancels the pending restart");
+  } finally { server.dispose(); }
+});

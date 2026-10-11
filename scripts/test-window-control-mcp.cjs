@@ -27,7 +27,8 @@ async function main() {
   assert.throws(() => parseThreadMetadata({ 'x-codex-turn-metadata': { thread_id: threadId }, threadId: 'different' }), /Conflicting/);
   assert.throws(() => parseThreadMetadata({ codexTurnMetadata: { threadId } }), /metadata/);
   let received;
-  const relay = createRelay({ codexHome: 'C:/fake', readFile: async file => { assert.ok(file.endsWith(threadId + '.json')); return JSON.stringify({ schema: 1, pipe: '\\\\.\\pipe\\azrael-window-1234567890123456', nonce: 'n'.repeat(32) }); }, request: async (pipe, message) => { received = message; return { targetId: 'opaque', state: 'ready', window: { title: 'Selected', executable: 'secret' } }; } });
+  const fixturePipe = process.platform === 'win32' ? '\\\\.\\pipe\\azrael-window-1234567890123456' : '/tmp/azw-ABC123/w.sock';
+  const relay = createRelay({ codexHome: 'C:/fake', readFile: async file => { assert.ok(file.endsWith(threadId + '.json')); return JSON.stringify({ schema: 1, pipe: fixturePipe, nonce: 'n'.repeat(32) }); }, request: async (pipe, message) => { received = message; return { targetId: 'opaque', state: 'ready', window: { title: 'Selected', executable: 'secret' } }; } });
   const protocol = createProtocol({ relay });
   const call = args => protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'capture', arguments: args, _meta: { ...proof, 'x-codex-turn-metadata': { thread_id: threadId } } } });
   assert.equal((await call({ targetId: 'opaque' })).result.isError, false); assert.equal(received.threadId, threadId); assert.equal(received.method, 'call');

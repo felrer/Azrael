@@ -15,6 +15,7 @@ let accountUiActivationAttempted = false;
 let fallbackWindowSessionId;
 let recoveryActivation;
 let windowControlActivation;
+let engineRecoverySubscription;
 
 function fileSystemPath(uri, owner) {
   // Local desktop VS Code routes vscode-userdata to its file provider without
@@ -124,14 +125,25 @@ exports.activate = async function activate(context) {
   await migrateAccountDefault(stateFiles.defaultFile, stateFiles.previousSessionRoot);
   recoveryActivation = recovery.initialize(context, vscode);
   try {
+    if (runtime.localHistory?.sourceHome) {
+      const output = vscode.window.createOutputChannel("Azrael Local History");
+      context.subscriptions.push(output);
+      await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Azrael: 로컬 Codex 기록 가져오는 중" },
+        () => require("./out/local-history-host.cjs").sync(runtime, output));
+    }
     const platform = validateRuntimePlatform(runtime.platform);
-    if (platform.desktopControl && runtime.windowControl) {
+    if ((platform.desktopControl || process.platform === "linux" && runtime.windowControl?.acceptanceVerified) && runtime.windowControl) {
       windowControlActivation = require("./out/window-control-host.cjs").initialize(context, vscode, runtime);
     }
     const nativeApi = await nativeExtension.activate(context);
     nativeActivated = true;
     accountUiActivationAttempted = true;
     await accountUi.activate(context, runtime);
+    if (process.platform === "linux") {
+      engineRecoverySubscription = require("./out/linux-native-supervision.cjs").onRestart(() => {
+        void accountUi.reconnectAfterEngineRestart().catch(() => undefined);
+      });
+    }
     return nativeApi;
   } catch (error) {
     try { await deactivate(); } catch { /* Preserve the activation failure. */ }
@@ -140,6 +152,8 @@ exports.activate = async function activate(context) {
 };
 
 async function deactivate() {
+  engineRecoverySubscription?.dispose();
+  engineRecoverySubscription = undefined;
   await windowControlActivation?.dispose();
   windowControlActivation = undefined;
   recoveryActivation?.dispose();

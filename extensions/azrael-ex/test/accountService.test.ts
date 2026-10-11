@@ -148,6 +148,23 @@ test("a reconnected bridge from another engine instance fails closed without ret
   });
 });
 
+test("an owned engine restart re-verifies the new instance without replaying mutations", async () => {
+  await withFixture(async ({ options, requestLog }) => {
+    const service = new AccountService({ ...options("instance-mismatch"), reconnectDelaysMs: [5, 5] });
+    const errors: string[] = [];
+    service.on("errorState", (error: string) => errors.push(error));
+    try {
+      await service.connect();
+      await assert.rejects(service.call({ action: "switch", profileId: "a".repeat(32) }), /bridge disconnected/);
+      await waitUntil(() => errors.length === 1);
+      const state = await service.reconnectAfterEngineRestart();
+      assert.equal(state.instanceId, "other-instance");
+      assert.equal(service.changesEnabled, true);
+      assert.equal(requestLog().filter(request => request.endsWith(":switch")).length, 1);
+    } finally { service.dispose(); }
+  });
+});
+
 test("an established disconnect reconnects without replaying a mutation", async () => {
   await withFixture(async ({ options, attempts, requestLog }) => {
     const service = new AccountService({ ...options("mutation-disconnect"), reconnectDelaysMs: [5, 5] });

@@ -53,6 +53,29 @@ class MockServer extends EventEmitter {
   dispose(): void {}
 }
 
+test("reconnection restores the selected thread without resubmitting a turn", async () => {
+  const wire = new MockServer();
+  const chat = new ChatSession(wire, "/project");
+  try {
+    await chat.start();
+    await chat.openThread("old");
+    wire.calls = [];
+    wire.emit("disconnect");
+    wire.emit("restarting", 10);
+    assert.equal(chat.state.status, "Reconnecting…");
+    wire.emit("reconnect");
+    for (let i = 0; i < 20 && !wire.calls.some(call => call.method === "thread/queue/list"); i++) {
+      await new Promise(resolve => setImmediate(resolve));
+    }
+    assert.equal(chat.state.status, "Connected");
+    assert.equal(chat.state.threadId, "old");
+    assert.equal(chat.state.turnId, "running-old");
+    assert.equal(chat.state.error, undefined);
+    assert.ok(wire.calls.some(call => call.method === "thread/resume" && call.params.threadId === "old"));
+    assert.ok(!wire.calls.some(call => ["turn/start", "thread/queue/add", "thread/queue/start"].includes(call.method)));
+  } finally { chat.dispose(); }
+});
+
 test("managed connection failures explain safe causes and pause without replaying tools", async () => {
   const wire = new MockServer();
   const chat = new ChatSession(wire, "/project");

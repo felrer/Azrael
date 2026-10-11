@@ -9,7 +9,7 @@ const test = require("node:test");
 
 // Synthetic guards and pinned source compatibility, without a prepared host.
 const originalRoot = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434");
-const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
+const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const transformer = require("./namespace-azrael-host.cjs");
 
 test("Azrael theme and command labels preserve model and command identities", () => {
@@ -130,7 +130,7 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
         recentListExpression, params, background,
       );
       assert.deepEqual(JSON.parse(JSON.stringify(allProviders.result)), {
-        ...params, modelProviders: [], cwd: ["C:\\work\\one"],
+        ...params, modelProviders: [], sourceKinds: ["cli", "vscode", "exec", "appServer", "unknown"], cwd: ["C:\\work\\one"],
       }, "recent chats must include every provider while preserving pagination and archive filters");
       assert.equal(JSON.stringify(params), snapshot, "recent-list input parameters were mutated");
     }
@@ -144,6 +144,7 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
   assert.deepEqual(JSON.parse(JSON.stringify(multiRoot.result)), {
     limit: 25,
     modelProviders: [],
+    sourceKinds: ["cli", "vscode", "exec", "appServer", "unknown"],
     cwd: ["C:\\work\\one", "D:\\work\\two"],
   }, "multi-root file workspaces did not replace thread/list cwd");
 

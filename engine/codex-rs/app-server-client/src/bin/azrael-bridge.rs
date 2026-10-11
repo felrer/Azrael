@@ -30,19 +30,20 @@ fn main() -> io::Result<()> {
 }
 
 async fn run(socket_path: AbsolutePathBuf) -> io::Result<()> {
-    let mut client = tokio::time::timeout(
-        Duration::from_secs(15),
-        RemoteAppServerClient::connect_local_daemon(RemoteAppServerConnectArgs {
-            endpoint: RemoteAppServerEndpoint::UnixSocket { socket_path },
-            client_name: "azrael-ex".to_string(),
-            client_version: env!("CARGO_PKG_VERSION").to_string(),
-            experimental_api: true,
-            mcp_server_openai_form_elicitation: false,
-            opt_out_notification_methods: Vec::new(),
-            channel_capacity: 32,
-        }),
-    )
-    .await??;
+    let args = RemoteAppServerConnectArgs {
+        endpoint: RemoteAppServerEndpoint::UnixSocket { socket_path },
+        client_name: "azrael-ex".to_string(),
+        client_version: env!("CARGO_PKG_VERSION").to_string(),
+        experimental_api: true,
+        mcp_server_openai_form_elicitation: false,
+        opt_out_notification_methods: Vec::new(),
+        channel_capacity: 32,
+    };
+    #[cfg(windows)]
+    let connection = RemoteAppServerClient::connect_local_daemon(args);
+    #[cfg(not(windows))]
+    let connection = RemoteAppServerClient::connect(args);
+    let mut client = tokio::time::timeout(Duration::from_secs(15), connection).await??;
     let mut stdout = tokio::io::stdout();
     let ready = json!({"method":"azrael/connected","params":{
         "codexHome":client.codex_home(), "serverVersion":client.server_version()

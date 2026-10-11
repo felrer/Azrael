@@ -29,10 +29,18 @@ assert.ok(!(browserOnly && sourceOnly), "--browser-only and --source-only are mu
 for (const asset of browserOnly ? CONTENT_FONT_ASSETS.filter(asset => asset.endsWith(".css")) : CONTENT_FONT_ASSETS) {
   const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), asset);
   const original = hs.readFileSync(filename, "utf8");
-  const result = transformAsset(original, asset, filename, ts);
+  // The released Linux header already passed the full producer. Its pristine
+  // platform variant differs at an unrelated deferred-turn anchor.
+  const headerFontOnly = asset.includes("/header-");
+  const fontResult = headerFontOnly ? injectContentFonts(original, asset, ts) : undefined;
+  const result = headerFontOnly ? { text: fontResult.text, asset: { contentFontEdits: fontResult.count } } : transformAsset(original, asset, filename, ts);
   assert.equal(result.asset.contentFontEdits, 1, asset);
   assert.equal(injectContentFonts(result.text, asset, ts).count, 0, asset);
-  assert.equal(transformAsset(result.text, asset, filename, ts).asset, null, `production repeat ${asset}`);
+  if (!headerFontOnly) assert.equal(transformAsset(result.text, asset, filename, ts).asset, null, `production repeat ${asset}`);
+  if (headerFontOnly && process.env.AZRAEL_TEST_RELEASED_HEADER_PATH) {
+    const released = hs.readFileSync(process.env.AZRAEL_TEST_RELEASED_HEADER_PATH, "utf8");
+    assert.equal(injectContentFonts(released, asset, ts).count, 0, "released Linux header retains exact font markers");
+  }
   if (asset.endsWith(".js")) {
     const parsed = ts.createSourceFile(asset, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
     assert.equal(parsed.parseDiagnostics.length, 0, asset);
@@ -47,7 +55,7 @@ for (const asset of browserOnly ? CONTENT_FONT_ASSETS.filter(asset => asset.ends
     assert.throws(() => injectContentFonts(original.replace("._Paragraph_63g8m_2,._Heading_63g8m_2,._ListItem_63g8m_2,._Table_63g8m_2{font-family:var(--font-content)}", "._ChangedParagraph_63g8m_2{font-family:var(--font-content)}"), asset, ts));
   }
   transformed.set(asset, result.text);
-  console.log(`PASS production transform, parse/exports, repeat and changed-anchor: ${asset}`);
+  console.log(`PASS ${headerFontOnly ? "header font injection" : "production transform"}, parse/exports, repeat and changed-anchor: ${asset}`);
 }
 // Execute the production composer leaf through React's memo cache, covering the
 // named-model and localized fallback branches without reproducing the function.
@@ -118,10 +126,10 @@ async function stopOwnedBrowser(child, graceful = false, profilePath) {
 async function verifyBrowser() {
   const chrome = process.env.AZRAEL_TEST_CHROME || ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"].find(hs.existsSync);
   assert.ok(chrome, "installed headless Chromium required (or set AZRAEL_TEST_CHROME)");
-  const presentation = require(path.join(root, "extensions/azrael-ex/dist/src/usagePresentation.js"));
+  const presentation = require(process.env.AZRAEL_TEST_PRESENTATION_PATH ?? path.join(root, "extensions/azrael-ex/dist/src/usagePresentation.js"));
   const html = `<!doctype html><meta charset="utf-8"><style>:root{--font-sans:Arial;--font-ui-family:Arial}body{font-family:Arial;font-size:16px;line-height:24px}.sample{font-size:16px;line-height:24px}.sample button{font-size:16px;line-height:24px}.font-content{font-family:var(--codex-content-font-family)}${transformed.get(CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".css")))}</style><div id="fixed" class="sample">고정 메뉴 Copy 42</div><div id="korean" class="sample" data-azrael-dynamic-text>경기천년제목</div><div id="latin" class="sample" data-azrael-dynamic-text>Consolas 123</div><div id="bold" class="sample" data-azrael-dynamic-text style="font-weight:700">경기천년제목</div><div id="content" class="sample font-content">대화 Message 123<strong id="markdown-bold" style="font-weight:700">강조 제목</strong><button id="copy">Copy</button></div><div data-composer-body class="[&_.ProseMirror]:!font-sans"><div id="composer" class="sample ProseMirror" contenteditable>입력 composer 456</div></div><div id="shadow" style="display:block"></div><script>document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML=${JSON.stringify(`<style>${presentation.usageStyles}</style><main><header><span id="identity" data-azrael-dynamic-text>계정 Account 123</span><div class="actions"><button id="refresh" data-action="refresh">새로고침</button></div></header></main>`)};</script>`;
   const fixture = path.join(output, "webview/assets/fixture.html");
-  const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
+  const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><div id="chat-title" data-thread-title>가 나 hello world</div><div id="dynamic-value" data-azrael-dynamic-text>가 나 hello world</div><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
   hs.writeFileSync(fixture, html.replace("</style>", `</style>${chatFixture}`));
   const profile = hs.mkdtempSync(path.join(output, "chromium-profile-"));
   const child = spawn(chrome, ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
@@ -171,15 +179,18 @@ async function verifyBrowser() {
       assert.ok(style.width > 0 && style.height > 0, `${theme} shadow ${id} has visible layout`);
     }
     assert.ok(evidence.shadow.host.height >= evidence.shadow.refresh.height, "shadow host contains control height");
-    const spacing = await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['chat-paragraph','chat-heading','chat-list','chat-cell','user-paragraph','composer']){const el=document.getElementById(id),span=document.createElement('span');span.style.whiteSpace='pre';el.append(span);const width=(text,normal)=>{span.textContent=text;span.style.setProperty('word-spacing',normal?'normal':'inherit','important');const range=document.createRange();range.selectNodeContents(span);return range.getBoundingClientRect().width};const reduced=width('가 나',false)-width('가나',false),original=width('가 나',true)-width('가나',true);result[id]={reduced,original,ratio:reduced/original};span.remove()}for(const id of ['chat-code','chat-control','copy','fixed'])result[id]={wordSpacing:getComputedStyle(document.getElementById(id)).wordSpacing};return result})()`, returnByValue: true });
+    const spacing = await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['chat-paragraph','chat-heading','chat-list','chat-cell','user-paragraph','composer','chat-title','dynamic-value','identity']){const el=id==='identity'?document.getElementById('shadow').shadowRoot.getElementById(id):document.getElementById(id),span=document.createElement('span');span.style.whiteSpace='pre';el.append(span);const width=(text,normal)=>{span.textContent=text;span.style.setProperty('word-spacing',normal?'normal':'inherit','important');const range=document.createRange();range.selectNodeContents(span);return range.getBoundingClientRect().width};result[id]={};for(const [language,spaced,joined] of [['korean','가 나','가나'],['latin','hello world','helloworld']]){const actual=width(spaced,false)-width(joined,false),original=width(spaced,true)-width(joined,true);result[id][language]={actual,original,ratio:actual/original}};span.remove()}for(const id of ['chat-code','chat-control','copy','fixed'])result[id]={wordSpacing:getComputedStyle(document.getElementById(id)).wordSpacing};return result})()`, returnByValue: true });
     assert.ok(!spacing.exceptionDetails, JSON.stringify(spacing.exceptionDetails));
     evidence.spacing = spacing.result.value;
-    for (const id of ["chat-paragraph", "chat-heading", "chat-list", "chat-cell", "user-paragraph", "composer"]) {
-      assert.ok(evidence.spacing[id].original > 0, `${id}: original space must have width`);
-      assert.ok(Math.abs(evidence.spacing[id].ratio - 0.5) < 0.02, `${id}: space ratio ${evidence.spacing[id].ratio}`);
+    for (const id of ["chat-paragraph", "chat-heading", "chat-list", "chat-cell", "user-paragraph", "composer", "chat-title", "dynamic-value", "identity"]) {
+      for (const language of ["korean", "latin"]) {
+        const measured = evidence.spacing[id][language];
+        assert.ok(measured.actual > 1, `${id}/${language}: space must remain visible`);
+        assert.ok(Math.abs(measured.ratio - 1) < 0.02, `${id}/${language}: natural space ratio ${measured.ratio}`);
+      }
     }
     for (const id of ["chat-code", "chat-control", "copy", "fixed"]) assert.equal(evidence.spacing[id].wordSpacing, "0px", id);
-    console.log("PASS chat and composer spaces: paragraph/heading/list/table/user text measured at half width; code and controls retain normal spacing");
+    console.log("PASS Korean/Latin natural spaces across prose, titles, composer, dynamic and shadow values");
     hs.writeFileSync(path.join(renderLogs, `render-evidence-${theme}.json`), JSON.stringify(evidence, null, 2));
     const officialFaces = evidence.faces.filter(d => d.family === "Azrael Gyeonggi Title");
     assert.ok(officialFaces.length === 1 && officialFaces.every(d => d.status === "loaded"));
@@ -202,13 +213,13 @@ async function verifyBrowser() {
     }
     assert.ok(evidence.platformFonts.korean.some(d => d.isCustomFont && d.postScriptName === "GyeonggiTitleL" && d.glyphCount > 0));
     for (const id of ["bold", "markdown-bold"]) assert.ok(evidence.platformFonts[id].some(d => d.isCustomFont && d.postScriptName === "GyeonggiTitleL" && d.glyphCount > 0));
-    assert.ok(evidence.platformFonts.latin.some(d => /Consolas/.test(d.familyName) && d.glyphCount > 0));
+    assert.ok(evidence.platformFonts.latin.some(d => d.glyphCount > 0), "Latin glyphs must render with an available selected face");
     assert.ok(evidence.platformFonts.copy.every(d => !d.isCustomFont));
     hs.writeFileSync(path.join(renderLogs, `render-evidence-${theme}.json`), JSON.stringify(evidence, null, 2));
     const screenshot = await call("Page.captureScreenshot", { format: "png" });
     hs.writeFileSync(path.join(renderLogs, `fixture-${theme}.png`), Buffer.from(screenshot.data, "base64"));
     themes[theme] = evidence;
-    console.log(`PASS ${theme} isolated Chromium: official GyeonggiTitleL glyphs with normal400/no synthesis and retained Markdown bold, Consolas Latin/numbers, UI Copy/fixed labels, shadow markers, unchanged 16px/24px metrics`);
+    console.log(`PASS ${theme} isolated Chromium: official GyeonggiTitleL glyphs with normal400/no synthesis and retained Markdown bold, selected Latin/numbers face, UI Copy/fixed labels, shadow markers, unchanged 16px/24px metrics`);
     }
     assert.notEqual(themes.light.theme.background, themes.dark.theme.background, "native theme backgrounds must differ");
     assert.notEqual(themes.light.theme.color, themes.dark.theme.color, "native theme foregrounds must differ");

@@ -553,6 +553,11 @@ fn models_from_entries(entries: Vec<Entry>, visibility: ModelVisibility) -> Resu
             model.shell_type = codex_protocol::openai_models::ConfigShellToolType::UnifiedExec;
             model.apply_patch_tool_type =
                 Some(codex_protocol::openai_models::ApplyPatchToolType::Freeform);
+            // Search executes in the Codex host. Chat-compatible custom APIs
+            // receive it as an ordinary function, then the host adds discovered
+            // tools on the next request. Keep text-only APIs unchanged.
+            model.supports_search_tool = entry.provider_id.starts_with("api-")
+                && entry.supports_tools == Some(true);
             Ok(model)
         })
         .collect()

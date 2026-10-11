@@ -120,7 +120,7 @@ function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedi
     if (meta !== undefined && parseThreadMetadata(meta) !== threadId) throw expectedError('Conflicting trusted thread identifier');
     let session;
     try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw windowError('unclassified', ''); session = JSON.parse(raw); } catch (cause) { if (cause.code === 'ENOENT') throw windowError('selection_required', 'No selected-window session for this thread', { stage: 'session' }); throw windowError('unclassified', '', { stage: 'session', cause }); }
-    if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !/^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
+    if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !(process.platform === 'win32' ? /^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) : /^\/tmp\/azw-[A-Za-z0-9]{6}\/w\.sock$/.test(session.pipe)) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
     return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta });
   };
 }

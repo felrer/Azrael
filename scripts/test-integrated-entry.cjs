@@ -17,9 +17,11 @@ test("integrated entry preserves activation, account storage migration and failu
   let wrapperFixtureIndex = 0;
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
-    fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName } = {}) {
+    fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
+    hostPlatform = process.platform } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
+    const recovery = { listener: undefined, disposed: false };
     const context = {
       marker: "shared-context",
       storageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "workspace-storage") },
@@ -44,6 +46,7 @@ test("integrated entry preserves activation, account storage migration and failu
         if (accountActivationError) throw accountActivationError;
       },
       async deactivate() { events.push(["account.deactivate"]); },
+      async reconnectAfterEngineRestart() { events.push(["account.reconnect"]); },
     };
     const module = { exports: {} };
     vm.runInNewContext(wrapper, {
@@ -51,6 +54,7 @@ test("integrated entry preserves activation, account storage migration and failu
       exports: module.exports,
       AggregateError,
       Promise,
+      process: { platform: hostPlatform },
       require(request) {
         if (request === "node:path") return path;
         if (request === "node:crypto") return { createHash: crypto.createHash, randomUUID: () => fallbackUuid };
@@ -61,6 +65,10 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl }) };
         if (request === "./out/azrael-runtime.cjs") return { runtime };
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
+        if (request === "./out/linux-native-supervision.cjs") return { onRestart(listener) {
+          recovery.listener = listener;
+          return { dispose() { recovery.listener = undefined; recovery.disposed = true; } };
+        } };
         if (request === "./out/window-control-host.cjs") return { initialize: (receivedContext, receivedVscode, receivedRuntime) => {
           events.push(["window.initialize"]);
           assert.equal(receivedContext, context);
@@ -71,7 +79,7 @@ test("integrated entry preserves activation, account storage migration and failu
         throw new Error(`wrapper required unexpected module ${request}`);
       },
     }, { filename: wrapperPath });
-    return { api: module.exports, events, context, runtime, nativeApi };
+    return { api: module.exports, events, context, runtime, nativeApi, recovery };
   }
 
   function writeOldAccountState(root, scope, contents, modified) {
@@ -95,6 +103,22 @@ test("integrated entry preserves activation, account storage migration and failu
     await unix.api.activate(unix.context);
     assert.equal(unix.events.some(event => event[0] === "window.initialize"), false);
     await unix.api.deactivate();
+    const verifiedLinux = wrapperFixture({ windowControl: { acceptanceVerified: true }, desktopControl: false, hostPlatform: "linux" });
+    await verifiedLinux.api.activate(verifiedLinux.context);
+    assert.equal(verifiedLinux.events.some(event => event[0] === "window.initialize"), true,
+      "verified Linux selected-window runtime must activate independently of Windows desktop capability");
+    verifiedLinux.recovery.listener();
+    assert.equal(verifiedLinux.events.filter(event => event[0] === "account.reconnect").length, 1);
+    await verifiedLinux.api.deactivate();
+    assert.equal(verifiedLinux.recovery.disposed, true);
+    assert.equal(verifiedLinux.recovery.listener, undefined);
+    for (const hostPlatform of ["linux", "darwin"]) {
+      const unavailable = wrapperFixture({ windowControl: { acceptanceVerified: hostPlatform === "darwin" }, desktopControl: false, hostPlatform });
+      await unavailable.api.activate(unavailable.context);
+      assert.equal(unavailable.events.some(event => event[0] === "window.initialize"), false,
+        "unverified Linux and unsupported desktop runtimes must retain unavailable behavior");
+      await unavailable.api.deactivate();
+    }
     const desktop = wrapperFixture({ windowControl: {} });
     await desktop.api.activate(desktop.context);
     assert.equal(desktop.events.some(event => event[0] === "window.initialize"), true);

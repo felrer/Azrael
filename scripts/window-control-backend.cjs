@@ -31,6 +31,12 @@ function nativeError(payload, method, uncorrelated = false) {
 }
 function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, timeoutMs = 30000, shutdownMs = 3000 } = {}) {
   let child, identity, buffer = '', disposed = false, launching, resetting, retiring;
+  let restartTimer, restartDelay = runtime?.windowControl?.restartDelayMs;
+  function recover() {
+    if (disposed || !Number.isFinite(restartDelay) || restartDelay <= 0 || restartTimer) return;
+    restartTimer = setTimeout(() => { restartTimer = undefined; void start().catch(() => { restartDelay = Math.min(300000,restartDelay*2); recover(); }); }, restartDelay);
+    restartTimer.unref?.();
+  }
   const pending = new Map();
   const overlayListeners = new Set();
   const approvalNotificationListeners = new Set();
@@ -107,7 +113,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
       spawned.on('error', () => { if (!spawned.pid && child === spawned) identity.notSpawned = true; transportFailed('Window backend connection failed'); });
       spawned.on('close', () => { if (retiring?.handle === spawned && retiring.notSpawned) retiring = undefined; });
       spawned.stdin.on?.('error', () => transportFailed('Window backend request delivery failed'));
-      spawned.on('exit', (exitCode, signal) => { if (retiring?.handle === spawned) retiring = undefined; if (child === spawned) { child = undefined; identity = undefined; failPending(transportError('connection_error', 'Window backend exited', { exitCode, signal: signal ?? null })); } });
+      spawned.on('exit', (exitCode, signal) => { if (retiring?.handle === spawned) retiring = undefined; if (child === spawned) { child = undefined; identity = undefined; failPending(transportError('connection_error', 'Window backend exited', { exitCode, signal: signal ?? null })); recover(); } });
       return spawned;
     }).catch(error => { throw error?.stage === 'native' ? error : transportError('connection_error', 'Window backend could not start'); }).finally(() => { launching = undefined; });
     return launching;
@@ -159,6 +165,7 @@ function createBackend(runtime, { spawnChild = spawn, verify = verifyRuntime, ti
   }
   async function dispose() {
     disposed = true;
+    clearTimeout(restartTimer);
     overlayListeners.clear();
     approvalNotificationListeners.clear();
     failPending(transportError('cancelled', 'Window backend disposed'));

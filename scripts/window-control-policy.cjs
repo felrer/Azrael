@@ -40,7 +40,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
   if (!backend || typeof backend.request !== 'function' || typeof authorize !== 'function') fail('Backend and authorization required');
   const bindings = new Map(); const candidates = new Map(); const selections = new Map(); const taskStore = tasks.createStore(codexHome, workspacePath); let queue = Promise.resolve(); let disposed = false;
   const userStoppedTargets = new Map();
-  workspaceName = path.win32.basename(String(workspaceName).replace(/[\x00-\x1f]/g, '')).slice(0,256) || 'Azrael';
+  workspaceName = (process.platform === 'win32' ? path.win32 : path).basename(String(workspaceName).replace(/[\x00-\x1f]/g, '')).slice(0,256) || 'Azrael';
   const occupancy = createRegistry({ directory: occupancyDirectory || path.join(codexHome, 'azrael', 'window-use', 'occupancy'), now, entries: () => [...bindings].map(([sessionId,b]) => ({ sessionId, workspaceName, state: b.running && b.state !== 'paused' ? 'running' : b.state, window: Object.fromEntries(['hwnd','pid','processCreated','executable'].map(k => [k,b.identity[k]])) })) });
   const occupancyOf = (w, thread) => { occupancy.publish(); return occupancy.read(w, thread); };
   const macroPath = path.join(codexHome, 'azrael', 'computer-use', 'window-macros.json');
@@ -211,7 +211,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
         candidates.delete(thread); const raw = await backend.request('listWindows',{}); if(!Array.isArray(raw)) fail('Invalid window list');
         if((selections.get(thread) || 0) !== selection) fail('Operation cancelled');
         const entries = new Map(raw.map(w => [crypto.randomUUID(),descriptor(w)])); candidates.set(thread,entries);
-        return {candidates:[...entries].map(([candidateId,w]) => ({candidateId,appName:path.win32.basename(w.executable),title:w.title,minimized:w.minimized,occupancy:occupancyOf(w,thread)}))};
+        return {candidates:[...entries].map(([candidateId,w]) => ({candidateId,appName:(process.platform === 'win32' ? path.win32 : path).basename(w.executable),title:w.title,minimized:w.minimized,occupancy:occupancyOf(w,thread)}))};
       }
       const identity = candidates.get(thread)?.get(args.candidateId); if(!identity) fail('Stale or forged window candidate');
       if ((userStoppedTargets.get(thread) || []).some(stopped => same(stopped, identity))) fail('Selected window paused by the user; explicit resume required');

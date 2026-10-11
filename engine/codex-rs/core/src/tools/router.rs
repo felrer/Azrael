@@ -144,6 +144,48 @@ impl ToolRouter {
         Arc::clone(&self.model_visible_specs)
     }
 
+    /// Chat APIs require discovered tools in the current tools array. Resolve
+    /// history identities against the live registry rather than trusting old
+    /// schemas or making hidden/removed tools callable again.
+    pub(crate) fn chat_specs_with_discovered(&self, input: &[ResponseItem]) -> Arc<[ToolSpec]> {
+        let mut discovered = std::collections::HashSet::new();
+        for item in input {
+            let values = match item {
+                ResponseItem::ToolSearchOutput { execution, status, tools, .. }
+                    if execution == "client" && status == "completed" => tools,
+                ResponseItem::AdditionalTools { role, tools, .. }
+                    if role == "developer" || role == "system" => tools,
+                _ => continue,
+            };
+            for value in values {
+                if value["type"] == "namespace" {
+                    if let (Some(namespace), Some(children)) =
+                        (value["name"].as_str(), value["tools"].as_array())
+                    {
+                        for child in children {
+                            if let Some(name) = child["name"].as_str() {
+                                discovered.insert(ToolName::namespaced(namespace, name));
+                            }
+                        }
+                    }
+                } else if let Some(name) = value["name"].as_str() {
+                    discovered.insert(ToolName::plain(name).with_default_namespace());
+                }
+            }
+        }
+        let mut specs = self.model_visible_specs.to_vec();
+        for tool in self.registry.entries() {
+            if matches!(tool.exposure,
+                crate::tools::registry::ToolExposure::Deferred
+                | crate::tools::registry::ToolExposure::DeferredModelOnly)
+                && discovered.contains(&tool.runtime.tool_name().with_default_namespace())
+            {
+                specs.push(tool.runtime.spec());
+            }
+        }
+        crate::tools::spec_plan::merge_into_namespaces(specs).into()
+    }
+
     pub(crate) fn tool_mode(&self) -> ToolMode {
         self.tool_mode
     }

@@ -5,6 +5,7 @@ const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const app = 'C:/fixture/app.exe';
+const nodeName = process.platform === 'win32' ? 'node.exe' : 'node';
 test('recoverable observation failure survives the host pipe and permits the next capture', async t => {
   const { windowError } = require('./window-control-errors.cjs');
   let failed = true, sequence = 0;
@@ -30,19 +31,29 @@ test('recoverable observation failure survives the host pipe and permits the nex
 });
 async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, registerThread = true, requestBackend) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-errors-'));
-  let connect, resolveAnswer, latestRequest, promptCount = 0, posts = [], turn = 'turn-one';
+  let connect, resolveAnswer, latestRequest, promptCount = 0, posts = [], turn = 'turn-one', socketPath;
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: app, title: 'Fixture', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const host = createHost({ runtime: { codexHome: home, ...runtimeOverrides }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
     vscode: { window: { showInformationMessage() { throw Error('External consent modal forbidden'); } } },
     backend: { async request(method, args) { return requestBackend ? requestBackend(method, args, descriptor) : method === 'listWindows' ? [descriptor] : descriptor; }, async dispose() {} },
-    createServer(listener) { connect = listener; const server = new EventEmitter(); server.listen = (_pipe, done) => done(); server.close = () => {}; return server; }
+    createServer(listener) { connect = listener; const server = new EventEmitter(); server.listen = (pipe, done) => {
+      if (process.platform === 'win32') return done();
+      // Model bind's filesystem side effect while retaining the synthetic
+      // transport used by consent/error cases. Production owns chmod/cleanup.
+      socketPath = pipe;
+      void fs.writeFile(pipe, '').then(done, error => server.emit('error', error));
+    }; server.close = () => {}; return server; }
   });
   const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});
   host.registerApprovalUI(native, envelope => { posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
   const started = id => { turn = id; host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id } } }); };
+  t.after(async () => { await host.dispose(); if (socketPath) await assert.rejects(fs.stat(path.dirname(socketPath)), { code: 'ENOENT' }); await fs.rm(home, { recursive: true, force: true }); });
   if (registerThread) { started(turn); await host.threads.get(thread).ready; }
-  t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true, force: true }); });
+  if (socketPath) {
+    assert.equal((await fs.stat(path.dirname(socketPath))).mode & 0o777, 0o700);
+    assert.equal((await fs.stat(socketPath)).mode & 0o777, 0o600);
+  }
   const request = (tool, args = {}) => ({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: turn } } });
   function socketCall(tool, args) {
     const socket = new EventEmitter(), progress = []; let ended = false;
@@ -63,8 +74,26 @@ for (const method of ['thread/start', 'thread/resume']) test(`${method} pins Win
   const params = { threadId: thread, config: { 'mcp_servers.azrael_window.command': 'C:/old/r6/node.exe', 'mcp_servers.azrael_window.args': ['C:/old/r6/window-control-mcp.cjs'], 'mcp_servers.azrael_window.env.CODEX_HOME': 'C:/old/home', 'mcp_servers.azrael_window.enabled': false, 'mcp_servers.other.command': 'other-command', 'model': 'preserved' } };
   const before = structuredClone(params), prepared = f.host.prepareRequest(method, params);
   assert.notEqual(prepared, params); assert.notEqual(prepared.config, params.config); assert.deepEqual(params, before);
-  assert.deepEqual(prepared, { ...params, config: { ...params.config, 'mcp_servers.azrael_window.command': path.join(directory, 'node.exe'), 'mcp_servers.azrael_window.args': [mcpScript], 'mcp_servers.azrael_window.env.CODEX_HOME': f.home } });
+  assert.deepEqual(prepared, { ...params, config: { ...params.config, 'mcp_servers.azrael_window.command': path.join(directory, nodeName), 'mcp_servers.azrael_window.args': [mcpScript], 'mcp_servers.azrael_window.env.CODEX_HOME': f.home } });
   assert.equal(f.host.prepareRequest('turn/start', params), params);
+});
+for (const method of ['thread/start', 'thread/resume']) test(`${method} binds an explicit Node executable without a desktop runtime`, async t => {
+  const nodeExecutable = path.resolve('artifacts/runtime-fixture/runtime-node', nodeName);
+  const mcpScript = path.resolve('artifacts/runtime-fixture/window-control-mcp.cjs');
+  const f = await fixture(t, 100, { nodeExecutable, windowControl: { mcpScript } });
+  const params = { config: { model: 'preserved', 'mcp_servers.azrael_window.enabled': true } }, before = structuredClone(params);
+  const prepared = f.host.prepareRequest(method, params);
+  assert.deepEqual(params, before);
+  assert.equal(prepared.config['mcp_servers.azrael_window.command'], nodeExecutable);
+  assert.deepEqual(prepared.config['mcp_servers.azrael_window.args'], [mcpScript]);
+  assert.equal(prepared.config['mcp_servers.azrael_window.env.CODEX_HOME'], f.home);
+  assert.equal(prepared.config.model, 'preserved');
+});
+test('relative explicit Node fails closed even with a valid fallback desktop directory', async t => {
+  const f = await fixture(t, 100, { nodeExecutable: 'relative/node', computerUse: { directory: path.resolve('artifacts/runtime-fixture/computer-use') },
+    windowControl: { mcpScript: path.resolve('artifacts/runtime-fixture/window-control-mcp.cjs') } });
+  for (const method of ['thread/start', 'thread/resume']) assert.throws(() => f.host.prepareRequest(method, {}),
+    { code: 'connection_error', stage: 'connection' });
 });
 test('synthetic fixtures and inactive module wrapper preserve original request objects', async t => {
   const f = await fixture(t), params = { config: { 'mcp_servers.azrael_window.enabled': false } };
@@ -79,7 +108,7 @@ test('dedicated start uses the same release binding and explicitly enables Windo
   const directory = path.resolve('artifacts/runtime-fixture/computer-use'), mcpScript = path.resolve('artifacts/runtime-fixture/window-control-mcp.cjs');
   const f = await fixture(t, 100, { computerUse: { directory }, windowControl: { mcpScript }, workspacePath: 'C:/fixture' }); let request;
   f.host.attach(f.native).rpc = async (method, params) => { request = { method, params }; return { computerUseMode: 'selectedWindow', thread: { id: thread } }; };
-  await f.host.startThread(); assert.equal(request.method, 'thread/start'); assert.equal(request.params.config['mcp_servers.azrael_window.enabled'], true); assert.equal(request.params.config['mcp_servers.azrael_window.command'], path.join(directory, 'node.exe')); assert.deepEqual(request.params.config['mcp_servers.azrael_window.args'], [mcpScript]); assert.equal(request.params.config['mcp_servers.azrael_window.env.CODEX_HOME'], f.home);
+  await f.host.startThread(); assert.equal(request.method, 'thread/start'); assert.equal(request.params.config['mcp_servers.azrael_window.enabled'], true); assert.equal(request.params.config['mcp_servers.azrael_window.command'], path.join(directory, nodeName)); assert.deepEqual(request.params.config['mcp_servers.azrael_window.args'], [mcpScript]); assert.equal(request.params.config['mcp_servers.azrael_window.env.CODEX_HOME'], f.home);
 });
 
 test('oversized requests report a request limit instead of an unexplained disconnect', async t => {

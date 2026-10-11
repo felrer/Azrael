@@ -9,6 +9,7 @@ function appKey(value) {
 }
 function windowAppKey(value) {
   appKey(value);
+  if (process.platform === "linux" && path.posix.isAbsolute(value)) return path.posix.normalize(value);
   if (!path.win32.isAbsolute(value) || !(/^[a-z]:[\\/]/i.test(value) || /^\\\\[^\\/]+[\\/][^\\/]+[\\/]/.test(value)) || !/\.exe$/i.test(value)) throw new Error("Invalid Window Use executable path");
   return path.win32.normalize(value).toLowerCase();
 }
@@ -142,7 +143,7 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
 const registry = globalThis[Symbol.for("azrael.computer-use.approval-owners.v1")] ??= new Map();
 function owner() {
   const home = require("./azrael-runtime.cjs").runtime.codexHome;
-  const key = path.resolve(home).toLowerCase();
+  const key = process.platform === "win32" ? path.resolve(home).toLowerCase() : path.resolve(home);
   if (!registry.has(key)) registry.set(key, createOwner(home));
   return registry.get(key);
 }

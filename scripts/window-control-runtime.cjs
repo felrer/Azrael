@@ -3,9 +3,10 @@ const fs = require('node:fs');
 const path = require('node:path');
 const { checked, walk, relative, hash } = require('./computer-use-runtime.cjs');
 const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md', 'THIRD_PARTY_NOTICES.md', 'window-task-macros.cjs', 'window-control-occupancy.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'window-control-errors.cjs'];
+const requiredFiles = platform => platform === 'linux' ? ['azrael-window-control', ...REQUIRED.slice(1)] : REQUIRED;
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 function sourceFingerprint(sourceRoot) {
-  const files = ['Cargo.lock', 'Cargo.toml', 'THIRD_PARTY_NOTICES.md', ...walk(path.join(sourceRoot, 'src')).map(rel => `src/${rel}`)].sort();
+  const files = ['Cargo.lock', 'Cargo.toml', 'THIRD_PARTY_NOTICES.md', ...walk(path.join(sourceRoot, 'src')).filter(rel => !rel.split('/').includes('__pycache__') && !rel.endsWith('.pyc')).map(rel => `src/${rel}`)].sort();
   if (!files.includes('Cargo.toml') || !files.includes('Cargo.lock') || !files.some(rel => rel.startsWith('src/'))) throw new Error('Incomplete Window Control crate source');
   return hash(JSON.stringify(files.map(rel => [rel, hash(fs.readFileSync(checked(sourceRoot, rel)))])));
 }
@@ -15,7 +16,8 @@ function verifyRuntime(directory) {
   const manifest = JSON.parse(bytes);
   if (manifest.schema !== 1 || manifest.kind !== 'azrael-window-control' || !Array.isArray(manifest.files) ||
       !manifest.source || !path.isAbsolute(manifest.source.directory || '') || !digest(manifest.source.sourceSha256) ||
-      !digest(manifest.source.executableSha256) || manifest.source.builder !== 'cargo --locked --release') throw new Error('Invalid Window Control manifest provenance');
+      !digest(manifest.source.executableSha256) || manifest.source.builder !== (manifest.platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release')) throw new Error('Invalid Window Control manifest provenance');
+  const required = requiredFiles(manifest.platform);
   const seen = new Set();
   for (const entry of manifest.files) {
     const rel = relative(entry.path);
@@ -24,10 +26,10 @@ function verifyRuntime(directory) {
     const bytes = fs.readFileSync(checked(directory, rel));
     if (bytes.length !== entry.bytes || hash(bytes) !== entry.sha256) throw new Error(`Window Control hash mismatch: ${rel}`);
   }
-  for (const rel of REQUIRED) if (!seen.has(rel.toLowerCase())) throw new Error(`Required Window Control entry missing: ${rel}`);
+  for (const rel of required) if (!seen.has(rel.toLowerCase())) throw new Error(`Required Window Control entry missing: ${rel}`);
   for (const rel of walk(directory)) if (rel !== 'manifest.json' && !seen.has(rel.toLowerCase())) throw new Error(`Unrecorded Window Control file: ${rel}`);
-  if (manifest.files.find(entry => entry.path === REQUIRED[0])?.sha256 !== manifest.source.executableSha256) throw new Error('Window Control executable provenance mismatch');
-  return { directory, executable: path.join(directory, REQUIRED[0]), mcpScript: path.join(directory, REQUIRED[1]), manifestSha256: hash(bytes), manifest };
+  if (manifest.files.find(entry => entry.path === required[0])?.sha256 !== manifest.source.executableSha256) throw new Error('Window Control executable provenance mismatch');
+  return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest };
 }
 function verifyRelease(release, sourceRoot) {
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
@@ -78,12 +80,13 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   const evidence = JSON.parse(fs.readFileSync(provenance));
   const sourceSha256 = sourceFingerprint(sourceRoot), executableSha256 = hash(fs.readFileSync(executable));
   if (evidence.schema !== 1 || evidence.sourceSha256 !== sourceSha256 || evidence.executableSha256 !== executableSha256) throw new Error('Window Control build provenance mismatch');
-  const inputs = [[REQUIRED[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance], [REQUIRED[4], checked(sourceRoot, REQUIRED[4])], [REQUIRED[5], checked(scriptDirectory, REQUIRED[5])], [REQUIRED[6], checked(scriptDirectory, REQUIRED[6])]];
+  const platform = path.basename(executable) === 'linux_backend.py' ? 'linux' : 'win32';
+  const inputs = [[requiredFiles(platform)[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance], [REQUIRED[4], checked(sourceRoot, REQUIRED[4])], [REQUIRED[5], checked(scriptDirectory, REQUIRED[5])], [REQUIRED[6], checked(scriptDirectory, REQUIRED[6])]];
   for (const rel of ['window-control-errors.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) inputs.push([rel, checked(scriptDirectory, rel)]);
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
-  for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); }
-  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: 'cargo --locked --release' }, files }, null, 2) + '\n');
+  for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); if (entry.path === requiredFiles(platform)[0]) fs.chmodSync(target, 0o755); }
+  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', platform, source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
   return verifyRuntime(destination);
 }
 module.exports = { sourceFingerprint, fingerprintNativeSource: sourceFingerprint, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost };

@@ -1034,7 +1034,7 @@ fn register_code_mode_executors(
 }
 
 #[instrument(level = "trace", skip_all, fields(tool_spec_count = specs.len()))]
-fn merge_into_namespaces(specs: Vec<ToolSpec>) -> Vec<ToolSpec> {
+pub(super) fn merge_into_namespaces(specs: Vec<ToolSpec>) -> Vec<ToolSpec> {
     let mut merged_specs = Vec::with_capacity(specs.len());
     let mut namespace_indices = BTreeMap::<String, usize>::new();
     for spec in specs {
