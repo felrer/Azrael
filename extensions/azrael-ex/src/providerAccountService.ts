@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import * as path from "node:path";
 import { isRecord } from "./protocol";
 import { diagnosticsEnabled } from "./optionalDiagnostics";
-import { ManagedProvider, ProviderAccountQuota, ProviderAccountSnapshot, ProviderAccountsBackend, ProviderQuotaRow } from "./providerAccountProtocol";
+import { ManagedProvider, ProviderAccountQuota, ProviderAccountSnapshot, ProviderAccountsBackend, ProviderQuotaRow, ProviderResetOutcome } from "./providerAccountProtocol";
 
 interface Interaction {
   openUrl(url: string): PromiseLike<boolean>;
@@ -132,6 +132,17 @@ export class ProviderAccountService implements ProviderAccountsBackend {
     if (!result || revision !== this.revision) throw new Error("Provider account list changed during usage refresh. Refresh again.");
     this.assertAccount(providerId, accountId);
     return result;
+  }
+  async resetUsage(providerId: string, accountId: string): Promise<ProviderResetOutcome> {
+    this.assertAccount(providerId, accountId);
+    if (providerId !== "anthropic") throw new Error("이 공급자는 무료 사용량 리셋을 지원하지 않습니다.");
+    const value = await this.request("resetUsage", { providerId, accountId });
+    if (!isRecord(value) || value.providerId !== providerId || value.accountId !== accountId ||
+        !["reset", "alreadyUsed", "noCredit", "nothingToReset", "cooldown"].includes(String(value.outcome))) {
+      throw new Error("Anthropic 리셋 결과를 확인하지 못했습니다. 다시 시도해 결과를 확인해주세요.");
+    }
+    this.quotaBatches.clear();
+    return value.outcome as ProviderResetOutcome;
   }
   async setAutoSwitch(providerId: string, accountId: string, enabled: boolean): Promise<void> {
     this.assertAccount(providerId, accountId);

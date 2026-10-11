@@ -32,6 +32,8 @@ Discovery makes read-only metadata requests and never runs inference. Catalog fa
 
 ## Validation
 
+For the Anthropic manual reset flow, run `node --test providers/opencodex/tests/anthropic-reset.test.mjs` from the project root. After the account module's incremental compilation, run `node --test extensions/azrael-ex/dist/test/anthropicReset.test.js`; the account overview renderer also exercises the reset button in both themes and surfaces, including busy state, correct-account dispatch, keyboard activation, no-credit/no-usage/cooldown/error notices and successful usage refresh. These fixtures do not redeem a live grant or accept installed behavior.
+
 For account-summary presentation, run `npm run build:incremental` in `extensions/azrael-ex`, then `node --test dist/test/usagePresentation.test.js dist/test/usageViewRefresh.test.js dist/test/usageTimerView.test.js dist/test/usageTicketView.test.js dist/test/resetCredit.test.js`. From the project root, run `node --test scripts/test-account-settings.cjs`, `node scripts/verify-account-overview-render.mjs` and the existing `node scripts/verify-ticket-usage-render.mjs` ticket regression check. The overview renderer exercises compiled production markup and both event-handler routes in light/dark host themes at desktop and narrow widths, with synthetic account services and pinned native CSS. It checks white surfaces, gray badges, collapsed gauges, click/keyboard expansion and provider auto-switch identity. Logs and rendered screenshots are retained under `artifacts/logs/accounts-usage-redesign/`; the owned browser fixture/profile is removed through the guarded cleanup script. These checks accept source presentation and interaction, not installed navigation or live account/quota accuracy.
 
 ```powershell

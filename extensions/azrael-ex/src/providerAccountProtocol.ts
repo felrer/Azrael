@@ -1,4 +1,5 @@
 export type ProviderQuotaMode = "probe" | "passive" | "unsupported";
+export type ProviderResetOutcome = "reset" | "alreadyUsed" | "noCredit" | "nothingToReset" | "cooldown";
 export interface ProviderAccount {
   id: string;
   label: string;
@@ -46,6 +47,7 @@ export interface ProviderAccountsBackend {
   readonly error: string | undefined;
   refresh(): Promise<ProviderAccountSnapshot>;
   quota(providerId: string, accountId: string, force?: boolean): Promise<ProviderAccountQuota>;
+  resetUsage(providerId: string, accountId: string): Promise<ProviderResetOutcome>;
   setAutoSwitch(providerId: string, accountId: string, enabled: boolean): Promise<void>;
   select(providerId: string, accountId: string): Promise<void>;
   remove(providerId: string, accountId: string): Promise<void>;

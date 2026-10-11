@@ -4,6 +4,7 @@ import { existsSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { autoSwitchAvailable, autoSwitchAllowed, setAutoSwitch, recoverDevinAccount, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
+import { AnthropicResetError } from './anthropic-reset.ts';
 
 type Request = { protocol: 1; id: string; action: string; [key: string]: unknown };
 type Io = { send(value: unknown): void; answer(prompt: string, password?: boolean): Promise<string | null>; readAnswer?(): Promise<string | null> };
@@ -203,6 +204,11 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
       if (!providerId || !accountId) throw new Error(SAFE_ERRORS.invalid);
       return exactQuota(m, providerId, accountId, request.force === true);
     }
+    case "resetUsage": {
+      if (providerId !== 'anthropic' || !accountId || !activeOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      const { resetAnthropicUsage } = await import('./anthropic-reset.ts');
+      return { providerId, accountId, outcome: await resetAnthropicUsage(accountId, m) };
+    }
     case "quotaBatch": {
       if (!providerId) throw new Error(SAFE_ERRORS.invalid);
       return quotaBatch(m, providerId, request.force === true);
@@ -292,6 +298,7 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
 }
 
 export function safeMessage(error: unknown): string {
+  if (error instanceof AnthropicResetError) return error.message;
   const message = error instanceof Error ? error.message : "Provider account operation failed";
   if (error && typeof error === "object" && "name" in error && error.name === "AnthropicTokenError" &&
       "httpStatus" in error && Number.isInteger(error.httpStatus) &&

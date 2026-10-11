@@ -29,6 +29,7 @@ interface EmbeddedTarget {
 export class UsageView implements vscode.Disposable {
   private readonly resetCredits: ResetCreditService;
   private readonly autoSwitchPending = new Set<string>();
+  private readonly providerResetPending = new Set<string>();
   private readonly automaticWindowPending = new Set<string>();
   private readonly ticketConfirmations = new Map<string, string>();
   private readonly ticketDetailsExpanded = new Set<string>();
@@ -320,6 +321,7 @@ export class UsageView implements vscode.Disposable {
         return;
       }
       if (message.action === "setAutoSwitch") { await this.setAutoSwitch(message); return; }
+      if (message.action === "providerResetUsage") { await this.resetProviderUsage(message); return; }
       if (message.action === "toggleUsage") { await this.toggleUsage(message); return; }
       if (message.action === "consumeResetCredit") { await this.consumeResetCredit(message); return; }
       if (message.action === "ticketDetails") { await this.toggleTicketDetails(message); return; }
@@ -472,6 +474,31 @@ export class UsageView implements vscode.Disposable {
     }
   }
 
+  private async resetProviderUsage(message: Record<string, unknown>): Promise<void> {
+    if (!this.providers?.enabled || message.providerId !== "anthropic" || typeof message.accountId !== "string") return;
+    const provider = this.providerSnapshot?.providers.find(item => item.id === "anthropic");
+    const account = provider?.accounts.find(item => item.id === message.accountId);
+    const key = usageExpansionKey("provider", "anthropic", message.accountId);
+    if (!account || account.needsReauth || !this.expanded.has(key) || this.providerResetPending.has(key)) return;
+    this.providerResetPending.add(key);
+    this.render();
+    try {
+      const outcome = await this.providers.resetUsage("anthropic", account.id);
+      const messages = {
+        reset: "Anthropic 사용량을 리셋했습니다.",
+        alreadyUsed: "이 리셋 요청은 이미 적용되었습니다. 사용량을 새로고침합니다.",
+        noCredit: "사용 가능한 무료 리셋이 없습니다.",
+        nothingToReset: "초기화할 사용량이 없어 리셋하지 않았습니다.",
+        cooldown: "지금은 무료 리셋을 사용할 수 없습니다. 잠시 후 다시 시도해주세요.",
+      };
+      void vscode.window.showInformationMessage(messages[outcome]);
+      if (outcome === "reset" || outcome === "alreadyUsed") await this.refresh(true);
+    } finally {
+      this.providerResetPending.delete(key);
+      this.render();
+    }
+  }
+
   private async handleProviderAction(message: Record<string, unknown>): Promise<void> {
     const backend = this.providers;
     if (!backend?.enabled) throw new Error("관리형 공급자 계정 기능을 현재 런타임에서 사용할 수 없습니다.");
@@ -571,7 +598,7 @@ export class UsageView implements vscode.Disposable {
     const managedGroups = this.providerSnapshot?.providers.filter(provider => provider.authKind === "oauth" && provider.id.toLowerCase() !== "openai").map(provider => {
       const cards = provider.accounts.map(account => {
         const key = providerKey(provider.id, account.id);
-        return providerAccountHtml(provider, account, this.providerQuotas.get(key) ?? this.providerQuotaErrors.get(key), this.providerQuotas.has(key) ? this.providerQuotaErrors.get(key) : undefined, this.expanded.has(usageExpansionKey("provider", provider.id, account.id)), this.autoSwitchPending.has(usageExpansionKey("provider", provider.id, account.id)));
+        return providerAccountHtml(provider, account, this.providerQuotas.get(key) ?? this.providerQuotaErrors.get(key), this.providerQuotas.has(key) ? this.providerQuotaErrors.get(key) : undefined, this.expanded.has(usageExpansionKey("provider", provider.id, account.id)), this.autoSwitchPending.has(usageExpansionKey("provider", provider.id, account.id)), this.providerResetPending.has(usageExpansionKey("provider", provider.id, account.id)));
       }).join("");
       const add = `<button data-action="providerAdd" data-provider="${escapeHtml(provider.id)}">계정 추가</button>`;
       return `${providerHeadingHtml(provider.id, provider.label, provider.accounts.length, add)}<div class="provider-group">${cards || '<p class="empty-state muted">등록된 계정이 없습니다.</p>'}</div>`;

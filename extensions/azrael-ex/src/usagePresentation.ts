@@ -144,15 +144,16 @@ export function autoSwitchCheckboxHtml(enabled: boolean | undefined, attributes:
   return `<label class="auto-switch"><input type="checkbox" data-action="setAutoSwitch" ${attributes} ${enabled === true ? "checked" : ""} ${pending ? "disabled" : ""}><span class="switch-track" aria-hidden="true"></span>자동 전환 허용</label>`;
 }
 
-export function providerAccountHtml(provider: ManagedProvider, account: ProviderAccount, quota: ProviderAccountQuota | undefined, latestError?: ProviderAccountQuota, expanded = false, autoSwitchPending = false): string {
+export function providerAccountHtml(provider: ManagedProvider, account: ProviderAccount, quota: ProviderAccountQuota | undefined, latestError?: ProviderAccountQuota, expanded = false, autoSwitchPending = false, resetPending = false): string {
   if (provider.authKind !== "oauth") return "";
   const chatConnected = provider.inferenceConnected && account.selected && !account.needsReauth;
   const chat = chatConnected ? "채팅 연결 설정됨" : "채팅 미연결";
   const defaultLabel = provider.inferenceConnected ? "새 채팅 기본 계정" : "기본 계정";
   const attributes = `data-provider="${escapeHtml(provider.id)}" data-account="${escapeHtml(account.id)}"`;
   const authAction = `<button data-action="providerReauth" ${attributes}>${account.needsReauth ? "다시 인증" : "재인증"}</button>`;
+  const resetAction = provider.id === "anthropic" ? `<button data-action="providerResetUsage" ${attributes} ${resetPending || account.needsReauth ? "disabled" : ""} aria-busy="${resetPending}" title="무료 리셋을 사용할 수 있으면 즉시 적용합니다">${resetPending ? "리셋 중…" : "사용량 리셋"}</button>` : "";
   const switchAction = account.selected ? `<span class="muted">${defaultLabel}</span>` : `<button class="account-switch" data-action="providerSelect" ${attributes}>${defaultLabel}으로 선택</button>`;
-  return `<section class="card account-card provider-account${expanded ? " expanded" : " collapsed"}">${accountSummaryHtml(account.label, expanded, attributes, providerQuotaHtml(quota, latestError), chatConnected)}${expanded ? `<div class="usage-details"><div class="account-management"><p class="muted">${dynamicTextHtml(provider.label)} · ${chat}${account.needsReauth ? " · 인증 필요" : ""}</p>${switchAction}${provider.inferenceConnected && account.autoSwitchAvailable !== false ? autoSwitchCheckboxHtml(account.autoSwitchAllowed, attributes, autoSwitchPending) : ""}</div><div class="card-actions">${authAction}<button data-action="providerRemove" ${attributes}>제거</button></div></div>` : ""}</section>`;
+  return `<section class="card account-card provider-account${expanded ? " expanded" : " collapsed"}">${accountSummaryHtml(account.label, expanded, attributes, providerQuotaHtml(quota, latestError), chatConnected)}${expanded ? `<div class="usage-details"><div class="account-management"><p class="muted">${dynamicTextHtml(provider.label)} · ${chat}${account.needsReauth ? " · 인증 필요" : ""}</p>${switchAction}${provider.inferenceConnected && account.autoSwitchAvailable !== false ? autoSwitchCheckboxHtml(account.autoSwitchAllowed, attributes, autoSwitchPending) : ""}</div><div class="card-actions">${resetAction}${authAction}<button data-action="providerRemove" ${attributes}>제거</button></div></div>` : ""}</section>`;
 }
 
 // Pinned OpenAI nUn/HHn settings group and Kw toolbar button presentation.

@@ -16,9 +16,9 @@ assert(logs.startsWith(join(root, 'artifacts/logs') + sep));
 const assets = join(root, 'artifacts/upstream-ui/26.1007.21434/webview/assets');
 await mkdir(join(fixture, 'chrome-profile'), { recursive: true });
 await mkdir(logs, { recursive: true });
-const require = createRequire(import.meta.url), originalLoad = Module._load;
+const require = createRequire(import.meta.url), originalLoad = Module._load, resetNotices = [];
 Module._load = function(request, parent, main) {
-  if (request === 'vscode') return { window: { showErrorMessage() {}, showInformationMessage() {}, showWarningMessage() {} } };
+  if (request === 'vscode') return { window: { showErrorMessage(message) { resetNotices.push(message); }, showInformationMessage(message) { resetNotices.push(message); }, showWarningMessage() {} } };
   return originalLoad.call(this, request, parent, main);
 };
 const { UsageView } = require('../extensions/azrael-ex/dist/src/usageView.js');
@@ -48,11 +48,12 @@ const projectSnapshot = { currency: 'USD', days: [
 const monthlyModels = dayOneModels.map(value => { const other = dayTwoModels.find(item => item.provider === value.provider && item.model === value.model); return { ...value, amount: value.amount + (other?.amount ?? 0), unpriced: value.unpriced + (other?.unpriced ?? 0) }; });
 let view, panel, surface, subscriber, emitted, updates = 0;
 const actions = [], requests = [];
+let resetOutcome = 'reset', resetCalls = [];
 function createView() {
   view?.dispose();
   const service = Object.assign(new EventEmitter(), { changesEnabled: true, state: { profiles, activeProfileId: 'saved-a' }, async refresh() { return this.state; }, async projectUsage(year) { requests.push(['projectUsage', year]); return structuredClone(projectSnapshot); }, async devin() { return { enabled: true, loggedIn: true, email: 'cli@example.com' }; } });
   const usage = { get: id => ({ data: usageData(id) }), dueResetProfiles: () => [], async refresh(id, ws) { requests.push(['openai', id, ws]); } };
-  const providers = { enabled: true, snapshot, async refresh() { return snapshot; }, async quota(providerId, accountId) { requests.push([providerId, accountId]); return { providerId, accountId, status: 'ok', source: 'synthetic', observedAt: Date.now(), rows: providerId === 'anthropic' ? [{ label: '5시간', usedPercent: 1, resetsAt: resetAt }, { label: 'Fable', usedPercent: 0, resetsAt: resetAt }] : [{ label: 'Pro', usedPercent: 0, resetsAt: resetAt }] }; }, async setAutoSwitch(providerId, accountId, enabled) { actions.push({ providerId, accountId, enabled }); }, dispose() {} };
+  const providers = { enabled: true, snapshot, async refresh() { return snapshot; }, async quota(providerId, accountId) { requests.push([providerId, accountId]); return { providerId, accountId, status: 'ok', source: 'synthetic', observedAt: Date.now(), rows: providerId === 'anthropic' ? [{ label: '5시간', usedPercent: 1, resetsAt: resetAt }, { label: 'Fable', usedPercent: 0, resetsAt: resetAt }] : [{ label: 'Pro', usedPercent: 0, resetsAt: resetAt }] }; }, async resetUsage(providerId, accountId) { resetCalls.push({providerId,accountId}); await new Promise(resolve => setTimeout(resolve, 450)); if(resetOutcome==='failure') throw Error('Synthetic reset transport failure'); return resetOutcome; }, async setAutoSwitch(providerId, accountId, enabled) { actions.push({ providerId, accountId, enabled }); }, dispose() {} };
   const devin = { snapshot: undefined, async refresh() { requests.push(['devin-cli']); this.snapshot = { daily: window(0, 1440), weekly: window(24, 10080) }; }, cancelRefresh() {}, dispose() {} };
   view = new UsageView(service, usage, devin, providers);
   view.costMonth = '2024-02';
@@ -71,6 +72,8 @@ const server = createServer(async (req, res) => {
       let body = ''; for await (const chunk of req) body += chunk;
       const message = JSON.parse(body), before = updates;
       if (message.fixtureMount) { view.embedded.set({ postMessage(m) { emitted = m.html; updates++; return true; } }, { clientId: message.clientId }); view.render(); }
+      else if (message.fixtureResetSnapshot) view.render();
+      else if (message.fixtureResetOutcome) resetOutcome = message.fixtureResetOutcome;
       else { actions.push(message); await view.onMessage(message); }
       res.setHeader('Content-Type', 'application/json'); res.end(JSON.stringify({ html: updates > before ? emitted : null })); return;
     }
@@ -123,6 +126,21 @@ try {
     await evaluate("fixtureNode('.provider-account .account-summary').click()");await wait("!!fixtureNode('[data-action=setAutoSwitch][data-provider=anthropic]')&&fixturePending===0");
     await evaluate("fixtureNode('[data-action=setAutoSwitch][data-provider=anthropic]').click()");await wait('fixturePending===0');
     check(prefix+' auto switch carries provider account identity',actions.some(a=>a.action==='setAutoSwitch'&&a.providerId==='anthropic'&&a.accountId==='claude-a'&&a.enabled===false));
+    check(prefix+' reset button appears only for expanded Anthropic',await evaluate("fixtureNodes('[data-action=providerResetUsage]').length===1&&fixtureNode('[data-action=providerResetUsage]').dataset.provider==='anthropic'"));
+    const resetBefore=resetCalls.length,quotaBefore=requests.filter(r=>r[0]==='anthropic').length;
+    resetOutcome='reset';
+    await evaluate("fixtureNode('[data-action=providerResetUsage]').click();fixtureSend({fixtureResetSnapshot:true})");
+    await wait("fixtureNode('[data-action=providerResetUsage]').disabled===true");
+    check(prefix+' reset busy button is disabled and labelled',await evaluate("fixtureNode('[data-action=providerResetUsage]').getAttribute('aria-busy')==='true'&&fixtureNode('[data-action=providerResetUsage]').textContent==='리셋 중…'"));
+    await evaluate("fixtureNode('[data-action=providerResetUsage]').click()");await wait('fixturePending===0');
+    check(prefix+' reset executes once for the correct account and refreshes usage',resetCalls.length===resetBefore+1&&resetCalls.at(-1).accountId==='claude-a'&&requests.filter(r=>r[0]==='anthropic').length>quotaBefore);
+    check(prefix+' reset button recovers after success',await evaluate("!fixtureNode('[data-action=providerResetUsage]').disabled"));
+    for(const [outcome,notice] of [['noCredit','사용 가능한 무료 리셋이 없습니다.'],['nothingToReset','초기화할 사용량이 없어 리셋하지 않았습니다.'],['cooldown','지금은 무료 리셋을 사용할 수 없습니다.'],['failure','Synthetic reset transport failure']]){
+      resetOutcome=outcome;await evaluate("fixtureNode('[data-action=providerResetUsage]').focus()");
+      check(prefix+' reset keyboard focus '+outcome,await evaluate("(fixtureNode('[data-action=providerResetUsage]').getRootNode().activeElement)===fixtureNode('[data-action=providerResetUsage]')"));
+      await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',text:'\r',unmodifiedText:'\r',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await wait('fixturePending>0');await wait('fixturePending===0');
+      check(prefix+' reset '+outcome+' notice and button recovery',resetNotices.at(-1)?.startsWith(notice)&&await evaluate("!fixtureNode('[data-action=providerResetUsage]').disabled"));
+    }
     await evaluate("fixtureNode('.account-summary').click()");await wait("fixtureNode('.account-summary').getAttribute('aria-expanded')==='true'&&fixturePending===0");
     const expanded=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});await writeFile(join(logs,prefix+'-expanded.png'),Buffer.from(expanded.data,'base64'));summary.screenshots.push(prefix+'-expanded.png');
     check(prefix+' no browser page errors',await evaluate('fixtureErrors.length===0'));
@@ -207,5 +225,5 @@ finally {
   if(summary.browserExited){
     const cleanup=spawn('pwsh',['-NoProfile','-Command','& ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $env:AZRAEL_RENDER_CLEANUP_FIXTURE -IncludeDiagnosedFixtures -Apply -ReportPath $env:AZRAEL_RENDER_CLEANUP_REPORT'],{cwd:root,env:{...process.env,AZRAEL_RENDER_CLEANUP_FIXTURE:fixture,AZRAEL_RENDER_CLEANUP_REPORT:join(logs,'cleanup-report.json')},windowsHide:true,stdio:['ignore','pipe','pipe']});let text='';cleanup.stdout.on('data',b=>text+=b);cleanup.stderr.on('data',b=>text+=b);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r);});await writeFile(join(logs,'cleanup.log'),text);summary.fixtureRemoved=await access(fixture).then(()=>false,()=>true);if(summary.cleanupExitCode!==0||!summary.fixtureRemoved)process.exitCode=1;
   }else{summary.retentionReason='Browser exit unconfirmed; remove profile after exit';process.exitCode=1;}
-  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'overview-render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks.length,error:summary.error,exitCode:summary.exitCode,fixtureRemoved:summary.fixtureRemoved}));
+  summary.resetNotices=resetNotices;summary.resetCalls=resetCalls;summary.exitCode=process.exitCode||0;await writeFile(join(logs,'overview-render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks.length,error:summary.error,exitCode:summary.exitCode,fixtureRemoved:summary.fixtureRemoved}));
 }

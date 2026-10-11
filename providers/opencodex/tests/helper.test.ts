@@ -3,6 +3,7 @@ import { mkdtempSync, rmSync, mkdirSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { homedir, tmpdir } from "node:os";
 import { handleRequest, safeMessage, validateIsolatedHomeForTests } from "../helper.ts";
+import { AnthropicResetError } from "../anthropic-reset.ts";
 import * as oauth from "../vendor/src/oauth/index.ts";
 import * as store from "../vendor/src/oauth/store.ts";
 import * as config from "../vendor/src/config.ts";
@@ -38,6 +39,22 @@ describe("provider account helper", () => {
     const denied = Object.assign(new Error("Anthropic OAuth HTTP 403: secret response body"), { name: "AnthropicTokenError", httpStatus: 403 });
     expect(safeMessage(denied)).toBe("Claude OAuth token exchange failed (HTTP 403)");
     expect(safeMessage(new Error("private secret response body"))).toBe("Provider account operation failed");
+    expect(safeMessage(new AnthropicResetError("Anthropic 리셋 정보를 불러오지 못했습니다."))).toBe("Anthropic 리셋 정보를 불러오지 못했습니다.");
+  });
+  test("manual reset routes the exact Anthropic account and rejects other providers", async () => {
+    home();
+    const previous = globalThis.fetch;
+    const account = { id: "saved", credential: { accountId: "principal" } };
+    const called: unknown[] = [];
+    const m = real({ store: { getAccountSet: () => ({ accounts: [account] }) },
+      oauth: { OAUTH_PROVIDERS: { anthropic: {} }, getValidAccessSnapshotForAccount: async (...args: unknown[]) => { called.push(args); return { accessToken: "fixture-token" }; } },
+      config: { loadConfig: () => ({ providers: { anthropic: { authMode: "oauth" } } }) } });
+    globalThis.fetch = async () => Response.json({ cedar_ember: { eligible: true, grants: [] } });
+    try {
+      expect(await handleRequest(request("reset", "resetUsage", { providerId: "anthropic", accountId: "saved" }), io, m)).toEqual({ providerId: "anthropic", accountId: "saved", outcome: "noCredit" });
+      expect(called).toEqual([["anthropic", "saved", { requireUsableAccount: true }]]);
+      await expect(handleRequest(request("reset", "resetUsage", { providerId: "google-antigravity", accountId: "saved" }), io, m)).rejects.toThrow("not supported");
+    } finally { globalThis.fetch = previous; }
   });
   test("Antigravity OAuth badge requires usable selected project, CCA transport and runtime", async () => {
     home();
