@@ -2,6 +2,7 @@ import { spawn, ChildProcessWithoutNullStreams } from "node:child_process";
 import { randomUUID } from "node:crypto";
 import * as path from "node:path";
 import { isRecord } from "./protocol";
+import { diagnosticsEnabled } from "./optionalDiagnostics";
 import { ManagedProvider, ProviderAccountQuota, ProviderAccountSnapshot, ProviderAccountsBackend, ProviderQuotaRow } from "./providerAccountProtocol";
 
 interface Interaction {
@@ -198,6 +199,7 @@ export class ProviderAccountService implements ProviderAccountsBackend {
     const requestId = randomUUID();
     const startedAt = Date.now();
     const log = (phase: "start" | "complete" | "failed") => {
+      if (phase !== "failed" && !diagnosticsEnabled("ACCOUNTS", this.env)) return;
       try { this.interaction.log?.({ requestId, action, phase, elapsedMs: Date.now() - startedAt }); } catch { /* Diagnostics cannot fail an account operation. */ }
     };
     log("start");

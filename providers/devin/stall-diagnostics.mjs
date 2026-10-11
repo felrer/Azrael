@@ -24,6 +24,20 @@ export function classifyConnectionError(error) {
   }
   return undefined;
 }
+
+// Error origin is functional state: keep it even when optional metrics are off.
+// Forward detailed hooks only when an observer was actually created.
+export function createFailureStageTracker(diagnostics) {
+  let firstStage;
+  return {
+    ...diagnostics,
+    failureStage: () => firstStage,
+    error(stage, error, signal) {
+      firstStage ??= stage;
+      diagnostics?.error(stage, error, signal);
+    },
+  };
+}
 export function createStallDiagnostics({ now = () => performance.now() } = {}) {
   const started = now();
   const state = { abort_source: 'none', error_stage: 'none', error_name: 'none' };
@@ -106,14 +120,14 @@ export function observeRawReads(response, tracker) {
   const reader = response.body.getReader();
   const body = new ReadableStream({
     async pull(controller) {
-      tracker.readBegin();
+      tracker.readBegin?.();
       try {
-        const result = await reader.read(); tracker.readEnd(result);
+        const result = await reader.read(); tracker.readEnd?.(result);
         if (result.done) { controller.close(); reader.releaseLock(); }
         else controller.enqueue(result.value);
       } catch (error) { tracker.error('body_read', error); controller.error(error); reader.releaseLock(); }
     },
-    async cancel(reason) { tracker.cancelled(); try { await reader.cancel(reason); } finally { reader.releaseLock(); } },
+    async cancel(reason) { tracker.cancelled?.(); try { await reader.cancel(reason); } finally { reader.releaseLock(); } },
   }, { highWaterMark: 0 });
   return new Response(body, { status: response.status, headers: response.headers });
 }
@@ -124,8 +138,8 @@ export async function* observeParser(events, tracker) {
   let done = false;
   try {
     while (!done) {
-      tracker.parserBegin();
-      const result = await iterator.next(); tracker.parserEnd(result); done = result.done;
+      tracker.parserBegin?.();
+      const result = await iterator.next(); tracker.parserEnd?.(result); done = result.done;
       if (!done) yield result.value;
     }
   } catch (error) { tracker.error('adapter_parse', error); throw error; }

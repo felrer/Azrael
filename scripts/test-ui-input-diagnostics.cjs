@@ -57,6 +57,28 @@ test("identity remains while representations change, invalid identifiers and mal
   assert.equal(d.snapshot(()=>Array.from({length:501},(_,i)=>({params:{clientUserMessageId:`${i.toString(16).padStart(8,"0")}-1111-4111-8111-111111111111`,input:[canary]},items:[]}))),null);
   assert.equal(d.snapshot(()=>[{params:{},items:Array(10001).fill(null)}]),null);
 });
+
+test("host environment metadata gates serialized diagnostics and restores output", t => {
+  const { injectUiInputPolicy } = require("./optional-diagnostics.cjs");
+  const keys = ["AZRAEL_DIAGNOSTICS", "AZRAEL_DIAGNOSTICS_UI_INPUT"], prior = keys.map(key => process.env[key]);
+  t.after(() => keys.forEach((key, i) => prior[i] === undefined ? delete process.env[key] : process.env[key] = prior[i]));
+  const html = fs.readFileSync(path.join(roots[0], "webview/index.html"), "utf8");
+  const source = transformed.get(roots[0]+assets[0]), start = source.indexOf(marker), end = source.indexOf("export{",start);
+  const logs = [], meta = { content: "true" };
+  const context = { document: { querySelector: () => meta }, Dm: { dispatchMessage: (_channel, payload) => logs.push(payload) } };
+  vm.runInNewContext(source.slice(start,end),context);
+  for (const [master, override, expected] of [[undefined, undefined, true], ["off", undefined, false], ["off", "on", true]]) {
+    if (master === undefined) delete process.env.AZRAEL_DIAGNOSTICS; else process.env.AZRAEL_DIAGNOSTICS = master;
+    if (override === undefined) delete process.env.AZRAEL_DIAGNOSTICS_UI_INPUT; else process.env.AZRAEL_DIAGNOSTICS_UI_INPUT = override;
+    const output = injectUiInputPolicy(html);
+    meta.content = output.match(/name="azrael-ui-input-diagnostics" content="(true|false)"/)[1];
+    const count = logs.length;
+    context.__azraelUiInputDiagnostics.queue(thread,id,true,true);
+    assert.equal(logs.length-count, expected ? 1 : 0);
+    assert.equal(output.replace(/<meta name="azrael-ui-input-diagnostics" content="(?:true|false)">/, ""), html);
+    if (!expected) assert.equal(context.__azraelUiInputDiagnostics.snapshot(() => { throw Error("disabled scan executed"); }), null);
+  }
+});
 test("actual state method observes both update branches, no-op, exceptions and unavailable diagnostics", () => {
   for(const root of roots){
     const real=method(transformed.get(root+assets[1]),"updateConversationState","this.conversations.get(e)"), logs=[],d=createUiInputDiagnostics(x=>logs.push(x));
@@ -84,6 +106,13 @@ test("actual queue method preserves persistence return/error and captures receip
   const boom=Error(canary);q.failure=boom;await assert.rejects(q.__azraelConsume(thread,{id},"owner"),e=>e===boom);assert.equal(logs[1].persistenceSucceeded,false);
   q.options.wasMessageAccepted=()=>{throw boom};q.failure=null;await q.__azraelConsume(thread,{id},"owner");assert.equal(logs[2].receiptAccepted,false);assert.ok(!JSON.stringify(logs).includes(canary));
   q.disposed=true;const writes=q.writes.length;await q.__azraelConsume(thread,{id},"owner");assert.equal(q.writes.length,writes);assert.equal(logs.length,3);
+  q.disposed=false;
+  const quiet = createUiInputDiagnostics(() => { throw Error("disabled logging called"); }, undefined, () => false);
+  // Execute the same transformed queue with diagnostics disabled; persistence
+  // must still consume exactly one entry.
+  const QuietQueue=vm.runInNewContext(`(class{__azraelAccepted=new Map;running=new Set;rerun=new Set;options;writes=[];async #v(e,fn,n){this.writes.push(fn([{id:${JSON.stringify(id)}},{id:'next'}]))}${real}})`,{globalThis:{__azraelUiInputDiagnostics:quiet}});
+  const quietQueue=new QuietQueue();quietQueue.options={wasMessageAccepted:()=>true};
+  await quietQueue.__azraelConsume(thread,{id},"owner");assert.equal(quietQueue.writes[0].length,1);
 });
 test("actual renderer hook deduplicates unchanged suppression and logs changed reasons only", () => {
   const source=transformed.get(roots[0]+assets[2]),hook=source.slice(source.indexOf(marker),source.indexOf("if(B){",source.indexOf(marker))),logs=[],d=createUiInputDiagnostics(x=>logs.push(x)),ctx={globalThis:{__azraelUiInputDiagnostics:d},y:turn(["params","user","steering"]),F:true,I:false,B:null,__azraelHideCallback:false,__azraelInputClassified:false,__azraelLinkedSteering:false};

@@ -23,7 +23,7 @@ async function inputs(config) {
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
-    "azrael-recovery.cjs", "recovery-state.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
+    "azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
     "use-control-settings.cjs", "window-use-approvals.cjs", "use-settings-host.cjs", "sky-control-policy.mjs", "sky-controlled-service.mjs", "inject-sky-control-policy.cjs", "computer-use-branding.cjs", "window-control-runtime.cjs",
     "feature-preservation.cjs", "azrael-feature-contracts.json",
   ];

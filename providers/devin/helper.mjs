@@ -2,6 +2,7 @@ import { once } from 'node:events';
 import { createHash } from 'node:crypto';
 import { AdapterError, compileRequest, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './mapping.mjs';
 import { createProgressMonitor } from './progress.mjs';
+import { diagnosticPolicy } from './diagnostic-policy.mjs';
 import { observeParser } from './stall-diagnostics.mjs';
 import { httpStatus, providerClassificationCode, safeProviderDiagnostics, transportErrorCode } from './diagnostics.mjs';
 
@@ -55,7 +56,7 @@ try {
     const credentialScope = createHash('sha256').update(init.credential.api_key + '\x1f' + init.credential.api_server_url).digest('hex');
     const compiled = compileRequest({ ...request, credential_scope: credentialScope });
     const { streamChatEvents } = await import('./vendor/src/adapters/devin/cloud-direct/chat.ts');
-    progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true });
+    progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: diagnosticPolicy().inference });
     deadlineSignal = AbortSignal.timeout(900_000);
     const events = streamChatEvents({
       apiKey: init.credential.api_key, apiServerUrl: init.credential.api_server_url,

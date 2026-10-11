@@ -222,6 +222,9 @@ fn custom_schema() -> Value {
 }
 
 pub(super) fn log_catalog(specs: &[ToolSpec], request_id: &str, thread_id: &str, turn_id: &str) {
+    if !super::diagnostic_policy::DiagnosticPolicy::from_env().tools {
+        return;
+    }
     let tool_count = specs
         .iter()
         .map(|spec| match spec {

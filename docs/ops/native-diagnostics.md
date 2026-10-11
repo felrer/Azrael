@@ -24,6 +24,28 @@ The **Azrael provider accounts** VS Code Output channel records account action s
 
 VS Code's **Log (Extension Host)** can show extension activation faults. The host still discards app-server stderr content because upstream messages may include secrets; only a capped byte count survives a disconnect. A missing row in `logs_2.sqlite` or the Output channel does not prove that no error occurred. These records improve host/provider error attribution but do not yet satisfy the full AZ-01 injected-failure and safe-resume matrix.
 
+## 상세 진단 켜기/끄기
+
+기본값은 기존 상세 로그를 모두 켜는 것이다. 전체 설정 `AZRAEL_DIAGNOSTICS`와 분야별 덮어쓰기의 의미·보존 범위는 [상세 진단 계약](../architecture/diagnostic-logging.md)에 둔다. 설정은 이를 지원하는 엔진/helper/host 소스가 포함된 배포본에서 적용되며 기존에 설치된 바이너리는 바뀌지 않는다.
+
+VS Code를 시작하는 PowerShell에서 전체 상세 진단을 끄려면:
+
+```powershell
+$env:AZRAEL_DIAGNOSTICS = 'off'
+```
+
+이 환경을 상속하는 새 VS Code 프로세스로 Azrael을 시작한다. 이미 실행 중인 VS Code에 새 창을 열면 기존 프로세스의 환경을 재사용할 수 있다. 진행 중인 작업을 끝낸 뒤 관련 프로세스를 종료하고 같은 셸에서 새로 시작한다. 환경변수 변경만으로 실행 중인 엔진이나 helper의 환경이 바뀌지는 않는다.
+
+도구 진단만 켜서 조사하려면 전체 설정을 `off`로 둔 채 다음 값을 설정한다:
+
+```powershell
+$env:AZRAEL_DIAGNOSTICS_TOOLS = 'on'
+```
+
+분야별 변수는 `AZRAEL_DIAGNOSTICS_INFERENCE`, `AZRAEL_DIAGNOSTICS_TOOLS`, `AZRAEL_DIAGNOSTICS_RECOVERY`, `AZRAEL_DIAGNOSTICS_UI_INPUT`, `AZRAEL_DIAGNOSTICS_ACCOUNTS`다. 변수 이름과 값은 다른 OS에서도 같고, POSIX 셸에서는 `export AZRAEL_DIAGNOSTICS=off`처럼 전달한다.
+
+모두 다시 켜려면 전체 설정을 `on`으로 바꾸고 분야별 `off` 덮어쓰기를 해제하거나 `on`으로 바꾼 뒤 재시작한다. 기본값으로 원복하려면 이 여섯 환경변수를 제거한다. 전체 값만 `on`으로 바꿔도 명시적인 분야별 `off`는 유지된다. 이 절차는 기록량과 선택적 계측을 제어하며 기존 로그 파일 삭제·보존 정책을 바꾸지 않는다.
+
 ## Root resume timing
 
 Status: `partial` — Windows source tests verify resume phases, native HTTP request correlation, the SQLite sink and safe export. A matching engine and window reload are required for installed sessions; live-server and WebSocket runtime acceptance remain separate.

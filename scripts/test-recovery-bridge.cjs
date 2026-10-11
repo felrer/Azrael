@@ -30,7 +30,7 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   const ts = require(typescriptPath);
   const original = fs.readFileSync(originalBundle, "utf8");
   const transformed = injectRecovery(original, originalBundle, ts);
-  assert.equal(transformed.count, 3);
+  assert.equal(transformed.count, 4);
   assert.equal(ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
 
   const { ast, owner } = owningClass(ts, transformed.text, originalBundle);
@@ -317,6 +317,39 @@ function fakeRecoveryHost(delivered, deliveryEvents = []) {
   });
   return host;
 }
+
+test("recovery diagnostics off preserves failures and receipt state, then re-enables chatter", async t => {
+  const keys = ["AZRAEL_DIAGNOSTICS", "AZRAEL_DIAGNOSTICS_RECOVERY"], prior = keys.map(key => process.env[key]);
+  t.after(() => keys.forEach((key, i) => prior[i] === undefined ? delete process.env[key] : process.env[key] = prior[i]));
+  const recovery = require("./azrael-recovery.cjs"), records = [];
+  const { context, vscode } = recoveryVscodeStub(records);
+  const disposable = recovery.initialize(context, vscode);
+  const notification = { method: "item/completed", params: { threadId: "thread", turnId: "turn",
+    item: { type: "userMessage", id: "item", clientId: "client" } } };
+  try {
+    delete process.env.AZRAEL_DIAGNOSTICS; delete process.env.AZRAEL_DIAGNOSTICS_RECOVERY;
+    recovery.observe({}, notification);
+    assert.equal(records.filter(r => r.event === "host.user_message_received").length, 1);
+    process.env.AZRAEL_DIAGNOSTICS = "off";
+    const delivered = [], host = fakeRecoveryHost(delivered), sends = [];
+    recovery.dispatch(host, ["client", "quiet", "turn/start", { threadId: "thread", input: [{ type: "text", text: "fixture" }] }, false, true], (...args) => sends.push(args));
+    await untilDelivered(sends, 1);
+    const [provider, id] = sends[0];
+    host.providers.get(provider).onResult({ id, result: { turn: { id: "turn" } } });
+    await untilDelivered(delivered, 1);
+    recovery.observe(host, notification);
+    assert.equal(records.filter(r => r.event === "host.user_message_received").length, 1);
+    assert.equal(records.some(r => ["recovery.rpc_dispatch", "recovery.rpc_result", "recovery.request_result"].includes(r.event)), false);
+    assert.equal(delivered[0].result.turn.id, "turn");
+    recovery.observe(host, { method: "turn/completed", params: { threadId: "thread", turn: { id: "turn", status: "completed" } } });
+    assert.ok(records.some(r => r.event === "recovery.turn_terminal"));
+    recovery.observe(host, { method: "turn/error", params: { error: { code: 429, message: "quota" } } });
+    assert.ok(records.some(r => r.event === "host.notification_error" && r.errorCategory === "usage_rate_limit"));
+    process.env.AZRAEL_DIAGNOSTICS_RECOVERY = "on";
+    recovery.observe(host, notification);
+    assert.equal(records.filter(r => r.event === "host.user_message_received").length, 2);
+  } finally { disposable.dispose(); }
+});
 
 test("lost steer response returns actual wake turn through the original bridge request", async t => {
   const recovery = require("./azrael-recovery.cjs");

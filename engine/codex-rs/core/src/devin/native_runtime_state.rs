@@ -123,10 +123,12 @@ pub(super) fn read_credential() -> CodexResult<Credential> {
         toml::from_str(&text).map_err(|_| invalid("Devin CLI credentials are invalid"))?;
     let api_key = credential_field(&value, "windsurf_api_key")?;
     let api_server_url = credential_field(&value, "api_server_url")?;
-    tracing::info!(
-        event = "devin_native_credential_loaded",
-        credential_present = true
-    );
+    if super::diagnostic_policy::DiagnosticPolicy::from_env().inference {
+        tracing::info!(
+            event = "devin_native_credential_loaded",
+            credential_present = true
+        );
+    }
     Ok(Credential {
         api_key,
         api_server_url,

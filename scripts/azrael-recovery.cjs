@@ -11,6 +11,10 @@ if (registry.has(runtimeKey)) {
 } else {
 const { randomUUID, createHash } = require("node:crypto");
 const { RecoveryState } = require("./recovery-state.cjs");
+const { diagnosticsEnabled } = require("./optional-diagnostics.cjs");
+const routineEvents = new Set(["recovery.rpc_dispatch", "recovery.rpc_result",
+  "recovery.request_dispatch", "recovery.request_result", "host.user_message_received",
+  "host.rpc_response_received"]);
 const controllers = new Map();
 const hostRequests = new WeakMap();
 const MAX_HOST_REQUESTS = 128;
@@ -84,6 +88,8 @@ function initialize(context, vscode) {
   ui = { store: context.storageUri ? context.workspaceState : context.globalState, redraw,
     log: record => {
       if (disposed) return;
+      if (routineEvents.has(record.event) && record.outcome !== "rpc_error" &&
+          !diagnosticsEnabled("RECOVERY")) return;
       try { output.info(JSON.stringify({ ...record, hostPid: process.pid, droppedDiagnostics })); }
       catch { droppedDiagnostics++; }
     } };

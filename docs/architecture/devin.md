@@ -108,9 +108,11 @@ Engine records use the `devin_native_progress` tracing target and the existing e
 
 ### Tool request diagnostics
 
+Optional transport/progress and tool diagnostics follow the default-on [diagnostic logging policy](diagnostic-logging.md). Disabling detailed collection preserves required activity frames, error classification, generation watchdogs and failure records; collection state is separate from inference state.
+
 Status: `current` for the engine source and captured tracing tests; installed releases require a rebuilt engine.
 
-Before serializing a native Devin helper request, the engine records the ordered tool catalog's SHA-256, serialized size and tool count in the existing tracing sink. This catalog logging is connected to the Devin request entry point; managed OpenCodex requests share activity/recovery handling but do not emit these catalog/schema records. Bounded per-tool records identify the tool's kind, namespace/name, schema and description sizes/hashes, and observational schema-structure issues. Request ID and the existing thread/turn span connect these records to inference starts and provider failures. Unsafe identity labels and arbitrary schema property names are represented by hashes; descriptions, schema literals, arguments and credentials are excluded.
+When tool diagnostics are enabled, before serializing a native Devin helper request the engine records the ordered tool catalog's SHA-256, serialized size and tool count in the existing tracing sink. This catalog logging is connected to the Devin request entry point; managed OpenCodex requests share activity/recovery handling but do not emit these catalog/schema records. Bounded per-tool records identify the tool's kind, namespace/name, schema and description sizes/hashes, and observational schema-structure issues. Request ID and the existing thread/turn span connect these records to inference starts and provider failures. Unsafe identity labels and arbitrary schema property names are represented by hashes; descriptions, schema literals, arguments and credentials are excluded.
 
 The structure checker inspects supported keyword shapes within depth, node and issue budgets. It does not establish full JSON Schema validity or provider acceptance and does not block or rewrite requests. Log and traversal limits report omissions rather than implying complete inspection. Hashes describe the engine's helper-input catalog; transport transformations and the provider's internal schema interpretation remain separate boundaries.
 

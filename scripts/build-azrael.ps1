@@ -59,6 +59,7 @@ function Get-ProviderAccountsSourceFingerprint {
         Get-Item -LiteralPath (Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'), (Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs')
         Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs')
         Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs')
+        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs')
         Get-ChildItem -LiteralPath (Join-Path $providerRoot 'vendor/src') -File -Recurse
     ) | Sort-Object FullName
     $inventory = foreach ($file in $files) {
@@ -245,7 +246,7 @@ if ($IncludeDevinNative) {
     Complete-BuildStage $buildMetrics $phase
 }
 if ($IncludeProviderAccounts) {
-    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'),(Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
+    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs'),(Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'),(Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
     if ($providerCache.Hit) {
         New-Item -ItemType Directory -Path (Join-Path $release 'providers') -Force | Out-Null
         Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/providers/opencodex') -Destination (Join-Path $release 'providers/opencodex') -Recurse
@@ -264,6 +265,7 @@ if ($IncludeProviderAccounts) {
         (Join-Path $providerSource 'UPSTREAM.md'),
         (Join-Path $projectRoot 'providers/devin/progress.mjs'),
         (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),
+        (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs'),
         $bunSource
     )) {
         if (-not (Test-Path -LiteralPath $required)) { throw "Provider accounts build input is missing: $required" }
@@ -287,6 +289,7 @@ if ($IncludeProviderAccounts) {
     New-Item -ItemType Directory -Path $progressStage -Force | Out-Null
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs') -Destination $progressStage
     Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs') -Destination $progressStage
+    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs') -Destination $progressStage
     Get-ChildItem -LiteralPath $providerSource -File | Where-Object Extension -In '.ts', '.mjs' | Copy-Item -Destination $providerStage
     Copy-Item -LiteralPath (Join-Path $providerSource 'package.json'), (Join-Path $providerSource 'bun.lock'), (Join-Path $providerSource 'LICENSE.opencodex'), (Join-Path $providerSource 'UPSTREAM.md'), (Join-Path $providerSource 'vendor-source-manifest.json') -Destination $providerStage
     Copy-Item -LiteralPath (Join-Path $providerSource 'vendor/src') -Destination (Join-Path $providerStage 'vendor/src') -Recurse

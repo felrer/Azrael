@@ -126,7 +126,7 @@ assert(wrapper.indexOf("extension.js") < wrapper.indexOf("account-ui/dist/src/ex
   "integration wrapper did not activate the native extension before the account UI");
 assert(wrapper.includes("azrael-runtime.cjs"), "integration wrapper did not load the host runtime");
 assert(wrapper.includes("azrael-recovery.cjs"), "integration wrapper did not initialize recovery");
-for (const moduleName of ["azrael-recovery.cjs", "recovery-state.cjs", "url-safety-transport.cjs"]) {
+for (const moduleName of ["azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "url-safety-transport.cjs"]) {
   assert.equal(hs.readFileSync(path.join(hostRoot, "out", moduleName), "utf8"),
     hs.readFileSync(path.join(__dirname, moduleName), "utf8"), `packaged ${moduleName} differs from the validated source`);
 }
@@ -144,7 +144,7 @@ const provenance = readJson(hostRoot, ".azrael-independent-host.json");
 assert.equal(provenance.hostId, "azrael-ex-local.azrael");
 assert.equal(provenance.hostVersion, hostManifest.version);
 assert.equal(provenance.sourceVersion, originalManifest.version);
-assert.equal(provenance.assets.find(asset => asset.path === "out/extension.js").recoveryEdits, 3);
+assert.equal(provenance.assets.find(asset => asset.path === "out/extension.js").recoveryEdits, 4);
 assert(commandIds(hostManifest).includes("azrael.recoveryStatus"));
 assert.equal(hostManifest.enabledApiProposals, undefined, "local host opted into proposed APIs");
 assert.equal(hostManifest.contributes?.chatSessions, undefined, "local host contributed proposed chat sessions");

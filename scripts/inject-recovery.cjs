@@ -6,7 +6,16 @@ function injectRecovery(text, filename, ts) {
   const source = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const edits = [];
   const counts = { sendProviderRequest: 0, routeIncomingMessage: 0, teardownProcess: 0 };
+  let webviewCount = 0;
   const visit = node => {
+    if (ts.isBinaryExpression(node) && ts.isPropertyAccessExpression(node.left) &&
+        node.left.name.text === "html" && ts.isAwaitExpression(node.right) &&
+        ts.isCallExpression(node.right.expression) && ts.isPropertyAccessExpression(node.right.expression.expression) &&
+        node.right.expression.expression.name.text === "getWebviewContent") {
+      edits.push({ start: node.right.getStart(source), end: node.right.end,
+        text: `require("./optional-diagnostics.cjs").injectUiInputPolicy(${node.right.getText(source)})` });
+      webviewCount++;
+    }
     if (ts.isMethodDeclaration(node) && node.name?.text === "sendProviderRequest") {
       if (!node.body || node.parameters.length !== 6 || !node.parameters.every(p => ts.isIdentifier(p.name))) {
         throw new Error("Pinned recovery request signature changed.");
@@ -36,6 +45,7 @@ function injectRecovery(text, filename, ts) {
   };
   visit(source);
   if (Object.values(counts).some(count => count !== 1)) throw new Error(`Pinned recovery bridge changed: ${JSON.stringify(counts)}`);
+  if (webviewCount !== 1) throw new Error(`Pinned UI diagnostics bootstrap changed: ${webviewCount}`);
   for (const edit of edits.sort((a, b) => b.start - a.start)) text = text.slice(0, edit.start) + edit.text + text.slice(edit.end);
   if (ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length) {
     throw new Error("Invalid recovery bridge transform.");

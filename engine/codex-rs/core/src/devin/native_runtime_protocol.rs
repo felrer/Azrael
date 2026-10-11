@@ -88,7 +88,21 @@ pub(super) enum ProgressEvent {
 
 impl Progress {
     pub(super) fn log(&self, request_id: &str, outcome: &str) {
-        tracing::info!(target: "devin_native_progress", event = "native_inference_progress", request_id, outcome,
+        self.log_with_policy(
+            request_id,
+            outcome,
+            super::diagnostic_policy::DiagnosticPolicy::from_env(),
+        );
+    }
+
+    fn log_with_policy(
+        &self,
+        request_id: &str,
+        outcome: &str,
+        policy: super::diagnostic_policy::DiagnosticPolicy,
+    ) {
+        if policy.inference {
+            tracing::info!(target: "devin_native_progress", event = "native_inference_progress", request_id, outcome,
             phase = ?self.phase, elapsed_ms = self.elapsed_ms,
             network_idle_ms = self.network_idle_ms, event_idle_ms = self.event_idle_ms,
             bytes_received = self.bytes_received, event_count = self.event_count,
@@ -100,19 +114,22 @@ impl Progress {
             stdout_backpressure_count = ?self.stdout_backpressure_count,
             frames_emitted = ?self.frames_emitted,
             output_bytes = ?self.output_bytes);
-        if let Some(wait) = &self.thinking_wait {
-            tracing::info!(target: "devin_native_progress", event = "native_inference_thinking_wait",
+            if let Some(wait) = &self.thinking_wait {
+                tracing::info!(target: "devin_native_progress", event = "native_inference_thinking_wait",
                 request_id, outcome, open = wait.open,
                 heartbeat_count = wait.heartbeat_count, heartbeat_idle_ms = wait.heartbeat_idle_ms,
                 generation_idle_ms = self.event_idle_ms, generation_event_count = self.event_count);
+            }
         }
-        if let Some(tool_diagnostics) = &self.tool_diagnostics
+        if policy.tools
+            && let Some(tool_diagnostics) = &self.tool_diagnostics
             && let Ok(tool_diagnostics) = serde_json::to_string(tool_diagnostics)
         {
             tracing::info!(target: "devin_native_progress", event = "native_inference_tool_diagnostics",
                 request_id, outcome, tool_diagnostics = %tool_diagnostics);
         }
-        if let Some(transport) = &self.transport
+        if policy.inference
+            && let Some(transport) = &self.transport
             && let Ok(transport) = serde_json::to_string(transport)
         {
             tracing::info!(target: "devin_native_progress", event = "native_inference_transport",
@@ -335,4 +352,97 @@ pub(super) fn validate_usage(usage: Option<&Usage>) -> CodexResult<()> {
         )));
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod diagnostic_policy_tests {
+    use super::*;
+    use std::sync::Arc;
+    use std::sync::Mutex;
+    use tracing_subscriber::Layer;
+    use tracing_subscriber::layer::SubscriberExt;
+
+    #[derive(Clone, Default)]
+    struct Capture(Arc<Mutex<Vec<String>>>);
+
+    impl<S: tracing::Subscriber> Layer<S> for Capture {
+        fn on_event(
+            &self,
+            event: &tracing::Event<'_>,
+            _: tracing_subscriber::layer::Context<'_, S>,
+        ) {
+            struct EventName(Option<String>);
+            impl tracing::field::Visit for EventName {
+                fn record_str(&mut self, field: &tracing::field::Field, value: &str) {
+                    if field.name() == "event" {
+                        self.0 = Some(value.to_string());
+                    }
+                }
+                fn record_debug(&mut self, _: &tracing::field::Field, _: &dyn std::fmt::Debug) {}
+            }
+            let mut name = EventName(None);
+            event.record(&mut name);
+            if let Some(name) = name.0 {
+                self.0.lock().unwrap().push(name);
+            }
+        }
+    }
+
+    #[test]
+    fn disabled_diagnostics_preserve_progress_wire_and_category_independence() {
+        let wire = serde_json::json!({
+            "protocol_version": 1, "request_id": "policy-test", "seq": 0, "type": "progress",
+            "progress": {
+                "phase": "stream", "elapsed_ms": 10, "network_idle_ms": 1,
+                "event_idle_ms": 2, "bytes_received": 50, "event_count": 1,
+                "last_event": "reasoning", "thinking_wait": {
+                    "open": true, "heartbeat_count": 3, "heartbeat_idle_ms": 1
+                }, "transport": {}, "tool_diagnostics": {}
+            }
+        });
+        for (inference, tools, expected) in [
+            (false, false, vec![]),
+            (false, true, vec!["native_inference_tool_diagnostics"]),
+            (
+                true,
+                false,
+                vec![
+                    "native_inference_progress",
+                    "native_inference_thinking_wait",
+                    "native_inference_transport",
+                ],
+            ),
+            (
+                true,
+                true,
+                vec![
+                    "native_inference_progress",
+                    "native_inference_thinking_wait",
+                    "native_inference_tool_diagnostics",
+                    "native_inference_transport",
+                ],
+            ),
+        ] {
+            let frame: OutputFrame = serde_json::from_value(wire.clone()).unwrap();
+            let progress = frame.progress.unwrap();
+            let capture = Capture::default();
+            let subscriber = tracing_subscriber::registry().with(capture.clone());
+            tracing::subscriber::with_default(subscriber, || {
+                progress.log_with_policy(
+                    "policy-test",
+                    "running",
+                    super::super::diagnostic_policy::DiagnosticPolicy { inference, tools },
+                );
+            });
+            assert_eq!(*capture.0.lock().unwrap(), expected);
+            assert_eq!(progress.event_count, 1);
+            assert_eq!(progress.event_idle_ms, 2);
+            let wait = progress.thinking_wait.as_ref().unwrap();
+            assert!(wait.open);
+            assert_eq!(wait.heartbeat_count, 3);
+            let mut invalid = wire.clone();
+            invalid["progress"]["tool_diagnostics"] = serde_json::json!({"raw_name": "untrusted"});
+            assert!(serde_json::from_value::<OutputFrame>(invalid).is_err());
+        }
+    }
 }

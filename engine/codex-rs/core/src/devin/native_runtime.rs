@@ -111,6 +111,8 @@ use protocol::validate_usage;
 mod tools;
 use tools::ToolCatalog;
 use tools::historical_call_ids;
+#[path = "native_diagnostic_policy.rs"]
+mod diagnostic_policy;
 #[path = "native_tool_diagnostics.rs"]
 mod native_tool_diagnostics;
 
@@ -555,7 +557,9 @@ async fn consume(
                 };
                 let now = tokio::time::Instant::now();
                 activity.observe(&progress, now, policy.idle);
-                if activity.observe_thinking_wait(&progress, now, policy.idle, anthropic_thinking) {
+                if activity.observe_thinking_wait(&progress, now, policy.idle, anthropic_thinking)
+                    && diagnostic_policy::DiagnosticPolicy::from_env().inference
+                {
                     tracing::info!(target: "devin_native_progress", event = "native_inference_wait_extended",
                         request_id, reason = "anthropic_thinking_heartbeat",
                         generation_idle_ms = progress.event_idle_ms,

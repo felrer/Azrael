@@ -19,6 +19,8 @@ Each document labels its own state (see [document states](../README.md#document-
 
 ## Partial implementation
 
+- [상세 진단 로그 제어](diagnostic-logging.md): 기본 활성 상태를 유지하는 전체·분야별 계측 제어와 필수 실행 기록 보존.
+
 - [Prompt image preparation](prompt-image-preparation.md): shared QHD long-edge cap, conditional high-quality JPEG conversion, transparency and metadata preservation, and JPEG passthrough.
 - [Root coordination](root-coordination.md): common root-only scheduling, delegation, resource decisions, waiting and intervention across projects.
 - [Multi-platform runtime and maintenance](multi-platform.md): shared platform identity, OS-specific runtime/build boundaries and requirement applicability; local Linux x64/macOS ARM64 acceptance is separate, macOS public distribution is deferred.

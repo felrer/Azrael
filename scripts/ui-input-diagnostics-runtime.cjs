@@ -1,13 +1,14 @@
 "use strict";
 
 // Serialized into the UI asset. No imports, timers, raw state, or error logging.
-function createUiInputDiagnostics(send, now = () => Date.now()) {
+function createUiInputDiagnostics(send, now = () => Date.now(), enabled = () => true) {
   const uuid = value => typeof value === "string" && /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(value);
   const nonempty = value => (typeof value === "string" || Array.isArray(value)) && value.length > 0;
   const repeat = new Map(), renders = new Map();
   let windowStart = now(), emitted = 0, dropped = 0;
   function emit(event, fields, key) {
     try {
+      if (!enabled()) return;
       const time = now();
       if (time - windowStart >= 60000) { windowStart = time; emitted = 0; }
       if (key != null && repeat.has(key)) return;
@@ -21,6 +22,7 @@ function createUiInputDiagnostics(send, now = () => Date.now()) {
     } catch (_) {}
   }
   function snapshot(load) {
+    if (!enabled()) return null;
     const limited = {};
     try {
       const turns = load();
@@ -50,6 +52,7 @@ function createUiInputDiagnostics(send, now = () => Date.now()) {
   }
   function compare(thread, before, after, mutationKind = "ordinary", historyInvalidationType = null) {
     try {
+      if (!enabled()) return;
       if (!uuid(thread) || before == null || after == null) return;
       const mutation = ["ordinary", "history", "optimized_history"].includes(mutationKind) ? mutationKind : "ordinary";
       const invalidation = historyInvalidationType === "entityKeys" ? "entityKeys" : historyInvalidationType === "other" ? "other" : null;
@@ -67,6 +70,7 @@ function createUiInputDiagnostics(send, now = () => Date.now()) {
   }
   function render(turn, aeon, hidden, opening, hideCallback = null, inputClassified = null, linkedSteering = null) {
     try {
+      if (!enabled()) return;
       const id = turn.params?.clientUserMessageId, thread = turn.params?.threadId;
       if (!uuid(id) || !uuid(thread)) return;
       let users = 0, steering = 0, malformed = 0;

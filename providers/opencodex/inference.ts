@@ -8,7 +8,8 @@ import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } fro
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
-import { classifyConnectionError, createStallDiagnostics, observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
+import { classifyConnectionError, createStallDiagnostics, createFailureStageTracker, observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
+import { diagnosticPolicy } from '../devin/diagnostic-policy.mjs';
 import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccounts, withAutoSwitchPolicyMutation } from './auto-switch.ts';
 import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 import { apiCatalog, apiConfigCommand, isApiProvider } from './custom-api-config.ts';
@@ -314,7 +315,7 @@ export function observeAnthropic(response: Response, opaque: UsageObservation & 
     try { value = JSON.parse(data.join('\n')); } catch { fail('invalid_provider_stream'); }
     data = []; dataBytes = 0;
     if (value.type === 'error') opaque.upstreamSseError = true;
-    tracker?.sse(value);
+    tracker?.sse?.(value);
     toolDiagnostics?.raw(value);
     if (value.type === 'error') {
       const code = classifyManagedError('anthropic', undefined, value);
@@ -355,8 +356,8 @@ export function observeAnthropic(response: Response, opaque: UsageObservation & 
     }
   };
   const body = observeRawReads(response, tracker).body!.pipeThrough(new TransformStream({
-    transform(chunk, controller) { onBytes?.(chunk.byteLength); try { consume(decoder.decode(chunk, { stream: true })); } catch (error) { tracker?.error('sse_decode', error); throw error; } tracker?.pending(Buffer.byteLength(pending) + frameBytes); controller.enqueue(chunk); },
-    flush() { try { consume(decoder.decode() + '\n'); frame(); tracker?.pending(0); } catch (error) { tracker?.error('sse_decode', error); throw error; } },
+    transform(chunk, controller) { onBytes?.(chunk.byteLength); try { consume(decoder.decode(chunk, { stream: true })); } catch (error) { tracker?.error('sse_decode', error); throw error; } tracker?.pending?.(Buffer.byteLength(pending) + frameBytes); controller.enqueue(chunk); },
+    flush() { try { consume(decoder.decode() + '\n'); frame(); tracker?.pending?.(0); } catch (error) { tracker?.error('sse_decode', error); throw error; } },
   }));
   return new Response(body, { status: response.status, headers: response.headers });
 }
@@ -394,7 +395,8 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   checkRetirement();
   const retirementTimer = setInterval(checkRetirement, 250);
   const signal = AbortSignal.any([options.deadlineSignal ?? AbortSignal.timeout(900_000), retirementAbort.signal]);
-  const tracker = progress?.transport ?? createStallDiagnostics();
+  const tracker = createFailureStageTracker(progress ? progress.transport
+    : diagnosticPolicy().inference ? createStallDiagnostics() : undefined);
   const opaque = { details: [], terminal: false, upstreamSseError: false };
   let stage = 'build';
   try {
@@ -408,7 +410,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
       || !wireBody.system?.some((part: any) => typeof part.text === 'string' && part.text.includes(request.instructions)))) fail('unsupported_provider_output');
     stage = 'headers';
     const response = adapter.fetchResponse ? await adapter.fetchResponse(built, { abortSignal: signal, executor: fetcher, returnRawErrors: true, stream: true }) : await fetcher(built.url, { method: built.method, headers: built.headers, body: built.body, signal, redirect: 'error' });
-    tracker?.headers(response);
+    tracker.headers?.(response);
     if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
@@ -420,7 +422,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     tracker?.error(stage, error, signal);
     if (managedDeadlineFailure(error, signal, opaque.upstreamSseError)) fail('provider_request_deadline');
     if (!(error instanceof AdapterError)) {
-      const failureStage = tracker.snapshot()?.error_stage ?? stage;
+      const failureStage = tracker.failureStage() ?? stage;
       const connection = classifyConnectionError(error);
       if (['headers', 'body_read'].includes(failureStage) && connection) fail(`provider_connection_${connection.connection_error}`);
       if (failureStage === 'headers' && error instanceof TypeError) fail('provider_headers_failed');
@@ -536,9 +538,10 @@ export async function runCli() {
       const [init, request] = lines.map(line => JSON.parse(line));
       requestId = typeof request.request_id === 'string' && request.request_id.length <= 128 && !/[\x00-\x1f]/.test(request.request_id) ? request.request_id : '';
       if (init.type !== 'init' || init.protocol_version !== 1 || init.request_id !== requestId || !requestId) fail('invalid_init');
-      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true,
+      const diagnostics = diagnosticPolicy();
+      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: diagnostics.inference,
         thinkingWaitEnabled: request.provider_id === 'anthropic',
-        toolDiagnostics: isApiProvider(request.provider_id) ? undefined : createToolDiagnostics({ wirePrefix: request.provider_id === 'anthropic' ? 'custom_' : '' }) });
+        toolDiagnostics: isApiProvider(request.provider_id) || !diagnostics.tools ? undefined : createToolDiagnostics({ wirePrefix: request.provider_id === 'anthropic' ? 'custom_' : '' }) });
       await infer(request, emit, globalThis.fetch, progress);
     }
   } catch (error: any) {

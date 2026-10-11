@@ -13,7 +13,7 @@ function injectUiInputDiagnostics(text, relativePath, ts) {
   if (markerCount > 1) throw Error("Duplicate UI diagnostics marker");
   const edits = [];
   if (relativePath === UI_INPUT_DIAGNOSTICS_ASSETS[0]) {
-    const init = UI_INPUT_DIAGNOSTICS_MARKER + "try{globalThis.__azraelUiInputDiagnostics=(" + createUiInputDiagnostics.toString() + ")(safe=>Dm.dispatchMessage(`log-message`,{level:`warning`,message:`[azrael-ui-input] `+JSON.stringify(safe)}))}catch{}";
+    const init = UI_INPUT_DIAGNOSTICS_MARKER + "try{globalThis.__azraelUiInputDiagnostics=(" + createUiInputDiagnostics.toString() + ")(safe=>Dm.dispatchMessage(`log-message`,{level:`warning`,message:`[azrael-ui-input] `+JSON.stringify(safe)}),()=>Date.now(),()=>globalThis.document?.querySelector(`meta[name=azrael-ui-input-diagnostics]`)?.content!==`false`)}catch{}";
     if (markerCount) { if (!text.includes(init)) throw Error("Partial UI diagnostics initialization"); return { text, count: 0 }; }
     const anchor = find(n => ts.isExportDeclaration(n));
     edits.push([anchor.getStart(hst), anchor.getStart(hst), init]);
