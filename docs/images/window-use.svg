@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="620" viewBox="0 0 980 620" font-family="Segoe UI, Malgun Gothic, sans-serif">
+  <rect width="980" height="620" fill="#f6f6f6"/>
+  <title>Window Use controls an occluded target while your workspace stays yours</title>
+  <defs>
+    <clipPath id="target-clip"><rect x="46" y="118" width="570" height="338" rx="12"/></clipPath>
+    <radialGradient id="corner-glow">
+      <stop offset="0" stop-color="#3086e9" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#3086e9" stop-opacity="0"/>
+    </radialGradient>
+    <clipPath id="front-clip"><rect x="424" y="242" width="504" height="270" rx="12"/></clipPath>
+  </defs>
+  <rect x="750" y="28" width="202" height="34" rx="20" fill="#ffffff" stroke="#e6e6e8"/>
+  <circle cx="770" cy="45" r="2.5" fill="#16805d"/>
+  <text x="784" y="49" font-size="12" fill="#202123">Occupancy: available</text>
+  <rect x="46" y="118" width="570" height="338" rx="12" fill="#ffffff" stroke="#3086e9" stroke-width="1.5"/>
+  <g clip-path="url(#target-clip)">
+    <rect x="46" y="118" width="570" height="38" fill="#fafafa"/>
+    <path d="M46 156H616" stroke="#e6e6e8"/>
+    <circle cx="46" cy="118" r="140" fill="url(#corner-glow)"/>
+    <circle cx="616" cy="118" r="140" fill="url(#corner-glow)"/>
+    <circle cx="46" cy="456" r="140" fill="url(#corner-glow)"/>
+    <circle cx="616" cy="456" r="140" fill="url(#corner-glow)"/>
+  </g>
+  <g fill="#9c9c9f"><circle cx="64" cy="137" r="3"/><circle cx="77" cy="137" r="3"/><circle cx="90" cy="137" r="3"/></g>
+  <text x="110" y="142" font-size="14" fill="#202123">Spreadsheet — Quarterly Report</text>
+  <rect x="70" y="182" width="522" height="40" fill="#fafafa"/>
+  <g fill="none" stroke="#e6e6e8">
+    <rect x="70" y="182" width="522" height="234"/>
+    <path d="M70 222H592M70 270H592M70 318H592M70 366H592M200 182V416M330 182V416M460 182V416"/>
+  </g>
+  <g font-size="12" fill="#77787b">
+    <text x="84" y="207">Quarter</text><text x="214" y="207">Forecast</text><text x="344" y="207">Actual</text><text x="474" y="207">Variance</text>
+  </g>
+  <g fill="#e6e6e8">
+    <rect x="84" y="242" width="58" height="7" rx="3"/><rect x="214" y="242" width="78" height="7" rx="3"/><rect x="344" y="242" width="62" height="7" rx="3"/><rect x="474" y="242" width="70" height="7" rx="3"/>
+    <rect x="84" y="290" width="58" height="7" rx="3"/><rect x="214" y="290" width="67" height="7" rx="3"/><rect x="344" y="290" width="72" height="7" rx="3"/><rect x="474" y="290" width="62" height="7" rx="3"/>
+    <rect x="84" y="338" width="58" height="7" rx="3"/><rect x="214" y="338" width="83" height="7" rx="3"/><rect x="344" y="338" width="57" height="7" rx="3"/><rect x="474" y="338" width="73" height="7" rx="3"/>
+    <rect x="84" y="386" width="58" height="7" rx="3"/><rect x="214" y="386" width="72" height="7" rx="3"/><rect x="344" y="386" width="77" height="7" rx="3"/><rect x="474" y="386" width="66" height="7" rx="3"/>
+  </g>
+  <rect x="201" y="271" width="128" height="46" fill="none" stroke="#3086e9" stroke-width="1.5"/>
+  <rect x="424" y="242" width="504" height="270" rx="12" fill="#ffffff" stroke="#e6e6e8"/>
+  <g clip-path="url(#front-clip)">
+    <rect x="424" y="242" width="504" height="38" fill="#fafafa"/>
+    <path d="M424 280H928" stroke="#e6e6e8"/>
+  </g>
+  <g fill="#9c9c9f"><circle cx="442" cy="261" r="3"/><circle cx="455" cy="261" r="3"/><circle cx="468" cy="261" r="3"/></g>
+  <text x="488" y="266" font-size="14" fill="#202123">Code — notes.md</text>
+  <g fill="#e6e6e8">
+    <rect x="456" y="314" width="190" height="8" rx="3"/>
+    <rect x="456" y="344" width="338" height="8" rx="3"/>
+    <rect x="456" y="374" width="284" height="8" rx="3"/>
+    <rect x="456" y="404" width="238" height="8" rx="3"/>
+    <rect x="456" y="434" width="160" height="8" rx="3"/>
+  </g>
+  <path d="M623 430V447" stroke="#202123" stroke-width="1.5"/>
+  <g font-size="12" fill="#77787b">
+    <text x="46" y="81">Selected target — captured and controlled without raising it</text>
+    <text x="500" y="574">Your mouse, keyboard, and clipboard stay yours</text>
+  </g>
+  <g fill="none" stroke="#77787b" stroke-width="1" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M66 95V104L82 118"/>
+    <path d="M705 550V536H945V438H632"/>
+  </g>
+  <rect x="46" y="548" width="202" height="38" rx="20" fill="#202123" fill-opacity="0.82" pointer-events="none"/>
+  <text x="147" y="572" text-anchor="middle" font-size="12" fill="#ffffff" pointer-events="none">Press Esc to stop control</text>
+</svg>

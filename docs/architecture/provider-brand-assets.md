@@ -18,4 +18,4 @@ The registry is `extensions/azrael-ex/src/providerBrandAssets.ts`. It is self-co
 | xai / light | [Original](https://docs.x.ai/_next/static/media/favicon-light.1u6watcuoe8mg.svg?dpl=0d42258ef5d109dd8837600d6e2ce0e49ff2acf8) | `f441eef32955dabf2ded0bb66bf5674a53afb81557d9281c00735dd245dfdc86` |
 | xai / dark | [Original](https://docs.x.ai/_next/static/media/favicon-dark.0-f2gt9doy0_1.svg?dpl=0d42258ef5d109dd8837600d6e2ce0e49ff2acf8) | `986c5af775f7b550d41cf44e20d981407b30e7f24fa231e8434c5ec3db9c5307` |
 
-For a brand refresh, replace a registry entry with the unmodified official asset and update its source and decoded-byte hash here. Preserve intrinsic SVG view boxes and image proportions. Re-run the production account renderer in standalone/embedded light and dark themes; recapture the README account image and the Window Use preview that embeds it.
+For a brand refresh, replace a registry entry with the unmodified official asset and update its source and decoded-byte hash here. Preserve intrinsic SVG view boxes and image proportions. Re-run the production account renderer in standalone/embedded light and dark themes; recapture the README account image.

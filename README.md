@@ -21,7 +21,7 @@ Azrael runs as one integrated extension. Accounts, conversations, and settings l
 | Session flags | Mark conversations with a red flag so they are easier to find in the Chats list. |
 | Recovery and queues | Keep queued inputs, reconcile accepted turns, and recover conversations after a reload. |
 
-The UI screenshots below are **captured from Azrael's production components and pinned app styles with the existing development renderers**. Account identities, conversations, usage, model catalogs, and Window Use target state use synthetic data; no personal accounts or sessions are captured. The collaboration and token-efficiency images are explanatory diagrams. Renderer screenshots establish their displayed UI, while installed-host and real-service acceptance remain separate. See [screenshot sources and reproduction](docs/images/README.md).
+The UI screenshots below are **captured from Azrael's production components and pinned app styles with the existing development renderers**. Account identities, conversations, usage, and model catalogs use synthetic data; no personal accounts or sessions are captured. The collaboration, token-efficiency, and Window Use images are explanatory illustrations. Renderer screenshots establish their displayed UI, while installed-host and real-service acceptance remain separate. See [screenshot sources and reproduction](docs/images/README.md).
 
 ## Agent collaboration with clear ownership
 
@@ -92,9 +92,9 @@ See [context policy](docs/architecture/context-policy.md), [queued compaction](d
 
 Whole-desktop Computer Use can compete with a person's foreground applications, cursor, and keyboard. **Window Use** is a separate Windows feature designed to address that friction: the agent discovers and selects one approved window, observes that target, and uses supported application controls while you work in another application.
 
-![Production Window Use panel with a synthetic selected target and observation preview](docs/images/window-use.png)
+![Illustrative Window Use demo showing a selected target behind a person's foreground workspace](docs/images/window-use.svg)
 
-The screenshot comes from a browser renderer fixture of the production selected-window panel. Its selected target and state are synthetic, including a preview captured from the production account page. It shows the panel's controls and observation preview; native execution and concurrency are covered by the acceptance limits below. Windows Graphics Capture can obtain a target's content while another window covers it. Structured actions reuse UI Automation where supported, with app approvals, occupancy information, pause/recovery controls, and reusable task macros.
+The demo reproduction shows the intended collaboration: one selected target, a separate human workspace, and visible control state. Windows Graphics Capture can obtain the target's content while another window covers it. Structured actions reuse UI Automation where supported, with app approvals, occupancy information, pause/recovery controls, and reusable task macros.
 
 **Window Use is experimental and partially verified.** Actual Firefox and File Explorer observation and some Explorer actions have been checked. General concurrent physical-input isolation, installed GUI/tool acceptance, approval notifications, overlays, and real-window macros still have open acceptance work. Some actions can activate a target; background key delivery is experimental. Availability and reliability depend on the application exposing usable controls. Selected-window failures do not automatically expand authority to the whole desktop.
 
