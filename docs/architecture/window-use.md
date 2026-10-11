@@ -6,15 +6,52 @@ Status: `partial` — Actual Firefox and File Explorer capture, inspection and s
 
 Status: `target`.
 
-Window Use is distinct from Computer Use in its product name, settings, instructions and model tools. It is available alongside coding tools in ordinary conversations. The model discovers open windows, identifies the window needed for the user's request, selects it and controls that exact target. The user's physical mouse and keyboard remain available for other work. Dedicated selectedWindow conversations retain their existing immutable native tool ceiling.
+Window Use is the single product name for window observation, isolated app execution, selected-window control in the user's session and whole-desktop control. Settings, approval cards, notifications, panels and model guidance use that name. The existing Computer Use/Sky runtime remains the internal desktop backend for stage 4; its implementation and verified limits are owned by [the desktop backend](computer-use.md). The four-stage policy and child-session execution are target behavior, not an accepted implementation.
 
-Capturing a target behind another window must return the target's own content without raising it, changing focus or including the covering window. Control must not move the user's cursor, inject into the shared keyboard stream or consume the user's clipboard. Foreground preservation is optional for control, while physical mouse and keyboard availability remains required. An accessibility action can activate a window or open a dialog; concurrent physical-input routing requires separate verification.
+| Stage | Scope | Authority |
+| --- | --- | --- |
+| 1 — Observation | Discover and select an exact window; read status, capture and accessibility state | Window Use enabled; no per-app or per-window consent |
+| 2 — Isolated execution | Launch and control an approved app in a Windows child session | Individual or all-app approval plus authority for the task's stage and execution context |
+| 3 — Current-window control | Control the exact selected window in the user's Windows session | Individual or all-app approval plus authority for the task's stage and execution context |
+| 4 — Whole-desktop control | Use the desktop backend across the user's current desktop | Individual or all-app approval plus authority for the task's desktop scope |
+
+Observation must not raise a window, change focus, restore a minimized window, resize it, launch an app, deliver input or write the clipboard. An occluded capture returns the target's own content. Selection identifies an observation target and does not approve mutations. Capturing the whole desktop is not stage-1 window observation. Native permission, target identity, protected-capture, freshness and request-authentication checks remain mandatory at every stage.
+
+Stage 2 separates physical input from the parent's session. Stage 3 can conflict with the user's interaction and must state that impact when authority is requested; UI Automation can activate the app or its dialogs. Stage 4 denotes desktop scope rather than unrestricted authority over files, credentials or account settings. Unsupported operations remain unsupported at a higher stage until an appropriate backend and scope are available.
+
+Ordinary conversations retain their coding tools. Existing dedicated selectedWindow conversations retain their immutable native tool ceiling; stage elevation cannot relax that ceiling. A new unified conversation must establish its managed tool surface at creation and enforce stages at execution. Browser tasks prefer the existing Chrome control route and its own authorization rules; child-session browser profiles and cookie extraction are outside this design. Failure of Chrome control does not grant native window or desktop input authority.
 
 Task macros support both immediate execution of a supplied definition and saving a definition for reuse. The host implementation supports both paths; real-window acceptance remains pending.
+
+## Stage authority and recovery
+
+Status: `target`.
+
+App approval and task-stage authority are separate. Individual app grants and the all-app setting apply to stages 2–4. The all-app setting skips app consent; it does not grant a higher stage, select a window, clear a user stop or alter native permissions. Existing accepted authority is reused within its scope. When a task needs additional authority, the request identifies the required stage, app/window, execution location, reason and effect on the user's work. The model requests elevation and cannot approve it.
+
+Stages are not a compulsory sequence. Prefer isolated execution when a new app instance can perform the task. Current unsaved UI state can require stage 3 directly from observation; a task requiring the desktop can request stage 4 directly. Changing from child to parent execution binds a new target and discards observations from the old execution context. An unavailable child session never silently falls back to parent input.
+
+One Window Use enable setting gates every managed observation and control path. Disabling or revoking authority rejects subsequent steps, invalidates outstanding requests and prevents late replies from restoring authority across hosts. Existing app grants are preserved through settings conversion without treating discovery, observation or an ambiguous app name as consent. Existing disabled scopes must not be enabled implicitly during conversion.
+
+Recoverable observation failures retain the target and require a fresh observation. Temporary user interaction can pause further input for state revalidation; an explicit user stop remains terminal until user resume. Ordinary Escape must not become an accidental stop merely because the app activated. A dedicated stop control and an intentional shortcut provide explicit interruption. Unknown mutation outcomes never authorize automatic replay or elevation. Already-delivered actions can still complete.
+
+## Isolated execution and stored data
+
+Status: `target`.
+
+A child session runs another app instance under the parent's Windows user account. It separates UI, focus and process memory; it does not create a new anonymous user, copy the current window or sandbox the account's stored data. Saved documents, profile folders and user settings can be shared by both sessions. Changes to shared files/settings can affect the parent's apps. Stored application authentication may be reusable, but each app must verify that behavior; unsaved edits, undo history and the live parent's window state are not transferred. This follows the [Windows profile model](https://learn.microsoft.com/en-us/windows/win32/shell/about-user-profiles) and the same-account behavior described by [LibreAutomate's child-session implementation](https://libreautomate.com/editor/PiP%20session.html).
+
+Apps can reject concurrent instances or lock files/profiles. A conflict must be reported before continuing; the system does not close the user's apps, bypass locks, copy credentials or create a different app profile automatically. Browser work uses the existing Chrome route. General saved-data access, actual app login behavior and application-specific concurrency are separate verification targets.
+
+The host owns the child-session connection, scoped app launch and authenticated helper transport. Capture and input execute inside that session, not through parent-session input directed at a remote-view window. Target identity includes the execution session and live window/process identity. Remote viewing can offer explicit user-control/model-control ownership; simultaneous input owners are excluded. Disconnects, hidden/minimized viewing, rendering availability, clipboard redirection and shortcut routing require independent verification.
+
+Home support is unresolved. Power Automate and LibreAutomate exclude Home from their supported PiP configurations, which does not establish that a direct Windows implementation is impossible. Native feature enablement, connection, child-process execution, capture, input isolation and data behavior determine the accepted environment. Until those gates pass, the UI reports the observed prerequisite or failure and keeps observation available; the user can explicitly authorize a different stage. The investigation, experiment evidence and implementation sequence are in the [implementation plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/DU-01-window-use-stages/01-plan.md>).
 
 ## App authorization settings
 
 Status: `partial` — separate approvals, settings persistence and native component interactions pass scoped tests and packaged host acceptance. Full installed settings navigation and consent for real user windows remain separate.
+
+This section describes the current source authorization implementation. The target stage policy above requires separating observation authorization from app consent and unifying the product's settings surface.
 
 The Computer Use settings page manages Window Use separately from desktop Computer Use. Window Use keeps its own app approvals. Its initial allow-all setting is off and its persistent app list is empty; Computer Use approvals do not grant Window Use authority. Apps are identified by their absolute Windows executable path. An always-approved app covers its other windows and windows created after restarting the app, while selection still binds one exact live window.
 
@@ -135,7 +172,7 @@ UI Automation Value sets a field's value; it does not reproduce key events. Invo
 
 The native worker provides experimental window-directed message delivery for named keys: Return, Tab, Escape, BackSpace, Delete, arrows, Home, End, PageUp, PageDown and space. The requested UIA element must own an exact native HWND within the selected window, verified by comparing it with `ElementFromHandle`. Virtual controls cannot fall back to ancestor or root HWND delivery because messages can reach another focused control. Posting a message is not evidence that the control received or processed it. Results identify `delivery: windowMessage`, `verified: false` and `experimental: true`; task macro key steps require an explicit postcondition. Microsoft's [keyboard delivery guidance](https://learn.microsoft.com/en-nz/windows/apps/dev-tools/winapp-cli/ui-automation#send-keys) describes controls that ignore posted keyboard messages. Supported adapters need application-specific tests and observable postconditions. General background key support, including Firefox, remains unresolved.
 
-Window Use permits foreground-window and cursor-visibility changes during capture, inspection and control while retaining target identity and capture validity checks. Activation of the target or its owned popup is normal app behavior and does not cause an error or pause control. This does not establish unrestricted concurrent use: concurrent edits by the user inside the agent's target still require conflict handling; window-directed delivery alone cannot make those edits independent.
+The current selected-window backend tolerates foreground-window and cursor-visibility changes during capture, inspection and control while retaining target identity and capture validity checks. It does not attribute their cause from before/after samples. In the staged target, observation never requests activation; unrelated user foreground changes do not invalidate a correctly targeted frame. A stage-3 app action can activate the target or its owned popup without implying that the user requested a stop. This does not establish unrestricted concurrent use: concurrent edits by the user inside the agent's target still require conflict handling; window-directed delivery alone cannot make those edits independent.
 
 For capture, target identity, geometry, protection and fresh-frame checks should determine image validity. A foreground switch does not by itself invalidate a correctly targeted WGC frame. Read-only inspection should not require desktop ownership. Mutating operations retain capability, target identity, authorization and cancellation checks. Foreground changes do not override an action's actual result. Unknown delivery outcomes remain explicit and must not be retried automatically; concurrent physical-input routing requires separate acceptance.
 

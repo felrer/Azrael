@@ -1,10 +1,16 @@
-# Computer Use
+# Window Use desktop backend
 
 Status: `partial` — Existing Windows local integration is installed; the selected-window mode below is a candidate implementation with source/protocol checks passed; actual Windows acceptance and installation are pending. Existing ordinary-profile windows require reload; genuine model-driven operation remains unverified for the tested account/model combination. Exact package and installation evidence are owned by the [integration work plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/CL-01-computer-use-prototype/02-plan.md>); the new mode is owned by its [implementation plan](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/CL-01-computer-use-prototype/03-plan.md>).
 
+## Product scope
+
+Status: `target`.
+
+The product name for all observation and desktop-control stages is Window Use. This document owns the existing Computer Use/Sky backend, its runtime and current verification limits. The backend supplies Window Use stage 4; unified enablement, stages 1–4, app approval and task-stage authority are owned by [Window Use](window-use.md). The staged policy is not yet implemented. Technical names such as Sky, node_repl, computerUseMode and existing package/storage identifiers describe implementation boundaries rather than separate product authority.
+
 ## Selected-window mode
 
-The separate Window Use product requirements and task macro proposal are owned by [Window Use](window-use.md). This section describes the existing prototype and its implementation boundary.
+The unified product requirements and task macros are owned by [Window Use](window-use.md). This section describes the existing selected-window prototype and its implementation boundary; the source's current approval and recovery behavior must be distinguished from the staged target policy.
 
 Status: `partial` — The host, native executable, MCP boundary and durable engine ceiling are implemented and covered by scoped source/protocol tests. Behind-window capture, background effects, restore and size changes still require isolated Windows acceptance. The intended contract follows. This is a Computer Use mode within Azrael, using the same skill and package. Users select one exact top-level Windows window. The host binds its HWND, PID, process creation time and executable to a conversation/session generation; the model receives an opaque target ID. Selection expires when the window closes, its identity changes, the host reloads or the user clears it. App approval and selection are separate requirements. A saved app grant does not select another window belonging to that app.
 

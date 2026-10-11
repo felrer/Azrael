@@ -60,7 +60,15 @@ Account and usage surfaces, including shadow-root settings panels, inherit the n
 
 Instruction documents and Design use the native React Intl context for the active app language, including navigation labels, accessible text and page states. Korean language variants select Korean; other languages select English. Changing the app language updates presentation. Student names remain English in either language, while source document content and external diagnostics retain their original text. The standalone instruction surface follows the VS Code display language. Instruction navigation reads “Instruction Documents” in English or “지침 문서” in Korean; the not-implemented notice appears only in the page heading.
 
-## Computer and Window Use settings
+## Window Use settings
+
+Status: `target` for unified presentation.
+
+Window Use is the single settings, panel, consent and notification identity for observation, isolated execution, current-window control and whole-desktop control. The page has a product enable switch and describes the four stages, individual app approvals and all-app approval. Observation needs no per-app/window consent when enabled. App grants apply from isolated execution onward, while task-stage requests identify scope, execution location, reason and user impact. The all-app setting is described as skipping app consent rather than authorizing every stage.
+
+Existing grants and disabled scopes survive settings conversion without implicit elevation. Current stage, execution location, pending elevation, user stop and recoverable failures remain visible. Browser tasks use the existing Chrome route. Child-session capability and prerequisite failures are shown from actual evidence; Home support is not assumed. The page, requests and remote-view ownership controls reuse native OpenAI-style components, tokens and accessible keyboard behavior, with light/dark rendered acceptance required. The policy owner is [Window Use](window-use.md#stage-authority-and-recovery).
+
+### Current settings implementation
 
 Status: `partial` — the production settings section passes actual pinned React/component/CSS light/dark rendering and interaction checks, and the exact package passes host acceptance and installation. Full installed VS Code navigation after reload remains separate.
 
