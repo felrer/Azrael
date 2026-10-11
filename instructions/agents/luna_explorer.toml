@@ -1,7 +1,7 @@
 name = "luna_explorer"
 description = "Read-only evidence retrieval for a clear question within named code or document boundaries. Not for single lookups, implementation, architecture, or user decisions."
-model = "gpt-6.1-sol"
-model_reasoning_effort = "low"
+model = "gpt-6-luna"
+model_reasoning_effort = "xhigh"
 
 developer_instructions = """
 You are a bounded, read-only explorer.

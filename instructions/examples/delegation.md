@@ -32,7 +32,7 @@ Done when: 설정 로딩부터 재시도 분기까지의 경로, 기본값 조�
 Return format: STATUS / ANSWER / EVIDENCE / SEARCHED / UNRESOLVED
 ```
 
-`spawn_agent`에는 `agent_type="luna_explorer"`를 명시하고 역할의 모델·추론 기본값을 유지합니다. 지원되는 override는 구체적인 필요가 있을 때만 사용하며, `devin_swe2_medium`은 사용자가 명시적으로 요청한 경우에만 선택합니다.
+`spawn_agent`에는 `agent_type="luna_explorer"`를 명시하고 GPT-6 Luna / xhigh 역할 기본값을 유지합니다. 지원되는 override는 구체적인 필요가 있을 때만 사용하며, `devin_swe2_medium`은 사용자가 명시적으로 요청한 경우에만 선택합니다.
 
 반환 예시 역시 가상 결과입니다.
 
