@@ -226,6 +226,65 @@ def transport_diagnostics(body: str, target: str) -> dict:
     return result
 
 
+TOOL_INVOCATION_ENUMS = {
+    "call_state": {"none", "started", "receiving_args", "ended", "validated", "rejected"},
+    "name_style": {"alias", "prefixed_alias", "original", "qualified", "missing", "oversized", "other"},
+    "name_match": {"declared", "history_only", "current_original", "current_qualified", "missing", "unknown"},
+    "mapping_result": {"none", "declared", "undeclared", "duplicate_id", "invalid_arguments",
+                       "invalid_custom_wrapper", "parallel_disabled", "validated"},
+    "json_result": {"not_checked", "valid_object", "not_object", "invalid_json"},
+}
+TOOL_INVOCATION_NUMBERS = {
+    "catalog_tool_count", "history_alias_count", "call_count", "raw_name_bytes", "parser_name_bytes",
+    "args_delta_count", "args_empty_delta_count", "args_bytes", "sse_args_delta_count",
+    "sse_args_empty_delta_count", "sse_args_bytes", "args_idle_ms", "call_elapsed_ms",
+}
+TOOL_INVOCATION_HASHES = {"catalog_sha256", "raw_name_sha256", "parser_name_sha256", "declared_alias_sha256"}
+TOOL_INVOCATION_OUTCOMES = {
+    "running", "completed", "helper_error", "inference_output_idle", "engine_deadline", "cancelled",
+    "provider_request_deadline", "provider_failure", "provider_stream_idle", "provider_headers_timeout",
+    "undeclared_tool", "duplicate_call_id", "invalid_arguments", "invalid_custom_wrapper",
+    "parallel_calls_disabled",
+} | CONNECTION_OUTCOMES
+
+
+def tool_invocation_diagnostics(body: str, target: str) -> dict:
+    """Export only bounded tool invocation evidence, excluding names, ids and arguments."""
+    if target != "devin_native_progress":
+        return {}
+    marker = re.search(r'event="native_inference_tool_diagnostics"', body)
+    if not marker:
+        return {}
+    fields = body[marker.end():]
+    payload = re.search(r'(?<!\w)tool_diagnostics=', fields)
+    if not payload:
+        return {}
+    try:
+        data, _ = json.JSONDecoder().raw_decode(fields[payload.end():])
+    except (ValueError, RecursionError):
+        return {}
+    if not isinstance(data, dict):
+        return {}
+    safe = {}
+    for field, value in data.items():
+        if field in TOOL_INVOCATION_ENUMS and isinstance(value, str) and value in TOOL_INVOCATION_ENUMS[field]:
+            safe[field] = value
+        elif field in TOOL_INVOCATION_NUMBERS and type(value) is int and 0 <= value <= 2**53 - 1:
+            safe[field] = value
+        elif field in {"call_open", "raw_parser_name_equal"} and type(value) is bool:
+            safe[field] = value
+        elif field in TOOL_INVOCATION_HASHES and isinstance(value, str) and re.fullmatch(r"[0-9a-f]{64}", value):
+            safe[field] = value
+    # A valid empty payload is meaningful and remains compatible with optional fields.
+    if data and not safe:
+        return {}
+    result = {"tool_diagnostics": safe}
+    outcome = re.search(r'(?<!\w)outcome="([a-z_]+)"(?=\s|$)', fields)
+    if outcome and outcome[1] in TOOL_INVOCATION_OUTCOMES:
+        result["outcome"] = outcome[1]
+    return result
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", type=Path, default=Path.home() / ".azrael-ex")
@@ -261,6 +320,7 @@ def main() -> None:
         schema = tool_diagnostics(body or "", target)
         inference = inference_diagnostics(body or "", target)
         transport = transport_diagnostics(body or "", target)
+        invocation = tool_invocation_diagnostics(body or "", target)
         kind = category(body or "")
         if schema:
             kind = "tool_schema"
@@ -274,6 +334,8 @@ def main() -> None:
             } else "inference_failure"
         if transport:
             kind = "inference_transport"
+        if invocation:
+            kind = "tool_invocation"
         if detail.get("code") in {"invalid_argument", "failed_precondition", "out_of_range", "invalid_request_error"}:
             kind = "provider_request"
         if level not in ("WARN", "ERROR") and kind is None:
@@ -296,7 +358,9 @@ def main() -> None:
                 event["inferenceDiagnostics"] = inference
             if transport:
                 event["transportDiagnostics"] = transport
-            if schema or detail or inference or transport:
+            if invocation:
+                event["toolInvocationDiagnostics"] = invocation
+            if schema or detail or inference or transport or invocation:
                 request = re.search(r'(?<!\w)request_id="?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"?(?=\s|$)', body or "")
                 if request:
                     event["requestRef"] = hashlib.sha256(request[1].encode()).hexdigest()[:10]

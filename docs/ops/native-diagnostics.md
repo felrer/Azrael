@@ -24,6 +24,16 @@ The **Azrael provider accounts** VS Code Output channel records account action s
 
 VS Code's **Log (Extension Host)** can show extension activation faults. The host still discards app-server stderr content because upstream messages may include secrets; only a capped byte count survives a disconnect. A missing row in `logs_2.sqlite` or the Output channel does not prove that no error occurred. These records improve host/provider error attribution but do not yet satisfy the full AZ-01 injected-failure and safe-resume matrix.
 
+## Tool invocation evidence
+
+Status: `partial` — source tests cover helper/adapter events, native validation and safe export. A matching engine/helper release and window reload are required before a real session contains these fields.
+
+`native_inference_tool_diagnostics` uses the existing SQLite sink and retention limits. The inspector exports it as `toolInvocationDiagnostics`, with a hashed request reference, bounded outcome and validated `tool_diagnostics` fields. Use the existing read-only command above after waiting for the log flush. Tool names, call IDs and arguments are not exported or added by this telemetry. Name hashes support equality comparisons, not recovery of the original name.
+
+For an `undeclared_tool` failure, compare `name_match`, `name_style`, `raw_parser_name_equal` and `mapping_result` with the catalog digest. `history_only`, `current_original` and `current_qualified` distinguish a historical alias or a current tool name from its declared wire alias. `unknown` identifies an unmatched name without asserting why it was produced. An absent raw hash means the raw observation was unavailable or the name exceeded its bound; it does not prove an adapter fault.
+
+For a stall after `tool_call_start`, compare `args_bytes`/`args_delta_count` with `sse_args_bytes`/`sse_args_delta_count`, `args_idle_ms`, `call_elapsed_ms` and existing transport heartbeat counters. Empty deltas increase their separate counts and do not reset the non-empty argument timer. Incoming pings with unchanged argument bytes support a tool-argument generation stall; advancing raw argument bytes with stalled mapper bytes requires adapter/mapping investigation. A missing diagnostics record in an older release cannot resolve that distinction. These observations do not change the 100-second generation inactivity limit or authorize tool replay.
+
 ## Window overlay layered API regression
 
 Run the owned desktop regression explicitly from the project root, using the selected Window Control Cargo cache:

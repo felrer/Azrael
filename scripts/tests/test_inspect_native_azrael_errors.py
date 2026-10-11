@@ -212,5 +212,57 @@ class InspectorTests(unittest.TestCase):
         self.assertNotIn("SECRET", stdout)
 
 
+    def test_tool_invocation_evidence_is_bounded_and_correlated(self):
+        data = {"catalog_sha256": "a" * 64, "raw_name_sha256": "b" * 64,
+                "parser_name_sha256": "c" * 64, "declared_alias_sha256": "d" * 64,
+                "call_state": "receiving_args", "name_style": "prefixed_alias",
+                "name_match": "declared", "mapping_result": "declared", "json_result": "not_checked",
+                "catalog_tool_count": 2, "call_open": True, "args_empty_delta_count": 5,
+                "sse_args_delta_count": 8, "raw_parser_name_equal": False, "args_bytes": 2**53 - 1}
+        for outcome in ["running", "completed", "helper_error", "inference_output_idle", "undeclared_tool", "duplicate_call_id"]:
+            report, stdout = self.inspect([("devin_native_progress", 'private-span=SECRET '
+                'event="native_inference_tool_diagnostics" request_id=01234567-0123-4567-89ab-0123456789ab '
+                f'outcome="{outcome}" tool_diagnostics=' + json.dumps(data), "INFO")])
+            event = report["eventsNewestFirst"][0]
+            self.assertEqual(event["toolInvocationDiagnostics"], {"tool_diagnostics": data, "outcome": outcome})
+            self.assertEqual(event["category"], "tool_invocation")
+            self.assertRegex(event["requestRef"], r"^[0-9a-f]{10}$")
+            self.assertNotIn("SECRET", stdout)
+            self.assertNotIn("private-thread", stdout)
+
+    def test_tool_invocation_invalid_fields_and_outcomes_are_dropped(self):
+        invalid = {"catalog_sha256": "A" * 64, "raw_name_sha256": "a" * 63,
+                   "parser_name_sha256": "g" * 64, "declared_alias_sha256": "SECRET",
+                   "call_count": True, "args_bytes": -1, "args_idle_ms": 2**53,
+                   "call_elapsed_ms": 1.5, "call_open": "true", "raw_parser_name_equal": 1,
+                   "call_state": "SECRET", "name_style": "SECRET", "name_match": "SECRET",
+                   "mapping_result": "SECRET", "json_result": "SECRET", "raw_name": "SECRET",
+                   "call_id": "SECRET", "arguments": "SECRET", "schema": "SECRET"}
+        report, stdout = self.inspect([("devin_native_progress", 'event="native_inference_tool_diagnostics" '
+            'request_id=SECRET outcome="SECRET" tool_diagnostics=' + json.dumps({**invalid, "call_count": 1}), "INFO")])
+        event = report["eventsNewestFirst"][0]
+        self.assertEqual(event["toolInvocationDiagnostics"], {"tool_diagnostics": {"call_count": 1}})
+        self.assertNotIn("requestRef", event)
+        self.assertNotIn("SECRET", stdout)
+        for field, value in invalid.items():
+            report, stdout = self.inspect([("devin_native_progress", 'event="native_inference_tool_diagnostics" '
+                'tool_diagnostics=' + json.dumps({field: value}), "INFO")])
+            self.assertEqual(report["eventsNewestFirst"], [])
+            self.assertNotIn("SECRET", stdout)
+
+    def test_tool_invocation_legacy_absence_and_malformed_payload(self):
+        for body, target in [
+            ('event="native_inference_progress" outcome="running"', "devin_native_progress"),
+            ('event="native_inference_tool_diagnostics"', "devin_native_progress"),
+            ('event="native_inference_tool_diagnostics" tool_diagnostics=SECRET', "devin_native_progress"),
+            ('event="native_inference_tool_diagnostics" tool_diagnostics=[]', "devin_native_progress"),
+            ('event="native_inference_tool_diagnostics" tool_diagnostics={}', "different_target"),
+        ]:
+            report, _ = self.inspect([(target, body, "INFO")])
+            self.assertEqual(report["eventsNewestFirst"], [])
+        report, _ = self.inspect([("devin_native_progress", 'event="native_inference_tool_diagnostics" tool_diagnostics={}', "INFO")])
+        self.assertEqual(report["eventsNewestFirst"][0]["toolInvocationDiagnostics"], {"tool_diagnostics": {}})
+
+
 if __name__ == "__main__":
     unittest.main()

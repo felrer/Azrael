@@ -1,7 +1,7 @@
 import { createStallDiagnostics } from './stall-diagnostics.mjs';
 // Structural diagnostics only. Never put provider text, tool arguments or IDs here.
 export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => performance.now(),
-  bufferedBytes = () => 0, transportEnabled = false, thinkingWaitEnabled = false } = {}) {
+  bufferedBytes = () => 0, transportEnabled = false, thinkingWaitEnabled = false, toolDiagnostics } = {}) {
   const started = now();
   const transport = transportEnabled ? createStallDiagnostics({ now }) : undefined;
   let phase = 'preflight', bytes = 0, count = 0, lastEvent = 'none';
@@ -31,6 +31,9 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
       heartbeat_count: thinkingHeartbeats, heartbeat_idle_ms: Math.floor(time - lastThinkingHeartbeat) };
     const evidence = transport?.snapshot();
     if (evidence) progress.transport = evidence;
+    // Tool telemetry is supplied only by managed inference. A broken observer
+    // must not prevent a progress frame or change the generation watchdog.
+    try { const tools = toolDiagnostics?.snapshot(); if (tools) progress.tool_diagnostics = tools; } catch {}
     return progress;
   };
   const emitProgress = () => { if (!stopped) emit({ type: 'progress', progress: snapshot() }); };
@@ -38,6 +41,7 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
   timer.unref();
   return {
     transport,
+    toolDiagnostics,
     observe(event) {
       if (thinkingWaitEnabled && event.kind === 'thinking_block' && typeof event.open === 'boolean') {
         thinkingOpen = event.open;

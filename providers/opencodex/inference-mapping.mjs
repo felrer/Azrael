@@ -105,6 +105,7 @@ export function compileRequest(request, { promptFormat } = {}) {
   const messages = [];
   if (request.instructions) messages.push({ role: 'system', content: format('common_instructions', bounded(request.instructions)) });
   const calls = new Set();
+  const historyAliases = new Set();
   const results = new Set();
   const images = { count: 0, bytes: 0 };
   let assistant;
@@ -153,7 +154,9 @@ export function compileRequest(request, { promptFormat } = {}) {
           kind === 'tool_search' ? JSON.stringify(item.arguments) : bounded(item.arguments);
         JSON.parse(args);
         const message = assistantMessage();
-        (message.tool_calls ??= []).push({ id, name: alias(item.namespace ?? '', name, kind), arguments: args });
+        const historyAlias = alias(item.namespace ?? '', name, kind);
+        historyAliases.add(historyAlias);
+        (message.tool_calls ??= []).push({ id, name: historyAlias, arguments: args });
         break;
       }
       case 'function_call_output':
@@ -190,21 +193,28 @@ export function compileRequest(request, { promptFormat } = {}) {
   }
   // Base64 is ASCII and JSON-safe; the rebuilt data URL prefix stays within text slack.
   if (bytes(JSON.stringify({ messages, tools })) - images.bytes > MAX_BYTES) fail('context_limit');
-  return { messages, tools, names, calls, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
+  return { messages, tools, names, calls, historyAliases, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
 }
 
+const diagnose = (compiled, method, ...args) => { try { compiled.toolDiagnostics?.[method]?.(...args); } catch {} };
 export function restoreToolCall(call, compiled) {
   const owner = compiled.names.get(call.name);
+  diagnose(compiled, 'lookup', call.name, Boolean(owner));
   if (!owner) fail('undeclared_tool');
-  if (!string(call.id) || !call.id || compiled.calls.has(call.id)) fail('duplicate_call_id');
-  const args = JSON.parse(bounded(call.arguments));
-  if (!object(args)) fail('tool_arguments_not_object');
+  if (!string(call.id) || !call.id || compiled.calls.has(call.id)) { diagnose(compiled, 'rejected', 'duplicate_id'); fail('duplicate_call_id'); }
+  let args;
+  try { args = JSON.parse(bounded(call.arguments)); }
+  catch (error) { diagnose(compiled, 'json', 'invalid_json'); diagnose(compiled, 'rejected', 'invalid_arguments'); throw error; }
+  diagnose(compiled, 'json', object(args) ? 'valid_object' : 'not_object');
+  if (!object(args)) { diagnose(compiled, 'rejected', 'invalid_arguments'); fail('tool_arguments_not_object'); }
   compiled.calls.add(call.id);
   const common = { call_id: call.id, name: owner.name, ...(owner.namespace ? { namespace: owner.namespace } : {}) };
   if (owner.kind === 'custom') {
-    if (Object.keys(args).length !== 1 || !string(args.input)) fail('invalid_custom_wrapper');
+    if (Object.keys(args).length !== 1 || !string(args.input)) { diagnose(compiled, 'rejected', 'invalid_custom_wrapper'); fail('invalid_custom_wrapper'); }
+    diagnose(compiled, 'validated');
     return { type: 'custom_tool_call', ...common, input: bounded(args.input) };
   }
+  diagnose(compiled, 'validated');
   if (owner.kind === 'tool_search') return { type: 'tool_search_call', call_id: call.id, execution: 'client', arguments: args, status: 'completed' };
   return { type: 'function_call', ...common, arguments: call.arguments };
 }
@@ -231,7 +241,12 @@ export async function mapStream(events, compiled, emit, requestId) {
   const closeCall = () => {
     if (!active) return;
     const metadata = opaqueCalls.find(call => call.id === active.id);
-    if (metadata) metadata.arguments_digest = createHash('sha256').update(JSON.stringify(JSON.parse(active.arguments))).digest('hex');
+    if (metadata) {
+      let parsed;
+      try { parsed = JSON.parse(active.arguments); }
+      catch (error) { diagnose(compiled, 'json', 'invalid_json'); diagnose(compiled, 'rejected', 'invalid_arguments'); throw error; }
+      metadata.arguments_digest = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
+    }
     pending.push(restoreToolCall(active, compiled));
     active = undefined;
   };
@@ -251,13 +266,15 @@ export async function mapStream(events, compiled, emit, requestId) {
       case 'reasoning_signature': signature = bounded(signature + bounded(event.signature)); break;
       case 'tool_call_start':
         closeText(); closeCall();
-        if (!compiled.parallel && pending.length) fail('parallel_calls_disabled');
+        if (!compiled.parallel && pending.length) { diagnose(compiled, 'rejected', 'parallel_disabled'); fail('parallel_calls_disabled'); }
         active = { id: event.id, name: event.name, arguments: '' };
+        diagnose(compiled, 'start', active);
         opaqueCalls.push({ id: event.id, name: event.name, ...(event.providerMetadata ? { providerMetadata: event.providerMetadata } : {}) });
         break;
       case 'tool_call_args':
         if (!active || (event.id && event.id !== active.id)) fail('orphan_tool_delta');
         active.arguments = bounded(active.arguments + bounded(event.argsDelta));
+        diagnose(compiled, 'args', event.argsDelta);
         break;
       case 'usage': {
         usage ??= { input_tokens: 0, output_tokens: 0, cached_input_tokens: 0, cache_write_input_tokens: 0, reasoning_output_tokens: 0, total_tokens: 0, estimated: false };

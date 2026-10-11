@@ -13,6 +13,7 @@ import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccoun
 import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 import { apiCatalog, apiConfigCommand, isApiProvider } from './custom-api-config.ts';
 import { inferApi } from './custom-api.ts';
+import { createToolDiagnostics } from './tool-diagnostics.mjs';
 
 const supported = MANAGED_PROVIDERS;
 const bindingProvider = (id: unknown) => supported.includes(id as string) || isApiProvider(id);
@@ -303,7 +304,7 @@ export async function* translate(events: AsyncIterable<any>, opaque: UsageObserv
 
 // Anthropic's parser tolerates a terminal message_delta without message_stop.
 // The managed native stream requires the actual terminal frame before tool calls execute.
-export function observeAnthropic(response: Response, opaque: UsageObservation & { upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any, onThinking?: (event: { kind: string; open?: boolean }) => void) {
+export function observeAnthropic(response: Response, opaque: UsageObservation & { upstreamSseError?: boolean }, onBytes?: (bytes: number) => void, tracker?: any, onThinking?: (event: { kind: string; open?: boolean }) => void, toolDiagnostics?: ReturnType<typeof createToolDiagnostics>) {
   if (!response.body) fail('provider_eof');
   const decoder = new TextDecoder();
   let pending = '', data: string[] = [], dataBytes = 0, frameBytes = 0;
@@ -314,6 +315,7 @@ export function observeAnthropic(response: Response, opaque: UsageObservation & 
     data = []; dataBytes = 0;
     if (value.type === 'error') opaque.upstreamSseError = true;
     tracker?.sse(value);
+    toolDiagnostics?.raw(value);
     if (value.type === 'error') {
       const code = classifyManagedError('anthropic', undefined, value);
       if (code) fail(code);
@@ -373,6 +375,8 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
   const { compiled, parsed } = projectRequest(request, pinned.fingerprint,
     pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined);
+  const toolDiagnostics = progress?.toolDiagnostics;
+  toolDiagnostics?.catalog(compiled);
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
     : m.google.createGoogleAdapter(pinned.provider);
   const budget = m.budget.createTranslatorBudget();
@@ -408,9 +412,9 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
-    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event)) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
+    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event), toolDiagnostics) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
     stage = 'map';
-    await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque }, emit, request.request_id);
+    await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque, toolDiagnostics }, emit, request.request_id);
   } catch (error) {
     if (retirementCode) fail(retirementCode);
     tracker?.error(stage, error, signal);
@@ -506,8 +510,9 @@ export async function runCli() {
     }
     const line = JSON.stringify({ protocol_version: 1, request_id: requestId, seq, ...frame }) + '\n';
     const size = Buffer.byteLength(line);
-    // Reserve a bounded safe terminal even when ordinary output fills its budget.
-    const limit = 16 * 1024 * 1024 - (frame.type === 'error' ? 0 : 1024);
+    // Reserve a bounded safe terminal, including transport/tool progress evidence,
+    // even when ordinary output fills its budget.
+    const limit = 16 * 1024 * 1024 - (frame.type === 'error' ? 0 : 8192);
     if (size > MAX_BYTES || total + size > limit) fail('output_limit');
     total += size; seq++;
     const flushed = process.stdout.write(line);
@@ -531,7 +536,9 @@ export async function runCli() {
       const [init, request] = lines.map(line => JSON.parse(line));
       requestId = typeof request.request_id === 'string' && request.request_id.length <= 128 && !/[\x00-\x1f]/.test(request.request_id) ? request.request_id : '';
       if (init.type !== 'init' || init.protocol_version !== 1 || init.request_id !== requestId || !requestId) fail('invalid_init');
-      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true, thinkingWaitEnabled: request.provider_id === 'anthropic' });
+      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: true,
+        thinkingWaitEnabled: request.provider_id === 'anthropic',
+        toolDiagnostics: isApiProvider(request.provider_id) ? undefined : createToolDiagnostics({ wirePrefix: request.provider_id === 'anthropic' ? 'custom_' : '' }) });
       await infer(request, emit, globalThis.fetch, progress);
     }
   } catch (error: any) {

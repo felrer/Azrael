@@ -94,6 +94,8 @@ use process::absolute_env_path;
 use process::sanitize_code;
 #[path = "native_runtime_protocol.rs"]
 mod protocol;
+#[path = "native_runtime_tool_diagnostics.rs"]
+mod tool_diagnostics;
 #[path = "native_runtime_transport.rs"]
 mod transport;
 use protocol::OutputFrame;

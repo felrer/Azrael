@@ -31,6 +31,8 @@ pub(super) struct Progress {
     pub(super) thinking_wait: Option<ThinkingWait>,
     #[serde(default)]
     transport: Option<super::transport::Transport>,
+    #[serde(default)]
+    tool_diagnostics: Option<super::tool_diagnostics::ToolDiagnostics>,
     pub(super) phase: ProgressPhase,
     pub(super) elapsed_ms: u64,
     pub(super) network_idle_ms: u64,
@@ -103,6 +105,12 @@ impl Progress {
                 request_id, outcome, open = wait.open,
                 heartbeat_count = wait.heartbeat_count, heartbeat_idle_ms = wait.heartbeat_idle_ms,
                 generation_idle_ms = self.event_idle_ms, generation_event_count = self.event_count);
+        }
+        if let Some(tool_diagnostics) = &self.tool_diagnostics
+            && let Ok(tool_diagnostics) = serde_json::to_string(tool_diagnostics)
+        {
+            tracing::info!(target: "devin_native_progress", event = "native_inference_tool_diagnostics",
+                request_id, outcome, tool_diagnostics = %tool_diagnostics);
         }
         if let Some(transport) = &self.transport
             && let Ok(transport) = serde_json::to_string(transport)

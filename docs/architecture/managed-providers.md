@@ -12,6 +12,14 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Tool invocation diagnostics
+
+Status: `partial` — focused Windows helper, adapter and native protocol tests cover the source implementation. Installed use requires a matching engine/helper release.
+
+Managed helper progress optionally carries `tool_diagnostics`. It records a stable wire-alias catalog digest, current/history alias counts, bounded hashes of raw and parsed tool names, their match classification, argument byte/delta counts, call age and time since non-empty arguments. Anthropic raw SSE argument counters are separate from mapper counters so the evidence can distinguish missing provider input from adapter/mapping loss. Buffered call evidence is bounded to 64 entries; oversized names are classified without hashing. Mapping outcomes distinguish undeclared names, duplicate IDs, invalid JSON/object/custom wrappers and disabled parallel calls. Raw names, call IDs, arguments and request content are excluded.
+
+The native runtime validates the optional object's fixed fields, enums, SHA-256 strings and safe integer counts, then records `native_inference_tool_diagnostics` in the existing SQLite tracing sink. Legacy progress without the object remains accepted. These records do not count as generated output, extend tool-argument waiting, retry requests or change tool execution. See [Native diagnostics](../ops/native-diagnostics.md) for safe export and interpretation.
+
 ## Connection failure evidence and guidance
 
 Status: `partial` — helper and host source tests cover the classification and safe messages; native protocol acceptance requires a matching engine build. Installed windows require an updated release.
