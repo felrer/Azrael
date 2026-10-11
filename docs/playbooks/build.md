@@ -4,6 +4,7 @@
 
 검증한 로컬 빌드를 GitHub Releases에 올릴 때는 [앱 배포 절차](../ops/app-release.md)를 함께 적용한다.
 배포 버전, 태그와 파일 해시를 일치시키고, 기존 게시 버전의 파일을 덮어쓰지 않는다.
+macOS ARM64 공개 배포는 [Mac 배포 정책](../ops/app-release.md#macos-distribution-without-a-developer-id-certificate)을 따른다. Developer ID와 Apple 공증 없이 유효한 ad-hoc 서명, 미공증 안내 및 실제 최종 패키지 수용을 갖춘 뒤 게시한다. 이 정책은 앞으로의 Mac 배포에도 적용하며 인증서 확보를 선행 조건으로 요구하지 않는다.
 
 ## 산출물과 빌드 범위
 

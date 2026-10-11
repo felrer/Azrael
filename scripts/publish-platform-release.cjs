@@ -3,19 +3,26 @@
 const fs = require("node:fs"), path = require("node:path"), crypto = require("node:crypto");
 const { execFileSync, spawn } = require("node:child_process");
 const PLATFORM = Object.freeze({ os: "linux", arch: "x64", target: "x86_64-unknown-linux-gnu", libc: "glibc" });
+const MAC_PLATFORM = Object.freeze({ os: "darwin", arch: "arm64", target: "aarch64-apple-darwin" });
+function selectedPlatform(key = "linux-x64") {
+  assert(key === "linux-x64" || key === "darwin-arm64", "Unsupported publication platform.");
+  return key === "darwin-arm64" ? MAC_PLATFORM : PLATFORM;
+}
 const REQUIRED_CHECK_SCOPES = Object.freeze(["input-stability", "package-integrity", "relocation-install", "native-engine-provider", "installed-host", "rendered-ui"]);
 const sha = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
 const same = (a, b) => JSON.stringify(a) === JSON.stringify(b);
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
-function identity(value) { return value && Object.entries(PLATFORM).every(([key, expected]) => value[key] === expected); }
-function assetNames(version) {
-  const prefix = `Azrael-${version}-linux-x64`;
+function identity(value, selected) { return value && Object.entries(selected).every(([key, expected]) => value[key] === expected); }
+function assetNames(version, key = "linux-x64") {
+  selectedPlatform(key);
+  const prefix = `Azrael-${version}-${key}`;
   return [`${prefix}.tar.gz`, `${prefix}.manifest.json`, `${prefix}.SHA256SUMS.txt`, `${prefix}.INSTALL.md`];
 }
 function validateLocal(options) {
   assert(/^\d+\.\d+\.\d+$/.test(options.version), "Invalid version.");
   assert(/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(options.repo), "Invalid repository.");
-  const directory = path.resolve(options.assetDirectory), names = assetNames(options.version);
+  const selected = selectedPlatform(options.platform);
+  const directory = path.resolve(options.assetDirectory), names = assetNames(options.version, options.platform);
   assert(same(fs.readdirSync(directory).sort(), [...names].sort()), "Asset directory must contain exactly the four publication assets.");
   const assets = names.map(name => {
     const file = path.join(directory, name), stat = fs.lstatSync(file);
@@ -24,16 +31,24 @@ function validateLocal(options) {
   });
   const verification = JSON.parse(fs.readFileSync(options.verification, "utf8"));
   assert(verification.schema === 1 && verification.kind === "platform-release-verification" && verification.status === "passed", "Verification must be a passed schema 1 platform-release-verification.");
-  assert(verification.version === options.version && identity(verification.platform), "Verification version/platform mismatch.");
+  assert(verification.version === options.version && identity(verification.platform, selected), "Verification version/platform mismatch.");
   assert(/^[0-9a-f]{40}$/.test(verification.sourceCommit) && /^[0-9a-f]{64}$/.test(verification.inputSha256) && /^[0-9a-f]{64}$/.test(verification.hostTemplateSha256), "Verification source/input/host identity is invalid.");
-  assert(Array.isArray(verification.checks) && REQUIRED_CHECK_SCOPES.every(scope => verification.checks.some(check => check.scope === scope && check.status === "passed" && check.exitCode === 0)), "Verification is missing required passed checks.");
+  assert(Array.isArray(verification.checks) && [...REQUIRED_CHECK_SCOPES, ...(selected.os === "darwin" ? ["macOS-signing"] : [])].every(scope => verification.checks.some(check => check.scope === scope && check.status === "passed" && check.exitCode === 0)), "Verification is missing required passed checks.");
   assert(verification.checks.every(check => check.status === "passed" && check.exitCode === 0), "Verification contains a failed check.");
   assert(Array.isArray(verification.assets) && verification.assets.length === assets.length && assets.every(asset => verification.assets.filter(item => item.name === asset.name && item.size === asset.size && item.sha256 === asset.sha256).length === 1), "Verification asset hashes/sizes mismatch.");
   const manifest = JSON.parse(fs.readFileSync(path.join(directory, names[1]), "utf8"));
-  assert(manifest.schema === 2 && manifest.version === options.version && identity(manifest.platform), "Manifest schema/version/platform mismatch.");
+  assert(manifest.schema === 2 && manifest.version === options.version && identity(manifest.platform, selected), "Manifest schema/version/platform mismatch.");
   assert(manifest.provenance?.hostTemplateSha256 === verification.hostTemplateSha256, "Manifest host template identity mismatch.");
   for (const key of ["inputSha256", "sourceCommit"]) if (manifest.provenance?.[key] !== undefined) assert(manifest.provenance[key] === verification[key], `Manifest ${key} mismatch.`);
   assert(Array.isArray(manifest.files) && manifest.files.some(file => file.path === "host-template.vsix" && file.sha256 === verification.hostTemplateSha256), "Manifest host inventory mismatch.");
+  if (selected.os === "darwin") {
+    assert(manifest.distribution === "adhoc-without-notarization", "Mac manifest distribution policy mismatch.");
+    for (const [key, file] of [["signingReceiptSha256", "runtime/macos-signing.json"], ["hostSigningReceiptSha256", "host-signing.json"]]) {
+      const hash = manifest.provenance?.[key];
+      assert(/^[0-9a-f]{64}$/.test(hash || "") && manifest.files.some(item => item.path === file && item.sha256 === hash), "Mac manifest signing receipt binding is missing.");
+    }
+    assert(manifest.signing?.policy === "adhoc-without-notarization" && manifest.signing?.status === "passed", "Mac manifest signing certification is missing.");
+  }
   const lines = fs.readFileSync(path.join(directory, names[2]), "utf8").trim().split(/\r?\n/);
   const expected = assets.filter(asset => asset.name !== names[2]);
   assert(lines.length === expected.length && expected.every(asset => lines.filter(line => line === `${asset.sha256}  ${asset.name}` || line === `${asset.sha256} *${asset.name}`).length === 1), "Checksum file must identify archive, manifest and INSTALL exactly.");
@@ -80,7 +95,7 @@ function unchanged(before, after, newNames) {
 }
 async function publish(options, injectedTransport) {
   assert(options.receipt && !fs.existsSync(options.receipt), "Receipt path must be new.");
-  const receipt = { schema: 1, kind: "platform-release-publication", status: "failed", repository: options.repo, version: options.version, platform: PLATFORM, publisherSha256: sha(fs.readFileSync(__filename)), uploaded: [] };
+  const receipt = { schema: 1, kind: "platform-release-publication", status: "failed", repository: options.repo, version: options.version, platform: selectedPlatform(options.platform), publisherSha256: sha(fs.readFileSync(__filename)), uploaded: [] };
   let transport, before;
   try {
     const local = validateLocal(options), tag = `azrael-v${options.version}`;
@@ -121,7 +136,7 @@ async function publish(options, injectedTransport) {
   return receipt;
 }
 function args(argv) {
-  const options = {}, names = { "--version": "version", "--repo": "repo", "--verification": "verification", "--asset-directory": "assetDirectory", "--receipt": "receipt", "--gh": "gh" };
+  const options = {}, names = { "--version": "version", "--repo": "repo", "--verification": "verification", "--asset-directory": "assetDirectory", "--receipt": "receipt", "--gh": "gh", "--platform": "platform" };
   for (let index = 0; index < argv.length; index++) {
     const key = argv[index];
     if (key === "--publish") { assert(!options.publish, "Duplicate --publish."); options.publish = true; }
@@ -130,5 +145,5 @@ function args(argv) {
   for (const key of ["version", "repo", "verification", "assetDirectory", "receipt"]) assert(options[key], `Missing ${key}.`);
   return options;
 }
-module.exports = { PLATFORM, REQUIRED_CHECK_SCOPES, assetNames, validateLocal, publish, args, ghTransport };
+module.exports = { PLATFORM, MAC_PLATFORM, selectedPlatform, REQUIRED_CHECK_SCOPES, assetNames, validateLocal, publish, args, ghTransport };
 if (require.main === module) publish(args(process.argv.slice(2))).then(receipt => console.log(JSON.stringify({ status: receipt.status, repository: receipt.repository, tag: receipt.tag, assets: receipt.assets.map(asset => asset.name) }))).catch(error => { console.error(error.message); process.exitCode = 1; });

@@ -1,6 +1,19 @@
 "use strict";
 const fs=require("node:fs"), path=require("node:path"), os=require("node:os");
 const shared=require("./install-platform-release.cjs"), platform=require("./platform-runtime.cjs");
+function projectMacSigning(signing, files, selected) {
+  const {isMachO,verifySigning}=require("./package-platform-release.cjs");
+  if(!Array.isArray(signing?.files)) throw new Error("Mac signing receipt: invalid staging files.");
+  const paths=new Set();
+  for(const file of signing.files) {
+    if(paths.has(file.path)) throw new Error("Mac signing receipt: duplicate staging path.");
+    paths.add(file.path);
+  }
+  const entries=new Map([...files].filter(([name])=>name.startsWith("extension/")).map(([name,item])=>[name.slice(10),item]));
+  const nativePaths=new Set([...entries].filter(([,item])=>isMachO(item.data)).map(([name])=>name));
+  const projected={...signing,files:signing.files.filter(file=>nativePaths.has(file.path))};
+  return verifySigning(projected,entries,selected);
+}
 function single(text,needle,replacement) {
   if (!needle || text.split(needle).length!==2) throw new Error("Pinned preparation anchor changed or is ambiguous.");
   return text.replace(needle,replacement);
@@ -100,15 +113,23 @@ async function prepare(options) {
   }
   fs.writeFileSync(path.join(root,"out/azrael-runtime.json"),shared.encode(config));
   await require("./namespace-azrael-host.cjs").transformExtension(root,require(typescript),options["host-version"],{typescriptSha256:shared.sha(fs.readFileSync(typescript))});
+  let signing=selected.os==="darwin" ? require("./macos-signing.cjs").ensureMacSignatures(root) : null;
+  if(signing) {
+    for(const tool of companionNativeTools) tool.sha256=shared.sha(fs.readFileSync(path.join(root,tool.path)));
+  }
   const vsix=path.join(output,"azrael-host.vsix"), previous=process.cwd();
   try { process.chdir(root); await require("./package-local-host.cjs").packageLocalHost(vsce,vsix,ui); } finally {process.chdir(previous);}
   const files=shared.readZip(fs.readFileSync(vsix)), xml=files.get("extension.vsixmanifest");
   if (!xml) throw new Error("Packaged VSIX identity missing.");
   let text=xml.data.toString("utf8"); const identity=/<Identity\b[^>]*\/>/.exec(text); if(!identity) throw new Error("Packaged VSIX identity changed.");
   const target=identity[0].replace(/\sTargetPlatform="[^"]*"/g,"").replace("/>",` TargetPlatform="${selected.vsixTarget}" />`); text=text.replace(identity[0],target); xml.data=Buffer.from(text); fs.writeFileSync(vsix,shared.writeZip(files));
+  if(signing) {
+    signing=projectMacSigning(signing,files,selected);
+    fs.writeFileSync(path.join(output,"macos-host-signing.json"),shared.encode(signing));
+  }
   stable(ui,uiSnapshot); stable(account,accountSnapshot); shared.verifyBuild(release);
   if(shared.sha(fs.readFileSync(rgInput))!==rgSha256) throw new Error("Ripgrep source changed.");
-  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
+  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
 }
-module.exports={prepare,brandHost,single,psLiteral,normalizeCompanionModes};
+module.exports={prepare,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning};
 if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});

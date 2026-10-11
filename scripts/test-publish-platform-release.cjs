@@ -3,20 +3,24 @@ const { test } = require("node:test"), assert = require("node:assert/strict");
 const fs = require("node:fs"), os = require("node:os"), path = require("node:path"), crypto = require("node:crypto");
 const publisher = require("./publish-platform-release.cjs");
 const hash = bytes => crypto.createHash("sha256").update(bytes).digest("hex");
-function fixture(t) {
+function fixture(t, platformKey) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-publisher-"));
   t.after(() => fs.rmSync(root, { recursive: true }));
   const directory = path.join(root, "assets"); fs.mkdirSync(directory);
-  const version = "2026.0.1", names = publisher.assetNames(version), hostHash = "b".repeat(64);
-  const manifest = { schema: 2, version, platform: publisher.PLATFORM, provenance: { hostTemplateSha256: hostHash }, files: [{ path: "host-template.vsix", sha256: hostHash }] };
+  const version = "2026.0.1", names = publisher.assetNames(version, platformKey), hostHash = "b".repeat(64);
+  const manifest = { schema: 2, version, platform: publisher.selectedPlatform(platformKey), provenance: { hostTemplateSha256: hostHash }, files: [{ path: "host-template.vsix", sha256: hostHash }] };
+  if(platformKey === "darwin-arm64") {
+    manifest.distribution="adhoc-without-notarization";manifest.signing={policy:manifest.distribution,status:"passed"};
+    for(const [key,file] of [["signingReceiptSha256","runtime/macos-signing.json"],["hostSigningReceiptSha256","host-signing.json"]]) {manifest.provenance[key]="e".repeat(64);manifest.files.push({path:file,sha256:manifest.provenance[key]});}
+  }
   fs.writeFileSync(path.join(directory, names[0]), "immutable archive fixture");
   fs.writeFileSync(path.join(directory, names[1]), JSON.stringify(manifest));
   fs.writeFileSync(path.join(directory, names[3]), "Install into a new directory.");
   function inventory() { return names.map(name => { const bytes = fs.readFileSync(path.join(directory, name)); return { name, size: bytes.length, sha256: hash(bytes) }; }); }
   function checksums() { fs.writeFileSync(path.join(directory, names[2]), [names[0], names[1], names[3]].map(name => `${hash(fs.readFileSync(path.join(directory, name)))}  ${name}`).join("\n") + "\n"); }
   checksums();
-  const verification = { schema: 1, kind: "platform-release-verification", status: "passed", version, platform: publisher.PLATFORM, sourceCommit: "a".repeat(40), inputSha256: "c".repeat(64), hostTemplateSha256: hostHash, assets: inventory(), checks: publisher.REQUIRED_CHECK_SCOPES.map(scope => ({ scope, status: "passed", exitCode: 0 })) };
-  const options = { version, repo: "felrer/Azrael", assetDirectory: directory, verification: path.join(root, "verification.json"), receipt: path.join(root, "receipt.json") };
+  const verification = { schema: 1, kind: "platform-release-verification", status: "passed", version, platform: publisher.selectedPlatform(platformKey), sourceCommit: "a".repeat(40), inputSha256: "c".repeat(64), hostTemplateSha256: hostHash, assets: inventory(), checks: [...publisher.REQUIRED_CHECK_SCOPES, ...(platformKey === "darwin-arm64" ? ["macOS-signing"] : [])].map(scope => ({ scope, status: "passed", exitCode: 0 })) };
+  const options = { platform: platformKey, version, repo: "felrer/Azrael", assetDirectory: directory, verification: path.join(root, "verification.json"), receipt: path.join(root, "receipt.json") };
   const save = () => fs.writeFileSync(options.verification, JSON.stringify(verification)); save();
   return { options, verification, save, manifest, names, directory, checksums, inventory };
 }
@@ -101,4 +105,30 @@ for (const mutation of ["notes", "latest", "tag", "windows", "new-digest", "loca
 test("CLI requires explicit publish flag and rejects unknown/duplicate flags", () => {
   const argv = ["--version", "2026.0.1", "--repo", "felrer/Azrael", "--verification", "v", "--asset-directory", "a", "--receipt", "r"];
   assert.equal(publisher.args(argv).publish, undefined); assert.equal(publisher.args([...argv, "--publish"]).publish, true); assert.throws(() => publisher.args([...argv, "--clobber"])); assert.throws(() => publisher.args([...argv, "--publish", "--publish"]));
+});
+
+test("Mac adds exact assets preserving Windows/Linux bytes, notes/tag/latest", async t => {
+  const f=fixture(t,"darwin-arm64"),r=remote(f);
+  r.state.assets.push({id:2,name:"Linux.tar.gz",size:5,digest:null});r.state.bytes.set(2,Buffer.from("linux"));
+  const result=await publisher.publish({...f.options,publish:true},r.transport);
+  assert.equal(result.status,"published");assert.deepEqual(result.platform,publisher.MAC_PLATFORM);
+  assert.deepEqual(result.before.release,result.after.release);assert.deepEqual(result.before.tag,result.after.tag);assert.deepEqual(result.before.latest,result.after.latest);
+  for(const asset of result.before.assets) assert.deepEqual(asset,result.after.assets.find(item=>item.id===asset.id));
+  assert.deepEqual(result.uploaded,publisher.assetNames(f.options.version,"darwin-arm64"));
+});
+for(const scope of [...publisher.REQUIRED_CHECK_SCOPES,"macOS-signing"]) test("Mac requires gate "+scope, t=>{
+  const f=fixture(t,"darwin-arm64");f.verification.checks=f.verification.checks.filter(check=>check.scope!==scope);f.save();
+  assert.throws(()=>publisher.validateLocal(f.options),/required passed checks/);
+});
+for(const mutation of ["policy","certification","binding","identity"]) test("Mac rejects invalid "+mutation,t=>{
+  const f=fixture(t,"darwin-arm64");
+  if(mutation==="policy") f.manifest.distribution="deferred";
+  if(mutation==="certification") delete f.manifest.signing;
+  if(mutation==="binding") f.manifest.provenance.hostSigningReceiptSha256="0".repeat(64);
+  if(mutation==="identity") f.manifest.platform={...f.manifest.platform,target:"wrong"};
+  fs.writeFileSync(path.join(f.directory,f.names[1]),JSON.stringify(f.manifest));f.checksums();f.verification.assets=f.inventory();f.save();assert.throws(()=>publisher.validateLocal(f.options));
+});
+test("platform CLI remains optional and rejects unsupported targets",()=>{
+ const argv=["--version","2026.0.1","--repo","felrer/Azrael","--verification","v","--asset-directory","a","--receipt","r"];
+ assert.equal(publisher.args([...argv,"--platform","darwin-arm64"]).platform,"darwin-arm64");assert.throws(()=>publisher.assetNames("2026.0.1","darwin-x64"));
 });

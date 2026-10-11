@@ -1,6 +1,23 @@
 "use strict";
 const fs=require("node:fs"), path=require("node:path"), {spawnSync}=require("node:child_process");
+const {isDeepStrictEqual}=require("node:util");
 const shared=require("./install-platform-release.cjs"), platform=require("./platform-runtime.cjs");
+function isMachO(bytes) {
+  return bytes.length >= 4 && ["feedface","cefaedfe","feedfacf","cffaedfe","cafebabe","bebafeca","cafebabf","bfbafeca"].includes(bytes.subarray(0,4).toString("hex"));
+}
+function verifySigning(receipt, entries, selected) {
+  const fail=message=>{throw new Error("Mac signing receipt: "+message);};
+  if(receipt?.schema!==1 || receipt.status!=="passed" || receipt.policy!=="adhoc-without-notarization" || !isDeepStrictEqual(receipt.platform,platform.platformIdentity(selected)) || !Array.isArray(receipt.files)) fail("invalid policy/status/platform.");
+  const native=[...entries].filter(([,entry])=>isMachO(entry.data));
+  if(!native.length || receipt.files.length!==native.length) fail("native inventory mismatch.");
+  for(const [name,item] of native) {
+    const matches=receipt.files.filter(file=>file.path===name), file=matches[0];
+    if(matches.length!==1 || file.verified!==true || !["adhoc","identity"].includes(file.signature) || !["preserved","signed-adhoc"].includes(file.action) || (file.action==="signed-adhoc" && file.signature!=="adhoc") || !/^[0-9a-f]{64}$/.test(file.beforeSha256 || "")) fail("missing signature metadata for "+name);
+    if(file.action==="preserved" && file.beforeSha256!==file.sha256) fail("preserved signature hash mismatch for "+name);
+    if(file.sha256!==shared.sha(item.data)) fail("final hash mismatch for "+name);
+  }
+  return receipt;
+}
 function packageRelease(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), host=shared.inspectPath(shared.absolute(options["host-vsix"]));
   const output=shared.inspectPath(shared.absolute(options.output)), version=shared.version(options.version);
@@ -24,6 +41,21 @@ function packageRelease(options) {
     const mode=selected.os==="win32" ? 0o644 : (stat.mode&0o111 ? 0o755 : 0o644);
     files.set("runtime/"+name,{data:fs.readFileSync(source),mode});
   }
+  let signing, signingReceiptSha256, hostSigningReceiptSha256;
+  if(selected.os==="darwin") {
+    if(!build.sha256["macos-signing.json"]) throw new Error("Mac signing receipt must be bound to build hashes.");
+    const runtimeEntries=new Map([...files].map(([name,item])=>[name.slice(8),item]));
+    const runtimeReceipt=shared.json(shared.fileAt(release,"macos-signing.json"));
+    verifySigning(runtimeReceipt,runtimeEntries,selected);
+    const hostReceiptBytes=fs.readFileSync(shared.fileAt(path.dirname(host),"macos-host-signing.json")),hostReceipt=JSON.parse(hostReceiptBytes);
+    const hostEntries=new Map([...hostFiles].filter(([name])=>name.startsWith("extension/")).map(([name,item])=>[name.slice(10),item]));
+    verifySigning(hostReceipt,hostEntries,selected);
+    const preparation=shared.json(shared.fileAt(path.dirname(host),"preparation.json"));
+    if(preparation.hostSha256!==shared.sha(hostBytes) || !isDeepStrictEqual(preparation.signing,hostReceipt)) throw new Error("Mac host signing preparation binding mismatch.");
+    files.set("host-signing.json",{data:hostReceiptBytes,mode:0o644});
+    signingReceiptSha256=build.sha256["macos-signing.json"];hostSigningReceiptSha256=shared.sha(hostReceiptBytes);
+    signing={policy:runtimeReceipt.policy,status:"passed"};
+  }
   files.set("host-template.vsix",{data:hostBytes,mode:0o644});
   for (const name of ["install-platform-release.cjs","platform-runtime.cjs","azrael-platforms.json"]) files.set(name,{data:fs.readFileSync(path.join(__dirname,name)),mode:0o644});
   let bootstrap="node",bootstrapNote="Use a compatible Node runtime to run the installer.";
@@ -39,9 +71,10 @@ function packageRelease(options) {
       bootstrap="runtime/"+relative; bootstrapNote=`Bundled installer Node: ${bootstrap}`;
     }
   }
-  files.set("INSTALL.txt",{data:Buffer.from(`Extract this archive into a new directory. Run: ${bootstrap} install-platform-release.cjs --package ABSOLUTE_EXTRACTED_DIRECTORY --prepare-only\n${bootstrapNote}\nOmit --prepare-only to install the prepared VSIX into VS Code. State remains in ~/.azrael-ex. Updates and rollback select an explicit side-by-side version. macOS public distribution remains deferred.\n`),mode:0o644});
+  const macGuidance=selected.os==="darwin" ? "Distribution: adhoc-without-notarization. This distribution is not Developer ID-signed or Apple-notarized; ad-hoc signatures do not establish developer identity. macOS ARM64 is the target; support is qualified only by the named macOS version and environment in the release verification. Verify the SHA-256 checksums before installing. If Gatekeeper blocks a trusted item, open System Settings > Privacy & Security > Open Anyway after attempting to launch it. Follow https://support.apple.com/en-lamr/102445 . VS Code extensions may contain several native helpers: the actual installed extension and helper launch paths must be tested on the qualified target. Contact the release repository support if a helper remains blocked.\n" : "";
+  files.set("INSTALL.txt",{data:Buffer.from(`Extract this archive into a new directory. Run: ${bootstrap} install-platform-release.cjs --package ABSOLUTE_EXTRACTED_DIRECTORY --prepare-only\n${bootstrapNote}\nOmit --prepare-only to install the prepared VSIX into VS Code. State remains in ~/.azrael-ex. Updates and rollback select an explicit side-by-side version.\n${macGuidance}`),mode:0o644});
   const inventory=[...files].map(([name,item])=>({path:name,sha256:shared.sha(item.data),size:item.data.length,mode:item.mode}));
-  const manifest={schema:2,version,platform:platform.platformIdentity(selected),files:inventory,provenance:{buildInfoSha256:shared.sha(fs.readFileSync(path.join(release,"build-info.json"))),engine:build.engineProvenance,hostTemplateSha256:shared.sha(hostBytes)},distribution:selected.os==="darwin" ? "local-only-public-distribution-deferred" : "local-package"};
+  const manifest={schema:2,version,platform:platform.platformIdentity(selected),files:inventory,provenance:{buildInfoSha256:shared.sha(fs.readFileSync(path.join(release,"build-info.json"))),engine:build.engineProvenance,hostTemplateSha256:shared.sha(hostBytes),...(signing ? {signingReceiptSha256,hostSigningReceiptSha256} : {})},...(signing ? {signing} : {}),distribution:selected.os==="darwin" ? "adhoc-without-notarization" : "local-package"};
   // Recheck frozen inputs before writing a package, then verify the written copy.
   shared.verifyBuild(release);
   if (shared.sha(fs.readFileSync(host))!==shared.sha(hostBytes)) throw new Error("Host input changed during packaging.");
@@ -55,5 +88,5 @@ function packageRelease(options) {
   else { const result=spawnSync("tar",["-czf",archive,"-C",output,"--",...shared.walk(output)],{encoding:"utf8",shell:false}); if (result.error || result.status!==0) throw new Error("Release archive creation failed."); }
   return {output,archive,platform:manifest.platform,version,files:inventory.length};
 }
-module.exports={packageRelease};
+module.exports={packageRelease,verifySigning,isMachO};
 if (require.main===module) { try { console.log(JSON.stringify(packageRelease(shared.args(process.argv.slice(2))))); } catch(error) { console.error(error.message); process.exitCode=1; } }

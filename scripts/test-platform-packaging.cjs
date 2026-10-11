@@ -7,13 +7,28 @@ for(const name of ["install-platform-release.cjs","package-platform-release.cjs"
 const s=require(path.join(frozen,"install-platform-release.cjs")), p=require(path.join(frozen,"platform-runtime.cjs")), pack=require(path.join(frozen,"package-platform-release.cjs"));
 let checks=0; function check(name,fn) {fn(); checks++;console.log("PASS "+name);}
 function put(root,name,data) {const file=path.join(root,name); fs.mkdirSync(path.dirname(file),{recursive:true}); fs.writeFileSync(file,data);return file;}
+// On Mac this is explicitly a public-packaging metadata fixture. It validates
+// receipt bindings using synthetic Mach-O bytes, never claims real signatures.
+function packageFixture(options) {
+  if(process.platform==="darwin") {
+    const descriptor=p.resolvePlatform(),metadata=s.json(path.join(options.release,"build-info.json"));
+    const native=new Map();
+    for(const name of Object.keys(metadata.sha256)) {const bytes=fs.readFileSync(path.join(options.release,name));if(pack.isMachO(bytes)) native.set(name,{data:bytes});}
+    const receipt=entries=>({schema:1,status:"passed",platform:p.platformIdentity(descriptor),policy:"adhoc-without-notarization",files:[...entries].map(([name,item])=>({path:name,beforeSha256:s.sha(item.data),sha256:s.sha(item.data),action:"preserved",signature:"adhoc",verified:true}))});
+    const runtimeReceipt=receipt(native);put(options.release,"macos-signing.json",s.encode(runtimeReceipt));metadata.sha256["macos-signing.json"]=s.sha(s.encode(runtimeReceipt));put(options.release,"build-info.json",s.encode(metadata));
+    const hostEntries=s.readZip(fs.readFileSync(options["host-vsix"]));hostEntries.set("extension/bin/signing-fixture",{data:Buffer.from("cffaedfe01020304","hex"),mode:0o755});
+    const bytes=s.writeZip(hostEntries);fs.writeFileSync(options["host-vsix"],bytes);
+    const hostReceipt=receipt(new Map([["bin/signing-fixture",hostEntries.get("extension/bin/signing-fixture")]]));put(path.dirname(options["host-vsix"]),"macos-host-signing.json",s.encode(hostReceipt));put(path.dirname(options["host-vsix"]),"preparation.json",s.encode({signing:hostReceipt,hostSha256:s.sha(bytes)}));
+  }
+  return pack.packageRelease(options);
+}
 const release=path.join(root,"release");fs.mkdirSync(release);
-const selected=p.resolvePlatform(), binaries={};for(const name of p.engineBinaryNames()) binaries[name]=s.sha(fs.readFileSync(put(release,"engine/"+name,"frozen fixture "+name)));
+const selected=p.resolvePlatform(), binaries={};for(const name of p.engineBinaryNames()) binaries[name]=s.sha(fs.readFileSync(put(release,"engine/"+name,process.platform==="darwin" ? Buffer.from("cffaedfe01020304","hex") : "frozen fixture "+name)));
 if(process.platform!=="win32") for(const name of p.engineBinaryNames()) fs.chmodSync(path.join(release,"engine",name),0o755);
 const provenance={schema:1,platform:p.platformIdentity(),source:{sourceSha256:"a".repeat(64)},binaries};
 put(release,"engine/azrael-engine-build.json",s.encode(provenance));
 const build={platform:p.platformIdentity(),engineVersion:"0.160.0",engineProvenance:provenance,sha256:Object.fromEntries(Object.entries(binaries).map(([name,hash])=>["engine/"+name,hash]))};put(release,"build-info.json",s.encode(build));
-const nodePath=put(release,"node/"+p.executableName("node"),"bundled node fixture");
+const nodePath=put(release,"node/"+p.executableName("node"),process.platform==="darwin" ? Buffer.from("cffaedfe01020305","hex") : "bundled node fixture");
 if(process.platform!=="win32") fs.chmodSync(nodePath,0o755);
 const nodeHash=s.sha(fs.readFileSync(nodePath));
 const nativeManifest={schema:1,platform:p.platformIdentity(),node:{path:nodePath,sha256:nodeHash},files:{}};
@@ -21,7 +36,7 @@ put(release,"devin-native-build.json",s.encode(nativeManifest));build.sha256["no
 const config={schema:1,platform:p.platformIdentity(),engine:path.join(release,"engine",p.executableName("codex")),bridge:path.join(release,"engine",p.executableName("azrael-bridge")),codexHome:path.join(root,"unused-state"),engineVersion:build.engineVersion,devinNative:{helper:path.join(release,"providers/devin/helper.mjs"),node:path.join(release,"node",p.executableName("node"))}};
 const host=put(root,"template.vsix",s.writeZip(new Map([["extension/out/azrael-runtime.json",{data:s.encode(config)}],["extension.vsixmanifest",{data:Buffer.from('<PackageManifest><Metadata><Identity Id="azrael" /></Metadata></PackageManifest>')}]])));
 const output=path.join(root,"package");
-check("package frozen runtime and schema2 inventory",()=>{pack.packageRelease({release,"host-vsix":host,output,version:"1.2.3"});assert.equal(s.verifyPackage(output).schema,2);});
+check("package frozen runtime and schema2 inventory",()=>{packageFixture({release,"host-vsix":host,output,version:"1.2.3"});assert.equal(s.verifyPackage(output).schema,2);});
 check("producer-shaped bundled Node bootstrap matches inventoried path",()=>{
   const shaped=path.join(root,"producer-release");fs.cpSync(release,shaped,{recursive:true});
   const relative="runtime/node/"+p.executableName("node"),target=path.join(shaped,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.renameSync(path.join(shaped,"node",p.executableName("node")),target);
@@ -66,4 +81,19 @@ check("state/runtime overlap refused",()=>assert.throws(()=>s.install({package:m
 check("ZIP archive traversal rejected",()=>assert.throws(()=>s.writeZip(new Map([["../evil",{data:Buffer.from("bad")}]])),/Unsafe/));
 check("ZIP compressed entry tamper rejected",()=>{const data=s.writeZip(new Map([["safe",{data:Buffer.from("hello")}]]));data[34]^=255;assert.throws(()=>s.readZip(data));});
 check("pinned branding owner operands and anchors",()=>{const target=path.join(root,"branding");for(const name of ["package.json","out/extension.js","webview/assets/app-initial-7a199c66e670.js","webview/assets/profile-dropdown-items-93d2a2e5b8d6.js"])put(target,name,fs.readFileSync(path.join(repo,"artifacts/upstream-ui/26.1007.21434",name)));require(path.join(frozen,"prepare-platform-host.cjs")).brandHost(target);assert.equal(s.json(path.join(target,"package.json")).contributes.viewsContainers.activitybar[0].title,"Azrael");assert.match(fs.readFileSync(path.join(target,"out/extension.js"),"utf8"),/runtime.engine/);});
-console.log(JSON.stringify({checks,fixtureRoot:root,frozenSources:frozen,platform:p.platformIdentity(),nativeUnixExecution:false}));
+
+
+check("Mac public signing receipts bind all native bytes and metadata",()=>{
+ const selected=p.resolvePlatform("darwin","arm64"),data=Buffer.from("cffaedfe01020304","hex"),entries=new Map([["engine/codex",{data}]]);
+ const receipt={schema:1,status:"passed",platform:p.platformIdentity(selected),policy:"adhoc-without-notarization",files:[{path:"engine/codex",beforeSha256:"a".repeat(64),sha256:s.sha(data),action:"signed-adhoc",signature:"adhoc",verified:true}]};
+ assert.equal(pack.verifySigning(receipt,entries,selected),receipt);
+ assert.throws(()=>pack.verifySigning(null,entries,selected),/invalid policy/);
+ assert.throws(()=>pack.verifySigning({...receipt,files:[]},entries,selected),/inventory mismatch/);
+ assert.throws(()=>pack.verifySigning({...receipt,files:[{...receipt.files[0],verified:false}]},entries,selected),/metadata/);
+ assert.throws(()=>pack.verifySigning({...receipt,files:[{...receipt.files[0],sha256:"0".repeat(64)}]},entries,selected),/hash mismatch/);
+ assert.throws(()=>pack.verifySigning({...receipt,files:[{...receipt.files[0],signature:"unsigned"}]},entries,selected),/metadata/);
+ assert.equal(pack.verifySigning({...receipt,files:[{...receipt.files[0],action:"preserved",signature:"identity",beforeSha256:s.sha(data)}]},entries,selected).files[0].signature,"identity");
+});
+console.log(JSON.stringify({checks,platform:p.platformIdentity(),nativeUnixExecution:false}));
+// Successful fixture contents are disposable; retain only the caller's test log.
+fs.rmSync(root,{recursive:true});

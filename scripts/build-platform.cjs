@@ -144,6 +144,7 @@ async function build(options) {
   if (fs.readFileSync(compiledSourceSnapshot, "utf8") !== fs.readFileSync(sourceSnapshot, "utf8")) throw new Error("Compiled engine source differs from frozen inputs");
   fs.mkdirSync(path.join(s.output, "engine"), { recursive: true });
   for (const name of plan.binaries) copyTree(name === plan.binaries[2] && s["code-mode-host"] ? path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix) : path.join(s["target-directory"], identity.target, "release", name), path.join(s.output, "engine", name));
+  const engineSigning = identity.os === "darwin" ? require("./macos-signing.cjs").ensureMacSignatures(path.join(s.output, "engine")) : null;
   const recordArgs = ["-B", frozenProvenance, "record", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot, "--engine-dir", path.join(s.output, "engine")];
   if (s["code-mode-host"]) recordArgs.push("--code-mode-host-source", path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), "--code-mode-host-original", s["code-mode-host"], "--code-mode-host-original-sha256", hash(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix)));
   else recordArgs.push("--code-mode-host-built");
@@ -176,9 +177,18 @@ async function build(options) {
   for (const name of ["keyring", nativeKeyring]) copyTree(path.join(provider, "node_modules/@napi-rs", name), path.join(providerOut, "node_modules/@napi-rs", name));
   const bunRelative = "providers/opencodex/runtime/" + executableName("bun", plan.descriptor);
   copyTree(bun, path.join(s.output, bunRelative));
+  if (identity.os === "darwin") {
+    const signing = require("./macos-signing.cjs").ensureMacSignatures(s.output);
+    for (const entry of engineSigning.files) {
+      const final = signing.files.find(file => file.path === "engine/" + entry.path);
+      if (!final || final.sha256 !== entry.sha256) throw new Error("Engine changed after signing.");
+      Object.assign(final, entry, { path: "engine/" + entry.path });
+    }
+    write(path.join(s.output, "macos-signing.json"), signing);
+  }
   function filesAt(relative) { return Object.fromEntries(inventoryTree(path.join(s.output, relative)).files.map(file => [relative + "/" + file.path, file.sha256])); }
-  write(path.join(s.output, "devin-native-build.json"), { schema: 1, platform: identity, mode: "opt-in", model: "devin/swe-2-high", upstreamRevision: UPSTREAM, node: { path: path.join(s.output, "runtime/node", executableName("node", plan.descriptor)), version: nodeVersion, sha256: hash(node), bundled: true }, files: { ...filesAt("providers/devin"), "scripts/devin-catalog.json": hash(path.join(s.output, "scripts/devin-catalog.json")) } });
-  write(path.join(s.output, "opencodex-accounts-build.json"), { schema: 2, platform: identity, upstreamRevision: UPSTREAM, vendorSourceManifestSha256: vendorSha, helper: "providers/opencodex/helper.js", inferenceHelper: "providers/opencodex/inference.js", bun: { version: "1.4.2", path: bunRelative, sha256: hash(bun), bundled: true }, files: filesAt("providers/opencodex") });
+  write(path.join(s.output, "devin-native-build.json"), { schema: 1, platform: identity, mode: "opt-in", model: "devin/swe-2-high", upstreamRevision: UPSTREAM, node: { path: path.join(s.output, "runtime/node", executableName("node", plan.descriptor)), version: nodeVersion, sha256: hash(path.join(s.output, "runtime/node", executableName("node", plan.descriptor))), bundled: true }, files: { ...filesAt("providers/devin"), "scripts/devin-catalog.json": hash(path.join(s.output, "scripts/devin-catalog.json")) } });
+  write(path.join(s.output, "opencodex-accounts-build.json"), { schema: 2, platform: identity, upstreamRevision: UPSTREAM, vendorSourceManifestSha256: vendorSha, helper: "providers/opencodex/helper.js", inferenceHelper: "providers/opencodex/inference.js", bun: { version: "1.4.2", path: bunRelative, sha256: hash(path.join(s.output, bunRelative)), bundled: true }, files: filesAt("providers/opencodex") });
   fs.mkdirSync(path.join(s.output, "host/out"), { recursive: true });
   for (const name of ["ordinary-runtime.cjs", "platform-runtime.cjs", "azrael-platforms.json", "devin-native-host.cjs", "provider-accounts-host.cjs"]) copyTree(path.join(frozenProject, "scripts", name), path.join(s.output, "host/out", name === "ordinary-runtime.cjs" ? "azrael-runtime.cjs" : name));
   write(path.join(s.output, "host/out/azrael-runtime.json"), { schema: 1, platform: identity, engine: path.join(s.output, "engine", plan.binaries[0]), bridge: path.join(s.output, "engine", plan.binaries[1]), engineVersion, codexHome: path.join(os.homedir(), ".azrael-ex"), devinNative: { releaseDirectory: s.output }, providerAccounts: { releaseDirectory: s.output } });
