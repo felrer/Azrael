@@ -1,6 +1,6 @@
 # Multi-platform runtime and maintenance
 
-Status: `partial` across the complete platform matrix. Shared identity/runtime/build contracts are implemented. Linux x64 2026.0.1 passed exact-package and actual installed-host/light-dark acceptance on Ubuntu 24.04/glibc 2.39 through WSLg and is publicly distributed; standalone desktops, older distributions and live provider authentication/inference remain unverified. macOS ARM64 retains partial internal acceptance and public distribution is deferred. Windows local execution retains its existing acceptance evidence.
+Status: `partial` across the complete platform matrix. Shared identity/runtime/build contracts are implemented. Linux x64 2026.0.5 passed exact-package and actual installed-host/light-dark acceptance on Ubuntu 24.04/glibc 2.39 through WSLg and is publicly distributed; standalone desktops, older distributions and live provider authentication/inference remain unverified. macOS ARM64 retains partial internal acceptance and public distribution is deferred. Windows 2026.0.5 is publicly distributed and installed in the ordinary user profile with its acceptance evidence retained.
 
 ## Product scope
 
