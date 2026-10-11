@@ -215,11 +215,11 @@
       "source": "implementation/references/delegation.md",
       "adaptations": [],
       "original": {
-        "size": 4381,
-        "sha256": "d8d5430adb1c22e8ddc7deb13eec2d33d9ec75a0322794a89e1c24e8e0687a25"
+        "size": 5261,
+        "sha256": "0c8386ba6e5eee3b5722b2773d78f304d346b091eaf343e465aec3c6ed08149c"
       },
-      "size": 4381,
-      "sha256": "d8d5430adb1c22e8ddc7deb13eec2d33d9ec75a0322794a89e1c24e8e0687a25"
+      "size": 5261,
+      "sha256": "0c8386ba6e5eee3b5722b2773d78f304d346b091eaf343e465aec3c6ed08149c"
     },
     {
       "path": "skills/implementation/references/ui.md",

@@ -8,6 +8,15 @@ Azrael의 작업 배정·실행 순서·대기·개입은 root 공통 지침을 
 - Use this handoff contract: Objective (one outcome), Scope (read boundary and owned files), Constraints (agreed behavior, interfaces and authority limits), References (exact paths or symbols), Done when (observable completion criteria), Return format (the selected role's fields). Pass decisions and references rather than full conversations or copied documents. State these requirements together in natural language when delegating. When useful for communicating requirements efficiently, optionally include short code snippets, evaluation algorithms, input/output examples, or references to existing tests.
 - For a materially different independent objective that warrants delegation, create a fresh child with `fork_turns="none"`. If unsupported, use the smallest supported history scope and disclose the limitation. Reuse the same child for corrections and validation of its objective; send only the delta. Completion alone does not require another child. Do not split coupled unfinished work merely to refresh context.
 
+## 조사 질문의 우선순위와 첫 인계
+
+- 조사 요청에는 다음 구현을 막는 질문의 우선순위를 지정한다. 첫 조사 범위는 후속 실행에 필요한
+  최소 계약을 확인하는 데 맞추고, 근거·확정된 조건·남은 불확실성을 인계한다.
+- API 형식뿐 아니라 다음 구현에 필요한 동작 의미까지 확인한다. 미확정 계약에 의존하는 부분만 보류하고,
+  확정된 계약으로 수행 가능한 작업과 구분한다. 미확정 동작을 임의의 기본값이나 빈 구현으로 채우지 않는다.
+- 추가 조사는 필요한 경우 같은 담당자에게 후속 범위로 전달한다. 첫 범위를 완료 가능한 단위로 나눠
+  일반 중간 보고만으로 대기 중인 root가 재개된다고 가정하지 않는다. 작은 질문마다 새 에이전트를 만들지 않는다.
+
 ## 후속 작업 연결과 결과 보고
 
 - 비용이 큰 작업을 전달할 때는 후속 소비자, 필요한 산출물·설정·환경·경로, 준비 완료 조건과
