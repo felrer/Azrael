@@ -42,10 +42,10 @@ const CONTENT_FONT_CSS = `
 @layer base{
 :root{--codex-content-font-family:${FONT_FAMILY}!important;font-synthesis-weight:none}
 :root[data-azrael-chat-font="openai"]{--codex-content-font-family:var(--font-sans)!important}
-/* Consolas has a 1ch space advance; subtract half without changing character spacing. */
-:root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]),[data-thread-title],[data-azrael-dynamic-text]:not([data-azrael-chat-text]){font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:-0.5ch!important}
+/* Keep the selected face's natural spaces: fallback faces need not have a 1ch space advance. */
+:root:not([data-azrael-chat-font="openai"]) :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text]),[data-thread-title],[data-azrael-dynamic-text]:not([data-azrael-chat-text]){font-family:${FONT_FAMILY}!important;font-weight:400!important;font-synthesis-weight:none;word-spacing:normal!important}
 /* The message Markdown renderer sets content fonts without a .font-content wrapper. */
-:root:not([data-azrael-chat-font="openai"]) :is(._MarkdownRoot_63g8m_2,._Paragraph_63g8m_2,._Heading_63g8m_2,._ListItem_63g8m_2,._Table_63g8m_2){word-spacing:-0.5ch!important}
+:root:not([data-azrael-chat-font="openai"]) :is(._MarkdownRoot_63g8m_2,._Paragraph_63g8m_2,._Heading_63g8m_2,._ListItem_63g8m_2,._Table_63g8m_2){word-spacing:normal!important}
 :root[data-azrael-chat-font="openai"] :is(.font-content,[data-composer-body] .ProseMirror,[data-azrael-chat-text],._MarkdownRoot_63g8m_2){font-synthesis-weight:auto}
 ._MarkdownRoot_63g8m_2 :is(code,pre){word-spacing:normal!important}
 ._MarkdownRoot_63g8m_2 :is(button,select){word-spacing:normal!important}

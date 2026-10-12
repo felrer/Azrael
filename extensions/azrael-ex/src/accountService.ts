@@ -53,6 +53,22 @@ export class AccountService extends EventEmitter {
     return this.connecting;
   }
 
+  /** Called only after the owning app-server supervisor completed a fresh handshake. */
+  async reconnectAfterEngineRestart(): Promise<AccountState> {
+    await this.connecting?.catch(() => undefined);
+    if (this.disposed) throw new Error("Account service is disposed.");
+    const previous = this.transport;
+    this.transport = undefined;
+    this.transportVerified = false;
+    previous?.dispose();
+    this.instanceId = undefined;
+    this.state = undefined;
+    this.rootResumeReservations = undefined;
+    this.error = undefined;
+    this.emit("rootResumeConnection", false);
+    return this.connect();
+  }
+
   async call(params: AccountParams): Promise<AccountResponse> {
     if (!this.transport) throw new Error("Account bridge is disconnected.");
     if (MUTATIONS.has(params.action) && !this.changesEnabled) throw new Error("Account changes are disabled until the engine identity is verified.");

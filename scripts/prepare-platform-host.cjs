@@ -72,6 +72,16 @@ function normalizeCompanionModes(root,selected) {
   }
   return tools;
 }
+function prepareLinuxSupervision(root,ts,selected) {
+  if(selected.os!=="linux") return null;
+  const script=path.join(root,"out/extension.js"), before=fs.readFileSync(script,"utf8");
+  const after=require("./inject-linux-supervision.cjs").inject(before,ts);
+  fs.writeFileSync(script,after);
+  const modules=["linux-native-supervision.cjs","local-history-host.cjs","sync-local-history.py"];
+  for(const name of modules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"out",name));
+  return {sourceSha256:shared.sha(Buffer.from(before)),outputSha256:shared.sha(Buffer.from(after)),
+    modules:Object.fromEntries(modules.map(name=>[name,shared.sha(fs.readFileSync(path.join(root,"out",name)))]))};
+}
 async function prepare(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), ui=shared.inspectPath(shared.absolute(options["ui-root"])), account=shared.inspectPath(shared.absolute(options["account-ui-root"])), output=shared.inspectPath(shared.absolute(options.output));
   for (const input of [ui,account]) shared.disjoint(input,output);
@@ -112,6 +122,7 @@ async function prepare(options) {
     Object.assign(config,produced); if(selected.os!=="win32") {delete config.computerUse;delete config.windowControl;}
   }
   fs.writeFileSync(path.join(root,"out/azrael-runtime.json"),shared.encode(config));
+  const linuxSupervision=prepareLinuxSupervision(root,require(typescript),selected);
   await require("./namespace-azrael-host.cjs").transformExtension(root,require(typescript),options["host-version"],{typescriptSha256:shared.sha(fs.readFileSync(typescript))});
   let signing=selected.os==="darwin" ? require("./macos-signing.cjs").ensureMacSignatures(root) : null;
   if(signing) {
@@ -129,7 +140,7 @@ async function prepare(options) {
   }
   stable(ui,uiSnapshot); stable(account,accountSnapshot); shared.verifyBuild(release);
   if(shared.sha(fs.readFileSync(rgInput))!==rgSha256) throw new Error("Ripgrep source changed.");
-  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
+  const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
 }
-module.exports={prepare,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning};
+module.exports={prepare,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision};
 if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});

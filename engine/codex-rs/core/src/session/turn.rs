@@ -1592,12 +1592,14 @@ pub(crate) fn build_prompt(
 ) -> Prompt {
     let turn_context = &step_context.turn;
     Prompt {
-        input,
         tools: if incremental_tools {
             Arc::default()
+        } else if step_context.settings.model_info.slug.starts_with("api/") {
+            step_context.tool_router.chat_specs_with_discovered(&input)
         } else {
             step_context.tool_router.model_visible_specs()
         },
+        input,
         parallel_tool_calls: true,
         base_instructions: if incremental_tools {
             BaseInstructions {

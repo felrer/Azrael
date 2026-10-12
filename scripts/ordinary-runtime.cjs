@@ -15,6 +15,12 @@ if (registry.has(runtimeKey)) {
 } else {
   const config = JSON.parse(fs.readFileSync(path.join(__dirname, "azrael-runtime.json"), "utf8"));
   validateRuntimePlatform(config.platform);
+  if (config.windowControlRelative) {
+    if (config.windowControlRelative !== "window-control") throw new Error("Invalid local Window Use path");
+    const checked = require("./window-control-runtime.cjs").verifyRuntime(path.join(__dirname, "..", config.windowControlRelative));
+    if (checked.manifestSha256 !== config.windowControl.manifestSha256) throw new Error("Window Use manifest changed");
+    config.windowControl = { ...config.windowControl, directory: checked.directory, executable: checked.executable, mcpScript: checked.mcpScript, manifestSha256: checked.manifestSha256, restartDelayMs: 1000 };
+  }
   if (config.schema !== 1) throw new Error("Unsupported azrael runtime configuration.");
   for (const key of ["engine", "bridge", "codexHome"]) {
     if (typeof config[key] !== "string" || !path.isAbsolute(config[key])) throw new Error(`Invalid azrael ${key}.`);
@@ -25,6 +31,7 @@ if (registry.has(runtimeKey)) {
   for (const key of ["engine", "bridge"]) {
     requireExecutable(config[key]);
   }
+  if (config.nodeExecutable !== undefined) requireExecutable(config.nodeExecutable);
   const ordinaryHome = canonicalPath(path.join(os.homedir(), ".codex"));
   const state = canonicalPath(config.codexHome);
   if (state === ordinaryHome || state.startsWith(ordinaryHome + path.sep)) throw new Error("azrael requires its own state home.");

@@ -13,6 +13,7 @@ export interface AppServerTransportOptions {
   args?: string[];
   requestTimeoutMs?: number;
   maxLineBytes?: number;
+  restartDelayMs?: number;
 }
 
 /** One extension-host-owned app-server connection. Callers own all server requests and approvals. */
@@ -27,6 +28,8 @@ export class AppServerTransport extends EventEmitter {
   private disposed = false;
   private stderrBytes = 0;
   private diagnostics: string[] = [];
+  private restartTimer?: NodeJS.Timeout;
+  private restartFailures = 0;
 
   constructor(private readonly options: AppServerTransportOptions) {
     super();
@@ -34,6 +37,7 @@ export class AppServerTransport extends EventEmitter {
     if (!options.clientInfo.name || !options.clientInfo.version) throw new Error("app-server clientInfo requires name and version");
     if (options.requestTimeoutMs !== undefined && (!Number.isFinite(options.requestTimeoutMs) || options.requestTimeoutMs <= 0)) throw new Error("invalid request timeout");
     if (options.maxLineBytes !== undefined && (!Number.isInteger(options.maxLineBytes) || options.maxLineBytes <= 0)) throw new Error("invalid line limit");
+    if (options.restartDelayMs !== undefined && (!Number.isFinite(options.restartDelayMs) || options.restartDelayMs <= 0)) throw new Error("invalid restart delay");
   }
 
   get pid(): number | undefined { return this.child?.pid; }
@@ -43,15 +47,21 @@ export class AppServerTransport extends EventEmitter {
   async start(): Promise<unknown> {
     if (this.started || this.disposed) throw new Error("app-server transport cannot be started again");
     this.started = true;
+    return this.connect();
+  }
+
+  private async connect(): Promise<unknown> {
+    this.nextId = 1;
+    this.stderrBytes = 0;
     const child = spawn(this.options.executable, this.options.args ?? ["app-server"], {
       cwd: this.options.cwd, env: this.options.env, windowsHide: true,
       stdio: ["pipe", "pipe", "pipe"]
     });
     this.child = child;
-    child.stdout.on("data", (chunk: Buffer) => this.onData(chunk));
-    child.stderr.on("data", (chunk: Buffer) => { this.stderrBytes = Math.min(4096, this.stderrBytes + chunk.length); });
-    child.once("error", (error) => this.fail(new Error(`app-server process error: ${(error as NodeJS.ErrnoException).code ?? "unknown"}`)));
-    child.once("exit", (code, signal) => this.fail(new Error(`app-server disconnected (${code ?? signal ?? "unknown"})`)));
+    child.stdout.on("data", (chunk: Buffer) => { if (this.child === child) this.onData(chunk); });
+    child.stderr.on("data", (chunk: Buffer) => { if (this.child === child) this.stderrBytes = Math.min(4096, this.stderrBytes + chunk.length); });
+    child.once("error", (error) => { if (this.child === child) this.fail(new Error(`app-server process error: ${(error as NodeJS.ErrnoException).code ?? "unknown"}`)); });
+    child.once("exit", (code, signal) => { if (this.child === child) this.fail(new Error(`app-server disconnected (${code ?? signal ?? "unknown"})`)); });
     try {
       const result = await this.sendRequest("initialize", {
         clientInfo: this.options.clientInfo,
@@ -59,9 +69,10 @@ export class AppServerTransport extends EventEmitter {
       }, this.options.requestTimeoutMs ?? 15_000);
       this.write({ method: "initialized" });
       this.connected = true;
+      this.restartFailures = 0;
       return result;
     } catch (error) {
-      this.fail(error instanceof Error ? error : new Error("app-server initialization failed"));
+      if (this.child === child) this.fail(error instanceof Error ? error : new Error("app-server initialization failed"));
       throw error;
     }
   }
@@ -81,6 +92,8 @@ export class AppServerTransport extends EventEmitter {
 
   dispose(): void {
     this.disposed = true;
+    clearTimeout(this.restartTimer);
+    this.restartTimer = undefined;
     this.fail(new Error("app-server disposed"));
   }
 
@@ -109,9 +122,10 @@ export class AppServerTransport extends EventEmitter {
   }
 
   private write(message: object): void {
-    if (!this.child?.stdin.writable) throw new Error("app-server is disconnected");
-    this.child.stdin.write(`${JSON.stringify(message)}\n`, (error) => {
-      if (error) this.fail(new Error("app-server write failed"));
+    const child = this.child;
+    if (!child?.stdin.writable) throw new Error("app-server is disconnected");
+    child.stdin.write(`${JSON.stringify(message)}\n`, (error) => {
+      if (error && this.child === child) this.fail(new Error("app-server write failed"));
     });
   }
 
@@ -172,6 +186,17 @@ export class AppServerTransport extends EventEmitter {
     this.diagnostics.push("app-server connection closed", `stderr bytes observed (capped): ${this.stderrBytes}`);
     if (this.diagnostics.length > 8) this.diagnostics.splice(0, this.diagnostics.length - 8);
     if (!this.disposed) this.emit("disconnect", error);
+    if (!this.disposed && this.options.restartDelayMs !== undefined && !this.restartTimer) {
+      const delay = Math.min(this.options.restartDelayMs * 2 ** Math.min(this.restartFailures++, 8), 300_000);
+      this.emit("restarting", delay);
+      this.restartTimer = setTimeout(() => {
+        this.restartTimer = undefined;
+        if (this.disposed) return;
+        void this.connect().then(() => { if (!this.disposed) this.emit("reconnect"); }).catch(() => {
+          // connect/fail schedules the next attempt; pending mutations are never replayed.
+        });
+      }, delay);
+    }
   }
 }
 

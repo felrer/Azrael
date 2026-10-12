@@ -40,5 +40,5 @@ function createSettingsOwner(codexHome) {
   return { getSettings, updateSettings, assertComputerUseEnabled };
 }
 const registry = globalThis[Symbol.for("azrael.use-control.settings-owners.v1")] ??= new Map();
-function owner() { const home = require("./azrael-runtime.cjs").runtime.codexHome, key = path.resolve(home).toLowerCase(); if (!registry.has(key)) registry.set(key, createSettingsOwner(home)); return registry.get(key); }
+function owner() { const home = require("./azrael-runtime.cjs").runtime.codexHome, key = process.platform === "win32" ? path.resolve(home).toLowerCase() : path.resolve(home); if (!registry.has(key)) registry.set(key, createSettingsOwner(home)); return registry.get(key); }
 module.exports = { createSettingsOwner, getSettings: () => owner().getSettings(), updateSettings: (...args) => owner().updateSettings(...args), assertComputerUseEnabled: () => owner().assertComputerUseEnabled() };

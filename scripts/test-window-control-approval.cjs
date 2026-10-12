@@ -5,6 +5,24 @@ const fs = require('node:fs'), os = require('node:os'), path = require('node:pat
 const { createOwner } = require('./window-use-approvals.cjs');
 const { request: computerRequest } = require('./test-computer-use-approvals.cjs');
 function request(id, app) { const value = computerRequest(id, app); value.params.serverName = 'azrael_window'; value.params._meta.connector_id = 'window-use'; return value; }
+test('Linux executable approvals preserve case and reject relative paths', {skip:process.platform !== 'linux'}, () => {
+  const home=fs.mkdtempSync(path.join(os.tmpdir(),'azrael-linux-approval-'));
+  try {
+    const owner=createOwner(home);
+    owner.addAppApproval('/opt/Azrael/Bin/editor','Editor');
+    assert.equal(owner.hasAppApproval('/opt/Azrael/Bin/editor','thread-a'),true);
+    assert.equal(owner.hasAppApproval('/opt/azrael/bin/editor','thread-a'),false);
+    assert.equal(owner.hasAppApproval('/opt/Azrael/Bin/../Bin/editor','thread-a'),true);
+    assert.throws(()=>owner.addAppApproval('opt/Azrael/editor','Relative'));
+    const saved=fs.readFileSync(path.join(home,'azrael/window-use/app-approvals.json'),'utf8');
+    assert.ok(saved.includes('/opt/Azrael/Bin/editor'));
+    const again=createOwner(home);
+    assert.equal(again.hasAppApproval('/opt/Azrael/Bin/editor'),true);
+    assert.equal(again.hasAppApproval('/opt/azrael/bin/editor'),false);
+    again.removeAppApproval('/opt/Azrael/Bin/editor');
+    assert.equal(owner.hasAppApproval('/opt/Azrael/Bin/editor'),false);
+  } finally {fs.rmSync(home,{recursive:true,force:true});}
+});
 test('selected window authorization respects app grants and revocation across owners', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-window-approval-'));
   try {

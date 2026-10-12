@@ -5,6 +5,7 @@ const path = require('node:path');
 const net = require('node:net');
 const { StringDecoder } = require('node:string_decoder');
 const { randomUUID, randomBytes, timingSafeEqual } = require('node:crypto');
+const os = require('node:os');
 const { AsyncLocalStorage } = require('node:async_hooks');
 const { windowError, errorPayload, fromPayload, expectedError } = require('./window-control-errors.cjs');
 const physicalPath = fs.realpathSync.native(__filename);
@@ -37,7 +38,9 @@ class Bridge {
 }
 function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 25000 }) {
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map(), approvalUIs = new Map(), pendingConsents = new Map();
-  const nonce = randomBytes(32).toString('hex'), pipe = '\\\\.\\pipe\\azrael-window-' + randomUUID();
+  const socketDirectory = process.platform === 'win32' ? undefined : fs.mkdtempSync(path.join(os.tmpdir(), 'azw-'));
+  if (socketDirectory) fs.chmodSync(socketDirectory, 0o700);
+  const nonce = randomBytes(32).toString('hex'), pipe = socketDirectory ? path.join(socketDirectory, 'w.sock') : '\\\\.\\pipe\\azrael-window-' + randomUUID();
   let panel, panelNonce, current, enumerated = new Map(), last, server, listening, disposed = false, queue = Promise.resolve();
   const approvalNavigation = new Map(), notificationTasks = new Set();
   function consentIsPending(record) {
@@ -76,10 +79,10 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   function dismissConsentNotification(record) {
     if (record.notificationTask) trackNotification(record.notificationTask.then(() => hideConsentNotification(record)));
   }
-  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: path.win32.basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
+  const owner = createWindowOwner({ backend, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: (process.platform === 'win32' ? path.win32 : path).basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
     onUserStop: (thread, value) => {
       invalidateUI(thread); approvals.stop(thread);
-      if (current === thread) render({ ...value, status: 'Esc로 이 창의 제어를 중지했습니다. 이미 전달한 동작은 적용됐을 수 있습니다.' });
+      if (current === thread) render({ ...value, status: '이 창의 제어를 중지했습니다. 이미 전달한 동작은 적용됐을 수 있습니다.' });
     },
     onOverlayError: (thread, error) => {
       if (disposed) return;
@@ -157,7 +160,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
         void (message?.tool === 'ui_operation' ? deliver() : serial(deliver));
       });
     });
-    listening = new Promise((resolve, reject) => { server.once('error', reject); server.listen(pipe, resolve); }); return listening;
+    listening = new Promise((resolve, reject) => { server.once('error', reject); server.listen(pipe, () => { if (socketDirectory) fs.chmodSync(pipe, 0o600); resolve(); }); }); return listening;
   }
   async function publish(thread) {
     if (!UUID.test(thread)) throw new Error('Invalid selected-window thread UUID'); await listen();
@@ -229,9 +232,10 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   function prepareRequest(method, params) {
     if (!['thread/start', 'thread/resume'].includes(method) || runtime.windowControl === undefined) return params;
     const absolute = value => typeof value === 'string' && value.length > 0 && (path.isAbsolute(value) || path.win32.isAbsolute(value));
-    if (!absolute(runtime.computerUse?.directory) || !absolute(runtime.windowControl?.mcpScript) || !absolute(runtime.codexHome)) throw windowError('connection_error', 'Window Use runtime binding is incomplete', { stage: 'connection' });
+    const nodeExecutable = runtime.nodeExecutable || (absolute(runtime.computerUse?.directory) ? path.join(runtime.computerUse.directory, process.platform === 'win32' ? 'node.exe' : 'node') : undefined);
+    if (!absolute(nodeExecutable) || !absolute(runtime.windowControl?.mcpScript) || !absolute(runtime.codexHome)) throw windowError('connection_error', 'Window Use runtime binding is incomplete', { stage: 'connection' });
     return { ...params, config: { ...params?.config,
-      'mcp_servers.azrael_window.command': path.join(runtime.computerUse.directory, 'node.exe'),
+      'mcp_servers.azrael_window.command': nodeExecutable,
       'mcp_servers.azrael_window.args': [runtime.windowControl.mcpScript],
       'mcp_servers.azrael_window.env.CODEX_HOME': runtime.codexHome,
     } };
@@ -298,7 +302,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (panel) { panel.reveal(); return; } panelNonce = randomBytes(32).toString('hex');
     panel = vscode.window.createWebviewPanel('azraelWindowControl', 'Azrael Window Use', vscode.ViewColumn.One, { enableScripts: true, retainContextWhenHidden: true });
     const web = panel.webview;
-    const panelHTML = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${panelNonce}'; script-src 'nonce-${panelNonce}'"><style nonce="${panelNonce}">body{font:14px sans-serif;padding:16px;color:var(--vscode-foreground)}button{margin:4px}img{max-width:100%}textarea{width:95%;height:80px}pre{white-space:pre-wrap}</style></head><body><h2>Window Use</h2><p>${escape(runtime.windowControl?.acceptanceVerified === true ? '네이티브 런타임을 검증했습니다.' : '실험 기능: 실제 창 캡처와 백그라운드 입력 검증이 아직 완료되지 않았습니다.')}</p><p>선택한 창만 캡처합니다. 최소화하면 제어가 일시 중지되며 모델이 선택한 창을 복원할 수 있습니다. 중지 버튼이나 Esc로 멈추면 사용자가 다시 시작해야 합니다. 크기는 창 바깥쪽 기준 DIP입니다.</p>${['start','select','capture','pause','resume','clear','action','macro'].map(type => `<button data-type="${type}">${({start:'Window Use 전용 대화 시작',select:'창 선택',capture:'캡처',pause:'중지',resume:'다시 시작',clear:'선택 해제',action:'지원되는 동작',macro:'크기 매크로'})[type]}</button>`).join('')}<pre id="status"></pre><img id="image"><pre id="elements"></pre><textarea id="prompt" placeholder="제어할 창과 작업을 설명해주세요"></textarea><button data-type="send">보내기</button><pre id="conversation"></pre><script nonce="${panelNonce}">const api=acquireVsCodeApi();document.querySelectorAll('button').forEach(b=>b.onclick=()=>api.postMessage({nonce:'${panelNonce}',type:b.dataset.type,...(b.dataset.type==='send'?{text:document.getElementById('prompt').value}:{})}));window.addEventListener('message',e=>{const m=e.data;if(m.type==='state'){document.getElementById('status').textContent=JSON.stringify({thread:m.threadId,state:m.value.state,status:m.value.status,window:m.value.window,pauseReason:m.value.pauseReason,restoreAllowed:m.value.restoreAllowed},null,2);document.getElementById('image').src=m.value.image?'data:image/png;base64,'+m.value.image.data:'';document.getElementById('elements').textContent=JSON.stringify(m.value.elements||[],null,2);}if(m.type==='text'||m.type==='error')document.getElementById('conversation').textContent+='\\n'+m.text;});</script></body></html>`;
+    const panelHTML = `<!doctype html><html><head><meta http-equiv="Content-Security-Policy" content="default-src 'none'; img-src data:; style-src 'nonce-${panelNonce}'; script-src 'nonce-${panelNonce}'"><style nonce="${panelNonce}">body{font:14px sans-serif;padding:16px;color:var(--vscode-foreground)}button{margin:4px}img{max-width:100%}textarea{width:95%;height:80px}pre{white-space:pre-wrap}</style></head><body><h2>Window Use</h2><p>${escape(runtime.windowControl?.acceptanceVerified === true ? '네이티브 런타임을 검증했습니다.' : '실험 기능: 실제 창 캡처와 백그라운드 입력 검증이 아직 완료되지 않았습니다.')}</p><p>선택한 창만 캡처합니다. 최소화하면 제어가 일시 중지되며 모델이 선택한 창을 복원할 수 있습니다. ${escape(process.platform === 'linux' ? '중지 버튼으로 멈추면 사용자가 다시 시작해야 합니다. 크기는 창 내용 영역 기준 DIP입니다.' : '중지 버튼이나 Esc로 멈추면 사용자가 다시 시작해야 합니다. 크기는 창 바깥쪽 기준 DIP입니다.')}</p>${['start','select','capture','pause','resume','clear','action','macro'].map(type => `<button data-type="${type}">${({start:'Window Use 전용 대화 시작',select:'창 선택',capture:'캡처',pause:'중지',resume:'다시 시작',clear:'선택 해제',action:'지원되는 동작',macro:'크기 매크로'})[type]}</button>`).join('')}<pre id="status"></pre><img id="image"><pre id="elements"></pre><textarea id="prompt" placeholder="제어할 창과 작업을 설명해주세요"></textarea><button data-type="send">보내기</button><pre id="conversation"></pre><script nonce="${panelNonce}">const api=acquireVsCodeApi();document.querySelectorAll('button').forEach(b=>b.onclick=()=>api.postMessage({nonce:'${panelNonce}',type:b.dataset.type,...(b.dataset.type==='send'?{text:document.getElementById('prompt').value}:{})}));window.addEventListener('message',e=>{const m=e.data;if(m.type==='state'){document.getElementById('status').textContent=JSON.stringify({thread:m.threadId,state:m.value.state,status:m.value.status,window:m.value.window,pauseReason:m.value.pauseReason,restoreAllowed:m.value.restoreAllowed},null,2);document.getElementById('image').src=m.value.image?'data:image/png;base64,'+m.value.image.data:'';document.getElementById('elements').textContent=JSON.stringify(m.value.elements||[],null,2);}if(m.type==='text'||m.type==='error')document.getElementById('conversation').textContent+='\\n'+m.text;});</script></body></html>`;
     web.html = panelHTML.replace("document.querySelectorAll('button')", "document.querySelectorAll('button[data-type]')")
       .replace('</style>', `#approval{margin:20px 0;padding:20px;border:1px solid var(--vscode-widget-border,var(--vscode-panel-border,#888));border-radius:12px;background:var(--vscode-editorWidget-background,var(--vscode-editor-background));font-family:var(--vscode-font-family,system-ui,sans-serif);line-height:1.5}#approval[hidden]{display:none}#approval h3{font-size:16px;font-weight:600;margin:0 0 8px}#approval p{margin:8px 0}#approval-app{overflow-wrap:anywhere;font-weight:600}#approval-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}#approval button{margin:0;padding:8px 12px;border:1px solid var(--vscode-button-border,transparent);border-radius:8px;font:inherit;color:var(--vscode-button-secondaryForeground,var(--vscode-foreground));background:var(--vscode-button-secondaryBackground,var(--vscode-editor-background));cursor:pointer}#approval button[data-approval="session"]{color:var(--vscode-button-foreground);background:var(--vscode-button-background)}#approval button:hover:enabled{background:var(--vscode-button-secondaryHoverBackground,var(--vscode-list-hoverBackground))}#approval button[data-approval="session"]:hover:enabled{background:var(--vscode-button-hoverBackground)}#approval button:focus-visible{outline:2px solid var(--vscode-focusBorder);outline-offset:2px}#approval button:disabled{opacity:.55;cursor:default}#approval-state{color:var(--vscode-descriptionForeground,var(--vscode-foreground))}</style>`)
       .replace('<pre id="status">', `<section id="approval" role="region" aria-labelledby="approval-heading" hidden><h3 id="approval-heading">Window Use 승인</h3><p id="approval-app"></p><p>이 앱의 선택한 창을 캡처하고 제어하도록 허용할까요?</p><p id="approval-state" role="status" aria-live="polite"></p><div id="approval-actions"><button data-approval="session">이 대화에서 허용</button><button data-approval="always">항상 허용</button><button data-approval="decline">거부</button><button data-approval="cancel">취소</button></div></section><pre id="status">`)
@@ -348,7 +352,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
   function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
   const settingsHost = require('./use-settings-host.cjs').createSettingsHost({ runtime, vscode, backend, approvals, open });
-  async function dispose() { if (disposed) return; disposed = true; notificationSubscription?.dispose(); settingsHost.dispose(); invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); }
+  async function dispose() { if (disposed) return; disposed = true; notificationSubscription?.dispose(); settingsHost.dispose(); invalidateUI(); owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); if (socketDirectory) await fsp.rm(socketDirectory, { recursive: true, force: true }); }
   return { settings: settingsHost.receive, open, attach, prepareRequest, registerApprovalUI, respondApproval, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;

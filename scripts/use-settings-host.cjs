@@ -19,8 +19,8 @@ function createSettingsHost({ runtime, vscode, backend, settingsOwner = require(
         const windows = await backend.request('listWindows', {}); check();
         if (!Array.isArray(windows)) throw new Error('Invalid running window list');
         const trusted = new Map();
-        const choices = windows.filter(w => typeof w.hwnd === 'string' && Number.isSafeInteger(w.pid) && w.pid > 0 && typeof w.processCreated === 'string' && w.processCreated && typeof w.executable === 'string' && path.win32.isAbsolute(w.executable) && /\.exe$/i.test(w.executable)).map(w => {
-          const id = randomUUID(); trusted.set(id, { ...w }); return { id, label: w.title || path.win32.basename(w.executable), description: w.executable };
+        const choices = windows.filter(w => typeof w.hwnd === 'string' && Number.isSafeInteger(w.pid) && w.pid > 0 && typeof w.processCreated === 'string' && w.processCreated && typeof w.executable === 'string' && (process.platform === 'linux' ? path.isAbsolute(w.executable) : path.win32.isAbsolute(w.executable) && /\.exe$/i.test(w.executable))).map(w => {
+          const id = randomUUID(); trusted.set(id, { ...w }); return { id, label: w.title || (process.platform === 'win32' ? path.win32 : path).basename(w.executable), description: w.executable };
         });
         const choice = await vscode.window.showQuickPick(choices, { title: '항상 허용할 실행 중인 앱 선택' }); check();
         if (choice) {
@@ -28,7 +28,7 @@ function createSettingsHost({ runtime, vscode, backend, settingsOwner = require(
           if (!selected) throw new Error('Application was not enumerated');
           const fresh = await backend.request('listWindows', {}); check();
           if (!Array.isArray(fresh) || !fresh.some(w => ['hwnd','pid','processCreated','executable'].every(k => w[k] === selected[k]))) throw new Error('Application window changed. Please select it again.');
-          await approvals.addAppApproval(selected.executable, path.win32.basename(selected.executable));
+          await approvals.addAppApproval(selected.executable, (process.platform === 'win32' ? path.win32 : path).basename(selected.executable));
         }
       }
       if (request.action === 'removeApp') {

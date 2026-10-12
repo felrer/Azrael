@@ -189,7 +189,7 @@ function injectWorkspaceThreadListBridgeFilter(text, filename, ts) {
   const method = params.parent.parent.properties.find((property) =>
     ts.isPropertyAssignment(property) && ts.isIdentifier(property.name) && property.name.text === "method").initializer.text;
   const replacement = `(${method}==="thread/list"&&${paramsName}?.${RECENT_THREAD_LIST_SCOPE_MARKER}` +
-    `?(({${RECENT_THREAD_LIST_SCOPE_MARKER}:_,...__azraelParams})=>({...__azraelParams,modelProviders:[],cwd:${WORKSPACE_CWD_EXPRESSION}}))(${paramsName})` +
+    `?(({${RECENT_THREAD_LIST_SCOPE_MARKER}:_,...__azraelParams})=>({...__azraelParams,modelProviders:[],sourceKinds:["cli","vscode","exec","appServer","unknown"],cwd:${WORKSPACE_CWD_EXPRESSION}}))(${paramsName})` +
     `:${paramsName})`;
   const result = text.slice(0, params.getStart(file)) + replacement + text.slice(params.end);
   const parsed = ts.createSourceFile(filename, result, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS);
