@@ -1,5 +1,9 @@
 # Instruction changelog
 
+## Unreleased
+
+- Work-plan routing considers architecture deviations, user review and connected execution phases. Shared understanding and proposed design changes use one plan; enduring agreed design stays with its existing owner. Related decisions are investigated before review, and new execution findings return only the changed scope for review.
+
 ## 1.1.0
 
 - OpenAI-style UI guidance with native component reuse and rendered light/dark interaction acceptance.

@@ -5,6 +5,7 @@
 ## Work Entry and Skills (Parent Only)
 
 - Use the installed `development-workflow` skill to lead complex code changes: requirements, scope, investigation, decisions, progress, and final acceptance. Carry forward confirmed requirements, records, and authorization; clarify consequential unknowns without reopening settled decisions.
+- Before choosing direct implementation, compare the requested result with the owning architecture. Use `development-workflow` to decide plan and review needs; keep shared understanding and proposed design differences in one work plan, and review unapproved architecture deviations before the affected implementation.
 - Select `design-collaboration` for unresolved design choices, `design-documentation` for recording agreed design in its owning documents, and `implementation` for execution preparation, implementation, verification, and cleanup. These are cooperating responsibilities, not four mandatory sequential stages. Use existing project design-discussion guidance within the same work; do not invent a second plan, design document, or approval stage.
 - Use `implementation` directly for clear, small changes. Reuse existing decisions and execution authority; return only missing consequential decisions to the parent or user as appropriate.
 - Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code or copy common implementation rules into project playbooks.
