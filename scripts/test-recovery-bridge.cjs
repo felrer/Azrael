@@ -108,6 +108,7 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   const deliveryCallbacks = new Map();
   let stallRecovery = false;
   let failRecovery = false;
+  let serverFailure = false;
   bridge.isMcpResponseMessage = () => true;
   bridge.sendMessage = (message, deliveryCallback) => {
     sent.push(message);
@@ -115,9 +116,15 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
     const separator = message.id.indexOf(":");
     const provider = message.id.slice(0, separator);
     if (provider.startsWith("azrael-recovery-") && !stallRecovery) {
+      const result = serverFailure && message.method === "thread/read" ?
+        { thread: { id: message.params.threadId, status: { type: "systemError" } } } :
+        serverFailure && message.method === "thread/turns/list" ? { data: [{
+          id: "turn-server-failed", status: "failed", error: { codexErrorInfo: "other",
+            message: "stream disconnected before completion: An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID 01619dc0-21cd-4823-b339-dd783eaf7254 in your message." },
+        }] } : { turn: { id: "turn-engine" } };
       queueMicrotask(() => bridge.routeIncomingMessage(failRecovery ?
         { id: message.id, error: { code: -32042, message: "fixture input is too large", data: { limit: 10 } } } :
-        { id: message.id, result: { turn: { id: "turn-engine" } } }, false));
+        { id: message.id, result }, false));
     }
     return true;
   };
@@ -158,6 +165,23 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   assert.equal(delivered[3].error.code, -32042);
   assert.equal(delivered[3].error.message, "fixture input is too large");
   assert.equal(delivered[3].error.data.limit, 10);
+
+  failRecovery = false;
+  serverFailure = true;
+  const sentBeforeServerResume = sent.length;
+  bridge.sendProviderRequest("client", "server-play", "turn/start", {
+    threadId: "thread-server", input: [], model: "selected-model",
+  }, false, true);
+  for (let attempt = 0; attempt < 20 && delivered.length < 5; attempt++) await new Promise(resolve => setImmediate(resolve));
+  assert.equal(delivered[4]?.id, "server-play");
+  assert.equal(delivered[4]?.result?.turn.id, "turn-engine");
+  const resumedRequests = sent.slice(sentBeforeServerResume);
+  assert.deepEqual(resumedRequests.map(request => request.method), ["thread/read", "thread/turns/list", "turn/start"]);
+  assert.deepEqual(resumedRequests[2].params.input, [{ type: "text", text: "continue" }]);
+  assert.equal(resumedRequests[2].params.model, "selected-model");
+  assert.equal(logRecords.map(record => JSON.parse(record)).find(record => record.event === "recovery.admission" && record.threadId === "thread-server")?.errorKind,
+    "server_processing_error");
+  serverFailure = false;
 
   bridge.failPendingRequests = () => {};
   bridge.requestUserInputAutoResolutionCoordinator = { clearPendingRequests() {} };

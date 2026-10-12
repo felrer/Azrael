@@ -24,9 +24,40 @@ const diagnosticErrors = new Map([
   ["Fatal error: native inference helper unresponsive (no protocol frames for 120s)", "helper_unresponsive"],
   ["Fatal error: native inference helper failed (provider_failure)", "provider_failure"],
 ]);
+const serverCategories = new Map([
+  ["serverOverloaded", "server_overloaded"],
+  ["internalServerError", "server_processing_error"],
+  ["flexUnavailable", "server_unavailable"],
+]);
+const serverHttpCategories = new Set([
+  "httpConnectionFailed", "responseStreamConnectionFailed",
+  "responseStreamDisconnected", "responseTooManyFailedAttempts",
+]);
+// Historical OpenAI stream failures use Other, including successful HTTP 200
+// responses whose stream reports a processing failure. Match the complete
+// known server message, with only its request UUID varying.
+const openaiProcessingFailure = /^stream disconnected before completion: An error occurred while processing your request\. You can retry your request, or contact us through our help center at help\.openai\.com if the error persists\. Please include the request ID [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} in your message\.$/;
+const helperServerFailure = /^(?:Fatal error:|미분류 오류:) native inference helper failed \(provider_http_5[0-9]{2}\)$/;
+
+function serverErrorKind(error) {
+  const category = error?.codexErrorInfo;
+  if (typeof category === "string" && serverCategories.has(category)) return serverCategories.get(category);
+  if (category && typeof category === "object" && !Array.isArray(category) && Object.keys(category).length === 1) {
+    const key = Object.keys(category)[0];
+    const status = category[key]?.httpStatusCode;
+    if (serverHttpCategories.has(key) && Number.isInteger(status) && status >= 500 && status <= 599)
+      return "provider_server_error";
+  }
+  if (category !== "other" || typeof error.message !== "string" || error.message.length > 512 || /[\r\n]/.test(error.message)) return undefined;
+  if (openaiProcessingFailure.test(error.message)) return "server_processing_error";
+  if (helperServerFailure.test(error.message)) return "provider_server_error";
+  return undefined;
+}
+
 const diagnosticError = error => !error ? "none" :
   error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" :
-  error.codexErrorInfo === "rateLimitExceeded" ? "rate_limit_exceeded" : diagnosticErrors.get(error.message) ?? "other";
+  error.codexErrorInfo === "rateLimitExceeded" ? "rate_limit_exceeded" :
+  serverErrorKind(error) ?? diagnosticErrors.get(error.message) ?? "other";
 const knownStatus = (value, allowed) => allowed.includes(value) ? value : "unknown";
 const handlerOutcomeUnknown = error => error?.rpcError?.code === -32603 &&
   error.rpcError.data?.requestOutcome === "unknown" && error.rpcError.data?.reason === "handlerPanicked";
@@ -34,10 +65,12 @@ const handlerOutcomeUnknown = error => error?.rpcError?.code === -32603 &&
 function admitsContinuation(thread, latest) {
   if (["idle", "notLoaded"].includes(thread.status?.type)) return true;
   // Usage exhaustion and rate limits have structured categories; explicit user
-  // requests may retry with the current account/model. Native timeouts use Other.
+  // requests may retry with the current account/model. Historical server errors
+  // and native timeouts use Other.
   // Match only known terminal errors; transport silence alone is not admission.
   return thread.status?.type === "systemError" && latest?.status === "failed" &&
     (["usageLimitExceeded", "rateLimitExceeded"].includes(latest.error?.codexErrorInfo) ||
+      serverErrorKind(latest.error) !== undefined ||
       (latest.error?.codexErrorInfo === "other" &&
         (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message))));
 }

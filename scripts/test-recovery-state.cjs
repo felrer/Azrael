@@ -786,13 +786,98 @@ const timeoutMessages = [
   "Fatal error: native inference helper failed (provider_request_deadline)",
 ];
 
+const openaiServerMessage = "stream disconnected before completion: An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID 01619dc0-21cd-4823-b339-dd783eaf7254 in your message.";
+const serverErrors = [
+  ...[["serverOverloaded", "server_overloaded"], ["internalServerError", "server_processing_error"],
+    ["flexUnavailable", "server_unavailable"]].map(([category, kind]) => ({
+    name: category, kind, error: { codexErrorInfo: category, message: "private provider detail" },
+  })),
+  ...["httpConnectionFailed", "responseStreamConnectionFailed", "responseStreamDisconnected",
+    "responseTooManyFailedAttempts"].map(category => ({
+    name: `${category}-503`, kind: "provider_server_error",
+    error: { codexErrorInfo: { [category]: { httpStatusCode: 503 } }, message: "private provider detail" },
+  })),
+  { name: "historical-openai-processing", kind: "server_processing_error",
+    error: { codexErrorInfo: "other", message: openaiServerMessage } },
+  { name: "managed-server-500", kind: "provider_server_error",
+    error: { codexErrorInfo: "other", message: "미분류 오류: native inference helper failed (provider_http_500)" } },
+  { name: "legacy-server-599", kind: "provider_server_error",
+    error: { codexErrorInfo: "other", message: "Fatal error: native inference helper failed (provider_http_599)" } },
+];
+
 const terminalErrors = [
   { name: "timeout", error: { codexErrorInfo: "other", message: timeoutMessages[2] } },
   { name: "quota", error: { codexErrorInfo: "usageLimitExceeded", message: "Usage limit reached" } },
   { name: "provider-rejection", error: { codexErrorInfo: "other",
     message: "미분류 오류: native inference helper failed (provider_http_400)" } },
   { name: "rate-limit", error: { codexErrorInfo: "rateLimitExceeded", message: "Provider request rate limit reached. Try again later." } },
+  ...serverErrors,
 ];
+
+for (const { name, error, kind } of serverErrors) {
+  for (const text of [null, "continue", "계속"]) {
+    test(`${name} admits explicit ${text ?? "play"} once without logging provider text`, async () => {
+      const calls = [], records = [];
+      const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls, { error }),
+        log: record => records.push(record) });
+      state.setStage("thread-server", "waiting", "turn-failed");
+      state.observe({ method: "turn/completed", params: { threadId: "thread-server",
+        turn: failedTurn("turn-failed", error) } });
+      assert.equal(calls.length, 0, "a server failure notification must not start inference");
+      const params = { ...(text === null ? { threadId: "thread-server", input: [] } : continuation("thread-server", text)),
+        model: "selected-model" };
+      const results = await Promise.all([state.start(params), state.start(params)]);
+      assert.deepEqual(results[0], results[1]);
+      const starts = calls.filter(call => call.method === "turn/start");
+      assert.equal(starts.length, 1);
+      assert.deepEqual(starts[0].params.input, [{ type: "text", text: text ?? "continue" }]);
+      assert.equal(starts[0].params.model, "selected-model");
+      assert.equal(records.find(record => record.event === "recovery.admission").errorKind, kind);
+      assert.equal(records.find(record => record.event === "recovery.turn_terminal").errorKind, kind);
+      assert.ok(!JSON.stringify(records).includes(error.message));
+    });
+  }
+  test(`${name} attaches to an active turn without dispatch`, async () => {
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+      { error, threadStatus: "active", latestStatus: "inProgress" }) });
+    assert.equal((await state.start({ threadId: "thread-server-active", input: [] })).turn.id, "turn-failed");
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+}
+
+const blockedServerErrors = [
+  ...[null, 200, 400, 401, 429, 499, 600, "503", 503.5].map(httpStatusCode => ({
+    codexErrorInfo: { responseStreamDisconnected: { httpStatusCode } }, message: openaiServerMessage,
+  })),
+  { codexErrorInfo: { sandboxError: { httpStatusCode: 503 } }, message: openaiServerMessage },
+  { codexErrorInfo: { responseStreamDisconnected: { httpStatusCode: 503 }, badRequest: {} }, message: openaiServerMessage },
+  { codexErrorInfo: "badRequest", message: openaiServerMessage },
+  ...["server error", `docs: ${openaiServerMessage}`, `${openaiServerMessage}\n`,
+    openaiServerMessage.replace("01619dc0-21cd-4823-b339-dd783eaf7254", "invalid-id"),
+    "미분류 오류: native inference helper failed (provider_http_403)",
+    "미분류 오류: native inference helper failed (provider_http_503) extra"].map(message => ({ codexErrorInfo: "other", message })),
+];
+test("manual recovery command continues the recorded OpenAI failure without interrupt or tool replay", async () => {
+  const calls = [];
+  const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls,
+    { error: { codexErrorInfo: "other", message: openaiServerMessage } }) });
+  const result = await state.recover("thread-server-command");
+  assert.equal(result.turn.id, "turn-new");
+  const starts = calls.filter(call => call.method === "turn/start");
+  assert.equal(starts.length, 1);
+  assert.deepEqual(starts[0].params.input, [{ type: "text", text: "continue" }]);
+  assert.ok(calls.every(call => ["thread/read", "thread/turns/list", "turn/start"].includes(call.method)));
+});
+
+for (const [index, error] of blockedServerErrors.entries()) {
+  test(`non-server or unrecognized error ${index} keeps continuation blocked`, async () => {
+    const calls = [];
+    const state = new RecoveryState({ store: memoryStore(), rpc: systemErrorRpc(calls, { error }) });
+    await assert.rejects(state.start({ threadId: "thread-non-server", input: [] }), /엔진 상태를 확인/);
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+  });
+}
 
 for (const text of [null, "continue", "계속"]) {
   test(`historical provider rejection admits ${text ?? "empty play"} without asserting quota`, async () => {
