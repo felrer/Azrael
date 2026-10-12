@@ -296,7 +296,10 @@ export async function* translate(events: AsyncIterable<any>, opaque: UsageObserv
             usageEstimated: opaque.billingInvalid ? true : event.usage.usageEstimated, reasoningTokens: event.usage.reasoningOutputTokens };
         }
         yield { kind: 'finish', reason: tools ? 'tool_calls' : 'stop' }; break;
-      case 'error': if (Number.isInteger(event.status)) fail('provider_http_' + event.status); fail('provider_failure');
+      case 'error':
+        if (event.errorType === 'invalid_tool_arguments') fail('tool_arguments_invalid_json');
+        if (Number.isInteger(event.status)) fail('provider_http_' + event.status);
+        fail('provider_failure');
       case 'incomplete': fail('provider_incomplete');
       default: fail('unsupported_provider_event');
     }

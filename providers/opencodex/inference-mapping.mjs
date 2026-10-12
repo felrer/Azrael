@@ -224,14 +224,21 @@ function compactSearchTools(specs, names) {
 }
 
 const diagnose = (compiled, method, ...args) => { try { compiled.toolDiagnostics?.[method]?.(...args); } catch {} };
+function parseToolArguments(value, compiled) {
+  const text = bounded(value);
+  try { return JSON.parse(text); }
+  catch {
+    diagnose(compiled, 'json', 'invalid_json');
+    diagnose(compiled, 'rejected', 'invalid_arguments');
+    fail('tool_arguments_invalid_json');
+  }
+}
 export function restoreToolCall(call, compiled) {
   const owner = compiled.names.get(call.name);
   diagnose(compiled, 'lookup', call.name, Boolean(owner));
   if (!owner) fail('undeclared_tool');
   if (!string(call.id) || !call.id || compiled.calls.has(call.id)) { diagnose(compiled, 'rejected', 'duplicate_id'); fail('duplicate_call_id'); }
-  let args;
-  try { args = JSON.parse(bounded(call.arguments)); }
-  catch (error) { diagnose(compiled, 'json', 'invalid_json'); diagnose(compiled, 'rejected', 'invalid_arguments'); throw error; }
+  const args = parseToolArguments(call.arguments, compiled);
   diagnose(compiled, 'json', object(args) ? 'valid_object' : 'not_object');
   if (!object(args)) { diagnose(compiled, 'rejected', 'invalid_arguments'); fail('tool_arguments_not_object'); }
   compiled.calls.add(call.id);
@@ -240,6 +247,10 @@ export function restoreToolCall(call, compiled) {
     if (Object.keys(args).length !== 1 || !string(args.input)) { diagnose(compiled, 'rejected', 'invalid_custom_wrapper'); fail('invalid_custom_wrapper'); }
     diagnose(compiled, 'validated');
     return { type: 'custom_tool_call', ...common, input: bounded(args.input) };
+  }
+  const schema = compiled.tools.find(tool => tool.name === call.name)?.parameters;
+  if (!Object.keys(args).length && Array.isArray(schema?.required) && schema.required.length) {
+    diagnose(compiled, 'rejected', 'invalid_arguments'); fail('tool_arguments_missing_required');
   }
   diagnose(compiled, 'validated');
   if (owner.kind === 'tool_search') return { type: 'tool_search_call', call_id: call.id, execution: 'client', arguments: args, status: 'completed' };
@@ -269,9 +280,7 @@ export async function mapStream(events, compiled, emit, requestId) {
     if (!active) return;
     const metadata = opaqueCalls.find(call => call.id === active.id);
     if (metadata) {
-      let parsed;
-      try { parsed = JSON.parse(active.arguments); }
-      catch (error) { diagnose(compiled, 'json', 'invalid_json'); diagnose(compiled, 'rejected', 'invalid_arguments'); throw error; }
+      const parsed = parseToolArguments(active.arguments, compiled);
       metadata.arguments_digest = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
     }
     pending.push(restoreToolCall(active, compiled));

@@ -1077,6 +1077,7 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
       let currentToolCallId = "";
       let currentToolCallName = "";
       let currentToolCallJson = "";
+      let currentToolInitialInput: unknown;
       let pendingUsage: PendingAnthropicUsage;
       let pendingStopReason: string | undefined;
       let emittedDone = false;
@@ -1136,7 +1137,7 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
                 break;
               }
               case "content_block_start": {
-                const block = data.content_block as { type: string; id?: string; name?: string; data?: string; thinking?: string } | undefined;
+                const block = data.content_block as { type: string; id?: string; name?: string; data?: string; thinking?: string; input?: unknown } | undefined;
                 if (!block) break;
                 currentBlockType = block.type;
                 if (block.type === "thinking") {
@@ -1148,6 +1149,7 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
                   currentToolCallId = usableToolUseId(block.id);
                   currentToolCallName = toolNames.fromWire(block.name ?? "");
                   currentToolCallJson = "";
+                  currentToolInitialInput = block.input;
                   budget.openCall(currentToolCallId);
                   yield { type: "tool_call_start", id: currentToolCallId, name: currentToolCallName };
                 }
@@ -1199,15 +1201,27 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
               }
               case "content_block_stop": {
                 if (currentBlockType === "tool_use") {
+                  // A completed no-argument call may send only an empty delta.
+                  // Preserve its explicit initial object; never repair partial JSON
+                  // or synthesize arguments for a block that omitted input entirely.
+                  if (currentToolCallJson.length === 0 && currentToolInitialInput !== null
+                    && typeof currentToolInitialInput === "object" && !Array.isArray(currentToolInitialInput)) {
+                    currentToolCallJson = JSON.stringify(currentToolInitialInput);
+                    const reservation = budget.reserveTransient(budgetEncoder.encode(currentToolCallJson).byteLength,
+                      { kind: "tool_args", callId: currentToolCallId });
+                    reservation.commitRetained();
+                    yield { type: "tool_call_delta", arguments: currentToolCallJson };
+                  }
                   // The non-stream path repairs an unparseable payload in toolUseArguments(); the
                   // stream cannot, because the fragments are already downstream. Fail the turn
                   // instead of ending a tool call whose arguments will not parse — the bridge's
                   // terminal-error path cancels the open call (status incomplete) rather than
                   // completing it before response.failed (#765).
-                  if (!streamedToolArgumentsParse(currentToolCallJson)) {
+                  if (!currentToolCallJson.trim() || !streamedToolArgumentsParse(currentToolCallJson)) {
                     yield {
                       type: "error",
                       message: "Anthropic stream sent malformed tool_use arguments (invalid JSON)",
+                      errorType: "invalid_tool_arguments",
                     };
                     return;
                   }
@@ -1215,6 +1229,7 @@ export function createAnthropicAdapter(provider: OcxProviderConfig, cacheRetenti
                   budget.closeCall(currentToolCallId);
                   currentToolCallId = "";
                   currentToolCallJson = "";
+                  currentToolInitialInput = undefined;
                 }
                 currentBlockType = "";
                 break;

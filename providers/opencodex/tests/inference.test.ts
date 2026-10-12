@@ -195,6 +195,51 @@ test('opaque aliases preserve namespace absence separately from literal function
   expect(compiled.tools[0].name).not.toBe(compiled.tools[1].name);
 });
 
+test('completed Anthropic empty argument streams preserve initial input and reject missing or malformed arguments', async () => {
+  await setup();
+  const cases = [
+    { mode: 'empty_delta', input: {}, delta: '', expected: '{}' },
+    { mode: 'no_delta', input: {}, expected: '{}' },
+    { mode: 'initial_object', input: { value: 'initial' }, expected: '{"value":"initial"}' },
+    { mode: 'stream_object', input: {}, delta: '{"value":"stream"}', expected: '{"value":"stream"}' },
+    { mode: 'missing_input', delta: '', error: 'tool_arguments_invalid_json' },
+    { mode: 'required_empty', input: {}, delta: '', required: ['value'], error: 'tool_arguments_missing_required' },
+    { mode: 'partial_json', input: {}, delta: '{"value":', error: 'tool_arguments_invalid_json' },
+    { mode: 'whitespace', input: {}, delta: ' ', error: 'tool_arguments_invalid_json' },
+    { mode: 'eof', input: {}, delta: '', error: 'provider_failure' },
+  ];
+  for (const fixture of cases) {
+    const tools = [{ type: 'function', name: 'fixture_tool', parameters: {
+      type: 'object', properties: { value: { type: 'string' } }, ...(fixture.required ? { required: fixture.required } : {}),
+    } }];
+    const req = request('anthropic', 'empty-args-' + fixture.mode, undefined, tools), frames: any[] = [];
+    const execution = infer(req, frame => frames.push(frame), (async (_url: any, init: any) => {
+      const name = JSON.parse(init.body).tools[0].name;
+      const events: any[] = [start, { type: 'content_block_start', index: 0, content_block: {
+        type: 'tool_use', id: 'empty-args-' + fixture.mode, name, ...(fixture.input === undefined ? {} : { input: fixture.input }),
+      } }];
+      if (fixture.delta !== undefined) events.push({ type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: fixture.delta } });
+      if (fixture.mode !== 'eof') events.push({ type: 'content_block_stop', index: 0 }, ...finish('tool_use'));
+      return sse(...events);
+    }) as typeof fetch);
+    if (fixture.error) {
+      await expect(execution).rejects.toThrow(fixture.error);
+      expect(frames.some(frame => frame.type === 'completed' || frame.item?.type === 'function_call')).toBeFalse();
+    } else {
+      await execution;
+      const items = frames.filter(frame => frame.type === 'item_done').map(frame => frame.item);
+      const call = items.find(item => item.type === 'function_call');
+      expect(call.arguments).toBe(fixture.expected);
+      expect(frames.at(-1).type).toBe('completed');
+      // Digest and history use the same normalized arguments on continuation.
+      const nextFrames: any[] = [];
+      await infer({ ...req, input: [...req.input, ...items, { type: 'function_call_output', call_id: call.call_id, output: 'ok' }] },
+        frame => nextFrames.push(frame), textFetch(req));
+      expect(nextFrames.at(-1).type).toBe('completed');
+    }
+  }
+}, 120_000);
+
 test('foreign private reasoning filtered while public reasoning persists; remote images explicitly fail', () => {
   const foreign = 'azrael-managed-v1:' + Buffer.from(JSON.stringify({ provider: 'google', model: 'g', thread: 'thread-1', turn: 'turn-1', account: 'foreign', signature: 'PRIVATE' })).toString('base64');
   const req = request('xai', 'turn-1', [{ type: 'reasoning', encrypted_content: foreign, summary: [{ type: 'summary_text', text: 'public reasoning' }] }, { type: 'message', role: 'user', content: 'next' }]);

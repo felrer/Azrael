@@ -37,6 +37,8 @@ Managed Anthropic requests enable `eager_input_streaming: true` on user-defined 
 
 The option avoids server buffering of a large parameter until its generation completes. Fragments remain incomplete input: the adapter and mapper must assemble and validate the full JSON/object/custom wrapper, and the engine must accept a valid terminal response before native tool execution. Invalid JSON, truncated parameters, missing termination, cancellation and size limits remain failures. The 100-second generation inactivity limit, one bounded retry and absolute deadline remain unchanged; pings do not count as generated tool input. See [Anthropic fine-grained tool streaming](https://platform.claude.com/docs/en/agents-and-tools/tool-use/fine-grained-tool-streaming).
 
+At a completed Anthropic tool block, zero bytes of streamed arguments preserve the explicit initial `input` object, including `{}` for a call with no arguments. Nonempty fragments are authoritative; missing initial input and partial or whitespace-only JSON are rejected. The mapper rejects an empty object for a function or client search with declared required fields, and custom tools retain their required `input` wrapper. JSON parsing failures use `tool_arguments_invalid_json`; empty arguments missing required fields use `tool_arguments_missing_required`. These validation failures never emit an executable call or a completed response, and generic fallback classification must not replace their codes with `provider_failure`. EOF and cancellation do not repair an unfinished block.
+
 ## Tool invocation diagnostics
 
 Status: `partial` — focused Windows helper, adapter and native protocol tests cover the source implementation. Installed use requires a matching engine/helper release.

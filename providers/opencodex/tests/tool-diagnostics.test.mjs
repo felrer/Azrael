@@ -78,7 +78,8 @@ test('ping-only tool argument stall preserves empty delta and time evidence with
 
 test('malformed JSON, nonobject arguments, custom wrapper and duplicate id retain existing rejection', async () => {
   for (const [tool, args, json, result, error] of [
-    [functionTool(), '{', 'invalid_json', 'invalid_arguments', /JSON/],
+    [functionTool(), '', 'invalid_json', 'invalid_arguments', /tool_arguments_invalid_json/],
+    [functionTool(), '{', 'invalid_json', 'invalid_arguments', /tool_arguments_invalid_json/],
     [functionTool(), '[]', 'not_object', 'invalid_arguments', /tool_arguments_not_object/],
     [{ type: 'custom', name: 'patch' }, '{}', 'valid_object', 'invalid_custom_wrapper', /invalid_custom_wrapper/],
   ]) {
