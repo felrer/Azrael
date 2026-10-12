@@ -355,6 +355,7 @@ fn provider_context_policy_percentages_follow_price_baseline_and_model_cap() {
         ProviderAutoCompact {
             percentage: Some(500),
             token_limit: Some(42_000),
+            ..Default::default()
         },
     );
     let policy = resolve_context_policy(

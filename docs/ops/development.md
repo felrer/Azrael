@@ -312,7 +312,7 @@ The URL safety transport logs `azrael_url_safety_transport` (transport, HTTP sta
 
 ### Queue and compaction
 
-Provider context policy checks use `node --test scripts/test-provider-context.cjs` for the transformed settings and gauge and `node scripts/test-provider-context-engine.mjs '<absolute engine>' '<new absolute fixture directory>'` for native configuration and policy roundtrips. The native check uses fresh state without login or inference. Design: [provider context policy](../architecture/context-policy.md). Real account 1M admission and live compaction are separate from these fixtures.
+Provider context policy checks use `node --test scripts/test-provider-context.cjs` for the transformed settings and gauge and `node scripts/test-provider-context-engine.mjs '<absolute engine>' '<new absolute fixture directory>'` for native configuration and policy roundtrips. The native check uses fresh state without login or inference. Design: [provider context policy](../architecture/context-policy.md). Real account 1M admission and live compaction are separate from these fixtures. Model settings presentation uses `node scripts/verify-provider-context-render.mjs` with production settings functions and pinned native React/components/CSS in light, dark and narrow layouts, with a synthetic settings host. Screenshots and compact evidence are retained under `artifacts/logs/model-compaction/ui/`; the guarded cleanup removes the owned browser profile/fixture. This does not build or install the application.
 
 Manual request isolation uses `node --test scripts/test-provider-context.cjs scripts/test-queued-compaction.cjs scripts/test-queued-input.cjs scripts/test-composer-draft.cjs scripts/test-namespace-source.cjs`. It covers ID-only card requests, active-conversation cache invalidation, inline command custody, raw `/compact` interception, preserved drafts/attachments, duplicate requests and retry. `node scripts/verify-context-compaction-render.mjs` renders the transformed native card/button with pinned React/CSS in light/dark themes and exercises mouse/keyboard actions with synthetic host state; compact evidence is retained under `artifacts/logs/context-compaction/ui/`, and guarded cleanup removes the owned browser fixture/profile. These source checks do not build, install or establish installed-window acceptance.
 
@@ -321,6 +321,8 @@ node --test scripts/test-queue-refresh.cjs scripts/test-queued-compaction.cjs sc
 ```
 
 Engine-side coverage uses the queue extension, app-server queue API and core compaction admission tests through `just test`. Queue skip/start diagnostics use the engine tracing pipeline with IDs and counts only. Design: [queued compaction](../architecture/queued-compaction.md).
+
+Compaction skip feedback is covered by `node --test scripts/test-queued-compaction.cjs` and the core `session::compact_input::tests` filter. `node scripts/verify-compaction-skip-render.mjs` exercises the production warning handler and native toast/React/CSS in light/dark themes with a synthetic transport/store and localization. It checks the reason, repeated requests, English/Korean presentation and keyboard dismissal. Evidence is retained under `artifacts/logs/compaction-skip/ui/`; guarded cleanup removes the owned browser fixture/profile. These checks do not build or install the application.
 
 ### Reload recovery
 

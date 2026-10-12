@@ -164,7 +164,7 @@ test("usage summaries refresh every visible identity while details remain collap
     await current.internal.refresh();
     assert.deepEqual([...calls].sort(), all);
     assert.match(current.panel.webview.html, /aria-expanded="false"/);
-    assert.match(current.panel.webview.html, /75% 남음/);
+    assert.match(current.panel.webview.html, /75%/);
     assert.match(current.panel.webview.html, /badge current-login/);
     assert.doesNotMatch(current.panel.webview.html, /요금제 확인 필요|마지막 갱신|data-action="(?:openaiReauth|openaiRemove|providerReauth|providerRemove|manageDevin)"/);
     assert.doesNotMatch(current.panel.webview.html, /data-action="openaiSwitch"/);

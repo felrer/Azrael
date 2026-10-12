@@ -30,7 +30,7 @@ Azrael runs as one integrated extension. Its accounts, conversations and setting
 | **Scheduled root resume** | The root parks until selected subagents *and* external jobs such as builds or renders finish, instead of polling them with model requests. |
 | **Accounts and usage** | Connect several accounts per provider, see remaining quota and reset times, and switch in one click. |
 | **Models across providers** | OpenAI, Devin, Anthropic, Google, xAI, OpenRouter and your own API endpoints in one searchable picker; switch mid-conversation. |
-| **Context compaction** | Per-provider automatic thresholds plus a manual compaction you can queue without interrupting the running turn. |
+| **Context compaction** | Per-model automatic thresholds plus a manual compaction you can queue without interrupting the running turn. |
 | **Window Use** *(Windows, experimental)* | The agent captures and operates one approved window while your mouse, keyboard and clipboard stay with you. |
 | **Session flags** | Pin a red flag on a conversation so it stands out in the Chats list. |
 | **Recovery and queues** | Queued inputs survive reloads; accepted turns are reconciled instead of replayed. |

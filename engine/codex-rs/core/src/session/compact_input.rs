@@ -6,7 +6,10 @@ use super::Session;
 use crate::state::ActiveTurn;
 use crate::tasks::CompactTask;
 use codex_protocol::error::Result as CodexResult;
+use codex_protocol::protocol::Event;
+use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::TokenUsageInfo;
+use codex_protocol::protocol::WarningEvent;
 use codex_protocol::turn_input::CompactIfIdleSubmission;
 use codex_protocol::turn_input::NotSubmittedReason;
 
@@ -16,11 +19,14 @@ pub(super) async fn handle(
 ) -> CodexResult<CompactIfIdleSubmission> {
     let model = session.current_execution_model().await;
     if session.account_is_retired_for_model(&model)
-        || session.execution_admission_for_model(&model).requires_recovery()
+        || session
+            .execution_admission_for_model(&model)
+            .requires_recovery()
     {
         return Err(codex_protocol::error::CodexErr::new(
             codex_protocol::error::CodexErrorDetails::InvalidRequest(
-                "The account is unavailable. Select a healthy account before continuing.".to_string(),
+                "The account is unavailable. Select a healthy account before continuing."
+                    .to_string(),
             ),
         ));
     }
@@ -64,6 +70,14 @@ pub(super) async fn handle(
                 "queued compaction skipped below 15% context usage"
             );
         }
+        session
+            .send_event_raw(Event {
+                id: submission_id,
+                msg: EventMsg::Warning(WarningEvent {
+                    message: "Context compaction skipped: context usage is below 15% of the model context window.".to_string(),
+                }),
+            })
+            .await;
         session.clear_reserved_idle_turn(&turn_state).await;
         session.maybe_start_turn_for_pending_work().await;
         return Ok(CompactIfIdleSubmission::Skipped);

@@ -3,6 +3,7 @@
   "definitions": {
     "AutoCompactSource": {
       "enum": [
+        "model",
         "provider",
         "global",
         "default"

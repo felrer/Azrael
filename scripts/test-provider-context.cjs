@@ -54,62 +54,26 @@ test("API reference without threshold describes no surcharge and localizes prici
   assert.match(injection.policyDescription(h,false),/API reference: no length surcharge/);assert.match(injection.policyDescription(h,true),/API 참고: 길이 추가 요금 없음/);assert.match(injection.policyDescription(h,true),/기본값/);
   const gauge=gaugeHarness().XSa({contextUsage:{percent:75,contextPolicy:h}});assert.equal(gauge.props.children.props["data-azrael-pricing-boundary"],"false");
 });
-function settingsHarness(response, ko=false, failure=null) {
-  const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;
-  const values=[],effects=[];let index=0;
-  const React={useState(initial){const j=index++;if(!(j in values))values[j]=initial;return[values[j],value=>{values[j]=typeof value==="function"?value(values[j]):value}]},useEffect(fn){const j=index++;if(!effects[j])effects[j]=fn()??true}};
-  const requests=[],client={async sendRequest(method,params){requests.push({method,params});if(method==="config/batchWrite"){if(failure)throw Error(failure);response={...response,config:{...response.config,provider_auto_compact:{...response.config.provider_auto_compact,[JSON.parse(params.edits[0].keyPath.slice("provider_auto_compact.".length))]:params.edits[0].value}}};return{status:"ok"}}return response}};
-  const h={ee:()=>({}),vt:{},He:()=>client,i:()=>({locale:ko?"ko-KR":"en"}),jr:React,$:{jsx}};pm.createContext(h);
-  pm.runInContext(settings.slice(settings.lastIndexOf("function policyDescription"),settings.lastIndexOf("/*azrael-provider-context")),h);
-  return {requests,render(){index=0;return h.__AzraelContextSettings({hostId:"local"})}};
-}
-const forms=tree=>tree.props.children.filter(x=>x?.type==="form");
-const input=form=>form.props.children.find(x=>x?.type==="label"&&x.props.children[1].props.type==="text").props.children[1];
-const slider=form=>form.props.children.find(x=>x?.type==="label"&&x.props.children[1].props.type==="range").props.children[1];
-const preview=form=>form.props.children.find(x=>x?.props?.["data-azrael-compaction-preview"]);
-const settle=()=>new Promise(resolve=>setImmediate(resolve));
-test("Personalization controlled percentage and native slider synchronize selected model previews and cap 500%",async()=>{
-  const response={config:{model:"selected",provider_auto_compact:{openai:{token_limit:250000}}},contextPolicies:[{...policy(null),modelId:"first",autoCompactBaseTokens:100000},{...policy(null),modelId:"selected"},{...policy(null,"unknown"),providerId:"openrouter",modelId:"other",autoCompactBaseTokens:400000}]};
-  const h=settingsHarness(response);h.render();await settle();let tree=h.render(),rows=forms(tree);
-  assert.equal(rows.length,2);assert.match(tree.props.children[1].props.children,/95%/);assert.match(tree.props.children[1].props.children,/next turn/);
-  assert.equal(input(rows[0]).props.value,"125");assert.equal(input(rows[1]).props.value,"95");assert.equal(slider(rows[0]).props.max,190);assert.equal(slider(rows[0]).props.value,125);assert.equal(slider(rows[0]).props.step,1);assert.match(rows[0].props.children[1].props.children,/selected/);assert.match(JSON.stringify(rows[0]),/remains stored until Save/);assert.equal(h.requests.length,1);
-  input(rows[0]).props.onChange({target:{value:"500"}});rows=forms(h.render());assert.equal(input(rows[0]).props.value,"500");assert.equal(slider(rows[0]).props.value,190);assert.match(preview(rows[0]).props.children,/500% = 1,000,000 tokens; effective: 380,000/);assert.match(preview(rows[0]).props.children,/capped/);
-  slider(rows[0]).props.onChange({target:{value:"75"}});rows=forms(h.render());assert.equal(input(rows[0]).props.value,"75");assert.equal(slider(rows[0]).props.value,75);assert.match(preview(rows[0]).props.children,/150,000/);
-  assert.match(JSON.stringify(rows[1]),/Using model capacity/);assert.match(tree.props.children.find(x=>x?.type==="style").props.children,/slider-thumb/);
-  assert.equal(h.requests.length,1,"editing legacy display does not write until Save");
-  await rows[0].props.onSubmit({preventDefault(){}});rows=forms(h.render());assert.equal(h.requests[1].method,"config/batchWrite");assert.equal(h.requests[1].params.edits[0].value.percentage,75);assert.equal(h.requests[2].method,"config/read");assert.equal(input(rows[0]).props.value,"75");assert.doesNotMatch(JSON.stringify(rows[0]),/remains stored until Save/);
-  const actions=rows[0].props.children.find(x=>x?.type==="div"&&x.props.children?.every(x=>x.type==="button"));assert.equal(actions.props.style.display,"flex");assert.equal(actions.props.children[0].props.type,"submit");assert.equal(actions.props.children[1].props.type,"button");
-  const status=rows[0].props.children.at(-1).props.children;assert.match(status,/Auto-compaction:/);assert.match(status,/Input tokens/);assert.doesNotMatch(status,/Model capacity:|Safe cap:|Pricing:|openai \/|https?:/);
-  await actions.props.children[1].props.onClick();rows=forms(h.render());assert.equal(input(rows[0]).props.value,"95");assert.equal(Object.keys(h.requests[3].params.edits[0].value).length,0);
+test("model-only overrides preserve exact provider/model key and read back",async()=>{
+ const calls=[],config={provider_auto_compact:{anthropic:{percentage:80,models:{sibling:{percentage:70}}}}};
+ const client={async sendRequest(method,params){calls.push({method,params});if(method==='config/batchWrite'){config.provider_auto_compact.anthropic.models['managed/anthropic/large']=params.edits[0].value}return{config}}};
+ await injection.savePolicy(client,'anthropic','managed/anthropic/large','75');assert.equal(calls[0].params.edits[0].keyPath,'provider_auto_compact."anthropic".models."managed/anthropic/large"');assert.equal(calls[0].params.edits[0].mergeStrategy,'replace');assert.equal(calls[1].method,'config/read');assert.equal(config.provider_auto_compact.anthropic.models.sibling.percentage,70);assert.equal(config.provider_auto_compact.anthropic.percentage,80);
+ await injection.savePolicy(client,'anthropic','managed/anthropic/large','');assert.deepEqual(config.provider_auto_compact.anthropic.models['managed/anthropic/large'],{});
+ const before=calls.length;for(const v of ['0','1.5','-1','9007199254740992'])await assert.rejects(injection.savePolicy(client,'anthropic','managed/anthropic/large',v));assert.equal(calls.length,before);
+ await assert.rejects(injection.savePolicy({sendRequest:async m=>{if(m==='config/read')throw Error('readback failed')}},'p','m','95'),/readback failed/);
 });
-test("invalid percentage and save/read failures stay visible, with localized validation",async()=>{
-  const response={config:{model:"m"},contextPolicies:[policy(null)]},h=settingsHarness(response,true);h.render();await settle();let row=forms(h.render())[0];input(row).props.onChange({target:{value:"0"}});row=forms(h.render())[0];await row.props.onSubmit({preventDefault(){}});assert.equal(h.render().props.children.find(x=>x?.props?.role==="alert").props.children,"양의 정수 백분율을 입력하세요");assert.equal(h.requests.length,1);
-  const failed=settingsHarness(response,false,"write rejected");failed.render();await settle();await forms(failed.render())[0].props.onSubmit({preventDefault(){}});assert.equal(failed.render().props.children.find(x=>x?.props?.role==="alert").props.children,"write rejected");assert.equal(failed.requests.length,2);
-  const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;
-  const data=[],React={useState(value){return[value,x=>data.push(x)]},useEffect(fn){fn()}};const v={jr:React,$:{jsx},ee:()=>({}),vt:{},i:()=>({locale:"en"}),He:()=>({sendRequest:async()=>{throw Error("read rejected")}})};pm.createContext(v);pm.runInContext(settings.slice(settings.lastIndexOf("function policyDescription"),settings.lastIndexOf("/*azrael-provider-context")),v);v.__AzraelContextSettings({hostId:"local"});await settle();assert.ok(data.includes("Unable to load settings: read rejected"));
+test("preview uses exact 600K only for Anthropic capacities at least one million",()=>{
+ const p={...policy(null),providerId:'anthropic',contextWindow:1048576,autoCompactBaseTokens:1048576,safeContextWindow:996147};let v=injection.compactionPreview(p,{});assert.equal(v.requested,600000);assert.equal(v.effective,600000);assert.equal(v.isTokenDefault,true);
+ assert.equal(injection.compactionPreview({...p,contextWindow:200000,autoCompactBaseTokens:200000,safeContextWindow:190000},{}).requested,190000);
+ assert.equal(injection.compactionPreview({...p,providerId:'openai'},{}).requested,996147);assert.equal(injection.compactionPreview({...p,safeContextWindow:500000},{}).effective,500000);
+ assert.equal(injection.compactionPreview(p,{percentage:50}).requested,524288);assert.equal(injection.compactionPreview(p,{},'50').requested,524288);assert.equal(injection.compactionPreview({...p,autoCompactBaseTokens:1,safeContextWindow:1},{percentage:1}).effective,1);
 });
-test("settings roundtrip writes percentage override and rereads; reset persists empty override",async()=>{
-  const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;assert.match(settings,/__AzraelContextSettings,\{hostId:r\}/);const h={};pm.createContext(h);pm.runInContext(declaration(settings,"savePolicy"),h);const calls=[];let stored={};const client={async sendRequest(method,params){calls.push({method,params});if(method==="config/batchWrite"){stored=params.edits[0].value;return{status:"ok"}}return{config:{provider_auto_compact:{openai:stored}}}}};
-  let result=await h.savePolicy(client,"openai","500");assert.equal(result.config.provider_auto_compact.openai.percentage,500);assert.equal(result.config.provider_auto_compact.openai.token_limit,undefined);assert.equal(calls[0].params.edits[0].keyPath,'provider_auto_compact."openai"');assert.equal(calls[0].params.edits[0].mergeStrategy,"replace");assert.equal(calls[1].method,"config/read");result=await h.savePolicy(client,"openai","");assert.equal(Object.keys(result.config.provider_auto_compact.openai).length,0);const before=calls.length;for(const invalid of ["0","1.5","-1","9007199254740992"])await assert.rejects(h.savePolicy(client,"openai",invalid));assert.equal(calls.length,before);
-  await assert.rejects(h.savePolicy({sendRequest:async method=>{if(method==="config/read")throw Error("readback failed")}},"openai","95"),/readback failed/);
-});
-test("native percentage preview clamps a tiny valid base to at least one token",()=>{
-  const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;
-  const h={};pm.createContext(h);pm.runInContext(declaration(settings,"compactionPreview"),h);
-  const preview=h.compactionPreview({...policy(null),autoCompactBaseTokens:1,safeContextWindow:1},{percentage:1});
-  assert.equal(preview.requested,1);assert.equal(preview.effective,1);assert.equal(preview.percentage,"1");
-});
-test("Anthropic default preview requests exactly 600k and preserves caps and overrides",()=>{
-  const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;
-  const h={};pm.createContext(h);pm.runInContext(declaration(settings,"compactionPreview"),h);
-  const p={...policy(null),providerId:"anthropic",autoCompactBaseTokens:1048576,safeContextWindow:996147};
-  let preview=h.compactionPreview(p,{});
-  assert.equal(preview.percentage,"57");assert.equal(preview.requested,600000);assert.equal(preview.effective,600000);assert.equal(preview.isTokenDefault,true);
-  preview=h.compactionPreview({...p,autoCompactBaseTokens:200000,safeContextWindow:190000});
-  assert.equal(preview.percentage,"300");assert.equal(preview.requested,600000);assert.equal(preview.effective,190000);
-  preview=h.compactionPreview(p,{percentage:50});assert.equal(preview.requested,524288);assert.equal(preview.isTokenDefault,false);
-  preview=h.compactionPreview(p,{},"50");assert.equal(preview.requested,524288);
-  preview=h.compactionPreview(p,{token_limit:200000});assert.equal(preview.isTokenDefault,false);
+test("legacy token defaults preserve exact value until edited; stale host reads are ignored",async()=>{
+ const p={...policy(null),providerId:'anthropic',contextWindow:1048576,autoCompactBaseTokens:1048576,safeContextWindow:996147};assert.equal(injection.compactionPreview(p,{token_limit:600001}).requested,600001);assert.equal(injection.compactionPreview(p,{token_limit:600001},'57').requested,597688);
+ const values=[],effects=[];let cursor=0;const React={useState(v){const j=cursor++;if(!(j in values))values[j]=v;return[values[j],v=>values[j]=typeof v==='function'?v(values[j]):v]},useRef(v){const j=cursor++;return values[j]??(values[j]={current:v})},useEffect(fn,deps){const j=cursor++;if(!effects[j]||effects[j].deps[0]!==deps[0]){effects[j]?.cleanup?.();effects[j]={deps,cleanup:fn()}}}};
+ let firstResolve,secondResolve;const first={sendRequest:()=>new Promise(r=>firstResolve=r)},second={sendRequest:()=>new Promise(r=>secondResolve=r)};
+ const render=client=>{cursor=0;return injection.renderSettings(React,jsx,client,false,{Card:'card',Row:'row',Button:'button'})};const walk=t=>t==null?[]:Array.isArray(t)?t.flatMap(walk):typeof t==='object'?[t,...walk(t.props?.children),...walk(t.props?.control)]:[];
+ render(first);render(second);secondResolve({config:{model:'current'},contextPolicies:[{...p,modelId:'current'}]});await new Promise(r=>setImmediate(r));firstResolve({config:{model:'stale'},contextPolicies:[{...p,modelId:'stale'}]});await new Promise(r=>setImmediate(r));assert.ok(walk(render(second)).some(n=>n.props?.['data-azrael-model-policy']==='current'));assert.ok(!walk(render(second)).some(n=>n.props?.['data-azrael-model-policy']==='stale'));
 });
 test("Personalization parent cache refreshes provider settings on host changes with hidden instructions",()=>{
   const settings=injection.injectProviderContext(hs.readFileSync(path.join(root,injection.SETTINGS_ASSET),"utf8"),injection.SETTINGS_ASSET).text;

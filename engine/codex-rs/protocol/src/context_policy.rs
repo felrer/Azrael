@@ -7,9 +7,24 @@ use ts_rs::TS;
 
 use crate::openai_models::ModelInfo;
 
-/// A present empty entry selects the dynamic default, independently of global settings.
+/// Legacy provider settings and overrides keyed by the exact model slug.
 #[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 pub struct ProviderAutoCompact {
+    #[serde(default, skip_serializing_if = "BTreeMap::is_empty")]
+    pub models: BTreeMap<String, ModelAutoCompact>,
+    #[serde(default, deserialize_with = "positive_token_limit")]
+    #[schemars(range(min = 1))]
+    #[ts(type = "number | null")]
+    pub percentage: Option<i64>,
+    #[serde(default, deserialize_with = "positive_token_limit")]
+    #[schemars(range(min = 1))]
+    #[ts(type = "number | null")]
+    pub token_limit: Option<i64>,
+}
+
+/// A present empty model entry selects the dynamic default independently of inherited settings.
+#[derive(Debug, Clone, Default, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+pub struct ModelAutoCompact {
     #[serde(default, deserialize_with = "positive_token_limit")]
     #[schemars(range(min = 1))]
     #[ts(type = "number | null")]
@@ -33,6 +48,7 @@ fn positive_token_limit<'de, D: serde::Deserializer<'de>>(d: D) -> Result<Option
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "lowercase")]
 pub enum AutoCompactSource {
+    Model,
     Provider,
     Global,
     Default,
@@ -91,8 +107,23 @@ pub fn resolve_auto_compact(
     global: Option<i64>,
 ) -> (Option<i64>, AutoCompactSource) {
     let base = auto_compact_base_tokens(model);
-    let (custom, source) = match entries.get(policy_provider_id(model)) {
-        Some(entry) => (
+    let provider = entries.get(policy_provider_id(model));
+    let model_entry = provider.and_then(|entry| entry.models.get(&model.slug));
+    let (custom, source) = if let Some(entry) = model_entry {
+        (
+            entry.percentage.map_or(entry.token_limit, |percentage| {
+                base.map(|base| percentage_tokens(base, percentage))
+            }),
+            if entry.percentage.is_some() || entry.token_limit.is_some() {
+                AutoCompactSource::Model
+            } else {
+                AutoCompactSource::Default
+            },
+        )
+    } else if let Some(entry) = provider.filter(|entry| {
+        entry.percentage.is_some() || entry.token_limit.is_some() || entry.models.is_empty()
+    }) {
+        (
             entry.percentage.map_or(entry.token_limit, |percentage| {
                 base.map(|base| percentage_tokens(base, percentage))
             }),
@@ -101,18 +132,23 @@ pub fn resolve_auto_compact(
             } else {
                 AutoCompactSource::Default
             },
-        ),
-        None => (
+        )
+    } else {
+        (
             global,
             if global.is_some() {
                 AutoCompactSource::Global
             } else {
                 AutoCompactSource::Default
             },
-        ),
+        )
     };
     let desired = custom.or_else(|| {
-        if policy_provider_id(model) == "anthropic" {
+        if policy_provider_id(model) == "anthropic"
+            && model
+                .resolved_context_window()
+                .is_some_and(|capacity| capacity >= 1_000_000)
+        {
             Some(600_000)
         } else {
             base.map(|base| percentage_tokens(base, /*percentage*/ 95))
@@ -148,12 +184,19 @@ fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
         .and_then(|key| key.split_once('/'))
         .map_or(model.slug.as_str(), |(_, model)| model);
     let rule = match (policy_provider_id(model), id) {
-        ("openai", "gpt-6.1-sol" | "gpt-6-astra" | "gpt-6-luna") => Some((
+        (
+            "openai",
+            "gpt-6.1-sol" | "gpt-6-astra" | "gpt-6-luna" | "gpt-5.6-sol" | "gpt-5.5"
+            | "gpt-5.6-luna" | "gpt-5.6-terra" | "gpt-5.4" | "gpt-5.4-pro",
+        ) => Some((
             272_000,
             false,
             format!("https://developers.openai.com/api/docs/models/{id}"),
         )),
-        ("google", "gemini-2.5-pro" | "gemini-3.1-pro-preview") => Some((
+        (
+            "google",
+            "gemini-2.5-pro" | "gemini-3.1-pro-preview" | "gemini-3.1-pro-preview-customtools",
+        ) => Some((
             200_000,
             false,
             "https://ai.google.dev/gemini-api/docs/pricing".into(),
@@ -169,7 +212,23 @@ fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
             | "grok-4.20-0309-reasoning"
             | "grok-4.20-0309-non-reasoning",
         ) => Some((200_000, true, "https://docs.x.ai/developers/pricing".into())),
-        ("anthropic", "claude-opus-4-6" | "claude-sonnet-4-6") => {
+        (
+            "anthropic",
+            "claude-opus-4-6"
+            | "claude-opus-4-6[1m]"
+            | "claude-sonnet-4-6"
+            | "claude-sonnet-4-6[1m]"
+            | "claude-opus-4-7"
+            | "claude-opus-4-7[1m]"
+            | "claude-opus-4-8"
+            | "claude-opus-4-8[1m]"
+            | "claude-opus-5"
+            | "claude-fable-5"
+            | "claude-fable-5-1"
+            | "claude-sonnet-5"
+            | "claude-opus-5-5"
+            | "claude-sonnet-5-5",
+        ) => {
             pricing.status = if subscription || model.slug.starts_with("managed/anthropic/") {
                 PricingStatus::Reference
             } else {
@@ -181,11 +240,21 @@ fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
             );
             None
         }
+        ("anthropic", "claude-haiku-5-5") => Some((
+            100_000,
+            false,
+            "https://platform.claude.com/docs/en/about-claude/pricing#long-context-pricing".into(),
+        )),
+        ("google", "gemini-3.8-flash" | "gemini-3.6-flash") => {
+            pricing.status = PricingStatus::NoSurcharge;
+            pricing.source_url = Some("https://ai.google.dev/gemini-api/docs/pricing".into());
+            None
+        }
         _ => None,
     };
     if let Some((threshold, inclusive, url)) = rule {
         pricing = ContextPricing {
-            status: if subscription {
+            status: if subscription || model.slug.starts_with("managed/anthropic/") {
                 PricingStatus::Reference
             } else {
                 PricingStatus::Confirmed

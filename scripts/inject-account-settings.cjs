@@ -19,8 +19,19 @@ function AzraelAccountSettings() {
     const send = (action, message) => azraelAccountBridge.dispatchMessage("azrael-accounts", { clientId, action, message });
     const unsubscribe = azraelAccountBridge.subscribe("azrael-accounts-html", message => {
       if (message.clientId === clientId && typeof message.html === "string") {
+        const ancestors = [];
+        for (let parent = element.parentElement; parent; parent = parent.parentElement) {
+          ancestors.push({ parent, top: parent.scrollTop, left: parent.scrollLeft });
+        }
+        const calendarLeft = root.querySelector('.puc-calendar-scroll')?.scrollLeft;
         root.innerHTML = message.html;
-        root.querySelector('button[data-ticket-confirming="true"]')?.focus();
+        const calendar = root.querySelector('.puc-calendar-scroll');
+        if (calendar && calendarLeft !== undefined) calendar.scrollLeft = calendarLeft;
+        root.querySelector('button[data-ticket-confirming="true"]')?.focus({ preventScroll: true });
+        for (const { parent, top, left } of ancestors) {
+          parent.scrollTop = top;
+          parent.scrollLeft = left;
+        }
       }
     });
     const onClick = event => {
@@ -37,6 +48,13 @@ function AzraelAccountSettings() {
       send("action", { action: input.dataset.action, profileId: input.dataset.profile, providerId: input.dataset.provider,
         accountId: input.dataset.account, workspaceAccountId: input.dataset.workspace, enabled });
     };
+    const onPointerDown = event => {
+      if (event.button !== 0 || !(event.target instanceof Element) || event.target.closest('.puc-tooltip')) return;
+      const control = event.target.closest('.project-usage button, .puc-project');
+      if (!(control instanceof HTMLElement)) return;
+      event.preventDefault();
+      control.focus({ preventScroll: true });
+    };
     const onKeyDown = event => {
       if (event.key !== "Enter" && event.key !== " ") return;
       const summary = event.target;
@@ -50,12 +68,13 @@ function AzraelAccountSettings() {
       send("action", { action: "ticketDetails", profileId: details.dataset.profile, workspaceAccountId: details.dataset.workspace, open: details.open });
     };
     root.addEventListener("click", onClick);
+    root.addEventListener("pointerdown", onPointerDown);
     root.addEventListener("keydown", onKeyDown);
     root.addEventListener("change", onChange);
     root.addEventListener("toggle", onToggle, true);
     root.innerHTML = '<p role="status">계정 및 사용량을 불러오는 중…</p>';
     send("mount");
-    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("keydown", onKeyDown); root.removeEventListener("change", onChange); root.removeEventListener("toggle", onToggle, true); root.innerHTML = ""; };
+    return () => { send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("pointerdown", onPointerDown); root.removeEventListener("keydown", onKeyDown); root.removeEventListener("change", onChange); root.removeEventListener("toggle", onToggle, true); root.innerHTML = ""; };
   }, []);
   return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-account-settings": true });
 }

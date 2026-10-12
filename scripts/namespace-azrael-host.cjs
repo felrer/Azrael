@@ -45,7 +45,7 @@ const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-ses
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
-  injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
+  QUEUED_COMPACTION_HOST_ASSET, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
 
 const HOST_ID = "azrael-ex-local.azrael";
 const ACCOUNT_UI_COMMANDS = [
@@ -358,7 +358,8 @@ function transformAsset(source, relativePath, filename, ts) {
     injectCompactionProgress(taskWorkTime.text) : { text: taskWorkTime.text, count: 0 };
   const queueRefresh = relativePath === QUEUE_REFRESH_ASSET ?
     injectQueueRefresh(compactionProgress.text) : { text: compactionProgress.text, count: 0 };
-  const queuedCompaction = relativePath === QUEUED_COMPACTION_CORE_ASSET ? injectQueuedCompactionCore(queueRefresh.text) :
+  const queuedCompaction = relativePath === QUEUED_COMPACTION_HOST_ASSET ? injectQueuedCompactionHost(queueRefresh.text) :
+    relativePath === QUEUED_COMPACTION_CORE_ASSET ? injectQueuedCompactionCore(queueRefresh.text) :
     relativePath === QUEUED_COMPACTION_PRESENTATION_ASSET ? injectQueuedCompactionPresentation(queueRefresh.text) :
       relativePath === QUEUED_COMPACTION_LIST_ASSET ? injectQueuedCompactionList(queueRefresh.text) : { text: queueRefresh.text, count: 0 };
   const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
@@ -511,7 +512,7 @@ const ASSET_RULE_PATHS = {
   "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
   "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
   "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
-  "inject-queued-compaction.cjs": [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
+  "inject-queued-compaction.cjs": [QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET],
   "inject-account-switch-queue.cjs": [ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET],
   "inject-provider-model-picker.cjs": PROVIDER_PICKER_ASSETS,
   "inject-max-reasoning.cjs": MAX_REASONING_ASSETS,

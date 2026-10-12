@@ -1157,6 +1157,7 @@ mod tests {
                 (Some(600_000), AutoCompactSource::Default)
             );
             model.context_window = Some(200_000);
+            model.effective_context_window_percent = 100;
             assert_eq!(
                 resolve_auto_compact(&model, &entries, None),
                 (Some(190_000), AutoCompactSource::Default)
@@ -1166,6 +1167,7 @@ mod tests {
                 ProviderAutoCompact {
                     percentage: None,
                     token_limit: Some(150_000),
+                    ..Default::default()
                 },
             );
             assert_eq!(
@@ -1177,6 +1179,7 @@ mod tests {
                 ProviderAutoCompact {
                     percentage: Some(50),
                     token_limit: Some(150_000),
+                    ..Default::default()
                 },
             );
             assert_eq!(
@@ -1191,6 +1194,172 @@ mod tests {
                 (Some(190_000), AutoCompactSource::Default)
             );
         }
+    }
+
+    #[test]
+    fn model_compaction_overrides_preserve_sibling_fallback_and_exact_identity() {
+        use crate::context_policy::{AutoCompactSource, ProviderAutoCompact, resolve_auto_compact};
+        use std::collections::BTreeMap;
+        let mut model = test_model(None);
+        model.slug = "managed/google/gemini-2.5-pro".into();
+        model.model_provider = "managed".into();
+        model.context_window = Some(1_000_000);
+        let mut entries: BTreeMap<String, ProviderAutoCompact> =
+            serde_json::from_value(serde_json::json!({"google": {"models": {
+                "managed/google/gemini-2.5-pro": {"percentage": 50, "token_limit": 160000},
+                "gemini-2.5-pro": {"token_limit": 170000}
+            }}}))
+            .unwrap();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(100_000), AutoCompactSource::Model)
+        );
+        model.slug = "managed/google/gemini-3.1-pro-preview".into();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(120_000), AutoCompactSource::Global)
+        );
+        entries.get_mut("google").unwrap().token_limit = Some(150_000);
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(150_000), AutoCompactSource::Provider)
+        );
+        entries
+            .get_mut("google")
+            .unwrap()
+            .models
+            .insert(model.slug.clone(), Default::default());
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(190_000), AutoCompactSource::Default)
+        );
+        model.slug = "managed/google/gemini-2.5-pro".into();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(100_000), AutoCompactSource::Model)
+        );
+        model.slug = "managed/google/gemini-2.5-pro-other".into();
+        entries.get_mut("google").unwrap().token_limit = None;
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, None),
+            (Some(950_000), AutoCompactSource::Default)
+        );
+        model.slug = "managed/openrouter/gemini-2.5-pro".into();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000)),
+            (Some(120_000), AutoCompactSource::Global)
+        );
+    }
+
+    #[test]
+    fn model_compaction_validation_and_legacy_serialization() {
+        use crate::context_policy::ProviderAutoCompact;
+        for field in ["percentage", "token_limit"] {
+            for invalid in [
+                serde_json::json!(0),
+                serde_json::json!(-1),
+                serde_json::json!(1.5),
+            ] {
+                let value = serde_json::json!({"models": {"managed/google/gemini-2.5-pro": {field: invalid}}});
+                assert!(serde_json::from_value::<ProviderAutoCompact>(value).is_err());
+            }
+        }
+        let legacy: ProviderAutoCompact = serde_json::from_str("{}").unwrap();
+        assert!(legacy.models.is_empty());
+        assert!(
+            serde_json::to_value(legacy)
+                .unwrap()
+                .get("models")
+                .is_none()
+        );
+        let large: ProviderAutoCompact = serde_json::from_value(serde_json::json!({
+            "models": {"exact": {"percentage": 500}}
+        }))
+        .unwrap();
+        assert_eq!(large.models["exact"].percentage, Some(500));
+    }
+
+    #[test]
+    fn model_compaction_pricing_uses_verified_exact_routes() {
+        use crate::context_policy::{PricingStatus, resolve_context_policy};
+        let mut model = test_model(None);
+        model.context_window = Some(1_000_000);
+        model.model_provider = "anthropic".into();
+        for id in [
+            "claude-opus-4-7",
+            "claude-opus-4-8[1m]",
+            "claude-opus-5",
+            "claude-fable-5",
+            "claude-fable-5-1",
+            "claude-sonnet-5",
+            "claude-opus-5-5",
+            "claude-sonnet-5-5",
+        ] {
+            model.slug = id.into();
+            let policy = resolve_context_policy(&model, &Default::default(), None, false);
+            assert_eq!(policy.pricing.status, PricingStatus::NoSurcharge);
+            assert_eq!(policy.auto_compact_base_tokens, Some(1_000_000));
+            model.slug = format!("managed/anthropic/{id}");
+            assert_eq!(
+                resolve_context_policy(&model, &Default::default(), None, false)
+                    .pricing
+                    .status,
+                PricingStatus::Reference
+            );
+        }
+        for id in [
+            "gpt-5.6-sol",
+            "gpt-5.6-luna",
+            "gpt-5.6-terra",
+            "gpt-5.5",
+            "gpt-5.4",
+            "gpt-5.4-pro",
+        ] {
+            model.slug = format!("managed/openai/{id}");
+            let policy = resolve_context_policy(&model, &Default::default(), None, false);
+            assert_eq!(policy.pricing.input_token_threshold, Some(272_000));
+            assert_eq!(policy.auto_compact_base_tokens, Some(272_000));
+            assert!(!policy.pricing.inclusive);
+        }
+        for id in ["gemini-3.8-flash", "gemini-3.6-flash"] {
+            model.slug = format!("managed/google/{id}");
+            let policy = resolve_context_policy(&model, &Default::default(), None, false);
+            assert_eq!(policy.pricing.status, PricingStatus::NoSurcharge);
+            assert_eq!(policy.auto_compact_base_tokens, Some(1_000_000));
+        }
+        model.slug = "managed/anthropic/claude-haiku-5-5".into();
+        model.context_window = Some(200_000);
+        let policy = resolve_context_policy(&model, &Default::default(), None, false);
+        assert_eq!(policy.pricing.status, PricingStatus::Reference);
+        assert_eq!(policy.pricing.input_token_threshold, Some(100_000));
+        assert!(!policy.pricing.inclusive);
+        assert_eq!(policy.auto_compact_base_tokens, Some(100_000));
+        assert_eq!(policy.auto_compact_token_limit, Some(95_000));
+        model.context_window = Some(1_000_000);
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, false)
+                .auto_compact_token_limit,
+            Some(600_000)
+        );
+        model.slug = "claude-opus-5-unknown".into();
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, false)
+                .pricing
+                .status,
+            PricingStatus::Unknown
+        );
+        model.slug = "managed/openrouter/claude-opus-5".into();
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, false)
+                .pricing
+                .status,
+            PricingStatus::Unknown
+        );
+        model.slug = "managed/google/gemini-3.1-pro-preview-customtools".into();
+        let policy = resolve_context_policy(&model, &Default::default(), None, false);
+        assert_eq!(policy.pricing.input_token_threshold, Some(200_000));
+        assert!(!policy.pricing.inclusive);
+        assert_eq!(policy.auto_compact_base_tokens, Some(200_000));
     }
 
     #[test]

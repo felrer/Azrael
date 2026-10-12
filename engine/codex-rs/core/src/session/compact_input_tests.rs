@@ -1,5 +1,6 @@
 use super::*;
 use crate::session::tests::make_session_and_context;
+use crate::session::tests::make_session_and_context_with_rx;
 use codex_protocol::protocol::TokenUsage;
 
 fn usage(total: i64, window: Option<i64>) -> TokenUsageInfo {
@@ -37,8 +38,7 @@ fn exact_threshold_and_invalid_data() {
 
 #[tokio::test]
 async fn skip_releases_idle_reservation_and_uses_latest_usage() {
-    let (session, _) = make_session_and_context().await;
-    let session = Arc::new(session);
+    let (session, _, rx) = make_session_and_context_with_rx().await;
     session
         .state
         .lock()
@@ -54,6 +54,18 @@ async fn skip_releases_idle_reservation_and_uses_latest_usage() {
         CompactIfIdleSubmission::Skipped
     );
     assert!(session.active_turn.lock().await.is_none());
+    let event = rx
+        .try_recv()
+        .expect("skip must notify the user without starting a turn");
+    assert_eq!(event.id, "compact-skip");
+    let EventMsg::Warning(warning) = event.msg else {
+        panic!("expected a compaction skip warning");
+    };
+    assert_eq!(
+        warning.message,
+        "Context compaction skipped: context usage is below 15% of the model context window."
+    );
+    assert!(rx.try_recv().is_err(), "one notice per skipped request");
 }
 
 #[tokio::test]

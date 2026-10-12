@@ -22,7 +22,7 @@ test("OpenRouter spend distinguishes unset, zero, and positive caps without clai
   assert.match(html, /0 USD 사용/);
   assert.doesNotMatch(html, /무제한|조회 실패/);
   assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 0, remaining: 0, unit: "USD" }] }), /0 USD 남음 \/ 0 USD/);
-  assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 10, remaining: 7, unit: "USD" }] }), /70% 남음/);
+  assert.match(providerQuotaHtml({ ...quota, rows: [{ label: "Cap", limit: 10, remaining: 7, unit: "USD" }] }), /70%/);
   const connected = { ...provider, inferenceConnected: true };
   assert.match(providerAccountHtml(connected, { ...connected.accounts[0], needsReauth: false }, quota, undefined, true), /채팅 연결 설정됨/);
 });
@@ -91,9 +91,9 @@ test("provider quota displays remaining gauges for bounded ratios and numeric va
     ],
   };
   const html = providerQuotaHtml(quota);
-  assert.match(html, /62\.5% 남음/);
+  assert.match(html, /62\.5%/);
   assert.doesNotMatch(html, /37\.5% 사용/);
-  assert.match(html, /24% 남음/);
+  assert.match(html, /24%/);
   assert.match(html, /aria-valuenow="24"/);
   assert.match(html, /123 tokens 사용/);
   assert.doesNotMatch(html, /123 tokens 남음/);

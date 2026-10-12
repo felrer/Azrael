@@ -100,8 +100,61 @@ test("the three version-pinned UI transforms parse, remain idempotent, and rejec
   assert.ok(inputs[2].result.text.includes("isSendNowDisabled:l||u&&H(e.context)||e.context.queuedOperationKind"));
   const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
   assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(
-    "/*azrael-queued-compaction-presentation-v3*/", "/*azrael-queued-compaction-presentation-v2*/",
+    "/*azrael-queued-compaction-presentation-v4*/", "/*azrael-queued-compaction-presentation-v3*/",
   )), /Stale/);
+});
+
+test("native host subscribes to warning notifications with a pinned, idempotent transform", () => {
+  const filename = path.join(root, patch.QUEUED_COMPACTION_HOST_ASSET);
+  const before = rewriteJavaScript(hs.readFileSync(filename, "utf8"), filename, ts).text;
+  const result = patch.injectQueuedCompactionHost(before);
+  assert.equal(result.count, 1);
+  assert.equal(ts.createSourceFile(filename, result.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
+  assert.equal(result.text.includes("warning:/*azrael-queued-compaction-host-v1*/!0"), true);
+  assert.deepEqual(patch.injectQueuedCompactionHost(result.text), { text: result.text, count: 0 });
+  assert.throws(() => patch.injectQueuedCompactionHost("changed host"), /anchor/);
+  assert.throws(() => patch.injectQueuedCompactionHost(result.text.replace("warning:/*azrael-queued-compaction-host-v1*/!0", "warning:/*azrael-queued-compaction-host-v1*/!1")), /subscription/);
+});
+
+test("marked presentation assets reject missing skip feedback", () => {
+  const source = inputs[1].result.text;
+  for (const [before, after] of [
+    ["guardianWarning:!0,warning:!0", "guardianWarning:!0,warning:!1"],
+    ["azrael.compaction.skipped.reason", "changed.reason"],
+    [JSON.stringify(patch.COMPACTION_SKIPPED_MESSAGE), '"unrelated warning"'],
+  ]) assert.throws(() => patch.injectQueuedCompactionPresentation(source.replace(before, after)), /skip notice/);
+});
+
+test("compaction skip warnings show localized native feedback even with diagnostics disabled", () => {
+  const source = inputs[1].result.text;
+  const ast = ts.createSourceFile("compaction-notification.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const handler = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === "_Xa");
+  assert.ok(handler);
+  for (const locale of ["ko-KR", "en"]) {
+    const notices = [];
+    const fn = pm.runInNewContext(`(${handler.getText(ast)})`, { gx() {}, fm: "intl", hx: "toast", bXa: "diagnostics" });
+    const scope = { get(atom) {
+      if (atom === "intl") return { locale, formatMessage: ({ defaultMessage }) => defaultMessage };
+      if (atom === "toast") return { warning: (title, options) => notices.push({ title, ...options }) };
+      assert.equal(atom, "diagnostics");
+      return false;
+    } };
+    const skipped = { hostId: "local", method: "warning", params: { threadId: "thread", message: patch.COMPACTION_SKIPPED_MESSAGE } };
+    fn(scope, skipped);
+    fn(scope, skipped);
+    assert.equal(notices.length, 2, "each skipped request is acknowledged");
+    assert.equal(notices[0].title, locale === "ko-KR" ? "압축을 실행하지 않았습니다" : "Context compaction was skipped");
+    assert.ok(notices[0].description.includes("15%"));
+    for (const notification of [
+      { ...skipped, method: "thread/queue/changed" },
+      { ...skipped, params: { threadId: "thread", message: "unrelated warning" } },
+      { ...skipped, params: { message: patch.COMPACTION_SKIPPED_MESSAGE } },
+      { ...skipped, params: null },
+    ]) fn(scope, notification);
+    assert.equal(notices.length, 2, "queue changes, unrelated warnings and malformed input produce no skip notice");
+  }
+  const rust = hs.readFileSync(path.join(__dirname, "../engine/codex-rs/core/src/session/compact_input.rs"), "utf8");
+  assert.ok(rust.includes(JSON.stringify(patch.COMPACTION_SKIPPED_MESSAGE)), "native warning and host recognition share the same contract");
 });
 
 test("marked compaction assets reject incomplete composer isolation", () => {

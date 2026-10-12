@@ -2645,6 +2645,24 @@
       ],
       "description": "Selected microphone inputs. Scalars preserve existing single-channel configuration."
     },
+    "ModelAutoCompact": {
+      "description": "A present empty model entry selects the dynamic default independently of inherited settings.",
+      "properties": {
+        "percentage": {
+          "default": null,
+          "format": "int64",
+          "minimum": 1.0,
+          "type": "integer"
+        },
+        "token_limit": {
+          "default": null,
+          "format": "int64",
+          "minimum": 1.0,
+          "type": "integer"
+        }
+      },
+      "type": "object"
+    },
     "ModelAvailabilityNuxConfig": {
       "additionalProperties": {
         "format": "uint32",
@@ -3696,8 +3714,14 @@
       "type": "object"
     },
     "ProviderAutoCompact": {
-      "description": "A present empty entry selects the dynamic default, independently of global settings.",
+      "description": "Legacy provider settings and overrides keyed by the exact model slug.",
       "properties": {
+        "models": {
+          "additionalProperties": {
+            "$ref": "#/definitions/ModelAutoCompact"
+          },
+          "type": "object"
+        },
         "percentage": {
           "default": null,
           "format": "int64",

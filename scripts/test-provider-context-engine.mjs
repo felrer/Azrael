@@ -107,6 +107,36 @@ try {
     assert.equal(persisted.config.provider_auto_compact.openai.percentage, 500);
   }
   report.checks.push('invalid limits rejected without replacing valid saved config');
+  await write([['provider_auto_compact.openai', { models: {
+    'gpt-6.1-sol': { percentage: 50 }, 'gpt-6-astra': { token_limit: 70000 },
+  } }]]);
+  snapshot = await read();
+  const modelPolicy = id => snapshot.contextPolicies.find(item => item.providerId === 'openai' && item.modelId === id);
+  assert.equal(modelPolicy('gpt-6.1-sol').autoCompactTokenLimit, 136000);
+  assert.equal(modelPolicy('gpt-6.1-sol').autoCompactSource, 'model');
+  assert.equal(modelPolicy('gpt-6-astra').autoCompactTokenLimit, 70000);
+  assert.equal(modelPolicy('gpt-6-luna').autoCompactTokenLimit, 120000);
+  assert.equal(modelPolicy('gpt-6-luna').autoCompactSource, 'global');
+  report.checks.push('exact model overrides and sibling global fallback');
+  await write([['provider_auto_compact.openai', { percentage: 25, models: { 'gpt-6.1-sol': {} } }]]);
+  snapshot = await read();
+  assert.equal(modelPolicy('gpt-6.1-sol').autoCompactTokenLimit, Math.min(258400, modelPolicy('gpt-6.1-sol').safeContextWindow));
+  assert.equal(modelPolicy('gpt-6.1-sol').autoCompactSource, 'default');
+  assert.equal(modelPolicy('gpt-6-luna').autoCompactTokenLimit, 68000);
+  assert.equal(modelPolicy('gpt-6-luna').autoCompactSource, 'provider');
+  report.checks.push('empty model resets dynamic default while sibling inherits provider');
+  for (const field of ['percentage', 'token_limit']) {
+    for (const invalid of [0, -1, 1.5]) {
+      await assert.rejects(write([['provider_auto_compact.openai', { models: { 'gpt-6.1-sol': { [field]: invalid } } }]]));
+      snapshot = await read();
+      assert.equal(snapshot.config.provider_auto_compact.openai.percentage, 25);
+    }
+  }
+  await client.close(); client = await connect();
+  snapshot = await read();
+  assert.deepEqual(snapshot.config.provider_auto_compact.openai.models['gpt-6.1-sol'], { percentage: null, token_limit: null });
+  assert.equal(modelPolicy('gpt-6.1-sol').autoCompactSource, 'default');
+  report.checks.push('nested model validation and restart persistence');
   const disk = await readFile(join(directory, 'config.toml'), 'utf8');
   assert(disk.includes('provider_auto_compact'));
   report.status = 'passed';

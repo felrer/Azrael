@@ -10,7 +10,7 @@ function policyDescription(p, ko, detail = "full") {
   if (!p) return "";
   const price = p.pricing;
   const tokens = n => n == null ? (ko ? "알 수 없음" : "unknown") : Number(n).toLocaleString();
-  const sources = ko ? {provider:"제공자 설정",global:"전역 설정",default:"기본값"} : {provider:"provider setting",global:"global setting",default:"default"};
+  const sources = ko ? {model:"모델 설정",provider:"제공자 설정",global:"전역 설정",default:"기본값"} : {model:"model setting",provider:"provider setting",global:"global setting",default:"default"};
   const compact = (ko ? "자동 압축: " : "Auto-compaction: ") + tokens(p.autoCompactTokenLimit) + " (" + (sources[p.autoCompactSource]??p.autoCompactSource) + ")";
   const input = (ko ? "입력 토큰" : "Input tokens") + (p.inputTokensEstimated ? (ko ? " (추정)" : " (estimated)") : "") + ": " + tokens(p.inputTokens);
   if (detail === "compaction") return [compact, input].join("\n");
@@ -91,59 +91,94 @@ function renderCompactionAction(React, jsx, Button, store, conversationId, ko, e
     jsx("span", {role:entry?.status === "error" ? "alert" : "status","aria-live":"polite",className:"text-xs text-token-description-foreground",children:status})
   ]});
 }
-async function savePolicy(client, id, value) {
+async function savePolicy(client, id, modelId, value) {
   if (value !== "" && !/^[1-9]\d*$/.test(value)) throw Error("Enter a positive integer percentage");
   const number = value === "" ? null : Number(value);
   if (number != null && !Number.isSafeInteger(number)) throw Error("Percentage exceeds the supported integer range");
-  await client.sendRequest("config/batchWrite", {edits:[{keyPath:"provider_auto_compact." + JSON.stringify(id),value:number == null ? {} : {percentage:number},mergeStrategy:"replace"}],filePath:null,expectedVersion:null,reloadUserConfig:true});
+  await client.sendRequest("config/batchWrite", {edits:[{keyPath:"provider_auto_compact." + JSON.stringify(id) + ".models." + JSON.stringify(modelId),value:number == null ? {} : {percentage:number},mergeStrategy:"replace"}],filePath:null,expectedVersion:null,reloadUserConfig:true});
   return client.sendRequest("config/read", {includeLayers:true,cwd:null});
 }
 function compactionPreview(policy, override, draft) {
   const base = policy.autoCompactBaseTokens ?? policy.contextWindow;
-  const defaultTokens = policy.providerId === "anthropic" ? 600000 : null;
+  const defaultTokens = policy.providerId === "anthropic" && policy.contextWindow >= 1000000 ? 600000 : null;
   const defaultPercentage = defaultTokens != null && base > 0 ? Math.max(1, Math.round(defaultTokens * 100 / base)) : 95;
   const isTokenDefault = defaultTokens != null && draft == null && override?.percentage == null && override?.token_limit == null;
   const percentage = draft ?? String(override?.percentage ?? (override?.token_limit != null && base > 0 ? Math.max(1, Math.round(override.token_limit * 100 / base)) : defaultPercentage));
   const valid = /^[1-9]\d*$/.test(percentage) && Number.isSafeInteger(Number(percentage));
-  const requested = isTokenDefault ? defaultTokens : valid && base > 0 ? Math.max(1, Math.floor(base * (Number(percentage) / 100))) : null;
+  const requested = draft == null && override?.percentage == null && override?.token_limit != null ? override.token_limit : isTokenDefault ? defaultTokens : valid && base > 0 ? Math.max(1, Math.floor(base * (Number(percentage) / 100))) : null;
   const effective = requested == null ? null : policy.safeContextWindow == null ? requested : Math.min(requested, policy.safeContextWindow);
   const max = base > 0 && policy.safeContextWindow != null ? Math.max(1, Math.floor(policy.safeContextWindow * 100 / base)) : 100;
   return {base,percentage,requested,effective,max,isTokenDefault};
 }
-function renderSettings(React, jsx, client, ko) {
+function renderSettings(React, jsx, client, ko, native) {
   const [data, setData] = React.useState(null), [error, setError] = React.useState(""), [pending, setPending] = React.useState(false), [drafts, setDrafts] = React.useState({});
-  React.useEffect(() => {let live=true;setData(null);setDrafts({});setError("");client.sendRequest("config/read",{includeLayers:true,cwd:null}).then(x=>{if(live)setData(x)},e=>{if(live)setError((ko?"설정을 불러오지 못했습니다: ":"Unable to load settings: ")+String(e.message??e))});return()=>{live=false}},[client]);
+  const [selection, setSelection] = React.useState({}), [notice, setNotice] = React.useState("");
+  const generation = React.useRef(0);
+  React.useEffect(() => {
+    const version = ++generation.current;
+    setData(null);setDrafts({});setSelection({});setError("");setNotice("");setPending(false);
+    client.sendRequest("config/read",{includeLayers:true,cwd:null}).then(x=>{if(generation.current===version)setData(x)},e=>{if(generation.current===version)setError((ko?"설정을 불러오지 못했습니다: ":"Unable to load settings: ")+String(e.message??e))});
+    return()=>{generation.current++};
+  },[client]);
+  const {Button, Card, Row} = native;
   const groups = new Map();
-  for (const p of data?.contextPolicies ?? []) {if (!groups.has(p.providerId)) groups.set(p.providerId, []);groups.get(p.providerId).push(p)}
-  const action = async (id, value) => {setPending(true);setError("");try {setData(await savePolicy(client,id,value));setDrafts(previous=>{const next={...previous};delete next[id];return next})}catch(e){setError(ko?(e.message==="Enter a positive integer percentage"?"양의 정수 백분율을 입력하세요":e.message==="Percentage exceeds the supported integer range"?"백분율이 지원되는 정수 범위를 초과합니다":"설정을 저장하지 못했습니다: "+String(e.message??e)):String(e.message??e))}finally{setPending(false)}};
-  const tokens = n => n == null ? (ko?"알 수 없음":"unknown") : n.toLocaleString();
-  const controlStyle = {padding:"6px 8px",maxWidth:"100%",width:240,border:"1px solid var(--vscode-input-border, #888)",borderRadius:4,background:"var(--vscode-input-background)",color:"var(--vscode-input-foreground)"};
-  const buttonStyle = {padding:"6px 12px",alignSelf:"flex-start",borderRadius:4,background:"var(--vscode-button-background, #305f9b)",color:"var(--vscode-button-foreground, white)"};
-  return jsx("section", {"data-azrael-provider-context":true,className:"flex flex-col gap-3",children:[
-    jsx("h2",{children:ko?"제공자 자동 압축":"Provider auto-compaction"}),
-    jsx("p",{children:ko?"기본값: Anthropic은 600,000토큰, 그 외 제공자는 길이 추가 요금 없는 기본 용량의 95%이며 안전 한도 이하로 제한됩니다. 변경 사항은 기존 대화의 다음 턴에 적용되며 진행 중인 턴은 바뀌지 않습니다.":"Default: 600,000 tokens for Anthropic; 95% of the no-length-surcharge base for other providers, capped at the safe limit. Changes apply to the next turn in existing chats; the active turn stays unchanged."}),
-    jsx("style",{children:"[data-azrael-compaction-slider]{appearance:auto!important;-webkit-appearance:auto!important;height:24px;cursor:pointer;accent-color:var(--vscode-button-background,#305f9b)}[data-azrael-compaction-slider]::-webkit-slider-thumb{appearance:auto!important;-webkit-appearance:auto!important}[data-azrael-compaction-slider]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--vscode-button-background,#305f9b)}"}),
-    error?jsx("p",{role:"alert",children:error}):null,
-    ...Array.from(groups,([id, policies])=>{
-      const p=policies.find(p=>p.modelId===data.config?.model)??policies[0];
-      const override=data.config?.provider_auto_compact?.[id], preview=compactionPreview(p,override,drafts[id]);
-      const update=e=>setDrafts(previous=>({...previous,[id]:e.target.value}));
-      const fallback=p.autoCompactBaseTokens == null || p.pricing?.status==="unknown" || p.pricing?.status==="no-surcharge" || p.pricing?.inputTokenThreshold==null;
-      return jsx("form",{key:id,style:{display:"flex",flexDirection:"column",gap:8,padding:12,border:"1px solid var(--vscode-widget-border, #8886)",borderRadius:8},onSubmit:e=>{e.preventDefault();return action(id,preview.percentage)},children:[
-        jsx("h3",{style:{fontWeight:600},children:({openai:"OpenAI",devin:"Devin",anthropic:"Anthropic",google:"Google AI Studio",xai:"xAI",openrouter:"OpenRouter","google-antigravity":"Google Antigravity"})[id]??id}),
-        jsx("p",{children:(ko?"미리보기 모델: ":"Preview model: ")+p.modelId}),
-        jsx("label",{children:[ko?"자동 압축 백분율 (%)":"Auto-compaction percentage (%)",jsx("input",{style:controlStyle,name:"percentage",type:"text",inputMode:"numeric",pattern:"[1-9][0-9]*",required:true,value:preview.percentage,onChange:update,disabled:pending})]}),
-        jsx("label",{children:[(ko?"안전 범위 슬라이더: 1–":"Safe range slider: 1–")+preview.max+"%",jsx("input",{"data-azrael-compaction-slider":true,"aria-label":ko?"자동 압축 백분율 슬라이더":"Auto-compaction percentage slider",type:"range",min:1,max:preview.max,step:1,value:Math.min(preview.max,Math.max(1,Number(preview.percentage)||1)),onChange:update,disabled:pending,style:{display:"block",width:"100%"}})]}),
-        jsx("p",{children:(ko?"기본 용량: ":"Base capacity: ")+tokens(preview.base)+(fallback?(ko?" 토큰. 추가 요금 경계가 없거나 알 수 없어 모델 용량을 사용합니다. 가격 상태를 확인하세요.":" tokens. Using model capacity because there is no known length-surcharge boundary; check pricing status."):(ko?" 토큰 (길이 추가 요금 없는 용량).":" tokens (no-length-surcharge capacity)."))}),
-        jsx("p",{"aria-live":"polite","data-azrael-compaction-preview":true,children:(ko?"요청: ":"Requested: ")+(preview.isTokenDefault?(ko?"기본값 = ":"default = "):preview.percentage+"% = ")+tokens(preview.requested)+(ko?" 토큰; 적용: ":" tokens; effective: ")+tokens(preview.effective)+(ko?" 토큰; 안전 한도: ":" tokens; safe cap: ")+tokens(p.safeContextWindow)+(preview.requested>preview.effective?(ko?" (안전 한도로 제한됨)":" (capped ot safe limit)"):"")}),
-        override?.token_limit!=null&&override.percentage==null?jsx("p",{children:(ko?"기존 토큰 한도 ":"Legacy token limit ")+tokens(override.token_limit)+(ko?"이 저장되어 있습니다. 저장을 누르면 표시된 백분율로 변경됩니다.":" remains stored until Save replaces it with the displayed percentage.")}):null,
-        jsx("div",{style:{display:"flex",gap:8,alignItems:"center"},children:[
-          jsx("button",{style:buttonStyle,type:"submit",disabled:pending,children:ko?"저장":"Save"}),
-          jsx("button",{style:buttonStyle,type:"button",disabled:pending,onClick:()=>action(id,""),children:ko?"기본값으로 재설정":"Reset to default"})
-        ]}),
-        jsx("p",{style:{whiteSpace:"pre-line"},children:policyDescription(p,ko,"compaction")})
-      ]});
-    })]});
+  for (const p of data?.contextPolicies ?? []) {if (!groups.has(p.providerId)) groups.set(p.providerId, []);if(!groups.get(p.providerId).some(x=>x.modelId===p.modelId))groups.get(p.providerId).push(p)}
+  const provider = groups.has(selection.provider) ? selection.provider : (data?.contextPolicies?.find(p=>p.modelId===data.config?.model)?.providerId ?? groups.keys().next().value);
+  const policies = groups.get(provider) ?? [];
+  const p = policies.find(p=>p.modelId===selection[provider]) ?? policies.find(p=>p.modelId===data.config?.model) ?? policies[0];
+  const key = p ? JSON.stringify([provider,p.modelId]) : "";
+  const providerEntry = data?.config?.provider_auto_compact?.[provider];
+  const modelEntry = providerEntry?.models?.[p?.modelId];
+  const providerOverride = providerEntry && (providerEntry.percentage != null || providerEntry.token_limit != null || Object.keys(providerEntry.models ?? {}).length===0) ? providerEntry : undefined;
+  const override = modelEntry ?? providerOverride ?? (data?.config?.model_auto_compact_token_limit != null ? {token_limit:data.config.model_auto_compact_token_limit} : undefined);
+  const preview = p ? compactionPreview(p,override,drafts[key]) : null;
+  const action = async value => {
+    if(pending || !p)return;
+    const version = generation.current, id=provider, model=p.modelId, savedKey=key;
+    setPending(true);setError("");setNotice("");
+    try {
+      const next = await savePolicy(client,id,model,value);
+      if(generation.current!==version)return;
+      setData(next);setDrafts(previous=>{const next={...previous};delete next[savedKey];return next});setNotice("saved");
+    }catch(e){if(generation.current===version)setError(ko?(e.message==="Enter a positive integer percentage"?"양의 정수 백분율을 입력하세요":e.message==="Percentage exceeds the supported integer range"?"백분율이 지원되는 정수 범위를 초과합니다":"설정을 저장하지 못했습니다: "+String(e.message??e)):String(e.message??e))}
+    finally{if(generation.current===version)setPending(false)}
+  };
+  const tokens = n => n == null ? (ko?"알 수 없음":"Unknown") : n.toLocaleString(ko?"ko-KR":"en-US");
+  const short = n => n == null ? "—" : n >= 1000000 ? +(n/1000000).toFixed(2)+"M" : n >= 1000 ? +(n/1000).toFixed(1)+"K" : String(n);
+  const names = {openai:"OpenAI",devin:"Devin",anthropic:"Anthropic",google:"Google AI Studio",xai:"xAI",openrouter:"OpenRouter","google-antigravity":"Google Antigravity"};
+  const update = e => {setDrafts(previous=>({...previous,[key]:e.target.value}));setNotice("")};
+  const selectStyle = {maxWidth:"100%",width:"100%",minWidth:0};
+  const price = p?.pricing, knownPrice = price?.status==="confirmed" || price?.status==="reference";
+  const priceText = knownPrice && price.inputTokenThreshold != null ? (price.inclusive ? "≥ " : "> ")+short(price.inputTokenThreshold)+(price.status==="reference"?(ko?" · API 참고":" · API reference"):"") : price?.status==="no-surcharge" || knownPrice && price.inputTokenThreshold == null ? (ko?"추가 요금 없음":"No surcharge")+(price.status==="reference"?(ko?" · API 참고":" · API reference"):"") : (ko?"알 수 없음":"Unknown");
+  const defaultPreview = p ? compactionPreview(p,{},undefined) : null;
+  const metric = (label,value,title) => jsx("div",{className:"flex min-w-0 flex-col gap-1",children:[jsx("span",{className:"text-xs text-token-description-foreground",children:label}),jsx("span",{className:"text-sm font-medium",style:{fontVariantNumeric:"tabular-nums",overflowWrap:"anywhere"},title,children:value})]});
+  return jsx("section", {"data-azrael-provider-context":true,className:"flex flex-col gap-4",children:[
+    jsx("div",{className:"flex flex-col gap-1",children:[jsx("h2",{className:"text-base font-semibold",children:ko?"자동 압축":"Auto-compaction"}),jsx("p",{className:"text-sm text-token-description-foreground",children:ko?"모델별 압축 기준을 설정합니다. 다음 턴부터 적용됩니다.":"Set a threshold for each model. Applies from the next turn."})]}),
+    jsx("style",{children:"[data-azrael-provider-context] .azrael-context-control{border:1px solid var(--color-border);border-radius:8px;background:var(--color-surface);color:var(--color-token-foreground);padding:8px 12px;font:inherit;line-height:20px}[data-azrael-provider-context] .azrael-context-control:focus-visible{outline:2px solid var(--color-token-foreground);outline-offset:2px}[data-azrael-provider-context] .azrael-context-control:disabled{opacity:.5}[data-azrael-context-metrics]{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}[data-azrael-compaction-slider]{appearance:auto!important;-webkit-appearance:auto!important;height:24px;cursor:pointer;accent-color:var(--color-token-foreground)}[data-azrael-compaction-slider]::-webkit-slider-thumb{appearance:auto!important;-webkit-appearance:auto!important}@media(max-width:480px){[data-azrael-context-metrics]{grid-template-columns:1fr;gap:12px}}"}),
+    error?jsx("p",{role:"alert",className:"text-sm",children:error}):null,
+    data == null && !error ? jsx("p",{role:"status",className:"text-sm text-token-description-foreground",children:ko?"불러오는 중…":"Loading…"}) : null,
+    data != null && !p ? jsx("p",{className:"text-sm text-token-description-foreground",children:ko?"사용 가능한 모델이 없습니다.":"No models available."}) : null,
+    p ? jsx("form",{"data-azrael-model-policy":p.modelId,onSubmit:e=>{e.preventDefault();return action(preview.isTokenDefault?"":preview.percentage)},className:"flex flex-col gap-4",children:[
+      jsx(Card,{children:[
+        jsx(Row,{className:"max-sm:flex-col max-sm:items-stretch max-sm:gap-2",label:ko?"제공자":"Provider",control:jsx("select",{"aria-label":ko?"제공자":"Provider",className:"azrael-context-control",style:selectStyle,value:provider,disabled:pending,onChange:e=>{setSelection(previous=>({...previous,provider:e.target.value}));setNotice("");setError("")},children:Array.from(groups.keys(),id=>jsx("option",{key:id,value:id,children:names[id]??id}))}),controlSizing:"grow"}),
+        jsx(Row,{className:"max-sm:flex-col max-sm:items-stretch max-sm:gap-2",label:ko?"모델":"Model",control:jsx("select",{"aria-label":ko?"모델":"Model",className:"azrael-context-control",style:selectStyle,value:p.modelId,title:p.modelId,disabled:pending,onChange:e=>{setSelection(previous=>({...previous,[provider]:e.target.value}));setNotice("");setError("")},children:policies.map(p=>jsx("option",{key:p.modelId,value:p.modelId,children:p.modelId.replace(/^managed\/[^/]+\//,"")}))}),controlSizing:"grow"})
+      ]}),
+      jsx("div",{"data-azrael-context-metrics":true,className:"px-4",children:[metric(ko?"컨텍스트 용량":"Context window",short(p.contextWindow),tokens(p.contextWindow)),metric(ko?"비용 증가 구간":"Price increases at",priceText,price?.inputTokenThreshold == null ? undefined : tokens(price.inputTokenThreshold)),metric(ko?"기본 압축값":"Default threshold",short(defaultPreview.effective),tokens(defaultPreview.effective))]}),
+      jsx(Card,{children:[
+        jsx(Row,{label:ko?"자동 압축 기준":"Compaction threshold",description:(ko?"기준 용량 ":"Based on ")+short(preview.base)+(ko?" 토큰":" tokens"),control:jsx("div",{className:"flex items-center gap-2",children:[jsx("input",{className:"azrael-context-control","aria-label":ko?"자동 압축 백분율":"Auto-compaction percentage",style:{width:84,textAlign:"right",fontVariantNumeric:"tabular-nums"},name:"percentage",type:"text",inputMode:"numeric",pattern:"[1-9][0-9]*",required:true,value:preview.percentage,onChange:update,disabled:pending}),jsx("span",{className:"text-sm text-token-description-foreground",children:"%"})]})}),
+        jsx("div",{className:"flex flex-col gap-2 px-4 py-3",children:[
+          jsx("input",{"data-azrael-compaction-slider":true,"aria-label":ko?"자동 압축 백분율 슬라이더":"Auto-compaction percentage slider",type:"range",min:1,max:preview.max,step:1,value:Math.min(preview.max,Math.max(1,Number(preview.percentage)||1)),onChange:update,disabled:pending,style:{width:"100%"}}),
+          jsx("div",{className:"flex items-center justify-between gap-3 text-sm",children:[jsx("span",{className:"text-token-description-foreground",children:ko?"적용될 압축값":"Effective threshold"}),jsx("strong",{"aria-live":"polite","data-azrael-compaction-preview":true,style:{fontVariantNumeric:"tabular-nums"},children:tokens(preview.effective)+(ko?" 토큰":" tokens")})]}),
+          preview.requested>preview.effective ? jsx("p",{className:"text-xs text-token-description-foreground",children:(ko?"요청값 ":"Requested ")+tokens(preview.requested)+(ko?" · 안전 한도 ":" · Safe limit ")+tokens(p.safeContextWindow)}) : null
+        ]})
+      ]}),
+      jsx("div",{className:"flex flex-wrap items-center justify-between gap-3",children:[
+        jsx(Button,{type:"button",color:"secondary",size:"compact",disabled:pending,onClick:()=>action(""),children:ko?"기본값으로 재설정":"Reset to default"}),
+        jsx("div",{className:"flex items-center gap-3",children:[jsx("span",{role:"status","aria-live":"polite",className:"text-xs text-token-description-foreground",children:(notice==="saved"?(ko?"저장됨":"Saved"):"") || (drafts[key]!=null?(ko?"저장되지 않음":"Unsaved"):(modelEntry?.percentage!=null||modelEntry?.token_limit!=null?(ko?"모델 설정":"Model setting"):providerOverride?.percentage!=null||providerOverride?.token_limit!=null?(ko?"제공자 설정 사용":"Using provider setting"):override?.token_limit!=null?(ko?"전역 설정 사용":"Using global setting"):(ko?"기본값":"Default")))}),jsx(Button,{type:"submit",color:"primary",size:"compact",disabled:pending,children:pending?(ko?"저장 중…":"Saving…"):(ko?"저장":"Save")})]})
+      ]}),
+      price?.sourceUrl ? jsx("a",{className:"text-xs text-token-description-foreground",style:{width:"fit-content",textDecoration:"underline"},href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",children:ko?"공식 요금 안내 ↗":"Official pricing ↗"}) : null
+    ]}) : null
+  ]});
 }
 function injectProviderContextControls(text, asset) {
   let count = 0;
@@ -162,7 +197,7 @@ function injectProviderContextControls(text, asset) {
     text=once(text,"e[8]===s?l=e[9]", "e[8]===s&&e[10]===r?l=e[9]");
     text=once(text,"e[8]=s,e[9]=l),l}", "e[8]=s,e[9]=l,e[10]=r),l}");
     text=once(text,"children:[a,o,null,s,c]", "children:[a,o,null,s,c,(0,$.jsx)(__AzraelContextSettings,{hostId:r})]");
-    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=ee(vt),client=He(scope,hostId),intl=i();return renderSettings(jr,$.jsx,client,intl.locale?.startsWith('ko'))}\n`;
+    text += `\n${policyDescription.toString()}\n${savePolicy.toString()}\n${compactionPreview.toString()}\n${renderSettings.toString()}\nfunction __AzraelContextSettings({hostId}){let scope=ee(vt),client=He(scope,hostId),intl=i();j();$e();Kt();return renderSettings(jr,$.jsx,client,intl.locale?.startsWith('ko'),{Button:G,Card:_t,Row:ut})}\n`;
     count++;
   }
   return {text,count};
@@ -170,4 +205,4 @@ function injectProviderContextControls(text, asset) {
 function injectProviderContext(text, asset) {
   return runProviderContext(text, asset, injectProviderContextControls);
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,renderCompactionAction,savePolicy};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,renderCompactionAction,savePolicy,compactionPreview,renderSettings};

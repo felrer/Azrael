@@ -62,7 +62,7 @@ function createView() {
   Object.defineProperty(panel.webview, 'html', { get: () => source, set: value => { source = value; if (surface === 'standalone') { emitted = value.slice(value.indexOf('<body>') + 6, value.lastIndexOf('<script nonce=')); updates++; } } });
   view.panel = panel;
 }
-const boot = `globalThis.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));let fixtureRoot;globalThis.fixturePending=0;globalThis.fixtureNode=s=>(fixtureRoot||document).querySelector(s);globalThis.fixtureNodes=s=>[...(fixtureRoot||document).querySelectorAll(s)];globalThis.fixtureSend=async message=>{fixturePending++;try{const r=await fetch('/action',{method:'POST',body:JSON.stringify(message)}),data=await r.json();if(data.error)throw Error(data.error);if(data.html){if(fixtureRoot)fixtureSubscriber({clientId:fixtureClientId,html:data.html});else document.body.innerHTML=data.html;}}finally{fixturePending--;}};globalThis.acquireVsCodeApi=()=>({postMessage:m=>void fixtureSend(m)});`;
+const boot = `globalThis.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));let fixtureRoot;globalThis.fixturePending=0;globalThis.fixtureNode=s=>(fixtureRoot||document).querySelector(s);globalThis.fixtureNodes=s=>[...(fixtureRoot||document).querySelectorAll(s)];globalThis.fixtureSend=async message=>{fixturePending++;try{const r=await fetch('/action',{method:'POST',body:JSON.stringify(message)}),data=await r.json();if(data.error)throw Error(data.error);if(data.html){if(fixtureRoot)fixtureSubscriber({clientId:fixtureClientId,html:data.html});else document.body.innerHTML=data.html;}}finally{fixturePending--;}};let fixtureState;globalThis.acquireVsCodeApi=()=>({postMessage:m=>void fixtureSend(m),getState:()=>fixtureState,setState:s=>fixtureState=s});`;
 const embeddedBoot = `globalThis.fixtureClientId=null;globalThis.fixtureSubscriber=null;globalThis.azraelAccountBridge={dispatchMessage(type,p){if(p.action==='mount'){fixtureClientId=p.clientId;fixtureSend({fixtureMount:true,clientId:p.clientId})}else if(p.action==='action')fixtureSend(p.message)},subscribe(type,fn){fixtureSubscriber=fn;return()=>{fixtureSubscriber=null}}};const effects=[];globalThis.Q={useRef:()=>({current:null}),useEffect:fn=>effects.push(fn)};globalThis.$={jsx:(type,props)=>({type,props})};${AzraelAccountSettings.toString()};const component=AzraelAccountSettings();const mount=document.createElement(component.type);component.props.ref.current=mount;document.body.append(mount);effects.forEach(fn=>fn());fixtureRoot=mount.shadowRoot;`;
 const css = '<link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css">';
 const server = createServer(async (req, res) => {
@@ -176,6 +176,16 @@ try {
       await evaluate(`fixtureNode(${selector}).scrollIntoView({block:'center',inline:'center'});new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))`);
       const target=await evaluate(`(()=>{const r=fixtureNode(${selector}).getBoundingClientRect();return{x:r.x+r.width/2,y:r.y+r.height/2};})()`);
       await send('Input.dispatchMouseEvent',{type:'mouseMoved',...target});
+      if(item.selector.startsWith('.puc-cell')){
+        // Tooltip bounds must not scroll ancestors when pointer selection starts with focus.
+        await evaluate(`fixtureNode('.puc-nav').focus({preventScroll:true});globalThis.selectedCellBefore=fixtureNode(${selector})`);
+        const before=await evaluate(`({left:fixtureNode('.puc-calendar-scroll').scrollLeft,top:scrollY})`);
+        await send('Input.dispatchMouseEvent',{type:'mousePressed',button:'left',clickCount:1,...target});
+        await send('Input.dispatchMouseEvent',{type:'mouseReleased',button:'left',clickCount:1,...target});
+        await wait('fixturePending===0');
+        check(prefix+' '+item.name+' same month preserves existing day node',await evaluate(`selectedCellBefore===fixtureNode(${selector})`));
+        check(prefix+' '+item.name+' pointer selection preserves horizontal and page scroll',await evaluate(`fixtureNode('.puc-calendar-scroll').scrollLeft===${before.left}&&scrollY===${before.top}`));
+      }
       check(prefix+' '+item.name+' mouse hover reveals tooltip',await evaluate(`getComputedStyle(fixtureNode(${selector}).querySelector('.puc-tooltip')).display==='block'`));
       const geometry=await evaluate(`(()=>{const t=fixtureNode(${selector}).querySelector('.puc-tooltip'),r=t.getBoundingClientRect(),s=getComputedStyle(t);return {left:r.left,right:r.right,top:r.top,bottom:r.bottom,scrollHeight:t.scrollHeight,clientHeight:t.clientHeight,overflow:s.overflowY,color:s.color,background:s.backgroundColor};})()`);
       summary.tooltipGeometry??=[];summary.tooltipGeometry.push({prefix,name:item.name,...geometry});
@@ -197,6 +207,12 @@ try {
       }
       const tooltipShot=await send('Page.captureScreenshot',{format:'png',captureBeyondViewport:false});
       const screenshotName=prefix+'-'+item.name+'-models.png';await writeFile(join(logs,screenshotName),Buffer.from(tooltipShot.data,'base64'));summary.screenshots.push(screenshotName);
+    }
+    if(surfaceName==='embedded'){
+      const before=await evaluate(`({left:fixtureNode('.puc-calendar-scroll').scrollLeft,top:scrollY})`);
+      await evaluate(`fixtureNode('.puc-nav[data-month="2024-03"]').click()`);
+      await wait("fixturePending===0&&fixtureNode('.puc-month').textContent.includes('2024.03')");
+      check(prefix+' month change preserves available calendar and page scroll',await evaluate(`fixtureNode('.puc-calendar-scroll').scrollLeft===${before.left}&&scrollY===Math.min(${before.top},Math.max(0,document.scrollingElement.scrollHeight-innerHeight))`));
     }
     check(prefix+' project model fixture has no browser errors',await evaluate('fixtureErrors.length===0'));
     if(process.env.AZRAEL_RENDER_PROVIDER_BRAND_CAPTURE==='1'&&surfaceName==='standalone'&&width===1050){

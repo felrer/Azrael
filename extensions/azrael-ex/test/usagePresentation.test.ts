@@ -49,12 +49,12 @@ test("Spark limits are filtered by map key, limit ID, name, and model slug", () 
 
 test("remaining percentage distinguishes zero from unavailable", () => {
   const exhausted = quotaHtml(window(100), "기본 한도");
-  assert.match(exhausted, />0% 남음</);
+  assert.match(exhausted, />0%</);
   assert.match(exhausted, /aria-valuenow="0"/);
   const unknown = quotaHtml(window(Number.NaN), "기본 한도");
   assert.match(unknown, /조회 불가/);
   assert.doesNotMatch(unknown, /role="progressbar"/);
-  assert.match(quotaHtml(window(12.34), "기본 한도"), />87\.7% 남음</);
+  assert.match(quotaHtml(window(12.34), "기본 한도"), />87\.7%</);
 });
 
 function providerQuota(overrides: Partial<ProviderAccountQuota> = {}): ProviderAccountQuota {
@@ -72,7 +72,7 @@ function providerQuota(overrides: Partial<ProviderAccountQuota> = {}): ProviderA
 test("dynamic typography escapes content and leaves fixed fallbacks and controls in UI fonts", () => {
   assert.equal(dynamicTextHtml('<계정 & "Account">'), '<span data-azrael-dynamic-text>&lt;계정 &amp; &quot;Account&quot;&gt;</span>');
   assert.doesNotMatch(quotaHtml(window(NaN), "기본 한도"), /data-azrael-dynamic-text/);
-  assert.match(quotaHtml(window(75, 300, 1_900_000_000), "기본 한도"), /<strong data-azrael-dynamic-text>25% 남음<\/strong>/);
+  assert.match(quotaHtml(window(75, 300, 1_900_000_000), "기본 한도"), /<strong data-azrael-dynamic-text>25%<\/strong>/);
   assert.match(quotaHtml(window(75, 42), "기본 한도"), /<span data-azrael-dynamic-text>42분 한도<\/span>/);
   for (const [flags, label] of [[{ unlimited: true }, "무제한"], [{ limitUnset: true }, "지출 한도 미설정"]] as const) {
     const fallback = providerQuotaRowHtml({ label: "Quota", remaining: 0, limit: 0, usedPercent: 0, ...flags });
@@ -111,7 +111,7 @@ test("Anthropic Fable shows remaining usage, accessible bars and reset time", ()
   for (const [usedPercent, remaining] of [[0, 100], [25, 75], [100, 0]]) {
     const html = providerQuotaHtml(providerQuota({ rows: [{ label: "Fable", usedPercent, resetsAt: 1_900_100_000 }] }));
     assert.match(html, />Fable 주간 한도</);
-    assert.ok(html.includes(`>${remaining}% 남음<`));
+    assert.ok(html.includes(`>${remaining}%<`));
     assert.ok(html.includes(`role="progressbar" aria-label="Fable 주간 한도 잔여량" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${remaining}"`));
     assert.ok(html.includes(`style="width:${remaining}%"`));
     assert.equal(html.includes('class="fill low"'), remaining === 0);
@@ -126,7 +126,7 @@ test("Fable missing or invalid percent stays unavailable without a bar", () => {
     assert.match(html, />Fable 주간 한도</);
     assert.match(html, /조회 불가/);
     assert.match(html, /리셋 시간 미제공/);
-    assert.doesNotMatch(html, /role="progressbar"|class="fill|% 남음/);
+    assert.doesNotMatch(html, /role="progressbar"|class="fill|%/);
   }
 });
 
@@ -134,11 +134,11 @@ test("missing Fable does not fabricate a quota and other provider rows stay gene
   for (const rows of [[], [{ label: "Weekly", usedPercent: 25 }]]) {
     const html = providerQuotaHtml(providerQuota({ rows }));
     assert.doesNotMatch(html, /Fable/);
-    if (rows.length) assert.match(html, /Weekly.*75% 남음/);
+    if (rows.length) assert.match(html, /Weekly.*75%/);
     else assert.match(html, /제공된 한도 항목이 없습니다/);
   }
   const html = providerQuotaHtml(providerQuota({ providerId: "openrouter" }));
-  assert.match(html, /Fable.*75% 남음/);
+  assert.match(html, /Fable.*75%/);
   assert.doesNotMatch(html, /Fable 주간 한도/);
 });
 
@@ -163,9 +163,9 @@ test("reset copy handles missing, passed, minute, hour, and day windows", () => 
   const now = Date.UTC(2026, 8, 13, 0, 0, 0);
   assert.equal(resetText(null, now), "리셋 시간 미제공");
   assert.match(resetText(now / 1000 - 1, now), /^리셋 시간 경과 · 갱신 대기$/);
-  assert.match(resetText(now / 1000 + 30 * 60, now), /^30분 후 리셋$/);
-  assert.match(resetText(now / 1000 + 90 * 60, now), /^1시간 30분 후 리셋$/);
-  assert.match(resetText(now / 1000 + 26 * 60 * 60, now), /^1일 2시간 후 리셋$/);
+  assert.match(resetText(now / 1000 + 30 * 60, now), /^30분$/);
+  assert.match(resetText(now / 1000 + 90 * 60, now), /^1시간 30분$/);
+  assert.match(resetText(now / 1000 + 26 * 60 * 60, now), /^1일 2시간$/);
 });
 
 test("usage HTML escapes backend content and preserves a real zero ticket count", () => {

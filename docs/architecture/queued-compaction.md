@@ -47,6 +47,13 @@ an earlier queued or automatic operation already reduced the context.
 
 The queue removes an item only after Core accepts it or reports a threshold skip.
 A skip creates no synthetic model turn and processing continues to the next item.
+Each threshold skip emits a thread-scoped warning. The host displays a native
+warning toast explaining that compaction was not executed because context usage
+is below 15% of the full model context window. This applies both to requests
+processed after an active turn and to idle or explicit queue starts. Enqueue
+acknowledgement remains distinct from execution; busy admission keeps the request
+queued without showing a skip notice. This feedback is implemented in source;
+packaging and installed-window acceptance remain separate.
 Admission failure retains the item. Execution errors use the existing compact-task
 lifecycle and diagnostic paths. Existing direct compaction callers retain their
 behavior; the composer routes to the queue.
