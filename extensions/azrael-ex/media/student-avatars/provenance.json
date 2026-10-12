@@ -3,7 +3,7 @@
   "sourceRoster": "artifacts/visualizations/blue-archive-expansion-20261012/selected-students.json",
   "sourceBuildUTC": "2026-09-27T17:40:18+00:00",
   "selectionPolicy": "Original100 base-version IDs retained;100 additional distinct student/costume IDs (44 base,56 variants); unique English identity labels, native Blue Archive characters, collaborations excluded.",
-  "approval": "Original100 portraits retain prior user approval; additional100 generated on user request and accepted by generation and root visual checks; all200 are available in the review HTML.",
+  "approval": "Six regenerated portraits explicitly approved by the user before replacement; the other194 PNG bytes are preserved.",
   "generation": {
     "renderer": "OpenAI built-in image_gen",
     "type": "AI-generated Blue Archive fan art",
@@ -95,7 +95,11 @@
       "sourceUrl": "https://schaledb.com/data/en/students.min.json",
       "portraitUrl": "https://schaledb.com/images/student/portrait/23005.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/23005.webp",
-      "assetSHA256": "0be41a0fb67424e59ac40858c48a19bf6dc091b6c81005abcb8ce26b20edc320"
+      "assetSHA256": "4d65fc2156f6764738a99736c6dc4c31830c116e3e0e231a0c176230b478b1c3",
+      "previousAssetSHA256": "0be41a0fb67424e59ac40858c48a19bf6dc091b6c81005abcb8ce26b20edc320",
+      "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/23005.webp",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/23005.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10002,
@@ -179,7 +183,11 @@
       "sourceUrl": "https://schaledb.com/data/en/students.min.json",
       "portraitUrl": "https://schaledb.com/images/student/portrait/10149.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/10149.webp",
-      "assetSHA256": "48cd08ac5de2d1523ad2b01ffd14045024316c24ecef7a670f2b161a77e6b977"
+      "assetSHA256": "794d3f8fec182930fdf251aa891364fa33e8071fa0890cc7334513bb4de602e2",
+      "previousAssetSHA256": "48cd08ac5de2d1523ad2b01ffd14045024316c24ecef7a670f2b161a77e6b977",
+      "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/10149.webp",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10149.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10006,
@@ -200,7 +208,11 @@
       "sourceUrl": "https://schaledb.com/data/en/students.min.json",
       "portraitUrl": "https://schaledb.com/images/student/portrait/10013.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/10013.webp",
-      "assetSHA256": "4e84dc1c47e8e46bf7b7a9cf1fc42bed0413c108e75589f0d6a5af57ac670bf7"
+      "assetSHA256": "053412f05289e141152e8cf785bc469838b51616bfa6baf6719a16fe094e668a",
+      "previousAssetSHA256": "4e84dc1c47e8e46bf7b7a9cf1fc42bed0413c108e75589f0d6a5af57ac670bf7",
+      "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/10013.webp",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10013.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10033,
@@ -228,7 +240,11 @@
       "sourceUrl": "https://schaledb.com/data/en/students.min.json",
       "portraitUrl": "https://schaledb.com/images/student/portrait/10042.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/10042.webp",
-      "assetSHA256": "d06c6482c5cb8270b0eced700e572a3958fcc9cf8590e058d1e4957bbfe1cc28"
+      "assetSHA256": "5bb905bf8a327e5cfd91685fd464b88b846939f45bc3aa4fe9a5d2cdcc4e5530",
+      "previousAssetSHA256": "d06c6482c5cb8270b0eced700e572a3958fcc9cf8590e058d1e4957bbfe1cc28",
+      "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/10042.webp",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10042.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10039,
@@ -1157,9 +1173,12 @@
       "id": 10043,
       "sourceUrl": "https://schaledb.com/data/en/students.min.json",
       "portraitUrl": "https://schaledb.com/images/student/portrait/10043.webp",
-      "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/10043.webp",
+      "retrievedReferenceUrl": "https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/portrait/10043_2.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/10043.webp",
-      "assetSHA256": "28b874b018fdec6418313c5a9e6e021adcedf0290504062a17539a6d848b554c"
+      "assetSHA256": "48131df0c4efd226f6681677066202821943179f0d50ce587ae0cae309ed50e9",
+      "previousAssetSHA256": "28b874b018fdec6418313c5a9e6e021adcedf0290504062a17539a6d848b554c",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10043.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10044,
@@ -1423,7 +1442,10 @@
       "portraitUrl": "https://schaledb.com/images/student/portrait/10103.webp",
       "retrievedReferenceUrl": "https://schaledb.com/images/student/portrait/10103.webp",
       "collectionUrl": "https://schaledb.com/images/student/collection/10103.webp",
-      "assetSHA256": "66bfcbcf85c7570a40ce5daa052515ba35d91056e692b66decf5657d7bea0e37"
+      "assetSHA256": "0ac0fe66a28b0f7101e0e57a53f7f9d7ea195e7a9801208ff374aecc9d80639f",
+      "previousAssetSHA256": "66bfcbcf85c7570a40ce5daa052515ba35d91056e692b66decf5657d7bea0e37",
+      "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10103.json",
+      "userApproval": "Explicitly approved by user in chat before application."
     },
     {
       "id": 10105,
@@ -1524,5 +1546,64 @@
     "review": "artifacts/visualizations/blue-archive-expansion-20261012/review.html",
     "baselineSHA256": "c37a61cfe4a82939cb10767f4f9606ab9c665e3a8a184d789628f1dd4d4e3d36",
     "generationAttempts": 127
+  },
+  "reconfirmation": {
+    "approvedAtUTC": "2026-10-12T02:04:54.650573+00:00",
+    "appliedCount": 6,
+    "approvalMode": "User explicitly approved all six candidates in chat.",
+    "review": "artifacts/visualizations/blue-archive-reconfirm-20261012/confirm.html",
+    "receipt": "artifacts/visualizations/blue-archive-reconfirm-20261012/approval.json",
+    "generationAttempts": 17,
+    "retries": 11,
+    "students": [
+      {
+        "id": 23005,
+        "previousSHA256": "0be41a0fb67424e59ac40858c48a19bf6dc091b6c81005abcb8ce26b20edc320",
+        "candidateSHA256": "4d65fc2156f6764738a99736c6dc4c31830c116e3e0e231a0c176230b478b1c3",
+        "referenceAsset": "references/23005.webp",
+        "referenceUrl": "https://schaledb.com/images/student/portrait/23005.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/23005.json"
+      },
+      {
+        "id": 10149,
+        "previousSHA256": "48cd08ac5de2d1523ad2b01ffd14045024316c24ecef7a670f2b161a77e6b977",
+        "candidateSHA256": "794d3f8fec182930fdf251aa891364fa33e8071fa0890cc7334513bb4de602e2",
+        "referenceAsset": "references/10149.webp",
+        "referenceUrl": "https://schaledb.com/images/student/portrait/10149.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10149.json"
+      },
+      {
+        "id": 10013,
+        "previousSHA256": "4e84dc1c47e8e46bf7b7a9cf1fc42bed0413c108e75589f0d6a5af57ac670bf7",
+        "candidateSHA256": "053412f05289e141152e8cf785bc469838b51616bfa6baf6719a16fe094e668a",
+        "referenceAsset": "references/10013.webp",
+        "referenceUrl": "https://schaledb.com/images/student/portrait/10013.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10013.json"
+      },
+      {
+        "id": 10042,
+        "previousSHA256": "d06c6482c5cb8270b0eced700e572a3958fcc9cf8590e058d1e4957bbfe1cc28",
+        "candidateSHA256": "5bb905bf8a327e5cfd91685fd464b88b846939f45bc3aa4fe9a5d2cdcc4e5530",
+        "referenceAsset": "references/10042.webp",
+        "referenceUrl": "https://schaledb.com/images/student/portrait/10042.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10042.json"
+      },
+      {
+        "id": 10043,
+        "previousSHA256": "28b874b018fdec6418313c5a9e6e021adcedf0290504062a17539a6d848b554c",
+        "candidateSHA256": "48131df0c4efd226f6681677066202821943179f0d50ce587ae0cae309ed50e9",
+        "referenceAsset": "references/10043-unmasked.webp",
+        "referenceUrl": "https://raw.githubusercontent.com/SchaleDB/SchaleDB/main/images/student/portrait/10043_2.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10043.json"
+      },
+      {
+        "id": 10103,
+        "previousSHA256": "66bfcbcf85c7570a40ce5daa052515ba35d91056e692b66decf5657d7bea0e37",
+        "candidateSHA256": "0ac0fe66a28b0f7101e0e57a53f7f9d7ea195e7a9801208ff374aecc9d80639f",
+        "referenceAsset": "references/10103.webp",
+        "referenceUrl": "https://schaledb.com/images/student/portrait/10103.webp",
+        "generationMetadata": "artifacts/visualizations/blue-archive-reconfirm-20261012/designs/10103.json"
+      }
+    ]
   }
 }

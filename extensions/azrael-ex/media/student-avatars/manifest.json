@@ -83,7 +83,8 @@
       "nameKo": "아야네",
       "nameEn": "Ayane",
       "school": "Abydos",
-      "asset": "23005.png"
+      "asset": "23005.png",
+      "assetSHA256": "4d65fc2156f6764738a99736c6dc4c31830c116e3e0e231a0c176230b478b1c3"
     },
     {
       "id": 10002,
@@ -167,7 +168,8 @@
       "nameKo": "코코로",
       "nameEn": "Kokoro",
       "school": "Odyssey",
-      "asset": "10149.png"
+      "asset": "10149.png",
+      "assetSHA256": "794d3f8fec182930fdf251aa891364fa33e8071fa0890cc7334513bb4de602e2"
     },
     {
       "id": 10006,
@@ -188,7 +190,8 @@
       "nameKo": "츠루기",
       "nameEn": "Tsurugi",
       "school": "Trinity",
-      "asset": "10013.png"
+      "asset": "10013.png",
+      "assetSHA256": "053412f05289e141152e8cf785bc469838b51616bfa6baf6719a16fe094e668a"
     },
     {
       "id": 10033,
@@ -216,7 +219,8 @@
       "nameKo": "아츠코",
       "nameEn": "Atsuko",
       "school": "Arius",
-      "asset": "10042.png"
+      "asset": "10042.png",
+      "assetSHA256": "5bb905bf8a327e5cfd91685fd464b88b846939f45bc3aa4fe9a5d2cdcc4e5530"
     },
     {
       "id": 10039,
@@ -1259,7 +1263,7 @@
       "baseName": "Wakamo",
       "variant": "Swimsuit",
       "asset": "10043.png",
-      "assetSHA256": "28b874b018fdec6418313c5a9e6e021adcedf0290504062a17539a6d848b554c"
+      "assetSHA256": "48131df0c4efd226f6681677066202821943179f0d50ce587ae0cae309ed50e9"
     },
     {
       "id": 10044,
@@ -1589,7 +1593,7 @@
       "baseName": "Marina",
       "variant": "Qipao",
       "asset": "10103.png",
-      "assetSHA256": "66bfcbcf85c7570a40ce5daa052515ba35d91056e692b66decf5657d7bea0e37"
+      "assetSHA256": "0ac0fe66a28b0f7101e0e57a53f7f9d7ea195e7a9801208ff374aecc9d80639f"
     },
     {
       "id": 10105,
