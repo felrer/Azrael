@@ -15,6 +15,8 @@ import { classifyManagedError, providerHttpError } from './inference-errors.ts';
 import { apiCatalog, apiConfigCommand, isApiProvider } from './custom-api-config.ts';
 import { inferApi } from './custom-api.ts';
 import { createToolDiagnostics } from './tool-diagnostics.mjs';
+import { createContextDiagnostics } from '../devin/context-budget.mjs';
+import { estimateTokens } from './vendor/src/lib/token-estimate.ts';
 
 const supported = MANAGED_PROVIDERS;
 const bindingProvider = (id: unknown) => supported.includes(id as string) || isApiProvider(id);
@@ -390,9 +392,12 @@ export function managedDeadlineFailure(error: any, signal: AbortSignal, upstream
   return signal.aborted && !upstreamSseError && (!(error instanceof AdapterError) || error.message === 'provider_failure');
 }
 
-export async function infer(request: any, emit: (frame: any) => void, fetcher = globalThis.fetch, progress?: ReturnType<typeof createProgressMonitor>, options: { deadlineSignal?: AbortSignal } = {}) {
+export async function infer(request: any, emit: (frame: any) => void, fetcher = globalThis.fetch, progress?: ReturnType<typeof createProgressMonitor>, options: { deadlineSignal?: AbortSignal; prepareOnly?: boolean } = {}) {
   if (!request || request.type !== 'request' || request.protocol_version !== 1 || typeof request.request_id !== 'string' || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
-  if (isApiProvider(request.provider_id)) return inferApi(request, emit, fetcher, progress, options);
+  if (isApiProvider(request.provider_id)) {
+    if (options.prepareOnly) fail('unsupported_input_budget');
+    return inferApi(request, emit, fetcher, progress, options);
+  }
   const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
   const { compiled, parsed } = projectRequest(request, pinned.fingerprint,
@@ -436,6 +441,12 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if (request.provider_id === 'anthropic' && (typeof request.instructions !== 'string'
       || wireBody.messages?.some((message: any) => typeof message.content !== 'string' && (!Array.isArray(message.content) || message.content.some((part: any) => !['text', 'image', 'tool_use', 'tool_result', 'thinking', 'redacted_thinking'].includes(part.type))))
       || !wireBody.system?.some((part: any) => typeof part.text === 'string' && part.text.includes(request.instructions)))) fail('unsupported_provider_output');
+    const context = options.prepareOnly ? createContextDiagnostics(request.model, estimateTokens, 'model_chars') : progress?.contextDiagnostics;
+    context?.wire(built.body);
+    if (options.prepareOnly) {
+      emit({ type: 'input_budget', input_budget: { ...context!.budget(), scope_sha256: pinned.fingerprint } });
+      return;
+    }
     stage = 'headers';
     const response = adapter.fetchResponse ? await adapter.fetchResponse(built, { abortSignal: signal, executor: fetcher, returnRawErrors: true, stream: true }) : await fetcher(built.url, { method: built.method, headers: built.headers, body: built.body, signal, redirect: 'error' });
     tracker.headers?.(response);
@@ -444,7 +455,10 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
     const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event), toolDiagnostics) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
     stage = 'map';
-    await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque, toolDiagnostics }, emit, request.request_id);
+    await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque, toolDiagnostics }, frame => {
+      if (frame.type === 'completed') context?.usage(frame.usage);
+      emit(frame);
+    }, request.request_id);
   } catch (error) {
     if (retirementCode) fail(retirementCode);
     tracker?.error(stage, error, signal);
@@ -569,8 +583,9 @@ export async function runCli() {
       const diagnostics = diagnosticPolicy();
       progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: diagnostics.inference,
         thinkingWaitEnabled: request.provider_id === 'anthropic',
+        contextDiagnostics: isApiProvider(request.provider_id) || !diagnostics.inference ? undefined : createContextDiagnostics(request.model, estimateTokens, 'model_chars'),
         toolDiagnostics: isApiProvider(request.provider_id) || !diagnostics.tools ? undefined : createToolDiagnostics({ wirePrefix: request.provider_id === 'anthropic' ? 'custom_' : '' }) });
-      await infer(request, emit, globalThis.fetch, progress);
+      await infer(request.type === 'estimate' ? { ...request, type: 'request' } : request, emit, globalThis.fetch, progress, { prepareOnly: request.type === 'estimate' });
     }
   } catch (error: any) {
     const code = error instanceof AdapterError && /^[a-z_]{3,64}(?:\d{3})?$/.test(error.message) ? error.message : 'provider_failure';

@@ -264,6 +264,7 @@ mod provider_handoff;
 pub(crate) use provider_handoff::prepare as prepare_provider_handoff;
 mod accepted_user_inputs;
 mod realtime_history;
+mod request_budget;
 mod retained_context;
 mod review;
 mod rollout_budget;
@@ -4966,6 +4967,17 @@ impl Session {
         model_info: &ModelInfo,
         prompt: &crate::client_common::Prompt,
     ) {
+        self.record_input_context_policy_with_estimate(turn_context, model_info, prompt, None)
+            .await;
+    }
+
+    pub(crate) async fn record_input_context_policy_with_estimate(
+        &self,
+        turn_context: &TurnContext,
+        model_info: &ModelInfo,
+        prompt: &crate::client_common::Prompt,
+        final_input_tokens: Option<i64>,
+    ) {
         let mut policy = codex_protocol::context_policy::resolve_context_policy(
             model_info,
             &turn_context.config.provider_auto_compact,
@@ -4994,11 +5006,11 @@ impl Session {
                     .unwrap_or(i64::MAX)
             })
             .unwrap_or(0);
-        policy.input_tokens = Some(
+        policy.input_tokens = Some(final_input_tokens.unwrap_or_else(|| {
             instruction_tokens
                 .saturating_add(item_tokens)
-                .saturating_add(schema_tokens),
-        );
+                .saturating_add(schema_tokens)
+        }));
         {
             let mut state = self.state.lock().await;
             let mut info = state.token_info().unwrap_or(TokenUsageInfo {

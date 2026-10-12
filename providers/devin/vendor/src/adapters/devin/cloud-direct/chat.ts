@@ -656,15 +656,25 @@ export function sanitizeToolDescriptionForCognitionForTests(description: string)
   return sanitizeToolDescriptionForCognition(description);
 }
 
-function encodeToolDef(tool: ToolDef): Buffer {
+function projectedToolDescription(tool: ToolDef): string {
   const rawDesc = sanitizeToolDescriptionForCognition(tool.description ?? '');
   const desc =
     rawDesc.length > MAX_TOOL_DESC_LEN
       ? rawDesc.slice(0, MAX_TOOL_DESC_LEN - 24) + '\n…(truncated for cloud)'
       : rawDesc;
+  return desc;
+}
+
+// Used by request sizing and the actual serializer; never includes credentials.
+export function projectCloudInput(messages: ChatHistoryItem[], tools: ToolDef[] = []) {
+  return { messages: collapseSystemIntoUser(messages),
+    tools: tools.map(tool => ({ ...tool, description: projectedToolDescription(tool) })) };
+}
+
+function encodeToolDef(tool: ToolDef): Buffer {
   return Buffer.concat([
     encodeString(1, tool.name),
-    encodeString(2, desc),
+    encodeString(2, projectedToolDescription(tool)),
     encodeString(3, JSON.stringify(tool.parameters ?? {})),
   ]);
 }

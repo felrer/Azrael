@@ -4,6 +4,9 @@ use codex_protocol::error::Result as CodexResult;
 use codex_protocol::models::ResponseItem;
 use serde::Deserialize;
 
+#[path = "native_runtime_context_diagnostics.rs"]
+pub(super) mod context_diagnostics;
+
 #[derive(Debug, Deserialize)]
 pub(super) struct OutputFrame {
     pub(super) protocol_version: u8,
@@ -33,6 +36,8 @@ pub(super) struct Progress {
     transport: Option<super::transport::Transport>,
     #[serde(default)]
     tool_diagnostics: Option<super::tool_diagnostics::ToolDiagnostics>,
+    #[serde(default)]
+    context_diagnostics: Option<context_diagnostics::ContextDiagnostics>,
     pub(super) phase: ProgressPhase,
     pub(super) elapsed_ms: u64,
     pub(super) network_idle_ms: u64,
@@ -120,6 +125,14 @@ impl Progress {
                 heartbeat_count = wait.heartbeat_count, heartbeat_idle_ms = wait.heartbeat_idle_ms,
                 generation_idle_ms = self.event_idle_ms, generation_event_count = self.event_count);
             }
+        }
+        if policy.inference
+            && context_diagnostics::is_terminal_outcome(outcome)
+            && let Some(context) = &self.context_diagnostics
+            && let Ok(context) = serde_json::to_string(context)
+        {
+            tracing::info!(target: "devin_native_progress", event = "native_inference_context_diagnostics",
+                request_id, outcome, context_diagnostics = %context);
         }
         if policy.tools
             && let Some(tool_diagnostics) = &self.tool_diagnostics
@@ -361,6 +374,37 @@ mod diagnostic_policy_tests {
     use std::sync::Mutex;
     use tracing_subscriber::Layer;
     use tracing_subscriber::layer::SubscriberExt;
+
+    #[test]
+    fn context_evidence_is_inference_only_and_terminal_only() {
+        let wire = serde_json::json!({"phase":"stream", "elapsed_ms":0, "network_idle_ms":0,
+            "event_idle_ms":0,"bytes_received":0,"event_count":0,"last_event":"none",
+            "context_diagnostics":context_diagnostics::fixture()});
+        let progress: Progress = serde_json::from_value(wire).unwrap();
+        for inference in [false, true] {
+            for outcome in ["running", "completed", "provider_failure", "SECRET"] {
+                let capture = Capture::default();
+                let subscriber = tracing_subscriber::registry().with(capture.clone());
+                tracing::subscriber::with_default(subscriber, || {
+                    progress.log_with_policy(
+                        "test",
+                        outcome,
+                        super::super::diagnostic_policy::DiagnosticPolicy {
+                            inference,
+                            tools: true,
+                        },
+                    )
+                });
+                let events = capture.0.lock().unwrap();
+                assert_eq!(
+                    events
+                        .iter()
+                        .any(|e| e == "native_inference_context_diagnostics"),
+                    inference && matches!(outcome, "completed" | "provider_failure")
+                );
+            }
+        }
+    }
 
     #[derive(Clone, Default)]
     struct Capture(Arc<Mutex<Vec<String>>>);

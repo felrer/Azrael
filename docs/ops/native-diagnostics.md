@@ -71,6 +71,27 @@ Safe export requires recognized labels, strict UUID correlation and unsigned 64-
 
 Source checks use `python -B -m unittest discover -s scripts/tests -p test_inspect_native_azrael_errors.py -v` and, from frozen `codex-rs/`, `cargo test -p codex-core --lib root_resume_timing --locked --offline -- --test-threads=1`. On Windows use `RUST_MIN_STACK=33554432` for session fixtures and the selected shared engine cache. Coverage includes emitted correlation/outcome fields and a mocked native request after manual resume; installed/live-server acceptance is separate.
 
+## Request input budget evidence
+
+`native_inference_context_diagnostics` records final helper input components and
+the normalized reported input usage through the existing SQLite sink. The
+read-only inspector exports validated numeric fields as `contextBudgetDiagnostics`
+with a hashed `requestRef`; the request's provider/model can be correlated with
+existing inference metadata. A matching engine/helper release is required.
+
+The evidence separates instructions, conversation, tool definitions, tool
+results, tool calls and reasoning. `text_estimate_tokens` is a local text
+approximation, while `image_count` and `image_bytes` describe image transport
+content without estimating its tokens. `residual_tokens` is reported full input
+minus estimated text, including provider overhead and image input. It is absent
+when the provider reports estimated usage. Cache tokens are already part of full
+reported input and must not be added again.
+
+Collection and export use `AZRAEL_DIAGNOSTICS_INFERENCE`, the existing log flush,
+time-range and event limits, and SQLite retention. No raw request content or
+credential values are exported. An older release without this event cannot
+recover its unrecorded input composition.
+
 ## Tool invocation evidence
 
 Status: `partial` — source tests cover helper/adapter events, native validation and safe export. A matching engine/helper release and window reload are required before a real session contains these fields.
