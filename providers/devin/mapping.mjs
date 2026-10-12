@@ -1,4 +1,5 @@
 import { createHash } from 'node:crypto';
+import { projectSearchHistory } from './tool-search-history.mjs';
 
 export const MAX_BYTES = 8 * 1024 * 1024;
 // Request frames may carry base64 images in addition to the bounded text context.
@@ -100,6 +101,7 @@ export function compileRequest(request) {
     tools.push({ name: wireName, description: bounded(description), parameters });
   }
   for (const tool of request.tools) declare(tool);
+  const searchHistory = projectSearchHistory(request.input, names, alias);
   const messages = [];
   if (request.instructions) messages.push({ role: 'system', content: bounded(request.instructions) });
   const calls = new Set();
@@ -119,7 +121,7 @@ export function compileRequest(request) {
     // with newlines, independently for visible text and reasoning.
     if (text) message[field] = message[field] ? message[field] + '\n' + text : text;
   }
-  for (const item of request.input) {
+  for (const [index, item] of request.input.entries()) {
     if (!object(item)) fail('invalid_history_item');
     switch (item.type) {
       case 'message': {
@@ -163,7 +165,7 @@ export function compileRequest(request) {
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        messages.push({ role: 'tool', tool_call_id: item.call_id, content: bounded(JSON.stringify({ status: item.status, tools: item.tools })) });
+        messages.push({ role: 'tool', tool_call_id: item.call_id, content: bounded(JSON.stringify(searchHistory(item, index))) });
         break;
       case 'additional_tools':
         // Catalog already assembled by native Codex. These are history entries,

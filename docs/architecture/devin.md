@@ -70,7 +70,7 @@ These observations can distinguish client-visible network silence, heartbeat-onl
 3. Exposed tools (`functions.exec`, nested shell/patch, MCP, `azrael_agents`) reach the native dispatcher exactly once, including helper-style calls. Command strings are never executed by the helper.
 4. Encrypted schemas are never presented as plaintext. When a core tool cannot be provided, the request fails as unsupported before inference.
 5. Streaming arguments are never executed. Completed calls are validated against registered tool, kind, schema and call ID before `ToolCallRuntime`/`ToolRouter`. Unknown names, ambiguous aliases, invalid JSON, duplicate IDs and conflicting completions end with an error and no execution.
-6. Results are stored as native result items and returned with the same call ID. On replay, consecutive assistant text, reasoning with signatures and tool calls form one assistant message, split by user/system/agent messages and tool results; call/result order and IDs are preserved. Tool failures reach the model as error results; conversion and protocol failures fail the turn. Requests and tools are never retried automatically when execution state is uncertain.
+6. Results are stored as native result items and returned with the same call ID. On replay, consecutive assistant text, reasoning with signatures and tool calls form one assistant message, split by user/system/agent messages and tool results; call/result order and IDs are preserved. Tool failures reach the model as error results; conversion and protocol failures fail the turn. Search-schema deduplication follows the [request projection contract](managed-providers.md#tool-search-history-projection). Requests and tools are never retried automatically when execution state is uncertain.
 
 Provider-hosted web search is not implemented and is excluded from the Devin tool catalog without changing OpenAI settings. Image input follows the per-model capability contract above: images reach the provider only for a verified image-capable selection, and a text-only selection rejects them explicitly rather than dropping them. Audio, structured output and foreign encrypted payloads fail explicitly. Context overflow fails clearly instead of dropping content, and native compaction is not available for Devin threads.
 
@@ -82,7 +82,7 @@ Credentials come either from the Devin CLI (`%APPDATA%/devin/credentials.toml`, 
 
 ## Storage and resume
 
-Native thread ID, rollout JSONL, SQLite index and native tool results are the conversation record; the helper keeps no conversation database or resume checkpoint. The provider receives explicit context built from native history with roles, order and call IDs preserved; tool results are never replaced by text summaries.
+Native thread ID, rollout JSONL, SQLite index and native tool results are the conversation record; the helper keeps no conversation database or resume checkpoint. The provider receives explicit context built from native history with roles, order and call IDs preserved. Search results use the request-only schema projection; other tool results retain their content.
 
 Devin reasoning signatures are kept in the native Reasoning item's `encrypted_content` as `azrael-devin-v1:` plus a base64 JSON envelope. The envelope is not encryption; it binds the opaque provider signature to model, thread and credential scope. Signatures from another model, thread or credential scope, or OpenAI opaque values, are never reused.
 

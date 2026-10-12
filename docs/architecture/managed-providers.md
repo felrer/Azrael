@@ -12,6 +12,23 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Tool search history projection
+
+Status: `partial` — source projection is verified with Windows mapper and provider
+wire fixtures; installed behavior requires a matching helper release.
+
+Managed and Devin helpers project search history on the request copy. Definitions
+already provided by the current wire catalog become callable aliases. For other
+identities, including Code Mode helpers, the latest completed search retains its
+full schema and earlier occurrences refer to that result. Namespace and tool kind
+remain distinct. Failed and empty results, call IDs and ordering are preserved.
+History never adds a callable tool or bypasses native permissions; nested calls
+follow current Code Mode instructions. Stored conversations remain unchanged.
+
+User API requests retain their stricter current-alias-only projection and bounded
+discovered catalog. OpenAI retains native `tool_search_output` semantics. Neither
+path is changed by this helper projection. See the [Devin tool contract](devin.md#tool-contract).
+
 ## Anthropic tool input streaming
 
 Status: `partial` — implemented in source; installation requires a matching helper release.

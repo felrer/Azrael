@@ -1,5 +1,6 @@
 import { createHash } from 'node:crypto';
 import { anthropicPromptSection } from './anthropic-prompt-format.mjs';
+import { projectSearchHistory } from '../devin/tool-search-history.mjs';
 
 // Native protocol/tool projection adapted from providers/devin/mapping.mjs.
 // Managed transport and provider-private replay remain owned by inference.ts.
@@ -100,6 +101,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
     tools.push({ name: wireName, description: bounded(description), parameters });
   }
   for (const tool of request.tools) declare(tool);
+  const searchHistory = compactToolSearchResults ? undefined : projectSearchHistory(request.input, names, alias);
   const format = promptFormat === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
   const currentTaskIndex = request.input.findLastIndex(item => item?.type === 'message' && item.role === 'user');
   const messages = [];
@@ -170,13 +172,12 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        // Chat APIs already receive the selected schemas in `tools`. Repeating
-        // every historical search schema here grows context without bound and
-        // advertises canonical names that the wire catalog does not accept.
+        // API discovery uses only current aliases. Other providers retain the
+        // latest uncovered definition, including nested Code Mode helpers.
         messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify(
           compactToolSearchResults
             ? { status: item.status, tools: compactSearchTools(item.tools, names), guidance: 'Call only names in the current tools catalog. Search again for other tools.' }
-            : { status: item.status, tools: item.tools }
+            : searchHistory(item, index)
         ))) });
         break;
       case 'additional_tools':
