@@ -25,3 +25,7 @@ The panel's transfer action submits selected text inside the panel, or its lates
 ## Verification boundary
 
 Source fixtures exercise the actual transformed composer, native command registration and Side chat wiring with asynchronous synthetic host RPC. Host IDs remain native strings; model, provider, cwd and message reads await RPC results. The panel observes native turn-state changes, rejects stale reads and releases its subscription on unmount. Rendered native React, slash-command rows, buttons and CSS in both themes verify the command entry and panel controls. The complete installed slash popup and provider acceptance remain separate. Rust integration tests cover live-context isolation and the no-tool ceiling; execution of those tests requires a separate authorized build scope. Source verification does not establish installed-host acceptance.
+
+## Preservation mapping
+
+Registered features: `ui.btw`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

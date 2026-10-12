@@ -36,7 +36,7 @@ Timers run inside the engine on the existing async clock. Reservations are recon
 
 ### Stopping a parked execution
 
-Status: `target`; Rust execution verification and installed-host acceptance are pending.
+Status: `partial` — cancellation-before-interruption is implemented in the integrated source; focused Rust execution, packaging and installed-host acceptance remain separate.
 
 A manual stop or explicit reservation cancellation first persists cancellation, stops its timer, and then emits a canonical interruption for the parked segment. The execution status becomes interrupted even though there is no active inference task to abort. Repeated stops emit no duplicate terminal event; children and recorded tool results remain available. Cancellation storage failure cannot publish a successful interruption. The terminal duration stays frozen at the defer boundary. An interrupted idle thread without subscribers can use normal unload and release its writer ownership.
 
@@ -119,3 +119,7 @@ Work and waiting measurements remain owned by the turn and reservation contracts
 ## Cost characteristics
 
 A parked root holds no ongoing inference. Resuming makes a new request from retained conversation state, and provider prompt-cache reuse is independent of the reservation, so a cache miss can raise the input cost of the first resumed request. Savings come from avoiding repeated model wakeups and status checks, not from elapsed wall time. Prefer waking on selected child completion with a useful fallback deadline over short repeated timed wakeups intended only to keep a cache warm.
+
+## Preservation mapping
+
+Registered features: `ui.deferred-turn`, `ui.work-segment-folding`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

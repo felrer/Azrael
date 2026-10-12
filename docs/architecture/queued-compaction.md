@@ -166,3 +166,7 @@ fresh usage at execution, below/equal/above threshold, absent usage, busy admiss
 restart persistence, skipped-head continuation, queue refresh races and host routing.
 Runtime installation and real compaction UI acceptance are separate from source and
 controlled-transport verification.
+
+## Preservation mapping
+
+Registered features: `ui.compaction-progress`, `ui.queue-refresh`, `ui.queue-consumption`, `ui.queued-compaction`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

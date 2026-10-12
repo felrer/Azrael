@@ -2,6 +2,14 @@
 
 Status: `partial` — Actual Firefox and File Explorer capture, inspection and status pass. Explorer capture passes with a higher foreground window geometrically overlapping 27.94% of its area. Explorer button and search-value effects pass, with foreground activation observed during mutations. Source permits foreground transitions without reporting interference; acceptance in the installed host remains pending. Physical-input routing during concurrent use, installed tool availability and GUI host acceptance remain unverified. Advisory session occupancy is implemented and covered by host and separate-process tests; installed UI acceptance remains separate. The existing selected-window boundary is described in [Computer Use](computer-use.md#selected-window-mode).
 
+## Linux selected-window backend
+
+Status: `partial` — Source implementation and isolated Linux GTK-window verification are recorded in [Linux operations](../ops/linux.md). The Windows acceptance statements elsewhere in this document retain their own scope; integrated-host readiness does not establish control of arbitrary user windows.
+
+Linux Xorg uses `native/window-control/src/linux_backend.py` through the verified runtime selected by `scripts/window-control-runtime.cjs`. The runtime requires Python, Gtk 3/Atspi 2, Pillow and X11/XComposite libraries. Capture reads the selected window's XComposite pixmap rather than the foreground desktop. AT-SPI supplies inspection and supported value, invoke, toggle, selection, expand/collapse and scrollbar actions. Supported patterns are determined from the actual element; missing patterns return an explicit unsupported result.
+
+The host retains selected-target identity, app approval, conversation authority, occupancy, cancellation and uncertain-result rules. Key delivery is restricted to the selected window's already-focused exact element. Return uses AT-SPI activation; other named keys use window-message delivery and can be ignored by the application, so delivery alone is not effect confirmation. The backend does not substitute global input, clipboard access or foreground activation. Wayland and whole-desktop Computer Use are excluded. Linux uses a GTK stop control, with `hotkeyRegistered: false`; Windows Escape and corner-glow behavior are not Linux guarantees. See [platform visualization](window-use-visualization.md#플랫폼-범위).
+
 ## Product requirements
 
 Status: `target`.
