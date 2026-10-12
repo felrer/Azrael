@@ -25,7 +25,7 @@
       "path": "adapters/anthropic-output-schema.ts"
     },
     {
-      "sha256": "23fdf75348a4845a24b3f5dd5061517bc72d4ee57afc8d7ee117d83d91602c34",
+      "sha256": "94ee36f4b3e59afbfb9afb85562562e8330d956d0e2d41795d57bc83c2325ccc",
       "path": "adapters/anthropic.ts"
     },
     {
@@ -3093,7 +3093,7 @@
       "path": "providers/reasoning-metadata.ts"
     },
     {
-      "sha256": "2cf833c83d83a61595088d82936c15cd42feef086e84d7944b307dd4dfd7a39d",
+      "sha256": "f39d61d863ccc1cf62d900574b1b5666ddae4781ef87aaaf74239c4920d80baf",
       "path": "providers/registry.ts"
     },
     {
@@ -4545,7 +4545,7 @@
       "path": "web-search/xai-executor.ts"
     }
   ],
-  "reviewedWindowsManifestSha256": "d0600827099c6d2a14cadb2ac13804761ec53c7f69ffe7dd7feaca2c895b86d8",
+  "reviewedWindowsManifestSha256": "1b0919d6b6fb7be9294998c52aa9c28b7347896c8f328fc918556b26bdf56db5",
   "schema": 1,
-  "canonicalSha256": "7d80d0d42b49d8c4e22cb4ef21087f037134882e6e93ad2799359004be1a9b0f"
+  "canonicalSha256": "72ab6a8f6e372417009dcb2587754329d96a1247bbf2de7feff9c940cb764152"
 }

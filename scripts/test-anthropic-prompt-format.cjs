@@ -78,7 +78,11 @@ test("parallel, custom and search results preserve call identities and schemas",
   assert.deepEqual(formatted.messages.slice(3).map(message => message.tool_call_id), ["call-a", "call-b", "call-c"]);
   assert.equal(formatted.messages[3].content, section("tool_result", ""));
   assert.equal(formatted.messages[4].content, section("tool_result", "raw result"));
-  assert.equal(formatted.messages[5].content, section("tool_result", JSON.stringify({ status: "completed", tools: [] })));
+  const searchOutput = JSON.parse(plain.messages[5].content);
+  assert.equal(searchOutput.status, "completed");
+  assert.deepEqual(searchOutput.tools, []);
+  assert.match(searchOutput.guidance, /current tool catalog/);
+  assert.equal(formatted.messages[5].content, section("tool_result", JSON.stringify(searchOutput)));
 });
 
 test("formatting leaves assistant text and scoped thinking replay intact", async () => {

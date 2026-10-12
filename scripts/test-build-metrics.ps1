@@ -147,7 +147,7 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     $source = Join-Path $fixture 'source'
     $engine = Join-Path $fixture 'engine'
     New-Item -ItemType Directory -Path $fixtureScripts, (Join-Path $source 'codex-rs'), $engine, (Join-Path $fixture 'artifacts') -Force | Out-Null
-    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'engine-provenance.py')) {
+    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'engine-provenance.py', 'azrael-platforms.json')) {
         Copy-Item (Join-Path $PSScriptRoot $name) (Join-Path $fixtureScripts $name)
         Assert-True ((Get-FileHash (Join-Path $PSScriptRoot $name)).Hash -eq (Get-FileHash (Join-Path $fixtureScripts $name)).Hash) 'Fixture must execute byte-identical production scripts.'
     }
@@ -160,6 +160,7 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     & $pwsh -NoProfile -File (Join-Path $fixtureScripts 'build-azrael.ps1') -ReleaseName missing-receipt -SkipEngineBuild -SourceRoot $source -EngineDirectory $engine *> (Join-Path $runDirectory 'isolated-build.log')
     $actualExit = $LASTEXITCODE
     Assert-True ($actualExit -ne 0) 'Actual build must fail on absent provenance receipt.'
+    Assert-True ((Get-Content (Join-Path $fixture 'artifacts/logs/missing-receipt/engine-source-check.log') -Raw) -match 'Engine has no source provenance') 'Fixture must reach the missing engine receipt guard.'
     $j = Get-Content (Join-Path $fixture 'artifacts/logs/missing-receipt/build-metrics.json') -Raw | ConvertFrom-Json
     Assert-True ($j.status -eq 'failed' -and $j.stages.Count -eq 2) 'Actual build must record exactly provenance phase and command failures.'
     Assert-True (@($j.stages | Where-Object status -ne 'failed').Count -eq 0) 'Actual build left a running or successful failure phase.'

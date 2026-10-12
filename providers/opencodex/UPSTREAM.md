@@ -2,7 +2,7 @@
 
 `vendor/src` originates from `lidge-jun/opencodex` commit `9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19` (package version 2.54.0, MIT). `package.json`, `bun.lock`, and `LICENSE.opencodex` are copied without modification. Narrow account-selection, account-retirement and OpenRouter usage patches are applied to the source import.
 
-The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The reviewed patched vendor tree digest is `d0600827099c6d2a14cadb2ac13804761ec53c7f69ffe7dd7feaca2c895b86d8`, originally computed over `relative/path NUL lowercase-file-sha256 LF` records ordered by PowerShell `Sort-Object FullName`. The checked-in `vendor-source-manifest.json` preserves the exact reviewed path/hash mapping. Its portable canonical digest is `7d80d0d42b49d8c4e22cb4ef21087f037134882e6e93ad2799359004be1a9b0f`, using the same record format with ordinal path ordering. The shared build guard verifies that identity and every source entry; release receipts retain the original reviewed digest. No vendor source bytes changed during this ordering conversion.
+The complete 1,136-file upstream `src` import has Git tree object `fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698`. The reviewed patched vendor tree digest is `1b0919d6b6fb7be9294998c52aa9c28b7347896c8f328fc918556b26bdf56db5`, originally computed over `relative/path NUL lowercase-file-sha256 LF` records ordered by PowerShell `Sort-Object FullName`. The checked-in `vendor-source-manifest.json` preserves the exact reviewed path/hash mapping. Its portable canonical digest is `72ab6a8f6e372417009dcb2587754329d96a1247bbf2de7feff9c940cb764152`, using the same record format with ordinal path ordering. The shared build guard verifies that identity and every source entry; release receipts retain the original reviewed digest. No vendor source bytes changed during this ordering conversion.
 
 | Artifact | SHA-256 |
 | --- | --- |
@@ -21,7 +21,7 @@ Account-selection behavior remains unchanged unless the helper supplies the new 
 | `vendor/src/providers/quota.ts` | `f0a40c740b7976e5162a716dc78e2a41f72694deee043e4c5d31832c4488bd95` | `68f005f39be85128451cadeb7ce99a87f9910744eb8a2ff06a91108bfd63851f` | Preserves OpenRouter lifetime/period USD spend and nullable key cap; zero is a cap, null is uncapped, and only authoritative remaining-cap data supplies routing evidence. |
 | `vendor/src/providers/quota-types.ts` | `c090ab2a1ea06e67f2d5c6997fdaa6ebf848ca0e3deb2170b1e1a8c7992d9fbe` | `b15a2202ca066e1c0e4c29a714a5a704e3b0f46de98537c793371379e1af191c` | Adds typed, display-only OpenRouter spend and key-cap fields. |
 
-Additional provider prompt patches are included in the reviewed manifest above.
+Additional provider prompt patches are included in the reviewed manifest above. The reviewed tree also includes the adaptive-thinking family selection and model registry additions in `adapters/anthropic.ts` (SHA-256 `94ee36f4b3e59afbfb9afb85562562e8330d956d0e2d41795d57bc83c2325ccc`) and `providers/registry.ts` (SHA-256 `f39d61d863ccc1cf62d900574b1b5666ddae4781ef87aaaf74239c4920d80baf`).
 
 | Path | Current SHA-256 | Patch |
 | --- | --- | --- |
