@@ -100,7 +100,7 @@ test("the three version-pinned UI transforms parse, remain idempotent, and rejec
   assert.ok(inputs[2].result.text.includes("isSendNowDisabled:l||u&&H(e.context)||e.context.queuedOperationKind"));
   const presentation = inputs.find(({ asset }) => asset === patch.QUEUED_COMPACTION_PRESENTATION_ASSET);
   assert.throws(() => patch.injectQueuedCompactionPresentation(presentation.result.text.replace(
-    "/*azrael-queued-compaction-presentation-v4*/", "/*azrael-queued-compaction-presentation-v3*/",
+    "/*azrael-queued-compaction-presentation-v5*/", "/*azrael-queued-compaction-presentation-v4*/",
   )), /Stale/);
 });
 
@@ -144,7 +144,7 @@ test("compaction skip warnings show localized native feedback even with diagnost
     fn(scope, skipped);
     assert.equal(notices.length, 2, "each skipped request is acknowledged");
     assert.equal(notices[0].title, locale === "ko-KR" ? "압축을 실행하지 않았습니다" : "Context compaction was skipped");
-    assert.ok(notices[0].description.includes("15%"));
+    assert.ok(notices[0].description.includes("100,000"));
     for (const notification of [
       { ...skipped, method: "thread/queue/changed" },
       { ...skipped, params: { threadId: "thread", message: "unrelated warning" } },

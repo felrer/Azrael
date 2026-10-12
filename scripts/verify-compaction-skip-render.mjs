@@ -61,14 +61,14 @@ try{
   await wait("document.querySelector('[data-sonner-toast]')?.innerText.includes('압축을 실행하지 않았습니다')");
   await wait("(()=>{const e=document.querySelector('[data-sonner-toast]');return e&&e.getBoundingClientRect().top>=0&&Number(getComputedStyle(e).opacity)>=0.99})()");
   const state=await evaluate("(()=>{const e=document.querySelector('[data-sonner-toast]'),r=e.getBoundingClientRect(),s=getComputedStyle(e.firstElementChild);return {text:e.innerText,width:r.width,height:r.height,color:s.color,background:s.backgroundColor,close:!!e.querySelector('button')}})()");
-  check(theme+' localized native warning and reason',state.text.includes('15% 미만')&&state.width>100&&state.height>30&&state.close);summary[theme]=state;
+  check(theme+' localized native warning and reason',state.text.includes('100,000토큰 미만')&&state.width>100&&state.height>30&&state.close);summary[theme]=state;
   await writeFile(join(logs,theme+'-notice.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await evaluate("document.querySelector('[data-sonner-toast] button').focus()");
   check(theme+' keyboard-focusable dismiss',await evaluate("document.activeElement===document.querySelector('[data-sonner-toast] button')"));
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',text:'\r',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
   await wait("!document.querySelector('[data-sonner-toast]')");
   await evaluate("fixtureLocale='en';fixtureNotify()");await wait("document.querySelector('[data-sonner-toast]')?.innerText.includes('Context compaction was skipped')");
-  check(theme+' repeated request and English reason',await evaluate("document.querySelector('[data-sonner-toast]').innerText.includes('below 15%')"));
+  check(theme+' repeated request and English reason',await evaluate("document.querySelector('[data-sonner-toast]').innerText.includes('below 100,000 tokens')"));
   await evaluate("document.querySelector('[data-sonner-toast] button').click()");await wait("!document.querySelector('[data-sonner-toast]')");
  }
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.outcome='passed';await evaluate('fixtureCleanup();reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});

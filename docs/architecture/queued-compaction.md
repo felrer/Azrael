@@ -39,17 +39,17 @@ Automatic compaction uses the [provider context policy](context-policy.md); the 
 
 When a compaction reaches its execution point, Core atomically reserves an idle
 turn, respecting pending trigger work, recovery reservations and execution admission.
-It then checks the latest context usage: `last_token_usage.total_tokens` divided by
-`model_context_window`. A strictly lower than 15% raw ratio skips compaction; exactly
-15% runs. Missing, negative or otherwise invalid usage/window data cannot establish
-the threshold and does not cause a skip. This avoids redundant compression when
+It then checks the latest context usage: `last_token_usage.total_tokens`. A value
+strictly below 100,000 tokens skips compaction; exactly 100,000 runs. The threshold
+is independent of model capacity and the automatic compaction setting. Missing or
+negative usage cannot establish the threshold and does not cause a skip. This avoids redundant compression when
 an earlier queued or automatic operation already reduced the context.
 
 The queue removes an item only after Core accepts it or reports a threshold skip.
 A skip creates no synthetic model turn and processing continues to the next item.
 Each threshold skip emits a thread-scoped warning. The host displays a native
 warning toast explaining that compaction was not executed because context usage
-is below 15% of the full model context window. This applies both to requests
+is below 100,000 tokens. This applies both to requests
 processed after an active turn and to idle or explicit queue starts. Enqueue
 acknowledgement remains distinct from execution; busy admission keeps the request
 queued without showing a skip notice. This feedback is implemented in source;

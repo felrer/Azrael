@@ -5,7 +5,7 @@ const QUEUED_COMPACTION_PRESENTATION_ASSET = "webview/assets/app-initial-7a199c6
 const QUEUED_COMPACTION_LIST_ASSET = "webview/assets/queued-message-list-616ed03f7f35.js";
 const QUEUED_COMPACTION_HOST_ASSET = "out/extension.js";
 const QUEUED_COMPACTION_EXPECTED_COUNTS = Object.freeze({ host: 1, core: 1, presentation: 1, list: 1 });
-const COMPACTION_SKIPPED_MESSAGE = "Context compaction skipped: context usage is below 15% of the model context window.";
+const COMPACTION_SKIPPED_MESSAGE = "Context compaction skipped: context usage is below 100,000 tokens.";
 
 // Selecting an inline command clears its text before awaiting the host RPC.
 // Keep custody of that action so a second submit cannot send the remaining
@@ -53,7 +53,7 @@ function injectQueuedCompactionPresentation(text) {
   const result = apply(text, "presentation", [
     ["guardianWarning:!0,warning:!1", "guardianWarning:!0,warning:!0"],
     ["function _Xa(e,{hostId:t,method:n,params:r}){if(!e.get(bXa))return;",
-      "function _Xa(e,{hostId:t,method:n,params:r}){if(n===`warning`&&typeof r?.threadId===`string`&&r.message===" + JSON.stringify(COMPACTION_SKIPPED_MESSAGE) + "){gx();let intl=e.get(fm),ko=intl.locale.toLowerCase().startsWith(`ko`);e.get(hx).warning(intl.formatMessage({id:`azrael.compaction.skipped.title`,defaultMessage:ko?`압축을 실행하지 않았습니다`:`Context compaction was skipped`}),{description:intl.formatMessage({id:`azrael.compaction.skipped.reason`,defaultMessage:ko?`컨텍스트 사용량이 전체 컨텍스트 한도의 15% 미만입니다.`:`Context usage is below 15% of the model context window.`})})}if(!e.get(bXa))return;"],
+      "function _Xa(e,{hostId:t,method:n,params:r}){if(n===`warning`&&typeof r?.threadId===`string`&&r.message===" + JSON.stringify(COMPACTION_SKIPPED_MESSAGE) + "){gx();let intl=e.get(fm),ko=intl.locale.toLowerCase().startsWith(`ko`);e.get(hx).warning(intl.formatMessage({id:`azrael.compaction.skipped.title`,defaultMessage:ko?`압축을 실행하지 않았습니다`:`Context compaction was skipped`}),{description:intl.formatMessage({id:`azrael.compaction.skipped.reason`,defaultMessage:ko?`컨텍스트 사용량이 100,000토큰 미만입니다.`:`Context usage is below 100,000 tokens.`})})}if(!e.get(bXa))return;"],
     ["u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gf(e,`1189013788`):Gf(e,`2120612410`)&&Sy(n(),`threadQueue`))", "u=r=>t.getConversation(r)?.ephemeral!==!0&&(i?Gf(e,`1189013788`):Sy(n(),`threadQueue`))"],
     ["function ysn(e,t,n){let{rawText:r,appInput:i}=Apt({input:n.input})", "function ysn(e,t,n){$MARKERif(n.kind===`contextCompaction`)return{id:n.id,text:`컨텍스트 압축`,context:{queuedOperationKind:`contextCompaction`,prompt:``,addedFiles:[],fileAttachments:[],ideContext:null,imageAttachments:[]},cwd:e.getConversationCwd(t)??`/`,createdAt:0};let{rawText:r,appInput:i}=Apt({input:n.input})"],
     ["if(r){i.get(hx).danger(a.formatMessage({id:`composer.compactSlashCommand.disabledInProgressToast`,defaultMessage:`Compact is disabled while a chat is in progress`,description:`Toast shown when the compact slash command is used while a task is already in progress`}),{errorAnalytics:{toastId:`composer.compactSlashCommand.disabledInProgressToast`}});return}n!=null&&await", "n!=null&&await"],
@@ -65,7 +65,7 @@ function injectQueuedCompactionPresentation(text) {
     ["clientUserMessageId:s?.clientUserMessageId??T.id})).queuedSubmission", "clientUserMessageId:s?.clientUserMessageId??T.id,kind:s?.kind??T.context.queuedOperationKind??`userInput`})).queuedSubmission"],
     ["if(t.isConversationStreaming(e)){if(h=await i({...d,serverQueuedMessageId:c.id},c.clientUserMessageId,m),", "if(t.isConversationStreaming(e)){if(c.kind===`contextCompaction`)return null;if(h=await i({...d,serverQueuedMessageId:c.id},c.clientUserMessageId,m),"],
     ["let{turn:r}=await t.sendRequest(`thread/queue/start`,{threadId:e,queuedSubmissionId:n});h={status:`sent`,messageId:n,turnId:r.id}", "let{turn:r,skipped:i}=await t.sendRequest(`thread/queue/start`,{threadId:e,queuedSubmissionId:n});if(i!==!0&&r==null)throw Error(`Queue start returned no turn without skipping`);h=i?{status:`sent`,messageId:n}:{status:`sent`,messageId:n,turnId:r.id}"],
-  ], 4);
+  ], 5);
   if (result.count) result.text += "\n" + COMPOSER_COMPACTION_HELPERS + "\n";
   // A marker proves that a transform ran, not that its declarations survived.
   // Check reused assets too: the enqueue guard must end before the local let.
