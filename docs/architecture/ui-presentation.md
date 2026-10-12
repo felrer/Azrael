@@ -28,6 +28,14 @@ Unsent new-chat drafts on the home screen and in new-chat panels are saved separ
 
 The native composer and persisted-record merge remain in use. Initial synchronization and later broadcasts expose only the current project's new-chat entries. Old global new-chat drafts remain stored but are not restored because their project ownership is unknown. Legacy conversation drafts still migrate through the native store. No input is submitted by saving or restoring a draft.
 
+### Session creation at submission
+
+Status: `partial` — source creation/admission fixtures and native composer-effect rendering pass on Windows in both themes. Packaging, installed-window resume and native Linux/macOS acceptance remain separate.
+
+Editing or restoring a new-chat draft keeps the project-scoped persisted draft and creates no native session. Text entry, deletion, paste, attachment changes, model changes and navigation retain the existing draft ownership. The shared thread-creation boundary releases unused prewarm input readers without preparing or starting a thread. Local and cloud-prototype composer prewarming use this boundary. A valid first submission uses the native conversation creation and request admission flow, including current model and permission settings, draft custody, failure handling and pending submission identity. Creating the session at submission adds its preparation time to the first send.
+
+Existing conversations, queued requests and submitted pending conversations retain their native list and resume behavior. A blank title or preview does not identify an unsent session. Stored user conversations are preserved; ambiguous existing entries are not automatically hidden or deleted. The preservation inventory connects this boundary through `ui.submit-only-thread`, alongside `ui.project-drafts` and `ui.composer-draft`.
+
 ## Session flags
 
 Status: `current` in source — native row rendering and interactions verified in light and dark themes; build and installation pending.

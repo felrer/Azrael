@@ -44,6 +44,7 @@ const { BTW_ASSETS, injectBtw } = require("./inject-btw.cjs");
 const { ASSET: RECENT_CHAT_FILTER_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
 const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-session-flags.cjs");
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
+const { ASSET: SUBMIT_ONLY_THREAD_ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
   QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_EXPECTED_COUNTS, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
@@ -370,7 +371,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const maxReasoning = injectMaxReasoning(providerPicker.text, relativePath);
   const threadBranch = injectThreadBranch(maxReasoning.text, relativePath);
   const paginatedHistory = injectPaginatedHistory(threadBranch.text, relativePath);
-  const recentChatFilter = injectRecentChatFilter(paginatedHistory.text, relativePath);
+  const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
+  const recentChatFilter = injectRecentChatFilter(submitOnlyThread.text, relativePath);
   const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
   const immediateStop = injectImmediateStop(sessionFlags.text, relativePath);
   const urlSafety = isHostBundle ? injectUrlSafetyTransport(immediateStop.text) : { text: immediateStop.text, count: 0 };
@@ -395,10 +397,10 @@ function transformAsset(source, relativePath, filename, ts) {
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
   const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || sessionFlags.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: sessionLinks.text, asset: {
       path: relativePath,
-      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + sessionFlags.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -419,6 +421,7 @@ function transformAsset(source, relativePath, filename, ts) {
       threadBranchEdits: threadBranch.count,
       btwEdits: btw.count,
       paginatedHistoryEdits: paginatedHistory.count,
+      submitOnlyThreadEdits: submitOnlyThread.count,
       recentChatFilterEdits: recentChatFilter.count,
       sessionFlagEdits: sessionFlags.count,
       immediateStopEdits: immediateStop.count,
@@ -468,7 +471,7 @@ function getTransformRules() {
     "inject-thread-branch.cjs", "thread-branch.cjs",
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
-    "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
+    "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
     "inject-session-flags.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
@@ -529,6 +532,7 @@ const ASSET_RULE_PATHS = {
   "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-paginated-history.cjs": [PAGINATED_HISTORY_ASSET],
+  "inject-submit-only-thread.cjs": [SUBMIT_ONLY_THREAD_ASSET],
   "inject-immediate-stop.cjs": [IMMEDIATE_STOP_ASSET],
 };
 
@@ -671,7 +675,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
       throw new Error(`/btw transformation was incomplete: ${assetPath}`);
     }
   }
-  for (const field of ["paginatedHistoryEdits", "immediateStopEdits"]) {
+  for (const field of ["paginatedHistoryEdits", "submitOnlyThreadEdits", "immediateStopEdits"]) {
     if (report.assets.reduce((total, asset) => total + (asset[field] ?? 0), 0) !== 1) {
       throw new Error(`${field} transformation was incomplete.`);
     }
