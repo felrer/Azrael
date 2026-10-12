@@ -1,0 +1,59 @@
+[
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/LICENSE",
+    "file": "Excalidraw-LICENSE.txt",
+    "sha256": "1352d204fdb90d5e482c13139d848bc2c9300a9a7de358a0a558a23e72d0d8be"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Excalifont/index.ts",
+    "file": "Excalifont-source-notices.txt",
+    "sha256": "db994e57791014204ba89e7ff902f2409b46ace3cd53907c3b4ac0e88d8e18c9"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/ComicShanns/index.ts",
+    "file": "ComicShanns-source-notices.txt",
+    "sha256": "43742ce64655de872db8eeaaab9c12a665fb0b333114ae59283714848b988bec"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Lilita/index.ts",
+    "file": "Lilita-source-notices.txt",
+    "sha256": "812b532e303a10bc1a33a6cba241d39d71d7905feecdc84d00bed360ff3216f4"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Nunito/index.ts",
+    "file": "Nunito-source-notices.txt",
+    "sha256": "c94f269e5747d376137019b3dc32af42ac6511bd1fea9c70a7e0ffbe2956907c"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Xiaolai/index.ts",
+    "file": "Xiaolai-source-notices.txt",
+    "sha256": "c2cbbbfa669404795527e06cf596ab4b1b851f9bb993c608c8ab9c3c2aabe9d3"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Cascadia/index.ts",
+    "file": "Cascadia-source-notices.txt",
+    "sha256": "fd5005c2b41c1534f68f61024fcdb109ea8eb98a737821e96dfaa3dadc9e949b"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Virgil/index.ts",
+    "file": "Virgil-source-notices.txt",
+    "sha256": "b62db4947c999610491b4826f029a11266719dfc120f851eeb2358dbe9be005a"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/excalidraw/excalidraw/v0.18.1/packages/excalidraw/fonts/Liberation/index.ts",
+    "file": "Liberation-source-notices.txt",
+    "sha256": "e414bc5461b571e99abdee36253674c04b264cace349aa6c9b563f35f1619f9c"
+  },
+  {
+    "url": "https://raw.githubusercontent.com/liberationfonts/liberation-fonts/2a366aed601c06201b60fc40f8ee525691642bb2/COPYING",
+    "file": "Liberation-legacy-COPYING",
+    "sha256": "32b1062f7da84967e7019d01ab805935caa7ab7321a7ced0e30ebe75e5df1670",
+    "note": "Official historical font license; exact packaged font attribution retained in Liberation-embedded-notices.json."
+  },
+  {
+    "url": "https://raw.githubusercontent.com/liberationfonts/liberation-fonts/2a366aed601c06201b60fc40f8ee525691642bb2/License.txt",
+    "file": "Liberation-legacy-License.txt",
+    "sha256": "f44f887073ccba0e9c88d729efc9b17b1adfd917294b38647a28e6c2f3c2826a",
+    "note": "Official historical font license; exact packaged font attribution retained in Liberation-embedded-notices.json."
+  }
+]

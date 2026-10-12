@@ -1,0 +1,20 @@
+{
+  "fontFamily": "Assistant",
+  "sourcePackage": "@excalidraw/excalidraw@0.18.1",
+  "sourceFile": "Assistant/Assistant-Bold.woff2",
+  "sha256": "e0cdd332ce039770e93ec44336b6db65f931940f42b0342aad35a06e7f991d29",
+  "nameTable": {
+    "0": [
+      "Copyright 2020 The Assistant Project Authors (https://github.com/hafontia/Assistant). Copyright 2010 The Source Sans Pro Authors (https://github.com/adobe-fonts/source-sans-pro), with Reserved Font Name 'Source'. Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries."
+    ],
+    "7": [
+      "Source is a trademark of Adobe Systems Incorporated in the United States and/or other countries."
+    ],
+    "13": [
+      "This Font Software is licensed under the SIL Open Font License, Version 1.1. This license is available with a FAQ at: http://scripts.sil.org/OFL"
+    ],
+    "14": [
+      "http://scripts.sil.org/OFL"
+    ]
+  }
+}
