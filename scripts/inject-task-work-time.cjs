@@ -30,16 +30,28 @@ function azraelTaskWorkTimePanel({manager,conversationId,hostId,liveTurns=[]}){
  unavailable?jsx.jsxs('div',{role:snapshot.error?'alert':'status',className:'mb-2 flex items-center gap-2 text-secondary',children:[snapshot.error?(ko?'시간 기록을 불러오지 못했습니다 · 일부 합계':'Time history unavailable · partial totals'):snapshot.loading?(ko?'시간 기록 불러오는 중 · 일부 합계':'Loading time history · partial totals'):(ko?'시간 기록 없음 · 일부 합계':'Time history unavailable · partial totals'),snapshot.error?button(ko?'다시 시도':'Retry',()=>history.refresh(),{'data-azrael-time-retry':true}):null]}):null,
  ...groups.map((group,index)=>jsx.jsxs('details',{'data-azrael-time-group':group.id,className:'py-1',children:[jsx.jsx('summary',{className:'cursor-interaction rounded-md px-2 py-1 focus-visible:outline focus-visible:outline-2',children:(ko?'작업 ':'Task ')+(index+1)+' · '+(ko?'총 ':'Total ')+azraelTaskTimeLabel(group.durationMs,intl.locale)+' · '+group.turnIds.length+(ko?'개 턴':' turns')+(group.partial?(ko?' · 일부 시간 확인 불가':' · some time unavailable'):unavailable?(ko?' · 일부 합계':' · partial totals'):'')}),jsx.jsx('ol',{className:'mt-2 space-y-1 px-2',children:group.turns.map(turn=>{const duration=azraelTaskTimeGroups([turn],{},now)[0];const first=turn.turnId===turns[0]?.turnId;return jsx.jsxs('li',{'data-azrael-time-turn':turn.turnId,className:'flex flex-wrap items-center justify-between gap-2 rounded-md py-1 text-secondary',children:[jsx.jsx('span',{children:(ko?'턴 ':'Turn ')+(turns.findIndex(t=>t.turnId===turn.turnId)+1)+' · '+azraelTaskTimeLabel(duration.durationMs,intl.locale)+(duration.partial?(ko?' · 일부 시간 확인 불가':' · some time unavailable'):'')}),!first?button(boundaries[turn.turnId]?(ko?'이전 작업에 합치기':'Merge into previous task'):(ko?'새 작업 시작':'Start new task'),()=>setBoundary(turn.turnId,!boundaries[turn.turnId]),{'data-azrael-time-boundary':turn.turnId}):null]},turn.turnId)})})]},group.id))]});
 }
-export {azraelTaskWorkTimePanel};
+function azraelTaskTimeVirtualList({azraelTaskTime,entries,RowComponent,...props}){
+ const React=O(),jsx=r();
+ const rows=React.useMemo(()=>azraelTaskTime&&entries.length?[{turnKey:'azrael-task-work-time:'+JSON.stringify([azraelTaskTime.hostId,azraelTaskTime.conversationId]),type:'gap',estimatedHeightPx:76,azraelTaskTime},...entries]:entries,[entries,azraelTaskTime]);
+ const Row=React.useMemo(()=>function AzraelTaskTimeRow(rowProps){return rowProps.entry.azraelTaskTime!=null?jsx.jsx(azraelTaskWorkTimePanel,rowProps.entry.azraelTaskTime):jsx.jsx(RowComponent,rowProps)},[RowComponent]);
+ const retained=React.useMemo(()=>rows!==entries?[...new Set([...(props.retainedTurnKeys??[]),rows[0].turnKey])]:props.retainedTurnKeys,[rows,entries,props.retainedTurnKeys]);
+ return jsx.jsx(eu,{...props,entries:rows,RowComponent:Row,retainedTurnKeys:retained});
+}
+export {azraelTaskWorkTimePanel,azraelTaskTimeVirtualList};
 `;
 const HELPER=IMPORTS+'\n'+HELPERS+'\n'+PANEL;
 const ANCHOR='T?(0,Qh.jsx)(ch,{conversationId:t,entries:Sn,';
-const MOUNT='(0,Qh.jsx)(azraelTaskWorkTimePanel,{manager:Tr(D,i),conversationId:t,hostId:i,liveTurns:D.get(Fr,t)??[]}),'+ANCHOR;
+const CONFIG='azraelTaskTime:{manager:Tr(D,i),conversationId:t,hostId:i,liveTurns:D.get(Fr,t)??[]},';
+const MOUNT='T?(0,Qh.jsx)(ch,{'+CONFIG+'conversationId:t,entries:Sn,';
+const INNER='(0,vh.jsx)(eu,{entries:r,';
+const FALLBACK='(0,Qh.jsx)(eu,{collapseEmptyRows:q,entries:Sn,';
+const INNER_MOUNT='(0,vh.jsx)(azraelTaskTimeVirtualList,{azraelTaskTime:e.azraelTaskTime,entries:r,';
+const FALLBACK_MOUNT='(0,Qh.jsx)(azraelTaskTimeVirtualList,{'+CONFIG+'collapseEmptyRows:q,entries:Sn,';
 function injectTaskWorkTime(text,asset){
  if(asset!==ASSET)return {text,count:0};
  const count=value=>text.split(value).length-1;
- if(count(MARKER)){if(count(MARKER)!==1||count(HELPER)!==1||count(MOUNT)!==1)throw Error('Task work time transform is damaged');return {text,count:0}}
- if(count(ANCHOR)!==1||text.includes('function azraelTaskWorkTimePanel'))throw Error('Pinned task work time anchors changed');
- return {text:text.replace(ANCHOR,MOUNT)+'\n'+HELPER+'\n'+MARKER+'\n',count:1};
+ if(count(MARKER)){if(count(MARKER)!==1||count(HELPER)!==1||count(MOUNT)!==1||count(INNER_MOUNT)!==1||count(FALLBACK_MOUNT)!==1)throw Error('Task work time transform is damaged');return {text,count:0}}
+ if(count(ANCHOR)!==1||count(INNER)!==1||count(FALLBACK)!==1||text.includes('function azraelTaskWorkTimePanel'))throw Error('Pinned task work time anchors changed');
+ return {text:text.replace(ANCHOR,MOUNT).replace(INNER,INNER_MOUNT).replace(FALLBACK,FALLBACK_MOUNT)+'\n'+HELPER+'\n'+MARKER+'\n',count:1};
 }
 module.exports={ASSET,MARKER,HELPER,IMPORTS,PANEL,injectTaskWorkTime};

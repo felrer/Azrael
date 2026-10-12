@@ -17,14 +17,27 @@ const moduleSource=`
 import {nLt as O,$At as r,Clt as Scope,Hbt as Intl,fixtureInitScope,Abt as initIntl,Qct as initAtom} from './app-initial-97d3534ad35f.js';
 import {ZIt as Vt,$It as initButton} from './app-initial-7a199c66e670.js';
 import {fixtureInitPreferences} from './app-initial-c014f9ee4429.js';
+import {t as eu,n as initVirtualList} from './virtualized-turn-list-c0fd56eabf08.js';
+import {t as ScrollContext,n as initScrollContext} from './thread-scroll-controller-context-value-33f016052c42.js';
 ${HELPER}
 window.fixtureNow=20000;Date.now=()=>fixtureNow;window.fixtureQueries=[];window.fixtureFailure=false;window.fixtureHost='local';window.fixtureChat='chat';window.fixtureLocale='ko';
 window.fixtureTurns=[{turnId:'a',turnStartedAtMs:1000,durationMs:8000,status:'completed'},{turnId:'b',turnStartedAtMs:60000,durationMs:12000,status:'completed'},{turnId:'c',turnStartedAtMs:100000,durationMs:10000,status:'completed'}];
 const manager={listThreadTurns:async(id,options)=>{fixtureQueries.push({id,options});if(fixtureFailure)throw Error('fixture failure');return {response:{data:fixtureTurns.map(t=>({id:t.turnId,startedAt:t.turnStartedAtMs/1000,durationMs:t.durationMs,status:t.status,rootResumeWait:t.rootResumeWait})),nextCursor:null}}}};
 const React=O(),jsx=r();
-function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:jsx.jsx(azraelTaskWorkTimePanel,{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns})})}
+window.fixtureVirtual=false;
+const scrollElement=()=>document.getElementById('virtual-scroll');
+const distance=()=>{const el=scrollElement();return el?el.scrollHeight-el.clientHeight-el.scrollTop:100000};
+let lastDistance=100000;
+const scrollListeners=new Set(),userListeners=new Set();
+const listen=(set,fn)=>(set.add(fn),()=>set.delete(fn));
+const publishScroll=()=>{lastDistance=distance();for(const fn of scrollListeners)fn(lastDistance)};
+window.fixtureScrollTo=bottom=>{const el=scrollElement();el.scrollTop=bottom?el.scrollHeight:0;lastDistance=distance();for(const fn of userListeners)fn(lastDistance);for(const fn of scrollListeners)fn(lastDistance)};
+const controller={getScrollElement:scrollElement,getLastScrollDistanceFromBottomPx:()=>lastDistance,getUnroundedScrollDistanceFromBottomPx:x=>x,shouldFollowContentGrowth:()=>false,addScrollListener:fn=>{const dispose=listen(scrollListeners,fn);fn(lastDistance);return dispose},addUserScrollListener:fn=>listen(userListeners,fn),compensateScrollToDistanceFromBottomPx:x=>{const el=scrollElement();el.scrollTop=el.scrollHeight-el.clientHeight-x;publishScroll()},scrollToDistanceFromBottomPx:x=>controller.compensateScrollToDistanceFromBottomPx(x)};
+const virtualEntries=Array.from({length:176},(_,i)=>({turnKey:'message-'+i,estimatedHeightPx:120,text:'메시지 '+i}));
+function MessageRow({entry}){return jsx.jsx('article',{'data-fixture-message':entry.turnKey,style:{height:120,padding:16},children:entry.text})}
+function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:fixtureVirtual?jsx.jsx(ScrollContext.Provider,{value:controller,children:jsx.jsx('div',{id:'virtual-scroll',onScroll:publishScroll,style:{height:650,overflow:'auto',overflowAnchor:'none'},children:jsx.jsx('div',{children:jsx.jsx(azraelTaskTimeVirtualList,{entries:virtualEntries,RowComponent:MessageRow,preserveMeasuredTurnViewport:true,azraelTaskTime:{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns}})})})}):jsx.jsx(azraelTaskWorkTimePanel,{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns})})}
 let initialized=false;
-function Fixture(){initButton();initIntl();initAtom();fixtureInitScope();azraelTimeInitPreferences();if(!initialized){initialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem('prefs')||'{}'),(key,value)=>{const prefs=JSON.parse(localStorage.getItem('prefs')||'{}');prefs[key]=value;localStorage.setItem('prefs',JSON.stringify(prefs))})}return jsx.jsx(Scope,{scope:azraelTimeScope,children:jsx.jsx(Rows,{})})}
+function Fixture(){initVirtualList();initScrollContext();initButton();initIntl();initAtom();fixtureInitScope();azraelTimeInitPreferences();if(!initialized){initialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem('prefs')||'{}'),(key,value)=>{const prefs=JSON.parse(localStorage.getItem('prefs')||'{}');prefs[key]=value;localStorage.setItem('prefs',JSON.stringify(prefs))})}return jsx.jsx(Scope,{scope:azraelTimeScope,children:jsx.jsx(Rows,{})})}
 export {Fixture};`;
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto max-w-3xl p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/task-fixture.js';window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($At().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
@@ -38,7 +51,7 @@ try{
  socket.addEventListener('message',e=>{const m=JSON.parse(e.data);if(m.method==='Runtime.exceptionThrown')exceptions.push(m.params.exceptionDetails);if(m.method==='Runtime.consoleAPICalled'&&m.params.type==='error')exceptions.push(m.params.args);if(m.id){const p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.t);m.error?p.j(Error(JSON.stringify(m.error))):p.r(m.result)}}});
  const send=(method,params={},sid=session)=>new Promise((r,j)=>{const n=++id,t=setTimeout(()=>j(Error('CDP timeout '+method)),20000);pending.set(n,{r,j,t});socket.send(JSON.stringify({id:n,method,params,...(sid?{sessionId:sid}:{})}))});
  const evaluate=async expression=>{const r=await send('Runtime.evaluate',{expression,returnByValue:true,awaitPromise:true});if(r.exceptionDetails)throw Error(JSON.stringify(r.exceptionDetails));return r.result.value};
- const wait=async expression=>{for(let n=0;n<60;n++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,50))}throw Error('Wait failed: '+expression+'; '+JSON.stringify(await evaluate('({errors:fixtureErrors,body:document.body.innerText})')))};
+ const wait=async expression=>{for(let n=0;n<60;n++){if(await evaluate(expression))return;await new Promise(r=>setTimeout(r,50))}throw Error('Wait failed: '+expression+'; '+JSON.stringify(await evaluate('({errors:fixtureErrors,body:document.body.innerText,scroll:document.getElementById("virtual-scroll")?{top:document.getElementById("virtual-scroll").scrollTop,height:document.getElementById("virtual-scroll").scrollHeight,content:document.getElementById("virtual-scroll").firstElementChild?.getBoundingClientRect().height}:null})')))};
  const check=(name,value)=>{assert.ok(value,name);summary.checks.push(name)};
  session=(await send('Target.attachToTarget',{targetId:(await send('Target.createTarget',{url:'about:blank'},null)).targetId,flatten:true},null)).sessionId;
  await send('Page.enable');await send('Runtime.enable');await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`});
@@ -68,6 +81,26 @@ try{
  await evaluate('fixtureFailure=false');await click('[data-azrael-time-retry]');await wait("!document.querySelector('[role=alert]')");check('explicit retry restores history',true);
  await evaluate("fixtureChat='missing';fixtureTurns=[{turnId:'unknown',status:'completed'}];fixtureRerender()");await wait("document.querySelector('summary').innerText.includes('일부')");check('missing time partial',true);
  await evaluate("fixtureLocale='en';fixtureRerender()");await wait("document.querySelector('summary').innerText.includes('Task 1')");check('English localization',true);
+ for(const theme of ['light','dark']){
+ await evaluate("document.documentElement.dataset.theme="+JSON.stringify(theme)+";fixtureChat='scroll';fixtureLocale='ko';fixtureVirtual=true;fixtureTurns=Array.from({length:176},(_,i)=>({turnId:'turn-'+i,turnStartedAtMs:i*200000,durationMs:60000,status:'completed'}));fixtureRerender()");
+ await wait("document.querySelector('#virtual-scroll summary')?.innerText.includes('176개 턴') && !document.querySelector('[role=status]')");
+ check(theme+' summary is inside measured native row',await evaluate("!!document.querySelector('[data-turn-key^=azrael-task-work-time] [data-azrael-task-work-time]')"));
+ await evaluate("document.querySelector('details').open=true");await wait("document.querySelector('[data-turn-key^=azrael-task-work-time]').parentElement.getBoundingClientRect().height>5000");
+ check(theme+' expanded group height is measured',true);
+ await evaluate("document.querySelector('details').open=false");await wait("document.querySelector('[data-turn-key^=azrael-task-work-time]').parentElement.getBoundingClientRect().height<200");
+ const scrollQueries=await evaluate('fixtureQueries.length');
+ for(let n=0;n<8;n++){
+ await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(resolve,100))))');
+ await evaluate("fixtureScrollTo(true)");
+ await wait("!!document.querySelector('[data-fixture-message=message-175]')");
+ check(theme+' summary stays offscreen at latest messages '+n,await evaluate("document.querySelector('[data-azrael-task-work-time]').getBoundingClientRect().bottom<=document.getElementById('virtual-scroll').getBoundingClientRect().top"));
+ await evaluate("fixtureScrollTo(false)");
+ await wait("!!document.querySelector('[data-fixture-message=message-0]') && !!document.querySelector('[data-azrael-task-work-time]')");
+ }
+ check(theme+' scroll never reloads metadata',await evaluate('fixtureQueries.length')===scrollQueries);
+ check(theme+' first message follows summary without overlap',await evaluate("document.querySelector('[data-fixture-message=message-0]').getBoundingClientRect().top>=document.querySelector('[data-azrael-task-work-time]').getBoundingClientRect().bottom"));
+ await writeFile(join(logs,'scroll-'+theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ }
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
