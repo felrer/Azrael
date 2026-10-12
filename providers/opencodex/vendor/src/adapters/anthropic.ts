@@ -480,6 +480,9 @@ function reasoningBudget(effort: string): number {
  * require adaptive; haiku-4-5 and sonnet-4-5 reject it; opus-4-6/sonnet-4-6 accept both.
  */
 const ADAPTIVE_THINKING_FAMILY_MINIMUMS: Record<string, readonly [major: number, minor: number]> = {
+  // Haiku 5.5 uses adaptive thinking and output_config.effort; Haiku 4.5
+  // still uses thinking.budget_tokens (Claude Haiku 5.5 migration guide).
+  haiku: [5, 5],
   sonnet: [5, 0],
   opus: [4, 7],
   fable: [0, 0],

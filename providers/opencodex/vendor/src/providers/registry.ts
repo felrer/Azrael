@@ -394,8 +394,8 @@ export type ProviderConfigSeed = Pick<
 // devlog/_plan/260710_provider_hardening/001_research_frontier.md.
 // 260902 Claude Fable 5.1 (`claude-fable-5-1`): 1M context / 128K output / adaptive thinking
 // always on, per the official models overview and pricing page (platform.claude.com).
-const ANTHROPIC_MODELS = ["claude-fable-5-1", "claude-opus-5-5", "claude-fable-5", "claude-sonnet-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"];
-const ANTHROPIC_MODEL_CONTEXT_WINDOWS: Record<string, number> = { "claude-fable-5-1": 1_000_000, "claude-opus-5-5": 1_000_000, "claude-sonnet-5": 1_000_000, "claude-fable-5": 1_000_000, "claude-opus-5": 1_000_000, "claude-opus-4-8": 1_000_000, "claude-opus-4-7": 1_000_000, "claude-opus-4-6": 1_000_000, "claude-sonnet-4-6": 1_000_000, "claude-haiku-4-5": 200_000 };
+const ANTHROPIC_MODELS = ["claude-fable-5-1", "claude-opus-5-5", "claude-sonnet-5-5", "claude-haiku-5-5", "claude-fable-5", "claude-sonnet-5", "claude-opus-5", "claude-opus-4-8", "claude-opus-4-7", "claude-opus-4-6", "claude-sonnet-4-6", "claude-haiku-4-5"];
+const ANTHROPIC_MODEL_CONTEXT_WINDOWS: Record<string, number> = { "claude-fable-5-1": 1_000_000, "claude-opus-5-5": 1_000_000, "claude-sonnet-5-5": 1_000_000, "claude-haiku-5-5": 1_000_000, "claude-sonnet-5": 1_000_000, "claude-fable-5": 1_000_000, "claude-opus-5": 1_000_000, "claude-opus-4-8": 1_000_000, "claude-opus-4-7": 1_000_000, "claude-opus-4-6": 1_000_000, "claude-sonnet-4-6": 1_000_000, "claude-haiku-4-5": 200_000 };
 // Every current Claude family accepts at least 64k output tokens (Haiku 4.5 / Sonnet 4.x
 // through Opus 5 and Fable 5). Anthropic caps max_tokens per model server-side, so a
 // larger request never over-allocates; it only stops the 8192 truncation.
@@ -409,7 +409,7 @@ const ANTHROPIC_DEFAULT_MAX_OUTPUT_TOKENS = 64_000;
  *
  * This is an opencodex ladder, not a claim that each model takes `output_config.effort`.
  * The adapter serves two wire shapes (src/adapters/anthropic.ts): adaptive families
- * (fable, sonnet >= 5, opus >= 4.7) send the effort directly, while opus 4.6, sonnet 4.6
+ * (fable, sonnet >= 5, opus >= 4.7, haiku >= 5.5) send the effort directly, while opus 4.6, sonnet 4.6
  * and haiku 4.5 take the legacy path where `reasoningBudget` TRANSLATES each rung into
  * `thinking.budget_tokens`. Anthropic documents `low|medium|high|max` for the 4.6 models
  * and no effort parameter at all for haiku 4.5; the budget translation is what makes five
@@ -428,7 +428,8 @@ const ANTHROPIC_REASONING_EFFORTS = ["low", "medium", "high", "xhigh", "max"];
 const ANTHROPIC_MODEL_REASONING_EFFORTS: Record<string, string[]> = Object.fromEntries(
   ANTHROPIC_MODELS.map(id => [id, [...ANTHROPIC_REASONING_EFFORTS]]),
 );
-const ANTHROPIC_MODEL_DEFAULT_REASONING_EFFORTS = { "claude-opus-5-5": "medium" };
+// Official effort defaults: platform.claude.com/docs/en/build-with-claude/effort.
+const ANTHROPIC_MODEL_DEFAULT_REASONING_EFFORTS = { "claude-opus-5-5": "medium", "claude-sonnet-5-5": "high", "claude-haiku-5-5": "medium" };
 
 // 260814 GLM-5.3 is registered pre-emptively alongside 5.2 everywhere 5.2 appears. Z.AI's
 // devpack "How to Switch Models" page (docs.z.ai/devpack/latest-model) lists glm-5.3 and
