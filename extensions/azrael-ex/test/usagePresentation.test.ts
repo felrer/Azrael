@@ -80,7 +80,7 @@ test("dynamic typography escapes content and leaves fixed fallbacks and controls
     assert.doesNotMatch(fallback, /<strong data-azrael-dynamic-text/);
   }
   assert.match(providerQuotaRowHtml({ label: "Quota", remaining: 0 }), /<strong data-azrael-dynamic-text>0 남음<\/strong>/);
-  assert.match(usageStyles, /\[data-azrael-dynamic-text\]\{font-family:Consolas,"Azrael Gyeonggi Title"/);
+  assert.match(usageStyles, /\[data-azrael-dynamic-text\]\{font-family:"Azrael Consolas Space",Consolas,"Azrael Gyeonggi Title"/);
   assert.match(usageStyles, /font-weight:400!important;font-synthesis-weight:none/);
   const html = providerAccountHtml({ id: "anthropic", label: "Anthropic 공급자", authKind: "oauth", inferenceConnected: true } as never,
     { id: '<account>', label: "계정 Account 123", selected: false, autoSwitchAllowed: true } as never, undefined, undefined, true);

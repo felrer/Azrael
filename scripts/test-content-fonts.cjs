@@ -5,7 +5,7 @@ const { pathToFileURL } = require("node:url");
 const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { CONTENT_FONT_ASSETS, injectContentFonts, MARKER } = require("./inject-content-fonts.cjs");
 const { transformAsset, getTransformRules, getAssetTransformRules } = require("./namespace-azrael-host.cjs");
-const { FONT_FAMILY, copyContentFontAssets } = require("./content-fonts.cjs");
+const { FONT_FAMILY, NORMAL_FONT_FAMILY, copyContentFontAssets } = require("./content-fonts.cjs");
 const root = path.resolve(__dirname, "..");
 function containedPath(base, candidate) {
   const resolved = path.resolve(candidate), relative = path.relative(path.resolve(base), resolved);
@@ -126,10 +126,16 @@ async function stopOwnedBrowser(child, graceful = false, profilePath) {
 async function verifyBrowser() {
   const chrome = process.env.AZRAEL_TEST_CHROME || ["C:/Program Files/Google/Chrome/Application/chrome.exe", "C:/Program Files (x86)/Microsoft/Edge/Application/msedge.exe"].find(hs.existsSync);
   assert.ok(chrome, "installed headless Chromium required (or set AZRAEL_TEST_CHROME)");
-  const presentation = require(process.env.AZRAEL_TEST_PRESENTATION_PATH ?? path.join(root, "extensions/azrael-ex/dist/src/usagePresentation.js"));
+  const presentationPath = path.join(root, "extensions/azrael-ex/src/usagePresentation.ts");
+  const presentation = process.env.AZRAEL_TEST_PRESENTATION_PATH ? require(process.env.AZRAEL_TEST_PRESENTATION_PATH) : (() => {
+    const compiled = ts.transpileModule(hs.readFileSync(presentationPath, "utf8"), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } });
+    const exports = {};
+    pm.runInNewContext(compiled.outputText, { exports, require: require("node:module").createRequire(path.join(root, "extensions/azrael-ex/dist/src/usagePresentation.js")) }, { filename: presentationPath });
+    return exports;
+  })();
   const html = `<!doctype html><meta charset="utf-8"><style>:root{--font-sans:Arial;--font-ui-family:Arial}body{font-family:Arial;font-size:16px;line-height:24px}.sample{font-size:16px;line-height:24px}.sample button{font-size:16px;line-height:24px}.font-content{font-family:var(--codex-content-font-family)}${transformed.get(CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".css")))}</style><div id="fixed" class="sample">고정 메뉴 Copy 42</div><div id="korean" class="sample" data-azrael-dynamic-text>경기천년제목</div><div id="latin" class="sample" data-azrael-dynamic-text>Consolas 123</div><div id="bold" class="sample" data-azrael-dynamic-text style="font-weight:700">경기천년제목</div><div id="content" class="sample font-content">대화 Message 123<strong id="markdown-bold" style="font-weight:700">강조 제목</strong><button id="copy">Copy</button></div><div data-composer-body class="[&_.ProseMirror]:!font-sans"><div id="composer" class="sample ProseMirror" contenteditable>입력 composer 456</div></div><div id="shadow" style="display:block"></div><script>document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML=${JSON.stringify(`<style>${presentation.usageStyles}</style><main><header><span id="identity" data-azrael-dynamic-text>계정 Account 123</span><div class="actions"><button id="refresh" data-action="refresh">새로고침</button></div></header></main>`)};</script>`;
   const fixture = path.join(output, "webview/assets/fixture.html");
-  const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><div id="chat-title" data-thread-title>가 나 hello world</div><div id="dynamic-value" data-azrael-dynamic-text>가 나 hello world</div><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
+  const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><div id="chat-title" data-thread-title>가 나 hello world</div><div id="dynamic-value" data-azrael-dynamic-text>가 나 hello world</div><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><pre id="chat-pre">a b</pre><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
   hs.writeFileSync(fixture, html.replace("</style>", `</style>${chatFixture}`));
   const profile = hs.mkdtempSync(path.join(output, "chromium-profile-"));
   const child = spawn(chrome, ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
@@ -160,6 +166,11 @@ async function verifyBrowser() {
     let ready = false;
     for (let i = 0; i < 100 && !ready; i++) { ready = (await call("Runtime.evaluate", { expression: "!!document.querySelector('#composer')", returnByValue: true })).result.value; if (!ready) await new Promise(r => setTimeout(r, 50)); }
     assert.ok(ready, "fixture loaded");
+    const measureSpacing = async (normalStack = NORMAL_FONT_FAMILY) => {
+      const measured = await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['chat-paragraph','chat-heading','chat-list','chat-cell','user-paragraph','content','composer','chat-title','dynamic-value','identity','chat-code','chat-pre','chat-control','copy','fixed']){const el=id==='identity'?document.getElementById('shadow').shadowRoot.getElementById(id):document.getElementById(id),span=document.createElement('span');span.style.whiteSpace='pre';el.append(span);const stack=getComputedStyle(el).fontFamily;const baseline=stack.includes(' Space')?${JSON.stringify(normalStack)}:stack;const width=(text,normal)=>{span.textContent=text;span.style.setProperty('font-family',normal?baseline:'inherit','important');const range=document.createRange();range.selectNodeContents(span);return range.getBoundingClientRect().width};result[id]={fontFamily:stack,fontSize:getComputedStyle(el).fontSize,lineHeight:getComputedStyle(el).lineHeight};for(const [language,spaced,joined] of [['korean','가 나','가나'],['latin','hello world','helloworld']]){const actual=width(spaced,false)-width(joined,false),original=width(spaced,true)-width(joined,true);result[id][language]={actual,original,ratio:actual/original,glyphWidth:width(joined,false),originalGlyphWidth:width(joined,true)}};span.remove()}return result})()`, returnByValue: true });
+      assert.ok(!measured.exceptionDetails, JSON.stringify(measured.exceptionDetails));
+      return measured.result.value;
+    };
     const themes = {};
     for (const theme of ["light", "dark"]) {
     await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
@@ -179,18 +190,36 @@ async function verifyBrowser() {
       assert.ok(style.width > 0 && style.height > 0, `${theme} shadow ${id} has visible layout`);
     }
     assert.ok(evidence.shadow.host.height >= evidence.shadow.refresh.height, "shadow host contains control height");
-    const spacing = await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['chat-paragraph','chat-heading','chat-list','chat-cell','user-paragraph','composer','chat-title','dynamic-value','identity']){const el=id==='identity'?document.getElementById('shadow').shadowRoot.getElementById(id):document.getElementById(id),span=document.createElement('span');span.style.whiteSpace='pre';el.append(span);const width=(text,normal)=>{span.textContent=text;span.style.setProperty('word-spacing',normal?'normal':'inherit','important');const range=document.createRange();range.selectNodeContents(span);return range.getBoundingClientRect().width};result[id]={};for(const [language,spaced,joined] of [['korean','가 나','가나'],['latin','hello world','helloworld']]){const actual=width(spaced,false)-width(joined,false),original=width(spaced,true)-width(joined,true);result[id][language]={actual,original,ratio:actual/original}};span.remove()}for(const id of ['chat-code','chat-control','copy','fixed'])result[id]={wordSpacing:getComputedStyle(document.getElementById(id)).wordSpacing};return result})()`, returnByValue: true });
-    assert.ok(!spacing.exceptionDetails, JSON.stringify(spacing.exceptionDetails));
-    evidence.spacing = spacing.result.value;
-    for (const id of ["chat-paragraph", "chat-heading", "chat-list", "chat-cell", "user-paragraph", "composer", "chat-title", "dynamic-value", "identity"]) {
+    evidence.spacing = await measureSpacing();
+    for (const [id, metrics] of Object.entries(evidence.spacing)) {
+      const expected = ["chat-code", "chat-pre", "chat-control", "copy", "fixed"].includes(id) ? 1 : 0.5;
       for (const language of ["korean", "latin"]) {
-        const measured = evidence.spacing[id][language];
+        const measured = metrics[language];
         assert.ok(measured.actual > 1, `${id}/${language}: space must remain visible`);
-        assert.ok(Math.abs(measured.ratio - 1) < 0.02, `${id}/${language}: natural space ratio ${measured.ratio}`);
+        assert.ok(Math.abs(measured.glyphWidth - measured.originalGlyphWidth) < 0.02, `${id}/${language}: glyph widths unchanged`);
+        assert.ok(Math.abs(measured.ratio - expected) < 0.02, `${id}/${language}: expected ${expected}, got ${measured.ratio}`);
       }
     }
-    for (const id of ["chat-code", "chat-control", "copy", "fixed"]) assert.equal(evidence.spacing[id].wordSpacing, "0px", id);
-    console.log("PASS Korean/Latin natural spaces across prose, titles, composer, dynamic and shadow values");
+    await call("Runtime.evaluate", { expression: "document.documentElement.dataset.azraelChatFont='openai'" });
+    evidence.openai = await measureSpacing();
+    for (const id of ["content", "composer", "chat-paragraph", "chat-heading", "chat-list", "chat-cell", "user-paragraph"]) {
+      assert.ok(!evidence.openai[id].fontFamily.includes("Azrael"), `${id}: native OpenAI font`);
+      assert.equal(evidence.openai[id].fontSize, evidence.spacing[id].fontSize);
+      assert.equal(evidence.openai[id].lineHeight, evidence.spacing[id].lineHeight);
+      for (const language of ["korean", "latin"]) assert.ok(Math.abs(evidence.openai[id][language].ratio - 1) < 0.02, `${id}: native space`);
+    }
+    evidence.openaiPlatformFonts = {};
+    const openaiDocument = await call("DOM.getDocument");
+    for (const id of ["composer", "chat-paragraph"]) {
+      const { nodeId } = await call("DOM.querySelector", { nodeId: openaiDocument.root.nodeId, selector: `#${id}` });
+      evidence.openaiPlatformFonts[id] = (await call("CSS.getPlatformFontsForNode", { nodeId })).fonts;
+      assert.ok(evidence.openaiPlatformFonts[id].every(font => !font.isCustomFont), `${id}: actual native glyph fonts in OpenAI mode`);
+    }
+    for (const id of ["chat-title", "dynamic-value", "identity"]) assert.ok(Math.abs(evidence.openai[id].latin.ratio - 0.5) < 0.02, `${id}: dynamic typography independent of chat mode`);
+    await call("Runtime.evaluate", { expression: "delete document.documentElement.dataset.azraelChatFont" });
+    evidence.customRestored = await measureSpacing();
+    assert.deepEqual(evidence.customRestored, evidence.spacing, "custom font restored after OpenAI toggle");
+    console.log("PASS custom/OpenAI/custom Korean/Latin measured spacing; code and controls retain natural spaces");
     hs.writeFileSync(path.join(renderLogs, `render-evidence-${theme}.json`), JSON.stringify(evidence, null, 2));
     const officialFaces = evidence.faces.filter(d => d.family === "Azrael Gyeonggi Title");
     assert.ok(officialFaces.length === 1 && officialFaces.every(d => d.status === "loaded"));
@@ -225,6 +254,24 @@ async function verifyBrowser() {
     assert.notEqual(themes.light.theme.color, themes.dark.theme.color, "native theme foregrounds must differ");
     for (const id of ["host", "main", "refresh"]) assert.notEqual(themes.light.shadow[id].background, themes.dark.shadow[id].background, `native shadow ${id} backgrounds must differ`);
     for (const id of ["identity", "refresh"]) assert.notEqual(themes.light.shadow[id].color, themes.dark.shadow[id].color, `native shadow ${id} foregrounds must differ`);
+    const missingFixture = path.join(output, "webview/assets/fixture-missing-consolas.html");
+    hs.writeFileSync(missingFixture, hs.readFileSync(fixture, "utf8").replaceAll('Consolas', 'AzraelUnavailableConsolas20261013'));
+    await call("Page.navigate", { url: pathToFileURL(missingFixture).href });
+    let missingReady = false;
+    for (let i = 0; i < 100 && !missingReady; i++) { missingReady = (await call("Runtime.evaluate", { expression: "!!document.querySelector('#composer') && !!document.querySelector('#shadow').shadowRoot", returnByValue: true })).result.value; if (!missingReady) await new Promise(r => setTimeout(r, 50)); }
+    assert.ok(missingReady, "missing-local-font fixture loaded");
+    await call("Runtime.evaluate", { expression: "document.fonts.ready", awaitPromise: true });
+    const missingLocal = {};
+    for (const theme of ["light", "dark"]) {
+      await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
+      missingLocal[theme] = await measureSpacing(NORMAL_FONT_FAMILY.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013'));
+      for (const [id, metrics] of Object.entries(missingLocal[theme])) for (const language of ["korean", "latin"]) {
+        assert.ok(metrics[language].actual > 1, `${id}/${language}: unavailable local font preserves visible space`);
+        assert.ok(Math.abs(metrics[language].ratio - 1) < 0.02, `${id}/${language}: unavailable local font uses natural fallback`);
+      }
+    }
+    hs.writeFileSync(path.join(renderLogs, "missing-local-evidence.json"), JSON.stringify(missingLocal, null, 2));
+    console.log("PASS unavailable local Consolas: natural visible fallback spaces in light/dark");
     hs.writeFileSync(path.join(renderLogs, "render-evidence.json"), JSON.stringify({ themeCoverage: ["light", "dark"], themes }, null, 2));
   } finally {
     // CDP closes only this uniquely spawned browser/profile, including its children.
