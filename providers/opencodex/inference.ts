@@ -167,7 +167,7 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
     // Public reasoning survives switching; private replay has an exact origin and turn.
     return { ...item, encrypted_content: valid ? item.encrypted_content : null };
   }) };
-  const compiled = compileRequest(projected, { promptFormat });
+  const compiled = compileRequest(projected, { promptFormat, compactToolSearchResults: isApiProvider(request.provider_id) });
   for (const replay of replayDetails) for (const id of replay.callIds) {
     const original = opaqueCalls.get(id);
     const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === id);

@@ -1434,6 +1434,60 @@ async fn mcp_and_tool_search_follow_direct_and_deferred_tool_exposure() {
 }
 
 #[tokio::test]
+async fn api_tool_context_uses_direct_discovery_and_excludes_desktop_tools() {
+    let plan = probe_with(
+        |turn| {
+            set_feature(turn, Feature::CodeMode, true);
+            set_feature(turn, Feature::CodeModeOnly, true);
+            update_turn_settings_for_test(turn, |settings| {
+                let model = Arc::make_mut(&mut settings.model_info);
+                model.slug = "api/00000000000000000000000000000001/fixture".to_string();
+                model.supports_search_tool = true;
+                model.tool_mode = Some(ToolMode::CodeModeOnly);
+            });
+        },
+        ToolPlanInputs {
+            tool_runtimes: vec![
+                mcp_runtime(
+                    "azrael_window",
+                    "mcp__azrael_window",
+                    "capture",
+                    ToolExposure::Deferred,
+                ),
+                mcp_runtime("node_repl", "mcp__node_repl", "js", ToolExposure::Direct),
+                mcp_runtime("fixture", "mcp__fixture", "lookup", ToolExposure::Deferred),
+            ],
+            ..ToolPlanInputs::default()
+        },
+    )
+    .await;
+    assert_eq!(plan.tool_mode, ToolMode::Direct);
+    assert!(!plan.requires_code_mode_worker);
+    assert!(plan.code_mode_tool_names.is_empty());
+    assert!(
+        plan.registered_names
+            .iter()
+            .any(|name| name.contains("lookup"))
+    );
+    assert!(
+        plan.registered_names
+            .iter()
+            .all(|name| !name.contains("azrael_window") && !name.contains("node_repl"))
+    );
+    assert!(
+        plan.visible_specs
+            .iter()
+            .any(|spec| matches!(spec, ToolSpec::ToolSearch { .. }))
+    );
+    assert!(
+        !plan
+            .visible_specs
+            .iter()
+            .any(|spec| matches!(spec, ToolSpec::Freeform(tool) if tool.name == "exec"))
+    );
+}
+
+#[tokio::test]
 async fn code_mode_tool_search_requires_experiment_and_model_capability() {
     for tool_mode in [ToolMode::Direct, ToolMode::CodeMode, ToolMode::CodeModeOnly] {
         for experiment_enabled in [false, true] {

@@ -234,7 +234,9 @@ impl ToolSearchHandler {
                 "query must not be empty".to_string(),
             ));
         }
+        let api_model = step_context.settings.model_info.slug.starts_with("api/");
         let limit = args.limit.unwrap_or(TOOL_SEARCH_DEFAULT_LIMIT);
+        let limit = if api_model { limit.min(8) } else { limit };
 
         if limit == 0 {
             return Err(FunctionCallError::RespondToModel(
@@ -272,12 +274,30 @@ impl ToolSearchHandler {
 
         let mut tools = self.search(query, limit);
         indirect_prefixes.apply_search(&mut tools);
+        if api_model {
+            bound_api_search_results(&mut tools);
+        }
 
         Ok(boxed_tool_output(ToolSearchOutput { tools }))
     }
 }
 
 impl CoreToolRuntime for ToolSearchHandler {}
+
+fn bound_api_search_results(tools: &mut Vec<LoadableToolSpec>) {
+    // Bound results before recording them in native history. Keep whole schemas.
+    let mut bytes = 2usize;
+    tools.retain(|tool| {
+        serde_json::to_vec(tool).is_ok_and(|json| {
+            let next = bytes.saturating_add(json.len()).saturating_add(1);
+            if next > 64 * 1024 {
+                return false;
+            }
+            bytes = next;
+            true
+        })
+    });
+}
 
 impl ToolSearchHandler {
     fn search_code_mode(
@@ -363,6 +383,29 @@ mod tests {
     use pretty_assertions::assert_eq;
     use rmcp::model::Tool;
     use std::sync::Arc;
+
+    #[test]
+    fn api_tool_context_search_results_keep_complete_schemas_within_budget() {
+        let tools = (0..40)
+            .map(|i| {
+                let runtime = McpHandler::new(tool_info(
+                    "fixture",
+                    &format!("tool-{i}"),
+                    &" reference".repeat(900),
+                ))
+                .unwrap();
+                runtime.search_info().unwrap().entry.to_loadable_spec()
+            })
+            .collect::<Vec<_>>();
+        let before = serde_json::to_vec(&tools).unwrap();
+        assert!(before.len() > 300_000);
+        let mut bounded = tools.clone();
+        bound_api_search_results(&mut bounded);
+        assert!(serde_json::to_vec(&bounded).unwrap().len() <= 64 * 1024);
+        assert!(!bounded.is_empty());
+        assert!(bounded.len() < tools.len());
+        assert_eq!(bounded, tools[..bounded.len()]);
+    }
 
     #[test]
     fn cache_reuses_immutable_handlers_and_rebuilds_for_current_registry_changes() {

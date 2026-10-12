@@ -124,6 +124,10 @@ export async function inferApi(request: any, emit: (frame: any) => void, fetcher
   try {
     release = await acquireSlot(c, activeSignal); check(); if (changedCode) fail(changedCode);
     const { compiled, parsed } = projectRequest({ ...request, parallel_tool_calls: m.parallelToolCalls, reasoning_effort: m.sendThinkingParameter && m.enableThinking ? 'medium' : undefined }, fingerprint);
+    // Independent of the remote model's context window. The native producer
+    // selects bounded deferred tools; fail before POST if a direct/core spec
+    // or another caller bypasses that producer instead of sending huge context.
+    if (Buffer.byteLength(JSON.stringify(compiled.tools), 'utf8') > 128 * 1024) fail('api_tool_context_limit');
     parsed.stream = c.stream; parsed.options = { ...parsed.options, maxOutputTokens: m.maxOutputTokens, parallelToolCalls: m.parallelToolCalls };
     const provider: any = { adapter: c.protocol === 'chat' ? 'openai-chat' : 'openai-responses', baseUrl: c.baseUrl, authMode: token ? 'key' : 'local', apiKey: token, models: [m.id], statelessResponses: true };
     const chat = createOpenAIChatAdapter(provider);

@@ -73,6 +73,11 @@ pub(crate) fn tool_user_shell_type(
 }
 
 pub(crate) fn requested_tool_mode(turn_context: &TurnContext, model_info: &ModelInfo) -> ToolMode {
+    // User APIs use ordinary function calls and native deferred discovery.
+    // Do not embed the entire nested code-mode catalog in a freeform wrapper.
+    if model_info.slug.starts_with("api/") {
+        return ToolMode::Direct;
+    }
     model_info.tool_mode.unwrap_or_else(|| {
         if turn_context.config.features.enabled(Feature::CodeModeOnly) {
             ToolMode::CodeModeOnly

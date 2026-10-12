@@ -66,7 +66,7 @@ function multimodal(content, budget) {
 
 // The model-facing alias is request-scoped; the digest keeps history stable as
 // lazy tools are added. Only exact declared aliases are accepted on return.
-export function compileRequest(request, { promptFormat } = {}) {
+export function compileRequest(request, { promptFormat, compactToolSearchResults = false } = {}) {
   if (!object(request) || request.protocol_version !== 1 || request.type !== 'request' ||
       !string(request.request_id) || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (!string(request.model) || !request.model.trim() || bytes(request.model) > 256 ||
@@ -170,7 +170,14 @@ export function compileRequest(request, { promptFormat } = {}) {
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify({ status: item.status, tools: item.tools }))) });
+        // Chat APIs already receive the selected schemas in `tools`. Repeating
+        // every historical search schema here grows context without bound and
+        // advertises canonical names that the wire catalog does not accept.
+        messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify(
+          compactToolSearchResults
+            ? { status: item.status, tools: compactSearchTools(item.tools, names), guidance: 'Call only names in the current tools catalog. Search again for other tools.' }
+            : { status: item.status, tools: item.tools }
+        ))) });
         break;
       case 'additional_tools':
         // Catalog already assembled by native Codex. These are history entries,
@@ -194,6 +201,25 @@ export function compileRequest(request, { promptFormat } = {}) {
   // Base64 is ASCII and JSON-safe; the rebuilt data URL prefix stays within text slack.
   if (bytes(JSON.stringify({ messages, tools })) - images.bytes > MAX_BYTES) fail('context_limit');
   return { messages, tools, names, calls, historyAliases, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
+}
+
+function compactSearchTools(specs, names) {
+  const selected = [];
+  const seen = new Set();
+  function visit(spec, namespace = '') {
+    if (!object(spec)) return;
+    if (spec.type === 'namespace' && Array.isArray(spec.tools)) {
+      for (const child of spec.tools) visit(child, spec.name);
+    } else if (string(spec.name) && ['function', 'custom'].includes(spec.type)) {
+      const wireName = alias(namespace, spec.name, spec.type);
+      if (names.has(wireName) && !seen.has(wireName)) {
+        seen.add(wireName);
+        selected.push({ name: wireName });
+      }
+    }
+  }
+  for (const spec of specs) visit(spec);
+  return selected;
 }
 
 const diagnose = (compiled, method, ...args) => { try { compiled.toolDiagnostics?.[method]?.(...args); } catch {} };

@@ -16,6 +16,18 @@ thinking 파라미터는 지원 서버에서 사용자가 전송을 명시적으
 
 일반 턴과 subagent는 같은 카탈로그·모델 admission·provider resolver를 사용한다. 부모와 자식은 별도 native thread와 턴 binding을 갖는다. 역할에 고정된 모델이 있으면 기존 역할 우선순위를 유지한다. 연결 모델은 OpenAI 모델로 분류하거나 자동 대체하지 않는다. 모델별 도구 미지원은 native ToolPolicy 상한으로 적용하며 실제 dispatcher에서도 도구 사용을 허용하지 않는다.
 
+## API 도구 컨텍스트
+
+Status: `current` — Windows x64 소스 테스트와 실 API 전송을 검증했다. 설치본 반영 및 다른 OS의 수용은 별개다.
+
+API 모델은 직접 function 호출과 native deferred 검색을 사용한다. Code Mode의 전체 중첩 도구 카탈로그를 freeform 실행 설명에 넣지 않는다. Window Use와 Node REPL namespace 및 해당 MCP 서버는 모델용 registry에서 제외한다. 이 제외는 도구 정의, 검색, dispatcher와 과거 검색 결과의 재노출에 함께 적용되며 일반 provider의 도구 정책을 바꾸지 않는다.
+
+검색 source 요약은 4 KiB로 제한하고 API 검색은 최대 8개 결과와 64 KiB의 완전한 스키마를 반환한다. 현재 요청의 deferred 도구는 최신 검색·실제 호출 순서로 최대 8개를 선택하며, 직접 도구를 포함한 catalog의 직렬화 비용을 64 KiB 예산에 넣는다. 현재 registry가 허용하는 도구만 선택한다. 선택되지 않은 도구는 deferred 상태로 남아 필요하면 다시 검색한다. 필수 직접 도구는 크기 때문에 임의로 삭제하지 않는다. helper가 컴파일한 도구 catalog가 128 KiB를 넘으면 원격 POST 전에 `api_tool_context_limit`으로 실패한다. 이 바이트 예산은 서버 컨텍스트 토큰 한도와 독립적이다.
+
+과거 검색 결과는 API 전송 시 전체 설명·스키마 대신 현재 catalog에 선언한 wire alias 목록으로 투영한다. 스키마는 현재 `tools`에서 전달하며 call/result ID와 원본 대화 저장 내용을 보존한다. 과거 기록의 제거된 도구를 실행 권한으로 취급하거나 알 수 없는 호출 이름을 임의로 복원하지 않는다.
+
+## API 전송과 실행
+
 API helper는 기존 Chat/Responses adapter와 bounded native 프레임 프로토콜을 사용한다. 모든 도구 호출은 완성된 arguments와 terminal 결과 검증 이후에만 native engine으로 전달한다. 실행·권한·승인·도구 결과·대화 기록의 책임은 engine에 있다. 사용자 API 서버에 도구 실행이나 conversation 저장을 요구하지 않는다. 일반 function 호출로 변환 가능한 namespace/custom 도구는 기존 변환을 재사용하며 변환되지 않는 계약은 명시 실패한다.
 
 비스트리밍 JSON 응답과 SSE 스트리밍을 구분한다. 비스트리밍 대기는 token/activity를 만들어내지 않고 고정된 제한시간으로 끝낸다. root와 자식의 요청에 연결별 동시 실행 상한을 적용하고 대기·실행 중 취소를 전달한다. 사용자 API는 자동 추론 재시도나 계정/provider fallback을 하지 않는다. 응답 유실 후 원격 생성이 종료됐는지는 확정하지 않는다.

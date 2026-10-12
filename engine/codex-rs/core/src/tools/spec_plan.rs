@@ -383,6 +383,27 @@ pub(crate) fn finalize_tool_router(
     mut hosted_specs: Vec<ToolSpec>,
     tool_search_handler_cache: &ToolSearchHandlerCache,
 ) -> CodexResult<ToolRouter> {
+    if model_info.slug.starts_with("api/") {
+        // Apply at the registry boundary so descriptions, discovery, nested
+        // execution and history promotion all see the same restricted surface.
+        let excluded = registry
+            .entries()
+            .filter_map(|tool| {
+                let name = tool.runtime.tool_name();
+                (matches!(
+                    name.namespace.as_deref(),
+                    Some("azrael_window" | "mcp__azrael_window" | "node_repl" | "mcp__node_repl")
+                ) || matches!(
+                    tool.runtime.mcp_server_name(),
+                    Some("azrael_window" | "node_repl")
+                ))
+                .then_some(name)
+            })
+            .collect::<Vec<_>>();
+        for name in excluded {
+            registry.remove(&name);
+        }
+    }
     hosted_specs.retain(|spec| registry.tool_policy.allows(&ToolName::plain(spec.name())));
     apply_direct_model_only_namespace_overrides(turn_context, &mut registry);
     enforce_strict_3p_tools(turn_context, model_info, &mut registry);
@@ -432,7 +453,12 @@ pub(crate) fn finalize_tool_router(
                 registry.record_collision(tool_name);
             }
         }
-        append_tool_search_executor(turn_context, &mut registry, tool_search_handler_cache);
+        append_tool_search_executor(
+            turn_context,
+            model_info,
+            &mut registry,
+            tool_search_handler_cache,
+        );
     }
 
     let model_messages = ResolvedModelMessages::from_model(model_info);
@@ -1631,6 +1657,7 @@ fn append_dynamic_tool_runtimes(dynamic_tools: &[DynamicToolSpec], registry: &mu
 #[instrument(level = "trace", skip_all)]
 fn append_tool_search_executor(
     turn_context: &TurnContext,
+    model_info: &ModelInfo,
     registry: &mut ToolRegistry,
     tool_search_handler_cache: &ToolSearchHandlerCache,
 ) {
@@ -1640,6 +1667,8 @@ fn append_tool_search_executor(
         .enabled(Feature::DeferredToolWorldState)
     {
         ToolSearchSourceListing::Omit
+    } else if model_info.slug.starts_with("api/") {
+        ToolSearchSourceListing::IncludeLimited
     } else {
         ToolSearchSourceListing::Include
     };

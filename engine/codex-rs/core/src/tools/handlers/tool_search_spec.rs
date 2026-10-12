@@ -10,6 +10,7 @@ const MAX_TOOL_SEARCH_SOURCE_DESCRIPTION_BYTES: usize = 512 * 1024;
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub(crate) enum ToolSearchSourceListing {
     Include,
+    IncludeLimited,
     Omit,
 }
 
@@ -32,7 +33,12 @@ pub(crate) fn create_tool_search_tool(
     ]);
 
     let source_section = match source_listing {
-        ToolSearchSourceListing::Include => {
+        ToolSearchSourceListing::Include | ToolSearchSourceListing::IncludeLimited => {
+            let max_source_bytes = if source_listing == ToolSearchSourceListing::IncludeLimited {
+                4 * 1024
+            } else {
+                MAX_TOOL_SEARCH_SOURCE_DESCRIPTION_BYTES
+            };
             let mut source_descriptions = BTreeMap::new();
             for source in searchable_sources {
                 source_descriptions
@@ -52,15 +58,12 @@ pub(crate) fn create_tool_search_tool(
                     source_descriptions.len().saturating_sub(1),
                     |reserved, name| reserved.saturating_add(2).saturating_add(name.len()),
                 );
-                let mut description_budget =
-                    MAX_TOOL_SEARCH_SOURCE_DESCRIPTION_BYTES.saturating_sub(reserved_name_bytes);
+                let mut description_budget = max_source_bytes.saturating_sub(reserved_name_bytes);
                 let mut rendered = String::new();
                 for (name, description) in source_descriptions {
                     let separator_bytes = usize::from(!rendered.is_empty());
                     let required = separator_bytes.saturating_add(2).saturating_add(name.len());
-                    if required
-                        > MAX_TOOL_SEARCH_SOURCE_DESCRIPTION_BYTES.saturating_sub(rendered.len())
-                    {
+                    if required > max_source_bytes.saturating_sub(rendered.len()) {
                         continue;
                     }
 
@@ -172,6 +175,34 @@ mod tests {
         assert!(!description.contains("You have access to tools from the following sources"));
         assert!(!description.contains("Google Drive"));
         assert!(description.contains("use this tool (`tool_search`) to search"));
+    }
+
+    #[test]
+    fn api_tool_context_bounds_source_summaries_without_changing_other_providers() {
+        let sources = (0..8)
+            .map(|i| ToolSearchSourceInfo {
+                name: format!("source-{i}"),
+                description: Some("reference ".repeat(35_000)),
+            })
+            .collect::<Vec<_>>();
+        let ToolSpec::ToolSearch { description, .. } =
+            create_tool_search_tool(&sources, 8, ToolSearchSourceListing::IncludeLimited)
+        else {
+            panic!("expected tool search spec");
+        };
+        assert!(description.len() < 5 * 1024);
+        for source in &sources {
+            assert!(description.contains(&source.name));
+        }
+        assert!(description.contains("always use `tool_search`"));
+        let ToolSpec::ToolSearch {
+            description: ordinary,
+            ..
+        } = create_tool_search_tool(&sources, 8, ToolSearchSourceListing::Include)
+        else {
+            panic!("expected tool search spec");
+        };
+        assert!(ordinary.len() > 500_000);
     }
 
     #[test]

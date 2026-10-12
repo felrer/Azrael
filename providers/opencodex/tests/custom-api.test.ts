@@ -2,7 +2,7 @@ import { afterEach, beforeEach, expect, test } from 'bun:test';
 import { mkdtempSync, mkdirSync, rmSync, readFileSync, writeFileSync, existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { infer, catalog } from '../inference.ts';
+import { infer, catalog, projectRequest } from '../inference.ts';
 import { apiConfigCommand, apiCatalog, readConnections, setApiSecretFactoryForTests, acquireApiLock } from '../custom-api-config.ts';
 
 let root = '', id = ''; const saved = { ...process.env };
@@ -143,4 +143,40 @@ test('removing connection during request aborts without terminal completion', as
   })));
   await expect(promise).rejects.toThrow('api_connection_missing');
   expect(frames.some(f => f.type === 'completed')).toBeFalse();
+});
+
+test('API discovery history omits 280k tokens of duplicate schemas and uses current aliases', async () => {
+  await setup();
+  const selected = { type: 'function', name: 'lookup', description: 'Lookup', parameters: { type: 'object', properties: { key: { type: 'string' } }, required: ['key'] } };
+  const historyTools = Array.from({ length: 40 }, (_, i) => ({ ...selected, name: 'historical_' + i, description: ' reference'.repeat(7000) }));
+  const input = [
+    { type: 'tool_search_call', call_id: 'search', execution: 'client', arguments: { query: 'lookup' } },
+    { type: 'tool_search_output', call_id: 'search', execution: 'client', status: 'completed', tools: [...historyTools, { type: 'namespace', name: 'mcp__fixture', tools: [selected] }] },
+    { type: 'message', role: 'user', content: 'Use the discovered lookup tool.' },
+  ];
+  const native = request({ tools: [{ type: 'namespace', name: 'mcp__fixture', tools: [selected] }], input });
+  const unchanged = JSON.stringify(native);
+  const api = projectRequest(native, 'fixture').compiled;
+  const ordinary = projectRequest({ ...native, provider_id: 'anthropic' }, 'fixture').compiled;
+  expect(Buffer.byteLength(JSON.stringify(ordinary.messages))).toBeGreaterThan(2_500_000);
+  expect(Buffer.byteLength(JSON.stringify(api.messages))).toBeLessThan(1000);
+  const discovery = JSON.parse(api.messages.find((m: any) => m.role === 'tool').content);
+  expect(discovery.tools).toEqual([{ name: api.tools[0].name }]);
+  expect(api.tools[0].parameters).toEqual(selected.parameters);
+  expect(JSON.stringify(native)).toBe(unchanged);
+  const frames: any[] = [];
+  await infer(native, f => frames.push(f), fixtureFetch((_url, init) => {
+    const body = JSON.parse(init.body);
+    expect(body.messages.find((m: any) => m.role === 'tool').tool_call_id).toBe('search');
+    expect(JSON.parse(body.messages.find((m: any) => m.role === 'tool').content).tools[0].name).toBe(body.tools[0].function.name);
+    return Response.json(completion({ choices: [{ message: { role: 'assistant', content: null, tool_calls: [{ id: 'lookup_call', type: 'function', function: { name: body.tools[0].function.name, arguments: '{"key":"42"}' } }] }, finish_reason: 'tool_calls' }] }));
+  }));
+  expect(frames.find(f => f.type === 'item_done' && f.item.type === 'function_call').item).toMatchObject({ namespace: 'mcp__fixture', name: 'lookup', arguments: '{"key":"42"}' });
+});
+
+test('API oversized direct catalog fails before POST independently of server context capacity', async () => {
+  await setup({ models: [{ ...model, contextWindow: 1_000_000 }] });
+  let calls = 0;
+  await expect(infer(request({ tools: [{ type: 'function', name: 'oversized', description: ' reference'.repeat(280000), parameters: { type: 'object', properties: {} } }] }), () => {}, fixtureFetch(() => { calls++; return Response.json(completion()); }))).rejects.toThrow('api_tool_context_limit');
+  expect(calls).toBe(0);
 });

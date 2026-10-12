@@ -542,6 +542,198 @@ async fn specs_filter_deferred_dynamic_tools() -> anyhow::Result<()> {
     Ok(())
 }
 
+async fn discovery_budget_test_router(description_bytes: usize) -> ToolRouter {
+    let (_, turn) = make_session_and_context().await;
+    let turn = Arc::new(turn);
+    let step_context = StepContext::for_test(Arc::clone(&turn));
+    let dynamic_tools = vec![DynamicToolSpec::Namespace(DynamicToolNamespaceSpec {
+        name: "budget_test".to_string(),
+        description: "Current live namespace.".to_string(),
+        tools: (0..30)
+            .map(|index| {
+                DynamicToolNamespaceTool::Function(DynamicToolFunctionSpec {
+                    name: format!("tool_{index:02}"),
+                    // Non-ASCII content catches character-count budget mistakes.
+                    description: "한".repeat(description_bytes / 3),
+                    input_schema: json!({
+                        "type": "object",
+                        "properties": {"query": {"type": "string", "enum": ["intact"]}},
+                        "required": ["query"],
+                        "additionalProperties": false,
+                    }),
+                    defer_loading: index != 29,
+                })
+            })
+            .collect(),
+    })];
+    test_tool_router(
+        step_context.as_ref(),
+        Vec::new(),
+        Vec::new(),
+        &dynamic_tools,
+    )
+}
+
+fn discovery_search_history() -> ResponseItem {
+    ResponseItem::ToolSearchOutput {
+        id: None,
+        call_id: Some("search".to_string()),
+        status: "completed".to_string(),
+        execution: "client".to_string(),
+        tools: vec![json!({
+            "type": "namespace",
+            "name": "budget_test",
+            "description": "obsolete history metadata".repeat(12_000),
+            "tools": (0..30).map(|index| json!({
+                "type": "function",
+                "name": format!("tool_{index:02}"),
+                "description": "obsolete schema",
+                "parameters": {"type": "object", "properties": {"stale": {"type": "number"}}},
+            })).collect::<Vec<_>>(),
+        })],
+        internal_chat_message_metadata_passthrough: None,
+    }
+}
+
+#[tokio::test]
+async fn chat_discovery_bounds_large_catalogs_and_history_without_changing_schemas() {
+    for description_bytes in [4_000, 20_000] {
+        let router = discovery_budget_test_router(description_bytes).await;
+        let base = router.model_visible_specs();
+        let history = vec![discovery_search_history(), discovery_search_history()];
+        assert!(serde_json::to_vec(&history).unwrap().len() > 280_000);
+        if description_bytes == 20_000 {
+            let all_specs = router
+                .registry
+                .entries()
+                .map(|tool| tool.runtime.spec())
+                .collect::<Vec<_>>();
+            assert!(serde_json::to_vec(&all_specs).unwrap().len() > 280_000);
+        }
+        let selected = router.chat_specs_with_discovered(&history);
+        assert!(serde_json::to_vec(&selected).unwrap().len() <= 64 * 1024);
+        let names = namespace_function_names(&selected, "budget_test");
+        let extras = names
+            .iter()
+            .filter(|name| name.as_str() != "tool_29")
+            .collect::<Vec<_>>();
+        assert!(!extras.is_empty());
+        assert!(extras.len() <= 8);
+        if description_bytes == 4_000 {
+            assert_eq!(extras.len(), 8);
+        } else {
+            assert!(extras.len() < 8);
+        }
+        for spec in selected.iter() {
+            if let ToolSpec::Namespace(namespace) = spec {
+                if namespace.name == "budget_test" {
+                    for child in &namespace.tools {
+                        let name = match child {
+                            ResponsesApiNamespaceTool::Function(tool) => &tool.name,
+                            ResponsesApiNamespaceTool::Custom(tool) => &tool.name,
+                        };
+                        let current = router
+                            .registry
+                            .entries()
+                            .find(|tool| {
+                                tool.runtime.tool_name()
+                                    == ToolName::namespaced("budget_test", name)
+                            })
+                            .unwrap()
+                            .runtime
+                            .spec();
+                        let ToolSpec::Namespace(current) = current else {
+                            panic!("expected live namespace");
+                        };
+                        assert_eq!(
+                            serde_json::to_value(child).unwrap(),
+                            serde_json::to_value(&current.tools[0]).unwrap()
+                        );
+                    }
+                }
+            }
+        }
+        assert!(Arc::ptr_eq(&base, &router.model_visible_specs()));
+        assert_eq!(
+            namespace_function_names(&base, "budget_test"),
+            vec!["tool_29"]
+        );
+        assert_eq!(router.chat_specs_with_discovered(&[]), base);
+    }
+}
+
+#[tokio::test]
+async fn chat_discovery_prefers_recent_calls_and_authorized_additions() {
+    let router = discovery_budget_test_router(4_000).await;
+    let history = vec![
+        discovery_search_history(),
+        serde_json::from_value(json!({"type": "additional_tools", "role": "developer", "tools": [
+            {"type": "namespace", "name": "budget_test", "tools": [{"name": "tool_28"}]}
+        ]})).unwrap(),
+        serde_json::from_value(json!({"type": "function_call", "namespace": "budget_test", "name": "tool_27", "arguments": "{}", "call_id": "recent-function"})).unwrap(),
+        serde_json::from_value(json!({"type": "custom_tool_call", "namespace": "budget_test", "name": "tool_26", "input": "", "call_id": "recent-custom"})).unwrap(),
+    ];
+    assert_eq!(
+        namespace_function_names(&router.chat_specs_with_discovered(&history), "budget_test"),
+        vec![
+            "tool_00", "tool_01", "tool_02", "tool_03", "tool_04", "tool_26", "tool_27", "tool_28",
+            "tool_29"
+        ]
+    );
+}
+
+#[tokio::test]
+async fn chat_discovery_does_not_revive_hidden_removed_or_unauthorized_tools() {
+    let mut router = discovery_budget_test_router(4_000).await;
+    for tool in router.registry.entries_mut() {
+        if tool.runtime.tool_name() == ToolName::namespaced("budget_test", "tool_00") {
+            tool.exposure = ToolExposure::Hidden;
+        }
+    }
+    let hidden_or_removed = json!({"type": "namespace", "name": "budget_test", "tools": [{"name": "tool_00"}, {"name": "removed"}]});
+    let mut search = discovery_search_history();
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut search {
+        *tools = vec![hidden_or_removed];
+    }
+    let unauthorized = |kind: &str| -> ResponseItem {
+        let tools =
+            json!([{"type": "namespace", "name": "budget_test", "tools": [{"name": "tool_01"}]}]);
+        let value = match kind {
+            "user" => json!({"type": "additional_tools", "role": "user", "tools": tools}),
+            "server" => {
+                json!({"type": "tool_search_output", "execution": "server", "status": "completed", "tools": tools})
+            }
+            _ => {
+                json!({"type": "tool_search_output", "execution": "client", "status": "in_progress", "tools": tools})
+            }
+        };
+        serde_json::from_value(value).unwrap()
+    };
+    let hidden_call = serde_json::from_value(json!({"type": "function_call", "namespace": "budget_test", "name": "tool_00", "arguments": "{}", "call_id": "hidden"})).unwrap();
+    let history = vec![
+        search,
+        hidden_call,
+        unauthorized("user"),
+        unauthorized("server"),
+        unauthorized("pending"),
+    ];
+    assert_eq!(
+        router.chat_specs_with_discovered(&history),
+        router.model_visible_specs()
+    );
+}
+
+#[tokio::test]
+async fn chat_discovery_preserves_oversized_mandatory_base_catalog() {
+    let router = discovery_budget_test_router(90_000).await;
+    let base = router.model_visible_specs();
+    assert!(serde_json::to_vec(&base).unwrap().len() > 64 * 1024);
+    assert!(Arc::ptr_eq(
+        &base,
+        &router.chat_specs_with_discovered(&[discovery_search_history()])
+    ));
+}
+
 fn mcp_tool_info(
     server_name: &str,
     supports_parallel_tool_calls: bool,

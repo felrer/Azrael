@@ -148,13 +148,66 @@ impl ToolRouter {
     /// history identities against the live registry rather than trusting old
     /// schemas or making hidden/removed tools callable again.
     pub(crate) fn chat_specs_with_discovered(&self, input: &[ResponseItem]) -> Arc<[ToolSpec]> {
-        let mut discovered = std::collections::HashSet::new();
-        for item in input {
+        const MAX_DEFERRED_TOOLS: usize = 8;
+        const MAX_CATALOG_BYTES: usize = 64 * 1024;
+
+        let mut specs = self.model_visible_specs.to_vec();
+        // Direct tools are mandatory. The API request boundary handles an
+        // oversized base catalog explicitly rather than silently dropping tools.
+        if serde_json::to_vec(&specs).map_or(true, |json| json.len() > MAX_CATALOG_BYTES) {
+            return self.model_visible_specs();
+        }
+        let deferred = self
+            .registry
+            .entries()
+            .filter(|tool| tool.exposure.is_deferred())
+            .map(|tool| (tool.runtime.tool_name().with_default_namespace(), tool))
+            .collect::<BTreeMap<_, _>>();
+        let mut seen = std::collections::HashSet::new();
+        let mut loaded = 0;
+        let mut add_candidate = |name: ToolName| {
+            let name = name.with_default_namespace();
+            if loaded == MAX_DEFERRED_TOOLS || !seen.insert(name.clone()) {
+                return;
+            }
+            let Some(tool) = deferred.get(&name) else {
+                return;
+            };
+            let mut candidate = specs.clone();
+            candidate.push(tool.runtime.spec());
+            // Measure the actual merged catalog, including namespace overhead,
+            // and retain only whole, current schemas that fit this request.
+            let candidate = crate::tools::spec_plan::merge_into_namespaces(candidate);
+            if serde_json::to_vec(&candidate).is_ok_and(|json| json.len() <= MAX_CATALOG_BYTES) {
+                specs = candidate;
+                loaded += 1;
+            }
+        };
+        for item in input.iter().rev() {
             let values = match item {
-                ResponseItem::ToolSearchOutput { execution, status, tools, .. }
-                    if execution == "client" && status == "completed" => tools,
+                ResponseItem::FunctionCall {
+                    namespace, name, ..
+                }
+                | ResponseItem::CustomToolCall {
+                    namespace, name, ..
+                } => {
+                    add_candidate(ToolName {
+                        namespace: namespace.clone(),
+                        name: name.clone(),
+                    });
+                    continue;
+                }
+                ResponseItem::ToolSearchOutput {
+                    execution,
+                    status,
+                    tools,
+                    ..
+                } if execution == "client" && status == "completed" => tools,
                 ResponseItem::AdditionalTools { role, tools, .. }
-                    if role == "developer" || role == "system" => tools,
+                    if role == "developer" || role == "system" =>
+                {
+                    tools
+                }
                 _ => continue,
             };
             for value in values {
@@ -164,26 +217,16 @@ impl ToolRouter {
                     {
                         for child in children {
                             if let Some(name) = child["name"].as_str() {
-                                discovered.insert(ToolName::namespaced(namespace, name));
+                                add_candidate(ToolName::namespaced(namespace, name));
                             }
                         }
                     }
                 } else if let Some(name) = value["name"].as_str() {
-                    discovered.insert(ToolName::plain(name).with_default_namespace());
+                    add_candidate(ToolName::plain(name));
                 }
             }
         }
-        let mut specs = self.model_visible_specs.to_vec();
-        for tool in self.registry.entries() {
-            if matches!(tool.exposure,
-                crate::tools::registry::ToolExposure::Deferred
-                | crate::tools::registry::ToolExposure::DeferredModelOnly)
-                && discovered.contains(&tool.runtime.tool_name().with_default_namespace())
-            {
-                specs.push(tool.runtime.spec());
-            }
-        }
-        crate::tools::spec_plan::merge_into_namespaces(specs).into()
+        specs.into()
     }
 
     pub(crate) fn tool_mode(&self) -> ToolMode {
