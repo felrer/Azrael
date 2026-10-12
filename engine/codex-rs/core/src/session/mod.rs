@@ -1514,6 +1514,13 @@ impl Session {
         state.get_total_token_usage(state.server_reasoning_included())
     }
 
+    pub(crate) async fn get_total_token_usage_for_model(&self, model_info: &ModelInfo) -> i64 {
+        let state = self.state.lock().await;
+        state
+            .history
+            .get_total_token_usage_for_model(state.server_reasoning_included(), model_info)
+    }
+
     pub(crate) async fn auto_compact_window_snapshot(&self) -> AutoCompactWindowSnapshot {
         let state = self.state.lock().await;
         state.auto_compact_window_snapshot()
@@ -1524,6 +1531,16 @@ impl Session {
         state
             .history
             .estimated_tokens_after_last_model_generated_item()
+    }
+
+    pub(crate) async fn estimated_tokens_after_last_model_generated_item_for_model(
+        &self,
+        model_info: &ModelInfo,
+    ) -> i64 {
+        let state = self.state.lock().await;
+        state
+            .history
+            .estimated_tokens_after_last_model_generated_item_for_model(model_info)
     }
 
     pub(crate) async fn total_token_usage(&self) -> Option<TokenUsage> {
@@ -1872,7 +1889,10 @@ impl Session {
         ) {
             let history = self.clone_history().await;
             let base_instructions = self.get_base_instructions().await;
-            history.estimate_token_count_with_base_instructions(&base_instructions)
+            history.estimate_token_count_with_base_instructions_for_model(
+                &base_instructions,
+                turn_context.model_info().as_ref(),
+            )
         } else {
             None
         };
@@ -4864,8 +4884,11 @@ impl Session {
     pub(crate) async fn recompute_token_usage(&self, turn_context: &TurnContext) {
         let history = self.clone_history().await;
         let base_instructions = self.get_base_instructions().await;
-        let Some(estimated_total_tokens) =
-            history.estimate_token_count_with_base_instructions(&base_instructions)
+        let Some(estimated_total_tokens) = history
+            .estimate_token_count_with_base_instructions_for_model(
+                &base_instructions,
+                turn_context.model_info().as_ref(),
+            )
         else {
             return;
         };

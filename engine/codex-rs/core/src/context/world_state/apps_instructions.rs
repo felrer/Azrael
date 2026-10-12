@@ -38,8 +38,23 @@ impl WorldStateSection for AppsInstructionsState {
         previous: PreviousSectionState<'_, Self::Snapshot>,
     ) -> SectionTransition<Self::Snapshot> {
         let current = self.available;
-        if !self.available
-            || matches!(previous, PreviousSectionState::Known(previous) if *previous)
+        if !current {
+            let updates = if matches!(
+                previous,
+                PreviousSectionState::Known(true) | PreviousSectionState::Unknown
+            ) {
+                vec![WorldStateUpdate::fragment(
+                    super::instruction_removal::InstructionRemoval {
+                        fragment: AppsInstructions,
+                        notice: "The previously provided generic Apps usage guidance no longer applies.",
+                    },
+                )]
+            } else {
+                Vec::new()
+            };
+            return (Some(current), updates);
+        }
+        if matches!(previous, PreviousSectionState::Known(previous) if *previous)
             || matches!(previous, PreviousSectionState::Unknown)
         {
             return (Some(current), Vec::new());

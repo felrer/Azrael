@@ -61,3 +61,31 @@ fn persisted_guidance_is_restored_only_when_missing_from_history() {
             .is_empty()
     );
 }
+
+#[test]
+fn disabled_guidance_withdraws_previous_state_and_can_be_enabled_again() {
+    let disabled = AppsInstructionsState::new(false);
+    let enabled = AppsInstructionsState::new(true);
+    let (_, updates) = disabled.render_diff(PreviousSectionState::Known(&true));
+    assert_eq!(updates.len(), 1);
+    let crate::context::world_state::WorldStateUpdateContent::Fragment(fragment) =
+        &updates[0].content
+    else {
+        panic!("removal must be a typed fragment");
+    };
+    assert_eq!(fragment.content_kind().0, "apps.instructions");
+    assert!(fragment.body().contains("no longer applies"));
+    assert!(
+        disabled
+            .render_diff(PreviousSectionState::Known(&false))
+            .1
+            .is_empty()
+    );
+    assert_eq!(
+        enabled
+            .render_diff(PreviousSectionState::Known(&false))
+            .1
+            .len(),
+        1
+    );
+}

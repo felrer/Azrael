@@ -138,7 +138,10 @@ async fn run_remote_compact_task_inner(
     let implementation = compaction_metadata.implementation();
     let phase = compaction_metadata.phase();
     let mut analytics_details = CompactionAnalyticsDetails {
-        active_context_tokens_before: Some(sess.get_total_token_usage().await),
+        active_context_tokens_before: Some(
+            sess.get_total_token_usage_for_model(turn_context.model_info().as_ref())
+                .await,
+        ),
         ..Default::default()
     };
     let attempt = CompactionAnalyticsAttempt::begin(
@@ -1281,9 +1284,16 @@ mod tests {
         let (sess, turn_context, rx) =
             crate::session::tests::make_session_and_context_with_rx().await;
         let compaction_item = TurnItem::ContextCompaction(ContextCompactionItem::new());
-        let output = collect_compaction_output(&sess, &turn_context, &turn_context.initial_settings, &turn_context.initial_environments, stream, &compaction_item)
-            .await
-            .expect("compaction should be collected");
+        let output = collect_compaction_output(
+            &sess,
+            &turn_context,
+            &turn_context.initial_settings,
+            &turn_context.initial_environments,
+            stream,
+            &compaction_item,
+        )
+        .await
+        .expect("compaction should be collected");
 
         assert_eq!(output.compaction_output, compaction);
         assert_eq!(output.response_id, "resp-compact");

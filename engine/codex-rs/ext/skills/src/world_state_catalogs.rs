@@ -12,6 +12,8 @@ use serde::Serialize;
 use crate::HostSkillsSnapshot;
 use crate::SkillsExtensionConfig;
 use crate::catalog::SkillCatalog;
+use crate::catalog::SkillCatalogEntry;
+use crate::catalog::SkillSourceKind;
 use crate::provider::SkillListQuery;
 use crate::provider::attribute_executor_plugins;
 use crate::render::AvailableSkillsRender;
@@ -232,7 +234,7 @@ impl<'a> CatalogContext<'a> {
         let needs_catalog =
             self.config.include_instructions || self.config.shadow_selection_enabled;
         let catalog = if needs_catalog {
-            let catalog = self
+            let mut catalog = self
                 .providers
                 .list_host_for_turn(SkillListQuery {
                     turn_id: self.input.turn_id.to_string(),
@@ -246,6 +248,7 @@ impl<'a> CatalogContext<'a> {
                     executor_capability_discovery: None,
                 })
                 .await;
+            filter_host_catalog_for_model(&mut catalog, &self.input.model_info.slug);
             self.input
                 .turn_store
                 .insert(HostSkillsStepState(catalog.clone()));
@@ -491,6 +494,106 @@ impl<'a> CatalogContext<'a> {
                 self.input.turn_store.insert(HostSkillsCatalogInWorldState);
                 host_skills_world_state_section(body, include_instructions, &report, on_render)
             }
+        }
+    }
+}
+
+pub(crate) fn filter_host_catalog_for_model(catalog: &mut SkillCatalog, model_slug: &str) {
+    if model_slug.starts_with("api/") {
+        catalog.entries.retain(|entry| {
+            entry.authority.kind != SkillSourceKind::Host || !requires_api_excluded_tool(entry)
+        });
+    }
+}
+
+fn requires_api_excluded_tool(entry: &SkillCatalogEntry) -> bool {
+    // These shipped host skills lack tool dependency metadata. Classify their
+    // exact metadata names, including plugin-qualified names, until they declare
+    // their dependencies. Never infer requirements from description/body text.
+    crate::host_prompt::api_excluded_skill_name(&entry.name)
+        || entry.dependencies.as_ref().is_some_and(|dependencies| {
+            dependencies
+                .tools
+                .iter()
+                .any(|tool| codex_tools::api_excludes_tool_namespace(&tool.value))
+        })
+}
+
+#[cfg(test)]
+mod model_visibility_tests {
+    use super::*;
+    use crate::catalog::SkillAuthority;
+    use crate::catalog::SkillPackageId;
+    use crate::catalog::SkillResourceId;
+    use crate::catalog::SkillSourceKind;
+    use codex_skills::SkillDependencies;
+    use codex_skills::SkillToolDependency;
+
+    fn entry(name: &str, dependency: Option<&str>) -> SkillCatalogEntry {
+        SkillCatalogEntry::new(
+            SkillPackageId(name.to_string()),
+            SkillAuthority::new(SkillSourceKind::Host, "host"),
+            name,
+            "description mentioning node_repl does not classify a skill",
+            SkillResourceId::new(format!("/{name}/SKILL.md")),
+        )
+        .with_dependencies(dependency.map(|value| SkillDependencies {
+            tools: vec![SkillToolDependency {
+                r#type: "mcp".to_string(),
+                value: value.to_string(),
+                description: None,
+                transport: None,
+                command: None,
+                url: None,
+                oauth_callback_port: None,
+            }],
+        }))
+    }
+
+    #[test]
+    fn api_host_catalog_excludes_only_known_or_declared_tool_requirements() {
+        let mut catalog = SkillCatalog::default();
+        for name in [
+            "window-use",
+            "chrome:control-chrome",
+            "browser:control-in-app-browser",
+            "computer-use:computer-use",
+        ] {
+            catalog.push_entry(entry(name, None));
+        }
+        for dependency in [
+            "azrael_window",
+            "mcp__azrael_window",
+            "node_repl",
+            "mcp__node_repl",
+        ] {
+            catalog.push_entry(entry("custom", Some(dependency)));
+        }
+        catalog.push_entry(entry("other-tool", Some("google_drive")));
+        catalog.push_entry(entry("ordinary", None));
+        let mut executor = entry("executor", Some("node_repl"));
+        executor.authority = SkillAuthority::new(SkillSourceKind::Executor, "executor");
+        catalog.push_entry(executor);
+        filter_host_catalog_for_model(&mut catalog, "api/anthropic/model");
+        assert_eq!(
+            catalog
+                .entries
+                .iter()
+                .map(|entry| entry.name.as_str())
+                .collect::<Vec<_>>(),
+            vec!["other-tool", "ordinary", "executor"]
+        );
+    }
+
+    #[test]
+    fn ordinary_provider_catalogs_keep_all_host_skills() {
+        let mut catalog = SkillCatalog::default();
+        catalog.push_entry(entry("window-use", None));
+        catalog.push_entry(entry("custom", Some("node_repl")));
+        for slug in ["gpt-6.1-sol", "managed/anthropic/model", "not-api/model"] {
+            let mut visible = catalog.clone();
+            filter_host_catalog_for_model(&mut visible, slug);
+            assert_eq!(visible, catalog);
         }
     }
 }

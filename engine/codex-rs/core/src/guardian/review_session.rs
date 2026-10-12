@@ -657,9 +657,17 @@ async fn run_review_on_session(
                         .fold(0i64, i64::saturating_add);
                     let base_instructions = review_session.session.get_base_instructions().await;
                     let history_tokens = reviewer_history
-                        .estimate_token_count_with_base_instructions(&base_instructions)
+                        .estimate_token_count_with_base_instructions_for_model(
+                            &base_instructions,
+                            &model_info,
+                        )
                         .unwrap_or(i64::MAX)
-                        .max(review_session.session.get_total_token_usage().await);
+                        .max(
+                            review_session
+                                .session
+                                .get_total_token_usage_for_model(&model_info)
+                                .await,
+                        );
                     prompt_tokens <= GUARDIAN_MAX_IMAGE_ITEM_TOKENS
                         && prompt_tokens.saturating_add(history_tokens) <= context_window
                 } else {

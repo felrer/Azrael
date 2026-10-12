@@ -872,12 +872,12 @@ async fn fixture_home_dir_loads_personal_skills_for_config_and_cwd() {
             vec![
                 (
                     "personal-skill".to_string(),
-                    personal_skill_path.clone(),
+                    PathUri::from_abs_path(&personal_skill_path),
                     SkillScope::User
                 ),
                 (
                     "user-skill".to_string(),
-                    user_skill_path.clone(),
+                    PathUri::from_abs_path(&user_skill_path),
                     SkillScope::User
                 ),
             ]

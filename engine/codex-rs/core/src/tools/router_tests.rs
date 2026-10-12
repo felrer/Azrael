@@ -734,6 +734,128 @@ async fn chat_discovery_preserves_oversized_mandatory_base_catalog() {
     ));
 }
 
+#[tokio::test]
+async fn search_history_projection_preserves_current_schemas_and_raw_history() {
+    let mut router = discovery_budget_test_router(4_000).await;
+    router.code_mode_tool_names.clear();
+    // This case exercises deferred search exposure after removing Code Mode.
+    // The shared fixture initially exposes deferred tools only through Code Mode.
+    let mut visible = router.model_visible_specs.to_vec();
+    visible.push(ToolSpec::ToolSearch {
+        execution: "client".to_string(),
+        description: "Search current tools".to_string(),
+        parameters: codex_tools::JsonSchema::object(BTreeMap::new(), None, None),
+    });
+    router.model_visible_specs = visible.into();
+    assert!(router.exposes_tool(&ToolName::namespaced("budget_test", "tool_00")));
+    for tool in router.registry.entries_mut() {
+        if tool.runtime.tool_name() == ToolName::namespaced("budget_test", "tool_01") {
+            tool.exposure = ToolExposure::Hidden;
+        }
+    }
+    let mut search = discovery_search_history();
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut search {
+        tools[0]["tools"] = json!([
+            {"name": "tool_00", "parameters": {"intact": "schema"}},
+            {"name": "tool_01", "description": "hidden".repeat(60_000)},
+            {"name": "removed", "description": "removed".repeat(60_000)},
+            {"name": "tool_29", "parameters": {"intact": "direct schema"}},
+        ]);
+        tools.push(json!({"type": "namespace", "name": "removed_namespace", "description": "stale".repeat(60_000), "tools": [{"name": "removed"}]}));
+    }
+    let history = vec![search];
+    let raw_before = serde_json::to_value(&history).unwrap();
+    let projected = router.project_search_history_for_current_registry(history.clone());
+    assert_eq!(serde_json::to_value(&history).unwrap(), raw_before);
+    let mut expected = history;
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut expected[0] {
+        tools.truncate(1);
+        let children = tools[0]["tools"].as_array_mut().unwrap();
+        children.remove(2);
+        children.remove(1);
+    }
+    assert_eq!(
+        serde_json::to_value(projected).unwrap(),
+        serde_json::to_value(expected).unwrap()
+    );
+}
+
+#[tokio::test]
+async fn search_history_projection_preserves_direct_helpers_and_nested_tools_without_search() {
+    let mut router = discovery_budget_test_router(4_000).await;
+    router.code_mode_tool_names.clear();
+    router.code_mode_tool_names.insert(
+        "nested_tool".to_string(),
+        ToolName::namespaced("budget_test", "tool_01"),
+    );
+    let mut visible = router.model_visible_specs().to_vec();
+    visible.retain(|spec| !matches!(spec, ToolSpec::ToolSearch { .. }));
+    // A directly exposed helper/alias need not have the same registry identity.
+    let ToolSpec::Namespace(namespace) = visible.iter().find(|spec| matches!(spec, ToolSpec::Namespace(namespace) if namespace.name == "budget_test")).unwrap() else {
+        panic!("expected namespace");
+    };
+    let ResponsesApiNamespaceTool::Function(mut helper) = namespace.tools[0].clone() else {
+        panic!("expected function");
+    };
+    helper.name = "run".to_string();
+    visible.push(ToolSpec::Namespace(ResponsesApiNamespace {
+        name: "functions".to_string(),
+        description: "Code Mode helper.".to_string(),
+        tools: vec![ResponsesApiNamespaceTool::Function(helper.clone())],
+    }));
+    helper.name = "direct_alias".to_string();
+    visible.push(ToolSpec::Function(helper));
+    router.model_visible_specs = visible.into();
+    assert!(!router.exposes_tool(&ToolName::namespaced("budget_test", "tool_00")));
+    let mut search = discovery_search_history();
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut search {
+        *tools = vec![
+            json!({"type": "namespace", "name": "budget_test", "tools": [{"name": "tool_00"}, {"name": "tool_01"}]}),
+            json!({"type": "namespace", "name": "functions", "description": "preserved helper", "tools": [{"name": "run", "parameters": {"helper": "intact"}}]}),
+            json!({"type": "function", "name": "direct_alias", "parameters": {"alias": "intact"}}),
+        ];
+    }
+    let mut expected = vec![search.clone()];
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut expected[0] {
+        tools[0]["tools"].as_array_mut().unwrap().remove(0);
+    }
+    let projected = router.project_search_history_for_current_registry(vec![search]);
+    assert_eq!(
+        serde_json::to_value(projected).unwrap(),
+        serde_json::to_value(expected).unwrap()
+    );
+}
+
+#[tokio::test]
+async fn search_history_projection_preserves_failed_outputs_and_pairing() {
+    let router = discovery_budget_test_router(4_000).await;
+    let mut completed = discovery_search_history();
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut completed {
+        *tools = vec![
+            json!({"type": "function", "name": "removed", "description": "stale".repeat(60_000)}),
+        ];
+    }
+    let mut failed = completed.clone();
+    if let ResponseItem::ToolSearchOutput { status, .. } = &mut failed {
+        *status = "failed".to_string();
+    }
+    let mut server = completed.clone();
+    if let ResponseItem::ToolSearchOutput { execution, .. } = &mut server {
+        *execution = "server".to_string();
+    }
+    let call: ResponseItem = serde_json::from_value(json!({"type": "tool_search_call", "call_id": "search", "execution": "client", "arguments": {"query": "removed"}})).unwrap();
+    let history = vec![call, completed, failed, server];
+    let mut expected = history.clone();
+    if let ResponseItem::ToolSearchOutput { tools, .. } = &mut expected[1] {
+        tools.clear();
+    }
+    let projected = router.project_search_history_for_current_registry(history);
+    assert_eq!(
+        serde_json::to_value(projected).unwrap(),
+        serde_json::to_value(expected).unwrap()
+    );
+}
+
 fn mcp_tool_info(
     server_name: &str,
     supports_parallel_tool_calls: bool,

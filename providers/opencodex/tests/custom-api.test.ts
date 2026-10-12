@@ -158,7 +158,9 @@ test('API discovery history omits 280k tokens of duplicate schemas and uses curr
   const unchanged = JSON.stringify(native);
   const api = projectRequest(native, 'fixture').compiled;
   const ordinary = projectRequest({ ...native, provider_id: 'anthropic' }, 'fixture').compiled;
-  expect(Buffer.byteLength(JSON.stringify(ordinary.messages))).toBeGreaterThan(2_500_000);
+  expect(Buffer.byteLength(unchanged)).toBeGreaterThan(2_500_000);
+  expect(Buffer.byteLength(JSON.stringify(ordinary.messages))).toBeLessThan(20_000);
+  expect(JSON.stringify(ordinary.messages)).toContain('schema_unavailable_search_again');
   expect(Buffer.byteLength(JSON.stringify(api.messages))).toBeLessThan(1000);
   const discovery = JSON.parse(api.messages.find((m: any) => m.role === 'tool').content);
   expect(discovery.tools).toEqual([{ name: api.tools[0].name }]);

@@ -26,6 +26,18 @@ API 모델은 직접 function 호출과 native deferred 검색을 사용한다. 
 
 과거 검색 결과는 API 전송 시 전체 설명·스키마 대신 현재 catalog에 선언한 wire alias 목록으로 투영한다. 스키마는 현재 `tools`에서 전달하며 call/result ID와 원본 대화 저장 내용을 보존한다. 과거 기록의 제거된 도구를 실행 권한으로 취급하거나 알 수 없는 호출 이름을 임의로 복원하지 않는다.
 
+## 요청 컨텍스트 투영
+
+Status: `current` — Windows x64에서 공통 검색 helper·API adapter 및 네이티브 투영·토큰 추정·스킬 회귀 검사를 통과했다. 설치본 반영과 다른 OS 검증은 수행하지 않았다.
+
+native managed/Devin 요청은 과거 검색의 도구 identity를 현재 registry의 호출 정책과 대조한다. 일반 provider는 현재 catalog에 없는 중첩 도구 설명을 최근 8개 identity와 64 KiB의 완전한 스키마 예산 안에서 유지한다. namespace 설명은 최신 정의에 한 번만 포함한다. 제외되거나 예산에서 밀린 스키마는 재검색 안내로 표현하며 Code Mode helper도 같은 기준을 따른다. 검색 이력 자체가 실행 권한을 부여하지 않는다.
+
+API의 로컬 컨텍스트 추정은 완전한 과거 검색 스키마 대신 alias 목록과 안내문 비용을 적용한다. provider가 보고한 토큰 사용량과 미반영된 로컬 tail을 합산할 때와 전체 재계산 모두 같은 축약 정책을 적용한다. 이 추정은 바이트 기반 heuristic이며 실제 tokenizer 값과 구분한다.
+
+교체 가능한 타입 지침은 요청에 최신 상태만 포함한다. 대상은 managed developer 지침, AGENTS.md 지침, app/plugin 사용 지침, 환경 사용 안내와 완전한 host 스킬 목록이다. app/plugin 비활성 상태도 명시적으로 반영한다. 환경 상태 delta, 일반 additive 지침, 사용자 메시지와 권한 지침은 기존 의미를 유지한다. 선택한 스킬 본문은 정규화한 경로별로 마지막에 제공한 본문 해시와 같은 경우 재사용한다. 본문이 바뀌거나 이전 버전으로 돌아오거나 컨텍스트가 초기화되면 다시 제공한다. 원본 기록은 투영으로 변경하지 않는다.
+
+API host 스킬 목록은 도구 registry와 같은 제외 namespace 정책을 사용한다. 명시된 도구 의존성과 확인된 Window Use, Computer Use, Chrome 및 in-app Browser 스킬 이름을 기준으로 제외한다. API 요청은 과거의 타입 있는 스킬 목록·선택 본문에서도 이 알려진 이름을 제외한다. 다른 이름으로 등록한 스킬은 현재 의존성 메타데이터가 있어야 분류할 수 있으며, 과거에 렌더링한 본문에는 그 메타데이터가 포함되지 않는다. 일반 provider의 스킬 목록은 유지한다.
+
 ## API 전송과 실행
 
 API helper는 기존 Chat/Responses adapter와 bounded native 프레임 프로토콜을 사용한다. 모든 도구 호출은 완성된 arguments와 terminal 결과 검증 이후에만 native engine으로 전달한다. 실행·권한·승인·도구 결과·대화 기록의 책임은 engine에 있다. 사용자 API 서버에 도구 실행이나 conversation 저장을 요구하지 않는다. 일반 function 호출로 변환 가능한 namespace/custom 도구는 기존 변환을 재사용하며 변환되지 않는 계약은 명시 실패한다.

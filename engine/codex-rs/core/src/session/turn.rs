@@ -1401,7 +1401,9 @@ async fn maybe_run_previous_model_inline_compact(
         let Some(new_context_window) = turn_context.model_context_window() else {
             return Ok(());
         };
-        let active_context_tokens = sess.get_total_token_usage().await;
+        let active_context_tokens = sess
+            .get_total_token_usage_for_model(turn_context.model_info().as_ref())
+            .await;
         let previous_model_limit_reached =
             match turn_context.config.model_auto_compact_token_limit_scope {
                 AutoCompactTokenLimitScope::Total => {
@@ -1591,6 +1593,20 @@ pub(crate) fn build_prompt(
     incremental_tools: bool,
 ) -> Prompt {
     let turn_context = &step_context.turn;
+    let model = &step_context.settings.model_info.slug;
+    let input = if model.starts_with("api/") {
+        crate::context::instruction_state_projection::project_api_skill_context(input)
+    } else {
+        input
+    };
+    let input =
+        if crate::managed_catalog::is_managed(model) || crate::devin::catalog::is_devin(model) {
+            step_context
+                .tool_router
+                .project_search_history_for_current_registry(input)
+        } else {
+            input
+        };
     Prompt {
         tools: if incremental_tools {
             Arc::default()

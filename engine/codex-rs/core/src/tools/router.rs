@@ -144,6 +144,53 @@ impl ToolRouter {
         Arc::clone(&self.model_visible_specs)
     }
 
+    /// Project an owned request copy against this step's callable tool plan.
+    /// Historical search schemas do not grant access to removed or hidden tools;
+    /// retain the output envelope so search call/result pairing stays intact.
+    pub(crate) fn project_search_history_for_current_registry(
+        &self,
+        mut input: Vec<ResponseItem>,
+    ) -> Vec<ResponseItem> {
+        for item in &mut input {
+            let ResponseItem::ToolSearchOutput {
+                execution,
+                status,
+                tools,
+                ..
+            } = item
+            else {
+                continue;
+            };
+            if execution != "client" || status != "completed" {
+                continue;
+            }
+            tools.retain_mut(|value| {
+                if value["type"] == "namespace" {
+                    let Some(namespace) = value["name"].as_str().map(str::to_owned) else {
+                        return false;
+                    };
+                    let Some(children) = value["tools"].as_array_mut() else {
+                        return false;
+                    };
+                    children.retain(|child| {
+                        child["name"].as_str().is_some_and(|name| {
+                            self.exposes_tool(&ToolName::namespaced(&namespace, name))
+                        })
+                    });
+                    !children.is_empty()
+                } else {
+                    value["name"].as_str().is_some_and(|name| {
+                        self.exposes_tool(&ToolName::new(
+                            value["namespace"].as_str().map(str::to_owned),
+                            name,
+                        ))
+                    })
+                }
+            });
+        }
+        input
+    }
+
     /// Chat APIs require discovered tools in the current tools array. Resolve
     /// history identities against the live registry rather than trusting old
     /// schemas or making hidden/removed tools callable again.

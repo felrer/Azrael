@@ -29,11 +29,15 @@ Do not additionally call list_mcp_resources or list_mcp_resource_templates for a
 true -> true
 None
 
-true -> false
-None
+true -> false (role - developer)
+<apps_instructions>
+The previously provided generic Apps usage guidance no longer applies.
+</apps_instructions>
 
-Unknown -> false
-None
+Unknown -> false (role - developer)
+<apps_instructions>
+The previously provided generic Apps usage guidance no longer applies.
+</apps_instructions>
 
 Unknown -> true
 None

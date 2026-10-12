@@ -390,13 +390,14 @@ pub(crate) fn finalize_tool_router(
             .entries()
             .filter_map(|tool| {
                 let name = tool.runtime.tool_name();
-                (matches!(
-                    name.namespace.as_deref(),
-                    Some("azrael_window" | "mcp__azrael_window" | "node_repl" | "mcp__node_repl")
-                ) || matches!(
-                    tool.runtime.mcp_server_name(),
-                    Some("azrael_window" | "node_repl")
-                ))
+                (name
+                    .namespace
+                    .as_deref()
+                    .is_some_and(codex_tools::api_excludes_tool_namespace)
+                    || tool
+                        .runtime
+                        .mcp_server_name()
+                        .is_some_and(codex_tools::api_excludes_tool_namespace))
                 .then_some(name)
             })
             .collect::<Vec<_>>();

@@ -3,6 +3,7 @@ import { test } from 'node:test';
 import { compileRequest as devin, restoreToolCall as restoreDevin } from '../mapping.mjs';
 import { compileRequest as managed, restoreToolCall as restoreManaged } from '../../opencodex/inference-mapping.mjs';
 import { buildGetChatMessageRequestForTests as wire } from '../vendor/src/adapters/devin/cloud-direct/chat.ts';
+import { projectSearchHistory, SEARCH_HISTORY_MAX_BYTES } from '../tool-search-history.mjs';
 
 const schema = (name, description = 'SCHEMA_MARKER_' + 'x'.repeat(10000)) => ({
   type: 'function', name, description, parameters: { type: 'object', properties: { key: { type: 'string' } } },
@@ -69,16 +70,83 @@ for (const [name, compile, restore] of [['managed', managed, restoreManaged], ['
     assert.throws(() => compile(request([search], [input[1]])), /invalid_tool_search_result/);
   });
 
-  test(`${name}: repeated large historical schemas fit the existing request budget`, () => {
+  test(`${name}: oversized historical schemas are unavailable without losing paired results`, () => {
     const huge = schema('nested', 'BIG_SCHEMA_' + 'x'.repeat(400000));
     const input = Array.from({ length: 25 }, (_, i) => result('s' + i, [huge])).flat();
     const compiled = compile(request([search], input));
     const text = JSON.stringify(compiled.messages);
-    assert.equal(text.split('BIG_SCHEMA_').length - 1, 1);
-    assert.ok(Buffer.byteLength(text) < 450000);
-    assert.equal(outputs(compiled).at(-1).tools[0].parameters.type, 'object');
+    assert.ok(!text.includes('BIG_SCHEMA_'));
+    assert.ok(!text.includes('latest_search_result'));
+    assert.ok(Buffer.byteLength(text) < 20000);
+    assert.equal(outputs(compiled).length, 25);
+    assert.equal(outputs(compiled).at(-1).tools[0].schema_reference, 'schema_unavailable_search_again');
+  });
+
+  test(`${name}: repeated 50KB namespace metadata occurs once with callable aliases`, () => {
+    const namespace = { type: 'namespace', name: 'fixture', description: 'NAMESPACE_MARKER_' + 'x'.repeat(50000),
+      auxiliary: { owner: 'fixture' }, tools: [schema('lookup', 'DECLARED_SCHEMA')] };
+    const native = request([search, namespace], Array.from({ length: 20 }, (_, i) => result('s' + i, [namespace])).flat());
+    const original = JSON.stringify(native), compiled = compile(native), projected = outputs(compiled);
+    const text = JSON.stringify(compiled.messages);
+    assert.equal(text.split('NAMESPACE_MARKER_').length - 1, 1);
+    assert.ok(Buffer.byteLength(text) < 65000);
+    assert.equal(projected[0].tools[0].namespace_reference, 'latest_search_result');
+    assert.equal(projected[0].tools[0].auxiliary, undefined);
+    assert.deepEqual(projected.at(-1).tools[0].auxiliary, namespace.auxiliary);
+    assert.deepEqual(projected.at(-1).tools[0].tools, [{ name: compiled.tools[1].name }]);
+    assert.equal(restore({ id: 'call', name: compiled.tools[1].name, arguments: '{}' }, compiled).name, 'lookup');
+    assert.equal(JSON.stringify(native), original);
+  });
+
+  test(`${name}: 20 distinct 50KB schemas obey aggregate cap and retain newest helper`, () => {
+    const input = Array.from({ length: 20 }, (_, i) => result('s' + i,
+      [{ type: 'namespace', name: 'helpers', description: 'HELPERS_METADATA',
+        tools: [schema('helper' + i, 'LARGE_' + i + '_' + 'x'.repeat(50000))] }])).flat();
+    const compiled = compile(request([search, { type: 'custom', name: 'exec', description: 'Code Mode' }], input));
+    const projected = outputs(compiled), text = JSON.stringify(compiled.messages);
+    assert.equal(projected.length, 20);
+    assert.ok(Buffer.byteLength(text) < 64000);
+    assert.equal(text.split('LARGE_').length - 1, 1);
+    assert.equal(projected.at(-1).tools[0].tools[0].name, 'helper19');
+    assert.equal(projected.at(-1).tools[0].tools[0].parameters.type, 'object');
+    for (const output of projected.slice(0, -1)) {
+      assert.equal(output.tools[0].tools[0].schema_reference, 'schema_unavailable_search_again');
+    }
+    assert.throws(() => restore({ id: 'call', name: 'helpers.helper19', arguments: '{}' }, compiled), /undeclared_tool/);
+    assert.equal(restore({ id: 'exec', name: compiled.tools[1].name,
+      arguments: JSON.stringify({ input: 'return await helpers.helper19({key: "42"});' }) }, compiled).name, 'exec');
   });
 }
+
+test('historical retention counts distinct identities, repeated occurrences and namespace metadata together', () => {
+  const specs = Array.from({ length: 20 }, (_, i) => schema('helper' + i, 'SMALL_' + i));
+  const input = [...specs.flatMap((spec, i) => result('s' + i, [spec])), ...result('repeat', [specs[0]])];
+  const compiled = devin(request([search], input)), projected = outputs(compiled);
+  const full = projected.flatMap(output => output.tools).filter(spec => spec.parameters);
+  assert.deepEqual(full.map(spec => spec.name), ['helper13', 'helper14', 'helper15', 'helper16', 'helper17', 'helper18', 'helper19', 'helper0']);
+  assert.equal(projected[0].tools[0].schema_reference, 'latest_search_result');
+  assert.equal(projected[1].tools[0].schema_reference, 'schema_unavailable_search_again');
+
+  const namespace = { type: 'namespace', name: 'helpers', description: '메'.repeat(12000),
+    tools: [schema('one', 'A'.repeat(18000)), schema('two', 'B'.repeat(18000))] };
+  const nestedInput = [...result('old', [namespace]), ...result('new', [namespace])];
+  const nestedOutputs = outputs(devin(request([search], nestedInput)));
+  const latest = nestedOutputs[1].tools[0];
+  const { tools, ...metadata } = latest;
+  const fullTools = tools.filter(tool => tool.parameters);
+  assert.equal(fullTools.length, 1);
+  assert.equal(fullTools[0].name, 'two');
+  assert.ok(Buffer.byteLength(JSON.stringify(metadata)) + fullTools.reduce((size, tool) => size + Buffer.byteLength(JSON.stringify(tool)), 0) <= SEARCH_HISTORY_MAX_BYTES);
+  assert.equal(nestedOutputs[0].tools[0].description, undefined);
+});
+
+test('optional current eligibility excludes historical schemas without granting execution access', () => {
+  const input = [...result('s', [schema('removed', 'REMOVED'), schema('helper', 'HELPER')])];
+  const project = projectSearchHistory(input, new Set(), (_namespace, name) => name, new Set(['helper']));
+  const output = project(input[1], 1);
+  assert.equal(output.tools[0].schema_reference, 'schema_unavailable_search_again');
+  assert.equal(output.tools[1].description, 'HELPER');
+});
 
 test('Devin protobuf contains only the current schema and preserves search/call replay', () => {
   const selected = schema('lookup', 'WIRE_SCHEMA_' + 'x'.repeat(5000));

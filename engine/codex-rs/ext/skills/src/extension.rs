@@ -388,6 +388,12 @@ where
                 .map(|executor_skills| executor_skills.0.clone())
                 .unwrap_or_default();
             catalog.extend(self.list_skills(query, &thread_state).await);
+            if let Some(model_info) = thread_store.get::<ModelInfo>() {
+                crate::world_state_catalogs::filter_host_catalog_for_model(
+                    &mut catalog,
+                    &model_info.slug,
+                );
+            }
             for warning in bounded_warnings(&catalog.warnings) {
                 self.emit_warning(thread_store.level_id(), Some(&input.turn_id), warning);
             }

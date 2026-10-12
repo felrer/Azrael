@@ -37,11 +37,15 @@ A plugin is a local bundle of skills, MCP servers, and apps.
 true -> true
 None
 
-true -> false
-None
+true -> false (role - developer)
+<plugins_instructions>
+The previously provided generic plugin usage guidance no longer applies.
+</plugins_instructions>
 
-Unknown -> false
-None
+Unknown -> false (role - developer)
+<plugins_instructions>
+The previously provided generic plugin usage guidance no longer applies.
+</plugins_instructions>
 
 Unknown -> true
 None

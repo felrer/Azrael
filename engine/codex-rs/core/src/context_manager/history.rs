@@ -618,7 +618,9 @@ impl ContextManager {
         input_modalities: &[InputModality],
     ) -> Vec<ResponseItemEnvelope> {
         self.normalize_history(input_modalities);
-        Arc::unwrap_or_clone(self.items)
+        crate::context::instruction_state_projection::project_instruction_state(
+            Arc::unwrap_or_clone(self.items),
+        )
     }
 
     /// Iterates over raw response items without exposing their history envelopes.
@@ -660,26 +662,50 @@ impl ContextManager {
             text: render_model_instructions(model_info),
             provenance: None,
         };
-        self.estimate_token_count_with_base_instructions(&base_instructions)
+        self.estimate_token_count_with_base_instructions_for_model(&base_instructions, model_info)
     }
 
     pub(crate) fn estimate_token_count_with_base_instructions(
         &self,
         base_instructions: &BaseInstructions,
     ) -> Option<i64> {
+        self.estimate_token_count_with_base_instructions_and_model_slug(base_instructions, None)
+    }
+
+    pub(crate) fn estimate_token_count_with_base_instructions_for_model(
+        &self,
+        base_instructions: &BaseInstructions,
+        model_info: &codex_protocol::openai_models::ModelInfo,
+    ) -> Option<i64> {
+        self.estimate_token_count_with_base_instructions_and_model_slug(
+            base_instructions,
+            Some(&model_info.slug),
+        )
+    }
+
+    fn estimate_token_count_with_base_instructions_and_model_slug(
+        &self,
+        base_instructions: &BaseInstructions,
+        model_slug: Option<&str>,
+    ) -> Option<i64> {
+        let projected =
+            crate::context::instruction_state_projection::project_instruction_state_for_model(
+                self.items.as_ref().clone(),
+                model_slug,
+            );
         // Incremental windows already account for their recorded base instructions below.
-        let has_recorded_instructions =
-            self.raw_items().any(BaseInstructionsFragment::matches_item);
+        let has_recorded_instructions = projected
+            .iter()
+            .any(|envelope| BaseInstructionsFragment::matches_item(&envelope.item));
         let base_tokens = if has_recorded_instructions {
             0
         } else {
             i64::try_from(approx_token_count(&base_instructions.text)).unwrap_or(i64::MAX)
         };
 
-        let items_tokens = self
-            .items
+        let items_tokens = projected
             .iter()
-            .map(|envelope| estimate_item_token_count(&envelope.item))
+            .map(|envelope| estimate_item_token_count_for_model_slug(&envelope.item, model_slug))
             .fold(0i64, i64::saturating_add);
 
         Some(base_tokens.saturating_add(items_tokens))
@@ -924,31 +950,50 @@ impl ContextManager {
             .fold(0i64, i64::saturating_add)
     }
 
-    // These are local items added after the most recent model-emitted item.
-    // They are not reflected in `last_token_usage.total_tokens`.
-    fn items_after_last_model_generated_item(
-        &self,
-    ) -> impl Clone + ExactSizeIterator<Item = &ResponseItem> + DoubleEndedIterator {
-        let start = self
-            .items
+    // Project the entire history before finding the tail: selected-skill duplicate
+    // suppression depends on bodies already delivered before the provider reply.
+    fn estimated_projected_tail_tokens(&self, model_slug: Option<&str>) -> i64 {
+        let projected =
+            crate::context::instruction_state_projection::project_instruction_state_for_model(
+                self.items.as_ref().clone(),
+                model_slug,
+            );
+        let start = projected
             .iter()
             .rposition(|envelope| is_model_generated_item(&envelope.item))
-            .map_or(self.items.len(), |index| index.saturating_add(1));
-        self.items[start..].iter().map(|envelope| &envelope.item)
+            .map_or(projected.len(), |index| index.saturating_add(1));
+        projected[start..]
+            .iter()
+            .map(|envelope| estimate_item_token_count_for_model_slug(&envelope.item, model_slug))
+            .fold(0i64, i64::saturating_add)
     }
 
     /// When true, the server already accounted for past reasoning tokens and
     /// the client should not re-estimate them.
     pub(crate) fn get_total_token_usage(&self, server_reasoning_included: bool) -> i64 {
+        self.get_total_token_usage_for_model_slug(server_reasoning_included, None)
+    }
+
+    pub(crate) fn get_total_token_usage_for_model(
+        &self,
+        server_reasoning_included: bool,
+        model_info: &codex_protocol::openai_models::ModelInfo,
+    ) -> i64 {
+        self.get_total_token_usage_for_model_slug(server_reasoning_included, Some(&model_info.slug))
+    }
+
+    fn get_total_token_usage_for_model_slug(
+        &self,
+        server_reasoning_included: bool,
+        model_slug: Option<&str>,
+    ) -> i64 {
         let last_tokens = self
             .token_info
             .as_ref()
             .map(|info| info.last_token_usage.total_tokens)
             .unwrap_or(0);
-        let items_after_last_model_generated_tokens = self
-            .items_after_last_model_generated_item()
-            .map(estimate_item_token_count)
-            .fold(0i64, i64::saturating_add);
+        let items_after_last_model_generated_tokens =
+            self.estimated_projected_tail_tokens(model_slug);
         if server_reasoning_included {
             last_tokens.saturating_add(items_after_last_model_generated_tokens)
         } else {
@@ -958,10 +1003,15 @@ impl ContextManager {
         }
     }
 
+    pub(crate) fn estimated_tokens_after_last_model_generated_item_for_model(
+        &self,
+        model_info: &codex_protocol::openai_models::ModelInfo,
+    ) -> i64 {
+        self.estimated_projected_tail_tokens(Some(&model_info.slug))
+    }
+
     pub(crate) fn estimated_tokens_after_last_model_generated_item(&self) -> i64 {
-        self.items_after_last_model_generated_item()
-            .map(estimate_item_token_count)
-            .fold(0i64, i64::saturating_add)
+        self.estimated_projected_tail_tokens(None)
     }
 
     /// This function enforces a couple of invariants on the in-memory history:
@@ -1074,6 +1124,54 @@ fn estimate_encrypted_function_output_length(encoded_len: usize) -> usize {
 ///
 /// Counts content directly, excluding transport IDs, metadata, and outer JSON escaping.
 /// Original-detail file images use the maximum patch count.
+// Without the request catalog, bound compact API results by all distinct valid
+// identities and 64 ASCII characters per alias. A current search returns at most
+// eight discovered names, but historical results can include more current direct
+// tools. This bounds bytes, not tokenizer accuracy.
+fn estimate_item_token_count_for_model_slug(item: &ResponseItem, model_slug: Option<&str>) -> i64 {
+    if model_slug.is_some_and(|slug| slug.starts_with("api/"))
+        && let ResponseItem::ToolSearchOutput {
+            status,
+            execution,
+            tools,
+            ..
+        } = item
+        && status == "completed"
+        && execution == "client"
+    {
+        let mut identities = std::collections::HashSet::new();
+        let mut pending: Vec<(&serde_json::Value, &str)> =
+            tools.iter().map(|tool| (tool, "")).collect();
+        while let Some((spec, namespace)) = pending.pop() {
+            let Some(name) = spec.get("name").and_then(serde_json::Value::as_str) else {
+                continue;
+            };
+            if name.is_empty() || name.chars().any(|c| c <= '\u{1f}' || c == '\u{7f}') {
+                continue;
+            }
+            match spec.get("type").and_then(serde_json::Value::as_str) {
+                Some("namespace") => {
+                    if let Some(children) = spec.get("tools").and_then(serde_json::Value::as_array)
+                    {
+                        pending.extend(children.iter().map(|child| (child, name)));
+                    }
+                }
+                Some(kind @ ("function" | "custom")) => {
+                    identities.insert((namespace, name, kind));
+                }
+                _ => {}
+            }
+        }
+        let compact = serde_json::json!({
+            "status": status,
+            "tools": vec![serde_json::json!({"name": "a".repeat(64)}); identities.len()],
+            "guidance": "Call only names in the current tools catalog. Search again for other tools."
+        });
+        return approx_tokens_from_byte_count_i64(json_content_bytes(&compact));
+    }
+    estimate_item_token_count(item)
+}
+
 pub(crate) fn estimate_item_token_count(item: &ResponseItem) -> i64 {
     let model_visible_bytes = estimate_response_item_model_visible_bytes(item);
     approx_tokens_from_byte_count_i64(model_visible_bytes)
@@ -1403,3 +1501,145 @@ fn user_message_positions(items: &[ResponseItemEnvelope]) -> Vec<usize> {
 #[cfg(test)]
 #[path = "history_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod api_search_estimate_tests {
+    use super::*;
+
+    fn search(schema_bytes: usize) -> ResponseItem {
+        ResponseItem::ToolSearchOutput {
+            id: None,
+            call_id: Some("search".to_string()),
+            status: "completed".to_string(),
+            execution: "client".to_string(),
+            tools: vec![
+                serde_json::json!({"type": "function", "name": "lookup", "parameters": {"description": "x".repeat(schema_bytes)}}),
+            ],
+            internal_chat_message_metadata_passthrough: None,
+        }
+    }
+
+    #[test]
+    fn api_search_tail_is_compact_and_preserves_provider_total() {
+        let mut history = ContextManager::new();
+        let assistant = serde_json::from_value(serde_json::json!({
+            "type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "done"}]
+        })).unwrap();
+        history.replace(vec![assistant, search(65_536)]);
+        history.update_token_info(
+            &TokenUsage {
+                total_tokens: 1234,
+                ..TokenUsage::default()
+            },
+            None,
+        );
+        let compact = history.get_total_token_usage_for_model_slug(true, Some("api/test"));
+        let ordinary = history.get_total_token_usage(true);
+        assert!(compact > 1234 && compact < 1500);
+        assert!(ordinary > 17_000);
+        assert_eq!(
+            history
+                .token_info
+                .as_ref()
+                .unwrap()
+                .last_token_usage
+                .total_tokens,
+            1234
+        );
+        assert_eq!(
+            history.get_total_token_usage_for_model_slug(true, Some("ordinary")),
+            ordinary
+        );
+        assert_eq!(
+            history.get_total_token_usage_for_model_slug(true, Some("api/test")),
+            compact
+        );
+        assert!(estimate_item_token_count(history.raw_items().last().unwrap()) > 16_000);
+    }
+
+    #[test]
+    fn projected_tail_suppresses_already_delivered_skill_body() {
+        let skill = |body: &str| ResponseItem::Message {
+            id: None,
+            role: "user".to_string(),
+            content: vec![ContentItem::InputText {
+                text: format!(
+                    "<skill>\n<name>test</name>\n<path>C:/skills/test/SKILL.md</path>\n{body}\n</skill>"
+                ),
+            }],
+            phase: None,
+            internal_chat_message_metadata_passthrough: Some(
+                codex_protocol::models::InternalChatMessageMetadataPassthrough {
+                    content_item_kinds: Some(vec![codex_protocol::models::ContentItemKind(
+                        "skills.selected_skill_instructions".to_string(),
+                    )]),
+                    ..Default::default()
+                },
+            ),
+        };
+        let assistant: ResponseItem = serde_json::from_value(serde_json::json!({
+            "type": "message", "role": "assistant", "content": [{"type": "output_text", "text": "done"}]
+        })).unwrap();
+        let mut history = ContextManager::new();
+        history.replace(vec![skill("body"), assistant.clone(), skill("body")]);
+        assert_eq!(history.estimated_projected_tail_tokens(Some("api/test")), 0);
+        assert_eq!(history.estimated_projected_tail_tokens(None), 0);
+        assert_eq!(history.raw_items().len(), 3);
+        history.replace(vec![skill("body"), assistant, skill("changed body")]);
+        assert!(history.estimated_projected_tail_tokens(Some("api/test")) > 0);
+    }
+
+    #[test]
+    fn api_search_full_recompute_does_not_count_large_schemas() {
+        let mut history = ContextManager::new();
+        history.replace((0..20).map(|_| search(65_536)).collect());
+        let base = BaseInstructions {
+            text: "base".to_string(),
+            provenance: None,
+        };
+        let api = history
+            .estimate_token_count_with_base_instructions_and_model_slug(&base, Some("api/test"))
+            .unwrap();
+        let ordinary = history
+            .estimate_token_count_with_base_instructions(&base)
+            .unwrap();
+        assert!(api < 2000);
+        assert!(ordinary > 280_000);
+        assert_eq!(
+            history.estimate_token_count_with_base_instructions_and_model_slug(
+                &base,
+                Some("ordinary")
+            ),
+            Some(ordinary)
+        );
+    }
+
+    #[test]
+    fn api_search_estimate_bounds_nested_aliases_and_keeps_other_outputs_raw() {
+        let mut item = search(65_536);
+        if let ResponseItem::ToolSearchOutput { tools, .. } = &mut item {
+            *tools = vec![
+                serde_json::json!({"type": "namespace", "name": "ns", "tools":
+                (0..20).map(|i| serde_json::json!({"type": "function", "name": format!("tool{i}")})).collect::<Vec<_>>()}),
+            ];
+        }
+        let compact = estimate_item_token_count_for_model_slug(&item, Some("api/test"));
+        let compact_shape = serde_json::json!({
+            "status": "completed",
+            "tools": vec![serde_json::json!({"name": "a".repeat(64)}); 20],
+            "guidance": "Call only names in the current tools catalog. Search again for other tools."
+        });
+        assert_eq!(
+            compact,
+            approx_tokens_from_byte_count_i64(json_content_bytes(&compact_shape))
+        );
+        if let ResponseItem::ToolSearchOutput { status, tools, .. } = &mut item {
+            *status = "failed".to_string();
+            *tools = vec![serde_json::json!({"description": "x".repeat(65_536)})];
+        }
+        assert_eq!(
+            estimate_item_token_count_for_model_slug(&item, Some("api/test")),
+            estimate_item_token_count(&item)
+        );
+    }
+}

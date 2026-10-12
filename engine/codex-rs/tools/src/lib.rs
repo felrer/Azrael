@@ -1,6 +1,7 @@
 //! Shared tool definitions and Responses API tool primitives that can live
 //! outside `codex-core`.
 
+mod api_context_policy;
 mod code_mode;
 mod dynamic_tool;
 mod function_call_error;
@@ -22,6 +23,7 @@ mod tool_payload;
 mod tool_search;
 mod tool_spec;
 
+pub use api_context_policy::api_excludes_tool_namespace;
 pub use code_mode::augment_tool_spec_for_code_mode;
 pub use code_mode::code_mode_name_for_tool_name;
 pub use code_mode::collect_code_mode_exec_prompt_tool_definitions;

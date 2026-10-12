@@ -38,8 +38,23 @@ impl WorldStateSection for EnvironmentsInstructionsState {
         previous: PreviousSectionState<'_, Self::Snapshot>,
     ) -> SectionTransition<Self::Snapshot> {
         let current = self.enabled;
-        if !self.enabled
-            || matches!(previous, PreviousSectionState::Known(previous) if *previous)
+        if !current {
+            let updates = if matches!(
+                previous,
+                PreviousSectionState::Known(true) | PreviousSectionState::Unknown
+            ) {
+                vec![WorldStateUpdate::fragment(
+                    super::instruction_removal::InstructionRemoval {
+                        fragment: EnvironmentsInstructions,
+                        notice: "The previously provided generic execution-environment usage guidance no longer applies.",
+                    },
+                )]
+            } else {
+                Vec::new()
+            };
+            return (Some(current), updates);
+        }
+        if matches!(previous, PreviousSectionState::Known(previous) if *previous)
             || matches!(previous, PreviousSectionState::Unknown)
         {
             return (Some(current), Vec::new());

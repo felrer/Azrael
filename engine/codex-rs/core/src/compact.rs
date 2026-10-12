@@ -431,6 +431,7 @@ async fn run_compact_task_inner_impl(
 }
 
 pub(crate) struct CompactionAnalyticsAttempt {
+    model_info: Arc<codex_protocol::openai_models::ModelInfo>,
     thread_id: String,
     turn_id: String,
     trigger: CompactionTrigger,
@@ -460,8 +461,12 @@ impl CompactionAnalyticsAttempt {
         implementation: CompactionImplementation,
         phase: CompactionPhase,
     ) -> Self {
-        let active_context_tokens_before = sess.get_total_token_usage().await;
+        let model_info = turn_context.model_info();
+        let active_context_tokens_before = sess
+            .get_total_token_usage_for_model(model_info.as_ref())
+            .await;
         Self {
+            model_info: Arc::clone(model_info),
             thread_id: sess.thread_id.to_string(),
             turn_id: turn_context.sub_id.clone(),
             trigger,
@@ -490,7 +495,9 @@ impl CompactionAnalyticsAttempt {
         } = details;
         let active_context_tokens_before =
             active_context_tokens_before.unwrap_or(self.active_context_tokens_before);
-        let active_context_tokens_after = sess.get_total_token_usage().await;
+        let active_context_tokens_after = sess
+            .get_total_token_usage_for_model(self.model_info.as_ref())
+            .await;
         sess.services
             .analytics_events_client
             .track_compaction(CodexCompactionEvent {

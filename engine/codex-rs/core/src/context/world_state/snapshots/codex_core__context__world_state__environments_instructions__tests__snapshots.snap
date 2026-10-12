@@ -31,11 +31,15 @@ Wait only when the current task needs that environment. Continue using tools tha
 true -> true
 None
 
-true -> false
-None
+true -> false (role - developer)
+<environments_instructions>
+The previously provided generic execution-environment usage guidance no longer applies.
+</environments_instructions>
 
-Unknown -> false
-None
+Unknown -> false (role - developer)
+<environments_instructions>
+The previously provided generic execution-environment usage guidance no longer applies.
+</environments_instructions>
 
 Unknown -> true
 None

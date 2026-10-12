@@ -35,6 +35,7 @@ pub use extension::install_with_providers_and_metrics;
 pub use host_outcome::SkillLoadOutcome;
 pub use host_prompt::HostSkillPrompts;
 pub use host_prompt::InjectedHostSkillPrompts;
+pub use host_prompt::project_api_skill_fragment;
 pub use host_service::HostSkillsLoadInput;
 pub use host_service::HostSkillsRequest;
 pub use host_service::HostSkillsService;

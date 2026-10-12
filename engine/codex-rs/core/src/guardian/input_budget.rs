@@ -168,8 +168,9 @@ pub(crate) async fn finalize(
             .await,
         /*include_internal*/ true,
     )?;
-    let mut existing = super::request_budget::estimate_request_tokens(&request)
-        .max(usize::try_from(session.get_total_token_usage().await).unwrap_or(usize::MAX));
+    let mut existing = super::request_budget::estimate_request_tokens(&request).max(
+        usize::try_from(session.get_total_token_usage_for_model(model).await).unwrap_or(usize::MAX),
+    );
     // These reminders are appended after the accepted input. Reserve their full
     // serialized cost before choosing optional evidence, even if the time
     // reminder's interval ultimately suppresses it.

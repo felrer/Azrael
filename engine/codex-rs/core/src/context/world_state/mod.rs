@@ -6,6 +6,7 @@ mod compact_permissions;
 mod context_window_guidance;
 mod environment;
 mod environments_instructions;
+mod instruction_removal;
 mod managed_developer_instructions;
 mod model;
 mod model_catalog;

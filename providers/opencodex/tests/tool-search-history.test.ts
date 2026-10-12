@@ -43,6 +43,28 @@ test('all managed providers project retained search history without mutating inp
   }
 });
 
+test('all managed provider contexts bound distinct historical schemas and namespace metadata', () => {
+  for (const provider of ['anthropic', 'google', 'google-antigravity', 'xai', 'openrouter']) {
+    const native: any = request(provider);
+    native.input = Array.from({ length: 20 }, (_, i) => [
+      { type: 'tool_search_call', execution: 'client', call_id: 's' + i, arguments: { query: 'helper' } },
+      { type: 'tool_search_output', execution: 'client', call_id: 's' + i, status: 'completed', tools: [
+        { ...discovered, description: 'NAMESPACE_METADATA_' + 'n'.repeat(50000), owner: 'fixture' },
+        schema('helper' + i, 'HELPER_SCHEMA_' + i + '_' + 'x'.repeat(1000)),
+      ] },
+    ]).flat();
+    const original = JSON.stringify(native), { compiled, parsed } = projectRequest(native, 'fixture');
+    const text = JSON.stringify(parsed.context.messages);
+    expect(text.split('HELPER_SCHEMA_').length - 1).toBe(8);
+    expect(text.split('NAMESPACE_METADATA_').length - 1).toBe(1);
+    expect(Buffer.byteLength(text)).toBeLessThan(75000);
+    expect(text).toContain('schema_unavailable_search_again');
+    expect(text).toContain('s0'); expect(text).toContain('s19');
+    expect(compiled.tools.length).toBe(2);
+    expect(JSON.stringify(native)).toBe(original);
+  }
+});
+
 for (const provider of ['anthropic', 'google-antigravity']) {
   test(`${provider} HTTP request deduplicates schemas and restores the discovered call`, async () => {
     root = mkdtempSync(join(tmpdir(), 'azrael-search-history-'));

@@ -28,6 +28,7 @@ mod guardian_sender_messages;
 mod guardian_tool_descriptions;
 mod hook_additional_context;
 mod image_resize_notice;
+pub(crate) mod instruction_state_projection;
 mod inter_agent_completion_message;
 mod inter_agent_message;
 mod internal_model_context;

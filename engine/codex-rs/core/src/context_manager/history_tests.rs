@@ -48,6 +48,21 @@ use pretty_assertions::assert_eq;
 use regex_lite::Regex;
 use test_case::test_case;
 
+// Keep the raw-history probe for boundary regressions separate from the
+// provider-aware projected token estimator used by production code.
+impl ContextManager {
+    fn items_after_last_model_generated_item(
+        &self,
+    ) -> impl Clone + ExactSizeIterator<Item = &ResponseItem> + DoubleEndedIterator {
+        let start = self
+            .items
+            .iter()
+            .rposition(|envelope| is_model_generated_item(&envelope.item))
+            .map_or(self.items.len(), |index| index.saturating_add(1));
+        self.items[start..].iter().map(|envelope| &envelope.item)
+    }
+}
+
 const EXEC_FORMAT_MAX_BYTES: usize = 10_000;
 const EXEC_FORMAT_MAX_TOKENS: usize = 2_500;
 const TEST_WAV_SAMPLE_RATE: u32 = 8_000;
