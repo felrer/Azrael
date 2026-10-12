@@ -72,10 +72,10 @@ function injectProviderModelPicker(text, asset) {
     text = once(text, '"data-model-selected":e.selected||void 0,disabled:e.disabled,', '"data-model-selected":e.selected||void 0,"data-azrael-model-option":e.__azraelModelOption||void 0,disabled:e.disabled,');
     const nativeEffort = "t.supportedReasoningEfforts.find(e=>{let{reasoningEffort:t}=e;return t===j})?.reasoningEffort??t.defaultReasoningEffort";
     text = once(text, nativeEffort, `__azraelProviderCatalog.modelEffort(t,j,()=>${nativeEffort})`);
-    // Override only Astra's speed control after the native compiled memo blocks.
+    // Override Astra/Sol speed controls after the native compiled memo blocks.
     // Both the two-tier toggle and the multi-tier submenu become one cycling item.
     text = once(text, "let ae;t[69]!==m||t[70]!==a",
-      "if(l?.model===`gpt-6-astra`&&o!=null){re=null;ie=(0,W8.jsx)(__AzraelAstraSpeedToggle,{selectedServiceTier:u,onSelectServiceTier:o,disabled:I||f,hidden:I,maximum:L,intl:m})}let ae;t[69]!==m||t[70]!==a");
+      "if([`gpt-6-astra`,`gpt-6.1-sol`].includes(l?.model)&&o!=null){re=null;ie=(0,W8.jsx)(__AzraelAstraSpeedToggle,{selectedServiceTier:u,onSelectServiceTier:o,disabled:I||f,hidden:I,maximum:L,intl:m})}let ae;t[69]!==m||t[70]!==a");
     text += bootstrap() + `
 function __azraelReasoningLabel(e){return P8[e]??{id:"azrael.reasoning.automatic",defaultMessage:"Automatic",description:"Provider default reasoning effort when no explicit effort is selected"}}
 function __AzraelProviderModelList(props){return (${renderProviderModelList.toString()}) (G8,K8.jsx,PR,__azraelProviderCatalog,props)}

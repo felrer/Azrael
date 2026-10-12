@@ -1006,9 +1006,11 @@ impl ModelPreset {
 
 impl ModelInfo {
     pub fn supports_service_tier(&self, service_tier: &str) -> bool {
-        // Account-discovered catalogs can omit Astra's ultrafast tier. Keep this
+        // Account-discovered catalogs can omit Astra/Sol's ultrafast tier. Keep this
         // explicit routing option available without requiring catalog support.
-        if service_tier == "ultrafast" && self.slug == "gpt-6-astra" {
+        if service_tier == "ultrafast"
+            && matches!(self.slug.as_str(), "gpt-6-astra" | "gpt-6.1-sol")
+        {
             return true;
         }
         // Flex is an API request option, even when the Codex catalog does not advertise it.
@@ -2245,12 +2247,14 @@ mod tests {
     }
 
     #[test]
-    fn service_tier_for_request_preserves_astra_ultrafast_and_advertised_tiers() {
+    fn service_tier_for_request_preserves_astra_sol_ultrafast_and_advertised_tiers() {
         for slug in [
             "gpt-6-astra",
             "gpt-6.1-sol",
             "gpt-6-luna",
             "gpt-6-astra-other",
+            "gpt-6.1-sol-other",
+            "managed/openai/gpt-6.1-sol",
         ] {
             for advertised in [false, true] {
                 let model = ModelInfo {
@@ -2269,7 +2273,8 @@ mod tests {
 
                 assert_eq!(
                     model.service_tier_for_request(Some("ultrafast".to_string())),
-                    (slug == "gpt-6-astra" || advertised).then(|| "ultrafast".to_string()),
+                    (matches!(slug, "gpt-6-astra" | "gpt-6.1-sol") || advertised)
+                        .then(|| "ultrafast".to_string()),
                     "model={slug}, advertised={advertised}"
                 );
             }

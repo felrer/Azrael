@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 93142929,
+  "byteCount": 93150550,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -25084,8 +25084,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "12d0e4875746e7445f19bf3e75657f16129613f302247831e9da01adb091c874",
-      "size": 54715
+      "sha256": "197af674cd218a8e0e425eba7ea40247bab2671047dd4bd9395337173a231c7a",
+      "size": 54750
     },
     "codex-rs/core/tests/suite/model_visible_layout.rs": {
       "gitMode": "100644",
@@ -34597,8 +34597,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "3f58d243903788c79218b3708ddde63190aa8842a1384d50b784e8d83ec441ed",
-      "size": 472652
+      "sha256": "9a1cc8fca4fceaff5b05d468dcae03a5dae36e24494110dbb880d290f019f4af",
+      "size": 472781
     },
     "codex-rs/models-manager/prompt.md": {
       "gitMode": "100644",
@@ -36326,8 +36326,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "354fe11de96aada5df1a4c609f78deaf88fd54436bd8bb92b97ad7a3b211c834",
-      "size": 82114
+      "sha256": "5f479eab1c9af25ebaa2f0a38c885e1cb8b0a05580306b08213be2107422b538",
+      "size": 89571
     },
     "codex-rs/protocol/src/openai_models/access_programs.rs": {
       "gitMode": "100644",
@@ -64423,7 +64423,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9201,
-  "inventorySha256": "8d522a1ae8225f8ba2f721c2c5c16b2ea6a59042d036acf4c1943e67db458603",
+  "inventorySha256": "331697f99abf89045ec39b3d9ceb3d8f7acb313309738db5e225852dae33e965",
   "localIntegration": {
     "changes": {
       "codex-rs/core/src/client.rs": {
@@ -64606,6 +64606,38 @@
           "size": 130756
         }
       },
+      "codex-rs/core/tests/suite/model_switching.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "197af674cd218a8e0e425eba7ea40247bab2671047dd4bd9395337173a231c7a",
+          "size": 54750
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "12d0e4875746e7445f19bf3e75657f16129613f302247831e9da01adb091c874",
+          "size": 54715
+        }
+      },
+      "codex-rs/models-manager/models.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9a1cc8fca4fceaff5b05d468dcae03a5dae36e24494110dbb880d290f019f4af",
+          "size": 472781
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "3f58d243903788c79218b3708ddde63190aa8842a1384d50b784e8d83ec441ed",
+          "size": 472652
+        }
+      },
       "codex-rs/prompts/src/root_coordination_instructions.rs": {
         "after": {
           "gitMode": "100644",
@@ -64620,6 +64652,22 @@
           "permissions": 438,
           "sha256": "ddbf16dd5a5b1a9c4e855715f28808fc38f2504b85136486bb57d6202272e1dd",
           "size": 9396
+        }
+      },
+      "codex-rs/protocol/src/openai_models.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5f479eab1c9af25ebaa2f0a38c885e1cb8b0a05580306b08213be2107422b538",
+          "size": 89571
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "354fe11de96aada5df1a4c609f78deaf88fd54436bd8bb92b97ad7a3b211c834",
+          "size": 82114
         }
       }
     },
@@ -129054,7 +129102,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "1734d652753059dcd1f15dd7118148af40c9b76f",
+    "repositoryHead": "6d019304312a9a0aa50859df3673fbc2564602f4",
     "schema": 2,
     "sourcePrefix": "engine"
   },

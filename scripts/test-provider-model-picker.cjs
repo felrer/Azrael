@@ -31,15 +31,17 @@ test("Astra speed cycles standard, priority, ultrafast and standard through nati
  const before=chosen.length;render({disabled:true}).props.onSelect({preventDefault(){}});assert.equal(chosen.length,before);
  selectedServiceTier="fast";assert.equal(render().props["aria-label"],"Enable ultrafast mode");
 });
-test("Astra account discovery retains ultrafast selection metadata without mutating source rows",async()=>{
+test("Astra and Sol discovery retains ultrafast metadata only for exact supported IDs without mutating source rows",async()=>{
  const c=createProviderModelCatalog(),tiers=[{id:"priority",name:"Fast"}];
- const rows=[{model:"gpt-6-astra",serviceTiers:tiers},{model:"gpt-6.1-sol",serviceTiers:tiers}];
+ const rows=["gpt-6-astra","gpt-6.1-sol","gpt-6-luna","gpt-6.1-sol-other","managed/openai/gpt-6.1-sol"].map(model=>({model,serviceTiers:tiers}));
  const result=await c.query("astra-host",client(()=>({data:rows,nextCursor:null})),100,()=>{});
  assert.deepEqual(result.data[0].serviceTiers.map(tier=>tier.id),["priority","ultrafast"]);
- assert.equal(result.data[1].serviceTiers,tiers);assert.equal(rows[0].serviceTiers,tiers);assert.equal(tiers.length,1);
+ assert.deepEqual(result.data[1].serviceTiers.map(tier=>tier.id),["priority","ultrafast"]);
+ for(const row of result.data.slice(2))assert.equal(row.serviceTiers,tiers);
+ for(const row of rows)assert.equal(row.serviceTiers,tiers);assert.equal(tiers.length,1);
  const existing={id:"ultrafast",name:"Ultrafast",description:"Account metadata"};
- const advertised=await createProviderModelCatalog().query("b",client(()=>({data:[{model:"gpt-6-astra",serviceTiers:[existing]}],nextCursor:null})),100,()=>{});
- assert.deepEqual(advertised.data[0].serviceTiers,[existing]);
+ const advertised=await createProviderModelCatalog().query("b",client(()=>({data:["gpt-6-astra","gpt-6.1-sol"].map(model=>({model,serviceTiers:[existing]})),nextCursor:null})),100,()=>{});
+ for(const row of advertised.data)assert.deepEqual(row.serviceTiers,[existing]);
 });
 test("complete pagination retains hidden aliases and late OpenRouter models; deduplicates",async()=>{
  const c=createProviderModelCatalog(),calls=[]; const models=Array.from({length:230},(_,i)=>({model:i<210?`alias-${i}`:`managed/openrouter/model-${i}`,hidden:i<210}));

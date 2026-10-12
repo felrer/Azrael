@@ -79,7 +79,7 @@ async function confirmOwnedBrowserExit(child,profilePath){
 }
 
 let socket,session,id=0,chrome;
-const summary={scope:readmeCapture?'Production transformed advanced model picker, native PR.Item rows, React and CSS in light/dark; synthetic OpenAI/Anthropic catalog and localization, Windows host. No installed app, auth or model requests.':'Production transformed Astra controls, native menu item, React and CSS in light/dark; synthetic host/localization. No build, installed app or model requests.',checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:readmeCapture?'Production transformed advanced model picker, native PR.Item rows, React and CSS in light/dark; synthetic OpenAI/Anthropic catalog and localization, Windows host. No installed app, auth or model requests.':'Production transformed Astra/Sol controls, native menu item, React and CSS in light/dark; synthetic host/localization. No build, installed app or model requests.',checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--disable-background-mode','--disable-extensions','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -124,22 +124,22 @@ try{
  await wait("window.fixtureReady && !!document.querySelector('[data-azrael-astra-speed]')");
  const button=()=>evaluate("(()=>{const e=document.querySelector('[data-azrael-astra-speed]'),s=getComputedStyle(e),icon=getComputedStyle(e.querySelector('svg')),content=e.querySelector('[class*=_FastModeToggleContent_]'),cs=getComputedStyle(content),cr=content.getBoundingClientRect(),wrapper=e.closest('[class*=_ViewControls_]'),ws=getComputedStyle(wrapper),model=wrapper.querySelector('[class*=_ViewToggleModelLabel_]'),effort=wrapper.querySelector('[class*=_ViewToggleEffortLabel_]'),mr=model.getBoundingClientRect(),er=effort.getBoundingClientRect();return {mode:e.dataset.azraelAstraSpeed,label:e.getAttribute('aria-label'),role:e.getAttribute('role'),color:s.color,background:s.backgroundColor,iconColor:icon.color,disabled:e.getAttribute('aria-disabled'),width:e.getBoundingClientRect().width,height:e.getBoundingClientRect().height,display:s.display,borderRadius:s.borderRadius,contentWidth:cr.width,contentHeight:cr.height,contentRadius:cs.borderRadius,wrapperDisplay:ws.display,wrapperMinHeight:ws.minHeight,labelsStacked:mr.top>=er.bottom-.5,modelLabel:model.textContent,effortLabel:effort.textContent}})()");
  const click=()=>evaluate("document.querySelector('[data-azrael-astra-speed]').click()");
- for(const theme of ['light','dark']){
-  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.tier=null;fixtureRerender()`);
+ for(const model of ['gpt-6-astra','gpt-6.1-sol'])for(const theme of ['light','dark']){
+  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.model='${model}';fixtureState.tier=null;fixtureRerender()`);
   await wait("document.querySelector('[data-azrael-astra-speed]').dataset.azraelAstraSpeed==='default'");
   const standard=await button();check(theme+' standard native geometry',standard.role==='menuitem'&&standard.width===32&&standard.height>=32&&standard.display==='flex'&&standard.borderRadius==='8px'&&standard.contentWidth===26&&standard.contentHeight===26&&standard.contentRadius==='7px'&&standard.wrapperDisplay==='flex'&&standard.wrapperMinHeight==='36px');
-  check(theme+' native model and effort labels occupy separate rows',standard.labelsStacked&&standard.modelLabel==='Astra'&&standard.effortLabel==='Medium');
+  check(model+' '+theme+' native model and effort labels occupy separate rows',standard.labelsStacked&&standard.modelLabel===(model==='gpt-6-astra'?'Astra':'Sol')&&standard.effortLabel==='Medium');
   await click();await wait("fixtureState.tier==='priority'");check(theme+' fast mode',(await button()).mode==='fast');
   await click();await wait("fixtureState.tier==='ultrafast'");const ultra=await button();check(theme+' ultrafast purple icon/background',ultra.color===ultra.iconColor&&ultra.color!==standard.color&&ultra.background!==standard.background);
-  summary[theme]={standard,ultrafast:ultra};
+  summary[model+' '+theme]={standard,ultrafast:ultra};
   await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:990,y:940});
-  await writeFile(join(logs,theme+'-ultrafast.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await writeFile(join(logs,model+'-'+theme+'-ultrafast.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await evaluate("document.querySelector('[data-azrael-astra-speed]').focus()");
   await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
   await wait("fixtureState.tier===null");check(theme+' keyboard returns to standard',(await button()).mode==='default');
  }
  await evaluate("fixtureState.loading=true;fixtureRerender()");await wait("document.querySelector('[data-azrael-astra-speed]').getAttribute('aria-disabled')==='true'");await click();check('loading prevents mutation',await evaluate('fixtureState.tier===null'));
- await evaluate("fixtureState.loading=false;fixtureState.model='gpt-6.1-sol';fixtureRerender()");await wait("!document.querySelector('[data-azrael-astra-speed]')");check('other model keeps native two-state control',await evaluate("!!document.querySelector('[role=menuitemcheckbox]')"));
+ await evaluate("fixtureState.loading=false;fixtureState.model='gpt-6-luna';fixtureRerender()");await wait("!document.querySelector('[data-azrael-astra-speed]')");check('other model keeps native two-state control',await evaluate("!!document.querySelector('[role=menuitemcheckbox]')"));
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.events=await evaluate('fixtureEvents');summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
 finally{

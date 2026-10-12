@@ -46,13 +46,13 @@ Status: `current` in source — native component rendering and interaction verif
 
 When a local image referenced by a chat thumbnail is absent, the thumbnail displays `파일 없음` in its existing bordered tile using native theme tokens. The missing-file tile has no image-opening action. File absence is distinguished from permission, transport and cancellation errors. Loading and available-image behavior retain their existing presentation. A change to the image source, host or conversation clears the previous missing-file identity.
 
-## Astra response speed
+## Astra and Sol response speed
 
 Status: `current` in source — native control rendering and interaction verified; build and installation pending.
 
-For the exact OpenAI model `gpt-6-astra`, the model picker's lightning button cycles Standard → Fast → Ultrafast → Standard through the existing service-tier selection callback. Fast sends `priority`; Ultrafast sends `ultrafast`; Standard uses the existing explicit standard selection. Ultrafast uses the native purple theme token for the icon and a tinted button background in both light and dark themes. The tooltip identifies the active mode, and the accessible label identifies the next mode. Loading and the native unavailable state disable selection. Other models retain their native speed controls.
+For the exact OpenAI models `gpt-6-astra` and `gpt-6.1-sol`, the model picker's lightning button cycles Standard → Fast → Ultrafast → Standard through the existing service-tier selection callback. Fast sends `priority`; Ultrafast sends `ultrafast`; Standard uses the existing explicit standard selection. Account catalogs that omit Ultrafast are supplemented for these exact IDs, and the bundled catalog and native request policy preserve their explicit Ultrafast selection. Ultrafast uses the native purple theme token for the icon and a tinted button background in both light and dark themes. The tooltip identifies the active mode, and the accessible label identifies the next mode. Loading and the native unavailable state disable selection. Other models retain their native speed controls. Server-side account and workspace eligibility still applies; exposing the selection does not establish account access.
 
-The engine advertises Ultrafast in Astra's bundled catalog and permits its request value for Astra when account-discovered metadata omits it. The UI discovery adapter also supplies missing Astra Ultrafast metadata so the native selected-tier resolver retains the choice. Other model slugs retain their existing catalog-based support checks. Source routing tests exist; Rust execution and live account support remain unverified. The control and callback were exercised using the pinned native React/menu/CSS modules with synthetic host state, including mouse selection and keyboard return to Standard. This source change has not been built or installed.
+Other model slugs retain their existing catalog-based support checks. Source routing tests cover advertised and missing tiers. Live account support remains unverified. The controls and callbacks were exercised using the pinned native React/menu/CSS modules with synthetic host state, including mouse selection and keyboard return to Standard for both models. This source change has not been packaged or installed.
 
 ## Identity and session links
 

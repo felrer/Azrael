@@ -677,10 +677,10 @@ async fn flex_service_tier_is_applied_to_http_turn() -> Result<()> {
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn ultrafast_service_tier_routes_only_astra_without_catalog_support() -> Result<()> {
+async fn ultrafast_service_tier_routes_astra_sol_without_catalog_support() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
-    for model_slug in ["gpt-6-astra", "gpt-6.1-sol"] {
+    for model_slug in ["gpt-6-astra", "gpt-6.1-sol", "gpt-6-luna"] {
         let server = start_mock_server().await;
         let model = test_model_info(
             model_slug,
@@ -718,7 +718,7 @@ async fn ultrafast_service_tier_routes_only_astra_without_catalog_support() -> R
         for request in &requests[..2] {
             assert_eq!(
                 request.body_json().get("service_tier").cloned(),
-                (model_slug == "gpt-6-astra").then(|| json!("ultrafast"))
+                matches!(model_slug, "gpt-6-astra" | "gpt-6.1-sol").then(|| json!("ultrafast"))
             );
         }
         assert_eq!(requests[2].body_json().get("service_tier"), None);

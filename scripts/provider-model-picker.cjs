@@ -81,9 +81,9 @@ function createProviderModelCatalog() {
             if (!seenIds.has(model.model)) {
               seenIds.add(model.model);
               const tagged = { ...model, __azraelCatalogHost: id };
-              // Account catalogs may lag behind Astra's API capabilities. The
+              // Account catalogs may lag behind Astra/Sol API capabilities. The
               // native tier resolver needs this row to retain the selected tier.
-              if (model.model === "gpt-6-astra" && !(model.serviceTiers ?? []).some(tier => tier.id === "ultrafast")) {
+              if (["gpt-6-astra", "gpt-6.1-sol"].includes(model.model) && !(model.serviceTiers ?? []).some(tier => tier.id === "ultrafast")) {
                 tagged.serviceTiers = [...(model.serviceTiers ?? []), {
                   id: "ultrafast", name: "Ultrafast", description: "Ultrafast processing",
                 }];
