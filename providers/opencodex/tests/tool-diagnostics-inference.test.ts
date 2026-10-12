@@ -25,12 +25,12 @@ test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping
       thread_id: 'tools-thread', turn_id: 'turn-' + turn++, model: 'claude-sonnet-4-6', instructions: 'SECRET_PROMPT',
       input: [{ type: 'message', role: 'user', content: [{ type: 'input_text', text: 'SECRET_INPUT' }] }],
       tools: [{ type: 'function', name: 'SECRET_TOOL', description: 'SECRET_DESCRIPTION', parameters: { type: 'object' } }], parallel_tool_calls: true });
-    for (const mode of ['declared', 'original']) {
+    for (const mode of ['declared', 'original', 'unknown']) {
       const toolDiagnostics = createToolDiagnostics({ wirePrefix: 'custom_' });
       const monitor = createProgressMonitor(() => {}, { transportEnabled: true, toolDiagnostics });
       const frames: any[] = [];
       const fetcher = (async (_url: any, init: any) => {
-        const name = mode === 'original' ? 'custom_SECRET_TOOL' : JSON.parse(init.body).tools[0].name;
+        const name = mode === 'original' ? 'custom_SECRET_TOOL' : mode === 'unknown' ? 'custom_UNKNOWN_TOOL' : JSON.parse(init.body).tools[0].name;
         const args = '{"value":"SECRET_ARGUMENT"}';
         return new Response([
           { type: 'message_start', message: { usage: { input_tokens: 2 } } },
@@ -43,17 +43,17 @@ test('actual Anthropic adapter exposes safe raw/parser mapping evidence and ping
       }) as typeof fetch;
       try {
         const execution = infer(request(), frame => frames.push(frame), fetcher, monitor);
-        if (mode === 'declared') await execution;
-        else await expect(execution).rejects.toThrow('undeclared_tool');
+        if (mode === 'unknown') await expect(execution).rejects.toThrow('undeclared_tool');
+        else await execution;
         const evidence = monitor.snapshot().tool_diagnostics;
         expect(evidence.catalog_tool_count).toBe(1);
         expect(evidence.raw_parser_name_equal).toBe(true);
         expect(evidence.sse_args_delta_count).toBe(1);
         expect(evidence.args_bytes).toBe(evidence.sse_args_bytes);
-        expect(evidence.mapping_result).toBe(mode === 'declared' ? 'validated' : 'undeclared');
+        expect(evidence.mapping_result).toBe(mode === 'unknown' ? 'undeclared' : 'validated');
         if (mode === 'original') expect(evidence.name_match).toBe('current_original');
         expect(JSON.stringify(monitor.snapshot())).not.toContain('SECRET');
-        expect(frames.some(frame => frame.item?.type === 'function_call')).toBe(mode === 'declared');
+        expect(frames.some(frame => frame.item?.type === 'function_call')).toBe(mode !== 'unknown');
       } finally { monitor.stop(); }
     }
     let time = 0;

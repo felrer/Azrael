@@ -66,13 +66,14 @@ function multimodal(content, budget) {
 }
 
 // The model-facing alias is request-scoped; the digest keeps history stable as
-// lazy tools are added. Only exact declared aliases are accepted on return.
+// lazy tools are added. Return names resolve only within the current catalog.
 export function compileRequest(request, { promptFormat, compactToolSearchResults = false } = {}) {
   if (!object(request) || request.protocol_version !== 1 || request.type !== 'request' ||
       !string(request.request_id) || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (!string(request.model) || !request.model.trim() || bytes(request.model) > 256 ||
       /[\x00-\x1f\x7f-\x9f]/.test(request.model)) fail('unsupported_native_model');
   const names = new Map();
+  const acceptedNames = new Map();
   const tools = [];
   function declare(tool, namespace = '') {
     if (!object(tool)) fail('invalid_tool');
@@ -90,6 +91,11 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
     const prior = names.get(wireName);
     if (prior) fail('duplicate_tool_identity');
     names.set(wireName, owner);
+    for (const accepted of new Set([wireName, name, namespace ? namespace + '.' + name : name])) {
+      const candidates = acceptedNames.get(accepted) ?? new Set();
+      candidates.add(wireName);
+      acceptedNames.set(accepted, candidates);
+    }
     const custom = kind === 'custom';
     const parameters = custom ? {
       type: 'object', properties: { input: { type: 'string', description: 'Exact freeform tool input; preserve code and newlines.' } },
@@ -190,7 +196,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
           const prefix = 'azrael-managed-v1:';
           if (!item.encrypted_content.startsWith(prefix)) fail('opaque_reasoning_unsupported');
           const metadata = JSON.parse(Buffer.from(bounded(item.encrypted_content).slice(prefix.length), 'base64').toString('utf8'));
-          if (metadata.model !== request.model || metadata.thread !== request.thread_id || metadata.account !== request.credential_scope || metadata.provider !== request.provider_id || metadata.turn !== request.turn_id) fail('reasoning_scope_mismatch');
+          if (metadata.model !== request.model || metadata.thread !== request.thread_id || metadata.account !== request.credential_scope || metadata.provider !== request.provider_id || metadata.turn !== request.turn_id) fail('reasoning_scope_mismatch_origin');
           appendAssistant('thinking', plainText(item.content?.length ? item.content : item.summary));
           const signature = bounded(metadata.signature ?? '');
           if (signature) assistantMessage().signature = signature;
@@ -201,7 +207,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   }
   // Base64 is ASCII and JSON-safe; the rebuilt data URL prefix stays within text slack.
   if (bytes(JSON.stringify({ messages, tools })) - images.bytes > MAX_BYTES) fail('context_limit');
-  return { messages, tools, names, calls, historyAliases, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
+  return { messages, tools, names, acceptedNames, calls, historyAliases, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
 }
 
 function compactSearchTools(specs, names) {
@@ -233,10 +239,21 @@ function parseToolArguments(value, compiled) {
     fail('tool_arguments_invalid_json');
   }
 }
+export function resolveToolName(name, compiled) {
+  const candidates = compiled.acceptedNames.get(name);
+  if (!candidates?.size) fail('undeclared_tool');
+  if (candidates.size !== 1) fail('ambiguous_tool_name');
+  return candidates.values().next().value;
+}
 export function restoreToolCall(call, compiled) {
-  const owner = compiled.names.get(call.name);
-  diagnose(compiled, 'lookup', call.name, Boolean(owner));
-  if (!owner) fail('undeclared_tool');
+  let wireName;
+  try { wireName = resolveToolName(call.name, compiled); }
+  catch (error) {
+    diagnose(compiled, 'lookup', call.name, false);
+    throw error;
+  }
+  const owner = compiled.names.get(wireName);
+  diagnose(compiled, 'lookup', wireName, true);
   if (!string(call.id) || !call.id || compiled.calls.has(call.id)) { diagnose(compiled, 'rejected', 'duplicate_id'); fail('duplicate_call_id'); }
   const args = parseToolArguments(call.arguments, compiled);
   diagnose(compiled, 'json', object(args) ? 'valid_object' : 'not_object');
@@ -248,7 +265,7 @@ export function restoreToolCall(call, compiled) {
     diagnose(compiled, 'validated');
     return { type: 'custom_tool_call', ...common, input: bounded(args.input) };
   }
-  const schema = compiled.tools.find(tool => tool.name === call.name)?.parameters;
+  const schema = compiled.tools.find(tool => tool.name === wireName)?.parameters;
   if (!Object.keys(args).length && Array.isArray(schema?.required) && schema.required.length) {
     diagnose(compiled, 'rejected', 'invalid_arguments'); fail('tool_arguments_missing_required');
   }
@@ -278,12 +295,14 @@ export async function mapStream(events, compiled, emit, requestId) {
   };
   const closeCall = () => {
     if (!active) return;
+    const restored = restoreToolCall(active, compiled);
     const metadata = opaqueCalls.find(call => call.id === active.id);
     if (metadata) {
+      metadata.name = resolveToolName(active.name, compiled);
       const parsed = parseToolArguments(active.arguments, compiled);
       metadata.arguments_digest = createHash('sha256').update(JSON.stringify(parsed)).digest('hex');
     }
-    pending.push(restoreToolCall(active, compiled));
+    pending.push(restored);
     active = undefined;
   };
   for await (const event of events) {

@@ -2,6 +2,14 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.managed-tool-identities",
+      "area": "engine",
+      "owners": ["providers/opencodex/inference-mapping.mjs", "providers/opencodex/inference.ts"],
+      "contract": "docs/architecture/managed-providers.md",
+      "checks": [{"id": "engine.managed-tool-identities.mapping", "executable": "node", "args": ["--test", "providers/opencodex/tests/tool-diagnostics.test.mjs"], "level": "source"}],
+      "reportFields": []
+    },
+    {
       "id": "ui.task-work-time",
       "area": "ui",
       "owners": ["scripts/inject-task-work-time.cjs", "scripts/task-work-time.cjs", "scripts/task-work-time-history.cjs"],

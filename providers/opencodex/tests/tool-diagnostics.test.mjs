@@ -41,7 +41,7 @@ test('actual mapping records prefixed raw alias, successful restoration and coun
   for (const key of ['catalog_sha256', 'parser_name_sha256', 'raw_name_sha256', 'declared_alias_sha256']) assert.match(s[key], /^[a-f0-9]{64}$/);
 });
 
-test('undeclared alias is distinguished from historical, original, qualified and unknown names', async () => {
+test('name diagnostics distinguish accepted current names from undeclared historical and unknown names', async () => {
   const tool = { type: 'namespace', name: 'SECRET_NAMESPACE', tools: [functionTool()] };
   const old = compileRequest(base([functionTool('OLD_TOOL')]));
   const history = [{ type: 'function_call', name: 'OLD_TOOL', call_id: 'old', arguments: '{}' }, { type: 'function_call_output', call_id: 'old', output: 'SECRET_RESULT' }];
@@ -49,11 +49,13 @@ test('undeclared alias is distinguished from historical, original, qualified and
     const compiled = compileRequest(base([tool], history));
     const d = createToolDiagnostics(); d.catalog(compiled);
     const frames = [];
-    await assert.rejects(mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe'), /undeclared_tool/);
+    const accepted = match === 'current_original' || match === 'current_qualified';
+    if (accepted) await mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe');
+    else await assert.rejects(mapStream(events(name), { ...compiled, toolDiagnostics: d }, frame => frames.push(frame), 'probe'), /undeclared_tool/);
     assert.equal(d.snapshot().name_match, match); assert.equal(d.snapshot().name_style, style);
-    assert.equal(d.snapshot().mapping_result, 'undeclared'); assert.equal(d.snapshot().call_state, 'rejected');
+    assert.equal(d.snapshot().mapping_result, accepted ? 'validated' : 'undeclared'); assert.equal(d.snapshot().call_state, accepted ? 'validated' : 'rejected');
     assert.equal(d.snapshot().history_alias_count, 1);
-    assert(!frames.some(frame => frame.item?.type === 'function_call'));
+    assert.equal(frames.some(frame => frame.item?.type === 'function_call'), accepted);
     assert(!JSON.stringify(d.snapshot()).includes('SECRET'));
   }
 });

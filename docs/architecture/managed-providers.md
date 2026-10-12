@@ -25,9 +25,13 @@ remain distinct. Failed and empty results, call IDs and ordering are preserved.
 History never adds a callable tool or bypasses native permissions; nested calls
 follow current Code Mode instructions. Stored conversations remain unchanged.
 
-User API requests retain their stricter current-alias-only projection and bounded
+User API requests retain their stricter current-catalog-only projection and bounded
 discovered catalog. OpenAI retains native `tool_search_output` semantics. Neither
 path is changed by this helper projection. See the [Devin tool contract](devin.md#tool-contract).
+
+Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`, including collisions between different name forms. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing aliases remain SHA-256-based names; native executable items retain the original name and namespace. Private replay records store the resolved wire name and the digest of the actual validated arguments.
+
+Private `reasoning_details` replay is verified only for nonempty arrays. Empty arrays carry no replay payload and do not require unrelated recorded calls to exist in public history. Nonempty records retain per-envelope call metadata and validate call presence, resolved tool identity and argument digest; failures distinguish `reasoning_scope_mismatch_call_missing`, `reasoning_scope_mismatch_tool_name` and `reasoning_scope_mismatch_arguments`. Direct envelope origin mismatches use `reasoning_scope_mismatch_origin`; ordinary request projection continues to exclude foreign private state. Existing public history is never rewritten and argument mismatches are never repaired by changing saved digests.
 
 ## Anthropic tool input streaming
 

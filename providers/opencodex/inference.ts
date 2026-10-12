@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, writeFileSync, renameSync, unlinkSync, realpathS
 import { join, relative, isAbsolute } from 'node:path';
 import { createOAuthFileLock, type OAuthFileLockGuard } from './vendor/src/oauth/store.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
-import { AdapterError, compileRequest, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
+import { AdapterError, compileRequest, resolveToolName, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
 import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
@@ -151,9 +151,16 @@ export async function pinAccount(config: any, request: any, m: any) {
   } finally { guard!.release(); }
 }
 
+function replayToolNameMatches(recorded: string, canonical: string, compiled: any) {
+  // Exact historical aliases remain replayable without granting a current tool.
+  if (recorded === canonical) return true;
+  try { return resolveToolName(recorded, compiled) === canonical; }
+  catch (error) { if (error instanceof AdapterError) return false; throw error; }
+}
+
 export function projectRequest(request: any, fingerprint: string, promptFormat?: 'anthropic-xml') {
   const opaqueCalls = new Map<string, any>();
-  const replayDetails: { details: any[]; callIds: string[] }[] = [];
+  const replayDetails: { details: any[]; callIds: string[]; calls: any[] }[] = [];
   const projected = { ...request, credential_scope: fingerprint, input: request.input.map((item: any) => {
     if (item.type !== 'reasoning' || !item.encrypted_content) return item;
     const prefix = 'azrael-managed-v1:';
@@ -162,16 +169,27 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
       try { metadata = JSON.parse(Buffer.from(item.encrypted_content.slice(prefix.length), 'base64').toString('utf8')); } catch { fail('invalid_reasoning_envelope'); }
     }
     const valid = metadata && metadata.provider === request.provider_id && metadata.model === request.model && metadata.thread === request.thread_id && metadata.account === fingerprint && metadata.turn === request.turn_id;
-    if (valid) for (const call of metadata.calls ?? []) opaqueCalls.set(call.id, call);
-    if (valid && metadata.reasoning_details) replayDetails.push({ details: metadata.reasoning_details, callIds: (metadata.calls ?? []).map((call: any) => call.id) });
+    if (valid) {
+      if (!Array.isArray(metadata.calls ?? [])) fail('invalid_reasoning_envelope');
+      for (const call of metadata.calls ?? []) {
+        if (!object(call) || typeof call.id !== 'string') fail('invalid_reasoning_envelope');
+        opaqueCalls.set(call.id, call);
+      }
+    }
+    if (valid && metadata.reasoning_details !== undefined && !Array.isArray(metadata.reasoning_details)) fail('invalid_reasoning_details');
+    if (valid && metadata.reasoning_details?.length) {
+      const calls = metadata.calls ?? [];
+      replayDetails.push({ details: metadata.reasoning_details, callIds: calls.map((call: any) => call.id), calls });
+    }
     // Public reasoning survives switching; private replay has an exact origin and turn.
     return { ...item, encrypted_content: valid ? item.encrypted_content : null };
   }) };
   const compiled = compileRequest(projected, { promptFormat, compactToolSearchResults: isApiProvider(request.provider_id) });
-  for (const replay of replayDetails) for (const id of replay.callIds) {
-    const original = opaqueCalls.get(id);
-    const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === id);
-    if (!call || original?.name !== call.name || original.arguments_digest !== digest(JSON.stringify(JSON.parse(call.arguments)))) fail('reasoning_scope_mismatch');
+  for (const replay of replayDetails) for (const original of replay.calls) {
+    const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === original?.id);
+    if (!call) fail('reasoning_scope_mismatch_call_missing');
+    if (!replayToolNameMatches(original.name, call.name, compiled)) fail('reasoning_scope_mismatch_tool_name');
+    if (original.arguments_digest !== digest(JSON.stringify(JSON.parse(call.arguments)))) fail('reasoning_scope_mismatch_arguments');
   }
   const systemPrompt: string[] = [];
   const messages: any[] = [];
@@ -185,7 +203,7 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
       for (const call of message.tool_calls ?? []) {
         callNames.set(call.id, call.name);
         const opaque = opaqueCalls.get(call.id);
-        const validOpaque = opaque?.name === call.name && opaque.arguments_digest === digest(JSON.stringify(JSON.parse(call.arguments)));
+        const validOpaque = opaque && replayToolNameMatches(opaque.name, call.name, compiled) && opaque.arguments_digest === digest(JSON.stringify(JSON.parse(call.arguments)));
         content.push({ type: 'toolCall', id: call.id, name: call.name, arguments: JSON.parse(call.arguments), ...(validOpaque && opaque.providerMetadata ? { providerMetadata: opaque.providerMetadata } : {}) });
       }
       messages.push({ role: 'assistant', content, timestamp: 0 });
