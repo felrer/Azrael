@@ -204,11 +204,11 @@
       "source": "implementation/references/build-inputs.md",
       "adaptations": [],
       "original": {
-        "size": 2363,
-        "sha256": "b2c3ebe432fbb05f0b1c8b15bd5c27399d96f540a8c5cf129a3477fdc2bc5bb7"
+        "size": 4167,
+        "sha256": "e2a83cb9087133a44ff85a215fca8fbc6d6c540d365c95bf9ea70c78993dc2b9"
       },
-      "size": 2363,
-      "sha256": "b2c3ebe432fbb05f0b1c8b15bd5c27399d96f540a8c5cf129a3477fdc2bc5bb7"
+      "size": 4167,
+      "sha256": "e2a83cb9087133a44ff85a215fca8fbc6d6c540d365c95bf9ea70c78993dc2b9"
     },
     {
       "path": "skills/implementation/references/delegation.md",
