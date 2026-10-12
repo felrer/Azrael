@@ -197,14 +197,14 @@ pub(crate) fn create_root_resume_tool() -> ToolSpec {
         (
             "resume_after_ms".to_string(),
             JsonSchema::integer(Some(
-                "Delay in milliseconds before resuming root, from 1 through 43,200,000. Use exactly one scheduling field."
+                "Delay in milliseconds before resuming root, from 1 through 43,200,000. Specify this or resume_at, never both; deadline is not an argument."
                     .to_string(),
             )),
         ),
         (
             "resume_at".to_string(),
             JsonSchema::string(Some(
-                "Future UTC timestamp at which to resume root. Use exactly one scheduling field."
+                "Future RFC3339 UTC timestamp within the next 12 hours, for example YYYY-MM-DDTHH:MM:SSZ. Specify this or resume_after_ms, never both; deadline is not an argument."
                     .to_string(),
             )),
         ),
@@ -242,7 +242,7 @@ pub(crate) fn create_root_resume_tool() -> ToolSpec {
     ToolSpec::Function(ResponsesApiTool {
         name: ROOT_RESUME_TOOL_NAME.to_string(),
         description: format!(
-            "Defer the root task until a deadline or all selected subagents and registered work reach terminal states. {AZRAEL_ROOT_DEFER_GUIDANCE}"
+            "Defer the root task until the scheduled resume time or all selected subagents and registered work reach terminal states. {AZRAEL_ROOT_DEFER_GUIDANCE}"
         ),
         strict: false,
         defer_loading: None,
