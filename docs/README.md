@@ -37,15 +37,14 @@ Distinguish `draft` proposals, `target` intended behavior, `current` verified im
 
 ## Work Artifacts
 
-- Work directory: G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2
-- Google Drive account: `felrer02@gmail.com`
+- Work directory: work
 
-Use [Work documents](<G:/내 드라이브/ObsidianVault/PARA/30 Project/pi-harness/Tasks/Task2/README.md>) for session and plan usage. This external owner replaces the default `docs/work/README.md`; no competing local work directory is maintained.
+Use [Work documents](../work/README.md) for session and plan usage. The project-local `work/` directory owns new work plans.
 
-모든 작업 계획 문서는 위 외부 경로에 저장한다. 저장소 내부에는 작업 계획 파일이나
-`docs/implementation/` 대체 디렉터리를 만들지 않는다.
+앞으로 작업 계획 문서는 프로젝트 루트의 `work/`에 저장한다. 상대 경로는 프로젝트 루트를 기준으로
+해석하며, `docs/work/`나 `docs/implementation/`에 별도의 작업 계획 저장소를 만들지 않는다.
 
-경로 확인, 파일 할당 및 작성 절차는 활성화된 `development-workflow` 스킬을 따른다. 외부 경로를 사용할 수
-없으면 저장소나 다른 위치로 대체하지 말고 실패 원인을 보고한다.
+폴더·파일 할당과 작성 절차는 활성화된 `development-workflow` 스킬을 따른다. 이전 외부 작업 기록과
+그 기록을 가리키는 링크는 기존 경로에 보존한다. 저장 위치 변경만으로 기존 기록을 이동하지 않는다.
 
 설계·아키텍처·운영 문서는 기존 `docs/` 분류에 유지한다.
