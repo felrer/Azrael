@@ -123,7 +123,8 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
     "internal workspace marker escaped the app-server bridge");
 
   // null/omitted selects the server's default provider; [] includes Devin too.
-  for (const providerParams of [{}, { modelProviders: null }, { modelProviders: ["openai"] }]) {
+  for (const providerParams of [{}, { modelProviders: null }, { modelProviders: ["openai"] },
+    { sourceKinds: null }, { sourceKinds: [] }, { sourceKinds: ["vscode"] }]) {
     for (const background of [false, true]) {
       const params = { limit: 25, cursor: "next-page", archived: false, ...providerParams };
       const snapshot = JSON.stringify(params);
@@ -132,8 +133,8 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
         recentListExpression, params, background,
       );
       assert.deepEqual(JSON.parse(JSON.stringify(allProviders.result)), {
-        ...params, modelProviders: [], sourceKinds: ["cli", "vscode", "exec", "appServer", "unknown"], cwd: ["C:\\work\\one"],
-      }, "recent chats must include every provider while preserving pagination and archive filters");
+        ...params, modelProviders: [], cwd: ["C:\\work\\one"],
+      }, "recent chats must include every provider while preserving source selection, pagination and archive filters");
       assert.equal(JSON.stringify(params), snapshot, "recent-list input parameters were mutated");
     }
   }
@@ -146,7 +147,6 @@ test("namespace transforms preserve URLs, filter workspace history and reject un
   assert.deepEqual(JSON.parse(JSON.stringify(multiRoot.result)), {
     limit: 25,
     modelProviders: [],
-    sourceKinds: ["cli", "vscode", "exec", "appServer", "unknown"],
     cwd: ["C:\\work\\one", "D:\\work\\two"],
   }, "multi-root file workspaces did not replace thread/list cwd");
 

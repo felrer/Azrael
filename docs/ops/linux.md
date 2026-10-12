@@ -17,7 +17,7 @@ Azrael에서 이어 쓴 rollout과 바꾼 메타데이터는 덮어쓰지 않는
 등록되지 않은 파일도 pending-import journal의 크기·수정 시각과 일치하는 경우만
 중단된 가져오기로 복구하며, 그 밖의 기존 파일은 보존한다. 새 기록을 보려면
 **Developer: Reload Window**로 다시 시작한다. 현재 작업 폴더의 로컬 대화와
-cli/vscode/exec/appServer/unknown 소스를 표시하며 subagent는 기존 규칙대로 제외한다.
+출처를 별도로 지정하지 않으면 엔진 기본값인 cli/vscode/atlas/chatgpt 소스를 표시하며 subagent는 기존 규칙대로 제외한다.
 작업 폴더가 다른 대화는 기존 전체 기록 메뉴에서 찾는다. 원본 rollout이 없어
 재개할 수 없는 메타데이터는 제외하고 `local-history-import.json`에 수량을 남긴다.
 
