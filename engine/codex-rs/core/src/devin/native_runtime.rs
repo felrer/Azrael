@@ -142,6 +142,16 @@ struct RequestFrame<'a> {
     parallel_tool_calls: bool,
 }
 
+#[path = "native_runtime_estimate.rs"]
+mod estimate;
+pub(crate) use estimate::InputBudget;
+pub(crate) use estimate::run_estimate_helper;
+
+enum HelperOutcome {
+    Stream(ResponseStream),
+    Budget(Option<InputBudget>),
+}
+
 pub(crate) async fn stream(
     sess: Arc<Session>,
     ctx: Arc<TurnContext>,
@@ -149,6 +159,33 @@ pub(crate) async fn stream(
     cancellation: CancellationToken,
     reasoning_effort: Option<&ReasoningEffort>,
 ) -> CodexResult<ResponseStream> {
+    match dispatch(sess, ctx, prompt, cancellation, reasoning_effort, false).await? {
+        HelperOutcome::Stream(stream) => Ok(stream),
+        HelperOutcome::Budget(_) => unreachable!(),
+    }
+}
+
+pub(crate) async fn estimate(
+    sess: Arc<Session>,
+    ctx: Arc<TurnContext>,
+    prompt: Prompt,
+    cancellation: CancellationToken,
+    reasoning_effort: Option<&ReasoningEffort>,
+) -> CodexResult<Option<InputBudget>> {
+    match dispatch(sess, ctx, prompt, cancellation, reasoning_effort, true).await? {
+        HelperOutcome::Budget(budget) => Ok(budget),
+        HelperOutcome::Stream(_) => unreachable!(),
+    }
+}
+
+async fn dispatch(
+    sess: Arc<Session>,
+    ctx: Arc<TurnContext>,
+    prompt: Prompt,
+    cancellation: CancellationToken,
+    reasoning_effort: Option<&ReasoningEffort>,
+    estimate: bool,
+) -> CodexResult<HelperOutcome> {
     if prompt.output_schema.is_some() || ctx.final_output_json_schema.is_some() {
         return Err(invalid("native Devin does not support output schemas"));
     }
@@ -249,7 +286,7 @@ pub(crate) async fn stream(
         credential: &credential,
     })?;
     let request = serialize_frame(&RequestFrame {
-        r#type: "request",
+        r#type: if estimate { "estimate" } else { "request" },
         protocol_version: PROTOCOL_VERSION,
         request_id: &request_id,
         thread_id: &thread_id,
@@ -260,7 +297,7 @@ pub(crate) async fn stream(
         tools: &prompt.tools,
         parallel_tool_calls: prompt.parallel_tool_calls,
     })?;
-    run_helper(HelperRequest {
+    let request = HelperRequest {
         request_limit: RequestLimit::Default,
         anthropic_thinking: false,
         executable: node.as_path(),
@@ -272,8 +309,14 @@ pub(crate) async fn stream(
         request_id,
         cancellation,
         turn_guard: _turn_guard,
-    })
-    .await
+    };
+    if estimate {
+        run_estimate_helper(request)
+            .await
+            .map(HelperOutcome::Budget)
+    } else {
+        run_helper(request).await.map(HelperOutcome::Stream)
+    }
 }
 
 /// Shared bounded JSONL transport. The guard keeps the turn's credentials pinned

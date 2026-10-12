@@ -3,6 +3,7 @@ import { createHash } from 'node:crypto';
 import { AdapterError, compileRequest, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './mapping.mjs';
 import { createProgressMonitor } from './progress.mjs';
 import { diagnosticPolicy } from './diagnostic-policy.mjs';
+import { createContextDiagnostics } from './context-budget.mjs';
 import { observeParser } from './stall-diagnostics.mjs';
 import { httpStatus, providerClassificationCode, safeProviderDiagnostics, transportErrorCode } from './diagnostics.mjs';
 
@@ -54,20 +55,30 @@ try {
     emit({ type: 'capabilities', image_model_ids });
   } else {
     const credentialScope = createHash('sha256').update(init.credential.api_key + '\x1f' + init.credential.api_server_url).digest('hex');
-    const compiled = compileRequest({ ...request, credential_scope: credentialScope });
-    const { streamChatEvents } = await import('./vendor/src/adapters/devin/cloud-direct/chat.ts');
-    progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: diagnosticPolicy().inference });
-    deadlineSignal = AbortSignal.timeout(900_000);
-    const events = streamChatEvents({
-      apiKey: init.credential.api_key, apiServerUrl: init.credential.api_server_url,
-      modelUid: request.model, messages: compiled.messages, tools: compiled.tools,
-      cascadeId: request.thread_id, signal: deadlineSignal,
-      // The native engine owns catalog resolution. Each helper is short-lived,
-      // so transport-local caching would otherwise fetch again on every turn.
-      skipCatalogPreflight: true,
-      onProgress: event => progress.observe(event),
-    });
-    await mapStream(observeParser(events, progress.transport), compiled, emit, requestId);
+    const compiled = compileRequest({ ...request, type: request.type === 'estimate' ? 'request' : request.type, credential_scope: credentialScope });
+    const { streamChatEvents, projectCloudInput } = await import('./vendor/src/adapters/devin/cloud-direct/chat.ts');
+    const context = createContextDiagnostics(request.model);
+    context.compiled(projectCloudInput(compiled.messages, compiled.tools));
+    if (request.type === 'estimate') {
+      emit({ type: 'input_budget', input_budget: { ...context.budget(), scope_sha256: credentialScope } });
+    } else {
+      progress = createProgressMonitor(emit, { bufferedBytes: () => process.stdout.writableLength, transportEnabled: diagnosticPolicy().inference,
+        contextDiagnostics: diagnosticPolicy().inference ? context : undefined });
+      deadlineSignal = AbortSignal.timeout(900_000);
+      const events = streamChatEvents({
+        apiKey: init.credential.api_key, apiServerUrl: init.credential.api_server_url,
+        modelUid: request.model, messages: compiled.messages, tools: compiled.tools,
+        cascadeId: request.thread_id, signal: deadlineSignal,
+        // The native engine owns catalog resolution. Each helper is short-lived,
+        // so transport-local caching would otherwise fetch again on every turn.
+        skipCatalogPreflight: true,
+        onProgress: event => progress.observe(event),
+      });
+      await mapStream(observeParser(events, progress.transport), compiled, frame => {
+        if (frame.type === 'completed') context.usage(frame.usage);
+        emit(frame);
+      }, requestId);
+    }
   }
 } catch (error) {
   // Provider errors may contain request data or authentication details. Only

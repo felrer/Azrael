@@ -153,6 +153,11 @@ pub(crate) fn api_options(ctx: &TurnContext, key: &str) -> CodexResult<Option<se
         })
 }
 
+enum HelperOutcome {
+    Stream(ResponseStream),
+    Budget(Option<crate::devin::native_runtime::InputBudget>),
+}
+
 pub(crate) async fn stream(
     sess: &Session,
     ctx: &TurnContext,
@@ -162,6 +167,62 @@ pub(crate) async fn stream(
     metadata: &CodexResponsesMetadata,
     model_key: &str,
 ) -> CodexResult<ResponseStream> {
+    match dispatch(
+        sess,
+        ctx,
+        prompt,
+        cancellation,
+        reasoning_effort,
+        metadata,
+        model_key,
+        false,
+    )
+    .await?
+    {
+        HelperOutcome::Stream(stream) => Ok(stream),
+        HelperOutcome::Budget(_) => unreachable!(),
+    }
+}
+
+pub(crate) async fn estimate(
+    sess: &Session,
+    ctx: &TurnContext,
+    prompt: Prompt,
+    cancellation: CancellationToken,
+    reasoning_effort: Option<&ReasoningEffort>,
+    metadata: &CodexResponsesMetadata,
+    model_key: &str,
+) -> CodexResult<Option<crate::devin::native_runtime::InputBudget>> {
+    if model_key.starts_with("api/") {
+        return Ok(None);
+    }
+    match dispatch(
+        sess,
+        ctx,
+        prompt,
+        cancellation,
+        reasoning_effort,
+        metadata,
+        model_key,
+        true,
+    )
+    .await?
+    {
+        HelperOutcome::Budget(budget) => Ok(budget),
+        HelperOutcome::Stream(_) => unreachable!(),
+    }
+}
+
+async fn dispatch(
+    sess: &Session,
+    ctx: &TurnContext,
+    prompt: Prompt,
+    cancellation: CancellationToken,
+    reasoning_effort: Option<&ReasoningEffort>,
+    metadata: &CodexResponsesMetadata,
+    model_key: &str,
+    estimate: bool,
+) -> CodexResult<HelperOutcome> {
     let invalid = |message: String| CodexErr::new(CodexErrorDetails::InvalidRequest(message));
     if prompt.output_schema.is_some() || ctx.final_output_json_schema.is_some() {
         return Err(invalid(
@@ -212,7 +273,7 @@ pub(crate) async fn stream(
     let request_limit = crate::devin::native_runtime::RequestLimit::for_provider(&provider);
     let request = crate::devin::native_runtime::serialize_frame_with_limit(
         &RequestFrame {
-            r#type: "request",
+            r#type: if estimate { "estimate" } else { "request" },
             protocol_version: 1,
             request_id: &request_id,
             thread_id: &thread_id,
@@ -250,6 +311,11 @@ pub(crate) async fn stream(
         cancellation,
         turn_guard: (),
     };
+    if estimate {
+        return crate::devin::native_runtime::run_estimate_helper(helper_request)
+            .await
+            .map(HelperOutcome::Budget);
+    }
     if let Some(options) = api_options {
         let timeout = options["timeoutMs"].as_u64().unwrap_or(180_000);
         crate::devin::native_runtime::run_api_helper(
@@ -258,8 +324,11 @@ pub(crate) async fn stream(
             options["stream"].as_bool().unwrap_or(false),
         )
         .await
+        .map(HelperOutcome::Stream)
     } else {
-        crate::devin::native_runtime::run_helper(helper_request).await
+        crate::devin::native_runtime::run_helper(helper_request)
+            .await
+            .map(HelperOutcome::Stream)
     }
 }
 

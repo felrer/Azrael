@@ -16,6 +16,54 @@ SCRIPT = Path(__file__).resolve().parents[1] / "inspect-native-azrael-errors.py"
 
 
 class InspectorTests(unittest.TestCase):
+    def context_payload(self):
+        return {"schema_version": 1, "estimate_method": "model_chars", "projection": "compiled",
+                "model_sha256": "a" * 64, "components": {key: {"bytes": 4, "tokens": 1, "count": 1}
+                    for key in ("instructions", "conversation", "tool_definitions", "tool_results", "tool_calls", "reasoning")},
+                "image_count": 0, "image_bytes": 0, "text_estimate_tokens": 6,
+                "reported_input_tokens": 4, "reported_input_estimated": False, "residual_tokens": -2}
+
+    def context_record(self, data, outcome="completed", target="devin_native_progress"):
+        return (target, 'private=SECRET event="native_inference_context_diagnostics" '
+                'request_id=01234567-0123-4567-89ab-0123456789ab '
+                f'outcome="{outcome}" context_diagnostics=' + json.dumps(data), "INFO")
+
+    def test_context_budget_actual_sqlite_export_and_redaction(self):
+        payload = self.context_payload()
+        dirty = json.loads(json.dumps(payload))
+        dirty["raw_model"] = "SECRET"
+        dirty["components"]["raw_content"] = "SECRET"
+        dirty["components"]["instructions"]["raw_content"] = "SECRET"
+        report, stdout = self.inspect([self.context_record(dirty)])
+        self.assertEqual(report["categories"], {"context_budget": 1})
+        event = report["eventsNewestFirst"][0]
+        self.assertEqual(event["contextBudgetDiagnostics"], {"context_diagnostics": payload, "outcome": "completed"})
+        self.assertEqual(event["requestRef"], hashlib.sha256(b"01234567-0123-4567-89ab-0123456789ab").hexdigest()[:10])
+        for value in ("SECRET", "raw_model", "raw_content", "01234567-0123-4567-89ab-0123456789ab"):
+            self.assertNotIn(value, stdout)
+
+    def test_context_budget_invalid_payloads_disabled_and_legacy(self):
+        records = []
+        for key, value in [("schema_version", True), ("estimate_method", "SECRET"), ("projection", []),
+                           ("model_sha256", "SECRET"), ("image_bytes", 2**53), ("image_count", -1),
+                           ("text_estimate_tokens", True), ("wire_bytes", 2**53),
+                           ("reported_input_tokens", "SECRET"), ("reported_input_estimated", True),
+                           ("residual_tokens", -3), ("components", {"SECRET": "SECRET"})]:
+            payload = self.context_payload(); payload[key] = value
+            records.append(self.context_record(payload))
+        for key in ("bytes", "tokens", "count"):
+            payload = self.context_payload(); payload["components"]["instructions"][key] = 2**53
+            records.append(self.context_record(payload))
+        records.extend([self.context_record("SECRET"), self.context_record(self.context_payload(), "running"),
+                        self.context_record(self.context_payload(), "SECRET"),
+                        self.context_record(self.context_payload(), target="other"),
+                        ("devin_native_progress", 'event="native_inference_progress" outcome="running"', "INFO")])
+        report, stdout = self.inspect(records)
+        self.assertNotIn("context_budget", report["categories"])
+        self.assertNotIn("SECRET", stdout)
+        report, _ = self.inspect([])
+        self.assertEqual(report["eventsNewestFirst"], [])
+
     def timing_body(self, **changes):
         fields = {
             "event": '"root_resume_timing"', "phase": '"wake_detected"',

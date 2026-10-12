@@ -4,7 +4,7 @@ Status: `partial`. Model-specific settings and native policy are implemented in 
 
 ## Context and automatic compaction
 
-The engine resolves model context capacity, safe usable context and automatic compaction separately. Models default to 95% of their no-length-surcharge input capacity. Anthropic models with a resolved context window of at least 1,000,000 tokens use an exact 600,000-token default; smaller Anthropic models use the ordinary 95% rule. Both defaults are capped by the model's safe usable context. An exclusive pricing boundary uses its threshold as the baseline; an inclusive boundary uses one token below the threshold. The baseline cannot exceed model capacity. Models with no length surcharge use model capacity; models with unknown pricing also use capacity, with the uncertainty disclosed in settings. Headroom is a safety cap rather than another multiplication of the baseline. Thus OpenAI with a 272,000-token price boundary defaults to 258,400 tokens even with 1M capacity. Existing scope and output reservation behavior remains authoritative. The existing native compaction executor owns admission, summaries, errors and history replacement for managed providers, OpenAI and Devin.
+The engine resolves model context capacity, safe usable context and automatic compaction separately. Models default to 95% of their no-length-surcharge input capacity. Anthropic models with a resolved context window of at least 1,000,000 tokens use an exact 600,000-token default; smaller Anthropic models use the ordinary 95% rule. Both defaults are capped by the model's safe usable context. An exclusive pricing boundary uses its threshold as the baseline; an inclusive boundary uses one token below the threshold. The baseline cannot exceed model capacity. Models with no length surcharge use model capacity; models with unknown pricing also use capacity, with the uncertainty disclosed in settings. Headroom is a safety cap rather than another multiplication of the baseline. Thus OpenAI with a 272,000-token price boundary defaults to 258,400 tokens even with 1M capacity. Existing scope and output reservation behavior remains authoritative. The existing native compaction executor owns admission, summaries, errors and history replacement for managed providers and OpenAI. Devin retains explicit context-limit failures because native compaction is unavailable for Devin threads.
 
 `provider_auto_compact` is keyed by inference provider ID. Each provider entry may contain positive integer `percentage` or `token_limit` fields and a `models` map keyed by the exact catalog model ID, including the full `managed/<provider>/<model>` slug. Each model entry contains optional positive integer `percentage` or `token_limit` fields. Percentage takes precedence over tokens, computes `floor(baseline × percentage / 100)` and is capped to safe usable context; values above 100 are supported. An empty model entry explicitly selects that model's dynamic default. Resolution precedence is a model entry, a provider's explicit fields or empty default entry, a configured global token limit, then the model default. A provider containing only model entries allows unconfigured siblings to inherit the global limit. Existing provider settings and explicit token limits are preserved. Saving or resetting a model replaces only its nested entry and leaves siblings and provider settings intact. Configuration rejects zero, negative and noninteger values.
 
@@ -43,6 +43,49 @@ draft text and attachments remain in the composer, and streaming conversations c
 queue the operation. This entry is `current` in source with native light/dark
 rendering and interaction verification using synthetic host state. Build and
 installation were not performed; installed-window acceptance remains separate.
+
+## Final helper request input budget
+
+Status: `partial`. Source implementation and Windows helper/transport fixture
+checks are available; packaging, installation, other platforms and real-account
+token accuracy remain unverified.
+
+Managed OAuth and native Devin requests use a bounded, inference-free helper
+estimate after the final prompt, tools and Guardian projection are prepared.
+The estimate uses the same provider request transformation as inference. Managed
+requests measure the built provider body; Devin measures the serializer's system
+folding and sanitized tool definitions. The helper retains no prepared body across
+requests, so inference repeats that transformation with the current account pin.
+OpenAI native and user API requests keep their existing admission paths.
+
+The engine applies the selected model's existing automatic compaction threshold,
+scope and usable-input cap to supported estimates before generation. Compaction
+uses the existing executor, then rebuilds and measures the request; bounded
+attempts prevent loops when required instructions or tools alone exceed the
+budget. Devin keeps an explicit limit error because its native compaction is
+unavailable. Prefix accounting belongs to the current model and context window.
+Authentication failures, invalid input, cancellation and transport-byte limits
+keep their existing errors. An unsupported local estimate uses the existing
+context estimate instead of manufacturing a complete count.
+
+Token counts remain local estimates. Managed text reuses the existing model-aware
+character/CJK estimator without clamping at capacity; Devin uses the existing
+byte-based approximation on projected input. Base64 length is recorded separately
+from text tokens. Images or unrecognized content prevent use of a text-only budget
+for admission until their token accounting is supported. Output reservation and
+model policy remain authoritative; cached tokens do not reduce context occupancy.
+
+Optional inference diagnostics record numeric component sizes and text estimates,
+image counts, a hashed model identity and the actual normalized input usage for
+the same request. The observed residual is reported input minus estimated text;
+it includes provider overhead and, where present, image input, so it is not proof
+of tokenizer error. Estimated provider usage is marked and has no actual residual.
+No text, images, tool identifiers, credentials or raw model identity enter this
+evidence. Existing diagnostic controls, SQLite retention and safe export apply.
+Automatic calibration remains inactive until sufficient non-estimated usage
+samples justify a model-specific correction. This implementation adds a local
+helper launch before inference; fixture timing does not establish installed
+application latency.
 
 ## Preservation mapping
 

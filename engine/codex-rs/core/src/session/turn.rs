@@ -578,7 +578,10 @@ pub(crate) async fn run_turn(
                 .instrument(trace_span!("run_turn.collect_post_sampling_state"))
                 .await;
                 let needs_follow_up = model_needs_follow_up || has_pending_input;
-                let token_limit_reached = token_status.token_limit_reached;
+                let token_limit_reached = token_status.token_limit_reached
+                    && !super::request_budget::uses_final_budget(
+                        &step_context.settings.model_info.slug,
+                    );
 
                 trace!(
                     turn_id = %turn_context.sub_id,
@@ -1316,6 +1319,9 @@ async fn run_pre_sampling_compact(
     client_session: &mut ModelClientSession,
     cancellation_token: &CancellationToken,
 ) -> CodexResult<()> {
+    if super::request_budget::uses_final_budget(&turn_context.model_info().slug) {
+        return Ok(());
+    }
     maybe_run_previous_model_inline_compact(sess, turn_context, client_session, cancellation_token)
         .await?;
     let token_status =
@@ -1678,6 +1684,8 @@ async fn run_sampling_request(
     let mut initial_input = Some(input);
     let mut original_input = None;
     let mut executed_tool_calls_by_output = HashMap::new();
+    let mut budget_compactions = 0usize;
+    let mut previous_budget_tokens = None;
     loop {
         // Running code-mode cells can request review while this response is in flight.
         // Keep the latest received ID until response.created replaces it.
@@ -1711,6 +1719,72 @@ async fn run_sampling_request(
             )
             .await?;
         }
+        let model = &step_context.settings.model_info.slug;
+        let uses_final_budget = super::request_budget::uses_final_budget(model);
+        let final_input_tokens = if uses_final_budget {
+            let budget = if crate::managed_catalog::is_managed(model) {
+                crate::managed_runtime::estimate(
+                    sess.as_ref(),
+                    turn_context.as_ref(),
+                    prompt.clone(),
+                    cancellation_token.child_token(),
+                    step_context.settings.reasoning_effort(),
+                    &responses_metadata,
+                    model,
+                )
+                .await?
+            } else {
+                crate::devin::native_runtime::estimate(
+                    Arc::clone(&sess),
+                    Arc::clone(&turn_context),
+                    prompt.clone(),
+                    cancellation_token.child_token(),
+                    step_context.settings.reasoning_effort(),
+                )
+                .await?
+            };
+            budget.map(|budget| budget.input_tokens)
+        } else {
+            None
+        };
+        if uses_final_budget {
+            let limit_reached = if let Some(tokens) = final_input_tokens {
+                super::request_budget::limit_reached(sess.as_ref(), &step_context, tokens).await
+            } else {
+                // Old helpers and uncountable inputs keep the existing estimation policy,
+                // evaluated here after prompt assembly rather than before turn admission.
+                super::context_window::context_window_token_status_for_model(
+                    sess.as_ref(),
+                    turn_context.config.as_ref(),
+                    turn_context.as_ref(),
+                    &step_context.settings.model_info,
+                )
+                .await
+                .token_limit_reached
+            };
+            if limit_reached {
+                if super::request_budget::compaction_exhausted(
+                    budget_compactions,
+                    previous_budget_tokens,
+                    final_input_tokens,
+                ) {
+                    return Err(CodexErr::new(CodexErrorDetails::ContextWindowExceeded));
+                }
+                previous_budget_tokens = final_input_tokens;
+                budget_compactions += 1;
+                run_auto_compact(
+                    &sess,
+                    Arc::clone(&step_context),
+                    Arc::clone(&step_context),
+                    client_session,
+                    CompactionReason::ContextLimit,
+                    CompactionPhase::MidTurn,
+                )
+                .await?;
+                // Rebuild the prompt, Guardian projection, and final helper estimate.
+                continue;
+            }
+        }
         let quota_auth = sess.services.auth_manager.auth_cached();
         let err = match try_run_sampling_request(
             tool_runtime.clone(),
@@ -1721,6 +1795,7 @@ async fn run_sampling_request(
             &responses_metadata,
             Arc::clone(&turn_diff_tracker),
             &prompt,
+            final_input_tokens,
             cancellation_token.child_token(),
         )
         .await
@@ -2579,6 +2654,7 @@ async fn try_run_sampling_request(
     responses_metadata: &CodexResponsesMetadata,
     turn_diff_tracker: SharedTurnDiffTracker,
     prompt: &Prompt,
+    final_input_tokens: Option<i64>,
     cancellation_token: CancellationToken,
 ) -> CodexResult<SamplingRequestResult> {
     let turn_context = Arc::clone(&step_context.turn);
@@ -2600,8 +2676,13 @@ async fn try_run_sampling_request(
         step_context.settings.model_info.slug.as_str(),
         turn_context.provider.info().name.as_str(),
     );
-    sess.record_input_context_policy(&turn_context, &step_context.settings.model_info, prompt)
-        .await;
+    sess.record_input_context_policy_with_estimate(
+        &turn_context,
+        &step_context.settings.model_info,
+        prompt,
+        final_input_tokens,
+    )
+    .await;
     sess.send_token_count_event(&turn_context).await;
     let sampling_timing_guard = turn_context.turn_timing_state.begin_sampling();
     if client_session.inference_tools_changed(&step_context.tool_router.model_visible_specs()) {

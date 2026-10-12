@@ -828,16 +828,46 @@
       "id": "engine.provider-context",
       "area": "engine",
       "owners": [
-        "scripts/test-provider-context-engine.mjs"
+        "scripts/test-provider-context-engine.mjs",
+        "scripts/test-provider-input-budget-helper.cjs",
+        "providers/devin/context-budget.mjs",
+        "providers/opencodex/inference.ts",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "engine/codex-rs/core/src/session/request_budget.rs",
+        "engine/codex-rs/core/src/managed_runtime.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_estimate.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_context_diagnostics.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_protocol.rs",
+        "providers/devin/tests/context-budget.test.mjs",
+        "providers/opencodex/tests/context-budget.test.ts",
+        "scripts/tests/test_inspect_native_azrael_errors.py"
       ],
       "contract": "docs/architecture/context-policy.md",
       "checks": [
+        {
+          "id": "engine.provider-context.input-budget-helper",
+          "executable": "node",
+          "args": ["scripts/test-provider-input-budget-helper.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "engine.provider-context.safe-context-export",
+          "executable": "python",
+          "args": ["scripts/tests/test_inspect_native_azrael_errors.py"],
+          "level": "source"
+        },
         {
           "id": "engine.provider-context.native",
           "executable": "node",
           "nativeCacheInputs": {
             "schema": 1,
-            "files": ["scripts/test-provider-context-engine.mjs"]
+            "files": [
+              "scripts/test-provider-context-engine.mjs",
+              "engine/codex-rs/core/src/session/request_budget.rs",
+              "engine/codex-rs/core/src/session/turn.rs",
+              "engine/codex-rs/core/src/managed_runtime.rs",
+              "engine/codex-rs/core/src/devin/native_runtime_estimate.rs"
+            ]
           },
           "args": [
             "scripts/test-provider-context-engine.mjs",

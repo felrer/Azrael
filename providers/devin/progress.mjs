@@ -1,7 +1,7 @@
 import { createStallDiagnostics } from './stall-diagnostics.mjs';
 // Structural diagnostics only. Never put provider text, tool arguments or IDs here.
 export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => performance.now(),
-  bufferedBytes = () => 0, transportEnabled = false, thinkingWaitEnabled = false, toolDiagnostics } = {}) {
+  bufferedBytes = () => 0, transportEnabled = false, thinkingWaitEnabled = false, toolDiagnostics, contextDiagnostics } = {}) {
   const started = now();
   const transport = transportEnabled ? createStallDiagnostics({ now }) : undefined;
   let phase = 'preflight', bytes = 0, count = 0, lastEvent = 'none';
@@ -34,6 +34,7 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
     // Tool telemetry is supplied only by managed inference. A broken observer
     // must not prevent a progress frame or change the generation watchdog.
     try { const tools = toolDiagnostics?.snapshot(); if (tools) progress.tool_diagnostics = tools; } catch {}
+    try { const context = contextDiagnostics?.snapshot(); if (context) progress.context_diagnostics = context; } catch {}
     return progress;
   };
   const emitProgress = () => { if (!stopped) emit({ type: 'progress', progress: snapshot() }); };
@@ -42,6 +43,7 @@ export function createProgressMonitor(emit, { intervalMs = 10_000, now = () => p
   return {
     transport,
     toolDiagnostics,
+    contextDiagnostics,
     observe(event) {
       if (thinkingWaitEnabled && event.kind === 'thinking_block' && typeof event.open === 'boolean') {
         thinkingOpen = event.open;

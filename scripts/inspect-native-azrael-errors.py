@@ -335,6 +335,70 @@ def tool_invocation_diagnostics(body: str, target: str) -> dict:
     return result
 
 
+CONTEXT_COMPONENTS = {"instructions", "conversation", "tool_definitions", "tool_results", "tool_calls", "reasoning"}
+CONTEXT_OUTCOMES = (TOOL_INVOCATION_OUTCOMES - {"running"}) | {
+    "provider_account_removed", "provider_account_revoked", "provider_usage_limit", "provider_rate_limit",
+    "provider_context_limit", "image_input_too_large", "unsupported_image_format", "remote_image_unsupported",
+    "invalid_image_input", "unknown"} | {f"provider_http_{code}" for code in range(100, 600)}
+
+
+def context_budget_diagnostics(body: str, target: str) -> dict:
+    """Validate the complete fixed payload before exporting any context evidence."""
+    if target != "devin_native_progress":
+        return {}
+    marker = re.search(r'event="native_inference_context_diagnostics"', body)
+    if not marker:
+        return {}
+    fields = body[marker.end():]
+    payload = re.search(r'(?<!\w)context_diagnostics=', fields)
+    outcome = re.search(r'(?<!\w)outcome="([a-z0-9_]+)"(?=\s|$)', fields)
+    if not payload or not outcome or outcome[1] not in CONTEXT_OUTCOMES:
+        return {}
+    try:
+        data, _ = json.JSONDecoder().raw_decode(fields[payload.end():])
+    except (ValueError, RecursionError):
+        return {}
+    required = {"schema_version", "estimate_method", "projection", "model_sha256", "components",
+                "image_count", "image_bytes", "text_estimate_tokens"}
+    optional = {"wire_bytes", "reported_input_tokens", "reported_input_estimated", "residual_tokens"}
+    if not isinstance(data, dict) or not required <= data.keys():
+        return {}
+    # Unknown fields are never exported, even in otherwise valid legacy records.
+    safe = {key: value for key, value in data.items() if key in required | optional}
+    number = lambda value: type(value) is int and 0 <= value <= 2**53 - 1
+    if (type(safe["schema_version"]) is not int or safe["schema_version"] != 1
+            or safe["estimate_method"] not in ("model_chars", "utf8_bytes")
+            or safe["projection"] not in ("compiled", "wire")
+            or not isinstance(safe["model_sha256"], str)
+            or not re.fullmatch(r"[0-9a-f]{64}", safe["model_sha256"])):
+        return {}
+    components = safe["components"]
+    if not isinstance(components, dict) or not CONTEXT_COMPONENTS <= components.keys():
+        return {}
+    clean_components = {}
+    for key in CONTEXT_COMPONENTS:
+        component = components[key]
+        if (not isinstance(component, dict) or not {"bytes", "tokens", "count"} <= component.keys()
+                or not all(number(component[field]) for field in ("bytes", "tokens", "count"))):
+            return {}
+        clean_components[key] = {field: component[field] for field in ("bytes", "tokens", "count")}
+    safe["components"] = clean_components
+    if not all(number(safe[key]) for key in ("image_count", "image_bytes", "text_estimate_tokens")):
+        return {}
+    if any(not number(safe[key]) for key in ("wire_bytes", "reported_input_tokens") if key in safe):
+        return {}
+    if "reported_input_estimated" in safe and type(safe["reported_input_estimated"]) is not bool:
+        return {}
+    if "residual_tokens" in safe:
+        residual = safe["residual_tokens"]
+        if (type(residual) is not int or abs(residual) > 2**53 - 1
+                or safe.get("reported_input_estimated") is not False
+                or "reported_input_tokens" not in safe
+                or residual != safe["reported_input_tokens"] - safe["text_estimate_tokens"]):
+            return {}
+    return {"context_diagnostics": safe, "outcome": outcome[1]}
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--state", type=Path, default=Path.home() / ".azrael-ex")
@@ -371,6 +435,7 @@ def main() -> None:
         inference = inference_diagnostics(body or "", target)
         transport = transport_diagnostics(body or "", target)
         invocation = tool_invocation_diagnostics(body or "", target)
+        context = context_budget_diagnostics(body or "", target)
         timing = root_resume_timing(body or "", target)
         kind = category(body or "")
         if schema:
@@ -387,6 +452,8 @@ def main() -> None:
             kind = "inference_transport"
         if invocation:
             kind = "tool_invocation"
+        if context:
+            kind = "context_budget"
         if detail.get("code") in {"invalid_argument", "failed_precondition", "out_of_range", "invalid_request_error"}:
             kind = "provider_request"
         if timing:
@@ -413,9 +480,11 @@ def main() -> None:
                 event["transportDiagnostics"] = transport
             if invocation:
                 event["toolInvocationDiagnostics"] = invocation
+            if context:
+                event["contextBudgetDiagnostics"] = context
             if timing:
                 event["rootResumeTiming"] = timing
-            if schema or detail or inference or transport or invocation:
+            if schema or detail or inference or transport or invocation or context:
                 request = re.search(r'(?<!\w)request_id="?([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})"?(?=\s|$)', body or "")
                 if request:
                     event["requestRef"] = hashlib.sha256(request[1].encode()).hexdigest()[:10]
