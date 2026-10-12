@@ -31,11 +31,11 @@ let lastDistance=100000;
 const scrollListeners=new Set(),userListeners=new Set();
 const listen=(set,fn)=>(set.add(fn),()=>set.delete(fn));
 const publishScroll=()=>{lastDistance=distance();for(const fn of scrollListeners)fn(lastDistance)};
-window.fixtureScrollTo=bottom=>{const el=scrollElement();el.scrollTop=bottom?el.scrollHeight:0;lastDistance=distance();for(const fn of userListeners)fn(lastDistance);for(const fn of scrollListeners)fn(lastDistance)};
+window.fixtureScrollTo=async bottom=>{for(let frame=0;frame<6;frame++){const el=scrollElement();el.scrollTop=bottom?el.scrollHeight:0;lastDistance=distance();for(const fn of userListeners)fn(lastDistance);for(const fn of scrollListeners)fn(lastDistance);await new Promise(resolve=>setTimeout(resolve,16))}};
 const controller={getScrollElement:scrollElement,getLastScrollDistanceFromBottomPx:()=>lastDistance,getUnroundedScrollDistanceFromBottomPx:x=>x,shouldFollowContentGrowth:()=>false,addScrollListener:fn=>{const dispose=listen(scrollListeners,fn);fn(lastDistance);return dispose},addUserScrollListener:fn=>listen(userListeners,fn),compensateScrollToDistanceFromBottomPx:x=>{const el=scrollElement();el.scrollTop=el.scrollHeight-el.clientHeight-x;publishScroll()},scrollToDistanceFromBottomPx:x=>controller.compensateScrollToDistanceFromBottomPx(x)};
 const virtualEntries=Array.from({length:176},(_,i)=>({turnKey:'message-'+i,estimatedHeightPx:120,text:'메시지 '+i}));
 function MessageRow({entry}){return jsx.jsx('article',{'data-fixture-message':entry.turnKey,style:{height:120,padding:16},children:entry.text})}
-function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:fixtureVirtual?jsx.jsx(ScrollContext.Provider,{value:controller,children:jsx.jsx('div',{id:'virtual-scroll',onScroll:publishScroll,style:{height:650,overflow:'auto',overflowAnchor:'none'},children:jsx.jsx('div',{children:jsx.jsx(azraelTaskTimeVirtualList,{entries:virtualEntries,RowComponent:MessageRow,preserveMeasuredTurnViewport:true,azraelTaskTime:{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns}})})})}):jsx.jsx(azraelTaskWorkTimePanel,{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns})})}
+function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:fixtureVirtual?jsx.jsx(ScrollContext.Provider,{value:controller,children:jsx.jsx('div',{id:'virtual-scroll',onScroll:publishScroll,style:{height:650,overflow:'auto',overflowAnchor:'none'},children:jsx.jsx('div',{style:{display:'flex',flexDirection:'column'},children:jsx.jsx(azraelTaskTimeVirtualList,{entries:virtualEntries,RowComponent:MessageRow,preserveMeasuredTurnViewport:true,azraelTaskTime:{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns}})})})}):jsx.jsx(azraelTaskWorkTimePanel,{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns})})}
 let initialized=false;
 function Fixture(){initVirtualList();initScrollContext();initButton();initIntl();initAtom();fixtureInitScope();azraelTimeInitPreferences();if(!initialized){initialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem('prefs')||'{}'),(key,value)=>{const prefs=JSON.parse(localStorage.getItem('prefs')||'{}');prefs[key]=value;localStorage.setItem('prefs',JSON.stringify(prefs))})}return jsx.jsx(Scope,{scope:azraelTimeScope,children:jsx.jsx(Rows,{})})}
 export {Fixture};`;
@@ -62,8 +62,10 @@ try{
  const colors=[];
  for(const theme of ['light','dark']){
  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
+ check(theme+' removes card sides and corners',await evaluate("(()=>{const s=getComputedStyle(document.querySelector('section'));return s.borderLeftWidth==='0px'&&s.borderRightWidth==='0px'&&s.borderRadius==='0px'})()"));
+ check(theme+' narrow double start rule',await evaluate("(()=>{const s=getComputedStyle(document.querySelector('[data-azrael-task-rule=start]'));return s.borderTopWidth==='1px'&&s.borderBottomWidth==='1px'&&parseFloat(s.height)===4})()"));
  check(theme+' excludes user idle gap',(await text()).includes('작업 1 · 총 30초 · 3개 턴'));
- colors.push(await evaluate("(()=>{const s=getComputedStyle(document.querySelector('section'));return {color:s.color,border:s.borderColor}})()"));
+ colors.push(await evaluate("(()=>{const s=getComputedStyle(document.querySelector('section'));const line=getComputedStyle(document.querySelector('[data-azrael-task-rule=start]'));return {color:s.color,border:line.borderTopColor}})()"));
  await evaluate("document.querySelector('details').open=false;document.querySelector('summary').focus()");await key();await wait("document.querySelector('details').open");check(theme+' keyboard disclosure',true);
  await evaluate("document.querySelector('[data-azrael-time-boundary=b]').focus()");await key();await wait("document.querySelectorAll('details').length===2");check(theme+' keyboard split',true);
  await evaluate("document.querySelectorAll('details').forEach(d=>d.open=true)");check(theme+' split totals',(await text()).includes('총 8초')&&(await text()).includes('총 22초'));
@@ -93,6 +95,10 @@ try{
  await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(()=>setTimeout(resolve,100))))');
  await evaluate("fixtureScrollTo(true)");
  await wait("!!document.querySelector('[data-fixture-message=message-175]')");
+ await wait("(()=>{const line=document.querySelector('[data-azrael-task-rule=end]')?.getBoundingClientRect(),viewport=document.getElementById('virtual-scroll').getBoundingClientRect();return line&&line.top>=viewport.top&&line.bottom<=viewport.bottom})()");
+ if(n===0){await evaluate('new Promise(resolve=>requestAnimationFrame(()=>requestAnimationFrame(resolve)))');}
+ if(n===0)await writeFile(join(logs,'end-'+theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ check(theme+' bottom rule follows final message '+n,await evaluate("document.querySelector('[data-azrael-task-rule=end]').getBoundingClientRect().top>=document.querySelector('[data-fixture-message=message-175]').getBoundingClientRect().bottom && getComputedStyle(document.querySelector('[data-azrael-task-rule=end]')).borderTopWidth==='1px'"));
  check(theme+' summary stays offscreen at latest messages '+n,await evaluate("document.querySelector('[data-azrael-task-work-time]').getBoundingClientRect().bottom<=document.getElementById('virtual-scroll').getBoundingClientRect().top"));
  await evaluate("fixtureScrollTo(false)");
  await wait("!!document.querySelector('[data-fixture-message=message-0]') && !!document.querySelector('[data-azrael-task-work-time]')");
