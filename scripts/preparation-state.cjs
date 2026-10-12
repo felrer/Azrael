@@ -19,7 +19,7 @@ function writeJson(file, value) {
 }
 async function inputs(config) {
   const scripts = [
-    "preparation-state.cjs", "directory-state.cjs", "prepare-independent-vscode.ps1",
+    "preparation-state.cjs", "directory-state.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
     "ordinary-runtime.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",

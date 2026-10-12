@@ -17,6 +17,11 @@ param(
 )
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
+if (-not $HostVersion) {
+    $appRelease = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'azrael-app-release.json') -Raw | ConvertFrom-Json
+    $HostVersion = [string]$appRelease.version
+    if ($HostVersion -notmatch '^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$') { throw 'Current application version is invalid.' }
+}
 
 function Expand-AccountUiVsix {
     param(
@@ -261,7 +266,7 @@ try {
             }
         }
         $typescript = Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js'
-        $hostVersion = if ($HostVersion) { $HostVersion } else { '0.5.' + [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds() }
+        $hostVersion = $HostVersion
         Invoke-PreparationPhase 'namespace' {
             & node (Join-Path $PSScriptRoot 'namespace-azrael-host.cjs') $prepared.OfficialExtension $typescript $hostVersion $CacheDirectory *> (Join-Path $OutputDirectory 'namespace.log')
             if ($LASTEXITCODE -ne 0) { throw 'Independent host transformation failed. See namespace.log.' }

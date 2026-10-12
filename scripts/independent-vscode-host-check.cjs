@@ -230,6 +230,18 @@ exports.run = async function run() {
       await vscode.commands.executeCommand("chatgpt.openSidebar");
     }
     await vscode.commands.executeCommand("azrael.openSidebar");
+    const profileLogs = path.join(root, standalone ? "standalone-user-data" : "coexistence-user-data", "logs");
+    await waitFor(async () => {
+      const sessions = (await fs.readdir(profileLogs)).sort().reverse();
+      for (const session of sessions) {
+        const hostLog = path.join(profileLogs, session, "window1", "exthost", HOST_ID, "Azrael.log");
+        let text; try { text = await fs.readFile(hostLog, "utf8"); } catch (error) { if (error.code === "ENOENT") continue; throw error; }
+        if (text.includes("Webview renderer did not become ready")) throw new Error("Packaged renderer startup failed");
+        if (text.includes("[startup][renderer] app routes mounted")) return true;
+      }
+      return false;
+    }, 125_000, "packaged Azrael renderer readiness");
+    diagnostics.rendererReady = true;
     await vscode.commands.executeCommand("azrael.manageAccounts");
     const accountsWebview = await waitFor(
       () => findWebview("계정 및 사용량", "azrael.accounts"), 30_000, "integrated accounts Webview");

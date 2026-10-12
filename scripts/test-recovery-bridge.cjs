@@ -30,7 +30,7 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   const ts = require(typescriptPath);
   const original = fs.readFileSync(originalBundle, "utf8");
   const transformed = injectRecovery(original, originalBundle, ts);
-  assert.equal(transformed.count, 4);
+  assert.equal(transformed.count, 5);
   assert.equal(ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
 
   const { ast, owner } = owningClass(ts, transformed.text, originalBundle);
@@ -743,4 +743,24 @@ test("a failing output channel does not break initialization or recovery actions
   } finally {
     disposable.dispose();
   }
+});
+
+
+test("actual transformed startup guard waits for progress, fails silent or endless startup, and cancels readiness timers", () => {
+  const ts = require(typescriptPath);
+  const transformed = injectRecovery(fs.readFileSync(originalBundle, "utf8"), originalBundle, ts);
+  const ast = ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  let guard;
+  function visit(node) { if(ts.isClassExpression(node) && node.members.some(m => m.name?.text === "handleStartupPhase")) guard=node; ts.forEachChild(node,visit); }
+  visit(ast); assert.ok(guard);
+  function fixture() {
+    let now=0,next=0; const timers=new Map(),failures=[];
+    const Guard=new vm.Script('('+guard.getText(ast)+')').runInNewContext({Date:{now:()=>now},setTimeout:(fn,ms)=>{const id=++next;timers.set(id,{fn,at:now+ms});return id},clearTimeout:id=>timers.delete(id)});
+    const owner=new Guard(details=>failures.push(details));
+    return {owner,failures,timers,advance(ms){ const target=now+ms;while(true){const due=[...timers].filter(([,t])=>t.at<=target).sort((a,b)=>a[1].at-b[1].at)[0];if(!due)break;now=due[1].at;timers.delete(due[0]);due[1].fn()}now=target} };
+  }
+  const active=fixture();active.owner.start();active.advance(25000);active.owner.handleStartupPhase("renderer_entry_evaluated");active.advance(20000);assert.equal(active.failures.length,0);active.owner.handleStartupPhase("host_services_ready");active.advance(10000);active.owner.handleStartupPhase("renderer_ready");active.advance(120000);assert.equal(active.failures.length,0);assert.equal(active.timers.size,0);
+  const stalled=fixture();stalled.owner.start();stalled.advance(30000);assert.equal(stalled.failures.length,1);assert.equal(stalled.failures[0].receivedWebviewMessage,false);
+  const endless=fixture();endless.owner.start();for(let n=0;n<12;n++){endless.advance(10000);endless.owner.markMessageReceived()}assert.equal(endless.failures.length,1);assert.equal(endless.failures[0].elapsedMs,120000);assert.equal(endless.timers.size,0);
+  const disposed=fixture();disposed.owner.start();disposed.owner.dispose();disposed.advance(120000);assert.equal(disposed.failures.length,0);assert.equal(disposed.timers.size,0);
 });

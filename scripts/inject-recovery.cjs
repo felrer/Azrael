@@ -1,8 +1,17 @@
 "use strict";
 
+const PINNED_STARTUP_GUARD = 'class{constructor(e){this.onTimeout=e}timeout;disposed=!1;receivedWebviewMessage=!1;start(){if(this.disposed||this.timeout!=null)return;let e=Date.now();this.timeout=setTimeout(()=>{this.timeout=void 0,this.onTimeout({elapsedMs:Date.now()-e,receivedWebviewMessage:this.receivedWebviewMessage,timeoutMs:3e4})},3e4)}markMessageReceived(){this.receivedWebviewMessage=!0}handleStartupPhase(e){e==="renderer_ready"&&this.dispose()}dispose(){this.disposed=!0,this.timeout!=null&&(clearTimeout(this.timeout),this.timeout=void 0)}}';
+const STARTUP_GUARD = `class{constructor(onTimeout){this.onTimeout=onTimeout}timeout;disposed=false;receivedWebviewMessage=false;startedAt;lastProgressAt;start(){if(this.disposed||this.startedAt!==undefined)return;this.startedAt=this.lastProgressAt=Date.now();this.arm()}arm(){if(this.disposed)return;clearTimeout(this.timeout);const now=Date.now(),remaining=Math.min(30000-(now-this.lastProgressAt),120000-(now-this.startedAt));this.timeout=setTimeout(()=>{this.timeout=undefined;const now=Date.now();if(now-this.lastProgressAt<30000&&now-this.startedAt<120000){this.arm();return}this.dispose();this.onTimeout({elapsedMs:now-this.startedAt,receivedWebviewMessage:this.receivedWebviewMessage,timeoutMs:30000,maximumTimeoutMs:120000})},Math.max(0,remaining))}markMessageReceived(){this.receivedWebviewMessage=true;if(this.startedAt!==undefined&&!this.disposed){this.lastProgressAt=Date.now();this.arm()}}handleStartupPhase(phase){if(phase==="renderer_ready")this.dispose();else if(phase==="renderer_entry_evaluated"||phase==="host_services_ready")this.markMessageReceived()}dispose(){this.disposed=true;clearTimeout(this.timeout);this.timeout=undefined}}`;
+
+function injectStartupGuard(text) {
+  if (text.split(PINNED_STARTUP_GUARD).length !== 2) throw new Error("Pinned renderer startup guard changed.");
+  return { text: text.replace(PINNED_STARTUP_GUARD, STARTUP_GUARD), count: 1 };
+}
+
 // Pin structural boundaries, not minified variable names. Fail packaging when
 // upstream changes a contract instead of silently shipping a partial hook.
 function injectRecovery(text, filename, ts) {
+  text = injectStartupGuard(text).text;
   const source = ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   const edits = [];
   const counts = { sendProviderRequest: 0, routeIncomingMessage: 0, teardownProcess: 0 };
@@ -50,7 +59,7 @@ function injectRecovery(text, filename, ts) {
   if (ts.createSourceFile(filename, text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length) {
     throw new Error("Invalid recovery bridge transform.");
   }
-  return { text, count: edits.length };
+  return { text, count: edits.length + 1 };
 }
 
-module.exports = { injectRecovery };
+module.exports = { injectRecovery, injectStartupGuard };

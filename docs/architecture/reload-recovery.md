@@ -2,6 +2,10 @@
 
 Status: `current`, verified with automated state, bridge, native crash/restart and isolated-host checks; manual reload of a live session is user-verified. Procedure and verification scope are in [operations](../ops/development.md#reload-recovery).
 
+## Renderer startup admission
+
+The host keeps the existing startup error boundary, but measures a 30-second interval without incoming webview traffic or recognized startup progress instead of aborting every startup at 30 seconds. `renderer_entry_evaluated` and `host_services_ready` count as progress; `renderer_ready` disposes the guard. Startup remains bounded by 120 seconds even if traffic continues. Disposal clears pending timers. This avoids replacing an actively initializing renderer with the failure page during a slow cold start, while silent and non-completing startup still fail. User state is preserved.
+
 ## Behaviour and ownership
 
 The integrated host owns recovery presentation and admission for resume requests. The native engine remains the authority for live thread/turn state, thread writer ownership and interruption. Its existing `thread/read` and `thread/resume` normalization marks historical in-progress turns interrupted when no live turn exists; the host does not rewrite rollout files or invent engine state.
