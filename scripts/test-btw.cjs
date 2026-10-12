@@ -5,7 +5,7 @@ const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const { createBtwController } = require("./btw-conversation.cjs");
+const { createBtwCommand, createBtwController } = require("./btw-conversation.cjs");
 const { BTW_ASSETS, BTW_MARKER, INSTRUCTIONS, injectBtw } = require("./inject-btw.cjs");
 const { injectComposerDraft } = require("./inject-composer-draft.cjs");
 const { transformAsset } = require("./namespace-azrael-host.cjs");
@@ -46,8 +46,8 @@ function fixture() {
   const parent = { cwd: "/workspace", latestModel: "managed/anthropic/current", threadRuntimeStatus: { type: "running" }, turns: [{ status: "inProgress" }] };
   const states = new Map([["parent", parent]]), messages = new Map(); let next = 0;
   const manager = {
-    getConversation: id => states.get(id), getHostId: () => "local",
-    readRecentThreadMessages: id => messages.get(id) ?? [],
+    getConversation: async id => states.get(id), getHostId: async () => "local",
+    readRecentThreadMessages: async id => messages.get(id) ?? [],
     copyEphemeralConversationHistory: (old, id) => { messages.set(id, structuredClone(messages.get(old) ?? [])); return true; },
     sendRequest: async (method, params) => requests.push({ method, params }),
     sendFollowUpMessage: async (id, { prompt }) => { requests.push({ method: "follow-up", id, prompt }); messages.set(id, [...messages.get(id) ?? [], { role: "user", text: prompt }, { role: "assistant", text: "Answer: " + prompt }]); },
@@ -59,7 +59,7 @@ function fixture() {
     await options.prepare(id); return id;
   };
   const submit = overrides => controller.submit({ conversationId: "parent", hostId: "local", manager, openPanel, text: "/btw Why?", ...overrides });
-  return { controller, parent, states, messages, manager, requests, openings, disposed, submit };
+  return { controller, parent, states, messages, manager, requests, openings, disposed, submit, openPanel };
 }
 
 test("all integrated pinned assets parse, report coverage and guard version, duplicate anchors and idempotence", () => {
@@ -127,7 +127,7 @@ test("cached reference history is bounded, and repeated submission cannot race a
   h.messages.set("side-1", Array.from({ length: 50 }, (_, i) => ({ role: i % 2 ? "assistant" : "user", text: "x".repeat(5000) })));
   let release;
   const pending = h.submit({ openPanel: async options => { await new Promise(r => { release = r; }); return h.openings[0].prepare ? (await options.prepare("side-x"), "side-x") : null; } });
-  await Promise.resolve(); await Promise.resolve();
+  await new Promise(resolve => setImmediate(resolve));
   await assert.rejects(h.submit(), /準備|준비/); release(); await pending;
   const item = h.requests.find(r => r.method === "thread/inject_items").params.items[0];
   const history = JSON.parse(item.content[0].text.split("\n")[1]);
@@ -135,7 +135,7 @@ test("cached reference history is bounded, and repeated submission cannot race a
 });
 
 test("actual native side creator forwards tool-free RPC, selected helper model and task boundary", async () => {
-  const requests = [], manager = { getConversation: () => ({ modelProvider: "azrael-managed" }) };
+  const requests = [], manager = { getConversation: async () => ({ modelProvider: "azrael-managed" }) };
   const context = { bc: () => false, MYe: async () => ["/workspace"], mg: async () => ({ instructions: "inherited task instructions" }), Uye: () => false,
     eJi: "ordinary side instructions", Bp: () => manager,
     $Ze: async (_scope, _host, params) => { requests.push(params); return { conversationId: "child", synchronization: { status: "complete" } }; } };
@@ -146,6 +146,61 @@ test("actual native side creator forwards tool-free RPC, selected helper model a
   assert.equal(request.addForkedSyntheticItem, false); assert.equal(request.model, "managed/anthropic/current"); assert.equal(request.modelProvider, undefined);
   assert.equal(request.reasoningEffort, "high"); assert.equal(request.developerInstructions, INSTRUCTIONS);
   assert.equal(request.developerInstructions.includes("inherited task instructions"), false);
+  await context.Qqi({ scope: {}, sourceConversationId: "parent", hostId: "local", cwd: "/workspace", sideQuestion: true, collaborationMode: { mode: "default", settings: { model: "gpt-6.1-sol", reasoning_effort: "medium" } } });
+  assert.equal(requests[1].modelProvider, "openai");
+});
+
+test("actual composer helper keeps the native string host ID across async RPC and opens the isolated panel", async () => {
+  const h = fixture(), nativeModule = { __azraelOpenBtwPanel: h.openPanel };
+  h.manager.getHostId = () => { throw Error("RPC host ID must not be read synchronously"); };
+  const scope = { get: atom => atom === "attachments" ? {} : { locale: "ko" } };
+  const ctx = { QG: "attachments", fm: "intl", __azraelBtw: h.controller, nativeModule,
+    Px: (_scope, hostId) => { assert.equal(hostId, "local"); return h.manager; } };
+  vm.createContext(ctx);
+  vm.runInContext(declaration(patched[1].text, "__azraelTryBtw").replace('import("./app-initial-c014f9ee4429.js")', 'Promise.resolve(nativeModule)'), ctx);
+  assert.equal(await ctx.__azraelTryBtw(scope, "parent", "/btw", { type: "local" }, "local", true, false, {}), true);
+  assert.equal(h.openings[0].hostId, "local"); assert.equal(h.requests.length, 0);
+  assert.equal(await ctx.__azraelTryBtw(scope, "parent", "/btw Why?", { type: "local" }, "local", true, false, {}), true);
+  assert.equal(h.requests.at(-1).prompt, "Why?");
+});
+
+test("native slash registration opens /btw as an action without parent message admission", async () => {
+  const registered = [], opened = [], errors = [];
+  const ctx = { createBtwCommand, Rja() {}, J3: value => registered.push(value), hA: "host", hx: "toast", goe: "side16", IDe: "side20",
+    __azraelTryBtw: async (...args) => opened.push(args), __azraelBtw: { lookup: () => undefined } };
+  const scope = { get: atom => atom === "host" ? "local" : { danger: error => errors.push(error) } };
+  vm.createContext(ctx); vm.runInContext(declaration(patched[1].text, "__azraelRegisterBtw"), ctx);
+  ctx.__azraelRegisterBtw("parent", scope, { locale: "ko" });
+  const command = registered[0];
+  assert.equal(command.id, "btw"); assert.equal(command.requiresEmptyComposer, true); assert.equal(command.enabled, true);
+  assert.match(command.description, /별도 질문/);
+  assert.ok(declaration(patched[1].text, "rDa").includes("__azraelRegisterBtw(n,i,a)"));
+  await command.onSelect(); assert.equal(opened.length, 1); assert.equal(opened[0][2], "/btw"); assert.equal(opened[0][4], "local");
+  ctx.__azraelTryBtw = async () => { throw Error("fork failed"); }; await command.onSelect(); assert.deepEqual(errors, ["fork failed"]);
+  ctx.__azraelBtw.lookup = () => ({}); ctx.__azraelRegisterBtw("side", scope, { locale: "en" }); assert.equal(registered[1].enabled, false);
+});
+
+test("actual native panel opener awaits source model and cwd RPC before native tab creation", async () => {
+  const calls = [], source = { latestThreadSettings: { model: "gpt-6.1-sol", effort: "medium" } };
+  const ctx = { EJi() {}, DDn() {}, qqi() {}, OJi() {}, __azraelInitBtwButton() {}, bc: host => { assert.equal(host, "local"); return false; },
+    __azraelBtwPanel: "Panel", gJi: async (...args) => { calls.push(args); return "side"; } };
+  vm.createContext(ctx); vm.runInContext(declaration(patched[2].text, "__azraelOpenBtwPanel"), ctx);
+  const result = await ctx.__azraelOpenBtwPanel({ scope: {}, hostId: "local", parentId: "parent",
+    manager: { getConversation: async () => source, getConversationCwd: async () => "/workspace" }, intl: {}, prepare() {}, onDiscard() {} });
+  assert.equal(result, "side"); assert.equal(calls[0][2].cwd, "/workspace");
+  assert.equal(calls[0][2].collaborationMode.settings.model, "gpt-6.1-sol"); assert.equal(calls[0][2].sideQuestion, true);
+  assert.ok(declaration(originals[2], "EJi")); assert.ok(declaration(originals[2], "DDn"));
+  let observer, refreshes = 0;
+  ctx.__azraelBtwPanel = undefined;
+  Object.assign(ctx, { xJi: {}, SJi: {}, __azraelBtwButton: {}, DJi: {}, __azraelBtw: {}, TDn: "native turn atom",
+    createBtwPanel: (...args) => { observer = args[5]; return "Panel"; } });
+  await ctx.__azraelOpenBtwPanel({ scope: {}, hostId: "local", parentId: "parent",
+    manager: { getConversation: async () => source, getConversationCwd: async () => "/workspace" }, intl: {}, prepare() {}, onDiscard() {} });
+  const stop = () => {};
+  assert.equal(observer({ id: "side", scope: { watch: callback => {
+    callback({ get: (atom, key) => { assert.equal(atom, "native turn atom"); assert.equal(key.conversationId, "side"); } }); return stop;
+  } } }, () => refreshes++), stop);
+  assert.equal(refreshes, 1);
 });
 
 test("actual native fork request preserves ephemeral/excludeTurns, sends sideQuestion and has no goal continuation", async () => {

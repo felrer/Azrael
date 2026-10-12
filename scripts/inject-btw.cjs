@@ -1,5 +1,5 @@
 "use strict";
-const { createBtwController, createBtwPanel } = require("./btw-conversation.cjs");
+const { createBtwCommand, createBtwController, createBtwPanel } = require("./btw-conversation.cjs");
 
 const BTW_ASSETS = [
   "webview/assets/app-initial-97d3534ad35f.js",
@@ -23,13 +23,20 @@ function once(text, before, after) {
 }
 
 const COMPOSER = `
+${createBtwCommand.toString()}
 async function __azraelTryBtw(scope,conversationId,text,target,hostId,isResponseInProgress,literal,composer){
  const controller=globalThis.__azraelBtw;
  if(!controller.lookup(conversationId)&&(literal||!controller.matches(text)))return false;
  if(target.type!=="local")throw Error("/btw는 네이티브 대화에서 사용할 수 있습니다.");
  const attachments=scope.get(QG),hasAttachments=["imageAttachments","imageCommentDrafts","appshotContexts","fileAttachments","pastedTextAttachments","uploadedFileAttachments","addedFiles","mcpAppModelContextAttachments","selectedTextAttachments","responseTextAnnotations"].some(key=>(attachments[key]?.length??0)>0)||!!attachments.pullRequestMergeConflict||(composer.getMentionedComputerUseApps?.()?.length??0)>0;
  const manager=Px(scope,hostId),native=await import("./app-initial-c014f9ee4429.js");
- return controller.submit({scope,conversationId,text,hostId:manager.getHostId(),manager,literal,hasAttachments,isResponseInProgress,intl:scope.get(fm),openPanel:native.__azraelOpenBtwPanel});
+ return controller.submit({scope,conversationId,text,hostId,manager,literal,hasAttachments,isResponseInProgress,intl:scope.get(fm),openPanel:native.__azraelOpenBtwPanel});
+}
+function __azraelRegisterBtw(conversationId,scope,intl){
+ Rja();
+ const hostId=conversationId==null?null:scope.get(hA,conversationId);
+ J3(createBtwCommand(conversationId,hostId,intl,{assets:{16:goe,20:IDe}},globalThis.__azraelBtw,
+  ()=>__azraelTryBtw(scope,conversationId,"/btw",{type:"local"},hostId,false,false,{}),error=>scope.get(hx).danger(error),scope));
 }
 `;
 
@@ -37,15 +44,15 @@ const SIDE = `
 ${createBtwPanel.toString()}
 var __azraelBtwPanel;
 async function __azraelOpenBtwPanel(options){
- qqi();OJi();__azraelInitBtwButton();
+ EJi();DDn();qqi();OJi();__azraelInitBtwButton();
  if(bc(options.hostId))throw Error("/btw는 네이티브 대화에서 사용할 수 있습니다.");
- __azraelBtwPanel??=createBtwPanel(xJi,SJi,__azraelBtwButton,DJi,globalThis.__azraelBtw);
- const source=options.manager.getConversation(options.parentId),settings=source?.latestThreadSettings;
+ __azraelBtwPanel??=createBtwPanel(xJi,SJi,__azraelBtwButton,DJi,globalThis.__azraelBtw,(entry,refresh)=>entry.scope.watch(({get})=>{get(TDn,{conversationId:entry.id,isBackgroundSubagentsEnabled:false});refresh()}));
+ const source=await options.manager.getConversation(options.parentId),settings=source?.latestThreadSettings;
  const model=settings?.model??source?.latestModel,effort=settings&&Object.hasOwn(settings,"effort")?settings.effort:source?.latestReasoningEffort??null;
  if(!model)throw Error("본 작업의 모델 선택을 불러오지 못했습니다.");
  const mode={mode:"default",settings:{model,reasoning_effort:effort,developer_instructions:null}};
  let child;
- return gJi(options.scope,__azraelBtwPanel,{sourceConversationId:options.parentId,threadSource:"user",cwd:source.cwd??options.manager.getConversationCwd(options.parentId),hostId:options.hostId,collaborationMode:mode,intl:options.intl,displayTitle:"/btw",confirmBeforeClose:false,sideQuestion:true,replaceTabId:options.previousId?"sidechat:"+options.previousId:undefined,
+ return gJi(options.scope,__azraelBtwPanel,{sourceConversationId:options.parentId,threadSource:"user",cwd:source.cwd??await options.manager.getConversationCwd(options.parentId),hostId:options.hostId,collaborationMode:mode,intl:options.intl,displayTitle:"/btw",confirmBeforeClose:false,sideQuestion:true,replaceTabId:options.previousId?"sidechat:"+options.previousId:undefined,
   onDiscardStart:()=>{if(child)options.onDiscard(child)},
   prepareConversation:async id=>{child=id;await options.prepare(id)}
  });
@@ -67,10 +74,11 @@ function injectBtw(text, asset) {
     // This precedes queue, goal, steering, local-history and analytics admission.
     // The existing guarded clear keeps a newer composer draft intact.
     text = once(text, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT);
+    text = once(text, "J3(v),null}var iDa,aDa;", "J3(v),__azraelRegisterBtw(n,i,a),null}var iDa,aDa;");
     text += `\n${BTW_MARKER}\n${COMPOSER}`;
   } else if (asset === BTW_ASSETS[2]) {
     text = once(text, "parentNavigationPath:s}){if(bc(i))", "parentNavigationPath:s,sideQuestion:__azraelSideQuestion=!1}){if(bc(i))");
-    text = once(text, "developerInstructions:l.trim()?`${l}\\n\\n${eJi}`:eJi,sideConversation:!0,sideConversationParentNavigationPath:s", "developerInstructions:__azraelSideQuestion?" + JSON.stringify(INSTRUCTIONS) + ":l.trim()?`${l}\\n\\n${eJi}`:eJi,...__azraelSideQuestion?{sideQuestion:!0,model:a.settings.model,reasoningEffort:a.settings.reasoning_effort,modelProvider:(()=>{let provider=Bp(e,i).getConversation(t)?.modelProvider;return a.settings.model.startsWith(`managed/`)||a.settings.model.startsWith(`devin/`)?void 0:[`azrael-managed`,`devin`].includes(provider)?`openai`:provider})()}:{},sideConversation:!0,sideConversationParentNavigationPath:s");
+    text = once(text, "developerInstructions:l.trim()?`${l}\\n\\n${eJi}`:eJi,sideConversation:!0,sideConversationParentNavigationPath:s", "developerInstructions:__azraelSideQuestion?" + JSON.stringify(INSTRUCTIONS) + ":l.trim()?`${l}\\n\\n${eJi}`:eJi,...__azraelSideQuestion?{sideQuestion:!0,model:a.settings.model,reasoningEffort:a.settings.reasoning_effort,modelProvider:await(async()=>{let provider=(await Bp(e,i).getConversation(t))?.modelProvider;return a.settings.model.startsWith(`managed/`)||a.settings.model.startsWith(`devin/`)?void 0:[`azrael-managed`,`devin`].includes(provider)?`openai`:provider})()}:{},sideConversation:!0,sideConversationParentNavigationPath:s");
     text = once(text, "onCreationError:g,target:_=`right`,durable:v", "onCreationError:g,sideQuestion:__azraelSideQuestion=!1,target:_=`right`,durable:v");
     text = once(text, "A=async()=>Qqi({scope:e,sourceConversationId:i,", "A=async()=>Qqi({scope:e,sideQuestion:__azraelSideQuestion,sourceConversationId:i,");
     text = 'import{ZIt as __azraelBtwButton,$It as __azraelInitBtwButton}from"./app-initial-7a199c66e670.js";' + text;

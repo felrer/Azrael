@@ -4,7 +4,7 @@ Status: `partial implementation` — source implementation, Node fixtures and re
 
 ## User flow and isolation
 
-`/btw <question>` opens a native Side chat panel while the main task continues. `/btw` with no question opens the panel without starting inference. Questions are text-only and use the main task's current model and supported reasoning selection. The panel renders responses, follow-up input, cancellation and tabs through the pinned native components and theme tokens.
+Typing `/` shows **Btw** in the native command list. Selecting it opens a native Side chat panel without starting inference or submitting a main-task message. `/btw` is a feature entry point; direct `/btw <question>` opens the panel and submits only the question inside it while the main task continues. Questions are text-only and use the main task's current model and supported reasoning selection. The panel renders responses, follow-up input, cancellation and tabs through the pinned native components and theme tokens.
 
 Every question starts an independent ephemeral thread from an immutable snapshot of the main task's current model context. Completed tool results and the retained compaction context remain reference material. Existing history normalization supplies an `aborted` placeholder for an unfinished tool call; it does not invent a successful result or alter the source history. Previous side questions and answers provide bounded reference context; they are not new instructions to execute. The current side transcript is copied for display when its underlying ephemeral thread is replaced.
 
@@ -24,4 +24,4 @@ The panel's transfer action submits selected text inside the panel, or its lates
 
 ## Verification boundary
 
-Source fixtures exercise the actual transformed composer and native Side chat wiring with synthetic host state. Rendered native React, buttons and CSS in both themes verify the changed panel controls. Rust integration tests cover live-context isolation and the no-tool ceiling; execution of those tests requires a separate authorized build scope. Source verification does not establish installed-host or provider acceptance.
+Source fixtures exercise the actual transformed composer, native command registration and Side chat wiring with asynchronous synthetic host RPC. Host IDs remain native strings; model, provider, cwd and message reads await RPC results. The panel observes native turn-state changes, rejects stale reads and releases its subscription on unmount. Rendered native React, slash-command rows, buttons and CSS in both themes verify the command entry and panel controls. The complete installed slash popup and provider acceptance remain separate. Rust integration tests cover live-context isolation and the no-tool ceiling; execution of those tests requires a separate authorized build scope. Source verification does not establish installed-host acceptance.

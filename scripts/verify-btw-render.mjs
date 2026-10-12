@@ -19,29 +19,36 @@ const {injectBtw,BTW_ASSETS}=require('./inject-btw.cjs');
 const {createBtwController}=require('./btw-conversation.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const mainName=BTW_ASSETS[2].split('/').at(-1),main=injectBtw(await readFile(join(assets,mainName),'utf8'),BTW_ASSETS[2]).text;
+const composerName=BTW_ASSETS[1].split('/').at(-1),composer=injectBtw(await readFile(join(assets,composerName),'utf8'),BTW_ASSETS[1]).text;
+const menuAdapter=`
+function FixtureBtwMenu(){F2i();Rja();gw();const command=createBtwCommand('parent','local',{locale:'ko'},{assets:{16:goe,20:IDe}},null,window.fixtureOpenMenuPanel,error=>fixtureErrors.push(error),{});return m6.jsx('div',{'data-btw-slash-menu':true,className:'border-b border-default p-4',children:m6.jsx(mw,{color:'secondary',size:'default',onClick:command.onSelect,children:m6.jsx(j2i,{item:command,query:''})})})}
+export{FixtureBtwMenu};`;
 const adapterSource=`
 import {nLt as fixtureReact,$At as fixtureJsx} from './app-initial-97d3534ad35f.js';
+import {FixtureBtwMenu} from './${composerName}';
 ${createBtwController.toString()}
 const fixtureCallbacks=new Set();
 window.fixtureState={running:false,messages:[{role:'assistant',text:'The retry policy keeps the task running. Only confirmed failures trigger recovery.'}],fail:false};
 window.fixtureEvents=[];
-window.fixtureManager={getConversation:id=>({threadRuntimeStatus:{type:fixtureState.running?'running':'idle'}}),readRecentThreadMessages:()=>fixtureState.messages,addConversationCallback:(_id,fn)=>{fixtureCallbacks.add(fn);return()=>fixtureCallbacks.delete(fn)},sendFollowUpMessage:async(id,{prompt})=>{fixtureEvents.push({id,prompt});if(fixtureState.fail)throw Error('Synthetic delivery failure')},copyEphemeralConversationHistory(){},sendRequest(){}};
+window.fixtureMenuEvents=[];
+window.fixtureManager={getConversation:async id=>({threadRuntimeStatus:{type:fixtureState.running?'running':'idle'}}),readRecentThreadMessages:async()=>fixtureState.messages,sendFollowUpMessage:async(id,{prompt})=>{fixtureEvents.push({id,prompt});if(fixtureState.fail)throw Error('Synthetic delivery failure')},copyEphemeralConversationHistory(){},sendRequest(){}};
 window.fixtureController=createBtwController();
+window.fixtureOpenMenuPanel=async()=>{const controller=createBtwController();await controller.submit({conversationId:'parent',hostId:'local',manager:fixtureManager,text:'/btw',openPanel:async options=>{fixtureMenuEvents.push({hostId:options.hostId,question:options.question});await options.prepare('menu-side');return 'menu-side'}})};
 await fixtureController.submit({conversationId:'parent',hostId:'local',manager:fixtureManager,text:'/btw',openPanel:async o=>{await o.prepare('side');return 'side'}});
 let jsx,React;
 function FixtureChat(){return jsx.jsxs('article',{className:'flex flex-col gap-4 p-4 text-default',children:[jsx.jsx('p',{className:'text-sm text-secondary',children:'Synthetic native chat state'}),jsx.jsx('p',{id:'answer',children:fixtureState.messages[0]?.text??'No answer yet'}),jsx.jsx('p',{className:'text-sm text-secondary',children:'Main task continues independently.'})]})}
 let FixturePanel;
-function Fixture(){jsx??=fixtureJsx();React??=fixtureReact();__azraelInitBtwButton();FixturePanel??=createBtwPanel(React,jsx,__azraelBtwButton,FixtureChat,fixtureController);const[,update]=React.useState(0);window.fixtureRerender=()=>{update(n=>n+1);for(const fn of fixtureCallbacks)fn()};return jsx.jsx(FixturePanel,{conversationId:'side'})}
+function Fixture(){jsx??=fixtureJsx();React??=fixtureReact();__azraelInitBtwButton();FixturePanel??=createBtwPanel(React,jsx,__azraelBtwButton,FixtureChat,fixtureController,(_entry,refresh)=>{fixtureCallbacks.add(refresh);return()=>fixtureCallbacks.delete(refresh)});const[,update]=React.useState(0);window.fixtureRerender=()=>{update(n=>n+1);for(const fn of fixtureCallbacks)fn()};return jsx.jsxs('div',{className:'flex h-full min-h-0 flex-col',children:[jsx.jsx(FixtureBtwMenu,{}),jsx.jsx(FixturePanel,{conversationId:'side'})]})}
 export{Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;html,body,#root{height:100%;margin:0}</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><div id="root"></div><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import{$At as KEt,XAt as UEt}from'/assets/app-initial-97d3534ad35f.js';import{Fixture}from'/assets/${mainName}';window.reactRoot=UEt().createRoot(document.getElementById('root'));reactRoot.render(KEt().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
- if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
+ if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;if(pathname===join(assets,composerName))source=composer+menuAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
  res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Production /btw panel wrapper, native button, React and CSS in light/dark; synthetic chat/host state. No build, installed app or model requests.',checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Production /btw command configuration and panel wrapper, native slash row/button, React and CSS in light/dark; synthetic chat/host state. Full slash popup, installed app and model requests remain separate.',checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -58,7 +65,14 @@ try{
  const click=()=>evaluate("document.querySelector('[data-azrael-btw-panel] button').click()");
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.running=false;fixtureState.fail=false;getSelection().removeAllRanges();fixtureRerender()`);
+  await wait("!document.querySelector('[data-azrael-btw-panel] button').disabled");
   const state=await checkButton();check(theme+' native styled control',state.width>100&&state.height>=24&&!state.disabled);summary[theme]=state;
+  const menuBefore=await evaluate('fixtureMenuEvents.length'),messagesBefore=await evaluate('fixtureEvents.length');
+  await evaluate("document.querySelector('[data-btw-slash-menu] button').click()");await wait(`fixtureMenuEvents.length===${menuBefore+1}`);
+  check(theme+' slash entry opens empty side panel without a chat message',await evaluate(`fixtureMenuEvents.at(-1).question===''&&fixtureMenuEvents.at(-1).hostId==='local'&&fixtureEvents.length===${messagesBefore}`));
+  await evaluate("document.querySelector('[data-btw-slash-menu] button').focus()");
+  await send('Input.dispatchKeyEvent',{type:'rawKeyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'char',text:'\r',unmodifiedText:'\r',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});await wait(`fixtureMenuEvents.length===${menuBefore+2}`);
+  check(theme+' keyboard slash entry remains an action',await evaluate(`fixtureEvents.length===${messagesBefore}`));
   const before=await evaluate('fixtureEvents.length');await click();await wait("document.querySelector('[role=status]')?.innerText.includes('전달했습니다')");
   check(theme+' explicit answer transfer',await evaluate(`fixtureEvents.length===${before+1}&&fixtureEvents.at(-1).id==='parent'&&fixtureEvents.at(-1).prompt===fixtureState.messages[0].text`));
   await evaluate("(()=>{const e=document.getElementById('answer'),r=document.createRange();r.setStart(e.firstChild,0);r.setEnd(e.firstChild,16);getSelection().removeAllRanges();getSelection().addRange(r);document.dispatchEvent(new Event('selectionchange'))})()");
