@@ -19,6 +19,7 @@ const { injectImageFileOpen } = require("./inject-image-file-open.cjs");
 const { injectMissingImage, ASSETS: MISSING_IMAGE_ASSETS } = require("./inject-missing-image.cjs");
 const { DROP_ASSET, COMPOSER_ASSET, injectLocalFileDrop } = require("./inject-local-file-drop.cjs");
 const { COMPOSER_DRAFT_ASSET, injectComposerDraft } = require("./inject-composer-draft.cjs");
+const { injectProjectDrafts } = require("./inject-project-drafts.cjs");
 const { injectUiInputDiagnostics } = require("./inject-ui-input-diagnostics.cjs");
 const { UI_CLEANUP_ASSETS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
 const { AUTO_REVIEW_ASSETS, injectAutoReview } = require("./inject-auto-review.cjs");
@@ -342,7 +343,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const filtered = isHostBundle ? injectWorkspaceThreadListBridgeFilter(studentDesign.text, filename, ts) :
     isRecentThreadListAsset ? markRecentThreadListRequest(studentDesign.text, filename, ts) :
       { text: studentDesign.text, count: 0 };
-  const fetchResponse = isHostBundle ? injectFetchResponse(filtered.text) : { text: filtered.text, count: 0 };
+  const projectDrafts = isHostBundle ? injectProjectDrafts(filtered.text) : { text: filtered.text, count: 0 };
+  const fetchResponse = isHostBundle ? injectFetchResponse(projectDrafts.text) : { text: projectDrafts.text, count: 0 };
   const recovered = isHostBundle ? injectRecovery(fetchResponse.text, filename, ts) : { text: fetchResponse.text, count: 0 };
   const deferred = isHostBundle ? injectDeferredHostNotification(recovered.text) : relativePath === DEFERRED_NOTIFICATION_ASSET ? injectDeferredRendererNotification(recovered.text) : relativePath === DEFERRED_REDUCER_ASSET ? injectDeferredTurn(recovered.text) :
     relativePath === DEFERRED_PRESENTATION_ASSET ? injectDeferredPresentation(recovered.text) :
@@ -396,7 +398,7 @@ function transformAsset(source, relativePath, filename, ts) {
   if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || paginatedHistory.count || recentChatFilter.count || sessionFlags.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: sessionLinks.text, asset: {
       path: relativePath,
-      edits: namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + sessionFlags.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + paginatedHistory.count + recentChatFilter.count + sessionFlags.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -404,6 +406,7 @@ function transformAsset(source, relativePath, filename, ts) {
       workspaceThreadListEdits: filtered.count,
       recoveryEdits: recovered.count,
       fetchResponseEdits: fetchResponse.count,
+      projectDraftEdits: projectDrafts.count,
       deferredTurnEdits: deferred.count,
       workSegmentFoldingEdits: workSegmentFolding.count,
       taskWorkTimeEdits: taskWorkTime.count,
@@ -452,7 +455,7 @@ function transformAsset(source, relativePath, filename, ts) {
 function getTransformRules() {
   const transformSources = [
     "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-task-work-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "optional-diagnostics.cjs",
@@ -495,6 +498,7 @@ const ASSET_RULE_PATHS = {
   "inject-file-open-menu.cjs": [FILE_OPEN_MENU_ASSET],
   "inject-local-file-drop.cjs": [DROP_ASSET, COMPOSER_ASSET],
   "inject-composer-draft.cjs": [COMPOSER_DRAFT_ASSET],
+  "inject-project-drafts.cjs": ["out/extension.js"],
   "inject-ui-cleanup.cjs": UI_CLEANUP_ASSETS,
   "inject-auto-review.cjs": AUTO_REVIEW_ASSETS,
   "inject-pets-cleanup.cjs": PETS_CLEANUP_ASSETS,
@@ -715,6 +719,9 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }
   if (report.assets.reduce((total, asset) => total + (asset.fetchResponseEdits ?? 0), 0) !== 1) {
     throw new Error("Fetch-response transformation was incomplete.");
+  }
+  if (report.assets.reduce((total, asset) => total + (asset.projectDraftEdits ?? 0), 0) !== 1) {
+    throw new Error("Project draft transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.queuedCompactionEdits, 0) !== 3) {
     throw new Error("Queued-compaction transformation was incomplete.");

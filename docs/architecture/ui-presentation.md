@@ -20,6 +20,14 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## New-chat drafts
+
+Status: `current` in source — pinned host persistence checks on Windows; packaging and installed-window acceptance pending.
+
+Unsent new-chat drafts on the home screen and in new-chat panels are saved separately by the host's workspace project ID. Reopening the same project restores its draft; another project has its own draft. Windows without a project use a separate projectless scope. Existing conversation drafts retain their native conversation identity. This is shared host behavior for Windows, Linux and macOS; native Linux/macOS acceptance is unverified.
+
+The native composer and persisted-record merge remain in use. Initial synchronization and later broadcasts expose only the current project's new-chat entries. Old global new-chat drafts remain stored but are not restored because their project ownership is unknown. Legacy conversation drafts still migrate through the native store. No input is submitted by saving or restoring a draft.
+
 ## Session flags
 
 Status: `current` in source — native row rendering and interactions verified in light and dark themes; build and installation pending.

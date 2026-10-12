@@ -41,6 +41,8 @@ test("display branding preserves backend HTTP header names and accepted app bran
 
 test("namespace transforms preserve URLs, filter workspace history and reject unsupported anchors", () => {
   const originalBundle = fs.readFileSync(path.join(originalRoot, "out/extension.js"), "utf8");
+  assert.equal(transformer.getTransformRules()["inject-project-drafts.cjs"],
+    crypto.createHash("sha256").update(fs.readFileSync(path.join(__dirname, "inject-project-drafts.cjs"))).digest("hex"));
   const originalRecentThreadBundle = fs.readFileSync(path.join(originalRoot,
     "webview/assets/app-initial-97d3534ad35f.js"), "utf8");
   assert.equal(transformer.getTransformRules()["inject-composer-draft.cjs"],

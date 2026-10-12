@@ -108,6 +108,19 @@
       ]
     },
     {
+      "id": "ui.project-drafts",
+      "area": "ui",
+      "owners": ["scripts/inject-project-drafts.cjs"],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [{
+        "id": "ui.project-drafts.behavior",
+        "executable": "node",
+        "args": ["--test", "scripts/test-project-drafts.cjs"],
+        "level": "source"
+      }],
+      "reportFields": ["projectDraftEdits"]
+    },
+    {
       "id": "ui.fetch-response",
       "area": "ui",
       "owners": [
