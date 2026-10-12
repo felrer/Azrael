@@ -32,9 +32,9 @@ function backupId(value) {
   return value;
 }
 export class BoardStorage {
-  constructor({ root, definition, definitionSource, rules }) {
+  constructor({ root, definition, definitionSource, rules, codec = { createDocument, validateDocument, createHandoff } }) {
     if (!isAbsolute(root)) throw new BoardError('저장 위치는 절대 경로로 입력하세요.');
-    this.root = resolve(root); this.definition = definition; this.definitionSource = definitionSource; this.rules = rules;
+    this.root = resolve(root); this.definition = definition; this.definitionSource = definitionSource; this.rules = rules; this.codec = codec;
     this.path = join(this.root, 'document.json'); this.backupDirectory = join(this.root, 'backups'); this.exportDirectory = join(this.root, 'handoffs');
   }
   async init() {
@@ -45,11 +45,11 @@ export class BoardStorage {
     await this.read(); return this;
   }
   async read() {
-    if (!await regular(this.path)) return { document: createDocument(this.definition), source: null };
+    if (!await regular(this.path)) return { document: this.codec.createDocument(this.definition), source: null };
     const source = await readFile(this.path, 'utf8');
     let data;
     try { data = JSON.parse(source); } catch { throw new BoardError('저장 파일을 읽을 수 없습니다. 원본은 보존되어 있습니다.', 'CORRUPT_DOCUMENT', 422); }
-    return { document: validateDocument(data, this.definition), source };
+    return { document: this.codec.validateDocument(data, this.definition), source };
   }
   async locked(action) {
     const lockPath = join(this.root, '.write.lock');
@@ -98,7 +98,7 @@ export class BoardStorage {
       backups: await this.backups(), handoffs: await this.handoffs() };
   }
   async save(data, expectedRevision) {
-    const validated = validateDocument(data, this.definition);
+    const validated = this.codec.validateDocument(data, this.definition);
     await this.locked(async () => {
       const { document: current, source } = await this.read(); revision(current, expectedRevision);
       await this.backups(); await this.handoffs();
@@ -127,7 +127,7 @@ export class BoardStorage {
       let record;
       try { record = JSON.parse(await readFile(path, 'utf8')); } catch { throw new BoardError('백업을 읽을 수 없습니다.', 'CORRUPT_BACKUP', 422); }
       if (record.id !== key || record.sha256 !== digest(json(record.document))) throw new BoardError('백업 내용이 기록과 다릅니다.', 'CORRUPT_BACKUP', 422);
-      const restored = validateDocument(record.document, this.definition);
+      const restored = this.codec.validateDocument(record.document, this.definition);
       await this.backups(); await this.handoffs();
       const { document: current, source } = await this.read(); revision(current, expectedRevision);
       if (source !== null) await this.makeBackup(current, source);
@@ -136,14 +136,14 @@ export class BoardStorage {
     });
     return this.state();
   }
-  async export(expectedRevision, itemIds) {
+  async export(expectedRevision, itemIds, options = {}) {
     let handoff, preview;
     await this.locked(async () => {
       const { document, source } = await this.read(); revision(document, expectedRevision);
       await this.backups(); await this.handoffs();
       if (source === null) throw new BoardError('먼저 보드를 저장하세요.', 'NOT_SAVED', 409);
       const id = randomUUID(), createdAt = new Date().toISOString();
-      const result = createHandoff({ document, definition: this.definition, definitionSource: this.definitionSource, rules: this.rules, documentSource: source, itemIds, id, createdAt });
+      const result = this.codec.createHandoff({ document, definition: this.definition, definitionSource: this.definitionSource, rules: this.rules, documentSource: source, itemIds, id, createdAt, options });
       // A directory is visible in history only after all immutable snapshot files exist.
       const stage = join(this.exportDirectory, '.pending-' + id), target = join(this.exportDirectory, id);
       await directory(stage);
@@ -151,6 +151,10 @@ export class BoardStorage {
       await writeFile(join(stage, 'result.md'), result.preview, { flag: 'wx', mode: 0o600 });
       await writeFile(join(stage, 'board.json'), this.definitionSource, { flag: 'wx', mode: 0o600 });
       await writeFile(join(stage, 'rules.md'), this.rules, { flag: 'wx', mode: 0o600 });
+      for (const file of result.files || []) {
+        if (!/^[a-z0-9][a-z0-9._-]+$/.test(file.name) || ['result.json', 'result.md', 'board.json', 'rules.md', 'receipt.json'].includes(file.name)) throw new BoardError('결과 파일 이름을 확인하세요.');
+        await writeFile(join(stage, file.name), file.content, { flag: 'wx', mode: 0o600 });
+      }
       await writeFile(join(stage, 'receipt.json'), json({ id, revision: document.revision, createdAt }), { flag: 'wx', mode: 0o600 });
       await rename(stage, target);
       handoff = { id, revision: document.revision, createdAt, jsonPath: join(target, 'result.json'), markdownPath: join(target, 'result.md') };

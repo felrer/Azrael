@@ -1,0 +1,15 @@
+{
+  "schemaVersion": 1,
+  "id": "sketch",
+  "editor": "excalidraw",
+  "title": "스케치 보드",
+  "description": "그림과 화면 캡처에 요구사항을 표시하고 전달합니다.",
+  "rules": "rules.md",
+  "fields": [],
+  "initialCategories": [
+    { "id": "requirement", "name": "요구사항", "color": "#2563eb" },
+    { "id": "question", "name": "질문", "color": "#d97706" },
+    { "id": "reference", "name": "참고", "color": "#6b7280" }
+  ],
+  "map": { "unit": "px", "origin": "top-left", "width": 1600, "height": 1000 }
+}

@@ -15,9 +15,10 @@ export async function openBrowser(profile, executable = process.env.BOARD_CHROME
   });
   const socket = new WebSocket(endpoint);
   await new Promise((done, reject) => { socket.addEventListener('open', done, { once: true }); socket.addEventListener('error', reject, { once: true }); });
-  const pending = new Map(), errors = [], dialogs = []; let sequence = 0, session, dialogDecision = true;
+  const pending = new Map(), errors = [], dialogs = [], listeners = new Set(); let sequence = 0, session, dialogDecision = true;
   socket.addEventListener('message', event => {
     const message = JSON.parse(event.data);
+    for (const listener of listeners) listener(message);
     if (message.method === 'Runtime.exceptionThrown') errors.push(message.params.exceptionDetails);
     if (message.method === 'Runtime.consoleAPICalled' && message.params.type === 'error') errors.push(message.params.args);
     if (message.method === 'Page.javascriptDialogOpening') { dialogs.push(message.params); void send('Page.handleJavaScriptDialog', { accept: dialogDecision }, message.sessionId).catch(error => errors.push(String(error))); }
@@ -32,10 +33,10 @@ export async function openBrowser(profile, executable = process.env.BOARD_CHROME
   await send('Page.enable'); await send('Runtime.enable');
   const evaluate = async expression => { const response = await send('Runtime.evaluate', { expression, returnByValue: true, awaitPromise: true }); if (response.exceptionDetails) throw Error(JSON.stringify(response.exceptionDetails)); return response.result.value; };
   const wait = async expression => {
-    for (let n = 0; n < 150; n++) { if (await evaluate(expression)) return; await new Promise(done => setTimeout(done, 40)); }
+    for (let n = 0; n < 150; n++) { if (await evaluate(`Boolean(${expression})`)) return; await new Promise(done => setTimeout(done, 40)); }
     throw Error('Browser wait failed: ' + expression + '\n' + (await evaluate('document.body.innerText')).slice(0,1800));
   };
-  return { child, profile, send, evaluate, wait, errors, dialogs, setDialogDecision(value) { dialogDecision = value; },
+  return { child, profile, send, evaluate, wait, errors, dialogs, onEvent(listener) { listeners.add(listener); return () => listeners.delete(listener); }, setDialogDecision(value) { dialogDecision = value; },
     async screenshot(path) { const capture = await send('Page.captureScreenshot', { format: 'png' }); await writeFile(path, Buffer.from(capture.data, 'base64')); },
     async close() {
       if (child.exitCode === null) await send('Browser.close', {}, null).catch(() => {});

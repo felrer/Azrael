@@ -1,0 +1,14 @@
+{
+  "fontFamily": "Nunito",
+  "sourcePackage": "@excalidraw/excalidraw@0.18.1",
+  "sourceFile": "Nunito/Nunito-Regular-XRXI3I6Li01BKofiOc5wtlZ2di8HDIkhdTA3j6zbXWjgevT5.woff2",
+  "sha256": "e512f2d7c9fe062b1acf8f6ea64d4bfd89a77d26728150977627e445c7b6e937",
+  "nameTable": {
+    "0": [
+      "Copyright 2014 The Nunito Project Authors (https://github.com/googlefonts/nunito)"
+    ],
+    "14": [
+      "https://scripts.sil.org/OFL"
+    ]
+  }
+}
