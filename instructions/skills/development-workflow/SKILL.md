@@ -9,19 +9,9 @@ Own the goal, scope, success criteria, unresolved decisions, work sequence, and 
 
 Use `design-collaboration` for unresolved design choices, `design-documentation` to maintain the agreed design, and `implementation` for execution preparation, code changes, verification, and cleanup. These are responsibilities used when needed, not mandatory sequential stages. A design-only request can start with `design-collaboration`; a small change with clear scope and authority can use `implementation` directly. Do not create a work plan merely to route either request through this skill.
 
-## Decide Whether A Work Plan Is Needed
-
-When the user requests work, first inspect the relevant owning design (such as `architecture`), its document state, and the affected implementation enough to compare the requested result with the existing contract. Use this comparison, unresolved user decisions and execution dependencies to choose between a written plan and direct implementation; code size alone does not determine the route.
-
-- Use one written work plan when applicable design must change, user review is needed, or connected phases need a shared record of scope, decisions and acceptance.
-- Use `implementation` directly for a small, clearly scoped, authorized change that follows the applicable design and has no consequential unresolved user decision. Keep its concise evidence in the conversation or existing work record.
-- A design-only request may remain in its existing design discussion and owning document. Do not require a separate implementation plan just to discuss design.
-
-An implementation that differs from the owning architecture's specified behavior, structure or contracts requires user review before the affected implementation. Present the current design, proposed difference, reason, recommendation, alternatives and impact in the same plan. Do not dismiss the difference as an internal choice or silently declare the design obsolete. A detail the design does not specify is not itself a deviation; resolve consequential choices by the ordinary decision criteria below. Reuse explicit prior approval for the difference instead of requesting it again. If the user declines a plan file, retain the same review content in the conversation; this does not waive review.
-
 ## Work Plan Document
 
-For work that needs a written plan, manage shared understanding, requirements, proposed design changes, implementation and verification results in a single `nn-plan.md`. Do not require a separate requirements, understanding or pre-plan document before this plan.
+When user confirmation is required, manage the task's requirements through its implementation and verification results in a single work plan document. Name the work plan document `nn-plan.md`.
 
 Write work plan documents in Korean. Keep code identifiers, file paths, and commands in their original form where needed.
 
@@ -29,7 +19,7 @@ Incorporate feedback and investigation findings about the same task into the cur
 
 Begin the document with a one-line status stating the current stage and what the user is expected to do next, such as awaiting requirement confirmation, awaiting plan approval, implementing, or completed with its verified scope. Update the status whenever the stage changes.
 
-Include the problem and intended result, requirements and scope, applicable current design and proposed differences, unresolved decisions with recommendations and impact, the main implementation approach and dependencies, and success criteria with verification methods. These contents establish shared understanding as well as executable scope; scale detail to the task. Link to enduring design owners rather than copying their full contents. Place questions that require the user's answer near the beginning of the document and word them so the user can answer them directly. The agent checks facts that can be established by examining code or other sources instead of asking the user. Integrate matters settled by the user's answer into the relevant requirements or plan, and remove the resolved questions.
+The core items of a work plan document are user requirements, questions or decisions needed, and each success criterion with its verification method. Place questions that require the user's answer near the beginning of the document and word them so the user can answer them directly. The agent checks facts that can be established by examining code or other sources instead of asking the user. Integrate matters settled by the user's answer into the relevant requirements or plan, and remove the resolved questions.
 
 A decision is any choice that affects user-visible behavior, scope, compatibility, limits, resources, or authority. Carry forward choices the user has already made and resolve explicitly delegated choices within their stated bounds. Present remaining choices with the recommended option and its trade-off, even when the agent has a clear recommendation. Do not settle them by describing them as part of the implementation approach, and do not treat silence or lack of background knowledge as delegation.
 
@@ -49,13 +39,11 @@ Distinguish requested targets, implementation ownership, regression impact and a
 
 Inspect the actual code's call paths, owners, data and state contracts, and relevant tests to determine how the requirements could be implemented in the current structure. Review existing code, platform features, installed dependencies, and reusable libraries to determine what to change and what to reuse. When inspection cannot resolve a material uncertainty, use a narrowly scoped experiment and distinguish experimental findings from behavior verified in the product. Record established facts, unverified assumptions, and blocking conditions separately in the same plan document.
 
-Before asking for plan review, investigate the affected design/implementation boundaries far enough to identify decisions reasonably discoverable at this stage, including architecture deviations and execution authority. Present related choices together in a reviewable plan instead of approving an incomplete approach and deferring known decisions to execution. An uncertainty that can redirect investigation may still need an earlier answer; continue independent investigation while awaiting it. Label remaining uncertainty rather than promising that execution cannot reveal new information.
-
 If the requirements cannot be met as stated, or only at a cost the user may not accept, present the feasible options and their trade-offs as a decision instead of choosing a compromise.
 
 Use `design-collaboration` for unresolved product or system design choices within this work. Pass the existing goal, constraints, settled choices, delegated authority, relevant evidence, and remaining questions. Reuse the same plan and design owners without restarting requirements gathering or adding an approval stage. Investigation and design discussion may alternate as each exposes the next necessary question.
 
-Keep proposed changes and the understanding needed to review them in the same plan. As topics are settled, use `design-documentation` to update the enduring owning sections within the authorized documentation scope. This records agreed design without adding another understanding document or approval stage. Recommendations and dependent drafts remain proposals until settled. Check consistency between the agreed design and plan before treating the implementation approach as ready.
+As meaningful topics are settled, use `design-documentation` to update their owning sections within the authorized documentation scope, even while other design topics remain open. Keep unresolved questions in the existing plan and detailed design in its owner; link them rather than copying either. Recommendations and dependent drafts remain proposals until settled. Complete the agreed design scope and check cross-document consistency before treating the implementation approach as ready.
 
 ## 3. Confirm The Work Plan
 
@@ -75,6 +63,6 @@ When the work changes product behavior, structure, or contracts, ensure the owni
 
 Use `implementation` with the current plan, owning design documents, authorized scope, success criteria, and sufficient investigation evidence. It owns implementation, verification, cleanup, and execution evidence. This skill retains responsibility for the overall goal and final acceptance; using another skill does not hand off the user to a separate task or require a subagent.
 
-If execution reveals a departure, stop the affected implementation, update the same plan with the new evidence and changed decision, and obtain review for an unapproved architecture deviation or other choice outside the existing agreement. Continue independent authorized work. Do not restart the whole plan or repeat settled approvals; use the design skills within the same work when the changed contract needs discussion or documentation. Do not repeat completed investigation or verification unless changed inputs, insufficient coverage, conflicting evidence, or integration risk warrants it.
+If execution reveals a departure, update the same plan and resolve only choices or authority outside the existing agreement. Continue independent authorized work, and use the design skills when a revised contract needs discussion or documentation. Do not repeat completed investigation or verification unless changed inputs, insufficient coverage, conflicting evidence, or integration risk warrants it.
 
 Compare the execution results with every success criterion and the approved scope. Keep required cleanup, documentation consistency, and remaining uncertainty visible in the same plan. Report completion only when the agreed goal is met and required work is finished; a successful implementation check alone does not establish whole-task completion. Record the final state and evidence links without copying detailed logs.

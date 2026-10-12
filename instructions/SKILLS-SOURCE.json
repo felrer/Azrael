@@ -7,11 +7,11 @@
       "path": "skills/development-workflow/references/task-artifacts.md",
       "source": "development-workflow/references/task-artifacts.md",
       "original": {
-        "size": 3859,
-        "sha256": "57c895764df90f6fd601f5efb16bb671ddaefc1b31a0ebdf1bcbbeb3ebde3f6d"
+        "size": 3647,
+        "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4"
       },
-      "size": 3859,
-      "sha256": "57c895764df90f6fd601f5efb16bb671ddaefc1b31a0ebdf1bcbbeb3ebde3f6d",
+      "size": 3647,
+      "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4",
       "adaptations": []
     },
     {
@@ -51,44 +51,46 @@
       "path": "skills/development-workflow/SKILL.md",
       "source": "development-workflow/SKILL.md",
       "original": {
-        "size": 14445,
-        "sha256": "7c7fcf1ce3c41d128c08598a08d912241934c929c9ca39035869b7fcba68fb66"
+        "size": 11604,
+        "sha256": "30c676705fbf2dfa5885cac5d529dad1719c08e5b238cf10d979f44575e0e226"
       },
-      "size": 14445,
-      "sha256": "7c7fcf1ce3c41d128c08598a08d912241934c929c9ca39035869b7fcba68fb66",
+      "size": 11604,
+      "sha256": "30c676705fbf2dfa5885cac5d529dad1719c08e5b238cf10d979f44575e0e226",
       "adaptations": []
     },
     {
       "path": "skills/design-collaboration/SKILL.md",
       "source": "design-collaboration/SKILL.md",
       "original": {
-        "size": 13835,
-        "sha256": "75aded5cfbea4f4ef1bbe4ca65b4a97a8177869355708c1b2164c2fa6b18734c"
+        "size": 12919,
+        "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c"
       },
-      "size": 13835,
-      "sha256": "75aded5cfbea4f4ef1bbe4ca65b4a97a8177869355708c1b2164c2fa6b18734c",
+      "size": 12919,
+      "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c",
       "adaptations": []
     },
     {
       "path": "skills/design-documentation/SKILL.md",
       "source": "design-documentation/SKILL.md",
       "original": {
-        "size": 6818,
-        "sha256": "d8432500c009876b836159a90c49e4e96a3ee0130153ee90aa5c6ac478a0ab47"
+        "size": 6609,
+        "sha256": "1317c2ece87ed4c862933e3d826163565330b2a49e9ebb920002491ed5603a68"
       },
-      "size": 6818,
-      "sha256": "d8432500c009876b836159a90c49e4e96a3ee0130153ee90aa5c6ac478a0ab47",
-      "adaptations": []
+      "size": 6581,
+      "sha256": "ff89dbf478d89a418a04b4062cd54cc49b375f5eaa2886f236c450ab5e88174a",
+      "adaptations": [
+        "Normalize CRLF line endings to LF for repository text validation."
+      ]
     },
     {
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 14689,
-        "sha256": "b30fbc0b67f5ebb766f4932d1fcff0d64b1f7d8eec6c229554d2bb2cc31fd021"
+        "size": 14241,
+        "sha256": "cebe55a56a69dc5d74cf067df735d12e14232241d7669771344b508c2b19347f"
       },
-      "size": 14689,
-      "sha256": "b30fbc0b67f5ebb766f4932d1fcff0d64b1f7d8eec6c229554d2bb2cc31fd021",
+      "size": 14241,
+      "sha256": "cebe55a56a69dc5d74cf067df735d12e14232241d7669771344b508c2b19347f",
       "adaptations": []
     },
     {
