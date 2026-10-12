@@ -1,6 +1,6 @@
 # Architecture
 
-Each document labels its own state (see [document states](../README.md#document-state-and-ownership)).
+Each document labels its own state (see [document states](../README.md#document-state-and-ownership)). The groups below are navigation summaries; preservation scope is determined from the owning sections and their actual implementation and verification scope.
 
 ## Current implementation
 
@@ -9,6 +9,7 @@ Each document labels its own state (see [document states](../README.md#document-
 - [azrael-ex host and storage](azrael-ex.md): single-extension host, pinned UI and engine provenance, installation, native storage, Codex and shared environment snapshots, recent-chat list, chat content handling.
 - [Accounts and usage](accounts.md): unified account/usage page, OpenAI profiles and multi-window leases, switching, provider accounts, quota semantics.
 - [Project usage value](project-usage.md): daily API-equivalent project totals, contribution calendar and monthly comparisons in Settings Usage.
+- [Provider brand assets](provider-brand-assets.md): original provider assets, theme variants and refresh constraints.
 - [Devin and mixed-provider agents](devin.md): catalog and model selection, native inference with Codex tools and sessions, permissions, storage/resume, legacy ACP threads, collaboration tool contract.
 - [Managed providers and provider switching](managed-providers.md): managed inference, provider-grouped picker, reasoning controls, turn bindings, history projection and handoff.
 - [Root resume scheduling](root-resume.md): deferring the root while subagents run, durable reservations and deferred-turn timing.
@@ -18,6 +19,8 @@ Each document labels its own state (see [document states](../README.md#document-
 - [Provider context policy](context-policy.md): provider-specific 95% compaction defaults, context capacity, pricing tiers and settings/gauge contracts.
 
 ## Partial implementation
+
+- [Upstream feature preservation](upstream-preservation.md): architecture-owned behavior, executable feature checks and candidate-specific acceptance receipts.
 
 - [상세 진단 로그 제어](diagnostic-logging.md): 기본 활성 상태를 유지하는 전체·분야별 계측 제어와 필수 실행 기록 보존.
 
@@ -53,3 +56,15 @@ Each document labels its own state (see [document states](../README.md#document-
 ## Ownership
 
 Keep system boundaries, behavior, data contracts, constraints, quality attributes and design decisions here. Organize by independently changing features, and give each durable contract one owner that other documents link to. Implementation order and task progress belong in [work artifacts](../README.md#work-artifacts), code locations in [maps](../maps/README.md), and supported procedures and verification scope in [operations](../ops/README.md). Do not create detailed designs or empty component directories solely to fill this structure.
+
+## Feature maintenance
+
+Architecture is the authoritative source for agreed product behavior. Update the existing owning section when a feature changes; keep the current contract in place and use Git and work records for change history. A new independent feature gets a document only when its ownership and maintenance justify one, and its document is linked from this index.
+
+A feature section describes the behavior and relevant failure/recovery conditions, data and permission boundaries, applicable environments and exclusions. Label its state at document or section level; separate implemented behavior from target/draft behavior when they share a document. State the verified scope separately from package, installed-host, live-service and other-platform acceptance. A navigation group or a `current` source section does not establish complete release acceptance.
+
+Use stable headings so implementation and verification references can identify the owning section. Link shared policy to its existing owner; cross-layer features keep one behavior contract with links to the UI, host and engine boundaries. UI presentation owns appearance and interaction; provider/request or storage semantics remain with their behavior owners.
+
+The [feature inventory](../../scripts/azrael-feature-contracts.json) connects preservation feature IDs to contract documents, implementation owners and executable checks. Identify the corresponding feature IDs or link the inventory from the owning section so the mapping can be reviewed in both directions. Keep registry `contract` values as repository file paths supported by the current runner; section links belong in documentation. Executable checks and detailed code locations remain with their existing owners, and repeated commands and execution evidence remain in operations and work records.
+
+Feature maintenance and upstream acceptance follow [the Work playbook](../playbooks/work.md#기능-변경과-업데이트-보존) and [upstream preservation](upstream-preservation.md). Missing coverage remains explicit until registered and verified; documenting a feature does not register or test it automatically.

@@ -6,9 +6,15 @@ Azrael accepts a Codex UI or engine candidate only after its registered behavior
 
 ## Ownership and inventory
 
-A versioned feature inventory owns stable feature IDs, UI/engine scope, implementation owners, contract references and mandatory executable checks. Every UI injector in the namespace transformation rules must have an inventory entry. Engine coverage is explicitly registered through existing deterministic native fixtures; it is not inferred from root Git changes. Adding or retiring a customization updates its inventory and behavior check together.
+Architecture sections own agreed behavior under [feature maintenance](README.md#feature-maintenance). The versioned inventory at `scripts/azrael-feature-contracts.json` connects stable feature IDs, UI/engine scope, implementation owners, contract references and mandatory executable checks. Every UI injector in the namespace transformation rules must have an inventory entry. Engine coverage is explicitly registered through existing deterministic native fixtures; it is not inferred from root Git changes. Adding, changing or retiring a customization updates its owning design, inventory and behavior check together.
 
 Official UI assets remain pristine inputs. Version-specific adapters apply Azrael-owned policy at preparation boundaries and reject unknown or duplicate anchors. Engine integration uses the selected source root and existing provenance verification; importing an inventory is not behavioral acceptance.
+
+## Upgrade scope review
+
+An upgrade reviews the existing behavior contracts and inventory against the selected baseline release and candidate. Implemented sections and explicitly retained requirements define preservation scope, including implemented parts of `partial` or `target` documents. Unimplemented targets and draft proposals remain separate implementation requirements. Any removal, reduced check scope or applicability exclusion needs its corresponding design decision and existing task authorization; a missing registration or failing check is an acceptance gap.
+
+This review is a maintenance requirement. The current runner validates registered features and their declared references/checks; it does not discover every behavior from architecture prose or automatically compare the feature inventory with a prior release. Record these coverage and baseline comparisons in the existing work record until executable enforcement is implemented. Source provenance, matching document bytes and passing registered checks do not establish completeness of the behavior inventory.
 
 ## Candidate acceptance and receipts
 

@@ -10,6 +10,7 @@
 - Distinguish proposed design from verified implementation using [document-state guidance](docs/README.md#document-state-and-ownership).
 - Design Azrael UI in the OpenAI style. Before UI changes, apply [UI presentation](docs/architecture/ui-presentation.md).
 - For document changes, follow [document state and ownership](docs/README.md#document-state-and-ownership) and update current content in place.
+- When adding, changing or retiring Azrael behavior, update its owning architecture section and connect the preservation scope to implementation owners and mandatory checks through the existing feature inventory. Follow [feature maintenance](docs/architecture/README.md#feature-maintenance) and [upgrade preservation](docs/playbooks/work.md#기능-변경과-업데이트-보존); an upstream update must account for existing behavior before acceptance.
 
 ## Instruction Library Ownership
 
