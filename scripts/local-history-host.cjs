@@ -2,6 +2,7 @@
 const path = require("node:path");
 const { spawn } = require("node:child_process");
 const fs = require("node:fs");
+const { createHash } = require("node:crypto");
 
 // The extension host owns retries; each child is disposable and the importer is idempotent.
 async function sync(runtime, output, options = {}) {
@@ -11,6 +12,18 @@ async function sync(runtime, output, options = {}) {
   let attempt = 0;
   const maxAttempts = options.maxAttempts ?? 3;
   if (!Number.isInteger(maxAttempts) || maxAttempts < 1) throw new Error("Invalid history import retry limit.");
+  const appVersion = options.appVersion;
+  if (typeof appVersion !== "string" || !/^\d+\.\d+\.\d+(?:[-.][\w.-]+)?$/.test(appVersion)) throw new Error("Invalid history import app version.");
+  const versionDirectory = path.join(runtime.codexHome, "local-history-versions");
+  fs.mkdirSync(versionDirectory, { recursive: true });
+  const versionFile = path.join(versionDirectory, createHash("sha256").update(appVersion).digest("hex") + ".json");
+  try {
+    fs.writeFileSync(versionFile, JSON.stringify({ schema: 1, appVersion, state: "started" }), { flag: "wx", mode: 0o600 });
+  } catch (error) {
+    if (error.code === "EEXIST") return { skipped: true, reason: "version-already-attempted", appVersion };
+    throw error;
+  }
+  const recordVersion = state => fs.writeFileSync(versionFile, JSON.stringify({ schema: 1, appVersion, state }), { mode: 0o600 });
   const spawnChild = options.spawnChild ?? spawn;
   for (;;) {
     attempt++;
@@ -35,11 +48,13 @@ async function sync(runtime, output, options = {}) {
     });
     if (code === 0) {
       fs.writeFileSync(statusPath, JSON.stringify({ state: "complete", attempt, parentPid: process.pid, result: last }), { mode: 0o600 });
+      recordVersion("complete");
       return last;
     }
     const delay = Math.min((options.cooldownMs ?? 1000) * 2 ** Math.min(attempt - 1, 8), 300000);
     if (attempt >= maxAttempts) {
       fs.writeFileSync(statusPath, JSON.stringify({ state: "failed", attempt, parentPid: process.pid }), { mode: 0o600 });
+      recordVersion("failed");
       throw new Error("Local history import failed; see Azrael Local History output.");
     }
     fs.writeFileSync(statusPath, JSON.stringify({ state: "cooldown", attempt, parentPid: process.pid, retryAfterMs: delay }), { mode: 0o600 });

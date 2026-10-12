@@ -99,6 +99,52 @@ class HistoryImport(unittest.TestCase):
         with self.assertRaises(ValueError):
             module.run(self.source, self.source, self.templates)
 
+    def test_orphan_with_indexed_uuid_preserves_azrael_projection(self):
+        self.run_import()
+        with sqlite3.connect(self.target/'state_5.sqlite') as db:
+            db.execute('UPDATE threads SET updated_at_ms=99,title="Azrael continuation"')
+        with sqlite3.connect(self.target/'thread_history_1.sqlite') as db:
+            db.execute('UPDATE thread_items SET item_json="azrael-owned"')
+        orphan = self.source/'archived_sessions'/self.rollout.name
+        orphan.parent.mkdir()
+        orphan.write_bytes(self.rollout.read_bytes())
+        self.assertEqual(self.run_import().get('unindexedRollouts', 0), 0)
+        self.assertEqual(len(list(self.target.rglob(self.rollout.name))), 1)
+        with sqlite3.connect(self.target/'thread_history_1.sqlite') as db:
+            self.assertEqual(db.execute('SELECT item_json FROM thread_items').fetchone()[0], 'azrael-owned')
+
+    def test_ambiguous_orphan_uuid_is_not_copied(self):
+        identity = '33333333-3333-4333-8333-333333333333'
+        for subtree in ('sessions', 'archived_sessions'):
+            orphan = self.source/subtree/f'rollout-{identity}.jsonl'
+            orphan.parent.mkdir(exist_ok=True)
+            orphan.write_text('{"orphan":true}\n')
+        self.assertEqual(self.run_import().get('unindexedRollouts', 0), 0)
+        self.assertEqual(len(list(self.target.rglob(f'*{identity}.jsonl'))), 0)
+
+    def test_orphan_with_existing_target_uuid_is_not_copied(self):
+        identity = '33333333-3333-4333-8333-333333333333'
+        existing = self.target/'sessions'/f'rollout-{identity}.jsonl'
+        existing.parent.mkdir()
+        existing.write_text('{"azrael":true}\n')
+        orphan = self.source/'archived_sessions'/existing.name
+        orphan.parent.mkdir()
+        orphan.write_text('{"source":true}\n')
+        self.assertEqual(self.run_import().get('unindexedRollouts', 0), 0)
+        self.assertEqual(existing.read_text(), '{"azrael":true}\n')
+        self.assertEqual(len(list(self.target.rglob(existing.name))), 1)
+
+    def test_interrupted_orphan_can_retry_its_recorded_file(self):
+        self.run_import()
+        identity = '33333333-3333-4333-8333-333333333333'
+        orphan = self.source/'sessions'/f'rollout-{identity}.jsonl'
+        orphan.write_text('{"orphan":true}\n')
+        with patch.object(module, 'merge', side_effect=sqlite3.OperationalError('fixture interruption')):
+            with self.assertRaises(sqlite3.OperationalError):
+                self.run_import()
+        self.assertEqual(self.run_import()['unindexedRollouts'], 1)
+        self.assertEqual(len(list(self.target.rglob(orphan.name))), 1)
+
     def test_interrupted_refresh_recovers_after_file_replacement(self):
         self.run_import()
         self.rollout.write_text(self.rollout.read_text()+'{"new":true}\n')

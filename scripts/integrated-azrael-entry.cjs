@@ -130,9 +130,9 @@ exports.activate = async function activate(context) {
       context.subscriptions.push(output);
       try {
         await vscode.window.withProgress({ location: vscode.ProgressLocation.Window, title: "Azrael: 로컬 Codex 기록 가져오는 중" },
-          () => require("./out/local-history-host.cjs").sync(runtime, output));
+          () => require("./out/local-history-host.cjs").sync(runtime, output, { appVersion: context.extension.packageJSON.version }));
       } catch {
-        output.appendLine("Local history import failed; continuing Azrael activation. Reload the window after resolving the import error to retry.");
+        output.appendLine("Local history import failed; continuing Azrael activation. Automatic import will not repeat for this app version.");
       }
     }
     const platform = validateRuntimePlatform(runtime.platform);

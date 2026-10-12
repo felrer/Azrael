@@ -23,6 +23,7 @@ test("integrated entry preserves activation, account storage migration and failu
     const events = [];
     const recovery = { listener: undefined, disposed: false };
     const context = {
+      extension: { packageJSON: { version: "2026.0.6" } },
       marker: "shared-context",
       subscriptions: [],
       storageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "workspace-storage") },
@@ -64,8 +65,9 @@ test("integrated entry preserves activation, account storage migration and failu
           createOutputChannel() { return { appendLine(value) { events.push(["history.output", value]); } }; },
           withProgress(_options, task) { return task(); },
         } };
-        if (request === "./out/local-history-host.cjs") return { async sync(receivedRuntime) {
+        if (request === "./out/local-history-host.cjs") return { async sync(receivedRuntime, _output, options) {
           assert.equal(receivedRuntime, runtime);
+          assert.equal(options.appVersion, context.extension.packageJSON.version);
           events.push(["history.sync"]);
           if (historyError) throw historyError;
           return { imported: 1 };

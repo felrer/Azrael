@@ -10,6 +10,8 @@ import sqlite3
 import subprocess
 import tempfile
 import time
+import uuid
+from collections import Counter
 
 HISTORY_TABLES = ('thread_turns', 'thread_items', 'thread_realtime_items',
                   'thread_history_projection_state')
@@ -35,6 +37,13 @@ def merge(db, table, where='1'):
         return
     names = ','.join('"'+c+'"' for c in common)
     db.execute(f'INSERT OR IGNORE INTO "{table}" ({names}) SELECT {names} FROM incoming."{table}" WHERE {where}')
+
+
+def rollout_uuid(path):
+    try:
+        return str(uuid.UUID(path.stem[-36:]))
+    except ValueError:
+        return None
 
 
 def active_engine(target):
@@ -89,10 +98,18 @@ def run(source, target, templates):
                 running = active_engine(target)
                 selected, missing, preserved = [], 0, 0
                 referenced = set()
+                indexed_projections = set(existing)
+                for row in db.execute('SELECT rollout_path FROM threads'):
+                    indexed_projections.add(rollout_uuid(Path(row['rollout_path'])))
+                target_projections = {}
+                for subtree in ('sessions', 'archived_sessions', 'agents'):
+                    for rollout in (target/subtree).rglob('*.jsonl'):
+                        target_projections.setdefault(rollout_uuid(rollout), set()).add(rollout)
                 for row in src.execute('SELECT * FROM threads'):
                     row = dict(row)
                     original = Path(row['rollout_path'])
                     referenced.add(original)
+                    indexed_projections.update((row['id'], rollout_uuid(original)))
                     try:
                         relative = original.relative_to(source)
                         if relative.parts[0] not in ('sessions', 'archived_sessions', 'agents') or original.is_symlink():
@@ -133,18 +150,29 @@ def run(source, target, templates):
                             continue
                     selected.append((row, original, destination, stamp, bool(old)))
                 orphans = []
-                for subtree in ('sessions', 'archived_sessions', 'agents'):
-                    for original in (source/subtree).rglob('*.jsonl'):
-                        destination = target/original.relative_to(source)
-                        pending_id = 'orphan:'+str(original.relative_to(source))
-                        eligible = not destination.exists()
-                        if not eligible and pending_id in pending and not destination.is_symlink():
-                            current = destination.stat()
-                            eligible = any(current.st_size == item['target_size'] and current.st_mtime_ns == item['target_mtime'] for item in pending[pending_id])
-                        if original not in referenced and eligible:
-                            if original.is_symlink() or original.resolve() != original:
-                                raise ValueError('Linked source rollout')
-                            orphans.append((original, destination))
+                candidates = [original for subtree in ('sessions', 'archived_sessions', 'agents')
+                              for original in (source/subtree).rglob('*.jsonl') if original not in referenced]
+                counts = Counter(rollout_uuid(original) for original in candidates)
+                for original in candidates:
+                    identity = rollout_uuid(original)
+                    if not identity or identity in indexed_projections or counts[identity] != 1:
+                        preserved += 1
+                        continue
+                    destination = target/original.relative_to(source)
+                    pending_id = 'orphan:'+str(original.relative_to(source))
+                    eligible = not destination.exists()
+                    if not eligible and pending_id in pending and not destination.is_symlink():
+                        current = destination.stat()
+                        eligible = any(current.st_size == item['target_size'] and current.st_mtime_ns == item['target_mtime'] for item in pending[pending_id])
+                    # Only the same recorded interrupted orphan generation may be retried.
+                    owners = target_projections.get(identity, set())
+                    if owners and (owners != {destination} or pending_id not in pending or not eligible):
+                        preserved += 1
+                        continue
+                    if original not in referenced and eligible:
+                        if original.is_symlink() or original.resolve() != original:
+                            raise ValueError('Linked source rollout')
+                        orphans.append((original, destination))
                 if not selected and not orphans:
                     return dict(schema=1, imported=0, refreshed=0, preserved=preserved, missingRollouts=missing, engineActive=running)
                 # Snapshot projections before growing source rollouts are copied: offsets cannot get ahead.
