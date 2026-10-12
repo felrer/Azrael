@@ -48,6 +48,8 @@ When a local image referenced by a chat thumbnail is absent, the thumbnail displ
 
 ## Astra and Sol response speed
 
+The home-screen Fast mode recommendation card and its personalized savings estimate are disabled through native banner eligibility. Manual speed selection remains available in the model picker.
+
 Status: `current` in source — native control rendering and interaction verified; build and installation pending.
 
 For the exact OpenAI models `gpt-6-astra` and `gpt-6.1-sol`, the model picker's lightning button cycles Standard → Fast → Ultrafast → Standard through the existing service-tier selection callback. Fast sends `priority`; Ultrafast sends `ultrafast`; Standard uses the existing explicit standard selection. Account catalogs that omit Ultrafast are supplemented for these exact IDs, and the bundled catalog and native request policy preserve their explicit Ultrafast selection. Ultrafast uses the native purple theme token for the icon and a tinted button background in both light and dark themes. The tooltip identifies the active mode, and the accessible label identifies the next mode. Loading and the native unavailable state disable selection. Other models retain their native speed controls. Server-side account and workspace eligibility still applies; exposing the selection does not establish account access.

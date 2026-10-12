@@ -2,7 +2,8 @@
 
 const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-66a2c48ceb22.js";
-const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET];
+const FAST_MODE_BANNER_ASSET = "webview/assets/home-announcement-state-89426c353877.js";
+const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET, FAST_MODE_BANNER_ASSET];
 const MARKER = "/*azrael-ui-cleanup-v1*/";
 
 function parse(text, ts) {
@@ -42,7 +43,11 @@ function injectUiCleanup(text, relativePath, ts) {
       pos += anchor.length;
     }
   }
-  if (relativePath === COMPOSER_ASSET) {
+  if (relativePath === FAST_MODE_BANNER_ASSET) {
+    // Disable the recommendation and its estimate query through native eligibility.
+    // Manual service-tier selection remains owned by the model picker.
+    replace(requireFunction("Ht"), "S=i?.fast===!0&&x!=null&&!f&&m.selectedServiceTier==null&&!m.isLoading", "S=!1");
+  } else if (relativePath === COMPOSER_ASSET) {
     const placeholder = requireFunction("mPi");
     if (marked) {
       if (placeholder.body.getText(file) !== '{return "^•⩊•^";}') throw new Error("Invalid cleaned composer placeholder.");
