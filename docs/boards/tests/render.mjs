@@ -1,0 +1,122 @@
+import assert from 'node:assert/strict';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { join, resolve } from 'node:path';
+import { createBoardServer } from '../server.mjs';
+import { openBrowser } from './browser-driver.mjs';
+
+const fixture = resolve('artifacts/verification/board-prototype-browser');
+const logs = resolve('artifacts/logs/board-prototype');
+await mkdir(fixture, { recursive: true }); await mkdir(logs, { recursive: true });
+const app = await createBoardServer({ dataRoot: join(fixture, 'data'), configPath: join(fixture, 'settings.json') });
+const browser = await openBrowser(join(fixture, 'chrome-profile'));
+const summary = { scope: 'Production board DOM/CSS, real Node HTTP/storage/backup/handoff on Windows Chrome; synthetic input only.', checks: [], startedAt: new Date().toISOString() };
+const check = (name, truth) => { assert.ok(truth, name); summary.checks.push(name); };
+const state = async () => (await fetch(app.origin + '/api/state')).json();
+const button = async label => {
+  await browser.evaluate(`(() => { const button = [...document.querySelectorAll('button')].find(node => node.textContent.trim() === ${JSON.stringify(label)}); if (!button) throw Error('Missing button ' + ${JSON.stringify(label)}); button.click(); })()`);
+};
+const click = selector => browser.evaluate(`document.querySelector(${JSON.stringify(selector)}).click()`);
+const type = async (selector, value) => {
+  await browser.evaluate(`(() => { const input = document.querySelector(${JSON.stringify(selector)}); input.focus(); input.select(); })()`);
+  await browser.send('Input.insertText', { text: value });
+};
+const number = (label, value) => browser.evaluate(`(() => { const input = [...document.querySelectorAll('label.field')].find(node => node.querySelector('span')?.textContent.split(' · ')[0] === ${JSON.stringify(label)})?.querySelector('input'); if (!input) throw Error('Missing numeric field'); input.value = ${JSON.stringify(String(value))}; input.dispatchEvent(new Event('change', {bubbles:true})); })()`);
+const settle = () => browser.wait(`!document.querySelector('.app-shell')?.getAttribute('aria-busy') || document.querySelector('.app-shell')?.getAttribute('aria-busy') === 'false'`);
+const save = async () => { await click('[data-testid="save"]'); await settle(); check('save acknowledgement visible', await browser.evaluate(`document.querySelector('[data-testid="save-status"]').textContent.startsWith('저장됨') && !document.querySelector('[role="alert"]')`)); };
+try {
+  await browser.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  await browser.send('Page.navigate', { url: app.origin + '/' });
+  await browser.wait(`document.querySelector('[data-testid="add-item"]')`);
+  check('empty board loads without hidden seed data', (await state()).document.items.length === 0 && await browser.evaluate(`document.body.innerText.includes('아직 항목이 없습니다.')`));
+  check('new dataset is visibly unsaved', await browser.evaluate(`document.querySelector('[data-testid="save-status"]').textContent === '아직 저장하지 않음' && !document.querySelector('[data-testid="save"]').disabled`));
+  await click('[data-testid="add-item"]'); await type('[data-testid="item-title"]', '입구 구역'); await type('[data-testid="item-note"]', '통로를 넓게 확보');
+  await number('수량', 3); await number('X 위치', 150); await number('Y 위치', 180);
+  await browser.evaluate(`(() => { const input = [...document.querySelectorAll('label.field')].find(node => node.querySelector('span')?.textContent.startsWith('적용 범위 ·'))?.querySelector('input'); input.focus(); input.select(); })()`);
+  await browser.send('Input.insertText', { text: '첫 번째 레벨' });
+  await click('input[aria-label="필수"]');
+  await save();
+  let current = await state(); const firstId = current.document.items[0].id;
+  check('keyboard input and configured fields reach file storage', current.document.items[0].title === '입구 구역' && current.document.items[0].values.count === 3);
+  check('explicit configured input is distinct from untouched defaults', current.document.items[0].specifiedFields.includes('count') && !current.document.items[0].specifiedFields.includes('priority'));
+  check('schema text and boolean fields persist explicit choices', current.document.items[0].values.scope === '첫 번째 레벨' && current.document.items[0].values.required === true && current.document.items[0].specifiedFields.includes('scope') && current.document.items[0].specifiedFields.includes('required'));
+  await type('[data-testid="item-note"]', '저장 후 수정한 조건');
+  check('editing a saved item re-enables save without losing focus', await browser.evaluate(`!document.querySelector('[data-testid="save"]').disabled && document.activeElement.dataset.testid === 'item-note'`));
+  await save();
+  await click('[data-testid="add-item"]'); await type('[data-testid="item-title"]', '적 등장 지점'); await type('[data-testid="item-note"]', '입구와 거리를 두고 배치');
+  await number('X 위치', 540); await number('Y 위치', 320); await number('너비', 220);
+  await save();
+  await button('설정·백업'); await button('+ 분류 추가');
+  // Explicitly pick the last category row; :last-of-type is per-parent.
+  await browser.evaluate(`(() => { const input = [...document.querySelectorAll('input[aria-label="분류 이름"]')].at(-1); input.focus(); input.select(); })()`);
+  await browser.send('Input.insertText', { text: '게임 공간' }); await save();
+  current = await state(); check('category creation and rename retain stable category ID', current.document.categories.at(-1).name === '게임 공간' && current.document.categories.at(-1).id.startsWith('category-'));
+  await button('보드');
+  await click(`[data-item-id="${firstId}"]`);
+  const beforeDrag = (await state()).document.items[0].position;
+  const rect = await browser.evaluate(`(() => { const r = document.querySelector('[data-item-id="${firstId}"]').getBoundingClientRect(); return {x:r.x+30,y:r.y+30}; })()`);
+  await browser.send('Input.dispatchMouseEvent', { type: 'mousePressed', x: rect.x, y: rect.y, button: 'left', clickCount: 1 });
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseMoved', x: rect.x + 60, y: rect.y + 45, buttons: 1 });
+  await browser.send('Input.dispatchMouseEvent', { type: 'mouseReleased', x: rect.x + 60, y: rect.y + 45, button: 'left', clickCount: 1 });
+  await save();
+  current = await state(); check('real pointer drag saves world coordinates', current.document.items[0].position.x > beforeDrag.x && current.document.items[0].position.y > beforeDrag.y);
+  const fixedPosition = structuredClone(current.document.items[0].position);
+  await click('button[aria-label="확대"]'); await button('맞춤');
+  check('zoom and fit keep stored coordinates unchanged', JSON.stringify((await state()).document.items[0].position) === JSON.stringify(fixedPosition));
+  await browser.evaluate(`document.documentElement.dataset.theme='light'`);
+  summary.light = await browser.evaluate(`({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color})`);
+  await browser.screenshot(join(logs, 'light.png'));
+  // Theme toggle owns an internal preference; force its initial value via visible button choices.
+  if (await browser.evaluate(`document.querySelector('button[aria-label="테마 전환"]').textContent === '밝은 테마'`)) await click('button[aria-label="테마 전환"]');
+  await click('button[aria-label="테마 전환"]');
+  summary.dark = await browser.evaluate(`({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.body).color})`);
+  check('rendered light and dark palettes differ', summary.dark.background !== summary.light.background && summary.dark.color !== summary.light.color);
+  await type('[data-testid="item-note"]', '어두운 테마에서도 편집'); await save(); await browser.screenshot(join(logs, 'dark.png'));
+  await button('전달');
+  await browser.evaluate(`document.querySelector('.handoff-list input').click()`);
+  await click('[data-testid="export"]'); await settle();
+  current = await state();
+  const snapshot = JSON.parse(await readFile(current.handoffs[0].jsonPath, 'utf8'));
+  check('rendered handoff creates selected data and rule snapshot', snapshot.document.items.length === 1 && snapshot.document.items[0].id === firstId && snapshot.rules.content.includes('map') && snapshot.rules.sha256.length === 64);
+  check('handoff retains explicit/default interpretation', snapshot.document.items[0].specifiedFields.includes('count') && snapshot.rules.content.includes('specifiedFields'));
+  check('handoff paths and immutable version are visible', await browser.evaluate(`document.body.innerText.includes('Markdown 경로') && document.querySelector('[data-testid="handoff-preview"]').textContent.includes('저장 버전:')`));
+  await button('보드'); await click(`[data-item-id="${firstId}"]`);
+  await browser.send('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 1, mobile: false });
+  for (const theme of ['dark', 'light']) {
+    await browser.evaluate(`document.documentElement.dataset.theme=${JSON.stringify(theme)}`);
+    check(theme + ' narrow layout has no horizontal page overflow', await browser.evaluate(`document.documentElement.scrollWidth <= innerWidth + 1`));
+    await browser.screenshot(join(logs, 'narrow-' + theme + '.png'));
+  }
+  await browser.send('Emulation.setDeviceMetricsOverride', { width: 1440, height: 1000, deviceScaleFactor: 1, mobile: false });
+  current = await state(); const external = structuredClone(current.document); external.items[0].note = '다른 창에서 저장한 조건';
+  const externalResponse = await fetch(app.origin + '/api/save', { method: 'POST', headers: { 'Content-Type': 'application/json', 'X-Board-Token': app.token, 'X-Board-Storage': encodeURIComponent(current.storage.root) }, body: JSON.stringify({ document: external, expectedRevision: external.revision }) });
+  assert.equal(externalResponse.status, 200);
+  await type('[data-testid="item-note"]', '보존해야 할 내 편집'); await click('[data-testid="save"]'); await settle();
+  check('save conflict preserves rendered editor and alerts user', await browser.evaluate(`!!document.querySelector('[role="alert"]') && document.querySelector('[data-testid="item-note"]').value === '보존해야 할 내 편집'`));
+  browser.setDialogDecision(false); await button('최신 내용 불러오기');
+  check('cancel discard preserves unsaved work', await browser.evaluate(`document.querySelector('[data-testid="item-note"]').value === '보존해야 할 내 편집'`));
+  browser.setDialogDecision(true); await button('최신 내용 불러오기'); await settle();
+  check('explicit reload accepts latest data after discard confirmation', await browser.evaluate(`document.querySelector('[data-testid="item-note"]').value === '다른 창에서 저장한 조건'`));
+  await button('설정·백업'); await button('현재 저장본 백업'); await settle();
+  const beforeRestore = (await state()).document.revision;
+  await button('복원'); await settle();
+  check('rendered backup restore confirms and advances saved revision', (await state()).document.revision === beforeRestore + 1 && browser.dialogs.some(dialog => dialog.message.includes('복원')));
+  const original = app.storage.root, alternate = join(fixture, '한글 폴더');
+  await type('input[aria-label="저장 폴더 절대 경로"]', alternate); await button('위치 변경'); await settle();
+  check('rendered storage switch selects empty alternate without moving original', app.storage.root === alternate && (await state()).document.items.length === 0 && JSON.parse(await readFile(join(original, 'document.json'), 'utf8')).items.length === 2);
+  await type('input[aria-label="저장 폴더 절대 경로"]', original); await button('위치 변경'); await settle();
+  check('switching back loads original values', (await state()).document.items.length === 2);
+  await button('보드'); await click(`[data-item-id="${firstId}"]`);
+  await type('[data-testid="item-title"]', ''); await click('[data-testid="save"]'); await settle();
+  check('validation error keeps invalid input visible and stored original intact', await browser.evaluate(`!!document.querySelector('[role="alert"]') && document.querySelector('[data-testid="item-title"]').value === ''`) && (await state()).document.items[0].title === '입구 구역');
+  await browser.screenshot(join(logs, 'error.png'));
+  check('no unhandled browser errors', browser.errors.length === 0);
+  summary.passed = true;
+} catch (error) {
+  summary.passed = false; summary.error = String(error); summary.stack = error.stack;
+  await browser.screenshot(join(logs, 'failure.png')).catch(() => {});
+  throw error;
+} finally {
+  summary.browserExit = await browser.close(); await app.close(); summary.completedAt = new Date().toISOString();
+  await writeFile(join(logs, 'render-summary.json'), JSON.stringify(summary, null, 2));
+  console.log(JSON.stringify({ passed: summary.passed, checks: summary.checks.length, logs, browserExit: summary.browserExit }));
+}

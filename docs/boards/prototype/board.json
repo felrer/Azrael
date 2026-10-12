@@ -1,0 +1,20 @@
+{
+  "id": "prototype",
+  "title": "요구사항 보드",
+  "description": "요구사항을 입력하고 분류·배치한 뒤 작업에 전달하세요.",
+  "schemaVersion": 1,
+  "rules": "rules.md",
+  "features": ["categories", "map", "backup", "handoff"],
+  "map": { "unit": "px", "origin": "top-left", "width": 1600, "height": 1000 },
+  "fields": [
+    { "id": "priority", "label": "우선순위", "type": "select", "default": "normal", "options": [{ "value": "high", "label": "높음" }, { "value": "normal", "label": "보통" }, { "value": "low", "label": "낮음" }] },
+    { "id": "count", "label": "수량", "type": "number", "default": 1, "min": 0, "max": 10000 },
+    { "id": "scope", "label": "적용 범위", "type": "text", "default": "" },
+    { "id": "required", "label": "필수", "type": "boolean", "default": false }
+  ],
+  "initialCategories": [
+    { "id": "requirements", "name": "요구사항", "color": "#5c8dc7" },
+    { "id": "objects", "name": "오브젝트", "color": "#9c7bc8" },
+    { "id": "questions", "name": "검토할 점", "color": "#c28f43" }
+  ]
+}
