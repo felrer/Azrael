@@ -2,6 +2,14 @@
   "schema": 1,
   "features": [
     {
+      "id": "ui.submit-only-thread",
+      "area": "ui",
+      "owners": ["scripts/inject-submit-only-thread.cjs"],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [{"id": "ui.submit-only-thread.behavior", "executable": "node", "args": ["--test", "scripts/test-submit-only-thread.cjs", "scripts/test-project-drafts.cjs", "scripts/test-composer-draft.cjs"], "level": "source"}],
+      "reportFields": ["submitOnlyThreadEdits"]
+    },
+    {
       "id": "engine.managed-tool-identities",
       "area": "engine",
       "owners": ["providers/opencodex/inference-mapping.mjs", "providers/opencodex/inference.ts"],

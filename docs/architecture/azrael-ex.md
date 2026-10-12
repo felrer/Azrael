@@ -113,6 +113,8 @@ The pinned Webview marks only its `recent_threads` request. The extension host, 
 
 ## New conversation history and immediate stop
 
+New-chat drafts and session creation at first submission follow [the composer contract](ui-presentation.md#session-creation-at-submission). Project-scoped draft persistence is independent of native thread creation and remains preserved by `ui.project-drafts`; `ui.submit-only-thread` owns the shared creation boundary.
+
 Status: `partial` — source-level checks verify that new persistent conversations use paginated history and its native turn-ID-based `thread/revert` edit path. Ephemeral conversations retain their native creation behavior. Existing legacy conversations are outside this change and are not converted or relabeled.
 
 A user stop during submission applies to that submission only. The UI retains the stop intent while the same turn is pending, waits for its admitted identity, and distinguishes an activation race from a confirmed terminal turn. An interrupt acknowledgement alone does not authorize editing: the selected turn must reach a confirmed terminal state. A different later turn, an unavailable connection, or an unresolved deadline cannot be treated as successful cancellation. Start admission and interrupt termination checks each have a 20-second deadline; expiry ends that check without scheduling a later interrupt. Errors remain visible through the native UI boundary.

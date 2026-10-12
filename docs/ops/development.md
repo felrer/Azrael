@@ -293,10 +293,13 @@ node --test scripts/test-integrated-entry.cjs scripts/test-namespace-source.cjs
 node --test scripts/test-image-file-open.cjs scripts/test-pdf-file-open.cjs scripts/test-local-file-drop.cjs scripts/test-url-safety-transport.cjs
 node --test scripts/test-deferred-turn.cjs scripts/test-provider-model-picker.cjs
 node --test scripts/test-composer-draft.cjs
+node --test scripts/test-submit-only-thread.cjs scripts/test-project-drafts.cjs
 node --test scripts/test-queue-consumption.cjs scripts/test-send-result-integration.cjs
 ```
 
 The namespace command validates the completed host's manifests, transformed assets and source-identical integration entry. The separate source command covers wrapper lifecycle/storage/failure fixtures, synthetic transform guards and pinned source compatibility without a prepared host. Keep both scopes for relevant changes; source fixtures do not establish package or live acceptance.
+
+Submit-only thread checks exercise the shared native creation methods and retain the project-scoped draft and composer-custody regression scopes. `node scripts/verify-submit-only-thread-render.mjs` runs the native composer prewarm effect and transformed creation boundary with pinned React/compiler/CSS in light/dark themes. Its input surface and host/config services are synthetic; results remain under `artifacts/logs/submit-only-thread/`, and its owned browser profile is removed after exit. First send, history listing and reload/resume in the exact installed host require separate acceptance.
 
 The queue and send-result checks execute the pinned coordinator and composer
 together with local storage and transport adapters. They cover failure after
