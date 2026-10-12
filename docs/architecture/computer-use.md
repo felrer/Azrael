@@ -80,6 +80,10 @@ An actual Sky helper crash recovered automatically on the next call. A Node REPL
 
 Installation replaces the registered extension with the exact validated package. Existing windows finish their work and reload to activate it. Rollback selects the previous verified release; native account and conversation data remain in `~/.azrael-ex`. Local integration does not establish permission for public redistribution of upstream binary components.
 
+## Platform boundary
+
+The pinned Sky whole-desktop integration and the native Windows selected-window acceptance described here are Windows scopes. The shared approval/runtime boundary also supports a separately integrated [Linux Xorg selected-window backend](window-use.md#linux-selected-window-backend); that path does not add Linux whole-desktop Computer Use or Wayland support. The registered `ui.computer-use` source checks do not establish Linux native desktop acceptance. Platform-specific fixtures and package/host evidence remain owned by [Linux operations](../ops/linux.md).
+
 ## Verification limits
 
 The final package passed scoped source/extension tests, preparation, six-stage isolated host acceptance and actual rendered approval-management smoke. Native operation evidence is reusable because its engine and Computer Use runtime hashes match the tested payload. Ordinary-profile installation preserves original Codex files, unrelated extension registrations and editor settings; activation in already-running windows remains pending reload.
@@ -87,3 +91,7 @@ The final package passed scoped source/extension tests, preparation, six-stage i
 The user reported a disappearing mouse pointer and the disappearance of the ordinary `pi-harness-init` VS Code window during prior testing, and restored the pointer themselves. Historical tests did not record cursor visibility or the ordinary window's identity and survival before and after cleanup. Saved fixture-close commands and process inventories establish intended isolation, but do not establish every termination command's live ownership checks. The causes remain unresolved; ordinary-window preservation and cursor restoration are not verified by those tests.
 
 One genuine request with the existing ChatGPT authentication and `gpt-6.1-sol` was rejected with HTTP 400 because that model was unsupported for that account route. No tool call reached Sky. Synthetic inference in the rendered tests establishes the UI/native contract, while genuine model inference and model-driven Sky execution remain unverified for that combination.
+
+## Preservation mapping
+
+Registered features: `ui.url-safety-transport`, `ui.computer-use`, `ui.window-control`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

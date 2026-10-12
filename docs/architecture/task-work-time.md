@@ -25,3 +25,7 @@ Status: `current` in source — Windows에서 계산·메타데이터·native UI
 엔진은 턴 시간과 root resume 대기 경계를 소유한다. 웹뷰는 기존 `thread/turns/list`의 모든 메타데이터 페이지와 live 턴 갱신을 결합하며 사용자 작업 경계와 집계를 소유한다. 단순 조회로 전체 메시지 본문을 가져오지 않는다. 늦게 도착한 과거 조회가 최신 진행·종료 상태를 되돌리지 않도록 live 변경을 보존한다.
 
 Windows x64, Linux x64와 macOS ARM64의 로컬 VS Code 대화에 공통으로 적용한다. 원격·컨테이너 환경의 수용은 이번 범위에 포함하지 않는다. native OpenAI 스타일의 기존 컴포넌트·색상 토큰·접기 동작을 재사용하며 키보드 조작과 밝은·어두운 테마에서 검증한다.
+
+## Preservation mapping
+
+Registered features: `ui.task-work-time`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

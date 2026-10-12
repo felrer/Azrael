@@ -6,6 +6,18 @@ Public release publication and live GitHub acquisition are pending the distribut
 hold. Installed native settings acceptance and a portable integrated public package
 are separate release gates. See [operations](../ops/instruction-distribution.md).
 
+## Native instruction state and prompt projection
+
+Status: `partial` — The selected engine implements typed instruction-state projection and dynamic Apps, Environments and Plugins guidance. Existing source tests are evidence for their declared fixtures; this documentation audit does not execute Rust tests or establish package, installed or live-provider acceptance.
+
+The engine projects a prompt copy before discarding typed provenance or estimating prompt tokens. Only explicitly replaceable instruction kinds with their expected producer role and complete provenance can replace earlier state. Removal notices use the same kind and withdraw that producer's previous contribution. Ordinary additive instructions, malformed or untyped content, wrong-role content, user messages and stored conversation history keep their existing meaning. Prompt projection does not delete recorded history.
+
+Apps, Environments and Plugins producers refresh their guidance when availability changes and emit explicit disabled/withdrawn state so previously enabled guidance cannot remain active merely because it is in history. A complete host skill catalog replaces an earlier catalog; environment deltas retain their additive meaning. Selected skill bodies reuse the last identical body for a normalized path, while changed bodies or an intervening replacement require the current contribution.
+
+Custom API prompt copies additionally filter known desktop-control skill entries and selected bodies using typed skill fragments, without removing similarly worded untyped history or unrelated skills. Their catalog, deferred-tool search and token-estimation boundaries are owned by [API request context projection](custom-api-models.md#요청-컨텍스트-투영). This request-time projection is distinct from installing instruction files: file distribution and captured thread instructions retain the lifecycle below.
+
+The engine owners are `codex-rs/core/src/context/instruction_state_projection.rs`, `core/src/world_state/{apps,environments,plugins}_instructions.rs` and `ext/skills/src/{world_state_catalogs,host_prompt}.rs`, relative to the selected engine source. These native contracts are outside the registered `ui.instruction-settings` check's settings-surface scope and require separate preservation review.
+
 ## Sources and releases
 
 The Azrael repository owns the complete instruction library in `instructions/`, including agent roles, skill reference material and scripts, project playbooks, examples and documentation. Its `azrael-environment.json` declares independent semantic version `instructionVersion`, schema version 1, minimum compatible Azrael version and installable components. Source files retain their upstream provenance; Azrael-owned code and instructions use MIT, while imported engine and dependency notices retain their original conditions.
@@ -42,3 +54,7 @@ The integrated `Azrael 설정` command opens the existing native settings panel 
 The existing settings navigation has an Instruction documents / 지침 문서 entry with a thin monochrome document icon after personalization. Its labels, controls and generated status messages follow the active app language in English or Korean; the standalone surface follows VS Code's display language. The content follows the existing neutral typography, spacing, rounded gray selection, setting rows, buttons and focus styles in light/dark themes. It shows the source, applied/latest/pinned versions, compatible versions and changes, a categorized document list and scrollable plain-text preview, plus context-appropriate check, download, apply, update, pin/unpin and rollback controls. It distinguishes downloaded from applied state and exposes progress, retryable errors, incompatibility and local conflicts in the page. Source release notes, document content and external diagnostics retain their original text.
 
 The host owns networking, filesystem operations and version state. Webview requests use `azrael-instructions` with a mount `clientId`, request ID, locale and validated action. The host keeps locale per mount and renders shared state for each language independently. Responses use `azrael-instructions-state` and retain those IDs. A mount releases its subscription on navigation/close or language change; late responses cannot update a new mount. Opening a page reads the persistent host state and can recover visibility of operations completed while the page was closed. An Azrael-owned standalone settings surface uses the same renderer and service as the integrated settings entry. Imported UI assets do not acquire new redistribution rights from this visual design.
+
+## Preservation mapping
+
+Registered features: `ui.instruction-settings`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

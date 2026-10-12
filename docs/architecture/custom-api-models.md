@@ -1,6 +1,6 @@
 # 사용자 API 모델
 
-Status: `partial` — 연결 관리·helper·picker·native subagent의 source 및 로컬 검증을 완료했다. 설치·실서버 수용은 수행하지 않았으며 결과는 지정 작업 계획에서 관리한다.
+Status: `partial` — 연결 관리·helper·picker·native subagent의 source 및 로컬 검증을 완료했다. [Linux operations](../ops/linux.md)는 고정한 Linux 통합 패키지와 격리 VS Code에서 특정 Heretic2 서버의 HTTPS 응답 및 Tool Search → 도구 추가 → 호출 왕복 검증을 기록한다. 이는 해당 모델·서버·패키지의 범위이며 모든 API 연결, Windows/macOS 설치본이나 native subagent의 실서버 수용을 의미하지 않는다. 나머지 수용 결과는 담당 작업 계획에서 관리한다.
 
 ## 연결 관리와 모델 선택
 

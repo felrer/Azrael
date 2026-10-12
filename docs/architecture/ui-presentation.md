@@ -54,9 +54,13 @@ Status: `current` in source — native component rendering and interaction verif
 
 When a local image referenced by a chat thumbnail is absent, the thumbnail displays `파일 없음` in its existing bordered tile using native theme tokens. The missing-file tile has no image-opening action. File absence is distinguished from permission, transport and cancellation errors. Loading and available-image behavior retain their existing presentation. A change to the image source, host or conversation clears the previous missing-file identity.
 
-## Astra and Sol response speed
+## Fast mode recommendation
 
-The home-screen Fast mode recommendation card and its personalized savings estimate are disabled through native banner eligibility. Manual speed selection remains available in the model picker.
+Status: `partial` — the guarded source transform is checked; rendered banner suppression and installed-window acceptance remain unverified.
+
+The home-screen Fast mode recommendation card and its personalized savings estimate are disabled through native banner eligibility. Account eligibility does not enable the card. Manual speed selection remains available in the model picker. This behavior is covered by the `ui.ui-cleanup` transformation owner; its existing structural checks do not establish a rendered recommendation-suppression test.
+
+## Astra and Sol response speed
 
 Status: `current` in source — native control rendering and interaction verified; build and installation pending.
 
@@ -68,7 +72,19 @@ Other model slugs retain their existing catalog-based support checks. Source rou
 
 Backend HTTP protocol identifiers keep their upstream names, including `OAI-*` and `x-openai-*`. The `OAI-App-Brand` value remains `codex`; it must not be derived from the display brand.
 
-The host and conversation UI identify the distribution as Azrael. Theme names, embedded VS Code command titles and the Devin model-picker notification also use Azrael. Actual service usage and model names retain their service identity. Local conversation links use `azrael://local/<UUID>`; original Codex links remain accepted for migration. The session-link injector is registered in the preservation manifest, and prepared assets must report `sessionLinkEdits` before package verification succeeds.
+The host and conversation UI identify the distribution as Azrael. Theme names, embedded VS Code command titles and the Devin model-picker notification also use Azrael. Actual service usage and model names retain their service identity. Local conversation links use `azrael://threads/<UUID>` and the host's VS Code handler receives the translated `/local/<UUID>` route. Original Codex thread links require explicit migration with an existing Azrael session check. Routing and storage ownership are defined by [local session links](azrael-ex.md#local-session-links). The session-link injector is registered in the preservation manifest, and prepared assets must report `sessionLinkEdits` before package verification succeeds.
+
+## Conversation and file interactions
+
+The [recent-chat list](azrael-ex.md#recent-chat-list), [new conversation history and immediate stop](azrael-ex.md#new-conversation-history-and-immediate-stop) and [conversation branching](azrael-ex.md#conversation-branching) own native request and session semantics. UI filters preserve the native merged ordering, selected chat type/environment and pagination. File-open actions, missing image state and local-file drops follow [chat content handling](azrael-ex.md#chat-content-handling); their menu and attachment controls use native components.
+
+## Submitted-input diagnostics
+
+Status: `partial` — source fixtures exercise the actual instrumented state, queue and renderer boundaries; installed-host acceptance is separate.
+
+Diagnostics track a submitted input's thread/client identity across parameter input, user message, steering message, queue consumption and render suppression. They distinguish representation changes from complete removal and record whether a queue receipt was accepted and persisted. Suppression reason changes can be observed without changing native render eligibility or submission behavior. Invalid identities and malformed snapshots are skipped; failures in instrumentation cannot replace the native result or error.
+
+Records include bounded identifiers, representation counts, reason flags and history invalidation kind. Message content, attachment paths, model payloads and credentials are excluded. Snapshot scanning, event rate and deduplication state are bounded without background timers. Enablement follows [diagnostic logging](diagnostic-logging.md); the registered owner is `ui.input-diagnostics`.
 
 ## Settings module contracts
 
@@ -128,15 +144,21 @@ Recent-chat filtering subscribes to the history menu's persisted type and enviro
 
 ## Typography boundary
 
-Status: `target` — dynamic typefaces selected; fixed UI typeface selection pending.
+Status: `partial` — dynamic-font preparation and persisted chat-font selection are implemented in source; full installed presentation acceptance is separate.
 
-Fixed headings, menu labels, button text and instructions have a separate candidate typeface selection. Dynamic content, including user names, email addresses, chat titles, messages, typed input, model names, account values and durations, uses Consolas for Latin text/numbers and Gyeonggi Millennium Batang (경기천년바탕) for Korean. Keep existing font sizes and line heights. A root/body font replacement cannot satisfy this boundary.
+Dynamic content, including user names, email addresses, chat titles, messages, typed input, model names, account values and durations, uses Consolas for Latin text/numbers and Gyeonggi Millennium Batang (경기천년바탕) for Korean. Keep existing font sizes and line heights. A root/body font replacement cannot satisfy this boundary.
 
 Resolve Consolas from installed system fonts. Bundle unchanged official Gyeonggi Batang Regular/Bold webfonts with their source/use-condition notice and verified hashes. Fonts load from local webview assets, without runtime network requests or system-wide installation. Preserve system fallbacks for unsupported characters and emoji.
 
 Localized visible labels and visible string labels require separate rendering boundaries. Accessibility strings stay strings. Rich text and interpolated values must preserve dynamic spans; applying a font to an entire interpolated message is insufficient. The selected typeface must have a defined local fallback for Korean and Latin text.
 
 In custom typography, dynamic prose, titles, account values and typed input use half-width Consolas spaces. A local Consolas font face restricted to U+0020 uses `size-adjust: 50%`, while visible characters retain their original metrics. When Consolas is unavailable, the normal fallback space is preserved; subtracting `0.5ch` from a fallback face can erase its narrower space glyph. Chat Markdown roots and their paragraph, heading, list-item and table classes require explicit spacing rules because they set the content font without a `.font-content` wrapper; preparation checks the pinned prose CSS anchor. OpenAI mode excludes chat and composer from these custom font, weight and spacing overrides. Character spacing and font sizes remain unchanged. Code/preformatted text keeps normal spacing for alignment, and nested fixed UI controls reset word spacing. Dynamic account/usage values retain their independent custom typography in either mode, including shadow DOM panels.
+
+### Fixed UI typeface
+
+Status: `target` — fixed UI typeface selection is pending.
+
+Fixed headings, menu labels, button text and instructions require a separate candidate selection and presentation comparison. The dynamic-font implementation does not select a new fixed-label font.
 
 ## Icon policy candidates
 
@@ -145,3 +167,7 @@ Status: `draft` — candidate comparison, no selected product style.
 Compare a simple line family, an angular geometric family and a soft curved family at actual 16, 20 and 24 pixel sizes. Each family covers add, search, history, settings, new chat, account, permissions and send. Candidate generation is owned by `scripts/create-ui-design-preview.cjs`; its local HTML and individual SVG outputs are review artifacts under `artifacts/visualizations/azrael-ui-identity/`.
 
 The candidate system uses a 24×24 coordinate grid, `currentColor`, consistent strokes within each family and equivalent light/dark shapes. Use 20px for ordinary controls and 16px for supporting icons. Size the interactive target separately from the visible glyph. Avoid vendor emblems for generic account/settings actions. Pair status colors with text or shape. Select one family before integrating product replacements; semantic meaning and small-size legibility determine acceptance.
+
+## Preservation mapping
+
+Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

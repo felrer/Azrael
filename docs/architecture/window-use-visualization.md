@@ -2,6 +2,10 @@
 
 Status: `partial` — native 구현, host 중지 연결과 소유한 실제 테스트 창의 light/dark 표시·입력 통과·대상별 중지를 검증했다. DWM 경계와 둥근 모서리 정렬은 144 DPI의 일반·작은 곡률·사각·이동·크기 변경·최대화 창에서 source 시각 수용을 통과했다. 이 경계 개선은 미패키징·미설치 상태다. 실제 사용자 창의 model/tool 실행, WGC 표시 제외와 다른 DPI의 모니터 전환 수용 검증은 별도다.
 
+## 플랫폼 범위
+
+이 문서의 DWM 경계, layered surface, 모서리 빛, 클릭 통과 안내와 Escape 계약은 Windows 구현에 적용한다. [Linux 선택 창 backend](window-use.md#linux-selected-window-backend)는 GTK 중지 버튼을 제공하고 `hotkeyRegistered: false`를 반환한다. Linux 경로는 Escape 등록이나 Windows 모서리 빛을 제공한다고 해석하지 않는다. Linux fixture와 설치 호스트의 검증 범위는 [Linux operations](../ops/linux.md)가 소유한다.
+
 ## 승인된 표시와 중지 동작
 
 Window Use를 사용하는 실제 대상 창의 네 모서리에서 창 안쪽으로 빛이 퍼지는 효과를 표시한다. 중심의 앱 내용은 그대로 읽을 수 있어야 한다. Computer Use와 같은 종류의 부드러운 fade 표현을 사용하며, 전체 화면에 불투명 색을 씌우지 않는다.

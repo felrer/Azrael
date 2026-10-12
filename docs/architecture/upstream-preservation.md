@@ -16,6 +16,32 @@ An upgrade reviews the existing behavior contracts and inventory against the sel
 
 This review is a maintenance requirement. The current runner validates registered features and their declared references/checks; it does not discover every behavior from architecture prose or automatically compare the feature inventory with a prior release. Record these coverage and baseline comparisons in the existing work record until executable enforcement is implemented. Source provenance, matching document bytes and passing registered checks do not establish completeness of the behavior inventory.
 
+## Contract index
+
+The registry links below identify registered acceptance scope, not every current product contract. The executable commands and declared source/native levels remain in the [feature inventory](../../scripts/azrael-feature-contracts.json); behavior, applicability and source/package/installed limits remain in the linked owning sections. Cross-layer UI entries may link onward to their host or engine contract.
+
+| Registered contract owner | Preservation feature IDs |
+| --- | --- |
+| [ui-presentation](ui-presentation.md) | `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics` |
+| [managed-providers](managed-providers.md) | `engine.managed-tool-identities`, `ui.provider-model-picker`, `ui.max-reasoning` |
+| [task-work-time](task-work-time.md) | `ui.task-work-time` |
+| [accounts](accounts.md) | `ui.account-settings`, `ui.account-switch-queue`, `engine.auto-account-switch` |
+| [instructions](instructions.md) | `ui.instruction-settings` |
+| [reload-recovery](reload-recovery.md) | `ui.recovery`, `ui.fetch-response`, `ui.immediate-stop`, `engine.recovery`, `engine.accepted-input` |
+| [computer-use](computer-use.md) | `ui.url-safety-transport`, `ui.computer-use`, `ui.window-control` |
+| [auto-review](auto-review.md) | `ui.auto-review` |
+| [context-policy](context-policy.md) | `ui.provider-context`, `engine.provider-context` |
+| [root-resume](root-resume.md) | `ui.deferred-turn`, `ui.work-segment-folding` |
+| [queued-compaction](queued-compaction.md) | `ui.compaction-progress`, `ui.queue-refresh`, `ui.queue-consumption`, `ui.queued-compaction` |
+| [side-questions](side-questions.md) | `ui.btw` |
+| [devin](devin.md) | `engine.devin-native`, `engine.devin-code-mode`, `engine.devin-agents` |
+
+Additional current contracts have existing verification owners outside this registry. [Host/storage/import](azrael-ex.md), [custom API models](custom-api-models.md), [project usage](project-usage.md), [brand assets](provider-brand-assets.md), [instruction acquisition/application and native state](instructions.md), [platform runtime/distribution](multi-platform.md), [Window Use](window-use.md), [prompt image preparation](prompt-image-preparation.md) and [native diagnostic policy](diagnostic-logging.md) retain their requirements even where a registered UI check covers only part of their behavior. Native queue/root completion semantics and provider catalog, account-lifecycle and quota-window rules likewise require their owning contracts to be reviewed; a broad feature label is not evidence that each native boundary is checked.
+
+Coverage gaps and the selected release comparison belong in the current work plan. New checks or additions to registered scope must execute against the selected candidate with their declared fixture/platform conditions. A documentation audit can connect the contracts and expose those gaps without claiming candidate acceptance.
+
+Managed exact-name and private replay preservation also requires the provider's history fixtures in `providers/opencodex/tests/tool-name-replay.test.ts`; a diagnostics-only check cannot establish replay continuity. Likewise, the manual Sol speed control, suppressed fast-mode recommendation, native instruction-state projection and Linux selected-window backend need checks at their actual behavior and platform boundaries, beyond structural UI adaptation.
+
 ## Candidate acceptance and receipts
 
 The preservation runner selects UI, engine or both explicitly. UI checks execute against the selected pristine UI and transformation rules. Engine checks execute against binaries whose receipt matches the selected source. Missing owners, missing mandatory checks, failed checks and input changes during verification prevent a passing receipt.

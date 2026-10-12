@@ -171,3 +171,13 @@ The host emits valid JSON for successful fetch routes with no return value by se
 Execution observations and request delivery outcomes are distinct. A missing acknowledgement does not erase an already observed live or completed turn. Receipts may remain outcome-unknown while the execution state remains observable. The existing log channel correlates the original UI request, client message, internal RPC and acknowledged turn identifiers without storing prompt or tool content.
 
 Fault-injection tests cover duplicate resumes, persisted dispatch without response, restart with live or interrupted work, delayed acknowledgements, stage silence, storage failure, interruption before resume, timeout and usage-limit continuation admission, and preservation of ordinary steering. The pinned bridge transform is parsed and executed in a fixture, and a real engine is crashed and restarted with a synthetic interrupted history and a stalled local provider. Packaging must include the runtime modules. These checks establish the selected engine/host combination, not arbitrary upstream versions or replay of external tool side effects; user-window reload is outside automated acceptance.
+
+## Pending submission and immediate stop
+
+Status: `partial` — scoped asynchronous source fixtures cover target identity and bounded stopping; package and installed-window acceptance remain separate.
+
+A stop requested while a submission is pending remains attached to that submission until its accepted native turn identity is known. It cannot interrupt a later turn or a different thread. Start admission and terminal-state confirmation are bounded separately; acknowledgement of an interrupt is insufficient to enable editing. Unavailable, stale, deferred or unconfirmed targets do not become successful cancellation through a timeout or a later notification. The UI preserves native errors and normal editing eligibility. The shared session contract and deadlines are owned by [new conversation history and immediate stop](azrael-ex.md#new-conversation-history-and-immediate-stop); `ui.immediate-stop` connects its UI boundary to preservation checks.
+
+## Preservation mapping
+
+Registered features: `ui.recovery`, `ui.fetch-response`, `ui.immediate-stop`, `engine.recovery`, `engine.accepted-input`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

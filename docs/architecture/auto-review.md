@@ -1,6 +1,6 @@
 # Auto-Review
 
-Status: `partial` — OpenAI용 UI 연결과 턴 제출 제한은 소스에서 구현·검증했다. 엔진 계약은 기존 빌드의 격리 실행으로 확인했으며, 새 패키지와 설치된 앱의 수용 검증은 완료하지 않았다. 검증 절차와 범위는 [development operations](../ops/development.md)에 기록한다.
+Status: `partial` — OpenAI용 UI 연결과 턴 제출 제한은 소스에서 구현·검증했다. 엔진 계약은 기존 빌드의 격리 실행으로 확인했으며, 현재 패키지와 설치된 앱에서 Auto-Review에 대한 수용 검증은 완료하지 않았다. 일반 패키지·설치 성공으로 이 기능의 설정 탐색과 제출 동작을 검증했다고 해석하지 않는다. 검증 절차와 범위는 [development operations](../ops/development.md)에 기록한다.
 
 ## 권한 선택과 실행
 
@@ -35,3 +35,7 @@ Auto-Review는 `on-request` 또는 검토 대상 요청이 허용된 세분화 �
 표시는 [UI presentation](ui-presentation.md)의 기존 OpenAI 스타일과 테마 토큰을 따른다. 밝은·어두운 테마의 실제 렌더링과 선택 상호작용을 검증한다. 소스 검증·격리 엔진 검증·패키지 검증·설치 상태를 구분하며, 검증 범위를 넘어서 제공자 지원을 선언하지 않는다.
 
 동작 기준: [공식 Auto-Review 문서](https://learn.chatgpt.com/docs/sandboxing/auto-review), [승인과 실패 처리](https://learn.chatgpt.com/docs/agent-approvals-security).
+
+## Preservation mapping
+
+Registered features: `ui.auto-review`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

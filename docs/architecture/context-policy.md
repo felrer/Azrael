@@ -43,3 +43,7 @@ draft text and attachments remain in the composer, and streaming conversations c
 queue the operation. This entry is `current` in source with native light/dark
 rendering and interaction verification using synthetic host state. Build and
 installation were not performed; installed-window acceptance remains separate.
+
+## Preservation mapping
+
+Registered features: `ui.provider-context`, `engine.provider-context`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
