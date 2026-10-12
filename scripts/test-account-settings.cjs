@@ -68,9 +68,9 @@ test("display branding preserves backend identifiers, URLs and model names", () 
 });
 
 test("settings mount renders scoped markup, forwards actions and cleans subscriptions", () => {
-  let effect, cleanup, receiver, click, change, toggle, keydown;
+  let effect, cleanup, receiver, click, change, toggle, keydown, pointerdown;
   const sent = [];
-  const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else if (type === "keydown") keydown = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : type === "keydown" ? keydown : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else if (type === "keydown") keydown = undefined; else toggle = undefined; } };
+  const shadow = { innerHTML: "", querySelector: () => null, addEventListener: (type, fn) => { if (type === "click") click = fn; else if (type === "change") change = fn; else if (type === "keydown") keydown = fn; else if (type === "pointerdown") pointerdown = fn; else toggle = fn; }, removeEventListener: (type, fn) => { assert.equal(fn, type === "click" ? click : type === "change" ? change : type === "keydown" ? keydown : type === "pointerdown" ? pointerdown : toggle); if (type === "click") click = undefined; else if (type === "change") change = undefined; else if (type === "keydown") keydown = undefined; else if (type === "pointerdown") pointerdown = undefined; else toggle = undefined; } };
   const element = { attachShadow: () => shadow };
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "openaiSwitch", profile: "profile-1" }; disabled = false; }
@@ -129,6 +129,7 @@ test("settings mount renders scoped markup, forwards actions and cleans subscrip
   assert.equal(click, undefined);
   assert.equal(toggle, undefined);
   assert.equal(keydown, undefined);
+  assert.equal(pointerdown, undefined);
 });
 
 function loadUsageView() {

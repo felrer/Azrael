@@ -49,6 +49,8 @@ test("standalone activation starts one chat session before account bridge and vi
       await extension.activate({
         extensionPath: directory, extensionUri: { scheme: "file", fsPath: directory },
         storageUri: { scheme: "file", fsPath: path.join(directory, "workspace") },
+        globalStorageUri: { scheme: "file", fsPath: path.join(directory, "global") },
+        globalState: { get: () => undefined, update: async () => undefined },
         subscriptions: []
       } as never);
       assert.deepEqual(events, ["chat", "account"]);

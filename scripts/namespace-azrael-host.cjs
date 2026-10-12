@@ -46,7 +46,7 @@ const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-ses
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
 const { QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET,
-  QUEUED_COMPACTION_HOST_ASSET, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
+  QUEUED_COMPACTION_HOST_ASSET, QUEUED_COMPACTION_EXPECTED_COUNTS, injectQueuedCompactionHost, injectQueuedCompactionCore, injectQueuedCompactionPresentation, injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
 
 const HOST_ID = "azrael-ex-local.azrael";
 const ACCOUNT_UI_COMMANDS = [
@@ -723,7 +723,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + (asset.projectDraftEdits ?? 0), 0) !== 1) {
     throw new Error("Project draft transformation was incomplete.");
   }
-  if (report.assets.reduce((total, asset) => total + asset.queuedCompactionEdits, 0) !== 3) {
+  if (report.assets.reduce((total, asset) => total + asset.queuedCompactionEdits, 0) !== Object.values(QUEUED_COMPACTION_EXPECTED_COUNTS).reduce((total, count) => total + count, 0)) {
     throw new Error("Queued-compaction transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + asset.queueRefreshNativeChecks, 0) !== 1) {

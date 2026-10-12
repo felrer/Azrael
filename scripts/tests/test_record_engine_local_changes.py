@@ -119,13 +119,28 @@ class RecorderTests(unittest.TestCase):
     def test_reviewed_source_addition_path_scope(self):
         for name in ("new.md", "codex-rs/prompts/agent_behavior.md",
                      "codex-rs/prompts/templates-other/agent_behavior.md",
-                     "codex-rs/prompts/templates/agent_behavior.sql"):
+                     "codex-rs/prompts/templates/agent_behavior.sql", "new.ts",
+                     "codex-rs/app-server-protocol/schema-other/typescript/Model.ts",
+                     "codex-rs/app-server-protocol/schema/typescript/Model.sql"):
             with self.subTest(name=name):
                 self.add_module(name)
                 with self.assertRaisesRegex(ValueError, "Rust/prompt source"):
                     self.record(("edit.rs", name))
                 self.git(self.repo, "rm", "--cached", "engine/" + name)
                 (self.destination / name).unlink()
+
+    def test_reviewed_protocol_typescript_addition_preserves_provenance(self):
+        name = "codex-rs/app-server-protocol/schema/typescript/ModelAutoCompact.ts"
+        self.add_module(name)
+        (self.destination / name).write_text("export type ModelAutoCompact = { tokens: number };\n", encoding="utf-8")
+        self.record(("edit.rs", name))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["originalReceipt"], self.original)
+        self.assertIsNone(receipt["localIntegration"]["changes"][name]["before"])
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / name).write_text("export type ModelAutoCompact = { tokens: number | null };\n", encoding="utf-8")
+        self.update((name,))
+        importer.validate_receipt(self.destination, self.receipt())
 
     def test_explicit_adapted_content_update_preserves_fixed_provenance(self):
         path = self.destination / importer.REPLAY_PATH

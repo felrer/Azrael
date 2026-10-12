@@ -24,7 +24,9 @@ test('core provider request, notification, response and teardown bypass an absen
       }
       ts.forEachChild(node, inventory);
     }
-    inventory(preparation);
+    const prepareOwner = preparation.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'prepare');
+    assert(prepareOwner, 'platform preparation owner must exist');
+    inventory(prepareOwner);
     assert.equal(inventories.size, 2);
     for (const [owner, destination] of [['modules', 'out'], ['accountModules', 'account-ui']]) {
       fs.mkdirSync(path.join(prepared, destination));

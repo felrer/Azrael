@@ -45,6 +45,8 @@ test("integrated activation leaves the chat view and sidebar command to the offi
       await extension.activate({
         extensionPath: directory, extensionUri: { scheme: "file", fsPath: directory },
         storageUri: { scheme: "file", fsPath: path.join(directory, "workspace") },
+        globalStorageUri: { scheme: "file", fsPath: path.join(directory, "global") },
+        globalState: { get: () => undefined, update: async () => undefined },
         subscriptions: []
       } as never, {
         bridge: process.execPath, engine: process.execPath,

@@ -1105,7 +1105,9 @@ def validate_inventory(destination, receipt):
 
 
 def is_reviewed_source_addition(name):
-    return name.endswith(".rs") or (name.startswith("codex-rs/prompts/templates/") and name.endswith(".md"))
+    return (name.endswith(".rs") or
+            (name.startswith("codex-rs/prompts/templates/") and name.endswith(".md")) or
+            (PurePosixPath(name).parent == PurePosixPath("codex-rs/app-server-protocol/schema/typescript") and name.endswith(".ts")))
 
 
 def validate_local_integration(destination, receipt):
