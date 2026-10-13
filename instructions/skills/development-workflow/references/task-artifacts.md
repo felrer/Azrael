@@ -4,7 +4,7 @@
 
 Each folder holds one work session on a specific target. Start a new folder for a new target or separate session. Keep requirements, feasibility findings, approach, and verification for one task in its current `nn-plan.md`; create the next numbered document only for a distinct follow-up task. Update ongoing work in place.
 
-`development-workflow` maintains the single work document for each task. `design-documentation` maintains the agreed design in its durable owners, and `implementation` records execution evidence in the existing work record. Hand off both the session folder and current document paths without creating a second plan.
+The chosen entry route maintains one work record for shared understanding, intent and allowed actions, requirements, design differences, decisions and acceptance. `design-collaboration` develops linked choices through discussion; `development-workflow` turns the same record into an executable plan. Preserve its path across transitions and do not add a prerequisite understanding document or restart settled review. `design-documentation` maintains enduring agreed design in its owners and `implementation` adds execution evidence to the same record.
 
 ## Storage
 

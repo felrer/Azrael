@@ -25,10 +25,10 @@ distribution metadata are packaged for provenance, never installed as components
 
 | Skill | Responsibility |
 | --- | --- |
-| [development-workflow](skills/development-workflow/SKILL.md) | Complex code work, requirements, decisions, progress and final acceptance |
-| [design-collaboration](skills/design-collaboration/SKILL.md) | Unresolved product and system design choices |
+| [development-workflow](skills/development-workflow/SKILL.md) | Work entry through investigation and one plan with questions; execution coordination and final acceptance |
+| [design-collaboration](skills/design-collaboration/SKILL.md) | Work entry through iterative discussion of linked user choices |
 | [design-documentation](skills/design-documentation/SKILL.md) | Agreed design in its owning documents |
-| [implementation](skills/implementation/SKILL.md) | Execution preparation, implementation, verification and cleanup; direct entry for small changes |
+| [implementation](skills/implementation/SKILL.md) | Execute the agreed plan and authority through implementation, verification and cleanup |
 | [project-bootstrap](skills/project-bootstrap/SKILL.md) | Project documentation entry points, skill routing and app logging guidance |
 
 Use these responsibilities as needed within the same work. Keep existing project

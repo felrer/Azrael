@@ -1,5 +1,10 @@
 # Instruction changelog
 
+## Unreleased
+
+- Context-first work entry chooses iterative design discussion or a plan with questions. Both routes preserve one work record and existing execution authority; specialist skills do not expand scope.
+- Architecture, code, tests and observed behavior guide feature preservation. Unapproved design deviations and error-driven feature reductions receive review before affected implementation.
+
 ## 1.1.0
 
 - OpenAI-style UI guidance with native component reuse and rendered light/dark interaction acceptance.
