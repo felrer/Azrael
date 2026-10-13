@@ -7,6 +7,7 @@ const unresolved = (receipt) => receipt && ["dispatching", "unknown"].includes(r
 
 // Classify exact known messages without putting arbitrary engine text in logs.
 const continuationTimeouts = new Map([
+  ["Fatal error: response preparation exceeded its 90s deadline", "response_preparation_timeout"],
   ["Fatal error: native inference helper became idle", "legacy_helper_idle"],
   ["Fatal error: native inference produced no output frames for 120s", "legacy_output_idle"],
   ["Fatal error: native inference request exceeded its deadline", "engine_deadline"],

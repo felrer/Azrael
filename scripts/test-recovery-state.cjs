@@ -784,7 +784,22 @@ const timeoutMessages = [
   "Fatal error: native inference helper failed (provider_headers_timeout)",
   "Fatal error: native inference helper failed (provider_stream_idle)",
   "Fatal error: native inference helper failed (provider_request_deadline)",
+  "Fatal error: response preparation exceeded its 90s deadline",
 ];
+
+test("preparation timeout remains terminal until explicit continuation and logs only its category", async () => {
+  const message = "Fatal error: response preparation exceeded its 90s deadline";
+  const calls = [], records = [];
+  const state = new RecoveryState({ store: memoryStore(), log: record => records.push(record),
+    rpc: systemErrorRpc(calls, { error: { codexErrorInfo: "other", message } }) });
+  state.observe({ method: "turn/completed", params: { threadId: "preparation-timeout",
+    turn: failedTurn("old-turn", { codexErrorInfo: "other", message }) } });
+  assert.equal(calls.length, 0);
+  await state.start(continuation("preparation-timeout"));
+  assert.equal(calls.filter(call => call.method === "turn/start").length, 1);
+  assert.equal(records.find(record => record.event === "recovery.admission").errorKind, "response_preparation_timeout");
+  assert.equal(JSON.stringify(records).includes(message), false);
+});
 
 const openaiServerMessage = "stream disconnected before completion: An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID 01619dc0-21cd-4823-b339-dd783eaf7254 in your message.";
 const serverErrors = [
@@ -1023,6 +1038,8 @@ for (const message of timeoutMessages) {
 }
 
 for (const message of [
+  "Fatal error: response preparation exceeded its 91s deadline",
+  "Fatal error: response preparation exceeded its 90s deadline extra",
   "Fatal error: native inference produced no output frames for 121s",
   "Fatal error: native inference produced no output frames for 120s extra",
   "Fatal error: native inference helper failed (provider_failure)",

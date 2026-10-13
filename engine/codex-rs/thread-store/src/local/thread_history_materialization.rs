@@ -37,16 +37,8 @@ async fn materialize_to_sqlite_with_state_db(
     thread_id: ThreadId,
     rollout_path: &Path,
 ) -> ThreadStoreResult<()> {
-    let projection_state = super::thread_history::projection_state(store, thread_id).await?;
-    let rebuild_projection_version = projection_state.as_ref().and_then(|state| {
-        (state.projection_version != super::thread_history::CURRENT_PROJECTION_VERSION)
-            .then_some(state.projection_version)
-    });
-    let start_offset = projection_state
-        .as_ref()
-        .filter(|_| rebuild_projection_version.is_none())
-        .map_or(0, |state| state.next_byte_offset);
-    if projection_state.is_none()
+    let requested_state = super::thread_history::projection_state(store, thread_id).await?;
+    if requested_state.is_none()
         && codex_rollout::existing_rollout_path(rollout_path)
             .await
             .is_none()
@@ -57,6 +49,31 @@ async fn materialize_to_sqlite_with_state_db(
         .await
         .map_err(thread_store_io_error)?
         .meta;
+    // The stable thread ID can select a new immutable rollout after revert. All history
+    // consumers address segment rows by rollout ID, including retained old prefixes.
+    let rollout_id = super::thread_rollout_resolver::rollout_id_from_path_or_legacy_thread_id(
+        rollout_path,
+        thread_id,
+        session_meta.history_mode,
+    )?;
+    if session_meta.id != thread_id && rollout_id != thread_id {
+        return Err(ThreadStoreError::InvalidRequest {
+            message: "rollout projection belongs to another thread".to_string(),
+        });
+    }
+    let projection_state = if rollout_id == thread_id {
+        requested_state
+    } else {
+        super::thread_history::projection_state(store, rollout_id).await?
+    };
+    let rebuild_projection_version = projection_state.as_ref().and_then(|state| {
+        (state.projection_version != super::thread_history::CURRENT_PROJECTION_VERSION)
+            .then_some(state.projection_version)
+    });
+    let start_offset = projection_state
+        .as_ref()
+        .filter(|_| rebuild_projection_version.is_none())
+        .map_or(0, |state| state.next_byte_offset);
     let initial_ordinal = session_meta
         .history_base
         .map_or(0, |base| base.end_ordinal_exclusive);
@@ -65,25 +82,31 @@ async fn materialize_to_sqlite_with_state_db(
         .as_ref()
         .filter(|_| rebuild_projection_version.is_none())
         .map_or(initial_ordinal, |state| state.next_ordinal);
-    let (projections, next_offset) = read_projection_steps(
+    let (projections, next_offset, shrank) = read_projection_steps(
         rollout_path,
         start_offset,
         expected_ordinal,
         thread_id,
         subagent_history_start_ordinal,
+        initial_ordinal,
     )
     .await?;
     // Empty valid records can still consume bytes through blank complete lines.
-    if projections.is_empty() && start_offset == next_offset {
+    if !shrank && projections.is_empty() && start_offset == next_offset {
         return Ok(());
     }
-    super::thread_history::apply_projection(
+    super::thread_history::apply_projection_with_rebuild_state(
         store,
-        thread_id,
-        start_offset,
+        rollout_id,
+        if shrank { 0 } else { start_offset },
         next_offset,
         initial_ordinal,
-        rebuild_projection_version,
+        if shrank {
+            Some(super::thread_history::CURRENT_PROJECTION_VERSION)
+        } else {
+            rebuild_projection_version
+        },
+        if shrank { projection_state } else { None },
         projections,
     )
     .await
@@ -95,7 +118,8 @@ async fn read_projection_steps(
     expected_ordinal: u64,
     thread_id: ThreadId,
     subagent_history_start_ordinal: Option<u64>,
-) -> ThreadStoreResult<(Vec<RolloutProjectionStep>, u64)> {
+    initial_ordinal: u64,
+) -> ThreadStoreResult<(Vec<RolloutProjectionStep>, u64, bool)> {
     let path = rollout_path.to_path_buf();
     let span = tracing::Span::current();
     tokio::task::spawn_blocking(move || {
@@ -106,6 +130,7 @@ async fn read_projection_steps(
             expected_ordinal,
             thread_id,
             subagent_history_start_ordinal,
+            initial_ordinal,
         )
     })
     .await
@@ -121,21 +146,24 @@ fn read_projection_steps_sync(
     expected_ordinal: u64,
     thread_id: ThreadId,
     subagent_history_start_ordinal: Option<u64>,
-) -> ThreadStoreResult<(Vec<RolloutProjectionStep>, u64)> {
+    initial_ordinal: u64,
+) -> ThreadStoreResult<(Vec<RolloutProjectionStep>, u64, bool)> {
     let mut file = match codex_rollout::open_rollout_seekable_reader(rollout_path) {
         Ok(file) => file,
         Err(err) if err.kind() == std::io::ErrorKind::NotFound && start_offset == 0 => {
-            return Ok((Vec::new(), 0));
+            return Ok((Vec::new(), 0, false));
         }
         Err(err) => return Err(thread_store_io_error(err)),
     };
     let file_end_offset = file.metadata().map_err(thread_store_io_error)?.len();
-    let byte_count =
-        file_end_offset
-            .checked_sub(start_offset)
-            .ok_or_else(|| ThreadStoreError::Internal {
-                message: "durable rollout shrank before projection".to_string(),
-            })?;
+    let shrank = file_end_offset < start_offset;
+    let start_offset = if shrank { 0 } else { start_offset };
+    let expected_ordinal = if shrank {
+        initial_ordinal
+    } else {
+        expected_ordinal
+    };
+    let byte_count = file_end_offset - start_offset;
     let byte_count = usize::try_from(byte_count).map_err(|_| ThreadStoreError::Internal {
         message: "durable rollout append exceeds addressable memory".to_string(),
     })?;
@@ -150,6 +178,12 @@ fn read_projection_steps_sync(
         .iter()
         .rposition(|byte| *byte == b'\n')
         .map_or(0, |index| index + 1);
+    if shrank && complete_byte_count != bytes.len() {
+        return Err(ThreadStoreError::Internal {
+            message: "truncated rollout has an incomplete record; preserving projection"
+                .to_string(),
+        });
+    }
     let mut projections = Vec::new();
     let mut next_ordinal = expected_ordinal;
     let mut next_offset = start_offset;
@@ -182,6 +216,11 @@ fn read_projection_steps_sync(
                     "skipping malformed rollout line during projection"
                 );
                 record_projection_anomaly(ProjectionAnomaly::MalformedJson);
+                if shrank {
+                    return Err(ThreadStoreError::Internal {
+                        message: "truncated rollout is corrupt; preserving projection".to_string(),
+                    });
+                }
                 next_offset = line_end_offset;
                 line_start_offset = line_end_offset;
                 continue;
@@ -202,6 +241,11 @@ fn read_projection_steps_sync(
                     "skipping unknown rollout line during projection"
                 );
                 record_projection_anomaly(ProjectionAnomaly::UnknownLine);
+                if shrank {
+                    return Err(ThreadStoreError::Internal {
+                        message: "truncated rollout is corrupt; preserving projection".to_string(),
+                    });
+                }
                 // Unknown records only advance the byte checkpoint. A writer that could not
                 // decode this line may have reused its ordinal, so let the next decoded line
                 // resolve reuse versus a gap.
@@ -222,6 +266,11 @@ fn read_projection_steps_sync(
                     "skipping paginated rollout line without an ordinal"
                 );
                 record_projection_anomaly(ProjectionAnomaly::MissingOrdinal);
+                if shrank {
+                    return Err(ThreadStoreError::Internal {
+                        message: "truncated rollout is corrupt; preserving projection".to_string(),
+                    });
+                }
                 next_offset = line_end_offset;
                 line_start_offset = line_end_offset;
                 continue;
@@ -238,6 +287,11 @@ fn read_projection_steps_sync(
                 "skipping duplicate or regressed rollout ordinal during projection"
             );
             record_projection_anomaly(ProjectionAnomaly::DuplicateOrRegressedOrdinal);
+            if shrank {
+                return Err(ThreadStoreError::Internal {
+                    message: "truncated rollout is corrupt; preserving projection".to_string(),
+                });
+            }
             next_offset = line_end_offset;
             line_start_offset = line_end_offset;
             continue;
@@ -274,6 +328,12 @@ fn read_projection_steps_sync(
                         "skipping rollout line with invalid timestamp during projection"
                     );
                     record_projection_anomaly(ProjectionAnomaly::InvalidTimestamp);
+                    if shrank {
+                        return Err(ThreadStoreError::Internal {
+                            message: "truncated rollout is corrupt; preserving projection"
+                                .to_string(),
+                        });
+                    }
                     let end_ordinal_exclusive =
                         ordinal
                             .checked_add(1)
@@ -306,6 +366,11 @@ fn read_projection_steps_sync(
                 "skipping missing rollout ordinal range during projection"
             );
             record_projection_anomaly(ProjectionAnomaly::ForwardOrdinalGap);
+            if shrank {
+                return Err(ThreadStoreError::Internal {
+                    message: "truncated rollout is corrupt; preserving projection".to_string(),
+                });
+            }
             projections.push(RolloutProjectionStep::SkippedOrdinalRange {
                 start_ordinal: next_ordinal,
                 end_ordinal_exclusive: ordinal,
@@ -334,7 +399,7 @@ fn read_projection_steps_sync(
         next_offset = line_end_offset;
         line_start_offset = line_end_offset;
     }
-    Ok((projections, next_offset))
+    Ok((projections, next_offset, shrank))
 }
 
 #[derive(Clone, Copy)]

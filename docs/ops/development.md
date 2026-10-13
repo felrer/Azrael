@@ -331,6 +331,8 @@ Compaction skip feedback is covered by `node --test scripts/test-queued-compacti
 
 ### Reload recovery
 
+For changes to response preparation or native history projection, run the focused checks from the frozen engine's `codex-rs/` with the selected Cargo cache: `cargo test -p codex-core --lib response_preparation --locked --offline`, `cargo test -p codex-thread-store --lib thread_history_materialization --locked --offline`, and `cargo test -p codex-thread-store --lib revert_thread --locked --offline`. On Windows use `RUST_MIN_STACK=33554432`. These deterministic checks cover stalled preparation, cancellation, a later successful build, rollout identity replacement, shrink/corruption preservation and appends after revert. They do not require Reload Window, real provider inference or user-state mutation. Host continuation admission remains covered by the existing recovery state/bridge checks.
+
 ```powershell
 node --test scripts/test-recovery-state.cjs scripts/test-recovery-bridge.cjs scripts/test-fetch-response.cjs scripts/test-queue-consumption.cjs scripts/test-send-result-integration.cjs
 node scripts/test-recovery-engine.mjs '<engine>' '<new absolute fixture directory>'

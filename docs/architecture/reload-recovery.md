@@ -54,6 +54,16 @@ After reconnect, resume reads native live state. An acknowledged turn can be rea
 
 The receipt is a host recovery guard, not a distributed exactly-once tool executor. Other clients remain subject to native writer ownership. Tool replay, daemon lifetime separation and cross-client transaction protocols are outside this change.
 
+## Bounded response preparation
+
+Status: `partial`: common engine implementation; focused Windows native and host checks own source acceptance. Packaged/installed-window acceptance remains separate.
+
+Model-independent context capture, initial context/display-root preparation, world-state construction and the context assembly immediately before sampling each have a 90-second deadline. Cancellation drops the pending preparation future. A deadline ends the turn with the exact terminal error `Fatal error: response preparation exceeded its 90s deadline`; it does not retry input, inference or completed tools. Initial preparation failures preserve accepted input through the existing recording/journal boundary. Inference, compaction, tool execution and human approval/input waits are outside these deadlines.
+
+The host admits an explicit continuation or empty-input play action after this exact native failure with category `other`, while retaining live-turn attachment, duplicate coalescing and unresolved-delivery guards. Error notifications alone never dispatch a new request. Diagnostics use `response_preparation_timeout`; engine tracing records stage, outcome, elapsed time and thread/turn references without payloads. World-state tracing identifies base instructions, subagent context, clock/environment context and the numeric extension contributor being prepared.
+
+Preservation belongs to `engine.recovery` and `ui.recovery` in the feature inventory. Deterministic stalled-preparation and continuation checks are described in [recovery operations](../ops/development.md#reload-recovery).
+
 ## Visible states and recovery actions
 
 A VS Code status item shows the most recently observed thread state. Its menu lists tracked threads and offers status refresh and interrupt-then-resume. Evidence comes from native notifications: recovery/start acceptance, agent output, tool activity, approval/input wait, completed/interrupted/error, and connection loss. Recovery shows `서버 연결 중 · 세션 확인`; pending engine admission shows `전송 대기 중`. Both use an animated status icon. After acceptance, initial silence shows `응답 대기 중` rather than claiming a new server connection is being established.
