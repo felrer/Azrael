@@ -10,7 +10,7 @@ async fn invocation(path: &std::path::Path, offset: usize, limit: usize) -> Tool
 }
 
 fn invocation_with_context(
-    session: Arc<crate::session::Session>,
+    session: Arc<crate::session::session::Session>,
     turn: Arc<crate::session::turn_context::TurnContext>,
     path: &std::path::Path,
     offset: usize,
@@ -32,7 +32,7 @@ fn invocation_with_context(
 async fn native_write_context(
     approval: codex_protocol::protocol::AskForApproval,
 ) -> (
-    Arc<crate::session::Session>,
+    Arc<crate::session::session::Session>,
     Arc<crate::session::turn_context::TurnContext>,
     async_channel::Receiver<codex_protocol::protocol::Event>,
 ) {
@@ -42,7 +42,7 @@ async fn native_write_context(
         |config| {
             config
                 .permissions
-                .set_permission_profile(codex_protocol::permissions::PermissionProfile::Disabled)
+                .set_permission_profile(codex_protocol::models::PermissionProfile::Disabled)
                 .unwrap();
             config.permissions.approval_policy = crate::config::Constrained::allow_any(approval);
         },
