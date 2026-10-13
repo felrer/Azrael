@@ -126,7 +126,7 @@ async fn auto_compaction_legacy_snapshot_defaults_on_and_explicit_off_round_trip
 #[tokio::test]
 async fn auto_compaction_disabled_blocks_every_reason_and_phase_without_replacing_history() {
     let (session, turn, _rx) = make_session_and_context_with_rx().await;
-    let step = Arc::new(StepContext::for_test(turn));
+    let step = StepContext::for_test(turn);
     // Capture the step first: changing a thread while its turn is active takes effect immediately.
     session
         .update_settings(SessionSettingsUpdate {
@@ -172,7 +172,7 @@ async fn auto_compaction_disabled_blocks_every_reason_and_phase_without_replacin
 
 #[tokio::test]
 async fn auto_compaction_off_preserves_manual_token_budget_compaction() {
-    let (session, turn, _rx) = make_session_and_context_with_rx().await;
+    let (session, turn, rx) = make_session_and_context_with_rx().await;
     session
         .update_settings(SessionSettingsUpdate {
             auto_compaction_enabled: Some(false),
@@ -180,13 +180,56 @@ async fn auto_compaction_off_preserves_manual_token_budget_compaction() {
         })
         .await
         .unwrap();
-    let before = session.history_reset().await.0;
+    let previous_window = session.current_window_id().await;
+    let previous_message = codex_protocol::models::ResponseItem::Message {
+        id: None,
+        role: "assistant".to_string(),
+        content: vec![codex_protocol::models::ContentItem::OutputText {
+            text: "old context before manual compaction".to_string(),
+        }],
+        phase: None,
+        internal_chat_message_metadata_passthrough: None,
+    };
+    session
+        .record_conversation_items(&turn, turn.model_info(), &[previous_message])
+        .await;
+    assert!(session.clone_history().await.raw_items().any(|item| {
+        matches!(item, codex_protocol::models::ResponseItem::Message { role, .. } if role == "assistant")
+    }));
     let world_state = Arc::new(build_world_state_from_turn_context(&session, &turn).await);
-    let step = Arc::new(StepContext::for_test(turn));
+    let step = StepContext::for_test(turn);
     crate::compact_token_budget::run_manual_compact_task(Arc::clone(&session), step, world_state)
         .await
         .unwrap();
-    assert!(session.history_reset().await.0 > before);
+    assert_ne!(session.current_window_id().await, previous_window);
+    let history = session.clone_history().await;
+    assert!(history.world_state_checkpoint().is_some());
+    assert!(!history.raw_items().any(|item| {
+        matches!(item, codex_protocol::models::ResponseItem::Message { role, .. } if role == "assistant")
+    }));
+    let mut lifecycle = Vec::new();
+    while let Ok(event) = rx.try_recv() {
+        match event.msg {
+            EventMsg::ItemStarted(event)
+                if matches!(
+                    event.item,
+                    codex_protocol::items::TurnItem::ContextCompaction(_)
+                ) =>
+            {
+                lifecycle.push("started");
+            }
+            EventMsg::ItemCompleted(event)
+                if matches!(
+                    event.item,
+                    codex_protocol::items::TurnItem::ContextCompaction(_)
+                ) =>
+            {
+                lifecycle.push("completed");
+            }
+            _ => {}
+        }
+    }
+    assert_eq!(lifecycle, ["started", "completed"]);
     assert!(!session.auto_compaction_enabled().await);
 }
 
