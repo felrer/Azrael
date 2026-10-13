@@ -42,6 +42,7 @@ pub fn with_config_overrides(mut model: ModelInfo, config: &ModelsManagerConfig)
         &model,
         &config.provider_auto_compact,
         config.model_auto_compact_token_limit,
+        /*subscription*/ false,
     );
     model.auto_compact_token_limit = limit;
     if let Some(token_limit) = config.tool_output_token_limit {

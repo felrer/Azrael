@@ -105,8 +105,9 @@ pub fn resolve_auto_compact(
     model: &ModelInfo,
     entries: &BTreeMap<String, ProviderAutoCompact>,
     global: Option<i64>,
+    subscription: bool,
 ) -> (Option<i64>, AutoCompactSource) {
-    let base = auto_compact_base_tokens(model);
+    let base = auto_compact_base_tokens(model, subscription);
     let provider = entries.get(policy_provider_id(model));
     let model_entry = provider.and_then(|entry| entry.models.get(&model.slug));
     let (custom, source) = if let Some(entry) = model_entry {
@@ -144,7 +145,9 @@ pub fn resolve_auto_compact(
         )
     };
     let desired = custom.or_else(|| {
-        if policy_provider_id(model) == "anthropic"
+        if is_native_openai_subscription(model, subscription) {
+            Some(300_000)
+        } else if policy_provider_id(model) == "anthropic"
             && model
                 .resolved_context_window()
                 .is_some_and(|capacity| capacity >= 1_000_000)
@@ -168,10 +171,24 @@ fn percentage_tokens(base: i64, percentage: i64) -> i64 {
     (i128::from(base) * i128::from(percentage) / 100).clamp(1, i128::from(i64::MAX)) as i64
 }
 
-fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
-    let subscription = subscription
+fn is_native_openai_subscription(model: &ModelInfo, subscription: bool) -> bool {
+    subscription
         && policy_provider_id(model) == "openai"
-        && !model.slug.starts_with("managed/");
+        && !model.slug.starts_with("managed/")
+        && !model.slug.starts_with("api/")
+}
+
+fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
+    let subscription = is_native_openai_subscription(model, subscription);
+    // Product policy for the native subscription route; API pricing rules remain separate.
+    if subscription {
+        return ContextPricing {
+            status: PricingStatus::NoSurcharge,
+            input_token_threshold: None,
+            inclusive: false,
+            source_url: None,
+        };
+    }
     let mut pricing = ContextPricing {
         status: PricingStatus::Unknown,
         input_token_threshold: None,
@@ -267,8 +284,8 @@ fn resolve_pricing(model: &ModelInfo, subscription: bool) -> ContextPricing {
     pricing
 }
 
-fn auto_compact_base_tokens(model: &ModelInfo) -> Option<i64> {
-    let pricing = resolve_pricing(model, /*subscription*/ false);
+fn auto_compact_base_tokens(model: &ModelInfo, subscription: bool) -> Option<i64> {
+    let pricing = resolve_pricing(model, subscription);
     let boundary = pricing.input_token_threshold.map(|threshold| {
         if pricing.inclusive {
             threshold.saturating_sub(1)
@@ -290,13 +307,13 @@ pub fn resolve_context_policy(
     subscription: bool,
 ) -> ContextPolicy {
     let (auto_compact_token_limit, auto_compact_source) =
-        resolve_auto_compact(model, entries, global);
+        resolve_auto_compact(model, entries, global, subscription);
     ContextPolicy {
         provider_id: policy_provider_id(model).to_string(),
         model_id: model.slug.clone(),
         context_window: model.resolved_context_window(),
         safe_context_window: model.usable_context_window(),
-        auto_compact_base_tokens: auto_compact_base_tokens(model),
+        auto_compact_base_tokens: auto_compact_base_tokens(model, subscription),
         auto_compact_token_limit,
         auto_compact_source,
         pricing: resolve_pricing(model, subscription),

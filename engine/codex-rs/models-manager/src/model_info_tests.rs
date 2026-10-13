@@ -278,17 +278,17 @@ fn provider_context_policy_defaults_precedence_and_safe_cap() {
     for (window, expected) in [(1_000_000, 258_400), (272_000, 258_400), (200_000, 190_000)] {
         model.context_window = Some(window);
         assert_eq!(
-            resolve_auto_compact(&model, &entries, None),
+            resolve_auto_compact(&model, &entries, None, false),
             (Some(expected), AutoCompactSource::Default)
         );
     }
     assert_eq!(
-        resolve_auto_compact(&model, &entries, Some(120_000)),
+        resolve_auto_compact(&model, &entries, Some(120_000), false),
         (Some(120_000), AutoCompactSource::Global)
     );
     entries.insert("openai".into(), ProviderAutoCompact::default());
     assert_eq!(
-        resolve_auto_compact(&model, &entries, Some(120_000)),
+        resolve_auto_compact(&model, &entries, Some(120_000), false),
         (Some(190_000), AutoCompactSource::Default)
     );
     entries.insert(
@@ -300,7 +300,7 @@ fn provider_context_policy_defaults_precedence_and_safe_cap() {
     );
     model.effective_context_window_percent = 80;
     assert_eq!(
-        resolve_auto_compact(&model, &entries, Some(120_000)),
+        resolve_auto_compact(&model, &entries, Some(120_000), false),
         (Some(160_000), AutoCompactSource::Provider)
     );
     model.slug = "managed/google/gemini-2.5-pro".into();
@@ -313,7 +313,7 @@ fn provider_context_policy_defaults_precedence_and_safe_cap() {
         },
     );
     assert_eq!(
-        resolve_auto_compact(&model, &entries, Some(120_000)),
+        resolve_auto_compact(&model, &entries, Some(120_000), false),
         (Some(42_000), AutoCompactSource::Provider)
     );
 }
@@ -397,7 +397,7 @@ fn provider_context_policy_pricing_matches_exact_route_and_model() {
         resolve_context_policy(&model, &entries, None, true)
             .pricing
             .status,
-        PricingStatus::Reference
+        PricingStatus::NoSurcharge
     );
     for (slug, threshold, inclusive, status) in [
         (
