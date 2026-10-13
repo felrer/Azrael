@@ -5,6 +5,9 @@ const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-66a2c48ceb22
 const FAST_MODE_BANNER_ASSET = "webview/assets/home-announcement-state-89426c353877.js";
 const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET, FAST_MODE_BANNER_ASSET];
 const MARKER = "/*azrael-ui-cleanup-v1*/";
+const COMPOSER_EMOTICONS = ["[•ᴗ•]", "( ˘ᵕ˘)b", "ʕᵔᴥᵔʔ", "ʕっ•ᴥ•ʔっ🍯", "^•ᴗ•^", "(づ｡◕‿‿◕｡)づ", "(｡•̀ᴗ-)✧"];
+// Persist only a presentation choice; native draft and conversation state stay native.
+const PLACEHOLDER_BODY = `{const faces=${JSON.stringify(COMPOSER_EMOTICONS)},key="azrael-composer-emoticon-v1:"+JSON.stringify(e.sessionKey??"new-conversation");mPi.choices??=new Map;let face=mPi.choices.get(key);if(face!=null)return face;try{face=localStorage.getItem(key)}catch{}if(!faces.includes(face)){face=faces[Math.floor(Math.random()*faces.length)];try{localStorage.setItem(key,face)}catch{}}mPi.choices.set(key,face);return face;}`;
 
 function parse(text, ts) {
   const file = ts.createSourceFile("pinned-ui.js", text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
@@ -50,12 +53,13 @@ function injectUiCleanup(text, relativePath, ts) {
   } else if (relativePath === COMPOSER_ASSET) {
     const placeholder = requireFunction("mPi");
     if (marked) {
-      if (placeholder.body.getText(file) !== '{return "^•⩊•^";}') throw new Error("Invalid cleaned composer placeholder.");
+      if (placeholder.body.getText(file) !== PLACEHOLDER_BODY) throw new Error("Invalid cleaned composer placeholder.");
     } else {
       const source = placeholder.body.getText(file);
       if (!source.includes("composer.placeholder.localFollowUp.locally") || !source.includes("if(u!=null)return u")) throw new Error("Pinned placeholder variants changed.");
-      edits.push({start:placeholder.body.getStart(file),end:placeholder.body.end,replacement:'{return "^•⩊•^";}'});
+      edits.push({start:placeholder.getStart(file),end:placeholder.end,replacement:'function mPi(e)'+PLACEHOLDER_BODY});
     }
+    replace(requireFunction("bFa"), "Mc=mPi({intl:kn,", "Mc=mPi({sessionKey:[Jr,g_(he.value)],intl:kn,");
     const retired = [["aOa","plan-mode"],["uDa","goal"],["YDa","model"],["sDa","fork"],["vDa","init"],["hOa","reasoning"],["FEa","review-mode"],["HEa","review-mode"]];
     for (const [name,id] of retired) {
       if(marked){if(functions.has(name))throw new Error("Removed UI registration restored: "+name);continue}
@@ -118,4 +122,4 @@ function injectUiCleanup(text, relativePath, ts) {
   }
   text=MARKER+text;parse(text,ts);return {text,count:1};
 }
-module.exports={UI_CLEANUP_ASSETS,COMPOSER_ASSET,PERMISSIONS_ASSET,MARKER,injectUiCleanup};
+module.exports={UI_CLEANUP_ASSETS,COMPOSER_ASSET,PERMISSIONS_ASSET,MARKER,COMPOSER_EMOTICONS,injectUiCleanup};
