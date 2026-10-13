@@ -109,6 +109,7 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   let stallRecovery = false;
   let failRecovery = false;
   let serverFailure = false;
+  let capacityFailure = false;
   bridge.isMcpResponseMessage = () => true;
   bridge.sendMessage = (message, deliveryCallback) => {
     sent.push(message);
@@ -116,10 +117,12 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
     const separator = message.id.indexOf(":");
     const provider = message.id.slice(0, separator);
     if (provider.startsWith("azrael-recovery-") && !stallRecovery) {
-      const result = serverFailure && message.method === "thread/read" ?
+      const result = (serverFailure || capacityFailure) && message.method === "thread/read" ?
         { thread: { id: message.params.threadId, status: { type: "systemError" } } } :
-        serverFailure && message.method === "thread/turns/list" ? { data: [{
-          id: "turn-server-failed", status: "failed", error: { codexErrorInfo: "other",
+        (serverFailure || capacityFailure) && message.method === "thread/turns/list" ? { data: [{
+          id: "turn-server-failed", status: "failed", error: capacityFailure ? {
+            codexErrorInfo: "serverOverloaded", message: "Selected model is at capacity. Please try a different model.",
+          } : { codexErrorInfo: "other",
             message: "stream disconnected before completion: An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID 01619dc0-21cd-4823-b339-dd783eaf7254 in your message." },
         }] } : { turn: { id: "turn-engine" } };
       queueMicrotask(() => bridge.routeIncomingMessage(failRecovery ?
@@ -182,6 +185,25 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   assert.equal(logRecords.map(record => JSON.parse(record)).find(record => record.event === "recovery.admission" && record.threadId === "thread-server")?.errorKind,
     "server_processing_error");
   serverFailure = false;
+
+  capacityFailure = true;
+  for (const [id, input] of [["capacity-continue", [{ type: "text", text: "계속" }]],
+    ["capacity-new-input", [{ type: "text", text: "새로운 지시" }, { type: "image", imageUrl: "data:image/png;base64,fixture" }]]]) {
+    const before = sent.length;
+    bridge.sendProviderRequest("client", id, "turn/start", {
+      threadId: "thread-capacity", input, model: "selected-capacity-model", clientUserMessageId: id,
+    }, false, true);
+    for (let attempt = 0; attempt < 20 && !delivered.some(message => message.id === id); attempt++) await new Promise(resolve => setImmediate(resolve));
+    assert.equal(delivered.find(message => message.id === id)?.result?.turn.id, "turn-engine");
+    const starts = sent.slice(before).filter(request => request.method === "turn/start");
+    assert.equal(starts.length, 1, "each explicit capacity follow-up dispatches once");
+    assert.deepEqual(starts[0].params.input, input);
+    assert.equal(starts[0].params.model, "selected-capacity-model");
+    assert.equal(starts[0].params.clientUserMessageId, id);
+  }
+  assert.equal(logRecords.map(record => JSON.parse(record)).find(record =>
+    record.event === "recovery.admission" && record.threadId === "thread-capacity")?.errorKind, "server_overloaded");
+  capacityFailure = false;
 
   bridge.failPendingRequests = () => {};
   bridge.requestUserInputAutoResolutionCoordinator = { clearPendingRequests() {} };
