@@ -124,7 +124,7 @@ test('failed probes, full identity drift and native input drift never publish su
       write(f.root, 'control.json', JSON.stringify({ mutate: 'recovery' }));
       f.stable(true);
     }
-    const failed = await f.run(3, 0, 'failed');
+    const failed = await f.run(mode === 'fail' ? 2 : 3, 0, 'failed');
     assert.match(failed.error, mode === 'fail' ? /mandatory check failed/ : /changed during verification/);
     for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), false);
     write(f.root, 'control.json', '{}');
@@ -143,12 +143,13 @@ test('boolean opt-out forces probes, rejects nonboolean and undeclared native ch
   const forced = await f.run(3, 0); assert.equal(forced.nativeCache.eligible, 3);
   assert(forced.checks.every(check => /forced|disabled/.test(check.executionReason)));
   write(f.root, 'control.json', JSON.stringify({ fail: 'recovery' }));
-  const failed = await f.run(3, 0, 'failed');
+  const failed = await f.run(2, 0, 'failed');
   assert.match(failed.error, /mandatory check failed/);
   for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), false, 'forced failure removes prior same-key pass');
   write(f.root, 'control.json', '{}');
+  assert(failed.skipped.some(check => check.checkId.includes('accepted-input')), 'failure must block the remaining probe');
   f.config.reuseNativeChecks = true;
-  await f.run(3, 0); await f.run(0, 3);
+  await f.run(2, 1); await f.run(0, 3);
   f.config.reuseNativeChecks = 'false'; const bad = await gate.runPreservation(f.config);
   assert.equal(bad.status, 'failed'); assert.match(bad.error, /must be boolean/);
   delete f.config.reuseNativeChecks;

@@ -5,6 +5,8 @@ function New-BuildMetrics {
     $metrics = [pscustomobject]@{
         Path = $Path
         Timer = [Diagnostics.Stopwatch]::StartNew()
+        StartedUtc = [DateTime]::UtcNow.ToString('o')
+        CompletedUtc = $null
         Status = 'running'
         Stages = [Collections.Generic.List[object]]::new()
     }
@@ -20,6 +22,8 @@ function Write-BuildMetrics {
         $stages = @($Metrics.Stages | ForEach-Object {
             $record = [ordered]@{
                 name = $_.Name
+                startedUtc = $_.StartedUtc
+                completedUtc = $_.CompletedUtc
                 elapsedMs = [long]$_.Timer.ElapsedMilliseconds
                 status = $_.Status
             }
@@ -29,6 +33,8 @@ function Write-BuildMetrics {
         })
         [ordered]@{
             schema = 1
+            startedUtc = $Metrics.StartedUtc
+            completedUtc = $Metrics.CompletedUtc
             stages = $stages
             elapsedMs = [long]$Metrics.Timer.ElapsedMilliseconds
             status = $Metrics.Status
@@ -42,6 +48,7 @@ function Write-BuildMetrics {
 function Start-BuildStage {
     param([Parameter(Mandatory)]$Metrics, [Parameter(Mandatory)][string]$Name, [string]$LogPath)
     $stage = [pscustomobject]@{
+        StartedUtc = [DateTime]::UtcNow.ToString('o'); CompletedUtc = $null
         Name = $Name; Timer = [Diagnostics.Stopwatch]::StartNew()
         Status = 'running'; ExitCode = $null; LogPath = $LogPath
     }
@@ -54,6 +61,7 @@ function Complete-BuildStage {
     param([Parameter(Mandatory)]$Metrics, [Parameter(Mandatory)]$Stage,
         [ValidateSet('success', 'failed')][string]$Status = 'success', [Nullable[int]]$ExitCode)
     $Stage.Timer.Stop()
+    $Stage.CompletedUtc = [DateTime]::UtcNow.ToString('o')
     $Stage.Status = $Status
     if ($null -ne $ExitCode) { $Stage.ExitCode = $ExitCode }
     Write-BuildMetrics $Metrics
@@ -64,10 +72,12 @@ function Complete-BuildMetrics {
     foreach ($stage in $Metrics.Stages) {
         if ($stage.Status -eq 'running') {
             $stage.Timer.Stop()
+            $stage.CompletedUtc = [DateTime]::UtcNow.ToString('o')
             $stage.Status = $Status
         }
     }
     $Metrics.Timer.Stop()
+    $Metrics.CompletedUtc = [DateTime]::UtcNow.ToString('o')
     $Metrics.Status = $Status
     Write-BuildMetrics $Metrics
 }

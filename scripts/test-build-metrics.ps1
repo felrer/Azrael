@@ -40,9 +40,10 @@ foreach ($code in @(0, 7, 8, -1)) {
         Complete-BuildMetrics $m -Status $(if ($code -in @(0, 7)) { 'success' } else { 'failed' })
         $json = Read-CaseMetrics $m
         Assert-True ($json.stages.Count -eq 1) 'Native command must record one stage.'
+        Assert-True ($null -ne $json.startedUtc -and $null -ne $json.completedUtc -and $null -ne $json.stages[0].startedUtc -and $null -ne $json.stages[0].completedUtc) 'Actual command/total timestamps missing.'
         Assert-True ($json.stages[0].exitCode -eq $code) 'Native exit must remain exact.'
         Assert-True ($json.stages[0].status -eq $json.status) 'Native status differs from expected total.'
-    }.GetNewClosure()
+    }
 }
 Test-Case 'native-default-rejects-seven' {
     $m = New-CaseMetrics 'native-default'

@@ -55,6 +55,17 @@ $children = [Collections.Generic.List[object]]::new()
 $metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0 }
 $pwsh = (Get-Process -Id $PID).Path
 
+function Write-DeploymentMetrics {
+    # Checkpoints are diagnostic; a write failure must not mask the command failure.
+    try {
+        $metrics.wallTimeMs = $timer.Elapsed.TotalMilliseconds
+        $temporary = Join-Path $logs 'deployment-metrics.json.tmp'
+        $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $temporary -Encoding utf8NoBOM
+        [IO.File]::Move($temporary, (Join-Path $logs 'deployment-metrics.json'), $true)
+    } catch { Write-Warning "Could not checkpoint deployment metrics: $($_.Exception.Message)" }
+}
+Write-DeploymentMetrics
+
 function Get-ProjectSnapshot {
     param([string]$Phase)
     $checkTimer = [Diagnostics.Stopwatch]::StartNew()
@@ -85,13 +96,14 @@ function Start-OwnedCommand {
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
     foreach ($arg in $Arguments) { $info.ArgumentList.Add($arg) }
-    $record = [ordered]@{ name = $Name; executable = $Executable; arguments = $Arguments; startedUtc = [DateTime]::UtcNow.ToString('o'); durationMs = 0; exitCode = $null; terminated = $false; stdout = (Join-Path $logs "$Name.stdout.log"); stderr = (Join-Path $logs "$Name.stderr.log") }
+    $record = [ordered]@{ name = $Name; executable = $Executable; arguments = $Arguments; startedUtc = [DateTime]::UtcNow.ToString('o'); durationMs = 0; exitCode = $null; terminated = $false; completedUtc = $null; stdout = (Join-Path $logs "$Name.stdout.log"); stderr = (Join-Path $logs "$Name.stderr.log") }
     $metrics.stages += $record
     $out = [IO.File]::Create($record.stdout)
     $err = [IO.File]::Create($record.stderr)
     try { $proc = [Diagnostics.Process]::Start($info) } catch { $out.Dispose(); $err.Dispose(); $record.startError = $_.Exception.Message; throw }
     $child = [pscustomobject]@{ Process = $proc; Record = $record; Timer = [Diagnostics.Stopwatch]::StartNew(); Out = $out; Err = $err; OutTask = $proc.StandardOutput.BaseStream.CopyToAsync($out); ErrTask = $proc.StandardError.BaseStream.CopyToAsync($err); Completed = $false }
     $children.Add($child)
+    Write-DeploymentMetrics
     return $child
 }
 function Complete-OwnedCommand {
@@ -102,6 +114,8 @@ function Complete-OwnedCommand {
     $Child.Record.exitCode = $Child.Process.ExitCode
     $Child.Record.durationMs = $Child.Timer.Elapsed.TotalMilliseconds
     $Child.Completed = $true
+    $Child.Record.completedUtc = [DateTime]::UtcNow.ToString('o')
+    Write-DeploymentMetrics
 }
 function Wait-OwnedCommands {
     param([object[]]$Commands)
@@ -165,6 +179,21 @@ try {
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
     $metrics.changedPaths = @($ChangedPath)
+    $sourceConfig = [ordered]@{
+        projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
+        outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
+        reuseNativeChecks = -not [bool]$FullRegression
+    }
+    if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
+    if (-not $FullRegression) { $sourceConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input') }
+    $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
+    $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+    $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
+    Wait-OwnedCommands @($dependencies)
+    $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $sourceConfigPath)
+    Wait-OwnedCommands @($sourcePreflight)
+    $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
+    if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     Wait-OwnedCommands @($sourceTests, $build)
@@ -174,17 +203,17 @@ try {
         projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
         reuseNativeChecks = -not [bool]$FullRegression
+        sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
     }
+    if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if (-not $FullRegression) {
         $enginePreservationConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
     $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
     $enginePreservation = Start-OwnedCommand 'engine-preservation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $enginePreservationConfigPath)
-    Wait-OwnedCommands @($enginePreservation)
-    $enginePreservationResult = Get-Content -LiteralPath $enginePreservation.Record.stdout -Raw | ConvertFrom-Json
-    $enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath
-    $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
+    # Account-control probes retain their existing prerequisite ordering.
+    if ($VerifyAccountControls) { Wait-OwnedCommands @($enginePreservation) }
     if ($VerifyAccountControls) {
         $enginePath = Join-Path $release 'engine/codex.exe'
         $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
@@ -220,7 +249,13 @@ try {
     if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
     if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
-    Invoke-Stage 'prepare' 'prepare-independent-vscode.ps1' $prepareArgs
+    $prepare = Start-OwnedCommand 'prepare' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')) + $prepareArgs)
+    # Package preparation has no dependency on the engine test receipt. Both must pass before acceptance.
+    Wait-OwnedCommands @($enginePreservation, $prepare)
+    $enginePreservationResult = Get-Content -LiteralPath $enginePreservation.Record.stdout -Raw | ConvertFrom-Json
+    $enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath
+    if (-not $enginePreservationConfig.receiptPath) { throw 'Engine preservation receiptPath missing.' }
+    $enginePreservationConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
     $preparedPath = Join-Path $package 'independent-prepared.json'
     $prepared = Get-Content -LiteralPath $preparedPath -Raw | ConvertFrom-Json
     if ([IO.Path]::GetFullPath($prepared.ReleaseDirectory) -ine $release -or [IO.Path]::GetFullPath($prepared.HostVsix) -ine (Join-Path $package 'azrael-host.vsix')) { throw 'Preparation returned a different release or package path.' }
@@ -303,8 +338,8 @@ if ($installExitCode -ne 0) {
             }
         } finally { $child.Process.Dispose() }
     }
-    $metrics.wallTimeMs = $timer.Elapsed.TotalMilliseconds
-    $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
+    $metrics.completedUtc = [DateTime]::UtcNow.ToString('o')
+    Write-DeploymentMetrics
     if ($metrics.status -in @('verified', 'installed') -and @($metrics.stages | Where-Object { $null -eq $_.exitCode -or $_.exitCode -ne 0 -or $_.terminated }).Count -eq 0) {
         try {
             # Publish the durable acceptance reference before the cleaner inspects
