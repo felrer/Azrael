@@ -867,6 +867,14 @@
       ]
     },
     {
+      "id": "ui.capacity-retry-stop",
+      "area": "ui",
+      "owners": ["scripts/inject-capacity-retry-stop.cjs"],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [{"id":"ui.capacity-retry-stop.behavior","executable":"node","args":["--test","scripts/test-capacity-retry-stop.cjs"],"level":"source"}],
+      "reportFields": ["capacityRetryStopEdits"]
+    },
+    {
       "id": "ui.immediate-stop",
       "area": "ui",
       "owners": [

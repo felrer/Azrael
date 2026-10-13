@@ -20,6 +20,14 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## Capacity retry controls
+
+Status: `current` in source — Windows behavior fixtures and native React/CSS rendering pass in light/dark themes. Package, installation and native Linux/macOS acceptance remain unverified.
+
+The latest failed model-capacity response offers **Stop retrying** beside the native retry countdown. Stopping disables automatic retry submissions for that failed turn in the current webview, including remounting its card. It immediately blocks an already scheduled callback before React rerenders. The native **Retry** action remains available for explicit manual submission. A new failed turn retains its own retry policy; other hosts and conversations are unaffected. Reloading the webview restores the native retry policy. The button stops future automatic requests; an already submitted response uses the existing composer Stop control.
+
+Native owner eligibility, ready-state checks, retry admission, collaboration mode and submission-failure handling remain in use. Only the latest failed turn renders retry actions. Controls reuse native outline buttons, spacing and theme tokens across Windows x64, Linux x64 and macOS ARM64. Preservation feature: `ui.capacity-retry-stop`. `scripts/test-capacity-retry-stop.cjs` covers timer/admission behavior and `scripts/verify-capacity-retry-render.mjs` renders native controls with synthetic host/localization services.
+
 ## New-chat drafts
 
 Status: `current` in source — pinned host persistence checks on Windows; packaging and installed-window acceptance pending.
