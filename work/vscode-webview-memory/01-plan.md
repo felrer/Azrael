@@ -1,6 +1,8 @@
 # 웹뷰 RAM 격리 측정
 
-상태: 완료. 격리 Windows 실험과 추가 GC 진단 통과, 프로세스 종료·fixture 삭제 확인. 최적화 구현은 하지 않음.
+상태: 격리 RAM 측정 완료. 숨겨진 웹뷰 해제 정책은 소스 구현·검증 완료이며, 실제 VS Code 수용·빌드·설치는 별도다.
+
+## 격리 측정 조건
 
 - 목표: 사용자 프로필 밖에 현재 프로젝트의 세션 사본과 별도 VS Code/Azrael 상태를 마련하고, 대화 웹뷰를 열기·숨기기·닫기에 따른 메모리 차이를 측정한다. 사용자가 실험 실행을 요청했다. 최적화 구현은 범위 밖이다.
 - 환경: 현재 Windows x64 데스크톱, VS Code 1.140.0, 설치된 Azrael 2026.0.6의 고정 사본. 다른 OS와 장시간 모델 실행은 검증하지 않는다.
@@ -27,3 +29,18 @@
 - 판단: 숨겨진 대화 웹뷰의 상태 해제는 조사·개발 가치가 있다. 다만 여러 웹뷰의 프로세스·캐시 공유, GC 회수 시점과 최신 상태 복원 계약을 함께 다뤄야 한다. 플래그 변경만으로 특정 절감량을 보장하지 않는다. 최적화 구현, 실제 모델 작업 중 업데이트와 입력 초안 복원 검증은 수행하지 않았다.
 - 원본 VS Code 사용자 설정과 설치된 runtime manifest의 전후 SHA-256은 같았다. 격리 프로세스를 정상 종료했고, 마지막 진단에 기록된 프로세스 ID가 모두 사라진 것을 확인했다. 외부 fixture 삭제 결과는 [cleanup-receipt.json](../../artifacts/logs/webview-memory-20261013/cleanup-receipt.json)에 기록한다.
 - 외부 fixture 삭제를 확인했다(종료 코드 0). 자동 생성된 테스트 플러그인 Git 캐시의 숨김 디렉터리 1개·읽기 전용 pack 파일 3개가 일반 삭제를 막았다. 테스트 경로·소유자·활성 프로세스 부재를 확인하고 해당 4개 항목의 속성을 정리한 뒤 같은 PowerShell의 일반 삭제로 제거했다. 원본 캐시·프로필과 기존 사용자 창은 건드리지 않았다.
+
+## 숨겨진 웹뷰 해제 구현
+
+상태: 소스 구현·검증 완료. 사용자가 추천 조건의 구현을 승인했다. 전체 앱 빌드·설치는 이번 지시에 포함하지 않는다.
+
+- 공통 요구: Windows x64, Linux x64, macOS ARM64의 로컬 VS Code 대화 웹뷰에 같은 정책을 적용한다. 현재 실행 검증 환경은 Windows이며 다른 OS의 네이티브 수용은 별도다.
+- 조건: 숨겨진 상태가 연속 1시간 이상이고 현재 대화에 플래그가 없으면 화면 메모리를 해제한다. 표시 상태로 돌아오면 시간을 초기화한다. 탭·대화·native 모델 작업은 유지한다.
+- 경계: 기존 host/global preference·native composer draft를 재사용하며, composer 첨부·선택과 스크롤만 작은 복원 상태로 보관한다. 저장 확인에 실패하거나 제출·일시 첨부가 진행 중이면 해제를 연기한다. 대화 기록은 저장 상태에서 다시 읽는다.
+- 소유: `scripts/inject-webview-idle.cjs`, `scripts/webview-idle.cjs`와 기존 namespace 변환·cache 규칙. 문서는 UI 계약과 기능 보존 목록에 연결한다. 다른 작업의 기존 변경은 보존한다.
+- 검증: 고정 upstream host/UI 변환과 구문 검사, 실제 생산 manager의 가상 시계·표시/플래그 경쟁·실패/복원 테스트, native 초안·플래그 회귀와 DOM 스크롤 복원 검사. 전체 빌드·설치 상태와 소스 검증을 구분한다.
+- 구현: 편집기·사이드바의 숨김 시각을 추적한다. 플래그·표시 상태를 해제 직전에 확인하고, 원래 탭을 닫지 않고 inert 문서로 교체한다. 초안은 native 저장소가 우선이며 첨부·선택·스크롤만 보관한다. 복원 전에 peer/worker 연결을 다시 등록하고, 최신 대화는 native route에서 읽는다. 해제 중 내비게이션·새 대화·맥락 추가·승인 요청은 재표시 handshake 이후 전달하며 기록 알림을 쌓지 않는다.
+- 결과: `node --test --test-concurrency=1 scripts/test-webview-idle.cjs scripts/test-session-flags.cjs scripts/test-project-drafts.cjs scripts/test-composer-draft.cjs` 61개 통과(종료 코드 0, `artifacts/logs/webview-idle/final-regression.log`). 마지막 정책·canonical conversation key 변경 후 `node --test scripts/test-webview-idle.cjs` 10개 재검증 통과(종료 코드 0, `final-idle.log`).
+- 브라우저: `node scripts/verify-webview-idle-render.mjs` 밝은·어두운 테마에서 실제 DOM의 스크롤, 생산 snapshot 메시지와 첨부·초안 및 transcript 제외 6개 검사 통과(종료 코드 0, `render-summary.json`, `final-render.log`). Composer scope와 host 데이터는 합성 fixture로, 실제 native composer 전체 화면을 검증한 것은 아니다.
+- 실제 VS Code 검사: `node scripts/verify-webview-idle-host.cjs` 두 번 모두 updater의 `vscode-updating` mutex 때문에 앱 실행이 실패했다(종료 코드 1, `host-launch.log`, `host-summary.json`). 잠금을 우회하지 않았다. 실제 대화 탭의 해제·복원, 진행 중인 모델 작업·승인 요청의 연속성, 설치 후 RAM 절감량은 수용 전 필수로 남긴다.
+- 정리: 테스트 프로세스 종료 뒤 native PowerShell 일반 삭제로 host/browser fixture·프로필 제거를 확인했다. `host-cleanup.log`, `render-cleanup.log`의 종료 코드는 0이고 두 fixture 경로는 존재하지 않는다. 원본 설정·설치 런타임 변경과 모델 호출은 하지 않았다.
