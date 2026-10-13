@@ -31,7 +31,7 @@ ${pickStudentPreview.toString()}
 ${createDesignStore.toString()}
 const listeners=new Set();window.fixtureEvents=[];
 const students=[{id:10000,photoSetId:'blue-archive',nameEn:'Aru',url:'/photo.png'},{id:10001,photoSetId:'blue-archive',nameEn:'Mutsuki',url:'/photo.png'},{id:'custom:1',photoSetId:'custom',nameEn:'Custom Cat',url:'/photo.png'}];
-window.fixtureState={enabled:false,chatFont:'gyeonggi-consolas',students,assignments:{existing:10000},photoSets:[{id:'blue-archive',name:'Blue Archive',count:2},{id:'custom',name:'My characters',count:1}],selectedPhotoSetId:'blue-archive'};
+window.fixtureState={enabled:false,chatFont:'gyeonggi-consolas',students,assignments:{existing:10000},photoSets:[{id:'blue-archive',name:'Students',count:2},{id:'custom',name:'My characters',count:1}],selectedPhotoSetId:'blue-archive'};
 const bridge={subscribe(_type,fn){listeners.add(fn);return()=>listeners.delete(fn)},dispatchMessage(_type,p){fixtureEvents.push(p);if(p.action==='unsubscribe')return;queueMicrotask(()=>{if(p.action==='setEnabled')fixtureState.enabled=p.enabled;if(p.action==='setChatFont')fixtureState.chatFont=p.chatFont;if(p.action==='setPhotoSet')fixtureState.selectedPhotoSetId=p.photoSetId;if(p.action==='importPhotoSet'){fixtureState.photoSets.push({id:'imported',name:'Imported photos',count:1});fixtureState.students.push({id:'imported:1',photoSetId:'imported',nameEn:'Imported Cat',url:'/photo.png'});fixtureState.selectedPhotoSetId='imported'}for(const l of listeners)l({...fixtureState,clientId:'fixture'})})}};
 const azraelDesignStore=createDesignStore(bridge,'fixture');window.actualStore=azraelDesignStore;
 function useAzraelDesignState(){return Q.useSyncExternalStore(azraelDesignStore.subscribe,azraelDesignStore.getSnapshot)}
@@ -98,7 +98,7 @@ try{
   check(theme+' set selection limits preview',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='custom' && document.querySelectorAll('img').length===1"));
   await evaluate("document.querySelector('[role=switch]').focus()");await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});await wait('!actualStore.getSnapshot().saving');
   check(theme+' keyboard toggle saves',await evaluate("fixtureEvents.at(-1).action==='setEnabled'"));
-  await chooseSet('Blue Archive');await wait("!!document.querySelector('img') && document.querySelector('img').alt!=='Custom Cat'");const previous=await evaluate("document.querySelector('img').alt");await click('Draw again');check(theme+' draw excludes previous',await evaluate("document.querySelector('img').alt")!==previous);
+  await chooseSet('Students');await wait("!!document.querySelector('img') && document.querySelector('img').alt!=='Custom Cat'");const previous=await evaluate("document.querySelector('img').alt");await click('Draw again');check(theme+' draw excludes previous',await evaluate("document.querySelector('img').alt")!==previous);
   summary[theme]=await evaluate("({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.querySelector('h1')).color,overflow:document.documentElement.scrollWidth>innerWidth})");check(theme+' page has no horizontal overflow',!summary[theme].overflow);
   await writeFile(join(logs,theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
   await evaluate("document.querySelector('[data-azrael-photo-set-trigger]').focus()");
