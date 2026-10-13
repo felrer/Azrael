@@ -6667,6 +6667,7 @@ session_picker_view = "dense"
     fn app_server_row_keeps_pathless_threads() {
         let thread_id = ThreadId::new();
         let thread = Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: thread_id.to_string(),
@@ -6714,6 +6715,7 @@ session_picker_view = "dense"
 
         let thread_id = ThreadId::new();
         let thread = Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: thread_id.to_string(),
@@ -6750,6 +6752,8 @@ session_picker_view = "dense"
 
                 id: String::from("turn-1"),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![
                     ThreadItem::UserMessage {
@@ -6804,6 +6808,7 @@ session_picker_view = "dense"
 
         let thread_id = ThreadId::new();
         let thread = Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: thread_id.to_string(),
@@ -6840,6 +6845,8 @@ session_picker_view = "dense"
 
                 id: String::from("turn-1"),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::Reasoning {
                     id: String::from("reasoning-1"),
@@ -6885,6 +6892,7 @@ session_picker_view = "dense"
 
         let thread_id = ThreadId::new();
         let thread = Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: thread_id.to_string(),
@@ -6921,6 +6929,8 @@ session_picker_view = "dense"
 
                 id: String::from("turn-1"),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::Reasoning {
                     id: String::from("reasoning-1"),

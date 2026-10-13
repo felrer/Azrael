@@ -3813,3 +3813,26 @@ async fn selected_window_ceiling_filters_direct_discovery_and_code_mode_sources(
 }
 #[path = "spec_plan_strict_third_party_tests.rs"]
 mod strict_third_party;
+
+
+#[tokio::test]
+async fn anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools() {
+    for (slug, compatible) in [("managed/anthropic/future-model", true), ("managed/openrouter/anthropic/claude", false), ("gpt-6", false)] {
+        let (_session, mut turn) = make_session_and_context().await;
+        Arc::make_mut(&mut turn.config).model_provider_id = if slug.starts_with("managed/") { "azrael-managed" } else { "openai" }.to_owned();
+        let mut settings = turn.initial_settings.as_ref().clone();
+        Arc::make_mut(&mut settings.model_info).slug = slug.to_owned();
+        Arc::make_mut(&mut settings.model_info).shell_type = ConfigShellToolType::UnifiedExec;
+        Arc::make_mut(&mut settings.model_info).apply_patch_tool_type = Some(ApplyPatchToolType::Freeform);
+        turn.initial_settings = Arc::new(settings);
+        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), ToolPlanInputs::default()));
+        if compatible {
+            plan.assert_registered_contains(&["Read", "Edit", "Write", "Bash", "Grep", "Glob"]);
+            plan.assert_registered_lacks(&["apply_patch", "exec_command", "write_stdin", "request_user_input", "request_user_input_async"]);
+            assert_eq!(plan.tool_mode, ToolMode::Direct);
+            assert!(plan.code_mode_tool_names.is_empty());
+        } else {
+            plan.assert_registered_lacks(&["Read", "Edit", "Write", "Bash", "Grep", "Glob", "Agent", "Skill", "ToolSearch", "AskUserQuestion", "TaskOutput", "TaskStop"]);
+        }
+    }
+}

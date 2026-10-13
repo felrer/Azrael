@@ -1,5 +1,9 @@
+pub(crate) mod claude_shell;
+pub(crate) mod claude_search;
+pub(crate) mod claude_controls;
 pub(crate) mod apply_patch;
 pub(crate) mod apply_patch_spec;
+pub(crate) mod claude_files;
 mod current_time;
 mod dynamic;
 pub(crate) mod extension_tools;

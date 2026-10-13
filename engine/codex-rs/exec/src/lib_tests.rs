@@ -388,6 +388,8 @@ fn turn_items_for_thread_returns_matching_turn_items() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![AppServerThreadItem::AgentMessage {
                     id: "msg-1".to_string(),
@@ -408,6 +410,8 @@ fn turn_items_for_thread_returns_matching_turn_items() {
 
                 id: "turn-2".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![AppServerThreadItem::Plan {
                     id: "plan-1".to_string(),
@@ -446,6 +450,8 @@ fn should_backfill_turn_completed_items_backfills_persisted_summaries_only() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Summary,
                 items: Vec::new(),
                 status: codex_app_server_protocol::TurnStatus::Completed,
@@ -855,6 +861,7 @@ fn sample_thread_start_response() -> ThreadStartResponse {
         computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: codex_app_server_protocol::Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: "67e55044-10b1-426f-9247-bb680e5fe0c8".to_string(),

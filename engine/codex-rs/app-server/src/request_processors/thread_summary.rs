@@ -176,6 +176,7 @@ pub(crate) fn thread_settings_from_config_snapshot(
     config_snapshot: &ThreadConfigSnapshot,
 ) -> ThreadSettings {
     ThreadSettings {
+        auto_compaction_enabled: config_snapshot.auto_compaction_enabled,
         disabled_plugin_ids: config_snapshot.disabled_plugin_ids.clone(),
         cwd: config_snapshot.cwd().clone(),
         approval_policy: config_snapshot.approval_policy.into(),
@@ -260,6 +261,7 @@ pub(crate) fn summary_to_thread(
 
     let thread_id = conversation_id.to_string();
     Thread {
+        auto_compaction_enabled: None,
         originator: None,
         environments: None,
         id: thread_id.clone(),

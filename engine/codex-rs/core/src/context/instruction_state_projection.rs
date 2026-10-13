@@ -147,7 +147,7 @@ pub(crate) fn project_instruction_state_for_model(
         .collect()
 }
 
-/// API-only prompt copy filter; callers must retain typed content provenance.
+/// API-only skill and owned tool-guidance projection on a typed prompt copy.
 pub(crate) fn project_api_skill_context(items: Vec<ResponseItem>) -> Vec<ResponseItem> {
     items
         .into_iter()
@@ -178,6 +178,12 @@ fn project_api_skill_item(item: &mut ResponseItem) -> bool {
         .into_iter()
         .zip(std::mem::take(kinds))
     {
+        if role == "developer"
+            && matches!(kind.0.as_str(), "multi_agent.role_instructions" | "multi_agent.usage_hint")
+            && let ContentItem::InputText { text } = &mut part
+        {
+            *text = codex_prompts::project_api_multi_agent_instructions(text);
+        }
         let expected_role = matches!(
             (role.as_str(), kind.0.as_str()),
             ("user", "skills.selected_skill_instructions")

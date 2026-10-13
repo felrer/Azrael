@@ -732,6 +732,8 @@ mod tests {
 
             id: turn_id.to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: (0..user_messages)
                 .map(|index| ThreadItem::UserMessage {
                     id: format!("user-{index}"),

@@ -135,6 +135,7 @@ mod tests {
 
     fn test_thread(thread_id: ThreadId, source: SessionSource) -> Thread {
         Thread {
+            auto_compaction_enabled: None,
             originator: None,
             environments: None,
             id: thread_id.to_string(),

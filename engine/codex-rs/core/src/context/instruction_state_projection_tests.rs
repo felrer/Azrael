@@ -33,6 +33,43 @@ fn message(role: &str, parts: &[(&str, &str)]) -> ResponseItemEnvelope {
 }
 
 #[test]
+fn api_direct_tool_guidance_requires_typed_developer_provenance() {
+    use codex_context_fragments::ContextualUserFragment;
+
+    let role = codex_prompts::MultiAgentRoleInstructions::Composed {
+        base: "Use the workspace conventions.".to_string(),
+        marked: false,
+        omit_update_plan_instructions: false,
+        max_concurrency: 2,
+        wait_agent_enabled: true,
+        expose_model_overrides: true,
+        claude_tools: false,
+    };
+    let text = role.body();
+    assert!(text.contains("functions.exec"));
+    for kind in ["multi_agent.role_instructions", "multi_agent.usage_hint"] {
+        let typed = message("developer", &[(&text, kind)]);
+        let user = message("user", &[(&text, kind)]);
+        let generic = message("developer", &[(&text, "generic")]);
+        let raw = vec![typed.clone(), user.clone(), generic.clone()];
+        let result = project_instruction_state_for_model(raw.clone(), Some("api/test/model"));
+        assert_eq!(result[1..], [user, generic]);
+        let ResponseItem::Message { content, .. } = &result[0].item else {
+            panic!("expected projected developer message");
+        };
+        let ContentItem::InputText { text: projected } = &content[0] else {
+            panic!("expected tool guidance text");
+        };
+        assert!(!projected.contains("functions.exec"));
+        assert!(projected.contains("Use the workspace conventions."));
+        assert!(projected.contains("fork_turns"));
+        assert_eq!(project_instruction_state_for_model(raw.clone(), Some("gpt-test")), raw);
+        assert!(matches!(&typed.item, ResponseItem::Message { content, .. }
+            if matches!(&content[0], ContentItem::InputText { text } if text.contains("functions.exec"))));
+    }
+}
+
+#[test]
 fn latest_typed_replacements_and_removals_preserve_raw_history() {
     for (role, kind) in [
         ("developer", "managed_config.developer_instructions"),

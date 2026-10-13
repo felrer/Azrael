@@ -100,3 +100,79 @@ test("rehydrated live records retain second precision but a new live millisecond
   const live = [{ turnId: "a", status: "completed", turnStartedAtMs: 12230, durationMs: 200 }];
   assert.equal(azraelMergeTaskTimeTurns(saved, live)[0].turnStartedAtPrecisionMs, undefined);
 });
+
+test("history and live retain attribution even when a partial UI record omits it", async () => {
+  const store = azraelCreateTaskTimeHistory({ async listThreadTurns() {
+    return { response: { data: [{ id: "b", rootTurnId: "a", parentTurnId: "a", turnTrigger: "root_resume",
+      startedAt: 12, status: "completed", durationMs: 250 }], nextCursor: null, backwardsCursor: null } };
+  } }, "thread");
+  await store.refresh();
+  const merged = azraelMergeTaskTimeTurns(store.getSnapshot().turns, [{ turnId: "b", status: "completed" }]);
+  assert.deepEqual([merged[0].rootTurnId, merged[0].parentTurnId, merged[0].turnTrigger], ["a", "a", "root_resume"]);
+  const fresh = azraelMergeTaskTimeTurns([], [{ turnId: "c", rootTurnId: "a", parentTurnId: "b", turnTrigger: "root_resume" }]);
+  assert.deepEqual([fresh[0].rootTurnId, fresh[0].parentTurnId, fresh[0].turnTrigger], ["a", "b", "root_resume"]);
+  const frozen = azraelMergeTaskTimeTurns([{ turnId: "d", status: "completed", durationMs: 10 }],
+    [{ turnId: "d", status: "inProgress", rootTurnId: "a", parentTurnId: "c", turnTrigger: "root_resume" }])[0];
+  assert.equal(frozen.status, "completed");
+  assert.deepEqual([frozen.rootTurnId, frozen.parentTurnId, frozen.turnTrigger], ["a", "c", "root_resume"]);
+  store.dispose();
+});
+
+test("unloaded and ephemeral native threads have lifecycle states and safe diagnostics", async () => {
+  let message = "thread not loaded: thread", calls = 0;
+  const diagnostics = [];
+  const store = azraelCreateTaskTimeHistory({ logger: { info(name, value) { diagnostics.push({ name, ...value }); } },
+    async listThreadTurns() { calls++; throw Object.assign(Error(message), { code: -32600 }); } }, "thread", { hostId: "local" });
+  await store.refresh();
+  assert.equal(store.getSnapshot().availability, "notLoaded");
+  assert.equal(store.getSnapshot().error, null);
+  await new Promise(resolve => setImmediate(resolve));
+  assert.equal(calls, 1, "unloaded threads never poll");
+  message = "thread thread is not materialized yet; thread/turns/list is unavailable before first user message";
+  await store.refresh();
+  assert.equal(store.getSnapshot().availability, "notLoaded");
+  assert.equal(store.getSnapshot().error, null);
+  message = "ephemeral threads do not support thread/turns/list";
+  await store.refresh();
+  assert.equal(store.getSnapshot().availability, "unsupported");
+  assert.equal(diagnostics[0].errorCode, -32600);
+  assert.ok(diagnostics.every(value => !("message" in value)));
+  store.dispose();
+});
+
+test("missing native transport does not throw or repeatedly request metadata", async () => {
+  const store = azraelCreateTaskTimeHistory({}, "thread");
+  await store.refresh();
+  assert.equal(store.getSnapshot().availability, "unavailable");
+  assert.equal(store.getSnapshot().loading, false);
+  store.dispose();
+});
+
+test("missing live turns are inserted between common anchors in persisted order", () => {
+  const merged = azraelMergeTaskTimeTurns([{ turnId: "a" }, { turnId: "c" }],
+    [{ turnId: "a" }, { turnId: "b", parentTurnId: "a" }, { turnId: "c" }]);
+  assert.deepEqual(merged.map(turn => turn.turnId), ["a", "b", "c"]);
+  const timed = azraelMergeTaskTimeTurns([{ turnId: "a", turnStartedAtMs: 1000 }, { turnId: "c", turnStartedAtMs: 3000 }],
+    [{ turnId: "b", turnStartedAtMs: 2000 }]);
+  assert.deepEqual(timed.map(turn => turn.turnId), ["a", "b", "c"]);
+});
+
+test("cross-reservation revisions cannot overwrite later terminal history", () => {
+  const saved = [{ turnId: "a", status: "completed", durationMs: 1000,
+    rootResumeWait: { reservationId: "new", revision: 2, state: "resumed", waitStartedAtMs: 2000, waitEndedAtMs: 3000 } }];
+  const live = [{ turnId: "a", status: "inProgress", rootResumeWait:
+    { reservationId: "old", revision: 99, state: "waiting", waitStartedAtMs: 1200 } }];
+  const merged = azraelMergeTaskTimeTurns(saved, live)[0];
+  assert.equal(merged.rootResumeWait.reservationId, "new");
+  assert.equal(merged.rootResumeWait.state, "resumed");
+  assert.equal(merged.durationMs, 1000);
+});
+
+test("ended waits never reopen even with a higher incoming revision", () => {
+  const saved = [{ turnId: "a", status: "deferred", rootResumeWait:
+    { reservationId: "r", revision: 2, state: "cancelled", waitStartedAtMs: 1000, waitEndedAtMs: 3000 } }];
+  const merged = azraelMergeTaskTimeTurns(saved, [{ turnId: "a", status: "deferred", rootResumeWait:
+    { reservationId: "r", revision: 99, state: "waiting", waitStartedAtMs: 1000 } }])[0];
+  assert.equal(merged.rootResumeWait.state, "cancelled");
+  assert.equal(merged.rootResumeWait.waitEndedAtMs, 3000);
+});

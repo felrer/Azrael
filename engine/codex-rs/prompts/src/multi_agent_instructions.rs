@@ -16,6 +16,25 @@ All agents share the same directory. In detail:
 - As a result, edits made by one agent are immediately visible to all other agents.
 "#;
 
+const API_MULTI_AGENT_SHARED_USAGE_HINT_TEXT: &str = r#"Call `spawn_agent`, `send_message`, `followup_task`, `wait_agent`, `interrupt_agent`, and `list_agents` directly using their declared input schemas.
+
+All agents share the same directory. In detail:
+- All agents have access to the same container and filesystem as you.
+- All agents use the same current working directory.
+- As a result, edits made by one agent are immediately visible to all other agents.
+"#;
+
+/// Project the last exact canonical shared usage hint for an API role fragment.
+/// Callers select harness-owned role fragments; unrelated text remains verbatim.
+pub fn project_api_multi_agent_instructions(instructions: &str) -> String {
+    let Some((prefix, suffix)) =
+        instructions.rsplit_once(DEFAULT_MULTI_AGENT_V2_SHARED_USAGE_HINT_TEXT)
+    else {
+        return instructions.to_owned();
+    };
+    format!("{prefix}{API_MULTI_AGENT_SHARED_USAGE_HINT_TEXT}{suffix}")
+}
+
 /// Multi-agent role text and the captured capabilities used to render its context segment.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub enum MultiAgentRoleInstructions {
@@ -29,12 +48,26 @@ pub enum MultiAgentRoleInstructions {
         max_concurrency: usize,
         wait_agent_enabled: bool,
         expose_model_overrides: bool,
+        claude_tools: bool,
     },
+}
+
+impl MultiAgentRoleInstructions {
+    pub fn with_claude_tools(mut self, enabled: bool) -> Self {
+        if let Self::Composed { claude_tools, .. } = &mut self { *claude_tools = enabled; }
+        self
+    }
 }
 
 impl ContextualUserFragment for MultiAgentRoleInstructions {
     fn content_kind(&self) -> ContentItemKind {
-        ContentItemKind("multi_agent.role_instructions".to_string())
+        ContentItemKind(
+            match self {
+                Self::Configured(_) => "multi_agent.configured_role_instructions",
+                Self::Composed { .. } => "multi_agent.role_instructions",
+            }
+            .to_string(),
+        )
     }
 
     fn role(&self) -> &'static str {
@@ -61,6 +94,7 @@ impl ContextualUserFragment for MultiAgentRoleInstructions {
                 max_concurrency,
                 wait_agent_enabled,
                 expose_model_overrides,
+                claude_tools,
                 ..
             } => {
                 let base = if *omit_update_plan_instructions {
@@ -73,13 +107,16 @@ impl ContextualUserFragment for MultiAgentRoleInstructions {
                 } else {
                     String::new()
                 };
-                let shared = DEFAULT_MULTI_AGENT_V2_SHARED_USAGE_HINT_TEXT;
+                let base = if *claude_tools { base.replace("spawn_agent", "Agent") } else { base };
+                let shared = if *claude_tools {
+                    "Call Agent directly using its declared input schema. Other declared collaboration tools use their native schemas. All agents share the workspace and must preserve each other's edits."
+                } else { DEFAULT_MULTI_AGENT_V2_SHARED_USAGE_HINT_TEXT };
                 let mut text = format!(
                     "{base}\n{shared}\n{wait_agent_guidance}There are {max_concurrency} available concurrency slots, meaning that up to {max_concurrency} agents can be active at once, including you."
                 );
                 if *expose_model_overrides {
                     text.push_str("\n\n");
-                    text.push_str(DEFAULT_MULTI_AGENT_V2_MODEL_OVERRIDE_USAGE_HINT_TEXT);
+                    text.push_str(if *claude_tools { "Agent uses native roles and full catalog model identifiers. It creates a task-scoped child without copying full parent history. Provider/tool eligibility is resolved independently for the selected child model." } else { DEFAULT_MULTI_AGENT_V2_MODEL_OVERRIDE_USAGE_HINT_TEXT });
                 }
                 text
             }

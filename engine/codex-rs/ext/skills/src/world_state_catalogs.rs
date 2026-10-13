@@ -38,6 +38,9 @@ use crate::world_state::cloud_skills_world_state_section;
 use crate::world_state::executor_skills_world_state_section;
 use crate::world_state::host_skills_world_state_section;
 
+#[path = "api_host_dedup.rs"]
+mod api_host_dedup;
+
 // Start with one quarter reserved for filesystem skills, before their inventory is known.
 const FILESYSTEM_BUDGET_DIVISOR: usize = 4;
 
@@ -240,7 +243,7 @@ impl<'a> CatalogContext<'a> {
                     turn_id: self.input.turn_id.to_string(),
                     executor_roots: Vec::new(),
                     resolved_executor_roots: Vec::new(),
-                    host_snapshot: Some(host_snapshot),
+                    host_snapshot: Some(Arc::clone(&host_snapshot)),
                     include_host_skills: true,
                     include_bundled_skills: false,
                     include_cloud_skills: false,
@@ -249,6 +252,12 @@ impl<'a> CatalogContext<'a> {
                 })
                 .await;
             filter_host_catalog_for_model(&mut catalog, &self.input.model_info.slug);
+            api_host_dedup::hide_duplicate_host_prompts(
+                &mut catalog,
+                &self.input.model_info.slug,
+                &host_snapshot,
+            )
+            .await;
             self.input
                 .turn_store
                 .insert(HostSkillsStepState(catalog.clone()));

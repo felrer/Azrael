@@ -29,7 +29,7 @@ User API requests retain their stricter current-catalog-only projection and boun
 discovered catalog. OpenAI retains native `tool_search_output` semantics. Neither
 path is changed by this helper projection. See the [Devin tool contract](devin.md#tool-contract).
 
-Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`, including collisions between different name forms. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing aliases remain SHA-256-based names; native executable items retain the original name and namespace. Private replay records store the resolved wire name and the digest of the actual validated arguments.
+Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`, including collisions between different name forms. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing external aliases remain SHA-256-based names; the Anthropic compatible profile keeps Claude-style built-in wire names. Native executable items retain the original name and namespace. The [profile contract](model-harness-profiles.md) owns this exception. Private replay records store the resolved wire name and the digest of the actual validated arguments.
 
 Private `reasoning_details` replay is verified only for nonempty arrays. Empty arrays carry no replay payload and do not require unrelated recorded calls to exist in public history. Nonempty records retain per-envelope call metadata and validate call presence, resolved tool identity and argument digest; failures distinguish `reasoning_scope_mismatch_call_missing`, `reasoning_scope_mismatch_tool_name` and `reasoning_scope_mismatch_arguments`. Direct envelope origin mismatches use `reasoning_scope_mismatch_origin`; ordinary request projection continues to exclude foreign private state. Existing public history is never rewritten and argument mismatches are never repaired by changing saved digests.
 
@@ -66,8 +66,7 @@ The engine and native chat host explain the recognized cause, or explicitly stat
 Status: `partial` — common source behavior is verified by focused Windows engine and provider-request tests; installed-host acceptance requires a matching engine.
 
 Azrael owns the shared behavior in `instructions/instructions/agent-behavior.md`, embedded
-in the engine prompt library. OpenAI, Devin, managed providers and user API models receive
-the same behavior, including user-language progress and final responses. Remote catalog
+in the engine prompt library. Ordinary profiles use that behavior; Anthropic profiles adapt or replace model behavior while preserving the independent runtime core, user-language progress and final responses. The [model harness profile contract](model-harness-profiles.md) owns provider/model prompt and tool selection. Remote catalog
 templates and policy messages do not replace the common behavior. Permissions, approval
 guidance, collaboration modes, multi-agent roles and modes, persistence, recovery and
 Guardian policy use the common bundled messages and runtime configuration. Model catalog
@@ -86,7 +85,7 @@ sessions explicitly disable agents so they cannot start nested multi-agent work.
 
 Status: `partial` — request formatting is verified with Windows mapping and Anthropic HTTP mocks; installed-host acceptance requires a matching helper bundle.
 
-Native requests routed to the Anthropic adapter label text with XML sections following
+Legacy/unprofiled requests routed to the Anthropic adapter label text with XML sections following
 the [Anthropic prompt guidance](https://platform.claude.com/docs/en/build-with-claude/prompt-engineering/claude-prompting-best-practices#structure-prompts-with-xml-tags).
 The common behavior remains provider-independent. `<common_instructions>` contains the
 base instructions and `<runtime_instructions>` contains runtime system/developer guidance.
@@ -104,7 +103,7 @@ Section contents use CDATA, splitting embedded `]]>` terminators to preserve the
 text. Formatting happens on the request copy before the existing size validation. The actual
 configured adapter selects this format; model names do not select it. Other adapters retain
 their existing format, including Claude models served through a different provider protocol.
-OAuth's required leading identity block remains outside these sections. Conversation files
+Legacy OAuth identity remains outside these sections. The compatible profile instead preserves Azrael native system content and exact built-in names at the owned projection boundary; live OAuth acceptance remains separate. Conversation files
 and the maintained common behavior source are unchanged by request formatting.
 
 ### Harness identity

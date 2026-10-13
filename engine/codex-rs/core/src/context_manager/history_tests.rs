@@ -720,6 +720,7 @@ fn developer_msg_with_fragments(texts: &[&str]) -> ResponseItem {
 
 fn reference_context_item() -> TurnContextItem {
     TurnContextItem {
+        harness_profile: None,
         turn_id: Some("reference-turn".to_string()),
         root_turn_id: None,
         disabled_plugin_ids: None,

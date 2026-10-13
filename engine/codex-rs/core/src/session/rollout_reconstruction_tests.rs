@@ -439,6 +439,7 @@ async fn record_initial_history_resumed_bare_turn_context_does_not_hydrate_previ
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -485,6 +486,7 @@ async fn record_initial_history_resumed_hydrates_previous_turn_settings_from_lif
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let mut previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -925,6 +927,7 @@ async fn reconstruct_history_rollback_skips_non_user_turns_for_history_and_metad
         RolloutItem::ResponseItem(standalone_assistant.into()),
         RolloutItem::WorldState(WorldStateItem::full(object!({}))),
         RolloutItem::TurnContext(TurnContextItem {
+            harness_profile: None,
             turn_id: Some(standalone_turn_id.clone()),
             ..first_context_item.clone()
         }),
@@ -980,6 +983,7 @@ async fn reconstruct_history_rollback_counts_inter_agent_assistant_turns() {
         .expect("turn context should have turn_id");
     let assistant_turn_id = "assistant-instruction-turn".to_string();
     let assistant_turn_context = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(assistant_turn_id.clone()),
         ..first_context_item.clone()
     };
@@ -2123,6 +2127,7 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: Some("root-turn".to_string()),
         disabled_plugin_ids: None,
@@ -2221,6 +2226,7 @@ async fn record_initial_history_resumed_turn_context_after_compaction_reestablis
         serde_json::to_value(session.reference_context_item().await)
             .expect("serialize seeded reference context item"),
         serde_json::to_value(Some(TurnContextItem {
+            harness_profile: None,
             turn_id: Some(turn_context.sub_id.clone()),
             root_turn_id: Some("root-turn".to_string()),
             disabled_plugin_ids: None,
@@ -2251,6 +2257,7 @@ async fn record_initial_history_resumed_aborted_turn_without_id_clears_active_tu
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -2394,6 +2401,7 @@ async fn record_initial_history_resumed_unmatched_abort_preserves_active_turn_fo
     let current_turn_id = "current-turn".to_string();
     let unmatched_abort_turn_id = "other-turn".to_string();
     let current_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(current_turn_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -2529,6 +2537,7 @@ async fn record_initial_history_resumed_trailing_incomplete_turn_compaction_clea
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -2714,6 +2723,7 @@ async fn record_initial_history_resumed_replaced_incomplete_compacted_turn_clear
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "previous-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,

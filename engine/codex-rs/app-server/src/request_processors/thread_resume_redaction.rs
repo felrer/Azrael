@@ -203,6 +203,7 @@ mod tests {
 
     fn test_thread(items: Vec<ThreadItem>) -> Thread {
         Thread {
+            auto_compaction_enabled: Some(true),
             originator: None,
             environments: None,
             id: "thread-1".to_string(),
@@ -239,6 +240,8 @@ mod tests {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items,
                 items_view: TurnItemsView::Full,
                 status: TurnStatus::Completed,

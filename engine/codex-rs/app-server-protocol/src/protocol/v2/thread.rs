@@ -240,6 +240,9 @@ impl ThreadStartResponse {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadSettingsUpdateParams {
+    /// Enable automatic compaction only for this thread. Omission preserves its setting.
+    #[ts(optional = nullable)]
+    pub auto_compaction_enabled: Option<bool>,
     pub thread_id: String,
     /// Replace this thread's disabled plugin IDs.
     /// Omitted/null preserves the list; [] clears it.
@@ -308,6 +311,8 @@ pub struct ThreadSettingsUpdateResponse {}
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadSettings {
+    #[serde(default = "codex_protocol::protocol::default_auto_compaction_enabled")]
+    pub auto_compaction_enabled: bool,
     /// Saved list of disabled plugin IDs. Does not yet filter plugin capabilities.
     #[serde(default)]
     pub disabled_plugin_ids: Vec<String>,
@@ -2119,3 +2124,30 @@ pub struct ContextCompactedNotification {
 #[cfg(test)]
 #[path = "thread_computer_use_tests.rs"]
 mod computer_use_tests;
+
+#[cfg(test)]
+mod auto_compaction_tests {
+    #[test]
+    fn auto_compaction_update_accepts_selected_thread_and_sparse_boolean() {
+        let omitted: super::ThreadSettingsUpdateParams =
+            serde_json::from_str(r#"{"threadId":"thread-a"}"#).unwrap();
+        assert_eq!(omitted.auto_compaction_enabled, None);
+        for enabled in [false, true] {
+            let update: super::ThreadSettingsUpdateParams = serde_json::from_value(
+                serde_json::json!({"threadId":"thread-a","autoCompactionEnabled":enabled}),
+            )
+            .unwrap();
+            assert_eq!(update.auto_compaction_enabled, Some(enabled));
+            assert_eq!(
+                serde_json::to_value(update).unwrap()["autoCompactionEnabled"],
+                enabled
+            );
+        }
+        assert!(
+            serde_json::from_value::<super::ThreadSettingsUpdateParams>(
+                serde_json::json!({"threadId":"thread-a","autoCompactionEnabled":"false"})
+            )
+            .is_err()
+        );
+    }
+}

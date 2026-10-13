@@ -113,22 +113,24 @@ function injectDeferredTurn(text) {
   text = replaceOnce(text, "case`turn/started`:case`turn/completed`:case`turn/diff/updated`:",
     "case`turn/started`:case`turn/deferred`:case`turn/rootResumeWait/updated`:case`turn/completed`:case`turn/diff/updated`:");
   text = replaceOnce(text, "durationMs:t.durationMs,finalAssistantStartedAtMs:oxn(t.completedAt),status:t.status",
-    "durationMs:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?null:t.durationMs,rootResumeWait:t.rootResumeWait??null,finalAssistantStartedAtMs:oxn(t.completedAt),status:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?`deferred`:t.status");
+    "durationMs:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?null:t.durationMs,rootTurnId:t.rootTurnId??null,parentTurnId:t.parentTurnId??null,turnTrigger:t.turnTrigger??null,rootResumeWait:t.rootResumeWait??null,finalAssistantStartedAtMs:oxn(t.completedAt),status:t.status===`inProgress`&&azraelHasDeferredBoundary(t)?`deferred`:t.status");
+  text = replaceOnce(text, "s$(t,i.status),t.turnId=i.id,t.error=i.error,n!=null",
+    "s$(t,i.status),t.turnId=i.id,t.rootTurnId=i.rootTurnId??t.rootTurnId??null,t.parentTurnId=i.parentTurnId??t.parentTurnId??null,t.turnTrigger=i.turnTrigger??t.turnTrigger??null,t.error=i.error,n!=null");
   text = replaceOnce(text, "policy:o}){let s=e.status!==`inProgress`&&t.status===`inProgress`",
     "policy:o}){if((e.status===`completed`||e.status===`interrupted`||e.status===`failed`)&&(t.status===`inProgress`||t.status===`deferred`))" +
     "t={...t,status:e.status,error:e.error,durationMs:e.durationMs,turnStartedAtMs:e.turnStartedAtMs," +
     "firstTurnWorkItemStartedAtMs:e.firstTurnWorkItemStartedAtMs,finalAssistantStartedAtMs:e.finalAssistantStartedAtMs,completedAt:e.completedAt};" +
     "e=azraelNormalizeDeferredTurn(e);t=azraelNormalizeDeferredTurn(t);let s=e.status!==`inProgress`&&t.status===`inProgress`");
   text = replaceOnce(text, "durationMs:e.durationMs??t.durationMs,finalAssistantStartedAtMs:",
-    "durationMs:e.status===`deferred`&&t.status===`inProgress`?e.durationMs:t.durationMs??e.durationMs,rootResumeWait:azraelMergeRootResumeWait(e.rootResumeWait,t.rootResumeWait),finalAssistantStartedAtMs:");
+    "durationMs:e.status===`deferred`&&t.status===`inProgress`?e.durationMs:t.durationMs??e.durationMs,rootTurnId:t.rootTurnId??e.rootTurnId??null,parentTurnId:t.parentTurnId??e.parentTurnId??null,turnTrigger:t.turnTrigger??e.turnTrigger??null,rootResumeWait:azraelMergeRootResumeWait(e.rootResumeWait,t.rootResumeWait),finalAssistantStartedAtMs:");
   // A snapshot fetched before the defer boundary can arrive after its notification.
   // The same turn never becomes active again: resumption starts a new turn.
   text = replaceOnce(text, "status:s&&(i||!n&&c!=null)?e.status:t.status",
     "status:s&&(e.status===`deferred`||i||!n&&c!=null)?e.status:t.status");
   text = replaceOnce(text, "durationMs:e.durationMs??null});let s=n=>e.sendRequest(`thread/timeline/list`",
-    "durationMs:e.durationMs??null,rootResumeWait:e.rootResumeWait??null});let s=n=>e.sendRequest(`thread/timeline/list`");
+    "durationMs:e.durationMs??null,parentTurnId:e.parentTurnId??null,turnTrigger:e.turnTrigger??null,rootResumeWait:e.rootResumeWait??null});let s=n=>e.sendRequest(`thread/timeline/list`");
   text = replaceOnce(text, "completedAt:e.completedAt,durationMs:e.durationMs}));let p=new Set",
-    "completedAt:e.completedAt,durationMs:e.durationMs,rootResumeWait:e.rootResumeWait??o.get(e.turnId)?.rootResumeWait??null}));let p=new Set");
+    "completedAt:e.completedAt,durationMs:e.durationMs,parentTurnId:e.parentTurnId??o.get(e.turnId)?.parentTurnId??null,turnTrigger:e.turnTrigger??o.get(e.turnId)?.turnTrigger??null,rootResumeWait:e.rootResumeWait??o.get(e.turnId)?.rootResumeWait??null}));let p=new Set");
   text = replaceOnce(text, "broadcastConversationSnapshot(e){return this.streamState.broadcastConversationSnapshot(e)}",
     "broadcastConversationSnapshot(e){azraelFlushDeferred(this,e);return this.streamState.broadcastConversationSnapshot(e)}");
   text = replaceOnce(text, "e.broadcastConversationSnapshot(f);let St=e.getConversation(f)?.turnsPagination??null",
@@ -141,7 +143,7 @@ function injectDeferredTurn(text) {
     "e.lastTurnStatus===t.lastTurnStatus&&e.isRootResumePending===t.isRootResumePending&&e.hasPendingTurnSubmission");
   text = replaceOnce(text, "isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:",
     "isRootResumePending:t.isRootResumePending,isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:");
-  return { text, count: 14, nativeTimingChecks: 1 };
+  return { text, count: 15, nativeTimingChecks: 1 };
 }
 
 function injectDeferredPresentation(text) {

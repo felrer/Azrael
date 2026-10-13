@@ -38,6 +38,7 @@ use crate::tools::registry::ToolArgumentDiffConsumer;
 use crate::tools::registry::ToolExecutor;
 use crate::tools::runtimes::apply_patch::ApplyPatchRequest;
 use crate::tools::runtimes::apply_patch::ApplyPatchRuntime;
+use crate::tools::runtimes::apply_patch::ExactFileWrite;
 use crate::tools::sandboxing::ToolCtx;
 use crate::windows_sandbox::windows_sandbox_level_for_legacy_checks;
 use codex_apply_patch::ApplyPatchAction;
@@ -480,6 +481,33 @@ async fn execute_verified_patch(
     tracker: Option<&SharedTurnDiffTracker>,
     tool_ctx: ToolCtx,
 ) -> Result<String, FunctionCallError> {
+    execute_patch_request(action, turn_environment, tracker, tool_ctx, None).await
+}
+
+/// Reuses native permission assessment, approval UI, sandbox, and diff events
+/// while preserving exact text bytes and checking the preimage after approval.
+pub(crate) async fn execute_exact_file_write(
+    write: ExactFileWrite,
+    turn_environment: TurnEnvironment,
+    tracker: Option<&SharedTurnDiffTracker>,
+    tool_ctx: ToolCtx,
+) -> Result<String, FunctionCallError> {
+    let action = ApplyPatchAction::exact_file_write(
+        write.path.clone(),
+        write.expected_content.as_deref(),
+        write.content.clone(),
+        turn_environment.cwd().clone(),
+    );
+    execute_patch_request(action, turn_environment, tracker, tool_ctx, Some(write)).await
+}
+
+async fn execute_patch_request(
+    action: ApplyPatchAction,
+    turn_environment: TurnEnvironment,
+    tracker: Option<&SharedTurnDiffTracker>,
+    tool_ctx: ToolCtx,
+    exact_write: Option<ExactFileWrite>,
+) -> Result<String, FunctionCallError> {
     let cwd = action.cwd.clone();
     let sandbox_context = turn_environment.sandbox_context(/*additional_permissions*/ None);
     let policy_context = file_system_sandbox_policy_context_for_cwd(&sandbox_context, &cwd);
@@ -544,6 +572,7 @@ async fn execute_verified_patch(
     emitter.begin(event_ctx).await;
 
     let request = ApplyPatchRequest {
+        exact_write,
         turn_environment,
         action: apply.action,
         file_paths,

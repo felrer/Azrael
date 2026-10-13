@@ -537,6 +537,22 @@ fn session_cwd_from_items(items: &[RolloutItem]) -> Option<PathBuf> {
     })
 }
 
+/// Latest setting owned by this thread. Foreign/forked snapshots cannot disable it.
+pub fn latest_auto_compaction_enabled(items: &[RolloutItem], thread_id: ThreadId) -> bool {
+    items
+        .iter()
+        .rev()
+        .find_map(|item| match item {
+            RolloutItem::EventMsg(EventMsg::ThreadSettingsApplied(event))
+                if event.thread_id == Some(thread_id) =>
+            {
+                Some(event.thread_settings.auto_compaction_enabled)
+            }
+            _ => None,
+        })
+        .unwrap_or(true)
+}
+
 /// Returns a thread's latest plugin selection, with a turn-context fallback.
 ///
 /// Forked history may contain ancestor snapshots, and compaction may append a

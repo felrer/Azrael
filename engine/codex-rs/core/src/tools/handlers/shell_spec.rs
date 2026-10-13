@@ -219,6 +219,10 @@ fn unified_exec_output_schema() -> Value {
                 "type": "number",
                 "description": "Approximate token count before output truncation."
             },
+            "output_omitted_bytes": {
+                "type": "number",
+                "description": "Bytes omitted by the native output collection bound, when present."
+            },
             "output": {
                 "type": "string",
                 "description": "Command output text, possibly truncated."

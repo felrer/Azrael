@@ -76,6 +76,8 @@ pub struct ContextPricing {
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 pub struct ContextPolicy {
+    #[serde(default = "crate::protocol::default_auto_compaction_enabled")]
+    pub auto_compaction_enabled: bool,
     pub provider_id: String,
     pub model_id: String,
     #[ts(type = "number | null")]
@@ -309,6 +311,7 @@ pub fn resolve_context_policy(
     let (auto_compact_token_limit, auto_compact_source) =
         resolve_auto_compact(model, entries, global, subscription);
     ContextPolicy {
+        auto_compaction_enabled: true,
         provider_id: policy_provider_id(model).to_string(),
         model_id: model.slug.clone(),
         context_window: model.resolved_context_window(),
@@ -319,5 +322,22 @@ pub fn resolve_context_policy(
         pricing: resolve_pricing(model, subscription),
         input_tokens: None,
         input_tokens_estimated: true,
+    }
+}
+
+#[cfg(test)]
+mod auto_compaction_tests {
+    #[test]
+    fn auto_compaction_policy_legacy_default_and_explicit_false() {
+        let mut json = serde_json::json!({"providerId":"openai","modelId":"gpt-test","contextWindow":1000,"safeContextWindow":950,"autoCompactBaseTokens":950,"autoCompactTokenLimit":900,"autoCompactSource":"default","pricing":{"status":"unknown","inputTokenThreshold":null,"inclusive":false,"sourceUrl":null},"inputTokens":null,"inputTokensEstimated":true});
+        let legacy: super::ContextPolicy = serde_json::from_value(json.clone()).unwrap();
+        assert!(legacy.auto_compaction_enabled);
+        json["autoCompactionEnabled"] = serde_json::json!(false);
+        let off: super::ContextPolicy = serde_json::from_value(json).unwrap();
+        assert!(!off.auto_compaction_enabled);
+        assert_eq!(
+            serde_json::to_value(off).unwrap()["autoCompactionEnabled"],
+            false
+        );
     }
 }

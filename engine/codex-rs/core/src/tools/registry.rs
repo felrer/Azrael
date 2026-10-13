@@ -514,7 +514,6 @@ impl ToolRegistry {
         names
     }
 
-    #[cfg(test)]
     pub(crate) fn tool_exposure(&self, name: &ToolName) -> Option<ToolExposure> {
         self.tools
             .get(&name.clone().with_default_namespace())

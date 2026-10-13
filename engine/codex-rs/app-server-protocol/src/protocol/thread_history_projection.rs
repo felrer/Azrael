@@ -26,6 +26,14 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
 
                 turn_id: event.turn_id.clone(),
                 root_turn_id: event.root_turn_id.clone(),
+                parent_turn_id: event
+                    .turn_attribution
+                    .as_ref()
+                    .and_then(|attribution| attribution.parent_turn_id.clone()),
+                turn_trigger: event
+                    .turn_attribution
+                    .as_ref()
+                    .and_then(|attribution| attribution.turn_trigger.clone()),
                 status: TurnStatus::InProgress,
                 error: None,
                 started_at: event.started_at,
@@ -40,6 +48,8 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
 
                 turn_id: event.turn_id.clone(),
                 root_turn_id: event.root_turn_id.clone(),
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: if event.error.is_some() {
                     TurnStatus::Failed
                 } else {
@@ -67,6 +77,8 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
 
                     turn_id: turn_id.clone(),
                     root_turn_id: event.root_turn_id.clone(),
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::Interrupted,
                     error: event.error.as_ref().map(|error| TurnError {
                         message: error.message.clone(),
@@ -89,6 +101,8 @@ pub fn project_rollout_line(line: &RolloutLine) -> ThreadHistoryChangeSet {
             changed_turns: vec![ThreadHistoryTurnMetadata {
                 turn_id: event.turn_id.clone(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Deferred,
                 error: None,
                 started_at: event.started_at,

@@ -179,6 +179,33 @@ pub struct ApplyPatchAction {
 }
 
 impl ApplyPatchAction {
+    /// Builds an exact text replacement for the native approval/runtime boundary.
+    /// The caller must execute the exact bytes with a checked preimage, rather
+    /// than interpreting `patch` with the line-oriented patch parser.
+    pub fn exact_file_write(path: PathUri, old: Option<&str>, new: String, cwd: PathUri) -> Self {
+        let patch = similar::TextDiff::from_lines(old.unwrap_or(""), &new)
+            .unified_diff()
+            .header(
+                &path.inferred_native_path_string(),
+                &path.inferred_native_path_string(),
+            )
+            .to_string();
+        let change = if old.is_some() {
+            ApplyPatchFileChange::Update {
+                unified_diff: patch.clone(),
+                move_path: None,
+                new_content: new,
+            }
+        } else {
+            ApplyPatchFileChange::Add { content: new }
+        };
+        Self {
+            changes: HashMap::from([(path, change)]),
+            patch,
+            cwd,
+        }
+    }
+
     pub fn is_empty(&self) -> bool {
         self.changes.is_empty()
     }
@@ -218,6 +245,23 @@ pub struct AppliedPatchDelta {
 }
 
 impl AppliedPatchDelta {
+    /// Records one exact mutation committed by the native file-write runtime.
+    pub fn exact_file_write(path: PathUri, old: Option<String>, new: String) -> Self {
+        let change = match old {
+            Some(old_content) => AppliedPatchFileChange::Update {
+                move_path: None,
+                old_content,
+                overwritten_move_content: None,
+                new_content: new,
+            },
+            None => AppliedPatchFileChange::Add {
+                content: new,
+                overwritten_content: None,
+            },
+        };
+        Self::new(vec![AppliedPatchChange { path, change }], true)
+    }
+
     fn new(changes: Vec<AppliedPatchChange>, exact: bool) -> Self {
         Self { changes, exact }
     }

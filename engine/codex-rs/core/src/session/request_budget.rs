@@ -62,7 +62,7 @@ pub(super) async fn limit_reached(sess: &Session, step: &StepContext, input_toke
             .0
             .lock()
             .unwrap_or_else(std::sync::PoisonError::into_inner);
-        prefix_tokens(&mut baseline, window, &model.slug, input_tokens)
+        prefix_tokens(&mut baseline, window, &format!("{}#{}", model.slug, step.harness_profile.fingerprint), input_tokens)
     };
     let scope_tokens = match config.model_auto_compact_token_limit_scope {
         AutoCompactTokenLimitScope::Total => input_tokens,

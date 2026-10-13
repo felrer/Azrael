@@ -1037,6 +1037,8 @@ mod tests {
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items: Vec::new(),
                     items_view: TurnItemsView::NotLoaded,
                     status: TurnStatus::Completed,

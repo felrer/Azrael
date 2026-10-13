@@ -29,6 +29,8 @@ pub(crate) struct StepContext {
     pub(crate) realtime: RealtimeConversationSnapshot,
     /// One immutable settings version captured before request preparation.
     pub(crate) settings: Arc<ResolvedStepSettings>,
+    /// Prompt and tools resolved from the same immutable configuration and pinned model.
+    pub(crate) harness_profile: codex_config::harness_profiles::ResolvedHarnessProfile,
     /// Frozen turn preferences resolved against this step's captured model.
     pub(crate) token_budget: Option<TokenBudgetConfig>,
     /// Telemetry context tagged with this sampling request's model.
@@ -51,7 +53,8 @@ pub(crate) struct StepContext {
 impl StepContext {
     /// Whether new context windows should record tool declarations in history.
     pub(crate) fn incremental_tools_enabled(&self) -> bool {
-        self.settings.model_info.use_responses_lite
+        !self.harness_profile.uses_claude_tools()
+            && self.settings.model_info.use_responses_lite
             && self
                 .turn
                 .config
@@ -76,6 +79,12 @@ impl StepContext {
     pub(crate) fn to_turn_context_item(&self) -> TurnContextItem {
         let mut item = self.turn.to_turn_context_item();
         item.realtime_active = Some(self.realtime.active);
+        item.harness_profile = Some(codex_protocol::protocol::HarnessProfileContext {
+            id: self.harness_profile.id.clone(),
+            fingerprint: self.harness_profile.fingerprint.clone(),
+            prompt_profile: self.harness_profile.prompt_profile.clone(),
+            tool_profile: self.harness_profile.tool_profile.clone(),
+        });
         item
     }
 
@@ -88,4 +97,32 @@ impl StepContext {
                 .map(|effort| effort.to_string()),
         }
     }
+}
+
+/// Resolve identities and include rendered built-in content in the compatibility fingerprint.
+pub(crate) fn resolve_harness_profile(
+    config: &crate::config::Config,
+    model: &str,
+) -> std::io::Result<codex_config::harness_profiles::ResolvedHarnessProfile> {
+    use sha2::{Digest, Sha256};
+    let mut profile = config
+        .harness_profiles
+        .resolve(&config.model_provider_id, model)?;
+    let rendered = codex_prompts::compose_harness_instructions(
+        &profile.prompt_variant,
+        profile.behavior_template.as_deref(),
+        profile.uses_claude_tools(),
+        config.base_instructions.as_deref(),
+    );
+    let rendered = if model.starts_with("api/") {
+        codex_prompts::project_api_base_instructions(&rendered)
+    } else {
+        rendered
+    };
+    let mut digest = Sha256::new();
+    digest.update(profile.fingerprint.as_bytes());
+    digest.update(b"\0azrael-harness-request-v1\0");
+    digest.update(rendered.as_bytes());
+    profile.fingerprint = format!("{:x}", digest.finalize());
+    Ok(profile)
 }

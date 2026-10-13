@@ -75,12 +75,14 @@ enum ExecCommandLifetime {
 pub struct ExecCommandHandler {
     options: ExecCommandHandlerOptions,
     lifetime: ExecCommandLifetime,
+    force_direct_shell: bool,
 }
 
 impl Default for ExecCommandHandler {
     fn default() -> Self {
         Self {
             lifetime: ExecCommandLifetime::Interactive,
+            force_direct_shell: false,
             options: ExecCommandHandlerOptions {
                 include_login_parameter: false,
                 include_shell_parameter: true,
@@ -98,6 +100,7 @@ impl ExecCommandHandler {
         Self {
             options,
             lifetime: ExecCommandLifetime::Interactive,
+            force_direct_shell: false,
         }
     }
 
@@ -105,7 +108,15 @@ impl ExecCommandHandler {
         Self {
             options,
             lifetime: ExecCommandLifetime::OneShot,
+            force_direct_shell: false,
         }
+    }
+
+    /// Explicit Bash compatibility uses its actual Bash executable, even when
+    /// the session's native interface is configured to use zsh-fork.
+    pub(crate) fn with_direct_shell(mut self) -> Self {
+        self.force_direct_shell = true;
+        self
     }
 }
 
@@ -257,8 +268,11 @@ impl ExecCommandHandler {
             &turn_environment.selection.environment_id,
         )
         .await;
-        let shell_mode =
-            shell_mode_for_environment(&turn.unified_exec_shell_mode, environment.as_ref());
+        let shell_mode = if self.force_direct_shell {
+            codex_tools::UnifiedExecShellMode::Direct
+        } else {
+            shell_mode_for_environment(&turn.unified_exec_shell_mode, environment.as_ref())
+        };
         // Remote environments may use a different OS and must build commands with their native
         // shell; fall back to the session shell when the environment did not report one.
         let shell = turn_environment

@@ -181,6 +181,12 @@ pub(crate) fn build_tool_router(
         &mut registry,
     );
     append_dynamic_tool_runtimes(&turn_context.dynamic_tools, &mut registry);
+    apply_harness_tool_profile(
+        turn_context,
+        model_info,
+        &mut registry,
+        Some(Arc::clone(&session.claude_file_state)),
+    )?;
     let hosted_specs = hosted_model_tool_specs(
         turn_context,
         model_info,
@@ -383,6 +389,7 @@ pub(crate) fn finalize_tool_router(
     mut hosted_specs: Vec<ToolSpec>,
     tool_search_handler_cache: &ToolSearchHandlerCache,
 ) -> CodexResult<ToolRouter> {
+    apply_harness_tool_profile(turn_context, model_info, &mut registry, None)?;
     if model_info.slug.starts_with("api/") {
         // Apply at the registry boundary so descriptions, discovery, nested
         // execution and history promotion all see the same restricted surface.
@@ -421,7 +428,7 @@ pub(crate) fn finalize_tool_router(
         }
     }
     let tool_search_name = ToolName::plain(TOOL_SEARCH_TOOL_NAME);
-    if model_info.supports_search_tool
+    if (model_info.supports_search_tool || claude_profile(turn_context, model_info))
         && registry.entries().any(|tool| {
             tool.runtime.tool_name() != tool_search_name
                 && tool.exposure.is_deferred()
@@ -462,6 +469,16 @@ pub(crate) fn finalize_tool_router(
         );
     }
 
+    if claude_profile(turn_context, model_info) {
+        if let Some(backend) = registry.remove(&ToolName::plain(TOOL_SEARCH_TOOL_NAME)) {
+            registry.add(
+                crate::tools::handlers::claude_controls::ClaudeControlHandler::new(
+                    crate::tools::handlers::claude_controls::ClaudeControlKind::ToolSearch,
+                    backend,
+                ),
+            );
+        }
+    }
     let model_messages = ResolvedModelMessages::from_model(model_info);
     let indirect_prefixes = IndirectNamespacePrefixes::new(
         model_messages.indirect_description_prefixes(),
@@ -1851,3 +1868,153 @@ fn code_mode_namespace_name<'a>(
 #[cfg(test)]
 #[path = "spec_plan_tests.rs"]
 mod tests;
+
+fn claude_profile(turn: &TurnContext, model: &ModelInfo) -> bool {
+    codex_config::harness_profiles::is_anthropic_provider(
+        &turn.config.model_provider_id,
+        &model.slug,
+    )
+}
+
+/// Apply once before discovery/code-mode planning. Missing entries cannot execute or be discovered.
+fn apply_harness_tool_profile(
+    turn: &TurnContext,
+    model: &ModelInfo,
+    registry: &mut ToolRegistry,
+    file_state: Option<Arc<crate::tools::handlers::claude_files::ClaudeFileState>>,
+) -> CodexResult<()> {
+    use crate::tools::handlers::claude_controls::{ClaudeControlHandler, ClaudeControlKind};
+    use crate::tools::handlers::claude_files::{ClaudeFileHandler, ClaudeFileOperation};
+    use crate::tools::handlers::claude_search::{ClaudeGlobHandler, ClaudeGrepHandler};
+    use crate::tools::handlers::claude_shell::{
+        ClaudeBashHandler, ClaudeTaskOutputHandler, ClaudeTaskStopHandler,
+    };
+    let profile = turn
+        .config
+        .harness_profiles
+        .resolve(&turn.config.model_provider_id, &model.slug)?;
+    if !profile.uses_claude_tools() {
+        for name in [
+            "Read",
+            "Edit",
+            "Write",
+            "Bash",
+            "Grep",
+            "Glob",
+            "Agent",
+            "Skill",
+            "ToolSearch",
+            "AskUserQuestion",
+            "TaskOutput",
+            "TaskStop",
+        ] {
+            registry.remove(&ToolName::plain(name));
+        }
+        return Ok(());
+    }
+    if registry.tool_policy.require_managed_sandbox
+        && !matches!(turn.permission_profile(), PermissionProfile::Managed { .. })
+    {
+        return Ok(());
+    }
+    if registry.tool_exposure(&ToolName::plain("Read")).is_none() {
+        let state = file_state.unwrap_or_default();
+        let multiple = turn
+            .config
+            .features
+            .enabled(Feature::StableEnvironmentTools);
+        registry.add(ClaudeFileHandler::new(
+            ClaudeFileOperation::Read,
+            Arc::clone(&state),
+            multiple,
+        ));
+        if registry.remove(&ToolName::plain("apply_patch")).is_some() {
+            registry.add(ClaudeFileHandler::new(
+                ClaudeFileOperation::Edit,
+                Arc::clone(&state),
+                multiple,
+            ));
+            registry.add(ClaudeFileHandler::new(
+                ClaudeFileOperation::Write,
+                state,
+                multiple,
+            ));
+        }
+        if registry.remove(&ToolName::plain("exec_command")).is_some() {
+            registry.add(ClaudeBashHandler::default());
+            registry.add(ClaudeGrepHandler);
+            registry.add(ClaudeGlobHandler);
+            if registry.remove(&ToolName::plain("write_stdin")).is_some() {
+                registry.add(ClaudeTaskOutputHandler);
+                registry.add(ClaudeTaskStopHandler);
+            }
+        }
+    }
+    for (name, kind) in [
+        (
+            ToolName::new(
+                turn.config.multi_agent_v2.tool_namespace.clone(),
+                "spawn_agent",
+            ),
+            ClaudeControlKind::Agent,
+        ),
+        (
+            ToolName::namespaced("skills", "read"),
+            ClaudeControlKind::Skill,
+        ),
+    ] {
+        let exposure = registry.tool_exposure(&name);
+        if let Some(backend) = registry.remove(&name) {
+            if registry
+                .tool_exposure(&ToolName::plain(match kind {
+                    ClaudeControlKind::Agent => "Agent",
+                    _ => "Skill",
+                }))
+                .is_none()
+            {
+                registry.add_with_exposure(
+                    ClaudeControlHandler::new(kind, backend),
+                    exposure.unwrap_or(ToolExposure::Direct),
+                );
+            }
+        }
+    }
+    registry.remove(&ToolName::namespaced(
+        MULTI_AGENT_V1_NAMESPACE,
+        "spawn_agent",
+    ));
+    let blocking_name = ToolName::plain("request_user_input");
+    let blocking = registry.remove(&blocking_name).map(|_| {
+        Arc::new(RequestUserInputHandler {
+            available_modes: vec![
+                codex_protocol::config_types::ModeKind::Default,
+                codex_protocol::config_types::ModeKind::Plan,
+            ],
+        }) as Arc<dyn crate::tools::registry::CoreToolRuntime>
+    });
+    let asynchronous = registry.remove(&ToolName::plain("request_user_input_async"));
+    if let Some(handler) = ClaudeControlHandler::ask_user_question(
+        blocking.clone(),
+        if blocking.is_some() {
+            None
+        } else {
+            asynchronous
+        },
+    ) {
+        registry.add_with_exposure(handler, ToolExposure::DirectModelOnly);
+    }
+    // Never retain native equivalents, even if replacement is excluded by the tool ceiling.
+    for name in [
+        "apply_patch",
+        "exec_command",
+        "write_stdin",
+        "request_user_input",
+        "request_user_input_async",
+        "read_file",
+        "grep_files",
+        "list_dir",
+    ] {
+        registry.remove(&ToolName::plain(name));
+    }
+    Ok(())
+}

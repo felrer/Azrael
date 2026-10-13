@@ -3,8 +3,10 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 const vm = require("node:vm");
-const { azraelTaskTimeGroups: groups, azraelTaskTimeLabel: label } = require("./task-work-time.cjs");
+const { azraelTaskTimeGroups: automaticGroups, azraelTaskTimeLabel: label } = require("./task-work-time.cjs");
 
+// Timing regressions explicitly merge their inputs; automatic lineage is tested separately.
+const groups = (turns, boundaries, now) => automaticGroups(turns, Object.assign(Object.fromEntries(turns.filter(Boolean).slice(1).map(t => [t.turnId, false])), boundaries), now);
 const turn = (turnId, turnStartedAtMs, durationMs, extra = {}) =>
   ({ turnId, turnStartedAtMs, durationMs, status: "completed", ...extra });
 
@@ -167,7 +169,7 @@ test("several-hour durations and labels retain hours and compact lower units", (
 });
 
 test("serialized exports run in an isolated browser-like context without dependencies", () => {
-  const isolated = vm.runInNewContext(`({groups: (${groups.toString()}), label: (${label.toString()})})`);
+  const isolated = vm.runInNewContext(`({groups: (${automaticGroups.toString()}), label: (${label.toString()})})`);
   assert.equal(isolated.groups([turn("a", 0, 1000)], {}, 5000)[0].durationMs, 1000);
   assert.equal(isolated.label(1000), "1초");
   assert.deepEqual(groups([], {}, 1000), []);
@@ -223,4 +225,47 @@ test("contradictory coarse placement marks partial and retains measured work low
   ], {}, 20000)[0];
   assert.equal(impossible.durationMs, 1900);
   assert.equal(impossible.partial, true);
+});
+
+const chain = (prefix, count) => Array.from({length: count}, (_, i) => turn(prefix+i, i*10000, 1000, {
+  rootTurnId: prefix+'0', parentTurnId: i ? prefix+(i-1) : null, turnTrigger: i ? 'root_resume' : 'user',
+  rootResumeWait: {reservationId: prefix+'wait'+i, state: 'cancelled', waitStartedAtMs: i*10000+1000, waitEndedAtMs: i*10000+2000}
+}));
+test('automatic group requires three distinct committed registrations in one lineage', () => {
+  for (const n of [0,1,2,3,4]) {
+    const result=automaticGroups(chain('a',n),{},99999);
+    assert.equal(result.some(g=>g.eligible),n>=3);
+    if(n) assert.equal(result[0].resumeCount,n);
+  }
+  const values=chain('a',4);values[1].rootResumeWait=values[0].rootResumeWait;
+  values[2].rootResumeWait={reservationId:'preparing',state:'preparing',waitStartedAtMs:null};
+  assert.equal(automaticGroups(values,{},99999)[0].resumeCount,2);
+});
+test('user boundary despite inherited root and distinct roots never auto-merge', () => {
+  const values=chain('a',6);values[3].turnTrigger='user';
+  assert.deepEqual(automaticGroups(values,{},99999).map(g=>g.turnIds),[['a0','a1','a2'],['a3','a4','a5']]);
+  assert.equal(automaticGroups([...chain('a',3),...chain('b',3)],{},99999).length,2);
+  values[1].parentTurnId='missing';
+  assert.equal(automaticGroups(values,{},99999).length,3);
+});
+test('explicit false persists a manual merge and true preserves manual splits', () => {
+  const values=[...chain('a',3),...chain('b',3)];
+  assert.equal(automaticGroups(values,{b0:false},99999).length,1);
+  assert.deepEqual(automaticGroups(values,{a1:true},99999).map(g=>g.resumeCount),[1,2,3]);
+  assert.equal(automaticGroups([{...values[0],metadataPartial:true}],{},99999)[0].partial,true);
+});
+
+test('manual fragments retain chain eligibility without merging small chains to qualify',()=>{
+ const values=chain('a',3), split=automaticGroups(values,{a1:true},99999);
+ assert.deepEqual(split.map(g=>[g.resumeCount,g.chainResumeCount,g.eligible]),[[1,3,true],[2,3,true]]);
+ assert.equal(automaticGroups([...chain('a',1),...chain('b',2)],{b0:false},99999)[0].eligible,false);
+});
+
+test('all durable native states count committed use but preparing never counts',()=>{
+ const values=chain('s',3);values[0].rootResumeWait.state='blocked';
+ assert.equal(automaticGroups(values,{},99999)[0].eligible,true);
+ for(const invalid of [{reservationId:'',state:'waiting',waitStartedAtMs:1000},{reservationId:'x',state:'preparing',waitStartedAtMs:1000},{reservationId:'x',state:'waiting',waitStartedAtMs:NaN}]) {
+  values[0].rootResumeWait=invalid;
+  assert.equal(automaticGroups(values,{},99999)[0].eligible,false);
+ }
 });

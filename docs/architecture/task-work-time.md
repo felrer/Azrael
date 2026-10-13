@@ -1,14 +1,22 @@
 # 연속 작업 시간
 
-Status: `current` in source — Windows에서 계산·메타데이터·native UI의 밝은·어두운 테마와 상호작용을 검증했다. 패키징·설치 및 다른 OS 수용은 별도 검증한다.
+Status: `partial` — 재개 3회 판정·병합·native UI의 Windows 밝은·어두운 테마 검사가 통과했다. 엔진 저장·재구성 및 실제 격리 호스트의 통합 검증을 진행 중이다. 패키징·일반 프로필 설치와 다른 OS 수용은 별도 검증한다.
 
 ## 작업과 사용자 흐름
 
-한 대화의 연속 턴을 작업으로 묶어 총 시간과 턴 수를 표시한다. 같은 목표의 구현, 회귀 검사, 수정과 자동 재개는 같은 작업에 속한다. 첫 턴이 첫 작업을 시작하며 후속 턴은 기본적으로 이어진다. 사용자가 특정 턴을 새 작업의 시작으로 지정하거나 이전 작업에 합칠 수 있다. 작업 경계는 host와 대화 ID, 턴 ID로 식별해 기존 native UI preference 저장소에 보존한다. 다른 대화와 host의 경계는 독립적이다.
+한 대화에서 자동 재개로 이어진 작업을 묶어 총 시간과 턴 수를 표시한다. 같은 연속 작업에서 모델이 `azrael_agents.defer_root`로 대기를 성공적으로 등록한 횟수가 3회 이상이면 묶음을 표시한다. 세 번째 등록 시점부터 첫 턴의 작업 시간과 대화 범위를 포함한다. 0·1·2회에는 이 기능의 요약·선·조회 오류 배너를 표시하지 않는다.
+
+성공 등록은 고유 reservation ID와 대기 시작 시각이 있는 durable `rootResumeWait`로 확인하며 중복은 한 번만 센다. 이후 취소·교체·차단되어도 이미 성공한 등록 횟수는 유지한다. 준비 중이거나 실패한 호출, 하위 에이전트의 별도 대화와 다른 세션 링크 읽기는 횟수에 포함하지 않는다. 현재 활성 예약 목록 대신 전체 턴 기록을 사용하므로 종료된 예약도 새로고침 후 동일하게 판정한다.
+
+자동 재개는 `turnTrigger=root_resume`, 부모 턴과 root 계보를 함께 확인한다. 새 사용자 입력으로 시작한 턴은 같은 root ID를 이어받았더라도 별도 자동 작업의 시작이다. 기존 기록에 관계 정보가 없으면 자동 연결을 추정하지 않는다. 사용자가 특정 턴을 새 작업의 시작으로 지정하거나 이전 작업에 합칠 수 있다. 수동으로 나눈 내역은 원래 연속 작업의 3회 자격을 유지한다. 서로 다른 3회 미만 작업을 합쳐 표시 자격을 만들지는 않는다. 작업 경계는 host와 대화 ID, 턴 ID로 식별해 기존 native UI preference 저장소에 보존하며 명시적 합치기도 저장한다. 다른 대화와 host의 경계는 독립적이다.
 
 작업 요약을 펼치면 턴별 시간 내역과 작업 경계 조작을 제공한다. 전체 대화 기록의 시간 메타데이터를 집계하므로 과거 메시지 본문의 부분 로드와 총 시간을 분리한다. 작업 묶음은 모델 실행, 메시지 순서 또는 대화 내용을 변경하지 않는다.
 
-작업 요약은 native 가상 목록의 첫 번째 측정 행으로 렌더링한다. 펼침·접힘으로 바뀌는 높이를 메시지와 같은 측정·위치 보정 경로로 처리하고, 목록 유지 행으로 보존해 스크롤 중 내역 조회와 펼침 상태를 유지한다. 화면 밖에서는 해당 행의 실제 위치에 머물며 중간 메시지 위에 붙지 않는다. 이 행은 실제 턴이나 기록 보존 경계로 취급하지 않는다. 카드의 옆 테두리와 둥근 모서리는 사용하지 않는다. 요약 위와 마지막 대화 행 아래에 대화 폭의 이중선을 배치해 내역 전체의 범위를 표시한다. 각 선은 1px이고 선 사이 간격은 2px이며 native 보조 텍스트 색상 토큰을 사용한다. 마지막 선은 마지막 대화 행의 높이 측정에 포함한다.
+각 작업의 요약은 해당 작업 첫 턴 바로 앞의 native 가상 목록 측정 행으로 렌더링한다. 하단 선은 그 작업 마지막 턴의 마지막 실제 대화 행 아래에 배치하고 행 높이 측정에 포함한다. 일부 메시지만 로드된 경우 정확한 턴 ID로 경계를 찾으며, 아직 로드되지 않은 첫 턴 대신 다른 메시지 위에 요약을 붙이지 않는다. 화면 밖의 요약은 실제 위치에 머물며 중간 메시지 위에 붙지 않는다. 요약 행은 실제 턴이나 기록 보존 경계로 취급하지 않는다.
+
+내역 조회와 펼침 상태는 가상 행보다 오래 유지되는 목록 소유자가 보존한다. 스크롤로 요약이 사라졌다 다시 나타나도 재조회하거나 펼침 상태를 초기화하지 않는다. 펼침·접힘 높이는 메시지와 같은 측정·위치 보정 경로를 사용한다. native 행 ResizeObserver의 측정 갱신은 프레임마다 대상별 최신 값으로 모아 처리해 observer 전달 중 동기 DOM 갱신의 반복을 방지한다. 관찰 해제·목록 종료 시 대기 중인 측정을 취소하며 기존 스크롤 기준점·최신 턴 판정과 viewport 측정은 유지한다.
+
+카드의 옆 테두리와 둥근 모서리는 사용하지 않는다. 요약 위와 작업 마지막 대화 아래에 대화 폭의 이중선을 배치한다. 각 선은 1px이고 선 사이 간격은 2px이며 native 보조 텍스트 색상 토큰을 사용한다.
 
 ## 시간 의미
 
@@ -24,10 +32,14 @@ Status: `current` in source — Windows에서 계산·메타데이터·native UI
 
 ## 소유권과 적용 범위
 
-엔진은 턴 시간과 root resume 대기 경계를 소유한다. 웹뷰는 기존 `thread/turns/list`의 모든 메타데이터 페이지와 live 턴 갱신을 결합하며 사용자 작업 경계와 집계를 소유한다. 단순 조회로 전체 메시지 본문을 가져오지 않는다. 늦게 도착한 과거 조회가 최신 진행·종료 상태를 되돌리지 않도록 live 변경을 보존한다.
+엔진은 턴 시간과 root resume 대기 경계를 소유한다. 저장된 TurnStartedEvent attribution을 history builder·저장 projection·metadata-only/full wire Turn·live 알림에 전달한다. `parentTurnId`·`turnTrigger`는 정보가 없는 기록에서 null이며 root ID만으로 자동 재개를 만들어내지 않는다. projected history의 추가 열과 projection 버전 변경은 원본 rollout을 보존한 transactional lazy 재구성을 사용한다.
+
+웹뷰는 기존 `thread/turns/list`의 모든 메타데이터 페이지와 live 턴 갱신을 결합하며 사용자 작업 경계와 집계를 소유한다. native background history 요청·timeout·logger 경계를 재사용하고 단순 조회로 전체 메시지 본문을 가져오지 않는다. 미로드 thread·첫 사용자 메시지 전 미생성 기록·ephemeral 미지원과 일반 조회 실패를 구분한다. 턴 시작·예약·상태 변경과 명시적 재시도에서 갱신하며 시간 tick이나 스크롤로 조회를 반복하지 않는다. 정상 snapshot은 실패 이후에도 보존하지만 확정 전체 총계로 표시하지 않는다.
+
+기록된 순서를 유지하면서 누락된 live 턴을 공통 턴·부모·시각 기준의 위치에 삽입한다. 관계 정보는 clock/status와 독립적으로 보존한다. 완료 상태를 오래된 live 상태로 되돌리지 않고, reservation ID가 다른 revision을 서로 비교하지 않는다. 선후 관계가 모호하면 기존 기록을 유지하고 부분 집계로 표시한다. 대화 전환·종료 이후의 응답은 이전 소유자에게만 속하며 화면에 늦게 게시하지 않는다. 진단은 method·대화/host 식별자·오류 코드·상태만 기록하고 메시지 본문·도구 인자는 추가하지 않는다.
 
 Windows x64, Linux x64와 macOS ARM64의 로컬 VS Code 대화에 공통으로 적용한다. 원격·컨테이너 환경의 수용은 이번 범위에 포함하지 않는다. native OpenAI 스타일의 기존 컴포넌트·색상 토큰·접기 동작을 재사용하며 키보드 조작과 밝은·어두운 테마에서 검증한다.
 
 ## Preservation mapping
 
-Registered features: `ui.task-work-time`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+Registered features: `ui.task-work-time`, `engine.task-work-time`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.

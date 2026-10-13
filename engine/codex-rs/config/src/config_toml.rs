@@ -164,6 +164,9 @@ pub struct FeatureToggleToml {
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, JsonSchema)]
 #[schemars(deny_unknown_fields)]
 pub struct ConfigToml {
+    /// Model/provider harness selection, loaded and validated before inference.
+    #[serde(default)]
+    pub harness: crate::harness_profiles::HarnessProfilesToml,
     /// Optional override of model selection.
     pub model: Option<String>,
     /// Default Daybreak preference for new threads and non-interactive turns.

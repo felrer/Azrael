@@ -32,7 +32,6 @@ use codex_features::Feature;
 use codex_file_system::FileSystemSandboxContext;
 use codex_prompts::ApprovalPromptContext;
 use codex_prompts::ResolvedModelMessages;
-use codex_prompts::render_model_instructions;
 use codex_protocol::error::Result as CodexResult;
 use codex_protocol::models::BaseInstructionsProvenance;
 use codex_protocol::protocol::MultiAgentVersion;
@@ -91,7 +90,12 @@ impl Session {
             selected_capability_root_count = step_context.selected_capability_roots.len(),
             "building step world state"
         );
-        let model_instructions = render_model_instructions(model_info);
+        let model_instructions = codex_prompts::compose_harness_instructions(
+            &step_context.harness_profile.prompt_variant,
+            step_context.harness_profile.behavior_template.as_deref(),
+            step_context.harness_profile.uses_claude_tools(),
+            None,
+        );
         let model_instructions = if !turn_context.config.update_plan_enabled
             && turn_context.config.model_catalog.is_none()
             && (turn_context.config.base_instructions.is_none()
@@ -104,7 +108,7 @@ impl Session {
             model_instructions
         };
         tracing::info!(event = "response_preparation_stage", stage = "base_instructions", turn_id = %turn_context.sub_id);
-        let base_instructions = self.get_prompt_base_instructions().await.text;
+        let base_instructions = self.get_step_base_instructions(step_context).await.text;
         let previous_model = {
             let state = self.state.lock().await;
             state
@@ -387,22 +391,26 @@ impl Session {
             world_state.add_section(usage_hint);
         }
         world_state.add_section(multi_agent_mode);
-        let spawn_tool = match turn_context.multi_agent_version {
-            MultiAgentVersion::Disabled => None,
-            MultiAgentVersion::V1 => Some(ToolName::new(
-                Some(MULTI_AGENT_V1_NAMESPACE.to_string()),
-                "spawn_agent",
-            )),
-            MultiAgentVersion::V2 => turn_context
-                .config
-                .multi_agent_v2
-                .expose_spawn_agent_model_overrides
-                .then(|| {
-                    ToolName::new(
-                        turn_context.config.multi_agent_v2.tool_namespace.clone(),
-                        "spawn_agent",
-                    )
-                }),
+        let spawn_tool = if step_context.harness_profile.uses_claude_tools() {
+            Some(ToolName::plain("Agent"))
+        } else {
+            match turn_context.multi_agent_version {
+                MultiAgentVersion::Disabled => None,
+                MultiAgentVersion::V1 => Some(ToolName::new(
+                    Some(MULTI_AGENT_V1_NAMESPACE.to_string()),
+                    "spawn_agent",
+                )),
+                MultiAgentVersion::V2 => turn_context
+                    .config
+                    .multi_agent_v2
+                    .expose_spawn_agent_model_overrides
+                    .then(|| {
+                        ToolName::new(
+                            turn_context.config.multi_agent_v2.tool_namespace.clone(),
+                            "spawn_agent",
+                        )
+                    }),
+            }
         };
         let model_overrides_available =
             spawn_tool.is_some_and(|name| step_context.tool_router.exposes_tool(&name));

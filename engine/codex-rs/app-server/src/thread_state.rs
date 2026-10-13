@@ -102,6 +102,7 @@ pub(crate) struct ThreadState {
     goal_resume_lock: Arc<Mutex<()>>,
     pub(crate) pending_interrupts: PendingInterruptQueue,
     pub(crate) turn_summary: TurnSummary,
+    pub(crate) last_turn_attribution: Option<codex_protocol::turn_input::TurnAttribution>,
     pub(crate) last_terminal_turn_id: Option<String>,
     pub(crate) root_resume_wait: Option<codex_protocol::protocol::RootResumeWaitUpdatedEvent>,
     /// Lets an internal runtime replacement wait until the old listener has processed Core's
@@ -151,6 +152,7 @@ impl ThreadState {
         self.shutdown_drain_waiter = None;
         self.listener_command_tx = None;
         self.current_turn_history.reset();
+        self.last_turn_attribution = None;
         self.listener_thread = None;
         self.watch_registration = WatchRegistration::default();
     }
@@ -198,6 +200,7 @@ impl ThreadState {
 
     pub(crate) fn track_current_turn_event(&mut self, event_turn_id: &str, event: &EventMsg) {
         if let EventMsg::TurnStarted(payload) = event {
+            self.last_turn_attribution = payload.turn_attribution.clone();
             self.turn_summary.started_at = payload.started_at;
         }
         if let EventMsg::ItemCompleted(payload) = event
@@ -298,8 +301,21 @@ mod tests {
         assert_eq!(results, vec![true, false, true, false]);
     }
 
+    #[test]
+    fn auto_compaction_settings_notification_equality_includes_toggle() {
+        let enabled = thread_settings("gpt-test");
+        let mut disabled = enabled.clone();
+        disabled.auto_compaction_enabled = false;
+        assert_ne!(enabled, disabled);
+        assert_eq!(
+            serde_json::to_value(disabled).unwrap()["autoCompactionEnabled"],
+            false
+        );
+    }
+
     fn thread_settings(model: &str) -> ThreadSettings {
         ThreadSettings {
+            auto_compaction_enabled: true,
             disabled_plugin_ids: Vec::new(),
             cwd: AbsolutePathBuf::from_absolute_path("/tmp").expect("absolute path"),
             approval_policy: AskForApproval::OnRequest,

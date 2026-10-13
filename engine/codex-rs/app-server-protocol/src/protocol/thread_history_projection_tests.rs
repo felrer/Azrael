@@ -65,6 +65,8 @@ fn projects_turn_lifecycle_without_prior_builder_state() {
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: Some("root-turn".into()),
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Completed,
                 error: None,
                 started_at: Some(10),
@@ -105,6 +107,8 @@ fn projects_failed_turn_completion_as_snapshot() {
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Failed,
                 error: Some(TurnError {
                     misalignment: None,
@@ -263,6 +267,8 @@ fn projects_identified_turn_aborts() {
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: Some("root-turn".into()),
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Interrupted,
                 error: None,
                 started_at: Some(10),
@@ -297,6 +303,8 @@ fn projects_deferred_turn_as_a_frozen_noncompleted_boundary() {
 
                 turn_id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Deferred,
                 error: None,
                 started_at: Some(10),
@@ -353,4 +361,36 @@ fn wait_updates_project_independently_of_turn_lifecycle() {
             ..Default::default()
         }
     );
+}
+
+#[test]
+fn projects_recorded_user_and_root_resume_attribution_without_inference() {
+    for trigger in [Some("user"), Some("root_resume"), None] {
+        let changes = project(RolloutItem::EventMsg(EventMsg::TurnStarted(
+            TurnStartedEvent {
+                turn_id: "turn-1".into(),
+                root_turn_id: Some("same-root".into()),
+                turn_attribution: trigger.map(|trigger| {
+                    codex_protocol::turn_input::TurnAttribution {
+                        turn_id: "turn-1".into(),
+                        root_turn_id: Some("same-root".into()),
+                        parent_turn_id: Some("parent".into()),
+                        turn_trigger: Some(trigger.into()),
+                        initiating_agent_path: None,
+                    }
+                }),
+                trace_id: None,
+                started_at: Some(10),
+                model_context_window: None,
+                collaboration_mode_kind: Default::default(),
+            },
+        )));
+        let turn: crate::protocol::v2::Turn = changes.changed_turns[0].clone().into();
+        assert_eq!(turn.turn_trigger.as_deref(), trigger);
+        assert_eq!(turn.parent_turn_id.as_deref(), trigger.map(|_| "parent"));
+        assert_eq!(
+            turn.items_view,
+            crate::protocol::v2::TurnItemsView::NotLoaded
+        );
+    }
 }

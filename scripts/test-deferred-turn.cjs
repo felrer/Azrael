@@ -11,7 +11,7 @@ const waitHelpers = require("./root-resume-wait.cjs");
 
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const inputs = [
-  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 14],
+  [patch.DEFERRED_REDUCER_ASSET, patch.injectDeferredTurn, 15],
   [patch.DEFERRED_PRESENTATION_ASSET, patch.injectDeferredPresentation, 10],
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
@@ -167,6 +167,20 @@ function restoreFixture(canonical = false, includeOld = true) {
   f.restore = xm.runInNewContext(`(function(e,$e){return ${hook}})`, { ...waitHelpers, ...reducerBindings }).bind(null, f.manager, { thread: { id: "thread" } });
   return f;
 }
+
+test("native turn start keeps automatic resume attribution in canonical and legacy live records", () => {
+  for (const canonical of [false, true]) {
+    const fixture = recoveryFixture(canonical, false);
+    fixture.reducer({ manager: fixture.manager, notificationContext: fixture.context },
+      { method: "turn/started", params: { threadId: "thread", turn: {
+        id: "new-turn", rootTurnId: "root-turn", parentTurnId: "old-turn", turnTrigger: "root_resume",
+        status: "inProgress", durationMs: null, error: null,
+      } } }, null, 66000);
+    assert.equal(fixture.fresh.rootTurnId, "root-turn");
+    assert.equal(fixture.fresh.parentTurnId, "old-turn");
+    assert.equal(fixture.fresh.turnTrigger, "root_resume");
+  }
+});
 
 for (const canonical of [false, true]) {
   test(`new turn started recovers lost defer and wait notices in ${canonical ? "canonical" : "legacy"} history`, async () => {

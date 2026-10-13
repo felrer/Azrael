@@ -18,6 +18,8 @@ Custom API prompt copies additionally filter known desktop-control skill entries
 
 The engine owners are `codex-rs/core/src/context/instruction_state_projection.rs`, `core/src/world_state/{apps,environments,plugins}_instructions.rs` and `ext/skills/src/{world_state_catalogs,host_prompt}.rs`, relative to the selected engine source. These native contracts are outside the registered `ui.instruction-settings` check's settings-surface scope and require separate preservation review.
 
+Provider/model behavior templates and runtime/tool guidance are composed through [model harness profiles](model-harness-profiles.md). User templates replace the behavior layer; sandboxing, approvals, declared-tool eligibility and user/project provenance stay with the native runtime. Maintained profile prompts have identical embedded copies alongside the common agent behavior.
+
 ## Work intent, entry and feature preservation
 
 Status: `partial` — maintained instructions and active skill files define this policy; model behavior in real use remains a separate acceptance condition.

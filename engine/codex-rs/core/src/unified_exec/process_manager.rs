@@ -864,7 +864,7 @@ impl UnifiedExecProcessManager {
         context: &UnifiedExecContext,
         request: WriteStdinRequest<'_>,
     ) -> Result<ExecCommandToolOutput, UnifiedExecError> {
-        let result = self.write_stdin_inner(context, request).await;
+        let result = self.write_stdin_inner(context, request, None).await;
         let outcome = match &result {
             Ok(output) if output.process_id.is_some() => "yielded",
             Ok(_) => "exited",
@@ -879,6 +879,7 @@ impl UnifiedExecProcessManager {
         &self,
         context: &UnifiedExecContext,
         request: WriteStdinRequest<'_>,
+        expected_call_id: Option<&str>,
     ) -> Result<ExecCommandToolOutput, UnifiedExecError> {
         let process_id = request.process_id;
 
@@ -890,6 +891,7 @@ impl UnifiedExecProcessManager {
             let entry = store
                 .processes
                 .get(&process_id)
+                .filter(|entry| expected_call_id.is_none_or(|id| entry.call_id == id))
                 .ok_or(UnifiedExecError::UnknownProcessId { process_id })?;
             // Capture the original call even if this interaction is cancelled while queued.
             if let Some(call_id) = trace_id(&entry.call_id) {
@@ -1839,12 +1841,42 @@ impl UnifiedExecProcessManager {
             .collect()
     }
 
+    pub(crate) async fn write_stdin_for_call(
+        &self,
+        context: &UnifiedExecContext,
+        request: WriteStdinRequest<'_>,
+        expected_call_id: &str,
+    ) -> Result<ExecCommandToolOutput, UnifiedExecError> {
+        self.write_stdin_inner(context, request, Some(expected_call_id))
+            .await
+    }
+
     pub(crate) async fn terminate_process(&self, process_id: i32) -> bool {
+        self.terminate_process_inner(process_id, None).await
+    }
+
+    pub(crate) async fn terminate_process_for_call(
+        &self,
+        process_id: i32,
+        expected_call_id: &str,
+    ) -> bool {
+        self.terminate_process_inner(process_id, Some(expected_call_id))
+            .await
+    }
+
+    async fn terminate_process_inner(
+        &self,
+        process_id: i32,
+        expected_call_id: Option<&str>,
+    ) -> bool {
         let (process, already_exited) = {
             let store = self.process_store.lock().await;
             let Some(entry) = store.processes.get(&process_id) else {
                 return false;
             };
+            if expected_call_id.is_some_and(|id| entry.call_id != id) {
+                return false;
+            }
             (Arc::clone(&entry.process), entry.process.has_exited())
         };
 

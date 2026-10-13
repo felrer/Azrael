@@ -8,12 +8,41 @@ const transformed=injection.injectProviderContext(source,injection.CONTEXT_ASSET
 const ts=require(require.resolve("typescript",{paths:[path.resolve(__dirname,"../extensions/azrael-ex")]}));
 function declaration(text,name){const Cst=ts.createSourceFile("fixture.js",text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),found=[];function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text===name)found.push(n.getText(Cst));ts.forEachChild(n,visit)}visit(Cst);assert.equal(found.length,1,`unique declaration ${name}`);return found[0]}
 const jsx=(type,props)=>({type,props});
-function gaugeHarness(){const context={gw(){},vsi(){},_A(){},Ou:()=>({}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useEffect(){}}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
+function gaugeHarness(){const manager={getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:true}})},context={gw(){},vsi(){},_A(){},l4n(){},r4n:"native-switch",hA:{},nA:{},Px:()=>manager,Ou:()=>({get:atom=>atom===context.nA?manager:"local"}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useRef:v=>({current:v}),useEffect(){}}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
   pm.createContext(context);pm.runInContext(declaration(transformed,"__azraelNativeContextUsage")+declaration(transformed,"__azraelNativeContextGauge")+"\n"+transformed.slice(transformed.lastIndexOf("function policyDescription"),transformed.lastIndexOf("/*azrael-provider-context")),context);return context}
 const policy=(input,status="confirmed",inclusive=false)=>({providerId:"openai",modelId:"m",contextWindow:400000,autoCompactBaseTokens:200000,safeContextWindow:380000,autoCompactTokenLimit:361000,autoCompactSource:"default",inputTokens:input,inputTokensEstimated:true,pricing:{status,inputTokenThreshold:272000,inclusive,sourceUrl:"https://example.com/pricing"}});
+test("disabled auto-compaction uses the second capacity lap only at the threshold",()=>{
+ for(const [input,enabled,percent,lap] of [[599999,false,599999/600000*100,false],[600000,false,0,true],[800000,false,50,true],[1000000,false,100,true],[1200000,false,100,true],[600000,true,100,false],[800000,true,100,false]]){
+  const p={...policy(input,"no-surcharge"),contextWindow:1000000,autoCompactTokenLimit:600000,autoCompactionEnabled:enabled};
+  assert.deepEqual(injection.gaugeProgress(p,17),{percent,secondLap:lap});
+  const tree=injection.decorateGauge(jsx,{type:"tooltip",props:{children:{type:"span",props:{children:"donut"}}}},p,false);
+  assert.equal(tree.props.children.props['data-azrael-context-lap'],lap?'2':'1');assert.equal(tree.props.children.props['data-azrael-pricing-boundary'],String(lap));
+ }
+ assert.equal(injection.gaugeProgress({...policy(600000),contextWindow:600000,autoCompactTokenLimit:600000,autoCompactionEnabled:false},17).secondLap,false);
+});
+test("thread switch reads native snapshots, confirms save/readback, guards pending and isolates stale completion",async()=>{
+ const ref={current:null},calls=[],threads=new Map([['a',false],['b',true]]),listeners=new Set();let resolveWrite,fail=false;
+ const React={useState:()=>[0,()=>{}],useRef:()=>ref,useEffect(){}},manager={getConversation:id=>({latestThreadSettings:{autoCompactionEnabled:threads.get(id)}}),addConversationHistoryInvalidationListener:fn=>{listeners.add(fn);return()=>listeners.delete(fn)},async sendRequest(method,params){calls.push({method,params});if(method==='thread/settings/update'){if(fail)throw Error('offline');await new Promise(r=>resolveWrite=r);threads.set(params.threadId,params.autoCompactionEnabled);return{}}return{thread:{autoCompactionEnabled:threads.get(params.threadId)}}}};
+ const render=id=>injection.useThreadAutoCompaction(React,manager,id);
+ let state=render('a');assert.equal(state.enabled,false);const save=state.save(true);await state.save(true);assert.equal(calls.length,1);assert.equal(render('a').pending,true);assert.equal(render('b').enabled,true);resolveWrite();await save;assert.equal(render('b').enabled,true);
+ state=render('a');assert.equal(state.enabled,true);fail=true;await state.save(false);state=render('a');assert.equal(state.enabled,true);assert.equal(state.error,'save');assert.equal(injection.renderThreadAutoCompaction(jsx,'native-switch','native-button',state,'a',false).props.children[1].props.role,'alert');fail=false;const retry=state.retrySave();resolveWrite();await retry;assert.equal(render('a').enabled,false);
+ const read=calls.find(e=>e.method==='thread/read');assert.deepEqual(read.params,{threadId:'a',includeTurns:false});assert.ok(calls.filter(e=>e.method==='thread/settings/update').every(e=>Object.keys(e.params).sort().join(',')==='autoCompactionEnabled,threadId'));
+ assert.equal(render('b').enabled,true);state=render(null);assert.equal(injection.renderThreadAutoCompaction(jsx,'native-switch','native-button',state,null,false).props.children[0].props.children[1].props.disabled,true);
+});
+test("unavailable thread reads expose errors and retry with authoritative readback",async()=>{
+ const ref={current:null},React={useState:()=>[0,()=>{}],useRef:()=>ref,useEffect(){}},calls=[];let fail=true;
+ const manager={getConversation:()=>({latestThreadSettings:{}}),async sendRequest(method,params){calls.push({method,params});if(fail)throw Error('offline');return{thread:{autoCompactionEnabled:false}}}};
+ const render=()=>injection.useThreadAutoCompaction(React,manager,'a');let state=render();assert.equal(state.error,'read');assert.equal(state.enabled,null);await state.retry();assert.equal(render().error,'read');fail=false;await render().retry();assert.equal(render().enabled,false);assert.equal(render().error,null);assert.ok(calls.every(e=>e.method==='thread/read'));
+});
+test("live confirmed thread settings repaint gauge without changing token metadata",()=>{
+ const h=gaugeHarness(),usage=h.aCa({modelContextWindow:1000000,last:{totalTokens:800000},contextPolicy:{...policy(800000,'no-surcharge'),contextWindow:1000000,autoCompactTokenLimit:600000}});let enabled=true;
+ h.Ou=()=>({get:atom=>atom===h.nA?{getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:enabled}})}:"local"});assert.equal(h.XSa({conversationId:'a',contextUsage:usage}).props.children.props.children[1].props.percent,100);enabled=false;const gauge=h.XSa({conversationId:'a',contextUsage:usage});assert.equal(gauge.props.children.props.children[1].props.percent,50);assert.equal(gauge.props.children.props['data-azrael-context-lap'],'2');
+});
 test("footer cache refreshes active conversation even when usage is unchanged",()=>{
   const footer=declaration(transformed,"cwa");assert.match(footer,/E7\.c\)\(42\)/);assert.match(footer,/t\[22\]!==y\|\|t\[23\]!==H\|\|t\[41\]!==h/);assert.match(footer,/XSa,\{contextUsage:y,conversationId:h\}/);assert.match(footer,/t\[24\]=W,t\[41\]=h/);
   assert.match(declaration(transformed,"XSa"),/Px\(store,store\.get\(hA,id\)\)\.compactThread\(id\)/);
+  assert.match(declaration(transformed,"XSa"),/store\.get\(nA,store\.get\(hA,e\.conversationId\)\)/);
+  assert.match(declaration(transformed,"XSa"),/\(method,params\)=>Px\(store,store\.get\(hA,e\.conversationId\)\)\.sendRequest\(method,params\)/);
 });
 test("card compacts ID only, guards duplicate pending clicks, retries errors and keeps thread state separate",async()=>{
   const entries=new Map(),calls=[],draft={text:"unsent draft",attachments:["image.png"]},store={};let resolve,reject;

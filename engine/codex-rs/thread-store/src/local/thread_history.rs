@@ -9,7 +9,7 @@ use super::LocalThreadStore;
 use crate::ThreadStoreError;
 use crate::ThreadStoreResult;
 
-pub(super) const CURRENT_PROJECTION_VERSION: i64 = 4;
+pub(super) const CURRENT_PROJECTION_VERSION: i64 = 5;
 
 mod read;
 mod realtime;
@@ -415,6 +415,8 @@ INSERT INTO thread_turns (
     thread_id,
     turn_id,
     root_turn_id,
+    parent_turn_id,
+    turn_trigger,
     rollout_ordinal,
     rollout_byte_offset,
     rollout_end_ordinal,
@@ -425,9 +427,11 @@ INSERT INTO thread_turns (
     completed_at,
     duration_ms,
     root_resume_wait_json
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
 ON CONFLICT(thread_id, turn_id) DO UPDATE SET
     root_turn_id = COALESCE(thread_turns.root_turn_id, excluded.root_turn_id),
+    parent_turn_id = COALESCE(thread_turns.parent_turn_id, excluded.parent_turn_id),
+    turn_trigger = COALESCE(thread_turns.turn_trigger, excluded.turn_trigger),
     rollout_end_ordinal = excluded.rollout_end_ordinal,
     rollout_end_byte_offset = excluded.rollout_end_byte_offset,
     root_resume_wait_json = COALESCE(excluded.root_resume_wait_json, thread_turns.root_resume_wait_json),
@@ -451,6 +455,8 @@ WHERE (thread_turns.rollout_end_ordinal IS NULL AND thread_turns.status = 'inPro
         .bind(thread_id)
         .bind(turn_id.as_str())
         .bind(turn.root_turn_id)
+        .bind(turn.parent_turn_id)
+        .bind(turn.turn_trigger)
         .bind(rollout_ordinal)
         .bind(rollout_byte_offset)
         .bind(terminal_ordinal)

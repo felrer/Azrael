@@ -369,6 +369,7 @@ pub(crate) async fn run_turn(
         // referenced by a pending delta review. Leave budget failures unreusable.
         if !matches!(error.details(), CodexErrorDetails::ContextWindowExceeded)
             || turn_context.config.features.enabled(Feature::TokenBudget)
+            || !sess.auto_compaction_enabled().await
         {
             return Err(error);
         }
@@ -377,7 +378,7 @@ pub(crate) async fn run_turn(
         sess.services
             .thread_extension_data
             .insert(crate::guardian::ExhaustedReviewBudget::Compacting);
-        run_auto_compact(
+        let compacted = run_auto_compact(
             &sess,
             Arc::clone(&first_step_context),
             Arc::clone(&first_step_context),
@@ -386,6 +387,9 @@ pub(crate) async fn run_turn(
             CompactionPhase::PreTurn,
         )
         .await?;
+        if !compacted {
+            return Err(error);
+        }
         sess.record_context_updates_and_set_reference_context_item(first_step_context.as_ref())
             .await?;
         crate::guardian::finalize_guardian_input(
@@ -655,9 +659,13 @@ pub(crate) async fn run_turn(
                     );
                 }
 
-                let should_roll_over = needs_follow_up
-                    && (sess.take_new_context_window_request().await || token_limit_reached);
-                let allow_auto_compact_fallback = !should_roll_over && !token_limit_reached;
+                let new_context_requested = sess.take_new_context_window_request().await;
+                let auto_compaction_enabled = sess.auto_compaction_enabled().await;
+                let should_roll_over = auto_compaction_enabled
+                    && needs_follow_up
+                    && (new_context_requested || token_limit_reached);
+                let allow_auto_compact_fallback =
+                    auto_compaction_enabled && !should_roll_over && !token_limit_reached;
                 super::token_budget::maybe_record(
                     sess.as_ref(),
                     turn_context.as_ref(),
@@ -668,7 +676,7 @@ pub(crate) async fn run_turn(
 
                 // as long as compaction works well in getting us way below the token limit, we shouldn't worry about being in an infinite loop.
                 if should_roll_over {
-                    if let Err(err) = run_auto_compact(
+                    let compacted = match run_auto_compact(
                         &sess,
                         Arc::clone(&step_context),
                         Arc::clone(&step_context),
@@ -678,29 +686,34 @@ pub(crate) async fn run_turn(
                     )
                     .await
                     {
-                        if matches!(err.details(), CodexErrorDetails::TurnAborted) {
-                            return Err(err);
+                        Ok(compacted) => compacted,
+                        Err(err) => {
+                            if matches!(err.details(), CodexErrorDetails::TurnAborted) {
+                                return Err(err);
+                            }
+                            let error = err.to_codex_protocol_error();
+                            sess.emit_turn_error_lifecycle(
+                                turn_context.as_ref(),
+                                error.clone(),
+                                err.details(),
+                            )
+                            .await;
+                            return Ok(None);
                         }
-                        let error = err.to_codex_protocol_error();
-                        sess.emit_turn_error_lifecycle(
-                            turn_context.as_ref(),
-                            error.clone(),
-                            err.details(),
-                        )
-                        .await;
-                        return Ok(None);
+                    };
+                    if compacted {
+                        if run_pending_session_start_hooks(&sess, &turn_context).await {
+                            return Ok(None);
+                        }
+                        // After a signaled step, drain the steer even if compaction
+                        // leaves the estimated context above the token limit.
+                        can_drain_pending_input = !model_needs_follow_up
+                            || step_context
+                                .preempt
+                                .as_ref()
+                                .is_some_and(CancellationToken::is_cancelled);
+                        continue;
                     }
-                    if run_pending_session_start_hooks(&sess, &turn_context).await {
-                        return Ok(None);
-                    }
-                    // After a signaled step, drain the steer even if compaction
-                    // leaves the estimated context above the token limit.
-                    can_drain_pending_input = !model_needs_follow_up
-                        || step_context
-                            .preempt
-                            .as_ref()
-                            .is_some_and(CancellationToken::is_cancelled);
-                    continue;
                 }
 
                 if !needs_follow_up {
@@ -811,6 +824,7 @@ pub(crate) async fn run_turn(
             Err(err)
                 if matches!(err.details(), CodexErrorDetails::ContextWindowExceeded)
                     && !guardian_budget_compacted
+                    && sess.auto_compaction_enabled().await
                     && !turn_context.config.features.enabled(Feature::TokenBudget)
                     && sess
                         .services
@@ -826,7 +840,7 @@ pub(crate) async fn run_turn(
                 sess.services
                     .thread_extension_data
                     .insert(crate::guardian::ExhaustedReviewBudget::Compacting);
-                run_auto_compact(
+                let compacted = run_auto_compact(
                     &sess,
                     Arc::clone(&step_context),
                     Arc::clone(&step_context),
@@ -835,6 +849,9 @@ pub(crate) async fn run_turn(
                     CompactionPhase::MidTurn,
                 )
                 .await?;
+                if !compacted {
+                    return Err(err);
+                }
                 can_drain_pending_input = false;
                 continue;
             }
@@ -1359,7 +1376,9 @@ async fn run_pre_sampling_compact(
     client_session: &mut ModelClientSession,
     cancellation_token: &CancellationToken,
 ) -> CodexResult<()> {
-    if super::request_budget::uses_final_budget(&turn_context.model_info().slug) {
+    if !sess.auto_compaction_enabled().await
+        || super::request_budget::uses_final_budget(&turn_context.model_info().slug)
+    {
         return Ok(());
     }
     maybe_run_previous_model_inline_compact(sess, turn_context, client_session, cancellation_token)
@@ -1453,9 +1472,14 @@ async fn maybe_run_previous_model_inline_compact(
         let previous_model_limit_reached =
             match turn_context.config.model_auto_compact_token_limit_scope {
                 AutoCompactTokenLimitScope::Total => {
-                    let new_auto_compact_limit = turn_context
-                        .model_info()
-                        .auto_compact_token_limit()
+                    let new_auto_compact_limit =
+                        codex_protocol::context_policy::resolve_auto_compact(
+                            turn_context.model_info().as_ref(),
+                            &turn_context.config.provider_auto_compact,
+                            turn_context.config.model_auto_compact_token_limit,
+                            super::context_window::subscription_auth(sess),
+                        )
+                        .0
                         .unwrap_or(i64::MAX);
                     active_context_tokens > new_auto_compact_limit
                         || active_context_tokens >= new_context_window
@@ -1493,6 +1517,10 @@ async fn maybe_run_previous_model_inline_compact(
     Ok(())
 }
 
+#[cfg(test)]
+#[path = "auto_compaction_tests.rs"]
+mod auto_compaction_tests;
+
 /// The replacement context may use a different model than the compactor.
 #[instrument(
     level = "trace",
@@ -1506,7 +1534,11 @@ async fn run_auto_compact(
     client_session: &mut ModelClientSession,
     reason: CompactionReason,
     phase: CompactionPhase,
-) -> CodexResult<()> {
+) -> CodexResult<bool> {
+    // Admission reads live thread state; an admitted compaction completes normally.
+    if !sess.auto_compaction_enabled().await {
+        return Ok(false);
+    }
     let turn_context = &step_context.turn;
     if crate::devin::catalog::is_devin(&step_context.settings.model_info.slug) {
         return Err(CodexErr::InvalidRequest("Native compaction is unavailable for helper providers; start a new thread if the context limit is reached".to_string()));
@@ -1515,7 +1547,7 @@ async fn run_auto_compact(
         && crate::guardian::is_basic_session_source(&turn_context.session_source)
         && !crate::guardian::should_compact_guardian_input(sess)?
     {
-        return Ok(());
+        return Ok(false);
     }
     let world_state = Arc::new(
         sess.build_world_state_for_step(&replacement_step_context, /*new_window*/ true)
@@ -1539,7 +1571,7 @@ async fn run_auto_compact(
             world_state,
         )
         .await?;
-        return Ok(());
+        return Ok(true);
     }
 
     match turn_context.provider.capabilities().remote_compaction {
@@ -1577,7 +1609,7 @@ async fn run_auto_compact(
             .await?;
         }
     }
-    Ok(())
+    Ok(true)
 }
 
 pub(super) fn collect_explicit_app_ids_from_skill_items(
@@ -1656,13 +1688,14 @@ pub(crate) fn build_prompt(
     Prompt {
         tools: if incremental_tools {
             Arc::default()
-        } else if step_context.settings.model_info.slug.starts_with("api/") {
+        } else if step_context.harness_profile.uses_claude_tools() || step_context.settings.model_info.slug.starts_with("api/") {
             step_context.tool_router.chat_specs_with_discovered(&input)
         } else {
             step_context.tool_router.model_visible_specs()
         },
         input,
         parallel_tool_calls: true,
+        harness_profile: Some(step_context.harness_profile.clone()),
         base_instructions: if incremental_tools {
             BaseInstructions {
                 text: String::new(),
@@ -1707,7 +1740,7 @@ async fn run_sampling_request(
     } else {
         None
     };
-    let base_instructions = sess.get_prompt_base_instructions().await;
+    let base_instructions = sess.get_step_base_instructions(&step_context).await;
 
     let tool_runtime = ToolCallRuntime::new(
         Arc::clone(&sess),
@@ -1802,7 +1835,7 @@ async fn run_sampling_request(
                 .await
                 .token_limit_reached
             };
-            if limit_reached {
+            if limit_reached && sess.auto_compaction_enabled().await {
                 if super::request_budget::compaction_exhausted(
                     budget_compactions,
                     previous_budget_tokens,
@@ -1812,7 +1845,7 @@ async fn run_sampling_request(
                 }
                 previous_budget_tokens = final_input_tokens;
                 budget_compactions += 1;
-                run_auto_compact(
+                let compacted = run_auto_compact(
                     &sess,
                     Arc::clone(&step_context),
                     Arc::clone(&step_context),
@@ -1821,8 +1854,10 @@ async fn run_sampling_request(
                     CompactionPhase::MidTurn,
                 )
                 .await?;
-                // Rebuild the prompt, Guardian projection, and final helper estimate.
-                continue;
+                // Rebuild only after admitted compaction; disabled threads send the full request.
+                if compacted {
+                    continue;
+                }
             }
         }
         let quota_auth = sess.services.auth_manager.auth_cached();

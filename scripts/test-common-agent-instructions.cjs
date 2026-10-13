@@ -24,3 +24,11 @@ test("native provider mappings preserve common behavior and V2 guidance", async 
     assert.ok(result.messages.some(message => message.role === "system" && message.content === guidance));
   }
 });
+
+
+test("profile runtime and tool guidance copies match maintained sources", () => {
+  for (const name of ["harness-runtime-core", "claude-tool-environment", "claude-lean-behavior"]) {
+    assert.equal(fs.readFileSync(path.join(root, `instructions/instructions/${name}.md`), "utf8"),
+      fs.readFileSync(path.join(root, `engine/codex-rs/prompts/templates/${name}.md`), "utf8"));
+  }
+});

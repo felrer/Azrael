@@ -65,7 +65,14 @@ test('Claude subscription wire carries user image blocks and tool_result images'
   ];
   const fetcher = (async (_url: any, init: any) => {
     captured.push(JSON.parse(init.body));
-    return new Response(events.map(event => `event: ${event.type}\ndata: ${JSON.stringify(event)}\n\n`).join(''), { headers: { 'content-type': 'text/event-stream' } });
+    const responseEvents = captured.length === 1 ? events : [
+      events[0],
+      { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'read-next', name: 'Read', input: {} } },
+      { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: '{"path":"a.png"}' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_delta', delta: { stop_reason: 'tool_use' }, usage: { output_tokens: 1 } }, events.at(-1),
+    ];
+    return new Response(responseEvents.map(event => `event: ${event!.type}\ndata: ${JSON.stringify(event)}\n\n`).join(''), { headers: { 'content-type': 'text/event-stream' } });
   }) as typeof fetch;
   const frames: any[] = [];
   await infer(request('anthropic', 'claude-sonnet-5'), frame => frames.push(frame), fetcher);
@@ -76,6 +83,20 @@ test('Claude subscription wire carries user image blocks and tool_result images'
   expect(userImages[0].source.type).toBe('base64');
   const toolResult = messages.flatMap((message: any) => Array.isArray(message.content) ? message.content : []).find((part: any) => part.type === 'tool_result');
   expect(toolResult.content.some((part: any) => part.type === 'image' && part.source.type === 'base64')).toBeTrue();
+  const profile = { id: 'builtin/anthropic-default', fingerprint: 'profile-v1', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/claude-lean' };
+  const compatibleInput = input.map(item => item.type === 'function_call' ? { ...item, name: 'Read', namespace: 'functions' } : item);
+  const compatibleTools = [{ type: 'namespace', name: 'functions', tools: [{ ...tools[0], name: 'Read' }] },
+    { type: 'namespace', name: 'mcp_fixture', tools: [{ ...tools[0], name: 'lookup' }] }];
+  const compatibleFrames: any[] = [];
+  await infer(request('anthropic', 'claude-sonnet-5', { harness_profile: profile, input: compatibleInput, tools: compatibleTools }), frame => compatibleFrames.push(frame), fetcher);
+  expect(compatibleFrames.find(frame => frame.item?.type === 'function_call').item).toMatchObject({ type: 'function_call', call_id: 'read-next', namespace: 'functions', name: 'Read' });
+  const compatible = captured[1];
+  expect(compatible.model).toBe('claude-sonnet-5');
+  expect(compatible.tools[0].name).toBe('Read');
+  expect(compatible.tools[1].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
+  expect(compatible.system.map((part: any) => part.text).join('\n')).toBe('fixture instructions');
+  expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_use').name).toBe('Read');
+  expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_result').content.some((part: any) => part.type === 'image')).toBeTrue();
 });
 
 test('Antigravity CCA wire carries inline image data and catalog declares configured modalities', async () => {

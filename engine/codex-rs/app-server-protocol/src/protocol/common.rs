@@ -3252,6 +3252,7 @@ mod tests {
                 computer_use_mode: None,
                 disabled_plugin_ids: Vec::new(),
                 thread: v2::Thread {
+                    auto_compaction_enabled: Some(true),
                     originator: None,
                     environments: None,
                     id: "67e55044-10b1-426f-9247-bb680e5fe0c8".to_string(),
@@ -3312,6 +3313,7 @@ mod tests {
                 "id": 7,
                 "response": {
                     "thread": {
+                        "autoCompactionEnabled": true,
                         "id": "67e55044-10b1-426f-9247-bb680e5fe0c8",
                         "environments": null,
                         "extra": null,
@@ -4560,6 +4562,7 @@ mod tests {
             ServerNotification::ThreadSettingsUpdated(v2::ThreadSettingsUpdatedNotification {
                 thread_id: "thr_123".to_string(),
                 thread_settings: v2::ThreadSettings {
+                    auto_compaction_enabled: true,
                     disabled_plugin_ids: Vec::new(),
                     cwd: absolute_path("/tmp/repo"),
                     approval_policy: v2::AskForApproval::Never,

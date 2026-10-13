@@ -1823,6 +1823,8 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
 
         id: "turn-1".to_string(),
         root_turn_id: None,
+        parent_turn_id: None,
+        turn_trigger: None,
         items: vec![
             ThreadItem::UserMessage {
                 id: "user-1".to_string(),
@@ -1855,6 +1857,8 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
 
         id: "turn-2".to_string(),
         root_turn_id: None,
+        parent_turn_id: None,
+        turn_trigger: None,
         items: vec![ThreadItem::UserMessage {
             id: "user-2".to_string(),
             client_id: None,
@@ -2021,6 +2025,8 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
 
             id: "turn-1".to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: vec![
                 ThreadItem::UserMessage {
                     id: "user-1".to_string(),
@@ -2061,6 +2067,8 @@ async fn paginated_history_lists_and_legacy_reads_use_projected_turns_and_items(
 
             id: "turn-2".to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: Vec::new(),
             items_view: TurnItemsView::NotLoaded,
             status: TurnStatus::Interrupted,

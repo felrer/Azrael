@@ -30,6 +30,7 @@ fn settings_item(
         ThreadSettingsAppliedEvent {
             thread_id: None,
             thread_settings: ThreadSettingsSnapshot {
+                auto_compaction_enabled: true,
                 disabled_plugin_ids: Vec::new(),
                 model: "gpt-5".to_string(),
                 model_provider_id: "openai".to_string(),
@@ -63,6 +64,7 @@ fn turn_context_item(
     active_permission_profile: Option<ActivePermissionProfile>,
 ) -> RolloutItem {
     RolloutItem::TurnContext(TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_id.to_string()),
         root_turn_id: None,
         disabled_plugin_ids: None,

@@ -14,7 +14,7 @@ spec.loader.exec_module(importer)
 
 
 def record_changes(destination, baseline, baseline_receipt_sha256, expected_paths, current_receipt_sha256=None,
-                   expected_adapted_paths=()):
+                   expected_adapted_paths=(), expected_migration_paths=()):
     destination, baseline = importer.canonical_path(destination), importer.canonical_path(baseline)
     if destination == baseline or destination.is_relative_to(baseline) or baseline.is_relative_to(destination):
         raise ValueError("Baseline must be an independent immutable import")
@@ -43,7 +43,11 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         raise ValueError("Current receipt must match the reviewed SHA256")
     expected = set(expected_paths)
     expected_adapted = set(expected_adapted_paths)
-    if (not expected and not expected_adapted) or len(expected) != len(expected_paths) or len(expected_adapted) != len(expected_adapted_paths) or expected & expected_adapted:
+    expected_migrations = set(expected_migration_paths)
+    if ((not expected and not expected_adapted and not expected_migrations) or
+            len(expected) != len(expected_paths) or len(expected_adapted) != len(expected_adapted_paths) or
+            len(expected_migrations) != len(expected_migration_paths) or expected & expected_adapted or
+            expected_migrations & (expected | expected_adapted)):
         raise ValueError("Expected paths must be explicit and unique")
     fixes = {fix["adaptedPath"]: (name, fix) for name, fix in original.get("sourceFixes", {}).items()}
     for name in expected_adapted:
@@ -54,6 +58,11 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         importer.safe_path(destination, name)
         if name.endswith(".sql") or (name not in current["files"] and not importer.is_reviewed_source_addition(name)):
             raise ValueError(f"Expected path is not ordinary Rust/prompt source or is protected: {name}")
+    for name in expected_migrations:
+        importer.safe_path(destination, name)
+        if name in current["files"] or importer.migration_version(name) is None:
+            raise ValueError(f"Expected migration must be a new SQL migration in an imported owner: {name}")
+    expected |= expected_migrations
     root = importer.canonical_path(importer.git(destination, "rev-parse", "--show-toplevel").decode().strip())
     prefix = destination.relative_to(root).as_posix()
     if prefix == ".":
@@ -130,6 +139,11 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
     }
     if adapted_changes:
         record["localIntegration"]["adaptedChanges"] = adapted_changes
+    migration_additions = copy.deepcopy(current.get("localIntegration", {}).get("migrationAdditions", {}))
+    migration_additions.update({name: entries[name] for name in sorted(expected_migrations)})
+    if migration_additions:
+        record["localIntegration"]["schema"] = 4
+        record["localIntegration"]["migrationAdditions"] = migration_additions
     importer.validate_receipt(destination, record, allow_build_caches=True)
     # Recheck all inputs immediately before publishing the measured receipt.
     importer.validate_receipt(baseline, original)
@@ -143,7 +157,7 @@ def record_changes(destination, baseline, baseline_receipt_sha256, expected_path
         output.write("\n")
     return {"inventorySha256": record["inventorySha256"], "repositoryHead": head,
             "upstreamHead": original["head"], "sourcePrefix": prefix, "changes": record["localIntegration"]["changes"],
-            "adaptedChanges": adapted_changes}
+            "adaptedChanges": adapted_changes, "migrationAdditions": migration_additions}
 
 
 def main():
@@ -154,9 +168,10 @@ def main():
     parser.add_argument("--current-receipt-sha256", help="Reviewed current receipt hash; required when updating localIntegration")
     parser.add_argument("--expected-path", action="append", default=[])
     parser.add_argument("--expected-adapted-path", action="append", default=[], help="Explicit new content delta in fixed Rust adaptation")
+    parser.add_argument("--expected-migration-path", action="append", default=[], help="Explicit new reviewed append-only SQL migration")
     args = parser.parse_args()
     print(json.dumps(record_changes(args.destination, args.baseline, args.baseline_receipt_sha256, args.expected_path,
-                                   args.current_receipt_sha256, args.expected_adapted_path), indent=2))
+                                   args.current_receipt_sha256, args.expected_adapted_path, args.expected_migration_path), indent=2))
 
 
 if __name__ == "__main__":

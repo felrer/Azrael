@@ -908,6 +908,7 @@ impl TurnContext {
         #[allow(deprecated)]
         let cwd = self.cwd.clone();
         TurnContextItem {
+            harness_profile: None,
             turn_id: Some(self.sub_id.clone()),
             root_turn_id: self.turn_metadata_state.root_turn_id(),
             disabled_plugin_ids: Some(self.disabled_plugin_ids.clone()),

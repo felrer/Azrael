@@ -495,6 +495,8 @@ pub enum TurnSettingsUpdateOutcome {
     }),
 )]
 pub struct ThreadSettingsOverrides {
+    /// Enable automatic compaction for this thread. Omission preserves its setting.
+    pub auto_compaction_enabled: Option<bool>,
     /// Updated fallback `cwd` and environments supplied together as a complete pair.
     pub environments: Option<TurnEnvironmentRequests>,
 
@@ -2278,8 +2280,15 @@ pub struct ThreadSettingsAppliedEvent {
     pub thread_settings: ThreadSettingsSnapshot,
 }
 
+pub fn default_auto_compaction_enabled() -> bool {
+    true
+}
+
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, JsonSchema, TS)]
 pub struct ThreadSettingsSnapshot {
+    /// Older saved threads and all newly created threads enable automatic compaction.
+    #[serde(default = "default_auto_compaction_enabled")]
+    pub auto_compaction_enabled: bool,
     pub model: String,
     pub model_provider_id: String,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -3383,12 +3392,25 @@ impl WorldStateItem {
     }
 }
 
+/// Durable identity of the immutable harness snapshot used for a request.
+#[derive(Serialize, Deserialize, Clone, Debug, PartialEq, Eq, JsonSchema, TS)]
+pub struct HarnessProfileContext {
+    pub id: String,
+    pub fingerprint: String,
+    pub prompt_profile: String,
+    pub tool_profile: String,
+}
+
 /// Persist once per real user turn after computing that turn's model-visible
 /// context updates, and again after mid-turn compaction when replacement
 /// history re-establishes full context, so resume/fork replay can recover the
 /// latest durable baseline.
 #[derive(Serialize, Deserialize, Clone, Debug, PartialEq, JsonSchema, TS)]
 pub struct TurnContextItem {
+    /// Absent from older histories, which have no recorded harness fingerprint.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub harness_profile: Option<HarnessProfileContext>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     pub turn_id: Option<String>,
     /// Root turn that owns this turn's attribution, retained across recovery.
@@ -6285,12 +6307,43 @@ mod tests {
         }))?;
 
         assert_eq!(item.approval_policy, AskForApproval::OnRequest);
+        assert!(item.harness_profile.is_none());
+        Ok(())
+    }
+
+    #[test]
+    fn turn_context_harness_profile_round_trips() -> Result<()> {
+        let mut item: TurnContextItem = serde_json::from_value(json!({
+            "cwd": test_path_buf("/tmp"),
+            "approval_policy": "never",
+            "sandbox_policy": { "type": "danger-full-access" },
+            "model": "managed/anthropic/future-model",
+        }))?;
+        assert!(
+            serde_json::to_value(&item)?
+                .get("harness_profile")
+                .is_none()
+        );
+        item.harness_profile = Some(HarnessProfileContext {
+            id: "builtin/anthropic-default+builtin/claude-code-core".into(),
+            fingerprint: "captured-semantic-fingerprint".into(),
+            prompt_profile: "builtin/anthropic-default".into(),
+            tool_profile: "builtin/claude-code-core".into(),
+        });
+        let value = serde_json::to_value(&item)?;
+        assert_eq!(
+            value["harness_profile"]["fingerprint"],
+            "captured-semantic-fingerprint"
+        );
+        let restored: TurnContextItem = serde_json::from_value(value)?;
+        assert_eq!(restored.harness_profile, item.harness_profile);
         Ok(())
     }
 
     #[test]
     fn turn_context_item_serializes_split_policy_and_summary() -> Result<()> {
         let item = TurnContextItem {
+            harness_profile: None,
             turn_id: None,
             root_turn_id: None,
             disabled_plugin_ids: None,
