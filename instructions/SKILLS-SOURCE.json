@@ -7,11 +7,11 @@
       "path": "skills/development-workflow/references/task-artifacts.md",
       "source": "development-workflow/references/task-artifacts.md",
       "original": {
-        "size": 3647,
-        "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4"
+        "size": 3883,
+        "sha256": "a1cd9582324611e2875e82fe646b16fa3739f08258435c8120dc8863a5ec4e5f"
       },
-      "size": 3647,
-      "sha256": "5be9124f38e2c9d1e2a0eb84a94f244d09b047597a921c1eec7492a4f778cec4",
+      "size": 3883,
+      "sha256": "a1cd9582324611e2875e82fe646b16fa3739f08258435c8120dc8863a5ec4e5f",
       "adaptations": []
     },
     {
@@ -51,46 +51,44 @@
       "path": "skills/development-workflow/SKILL.md",
       "source": "development-workflow/SKILL.md",
       "original": {
-        "size": 11604,
-        "sha256": "30c676705fbf2dfa5885cac5d529dad1719c08e5b238cf10d979f44575e0e226"
+        "size": 13170,
+        "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b"
       },
-      "size": 11604,
-      "sha256": "30c676705fbf2dfa5885cac5d529dad1719c08e5b238cf10d979f44575e0e226",
+      "size": 13170,
+      "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b",
       "adaptations": []
     },
     {
       "path": "skills/design-collaboration/SKILL.md",
       "source": "design-collaboration/SKILL.md",
       "original": {
-        "size": 12919,
-        "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c"
+        "size": 14719,
+        "sha256": "df4cb79e831134084437f00cd0eeaeef6b59c4ca8ec006aca3a995396461c5b8"
       },
-      "size": 12919,
-      "sha256": "616ea62ac0fefa7116d31357e6a948e9a21ff40783de3c6c7519d5caa35b7a4c",
+      "size": 14719,
+      "sha256": "df4cb79e831134084437f00cd0eeaeef6b59c4ca8ec006aca3a995396461c5b8",
       "adaptations": []
     },
     {
       "path": "skills/design-documentation/SKILL.md",
       "source": "design-documentation/SKILL.md",
       "original": {
-        "size": 6609,
-        "sha256": "1317c2ece87ed4c862933e3d826163565330b2a49e9ebb920002491ed5603a68"
+        "size": 6975,
+        "sha256": "df0abf98f68d3c69ddd0349b0cb9f589729e65f9da4caaaa02f383ee45e04f13"
       },
-      "size": 6581,
-      "sha256": "ff89dbf478d89a418a04b4062cd54cc49b375f5eaa2886f236c450ab5e88174a",
-      "adaptations": [
-        "Normalize CRLF line endings to LF for repository text validation."
-      ]
+      "size": 6975,
+      "sha256": "df0abf98f68d3c69ddd0349b0cb9f589729e65f9da4caaaa02f383ee45e04f13",
+      "adaptations": []
     },
     {
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 14241,
-        "sha256": "cebe55a56a69dc5d74cf067df735d12e14232241d7669771344b508c2b19347f"
+        "size": 15398,
+        "sha256": "10040ab0ed0698252c1316866dfd29ec4d97ca17c3551dfa54d9eb9575ef700a"
       },
-      "size": 14241,
-      "sha256": "cebe55a56a69dc5d74cf067df735d12e14232241d7669771344b508c2b19347f",
+      "size": 15398,
+      "sha256": "10040ab0ed0698252c1316866dfd29ec4d97ca17c3551dfa54d9eb9575ef700a",
       "adaptations": []
     },
     {
@@ -108,11 +106,11 @@
       "path": "skills/project-bootstrap/assets/project-template/AGENTS.md",
       "source": "project-bootstrap/assets/project-template/AGENTS.md",
       "original": {
-        "size": 978,
-        "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5"
+        "size": 1532,
+        "sha256": "6d96574b2e3ce4f2c459a83d09e87fb7dbea9424f99248d8de4e9e57c18718f6"
       },
-      "size": 978,
-      "sha256": "a296b8ed20e237eba5318456d692b3f5168d471cfb97e95da40dffa30e4027f5",
+      "size": 1532,
+      "sha256": "6d96574b2e3ce4f2c459a83d09e87fb7dbea9424f99248d8de4e9e57c18718f6",
       "adaptations": []
     },
     {
@@ -152,14 +150,12 @@
       "path": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
       "source": "project-bootstrap/assets/project-template/docs/playbooks/README.md",
       "original": {
-        "size": 2964,
-        "sha256": "c6fa116684b68512544a6a67f82dedaaecdf23d4bac65ba5cd29b81ff7581f0d"
+        "size": 3068,
+        "sha256": "3a0e3cb45f966228373c29b5de30b5b26c72a2cec5ffcf11990e372031e75250"
       },
-      "size": 2939,
-      "sha256": "628a98b2001cd32c445dcbe75e47a36e295dafedb91d3063fb0e14f87e987add",
-      "adaptations": [
-        "Normalize CRLF line endings to LF for repository text validation."
-      ]
+      "size": 3068,
+      "sha256": "3a0e3cb45f966228373c29b5de30b5b26c72a2cec5ffcf11990e372031e75250",
+      "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/assets/project-template/docs/README.md",
@@ -176,28 +172,23 @@
       "path": "skills/project-bootstrap/assets/project-template/docs/work/README.md",
       "source": "project-bootstrap/assets/project-template/docs/work/README.md",
       "original": {
-        "size": 2424,
-        "sha256": "a6548c62b16935b4923f5f4ae16416c623c4d65498019d0467e867c3b942a478"
+        "size": 2685,
+        "sha256": "2fdaff8015c589523c79063e97908e1e5c602822caa04a11a03230f4a8a8e7f1"
       },
-      "size": 2399,
-      "sha256": "6a262d74d8a393e98dbe2ae8864252cae7f5baa2e001a2c3ed04566c3672eb25",
-      "adaptations": [
-        "Normalize CRLF line endings to LF for repository text validation."
-      ]
+      "size": 2685,
+      "sha256": "2fdaff8015c589523c79063e97908e1e5c602822caa04a11a03230f4a8a8e7f1",
+      "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/SKILL.md",
       "source": "project-bootstrap/SKILL.md",
       "original": {
-        "size": 8595,
-        "sha256": "bc7824d3e5fa68bd6fb8e9d1f04d16fc223bea2ee31e9152a2f784146a9cb308"
+        "size": 8550,
+        "sha256": "f2851259364baecbd6baf14e73f3240f33eba6744b01081eb47471e8de76b6d4"
       },
-      "size": 8487,
-      "sha256": "c609038e52c1bd3eb778541426c5e75ef262bc5e93e3097963c3d4ffb5e3778d",
-      "adaptations": [
-        "Resolve sibling skill links within the distributed skills directory.",
-        "Normalize CRLF line endings to LF for repository text validation."
-      ]
+      "size": 8550,
+      "sha256": "f2851259364baecbd6baf14e73f3240f33eba6744b01081eb47471e8de76b6d4",
+      "adaptations": []
     },
     {
       "path": "skills/implementation/references/build-inputs.md",

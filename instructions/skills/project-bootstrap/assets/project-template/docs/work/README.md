@@ -14,7 +14,7 @@ Do not invent a category code from the work topic. Use a category only when the 
 
 ## Review And Ownership
 
-The development-workflow skill owns plan content, work progress, decisions, and final acceptance. Reuse existing decisions, records, and authority without adding a separate plan or approval stage. Update the current plan in place with feedback and findings; keep only currently valid content rather than response history. Preserve user annotations and distinguish agreement from execution authority.
+Start with design-collaboration when linked user choices need iterative discussion, or development-workflow when investigation can produce a plan with questions and recommendations. Keep shared understanding, intent, allowed actions, requirements and choices in the same work record; do not require a separate understanding document. Development-workflow evolves it into an executable plan and owns final acceptance. Small tasks use short plans without unnecessary approval waits. Announce document questions with the plan link and key decision in conversation. Preserve user annotations and distinguish design agreement from execution authority; skill transitions do not reset either.
 
 Durable design belongs in its owning documents. Retain execution evidence only as required by applicable playbooks.
 

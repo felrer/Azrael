@@ -91,7 +91,7 @@ UNRESOLVED: None
 
 ## 구현을 맡길 때
 
-복합 개발 작업의 목표·미결 결정·최종 수용은 부모가 `development-workflow`로 관리합니다. 미결 설계는 `design-collaboration`, 합의된 설계의 문서 반영은 `design-documentation`, 정해진 구현·검증·정리는 `implementation`을 사용합니다. 명확한 작은 변경은 `implementation`으로 바로 처리하며, 스킬 전환이나 위임 때문에 별도 계획·승인 단계를 만들지 않습니다.
+부모는 대화의 목표·산출물·허용 작업을 먼저 확인하고, 연결된 사용자 선택을 여러 턴 논의해야 하면 `design-collaboration`, 조사 후 접근 방법과 질문을 계획에 모을 수 있으면 `development-workflow`로 진입합니다. 같은 작업 기록을 이어가며 합의된 지속적인 설계는 `design-documentation`, 정해진 구현·검증·정리는 `implementation`이 담당합니다. 작은 작업은 짧은 계획으로 정리하고, 위임이나 스킬 전환으로 승인 단계를 추가하지 않습니다. 작업자는 전달받은 범위를 실행하며 설계 차이·기능 축소가 필요하면 관련 구현 전에 부모에게 근거·대안·영향을 보고합니다. architecture에 없는 기존 기능도 코드·테스트·동작 근거로 보존합니다.
 
 탐색 결과를 바탕으로 부모가 요구사항과 수정 범위를 결정한 뒤 전달합니다. Codex와 Azrael 모두 `sol_executor`(GPT-6.1 Sol, medium)를 사용합니다. 아래 0 처리 규칙은 예시의 합의된 조건입니다.
 

@@ -4,9 +4,10 @@
 
 ## Work Entry and Skills (Parent Only)
 
-- Use the installed `development-workflow` skill to lead complex code changes: requirements, scope, investigation, decisions, progress, and final acceptance. Carry forward confirmed requirements, records, and authorization; clarify consequential unknowns without reopening settled decisions.
+- Before selecting a skill, identify the current goal, requested deliverable, allowed actions, settled decisions and open questions from the conversation and existing work record. Preserve this context across turns; interpret follow-ups within it. A mention of a skill or a needed change does not authorize execution. Clarify only when an unresolved interpretation changes scope or authority.
+- Choose one of two work-entry routes: `design-collaboration` when linked user choices need iterative discussion, or `development-workflow` when investigation can produce a work plan with questions and recommendations. Technical size alone does not choose the route. Keep transitions in the same work record, carry prior decisions and authority forward, and do not restart approval because the skill changes.
 - Select `design-collaboration` for unresolved design choices, `design-documentation` for recording agreed design in its owning documents, and `implementation` for execution preparation, implementation, verification, and cleanup. These are cooperating responsibilities, not four mandatory sequential stages. Use existing project design-discussion guidance within the same work; do not invent a second plan, design document, or approval stage.
-- Use `implementation` directly for clear, small changes. Reuse existing decisions and execution authority; return only missing consequential decisions to the parent or user as appropriate.
+- Use `implementation` to execute the agreed plan within existing authority. Small work uses a proportionate short plan without an extra approval wait when no review is needed. Specialized skills support the current task; selecting or reading them does not change its phase, scope or authority.
 - Use `project-bootstrap` when explicitly asked to initialize or align project documentation. Preserve existing content and routing; it does not scaffold application code or copy common implementation rules into project playbooks.
 - Keep all five skills installed together with their supporting resources. Read the selected skill's actual instructions before applying it.
 

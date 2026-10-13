@@ -16,7 +16,7 @@ Improve guidance from demonstrated needs. Promote reusable lessons to common sou
 
 ## Installed Skill Owners
 
-Use the installed `development-workflow` skill to lead complex code work and final acceptance, `design-collaboration` for unresolved design choices, `design-documentation` for agreed design documents, and `implementation` for execution preparation, implementation, verification, and cleanup. These are responsibilities selected as needed, not mandatory sequential stages. Clear, small changes can use `implementation` directly. Reuse existing decisions, records, and authority without a separate plan or approval stage.
+Common work-entry instructions identify intent and authority, then choose `design-collaboration` for linked choices requiring iterative discussion or `development-workflow` to write a plan with questions and recommendations. `design-documentation` records enduring agreed design and `implementation` executes the resulting plan within existing authority. Small work uses short plans without unnecessary approval waits. Reuse one work record across transitions and preserve existing features using architecture together with code, tests and observed behavior; review unapproved design deviations or feature reductions before affected implementation.
 
 Common implementation rules belong to the installed `implementation` skill; do not import a duplicate Work body. Preserve and register existing project-specific Work or design-discussion guidance as local constraints.
 
