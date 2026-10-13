@@ -1247,7 +1247,7 @@ impl Session {
     }
 
     /// Builds a context from the caller's chosen settings and environments without starting work.
-    async fn new_turn_from_configuration(
+    pub(super) async fn new_turn_from_configuration(
         &self,
         sub_id: String,
         session_configuration: SessionConfiguration,

@@ -2,6 +2,27 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.root-resume-reasoning",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/session/root_resume.rs",
+        "engine/codex-rs/core/src/tools/handlers/root_resume.rs",
+        "engine/codex-rs/protocol/src/root_resume.rs",
+        "engine/codex-rs/state/src/runtime/root_resume.rs",
+        "engine/codex-rs/state/migrations/0064_root_resume_reasoning_settings.sql"
+      ],
+      "contract": "docs/architecture/root-resume.md",
+      "checks": [
+        {
+          "id": "engine.root-resume-reasoning.native",
+          "executable": "node",
+          "args": ["scripts/check-root-resume-reasoning.cjs", "{engineSourceRoot}"],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "ui.submit-only-thread",
       "area": "ui",
       "owners": ["scripts/inject-submit-only-thread.cjs"],

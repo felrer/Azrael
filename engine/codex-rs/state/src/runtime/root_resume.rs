@@ -26,6 +26,7 @@ const ROOT_RESUME_COLUMNS: &str = r#"
     completion_tasks_json,
     reason,
     final_output_json_schema,
+    reasoning_settings_json,
     wake_reason,
     last_error
 "#;
@@ -34,6 +35,11 @@ impl StateRuntime {
     pub async fn create_root_resume(&self, record: &RootResumeReservation) -> anyhow::Result<()> {
         let agent_tasks_json = serde_json::to_string(&record.agent_tasks)?;
         let completion_tasks_json = serde_json::to_string(&record.completion_tasks)?;
+        let reasoning_settings_json = record
+            .reasoning_settings
+            .as_ref()
+            .map(serde_json::to_string)
+            .transpose()?;
         let final_output_json_schema = record
             .final_output_json_schema
             .as_ref()
@@ -59,9 +65,10 @@ INSERT INTO root_resume_reservations (
     completion_tasks_json,
     reason,
     final_output_json_schema,
+    reasoning_settings_json,
     wake_reason,
     last_error
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             "#,
         )
         .bind(&record.id)
@@ -81,6 +88,7 @@ INSERT INTO root_resume_reservations (
         .bind(completion_tasks_json)
         .bind(&record.reason)
         .bind(final_output_json_schema)
+        .bind(reasoning_settings_json)
         .bind(
             record
                 .wake_reason
@@ -249,6 +257,7 @@ fn root_resume_from_row(row: &SqliteRow) -> anyhow::Result<RootResumeReservation
     let agent_tasks_json: String = row.try_get("agent_tasks_json")?;
     let completion_tasks_json: String = row.try_get("completion_tasks_json")?;
     let final_output_json_schema: Option<String> = row.try_get("final_output_json_schema")?;
+    let reasoning_settings_json: Option<String> = row.try_get("reasoning_settings_json")?;
     Ok(RootResumeReservation {
         id: row.try_get("id")?,
         root_thread_id: row.try_get("root_thread_id")?,
@@ -267,6 +276,10 @@ fn root_resume_from_row(row: &SqliteRow) -> anyhow::Result<RootResumeReservation
         completion_tasks: serde_json::from_str(&completion_tasks_json)?,
         reason: row.try_get("reason")?,
         final_output_json_schema: final_output_json_schema
+            .as_deref()
+            .map(serde_json::from_str)
+            .transpose()?,
+        reasoning_settings: reasoning_settings_json
             .as_deref()
             .map(serde_json::from_str)
             .transpose()?,
@@ -319,6 +332,9 @@ mod tests {
                 "type": "object",
                 "required": ["answer"]
             })),
+            reasoning_settings: Some(codex_protocol::root_resume::RootResumeReasoningSettings {
+                effort: Some(codex_protocol::openai_models::ReasoningEffort::High),
+            }),
             wake_reason: None,
             last_error: None,
         }
@@ -409,6 +425,12 @@ mod tests {
         .execute(&pool)
         .await
         .expect("completion migration should apply");
+        sqlx::raw_sql(include_str!(
+            "../../migrations/0064_root_resume_reasoning_settings.sql"
+        ))
+        .execute(&pool)
+        .await
+        .expect("reasoning migration should apply");
         let mut query = QueryBuilder::<Sqlite>::new("SELECT ");
         query
             .push(ROOT_RESUME_COLUMNS)
@@ -428,6 +450,7 @@ mod tests {
             Some(RootResumeWakeReason::AgentsCompleted)
         );
         assert!(record.completion_tasks.is_empty());
+        assert!(record.reasoning_settings.is_none());
         sqlx::query("UPDATE root_resume_reservations SET wake_reason = 'work_completed'")
             .execute(&pool)
             .await

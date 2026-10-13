@@ -3,6 +3,15 @@ use serde::Deserialize;
 use serde::Serialize;
 use ts_rs::TS;
 
+/// Effective effort captured by the step that requested deferral.
+/// The wrapper distinguishes a captured unset effort from an older reservation.
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase")]
+pub struct RootResumeReasoningSettings {
+    pub effort: Option<crate::openai_models::ReasoningEffort>,
+}
+
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "snake_case")]
 #[ts(rename_all = "snake_case")]
@@ -60,6 +69,8 @@ pub struct RootResumeReservation {
     pub reason: String,
     #[serde(default)]
     pub final_output_json_schema: Option<serde_json::Value>,
+    #[serde(default)]
+    pub reasoning_settings: Option<RootResumeReasoningSettings>,
     pub wake_reason: Option<RootResumeWakeReason>,
     pub last_error: Option<String>,
 }
@@ -126,6 +137,7 @@ mod tests {
         let record: RootResumeReservation =
             serde_json::from_value(reservation_json()).expect("old reservation should deserialize");
         assert!(record.completion_tasks.is_empty());
+        assert!(record.reasoning_settings.is_none());
         assert!(!RootResumeWait::from(&record).can_wake_early);
     }
 
@@ -166,5 +178,20 @@ mod tests {
             turn_id: "child-turn".to_string(),
         });
         assert!(RootResumeWait::from(&record).can_wake_early);
+    }
+
+    #[test]
+    fn reasoning_snapshot_preserves_explicit_unset_and_effective_effort() {
+        for effort in [None, Some(crate::openai_models::ReasoningEffort::High)] {
+            let mut record: RootResumeReservation =
+                serde_json::from_value(reservation_json()).unwrap();
+            record.reasoning_settings = Some(RootResumeReasoningSettings { effort });
+            let value = serde_json::to_value(&record).unwrap();
+            assert!(value["reasoningSettings"].is_object());
+            assert_eq!(
+                serde_json::from_value::<RootResumeReservation>(value).unwrap(),
+                record
+            );
+        }
     }
 }
