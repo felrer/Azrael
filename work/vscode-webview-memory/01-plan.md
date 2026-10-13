@@ -35,7 +35,7 @@
 상태: 소스 구현·검증 완료. 사용자가 추천 조건의 구현을 승인했다. 전체 앱 빌드·설치는 이번 지시에 포함하지 않는다.
 
 - 공통 요구: Windows x64, Linux x64, macOS ARM64의 로컬 VS Code 대화 웹뷰에 같은 정책을 적용한다. 현재 실행 검증 환경은 Windows이며 다른 OS의 네이티브 수용은 별도다.
-- 조건: 숨겨진 상태가 연속 1시간 이상이고 현재 대화에 플래그가 없으면 화면 메모리를 해제한다. 표시 상태로 돌아오면 시간을 초기화한다. 탭·대화·native 모델 작업은 유지한다.
+- 조건: 숨겨진 상태가 연속 1시간 이상이고 현재 대화에 플래그가 없으며 실행·큐·재개·승인 대기가 없는 것으로 확인된 경우 화면 메모리를 해제한다. 표시 상태로 돌아오면 시간을 초기화한다. 작업 중이거나 상태가 불명확한 웹뷰는 유지한다.
 - 경계: 기존 host/global preference·native composer draft를 재사용하며, composer 첨부·선택과 스크롤만 작은 복원 상태로 보관한다. 저장 확인에 실패하거나 제출·일시 첨부가 진행 중이면 해제를 연기한다. 대화 기록은 저장 상태에서 다시 읽는다.
 - 소유: `scripts/inject-webview-idle.cjs`, `scripts/webview-idle.cjs`와 기존 namespace 변환·cache 규칙. 문서는 UI 계약과 기능 보존 목록에 연결한다. 다른 작업의 기존 변경은 보존한다.
 - 검증: 고정 upstream host/UI 변환과 구문 검사, 실제 생산 manager의 가상 시계·표시/플래그 경쟁·실패/복원 테스트, native 초안·플래그 회귀와 DOM 스크롤 복원 검사. 전체 빌드·설치 상태와 소스 검증을 구분한다.
@@ -44,3 +44,16 @@
 - 브라우저: `node scripts/verify-webview-idle-render.mjs` 밝은·어두운 테마에서 실제 DOM의 스크롤, 생산 snapshot 메시지와 첨부·초안 및 transcript 제외 6개 검사 통과(종료 코드 0, `render-summary.json`, `final-render.log`). Composer scope와 host 데이터는 합성 fixture로, 실제 native composer 전체 화면을 검증한 것은 아니다.
 - 실제 VS Code 검사: `node scripts/verify-webview-idle-host.cjs` 두 번 모두 updater의 `vscode-updating` mutex 때문에 앱 실행이 실패했다(종료 코드 1, `host-launch.log`, `host-summary.json`). 잠금을 우회하지 않았다. 실제 대화 탭의 해제·복원, 진행 중인 모델 작업·승인 요청의 연속성, 설치 후 RAM 절감량은 수용 전 필수로 남긴다.
 - 정리: 테스트 프로세스 종료 뒤 native PowerShell 일반 삭제로 host/browser fixture·프로필 제거를 확인했다. `host-cleanup.log`, `render-cleanup.log`의 종료 코드는 0이고 두 fixture 경로는 존재하지 않는다. 원본 설정·설치 런타임 변경과 모델 호출은 하지 않았다.
+
+## 작업·큐·대기 상태 보호 보완
+
+상태: 소스 구현·검증 완료. 사용자가 실행 중 / 큐가 있음 / 재개·승인 대기 및 상태 확인 실패 시 해제 제외를 승인했다. 공통 정책·Windows 소스 검증 범위와 빌드·설치 제외 범위는 위와 같다.
+
+- 확인된 문제: 기존 해제 조건의 제출 busy 검사는 실제 응답 실행·큐·재개 예약·승인 상태를 보장하지 않았다. 웹뷰의 client ownership 해제는 큐 자동 전송을 멈출 수 있으므로 이전 작업 유지 설명을 수정했다.
+- 재사용: native 종료 전 작업 검사와 동일한 manager 경계의 queue/readState·readMessages, resume/start admission, cached conversation 상태를 확인한다. 기존 관리 API `azrael/rootResume`와 검증된 engine transport를 재사용하며 새 의존성이나 엔진 변경은 없다.
+- 구현 순서·소유: root가 idle manager/composer → account service의 최신 예약 확인 command → 동일 생산 코드를 사용하는 상태·경쟁 테스트 → owning UI 문서와 feature inventory → 검증·작업별 커밋을 담당한다. 기존 다른 작업의 engine/provider 문서·코드·스테이징은 보존한다.
+- 정책: 확인 실패·누락·loading·연결 변경은 유지한다. 같은 renderer의 다른 대화 작업도 보호하며 창의 preparing/waiting/claimed/blocked 예약은 보수적으로 모든 대화 웹뷰를 유지한다. 해제 거부 후에는 새 숨김 1시간을 기다린다. 해제 뒤 새 내비게이션·승인 요청은 탭을 표시하지 않고 renderer를 복원해 handshake 뒤 전달한다.
+- 검증 계획: 생산 상태 검사·host callback·account service method의 가상 상태·가상 시계 테스트, pinned 전체 변환·cache dependency, TypeScript noEmit 및 변경한 DOM fixture. 실제 엔진 turn/queue/resume/approval 연속성·설치 후 RAM 수용은 별도이며 기존 native 앱 시작은 updater mutex에 막혔다.
+- 결과: `node --test scripts/test-webview-idle.cjs` 최종 16개 통과, 종료 코드 0 (`artifacts/logs/webview-idle/work-safety-final.log`, 실제 검사 86.1초). 배경 복원 중 플래그 변경 경쟁을 보완해 전체 변환 검사를 재실행했다. 초기 단위 테스트의 VM class 재선언 fixture 오류도 수정했다.
+- 타입·브라우저: `node extensions/azrael-ex/node_modules/typescript/bin/tsc -p extensions/azrael-ex/tsconfig.json --noEmit` 종료 코드 0 (`work-safety-types.log`); `node scripts/verify-webview-idle-render.mjs` 실제 Chromium DOM 6개 통과, 종료 코드 0 (`work-safety-render.log`, `render-summary.json`). 브라우저 종료와 일반 삭제 정리도 종료 코드 0이며 fixture 부재를 확인했다.
+- 한계: 타입·생산 변환·상태 fixture와 실제 DOM을 Windows에서 검증했다. 이번 요청에서 전체 앱 빌드·설치와 실제 모델 실행·큐 소비·자동 재개를 다시 실행하지 않았다. 설치 전 실제 엔진을 연결한 native 수용은 계속 남아 있다.

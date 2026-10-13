@@ -535,7 +535,7 @@ const ASSET_RULE_PATHS = {
   "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
-  "webview-idle.cjs": ["out/extension.js"],
+  "webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
   "inject-paginated-history.cjs": [PAGINATED_HISTORY_ASSET],
   "inject-submit-only-thread.cjs": [SUBMIT_ONLY_THREAD_ASSET],
   "inject-immediate-stop.cjs": [IMMEDIATE_STOP_ASSET],
