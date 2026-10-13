@@ -1,6 +1,6 @@
 "use strict";
 
-const { CONTENT_FONT_CSS } = require("./content-fonts.cjs");
+const { CONTENT_FONT_CSS, FONT_PLATFORM_SCRIPT } = require("./content-fonts.cjs");
 const CONTENT_FONT_CSS_ASSET = "webview/assets/app-initial-aad627bd9dff.css";
 const USER_CONTENT_ASSET = "webview/assets/collapsible-user-message-content-a1900554ceb1.js";
 const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
@@ -36,7 +36,7 @@ function injectContentFonts(text, relativePath, ts) {
   if (source.parseDiagnostics.length) throw new Error("Invalid content typography JavaScript.");
   const patches = LEAF_PATCHES.get(relativePath);
   if (text.includes(MARKER)) {
-    if (text.split(MARKER).length !== 2 || patches.some(([before, after]) => text.includes(before) || text.split(after).length !== 2)) {
+    if (text.split(MARKER).length !== 2 || (relativePath === COMPOSER_ASSET && !text.includes(FONT_PLATFORM_SCRIPT)) || patches.some(([before, after]) => text.includes(before) || text.split(after).length !== 2)) {
       throw new Error("Invalid dynamic content marker: " + relativePath);
     }
     return { text, count: 0 };
@@ -45,7 +45,7 @@ function injectContentFonts(text, relativePath, ts) {
     if (text.split(before).length !== 2) throw new Error("Pinned dynamic text leaf changed: " + relativePath + " " + before);
     text = text.replace(before, after);
   }
-  text = MARKER + text;
+  text = MARKER + (relativePath === COMPOSER_ASSET ? FONT_PLATFORM_SCRIPT : "") + text;
   const patched = ts.createSourceFile(relativePath, text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
   if (patched.parseDiagnostics.length) throw new Error("Invalid patched content typography JavaScript: " + relativePath);
   return { text, count: 1 };

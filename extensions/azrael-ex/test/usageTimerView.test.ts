@@ -22,11 +22,13 @@ test("standalone account HTML resolves official local fonts and permits their we
     const internal = view as unknown as { panel: unknown; render(): void };
     internal.panel = panel;
     internal.render();
-    assert.deepEqual(resolved, ["extension/media/fonts/gyeonggi-title-light.woff"]);
+    assert.deepEqual(resolved, ["extension/media/fonts/gyeonggi-title-light.woff", "extension/media/fonts/cascadia-mono.woff2", "extension/media/fonts/cascadia-mono-italic.woff2"]);
     assert.match(panel.webview.html, /font-src vscode-webview-resource:;/);
     assert.match(panel.webview.html, /@font-face\{font-family:"Azrael Gyeonggi Title";src:url\("https:\/\/local.example\/extension\/media\/fonts\/gyeonggi-title-light.woff"\)/);
     assert.match(panel.webview.html, /font-weight:400/);
-    assert.equal(panel.webview.html.split("@font-face").length, 2);
+    assert.equal(panel.webview.html.split("@font-face").length, 5);
+    assert.match(panel.webview.html, /cascadia-mono-italic\.woff2/);
+    assert.match(panel.webview.html, /dataset\.azraelFontPlatform=/);
     assert.doesNotMatch(panel.webview.html, /gyeonggi-batang|font-weight:700/);
   } finally {
     view?.dispose();

@@ -91,12 +91,12 @@ function AzraelDesignSettings() {
     className: "flex flex-col gap-10", "data-azrael-design-settings": true, "aria-busy": busy, children: [
       (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
         label: t("Chat and input font", "채팅 및 입력란 폰트"),
-        description: t("Choose the font for chat messages and the input field. Default: Gyeonggi + Consolas.", "채팅 메시지와 입력란에 사용할 폰트를 선택합니다. 기본값은 경기천년체 + Consolas입니다."),
+        description: t("Choose the font for chat messages and the input field. Default: Gyeonggi + monospace. Windows uses Consolas when available; otherwise Cascadia Mono.", "채팅 메시지와 입력란에 사용할 폰트를 선택합니다. 기본값은 경기천년체 + 고정폭입니다. Windows는 Consolas를 우선 사용하며, 그 외에는 Cascadia Mono를 사용합니다."),
         control: ariaProps => (0, $.jsx)(AzraelFontChoice, {
           ariaLabelledBy: ariaProps["aria-labelledby"], ariaLabel: t("Chat and input font", "채팅 및 입력란 폰트"),
           selectedId: state.chatFont, variant: "inset", onSelect: value => azraelDesignStore.setChatFont(value),
           options: [{ id: "openai", label: t("OpenAI default", "OpenAI 기본 폰트"), disabled: busy },
-            { id: "gyeonggi-consolas", label: t("Gyeonggi + Consolas", "경기천년체 + Consolas"), disabled: busy }] })
+            { id: "gyeonggi-consolas", label: t("Gyeonggi + monospace", "경기천년체 + 고정폭"), disabled: busy }] })
       }) }),
       (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
         label: t("Use custom photos for new subagents", "새 subagent에 사용자 지정 사진 사용"),
