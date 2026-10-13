@@ -1,0 +1,60 @@
+{
+  "source": "https://github.com/microsoft/cascadia-code",
+  "releaseVersion": "v2407.24",
+  "download": "https://github.com/microsoft/cascadia-code/releases/download/v2407.24/CascadiaCode-2407.24.zip",
+  "archiveSha256": "e67a68ee3386db63f48b9054bd196ea752bc6a4ebb4df35adce6733da50c8474",
+  "assets": [
+    {
+      "file": "cascadia-mono.woff2",
+      "archiveMember": "woff2/CascadiaMono.woff2",
+      "sha256": "7d4986a68fbbd674c90cdd8cd5d4a28c698640d3472572b006d2978006049799",
+      "bytes": 210484,
+      "families": [
+        "Cascadia Mono"
+      ],
+      "postScriptNames": [
+        "CascadiaMono-Regular"
+      ],
+      "subfamilies": [
+        "Regular"
+      ],
+      "axes": [
+        {
+          "tag": "wght",
+          "minimum": 200.0,
+          "default": 400.0,
+          "maximum": 700.0
+        }
+      ]
+    },
+    {
+      "file": "cascadia-mono-italic.woff2",
+      "archiveMember": "woff2/CascadiaMonoItalic.woff2",
+      "sha256": "c00f68dbd1b860cd5634e7c446d6fe68fd7f64e18ce3eb8ef7e52cd27f27116a",
+      "bytes": 153708,
+      "families": [
+        "Cascadia Mono"
+      ],
+      "postScriptNames": [
+        "CascadiaMono-Italic"
+      ],
+      "subfamilies": [
+        "Italic"
+      ],
+      "axes": [
+        {
+          "tag": "wght",
+          "minimum": 200.0,
+          "default": 400.0,
+          "maximum": 700.0
+        }
+      ]
+    }
+  ],
+  "license": {
+    "file": "CASCADIA-LICENSE.txt",
+    "source": "https://raw.githubusercontent.com/microsoft/cascadia-code/v2407.24/LICENSE",
+    "sha256": "51882cd3cdba4e16f220f44ddb08a635c38c44ea6e0975db2574f4be6f958238",
+    "bytes": 4489
+  }
+}

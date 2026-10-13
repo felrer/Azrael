@@ -5,7 +5,7 @@ const { pathToFileURL } = require("node:url");
 const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH ?? require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { CONTENT_FONT_ASSETS, injectContentFonts, MARKER } = require("./inject-content-fonts.cjs");
 const { transformAsset, getTransformRules, getAssetTransformRules } = require("./namespace-azrael-host.cjs");
-const { FONT_FAMILY, NORMAL_FONT_FAMILY, copyContentFontAssets } = require("./content-fonts.cjs");
+const { FONT_FAMILY, NORMAL_FONT_FAMILY, DEFAULT_NORMAL_FONT_FAMILY, FONT_PLATFORM_SCRIPT, copyContentFontAssets } = require("./content-fonts.cjs");
 const root = path.resolve(__dirname, "..");
 function containedPath(base, candidate) {
   const resolved = path.resolve(candidate), relative = path.relative(path.resolve(base), resolved);
@@ -78,7 +78,11 @@ for (const asset of CONTENT_FONT_ASSETS) {
   if (asset.endsWith(".css")) {
     assert.ok(scoped["content-fonts.cjs"]);
     assert.ok(scoped["content-font-resource:gyeonggi-title-light.woff"]);
+    assert.ok(scoped["content-font-resource:cascadia-mono.woff2"]);
+    assert.ok(scoped["content-font-resource:cascadia-mono-italic.woff2"]);
   }
+  if (asset.endsWith(".css") || asset.includes("app-initial")) assert.ok(scoped["content-font-policy"]);
+  if (!browserOnly && asset.includes("app-initial") && asset.endsWith(".js")) assert.ok(transformed.get(asset).includes(FONT_PLATFORM_SCRIPT), "production bootstrap executes shared platform policy");
 }
 console.log(`PASS official asset copies/hash and CSS/tC cache dependencies: ${copied.length} resources`);
 
@@ -133,7 +137,7 @@ async function verifyBrowser() {
     pm.runInNewContext(compiled.outputText, { exports, require: require("node:module").createRequire(path.join(root, "extensions/azrael-ex/dist/src/usagePresentation.js")) }, { filename: presentationPath });
     return exports;
   })();
-  const html = `<!doctype html><meta charset="utf-8"><style>:root{--font-sans:Arial;--font-ui-family:Arial}body{font-family:Arial;font-size:16px;line-height:24px}.sample{font-size:16px;line-height:24px}.sample button{font-size:16px;line-height:24px}.font-content{font-family:var(--codex-content-font-family)}${transformed.get(CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".css")))}</style><div id="fixed" class="sample">고정 메뉴 Copy 42</div><div id="korean" class="sample" data-azrael-dynamic-text>경기천년제목</div><div id="latin" class="sample" data-azrael-dynamic-text>Consolas 123</div><div id="bold" class="sample" data-azrael-dynamic-text style="font-weight:700">경기천년제목</div><div id="content" class="sample font-content">대화 Message 123<strong id="markdown-bold" style="font-weight:700">강조 제목</strong><button id="copy">Copy</button></div><div data-composer-body class="[&_.ProseMirror]:!font-sans"><div id="composer" class="sample ProseMirror" contenteditable>입력 composer 456</div></div><div id="shadow" style="display:block"></div><script>document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML=${JSON.stringify(`<style>${presentation.usageStyles}</style><main><header><span id="identity" data-azrael-dynamic-text>계정 Account 123</span><div class="actions"><button id="refresh" data-action="refresh">새로고침</button></div></header></main>`)};</script>`;
+  const html = `<!doctype html><meta charset="utf-8"><script>${FONT_PLATFORM_SCRIPT}</script><style>:root{--font-sans:Arial;--font-ui-family:Arial}body{font-family:Arial;font-size:16px;line-height:24px}.sample{font-size:16px;line-height:24px}.sample button{font-size:16px;line-height:24px}.font-content{font-family:var(--codex-content-font-family)}${transformed.get(CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".css")))}</style><div id="fixed" class="sample">고정 메뉴 Copy 42</div><div id="korean" class="sample" data-azrael-dynamic-text>경기천년제목</div><div id="latin" class="sample" data-azrael-dynamic-text>Consolas 123</div><div id="bold" class="sample" data-azrael-dynamic-text style="font-weight:700">경기천년제목</div><div id="content" class="sample font-content">대화 Message 123<strong id="markdown-bold" style="font-weight:700">강조 제목</strong><strong id="cascadia-bold" style="font-weight:700">Bold Latin 123</strong><em id="cascadia-italic">Italic Latin 123</em><button id="copy">Copy</button></div><div data-composer-body class="[&_.ProseMirror]:!font-sans"><div id="composer" class="sample ProseMirror" contenteditable>입력 composer 456</div></div><div id="shadow" style="display:block"></div><script>document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML=${JSON.stringify(`<style>${presentation.usageStyles}</style><main><header><span id="identity" data-azrael-dynamic-text>계정 Account 123</span><div class="actions"><button id="refresh" data-action="refresh">새로고침</button></div></header></main>`)};</script>`;
   const fixture = path.join(output, "webview/assets/fixture.html");
   const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><div id="chat-title" data-thread-title>가 나 hello world</div><div id="dynamic-value" data-azrael-dynamic-text>가 나 hello world</div><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><pre id="chat-pre">a b</pre><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
   hs.writeFileSync(fixture, html.replace("</style>", `</style>${chatFixture}`));
@@ -166,6 +170,16 @@ async function verifyBrowser() {
     let ready = false;
     for (let i = 0; i < 100 && !ready; i++) { ready = (await call("Runtime.evaluate", { expression: "!!document.querySelector('#composer')", returnByValue: true })).result.value; if (!ready) await new Promise(r => setTimeout(r, 50)); }
     assert.ok(ready, "fixture loaded");
+    assert.equal((await call("Runtime.evaluate", { expression: "document.documentElement.dataset.azraelFontPlatform", returnByValue: true })).result.value, "win32", "Windows host executes production platform script before render");
+    const platformFonts = async id => {
+      await call("DOM.getDocument", { pierce: true });
+      const expression = id === "identity" ? "document.querySelector('#shadow').shadowRoot.getElementById('identity')" : `document.getElementById(${JSON.stringify(id)})`;
+      const { result } = await call("Runtime.evaluate", { expression });
+      const { nodeId } = await call("DOM.requestNode", { objectId: result.objectId });
+      const fonts = (await call("CSS.getPlatformFontsForNode", { nodeId })).fonts;
+      await call("Runtime.releaseObject", { objectId: result.objectId });
+      return fonts;
+    };
     const measureSpacing = async (normalStack = NORMAL_FONT_FAMILY) => {
       const measured = await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['chat-paragraph','chat-heading','chat-list','chat-cell','user-paragraph','content','composer','chat-title','dynamic-value','identity','chat-code','chat-pre','chat-control','copy','fixed']){const el=id==='identity'?document.getElementById('shadow').shadowRoot.getElementById(id):document.getElementById(id),span=document.createElement('span');span.style.whiteSpace='pre';el.append(span);const stack=getComputedStyle(el).fontFamily;const baseline=stack.includes(' Space')?${JSON.stringify(normalStack)}:stack;const width=(text,normal)=>{span.textContent=text;span.style.setProperty('font-family',normal?baseline:'inherit','important');const range=document.createRange();range.selectNodeContents(span);return range.getBoundingClientRect().width};result[id]={fontFamily:stack,fontSize:getComputedStyle(el).fontSize,lineHeight:getComputedStyle(el).lineHeight};for(const [language,spaced,joined] of [['korean','가 나','가나'],['latin','hello world','helloworld']]){const actual=width(spaced,false)-width(joined,false),original=width(spaced,true)-width(joined,true);result[id][language]={actual,original,ratio:actual/original,glyphWidth:width(joined,false),originalGlyphWidth:width(joined,true)}};span.remove()}return result})()`, returnByValue: true });
       assert.ok(!measured.exceptionDetails, JSON.stringify(measured.exceptionDetails));
@@ -242,7 +256,7 @@ async function verifyBrowser() {
     }
     assert.ok(evidence.platformFonts.korean.some(d => d.isCustomFont && d.postScriptName === "GyeonggiTitleL" && d.glyphCount > 0));
     for (const id of ["bold", "markdown-bold"]) assert.ok(evidence.platformFonts[id].some(d => d.isCustomFont && d.postScriptName === "GyeonggiTitleL" && d.glyphCount > 0));
-    assert.ok(evidence.platformFonts.latin.some(d => d.glyphCount > 0), "Latin glyphs must render with an available selected face");
+    assert.ok(evidence.platformFonts.latin.some(d => !d.isCustomFont && /^Consolas/.test(d.postScriptName) && d.glyphCount > 0), "Windows Latin glyphs select actual local Consolas");
     assert.ok(evidence.platformFonts.copy.every(d => !d.isCustomFont));
     hs.writeFileSync(path.join(renderLogs, `render-evidence-${theme}.json`), JSON.stringify(evidence, null, 2));
     const screenshot = await call("Page.captureScreenshot", { format: "png" });
@@ -254,24 +268,79 @@ async function verifyBrowser() {
     assert.notEqual(themes.light.theme.color, themes.dark.theme.color, "native theme foregrounds must differ");
     for (const id of ["host", "main", "refresh"]) assert.notEqual(themes.light.shadow[id].background, themes.dark.shadow[id].background, `native shadow ${id} backgrounds must differ`);
     for (const id of ["identity", "refresh"]) assert.notEqual(themes.light.shadow[id].color, themes.dark.shadow[id].color, `native shadow ${id} foregrounds must differ`);
-    const missingFixture = path.join(output, "webview/assets/fixture-missing-consolas.html");
-    hs.writeFileSync(missingFixture, hs.readFileSync(fixture, "utf8").replaceAll('Consolas', 'AzraelUnavailableConsolas20261013'));
-    await call("Page.navigate", { url: pathToFileURL(missingFixture).href });
-    let missingReady = false;
-    for (let i = 0; i < 100 && !missingReady; i++) { missingReady = (await call("Runtime.evaluate", { expression: "!!document.querySelector('#composer') && !!document.querySelector('#shadow').shadowRoot", returnByValue: true })).result.value; if (!missingReady) await new Promise(r => setTimeout(r, 50)); }
-    assert.ok(missingReady, "missing-local-font fixture loaded");
-    await call("Runtime.evaluate", { expression: "document.fonts.ready", awaitPromise: true });
-    const missingLocal = {};
-    for (const theme of ["light", "dark"]) {
-      await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
-      missingLocal[theme] = await measureSpacing(NORMAL_FONT_FAMILY.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013'));
-      for (const [id, metrics] of Object.entries(missingLocal[theme])) for (const language of ["korean", "latin"]) {
-        assert.ok(metrics[language].actual > 1, `${id}/${language}: unavailable local font preserves visible space`);
-        assert.ok(Math.abs(metrics[language].ratio - 1) < 0.02, `${id}/${language}: unavailable local font uses natural fallback`);
+    const fallbackEvidence = {};
+    // All branches run in Windows Chromium. Linux/macOS navigator values exercise
+    // the production policy without claiming native environment verification.
+    const variants = [
+      { name: "missing-local", platform: "Win32", userAgentPlatform: "Windows", missingConsolas: true },
+      { name: "linux", platform: "Linux x86_64", userAgentPlatform: undefined },
+      { name: "macos", platform: "Win32", userAgentPlatform: "macOS" },
+    ];
+    for (const variant of variants) {
+      const override = `Object.defineProperty(navigator,'platform',{value:${JSON.stringify(variant.platform)},configurable:true});Object.defineProperty(navigator,'userAgentData',{value:${variant.userAgentPlatform === undefined ? "undefined" : JSON.stringify({ platform: variant.userAgentPlatform })},configurable:true});`;
+      let variantHtml = hs.readFileSync(fixture, "utf8").replace(`<script>${FONT_PLATFORM_SCRIPT}</script>`, `<script>${override}${FONT_PLATFORM_SCRIPT}</script>`);
+      if (variant.missingConsolas) variantHtml = variantHtml.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013');
+      const variantFixture = path.join(output, `webview/assets/fixture-${variant.name}.html`);
+      hs.writeFileSync(variantFixture, variantHtml);
+      await call("Page.navigate", { url: pathToFileURL(variantFixture).href });
+      let variantReady = false;
+      for (let i = 0; i < 100 && !variantReady; i++) {
+        variantReady = (await call("Runtime.evaluate", { expression: "!!document.querySelector('#composer') && !!document.querySelector('#shadow').shadowRoot", returnByValue: true })).result.value;
+        if (!variantReady) await new Promise(r => setTimeout(r, 50));
       }
+      assert.ok(variantReady, `${variant.name}: fixture loaded`);
+      const loaded = await call("Runtime.evaluate", { expression: `(async()=>{await document.fonts.load('16px "Azrael Cascadia Mono"','Latin');await document.fonts.load('700 16px "Azrael Cascadia Mono"','Bold');await document.fonts.load('italic 16px "Azrael Cascadia Mono"','Italic');await document.fonts.load('16px "Azrael Gyeonggi Title"','경기');await document.fonts.ready;return {platform:document.documentElement.dataset.azraelFontPlatform,faces:[...document.fonts].map(f=>({family:f.family,style:f.style,weight:f.weight,status:f.status}))}})()`, awaitPromise: true, returnByValue: true });
+      assert.ok(!loaded.exceptionDetails, JSON.stringify(loaded.exceptionDetails));
+      assert.equal(loaded.result.value.platform, variant.missingConsolas ? "win32" : "other", `${variant.name}: production navigator policy`);
+      const faces = loaded.result.value.faces.filter(f => f.family === "Azrael Cascadia Mono");
+      assert.equal(faces.length, 2);
+      for (const style of ["normal", "italic"]) assert.ok(faces.some(f => f.style === style && f.weight === "200 700" && f.status === "loaded"), `${variant.name}: loaded variable ${style} face`);
+      fallbackEvidence[variant.name] = { environment: "Windows Chromium; navigator overrides", ...loaded.result.value, themes: {} };
+      for (const theme of ["light", "dark"]) {
+        await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
+        await call("Runtime.evaluate", { expression: `document.documentElement.dataset.theme=${JSON.stringify(theme)};document.documentElement.className=${JSON.stringify(theme)};document.body.dataset.vscodeThemeKind=${JSON.stringify(theme)};document.querySelector('#shadow').dataset.theme=${JSON.stringify(theme)}` });
+        const spacing = await measureSpacing(variant.missingConsolas ? NORMAL_FONT_FAMILY.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013') : DEFAULT_NORMAL_FONT_FAMILY);
+        for (const [id, metrics] of Object.entries(spacing)) {
+          if (!variant.missingConsolas) assert.ok(!metrics.fontFamily.includes("Consolas"), `${variant.name}/${id}: non-Windows stack excludes host Consolas`);
+          for (const language of ["korean", "latin"]) {
+            assert.ok(metrics[language].actual > 1, `${variant.name}/${id}/${language}: visible natural space`);
+            assert.ok(Math.abs(metrics[language].ratio - 1) < 0.02, `${variant.name}/${id}/${language}: natural space advance`);
+          }
+        }
+        const glyphs = {};
+        for (const id of ["latin", "identity", "cascadia-bold", "cascadia-italic", "korean", "markdown-bold"]) glyphs[id] = await platformFonts(id);
+        hs.writeFileSync(path.join(renderLogs, `glyph-evidence-${variant.name}-${theme}.json`), JSON.stringify({ spacing, glyphs, faces }, null, 2));
+        for (const id of ["latin", "identity", "cascadia-bold", "cascadia-italic"]) {
+          const expectedFace = id === "cascadia-bold" ? "CascadiaMonoRoman-Bold" : id === "cascadia-italic" ? "Cascadia-Mono-Italic" : "CascadiaMonoRoman";
+          assert.ok(glyphs[id].some(f => f.isCustomFont && f.familyName === "Cascadia Mono" && f.postScriptName === expectedFace && f.glyphCount > 0), `${variant.name}/${id}: actual bundled Cascadia glyphs from ${expectedFace}`);
+          assert.ok(glyphs[id].every(f => !/^Consolas/.test(f.postScriptName)), `${variant.name}/${id}: no host Consolas glyphs`);
+        }
+        assert.ok(glyphs['cascadia-italic'].some(f => f.isCustomFont && /Italic/.test(f.postScriptName) && f.glyphCount > 0), `${variant.name}: actual italic font`);
+        for (const id of ["korean", "markdown-bold"]) assert.ok(glyphs[id].some(f => f.isCustomFont && f.postScriptName === "GyeonggiTitleL" && f.glyphCount > 0), `${variant.name}/${id}: official Korean Light glyphs`);
+        const styles = (await call("Runtime.evaluate", { expression: `(()=>{const result={};for(const id of ['cascadia-bold','cascadia-italic']){const c=getComputedStyle(document.getElementById(id));result[id]={weight:c.fontWeight,style:c.fontStyle,synthesis:c.fontSynthesisWeight}}return result})()`, returnByValue: true })).result.value;
+        assert.equal(styles['cascadia-bold'].weight, "700");
+        assert.equal(styles['cascadia-bold'].synthesis, "none");
+        assert.equal(styles['cascadia-italic'].style, "italic");
+        await call("Runtime.evaluate", { expression: "document.documentElement.dataset.azraelChatFont='openai'" });
+        const openai = await measureSpacing(variant.missingConsolas ? NORMAL_FONT_FAMILY.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013') : DEFAULT_NORMAL_FONT_FAMILY);
+        for (const id of ["content", "composer", "chat-paragraph", "chat-heading", "chat-list", "chat-cell", "user-paragraph"]) {
+          assert.ok(!openai[id].fontFamily.includes("Azrael"), `${variant.name}/${id}: unchanged native OpenAI font`);
+          assert.equal(openai[id].fontSize, spacing[id].fontSize);
+          assert.equal(openai[id].lineHeight, spacing[id].lineHeight);
+          for (const language of ["korean", "latin"]) assert.ok(Math.abs(openai[id][language].ratio - 1) < 0.02, `${variant.name}/${id}: native OpenAI spacing`);
+        }
+        for (const id of ["composer", "chat-paragraph"]) assert.ok((await platformFonts(id)).every(f => !f.isCustomFont), `${variant.name}/${id}: native OpenAI glyph fonts`);
+        for (const id of ["chat-title", "dynamic-value", "identity"]) assert.deepEqual(openai[id], spacing[id], `${variant.name}/${id}: dynamic fonts independent of chat mode`);
+        await call("Runtime.evaluate", { expression: "delete document.documentElement.dataset.azraelChatFont" });
+        assert.deepEqual(await measureSpacing(variant.missingConsolas ? NORMAL_FONT_FAMILY.replaceAll('Consolas', 'AzraelUnavailableConsolas20261013') : DEFAULT_NORMAL_FONT_FAMILY), spacing, `${variant.name}: custom restored`);
+        fallbackEvidence[variant.name].themes[theme] = { spacing, glyphs, styles, openai };
+        const screenshot = await call("Page.captureScreenshot", { format: "png" });
+        hs.writeFileSync(path.join(renderLogs, `fixture-${variant.name}-${theme}.png`), Buffer.from(screenshot.data, "base64"));
+      }
+      console.log(`PASS ${variant.name}: actual bundled normal/bold/italic Cascadia, Korean Light, natural light/dark/shadow spaces and native OpenAI mode (Windows host)`);
     }
-    hs.writeFileSync(path.join(renderLogs, "missing-local-evidence.json"), JSON.stringify(missingLocal, null, 2));
-    console.log("PASS unavailable local Consolas: natural visible fallback spaces in light/dark");
+    hs.writeFileSync(path.join(renderLogs, "missing-local-evidence.json"), JSON.stringify(fallbackEvidence['missing-local'], null, 2));
+    hs.writeFileSync(path.join(renderLogs, "platform-fallback-evidence.json"), JSON.stringify(fallbackEvidence, null, 2));
     hs.writeFileSync(path.join(renderLogs, "render-evidence.json"), JSON.stringify({ themeCoverage: ["light", "dark"], themes }, null, 2));
   } finally {
     // CDP closes only this uniquely spawned browser/profile, including its children.

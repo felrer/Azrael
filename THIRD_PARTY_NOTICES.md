@@ -10,7 +10,8 @@ replace the conditions of imported source code, dependencies or assets.
 | OpenCodex provider source | `providers/opencodex/LICENSE.opencodex` and `providers/opencodex/UPSTREAM.md` retain the MIT license and source attribution. |
 | Devin transport import | `providers/devin/LICENSE.opencodex`, `UPSTREAM.md` and source headers retain OpenCodex and derived transport attribution. |
 | Node/Bun and npm dependencies | Distribution must retain the licenses shipped with each selected runtime and production dependency. Exact versions are recorded by lockfiles and release manifests. |
-| Gyeonggi Millennium Batang | Unchanged official Regular/Bold WOFF files in `extensions/azrael-ex/media/fonts/`; `NOTICE.md` retains the source and use conditions, and `provenance.json` pins their hashes. Consolas is system supplied. |
+| Cascadia Mono | Unchanged official upright/italic variable WOFF2 files from v2407.24 in `extensions/azrael-ex/media/fonts/`; `CASCADIA-LICENSE.txt` retains SIL OFL 1.1 and `cascadia-provenance.json` pins the release, archive members and hashes. Windows prefers installed Consolas with Cascadia Mono fallback; other desktop platforms default to Cascadia Mono. Consolas is system supplied and is not redistributed. |
+| Gyeonggi Millennium Title Light and Batang | Unchanged official Title Light and Batang Regular/Bold WOFF files in `extensions/azrael-ex/media/fonts/`; `NOTICE.md` retains the source and use conditions, and `provenance.json` pins their hashes. Title Light supplies Korean text; retained Batang files are unused by the current font selection. |
 
 The pinned official OpenAI extension UI under ignored `artifacts/upstream-ui/`
 points to OpenAI terms in its `LICENSE.md`. Public release packaging must not

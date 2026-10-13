@@ -12,6 +12,7 @@ const { UI_CLEANUP_ASSETS } = require("./inject-ui-cleanup.cjs");
 const { AUTO_REVIEW_ASSETS } = require("./inject-auto-review.cjs");
 const { PETS_CLEANUP_ASSETS } = require("./inject-pets-cleanup.cjs");
 const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET } = require("./inject-content-fonts.cjs");
+const COMPOSER_ASSET = CONTENT_FONT_ASSETS.find(asset => asset.includes("app-initial") && asset.endsWith(".js"));
 const { getContentFontRules } = require("./content-fonts.cjs");
 const { INSTRUCTION_SETTINGS_ASSETS } = require("./inject-instruction-settings.cjs");
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
@@ -52,8 +53,8 @@ test("closed path dependencies scope controls/instructions/composer; generic and
     ["inject-auto-review.cjs", AUTO_REVIEW_ASSETS],
     ["inject-pets-cleanup.cjs", PETS_CLEANUP_ASSETS],
     ["inject-content-fonts.cjs", CONTENT_FONT_ASSETS],
-    ["content-fonts.cjs", [CONTENT_FONT_CSS_ASSET]],
-    ...Object.keys(getContentFontRules()).map(rule => [rule, [CONTENT_FONT_CSS_ASSET]]),
+    ["content-fonts.cjs", [CONTENT_FONT_CSS_ASSET, COMPOSER_ASSET]],
+    ...Object.keys(getContentFontRules()).map(rule => [rule, rule === "content-font-policy" ? [CONTENT_FONT_CSS_ASSET, COMPOSER_ASSET] : [CONTENT_FONT_CSS_ASSET]]),
   ]) {
     for (const asset of paths) assert.equal(transformer.getAssetTransformRules(asset, rules)[rule], rules[rule]);
     assert.equal(transformer.getAssetTransformRules(changedPath, rules)[rule], undefined);
@@ -64,6 +65,24 @@ test("closed path dependencies scope controls/instructions/composer; generic and
   }
   const unknown = { ...rules, "future-generic.cjs": "2".repeat(64) };
   assert.equal(transformer.getAssetTransformRules(changedPath, unknown)["future-generic.cjs"], unknown["future-generic.cjs"]);
+});
+
+test("font policy invalidates CSS and bootstrap; font resources invalidate CSS only", () => {
+  const targets = [CONTENT_FONT_CSS_ASSET, COMPOSER_ASSET, ...CONTENT_FONT_ASSETS.filter(asset => asset !== CONTENT_FONT_CSS_ASSET && asset !== COMPOSER_ASSET)];
+  const fontRules = ["content-fonts.cjs", ...Object.keys(getContentFontRules())];
+  const cold = cache("font-policy");
+  const fixtureTransform = () => ({ text: noopSource, asset: null });
+  for (const asset of targets) cold.run(asset, noopSource, fixtureTransform);
+  cold.flush();
+  for (const rule of fontRules) {
+    const instance = cache("font-policy", changeRule(rule));
+    for (const asset of targets) {
+      let recomputed = false;
+      instance.run(asset, noopSource, () => { recomputed = true; return fixtureTransform(); });
+      const expected = asset === CONTENT_FONT_CSS_ASSET || (asset === COMPOSER_ASSET && ["content-fonts.cjs", "content-font-policy"].includes(rule));
+      assert.equal(recomputed, expected, `${rule}: ${asset}`);
+    }
+  }
 });
 
 test("unrelated scoped rule edits retain changed and persisted no-op results", () => {

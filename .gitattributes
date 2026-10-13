@@ -1,3 +1,5 @@
 # Preserve byte-exact imported snapshot inventories across platforms.
 engine/** -text
 instructions/** -text
+# Keep the upstream font license byte-exact for its provenance hash.
+extensions/azrael-ex/media/fonts/CASCADIA-LICENSE.txt -text

@@ -434,6 +434,10 @@
       "id": "ui.content-fonts",
       "area": "ui",
       "owners": [
+        "scripts/content-fonts.cjs",
+        "extensions/azrael-ex/media/content-font-policy.cjs",
+        "extensions/azrael-ex/src/usagePresentation.ts",
+        "extensions/azrael-ex/src/usageView.ts",
         "scripts/inject-content-fonts.cjs"
       ],
       "contract": "docs/architecture/ui-presentation.md",
