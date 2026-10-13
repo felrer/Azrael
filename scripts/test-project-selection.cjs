@@ -208,7 +208,7 @@ test("changed-only unknowns and unowned assets are visible, Markdown selects non
   const changedTest = selection(["--changed-only", "--changed", "scripts/test-queue-consumption.cjs"]);
   assert.deepEqual(changedTest.files, ["scripts/test-queue-consumption.cjs"]);
   const runner = selection(["--changed-only", "--changed", "scripts/test-project.cjs"]);
-  assert.deepEqual(runner.files, ["scripts/test-project-selection.cjs"]);
+  assert.deepEqual(runner.files, ["scripts/test-project-fail-fast.cjs", "scripts/test-project-selection.cjs"]);
   assert.deepEqual(selection(["--changed-only", "--area", "standalone"]).commands.at(-1).args, ["run", "test:standalone"]);
 });
 
@@ -241,7 +241,7 @@ test("btw and native cache deltas select their actual owners without unrelated U
   const btw = selection(["--changed-only", "--changed", "scripts/inject-btw.cjs"]);
   assert.deepEqual(btw.files, ["scripts/test-asset-transform-cache.cjs", "scripts/test-btw.cjs", "scripts/test-composer-draft.cjs", "scripts/test-send-result-integration.cjs"]);
   const native = selection(["--changed-only", "--changed", "scripts/native-verification-cache.cjs"]);
-  assert.deepEqual(native.files, ["scripts/test-feature-preservation-cache.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-native-verification-cache.cjs", "scripts/test-preservation-integration.cjs", "scripts/test-student-design.cjs"]);
+  assert.deepEqual(native.files, ["scripts/test-feature-preservation-cache.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-native-verification-cache.cjs", "scripts/test-pipeline-preservation.cjs", "scripts/test-preservation-integration.cjs", "scripts/test-student-design.cjs"]);
   // Student design explicitly imports the preservation gate; other UI tests do not.
   assert.ok(!native.files.includes("scripts/test-btw.cjs"));
   assert.ok(!native.files.includes("scripts/test-account-settings.cjs"));

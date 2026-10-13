@@ -114,7 +114,21 @@ same(config.engineSourceRoot,path.join(a,'engine source 한글'),'engine source'
 fs.mkdirSync(config.outputDirectory,{recursive:true});
 const receiptPath=path.join(config.outputDirectory,'receipt.json');
 if(args[0]==='run'){
+ if(config.checkPhase==='source'){
+  if(scenario.mode==='engine-source-preflight-fail'){console.error('causal source preflight failure');process.exit(51);}
+  if(fs.existsSync(path.join(a,'build-start.json')))throw Error('source preflight ran after build');
+  fs.writeFileSync(receiptPath,JSON.stringify({status:'passed',checkPhase:'source'}));console.log(JSON.stringify({receiptPath}));process.exit(0);
+ }
+ if(!config.sourceReceiptPath || !fs.existsSync(config.sourceReceiptPath))throw Error('source handoff receipt missing');
  same(config.engineDirectory,path.join(a,'releases/chosen/engine'),'engine directory');
+ if(scenario.overlap){
+  const started=Date.now();fs.writeFileSync(path.join(a,'native-overlap-start.json'),JSON.stringify({time:started}));
+  const poll=setInterval(()=>{
+   if(fs.existsSync(path.join(a,'prepare-invocation.json'))){clearInterval(poll);fs.writeFileSync(receiptPath,JSON.stringify({status:'passed'}));console.log(JSON.stringify({receiptPath}));}
+   else if(Date.now()-started>10000){clearInterval(poll);console.error('preparation did not overlap native check');process.exitCode=54;}
+  },25);
+  return;
+ }
  if(scenario.mode==='engine-preservation-fail'){console.error('causal engine preservation failure');process.exit(41);}
  if(scenario.mode==='engine-preservation-missing-receipt'){console.log('{}');process.exit(0);}
  fs.writeFileSync(receiptPath,JSON.stringify({status:'passed'}));
@@ -216,6 +230,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
     Write-Utf8 (Join-Path $scripts 'feature-preservation.cjs') $preservationStub
+    Write-Utf8 (Join-Path $scripts 'pipeline-preflight.cjs') "const fs=require('node:fs'),path=require('node:path');const s=JSON.parse(fs.readFileSync(path.join(path.dirname(__dirname),'artifacts/scenario.json')));if(s.mode==='dependencies-fail'){console.error('causal dependency failure');process.exit(52);}console.log('{}');"
     Write-Utf8 (Join-Path $scripts 'build-azrael.ps1') $buildStub
     Write-Utf8 (Join-Path $scripts 'check-accounts.mjs') $accountControlsStub
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
@@ -243,7 +258,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         & git -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     # A newer-looking deployment/tool directory must never influence explicit selection.
     New-Item -ItemType Directory -Path (Join-Path $a 'latest'), (Join-Path $a 'build/zz-newest/companion/node_modules/typescript/lib') -Force | Out-Null
     Write-Utf8 (Join-Path $a 'latest/azrael-host.vsix') 'untested latest package'
@@ -294,6 +309,14 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
         return
     }
+    if ($Mode -in @('engine-source-preflight-fail','dependencies-fail')) {
+        Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'preflight failure did not abort deploy'
+        foreach($marker in @('source-start.json','build-start.json','prepare-invocation.json','install-invocation.json')) {
+            Assert-True (-not (Test-Path (Join-Path $a $marker))) "Preflight failure started work: $marker"
+        }
+        $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
+        return
+    }
     $success=$Mode -in @('success','account-success')
     Assert-True (($exit -eq 0) -eq $success) "Unexpected exit code $exit in $Name; see $logs/$Name.stderr.log"
     $installed=Test-Path -LiteralPath (Join-Path $a 'install-invocation.json')
@@ -303,15 +326,15 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         Assert-True ($metrics.status -ceq 'failed') 'preservation rejection was not reported as failed'
         $calls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         $stageNames=@($metrics.stages.name)
-        $expectedStages='source-tests|build|engine-preservation'
-        $expectedActions='run'
-        $markers=@('prepare-invocation.json','check-invocation.json','install-invocation.json')
+        $expectedStages='verification-dependencies|engine-source-preflight|source-tests|build|engine-preservation|prepare'
+        $expectedActions='run|run'
+        $markers=@('check-invocation.json','install-invocation.json')
         if($Mode -like 'package-preservation-*'){
-            $expectedStages+='|prepare';$expectedActions+='|verify'
+            $expectedActions+='|verify'
             $markers=@('check-invocation.json','install-invocation.json')
             Assert-True ((Get-Content (Join-Path $a 'logs/deploy-chosen/package-preservation.log') -Raw) -match 'causal package preservation') 'package preservation causal diagnostic lost'
         }elseif($Mode -eq 'engine-preservation-recheck'){
-            $expectedStages+='|prepare|acceptance|engine-preservation-recheck';$expectedActions+='|verify|verify|verify-receipt'
+            $expectedStages+='|acceptance|engine-preservation-recheck';$expectedActions+='|verify|verify|verify-receipt'
             $markers=@('install-invocation.json')
         }
         Assert-True (($stageNames -join '|') -ceq $expectedStages) "preservation stage ordering changed in $Name"
@@ -359,7 +382,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
     if($success){
         $preservationCalls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
-        Assert-True (($preservationCalls.action -join '|') -ceq 'run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
+        Assert-True (($preservationCalls.action -join '|') -ceq 'run|run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
             Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $FullRegression)) 'native preservation reuse policy lost'
             if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
@@ -420,7 +443,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $failed=@($metrics.stages | Where-Object name -eq $failedName)[0]
         Assert-True ($failed.exitCode -eq $expected) 'actual failing command exit was lost'
         Assert-True ((Get-Content -LiteralPath $failed.stderr -Raw) -match 'causal') 'causal stderr was not retained'
-        $other=@($metrics.stages | Where-Object name -ne $failedName)[0]
+        $other=@($metrics.stages | Where-Object { $_.name -in @('source-tests','build') -and $_.name -ne $failedName })[0]
         Assert-True $other.terminated 'other owned child was not terminated promptly'
         foreach($marker in @('source-start.json','build-start.json')){
             $pidValue=(Get-Content (Join-Path $a $marker) -Raw | ConvertFrom-Json).pid
@@ -437,6 +460,9 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
 try {
+    Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'
+    Invoke-Case 'dependencies-fail' 'dependencies-fail'
+    Invoke-Case 'parallel prepare' 'success' $true
     Invoke-Case 'verify only' 'success' $true
     Invoke-Case 'full install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true

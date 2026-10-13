@@ -22,10 +22,11 @@ const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
 function parseArgs(args) {
-  const options = { areas: [], changed: [], changedOnly: false, list: false, logDirectory: "artifacts/logs/project-tests" };
+  const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false, logDirectory: "artifacts/logs/project-tests" };
   for (let i = 0; i < args.length; i++) {
     const option = args[i];
     if (option === "--list") { options.list = true; continue; }
+    if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
     if (!["--area", "--changed", "--log-directory"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
@@ -386,28 +387,74 @@ async function runCommand(command, directory, index) {
   } finally { fs.closeSync(out); fs.closeSync(err); }
 }
 
+async function runSelection(selection, options = {}) {
+  const directory = options.directory || path.resolve(options.root || ROOT, options.logDirectory || "artifacts/logs/project-tests", `${new Date().toISOString().replace(/[:.]/g, "-")}-${process.pid}`);
+  fs.mkdirSync(directory, { recursive: true });
+  const resultPath = path.join(directory, "results.json");
+  const started = Date.now();
+  const report = { ...selection, plannedCommands: selection.commands, results: [], skipped: [],
+    collectFailures: !!options.collectFailures, status: "running", startedUtc: new Date(started).toISOString(),
+    completedUtc: null, wallTimeMs: 0, exitCode: null, activeCommand: null };
+  const checkpoint = () => {
+    report.wallTimeMs = Date.now() - started;
+    // Replace atomically so an interrupted write leaves the preceding checkpoint readable.
+    const temporary = `${resultPath}.tmp`;
+    fs.writeFileSync(temporary, JSON.stringify(report, null, 2) + "\n");
+    fs.renameSync(temporary, resultPath);
+    options.onCheckpoint?.(report, resultPath);
+  };
+  const passed = result => result.status === "passed" && result.exitCode === 0 && !result.signal && !result.error;
+  let failure, extensionBuildFailed = false;
+  checkpoint();
+  for (const [index, command] of selection.commands.entries()) {
+    const dependencyBlocked = extensionBuildFailed && command.name === "extension-changed";
+    if (dependencyBlocked || (failure && !options.collectFailures)) {
+      report.skipped.push({ ...command, status: "skipped", reason: dependencyBlocked
+        ? "Dependency extension-build did not pass" : `Stopped after failed command group ${failure.name}` });
+      checkpoint();
+      continue;
+    }
+    const commandStarted = Date.now();
+    report.activeCommand = { ...command, status: "running", startedUtc: new Date(commandStarted).toISOString(), completedUtc: null, exitCode: null };
+    checkpoint();
+    let outcome;
+    try { outcome = await (options.runCommand || runCommand)(command, directory, index); }
+    catch (error) { outcome = { status: "runner-error", exitCode: null, error: error.message }; }
+    const completed = Date.now();
+    const result = { ...command, ...outcome, startedUtc: new Date(commandStarted).toISOString(),
+      completedUtc: new Date(completed).toISOString(), wallTimeMs: completed - commandStarted,
+      durationMs: outcome?.durationMs ?? completed - commandStarted };
+    // A status label alone cannot establish successful completion.
+    if (!passed(result)) {
+      if (!result.status || result.status === "passed") result.status = "incomplete";
+      failure ||= result;
+      if (command.name === "extension-build") extensionBuildFailed = true;
+    }
+    report.results.push(result);
+    report.activeCommand = null;
+    checkpoint();
+    options.onResult?.(result);
+  }
+  report.status = failure ? "failed" : "passed";
+  report.exitCode = failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
+  report.completedUtc = new Date().toISOString();
+  checkpoint();
+  return { ...report, resultPath };
+}
+
 async function main(args = process.argv.slice(2)) {
   const options = parseArgs(args);
   const selection = select(options);
   if (options.list) { console.log(JSON.stringify(selection, null, 2)); return 0; }
-  const directory = path.resolve(ROOT, options.logDirectory, `${new Date().toISOString().replace(/[:.]/g, "-")}-${process.pid}`);
-  fs.mkdirSync(directory, { recursive: true });
-  const results = [];
-  for (const command of selection.commands) {
-    const result = await runCommand(command, directory, results.length);
-    results.push(result);
-    console.log(`${command.name}: ${result.status} (exit ${result.exitCode}, ${result.durationMs}ms)`);
-    if (command.name === "extension-build" && result.status !== "passed") break;
-  }
-  const resultPath = path.join(directory, "results.json");
-  fs.writeFileSync(resultPath, JSON.stringify({ ...selection, results }, null, 2) + "\n");
+  const report = await runSelection(selection, { ...options,
+    onResult: result => console.log(`${result.name}: ${result.status} (exit ${result.exitCode}, ${result.durationMs}ms)`) });
+  const { resultPath } = report;
   console.log(`${selection.files.length} source files selected; results: ${resultPath}`);
   console.log(`Coverage status: ${selection.coverageStatus}`);
   for (const reason of selection.reasons) console.log(`${reason.path ? `${reason.path}: ` : ""}${reason.reason}${reason.test ? ` (${reason.test})` : ""}`);
   for (const check of selection.separateChecks) console.log(check);
-  const failure = results.find(result => result.status !== "passed");
-  return failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
+  return report.exitCode;
 }
 
-module.exports = { AREAS, parseArgs, discover, changedFiles, select, runCommand, main };
+module.exports = { AREAS, parseArgs, discover, changedFiles, select, runCommand, runSelection, main };
 if (require.main === module) main().then(code => { process.exitCode = code; }, error => { console.error(error.message); process.exitCode = 1; });

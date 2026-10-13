@@ -118,8 +118,7 @@ test("preparation verifies UI before consuming checkpoints and binds the exact p
 test("deployment verifies package identity and rechecks engine before installation", () => {
   const source = read("deploy-azrael.ps1");
   ordered(source, ["Wait-OwnedCommands @($sourceTests, $build)", "area = 'engine'", "'engine-preservation'",
-    "Wait-OwnedCommands @($enginePreservation)", "$enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath",
-    "Invoke-Stage 'prepare'", "Assert-ProjectSnapshot 'pre-install'",
+    "$prepare = Start-OwnedCommand 'prepare'", "Wait-OwnedCommands @($enginePreservation, $prepare)", "$enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath", "Assert-ProjectSnapshot 'pre-install'",
     "'engine-preservation-recheck'", "'verify-receipt', '--config', $enginePreservationConfigPath",
     "Wait-OwnedCommands @($engineRecheck)", "Start-OwnedCommand 'install'"]);
   const packageCheck = source.slice(source.indexOf("function Assert-Package"), source.indexOf("try {", source.indexOf("function Assert-Package")));

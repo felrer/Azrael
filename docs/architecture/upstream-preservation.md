@@ -51,3 +51,13 @@ Receipts bind the registry and check/implementation inputs, UI contents and engi
 Logs and execution artifacts live under `artifacts/`. Checks use disposable state and deterministic fixtures; live or paid model requests are separate acceptance. A passing receipt names its verified feature IDs and scope. It does not establish full upstream regression acceptance or rendered behavior in an installed user window.
 
 Repeated commands and upgrade procedures are owned by [development](../ops/development.md) and [source distribution](../ops/instruction-distribution.md).
+
+## Pipeline execution and retry
+
+Status: `current` in source and disposable Windows fixtures; full-release performance and installed-host acceptance are separate scopes. Candidate source-only checks run before expensive builds. A failed check prevents scheduling dependent native work; already owned independent commands are collected. A source-only receipt cannot establish engine acceptance: the complete engine receipt still requires every selected source and native check, current provenance and unchanged inputs. Source evidence may be handed to that complete run only when check scope, content identities, execution environment and retained evidence match.
+
+Cargo test wrappers share explicit cache/target/profile inputs while preserving each mandatory test filter. Deterministic Cargo check evidence may reuse the existing guarded evidence store only with complete selected engine source, registry/check/contract inputs, toolchain, environment and log identity. Failures, changed inputs or incomplete evidence cannot pass. Full regression forces native execution. An unchanged build may be reused after verification failure under the existing source and binary provenance contract; final package binding and six host acceptance stages execute for the final candidate.
+
+The selected inventory feature IDs and all mandatory check IDs remain the acceptance scope. `scripts/deploy-azrael.ps1`, `scripts/feature-preservation.cjs` and their source/Cargo runners own ordering, handoff and evidence reuse; [development operations](../ops/development.md#pipeline-verification-and-retry) owns execution and regression procedures.
+
+Execution checkpoints record actual starts and completions, check execution and cache lookup separately. Concurrent check durations are not summed into pipeline wall time.

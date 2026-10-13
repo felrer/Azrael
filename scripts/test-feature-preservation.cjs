@@ -172,13 +172,13 @@ else {
       if (native) { nativeCalls++; assert.equal(active, 1); } else sourceCalls++;
       await new Promise(resolve => setTimeout(resolve, native ? 2 : 15 - Number(args[1])));
       fs.writeFileSync(options.logPath, `real command result ${args[1]}`); fs.writeFileSync(options.errorPath, '');
-      active--; return { exitCode: args[1] === '2' ? 9 : 0 };
+      active--; return { exitCode: 0 };
     };
     const receipt = await gate.runPreservation(config);
     assert.equal(maxActive, 3); assert.equal(sourceCalls, 6); assert.equal(nativeCalls, 2);
-    assert.equal(receipt.status, 'failed'); assert.equal(receipt.checks.length, 9);
+    assert.equal(receipt.status, 'passed'); assert.equal(receipt.checks.length, 9);
     assert.deepEqual(receipt.checks.map(check => check.checkId), manifest.features.flatMap(feature => feature.checks.map(check => check.id)));
-    assert.equal(receipt.checks[2].exitCode, 9); assert.equal(receipt.checks[6].exitCode, 0);
+    assert.equal(receipt.checks[2].exitCode, 0); assert.equal(receipt.checks[6].exitCode, 0);
     assert.notEqual(receipt.checks[0].logPath, receipt.checks[6].logPath);
     assert.equal(fs.readFileSync(receipt.checks[0].logPath, 'utf8'), fs.readFileSync(receipt.checks[6].logPath, 'utf8'));
     assert.equal(JSON.parse(fs.readFileSync(receipt.receiptPath, 'utf8')).checks.length, 9);
