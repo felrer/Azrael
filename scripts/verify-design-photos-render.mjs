@@ -20,8 +20,8 @@ const profile=join(fixture,'chrome-profile');
 await mkdir(profile,{recursive:true});
 const fixtureRealPath=await realpath(fixture),verificationRealPath=await realpath(join(root,'artifacts/verification'));
 assert.ok(fixtureRealPath.startsWith(verificationRealPath+sep),'Real fixture containment');
-const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body class="bg-primary text-default" data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
-const moduleSource=`import {nLt,$At,XAt} from '/assets/app-initial-97d3534ad35f.js';
+const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-1805ad19110d.css"></head><body class="bg-primary text-default" data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
+const moduleSource=`import {nLt,$At,XAt,Pc as AzraelPhotoMenu,Fc as initAzraelPhotoMenu} from '/assets/app-initial-97d3534ad35f.js';
 import {ti as kt,ri as initNativePage,W3 as AzraelSettingsCard,G3 as initAzraelSettingsCard,Q3 as AzraelSettingsRow,t6 as initAzraelSettingsRow} from '/assets/app-initial-c014f9ee4429.js';
 import {l9 as AzraelSwitch,d9 as initAzraelSwitch,ZIt as pe,$It as initNativeButton,Wp as AzraelFontChoice,Gp as initAzraelFontChoice} from '/assets/app-initial-7a199c66e670.js';
 const Q=nLt(),$=$At(),ReactDOM=XAt();
@@ -80,20 +80,41 @@ try{
  await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`});
  await wait("window.fixtureReady && document.querySelector('[role=switch]') && !actualStore.getSnapshot().loading");
  const click=async label=>{await evaluate(`[...document.querySelectorAll('button')].find(e=>e.textContent===${JSON.stringify(label)}).click()`);await wait('!actualStore.getSnapshot().saving')};
+ const chooseSet=async label=>{
+  await evaluate("document.querySelector('[data-azrael-photo-set-trigger]').focus()");
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await wait("!!document.querySelector('[role=menuitemradio]')");
+  check('dropdown contains all sets',await evaluate("document.querySelectorAll('[role=menuitemradio]').length===actualStore.getSnapshot().photoSets.length"));
+  await evaluate(`[...document.querySelectorAll('[role=menuitemradio]')].find(e=>e.textContent===${JSON.stringify(label)}).focus()`);
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await wait("!actualStore.getSnapshot().saving && !document.querySelector('[role=menuitemradio]')");
+  check('dropdown shows confirmed selection',await evaluate(`document.querySelector('[data-azrael-photo-set-trigger]').textContent===${JSON.stringify(label)}`));
+ };
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}'`);
-  await click('My characters');await wait("document.querySelector('img')?.alt==='Custom Cat'");
+  await chooseSet('My characters');await wait("document.querySelector('img')?.alt==='Custom Cat'");
   check(theme+' set selection limits preview',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='custom' && document.querySelectorAll('img').length===1"));
   await evaluate("document.querySelector('[role=switch]').focus()");await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});await wait('!actualStore.getSnapshot().saving');
   check(theme+' keyboard toggle saves',await evaluate("fixtureEvents.at(-1).action==='setEnabled'"));
-  await click('Blue Archive');await wait("!!document.querySelector('img') && document.querySelector('img').alt!=='Custom Cat'");const previous=await evaluate("document.querySelector('img').alt");await click('Draw again');check(theme+' draw excludes previous',await evaluate("document.querySelector('img').alt")!==previous);
+  await chooseSet('Blue Archive');await wait("!!document.querySelector('img') && document.querySelector('img').alt!=='Custom Cat'");const previous=await evaluate("document.querySelector('img').alt");await click('Draw again');check(theme+' draw excludes previous',await evaluate("document.querySelector('img').alt")!==previous);
   summary[theme]=await evaluate("({background:getComputedStyle(document.body).backgroundColor,color:getComputedStyle(document.querySelector('h1')).color,overflow:document.documentElement.scrollWidth>innerWidth})");check(theme+' page has no horizontal overflow',!summary[theme].overflow);
   await writeFile(join(logs,theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate("document.querySelector('[data-azrael-photo-set-trigger]').focus()");
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  await wait("!!document.querySelector('[role=menuitemradio]')");
+  await writeFile(join(logs,theme+'-menu.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Escape',code:'Escape',windowsVirtualKeyCode:27});
+  await wait("!document.querySelector('[role=menuitemradio]')");
  }
  check('themes differ',summary.light.color!==summary.dark.color);
  await click('Add image set');await wait("document.querySelector('img')?.alt==='Imported Cat'");check('import selects new set',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='imported'"));
  check('prior assignment retained',await evaluate("actualStore.getSnapshot().assignments.existing===10000"));
  await send('Emulation.setDeviceMetricsOverride',{width:420,height:1100,deviceScaleFactor:1,mobile:false});check('narrow page no overflow',await evaluate('document.documentElement.scrollWidth<=innerWidth'));
+ await chooseSet('My characters');check('narrow dropdown selection',await evaluate("actualStore.getSnapshot().selectedPhotoSetId==='custom'"));
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.outcome='passed';await evaluate('reactRoot.unmount();actualStore.dispose()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}

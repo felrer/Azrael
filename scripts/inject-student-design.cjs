@@ -74,6 +74,7 @@ function AzraelDesignSettings() {
   initAzraelSettingsRow();
   initAzraelSwitch();
   initAzraelFontChoice();
+  initAzraelPhotoMenu();
   const locale = s().locale;
   const t = (english, korean) => azraelSettingsText(locale, english, korean);
   const state = useAzraelDesignState();
@@ -110,10 +111,19 @@ function AzraelDesignSettings() {
         ] }),
         (0, $.jsx)(AzraelSettingsCard, { children: (0, $.jsx)(AzraelSettingsRow, {
           label: t("Image set", "이미지 셋"),
-          control: ariaProps => (0, $.jsx)("div", { className: "max-w-full overflow-x-auto", children: (0, $.jsx)(AzraelFontChoice, {
-            ariaLabelledBy: ariaProps["aria-labelledby"], ariaLabel: t("Image set", "이미지 셋"), variant: "inset",
-            selectedId: state.selectedPhotoSetId, onSelect: value => azraelDesignStore.setPhotoSet(value),
-            options: state.photoSets.map(set => ({ id: set.id, label: set.name, disabled: busy })) }) })
+          control: ariaProps => (0, $.jsxs)(AzraelPhotoMenu, { children: [
+            (0, $.jsx)(AzraelPhotoMenu.Trigger, { disabled: busy || !state.photoSets.length, children:
+              (0, $.jsxs)(pe, { ...ariaProps, color: "secondary", size: "default", disabled: busy || !state.photoSets.length,
+                className: "max-w-full min-w-0", "data-azrael-photo-set-trigger": true, children: [
+                  (0, $.jsx)("span", { className: "min-w-0 truncate", children: state.photoSets.find(set => set.id === state.selectedPhotoSetId)?.name ?? t("Loading…", "불러오는 중…") }),
+                  (0, $.jsx)("svg", { width: 16, height: 16, viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.5,
+                    className: "shrink-0", "aria-hidden": true, children: (0, $.jsx)("path", { d: "m4 6 4 4 4-4", strokeLinecap: "round", strokeLinejoin: "round" }) })
+                ] }) }),
+            (0, $.jsx)(AzraelPhotoMenu.Content, { align: "end", maxHeight: 320, children:
+              (0, $.jsx)(AzraelPhotoMenu.RadioGroup, { value: state.selectedPhotoSetId, onChange: value => azraelDesignStore.setPhotoSet(value), children:
+                state.photoSets.map(set => (0, $.jsx)(AzraelPhotoMenu.RadioItem, { value: set.id, disabled: busy, indicatorVariant: "checkmark",
+                  children: (0, $.jsx)("span", { className: "min-w-0 truncate", children: set.name }) }, set.id)) }) })
+          ] })
         }) }),
         (0, $.jsxs)("div", { className: "flex flex-wrap items-center gap-3", children: [
           (0, $.jsx)(pe, { color: "secondary", size: "default", disabled: busy, onClick: () => azraelDesignStore.importPhotoSet(), children: t("Add image set", "이미지 셋 추가") }),
@@ -207,7 +217,7 @@ function injectStudentDesign(text, relativePath, vp) {
   text = once(text, 'f=e.slug===`azrael-instructions`?', 'f=e.slug===`azrael-design`?azraelSettingsText(T.locale,`Design`,`디자인`):e.slug===`azrael-instructions`?');
   text = once(text, 'icon:e.slug===`azrael-instructions`?', 'icon:e.slug===`azrael-design`?(0,Z.jsx)(AzraelDesignNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):e.slug===`azrael-instructions`?');
   text = once(text, 'iconAssetSource:e.slug===`azrael-instructions`?', 'iconAssetSource:e.slug===`azrael-design`?void 0:e.slug===`azrael-instructions`?');
-  return { text: 'import{azraelDesignStore,useAzraelDesignState,W3 as AzraelSettingsCard,G3 as initAzraelSettingsCard,Q3 as AzraelSettingsRow,t6 as initAzraelSettingsRow}from"./app-initial-c014f9ee4429.js";import{l9 as AzraelSwitch,d9 as initAzraelSwitch,Wp as AzraelFontChoice,Gp as initAzraelFontChoice}from"./app-initial-7a199c66e670.js";' + text + '\n' + MARKER + '\n' + pickStudentPreview.toString() + '\n' + AzraelDesignSettings.toString() + '\n' + AzraelDesignNavigationIcon.toString(), count: 1 };
+  return { text: 'import{Pc as AzraelPhotoMenu,Fc as initAzraelPhotoMenu}from"./app-initial-97d3534ad35f.js";import{azraelDesignStore,useAzraelDesignState,W3 as AzraelSettingsCard,G3 as initAzraelSettingsCard,Q3 as AzraelSettingsRow,t6 as initAzraelSettingsRow}from"./app-initial-c014f9ee4429.js";import{l9 as AzraelSwitch,d9 as initAzraelSwitch,Wp as AzraelFontChoice,Gp as initAzraelFontChoice}from"./app-initial-7a199c66e670.js";' + text + '\n' + MARKER + '\n' + pickStudentPreview.toString() + '\n' + AzraelDesignSettings.toString() + '\n' + AzraelDesignNavigationIcon.toString(), count: 1 };
 }
 
 module.exports = { DESIGN_ASSETS, MARKER, injectStudentDesign, createDesignStore, AzraelStudentAvatar, AzraelDesignSettings, pickStudentPreview, observeStudentCreated, AzraelDesignNavigationIcon };
