@@ -13,7 +13,14 @@ const ast = ts.createSourceFile("host.js", patched, 99, true, 1);
 assert.equal(ast.parseDiagnostics.length, 0);
 const methods = new Map();
 let merge;
+let providerHasProjectMethod, projectHandlerOwnsProjectMethod = false, fetchWrapperOwnsHandler = false;
 function visit(node) {
+  if (ts.isClassExpression(node)) {
+    const names = node.members.filter(ts.isMethodDeclaration).map(member => member.name.getText(ast));
+    if (names.includes("sendPersistedAtomState")) providerHasProjectMethod = names.includes("getWorkspaceProject");
+    if (names.includes("getWorkspaceProject")) projectHandlerOwnsProjectMethod = true;
+    if (names.includes("fetch") && node.getText(ast).includes("this.extensionFetchHandler=")) fetchWrapperOwnsHandler = true;
+  }
   if (ts.isMethodDeclaration(node) && ["sendPersistedAtomState", "broadcastPersistedAtomUpdate", "updatePersistedAtomValue", "enqueueUpdate"].includes(node.name.getText(ast))) methods.set(node.name.getText(ast), node.getText(ast));
   if (ts.isFunctionDeclaration(node) && node.name?.text === "$Ke") merge = node.getText(ast);
   ts.forEachChild(node, visit);
@@ -37,7 +44,9 @@ function fixture(state = {}) {
   store.onDidUpdatePersistedAtomEmitter = { fire: ({ key, value }) => { for (const host of hosts) host.pending.push(host.broadcastPersistedAtomUpdate(key, value)); } };
   function open(id) {
     const host = vm.runInContext(`({${methods.get("sendPersistedAtomState")},${methods.get("broadcastPersistedAtomUpdate")},async receive(r){${receive}}})`, ctx);
-    host.getWorkspaceProject = async () => id == null ? null : { id };
+    // Match the production provider's owner graph. The provider itself has no
+    // getWorkspaceProject method; that method belongs to ExtensionFetchHandler.
+    host.fetchWrapper = { extensionFetchHandler: { getWorkspaceProject: async () => id == null ? null : { id } } };
     host.readPersistedAtomState = async () => state;
     host.globalState = store; host.messages = []; host.pending = [];
     host.postMessageToWebview = (_view, message) => host.messages.push(clone(message));
@@ -51,9 +60,29 @@ function fixture(state = {}) {
   return { open, save, state: () => clone(state) };
 }
 test("pinned host transform is complete, idempotent and rejects drift", () => {
+  assert.equal(providerHasProjectMethod, false);
+  assert.equal(projectHandlerOwnsProjectMethod, true);
+  assert.equal(fetchWrapperOwnsHandler, true);
   assert.equal(injectProjectDrafts(patched).count, 0);
   assert.throws(() => injectProjectDrafts(original.replace("async sendPersistedAtomState(e)", "async changed(e)")), /anchor/);
   assert.throws(() => injectProjectDrafts(patched.replace("projectDraftView(r[k],p)", "r[k]")), /Invalid/);
+});
+test("flags and filter survive host reconstruction and project-scoped draft synchronization", async () => {
+  const flags = { '["local","a"]': true, '["other-host","b"]': true };
+  const f = fixture(), a = f.open("project-a");
+  assert.equal(a.getWorkspaceProject, undefined);
+  await a.receive({ key: "azrael-session-flags", value: flags });
+  await a.receive({ key: "azrael-session-flag-only", value: true });
+  await f.save(a, "new-conversation", { value: { prompt: "preserved draft" } });
+  const restarted = fixture(f.state()), reopened = restarted.open("project-a");
+  await reopened.sendPersistedAtomState({});
+  const restored = reopened.messages.at(-1).state;
+  assert.deepEqual(restored["azrael-session-flags"], flags);
+  assert.equal(restored["azrael-session-flag-only"], true);
+  assert.equal(restored["composer-prompt-drafts-v2"]["new-conversation"].prompt, "preserved draft");
+  await reopened.receive({ key: "azrael-session-flags", value: { '["other-host","b"]': true } });
+  await reopened.sendPersistedAtomState({});
+  assert.deepEqual(reopened.messages.at(-1).state["azrael-session-flags"], { '["other-host","b"]': true });
 });
 test("two projects persist, broadcast, reopen and clear independent new-chat drafts", async () => {
   const f = fixture(), a = f.open("project-a"), b = f.open("project-b");

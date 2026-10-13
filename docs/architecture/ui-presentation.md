@@ -26,7 +26,7 @@ Status: `current` in source — pinned host persistence checks on Windows; packa
 
 Unsent new-chat drafts on the home screen and in new-chat panels are saved separately by the host's workspace project ID. Reopening the same project restores its draft; another project has its own draft. Windows without a project use a separate projectless scope. Existing conversation drafts retain their native conversation identity. This is shared host behavior for Windows, Linux and macOS; native Linux/macOS acceptance is unverified.
 
-The native composer and persisted-record merge remain in use. Initial synchronization and later broadcasts expose only the current project's new-chat entries. Old global new-chat drafts remain stored but are not restored because their project ownership is unknown. Legacy conversation drafts still migrate through the native store. No input is submitted by saving or restoring a draft.
+The native composer and persisted-record merge remain in use. Initial synchronization, later broadcasts and draft writes resolve the workspace through the provider's `fetchWrapper.extensionFetchHandler.getWorkspaceProject()`; the webview provider does not own that method. Initial synchronization includes other persisted preferences, so this owner boundary also preserves session flag restoration. Initial synchronization and later broadcasts expose only the current project's new-chat entries. Old global new-chat drafts remain stored but are not restored because their project ownership is unknown. Legacy conversation drafts still migrate through the native store. No input is submitted by saving or restoring a draft.
 
 ### Session creation at submission
 
@@ -44,7 +44,7 @@ Local sessions in the recent-chat menu and the new-chat screen's recent-chat pre
 
 The chat-type dropdown contains a persisted **Flagged only** checkbox item beneath All chats, Cloud chats and Local chats. It combines with the existing type, environment and title-search filters while preserving native ordering. Saved local conversations with a matching host and conversation flag are included, along with the currently open local conversation even when it is unflagged. Its current identity follows the native active-row route, including a pending local thread with that identity. Other cloud and pending items without a saved conversation are excluded. Clearing a flag immediately removes a non-current row from the filtered list; the current row remains visible without acquiring a flag. The preview shares the same flags and updates immediately.
 
-Flags use the native persisted UI preference store, keyed by host and conversation ID. They preserve menu ordering and other hosts' flags. The button exposes its pressed state and supports keyboard activation. Native time, running indicators and Archive keep their existing behavior.
+Flags use the native persisted UI preference store, keyed by host and conversation ID. They preserve menu ordering and other hosts' flags. Restoring this store shares the project's draft synchronization path; its native method ownership is covered by `scripts/test-project-drafts.cjs` as well as the flag behavior checks. The button exposes its pressed state and supports keyboard activation. Native time, running indicators and Archive keep their existing behavior.
 
 `scripts/verify-session-flags-render.mjs` exercises the production Flag helper with the pinned native React, preference atom, row components and CSS. Host services and localization are synthetic; installed VS Code and real host persistence remain separate checks.
 
