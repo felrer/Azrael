@@ -97,6 +97,17 @@ export class AccountService extends EventEmitter {
     return response;
   }
 
+  async canReleaseConversationWebview(): Promise<boolean> {
+    const transport = this.transport;
+    const instanceId = this.instanceId;
+    if (!transport || !this.transportVerified || !instanceId) return false;
+    try {
+      const response = parseRootResumeResponse(await transport.request(ROOT_RESUME_METHOD, { action: "list" }));
+      return this.transport === transport && this.transportVerified && this.instanceId === instanceId &&
+        response.reservations.every(reservation => reservation.state === "resumed" || reservation.state === "cancelled");
+    } catch { return false; }
+  }
+
   async devin(action: DevinAction): Promise<DevinStatus> {
     if (!this.transport || !this.transportVerified || !this.instanceId) throw new Error("The engine connection has not been verified.");
     return parseDevinStatus(await this.transport.request("azrael/devin", { action }, action === "login" ? 210_000 : 65_000));

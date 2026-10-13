@@ -1,24 +1,34 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict"), fs = require("node:fs"), vm = require("node:vm");
-const { createWebviewIdleManager } = require("./webview-idle.cjs");
+const { createWebviewIdleManager, isWebviewWorkIdle } = require("./webview-idle.cjs");
 const { ASSET, MARKER, UI_HELPER, injectWebviewIdle } = require("./inject-webview-idle.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
+function idleNativeManager() {
+  const conversation={id:"a",resumeState:"resumed",threadRuntimeStatus:{type:"idle"},requests:[]};
+  return {
+    hasPendingConversationResume:()=>false,requestClient:{getPendingRequestCount:()=>0},
+    turnCoordinator:{readState:()=>({}),readMessages:()=>[]},getConversation:()=>conversation,
+    getCachedConversations:()=>[conversation],getThreadSummaries:()=>[],
+    stateReaders:{getListState:()=>({isConversationInProgress:false,isResponseInProgress:false,latestTurnStatus:"completed"})},
+  };
+}
 function fixture({sidebar=false}={}) {
   let now=0, id=0, visibility, closed, preferences={}, sent=[], pendingCapture, errors=[];
   const timers=new Map(), clock={Date:{now:()=>now},setTimeout(fn,ms){timers.set(++id,{fn,at:now+ms});return id},clearTimeout(id){timers.delete(id)}};
   const view={visible:true,onDidDispose(fn){closed=fn;return{dispose(){}}}};
   view[sidebar?"onDidChangeVisibility":"onDidChangeViewState"]=fn=>{visibility=fn;return{dispose(){}}};
   const webview={html:"native-ui"};
-  let suspendCount=0, restoreCount=0, contentResolver;
+  let suspendCount=0, restoreCount=0, contentResolver, canRelease=true, pendingRequests=false;
   const manager=createWebviewIdleManager({
     send(w,m){sent.push(m);pendingCapture=m.id},preferences:async()=>preferences,
+    canRelease:async()=>typeof canRelease==="function"?canRelease():canRelease,hasPendingRequests:()=>pendingRequests,
     suspended(){suspendCount++},error:e=>errors.push(e),
     content:async(w,s)=>{restoreCount++;return contentResolver?await contentResolver(s):"native-ui-restored"},
   },clock);
   manager.attach(view,webview);
-  const flush=async()=>{for(let i=0;i<8;i++)await Promise.resolve()};
+  const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve()};
   return {manager,view,webview,sent,errors,timers,flush,
-    count:()=>({suspendCount,restoreCount}),flags(value){preferences={"azrael-session-flags":value}},
+    safety(value){canRelease=value},pending(value){pendingRequests=value},count:()=>({suspendCount,restoreCount}),flags(value){preferences={"azrael-session-flags":value}},
     setContent(fn){contentResolver=fn},close(){closed()},
     async visible(value){view.visible=value;visibility();await flush()},
     async tick(ms){now+=ms;for(const [id,t]of [...timers])if(t.at<=now){timers.delete(id);t.fn()}await flush()},
@@ -39,15 +49,84 @@ test("sidebar visibility and display reset; non-active visible split stays retai
   await f.tick(600000);assert.equal(f.sent.length,0);f.close();
 });
 test("flag lookup scopes hosts, checks after capture, and flag removal rechecks overdue view",async()=>{
-  const f=fixture();await f.visible(false);await f.tick(3600000);
-  f.flags({'["local","a"]':true});await f.capture();assert.equal(f.manager.isSuspended(f.webview),false);
+  const f=fixture();f.flags({'["local","a"]':true});await f.visible(false);await f.tick(3600000);
+  await f.capture();assert.equal(f.manager.isSuspended(f.webview),false);
   f.flags({'["remote","a"]':true});f.manager.preferencesChanged();await f.tick(0);await f.capture();
   assert.equal(f.manager.isSuspended(f.webview),true);f.close();
+});
+test("native work guard protects active, queued, resuming, approval and unknown states across routes",()=>{
+  assert.equal(isWebviewWorkIdle(idleNativeManager(),"a"),true);
+  for(const change of [
+    m=>m.hasPendingConversationResume=()=>true,
+    m=>m.requestClient.getPendingRequestCount=()=>1,
+    m=>m.turnCoordinator.readState=()=>({other:[{id:"queued"}]}),
+    m=>m.turnCoordinator.readState=()=>undefined,
+    m=>m.turnCoordinator.readMessages=()=>undefined,
+    m=>m.turnCoordinator.readState=()=>({a:null}),
+    m=>m.getConversation().threadRuntimeStatus={type:"active"},
+    m=>delete m.getConversation().threadRuntimeStatus,
+    m=>m.getConversation().resumeState="resuming",
+    m=>m.getConversation().requests.push({method:"item/commandExecution/requestApproval"}),
+    m=>m.getConversation().externalRequests=[{completedAtMs:null}],
+    m=>m.getConversation().unconfirmedTurnSubmissions=[{terminal:false}],
+    m=>m.getConversation().threadGoal={status:"active"},
+    m=>m.stateReaders.getListState=()=>({isConversationInProgress:false,isResponseInProgress:false,latestTurnStatus:"deferred"}),
+    m=>m.stateReaders.getListState=()=>({}),
+    m=>m.getThreadSummaries=()=>[{conversationId:"other",threadRuntimeStatus:{type:"active"}}],
+    m=>m.getCachedConversations=()=>[m.getConversation(),{id:"other",requests:[{}],resumeState:"resumed",threadRuntimeStatus:{type:"idle"}}],
+    m=>m.turnCoordinator.readState=()=>{throw Error("disconnected")},
+  ]){const manager=idleNativeManager();change(manager);assert.equal(isWebviewWorkIdle(manager,"a"),false);}
+  assert.equal(isWebviewWorkIdle(null,"a"),false);assert.equal(isWebviewWorkIdle(idleNativeManager(),null),false);
+});
+test("host safety failure and approval race retain renderer and start a new full hidden hour",async()=>{
+  for(const value of [false,undefined,()=>{throw Error("disconnected")}]){
+    const f=fixture();f.safety(value);await f.visible(false);await f.tick(3600000);
+    assert.equal(f.sent.length,0);assert.equal(f.count().suspendCount,0);
+    f.safety(true);await f.tick(3599999);assert.equal(f.sent.length,0);
+    await f.tick(1);await f.capture();assert.equal(f.count().suspendCount,1);f.close();
+  }
+  const f=fixture();await f.visible(false);await f.tick(3600000);f.pending(true);await f.capture();
+  assert.equal(f.count().suspendCount,0);f.pending(false);await f.tick(3600000);await f.capture();assert.equal(f.count().suspendCount,1);f.close();
+});
+test("flag update invalidates a safety capture instead of releasing with stale preferences",async()=>{
+  const f=fixture();await f.visible(false);await f.tick(3600000);
+  f.flags({'["local","a"]':true});f.manager.preferencesChanged();await f.capture();
+  assert.equal(f.count().suspendCount,0);await f.tick(0);await f.capture();assert.equal(f.count().suspendCount,0);f.close();
+});
+test("approval delivered after release restores a hidden renderer without revealing its tab",async()=>{
+  const f=fixture();await f.visible(false);await f.tick(3600000);await f.capture();
+  assert.equal(f.manager.holdOutgoing(f.webview,{type:"mcp-request-delivery",requestId:"late"}),true);
+  await f.flush();assert.equal(f.view.visible,false);assert.equal(f.webview.html,"native-ui-restored");
+  f.manager.ready(f.webview);assert.equal(f.sent.at(-1).requestId,"late");f.close();
+});
+test("flag updates during background restoration keep the approval handshake alive",async()=>{
+  const f=fixture();await f.visible(false);await f.tick(3600000);await f.capture();
+  let finish;f.setContent(()=>new Promise(resolve=>finish=resolve));
+  f.manager.holdOutgoing(f.webview,{type:"mcp-request-delivery",requestId:"late"});
+  f.manager.preferencesChanged();finish("hidden restored");await f.flush();
+  assert.equal(f.webview.html,"hidden restored");f.manager.ready(f.webview);assert.equal(f.sent.at(-1).requestId,"late");f.close();
+});
+test("production engine reservation gate checks fresh state, rejects errors and connection changes",async()=>{
+  const source=fs.readFileSync("extensions/azrael-ex/src/accountService.ts","utf8");
+  const tree=ts.createSourceFile("accountService.ts",source,99,true);let method;
+  function visit(n){if(ts.isMethodDeclaration(n)&&n.name.getText(tree)==="canReleaseConversationWebview")method=n.getText(tree);ts.forEachChild(n,visit)}visit(tree);
+  assert.ok(method);const context={ROOT_RESUME_METHOD:"azrael/rootResume",parseRootResumeResponse:value=>{if(!Array.isArray(value.reservations))throw Error("invalid");return value}};
+  vm.createContext(context);const text=ts.transpile(`class Gate {${method}}; new Gate()`,{target:99});
+  for(const states of [[],["resumed","cancelled"],["preparing"],["waiting"],["claimed"],["blocked"],["unknown"]]){
+    const gate=vm.runInNewContext(text,{...context});let calls=0;
+    Object.assign(gate,{transportVerified:true,instanceId:"one",transport:{request:async(method,params)=>{calls++;assert.equal(method,"azrael/rootResume");assert.equal(params.action,"list");return{reservations:states.map(state=>({state}))}}}});
+    assert.equal(await gate.canReleaseConversationWebview(),states.every(s=>["resumed","cancelled"].includes(s)));assert.equal(calls,1);
+  }
+  for(const fault of ["reject","malformed","transport","instance","unverified"]){
+    const gate=vm.runInNewContext(text,{...context});Object.assign(gate,{transportVerified:true,instanceId:"one",transport:{request:async()=>{if(fault==="reject")throw Error("offline");if(fault==="malformed")return{};if(fault==="transport")gate.transport={};if(fault==="instance")gate.instanceId="two";if(fault==="unverified")gate.transportVerified=false;return{reservations:[]}}}});
+    assert.equal(await gate.canReleaseConversationWebview(),false);
+  }
+  assert.equal(await vm.runInNewContext(text,{...context}).canReleaseConversationWebview(),false);
 });
 test("show/dispose race invalidates capture; missing or unsafe state retries without deletion",async()=>{
   const f=fixture();await f.visible(false);await f.tick(3600000);await f.visible(true);await f.capture();assert.equal(f.count().suspendCount,0);
   await f.visible(false);await f.tick(3600000);await f.capture({canSuspend:false});assert.equal(f.count().suspendCount,0);
-  await f.tick(60000);await f.tick(5000);assert.equal(f.count().suspendCount,0);assert.equal(f.timers.size,1);f.close();
+  await f.tick(3600000);await f.tick(5000);assert.equal(f.count().suspendCount,0);assert.equal(f.timers.size,1);f.close();
 });
 test("async restoration race and failure preserve saved state for next show",async()=>{
   const f=fixture();await f.visible(false);await f.tick(3600000);await f.capture();
@@ -65,10 +144,10 @@ test("suspended history is dropped; deliberate navigation and approvals wait for
   assert.equal(f.sent.some(m=>m.type==="history-update"),false);f.close();
 });
 test("native composer mount restores attachments and native prompt without submitting",()=>{
-  const atoms=Object.fromEntries(["ZG","mK","Wbr","uK","OW","DW","iW","SW","xW","HG","Kf","QG","lW"].map(x=>[x,x]));
+  const atoms=Object.fromEntries(["ZG","mK","Wbr","uK","OW","DW","iW","SW","xW","HG","Kf","QG","lW","zNt","nA"].map(x=>[x,x]));
   const saved={key:"a",draft:{prompt:"draft text",pullRequestChecks:[]},viewState:{fileAttachments:[{path:"a.txt"}],responseTextAnnotations:[]},selections:[[],[],[],[],[],null,0]};
   const state=new Map(),writes=[];
-  const scope={value:{kind:"local",conversationId:"a"},set(a,...v){state.set(a,v.at(-1));writes.push(a)},get(a){return a==="QG"?saved.viewState:a==="Kf"?{pathname:"/local/a"}:a==="HG"?false:a==="drafts"?{a:saved.draft}:state.get(a)}};
+  const scope={value:{kind:"local",conversationId:"a"},set(a,...v){state.set(a,v.at(-1));writes.push(a)},get(a){return a==="zNt"?{status:"ready"}:a==="nA"?idleNativeManager():a==="QG"?saved.viewState:a==="Kf"?{pathname:"/local/a"}:a==="HG"?false:a==="drafts"?{a:saved.draft}:state.get(a)}};
   const ctx={...atoms,RG:{drafts$:"drafts"},g_:v=>v.conversationId,jnt:()=>"a",PG:x=>x,Dyr:()=>{},document:{querySelector:()=>({content:encodeURIComponent(JSON.stringify(saved))}),querySelectorAll:()=>[]}};
   vm.createContext(ctx);vm.runInContext(UI_HELPER,ctx);const unmount=ctx.azraelIdleMount(scope);
   assert.equal(scope.get("drafts").a.prompt,"draft text");assert.equal(state.get("ZG").fileAttachments[0].path,"a.txt");
@@ -91,10 +170,10 @@ test("production host callbacks reconnect before HTML, retain native requests an
   const tree=ts.createSourceFile("host.js",source,99,true,1);let method;
   function visit(n){if(ts.isMethodDeclaration(n)&&n.name.getText(tree)==="azraelIdle")method=n.getText(tree);ts.forEachChild(n,visit)}visit(tree);assert.ok(method);
   let callbacks;const order=[],webview={},panel={},state={ready:true,initialRoute:"/local/old"};
-  const context={WeakMap,JSON,encodeURIComponent,Ah:x=>x,require:()=>({injectUiInputPolicy:html=>html}),createWebviewIdleManager:options=>{callbacks=options;return{};}};
+  const context={WeakMap,JSON,encodeURIComponent,je:{commands:{executeCommand:async name=>{assert.equal(name,"azrael.canReleaseConversationWebview");return true}}},Ah:x=>x,require:()=>({injectUiInputPolicy:html=>html}),createWebviewIdleManager:options=>{callbacks=options;return{};}};
   vm.createContext(context);const host=vm.runInContext(`({${method}})`,context);
-  Object.assign(host,{editorPanels:new Map([[panel,state]]),sidebarViews:new Set(),__azraelIdleLifetime:new WeakMap([[webview,{dispose:"dispose-listener",health:"health"}]]),findPanelByWebview:()=>panel,disposeClientCoordinationForWebview:()=>order.push("detach-client"),workerBusMessageHandler:{unregisterWebview:()=>order.push("detach-worker"),registerWebview:()=>order.push("connect-worker")},registerClientCoordinationForWebview:()=>order.push("connect-client"),getWebviewContent:async()=>{order.push("fresh-content");return"<head></head>latest native state"},logger:{error(){}},clearPendingRequestsForWebview:()=>assert.fail("native pending approvals must survive"),postMessageToWebview(){},readPersistedAtomState:async()=>({})});
-  host.azraelIdle();callbacks.suspended(webview,{route:{pathname:"/local/a"}});assert.equal(state.ready,false);assert.equal(state.initialRoute,"/local/a");
+  Object.assign(host,{pendingMcpRequests:new Map,editorPanels:new Map([[panel,state]]),sidebarViews:new Set(),__azraelIdleLifetime:new WeakMap([[webview,{dispose:"dispose-listener",health:"health"}]]),findPanelByWebview:()=>panel,disposeClientCoordinationForWebview:()=>order.push("detach-client"),workerBusMessageHandler:{unregisterWebview:()=>order.push("detach-worker"),registerWebview:()=>order.push("connect-worker")},registerClientCoordinationForWebview:()=>order.push("connect-client"),getWebviewContent:async()=>{order.push("fresh-content");return"<head></head>latest native state"},logger:{error(){}},clearPendingRequestsForWebview:()=>assert.fail("native pending approvals must survive"),postMessageToWebview(){},readPersistedAtomState:async()=>({})});
+  host.azraelIdle();assert.equal(await callbacks.canRelease(webview),true);assert.equal(callbacks.hasPendingRequests(webview),false);host.pendingMcpRequests.set("approval",{});assert.equal(await callbacks.canRelease(webview),false);host.pendingMcpRequests.clear();callbacks.suspended(webview,{route:{pathname:"/local/a"}});assert.equal(state.ready,false);assert.equal(state.initialRoute,"/local/a");
   const html=await callbacks.content(webview,{key:"a",draft:{prompt:"unsent"}});assert.ok(html.includes("azrael-webview-idle-state"));assert.ok(html.includes("latest native state"));
   assert.deepEqual(order,["detach-client","detach-worker","connect-client","connect-worker","fresh-content"]);
 });
@@ -104,5 +183,6 @@ test("production namespace pipeline and cache own both renderer and host lifecyc
     const result=transformAsset(fs.readFileSync("artifacts/upstream-ui/26.1007.21434/"+asset,"utf8"),asset,asset,ts);
     assert.equal(result.asset.webviewIdleEdits,1);assert.ok(result.text.includes(MARKER));
     assert.ok(getAssetTransformRules(asset)["inject-webview-idle.cjs"]);
+    assert.ok(getAssetTransformRules(asset)["webview-idle.cjs"]);
   }
 });
