@@ -26,6 +26,14 @@
       "reportFields": ["taskWorkTimeEdits"]
     },
     {
+      "id": "ui.webview-idle",
+      "area": "ui",
+      "owners": ["scripts/inject-webview-idle.cjs", "scripts/webview-idle.cjs"],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [{"id": "ui.webview-idle.behavior", "executable": "node", "args": ["--test", "scripts/test-webview-idle.cjs"], "level": "source"}],
+      "reportFields": ["webviewIdleEdits"]
+    },
+    {
       "id": "ui.session-flags",
       "area": "ui",
       "owners": ["scripts/inject-session-flags.cjs"],

@@ -48,6 +48,18 @@ Flags use the native persisted UI preference store, keyed by host and conversati
 
 `scripts/verify-session-flags-render.mjs` exercises the production Flag helper with the pinned native React, preference atom, row components and CSS. Host services and localization are synthetic; installed VS Code and real host persistence remain separate checks.
 
+## Hidden conversation webviews
+
+Status: `partial` — shared source policy and guarded pinned host/composer transforms are implemented; packaged and installed-host acceptance remains pending.
+
+A native conversation editor panel or sidebar that remains hidden continuously for one hour releases its renderer document when its current conversation has no flag. Visibility, including a visible but inactive split editor, preserves the renderer and resets the deadline. Flags use the existing persisted host/conversation identity; the host rechecks them immediately before release. Removing a flag from an overdue hidden conversation permits the next check to release it. Other account, usage and auxiliary views retain their own lifetimes. The policy is common to local Windows x64, Linux x64 and macOS ARM64 hosts; this change's execution evidence is Windows only.
+
+Release preserves the tab, conversation storage and native model execution. It retains only the native composer attachment/selection state and scroll position, replacing the document with an inert page. The native host remains authoritative for drafts, queues, model results and approvals. Reopening uses the existing renderer handshake, persisted preferences and conversation route to read current history, rather than replaying old history notifications. A newer persisted draft takes precedence over the captured attachment state. Client coordination and worker-bus registration are renewed with the renderer; release does not dispose the panel, cancel a turn or clear native pending approval requests.
+
+Release requires an acknowledged, serializable composer snapshot. A missing composer, an in-flight submission, a transient `blob:` attachment reference or a capture/storage failure defers release. Visibility changes invalidate an in-flight capture. Failed restoration keeps the snapshot for a later visibility transition and logs the lifecycle error. Garbage collection and shared renderer caches determine when RAM is actually returned; a specific per-tab saving is not guaranteed.
+
+The preservation feature `ui.webview-idle` connects the host/renderer transforms, lifetime manager and mandatory behavior checks. Source fixtures cover timer/flag races and native preference integration; actual packaged native composer, live turn/approval continuation and installed-window memory acceptance are separate gates.
+
 ## Missing local chat images
 
 Status: `current` in source — native component rendering and interaction verified in light and dark themes; build and installation pending.
