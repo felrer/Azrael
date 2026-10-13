@@ -328,7 +328,6 @@ async fn schedule_startup_prewarm_inner(
     if websocket_ready {
         return Ok(client_session);
     }
-    let base_instructions = session.get_prompt_base_instructions().await.text;
     let startup_turn_context = session
         .new_startup_prewarm_turn_with_sub_id(INITIAL_SUBMIT_ID.to_owned())
         .await;
@@ -394,6 +393,7 @@ async fn schedule_startup_prewarm_inner(
             &handshake_metadata,
         ),
     )?;
+    let base_instructions = session.get_step_base_instructions(&step_context).await.text;
     let build_prompt_started_at = Instant::now();
     let prompt_input = match input {
         PrewarmInput::Base => Vec::new(),

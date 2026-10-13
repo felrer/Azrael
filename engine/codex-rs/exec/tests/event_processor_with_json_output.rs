@@ -148,6 +148,8 @@ fn turn_started_emits_turn_started_event() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::InProgress,
@@ -1203,6 +1205,8 @@ fn plan_update_emits_started_then_updated_then_completed() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Completed,
@@ -1266,6 +1270,8 @@ fn plan_update_after_completion_starts_new_todo_list_with_new_id() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Completed,
@@ -1355,6 +1361,8 @@ fn token_usage_update_is_emitted_on_turn_completion() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Completed,
@@ -1394,6 +1402,8 @@ fn turn_completion_recovers_final_message_from_turn_items() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::AgentMessage {
                     id: "msg-1".to_string(),
@@ -1476,6 +1486,8 @@ fn turn_completion_reconciles_started_items_from_turn_items() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::CommandExecution {
                     model_context: None,
@@ -1553,6 +1565,8 @@ fn turn_completion_overwrites_stale_final_message_from_turn_items() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::AgentMessage {
                     id: "msg-1".to_string(),
@@ -1610,6 +1624,8 @@ fn turn_completion_preserves_streamed_final_message_when_turn_items_are_empty() 
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Completed,
@@ -1664,6 +1680,8 @@ fn failed_turn_clears_stale_final_message() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Failed,
@@ -1696,6 +1714,8 @@ fn turn_completion_falls_back_to_final_plan_text() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: vec![ThreadItem::Plan {
                     id: "plan-1".to_string(),
@@ -1755,6 +1775,8 @@ fn turn_failure_prefers_structured_error_message() {
 
                 id: "turn-1".to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: codex_app_server_protocol::TurnItemsView::Full,
                 items: Vec::new(),
                 status: TurnStatus::Failed,

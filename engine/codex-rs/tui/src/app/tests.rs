@@ -4660,6 +4660,7 @@ async fn inactive_thread_started_notification_initializes_replay_session() -> Re
         agent_thread_id,
         ServerNotification::ThreadStarted(ThreadStartedNotification {
             thread: Thread {
+                auto_compaction_enabled: None,
                 originator: None,
                 environments: Some(vec![codex_app_server_protocol::ThreadEnvironment {
                     environment_id: "remote".to_string(),
@@ -4770,6 +4771,7 @@ async fn inactive_thread_started_notification_preserves_primary_model_when_path_
         agent_thread_id,
         ServerNotification::ThreadStarted(ThreadStartedNotification {
             thread: Thread {
+                auto_compaction_enabled: None,
                 originator: None,
                 environments: None,
                 id: agent_thread_id.to_string(),
@@ -4841,6 +4843,7 @@ async fn thread_read_session_state_does_not_reuse_primary_permission_profile() {
     app.primary_session_configured = Some(primary_session);
 
     let thread = Thread {
+        auto_compaction_enabled: None,
         originator: None,
         environments: None,
         id: read_thread_id.to_string(),
@@ -7227,6 +7230,8 @@ fn test_turn(turn_id: &str, status: TurnStatus, items: Vec<ThreadItem>) -> Turn 
 
         id: turn_id.to_string(),
         root_turn_id: None,
+        parent_turn_id: None,
+        turn_trigger: None,
         items_view: codex_app_server_protocol::TurnItemsView::Full,
         items,
         status,
@@ -8822,6 +8827,8 @@ async fn replay_thread_snapshot_replays_turn_history_in_order() {
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items_view: codex_app_server_protocol::TurnItemsView::Full,
                     items: vec![ThreadItem::UserMessage {
                         id: "user-1".to_string(),
@@ -8842,6 +8849,8 @@ async fn replay_thread_snapshot_replays_turn_history_in_order() {
 
                     id: "turn-2".to_string(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items_view: codex_app_server_protocol::TurnItemsView::Full,
                     items: vec![
                         ThreadItem::UserMessage {
@@ -9744,6 +9753,7 @@ async fn inactive_thread_settings_notification_updates_cached_collaboration_mode
     let notification = ThreadSettingsUpdatedNotification {
         thread_id: inactive_thread_id.to_string(),
         thread_settings: ThreadSettings {
+            auto_compaction_enabled: true,
             disabled_plugin_ids: Vec::new(),
             cwd: test_absolute_path("/tmp/thread-settings"),
             approval_policy: AskForApproval::OnRequest,

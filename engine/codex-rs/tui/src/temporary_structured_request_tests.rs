@@ -46,6 +46,8 @@ fn turn_completed_notification(turn_id: &str, status: TurnStatus) -> ServerNotif
 
             id: turn_id.to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: Vec::new(),
             items_view: Default::default(),
             status,

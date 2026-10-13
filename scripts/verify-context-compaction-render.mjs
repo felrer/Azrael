@@ -21,21 +21,25 @@ const ast=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.Scri
 function adapt(name,replacements,newName){const owner=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text===name);assert.ok(owner,name);let render=owner.getText(ast),edits=[];function visit(n){if(ts.isIdentifier(n)&&replacements[n.text]&&!(ts.isPropertyAccessExpression(n.parent)&&n.parent.name===n))edits.push({start:n.getStart(ast)-owner.getStart(ast),end:n.end-owner.getStart(ast),text:replacements[n.text]});ts.forEachChild(n,visit)}visit(owner);for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)+e.text+render.slice(e.end);return render.replace('function '+name+'(','function '+newName+'(')}
 const usage=adapt('aCa',{},'fixtureUsage');
 const native=adapt('__azraelNativeContextGauge',{st:'fixtureIntl',q:'FixtureMessage',wr:'FixtureNumber'},'fixtureNativeGauge');
-const wrapper=adapt('XSa',{st:'fixtureIntl',Ou:'fixtureWl',Px:'fixtureHx',__azraelNativeContextGauge:'fixtureNativeGauge'},'fixtureGauge');
+const wrapper=adapt('XSa',{st:'fixtureIntl',Ou:'fixtureWl',Px:'fixtureHx',nA:'fixtureManagerAtom',__azraelNativeContextGauge:'fixtureNativeGauge'},'fixtureGauge');
 // Only host/store and localization are adapted. The transformed card/action,
 // native gauge, hover card, button, React and pinned theme CSS render directly.
 const adapterSource=`
 const fixtureIntl=()=>({locale:window.fixtureState.locale,formatMessage:({defaultMessage},values)=>defaultMessage.replace('{percent}',values?.percent??''),formatNumber:x=>String(x)});
 function FixtureMessage({defaultMessage}){return defaultMessage}
 function FixtureNumber({value}){return value}
-window.fixtureState={id:'chat-a',locale:'en',mode:'pending'};window.fixtureEvents=[];window.fixtureSubmits=0;
-const fixtureStore={get(atom,id){return 'local'}};
+window.fixtureState={id:'chat-a',locale:'en',mode:'pending',settingsMode:'ok'};window.fixtureEvents=[];window.fixtureSettingEvents=[];window.fixtureSubmits=0;window.fixtureSettings=new Map();
+const fixtureManagerAtom={};const fixtureStore={get(atom,id){return atom===fixtureManagerAtom?fixtureManager:'local'}};
 const fixtureWl=()=>fixtureStore;
-const fixtureHx=(store,host)=>({compactThread(...args){window.fixtureEvents.push({args,host});if(fixtureState.mode==='error')return Promise.reject(Error('synthetic failure'));return new Promise(resolve=>window.fixtureResolve=resolve)}});
+const fixtureSettingListeners=new Set();
+const fixtureServices={getConversation(id){return {latestThreadSettings:fixtureState.settingsMode==='read-error'?{}:{autoCompactionEnabled:fixtureSettings.get(id)??true}}},addConversationHistoryInvalidationListener(fn){fixtureSettingListeners.add(fn);return()=>fixtureSettingListeners.delete(fn)},async sendRequest(method,params){fixtureSettingEvents.push({method,params});if(['error','read-error'].includes(fixtureState.settingsMode))throw Error('synthetic setting failure');if(method==='thread/settings/update'){if(fixtureState.settingsMode==='pending')await new Promise(resolve=>window.fixtureSettingResolve=resolve);fixtureSettings.set(params.threadId,params.autoCompactionEnabled);for(const fn of fixtureSettingListeners)fn({conversationId:params.threadId});return{}}return{thread:{autoCompactionEnabled:fixtureSettings.get(params.threadId)??true}}},compactThread(...args){window.fixtureEvents.push({args,host:'local'});if(fixtureState.mode==='error')return Promise.reject(Error('synthetic failure'));return new Promise(resolve=>window.fixtureResolve=resolve)}};
+const fixtureManager={getConversation:fixtureServices.getConversation,addConversationHistoryInvalidationListener:fixtureServices.addConversationHistoryInvalidationListener};
+const fixtureRpc={sendRequest:fixtureServices.sendRequest,compactThread:fixtureServices.compactThread};const fixtureHx=()=>fixtureRpc;
 ${usage}
 ${native}
 ${wrapper}
 const policy={providerId:'openai',modelId:'gpt-6-astra',contextWindow:1000000,safeContextWindow:950000,autoCompactTokenLimit:600000,inputTokens:247263,inputTokensEstimated:true,pricing:{status:'confirmed',inputTokenThreshold:272000,sourceUrl:'https://example.com/pricing'}};
+window.fixturePolicy=policy;
 function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:fixtureUsage({modelContextWindow:1000000,last:{totalTokens:247263},contextPolicy:policy})})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
@@ -66,6 +70,29 @@ try{
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.id='chat-${theme}';fixtureState.locale='en';fixtureState.mode='pending';fixtureRerender()`);await open();
   check(theme+' auto-compaction donut and tooltip agree',await evaluate("(()=>{const gauge=document.querySelector('[data-azrael-pricing-boundary]'),circle=gauge.querySelectorAll('circle')[1];return Math.abs(Number(circle.getAttribute('stroke-dashoffset'))-58.7895)<0.0001&&gauge.getAttribute('aria-label').includes('600,000 tokens (41.2%)')&&gauge.getAttribute('aria-label').includes('1,000,000 tokens (24.7%)')})()"));
   const idle=await card();check(theme+' native button geometry and non-submit type',idle.type==='button'&&idle.width>80&&idle.height>20);summary[theme]={idle};
+  const switchSelector='[data-azrael-thread-auto-compaction] [role=switch]';
+  await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true'`);
+  check(theme+' native switch geometry',await evaluate(`(()=>{const r=document.querySelector('${switchSelector}').getBoundingClientRect();return r.width>=28&&r.height>=16})()`));
+  await evaluate("fixturePolicy.inputTokens=800000;fixtureRerender()");await open();
+  await evaluate(`document.querySelector('${switchSelector}').click()`);
+  await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='false' && document.querySelector('[data-azrael-pricing-boundary]')?.dataset.azraelContextLap==='2'`);
+  check(theme+' confirmed switch instantly resets gauge to additional capacity',await evaluate("Number(document.querySelector('[data-azrael-pricing-boundary] svg').querySelectorAll('circle')[1].getAttribute('stroke-dashoffset'))===50"));
+  await evaluate("new Promise(resolve=>setTimeout(resolve,180))");
+  await writeFile(join(logs,theme+'-auto-compaction-off.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate(`document.querySelector('${switchSelector}').focus()`);await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',text:' ',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32});await open();
+  await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true'`);check(theme+' keyboard switch restores first lap',await evaluate("document.querySelector('[data-azrael-pricing-boundary]').dataset.azraelContextLap==='1'"));
+  const beforePending=await evaluate("fixtureSettingEvents.filter(e=>e.method==='thread/settings/update').length");
+  await evaluate(`fixtureState.settingsMode='pending';document.querySelector('${switchSelector}').click()`);await wait(`document.querySelector('${switchSelector}')?.disabled`);await evaluate(`document.querySelector('${switchSelector}').click()`);check(theme+' switch pending duplicate guard',await evaluate(`fixtureSettingEvents.filter(e=>e.method==='thread/settings/update').length===${beforePending+1}`));
+  await evaluate("fixtureState.id+='-pending-new';fixtureRerender()");await open();await evaluate("fixtureSettingResolve()");await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true'`);check(theme+' stale save cannot change selected thread',true);
+  await evaluate(`fixtureState.id='chat-${theme}';fixtureSettings.set(fixtureState.id,true);fixtureState.settingsMode='ok';fixtureRerender()`);await open();
+  await evaluate("fixtureState.settingsMode='error';fixtureRerender()");await evaluate(`document.querySelector('${switchSelector}').click()`);await wait("!!document.querySelector('[data-azrael-thread-auto-compaction] [role=alert]')");
+  check(theme+' failed save preserves confirmed switch',await evaluate(`document.querySelector('${switchSelector}').getAttribute('aria-checked')==='true'`));
+  await evaluate("fixtureState.settingsMode='ok';document.querySelector('[data-azrael-thread-auto-compaction] button:not([role=switch])').click()");await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='false'`);
+  await evaluate("fixtureState.id+='-new';fixturePolicy.inputTokens=247263;fixtureRerender()");await open();await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true'`);check(theme+' new thread defaults enabled',true);
+  await evaluate(`fixtureState.id='chat-${theme}';fixtureSettings.set(fixtureState.id,true);fixtureRerender()`);await open();
+  await evaluate("fixtureState.id+='-read-error';fixtureState.settingsMode='read-error';fixtureRerender()");await open();await wait("!!document.querySelector('[data-azrael-thread-auto-compaction] [role=alert]')");check(theme+' failed initial read disables switch',await evaluate(`document.querySelector('${switchSelector}').disabled`));
+  await evaluate("fixtureState.settingsMode='ok';document.querySelector('[data-azrael-thread-auto-compaction] button:not([role=switch])').click()");await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true' && !document.querySelector('${switchSelector}').disabled`);check(theme+' failed read retry confirms setting',true);
+  await evaluate(`fixtureState.id='chat-${theme}';fixtureRerender()`);await open();
   if(process.env.AZRAEL_RENDER_README_CAPTURE==='1'){
    const clip=await evaluate("(()=>{const nodes=['[data-azrael-pricing-boundary]','[data-azrael-context-compaction]'].map(s=>document.querySelector(s).getBoundingClientRect());const x=Math.max(0,Math.floor(Math.min(...nodes.map(r=>r.left))-8)),y=Math.max(0,Math.floor(Math.min(...nodes.map(r=>r.top))-8));return {x,y,width:Math.ceil(Math.max(...nodes.map(r=>r.right))+8)-x,height:Math.ceil(Math.max(...nodes.map(r=>r.bottom))+8)-y,scale:2}})()");
    assert.ok(clip.width>0&&clip.height>0,'README capture has visible native content');
@@ -86,7 +113,7 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,10000);chrome.once('exit',finish)});
+ if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,30000);chrome.once('exit',finish)});
  const allowed=join(root,'artifacts/verification')+sep;
  if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){
   await writeFile(join(fixture,'check-result.json'),JSON.stringify({passed:summary.outcome==='passed',scope:summary.scope,checks:summary.checks})+'\n');

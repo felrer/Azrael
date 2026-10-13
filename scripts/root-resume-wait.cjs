@@ -81,6 +81,9 @@ function azraelFlushDeferred(manager, conversationId) {
       if (metadata != null) {
         Object.assign(fields, { status: "deferred", error: null,
           durationMs: metadata.durationMs, finalAssistantStartedAtMs: null });
+        for (const field of ["rootTurnId", "parentTurnId", "turnTrigger"]) {
+          if (metadata[field] != null) fields[field] = metadata[field];
+        }
         if (Number.isFinite(metadata.startedAt)) fields.turnStartedAtMs = metadata.startedAt * 1000;
       }
       if (Object.entries(fields).some(([field, value]) => turn[field] !== value)) {

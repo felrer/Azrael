@@ -2098,6 +2098,7 @@ async fn migration_compacts_subagent_prefix_and_does_not_project_it() {
             }),
             started("child-turn"),
             RolloutItem::TurnContext(TurnContextItem {
+                harness_profile: None,
                 turn_id: Some("child-turn".to_string()),
                 root_turn_id: None,
                 disabled_plugin_ids: None,

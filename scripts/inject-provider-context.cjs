@@ -23,6 +23,12 @@ function policyDescription(p, ko, detail = "full") {
     (ko ? "가격: " : "Pricing: ") + pricing + (price?.inputTokenThreshold == null ? "" : " · " + (price.inclusive ? "≥ " : "> ") + tokens(price.inputTokenThreshold)),
     price?.sourceUrl ?? ""].filter(Boolean).join("\n");
 }
+function gaugeProgress(policy, fallback) {
+  const input = policy?.inputTokens, limit = policy?.autoCompactTokenLimit, capacity = policy?.contextWindow;
+  if (!Number.isFinite(input) || input < 0 || !Number.isFinite(limit) || limit <= 0) return {percent:fallback, secondLap:false};
+  const secondLap = policy.autoCompactionEnabled === false && input >= limit && Number.isFinite(capacity) && capacity > limit;
+  return {percent:Math.min(1, Math.max(0, secondLap ? (input-limit)/(capacity-limit) : input/limit))*100, secondLap};
+}
 function decorateGauge(jsx, node, policy, ko, action = null) {
   if (!node) return node;
   if (!policy) {
@@ -31,7 +37,9 @@ function decorateGauge(jsx, node, policy, ko, action = null) {
     return jsx(node.type,{...node.props,interactive:true,keyboardNavigation:true,tooltipContent:jsx("div",{className:"flex flex-col gap-2",children:[node.props.tooltipContent,action]}),children:jsx(span.type,{...span.props,tabIndex:0})});
   }
   const price = policy.pricing, input = policy.inputTokens;
-  const yellow = (price?.status === "confirmed" || price?.status === "reference") && input != null && price.inputTokenThreshold != null && (price.inclusive ? input >= price.inputTokenThreshold : input > price.inputTokenThreshold);
+  const secondLap = gaugeProgress(policy, null).secondLap;
+  const pricingYellow = (price?.status === "confirmed" || price?.status === "reference") && input != null && price.inputTokenThreshold != null && (price.inclusive ? input >= price.inputTokenThreshold : input > price.inputTokenThreshold);
+  const yellow = secondLap || pricingYellow;
   const tokens = n => n == null ? (ko ? "알 수 없음" : "unknown") : Number(n).toLocaleString(ko ? "ko-KR" : "en-US");
   const usage = limit => {
     const percent = input != null && limit > 0 ? (input / limit * 100).toLocaleString(ko ? "ko-KR" : "en-US", {minimumFractionDigits:1,maximumFractionDigits:1}) + "%" : (ko ? "알 수 없음" : "unknown");
@@ -45,21 +53,84 @@ function decorateGauge(jsx, node, policy, ko, action = null) {
     : price?.status === "no-surcharge" || known && price.inputTokenThreshold == null
       ? (price?.status === "reference" ? (ko ? "API 참고: 길이 추가 요금 없음" : "API reference: no length surcharge") : (ko ? "길이 추가 요금 없음" : "No length surcharge"))
       : (ko ? "요금 기준 알 수 없음" : "Pricing threshold unknown");
-  const description = [ko ? "사용량" : "Usage", ...rows.map(([label,value]) => label + ": " + value), (ko ? "모델: " : "Model: ") + model, (ko ? "요금 참고: " : "Pricing reference: ") + pricing].join("\n");
+  const lapDescription = secondLap ? (ko ? "자동 압축 꺼짐 · 추가 용량: " : "Auto-compaction off · Additional capacity: ") + tokens(input-policy.autoCompactTokenLimit) + " / " + tokens(policy.contextWindow-policy.autoCompactTokenLimit) + (ko ? " 토큰" : " tokens") : "";
+  const description = [ko ? "사용량" : "Usage", ...rows.map(([label,value]) => label + ": " + value), (ko ? "모델: " : "Model: ") + model, (ko ? "요금 참고: " : "Pricing reference: ") + pricing, lapDescription].filter(Boolean).join("\n");
   const row = (label, value) => jsx("div", {style:{display:"grid",gridTemplateColumns:"max-content minmax(0,1fr)",gap:16,alignItems:"baseline"},children:[jsx("span",{children:label}),jsx("span",{style:{textAlign:"right",fontVariantNumeric:"tabular-nums",overflowWrap:"anywhere"},children:value})]});
   const tooltip = jsx("div", {style:{display:"flex",flexDirection:"column",gap:10,textAlign:"left",maxWidth:"min(440px, calc(100vw - 32px))",whiteSpace:"normal"},children:[
     jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"사용량":"Usage"}),...rows.map(([label,value])=>row(label,value))]}),
     row(ko?"모델":"Model",model),
     jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"요금 참고":"Pricing reference"}),jsx("span",{children:pricing}),price?.sourceUrl ? jsx("a",{href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",style:{color:"var(--vscode-textLink-foreground)",width:"fit-content"},children:ko?"공식 문서 ↗":"Official documentation ↗"}) : null]}),
+    lapDescription ? jsx("span",{className:"text-xs text-token-description-foreground",children:lapDescription}) : null,
     action
   ]});
   const span = node.props.children;
   const css = "[data-azrael-pricing-boundary=true]{color:light-dark(#88732b,#c2ac65)!important}[data-azrael-pricing-boundary=true] svg circle{stroke:currentColor}.vscode-light [data-azrael-pricing-boundary=true]{color:#88732b!important}.vscode-dark [data-azrael-pricing-boundary=true],.dark [data-azrael-pricing-boundary=true]{color:#c2ac65!important}.vscode-high-contrast [data-azrael-pricing-boundary=true]{color:#e8d58a!important}.vscode-high-contrast-light [data-azrael-pricing-boundary=true]{color:#62500d!important}@media(forced-colors:active){[data-azrael-pricing-boundary=true]{color:CanvasText!important;outline:1px solid CanvasText}}";
   return jsx(node.type, {...node.props, interactive:true, keyboardNavigation:true, tooltipContent:tooltip, children:jsx(span.type, {...span.props,
     tabIndex:0,
-    "aria-label":description + (yellow ? "\n" + (price.status === "reference" ? (ko ? "API 참고: 장기 컨텍스트 요금 구간" : "API reference: long-context pricing tier") : (ko ? "장기 컨텍스트 요금 구간" : "Long-context pricing tier")) : ""),
+    "aria-label":description + (pricingYellow ? "\n" + (price.status === "reference" ? (ko ? "API 참고: 장기 컨텍스트 요금 구간" : "API reference: long-context pricing tier") : (ko ? "장기 컨텍스트 요금 구간" : "Long-context pricing tier")) : ""),
+    "data-azrael-context-lap":secondLap ? "2" : "1",
     "data-azrael-pricing-boundary":yellow ? "true" : "false",
     children:[jsx("style",{children:css}),span.props.children]})});
+}
+function useThreadAutoCompaction(React, manager, conversationId, request = (method, params) => manager.sendRequest(method, params)) {
+  const [, update] = React.useState(0), ref = React.useRef(null);
+  if (ref.current?.manager !== manager || ref.current?.id !== conversationId) ref.current = {manager,id:conversationId,pending:false,error:null,confirmed:null};
+  const current = ref.current;
+  const read = () => {
+    const enabled = manager.getConversation(conversationId)?.latestThreadSettings?.autoCompactionEnabled;
+    if (typeof enabled !== "boolean") throw Error("Thread auto-compaction setting unavailable");
+    current.confirmed = enabled; return enabled;
+  };
+  if (conversationId != null && current.confirmed == null && !current.error) { try { read(); } catch { current.error = "read"; } }
+  React.useEffect(() => {
+    if (conversationId == null) return;
+    let active = true;
+    const refresh = event => {
+      if (!active || ref.current !== current || event?.conversationId != null && event.conversationId !== conversationId) return;
+      try { read(); if (current.error === "read") current.error = null; } catch { current.error = "read"; }
+      update(n => n + 1);
+    };
+    let unsubscribe = () => {};
+    try { unsubscribe = manager.addConversationHistoryInvalidationListener(refresh); }
+    catch { current.error = "read"; update(n => n + 1); }
+    if (current.error === "read") retry(); else refresh();
+    return () => { active = false; unsubscribe(); };
+  }, [manager, conversationId]);
+  const save = async enabled => {
+    if (conversationId == null || current.pending || typeof enabled !== "boolean") return;
+    current.pending = true; current.requested = enabled; current.error = null; update(n => n + 1);
+    try {
+      await request("thread/settings/update", {threadId:conversationId,autoCompactionEnabled:enabled});
+      const result = await request("thread/read", {threadId:conversationId,includeTurns:false});
+      if (ref.current !== current) return;
+      const acknowledged = result?.thread?.autoCompactionEnabled;
+      if (typeof acknowledged !== "boolean") throw Error("Thread setting readback unavailable");
+      current.confirmed = acknowledged;
+      if (current.confirmed !== enabled) throw Error("Thread setting was not confirmed");
+    } catch { if (ref.current === current) current.error = "save"; }
+    finally { current.pending = false; if (ref.current === current) update(n => n + 1); }
+  };
+  async function retry() {
+    if (conversationId == null || current.pending || ref.current !== current) return;
+    current.pending = true; update(n => n + 1);
+    try {
+      const result = await request("thread/read",{threadId:conversationId,includeTurns:false});
+      if (ref.current !== current) return;
+      const enabled = result?.thread?.autoCompactionEnabled;
+      if (typeof enabled !== "boolean") throw Error("Thread setting unavailable");
+      current.confirmed = enabled; current.error = null;
+    } catch { if (ref.current === current) current.error = "read"; }
+    finally { current.pending = false; if (ref.current === current) update(n => n + 1); }
+  }
+  return {enabled:current.confirmed,pending:current.pending,error:current.error,save,retry,retrySave:()=>save(current.requested)};
+}
+function renderThreadAutoCompaction(jsx, Switch, Button, state, conversationId, ko) {
+  const label = ko ? "자동 압축" : "Auto-compaction";
+  return jsx("div", {className:"flex flex-col gap-2", "data-azrael-thread-auto-compaction":conversationId??"",children:[
+    jsx("div",{className:"flex items-center justify-between gap-4",children:[jsx("span",{className:"text-sm",children:label}),jsx(Switch,{ariaLabel:label,checked:state.enabled!==false,disabled:conversationId==null||state.pending||state.enabled==null,onChange:state.save})]}),
+    jsx("span",{className:"text-xs text-token-description-foreground",role:state.error?"alert":"status","aria-live":"polite",children:state.error ? (ko?"자동 압축 설정을 확인하거나 저장하지 못했습니다.":"Could not read or save auto-compaction setting.") : state.pending ? (ko?"저장 중…":"Saving…") : (ko?"이 대화에만 적용됩니다. 새 대화는 기본으로 켜집니다.":"Applies to this chat. New chats start enabled.")}),
+    state.error ? jsx(Button,{type:"button",color:"secondary",size:"compact",onClick:state.error==="read"?state.retry:state.retrySave,disabled:state.pending,children:ko?"다시 시도":"Retry setting"}) : null
+  ]});
 }
 function renderCompactionAction(React, jsx, Button, store, conversationId, ko, entries, compact) {
   const [, update] = React.useState(0);
@@ -189,7 +260,8 @@ function injectProviderContextControls(text, asset) {
     text=once(text,"t[22]!==y||t[23]!==H?", "t[22]!==y||t[23]!==H||t[41]!==h?");
     text=once(text,"(XSa,{contextUsage:y})", "(XSa,{contextUsage:y,conversationId:h})");
     text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
-    text += `\n${policyDescription.toString()}\n${decorateGauge.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null,input=policy?.inputTokens,limit=policy?.autoCompactTokenLimit;const percent=Number.isFinite(input)&&input>=0&&Number.isFinite(limit)&&limit>0?Math.min(input/limit,1)*100:usage.percent;return {...usage,percent,contextPolicy:policy}}\nfunction XSa(e){gw();_A();const ko=st().locale?.startsWith('ko'),store=Ou($),action=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id));return decorateGauge(y7.jsx,__azraelNativeContextGauge(e),e.contextUsage.contextPolicy,ko,action)}\n`;
+    if (!/r4n as l9[,}]/.test(text) || !/l4n as d9[,}]/.test(text)) throw Error("Pinned native auto-compaction switch changed");
+    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
@@ -205,4 +277,4 @@ function injectProviderContextControls(text, asset) {
 function injectProviderContext(text, asset) {
   return runProviderContext(text, asset, injectProviderContextControls);
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,decorateGauge,renderCompactionAction,savePolicy,compactionPreview,renderSettings};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,gaugeProgress,decorateGauge,useThreadAutoCompaction,renderThreadAutoCompaction,renderCompactionAction,savePolicy,compactionPreview,renderSettings};

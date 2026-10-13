@@ -50,6 +50,8 @@ async fn usage_notice_preserves_composer_geometry_on_recovery() -> Result<()> {
 
                         id: "turn".into(),
                         root_turn_id: None,
+                        parent_turn_id: None,
+                        turn_trigger: None,
                         items_view: TurnItemsView::Full,
                         items: Vec::new(),
                         status: TurnStatus::InProgress,

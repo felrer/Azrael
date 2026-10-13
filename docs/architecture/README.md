@@ -22,6 +22,7 @@ Each document or owning section labels its own state (see [document states](../R
 - [Project usage value](project-usage.md): daily API-equivalent totals, model detail, contribution calendar and project comparisons.
 - [Devin and mixed-provider agents](devin.md): native inference, tool contracts, catalog/agent selection and provider continuity.
 - [Managed providers and provider switching](managed-providers.md): inference projection, model/reasoning controls, bounded tool discovery and handoff.
+- [Model harness profiles](model-harness-profiles.md): provider/model prompt composition, compatible tool isolation and request snapshots.
 - [Provider context policy](context-policy.md): context capacities, compaction thresholds, pricing tiers and settings/gauge behavior.
 - [Custom API models](custom-api-models.md): user-owned endpoints/models, protocol and tool discovery, picker/subagent selection and failure boundaries.
 - [Provider brand assets](provider-brand-assets.md): original assets, provider identities, theme variants and refresh constraints.

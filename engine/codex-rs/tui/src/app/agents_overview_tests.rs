@@ -248,6 +248,7 @@ fn overview_thread(
     status: ThreadStatus,
 ) -> Thread {
     Thread {
+        auto_compaction_enabled: None,
         originator: None,
         environments: None,
         id: thread_id.to_string(),
@@ -2363,6 +2364,8 @@ async fn resume_picker_round_trip_preserves_each_threads_input() -> Result<()> {
 
                             id: "turn-with-follow-up".to_string(),
                             root_turn_id: None,
+                            parent_turn_id: None,
+                            turn_trigger: None,
                             items_view: codex_app_server_protocol::TurnItemsView::Full,
                             items: Vec::new(),
                             status: codex_app_server_protocol::TurnStatus::InProgress,

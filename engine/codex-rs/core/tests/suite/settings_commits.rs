@@ -374,3 +374,160 @@ async fn compaction_checkpoints_settings_changed_during_its_model_request() -> R
     server.shutdown().await;
     Ok(())
 }
+
+#[test_case(ThreadHistoryMode::Legacy; "legacy")]
+#[test_case(ThreadHistoryMode::Paginated; "paginated")]
+#[tokio::test]
+async fn auto_compaction_settings_only_reply_is_durable_and_forks_are_isolated(
+    history_mode: ThreadHistoryMode,
+) -> Result<()> {
+    skip_if_no_network!(Ok(()));
+    let server = responses::start_mock_server().await;
+    let test = test_codex()
+        .with_history_mode(history_mode)
+        .build_with_auto_env(&server)
+        .await?;
+    assert!(
+        test.codex
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    let (reply, received) = oneshot::channel();
+    test.codex
+        .submit(Op::ThreadSettings {
+            thread_settings: ThreadSettingsOverrides {
+                auto_compaction_enabled: Some(false),
+                ..Default::default()
+            },
+            reply: Some(reply),
+        })
+        .await?;
+    timeout(TIMEOUT, received).await???;
+    // Read the actual file immediately after the reply, before draining an event,
+    // shutting down, or explicitly flushing. The RPC's success must be durable.
+    let rollout_path = test
+        .codex
+        .rollout_path()
+        .expect("settings-only rollout path");
+    let (items, _, parse_errors) =
+        codex_rollout::RolloutRecorder::load_rollout_items(&rollout_path).await?;
+    assert_eq!(parse_errors, 0);
+    assert!(!codex_history::latest_auto_compaction_enabled(
+        &items,
+        test.session_configured.thread_id
+    ));
+    assert!(
+        !items
+            .iter()
+            .any(|item| matches!(item, RolloutItem::TurnContext(_)))
+    );
+    let resumed = test_codex()
+        .with_history_mode(history_mode)
+        .restart_with_auto_env(&server, &test)
+        .await?;
+    assert_eq!(
+        resumed.session_configured.thread_id,
+        test.session_configured.thread_id
+    );
+    assert!(
+        !resumed
+            .codex
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    let sibling = resumed
+        .thread_manager
+        .start_thread(resumed.start_thread_options().await)
+        .await?;
+    assert!(
+        sibling
+            .thread
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    let forked = resumed
+        .thread_manager
+        .fork_thread_from_history(
+            codex_core::ForkSnapshot::Interrupted,
+            resumed.start_thread_options().await,
+            codex_history::InitialHistory::Resumed(codex_history::ResumedHistory {
+                conversation_id: resumed.session_configured.thread_id,
+                history: Arc::new(items),
+                history_revision: None,
+                rollout_path: Some(rollout_path),
+            }),
+        )
+        .await?;
+    assert!(
+        forked
+            .thread
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    assert!(
+        !resumed
+            .codex
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    assert!(
+        server
+            .received_requests()
+            .await
+            .unwrap_or_default()
+            .iter()
+            .all(|request| !matches!(request.url.path(), "/v1/responses" | "/v1/chat/completions")),
+        "settings, resume and fork must not infer"
+    );
+    forked.thread.shutdown_and_wait().await?;
+    sibling.thread.shutdown_and_wait().await?;
+    resumed.codex.shutdown_and_wait().await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn auto_compaction_storage_failure_rejects_reply_and_restores_setting() -> Result<()> {
+    skip_if_no_network!(Ok(()));
+    let server = responses::start_mock_server().await;
+    let test = test_codex().build_with_auto_env(&server).await?;
+    let rollout_path = test.codex.rollout_path().expect("rollout path");
+    assert!(
+        !rollout_path.exists(),
+        "new unstarted thread must not already have a rollout"
+    );
+    // A directory at the owned file path makes actual local persistence fail.
+    std::fs::create_dir_all(&rollout_path)?;
+    let (reply, received) = oneshot::channel();
+    test.codex
+        .submit(Op::ThreadSettings {
+            thread_settings: ThreadSettingsOverrides {
+                auto_compaction_enabled: Some(false),
+                ..Default::default()
+            },
+            reply: Some(reply),
+        })
+        .await?;
+    assert!(timeout(TIMEOUT, received).await??.is_err());
+    assert!(
+        test.codex
+            .thread_settings_snapshot()
+            .await
+            .auto_compaction_enabled
+    );
+    assert!(
+        server
+            .received_requests()
+            .await
+            .unwrap_or_default()
+            .iter()
+            .all(|request| !matches!(request.url.path(), "/v1/responses" | "/v1/chat/completions"))
+    );
+    std::fs::remove_dir(&rollout_path)?;
+    test.codex.shutdown_and_wait().await?;
+    Ok(())
+}

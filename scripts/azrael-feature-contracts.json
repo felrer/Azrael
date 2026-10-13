@@ -2,6 +2,54 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.api-context",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/ext/skills/src/api_host_dedup.rs",
+        "engine/codex-rs/ext/skills/src/world_state_catalogs.rs",
+        "engine/codex-rs/prompts/src/model_instructions.rs",
+        "engine/codex-rs/prompts/src/multi_agent_instructions.rs",
+        "engine/codex-rs/core/src/context/instruction_state_projection.rs",
+        "engine/codex-rs/core/src/context/world_state/multi_agent_usage_hint.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/core/src/session/step_context.rs"
+      ],
+      "contract": "docs/architecture/custom-api-models.md",
+      "checks": [
+        {
+          "id": "engine.api-context.prompts",
+          "executable": "node",
+          "args": [
+            "scripts/check-api-context.cjs",
+            "{engineSourceRoot}",
+            "prompts"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.api-context.skills",
+          "executable": "node",
+          "args": [
+            "scripts/check-api-context.cjs",
+            "{engineSourceRoot}",
+            "skills"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.api-context.core",
+          "executable": "node",
+          "args": [
+            "scripts/check-api-context.cjs",
+            "{engineSourceRoot}",
+            "core"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.root-resume-reasoning",
       "area": "engine",
       "owners": [
@@ -17,6 +65,58 @@
           "id": "engine.root-resume-reasoning.native",
           "executable": "node",
           "args": ["scripts/check-root-resume-reasoning.cjs", "{engineSourceRoot}"],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
+      "id": "engine.model-harness-profiles",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/config/src/harness_profiles.rs",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/prompts/src/model_instructions.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/tools/handlers/claude_files.rs",
+        "engine/codex-rs/core/src/tools/handlers/claude_shell.rs",
+        "engine/codex-rs/core/src/tools/handlers/claude_search.rs",
+        "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
+        "engine/codex-rs/core/src/session/step_context.rs",
+        "engine/codex-rs/core/src/managed_runtime.rs",
+        "providers/opencodex/inference-mapping.mjs",
+        "providers/opencodex/inference.ts"
+      ],
+      "contract": "docs/architecture/model-harness-profiles.md",
+      "checks": [
+        {
+          "id": "engine.model-harness-profiles.mapping",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-common-agent-instructions.cjs",
+            "providers/opencodex/tests/harness-mapping.test.mjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.model-harness-profiles.config",
+          "executable": "node",
+          "args": [
+            "scripts/check-model-harness-profiles.cjs",
+            "{engineSourceRoot}",
+            "config"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.model-harness-profiles.tools",
+          "executable": "node",
+          "args": [
+            "scripts/check-model-harness-profiles.cjs",
+            "{engineSourceRoot}",
+            "tools"
+          ],
           "level": "native"
         }
       ],
@@ -39,11 +139,23 @@
       "reportFields": []
     },
     {
+      "id": "engine.task-work-time",
+      "area": "engine",
+      "owners": ["engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs", "engine/codex-rs/app-server/src/bespoke_event_handling.rs", "engine/codex-rs/app-server/src/request_processors/thread_processor.rs", "engine/codex-rs/app-server/src/thread_state.rs", "engine/codex-rs/thread-store/src/types.rs", "engine/codex-rs/thread-store/src/local/thread_history.rs", "engine/codex-rs/thread-store/src/local/thread_history/read.rs", "engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql"],
+      "contract": "docs/architecture/task-work-time.md",
+      "checks": [
+        {"id": "engine.task-work-time.protocol", "executable": "node", "args": ["scripts/check-task-work-time-native.cjs", "{engineSourceRoot}", "protocol"], "level": "native"},
+        {"id": "engine.task-work-time.store", "executable": "node", "args": ["scripts/check-task-work-time-native.cjs", "{engineSourceRoot}", "store"], "level": "native"},
+        {"id": "engine.task-work-time.appserver", "executable": "node", "args": ["scripts/check-task-work-time-native.cjs", "{engineSourceRoot}", "appserver"], "level": "native"}
+      ],
+      "reportFields": []
+    },
+    {
       "id": "ui.task-work-time",
       "area": "ui",
-      "owners": ["scripts/inject-task-work-time.cjs", "scripts/task-work-time.cjs", "scripts/task-work-time-history.cjs"],
+      "owners": ["scripts/inject-task-work-time.cjs", "scripts/task-work-time.cjs", "scripts/task-work-time-history.cjs", "scripts/inject-deferred-turn.cjs", "scripts/root-resume-wait.cjs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs", "engine/codex-rs/app-server/src/bespoke_event_handling.rs", "engine/codex-rs/app-server/src/request_processors/thread_processor.rs", "engine/codex-rs/app-server/src/thread_state.rs", "engine/codex-rs/thread-store/src/types.rs", "engine/codex-rs/thread-store/src/local/thread_history.rs", "engine/codex-rs/thread-store/src/local/thread_history/read.rs", "engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql"],
       "contract": "docs/architecture/task-work-time.md",
-      "checks": [{"id": "ui.task-work-time.behavior", "executable": "node", "args": ["--test", "scripts/test-task-work-time.cjs", "scripts/test-task-work-time-history.cjs", "scripts/test-task-work-time-ui.cjs"], "level": "source"}],
+      "checks": [{"id": "ui.task-work-time.behavior", "executable": "node", "args": ["--test", "scripts/test-task-work-time.cjs", "scripts/test-task-work-time-history.cjs", "scripts/test-task-work-time-ui.cjs", "scripts/test-deferred-turn.cjs"], "level": "source"}],
       "reportFields": ["taskWorkTimeEdits"]
     },
     {
@@ -501,7 +613,8 @@
       "area": "ui",
       "owners": [
         "scripts/inject-provider-context.cjs",
-        "scripts/verify-provider-context-render.mjs"
+          "scripts/verify-provider-context-render.mjs",
+          "scripts/verify-context-compaction-render.mjs"
       ],
       "contract": "docs/architecture/context-policy.md",
       "checks": [
@@ -512,6 +625,12 @@
             "--test",
             "scripts/test-provider-context.cjs"
           ],
+          "level": "source"
+        },
+        {
+          "id": "ui.provider-context.thread-render",
+          "executable": "node",
+          "args": ["scripts/verify-context-compaction-render.mjs"],
           "level": "source"
         },
         {
@@ -880,9 +999,21 @@
       "area": "engine",
       "owners": [
         "engine/codex-rs/protocol/src/context_policy.rs",
+          "engine/codex-rs/protocol/src/protocol.rs",
+          "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+          "engine/codex-rs/core/src/session/thread_settings.rs",
+          "engine/codex-rs/core/src/session/handlers.rs",
+          "engine/codex-rs/core/src/session/auto_compaction_tests.rs",
+          "engine/codex-rs/core/src/session/session.rs",
+          "engine/codex-rs/core/src/codex_thread.rs",
+          "engine/codex-rs/history/src/lib.rs",
+          "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
+          "engine/codex-rs/app-server/src/request_processors/thread_summary.rs",
+          "engine/codex-rs/app-server/src/request_processors/turn_processor.rs",
         "engine/codex-rs/core/src/session/context_window.rs",
         "engine/codex-rs/models-manager/src/model_info.rs",
         "scripts/test-provider-context-engine.mjs",
+          "scripts/check-thread-auto-compaction.cjs",
         "scripts/test-provider-input-budget-helper.cjs",
         "providers/devin/context-budget.mjs",
         "providers/opencodex/inference.ts",
@@ -898,6 +1029,12 @@
       ],
       "contract": "docs/architecture/context-policy.md",
       "checks": [
+        {
+          "id": "engine.provider-context.thread-auto-compaction",
+          "executable": "node",
+          "args": ["scripts/check-thread-auto-compaction.cjs", "{engineSourceRoot}"],
+          "level": "native"
+        },
         {
           "id": "engine.provider-context.input-budget-helper",
           "executable": "node",

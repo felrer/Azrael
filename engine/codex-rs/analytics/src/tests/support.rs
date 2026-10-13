@@ -104,6 +104,7 @@ pub(super) fn sample_thread_with_metadata(
     parent_thread_id: Option<String>,
 ) -> Thread {
     Thread {
+        auto_compaction_enabled: None,
         originator: None,
         environments: None,
         id: thread_id.to_string(),
@@ -270,6 +271,8 @@ pub(super) fn sample_turn_start_response(turn_id: &str) -> ClientResponsePayload
 
             id: turn_id.to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status: AppServerTurnStatus::InProgress,
@@ -292,6 +295,8 @@ pub(super) fn sample_turn_started_notification(
 
             id: turn_id.to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status: AppServerTurnStatus::InProgress,
@@ -332,6 +337,8 @@ pub(super) fn sample_turn_completed_notification(
 
             id: turn_id.to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: vec![],
             status,

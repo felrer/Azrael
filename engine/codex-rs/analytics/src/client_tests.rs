@@ -621,6 +621,7 @@ fn sample_thread_archive_request() -> ClientRequest {
 
 fn sample_thread(thread_id: &str) -> Thread {
     Thread {
+        auto_compaction_enabled: None,
         originator: None,
         environments: None,
         id: thread_id.to_string(),
@@ -728,6 +729,8 @@ fn sample_turn_start_response() -> ClientResponsePayload {
 
             id: "turn-1".to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items_view: codex_app_server_protocol::TurnItemsView::Full,
             items: Vec::new(),
             status: AppServerTurnStatus::InProgress,

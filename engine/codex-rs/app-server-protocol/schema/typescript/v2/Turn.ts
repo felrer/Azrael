@@ -23,6 +23,14 @@ id: string,
  */
 rootTurnId: string | null,
 /**
+ * Parent recorded by the engine, when known.
+ */
+parentTurnId: string | null,
+/**
+ * Recorded trigger such as `user` or `root_resume`; absent in older history.
+ */
+turnTrigger: string | null,
+/**
  * Thread items currently included in this turn payload.
  */
 items: Array<ThreadItem>,

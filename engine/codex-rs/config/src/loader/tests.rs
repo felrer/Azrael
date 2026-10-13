@@ -20,6 +20,152 @@ use tempfile::tempdir;
 
 pub(super) struct TestFileSystem;
 
+#[tokio::test]
+async fn harness_templates_report_missing_and_unreadable_paths() {
+    use crate::harness_profiles::HarnessProfiles;
+    use crate::harness_profiles::HarnessProfilesToml;
+    use crate::harness_profiles::PromptProfileToml;
+
+    let tmp = tempdir().expect("tempdir");
+    let unreadable = tmp.path().join("directory.md");
+    std::fs::create_dir(&unreadable).expect("create unreadable template directory");
+    for path in [tmp.path().join("missing.md"), unreadable] {
+        let mut config = HarnessProfilesToml::default();
+        config.prompt_profiles.insert(
+            "team".into(),
+            PromptProfileToml {
+                extends: Some("builtin/anthropic-default".into()),
+                behavior_template_file: Some(AbsolutePathBuf::from_absolute_path(&path).unwrap()),
+            },
+        );
+        let error = HarnessProfiles::load(config, &TestFileSystem)
+            .await
+            .unwrap_err();
+        let message = error.to_string();
+        assert!(
+            message.contains("harness prompt team template"),
+            "{message}"
+        );
+        assert!(message.contains(&path.display().to_string()), "{message}");
+    }
+}
+
+#[tokio::test]
+async fn harness_templates_are_captured_once_at_configuration_load() {
+    use crate::harness_profiles::HarnessBindingToml;
+    use crate::harness_profiles::HarnessProfiles;
+    use crate::harness_profiles::HarnessProfilesToml;
+    use crate::harness_profiles::PromptProfileToml;
+
+    let tmp = tempdir().expect("tempdir");
+    let path = tmp.path().join("team.md");
+    std::fs::write(&path, "captured guidance").unwrap();
+    let mut config = HarnessProfilesToml::default();
+    config.prompt_profiles.insert(
+        "team".into(),
+        PromptProfileToml {
+            extends: Some("builtin/anthropic-default".into()),
+            behavior_template_file: Some(AbsolutePathBuf::from_absolute_path(&path).unwrap()),
+        },
+    );
+    config.providers.insert(
+        "anthropic".into(),
+        HarnessBindingToml {
+            prompt_profile: Some("team".into()),
+            ..Default::default()
+        },
+    );
+    let loaded = HarnessProfiles::load(config.clone(), &TestFileSystem)
+        .await
+        .unwrap();
+    std::fs::write(&path, "updated guidance").unwrap();
+    let snapshot = loaded.resolve("anthropic", "future-model").unwrap();
+    assert_eq!(
+        snapshot.behavior_template.as_deref(),
+        Some("captured guidance")
+    );
+    let updated = HarnessProfiles::load(config.clone(), &TestFileSystem)
+        .await
+        .unwrap()
+        .resolve("anthropic", "future-model")
+        .unwrap();
+    assert_ne!(snapshot.fingerprint, updated.fingerprint);
+    std::fs::write(&path, " \r\n").unwrap();
+    assert!(
+        HarnessProfiles::load(config, &TestFileSystem)
+            .await
+            .unwrap_err()
+            .to_string()
+            .contains("team template is empty")
+    );
+}
+
+#[tokio::test]
+async fn harness_profile_v2_layer_deep_merges_provider_and_model_siblings() {
+    use crate::harness_profiles::HarnessProfiles;
+
+    let tmp = tempdir().expect("tempdir");
+    std::fs::write(
+        tmp.path().join(CONFIG_TOML_FILE),
+        r#"
+        [harness.prompt_profiles.team]
+        extends = "builtin/anthropic-default"
+        [harness.providers.anthropic]
+        prompt_profile = "team"
+        [harness.models."managed/anthropic/sibling"]
+        prompt_profile = "builtin/claude-lean"
+    "#,
+    )
+    .unwrap();
+    std::fs::write(
+        tmp.path().join("review.config.toml"),
+        r#"
+        [harness.models."managed/anthropic/exact"]
+        tool_profile = "builtin/claude-code-core"
+    "#,
+    )
+    .unwrap();
+    let mut overrides = LoaderOverrides::without_managed_config_for_tests();
+    overrides.system_config_path = Some(tmp.path().join("absent-system.toml"));
+    overrides.user_config_profile = Some("review".parse().unwrap());
+    let stack = load_config_layers_state(
+        &TestFileSystem,
+        tmp.path(),
+        None,
+        &[],
+        overrides,
+        &crate::NoopThreadConfigLoader,
+    )
+    .await
+    .unwrap();
+    let merged = stack.effective_config();
+    let config: ConfigToml = merged.try_into().unwrap();
+    let profiles = HarnessProfiles::load(config.harness, &TestFileSystem)
+        .await
+        .unwrap();
+    assert_eq!(
+        profiles
+            .resolve("azrael-managed", "managed/anthropic/exact")
+            .unwrap()
+            .prompt_profile,
+        "team"
+    );
+    assert_eq!(
+        profiles
+            .resolve("azrael-managed", "managed/anthropic/sibling")
+            .unwrap()
+            .prompt_profile,
+        "builtin/claude-lean"
+    );
+    assert_eq!(
+        profiles
+            .resolve("azrael-managed", "managed/anthropic/future")
+            .unwrap()
+            .prompt_profile,
+        "team"
+    );
+}
+
 #[test]
 fn project_config_cannot_override_configured_credential_broker_hosts() {
     let mut config: TomlValue = toml::from_str(

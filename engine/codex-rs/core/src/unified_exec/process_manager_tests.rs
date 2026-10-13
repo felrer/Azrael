@@ -29,6 +29,87 @@ fn unified_exec_env_injects_defaults() {
     assert_eq!(env, expected);
 }
 
+#[cfg(unix)]
+#[tokio::test]
+async fn claude_background_owner_rejects_reused_process_id() {
+    let (session, turn) = crate::session::tests::make_session_and_context().await;
+    let process = Arc::new(
+        crate::unified_exec::process_tests::remote_process(
+            codex_exec_server::WriteStatus::Accepted,
+            None,
+            codex_sandboxing::SandboxType::None,
+        )
+        .await,
+    );
+    let manager = UnifiedExecProcessManager::default();
+    manager.process_store.lock().await.processes.insert(
+        1000,
+        ProcessEntry {
+            process: Arc::clone(&process),
+            plugin_metrics_sidecar: None,
+            call_id: "new-native-call".into(),
+            process_id: 1000,
+            cwd: PathUri::parse("file:///tmp").unwrap(),
+            initial_exec_command_active: Arc::new(AtomicBool::new(false)),
+            hook_command: "native unrelated command".into(),
+            tty: false,
+            environment_id: codex_exec_server::LOCAL_ENVIRONMENT_ID.into(),
+            permissions: super::super::TerminalPermissions::for_launch(
+                turn.initial_environments.primary().unwrap(),
+                &turn,
+                super::super::TerminalSandboxSource::Native,
+                crate::sandboxing::SandboxPermissions::UseDefault,
+                None,
+                None,
+            ),
+            network_approval: None,
+            session: Arc::downgrade(&session),
+            last_used: Instant::now(),
+        },
+    );
+    assert!(
+        !manager
+            .terminate_process_for_call(1000, "old-bash-call")
+            .await
+    );
+    assert!(!process.has_exited());
+    let context = UnifiedExecContext::new(
+        session,
+        crate::session::step_context::StepContext::for_test(Arc::clone(&turn)),
+        tokio_util::sync::CancellationToken::new(),
+        "poll".into(),
+    );
+    let result = manager
+        .write_stdin_for_call(
+            &context,
+            WriteStdinRequest {
+                process_id: 1000,
+                input: "",
+                yield_time_ms: 1,
+                max_output_tokens: Some(100),
+                truncation_policy: context
+                    .step_context
+                    .settings
+                    .model_info
+                    .truncation_policy
+                    .into(),
+                interaction_event: None,
+            },
+            "old-bash-call",
+        )
+        .await;
+    assert!(matches!(
+        result,
+        Err(UnifiedExecError::UnknownProcessId { process_id: 1000 })
+    ));
+    assert!(!process.has_exited());
+    assert!(
+        manager
+            .terminate_process_for_call(1000, "new-native-call")
+            .await
+    );
+}
+
 #[test]
 fn unified_exec_env_overrides_existing_values() {
     let mut base = HashMap::new();

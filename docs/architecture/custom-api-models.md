@@ -38,6 +38,10 @@ API의 로컬 컨텍스트 추정은 완전한 과거 검색 스키마 대신 al
 
 API host 스킬 목록은 도구 registry와 같은 제외 namespace 정책을 사용한다. 명시된 도구 의존성과 확인된 Window Use, Computer Use, Chrome 및 in-app Browser 스킬 이름을 기준으로 제외한다. API 요청은 과거의 타입 있는 스킬 목록·선택 본문에서도 이 알려진 이름을 제외한다. 다른 이름으로 등록한 스킬은 현재 의존성 메타데이터가 있어야 분류할 수 있으며, 과거에 렌더링한 본문에는 그 메타데이터가 포함되지 않는다. 일반 provider의 스킬 목록은 유지한다.
 
+API host 스킬은 같은 이름의 항목에 대해 메타데이터와 읽은 전체 본문이 모두 같을 때 첫 discovery root의 안내만 표시한다. 항목과 명시적 읽기 권한은 보존한다. 본문·정책이 다르거나 읽기에 실패한 경우는 합치지 않으며, 본문은 discovery마다 확인한다. 이 동작은 `ext/skills/src/api_host_dedup.rs`가 소유한다.
+
+API 요청의 기본 지침은 정확한 공통 harness prefix 안의 Code Mode 병렬 호출 안내만 직접 도구 호출 안내로 투영한다. 사용자 suffix는 그대로 유지한다. 타입 있는 기본 협업 지침에서도 정확한 harness 안내 블록만 투영하며, 직접 설정한 role은 별도 타입으로 보존한다. 일반 provider와 원본 이력은 유지하고 harness fingerprint에는 투영된 기본 지침을 사용한다. 구현은 `prompts`와 `core/src/context/instruction_state_projection.rs` 및 `session` 경계가 소유한다. 이 변경의 수용 상태와 실서버 범위는 [수정 작업 기록](../../work/AK-01-heretic2-api-validation/02-plan.md)에서 관리한다.
+
 ## API 전송과 실행
 
 API helper는 기존 Chat/Responses adapter와 bounded native 프레임 프로토콜을 사용한다. 모든 도구 호출은 완성된 arguments와 terminal 결과 검증 이후에만 native engine으로 전달한다. 실행·권한·승인·도구 결과·대화 기록의 책임은 engine에 있다. 사용자 API 서버에 도구 실행이나 conversation 저장을 요구하지 않는다. 일반 function 호출로 변환 가능한 namespace/custom 도구는 기존 변환을 재사용하며 변환되지 않는 계약은 명시 실패한다.

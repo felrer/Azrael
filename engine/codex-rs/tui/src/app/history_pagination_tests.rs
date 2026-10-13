@@ -14,6 +14,8 @@ fn turn(id: &str, status: TurnStatus, item_ids: &[&str]) -> Turn {
 
         id: id.to_string(),
         root_turn_id: None,
+        parent_turn_id: None,
+        turn_trigger: None,
         items: item_ids
             .iter()
             .map(|id| ThreadItem::UserMessage {

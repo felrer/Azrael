@@ -129,6 +129,8 @@ fn finish_turn(
 
                 id: turn_id.to_string(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items,
                 items_view: TurnItemsView::Summary,
                 status,

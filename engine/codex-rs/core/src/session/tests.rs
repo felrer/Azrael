@@ -280,6 +280,11 @@ impl StepContext {
                 turn.use_model_token_budget_defaults,
                 settings.model_info.as_ref(),
             ),
+            harness_profile: super::step_context::resolve_harness_profile(
+                &turn.config,
+                &settings.model_info.slug,
+            )
+            .unwrap(),
             settings: Arc::new(settings),
             session_telemetry: turn.session_telemetry.clone(),
             realtime: RealtimeConversationSnapshot {
@@ -835,7 +840,7 @@ async fn interrupting_regular_turn_waiting_on_startup_prewarm_emits_turn_aborted
     assert!(duration_ms.is_some());
 }
 
-fn test_model_client_session() -> crate::client::ModelClientSession {
+pub(crate) fn test_model_client_session() -> crate::client::ModelClientSession {
     let thread_id = ThreadId::try_from("00000000-0000-4000-8000-000000000001")
         .expect("test thread id should be valid");
     crate::client::ModelClient::new(
@@ -4326,6 +4331,7 @@ async fn record_initial_history_forked_hydrates_previous_turn_settings() {
     let (session, turn_context) = make_session_and_context().await;
     let previous_model = "forked-rollout-model";
     let previous_context_item = TurnContextItem {
+        harness_profile: None,
         turn_id: Some(turn_context.sub_id.clone()),
         root_turn_id: None,
         disabled_plugin_ids: None,
@@ -4428,6 +4434,7 @@ async fn set_rate_limits_retains_previous_credits() {
         },
     };
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         provider: create_model_provider(config.model_provider.clone(), /*auth_manager*/ None),
@@ -4552,6 +4559,7 @@ async fn set_rate_limits_updates_plan_type_when_present() {
         },
     };
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         provider: create_model_provider(config.model_provider.clone(), /*auth_manager*/ None),
@@ -5178,6 +5186,7 @@ pub(crate) async fn make_session_configuration_for_tests() -> SessionConfigurati
     };
 
     SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         provider: create_model_provider(config.model_provider.clone(), /*auth_manager*/ None),
@@ -6650,6 +6659,7 @@ async fn session_new_fails_when_zsh_fork_enabled_without_packaged_zsh() {
         },
     };
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         provider: create_model_provider(
@@ -6882,6 +6892,7 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
     };
     let default_environments = vec![local(config.cwd.clone())];
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         environments: default_environments.clone(),
@@ -7091,6 +7102,7 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
+        claude_file_state: Arc::default(),
         computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,
@@ -7217,6 +7229,7 @@ async fn make_session_with_config_and_rx(
     };
     let default_environments = vec![local(config.cwd.clone())];
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         environments: default_environments.clone(),
@@ -7391,6 +7404,7 @@ async fn make_session_with_history_source_agent_control_time_and_rx(
     };
     let default_environments = vec![local(config.cwd.clone())];
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         environments: default_environments.clone(),
@@ -9250,6 +9264,7 @@ where
     };
     let default_environments = vec![local(config.cwd.clone())];
     let session_configuration = SessionConfiguration {
+        auto_compaction_enabled: true,
         native_auth_manager: None,
         turn_extension_init: Default::default(),
         environments: default_environments.clone(),

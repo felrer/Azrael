@@ -42,7 +42,9 @@ impl WorldStateSection for MultiAgentUsageHintState {
             }
             PreviousSectionState::Unknown => None,
             PreviousSectionState::Known(_) | PreviousSectionState::Absent => {
-                if self.instructions.markers().0.is_empty() {
+                if self.instructions.markers().0.is_empty()
+                    && !matches!(self.instructions, MultiAgentRoleInstructions::Configured(_))
+                {
                     Some(Box::new(MultiAgentUsageHint::new(
                         &self.instructions.body(),
                     )))

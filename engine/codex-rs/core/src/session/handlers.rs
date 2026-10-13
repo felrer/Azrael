@@ -617,6 +617,7 @@ pub(super) async fn submission_loop(
                     reply,
                 } => {
                     let _settings_guard = thread_settings::acquire_persistence_lock(&sess).await;
+                    let materialize = thread_settings.auto_compaction_enabled.is_some();
                     let thread_settings = WithTurnExtensionData {
                         request: thread_settings,
                         turn_extension_init: sub.turn_extension_init,
@@ -627,19 +628,26 @@ pub(super) async fn submission_loop(
                             if let Some(reply) = reply {
                                 let _ = reply.send(Ok(()));
                             }
-                            thread_settings::emit_applied(&sess, sub.id.clone(), snapshot).await;
+                            thread_settings::emit_applied(
+                                &sess,
+                                sub.id.clone(),
+                                snapshot,
+                                materialize,
+                            )
+                            .await;
                         }
                         Err(error) => {
-                            let message = format!("invalid thread settings override: {error}");
+                            let message = error.to_string();
+                            let error_info = error.to_codex_protocol_error();
                             if let Some(reply) = reply {
-                                let _ = reply.send(Err(CodexErr::InvalidRequest(message)));
+                                let _ = reply.send(Err(error));
                             } else {
                                 sess.send_event_raw(Event {
                                     id: sub.id.clone(),
                                     msg: EventMsg::Error(ErrorEvent {
                                         misalignment: None,
                                         message,
-                                        codex_error_info: Some(CodexErrorInfo::BadRequest),
+                                        codex_error_info: Some(error_info),
                                     }),
                                 })
                                 .await;

@@ -15,6 +15,7 @@ mod diagnostics;
 mod filesystem_constraints;
 mod fingerprint;
 mod guardian;
+pub mod harness_profiles;
 mod hook_config;
 mod host_name;
 mod in_app_browser_requirements;

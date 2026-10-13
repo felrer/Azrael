@@ -3,7 +3,7 @@ import { existsSync, mkdirSync, writeFileSync, renameSync, unlinkSync, realpathS
 import { join, relative, isAbsolute } from 'node:path';
 import { createOAuthFileLock, type OAuthFileLockGuard } from './vendor/src/oauth/store.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
-import { AdapterError, compileRequest, resolveToolName, mapStream, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
+import { AdapterError, compileRequest, resolveToolName, mapStream, replayHarnessMatches, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
 import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
@@ -160,7 +160,7 @@ function replayToolNameMatches(recorded: string, canonical: string, compiled: an
   catch (error) { if (error instanceof AdapterError) return false; throw error; }
 }
 
-export function projectRequest(request: any, fingerprint: string, promptFormat?: 'anthropic-xml') {
+export function projectRequest(request: any, fingerprint: string, promptFormat?: 'anthropic-xml', actualAdapter?: string) {
   const opaqueCalls = new Map<string, any>();
   const replayDetails: { details: any[]; callIds: string[]; calls: any[] }[] = [];
   const projected = { ...request, credential_scope: fingerprint, input: request.input.map((item: any) => {
@@ -170,7 +170,7 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
     if (typeof item.encrypted_content === 'string' && item.encrypted_content.startsWith(prefix)) {
       try { metadata = JSON.parse(Buffer.from(item.encrypted_content.slice(prefix.length), 'base64').toString('utf8')); } catch { fail('invalid_reasoning_envelope'); }
     }
-    const valid = metadata && metadata.provider === request.provider_id && metadata.model === request.model && metadata.thread === request.thread_id && metadata.account === fingerprint && metadata.turn === request.turn_id;
+    const valid = metadata && metadata.provider === request.provider_id && metadata.model === request.model && metadata.thread === request.thread_id && metadata.account === fingerprint && metadata.turn === request.turn_id && replayHarnessMatches(metadata, request);
     if (valid) {
       if (!Array.isArray(metadata.calls ?? [])) fail('invalid_reasoning_envelope');
       for (const call of metadata.calls ?? []) {
@@ -186,7 +186,7 @@ export function projectRequest(request: any, fingerprint: string, promptFormat?:
     // Public reasoning survives switching; private replay has an exact origin and turn.
     return { ...item, encrypted_content: valid ? item.encrypted_content : null };
   }) };
-  const compiled = compileRequest(projected, { promptFormat, compactToolSearchResults: isApiProvider(request.provider_id) });
+  const compiled = compileRequest(projected, { promptFormat, actualAdapter, compactToolSearchResults: isApiProvider(request.provider_id) });
   for (const replay of replayDetails) for (const original of replay.calls) {
     const call = compiled.messages.flatMap((message: any) => message.tool_calls ?? []).find((call: any) => call.id === original?.id);
     if (!call) fail('reasoning_scope_mismatch_call_missing');
@@ -401,7 +401,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
   const { compiled, parsed } = projectRequest(request, pinned.fingerprint,
-    pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined);
+    pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined, pinned.provider.adapter);
   const toolDiagnostics = progress?.toolDiagnostics;
   toolDiagnostics?.catalog(compiled);
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
@@ -430,6 +430,20 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     progress?.observe({ kind: 'phase', phase: 'headers' });
     const built = await adapter.buildRequest(parsed, { headers: new Headers(), translatorBudget: budget, abortSignal: signal, providerFetch: fetcher });
     const wireBody = JSON.parse(built.body);
+    if (compiled.claudeProfile) {
+      // The OAuth transport prefixes arbitrary functions. Compatible builtins
+      // retain their exact names; external and other functions retain escaping.
+      const compatibleName = (name: string) => name?.startsWith('custom_') && (compiled.names.has(name.slice(7)) || compiled.historyAliases.has(name.slice(7))) && !name.slice(7).startsWith('az_')
+        ? name.slice(7) : name;
+      for (const tool of wireBody.tools ?? []) tool.name = compatibleName(tool.name);
+      for (const message of wireBody.messages ?? []) for (const part of Array.isArray(message.content) ? message.content : [])
+        if (part.type === 'tool_use') part.name = compatibleName(part.name);
+      if (wireBody.tool_choice?.type === 'tool') wireBody.tool_choice.name = compatibleName(wireBody.tool_choice.name);
+      // Native policy owns the compatible tool contract. The vendored system
+      // adds a Claude identity and a catalog using its escaped tool names.
+      wireBody.system = parsed.context.systemPrompt.filter(Boolean).map((text: string) => ({ type: 'text', text }));
+      built.body = JSON.stringify(wireBody);
+    }
     if (request.provider_id === 'anthropic' && Array.isArray(wireBody.tools)) {
       // A large custom-tool input is one JSON string. Buffered delivery can
       // hide generation from the native idle watchdog until that string ends.

@@ -4091,6 +4091,7 @@ mod tests {
             computer_use_mode: None,
             disabled_plugin_ids: Vec::new(),
             thread: codex_app_server_protocol::Thread {
+                auto_compaction_enabled: None,
                 originator: None,
                 environments: None,
                 id: thread_id.to_string(),
@@ -4127,6 +4128,8 @@ mod tests {
 
                     id: "turn-1".to_string(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items_view: codex_app_server_protocol::TurnItemsView::Full,
                     items: vec![
                         codex_app_server_protocol::ThreadItem::UserMessage {

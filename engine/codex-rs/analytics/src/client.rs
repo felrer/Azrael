@@ -863,6 +863,8 @@ fn session_event_to_analytics_notification(
                 turn: Turn {
                     started_at: started.started_at,
                     root_turn_id: started.root_turn_id.clone(),
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     ..analytics_turn(&started.turn_id, TurnStatus::InProgress)
                 },
             })
@@ -928,6 +930,8 @@ fn analytics_turn(turn_id: &str, status: TurnStatus) -> Turn {
 
         id: turn_id.to_string(),
         root_turn_id: None,
+        parent_turn_id: None,
+        turn_trigger: None,
         items: Vec::new(),
         items_view: TurnItemsView::NotLoaded,
         status,

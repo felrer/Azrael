@@ -294,6 +294,8 @@ mod thread_processor_behavior_tests {
 
             id: "live-turn".to_string(),
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: vec![ThreadItem::UserMessage {
                 id: "live-user-message".to_string(),
                 client_id: None,
@@ -687,6 +689,7 @@ mod thread_processor_behavior_tests {
             initial_turns_page: None,
         };
         let config_snapshot = ThreadConfigSnapshot {
+            auto_compaction_enabled: true,
             computer_use_mode: None,
             turn_extension_init: Default::default(),
             disabled_plugin_ids: Vec::new(),

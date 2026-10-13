@@ -28,6 +28,17 @@ function identity(namespace, name, kind) {
 function alias(namespace, name, kind) {
   return 'az_' + createHash('sha256').update(identity(namespace, name, kind)).digest('hex').slice(0, 40);
 }
+const CLAUDE_TOOL_NAMES = new Set(['Read', 'Edit', 'Write', 'Grep', 'Glob', 'Bash', 'Agent', 'Skill', 'ToolSearch', 'AskUserQuestion', 'TaskOutput', 'TaskStop']);
+export function harnessFingerprint(request) {
+  const profile = request.harness_profile;
+  if (profile === undefined) return undefined;
+  if (!object(profile) || ['id', 'fingerprint', 'tool_profile', 'prompt_profile'].some(key =>
+    !string(profile[key]) || !profile[key].trim() || bytes(profile[key]) > 1024 || /[\x00-\x1f\x7f]/.test(profile[key]))) fail('invalid_harness_profile');
+  return profile.fingerprint;
+}
+export function replayHarnessMatches(metadata, request) {
+  return metadata.harness_fingerprint === harnessFingerprint(request);
+}
 function plainText(content) {
   if (string(content)) return bounded(content);
   if (!Array.isArray(content)) fail('unsupported_content');
@@ -67,11 +78,19 @@ function multimodal(content, budget) {
 
 // The model-facing alias is request-scoped; the digest keeps history stable as
 // lazy tools are added. Return names resolve only within the current catalog.
-export function compileRequest(request, { promptFormat, compactToolSearchResults = false } = {}) {
+export function compileRequest(request, { promptFormat, compactToolSearchResults = false, actualAdapter } = {}) {
   if (!object(request) || request.protocol_version !== 1 || request.type !== 'request' ||
       !string(request.request_id) || !Array.isArray(request.input) || !Array.isArray(request.tools)) fail('invalid_request');
   if (!string(request.model) || !request.model.trim() || bytes(request.model) > 256 ||
       /[\x00-\x1f\x7f-\x9f]/.test(request.model)) fail('unsupported_native_model');
+  const profileFingerprint = harnessFingerprint(request);
+  const claudeProfile = request.harness_profile?.tool_profile === 'builtin/claude-code-core';
+  if (claudeProfile && (request.provider_id !== 'anthropic' || (request.model.startsWith('managed/') && !request.model.startsWith('managed/anthropic/')) || actualAdapter !== 'anthropic')) fail('harness_provider_mismatch');
+  const wireAlias = (namespace, name, kind) => {
+    identity(namespace, name, kind);
+    return claudeProfile && kind === 'function' && ['', 'functions'].includes(namespace) && CLAUDE_TOOL_NAMES.has(name)
+      ? name : alias(namespace, name, kind);
+  };
   const names = new Map();
   const acceptedNames = new Map();
   const tools = [];
@@ -86,10 +105,10 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
     if (!['function', 'custom', 'tool_search'].includes(kind)) fail('unsupported_tool_kind');
     if (kind === 'tool_search' && tool.execution !== 'client') fail('unsupported_hosted_search');
     const name = kind === 'tool_search' ? 'tool_search' : tool.name;
-    const wireName = alias(namespace, name, kind);
+    const wireName = wireAlias(namespace, name, kind);
     const owner = { namespace, name, kind };
     const prior = names.get(wireName);
-    if (prior) fail('duplicate_tool_identity');
+    if (prior) fail(prior.namespace === namespace && prior.name === name && prior.kind === kind ? 'duplicate_tool_identity' : 'tool_wire_name_collision');
     names.set(wireName, owner);
     for (const accepted of new Set([wireName, name, namespace ? namespace + '.' + name : name])) {
       const candidates = acceptedNames.get(accepted) ?? new Set();
@@ -107,8 +126,8 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
     tools.push({ name: wireName, description: bounded(description), parameters });
   }
   for (const tool of request.tools) declare(tool);
-  const searchHistory = compactToolSearchResults ? undefined : projectSearchHistory(request.input, names, alias);
-  const format = promptFormat === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
+  const searchHistory = compactToolSearchResults ? undefined : projectSearchHistory(request.input, names, wireAlias);
+  const format = !claudeProfile && promptFormat === 'anthropic-xml' ? anthropicPromptSection : (_tag, content) => content;
   const currentTaskIndex = request.input.findLastIndex(item => item?.type === 'message' && item.role === 'user');
   const messages = [];
   if (request.instructions) messages.push({ role: 'system', content: format('common_instructions', bounded(request.instructions)) });
@@ -162,7 +181,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
           kind === 'tool_search' ? JSON.stringify(item.arguments) : bounded(item.arguments);
         JSON.parse(args);
         const message = assistantMessage();
-        const historyAlias = alias(item.namespace ?? '', name, kind);
+        const historyAlias = wireAlias(item.namespace ?? '', name, kind);
         historyAliases.add(historyAlias);
         (message.tool_calls ??= []).push({ id, name: historyAlias, arguments: args });
         break;
@@ -182,7 +201,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
         // latest uncovered definition, including nested Code Mode helpers.
         messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify(
           compactToolSearchResults
-            ? { status: item.status, tools: compactSearchTools(item.tools, names), guidance: 'Call only names in the current tools catalog. Search again for other tools.' }
+            ? { status: item.status, tools: compactSearchTools(item.tools, names, wireAlias), guidance: 'Call only names in the current tools catalog. Search again for other tools.' }
             : searchHistory(item, index)
         ))) });
         break;
@@ -197,6 +216,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
           if (!item.encrypted_content.startsWith(prefix)) fail('opaque_reasoning_unsupported');
           const metadata = JSON.parse(Buffer.from(bounded(item.encrypted_content).slice(prefix.length), 'base64').toString('utf8'));
           if (metadata.model !== request.model || metadata.thread !== request.thread_id || metadata.account !== request.credential_scope || metadata.provider !== request.provider_id || metadata.turn !== request.turn_id) fail('reasoning_scope_mismatch_origin');
+          if (!replayHarnessMatches(metadata, request)) fail('reasoning_scope_mismatch_harness');
           appendAssistant('thinking', plainText(item.content?.length ? item.content : item.summary));
           const signature = bounded(metadata.signature ?? '');
           if (signature) assistantMessage().signature = signature;
@@ -207,10 +227,10 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   }
   // Base64 is ASCII and JSON-safe; the rebuilt data URL prefix stays within text slack.
   if (bytes(JSON.stringify({ messages, tools })) - images.bytes > MAX_BYTES) fail('context_limit');
-  return { messages, tools, names, acceptedNames, calls, historyAliases, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
+  return { messages, tools, names, acceptedNames, calls, historyAliases, claudeProfile, harnessFingerprint: profileFingerprint, parallel: request.parallel_tool_calls === true, model: request.model, thread: request.thread_id, account: request.credential_scope };
 }
 
-function compactSearchTools(specs, names) {
+function compactSearchTools(specs, names, wireAlias) {
   const selected = [];
   const seen = new Set();
   function visit(spec, namespace = '') {
@@ -218,7 +238,7 @@ function compactSearchTools(specs, names) {
     if (spec.type === 'namespace' && Array.isArray(spec.tools)) {
       for (const child of spec.tools) visit(child, spec.name);
     } else if (string(spec.name) && ['function', 'custom'].includes(spec.type)) {
-      const wireName = alias(namespace, spec.name, spec.type);
+      const wireName = wireAlias(namespace, spec.name, spec.type);
       if (names.has(wireName) && !seen.has(wireName)) {
         seen.add(wireName);
         selected.push({ name: wireName });
@@ -372,7 +392,7 @@ export async function mapStream(events, compiled, emit, requestId) {
   }
   if (reasoning || signature || opaqueCalls.length || compiled.opaque?.details?.length) emit({ type: 'item_done', item: {
     type: 'reasoning', summary: reasoning ? [{ type: 'summary_text', text: reasoning }] : [],
-    encrypted_content: signature || opaqueCalls.length || compiled.opaque?.details?.length ? 'azrael-managed-v1:' + Buffer.from(JSON.stringify({ provider: compiled.provider, model: compiled.model, thread: compiled.thread, turn: compiled.turn, account: compiled.account, signature, calls: opaqueCalls, reasoning_details: compiled.opaque?.details })).toString('base64') : null,
+    encrypted_content: signature || opaqueCalls.length || compiled.opaque?.details?.length ? 'azrael-managed-v1:' + Buffer.from(JSON.stringify({ provider: compiled.provider, model: compiled.model, thread: compiled.thread, turn: compiled.turn, account: compiled.account, harness_fingerprint: compiled.harnessFingerprint, signature, calls: opaqueCalls, reasoning_details: compiled.opaque?.details })).toString('base64') : null,
   } });
   for (const item of pending) emit({ type: 'item_done', item });
   emit({ type: 'completed', usage });

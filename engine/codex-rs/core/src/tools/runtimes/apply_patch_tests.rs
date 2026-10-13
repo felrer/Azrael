@@ -19,6 +19,79 @@ use codex_utils_path_uri::PathUri;
 use core_test_support::PathBufExt;
 use pretty_assertions::assert_eq;
 use std::collections::HashMap;
+
+#[tokio::test]
+async fn exact_write_preserves_bytes_and_rechecks_preimage_after_approval() {
+    let temp = tempfile::tempdir().unwrap();
+    let native = temp.path().join("exact.txt");
+    std::fs::write(&native, "안녕\r\n世界").unwrap();
+    let fs = codex_exec_server::LOCAL_FS.as_ref();
+    let path = fs
+        .canonicalize(&PathUri::from_host_native_path(&native).unwrap(), None)
+        .await
+        .unwrap();
+    let write = ExactFileWrite {
+        path: path.clone(),
+        expected_content: Some("안녕\r\n世界".into()),
+        content: "안녕\r\n수정".into(),
+    };
+    let delta = write.apply(fs, None, true).await.unwrap();
+    assert!(delta.is_exact());
+    assert_eq!(std::fs::read(&native).unwrap(), "안녕\r\n수정".as_bytes());
+    std::fs::write(&native, "external change").unwrap();
+    assert!(write.apply(fs, None, true).await.is_err());
+    assert_eq!(std::fs::read_to_string(&native).unwrap(), "external change");
+}
+
+#[tokio::test]
+async fn exact_new_write_creates_parents_but_rejects_a_newly_existing_target() {
+    let temp = tempfile::tempdir().unwrap();
+    let fs = codex_exec_server::LOCAL_FS.as_ref();
+    let native = temp.path().join("nested").join("new.txt");
+    let path = canonical_write_path(fs, &PathUri::from_host_native_path(&native).unwrap(), None)
+        .await
+        .unwrap();
+    let write = ExactFileWrite {
+        path,
+        expected_content: None,
+        content: "no final newline".into(),
+    };
+    write.apply(fs, None, true).await.unwrap();
+    assert_eq!(
+        std::fs::read_to_string(&native).unwrap(),
+        "no final newline"
+    );
+    assert!(write.apply(fs, None, true).await.is_err());
+    assert_eq!(
+        std::fs::read_to_string(&native).unwrap(),
+        "no final newline"
+    );
+}
+
+#[cfg(unix)]
+#[tokio::test]
+async fn exact_write_rejects_retargeted_symlink() {
+    let temp = tempfile::tempdir().unwrap();
+    let native = temp.path().join("target.txt");
+    let other = temp.path().join("other.txt");
+    std::fs::write(&native, "same").unwrap();
+    std::fs::write(&other, "same").unwrap();
+    let fs = codex_exec_server::LOCAL_FS.as_ref();
+    let path = fs
+        .canonicalize(&PathUri::from_host_native_path(&native).unwrap(), None)
+        .await
+        .unwrap();
+    std::fs::remove_file(&native).unwrap();
+    std::os::unix::fs::symlink(&other, &native).unwrap();
+    let write = ExactFileWrite {
+        path,
+        expected_content: Some("same".into()),
+        content: "changed".into(),
+    };
+    assert!(write.apply(fs, None, true).await.is_err());
+    assert_eq!(std::fs::read_to_string(&other).unwrap(), "same");
+}
+
 fn test_turn_environment(environment_id: &str) -> crate::session::turn_context::TurnEnvironment {
     crate::session::turn_context::TurnEnvironment::new(
         TurnEnvironmentSelection {
@@ -80,6 +153,7 @@ async fn approval_action_preserves_patch_path_uris() {
     let expected_cwd = action.cwd.clone();
     let expected_patch = action.patch.clone();
     let request = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment(codex_exec_server::LOCAL_ENVIRONMENT_ID),
         action,
         file_paths: vec![path.clone()],
@@ -117,6 +191,7 @@ async fn permission_request_payload_uses_apply_patch_hook_name_and_aliases() {
         ApplyPatchAction::new_add_for_test(&PathUri::from_abs_path(&path), "hello".to_string());
     let expected_patch = action.patch.clone();
     let req = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment(codex_exec_server::LOCAL_ENVIRONMENT_ID),
         action,
         file_paths: vec![PathUri::from_abs_path(&path)],
@@ -151,6 +226,7 @@ async fn approval_keys_include_environment_id() {
         .abs();
     let path_uri = PathUri::from_abs_path(&path);
     let req = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment("remote"),
         action: ApplyPatchAction::new_add_for_test(&path_uri, "hello".to_string()),
         file_paths: vec![path_uri.clone()],
@@ -186,6 +262,7 @@ async fn sandbox_cwd_uses_patch_action_cwd() {
         .join("apply-patch-runtime-sandbox-cwd.txt")
         .abs();
     let req = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment(codex_exec_server::LOCAL_ENVIRONMENT_ID),
         action: ApplyPatchAction::new_add_for_test(
             &PathUri::from_abs_path(&path),
@@ -217,6 +294,7 @@ async fn file_system_sandbox_context_preserves_executor_workspace_permissions() 
         )),
     };
     let req = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment(codex_exec_server::LOCAL_ENVIRONMENT_ID),
         action: ApplyPatchAction::new_add_for_test(
             &PathUri::from_abs_path(&path),
@@ -288,6 +366,7 @@ async fn file_system_sandbox_context_respects_sandbox_request() {
         .join("apply-patch-runtime-none.txt")
         .abs();
     let mut req = ApplyPatchRequest {
+        exact_write: None,
         turn_environment: test_turn_environment(codex_exec_server::LOCAL_ENVIRONMENT_ID),
         action: ApplyPatchAction::new_add_for_test(
             &PathUri::from_abs_path(&path),

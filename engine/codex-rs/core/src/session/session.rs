@@ -79,6 +79,7 @@ pub(crate) struct Session {
     pub(super) features: ManagedFeatures,
     pub(super) isolation: codex_extension_api::SessionIsolation,
     pub(crate) tool_policy: Arc<codex_extension_api::ToolPolicy>,
+    pub(crate) claude_file_state: Arc<crate::tools::handlers::claude_files::ClaudeFileState>,
     pub(crate) computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     pub(crate) windows_sandbox_proxy_settings_mode:
         codex_sandboxing::WindowsSandboxProxySettingsMode,
@@ -108,6 +109,8 @@ pub(crate) struct Session {
 
 #[derive(Clone)]
 pub(crate) struct SessionConfiguration {
+    /// Live thread-owned admission policy for automatic compaction.
+    pub(super) auto_compaction_enabled: bool,
     /// Native authentication remains available when this thread returns from ACP to OpenAI.
     pub(super) native_auth_manager: Option<Arc<AuthManager>>,
     /// Runtime provider and its provider-specific execution policy.
@@ -285,6 +288,7 @@ impl SessionConfiguration {
             .map(|config| config.permission_profile.clone())
             .unwrap_or_else(|| self.permission_profile_state.snapshot());
         ThreadConfigSnapshot {
+            auto_compaction_enabled: self.auto_compaction_enabled,
             computer_use_mode: None,
             model: self.step_settings.collaboration_mode.model().to_string(),
             model_provider_id: self.original_config_do_not_use.model_provider_id.clone(),
@@ -328,6 +332,7 @@ impl SessionConfiguration {
         environment_selections: &[TurnEnvironmentSelection],
     ) -> ThreadSettingsSnapshot {
         ThreadSettingsSnapshot {
+            auto_compaction_enabled: self.auto_compaction_enabled,
             model: self.step_settings.collaboration_mode.model().to_string(),
             model_provider_id: self.original_config_do_not_use.model_provider_id.clone(),
             service_tier: self.step_settings.service_tier.clone(),
@@ -351,6 +356,7 @@ impl SessionConfiguration {
         environment_selections: Vec<TurnEnvironmentSelection>,
     ) -> CodexThreadSettingsOverrides {
         CodexThreadSettingsOverrides {
+            auto_compaction_enabled: Some(self.auto_compaction_enabled),
             environments: Some(TurnEnvironmentRequests::new(
                 self.legacy_fallback_cwd.clone(),
                 environment_selections
@@ -415,6 +421,9 @@ impl SessionConfiguration {
         current_environments: &[TurnEnvironmentSelection],
     ) -> ConstraintResult<Self> {
         let mut next_configuration = self.clone();
+        if let Some(enabled) = updates.auto_compaction_enabled {
+            next_configuration.auto_compaction_enabled = enabled;
+        }
         if let Some(turn_extension_init) = &updates.turn_extension_init {
             next_configuration.turn_extension_init = turn_extension_init.clone();
         }
@@ -647,6 +656,7 @@ pub(crate) struct SessionSettingsCommit {
 
 #[derive(Default, Clone)]
 pub(crate) struct SessionSettingsUpdate {
+    pub(crate) auto_compaction_enabled: Option<bool>,
     pub(crate) step_settings: StepSettingsUpdate,
     /// Omission preserves the current data; an empty initializer clears it.
     pub(crate) turn_extension_init: Option<ExtensionDataInit>,
@@ -1919,6 +1929,7 @@ impl Session {
                 features: config.features.clone(),
                 isolation,
                 tool_policy,
+                claude_file_state: Arc::default(),
                 computer_use_mode,
                 windows_sandbox_proxy_settings_mode,
                 multi_agent_version,

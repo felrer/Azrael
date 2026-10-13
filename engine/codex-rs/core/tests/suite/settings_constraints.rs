@@ -186,6 +186,7 @@ async fn protected_model_settings_use_the_proposed_permissions(
     assert!(response.requests().is_empty());
 
     let expected = ThreadSettingsSnapshot {
+        auto_compaction_enabled: true,
         model: PROTECTED_MODEL.to_string(),
         collaboration_mode: initial.collaboration_mode.with_updates(
             Some(PROTECTED_MODEL.to_string()),

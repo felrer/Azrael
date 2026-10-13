@@ -167,6 +167,14 @@ pub(crate) async fn apply_bespoke_event_handling(
 
                     id: payload.turn_id.clone(),
                     root_turn_id: payload.root_turn_id.clone(),
+                    parent_turn_id: payload
+                        .turn_attribution
+                        .as_ref()
+                        .and_then(|attribution| attribution.parent_turn_id.clone()),
+                    turn_trigger: payload
+                        .turn_attribution
+                        .as_ref()
+                        .and_then(|attribution| attribution.turn_trigger.clone()),
                     items: Vec::new(),
                     items_view: TurnItemsView::NotLoaded,
                     error: None,
@@ -222,7 +230,13 @@ pub(crate) async fn apply_bespoke_event_handling(
             thread_watch_manager
                 .note_turn_deferred(&conversation_id.to_string())
                 .await;
-            emit_turn_deferred(conversation_id, payload, &outgoing).await;
+            let turn_attribution = thread_state
+                .lock()
+                .await
+                .last_turn_attribution
+                .clone()
+                .filter(|attribution| attribution.turn_id == payload.turn_id);
+            emit_turn_deferred(conversation_id, payload, turn_attribution, &outgoing).await;
         }
         EventMsg::McpStartupUpdate(update) => {
             let (status, error, failure_reason) = match update.status {
@@ -1342,6 +1356,8 @@ struct TurnCompletionMetadata {
     root_resume_wait: Option<codex_protocol::root_resume::RootResumeWait>,
     status: TurnStatus,
     root_turn_id: Option<String>,
+    parent_turn_id: Option<String>,
+    turn_trigger: Option<String>,
     error: Option<TurnError>,
     last_agent_message: Option<ThreadItem>,
     started_at: Option<i64>,
@@ -1352,6 +1368,7 @@ struct TurnCompletionMetadata {
 async fn emit_turn_deferred(
     conversation_id: ThreadId,
     event: TurnDeferredEvent,
+    turn_attribution: Option<codex_protocol::turn_input::TurnAttribution>,
     outgoing: &ThreadScopedOutgoingMessageSender,
 ) {
     let notification = TurnDeferredNotification {
@@ -1359,6 +1376,12 @@ async fn emit_turn_deferred(
         turn: Turn {
             id: event.turn_id,
             root_turn_id: event.root_turn_id,
+            parent_turn_id: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.parent_turn_id.clone()),
+            turn_trigger: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.turn_trigger.clone()),
             items: Vec::new(),
             items_view: TurnItemsView::NotLoaded,
             error: None,
@@ -1391,6 +1414,8 @@ async fn emit_turn_completed_with_status(
             root_resume_wait: turn_completion_metadata.root_resume_wait,
             id: event_turn_id,
             root_turn_id: turn_completion_metadata.root_turn_id,
+            parent_turn_id: turn_completion_metadata.parent_turn_id,
+            turn_trigger: turn_completion_metadata.turn_trigger,
             items,
             items_view,
             error: turn_completion_metadata.error,
@@ -1566,6 +1591,12 @@ async fn handle_turn_complete(
     outgoing: &ThreadScopedOutgoingMessageSender,
     thread_state: &Arc<Mutex<ThreadState>>,
 ) {
+    let turn_attribution = thread_state
+        .lock()
+        .await
+        .last_turn_attribution
+        .clone()
+        .filter(|attribution| attribution.turn_id == event_turn_id);
     let root_resume_wait = thread_state
         .lock()
         .await
@@ -1587,6 +1618,12 @@ async fn handle_turn_complete(
             root_resume_wait,
             status,
             root_turn_id: turn_complete_event.root_turn_id,
+            parent_turn_id: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.parent_turn_id.clone()),
+            turn_trigger: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.turn_trigger.clone()),
             error,
             last_agent_message,
             started_at: turn_summary.started_at,
@@ -1605,6 +1642,12 @@ async fn handle_turn_interrupted(
     outgoing: &ThreadScopedOutgoingMessageSender,
     thread_state: &Arc<Mutex<ThreadState>>,
 ) {
+    let turn_attribution = thread_state
+        .lock()
+        .await
+        .last_turn_attribution
+        .clone()
+        .filter(|attribution| attribution.turn_id == event_turn_id);
     let root_resume_wait = thread_state
         .lock()
         .await
@@ -1621,6 +1664,12 @@ async fn handle_turn_interrupted(
             root_resume_wait,
             status: TurnStatus::Interrupted,
             root_turn_id: turn_aborted_event.root_turn_id,
+            parent_turn_id: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.parent_turn_id.clone()),
+            turn_trigger: turn_attribution
+                .as_ref()
+                .and_then(|attribution| attribution.turn_trigger.clone()),
             error: turn_aborted_event.error.map(|error| TurnError {
                 message: error.message,
                 codex_error_info: error.codex_error_info.map(Into::into),
@@ -3568,7 +3617,13 @@ mod tests {
             state.track_current_turn_event(
                 &event_turn_id,
                 &EventMsg::TurnStarted(codex_protocol::protocol::TurnStartedEvent {
-                    turn_attribution: None,
+                    turn_attribution: Some(codex_protocol::turn_input::TurnAttribution {
+                        turn_id: event_turn_id.clone(),
+                        root_turn_id: Some("causal-root".into()),
+                        parent_turn_id: Some("origin".into()),
+                        turn_trigger: Some("user".into()),
+                        initiating_agent_path: None,
+                    }),
                     turn_id: event_turn_id.clone(),
                     root_turn_id: None,
                     trace_id: None,
@@ -3636,6 +3691,8 @@ mod tests {
         match msg {
             ServerNotification::TurnCompleted(n) => {
                 assert_eq!(n.turn.id, event_turn_id);
+                assert_eq!(n.turn.parent_turn_id.as_deref(), Some("origin"));
+                assert_eq!(n.turn.turn_trigger.as_deref(), Some("user"));
                 assert_eq!(n.turn.status, TurnStatus::Completed);
                 assert_eq!(n.turn.items_view, TurnItemsView::Summary);
                 assert!(matches!(
@@ -3672,6 +3729,13 @@ mod tests {
         emit_turn_deferred(
             conversation_id,
             turn_deferred_event(&event_turn_id),
+            Some(codex_protocol::turn_input::TurnAttribution {
+                turn_id: event_turn_id.clone(),
+                root_turn_id: Some("causal-root".into()),
+                parent_turn_id: Some("origin".into()),
+                turn_trigger: Some("root_resume".into()),
+                initiating_agent_path: None,
+            }),
             &outgoing,
         )
         .await;
@@ -3689,6 +3753,8 @@ mod tests {
 
                 id: event_turn_id,
                 root_turn_id: Some("causal-root".to_owned()),
+                parent_turn_id: Some("origin".into()),
+                turn_trigger: Some("root_resume".into()),
                 items: Vec::new(),
                 items_view: TurnItemsView::NotLoaded,
                 status: TurnStatus::Deferred,

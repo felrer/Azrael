@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 93150550,
+  "byteCount": 93242492,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11,7 +11,7 @@
     }
   },
   "excludedIgnoredPaths": [],
-  "fileCount": 9201,
+  "fileCount": 9206,
   "files": {
     ".bazelignore": {
       "gitMode": "100644",
@@ -1732,8 +1732,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "66480bf9f7a4cd69fb686bbdd509c82ea698495297a13645b589b56f29c4fc77",
-      "size": 6269
+      "sha256": "191fdc1e51991fbfc95e240e92574bc3f17fbe0bd27c2631fb341a33027d5040",
+      "size": 6261
     },
     "codex-rs/app-server-client/src/lib.rs": {
       "gitMode": "100644",
@@ -2271,8 +2271,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "404e1dfaecf0f72cd5dab4b2c58496602d36f585b8535955370e1c2c6778fc77",
-      "size": 219880
+      "sha256": "d79df4d1167564a096f8f26e65ae894986122f0b7d5454f7d497845429f49481",
+      "size": 219898
     },
     "codex-rs/app-server-protocol/schema/json/ServerRequest.json": {
       "gitMode": "100644",
@@ -2299,15 +2299,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "7701478a1657ab7202c89e9d73b6449c3001cc20cf6640f0d07540b193fbcd8d",
-      "size": 757561
+      "sha256": "0ca3fb68ef788eea85c27a44291335726b6ca8c0bfd919cbdf11060e09545f14",
+      "size": 758374
     },
     "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "e66f993d54c01bda257053748c5b0cf09af9fecac3cdcd595e6e2f58aa0ee405",
-      "size": 653180
+      "sha256": "cac9d6786a5b282404e9c7049c40e45da3765ee55ba61b466e4260fc6931440e",
+      "size": 653928
     },
     "codex-rs/app-server-protocol/schema/json/v1/InitializeParams.json": {
       "gitMode": "100644",
@@ -2530,8 +2530,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "51b726331342d2312784ae1c0a4d70480e44dd297342b15d12afc5922fe146ac",
-      "size": 31557
+      "sha256": "721c773d69e0cb9782652a1a89c760384d9ae278e4d597b59ec45279e4eb0549",
+      "size": 32306
     },
     "codex-rs/app-server-protocol/schema/json/v2/ConfigRequirementsReadResponse.json": {
       "gitMode": "100644",
@@ -4168,8 +4168,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "9cb2d9e641f0f264d3ba7e014989c055cfc1bc6030ebf902f2a0d150671ba7c9",
-      "size": 4106
+      "sha256": "052737433b81543df6d6e4a546e717cfdf77f8085e2c984591a5f1b7bb4c6dd4",
+      "size": 4124
     },
     "codex-rs/app-server-protocol/schema/json/v2/ThreadTurnsListParams.json": {
       "gitMode": "100644",
@@ -4350,15 +4350,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "2c5fbb463fb38054a2fdbd97e08cc75a7acf443399a7c886628abbd18bbde2f5",
-      "size": 172742
+      "sha256": "52f03c2f4e84a71154fdd40422304776cc00f4c582db1f9b5855bf001d130ed5",
+      "size": 172671
     },
     "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "c0b4d58e433d7aca287c1bed5d1a62f847402a2e89f46ad9f484503018031c4e",
-      "size": 166512
+      "sha256": "ebb541a503b1ad90da42a9b26084d0040f2125817bfda5ae68d574cf80104920",
+      "size": 166664
     },
     "codex-rs/app-server-protocol/schema/typescript/AbsolutePathBuf.ts": {
       "gitMode": "100644",
@@ -4406,8 +4406,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "fdf0f0a860ff2feae019223764343eea982af4afa562d35dfa067712dfab1b28",
-      "size": 220
+      "sha256": "998e9140a536c1086f8315aa4cce09e3cf18af5adccc739a6c08ecbce41fbc38",
+      "size": 230
     },
     "codex-rs/app-server-protocol/schema/typescript/AutoCompactTokenLimitScope.ts": {
       "gitMode": "100644",
@@ -4752,6 +4752,13 @@
       "sha256": "c1ed359d44cf4e71cf2293e18e4ea11a43f833d404d9e643d6f3b3eaac8974f8",
       "size": 262
     },
+    "codex-rs/app-server-protocol/schema/typescript/ModelAutoCompact.ts": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "bc60aeb2574cd8b96b50c34cd96890dea99d8491357162753f53693cf3076697",
+      "size": 348
+    },
     "codex-rs/app-server-protocol/schema/typescript/MultiAgentMode.ts": {
       "gitMode": "100644",
       "kind": "file",
@@ -4812,8 +4819,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "956ccaabf0fbd6a676ddf69de322907f49a914945644b82bce249c7d1dabf71f",
-      "size": 343
+      "sha256": "f3070f7d8dde02649297cbe5defef8aa0ebe82a8551844bd4d85725eed51fb40",
+      "size": 437
     },
     "codex-rs/app-server-protocol/schema/typescript/RealtimeConversationVersion.ts": {
       "gitMode": "100644",
@@ -5085,8 +5092,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "3156dfdac5b65a1acd61167b344a4fb0e9308e55a1c46599797f7357a6a0c6f3",
-      "size": 6603
+      "sha256": "fdbb823aae4aae0296d1585fd5f18e05df0bc7945971f803aba3a7a158b4e517",
+      "size": 6663
     },
     "codex-rs/app-server-protocol/schema/typescript/serde_json/JsonValue.ts": {
       "gitMode": "100644",
@@ -19316,8 +19323,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "5e1556f0ed7cf1d18ad04470c6ae02a5169478ed76eda0871ac4d6c3ec548200",
-      "size": 237415
+      "sha256": "8e9b54c35fde0bcf2c4d5069e995c8139f8c232191d7888121adeebb92f61b03",
+      "size": 238054
     },
     "codex-rs/core/gpt-5.1-codex-max_prompt.md": {
       "gitMode": "100644",
@@ -19785,8 +19792,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "e1c4d362c39a45dc6fee1dbcb9e2a19df79710883e44f832c1f75c3c69cb06ee",
-      "size": 32405
+      "sha256": "6736ab94fa9288b816a4e3711db6f4ceff27cb0b81e685ff49e35b6b86c8676a",
+      "size": 32683
     },
     "codex-rs/core/src/compact_model_fallback.rs": {
       "gitMode": "100644",
@@ -19820,15 +19827,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8a0ad0a5fe9a48eae8332ac381e9f9f7cdebe2db481c639606c6d71681929d86",
-      "size": 48962
+      "sha256": "b67b3bbc39b29a78a271d5ca66fced72c7b1efe4bc8b2a5334cd32811b556cf1",
+      "size": 49121
     },
     "codex-rs/core/src/compact_remote_v2_attempt.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "b9746c43272082137cb7a848c6c4cf04ef7eab94809fe4fdcfede6bf746609c3",
-      "size": 6267
+      "sha256": "fb3540ece7bd810eac0fef3cf9c46dbba734bc03bf80929da6c24cde8c967dec",
+      "size": 6344
     },
     "codex-rs/core/src/compact_remote_v2_image_budget_tests.rs": {
       "gitMode": "100644",
@@ -20292,6 +20299,20 @@
       "sha256": "3305111f51c072fd7b7f0abb183315a06a2ebf69b493cf956abee8f6bf60e63c",
       "size": 2201
     },
+    "codex-rs/core/src/context/instruction_state_projection.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "f6a21cf39ada6f31d588038a293efcd1df896391e75321f49f241b3e694e3a60",
+      "size": 7808
+    },
+    "codex-rs/core/src/context/instruction_state_projection_tests.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "b7363e76ccb14cfdf0bbde44d93522c461ef9bac5fd6ee3bb5abd337c1c6ae05",
+      "size": 13089
+    },
     "codex-rs/core/src/context/inter_agent_completion_message.rs": {
       "gitMode": "100644",
       "kind": "file",
@@ -20345,8 +20366,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "2ee50932b6bbae38b5e0c327da9e1c1c2a1f2dc4e68649ff52f380449abbcfa0",
-      "size": 6868
+      "sha256": "5845e4a82eaf1b11d5713d3223b6477e9a34faee3fdbb72c9c7cbe3655af310c",
+      "size": 6913
     },
     "codex-rs/core/src/context/model_switch_instructions.rs": {
       "gitMode": "100644",
@@ -20513,15 +20534,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "0d5a94965bea82b22126989d0dcdea0290fb23c3db5955b00ec33aedd32a0014",
-      "size": 1622
+      "sha256": "8d8fbb9441f906768d72f912babe4bd7cf4140e6f34ad2ea4ed7d580c63ca3fd",
+      "size": 2227
     },
     "codex-rs/core/src/context/world_state/apps_instructions_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "86b9d574f32bb5c63a111e4a7e98840fa3df7cd24fe37213eb17f198618b9a79",
-      "size": 2073
+      "sha256": "0235815bedc45770a9aa2f621f57b1b39efff342a079f9efaa84323326fd9acd",
+      "size": 2997
     },
     "codex-rs/core/src/context/world_state/base_instructions.rs": {
       "gitMode": "100644",
@@ -20597,15 +20618,22 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "03f0e6289bd13840e9b87cb9be4d0c9762f7c14b99a9167245a16aba6547add3",
-      "size": 1687
+      "sha256": "73e6a56aef3c5da32a4b99cef484ce4a732e3246480392ca837d4751ccfc4d4e",
+      "size": 2319
     },
     "codex-rs/core/src/context/world_state/environments_instructions_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "9a45ea098a9bf2178325b3d152a58e80fd86d7236080561d1a489a42cb90a5f2",
-      "size": 2028
+      "sha256": "17fb3144450635abbed5d6b5750917fb69da145a6f3b7868b00cef2a61c1e1bd",
+      "size": 2976
+    },
+    "codex-rs/core/src/context/world_state/instruction_removal.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "a154bddd1fece2af105e44a502172a7a34287ab96dacf91008c1c7fb351251e1",
+      "size": 784
     },
     "codex-rs/core/src/context/world_state/managed_developer_instructions.rs": {
       "gitMode": "100644",
@@ -20625,8 +20653,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "e50a2b454706c5cc4e91ee6522fd0f4b49cc75e8575e88ba34050c60baa9cf19",
-      "size": 23151
+      "sha256": "908a2d19cbf816a569978ba0299cf32f26eeb431e4c34d621def8f568a35b39e",
+      "size": 23177
     },
     "codex-rs/core/src/context/world_state/model.rs": {
       "gitMode": "100644",
@@ -20702,15 +20730,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "730c8f15af32e461b7a73c6f792a152d03c026d565067106594588a8ba8a4ad9",
-      "size": 1675
+      "sha256": "b329a33513971a16e3a85741aa0e2e719b86aa86f4f64ab23b5aed65f7ea68e7",
+      "size": 2294
     },
     "codex-rs/core/src/context/world_state/plugins_instructions_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "bb30ab14447caf830aafdba0eb982bc898ecc431709414e0f3ea79b11faaafa8",
-      "size": 2109
+      "sha256": "ec9c87cb0d6258832deac04ad452aa1c25badb141f6bef686e6f37fd6badbf7d",
+      "size": 3048
     },
     "codex-rs/core/src/context/world_state/realtime.rs": {
       "gitMode": "100644",
@@ -20751,8 +20779,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8764b5a6e57e7c1d3dee627767d9f76e7caac44d071695dd70bf3300b6741be2",
-      "size": 1909
+      "sha256": "023747894293f4cfb8c4728a65a8e3ec018d212c495412e27a2c296ed7437dc8",
+      "size": 2165
     },
     "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__collaboration_mode__tests__snapshots.snap": {
       "gitMode": "100644",
@@ -20772,8 +20800,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "26a95bfa1f74383f7457cc78f8854527cc632cef1403103bac8db58aacaf1730",
-      "size": 1738
+      "sha256": "bd46726e52bdf642a4b0966b5f1c1afa58403d8845df8172ed1926afc5cdec29",
+      "size": 2060
     },
     "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__multi_agent_mode__tests__snapshots.snap": {
       "gitMode": "100644",
@@ -20800,8 +20828,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "7663d0e9bf5fd7b2fe74d555ab7cfda223fb75b1e5a756216b00943923e70c92",
-      "size": 2656
+      "sha256": "f5ca0788e544583b64b985480f2953d9d3ef8c8eb983133d85d4fcc3944d98d4",
+      "size": 2928
     },
     "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__realtime__tests__snapshots.snap": {
       "gitMode": "100644",
@@ -20898,15 +20926,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "bb035855d5a6f4c85c144492bec8397f92e9c07a251e8aa02e4e551496248584",
-      "size": 60254
+      "sha256": "a6f513d1cb3b0bb1eb5d8714488ab242320dc4268d5d26ef9bf2236fd0009254",
+      "size": 70248
     },
     "codex-rs/core/src/context_manager/history_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "13b483228f51faa2d79e896e698fd9c74ff5815a752370083967962775a21131",
-      "size": 127944
+      "sha256": "a7751509356c514dda5ced4dcc9cb80bbb6fdcb1a3d300845a6d010d0ae893cf",
+      "size": 128556
     },
     "codex-rs/core/src/context_manager/history_user_authorization.rs": {
       "gitMode": "100644",
@@ -21395,8 +21423,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "101ae178138b495315267ec98f8471385fe5569f2f2083996796ed9333940b38",
-      "size": 13147
+      "sha256": "5f85b7ada296f0796fd85f42b976ce47230c93922e9b5184244e2e5f80f8f43a",
+      "size": 13168
     },
     "codex-rs/core/src/guardian/input_budget_tests.rs": {
       "gitMode": "100644",
@@ -21451,8 +21479,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "0e17a283810915e48b9ea930a3101a1d3178ed0e3f4fff2e96ac3d0c9fb79d09",
-      "size": 41666
+      "sha256": "d51588314463aefe598d5923198243fb264aeae04b914650f264a40b2fc13619",
+      "size": 41947
     },
     "codex-rs/core/src/guardian/review_session_context.rs": {
       "gitMode": "100644",
@@ -21584,15 +21612,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "eb5f051a27664693e7ed661d03625e69e167f360ef9d67c0f8e1e5b6a9169f84",
-      "size": 29076
+      "sha256": "1ae41eb9c9a7bb52878092cb81f1bd7f410d6d93eabf162280a7c7eb6c9f1ac9",
+      "size": 29442
     },
     "codex-rs/core/src/managed_catalog_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "910fe871e54f6db61260443388e7de78b7a39cc7d11900ea9d60511ae9087177",
-      "size": 25761
+      "sha256": "26206450fcda0a8f2fe0e2f9f72649db6eb663e2d5dbbc8fbff98fdfd64344ac",
+      "size": 26302
     },
     "codex-rs/core/src/managed_runtime.rs": {
       "gitMode": "100644",
@@ -22088,15 +22116,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "193307edaed37edc2af42126b4333cd22a0e29cc657211868503b0b727f9e5b6",
-      "size": 3513
+      "sha256": "9585db9a895a3731980c4670f8f39586828deab70565ffb877bc752072fcab29",
+      "size": 3881
     },
     "codex-rs/core/src/session/compact_input_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "ab665dcd0d400616dee786fe08c1c72c33d85353415a55975f8ea4655fadc2dc",
-      "size": 3990
+      "sha256": "9d2eb380e41d6611bb7a3400e034f7f21bdf9dad8520690c1c6f7eee1009799c",
+      "size": 4640
     },
     "codex-rs/core/src/session/config_refresh.rs": {
       "gitMode": "100644",
@@ -22123,8 +22151,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "aaebdf3eed8e4a9b5ef7e137564df9d547ef507811bb2f8f008a05c8af4d780c",
-      "size": 5673
+      "sha256": "99cd1996c6f79eb60bb661875b0fbf0aff13c89ecb098d61bc87cb72fc78fe86",
+      "size": 5693
     },
     "codex-rs/core/src/session/daemon_recovery.rs": {
       "gitMode": "100644",
@@ -22256,8 +22284,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "2c6c0c8c2c9440c1f095fccfbb2dd03fc88e248d8f7a521f042ca5a7cfc59287",
-      "size": 215168
+      "sha256": "f0bebbdb48e3aa4f5fc7a2be8a259b5caf25c4d8f9d5d4de79ad587029c730ac",
+      "size": 215947
     },
     "codex-rs/core/src/session/multi_agents.rs": {
       "gitMode": "100644",
@@ -22494,8 +22522,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "b69be05f771fca3230af81e05884a2737b1d2b7876427340581dfa21613bebfc",
-      "size": 131276
+      "sha256": "7c82f17a5c09986646a4f93b99f772696f531d92052e14f83d49b389291e0ade",
+      "size": 132001
     },
     "codex-rs/core/src/session/turn_context.rs": {
       "gitMode": "100644",
@@ -23236,8 +23264,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "c854e379aa626ef5a5a79690112d01f57fe3ccba4fa2f98223b8d89e927440ef",
-      "size": 40340
+      "sha256": "21c39fc2d27669bd32a5555da562dd08eebd897a2282e6131a60ccf5873e12f4",
+      "size": 40760
     },
     "codex-rs/core/src/tools/handlers/multi_agents_spec_tests.rs": {
       "gitMode": "100644",
@@ -23425,8 +23453,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "178b07d7feffef6a56fa4fb868606f5436c723ca7fbfe52ac7d0c84a350d2caf",
-      "size": 13074
+      "sha256": "7f32bacf8bbd2e36b29997685b8941fc6628613df731578e7a7a4ca3a36c43f8",
+      "size": 13206
     },
     "codex-rs/core/src/tools/handlers/send_message_to_user_async.rs": {
       "gitMode": "100644",
@@ -23488,15 +23516,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "090962efedb62763d1a87896cb040a264a771fa83bb3c860c18c3a7241adbda9",
-      "size": 22998
+      "sha256": "17443c677cf043d993aa2f097946040ccd83c589d83a79542b0d735c0ed7ffc8",
+      "size": 24637
     },
     "codex-rs/core/src/tools/handlers/tool_search_spec.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "fbf15aafa1f8919adf789dd2fa3b5e3b6eef8bf04a1a187ba50e9bea28354775",
-      "size": 9761
+      "sha256": "ea59810bf4ff05eac558481aedba15737cf0981fa271e96d2869d1aaffe5a988",
+      "size": 11013
     },
     "codex-rs/core/src/tools/handlers/unified_exec.rs": {
       "gitMode": "100644",
@@ -23600,8 +23628,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "d3c12f6720f3ca329a25fe20f2b5151bc6f3a687f46594e7708accdf70d9e617",
-      "size": 5389
+      "sha256": "bef9d6f4ccd142e7941d745cf1c1cfc974f8f66a028276018d383eea96ead350",
+      "size": 5633
     },
     "codex-rs/core/src/tools/multi_agent_tool.rs": {
       "gitMode": "100644",
@@ -23663,15 +23691,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "4fa1512ae05eaad992ebb4ef5bb66f1ff46555685f8162c9d814361a328ee067",
-      "size": 13762
+      "sha256": "ae57420b91b73868766f3200fc00ff231656edb4cf405683d48be8002fb9266f",
+      "size": 19354
     },
     "codex-rs/core/src/tools/router_tests.rs": {
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "8b5bb7c0a7b822afd4b75af0e82548d093e69c78cc1dbbe29f1d1e4ae7f0727b",
-      "size": 24630
+      "sha256": "d1419b181c823cb2b885f7c610c31ebeb9ff10ab0cea874a327cdcf98b76156c",
+      "size": 39047
     },
     "codex-rs/core/src/tools/runtimes/apply_patch.rs": {
       "gitMode": "100644",
@@ -23761,8 +23789,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "80fc0c8033da93f0aca2ff9cfb2a42a007b6947de178cf22bfae4ecf5fb09b23",
-      "size": 70517
+      "sha256": "799047f6364dd9d2202e94ca29e9b6d660720e5a3e2cd797ceb145224a84dad2",
+      "size": 71579
     },
     "codex-rs/core/src/tools/spec_plan_strict_third_party_tests.rs": {
       "gitMode": "100644",
@@ -23775,8 +23803,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "bef7a3b4e5b31813f4758f6b7aa40869b1f2c71bdaea56abcf7a4be0693748dc",
-      "size": 134464
+      "sha256": "889383d7ce68a50715b54e721337abbee626cb0f377292bbaa3bb5f9c4dbacd4",
+      "size": 136334
     },
     "codex-rs/core/src/tools/tool_dispatch_trace.rs": {
       "gitMode": "100644",
@@ -30341,8 +30369,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "ed6f285a836cf1ca7dd9576e1783ee16319669a8277153aa0cf8beb7278e5f7a",
-      "size": 27622
+      "sha256": "af76aeffa83467ec57898e3a6dbb25a94a45198786dce7ac3b656ca8b45cdda1",
+      "size": 27881
     },
     "codex-rs/ext/skills/src/extension_tests.rs": {
       "gitMode": "100644",
@@ -30376,8 +30404,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "b045264975fb256cf19b65159db1435b2f6da10338ef6f7187339bd4a3c5acc2",
-      "size": 4012
+      "sha256": "9da420e93203def233d46e63f08844270a84b97ffd67ebf31866f1c530c9421a",
+      "size": 13819
     },
     "codex-rs/ext/skills/src/host_roots.rs": {
       "gitMode": "100644",
@@ -30404,8 +30432,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "7682a78981881646e280612720bd3441dc930c1554ebdc869756fb7f5e80a1e1",
-      "size": 37902
+      "sha256": "8530e5d4dc08cc37149cff08bf038ae7cf851096267f4c4b4f8e248496066f7c",
+      "size": 37936
     },
     "codex-rs/ext/skills/src/host_snapshot.rs": {
       "gitMode": "100644",
@@ -30432,8 +30460,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "9c50a5d3e9aac4ae3a0f85988d7034b5135f9cca84eb788584052ccaa55dd99a",
-      "size": 1764
+      "sha256": "cf4c29882a70ea4fae529f242094fcf2c03f7aa326312308014c142c8ff41a51",
+      "size": 1814
     },
     "codex-rs/ext/skills/src/loader/discovery.rs": {
       "gitMode": "100644",
@@ -30719,8 +30747,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "a577411a1a516df3f3f310b0b1429f2b98e80d17cf14dbaceb76ae317ac5df78",
-      "size": 17981
+      "sha256": "7e410802ca49c453c598463a16bed37ce7d144a55f237222c6d58ff5441a70ba",
+      "size": 21893
     },
     "codex-rs/ext/skills/tests/executor_file_system_authority.rs": {
       "gitMode": "100644",
@@ -33379,8 +33407,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "cb8271c1205473180008ddc64d9d958bfc91d7a9d3ae96c8ca2aacc5aaad4193",
-      "size": 135318
+      "sha256": "f59f11d12e078d6bc682e3df52362558babc13068b6c8e8db654278124543032",
+      "size": 135879
     },
     "codex-rs/login/src/auth/manager/workspace_routing.rs": {
       "gitMode": "100644",
@@ -33414,8 +33442,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "34b5bdb7e360baced94e403ae99ca688d8234bf32c47cc5f0553e1cfdafb4b93",
-      "size": 25937
+      "sha256": "4cbe574405d03825f6e10f51b6aac079cd6f3e22c1334fbe9eb2458f5629cfbd",
+      "size": 25958
     },
     "codex-rs/login/src/auth/profiles_tests.rs": {
       "gitMode": "100644",
@@ -33435,8 +33463,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "1540c7fa8093789a3d97bb81e74e8c9f369c199042c0390b7f5b3e289544f267",
-      "size": 21741
+      "sha256": "b8221433710b012785bab4279b16f2782d2fa14c33e31366c327e07fe8ec69f0",
+      "size": 23101
     },
     "codex-rs/login/src/auth/storage_error.rs": {
       "gitMode": "100644",
@@ -33470,8 +33498,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "d86cf89fcf347627dbc4ed639d712dbdd625a5b8eebfe39d9db9b9cae2585473",
-      "size": 21561
+      "sha256": "9764d3da25c2989b10c35e34fa47becd2b4b9e6cd31e32f4b1712bd6930ec576",
+      "size": 25182
     },
     "codex-rs/login/src/auth/util.rs": {
       "gitMode": "100644",
@@ -34688,8 +34716,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "097b07a71d94ae6b3cf440fe2c82318945f8ce524c94898bafde7180ec754f0a",
-      "size": 19833
+      "sha256": "b42ee569ae6e0cc167825eea72157f45fcea10dffe106747976de02ab458abca",
+      "size": 19866
     },
     "codex-rs/models-manager/src/model_presets.rs": {
       "gitMode": "100644",
@@ -35906,8 +35934,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "133fe3eacfcaf47b0beffc59932b57bc568ce768ac697fb04691b16ebca268ba",
-      "size": 21507
+      "sha256": "5f225cd2e6b726cab231814e97186386e15315f298e9fd3c8e0e87ea42531cd7",
+      "size": 18436
     },
     "codex-rs/prompts/templates/compact/prompt.md": {
       "gitMode": "100644",
@@ -36137,8 +36165,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "6d75473eccce1e2fba18d6bc8e155bf7aea06744a7cfdc5062f4c8192127ba66",
-      "size": 7694
+      "sha256": "de8c92dfccc69b6f73ea8812d8475799227432bbca3788107a4db64e50499c40",
+      "size": 10292
     },
     "codex-rs/protocol/src/dynamic_tools.rs": {
       "gitMode": "100644",
@@ -40942,6 +40970,13 @@
       "sha256": "8677f0efa62849faf6776bb42b781e84a1ed0b24ac468c2c8761a2594358a6e8",
       "size": 2963
     },
+    "codex-rs/tools/src/api_context_policy.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "5fb8546909f740ed68c1ae4217faecf16408e7106600906666433f75a221a29e",
+      "size": 336
+    },
     "codex-rs/tools/src/code_mode.rs": {
       "gitMode": "100644",
       "kind": "file",
@@ -41058,8 +41093,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "7f756e3a4e8ef13b2925b6a59657728294bf7bc29878231d2c746a0035495dad",
-      "size": 5095
+      "sha256": "22b12a9f487abb11d4c3c97aa70cd2855d7aa039a1ea6dc834c6e2f429868617",
+      "size": 5178
     },
     "codex-rs/tools/src/mcp_tool.rs": {
       "gitMode": "100644",
@@ -64422,10 +64457,212 @@
     }
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
-  "inventoryCount": 9201,
-  "inventorySha256": "331697f99abf89045ec39b3d9ceb3d8f7acb313309738db5e225852dae33e965",
+  "inventoryCount": 9206,
+  "inventorySha256": "d2bc25586e3eea9eb1aaf2b02e0b1d1a75c634bc7e9b019d9da479152eecba97",
   "localIntegration": {
     "changes": {
+      "codex-rs/app-server-client/src/bin/azrael-bridge.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "191fdc1e51991fbfc95e240e92574bc3f17fbe0bd27c2631fb341a33027d5040",
+          "size": 6261
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "66480bf9f7a4cd69fb686bbdd509c82ea698495297a13645b589b56f29c4fc77",
+          "size": 6269
+        }
+      },
+      "codex-rs/app-server-protocol/schema/json/ServerNotification.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d79df4d1167564a096f8f26e65ae894986122f0b7d5454f7d497845429f49481",
+          "size": 219898
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "404e1dfaecf0f72cd5dab4b2c58496602d36f585b8535955370e1c2c6778fc77",
+          "size": 219880
+        }
+      },
+      "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.schemas.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "0ca3fb68ef788eea85c27a44291335726b6ca8c0bfd919cbdf11060e09545f14",
+          "size": 758374
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7701478a1657ab7202c89e9d73b6449c3001cc20cf6640f0d07540b193fbcd8d",
+          "size": 757561
+        }
+      },
+      "codex-rs/app-server-protocol/schema/json/codex_app_server_protocol.v2.schemas.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "cac9d6786a5b282404e9c7049c40e45da3765ee55ba61b466e4260fc6931440e",
+          "size": 653928
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "e66f993d54c01bda257053748c5b0cf09af9fecac3cdcd595e6e2f58aa0ee405",
+          "size": 653180
+        }
+      },
+      "codex-rs/app-server-protocol/schema/json/v2/ConfigReadResponse.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "721c773d69e0cb9782652a1a89c760384d9ae278e4d597b59ec45279e4eb0549",
+          "size": 32306
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "51b726331342d2312784ae1c0a4d70480e44dd297342b15d12afc5922fe146ac",
+          "size": 31557
+        }
+      },
+      "codex-rs/app-server-protocol/schema/json/v2/ThreadTokenUsageUpdatedNotification.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "052737433b81543df6d6e4a546e717cfdf77f8085e2c984591a5f1b7bb4c6dd4",
+          "size": 4124
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9cb2d9e641f0f264d3ba7e014989c055cfc1bc6030ebf902f2a0d150671ba7c9",
+          "size": 4106
+        }
+      },
+      "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-experimental.json.zst": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "52f03c2f4e84a71154fdd40422304776cc00f4c582db1f9b5855bf001d130ed5",
+          "size": 172671
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "2c5fbb463fb38054a2fdbd97e08cc75a7acf443399a7c886628abbd18bbde2f5",
+          "size": 172742
+        }
+      },
+      "codex-rs/app-server-protocol/schema/precomputed/app-server-exports-stable.json.zst": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ebb541a503b1ad90da42a9b26084d0040f2125817bfda5ae68d574cf80104920",
+          "size": 166664
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "c0b4d58e433d7aca287c1bed5d1a62f847402a2e89f46ad9f484503018031c4e",
+          "size": 166512
+        }
+      },
+      "codex-rs/app-server-protocol/schema/typescript/AutoCompactSource.ts": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "998e9140a536c1086f8315aa4cce09e3cf18af5adccc739a6c08ecbce41fbc38",
+          "size": 230
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "fdf0f0a860ff2feae019223764343eea982af4afa562d35dfa067712dfab1b28",
+          "size": 220
+        }
+      },
+      "codex-rs/app-server-protocol/schema/typescript/ModelAutoCompact.ts": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bc60aeb2574cd8b96b50c34cd96890dea99d8491357162753f53693cf3076697",
+          "size": 348
+        },
+        "before": null
+      },
+      "codex-rs/app-server-protocol/schema/typescript/ProviderAutoCompact.ts": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f3070f7d8dde02649297cbe5defef8aa0ebe82a8551844bd4d85725eed51fb40",
+          "size": 437
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "956ccaabf0fbd6a676ddf69de322907f49a914945644b82bce249c7d1dabf71f",
+          "size": 343
+        }
+      },
+      "codex-rs/app-server-protocol/schema/typescript/index.ts": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "fdbb823aae4aae0296d1585fd5f18e05df0bc7945971f803aba3a7a158b4e517",
+          "size": 6663
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "3156dfdac5b65a1acd61167b344a4fb0e9308e55a1c46599797f7357a6a0c6f3",
+          "size": 6603
+        }
+      },
+      "codex-rs/core/config.schema.json": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8e9b54c35fde0bcf2c4d5069e995c8139f8c232191d7888121adeebb92f61b03",
+          "size": 238054
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5e1556f0ed7cf1d18ad04470c6ae02a5169478ed76eda0871ac4d6c3ec548200",
+          "size": 237415
+        }
+      },
       "codex-rs/core/src/client.rs": {
         "after": {
           "gitMode": "100644",
@@ -64440,6 +64677,292 @@
           "permissions": 438,
           "sha256": "6c9238a941414cb6126a4ebb87fba929a97c5b8236839e54c31678a6ca6c47e0",
           "size": 125179
+        }
+      },
+      "codex-rs/core/src/compact.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "6736ab94fa9288b816a4e3711db6f4ceff27cb0b81e685ff49e35b6b86c8676a",
+          "size": 32683
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "e1c4d362c39a45dc6fee1dbcb9e2a19df79710883e44f832c1f75c3c69cb06ee",
+          "size": 32405
+        }
+      },
+      "codex-rs/core/src/compact_remote_v2.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b67b3bbc39b29a78a271d5ca66fced72c7b1efe4bc8b2a5334cd32811b556cf1",
+          "size": 49121
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8a0ad0a5fe9a48eae8332ac381e9f9f7cdebe2db481c639606c6d71681929d86",
+          "size": 48962
+        }
+      },
+      "codex-rs/core/src/compact_remote_v2_attempt.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "fb3540ece7bd810eac0fef3cf9c46dbba734bc03bf80929da6c24cde8c967dec",
+          "size": 6344
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b9746c43272082137cb7a848c6c4cf04ef7eab94809fe4fdcfede6bf746609c3",
+          "size": 6267
+        }
+      },
+      "codex-rs/core/src/context/instruction_state_projection.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f6a21cf39ada6f31d588038a293efcd1df896391e75321f49f241b3e694e3a60",
+          "size": 7808
+        },
+        "before": null
+      },
+      "codex-rs/core/src/context/instruction_state_projection_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b7363e76ccb14cfdf0bbde44d93522c461ef9bac5fd6ee3bb5abd337c1c6ae05",
+          "size": 13089
+        },
+        "before": null
+      },
+      "codex-rs/core/src/context/mod.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5845e4a82eaf1b11d5713d3223b6477e9a34faee3fdbb72c9c7cbe3655af310c",
+          "size": 6913
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "2ee50932b6bbae38b5e0c327da9e1c1c2a1f2dc4e68649ff52f380449abbcfa0",
+          "size": 6868
+        }
+      },
+      "codex-rs/core/src/context/world_state/apps_instructions.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8d8fbb9441f906768d72f912babe4bd7cf4140e6f34ad2ea4ed7d580c63ca3fd",
+          "size": 2227
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "0d5a94965bea82b22126989d0dcdea0290fb23c3db5955b00ec33aedd32a0014",
+          "size": 1622
+        }
+      },
+      "codex-rs/core/src/context/world_state/apps_instructions_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "0235815bedc45770a9aa2f621f57b1b39efff342a079f9efaa84323326fd9acd",
+          "size": 2997
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "86b9d574f32bb5c63a111e4a7e98840fa3df7cd24fe37213eb17f198618b9a79",
+          "size": 2073
+        }
+      },
+      "codex-rs/core/src/context/world_state/environments_instructions.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "73e6a56aef3c5da32a4b99cef484ce4a732e3246480392ca837d4751ccfc4d4e",
+          "size": 2319
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "03f0e6289bd13840e9b87cb9be4d0c9762f7c14b99a9167245a16aba6547add3",
+          "size": 1687
+        }
+      },
+      "codex-rs/core/src/context/world_state/environments_instructions_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "17fb3144450635abbed5d6b5750917fb69da145a6f3b7868b00cef2a61c1e1bd",
+          "size": 2976
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9a45ea098a9bf2178325b3d152a58e80fd86d7236080561d1a489a42cb90a5f2",
+          "size": 2028
+        }
+      },
+      "codex-rs/core/src/context/world_state/instruction_removal.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "a154bddd1fece2af105e44a502172a7a34287ab96dacf91008c1c7fb351251e1",
+          "size": 784
+        },
+        "before": null
+      },
+      "codex-rs/core/src/context/world_state/mod.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "908a2d19cbf816a569978ba0299cf32f26eeb431e4c34d621def8f568a35b39e",
+          "size": 23177
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "e50a2b454706c5cc4e91ee6522fd0f4b49cc75e8575e88ba34050c60baa9cf19",
+          "size": 23151
+        }
+      },
+      "codex-rs/core/src/context/world_state/plugins_instructions.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b329a33513971a16e3a85741aa0e2e719b86aa86f4f64ab23b5aed65f7ea68e7",
+          "size": 2294
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "730c8f15af32e461b7a73c6f792a152d03c026d565067106594588a8ba8a4ad9",
+          "size": 1675
+        }
+      },
+      "codex-rs/core/src/context/world_state/plugins_instructions_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ec9c87cb0d6258832deac04ad452aa1c25badb141f6bef686e6f37fd6badbf7d",
+          "size": 3048
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bb30ab14447caf830aafdba0eb982bc898ecc431709414e0f3ea79b11faaafa8",
+          "size": 2109
+        }
+      },
+      "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__apps_instructions__tests__snapshots.snap": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "023747894293f4cfb8c4728a65a8e3ec018d212c495412e27a2c296ed7437dc8",
+          "size": 2165
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8764b5a6e57e7c1d3dee627767d9f76e7caac44d071695dd70bf3300b6741be2",
+          "size": 1909
+        }
+      },
+      "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__environments_instructions__tests__snapshots.snap": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bd46726e52bdf642a4b0966b5f1c1afa58403d8845df8172ed1926afc5cdec29",
+          "size": 2060
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "26a95bfa1f74383f7457cc78f8854527cc632cef1403103bac8db58aacaf1730",
+          "size": 1738
+        }
+      },
+      "codex-rs/core/src/context/world_state/snapshots/codex_core__context__world_state__plugins_instructions__tests__snapshots.snap": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f5ca0788e544583b64b985480f2953d9d3ef8c8eb983133d85d4fcc3944d98d4",
+          "size": 2928
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7663d0e9bf5fd7b2fe74d555ab7cfda223fb75b1e5a756216b00943923e70c92",
+          "size": 2656
+        }
+      },
+      "codex-rs/core/src/context_manager/history.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "a6f513d1cb3b0bb1eb5d8714488ab242320dc4268d5d26ef9bf2236fd0009254",
+          "size": 70248
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bb035855d5a6f4c85c144492bec8397f92e9c07a251e8aa02e4e551496248584",
+          "size": 60254
+        }
+      },
+      "codex-rs/core/src/context_manager/history_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "a7751509356c514dda5ced4dcc9cb80bbb6fdcb1a3d300845a6d010d0ae893cf",
+          "size": 128556
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "13b483228f51faa2d79e896e698fd9c74ff5815a752370083967962775a21131",
+          "size": 127944
         }
       },
       "codex-rs/core/src/devin/native_diagnostic_policy.rs": {
@@ -64548,13 +65071,125 @@
           "size": 11941
         }
       },
+      "codex-rs/core/src/guardian/input_budget.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5f85b7ada296f0796fd85f42b976ce47230c93922e9b5184244e2e5f80f8f43a",
+          "size": 13168
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "101ae178138b495315267ec98f8471385fe5569f2f2083996796ed9333940b38",
+          "size": 13147
+        }
+      },
+      "codex-rs/core/src/guardian/review_session.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d51588314463aefe598d5923198243fb264aeae04b914650f264a40b2fc13619",
+          "size": 41947
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "0e17a283810915e48b9ea930a3101a1d3178ed0e3f4fff2e96ac3d0c9fb79d09",
+          "size": 41666
+        }
+      },
+      "codex-rs/core/src/managed_catalog.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "1ae41eb9c9a7bb52878092cb81f1bd7f410d6d93eabf162280a7c7eb6c9f1ac9",
+          "size": 29442
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "eb5f051a27664693e7ed661d03625e69e167f360ef9d67c0f8e1e5b6a9169f84",
+          "size": 29076
+        }
+      },
+      "codex-rs/core/src/managed_catalog_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "26206450fcda0a8f2fe0e2f9f72649db6eb663e2d5dbbc8fbff98fdfd64344ac",
+          "size": 26302
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "910fe871e54f6db61260443388e7de78b7a39cc7d11900ea9d60511ae9087177",
+          "size": 25761
+        }
+      },
+      "codex-rs/core/src/session/compact_input.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9585db9a895a3731980c4670f8f39586828deab70565ffb877bc752072fcab29",
+          "size": 3881
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "193307edaed37edc2af42126b4333cd22a0e29cc657211868503b0b727f9e5b6",
+          "size": 3513
+        }
+      },
+      "codex-rs/core/src/session/compact_input_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9d2eb380e41d6611bb7a3400e034f7f21bdf9dad8520690c1c6f7eee1009799c",
+          "size": 4640
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ab665dcd0d400616dee786fe08c1c72c33d85353415a55975f8ea4655fadc2dc",
+          "size": 3990
+        }
+      },
+      "codex-rs/core/src/session/context_window.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "99cd1996c6f79eb60bb661875b0fbf0aff13c89ecb098d61bc87cb72fc78fe86",
+          "size": 5693
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "aaebdf3eed8e4a9b5ef7e137564df9d547ef507811bb2f8f008a05c8af4d780c",
+          "size": 5673
+        }
+      },
       "codex-rs/core/src/session/mod.rs": {
         "after": {
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "2c6c0c8c2c9440c1f095fccfbb2dd03fc88e248d8f7a521f042ca5a7cfc59287",
-          "size": 215168
+          "sha256": "f0bebbdb48e3aa4f5fc7a2be8a259b5caf25c4d8f9d5d4de79ad587029c730ac",
+          "size": 215947
         },
         "before": {
           "gitMode": "100644",
@@ -64595,8 +65230,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "b69be05f771fca3230af81e05884a2737b1d2b7876427340581dfa21613bebfc",
-          "size": 131276
+          "sha256": "7c82f17a5c09986646a4f93b99f772696f531d92052e14f83d49b389291e0ade",
+          "size": 132001
         },
         "before": {
           "gitMode": "100644",
@@ -64604,6 +65239,150 @@
           "permissions": 438,
           "sha256": "9e9f481d03e74d0054894a0924dc255517b3c313b13dbdb024a72b5d7e113e26",
           "size": 130756
+        }
+      },
+      "codex-rs/core/src/tools/handlers/multi_agents_spec.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "21c39fc2d27669bd32a5555da562dd08eebd897a2282e6131a60ccf5873e12f4",
+          "size": 40760
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "c854e379aa626ef5a5a79690112d01f57fe3ccba4fa2f98223b8d89e927440ef",
+          "size": 40340
+        }
+      },
+      "codex-rs/core/src/tools/handlers/root_resume.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7f32bacf8bbd2e36b29997685b8941fc6628613df731578e7a7a4ca3a36c43f8",
+          "size": 13206
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "178b07d7feffef6a56fa4fb868606f5436c723ca7fbfe52ac7d0c84a350d2caf",
+          "size": 13074
+        }
+      },
+      "codex-rs/core/src/tools/handlers/tool_search.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "17443c677cf043d993aa2f097946040ccd83c589d83a79542b0d735c0ed7ffc8",
+          "size": 24637
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "090962efedb62763d1a87896cb040a264a771fa83bb3c860c18c3a7241adbda9",
+          "size": 22998
+        }
+      },
+      "codex-rs/core/src/tools/handlers/tool_search_spec.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ea59810bf4ff05eac558481aedba15737cf0981fa271e96d2869d1aaffe5a988",
+          "size": 11013
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "fbf15aafa1f8919adf789dd2fa3b5e3b6eef8bf04a1a187ba50e9bea28354775",
+          "size": 9761
+        }
+      },
+      "codex-rs/core/src/tools/mod.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bef9d6f4ccd142e7941d745cf1c1cfc974f8f66a028276018d383eea96ead350",
+          "size": 5633
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d3c12f6720f3ca329a25fe20f2b5151bc6f3a687f46594e7708accdf70d9e617",
+          "size": 5389
+        }
+      },
+      "codex-rs/core/src/tools/router.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ae57420b91b73868766f3200fc00ff231656edb4cf405683d48be8002fb9266f",
+          "size": 19354
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "4fa1512ae05eaad992ebb4ef5bb66f1ff46555685f8162c9d814361a328ee067",
+          "size": 13762
+        }
+      },
+      "codex-rs/core/src/tools/router_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d1419b181c823cb2b885f7c610c31ebeb9ff10ab0cea874a327cdcf98b76156c",
+          "size": 39047
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8b5bb7c0a7b822afd4b75af0e82548d093e69c78cc1dbbe29f1d1e4ae7f0727b",
+          "size": 24630
+        }
+      },
+      "codex-rs/core/src/tools/spec_plan.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "799047f6364dd9d2202e94ca29e9b6d660720e5a3e2cd797ceb145224a84dad2",
+          "size": 71579
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "80fc0c8033da93f0aca2ff9cfb2a42a007b6947de178cf22bfae4ecf5fb09b23",
+          "size": 70517
+        }
+      },
+      "codex-rs/core/src/tools/spec_plan_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "889383d7ce68a50715b54e721337abbee626cb0f377292bbaa3bb5f9c4dbacd4",
+          "size": 136334
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "bef7a3b4e5b31813f4758f6b7aa40869b1f2c71bdaea56abcf7a4be0693748dc",
+          "size": 134464
         }
       },
       "codex-rs/core/tests/suite/model_switching.rs": {
@@ -64622,6 +65401,150 @@
           "size": 54715
         }
       },
+      "codex-rs/ext/skills/src/extension.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "af76aeffa83467ec57898e3a6dbb25a94a45198786dce7ac3b656ca8b45cdda1",
+          "size": 27881
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "ed6f285a836cf1ca7dd9576e1783ee16319669a8277153aa0cf8beb7278e5f7a",
+          "size": 27622
+        }
+      },
+      "codex-rs/ext/skills/src/host_prompt.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9da420e93203def233d46e63f08844270a84b97ffd67ebf31866f1c530c9421a",
+          "size": 13819
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b045264975fb256cf19b65159db1435b2f6da10338ef6f7187339bd4a3c5acc2",
+          "size": 4012
+        }
+      },
+      "codex-rs/ext/skills/src/host_service_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "8530e5d4dc08cc37149cff08bf038ae7cf851096267f4c4b4f8e248496066f7c",
+          "size": 37936
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7682a78981881646e280612720bd3441dc930c1554ebdc869756fb7f5e80a1e1",
+          "size": 37902
+        }
+      },
+      "codex-rs/ext/skills/src/lib.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "cf4c29882a70ea4fae529f242094fcf2c03f7aa326312308014c142c8ff41a51",
+          "size": 1814
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9c50a5d3e9aac4ae3a0f85988d7034b5135f9cca84eb788584052ccaa55dd99a",
+          "size": 1764
+        }
+      },
+      "codex-rs/ext/skills/src/world_state_catalogs.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7e410802ca49c453c598463a16bed37ce7d144a55f237222c6d58ff5441a70ba",
+          "size": 21893
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "a577411a1a516df3f3f310b0b1429f2b98e80d17cf14dbaceb76ae317ac5df78",
+          "size": 17981
+        }
+      },
+      "codex-rs/login/src/auth/manager.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "f59f11d12e078d6bc682e3df52362558babc13068b6c8e8db654278124543032",
+          "size": 135879
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "cb8271c1205473180008ddc64d9d958bfc91d7a9d3ae96c8ca2aacc5aaad4193",
+          "size": 135318
+        }
+      },
+      "codex-rs/login/src/auth/profiles.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "4cbe574405d03825f6e10f51b6aac079cd6f3e22c1334fbe9eb2458f5629cfbd",
+          "size": 25958
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "34b5bdb7e360baced94e403ae99ca688d8234bf32c47cc5f0553e1cfdafb4b93",
+          "size": 25937
+        }
+      },
+      "codex-rs/login/src/auth/storage.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b8221433710b012785bab4279b16f2782d2fa14c33e31366c327e07fe8ec69f0",
+          "size": 23101
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "1540c7fa8093789a3d97bb81e74e8c9f369c199042c0390b7f5b3e289544f267",
+          "size": 21741
+        }
+      },
+      "codex-rs/login/src/auth/storage_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "9764d3da25c2989b10c35e34fa47becd2b4b9e6cd31e32f4b1712bd6930ec576",
+          "size": 25182
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "d86cf89fcf347627dbc4ed639d712dbdd625a5b8eebfe39d9db9b9cae2585473",
+          "size": 21561
+        }
+      },
       "codex-rs/models-manager/models.json": {
         "after": {
           "gitMode": "100644",
@@ -64636,6 +65559,22 @@
           "permissions": 438,
           "sha256": "3f58d243903788c79218b3708ddde63190aa8842a1384d50b784e8d83ec441ed",
           "size": 472652
+        }
+      },
+      "codex-rs/models-manager/src/model_info_tests.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b42ee569ae6e0cc167825eea72157f45fcea10dffe106747976de02ab458abca",
+          "size": 19866
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "097b07a71d94ae6b3cf440fe2c82318945f8ce524c94898bafde7180ec754f0a",
+          "size": 19833
         }
       },
       "codex-rs/prompts/src/root_coordination_instructions.rs": {
@@ -64654,6 +65593,38 @@
           "size": 9396
         }
       },
+      "codex-rs/prompts/templates/agent_behavior.md": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5f225cd2e6b726cab231814e97186386e15315f298e9fd3c8e0e87ea42531cd7",
+          "size": 18436
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "133fe3eacfcaf47b0beffc59932b57bc568ce768ac697fb04691b16ebca268ba",
+          "size": 21507
+        }
+      },
+      "codex-rs/protocol/src/context_policy.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "de8c92dfccc69b6f73ea8812d8475799227432bbca3788107a4db64e50499c40",
+          "size": 10292
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "6d75473eccce1e2fba18d6bc8e155bf7aea06744a7cfdc5062f4c8192127ba66",
+          "size": 7694
+        }
+      },
       "codex-rs/protocol/src/openai_models.rs": {
         "after": {
           "gitMode": "100644",
@@ -64668,6 +65639,32 @@
           "permissions": 438,
           "sha256": "354fe11de96aada5df1a4c609f78deaf88fd54436bd8bb92b97ad7a3b211c834",
           "size": 82114
+        }
+      },
+      "codex-rs/tools/src/api_context_policy.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "5fb8546909f740ed68c1ae4217faecf16408e7106600906666433f75a221a29e",
+          "size": 336
+        },
+        "before": null
+      },
+      "codex-rs/tools/src/lib.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "22b12a9f487abb11d4c3c97aa70cd2855d7aa039a1ea6dc834c6e2f429868617",
+          "size": 5178
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "7f756e3a4e8ef13b2925b6a59657728294bf7bc29878231d2c746a0035495dad",
+          "size": 5095
         }
       }
     },
@@ -129102,7 +130099,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "6d019304312a9a0aa50859df3673fbc2564602f4",
+    "repositoryHead": "14da708b16ff5c49689b3b45bcb2104bb0d2dabd",
     "schema": 2,
     "sourcePrefix": "engine"
   },

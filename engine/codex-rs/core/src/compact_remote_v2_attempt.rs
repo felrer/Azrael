@@ -105,6 +105,7 @@ pub(super) async fn run_remote_compact_v2_attempt(
             tool_router.model_visible_specs()
         },
         parallel_tool_calls: true,
+        harness_profile: Some(step_context.harness_profile.clone()),
         base_instructions,
         output_schema: None,
         output_schema_strict: true,

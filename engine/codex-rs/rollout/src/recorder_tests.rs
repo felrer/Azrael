@@ -1929,6 +1929,7 @@ async fn resume_candidate_matches_cwd_reads_latest_turn_context() -> std::io::Re
         timestamp: "2025-01-03T13:00:01Z".to_string(),
         ordinal: None,
         item: RolloutItem::TurnContext(TurnContextItem {
+            harness_profile: None,
             turn_id: Some("turn-1".to_string()),
             root_turn_id: None,
             disabled_plugin_ids: None,

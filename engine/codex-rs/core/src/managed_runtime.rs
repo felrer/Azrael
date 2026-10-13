@@ -29,6 +29,8 @@ struct RequestFrame<'a> {
     provider_id: &'a str,
     model: &'a str,
     instructions: &'a str,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    harness_profile: Option<HarnessProfileFrame<'a>>,
     input: &'a [ResponseItem],
     tools: &'a [codex_tools::ToolSpec],
     parallel_tool_calls: bool,
@@ -38,6 +40,19 @@ struct RequestFrame<'a> {
     fork_provider_ids: &'a [String],
     #[serde(skip_serializing_if = "Option::is_none")]
     api_options: Option<&'a serde_json::Value>,
+}
+
+#[derive(Serialize)]
+struct HarnessProfileFrame<'a> {
+    id: &'a str,
+    fingerprint: &'a str,
+    tool_profile: &'a str,
+    prompt_profile: &'a str,
+}
+impl<'a> From<&'a codex_config::harness_profiles::ResolvedHarnessProfile> for HarnessProfileFrame<'a> {
+    fn from(profile: &'a codex_config::harness_profiles::ResolvedHarnessProfile) -> Self {
+        Self { id: &profile.id, fingerprint: &profile.fingerprint, tool_profile: &profile.tool_profile, prompt_profile: &profile.prompt_profile }
+    }
 }
 
 /// Credential-free options captured at turn admission, shared by its steps and handoff.
@@ -281,6 +296,7 @@ async fn dispatch(
             provider_id: &provider,
             model,
             instructions: &prompt.base_instructions.text,
+            harness_profile: prompt.harness_profile.as_ref().map(HarnessProfileFrame::from),
             input: &prompt.input,
             tools: &prompt.tools,
             parallel_tool_calls: prompt.parallel_tool_calls

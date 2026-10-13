@@ -1,7 +1,7 @@
 "use strict";
 
 // Kept self-contained so the UI injector can serialize this function verbatim.
-function azraelTaskTimeGroups(turns, boundaries, nowMs) {
+function azraelTaskTimeGroups(turns, boundaries, nowMs, canonicalOnly = false) {
   const validMs = value => typeof value === "number" && Number.isFinite(value) && value >= 0;
   const seen = new Set();
   const groups = [];
@@ -9,6 +9,9 @@ function azraelTaskTimeGroups(turns, boundaries, nowMs) {
   let intervals;
   let occupiedEnd;
   let measuredFloor;
+  let reservations;
+  let roots;
+  const owners = new Map();
   const finish = () => {
     if (!group) return;
     intervals.sort((a, b) => a[0] - b[0]);
@@ -25,20 +28,39 @@ function azraelTaskTimeGroups(turns, boundaries, nowMs) {
     }
     // A contradictory coarse placement cannot erase measured sequential work.
     group.durationMs = Math.max(group.durationMs, measuredFloor);
+    group.resumeCount = reservations.size;
+    group.eligible = group.resumeCount >= 3;
+    group.firstTurnId = group.turnIds[0];
+    group.lastTurnId = group.turnIds.at(-1);
   };
   for (const turn of Array.isArray(turns) ? turns : []) {
     if (!turn || typeof turn.turnId !== "string" || !turn.turnId.trim() || seen.has(turn.turnId)) continue;
     seen.add(turn.turnId);
-    if (!group || (Object.prototype.hasOwnProperty.call(boundaries || {}, turn.turnId) && boundaries[turn.turnId] === true)) {
+    const explicit = Object.prototype.hasOwnProperty.call(boundaries || {}, turn.turnId) && typeof boundaries[turn.turnId] === "boolean";
+    const parent = owners.get(turn.parentTurnId);
+    const continuation = turn.turnTrigger === "root_resume" && parent === group &&
+      typeof turn.rootTurnId === "string" && turn.rootTurnId.trim() &&
+      roots?.has(turn.rootTurnId);
+    if (!group || (explicit ? boundaries[turn.turnId] : !continuation)) {
       finish();
       group = { id: turn.turnId, turnIds: [], durationMs: 0, partial: false, active: false, turns: [] };
       intervals = [];
       occupiedEnd = 0;
       measuredFloor = 0;
+      reservations = new Set();
+      roots = new Set();
       groups.push(group);
     }
     group.turnIds.push(turn.turnId);
     group.turns.push(turn);
+    owners.set(turn.turnId, group);
+    roots.add(turn.rootTurnId || turn.turnId);
+    if (turn.metadataPartial) group.partial = true;
+    const registration = turn.rootResumeWait;
+    if (registration && typeof registration.reservationId === "string" && registration.reservationId.trim() &&
+        validMs(registration.waitStartedAtMs) && ["waiting", "claimed", "resumed", "cancelled", "blocked"].includes(registration.state)) {
+      reservations.add(registration.reservationId);
+    }
     const addInterval = (start, end) => {
       if (validMs(start) && validMs(end)) {
         const stop = Math.max(start, end);
@@ -87,6 +109,15 @@ function azraelTaskTimeGroups(turns, boundaries, nowMs) {
     } else if (turn.status === "deferred") group.partial = true;
   }
   finish();
+  if (!canonicalOnly) {
+    const chains = azraelTaskTimeGroups(turns, {}, nowMs, true);
+    const chainByTurn = new Map(chains.flatMap(chain => chain.turnIds.map(id => [id, chain])));
+    for (const fragment of groups) {
+      const linked = [...new Set(fragment.turnIds.map(id => chainByTurn.get(id)))];
+      fragment.chainResumeCount = Math.max(0, ...linked.map(chain => chain.resumeCount));
+      fragment.eligible = linked.some(chain => chain.eligible);
+    }
+  }
   return groups;
 }
 

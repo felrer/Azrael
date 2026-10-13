@@ -316,6 +316,7 @@ fn thread_resume_response_round_trips_initial_turns_page() {
         computer_use_mode: None,
         disabled_plugin_ids: Vec::new(),
         thread: Thread {
+            auto_compaction_enabled: Some(true),
             originator: Some("future_client".to_string()),
             environments: Some(vec![ThreadEnvironment {
                 environment_id: "remote".to_string(),

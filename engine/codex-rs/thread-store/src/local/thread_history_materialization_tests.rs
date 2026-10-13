@@ -3477,3 +3477,157 @@ async fn paginated_mcp_history_caps_large_results() {
     assert!(preview.contains("chars truncated"));
     assert!(preview.contains("tail"));
 }
+
+#[tokio::test]
+async fn recorded_turn_attribution_replays_projection_v4_and_preserves_wait_timing() {
+    use codex_protocol::root_resume::{RootResumeState, RootResumeWait};
+    let home = TempDir::new().expect("temp dir");
+    let store = projection_store(home.path()).await;
+    let thread_id = ThreadId::default();
+    create_paginated_thread(&store, thread_id).await;
+    store
+        .persist_thread(thread_id, PersistContext::Standard)
+        .await
+        .expect("persist thread");
+    let waiting = RootResumeWait {
+        reservation_id: "reservation-attributed".into(),
+        revision: 1,
+        wait_started_at_ms: Some(12_000),
+        wait_ended_at_ms: None,
+        resume_at_ms: 30_000,
+        state: RootResumeState::Waiting,
+        can_wake_early: false,
+    };
+    let attributed = |id: &str, trigger: &str| {
+        let mut item = turn_started_with_root(id, "shared-root");
+        if let RolloutItem::EventMsg(EventMsg::TurnStarted(event)) = &mut item {
+            event.turn_attribution = Some(codex_protocol::turn_input::TurnAttribution {
+                turn_id: id.into(),
+                root_turn_id: Some("shared-root".into()),
+                parent_turn_id: Some("origin".into()),
+                turn_trigger: Some(trigger.into()),
+                initiating_agent_path: None,
+            });
+        }
+        item
+    };
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            items: vec![
+                attributed("automatic", "root_resume"),
+                RolloutItem::EventMsg(EventMsg::TurnDeferred(TurnDeferredEvent {
+                    root_turn_id: Some("shared-root".into()),
+                    turn_id: "automatic".into(),
+                    reservation_id: waiting.reservation_id.clone(),
+                    wait: Some(waiting.clone()),
+                    started_at: Some(10),
+                    deferred_at: Some(12),
+                    duration_ms: Some(2_000),
+                })),
+                attributed("replacement", "user"),
+                turn_completed("replacement"),
+                turn_started_with_root("old", "shared-root"),
+                turn_completed("old"),
+            ],
+        })
+        .await
+        .expect("append attributed history");
+    let rollout = store
+        .live_rollout_path(thread_id)
+        .await
+        .expect("rollout path");
+    super::materialize_to_sqlite(&store, thread_id, rollout.as_path())
+        .await
+        .expect("project history");
+    let pool = codex_state::open_thread_history_db(&codex_state::SqliteConfig::new_for_testing(
+        home.path().abs(),
+    ))
+    .await
+    .expect("history DB");
+    // Simulate the previous projection that had no attribution columns populated.
+    sqlx::query(
+        "UPDATE thread_turns SET parent_turn_id = NULL, turn_trigger = NULL WHERE thread_id = ?",
+    )
+    .bind(thread_id.to_string())
+    .execute(&pool)
+    .await
+    .expect("clear old attribution");
+    sqlx::query(
+        "UPDATE thread_history_projection_state SET projection_version = 4 WHERE thread_id = ?",
+    )
+    .bind(thread_id.to_string())
+    .execute(&pool)
+    .await
+    .expect("mark projection v4");
+    let raw_before = std::fs::read(rollout.as_path()).expect("raw rollout before replay");
+    super::materialize_to_sqlite(&store, thread_id, rollout.as_path())
+        .await
+        .expect("replay v4 projection");
+    assert_eq!(std::fs::read(rollout.as_path()).unwrap(), raw_before);
+    let rows = sqlx::query_as::<_, (String, Option<String>, Option<String>, Option<i64>, Option<i64>, Option<String>)>(
+        "SELECT turn_id, parent_turn_id, turn_trigger, completed_at, duration_ms, root_resume_wait_json FROM thread_turns WHERE thread_id = ? ORDER BY rollout_ordinal")
+        .bind(thread_id.to_string()).fetch_all(&pool).await.expect("read replayed metadata");
+    assert_eq!(rows[0].0, "automatic");
+    assert_eq!(rows[0].1.as_deref(), Some("origin"));
+    assert_eq!(rows[0].2.as_deref(), Some("root_resume"));
+    assert_eq!(rows[0].3, None);
+    assert_eq!(rows[0].4, Some(2_000));
+    assert_eq!(
+        serde_json::from_str::<RootResumeWait>(rows[0].5.as_deref().unwrap()).unwrap(),
+        waiting
+    );
+    assert_eq!(rows[1].2.as_deref(), Some("user"));
+    assert_eq!(rows[1].4, Some(10_000));
+    assert_eq!(rows[2].1, None);
+    assert_eq!(rows[2].2, None);
+    let mut metadata = codex_state::ThreadMetadataBuilder::new(
+        thread_id,
+        rollout.clone(),
+        Utc::now(),
+        SessionSource::Exec,
+    );
+    metadata.history_mode = ThreadHistoryMode::Paginated;
+    store
+        .state_db()
+        .await
+        .unwrap()
+        .upsert_thread(&metadata.build("test-provider"))
+        .await
+        .unwrap();
+    for items_view in [
+        StoredTurnItemsView::NotLoaded,
+        StoredTurnItemsView::Summary,
+    ] {
+        let page = store
+            .list_turns(ListTurnsParams {
+                thread_id,
+                include_archived: false,
+                cursor: None,
+                page_size: 10,
+                sort_direction: SortDirection::Asc,
+                items_view,
+            })
+            .await
+            .expect("list attributed turn metadata");
+        assert_eq!(page.turns[0].parent_turn_id.as_deref(), Some("origin"));
+        assert_eq!(page.turns[0].turn_trigger.as_deref(), Some("root_resume"));
+        assert_eq!(page.turns[0].root_resume_wait.as_ref(), Some(&waiting));
+        assert_eq!(page.turns[1].turn_trigger.as_deref(), Some("user"));
+        assert_eq!(page.turns[2].turn_trigger, None);
+        if matches!(items_view, StoredTurnItemsView::NotLoaded) {
+            assert!(page.turns.iter().all(|turn| turn.items.is_empty()));
+        }
+    }
+    let version: i64 = sqlx::query_scalar(
+        "SELECT projection_version FROM thread_history_projection_state WHERE thread_id = ?",
+    )
+    .bind(thread_id.to_string())
+    .fetch_one(&pool)
+    .await
+    .unwrap();
+    assert_eq!(
+        version,
+        super::super::thread_history::CURRENT_PROJECTION_VERSION
+    );
+}

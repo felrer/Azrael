@@ -37,6 +37,9 @@ class RecorderTests(unittest.TestCase):
             path = self.source / name
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(data)
+        migration = self.source / "codex-rs/state/migrations/0001_initial.sql"
+        migration.parent.mkdir(parents=True)
+        migration.write_bytes(b"SELECT 1;\n")
         self.git(self.source, "add", ".")
         self.git(self.source, "commit", "--quiet", "-m", "original")
         self.git(self.source, "tag", "rust-v0.159.3")
@@ -101,6 +104,138 @@ class RecorderTests(unittest.TestCase):
         receipt["localIntegration"]["schema"] = 1
         with self.assertRaisesRegex(ValueError, "cannot add"):
             importer.validate_receipt(self.destination, receipt)
+
+    def add_migration(self, name="codex-rs/state/migrations/0002_reviewed.sql", data=b"SELECT 2;\n"):
+        path = self.destination / name
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(data)
+        self.git(self.repo, "add", "engine/" + name)
+        return name
+
+    def record_migrations(self, names, expected=("edit.rs",), updating=False, adapted=()):
+        return recorder.record_changes(self.destination, self.baseline, self.digest, expected,
+                                       self.current_digest() if updating else None, adapted, names)
+
+    def test_explicit_migration_addition_then_rust_update_preserves_descriptor(self):
+        name = self.add_migration()
+        self.record_migrations((name,))
+        prior = self.receipt()
+        self.assertEqual(prior["localIntegration"]["schema"], 4)
+        self.assertIsNone(prior["localIntegration"]["changes"][name]["before"])
+        self.assertEqual(prior["localIntegration"]["migrationAdditions"][name], prior["files"][name])
+        importer.validate_receipt(self.destination, prior)
+        (self.destination / "other.rs").write_bytes(b"later review\n")
+        self.update(("other.rs",))
+        current = self.receipt()
+        self.assertEqual(current["localIntegration"]["schema"], 4)
+        self.assertEqual(current["localIntegration"]["migrationAdditions"], prior["localIntegration"]["migrationAdditions"])
+        self.assertEqual(current["localIntegration"]["originalReceipt"], self.original)
+        importer.validate_receipt(self.destination, current)
+        second = self.add_migration("codex-rs/state/migrations/0003_next.sql")
+        self.record_migrations((second,), expected=(), updating=True)
+        importer.validate_receipt(self.destination, self.receipt())
+
+    def test_migration_requires_explicit_flag(self):
+        name = self.add_migration()
+        for expected in (("edit.rs",), ("edit.rs", name)):
+            with self.subTest(expected=expected), self.assertRaises(ValueError):
+                self.record(expected)
+
+    def test_schema4_preserves_adapted_changes_and_migration_only_recording(self):
+        (self.destination / "edit.rs").write_bytes(b"original\n")
+        name = self.add_migration()
+        self.record_migrations((name,), expected=())
+        prior = self.receipt()["localIntegration"]["migrationAdditions"]
+        path = self.destination / importer.REPLAY_PATH
+        path.write_bytes(path.read_bytes() + b"// reviewed adaptation\n")
+        self.record_migrations((), expected=(), updating=True, adapted=(importer.REPLAY_PATH,))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["schema"], 4)
+        self.assertEqual(receipt["localIntegration"]["migrationAdditions"], prior)
+        self.assertIn(importer.REPLAY_PATH, receipt["localIntegration"]["adaptedChanges"])
+        importer.validate_receipt(self.destination, receipt)
+
+    def test_migration_requires_unique_flag_and_tracked_regular_mode(self):
+        name = self.add_migration()
+        with self.assertRaisesRegex(ValueError, "explicit and unique"):
+            self.record_migrations((name, name))
+        with self.assertRaisesRegex(ValueError, "explicit and unique"):
+            self.record_migrations((name,), expected=("edit.rs", name))
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/" + name)
+        with self.assertRaisesRegex(ValueError, "regular file descriptor"):
+            self.record_migrations((name,))
+        self.git(self.repo, "rm", "--cached", "engine/" + name)
+        with self.assertRaisesRegex(ValueError, "Git-tracked"):
+            self.record_migrations((name,))
+
+    def test_migration_cannot_modify_or_remove_existing_sql(self):
+        name = "codex-rs/state/migrations/0001_initial.sql"
+        for data in (b"SELECT 9;\n", None):
+            with self.subTest(data=data):
+                path = self.destination / name
+                path.write_bytes(data) if data is not None else path.unlink()
+                with self.assertRaises(ValueError):
+                    self.record_migrations((name,))
+                with self.assertRaises(ValueError):
+                    self.record(("edit.rs", name))
+
+    def test_prior_migration_addition_is_immutable(self):
+        name = self.add_migration()
+        self.record_migrations((name,))
+        original = (self.destination / name).read_bytes()
+        anchor = self.current_digest()
+        for data in (b"SELECT 9;\n", None):
+            with self.subTest(data=data):
+                path = self.destination / name
+                path.write_bytes(data) if data is not None else path.unlink()
+                for expected, migrations in ((("other.rs",), ()), ((), (name,)), ((name,), ())):
+                    with self.assertRaises(ValueError):
+                        recorder.record_changes(self.destination, self.baseline, self.digest, expected,
+                                                anchor, expected_migration_paths=migrations)
+                with self.assertRaises(ValueError):
+                    importer.validate_receipt(self.destination, self.receipt())
+                path.write_bytes(original)
+
+    def test_migration_rejects_old_conflicting_version_crlf_and_unsafe_owner(self):
+        cases = (("codex-rs/state/migrations/0000_old.sql", b"SELECT 2;\n"),
+                 ("codex-rs/state/migrations/0001_conflict.sql", b"SELECT 2;\n"),
+                 ("codex-rs/state/migrations/0002_crlf.sql", b"SELECT 2;\r\n"),
+                 ("codex-rs/state/unknown_migrations/0002_unsafe.sql", b"SELECT 2;\n"),
+                 ("codex-rs/state/queue_migrations/0002_unimported.sql", b"SELECT 2;\n"),
+                 ("codex-rs/state/migrations/not_numbered.sql", b"SELECT 2;\n"))
+        for name, data in cases:
+            with self.subTest(name=name):
+                self.add_migration(name, data)
+                with self.assertRaises(ValueError):
+                    self.record_migrations((name,))
+                self.git(self.repo, "rm", "--cached", "engine/" + name)
+                (self.destination / name).unlink()
+        with self.assertRaises(ValueError):
+            self.record_migrations(("codex-rs/state/migrations/../0002_escape.sql",))
+        names = (self.add_migration(), self.add_migration("codex-rs/state/migrations/2_conflict.sql"))
+        with self.assertRaisesRegex(ValueError, "unique new version"):
+            self.record_migrations(names)
+
+    def test_schema4_requires_pinned_cumulative_migration_descriptor(self):
+        name = self.add_migration()
+        self.record_migrations((name,))
+        good = self.receipt()
+        for mode in ("schema", "missing", "descriptor", "empty", "adapted"):
+            with self.subTest(mode=mode):
+                bad = copy.deepcopy(good)
+                integration = bad["localIntegration"]
+                if mode == "schema":
+                    integration["schema"] = 2
+                elif mode == "missing":
+                    del integration["migrationAdditions"]
+                elif mode == "descriptor":
+                    integration["migrationAdditions"][name]["sha256"] = "0" * 64
+                elif mode == "empty":
+                    integration["migrationAdditions"] = {}
+                else:
+                    integration["adaptedChanges"] = {}
+                with self.assertRaises(ValueError):
+                    importer.validate_receipt(self.destination, bad)
 
     def test_reviewed_prompt_addition_preserves_provenance(self):
         name = "codex-rs/prompts/templates/agent_behavior.md"

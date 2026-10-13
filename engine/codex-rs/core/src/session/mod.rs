@@ -870,6 +870,9 @@ impl Session {
             get_service_tier(config.service_tier.clone(), &config.features, &model_info);
         let storage_originator = AuthStorageOriginator::from_client_name(&originator);
         let session_configuration = SessionConfiguration {
+            auto_compaction_enabled: thread_settings::initial_auto_compaction_enabled(
+                &conversation_history,
+            ),
             native_auth_manager: Some(Arc::clone(&auth_manager)),
             turn_extension_init,
             provider: create_model_provider(
@@ -1577,30 +1580,43 @@ impl Session {
         }
     }
 
-    /// Refresh common behavior on the request copy, preserving explicit custom instructions.
+    /// Refresh behavior against the current selection for callers outside a sampling step.
     pub(crate) async fn get_prompt_base_instructions(&self) -> BaseInstructions {
         let config = self.get_config().await;
+        let model = config.model.as_deref().unwrap_or_default();
+        let profile = step_context::resolve_harness_profile(&config, model)
+            .expect("configuration validates harness profiles before session admission");
+        self.get_harness_base_instructions(&profile, &config, model).await
+    }
+
+    pub(crate) async fn get_step_base_instructions(&self, step: &StepContext) -> BaseInstructions {
+        self.get_harness_base_instructions(
+            &step.harness_profile,
+            &step.turn.config,
+            &step.settings.model_info.slug,
+        ).await
+    }
+
+    pub(crate) async fn get_harness_base_instructions(
+        &self,
+        profile: &codex_config::harness_profiles::ResolvedHarnessProfile,
+        config: &Config,
+        model: &str,
+    ) -> BaseInstructions {
         let mut instructions = self.get_base_instructions().await;
-        let custom = (!matches!(
-            instructions.provenance,
-            Some(BaseInstructionsProvenance::Model { .. })
-        ))
-        .then_some(instructions.text.as_str());
-        instructions.text = codex_prompts::compose_agent_instructions(custom);
-        if !config.update_plan_enabled
-            && config.model_catalog.is_none()
-            && matches!(
-                instructions.provenance,
-                Some(BaseInstructionsProvenance::Model { .. })
-            )
-        {
-            BaseInstructions {
-                text: codex_prompts::without_update_plan_instructions(&instructions.text),
-                ..instructions
-            }
-        } else {
-            instructions
+        let custom = (!matches!(instructions.provenance, Some(BaseInstructionsProvenance::Model { .. })))
+            .then_some(instructions.text.as_str());
+        instructions.text = codex_prompts::compose_harness_instructions(
+            &profile.prompt_variant, profile.behavior_template.as_deref(), profile.uses_claude_tools(), custom,
+        );
+        if model.starts_with("api/") {
+            instructions.text = codex_prompts::project_api_base_instructions(&instructions.text);
         }
+        if !config.update_plan_enabled && config.model_catalog.is_none()
+            && matches!(instructions.provenance, Some(BaseInstructionsProvenance::Model { .. })) {
+            instructions.text = codex_prompts::without_update_plan_instructions(&instructions.text);
+        }
+        instructions
     }
 
     // Merges connector IDs into the session-level explicit connector selection.
@@ -2010,6 +2026,13 @@ impl Session {
             }
             // Save new environment defaults for future turns. The running turn keeps its own.
             state.session_configuration = updated;
+            if let Some(mut info) = state.token_info() {
+                if let Some(policy) = info.context_policy.as_mut() {
+                    policy.auto_compaction_enabled =
+                        state.session_configuration.auto_compaction_enabled;
+                }
+                state.set_token_info(Some(info));
+            }
             if root_service_tier_changed {
                 self.services.agent_control.propagate_config_update(
                     AgentConfigUpdate::ServiceTier(
@@ -3932,6 +3955,7 @@ impl Session {
             tool_router,
             extension_data,
         ) = prepared_tools??;
+        let harness_profile = step_context::resolve_harness_profile(&turn_context.config, &settings.model_info.slug)?;
         Ok(Arc::new(StepContext {
             preempt: turn_context
                 .config
@@ -3940,6 +3964,7 @@ impl Session {
                 .then(CancellationToken::new),
             realtime: self.conversation.snapshot().await,
             settings,
+            harness_profile,
             token_budget,
             session_telemetry,
             turn: turn_context,
@@ -5021,6 +5046,7 @@ impl Session {
                 context_policy: None,
             });
             info.model_context_window = model_info.usable_context_window();
+            policy.auto_compaction_enabled = state.session_configuration.auto_compaction_enabled;
             info.context_policy = Some(policy);
             state.set_token_info(Some(info));
         }
@@ -5046,6 +5072,9 @@ impl Session {
                     )
                 ),
             ));
+        }
+        if let Some(policy) = info.as_mut().and_then(|info| info.context_policy.as_mut()) {
+            policy.auto_compaction_enabled = self.auto_compaction_enabled().await;
         }
         let event = EventMsg::TokenCount(TokenCountEvent { info, rate_limits });
         self.send_event(turn_context, event).await;

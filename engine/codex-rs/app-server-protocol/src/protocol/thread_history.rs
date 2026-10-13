@@ -107,6 +107,8 @@ pub struct ThreadHistoryItemChange {
 pub struct ThreadHistoryTurnMetadata {
     pub turn_id: String,
     pub root_turn_id: Option<String>,
+    pub parent_turn_id: Option<String>,
+    pub turn_trigger: Option<String>,
     pub status: TurnStatus,
     pub error: Option<TurnError>,
     pub started_at: Option<i64>,
@@ -139,6 +141,8 @@ impl From<ThreadHistoryTurnMetadata> for Turn {
         Self {
             id: value.turn_id,
             root_turn_id: value.root_turn_id,
+            parent_turn_id: value.parent_turn_id,
+            turn_trigger: value.turn_trigger,
             items: Vec::new(),
             items_view: TurnItemsView::NotLoaded,
             error: value.error,
@@ -156,6 +160,8 @@ impl ThreadHistoryTurnMetadata {
         Self {
             turn_id: turn.id.clone(),
             root_turn_id: turn.root_turn_id.clone(),
+            parent_turn_id: turn.parent_turn_id.clone(),
+            turn_trigger: turn.turn_trigger.clone(),
             status: turn.status.clone(),
             error: turn.error.clone(),
             started_at: turn.started_at,
@@ -1314,6 +1320,10 @@ impl ThreadHistoryBuilder {
             .with_started_at(payload.started_at)
             .opened_explicitly();
         turn.root_turn_id = payload.root_turn_id.clone();
+        if let Some(attribution) = &payload.turn_attribution {
+            turn.parent_turn_id = attribution.parent_turn_id.clone();
+            turn.turn_trigger = attribution.turn_trigger.clone();
+        }
         self.record_changed_pending_turn(&turn);
         self.current_turn = Some(turn);
     }
@@ -1406,6 +1416,8 @@ impl ThreadHistoryBuilder {
             changed = Some(ThreadHistoryTurnMetadata {
                 turn_id: turn.id.clone(),
                 root_turn_id: turn.root_turn_id.clone(),
+                parent_turn_id: turn.parent_turn_id.clone(),
+                turn_trigger: turn.turn_trigger.clone(),
                 status: turn.status.clone(),
                 error: turn.error.clone(),
                 started_at: turn.started_at,
@@ -1494,6 +1506,8 @@ impl ThreadHistoryBuilder {
 
             id,
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items: Vec::new(),
             item_index: TurnItemIndex::default(),
             error: None,
@@ -1774,6 +1788,8 @@ impl TurnItemIndex {
 struct PendingTurn {
     id: String,
     root_turn_id: Option<String>,
+    parent_turn_id: Option<String>,
+    turn_trigger: Option<String>,
     items: Vec<ThreadItem>,
     item_index: TurnItemIndex,
     error: Option<TurnError>,
@@ -1812,6 +1828,8 @@ impl PendingTurn {
         Turn {
             id: self.id.clone(),
             root_turn_id: self.root_turn_id.clone(),
+            parent_turn_id: self.parent_turn_id.clone(),
+            turn_trigger: self.turn_trigger.clone(),
             items: items_view.project_items(&self.items),
             items_view,
             error: self.error.clone(),
@@ -1829,6 +1847,8 @@ impl From<PendingTurn> for Turn {
         Self {
             id: value.id,
             root_turn_id: value.root_turn_id,
+            parent_turn_id: value.parent_turn_id,
+            turn_trigger: value.turn_trigger,
             items: value.items,
             items_view: TurnItemsView::Full,
             error: value.error,
@@ -1908,6 +1928,73 @@ mod tests {
             id: id.to_string(),
             duration_ms,
         })
+    }
+
+    #[test]
+    fn stored_turn_attribution_survives_history_and_live_metadata_views() {
+        for trigger in ["user", "root_resume"] {
+            let started = EventMsg::TurnStarted(TurnStartedEvent {
+                turn_id: "turn-attributed".into(),
+                root_turn_id: Some("root-shared".into()),
+                turn_attribution: Some(codex_protocol::turn_input::TurnAttribution {
+                    turn_id: "turn-attributed".into(),
+                    root_turn_id: Some("root-shared".into()),
+                    parent_turn_id: Some("parent-turn".into()),
+                    turn_trigger: Some(trigger.into()),
+                    initiating_agent_path: None,
+                }),
+                trace_id: None,
+                started_at: Some(10),
+                model_context_window: None,
+                collaboration_mode_kind: Default::default(),
+            });
+            let mut builder = ThreadHistoryBuilder::new();
+            let changes = builder.handle_rollout_item_with_changes(&RolloutItem::EventMsg(started));
+            let wire: Turn = changes.changed_turns[0].clone().into();
+            assert_eq!(wire.items_view, TurnItemsView::NotLoaded);
+            assert_eq!(wire.parent_turn_id.as_deref(), Some("parent-turn"));
+            assert_eq!(wire.turn_trigger.as_deref(), Some(trigger));
+            for view in [
+                TurnItemsView::NotLoaded,
+                TurnItemsView::Summary,
+                TurnItemsView::Full,
+            ] {
+                let live = builder.active_turn_snapshot_with_items_view(view).unwrap();
+                assert_eq!(live.parent_turn_id, wire.parent_turn_id);
+                assert_eq!(live.turn_trigger, wire.turn_trigger);
+            }
+            builder.handle_event(&EventMsg::TurnComplete(TurnCompleteEvent {
+                turn_id: "turn-attributed".into(),
+                root_turn_id: None,
+                last_agent_message: None,
+                error: None,
+                started_at: None,
+                completed_at: Some(20),
+                duration_ms: Some(10_000),
+                time_to_first_token_ms: None,
+            }));
+            let history = builder.finish();
+            assert_eq!(history[0].parent_turn_id, wire.parent_turn_id);
+            assert_eq!(history[0].turn_trigger, wire.turn_trigger);
+            let json = serde_json::to_value(&history[0]).unwrap();
+            assert_eq!(json["parentTurnId"], "parent-turn");
+            assert_eq!(json["turnTrigger"], trigger);
+        }
+    }
+
+    #[test]
+    fn old_turn_wire_absence_remains_unknown() {
+        let turn: Turn = serde_json::from_value(serde_json::json!({
+            "id": "old-turn", "rootTurnId": "shared-root", "items": [],
+            "status": "completed", "error": null, "startedAt": null,
+            "completedAt": null, "durationMs": null
+        }))
+        .unwrap();
+        assert_eq!(turn.parent_turn_id, None);
+        assert_eq!(turn.turn_trigger, None);
+        let json = serde_json::to_value(turn).unwrap();
+        assert!(json["parentTurnId"].is_null());
+        assert!(json["turnTrigger"].is_null());
     }
 
     #[test]
@@ -2783,6 +2870,8 @@ mod tests {
 
                 id: "turn-image".into(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Completed,
                 error: None,
                 started_at: None,
@@ -4240,6 +4329,8 @@ mod tests {
 
             turn_id: "turn-1".into(),
             root_turn_id: Some("root-turn".into()),
+            parent_turn_id: None,
+            turn_trigger: None,
             error: None,
             status: TurnStatus::InProgress,
             started_at: Some(100),
@@ -4576,6 +4667,8 @@ mod tests {
 
                     id: "turn-a".into(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items_view: TurnItemsView::Full,
                     items: vec![ThreadItem::UserMessage {
                         id: "item-1".into(),
@@ -4604,6 +4697,8 @@ mod tests {
 
                     id: "turn-b".into(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     items_view: TurnItemsView::Full,
                     items: vec![ThreadItem::UserMessage {
                         id: "item-2".into(),
@@ -4746,6 +4841,8 @@ mod tests {
 
                 id: "turn-compact".into(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Completed,
                 error: None,
                 started_at: None,
@@ -5029,6 +5126,8 @@ mod tests {
 
                 id: "turn-a".into(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 status: TurnStatus::Completed,
                 error: None,
                 started_at: None,
@@ -5157,6 +5256,8 @@ mod tests {
 
                 id: "turn-a".into(),
                 root_turn_id: None,
+                parent_turn_id: None,
+                turn_trigger: None,
                 items_view: TurnItemsView::Full,
                 items: vec![ThreadItem::UserMessage {
                     id: "item-1".into(),
@@ -5445,6 +5546,8 @@ mod tests {
 
                     turn_id: "rollout-0".into(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::Completed,
                     error: None,
                     started_at: None,
@@ -5559,6 +5662,8 @@ mod tests {
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::InProgress,
                     error: None,
                     started_at: Some(10),
@@ -5602,6 +5707,8 @@ mod tests {
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::Completed,
                     error: None,
                     started_at: Some(10),
@@ -5653,6 +5760,8 @@ mod tests {
 
                     turn_id: "rollout-0".into(),
                     root_turn_id: None,
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::Completed,
                     error: None,
                     started_at: None,
@@ -5699,6 +5808,8 @@ mod tests {
 
                     turn_id: "turn-a".into(),
                     root_turn_id: Some("root-turn".into()),
+                    parent_turn_id: None,
+                    turn_trigger: None,
                     status: TurnStatus::Completed,
                     error: None,
                     started_at: Some(10),

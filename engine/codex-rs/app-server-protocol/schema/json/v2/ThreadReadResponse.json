@@ -2493,6 +2493,14 @@
           "default": "full",
           "description": "Describes how much of `items` has been loaded for this turn."
         },
+        "parentTurnId": {
+          "default": null,
+          "description": "Parent recorded by the engine, when known.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
         "rootResumeWait": {
           "anyOf": [
             {
@@ -2522,6 +2530,14 @@
         },
         "status": {
           "$ref": "#/definitions/TurnStatus"
+        },
+        "turnTrigger": {
+          "default": null,
+          "description": "Recorded trigger such as `user` or `root_resume`; absent in older history.",
+          "type": [
+            "string",
+            "null"
+          ]
         }
       },
       "required": [

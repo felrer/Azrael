@@ -32,6 +32,8 @@ pub struct Prompt {
 
     pub base_instructions: BaseInstructions,
 
+    pub(crate) harness_profile: Option<codex_config::harness_profiles::ResolvedHarnessProfile>,
+
     /// Optional the output schema for the model's response.
     pub output_schema: Option<Value>,
 
@@ -48,6 +50,7 @@ impl Default for Prompt {
             tools: Arc::default(),
             parallel_tool_calls: false,
             base_instructions: BaseInstructions::default(),
+            harness_profile: None,
             output_schema: None,
             output_schema_strict: true,
             cyber_access_program: None,

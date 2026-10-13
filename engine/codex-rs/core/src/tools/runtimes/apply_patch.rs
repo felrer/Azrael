@@ -17,7 +17,12 @@ use crate::tools::sandboxing::executor_windows_sandbox_selection;
 use codex_apply_patch::AppliedPatchDelta;
 use codex_apply_patch::ApplyPatchAction;
 use codex_apply_patch::ApplyPatchOptions;
+use codex_exec_server::CreateDirectoryOptions;
+use codex_exec_server::ExecutorFileSystem;
 use codex_exec_server::FileSystemSandboxContext;
+use codex_exec_server::GetMetadataOptions;
+use codex_exec_server::ReadFileOptions;
+use codex_exec_server::WriteFileOptions;
 use codex_protocol::error::CodexErr;
 use codex_protocol::error::SandboxErr;
 use codex_protocol::exec_output::ExecToolCallOutput;
@@ -43,6 +48,7 @@ pub(crate) struct ApplyPatchApprovalKey {
 
 #[derive(Debug)]
 pub struct ApplyPatchRequest {
+    pub(crate) exact_write: Option<ExactFileWrite>,
     pub turn_environment: TurnEnvironment,
     pub action: ApplyPatchAction,
     pub file_paths: Vec<PathUri>,
@@ -50,6 +56,138 @@ pub struct ApplyPatchRequest {
     pub exec_approval_requirement: ExecApprovalRequirement,
     pub additional_permissions: Option<AdditionalPermissionProfile>,
     pub permissions_preapproved: bool,
+}
+
+#[derive(Debug)]
+pub(crate) struct ExactFileWrite {
+    pub path: PathUri,
+    /// None requires that the target still does not exist after approval.
+    pub expected_content: Option<String>,
+    pub content: String,
+}
+
+/// Canonicalizes the existing ancestor as well as existing targets. Missing
+/// suffixes are retained so a Write can create nested directories safely.
+pub(crate) async fn canonical_write_path(
+    fs: &dyn ExecutorFileSystem,
+    path: &PathUri,
+    sandbox: Option<&FileSystemSandboxContext>,
+) -> std::io::Result<PathUri> {
+    let mut ancestor = path.clone();
+    let mut missing: Vec<String> = Vec::new();
+    loop {
+        match fs.canonicalize(&ancestor, sandbox).await {
+            Ok(mut canonical) => {
+                for name in missing.iter().rev() {
+                    canonical = canonical.join(name).map_err(std::io::Error::other)?;
+                }
+                return Ok(canonical);
+            }
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => {
+                // A dangling link is an existing filesystem entry, not a new
+                // file or directory that this operation may overwrite.
+                match fs
+                    .get_metadata(
+                        &ancestor,
+                        GetMetadataOptions {
+                            follow_symlinks: false,
+                        },
+                        sandbox,
+                    )
+                    .await
+                {
+                    Ok(_) => {
+                        return Err(std::io::Error::other(
+                            "cannot resolve an existing filesystem entry",
+                        ));
+                    }
+                    Err(metadata_error)
+                        if metadata_error.kind() == std::io::ErrorKind::NotFound => {}
+                    Err(metadata_error) => return Err(metadata_error),
+                }
+                missing.push(
+                    ancestor
+                        .basename()
+                        .ok_or_else(|| std::io::Error::other("missing filename"))?,
+                );
+                ancestor = ancestor.parent().ok_or(err)?;
+            }
+            Err(err) => return Err(err),
+        }
+    }
+}
+
+impl ExactFileWrite {
+    async fn apply(
+        &self,
+        fs: &dyn ExecutorFileSystem,
+        sandbox: Option<&FileSystemSandboxContext>,
+        follow_symlinks: bool,
+    ) -> std::io::Result<AppliedPatchDelta> {
+        if canonical_write_path(fs, &self.path, sandbox).await? != self.path {
+            return Err(std::io::Error::other(
+                "file path changed after Read or while awaiting approval; Read again",
+            ));
+        }
+        if self.expected_content.is_none() {
+            match fs
+                .get_metadata(
+                    &self.path,
+                    GetMetadataOptions {
+                        follow_symlinks: false,
+                    },
+                    sandbox,
+                )
+                .await
+            {
+                Ok(_) => {
+                    return Err(std::io::Error::other(
+                        "file appeared while awaiting approval; Read again",
+                    ));
+                }
+                Err(err) if err.kind() == std::io::ErrorKind::NotFound => {}
+                Err(err) => return Err(err),
+            }
+        }
+        let current = match fs
+            .read_file(&self.path, ReadFileOptions { follow_symlinks }, sandbox)
+            .await
+        {
+            Ok(bytes) => Some(bytes),
+            Err(err) if err.kind() == std::io::ErrorKind::NotFound => None,
+            Err(err) => return Err(err),
+        };
+        if current.as_deref() != self.expected_content.as_deref().map(str::as_bytes) {
+            return Err(std::io::Error::other(
+                "file changed after Read or while awaiting approval; Read again",
+            ));
+        }
+        if self.expected_content.is_none() {
+            if let Some(parent) = self.path.parent() {
+                fs.create_directory(
+                    &parent,
+                    CreateDirectoryOptions {
+                        recursive: true,
+                        follow_symlinks,
+                    },
+                    sandbox,
+                )
+                .await?;
+            }
+        }
+        fs.write_file(
+            &self.path,
+            self.content.as_bytes().to_vec(),
+            WriteFileOptions { follow_symlinks },
+            sandbox,
+        )
+        .await?;
+        Ok(AppliedPatchDelta::exact_file_write(
+            self.path.clone(),
+            self.expected_content.clone(),
+            self.content.clone(),
+        ))
+    }
 }
 
 #[derive(Default)]
@@ -176,32 +314,65 @@ impl ToolRuntime<ApplyPatchRequest, ApplyPatchRuntimeOutput> for ApplyPatchRunti
         let sandbox = Self::file_system_sandbox_context_for_attempt(req, attempt);
         let mut stdout = Vec::new();
         let mut stderr = Vec::new();
-        let result = codex_apply_patch::apply_patch_with_options(
-            &req.action.patch,
-            ApplyPatchOptions {
-                // Only reject links when an otherwise-required sandbox was bypassed.
-                // Executor-managed sandboxes can have SandboxType::None.
-                follow_symlinks: attempt.sandbox_requested
-                    || !attempt.manager.should_sandbox(
-                        attempt.permissions,
-                        self.sandbox_preference(),
-                        attempt.enforce_managed_network,
-                    ),
-            },
-            &req.action.cwd,
-            &mut stdout,
-            &mut stderr,
-            fs.as_ref(),
-            sandbox.as_ref(),
-        )
-        .await;
+        let follow_symlinks = attempt.sandbox_requested
+            || !attempt.manager.should_sandbox(
+                attempt.permissions,
+                self.sandbox_preference(),
+                attempt.enforce_managed_network,
+            );
+        let result = if let Some(write) = &req.exact_write {
+            match write
+                .apply(fs.as_ref(), sandbox.as_ref(), follow_symlinks)
+                .await
+            {
+                Ok(delta) => {
+                    stdout.extend_from_slice(
+                        format!(
+                            "Success. Updated file: {}\n",
+                            write.path.inferred_native_path_string()
+                        )
+                        .as_bytes(),
+                    );
+                    Ok(delta)
+                }
+                Err(err) => {
+                    stderr.extend_from_slice(format!("{err}\n").as_bytes());
+                    // Failed preconditions commit no textual mutation.
+                    Err((err.to_string(), AppliedPatchDelta::default()))
+                }
+            }
+        } else {
+            codex_apply_patch::apply_patch_with_options(
+                &req.action.patch,
+                ApplyPatchOptions {
+                    // Only reject links when an otherwise-required sandbox was bypassed.
+                    // Executor-managed sandboxes can have SandboxType::None.
+                    follow_symlinks: attempt.sandbox_requested
+                        || !attempt.manager.should_sandbox(
+                            attempt.permissions,
+                            self.sandbox_preference(),
+                            attempt.enforce_managed_network,
+                        ),
+                },
+                &req.action.cwd,
+                &mut stdout,
+                &mut stderr,
+                fs.as_ref(),
+                sandbox.as_ref(),
+            )
+            .await
+            .map_err(|failure| {
+                let (error, delta) = failure.into_parts();
+                (error.to_string(), delta)
+            })
+        };
         let stdout = String::from_utf8_lossy(&stdout).into_owned();
         let stderr = String::from_utf8_lossy(&stderr).into_owned();
         let failed = result.is_err();
         let exit_code = if failed { 1 } else { 0 };
         let delta = match result {
             Ok(delta) => delta,
-            Err(failure) => failure.into_parts().1,
+            Err((_, delta)) => delta,
         };
         self.committed_delta.append(delta);
         let output = ExecToolCallOutput {

@@ -260,6 +260,8 @@ impl ThreadQueueRequestProcessor {
 
                 id: turn_id,
                 root_turn_id: Some(root_turn_id),
+                parent_turn_id: None,
+                turn_trigger: None,
                 items: vec![],
                 items_view: TurnItemsView::NotLoaded,
                 error: None,

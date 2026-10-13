@@ -198,7 +198,10 @@ pub(super) async fn maybe_record(
         }
     }
 
-    if !allow_auto_compact_fallback || base_window_tokens_remaining != 0 {
+    if !allow_auto_compact_fallback
+        || base_window_tokens_remaining != 0
+        || !sess.auto_compaction_enabled().await
+    {
         return;
     }
     let Some(prompt) = config.auto_compact_fallback_prompt.as_deref() else {

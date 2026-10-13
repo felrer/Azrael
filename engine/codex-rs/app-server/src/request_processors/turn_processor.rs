@@ -125,6 +125,7 @@ struct ThreadEnvironmentOverride {
 }
 
 struct ThreadSettingsBuildParams {
+    auto_compaction_enabled: Option<bool>,
     method: &'static str,
     disabled_plugin_ids: Option<Vec<String>>,
     environment_override: ThreadEnvironmentOverride,
@@ -634,6 +635,7 @@ impl TurnRequestProcessor {
             .build_thread_settings_overrides(
                 thread.as_ref(),
                 ThreadSettingsBuildParams {
+                    auto_compaction_enabled: None,
                     method: "turn/start",
                     disabled_plugin_ids: params.disabled_plugin_ids,
                     environment_override,
@@ -724,6 +726,8 @@ impl TurnRequestProcessor {
 
             id: turn_id,
             root_turn_id: Some(root_turn_id),
+            parent_turn_id: None,
+            turn_trigger: None,
             items: vec![],
             items_view: TurnItemsView::NotLoaded,
             error: None,
@@ -800,6 +804,7 @@ impl TurnRequestProcessor {
         params: ThreadSettingsBuildParams,
     ) -> Result<codex_protocol::protocol::ThreadSettingsOverrides, JSONRPCErrorError> {
         let ThreadSettingsBuildParams {
+            auto_compaction_enabled,
             method,
             disabled_plugin_ids,
             environment_override:
@@ -837,7 +842,8 @@ impl TurnRequestProcessor {
             None
         };
 
-        let has_any_overrides = has_environment_override
+        let has_any_overrides = auto_compaction_enabled.is_some()
+            || has_environment_override
             || disabled_plugin_ids.is_some()
             || approval_policy.is_some()
             || approvals_reviewer.is_some()
@@ -895,6 +901,7 @@ impl TurnRequestProcessor {
         if has_any_overrides {
             thread
                 .preview_thread_settings_overrides(CodexThreadSettingsOverrides {
+                    auto_compaction_enabled,
                     turn_extension_init: None,
                     disabled_plugin_ids: disabled_plugin_ids.clone(),
                     environments: environment_requests.clone(),
@@ -920,6 +927,7 @@ impl TurnRequestProcessor {
         }
 
         Ok(codex_protocol::protocol::ThreadSettingsOverrides {
+            auto_compaction_enabled,
             disabled_plugin_ids,
             environments: environment_requests,
             runtime_workspace_roots,
@@ -960,6 +968,7 @@ impl TurnRequestProcessor {
             .build_thread_settings_overrides(
                 thread.as_ref(),
                 ThreadSettingsBuildParams {
+                    auto_compaction_enabled: params.auto_compaction_enabled,
                     method: "thread/settings/update",
                     disabled_plugin_ids: params.disabled_plugin_ids,
                     environment_override,
@@ -1435,6 +1444,8 @@ impl TurnRequestProcessor {
 
             id: turn_id,
             root_turn_id: None,
+            parent_turn_id: None,
+            turn_trigger: None,
             items,
             items_view: TurnItemsView::NotLoaded,
             error: None,

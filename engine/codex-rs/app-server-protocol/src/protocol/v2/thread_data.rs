@@ -202,6 +202,10 @@ pub struct ThreadSectionAppearance {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct Thread {
+    /// Current live or latest saved thread-owned automatic compaction setting.
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional = nullable)]
+    pub auto_compaction_enabled: Option<bool>,
     /// Identifier for this thread. Codex-generated thread IDs are UUIDv7.
     pub id: String,
     /// Current environments for a loaded thread, in priority order, primary first.
@@ -298,6 +302,8 @@ pub struct Thread {
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase")]
 struct ThreadCompatibility {
+    #[serde(default)]
+    auto_compaction_enabled: Option<bool>,
     id: String,
     #[serde(default)]
     environments: Option<Vec<ThreadEnvironment>>,
@@ -344,6 +350,7 @@ impl<'de> Deserialize<'de> for Thread {
     {
         let thread = ThreadCompatibility::deserialize(deserializer)?;
         Ok(Self {
+            auto_compaction_enabled: thread.auto_compaction_enabled,
             id: thread.id,
             environments: thread.environments,
             extra: thread.extra,
@@ -394,6 +401,12 @@ pub struct Turn {
     /// Pass this as `rootTurnId` when starting work on behalf of this turn.
     /// May be null in older history or a `review/start` response.
     pub root_turn_id: Option<String>,
+    /// Parent recorded by the engine, when known.
+    #[serde(default)]
+    pub parent_turn_id: Option<String>,
+    /// Recorded trigger such as `user` or `root_resume`; absent in older history.
+    #[serde(default)]
+    pub turn_trigger: Option<String>,
     /// Thread items currently included in this turn payload.
     pub items: Vec<ThreadItem>,
     /// Describes how much of `items` has been loaded for this turn.

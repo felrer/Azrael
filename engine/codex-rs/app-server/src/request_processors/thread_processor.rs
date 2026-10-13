@@ -2921,6 +2921,21 @@ impl ThreadRequestProcessor {
             )));
         };
 
+        if loaded_thread.is_none()
+            && !(include_turns
+                && matches!(
+                    thread.history_mode,
+                    codex_app_server_protocol::ThreadHistoryMode::Legacy
+                ))
+        {
+            self.attach_persisted_auto_compaction(thread_id, &mut thread)
+                .await
+                .map_err(|err| {
+                    ThreadReadViewError::Internal(format!(
+                        "failed to read thread compaction setting: {err}"
+                    ))
+                })?;
+        }
         thread.daybreak_enabled = thread.daybreak_enabled.or(pending_daybreak_enabled);
 
         let has_live_in_progress_turn = if let Some(loaded_thread) = loaded_thread.as_ref() {
@@ -4927,6 +4942,30 @@ impl ThreadRequestProcessor {
         Ok(thread)
     }
 
+    async fn attach_persisted_auto_compaction(
+        &self,
+        thread_id: ThreadId,
+        thread: &mut Thread,
+    ) -> Result<(), ThreadStoreError> {
+        if let Ok(loaded) = self.thread_manager.get_thread(thread_id).await {
+            thread.auto_compaction_enabled =
+                Some(loaded.config_snapshot().await.auto_compaction_enabled);
+            return Ok(());
+        }
+        let context = self
+            .thread_store
+            .load_latest_model_context(StoreLoadThreadHistoryParams {
+                thread_id,
+                include_archived: true,
+            })
+            .await?;
+        thread.auto_compaction_enabled = Some(codex_history::latest_auto_compaction_enabled(
+            &context.items,
+            thread_id,
+        ));
+        Ok(())
+    }
+
     async fn attach_thread_name(&self, thread_id: ThreadId, thread: &mut Thread) {
         if let Ok(stored_thread) = self
             .thread_store
@@ -6055,6 +6094,8 @@ fn stored_turn_to_api_turn(
 
         id: turn.turn_id,
         root_turn_id: turn.root_turn_id,
+        parent_turn_id: turn.parent_turn_id,
+        turn_trigger: turn.turn_trigger,
         items,
         items_view,
         status,
@@ -6242,6 +6283,9 @@ pub(crate) fn thread_from_stored_thread(
     let history = thread.history;
     let thread_id = thread.thread_id.to_string();
     let thread = Thread {
+        auto_compaction_enabled: history.as_ref().map(|history| {
+            codex_history::latest_auto_compaction_enabled(&history.items, history.thread_id)
+        }),
         id: thread_id.clone(),
         environments: None,
         extra: None,
@@ -6433,6 +6477,7 @@ fn build_thread_from_snapshot(
 ) -> Thread {
     let now = time::OffsetDateTime::now_utc().unix_timestamp();
     Thread {
+        auto_compaction_enabled: Some(config_snapshot.auto_compaction_enabled),
         id: thread_id.to_string(),
         environments: Some(
             config_snapshot

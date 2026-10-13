@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 import hashlib
 import json
 import os
+import re
 from pathlib import Path, PurePosixPath
 import shutil
 import stat
@@ -1110,12 +1111,52 @@ def is_reviewed_source_addition(name):
             (PurePosixPath(name).parent == PurePosixPath("codex-rs/app-server-protocol/schema/typescript") and name.endswith(".ts")))
 
 
+MIGRATION_OWNERS = {"codex-rs/state/migrations", "codex-rs/state/queue_migrations",
+                    "codex-rs/state/thread_history_migrations"}
+
+
+def migration_version(name):
+    path = PurePosixPath(name)
+    match = re.fullmatch(r"([0-9]+)_[a-z0-9]+(?:_[a-z0-9]+)*\.sql", path.name)
+    return int(match[1]) if path.parent.as_posix() in MIGRATION_OWNERS and match else None
+
+
+def validate_migration_additions(destination, original_files, additions):
+    """Validate reviewed append-only SQL additions against their immutable import."""
+    if not isinstance(additions, dict) or not additions:
+        raise ValueError("Malformed reviewed migration additions")
+    versions = {}
+    for name, entry in original_files.items():
+        version = migration_version(name)
+        if version is not None and entry["kind"] == "file":
+            versions.setdefault(PurePosixPath(name).parent.as_posix(), set()).add(version)
+    added_versions = {}
+    for name, entry in additions.items():
+        if not isinstance(name, str):
+            raise ValueError("Malformed reviewed migration path")
+        path = safe_path(destination, name)
+        owner, version = PurePosixPath(name).parent.as_posix(), migration_version(name)
+        if (name in original_files or version is None or owner not in versions or
+                version <= max(versions[owner]) or version in added_versions.setdefault(owner, set())):
+            raise ValueError(f"Reviewed migration must have a unique new version in an imported owner: {name}")
+        added_versions[owner].add(version)
+        if (not isinstance(entry, dict) or entry.get("kind") != "file" or entry.get("gitMode") != "100644" or
+                describe(path, "100644") != entry):
+            raise ValueError(f"Reviewed migration must retain its regular file descriptor: {name}")
+        if b"\r" in path.read_bytes():
+            raise ValueError(f"Reviewed migration must use LF bytes without CR: {name}")
+
+
 def validate_local_integration(destination, receipt):
     record = receipt["localIntegration"]
     keys = {"schema", "originalReceipt", "originalReceiptSha256", "repositoryHead", "sourcePrefix", "changes"}
     if isinstance(record, dict) and record.get("schema") == 3:
         keys.add("adaptedChanges")
-    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] not in (1, 2, 3):
+    if isinstance(record, dict) and record.get("schema") == 4:
+        keys.add("migrationAdditions")
+        if "adaptedChanges" in record:
+            keys.add("adaptedChanges")
+    if not isinstance(record, dict) or set(record) != keys or type(record.get("schema")) is not int or record["schema"] not in (1, 2, 3, 4):
         raise ValueError("Malformed local integration metadata")
     original = record["originalReceipt"]
     if not isinstance(original, dict) or "localIntegration" in original:
@@ -1141,14 +1182,22 @@ def validate_local_integration(destination, receipt):
     if (not changes and not adapted_changes) or record["changes"] != changes:
         raise ValueError("Local integration delta differs from inventories")
     protected = {".gitignore"} | set(original.get("sourceFixes", {}))
+    migration_additions = record.get("migrationAdditions", {})
+    if record["schema"] == 4:
+        validate_migration_additions(destination, before, migration_additions)
+        if migration_additions != {name: change["after"] for name, change in changes.items()
+                                   if name.endswith(".sql") and change["before"] is None}:
+            raise ValueError("Reviewed migration additions differ from cumulative changes")
     for name, change in changes.items():
         if change["before"] is None:
+            if name in migration_additions:
+                continue
             if not is_reviewed_source_addition(name) or change["after"]["kind"] != "file" or change["after"]["gitMode"] != "100644":
                 raise ValueError(f"Local integration addition is not ordinary Rust/prompt source: {name}")
             continue
         if name in protected or name.endswith(".sql") or change["before"]["kind"] != "file" or change["after"]["kind"] != "file" or change["before"]["gitMode"] != change["after"]["gitMode"]:
             raise ValueError(f"Local integration changes protected source: {name}")
-    if record["schema"] == 3:
+    if record["schema"] == 3 or "adaptedChanges" in record:
         if not isinstance(adapted_changes, dict) or not adapted_changes:
             raise ValueError("Malformed reviewed adapted changes")
         fixes = {fix["adaptedPath"]: (name, fix) for name, fix in original.get("sourceFixes", {}).items()}

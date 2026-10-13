@@ -185,7 +185,7 @@ impl PreparedTurnInputSettings {
                 .set_turn_trigger(turn_trigger);
         }
         if emit_thread_settings_applied {
-            thread_settings::emit_applied(session, submission_id, settings_snapshot).await;
+            thread_settings::emit_applied(session, submission_id, settings_snapshot, false).await;
         }
         if let Some(parent_turn_id) = parent_turn_id {
             if let Some(initiating_agent_path) = initiating_agent_path {

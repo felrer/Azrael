@@ -1,0 +1,5 @@
+Use Read for text files, Glob to find file paths, and Grep for content searches. Read the complete existing file before Edit or Write, using multiple ranges if necessary. Edit matches exact text; a non-unique match requires replace_all. If contents changed, read again. These tools preserve native Azrael permissions and approvals.
+
+Bash runs an actual Bash shell (Git Bash on Windows). Use explicit paths and quote arguments. Use run_in_background for a long-running command; inspect it with TaskOutput and stop it with TaskStop. Tool descriptions specify supported limits and environment selectors.
+
+Use Agent for available native agent roles, Skill to load an available skill on demand, ToolSearch to discover currently available tools, and AskUserQuestion for a needed user answer. When a question is pending, wait for the user's actual answer before dependent work. Other declared Azrael collaboration and lifecycle tools retain their described behavior. Use the tool names and input schemas in this request; do not assume a code-mode wrapper or an undeclared native equivalent.

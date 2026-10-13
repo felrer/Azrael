@@ -377,9 +377,11 @@ async fn summarize(
     source.final_output_json_schema = None;
     let source = Arc::new(source);
     let history = sess.clone_history().await;
+    let profile = super::step_context::resolve_harness_profile(&source.config, &source.model_info().slug)?;
     let mut prompt = Prompt {
         input: history.for_prompt(&source.model_info().input_modalities),
-        base_instructions: sess.get_prompt_base_instructions().await,
+        base_instructions: sess.get_harness_base_instructions(&profile, &source.config).await,
+        harness_profile: Some(profile),
         ..Default::default()
     };
     prompt

@@ -89,6 +89,7 @@ static LIVE_THREADS: Gauge = Gauge::new("core.threads.live");
 
 #[derive(Clone, Debug)]
 pub struct ThreadConfigSnapshot {
+    pub auto_compaction_enabled: bool,
     pub computer_use_mode: Option<codex_protocol::protocol::ComputerUseMode>,
     /// Host data inherited by future turns; not included in persisted settings.
     pub turn_extension_init: codex_extension_api::ExtensionDataInit,
@@ -150,6 +151,7 @@ impl ThreadConfigSnapshot {
 /// Thread settings overrides that app-server validates before starting a turn.
 #[derive(Clone, Default)]
 pub struct CodexThreadSettingsOverrides {
+    pub auto_compaction_enabled: Option<bool>,
     /// Replaces the data captured by future turns. Omission preserves it.
     pub turn_extension_init: Option<codex_extension_api::ExtensionDataInit>,
     pub environments: Option<TurnEnvironmentRequests>,
@@ -788,6 +790,7 @@ impl CodexThread {
         overrides: CodexThreadSettingsOverrides,
     ) -> SessionSettingsUpdate {
         let CodexThreadSettingsOverrides {
+            auto_compaction_enabled,
             turn_extension_init,
             environments: environment_requests,
             runtime_workspace_roots,
@@ -807,6 +810,7 @@ impl CodexThread {
             disabled_plugin_ids,
         } = overrides;
         SessionSettingsUpdate {
+            auto_compaction_enabled,
             turn_extension_init,
             step_settings: StepSettingsUpdate {
                 model,

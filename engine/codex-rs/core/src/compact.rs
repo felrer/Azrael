@@ -293,6 +293,7 @@ async fn run_compact_task_inner_impl(
             .executed_tool_calls
             .attach_to_compaction_prompt(&mut turn_input);
         let turn_input_len = turn_input.len();
+        let profile = crate::session::step_context::resolve_harness_profile(&turn_context.config, &turn_context.model_info().slug)?;
         let base_instructions = if turn_input
             .iter()
             .any(BaseInstructionsFragment::matches_item)
@@ -302,11 +303,12 @@ async fn run_compact_task_inner_impl(
                 provenance: None,
             }
         } else {
-            sess.get_prompt_base_instructions().await
+            sess.get_harness_base_instructions(&profile, &turn_context.config).await
         };
         let prompt = Prompt {
             input: turn_input,
             base_instructions,
+            harness_profile: Some(profile),
             cyber_access_program: turn_context.cyber_access_program,
             ..Default::default()
         };

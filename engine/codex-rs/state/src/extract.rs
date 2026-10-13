@@ -563,6 +563,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
                 disabled_plugin_ids: None,
@@ -607,6 +608,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
                 disabled_plugin_ids: None,
@@ -651,6 +653,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
                 disabled_plugin_ids: None,
@@ -684,6 +687,7 @@ mod tests {
         apply_rollout_item(
             &mut metadata,
             &RolloutItem::TurnContext(TurnContextItem {
+                harness_profile: None,
                 turn_id: Some("turn-1".to_string()),
                 root_turn_id: None,
                 disabled_plugin_ids: None,
@@ -726,6 +730,7 @@ mod tests {
             ThreadSettingsAppliedEvent {
                 thread_id: None,
                 thread_settings: ThreadSettingsSnapshot {
+                    auto_compaction_enabled: true,
                     disabled_plugin_ids: Vec::new(),
                     model: "gpt-5.2-codex".to_string(),
                     model_provider_id: "updated-provider".to_string(),

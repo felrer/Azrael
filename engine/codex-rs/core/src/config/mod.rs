@@ -611,6 +611,8 @@ pub enum ThreadStoreConfig {
 /// Application configuration loaded from disk and merged with overrides.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Config {
+    /// Validated harness catalog with eagerly captured behavior templates.
+    pub harness_profiles: codex_config::harness_profiles::HarnessProfiles,
     /// App-server-owned destination policy; other runtimes remain unmanaged.
     pub application_network_policy: codex_http_client::NetworkPolicy,
     /// Auth bootstrap routing installed by the app-server configuration owner.
@@ -4052,6 +4054,11 @@ impl Config {
         // path is relative, resolve it against the effective cwd so the
         // behaviour matches other path-like config values.
         let model_instructions_path = cfg.model_instructions_file.as_ref();
+        let harness_profiles =
+            codex_config::harness_profiles::HarnessProfiles::load(cfg.harness.clone(), fs).await?;
+        // Reject selected bindings while loading configuration, before prompt consumers
+        // can assume that the resolved provider/tool combination is valid.
+        harness_profiles.resolve(&model_provider_id, model.as_deref().unwrap_or_default())?;
         let file_base_instructions = Self::try_read_non_empty_file(
             fs,
             model_instructions_path,
@@ -4350,6 +4357,7 @@ impl Config {
         .map_err(std::io::Error::from)?;
         let otel = otel::resolve_config(cfg.otel.unwrap_or_default(), &mut startup_warnings);
         let config = Self {
+            harness_profiles,
             prefer_mxc,
             model,
             daybreak_enabled: cfg.daybreak.unwrap_or(false),
@@ -5037,6 +5045,34 @@ pub fn log_dir(cfg: &Config) -> std::io::Result<PathBuf> {
 #[cfg(test)]
 #[path = "config_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod harness_config_tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn selected_model_harness_isolation_is_rejected_during_config_load() {
+        let home = tempfile::tempdir().unwrap();
+        let cfg: ConfigToml = toml::from_str(
+            "model = 'direct-model'\nmodel_provider = 'openai'\n\
+             [harness.models.direct-model]\nprofile = 'anthropic-default'",
+        )
+        .unwrap();
+        let error = Config::load_from_base_config_with_overrides(
+            cfg,
+            ConfigOverrides::default(),
+            AbsolutePathBuf::from_absolute_path(home.path()).unwrap(),
+        )
+        .await
+        .unwrap_err();
+        assert_eq!(error.kind(), std::io::ErrorKind::InvalidData);
+        assert!(
+            error
+                .to_string()
+                .contains("incompatible with provider openai model direct-model")
+        );
+    }
+}
 
 #[cfg(test)]
 #[path = "config_loader_tests.rs"]
