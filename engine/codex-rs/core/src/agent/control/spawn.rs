@@ -21,6 +21,7 @@ use crate::context::ManagedDeveloperInstructions;
 use crate::context::MultiAgentModeInstructions;
 use crate::context::MultiAgentRoleInstructions;
 use crate::context::RootCoordinationInstructions;
+use crate::context::ParentRequestGuidance;
 use crate::context::world_state::PersistentModeState;
 use crate::session::multi_agents::resolve_usage_hints;
 use codex_context_fragments::set_annotated_content;
@@ -148,6 +149,7 @@ fn retain_forked_developer_message(item: &mut ResponseItem, usage_hint_texts: &[
                 | "multi_agent.role_instructions"
                 | "multi_agent.usage_hint"
                 | "azrael.root_coordination"
+                | "azrael.parent_request_guidance"
         ) {
             return false;
         }
@@ -156,6 +158,7 @@ fn retain_forked_developer_message(item: &mut ResponseItem, usage_hint_texts: &[
         };
 
         !(RootCoordinationInstructions::matches_text(text)
+            || ParentRequestGuidance::matches_text(text)
             || MultiAgentRoleInstructions::matches_text(text)
             || text
                 .starts_with(crate::guardian::AUTO_REVIEW_DENIED_ACTION_APPROVAL_DEVELOPER_PREFIX)
@@ -1263,6 +1266,7 @@ impl LocalAgentControl {
                 }
                 RolloutItem::WorldState(world_state) => {
                     world_state.state.remove("azrael_root_coordination");
+                    world_state.state.remove("azrael_parent_request_guidance");
                     if multi_agent_version == MultiAgentVersion::V2 {
                         world_state.state.remove("multi_agent_usage_hint");
                     }
@@ -1568,6 +1572,52 @@ mod root_coordination_tests {
                         content_item_kinds: Some(vec![
                             codex_protocol::models::ContentItemKind(
                                 "azrael.root_coordination".to_string(),
+                            ),
+                            codex_protocol::models::ContentItemKind(
+                                "generic.developer_instructions".to_string(),
+                            ),
+                        ]),
+                        ..Default::default()
+                    }
+                }),
+            };
+            assert!(retain_forked_developer_message(&mut item, &[]));
+            let ResponseItem::Message { content, .. } = item else {
+                panic!("developer message expected")
+            };
+            assert_eq!(
+                content,
+                vec![ContentItem::InputText {
+                    text: "preserved configured instructions".to_string()
+                }]
+            );
+        }
+    }
+
+    #[test]
+    fn parent_request_guidance_fork_sanitation_removes_markers_and_kind_but_preserves_other_fragments() {
+        for annotated in [false, true] {
+            let mut item = ResponseItem::Message {
+                id: None,
+                role: "developer".to_string(),
+                content: vec![
+                    ContentItem::InputText {
+                        text: if annotated {
+                            "older root scheduling wording".to_string()
+                        } else {
+                            ParentRequestGuidance { has_parent: false, tools_enabled: true }.render()
+                        },
+                    },
+                    ContentItem::InputText {
+                        text: "preserved configured instructions".to_string(),
+                    },
+                ],
+                phase: None,
+                internal_chat_message_metadata_passthrough: annotated.then(|| {
+                    codex_protocol::models::InternalChatMessageMetadataPassthrough {
+                        content_item_kinds: Some(vec![
+                            codex_protocol::models::ContentItemKind(
+                                "azrael.parent_request_guidance".to_string(),
                             ),
                             codex_protocol::models::ContentItemKind(
                                 "generic.developer_instructions".to_string(),

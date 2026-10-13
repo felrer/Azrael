@@ -27,6 +27,7 @@ impl RootResumeTiming {
                 RootResumeWakeReason::Deadline => "deadline",
                 RootResumeWakeReason::AgentsCompleted => "agents_completed",
                 RootResumeWakeReason::WorkCompleted => "work_completed",
+                RootResumeWakeReason::ParentRequest => "parent_request",
                 RootResumeWakeReason::UserInput => "user_input",
                 RootResumeWakeReason::Manual => "manual",
             },

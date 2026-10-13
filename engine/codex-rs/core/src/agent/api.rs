@@ -86,6 +86,34 @@ pub trait AgentControl: Send + Sync {
     /// the root. Legacy user input can address loaded threads outside the agent registry.
     fn send(&self, request: SendRequest) -> BoxFuture<'_, Result<DeliveryReceipt>>;
 
+    /// Submit a durable immediate-parent decision through its normal admission boundary.
+    /// Unlike follow-up tasks this can wake a parked root without completing the child.
+    fn deliver_parent_request(
+        &self,
+        _caller: ThreadId,
+        _parent: ThreadId,
+        _request_id: String,
+    ) -> BoxFuture<'_, Result<()>> {
+        Box::pin(async {
+            Err(codex_protocol::error::CodexErr::UnsupportedOperation(
+                "parent requests unsupported by this agent backend".into(),
+            ))
+        })
+    }
+
+    /// Notify a loaded child of its already durable answer; never start unrelated work.
+    fn notify_parent_response(
+        &self,
+        _child: ThreadId,
+        _request_id: String,
+    ) -> BoxFuture<'_, Result<()>> {
+        Box::pin(async {
+            Err(codex_protocol::error::CodexErr::UnsupportedOperation(
+                "parent responses unsupported by this agent backend".into(),
+            ))
+        })
+    }
+
     /// Take queued, non-turn-starting mail in order, without loading the recipient.
     /// This in-memory operation performs no I/O; returning transfers ownership to the caller.
     fn take_mailbox(

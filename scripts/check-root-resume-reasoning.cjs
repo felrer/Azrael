@@ -15,6 +15,6 @@ if (!fs.statSync(path.join(cwd, "Cargo.toml")).isFile()) {
 const result = runCargoTest(sourceRoot, [
   "test", "-p", "codex-core", "-p", "codex-protocol", "-p", "codex-state",
   "--lib", "root_resume", "--locked", "--offline", "--", "--test-threads=1",
-]);
+], { isolateHostEnvironment: true });
 if (result.error) throw result.error;
 process.exitCode = result.status ?? 1;

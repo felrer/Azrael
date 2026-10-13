@@ -32,3 +32,13 @@ test("profile runtime and tool guidance copies match maintained sources", () => 
       fs.readFileSync(path.join(root, `engine/codex-rs/prompts/templates/${name}.md`), "utf8"));
   }
 });
+
+
+test("parent request guidance matches maintained source and travels as developer context", async () => {
+  const maintained = fs.readFileSync(path.join(root, "instructions/instructions/parent-request-guidance.md"), "utf8");
+  assert.equal(fs.readFileSync(path.join(root, "engine/codex-rs/prompts/templates/parent-request-guidance.md"), "utf8"), maintained);
+  const { compileRequest } = await import("../providers/opencodex/inference-mapping.mjs");
+  const guidance = "<azrael_parent_request_guidance>" + maintained + "</azrael_parent_request_guidance>";
+  const result = compileRequest({ type: "request", protocol_version: 1, request_id: "parent-guidance", model: "fixture-model", instructions: "", input: [{ type: "message", role: "developer", content: [{ type: "input_text", text: guidance }] }], tools: [] });
+  assert.ok(result.messages.some(message => message.role === "system" && message.content === guidance));
+});

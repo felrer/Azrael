@@ -112,7 +112,7 @@ impl SessionTask for RegularTask {
             )
             .instrument(run_turn_span.clone())
             .await?;
-            if sess.root_turn_is_deferred(&ctx.sub_id) {
+            if sess.root_turn_is_deferred(&ctx.sub_id) || sess.parent_response_turn_is_deferred() {
                 return Ok(None);
             }
             // Terminal errors are already reported. Let task completion preserve pending

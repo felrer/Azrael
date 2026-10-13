@@ -78,7 +78,7 @@ class InspectorTests(unittest.TestCase):
         phases = ["wake_detected", "execution_admission", "submission_gate", "history_flush",
                   "reservation_claim", "turn_context", "turn_start", "model_request", "model_request_submit",
                   "resume_dispatch"]
-        wakes = ["deadline", "agents_completed", "work_completed", "manual", "user_input"]
+        wakes = ["deadline", "agents_completed", "work_completed", "parent_request", "manual", "user_input"]
         records = [("azrael_root_resume", self.timing_body(
             phase=json.dumps(phase), wake_reason=json.dumps(wakes[index % len(wakes)]),
             duration_ms="0", elapsed_ms=str(2**64 - 1)) +

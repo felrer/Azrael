@@ -595,6 +595,9 @@ pub(crate) async fn run_turn(
                     needs_follow_up: model_needs_follow_up,
                     last_agent_message: sampling_request_last_agent_message,
                 } = sampling_request_output;
+                if sess.defer_parent_response_after_tools(&turn_context).await? {
+                    return Ok(None);
+                }
                 if sess.defer_root_after_tools(&turn_context).await? {
                     return Ok(None);
                 }

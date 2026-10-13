@@ -235,6 +235,7 @@ fn root_resume_wake_reason_as_str(reason: &RootResumeWakeReason) -> &'static str
         RootResumeWakeReason::Deadline => "deadline",
         RootResumeWakeReason::AgentsCompleted => "agents_completed",
         RootResumeWakeReason::WorkCompleted => "work_completed",
+        RootResumeWakeReason::ParentRequest => "parent_request",
         RootResumeWakeReason::UserInput => "user_input",
         RootResumeWakeReason::Manual => "manual",
     }
@@ -245,6 +246,7 @@ fn root_resume_wake_reason_from_str(value: &str) -> anyhow::Result<RootResumeWak
         "deadline" => Ok(RootResumeWakeReason::Deadline),
         "agents_completed" => Ok(RootResumeWakeReason::AgentsCompleted),
         "work_completed" => Ok(RootResumeWakeReason::WorkCompleted),
+        "parent_request" => Ok(RootResumeWakeReason::ParentRequest),
         "user_input" => Ok(RootResumeWakeReason::UserInput),
         "manual" => Ok(RootResumeWakeReason::Manual),
         _ => anyhow::bail!("unknown root resume wake reason: {value}"),
@@ -464,6 +466,121 @@ mod tests {
         .expect("migration indexes should be readable");
         assert_eq!(indexes, 2);
         pool.close().await;
+    }
+
+    #[tokio::test]
+    async fn parent_request_wake_upgrade_preserves_all_reservation_fields_and_states() {
+        let codex_home = unique_temp_dir();
+        tokio::fs::create_dir_all(&codex_home).await.unwrap();
+        let sqlite = SqliteConfig::new_for_testing(codex_home.as_path().abs());
+        let pool = sqlite
+            .open_read_write_pool(&sqlite.state_db_path())
+            .await
+            .unwrap();
+        let mut old_migrator = crate::migrations::runtime_state_migrator();
+        old_migrator.migrations = std::borrow::Cow::Owned(
+            old_migrator
+                .migrations
+                .iter()
+                .filter(|migration| migration.version <= 65)
+                .cloned()
+                .collect(),
+        );
+        old_migrator.run(&pool).await.unwrap();
+        let mut expected = Vec::new();
+        for (index, state) in [
+            RootResumeState::Preparing,
+            RootResumeState::Waiting,
+            RootResumeState::Claimed,
+            RootResumeState::Resumed,
+            RootResumeState::Cancelled,
+            RootResumeState::Blocked,
+        ]
+        .into_iter()
+        .enumerate()
+        {
+            let mut record =
+                reservation(&format!("legacy-{index}"), &format!("root-{index}"), state);
+            record.revision = 3;
+            record.wait_started_at_ms = Some(1200);
+            record.wait_ended_at_ms = Some(1400);
+            record.last_error = Some("fixture_error".into());
+            record.wake_reason = Some(RootResumeWakeReason::WorkCompleted);
+            sqlx::query("INSERT INTO root_resume_reservations (id,root_thread_id,originating_turn_id,root_turn_id,call_id,resume_turn_id,resume_at_ms,created_at_ms,updated_at_ms,revision,state,agent_tasks_json,completion_tasks_json,reason,final_output_json_schema,wake_reason,last_error,wait_started_at_ms,wait_ended_at_ms,reasoning_settings_json) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)")
+                .bind(&record.id).bind(&record.root_thread_id).bind(&record.originating_turn_id)
+                .bind(&record.root_turn_id).bind(&record.call_id).bind(&record.resume_turn_id)
+                .bind(record.resume_at_ms).bind(record.created_at_ms).bind(record.updated_at_ms)
+                .bind(record.revision).bind(root_resume_state_as_str(&record.state))
+                .bind(serde_json::to_string(&record.agent_tasks).unwrap())
+                .bind(serde_json::to_string(&record.completion_tasks).unwrap()).bind(&record.reason)
+                .bind(record.final_output_json_schema.as_ref().map(serde_json::to_string).transpose().unwrap())
+                .bind("work_completed").bind(&record.last_error).bind(record.wait_started_at_ms)
+                .bind(record.wait_ended_at_ms)
+                .bind(record.reasoning_settings.as_ref().map(serde_json::to_string).transpose().unwrap())
+                .execute(&pool).await.unwrap();
+            expected.push(record);
+        }
+        assert!(
+            sqlx::query("UPDATE root_resume_reservations SET wake_reason='parent_request'")
+                .execute(&pool)
+                .await
+                .is_err()
+        );
+        pool.close().await;
+
+        // Open the actual runtime over a version-65 database: migration receipts and rows survive.
+        let runtime = test_runtime(&codex_home).await;
+        for record in &expected {
+            assert_eq!(
+                runtime.get_root_resume(&record.id).await.unwrap(),
+                Some(record.clone())
+            );
+        }
+        let waiting = &expected[1];
+        let claimed = runtime
+            .transition_root_resume(
+                &waiting.id,
+                waiting.revision,
+                RootResumeState::Claimed,
+                Some(RootResumeWakeReason::ParentRequest),
+                None,
+                5000,
+            )
+            .await
+            .unwrap()
+            .unwrap();
+        assert_eq!(
+            claimed.wake_reason,
+            Some(RootResumeWakeReason::ParentRequest)
+        );
+        assert_eq!(
+            runtime.get_root_resume(&waiting.id).await.unwrap(),
+            Some(claimed)
+        );
+        let duplicate = reservation(
+            "duplicate",
+            &waiting.root_thread_id,
+            RootResumeState::Waiting,
+        );
+        assert!(runtime.create_root_resume(&duplicate).await.is_err());
+        let indexes: i64 = sqlx::query_scalar("SELECT COUNT(*) FROM sqlite_master WHERE type='index' AND name IN ('root_resume_one_active_per_root','root_resume_active_due')")
+            .fetch_one(runtime.pool.as_ref()).await.unwrap();
+        assert_eq!(indexes, 2);
+        assert!(
+            sqlx::query("UPDATE root_resume_reservations SET wake_reason='unknown'")
+                .execute(runtime.pool.as_ref())
+                .await
+                .is_err()
+        );
+        assert!(
+            sqlx::query("PRAGMA foreign_key_check")
+                .fetch_all(runtime.pool.as_ref())
+                .await
+                .unwrap()
+                .is_empty()
+        );
+        runtime.close().await;
+        tokio::fs::remove_dir_all(codex_home).await.unwrap();
     }
 
     #[tokio::test]

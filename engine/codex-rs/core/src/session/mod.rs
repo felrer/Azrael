@@ -270,6 +270,8 @@ mod response_preparation;
 mod review;
 mod rollout_budget;
 mod rollout_reconstruction;
+pub(crate) mod parent_request;
+mod parent_response_wait;
 mod root_resume;
 pub(crate) mod root_resume_timing;
 #[allow(clippy::module_inception)]
@@ -4487,7 +4489,9 @@ impl Session {
                         if fragment.markers().0 == MultiAgentRoleInstructions::type_markers().0
                             || fragment.markers().0
                                 == codex_prompts::RootCoordinationInstructions::type_markers()
-                                    .0 =>
+                                    .0
+                            || fragment.markers().0
+                                == codex_prompts::ParentRequestGuidance::type_markers().0 =>
                     {
                         separate_developer_sections.push(fragment.render_fragment());
                     }

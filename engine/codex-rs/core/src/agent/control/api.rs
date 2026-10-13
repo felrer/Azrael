@@ -202,6 +202,105 @@ impl AgentControl for LocalAgentControl {
         })
     }
 
+    fn deliver_parent_request(
+        &self,
+        caller: ThreadId,
+        parent: ThreadId,
+        request_id: String,
+    ) -> BoxFuture<'_, Result<()>> {
+        Box::pin(async move {
+            let manager = self.runtime.upgrade()?;
+            let child = manager.get_thread(caller).await?;
+            if child.session_source.parent_thread_id() != Some(parent) {
+                return Err(CodexErr::InvalidRequest(
+                    "parent request must target its direct parent".into(),
+                ));
+            }
+            let receiver = manager.get_thread(parent).await?;
+            let author = self
+                .runtime
+                .ensure_agent_known(caller)?
+                .agent_path
+                .ok_or_else(|| {
+                    CodexErr::InvalidRequest("requesting child lacks agent path".into())
+                })?;
+            let recipient = self
+                .runtime
+                .ensure_agent_known(parent)?
+                .agent_path
+                .unwrap_or_else(AgentPath::root);
+            receiver
+                .session
+                .receive_parent_request(&request_id, caller, author, recipient)
+                .await
+        })
+    }
+
+    fn notify_parent_response(
+        &self,
+        child: ThreadId,
+        request_id: String,
+    ) -> BoxFuture<'_, Result<()>> {
+        Box::pin(async move {
+            let thread = self.runtime.upgrade()?.get_thread(child).await?;
+            let db = thread.session.state_db().ok_or_else(|| {
+                CodexErr::InvalidRequest("parent response requires persistent state".into())
+            })?;
+            let request = db
+                .get_parent_request(&request_id)
+                .await
+                .map_err(|_| CodexErr::InvalidRequest("parent response lookup failed".into()))?
+                .ok_or_else(|| CodexErr::InvalidRequest("unknown parent response".into()))?;
+            if request.child_thread_id != child.to_string()
+                || thread.session.root_resume_task_identity().await.as_deref()
+                    != Some(request.child_task_id.as_str())
+            {
+                return Err(CodexErr::InvalidRequest(
+                    "parent response belongs to another child task".into(),
+                ));
+            }
+            let parent = ThreadId::from_string(&request.parent_thread_id)
+                .map_err(|_| CodexErr::InvalidRequest("invalid parent identity".into()))?;
+            let author = self
+                .runtime
+                .ensure_agent_known(parent)?
+                .agent_path
+                .unwrap_or_else(AgentPath::root);
+            let recipient = self
+                .runtime
+                .ensure_agent_known(child)?
+                .agent_path
+                .ok_or_else(|| CodexErr::InvalidRequest("child lacks agent path".into()))?;
+            let content = serde_json::to_string(&request.response)
+                .map_err(|_| CodexErr::InvalidRequest("invalid parent response".into()))?;
+            let response_item_id = codex_protocol::ResponseItemId::with_suffix(
+                "amsg",
+                format!("parent_response_{request_id}"),
+            );
+            let history = thread.session.clone_history().await;
+            let recorded = history.raw_items().any(|item| matches!(item,
+                codex_protocol::models::ResponseItem::AgentMessage { id: Some(id), .. } if id == &response_item_id));
+            if !recorded {
+                let mut communication = codex_protocol::protocol::InterAgentCommunication::new(
+                    author,
+                    recipient,
+                    Vec::new(),
+                    format!("Parent response for request_id={request_id}: {content}"),
+                    false,
+                );
+                communication.id = Some(response_item_id);
+                thread
+                    .session
+                    .enqueue_root_aware_mail(
+                        communication,
+                        codex_protocol::turn_input::TurnStartOptions::default(),
+                    )
+                    .await;
+            }
+            thread.session.notify_parent_response(&request_id).await
+        })
+    }
+
     fn take_mailbox(
         &self,
         agent: ThreadId,
