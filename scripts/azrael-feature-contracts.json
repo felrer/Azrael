@@ -353,9 +353,11 @@
       "id": "ui.local-file-drop",
       "area": "ui",
       "owners": [
-        "scripts/inject-local-file-drop.cjs"
+        "scripts/inject-local-file-drop.cjs",
+        "scripts/webview-drag-lifecycle.cjs",
+        "scripts/patch-vscode-webview-drag.cjs"
       ],
-      "contract": "docs/architecture/ui-presentation.md",
+      "contract": "docs/architecture/azrael-ex.md",
       "checks": [
         {
           "id": "ui.local-file-drop.behavior",
@@ -363,6 +365,15 @@
           "args": [
             "--test",
             "scripts/test-local-file-drop.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.local-file-drop.drag-lifecycle",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-webview-drag.cjs"
           ],
           "level": "source"
         }
