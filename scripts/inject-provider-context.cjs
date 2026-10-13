@@ -100,7 +100,7 @@ async function savePolicy(client, id, modelId, value) {
 }
 function compactionPreview(policy, override, draft) {
   const base = policy.autoCompactBaseTokens ?? policy.contextWindow;
-  const defaultTokens = policy.providerId === "anthropic" && policy.contextWindow >= 1000000 ? 600000 : null;
+  const defaultTokens = policy.providerId === "openai" && !policy.modelId.startsWith("managed/") && !policy.modelId.startsWith("api/") && policy.pricing?.status === "no-surcharge" ? Math.min(300000, policy.safeContextWindow ?? policy.contextWindow ?? 300000) : policy.providerId === "anthropic" && policy.contextWindow >= 1000000 ? 600000 : null;
   const defaultPercentage = defaultTokens != null && base > 0 ? Math.max(1, Math.round(defaultTokens * 100 / base)) : 95;
   const isTokenDefault = defaultTokens != null && draft == null && override?.percentage == null && override?.token_limit == null;
   const percentage = draft ?? String(override?.percentage ?? (override?.token_limit != null && base > 0 ? Math.max(1, Math.round(override.token_limit * 100 / base)) : defaultPercentage));

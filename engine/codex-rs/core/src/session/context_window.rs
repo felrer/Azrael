@@ -23,6 +23,16 @@ pub(crate) struct ContextWindowTokenStatus {
 #[path = "context_policy_tests.rs"]
 mod policy_tests;
 
+pub(super) fn subscription_auth(sess: &Session) -> bool {
+    matches!(
+        sess.services.auth_manager.auth_mode(),
+        Some(
+            codex_protocol::auth::AuthMode::Chatgpt
+                | codex_protocol::auth::AuthMode::ChatgptAuthTokens
+        )
+    )
+}
+
 fn tokens_remaining(limit: Option<i64>, used: i64) -> Option<i64> {
     limit.map(|limit| limit.saturating_sub(used).max(0))
 }
@@ -70,6 +80,7 @@ async fn context_window_token_status_with_config(
                     model_info,
                     &config.provider_auto_compact,
                     config.model_auto_compact_token_limit,
+                    subscription_auth(sess),
                 )
                 .0,
                 None,
@@ -82,6 +93,7 @@ async fn context_window_token_status_with_config(
                     model_info,
                     &config.provider_auto_compact,
                     config.model_auto_compact_token_limit,
+                    subscription_auth(sess),
                 )
                 .0;
                 (

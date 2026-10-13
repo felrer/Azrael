@@ -137,7 +137,7 @@ The context gauge shows usage against both the automatic-compaction threshold an
 
 - Compaction is an engine operation, not a prompt asking the model to summarize itself.
 - When it reaches the front of the queue it re-checks usage and **skips** if the context is under 15% full.
-- Automatic thresholds are set **per provider** in Azrael settings: Anthropic defaults to 600,000 tokens, other providers to 95% of the model's input capacity, all capped at the model's safe usable context. Subagents resolve the policy for their own provider.
+- Automatic thresholds are set **per model within each provider** in Azrael settings: native OpenAI subscriptions target 300,000 tokens (30% of 1M), Anthropic models with at least 1M context default to 600,000 tokens, and other routes use 95% of their no-length-surcharge baseline. Every threshold is capped at the model's safe usable context. Subagents resolve their own provider, model and authentication route.
 
 Compaction keeps a bounded summary, not every original detail. Combined with reload recovery, queued work survives a **Developer: Reload Window** without blindly re-sending accepted messages.
 

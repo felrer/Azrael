@@ -1413,9 +1413,14 @@ async fn maybe_run_previous_model_inline_compact(
         let previous_model_limit_reached =
             match turn_context.config.model_auto_compact_token_limit_scope {
                 AutoCompactTokenLimitScope::Total => {
-                    let new_auto_compact_limit = turn_context
-                        .model_info()
-                        .auto_compact_token_limit()
+                    let new_auto_compact_limit =
+                        codex_protocol::context_policy::resolve_auto_compact(
+                            turn_context.model_info().as_ref(),
+                            &turn_context.config.provider_auto_compact,
+                            turn_context.config.model_auto_compact_token_limit,
+                            super::context_window::subscription_auth(sess),
+                        )
+                        .0
                         .unwrap_or(i64::MAX);
                     active_context_tokens > new_auto_compact_limit
                         || active_context_tokens >= new_context_window

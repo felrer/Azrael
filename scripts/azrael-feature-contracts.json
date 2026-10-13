@@ -456,7 +456,8 @@
       "id": "ui.provider-context",
       "area": "ui",
       "owners": [
-        "scripts/inject-provider-context.cjs"
+        "scripts/inject-provider-context.cjs",
+        "scripts/verify-provider-context-render.mjs"
       ],
       "contract": "docs/architecture/context-policy.md",
       "checks": [
@@ -467,6 +468,12 @@
             "--test",
             "scripts/test-provider-context.cjs"
           ],
+          "level": "source"
+        },
+        {
+          "id": "ui.provider-context.render",
+          "executable": "node",
+          "args": ["scripts/verify-provider-context-render.mjs"],
           "level": "source"
         }
       ],
@@ -828,6 +835,9 @@
       "id": "engine.provider-context",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/protocol/src/context_policy.rs",
+        "engine/codex-rs/core/src/session/context_window.rs",
+        "engine/codex-rs/models-manager/src/model_info.rs",
         "scripts/test-provider-context-engine.mjs",
         "scripts/test-provider-input-budget-helper.cjs",
         "providers/devin/context-budget.mjs",

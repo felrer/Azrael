@@ -49,6 +49,7 @@ pub(super) async fn limit_reached(sess: &Session, step: &StepContext, input_toke
         model,
         &config.provider_auto_compact,
         config.model_auto_compact_token_limit,
+        super::context_window::subscription_auth(sess),
     )
     .0;
     let window = sess.current_window_id().await;

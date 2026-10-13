@@ -1146,22 +1146,22 @@ mod tests {
             model.context_window = Some(1_000_000);
             let mut entries = BTreeMap::new();
             assert_eq!(
-                resolve_auto_compact(&model, &entries, None),
+                resolve_auto_compact(&model, &entries, None, false),
                 (Some(600_000), AutoCompactSource::Default)
             );
             assert_eq!(
-                resolve_auto_compact(&model, &entries, Some(120_000)),
+                resolve_auto_compact(&model, &entries, Some(120_000), false),
                 (Some(120_000), AutoCompactSource::Global)
             );
             entries.insert("anthropic".into(), ProviderAutoCompact::default());
             assert_eq!(
-                resolve_auto_compact(&model, &entries, Some(120_000)),
+                resolve_auto_compact(&model, &entries, Some(120_000), false),
                 (Some(600_000), AutoCompactSource::Default)
             );
             model.context_window = Some(200_000);
             model.effective_context_window_percent = 100;
             assert_eq!(
-                resolve_auto_compact(&model, &entries, None),
+                resolve_auto_compact(&model, &entries, None, false),
                 (Some(190_000), AutoCompactSource::Default)
             );
             entries.insert(
@@ -1173,7 +1173,7 @@ mod tests {
                 },
             );
             assert_eq!(
-                resolve_auto_compact(&model, &entries, None),
+                resolve_auto_compact(&model, &entries, None, false),
                 (Some(150_000), AutoCompactSource::Provider)
             );
             entries.insert(
@@ -1185,14 +1185,14 @@ mod tests {
                 },
             );
             assert_eq!(
-                resolve_auto_compact(&model, &entries, None),
+                resolve_auto_compact(&model, &entries, None, false),
                 (Some(100_000), AutoCompactSource::Provider)
             );
             entries.clear();
             model.slug = "other-model".into();
             model.model_provider = "openrouter".into();
             assert_eq!(
-                resolve_auto_compact(&model, &entries, None),
+                resolve_auto_compact(&model, &entries, None, false),
                 (Some(190_000), AutoCompactSource::Default)
             );
         }
@@ -1213,17 +1213,17 @@ mod tests {
             }}}))
             .unwrap();
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(100_000), AutoCompactSource::Model)
         );
         model.slug = "managed/google/gemini-3.1-pro-preview".into();
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(120_000), AutoCompactSource::Global)
         );
         entries.get_mut("google").unwrap().token_limit = Some(150_000);
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(150_000), AutoCompactSource::Provider)
         );
         entries
@@ -1232,23 +1232,23 @@ mod tests {
             .models
             .insert(model.slug.clone(), Default::default());
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(190_000), AutoCompactSource::Default)
         );
         model.slug = "managed/google/gemini-2.5-pro".into();
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(100_000), AutoCompactSource::Model)
         );
         model.slug = "managed/google/gemini-2.5-pro-other".into();
         entries.get_mut("google").unwrap().token_limit = None;
         assert_eq!(
-            resolve_auto_compact(&model, &entries, None),
+            resolve_auto_compact(&model, &entries, None, false),
             (Some(950_000), AutoCompactSource::Default)
         );
         model.slug = "managed/openrouter/gemini-2.5-pro".into();
         assert_eq!(
-            resolve_auto_compact(&model, &entries, Some(120_000)),
+            resolve_auto_compact(&model, &entries, Some(120_000), false),
             (Some(120_000), AutoCompactSource::Global)
         );
     }
@@ -1362,6 +1362,135 @@ mod tests {
         assert_eq!(policy.pricing.input_token_threshold, Some(200_000));
         assert!(!policy.pricing.inclusive);
         assert_eq!(policy.auto_compact_base_tokens, Some(200_000));
+    }
+
+    #[test]
+    fn subscription_compaction_uses_real_capacity_and_exact_300k_default() {
+        use crate::context_policy::{AutoCompactSource, PricingStatus, resolve_context_policy};
+        let mut model = test_model(None);
+        model.slug = "gpt-6.1-sol".into();
+        model.model_provider = "openai".into();
+        for (capacity, expected) in [(1_000_000, 300_000), (400_000, 300_000), (200_000, 190_000)] {
+            model.context_window = Some(capacity);
+            let policy = resolve_context_policy(&model, &Default::default(), None, true);
+            assert_eq!(policy.context_window, Some(capacity));
+            assert_eq!(policy.auto_compact_base_tokens, Some(capacity));
+            assert_eq!(policy.auto_compact_token_limit, Some(expected));
+            assert_eq!(policy.auto_compact_source, AutoCompactSource::Default);
+            assert_eq!(policy.pricing.status, PricingStatus::NoSurcharge);
+            assert_eq!(policy.pricing.input_token_threshold, None);
+            assert_eq!(policy.pricing.source_url, None);
+        }
+        model.context_window = Some(1_000_000);
+        model.max_context_window = Some(200_000);
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true)
+                .auto_compact_token_limit,
+            Some(190_000)
+        );
+        model.context_window = Some(100_000);
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true)
+                .auto_compact_token_limit,
+            Some(95_000)
+        );
+        model.slug = "unverified-model".into();
+        let unknown = resolve_context_policy(&model, &Default::default(), None, true);
+        assert_eq!(unknown.context_window, Some(100_000));
+        assert_eq!(unknown.auto_compact_base_tokens, Some(100_000));
+        model.context_window = None;
+        model.max_context_window = None;
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true).context_window,
+            None
+        );
+        model.slug = "gpt-6.1-sol".into();
+        model.context_window = Some(1_000_000);
+        let api = resolve_context_policy(&model, &Default::default(), None, false);
+        assert_eq!(api.auto_compact_base_tokens, Some(272_000));
+        assert_eq!(api.auto_compact_token_limit, Some(258_400));
+        assert_eq!(api.pricing.status, PricingStatus::Confirmed);
+        model.slug = "managed/openai/gpt-6.1-sol".into();
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true),
+            resolve_context_policy(&model, &Default::default(), None, false)
+        );
+        model.slug = "api/openai/gpt-6.1-sol".into();
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true),
+            resolve_context_policy(&model, &Default::default(), None, false)
+        );
+        model.slug = "managed/anthropic/claude-opus-5-5".into();
+        assert_eq!(
+            resolve_context_policy(&model, &Default::default(), None, true)
+                .auto_compact_token_limit,
+            Some(600_000)
+        );
+    }
+
+    #[test]
+    fn subscription_compaction_preserves_explicit_precedence_and_reset() {
+        use crate::context_policy::{AutoCompactSource, ProviderAutoCompact, resolve_auto_compact};
+        use std::collections::BTreeMap;
+        let mut model = test_model(None);
+        model.slug = "gpt-6.1-sol".into();
+        model.model_provider = "openai".into();
+        model.context_window = Some(1_000_000);
+        let mut entries: BTreeMap<String, ProviderAutoCompact> = Default::default();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(120_000), AutoCompactSource::Global)
+        );
+        entries.insert("openai".into(), Default::default());
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(300_000), AutoCompactSource::Default)
+        );
+        entries = serde_json::from_value(serde_json::json!({"openai": {
+            "percentage": 50, "token_limit": 400000, "models": {
+                "gpt-6.1-sol": {"percentage": 30, "token_limit": 200000}
+            }
+        }}))
+        .unwrap();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(300_000), AutoCompactSource::Model)
+        );
+        entries
+            .get_mut("openai")
+            .unwrap()
+            .models
+            .get_mut(&model.slug)
+            .unwrap()
+            .percentage = None;
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, None, true),
+            (Some(200_000), AutoCompactSource::Model)
+        );
+        entries
+            .get_mut("openai")
+            .unwrap()
+            .models
+            .insert(model.slug.clone(), Default::default());
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(300_000), AutoCompactSource::Default)
+        );
+        model.slug = "gpt-6-astra".into();
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(500_000), AutoCompactSource::Provider)
+        );
+        entries.get_mut("openai").unwrap().percentage = None;
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(400_000), AutoCompactSource::Provider)
+        );
+        entries.get_mut("openai").unwrap().token_limit = None;
+        assert_eq!(
+            resolve_auto_compact(&model, &entries, Some(120_000), true),
+            (Some(120_000), AutoCompactSource::Global)
+        );
     }
 
     #[test]
