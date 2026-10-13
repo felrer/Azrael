@@ -78,6 +78,7 @@ fn root_resume_test_reservation(
         completion_tasks: Vec::new(),
         reason: "test wait".to_string(),
         final_output_json_schema: None,
+        reasoning_settings: None,
         wake_reason: None,
         last_error: None,
     }

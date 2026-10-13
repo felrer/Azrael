@@ -108,7 +108,10 @@ impl TimeProvider for FakeClock {
     }
 }
 
-pub(super) async fn wait_for_state(session: &Session, expected: RootResumeState) -> RootResumeReservation {
+pub(super) async fn wait_for_state(
+    session: &Session,
+    expected: RootResumeState,
+) -> RootResumeReservation {
     tokio::time::timeout(Duration::from_secs(10), async {
         loop {
             if let Some(record) = session.root_resume_record()
@@ -232,6 +235,88 @@ async fn parked_root_does_not_sample_and_deadline_dispatches_once() {
     clock.advance(Duration::from_secs(60));
     tokio::task::yield_now().await;
     assert_eq!(requests.requests().len(), 1);
+}
+
+async fn set_reasoning_effort(
+    session: &Session,
+    effort: codex_protocol::openai_models::ReasoningEffort,
+) {
+    session
+        .update_settings(crate::session::SessionSettingsUpdate {
+            step_settings: crate::session::step_settings::StepSettingsUpdate {
+                effort: Some(Some(effort)),
+                ..Default::default()
+            },
+            ..Default::default()
+        })
+        .await
+        .unwrap();
+}
+
+#[tokio::test]
+async fn automatic_root_resume_preserves_reasoning_and_manual_uses_current_settings() {
+    use codex_protocol::openai_models::ReasoningEffort;
+    for wake in [
+        RootResumeWakeReason::Deadline,
+        RootResumeWakeReason::AgentsCompleted,
+        RootResumeWakeReason::WorkCompleted,
+        RootResumeWakeReason::Manual,
+    ] {
+        let server = start_mock_server().await;
+        let requests = mount_sse_once(
+            &server,
+            sse(vec![ev_response_created("effort"), ev_completed("effort")]),
+        )
+        .await;
+        let clock = Arc::new(FakeClock::new());
+        let home = tempfile::tempdir().unwrap();
+        let (session, _turn, _events) =
+            make_persistent_session_and_context_with_time_provider_and_rx(
+                home.path(),
+                InitialHistory::New,
+                clock,
+                format!("{}/v1", server.uri()),
+            )
+            .await
+            .unwrap();
+        set_reasoning_effort(&session, ReasoningEffort::High).await;
+        let turn = session
+            .new_turn_with_default_settings("effort-origin".to_string(), Default::default())
+            .await;
+        let record = park_root(&session, &turn, 60_000).await;
+        assert_eq!(
+            record.reasoning_settings.as_ref().unwrap().effort,
+            Some(ReasoningEffort::High)
+        );
+        set_reasoning_effort(&session, ReasoningEffort::Low).await;
+        let waiting = session.root_resume_record().unwrap();
+        session
+            .dispatch_root_resume(waiting.id, waiting.revision, wake.clone())
+            .await
+            .unwrap();
+        wait_for_state(&session, RootResumeState::Resumed).await;
+        tokio::time::timeout(Duration::from_secs(10), async {
+            while requests.requests().is_empty() {
+                tokio::time::sleep(Duration::from_millis(10)).await;
+            }
+        })
+        .await
+        .expect("resumed reasoning request");
+        let expected = if wake == RootResumeWakeReason::Manual {
+            "low"
+        } else {
+            "high"
+        };
+        assert_eq!(
+            requests.single_request().body_json()["reasoning"]["effort"],
+            expected
+        );
+        assert_eq!(
+            session.thread_settings_snapshot().await.reasoning_effort,
+            Some(ReasoningEffort::Low)
+        );
+        session.stop_root_resume_timer();
+    }
 }
 
 #[tokio::test]
@@ -363,6 +448,10 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
         )
         .await
         .expect("first persistent session fixture");
+    set_reasoning_effort(&first, codex_protocol::openai_models::ReasoningEffort::High).await;
+    let turn = first
+        .new_turn_with_default_settings(turn.sub_id.clone(), Default::default())
+        .await;
     park_root(&first, &turn, 1_000).await;
     tokio::time::timeout(Duration::from_secs(10), async {
         while clock.sleep_count() == 0 {
@@ -390,6 +479,11 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
         )
         .await
         .expect("restarted persistent session fixture");
+    set_reasoning_effort(
+        &restarted,
+        codex_protocol::openai_models::ReasoningEffort::Low,
+    )
+    .await;
     restarted
         .recover_root_resume()
         .await
@@ -413,6 +507,14 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
     })
     .await
     .expect("recovered continuation request");
+    assert_eq!(
+        requests.single_request().body_json()["reasoning"]["effort"],
+        "high"
+    );
+    assert_eq!(
+        restarted.thread_settings_snapshot().await.reasoning_effort,
+        Some(codex_protocol::openai_models::ReasoningEffort::Low)
+    );
     assert_eq!(requests.requests().len(), 1);
 }
 
@@ -824,6 +926,7 @@ async fn queued_compact_preserves_root_resume_reservation() {
         completion_tasks: Vec::new(),
         reason: "reservation test".to_string(),
         final_output_json_schema: None,
+        reasoning_settings: None,
         wake_reason: None,
         last_error: None,
     };

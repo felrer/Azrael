@@ -367,6 +367,8 @@ and the final OAuth HTTP body. They use fixture credentials and a mocked transpo
 
 ### Root resume reservations
 
+Automatic reasoning retention: run `node scripts/check-root-resume-reasoning.cjs <absolute frozen engine source root>` with the selected shared cache in `CARGO_TARGET_DIR`. It runs the focused `root_resume` library tests for `codex-core`, `codex-protocol` and `codex-state`, with locked offline dependencies, serial fixtures, Windows fixture stack size and golden updates disabled. Coverage includes saved effective effort, all automatic wake reasons versus manual resume, unchanged thread defaults, durable recovery and additive migration of older reservations. This verifies the frozen source with a mock provider; installed-host and live-provider acceptance are separate.
+
 #### Root coordination guidance
 
 The independent root developer fragment follows the [root coordination contract](../architecture/root-coordination.md). From the frozen engine's `codex-rs/`, reuse the selected `CARGO_TARGET_DIR` and run `cargo test -p codex-prompts --lib root_coordination --locked --offline` and `cargo test -p codex-core --lib root_coordination --locked --offline`. Root creation, fingerprint changes, retained-history restoration and the source/version/configuration gate are covered independently of configurable multi-agent role text.

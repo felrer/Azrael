@@ -14,6 +14,7 @@ use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::TurnAbortReason;
 use codex_protocol::protocol::TurnAbortedEvent;
 use codex_protocol::protocol::TurnDeferredEvent;
+use codex_protocol::root_resume::RootResumeReasoningSettings;
 use codex_protocol::root_resume::RootResumeReservation;
 use codex_protocol::root_resume::RootResumeState;
 use codex_protocol::root_resume::RootResumeWakeReason;
@@ -179,6 +180,7 @@ impl Session {
         .await
     }
 
+    #[cfg(test)]
     pub(crate) async fn prepare_root_resume_with_work(
         self: &Arc<Self>,
         turn: &Arc<TurnContext>,
@@ -188,6 +190,32 @@ impl Session {
         agent_paths: Vec<String>,
         work_ids: Vec<String>,
         reason: String,
+    ) -> CodexResult<RootResumeReservation> {
+        self.prepare_root_resume_with_settings(
+            turn,
+            call_id,
+            resume_after_ms,
+            resume_at,
+            agent_paths,
+            work_ids,
+            reason,
+            RootResumeReasoningSettings {
+                effort: turn.next_step_settings.load().effective_reasoning_effort(),
+            },
+        )
+        .await
+    }
+
+    pub(crate) async fn prepare_root_resume_with_settings(
+        self: &Arc<Self>,
+        turn: &Arc<TurnContext>,
+        call_id: &str,
+        resume_after_ms: Option<u64>,
+        resume_at: Option<String>,
+        agent_paths: Vec<String>,
+        work_ids: Vec<String>,
+        reason: String,
+        reasoning_settings: RootResumeReasoningSettings,
     ) -> CodexResult<RootResumeReservation> {
         let control = self.root_resume_control();
         let _guard = Arc::clone(&control.gate).lock_owned().await;
@@ -296,6 +324,7 @@ impl Session {
             wake_reason: None,
             last_error: None,
             final_output_json_schema: turn.final_output_json_schema.clone(),
+            reasoning_settings: Some(reasoning_settings),
         };
         db.create_root_resume(&record)
             .await
@@ -743,9 +772,23 @@ impl Session {
                 // Normal thread configuration carries source, permissions, provider and account admission.
                 let phase = RootResumePhase::new(timing.as_ref(), "turn_context");
                 let previous = session.reference_context_item().await;
+                let mut configuration = session.state.lock().await.session_configuration.clone();
+                if matches!(
+                    claimed.wake_reason,
+                    Some(RootResumeWakeReason::Deadline
+                        | RootResumeWakeReason::AgentsCompleted
+                        | RootResumeWakeReason::WorkCompleted)
+                ) && let Some(settings) = &claimed.reasoning_settings
+                {
+                    Arc::make_mut(&mut configuration.step_settings)
+                        .collaboration_mode.settings.reasoning_effort = settings.effort.clone();
+                }
+                let environments = session.activate_turn_environments(&configuration).await;
                 let context = session
-                    .new_turn_with_default_settings(
+                    .new_turn_from_configuration(
                         claimed.resume_turn_id.clone(),
+                        configuration,
+                        environments,
                         NewTurnContextOptions {
                             final_output_json_schema: claimed.final_output_json_schema.clone(),
                             cyber_access_program: previous.and_then(|c| c.cyber_access_program),

@@ -37,6 +37,7 @@ impl ToolExecutor<ToolInvocation> for RootResumeHandler {
             let ToolInvocation {
                 session,
                 turn,
+                step_context,
                 call_id,
                 payload,
                 ..
@@ -68,7 +69,7 @@ impl ToolExecutor<ToolInvocation> for RootResumeHandler {
                 .unwrap_or_default();
 
             let reservation = session
-                .prepare_root_resume_with_work(
+                .prepare_root_resume_with_settings(
                     &turn,
                     &call_id,
                     resume_after_ms,
@@ -76,6 +77,9 @@ impl ToolExecutor<ToolInvocation> for RootResumeHandler {
                     agent_paths,
                     work_ids,
                     reason,
+                    codex_protocol::root_resume::RootResumeReasoningSettings {
+                        effort: step_context.settings.effective_reasoning_effort(),
+                    },
                 )
                 .await
                 .map_err(|err| FunctionCallError::RespondToModel(err.to_string()))?;

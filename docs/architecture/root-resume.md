@@ -26,6 +26,14 @@ The engine owns at most one active reservation per root. Its durable record hold
 
 New user input supersedes the reservation and is handled promptly. Resume-now and cancel act on a reservation ID and expected revision; cancelling affects only the reservation and leaves subagent work running. Matching terminal results are collected from native agent state and mailbox, not synthesized as a user message. Resume keeps task lineage and passes normal model, provider, account and permission admission without silently choosing another account; admission or recovery failure leaves a visible blocked reservation instead of a polling loop.
 
+### Reasoning effort on automatic resume
+
+Status: `partial` — snapshot storage is verified on the integrated source; resumed-request and recovery fixtures pass on an isolated Windows source input. The owning integrated source files also pass the native library compilation gate. Packaging, installation and other-platform acceptance remain separate.
+
+Preservation ID: `engine.root-resume-reasoning`; its native check covers reservation storage and resumed model requests.
+
+New reservations capture the effective reasoning effort of the model step that requested deferral, including an explicit unset value. Deadline, selected-agent completion and selected-work completion apply that durable snapshot to the resumed turn, including after engine restart. Changes to thread settings during the wait remain available for later user turns and are not overwritten by automatic resume. Manual resume keeps using current thread settings. Existing reservations without a reasoning snapshot retain their previous settings behavior. This common engine policy is independent of desktop platform; model, provider, account and permission admission retain their existing boundaries.
+
 ### Cancelling an unloaded root
 
 Status: `current` in source — Windows native cancellation and conversation reload regressions pass; packaging, installation and process-restart acceptance remain separate.
