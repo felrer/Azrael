@@ -1,25 +1,25 @@
-상태: 구현·격리 재현 진행 중. 2026-10-13 사용자 지시로 코드 수정과 격리 프로필 재현·원인 분석·검증을 수행한다. 일반 프로필 설치·전체 앱 배포 빌드는 이번 범위에 포함하지 않는다.
+상태: 코드 구현 및 Windows 격리 재현·검증 완료. 정상 정리와 검증 근거 보존을 마쳤으며 원본 fixture의 정책 거절 잔여는 예외 보존한다. 2026-10-13 사용자 지시로 코드 수정과 격리 프로필 재현·원인 분석·검증을 수행했다. 일반 프로필 설치·전체 앱 배포 빌드는 이번 범위에 포함하지 않는다.
 
 # 세션 재개에 따른 작업 묶음과 시간 기록 수정 계획
 
 새 세션에서 한 턴만으로 작업 묶음과 조회 오류가 표시되는 동작을 고친다. 모델의 세션 재개 도구 사용이 3회 이상일 때 묶음을 표시하고, 재개 관계·기록 조회·상태 병합·대화 경계가 같은 기준을 따르도록 바꾼다.
 
-## 결정할 기준
+## 확정한 기준
 
-횟수 3은 확정된 사용자 요구다. 다음 두 가지는 구현 전에 확정해야 한다.
+같은 연속 자동 작업 안에서 성공한 대기 등록 3회를 센다. 고유 예약과 대기 시작 시각으로 성공 등록을 확인한다.
 
-1. 횟수를 같은 연속 작업 안에서 셀지, 대화 전체 누적으로 셀지 결정한다. 같은 연속 작업 안에서 세는 방식을 추천한다. 서로 다른 요청의 사용 횟수가 더해져 새 작업이 처음부터 묶이는 현상을 막을 수 있다.
-2. 성공적으로 대기를 등록한 도구 사용 3회를 셀지, 실제 자동 재개가 실행된 3회를 셀지 결정한다. 문구에 맞춰 성공한 도구 사용을 추천한다. 세 번째 대기에 들어간 시점부터 표시되며, 도구 오류·중복 이벤트는 세지 않는다. 성공 등록 후 취소·교체된 예약은 이미 사용한 횟수에 남긴다. 실제 실행을 선택하면 세 번째 재개가 시작될 때 표시되며, 재개 전 취소·교체된 예약은 세지 않는다.
+1. 서로 다른 사용자 요청의 횟수는 합산하지 않는다. root ID와 부모·자동 재개 trigger로 연속 작업을 구분한다.
+2. 세 번째 성공 등록 시점부터 처음 작업의 시간과 범위를 표시한다. 도구 오류·준비·중복은 세지 않으며 이후 취소·교체·차단은 이미 성공한 사용 횟수를 지우지 않는다.
 
-새 사용자 메시지가 자동 대기를 대신하면 자동 재개와 별도로 구분하는 것을 추천한다. 모델이 다른 세션의 링크를 읽어 작업을 이어가는 행위는 현재 대화의 자동 재개로 세지 않는다. 기존 수동 작업 나누기·합치기는 보존하고, 자동 표시 기준과 어떻게 조합할지 위 기준과 함께 정한다.
+새 사용자 메시지가 자동 대기를 대신하면 새 작업으로 구분한다. 다른 세션의 링크 읽기는 자동 재개로 세지 않는다. 기존 수동 나누기·합치기는 보존하며 원래 연속 작업의 자격을 따르고 서로 다른 짧은 작업의 합치기로 자격을 만들지 않는다.
 
 ## 범위와 권한
 
-허용된 작업은 코드 조사, 작은 읽기 중심 진단 실험, 수정 계획 작성이다. 제품 코드·기능 계약의 구현 변경, 앱 전체 빌드·설치·게시를 실행하지 않는다. 기존 및 동시 변경은 보존한다.
+허용된 작업은 코드 조사·수정, 테스트용 엔진/CLI 컴파일, 격리 프로필 재현·검증과 필요한 정리다. 앱 전체 빌드·일반 프로필 설치·게시를 실행하지 않는다. 사용자 답변에 따라 설치된 VS Code의 업데이트·기존 창 종료도 수행하지 않는다. 기존 및 동시 변경은 보존한다.
 
-표시·집계·메타데이터 계약은 로컬 Windows x64, Linux x64, macOS ARM64 공통 요구다. 이번 실제 조사는 Windows 체크아웃의 source와 합성 입력 실험이다. 설치된 사진 대상 윈도우의 오류는 source 조사만으로 확정하지 않는다. 원격·컨테이너 환경의 지원 변경은 범위에 없다.
+표시·집계·메타데이터 계약은 로컬 Windows x64, Linux x64, macOS ARM64 공통 요구다. 실제 검증은 Windows x64의 고정 소스·합성 입력·실제 VS Code 격리 호스트다. 다른 OS 및 원격·컨테이너 수용은 검증하지 않았다. 첨부 사진 자체의 동일 실패 원인을 source 조사만으로 확정하지 않는다.
 
-## 현재 구조에서 확인한 문제
+## 수정 전 구조에서 확인한 문제
 
 | 지점 | 확인한 사실과 영향 | 수정 방향 |
 | --- | --- | --- |
@@ -62,7 +62,7 @@ Pinned native caller는 manager.listThreadTurns(threadId, options)의 결과를 
 4. inject-task-work-time.cjs에서 자격 있는 작업만 native 측정 행으로 표시한다. 각 작업의 실제 대화 범위를 이중선으로 표시한다. 조회 실패를 숨겨서 해결하지 않고, 표시 자격과 실제 데이터 준비를 구분한다.
 5. native 계약·상태·새 세션·실패 복구·빠른 스크롤을 검증하고 소유 계약 및 ui.task-work-time 보존 목록의 검사를 갱신한다. 전체 빌드·설치가 필요하면 별도 지시 범위를 확인한 뒤 수행한다.
 
-현재 선행 조건은 위의 횟수 의미와 사용자 입력 대체 시 작업 경계의 합의다. native 관계 노출의 부족은 확인됐으며 보완 범위는 위 1단계에 명시했다. 계약을 확정하면 metadata adapter와 계산을 연결하고 UI가 이를 소비한다. 이번 조사 담당자는 읽기 전용이며 구현 파일을 소유하지 않는다. 구현 시 공유 계약을 root가 먼저 고정하고 수정 소유권을 배정한다.
+횟수·사용자 대체 경계는 위 기준으로 확정했다. metadata 담당자는 native 관계·schema·저장/알림 및 wire 소비자를, UI 담당자는 집계·native 행 표시와 측정을, host 담당자는 실제 격리 검증 도구를 소유한다. root는 history adapter·공유 계약·통합·최종 수용 및 문서를 소유한다.
 
 ## 성공 기준과 검증
 
@@ -84,7 +84,7 @@ Pinned native caller는 manager.listThreadTurns(threadId, options)의 결과를 
 - 재개 metadata: engine/codex-rs/protocol/src/root_resume.rs:82, app-server-protocol/src/protocol/thread_history.rs:107 및 protocol/v2/thread_data.rs:386.
 - 저장 attribution과 API 누락: engine/codex-rs/protocol/src/protocol.rs:2246, protocol/src/turn_input.rs:56, app-server-protocol/src/protocol/thread_history.rs:105·136·1309, protocol/v2/thread.rs:1773 및 protocol/v2/thread_data.rs:386.
 
-계획 검토 뒤 확정된 요구만 owning architecture에 반영한다. 이 계획 작성으로 제품 코드를 수정하거나 미검증 동작을 current로 표시하지 않는다.
+확정된 계약과 실제 검증 상태는 owning architecture에 반영했다. 실행별 상세 근거와 실패·정정·재실행은 아래 기록에 둔다.
 
 ## 실행 기록
 
@@ -106,4 +106,48 @@ Pinned native caller는 manager.listThreadTurns(threadId, options)의 결과를 
 - 사용자 답변: 업데이트 버튼이 사라졌고, 업데이트하면 작업 세션이 종료되므로 업데이트 없이 작업해야 한다. 기존 Code 창·업데이터·일반 프로필을 유지한다. installed Code.exe는 1.140.0/commit 07f806f999227108933c2e30515b26eecc1fda74이며 새 대기 버전은 1.141.0이다. installed mainImpl.js의 mutex 검사는 user/system target에 적용돼 disable-updates가 해결하지 않는다. 제품 코드나 mutex flag를 변조하지 않는다.
 - 공식 ZIP 1.140.0을 별도 검증 fixture에 사용하는 경로를 선택했다. HEAD 200, 355,156,158bytes, redirect commit은 현재 버전과 동일하다. URL: https://update.code.visualstudio.com/1.140.0/win32-x64-archive/stable. 공식 portable 문서 https://code.visualstudio.com/docs/setup/portable 는 Windows ZIP에서만 지원하며 ZIP 자동 업데이트가 없다고 명시한다. 다운로드·추출 hash/버전 확인과 실제 격리 실행은 host 담당자가 소유한다. 이 준비는 업데이트·설치 또는 실제 화면 통과와 구분한다.
 - 06:10 UTC: r3 저장소 검사가 공유 Cargo lock을 획득해 state/rollout 컴파일을 시작했다. 같은 단일 batch에서 store → app-server 집중 검사 → 테스트용 CLI 순서로 진행하며 필요한 결과가 준비되는 즉시 호스트 검사에 인계한다.
+- r3 attribution 저장 검사 1개 exit 0, 원본 rollout·root 대기·frozen timing·legacy null·NotLoaded/Summary 결과를 확인했다. 다음 동일 입력 store 검사 재호출은 lock을 다시 기다렸으므로 본인 대기 Cargo producer만 확인해 정상 중단했고, 같은 r3 test exe의 hash/필터 목록을 확인해 직접 실행했다(exit 0). 다른 작업의 프로세스나 binary는 변경·재사용하지 않았다. capacity 오류로 담당 turn이 중단된 뒤 같은 담당자가 producer 제어권을 복구했으며 제품 검사 실패로 기록하지 않는다.
+- 공식 ZIP의 실제 extension-host CDP 접속은 성공했으나 첫 probe는 Promise was collected로 실패했다. 동시에 VS Code 1.140의 공용 저장소와 상속 node compile cache 접근 경로가 로그에 확인돼 추가 실행을 중단했다. own workbench URL을 확인한 Target.closeTarget으로 fixture 창만 닫았고 종료 후 live reference가 없음을 확인했다. 사용자 프로필 flag만으로 완전 격리됐다는 결론을 정정한다. ordinary 공유 저장소의 본문·인증을 읽거나 원상복구 대상으로 변경하지 않는다.
+- installed mainImpl.js의 appSharedDataHome은 --shared-data-dir를 공식 지원하며 기본값이 userHome/.vscode-shared다. 새 fixture는 own/shared-data를 지정하고 모든 inherited VSCODE_*/ELECTRON_* 및 NODE_OPTIONS/NODE_COMPILE_CACHE 경로를 제거했다. 실제 로그의 sharedStorage/state.vscdb가 own 경로인지 검사한다. probe Promise lifetime도 수정한 새 시도를 사용한다.
+- metadata-owned.patch를 통합 검토한 결과 foreign auto_compaction_enabled·attach_persisted_auto_compaction 등 다른 작업의 추가 줄이 포함돼 있었다. 초기 파일이 깨끗했더라도 동시에 수정된 전체 git diff는 이 작업만의 delta가 아니다. 순수 작업 patch라는 이전 주장을 정정하고 own attribution·projection·literal 필드와 자기 테스트만 분리한다. 아직 스테이징·커밋하지 않았고 working source의 다른 작업 변경을 보존한다. frozen r3 및 실행 중 검사 입력은 변경하지 않는다.
+- 다른 작업의 09bb4b35 커밋이 이 작업의 source/UI/schema 대부분을 작업 도중 포함했다. root가 만든 별도 스테이징은 없었으며 이후 파일별 diff를 현재 HEAD와 대조한다. 과거 metadata-owned.patch는 혼합 근거로 유지한다. filtered patch는 당시 blob에 대한 별도 index 검사를 통과했으며 foreign text 17개 hunk와 compressed bundle의 foreign aggregate 차이를 제외했다. 이 기록용 Turn-only bundle은 현재 working bundle과 일부 다르므로 현재 패키지 입력으로 쓰지 않는다.
+- primary engine/SOURCE.json은 schema 2이며 0011_turn_attribution.sql 항목·migrationAdditions가 아직 없다. 일반 패키징 수용과 구분해 새 migration의 source inventory 등록은 현재 공유 작업 delta들과 조정해야 한다. root는 무관한 compact/provider_handoff 등 진행 중 변경을 자기 expected-path에 섞어 기록하지 않는다. 이번 native 검사·테스트용 binary provenance는 immutable r3 manifest에 연결한다.
+- 격리 shared-data/env 수정 뒤 실제 extension-host·URI handler·renderer webview 접속, own shared DB 경로와 native 창 종료가 통과했다. custom model_providers.fixture는 Azrael host 정책이 거부했고, fixture 설정만 built-in으로 바꾼 뒤 정상 온보딩 화면까지 mount됐다. 이는 인증 상태가 없는 새 프로필의 gate이므로 제품 인증 코드를 수정하지 않는다. own auth.json의 명백한 synthetic 무효 API key 상태로 기록 viewer 경로를 검사하며 실제 credentials·turn/start·inference는 사용하지 않는다.
+- 임계값 0~3의 짧은 historical 사례와 별도 176턴·175개의 등록/종료 대기 historical 사례를 준비했다(exit 0). 실제 모델 도구를 175번 실행한 기록이 아닌 합성 원본 replay다. 실제 native 목록의 긴 펼침 높이·가상 unmount·빠른 왕복 스크롤·재등장 후 접기·observer 오류·경계/겹침 검사는 새 runtime 이후 확인한다. 결과 준비와 제품 통과를 구분한다.
+- synthetic API key로도 native 앱은 온보딩에 남았다. 기존 login/auth azrael_unmanaged_tests는 저장 API key가 현재 Azrael 인증수단이 아님을 명시한다. 같은 소유 파일의 정식 chatgpt_auth_json 테스트 helper를 재사용해 own profile에 완전 합성 ChatGPT 인증 상태를 구성한다. alg:none·fixture@example.invalid·명백한 fake opaque tokens·future exp이며 실제 로그인이나 토큰 유효성 수용으로 보고하지 않는다. 일반 계정 자료·credential manager·turn/start·inference는 사용하지 않는다.
+- app-server native compile에서 r3의 다른 공유 작업 중간 상태가 확인됐다: core compact.rs:306 및 provider_handoff.rs:383은 get_harness_base_instructions를 2개 인수로 호출하지만 session/mod.rs signature는 model:&str까지 3개를 요구해 E0061이 발생했다. 현재 working source에는 각 기존 model_info().slug를 공급하는 두 call-site 수정이 이미 있다. root는 이 변경을 편집·커밋하지 않고 r3를 보존한 새 r4 입력에 해당 두 파일만 overlay해 native 검사를 이어가도록 했다. 이번 attribution production 입력은 동일하게 유지하며 실패·재실행 원인을 기록한다.
+- 06:59:22 UTC: r4 manifest hash d25369e0430058e92c1055149545ade587064f2ab66d028ef8133342e283c0c3, 10,710개 파일 hash 확인 exit 0. r3와의 차이는 승인한 기존 call-site 두 파일이며 attribution production 입력은 동일하다. r4 app-server 검사는 07:01경 시작 후 공유 Cargo cache lock 대기 중이다.
+- 실제 격리 창의 합성 ChatGPT 인증은 models/token/settings 원격 응답 401로 온보딩에 남았고 nativeRows=0, verifier exit 1이었다. own 창은 정상 종료 exit 0 및 live 참조 0을 확인했다. extension/renderer CDP·URI·route mount·own shared DB는 통과했으나 대화 묶음 검사는 실행되지 않았다. 같은 실패를 반복하지 않고 공식 chatgpt_base_url 및 기존 application_network_tests의 로컬 HTTP fixture 계약을 조사·재사용한다. own loopback 서버는 합성 인증 상태·모델/설정 응답만 제공하고 제품 인증 gate·실제 계정·추론 경로를 바꾸지 않는다. 로컬 backend를 통한 native UI 수용과 실제 인증/서비스 수용을 구분한다.
+- fresh patched-auth-chain-ready-0705의 준비 및 0~3회/176턴 historical seed는 각각 exit 0이다. inherited API_KEY/ACCESS_TOKEN/REFRESH_TOKEN/AUTH_TOKEN/CREDENTIAL 및 DEVIN_*까지 환경 scrub을 확장했고 이름만 검사한 33개 제거 영수증은 exit 0이다. 값은 로그에 쓰지 않는다. 이 fixture 준비는 실제 화면 통과를 뜻하지 않는다.
+- r4 app-server compile exit 101: 두 core signature 불일치는 해결됐으나 foreign auto_compaction_enabled 필드가 소비자에는 있고 CodexThreadSettingsOverrides·ThreadSettingsOverrides·ThreadSettingsUpdateParams·ThreadConfigSnapshot·ThreadSettings 선언에는 없는 5개 오류가 나타났다. 입력의 공유 작업 중간 상태 문제이며 native 알림 검사는 아직 실행되지 않았다. root는 현재 tracked HEAD를 정확한 commit으로 고정한 r5에 기존 승인 core call-site 두 파일만 추가하는 검증 입력을 허용했다. working 전체를 복사하거나 foreign 구현을 수정하지 않으며 r4와 이번 production/schema hash가 같은지 확인한 뒤 컴파일한다.
+- 공식 UI azrael.apiEndpoint=localhost와 engine chatgpt_base_url은 서로 다른 경계다. 첫 loopback 시도에서는 UI 요청만 로컬로 가고 models는 실제 서버 401로 실패했다. 정식 model_catalog_json의 static catalog를 사용한 다음 시도에서는 models/token 401이 없어지고 로컬 accounts/check·settings/user가 200으로 응답했으나 온보딩은 유지됐다. 따라서 401만을 화면 진입 실패의 원인으로 확정하지 않는다. account/read(refreshToken:false) 및 thread/read의 응답 shape를 읽는 별도 RPC probe로 엔진 인증 상태와 실제 UI 상태의 차이를 조사한다. 실제 계정·추론·제품 gate 변경은 없다.
+- r5는 HEAD 7e13e66370d232acf49f901c880b18fbac13c77f와 승인된 core call-site 2개 overlay를 고정했다(07:54:11 UTC, hash 5ef0a47b97520800e906e4e939e383f0d7c5cf1fc80dacb8fec4c8fb793dff11, tracked 9,225개 파일). 21개 schema raw hash와 11개 production owner의 metadata 필드가 r4와 같으며 17개 전체 파일에는 foreign coherence 변경·기존 승인 fixture가 포함됐다. 전체 source identity가 같다는 주장은 하지 않고 r5 native 검사로 진행한다.
+- RPC probe에서 account/read가 workspace routing discovery missing backend origin으로 실패했다. 기존 app-server/tests/common/auth_fixtures.rs 계약의 workspace_backend_origin·account_routing_override를 합성 계정 응답에 포함한 뒤 accountPresent=true/type=chatgpt, engine EOF 및 server 종료 exit 0을 확인했다.
+- 합성 rollout의 SQLite/metadata history_mode가 복제 seed의 paginated였으나 projection은 없어 thread/read turnCount=0이었다. raw rollout fixture에 맞는 정식 legacy mode를 양쪽에 명시한 뒤 account/read와 thread/read(1턴) probe가 exit 0으로 통과했다. 실제 paginated lazy migration은 기존 저장소 검사 범위이며 legacy host 사례와 구분한다.
+- 이후 actual host는 authMethod=chatgpt까지 도달했으나 frontend wham/accounts/check 응답이 없고 account-info가 access token에서 JWT 계정 claim을 읽어 null을 반환했다. accepted host의 정식 JWT decode 계약에 맞는 명백한 FAKE access JWT와 normalized wham 응답을 사용한다. 기존 공식 fixture plan_type 매개변수로 개인 plus 합성 상태를 구성하며 제품 gate를 변경하지 않는다. 실제 인증/서비스 수용으로 보고하지 않는다.
+- r5 app-server exit 101: foreign thread_processor.rs 두 call-site가 codex_history를 사용하지만 HEAD app-server dependency 선언에 없었다. 현재 working Cargo.toml 및 Cargo.lock의 기존 수정은 각 codex-history 한 줄이며 root가 diff로 확인했다. r6는 r5와 승인 core overlay를 유지하고 이 두 기존 manifest/lock만 추가한다. 이번 작업이 foreign 의존성을 새로 설계·편집한 것은 아니다.
+- actual baseline의 account lookup은 succeeded/authenticatedAccountPresent=true, thread_history_page는 success로 진행했다. 최종 DOM에 Synthetic historical 1-turn task group과 Task1/Total2s/1turns 카드가 보여 3회 미만 표시 결함을 관찰했다. renderer exceptions는 없고 nativeRows=0은 Finish Windows setup to continue gate 때문이었다. 전체 verifier exit 1을 통과로 바꾸지 않는다. own fixture의 기존 정식 sandbox_mode=danger-full-access 및 approval_policy=never로 읽기 전용 경로를 확인하며 제품 setup gate를 변경하지 않는다. 일반 창·실제 추론·사용자 자료는 사용하지 않는다.
+- 위 nativeRows=0의 Windows setup gate 원인 추정은 철회한다. history builder는 일반 ResponseItem Message만으로 native items를 만들지 않으며 합성 기록에 UserMessageEvent/AgentMessageEvent가 누락됐다. canonical 메시지 이벤트를 포함한 뒤 RPC는 1턴/itemCounts=[1]/userMessage, engine EOF·server 종료가 exit 0으로 통과했다. setup 안내의 동시 표시는 빈 목록의 원인 근거가 아니다.
+- 실제 baseline native-items-correct-0930은 verifier exit 0, Code exit 0, local server closed=true다. 실제 URI/CDP·route mount·native turn rows 및 own shared-data 경계를 확인했고 밝은·어두운 테마에서 재개 0회인 1턴 old task card를 재현했다. 로그: artifacts/logs/task-group-20261013/host/baseline-native-items-correct-0930/. 제품 인증/gate를 변조하지 않고 합성 계정·정식 endpoint/config를 사용한 fixture 결과이며 실제 계정 인증 수용과 구분한다.
+- r6 고정: 08:25:14 UTC, HEAD 7e13e663+기존 승인 overlay 4개, input hash 087810fc73e7a1c323dba700ab1160f91b54fd9e4b983a8b97e1d384a596ded4. r5와 manifest/lock 두 파일만 달라지고 이번 metadata 및 21 schema는 같다. 공유 cache 획득 후 현재 app-server libtest 컴파일 단계이며 실제 알림 테스트 결과는 아직 없다.
+- host inactive 실패 프로필 8개는 own live 참조 0·절대 경계 확인 뒤 일반 삭제 exit 0으로 정리했다. 진단·스크린샷·실패 영수증은 로그 경로에 유지한다. 원본 native-state의 보호 속성/정책 거절 잔여 보존 조건은 별개이며 우회하지 않는다.
+- r6 app-server 완료·오류 집중 검사 6개 exit 0, 같은 test exe(e7b92e5bfd42b8d0)의 필터/hash를 확인해 자동 대기 알림 1개 직접 실행 exit 0. 이어 동일 immutable input으로 codex-cli의 codex bin만 locked/offline 빌드를 시작했다. 전체 앱·bridge·VSIX·설치는 없으며 CLI는 공유 cache 대기 중이다.
+- patched-auth-chain-ready-0705 actual 검사는 exit 0/outcome partial, Code exit 0/server closed=true. 밝은·어두운 테마의 1턴 no-group 및 실제 빠른 스크롤 20회에서 유한 geometry/겹침 없음, canonical 재개 1·2회(2·3턴)의 각 root row 도착 뒤 no-group을 확인했다. 짧은 후자 사례는 viewport overflow가 없어 스크롤 검사는 실행하지 않았다. 이전 runtime의 관계 정보 한계로 재개 3회/176턴 qualifying 수용은 아직 없다.
+- baseline/subthreshold 완료 프로필과 inactive 실패 프로필 3개를 own path·입력 hash·process 참조 0 guard 뒤 일반 삭제(exit 0, removed=true)했다. 공식 원본 ZIP도 정확 hash와 경계·process 확인 뒤 일반 삭제했다. extracted same-version Code, fallback seed, never-launched patched-native-final-0940만 후속 검사 입력으로 임시 유지하며 로그 host/README.md에 목적/완료 삭제 조건을 기록했다. 새 프로필 준비 및 5개 canonical legacy seed는 exit 0이며 모델 추론·실제 인증 검사는 없다.
+- r6 CLI compile exit 101은 이번 additive Turn 필드의 소비자 누락이다. tui/src/chatwidget/replay.rs의 패턴 분해와 Turn 재구성에서 parent_turn_id·turn_trigger를 받아 그대로 전달하는 4줄을 보완했다. 기존 source hash가 r6와 같아 foreign delta가 없는 신규 own path이며 root가 실제 diff를 확인했다. engine/ui task-work-time의 보존 owner에도 이 경로를 연결한다. 기존 원본 relation 값을 보존하며 null로 덮거나 추론하지 않는다.
+- r7은 r6와 replay.rs 한 파일만 다르고 9,225개 hash 확인 exit 0이다. 09:18:20 UTC 고정, input hash 2fe832d78ea075edf24b7cb057ca32c814b47d0afca7967e14cb3f70c39e2276. protocol·store·app-server production 입력은 같아 이전 충분한 결과를 재사용하고 CLI만 locked/offline 재실행한다. 고정 입력과 로그를 유지하며 실제 호스트 검사를 다시 시작했다고 보고하지 않는다.
+- r7 verification-only codex CLI build exit 0(12분 4초), dedicated artifact copy/hash/version exit 0, 09:35:30 UTC 인계. binary SHA256 4d0241c0fe5fa89a553aa3d9c32472c4d017c1829309894361c9df56e50d29b2, 363,294,208bytes. provenance: artifacts/logs/task-group-20261013/metadata/cli-r7-binary-receipt.json. sharedtarget binary가 후속 작업으로 변경돼도 실제 호스트는 이 전용 사본만 사용한다.
+- r7 actual host 첫 시작은 SQLite runtime 초기화에서 CLI exit 1이었다. 이후 own endpoint closed·own Code/codex process 0을 확인했으며 verifier exit 1과 15초 내 Code exit 미관찰(null)은 그대로 유지했다. empty own DB의 같은 CLI 초기화는 exit 0. 정밀 비교 결과 seed의 queue migration4 checksum만 새 CLI와 달랐고 primary/goals는 같았다. 앞선 모든 checksum 동일이라는 범위를 정정한다. 대화 viewer에 불필요한 queue/goals 복사를 제거하고 state_5/thread_history_1/sessions만 옮긴 새 fixture를 준비한다. migration checksum·제품 코드 우회는 하지 않으며 이 검사로 기존 프로필 업그레이드 수용을 주장하지 않는다.
+- 최종 feature manifest 및 host verifier 구문 검사 exit 0, 작업 소유 diff whitespace 검사 exit 0. 로그: artifacts/logs/task-group-20261013/feature-manifest-final.log 및 host-syntax-final.log. shared index에는 다른 작업의 파일이 있어 최종 커밋은 해당 staging을 보존하고 이번 변경만 분리해야 한다.
+- fresh queue-only 초기화 수정 후 new CLI의 5개 historical 사례 관계/성공 대기 수(0,1,2,3,175) RPC 검사가 통과했다. 4턴 실제 inline group도 표시됐지만 최초 추가 시간 assert는 순수 work 8초만 기대해 실패했다. 계약은 실행·자동 대기의 합집합이므로 기대를 8+24=32초로 바로잡았고 제품 시간 계산 실패로 분류하지 않는다.
+- 다음 actual 검사에서 4턴/3회 묶음은 두 테마 모두 group=1, timeRows=4, total=32초, ResizeObserver errors=[]로 통과했다. 176턴/175회 canonical metadata 및 352초 work+1,400초 wait RPC도 통과했다. 전체 verifier는 긴 대화 summary 도착 대기 timeout으로 exit 1, Code exit 0/server closed=true였다. 실제 long route/root row/초기 tail history hydration·viewport guard를 진단한 뒤 반복 여부를 결정하며 partial 성공을 전체 통과로 표시하지 않는다.
+- root가 short expanded PNG를 확인한 결과 viewport는 마지막 메시지와 하단 이중선을 담고 summary는 화면 밖이었다. 하단 경계 증거로는 유효하나 펼침 header의 시각 수용 근거로 쓰지 않는다. 후속 capture는 실제 canonical root/summary의 viewport intersection과 render frame을 확인한 뒤 대표 top PNG를 별도 보존하도록 했다.
+- 실제 스크롤 좌표는 reverse origin으로 음수이며 scrollTop=0은 하단이었다. inactive cache의 높이 0 행을 겹침 검사에 섞은 도구 오류도 확인했다. 실제 양의 높이 행·대화 scope·canonical root와 header의 clipping viewport 교차를 검사하고, native trusted down/up wheel로 top edge에 재진입해 공식 loadOlderHistoryAtTop 경로를 사용했다. native scroll·user·history-retention·restore callback이 원본과 byte 단위로 보존되는 읽기 증거도 확인했다.
+- 최종 actual native-edge-reentry-1140: verifier exit 0, Code exit 0, 공식 metadata probe EOF exit 0, local server closed=true. 성공 등록 0/1/2회는 group=0; 3회는 4턴/group=1/total=32초(8초 실행+24초 자동 대기); 175회는 176턴/group=1/total=29분12초(352초 실행+1,400초 자동 대기)다. 두 테마에서 펼침 5,418px, native viewport 20회 왕복과 실제 summary unmount/remount 뒤 펼침 유지·접힘 53.135px·observer 오류 0·양의 높이 행 겹침 없음을 확인했다. 양테마 각각 remount 검사는 통과했으며 저장된 정확한 unmount=20 숫자는 마지막 Dark 관찰이다.
+- 공식 URI로 다른 대화에 갔다 복귀한 뒤 스크롤을 강제하지 않아도 canonical root/header가 viewport에 보이고 group=1/32초가 유지됐다. 실제 webview 전체 reload와 영구 펼침 상태 수용으로 확대하지 않는다. root는 short expanded-top과 long collapsed-top PNG를 확인해 카드 옆 테두리가 없고 긴 상단 이중선·총계·원래 대화 범위가 보이는 것을 확인했다.
+- 최종 입력 identity는 pinned renderer 70개 검사와 동일한 3개 transformed asset, 전용 CLI SHA 4d0241c0…50d29b2, 공식 동일 버전 Code SHA 96851792…e0d6318이다. 근거: host/patched-native-edge-reentry-1140/launch-summary-1791888003154.json, final-asset-identities.json, 양테마 expanded/collapsed-top PNG 및 native-short-route-return.png.
+- 매우 긴 본문 176개가 60초 내 첫 턴까지 hydrate되는 성능은 수용하지 않았다. 최종 host는 짧은 합성 본문과 같은 176턴/175대기 관계 및 176개 시간 행을 사용했다. 실제 계정 인증·모델 추론·175회 live 예약·일반 프로필 업그레이드/설치·다른 OS 수용도 범위 밖이다. primary SOURCE.json의 migration0011 inventory 등록은 공유 작업 delta와 별도로 조정해야 하며 이번 frozen binary receipt를 패키지 수용으로 대체하지 않는다.
+- host의 모든 vscode-* fixture와 원본 ZIP은 일반 guarded 삭제 및 실제 부재 확인을 마쳤다(10:47:43 UTC, exit 0). artifacts/logs/task-group-20261013/host/final-cleanup-verification.json 및 compact 입력/종료 영수증·PNG만 남긴다. host 검증 도구는 명시적인 새 task-owned recorded seed를 요구하는 수동 진단/통합 replay 도구로 유지하며 독립 자동 회귀나 실제 인증/서비스 수용 도구로 분류하지 않는다. snapshot·전용 CLI 정리는 metadata 담당자가 소유하고 기존 native-state 정책 거절 잔여는 예외 보존한다.
+- metadata의 소유 snapshot r1~r7·schema fixture·전용 CLI 총 9개 디렉터리는 일반 guarded 삭제 exit 0 및 실제 부재 확인을 마쳤다(10:50:48 UTC, metadata-cleanup-receipt.json). 실제 첫 snapshot은 manifest와 directory가 가리키는 -r1 suffix였고 suffix 없는 경로는 없었다. 이전 root의 경로 정정 요청은 실제 확인으로 바로잡았으며 없는 경로를 삭제했다고 보고하지 않는다. shared target·global cache·타 작업 입력은 유지했다. 로그·input/binary identity·정확한 overlay/replay patch는 보존했다.
+- 최종 추가 변경은 TUI replay 4줄, 보존 owner 3개 경로 추가, native 수동 통합 harness 및 owning 문서/이 작업 기록이다. 앞선 source/UI/schema 변경 대부분은 동시 작업의 09bb4b35에 이미 포함돼 있다. 현재 shared index의 타 작업 파일과 registry의 foreign owner hunk를 보존하면서 이번 변경만 별도 index에서 분리하며 staged diff를 검토한다. 커밋 결과와 보존 확인은 artifacts/logs/task-group-20261013/task-commit-receipt.json에 기록한다.
 
