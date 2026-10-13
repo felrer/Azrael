@@ -1,7 +1,7 @@
 "use strict";
 const test = require("node:test"), assert = require("node:assert/strict"), hs = require("node:fs"), path = require("node:path"), pm = require("node:vm");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { UI_CLEANUP_ASSETS, COMPOSER_ASSET, PERMISSIONS_ASSET, MARKER, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
+const { UI_CLEANUP_ASSETS, COMPOSER_ASSET, PERMISSIONS_ASSET, MARKER, COMPOSER_EMOTICONS, injectUiCleanup } = require("./inject-ui-cleanup.cjs");
 const original = Object.fromEntries(UI_CLEANUP_ASSETS.map(p => [p, hs.readFileSync(path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"), p), "utf8")]));
 const transformed = Object.fromEntries(UI_CLEANUP_ASSETS.map(p => [p, injectUiCleanup(original[p], p, ts).text]));
 const parsedFixtures = new Map();
@@ -29,15 +29,15 @@ test("both pinned assets parse; unrelated assets, repeat invocation and corrupte
   assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace("function aOa(e)", "function Changed(e)"), COMPOSER_ASSET, ts));
   assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace("J3(C),null}function oOa", "ChangedHook(C),null}function oOa"), COMPOSER_ASSET, ts));
   assert.throws(() => injectUiCleanup(original[PERMISSIONS_ASSET].replace("f=d?`warning`", "f=d?`changed`"), PERMISSIONS_ASSET, ts));
-  assert.throws(() => injectUiCleanup(transformed[COMPOSER_ASSET].replace('return "^•⩊•^";', 'return "changed";'), COMPOSER_ASSET, ts));
+  assert.throws(() => injectUiCleanup(transformed[COMPOSER_ASSET].replace('return face;', 'return "changed";'), COMPOSER_ASSET, ts));
 });
 
-test("actual transformed placeholder returns the cat text emoticon for every composer variant", () => {
+test("actual transformed placeholder keeps one selected emoticon for every composer variant", () => {
   const get = pm.runInNewContext(`(${fn(transformed[COMPOSER_ASSET], "mPi")})`);
   for (const followUpType of [undefined, "cloud", "local"])
     for (const composerMode of ["cloud", "local"])
       for (const flags of [{}, { isGoalModeActive: true }, { isPlanModeActive: true }, { isImageMarkupActive: true }, { isCompactFloatingComposer: true, isResponseInProgress: true }, { placeholderText: "custom" }, { isBackgroundSubagentsPanelVisible: true }])
-        assert.equal(get({ intl: { formatMessage() { throw new Error("translation must not override placeholder"); } }, followUpType, composerMode, ...flags }), "^•⩊•^");
+        assert.equal(get({ intl: { formatMessage() { throw new Error("translation must not override placeholder"); } }, followUpType, composerMode, ...flags }), get({}));
 });
 
 test("retired slash-menu registrations are removed while toolbar and other commands remain", () => {
@@ -113,7 +113,7 @@ test("cleanup applies after the production namespace rewrite on both pinned asse
     assert.equal(parsed(cleanup.text).parseDiagnostics.length, 0);
     assert.equal(injectUiCleanup(cleanup.text, p, ts).count, 0);
     if (p === COMPOSER_ASSET) {
-      assert.equal(pm.runInNewContext(`(${fn(cleanup.text, "mPi")})`)({}), "^•⩊•^");
+      assert.ok(COMPOSER_EMOTICONS.includes(pm.runInNewContext(`(${fn(cleanup.text, "mPi")})`)({})));
       assert.equal(nodes(cleanup.text, n => ts.isIdentifier(n) && ["aOa", "uDa", "oOa", "sOa", "dDa", "pDa"].includes(n.text)).length, 0);
     }
   }
@@ -136,4 +136,21 @@ test("actual transformed permission description, chip and menu use neutral color
   assert.equal(item.leftIconClassName, "icon-sm"); assert.equal(item.rightIconClassName, "icon-xs");
   assert.equal(item.SubText.props.className, "text-codex-description"); assert.equal(item.children.props.className, "text-default");
   assert.equal(item.RightIcon, "check"); assert.equal(item.disabled, false); item.onClick(); assert.deepEqual(selected, ["full-access"]);
+});
+
+ test("session choices cover all candidates and survive revisit, reload and denied storage", () => {
+  const persisted = new Map(), storage = {getItem:k=>persisted.get(k)??null,setItem:(k,v)=>persisted.set(k,v)};
+  const make = (storage, random) => pm.runInNewContext(`(${fn(transformed[COMPOSER_ASSET], "mPi")})`, {localStorage:storage, Math:{random,floor:Math.floor}});
+  let draws=0; const get=make(storage,()=>draws++/7);
+  const keys=COMPOSER_EMOTICONS.map((_,i)=>["local", "thread-"+i]);
+  keys.forEach((key,i)=>assert.equal(get({sessionKey:key}),COMPOSER_EMOTICONS[i]));
+  keys.forEach((key,i)=>assert.equal(get({sessionKey:key}),COMPOSER_EMOTICONS[i]));
+  assert.equal(draws,7);
+  const reload=make(storage,()=>{throw Error("Saved choices must not redraw")});
+  keys.forEach((key,i)=>assert.equal(reload({sessionKey:key}),COMPOSER_EMOTICONS[i]));
+  const denied=make({getItem(){throw Error("denied")},setItem(){throw Error("denied")}},()=>0.5);
+  assert.equal(denied({sessionKey:keys[0]}),denied({sessionKey:keys[0]}));
+  storage.setItem('azrael-composer-emoticon-v1:'+JSON.stringify(["other-host","thread-0"]),'invalid');
+  assert.ok(COMPOSER_EMOTICONS.includes(make(storage,()=>0.9)({sessionKey:["other-host","thread-0"]})));
+  assert.ok(fn(transformed[COMPOSER_ASSET], "bFa").includes("sessionKey:[Jr,g_(he.value)]"));
 });
