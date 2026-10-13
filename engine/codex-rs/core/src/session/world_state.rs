@@ -62,6 +62,21 @@ impl Session {
         step_context: &StepContext,
         new_window: bool,
     ) -> CodexResult<WorldState> {
+        super::response_preparation::run(
+            "world_state",
+            &self.thread_id.to_string(),
+            &step_context.turn.sub_id,
+            &tokio_util::sync::CancellationToken::new(),
+            self.build_world_state_for_step_inner(step_context, new_window),
+        )
+        .await
+    }
+
+    async fn build_world_state_for_step_inner(
+        &self,
+        step_context: &StepContext,
+        new_window: bool,
+    ) -> CodexResult<WorldState> {
         let incremental_tools = if new_window {
             step_context.incremental_tools_enabled()
         } else {
@@ -88,6 +103,7 @@ impl Session {
         } else {
             model_instructions
         };
+        tracing::info!(event = "response_preparation_stage", stage = "base_instructions", turn_id = %turn_context.sub_id);
         let base_instructions = self.get_prompt_base_instructions().await.text;
         let previous_model = {
             let state = self.state.lock().await;
@@ -106,6 +122,7 @@ impl Session {
                         .cloned()
                 })
         };
+        tracing::info!(event = "response_preparation_stage", stage = "subagent_context", turn_id = %turn_context.sub_id);
         let environment_subagents = if turn_context.config.include_environment_context {
             match turn_context.multi_agent_version {
                 MultiAgentVersion::V2 => {
@@ -259,6 +276,7 @@ impl Session {
             ));
         }
         if turn_context.config.include_environment_context {
+            tracing::info!(event = "response_preparation_stage", stage = "environment_clock", turn_id = %turn_context.sub_id);
             let current_date = self
                 .read_clock_for_context(turn_context, "environment_date")
                 .await?
@@ -268,6 +286,7 @@ impl Session {
                         .format("%Y-%m-%d")
                         .to_string()
                 });
+            tracing::info!(event = "response_preparation_stage", stage = "environment_context", turn_id = %turn_context.sub_id);
             world_state.add_section(
                 EnvironmentsState::from_turn_context_with_environments(
                     turn_context,
@@ -326,7 +345,14 @@ impl Session {
             .map(|root| root.selected_root().clone())
             .collect::<Vec<_>>();
         let previous_world_state = self.state.lock().await.history.world_state_checkpoint();
-        for contributor in self.services.extensions.context_contributors() {
+        for (contributor_index, contributor) in self
+            .services
+            .extensions
+            .context_contributors()
+            .iter()
+            .enumerate()
+        {
+            tracing::info!(event = "response_preparation_stage", stage = "extension_context", contributor_index, turn_id = %turn_context.sub_id);
             for section in contributor
                 .contribute_world_state(WorldStateContributionInput {
                     thread_id: self.thread_id(),
@@ -406,5 +432,54 @@ impl Session {
             ));
         }
         Ok(world_state)
+    }
+}
+
+#[cfg(test)]
+mod response_preparation_tests {
+    use super::*;
+    use crate::current_time::SleepFuture;
+    use crate::current_time::TimeFuture;
+    use crate::current_time::TimeProvider;
+    use codex_protocol::ThreadId;
+    use codex_protocol::error::CodexErrorDetails;
+    use std::time::Duration;
+
+    struct StalledClock;
+
+    impl TimeProvider for StalledClock {
+        fn current_time(&self, _thread_id: ThreadId) -> TimeFuture<'_> {
+            Box::pin(std::future::pending())
+        }
+
+        fn sleep(&self, _thread_id: ThreadId, _duration: Duration) -> SleepFuture<'_> {
+            Box::pin(std::future::pending())
+        }
+    }
+
+    #[tokio::test]
+    async fn response_preparation_world_state_stall_terminates_and_next_build_succeeds() {
+        let (mut session, turn_context) = super::super::tests::make_session_and_context().await;
+        session.services.time_provider = Arc::new(StalledClock);
+        let step = StepContext::for_test(Arc::new(turn_context));
+        assert!(step.turn.config.include_environment_context);
+        tokio::time::pause();
+        let result = session.build_world_state_for_step(&step, true).await;
+        let error = match result {
+            Ok(_) => panic!("a stalled clock must terminate world-state preparation"),
+            Err(error) => error,
+        };
+        assert!(matches!(error.details(), CodexErrorDetails::Fatal(_)));
+        assert_eq!(
+            error.to_string(),
+            "Fatal error: response preparation exceeded its 90s deadline"
+        );
+        session.services.time_provider = Arc::new(crate::current_time::SystemTimeProvider);
+        assert!(
+            session
+                .build_world_state_for_step(&step, true)
+                .await
+                .is_ok()
+        );
     }
 }

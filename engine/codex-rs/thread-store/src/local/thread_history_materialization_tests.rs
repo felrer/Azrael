@@ -2229,6 +2229,139 @@ SELECT
 }
 
 #[tokio::test]
+async fn replacement_projection_uses_rollout_identity_for_shorter_and_longer_files() {
+    for padding in [0, 20_000] {
+        let home = TempDir::new().expect("temp dir");
+        let store = projection_store(home.path()).await;
+        let thread_id = ThreadId::new();
+        create_paginated_thread(&store, thread_id).await;
+        store
+            .append_items(AppendThreadItemsParams {
+                thread_id,
+                items: vec![turn_started("old-turn"), turn_completed("old-turn")],
+            })
+            .await
+            .expect("append source history");
+        let original = store
+            .live_rollout_path(thread_id)
+            .await
+            .expect("source path");
+        store
+            .shutdown_thread(thread_id)
+            .await
+            .expect("close writer");
+        let pool = store.thread_history_db().await.expect("history pool");
+        let before = projection_state(pool, thread_id).await;
+        let bytes = fs::read_to_string(&original).expect("source history");
+        let meta = bytes.split_once('\n').expect("metadata line").0;
+        let replacement_id = ThreadId::new();
+        let replacement = original.with_file_name(format!(
+            "rollout-2026-01-01T00-00-00-{replacement_id}.jsonl"
+        ));
+        fs::write(
+            &replacement,
+            format!(
+                "{meta}\n{}{}\n",
+                " ".repeat(padding),
+                rollout_line(Some(1), turn_started("replacement-turn"))
+            ),
+        )
+        .expect("write same-thread replacement");
+        super::materialize_to_sqlite(&store, thread_id, &replacement)
+            .await
+            .expect("project replacement");
+        assert_eq!(projection_state(pool, thread_id).await, before);
+        let ids =
+            sqlx::query_scalar::<_, String>("SELECT turn_id FROM thread_turns WHERE thread_id = ?")
+                .bind(replacement_id.to_string())
+                .fetch_all(pool)
+                .await
+                .expect("replacement rows");
+        assert_eq!(ids, vec!["replacement-turn"]);
+        let old_ids =
+            sqlx::query_scalar::<_, String>("SELECT turn_id FROM thread_turns WHERE thread_id = ?")
+                .bind(thread_id.to_string())
+                .fetch_all(pool)
+                .await
+                .expect("retained source rows");
+        assert_eq!(old_ids, vec!["old-turn"]);
+    }
+}
+
+#[tokio::test]
+async fn truncated_rollout_rebuilds_atomically_and_preserves_rows_on_corruption() {
+    let home = TempDir::new().expect("temp dir");
+    let store = projection_store(home.path()).await;
+    let thread_id = ThreadId::new();
+    create_paginated_thread(&store, thread_id).await;
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            items: vec![
+                turn_started("retained"),
+                turn_completed("retained"),
+                turn_started("removed"),
+            ],
+        })
+        .await
+        .expect("append history");
+    let path = store
+        .live_rollout_path(thread_id)
+        .await
+        .expect("rollout path");
+    store
+        .shutdown_thread(thread_id)
+        .await
+        .expect("close writer");
+    let pool = store.thread_history_db().await.expect("history pool");
+    let before = projection_state(pool, thread_id).await;
+    let source = fs::read_to_string(&path).expect("source history");
+    let retained = source.split_inclusive('\n').take(3).collect::<String>();
+    fs::write(&path, format!("{retained}{{broken}}\n")).expect("write corrupt truncated file");
+    super::materialize_to_sqlite(&store, thread_id, &path)
+        .await
+        .expect_err("corrupt rebuild fails closed");
+    assert_eq!(projection_state(pool, thread_id).await, before);
+    fs::write(&path, &retained).expect("write valid truncated prefix");
+    super::materialize_to_sqlite(&store, thread_id, &path)
+        .await
+        .expect("rebuild truncated projection");
+    assert_eq!(
+        projection_state(pool, thread_id).await,
+        (retained.len() as i64, 3)
+    );
+    let ids =
+        sqlx::query_scalar::<_, String>("SELECT turn_id FROM thread_turns WHERE thread_id = ?")
+            .bind(thread_id.to_string())
+            .fetch_all(pool)
+            .await
+            .expect("retained rows");
+    assert_eq!(ids, vec!["retained"]);
+    // A reader holding the pre-truncation checkpoint must not erase a newer projection.
+    let stale = super::super::thread_history::RolloutProjectionState {
+        next_byte_offset: before.0 as u64,
+        next_ordinal: before.1 as u64,
+        projection_version: super::super::thread_history::CURRENT_PROJECTION_VERSION,
+    };
+    super::super::thread_history::apply_projection_with_rebuild_state(
+        &store,
+        thread_id,
+        0,
+        0,
+        0,
+        Some(super::super::thread_history::CURRENT_PROJECTION_VERSION),
+        Some(stale),
+        Vec::new(),
+    )
+    .await
+    .expect_err("stale rebuild rejected");
+    assert_eq!(
+        projection_state(pool, thread_id).await,
+        (retained.len() as i64, 3)
+    );
+}
+
+#[tokio::test]
 async fn synchronized_catch_up_does_not_replay_old_rows() {
     let home = TempDir::new().expect("temp dir");
     let store = projection_store(home.path()).await;

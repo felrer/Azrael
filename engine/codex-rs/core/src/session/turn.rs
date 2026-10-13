@@ -259,17 +259,22 @@ pub(crate) async fn run_turn(
     required_servers.dedup();
 
     // run_turn owns the step used to seed context and make the first sampling request.
-    let first_step_context = match sess
-        .capture_step_context_with_required_mcp_servers(
+    let first_step_context = match super::response_preparation::run(
+        "context_capture",
+        &sess.thread_id.to_string(),
+        &turn_context.sub_id,
+        &cancellation_token,
+        sess.capture_step_context_with_required_mcp_servers(
             Arc::clone(&turn_context),
             &cancellation_token,
             required_servers,
             required_plugins,
-        )
-        .await
+        ),
+    )
+    .await
     {
         Ok(step_context) => step_context,
-        Err(err) if matches!(err.details(), CodexErrorDetails::TurnAborted) => {
+        Err(err) => {
             run_hooks_and_record_inputs(
                 &sess,
                 &turn_context,
@@ -280,36 +285,61 @@ pub(crate) async fn run_turn(
             .await;
             return Err(err);
         }
-        Err(err) => return Err(err),
     };
     // Record initial context while preparing diff display roots.
-    let (record_context, display_roots) = tokio::join!(
-        sess.record_context_updates_and_set_reference_context_item(first_step_context.as_ref()),
+    let initial_context = super::response_preparation::run(
+        "initial_context",
+        &sess.thread_id.to_string(),
+        &turn_context.sub_id,
+        &cancellation_token,
         async {
-            // Guardian must not wait for remote Git discovery just to display diff paths.
-            if crate::guardian::is_basic_session_source(&turn_context.session_source)
-                || first_step_context
-                    .turn
-                    .config
-                    .features
-                    .enabled(Feature::CwdRelativeTurnDiffs)
-            {
-                first_step_context
-                    .environments
-                    .turn_environments()
-                    .map(|environment| {
-                        (
-                            environment.selection().environment_id,
-                            environment.cwd().clone(),
-                        )
-                    })
-                    .collect()
-            } else {
-                turn_diff_display_roots(first_step_context.as_ref()).await
-            }
+            let (record_context, display_roots) = tokio::join!(
+                sess.record_context_updates_and_set_reference_context_item(
+                    first_step_context.as_ref()
+                ),
+                async {
+                    // Guardian must not wait for remote Git discovery just to display diff paths.
+                    if crate::guardian::is_basic_session_source(&turn_context.session_source)
+                        || first_step_context
+                            .turn
+                            .config
+                            .features
+                            .enabled(Feature::CwdRelativeTurnDiffs)
+                    {
+                        first_step_context
+                            .environments
+                            .turn_environments()
+                            .map(|environment| {
+                                (
+                                    environment.selection().environment_id,
+                                    environment.cwd().clone(),
+                                )
+                            })
+                            .collect()
+                    } else {
+                        turn_diff_display_roots(first_step_context.as_ref()).await
+                    }
+                },
+            );
+            record_context?;
+            Ok(display_roots)
         },
-    );
-    record_context?;
+    )
+    .await;
+    let display_roots = match initial_context {
+        Ok(result) => result,
+        Err(error) => {
+            run_hooks_and_record_inputs(
+                &sess,
+                &turn_context,
+                &turn_context.capture_current_model_info(),
+                &input,
+                PersistContext::Standard,
+            )
+            .await;
+            return Err(error);
+        }
+    };
 
     let Some((injection_items, explicitly_enabled_connectors)) = build_skills_and_plugins(
         &sess,
@@ -499,38 +529,48 @@ pub(crate) async fn run_turn(
             }
         };
         let sampling_request_result: CodexResult<_> = async {
-            super::time_reminder::maybe_record_current_time_reminder(
-                sess.as_ref(),
-                turn_context.as_ref(),
-                &window_id,
+            let sampling_request_input = super::response_preparation::run(
+                "sampling_context",
+                &sess.thread_id.to_string(),
+                &turn_context.sub_id,
+                &cancellation_token,
+                async {
+                    super::time_reminder::maybe_record_current_time_reminder(
+                        sess.as_ref(),
+                        turn_context.as_ref(),
+                        &window_id,
+                    )
+                    .await?;
+
+                    sess.record_step_world_state_if_changed(step_context.as_ref())
+                        .await?;
+
+                    // Isolated Guardian reviewers deliberately have no skill catalog.
+                    if !crate::guardian::is_basic_session_source(&turn_context.session_source) {
+                        validate_required_skills(
+                            &sess.services.thread_extension_data,
+                            &turn_context.extension_data,
+                            step_context.environments.required_skills(),
+                        )
+                        .map_err(CodexErr::Fatal)?;
+                    }
+
+                    // Keep the override after accepted input so history truncation removes them together.
+                    sess.record_reasoning_effort_override(step_context.as_ref())
+                        .await;
+
+                    // Construct the input that we will send to the model.
+                    let sampling_request_input: Vec<ResponseItem> = async {
+                        sess.clone_history()
+                            .await
+                            .for_prompt(&step_context.settings.model_info.input_modalities)
+                    }
+                    .instrument(trace_span!("run_turn.prepare_sampling_request_input"))
+                    .await;
+                    Ok(sampling_request_input)
+                },
             )
             .await?;
-
-            sess.record_step_world_state_if_changed(step_context.as_ref())
-                .await?;
-
-            // Isolated Guardian reviewers deliberately have no skill catalog.
-            if !crate::guardian::is_basic_session_source(&turn_context.session_source) {
-                validate_required_skills(
-                    &sess.services.thread_extension_data,
-                    &turn_context.extension_data,
-                    step_context.environments.required_skills(),
-                )
-                .map_err(CodexErr::Fatal)?;
-            }
-
-            // Keep the override after accepted input so history truncation removes them together.
-            sess.record_reasoning_effort_override(step_context.as_ref())
-                .await;
-
-            // Construct the input that we will send to the model.
-            let sampling_request_input: Vec<ResponseItem> = async {
-                sess.clone_history()
-                    .await
-                    .for_prompt(&step_context.settings.model_info.input_modalities)
-            }
-            .instrument(trace_span!("run_turn.prepare_sampling_request_input"))
-            .await;
 
             run_sampling_request(
                 Arc::clone(&sess),
@@ -1413,14 +1453,9 @@ async fn maybe_run_previous_model_inline_compact(
         let previous_model_limit_reached =
             match turn_context.config.model_auto_compact_token_limit_scope {
                 AutoCompactTokenLimitScope::Total => {
-                    let new_auto_compact_limit =
-                        codex_protocol::context_policy::resolve_auto_compact(
-                            turn_context.model_info().as_ref(),
-                            &turn_context.config.provider_auto_compact,
-                            turn_context.config.model_auto_compact_token_limit,
-                            super::context_window::subscription_auth(sess),
-                        )
-                        .0
+                    let new_auto_compact_limit = turn_context
+                        .model_info()
+                        .auto_compact_token_limit()
                         .unwrap_or(i64::MAX);
                     active_context_tokens > new_auto_compact_limit
                         || active_context_tokens >= new_context_window

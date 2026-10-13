@@ -19,6 +19,7 @@ use crate::ArchiveThreadParams;
 use crate::CreateThreadParams;
 use crate::DeleteThreadParams;
 use crate::ListTurnsParams;
+use crate::ResumeThreadParams;
 use crate::RevertThreadParams;
 use crate::SortDirection;
 use crate::StoredTurnItemsView;
@@ -107,6 +108,44 @@ async fn revert_keeps_thread_id_and_hides_suffix_across_repeated_reverts() {
         Some(vec![home.path().join("workspace")])
     );
     assert_eq!(turn_ids(&store, thread_id).await, vec!["turn-1"]);
+    let pool = store.thread_history_db().await.expect("history pool");
+    let source_checkpoint = sqlx::query_as::<_, (i64, i64)>(
+        "SELECT next_rollout_byte_offset, next_rollout_ordinal FROM thread_history_projection_state WHERE thread_id = ?",
+    ).bind(thread_id.to_string()).fetch_one(pool).await.expect("source checkpoint");
+    store
+        .resume_thread(ResumeThreadParams {
+            history_revision: None,
+            thread_id,
+            rollout_path: Some(first_replacement_path.clone()),
+            history: None,
+            include_archived: false,
+            metadata: ThreadPersistenceMetadata {
+                cwd: Some(home.path().to_path_buf()),
+                model_provider: "test-provider".to_string(),
+                memory_mode: ThreadMemoryMode::Enabled,
+            },
+        })
+        .await
+        .expect("resume reverted rollout");
+    store
+        .append_items(AppendThreadItemsParams {
+            thread_id,
+            items: vec![turn_started("after-revert"), turn_completed("after-revert")],
+        })
+        .await
+        .expect("append after revert");
+    store
+        .shutdown_thread(thread_id)
+        .await
+        .expect("close reverted writer");
+    assert_eq!(
+        turn_ids(&store, thread_id).await,
+        vec!["turn-1", "after-revert"]
+    );
+    let retained_checkpoint = sqlx::query_as::<_, (i64, i64)>(
+        "SELECT next_rollout_byte_offset, next_rollout_ordinal FROM thread_history_projection_state WHERE thread_id = ?",
+    ).bind(thread_id.to_string()).fetch_one(pool).await.expect("retained source checkpoint");
+    assert_eq!(retained_checkpoint, source_checkpoint);
 
     // Simulate an older binary replacing the rollout without the creator fields it does not know.
     let rollout = tokio::fs::read_to_string(&first_replacement_path)

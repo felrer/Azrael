@@ -140,6 +140,14 @@ A user stop during submission applies to that submission only. The UI retains th
 
 The version-pinned UI transforms reuse native turn creation, interruption, history projection and edit handlers. Source-level asynchronous fixtures verify the affected paths; installed-host acceptance is separate from those checks.
 
+### Native history projection after revert
+
+Status: `partial`: common thread-store implementation; focused Windows native checks verify derived projection repair independently of installed-host acceptance.
+
+Paginated history projection cursors and rows belong to the concrete immutable rollout ID. A same-thread revert can select a different rollout while retaining earlier segment references; appends to the replacement use its own cursor and preserve the earlier segment projections. An older derived projection version is rebuilt lazily from authoritative rollout data. A same-ID shortened rollout is rebuilt only after validating its complete prefix, and a transaction compares the original cursor before replacing derived rows. Changed cursors, malformed or incomplete shortened data fail without discarding the existing projection. Original rollout files are never rewritten by projection repair.
+
+This native preservation scope is registered with `engine.recovery` and linked to the [focused recovery checks](../ops/development.md#reload-recovery); `ui.paginated-history` retains its separate UI scope.
+
 ## Conversation branching
 
 Status: `partial` — pinned source fixtures verify branch selection and UI eligibility; packaged/live-host acceptance is pending.

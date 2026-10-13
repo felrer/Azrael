@@ -893,6 +893,13 @@
       "id": "engine.recovery",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/core/src/session/response_preparation.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "engine/codex-rs/core/src/session/world_state.rs",
+        "engine/codex-rs/thread-store/src/local/thread_history.rs",
+        "engine/codex-rs/thread-store/src/local/thread_history_materialization.rs",
+        "engine/codex-rs/thread-store/src/local/thread_history_materialization_tests.rs",
+        "engine/codex-rs/thread-store/src/local/revert_thread_tests.rs",
         "scripts/test-recovery-engine.mjs"
       ],
       "contract": "docs/architecture/reload-recovery.md",

@@ -9,7 +9,7 @@ use super::LocalThreadStore;
 use crate::ThreadStoreError;
 use crate::ThreadStoreResult;
 
-pub(super) const CURRENT_PROJECTION_VERSION: i64 = 3;
+pub(super) const CURRENT_PROJECTION_VERSION: i64 = 4;
 
 mod read;
 mod realtime;
@@ -48,6 +48,7 @@ pub(super) enum RolloutProjectionStep {
     },
 }
 
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub(super) struct RolloutProjectionState {
     pub next_byte_offset: u64,
     pub next_ordinal: u64,
@@ -113,6 +114,29 @@ pub(super) async fn apply_projection(
     rebuild_projection_version: Option<i64>,
     projections: Vec<RolloutProjectionStep>,
 ) -> ThreadStoreResult<()> {
+    apply_projection_with_rebuild_state(
+        store,
+        thread_id,
+        start_offset,
+        next_offset,
+        initial_ordinal,
+        rebuild_projection_version,
+        None,
+        projections,
+    )
+    .await
+}
+
+pub(super) async fn apply_projection_with_rebuild_state(
+    store: &LocalThreadStore,
+    thread_id: ThreadId,
+    start_offset: u64,
+    next_offset: u64,
+    initial_ordinal: u64,
+    rebuild_projection_version: Option<i64>,
+    rebuild_state: Option<RolloutProjectionState>,
+    projections: Vec<RolloutProjectionStep>,
+) -> ThreadStoreResult<()> {
     let pool = store.thread_history_db().await?;
     // Write the projected rows and advance the JSONL offset and ordinal in one transaction. If
     // SQLite fails, it stays behind the durable rollout instead of claiming data it did not
@@ -133,6 +157,27 @@ WHERE thread_id = ?
     .fetch_optional(&mut *transaction)
     .await
     .map_err(thread_history_error)?;
+    // A truncation rebuild must replace exactly the checkpoint whose prefix was read.
+    // A concurrent append/rebuild cannot be mistaken for the same source snapshot.
+    let rebuilding = rebuild_state.is_some();
+    if let Some(expected) = rebuild_state {
+        let expected = (
+            sqlite_integer(expected.next_byte_offset, "rollout byte offset")?,
+            sqlite_integer(expected.next_ordinal, "rollout ordinal")?,
+            expected.projection_version,
+        );
+        if projection_state != Some(expected) {
+            return Err(ThreadStoreError::Conflict {
+                message: format!(
+                    "thread history projection for {thread_id} changed while rebuilding"
+                ),
+            });
+        }
+        delete_thread_rows(&mut transaction, thread_id.as_str())
+            .await
+            .map_err(thread_history_error)?;
+    }
+    let projection_state = if rebuilding { None } else { projection_state };
     let (expected_offset, mut next_ordinal) = match projection_state {
         Some((next_byte_offset, _, CURRENT_PROJECTION_VERSION))
             if rebuild_projection_version.is_some() =>
