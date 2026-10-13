@@ -1,11 +1,13 @@
 "use strict";
 
 const { fileURLToPath } = require("node:url");
+const { installWebviewDragCancellation } = require("./webview-drag-lifecycle.cjs");
 
 const DROP_ASSET = "webview/assets/app-initial-c014f9ee4429.js";
 const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const DROP_MARKER = "/*azrael-local-file-drop-v1*/";
 const COMPOSER_MARKER = "/*azrael-local-file-reference-v1*/";
+const DRAG_MARKER = "/*azrael-webview-drag-lifecycle-v1*/";
 
 const DROP_GATE = "m=e=>n!=null||kPe(e)||Sl(e)";
 const DROP_ACTION = "if(o.length===0&&s.length===0&&c.length===0&&kPe(e.dataTransfer))";
@@ -69,7 +71,7 @@ const BROWSER_HELPER = `${DROP_MARKER}function azraelHasLocalFileTransfer(e){let
 function injectDropAsset(text) {
   const gated = DROP_GATE + "||azraelHasLocalFileTransfer(e)";
   const dropped = "if(o.length===0&&s.length===0&&c.length===0&&azraelDropLocalFileReferences(e.dataTransfer,__azraelAddFileReferences)){e.preventDefault();return}" + DROP_ACTION;
-  if (count(text, DROP_MARKER) === 1 && text.includes(BROWSER_HELPER) && count(text, gated) === 1 && count(text, dropped) === 1) return { text, count: 0 };
+  if (count(text, DROP_MARKER) === 1 && text.includes(BROWSER_HELPER) && count(text, gated) === 1 && count(text, dropped) === 1) return injectDragLifecycle(text);
   if (count(text, DROP_MARKER)) throw new Error("Invalid local-file drop marker.");
   if (count(text, DROP_GATE) !== 1 || count(text, DROP_ACTION) !== 1) {
     throw new Error("Pinned local-file drop anchors changed.");
@@ -79,7 +81,23 @@ function injectDropAsset(text) {
   const result = text.replace(functionAnchor, BROWSER_HELPER + functionAnchor + "const __azraelAddFileReferences=e.addFileReferences;")
     .replace(DROP_GATE, gated)
     .replace(DROP_ACTION, dropped);
-  return { text: result, count: 1 };
+  return { text: injectDragLifecycle(result).text, count: 1 };
+}
+
+function injectDragLifecycle(text) {
+  const helper = `${DRAG_MARKER}${installWebviewDragCancellation.toString()}`;
+  const edits = [
+    ["h(e.dataTransfer)&&(o.current=Math.max(0,o.current-1)", "(o.current>0||h(e.dataTransfer))&&(o.current=Math.max(0,o.current-1)"],
+    ["s.removeEventListener(`drop`,j,!0)}", "s.removeEventListener(`drop`,j,!0),_()}"],
+    ["(0,v7.useEffect)(M,N);", "(0,v7.useEffect)(M,N);(0,v7.useEffect)(()=>installWebviewDragCancellation(window,_),[_]);"],
+  ];
+  if (count(text, DRAG_MARKER)) {
+    if (count(text, helper) !== 1 || edits.some(([, replacement]) => count(text, replacement) !== 1)) throw Error("Invalid drag lifecycle marker.");
+    return { text, count: 0 };
+  }
+  for (const [anchor] of edits) if (count(text, anchor) !== 1) throw Error("Pinned drag lifecycle anchor changed.");
+  for (const [anchor, replacement] of edits) text = text.replace(anchor, replacement);
+  return { text: helper + text, count: 1 };
 }
 
 function injectComposerAsset(text) {
@@ -96,5 +114,5 @@ function injectLocalFileDrop(text, relativePath) {
   return { text, count: 0 };
 }
 
-module.exports = { DROP_ASSET, COMPOSER_ASSET, DROP_MARKER, COMPOSER_MARKER, BROWSER_HELPER,
+module.exports = { DROP_ASSET, COMPOSER_ASSET, DROP_MARKER, COMPOSER_MARKER, DRAG_MARKER, BROWSER_HELPER,
   hasLocalFileTransfer, localFileDescriptors, injectLocalFileDrop };
