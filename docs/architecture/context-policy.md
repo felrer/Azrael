@@ -16,7 +16,7 @@ Bundled exact OpenAI models whose documented routes support 1M resolve their adv
 
 ### Per-thread automatic compaction
 
-Status: `target` — source implementation and scoped acceptance are in progress.
+Status: `partial` — implemented in source. Windows scoped native tests verify thread defaults, isolation, durable settings, resume, disabled automatic admissions and preserved manual compaction. Pinned native UI source/render tests pass in light and dark modes. Changed-engine RPC acceptance, packaging, installation and Linux/macOS execution remain unverified.
 
 The usage card exposes a native **Automatic compaction** switch scoped to the selected thread. Every new thread, including forks and subagents, starts enabled. Resuming an existing thread restores its own saved value. Toggling a parent does not affect children, siblings or provider/model defaults. Disabling prevents automatic threshold, rollover, model-change and context-error compaction; manual and queued manual compaction remain available. Quota recovery that requires compacting public history retains the original quota error while disabled, preserving history and account binding. Full context and provider request limits remain authoritative. The native thread settings owner persists the value and acknowledges changes; failed reads or writes expose a retryable error without claiming a successful change. Changes apply to subsequent automatic admissions in the active thread and do not cancel a compaction already admitted.
 

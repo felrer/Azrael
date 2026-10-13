@@ -383,7 +383,7 @@ async fn auto_compaction_settings_only_reply_is_durable_and_forks_are_isolated(
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
     let server = responses::start_mock_server().await;
-    let test = test_codex()
+    let mut test = test_codex()
         .with_history_mode(history_mode)
         .build_with_auto_env(&server)
         .await?;
@@ -422,14 +422,40 @@ async fn auto_compaction_settings_only_reply_is_durable_and_forks_are_isolated(
             .iter()
             .any(|item| matches!(item, RolloutItem::TurnContext(_)))
     );
-    let resumed = test_codex()
-        .with_history_mode(history_mode)
-        .restart_with_auto_env(&server, &test)
+    test.codex.shutdown_and_wait().await?;
+    test.thread_manager
+        .remove_thread(&test.session_configured.thread_id)
+        .await;
+    // Both history modes resume through the store's persisted context. The
+    // legacy-only restart fixture rejects paginated threads.
+    let context = test
+        .thread_store
+        .load_latest_model_context(codex_thread_store::LoadThreadHistoryParams {
+            thread_id: test.session_configured.thread_id,
+            include_archived: false,
+        })
+        .await?;
+    let restored = test
+        .thread_manager
+        .resume_thread_with_history(
+            test.config.clone(),
+            codex_history::InitialHistory::Resumed(codex_history::ResumedHistory {
+                conversation_id: context.thread_id,
+                history: Arc::new(context.items),
+                history_revision: context.revision,
+                rollout_path: Some(rollout_path.clone()),
+            }),
+            test.thread_manager.auth_manager(),
+            None,
+            Default::default(),
+        )
         .await?;
     assert_eq!(
-        resumed.session_configured.thread_id,
+        restored.session_configured.thread_id,
         test.session_configured.thread_id
     );
+    test.codex = restored.thread;
+    let resumed = test;
     assert!(
         !resumed
             .codex
