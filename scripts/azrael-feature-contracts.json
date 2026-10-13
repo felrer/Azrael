@@ -169,9 +169,9 @@
     {
       "id": "ui.session-flags",
       "area": "ui",
-      "owners": ["scripts/inject-session-flags.cjs"],
+      "owners": ["scripts/inject-session-flags.cjs", "scripts/inject-project-drafts.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{"id": "ui.session-flags.behavior", "executable": "node", "args": ["--test", "scripts/test-session-flags.cjs"], "level": "source"}],
+      "checks": [{"id": "ui.session-flags.behavior", "executable": "node", "args": ["--test", "scripts/test-session-flags.cjs", "scripts/test-project-drafts.cjs"], "level": "source"}],
       "reportFields": ["sessionFlagEdits"]
     },
     {
