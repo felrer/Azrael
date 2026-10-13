@@ -9473,6 +9473,7 @@ where
 
         isolation: codex_extension_api::SessionIsolation::Inherit,
         tool_policy: Arc::default(),
+        claude_file_state: Arc::default(),
         computer_use_mode: None,
         windows_sandbox_proxy_settings_mode:
             codex_sandboxing::WindowsSandboxProxySettingsMode::Reconcile,

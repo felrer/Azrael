@@ -649,12 +649,13 @@ mod tests {
                 panic!()
             };
             let roles = &spec.parameters.properties.unwrap()["subagent_type"];
+            let expected_roles = [json!("default")];
             assert_eq!(
                 roles.enum_values.as_deref(),
                 if exposed {
                     None
                 } else {
-                    Some([json!("default")].as_slice())
+                    Some(expected_roles.as_slice())
                 }
             );
             let args = json!({"prompt":"inspect","description":"review","subagent_type":"default"});
