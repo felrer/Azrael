@@ -18,6 +18,7 @@ use crate::tools::handlers::ListAvailablePluginsToInstallHandler;
 use crate::tools::handlers::ListMcpResourceTemplatesHandler;
 use crate::tools::handlers::ListMcpResourcesHandler;
 use crate::tools::handlers::NewContextWindowHandler;
+use crate::tools::handlers::ParentRequestHandler;
 use crate::tools::handlers::PlanHandler;
 use crate::tools::handlers::ReadMcpResourceHandler;
 use crate::tools::handlers::RequestPermissionsHandler;
@@ -1546,6 +1547,27 @@ fn add_collaboration_tools(context: &CoreToolPlanContext<'_>, registry: &mut Too
                 ),
                 exposure,
             );
+            if tool_namespace == Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE)
+                && crate::session::parent_request::parent_request_tools_enabled(turn_context)
+            {
+                if turn_context.session_source.is_non_root_agent() {
+                    for handler in [ParentRequestHandler::Request, ParentRequestHandler::Await] {
+                        registry.register_trusted_with_exposure(
+                            multi_agent_v2_handler(handler, tool_namespace, None, None),
+                            ToolExposure::DirectModelOnly,
+                        );
+                    }
+                }
+                registry.register_trusted_with_exposure(
+                    multi_agent_v2_handler(
+                        ParentRequestHandler::Respond,
+                        tool_namespace,
+                        None,
+                        None,
+                    ),
+                    ToolExposure::DirectModelOnly,
+                );
+            }
             if root_resume_tool_enabled(turn_context) {
                 registry.register_trusted_with_exposure(
                     multi_agent_v2_handler(WorkCompletionHandler, tool_namespace, None, None),
@@ -1636,6 +1658,30 @@ mod root_resume_registration_tests {
             false,
             &unsupported,
         ));
+    }
+}
+
+#[cfg(test)]
+mod parent_request_registration_tests {
+    use super::*;
+
+    #[test]
+    fn parent_request_await_control_survives_namespace_and_catalog_wrappers() {
+        let handler = multi_agent_v2_handler(
+            ParentRequestHandler::Await,
+            Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE),
+            Some("Wait for the parent decision"),
+            Some(r#"{"type":"object","properties":{"request_id":{"type":"string"}},"required":["request_id"],"additionalProperties":false}"#),
+        );
+        assert!(handler.is_builtin_control_tool());
+        assert!(!handler.supports_parallel_tool_calls());
+        assert_eq!(
+            handler.tool_name(),
+            ToolName::namespaced(
+                crate::config::AZRAEL_AGENT_TOOL_NAMESPACE,
+                "await_parent_response",
+            ),
+        );
     }
 }
 
@@ -1806,7 +1852,12 @@ impl ToolExecutor<crate::tools::context::ToolInvocation> for AzraelMultiAgentToo
     {
         if matches!(
             self.handler.tool_name().name.as_str(),
-            "spawn_agent" | "send_message" | "followup_task"
+            "spawn_agent"
+                | "send_message"
+                | "followup_task"
+                | "request_parent"
+                | "await_parent_response"
+                | "respond_to_request"
         ) && !matches!(
             invocation.source,
             crate::tools::context::ToolCallSource::DirectPlaintextMessage
@@ -1822,6 +1873,10 @@ impl ToolExecutor<crate::tools::context::ToolInvocation> for AzraelMultiAgentToo
 }
 
 impl crate::tools::registry::CoreToolRuntime for AzraelMultiAgentTool {
+    fn is_builtin_control_tool(&self) -> bool {
+        self.handler.is_builtin_control_tool()
+    }
+
     fn wait_until_ready<'a>(
         &'a self,
         session: &'a Arc<Session>,

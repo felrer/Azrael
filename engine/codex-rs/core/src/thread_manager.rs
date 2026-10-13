@@ -2559,6 +2559,11 @@ impl ThreadManagerState {
             );
         }
         new_thread.thread.emit_thread_ready_lifecycle().await;
+        if is_resumed_thread && new_thread.thread.session_source.is_non_root_agent()
+            && let Err(error) = new_thread.thread.session.recover_parent_response_waits().await {
+            warn!(thread_id = %new_thread.thread_id, error_kind = "parent_response_wait_recovery_failed", %error,
+                "failed to recover child response wait");
+        }
         if source_changed_during_startup.load(Ordering::Acquire) {
             new_thread.thread.session.request_mcp_runtime_refresh();
         }

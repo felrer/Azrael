@@ -122,6 +122,10 @@ impl Session {
         })
     }
 
+    pub(crate) fn root_resume_state(&self) -> Option<RootResumeState> {
+        self.root_resume_record().map(|record| record.state)
+    }
+
     pub(crate) fn root_turn_is_deferred(&self, turn_id: &str) -> bool {
         self.root_resume_control()
             .deferred_turn
@@ -239,6 +243,7 @@ impl Session {
         let db = self
             .state_db()
             .ok_or_else(|| invalid("defer_root requires persistent state storage"))?;
+        self.ensure_parent_requests_handled().await?;
         if self.has_root_resume_reservation()
             || db
                 .get_active_root_resume(&self.thread_id.to_string())
@@ -399,6 +404,27 @@ impl Session {
         }) else {
             return Ok(false);
         };
+        // A request admitted between preparation and this persisted boundary wins
+        // over completion-only parking. Its mail joins the next normal model step.
+        match self.ensure_parent_requests_handled().await {
+            Err(error)
+                if matches!(
+                    error.details(),
+                    codex_protocol::error::CodexErrorDetails::InvalidRequest(_)
+                ) =>
+            {
+                self.transition_root_resume_record(
+                    &record,
+                    RootResumeState::Cancelled,
+                    Some(RootResumeWakeReason::ParentRequest),
+                    None,
+                )
+                .await?;
+                return Ok(false);
+            }
+            Err(error) => return Err(error),
+            Ok(()) => {}
+        }
         let turn_state = self
             .input_queue
             .turn_state_for_sub_id(&self.active_turn, &turn.sub_id)
@@ -669,6 +695,14 @@ impl Session {
             let reason = tokio::select! {
                 biased;
                 _ = token.cancelled() => return,
+                result = async {
+                    let session = weak.upgrade().ok_or_else(|| anyhow::anyhow!("root runtime closed"))?;
+                    if session.restore_pending_parent_request_mail().await? {
+                        anyhow::Ok(RootResumeWakeReason::ParentRequest)
+                    } else {
+                        std::future::pending().await
+                    }
+                } => result,
                 result = timed => result,
                 result = dependencies => result,
             };
@@ -777,7 +811,8 @@ impl Session {
                     claimed.wake_reason,
                     Some(RootResumeWakeReason::Deadline
                         | RootResumeWakeReason::AgentsCompleted
-                        | RootResumeWakeReason::WorkCompleted)
+                        | RootResumeWakeReason::WorkCompleted
+                        | RootResumeWakeReason::ParentRequest)
                 ) && let Some(settings) = &claimed.reasoning_settings
                 {
                     Arc::make_mut(&mut configuration.step_settings)
@@ -847,6 +882,7 @@ impl Session {
                 let wake = match claimed.wake_reason {
                     Some(RootResumeWakeReason::Deadline) => "deadline reached",
                     Some(RootResumeWakeReason::AgentsCompleted) => "selected child tasks terminated",
+                    Some(RootResumeWakeReason::ParentRequest) => "child requested a parent decision",
                     Some(RootResumeWakeReason::WorkCompleted) => {
                         "selected work executions and child tasks terminated"
                     }
@@ -893,6 +929,28 @@ impl Session {
     ) -> CodexResult<()> {
         self.dispatch_root_resume(id.to_string(), revision, RootResumeWakeReason::Manual)
             .await
+    }
+
+    pub(crate) async fn resume_root_for_parent_request(self: &Arc<Self>) -> CodexResult<()> {
+        let Some(record) = self.root_resume_record() else {
+            return Ok(());
+        };
+        if record.state != RootResumeState::Waiting {
+            return Ok(());
+        }
+        tracing::info!(target: "codex_core::parent_request", event = "parent_resume_scheduled", thread_id = %self.thread_id, parent_thread_id = %self.thread_id, reservation_id = %record.id);
+        let result = self
+            .dispatch_root_resume(
+                record.id,
+                record.revision,
+                RootResumeWakeReason::ParentRequest,
+            )
+            .await;
+        // A deadline, completion, or another request may have won the same gate.
+        if result.is_err() && !self.has_root_resume_reservation() {
+            return Ok(());
+        }
+        result
     }
 
     pub(crate) async fn cancel_root_reservation(
@@ -1037,6 +1095,9 @@ impl Session {
             .and_then(|a| a.task.as_ref())
             .map(|t| t.turn_context.sub_id.clone())
         {
+            return Some(id);
+        }
+        if let Some(id) = self.parked_parent_response_task_identity().await {
             return Some(id);
         }
         self.reference_context_item().await.and_then(|c| c.turn_id)

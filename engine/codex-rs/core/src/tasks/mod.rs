@@ -500,7 +500,7 @@ impl Session {
         {
             return;
         }
-        if self.has_root_resume_reservation() {
+        if self.has_root_resume_reservation() || self.parent_response_turn_is_deferred() {
             return;
         }
         if !self.input_queue.has_pending_mailbox_items().await
@@ -596,6 +596,10 @@ impl Session {
     }
 
     pub async fn abort_all_tasks(self: &Arc<Self>, reason: TurnAbortReason) {
+        if let Err(error) = self.cancel_parent_response_wait().await {
+            warn!(%error, "could not cancel child response wait");
+            return;
+        }
         let mut aborted_turn = false;
         let mut active_turn_to_clear = None;
         if let Some(mut active_turn) = self.take_active_turn(&reason).await {
@@ -682,6 +686,15 @@ impl Session {
         turn_context: Arc<TurnContext>,
         task_result: SessionTaskResult,
     ) {
+        if self.finish_deferred_parent_response(&turn_context).await {
+            return;
+        }
+        if let Err(error) = self
+            .finish_unparked_parent_response_wait(&turn_context.sub_id)
+            .await
+        {
+            warn!(%error, "could not finish unparked child response wait");
+        }
         if self.finish_deferred_root(&turn_context).await {
             return;
         }

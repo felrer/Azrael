@@ -31,6 +31,7 @@ pub enum RootResumeWakeReason {
     Deadline,
     AgentsCompleted,
     WorkCompleted,
+    ParentRequest,
     UserInput,
     Manual,
 }

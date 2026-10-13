@@ -146,7 +146,7 @@ def root_resume_timing(body: str, target: str) -> dict:
                   "reservation_claim", "turn_context", "turn_start", "model_request", "model_request_submit",
                   "resume_dispatch"},
         "outcome": {"started", "completed", "failed", "cancelled"},
-        "wake_reason": {"deadline", "agents_completed", "work_completed", "manual", "user_input"},
+        "wake_reason": {"deadline", "agents_completed", "work_completed", "parent_request", "manual", "user_input"},
     }
     for key, allowed in labels.items():
         if fields.get(key) not in {'"' + label + '"' for label in allowed}:

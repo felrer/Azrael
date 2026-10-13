@@ -54,6 +54,7 @@ pub(crate) mod reclamation;
 pub(crate) mod recovery;
 mod remote_control;
 mod rollout_migration;
+mod parent_requests;
 mod root_resume;
 #[cfg(test)]
 pub(crate) mod test_support;

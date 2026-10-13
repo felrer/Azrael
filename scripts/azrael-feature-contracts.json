@@ -2,6 +2,59 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.parent-requests",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/protocol/src/parent_request.rs",
+        "engine/codex-rs/state/src/runtime/parent_requests.rs",
+        "engine/codex-rs/core/src/session/parent_request.rs",
+        "engine/codex-rs/core/src/session/parent_response_wait.rs",
+        "engine/codex-rs/core/src/session/root_resume.rs",
+        "engine/codex-rs/core/src/tools/handlers/parent_request.rs",
+        "engine/codex-rs/prompts/src/parent_request_guidance.rs",
+        "engine/codex-rs/core/src/context/world_state/parent_request_guidance.rs",
+        "engine/codex-rs/core/src/session/world_state.rs",
+        "engine/codex-rs/core/src/agent/control/spawn.rs",
+        "engine/codex-rs/state/migrations/0065_parent_requests.sql",
+        "engine/codex-rs/state/migrations/0066_parent_request_wake_reason.sql",
+        "engine/codex-rs/core/src/agent/api.rs",
+        "engine/codex-rs/core/src/agent/control/api.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/tools/multi_agent_tool.rs",
+        "engine/codex-rs/core/src/session/turn_input.rs",
+        "engine/codex-rs/core/src/tasks/mod.rs",
+        "engine/codex-rs/core/src/tasks/regular.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "engine/codex-rs/core/src/session/handlers.rs",
+        "engine/codex-rs/core/src/thread_manager.rs",
+        "engine/codex-rs/state/src/runtime.rs",
+        "engine/codex-rs/state/src/runtime/root_resume.rs",
+        "engine/codex-rs/protocol/src/root_resume.rs"
+      ],
+      "contract": "docs/architecture/root-resume.md",
+      "checks": [
+        {
+          "id": "engine.parent-requests.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-parent-requests.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.parent-requests.guidance",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-common-agent-instructions.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.api-context",
       "area": "engine",
       "owners": [

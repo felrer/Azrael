@@ -260,6 +260,7 @@ async fn automatic_root_resume_preserves_reasoning_and_manual_uses_current_setti
         RootResumeWakeReason::Deadline,
         RootResumeWakeReason::AgentsCompleted,
         RootResumeWakeReason::WorkCompleted,
+        RootResumeWakeReason::ParentRequest,
         RootResumeWakeReason::Manual,
     ] {
         let server = start_mock_server().await;

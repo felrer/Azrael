@@ -309,7 +309,8 @@ pub(super) async fn handle(
         if let Some(root_turn_id) = session.supersede_root_resume().await? {
             request.start.root_turn_id = Some(root_turn_id);
         }
-    } else if session.has_root_resume_reservation() {
+        session.cancel_parent_response_wait().await?;
+    } else if session.has_root_resume_reservation() || session.parent_response_turn_is_deferred() {
         return Ok(TurnInputSubmission::NotSubmitted {
             reason: NotSubmittedReason::NotIdle,
         });
@@ -812,7 +813,10 @@ impl Session {
         &self,
     ) -> Option<(Arc<tokio::sync::Mutex<TurnState>>, TurnStartOptions)> {
         let mut active_turn = self.active_turn.lock().await;
-        if active_turn.is_some() || self.has_root_resume_reservation() {
+        if active_turn.is_some()
+            || self.has_root_resume_reservation()
+            || self.parent_response_turn_is_deferred()
+        {
             return None;
         }
         let needs_new_turn = self.input_queue.has_trigger_turn_mailbox_items().await;

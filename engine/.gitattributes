@@ -3,5 +3,7 @@ codex-rs/state/migrations/0055_root_resume_reservations.sql text eol=lf
 codex-rs/state/migrations/0062_project_usage_daily.sql text eol=lf
 codex-rs/state/migrations/0063_root_resume_completion_tasks.sql text eol=lf
 codex-rs/state/migrations/0064_root_resume_reasoning_settings.sql text eol=lf
+codex-rs/state/migrations/0065_parent_requests.sql text eol=lf
+codex-rs/state/migrations/0066_parent_request_wake_reason.sql text eol=lf
 codex-rs/state/thread_history_migrations/0007_projection_version.sql text eol=lf
 codex-rs/state/thread_history_migrations/0011_turn_attribution.sql text eol=lf

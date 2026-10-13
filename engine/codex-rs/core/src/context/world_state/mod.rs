@@ -17,6 +17,7 @@ mod persistent_mode;
 mod plugins_instructions;
 mod realtime;
 mod root_coordination;
+mod parent_request_guidance;
 #[cfg(test)]
 pub(crate) mod test_support;
 mod tools;
@@ -60,6 +61,7 @@ pub(crate) use persistent_mode::PersistentModeState;
 pub(crate) use plugins_instructions::PluginsInstructionsState;
 pub(crate) use realtime::RealtimeState;
 pub(crate) use root_coordination::RootCoordinationState;
+pub(crate) use parent_request_guidance::ParentRequestGuidanceState;
 pub(crate) use tools::ToolsState;
 pub(crate) use top_level_tools::TopLevelToolsState;
 

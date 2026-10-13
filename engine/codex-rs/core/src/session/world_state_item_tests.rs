@@ -180,3 +180,42 @@ async fn root_coordination_common_context_is_gated_by_session_source(
         }
     }
 }
+
+
+#[tokio::test]
+async fn parent_request_guidance_context_is_independent_of_role_hint_and_tracks_capability() {
+    for has_parent in [false, true] {
+        for version in [codex_protocol::protocol::MultiAgentVersion::Disabled, codex_protocol::protocol::MultiAgentVersion::V2] {
+            for hint in [None, Some(""), Some("custom role hint")] {
+                let (session, mut turn_context) = make_session_and_context().await;
+                turn_context.multi_agent_version = version;
+                turn_context.parent_thread_id = has_parent.then(codex_protocol::ThreadId::new);
+                if let Some(parent_thread_id) = turn_context.parent_thread_id {
+                    turn_context.session_source = codex_protocol::protocol::SessionSource::SubAgent(
+                        codex_protocol::protocol::SubAgentSource::ThreadSpawn {
+                            parent_thread_id, depth: 1, agent_path: None, agent_nickname: None, agent_role: None,
+                        }
+                    );
+                }
+                let config = Arc::make_mut(&mut turn_context.config);
+                config.multi_agent_v2.root_agent_usage_hint_text = hint.map(str::to_string);
+                config.multi_agent_v2.subagent_usage_hint_text = hint.map(str::to_string);
+                let expected = codex_prompts::ParentRequestGuidance {
+                    has_parent,
+                    tools_enabled: super::parent_request::parent_request_tools_enabled(&turn_context),
+                }.render();
+                let step_context = StepContext::for_test(Arc::new(turn_context));
+                let world_state = session.build_world_state_for_step(&step_context, true).await.unwrap();
+                let (updates, _) = session.build_initial_context_with_world_state(&step_context, &world_state).await;
+                let (_, context) = split_prefix_updates(updates);
+                let messages = merge_world_state_updates(context);
+                let guidance = messages.iter().filter(|item| {
+                    matches!(item, ResponseItem::Message { role, content, .. } if role == "developer" && content.iter().any(|part|
+                        matches!(part, codex_protocol::models::ContentItem::InputText { text } if text == &expected)))
+                }).collect::<Vec<_>>();
+                assert_eq!(guidance.len(), 1);
+                assert!(matches!(guidance[0], ResponseItem::Message { content, .. } if content.len() == 1));
+            }
+        }
+    }
+}

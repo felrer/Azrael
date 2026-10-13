@@ -22,6 +22,8 @@ use crate::context::world_state::PersistentModeState;
 use crate::context::world_state::PluginsInstructionsState;
 use crate::context::world_state::RealtimeState;
 use crate::context::world_state::RootCoordinationState;
+use crate::context::world_state::ParentRequestGuidanceState;
+use crate::context::ParentRequestGuidance;
 use crate::context::world_state::ToolsState;
 use crate::context::world_state::TopLevelToolsState;
 use crate::context::world_state::WorldState;
@@ -381,6 +383,12 @@ impl Session {
         }
         if !turn_context.session_source.is_non_root_agent() {
             world_state.add_section(RootCoordinationState);
+        }
+        if !turn_context.session_source.is_non_root_agent() || turn_context.parent_thread_id.is_some() {
+            world_state.add_section(ParentRequestGuidanceState(ParentRequestGuidance {
+                has_parent: turn_context.parent_thread_id.is_some(),
+                tools_enabled: super::parent_request::parent_request_tools_enabled(turn_context),
+            }));
         }
         let mut multi_agent_mode = MultiAgentModeState::new(
             super::multi_agents::effective_multi_agent_mode(step_context),

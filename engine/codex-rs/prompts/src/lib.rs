@@ -8,6 +8,7 @@ mod realtime;
 mod review_exit;
 mod review_request;
 mod root_coordination_instructions;
+mod parent_request_guidance;
 mod update_plan_instructions;
 
 pub use compact::SUMMARIZATION_PROMPT;
@@ -92,3 +93,6 @@ mod azrael_identity_tests {
         assert_eq!(with_azrael_harness_identity(&rendered), rendered);
     }
 }
+
+pub use parent_request_guidance::ParentRequestGuidance;
+pub use parent_request_guidance::PARENT_REQUEST_GUIDANCE;
