@@ -441,6 +441,7 @@ function settingsHarness(initialState, randomValues = [0]) {
   let state = initialState, locale = "ko-KR", cursor = 0, dirty = false, randomIndex = 0;
   const slots = [], effects = [], calls = [], initializers = [];
   const native = Object.fromEntries(["kt", "AzraelSettingsCard", "AzraelSettingsRow", "AzraelSwitch", "AzraelFontChoice", "pe"].map(name => [name, Symbol(name)]));
+  native.AzraelPhotoMenu = Object.fromEntries(["Trigger", "Content", "RadioGroup", "RadioItem"].map(name => [name, Symbol(name)]));
   const react = {
     useState(initial) {
       const index = cursor++;
@@ -462,6 +463,7 @@ function settingsHarness(initialState, randomValues = [0]) {
     ...native, Q: react, $: { jsx, jsxs: jsx }, pickStudentPreview: choose, s: () => ({ locale }), azraelSettingsText,
     initAzraelSettingsCard: () => initializers.push("card"), initAzraelSettingsRow: () => initializers.push("row"), initAzraelSwitch: () => initializers.push("switch"),
     initAzraelFontChoice: () => initializers.push("font-choice"),
+    initAzraelPhotoMenu: () => initializers.push("photo-menu"),
     useAzraelDesignState: () => state,
     azraelDesignStore: { setEnabled: value => calls.push(["setEnabled", value]), setChatFont: value => calls.push(["setChatFont", value]), setPhotoSet: value => calls.push(["setPhotoSet", value]), importPhotoSet: () => calls.push(["importPhotoSet"]), retry: () => calls.push(["retry"]) },
   });
@@ -487,7 +489,7 @@ function settingsControls(h, tree) {
   assert.equal(rows.length, 4);
   return { font: rows[0].props.control({ "aria-labelledby": "font-label" }),
     toggle: rows[1].props.control({ "aria-labelledby": "native-label", "aria-describedby": "native-description", id: "native-control" }),
-    imageSet: rows[2].props.control({ "aria-labelledby": "image-set-label" }).props.children,
+    imageSet: rows[2].props.control({ "aria-labelledby": "image-set-label" }),
     draw: rows[3].props.control({}), rows: rows.slice(1) };
 }
 const previewStudents = [
@@ -520,15 +522,24 @@ test("selected set scopes preview while existing avatar assignments retain all p
   const h = settingsHarness(base);
   let tree = h.render(); assert.notEqual(findNode(tree, n => n.type === "img").props.src, "local-cat");
   const choice = settingsControls(h, tree).imageSet;
-  assert.equal(choice.type, h.native.AzraelFontChoice); assert.equal(choice.props.ariaLabelledBy, "image-set-label");
-  choice.props.onSelect("custom"); assert.deepEqual(h.calls, [["setPhotoSet", "custom"]]);
+  assert.equal(choice.type, h.native.AzraelPhotoMenu);
+  const trigger = findNode(choice, n => n.props?.["data-azrael-photo-set-trigger"]);
+  assert.equal(trigger.props["aria-labelledby"], "image-set-label");
+  assert.equal(findNode(trigger, n => n.type === "span").props.children, "Blue Archive");
+  assert.deepEqual(treeNodes(choice).filter(n => n.type === h.native.AzraelPhotoMenu.RadioItem).map(n => n.props.value), ["blue-archive", "custom"]);
+  findNode(choice, n => n.type === h.native.AzraelPhotoMenu.RadioGroup).props.onChange("custom");
+  assert.deepEqual(h.calls, [["setPhotoSet", "custom"]]);
   tree = h.update({ ...base, selectedPhotoSetId: "custom" });
   assert.equal(findNode(tree, n => n.type === "img").props.src, "local-cat");
+  assert.equal(findNode(settingsControls(h, tree).imageSet, n => n.type === "span").props.children, "Characters");
   settingsControls(h, tree).draw.props.onClick(); tree = h.render();
   assert.equal(findNode(tree, n => n.type === "img").props.src, "local-cat");
   findNode(tree, n => n.props?.children === "이미지 셋 추가").props.onClick();
   assert.deepEqual(h.calls.at(-1), ["importPhotoSet"]);
   assert.equal(base.assignments.existing, "a");
+  const savingMenu = settingsControls(h, h.update({ ...base, saving: true })).imageSet;
+  assert.equal(findNode(savingMenu, n => n.type === h.native.AzraelPhotoMenu.Trigger).props.disabled, true);
+  assert(treeNodes(savingMenu).filter(n => n.type === h.native.AzraelPhotoMenu.RadioItem).every(n => n.props.disabled));
 });
 
 test("font choice uses native segmented control, translated labels and saving lock", () => {
@@ -690,6 +701,7 @@ test("native settings imports bind to actual pinned exports and retain native pa
     AzraelSettingsRow: ["./app-initial-c014f9ee4429.js", "Q3"], initAzraelSettingsRow: ["./app-initial-c014f9ee4429.js", "t6"],
     AzraelSwitch: ["./app-initial-7a199c66e670.js", "l9"], initAzraelSwitch: ["./app-initial-7a199c66e670.js", "d9"],
     AzraelFontChoice: ["./app-initial-7a199c66e670.js", "Wp"], initAzraelFontChoice: ["./app-initial-7a199c66e670.js", "Gp"],
+    AzraelPhotoMenu: ["./app-initial-97d3534ad35f.js", "Pc"], initAzraelPhotoMenu: ["./app-initial-97d3534ad35f.js", "Fc"],
   };
   for (const local of [...Object.keys(expected), "kt", "pe", "s", "Q", "$"]) {
     let importLocal = local;
