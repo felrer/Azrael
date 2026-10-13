@@ -2,6 +2,7 @@
 const test=require("node:test"),assert=require("node:assert/strict"),fs=require("node:fs"),vm=require("node:vm");
 const {CAPACITY_RETRY_ASSET:asset,CAPACITY_RETRY_MARKER:marker,injectCapacityRetryStop}=require("./inject-capacity-retry-stop.cjs");
 const {transformAsset}=require("./namespace-azrael-host.cjs");
+const {RecoveryState}=require("./recovery-state.cjs");
 const ts=require("../extensions/azrael-ex/node_modules/typescript");
 const pristine=fs.readFileSync((process.env.AZRAEL_PRESERVATION_UI_ROOT??"artifacts/upstream-ui/26.1007.21434")+"/"+asset,"utf8");
 const transformed=injectCapacityRetryStop(pristine,asset);
@@ -47,4 +48,22 @@ test("failed retry leaves manual retry available without restarting automatic su
  await new Promise(resolve=>setImmediate(resolve));
  const tree=h.render();assert.equal(tree.props.children[0].props.disabled,false);assert.equal(h.delay,null);
  h.setFail(false);tree.props.children[0].props.onClick();assert.equal(h.requests.length,2);
+});
+
+test("stopping capacity retries leaves same-session continuation, new input and steering available",async()=>{
+ const h=harness(),sent=[],records=[];
+ const state=new RecoveryState({store:{get:()=>[],async update(){}},log:r=>records.push(r),rpc:async(method,params)=>{
+  if(method==="thread/read")return {thread:{id:params.threadId,status:{type:"systemError"}}};
+  if(method==="thread/turns/list")return {data:[{id:"failed",status:"failed",error:{codexErrorInfo:"serverOverloaded",message:"Selected model is at capacity. Please try a different model."}}]};
+  sent.push({method,params});return method==="turn/steer"?{turnId:"new-turn"}:{turn:{id:"new-turn",status:"inProgress"}};
+ }});
+ h.render().props.children[1].props.onClick();h.advance();h.tick();
+ await state.start({threadId:"thread",input:[{type:"text",text:"계속"}],model:"selected-model",clientUserMessageId:"continue-id"});
+ const next={threadId:"thread",input:[{type:"text",text:"새 지시"},{type:"image",imageUrl:"data:image/png;base64,fixture"}],model:"different-model",clientUserMessageId:"new-id"};
+ await state.start(next);
+ await state.steer({threadId:"thread",expectedTurnId:"new-turn",input:[{type:"text",text:"추가 지시"}],clientUserMessageId:"steer-id"});
+ h.tick();assert.equal(h.requests.length,0,"stopped timer cannot submit alongside the user's new request");
+ assert.deepEqual(sent.map(r=>r.method),["turn/start","turn/start","turn/steer"]);
+ assert.deepEqual(sent[1].params,next,"new request content, attachments, identity and model are preserved");
+ assert.equal(records.find(r=>r.event==="recovery.admission")?.errorKind,"server_overloaded");
 });
