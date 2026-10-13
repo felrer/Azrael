@@ -496,12 +496,12 @@ const previewStudents = [
   { id: "a", nameKo: "학생 가", nameEn: "Student A", url: "local-a" },
   { id: "b", nameKo: "학생 나", nameEn: "Student B", url: "local-b" },
 ];
-const loadedDesignState = () => ({ enabled: false, chatFont: "gyeonggi-consolas", selectedPhotoSetId: "blue-archive", photoSets: [{ id: "blue-archive", name: "Blue Archive", count: 2 }], loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
+const loadedDesignState = () => ({ enabled: false, chatFont: "gyeonggi-consolas", selectedPhotoSetId: "blue-archive", photoSets: [{ id: "blue-archive", name: "Students", count: 2 }], loading: false, saving: false, error: null, students: previewStudents, assignments: { existing: "a" } });
 
 test("photo set changes use confirmed snapshots and native dialogs do not expire while open", () => {
   const timers = [];
   const h = harness({ setTimeout: fn => { timers.push(fn); return timers.length; }, clearTimeout() {} });
-  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Blue Archive" }, { id: "custom", name: "Characters" }] };
+  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Students" }, { id: "custom", name: "Characters" }] };
   h.receive({ clientId: "client", ...base });
   h.store.setPhotoSet("missing"); assert.equal(h.sent.length, 1);
   h.store.setPhotoSet("custom");
@@ -517,7 +517,7 @@ test("photo set changes use confirmed snapshots and native dialogs do not expire
 });
 
 test("selected set scopes preview while existing avatar assignments retain all photos", () => {
-  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Blue Archive" }, { id: "custom", name: "Characters" }],
+  const base = { ...loadedDesignState(), photoSets: [{ id: "blue-archive", name: "Students" }, { id: "custom", name: "Characters" }],
     students: [...previewStudents, { id: "custom:cat", photoSetId: "custom", nameEn: "Cat", url: "local-cat" }] };
   const h = settingsHarness(base);
   let tree = h.render(); assert.notEqual(findNode(tree, n => n.type === "img").props.src, "local-cat");
@@ -525,7 +525,7 @@ test("selected set scopes preview while existing avatar assignments retain all p
   assert.equal(choice.type, h.native.AzraelPhotoMenu);
   const trigger = findNode(choice, n => n.props?.["data-azrael-photo-set-trigger"]);
   assert.equal(trigger.props["aria-labelledby"], "image-set-label");
-  assert.equal(findNode(trigger, n => n.type === "span").props.children, "Blue Archive");
+  assert.equal(findNode(trigger, n => n.type === "span").props.children, "Students");
   assert.deepEqual(treeNodes(choice).filter(n => n.type === h.native.AzraelPhotoMenu.RadioItem).map(n => n.props.value), ["blue-archive", "custom"]);
   findNode(choice, n => n.type === h.native.AzraelPhotoMenu.RadioGroup).props.onChange("custom");
   assert.deepEqual(h.calls, [["setPhotoSet", "custom"]]);

@@ -243,7 +243,7 @@ test("imports copy assets, select custom roster, preserve all old assignments an
   const state = f.sent.at(-1), customId = state.selectedPhotoSetId;
   assert.match(customId, /^custom-/);
   assert.equal(otherMessages.at(-1).selectedPhotoSetId, customId);
-  assert.deepEqual(state.photoSets.map((s: any) => [s.name, s.count]), [["Blue Archive", manifest.students.length], ["Friends", 2]]);
+  assert.deepEqual(state.photoSets.map((s: any) => [s.name, s.count]), [["Students", manifest.students.length], ["Friends", 2]]);
   assert.equal(state.students.length, manifest.students.length + 2);
   assert.equal(state.students[manifest.students.length].photoSetId, customId);
   const saved: any = f.value;

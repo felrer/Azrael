@@ -133,7 +133,7 @@ export class StudentDesignService implements vscode.Disposable {
     });
   }
 
-  private photoSets(): PhotoSet[] { return [{ id: "blue-archive", name: "Blue Archive", photos: this.students }, ...this.state.customPhotoSets]; }
+  private photoSets(): PhotoSet[] { return [{ id: "blue-archive", name: "Students", photos: this.students }, ...this.state.customPhotoSets]; }
   private activePhotos(): Student[] { return this.photoSets().find(set => set.id === this.state.selectedPhotoSetId)?.photos ?? []; }
 
   private restoreSets(value: unknown): PhotoSet[] {
