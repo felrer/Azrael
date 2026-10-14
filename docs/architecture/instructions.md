@@ -83,11 +83,13 @@ New and first-imported personal skills default to collaborator sharing. This sel
 
 Save updates only the local management source. Apply separately updates the Azrael installation and takes effect in new conversations. Publish separately presents the destination and included changes before transmitting them to GitHub. Apply and publish are independent: publication does not install a skill, and installation does not publish it. Running conversations retain the existing instruction lifecycle.
 
+Sharing-class changes preserve past Git commits and release assets while restricting subsequent publication to the new class. Entries retain a `Previously published` indication with their known destinations and versions. Collaborator publication is available to every user with actual write capability on the collaborator repository; Azrael does not impose a separate owner-only publication role.
+
 Local-only means exclusion from skill-sharing repositories and publication. It does not define a new model-inference policy: normal use of a selected skill remains governed by the native prompt and provider context contracts.
 
 ### Proposed source, data and installation structure
 
-Status: `draft`. These proposals specify the remaining design; publication-history and collaborator-write policies are subject to the choices in the [current work record](../../work/BA-01-instruction-skill-sharing/01-plan.md).
+Status: `draft`. These proposals detail storage, integration and interaction behavior around the agreed product contract. The [current work record](../../work/BA-01-instruction-skill-sharing/01-plan.md) distinguishes the settled policies from the remaining implementation proposals.
 
 Use a project-associated management root, proposed as `skill-library/`, whose complete contents are excluded from the application's Git tracking and app packages. Authoring sources, remote read caches and private metadata have separate subdirectories. An explicit publisher assembles public or collaborator output outside the source tree from approved skill IDs and file inventories. A different configured management root uses the same containment and publication rules. An already tracked directory is not accepted as protected solely because a `.gitignore` rule exists.
 
@@ -111,7 +113,7 @@ Each connection records a stable source ID, repository identity, branch, expecte
 
 Prefer the host's GitHub authentication session when available. A scoped token alternative uses VS Code SecretStorage if the installed host cannot supply a suitable session. Authentication-provider availability is verified in the actual Azrael package before choosing the supported route. Credentials stay in the host and credential owner, never in webview messages, source files, publication manifests or diagnostic logs. See [VS Code authentication and secret storage](https://code.visualstudio.com/api/references/vscode-api).
 
-Read access permits remote browsing, download and local installation. Write operations require actual repository write capability. The proposed group policy permits any writer to publish; an owner-only policy would require matching GitHub repository permissions, rather than hiding a button while leaving remote write access available. Private repository visibility alone is not an application-enforced read-only grant.
+Read access permits remote browsing, download and local installation. Write operations require actual repository write capability. Every writer can publish under the agreed group policy. The UI reflects the actual GitHub permissions rather than claiming an access restriction from button visibility. Private repository visibility alone is not an application-enforced read-only grant.
 
 Use GitHub APIs for remote source commits and release assets so ordinary browse and installation retain the existing no-Git requirement. A publication freezes the approved source bytes, target repository and sharing class, complete file list, base branch commit and release version. Changes made while publication runs remain newer local edits and are not added to that operation.
 
@@ -131,7 +133,7 @@ The package, manifest, document previews and release notes contain only the appr
 
 Changing the desired class changes future publication selection. Applying a scope change does not erase known publication destinations. The publication preview identifies additions at the new destination and any removal from the current source tree at the previous destination. A move across repositories records both outcomes independently and resumes only unfinished steps after failure.
 
-The proposed history policy preserves old commits and release assets. Public-to-collaborator or shared-to-local transitions display `Previously published` with the known destinations and versions; they never claim previously published bytes have become confidential. New local-only changes are excluded from every publication. The alternative policy of removing old remote releases and rewriting history requires separate design and authorization, and cannot recall copies already downloaded.
+The history policy preserves old commits and release assets. Public-to-collaborator or shared-to-local transitions display `Previously published` with the known destinations and versions; they never claim previously published bytes have become confidential. New local-only changes are excluded from every publication. Scope changes do not delete historical releases or rewrite Git history, and copies already downloaded remain outside the application's custody.
 
 Update checking is explicit. Opening the settings page restores local state and verified caches without automatically contacting GitHub. A downloaded update is not automatically applied. Compare local source, the last synchronized base and remote source: when both sides changed the same managed entry, require a comparison instead of silently replacing it. Pinned sources retain their selected version until unpinned. Offline save, comparison and local apply work without GitHub; publication remains pending until a requested retry.
 
