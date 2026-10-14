@@ -267,42 +267,51 @@ fn apply_mcp_tool_exposure_policy(
             }
             continue;
         }
-        let tool_name = tool_name.with_default_namespace();
+        tool.exposure = mcp_tool_exposure(turn_context, model_info, tool_name, *omitted_exposures);
+    }
+}
 
-        let mut exposures = ToolExposures::ALL.difference(*omitted_exposures);
-        if tool_name.namespace.as_ref().is_some_and(|namespace| {
-            turn_context
-                .config
-                .code_mode
-                .direct_only_tool_namespaces
-                .contains(namespace)
-        }) {
-            exposures = exposures.difference(ToolExposures::DEFERRED | ToolExposures::CODE_MODE);
-        }
+fn mcp_tool_exposure(
+    turn_context: &TurnContext,
+    model_info: &ModelInfo,
+    tool_name: ToolName,
+    omitted_exposures: ToolExposures,
+) -> ToolExposure {
+    let tool_name = tool_name.with_default_namespace();
 
-        exposures = if model_info.supports_search_tool
-            && exposures.contains(ToolExposures::DEFERRED)
-            && (effective_tool_mode(turn_context, model_info) != ToolMode::CodeModeOnly
-                || exposures.contains(ToolExposures::CODE_MODE))
-        {
-            exposures.difference(ToolExposures::DIRECT)
-        } else {
-            exposures.difference(ToolExposures::DEFERRED)
-        };
+    let mut exposures = ToolExposures::ALL.difference(omitted_exposures);
+    if tool_name.namespace.as_ref().is_some_and(|namespace| {
+        turn_context
+            .config
+            .code_mode
+            .direct_only_tool_namespaces
+            .contains(namespace)
+    }) {
+        exposures = exposures.difference(ToolExposures::DEFERRED | ToolExposures::CODE_MODE);
+    }
 
-        tool.exposure = match (
-            exposures.contains(ToolExposures::DIRECT),
-            exposures.contains(ToolExposures::DEFERRED),
-            exposures.contains(ToolExposures::CODE_MODE),
-        ) {
-            (false, false, false) => ToolExposure::Hidden,
-            (false, false, true) => ToolExposure::CodeModeOnly,
-            (true, false, false) => ToolExposure::DirectModelOnly,
-            (true, false, true) => ToolExposure::Direct,
-            (false, true, false) => ToolExposure::DeferredModelOnly,
-            (false, true, true) => ToolExposure::Deferred,
-            (true, true, _) => unreachable!("direct and deferred exposure are mutually exclusive"),
-        };
+    exposures = if supports_client_tool_search(turn_context, model_info)
+        && exposures.contains(ToolExposures::DEFERRED)
+        && (effective_tool_mode(turn_context, model_info) != ToolMode::CodeModeOnly
+            || exposures.contains(ToolExposures::CODE_MODE))
+    {
+        exposures.difference(ToolExposures::DIRECT)
+    } else {
+        exposures.difference(ToolExposures::DEFERRED)
+    };
+
+    match (
+        exposures.contains(ToolExposures::DIRECT),
+        exposures.contains(ToolExposures::DEFERRED),
+        exposures.contains(ToolExposures::CODE_MODE),
+    ) {
+        (false, false, false) => ToolExposure::Hidden,
+        (false, false, true) => ToolExposure::CodeModeOnly,
+        (true, false, false) => ToolExposure::DirectModelOnly,
+        (true, false, true) => ToolExposure::Direct,
+        (false, true, false) => ToolExposure::DeferredModelOnly,
+        (false, true, true) => ToolExposure::Deferred,
+        (true, true, _) => unreachable!("direct and deferred exposure are mutually exclusive"),
     }
 }
 
@@ -429,7 +438,7 @@ pub(crate) fn finalize_tool_router(
         }
     }
     let tool_search_name = ToolName::plain(TOOL_SEARCH_TOOL_NAME);
-    if (model_info.supports_search_tool || claude_profile(turn_context, model_info))
+    if supports_client_tool_search(turn_context, model_info)
         && registry.entries().any(|tool| {
             tool.runtime.tool_name() != tool_search_name
                 && tool.exposure.is_deferred()
@@ -1925,10 +1934,17 @@ fn code_mode_namespace_name<'a>(
 mod tests;
 
 fn claude_profile(turn: &TurnContext, model: &ModelInfo) -> bool {
-    codex_config::harness_profiles::is_anthropic_provider(
-        &turn.config.model_provider_id,
-        &model.slug,
-    )
+    turn.config
+        .harness_profiles
+        .resolve(&turn.config.model_provider_id, &model.slug)
+        .is_ok_and(|profile| profile.uses_claude_tools())
+}
+
+// Claude's compatible profile uses native client search even though its wire
+// protocol does not advertise the Responses tool_search capability. Keep MCP
+// exposure and executor registration on the same host-side decision.
+fn supports_client_tool_search(turn: &TurnContext, model: &ModelInfo) -> bool {
+    model.supports_search_tool || claude_profile(turn, model)
 }
 
 /// Apply once before discovery/code-mode planning. Missing entries cannot execute or be discovered.

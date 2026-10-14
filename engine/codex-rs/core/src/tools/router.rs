@@ -92,6 +92,12 @@ pub(crate) enum ToolSuggestPresentation {
     RecommendationContext,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub(crate) enum ChatToolDiscoveryPolicy {
+    BoundedApi,
+    RetainDiscovered,
+}
+
 #[derive(Clone, Debug)]
 pub(crate) struct ToolSuggestCandidates {
     pub(crate) tools: Vec<DiscoverableTool>,
@@ -194,14 +200,20 @@ impl ToolRouter {
     /// Chat APIs require discovered tools in the current tools array. Resolve
     /// history identities against the live registry rather than trusting old
     /// schemas or making hidden/removed tools callable again.
-    pub(crate) fn chat_specs_with_discovered(&self, input: &[ResponseItem]) -> Arc<[ToolSpec]> {
+    pub(crate) fn chat_specs_with_discovered(
+        &self,
+        input: &[ResponseItem],
+        policy: ChatToolDiscoveryPolicy,
+    ) -> Arc<[ToolSpec]> {
         const MAX_DEFERRED_TOOLS: usize = 8;
         const MAX_CATALOG_BYTES: usize = 64 * 1024;
 
+        let bounded = policy == ChatToolDiscoveryPolicy::BoundedApi;
         let mut specs = self.model_visible_specs.to_vec();
         // Direct tools are mandatory. The API request boundary handles an
         // oversized base catalog explicitly rather than silently dropping tools.
-        if serde_json::to_vec(&specs).map_or(true, |json| json.len() > MAX_CATALOG_BYTES) {
+        if bounded && serde_json::to_vec(&specs).map_or(true, |json| json.len() > MAX_CATALOG_BYTES)
+        {
             return self.model_visible_specs();
         }
         let deferred = self
@@ -214,12 +226,19 @@ impl ToolRouter {
         let mut loaded = 0;
         let mut add_candidate = |name: ToolName| {
             let name = name.with_default_namespace();
-            if loaded == MAX_DEFERRED_TOOLS || !seen.insert(name.clone()) {
+            if (bounded && loaded == MAX_DEFERRED_TOOLS) || !seen.insert(name.clone()) {
                 return;
             }
             let Some(tool) = deferred.get(&name) else {
                 return;
             };
+            if !bounded {
+                // Claude keeps discoveries for the retained conversation. Its
+                // normal context budget handles large catalogs explicitly;
+                // the API-specific active-set cap must not evict these tools.
+                specs.push(tool.runtime.spec());
+                return;
+            }
             let mut candidate = specs.clone();
             candidate.push(tool.runtime.spec());
             // Measure the actual merged catalog, including namespace overhead,
@@ -273,7 +292,7 @@ impl ToolRouter {
                 }
             }
         }
-        specs.into()
+        crate::tools::spec_plan::merge_into_namespaces(specs).into()
     }
 
     pub(crate) fn tool_mode(&self) -> ToolMode {

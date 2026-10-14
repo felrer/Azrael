@@ -131,6 +131,8 @@
         "engine/codex-rs/protocol/src/protocol.rs",
         "engine/codex-rs/prompts/src/model_instructions.rs",
         "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/tools/router.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
         "engine/codex-rs/core/src/tools/handlers/claude_files.rs",
         "engine/codex-rs/core/src/tools/handlers/claude_shell.rs",
         "engine/codex-rs/core/src/tools/handlers/claude_search.rs",

@@ -20,6 +20,7 @@ import { inferApi } from './custom-api.ts';
 import { createToolDiagnostics } from './tool-diagnostics.mjs';
 import { createContextDiagnostics } from '../devin/context-budget.mjs';
 import { estimateTokens } from './vendor/src/lib/token-estimate.ts';
+import { applyClaudeToolPrefix } from './vendor/src/oauth/anthropic.ts';
 
 const supported = MANAGED_PROVIDERS;
 const bindingProvider = (id: unknown) => supported.includes(id as string) || isApiProvider(id);
@@ -456,6 +457,16 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   try {
     if (retirementCode) fail(retirementCode);
     progress?.observe({ kind: 'phase', phase: 'headers' });
+    if (compiled.claudeProfile) {
+      // Managed Anthropic is pinned to OAuth. Match its external-tool escaping
+      // in typed search results; compatible builtins keep their exact names.
+      const searchIds = new Set(request.input.filter((item: any) => item.type === 'tool_search_output').map((item: any) => item.call_id));
+      for (const message of parsed.context.messages) if (message.role === 'toolResult' && searchIds.has(message.toolCallId)) {
+        const result = JSON.parse(message.content);
+        result.tools = result.tools.map((tool: any) => ({ name: tool.name.startsWith('az_') ? applyClaudeToolPrefix(tool.name) : tool.name }));
+        message.content = JSON.stringify(result);
+      }
+    }
     const built = await adapter.buildRequest(parsed, { headers: new Headers(), translatorBudget: budget, abortSignal: signal, providerFetch: fetcher });
     const wireBody = JSON.parse(built.body);
     if (compiled.claudeProfile) {

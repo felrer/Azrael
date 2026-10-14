@@ -1691,8 +1691,16 @@ pub(crate) fn build_prompt(
     Prompt {
         tools: if incremental_tools {
             Arc::default()
-        } else if step_context.harness_profile.uses_claude_tools() || step_context.settings.model_info.slug.starts_with("api/") {
-            step_context.tool_router.chat_specs_with_discovered(&input)
+        } else if step_context.harness_profile.uses_claude_tools() {
+            step_context.tool_router.chat_specs_with_discovered(
+                &input,
+                crate::tools::router::ChatToolDiscoveryPolicy::RetainDiscovered,
+            )
+        } else if model.starts_with("api/") {
+            step_context.tool_router.chat_specs_with_discovered(
+                &input,
+                crate::tools::router::ChatToolDiscoveryPolicy::BoundedApi,
+            )
         } else {
             step_context.tool_router.model_visible_specs()
         },
