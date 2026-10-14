@@ -62,11 +62,11 @@
       "path": "skills/design-collaboration/SKILL.md",
       "source": "design-collaboration/SKILL.md",
       "original": {
-        "size": 14719,
-        "sha256": "df4cb79e831134084437f00cd0eeaeef6b59c4ca8ec006aca3a995396461c5b8"
+        "size": 15133,
+        "sha256": "f310a982dbfd870920afe8529b23d9d410b4a62c6eb50f0b8bc8a2ac75070282"
       },
-      "size": 14719,
-      "sha256": "df4cb79e831134084437f00cd0eeaeef6b59c4ca8ec006aca3a995396461c5b8",
+      "size": 15133,
+      "sha256": "f310a982dbfd870920afe8529b23d9d410b4a62c6eb50f0b8bc8a2ac75070282",
       "adaptations": []
     },
     {
@@ -233,6 +233,17 @@
       },
       "size": 698,
       "sha256": "db3dd687be460347fdefae90748d19963c6dc98ab8494f009229bb029a00bfc1"
+    },
+    {
+      "path": "skills/design-collaboration/references/team-lead.md",
+      "source": "design-collaboration/references/team-lead.md",
+      "original": {
+        "size": 6211,
+        "sha256": "c250c61941f730ec778c2705c38248995a115e4f3b28448bcaf6f60166ec5f49"
+      },
+      "size": 6211,
+      "sha256": "c250c61941f730ec778c2705c38248995a115e4f3b28448bcaf6f60166ec5f49",
+      "adaptations": []
     }
   ],
   "exclusions": [

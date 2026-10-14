@@ -81,6 +81,10 @@
         {
           "source": "skills/design-collaboration/SKILL.md",
           "target": "skills/design-collaboration/SKILL.md"
+        },
+        {
+          "source": "skills/design-collaboration/references/team-lead.md",
+          "target": "skills/design-collaboration/references/team-lead.md"
         }
       ]
     },

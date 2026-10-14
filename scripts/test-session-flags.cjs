@@ -56,7 +56,11 @@ test("production pipeline reports flags and binds its owner to the header asset 
   const { transformAsset, getAssetTransformRules } = require("./namespace-azrael-host.cjs");
   const result = transformAsset(original, ASSET, ASSET, ts);
   assert.equal(result.asset.sessionFlagEdits, 1);
-  assert.ok(result.text.includes(HELPER));
+  // Team adds a Lead suffix to this row after the flag owner has run.
+  // Its composed row must retain the original flag controls and predicates.
+  assert.ok(result.text.includes(MARKER));
+  assert.ok(result.text.includes('function azraelFlaggedSessionRow(props)'));
+  assert.ok(result.text.includes('function azraelSessionMatchesFlagFilter('));
   assert.ok(getAssetTransformRules(ASSET)["inject-session-flags.cjs"]);
   assert.equal(getAssetTransformRules("other.js")["inject-session-flags.cjs"], undefined);
 });

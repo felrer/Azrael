@@ -45,6 +45,8 @@ const { BTW_ASSETS, injectBtw } = require("./inject-btw.cjs");
 const { ASSET: RECENT_CHAT_FILTER_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
 const { ASSET: WEBVIEW_IDLE_ASSET, injectWebviewIdle } = require("./inject-webview-idle.cjs");
 const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-session-flags.cjs");
+const { ASSET: TEAM_UI_ASSET, injectTeamUI } = require("./inject-team-ui.cjs");
+const { TEAM_RUNTIME_ASSETS, injectTeamRuntime } = require("./inject-team-runtime.cjs");
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
 const { ASSET: SUBMIT_ONLY_THREAD_ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
@@ -338,7 +340,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const isHostBundle = relativePath === "out/extension.js";
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && ![TASK_TIME_ROW_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  const isTeamAsset = relativePath === TEAM_UI_ASSET || TEAM_RUNTIME_ASSETS.includes(relativePath);
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![TASK_TIME_ROW_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -377,7 +380,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
   const recentChatFilter = injectRecentChatFilter(submitOnlyThread.text, relativePath);
   const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
-  const webviewIdle = injectWebviewIdle(sessionFlags.text, relativePath);
+  const teamUI = injectTeamUI(sessionFlags.text, relativePath);
+  const webviewIdle = injectWebviewIdle(teamUI.text, relativePath);
   const immediateStop = injectImmediateStop(webviewIdle.text, relativePath);
   const urlSafety = isHostBundle ? injectUrlSafetyTransport(immediateStop.text) : { text: immediateStop.text, count: 0 };
   const computerUse = isHostBundle ? injectComputerUse(urlSafety.text) : { text: urlSafety.text, count: 0 };
@@ -401,10 +405,12 @@ function transformAsset(source, relativePath, filename, ts) {
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
   const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
-    return { text: sessionLinks.text, asset: {
+  // Role admission must preserve request hooks already added by approvals and recovery.
+  const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+    return { text: teamRuntime.text, asset: {
       path: relativePath,
-      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -429,6 +435,8 @@ function transformAsset(source, relativePath, filename, ts) {
       submitOnlyThreadEdits: submitOnlyThread.count,
       recentChatFilterEdits: recentChatFilter.count,
       sessionFlagEdits: sessionFlags.count,
+      teamUIEdits: teamUI.count,
+      teamRuntimeEdits: teamRuntime.count,
       webviewIdleEdits: webviewIdle.count,
       immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
@@ -455,10 +463,10 @@ function transformAsset(source, relativePath, filename, ts) {
       uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
-      sha256: sha(sessionLinks.text),
+      sha256: sha(teamRuntime.text),
     } };
   }
-  return { text: sessionLinks.text, asset: null };
+  return { text: teamRuntime.text, asset: null };
 }
 
 function getTransformRules() {
@@ -478,10 +486,13 @@ function getTransformRules() {
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
-    "inject-session-flags.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
+    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
-    [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules() };
+    [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules(),
+    "team-design-collaboration": sha(fs.readFileSync(path.join(__dirname, "../instructions/skills/design-collaboration/SKILL.md"))),
+    "team-lead-guidance": sha(fs.readFileSync(path.join(__dirname, "../instructions/skills/design-collaboration/references/team-lead.md"))),
+  };
 }
 
 // Only closed path gates from transformAsset or the injector owners belong here.
@@ -538,6 +549,10 @@ const ASSET_RULE_PATHS = {
   "btw-conversation.cjs": BTW_ASSETS,
   "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
+  "inject-team-ui.cjs": [TEAM_UI_ASSET],
+  "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
+  "team-design-collaboration": TEAM_RUNTIME_ASSETS,
+  "team-lead-guidance": TEAM_RUNTIME_ASSETS,
   "inject-webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
   "webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
   "inject-paginated-history.cjs": [PAGINATED_HISTORY_ASSET],
@@ -661,7 +676,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }, { concurrency: readConcurrency, statistics: performanceReport.reads, readMetrics: stages.sourceRead });
   performanceReport.reads.scanElapsedMs = performance.now() - scanStarted;
   const finalizeStarted = performance.now();
-  for (const [field, paths] of [["webviewIdleEdits", ["out/extension.js", WEBVIEW_IDLE_ASSET]], ["sessionFlagEdits", [SESSION_FLAGS_ASSET]], ["uiCleanupEdits", UI_CLEANUP_ASSETS], ["autoReviewEdits", AUTO_REVIEW_ASSETS], ["petsCleanupEdits", PETS_CLEANUP_ASSETS], ["contentFontEdits", CONTENT_FONT_ASSETS]]) {
+  for (const [field, paths] of [["webviewIdleEdits", ["out/extension.js", WEBVIEW_IDLE_ASSET]], ["sessionFlagEdits", [SESSION_FLAGS_ASSET]], ["teamUIEdits", [TEAM_UI_ASSET]], ["teamRuntimeEdits", TEAM_RUNTIME_ASSETS], ["uiCleanupEdits", UI_CLEANUP_ASSETS], ["autoReviewEdits", AUTO_REVIEW_ASSETS], ["petsCleanupEdits", PETS_CLEANUP_ASSETS], ["contentFontEdits", CONTENT_FONT_ASSETS]]) {
     for (const assetPath of paths) {
       if (!report.assets.some(asset => asset.path === assetPath && asset[field] > 0)) {
         throw new Error(`${field} transformation was incomplete: ${assetPath}`);

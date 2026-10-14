@@ -231,6 +231,14 @@
       "reportFields": ["webviewIdleEdits"]
     },
     {
+      "id": "ui.team-lead",
+      "area": "ui",
+      "owners": ["scripts/inject-team-ui.cjs", "scripts/inject-team-runtime.cjs", "instructions/skills/design-collaboration/references/team-lead.md"],
+      "contract": "docs/architecture/work-orchestration.md",
+      "checks": [{"id": "ui.team-lead.behavior", "executable": "node", "args": ["--test", "scripts/test-team-ui.cjs", "scripts/test-team-runtime.cjs", "scripts/test-team-integration.cjs"], "level": "source"}],
+      "reportFields": ["teamUIEdits", "teamRuntimeEdits"]
+    },
+    {
       "id": "ui.session-flags",
       "area": "ui",
       "owners": ["scripts/inject-session-flags.cjs", "scripts/inject-project-drafts.cjs"],
