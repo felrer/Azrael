@@ -156,6 +156,87 @@ test('parallel checks execute safely when a held cache lease prevents reuse', as
   counts(await f.run(), 2, 3);
 });
 
+function setupV2(all = true) {
+  const f = setup();
+  for (const feature of f.config.manifest.features) {
+    for (const check of feature.checks) if (check.cacheInputs && (all || feature.id === 'alpha')) check.cacheInputs.schema = 2;
+  }
+  f.write('extensions/azrael-ex/node_modules/typescript/package.json', JSON.stringify({ name: 'typescript', version: '9.0.0-fixture', main: './lib/typescript.js' }));
+  f.write('extensions/azrael-ex/node_modules/typescript/lib/typescript.js', 'module.exports={fixture:true};');
+  f.write('extensions/azrael-ex/node_modules/typescript/lib/typescript.d.ts', '// actual project compiler sibling');
+  const previous = f.config.identityProvider;
+  let aggregate = { sourceUi: { fixture: 'source-ui' }, futureUnknownInput: { nested: 'one' }, engine: { ignoredBinaryRoot: 'one' } };
+  f.config.identityProvider = async () => ({ ...await previous(), ...structuredClone(aggregate) });
+  return { ...f, projectTypeScript: path.join(f.root, 'extensions/azrael-ex/node_modules/typescript'), aggregate: value => { aggregate = value; } };
+}
+
+test('schema2 accepts exactly the existing files/schema shape and rejects unknown schemas or fields', () => {
+  const f = setupV2(); gate.validateManifest(f.config.manifest, f.root, {});
+  for (const change of [check => { check.cacheInputs.schema = 3; }, check => { check.cacheInputs.schema = '2'; },
+    check => { check.cacheInputs.extra = true; }, check => { check.cacheInputs.files = []; },
+    check => { check.cacheInputs.files.push(check.cacheInputs.files[0]); }]) {
+    const manifest = structuredClone(f.config.manifest); change(manifest.features[0].checks[0]);
+    assert.throws(() => gate.validateManifest(manifest, f.root, {}), /Invalid source cache inputs/);
+  }
+});
+
+test('schema2 exact success reuses proof while project, source UI and unknown aggregate inputs miss', async () => {
+  const f = setupV2(); const cold = await f.run(); counts(cold, 5, 0);
+  const warm = await f.run(); counts(warm, 2, 3);
+  for (const check of warm.checks.filter(check => check.reused)) {
+    const original = cold.checks.find(before => before.checkId === check.checkId);
+    assert.equal(check.exitCode, 0); assert.equal(check.logSha256, original.logSha256); assert.equal(check.errorSha256, original.errorSha256);
+    assert.equal(sha(fs.readFileSync(check.logPath)), check.logSha256); assert.equal(sha(fs.readFileSync(check.errorPath)), check.errorSha256);
+    assert.ok(check.cacheKey && check.reused);
+  }
+  f.write('portable/unrelated.txt', 'aggregate project drift'); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  f.aggregate({ sourceUi: { fixture: 'source-ui' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'one' } });
+  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  f.aggregate({ sourceUi: { fixture: 'source-ui-changed' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'one' } });
+  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  f.aggregate({ sourceUi: { fixture: 'source-ui-changed' }, futureUnknownInput: { nested: 'two' }, engine: { ignoredBinaryRoot: 'changed-only-removed-engine' } });
+  counts(await f.run(), 2, 3);
+});
+
+test('schema2 binds actual project TypeScript separately from a provided compiler runtime', async () => {
+  const f = setupV2(); await f.run(); counts(await f.run(), 2, 3);
+  assert.notEqual(f.config.typeScriptPath, path.join(f.projectTypeScript, 'lib/typescript.js'));
+  fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// sibling changed\n');
+  counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  const pkgPath = path.join(f.projectTypeScript, 'package.json'); const pkg = JSON.parse(fs.readFileSync(pkgPath));
+  pkg.version = '9.0.1-fixture'; fs.writeFileSync(pkgPath, JSON.stringify(pkg)); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.js'), '\n// entry changed\n'); counts(await f.run(), 5, 0);
+});
+
+test('any schema2 group requires certain actual project TypeScript; runtime bypass executes every check', async () => {
+  const f = setupV2(false); await f.run(); counts(await f.run(), 2, 3);
+  const saved = `${f.projectTypeScript}-held`; fs.renameSync(f.projectTypeScript, saved);
+  try { const missing = await f.run(); counts(missing, 5, 0); assert.ok(missing.cache.disabledReason); assert.equal(f.calls().length, 5); }
+  finally { fs.renameSync(saved, f.projectTypeScript); }
+  const pkgPath = path.join(f.projectTypeScript, 'package.json'); const pkg = JSON.parse(fs.readFileSync(pkgPath));
+  fs.writeFileSync(pkgPath, JSON.stringify({ ...pkg, name: 'uncertain-project-tool' }));
+  const uncertain = await f.run(); counts(uncertain, 5, 0); assert.match(uncertain.cache.disabledReason, /actual project TypeScript/);
+  fs.writeFileSync(pkgPath, JSON.stringify(pkg)); counts(await f.run(), 2, 3);
+});
+
+test('schema2 with the same provided and actual compiler still binds the complete compiler tree', async () => {
+  const f = setupV2(); f.config.typeScriptPath = path.join(f.projectTypeScript, 'lib/typescript.js');
+  await f.run(); counts(await f.run(), 2, 3);
+  fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// identical-runtime sibling drift\n');
+  counts(await f.run(), 5, 0);
+});
+
+test('schema2 runtime reaffirm rejects actual project compiler drift and whole failures publish nothing', async () => {
+  const f = setupV2(); let changed = false;
+  f.hook(() => { if (!changed) { changed = true; fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// drift during execution\n'); } });
+  const drift = await gate.runPreservation(f.config); assert.equal(drift.status, 'failed'); assert.match(drift.error, /changed during verification/);
+  for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
+  f.hook(null); f.write('scripts/uncached.cjs', 'process.exit(7);');
+  const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed');
+  for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
+  f.write('scripts/uncached.cjs', 'console.log("fixed");'); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+});
+
 after(() => {
   const directory = path.join(repository, 'artifacts/logs/verification-result-cache/integration');
   fs.mkdirSync(directory, { recursive: true }); fs.writeFileSync(path.join(directory, 'fixture-receipts.json'), JSON.stringify(evidence, null, 2) + '\n');

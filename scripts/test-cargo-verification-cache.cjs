@@ -19,7 +19,7 @@ const write = (root, file, value) => {
 function setup() {
   const root = path.join(fixtures, String(++sequence));
   for (const file of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs',
-    'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
+    'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
   write(root, 'scripts/owner.cjs', 'owner'); write(root, 'docs/contract.md', 'contract');
   write(root, 'engine/codex-rs/Cargo.lock', 'lock'); write(root, 'engine/codex-rs/core/src/lib.rs', 'source');
   const tools = path.join(root, 'tools');
@@ -36,7 +36,8 @@ function setup() {
   const env = process.platform === 'win32' ? { Path: tools, PathExt: '.EXE;.CMD' } : { PATH: tools };
   env.CARGO_HOME = path.join(root, 'cargo-home');
   let version = 'tool version 1\nhost: fixture\n';
-  const providers = { probe: async (_tool, args) => {
+  const providers = { resolveTool: (name, env, platform) => cache.resolveExecutable(name,
+    name === 'python' || name === 'python3' ? process.env : env), probe: async (_tool, args) => {
     assert.deepEqual(args, ['--version', '--verbose']); return { stdout: version, stderr: '' };
   } };
   const inputs = async () => ({ projectSha256: 'whole-project', engine: {
@@ -60,18 +61,185 @@ test('only wholly eligible declared Cargo groups can reuse', () => {
   }
 });
 
-test('full source, deleted lockfile, project identity and provenance bind keys', async () => {
+test('additional source-backed Cargo owners accept actual manifest args and bind wrapper contents', async () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
+  const f = setup(), runtime = await f.runtime(), inputs = await f.inputs();
+  for (const wrapper of ['check-parent-requests.cjs', 'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs']) {
+    const script = `scripts/${wrapper}`;
+    const matches = manifest.features.flatMap(feature => feature.checks
+      .filter(check => check.args[0] === script).map(check => ({ feature, check })));
+    assert.equal(matches.length, 1, wrapper);
+    const { feature, check } = matches[0];
+    assert.equal(feature.area, 'engine');
+    assert.deepEqual(check.args, [script, '{engineSourceRoot}']);
+    const group = { native: true, entries: [{ feature: f.group.entries[0].feature, check }] };
+    assert.equal(cache.isEligible(group), true, wrapper);
+    for (const template of ['{engine}', '{fixture}']) {
+      const unsafe = structuredClone(group); unsafe.entries[0].check.args.push(template);
+      assert.equal(cache.isEligible(unsafe), false, `${wrapper}: ${template}`);
+    }
+    write(f.root, script, fs.readFileSync(path.join(__dirname, wrapper), 'utf8'));
+    const baseline = await cache.key(f.config, group, inputs, runtime);
+    fs.appendFileSync(path.join(f.root, script), '\n// wrapper change\n');
+    assert.notEqual(await cache.key(f.config, group, inputs, runtime), baseline, wrapper);
+  }
+});
+
+test('full source, deleted lockfile and provenance bind keys', async () => {
   const f = setup(); const baseline = await f.key(); assert.equal(await f.key(), baseline);
   write(f.root, 'engine/codex-rs/core/src/lib.rs', 'changed'); assert.notEqual(await f.key(), baseline);
   write(f.root, 'engine/codex-rs/core/src/lib.rs', 'source');
   fs.unlinkSync(path.join(f.root, 'engine/codex-rs/Cargo.lock')); assert.notEqual(await f.key(), baseline);
   write(f.root, 'engine/codex-rs/Cargo.lock', 'lock');
-  for (const mutate of [i => { i.projectSha256 = 'other project'; },
-    i => { i.engine.provenance.selectedSource = 'other provenance'; },
+  for (const mutate of [i => { i.engine.provenance.selectedSource = 'other provenance'; },
     i => { i.engine.provenance.lockfile = 'different representation'; }]) {
     const inputs = await f.inputs(); mutate(inputs);
     assert.notEqual(await cache.key(f.config, f.group, inputs, await f.runtime()), baseline);
   }
+});
+
+test('release directory alone is excluded while verified provenance and all other inputs remain bound', async () => {
+  const f = setup(), runtime = await f.runtime(), inputs = await f.inputs();
+  inputs.engine.directory = path.join(f.root, 'releases/first/engine');
+  inputs.engine.provenance.binaries = { 'codex.exe': 'verified-binary-sha256' };
+  inputs.engine.provenance.environment = { target: 'x86_64-pc-windows-msvc' };
+  inputs.manifest = { checks: 'verified-manifest-sha256' };
+  const original = structuredClone(inputs);
+  const baseline = await cache.key(f.config, f.group, inputs, runtime);
+  const relocated = structuredClone(inputs);
+  relocated.engine.directory = path.join(f.root, 'releases/second/engine');
+  assert.equal(await cache.key(f.config, f.group, relocated, runtime), baseline);
+  assert.deepEqual(inputs, original, 'the full gate/receipt identity must not be mutated');
+  for (const mutate of [i => { i.engine.provenance.binaries['codex.exe'] = 'changed-binary'; },
+    i => { i.engine.sourceRoot += '-different'; },
+    i => { i.engine.provenance.source.sha256 = 'changed-source'; },
+    i => { i.engine.provenance.environment.target = 'different-target'; },
+    i => { i.manifest.checks = 'changed-manifest'; },
+    i => { i.otherDirectory = 'still-significant'; }]) {
+    const changed = structuredClone(relocated); mutate(changed);
+    assert.notEqual(await cache.key(f.config, f.group, changed, runtime), baseline);
+  }
+  const changedRuntime = structuredClone(runtime); changedRuntime.environmentSha256 = 'changed-env';
+  assert.notEqual(await cache.key(f.config, f.group, relocated, changedRuntime), baseline);
+  const minimal = { engine: { directory: 'first' } };
+  assert.equal(await cache.key(f.config, f.group, minimal, runtime),
+    await cache.key(f.config, f.group, { engine: { directory: 'second' } }, runtime));
+  assert.deepEqual(minimal, { engine: { directory: 'first' } });
+  assert.match(await cache.key(f.config, f.group, {}, runtime), /^[a-f0-9]{64}$/);
+});
+
+test('all 13 declared Cargo groups share semantic keys across execution roots and preserve every bound input', async () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
+  const groups = new Map();
+  for (const feature of manifest.features) for (const check of feature.checks) {
+    if (!cache.isEligible({ native: true, entries: [{ feature, check }] })) continue;
+    const name = JSON.stringify(check.args), group = groups.get(name) || { native: true, entries: [] };
+    group.entries.push({ feature, check }); groups.set(name, group);
+  }
+  assert.equal(groups.size, 13);
+  const f = setup(), second = path.join(fixtures, 'semantic-second-execution');
+  for (const group of groups.values()) for (const { feature, check } of group.entries) {
+    for (const file of [...feature.owners, feature.contract]) write(f.root, file, file);
+    write(f.root, check.args[0], fs.readFileSync(path.join(__dirname, path.basename(check.args[0])), 'utf8'));
+  }
+  fs.cpSync(f.root, second, { recursive: true });
+  const firstConfig = f.config, secondConfig = { ...f.config, projectRoot: second };
+  const runtime = await f.runtime(), nextRuntime = await cache.runtime(secondConfig, f.env, f.providers);
+  const inputs = await f.inputs();
+  inputs.manifestSha256 = 'full-manifest-first';
+  inputs.registered = { path: f.root, sha256: 'all-registered-bytes', fileCount: 30, bytes: 100, unknown: 'retain' };
+  inputs.transformRules = { 'unrelated-ui.cjs': 'global-rule-hash' };
+  inputs.engine.directory = path.join(f.root, 'release-first');
+  inputs.engine.provenance.binaries = { 'codex.exe': 'binary-sha' };
+  const nextInputs = structuredClone(inputs);
+  nextInputs.projectSha256 = 'unrelated-work-note'; nextInputs.manifestSha256 = 'unrelated-manifest-declaration';
+  nextInputs.registered.path = second; nextInputs.engine.directory = path.join(second, 'release-second');
+  const originalInputs = structuredClone(inputs), originalRuntime = structuredClone(runtime);
+  for (const group of groups.values()) {
+    const baseline = await cache.key(firstConfig, group, inputs, runtime);
+    assert.equal(await cache.key(secondConfig, group, nextInputs, nextRuntime), baseline, group.entries[0].check.id);
+    assert.equal(await cache.key({ ...secondConfig, cargoVerificationCacheProjectRoot: f.root },
+      group, nextInputs, nextRuntime), baseline, 'storage owner must not change semantic identity');
+    assert.notEqual(await cache.key({ ...secondConfig, engineSourceRoot: path.join(f.root, 'different-engine') },
+      group, nextInputs, nextRuntime), baseline, 'explicit source location remains bound');
+    for (const mutate of [i => { i.engine.sourceRoot += '-changed'; },
+      i => { i.engine.provenance.source.sha256 = 'changed-source-bytes'; },
+      i => { i.engine.provenance.binaries['codex.exe'] = 'changed-binary'; },
+      i => { i.registered.sha256 = 'changed-registered-bytes'; },
+      i => { i.registered.unknown = 'changed-unknown'; },
+      i => { i.transformRules['unrelated-ui.cjs'] = 'changed-rule'; },
+      i => { i.unknown = 'new-input'; }]) {
+      const changed = structuredClone(nextInputs); mutate(changed);
+      assert.notEqual(await cache.key(secondConfig, group, changed, nextRuntime), baseline);
+    }
+    for (const mutate of [r => { r.environmentSha256 = 'changed-environment'; },
+      r => { r.tools.cargo.version.stdout += ' changed'; },
+      r => { r.helper.sha256 = 'changed-helper-bytes'; },
+      r => { r.helper.unknown = 'new-helper-field'; },
+      r => { r.configParser = { identity: 'changed-parser' }; },
+      r => { r.normalized[0].args.push('--changed'); },
+      r => { r.unknown = 'new-runtime-field'; }]) {
+      const changed = structuredClone(nextRuntime); mutate(changed);
+      assert.notEqual(await cache.key(secondConfig, group, nextInputs, changed), baseline);
+    }
+    const changedGroup = structuredClone(group); changedGroup.entries[0].check.args.push('--changed');
+    assert.notEqual(await cache.key(secondConfig, changedGroup, nextInputs, nextRuntime), baseline);
+    const first = group.entries[0];
+    for (const file of new Set([first.feature.owners[0], first.feature.contract, first.check.args[0], 'scripts/cargo-verification.cjs'])) {
+      const full = path.join(second, file), original = fs.readFileSync(full);
+      fs.appendFileSync(full, '\nchanged bound bytes');
+      assert.notEqual(await cache.key(secondConfig, group, nextInputs, nextRuntime), baseline, file);
+      fs.writeFileSync(full, original);
+    }
+  }
+  assert.deepEqual(inputs, originalInputs); assert.deepEqual(runtime, originalRuntime);
+  await assert.rejects(cache.key({ ...firstConfig, engineSourceRoot: 'relative' }, groups.values().next().value,
+    inputs, runtime), /absolute engine source root/);
+
+  // Historical schema-2 algorithm is a benchmark reference, never an evidence migration.
+  const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
+    ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
+  const legacyKey = async (config, group, input, identity) => {
+    const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
+      'scripts/cargo-verification.cjs', 'scripts/cargo-config-self-contained.py',
+      'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+    const declared = group.entries.map(({ feature, check }) => {
+      feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);
+      return { feature, check };
+    });
+    const previousInputs = structuredClone(input); delete previousInputs.engine.directory;
+    return sha(canonical({ schema: 2, projectRoot: path.resolve(config.projectRoot),
+      engineSourceRoot: path.resolve(config.engineSourceRoot), inputs: previousInputs, declared,
+      files: await getDirectoryState(config.projectRoot, [...files].sort()), runtime: identity }));
+  };
+  write(f.root, 'mock-stdout.log', 'bounded passing mock executor; no Cargo compilation');
+  write(f.root, 'mock-stderr.log', '');
+  const evidence = { exitCode: 0, signal: null, logPath: path.join(f.root, 'mock-stdout.log'),
+    errorPath: path.join(f.root, 'mock-stderr.log') };
+  const benchmark = { scope: '13 actual declared command groups; two verified mock input snapshots; no full gate/Cargo execution' };
+  for (const [name, makeKey] of [['schema2', legacyKey], ['schema4', cache.key]]) {
+    const metrics = { executed: 0, reused: 0, elapsedMs: 0 }, started = performance.now();
+    const owner = path.join(fixtures, `mock-benchmark-${name}`); fs.mkdirSync(owner, { recursive: true });
+    for (const [index, [config, input, identity]] of [[firstConfig, inputs, runtime], [secondConfig, nextInputs, nextRuntime]].entries()) {
+      for (const group of groups.values()) {
+        const checkId = group.entries[0].check.id;
+        const handle = await cache.begin({ ...cache.options({ ...config, cargoVerificationCacheProjectRoot: owner }),
+          checkId, key: await makeKey(config, group, input, identity),
+          runDirectory: path.join(config.projectRoot, 'artifacts/mock-results', name, String(index), checkId), logName: 'mock-cargo' });
+        if (handle.hit) metrics.reused += 1;
+        else { metrics.executed += 1; assert.equal((await handle.publish(evidence)).published, true); }
+        await handle.close();
+      }
+    }
+    metrics.elapsedMs = performance.now() - started; benchmark[name] = metrics;
+  }
+  assert.equal(benchmark.schema2.executed, 26); assert.equal(benchmark.schema2.reused, 0);
+  assert.equal(benchmark.schema4.executed, 13); assert.equal(benchmark.schema4.reused, 13);
+  benchmark.mockExecutionsAvoided = 13;
+  const evidenceRoot = path.resolve(__dirname, '../artifacts/logs/AF-01-resume-install/optimization-20min');
+  fs.mkdirSync(evidenceRoot, { recursive: true });
+  fs.writeFileSync(path.join(evidenceRoot, 'cargo-schema4-mock-benchmark.json'), JSON.stringify(benchmark, null, 2) + '\n');
+  console.log(JSON.stringify(benchmark));
 });
 
 test('tools, versions, full environment, target/profile/flags and helper defaults bind keys', async () => {
@@ -96,7 +264,8 @@ test('declared check flags, owners, contract and implementation inputs bind keys
   const f = setup(); const baseline = await f.key();
   f.group.check.args.push('--new-flag'); assert.notEqual(await f.key(), baseline); f.group.check.args.pop();
   for (const file of ['scripts/owner.cjs', 'docs/contract.md', 'scripts/check-api-context.cjs',
-    'scripts/verification-result-cache.cjs', 'scripts/cargo-verification-cache.cjs']) {
+    'scripts/verification-result-cache.cjs', 'scripts/cargo-verification-cache.cjs',
+    'scripts/cargo-config-self-contained.py']) {
     const previous = await f.key(); fs.appendFileSync(path.join(f.root, file), ' changed');
     assert.notEqual(await f.key(), previous);
   }
@@ -152,6 +321,80 @@ test('config includes, path dependencies, external tools and unparsed config syn
   f.env.CARGO_HOME = 'relative-home'; await assert.rejects(f.runtime(), /Relative CARGO_HOME/);
 });
 
+test('current Windows Cargo TOML and equivalent syntax enable config identity', async () => {
+  const f = setup();
+  const current = fs.readFileSync(path.resolve(__dirname, '../engine/codex-rs/.cargo/config.toml'), 'utf8');
+  write(f.root, 'cargo-home/config.toml', current);
+  const identity = await f.runtime();
+  assert(identity.configParser.identity.version);
+  assert(Object.keys(identity.configParser.identity.tomllib).length >= 3);
+  const baseline = await f.key();
+  const forms = [
+    `[target.'cfg(all(windows, target_env = "msvc"))']
+"rustflags" = [
+  '-C', # preserve array comments
+  """link-arg=/STACK:8388608""", "-C", 'target-feature=+crt-static',
+]
+[term]
+progress.when = "always"
+progress.width = 80
+[profile.release]
+lto = true
+`,
+    `target.aarch64-pc-windows-msvc.rustflags = ["-Clink-arg=/arm64hazardfree"]
+build = { jobs = 2, target = 'aarch64-pc-windows-msvc' }
+`,
+    `[build]
+rustflags = ["-C", "link-arg=-Wl,--stack,8388608"]
+`,
+  ];
+  for (const contents of forms) {
+    write(f.root, 'cargo-home/config.toml', contents);
+    assert.notEqual(await f.key(), baseline);
+  }
+  const before = await f.key();
+  fs.appendFileSync(path.join(f.root, 'cargo-home/config.toml'), '# byte change only\n');
+  assert.notEqual(await f.key(), before);
+  const runtime = await f.runtime();
+  const changed = structuredClone(runtime); changed.configParser.identity.version += ' changed';
+  assert.notEqual(await cache.key(f.config, f.group, await f.inputs(), changed), await f.key());
+  const changedBytes = structuredClone(runtime);
+  changedBytes.configParser.identity.tomllib['parser-source'] = 'changed';
+  assert.notEqual(await cache.key(f.config, f.group, await f.inputs(), changedBytes), await f.key());
+});
+
+test('TOML unknown flags, disguised paths and invalid TOML fail closed', async () => {
+  const f = setup();
+  const badFlags = ['link-arg=/LIBPATH:C:/external', 'link-arg=/STACK:8388608,@file',
+    'link-arg=/STACK:0', 'link-arg=/STACK:8388608 /OTHER', 'link-arg=/arm64hazardfree/other',
+    'link-arg=-Wl,--stack,8388608,@file', 'link-arg=@response', 'linker=clang',
+    'sysroot=C:/external', 'target-feature=+crt-static,+unknown', 'unknown=true', '-L', '@file'];
+  for (const option of badFlags) {
+    write(f.root, 'cargo-home/config.toml', `[target.'cfg(windows)']\nrustflags = ["-C", ${JSON.stringify(option)}]`);
+    await assert.rejects(f.runtime(), /unresolved external inputs|unsupported syntax/, option);
+  }
+  for (const contents of [
+    '[build]\njobs = 2\njobs = 3', '[build]\nrustflags = ["-C"]',
+    '[build]\nrustflags = "-C link-arg=/STACK:8388608"',
+    '[target."external.json"]\nrustflags = []',
+    '[target."fixture-target"]\nrunner = "tool"',
+    '[env]\nSAFE = "value"', '[term]\ncolor = "safe#not-comment"',
+    '[build]\ntarget = """external/target.json"""',
+    '[build]\nrustflags = ["-C", "link-arg=/STACK:8388608"]\ninclude = "hidden.toml"',
+    '[build]\nrustflags = ["-C", "link-arg=/STACK:8388608", "--sysroot", "external"]',
+  ]) {
+    write(f.root, 'cargo-home/config.toml', contents);
+    await assert.rejects(f.runtime(), /unresolved external inputs|unsupported syntax/, contents);
+  }
+  write(f.root, 'cargo-home/config.toml', '[build]\njobs = 2');
+  await assert.rejects(cache.runtime(f.config, f.env, {
+    ...f.providers, resolveTool: (name, env) => {
+      if (name === 'python' || name === 'python3') throw Error('Cannot resolve Python parser');
+      return cache.resolveExecutable(name, env);
+    },
+  }), /Cannot resolve Python parser/);
+});
+
 test('selected rustc and wrapper executable contents bind keys; relative tools and path flags reject', async () => {
   const f = setup();
   const extension = process.platform === 'win32' ? '.EXE' : '';
@@ -198,6 +441,44 @@ test('existing evidence store enforces cold/warm, corruption, failures and force
   assert.equal(cache.pruneObsoleteVersions, storage.pruneObsoleteVersions);
 });
 
+test('explicit Cargo storage owner shares evidence and leases while enforcing path guards', async () => {
+  const f = setup(), owner = path.join(fixtures, 'shared-cargo-owner');
+  fs.mkdirSync(owner, { recursive: true });
+  assert.deepEqual(cache.options(f.config), { projectRoot: f.root,
+    cacheRoot: path.join(f.root, 'artifacts/cache/verification-results/cargo') });
+  for (const value of ['relative', '', null, 1, {}]) {
+    assert.throws(() => cache.options({ ...f.config, cargoVerificationCacheProjectRoot: value }), /absolute path/);
+  }
+  const config = { ...f.config, cargoVerificationCacheProjectRoot: owner };
+  const opts = { ...cache.options(config), checkId: f.group.check.id, key: sha('same semantic check'),
+    runDirectory: path.join(f.root, 'artifacts/results'), logName: 'shared-owner-check' };
+  assert.equal(opts.projectRoot, owner);
+  assert.equal(opts.cacheRoot, path.join(owner, 'artifacts/cache/verification-results/cargo'));
+  write(f.root, 'stdout.log', 'mock Cargo passed'); write(f.root, 'stderr.log', '');
+  const record = { exitCode: 0, signal: null, logPath: path.join(f.root, 'stdout.log'), errorPath: path.join(f.root, 'stderr.log') };
+  let cold = await cache.begin(opts);
+  assert.equal(cold.hit, null);
+  const nextConfig = { ...config, projectRoot: path.join(fixtures, 'second-execution-root') };
+  const nextOpts = { ...opts, ...cache.options(nextConfig), runDirectory: path.join(nextConfig.projectRoot, 'results') };
+  const busy = await cache.begin(nextOpts);
+  assert.equal(busy.hit, null); assert.match(busy.reason, /busy: check lease/); await busy.close();
+  assert.equal((await cold.publish(record)).published, true); await cold.close();
+  const warm = await cache.begin(nextOpts); assert.equal(warm.hit.reused, true); await warm.close();
+  await assert.rejects(cache.begin({ ...nextOpts, cacheRoot: path.join(f.root, 'outside-owner') }), /must be inside/);
+  const unsafeOwner = path.join(fixtures, 'redirected-cargo-owner');
+  fs.mkdirSync(unsafeOwner, { recursive: true });
+  const unsafe = { ...opts, ...cache.options({ ...f.config, cargoVerificationCacheProjectRoot: unsafeOwner }) };
+  const target = path.join(fixtures, 'redirected-target');
+  write(target, 'keep.txt', 'preserve');
+  fs.mkdirSync(path.dirname(unsafe.cacheRoot), { recursive: true });
+  fs.symlinkSync(target, unsafe.cacheRoot, process.platform === 'win32' ? 'junction' : 'dir');
+  try {
+    const handle = await cache.begin(unsafe);
+    assert.equal(handle.hit, null); assert.match(handle.reason, /Unsafe|Redirected/); await handle.close();
+    assert.equal(fs.readFileSync(path.join(target, 'keep.txt'), 'utf8'), 'preserve');
+  } finally { fs.unlinkSync(unsafe.cacheRoot); }
+});
+
 after(() => {
   function clean(filename) {
     const relative = path.relative(fixtures, filename);
@@ -207,4 +488,55 @@ after(() => {
     else fs.unlinkSync(filename);
   }
   clean(fixtures);
+});
+
+test('known MALLOC_CONF table is self-contained, byte/env identity bound and unknown env inputs rejected', async () => {
+  const f = setup();
+  const current = fs.readFileSync(path.resolve(__dirname, '../engine/.cargo/config.toml'), 'utf8');
+  write(f.root, 'cargo-home/config.toml', current);
+  const first = await f.key();
+  for (const contents of [
+    '[env]\nMALLOC_CONF = { value = "thp:always" }',
+    '[env]\nMALLOC_CONF = { value = "thp:always", force = true, relative = false }',
+    '[env.MALLOC_CONF]\nvalue = "thp:always"\nforce = false\nrelative = false',
+  ]) { write(f.root, 'cargo-home/config.toml', contents); assert.notEqual(await f.key(), first); }
+  const before = await f.key();
+  fs.appendFileSync(path.join(f.root, 'cargo-home/config.toml'), '\n# byte identity changes\n');
+  assert.notEqual(await f.key(), before);
+  const configChanged = await f.key(); f.env.MALLOC_CONF = 'thp:never';
+  assert.notEqual(await f.key(), configChanged);
+  f.env.MALLOC_CONF = ''; assert.notEqual(await f.key(), configChanged);
+  for (const line of [
+    'UNKNOWN = { value = "thp:always" }', 'RUSTC = { value = "thp:always" }',
+    'RUSTC_WRAPPER = { value = "thp:always" }',
+    'MALLOC_CONF = { value = "thp:always", relative = true }',
+    'MALLOC_CONF = { value = "../path" }', 'MALLOC_CONF = { value = "thp:never" }',
+    'MALLOC_CONF = { value = true }', 'MALLOC_CONF = { value = "thp:always", force = 0 }',
+    'MALLOC_CONF = { value = "thp:always", relative = 0 }',
+    'MALLOC_CONF = { value = "thp:always", unknown = false }', 'MALLOC_CONF = "thp:always"',
+  ]) { write(f.root, 'cargo-home/config.toml', '[env]\n'+line); await assert.rejects(f.runtime(), /unresolved external/); }
+});
+
+test('complete zod content identity ignores snapshot path only; unknown and incomplete identity remain bound', async () => {
+  const f = setup(), inputs = await f.inputs(), runtime = await f.runtime();
+  inputs.checkRuntime = { nodeSha256: sha('node'), zod: { path: path.join(f.root, 'zod-first'),
+    sha256: sha('zod tree'), fileCount: 718, bytes: 4558122 }, bunSha256: sha('bun') };
+  const baseline = await cache.key(f.config, f.group, inputs, runtime), relocated = structuredClone(inputs);
+  relocated.checkRuntime.zod.path = path.join(f.root, 'zod-second');
+  assert.equal(await cache.key(f.config, f.group, relocated, runtime), baseline);
+  for (const mutate of [i => { i.checkRuntime.zod.sha256 = sha('changed package'); },
+    i => { i.checkRuntime.zod.fileCount++; }, i => { i.checkRuntime.zod.bytes++; },
+    i => { i.checkRuntime.zod.unknown = 'changed'; }, i => { i.checkRuntime.nodeSha256 = sha('changed tool'); },
+    i => { i.checkRuntime.unknown = 'changed'; }, i => { i.engine.provenance.lockfile = 'changed'; }]) {
+    const changed = structuredClone(relocated); mutate(changed);
+    assert.notEqual(await cache.key(f.config, f.group, changed, runtime), baseline);
+  }
+  const changedRuntime = structuredClone(runtime); changedRuntime.environmentSha256 = 'changed environment';
+  assert.notEqual(await cache.key(f.config, f.group, relocated, changedRuntime), baseline);
+  for (const mutate of [i => { delete i.checkRuntime.zod.sha256; },
+    i => { i.checkRuntime.zod.fileCount = '718'; }, i => { i.checkRuntime.zod.path = 'relative-first'; }]) {
+    const first = structuredClone(inputs); mutate(first); const second = structuredClone(first);
+    second.checkRuntime.zod.path = first.checkRuntime.zod.path === 'relative-first' ? 'relative-second' : path.join(f.root, 'elsewhere');
+    assert.notEqual(await cache.key(f.config, f.group, first, runtime), await cache.key(f.config, f.group, second, runtime));
+  }
 });

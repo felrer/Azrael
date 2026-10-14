@@ -5,13 +5,16 @@ from __future__ import annotations
 import json
 import contextlib
 import importlib.util
+import importlib.machinery
 import io
 import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 
 PROJECT_ROOT = Path(__file__).resolve().parents[2]
@@ -305,6 +308,31 @@ class ImportedEngineProvenanceTests(unittest.TestCase):
         self.assertEqual(source["head"], receipt["head"])
         self.assertEqual(source["importedInventorySha256"], receipt["inventorySha256"])
         self.assertEqual(source["fileCount"], 4)
+
+    def test_snapshot_rejects_identical_root_replacement_after_validation(self):
+        spec = importlib.util.spec_from_file_location("provenance_root_fixture", PROVENANCE)
+        provenance = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(provenance)
+        execute = importlib.machinery.SourceFileLoader.exec_module
+
+        def install_root_swap(loader, module):
+            execute(loader, module)
+            if module.__name__ != "engine_source_import":
+                return
+            validate = module.validate_receipt
+
+            def replace_after_validation(*args, **kwargs):
+                digest = validate(*args, **kwargs)
+                saved = self.source.with_name("replaced-root")
+                self.source.rename(saved)
+                shutil.copytree(saved, self.source)
+                return digest
+
+            module.validate_receipt = replace_after_validation
+
+        with patch.object(importlib.machinery.SourceFileLoader, "exec_module", install_root_swap):
+            with self.assertRaisesRegex(ValueError, "Source root changed"):
+                provenance.snapshot(self.source)
 
     def test_parent_git_changes_do_not_affect_imported_fingerprint(self):
         def parent_git(*args):

@@ -1,9 +1,9 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string[]]$Case, [switch]$ChangedOnly)
+param([string[]]$Case, [switch]$ChangedOnly, [string]$ArtifactProjectRoot = (Split-Path $PSScriptRoot -Parent))
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$project = Split-Path $PSScriptRoot -Parent
+$project = $ArtifactProjectRoot
 $stamp = [guid]::NewGuid().ToString('N')
 $fixtures = Join-Path $project "artifacts/verification/deployment-pipeline-optimization/runner/$stamp spaces 한글"
 $logs = Join-Path $project "artifacts/logs/deployment-optimization/tests-deploy-$stamp"
@@ -37,18 +37,35 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
   }
   console.error('causal source failure'); process.exit(23);
  }
+ if(scenario.mode==='source-fail-after-build' || scenario.slowSource) {
+  for(const marker of ['native-start.json','prepare-start.json']) {
+   while(!fs.existsSync(path.join(a,marker))) {
+    if(Date.now()>deadline) throw Error('build-ready work waited for source tests: '+marker);
+    await new Promise(r=>setTimeout(r,20));
+   }
+  }
+  if(scenario.mode==='source-fail-after-build') {console.error('causal source failure after build');process.exit(23);}
+  for(const marker of ['native-end.json','prepare-end.json']) {
+   while(!fs.existsSync(path.join(a,marker))) {
+    if(Date.now()>deadline) throw Error('build-ready work did not finish: '+marker);
+    await new Promise(r=>setTimeout(r,20));
+   }
+  }
+  await new Promise(r=>setTimeout(r,350));
+ }
+ if(['account-engine-fail','account-prepare-fail'].includes(scenario.mode)) await new Promise(r=>setTimeout(r,30000));
  if(scenario.mode==='build-fail') await new Promise(r=>setTimeout(r,30000));
  else await new Promise(r=>setTimeout(r,250));
  fs.writeFileSync(path.join(a,'source-end.json'), JSON.stringify({time:Date.now()}));
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
-@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
+@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $deadline=[DateTime]::UtcNow.AddSeconds(10)
 while(-not (Test-Path (Join-Path $a 'source-start.json'))) { if([DateTime]::UtcNow -gt $deadline){throw 'source tests did not overlap build'}; Start-Sleep -Milliseconds 30 }
@@ -86,8 +103,10 @@ const root = path.dirname(path.dirname(fileURLToPath(import.meta.url))); const a
 const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
 const args = process.argv.slice(2); const [engine, bridge, state, socket, flag] = args;
 if (!fs.existsSync(path.join(a, 'build-end.json')) || !fs.existsSync(path.join(a, 'source-end.json')) ||
-    !fs.existsSync(path.join(a, 'logs/deploy-chosen/inputs-post-build.json')) || fs.existsSync(path.join(a, 'prepare-invocation.json'))) throw new Error('account gate ordering mismatch');
+    !fs.existsSync(path.join(a, 'logs/deploy-chosen/inputs-post-build.json')) || !fs.existsSync(path.join(a, 'prepare-end.json')) || !fs.existsSync(path.join(a, 'native-end.json'))) throw new Error('account gate ordering mismatch');
 if (args.length !== 5 || flag !== '--account-controls-only' || fs.existsSync(state) || fs.existsSync(path.dirname(socket))) throw new Error('account gate arguments/freshness mismatch');
+const native=JSON.parse(fs.readFileSync(path.join(a,'native-end.json')));
+if(JSON.parse(fs.readFileSync(native.receiptPath)).status!=='passed' || !fs.existsSync(path.join(JSON.parse(fs.readFileSync(path.join(a,'prepare-end.json'))).outputDirectory,'independent-prepared.json'))) throw Error('account prerequisite receipt missing');
 fs.writeFileSync(path.join(a, 'account-invocation.json'), JSON.stringify(args));
 if (scenario.mode === 'account-command-fail') { console.error('causal account controls failure'); process.exit(37); }
 fs.mkdirSync(state, {recursive:true});
@@ -101,6 +120,7 @@ if (scenario.mode === 'account-model-request') result.modelRequests = 1;
 if (scenario.mode === 'account-credit-request') result.usageCreditConsumeRequests = 1;
 if (scenario.mode === 'account-string-count') result.modelRequests = '0';
 fs.writeFileSync(path.join(state, 'verification.json'), JSON.stringify(result));
+if(result.status==='passed' && scenario.mode==='account-success') fs.writeFileSync(path.join(a,'account-passed.json'),JSON.stringify({time:Date.now()}));
 '@
 $preservationStub = @'
 const fs=require('node:fs'),path=require('node:path');
@@ -121,10 +141,19 @@ if(args[0]==='run'){
  }
  if(!config.sourceReceiptPath || !fs.existsSync(config.sourceReceiptPath))throw Error('source handoff receipt missing');
  same(config.engineDirectory,path.join(a,'releases/chosen/engine'),'engine directory');
+ if(scenario.mode.startsWith('account-') || scenario.mode==='source-fail-after-build'){
+  fs.writeFileSync(path.join(a,'native-start.json'),JSON.stringify({pid:process.pid,time:Date.now()}));
+  (async()=>{const deadline=Date.now()+10000;while(!fs.existsSync(path.join(a,'prepare-start.json'))){if(Date.now()>deadline)throw Error('prepare did not start');await new Promise(r=>setTimeout(r,20));}
+   if(scenario.mode==='account-engine-fail'){console.error('causal engine preservation failure');process.exit(41);}
+   if(['account-prepare-fail','source-fail-after-build'].includes(scenario.mode))await new Promise(r=>setTimeout(r,30000));
+   else await new Promise(r=>setTimeout(r,250));
+   fs.writeFileSync(receiptPath,JSON.stringify({status:'passed'}));fs.writeFileSync(path.join(a,'native-end.json'),JSON.stringify({time:Date.now(),receiptPath}));console.log(JSON.stringify({receiptPath}));
+  })().catch(e=>{console.error(e);process.exit(55)});return;
+ }
  if(scenario.overlap){
-  const started=Date.now();fs.writeFileSync(path.join(a,'native-overlap-start.json'),JSON.stringify({time:started}));
+  const started=Date.now();fs.writeFileSync(path.join(a,'native-start.json'),JSON.stringify({pid:process.pid,time:started}));fs.writeFileSync(path.join(a,'native-overlap-start.json'),JSON.stringify({time:started}));
   const poll=setInterval(()=>{
-   if(fs.existsSync(path.join(a,'prepare-invocation.json'))){clearInterval(poll);fs.writeFileSync(receiptPath,JSON.stringify({status:'passed'}));console.log(JSON.stringify({receiptPath}));}
+   if(fs.existsSync(path.join(a,'prepare-invocation.json'))){clearInterval(poll);fs.writeFileSync(receiptPath,JSON.stringify({status:'passed'}));fs.writeFileSync(path.join(a,'native-end.json'),JSON.stringify({time:Date.now(),receiptPath}));console.log(JSON.stringify({receiptPath}));}
    else if(Date.now()-started>10000){clearInterval(poll);console.error('preparation did not overlap native check');process.exitCode=54;}
   },25);
   return;
@@ -145,12 +174,19 @@ if(args[0]==='run'){
 }else throw Error('unexpected preservation command');
 '@
 $prepareStub = @'
-param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[switch]$ChangedOnlyTests)
+param([string]$ReleaseDirectory,[string]$OutputDirectory,[string]$StateRoot,[string]$SourceCodexHome,[string]$SourceExtensionPath,[string]$TypeScriptPath,[switch]$SkipCodexEnvironmentSnapshot,[switch]$ChangedOnlyTests,[string]$NamespaceCacheProjectRoot)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
-@{ReleaseDirectory=$ReleaseDirectory;OutputDirectory=$OutputDirectory;TypeScriptPath=$TypeScriptPath;SourceExtensionPath=$SourceExtensionPath;SkipCodexEnvironmentSnapshot=[bool]$SkipCodexEnvironmentSnapshot;ChangedOnlyTests=[bool]$ChangedOnlyTests;ChangedOnlyTestsBound=$PSBoundParameters.ContainsKey('ChangedOnlyTests')} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-invocation.json')
+@{ReleaseDirectory=$ReleaseDirectory;OutputDirectory=$OutputDirectory;TypeScriptPath=$TypeScriptPath;SourceExtensionPath=$SourceExtensionPath;NamespaceCacheProjectRoot=$NamespaceCacheProjectRoot;SkipCodexEnvironmentSnapshot=[bool]$SkipCodexEnvironmentSnapshot;ChangedOnlyTests=[bool]$ChangedOnlyTests;ChangedOnlyTestsBound=$PSBoundParameters.ContainsKey('ChangedOnlyTests')} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-invocation.json')
+@{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-start.json')
+if($scenario.mode -like 'account-*' -or $scenario.mode -eq 'source-fail-after-build'){
+ $deadline=[DateTime]::UtcNow.AddSeconds(10)
+ while(-not (Test-Path (Join-Path $a 'native-start.json'))){if([DateTime]::UtcNow -gt $deadline){throw 'engine did not start'};Start-Sleep -Milliseconds 20}
+ if($scenario.mode -eq 'account-prepare-fail'){[Console]::Error.WriteLine('causal prepare failure');exit 29}
+ if($scenario.mode -in @('account-engine-fail','source-fail-after-build')){Start-Sleep -Seconds 30}else{Start-Sleep -Milliseconds 250}
+}
 if($scenario.mode -eq 'prepare-fail'){[Console]::Error.WriteLine('causal prepare failure');exit 29}
 New-Item -ItemType Directory -Path $OutputDirectory | Out-Null
 $vsix=Join-Path $OutputDirectory 'azrael-host.vsix'
@@ -170,6 +206,7 @@ $preservationBinding=Join-Path $OutputDirectory 'preservation-binding.json'
 if($scenario.mode -eq 'package-preservation-receipt'){Remove-Item -LiteralPath $preservationReceipt}
 $featureIds=if($ChangedOnlyTests){@()}else{@($scenario.uiFeatureIds)}
 @{PreservationFeatureIds=@($featureIds);HostVsix=$vsix;HostSha256=$hash;HostVersion=$version;ReleaseDirectory=$ReleaseDirectory;PreservationReceipt=$preservationReceipt;PreservationReport=$preservationReport;PreservationBinding=$preservationBinding} | ConvertTo-Json | Set-Content (Join-Path $OutputDirectory 'independent-prepared.json')
+@{time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds();outputDirectory=$OutputDirectory} | ConvertTo-Json | Set-Content (Join-Path $a 'prepare-end.json')
 if($scenario.mode -eq 'prepare-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 '@
 $checkStub = @'
@@ -178,6 +215,10 @@ $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
+if(-not (Test-Path (Join-Path $a 'source-end.json'))){throw 'acceptance started before source tests passed'}
+if($scenario.mode -like 'account-*'){
+ foreach($marker in @('native-end.json','prepare-end.json','account-passed.json')){if(-not (Test-Path (Join-Path $a $marker))){throw "acceptance prerequisite missing: $marker"}}
+}
 @{HostVsixPath=$HostVsixPath;FixtureRoot=$FixtureRoot;StateRoot=$StateRoot;UseFreshState=[bool]$UseFreshState;TypeScriptPath=$TypeScriptPath;UiSourcePath=$UiSourcePath;OriginalExtensionPath=$OriginalExtensionPath;OriginalAudioPath=$OriginalAudioPath;CodePath=$CodePath} | ConvertTo-Json | Set-Content (Join-Path $a 'check-invocation.json')
 New-Item -ItemType Directory -Path $FixtureRoot | Out-Null
 if($scenario.mode -eq 'acceptance-command-fail'){[Console]::Error.WriteLine('causal acceptance failure');exit 31}
@@ -258,7 +299,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         & git -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
     # A newer-looking deployment/tool directory must never influence explicit selection.
     New-Item -ItemType Directory -Path (Join-Path $a 'latest'), (Join-Path $a 'build/zz-newest/companion/node_modules/typescript/lib') -Force | Out-Null
     Write-Utf8 (Join-Path $a 'latest/azrael-host.vsix') 'untested latest package'
@@ -279,8 +320,9 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     if($FullRegression){$argsList += '-FullRegression'}
     if($ForceNative){$argsList += '-ForceNativeVerification'}
     $moduleOwner=if($SharedModuleOwner){Join-Path $a 'shared module owner 한글'}else{''}
-    if($SharedModuleOwner){$argsList += @('-ModuleCacheProjectRoot',$moduleOwner)}
-    if($Mode -like 'account-*'){$argsList += '-VerifyAccountControls'}
+    $windowTarget=if($SharedModuleOwner){Join-Path $a 'shared window target 한글'}else{''}
+    if($SharedModuleOwner){$argsList += @('-ModuleCacheProjectRoot',$moduleOwner,'-WindowControlTargetDirectory',$windowTarget,'-CargoVerificationCacheProjectRoot',$moduleOwner,'-NamespaceCacheProjectRoot',$moduleOwner)}
+    if($Mode -like 'account-*' -or $Mode -eq 'source-fail-after-build'){$argsList += '-VerifyAccountControls'}
     foreach($arg in $argsList){$info.ArgumentList.Add($arg)}
     $proc=[Diagnostics.Process]::Start($info)
     $stdout=$proc.StandardOutput.ReadToEndAsync();$stderr=$proc.StandardError.ReadToEndAsync()
@@ -319,6 +361,22 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         }
         $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
         return
+    }
+    if($Mode -in @('account-engine-fail','account-prepare-fail','source-fail-after-build')){
+      Assert-True ($exit -ne 0) 'account prerequisite failure accepted'
+      $failedName=if($Mode -eq 'source-fail-after-build'){'source-tests'}elseif($Mode -eq 'account-engine-fail'){'engine-preservation'}else{'prepare'}
+      $otherName=if($failedName -eq 'prepare'){'engine-preservation'}else{'prepare'}
+      $failed=@($metrics.stages | Where-Object name -eq $failedName)[0]
+      $other=@($metrics.stages | Where-Object name -eq $otherName)[0]
+      Assert-True ($failed.exitCode -eq $(if($failedName -eq 'source-tests'){23}elseif($failedName -eq 'prepare'){29}else{41})) 'prerequisite actual exit lost'
+      Assert-True $other.terminated 'other owned prerequisite was not canceled'
+      Assert-True ($other.durationMs -lt 20000) 'cancellation waited for slow prerequisite'
+      foreach($dependent in @($metrics.stages | Where-Object { $_.name -in @('source-tests','engine-preservation','prepare') -and $_.name -ne $failedName })) {
+        Assert-True ($dependent.terminated -and $dependent.durationMs -lt 20000 -and $null -ne $dependent.exitCode) 'owned sibling was not canceled with actual exit'
+      }
+      foreach($marker in @('source-start.json','native-start.json','prepare-start.json')){ $owned=(Get-Content (Join-Path $a $marker) -Raw | ConvertFrom-Json).pid; Assert-True ($null -eq (Get-Process -Id $owned -ErrorAction SilentlyContinue)) 'owned prerequisite survived' }
+      foreach($marker in @('account-invocation.json','check-invocation.json','install-invocation.json')){Assert-True (-not (Test-Path (Join-Path $a $marker))) "failure started downstream: $marker"}
+      $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath});return
     }
     $success=$Mode -in @('success','account-success')
     Assert-True (($exit -eq 0) -eq $success) "Unexpected exit code $exit in $Name; see $logs/$Name.stderr.log"
@@ -366,9 +424,27 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         Assert-True ($accountRecord.exitCode -eq $(if($Mode -eq 'account-command-fail'){37}else{0})) 'account command actual exit code lost'
         Assert-True ($metrics.accountControls.status -ceq $(if($success){'passed'}else{'failed'})) 'account gate report status lost'
         if(-not $success){
-            foreach($marker in @('prepare-invocation.json','check-invocation.json','install-invocation.json')){Assert-True (-not (Test-Path (Join-Path $a $marker))) "Account gate failure started downstream work: $marker"}
+            foreach($marker in @('check-invocation.json','install-invocation.json')){Assert-True (-not (Test-Path (Join-Path $a $marker))) "Account gate failure started downstream work: $marker"}
         }
     }else{Assert-True (@($metrics.stages | Where-Object name -eq 'account-controls').Count -eq 0) 'account gate ran without opt-in'}
+    if($Mode -eq 'account-success'){
+      $ns=Get-Content (Join-Path $a 'native-start.json') -Raw | ConvertFrom-Json
+      $ne=Get-Content (Join-Path $a 'native-end.json') -Raw | ConvertFrom-Json
+      $ps=Get-Content (Join-Path $a 'prepare-start.json') -Raw | ConvertFrom-Json
+      $pe=Get-Content (Join-Path $a 'prepare-end.json') -Raw | ConvertFrom-Json
+      Assert-True ($ns.time -lt $pe.time -and $ps.time -lt $ne.time) 'account preparation and engine checks did not overlap'
+      $account=@($metrics.stages | Where-Object name -eq 'account-controls')[0]
+      foreach($prerequisite in @('source-tests','engine-preservation','prepare')){ $record=@($metrics.stages | Where-Object name -eq $prerequisite)[0];Assert-True ($record.exitCode -eq 0 -and [DateTime]$record.completedUtc -le [DateTime]$account.startedUtc) 'account started before owned prerequisites completed' }
+    }
+    if($Name -eq 'parallel prepare' -or $Mode -eq 'account-success'){
+      $sourceEnd=(Get-Content (Join-Path $a 'source-end.json') -Raw | ConvertFrom-Json).time
+      foreach($marker in @('native-end.json','prepare-end.json')) {
+        Assert-True ((Get-Content (Join-Path $a $marker) -Raw | ConvertFrom-Json).time -lt $sourceEnd) 'build-ready work did not complete while source tests were pending'
+      }
+      $acceptance=@($metrics.stages | Where-Object name -eq 'acceptance')[0]
+      $source=@($metrics.stages | Where-Object name -eq 'source-tests')[0]
+      Assert-True ([DateTime]$source.completedUtc -le [DateTime]$acceptance.startedUtc) 'acceptance started before source tests completed'
+    }
     if($Mode -like 'install-*'){
         Assert-True ($metrics.status -ceq 'installation-failed' -and $metrics.installation.status -ceq 'failed') 'installation failure was reported as success or a different stage'
         if($Mode -eq 'install-nonthrow-exit'){
@@ -379,7 +455,8 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     }
     foreach($record in $metrics.stages){Assert-True ($null -ne $record.exitCode) "Missing actual exit code in $Name/$($record.name)";Assert-True (Test-Path -LiteralPath $record.stdout) 'stdout not retained';Assert-True (Test-Path -LiteralPath $record.stderr) 'stderr not retained'}
     $invocation=Get-Content (Join-Path $a 'test-invocation.json') -Raw | ConvertFrom-Json
-    $expectedSourceArgs=@(if($FullRegression){'--area';'current';'--area';'standalone'}else{'--changed-only'})
+    $expectedSourceArgs=@('--test-concurrency','4')
+    $expectedSourceArgs+=@(if($FullRegression){'--area';'current';'--area';'standalone'}else{'--changed-only'})
     $expectedSourceArgs+=@('--log-directory',(Join-Path $a 'logs/deploy-chosen/source-tests'))
     Assert-True (($invocation -join '|') -ceq ($expectedSourceArgs -join '|')) 'source argv did not match selected regression scope'
     Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
@@ -406,6 +483,10 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         Assert-True ($buildCalls.Count -eq 1) 'build was invoked more than once'
         Assert-True ($buildCalls[0].SkipEngineBuild -eq (-not $FullBuild)) 'full build/engine reuse selection was lost'
         Assert-True ($buildCalls[0].ModuleCacheProjectRoot -ceq $moduleOwner) 'shared module cache owner was not forwarded exactly'
+        Assert-True ($buildCalls[0].WindowControlTargetDirectory -ceq $windowTarget) 'shared Window Control target was not forwarded exactly'
+        foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
+            Assert-True ($(if($call.config.PSObject.Properties['cargoVerificationCacheProjectRoot']){$call.config.cargoVerificationCacheProjectRoot}else{''}) -ceq $moduleOwner) 'Cargo evidence storage owner was not forwarded exactly'
+        }
         if($TargetKind){Assert-True ($buildCalls[0].EngineTargetDirectory -ceq $target -and $metrics.engineTargetDirectory -ceq $target) 'absolute engine cache was not forwarded and recorded exactly'}
         if($FullBuild){Assert-True ($buildCalls[0].ComputerUseRuntimeDirectory -ceq (Join-Path $a 'official computer runtime') -and $buildCalls[0].ComputerUsePluginDirectory -ceq (Join-Path $a 'official computer plugin')) 'explicit Computer Use inputs were not forwarded exactly'}
         $start=Get-Content (Join-Path $a 'source-start.json') -Raw | ConvertFrom-Json
@@ -414,6 +495,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $buildEnd=Get-Content (Join-Path $a 'build-end.json') -Raw | ConvertFrom-Json
         Assert-True ($start.time -lt $buildEnd.time -and $buildStart.time -lt $end.time) 'build and source tests did not truly overlap'
         $prepare=Get-Content (Join-Path $a 'prepare-invocation.json') -Raw | ConvertFrom-Json
+        Assert-True ($prepare.NamespaceCacheProjectRoot -ceq $moduleOwner) 'namespace transform cache owner was not forwarded exactly'
         $check=Get-Content (Join-Path $a 'check-invocation.json') -Raw | ConvertFrom-Json
         Assert-True (-not (Test-Path -LiteralPath $check.FixtureRoot)) 'successful verification fixture was not cleaned after child disposal'
         Assert-True ((Test-Path -LiteralPath $metrics.acceptanceResult) -and $metrics.acceptanceResult -match 'verification-evidence') 'archived acceptance reference missing'
@@ -481,6 +563,9 @@ try {
     Invoke-Case 'relative engine target' 'invalid-target' $true '' $true 'relative'
     Invoke-Case 'skip engine with target' 'invalid-target' $true '' $false 'absolute'
     Invoke-Case 'input snapshot failure' 'input-snapshot-fail'
+    Invoke-Case 'source-fail-after-build' 'source-fail-after-build' $false '' $true
+    Invoke-Case 'account-engine-fail' 'account-engine-fail' $false '' $true
+    Invoke-Case 'account-prepare-fail' 'account-prepare-fail' $false '' $true
     Invoke-Case 'account-success' 'account-success' $false '' $true
     foreach($mode in @('account-command-fail','account-missing-report','account-status','account-route','account-engine','account-bridge','account-model-request','account-credit-request','account-string-count')){Invoke-Case $mode $mode $false '' $true}
     foreach($mode in @('install-nonthrow-exit','install-no-result','install-failed-receipt','install-wrong-receipt-package','install-wrong-receipt-version')){Invoke-Case $mode $mode}

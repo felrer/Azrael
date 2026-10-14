@@ -68,7 +68,7 @@ const cases = [
   ["check-api-context", "skills", [["codex-skills-extension", "api_host_dedup"]]],
   ["check-api-context", "core", [["codex-core", "instruction_state_projection"], ["codex-core", "multi_agent_mode::tests"]]],
   ["check-model-harness-profiles", "config", [["codex-config", "harness"]]],
-  ["check-model-harness-profiles", "tools", [["codex-core", "claude"], ["codex-core", "anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools"]]],
+  ["check-model-harness-profiles", "tools", [["codex-core", "claude"], ["codex-core", "anthropic_profile_replaces_native_tools_and_other_providers_exclude_compatible_tools"], ["codex-core", "tools::router::tests::chat_discovery"], ["codex-core", "mcp_and_tool_search_follow_direct_and_deferred_tool_exposure"]]],
   ["check-task-work-time-native", "protocol", [["codex-app-server-protocol", "thread_history"]]],
   ["check-task-work-time-native", "store", [["codex-thread-store", "recorded_turn_attribution"], ["codex-thread-store", "deferred_turn_duration_stays_frozen_after_a_new_turn"]]],
   ["check-task-work-time-native", "appserver", [["codex-app-server", "bespoke_event_handling::tests::test_handle_turn_"], ["codex-app-server", "test_emit_turn_deferred_preserves_frozen_timing"]]],

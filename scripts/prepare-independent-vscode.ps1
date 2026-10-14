@@ -13,7 +13,8 @@ param(
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$Resume,
     [switch]$ChangedOnlyTests,
-    [string]$CacheDirectory
+    [string]$CacheDirectory,
+    [string]$NamespaceCacheProjectRoot
 )
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
@@ -148,7 +149,11 @@ if ($Resume) {
     if (Test-Path -LiteralPath $OutputDirectory) { throw 'OutputDirectory must be new; use -Resume for a matching checkpoint.' }
     New-Item -ItemType Directory -Path $OutputDirectory -Force | Out-Null
 }
-if (-not $CacheDirectory) { $CacheDirectory = Join-Path $project 'artifacts/cache/namespace' }
+if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be absolute.' }
+if (-not $CacheDirectory) {
+    $cacheOwner = if ($NamespaceCacheProjectRoot) { $NamespaceCacheProjectRoot } else { $project }
+    $CacheDirectory = Join-Path $cacheOwner 'artifacts/cache/namespace'
+}
 if (-not [IO.Path]::IsPathFullyQualified($CacheDirectory)) { throw 'CacheDirectory must be absolute.' }
 if (-not $DevinExecutable) {
     $candidate = Join-Path $env:LOCALAPPDATA 'azrael-ex/tools/devin/3000.10.21/bin/devin.exe'
@@ -193,6 +198,8 @@ $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
 $config.changedOnlyTests = [bool]$ChangedOnlyTests
 $config.hostVersion = $HostVersion
+$config.cacheDirectory = [IO.Path]::GetFullPath($CacheDirectory)
+$config.namespaceCacheProjectRoot = if ($NamespaceCacheProjectRoot) { [IO.Path]::GetFullPath($NamespaceCacheProjectRoot) } else { $null }
 if ($ChangedOnlyTests) { $config.preservationFeatureIds = @() }
 $configPath = Join-Path $OutputDirectory 'preparation-inputs.json'
 $config | ConvertTo-Json | Set-Content -LiteralPath $configPath -Encoding utf8NoBOM
@@ -271,7 +278,9 @@ try {
         $typescript = Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js'
         $hostVersion = $HostVersion
         Invoke-PreparationPhase 'namespace' {
-            & node (Join-Path $PSScriptRoot 'namespace-azrael-host.cjs') $prepared.OfficialExtension $typescript $hostVersion $CacheDirectory *> (Join-Path $OutputDirectory 'namespace.log')
+            $namespaceArgs = @($prepared.OfficialExtension, $typescript, $hostVersion, $CacheDirectory)
+            if ($NamespaceCacheProjectRoot) { $namespaceArgs += $NamespaceCacheProjectRoot }
+            & node (Join-Path $PSScriptRoot 'namespace-azrael-host.cjs') @namespaceArgs *> (Join-Path $OutputDirectory 'namespace.log')
             if ($LASTEXITCODE -ne 0) { throw 'Independent host transformation failed. See namespace.log.' }
         }
         $prepared | ConvertTo-Json | Set-Content -LiteralPath (Join-Path $OutputDirectory 'prepared.json') -Encoding utf8NoBOM

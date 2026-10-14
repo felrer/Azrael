@@ -170,9 +170,9 @@ assert(originalConfiguration.length > 0 && originalConfiguration.every((id) => i
 assert.deepEqual(hostConfiguration.slice().sort(), [
   ...originalConfiguration.map((id) => id.replace(/^chatgpt\./, "azrael.")),
   "azrael.sharedEnvironment.repository", "azrael.sharedEnvironment.ref",
-  "azrael.instructions.repository",
+  "azrael.instructions.repository", "azrael.instructions.libraryRoot",
 ].sort(), "host settings must contain the renamed upstream settings and integrated shared-environment and instruction settings");
-for (const [id, defaultValue] of [["azrael.sharedEnvironment.repository", ""], ["azrael.sharedEnvironment.ref", "main"], ["azrael.instructions.repository", "felrer/Azrael"]]) {
+for (const [id, defaultValue] of [["azrael.sharedEnvironment.repository", ""], ["azrael.sharedEnvironment.ref", "main"], ["azrael.instructions.repository", "felrer/Azrael"], ["azrael.instructions.libraryRoot", ""]]) {
   const setting = hostManifest.contributes.configuration.properties[id];
   assert.equal(setting.type, "string");
   assert.equal(setting.default, defaultValue);
@@ -251,8 +251,10 @@ assert.equal(hostLiterals.configChatgpt, 0, "host retained a standalone chatgpt 
 assert(hostLiterals.configAzrael >= originalLiterals.configChatgpt, "host omitted transformed azrael configuration lookups");
 assert.equal(hostLiterals.nativeChatgpt, originalLiterals.nativeChatgpt, "host changed native chatgpt authentication identifiers");
 
-assert.equal(count(hostBundle, "__azraelWorkspaceThreadList"), 2,
-  "packaged host bridge does not consume and remove the workspace marker");
+// The bridge reads/strips the marker twice; team-runtime contributes three
+// references for descendant request gating, tracking and marker removal.
+assert.equal(count(hostBundle, "__azraelWorkspaceThreadList"), 5,
+  "packaged host bridge/team runtime workspace marker contract is absent or duplicated");
 assert.equal(count(hostRecentThreadBundle, "__azraelWorkspaceThreadList"), 1,
   "packaged recent-thread list does not emit the workspace marker");
 

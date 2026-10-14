@@ -45,12 +45,23 @@ test("the real preservation registry covers every production UI injector", () =>
   assert.deepEqual(links.reportFields, ["sessionLinkEdits"]);
   const missingImage = manifest.features.find(feature => feature.id === "ui.missing-image");
   assert.equal(missingImage.area, "ui");
-  assert.deepEqual(missingImage.owners, ["scripts/inject-missing-image.cjs"]);
+  assert.ok(missingImage.owners.includes("scripts/inject-missing-image.cjs"));
+  for (const feature of manifest.features.filter(feature => feature.area === "ui")) {
+    for (const owner of ["scripts/namespace-cache-owner.cjs", "scripts/test-namespace-cache-owner.cjs"]) {
+      assert.ok(feature.owners.includes(owner), `${feature.id}: mandatory namespace owner ${owner}`);
+    }
+    const guards = feature.checks.filter(check => check.id === `${feature.id}.namespace-cache-owner`);
+    assert.equal(guards.length, 1, `${feature.id}: exactly one mandatory namespace guard`);
+    assert.deepEqual(guards[0], { id: `${feature.id}.namespace-cache-owner`, executable: "node",
+      args: ["--test", "scripts/test-namespace-cache-owner.cjs"], level: "source" });
+  }
   assert.equal(missingImage.contract, "docs/architecture/ui-presentation.md");
   assert.deepEqual(missingImage.reportFields, ["missingImageEdits"]);
-  assert.deepEqual(missingImage.checks, [{ id: "ui.missing-image.behavior", executable: "node",
+  const behaviorChecks = missingImage.checks.filter(check => check.id === "ui.missing-image.behavior");
+  assert.equal(behaviorChecks.length, 1);
+  assert.deepEqual(behaviorChecks[0], { id: "ui.missing-image.behavior", executable: "node",
     args: ["--test", "scripts/test-missing-image.cjs"], level: "source",
-    cacheInputs: { schema: 1, files: ["scripts/test-missing-image.cjs", "scripts/inject-missing-image.cjs"] } }]);
+    cacheInputs: { schema: 1, files: ["scripts/test-missing-image.cjs", "scripts/inject-missing-image.cjs"] } });
   const unregistered = { ...manifest, features: manifest.features.filter(feature => feature !== missingImage) };
   assert.throws(() => gate.validateManifest(unregistered, root, rules), /Unregistered UI injector: inject-missing-image\.cjs/);
 });
@@ -93,14 +104,14 @@ test("transform fingerprints and checkpoint publication bind registry inputs", (
   for (const field of ["maxReasoningEdits", "recentChatFilterEdits"]) assert.ok(fields.includes(field));
   // Inspect the public fingerprints rather than the implementation spelling.
   const rules = require("./namespace-azrael-host.cjs").getTransformRules();
-  for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) {
+  for (const input of ["inject-max-reasoning.cjs", "inject-missing-image.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json"]) {
     assert.match(rules[input] ?? "", /^[a-f\d]{64}$/i, input);
   }
   assert.match(namespace, /"inject-max-reasoning\.cjs": MAX_REASONING_ASSETS/);
   const inputs = declaration("preparation-state.cjs", "inputs");
   for (const input of ["feature-preservation.cjs", "azrael-feature-contracts.json"]) assert.ok(inputs.includes(`"${input}"`));
   ordered(declaration("namespace-azrael-host.cjs", "transformExtension", namespace), [
-    "validateManifest(featureManifest", "const cache = createAssetTransformCache(",
+    "validateManifest(featureManifest", "const cacheFactory = selectAssetCacheFactory(", "const cache = cacheFactory(",
     "validateTransformReport(featureManifest, report)", '".azrael-independent-host.json"',
   ]);
 });
@@ -117,10 +128,16 @@ test("preparation verifies UI before consuming checkpoints and binds the exact p
 
 test("deployment verifies package identity and rechecks engine before installation", () => {
   const source = read("deploy-azrael.ps1");
-  ordered(source, ["Wait-OwnedCommands @($sourceTests, $build)", "area = 'engine'", "'engine-preservation'",
-    "$prepare = Start-OwnedCommand 'prepare'", "Wait-OwnedCommands @($enginePreservation, $prepare)", "$enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath", "Assert-ProjectSnapshot 'pre-install'",
+  ordered(source, ["Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)", "Assert-ProjectSnapshot 'post-build'",
+    "area = 'engine'", "'engine-preservation'", "$prepare = Start-OwnedCommand 'prepare'",
+    "Wait-OwnedCommands @($sourceTests, $enginePreservation, $prepare)", "if ($VerifyAccountControls) {",
+    "Start-OwnedCommand 'account-controls'", "$enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath",
+    "Assert-Package", "Invoke-Stage 'acceptance'", "Assert-ProjectSnapshot 'pre-install'",
     "'engine-preservation-recheck'", "'verify-receipt', '--config', $enginePreservationConfigPath",
     "Wait-OwnedCommands @($engineRecheck)", "Start-OwnedCommand 'install'"]);
+  const wait = source.slice(source.indexOf("function Wait-OwnedCommands"), source.indexOf("function Invoke-Stage"));
+  ordered(wait, ["foreach ($child in @($Commands) + @($MonitoredCommands))",
+    "Complete-OwnedCommand $child", "if ($child.Record.exitCode -ne 0) { throw"]);
   const packageCheck = source.slice(source.indexOf("function Assert-Package"), source.indexOf("try {", source.indexOf("function Assert-Package")));
   assert.match(packageCheck, /receiptPath = \$prepared\.PreservationReceipt; reportPath = \$prepared\.PreservationReport/);
   assert.match(packageCheck, /packagePath = \$prepared\.HostVsix; bindingPath = \$prepared\.PreservationBinding/);

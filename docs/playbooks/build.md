@@ -49,9 +49,9 @@ azrael 설치·업데이트는 계정·사용량 모듈을 포함한 독립 호�
 
 ## 업데이트·복구·정리
 
-UI 소스 검사 결과 캐시는 `artifacts/cache/verification-results/`에서 검사별 현재 입력 key만 유지한다. 입력이 바뀌면 이전 key를 대체 검사 실행 전에 삭제하며, 실패 결과는 저장하지 않는다. Manifest에서 제거된 검사와 구 schema도 자동 정리한다. 실행 중인 lease가 보호하는 항목은 완료 직후 정리하고, 경로·소유권 확인 실패나 abandoned lease는 보존 이유를 보고하며 캐시를 우회한다. 이 정리는 배포본·사용자 데이터와 별개다.
+UI 소스 검사 결과 캐시는 `artifacts/cache/verification-results/`에서 검사별 현재 입력 key만 유지한다. 입력이 바뀌면 이전 key를 대체 검사 실행 전에 삭제하며, 실패 결과는 저장하지 않는다. Manifest에서 제거된 검사와 구 schema도 자동 정리한다. 실행 중인 lease가 보호하는 항목은 완료 직후 정리하고, 경로·소유권 확인 실패나 abandoned lease는 보존 이유를 보고하며 캐시를 우회한다. 이 정리는 배포본·사용자 데이터와 별개다. UI source schema2의 추가 행동 검사 6개도 같은 보관·lease·실패 시 비공개 계약을 따른다. 전체 소스 입력과 실제 프로젝트 TypeScript까지 동일해야 재사용하며, 공통 cache-owner/fixture guard와 최종 호스트 6단계는 실행한다.
 
-네이티브 검사 결과 재사용은 [운영 문서의 별도 계약](../ops/development.md#native-verification-result-reuse)을 따른다. 명시된 provider-context·recovery·accepted-input 바이너리 검사와 별도로, 등록된 Cargo 소스 검사도 전체 고정 입력·도구·환경·검사 증거가 일치할 때 통과 결과를 재사용한다. 불확실한 외부 설정이나 의존성은 캐시를 우회하고 검사를 실행한다. 출처·소스 변경·최종 패키지 동일성 확인은 매번 유지한다. `-FullRegression`은 전체 검사 범위를 선택하되 유효한 통과 증거를 재사용한다. `-ForceNativeVerification`은 선택된 네이티브/Cargo 검사를 강제 실행한다. 전체 강제 실행에는 두 옵션을 함께 사용한다. 실제 설치 전 호스트 검증 6단계는 매번 새 상태로 실행한다. 로컬 패키징 반복은 설치 검증과 구분하고, 일반 빌드가 테스트를 실행한다고 해석하지 않는다.
+네이티브 검사 결과 재사용은 [운영 문서의 별도 계약](../ops/development.md#native-verification-result-reuse)을 따른다. 명시된 provider-context·recovery·accepted-input 바이너리 검사와 별도로, 등록된 Cargo 소스 검사도 엔진 출처·검사별 파일/계약·등록 집합·도구·환경·검사 증거가 일치할 때 통과 결과를 재사용한다. schema4에서는 전체 프로젝트/manifest 해시와 실행 폴더 위치를 개별 Cargo 키에서 제외하지만 전체 gate의 전후 입력 동일성은 유지한다. Zod의 절대 경로·SHA-256·0 이상 정수 파일 수와 바이트 수를 갖춘 전체 디렉터리 identity에서는 사본 경로만 추가로 제외한다. 불완전하거나 상대 경로인 identity는 경로를 유지하며, Zod 내용과 나머지 알려진 필드·알 수 없는 필드는 계속 키에 포함한다. 원본 전체 gate receipt의 실제 경로는 유지한다. `-CargoVerificationCacheProjectRoot`의 명시적 절대 경로로 고정 입력 사본 간 Cargo 증거 저장소를 공유할 수 있으며 기존 schema 증거는 이관하지 않는다. 불확실한 외부 설정이나 의존성은 캐시를 우회하고 검사를 실행한다. 출처·소스 변경·최종 패키지 동일성 확인은 매번 유지한다. `-FullRegression`은 전체 검사 범위를 선택하되 유효한 통과 증거를 재사용한다. `-ForceNativeVerification`은 선택된 네이티브/Cargo 검사를 강제 실행한다. 전체 강제 실행에는 두 옵션을 함께 사용한다. 실제 설치 전 호스트 검증 6단계는 매번 새 상태로 실행한다. 로컬 패키징 반복은 설치 검증과 구분하고, 일반 빌드가 테스트를 실행한다고 해석하지 않는다.
 
 중단된 배포의 패키징 stage도 `clean-verification-artifacts.ps1`로 정리합니다. 진단이 끝난 `artifacts/deployments/{deploy,manual}-<이름>/package/stage-<32자리 소문자 hex>` 경로를 `-FixtureRoot`로 명시하고 `-IncludeDiagnosedFixtures`로 미리보기한 뒤 적용합니다. 자동 탐색으로 선택하지 않으며, 설치된 배포의 stage와 실행 중인 프로세스·보호 경로가 참조하는 stage는 보존합니다.
 
@@ -66,3 +66,15 @@ UI 소스 검사 결과 캐시는 `artifacts/cache/verification-results/`에서 
 변경 내용, 실제 빌드/검증 범위와 종료 코드, 배포 경로, 재사용 여부, 설치 여부와 남은 제약을 작업 계획 문서에 남기고 사용자에게 보고한다. 설치 상태가 바뀌면 운영 문서의 [현재 상태](../ops/development.md#current-state)를 갱신한다. 바뀐 명령은 운영 문서 한 곳에서 유지하고 이 playbook은 그 문서를 참조한다.
 
 빌드 중 엔진 시스템·기능·권한·데이터 처리·UI 디자인을 수정했다면 공통 변경 보고 규칙에 따라 무엇을 왜 어떻게 바꿨는지 변경 전후로 사용자에게 설명한다. 기존 패치의 제거·대체, 플랫폼별 영향, 실제 검증 환경·미검증 범위와 원복·보완 결과를 포함한다. 빌드·설치 성공만 보고하고 제품 동작 변경을 생략하지 않는다. 제품 동작 변경이 없었다면 그 사실과 확인 범위를 보고한다.
+
+## 반복 빌드·검증의 입력과 캐시
+
+엔진 출처 검증은 한 validation context에서 물리 루트와 디렉터리 identity를 고정하고 단계 경계 및 완료 시 다시 확인한다. 파일마다 물리 경로 포함 범위와 내용 검사를 수행하며 같은 내용으로 루트를 교체하는 경우도 거부한다. `engine.source-provenance`의 필수 source 검사 네 개는 이 경계와 lexical/escape 검사를 보존한다. 동일 입력의 단일 순차 비교는 28.563→17.450초였으며 호스트 활동과 파일시스템 캐시의 영향이 남아 있으므로 전체 빌드 단축 시간으로 환산하지 않는다.
+
+같은 고정 입력의 반복 실행은 [capture-project-inputs.cjs](../../scripts/capture-project-inputs.cjs)가 기록한 추적·미추적·삭제·초기화된 중첩 저장소의 선택 바이트와 최종 지문을 사용한다. 사전에 준비한 독립 Git 메타데이터에 선택 바이트를 반영하고 최종 snapshot의 해시·파일 수·바이트 수를 확인한다. 각 파일은 자신의 읽기 구간에서 선택되며 전체 저장소의 원자적 snapshot을 뜻하지 않는다. 소스 읽기 전후 파일·부모 identity, 각 부모의 `lstat`, 링크·경로 경계 및 배타적 출력 생성 검사는 유지한다. 실제 경로는 `fs.realpathSync.native`로 해석하고 부모 검사마다 물리 루트를 한 번 확인한다. 기본 128KiB 이하 파일은 열린 handle에서 Buffer로 읽어 `wx`로 복사하고 큰 파일은 stream으로 복사한다. `smallFileMaxBytes`는 0..1MiB 정수이며 0은 stream을 강제한다. 파일 mode는 개별 적용하고 부모 디렉터리 mode는 관측 identity를 확인한 뒤 한 번씩 적용한다. inventory/copy/Git/finalHash 시간과 복사 경로별 파일 수는 캡처 영수증에 구분한다. 이 최적화의 guard 검증은 현재 Windows x64 Node 26.7에 한정되며 다른 OS와 전체 입력 복사 성능은 해당 환경·입력의 검증으로 별도 판단한다.
+
+`deploy-azrael.ps1 -WindowControlTargetDirectory <절대 경로>`는 Window Control 소유 빌더의 캐시 선택을 전달한다. 전역 `CARGO_BUILD_TARGET`으로 독립 native 소유자의 출력 규약을 바꾸지 않는다. 반복 실행의 전체 경과 시간에는 선택한 입력 준비와 최종 패키지·호스트 검증을 포함하고, 이미 준비된 고정 입력/캐시 비용과 캐시 없는 실행 비용을 구분해 기록한다. 필수 검증 범위나 실패 조건을 줄여 성능 목표 통과로 표시하지 않는다.
+
+전체 소스 검사 목록은 유지하며 `deploy-azrael.ps1 -SourceTestConcurrency 8` 또는 `test-project.cjs --test-concurrency 8`로 Node 소스 테스트의 동시 실행 수를 선택할 수 있다. 기본값은 4, 허용 범위는 1–16이다. 실제 메모리·CPU와 독립 프로세스 조건을 확인해 선택하고, 실행 후 전체 경과 시간과 실패·메모리 영향을 비교한다. Cargo 컴파일 동시 실행 수와는 별도 설정이다.
+
+빌드 성공과 post-build 입력 동일성 확인 뒤에는 진행 중인 소스 회귀와 패키지 준비·엔진 검증을 겹칠 수 있다. 빌드를 기다리는 동안에도 소스 실패를 감시하며, 소스·엔진·준비가 모두 통과해야 account probe·최종 호스트 검증·설치로 진행한다. 어느 선행 작업이 실패해도 해당 실행이 소유한 남은 작업을 취소한다. 순서 변경의 fixture 통과와 실제 전체 실행 시간 단축은 별도 근거로 기록한다.

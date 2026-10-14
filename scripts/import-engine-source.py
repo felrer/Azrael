@@ -463,8 +463,31 @@ def canonical(value):
                       ensure_ascii=True).encode("utf-8")
 
 
+class ValidationRoot:
+    """Pin a physical root for one validation; recheck it between phases."""
+
+    def __init__(self, root):
+        self.original = Path(root)
+        self.path = canonical_path(self.original)
+        info = filesystem_path(self.path).stat()
+        self.identity = (info.st_dev, info.st_ino)
+
+    def check(self):
+        if canonical_path(self.original) != self.path:
+            raise ValueError("Source root changed during provenance verification")
+        info = filesystem_path(self.path).stat()
+        if (info.st_dev, info.st_ino) != self.identity:
+            raise ValueError("Source root changed during provenance verification")
+
+
+def validation_root(root):
+    context = root if isinstance(root, ValidationRoot) else ValidationRoot(root)
+    context.check()
+    return context
+
+
 def safe_path(root, name):
-    root = canonical_path(root)
+    root = root.path if isinstance(root, ValidationRoot) else canonical_path(root)
     relative = PurePosixPath(name)
     if relative.is_absolute() or ".." in relative.parts or ".git" in relative.parts:
         raise ValueError(f"Unsafe source path: {name}")
@@ -985,7 +1008,8 @@ def adapted_source_entry(entry, fix):
 
 
 def verify_destination(destination, files, has_receipt=False, allow_build_caches=False, adaptation=None, distribution_files=None, source_fixes=None, adapted_changes=None):
-    destination = filesystem_path(destination)
+    context = validation_root(destination)
+    destination = filesystem_path(context.path)
     actual = set()
     for directory, children, entries in os.walk(destination, followlinks=False):
         if allow_build_caches:
@@ -1004,14 +1028,14 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
             entry = files.get(original_path)
             if not entry or entry["kind"] != "file" or original_path + ".upstream" in files:
                 raise ValueError("Source correction has no regular original inventory entry")
-            preserved = safe_path(destination, original_path + ".upstream")
+            preserved = safe_path(context, original_path + ".upstream")
             if preserved.is_symlink():
                 raise ValueError("Preserved source must be a regular file")
             original = preserved.read_bytes()
             if fix != source_fixes_record(original, original_path)[original_path]:
                 raise ValueError("Replay/state/identity source-fix metadata differs")
             adapted_path, adapted_bytes, _ = known_source_fix(original_path, original)
-            adapted = safe_path(destination, adapted_path)
+            adapted = safe_path(context, adapted_path)
             change = (adapted_changes or {}).get(adapted_path)
             if change is not None:
                 if change["before"] != adapted_source_entry(entry, fix) or describe(adapted, entry["gitMode"]) != change["after"]:
@@ -1024,7 +1048,7 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
         migration = files.get(QUEUE_MIGRATION)
         if distribution_files != distribution_files_record() or not migration or migration["kind"] == "missing" or QUEUE_ATTRIBUTES in files:
             raise ValueError("Malformed distribution files: only the fixed queue attribute overlay is supported")
-        overlay = safe_path(destination, QUEUE_ATTRIBUTES)
+        overlay = safe_path(context, QUEUE_ATTRIBUTES)
         if overlay.is_symlink() or overlay.read_bytes() != QUEUE_ATTRIBUTE_BYTES:
             raise ValueError("Queue distribution attribute overlay differs")
         expected.add(QUEUE_ATTRIBUTES)
@@ -1034,13 +1058,13 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
         entry = files.get(".gitignore")
         if not entry or entry["kind"] != "file" or PRESERVED_IGNORE in files:
             raise ValueError("Distribution adaptation has no regular original .gitignore")
-        preserved = safe_path(destination, PRESERVED_IGNORE)
+        preserved = safe_path(context, PRESERVED_IGNORE)
         if preserved.is_symlink():
             raise ValueError("Preserved original .gitignore must be a regular file")
         original = preserved.read_bytes()
         if adaptation != adaptation_record(original):
             raise ValueError("Distribution adaptation metadata differs")
-        adapted = safe_path(destination, ".gitignore")
+        adapted = safe_path(context, ".gitignore")
         if adapted.is_symlink() or adapted.read_bytes() != original + IGNORE_SUFFIX:
             raise ValueError("Adapted .gitignore differs from the fixed distribution suffix")
         expected.add(PRESERVED_IGNORE)
@@ -1052,12 +1076,14 @@ def verify_destination(destination, files, has_receipt=False, allow_build_caches
         stored_name = PRESERVED_IGNORE if name == ".gitignore" and adaptation is not None else name
         if source_fixes is not None and name in source_fixes:
             stored_name = name + ".upstream"
-        if describe(safe_path(destination, stored_name), entry["gitMode"]) != entry:
+        if describe(safe_path(context, stored_name), entry["gitMode"]) != entry:
             raise ValueError(f"Copied source differs: {name}")
+    context.check()
 
 
 def validate_inventory(destination, receipt):
     """Validate receipt metadata independently of its destination bytes."""
+    context = validation_root(destination)
     if not isinstance(receipt, dict) or type(receipt.get("schema")) is not int or receipt["schema"] != 1:
         raise ValueError("Unsupported imported source receipt schema")
     entries = receipt.get("files")
@@ -1075,7 +1101,7 @@ def validate_inventory(destination, receipt):
     for name, entry in entries.items():
         if not isinstance(name, str) or not name or "\\" in name or ":" in name or PurePosixPath(name).as_posix() != name:
             raise ValueError("Imported source receipt has a malformed path")
-        safe_path(destination, name)
+        safe_path(context, name)
         if name in ("SOURCE.json", PRESERVED_IGNORE, QUEUE_ATTRIBUTES, PRESERVED_REPLAY, *(path + ".upstream" for path in STATE_FIX_PATHS | IDENTITY_FIX_PATHS | TOOL_POLICY_FIX_PATHS | ULTRAFAST_FIX_PATHS)) or any(name == prefix or name.startswith(prefix + "/") for prefix in EXCLUDED):
             raise ValueError(f"Imported inventory claims metadata or build cache: {name}")
         if not isinstance(entry, dict) or entry.get("kind") not in ("missing", "file", "symlink", "git-symlink-placeholder"):
@@ -1102,6 +1128,7 @@ def validate_inventory(destination, receipt):
                 "coverageVerified": True}
     if any(receipt.get(key) != value for key, value in expected.items()):
         raise ValueError("Source receipt coverage totals differ")
+    context.check()
     return digest
 
 
@@ -1220,13 +1247,16 @@ def validate_local_integration(destination, receipt):
 
 def validate_receipt(destination, receipt, allow_build_caches=False):
     """Validate an imported inventory without consulting a surrounding Git repo."""
-    digest = validate_inventory(destination, receipt)
+    context = validation_root(destination)
+    digest = validate_inventory(context, receipt)
     if "localIntegration" in receipt:
-        validate_local_integration(destination, receipt)
-    verify_destination(destination, receipt["files"], has_receipt=True, allow_build_caches=allow_build_caches,
+        validate_local_integration(context, receipt)
+    context.check()
+    verify_destination(context, receipt["files"], has_receipt=True, allow_build_caches=allow_build_caches,
                        adaptation=receipt.get("distributionAdaptation"), distribution_files=receipt.get("distributionFiles"),
                        source_fixes=receipt.get("sourceFixes"),
                        adapted_changes=receipt.get("localIntegration", {}).get("adaptedChanges"))
+    context.check()
     return digest
 
 

@@ -33,6 +33,7 @@ def binary_names(target=TARGET):
 
 def snapshot(root, target=TARGET):
     binary_names(target)
+    original_root = Path(root)
     root = Path(root).resolve()
     imported_receipt = root / "SOURCE.json"
     if imported_receipt.exists() or imported_receipt.is_symlink():
@@ -42,6 +43,9 @@ def snapshot(root, target=TARGET):
         spec = importlib.util.spec_from_file_location("engine_source_import", helper_path)
         helper = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(helper)
+        context = helper.validation_root(original_root)
+        if context.path != root:
+            raise ValueError("Source root changed during provenance verification")
         receipt_bytes = imported_receipt.read_bytes()
         receipt = json.loads(receipt_bytes)
         root = root.resolve()
@@ -54,13 +58,14 @@ def snapshot(root, target=TARGET):
             inventory_digest, native_hash = adapter.validate_native(root, receipt, helper, target)
             materialization = {"nativeMaterializationSha256": native_hash, "nativeMaterializationPolicy": "git-unix-v1"}
         else:
-            inventory_digest = helper.validate_receipt(root, receipt, allow_build_caches=True)
+            inventory_digest = helper.validate_receipt(context, receipt, allow_build_caches=True)
         digest = hashlib.sha256()
         for name, entry in sorted(receipt["files"].items()):
             content = entry.get("sha256", "missing")
             digest.update(name.encode("utf-8") + b"\0" + content.encode() + b"\0")
         if imported_receipt.read_bytes() != receipt_bytes:
             raise ValueError("Imported source receipt changed during provenance verification")
+        context.check()
         return {
             "schema": 2, "sourceKind": "imported-snapshot", "head": receipt["head"],
             "importedInventorySha256": inventory_digest,

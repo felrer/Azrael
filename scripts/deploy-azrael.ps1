@@ -5,6 +5,9 @@ param(
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$EngineTargetDirectory,
     [string]$ModuleCacheProjectRoot,
+    [string]$CargoVerificationCacheProjectRoot,
+    [string]$NamespaceCacheProjectRoot,
+    [string]$WindowControlTargetDirectory,
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
     [string]$CodeModeHostPath,
@@ -24,6 +27,7 @@ param(
     [switch]$VerifyOnly,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
+    [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
     [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
     [switch]$VerifyAccountControls,
@@ -50,6 +54,9 @@ if ($SkipEngineBuild -and (-not $EngineDirectory -or $CodeModeHostPath)) { throw
 if (-not $SkipEngineBuild -and -not $CodeModeHostPath) { throw 'A full build requires CodeModeHostPath.' }
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
+if ($WindowControlTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($WindowControlTargetDirectory)) { throw 'WindowControlTargetDirectory must be an absolute cache path.' }
+if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
+if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
 if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
 New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
@@ -120,9 +127,9 @@ function Complete-OwnedCommand {
     Write-DeploymentMetrics
 }
 function Wait-OwnedCommands {
-    param([object[]]$Commands)
+    param([object[]]$Commands, [object[]]$MonitoredCommands = @())
     while (@($Commands | Where-Object { -not $_.Completed }).Count) {
-        foreach ($child in $Commands) {
+        foreach ($child in @($Commands) + @($MonitoredCommands)) {
             if (-not $child.Completed -and $child.Process.HasExited) {
                 Complete-OwnedCommand $child
                 if ($child.Record.exitCode -ne 0) { throw "$($child.Record.name) failed with exit code $($child.Record.exitCode). See $($child.Record.stderr) and $($child.Record.stdout)." }
@@ -169,11 +176,13 @@ try {
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot)
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
+    if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
     if ($ComputerUseRuntimeDirectory) { $buildArgs += @('-ComputerUseRuntimeDirectory', $ComputerUseRuntimeDirectory) }
     if ($ComputerUsePluginDirectory) { $buildArgs += @('-ComputerUsePluginDirectory', $ComputerUsePluginDirectory) }
     if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
+    $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
     if ($FullRegression) { $sourceTestArgs += @('--area', 'current', '--area', 'standalone') }
     else {
         $sourceTestArgs += '--changed-only'
@@ -189,6 +198,7 @@ try {
         reuseNativeChecks = -not [bool]$ForceNativeVerification
     }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
+    if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) { $sourceConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input') }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
     $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
@@ -200,7 +210,8 @@ try {
     if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
-    Wait-OwnedCommands @($sourceTests, $build)
+    # Build completion releases binary consumers; source failures still cancel owned work.
+    Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)
     Assert-ProjectSnapshot 'post-build'
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
@@ -210,14 +221,28 @@ try {
         sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
     }
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
+    if ($CargoVerificationCacheProjectRoot) { $enginePreservationConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) {
         $enginePreservationConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
     $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
     $enginePreservation = Start-OwnedCommand 'engine-preservation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $enginePreservationConfigPath)
-    # Account-control probes retain their existing prerequisite ordering.
-    if ($VerifyAccountControls) { Wait-OwnedCommands @($enginePreservation) }
+    if (-not $TypeScriptPath) {
+        if ($preservationBuild.PSObject.Properties['moduleBuild'] -and $preservationBuild.moduleBuild.PSObject.Properties['typeScriptPath']) {
+            $TypeScriptPath = $preservationBuild.moduleBuild.typeScriptPath
+        }
+        if (-not $TypeScriptPath) { $TypeScriptPath = Join-Path $project "artifacts/build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js" }
+    }
+    $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
+    $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
+    if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
+    if ($NamespaceCacheProjectRoot) { $prepareArgs += @('-NamespaceCacheProjectRoot', $NamespaceCacheProjectRoot) }
+    if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
+    if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
+    $prepare = Start-OwnedCommand 'prepare' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')) + $prepareArgs)
+    # Source tests, engine checks and private package preparation must all pass before external probes.
+    Wait-OwnedCommands @($sourceTests, $enginePreservation, $prepare)
     if ($VerifyAccountControls) {
         $enginePath = Join-Path $release 'engine/codex.exe'
         $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
@@ -242,20 +267,6 @@ try {
         if ((Get-FileHash -LiteralPath $enginePath).Hash -cne $metrics.accountControls.engineSha256 -or (Get-FileHash -LiteralPath $bridgePath).Hash -cne $metrics.accountControls.bridgeSha256) { throw 'Account controls binaries changed during verification.' }
         $metrics.accountControls.status = 'passed'
     }
-    if (-not $TypeScriptPath) {
-        if ($preservationBuild.PSObject.Properties['moduleBuild'] -and $preservationBuild.moduleBuild.PSObject.Properties['typeScriptPath']) {
-            $TypeScriptPath = $preservationBuild.moduleBuild.typeScriptPath
-        }
-        if (-not $TypeScriptPath) { $TypeScriptPath = Join-Path $project "artifacts/build/$ReleaseName/companion/node_modules/typescript/lib/typescript.js" }
-    }
-    $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
-    $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
-    if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
-    if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }
-    if (-not $FullRegression) { $prepareArgs += '-ChangedOnlyTests' }
-    $prepare = Start-OwnedCommand 'prepare' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1')) + $prepareArgs)
-    # Package preparation has no dependency on the engine test receipt. Both must pass before acceptance.
-    Wait-OwnedCommands @($enginePreservation, $prepare)
     $enginePreservationResult = Get-Content -LiteralPath $enginePreservation.Record.stdout -Raw | ConvertFrom-Json
     $enginePreservationConfig.receiptPath = [string]$enginePreservationResult.receiptPath
     if (-not $enginePreservationConfig.receiptPath) { throw 'Engine preservation receiptPath missing.' }

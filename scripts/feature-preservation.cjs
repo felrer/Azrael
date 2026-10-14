@@ -49,7 +49,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       if (Object.hasOwn(check, 'cacheInputs')) {
         const inputs = check.cacheInputs;
         if (feature.area !== 'ui' || check.level !== 'source' || !inputs || typeof inputs !== 'object' || Array.isArray(inputs) ||
-            !same(Object.keys(inputs).sort(), ['files', 'schema']) || inputs.schema !== 1 || !Array.isArray(inputs.files) || !inputs.files.length ||
+            !same(Object.keys(inputs).sort(), ['files', 'schema']) || ![1, 2].includes(inputs.schema) || !Array.isArray(inputs.files) || !inputs.files.length ||
             new Set(inputs.files).size !== inputs.files.length || check.args.some(arg => arg.includes('{fixture}'))) throw Error(`Invalid source cache inputs: ${check.id}`);
         inputs.files.forEach(source => reference(projectRoot, source));
       }
@@ -154,14 +154,29 @@ function checkEnvironment(config) {
   return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
     AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') };
 }
-async function sourceCacheRuntime(config) {
+async function sourceCacheRuntime(config, bindProjectTypeScript = false) {
   const typescriptPath = path.resolve(checkEnvironment(config).AZRAEL_PRESERVATION_TYPESCRIPT_PATH);
   const typescriptRoot = path.dirname(path.dirname(typescriptPath));
   const pkg = readJson(path.join(typescriptRoot, 'package.json'));
   if (pkg.name !== 'typescript' || typeof pkg.version !== 'string') throw Error('Source cache requires the actual TypeScript runtime');
+  const typescript = { entry: typescriptPath, version: pkg.version, state: await getDirectoryState(typescriptRoot) };
+  let projectTypeScript;
+  if (bindProjectTypeScript) {
+    const entry = require.resolve('typescript', { paths: [path.resolve(config.projectRoot, 'extensions/azrael-ex')] });
+    const root = path.dirname(path.dirname(entry));
+    const packagePath = path.join(root, 'package.json');
+    const actualPackage = readJson(packagePath);
+    if (actualPackage.name !== 'typescript' || typeof actualPackage.version !== 'string' || !actualPackage.version ||
+        typeof actualPackage.main !== 'string' || path.resolve(root, actualPackage.main) !== path.resolve(entry)) {
+      throw Error('Source cache requires a certain actual project TypeScript runtime');
+    }
+    projectTypeScript = { entry, name: actualPackage.name, version: actualPackage.version, packagePath,
+      packageSha256: await fileHash(packagePath),
+      state: path.resolve(entry) === typescriptPath ? typescript.state : await getDirectoryState(root) };
+  }
   return { node: { executable: process.execPath, sha256: await fileHash(process.execPath), version: process.version,
-    platform: process.platform, arch: process.arch }, typescript: { entry: typescriptPath, version: pkg.version,
-    state: await getDirectoryState(typescriptRoot) },
+    platform: process.platform, arch: process.arch }, typescript,
+    ...(bindProjectTypeScript ? { projectTypeScript } : {}),
     ...(process.env.AZRAEL_PINNED_HOST_ROOT && path.resolve(process.env.AZRAEL_PINNED_HOST_ROOT) !== path.resolve(config.uiRoot)
       ? { pinnedHostOverride: await getDirectoryState(process.env.AZRAEL_PINNED_HOST_ROOT) } : {}),
     environmentSha256: hash(canonical(checkEnvironment(config))) };
@@ -176,7 +191,8 @@ async function sourceCacheKey(config, group, inputs, runtime) {
     contract: feature.contract, reportFields: feature.reportFields, check }));
   return hash(canonical({ schema: verificationCache.CACHE_SCHEMA, declared, executable: group.check.executable, args: group.args,
     projectRoot: path.resolve(config.projectRoot), files: await getDirectoryState(config.projectRoot, [...files].sort()),
-    ui: inputs.ui, runtime }));
+    ui: inputs.ui, runtime,
+    ...(group.entries.some(({ check }) => check.cacheInputs.schema === 2) ? { sourceInputs: sourceInputs(inputs) } : {}) }));
 }
 async function runPreservation(config) {
   const runStarted = performance.now();
@@ -189,13 +205,13 @@ async function runPreservation(config) {
   const runDirectory = await fs.promises.mkdtemp(path.join(config.outputDirectory, 'preservation-'));
   const receiptPath = path.join(runDirectory, 'receipt.json');
   const cacheHandles = [];
-  let activeCacheCheckIds, activeNativeCheckIds, nativeRuntime, cargoRuntime, cargoGroups = [], activeCargoCheckIds, manifest, rules, features;
+  let activeCacheCheckIds, activeNativeCheckIds, nativeRuntime, cargoRuntime, cargoGroups = [], activeCargoCheckIds, manifest, rules, features, sourceCacheBindsProjectTypeScript = false;
   const cacheSummary = kind => kind === 'native' ? receipt.nativeCache : kind === 'cargo' ? receipt.cargoCache : receipt.cache;
   const publishPassingCaches = async (verifyIdentity = true, failedRun = false) => {
     if (!cacheHandles.some(entry => !failedRun || entry.kind === 'cargo')) return;
     const started = performance.now();
     if (verifyIdentity && !same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
-    const finalRuntime = cacheHandles.some(entry => entry.kind === 'source') ? await sourceCacheRuntime(config) : null;
+    const finalRuntime = cacheHandles.some(entry => entry.kind === 'source') ? await sourceCacheRuntime(config, sourceCacheBindsProjectTypeScript) : null;
     const finalNativeRuntime = nativeRuntime ? await nativeCache.runtime(config, checkEnvironment(config)) : null;
     const finalCargoRuntime = cargoRuntime ? await cargoCache.runtime(config, checkEnvironment(config)) : null;
     for (const entry of cacheHandles) {
@@ -270,6 +286,7 @@ async function runPreservation(config) {
     const cacheRoot = path.join(config.projectRoot, 'artifacts', 'cache', 'verification-results');
     const eligibleGroups = [...shared.values()].filter(group => !group.native && config.reuseSourceChecks !== false &&
       group.entries.every(({ feature, check }) => feature.area === 'ui' && check.level === 'source' && check.cacheInputs));
+    sourceCacheBindsProjectTypeScript = eligibleGroups.some(group => group.entries.some(({ check }) => check.cacheInputs.schema === 2));
     const nativeGroups = [...shared.values()].filter(group => group.native &&
       group.entries.every(({ feature, check }) => feature.area === 'engine' && check.level === 'native' && check.nativeCacheInputs));
     cargoGroups = [...shared.values()].filter(group => cargoCache.isEligible(group));
@@ -304,7 +321,7 @@ async function runPreservation(config) {
     }
     if (eligibleGroups.length) {
       const started = performance.now();
-      try { cacheRuntime = await sourceCacheRuntime(config); }
+      try { cacheRuntime = await sourceCacheRuntime(config, sourceCacheBindsProjectTypeScript); }
       catch (error) { receipt.cache.disabledReason = error.message; }
       receipt.timings.cacheInputMs += performance.now() - started;
     }

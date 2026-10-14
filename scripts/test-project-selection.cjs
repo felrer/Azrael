@@ -162,7 +162,7 @@ test("new root node:test files are discovered as current and unclassified UI; li
     assert.equal(listed.status, 0, listed.stderr);
     assert.equal(JSON.parse(listed.stdout).commands.length, 0);
     assert.equal(fs.existsSync(logs), false);
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("child failures retain their actual exit status and bounded file logs", async () => {
@@ -172,7 +172,7 @@ test("child failures retain their actual exit status and bounded file logs", asy
     assert.equal(result.exitCode, 7);
     assert.equal(result.status, "failed");
     assert.match(fs.readFileSync(result.stderr, "utf8"), /intentional failure/);
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("changed-only selects transitive queue/recovery owners without whole-area expansion", () => {
@@ -234,12 +234,12 @@ test("namespace composition respects declared feature and cache inputs without i
     assert.deepEqual(unmapped.files, []);
     assert.equal(unmapped.coverageStatus, "requires-separate-checks");
     assert.deepEqual(select(parseArgs(["--changed-only", "--changed", "scripts/namespace-azrael-host.cjs"]), directory).files, ["scripts/test-other.cjs", "scripts/test-owner.cjs"]);
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("btw and native cache deltas select their actual owners without unrelated UI composition", () => {
   const btw = selection(["--changed-only", "--changed", "scripts/inject-btw.cjs"]);
-  assert.deepEqual(btw.files, ["scripts/test-asset-transform-cache.cjs", "scripts/test-btw.cjs", "scripts/test-composer-draft.cjs", "scripts/test-send-result-integration.cjs"]);
+  assert.deepEqual(btw.files, ["scripts/test-asset-transform-cache.cjs", "scripts/test-btw.cjs", "scripts/test-composer-draft.cjs", "scripts/test-namespace-cache-owner.cjs", "scripts/test-send-result-integration.cjs", "scripts/test-ui-test-transform-fixture.cjs"]);
   const native = selection(["--changed-only", "--changed", "scripts/native-verification-cache.cjs"]);
   assert.deepEqual(native.files, ["scripts/test-feature-preservation-cache.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-native-verification-cache.cjs", "scripts/test-pipeline-preservation.cjs", "scripts/test-preservation-integration.cjs", "scripts/test-student-design.cjs"]);
   // Student design explicitly imports the preservation gate; other UI tests do not.
@@ -270,7 +270,7 @@ test("changed-only walks cyclic CommonJS dependencies, resolves directories and 
     assert.ok(result.separateChecks.some(reason => reason.includes("scripts/deleted.cjs") && /New or deleted/.test(reason)));
     assert.ok(result.separateChecks.some(reason => reason.includes("scripts/new.cjs") && /No direct test owner/.test(reason)));
     assert.deepEqual(select(parseArgs(["--changed-only", "--changed", "scripts/test-owner.cjs"]), directory).files, ["scripts/test-owner.cjs"]);
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("changed-only known dynamic owners remain bounded", () => {
@@ -282,7 +282,7 @@ test("changed-only known dynamic owners remain bounded", () => {
       fs.writeFileSync(path.join(directory, `scripts/${name}.cjs`), "module.exports = {};");
       assert.deepEqual(select(parseArgs(["--changed-only", "--changed", `scripts/${name}.cjs`]), directory).files, [`scripts/test-${name}.cjs`]);
     }
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("changed-only TypeScript discovery follows transitive NodeNext imports and deleted sources", () => {
@@ -302,7 +302,7 @@ test("changed-only TypeScript discovery follows transitive NodeNext imports and 
     assert.deepEqual(result.extensionFiles, ["extensions/azrael-ex/test/owner.test.ts"]);
     assert.equal(result.commands.filter(command => command.name === "extension-changed").length, 1);
     assert.ok(result.separateChecks.some(reason => reason.includes("src/deleted.ts") && /New or deleted/.test(reason)));
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
 });
 
 test("changed-only build owners do not select deployment mocks by association", () => {
@@ -382,5 +382,19 @@ test("changed-only without explicit paths discovers current Git changes and list
     assert.equal(listed.status, 0, listed.stderr);
     assert.equal(JSON.parse(listed.stdout).commands.length, 0);
     assert.equal(fs.existsSync(logs), false);
-  } finally { fs.rmSync(directory, { recursive: true, force: true }); }
+  } finally { fs.rmSync(directory, { recursive: true }); assert.equal(fs.existsSync(directory), false); }
+});
+
+test("source concurrency changes scheduling while retaining the exact full scope", () => {
+  const baseline = selection(["--area", "current", "--area", "standalone"]);
+  const configured = selection(["--area", "current", "--area", "standalone", "--test-concurrency", "8"]);
+  assert.deepEqual(configured.files, baseline.files);
+  assert.deepEqual(configured.separateChecks, baseline.separateChecks);
+  const before = baseline.commands.find(command => command.name === "source");
+  const after = configured.commands.find(command => command.name === "source");
+  assert.equal(after.args[1], "--test-concurrency=8");
+  assert.deepEqual(after.args.slice(2), before.args.slice(2));
+  for (const value of ["0", "17", "1.5", "-1", "8garbage"]) {
+    assert.throws(() => parseArgs(["--test-concurrency", value]), /concurrency/);
+  }
 });
