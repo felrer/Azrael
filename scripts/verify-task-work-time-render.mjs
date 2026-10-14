@@ -8,22 +8,25 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
-const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/task-work-time','artifacts/verification','Renderer fixture');
-const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/task-work-time/ui','artifacts/logs','Renderer logs'),profile=join(fixture,'chrome-profile');
+const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/task-time-simple-20261014','artifacts/verification','Renderer fixture');
+const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/task-time-simple-20261014/validation','artifacts/logs','Renderer logs'),profile=join(fixture,'chrome-profile');
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
-const {HELPER,ROW_ASSET,injectTaskWorkTime}=require('./inject-task-work-time.cjs');
-const nativeControl=process.env.AZRAEL_TASK_TIME_NATIVE_CONTROL==='1';
+const {HELPER,MESSAGE_HELPER}=require('./inject-task-work-time.cjs');
+const ROW_ASSET='webview/assets/virtualized-turn-list-c0fd56eabf08.js';
+const fixtureHelper=HELPER.replace('import {azraelTaskTimeMessageContext} from "./local-conversation-turn-9fb266d5c020.js";','');
 const moduleSource=`
 import {nLt as O,$At as r,Clt as Scope,Hbt as Intl,fixtureInitScope,Abt as initIntl,Qct as initAtom} from './app-initial-97d3534ad35f.js';
 import {ZIt as Vt,$It as initButton} from './app-initial-7a199c66e670.js';
-import {fixtureInitPreferences} from './app-initial-c014f9ee4429.js';
+import {fixtureInitPreferences,W9t as fixtureScope,P3t as fixtureInitPreferenceAtoms} from './app-initial-c014f9ee4429.js';
 import {t as eu,n as initVirtualList} from './virtualized-turn-list-c0fd56eabf08.js';
 import {t as ScrollContext,n as initScrollContext} from './thread-scroll-controller-context-value-33f016052c42.js';
-${HELPER}
+${fixtureHelper}
+const T=O,n=r;
+${MESSAGE_HELPER.replace("export {azraelTaskTimeMessageContext,azraelTaskTimeMessageSummary};","")}
 window.fixtureNow=20000;Date.now=()=>fixtureNow;window.fixtureQueries=[];window.fixtureFailure=false;window.fixtureHost='local';window.fixtureChat='chat';window.fixtureLocale='ko';
 window.fixtureMakeChain=(prefix,count,duration=5000)=>Array.from({length:count},(_,i)=>({turnId:prefix+i,rootTurnId:prefix+'0',parentTurnId:i?prefix+(i-1):null,turnTrigger:i?'root_resume':'user',turnStartedAtMs:i*200000,durationMs:duration,status:'completed',rootResumeWait:i<3?{reservationId:prefix+'wait'+i,revision:1,state:'resumed',waitStartedAtMs:i*200000+duration,waitEndedAtMs:i*200000+duration}:null}));
-window.fixtureTurns=fixtureMakeChain('a',${nativeControl?176:6});window.fixtureVisible=null;window.fixtureHistory=null;
+window.fixtureTurns=fixtureMakeChain('a',6);window.fixtureVisible=null;window.fixtureHistory=null;
 const manager={listThreadTurns:async(id,options)=>{fixtureQueries.push({id,options});if(fixtureFailure)throw Error('fixture failure');return {response:{data:(fixtureHistory??fixtureTurns).map(t=>({...t,id:t.turnId,startedAt:t.turnStartedAtMs/1000})),nextCursor:null}}}};
 const React=O(),jsx=r();
 window.fixtureVirtual=false;
@@ -35,17 +38,17 @@ const listen=(set,fn)=>(set.add(fn),()=>set.delete(fn));
 const publishScroll=()=>{lastDistance=distance();for(const fn of scrollListeners)fn(lastDistance)};
 window.fixtureScrollTo=async bottom=>{for(let frame=0;frame<6;frame++){const el=scrollElement();el.scrollTop=bottom?el.scrollHeight:0;lastDistance=distance();for(const fn of userListeners)fn(lastDistance);for(const fn of scrollListeners)fn(lastDistance);await new Promise(resolve=>setTimeout(resolve,16))}};
 const controller={getScrollElement:scrollElement,getLastScrollDistanceFromBottomPx:()=>lastDistance,getUnroundedScrollDistanceFromBottomPx:x=>x,shouldFollowContentGrowth:()=>false,addScrollListener:fn=>{const dispose=listen(scrollListeners,fn);fn(lastDistance);return dispose},addUserScrollListener:fn=>listen(userListeners,fn),compensateScrollToDistanceFromBottomPx:x=>{const el=scrollElement();el.scrollTop=el.scrollHeight-el.clientHeight-x;publishScroll()},scrollToDistanceFromBottomPx:x=>controller.compensateScrollToDistanceFromBottomPx(x)};
-function MessageRow({entry}){if(${nativeControl}&&entry.turnId==='a0')return jsx.jsxs(jsx.Fragment,{children:[jsx.jsx('details',{'data-native-control':true,children:jsx.jsxs(jsx.Fragment,{children:[jsx.jsx('summary',{children:'Native control disclosure'}),jsx.jsx('ol',{children:Array.from({length:176},(_,i)=>jsx.jsx('li',{style:{height:32},children:'Turn '+i},i))})]})}),jsx.jsx('article',{'data-fixture-message':entry.turnKey,style:{height:120,padding:16},children:entry.text})]});return jsx.jsx('article',{'data-fixture-message':entry.turnKey,style:{height:120,padding:16},children:entry.text})}
-function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);const entries=(fixtureVisible??fixtureTurns).map(t=>({turnKey:'message-'+t.turnId,turnId:t.turnId,estimatedHeightPx:120,text:'메시지 '+t.turnId}));return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:jsx.jsx(ScrollContext.Provider,{value:controller,children:jsx.jsx('div',{id:'virtual-scroll',onScroll:publishScroll,style:{height:650,overflow:'auto',overflowAnchor:'none'},children:jsx.jsx('div',{style:{display:'flex',flexDirection:'column'},children:jsx.jsx(${nativeControl?'eu':'azraelTaskTimeVirtualList'},{entries,RowComponent:MessageRow,preserveMeasuredTurnViewport:true,azraelTaskTime:{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns}})})})})})}
+function MessageRow({entry}){return jsx.jsxs('article',{'data-fixture-message':entry.turnKey,style:{minHeight:120,padding:16},children:[jsx.jsx('div',{'data-fixture-user':entry.turnId,children:entry.text}),jsx.jsx(azraelTaskTimeMessageSummary,{}),jsx.jsx('div',{'data-fixture-assistant':entry.turnId,children:'Assistant / tool '+entry.turnId})]})}
+function Rows(){const[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);const entries=(fixtureVisible??fixtureTurns).map(t=>({turnKey:'message-'+t.turnId,turnId:t.turnId,estimatedHeightPx:120,text:'메시지 '+t.turnId}));return jsx.jsx(Intl,{value:{locale:fixtureLocale,formatMessage:({defaultMessage})=>defaultMessage},children:jsx.jsx(ScrollContext.Provider,{value:controller,children:jsx.jsx('div',{id:'virtual-scroll',onScroll:publishScroll,style:{height:650,overflow:'auto',overflowAnchor:'none'},children:jsx.jsx('div',{style:{display:'flex',flexDirection:'column'},children:jsx.jsx(azraelTaskTimeVirtualList,{entries,RowComponent:MessageRow,preserveMeasuredTurnViewport:true,azraelTaskTime:{manager,hostId:fixtureHost,conversationId:fixtureChat,liveTurns:fixtureTurns}})})})})})}
 let initialized=false;
-function Fixture(){initVirtualList();initScrollContext();initButton();initIntl();initAtom();fixtureInitScope();azraelTimeInitPreferences();if(!initialized){initialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem('prefs')||'{}'),(key,value)=>{const prefs=JSON.parse(localStorage.getItem('prefs')||'{}');prefs[key]=value;localStorage.setItem('prefs',JSON.stringify(prefs))})}return jsx.jsx(Scope,{scope:azraelTimeScope,children:jsx.jsx(Rows,{})})}
+function Fixture(){initVirtualList();initScrollContext();initButton();initIntl();initAtom();fixtureInitScope();fixtureInitPreferenceAtoms();if(!initialized){initialized=true;fixtureInitPreferences(JSON.parse(localStorage.getItem('prefs')||'{}'),(key,value)=>{const prefs=JSON.parse(localStorage.getItem('prefs')||'{}');prefs[key]=value;localStorage.setItem('prefs',JSON.stringify(prefs))})}return jsx.jsx(Scope,{scope:fixtureScope,children:jsx.jsx(Rows,{})})}
 export {Fixture};`;
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto max-w-3xl p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];window.fixtureROCalls=[];window.fixturePhase='startup';const NativeResizeObserver=ResizeObserver;window.ResizeObserver=class extends NativeResizeObserver{constructor(callback){const creation=Error('Observer creation').stack;super((entries,observer)=>{fixtureROCalls.push({phase:fixturePhase,creation,targets:entries.map(e=>({tag:e.target.tagName,key:e.target.getAttribute('data-turn-key'),height:e.contentRect.height}))});if(fixtureROCalls.length>30)fixtureROCalls.shift();callback(entries,observer)})}};addEventListener('error',e=>fixtureErrors.push({message:e.message,phase:fixturePhase,callbacks:fixtureROCalls.slice(-3)}));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/task-fixture.js';window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($At().jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
-const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,'task-fixture.js')?moduleSource:await readFile(pathname);if(!nativeControl&&pathname===join(root,'artifacts/upstream-ui/26.1007.21434',ROW_ASSET))source=injectTaskWorkTime(source.toString(),ROW_ASSET).text;if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';if(pathname===join(assets,'app-initial-c014f9ee4429.js'))source=source.toString()+'\nexport {a3e as fixtureInitPreferences};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
+const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,'task-fixture.js')?moduleSource:await readFile(pathname);if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';if(pathname===join(assets,'app-initial-c014f9ee4429.js'))source=source.toString()+'\nexport {a3e as fixtureInitPreferences};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));let socket,session,id=0,chrome;
 const pinnedRows=await readFile(join(root,'artifacts/upstream-ui/26.1007.21434',ROW_ASSET),'utf8'),hash=value=>createHash('sha256').update(value).digest('hex');
-const summary={scope:'Verbatim production panel with native React/preferences/buttons/CSS/virtual list and synthetic metadata host and scroll controller, Windows Chrome.',nativeControl,startedAtUtc:new Date().toISOString(),inputs:{helperSha256:hash(HELPER),pinnedRowsSha256:hash(pinnedRows),renderedRowsSha256:hash(nativeControl?pinnedRows:injectTaskWorkTime(pinnedRows,ROW_ASSET).text)},checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Verbatim production wrapper/message helper with native React/CSS/pristine virtual list and synthetic metadata host and scroll controller, Windows Chrome.',startedAtUtc:new Date().toISOString(),inputs:{helperSha256:hash(HELPER),pinnedRowsSha256:hash(pinnedRows),renderedRowsSha256:hash(pinnedRows),messageHelperSha256:hash(MESSAGE_HELPER)},checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -57,75 +60,40 @@ try{
  const check=(name,value)=>{assert.ok(value,name);summary.checks.push(name)};
  session=(await send('Target.attachToTarget',{targetId:(await send('Target.createTarget',{url:'about:blank'},null)).targetId,flatten:true},null)).sessionId;
  await send('Page.enable');await send('Runtime.enable');await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`});
- if(nativeControl){
- await wait("window.fixtureReady&&document.querySelector('[data-native-control]')");
- for(const theme of ['light','dark']){
- await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme));
- await evaluate("document.querySelector('[data-native-control]').open=true");await wait("document.querySelector('[data-turn-key=message-a0]').parentElement.getBoundingClientRect().height>5000");
- await evaluate("document.querySelector('[data-native-control]').open=false");await wait("document.querySelector('[data-turn-key=message-a0]').parentElement.getBoundingClientRect().height<200");
- for(let n=0;n<8;n++){await evaluate('fixtureScrollTo(true)');await wait("document.querySelector('[data-fixture-message=message-a175]')");await evaluate('fixtureScrollTo(false)');await wait("document.querySelector('[data-native-control]')")}
- check(theme+' native undecorated expansion and fast scrolling',true);
- }
- }else{
- await wait("window.fixtureReady && document.querySelector('summary')?.innerText.includes('30초') && !document.querySelector('[role=status]')");
- const click=selector=>evaluate('document.querySelector('+JSON.stringify(selector)+').click()');
- const text=()=>evaluate('document.body.innerText');
- const key=async()=>{await send('Input.dispatchKeyEvent',{type:'keyDown',key:' ',code:'Space',windowsVirtualKeyCode:32});await send('Input.dispatchKeyEvent',{type:'keyUp',key:' ',code:'Space',windowsVirtualKeyCode:32})};
+ await wait("window.fixtureReady && document.querySelector('[data-azrael-task-work-time]')?.innerText.includes('30초')");
+ const selector='[data-azrael-task-work-time]';
  const colors=[];
  for(const theme of ['light','dark']){
- await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
- check(theme+' no card outline',await evaluate("(()=>{const s=getComputedStyle(document.querySelector('section'));return s.borderLeftWidth==='0px'&&s.borderRightWidth==='0px'&&s.borderRadius==='0px'})()"));
- check(theme+' native double rule',await evaluate("(()=>{const s=getComputedStyle(document.querySelector('[data-azrael-task-rule=start]'));return s.borderTopWidth==='1px'&&s.borderBottomWidth==='1px'&&parseFloat(s.height)===4})()"));
- check(theme+' excludes user idle',(await text()).includes('총 30초'));
- colors.push(await evaluate("(()=>{const s=getComputedStyle(document.querySelector('section'));const line=getComputedStyle(document.querySelector('[data-azrael-task-rule=start]'));return {color:s.color,border:line.borderTopColor}})()"));
- await evaluate("document.querySelector('details').open=false;document.querySelector('summary').focus()");await key();await wait("document.querySelector('details').open");
- await evaluate("document.querySelector('[data-azrael-time-boundary=a3]').focus()");await key();await wait("document.querySelectorAll('details').length===2");check(theme+' keyboard split retains fragments',true);
- await evaluate("document.querySelectorAll('details').forEach(d=>d.open=true)");
- check(theme+' fragment totals',(await text()).includes('총 15초'));
- check(theme+' separate measured group starts',await evaluate("document.querySelectorAll('[data-azrael-task-rule=start]').length===2"));
- await writeFile(join(logs,theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
- await click('[data-azrael-time-boundary=a3]');await wait("document.querySelectorAll('details').length===1");check(theme+' explicit merge total',(await text()).includes('총 30초'));
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));
+  check(theme+' first user / summary / assistant order',await evaluate(`(()=>{const line=document.querySelector('${selector}'),row=line.closest('article'),user=row.querySelector('[data-fixture-user]'),assistant=row.querySelector('[data-fixture-assistant]');return line.previousElementSibling===user&&line.nextElementSibling===assistant&&line.getBoundingClientRect().top>=user.getBoundingClientRect().bottom})()`));
+  check(theme+' exactly one plain summary line',await evaluate(`document.querySelectorAll('${selector}').length===1&&!document.querySelector('details,summary,table,button,[data-azrael-task-rule],[data-azrael-time-turn],[data-azrael-time-boundary]')`));
+  colors.push(await evaluate(`getComputedStyle(document.querySelector('${selector}')).color`));
+  await writeFile(join(logs,theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
  }
- check('native semantic theme colors',colors[0].color!==colors[1].color&&colors[0].border!==colors[1].border);summary.colors=colors;
- await send('Page.reload');await wait("window.fixtureReady && document.querySelector('summary')?.innerText.includes('30초')");check('reload explicit false merge retained',await evaluate("Object.values(JSON.parse(localStorage.getItem('prefs'))['azrael-task-work-time-boundaries']).includes(false)"));
- for(const n of [0,1,2]){
- await evaluate("fixtureChat='small-"+n+"';fixtureFailure=true;fixtureTurns=fixtureMakeChain('small',"+n+");fixtureRerender()");await new Promise(r=>setTimeout(r,150));
- check(n+' registrations have no group/rules/feature error',await evaluate("!document.querySelector('[data-azrael-task-work-time]')&&!document.querySelector('[data-azrael-task-rule]')&&!document.querySelector('[role=alert]')"));
+ check('native semantic theme text colors',colors[0]!==colors[1]);summary.colors=colors;
+ for(const n of [0,1,2,3]){
+  await evaluate("fixtureChat='threshold-"+n+"';fixtureTurns=fixtureMakeChain('threshold',"+n+");fixtureRerender()");
+  await new Promise(r=>setTimeout(r,180));
+  check(n+' committed reservations eligibility',await evaluate(`document.querySelectorAll('${selector}').length===${n>=3?1:0}`));
  }
- await evaluate("fixtureFailure=false;fixtureChat='three';fixtureTurns=fixtureMakeChain('three',3);fixtureRerender()");await wait("document.querySelector('summary')?.innerText.includes('15초')&&!document.querySelector('[role=status]')");check('third committed registration enables group',true);
- await evaluate("fixtureFailure=true;fixtureTurns=fixtureTurns.map(t=>({...t,status:'failed'}));fixtureRerender()");await wait("!!document.querySelector('[role=alert]')");check('eligible failure retains partial total',(await text()).includes('일부'));
- await evaluate('fixtureFailure=false');await click('[data-azrael-time-retry]');await wait("!document.querySelector('[role=alert]')");
- await evaluate("fixtureLocale='en';fixtureRerender()");await wait("document.querySelector('summary')?.innerText.includes('Task 1')");check('English localization',true);
- await evaluate("fixtureChat='multiple';fixtureTurns=[...fixtureMakeChain('x',3),...fixtureMakeChain('y',3)];fixtureRerender()");await wait("document.querySelectorAll('details').length===2");check('independent eligible groups',true);
- await evaluate("fixtureHistory=fixtureTurns;fixtureVisible=fixtureTurns.slice(1);fixtureRerender()");await wait("!document.querySelector('[data-azrael-rule-group=x0][data-azrael-task-rule=start]')");
- check('partial history never substitutes unrelated first row',await evaluate("document.querySelector('[data-azrael-rule-group=y0][data-azrael-task-rule=start]')!==null"));
- await evaluate("fixtureVisible=null;fixtureHistory=null;fixtureRerender()");await wait("document.querySelectorAll('[data-azrael-task-rule=start]').length===2");
-
- await evaluate("fixtureChat='live';fixtureNow=406000;fixtureTurns=fixtureMakeChain('live',3);fixtureTurns[2]={...fixtureTurns[2],status:'deferred',rootResumeWait:{...fixtureTurns[2].rootResumeWait,state:'waiting',revision:2,waitEndedAtMs:null}};fixtureRerender()");await wait("document.querySelector('summary')?.innerText.includes('16s')&&!document.querySelector('[role=status]')");
- const clockQueries=await evaluate('fixtureQueries.length');await evaluate('fixtureNow=409000');await new Promise(r=>setTimeout(r,1100));check('recorded automatic wait ticks',(await text()).includes('19s'));check('clock does not query metadata',await evaluate('fixtureQueries.length')===clockQueries);
- await evaluate("fixtureHistory=fixtureTurns.map(t=>({...t,status:'completed',rootResumeWait:t.rootResumeWait?{...t.rootResumeWait,state:'resumed',revision:3,waitEndedAtMs:t.turnId==='live2'?409000:t.rootResumeWait.waitEndedAtMs}:null}));fixtureTurns=fixtureHistory;fixtureRerender()");await wait("!document.querySelector('[role=status]')");const frozen=await text();await evaluate("fixtureTurns=fixtureTurns.map(t=>({...t,status:'inProgress',rootResumeWait:t.rootResumeWait?{...t.rootResumeWait,state:'waiting',revision:1,waitEndedAtMs:null}:null}));fixtureNow=600000;fixtureRerender()");await wait("!document.querySelector('[role=status]')");await new Promise(r=>setTimeout(r,1100));check('stale live updates preserve terminal total',(await text())===frozen);
- await evaluate("fixtureHistory=null;fixtureRerender()");
- for(const theme of ['light','dark']){
- await evaluate("document.documentElement.dataset.theme="+JSON.stringify(theme)+";fixtureChat='scroll';fixtureLocale='ko';fixtureTurns=fixtureMakeChain('turn-',176,60000);fixtureRerender()");
- await evaluate("fixtureScrollTo(false)");
- await wait("document.querySelector('#virtual-scroll summary')?.innerText.includes('176개 턴')&&!document.querySelector('[role=status]')");
- check(theme+' summary measured native row',await evaluate("!!document.querySelector('[data-turn-key^=azrael-task-work-time] section')"));
- await evaluate("document.querySelector('details').open=true");await wait("document.querySelector('[data-turn-key^=azrael-task-work-time]').parentElement.getBoundingClientRect().height>5000");
- await evaluate("document.querySelector('details').open=false");await wait("document.querySelector('[data-turn-key^=azrael-task-work-time]').parentElement.getBoundingClientRect().height<200");
- await evaluate("new Promise(resolve=>{let n=0;const step=()=>{document.querySelector('details').open=(n++%2)===0;if(n<12)requestAnimationFrame(step);else requestAnimationFrame(resolve)};step()})");await wait("document.querySelector('[data-turn-key^=azrael-task-work-time]').parentElement.getBoundingClientRect().height<200");check(theme+' rapid disclosure resizes remain measured',true);
- const scrollQueries=await evaluate('fixtureQueries.length');
- for(let n=0;n<8;n++){
- await evaluate("fixtureScrollTo(true)");await wait("!!document.querySelector('[data-fixture-message=message-turn-175]')");
- await wait("(()=>{const line=document.querySelector('[data-azrael-task-rule=end]')?.getBoundingClientRect(),view=document.getElementById('virtual-scroll').getBoundingClientRect();return line&&line.top>=view.top&&line.bottom<=view.bottom})()");
- check(theme+' group end after actual last row '+n,await evaluate("document.querySelector('[data-azrael-task-rule=end]').getBoundingClientRect().top>=document.querySelector('[data-fixture-message=message-turn-175]').getBoundingClientRect().bottom"));
- check(theme+' start unmounted at latest rows '+n,await evaluate("!document.querySelector('[data-azrael-task-work-time]')"));
- await evaluate("fixtureScrollTo(false)");await wait("!!document.querySelector('[data-fixture-message=message-turn-0]')&&!!document.querySelector('[data-azrael-task-work-time]')");
- }
- await evaluate("document.querySelector('details').open=true");await wait("document.querySelector('details').open");await evaluate("fixtureScrollTo(true)");await wait("!document.querySelector('details')");await evaluate("fixtureScrollTo(false)");await wait("document.querySelector('details')?.open");check(theme+' disclosure survives virtual unmount',true);await evaluate("document.querySelector('details').open=false");
- check(theme+' scroll never reloads metadata',await evaluate('fixtureQueries.length')===scrollQueries);
- check(theme+' first message follows summary',await evaluate("document.querySelector('[data-fixture-message=message-turn-0]').getBoundingClientRect().top>=document.querySelector('section').getBoundingClientRect().bottom"));
- await writeFile(join(logs,'scroll-'+theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
- }
+ await evaluate("fixtureChat='multiple';fixtureTurns=[...fixtureMakeChain('x',3),...fixtureMakeChain('y',3)];fixtureRerender()");await wait(`document.querySelectorAll('${selector}').length===2`);check('independent eligible groups',true);
+ await evaluate('fixtureHistory=fixtureTurns;fixtureVisible=fixtureTurns.slice(1);fixtureRerender()');await wait(`document.querySelectorAll('${selector}').length===1`);check('partial loaded entries never substitute first user',await evaluate(`document.querySelector('${selector}').closest('article').dataset.fixtureMessage==='message-y0'`));
+ await evaluate("fixtureVisible=null;fixtureHistory=null;fixtureChat='live';fixtureLocale='en';fixtureNow=406000;fixtureTurns=fixtureMakeChain('live',3);fixtureTurns[2]={...fixtureTurns[2],status:'deferred',rootResumeWait:{...fixtureTurns[2].rootResumeWait,state:'waiting',revision:2,waitEndedAtMs:null}};fixtureRerender()");await wait(`document.querySelector('${selector}')?.innerText.includes('16s')`);
+ const clockQueries=await evaluate('fixtureQueries.length');await evaluate('fixtureNow=409000');await new Promise(r=>setTimeout(r,1100));check('live automatic waiting time ticks',await evaluate(`document.querySelector('${selector}').innerText.includes('19s')`));check('clock ticks never query metadata',await evaluate('fixtureQueries.length')===clockQueries);
+ await evaluate("fixtureTurns=fixtureTurns.map(t=>({...t,status:'completed',rootResumeWait:{...t.rootResumeWait,state:'resumed',revision:3,waitEndedAtMs:t.turnId==='live2'?409000:t.rootResumeWait.waitEndedAtMs}}));fixtureRerender()");await wait(`document.querySelector('${selector}')?.innerText.includes('19s')`);const frozen=await evaluate(`document.querySelector('${selector}').innerText`);
+ await evaluate('fixtureNow=600000');await new Promise(r=>setTimeout(r,1100));check('completed live chain freezes total',await evaluate(`document.querySelector('${selector}').innerText`)===frozen);
+ await evaluate("fixtureChat='failed-history';fixtureFailure=true;fixtureTurns=fixtureMakeChain('failed',3);fixtureRerender()");await wait(`document.querySelector('${selector}')?.title.includes('unavailable')`);check('history failure retains a plain partial line',await evaluate(`document.querySelector('${selector}').innerText.includes('Known 15s')&&!document.querySelector('button,details,table,[role=alert],[role=status]')`));await evaluate('fixtureFailure=false');
+ for(const count of [29,176,1000])for(const theme of ['light','dark']){
+  await evaluate("document.documentElement.dataset.theme="+JSON.stringify(theme)+";fixtureChat='scroll-"+count+"';fixtureLocale='ko';fixtureTurns=fixtureMakeChain('turn-',"+count+",60000);fixtureRerender()");await evaluate('fixtureScrollTo(false)');await wait(`document.querySelector('${selector}')?.innerText.includes('${count}개 턴')`);
+  const queries=await evaluate('fixtureQueries.length');
+  for(let i=0;i<8;i++){
+   await evaluate('fixtureScrollTo(true)');await wait(`document.querySelector('[data-fixture-message=message-turn-${count-1}]')`);check(theme+' '+count+' summary unmount '+i,await evaluate(`!document.querySelector('${selector}')`));
+   await evaluate('fixtureScrollTo(false)');await wait(`document.querySelector('${selector}')`);
+  }
+  check(theme+' '+count+' remount retains one first-user summary',await evaluate(`document.querySelectorAll('${selector}').length===1&&document.querySelector('${selector}').previousElementSibling.dataset.fixtureUser==='turn-0'`));
+  check(theme+' '+count+' scrolling never reloads metadata',await evaluate('fixtureQueries.length')===queries);
+  check(theme+' '+count+' finite nonoverlapping native rows',await evaluate(`(()=>{const rows=[...document.querySelectorAll('[data-turn-key]')].map(e=>e.getBoundingClientRect()).filter(b=>b.height>0).sort((a,b)=>a.top-b.top);return rows.every((b,i)=>Number.isFinite(b.height)&&(!i||b.top>=rows[i-1].bottom-1))})()`));
+  await writeFile(join(logs,'scroll-'+count+'-'+theme+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
  }
  summary.browserErrors=await evaluate('fixtureErrors');check('no browser exceptions '+JSON.stringify(summary.browserErrors),exceptions.length===0&&summary.browserErrors.length===0);
  summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
