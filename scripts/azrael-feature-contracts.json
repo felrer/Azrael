@@ -1078,7 +1078,8 @@
             "schema": 1,
             "files": [
               "scripts/test-feature-preservation.cjs",
-              "scripts/inject-recent-chat-filter.cjs"
+              "scripts/inject-recent-chat-filter.cjs",
+              "scripts/test-recent-chat-filter.cjs"
             ]
           }
         }

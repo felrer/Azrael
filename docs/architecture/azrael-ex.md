@@ -130,6 +130,8 @@ The Azrael sidebar's recent-chat list supplies the native server-side `cwd` filt
 
 The pinned Webview marks only its `recent_threads` request. The extension host, which owns access to workspace folders, removes the marker and supplies `cwd` and `modelProviders` at the common app-server request boundary. Archive checks, collaboration hydration and other unmarked `thread/list` requests are unchanged. Preparation fails closed if the pinned recent-list call shape or the host request boundary changes.
 
+The shared recent-chat discovery policy requests 100 rows on the ordinary refresh path and retains up to 100 hydrated recent rows after expanded discovery. The default discovery limit is 100 for extension/local and cloud hosts; the existing desktop expanded limit of 500, catalog-only/disabled paths, cursor pagination and active/pinned-session retention remain in effect. This source policy is preserved by `ui.recent-chat-filter`; Windows native JavaScript behavior checks do not establish installed-host or native Linux/macOS acceptance.
+
 ## New conversation history and immediate stop
 
 New-chat drafts and session creation at first submission follow [the composer contract](ui-presentation.md#session-creation-at-submission). Project-scoped draft persistence is independent of native thread creation and remains preserved by `ui.project-drafts`; `ui.submit-only-thread` owns the shared creation boundary.

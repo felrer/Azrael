@@ -5,6 +5,7 @@ const path = require('node:path');
 const vm = require('node:vm');
 
 function recentChatCheck() {
+  require('node:child_process').execFileSync(process.execPath, ['--test', path.join(__dirname, 'test-recent-chat-filter.cjs')], { stdio: 'pipe' });
   const injector = require('./inject-recent-chat-filter.cjs');
   const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.1007.21434');
   const source = fs.readFileSync(path.join(root, injector.ASSET), 'utf8');
