@@ -144,7 +144,7 @@ test("compaction skip warnings show localized native feedback even with diagnost
     fn(scope, skipped);
     assert.equal(notices.length, 2, "each skipped request is acknowledged");
     assert.equal(notices[0].title, locale === "ko-KR" ? "압축을 실행하지 않았습니다" : "Context compaction was skipped");
-    assert.ok(notices[0].description.includes("100,000"));
+    assert.ok(notices[0].description.includes("80,000"));
     for (const notification of [
       { ...skipped, method: "thread/queue/changed" },
       { ...skipped, params: { threadId: "thread", message: "unrelated warning" } },

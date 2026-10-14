@@ -67,14 +67,14 @@ pub(super) async fn handle(
             tracing::info!(
                 last_total_tokens = usage.last_token_usage.total_tokens,
                 model_context_window = usage.model_context_window,
-                "queued compaction skipped below 100,000 context tokens"
+                "queued compaction skipped below 80,000 context tokens"
             );
         }
         session
             .send_event_raw(Event {
                 id: submission_id,
                 msg: EventMsg::Warning(WarningEvent {
-                    message: "Context compaction skipped: context usage is below 100,000 tokens."
+                    message: "Context compaction skipped: context usage is below 80,000 tokens."
                         .to_string(),
                 }),
             })
@@ -97,7 +97,7 @@ fn below_compaction_threshold(usage: Option<&TokenUsageInfo>) -> bool {
         return false;
     };
     let total = usage.last_token_usage.total_tokens;
-    (0..100_000).contains(&total)
+    (0..80_000).contains(&total)
 }
 
 #[cfg(test)]

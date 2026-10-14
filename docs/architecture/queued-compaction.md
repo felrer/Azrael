@@ -35,12 +35,17 @@ ordinary message meaning.
 
 ## Queue execution
 
+Preservation feature: `ui.queued-compaction`; Core admission lives in
+`engine/codex-rs/core/src/session/compact_input.rs`, with boundary and admission
+tests in `compact_input_tests.rs` and host warning coverage in
+`scripts/test-queued-compaction.cjs`.
+
 Automatic compaction uses the [provider context policy](context-policy.md); the queue's manual skip threshold remains independent of the automatic setting.
 
 When a compaction reaches its execution point, Core atomically reserves an idle
 turn, respecting pending trigger work, recovery reservations and execution admission.
 It then checks the latest context usage: `last_token_usage.total_tokens`. A value
-strictly below 100,000 tokens skips compaction; exactly 100,000 runs. The threshold
+strictly below 80,000 tokens skips compaction; exactly 80,000 runs. The threshold
 is independent of model capacity and the automatic compaction setting. Missing or
 negative usage cannot establish the threshold and does not cause a skip. This avoids redundant compression when
 an earlier queued or automatic operation already reduced the context.
@@ -49,7 +54,7 @@ The queue removes an item only after Core accepts it or reports a threshold skip
 A skip creates no synthetic model turn and processing continues to the next item.
 Each threshold skip emits a thread-scoped warning. The host displays a native
 warning toast explaining that compaction was not executed because context usage
-is below 100,000 tokens. This applies both to requests
+is below 80,000 tokens. This applies both to requests
 processed after an active turn and to idle or explicit queue starts. Enqueue
 acknowledgement remains distinct from execution; busy admission keeps the request
 queued without showing a skip notice. This feedback is implemented in source;
