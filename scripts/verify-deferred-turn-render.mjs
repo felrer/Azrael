@@ -105,7 +105,7 @@ try{
   const active=await oldText();await advance(3000);check(theme+' active work clock ticks',(await oldText())!==active);
   await evaluate('fixtureNow=20000;fixtureDefer()');await wait("document.querySelector('[data-fixture-old]')?.innerText.includes('Worked for 8s')");
   check(theme+' native notification targets actual thread and turn',await evaluate("fixtureReceipt.updates.length===1&&fixtureReceipt.updates[0].threadId==='thread-live'&&fixtureReceipt.updates[0].turnId==='old'&&fixtureReceipt.broadcasts[0]==='thread-live'&&fixtureReceipt.errors.length===0"));
-  await advance(4000);check(theme+' waiting ticks independently',(await oldText()).includes('현재 4초 대기함'));
+  await advance(4000);check(theme+' waiting ticks independently',(await oldText()).includes('재개까지 4/60초'));
   check(theme+' old work freezes',(await oldText()).includes('Worked for 8s'));
   for(const resume of [false,true]){await evaluate('fixtureStale('+resume+')');await advance(3000);check(theme+' stale snapshot '+resume+' keeps deferred clock',await evaluate("fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===8000")&&(await oldText()).includes('Worked for 8s'))}
   await screenshot(theme+'-waiting');
@@ -151,7 +151,7 @@ try{
   await wait("document.querySelector('[data-fixture-old]').innerText.includes('Working')");const initial=await oldText();await advance(3000);check(label+' missed defer begins with ticking native work',(await oldText())!==initial);
   await evaluate('fixtureNow=20000;fixtureWait()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('작업 시간 확인 불가')");
   check(label+' waiting callback finds real historical turn and queries once',await evaluate("fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===null&&fixtureReceipt.queries.length===1&&fixtureReceipt.queries[0].id==='thread-live'"));
-  await advance(4000);check(label+' unknown work stops while wait clock advances',(await oldText()).includes('작업 시간 확인 불가')&&(await oldText()).includes('현재 4초 대기함')&&!(await oldText()).includes('Working'));
+  await advance(4000);check(label+' unknown work stops while wait clock advances',(await oldText()).includes('작업 시간 확인 불가')&&(await oldText()).includes('재개까지 4/60초')&&!(await oldText()).includes('Working'));
   await screenshot(theme+'-'+layout+'-missed-defer-unknown');
   await evaluate('fixtureResolveQuery()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('Worked for 8s')");await advance(3000);check(label+' later authoritative response fixes old duration',(await oldText()).includes('Worked for 8s')&&await evaluate('fixtureState.old.turnStartedAtMs===12000&&allTurns().length===1'));
   await evaluate('fixtureResume()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('7초 대기 후 재개됨')");const frozen=await oldText(),activeNew=await evaluate("document.querySelector('[data-fixture-new]').innerText");await advance(5000);
@@ -163,7 +163,7 @@ try{
   check(label+" missing history callback does not synthesize a tail",await evaluate('allTurns().length===0&&fixtureReceipt.updates.length===0'));
   await evaluate('fixtureResolveQuery()');await wait("fixtureReceipt.recovery.some(e=>e[1].safe.outcome==='query_resolved')");
   check(label+' authoritative query retains missing old metadata without fake tail',await evaluate('allTurns().length===0&&fixtureReceipt.updates.length===0'));
-  await evaluate('fixtureLoadOld()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('Worked for 8s')");check(label+' ordinary history load broadcast applies same old ID',await evaluate("allTurns().length===1&&fixtureState.old.turnId==='old'&&fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===8000"));await advance(4000);check(label+' recovered missing history renders fixed work and ticking wait',(await oldText()).includes('Worked for 8s')&&(await oldText()).includes('현재 4초 대기함'));
+  await evaluate('fixtureLoadOld()');await wait("document.querySelector('[data-fixture-old]').innerText.includes('Worked for 8s')");check(label+' ordinary history load broadcast applies same old ID',await evaluate("allTurns().length===1&&fixtureState.old.turnId==='old'&&fixtureState.old.status==='deferred'&&fixtureState.old.durationMs===8000"));await advance(4000);check(label+' recovered missing history renders fixed work and ticking wait',(await oldText()).includes('Worked for 8s')&&(await oldText()).includes('재개까지 4/60초'));
   await evaluate("fixtureNow=20000;fixtureReset('"+layout+"');fixtureWait()");await wait("document.querySelector('[data-fixture-old]').innerText.includes('작업 시간 확인 불가')");await evaluate('fixtureNow=27000;fixtureResolveQuery(true)');await wait("document.querySelector('[data-fixture-old]').innerText.includes('7초 대기 후 재개됨')");const nativeTerminal=await oldText();await advance(4000);check(label+' authoritative resumed metadata closes wait and freezes both clocks',(await oldText())===nativeTerminal&&nativeTerminal.includes('Worked for 8s')&&await evaluate("fixtureState.old.rootResumeWait.state==='resumed'&&fixtureState.old.rootResumeWait.waitEndedAtMs===27000"));await evaluate('fixtureDefer();fixtureReload()');await advance(3000);check(label+' authoritative terminal wait survives delayed defer and reload',(await oldText())===nativeTerminal);
 
  }
