@@ -1164,6 +1164,32 @@
       "reportFields": []
     },
     {
+      "id": "engine.capacity-recovery",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/capacity_recovery.rs",
+        "engine/codex-rs/core/src/responses_retry.rs",
+        "engine/codex-rs/core/src/responses_retry_tests.rs",
+        "engine/codex-rs/core/src/client.rs",
+        "engine/codex-rs/core/src/client_tests.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "scripts/check-capacity-recovery.cjs"
+      ],
+      "contract": "docs/architecture/reload-recovery.md",
+      "checks": [
+        {
+          "id": "engine.capacity-recovery.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-capacity-recovery.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.recovery",
       "area": "engine",
       "owners": [

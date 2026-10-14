@@ -2,11 +2,16 @@
 //! Content-filter guidance is recorded for sampling requests before retry decisions.
 //! Server advice controls timing without extending configured retry limits.
 
+use std::sync::Arc;
+use std::sync::Mutex;
 use std::time::Duration;
 
+use crate::capacity_recovery::CapacityRecoveryAction;
+use crate::capacity_recovery::CapacityRecoveryState;
 use crate::client::ModelClientSession;
 use crate::context::ContentFilterGuidance;
 use crate::context::ContextualUserFragment;
+use crate::session::TurnInput;
 use crate::session::session::Session;
 use crate::session::step_context::StepContext;
 use crate::session::turn_context::TurnContext;
@@ -17,11 +22,102 @@ use codex_protocol::error::CodexErr;
 use codex_protocol::error::CodexErrorDetails;
 use codex_protocol::protocol::EventMsg;
 use codex_protocol::protocol::WarningEvent;
+use codex_protocol::user_input::UserInput;
 use tokio::time::Instant;
 use tracing::warn;
 
 const INITIAL_CONNECTION_RETRY_DELAY: Duration = Duration::from_secs(5);
 const MAX_CONNECTION_RETRY_DELAY: Duration = Duration::from_secs(60);
+
+fn capacity_state(sess: &Session) -> Arc<Mutex<CapacityRecoveryState>> {
+    sess.services
+        .thread_extension_data
+        .get_or_init(|| Mutex::new(CapacityRecoveryState::default()))
+}
+
+fn capacity_request_id(input: &TurnInput, turn_id: &str, trigger: Option<&str>) -> Option<String> {
+    let TurnInput::UserInput {
+        content,
+        client_id,
+        metadata,
+    } = input
+    else {
+        return None;
+    };
+    if content.is_empty() || metadata.origin != codex_history::UserInputOrigin::User {
+        return None;
+    }
+    // Retry/play and parked-root resume are continuations of an existing request.
+    // The host's idle play action is normalized to this exact continue input.
+    if trigger.is_some_and(|value| {
+        value.starts_with("capacity_retry_")
+            || value.starts_with("automation_")
+            || value.starts_with("goal_")
+            || matches!(
+                value,
+                "root_resume" | "resume_interrupted_task" | "codex_replay"
+            )
+    }) {
+        return None;
+    }
+    if let [UserInput::Text { text, .. }] = content.as_slice() {
+        let text = text
+            .trim()
+            .trim_end_matches(['.', '!', ' ', '\n', '\r', '\t']);
+        if [
+            "continue",
+            "resume",
+            "계속",
+            "계속해",
+            "계속해주세요",
+            "이어서 진행",
+        ]
+        .iter()
+        .any(|value| text.eq_ignore_ascii_case(value))
+        {
+            return None;
+        }
+    }
+    Some(
+        client_id
+            .as_ref()
+            .filter(|id| !id.is_empty())
+            .cloned()
+            .unwrap_or_else(|| {
+                format!(
+                    "{turn_id}:{}",
+                    metadata.acceptance_order.unwrap_or_default()
+                )
+            }),
+    )
+}
+
+/// Establish the budget only after a substantive user input is durably recorded.
+#[cfg(test)]
+fn begin_capacity_request(sess: &Session, turn: &TurnContext, input: &TurnInput) {
+    begin_capacity_request_for_input(sess, turn, input, false);
+}
+
+pub(crate) fn begin_capacity_request_for_input(
+    sess: &Session,
+    turn: &TurnContext,
+    input: &TurnInput,
+    steered_user_input: bool,
+) {
+    let attribution = turn.attribution();
+    // The turn trigger describes its opening input, not a new steering message.
+    let trigger = if steered_user_input {
+        None
+    } else {
+        attribution.turn_trigger.as_deref()
+    };
+    if let Some(id) = capacity_request_id(input, &turn.sub_id, trigger) {
+        capacity_state(sess)
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .begin_request(id);
+    }
+}
 
 #[derive(Debug, Clone, Copy)]
 pub(crate) enum ResponsesStreamRequest {
@@ -64,6 +160,65 @@ pub(crate) async fn handle_response_stream_error(
     request: ResponsesStreamRequest,
 ) -> Result<(), CodexErr> {
     let turn_context = &step_context.turn;
+    // This branch owns the entire capacity budget. Do not stack generic stream
+    // retries or the transport-fallback counter on top of it. Returning the
+    // original overload leaves the existing UI's 10/30/120/300 policy in charge.
+    if matches!(request, ResponsesStreamRequest::Sampling)
+        && matches!(err.details(), CodexErrorDetails::ServerOverloaded)
+    {
+        let action = capacity_state(sess)
+            .lock()
+            .unwrap_or_else(std::sync::PoisonError::into_inner)
+            .on_overload();
+        let now = Instant::now();
+        let server_deadline = err.retry_after().map(RetryAfter::deadline);
+        match action {
+            CapacityRecoveryAction::Retry(delay) => {
+                let retry_at =
+                    server_deadline.map_or(now + delay, |deadline| deadline.max(now + delay));
+                sess.notify_stream_error(turn_context, "Model at capacity; waiting to retry", err)
+                    .await;
+                tokio::time::sleep_until(retry_at).await;
+                return Ok(());
+            }
+            CapacityRecoveryAction::RecreateConnection => {
+                if let Some(deadline) = server_deadline {
+                    tokio::time::sleep_until(deadline).await;
+                }
+                if client_session.recreate_capacity_connection().await {
+                    tracing::info!(turn_id = %turn_context.sub_id, phase = "connection_recreated", "capacity recovery");
+                    sess.notify_stream_error(
+                        turn_context,
+                        "Model at capacity; connection renewed, resuming",
+                        err,
+                    )
+                    .await;
+                    return Ok(());
+                }
+                tracing::warn!(turn_id = %turn_context.sub_id, phase = "termination_unconfirmed", "capacity recovery stopped");
+                // A capacity error would re-arm the UI timer. Keep this boundary
+                // stopped until the user explicitly checks the execution state.
+                return Err(CodexErr::Fatal(
+                    "capacity recovery stopped: prior response termination was not confirmed"
+                        .to_owned(),
+                ));
+            }
+            CapacityRecoveryAction::LegacyRetry => {
+                // The legacy UI does not carry Retry-After across its new turn.
+                // Finish the server wait before handing control back to it.
+                if let Some(deadline) = server_deadline {
+                    tokio::time::sleep_until(deadline).await;
+                }
+            }
+        }
+        sess.services
+            .thread_extension_data
+            .insert(ExhaustedResponseRetry {
+                turn_id: turn_context.sub_id.clone(),
+                retry_at: server_deadline,
+            });
+        return Err(err);
+    }
     if matches!(request, ResponsesStreamRequest::Sampling)
         && matches!(err.details(), CodexErrorDetails::ContentFilter)
     {

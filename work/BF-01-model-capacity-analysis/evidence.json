@@ -1,0 +1,117 @@
+{
+  "observedAtKST": "2026-10-14T15:57:48.235105+09:00",
+  "scope": "read-only parent thread snapshot; not all model requests or a success-rate sample",
+  "model": "gpt-6.1-sol",
+  "effort": "high",
+  "configServiceTier": "default",
+  "turns": [
+    {
+      "turnRef": "b035b406-c2ec",
+      "status": "interrupted",
+      "errorCode": null,
+      "startedKST": "2026-10-14T15:17:46+09:00",
+      "endedKST": "2026-10-14T15:18:12+09:00",
+      "durationMs": 26884,
+      "trigger": "root_resume"
+    },
+    {
+      "turnRef": "01a13911-9611",
+      "status": "deferred",
+      "errorCode": null,
+      "startedKST": "2026-10-14T15:20:16+09:00",
+      "endedKST": null,
+      "durationMs": 315445,
+      "trigger": "resume_interrupted_task"
+    },
+    {
+      "turnRef": "9f5ef0ac-5acf",
+      "status": "failed",
+      "errorCode": "serverOverloaded",
+      "startedKST": "2026-10-14T15:28:46+09:00",
+      "endedKST": "2026-10-14T15:37:06+09:00",
+      "durationMs": 500226,
+      "trigger": "root_resume"
+    },
+    {
+      "turnRef": "01a13921-2c82",
+      "status": "failed",
+      "errorCode": "serverOverloaded",
+      "startedKST": "2026-10-14T15:37:17+09:00",
+      "endedKST": "2026-10-14T15:37:23+09:00",
+      "durationMs": 5913,
+      "trigger": "capacity_retry_automatic"
+    },
+    {
+      "turnRef": "01a13921-bbfd",
+      "status": "failed",
+      "errorCode": "serverOverloaded",
+      "startedKST": "2026-10-14T15:37:54+09:00",
+      "endedKST": "2026-10-14T15:38:00+09:00",
+      "durationMs": 5765,
+      "trigger": "capacity_retry_automatic"
+    },
+    {
+      "turnRef": "01a13923-aa5c",
+      "status": "failed",
+      "errorCode": "serverOverloaded",
+      "startedKST": "2026-10-14T15:40:01+09:00",
+      "endedKST": "2026-10-14T15:40:40+09:00",
+      "durationMs": 39047,
+      "trigger": "capacity_retry_automatic"
+    },
+    {
+      "turnRef": "01a13926-3e69",
+      "status": "failed",
+      "errorCode": "serverOverloaded",
+      "startedKST": "2026-10-14T15:42:50+09:00",
+      "endedKST": "2026-10-14T15:45:38+09:00",
+      "durationMs": 167997,
+      "trigger": "capacity_retry_manual"
+    },
+    {
+      "turnRef": "01a1392d-f64c",
+      "status": "inProgress",
+      "errorCode": null,
+      "startedKST": "2026-10-14T15:51:16+09:00",
+      "endedKST": null,
+      "durationMs": null,
+      "trigger": "capacity_retry_manual"
+    }
+  ],
+  "directChildren": 51,
+  "childModelCounts": {
+    "('gpt-6-luna', 'xhigh')": 18,
+    "('gpt-6.1-sol', 'medium')": 33
+  },
+  "runtime": {
+    "processId": 51552,
+    "release": "artifacts/w14w/artifacts/releases/w14y",
+    "engineSourceRoot": "artifacts/engine-input-AF01",
+    "engineVersion": "0.162.0",
+    "evidence": "logs_2.process_uuid pid plus Win32_Process.ExecutablePath; build-info.json source provenance"
+  },
+  "requestEvidence": {
+    "failedAutomaticHttpStatus": [
+      200,
+      200
+    ],
+    "responseBeforeTerminalFailure": true,
+    "lastManualRetryHadGeneration": true,
+    "inferenceSuccessOrFinalTaskCompletionVerified": false,
+    "retentionLimitPerThread": 1000
+  },
+  "retryPolicy": {
+    "engineDefaultStreamMaxRetries": 5,
+    "overloadEngineRetryRequiresServerAdvice": true,
+    "uiDelaySeconds": [
+      10,
+      30,
+      120,
+      300
+    ],
+    "uiMaxAutomaticRetries": 4,
+    "automaticModelFallback": false,
+    "installedStopPatchMarker": false,
+    "loadedUiMemoryVerified": false
+  }
+}

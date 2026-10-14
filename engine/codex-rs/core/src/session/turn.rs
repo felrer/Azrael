@@ -979,6 +979,12 @@ pub(crate) async fn run_hooks_and_record_inputs(
             {
                 return true;
             }
+            crate::responses_retry::begin_capacity_request_for_input(
+                sess,
+                turn_context,
+                input_item,
+                input_persist_context == PersistContext::SteeredUserInput,
+            );
         }
     }
     blocked_input && !accepted_user_input

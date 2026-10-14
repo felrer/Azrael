@@ -2461,3 +2461,47 @@ async fn inference_tools_changes_follow_full_specs_across_turns() {
         );
     }
 }
+
+#[tokio::test]
+async fn capacity_recovery_waits_for_prior_http_mapper_and_preserves_identity() {
+    let (session, _) = crate::session::tests::make_session_and_context().await;
+    let mut client = session.services.model_client.new_session();
+    let client_identity = Arc::clone(&client.client.state);
+    let turn_state = client.turn_state();
+    turn_state.set("sticky-route".to_owned()).unwrap();
+    client.websocket_session.auth_owner_generation = Some(7);
+    let (finished, receipt) = tokio::sync::oneshot::channel();
+    client.http_last_response_rx = Some(receipt);
+    {
+        let reset = client.recreate_capacity_connection();
+        tokio::pin!(reset);
+        assert!(futures::poll!(&mut reset).is_pending());
+        // The producer drops its sender after dropping the failed stream.
+        drop(finished);
+        assert!(reset.await);
+    }
+    assert!(Arc::ptr_eq(&client_identity, &client.client.state));
+    assert!(Arc::ptr_eq(&turn_state, &client.turn_state()));
+    assert_eq!(
+        client.turn_state().get().map(String::as_str),
+        Some("sticky-route")
+    );
+    assert_eq!(client.websocket_session.auth_owner_generation, Some(7));
+    assert!(client.http_last_response_rx.is_none());
+    assert!(client.websocket_session.connection.is_none());
+}
+
+#[tokio::test]
+async fn capacity_recovery_does_not_reset_before_websocket_mapper_termination() {
+    let (session, _) = crate::session::tests::make_session_and_context().await;
+    let mut client = session.services.model_client.new_session();
+    client.websocket_session.continuation_reset_reason = Some("fixture");
+    let (_producer, receipt) = tokio::sync::oneshot::channel();
+    client.websocket_session.last_response_rx = Some(receipt);
+    tokio::time::pause();
+    assert!(!client.recreate_capacity_connection().await);
+    assert_eq!(
+        client.websocket_session.continuation_reset_reason,
+        Some("fixture")
+    );
+}

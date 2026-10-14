@@ -32,6 +32,20 @@ Historical category `other` failures qualify only for the complete OpenAI stream
 
 The continuation starts a fresh turn in the same thread using the selected model/account and retained history. Error notifications alone do not start inference. Live turns attach without a second request; loading a thread rechecks native state; duplicate clicks coalesce; unresolved dispatch receipts retain the reviewed-recovery guard. This rule does not add automatic retries or replay completed tool calls.
 
+### Capacity recovery within a user request
+
+Status: `current` in source: focused Windows native state, request, deadline and local termination checks pass; packaging, installed-window, live-service and Linux/macOS acceptance remain unverified.
+
+Native OpenAI Responses sampling shares one capacity recovery budget across a substantive user request's turns and tool continuations. Only structured `ServerOverloaded` failures qualify. The first three additional inference requests wait 1, 5 and 10 seconds after the preceding failed request, respecting a longer server Retry-After deadline. Generic stream retries and transport fallback cannot add capacity attempts to that budget. Remote compaction, quota, authentication and ordinary connection errors retain their existing policies.
+
+After all three attempts fail, the sampling consumer has been dropped and the engine waits up to 10 seconds for the previous local stream mapper to release its provider stream. Confirmed termination permits one connection recreation and one automatic continuation of incomplete sampling. A failed termination check stops with a distinct terminal error that cannot re-arm the capacity timer. WebSocket recreation removes the socket and connection-local continuation cache; HTTP obtains its next transport through the existing fresh route-client factory. Thread, provider, model, account, sticky turn routing, prompt-cache identity, history and completed tool outputs remain owned by their existing services. Cache hits and remote capacity availability are not guaranteed.
+
+A further capacity failure returns control to the existing UI policy: 10, 30, 120 and 300 seconds, automatic maximum four attempts, with manual retry still available. The engine waits any remaining server deadline before handing the terminal error to that UI. It does not return to the short-retry or connection-recreation stages within the same user request.
+
+The request identity comes from durably recorded substantive user input, using its client identity or turn/acceptance-order identity. Capacity retry, parked-root resume, empty play and canonical continuation inputs do not replenish the budget. Hooks must accept and record the input before a new budget is established. The thread-local budget survives sampling reentry and webview remount/reload while the native session stays loaded. Engine restart/unload does not restore this in-memory budget; a continuation with no known request budget uses the existing retry policy. Cancellation interrupts waiting and sampling without refunding consumed attempts. Completed tools and independent agents are not replayed or cancelled by connection recreation.
+
+Preservation feature: `engine.capacity-recovery`. Its native state, deadline, cancellation, request-identity and local transport-termination checks are owned by the focused capacity verification route in [operations](../ops/development.md#reload-recovery).
+
 ### Manual continuation after an unclassified provider rejection
 
 Status: `current` for state, pinned bridge and send integration regressions; installed user-window acceptance requires an updated host and reload.

@@ -8,6 +8,7 @@
 pub mod account_retirement;
 mod apply_patch;
 mod apps;
+mod capacity_recovery;
 mod client;
 mod client_common;
 mod devin;
