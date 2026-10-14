@@ -5,7 +5,8 @@ const path = require("node:path");
 const test = require("node:test");
 const xm = require("node:vm");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
-const { rewriteJavaScript, transformAsset } = require("./namespace-azrael-host.cjs");
+const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
+const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const patch = require("./inject-deferred-turn.cjs");
 const waitHelpers = require("./root-resume-wait.cjs");
 

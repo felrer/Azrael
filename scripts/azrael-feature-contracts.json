@@ -2,6 +2,27 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.source-provenance",
+      "area": "engine",
+      "owners": [
+        "scripts/import-engine-source.py",
+        "scripts/engine-provenance.py",
+        "scripts/check-engine-provenance-guards.cjs",
+        "scripts/tests/test_import_engine_source.py",
+        "scripts/tests/test_engine_provenance.py"
+      ],
+      "contract": "docs/architecture/upstream-preservation.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.source-provenance.root-guards",
+          "executable": "node",
+          "args": ["scripts/check-engine-provenance-guards.cjs"],
+          "level": "source"
+        }
+      ]
+    },
+    {
       "id": "engine.parent-requests",
       "area": "engine",
       "owners": [
@@ -180,9 +201,9 @@
     {
       "id": "ui.submit-only-thread",
       "area": "ui",
-      "owners": ["scripts/inject-submit-only-thread.cjs"],
+      "owners": ["scripts/inject-submit-only-thread.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{"id": "ui.submit-only-thread.behavior", "executable": "node", "args": ["--test", "scripts/test-submit-only-thread.cjs", "scripts/test-project-drafts.cjs", "scripts/test-composer-draft.cjs"], "level": "source"}],
+      "checks": [{"id":"ui.submit-only-thread.behavior","executable":"node","args":["--test","scripts/test-submit-only-thread.cjs","scripts/test-project-drafts.cjs","scripts/test-composer-draft.cjs"],"level":"source"},{"id":"ui.submit-only-thread.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["submitOnlyThreadEdits"]
     },
     {
@@ -219,53 +240,41 @@
     {
       "id": "ui.task-work-time",
       "area": "ui",
-      "owners": ["scripts/inject-task-work-time.cjs", "scripts/task-work-time.cjs", "scripts/task-work-time-history.cjs", "scripts/inject-deferred-turn.cjs", "scripts/root-resume-wait.cjs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs", "engine/codex-rs/app-server/src/bespoke_event_handling.rs", "engine/codex-rs/app-server/src/request_processors/thread_processor.rs", "engine/codex-rs/app-server/src/thread_state.rs", "engine/codex-rs/thread-store/src/types.rs", "engine/codex-rs/thread-store/src/local/thread_history.rs", "engine/codex-rs/thread-store/src/local/thread_history/read.rs", "engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs", "engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql", "engine/codex-rs/tui/src/chatwidget/replay.rs"],
+      "owners": ["scripts/inject-task-work-time.cjs","scripts/task-work-time.cjs","scripts/task-work-time-history.cjs","scripts/inject-deferred-turn.cjs","scripts/root-resume-wait.cjs","engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs","engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs","engine/codex-rs/app-server/src/bespoke_event_handling.rs","engine/codex-rs/app-server/src/request_processors/thread_processor.rs","engine/codex-rs/app-server/src/thread_state.rs","engine/codex-rs/thread-store/src/types.rs","engine/codex-rs/thread-store/src/local/thread_history.rs","engine/codex-rs/thread-store/src/local/thread_history/read.rs","engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs","engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql","engine/codex-rs/tui/src/chatwidget/replay.rs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/task-work-time.md",
-      "checks": [{"id": "ui.task-work-time.behavior", "executable": "node", "args": ["--test", "scripts/test-task-work-time.cjs", "scripts/test-task-work-time-history.cjs", "scripts/test-task-work-time-ui.cjs", "scripts/test-deferred-turn.cjs"], "level": "source"}],
+      "checks": [{"id":"ui.task-work-time.behavior","executable":"node","args":["--test","scripts/test-task-work-time.cjs","scripts/test-task-work-time-history.cjs","scripts/test-task-work-time-ui.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-task-work-time.cjs","scripts/task-work-time.cjs","scripts/task-work-time-history.cjs","scripts/inject-deferred-turn.cjs","scripts/root-resume-wait.cjs","engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs","engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs","engine/codex-rs/app-server/src/bespoke_event_handling.rs","engine/codex-rs/app-server/src/request_processors/thread_processor.rs","engine/codex-rs/app-server/src/thread_state.rs","engine/codex-rs/thread-store/src/types.rs","engine/codex-rs/thread-store/src/local/thread_history.rs","engine/codex-rs/thread-store/src/local/thread_history/read.rs","engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs","engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql","engine/codex-rs/tui/src/chatwidget/replay.rs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"]}},{"id":"ui.task-work-time.deferred-contract","executable":"node","args":["--test","scripts/test-deferred-turn.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-task-work-time.cjs","scripts/task-work-time.cjs","scripts/task-work-time-history.cjs","scripts/inject-deferred-turn.cjs","scripts/root-resume-wait.cjs","engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs","engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs","engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs","engine/codex-rs/app-server/src/bespoke_event_handling.rs","engine/codex-rs/app-server/src/request_processors/thread_processor.rs","engine/codex-rs/app-server/src/thread_state.rs","engine/codex-rs/thread-store/src/types.rs","engine/codex-rs/thread-store/src/local/thread_history.rs","engine/codex-rs/thread-store/src/local/thread_history/read.rs","engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs","engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql","engine/codex-rs/tui/src/chatwidget/replay.rs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"]}},{"id":"ui.task-work-time.transform-fixture","executable":"node","args":["--test","scripts/test-ui-test-transform-fixture.cjs"],"level":"source"},{"id":"ui.task-work-time.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["taskWorkTimeEdits"]
     },
     {
       "id": "ui.webview-idle",
       "area": "ui",
-      "owners": ["scripts/inject-webview-idle.cjs", "scripts/webview-idle.cjs", "extensions/azrael-ex/src/accountService.ts", "extensions/azrael-ex/src/extension.ts"],
+      "owners": ["scripts/inject-webview-idle.cjs","scripts/webview-idle.cjs","extensions/azrael-ex/src/accountService.ts","extensions/azrael-ex/src/extension.ts","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{"id": "ui.webview-idle.behavior", "executable": "node", "args": ["--test", "scripts/test-webview-idle.cjs"], "level": "source"}],
+      "checks": [{"id":"ui.webview-idle.behavior","executable":"node","args":["--test","scripts/test-webview-idle.cjs"],"level":"source"},{"id":"ui.webview-idle.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["webviewIdleEdits"]
     },
     {
       "id": "ui.team-lead",
       "area": "ui",
-      "owners": ["scripts/inject-team-ui.cjs", "scripts/inject-team-runtime.cjs", "instructions/skills/design-collaboration/references/team-lead.md"],
+      "owners": ["scripts/inject-team-ui.cjs","scripts/inject-team-runtime.cjs","instructions/skills/design-collaboration/references/team-lead.md","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/work-orchestration.md",
-      "checks": [{"id": "ui.team-lead.behavior", "executable": "node", "args": ["--test", "scripts/test-team-ui.cjs", "scripts/test-team-runtime.cjs", "scripts/test-team-integration.cjs"], "level": "source"}],
+      "checks": [{"id":"ui.team-lead.behavior","executable":"node","args":["--test","scripts/test-team-ui.cjs","scripts/test-team-runtime.cjs","scripts/test-team-integration.cjs"],"level":"source"},{"id":"ui.team-lead.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["teamUIEdits", "teamRuntimeEdits"]
     },
     {
       "id": "ui.session-flags",
       "area": "ui",
-      "owners": ["scripts/inject-session-flags.cjs", "scripts/inject-project-drafts.cjs"],
+      "owners": ["scripts/inject-session-flags.cjs","scripts/inject-project-drafts.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{"id": "ui.session-flags.behavior", "executable": "node", "args": ["--test", "scripts/test-session-flags.cjs", "scripts/test-project-drafts.cjs"], "level": "source"}],
+      "checks": [{"id":"ui.session-flags.behavior","executable":"node","args":["--test","scripts/test-session-flags.cjs","scripts/test-project-drafts.cjs"],"level":"source"},{"id":"ui.session-flags.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["sessionFlagEdits"]
     },
     {
       "id": "ui.account-settings",
       "area": "ui",
-      "owners": [
-        "scripts/inject-account-settings.cjs"
-      ],
+      "owners": ["scripts/inject-account-settings.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/accounts.md",
-      "checks": [
-        {
-          "id": "ui.account-settings.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-account-settings.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.account-settings.behavior","executable":"node","args":["--test","scripts/test-account-settings.cjs"],"level":"source"},{"id":"ui.account-settings.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "accountSettingsEdits"
       ]
@@ -273,46 +282,9 @@
     {
       "id": "ui.instruction-settings",
       "area": "ui",
-      "owners": [
-        "scripts/inject-instruction-settings.cjs",
-        "extensions/azrael-ex/src/instructionProtocol.ts",
-        "extensions/azrael-ex/src/instructionService.ts",
-        "extensions/azrael-ex/src/instructionLibraryService.ts",
-        "extensions/azrael-ex/src/instructionView.ts",
-        "extensions/azrael-ex/test/instructionLibraryService.test.ts",
-        "extensions/azrael-ex/test/instructionService.test.ts",
-        "extensions/azrael-ex/test/instructionView.test.ts",
-        "scripts/instruction-library.cjs",
-        "scripts/instruction-publisher.cjs",
-        "scripts/task-profile-runtime.cjs",
-        "scripts/inject-task-profile.cjs"
-      ],
+      "owners": ["scripts/inject-instruction-settings.cjs","extensions/azrael-ex/src/instructionProtocol.ts","extensions/azrael-ex/src/instructionService.ts","extensions/azrael-ex/src/instructionLibraryService.ts","extensions/azrael-ex/src/instructionView.ts","extensions/azrael-ex/test/instructionLibraryService.test.ts","extensions/azrael-ex/test/instructionService.test.ts","extensions/azrael-ex/test/instructionView.test.ts","scripts/instruction-library.cjs","scripts/instruction-publisher.cjs","scripts/task-profile-runtime.cjs","scripts/inject-task-profile.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/instructions.md",
-      "checks": [
-        {
-          "id": "ui.instruction-settings.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-instruction-settings.cjs"
-          ],
-          "level": "source"
-        },
-        {
-          "id": "ui.instruction-settings.library",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/tests/instruction-library.test.cjs",
-            "scripts/tests/instruction-publisher.test.cjs",
-            "scripts/tests/task-profile-runtime.test.cjs",
-            "scripts/tests/inject-task-profile.test.cjs",
-            "scripts/tests/instruction-module-packaging.test.cjs",
-            "scripts/test-instruction-library-host.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.instruction-settings.behavior","executable":"node","args":["--test","scripts/test-instruction-settings.cjs"],"level":"source"},{"id":"ui.instruction-settings.library","executable":"node","args":["--test","scripts/tests/instruction-library.test.cjs","scripts/tests/instruction-publisher.test.cjs","scripts/tests/task-profile-runtime.test.cjs","scripts/tests/inject-task-profile.test.cjs","scripts/tests/instruction-module-packaging.test.cjs","scripts/test-instruction-library-host.cjs"],"level":"source"},{"id":"ui.instruction-settings.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "instructionSettingsEdits",
         "taskProfileEdits"
@@ -321,21 +293,9 @@
     {
       "id": "ui.student-design",
       "area": "ui",
-      "owners": [
-        "scripts/inject-student-design.cjs"
-      ],
+      "owners": ["scripts/inject-student-design.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.student-design.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-student-design.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.student-design.behavior","executable":"node","args":["--test","scripts/test-student-design.cjs"],"level":"source"},{"id":"ui.student-design.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "studentDesignEdits"
       ]
@@ -343,23 +303,9 @@
     {
       "id": "ui.recovery",
       "area": "ui",
-      "owners": [
-        "scripts/inject-recovery.cjs"
-      ],
+      "owners": ["scripts/inject-recovery.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/reload-recovery.md",
-      "checks": [
-        {
-          "id": "ui.recovery.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-recovery-state.cjs",
-            "scripts/test-recovery-bridge.cjs",
-            "scripts/test-recovery-presentation.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.recovery.behavior","executable":"node","args":["--test","scripts/test-recovery-state.cjs","scripts/test-recovery-bridge.cjs","scripts/test-recovery-presentation.cjs"],"level":"source"},{"id":"ui.recovery.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "recoveryEdits"
       ]
@@ -367,34 +313,17 @@
     {
       "id": "ui.project-drafts",
       "area": "ui",
-      "owners": ["scripts/inject-project-drafts.cjs"],
+      "owners": ["scripts/inject-project-drafts.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{
-        "id": "ui.project-drafts.behavior",
-        "executable": "node",
-        "args": ["--test", "scripts/test-project-drafts.cjs"],
-        "level": "source"
-      }],
+      "checks": [{"id":"ui.project-drafts.behavior","executable":"node","args":["--test","scripts/test-project-drafts.cjs"],"level":"source"},{"id":"ui.project-drafts.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["projectDraftEdits"]
     },
     {
       "id": "ui.fetch-response",
       "area": "ui",
-      "owners": [
-        "scripts/inject-fetch-response.cjs"
-      ],
+      "owners": ["scripts/inject-fetch-response.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/reload-recovery.md",
-      "checks": [
-        {
-          "id": "ui.fetch-response.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-fetch-response.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.fetch-response.behavior","executable":"node","args":["--test","scripts/test-fetch-response.cjs"],"level":"source"},{"id":"ui.fetch-response.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "fetchResponseEdits"
       ]
@@ -402,29 +331,9 @@
     {
       "id": "ui.url-safety-transport",
       "area": "ui",
-      "owners": [
-        "scripts/inject-url-safety-transport.cjs"
-      ],
+      "owners": ["scripts/inject-url-safety-transport.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/computer-use.md",
-      "checks": [
-        {
-          "id": "ui.url-safety-transport.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-url-safety-transport.cjs"
-          ],
-          "level": "source",
-          "cacheInputs": {
-            "schema": 1,
-            "files": [
-              "scripts/test-url-safety-transport.cjs",
-              "scripts/inject-url-safety-transport.cjs",
-              "scripts/url-safety-transport.cjs"
-            ]
-          }
-        }
-      ],
+      "checks": [{"id":"ui.url-safety-transport.behavior","executable":"node","args":["--test","scripts/test-url-safety-transport.cjs"],"level":"source","cacheInputs":{"schema":1,"files":["scripts/test-url-safety-transport.cjs","scripts/inject-url-safety-transport.cjs","scripts/url-safety-transport.cjs"]}},{"id":"ui.url-safety-transport.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "urlSafetyTransportEdits"
       ]
@@ -432,23 +341,9 @@
     {
       "id": "ui.computer-use",
       "area": "ui",
-      "owners": [
-        "scripts/inject-computer-use.cjs"
-      ],
+      "owners": ["scripts/inject-computer-use.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/computer-use.md",
-      "checks": [
-        {
-          "id": "ui.computer-use.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-computer-use-injection.cjs",
-            "scripts/test-computer-use-approvals.cjs",
-            "scripts/test-computer-use-runtime.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.computer-use.behavior","executable":"node","args":["--test","scripts/test-computer-use-injection.cjs","scripts/test-computer-use-approvals.cjs","scripts/test-computer-use-runtime.cjs"],"level":"source"},{"id":"ui.computer-use.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "computerUseApprovalEdits",
         "computerUseSettingsEdits",
@@ -459,24 +354,9 @@
     {
       "id": "ui.window-control",
       "area": "ui",
-      "owners": [
-        "scripts/inject-window-control.cjs"
-      ],
+      "owners": ["scripts/inject-window-control.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/computer-use.md",
-      "checks": [
-        {
-          "id": "ui.window-control.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-window-control-injection.cjs",
-            "scripts/test-window-approval-notifications.cjs",
-            "scripts/test-window-control-policy.cjs",
-            "scripts/test-window-control-runtime.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.window-control.behavior","executable":"node","args":["--test","scripts/test-window-control-injection.cjs","scripts/test-window-approval-notifications.cjs","scripts/test-window-control-policy.cjs","scripts/test-window-control-runtime.cjs"],"level":"source"},{"id":"ui.window-control.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "windowControlEdits"
       ]
@@ -484,21 +364,9 @@
     {
       "id": "ui.file-open-menu",
       "area": "ui",
-      "owners": [
-        "scripts/inject-file-open-menu.cjs"
-      ],
+      "owners": ["scripts/inject-file-open-menu.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.file-open-menu.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-file-open-menu.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.file-open-menu.behavior","executable":"node","args":["--test","scripts/test-file-open-menu.cjs"],"level":"source"},{"id":"ui.file-open-menu.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "fileOpenMenuEdits"
       ]
@@ -506,28 +374,9 @@
     {
       "id": "ui.image-file-open",
       "area": "ui",
-      "owners": [
-        "scripts/inject-image-file-open.cjs"
-      ],
+      "owners": ["scripts/inject-image-file-open.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.image-file-open.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-image-file-open.cjs"
-          ],
-          "level": "source",
-          "cacheInputs": {
-            "schema": 1,
-            "files": [
-              "scripts/test-image-file-open.cjs",
-              "scripts/inject-image-file-open.cjs"
-            ]
-          }
-        }
-      ],
+      "checks": [{"id":"ui.image-file-open.behavior","executable":"node","args":["--test","scripts/test-image-file-open.cjs"],"level":"source","cacheInputs":{"schema":1,"files":["scripts/test-image-file-open.cjs","scripts/inject-image-file-open.cjs"]}},{"id":"ui.image-file-open.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "imageFileOpenEdits"
       ]
@@ -535,28 +384,9 @@
     {
       "id": "ui.missing-image",
       "area": "ui",
-      "owners": [
-        "scripts/inject-missing-image.cjs"
-      ],
+      "owners": ["scripts/inject-missing-image.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.missing-image.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-missing-image.cjs"
-          ],
-          "level": "source",
-          "cacheInputs": {
-            "schema": 1,
-            "files": [
-              "scripts/test-missing-image.cjs",
-              "scripts/inject-missing-image.cjs"
-            ]
-          }
-        }
-      ],
+      "checks": [{"id":"ui.missing-image.behavior","executable":"node","args":["--test","scripts/test-missing-image.cjs"],"level":"source","cacheInputs":{"schema":1,"files":["scripts/test-missing-image.cjs","scripts/inject-missing-image.cjs"]}},{"id":"ui.missing-image.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "missingImageEdits"
       ]
@@ -564,32 +394,9 @@
     {
       "id": "ui.local-file-drop",
       "area": "ui",
-      "owners": [
-        "scripts/inject-local-file-drop.cjs",
-        "scripts/webview-drag-lifecycle.cjs",
-        "scripts/patch-vscode-webview-drag.cjs"
-      ],
+      "owners": ["scripts/inject-local-file-drop.cjs","scripts/webview-drag-lifecycle.cjs","scripts/patch-vscode-webview-drag.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/azrael-ex.md",
-      "checks": [
-        {
-          "id": "ui.local-file-drop.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-local-file-drop.cjs"
-          ],
-          "level": "source"
-        },
-        {
-          "id": "ui.local-file-drop.drag-lifecycle",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-webview-drag.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.local-file-drop.behavior","executable":"node","args":["--test","scripts/test-local-file-drop.cjs"],"level":"source"},{"id":"ui.local-file-drop.drag-lifecycle","executable":"node","args":["--test","scripts/test-webview-drag.cjs"],"level":"source"},{"id":"ui.local-file-drop.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "localFileDropEdits"
       ]
@@ -597,21 +404,9 @@
     {
       "id": "ui.composer-draft",
       "area": "ui",
-      "owners": [
-        "scripts/inject-composer-draft.cjs"
-      ],
+      "owners": ["scripts/inject-composer-draft.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.composer-draft.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-composer-draft.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.composer-draft.behavior","executable":"node","args":["--test","scripts/test-composer-draft.cjs"],"level":"source"},{"id":"ui.composer-draft.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "composerDraftEdits"
       ]
@@ -619,21 +414,9 @@
     {
       "id": "ui.auto-review",
       "area": "ui",
-      "owners": [
-        "scripts/inject-auto-review.cjs"
-      ],
+      "owners": ["scripts/inject-auto-review.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/auto-review.md",
-      "checks": [
-        {
-          "id": "ui.auto-review.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-auto-review.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.auto-review.behavior","executable":"node","args":["--test","scripts/test-auto-review.cjs"],"level":"source"},{"id":"ui.auto-review.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "autoReviewEdits"
       ]
@@ -641,29 +424,9 @@
     {
       "id": "ui.ui-cleanup",
       "area": "ui",
-      "owners": [
-        "scripts/inject-ui-cleanup.cjs"
-      ],
+      "owners": ["scripts/inject-ui-cleanup.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.ui-cleanup.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-ui-cleanup.cjs"
-          ],
-          "level": "source"
-        },
-        {
-          "id": "ui.ui-cleanup.file-summary-render",
-          "executable": "node",
-          "args": [
-            "scripts/verify-file-summary-render.mjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.ui-cleanup.behavior","executable":"node","args":["--test","scripts/test-ui-cleanup.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-ui-cleanup.cjs","scripts/namespace-azrael-host.cjs"]}},{"id":"ui.ui-cleanup.file-summary-render","executable":"node","args":["scripts/verify-file-summary-render.mjs"],"level":"source"},{"id":"ui.ui-cleanup.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "uiCleanupEdits"
       ]
@@ -671,21 +434,9 @@
     {
       "id": "ui.pets-cleanup",
       "area": "ui",
-      "owners": [
-        "scripts/inject-pets-cleanup.cjs"
-      ],
+      "owners": ["scripts/inject-pets-cleanup.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.pets-cleanup.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-pets-cleanup.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.pets-cleanup.behavior","executable":"node","args":["--test","scripts/test-pets-cleanup.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-pets-cleanup.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"]}},{"id":"ui.pets-cleanup.transform-fixture","executable":"node","args":["--test","scripts/test-ui-test-transform-fixture.cjs"],"level":"source"},{"id":"ui.pets-cleanup.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "petsCleanupEdits"
       ]
@@ -693,25 +444,9 @@
     {
       "id": "ui.content-fonts",
       "area": "ui",
-      "owners": [
-        "scripts/content-fonts.cjs",
-        "extensions/azrael-ex/media/content-font-policy.cjs",
-        "extensions/azrael-ex/src/usagePresentation.ts",
-        "extensions/azrael-ex/src/usageView.ts",
-        "scripts/inject-content-fonts.cjs"
-      ],
+      "owners": ["scripts/content-fonts.cjs","extensions/azrael-ex/media/content-font-policy.cjs","extensions/azrael-ex/src/usagePresentation.ts","extensions/azrael-ex/src/usageView.ts","scripts/inject-content-fonts.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.content-fonts.behavior",
-          "executable": "node",
-          "args": [
-            "scripts/test-content-fonts.cjs",
-            "--source-only"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.content-fonts.behavior","executable":"node","args":["scripts/test-content-fonts.cjs","--source-only"],"level":"source"},{"id":"ui.content-fonts.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "contentFontEdits"
       ]
@@ -719,35 +454,9 @@
     {
       "id": "ui.provider-context",
       "area": "ui",
-      "owners": [
-        "scripts/inject-provider-context.cjs",
-          "scripts/verify-provider-context-render.mjs",
-          "scripts/verify-context-compaction-render.mjs"
-      ],
+      "owners": ["scripts/inject-provider-context.cjs","scripts/verify-provider-context-render.mjs","scripts/verify-context-compaction-render.mjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/context-policy.md",
-      "checks": [
-        {
-          "id": "ui.provider-context.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-provider-context.cjs"
-          ],
-          "level": "source"
-        },
-        {
-          "id": "ui.provider-context.thread-render",
-          "executable": "node",
-          "args": ["scripts/verify-context-compaction-render.mjs"],
-          "level": "source"
-        },
-        {
-          "id": "ui.provider-context.render",
-          "executable": "node",
-          "args": ["scripts/verify-provider-context-render.mjs"],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.provider-context.behavior","executable":"node","args":["--test","scripts/test-provider-context.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-provider-context.cjs","scripts/provider-context-labels.cjs","scripts/namespace-azrael-host.cjs","scripts/asset-transform-cache.cjs"]}},{"id":"ui.provider-context.thread-render","executable":"node","args":["scripts/verify-context-compaction-render.mjs"],"level":"source"},{"id":"ui.provider-context.render","executable":"node","args":["scripts/verify-provider-context-render.mjs"],"level":"source"},{"id":"ui.provider-context.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "providerContextEdits"
       ]
@@ -755,21 +464,9 @@
     {
       "id": "ui.deferred-turn",
       "area": "ui",
-      "owners": [
-        "scripts/inject-deferred-turn.cjs"
-      ],
+      "owners": ["scripts/inject-deferred-turn.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/root-resume.md",
-      "checks": [
-        {
-          "id": "ui.deferred-turn.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-deferred-turn.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.deferred-turn.behavior","executable":"node","args":["--test","scripts/test-deferred-turn.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-deferred-turn.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"]}},{"id":"ui.deferred-turn.transform-fixture","executable":"node","args":["--test","scripts/test-ui-test-transform-fixture.cjs"],"level":"source"},{"id":"ui.deferred-turn.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "deferredTurnEdits",
         "deferredNativeTimingChecks"
@@ -778,21 +475,9 @@
     {
       "id": "ui.work-segment-folding",
       "area": "ui",
-      "owners": [
-        "scripts/inject-work-segment-folding.cjs"
-      ],
+      "owners": ["scripts/inject-work-segment-folding.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/root-resume.md",
-      "checks": [
-        {
-          "id": "ui.work-segment-folding.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-work-segment-folding.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.work-segment-folding.behavior","executable":"node","args":["--test","scripts/test-work-segment-folding.cjs"],"level":"source"},{"id":"ui.work-segment-folding.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "workSegmentFoldingEdits"
       ]
@@ -800,21 +485,9 @@
     {
       "id": "ui.compaction-progress",
       "area": "ui",
-      "owners": [
-        "scripts/inject-compaction-progress.cjs"
-      ],
+      "owners": ["scripts/inject-compaction-progress.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/queued-compaction.md",
-      "checks": [
-        {
-          "id": "ui.compaction-progress.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-compaction-progress.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.compaction-progress.behavior","executable":"node","args":["--test","scripts/test-compaction-progress.cjs"],"level":"source"},{"id":"ui.compaction-progress.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "compactionProgressEdits"
       ]
@@ -822,21 +495,9 @@
     {
       "id": "ui.queue-refresh",
       "area": "ui",
-      "owners": [
-        "scripts/inject-queue-refresh.cjs"
-      ],
+      "owners": ["scripts/inject-queue-refresh.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/queued-compaction.md",
-      "checks": [
-        {
-          "id": "ui.queue-refresh.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-queue-refresh.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.queue-refresh.behavior","executable":"node","args":["--test","scripts/test-queue-refresh.cjs"],"level":"source"},{"id":"ui.queue-refresh.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "queueRefreshNativeChecks"
       ]
@@ -844,21 +505,9 @@
     {
       "id": "ui.account-switch-queue",
       "area": "ui",
-      "owners": [
-        "scripts/inject-account-switch-queue.cjs"
-      ],
+      "owners": ["scripts/inject-account-switch-queue.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/accounts.md",
-      "checks": [
-        {
-          "id": "ui.account-switch-queue.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-account-switch-queue.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.account-switch-queue.behavior","executable":"node","args":["--test","scripts/test-account-switch-queue.cjs"],"level":"source"},{"id":"ui.account-switch-queue.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "accountSwitchQueueEdits"
       ]
@@ -866,21 +515,9 @@
     {
       "id": "ui.queue-consumption",
       "area": "ui",
-      "owners": [
-        "scripts/inject-queue-consumption.cjs"
-      ],
+      "owners": ["scripts/inject-queue-consumption.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/queued-compaction.md",
-      "checks": [
-        {
-          "id": "ui.queue-consumption.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-queue-consumption.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.queue-consumption.behavior","executable":"node","args":["--test","scripts/test-queue-consumption.cjs"],"level":"source"},{"id":"ui.queue-consumption.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "queueConsumptionEdits"
       ]
@@ -888,21 +525,9 @@
     {
       "id": "ui.provider-model-picker",
       "area": "ui",
-      "owners": [
-        "scripts/inject-provider-model-picker.cjs"
-      ],
+      "owners": ["scripts/inject-provider-model-picker.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/managed-providers.md",
-      "checks": [
-        {
-          "id": "ui.provider-model-picker.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-provider-model-picker.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.provider-model-picker.behavior","executable":"node","args":["--test","scripts/test-provider-model-picker.cjs"],"level":"source"},{"id":"ui.provider-model-picker.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "providerPickerEdits"
       ]
@@ -910,22 +535,9 @@
     {
       "id": "ui.btw",
       "area": "ui",
-      "owners": [
-        "scripts/inject-btw.cjs",
-        "scripts/btw-conversation.cjs"
-      ],
+      "owners": ["scripts/inject-btw.cjs","scripts/btw-conversation.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/side-questions.md",
-      "checks": [
-        {
-          "id": "ui.btw.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-btw.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.btw.behavior","executable":"node","args":["--test","scripts/test-btw.cjs"],"level":"source","cacheInputs":{"schema":2,"files":["scripts/inject-btw.cjs","scripts/btw-conversation.cjs","scripts/ui-test-transform-fixture.cjs","scripts/test-ui-test-transform-fixture.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"]}},{"id":"ui.btw.transform-fixture","executable":"node","args":["--test","scripts/test-ui-test-transform-fixture.cjs"],"level":"source"},{"id":"ui.btw.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "btwEdits"
       ]
@@ -933,21 +545,9 @@
     {
       "id": "ui.thread-branch",
       "area": "ui",
-      "owners": [
-        "scripts/inject-thread-branch.cjs"
-      ],
+      "owners": ["scripts/inject-thread-branch.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.thread-branch.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-thread-branch.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.thread-branch.behavior","executable":"node","args":["--test","scripts/test-thread-branch.cjs"],"level":"source"},{"id":"ui.thread-branch.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "threadBranchEdits"
       ]
@@ -955,21 +555,9 @@
     {
       "id": "ui.paginated-history",
       "area": "ui",
-      "owners": [
-        "scripts/inject-paginated-history.cjs"
-      ],
+      "owners": ["scripts/inject-paginated-history.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.paginated-history.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-paginated-history.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.paginated-history.behavior","executable":"node","args":["--test","scripts/test-paginated-history.cjs"],"level":"source"},{"id":"ui.paginated-history.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "paginatedHistoryEdits"
       ]
@@ -977,29 +565,17 @@
     {
       "id": "ui.capacity-retry-stop",
       "area": "ui",
-      "owners": ["scripts/inject-capacity-retry-stop.cjs"],
+      "owners": ["scripts/inject-capacity-retry-stop.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [{"id":"ui.capacity-retry-stop.behavior","executable":"node","args":["--test","scripts/test-capacity-retry-stop.cjs"],"level":"source"}],
+      "checks": [{"id":"ui.capacity-retry-stop.behavior","executable":"node","args":["--test","scripts/test-capacity-retry-stop.cjs"],"level":"source"},{"id":"ui.capacity-retry-stop.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": ["capacityRetryStopEdits"]
     },
     {
       "id": "ui.immediate-stop",
       "area": "ui",
-      "owners": [
-        "scripts/inject-immediate-stop.cjs"
-      ],
+      "owners": ["scripts/inject-immediate-stop.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/reload-recovery.md",
-      "checks": [
-        {
-          "id": "ui.immediate-stop.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-immediate-stop.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.immediate-stop.behavior","executable":"node","args":["--test","scripts/test-immediate-stop.cjs"],"level":"source"},{"id":"ui.immediate-stop.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "immediateStopEdits"
       ]
@@ -1007,21 +583,9 @@
     {
       "id": "ui.queued-compaction",
       "area": "ui",
-      "owners": [
-        "scripts/inject-queued-compaction.cjs"
-      ],
+      "owners": ["scripts/inject-queued-compaction.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/queued-compaction.md",
-      "checks": [
-        {
-          "id": "ui.queued-compaction.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-queued-compaction.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.queued-compaction.behavior","executable":"node","args":["--test","scripts/test-queued-compaction.cjs"],"level":"source"},{"id":"ui.queued-compaction.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "queuedCompactionEdits"
       ]
@@ -1029,31 +593,9 @@
     {
       "id": "ui.max-reasoning",
       "area": "ui",
-      "owners": [
-        "scripts/inject-max-reasoning.cjs"
-      ],
+      "owners": ["scripts/inject-max-reasoning.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/managed-providers.md",
-      "checks": [
-        {
-          "id": "ui.max-reasoning.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-max-reasoning.cjs"
-          ],
-          "level": "source",
-          "cacheInputs": {
-            "schema": 1,
-            "files": [
-              "scripts/test-max-reasoning.cjs",
-              "scripts/inject-max-reasoning.cjs",
-              "scripts/inject-provider-model-picker.cjs",
-              "scripts/provider-model-picker.cjs",
-              "scripts/astra-speed-toggle.cjs"
-            ]
-          }
-        }
-      ],
+      "checks": [{"id":"ui.max-reasoning.behavior","executable":"node","args":["--test","scripts/test-max-reasoning.cjs"],"level":"source","cacheInputs":{"schema":1,"files":["scripts/test-max-reasoning.cjs","scripts/inject-max-reasoning.cjs","scripts/inject-provider-model-picker.cjs","scripts/provider-model-picker.cjs","scripts/astra-speed-toggle.cjs"]}},{"id":"ui.max-reasoning.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "maxReasoningEdits"
       ]
@@ -1061,29 +603,9 @@
     {
       "id": "ui.recent-chat-filter",
       "area": "ui",
-      "owners": [
-        "scripts/inject-recent-chat-filter.cjs"
-      ],
+      "owners": ["scripts/inject-recent-chat-filter.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.recent-chat-filter.behavior",
-          "executable": "node",
-          "args": [
-            "scripts/test-feature-preservation.cjs",
-            "--recent-chat-check"
-          ],
-          "level": "source",
-          "cacheInputs": {
-            "schema": 1,
-            "files": [
-              "scripts/test-feature-preservation.cjs",
-              "scripts/inject-recent-chat-filter.cjs",
-              "scripts/test-recent-chat-filter.cjs"
-            ]
-          }
-        }
-      ],
+      "checks": [{"id":"ui.recent-chat-filter.behavior","executable":"node","args":["scripts/test-feature-preservation.cjs","--recent-chat-check"],"level":"source","cacheInputs":{"schema":1,"files":["scripts/test-feature-preservation.cjs","scripts/inject-recent-chat-filter.cjs"]}},{"id":"ui.recent-chat-filter.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "recentChatFilterEdits"
       ]
@@ -1091,22 +613,9 @@
     {
       "id": "ui.session-links",
       "area": "ui",
-      "owners": [
-        "scripts/inject-session-links.cjs",
-        "scripts/session-links.cjs"
-      ],
+      "owners": ["scripts/inject-session-links.cjs","scripts/session-links.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.session-links.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-session-links.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.session-links.behavior","executable":"node","args":["--test","scripts/test-session-links.cjs"],"level":"source"},{"id":"ui.session-links.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "sessionLinkEdits"
       ]
@@ -1365,22 +874,9 @@
     {
       "id": "ui.input-diagnostics",
       "area": "ui",
-      "owners": [
-        "scripts/inject-ui-input-diagnostics.cjs",
-        "scripts/ui-input-diagnostics-runtime.cjs"
-      ],
+      "owners": ["scripts/inject-ui-input-diagnostics.cjs","scripts/ui-input-diagnostics-runtime.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
       "contract": "docs/architecture/ui-presentation.md",
-      "checks": [
-        {
-          "id": "ui.input-diagnostics.behavior",
-          "executable": "node",
-          "args": [
-            "--test",
-            "scripts/test-ui-input-diagnostics.cjs"
-          ],
-          "level": "source"
-        }
-      ],
+      "checks": [{"id":"ui.input-diagnostics.behavior","executable":"node","args":["--test","scripts/test-ui-input-diagnostics.cjs"],"level":"source"},{"id":"ui.input-diagnostics.namespace-cache-owner","executable":"node","args":["--test","scripts/test-namespace-cache-owner.cjs"],"level":"source"}],
       "reportFields": [
         "uiInputDiagnosticsEdits"
       ]

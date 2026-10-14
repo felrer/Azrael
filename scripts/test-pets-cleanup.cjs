@@ -3,7 +3,7 @@ const assert = require("node:assert/strict"), ms = require("node:fs"), path = re
 const test = require("node:test");
 const vp = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
 const { PETS_CLEANUP_ASSETS, MARKER, injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
-const { transformAsset } = require("./namespace-azrael-host.cjs");
+const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const upstream = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const MAIN = PETS_CLEANUP_ASSETS[0];
 function parse(source, name) {

@@ -7,7 +7,7 @@ const { SESSION_LINK_ASSETS, injectSessionLinks } = require("./inject-session-li
 const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
-const { createAssetTransformCache } = require("./asset-transform-cache.cjs");
+const { selectAssetCacheFactory } = require("./namespace-cache-owner.cjs");
 const { readAssetsInOrder } = require("./ordered-asset-reader.cjs");
 const { injectRecovery } = require("./inject-recovery.cjs");
 const { injectFetchResponse } = require("./inject-fetch-response.cjs");
@@ -475,7 +475,7 @@ function transformAsset(source, relativePath, filename, ts) {
 function getTransformRules() {
   const transformSources = [
     "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
-    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
+    "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-task-work-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "optional-diagnostics.cjs",
@@ -550,7 +550,7 @@ const ASSET_RULE_PATHS = {
   "inject-capacity-retry-stop.cjs": [CAPACITY_RETRY_ASSET],
   "inject-btw.cjs": BTW_ASSETS,
   "btw-conversation.cjs": BTW_ASSETS,
-  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET, RECENT_THREAD_LIST_ASSET],
+  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-team-ui.cjs": [TEAM_UI_ASSET],
   "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
@@ -629,7 +629,8 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   };
   const featureManifest = loadManifest(path.resolve(__dirname, ".."));
   validateManifest(featureManifest, path.resolve(__dirname, ".."), report.transformRules);
-  const cache = createAssetTransformCache({
+  const cacheFactory = selectAssetCacheFactory(require.resolve("./asset-transform-cache.cjs"), options.cacheProjectRoot);
+  const cache = cacheFactory({
     cacheDirectory: options.cacheDirectory,
     typescriptSha256: options.typescriptSha256,
     typescriptVersion: ts.version,
@@ -826,11 +827,11 @@ module.exports = {
   transformExtension,
 };
 if (require.main === module) {
-  const [directory, typescript, hostVersion, cacheDirectory] = process.argv.slice(2);
-  if (!directory || !typescript) throw new Error("Usage: namespace-azrael-host.cjs <prepared extension> <typescript module> <host version> [cache directory]");
+  const [directory, typescript, hostVersion, cacheDirectory, cacheProjectRoot] = process.argv.slice(2);
+  if (!directory || !typescript) throw new Error("Usage: namespace-azrael-host.cjs <prepared extension> <typescript module> <host version> [cache directory] [absolute cache project root]");
   const typescriptPath = path.resolve(typescript);
   transformExtension(directory, require(typescriptPath), hostVersion, {
-    cacheDirectory, typescriptSha256: sha(fs.readFileSync(typescriptPath)),
+    cacheDirectory, cacheProjectRoot, typescriptSha256: sha(fs.readFileSync(typescriptPath)),
   }).then(report => {
     console.log(JSON.stringify({ hostId: report.hostId, changedAssets: report.assets.length, manifestSha256: report.manifestSha256 }));
   }).catch(error => { console.error(error); process.exitCode = 1; });

@@ -16,7 +16,7 @@ const FEATURE_TESTS = {
   "build-cache": /\/test-(?:build-module-cache\.ps1|incremental-extension-build\.cjs|ordered-asset-reader\.cjs|asset-transform-cache(?:-retention)?\.cjs)$/,
 };
 // Approved argument-free fixture scripts that do not import node:test.
-const FEATURE_FIXTURES = ["student-avatar-assets", "window-control-policy", "window-control-host", "window-control-backend", "window-control-mcp", "window-control-approval", "window-task-macros", "computer-use-runtime"]
+const FEATURE_FIXTURES = ["capture-project-inputs", "student-avatar-assets", "window-control-policy", "window-control-host", "window-control-backend", "window-control-mcp", "window-control-approval", "window-task-macros", "computer-use-runtime"]
   .map(name => `scripts/test-${name}.cjs`);
 const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated-azrael-entry.cjs", "scripts/asset-transform-cache.cjs", "scripts/test-project.cjs"]);
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
@@ -28,12 +28,15 @@ function parseArgs(args) {
     if (option === "--list") { options.list = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
-    if (!["--area", "--changed", "--log-directory"].includes(option)) throw new Error(`Unknown option: ${option}`);
+    if (!["--area", "--changed", "--log-directory", "--test-concurrency"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
     if (option === "--area") {
       if (!AREAS.includes(value)) throw new Error(`Unknown area: ${value}`);
       options.areas.push(value);
+    } else if (option === "--test-concurrency") {
+      if (!/^(?:[1-9]|1[0-6])$/.test(value)) throw new Error("Test concurrency must be an integer from 1 to 16");
+      options.testConcurrency = Number(value);
     } else if (option === "--changed") options.changed.push(normalize(value));
     else options.logDirectory = value;
   }
@@ -138,7 +141,7 @@ function select(options, root = ROOT) {
   const scripts = new Set([...files].filter(file => BUILD.includes(file)));
   if (areas.has("build")) for (const file of BUILD) scripts.add(file);
   const source = [...files].filter(file => !scripts.has(file)).sort();
-  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...source], cwd: root, files: source });
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...source], cwd: root, files: source });
   if (areas.has("standalone") && !areas.has("extension") && extensionFiles.size) {
     const { STANDALONE_FILES } = require(path.join(extension.extension, "scripts/run-tests.cjs"));
     for (const file of extension.tests) if (STANDALONE_FILES.includes(path.basename(file).replace(/\.ts$/, ".js"))) extensionFiles.add(file);
@@ -350,7 +353,7 @@ function selectChanged(options, root) {
   if (!changed.length) reasons.push({ reason: "No changed paths; no tests selected" });
   const commands = [];
   const source = [...files].filter(file => !BUILD.includes(file)).sort();
-  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", "--test-concurrency=4", ...source], cwd: root, files: source });
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...source], cwd: root, files: source });
   for (const file of [...files].filter(file => BUILD.includes(file)).sort())
     commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath,
       args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file, ...(file === "scripts/test-deploy-azrael.ps1" ? ["-ChangedOnly"] : [])] : [file], cwd: root, files: [file] });

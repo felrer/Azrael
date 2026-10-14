@@ -317,10 +317,13 @@ test("all pinned injector target fixtures: uncached/cold/warm byte and metadata 
     ["inject-instruction-settings.cjs", INSTRUCTION_SETTINGS_ASSETS]]) {
     const stats = { hits: 0, misses: 0 };
     const edited = cache("pinned", { ...changeRule(rule), statistics: stats });
+    let producerCalls = 0;
     for (const asset of targets) {
       const { source, expected } = results.get(asset);
-      assert.deepEqual(edited.run(asset, source, () => transform(asset, source)), expected);
+      // changeRule changes only the cache fingerprint; source and transformer stay identical.
+      assert.deepEqual(edited.run(asset, source, () => { producerCalls += 1; return expected; }), expected);
     }
+    assert.equal(producerCalls, targets.length, `${rule}: every target must invoke the miss producer`);
     assert.deepEqual(stats, { hits: 0, misses: targets.length });
     for (const [asset, { source, expected }] of results) {
       if (transformer.getAssetTransformRules(asset, rules)[rule]) continue;
@@ -348,6 +351,7 @@ test("missing-image cache counts reject absent or invalid metadata even with int
     assert.deepEqual(next.run(changedPath, changedSource,
       () => transform(changedPath, changedSource)), expected);
     assert.deepEqual(statistics, { hits: 0, misses: 1 });
+    assert.deepEqual(next.cleanup.deferred, [], "cache repair publication was deferred: " + JSON.stringify(next.cleanup.deferred));
     assert.deepEqual(cache("missing-image-counts").run(changedPath, changedSource, miss), expected);
   }
 });

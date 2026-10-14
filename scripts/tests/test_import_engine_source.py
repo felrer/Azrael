@@ -69,6 +69,60 @@ class ImportTests(unittest.TestCase):
             importer.import_source(self.source, self.destination, allow_source_advance=allow_source_advance,
                                    upstream_tag=upstream_tag)
 
+    def test_inventory_rejects_root_replaced_with_identical_files(self):
+        self.run_import()
+        receipt = json.loads((self.destination / "SOURCE.json").read_text())
+        original = importer.safe_path
+        replaced = False
+
+        def replace_root(root, name):
+            nonlocal replaced
+            result = original(root, name)
+            if not replaced:
+                replaced = True
+                saved = self.destination.with_name("replaced-root")
+                self.destination.rename(saved)
+                shutil.copytree(saved, self.destination)
+            return result
+
+        with patch.object(importer, "safe_path", side_effect=replace_root):
+            with self.assertRaisesRegex(ValueError, "Source root changed"):
+                importer.validate_inventory(self.destination, receipt)
+
+    def test_destination_rejects_root_replaced_with_identical_files(self):
+        self.run_import()
+        receipt = json.loads((self.destination / "SOURCE.json").read_text())
+        original = importer.describe
+        replaced = False
+
+        def replace_root(path, git_mode=None):
+            nonlocal replaced
+            result = original(path, git_mode)
+            if not replaced:
+                replaced = True
+                saved = self.destination.with_name("replaced-root")
+                self.destination.rename(saved)
+                shutil.copytree(saved, self.destination)
+            return result
+
+        with patch.object(importer, "describe", side_effect=replace_root):
+            with self.assertRaisesRegex(ValueError, "Source root changed"):
+                importer.verify_destination(self.destination, receipt["files"], has_receipt=True,
+                                            adaptation=receipt.get("distributionAdaptation"))
+
+    def test_validation_context_retains_file_escape_and_lexical_guards(self):
+        context = importer.validation_root(self.source)
+        for name in ("../outside", "/outside", ".git/config"):
+            with self.subTest(name=name), self.assertRaisesRegex(ValueError, "Unsafe source path"):
+                importer.safe_path(context, name)
+        original = importer.canonical_path
+        escaped = self.source.parent / "outside"
+        def resolve_escape(path):
+            return escaped if Path(path).name == "LICENSE" else original(path)
+        with patch.object(importer, "canonical_path", side_effect=resolve_escape):
+            with self.assertRaisesRegex(ValueError, "Path escapes its root"):
+                importer.safe_path(context, "LICENSE")
+
     def prepare_upstream_delta(self):
         base = self.git("rev-parse", "HEAD").decode().strip()
         (self.source / "LICENSE").write_bytes(b"upstream release\n")

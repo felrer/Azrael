@@ -11,6 +11,24 @@ function Get-CimInstance {param($ClassName,$ErrorAction) if($script:inspectionFa
 $cache=$null
 try{
  $source=Join-Path $fixture 'source';New-Item -ItemType Directory $source|Out-Null;Set-Content (Join-Path $source 'code.ts') 'one'
+ # Excluded generated subtrees do not affect source identity, at any depth.
+ $sourceKey=Get-BuildModuleKey @($source) @('excluded-guard')
+ $excludedRoot=Join-Path $source 'nested-generated'
+ foreach($name in @('node_modules','dist','target','.git','artifacts')){
+   $directory=Join-Path $excludedRoot $name;New-Item -ItemType Directory $directory -Force|Out-Null
+   Set-Content (Join-Path $directory 'generated.txt') 'ignored-one'
+ }
+ Assert ((Get-BuildModuleKey @($source) @('excluded-guard')) -ceq $sourceKey) 'Excluded subtrees must not contribute source records'
+ foreach($name in @('node_modules','dist','target','.git','artifacts')){Set-Content (Join-Path (Join-Path $excludedRoot $name) 'generated.txt') 'ignored-two'}
+ Assert ((Get-BuildModuleKey @($source) @('excluded-guard')) -ceq $sourceKey) 'Excluded subtree byte changes must retain the source key'
+ Remove-Item -LiteralPath $excludedRoot -Recurse -ErrorAction Stop
+ # A selected regular file named like an excluded directory remains source.
+ $selectedLeaf=Join-Path $source 'target';Set-Content $selectedLeaf 'selected-one'
+ $leafKey=Get-BuildModuleKey @($source) @('excluded-guard')
+ Assert ($leafKey -cne $sourceKey) 'Excluded names apply to directories, not selected regular files'
+ Set-Content $selectedLeaf 'selected-two'
+ Assert ((Get-BuildModuleKey @($source) @('excluded-guard')) -cne $leafKey) 'Selected regular leaf changes must invalidate the key'
+ Remove-Item -LiteralPath $selectedLeaf -ErrorAction Stop
  $cache=Open-BuildModuleCache $fixture
  $cache.SkipCleanup=$true
  try{Open-BuildModuleCache $fixture|Out-Null;throw 'Missing lock failure'}catch{Assert ($_.Exception.Message -match 'Another modular') 'Concurrent build must fail closed'}

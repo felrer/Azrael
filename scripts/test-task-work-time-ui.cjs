@@ -8,7 +8,7 @@ for(const [asset,marker,helper] of [[ASSET,MARKER,HELPER],[TURN_ASSET,TURN_MARKE
  const source=read(asset),out=injectTaskWorkTime(source,asset);assert.equal(out.count,1);assert.ok(out.text.includes(helper));assert.equal(injectTaskWorkTime(out.text,asset).count,0);
  assert.throws(()=>injectTaskWorkTime(out.text.replace(marker,marker+marker),asset));
  assert.deepEqual(ts.createSourceFile(asset,out.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
- const {transformAsset}=require('./namespace-azrael-host.cjs'),native=transformAsset(source,asset,path.join(base,asset),ts);assert.equal(native.asset.taskWorkTimeEdits,1);assert.deepEqual(ts.createSourceFile(asset,native.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
+ const {transformAsset}=require('./ui-test-transform-fixture.cjs'),native=transformAsset(source,asset,path.join(base,asset),ts);assert.equal(native.asset.taskWorkTimeEdits,1);assert.deepEqual(ts.createSourceFile(asset,native.text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS).parseDiagnostics,[]);
 });
 test('native list stays pristine and both user message paths insert the summary below the first user',()=>{
  const rowAsset='webview/assets/virtualized-turn-list-c0fd56eabf08.js';assert.deepEqual(injectTaskWorkTime(read(rowAsset),rowAsset),{text:read(rowAsset),count:0});

@@ -8,7 +8,7 @@ const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const { createBtwCommand, createBtwController } = require("./btw-conversation.cjs");
 const { BTW_ASSETS, BTW_MARKER, INSTRUCTIONS, injectBtw } = require("./inject-btw.cjs");
 const { injectComposerDraft } = require("./inject-composer-draft.cjs");
-const { transformAsset } = require("./namespace-azrael-host.cjs");
+const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const originals = BTW_ASSETS.map(asset => fs.readFileSync(path.join(root, asset), "utf8"));
 const patched = originals.map((source, i) => transformAsset(source, BTW_ASSETS[i], BTW_ASSETS[i], ts));

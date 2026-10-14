@@ -15,7 +15,8 @@ const canonical = value => JSON.stringify(value, (_, item) => item && typeof ite
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles.cjs',
   'check-root-resume-reasoning.cjs', 'check-task-work-time-native.cjs',
-  'check-thread-auto-compaction.cjs'].map(file => `scripts/${file}`));
+  'check-thread-auto-compaction.cjs', 'check-parent-requests.cjs',
+  'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs'].map(file => `scripts/${file}`));
 
 function isEligible(group) {
   return Boolean(group?.native && Array.isArray(group.entries) && group.entries.length &&
@@ -66,38 +67,7 @@ async function selectedTool(value, env, platform, resolve) {
   return resolve(value, env, platform);
 }
 
-// Without a TOML dependency parser, accept only config settings whose complete
-// meaning cannot reference more files/tools. Unknown syntax disables reuse.
-function assertSelfContainedConfig(contents, filename) {
-  const scalar = /^(?:true|false|[+-]?\d+|"[A-Za-z0-9_.+-]*"|'[A-Za-z0-9_.+-]*')$/;
-  const settings = {
-    build: new Set(['jobs', 'target', 'incremental']),
-    term: new Set(['verbose', 'quiet', 'color', 'progress.when', 'progress.width']),
-    net: new Set(['offline', 'git-fetch-with-cli', 'retry']),
-    http: new Set(['timeout', 'multiplexing', 'check-revoke', 'low-speed-limit']),
-  };
-  const profileKeys = new Set(['opt-level', 'debug', 'strip', 'debug-assertions', 'overflow-checks',
-    'lto', 'panic', 'incremental', 'codegen-units', 'rpath', 'inherits']);
-  let section = '';
-  for (const raw of contents.split(/\r?\n/)) {
-    // A # inside a quoted string is outside the accepted scalar grammar too.
-    const line = raw.replace(/#.*$/, '').trim();
-    if (!line) continue;
-    const table = line.match(/^\[([A-Za-z0-9_.-]+)\]$/);
-    if (table) { section = table[1]; continue; }
-    const setting = line.match(/^([A-Za-z0-9_.-]+)\s*=\s*(.+)$/);
-    const allowed = settings[section] || (/^profile\.[A-Za-z0-9_-]+$/.test(section) ? profileKeys : null);
-    if (!setting || !allowed?.has(setting[1]) || !scalar.test(setting[2])) {
-      throw Error(`Cargo config has unresolved external inputs or unsupported syntax: ${filename}`);
-    }
-    if (section === 'build' && setting[1] === 'target' &&
-        (!/^["'][A-Za-z0-9_]+(?:-[A-Za-z0-9_.]+)+["']$/.test(setting[2]) || /\.json["']$/i.test(setting[2]))) {
-      throw Error(`Cargo config target may require external specification: ${filename}`);
-    }
-  }
-}
-
-async function cargoConfigs(sourceRoot, env, platform, homedir) {
+async function cargoConfigs(sourceRoot, env, platform, homedir, validate) {
   const directories = new Set();
   let directory = path.join(sourceRoot, 'codex-rs');
   for (;;) {
@@ -113,7 +83,7 @@ async function cargoConfigs(sourceRoot, env, platform, homedir) {
       const filename = path.join(root, name);
       try {
         const contents = await fs.promises.readFile(filename);
-        assertSelfContainedConfig(contents.toString('utf8'), filename);
+        await validate(contents, filename);
         const state = await getDirectoryState(root, [name]);
         if (state.sha256 !== sha(`${name}\0${contents.length}\0${sha(contents)}\n`)) {
           throw Error(`Cargo config changed while establishing identity: ${filename}`);
@@ -179,12 +149,32 @@ async function runtime(config, env, providers = {}) {
       throw Error(`Unresolved external flag inputs: ${name}`);
     }
   }
+  let configParser = null;
+  let python;
+  const parser = path.join(__dirname, 'cargo-config-self-contained.py');
+  const configs = await cargoConfigs(config.engineSourceRoot, env, platform,
+    providers.homedir ?? environmentValue(env, platform === 'win32' ? 'USERPROFILE' : 'HOME', platform) ?? os.homedir(),
+    async (contents, filename) => {
+      if (!configParser) {
+        python = await resolve(platform === 'win32' ? 'python' : 'python3', env, platform);
+        const state = await getDirectoryState(path.dirname(python), [path.basename(python)]);
+        const identity = JSON.parse(probe(python, ['-I', '-B', parser, '--identity'], { env }).stdout);
+        if (!identity.version || !identity.executable || !Object.keys(identity.tomllib || {}).length) {
+          throw Error('Invalid Python TOML parser identity');
+        }
+        configParser = { executable: python, state, identity };
+      }
+      try {
+        probe(python, ['-I', '-B', parser], { env, input: contents });
+      } catch (error) {
+        throw Error(`Cargo config has unresolved external inputs or unsupported syntax: ${filename}: ${error.message}`);
+      }
+    });
   return { node: { executable: process.execPath,
     state: await getDirectoryState(path.dirname(process.execPath), [path.basename(process.execPath)]),
     version: process.version, platform, arch: process.arch },
     os: { release: os.release(), version: os.version(), machine: os.machine() }, tools, externalTools,
-    cargoConfigs: await cargoConfigs(config.engineSourceRoot, env, platform,
-      providers.homedir ?? environmentValue(env, platform === 'win32' ? 'USERPROFILE' : 'HOME', platform) ?? os.homedir()),
+    cargoConfigs: configs, configParser,
     environmentSha256: sha(canonical(env)), normalized,
     helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs']) };
 }
@@ -192,18 +182,61 @@ async function runtime(config, env, providers = {}) {
 async function key(config, group, inputs, runtimeIdentity) {
   if (!isEligible(group)) throw Error('Group is not eligible for Cargo evidence reuse');
   if (!inputs || typeof inputs !== 'object' || !runtimeIdentity) throw Error('Cargo cache requires verified inputs and runtime');
+  if (typeof config.engineSourceRoot !== 'string' || !path.isAbsolute(config.engineSourceRoot)) {
+    throw Error('Cargo cache requires an absolute engine source root');
+  }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
-    'scripts/cargo-verification.cjs', 'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
+    'scripts/cargo-verification.cjs', 'scripts/cargo-config-self-contained.py',
+    'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);
     return { feature, check };
   });
-  return sha(canonical({ schema: 1, projectRoot: path.resolve(config.projectRoot),
-    engineSourceRoot: path.resolve(config.engineSourceRoot), inputs, declared,
-    files: await getDirectoryState(config.projectRoot, [...files].sort()), runtime: runtimeIdentity }));
+  // The full gate owns project/manifest drift checks. Eligible wrappers consume
+  // bound files and explicit source, not the execution/release directory location.
+  // Keep all other fields, including conservative global registered/rule hashes.
+  const cargoInputs = { ...inputs };
+  delete cargoInputs.projectSha256;
+  delete cargoInputs.manifestSha256;
+  if (inputs.engine && typeof inputs.engine === 'object' && !Array.isArray(inputs.engine)) {
+    cargoInputs.engine = { ...inputs.engine };
+    delete cargoInputs.engine.directory;
+  }
+  if (inputs.registered && typeof inputs.registered === 'object' && !Array.isArray(inputs.registered)) {
+    cargoInputs.registered = { ...inputs.registered };
+    delete cargoInputs.registered.path;
+  }
+  // zod is a complete content identity prepared for other engine checks.
+  // Cargo wrappers consume explicit engine source; retain every other field.
+  if (inputs.checkRuntime && typeof inputs.checkRuntime === 'object' && !Array.isArray(inputs.checkRuntime) &&
+      inputs.checkRuntime.zod && typeof inputs.checkRuntime.zod === 'object' && !Array.isArray(inputs.checkRuntime.zod) &&
+      typeof inputs.checkRuntime.zod.path === 'string' && path.isAbsolute(inputs.checkRuntime.zod.path) &&
+      /^[a-f0-9]{64}$/i.test(inputs.checkRuntime.zod.sha256 || '') &&
+      Number.isSafeInteger(inputs.checkRuntime.zod.fileCount) && inputs.checkRuntime.zod.fileCount >= 0 &&
+      Number.isSafeInteger(inputs.checkRuntime.zod.bytes) && inputs.checkRuntime.zod.bytes >= 0) {
+    cargoInputs.checkRuntime = { ...inputs.checkRuntime, zod: { ...inputs.checkRuntime.zod } };
+    delete cargoInputs.checkRuntime.zod.path;
+  }
+  const cargoRuntime = { ...runtimeIdentity };
+  if (runtimeIdentity.helper && typeof runtimeIdentity.helper === 'object' && !Array.isArray(runtimeIdentity.helper)) {
+    cargoRuntime.helper = { ...runtimeIdentity.helper };
+    delete cargoRuntime.helper.path;
+  }
+  const fileIdentity = await getDirectoryState(config.projectRoot, [...files].sort());
+  delete fileIdentity.path;
+  return sha(canonical({ schema: 4,
+    engineSourceRoot: path.resolve(config.engineSourceRoot), inputs: cargoInputs, declared,
+    files: fileIdentity, runtime: cargoRuntime }));
 }
 
-const options = config => ({ projectRoot: config.projectRoot,
-  cacheRoot: path.join(config.projectRoot, 'artifacts/cache/verification-results/cargo') });
+function options(config) {
+  const projectRoot = config.cargoVerificationCacheProjectRoot === undefined
+    ? config.projectRoot : config.cargoVerificationCacheProjectRoot;
+  if (typeof projectRoot !== 'string' || !path.isAbsolute(projectRoot)) {
+    throw Error('Cargo verification cache project root must be an absolute path');
+  }
+  return { projectRoot,
+    cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results/cargo') };
+}
 module.exports = { isEligible, runtime, key, options, resolveExecutable, CACHE_SCHEMA: storage.CACHE_SCHEMA,
   begin: storage.begin, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };

@@ -52,6 +52,30 @@ function Get-BuildCachePlatform {
     $os=if([Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([Runtime.InteropServices.OSPlatform]::Windows)){'windows'}elseif([Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([Runtime.InteropServices.OSPlatform]::Linux)){'linux'}elseif([Runtime.InteropServices.RuntimeInformation]::IsOSPlatform([Runtime.InteropServices.OSPlatform]::OSX)){'macos'}else{[Runtime.InteropServices.RuntimeInformation]::OSDescription}
     return @($os,[Runtime.InteropServices.RuntimeInformation]::ProcessArchitecture.ToString())
 }
+function Get-BuildModuleSourceFiles([string]$Root) {
+    # Excluded build directories contribute no source records or link guards.
+    # Skip them before recursion, preserving guards for every selected entry.
+    $pending=[Collections.Generic.Stack[string]]::new()
+    $pending.Push($Root)
+    while($pending.Count){
+        $directory=$pending.Pop()
+        foreach($item in Get-ChildItem -LiteralPath $directory -Force){
+            if($item.PSIsContainer){
+                if($item.Name -in @('node_modules','dist','target','.git','artifacts')){continue}
+                if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw "Linked module source: $($item.FullName)"}
+                $pending.Push($item.FullName)
+            } else {
+                if($item.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Module source contains a link.'}
+                $item
+            }
+        }
+    }
+}
+function Get-BuildModuleFileHash([string]$Path) {
+    $stream=[IO.File]::Open($Path,[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+    try { return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($stream)) }
+    finally { $stream.Dispose() }
+}
 function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
     $records=[Collections.Generic.List[object]]::new()
     $records.Add([ordered]@{schema=2;platform=@(Get-BuildCachePlatform)})
@@ -60,15 +84,12 @@ function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
         Assert-BuildCachePath $inputPath $inputPath|Out-Null
         if(-not(Test-Path -LiteralPath $inputPath)){throw "Missing module input: $inputPath"}
         $kind=if(Test-Path -LiteralPath $inputPath -PathType Leaf){'file'}else{'directory'}
-        if($kind -eq 'directory'){
-          foreach($link in @(Get-ChildItem $inputPath -Recurse -Force |Where-Object {($_.Attributes -band [IO.FileAttributes]::ReparsePoint) -and [IO.Path]::GetRelativePath($inputPath,$_.FullName) -notmatch '(^|[\\/])(node_modules|dist|target|\.git|artifacts)([\\/]|$)'})){throw "Linked module source: $($link.FullName)"}
-        }
         $records.Add([ordered]@{input=$index;kind=$kind})
-        $files=if($kind -eq 'file'){@(Get-Item -LiteralPath $inputPath)}else{@(Get-ChildItem -LiteralPath $inputPath -Recurse -File -Force |Where-Object {[IO.Path]::GetRelativePath($inputPath,$_.FullName) -notmatch '(^|[\\/])(node_modules|dist|target|\.git|artifacts)[\\/]' })}
+        $files=if($kind -eq 'file'){@(Get-Item -LiteralPath $inputPath)}else{@(Get-BuildModuleSourceFiles $inputPath)}
         foreach($file in $files|Sort-Object FullName){
           if($file.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Module source contains a link.'}
           $before=Get-Item -LiteralPath $file.FullName -Force
-          $hash=(Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash
+          $hash=(Get-BuildModuleFileHash $file.FullName)
           $after=Get-Item -LiteralPath $file.FullName -Force
           if($after.Attributes -band [IO.FileAttributes]::ReparsePoint){throw 'Module source contains a link.'}
           if($before.Length -ne $after.Length -or $before.LastWriteTimeUtc -ne $after.LastWriteTimeUtc){throw 'Module input changed during hashing.'}
@@ -94,7 +115,7 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
         if(@(Compare-Object @($inventory|Sort-Object) @($receipt.files.path|Sort-Object)).Count){throw 'Cache inventory changed'}
         foreach($file in $receipt.files){
           $p=Join-Path $path $file.path
-          if((Get-FileHash -LiteralPath $p).Hash -ine $file.sha256){throw 'Cache output changed'}
+          if((Get-BuildModuleFileHash $p) -ine $file.sha256){throw 'Cache output changed'}
         }
         $receipt.lastUsedUtc=[DateTime]::UtcNow.ToString('o');$receipt|ConvertTo-Json -Depth 6|Set-Content -LiteralPath $receiptPath -Encoding utf8NoBOM;(Get-Item -LiteralPath $path).LastWriteTimeUtc=[DateTime]::UtcNow;$entry.Hit=$true
       }catch{$entry.Hit=$false}
@@ -114,7 +135,7 @@ function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
       $p=Assert-BuildCachePath (Join-Path $Entry.Path $output) $Entry.Path
       if(-not(Test-Path -LiteralPath $p)){throw "Missing module output: $p"}
       $items=@(Get-BuildModuleFiles $p $Entry.Path)
-      foreach($file in $items){@{path=[IO.Path]::GetRelativePath($Entry.Path,$file.FullName);sha256=(Get-FileHash -LiteralPath $file.FullName).Hash}}
+      foreach($file in $items){@{path=[IO.Path]::GetRelativePath($Entry.Path,$file.FullName);sha256=(Get-BuildModuleFileHash $file.FullName)}}
     })
     if((Get-BuildModuleKey $Entry.Inputs $Entry.Values) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
     $temporary=Join-Path $Entry.Path ('cache-'+[guid]::NewGuid().ToString('N')+'.tmp')
