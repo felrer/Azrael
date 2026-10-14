@@ -139,8 +139,18 @@ async function verifyBrowser() {
   })();
   const html = `<!doctype html><meta charset="utf-8"><script>${FONT_PLATFORM_SCRIPT}</script><style>:root{--font-sans:Arial;--font-ui-family:Arial}body{font-family:Arial;font-size:16px;line-height:24px}.sample{font-size:16px;line-height:24px}.sample button{font-size:16px;line-height:24px}.font-content{font-family:var(--codex-content-font-family)}${transformed.get(CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".css")))}</style><div id="fixed" class="sample">고정 메뉴 Copy 42</div><div id="korean" class="sample" data-azrael-dynamic-text>경기천년제목</div><div id="latin" class="sample" data-azrael-dynamic-text>Consolas 123</div><div id="bold" class="sample" data-azrael-dynamic-text style="font-weight:700">경기천년제목</div><div id="content" class="sample font-content">대화 Message 123<strong id="markdown-bold" style="font-weight:700">강조 제목</strong><strong id="cascadia-bold" style="font-weight:700">Bold Latin 123</strong><em id="cascadia-italic">Italic Latin 123</em><button id="copy">Copy</button></div><div data-composer-body class="[&_.ProseMirror]:!font-sans"><div id="composer" class="sample ProseMirror" contenteditable>입력 composer 456</div></div><div id="shadow" style="display:block"></div><script>document.querySelector('#shadow').attachShadow({mode:'open'}).innerHTML=${JSON.stringify(`<style>${presentation.usageStyles}</style><main><header><span id="identity" data-azrael-dynamic-text>계정 Account 123</span><div class="actions"><button id="refresh" data-action="refresh">새로고침</button></div></header></main>`)};</script>`;
   const fixture = path.join(output, "webview/assets/fixture.html");
+  // Render the production B8 model-name leaf. Only the adjacent effort/button
+  // shell is synthetic; no host/model requests or installed-app acceptance.
+  const modelAsset = CONTENT_FONT_ASSETS.find(asset => asset.endsWith(".js") && asset.includes("app-initial"));
+  const modelSource = ts.createSourceFile(modelAsset, injectContentFonts(hs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(root, "artifacts/upstream-ui/26.1007.21434"), modelAsset), "utf8"), modelAsset, ts).text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const modelFunction = modelSource.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "B8").getText(modelSource);
+  const jsx = (type, props) => ({ type, props });
+  const modelLeaf = name => pm.runInNewContext(`(${modelFunction})`, { Boa: { c: () => Array(14).fill(Symbol.for("react.memo_cache_sentinel")) }, Voa: { jsx, jsxs: jsx }, Hu: () => false, sg: {}, c_: x => x, ru: (...x) => x.filter(Boolean).join(" "), Ioa: "icon", q: "translation" })({ model: "custom", displayName: name });
+  const escapeHtml = text => String(text).replaceAll("&", "&amp;").replaceAll('"', "&quot;").replaceAll("<", "&lt;");
+  const renderLeaf = node => typeof node === "string" ? escapeHtml(node) : node.type === "icon" ? "" : `<span class="${escapeHtml(node.props.className)}"${node.props["data-azrael-dynamic-text"] ? ' data-azrael-dynamic-text="true"' : ""}>${(Array.isArray(node.props.children) ? node.props.children : [node.props.children]).map(renderLeaf).join("")}</span>`;
+  const modelFixture = `<style>@font-face{font-family:"Legacy Half Space";src:local("Consolas");unicode-range:U+0020;size-adjust:50%}.model-fixture{display:flex;align-items:center;gap:4px;width:260px;max-width:260px;font:16px/24px Arial;padding:6px 12px;border-radius:24px;background:var(--color-background-primary-ghost-hover);color:inherit}.model-fixture>span:first-child{flex:1;min-width:0}.model-fixture [data-azrael-dynamic-text]{min-width:0}.model-fixture svg{width:14px;height:14px;flex-shrink:0}.baseline-marker{display:inline-block;width:0;height:0;vertical-align:baseline}.model-legacy [data-azrael-dynamic-text]{font-family:"Legacy Half Space",${NORMAL_FONT_FAMILY}!important}.model-reference [data-azrael-dynamic-text]{font-family:${NORMAL_FONT_FAMILY}!important}</style>${['reference','legacy','current'].map(mode => `<button type="button" id="model-${mode}" class="model-fixture model-${mode}">${renderLeaf(modelLeaf("GPT-6.1 Sol"))}<span class="effort">Medium</span><svg viewBox="0 0 16 16" aria-hidden="true"><path d="m4 6 4 4 4-4" fill="none" stroke="currentColor"/></svg></button>`).join("")}`;
   const chatFixture = `<div class="_MarkdownRoot_63g8m_2"><p id="chat-paragraph" class="sample _Paragraph_63g8m_2">가 나</p><h2 id="chat-heading" class="sample _Heading_63g8m_2">가 나</h2><ul><li id="chat-list" class="sample _ListItem_63g8m_2">가 나</li></ul><table class="sample _Table_63g8m_2"><tr><td id="chat-cell">가 나</td></tr></table><div id="chat-title" data-thread-title>가 나 hello world</div><div id="dynamic-value" data-azrael-dynamic-text>가 나 hello world</div><p class="_Paragraph_63g8m_2"><code id="chat-code">a b</code><pre id="chat-pre">a b</pre><button id="chat-control">Copy code</button></p></div><div data-azrael-dynamic-text><p id="user-paragraph" class="sample _Paragraph_63g8m_2">가 나</p></div>`;
-  hs.writeFileSync(fixture, html.replace("</style>", `</style>${chatFixture}`));
+  hs.writeFileSync(fixture, html.replace("</style>", `</style>${chatFixture}${modelFixture}`));
   const profile = hs.mkdtempSync(path.join(output, "chromium-profile-"));
   const child = spawn(chrome, ["--headless=new", "--disable-gpu", "--no-first-run", "--no-default-browser-check", "--disable-background-networking", "--remote-debugging-port=0", `--user-data-dir=${profile}`, "about:blank"], { windowsHide: true, stdio: ["ignore", "ignore", "pipe"] });
   let stderr = "";
@@ -186,6 +196,16 @@ async function verifyBrowser() {
       return measured.result.value;
     };
     const themes = {};
+    const measureTypography = async () => {
+      const evaluation = await call("Runtime.evaluate", { expression: `(async()=>{
+        await document.fonts.load('16px "Azrael Consolas Space"',' ');await document.fonts.load('16px "Legacy Half Space"',' ');await document.fonts.ready;
+        const result={models:{},caret:[]};
+        for(const mode of ['reference','legacy'])document.querySelector('#model-'+mode+' [data-azrael-dynamic-text]').style.setProperty('font-family',(mode==='legacy'?'"Legacy Half Space",':'')+${JSON.stringify(NORMAL_FONT_FAMILY)},'important');
+        for(const mode of ['reference','legacy','current']){const button=document.getElementById('model-'+mode),model=button.querySelector('[data-azrael-dynamic-text]'),effort=button.querySelector('.effort'),base=button.getBoundingClientRect();const position=el=>{const b=el.getBoundingClientRect();return {x:b.x-base.x,y:b.y-base.y,width:b.width,height:b.height}};const baseline=el=>{const marker=document.createElement('i');marker.className='baseline-marker';el.append(marker);const y=marker.getBoundingClientRect().y-base.y;marker.remove();return y};result.models[mode]={model:position(model),baseline:baseline(model),effort:position(effort),effortBaseline:baseline(effort),arrow:position(button.querySelector('svg'))}}
+        const composer=document.getElementById('composer'),saved=composer.innerHTML,selection=getSelection();composer.focus();
+        for(const text of ['a','a ','a  ','확인했습니다. ','a\\nb ']){composer.textContent=text;const node=composer.firstChild,range=document.createRange();range.setStart(node,node.length);range.collapse(true);selection.removeAllRanges();selection.addRange(range);const actual=range.getBoundingClientRect();composer.style.setProperty('font-family',${JSON.stringify(NORMAL_FONT_FAMILY)},'important');const normal=range.getBoundingClientRect();composer.style.removeProperty('font-family');result.caret.push({text,actual:actual.height,normal:normal.height})}composer.innerHTML=saved;selection.removeAllRanges();return result})()`, awaitPromise:true,returnByValue:true });
+      assert.ok(!evaluation.exceptionDetails,JSON.stringify(evaluation.exceptionDetails));return evaluation.result.value;
+    };
     for (const theme of ["light", "dark"]) {
     await call("Emulation.setEmulatedMedia", { features: [{ name: "prefers-color-scheme", value: theme }] });
     const themed = await call("Runtime.evaluate", { expression: `(()=>{document.documentElement.dataset.theme=${JSON.stringify(theme)};document.documentElement.className=${JSON.stringify(theme)};document.body.dataset.vscodeThemeKind=${JSON.stringify(theme)};document.querySelector('#shadow').dataset.theme=${JSON.stringify(theme)};document.body.style.background='var(--app-color-background-surface)';document.body.style.color='var(--color-text-primary)';const s=getComputedStyle(document.body);return {theme:document.documentElement.dataset.theme,colorScheme:getComputedStyle(document.documentElement).colorScheme,background:s.backgroundColor,color:s.color}})()`, returnByValue: true });
@@ -196,6 +216,35 @@ async function verifyBrowser() {
     assert.ok(!evaluation.exceptionDetails, JSON.stringify(evaluation.exceptionDetails));
     const evidence = evaluation.result.value;
     evidence.theme = themed.result.value;
+    evidence.typography = await measureTypography();
+    hs.writeFileSync(path.join(renderLogs, `composer-typography-${theme}.json`), JSON.stringify(evidence.typography, null, 2));
+    for (const caret of evidence.typography.caret) assert.equal(caret.actual, caret.normal, `${theme}/${caret.text}: full-height collapsed caret range`);
+    const { reference, legacy, current } = evidence.typography.models;
+    assert.equal(current.baseline, reference.baseline, `${theme}: model-name baseline matches unscaled Consolas`);
+    assert.equal(current.baseline, current.effortBaseline, `${theme}: model and effort baselines align`);
+    assert.notEqual(legacy.baseline, reference.baseline, `${theme}: fixture reproduces raised model name`);
+    assert.deepEqual(current.effort, legacy.effort, `${theme}: effort label stays in place`);
+    assert.deepEqual(current.arrow, legacy.arrow, `${theme}: arrow stays in place`);
+    assert.equal(current.model.width, legacy.model.width, `${theme}: half-space model width stays unchanged`);
+    evidence.typographyVariants = [];
+    for (const zoom of [1, 1.25, 1.5]) {
+      for (const label of ["GPT-6.1 Sol", "한글 모델 GPT-6.1", "A very long model name with several spaces"]) {
+        await call("Runtime.evaluate", { expression: `document.body.style.zoom=${zoom};for(const mode of ['reference','legacy','current'])document.querySelector('#model-'+mode+' [data-azrael-dynamic-text]').textContent=${JSON.stringify(label)}` });
+        const measured = await measureTypography();
+        hs.writeFileSync(path.join(renderLogs, 'typography-variant-last.json'), JSON.stringify({ theme, zoom, label, ...measured }, null, 2));
+        for (const caret of measured.caret) assert.equal(caret.actual, caret.normal, `${theme}/${zoom}/${caret.text}: caret height`);
+        const { current, reference, legacy } = measured.models;
+        assert.ok(Math.abs(current.baseline-reference.baseline)<0.1, `${theme}/${zoom}/${label}: natural model baseline`);
+        // Different faces round vertical metrics differently at fractional zoom.
+        // Preserve the exact natural-font relationship, not an artificial offset.
+        assert.equal(current.baseline-current.effortBaseline, reference.baseline-reference.effortBaseline, `${theme}/${zoom}/${label}: natural effort alignment`);
+        assert.deepEqual(current.arrow, legacy.arrow, `${theme}/${zoom}/${label}: arrow geometry preserved`);
+        assert.deepEqual(current.effort, legacy.effort, `${theme}/${zoom}/${label}: effort geometry preserved`);
+        assert.equal(current.model.width, legacy.model.width, `${theme}/${zoom}/${label}: model width preserved`);
+        evidence.typographyVariants.push({ zoom, label, ...measured });
+      }
+    }
+    await call("Runtime.evaluate", { expression: "document.body.style.zoom='';for(const mode of ['reference','legacy','current'])document.querySelector('#model-'+mode+' [data-azrael-dynamic-text]').textContent='GPT-6.1 Sol'" });
     const shadow = await call("Runtime.evaluate", { expression: `(()=>{const host=document.querySelector('#shadow'),root=host.shadowRoot,result={};for(const [id,el] of [['host',host],['main',root.querySelector('main')],['identity',root.querySelector('#identity')],['refresh',root.querySelector('#refresh')]]){const s=getComputedStyle(el),rect=el.getBoundingClientRect();result[id]={background:s.backgroundColor,color:s.color,colorScheme:s.colorScheme,width:rect.width,height:rect.height}}return result})()`, returnByValue: true });
     assert.ok(!shadow.exceptionDetails, JSON.stringify(shadow.exceptionDetails));
     evidence.shadow = shadow.result.value;
