@@ -74,7 +74,11 @@ function injectBtw(text, asset) {
     // This precedes queue, goal, steering, local-history and analytics admission.
     // The existing guarded clear keeps a newer composer draft intact.
     text = once(text, BTW_COMPOSER_ADMISSION_ANCHOR, BTW_COMPOSER_ADMISSION_REPLACEMENT);
-    text = once(text, "J3(v),null}var iDa,aDa;", "J3(v),__azraelRegisterBtw(n,i,a),null}var iDa,aDa;");
+    // The compact command owns AppScope, but native side-chat creation reads
+    // RouteScope atoms. Capture the active route through the native React hook;
+    // an AppScope cannot resolve its descendant route from its own instance map.
+    text = once(text, "i=Ou($),a=st(),o=Hu(qCn,n)", "i=Ou($),__azraelBtwRouteScope=Ou(Uf),a=st(),o=Hu(qCn,n)");
+    text = once(text, "J3(v),null}var iDa,aDa;", "J3(v),__azraelRegisterBtw(n,__azraelBtwRouteScope,a),null}var iDa,aDa;");
     text += `\n${BTW_MARKER}\n${COMPOSER}`;
   } else if (asset === BTW_ASSETS[2]) {
     text = once(text, "parentNavigationPath:s}){if(bc(i))", "parentNavigationPath:s,sideQuestion:__azraelSideQuestion=!1}){if(bc(i))");
