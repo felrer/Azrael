@@ -128,7 +128,7 @@ function renderThreadAutoCompaction(jsx, Switch, Button, state, conversationId, 
   const label = ko ? "자동 압축" : "Auto-compaction";
   return jsx("div", {className:"flex flex-col gap-2", "data-azrael-thread-auto-compaction":conversationId??"",children:[
     jsx("div",{className:"flex items-center justify-between gap-4",children:[jsx("span",{className:"text-sm",children:label}),jsx(Switch,{ariaLabel:label,checked:state.enabled!==false,disabled:conversationId==null||state.pending||state.enabled==null,onChange:state.save})]}),
-    jsx("span",{className:"text-xs text-token-description-foreground",role:state.error?"alert":"status","aria-live":"polite",children:state.error ? (ko?"자동 압축 설정을 확인하거나 저장하지 못했습니다.":"Could not read or save auto-compaction setting.") : state.pending ? (ko?"저장 중…":"Saving…") : (ko?"이 대화에만 적용됩니다. 새 대화는 기본으로 켜집니다.":"Applies to this chat. New chats start enabled.")}),
+    jsx("span",{className:"text-xs text-token-description-foreground",role:state.error?"alert":"status","aria-live":"polite",children:state.error ? (ko?"자동 압축 설정을 확인하거나 저장하지 못했습니다.":"Could not read or save auto-compaction setting.") : state.pending ? (ko?"저장 중…":"Saving…") : (ko?"이 대화에만 적용":"Applies to this chat. New chats start enabled.")}),
     state.error ? jsx(Button,{type:"button",color:"secondary",size:"compact",onClick:state.error==="read"?state.retry:state.retrySave,disabled:state.pending,children:ko?"다시 시도":"Retry setting"}) : null
   ]});
 }
