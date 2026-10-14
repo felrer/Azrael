@@ -293,6 +293,8 @@ pub struct ModelClient {
 /// contract and can cause routing bugs.
 pub struct ModelClientSession {
     client: ModelClient,
+    // HTTP streams need the same producer-termination barrier as WebSocket streams.
+    http_last_response_rx: Option<oneshot::Receiver<LastResponse>>,
     root_resume_timing: Option<Arc<crate::session::root_resume_timing::RootResumeTiming>>,
     websocket_session: WebsocketSession,
     /// Turn state for sticky routing.
@@ -617,6 +619,7 @@ impl ModelClient {
         }
         ModelClientSession {
             client: self.clone(),
+            http_last_response_rx: None,
             root_resume_timing: None,
             websocket_session,
             turn_state: Arc::new(OnceLock::new()),
@@ -1393,6 +1396,30 @@ impl Drop for ModelClientSession {
 }
 
 impl ModelClientSession {
+    /// Called only after a terminal capacity error and the sampling consumer has
+    /// been dropped. The mapper's sender closes after its provider stream drops.
+    /// Never replace the thread, provider, auth owner, prompt key or turn routing.
+    pub(crate) async fn recreate_capacity_connection(&mut self) -> bool {
+        let websocket = self.websocket_session.last_response_rx.take();
+        let http = self.http_last_response_rx.take();
+        let ended = tokio::time::timeout(Duration::from_secs(10), async {
+            if let Some(response) = websocket {
+                let _ = response.await;
+            }
+            if let Some(response) = http {
+                let _ = response.await;
+            }
+        })
+        .await;
+        if ended.is_err() {
+            return false;
+        }
+        self.websocket_session.reset(Some("capacity_recovery"));
+        // HTTP has no retained transport here: build_api_transport constructs a
+        // new route-specific client for the next request. Keep HTTPS fallback.
+        true
+    }
+
     pub(crate) fn set_root_resume_timing(
         &mut self,
         timing: Option<Arc<crate::session::root_resume_timing::RootResumeTiming>>,
@@ -1721,7 +1748,7 @@ impl ModelClientSession {
         )
     )]
     async fn stream_responses_api(
-        &self,
+        &mut self,
         prompt: &Prompt,
         model_info: &ModelInfo,
         session_telemetry: &SessionTelemetry,
@@ -1847,13 +1874,14 @@ impl ModelClientSession {
 
             match stream_result {
                 Ok(stream) => {
-                    let (stream, _) = map_response_stream(
+                    let (stream, last_response_rx) = map_response_stream(
                         stream,
                         request_session_telemetry,
                         inference_trace_attempt,
                         Arc::clone(&self.client.state.provider),
                         interceptors,
                     );
+                    self.http_last_response_rx = Some(last_response_rx);
                     return Ok(stream);
                 }
                 Err(ApiError::Transport(unauthorized_transport))
