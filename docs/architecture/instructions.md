@@ -71,7 +71,7 @@ The host owns networking, filesystem operations and version state. Webview reque
 
 ## Selectable instruction packages and task profiles
 
-Status: `draft`. This proposes an extension from personal skill sharing to optional instruction resources and task specialization. It preserves the agreed sharing classes and save/apply/publish separation; it does not establish implementation or approve changes to the application's installed defaults.
+Status: `draft` for the detailed package and task-activation contracts. Independent instruction resources plus composed task profiles are agreed product scope, recorded in the target contract below. These details preserve the agreed sharing classes and save/apply/publish separation; they do not establish implementation or approve changes to the application's installed defaults.
 
 The maintained release currently has ten selectable components: global `AGENTS.md`, two agent roles, five skills, an optional workspace logging playbook and agent configuration. The home components are selected by default in the existing release manifest. These are distribution components, not proof of current remote publication. Engine-owned runtime identity, root coordination, permission enforcement and provider/tool eligibility retain their native delivery and are not selectable instruction resources.
 
@@ -104,6 +104,8 @@ Initial verification must distinguish availability from activation: acquiring an
 Status: `target`. This extends the existing instruction settings surface. The source, package and installed acceptance of the existing release installer do not establish implementation of personal skill management.
 
 Azrael provides one management surface for personal skill sources, installation and sharing. A skill includes its `SKILL.md`, scripts, references, templates and other support files. Sharing applies to the complete skill folder rather than individual files.
+
+Sharing supports both independently acquired instruction resources and task profiles that compose resources with model settings. A user can acquire a complete task profile or reuse an individual instruction resource. The detailed package schema, dependency resolution and task activation are specified by the draft composition contract above.
 
 Three sharing classes are supported: public, one fixed collaborator group and local only. Public and collaborator content use separate GitHub repositories. Repository access controls the fixed group; membership in the Azrael application repository does not automatically grant access to the collaborator skill repository. Local-only content is excluded from Git tracking by the application repository and from all publication inputs. The management directory may reside inside the local Azrael project, while each remote repository remains independent.
 
