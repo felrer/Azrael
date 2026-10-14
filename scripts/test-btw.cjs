@@ -174,10 +174,41 @@ test("native slash registration opens /btw as an action without parent message a
   const command = registered[0];
   assert.equal(command.id, "btw"); assert.equal(command.requiresEmptyComposer, true); assert.equal(command.enabled, true);
   assert.match(command.description, /별도 질문/);
-  assert.ok(declaration(patched[1].text, "rDa").includes("__azraelRegisterBtw(n,i,a)"));
+  assert.ok(declaration(patched[1].text, "rDa").includes("__azraelRegisterBtw(n,__azraelBtwRouteScope,a)"));
   await command.onSelect(); assert.equal(opened.length, 1); assert.equal(opened[0][2], "/btw"); assert.equal(opened[0][4], "local");
   ctx.__azraelTryBtw = async () => { throw Error("fork failed"); }; await command.onSelect(); assert.deepEqual(errors, ["fork failed"]);
   ctx.__azraelBtw.lookup = () => ({}); ctx.__azraelRegisterBtw("side", scope, { locale: "en" }); assert.equal(registered[1].enabled, false);
+});
+
+test("native slash component captures RouteScope rather than AppScope for side-chat state", async () => {
+  const opened = [], registered = [], cache = Array(31);
+  const appToken = { id: "app" }, routeToken = { id: "route" };
+  const app = { token: appToken, parent: null }, route = { token: routeToken, parent: app };
+  const ctx = { iDa: { c: () => cache }, $: appToken, Uf: routeToken,
+    Ou: token => token === routeToken ? route : app,
+    st: () => ({ locale: "ko", formatMessage: ({ defaultMessage }) => defaultMessage }),
+    Hu: () => ({}), qCn: {}, aCa: () => ({}), d5n: {},
+    J3: command => registered.push(command), Rja() {}, hA: {}, hx: {}, goe: {}, IDe: {},
+    createBtwCommand, __azraelBtw: { lookup: () => undefined },
+    __azraelTryBtw: async scope => {
+      // Use the pinned state resolver, including the instance-map fallback that
+      // cannot discover a child RouteScope when starting from AppScope.
+      assert.equal(ctx.DK(scope, new Map([[appToken.id, app]]), routeToken), route);
+      opened.push(scope);
+    } };
+  vm.createContext(ctx);
+  const common = fs.readFileSync(path.join(root, BTW_ASSETS[0]), "utf8");
+  vm.runInContext([declaration(common, "DK"), declaration(common, "OK"),
+    declaration(patched[1].text, "__azraelRegisterBtw"), declaration(patched[1].text, "rDa")].join("\n"), ctx);
+  app.get = route.get = () => "local";
+  assert.throws(() => ctx.DK(app, new Map([[appToken.id, app]]), routeToken), /Missing scope instance/);
+  ctx.rDa({ conversationId: "parent", isResponseInProgress: true });
+  await registered.find(command => command.id === "btw").onSelect();
+  assert.deepEqual(opened, [route]);
+  registered.length = 0;
+  ctx.rDa({ conversationId: "parent", isResponseInProgress: false });
+  await registered.find(command => command.id === "btw").onSelect();
+  assert.deepEqual(opened, [route, route]);
 });
 
 test("actual native panel opener awaits source model and cwd RPC before native tab creation", async () => {
