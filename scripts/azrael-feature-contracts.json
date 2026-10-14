@@ -192,6 +192,17 @@
       "reportFields": []
     },
     {
+      "id": "engine.meta-provider",
+      "area": "engine",
+      "owners": ["providers/opencodex/helper.ts", "providers/opencodex/inference-config.ts", "providers/opencodex/inference.ts", "providers/opencodex/meta-responses.ts", "providers/opencodex/auto-switch.ts", "providers/opencodex/retirement.ts", "engine/codex-rs/core/src/managed_catalog.rs", "scripts/check-meta-provider.cjs", "scripts/check-meta-native-selection.cjs"],
+      "contract": "docs/architecture/managed-providers.md",
+      "checks": [
+        {"id":"engine.meta-provider.source","executable":"node","args":["scripts/check-meta-provider.cjs"],"level":"source"},
+        {"id":"engine.meta-provider.native-selection","executable":"node","args":["scripts/check-meta-native-selection.cjs","{engineSourceRoot}"],"level":"native"}
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.task-work-time",
       "area": "engine",
       "owners": ["engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs", "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs", "engine/codex-rs/app-server-protocol/src/protocol/v2/thread_data.rs", "engine/codex-rs/app-server/src/bespoke_event_handling.rs", "engine/codex-rs/app-server/src/request_processors/thread_processor.rs", "engine/codex-rs/app-server/src/thread_state.rs", "engine/codex-rs/thread-store/src/types.rs", "engine/codex-rs/thread-store/src/local/thread_history.rs", "engine/codex-rs/thread-store/src/local/thread_history/read.rs", "engine/codex-rs/thread-store/src/local/thread_history/segment_paging.rs", "engine/codex-rs/state/thread_history_migrations/0011_turn_attribution.sql", "engine/codex-rs/tui/src/chatwidget/replay.rs"],

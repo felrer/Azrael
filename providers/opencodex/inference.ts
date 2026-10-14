@@ -4,7 +4,10 @@ import { join, relative, isAbsolute } from 'node:path';
 import { createOAuthFileLock, type OAuthFileLockGuard } from './vendor/src/oauth/store.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
 import { AdapterError, compileRequest, resolveToolName, mapStream, replayHarnessMatches, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
-import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
+import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity, managedMetaIdentity } from './inference-config.ts';
+import { metaResponsesBody, parseMetaResponses } from './meta-responses.ts';
+import { createResponsesPassthroughAdapter } from './vendor/src/adapters/openai-responses.ts';
+import { getProviderRegistryEntry, mergeRegistryStaticHeaders } from './vendor/src/providers/registry.ts';
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
@@ -98,6 +101,29 @@ export async function resolvePin(config: any, providerId: string, retained: Pin 
     const afterAccount = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === resolved.accountId);
     if (!beforeIdentity || accountIdentity(providerId, afterAccount) !== beforeIdentity || afterAccount?.needsReauth || afterAccount?.credential?.access !== resolved.provider.apiKey) fail('pinned_account_changed');
     accountId = resolved.accountId; routed = resolved.provider; fingerprint = resolved.fingerprint;
+  } else if (providerId === 'meta-muse') {
+    if (!isManagedOAuthTransport(providerId, provider)) fail('provider_unavailable');
+    const set = m.store.getAccountSet(providerId);
+    accountId = retained?.account_id ?? set?.activeAccountId;
+    const account = set?.accounts.find((entry: any) => entry.id === accountId);
+    if (!account) fail('pinned_account_missing');
+    const before = managedMetaIdentity(account.credential);
+    if (account.needsReauth || !before) fail('pinned_account_unavailable');
+    const access = (await m.oauth.getValidAccessSnapshotForAccount(providerId, accountId, { requireUsableAccount: true })).accessToken;
+    const current = m.store.getAccountSet(providerId)?.accounts.find((entry: any) => entry.id === accountId);
+    const after = managedMetaIdentity(current?.credential);
+    if (!access || !after || JSON.stringify(after) !== JSON.stringify(before)
+      || current.needsReauth || current.credential.access !== access) fail('pinned_account_changed');
+    const registry = getProviderRegistryEntry(providerId)!;
+    // Keep credentials paired with the canonical transport, not configured
+    // headers that could override authorization or redirect account traffic.
+    routed = { ...provider, adapter: 'openai-responses', authMode: 'oauth',
+      baseUrl: 'https://api.meta.ai/v1', apiKey: access,
+      headers: mergeRegistryStaticHeaders(registry.staticHeaders, undefined),
+      modelReasoningEfforts: registry.modelReasoningEfforts,
+      modelReasoningEffortMap: registry.modelReasoningEffortMap,
+      statelessResponses: true };
+    fingerprint = digest(JSON.stringify([providerId, accountId, ...after!]));
   } else fail('provider_unavailable');
   return { accountId, routed, fingerprint };
 }
@@ -400,12 +426,14 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
   }
   const m = await modules();
   const pinned = await pinAccount(m.config.loadConfig(), request, m);
-  const { compiled, parsed } = projectRequest(request, pinned.fingerprint,
+  const { compiled, parsed, replayDetails } = projectRequest(request, pinned.fingerprint,
     pinned.provider.adapter === 'anthropic' ? 'anthropic-xml' : undefined, pinned.provider.adapter);
   const toolDiagnostics = progress?.toolDiagnostics;
   toolDiagnostics?.catalog(compiled);
+  const meta = request.provider_id === 'meta-muse';
+  if (meta) (parsed as any)._rawBody = metaResponsesBody(compiled, replayDetails, request.reasoning_effort);
   const adapter = pinned.provider.adapter === 'anthropic' ? m.anthropic.createAnthropicAdapter(pinned.provider)
-    : m.google.createGoogleAdapter(pinned.provider);
+    : meta ? createResponsesPassthroughAdapter(pinned.provider) : m.google.createGoogleAdapter(pinned.provider);
   const budget = m.budget.createTranslatorBudget();
   const retirementAbort = new AbortController();
   let retirementCode: string | undefined;
@@ -467,9 +495,13 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     if (!response.ok) fail(await providerHttpError(response, request.provider_id));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
-    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event), toolDiagnostics) : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
+    const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event), toolDiagnostics)
+      : meta ? observeRawReads(response, tracker)
+      : observeDetails(observeRawReads(response, tracker), opaque, false, true, onBytes, request.provider_id);
+    const events = meta ? parseMetaResponses(observed, budget, opaque, { signal,
+      onEvent: event => progress?.observe({ kind: 'event', event }) }) : adapter.parseStream(observed, budget, built.tierLog);
     stage = 'map';
-    await mapStream(translate(observeParser(adapter.parseStream(observed, budget, built.tierLog), tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque, toolDiagnostics }, frame => {
+    await mapStream(translate(observeParser(events, tracker), opaque, event => progress?.observe({ kind: 'event', event }), tracker), { ...compiled, provider: request.provider_id, turn: request.turn_id, opaque, toolDiagnostics }, frame => {
       if (frame.type === 'completed') context?.usage(frame.usage);
       emit(frame);
     }, request.request_id);
@@ -526,11 +558,25 @@ export async function catalog(options: { refresh?: boolean; fetch?: typeof fetch
       if (!configured) continue;
       try { provider = (await m.antigravity.resolveAntigravityAccount(configured, undefined, false)).provider; }
       catch { provider_statuses.push({ provider_id, state: 'error', model_count: 0, observed_at: options.now ?? Date.now(), error_code: 'unavailable' }); continue; }
+    } else if (provider_id === 'meta-muse') {
+      if (!isManagedOAuthTransport(provider_id, configured)) continue;
+      const set = m.store.getAccountSet(provider_id);
+      const account = set?.accounts.find((entry: any) => entry.id === set.activeAccountId);
+      if (!account || account.needsReauth || !managedMetaIdentity(account.credential)) continue;
+      // Discovery never mints keys or consumes a model turn. The vendored roster
+      // contains only agent-capable text-output models, unlike /v1/models.
+      const registry = getProviderRegistryEntry(provider_id)!;
+      provider = { ...configured, models: registry.models,
+        modelContextWindows: registry.modelContextWindows,
+        modelInputModalities: registry.modelInputModalities,
+        modelReasoningEfforts: registry.modelReasoningEfforts,
+        modelDefaultReasoningEfforts: registry.modelDefaultReasoningEfforts };
     } else continue;
     const start = models.length;
     // CCA's model-keyed hints also contain wire tiers and compatibility aliases;
     // only its configured picker roster represents distinct selectable models.
-    const modelIds = provider_id === 'google-antigravity' ? [...new Set<string>(provider.models)] : m.router.knownModelIdsForProvider(provider_id, provider, config);
+    const modelIds = provider_id === 'google-antigravity' || provider_id === 'meta-muse'
+      ? [...new Set<string>(provider.models)] : m.router.knownModelIdsForProvider(provider_id, provider, config);
     for (const model_id of modelIds) {
       if (!validModel(model_id)) continue;
       if (provider.modelInputModalities?.[model_id] && !provider.modelInputModalities[model_id].includes('text')) continue;

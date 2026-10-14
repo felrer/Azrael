@@ -3,7 +3,7 @@ import { resolve, join, relative, isAbsolute } from "node:path";
 import { existsSync, realpathSync, statSync } from "node:fs";
 import { homedir } from "node:os";
 import { autoSwitchAvailable, autoSwitchAllowed, setAutoSwitch, recoverDevinAccount, withAutoSwitchPolicyMutation } from './auto-switch.ts';
-import { isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
+import { isManagedOAuthTransport, managedClaudeIdentity, managedMetaIdentity } from './inference-config.ts';
 import { AnthropicResetError } from './anthropic-reset.ts';
 
 type Request = { protocol: 1; id: string; action: string; [key: string]: unknown };
@@ -82,7 +82,7 @@ async function modules() {
   return { oauth, store, config, quota, registry, devinBase };
 }
 
-const ACCOUNT_PROVIDERS = ["anthropic", "google-antigravity", "devin"] as const;
+const ACCOUNT_PROVIDERS = ["anthropic", "google-antigravity", "devin", "meta-muse"] as const;
 
 function supportedOAuthProvider(m: Awaited<ReturnType<typeof modules>>, providerId: string): boolean {
   return ACCOUNT_PROVIDERS.includes(providerId as typeof ACCOUNT_PROVIDERS[number]) && !!m.oauth.OAUTH_PROVIDERS[providerId];
@@ -134,7 +134,7 @@ async function snapshot(m: Awaited<ReturnType<typeof modules>>) {
         id, label: providerLabel(m.registry, id), authKind: "oauth",
         quotaMode: m.quota.providerOAuthAccountQuotaMode(id),
         inferenceConnected: id === "devin" || (isManagedOAuthTransport(id, configured)
-          && !!set?.accounts.some((account: any) => account.id === activeAccountId && !account.needsReauth && account.credential?.refresh && (id === 'anthropic' ? managedClaudeIdentity(account.credential) : account.credential?.projectId))
+          && !!set?.accounts.some((account: any) => account.id === activeAccountId && !account.needsReauth && account.credential?.refresh && (id === 'anthropic' ? managedClaudeIdentity(account.credential) : id === 'meta-muse' ? managedMetaIdentity(account.credential) : account.credential?.projectId))
           && configuredInferenceRuntime()),
         accounts: (set?.accounts ?? []).map((account: any) => ({
           id: account.id, label: labelForAccount(account), selected: activeAccountId === account.id,
@@ -234,6 +234,9 @@ export async function handleRequest(request: Request, io: Io, injected?: Awaited
     case "addKey": throw new Error(SAFE_ERRORS.unsupported);
     case "login": {
       if (!supportedOAuthProvider(m, providerId)) throw new Error(SAFE_ERRORS.unsupported);
+      if (providerId === 'meta-muse' && await io.answer(
+        'Meta Muse login uses an experimental device flow with a manual key fallback. Subscription coverage and billing outside Muse Code have not been verified. Continue?', false,
+      ) === null) throw new Error(SAFE_ERRORS.login);
       const abort = new AbortController();
       let interaction: Promise<string | null> = Promise.resolve("ready");
       const ctrl = {
