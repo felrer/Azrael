@@ -12,6 +12,18 @@ The native request stream boundary supplies the effective model, instructions, R
 
 Google Antigravity is a separate provider from Google AI Studio. It uses the connected OAuth account, and the vendored Cloud Code Assist adapter owns request construction and stream parsing. Each thread pins the selected OAuth account and endpoint identity; token refresh uses the account-scoped refresh path without changing global selection, normal token rotation keeps the binding, and a missing or revoked pinned account fails explicitly. Image-output models are excluded from its catalog.
 
+## Meta Muse inference
+
+Status: `partial` — the shared source route uses synthetic account and Responses fixtures; live Meta authentication/inference, release packaging and installed-host acceptance remain separate.
+
+`meta-muse` connects the existing Muse Code device login and manual credential fallback to `managed/meta-muse/<model-id>`. Authentication stores the static Model API key in the isolated provider store. The key's digest binds each thread and turn; changing the selected account affects new bindings, while key replacement, revocation and removal invalidate the affected binding. Requests accept only the canonical `https://api.meta.ai/v1` Responses OAuth transport and its registry-owned API-version header. The account's separate OAuth token is not an inference bearer.
+
+The registry's text-output Muse Spark roster supplies model IDs, context windows, text/image input and declared reasoning efforts. Audio and image-output models are excluded. Model discovery uses this roster without minting credentials or sending a model turn. Additional models require updating the owning registry and validating their transport contract.
+
+The vendored Responses builder owns endpoint and parameter normalization. Azrael lowers function, custom-string, namespace and client tool-search definitions to its existing request-scoped function aliases, each within Meta's 64-character name limit. Responses streams preserve text and reasoning progress; tool calls are buffered and validated against the completed response before native execution. Parallel calls, complete JSON arguments, declared tool identity, cancellation, incomplete responses and missing terminals retain the shared mapper's failure guarantees. Hosted provider tools are outside this client-tool route.
+
+Native encrypted reasoning items are kept in scoped private envelopes and replayed only through matching provider/model/thread/account/turn/harness and exact tool-call identity/argument validation. The Azrael envelope is never sent as provider ciphertext. Responses requests are stateless with `store:false`; history, tool execution and permissions remain Azrael-owned. This route uses Model API rather than running Meta's independent Muse Code harness. The existing device grant is experimental, and login displays the unverified subscription/billing scope before starting it. Preservation feature: `engine.meta-provider` in the [feature inventory](../../scripts/azrael-feature-contracts.json).
+
 ## Tool search history projection
 
 Status: `partial` — source projection is verified with Windows mapper and provider

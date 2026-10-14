@@ -88,6 +88,8 @@ The initial connection waits through bounded transport retries before reporting 
 
 ## Provider accounts
 
+Meta Muse accounts use the existing browser device-code flow or its manual key fallback in the isolated provider store. Login presents the current experimental authentication and unverified subscription/billing scope before opening the browser; cancelling that interaction prevents authentication. Static key digests identify usable accounts, including manually entered keys without email. Selected-account readiness, reauthentication, removal, retirement and explicit automatic-switch consent follow the shared managed-account contract. Replacing a static key invalidates its binding and prior automatic-switch consent. The [Meta inference contract](managed-providers.md#meta-muse-inference) separates stored login from usable model transport and live acceptance.
+
 Fable presentation status: `partial`; source and targeted helper/presentation tests pass, while installed-host and live Max-account rendering are unverified. Anthropic accounts render an observed Fable model-scoped weekly quota as a remaining-percentage bar with its reset time. The existing OAuth usage parser supplies the `seven_day_fable` or model-scoped `weekly_scoped` observation. The usage response does not supply a subscription tier, so presentation depends on the returned quota rather than an inferred Max plan. Missing Fable observations do not create a quota; missing or invalid percentages show unavailable data. Account attribution and stale-data/error presentation follow the shared provider quota flow.
 
 ### Anthropic manual usage reset

@@ -58,6 +58,17 @@ pub(crate) fn is_managed(key: &str) -> bool {
     key.starts_with("managed/") || key.starts_with("api/")
 }
 
+fn known_managed_provider(provider: &str) -> bool {
+    matches!(
+        provider,
+        "google" | "google-antigravity" | "xai" | "openrouter" | "anthropic" | "meta-muse"
+    )
+}
+
+fn supports_client_tool_search(provider: &str, supports_tools: Option<bool>) -> bool {
+    provider == "meta-muse" || provider.starts_with("api-") && supports_tools == Some(true)
+}
+
 pub(crate) fn selection(key: &str) -> Result<(Cow<'_, str>, &str)> {
     if let Some(value) = key.strip_prefix("api/") {
         let (id, model) = value.split_once('/').context("invalid API model key")?;
@@ -74,10 +85,8 @@ pub(crate) fn selection(key: &str) -> Result<(Cow<'_, str>, &str)> {
         .strip_prefix("managed/")
         .and_then(|value| value.split_once('/'))
         .context("invalid managed model key")?;
-    if !matches!(
-        provider,
-        "google" | "google-antigravity" | "xai" | "openrouter" | "anthropic"
-    ) || model.trim().is_empty()
+    if !known_managed_provider(provider)
+        || model.trim().is_empty()
         || model.chars().any(char::is_control)
         || model.len() > 256
     {
@@ -556,8 +565,8 @@ fn models_from_entries(entries: Vec<Entry>, visibility: ModelVisibility) -> Resu
             // Search executes in the Codex host. Chat-compatible custom APIs
             // receive it as an ordinary function, then the host adds discovered
             // tools on the next request. Keep text-only APIs unchanged.
-            model.supports_search_tool = entry.provider_id.starts_with("api-")
-                && entry.supports_tools == Some(true);
+            model.supports_search_tool =
+                supports_client_tool_search(&entry.provider_id, entry.supports_tools);
             Ok(model)
         })
         .collect()
@@ -602,13 +611,11 @@ fn statuses_from_catalog(bytes: &[u8]) -> Result<Vec<ProviderCatalogStatus>> {
         serde_json::from_slice(bytes).context("invalid managed model catalog")?;
     let mut seen = HashSet::new();
     for status in &catalog.provider_statuses {
-        if !matches!(
-            status.provider_id.as_str(),
-            "google" | "google-antigravity" | "xai" | "openrouter" | "anthropic"
-        ) && !status
-            .provider_id
-            .strip_prefix("api-")
-            .is_some_and(valid_api_id)
+        if !known_managed_provider(status.provider_id.as_str())
+            && !status
+                .provider_id
+                .strip_prefix("api-")
+                .is_some_and(valid_api_id)
             || !seen.insert(status.provider_id.clone())
             || status.observed_at < 0
             || matches!(
@@ -769,5 +776,33 @@ mod antigravity_tests {
         ] {
             assert!(statuses_from_catalog(invalid).is_err());
         }
+    }
+}
+
+#[cfg(test)]
+mod meta_tests {
+    use super::*;
+
+    #[test]
+    fn meta_selection_and_catalog_accept_only_valid_managed_entries() {
+        assert_eq!(
+            selection("managed/meta-muse/muse-spark-1.3").unwrap(),
+            (Cow::Borrowed("meta-muse"), "muse-spark-1.3")
+        );
+        assert!(selection("managed/meta-muse/").is_err());
+        assert!(selection("managed/meta-muse/model\n").is_err());
+        assert!(selection("managed/meta/unknown").is_err());
+        let bytes = br#"{"models":[{"provider_id":"meta-muse","model_id":"muse-spark-1.3","display_name":"Muse Spark","context_window":1048576,"input_modalities":["text","image"],"reasoning":{"supported_efforts":["minimal","low","medium","high","xhigh"],"mandatory":false}}],"provider_statuses":[{"provider_id":"meta-muse","state":"ready","model_count":1,"observed_at":123}]}"#;
+        assert_eq!(
+            models_from_catalog(bytes).unwrap()[0].slug,
+            "managed/meta-muse/muse-spark-1.3"
+        );
+        assert!(models_from_catalog(bytes).unwrap()[0].supports_search_tool);
+        assert_eq!(
+            statuses_from_catalog(bytes).unwrap()[0].provider_id,
+            "meta-muse"
+        );
+        let invalid = br#"{"models":[],"provider_statuses":[{"provider_id":"meta-muse","state":"ready","model_count":1,"observed_at":123}]}"#;
+        assert!(statuses_from_catalog(invalid).is_err());
     }
 }

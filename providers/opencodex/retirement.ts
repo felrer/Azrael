@@ -5,7 +5,7 @@ import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed } from './auto-
 import { readBinding, resolvePin } from './inference.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
 
-const providers = ['anthropic', 'google-antigravity', 'devin'];
+const providers = ['anthropic', 'google-antigravity', 'devin', 'meta-muse'];
 const safeId = (id: any) => typeof id === 'string' && /^[A-Za-z0-9_-]{1,128}$/.test(id) && !['__proto__', 'constructor', 'prototype'].includes(id);
 const accountId = (id: any) => typeof id === 'string' && /^(?:[a-f0-9]{8}|[a-f0-9]{32})$/.test(id);
 const invalid = () => { throw new Error('Invalid provider account request'); };

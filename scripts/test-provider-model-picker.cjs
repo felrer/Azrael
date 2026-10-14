@@ -9,6 +9,14 @@ const injection = require("./inject-provider-model-picker.cjs");
 const {renderAstraSpeedToggle} = require("./astra-speed-toggle.cjs");
 const client = fn => () => ({sendRequest: async (method, params) => { assert.equal(method,"model/list"); return fn(params); }});
 const status = (providerId,state) => ({providerId,state,modelCount:0,observedAt:123});
+test("Meta models and discovery status share the Meta picker group",()=>{
+ const c=createProviderModelCatalog(),option={id:"managed/meta-muse/muse-spark-1.3",label:"Muse Spark 1.3"};
+ assert.equal(c.providerFor(option.id),"meta-muse");
+ const group=c.groups([option],"",[status("meta-muse","ready")]).find(g=>g.id==="meta-muse");
+ assert.equal(group.label,"Meta");assert.equal(group.options[0],option);assert.equal(group.status.state,"ready");
+ assert.equal(c.groups([option],"spark")[0].id,"meta-muse");
+ assert.equal(c.groups([],"",[status("meta-muse","error")]).find(g=>g.id==="meta-muse").label,"Meta");
+});
 function harness(catalog,props) {
   const states=[],refs=[],effects=[]; let index=0, refIndex=0;
   const React={useState(initial){const i=index++; if(!(i in states)) states[i]=typeof initial==="function"?initial():initial; return [states[i],value=>{states[i]=typeof value==="function"?value(states[i]):value;}];},useRef(initial){const i=refIndex++; return refs[i]??=( {current:initial});},useEffect(fn,deps){ const key=JSON.stringify(deps.map(x=>typeof x==="object"?"object":x)); const i=index++;if(effects[i]?.key!==key){effects[i]?.cleanup?.();effects[i]={key,cleanup:fn()};}}};

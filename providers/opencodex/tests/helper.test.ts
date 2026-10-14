@@ -97,7 +97,7 @@ describe("provider account helper", () => {
     await store.saveCredential("xai", { access: "xai-token", refresh: "xai-refresh", expires: Number.MAX_SAFE_INTEGER, accountId: "xai-user", source: "oauth" });
     await store.saveCredential("anthropic", { access: "claude-token", refresh: "claude-refresh", expires: Number.MAX_SAFE_INTEGER, accountId: "claude-user", source: "oauth" });
     const listed: any = await handleRequest(request("list", "list"), io, real());
-    expect(listed.availableProviders.map((provider: any) => provider.id).sort()).toEqual(["anthropic", "devin", "google-antigravity"]);
+    expect(listed.availableProviders.map((provider: any) => provider.id).sort()).toEqual(["anthropic", "devin", "google-antigravity", "meta-muse"]);
     expect(listed.availableProviders.every((provider: any) => provider.authKind === "oauth")).toBeTrue();
     expect(listed.providers).toEqual([]);
     expect(config.loadConfig().providers.openrouter?.apiKey).toBe("saved-openrouter");

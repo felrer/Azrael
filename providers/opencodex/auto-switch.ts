@@ -3,9 +3,9 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync, renameSync, unlinkS
 import { join, relative, isAbsolute } from 'node:path';
 import { withConfigMutationLockSync } from './vendor/src/config.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
-import { isManagedOAuthTransport, managedClaudeIdentity } from './inference-config.ts';
+import { isManagedOAuthTransport, managedClaudeIdentity, managedMetaIdentity } from './inference-config.ts';
 
-const providers = ['devin', 'anthropic', 'google-antigravity'];
+const providers = ['devin', 'anthropic', 'google-antigravity', 'meta-muse'];
 const digest = (value: unknown) => createHash('sha256').update(JSON.stringify(value)).digest('hex');
 const invalid = () => { throw new Error('Invalid provider account request'); };
 type Policies = Record<string, Record<string, string>>;
@@ -36,10 +36,15 @@ function readPolicy(path: string): Policies {
   return result;
 }
 // Persist only a digest of stable identity. Token rotation retains managed consent;
-// replacing a durable Devin key resets it, since the key is its credential lease.
+// replacing a durable Devin or Meta key resets its credential lease.
 export function accountIdentity(providerId: string, account: any): string | null {
   const c = account?.credential;
-  if (!providers.includes(providerId) || !account || !c || c.source === 'local-cli' || c.source === 'cli') return null;
+  if (!providers.includes(providerId) || !account || !c) return null;
+  if (providerId === 'meta-muse') {
+    const principal = managedMetaIdentity(c);
+    return principal ? digest([providerId, account.id, ...principal]) : null;
+  }
+  if (c.source === 'local-cli' || c.source === 'cli') return null;
   const principal = managedClaudeIdentity(c);
   if (!principal) return null;
   if (providerId === 'anthropic') return digest([providerId, account.id, ...principal]);

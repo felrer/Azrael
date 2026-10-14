@@ -4,7 +4,7 @@
 // into the pinned webview; keep it independent of Node and module-scope state.
 function createProviderModelCatalog() {
   const hosts = new Map();
-  const labels = { openai: "OpenAI", api: "API", devin: "Devin", anthropic: "Anthropic", openrouter: "OpenRouter", google: "Google AI Studio", "google-antigravity": "Google Antigravity", xai: "xAI" };
+  const labels = { openai: "OpenAI", api: "API", devin: "Devin", anthropic: "Anthropic", "meta-muse": "Meta", openrouter: "OpenRouter", google: "Google AI Studio", "google-antigravity": "Google Antigravity", xai: "xAI" };
   const empty = Object.freeze({ loading: false, providers: [], updatedAt: 0, error: false });
   function host(id) {
     if (!hosts.has(id)) hosts.set(id, { snapshot: empty, listeners: new Set(), force: false, pending: null, result: null, refreshAfterPending: false });
@@ -46,7 +46,7 @@ function createProviderModelCatalog() {
       if (!rows.has(status.providerId)) rows.set(status.providerId, { id: status.providerId, label: labels[status.providerId] ?? status.providerId, total: 0, options: [] });
       rows.get(status.providerId).status = status;
     }
-    const order = ["openai", "api", "devin", "anthropic", "openrouter", "google", "google-antigravity", "xai"];
+    const order = ["openai", "api", "devin", "anthropic", "meta-muse", "openrouter", "google", "google-antigravity", "xai"];
     return [...rows.values()].sort((a, b) => {
       const ai = order.indexOf(a.id), bi = order.indexOf(b.id);
       return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi) || a.label.localeCompare(b.label);

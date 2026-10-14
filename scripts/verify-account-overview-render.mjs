@@ -35,6 +35,7 @@ const usageData = id => ({ accountId: id, rateLimits: { primary: window(id === '
 const snapshot = { providers: [
   { id: 'anthropic', label: 'Anthropic', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'claude-a', label: 'claude@example.com', selected: true, needsReauth: false, autoSwitchAllowed: true }] },
   { id: 'google', label: 'Google', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'gemini-a', label: 'gemini@example.com', selected: true, needsReauth: false }] },
+  { id: 'meta-muse', label: 'Meta Muse Code', authKind: 'oauth', inferenceConnected: true, accounts: [{ id: 'meta-a', label: 'meta@example.com', selected: true, needsReauth: false, autoSwitchAllowed: false, autoSwitchAvailable: true }] },
 ], availableProviders: [] };
 const unsafeModel = '<img src=x onerror="globalThis.modelInjectionExecuted=true">';
 const model = (provider, name, amount, unpriced = 0) => ({ provider, model: name, amount, unpriced });
@@ -107,9 +108,9 @@ try {
     await send('Emulation.setDeviceMetricsOverride',{width,height:1100,deviceScaleFactor:1,mobile:false});
     await send('Emulation.setEmulatedMedia',{features:[{name:'prefers-color-scheme',value:theme}]});
     await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/?surface=${surfaceName}`});
-    await wait("typeof fixtureNodes==='function'&&fixtureNodes('.account-summary').length===5&&fixturePending===0");
+    await wait("typeof fixtureNodes==='function'&&fixtureNodes('.account-summary').length===6&&fixturePending===0");
     await evaluate(`document.documentElement.dataset.theme='${theme}';document.documentElement.style.setProperty('--vscode-foreground','${theme==='light'?'#202123':'#eee'}');document.documentElement.style.setProperty('--vscode-editor-background','${theme==='light'?'#fff':'#212121'}');document.documentElement.style.setProperty('--vscode-descriptionForeground','${theme==='light'?'#666':'#aaa'}');document.body.style.background='${theme==='light'?'#fff':'#212121'}'`);
-    check(prefix+' all collapsed gauges',await evaluate("fixtureNodes('.track[role=progressbar]').length===9&&fixtureNodes('.account-summary').every(e=>e.getAttribute('aria-expanded')==='false')"));
+    check(prefix+' all collapsed gauges',await evaluate("fixtureNodes('.track[role=progressbar]').length===10&&fixtureNodes('.account-summary').every(e=>e.getAttribute('aria-expanded')==='false')"));
     const themeColors=await evaluate("(()=>{const main=getComputedStyle(fixtureNode('main')),badge=getComputedStyle(fixtureNode('.current-login'));const canvas=document.createElement('canvas');canvas.width=canvas.height=1;const context=canvas.getContext('2d',{willReadFrequently:true});const rgb=color=>{context.clearRect(0,0,1,1);context.fillStyle=color;context.fillRect(0,0,1,1);return Array.from(context.getImageData(0,0,1,1).data).slice(0,3);};return {background:main.backgroundColor,foreground:main.color,badgeBackground:badge.backgroundColor,backgroundRgb:rgb(main.backgroundColor),foregroundRgb:rgb(main.color),badgeRgb:rgb(badge.backgroundColor)};})()");
     summary.themeColors??=[];summary.themeColors.push({prefix,...themeColors});
     const bg=themeColors.backgroundRgb,fg=themeColors.foregroundRgb,badge=themeColors.badgeRgb;
@@ -127,6 +128,11 @@ try {
     await evaluate("fixtureNode('[data-action=setAutoSwitch][data-provider=anthropic]').click()");await wait('fixturePending===0');
     check(prefix+' auto switch carries provider account identity',actions.some(a=>a.action==='setAutoSwitch'&&a.providerId==='anthropic'&&a.accountId==='claude-a'&&a.enabled===false));
     check(prefix+' reset button appears only for expanded Anthropic',await evaluate("fixtureNodes('[data-action=providerResetUsage]').length===1&&fixtureNode('[data-action=providerResetUsage]').dataset.provider==='anthropic'"));
+    await evaluate("fixtureNode('.provider-account .account-summary[data-provider=meta-muse]').click()");
+    await wait("!!fixtureNode('[data-action=setAutoSwitch][data-provider=meta-muse]')&&fixturePending===0");
+    check(prefix+' Meta account actions retain native provider identity',await evaluate("fixtureNode('[data-action=providerReauth][data-provider=meta-muse]').dataset.account==='meta-a'&&fixtureNode('[data-action=providerRemove][data-provider=meta-muse]').dataset.account==='meta-a'&&!fixtureNode('[data-action=providerResetUsage][data-provider=meta-muse]')"));
+    await evaluate("fixtureNode('[data-action=setAutoSwitch][data-provider=meta-muse]').click()");await wait('fixturePending===0');
+    check(prefix+' Meta automatic-switch action carries its own identity',actions.some(a=>a.action==='setAutoSwitch'&&a.providerId==='meta-muse'&&a.accountId==='meta-a'&&a.enabled===true));
     const resetBefore=resetCalls.length,quotaBefore=requests.filter(r=>r[0]==='anthropic').length;
     resetOutcome='reset';
     await evaluate("fixtureNode('[data-action=providerResetUsage]').click();fixtureSend({fixtureResetSnapshot:true})");
