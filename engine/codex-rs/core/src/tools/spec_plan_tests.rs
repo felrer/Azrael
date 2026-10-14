@@ -1305,6 +1305,112 @@ async fn sleep_tool_stays_direct_and_outside_code_mode() {
 }
 
 #[tokio::test]
+async fn claude_mcp_catalog_defers_without_responses_search_capability() {
+    for (slug, count) in [
+        ("managed/anthropic/claude-opus-5-5", 587),
+        ("managed/anthropic/future-model", 1000),
+    ] {
+        let (_session, mut turn) = make_session_and_context().await;
+        Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+        update_turn_settings_for_test(&mut turn, |settings| {
+            let model = Arc::make_mut(&mut settings.model_info);
+            model.slug = slug.to_string();
+            model.supports_search_tool = false;
+            model.shell_type = ConfigShellToolType::UnifiedExec;
+            model.apply_patch_tool_type = Some(ApplyPatchToolType::Freeform);
+        });
+        // Use the production MCP exposure decision, not pre-deferred fixtures.
+        let inputs = ToolPlanInputs {
+            tool_runtimes: (0..count)
+                .map(|index| {
+                    let name = format!("lookup_{index}");
+                    let exposure = super::mcp_tool_exposure(
+                        &turn,
+                        turn.model_info(),
+                        ToolName::namespaced("mcp__large_catalog", &name),
+                        codex_tools::ToolExposures::empty(),
+                    );
+                    mcp_runtime("large_catalog", "mcp__large_catalog", &name, exposure)
+                })
+                .collect(),
+            ..ToolPlanInputs::default()
+        };
+        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), inputs));
+        plan.assert_visible_contains(&[
+            "Read",
+            "Edit",
+            "Write",
+            "Bash",
+            "Grep",
+            "Glob",
+            "ToolSearch",
+        ]);
+        plan.assert_visible_lacks(&["mcp__large_catalog", "tool_search"]);
+        let ToolSpec::Function(search) = plan.visible_spec("ToolSearch") else {
+            panic!("expected compatible search function");
+        };
+        assert!(search.description.contains("large_catalog"));
+        assert!(search.description.contains("`ToolSearch`"));
+        assert!(!search.description.contains("`tool_search`"));
+        assert_eq!(plan.tool_mode, ToolMode::Direct);
+        for index in 0..count {
+            assert!(
+                plan.exposure(
+                    &ToolName::namespaced("mcp__large_catalog", format!("lookup_{index}"))
+                        .to_string()
+                )
+                .is_deferred()
+            );
+        }
+        assert!(serde_json::to_vec(&plan.visible_specs).unwrap().len() < 64 * 1024);
+    }
+}
+
+#[tokio::test]
+async fn claude_mcp_exposure_preserves_omissions_and_provider_isolation() {
+    let (_session, mut turn) = make_session_and_context().await;
+    Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+    update_turn_settings_for_test(&mut turn, |settings| {
+        let model = Arc::make_mut(&mut settings.model_info);
+        model.slug = "managed/anthropic/future-model".to_string();
+        model.supports_search_tool = false;
+    });
+    let name = ToolName::namespaced("mcp__allowed", "lookup");
+    let exposure = |turn: &TurnContext, omissions| {
+        super::mcp_tool_exposure(turn, turn.model_info(), name.clone(), omissions)
+    };
+    assert!(exposure(&turn, codex_tools::ToolExposures::empty()).is_deferred());
+    assert_eq!(
+        exposure(&turn, codex_tools::ToolExposures::ALL),
+        ToolExposure::Hidden
+    );
+    assert_eq!(
+        exposure(&turn, codex_tools::ToolExposures::DEFERRED),
+        ToolExposure::Direct
+    );
+    Arc::make_mut(&mut turn.config)
+        .code_mode
+        .direct_only_tool_namespaces
+        .push("mcp__allowed".to_string());
+    assert_eq!(
+        exposure(&turn, codex_tools::ToolExposures::empty()),
+        ToolExposure::DirectModelOnly
+    );
+    Arc::make_mut(&mut turn.config)
+        .code_mode
+        .direct_only_tool_namespaces
+        .clear();
+    update_turn_settings_for_test(&mut turn, |settings| {
+        Arc::make_mut(&mut settings.model_info).slug =
+            "managed/openrouter/anthropic/claude".to_string();
+    });
+    assert_eq!(
+        exposure(&turn, codex_tools::ToolExposures::empty()),
+        ToolExposure::Direct
+    );
+}
+
+#[tokio::test]
 async fn mcp_and_tool_search_follow_direct_and_deferred_tool_exposure() {
     let direct_mcp = probe_with(
         |_| {},

@@ -86,6 +86,9 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
   const profileFingerprint = harnessFingerprint(request);
   const claudeProfile = request.harness_profile?.tool_profile === 'builtin/claude-code-core';
   if (claudeProfile && (request.provider_id !== 'anthropic' || (request.model.startsWith('managed/') && !request.model.startsWith('managed/anthropic/')) || actualAdapter !== 'anthropic')) fail('harness_provider_mismatch');
+  // The resolved Claude catalog already carries every live discovered schema.
+  // History references its current aliases without repeating those definitions.
+  compactToolSearchResults ||= claudeProfile;
   const wireAlias = (namespace, name, kind) => {
     identity(namespace, name, kind);
     return claudeProfile && kind === 'function' && ['', 'functions'].includes(namespace) && CLAUDE_TOOL_NAMES.has(name)
@@ -197,7 +200,7 @@ export function compileRequest(request, { promptFormat, compactToolSearchResults
         if (item.execution !== 'client' || !calls.has(item.call_id) || results.has(item.call_id) || !Array.isArray(item.tools)) fail('invalid_tool_search_result');
         results.add(item.call_id);
         assistant = undefined;
-        // API discovery uses only current aliases. Other providers retain the
+        // API and Claude discovery use only current aliases. Other providers retain the
         // latest uncovered definition, including nested Code Mode helpers.
         messages.push({ role: 'tool', tool_call_id: item.call_id, content: format('tool_result', bounded(JSON.stringify(
           compactToolSearchResults

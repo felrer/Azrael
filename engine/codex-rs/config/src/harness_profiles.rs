@@ -389,7 +389,12 @@ impl HarnessProfiles {
             fingerprint: String::new(),
         };
         // Version the semantic contract separately from configuration schema syntax.
-        let bytes = serde_json::to_vec(&("harness-content-v1", "tool-contract-v1", &resolved))
+        let tool_revision = if resolved.uses_claude_tools() {
+            "tool-contract-v2"
+        } else {
+            "tool-contract-v1"
+        };
+        let bytes = serde_json::to_vec(&("harness-content-v1", tool_revision, &resolved))
             .map_err(io::Error::other)?;
         resolved.fingerprint = format!("{:x}", Sha256::digest(bytes));
         Ok(resolved)

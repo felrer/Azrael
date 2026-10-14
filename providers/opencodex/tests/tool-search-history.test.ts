@@ -5,6 +5,8 @@ import { join } from 'node:path';
 import { infer, projectRequest } from '../inference.ts';
 import * as config from '../vendor/src/config.ts';
 import * as store from '../vendor/src/oauth/store.ts';
+import { createContextDiagnostics } from '../../devin/context-budget.mjs';
+import { estimateTokens } from '../vendor/src/lib/token-estimate.ts';
 
 let root = '';
 const savedHome = process.env.CODEX_HOME, savedProviderHome = process.env.OPENCODEX_HOME;
@@ -21,6 +23,66 @@ const selected = schema('lookup', 'CURRENT_SCHEMA_' + 'x'.repeat(10000));
 const nested = { type: 'namespace', name: 'nested', tools: [schema('helper', 'NESTED_SCHEMA_' + 'y'.repeat(10000))] };
 const search = { type: 'tool_search', execution: 'client', parameters: { type: 'object' } };
 const discovered = { type: 'namespace', name: 'mcp__fixture', tools: [selected] };
+
+test('Claude resolved profile prepares the same compact search wire used for generation', async () => {
+  root = mkdtempSync(join(tmpdir(), 'azrael-claude-search-wire-'));
+  process.env.CODEX_HOME = join(root, 'codex');
+  process.env.OPENCODEX_HOME = join(root, 'codex', 'azrael', 'providers', 'opencodex');
+  mkdirSync(process.env.OPENCODEX_HOME, { recursive: true });
+  const cfg = config.loadConfig();
+  cfg.providers = { anthropic: { adapter: 'anthropic', baseUrl: 'https://api.anthropic.com', authMode: 'oauth', models: ['claude-sonnet-4-6'] } };
+  config.saveConfig(cfg);
+  await store.saveCredential('anthropic', { access: 'fixture-access', refresh: 'fixture-refresh', expires: Number.MAX_SAFE_INTEGER, accountId: 'fixture' });
+  const definitions = { type: 'namespace', name: 'mcp__fixture', tools: Array.from({ length: 11 }, (_, i) => schema('lookup' + i, 'CURRENT_SCHEMA_' + i + '_' + 'x'.repeat(1000))) };
+  const native: any = { ...request('anthropic'), instructions: 'Azrael policy',
+    harness_profile: { id: 'custom/team', fingerprint: 'resolved-fixture', tool_profile: 'builtin/claude-code-core', prompt_profile: 'builtin/claude-lean' },
+    tools: [{ type: 'namespace', name: 'functions', tools: [schema('ToolSearch', 'Search live tools')] }, definitions],
+    input: Array.from({ length: 10 }, (_, i) => [
+      { type: 'function_call', namespace: 'functions', name: 'ToolSearch', call_id: 'search' + i, arguments: '{"query":"lookup"}' },
+      { type: 'tool_search_output', execution: 'client', call_id: 'search' + i, status: 'completed', tools: [definitions, definitions, nested] },
+    ]).flat(),
+  };
+  const ordinaryOutput = projectRequest(native, 'fixture', 'anthropic-xml', 'anthropic').compiled.messages.find((message: any) => message.role === 'tool').content;
+  native.input.push(
+    { type: 'function_call', namespace: 'mcp__fixture', name: 'lookup0', call_id: 'ordinary', arguments: '{}' },
+    { type: 'function_call_output', call_id: 'ordinary', output: ordinaryOutput },
+  );
+  const original = JSON.stringify(native), prepared: any[] = [];
+  await infer(native, frame => prepared.push(frame), (async () => { throw new Error('GENERATION_FORBIDDEN'); }) as typeof fetch, undefined, { prepareOnly: true });
+  let captured = 0;
+  await infer(native, () => {}, (async (_url: any, init: any) => {
+    captured++;
+    const body = JSON.parse(init.body), text = JSON.stringify(body);
+    expect(body.tools).toHaveLength(12);
+    expect(body.tools[0].name).toBe('ToolSearch');
+    expect(text.split('CURRENT_SCHEMA_').length - 1).toBe(11);
+    expect(text).not.toContain('NESTED_SCHEMA_');
+    const calls = body.messages.flatMap((message: any) => message.content.filter((part: any) => part.type === 'tool_use'));
+    const results = body.messages.flatMap((message: any) => message.content.filter((part: any) => part.type === 'tool_result'));
+    expect(calls).toHaveLength(11); expect(results).toHaveLength(11);
+    for (let i = 0; i < 10; i++) {
+      expect(calls[i]).toMatchObject({ id: 'search' + i, name: 'ToolSearch', input: { query: 'lookup' } });
+      expect(results[i].tool_use_id).toBe(calls[i].id);
+      const result = JSON.parse(results[i].content);
+      expect(result.tools.map((tool: any) => tool.name)).toEqual(body.tools.slice(1).map((tool: any) => tool.name));
+    }
+    expect(results[10].tool_use_id).toBe('ordinary');
+    expect(results[10].content).toBe(ordinaryOutput);
+    const context = createContextDiagnostics(native.model, estimateTokens, 'model_chars');
+    context.wire(init.body);
+    expect(prepared[0].input_budget.input_tokens).toBe(context.budget().input_tokens);
+    expect(prepared[0].input_budget.diagnostics.components).toEqual(context.snapshot().components);
+    const events = [
+      { type: 'message_start', message: { id: 'fixture', role: 'assistant', content: [], usage: { input_tokens: 2 } } },
+      { type: 'content_block_start', index: 0, content_block: { type: 'text', text: 'done' } },
+      { type: 'content_block_stop', index: 0 },
+      { type: 'message_delta', delta: { stop_reason: 'end_turn' }, usage: { output_tokens: 3 } }, { type: 'message_stop' },
+    ];
+    return new Response(events.map(event => 'event: ' + event.type + '\ndata: ' + JSON.stringify(event) + '\n\n').join(''), { headers: { 'content-type': 'text/event-stream' } });
+  }) as typeof fetch);
+  expect(captured).toBe(1);
+  expect(JSON.stringify(native)).toBe(original);
+});
 function request(provider_id: string) {
   return { protocol_version: 1, type: 'request', request_id: 'fixture', thread_id: 'thread', turn_id: 'turn',
     provider_id, model: provider_id === 'anthropic' ? 'claude-sonnet-4-6' : 'gemini-3.8-flash', instructions: '', parallel_tool_calls: true,

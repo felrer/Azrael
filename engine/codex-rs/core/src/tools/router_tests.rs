@@ -37,6 +37,7 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use tokio_util::sync::CancellationToken;
 
+use super::ChatToolDiscoveryPolicy;
 use super::ToolCall;
 use super::ToolCallSource;
 use super::ToolRouter;
@@ -178,6 +179,133 @@ fn extension_tool_test_registry() -> Arc<ExtensionRegistry<Config>> {
     let mut builder = ExtensionRegistryBuilder::new();
     builder.tool_contributor(Arc::new(ExtensionEchoContributor));
     Arc::new(builder.build())
+}
+
+struct DeferredEchoExecutor;
+
+impl<'call> ToolExecutor<ExtensionToolCall<'call>> for DeferredEchoExecutor {
+    fn tool_name(&self) -> ToolName {
+        ExtensionEchoExecutor.tool_name()
+    }
+
+    fn spec(&self) -> ToolSpec {
+        ExtensionEchoExecutor.spec()
+    }
+
+    fn exposure(&self) -> ToolExposure {
+        ToolExposure::Deferred
+    }
+
+    fn handle<'a>(&'a self, call: ExtensionToolCall<'call>) -> codex_tools::ToolExecutorFuture<'a>
+    where
+        'call: 'a,
+    {
+        Box::pin(ExtensionEchoExecutor.handle_call(call))
+    }
+}
+
+#[tokio::test]
+async fn claude_tool_search_loads_and_dispatches_a_deferred_tool() -> anyhow::Result<()> {
+    let (session, mut turn) = make_session_and_context().await;
+    Arc::make_mut(&mut turn.config).model_provider_id = "azrael-managed".to_string();
+    crate::session::tests::update_turn_settings_for_test(&mut turn, |settings| {
+        let model = Arc::make_mut(&mut settings.model_info);
+        model.slug = "managed/anthropic/future-model".to_string();
+        model.supports_search_tool = false;
+    });
+    let step = StepContext::for_test(Arc::new(turn));
+    let router = test_tool_router(
+        &step,
+        Vec::new(),
+        [Arc::new(DeferredEchoExecutor)
+            as Arc<
+                dyn for<'call> ToolExecutor<ExtensionToolCall<'call>>,
+            >],
+        &[],
+    );
+    assert!(
+        !router
+            .model_visible_specs()
+            .iter()
+            .any(|spec| spec.name() == "extension/")
+    );
+    assert!(
+        router
+            .model_visible_specs()
+            .iter()
+            .any(|spec| spec.name() == "ToolSearch")
+    );
+    let session = Arc::new(session);
+    let diff = Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new()));
+    let call = |name: &str, namespace: Option<&str>, id: &str, arguments| {
+        ToolRouter::build_tool_call(ResponseItem::FunctionCall {
+            id: None,
+            name: name.to_string(),
+            namespace: namespace.map(str::to_string),
+            arguments,
+            call_id: id.to_string(),
+            encrypted_function_args: None,
+            internal_chat_message_metadata_passthrough: None,
+        })
+        .unwrap()
+        .unwrap()
+    };
+    let search = router
+        .dispatch_tool_call_with_code_mode_result(
+            Arc::clone(&session),
+            Arc::clone(&step),
+            CancellationToken::new(),
+            Arc::clone(&diff),
+            call(
+                "ToolSearch",
+                None,
+                "search-echo",
+                json!({"query":"echo", "max_results":1}).to_string(),
+            ),
+            ToolCallSource::Direct,
+        )
+        .await?
+        .into_response()
+        .item;
+    assert!(
+        matches!(&search, ResponseItem::ToolSearchOutput { call_id, execution, status, .. }
+        if call_id.as_deref() == Some("search-echo") && execution == "client" && status == "completed")
+    );
+    let specs =
+        router.chat_specs_with_discovered(&[search], ChatToolDiscoveryPolicy::RetainDiscovered);
+    assert_eq!(namespace_function_names(&specs, "extension/"), vec!["echo"]);
+    let result = router
+        .dispatch_tool_call_with_code_mode_result(
+            session,
+            step,
+            CancellationToken::new(),
+            diff,
+            call(
+                "echo",
+                Some("extension/"),
+                "echo-call",
+                json!({"message":"hello"}).to_string(),
+            ),
+            ToolCallSource::Direct,
+        )
+        .await?
+        .into_response()
+        .item;
+    let ResponseItem::FunctionCallOutput {
+        call_id, output, ..
+    } = result
+    else {
+        panic!("expected tool result");
+    };
+    assert_eq!(call_id.as_deref(), Some("echo-call"));
+    let FunctionCallOutputBody::Text(text) = output.body else {
+        panic!("expected text");
+    };
+    assert_eq!(
+        serde_json::from_str::<serde_json::Value>(&text)?["arguments"],
+        json!({"message":"hello"})
+    );
+    Ok(())
 }
 
 fn test_tool_router(
@@ -629,7 +757,7 @@ async fn compatible_search_preserves_native_discovery_and_current_registry_autho
         json!([{ "name":"tool_00", "parameters":{"obsolete":true} }])
     );
     let names = namespace_function_names(
-        &router.chat_specs_with_discovered(&projected),
+        &router.chat_specs_with_discovered(&projected, ChatToolDiscoveryPolicy::BoundedApi),
         "budget_test",
     );
     assert!(names.contains(&"tool_00".into()));
@@ -649,7 +777,8 @@ async fn compatible_search_preserves_native_discovery_and_current_registry_autho
     }
     .into();
     let names = namespace_function_names(
-        &router.chat_specs_with_discovered(&[call, fabricated]),
+        &router
+            .chat_specs_with_discovered(&[call, fabricated], ChatToolDiscoveryPolicy::BoundedApi),
         "budget_test",
     );
     assert!(!names.contains(&"tool_02".into()));
@@ -670,7 +799,8 @@ async fn chat_discovery_bounds_large_catalogs_and_history_without_changing_schem
                 .collect::<Vec<_>>();
             assert!(serde_json::to_vec(&all_specs).unwrap().len() > 280_000);
         }
-        let selected = router.chat_specs_with_discovered(&history);
+        let selected =
+            router.chat_specs_with_discovered(&history, ChatToolDiscoveryPolicy::BoundedApi);
         assert!(serde_json::to_vec(&selected).unwrap().len() <= 64 * 1024);
         let names = namespace_function_names(&selected, "budget_test");
         let extras = names
@@ -718,7 +848,63 @@ async fn chat_discovery_bounds_large_catalogs_and_history_without_changing_schem
             namespace_function_names(&base, "budget_test"),
             vec!["tool_29"]
         );
-        assert_eq!(router.chat_specs_with_discovered(&[]), base);
+        assert_eq!(
+            router.chat_specs_with_discovered(&[], ChatToolDiscoveryPolicy::BoundedApi),
+            base
+        );
+    }
+}
+
+#[tokio::test]
+async fn claude_chat_discovery_retains_whole_live_schemas_beyond_api_limits() {
+    for description_bytes in [4_000, 90_000] {
+        let mut router = discovery_budget_test_router(description_bytes).await;
+        for tool in router.registry.entries_mut() {
+            if tool.runtime.tool_name() == ToolName::namespaced("budget_test", "tool_01") {
+                tool.exposure = ToolExposure::Hidden;
+            }
+        }
+        let base = router.model_visible_specs();
+        assert_eq!(
+            router.chat_specs_with_discovered(&[], ChatToolDiscoveryPolicy::RetainDiscovered),
+            base
+        );
+        let history = vec![discovery_search_history(), discovery_search_history()];
+        let selected =
+            router.chat_specs_with_discovered(&history, ChatToolDiscoveryPolicy::RetainDiscovered);
+        let names = namespace_function_names(&selected, "budget_test");
+        assert_eq!(names.len(), 29);
+        assert!(!names.contains(&"tool_01".to_string()));
+        assert!(serde_json::to_vec(&selected).unwrap().len() > 64 * 1024);
+        let ToolSpec::Namespace(namespace) = selected
+            .iter()
+            .find(|spec| spec.name() == "budget_test")
+            .unwrap()
+        else {
+            panic!("expected merged namespace");
+        };
+        assert_eq!(namespace.description, "Current live namespace.");
+        for child in &namespace.tools {
+            let name = match child {
+                ResponsesApiNamespaceTool::Function(tool) => &tool.name,
+                ResponsesApiNamespaceTool::Custom(tool) => &tool.name,
+            };
+            let current = router
+                .registry
+                .entries()
+                .find(|tool| tool.runtime.tool_name() == ToolName::namespaced("budget_test", name))
+                .unwrap()
+                .runtime
+                .spec();
+            let ToolSpec::Namespace(current) = current else {
+                panic!("expected live namespace");
+            };
+            assert_eq!(
+                serde_json::to_value(child).unwrap(),
+                serde_json::to_value(&current.tools[0]).unwrap()
+            );
+        }
+        assert!(Arc::ptr_eq(&base, &router.model_visible_specs()));
     }
 }
 
@@ -734,7 +920,10 @@ async fn chat_discovery_prefers_recent_calls_and_authorized_additions() {
         serde_json::from_value(json!({"type": "custom_tool_call", "namespace": "budget_test", "name": "tool_26", "input": "", "call_id": "recent-custom"})).unwrap(),
     ];
     assert_eq!(
-        namespace_function_names(&router.chat_specs_with_discovered(&history), "budget_test"),
+        namespace_function_names(
+            &router.chat_specs_with_discovered(&history, ChatToolDiscoveryPolicy::BoundedApi),
+            "budget_test"
+        ),
         vec![
             "tool_00", "tool_01", "tool_02", "tool_03", "tool_04", "tool_26", "tool_27", "tool_28",
             "tool_29"
@@ -778,7 +967,7 @@ async fn chat_discovery_does_not_revive_hidden_removed_or_unauthorized_tools() {
         unauthorized("pending"),
     ];
     assert_eq!(
-        router.chat_specs_with_discovered(&history),
+        router.chat_specs_with_discovered(&history, ChatToolDiscoveryPolicy::BoundedApi),
         router.model_visible_specs()
     );
 }
@@ -790,7 +979,10 @@ async fn chat_discovery_preserves_oversized_mandatory_base_catalog() {
     assert!(serde_json::to_vec(&base).unwrap().len() > 64 * 1024);
     assert!(Arc::ptr_eq(
         &base,
-        &router.chat_specs_with_discovered(&[discovery_search_history()])
+        &router.chat_specs_with_discovered(
+            &[discovery_search_history()],
+            ChatToolDiscoveryPolicy::BoundedApi
+        )
     ));
 }
 

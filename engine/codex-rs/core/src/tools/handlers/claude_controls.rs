@@ -434,6 +434,12 @@ impl ToolExecutor<ToolInvocation> for ClaudeControlHandler {
             properties["subagent_type"] = json!({"type":"string","enum":["default"],"description":"Use default; the native runtime selects its configured role. Role overrides are unavailable."});
             description.push_str(" Set subagent_type to default; the native runtime selects its configured role and role overrides are unavailable.");
         }
+        if self.kind == ClaudeControlKind::ToolSearch {
+            if let ToolSpec::ToolSearch { description: native_description, .. } = self.backend.spec() {
+                // Keep native bounded source hints when MCP schemas are deferred.
+                description = native_description.replace("`tool_search`", "`ToolSearch`");
+            }
+        }
         let parameters: JsonSchema = serde_json::from_value(json!({"type":"object","additionalProperties":false,"properties":properties,"required":required})).expect("trusted compatible schema");
         ToolSpec::Function(ResponsesApiTool {
             name: self.kind.name().into(),

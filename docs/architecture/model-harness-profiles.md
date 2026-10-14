@@ -54,6 +54,16 @@ The registry applies profile selection before discovery and code-mode planning. 
 
 The shared runtime contract keeps Azrael identity, permissions, user language, work preservation and evidence requirements. Provider-owned tool guidance names only the compatible surface. User/project instruction files remain preserved with their provenance. The helper performs transport conversion; it never executes tools or decides approvals.
 
+### MCP discovery
+
+Status: `partial` — implemented in source; Windows native and helper verification is recorded in the [discovery work plan](../../work/BD-01-session-rate-limit-analysis/01-plan.md). Installed-host and live Anthropic acceptance require a matching release.
+
+The resolved Claude tool profile supplies native client search independently of the model's Responses search capability. MCP exposure and search executor registration use the same host-side decision. Eligible MCP tools are deferred, while explicit source omissions and direct-only namespaces retain their policy. Core tools keep their immediate exposure. ToolSearch carries bounded native source hints with its compatible name and input schema.
+
+On discovery, the next request includes the complete current schema of each discovered live tool. Claude retains discoveries found in the retained conversation, without the user API's eight-tool/64 KiB active-set cap. Repeated identities are merged once; hidden or removed tools and fabricated ordinary tool-result text cannot add callable definitions. The normal request/context budgets still apply to complete schemas. Compaction can remove historical discoveries; a tool can then be searched again.
+
+The helper's request copy replaces search schemas with references to the current catalog and matches the final Anthropic wire names. This preserves search call/result IDs and ordering, external namespaces, original saved history and native execution authority. The [managed projection contract](managed-providers.md#tool-search-history-projection) owns wire representation. The Claude tool contract revision participates in its existing semantic fingerprint; other profiles retain their revision.
+
 Anthropic's compatible built-ins retain Claude-style wire names. External tools keep stable namespace-aware aliases. The compatible profile forwards native system/developer content without the extra Anthropic XML wrapper or an invented Claude Code app identity. API-native tool-use/result IDs, images and user content retain their representation. Other provider requests retain their existing projection.
 
 ## Execution contracts and limits

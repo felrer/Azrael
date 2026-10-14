@@ -37,9 +37,13 @@ remain distinct. Failed and empty results, call IDs and ordering are preserved.
 History never adds a callable tool or bypasses native permissions; nested calls
 follow current Code Mode instructions. Stored conversations remain unchanged.
 
+The resolved Claude-compatible profile projects typed search results to current
+catalog references, with no repeated schemas or namespace descriptions. Reference
+names match the adapter's final OAuth tool names; ordinary tool-result text is
+preserved. Its discovered catalog follows the [profile discovery contract](model-harness-profiles.md#mcp-discovery).
 User API requests retain their stricter current-catalog-only projection and bounded
-discovered catalog. OpenAI retains native `tool_search_output` semantics. Neither
-path is changed by this helper projection. See the [Devin tool contract](devin.md#tool-contract).
+discovered catalog. OpenAI retains native `tool_search_output` semantics. See the
+[Devin tool contract](devin.md#tool-contract).
 
 Managed and user API mapper responses accept exact current wire aliases, original names and `namespace.name`. All candidate forms resolve through a request-local index; multiple identities fail with `ambiguous_tool_name`, including collisions between different name forms. No case, whitespace, prefix or partial-match repair occurs. Historical definitions and other providers' catalogs cannot grant a callable tool. Model-facing external aliases remain SHA-256-based names; the Anthropic compatible profile keeps Claude-style built-in wire names. Native executable items retain the original name and namespace. The [profile contract](model-harness-profiles.md) owns this exception. Private replay records store the resolved wire name and the digest of the actual validated arguments.
 

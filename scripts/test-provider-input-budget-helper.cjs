@@ -11,7 +11,7 @@ if (process.platform === 'win32' && !process.env.AZRAEL_BUN && !existsSync(pinne
 }
 for (const [executable, args, cwd] of [
   [process.execPath, ['--test', 'providers/devin/tests/context-budget.test.mjs', 'providers/devin/tests/progress.test.mjs'], project],
-  [bun, ['test', '--no-install', '--timeout', '60000', 'tests/context-budget.test.ts'], join(project, 'providers/opencodex')],
+  [bun, ['test', '--no-install', '--timeout', '60000', './tests/context-budget.test.ts', './tests/tool-search-history.test.ts', './tests/harness-projection.test.ts'], join(project, 'providers/opencodex')],
 ]) {
   const result = spawnSync(executable, args, { cwd, encoding: 'utf8', windowsHide: true, timeout: 180000 });
   if (result.error || result.status !== 0) {
@@ -19,4 +19,4 @@ for (const [executable, args, cwd] of [
     process.exit(result.status || 1);
   }
 }
-console.log('Provider input budget: final wire, inference-free estimate, usage correlation and safe progress checks passed.');
+console.log('Provider input budget: final wire, inference-free estimate, Claude search references, profile isolation, usage correlation and safe progress checks passed.');
