@@ -1,6 +1,6 @@
-상태: 주요 제품 정책 확정 및 상세 설계 초안 작성 완료. 합의된 정책은 target, 구조·연동·화면의 세부 제안은 draft다. 앱 코드 구현·저장소 생성·원격 게시 실행은 아직 승인되지 않았다.
+상태: 공유 단위와 작업 프로필 연계를 추가 설계 중. 기존 공유·게시 정책은 유지하며 신규 패키지 종류와 작업 활성화는 draft다. 앱 코드 구현·저장소 생성·원격 게시 실행은 아직 승인되지 않았다.
 
-# 지침 문서와 개인 스킬 관리
+# 선택 지침 패키지·작업 프로필과 개인 스킬 관리
 
 ## 목표와 합의
 
@@ -17,6 +17,15 @@ Azrael에서 개인 스킬 전체를 한 화면으로 관리한다. 공개 / 고
 | 협업자 게시 권한 | 실제 GitHub 쓰기 권한이 있는 협업자 모두 | 고정 협업 그룹에서 공동 관리한다. 게시 버튼과 실행 검사는 실제 저장소 쓰기 권한을 따른다. |
 
 나머지 세부 제안: 개인 원본 가져오기는 원본 설치를 보존하고 지원 파일까지 함께 처리한다. 시스템·플러그인 스킬은 제공자 관리로 표시하며 개인 파생본은 별도 이름으로 만든다. 설치본 외부 수정·원격 동시 수정은 충돌로 표시한다. 신규 개인 설치 대상은 현재 CODEX_HOME/skills와 같으며 프로젝트 원본 위치와 적용 범위를 구분해 보여준다. GitHub 인증은 설치 호스트의 session 지원을 확인해 재사용하고 필요 시 SecretStorage 대안을 둔다. 기존 baseline instructions/ 소유권과 개인 라이브러리를 구분해 중복 원본을 피한다.
+
+## 선택적 지침 공유와 작업 특화 제안
+
+사용자는 앱과 함께 설치하는 공통 지침보다 선택적으로 포함할 수 있는 지침을 중심으로 공유하는 방향을 요청했다. 모델과 제공 컨텍스트를 함께 저장하는 작업 특화 프로필도 검토한다. 기존 공개/협업/로컬 범위, 협업 기본값, 저장/적용/게시 분리는 유지한다.
+현재 manifest는 전역 AGENTS, 2 agent roles, 5 skills, workspace app-logging playbook, agent-config의 10 components다. 이것은 배포 구성이지 원격 게시 완료 근거는 아니다. 계정 profile, named config profile, harness profile의 소유권을 구분했다. config profile에는 model/provider/reasoning이 있고 harness profile은 behavior template과 tool preset을 조합하지만 task resource 참조·공유·선택 UI는 추가 구현이다.
+추천 공유 단위는 skill / agent-role / context / task-profile의 버전 패키지다. 작업 profile은 기본 모델과 필요한 패키지의 고정 참조를 조합하며, 개별 패키지도 독립적으로 가져온다. 동일 문서를 profile마다 복제하지 않는다. 상세 제안은 [선택 지침·작업 프로필 설계](../../docs/architecture/instructions.md#selectable-instruction-packages-and-task-profiles)가 소유한다.
+적용 범위 제안은 library 저장과 task 활성화를 분리하고 새 대화에서 profile을 명시적으로 선택하는 방식이다. 개인 설치 경로에 파일이 있다고 해서 전 대화에 모든 지침을 켜지 않는다. native prompt·catalog·tool admission 연결 검증이 필요하다. 필수 런타임·root·권한 지침은 선택 패키지로 취급하지 않는다.
+미결 모델 정책: 추천 모델을 저장하되 사용자 로컬 변경을 허용할지, 공유 recipe의 모델을 고정할지 정한다. 추천은 명시적인 로컬 변경 허용이며 실제 선택·호환성을 기록한다. profile의 종류·활성화 제안은 아직 제품 합의로 전환하지 않았다.
+설계 검증 범위: 실제 manifest와 engine config/src/profile_toml.rs, harness_profiles.rs 및 기존 architecture의 native contract를 확인했다. 새 코드·모델 실행·profile activation 실험은 수행하지 않았다.
 
 ## 현재 근거와 구현 차이
 
@@ -37,3 +46,5 @@ build-instruction-release.cjs는 소스 전체를 순회한다. 따라서 gitign
 ## 이번 설계 검증
 
 기존 코드·설치/배포 설계와 비교하고 GitHub 공식 refs/releases 및 VS Code 인증 API를 확인했다. 문서 링크 검사 종료 코드 0 (8개 로컬 대상), 작업 diff 검사 종료 코드 0. 첫 검사 helper의 기본 인코딩 오류를 UTF-8 명시로 수정한 뒤 재검사했다. 이 작업에서는 native build, 앱 실행, GitHub 계정 접속이나 게시 실험을 수행하지 않는다. 문서 검증과 제품 동작 검증은 구분한다.
+
+선택 지침 추가 설계 검증: 로컬 문서 링크 검사 종료 코드 0, 작업 파일 diff 검사 종료 코드 0. native profile 활성화와 설치 검증은 수행하지 않았다.
