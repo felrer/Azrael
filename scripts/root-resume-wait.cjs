@@ -275,9 +275,7 @@ function azraelRootResumeWaitLabel(wait, elapsedMs) {
     case "waiting": {
       if (wait.waitStartedAtMs == null) return "재개 대기 · 대기 시간 확인 불가";
       const planned = Math.ceil(Math.max(0, wait.resumeAtMs - wait.waitStartedAtMs) / 1000);
-      const schedule = wait.canWakeEarly ? `재개까지 최대 ${planned}초 대기` : `${planned}초 대기 예정`;
-      const progress = elapsed == null ? duration : `현재 ${elapsed}초 대기함`;
-      return `${schedule} · ${progress}${wait.canWakeEarly ? " · 재개 조건 설정됨" : ""}`;
+      return `재개까지 ${elapsed}/${planned}초${wait.canWakeEarly ? " · 재개 조건 설정됨" : ""}`;
     }
     case "claimed": return `재개 처리 중 · ${duration}`;
     case "resumed": return elapsed == null ? `재개됨 · ${duration}` : `${duration} 후 재개됨`;

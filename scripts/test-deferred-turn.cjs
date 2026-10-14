@@ -765,7 +765,7 @@ test("waiting uses the existing clock hook, then freezes after early resume or c
   assert.equal(clock.interval(), 1000);
   clock.advance(12000);
   assert.equal(waitHelpers.azraelRootResumeWaitLabel(wait, clock.render(item).elapsedMs),
-    "재개까지 최대 60초 대기 · 현재 12초 대기함 · 재개 조건 설정됨");
+    "재개까지 12/60초 · 재개 조건 설정됨");
   const ended = { ...wait, state: "resumed", revision: 3, waitEndedAtMs: 66000 };
   item = waitHelpers.azraelRootResumeWaitItem(ended);
   assert.equal(clock.render(item).elapsedMs, 46000);
@@ -914,7 +914,7 @@ test("blocked and processing reservations freeze elapsed time independently of t
     clock.advance(3600000);
     assert.equal(clock.render(item).elapsedMs, 12000);
   }
-  assert.equal(waitHelpers.azraelRootResumeWaitLabel(reservation(), 12000), "60초 대기 예정 · 현재 12초 대기함");
+  assert.equal(waitHelpers.azraelRootResumeWaitLabel(reservation(), 12000), "재개까지 12/60초");
   assert.equal(waitHelpers.azraelRootResumeWaitLabel(reservation({ state: "blocked", waitEndedAtMs: 32000 }), 12000), "재개 차단됨 · 12초 대기");
 });
 
