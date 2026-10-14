@@ -628,6 +628,14 @@
             "scripts/test-ui-cleanup.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "ui.ui-cleanup.file-summary-render",
+          "executable": "node",
+          "args": [
+            "scripts/verify-file-summary-render.mjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": [
