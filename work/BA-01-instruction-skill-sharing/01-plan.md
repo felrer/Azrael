@@ -1,4 +1,4 @@
-상태: 개별 지침과 조합 작업 프로필을 함께 공유하는 구조가 합의됨. 모델 변경 정책을 논의 중이며 세부 패키지·활성화 계약은 draft다. 앱 코드 구현·저장소 생성·원격 게시 실행은 아직 승인되지 않았다.
+상태: 개별 지침과 조합 작업 프로필을 함께 공유하는 구조가 합의됨. 추천 모델과 명시적인 사용자 변경 허용이 합의됨. 적용 범위와 세부 패키지·활성화 계약은 draft다. 앱 코드 구현·저장소 생성·원격 게시 실행은 아직 승인되지 않았다.
 
 # 선택 지침 패키지·작업 프로필과 개인 스킬 관리
 
@@ -24,7 +24,8 @@ Azrael에서 개인 스킬 전체를 한 화면으로 관리한다. 공개 / 고
 현재 manifest는 전역 AGENTS, 2 agent roles, 5 skills, workspace app-logging playbook, agent-config의 10 components다. 이것은 배포 구성이지 원격 게시 완료 근거는 아니다. 계정 profile, named config profile, harness profile의 소유권을 구분했다. config profile에는 model/provider/reasoning이 있고 harness profile은 behavior template과 tool preset을 조합하지만 task resource 참조·공유·선택 UI는 추가 구현이다.
 추천 공유 단위는 skill / agent-role / context / task-profile의 버전 패키지다. 작업 profile은 기본 모델과 필요한 패키지의 고정 참조를 조합하며, 개별 패키지도 독립적으로 가져온다. 동일 문서를 profile마다 복제하지 않는다. 상세 제안은 [선택 지침·작업 프로필 설계](../../docs/architecture/instructions.md#selectable-instruction-packages-and-task-profiles)가 소유한다.
 적용 범위 제안은 library 저장과 task 활성화를 분리하고 새 대화에서 profile을 명시적으로 선택하는 방식이다. 개인 설치 경로에 파일이 있다고 해서 전 대화에 모든 지침을 켜지 않는다. native prompt·catalog·tool admission 연결 검증이 필요하다. 필수 런타임·root·권한 지침은 선택 패키지로 취급하지 않는다.
-미결 모델 정책: 추천 모델을 저장하되 사용자 로컬 변경을 허용할지, 공유 recipe의 모델을 고정할지 정한다. 추천은 명시적인 로컬 변경 허용이며 실제 선택·호환성을 기록한다. 개별 지침 + 조합 프로필 제공은 합의되었으며 모델 변경·세부 패키지 및 활성화 제안은 아직 제품 합의로 전환하지 않았다.
+확정 모델 정책: 추천 모델을 저장하고 적용 시 사용자의 명시적 변경을 허용한다. 변경 후 필요한 기능과 제공자/도구 호환성을 확인하며 실제 선택을 기록한다. 모델을 자동 대체하거나 공유 profile을 조용히 변경하지 않는다. 개별 지침 + 조합 프로필 제공과 이 모델 정책은 합의되었으며 세부 패키지·활성화는 draft다.
+미결 적용 범위: 새 대화에서 선택한 profile을 해당 대화에 적용할지, 현재 프로젝트의 새 대화 기본값으로 적용할지 정한다. 추천은 해당 새 대화에만 적용하는 초기 범위이며 여러 작업별 선택을 유지한다. 프로젝트 기본값은 지속 설정과 새 대화 기본 선택을 바꾼다.
 설계 검증 범위: 실제 manifest와 engine config/src/profile_toml.rs, harness_profiles.rs 및 기존 architecture의 native contract를 확인했다. 새 코드·모델 실행·profile activation 실험은 수행하지 않았다.
 
 ## 현재 근거와 구현 차이
