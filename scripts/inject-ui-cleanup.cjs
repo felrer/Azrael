@@ -3,7 +3,9 @@
 const COMPOSER_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 const PERMISSIONS_ASSET = "webview/assets/permissions-mode-dropdown-66a2c48ceb22.js";
 const FAST_MODE_BANNER_ASSET = "webview/assets/home-announcement-state-89426c353877.js";
-const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET, FAST_MODE_BANNER_ASSET];
+const TURN_DIFF_ASSET = "webview/assets/sites-end-resource-90d3046b3014.js";
+const UI_CLEANUP_ASSETS = [COMPOSER_ASSET, PERMISSIONS_ASSET, FAST_MODE_BANNER_ASSET, TURN_DIFF_ASSET];
+const TURN_DIFF_HEADER = 'function azraelTurnDiffHeader({title,linesAdded,linesRemoved,onOpen,single}){return (0,Q.jsxs)(`div`,{className:`group/turn-diff-header relative`,children:[single?(0,Q.jsx)(QE,{onClick:onOpen}):null,(0,Q.jsx)(ca,{padding:`compact`,className:`pointer-events-none relative z-10`,icon:(0,Q.jsx)(`span`,{className:`flex size-6 shrink-0 items-center justify-center rounded-lg bg-surface-secondary/92 text-secondary`,children:(0,Q.jsx)(da,{"aria-hidden":!0,asset:Vg,className:`size-4`})}),title:(0,Q.jsxs)(`span`,{className:`inline-flex max-w-full items-center gap-2`,children:[(0,Q.jsx)(`span`,{className:`min-w-0 truncate`,children:title}),(0,Q.jsx)($t,{className:`shrink-0 text-size-chat-sm`,linesAdded,linesRemoved})]})})]})}';
 const MARKER = "/*azrael-ui-cleanup-v1*/";
 const COMPOSER_EMOTICONS = ["[•ᴗ•]", "( ˘ᵕ˘)b", "ʕᵔᴥᵔʔ", "ʕっ•ᴥ•ʔっ🍯", "^•ᴗ•^", "(づ｡◕‿‿◕｡)づ", "(｡•̀ᴗ-)✧"];
 // Persist only a presentation choice; native draft and conversation state stay native.
@@ -46,7 +48,18 @@ function injectUiCleanup(text, relativePath, ts) {
       pos += anchor.length;
     }
   }
-  if (relativePath === FAST_MODE_BANNER_ASSET) {
+  if (relativePath === TURN_DIFF_ASSET) {
+    const owner = requireFunction("JE"), source = owner.getText(file);
+    const start = source.indexOf("let xe=be,Se;"), end = source.indexOf("let Me;", start);
+    if (marked) {
+      if (!source.includes("je=azraelTurnDiffHeader({title:ie,linesAdded:z,linesRemoved:B,onOpen:()=>ge(W?.path),single:!ce});")) throw new Error("Compact turn diff header changed.");
+      if (requireFunction("azraelTurnDiffHeader").getText(file) !== TURN_DIFF_HEADER) throw new Error("Compact turn diff renderer changed.");
+    } else {
+      if (start < 0 || end < start || !source.slice(start,end).includes("codex.unifiedDiff.revertChangesTooltip")) throw new Error("Pinned turn diff header changed.");
+      replace(owner, source.slice(start,end), "let xe=be,je=azraelTurnDiffHeader({title:ie,linesAdded:z,linesRemoved:B,onOpen:()=>ge(W?.path),single:!ce});");
+    }
+    for (const name of ["eD", "tD"]) replace(requireFunction(name), "flex h-9 w-full cursor-interaction", "flex h-8 w-full cursor-interaction");
+  } else if (relativePath === FAST_MODE_BANNER_ASSET) {
     // Disable the recommendation and its estimate query through native eligibility.
     // Manual service-tier selection remains owned by the model picker.
     replace(requireFunction("Ht"), "S=i?.fast===!0&&x!=null&&!f&&m.selectedServiceTier==null&&!m.isLoading", "S=!1");
@@ -120,6 +133,7 @@ function injectUiCleanup(text, relativePath, ts) {
   if(relativePath===PERMISSIONS_ASSET){
     text+='\nfunction azraelApproveIcon(e){return (0,$.jsx)(\x60span\x60,{style:{display:\x60inline-flex\x60,color:\x60color-mix(in srgb, var(--blue-300) 55%, var(--color-token-description-foreground))\x60},children:(0,$.jsx)(Dt,e)})}\nfunction azraelFullAccessIcon(e){return (0,$.jsx)(\x60span\x60,{style:{display:\x60inline-flex\x60,color:\x60color-mix(in srgb, var(--orange-300) 55%, var(--color-token-description-foreground))\x60},children:(0,$.jsx)(bt,e)})}';
   }
+  if(relativePath===TURN_DIFF_ASSET) text+='\n'+TURN_DIFF_HEADER;
   text=MARKER+text;parse(text,ts);return {text,count:1};
 }
-module.exports={UI_CLEANUP_ASSETS,COMPOSER_ASSET,PERMISSIONS_ASSET,MARKER,COMPOSER_EMOTICONS,injectUiCleanup};
+module.exports={UI_CLEANUP_ASSETS,COMPOSER_ASSET,PERMISSIONS_ASSET,TURN_DIFF_ASSET,MARKER,COMPOSER_EMOTICONS,injectUiCleanup};

@@ -20,6 +20,12 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## File edit summary
+
+Status: `current` in source — native React/CSS rendering and scoped interactions pass on Windows in light/dark themes and at narrow width. Package, installed-host and native Linux/macOS acceptance remain separate; evidence is tracked in [the work plan](../../work/BG-01-compact-file-summary/01-plan.md).
+
+Completed turn diffs use the native resource card with compact vertical padding, a 24px icon surface and a 16px glyph. The edited-file title and total added/removed lines share one row. The header has no Undo/Reapply or View changes buttons or hover subtitle. Multiple-file rows are 32px high and retain native diff opening, modifier-key file opening, file menus and expansion controls. A single-file header retains its accessible native diff-opening trigger. Diff data, host permissions and editor ownership retain their native contracts. This shared presentation applies to Windows x64, Linux x64 and macOS ARM64; package, installed-host and native platform acceptance are separate. Preservation feature: `ui.ui-cleanup`.
+
 ## Capacity retry controls
 
 Status: `current` in source — Windows behavior fixtures and native React/CSS rendering pass in light/dark themes. Package, installation and native Linux/macOS acceptance remain unverified.
