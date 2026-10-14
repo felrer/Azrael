@@ -1,7 +1,7 @@
 "use strict";
 
 // Kept self-contained so the UI injector can serialize this function verbatim.
-function azraelTaskTimeGroups(turns, boundaries, nowMs, canonicalOnly = false) {
+function azraelTaskTimeGroups(turns, nowMs) {
   const validMs = value => typeof value === "number" && Number.isFinite(value) && value >= 0;
   const seen = new Set();
   const groups = [];
@@ -36,12 +36,11 @@ function azraelTaskTimeGroups(turns, boundaries, nowMs, canonicalOnly = false) {
   for (const turn of Array.isArray(turns) ? turns : []) {
     if (!turn || typeof turn.turnId !== "string" || !turn.turnId.trim() || seen.has(turn.turnId)) continue;
     seen.add(turn.turnId);
-    const explicit = Object.prototype.hasOwnProperty.call(boundaries || {}, turn.turnId) && typeof boundaries[turn.turnId] === "boolean";
     const parent = owners.get(turn.parentTurnId);
     const continuation = turn.turnTrigger === "root_resume" && parent === group &&
       typeof turn.rootTurnId === "string" && turn.rootTurnId.trim() &&
       roots?.has(turn.rootTurnId);
-    if (!group || (explicit ? boundaries[turn.turnId] : !continuation)) {
+    if (!group || !continuation) {
       finish();
       group = { id: turn.turnId, turnIds: [], durationMs: 0, partial: false, active: false, turns: [] };
       intervals = [];
@@ -109,15 +108,6 @@ function azraelTaskTimeGroups(turns, boundaries, nowMs, canonicalOnly = false) {
     } else if (turn.status === "deferred") group.partial = true;
   }
   finish();
-  if (!canonicalOnly) {
-    const chains = azraelTaskTimeGroups(turns, {}, nowMs, true);
-    const chainByTurn = new Map(chains.flatMap(chain => chain.turnIds.map(id => [id, chain])));
-    for (const fragment of groups) {
-      const linked = [...new Set(fragment.turnIds.map(id => chainByTurn.get(id)))];
-      fragment.chainResumeCount = Math.max(0, ...linked.map(chain => chain.resumeCount));
-      fragment.eligible = linked.some(chain => chain.eligible);
-    }
-  }
   return groups;
 }
 

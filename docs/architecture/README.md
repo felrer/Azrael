@@ -12,7 +12,7 @@ Each document or owning section labels its own state (see [document states](../R
 - [Queued context compaction](queued-compaction.md): ordered compaction, execution thresholds, queue receipt ownership and progress.
 - [Root resume scheduling](root-resume.md): durable reservations, completion signals, defer clocks and work-segment presentation.
 - [Root coordination](root-coordination.md): root-only investigation, scheduling, resource ownership, waiting and intervention policy.
-- [Task work time](task-work-time.md): continuous turn groups, user-wait exclusions, work boundaries and partial-history display.
+- [Task work time](task-work-time.md): continuous work time and turn count below the initial user message, user-wait exclusions and partial-history display.
 - [Side questions with /btw](side-questions.md): tool-free side execution, main-task isolation and explicit result delivery.
 - [Work orchestration](work-orchestration.md): draft/target Lead and Team design, isolated worktrees and handoff boundaries.
 

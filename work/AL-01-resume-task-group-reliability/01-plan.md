@@ -1,78 +1,45 @@
-상태: 코드 구현 및 Windows 격리 재현·검증 완료. 정상 정리와 검증 근거 보존을 마쳤으며 원본 fixture의 정책 거절 잔여는 예외 보존한다. 2026-10-13 사용자 지시로 코드 수정과 격리 프로필 재현·원인 분석·검증을 수행했다. 일반 프로필 설치·전체 앱 배포 빌드는 이번 범위에 포함하지 않는다.
+상태: 단순 시간·턴 표시 구현, Windows 격리 렌더링·통합 검사와 정상 정리 완료. 실제 VS Code 호스트·일반 프로필 설치와 다른 OS 수용은 포함하지 않는다.
 
-# 세션 재개에 따른 작업 묶음과 시간 기록 수정 계획
+# 연속 작업 시간·턴 표시 간소화
 
-새 세션에서 한 턴만으로 작업 묶음과 조회 오류가 표시되는 동작을 고친다. 모델의 세션 재개 도구 사용이 3회 이상일 때 묶음을 표시하고, 재개 관계·기록 조회·상태 병합·대화 경계가 같은 기준을 따르도록 바꾼다.
+같은 연속 자동 작업의 첫 사용자 메시지 바로 아래에 `총 6시간 56분 · 29개 턴`처럼 총 작업 시간과 턴 수만 표시한다. 대화 내용과 native 행 순서는 유지한다. 접기·펼치기 UI, 작업 번호, 턴별 시간 표, 수동 경계 조작, 이중선과 전용 행 측정 패치를 제거한다.
 
-## 확정한 기준
+## 확정한 기준과 권한
 
-같은 연속 자동 작업 안에서 성공한 대기 등록 3회를 센다. 고유 예약과 대기 시작 시각으로 성공 등록을 확인한다.
+- 같은 연속 자동 작업에서 성공한 `azrael_agents.defer_root` 대기 등록이 3회 이상일 때 표시한다. 고유 예약·시작 시각으로 성공을 판정하며 중복·준비·실패 호출, 하위 에이전트·다른 세션 링크 읽기는 제외한다.
+- 자동 재개 관계는 root ID, 부모 턴과 `turnTrigger=root_resume`로 판정한다. 새 사용자 메시지는 독립 작업의 시작이다. 수동 경계 저장을 읽거나 새로 쓰지 않으며 기존 사용자 설정 데이터는 삭제하지 않는다.
+- 실행과 기록된 자동 대기 구간을 합집합으로 합산하고 사용자 응답을 기다리는 턴 사이 공백을 제외한다. 병렬 시간을 중복 가산하지 않고 완료 시간을 고정한다. 불완전한 기록은 `확인된 시간 · 턴 수`와 보조 설명으로 구분한다.
+- 허용 범위는 기존 UI·집계 코드 수정, 소유 문서·검사 갱신, 격리 렌더링 검증과 정리다. 일반 프로필 설치·게시·VS Code 업데이트·기존 창 종료는 포함하지 않는다. 동시 변경을 보존한다.
+- 의미와 UI는 로컬 Windows x64, Linux x64, macOS ARM64 공통 요구이며 실제 검증 환경은 Windows x64이다. 다른 OS·원격/컨테이너와 패키지 설치는 수용을 주장하지 않는다.
 
-1. 서로 다른 사용자 요청의 횟수는 합산하지 않는다. root ID와 부모·자동 재개 trigger로 연속 작업을 구분한다.
-2. 세 번째 성공 등록 시점부터 처음 작업의 시간과 범위를 표시한다. 도구 오류·준비·중복은 세지 않으며 이후 취소·교체·차단은 이미 성공한 사용 횟수를 지우지 않는다.
+## 확인한 차이와 재사용
 
-새 사용자 메시지가 자동 대기를 대신하면 새 작업으로 구분한다. 다른 세션의 링크 읽기는 자동 재개로 세지 않는다. 기존 수동 나누기·합치기는 보존하며 원래 연속 작업의 자격을 따르고 서로 다른 짧은 작업의 합치기로 자격을 만들지 않는다.
+현재 구현의 `<details>`는 턴별 시간 표를 제어하고, 본문은 항상 entries에 남았다. 29·176·1,000턴에서 접힘 상태를 바꾸어도 본문 행 수가 같았다. 작은 projection 실험은 artifacts/logs/task-group-20261014/collapse-review.json에 있으며 실제 native 렌더나 성능 측정은 아니다. 앞선 176턴 접기·펼치기 결과는 시간 표에 대한 결과이며 본문 전체 접기에 대한 수용이 아니다.
 
-## 범위와 권한
-
-허용된 작업은 코드 조사·수정, 테스트용 엔진/CLI 컴파일, 격리 프로필 재현·검증과 필요한 정리다. 앱 전체 빌드·일반 프로필 설치·게시를 실행하지 않는다. 사용자 답변에 따라 설치된 VS Code의 업데이트·기존 창 종료도 수행하지 않는다. 기존 및 동시 변경은 보존한다.
-
-표시·집계·메타데이터 계약은 로컬 Windows x64, Linux x64, macOS ARM64 공통 요구다. 실제 검증은 Windows x64의 고정 소스·합성 입력·실제 VS Code 격리 호스트다. 다른 OS 및 원격·컨테이너 수용은 검증하지 않았다. 첨부 사진 자체의 동일 실패 원인을 source 조사만으로 확정하지 않는다.
-
-## 수정 전 구조에서 확인한 문제
-
-| 지점 | 확인한 사실과 영향 | 수정 방향 |
-| --- | --- | --- |
-| 첫 표시와 조회 | inject-task-work-time.cjs:37은 entries가 하나라도 있으면 요약 행을 삽입한다. :19에서 바로 전체 기록을 조회한다. 재개 횟수 조건이 없어 새 세션에서도 요약·오류가 나타난다. | 표시 자격과 조회 준비 상태를 독립적으로 판정한다. 자격 전에는 묶음·이중선·이 기능의 오류 배너를 만들지 않는다. |
-| 새 세션의 조회 준비 | 엔진은 rollout이 없을 때 loaded thread를 찾고, 없으면 thread not loaded를 반환한다. ephemeral thread도 thread/turns/list를 지원하지 않는다. 현재 helper는 준비 판정 없이 조회하고 실패 원인을 일반 문자열로 처리한다. | 기존 connection/loaded-thread gate와 조회 캐시를 재사용하고, 아직 생성 중인 상태와 지원하지 않는 상태를 일반 조회 오류와 구분한다. |
-| 작업 관계 | task-work-time.cjs:32는 첫 턴부터 기본 한 그룹을 만들고 수동 경계만 읽는다. 서로 다른 rootTurnId도 한 그룹이 되는 것이 실험에서 재현됐다. | 대화 전체와 연속 재개 작업을 분리하고, 같은 작업으로 확인된 턴만 집계한다. |
-| API 관계 누락 | thread/turns/list는 rootTurnId와 rootResumeWait만 전달한다. 저장된 parentTurnId·turnTrigger는 history 재구성에서 빠진다. 사용자 입력이 대기를 대체한 턴도 이전 rootTurnId를 이어받아 root만으로 새 작업 경계를 구분할 수 없다. | 이미 저장된 attribution을 history·wire·live 계약에 연결하고 사용자 대체 턴과 자동 재개 턴을 구분한다. |
-| live 결합 | task-work-time-history.cjs:65의 정규화에서 rootTurnId가 빠진다. 신규 live 턴은 root 식별자를 잃고, 누락 턴은 배열 끝에 추가돼 a,c,b 순서가 된다. | 관계 필드를 모든 데이터 경로에서 보존하고 native 기록 순서·parent 연결로 일관된 순서를 구성한다. |
-| 늦은 상태 | :80 이후 대기 병합은 같은 reservationId일 때만 revision을 비교한다. 다른 예약의 stale live 대기가 새로운 완료 예약을 덮어쓰는 것이 재현됐다. | reservationId가 다른 기록의 선후 관계를 별도로 검증한다. terminal 동결과 최신 종료 경계를 유지한다. |
-| 화면 경계 | 요약은 대화 맨 앞, 하단 선은 마지막 entries에 붙는다. 수동으로 여러 작업을 만들거나 기록이 일부만 로드돼도 선은 해당 작업의 실제 범위를 식별하지 못한다. | 자격 있는 작업의 첫·마지막 실제 턴에 맞춰 이중선을 배치하고 native 가상 목록에서 측정한다. |
-| 검증 경계 | 기존 renderer는 합성 metadata manager와 scroll controller를 사용한다. 실제 native 조회 실패나 session 준비 상태를 검증한 근거로 확대할 수 없다. | native 계약 검사와 실제 동일 패키지의 새 세션·재개·기록 조회 수용을 별도로 추가한다. |
-
-실험은 현재 함수를 그대로 호출했다. 서로 다른 root의 결합, 신규 live root 소실, 병합 순서 역전, stale reservation 덮어쓰기를 확인한 소형 근거는 artifacts/logs/task-work-time/investigation/structure-repro.json에 있다. 이 실험은 설치 앱의 오류 원인을 확정하지 않는다.
-
-## 재사용할 재개 기록
-
-모델 도구는 azrael_agents.defer_root이며 엔진의 ROOT_RESUME_TOOL_NAME은 defer_root다. 예약은 originating_turn_id, root_turn_id, call_id, resume_turn_id와 고유 reservation ID를 보존한다. tool result와 history flush가 맞는 뒤 Waiting으로 전환되고 originating 턴이 deferred가 된다. 자동 재개 턴은 미리 지정된 resume_turn_id, 같은 root_turn_id, parent_turn_id=originating_turn_id, turn_trigger=root_resume로 생성된다. 별도의 영속 재개 횟수 필드는 없지만 이 기록을 이용할 수 있다.
-
-단, 사용자 입력이 활성 예약을 대체해도 그 예약의 root_turn_id를 이어받는다. rootTurnId 하나만으로 자동 재개를 판정해서는 안 된다. 실패 호출·준비 중인 예약·서브에이전트 재개·다른 대화의 링크 읽기를 자동 재개 횟수로 섞지 않는다. 같은 이벤트를 다시 받은 경우에도 reservation/call 식별자로 한 번만 처리한다.
-
-thread/turns/list의 Turn에는 parentTurnId·turnTrigger가 없다. TurnStartedEvent.turn_attribution에는 두 필드와 rootTurnId가 저장되어 있지만 thread_history.rs:1309의 handle_turn_started는 rootTurnId만 복사한다. ThreadHistoryTurnMetadata와 wire Turn 변환도 두 필드를 전달하지 않는다. 기본 3회 판정은 기존 rootResumeWait로 가능하지만, 사용자 입력 대체 이후의 새 작업 경계를 정확하게 나누려면 이 저장된 attribution을 노출해야 한다.
-
-따라서 기존 저장 필드를 history builder·metadata·wire Turn·live 변환·생성 타입에 연결하는 것을 제안한다. 오래된 기록에 attribution이 없으면 추측으로 자동 재개를 확정하지 않고 불확실 상태를 유지한다. 메시지 전체를 다시 불러오거나 새 별도 집계 저장소를 먼저 만들 필요는 없다.
-
-## 시간 기록 조회와 사진의 오류
-
-Pinned native caller는 manager.listThreadTurns(threadId, options)의 결과를 response.data로 읽는다. cursor, limit, sortDirection=asc, itemsView=notLoaded는 유효한 protocol이다. 현재 helper의 호출 형식이 잘못됐다는 근거는 없다.
-
-엔진 thread_processor.rs:3100 및 :3525 이후 경로는 저장 rollout이 없을 때 loaded thread를 찾고, 없으면 InvalidRequest(thread not loaded)를 반환하며 ephemeral thread에는 해당 API를 지원하지 않는다. 따라서 생성·로드 전 조회가 실패할 수 있다. 현재 helper에는 readiness gate와 오류 분류·진단이 없고, dispose는 늦은 화면 게시만 억제한다. transport 자체의 timeout/cancel 계약은 기존 native 요청 경계에 맞춰 확인한다.
-
-기존 native 상태 조회에는 connection/app-server gate, host 재확인, 기본 retry 1회와 staleTime 30초의 cache가 있다. tail_history 경로의 background 조회와 scripts/root-resume-wait.cjs의 event 기반 조회·query_failed 진단을 우선 재사용한다. 새 무한 polling이나 준비 상태에 대한 즉시 반복 요청을 추가하지 않는다.
-
-사진의 실패 메시지는 helper의 일반 오류 표현이므로 원인은 아직 특정하지 않았다. 사진 대상 host·현재 thread ID·실행 패키지·창 reload 상태를 확인하고, 실제 첫 실패의 method/error code/readiness를 기존 진단 경로에서 수집한다. message body나 도구 인자를 진단에 추가하지 않는다. 준비 중, 일시 연결 실패, 기록 누락·손상, API 지원 불일치를 분류한 뒤 대응한다. 유효한 기존 snapshot은 유지하되 부분 합계임을 표시하고, 새로 비어 있는 결과를 0시간의 확정 총계로 표현하지 않는다.
+기존 metadata-only history 조회·live 관계 병합·재개 3회 판정·시간 합산을 재사용한다. native 사용자 메시지의 transcript/full-turn 두 렌더 경로에 한 줄 표시를 넣는다. 가상 목록의 행 수와 키·순서를 유지하고 정확한 첫 사용자 턴에만 표시를 연결한다. 일부 history에서 실제 첫 사용자 행이 없으면 다른 메시지에 대체 표시하지 않는다. 본문 추가 로드와 가상 스크롤은 native 소유로 유지한다.
 
 ## 수정 순서와 소유권
 
-1. root resume 예약·턴 관계의 native metadata 계약을 확정한다. 기존 parentTurnId·turnTrigger 저장 필드를 history builder·Turn metadata·wire 변환·live 변환·생성 타입에 연결한다. call/result 중복·취소·교체·사용자 입력 대체와 과거 attribution 누락을 포함한다. 산출물은 UI가 읽는 동일한 관계·횟수 판정 규칙이다. scheduler 자체의 동작 변경을 표시 기능과 섞지 않는다.
-2. task-work-time-history.cjs를 native metadata adapter로 정리한다. 관계 필드·기록 순서·최신 상태를 보존하고, 실제 조회 실패 원인에 맞춰 준비·복구·구독 해제를 처리한다. 기존 query/cache/transport 기능을 우선 재사용한다.
-3. task-work-time.cjs에서 작업 구성과 시간 합산을 분리한다. 재개 3회 자격과 수동 경계를 적용한 뒤 기존 실행·자동 대기 구간의 합집합 계산을 재사용한다. 사용자 응답 대기 제외와 병렬 중복 제거를 보존한다.
-4. inject-task-work-time.cjs에서 자격 있는 작업만 native 측정 행으로 표시한다. 각 작업의 실제 대화 범위를 이중선으로 표시한다. 조회 실패를 숨겨서 해결하지 않고, 표시 자격과 실제 데이터 준비를 구분한다.
-5. native 계약·상태·새 세션·실패 복구·빠른 스크롤을 검증하고 소유 계약 및 ui.task-work-time 보존 목록의 검사를 갱신한다. 전체 빌드·설치가 필요하면 별도 지시 범위를 확인한 뒤 수행한다.
-
-횟수·사용자 대체 경계는 위 기준으로 확정했다. metadata 담당자는 native 관계·schema·저장/알림 및 wire 소비자를, UI 담당자는 집계·native 행 표시와 측정을, host 담당자는 실제 격리 검증 도구를 소유한다. root는 history adapter·공유 계약·통합·최종 수용 및 문서를 소유한다.
+1. root: scripts/inject-task-work-time.cjs에서 표·접힘 상태·수동 경계 preference·장식 행을 제거하고 사용자 메시지 아래 표시로 교체한다. scripts/task-work-time.cjs의 수동 경계·중복 canonical 계산을 제거한다. namespace의 task 전용 row observer dispatch를 제거하고 native turn renderer를 연결한다.
+2. 검증 담당: scripts/test-task-work-time.cjs, scripts/test-task-work-time-ui.cjs와 renderer/host 검증 도구를 현재 계약으로 갱신한다. root가 제공하는 injector exports와 groups(turns, nowMs) 계약을 사용한다. fixture·로그는 task-time-simple-20261014 전용 경로를 사용한다. 자식은 재위임하지 않는다.
+3. root: 소유 architecture 갱신, 집중 검사 및 실제 렌더 근거 통합, 필수 정리와 작업별 커밋을 완료한다. 기존 engine 결과는 변경 없는 계약에만 재사용하며 엔진·패키지를 재컴파일한 것으로 보고하지 않는다.
 
 ## 성공 기준과 검증
 
-- 재개 0·1·2회인 새 세션에서는 요약·이중선·시간 조회 오류 배너가 없다. 3회에서 정확히 한 번 나타나고 처음 작업부터의 시간과 해당 대화 범위를 표시한다.
-- 실패·중복·교체·취소·수동 재개·서브에이전트·다른 세션 링크 읽기의 횟수가 합의한 기준에 맞는다. reload 이후에도 판정과 총계가 같다.
-- 사용자 입력이 대기를 대신한 턴과 독립 작업을 자동 continuation으로 오인하지 않는다. 수동 나누기·합치기와 기존 경계 저장을 검증한다.
-- 실제 native manager/protocol로 다중 페이지와 새 thread readiness를 확인한다. 과거·live가 역순 도착하거나 예약 ID가 바뀌어도 관계·순서·완료 시간을 되돌리지 않는다.
-- API 실패·연결 복구·늦은 응답·대화 전환·종료 이후 결과를 검증한다. 다른 대화의 결과가 현재 대화에 섞이지 않는다. 표시에 자격이 없을 때 새 구독·요청을 남기지 않는다.
-- 각 작업의 이중선과 요약이 native 가상 목록 높이 측정에 포함된다. 일부 history, 추가 로드, 새로운 마지막 턴, 여러 작업, 밝은·어두운 테마, 빠른 스크롤을 실제 화면 위치로 검증한다.
-- 시간 계산의 사용자 응답 대기 제외·자동 대기 포함·병렬 중복 제거·완료 동결·불확실 기록 표시를 유지한다. 소스 검사, native fixture, 실제 package/installed 검증 범위를 구분한다.
+- 성공 등록 0·1·2회에서는 표시가 없고 3회부터 해당 첫 사용자 메시지 바로 아래에 시간·턴 수 한 줄이 나온다. 여러 작업·부분 history·추가 로드·live 상태에서도 표시가 중복되거나 다른 사용자 메시지로 이동하지 않는다.
+- 본문·도구·첨부와 원래 대화 행 수·키·순서가 보존된다. 작업 번호·시간 표·경계 버튼·접힘 상태·이중선·task 전용 ResizeObserver 패치가 제품 코드에 없다.
+- 사용자 응답 대기 제외·자동 대기 포함·병렬 중복 제거·terminal 고정·불확실 기록 처리를 집중 검사로 검증한다.
+- 실제 native React/CSS 가상 목록으로 밝은·어두운 테마의 위치·스크롤·unmount/remount·행 겹침·브라우저 오류를 검증한다. 전체 패키지·일반 프로필·다른 OS 수용은 구분한다.
+- source 해시·실행 범위·종료 코드·로그/스크린샷을 보존하고 격리 프로필/fixture는 ordinary guarded deletion으로 정리한다.
+
+## 현재 간소화 결과
+
+- 사용자 승인에 따라 접힘 상태·표·경계 preference 조회/쓰기·이중선·전용 gap/observer 패치를 제거했다. native thread/turn 두 경로를 가드된 transform으로 연결하며 original 가상 목록 asset의 task edits는 0이다. namespace 첫 변환과 task injector 반복 적용은 구문 오류 없이 통과했다. 전체 namespace 두 번째 적용은 기존 deferred-thread transform이 지원하지 않는 조건이므로 해당 잘못된 실험의 anchor 실패를 task 제품 실패로 판단하지 않는다.
+- 집중 Node 검사 27개 exit 0. mandatory source 계약의 calculator/history/UI/deferred 통합 84개 exit 0(135.1초). 중복 검사를 합산한 총 테스트 수로 보고하지 않는다. renderer 최종 r3의 82개 검사 exit 0, Chrome exit 0, browserErrors 없음. 최초 fixture의 parent scope 설정 오류는 기존 native scope로 바로잡았고 새 입력으로 재검증했다.
+- 같은 MESSAGE_HELPER·production HELPER·pristine native virtual rows와 pinned React/CSS를 사용하는 실제 렌더에서 밝음/어두움, 첫 사용자→시간·턴 한 줄→assistant 순서, 재개 0·1·2·3회, 부분 history, 자동 대기 tick, 완료 동결, 조회 실패의 부분 시간, 29·176·1,000턴의 각 테마 8회 스크롤 왕복과 unmount/remount·geometry·query 수가 통과했다. root도 양테마 PNG를 확인했다. fixture 메시지·manager·scroll controller는 합성이므로 실제 VS Code 전체 화면·로그인·모델 실행 및 긴 실제 본문 성능의 수용을 뜻하지 않는다.
+- 보존 근거는 artifacts/logs/task-time-simple-20261014/validation/의 summary.json, input-receipt.json, focused.log, render-r3.log, PNG 8개다. namespace-verification.json은 현재 원본 asset 입력/출력 해시와 가드·parse 결과를 보존한다. production source hash는 renderer receipt와 일치한다.
+- 호스트 verifier는 간소화 계약으로 갱신하고 구문 exit 0을 확인했다. 실제 VS Code 호스트를 실행하지 않았으며 이전 native engine의 변경 없는 관계·시간 계약 근거만 재사용한다. 전체 앱·엔진 재빌드나 설치를 수행한 것으로 보고하지 않는다.
+- own Chrome가 exit 0으로 종료된 뒤 ordinary guarded cleanup exit 0과 fixture·프로필 부재가 확인됐다. 원래 native-state의 보호 속성 잔여는 별도 보존 기록을 유지하며 이번 UI 정리에 포함하지 않는다.
 
 ## 근거 위치
 

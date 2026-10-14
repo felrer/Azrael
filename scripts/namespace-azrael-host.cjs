@@ -31,7 +31,7 @@ const { runProviderContext } = require("./provider-context-labels.cjs");
 const { DEFERRED_HEADER_ASSET, injectDeferredHeader, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET,
   injectDeferredTurn, injectDeferredPresentation, injectDeferredWaitRenderer, injectDeferredThread, injectDeferredTurnView, injectDeferredCollapsed, injectDeferredHostNotification, injectDeferredRendererNotification } = require("./inject-deferred-turn.cjs");
 const { WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET, injectWorkSegmentFolding, injectWorkSegmentWaiting } = require("./inject-work-segment-folding.cjs");
-const { ASSET: TASK_WORK_TIME_ASSET, ROW_ASSET: TASK_TIME_ROW_ASSET, injectTaskWorkTime } = require("./inject-task-work-time.cjs");
+const { ASSET: TASK_WORK_TIME_ASSET, TURN_ASSET: TASK_TIME_MESSAGE_ASSET, injectTaskWorkTime } = require("./inject-task-work-time.cjs");
 const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require("./inject-compaction-progress.cjs");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
@@ -341,7 +341,7 @@ function transformAsset(source, relativePath, filename, ts) {
   const isRecentThreadListAsset = relativePath === RECENT_THREAD_LIST_ASSET;
   const isQueuedCompactionAsset = [QUEUED_COMPACTION_CORE_ASSET, QUEUED_COMPACTION_PRESENTATION_ASSET, QUEUED_COMPACTION_LIST_ASSET].includes(relativePath);
   const isTeamAsset = relativePath === TEAM_UI_ASSET || TEAM_RUNTIME_ASSETS.includes(relativePath);
-  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![TASK_TIME_ROW_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
+  if (!isHostBundle && !isRecentThreadListAsset && !isQueuedCompactionAsset && !isTeamAsset && ![TASK_TIME_MESSAGE_ASSET, DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET, DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET, FILE_OPEN_MENU_ASSET, DROP_ASSET, COMPOSER_ASSET, THREAD_BRANCH_ASSET, CONTEXT_ASSET, SETTINGS_ASSET, ACCOUNT_SETTINGS_ASSET, COMPUTER_USE_SETTINGS_ASSET, COMPUTER_USE_APPROVAL_CARD_ASSET, COMPUTER_USE_MANAGEMENT_ASSET, APPROVAL_CLASSIFIER_ASSET].includes(relativePath) && !BTW_ASSETS.includes(relativePath) && !MISSING_IMAGE_ASSETS.includes(relativePath) && !SESSION_LINK_ASSETS.includes(relativePath) && !INSTRUCTION_SETTINGS_ASSETS.includes(relativePath) && !DESIGN_ASSETS.includes(relativePath) && !PROVIDER_PICKER_ASSETS.includes(relativePath) && !MAX_REASONING_ASSETS.includes(relativePath) && !UI_CLEANUP_ASSETS.includes(relativePath) && !AUTO_REVIEW_ASSETS.includes(relativePath) && !PETS_CLEANUP_ASSETS.includes(relativePath) && !CONTENT_FONT_ASSETS.includes(relativePath) && !/chatgpt|codexViewContainer|codexSecondaryViewContainer|openai-codex|codex-ipc|codex-rules|\bCodex\b/.test(source)) return { text: source, asset: null };
   const namespaced = relativePath === CONTENT_FONT_CSS_ASSET ? { text: source, count: 0 } : rewriteJavaScript(source, filename, ts);
   const accountSettings = injectAccountSettings(namespaced.text, relativePath);
   const instructionSettings = injectInstructionSettings(accountSettings.text, relativePath);
@@ -528,7 +528,7 @@ const ASSET_RULE_PATHS = {
   "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
     DEFERRED_WAIT_RENDERER_ASSET, DEFERRED_THREAD_ASSET, DEFERRED_TURN_ASSET, DEFERRED_COLLAPSED_ASSET, DEFERRED_NOTIFICATION_ASSET],
   "inject-work-segment-folding.cjs": [WORK_SEGMENT_FOLDING_ASSET, WORK_SEGMENT_FOLDING_ACTIVITY_ASSET],
-  "inject-task-work-time.cjs": [TASK_WORK_TIME_ASSET, TASK_TIME_ROW_ASSET],
+  "inject-task-work-time.cjs": [TASK_WORK_TIME_ASSET, TASK_TIME_MESSAGE_ASSET],
   "task-work-time.cjs": [TASK_WORK_TIME_ASSET],
   "task-work-time-history.cjs": [TASK_WORK_TIME_ASSET],
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
