@@ -9,6 +9,22 @@ const yazl=require(require.resolve("yazl",{paths:[path.join(__dirname,"../../ext
 const toml=require(require.resolve("smol-toml",{paths:[path.join(__dirname,"../../extensions/azrael-ex")]}));
 const {InstructionStore,LIMITS}=require("../instruction-package.cjs");
 const hash=b=>crypto.createHash("sha256").update(b).digest("hex");
+test("Team Lead reference is distributed with Design Collaboration and tracked by its receipt",async()=>{
+  const root=path.join(__dirname,"../../instructions");
+  const metadata=JSON.parse(await fs.readFile(path.join(root,"azrael-environment.json"),"utf8"));
+  const receipt=JSON.parse(await fs.readFile(path.join(root,"SKILLS-SOURCE.json"),"utf8"));
+  const component=metadata.components.find(c=>c.id==="skill-design-collaboration");
+  const sources=["skills/design-collaboration/SKILL.md","skills/design-collaboration/references/team-lead.md"];
+  for(const source of sources){
+    assert.deepEqual(component.files.filter(f=>f.source===source),[{source,target:source}]);
+    const entries=receipt.files.filter(f=>f.path===source);assert.equal(entries.length,1);
+    const data=await fs.readFile(path.join(root,source));assert.ok(data.length>0);
+    assert.equal(entries[0].size,data.length);assert.equal(entries[0].sha256,hash(data));
+  }
+  const entrypoint=await fs.readFile(path.join(root,sources[0]),"utf8");
+  const relativeLinks=[...entrypoint.matchAll(/\[[^\]]*\]\(([^)]+)\)/g)].map(m=>m[1]);
+  assert.ok(relativeLinks.some(link=>path.resolve(root,path.dirname(sources[0]),link)===path.resolve(root,sources[1])));
+});
 async function zip(files,modes={}) {
   const archive=new yazl.ZipFile(); const chunks=[];
   archive.outputStream.on("data",c=>chunks.push(c));
