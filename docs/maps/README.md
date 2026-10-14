@@ -65,7 +65,7 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `scripts/inject-queue-consumption.cjs` | Reconcile local submissions against accepted client IDs before locking; await accepted removal and prevent stale snapshots from resurrecting accepted messages. |
 | `scripts/provider-model-picker.cjs`, `inject-provider-model-picker.cjs` | Provider sections/search and scope-aware discovery states; consume every model/list page, preserve native selection callbacks, and transform the pinned query/picker assets. |
 | `codex-rs/ext/queue/src/service.rs`, `codex-rs/app-server/src/request_processors/thread_queue_processor.rs` | Durable user-input/compaction queue and RPC mapping, including skipped compaction and continued queue dispatch. |
-| `codex-rs/core/src/session/compact_input.rs` | Atomic idle compaction admission and execution-time, strictly-below-15% usage check. |
+| `codex-rs/core/src/session/compact_input.rs` | Atomic idle compaction admission and execution-time, strictly-below-80,000-token usage check. |
 | `scripts/asset-transform-cache.cjs`, `preparation-state.cjs` | Hash-addressed asset transformations and verified preparation checkpoints; namespace and completed VSIX stages can be reused only with matching inputs and intact contents. |
 | `scripts/package-local-host.cjs` | Collect once through pinned VSCE, scan new/changed text, preserve `.env` protection and write the same entries with pinned yazl; emits stage metrics. |
 | `scripts/extension-backup-plan.ps1` | Validate registered Azrael host/companion directories and identify unregistered folders; installation omits directory backups and leaves unregistered folders in place. |

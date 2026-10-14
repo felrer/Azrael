@@ -18,16 +18,16 @@ fn usage(total: i64, window: Option<i64>) -> TokenUsageInfo {
 #[test]
 fn exact_threshold_and_invalid_data() {
     for (total, window, expected) in [
-        (99_999, Some(1_000_000), true),
-        (100_000, Some(1_000_000), false),
-        (100_001, Some(1_000_000), false),
+        (79_999, Some(1_000_000), true),
+        (80_000, Some(1_000_000), false),
+        (80_001, Some(1_000_000), false),
         (0, Some(1000), true),
         (-1, Some(1000), false),
-        (99_999, None, true),
-        (99_999, Some(0), true),
-        (99_999, Some(-1), true),
-        (100_000, None, false),
-        (100_000, Some(272_000), false),
+        (79_999, None, true),
+        (79_999, Some(0), true),
+        (79_999, Some(-1), true),
+        (80_000, None, false),
+        (80_000, Some(272_000), false),
         (i64::MAX, Some(i64::MAX), false),
     ] {
         assert_eq!(
@@ -45,12 +45,12 @@ async fn skip_releases_idle_reservation_and_uses_latest_usage() {
         .state
         .lock()
         .await
-        .set_token_info(Some(usage(100_001, Some(1_000_000))));
+        .set_token_info(Some(usage(80_001, Some(1_000_000))));
     session
         .state
         .lock()
         .await
-        .set_token_info(Some(usage(99_999, Some(1_000_000))));
+        .set_token_info(Some(usage(79_999, Some(1_000_000))));
     assert_eq!(
         handle(&session, "compact-skip".to_string()).await.unwrap(),
         CompactIfIdleSubmission::Skipped
@@ -65,7 +65,7 @@ async fn skip_releases_idle_reservation_and_uses_latest_usage() {
     };
     assert_eq!(
         warning.message,
-        "Context compaction skipped: context usage is below 100,000 tokens."
+        "Context compaction skipped: context usage is below 80,000 tokens."
     );
     assert!(rx.try_recv().is_err(), "one notice per skipped request");
 }
@@ -74,10 +74,10 @@ async fn skip_releases_idle_reservation_and_uses_latest_usage() {
 async fn unknown_usage_and_exact_threshold_start_compaction() {
     for snapshot in [
         None,
-        Some(usage(100_000, Some(1_000_000))),
-        Some(usage(100_001, Some(1_000_000))),
+        Some(usage(80_000, Some(1_000_000))),
+        Some(usage(80_001, Some(1_000_000))),
         Some(usage(-1, Some(1000))),
-        Some(usage(100_000, None)),
+        Some(usage(80_000, None)),
     ] {
         let (session, _) = make_session_and_context().await;
         let session = Arc::new(session);
