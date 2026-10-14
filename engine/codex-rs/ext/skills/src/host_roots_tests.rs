@@ -37,6 +37,8 @@ use tokio::sync::Semaphore;
 use super::repo_agents_skill_roots;
 use super::resolve_skill_roots_with_home_dir;
 use super::roots_from_layer_stack;
+use crate::host_service::HostSkillsLoadInput;
+use crate::host_service::HostSkillsService;
 use crate::loader::MAX_CONCURRENT_ROOT_SCANS;
 use crate::loader::load_and_merge_host_skill_roots;
 
@@ -238,6 +240,141 @@ fn expected_skill(path: AbsolutePathBuf, name: &str, scope: SkillScope) -> Skill
         scope,
         plugin_id: None,
         remote_plugin_id: None,
+    }
+}
+
+fn configured_extra_roots(roots: &[AbsolutePathBuf]) -> toml::Value {
+    let paths = roots
+        .iter()
+        .map(|path| toml::Value::String(path.display().to_string()))
+        .collect::<Vec<_>>();
+    toml::from_str(&format!(
+        "[skills]\nextra_roots = {}\n[skills.bundled]\nenabled = false",
+        toml::Value::Array(paths)
+    ))
+    .expect("skills config")
+}
+
+#[tokio::test]
+async fn configured_extra_roots_follow_effective_precedence_and_deduplicate() {
+    let temp = TempDir::new().expect("temp dir");
+    let cwd = absolute(temp.path().join("workspace"));
+    let user = absolute(temp.path().join("user-skills"));
+    let session = absolute(temp.path().join("profile-skills"));
+    let config = stack(vec![
+        ConfigLayerEntry::new(
+            ConfigLayerSource::User {
+                file: absolute(temp.path().join("config.toml")),
+                profile: None,
+            },
+            configured_extra_roots(std::slice::from_ref(&user)),
+        ),
+        ConfigLayerEntry::new(
+            ConfigLayerSource::SessionFlags,
+            configured_extra_roots(&[session.clone(), session.clone()]),
+        ),
+    ]);
+    let roots = resolve_skill_roots_with_home_dir(
+        None,
+        &config,
+        &cwd,
+        None,
+        Vec::new(),
+        vec![session.clone()],
+    )
+    .await;
+    assert!(!roots.iter().any(|root| root.path == user));
+    assert_eq!(roots.iter().filter(|root| root.path == session).count(), 1);
+    let empty_override = stack(vec![
+        ConfigLayerEntry::new(
+            ConfigLayerSource::User {
+                file: absolute(temp.path().join("config.toml")),
+                profile: None,
+            },
+            configured_extra_roots(std::slice::from_ref(&user)),
+        ),
+        ConfigLayerEntry::new(ConfigLayerSource::SessionFlags, configured_extra_roots(&[])),
+    ]);
+    let roots = resolve_skill_roots_with_home_dir(
+        None,
+        &empty_override,
+        &cwd,
+        None,
+        Vec::new(),
+        vec![session.clone()],
+    )
+    .await;
+    assert!(!roots.iter().any(|root| root.path == user));
+    assert_eq!(roots.iter().filter(|root| root.path == session).count(), 1);
+}
+
+#[tokio::test]
+async fn configured_extra_roots_are_isolated_in_shared_service_caches() {
+    let temp = TempDir::new().expect("temp dir");
+    let cwd = absolute(temp.path().join("workspace"));
+    fs::create_dir_all(&cwd).expect("workspace");
+    let codex_home = absolute(temp.path().join("codex"));
+    let global_root = absolute(temp.path().join("global"));
+    let profile_root = absolute(temp.path().join("profile"));
+    write_skill(&codex_home.join("skills"), "ambient", "ambient-skill");
+    write_skill(&global_root, "global", "global-skill");
+    write_skill(&profile_root, "frozen", "profile-skill");
+    let service = HostSkillsService::new(codex_home.clone(), false);
+    service.set_home_dir_for_tests(None);
+    service.set_extra_roots(vec![global_root.clone()]);
+    let ordinary = HostSkillsLoadInput::new(
+        cwd.clone(),
+        Vec::new(),
+        stack(vec![
+            user_layer(&codex_home),
+            ConfigLayerEntry::new(ConfigLayerSource::SessionFlags, configured_extra_roots(&[])),
+        ]),
+    );
+    let profile = HostSkillsLoadInput::new(
+        cwd,
+        Vec::new(),
+        stack(vec![
+            user_layer(&codex_home),
+            ConfigLayerEntry::new(
+                ConfigLayerSource::SessionFlags,
+                configured_extra_roots(&[profile_root.clone(), global_root, profile_root]),
+            ),
+        ]),
+    );
+    for use_cwd in [false, true] {
+        for profile_first in [true, false] {
+            service.clear_cache();
+            let inputs = if profile_first {
+                [(&profile, true), (&ordinary, false), (&profile, true)]
+            } else {
+                [(&ordinary, false), (&profile, true), (&ordinary, false)]
+            };
+            for (input, has_profile) in inputs {
+                let snapshot = if use_cwd {
+                    service
+                        .for_request()
+                        .snapshot_for_cwd(input, false, Some(Arc::clone(&LOCAL_FS)))
+                        .await
+                } else {
+                    service
+                        .snapshot_for_config(input, Some(Arc::clone(&LOCAL_FS)))
+                        .await
+                };
+                let names = snapshot
+                    .outcome()
+                    .skills
+                    .iter()
+                    .map(|skill| skill.name.as_str())
+                    .collect::<Vec<_>>();
+                assert_eq!(
+                    names.iter().filter(|name| **name == "global-skill").count(),
+                    1
+                );
+                assert!(names.contains(&"ambient-skill"));
+                assert_eq!(names.contains(&"profile-skill"), has_profile);
+                assert!(snapshot.outcome().errors.is_empty());
+            }
+        }
     }
 }
 

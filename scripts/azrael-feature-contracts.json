@@ -274,7 +274,18 @@
       "id": "ui.instruction-settings",
       "area": "ui",
       "owners": [
-        "scripts/inject-instruction-settings.cjs"
+        "scripts/inject-instruction-settings.cjs",
+        "extensions/azrael-ex/src/instructionProtocol.ts",
+        "extensions/azrael-ex/src/instructionService.ts",
+        "extensions/azrael-ex/src/instructionLibraryService.ts",
+        "extensions/azrael-ex/src/instructionView.ts",
+        "extensions/azrael-ex/test/instructionLibraryService.test.ts",
+        "extensions/azrael-ex/test/instructionService.test.ts",
+        "extensions/azrael-ex/test/instructionView.test.ts",
+        "scripts/instruction-library.cjs",
+        "scripts/instruction-publisher.cjs",
+        "scripts/task-profile-runtime.cjs",
+        "scripts/inject-task-profile.cjs"
       ],
       "contract": "docs/architecture/instructions.md",
       "checks": [
@@ -286,10 +297,25 @@
             "scripts/test-instruction-settings.cjs"
           ],
           "level": "source"
+        },
+        {
+          "id": "ui.instruction-settings.library",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/tests/instruction-library.test.cjs",
+            "scripts/tests/instruction-publisher.test.cjs",
+            "scripts/tests/task-profile-runtime.test.cjs",
+            "scripts/tests/inject-task-profile.test.cjs",
+            "scripts/tests/instruction-module-packaging.test.cjs",
+            "scripts/test-instruction-library-host.cjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": [
-        "instructionSettingsEdits"
+        "instructionSettingsEdits",
+        "taskProfileEdits"
       ]
     },
     {
@@ -1357,6 +1383,31 @@
       "reportFields": [
         "uiInputDiagnosticsEdits"
       ]
+    },
+    {
+      "id": "engine.task-profile-skills",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/config/src/skills_config.rs",
+        "engine/codex-rs/ext/skills/src/host_roots.rs",
+        "engine/codex-rs/ext/skills/src/host_roots_tests.rs",
+        "engine/codex-rs/ext/skills/src/host_service.rs",
+        "engine/codex-rs/core/config.schema.json",
+        "engine/codex-rs/core/src/config/config_tests.rs"
+      ],
+      "contract": "docs/architecture/instructions.md",
+      "checks": [
+        {
+          "id": "engine.task-profile-skills.isolation",
+          "executable": "node",
+          "args": [
+            "scripts/check-task-profile-skills.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
     }
   ]
 }

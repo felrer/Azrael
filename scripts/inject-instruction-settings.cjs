@@ -9,6 +9,72 @@ function azraelSettingsText(locale, english, korean) {
   return typeof locale === "string" && /^ko(?:[-_]|$)/i.test(locale) ? korean : english;
 }
 
+// Serialized into the native and standalone clients. No filesystem or credentials.
+function instructionClientTools(root) {
+  const drafts = new Map(), filters = new Map(), disclosures = new Map();
+  const value = (name, scope = root) => scope.querySelector('[data-field="' + name + '"]')?.value;
+  const capture = () => {
+    const editor = root.querySelector('[data-editor-id]');
+    if (editor?.dataset.editorId) drafts.set(editor.dataset.editorId, [...editor.querySelectorAll('[data-field],textarea[data-file-path]')].map(e => ({ field: e.dataset.field, path: e.dataset.filePath, value: e.value })));
+    for (const e of root.querySelectorAll('[data-filter]')) filters.set(e.dataset.filter, e.value);
+    for (const e of root.querySelectorAll('details')) disclosures.set(e.querySelector('summary')?.textContent, e.open);
+  };
+  const filter = () => {
+    const search = root.querySelector('[data-filter="search"]')?.value.toLowerCase() ?? '';
+    const kind = root.querySelector('[data-filter="kind"]')?.value;
+    const sharing = root.querySelector('[data-filter="sharing"]')?.value;
+    for (const e of root.querySelectorAll('button.library-entry')) e.hidden = !(e.dataset.name.toLowerCase().includes(search) && (!kind || e.dataset.kind === kind) && (!sharing || e.dataset.sharing === sharing));
+  };
+  const file = target => {
+    if (target?.dataset.field !== 'file-path') return;
+    for (const e of root.querySelectorAll('[data-file-panel]')) e.hidden = e.dataset.filePanel !== target.value;
+  };
+  const restore = () => {
+    const editor = root.querySelector('[data-editor-id]');
+    const draft = drafts.get(editor?.dataset.editorId);
+    if (draft) for (const e of editor.querySelectorAll('[data-field],textarea[data-file-path]')) {
+      const saved = draft.find(d => d.field === e.dataset.field && d.path === e.dataset.filePath);
+      if (saved) e.value = saved.value;
+    }
+    for (const e of root.querySelectorAll('[data-filter]')) if (filters.has(e.dataset.filter)) e.value = filters.get(e.dataset.filter);
+    for (const e of root.querySelectorAll('details')) if (disclosures.has(e.querySelector('summary')?.textContent)) e.open = disclosures.get(e.querySelector('summary')?.textContent);
+    file(root.querySelector('[data-field="file-path"]')); filter();
+  };
+  const error = failure => {
+    let alert = root.querySelector('[data-client-error]');
+    if (!alert) { alert = root.ownerDocument.createElement('p'); alert.setAttribute('role', 'alert'); root.append(alert); }
+    alert.textContent = failure instanceof Error ? failure.message : String(failure);
+  };
+  const payload = button => {
+    const action = button.dataset.action, id = button.dataset.id;
+    const revision = Number(root.querySelector('[data-library-revision]')?.dataset.libraryRevision);
+    if (action === 'librarySelect') return { id };
+    if (['libraryApply', 'libraryPublish', 'libraryStartTask'].includes(action)) return { token: button.dataset.token };
+    if (action === 'libraryCreate') {
+      const name = value('create-name'), kind = value('create-kind'), sharing = value('create-sharing');
+      if (!name?.trim()) throw new Error('Enter a resource name / 리소스 이름을 입력하세요.');
+      return kind === 'task-profile' ? { name, kind, sharing, profile: { model: '', dependencies: [] } } : { name, kind, sharing, files: [{ path: kind === 'skill' ? 'SKILL.md' : kind === 'agent-role' ? 'ROLE.md' : 'CONTEXT.md', encoding: 'utf8', content: kind === 'skill' ? '---\nname: ' + name + '\ndescription: Describe this skill.\n---\n\n# ' + name + '\n' : '# ' + name + '\n' }] };
+    }
+    if (action === 'librarySave') {
+      const editor = root.querySelector('[data-editor-id]');
+      const json = value('profile', editor);
+      const result = { id, name: value('name', editor), sharing: value('sharing', editor), revision };
+      if (json !== undefined) result.profile = JSON.parse(json);
+      else result.files = [...editor.querySelectorAll('textarea[data-file-path]')].map(e => ({ path: e.dataset.filePath, encoding: e.dataset.encoding, content: e.value }));
+      return result;
+    }
+    if (action === 'libraryPlanApply') return { ids: [id] };
+    if (action === 'libraryPlanPublish') return { ids: [id], version: value('publish-version') };
+    if (action === 'libraryPrepareTask') return { id, model: value('model'), provider: value('provider') || undefined, reasoningEffort: value('reasoningEffort') || undefined };
+    if (action === 'libraryConnect' || action === 'libraryRemoteRefresh' || action === 'libraryRemoteImport') {
+      const scope = button.closest('[data-connection]');
+      return action === 'libraryConnect' ? { sharing: button.dataset.sharing, repository: value('repository', scope), branch: value('branch', scope) } : action === 'libraryRemoteImport' ? { sharing: button.dataset.sharing, version: value('remote-version', scope) } : { sharing: button.dataset.sharing };
+    }
+    return {};
+  };
+  return { capture, restore, filter, file, payload, error };
+}
+
 function AzraelInstructionNavigationIcon(props) {
   return (0, Z.jsx)("svg", { width: 20, height: 20, viewBox: "0 0 20 20", fill: "none", stroke: "currentColor", strokeWidth: 1.3, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": true, ...props,
     children: (0, Z.jsx)("path", { d: "M11.5 2.75H5.5a1.5 1.5 0 0 0-1.5 1.5v11.5a1.5 1.5 0 0 0 1.5 1.5h9a1.5 1.5 0 0 0 1.5-1.5v-8.5Zm0 0v4.5H16M7 10h6M7 13h6" }) });
@@ -23,33 +89,39 @@ function AzraelInstructionSettings() {
     const root = element.shadowRoot ?? element.attachShadow({ mode: "open" });
     const clientId = crypto.randomUUID();
     let mounted = true, busy = false, sequence = 0, requestId = "", timer;
+    const tools = instructionClientTools(root);
     const send = (action, message) => {
       requestId = String(++sequence);
       azraelInstructionBridge.dispatchMessage("azrael-instructions", { clientId, requestId, action, message, locale });
     };
-    const payload = () => ({ version: root.querySelector("select")?.value,
+    const payload = () => ({ version: root.querySelector("#instruction-version")?.value,
       componentIds: [...root.querySelectorAll("input[data-component]:checked")].map(e => e.dataset.component) });
     const unsubscribe = azraelInstructionBridge.subscribe("azrael-instructions-state", message => {
       if (!mounted || message.clientId !== clientId || message.requestId !== requestId || typeof message.html !== "string") return;
-      root.innerHTML = message.html;
+      tools.capture(); root.innerHTML = message.html; tools.restore();
       busy = root.querySelector('main[aria-busy="true"]') !== null;
     });
     const onClick = event => {
       const button = event.target instanceof Element ? event.target.closest("button[data-action]") : null;
       if (!(button instanceof HTMLElement) || button.disabled || busy) return;
-      busy = true;
-      send(button.dataset.action, { ...payload(), path: button.dataset.path });
+      try {
+        const message = button.dataset.action.startsWith("library") ? tools.payload(button) : { ...payload(), path: button.dataset.path };
+        busy = true; send(button.dataset.action, message);
+      } catch (error) { tools.error(error); }
     };
     const onChange = event => {
+      tools.filter(); tools.file(event.target);
       if (!(event.target instanceof HTMLElement) || event.target.dataset.action !== "selectVersion") return;
       clearTimeout(timer);
       timer = setTimeout(() => { if (mounted && !busy) { busy = true; send("selectVersion", payload()); } }, 150);
     };
     root.addEventListener("click", onClick);
     root.addEventListener("change", onChange);
+    const onInput = () => tools.filter();
+    root.addEventListener("input", onInput);
     root.innerHTML = '<p role="status">' + azraelSettingsText(locale, "Loading instruction documents…", "지침 문서를 불러오는 중…") + '</p>';
     send("mount");
-    return () => { mounted = false; clearTimeout(timer); send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("change", onChange); root.innerHTML = ""; };
+    return () => { mounted = false; clearTimeout(timer); send("unmount"); unsubscribe(); root.removeEventListener("click", onClick); root.removeEventListener("change", onChange); root.removeEventListener("input", onInput); root.innerHTML = ""; };
   }, [locale]);
   return (0, $.jsx)("div", { ref: target, style: { width: "100%", minWidth: 0 }, "data-azrael-instruction-settings": true });
 }
@@ -94,7 +166,7 @@ function injectInstructionSettings(text, relativePath) {
   text = once(text, "f=A?(0,Z.jsx)(qe,", "f=e.slug===`azrael-instructions`?azraelSettingsText(T.locale,`Instruction Documents`,`지침 문서`):A?(0,Z.jsx)(qe,");
   text = once(text, 'icon:16 in a?', 'icon:e.slug===`azrael-instructions`?(0,Z.jsx)(AzraelInstructionNavigationIcon,{className:t?`text-codex-icon-active`:void 0}):16 in a?');
   text = once(text, 'iconAssetSource:i?void 0:r.navigation', 'iconAssetSource:e.slug===`azrael-instructions`?void 0:i?void 0:r.navigation');
-  return { text: 'import{X9t as azraelInstructionBridge}from"./app-initial-c014f9ee4429.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
+  return { text: 'import{X9t as azraelInstructionBridge}from"./app-initial-c014f9ee4429.js";' + text + '\n' + MARKER + '\n' + azraelSettingsText.toString() + '\n' + instructionClientTools.toString() + '\n' + AzraelInstructionSettings.toString() + '\n' + AzraelInstructionNavigationIcon.toString(), count: 1 };
 }
 
-module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelInstructionNavigationIcon, azraelSettingsText };
+module.exports = { INSTRUCTION_SETTINGS_ASSETS, MARKER, injectInstructionSettings, AzraelInstructionSettings, AzraelInstructionNavigationIcon, azraelSettingsText, instructionClientTools };

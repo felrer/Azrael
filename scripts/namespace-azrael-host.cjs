@@ -47,6 +47,7 @@ const { ASSET: WEBVIEW_IDLE_ASSET, injectWebviewIdle } = require("./inject-webvi
 const { ASSET: SESSION_FLAGS_ASSET, injectSessionFlags } = require("./inject-session-flags.cjs");
 const { ASSET: TEAM_UI_ASSET, injectTeamUI } = require("./inject-team-ui.cjs");
 const { TEAM_RUNTIME_ASSETS, injectTeamRuntime } = require("./inject-team-runtime.cjs");
+const { TASK_PROFILE_ASSETS, injectTaskProfile } = require("./inject-task-profile.cjs");
 const { PAGINATED_HISTORY_ASSET, injectPaginatedHistory } = require("./inject-paginated-history.cjs");
 const { ASSET: SUBMIT_ONLY_THREAD_ASSET, injectSubmitOnlyThread } = require("./inject-submit-only-thread.cjs");
 const { IMMEDIATE_STOP_ASSET, injectImmediateStop } = require("./inject-immediate-stop.cjs");
@@ -407,10 +408,11 @@ function transformAsset(source, relativePath, filename, ts) {
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
-    return { text: teamRuntime.text, asset: {
+  const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
+  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+    return { text: taskProfile.text, asset: {
       path: relativePath,
-      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -437,6 +439,7 @@ function transformAsset(source, relativePath, filename, ts) {
       sessionFlagEdits: sessionFlags.count,
       teamUIEdits: teamUI.count,
       teamRuntimeEdits: teamRuntime.count,
+      taskProfileEdits: taskProfile.count,
       webviewIdleEdits: webviewIdle.count,
       immediateStopEdits: immediateStop.count,
       queuedCompactionEdits: queuedCompaction.count,
@@ -463,10 +466,10 @@ function transformAsset(source, relativePath, filename, ts) {
       uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
-      sha256: sha(teamRuntime.text),
+      sha256: sha(taskProfile.text),
     } };
   }
-  return { text: teamRuntime.text, asset: null };
+  return { text: taskProfile.text, asset: null };
 }
 
 function getTransformRules() {
@@ -486,7 +489,7 @@ function getTransformRules() {
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
-    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
+    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "inject-task-profile.cjs", "task-profile-runtime.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
     [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules(),
@@ -551,6 +554,9 @@ const ASSET_RULE_PATHS = {
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-team-ui.cjs": [TEAM_UI_ASSET],
   "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
+  "inject-task-profile.cjs": TASK_PROFILE_ASSETS,
+  "task-profile-runtime.cjs": TASK_PROFILE_ASSETS,
+  "instruction-library.cjs": TASK_PROFILE_ASSETS,
   "team-design-collaboration": TEAM_RUNTIME_ASSETS,
   "team-lead-guidance": TEAM_RUNTIME_ASSETS,
   "inject-webview-idle.cjs": ["out/extension.js", WEBVIEW_IDLE_ASSET],
@@ -705,6 +711,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
     }
   }
   if (report.assets.reduce((total, asset) => total + (asset.computerUseApprovalEdits ?? 0), 0) !== 7) throw new Error("Computer-use approval transformation was incomplete.");
+  if (report.assets.reduce((total, asset) => total + (asset.taskProfileEdits ?? 0), 0) !== TASK_PROFILE_ASSETS.length) throw new Error("Task-profile transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseSettingsEdits ?? 0), 0) !== 1) throw new Error("Computer-use settings transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseCancelRequestEdits ?? 0), 0) !== 1) throw new Error("Computer-use cancel-request transformation was incomplete.");
   if (report.assets.reduce((total, asset) => total + (asset.computerUseManagementEdits ?? 0), 0) !== 1) throw new Error("Computer-use local-management transformation was incomplete.");

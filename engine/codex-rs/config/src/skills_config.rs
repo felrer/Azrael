@@ -53,6 +53,32 @@ pub struct SkillsConfig {
 
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub config: Vec<SkillConfig>,
+
+    /// Additional local skill roots from the effective configuration.
+    #[serde(
+        default,
+        skip_serializing_if = "Vec::is_empty",
+        deserialize_with = "deserialize_extra_roots"
+    )]
+    pub extra_roots: Vec<AbsolutePathBuf>,
+}
+
+fn deserialize_extra_roots<'de, D>(deserializer: D) -> Result<Vec<AbsolutePathBuf>, D::Error>
+where
+    D: serde::Deserializer<'de>,
+{
+    Vec::<std::path::PathBuf>::deserialize(deserializer)?
+        .into_iter()
+        .map(|path| {
+            if !path.is_absolute() {
+                return Err(serde::de::Error::custom(format!(
+                    "skill root must be absolute: {}",
+                    path.display()
+                )));
+            }
+            AbsolutePathBuf::from_absolute_path_checked(path).map_err(serde::de::Error::custom)
+        })
+        .collect()
 }
 
 #[derive(Serialize, Deserialize, Debug, Clone, PartialEq, Eq, JsonSchema)]
@@ -222,3 +248,46 @@ fn skill_config_rule_selector(entry: &SkillConfig) -> Option<SkillConfigRuleSele
 #[cfg(test)]
 #[path = "skills_config_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod extra_roots_tests {
+    use super::SkillsConfig;
+    use codex_utils_absolute_path::AbsolutePathBufGuard;
+
+    #[test]
+    fn extra_roots_default_and_absolute_path_validation() {
+        let empty: SkillsConfig = toml::from_str("").expect("default skills config");
+        assert!(empty.extra_roots.is_empty());
+        let temp = tempfile::TempDir::new().expect("temp dir");
+        let path = temp.path().join("frozen-skills");
+        let config = format!(
+            "extra_roots = [{}]",
+            toml::Value::String(path.display().to_string())
+        );
+        let skills: SkillsConfig = toml::from_str(&config).expect("absolute root");
+        assert_eq!(skills.extra_roots[0].as_path(), path);
+        let _guard = AbsolutePathBufGuard::new(temp.path());
+        assert!(toml::from_str::<SkillsConfig>("extra_roots = ['relative/skills']").is_err());
+        assert!(toml::from_str::<SkillsConfig>("extra_roots = [7]").is_err());
+    }
+
+    #[test]
+    fn extra_roots_schema_is_an_optional_path_array() {
+        let schema = serde_json::to_value(schemars::schema_for!(SkillsConfig)).expect("schema");
+        let roots = &schema["properties"]["extra_roots"];
+        assert_eq!(roots["type"], "array");
+        assert_eq!(roots["items"]["$ref"], "#/definitions/AbsolutePathBuf");
+        assert_eq!(schema["definitions"]["AbsolutePathBuf"]["type"], "string");
+        assert!(schema.get("required").is_none());
+        let fixture: serde_json::Value =
+            serde_json::from_str(include_str!("../../core/config.schema.json"))
+                .expect("config schema fixture");
+        let config_schema: serde_json::Value =
+            serde_json::from_slice(&crate::schema::config_schema_json().expect("config schema"))
+                .expect("config schema JSON");
+        assert_eq!(
+            config_schema["definitions"]["SkillsConfig"],
+            fixture["definitions"]["SkillsConfig"]
+        );
+    }
+}

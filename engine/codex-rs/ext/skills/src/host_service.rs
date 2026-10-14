@@ -295,7 +295,14 @@ impl HostSkillsService {
             self.ensure_system_skills_installed();
         }
         let use_cwd_cache = fs.is_some();
-        let cache_snapshot_by_cwd = use_cwd_cache && input.effective_skill_roots.is_empty();
+        let effective_config = input.config_layer_stack.effective_config();
+        let has_config_extra_roots = effective_config
+            .get("skills")
+            .and_then(|skills| skills.get("extra_roots"))
+            .and_then(toml::Value::as_array)
+            .is_some_and(|roots| !roots.is_empty());
+        let cache_snapshot_by_cwd =
+            use_cwd_cache && input.effective_skill_roots.is_empty() && !has_config_extra_roots;
         if cache_snapshot_by_cwd
             && !force_reload
             && let Some(snapshot) = self.cached_snapshot_for_cwd(&input.cwd)

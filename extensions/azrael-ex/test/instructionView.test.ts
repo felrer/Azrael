@@ -5,6 +5,33 @@ import type { InstructionUiState } from "../src/instructionProtocol";
 
 const base: InstructionUiState = { repository: "felrer/Azrael", currentVersion: "1.0.0", pinnedVersion: null, selectedVersion: "1.1.0", versions: [{ version: "1.1.0", compatible: true, prerelease: false, notes: "<script>notes</script>" }], downloadedVersions: ["1.1.0"], components: [{ id: "agents", title: "Agents", kind: "agents", scope: "home", default: true }], documents: [{ path: "AGENTS.md", title: "Instructions", kind: "agents" }], preview: { path: "AGENTS.md", text: "<img src=x onerror=alert(1)>" }, conflicts: [] };
 
+test("library markup separates local drafts, frozen plans and source-scoped remote versions", () => {
+  const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
+  const original = api._load;
+  api._load = function (request, parent, isMain) { return request === "vscode" ? {} : original.call(this, request, parent, isMain); };
+  try {
+    const { renderInstructionMarkup, validInstructionRequest } = require("../src/instructionView") as typeof import("../src/instructionView");
+    const resource = { id: "one", name: '<script>name</script>', kind: "skill" as const, sharing: "local" as const, digest: "changed", validationErrors: ["Invalid draft"], publications: [{ repository: "org/public", version: "1.0", digest: "old" }], files: [{ path: "SKILL.md", encoding: "utf8" as const, content: "<script>한국어 source</script>" }, { path: "references/readme.md", encoding: "utf8" as const, content: "Full support" }] };
+    const state: InstructionUiState = { ...base, error: "<failure>", library: { revision: 3, entries: [resource], selected: resource, connections: [], remoteVersions: [{ version: "public-version", sharing: "public" }, { version: "private-version", sharing: "collaborators" }], plan: { kind: "apply", token: "frozen", summary: { en: "<plan>", ko: "<검토>" }, conflicts: [{ target: "file", reason: "edited", current: "<old>", proposed: "<new>" }] } } };
+    const html = renderInstructionMarkup(state, undefined, "en");
+    assert.match(html, /&lt;plan&gt;/); assert.match(renderInstructionMarkup(state, undefined, "ko"), /&lt;검토&gt;/); assert(!html.includes("[object Object]")); assert(!html.includes("Not implemented")); assert(!html.includes("<script>"));
+    assert.match(html, /data-file-path="references\/readme.md"/); assert.match(html, /&lt;script&gt;한국어 source/);
+    assert.match(html, /data-action="librarySave" data-id="one">/);
+    assert.match(html, /data-action="libraryPlanApply" data-id="one" disabled/);
+    assert.match(html, /data-action="libraryPlanPublish" data-id="one" disabled/);
+    assert.match(html, /data-action="libraryApply" data-token="frozen" disabled/);
+    assert.match(html, /Previously published: org\/public/);
+    assert(html.indexOf("&lt;failure&gt;") < html.indexOf("<details"));
+    const publicConnection = html.slice(html.indexOf('data-connection="public"'), html.indexOf('data-connection="collaborators"'));
+    assert(publicConnection.includes("public-version")); assert(!publicConnection.includes("private-version"));
+    const valid = { id: "one", revision: 3, files: resource.files, profile: { model: "m", dependencies: [{ id: "context", digest: "pinned" }] } };
+    assert(validInstructionRequest(valid));
+    const binarySupport = Buffer.alloc(6 * 1024 * 1024 + 1, 42).toString("base64");
+    assert(validInstructionRequest({ files: [{ path: "support.bin", encoding: "base64", content: binarySupport }] }), "A publishable binary support file must remain editable after base64 transport");
+    for (const invalid of [{ ...valid, revision: -1 }, { ...valid, files: [{ path: "x", encoding: "utf8", content: 42 }] }, { ...valid, profile: { model: "m", dependencies: [{ id: "x", digest: 42 }] } }, { token: "x".repeat(4097) }, { credentials: "secret" }]) assert(!validInstructionRequest(invalid));
+  } finally { api._load = original; }
+});
+
 test("instruction view escapes previews and conflicts, preserves download/apply distinction and real port actions", async () => {
   const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const original = api._load;
@@ -28,6 +55,12 @@ test("instruction view escapes previews and conflicts, preserves download/apply 
     for (const action of ["refresh", "selectVersion", "preview", "apply", "pin", "unpin", "rollback"]) await send(action, "one", { version: "1.1.0", path: "AGENTS.md", componentIds: [] });
     assert.equal(calls.length, 8);
     await send("download", "one", { componentIds: [4] }); assert.equal(calls.length, 8);
+    const libraryPayload = { id: "one", name: "한국어", sharing: "collaborators", revision: 1, files: [{ path: "references/a.md", encoding: "utf8", content: "full support" }] };
+    await send("librarySave", "one", libraryPayload); assert.deepEqual(calls[8], { action: "librarySave", message: libraryPayload });
+    await send("librarySave", "one", { ...libraryPayload, files: [{ path: "bad", encoding: "utf8", content: 42 }] }); assert.equal(calls.length, 9);
+    await send("libraryPrepareTask", "one", { id: "profile", model: "override", provider: "openai", reasoningEffort: "high" });
+    await send("libraryStartTask", "one", { token: "frozen" });
+    assert.deepEqual(calls[10], { action: "libraryStartTask", message: { token: "frozen" } });
     view.dispose();
   } finally { api._load = original; }
 });
@@ -77,7 +110,7 @@ test("per-mount locales normalize variants, preserve generated and source text, 
   const en = renderInstructionMarkup(state, undefined, "en"), ko = renderInstructionMarkup(state, undefined, "ko_KR");
   assert.match(en, /lang="en" aria-label="Instruction Documents"/);
   assert.match(ko, /lang="ko" aria-label="지침 문서"/);
-  assert.match(en, /Instruction Documents \(Not implemented\)/); assert.match(ko, /지침 문서 \(미구현\)/);
+  assert.match(en, /Instruction Documents/); assert.match(ko, /지침 문서/);
   assert.match(en, /Downloading…/); assert.match(ko, /다운로드 중…/);
   assert.match(en, /&lt;Generated English&gt;/); assert.match(ko, /&lt;생성된 한국어&gt;/);
   assert.match(en, /English error/); assert.match(ko, /한국어 오류/);

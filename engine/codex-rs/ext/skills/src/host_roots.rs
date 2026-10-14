@@ -4,6 +4,7 @@ use std::sync::Arc;
 
 use codex_config::ConfigLayerSource;
 use codex_config::ConfigLayerStack;
+use codex_config::SkillsConfig;
 use codex_config::default_project_root_markers;
 use codex_config::merge_toml_values;
 use codex_config::project_root_markers_from_config;
@@ -65,6 +66,18 @@ pub(super) async fn resolve_skill_roots_with_home_dir(
             .into_iter()
             .map(|path| local_root(path, SkillScope::User)),
     );
+    let effective_config = config_layer_stack.effective_config();
+    if let Some(skills_value) = effective_config.get("skills") {
+        match SkillsConfig::try_from(skills_value.clone()) {
+            Ok(skills) => roots.extend(
+                skills
+                    .extra_roots
+                    .into_iter()
+                    .map(|path| local_root(path, SkillScope::User)),
+            ),
+            Err(error) => tracing::warn!("invalid skills config: {error}"),
+        }
+    }
     roots.extend(repo_agents_skill_roots(repository_file_system, config_layer_stack, cwd).await);
     dedupe_skill_roots_by_path(&mut roots);
     roots

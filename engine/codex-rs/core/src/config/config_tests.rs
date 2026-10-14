@@ -439,6 +439,7 @@ enabled = false
             include_instructions: Some(false),
             max_context_tokens: std::num::NonZeroUsize::new(1_200),
             config: Vec::new(),
+            extra_roots: Vec::new(),
         })
     );
 
