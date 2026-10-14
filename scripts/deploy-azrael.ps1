@@ -4,6 +4,7 @@ param(
     [Parameter(Mandatory)][ValidatePattern('^[A-Za-z0-9][A-Za-z0-9_-]*$')][string]$ReleaseName,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$EngineTargetDirectory,
+    [string]$ModuleCacheProjectRoot,
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
     [string]$CodeModeHostPath,
@@ -23,6 +24,7 @@ param(
     [switch]$VerifyOnly,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
+    [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
     [switch]$VerifyAccountControls,
     [string]$HostVersion
@@ -166,6 +168,7 @@ try {
     $metrics.projectInputSha256 = $inputSnapshot
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot)
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
+    if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
     if ($ComputerUseRuntimeDirectory) { $buildArgs += @('-ComputerUseRuntimeDirectory', $ComputerUseRuntimeDirectory) }
     if ($ComputerUsePluginDirectory) { $buildArgs += @('-ComputerUsePluginDirectory', $ComputerUsePluginDirectory) }
     if ($SkipEngineBuild) { $buildArgs += @('-SkipEngineBuild', '-EngineDirectory', $EngineDirectory) } else { $buildArgs += @('-CodeModeHostPath', $CodeModeHostPath) }
@@ -178,11 +181,12 @@ try {
     }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
+    $metrics.forceNativeVerification = [bool]$ForceNativeVerification
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
         outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
-        reuseNativeChecks = -not [bool]$FullRegression
+        reuseNativeChecks = -not [bool]$ForceNativeVerification
     }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if (-not $FullRegression) { $sourceConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input') }
@@ -202,7 +206,7 @@ try {
     $enginePreservationConfig = [ordered]@{
         projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
-        reuseNativeChecks = -not [bool]$FullRegression
+        reuseNativeChecks = -not [bool]$ForceNativeVerification
         sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
     }
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }

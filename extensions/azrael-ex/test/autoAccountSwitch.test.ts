@@ -109,7 +109,10 @@ test("view validates fresh identities, suppresses duplicates and rolls failed pe
     class HTMLInputElement { type = "checkbox"; disabled = false; checked = true; dataset = { action: "setAutoSwitch", profile: profile.id, workspace: "workspace" }; }
     const listeners = new Map<string, (event: unknown) => void>();
     const sent: unknown[] = [];
-    const script = panel.webview.html.match(/<script[^>]*>([\s\S]*)<\/script>/)![1];
+    const scripts = [...panel.webview.html.matchAll(/<script[^>]*>([\s\S]*?)<\/script>/g)]
+      .map(match => match[1]).filter(script => script.includes("acquireVsCodeApi()"));
+    assert.equal(scripts.length, 1, "Expected exactly one account view interaction script");
+    const script = scripts[0];
     vm.runInNewContext(script, { HTMLInputElement, acquireVsCodeApi: () => ({ postMessage: (message: unknown) => sent.push(message) }), document: { addEventListener: (name: string, fn: (event: unknown) => void) => listeners.set(name, fn), querySelector: () => null } });
     const input = new HTMLInputElement();
     listeners.get("change")!({ target: input });

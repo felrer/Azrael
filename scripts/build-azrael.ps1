@@ -6,6 +6,7 @@ param(
     [switch]$SkipEngineBuild,
     [string]$SourceRoot = (Join-Path (Split-Path $PSScriptRoot -Parent) 'engine'),
     [string]$EngineTargetDirectory,
+    [string]$ModuleCacheProjectRoot,
     [string]$WindowControlTargetDirectory,
     [string]$EngineDirectory,
     [string]$CompanionVsixPath,
@@ -81,7 +82,7 @@ function Get-ProviderVendorManifestFingerprint {
 }
 
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
-$moduleCache = Open-BuildModuleCache $projectRoot
+$moduleCache = Open-BuildModuleCache $projectRoot $ModuleCacheProjectRoot
 $moduleCache.Keep = $KeepModuleCaches
 $moduleCache.SkipCleanup = [bool]$SkipCacheCleanup
 $moduleCache.LogDirectory = $logDirectory

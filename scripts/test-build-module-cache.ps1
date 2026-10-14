@@ -34,7 +34,7 @@ try{
  try{Assert-BuildCachePath $outside $cache.Root|Out-Null;throw 'Missing escape failure'}catch{Assert ($_.Exception.Message -match 'escapes root') 'Escape must be rejected'}
  $linked=Join-Path $cache.Root 'companion/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa'
  New-Item -ItemType Junction -Path $linked -Target $outside|Out-Null
- $r=@(Remove-OldBuildModuleCaches $cache -Keep 1);Assert (Test-Path (Join-Path $outside 'keep.txt')) 'Junction target preserved';Remove-Item -LiteralPath $linked -Force
+ $r=@(Remove-OldBuildModuleCaches $cache -Keep 1);Assert (Test-Path (Join-Path $outside 'keep.txt')) 'Junction target preserved';Remove-Item -LiteralPath $linked -ErrorAction Stop
  $legacy=Join-Path $fixture 'artifacts/build/old/companion';New-Item -ItemType Directory $legacy -Force|Out-Null
  @{publisher='azrael-ex-local';name='azrael'}|ConvertTo-Json|Set-Content (Join-Path $legacy 'package.json')
  $new=Join-Path $fixture 'artifacts/build/new/companion';New-Item -ItemType Directory $new -Force|Out-Null
@@ -103,7 +103,7 @@ try{
  $r=@(Remove-OldBuildModuleCaches $cache -ProtectedPaths @(Get-ProtectedBuildCachePaths $cache))
  Assert (Test-Path (Join-Path $outside 'keep.txt')) 'Nested junction target preserved'
  Assert (@($r|Where-Object reason -Match 'Linked cache content').Count -gt 0) 'Nested link guard reported'
- Remove-Item -LiteralPath (Join-Path $nested.Path 'linked') -Force
+ Remove-Item -LiteralPath (Join-Path $nested.Path 'linked') -ErrorAction Stop
  $unknown=Join-Path $cache.Root ('companion/'+('b'*64))
  New-Item -ItemType Directory $unknown -Force|Out-Null
  @{schema=7;module='foreign';key=('b'*64)}|ConvertTo-Json|Set-Content (Join-Path $unknown 'owner.json')
@@ -138,5 +138,56 @@ try{
    try{Open-BuildModuleCache $fixture|Out-Null;throw 'Missing preparation lease failure'}catch{Assert ($_.Exception.Message -match 'Another modular') 'Preparation reader must block collection/build writer'}
  }finally{$readLease.Dispose()}
  $cache=Open-BuildModuleCache $fixture
- Write-Output 'Module cache: reuse, corruption, source/tool changes, force, leases, publication-before-prune, failed publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary and provider-only legacy staging passed; exit=0'
-}finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()};Assert-BuildCachePath $fixture ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/verification')))|Out-Null;Remove-Item -LiteralPath $fixture -Recurse -Force}
+ # Shared owner reuse is content based, while registration protects every source's installed tools.
+ $sharedOwner=Join-Path $fixture 'shared-owner';$projectA=Join-Path $sharedOwner 'snapshots/a';$projectB=Join-Path $sharedOwner 'snapshots/b'
+ foreach($project in @($projectA,$projectB)){New-Item -ItemType Directory (Join-Path $project 'source') -Force|Out-Null;Set-Content (Join-Path $project 'source/code.ts') 'shared'}
+ $legacyCache=Join-Path $projectA 'artifacts/cache/modules/legacy.keep';New-Item -ItemType Directory (Split-Path $legacyCache) -Force|Out-Null;Set-Content $legacyCache 'preserve'
+ $shared=$null;$registryLink=Join-Path $sharedOwner 'linked-project'
+ try{
+   $shared=Open-BuildModuleCache $projectA $sharedOwner;$shared.SkipCleanup=$true
+   Assert ($shared.Project -eq $projectA -and $shared.Root -eq (Join-Path $sharedOwner 'artifacts/cache/modules')) 'Shared owner must not change execution staging scope'
+   $sharedA=Get-BuildModuleEntry $shared companion @((Join-Path $projectA 'source')) @('shared-tool')
+   Set-Content (Join-Path $sharedA.Path 'output.txt') 'shared-output';Save-BuildModuleEntry $sharedA @('output.txt')
+   $shared.Lease.Dispose();$shared=$null
+   $shared=Open-BuildModuleCache $projectB $sharedOwner;$shared.SkipCleanup=$true
+   $sharedB=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('shared-tool')
+   Assert ($sharedB.Hit -and $sharedB.Key -eq $sharedA.Key) 'Identical source in another snapshot must share cached output'
+   Assert (Test-Path $legacyCache) 'Existing project-local cache remains separate'
+   try{Get-BuildModuleKey @((Join-Path $projectB 'source/missing.ts')) @('shared-tool')|Out-Null;throw 'Missing input failure'}catch{Assert ($_.Exception.Message -match 'Missing module input') 'Missing role input must reject reuse'}
+   $platformImplementation=(Get-Item Function:Get-BuildCachePlatform).ScriptBlock
+   try{function Get-BuildCachePlatform {@('fixture-other-platform','fixture-other-architecture')};Assert ((Get-BuildModuleKey @((Join-Path $projectB 'source')) @('shared-tool')) -ne $sharedB.Key) 'OS/architecture change must invalidate'}finally{Set-Item Function:Get-BuildCachePlatform $platformImplementation}
+   $roleKey=Get-BuildModuleKey @((Join-Path $projectB 'source/code.ts')) @('shared-tool')
+   Assert ($roleKey -ne $sharedB.Key) 'File and directory input kinds remain distinct'
+   Assert ((Get-BuildModuleKey @((Join-Path $projectB 'source/code.ts'),(Join-Path $projectB 'source')) @('shared-tool')) -ne (Get-BuildModuleKey @((Join-Path $projectB 'source'),(Join-Path $projectB 'source/code.ts')) @('shared-tool'))) 'Input role order remains significant'
+   Set-Content (Join-Path $sharedB.Path 'output.txt') 'damaged';$sharedDamaged=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('shared-tool');Assert (-not $sharedDamaged.Hit) 'Shared damaged output must miss'
+   Set-Content (Join-Path $sharedDamaged.Path 'output.txt') 'restored';Save-BuildModuleEntry $sharedDamaged @('output.txt')
+   $sharedOld=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('prior-tool');Set-Content (Join-Path $sharedOld.Path 'output.txt') 'prior';Save-BuildModuleEntry $sharedOld @('output.txt')
+   foreach($pin in @($sharedDamaged,$sharedOld)){
+     $deployment=Join-Path $projectA ('artifacts/deployments/'+$pin.Key);$package=Join-Path $deployment 'package';$release=Join-Path $deployment 'release';New-Item -ItemType Directory $package,$release -Force|Out-Null
+     @{hostInstalled=$true;generatedAt=[DateTime]::UtcNow.ToString('o');packageDirectory=$package;releaseDirectory=$release}|ConvertTo-Json|Set-Content (Join-Path $deployment 'deployment.json')
+     @{toolDirectory=(Join-Path $pin.Path 'tool')}|ConvertTo-Json|Set-Content (Join-Path $package 'preparation-inputs.json')
+     @{moduleBuild=@{typeScriptPath=(Join-Path $pin.Path 'typescript.js')}}|ConvertTo-Json|Set-Content (Join-Path $release 'build-info.json')
+   }
+   $shared.SkipCleanup=$false;$replacement=Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('replacement-tool');Set-Content (Join-Path $replacement.Path 'output.txt') 'replacement';Save-BuildModuleEntry $replacement @('output.txt')
+   Assert ((Test-Path $sharedDamaged.Path) -and (Test-Path $sharedOld.Path)) 'Another registered source current/previous installation protects shared toolchains'
+   $registry=Join-Path $shared.Root '.projects.json';$validRegistry=Get-Content $registry -Raw;Set-Content $registry '{corrupt'
+   try{Remove-OldBuildModuleCaches $shared|Out-Null;throw 'Missing corrupt registry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Corrupt registry must stop all cache deletion'}
+   Assert (Test-Path $sharedOld.Path) 'Corrupt registry performs no deletion'
+   try{Get-BuildModuleEntry $shared companion @((Join-Path $projectB 'source')) @('shared-tool')|Out-Null;throw 'Missing corrupt entry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Corrupt registry also stops entry mutation'}
+   Assert (Test-Path $sharedOld.Path) 'Corrupt entry lookup performs no deletion'
+   $shared.Lease.Dispose();$shared=$null
+   try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing open registry failure'}catch{Assert ($_.Exception.Message -match 'JSON') 'Opening corrupt registry must fail closed and release lease'}
+   @{schema=1;projects=@($outside)}|ConvertTo-Json|Set-Content $registry
+   try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registry escape failure'}catch{Assert ($_.Exception.Message -match 'escapes root') 'Registered project escape rejected'}
+   @{schema=1;projects=@((Join-Path $sharedOwner 'missing-project'))}|ConvertTo-Json|Set-Content $registry
+   try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registered project failure'}catch{Assert ($_.Exception.Message -match 'Missing registered cache project') 'Missing registered project must preserve uncertain installed references'}
+   New-Item -ItemType Junction -Path $registryLink -Target $projectA|Out-Null
+   @{schema=1;projects=@($registryLink)}|ConvertTo-Json|Set-Content $registry
+   try{Open-BuildModuleCache $projectB $sharedOwner|Out-Null;throw 'Missing registry link failure'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Registered project junction rejected'}
+   Remove-Item -LiteralPath $registryLink -ErrorAction Stop;Set-Content $registry $validRegistry
+   try{Open-BuildModuleCache $outside $sharedOwner|Out-Null;throw 'Missing shared owner escape failure'}catch{Assert ($_.Exception.Message -match 'escapes root') 'Execution project outside shared owner rejected'}
+   try{Open-BuildModuleCache $projectB 'relative-owner'|Out-Null;throw 'Missing absolute owner failure'}catch{Assert ($_.Exception.Message -match 'fully qualified') 'Relative shared owner rejected'}
+   $shared=Open-BuildModuleCache $projectB $sharedOwner;Assert (@(Get-BuildCacheProjects $shared).Count -eq 2) 'Successful registered projects retained after failure recovery'
+ }finally{if($shared -and $shared.Lease){$shared.Lease.Dispose()};if(Test-Path -LiteralPath $registryLink){Remove-Item -LiteralPath $registryLink -ErrorAction Stop}}
+ Write-Output 'Module cache: reuse, corruption, source/tool changes, force, leases, publication-before-prune, failed publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary provider-only legacy staging, content-based cross-snapshot reuse, shared installed pins, platform/role identity and registry fail-closed passed; exit=0'
+}finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()};Assert-BuildCachePath $fixture ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/verification')))|Out-Null;Remove-Item -LiteralPath $fixture -Recurse -ErrorAction Stop}
