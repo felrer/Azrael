@@ -1,6 +1,23 @@
 import { createHash } from 'node:crypto';
+import { getProviderRegistryEntry } from './vendor/src/providers/registry.ts';
 
 export const MANAGED_PROVIDERS = ['google-antigravity', 'anthropic', 'meta-muse'];
+
+// Azrael-owned additions to the vendored roster. Use the same metadata for
+// discovery and pinned requests so advertised efforts match the wire.
+export function managedMetaRegistry() {
+  const registry = getProviderRegistryEntry('meta-muse')!;
+  const model = 'muse-wonder-1.0';
+  const efforts = ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'];
+  return { ...registry,
+    models: [...new Set([...registry.models!, model])],
+    modelContextWindows: { ...registry.modelContextWindows, [model]: 1_048_576 },
+    modelInputModalities: { ...registry.modelInputModalities, [model]: ['text', 'image'] as ['text', 'image'] },
+    modelReasoningEfforts: { ...registry.modelReasoningEfforts, [model]: efforts },
+    modelReasoningEffortMap: { ...registry.modelReasoningEffortMap,
+      [model]: Object.fromEntries(efforts.map(effort => [effort, effort])) },
+  };
+}
 
 // Muse credentials are static keys. Bind to a digest, including manual keys
 // without an email, so replacing a key invalidates its old conversation lease.

@@ -4,10 +4,10 @@ import { join, relative, isAbsolute } from 'node:path';
 import { createOAuthFileLock, type OAuthFileLockGuard } from './vendor/src/oauth/store.ts';
 import { validateIsolatedHomeForTests } from './helper.ts';
 import { AdapterError, compileRequest, resolveToolName, mapStream, replayHarnessMatches, MAX_BYTES, MAX_REQUEST_BYTES, fail } from './inference-mapping.mjs';
-import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity, managedMetaIdentity } from './inference-config.ts';
+import { MANAGED_PROVIDERS, isManagedOAuthTransport, managedClaudeIdentity, managedMetaIdentity, managedMetaRegistry } from './inference-config.ts';
 import { metaResponsesBody, parseMetaResponses } from './meta-responses.ts';
 import { createResponsesPassthroughAdapter } from './vendor/src/adapters/openai-responses.ts';
-import { getProviderRegistryEntry, mergeRegistryStaticHeaders } from './vendor/src/providers/registry.ts';
+import { mergeRegistryStaticHeaders } from './vendor/src/providers/registry.ts';
 import { declaredInputModalities, discoverAnthropicCatalog, type ProviderCatalogStatus } from './catalog.ts';
 import { configuredModelReasoning } from './reasoning.ts';
 import { createProgressMonitor } from '../devin/progress.mjs';
@@ -114,7 +114,7 @@ export async function resolvePin(config: any, providerId: string, retained: Pin 
     const after = managedMetaIdentity(current?.credential);
     if (!access || !after || JSON.stringify(after) !== JSON.stringify(before)
       || current.needsReauth || current.credential.access !== access) fail('pinned_account_changed');
-    const registry = getProviderRegistryEntry(providerId)!;
+    const registry = managedMetaRegistry();
     // Keep credentials paired with the canonical transport, not configured
     // headers that could override authorization or redirect account traffic.
     routed = { ...provider, adapter: 'openai-responses', authMode: 'oauth',
@@ -565,7 +565,7 @@ export async function catalog(options: { refresh?: boolean; fetch?: typeof fetch
       if (!account || account.needsReauth || !managedMetaIdentity(account.credential)) continue;
       // Discovery never mints keys or consumes a model turn. The vendored roster
       // contains only agent-capable text-output models, unlike /v1/models.
-      const registry = getProviderRegistryEntry(provider_id)!;
+      const registry = managedMetaRegistry();
       provider = { ...configured, models: registry.models,
         modelContextWindows: registry.modelContextWindows,
         modelInputModalities: registry.modelInputModalities,

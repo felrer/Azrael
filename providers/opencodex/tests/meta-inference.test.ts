@@ -30,9 +30,9 @@ async function setup() {
   return store.getAccountSet('meta-muse')!.activeAccountId;
 }
 const user = { type: 'message', role: 'user', content: [{ type: 'input_text', text: 'hello' }] };
-function request(turn_id = 'turn-1', tools: any[] = [], input: any[] = [user]) {
+function request(turn_id = 'turn-1', tools: any[] = [], input: any[] = [user], model = 'muse-spark-1.3') {
   return { type: 'request', protocol_version: 1, request_id: 'meta-fixture', thread_id: 'thread-1', turn_id,
-    provider_id: 'meta-muse', model: 'muse-spark-1.3', instructions: 'Azrael instructions', tools, input,
+    provider_id: 'meta-muse', model, instructions: 'Azrael instructions', tools, input,
     parallel_tool_calls: true, reasoning_effort: 'high' };
 }
 const sse = (...events: any[]) => new Response(events.map(e => 'event: ' + e.type + '\ndata: ' + JSON.stringify(e) + '\n\n').join(''), { headers: { 'content-type': 'text/event-stream' } });
@@ -47,7 +47,7 @@ const fixture = (events: any[], captured: any[] = []) => (async (url: any, init:
 test('Meta OAuth catalog and Responses preserve canonical auth, image input and token usage', async () => {
   await setup(); const frames: any[] = [], captured: any[] = [];
   const discovery = await catalog({ fetch: (async () => { throw Error('live network forbidden'); }) as unknown as typeof fetch });
-  expect(discovery.models.map(m => m.model_id)).toEqual(['muse-spark-1.3', 'muse-spark-1.3-contributor']);
+  expect(discovery.models.map(m => m.model_id)).toEqual(['muse-spark-1.3', 'muse-spark-1.3-contributor', 'muse-wonder-1.0']);
   expect(discovery.models[0]).toMatchObject({ provider_id: 'meta-muse', context_window: 1048576, input_modalities: ['text', 'image'] });
   expect(discovery.models[0].reasoning.supported_efforts).toEqual(['minimal', 'low', 'medium', 'high', 'xhigh']);
   const req = request(); req.input = [{ ...user, content: [...user.content, { type: 'input_image', image_url: 'data:image/png;base64,YQ==' }] }] as any;
@@ -62,14 +62,34 @@ test('Meta OAuth catalog and Responses preserve canonical auth, image input and 
   expect(JSON.stringify(frames)).not.toContain(key('a'));
 }, 30000);
 
-test('Meta tools restore function/custom/search identity and private reasoning replays only matching scope', async () => {
+test('Muse Wonder catalog and requests retain its full reasoning ladder and image support', async () => {
+  await setup();
+  const discovery = await catalog({ fetch: (async () => { throw Error('live network forbidden'); }) as unknown as typeof fetch });
+  const wonder = discovery.models.find(m => m.model_id === 'muse-wonder-1.0');
+  expect(wonder).toMatchObject({ provider_id: 'meta-muse', context_window: 1048576, input_modalities: ['text', 'image'],
+    reasoning: { supported_efforts: ['minimal', 'low', 'medium', 'high', 'xhigh', 'max'] } });
+  expect(discovery.models.some(m => /wonder.*(?:full|contributor)/.test(m.model_id))).toBeFalse();
+  const captured: any[] = [];
+  for (const effort of ['minimal', 'max']) {
+    const req = request('wonder-' + effort, [], [{ ...user, content: [...user.content,
+      { type: 'input_image', image_url: 'data:image/png;base64,YQ==' }] }] as any, 'muse-wonder-1.0');
+    req.reasoning_effort = effort;
+    const frames: any[] = [];
+    await infer(req, f => frames.push(f), fixture([completed([text])], captured));
+    expect(captured.at(-1).body).toMatchObject({ model: 'muse-wonder-1.0', reasoning: { effort }, store: false });
+    expect(captured.at(-1).body.input[0].content[1]).toEqual({ type: 'input_image', image_url: 'data:image/png;base64,YQ==' });
+    expect(frames.at(-1)).toMatchObject({ type: 'completed' });
+  }
+}, 30000);
+
+test.each(['muse-spark-1.3', 'muse-wonder-1.0'])('Meta %s tools restore function/custom/search identity and scoped private reasoning', async (model) => {
   await setup(); const frames: any[] = [], captured: any[] = [];
   const tools = [
     { type: 'namespace', name: 'functions', tools: [{ type: 'function', name: 'execute', description: 'Execute', parameters: { type: 'object', properties: { command: { type: 'string' } }, required: ['command'] } }] },
     { type: 'custom', name: 'apply_patch', description: 'Patch' },
     { type: 'tool_search', execution: 'client', parameters: { type: 'object', properties: { query: { type: 'string' } }, required: ['query'] } },
   ];
-  const req = request('turn-1', tools), compiled = compileRequest(req);
+  const req = request('turn-1', tools, [user], model), compiled = compileRequest(req);
   const args = ['{"command":"echo hello"}', '{"input":"*** Begin Patch\\n*** End Patch"}', '{"query":"Meta tools"}'];
   const output = [{ type: 'reasoning', id: 'rs-meta', status: 'completed', summary: [], encrypted_content: 'meta-native-ciphertext' },
     ...compiled.tools.map((t: any, i: number) => ({ type: 'function_call', id: 'fc-' + i, call_id: 'call-' + i, name: t.name, arguments: args[i] }))];
@@ -85,10 +105,10 @@ test('Meta tools restore function/custom/search identity and private reasoning r
     { type: 'tool_search_output', call_id: 'call-2', execution: 'client', status: 'completed', tools: [] },
   ];
   const history = [user, ...items, ...outputs];
-  await infer(request('turn-1', tools, history), () => {}, fixture([completed([text])], captured));
+  await infer(request('turn-1', tools, history, model), () => {}, fixture([completed([text])], captured));
   expect(captured[1].body.input.find((i: any) => i.type === 'reasoning')).toMatchObject({ encrypted_content: 'meta-native-ciphertext' });
   expect(JSON.stringify(captured[1].body)).not.toContain('azrael-managed-v1:');
-  await infer(request('turn-2', tools, history), () => {}, fixture([completed([text])], captured));
+  await infer(request('turn-2', tools, history, model), () => {}, fixture([completed([text])], captured));
   expect(captured[2].body.input.some((i: any) => i.type === 'reasoning')).toBeFalse();
 }, 30000);
 

@@ -194,7 +194,7 @@
     {
       "id": "engine.meta-provider",
       "area": "engine",
-      "owners": ["providers/opencodex/helper.ts", "providers/opencodex/inference-config.ts", "providers/opencodex/inference.ts", "providers/opencodex/meta-responses.ts", "providers/opencodex/auto-switch.ts", "providers/opencodex/retirement.ts", "engine/codex-rs/core/src/managed_catalog.rs", "scripts/check-meta-provider.cjs", "scripts/check-meta-native-selection.cjs"],
+      "owners": ["providers/opencodex/helper.ts", "providers/opencodex/inference-config.ts", "providers/opencodex/inference.ts", "providers/opencodex/meta-responses.ts", "providers/opencodex/auto-switch.ts", "providers/opencodex/retirement.ts", "providers/opencodex/tests/meta-inference.test.ts", "engine/codex-rs/core/src/managed_catalog.rs", "scripts/check-meta-provider.cjs", "scripts/check-meta-native-selection.cjs"],
       "contract": "docs/architecture/managed-providers.md",
       "checks": [
         {"id":"engine.meta-provider.source","executable":"node","args":["scripts/check-meta-provider.cjs"],"level":"source"},
