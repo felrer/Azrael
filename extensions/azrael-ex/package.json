@@ -51,6 +51,11 @@
           "description": "GitHub repository containing versioned Azrael instruction releases (owner/name).",
           "default": "felrer/Azrael",
           "type": "string"
+        },
+        "azrael.instructions.libraryRoot": {
+          "type": "string",
+          "default": "",
+          "description": "Local authoring directory for instruction resources. Saving, applying and publishing are separate actions."
         }
       }
     },

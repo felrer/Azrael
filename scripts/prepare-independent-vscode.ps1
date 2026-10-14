@@ -84,6 +84,9 @@ function Assert-IntegratedHostVsixContents {
             'extension/account-ui/sync-shared-environment.cjs',
             'extension/account-ui/sync-codex-environment.cjs',
             'extension/account-ui/instruction-package.cjs',
+            'extension/account-ui/instruction-library.cjs',
+            'extension/account-ui/instruction-publisher.cjs',
+            'extension/account-ui/task-profile-runtime.cjs',
             'extension/account-ui/computer-use-runtime.cjs',
             'extension/account-ui/computer-use-branding.cjs',
             'extension/account-ui/inject-sky-control-policy.cjs',
@@ -258,7 +261,7 @@ try {
             }
             Expand-AccountUiVsix -VsixPath $prepared.CompanionVsix -Destination $accountUiDirectory | Out-Null
             Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'integrated-azrael-entry.cjs') -Destination (Join-Path $prepared.OfficialExtension 'integrated-azrael-entry.cjs')
-            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
+            foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
             foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {

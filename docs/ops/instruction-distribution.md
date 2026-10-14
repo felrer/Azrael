@@ -10,6 +10,22 @@ Development uses the private `felrer/Azrael` repository. This visibility choice
 does not replace third-party license conditions or establish redistribution
 permission. App release versions and authorized local upload automation are owned by [Local app release](app-release.md). Instruction publication follows its independent workflow below.
 
+## Personal resource library
+
+Status: `partial` in source; the new personal-resource flow has Windows offline host/protocol, native skill-root isolation and isolated rendered UI evidence. It has not replaced the installed application, contacted a real instruction repository or passed final installed task lifecycle acceptance. The [architecture](../architecture/instructions.md#personal-skill-management) owns sharing and activation semantics; the [work record](../../work/BA-01-instruction-skill-sharing/01-plan.md) owns execution evidence.
+
+Open Instruction documents in Azrael settings. Create a resource or import its complete folder, edit its files and save locally. Save does not apply or upload it. New personal resources default to collaborators. The checkout uses ignored `instruction-library/`; other installations use a separate `<CODEX_HOME>-instruction-library` directory. Configure `azrael.instructions.libraryRoot` only to an untracked, Git-ignored directory when it resides within another repository.
+
+Apply previews installation changes and conflicts before writing. Existing identical files can be adopted and their originals remain recoverable. A task profile instead prepares an immutable model/resource recipe and opens its selected new conversation. Inspect the effective model, package digests and persistent context before starting. Unknown models, missing pinned packages, role conflicts or incompatible harness choices stop activation. Other conversations and project defaults are preserved.
+
+For sharing, create separate public and private GitHub repositories with an initialized branch through GitHub's normal setup, grant the fixed collaborator group access and connect each destination in settings. Azrael checks actual visibility and read/write capability. Host GitHub sessions or a token kept in SecretStorage supply authentication; credentials are not editor fields or exported resource files. Review a publication version and selected inventory, then publish explicitly. The baseline release protocol remains independent.
+
+After an interrupted operation, inspect its displayed phase and use Recover. A source-committed publication is already shared even when Release creation fails; its known destination remains in publication history. Recovery uses the original approved bytes. A sharing change before any source commit blocks continuation at the previous destination. An interrupted local Apply protects other installers' locks and external edits.
+
+Run the maintained source tests with `node --test scripts/test-instruction-settings.cjs scripts/tests/instruction-library.test.cjs scripts/tests/instruction-publisher.test.cjs scripts/tests/task-profile-runtime.test.cjs scripts/tests/inject-task-profile.test.cjs scripts/test-instruction-library-host.cjs`. Set `AZRAEL_PRESERVATION_UI_ROOT` when verifying another pinned pristine native UI candidate. Host baseline tests use the existing generated instruction release fixture and isolated native validator; they do not use network or change the active installation.
+
+Run native scope/cache regressions with `node scripts/check-task-profile-skills.cjs <absolute-engine-source-root>`. Semantic extension checking uses the installed TypeScript compiler with `--noEmit`. Application packaging/install follows the [build playbook](../playbooks/build.md), including its separate full-build authorization and final package acceptance gates.
+
 ## Source ownership
 
 `engine/` is an immutable verified snapshot selected by the user. Its `SOURCE.json`

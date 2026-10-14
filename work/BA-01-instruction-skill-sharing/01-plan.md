@@ -1,4 +1,4 @@
-상태: 개별 지침 + 조합 작업 프로필, 추천 모델 변경 허용, 선택한 새 대화에만 적용하는 주요 공유·적용 정책이 합의됨. 세부 패키지·연동 구현 계약은 draft다. 앱 코드 구현·저장소 생성·원격 게시 실행은 아직 승인되지 않았다.
+상태: 핵심 기능 소스 구현·검증 완료. 설치된 앱과 실제 GitHub의 수용 검증은 남아 있다. 앱 전체 빌드·설치 및 원격 저장소 생성·실제 업로드는 별도 실행 대상이다.
 
 # 선택 지침 패키지·작업 프로필과 개인 스킬 관리
 
@@ -49,3 +49,42 @@ build-instruction-release.cjs는 소스 전체를 순회한다. 따라서 gitign
 기존 코드·설치/배포 설계와 비교하고 GitHub 공식 refs/releases 및 VS Code 인증 API를 확인했다. 문서 링크 검사 종료 코드 0 (8개 로컬 대상), 작업 diff 검사 종료 코드 0. 첫 검사 helper의 기본 인코딩 오류를 UTF-8 명시로 수정한 뒤 재검사했다. 이 작업에서는 native build, 앱 실행, GitHub 계정 접속이나 게시 실험을 수행하지 않는다. 문서 검증과 제품 동작 검증은 구분한다.
 
 선택 지침 추가 설계 검증: 로컬 문서 링크 검사 종료 코드 0, 작업 파일 diff 검사 종료 코드 0. native profile 활성화와 설치 검증은 수행하지 않았다.
+
+## 실행 배정과 현재 선행 조건
+
+root: 공통 JSON/TS 계약, host adapter·GitHub 인증, native 새 대화 전환, 패키지 포함·보존 목록과 최종 검증.
+library_backend: scripts/instruction-library.cjs와 전용 test — 버전 library, immutable plan, apply/recovery.
+github_publication: scripts/instruction-publisher.cjs와 전용 test — remote Git API·release, auth redirect, 실패 복구.
+library_ui: instructionView와 test, inject-instruction-settings와 test — UI와 두 client.
+task_activation_evidence: native thread/start config·task-only skill/role 발견 경계 read-only. root의 task admission 연결이 후속 소비자다.
+공유 계약: 원격 packages/<id>/<digest>/ immutable snapshots와 heads를 사용해 기존 recipe의 고정 dependency를 보존한다. planPublish는 rootIds/heads를 명시하고 current sharing으로 historical export도 검사한다.
+확정 소비자가 없는 native 활성화 연결만 조사 결과를 기다리며 library·publisher·UI는 독립 진행한다. extension 컴파일은 UI 변경 준비 이후 root 한 번만 실행한다. 실제 GitHub와 현재 사용자의 설치 skill·계정에는 fixture 검증 중 쓰지 않는다.
+
+## 구현 결과와 검증 상태
+
+공통 계약: skill / agent-role / context / task-profile을 같은 local registry에서 관리한다. 기본 collaborators, Save / Apply / Publish 분리, 현재 공유 범위에 따른 historical dependency 게시 차단, 별도 public/private sources와 실제 writer 권한 검사를 구현했다. Windows 소스·격리 Chrome·네이티브 관련 모듈이 실제 검증 대상이다. Linux/macOS와 설치된 앱의 새 대화 lifecycle은 수용했다고 표시하지 않는다.
+
+로컬 backend는 immutable ID/digest snapshots, profile 고정 dependency resolver, 지원 파일·binary import/edit, Git 무시 경계와 decoded credential/path exclusion을 소유한다. Apply는 기존 baseline installer와 공통 writer lock을 사용한다. 이미 설치된 동일 bytes의 explicit adoption은 원본을 보존하고, 이후 이름/파일 변경에서 복원한다. 외부 변경·다른 owner와 baseline journal은 mutation을 막는다. 두 library의 실제 경쟁, stale owner 복구와 원본 보존을 테스트했다.
+
+GitHub backend는 resource repository의 nonforce commit, draft Release+asset 검증, 응답 소실·경쟁·commit 후 실패와 고정 bytes 복구를 구현했다. source-committed 사실은 즉시 history로 기록하고 재시작에서도 local journal로 복구한다. Source commit 전 공유 범위를 local로 바꾸면 이전 prepared 게시를 재개할 수 없다. 인증·frozen plan은 host에 보관하며 webview에는 검토용 summary/preview와 opaque token만 전달한다. 실제 GitHub나 사용자의 저장소에는 요청하지 않았다.
+
+네이티브는 per-thread skills.extra_roots를 추가하고 기존 shared skill service의 cwd cache로 흘러들지 않게 했다. 모델/provider/reasoning 및 지원 builtin harness 조합은 native catalog로 확인하고 대체하지 않는다. role은 선택 thread config로 연결하며 짧은 profile instructions는 additive, context 참조/skill body는 on-demand로 둔다. origin-bound one-use token은 프로젝트 선택으로 새 패널에 이동할 때 프로필을 유지하며 일반 New Chat에서는 취소한다. thread association은 firstTurnPending을 저장하며 첫 turn의 model/effort와 collaboration settings를 고정하고 정상 turn 응답에서만 해제한다. 이후 native picker와 다른 대화·기본 config의 의미는 보존한다. cold resume는 고정 snapshot을 재사용한다. role은 root의 명시 v1/v2 capability와 enabled native feature를 요구하고 child 모델 availability도 첫 turn 전에 다시 확인한다.
+
+검증 근거:
+
+- 로컬 backend 17/17, 종료 0. 기록: artifacts/logs/instruction-library-20261014/node-test.log. 최종 범위에 adoption, 공통 lock와 encoded secret 차단 포함.
+- GitHub protocol 17/17, 종료 0. 기록: artifacts/logs/instruction-publisher/tests-final.log. 실제 library→복구→verified reimport interop과 hostile ZIP/redirect를 포함한다.
+- 최종 root 통합 source 실행 27/27, 종료 0, 39.893s. 기록: artifacts/logs/instruction-integration-20261014/integrated-source.log. 이 숫자에는 TS host test 세 파일을 각각 격리 subprocess에서 실행한 wrapper 3개가 포함된다. 내부 renderer 6, 기존 baseline adapter 6, 개인 adapter 7개 사례를 실제로 수행한다. 설정 injection 6개, publisher 17개, account-ui dependency layout 실제 module-load fixture 1개도 포함한다.
+- TypeScript semantic --noEmit 종료 0. 기록: artifacts/logs/instruction-integration-20261014/typescript-verified.log. source root를 직접 검사하며 앱 package를 생성하지 않았다.
+- 네이티브 codex-config skills_config 11/11, 종료 0, 최종 33.600s; codex-skills-extension host_roots 12/12, 종료 0, 153.180s. 기록: artifacts/logs/task-profile-native-skills/results.txt와 관련 logs. 두 초기 schema assertion 실패는 실제 schema 생성기의 ref/settings에 맞춰 고쳤다. 마지막 formatting-only 변경은 동작을 바꾸지 않았다. 기존 target cache를 재사용하고 별도 cache를 생성하지 않았다.
+- 실제 Chrome 렌더링 35/35, 종료 0. light/dark 편집·지원/binary 파일·미저장 draft·게시/적용/task token·source별 version·keyboard import 확인. 360px에서 발견한 digest/grid overflow를 고친 후 scrollWidth=clientWidth=345px, desktop editor 552px 보존. 기록: artifacts/logs/instruction-library-ui/summary.json와 작은 theme screenshots. Chrome과 fixture/profile을 종료·제거하고 부재를 확인했다. 이후 summary bilingual 처리만 변경했으며 renderer/semantic tests로 확인했다.
+- 최종 task transport 실행 18/18, 종료 0, 46.301s. 기록: artifacts/logs/BA-01-task-profile-final/validation-final.log. 프로젝트 transfer·재생 방지·first-turn 실패 재시도·native context 보존을 포함하며 실제 pinned APP/HOST/BRIDGE 전체 namespace 변환 각각 task bridge 1개, source/output SHA256 일치와 TypeScript parse errors 0을 확인했다. 후속 리뷰에서 native MultiAgentVersion의 disabled/unknown 차단과 first-turn child model 재검사를 추가했고 runtime 최종 14/14, 종료 0으로 확인했다. 기록: artifacts/logs/BA-01-task-profile-final/validation-runtime-capability.log. 이 수정에서 injector는 바뀌지 않아 전체 namespace 근거를 재사용한다.
+- 최종 host adapter/renderer 및 account-ui module layout 재검사 wrapper 4/4, 종료 0, 47.853s. 기록: artifacts/logs/instruction-integration-20261014/final-host-layout.log. 마지막 runtime capability 수정 이후 module layout은 별도 재확인했다. TypeScript --noEmit과 feature owner/check 목록 검사는 종료 0. 기록: typescript-final.log, feature-contracts-final.log (동일 root integration log directory).
+
+기존 baseline adapter 검증은 이미 존재하는 artifacts/instructions/review-1.0.0과 codex_latest_20261010_r15_isolated 배포본의 native validator를 재사용했다. 이 바이너리를 변경된 현재 source로 생성했다고 주장하지 않는다. 모든 fixture는 격리 CODEX_HOME을 사용하고 사용자 설치본·skill·credential을 수정하지 않았다. 새 module packaging 및 host adapter fixture 제거를 확인했다. 최초 TypeScript 로그가 잘못 만들어진 extensions/azrael-ex/artifacts는 root log 위치로 옮긴 뒤 빈 디렉터리 제거·부재를 확인했다.
+
+설치/전체 빌드 선행 조건: 기존 build playbook은 일반 구현 요청과 전체 앱 빌드·설치를 구분한다. 전체 앱/배포본 생성·설치 및 실제 GitHub 공개는 실행하지 않았다. 엔진 provenance recorder를 이번 6개 source path에 한정해 실행했으나 종료 1: 현 SOURCE.json 이후 실제 delta는 193개이며 187개는 다른 작업의 기존 변경이다. expected-path와 정확히 일치하지 않아 recorder가 mutation을 거부했고 SOURCE.json hash가 그대로임을 확인했다. 기록: artifacts/logs/instruction-integration-20261014/native-source-record.log. 다른 작업을 무조건 승인하거나 provenance에 섞지 않았다. 전체 빌드 전 해당 source owner들의 출처 기록 통합이 필요하다.
+
+실행 시각은 로그 생성/최종 수정 timestamp로 관찰해 artifacts/logs/instruction-integration-20261014/log-times.json에 보존했다. UTC 기준 root 통합 source 04:59:22–05:00:02, 최종 native config 04:30:16–04:30:50, host_roots 04:31:08–04:33:41이다. 생산자 시작/종료 자체를 별도 측정한 시간표로 주장하지 않으며 병렬 실행 시간을 더해 전체 소요 시간으로 보고하지 않는다. Frontend 요청 한도는 backend에서 허용한 binary 지원 파일을 base64 전송해 편집할 수 있게 조정했고 renderer 회귀를 확인했다.
+
+현재 제공 범위는 개별 패키지 생성·폴더 가져오기·파일 편집·공유 범위와 독립 저장/적용/게시, 고정 dependency profile과 선택한 새 대화 시작이다. profile 조합은 JSON 편집을 사용한다. 설치/provider-managed 원본의 자동 inventory, maintained-source 등록, source pin UI, package별 persistent loading 선택과 custom shared behavior template은 추가 제품 확장으로 남는다. 현재 사용자 설치본과 저장소를 변경하거나 해당 확장을 구현했다고 표시하지 않는다.

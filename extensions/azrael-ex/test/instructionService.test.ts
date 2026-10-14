@@ -8,7 +8,7 @@ import type { InstructionAction, InstructionRequest, InstructionUiState, Instruc
 const uiText = (value: InstructionUiText | readonly InstructionUiText[] | undefined, locale: "en" | "ko" = "ko"): string =>
   Array.isArray(value) ? value.map(entry => uiText(entry, locale)).join(" ") : typeof value === "string" ? value : value ? (value as { en: string; ko: string })[locale] : "";
 
-const root = path.resolve(__dirname, "../../../..");
+const root = path.resolve(__dirname, path.basename(path.dirname(__dirname)) === "dist" ? "../../../.." : "../../..");
 const backendFile = path.join(root, "scripts/instruction-package.cjs");
 const { InstructionStore } = require(backendFile);
 
@@ -51,7 +51,7 @@ async function fixture(t: TestContext) {
   const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const original = api._load;
   api._load = function (request, parent, isMain) {
-    if (request === "vscode") return { workspace: { get workspaceFolders() { return [{ uri: { scheme: "file", fsPath: control.workspace } }]; }, getConfiguration: () => ({ get: () => control.repository }) } };
+    if (request === "vscode") return { workspace: { get workspaceFolders() { return [{ uri: { scheme: "file", fsPath: control.workspace } }]; }, getConfiguration: () => ({ get: (key: string, fallback: unknown) => key === "instructions.repository" ? control.repository : fallback }) } };
     if (request === backendFile) return { InstructionStore: class extends InstructionStore {
       constructor(input: any) { super({ ...input, request: transport }); options.push(input); }
     } };

@@ -5,9 +5,50 @@ const path = require("node:path");
 const vm = require("node:vm");
 const test = require("node:test");
 const ts = require(require.resolve("typescript", { paths: [path.resolve(__dirname, "../extensions/azrael-ex")] }));
-const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText } = require("./inject-instruction-settings.cjs");
+const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructionSettings, azraelSettingsText, instructionClientTools } = require("./inject-instruction-settings.cjs");
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
+
+test("library client preserves full source drafts through busy/plan rerenders and sends scoped actions", () => {
+  const field = (name, value) => ({ dataset: { field: name }, value });
+  const file = (name, encoding, value) => ({ dataset: { filePath: name, encoding }, value });
+  let fields = [field("name", "Edited name"), field("sharing", "local"), field("file-path", "references/guide.md")];
+  let files = [file("SKILL.md", "utf8", "unsaved <script>한국어</script>"), file("references/guide.md", "utf8", "edited support"), file("image.png", "base64", "AQID")];
+  const panels = files.map(f => ({ dataset: { filePanel: f.dataset.filePath }, hidden: false }));
+  const editor = { dataset: { editorId: "one" }, querySelector: selector => fields.find(f => selector.includes('"' + f.dataset.field + '"')),
+    querySelectorAll: selector => selector === 'textarea[data-file-path]' ? files : [...fields, ...files] };
+  const filters = [{ dataset: { filter: "search" }, value: "edit" }, { dataset: { filter: "kind" }, value: "skill" }, { dataset: { filter: "sharing" }, value: "local" }];
+  const entries = [{ dataset: { name: "Edited name", kind: "skill", sharing: "local" } }, { dataset: { name: "Other", kind: "context", sharing: "public" } }];
+  const create = [field("create-name", "new-skill"), field("create-kind", "skill"), field("create-sharing", "collaborators")];
+  const revision = { dataset: { libraryRevision: "7" } };
+  const alert = { textContent: "" };
+  const shadow = {
+    querySelector: selector => selector === '[data-editor-id]' ? editor : selector === '[data-library-revision]' ? revision : selector === '[data-client-error]' ? alert : filters.find(e => selector.includes('"' + e.dataset.filter + '"')) ?? [...fields, ...create].find(e => selector.includes('"' + e.dataset.field + '"')),
+    querySelectorAll: selector => selector === '[data-filter]' ? filters : selector === 'button.library-entry' ? entries : selector === '[data-file-panel]' ? panels : [],
+  };
+  const tools = instructionClientTools(shadow);
+  tools.capture();
+  // Host busy and plan responses contain the old saved source. Restore edits after replacement.
+  fields = [field("name", "Saved name"), field("sharing", "collaborators"), field("file-path", "SKILL.md")];
+  files = [file("SKILL.md", "utf8", "saved source"), file("references/guide.md", "utf8", "saved support"), file("image.png", "base64", "AQID")];
+  tools.restore();
+  assert.equal(fields[0].value, "Edited name"); assert.equal(files[0].value, "unsaved <script>한국어</script>"); assert.equal(files[1].value, "edited support");
+  assert.equal(panels[0].hidden, true); assert.equal(panels[1].hidden, false);
+  assert.equal(entries[0].hidden, false); assert.equal(entries[1].hidden, true);
+  const button = action => ({ dataset: { action, id: "one", token: "frozen-token" } });
+  assert.deepEqual(tools.payload(button("librarySave")), { id: "one", name: "Edited name", sharing: "local", revision: 7, files: files.map(f => ({ path: f.dataset.filePath, encoding: f.dataset.encoding, content: f.value })) });
+  assert.deepEqual(tools.payload(button("libraryPlanApply")), { ids: ["one"] });
+  fields.push(field("publish-version", "1.2.0"));
+  assert.deepEqual(tools.payload(button("libraryPlanPublish")), { ids: ["one"], version: "1.2.0" });
+  assert.deepEqual(tools.payload(button("libraryPublish")), { token: "frozen-token" });
+  assert.deepEqual(tools.payload(button("libraryImport")), {});
+  const created = tools.payload(button("libraryCreate"));
+  assert.equal(created.sharing, "collaborators"); assert.equal(created.files[0].path, "SKILL.md"); assert.match(created.files[0].content, /name: new-skill/);
+  fields.push(field("profile", '{"model":"recommended","dependencies":[{"id":"context","digest":"pinned"}]}'));
+  assert.deepEqual(tools.payload(button("librarySave")).profile.dependencies, [{ id: "context", digest: "pinned" }]);
+  fields.at(-1).value = '{ malformed'; assert.throws(() => tools.payload(button("librarySave")), SyntaxError);
+  tools.error(new Error("JSON parse failed")); assert.equal(alert.textContent, "JSON parse failed");
+});
 
 test("application locale recognizes Korean variants and falls back to English", () => {
   for (const locale of ["ko", "ko-KR", "KO-kr", "ko_KR"]) assert.equal(azraelSettingsText(locale, "English", "한국어"), "한국어");
@@ -24,7 +65,7 @@ test("application locale change cleans the old instruction mount and ignores lat
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "selectVersion" }; }
   const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
-    s: () => ({ locale }), azraelSettingsText, Element, HTMLElement,
+    s: () => ({ locale }), azraelSettingsText, instructionClientTools, Element, HTMLElement,
     Q: { useRef: () => ({ current: element }), useEffect: (effect, next) => {
       if (!dependencies || next.some((value, i) => value !== dependencies[i])) { dependencies = next; pendingEffect = effect; }
     } }, $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount-" + ++serial },
@@ -40,7 +81,7 @@ test("application locale change cleans the old instruction mount and ignores lat
   listeners.get("change")({ target: new HTMLElement() }); const delayed = timer;
   render("ko-KR"); assert.match(shadow.innerHTML, /지침 문서를 불러오는/);
   assert.deepEqual(sent.map(x => [x.action, x.locale]), [["mount", "en-US"], ["unmount", "en-US"], ["mount", "ko-KR"]]);
-  assert.deepEqual(unsubscribed, [0]); assert.equal(listeners.size, 2); assert.equal(timer, undefined);
+  assert.deepEqual(unsubscribed, [0]); assert.equal(listeners.size, 3); assert.equal(timer, undefined);
   delayed(); receivers[0]({ clientId: "mount-1", requestId: "2", html: "late English host" });
   receivers[1]({ clientId: "mount-1", requestId: "1", html: "wrong client" });
   assert.match(shadow.innerHTML, /지침 문서를 불러오는/); assert.equal(sent.length, 3);
@@ -100,12 +141,12 @@ test("native mount request correlation, action payload, busy gate, delayed respo
   let effect, receiver, cleanup, timer;
   const sent = [], listeners = {};
   const shadow = { innerHTML: "", addEventListener: (kind, mn) => { listeners[kind] = mn; }, removeEventListener: kind => { delete listeners[kind]; },
-    querySelector: selector => selector === "select" ? { value: "1.2.0" } : null,
-    querySelectorAll: () => [{ dataset: { component: "agents" } }] };
+    querySelector: selector => selector === "#instruction-version" ? { value: "1.2.0" } : null,
+    querySelectorAll: selector => selector === "input[data-component]:checked" ? [{ dataset: { component: "agents" } }] : [] };
   class Element { closest() { return this; } }
   class HTMLElement extends Element { dataset = { action: "download", path: "AGENTS.md" }; disabled = false; }
   const component = vm.runInNewContext("(" + AzraelInstructionSettings.toString() + ")", {
-    s: () => ({ locale: "en-US" }), azraelSettingsText,
+    s: () => ({ locale: "en-US" }), azraelSettingsText, instructionClientTools,
     Q: { useRef: () => ({ current: { attachShadow: () => shadow } }), useEffect: mn => { effect = mn; } },
     $: { jsx: (tag, props) => ({ tag, props }) }, crypto: { randomUUID: () => "mount" }, Element, HTMLElement,
     setTimeout: mn => { timer = mn; return 1; }, clearTimeout: () => { timer = undefined; },

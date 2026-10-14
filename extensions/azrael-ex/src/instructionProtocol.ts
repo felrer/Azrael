@@ -3,6 +3,23 @@ export interface InstructionVersion { version: string; compatible: boolean; prer
 export interface InstructionComponent { id: string; title: string; kind: string; scope: "home" | "workspace"; default: boolean }
 export interface InstructionDocument { path: string; title: string; kind: string }
 export interface InstructionConflict { target: string; reason: string; current?: string; proposed?: string }
+export type InstructionResourceKind = "skill" | "agent-role" | "context" | "task-profile";
+export type InstructionSharing = "public" | "collaborators" | "local";
+export interface InstructionResourceFile { path: string; encoding: "utf8" | "base64"; content: string }
+export interface InstructionResource {
+  id: string; name: string; kind: InstructionResourceKind; sharing: InstructionSharing; digest: string;
+  validationErrors: string[]; installedDigest?: string | null;
+  publications: Array<{ repository: string; version: string; digest: string; commit?: string }>;
+  files?: InstructionResourceFile[];
+  profile?: { model: string; provider?: string; reasoningEffort?: string; dependencies: Array<{ id: string; digest: string; optional?: boolean }>; instructions?: string; harness?: unknown };
+}
+export interface InstructionLibraryUiState {
+  revision: number; entries: InstructionResource[]; selected?: InstructionResource;
+  connections: Array<{ sharing: "public" | "collaborators"; repository: string; branch: string; readable?: boolean; writable?: boolean }>;
+  remoteVersions?: Array<{ version: string; notes?: string; sharing?: "public" | "collaborators"; repository?: string }>;
+  plan?: { token: string; kind: "apply" | "publish" | "task"; summary: InstructionUiText; conflicts: InstructionConflict[]; diffs?: Array<{ path?: string; target?: string; current?: string; proposed?: string }>; model?: string; provider?: string };
+  operation?: { id?: string; phase: string; repository?: string; version?: string };
+}
 export interface InstructionUiState {
   repository: string;
   currentVersion: string | null;
@@ -18,9 +35,18 @@ export interface InstructionUiState {
   error?: InstructionUiText;
   message?: InstructionUiText | readonly InstructionUiText[];
   busy?: string;
+  library?: InstructionLibraryUiState;
 }
-export type InstructionAction = "refresh" | "selectVersion" | "preview" | "download" | "apply" | "pin" | "unpin" | "rollback";
-export interface InstructionRequest { version?: string; path?: string; componentIds?: string[] }
+export type InstructionAction = "refresh" | "selectVersion" | "preview" | "download" | "apply" | "pin" | "unpin" | "rollback"
+  | "libraryRefresh" | "libraryImport" | "libraryCreate" | "librarySelect" | "librarySave"
+  | "libraryPlanApply" | "libraryApply" | "libraryPlanPublish" | "libraryPublish" | "libraryRecover"
+  | "libraryConnect" | "libraryRemoteRefresh" | "libraryRemoteImport" | "libraryPrepareTask" | "libraryStartTask";
+export interface InstructionRequest {
+  version?: string; path?: string; componentIds?: string[]; id?: string; ids?: string[];
+  name?: string; kind?: InstructionResourceKind; sharing?: InstructionSharing; files?: InstructionResourceFile[];
+  profile?: InstructionResource["profile"]; revision?: number; token?: string;
+  repository?: string; branch?: string; model?: string; provider?: string; reasoningEffort?: string;
+}
 export interface InstructionUiPort {
   snapshot(): Promise<InstructionUiState>;
   request(action: InstructionAction, payload: InstructionRequest): Promise<InstructionUiState>;

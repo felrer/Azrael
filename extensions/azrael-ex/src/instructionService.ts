@@ -2,6 +2,7 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import * as vscode from "vscode";
 import type { InstructionAction, InstructionRequest, InstructionUiPort, InstructionUiState, InstructionUiText } from "./instructionProtocol";
+import { InstructionLibraryService } from "./instructionLibraryService";
 class InstructionUiError extends Error {
   constructor(readonly text: { en: string; ko: string }) { super(text.en); }
 }
@@ -30,10 +31,11 @@ export class InstructionService implements InstructionUiPort {
   private preview?: InstructionUiState["preview"];
   private conflicts: InstructionUiState["conflicts"] = [];
   private operation = false;
+  private readonly personalLibrary: InstructionLibraryService;
 
   constructor(private readonly context: vscode.ExtensionContext,
     private readonly runtime: { engine: string; codexHome: string },
-    private readonly log: vscode.LogOutputChannel) {}
+    private readonly log: vscode.LogOutputChannel) { this.personalLibrary = new InstructionLibraryService(context, runtime); }
 
   private repository(): string {
     const repository = vscode.workspace.getConfiguration("azrael").get<string>("instructions.repository", "felrer/Azrael").trim();
@@ -82,6 +84,12 @@ export class InstructionService implements InstructionUiPort {
         }
       }
       const notices: InstructionUiText[] = [];
+      let library: InstructionUiState["library"];
+      try { library = await this.personalLibrary.snapshot(); }
+      catch (error) {
+        // Older portable fixtures and installations retain their baseline release manager.
+        if (!(error instanceof Error && error.message.startsWith("Instruction module missing:"))) throw error;
+      }
       if (state.installedRepository && state.installedRepository !== repository) notices.push({ en: `The applied instructions come from ${state.installedRepository}. Browsing ${repository}.`, ko: `현재 적용된 지침의 출처는 ${state.installedRepository}입니다. 조회 대상은 ${repository}입니다.` });
       if (state.currentWorkspaceVersion && state.currentWorkspaceVersion !== state.appliedVersion) notices.push({ en: `The current workspace uses instruction version ${state.currentWorkspaceVersion}.`, ko: `현재 작업공간의 지침 버전은 ${state.currentWorkspaceVersion}입니다.` });
       if (state.retainedWorkspaceVersions?.length) notices.push({ en: "Other workspaces retain their applied instructions.", ko: "다른 작업공간은 각각의 적용 지침을 유지합니다." });
@@ -90,7 +98,7 @@ export class InstructionService implements InstructionUiPort {
         documents: this.documents.map(({ path, title, kind }) => ({ path, title: title ?? path, kind: kind ?? "reference" })),
         components: this.components, preview: this.preview, conflicts: this.conflicts,
         selectedComponentIds: state.appliedVersion ? state.selectedComponentIds : undefined,
-        message: notices.length ? notices : undefined };
+        message: notices.length ? notices : undefined, library };
     } catch (error) {
       return { repository, currentVersion: null, pinnedVersion: null, selectedVersion: null, versions: [],
         downloadedVersions: [], documents: [], components: [], conflicts: [], error: this.error(error) };
@@ -102,6 +110,10 @@ export class InstructionService implements InstructionUiPort {
     this.operation = true;
     let resultMessage: InstructionUiText | undefined;
     try {
+      if (this.personalLibrary.handles(action)) {
+        await this.personalLibrary.request(action, payload);
+        return await this.snapshot();
+      }
       const store = this.store();
       this.conflicts = [];
       if (action === "refresh") {
