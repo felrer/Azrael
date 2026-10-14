@@ -12,7 +12,7 @@ if ($ChangedOnly) {
     $fixtures = Join-Path $logs "fixtures spaces 한글"
 }
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
-$changedCases = @('full install', 'module cache install', 'full regression verify only', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
+$changedCases = @('full install', 'module cache install', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 New-Item -ItemType Directory -Path $fixtures, $logs -Force | Out-Null
 $pwsh = (Get-Process -Id $PID).Path
 $results = [Collections.Generic.List[object]]::new()
@@ -43,12 +43,12 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
-@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
+@{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $deadline=[DateTime]::UtcNow.AddSeconds(10)
 while(-not (Test-Path (Join-Path $a 'source-start.json'))) { if([DateTime]::UtcNow -gt $deadline){throw 'source tests did not overlap build'}; Start-Sleep -Milliseconds 30 }
@@ -218,7 +218,7 @@ if($scenario.mode -eq 'install-wrong-receipt-version'){$receipt.hostVersion='9.9
 $receipt | ConvertTo-Json | Set-Content -LiteralPath $receiptPath
 [pscustomobject]@{Prepared=$true;Installed=$true;ReloadRequired=$true;Receipt=$receiptPath;HostVsix=$prepared.HostVsix;ReleaseDirectory=$ReleaseDirectory;Launched=$false}
 '@
-function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false) {
+function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [string]$Stage = '', [bool]$FullBuild = $false, [string]$TargetKind = '', [bool]$SkipSnapshot = $false, [bool]$FullRegression = $false, [bool]$ModuleCache = $false, [bool]$ForceNative = $false, [bool]$SharedModuleOwner = $false) {
     if ($Case -and $Name -notin $Case) { return }
     if ($ChangedOnly -and -not $Case -and $Name -notin $changedCases) { return }
     $root = Join-Path $fixtures $Name
@@ -277,6 +277,9 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     if($VerifyOnly){$argsList += '-VerifyOnly'}
     if($SkipSnapshot){$argsList += '-SkipCodexEnvironmentSnapshot'}
     if($FullRegression){$argsList += '-FullRegression'}
+    if($ForceNative){$argsList += '-ForceNativeVerification'}
+    $moduleOwner=if($SharedModuleOwner){Join-Path $a 'shared module owner 한글'}else{''}
+    if($SharedModuleOwner){$argsList += @('-ModuleCacheProjectRoot',$moduleOwner)}
     if($Mode -like 'account-*'){$argsList += '-VerifyAccountControls'}
     foreach($arg in $argsList){$info.ArgumentList.Add($arg)}
     $proc=[Diagnostics.Process]::Start($info)
@@ -380,11 +383,12 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $expectedSourceArgs+=@('--log-directory',(Join-Path $a 'logs/deploy-chosen/source-tests'))
     Assert-True (($invocation -join '|') -ceq ($expectedSourceArgs -join '|')) 'source argv did not match selected regression scope'
     Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
+    Assert-True ($metrics.forceNativeVerification -is [bool] -and $metrics.forceNativeVerification -eq $ForceNative) 'native verification policy metric lost'
     if($success){
         $preservationCalls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         Assert-True (($preservationCalls.action -join '|') -ceq 'run|run|verify|verify|verify-receipt') 'successful preservation gate ordering changed'
         foreach($call in @($preservationCalls | Where-Object action -in @('run','verify-receipt'))){
-            Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $FullRegression)) 'native preservation reuse policy lost'
+            Assert-True ($call.config.reuseNativeChecks -is [bool] -and $call.config.reuseNativeChecks -eq (-not $ForceNative)) 'native preservation reuse policy lost'
             if($FullRegression){Assert-True ($null -eq $call.config.PSObject.Properties['featureIds']) 'full engine preservation was restricted'}
             else{Assert-True ((@($call.config.featureIds) -join '|') -ceq 'engine.provider-context|engine.recovery|engine.accepted-input') 'changed engine preservation scope lost'}
         }
@@ -401,6 +405,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         $buildCalls=@(Get-Content (Join-Path $a 'build-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         Assert-True ($buildCalls.Count -eq 1) 'build was invoked more than once'
         Assert-True ($buildCalls[0].SkipEngineBuild -eq (-not $FullBuild)) 'full build/engine reuse selection was lost'
+        Assert-True ($buildCalls[0].ModuleCacheProjectRoot -ceq $moduleOwner) 'shared module cache owner was not forwarded exactly'
         if($TargetKind){Assert-True ($buildCalls[0].EngineTargetDirectory -ceq $target -and $metrics.engineTargetDirectory -ceq $target) 'absolute engine cache was not forwarded and recorded exactly'}
         if($FullBuild){Assert-True ($buildCalls[0].ComputerUseRuntimeDirectory -ceq (Join-Path $a 'official computer runtime') -and $buildCalls[0].ComputerUsePluginDirectory -ceq (Join-Path $a 'official computer plugin')) 'explicit Computer Use inputs were not forwarded exactly'}
         $start=Get-Content (Join-Path $a 'source-start.json') -Raw | ConvertFrom-Json
@@ -467,6 +472,9 @@ try {
     Invoke-Case 'full install' 'success'
     Invoke-Case 'module cache install' 'success' -ModuleCache $true
     Invoke-Case 'full regression verify only' 'success' $true -FullRegression $true
+    Invoke-Case 'full regression force native' 'success' $true -FullRegression $true -ForceNative $true
+    Invoke-Case 'selected force native' 'success' $true -ForceNative $true
+    Invoke-Case 'shared module cache install' 'success' -ModuleCache $true -SharedModuleOwner $true
     Invoke-Case 'skip environment snapshot install' 'success' -SkipSnapshot $true
     foreach($mode in @('engine-preservation-fail','engine-preservation-missing-receipt','package-preservation-fail','package-preservation-binding','package-preservation-receipt','engine-preservation-recheck')){Invoke-Case $mode $mode}
     Invoke-Case 'full engine build target' 'success' $true '' $true 'absolute'

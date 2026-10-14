@@ -251,10 +251,196 @@ Helper: `node --test providers/opencodex/tests/harness-mapping.test.mjs` 2/2, pi
 
 준비 과정: r2 출처 기록은 다른 세션의 새 ordinary 변경으로 exact delta가 달라 종료 1이었다. SOURCE는 변경되지 않았다. w14b/w14c의 기존 freeze는 각각 exec의 event processor 테스트, app-server thread protocol의 동시 편집을 포착해 종료 1로 중단했으며 빌드는 시작하지 않았다. w14c 기간은 05:28:32.302–05:31:37.034 UTC, 184.719초다. 전체 주 체크아웃을 복사 뒤 다시 읽는 방식 대신 task artifact `capture-selected-project.cjs`에서 같은 읽기 stream으로 해시와 사본을 생성하도록 준비했다. 파일 자체의 읽기 전후 크기·시간·정체성, 경계와 링크를 검사한다. 파일을 선택한 뒤의 주 체크아웃 수정은 다음 빌드에 속한다. 이 선택은 각 파일을 읽은 구간의 입력이며 원자적인 전역 시점이라고 주장하지 않는다. fixture의 stream/copy/aggregate 일치, 읽기 중 변경 거부, 후속 편집 제외, tracked/untracked nested repository, junction 거부 검사는 실제 종료 0이다. 처음 적용 시 untracked upstream을 Gitlink로 제한한 오류를 수정했고, 소스 파일 0개였던 w14d metadata를 e 실행에서 재사용했다. 실패 ready/log는 덮어쓰지 않았다.
 
-e 전체 캡처: 2026-10-13 05:51:15.183–05:57:55.920 UTC, 400.736초, 실제 종료 0. 24,171개 파일 / 457,745,865바이트, 선택 stream과 안정 사본의 프로젝트 지문 `459d47f3a94552ef984e81ab49d0e05258fbee2e70eb23ff286750029556206a`가 정확히 일치했다. 안정 사본의 전체 inventory 조사에서 ordinary179/adapted0, 신규 파일18개와 SQL additions2개를 확인했다. 추가 `thread_history_migrations/0011_turn_attribution.sql`은 baseline 최대10보다 큰11, 100644 regular/LF 112바이트이며 parent_turn_id/turn_trigger nullable TEXT 열만 추가한다. 원래의 전체 누적 변경 빌드 권한 안에서 0064와 함께 explicit migration path로 기록하도록 root가 결정했다. 기존 SQL 불변 검사는 유지한다. 현재 SOURCE 기록 및 최종 엔진/프로젝트 지문은 담당자가 확인 중이며 ready 전까지 제품 빌드 완료로 취급하지 않는다.
+e 전체 캡처: 2026-10-13 05:51:15.183–05:57:55.920 UTC, 400.736초, 실제 종료 0. 24,171개 파일 / 457,745,865바이트, 선택 stream과 안정 사본의 프로젝트 지문 `459d47f3a94552ef984e81ab49d0e05258fbee2e70eb23ff286750029556206a`가 정확히 일치했다. 안정 사본의 전체 inventory 조사에서 ordinary179/adapted0, 신규 파일18개와 SQL additions2개를 확인했다. 추가 `thread_history_migrations/0011_turn_attribution.sql`은 baseline 최대10보다 큰11, 100644 regular/LF 112바이트이며 parent_turn_id/turn_trigger nullable TEXT 열만 추가한다. 원래의 전체 누적 변경 빌드 권한 안에서 0064와 함께 explicit migration path로 기록하도록 root가 결정했다. 기존 SQL 불변 검사는 유지한다. SOURCE 기록은 06:14:14.094–06:23:22.993 UTC, 548.766초, 종료 0으로 완료됐다. 최종 엔진/프로젝트 지문과 전체 선택 경로 비교도 종료 0이며 SOURCE.json 하나만 변경됐다. e-ready는 06:25:24.323 UTC에 성공 발행됐다. 엔진 9,224파일 SHA-256 `4275c594591cf473e373e335448a3573f1fdb5b39fb39847ab65fc3df8186443`, 프로젝트 SHA-256 `34ed00591f28116766f6288d01c89473067ccab129a3bcd8f9b1d4057f42c159`다. 이 준비 통과는 제품 빌드·설치 통과와 구분한다.
 
-현재 실행 producer: `artifacts/logs/AF-01-resume-install/run-windows-r6.ps1`, work ID `d8176d81-0a17-47f3-aad3-41c7f7b3ba7a`. e-ready의 실제 성공 뒤 외부 입력 확인 → 엔진 지문 대조 → extension lockfile 의존성 준비 → API skill dedup native 검사 → `deploy-azrael.ps1 -FullRegression -VerifyAccountControls -SkipCodexEnvironmentSnapshot` 순서다. 앱 버전은 2026.0.6, 준비 소스는 w14d, 산출물은 그 아래 `artifacts/releases/w14e`와 `artifacts/deployments/deploy-w14e/package`, 실행 로그는 그 아래 `artifacts/logs/deploy-w14e`다. Windows x64 검증이며 Linux/macOS와 실제 Anthropic provider는 미검증이다. 원격 게시나 사용 중인 창 종료/reload를 수행하지 않는다. runner 성공 후에도 root의 설치 바이트 확인·보존·정리·작업 커밋이 남는다. AF 커밋은 캡처한 AF 변경만 별도 임시 index/patch로 준비하며 root-resume/turn attribution/API projection 등 다른 작업을 포함하지 않는다.
+r6는 05:51:25.421–06:21:26.316 UTC에 소스 준비 대기 30분 제한으로 종료 1이었다. 실행 stage는 0개여서 native 빌드는 시작하지 않았다. 같은 성공 사본을 재사용하는 현재 producer는 `artifacts/logs/AF-01-resume-install/run-windows-r7.ps1`, work ID `214732f7-051f-45fa-a4af-d1564931faf0`, PID34428다. 대기 제한을 60분으로 조정했고 입력 재생성이나 중복 빌드를 하지 않았다. e-ready의 실제 성공 뒤 외부 입력 확인 → 엔진 지문 대조 → extension lockfile 의존성 준비 → API skill dedup native 검사 → `deploy-azrael.ps1 -FullRegression -VerifyAccountControls -SkipCodexEnvironmentSnapshot` 순서다. 앱 버전은 2026.0.6, 준비 소스는 w14d, 산출물은 그 아래 `artifacts/releases/w14e`와 `artifacts/deployments/deploy-w14e/package`, 실행 로그는 그 아래 `artifacts/logs/deploy-w14e`다. Windows x64 검증이며 Linux/macOS와 실제 Anthropic provider는 미검증이다. 원격 게시나 사용 중인 창 종료/reload를 수행하지 않는다. runner 성공 후에도 root의 설치 바이트 확인·보존·정리·작업 커밋이 남는다. 커밋 검토에서 현재 HEAD `09bb4b35479ce5838132c5094bbfc773f522d9a5`에 AF 제품 동작·native 3개 보강 검사·manifest·출처 tooling이 이미 포함됨을 확인했다. 별도 AF 제품 커밋은 중복 생성하지 않는다. 최신 HEAD의 다른 작업을 보존하며 작업 기록과 실제 설치 결과만 최종 검증 후 검토한다. 준비된 AF-only.patch는 포맷만 다루므로 이번 설치에 적용하지 않는다.
 
 정리 제약: 작은 capture fixture의 junction은 제거됐지만 숨김 `.git`에 대한 ordinary PowerShell 삭제가 거부됐다. 강제 옵션/다른 shell·API 우회 없이 소형 잔여물과 사유를 `selected-source-d-cleanup.json`에 보존한다. 이 경로는 빌드 선택 입력과 사용자 데이터 밖이다. 다른 실패 사본과 검증 fixture는 보호 참조와 실제 삭제 가능 여부를 확인한 뒤 정리한다.
 
 현재 예측은 남은 소스 고정·전체 빌드·패키지 검증에 수십 분 이상이다. 종료 시각은 보장하지 않는다. 최초 확인 경계는 producer 시작 후 30분 또는 실제 종료 event이며, 진행 중 소스와 패키징 입력을 바꾸거나 동일 빌드를 중복 실행하지 않는다.
+
+30분 확인(2026-10-13 06:57–06:58 UTC): r7 producer PID34428 실행 중. 외부 입력 동일성, frozen engine snapshot, npm ci는 모두 실제 종료 0이다. API skill dedup native 검사는 06:40:38 UTC 시작 후 Cargo37728 아래 rustc59360에서 codex_protocol 컴파일 중임을 확인했다. 다른 Cargo 검사도 공유 캐시에 대기하지만 중복 빌드나 입력 변경은 하지 않는다. 아직 native 검사·전체 빌드·설치 통과 근거는 없다. 다음 확인은 30분 또는 실제 종료 event다.
+
+다음 확인(2026-10-13 07:29–07:30 UTC): API skill dedup native 8/8 통과, 실제 종료0, 검사 기간 06:40:38.073–07:11:29.430 UTC(1851.357초). deploy stage는 07:11:29.467 UTC 시작했다. deploy48000 아래 source regression node59196와 build21668이 실행 중이다. 외부 입력·snapshot·npm 준비 결과는 재사용한다. native stdout/stderr와 r7 metrics에 근거를 보존했다. 패키지·설치 결과는 아직 없으며 다음 확인은30분 또는 실제 종료 event다.
+
+r7 실제 종료1: source regression 종료1로 deploy가 동시 build를 종료(exit-1,terminated=true)했다. 배포 시작07:11:31.551 UTC, 경과1661.610초. 설치 단계는 시작하지 않았다. source101파일 중 unique 원인은 vendor reviewed mapping 불일치, legacy UI26.928.31416 누락, extension interaction script 추출오류, 지침 review package 누락이다. vendor delta는 adapters/anthropic.ts 한 파일(기존 commit14da708b의 empty initial arguments 보존/실패분류)이며 다른1135 파일은 기존descriptor와 동일하다. manifest/guard/UPSTREAM 지문을 갱신했고 원래 Windows 정렬 알고리즘이 기존1b0919…를 재현함도 확인했다. vendor guard 검사11통과/1플랫폼skip 종료0, extension build 및 autoAccountSwitch4/4 종료0. Anthropic empty-arguments 집중fixture는 명시적 ./파일 경로로1개통과 종료0이다(첫 Bun 호출은 suffix filter로 이전artifact 사본까지 수집해17module오류; 수정호출결과만 집중검사 근거로 사용).
+
+고정입력 자체의 검증오류 수정이므로 w14d를 수정하지 않고 파생 w14f / 새산출물w14g로 준비한다. four correction files는 artifacts/logs/AF-01-resume-install/r8-corrections.json SHA와 사본으로 고정했다. selected-source-e-project-snapshot의24171 경로를 그대로 복사하고 이4개만 대체하며 기존 엔진/SOURCE identity4275c594…는 동일하게 유지한다. main의 후속 변경은 포함하지 않는다. legacy UI4파일·review package3파일·기존검증엔진참조는 별도 ignored test input으로 검증해 준비한다. 준비 담당 migration_provenance는 no cargo/npm로 복사/지문 검증만 진행하고 root는 실행기를 준비한다.
+
+r8 producer 준비: `run-windows-r8.ps1`, work ID `dcc46b88-4930-42e6-923e-ba3be1a5093a`, PID55120. 파생ready f 실제성공 후 외부입력동일성/엔진snapshot/npmci, 고정된지침소스의 로컬review 생성, extension10개 및 source guard/session/instruction 집중선행검사를 실행하고 FullRegression deploy를 시작한다. 기존review component metadata가 frozen 구성과 달라 재사용을 포기했으며 새source의 build-instruction-release로 테스트fixture만 생성한다. 기존검증w13e 엔진은 instruction validation fixture용으로 hash 고정하며 final engine 출처와 구분한다. API dedup8개는 엔진SHA동일성과 기존exit0를실행기에서확인후재사용한다. legacy UI4파일 pin+사본identity검사는 종료0이며 main의뒤늦은수정을포함하지않는다. 새산출물w14g, 입력w14f, 첫확인은producer30분 또는 실제실패/완료event다.
+
+사용자 추가검토 요청: 이전세션의 원래 user messages를 rollout에서 다시 읽고 original-user-requests.json에 보존했다. 목표는 provider/model별 프롬프트·도구 설정파일, 실제Anthropic의 Claude호환 기본도구, 타provider격리+동일역할 native비노출, 신규Anthropic 모델자동상속, 기존권한/훅/역사보존, 누적변경Windows빌드·사용자프로필설치다. 설정UI와Notebook/Cron/Worktree/Plan, 실제커스텀variant 선택UI는 후속 합의범위다. 현재 구현과일부검증은있지만 전체회귀/패키지/설치는 미달성이다. 실제Anthropic coding smoke도 미검증이다. build_provenance가 고정소스의 requirement→symbols/tests와 구체적gap을 read-only 검토하며 root는 빌드를계속진행한다. test 파일은HEAD의CRLF형식을보존했고 core.whitespace=cr-at-eol diffcheck종료0; 새고정4파일바이트는변경하지않았다.
+
+f-ready 실제성공08:16:22.281 UTC: 파생준비07:56:43.677–08:16:22.281,1178.598초, 종료0. stream/metadata/aggregate792.157초, engine provenance336.671초, project snapshot15.617초. 선택24171경로 중 승인4파일만 변경, 나머지descriptor와엔진provenance전체 e와동일이다. 최종 프로젝트SHA `a7da645e8edbbd4a791e9db570e48a1a8e29aef04cd6e9986d0d2719710855a8`, 엔진SHA `4275c594591cf473e373e335448a3573f1fdb5b39fb39847ab65fc3df8186443` /9224파일. 이후소스동결. r8 producer는이ready를소비해외부입력과집중fixture검증으로이어가며 준비완료를설치통과로해석하지않는다.
+
+목표감사 결과: actual provider기반 resolver/provider→model sparse override/미래Anthropic상속/prompt template와built-in tool IDs는구현됐다. registry는discovery전교체하며 nativebackend feature/permission gate를유지한다. coding6개양방향격리통합test와 controladapter 개별tests는있지만 full10개default도구의통합노출·실행통과를현재근거로주장하지않는다. prompt runtime contract·custom instructions와durableprofilefingerprint/scopedprivate replay도연결돼있다. 최종native/패키지host/설치와실제Anthropiccoding스모크는남아있으므로목표는아직미달성이다. Read media/설정UI/NotebookCronWorktreePlan/variant선택은합의된후속이다. 상세requirement/status/limits는 goal-audit-code.json에보존했다.
+
+r8는08:31:07.223 UTC 집중extensionfixture검사에서종료1이었다. 엔진snapshot/npmci/지침생성/compile는종료0이지만 지침소스version1.1.0과extensiontest고정파일명1.0.0의차이로manifest누락6개가남았다. build/deploy는시작하지않았다. 제품소스는변경하지않고 생성된frozen1.1.0패키지를review1.1.0에준비하고 자체정합검증된기존1.0.0패키지를별도extensionfixture에준비했다. extension집중10/10 종료0(12.410초), source집중44통과/1platformskip 종료0(45.202초), generated1.1.0 archive40파일/10components/26managedtargets+isolatednativevalidator통과를확인했다. 전체입력소스sha는변하지않으므로r8 external/engine/npm과기존API8개검사는그대로재사용한다.
+
+현재actualproducer `run-windows-r9.ps1`, work ID `5fad03ae-7986-47f0-92cd-0a4ba28300b9`, PID42372. 동일w14f프로젝트/엔진input identity와r9-preflight-results를검증후 FullRegression deploy-w14g를실행한다. w14g는앞선r8에서build가시작되지않아산출물경로를재사용하며설치전빌드수용기준은유지한다. root설치바이트검사·공식확장보존·산출물정리·소유변경commit은최종결과뒤에수행한다. 첫확인은실행30분 또는종료event다.
+
+r9 fullsource101파일과extension-all 모두실제종료0(source734.221초/extension14.369초). deployment는08:35:03.771 UTC 시작, 경과1442.444초후build종료1로전체실패했다. releaseCargo의첫원인은 core compact.rs:306 및session/provider_handoff.rs:383의 get_harness_base_instructions 3번째model인자누락(E0061두개). 현재primary에는두정확한fix이미존재함을바이트로확인했다. 고정f에서두호출만치환한r10-corrections SHA를기록하며다른primary변경은읽어반영하지않는다. source는w14h로파생하고SOURCE schema4 cumulative179+기존2SQLdescriptor를보존하며현재receipt대비delta2만기록한다.
+
+현재producer `run-windows-r10.ps1`, workID `4fbfe568-8df3-4267-a0f9-896a7c96a400`, PID29404. 준비h 실제ready후 기존외부receipt의모든경로/바이트를8worker streamcopy+대조한다(새source/hash생략이아닌기존descriptor재사용). native config/Claude tools/provider격리검사를 먼저실행하고 actualreleasebuild/패키지/설치로이어간다. 입력w14h/산출물w14i이며h source자체는아직준비중이다. 필수Rust연결실패를빌드완료나설치완료로보고하지않는다. nextfirstcheck는소스담당20분/실행기30분 또는terminalevent다.
+
+h-ready 성공09:30:37.386 UTC, source준비09:05:53.785–09:30:37.386/1483.551초/종료0. capture607.660초/recorder448.435초/engine269.277초/project129.212초 모두0. 선택24171경로에서2Rust+SOURCE3개만변경, originalReceipt/기존2SQL additions/나머지파일불변. 엔진SHA `4d962d376a33bd2411fca96f13b6c75644730b58f766584cbf8b1cc99d1d534c` /9224파일, 프로젝트SHA `aab43c2a5e7a15c378c92e73878ef71c263e3b7107b24ec04122e61ff9aacdb0`. 이후source동결. r10은atomicready를소비하며현재진행중이고설치검증은아직남아있다.
+
+r10는외부 copy검사에서09:32:20.814 UTC 종료1. Windows .exe 파일의 Python stat mode0777과 Node영수증0666을직접비교한도우미오류며검사 전 source변경/새build는없었다. Node의Windows read/write bit semantics로mode정규화하고실제path·regularfile·링크·streamSHA·사본SHA·전체선택집합검사를유지했다. 이미복사된일치파일만재검증해재사용하며불일치파일은덮어쓰지않고거부한다. 현재producer `run-windows-r11.ps1`, workID `668bc5dd-6a70-4da7-a668-bd2d6347be74`, 입력w14h/산출물w14i. native검사/빌드/설치는actual결과확인전완료로보고하지않는다.
+
+r11 30분 확인: 외부입력 전체 파일 descriptor복사/바이트검증종료0(249.914초), npmci종료0(120.132초). nativeconfig harness10/10 종료0(825.082초): futureAnthropic defaults/provider 격리/sparse overrides/template inheritance/fingerprint/declaring layer/deepmerge/captured-once/missingunreadablepaths. Claude native tools는09:55:47.567 UTC 시작해실제Cargo45656 아래 rustc47368의 app-server-protocol 컴파일을확인했다. 아직tools/native전체패키지설치의통과근거는없다. 다음확인은30분 또는terminalevent.
+
+r11 Claude native test library compile 종료101: Session private import2/PermissionProfile path1/Session claude_file_state initializer1/role claude_tools initializer1/doubleArcStepContext1/temporary enum slice lifetime1, 합7오류가test-only5파일에서나왔다. assertion삭제나필터회피없이현재공유type계약에연결한고정r12 corrections5파일을준비했다. controls.rs는cfg(test)이후만수정하고나머지4개는test파일이다. primary에는관련fix가있지만최근주source를전체복사하지않고h에서정확한수정바이트만고정했다.
+
+파생입력w14j는h의24171경로+고정5test파일+SOURCE만변경한다. configurationcrate및deps/lockfile는불변이라nativeconfig10통과근거를재사용한다. 현재producer `run-windows-r12.ps1`, workID `2f99817e-9ee4-4e89-ab0c-7bae940e241f`, PID34328. ready후descriptor외부copy/npmci/실제Claude native tools검사부터수행하며산출물w14k로Windows빌드·패키지·설치를이어간다. 아직통과한것은config10및source/extension regression이고원래Windows설치목표는미달성이다.
+
+### r12 고정 입력 준비 완료 (2026-10-13 10:40 UTC)
+- j 파생 입력 준비: 10:24:42.201–10:40:19.113 UTC, 936.909초, exit 0. 24,171개 선택 경로에서 테스트 5개와 SOURCE.json만 변경; 나머지 바이트 및 config/의존성 동일. 기존 설정 검사 10/10 결과 재사용 범위가 확인됨.
+- engine SHA256: 42c2a7c99d1b65c20855cf3df40ad01faefb6ca4cc016d969ce963ff10feb984 (9,224 files). project SHA256: ed1f71f951b8539077ccea197cf7e382a4d99123be9707b0d5e363ecc1989493.
+- 준비 근거: artifacts/logs/AF-01-resume-install/selected-source-j-ready.json 및 selected-source-j-verification.json. 준비 완료는 제품 검사 통과를 뜻하지 않음.
+- r12 생산자가 준비 신호를 받아 외부 입력 복사·검증을 실행: exit 0, 124.498초. 이후 실제 native 도구 검사 → Windows 빌드·전체 회귀·패키지 검사·사용자 설치. 다음 최초 확인은 30분 후 또는 실제 종료 신호; 최종 설치 바이트 검사와 정리는 root 후속 작업.
+
+### r12 실제 도구 검사와 r13 보강 (2026-10-13 11:11 UTC 이후)
+- core 테스트 컴파일 성공(28m50s). 실제 Claude-filter 검사 28개 중 27pass/1fail, exit101. Read/Edit/Write 9개, control 11개, Windows Bash와 PowerShell 인자 계약 검사 통과. 실패는 ripgrep 명시적 include glob이 숨김 파일 제외보다 우선함에도 테스트가 제외를 기대한 assertion. 후속 exact registry 검사와 Windows build/install은 실행 전 중단됨.
+- Grep 실행 인자/동작은 유지하고 description에 기본 필터와 glob 우선권을 구분. 테스트는 explicit glob의 숨김 포함 및 기본 검색의 hidden/binary/.ignore 제외를 각각 확인. 실제 rg 동일 인자 사전 검사 exit0: r13-ripgrep-preflight.json. 준비 과정에서 숨김 fixture의 1-based 행 번호 assertion을 1로 바로잡은 후 고정 SHA 99c394d07ffe8414a911533bf47bc7e05e3e6e5f259ce2ac87fe62ddd173f786 사용.
+- l은 j에서 해당 1파일+SOURCE만 파생하며 나머지 바이트/config/의존성 동일 검증. r13 producer workId 180328a3-68d4-4d2d-a905-428aa498af0b, PID36172; frozen w14l, release w14m. 준비 신호 후 native 도구 검사 → Windows 전체 빌드·검사·설치. root 최종 설치 바이트 검증·정리·커밋은 후속. 이전 목표 감사 artifact를 실제 27/28 결과와 미완료 범위로 갱신.
+
+### 사용자 버전 증가 요청 반영 (2026-10-13 11:19 UTC 이후)
+- 사용자가 앱 버전 1개 증가 후 사용자 프로필 설치를 명시. 승인된 목표를 2026.0.6 유지에서 **2026.0.7 설치**로 갱신. scripts/azrael-app-release.json을 .7로 변경; 확장 개발용 package.json 0.4.0과 엔진 버전은 별도 소유값.
+- r13 상태 waiting-selected-source/stages0 및 실제 실행 commandline을 확인. 자식은 conhost 하나뿐인 상태에서 지정 생산자 PID36172 중단, 실제 프로세스 부재 확인; workId 180328a3-68d4-4d2d-a905-428aa498af0b cancelled. build/package/install 실행 없음.
+- 기존 immutable l 입력 준비는 계속하고 변형하지 않음. deploy 공식 -HostVersion 2026.0.7 입력을 r14에 명시해 패키지·acceptance·설치 영수증 버전을 일치시킴. 소스 기본 version(.6)과 선택된 build override(.7)를 구분하고 불필요한 재캡처/컴파일 입력 변경을 피함.
+- r14 workId 881b83ea-c333-4bbc-9122-4d218b5f02aa, PID41576; frozen w14l, release w14m. 실제 종료 signal을 발행하도록 새 실행 등록. verify-installed.py 기대값 .7 반영. host version transform/checkpoint 검사 3/3 exit0; 로그 r14-host-version-tests.*. 버전 검사는 실제 설치 성공 근거가 아님.
+
+### l 입력 준비 및 r14 인계 완료 (2026-10-13 11:25 UTC)
+- l 단일 producer 11:16:16.192–11:25:24.858 UTC, 548.664초 exit0. 중간 사용자 turn interruption은 agent 대화만 중단했고 실제 node producer는 유지됨; 기존 exec session으로 종료 결과 회수, 중복 실행 없음.
+- j 24,171경로 동일, claude_search.rs+SOURCE만 변경. Grep description 외 argv/runtime 바이트 동일; config/의존성·원baseline·SQL2 descriptors 동일 검증. latest main의 .7 변경은 캡처하지 않음. source 기본 버전 .6은 고정하고 r14 공식 HostVersion .7 입력으로 패키지 버전 선택.
+- engineSHA7832b4199f15d8bd32689a160a7ba275c776d5f9711d2ee0d47513b365cc6b59, 9,224files; projectSHA06daa08151c25854c0965562b6255ef2c9c6175b07a650ed94d146f2bfc266c9. 근거 selected-source-l-ready.json/verifications. 준비 이후 변경 중단.
+- r14 actual 종료 신호 또는 30분 최초 확인 경계로 다음 결과 확인; 준비 완료와 실제 제품 검증/설치 성공을 구분.
+
+### r14 실제 도구 검증 통과 (2026-10-13 11:54 UTC)
+- native-harness-tools-tests 실제 exit0, 11:27:05.530–11:54:20.562 UTC, 1635.031초. Claude-filter 28/28 통과(파일9/control11/search4/shell3/pricing1), exact provider registry isolation 1/1 통과. 첫 Claude-suite 컴파일 이후 같은 binary registry 실행 추가 build39.26초; 실제29개 테스트 성공. 로그 r14-native-harness-tools-tests.*.
+- 11:54:20.582 UTC r14 deployment 시작, 명시 HostVersion2026.0.7. Windows release build + full source/extension regression → package/native host acceptance → 사용자 설치. 다음 결과 확인은 실제 종료 신호 또는 30분 후 최초경계. 실제 설치 bytecheck와 필수정리·작업커밋은 root 후속.
+
+### r14 Windows build 실패 및 의존성 보강 (2026-10-13 12:29 UTC)
+- r14 종료 failed exit1, package/install 미실행. release cargo101의 첫 원인: app-server/thread_processor.rs4962/6287 codex_history unresolved E0433. 현재 main에는 workspace dependency와 app-server lock edge가 이미 있음; frozen l만 두 선언 누락. source/extension regression은 모두 exit0(751.464초/17.530초),101 source files. 로그 frozen l/artifacts/logs/deploy-w14m 및 w14m/engine.log.
+- root r15-corrections.json: app-server/Cargo.toml에 codex-history workspace dependency 한 줄, Cargo.lock의 codex-app-server dependencies에 codex-history 한 줄. package version·실행 코드·다른 lock section 유지. main은 기존 수정 보존, 덮어쓰기 없음.
+- n은 l 24,171경로에서 선언2files+SOURCE만 파생. 전체 config/core 소스와 해당 dependency closures 동일 검증, 작은 cargo metadata --locked --offline --no-deps exit0 및 lock 미변경 확인 후 ready. 통과한 config10/r14tools29 재사용 근거를 기록.
+- r15 workId a59627bf-d8d4-4ef2-8e26-be06a97418c4, PID52304; frozen w14n, release w14o; 명시 HostVersion2026.0.7. 준비 후 Windows build+fullregression+패키지/native acceptance+사용자설치. 실제 설치 bytecheck·cleanup·commit 후속 유지. 다음 준비 최초확인20분 또는 실제terminal.
+
+### n 인계 완료와 r15 재빌드 (2026-10-13 12:43 UTC)
+- 담당자 model capacity 실패 후에도 기존 n 준비 producer 유지, root 실제 ready/로그 회수. ready12:43:33.417 UTC succeeded exit0. engineSHA780768ff5934b155c916cf1529920935a46da7f09a0728eb7aac4483e41bb7be,9224files; projectSHA212b1d574d27d30fa5ad77f9009bed11933a2ce6b7535a27bccd860cc8461f56.
+- 준비 범위 l→n manifest+lock+SOURCE만. 작은 cargo metadata locked/offline/no-deps 및 lock 미변경 근거 n-verification/correction-review에 보존. core1184/config806/config-schema807 package closures full entries 동일, app-server 미포함: native29/config10 재사용 범위 확인.
+- r15 externalcopy/npmci exit0,12:45:12.349 UTC deployment 시작. 이번 최초20분 확인에서 실제 엔진 compile 진행 로그 확인; 다음은 30분 후 또는 actual terminal. 2026.0.7 패키지 설치·최종바이트검사·정리는 미완료.
+
+### r15 TUI 형식 연동 보강과 r16 (2026-10-13 13:11 UTC)
+- r15 endedfailed exit1, build cargo101. app-server dependency 오류 해결 이후 TUI replay.rs127 destructure/227 Turn initializer의 parent_turn_id 및 turn_trigger 누락 E0027/E0063. 기존값을 두 위치 사이 그대로 전달하는4줄 보강; root pinnedr16-corrections.json. main은 수정파일과 exact동일, 덮어쓰기 없음. config/core/test/lock unchanged.
+- r15 fullsource/extension exit0, build26분13.118초 exit1, package/install 미실행. 해당입력 n immutable유지.
+- p는 n 24,171경로에서 replay.rs+SOURCE만파생. root r16 workId4019f50a-5ead-48aa-b1f4-1bdc7e853f22; releasew14q, 명시HostVersion2026.0.7. native29/config10 재사용은 p전체bytes 검증을전제로함. 최초준비확인20분 또는실제terminal; 실제설치후바이트검증/정리/commit미완료.
+
+### p 준비 완료 및 r17 실행 (2026-10-13 13:43 UTC)
+- r16은 준비 실패 ready를 읽고13:27:41UTC stages0 failedexit1로종료; package/build/install 미실행. p초기gitclone128는누적sharedalternate depth 제한. p디렉터리없음실제확인후 실패로그p-attempt1-*이동보존; primary owningGit객체anchor의원nHEAD존재확인으로 복구. 선택bytecapture는immutable n만,main소스미포함.
+- p준비단일정상producer13:31:45–13:43:05UTC679.296초exit0.24171경로동일, replay.rs+SOURCE만변경. core/config/manifest/lockbytes동일; 원baseline/SQL2schema4유지. engineSHA d83bb231efac42919522b8a4cb4a08694903627fb205cb3c0fda22a7b507deab/9224files; projectSHA091e7eaf7b229a18ca0d1f9bba358fc466d2786ef3a6e226e7366ae2913a675c.
+- r17새producerworkId0a41f145-b1f2-4657-a0bc-6096323f7d25. 동일고정p입력/releasew14q(기존없음검증)/HostVersion2026.0.7. native29/config10동일입력범위검증결과재사용; Windowsbuild/fullregression/package/nativeacceptance/install후rootbytecheck·cleanup·commit유지. actual종료또는30분최초확인.
+
+### r17 Windows engine build 성공 (2026-10-13 14:43 UTC 확인)
+- r17 producer running; w14q/build-metrics.json status success, elapsed2573.086초. cargo engine dev profile33m16초 success(최적화release라고보고하지않음), app-server/TUI/CLI compile완료. packaged-source/window-control-source checks exit0, release-selection success. engine.log/build-metrics 근거.
+- 2026.0.7 패키지 준비와 host acceptance 후 설치가 이어지며 아직 설치완료 증거 없음. 종료 actual signal 또는다음30분 경계 확인.
+
+### r17 기능 보존 환경 오류와 사전 복구 (2026-10-13 15:15 UTC 이후)
+- engine feature receipt의 source check engine.provider-context.input-budget-helper만 exit1, 첫원인 Bun tests/context-budget.test.ts import zod/v4 missing. 실제productbyteerror아님. 다른nativechecks/preservation producer아직진행; 반복build/동시heavy실행안함.
+- frozenp providers/opencodex에서 pinnedBun install --frozen-lockfile --ignore-scripts 실제exit0(7.840초), generated node_modules만준비. 첫경로호출은cwd부정확으로실행안되어결과사용하지않음; 절대tool/logpath 재호출실제성공만근거.
+- 동일test-provider-input-budget-helper.cjs 실제exit0(8.134초), finalwire/inferencefreeestimate/usagecorrelation/safeprogresscheckspassed. r18-input-budget-preflight.stdout/stderr.log 보존. native remaining 완료후현재immutablep/성공engineq재사용해 새package단계진행; 결과/소스동일성검증을전제로함. 2026.0.7 설치아직미완료.
+
+### r17 최종 보존 검사 실패 원인 분리 (2026-10-14 KST 재개)
+- r17 deployment endedfailed exit1, wall15134.011초(약4시간12분14초; 겹친작업시간합산아님). engine build/source/extension 통과했지만 featurepreservation 실패로 package/install 미실행. actualreceipt preservation-nkpaPa 확인.
+- API prompt/skill/core, root-resume, model-harness config/tools, mapping/safeexport, recovery 실제exit0. tools29가패키지단계에서도통과했으며 마지막registry sharedCargoartifactlock대기를포함4080.100초. 다른작업자cache/process중단안함.
+- 남은원인: providercontext 입력budget헬퍼 zod/v4 dependency 누락(이미pinnedBuninstall+동일checkexit0로복구); auto-account/accepted-input/Devin fixture estimate requestprotocol 누락(독립담당자fixedpins/actualbuiltengine검사); manualcompaction Rusttest reset_version이일반compaction완료지표가아닌잘못된assertion(현재mainmeaningfulcontextwindow/checkpoint/events검증testonlyfix이식); freshpersistentthread metadata read의emptyrollout(독립read-onlyexplorer원인검토).
+- 추가행동은fixture검사/mainexistingtest재사용및boundedproductrace분석만. 제품assertion/권한/프로토콜을완화하지않음; root기존계획/2026.0.7 설치목표유지. 실제패키지설치/bytecheck/cleanup/commit미완료.
+
+### 최종 입력 r18 수정 범위 확정 (2026-10-14 KST)
+- fixture4 고정핀과 originalw14p nativecheckdrivers를actualw14q engine(a61c8c99e4c4af807d3820c4dee1d8c46d5662019fbced11ec90d298c27d6a9b)에검증: approvedinput/autoswitch/Devin-native/code-mode/agents5/5 exit0,23:25:08–23:26:09UTC. 실제provider호출없는합성상태.5개fixture 공식cleanup미리보기/삭제exit0+actualabsence, validation-results/evidence 유지.
+- manualcompactiontest는 reset_version(Guardian review invalidation counter) 대신 실제oldmessage제거/contextwindow/checkpoint/started+completed 및autooff보존검증. 현재main기존함수와exact, productlogic변경없음. correctedRust실행아직pending.
+- freshthread race제품원인확정: ThreadStore read가writerguard없이생성직후빈rollout을관찰. currentmain read_thread.rs의 기존 3줄 sharedlive_writer_lock+deterministicregression107추가줄을verifiedSHA2f07b5fb209df5fe297a1b3526eb69ee0617e143be808659444ad468e82e6535로pin. writerbarrier가flush+SQLiteprojection완료까지읽기직렬화, 강제freshthreadmaterialization/emptyfileerror무시없음. currentmain수정재사용으로primary변경없음. 공통runtimeboundary 변경이며 Windows실제검증만예정, 타OS미검증.
+- r18-corrections.json8pins=fixture4+manualtest+readbarrier/test+appversion.7+Grepowningdoc. 원pbeforeSHA/교체afterSHAactual검증. s sourcecapture는p고정24171선택만,primaryGitmetadataanchor외 mainrecapture없음. capture중최종pins확정해followup인계. final8files+SOURCE만 허용.
+- r18 producerworkId1ff42153-a8d0-4605-bd60-058fad47ce04/PID45720; frozenw14s/releasew14t/HostVersion.7. generatedproviderdeps frozenlock준비 포함. 작은thread-storebarrier+coreauto_compaction 실제test를먼저실행해재빌드전입력검증; 이후전체Windows build/fullregression/preservation/package/nativehost/install. 변경된ThreadStore의integration은최종검사재실행하므로기존config/tools는historicalevidence표시, 미검증성공근거로사용안함. 최종installbytecheck·cleanup·commitroot후속.
+
+### s 입력 준비 완료 (2026-10-14 08:37 KST)
+- capture23:27:26–23:32:43UTC317.616초exit0; finalize23:33:00–23:37:31UTC271.766초exit0. p-onlycapture checkpoint 재사용9.7초검증 후8approvedpins+SOURCE적용,24171경로유지정확9delta. engine descriptor2변경만, configcrate/manifest/lock/원baseline/SQL2schema4동일. marker2026.0.7.
+- engineSHA57164434f66880571614c8f2d4d9f8e07dcae3ce0d2b219cd9d2c5a44df4931a/9224files; projectSHA24dd72e85b829770850a7186e89f69b401c542c9d24166a0f7e1744efd151df5. ready/verificationactualsuccess,source준비후변경없음.
+- r18 ready인수후외부입력/의존성준비→작은threadstorebarrier+coreauto_compaction실제회귀검사→새engine빌드+전체검증/패키지/사용자설치. ThreadStore product변경이있으므로historicalevidence와최종검증을분리. 다음최초확인30분 또는actualterminal. 설치bytecheck/cleanup/commitroot후속.
+
+### r18 사전 컴파일 오류와 안정된 빌드 경로 (2026-10-14 08:46 KST 이후)
+- r18 thread-store-barrier-test compileexit101,377.898초. 첫원인 unrelated기존thread_history_materialization_tests.rs3601 StoredTurnItemsView::Full nonexistent. 실제enum는NotLoaded/Summary두값만; loop에서Full한줄삭제, assert그대로. currentmainalreadyexact일치. r19-corrections.json pinnedafter249e8043acff626cfafb6be2e1cab5a9d06f2b3fcf42f2e800b09ea307592aa0. 아직barriertest실행전컴파일실패,새Windows build/package/install미실행.
+- u는s24171paths에서해당1testfile+SOURCE만파생. immutable제품입력각revision보존. Cargo absoluteSourceRoot경로변경의반복compile비용을줄이기위해 artifacts/engine-input-AF01에uengine를exactbyte COPY로 materialize; symlink/junction/worktree아님. SOURCEbyte동일,닫힌pathset/sourcebeforeafter/desthash검증+engine snapshotSHA9224files일치까지ready조건. 복사입력은r19실행중변경금지; 후속수정은실제producerterminal확인후새고정snapshot기준필요delta만허용. 제품sourceu는계속불변.
+- r19 workIdc7a9a92c-ca7d-4dab-9985-4be3c7265d06/PID55980. projectRootw14u,releasew14v,SourceRootstableenginecopy,HostVersion2026.0.7. readybuildEngineRoot절대경로및engineSnapshotSHA/fileCountguard추가. 테스트의manifest/Cargo루트와actualbuildSourceRoot동일stable경로. 작은barrier/corecompaction검증→Windowsbuild/fullpreservation/package/사용자설치. 최종 bytecheck/정리/작업commitroot후속.
+
+### u/stable 입력 준비와 r20 인계 (2026-10-14 09:09 KST)
+- r19는처음failedready를읽어00:05:30UTC stages0failedexit1; build/package/install미실행. 첫stablecopyprecondition은snapshot9224+SOURCE=9225가정오류. distributionFiles의queue_migrations/.gitattributes가추가되어실제닫힌regular목록9226. 원uSHA재검증후receipt.files+distributionFiles+SOURCE목록을projectengine목록과exactmatch하여복구; 실패로그attempt1보존.
+- u/stableactualready00:09:53.318UTCexit0. engineSHA2baaf9b7bb79cf62420e0ef7eb18e6e1e2e8324db48d8ecce93ee67ae61301b9/9224descriptors; projectSHA247ddd0a878547b6a8748ec0823caf7c595353d4d05c039ce670be55d1f7e6c0/24171paths. s→u testfile+SOURCE only. stable regularcopy9226 files49.99초exit0,source/destclosedpathset/streamSHA/destSHA/mode/identity검증;stableengineprovenance108.3초exit0+u엔진snapshot객체전체동일.
+- 소스와stable입력ready이후불변,parent소유권반환. r20 workId0b78fcc7-f50c-47a8-89c8-cb9983239472,projectw14u/releasew14v(기존없음확인)/SourceRootartifacts/engine-input-AF01/HostVersion2026.0.7. 기존r19스크립트같은입력재시작,제품입력재생성없음. 회귀검사/빌드/패키지/실제설치후bytecheck·cleanup·commit후속. actualterminal또는30분최초확인.
+
+### r20 기록 잠금 회귀 통과 (2026-10-14 09:20 KST)
+- thread-store-barrier-test 실제1/1pass exit0. stage00:13:29.884–00:20:20.776UTC410.892초(compile포함), test실행0.33초.275libtests중정확회귀1개선택. rootstableSourceRoot bytes고정. 원빈rolloutInternal 유지/writer잠금동안readPending/기록flushprojection뒤metadata반환을실제검증.
+- core manual-auto-compaction-tests00:20:20.783UTC시작,r20진행중. 성공한sourceguard/외부copy/extensiondeps/providerfrozenset및barrier회귀만현재검증근거. Windowsbuild/package/install미완료. 다음actualterminal/30분확인.
+
+### r20 압축 검증 통과와 빌드 시작 (2026-10-14 09:48 KST)
+- manual-auto-compaction-tests 실제8/8pass exit0.00:20:20.783–00:48:01.223UTC1660.440초compile포함,실제test2.42초. autooff manualcompaction/contextwindow/checkpoint/lifecycle 검증, legacy/default/sparse/disabledreasonphase/quota/resume/fork설정체크모두통과. 로그r20-manual-auto-compaction-tests.*.
+- deployment00:48:01.249UTC시작: sourcew14u와stableengineSHA2baaf9... 동일입력으로Windows engine build+fullsource/extension+nativepreservation+packagehost6stage+사용자프로필설치. 첫회귀2개검사(1+8) 통과는필수최종패키지검증통과와구분. source/stablefiles변경없음,다른Cargo작업중단하지않음. actualterminal또는다음30분확인 후 bytecheck/cleanup/commit.
+
+### r20 engine compile 성공 (2026-10-14 10:18 KST 확인)
+- stable SourceRoot actualcargo devprofile32m12초success. Windowsbuild-metrics중companion npmci/packageexit0,companion package113.302초. 전체build마무리/후속nativepreservation/packagehost/install진행전이라설치완료주장없음.
+- 디스크free16.55GB 확인. primarysharedCargotarget가활성입력이므로보존. diagnosticn14a/w14a own target미존재 확인,재생성cachecleaner경계 읽기만수행(삭제없음). snapshot/userstate/release/current-previous 보호 유지. broadignoredcachepathsearch결과없음exit1은검증성공근거로사용안함.
+- 다음actualterminal 또는30분경계에서필수보존/호스트검사상태확인,최종설치bytecheck와mandatorycleanuproot후속.
+
+### r20 전체 빌드 및 보존 source 검사 통과 (2026-10-14 10:50 KST 확인)
+- w14v build-metrics status success,elapsed4169.569초. enginesource와packaged-source/window-control-source checks 포함완료, runtime release선택성공. Windowsactualbuild성공이며일반사용자설치와별개.
+- fullsource/extension regressionactualexit0,101sourcefiles선택,extension24.104초. results.jsonselected-source-scope 보존,unsupportedplatformskip과실제검증환경Windows구분.
+- engine-preservation preservation-ImBbIu receipt현재running: modelharnessmapping/managedidentitymapping/inputbudgethelper(8.2초)/safecontextexport(11.104초)exit0. r17 budgetdependency오류가최종동일frozenlock환경에서도해결됨확인. native후속checks/host6stage/installbytecheck/cleanup/commit미완료. actualterminal또는30분확인.
+
+### r20 진행 확인 — 2026-10-14
+- 완료 이벤트 대기 기한에서 실제 상태를 확인했다. producer는 실행 중이며, 설치 완료가 아니다.
+- Windows 전체 빌드, source/extension 회귀에 이어 engine.api-context prompts/skills/core와 engine.root-resume-reasoning.native가 실제 exit 0으로 통과했다. mapping 2개, input-budget-helper, safe-context-export도 exit 0이다.
+- 후속 패키지 검증과 사용자 프로필 설치는 engine preservation의 실제 종료 결과를 기다린다. 현재 고정 입력과 활성 Cargo 캐시는 변경하지 않았다.
+
+### r20 결과와 r21 인계 — 2026-10-14
+- r20 deployment는 03:17:38 UTC 준비 시작 후 namespace aggregate 검사에서 exit 1로 종료했다. 전체 deployment 경과 10,008.723초이다. 엔진 기능 보존 18/18, 계정 제어, full source/extension 회귀, Windows 빌드는 모두 실제 exit 0이다.
+- deferred-turn의 9개 asset별 기대/실제 변환 횟수는 15+10+1+2+8+3+2+1+1=43이고, 마지막 aggregate만 42였다. root는 frozen u 기반 namespace 파일과 primary의 해당 숫자만 43으로 고쳤다. 핀 r21-corrections.json(before44e0e68b..., after29748916...)을 새 w 프로젝트 입력에 적용한다. 다른 primary 동시 작업 변경은 포함하지 않는다.
+- 엔진 소스 지문 2baaf9b7.../9224, codex.exe e4095ba7..., bridge4cdcf5ce..., code-mode-host ec91f7a0...을 보존하여 동일 엔진 재사용 조건을 공식 build 경로에서 확인한다. 기존 전체 검증 근거를 유지하며 namespace 영향 검사, 새 패키지와 fresh host 6단계 및 설치 검증은 다시 실행한다.
+- r21 producer PID34708 시작03:41:40 UTC, workId b745863d-1ddd-4c3f-adee-b2bd9694f204. w 입력 준비 이벤트를 기다려 w14x release를 생성·검증·설치한다. 최초 확인은30분, 종료 시점 보장은 없다.
+- 통과한 r20 account-controls fixture는 공식 cleaner preview/apply exit0, deleted 상태 및 경로 부재로 정리 완료했다. 증거는 verification-evidence에 보존했다.
+
+### r21 환경 오류와 r22 — 2026-10-14
+- w 입력 준비 완료: project9769645ec48ac77736e56c0dfc3bb206081c68dc74934567e70c23f02dfcea43/24171경로, namespace1파일 외 u와 동일. 엔진 snapshot 전체 u/stable과 동일2baaf9b7.../9224. 준비03:39:50–04:03:17UTC/1407.417초 exit0.
+- r21 deferred-turn 및 namespace source 검사 exit0. 변경 영향 source36파일/379tests 중378pass, test-edit-stop-integration.cjs:82가 artifacts/verification 상위 디렉터리 없이 mkdtemp를 호출하여 ENOENT1건 실패. 엔진/기능 오류 근거가 아니다. 소스 테스트 실패로 병렬 build가 공식 producer에서 종료되었다(terminated true, exit -1).
+- 코드와 w 입력을 다시 고치지 않았다. r22는 등록된 verification 상위 디렉터리를 준비한 뒤 동일 w source로 새release w14y를 생성한다. 기존 w14x 실패 폴더를 덮어쓰지 않는다.
+- r22 PID25532 시작04:17:35UTC, workId6a81444f-24e4-4267-b3e8-44ea1f3a54b1. 최초 확인30분 또는 실제 완료 이벤트. 엔진 재사용 검증, namespace 관련 소스 검사, fresh패키지호스트6단계와 설치는 유지한다.
+
+### r22 검증 결과와 r23 호스트 재검증 — 2026-10-14
+- r22 source36파일/379tests 전체pass, 엔진 출처·바이너리 재사용 빌드 exit0(596.566초), 후속 engine6checks와 account controls exit0, 패키지 준비exit0(622.250초). 준비VSIX SHA ca87e2f4e9eb65635c88722b4b2988a8e738b7505c3bc745fe9b6e6b6e0d9a60/version2026.0.7.
+- host6단계 중 inventory/install/inventory/namespace exit0, standalone CLI exit0이나 runner 결과파일이 없어서 failclosed; coexistence미실행. 설치 전 실패이며 일반 사용자 프로필 설치는 실행하지 않았다.
+- 원인미확정: code.cmd/CLI는 ELECTRON_RUN_AS_NODE를 GUI자식에서 제거하므로 해당값을 직접원인으로 단정하지 않는다. 다른 inherited VSCODE_*는 전달될 수 있으나 종료로그 부재로 원인증명은 없다.
+- r23은 동일 준비된VSIX와 source/release를 재사용하고 새로운 AF01-host-r23 fixture에서 process환경 VSCODE_* 및 ELECTRON_RUN_AS_NODE 제거, verbose/trace CLI로그와 fresh6단계 검사 실행. 제품/패키지변경없음. PID53712 시작04:55:36UTC, workId8b3e35bc-e9ea-4290-bc8f-438bec20374b, 첫확인15분 또는 종료이벤트.
+- 독립적으로 패키지preservation verify, 엔진verify-receipt, 24171경로 source입력fingerprint 재확인을 시작했다. 실제 exit와 output은 r23-* 로그에 보존한다.
+
+### r23 업데이트 잠금 원인과 r24 공식 ZIP 검증 — 2026-10-14
+- r23 fresh fixture에서도 standalone runner 결과가 없어 failclosed. verbose same-window 로그는 checkInnoSetupMutex vscode-updating 대기 후30초에 'Code is currently being updated'→Lifecycle kill을 기록했다. 실제 updater14148/child10440은10월13일13:11KST부터실행중; 설치로그끝은 'Installation process succeeded' 후 'Checking whether application is still running...'. root 사용자창을 종료하거나 updater를 kill/cancel하지 않았다.
+- 초기ELECTRON_RUN_AS_NODE 가설은근거상철회했다: CLI는GUI자식에서이를제거하고, r23 inherited환경정리 후에도 업데이트mutex가실제실패원인이었다. standalone/nativeactivation이실행됐다고해석하지않는다.
+- 같은버전1.140.0/commit07f806f999227108933c2e30515b26eecc1fda74의 공식Windows x64ZIP을 update.code.visualstudio.com에서 별도artifacts/tools 경로로확보했다. Microsoft Authenticode Valid, product.target 없음, package.json/mainImpl.js/cli.js 설치본과실제hash3개일치. 기존설치product수정이나mutex우회없음. 공식ZIP안내 https://code.visualstudio.com/docs/setup/windows 및FAQ확인.
+- 공식ZIPCodePath를새 AF01-host-r24 fixture검증에사용하며 준비된동일AzraelVSIX ca87e2f4.../2026.0.7을유지한다. 실제일반프로필설치는기존설치본CLI로실행할예정. 테스트환경을ZIP버전/Windows x64로명시하며 업데이트가완료되지않은일반창의GUI를accepted로보고하지않는다.
+- r24 PID43192 시작05:07:41UTC/workId19708421-83dc-4269-8275-edac821d21b1, 최초확인20분/실제완료이벤트. 소스·엔진·패키지preinstall재검증은r23 actualexit0/statuspassed이며 source9769645e.../24171로일치.
+- r24 공식ZIP 준비: 다운로드·압축해제·Microsoft서명검사 실제 exit0, currentinstalled와package.json/mainImpl.js/cli.js3개hash일치. archive는 versioned07f806f999/resources/app 배치를사용하며 resources/app 직결경로라는초기예상만정정했다. actualprovenance r24-official-host-provenance.json.
+- 이전failed host fixture2개(deploy-w14y,AF01-host-r23)는공식cleaner preview→ordinary Remove-Item에서읽기전용복사된original Linux voice .so 파일 때문에retained. Attributes33(ReadOnly+Archive) 실제확인. 강제삭제/다른API우회없음; 실패증거archived, 제거가능해지는조건은소유readonly속성/접근제약이정상적으로해결되고참조프로세스가없을때다. 다른payload일부는ordinarycleanup으로이미정리됐다. account-controls-w14y는deleted/경로부재로정리완료.
+
+
+### r24/r25 설치 완료와 빌드·검사 최적화 — 2026-10-14
+- r24 동일 최종 VSIX fresh host6단계 모두 actualexit0/passed:true. 검증 환경은 Windows x64/공식 VS Code1.140.0 ZIP이며 기존 설치본과 commit07f806f999...가 같다. 원래 설치본의 GUI 업데이트 잠금은 해소됐다고 주장하지 않는다.
+- r25 기존 설치본 CLI로 일반 사용자프로필2026.0.7 설치와 전체 설치파일 동일성 검증 actualexit0. 시작05:15:52UTC/종료05:19:52UTC. Installed:true, ReloadRequired:true, Launched:false. 설치receipt w14w/artifacts/deployments/independent-20261014-141608-114/deployment.json; package SHA ca87e2f4e9eb65635c88722b4b2988a8e738b7505c3bc745fe9b6e6b6e0d9a60. r25-installation-metrics.json, r25-installer-result.json에 보존. 기존 사용자창을 종료·reload하지 않았다.
+- 최초 승인된1단계 구현과 Windows 패키지·일반프로필 설치 목표는 달성됐다. native gates를 적용하는10도구 전체 기본통합, 실제유료 Anthropic coding smoke, Linux/macOS 검증은 별도미확인이고 UI/Notebook/Cron/Worktree/Plan/mediaRead는 합의된후속이다. goal-audit-code.json을 실제증거범위로갱신했다.
+- 사용자 추가권한: 대기 중 빌드·테스트 시간을 줄일 최적화 및 큰 빌드캐시의 분리·효율적 관리. 공통 build/deploy 의미를 유지하고 Windows에서 검증한다. 새 버전 재빌드와 사용자창 조작은 추가하지 않는다. primary 최적화는 설치된 frozen w 패키지와 독립이다.
+- 조사: r20 source101files12m49와build69m31은겹쳐실행됐다. engine preservation78m20 중nativechecks72m56; auto_compaction8tests runtime2.42초 대비compile대기27m40. 캐시audit 논리합계778.849GB/3,769,865files(30reparse제외), 현재primarytarget297.370GB, 과거codex0160target232.482GB. 논리크기는 실제할당·해제량이아니다. 필수범위 삭제 대신 동일입력 검사재실행과 사본별 중복을 줄인다.
+- root 책임: scripts/build-azrael.ps1/deploy-azrael.ps1 통합, docs/playbooks/build.md와docs/ops/development.md 계약, 설치수락·실제정리·커밋. estimate_fixtures는build-module-cache.ps1/test만, manual_compact_check는test-deploy만 독점변경. 두담당자입력확정후 독립실행, 무거운Rust빌드없음. 소스/캐시읽기조사는 별도readonly 담당자가완료. 다른작업변경은유지한다.
+- FullRegression은 전체검사범위를 선택하고 통과증거 재사용을 유지한다. ForceNativeVerification이 선택된native/Cargo 검사 강제실행을 소유하며 둘을 함께 쓰면 전체 강제실행이다. 출처·현재소스·출력해시·최종패키지동일성·fresh host6단계는 유지한다.
+- ModuleCacheProjectRoot는 명시적 절대 owner 경로로 frozen projects의 모듈캐시를 공유한다. 예: primary내 frozenproject 빌드에 -ModuleCacheProjectRoot C:/Users/felre/Desktop/pi-harness-init. 입력역할/순서·상대경로·SHA·도구·OS/architecture로 schema2키를 구성한다. owner lease와 atomic .projects.json이 실행프로젝트를 등록하고 각프로젝트 current/previous 설치toolchain참조를 보호한다. staging은 실행프로젝트만 정리한다. registry손상·missingroot·link·경로이탈은 변경·삭제를 차단한다. 기존 ordinary삭제수정도 이캐시관리범위의 검증된 보존조건으로 통합한다. 기존캐시 자동이동은 하지않는다.
+- 검증: optimization-module-cache-tests.log/result.json actualexit0; 사본간hit, 내용/도구/platform/역할변경miss, 출력손상, 다른등록프로젝트의current/previous참조, lease, registry/link/missinginput실패경계통과. optimization-deploy-tests.log/tests-result.json 관련18mock actualexit0; full범위+reuse/선택·전체force/공유경로전달/provenance변경/6host단계실패guard통과. root build/deploy PowerShellparse와CRLF-aware diffcheck exit0. Windows x64/PowerShell7.6.6 검증, 전체mockmatrix·타OS·실제빌드속도차이는미측정이다.
+- 실제Rust정리: 공식 clean-engine-caches preview후apply, primarytarget보호/프로세스검사통과. 05:30:04–05:32:28UTC/143.646초, actualexit0. 과거 artifacts/build/codex-0160-rust-target removed/경로부재, current engine/codex-rs/target preserved-protected. C drive freeBytes 6,753,050,624→227,507,019,776; 이는 작업중 측정한 여유공간 순증가이며 과거target단독 해제량이라고 단정하지 않는다. optimization-engine-cache-{preview,apply,metrics}.json 근거.
+- r24 호스트fixture증거를 w14w/artifacts/logs/verification-evidence/AF01-host-r24에 archive한 뒤 ordinary삭제시 readonly/access제약으로 일부잔여retained. 성공check-result는 보존됐고 r25metrics는 archived acceptance 경로를 참조한다. mock fixture도 Hidden .git 때문에잔여retained; optimization-deploy-cleanup.json 경로·사유보존. force/attribute변경/API우회없음. 접근·속성이 정상해결되고 실행참조가없을때 다시보통삭제 가능하다.
+- release preview는current w14y와engine재사용원본u/w14v를 보호한다. failed w14x는 build-info가 없어 ownership확인전 보존한다. final-release-cleanup-preview.json 대신 owner가요구하는 w14w/artifacts/logs/legacy-release-cleanup/AF01-final-preview.json에보존했다. 재생성가능한 cache와 release/source/UI provenance를 구분했다.

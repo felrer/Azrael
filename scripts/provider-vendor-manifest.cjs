@@ -3,8 +3,8 @@ const fs = require("node:fs");
 const path = require("node:path");
 const crypto = require("node:crypto");
 const { inventoryTree } = require("./freeze-platform-inputs.cjs");
-const REVIEWED_WINDOWS_SHA256 = "1b0919d6b6fb7be9294998c52aa9c28b7347896c8f328fc918556b26bdf56db5";
-const CANONICAL_SHA256 = "72ab6a8f6e372417009dcb2587754329d96a1247bbf2de7feff9c940cb764152";
+const REVIEWED_WINDOWS_SHA256 = "f73a78c9732186868d169d0646ec6bd425cf43c87a3589fccd95717f58e30d40";
+const CANONICAL_SHA256 = "da34f528d847f2e33ec21c41b8ef3d531735d9823710c0b3935f2c1064c7d439";
 function canonicalRecords(entries) {
   const seen = new Set();
   return entries.map(entry => {

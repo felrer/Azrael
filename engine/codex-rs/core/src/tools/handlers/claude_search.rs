@@ -200,7 +200,7 @@ impl ToolExecutor<ToolInvocation> for ClaudeGrepHandler {
         }
         function_spec(
             "Grep",
-            "Search with ripgrep regular expressions and native sandbox/permissions. Defaults to files_with_matches; content includes line numbers by default; count reports matching lines per file. Supports glob/type, -i/-n/-A/-B/-C and multiline (dot matches newline). Respects ignore files, skips hidden files and binary contents. head_limit defaults to 200 and is capped at 2000; offset skips output lines. Output has native collection limits and reports truncation.",
+            "Search with ripgrep regular expressions and native sandbox/permissions. Defaults to files_with_matches; content includes line numbers by default; count reports matching lines per file. Supports glob/type, -i/-n/-A/-B/-C and multiline (dot matches newline). By default respects ignore files and skips hidden files; explicit include globs override ignore and hidden-file filtering. Skips binary contents. head_limit defaults to 200 and is capped at 2000; offset skips output lines. Output has native collection limits and reports truncation.",
             properties,
             &["pattern"],
         )
@@ -348,7 +348,7 @@ mod tests {
         )
         .unwrap();
         std::fs::write(fixture.path().join("ignored.txt"), "Alpha 42\n").unwrap();
-        std::fs::write(fixture.path().join(".gitignore"), "ignored.txt\n").unwrap();
+        std::fs::write(fixture.path().join(".ignore"), "ignored.txt\n").unwrap();
         std::fs::write(fixture.path().join("binary.bin"), b"\0Alpha 42\0").unwrap();
         std::fs::write(fixture.path().join(".hidden.rs"), "Alpha 42\n").unwrap();
         let args: GrepArgs = serde_json::from_value(json!({"pattern":"alpha\\s+\\d+", "glob":"*.rs", "output_mode":"content", "-i":true,"-C":1})).unwrap();
@@ -362,7 +362,8 @@ mod tests {
         let text = String::from_utf8(output.stdout).unwrap();
         assert!(text.contains("space 한글.rs:2:Alpha 42"));
         assert!(text.contains("first") && text.contains("last"));
-        assert!(!text.contains("hidden"));
+        // Explicit include globs override ripgrep hidden-file filtering.
+        assert!(text.contains(".hidden.rs:1:Alpha 42"));
         let count = GrepArgs {
             pattern: "Alpha".into(),
             output_mode: Some("count".into()),
@@ -377,6 +378,8 @@ mod tests {
         let text = String::from_utf8(output.stdout).unwrap();
         assert!(text.contains("space 한글.rs:1"));
         assert!(!text.contains("binary.bin"));
+        assert!(!text.contains(".hidden.rs"));
+        assert!(!text.contains("ignored.txt"));
         let output = std::process::Command::new("rg")
             .args(["--files", "--hidden", "--glob", "*.rs", "--", "."])
             .current_dir(fixture.path())
