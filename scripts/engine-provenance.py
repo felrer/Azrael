@@ -9,7 +9,7 @@ import subprocess
 
 RECEIPT = "azrael-engine-build.json"
 TARGET = "x86_64-pc-windows-msvc"
-BINARY_NAMES = ("codex.exe", "azrael-bridge.exe", "codex-code-mode-host.exe")
+BINARY_NAMES = ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe")
 BUILD_ENVIRONMENT_KEYS = (
     "RUSTFLAGS", "CARGO_ENCODED_RUSTFLAGS", "RUSTC_WRAPPER", "RUSTUP_TOOLCHAIN",
     "V8_FROM_SOURCE", "V8_FORCE_DEBUG", "RUSTY_V8_ARCHIVE", "RUSTY_V8_MIRROR",
@@ -28,7 +28,7 @@ def binary_names(target=TARGET):
     entry = next((item for item in policy["platforms"] if item["target"] == target), None)
     if entry is None:
         raise ValueError(f"Unsupported engine target: {target}")
-    return tuple(name + entry["executableSuffix"] for name in ("codex", "azrael-bridge", "codex-code-mode-host"))
+    return tuple(name + entry["executableSuffix"] for name in ("azrael", "azrael-bridge", "azrael-code-mode-host"))
 
 
 def snapshot(root, target=TARGET):

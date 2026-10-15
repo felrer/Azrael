@@ -16,7 +16,8 @@ const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles.cjs',
   'check-root-resume-reasoning.cjs', 'check-task-work-time-native.cjs',
   'check-thread-auto-compaction.cjs', 'check-parent-requests.cjs',
-  'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs'].map(file => `scripts/${file}`));
+  'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs',
+  'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 
 function isEligible(group) {
   return Boolean(group?.native && Array.isArray(group.entries) && group.entries.length &&

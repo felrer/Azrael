@@ -6,6 +6,7 @@
 #![deny(clippy::print_stdout, clippy::print_stderr)]
 
 pub mod account_retirement;
+pub mod azrael_manual_resume;
 mod apply_patch;
 mod apps;
 mod capacity_recovery;

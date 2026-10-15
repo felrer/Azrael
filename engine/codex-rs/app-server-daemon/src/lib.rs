@@ -1,6 +1,18 @@
 //! Managed app-server lifecycle, serialized across CLI invocations and the updater.
 
+mod azrael;
 mod backend;
+pub use azrael::AZRAEL_STARTUP_TIMEOUT;
+pub use azrael::AzraelDaemonEndpoint;
+pub use azrael::azrael_engine_sha256;
+pub use azrael::connect_azrael_registered;
+pub use azrael::ensure_azrael_started;
+pub use azrael::ensure_azrael_started_with_args;
+pub use azrael::run_azrael_stdio_proxy;
+pub use azrael::run_azrael_stdio_proxy_with_args;
+pub use azrael::validate_azrael_registration;
+pub use backend::AzraelProcessIdentity;
+pub use backend::capture_process_identity;
 mod background_command;
 #[cfg(windows)]
 pub use backend::windows::DetachedLaunchRestricted;

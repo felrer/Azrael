@@ -181,7 +181,7 @@ function install(options) {
   const config=JSON.parse(configEntry.data.toString("utf8")); platform.validateRuntimePlatform(config.platform);
   const oldRuntime=path.dirname(path.dirname(config.engine));
   const runtime=path.join(destination,"runtime"), relocated=relocateValue(config,oldRuntime,runtime);
-  relocated.engine=path.join(runtime,"engine",platform.executableName("codex")); relocated.bridge=path.join(runtime,"engine",platform.executableName("azrael-bridge")); relocated.codexHome=state;
+  relocated.engine=path.join(runtime,"engine",platform.executableName("azrael")); relocated.bridge=path.join(runtime,"engine",platform.executableName("azrael-bridge")); relocated.codexHome=state;
   configEntry.data=encode(relocated);
   const vsix=writeZip(files);
   const transformations=[];

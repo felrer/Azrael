@@ -18,7 +18,7 @@ test("integrated entry preserves activation, account storage migration and failu
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
     fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
-    hostPlatform = process.platform, localHistory, historyError } = {}) {
+    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
     const recovery = { listener: undefined, disposed: false };
@@ -30,7 +30,11 @@ test("integrated entry preserves activation, account storage migration and failu
       globalStorageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "global-storage") },
     };
     const runtimeEnvironment = { EXISTING_VALUE: "preserved" };
-    const runtime = Object.freeze({ marker: "shared-runtime", windowControl, localHistory, env: runtimeEnvironment });
+    const engine = path.join(fixtureRoot, "engine-fixture");
+    if (sharedEngine) { fs.mkdirSync(fixtureRoot, { recursive: true }); fs.writeFileSync(engine, "synthetic engine"); }
+    const runtime = Object.freeze({ marker: "shared-runtime", windowControl, localHistory, env: runtimeEnvironment,
+      sharedEngine, sharedEngineProtocol: 1, engine, engineVersion: "0.162.0", codexHome: path.join(fixtureRoot, "state"),
+      engineSha256: crypto.createHash("sha256").update("synthetic engine").digest("hex") });
     const nativeApi = { marker: "native-api" };
     const nativeExtension = {
       async activate(value) {
@@ -56,7 +60,7 @@ test("integrated entry preserves activation, account storage migration and failu
       exports: module.exports,
       AggregateError,
       Promise,
-      process: { platform: hostPlatform },
+      process: { platform: hostPlatform, pid: process.pid },
       require(request) {
         if (request === "node:path") return path;
         if (request === "node:crypto") return { createHash: crypto.createHash, randomUUID: () => fallbackUuid };
@@ -76,6 +80,7 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "./account-ui/dist/src/extension.js") return accountUi;
         if (request === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl }) };
         if (request === "./out/azrael-runtime.cjs") return { runtime };
+        if (request === "./out/shared-engine-host.cjs") return require("./shared-engine-host.cjs");
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
         if (request === "./out/linux-native-supervision.cjs") return { onRestart(listener) {
           recovery.listener = listener;
@@ -103,6 +108,26 @@ test("integrated entry preserves activation, account storage migration and failu
   }
 
   async function testWrapperLifecycle() {
+    const sharedA = wrapperFixture({ sharedEngine: true, sessionId: "window-A" });
+    const sharedB = wrapperFixture({ sharedEngine: true, sessionId: "window-B" });
+    sharedB.context.storageUri = sharedA.context.storageUri;
+    await sharedA.api.activate(sharedA.context); await sharedB.api.activate(sharedB.context);
+    const a = JSON.parse(sharedA.runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
+    const b = JSON.parse(sharedB.runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
+    assert.notEqual(a.ownerId, b.ownerId); assert.equal(a.workspaceId, b.workspaceId);
+    assert.equal(a.hostPid, process.pid); assert.equal(a.engineIdentity, sharedA.runtime.engineSha256);
+    assert.equal(a.role, "window"); assert.equal(a.schema, 1);
+    assert.notEqual(a.accountStateFile, b.accountStateFile);
+    assert.equal(a.accountDefaultFile, b.accountDefaultFile);
+    assert.equal(process.env.AZRAEL_EX_WINDOW_CONTEXT, undefined);
+    await sharedA.api.deactivate(); await sharedB.api.deactivate();
+    const reopened = wrapperFixture({ sharedEngine: true, sessionId: "window-A-reopened" });
+    reopened.context.storageUri = sharedA.context.storageUri;
+    await reopened.api.activate(reopened.context);
+    const reopenedContext = JSON.parse(reopened.runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
+    assert.notEqual(reopenedContext.ownerId, a.ownerId);
+    assert.equal(reopenedContext.workspaceId, a.workspaceId);
+    await reopened.api.deactivate();
     for (const historyError of [undefined, new Error("private path and content must not be logged")]) {
       const importing = wrapperFixture({ localHistory: { sourceHome: "/fixture/source" }, historyError, hostPlatform: "linux", desktopControl: false });
       assert.equal(await importing.api.activate(importing.context), importing.nativeApi);

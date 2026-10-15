@@ -1,6 +1,6 @@
 [CmdletBinding()]
 param(
-    [string]$EnginePath = (Join-Path $PSScriptRoot '../upstream/codex/codex-rs/target/x86_64-pc-windows-msvc/debug/codex.exe'),
+    [string]$EnginePath = (Join-Path $PSScriptRoot '../upstream/codex/codex-rs/target/x86_64-pc-windows-msvc/debug/azrael.exe'),
     [string]$StateRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.azrael-ex'),
     [string]$WorkspacePath = (Split-Path $PSScriptRoot -Parent),
     [string]$CodePath = 'code.cmd',

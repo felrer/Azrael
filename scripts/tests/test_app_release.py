@@ -35,7 +35,7 @@ class AppReleaseTests(unittest.TestCase):
         self.write(self.node, b'fake node')
         self.write(self.node.parent / 'LICENSE', b'node fixture license')
         hashes = {}
-        for name in ('codex.exe', 'azrael-bridge.exe', 'codex-code-mode-host.exe'):
+        for name in ('azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe'):
             data = ('fixture ' + name).encode()
             self.write(self.release / 'engine' / name, data)
             hashes[name] = sha(data)
@@ -47,7 +47,7 @@ class AppReleaseTests(unittest.TestCase):
             closure[name] = sha(data)
         self.write_json(self.release / 'devin-native-build.json', {'files': closure, 'node': {'path': str(self.node), 'sha256': sha(self.node.read_bytes())}})
         self.write_json(self.release / 'opencodex-accounts-build.json', {'files': {}})
-        config = {'schema': 1, 'engineVersion': 'fixture', 'engine': str(self.release / 'engine/codex.exe'), 'bridge': str(self.release / 'engine/azrael-bridge.exe'), 'devinNative': {}, 'providerAccounts': {}}
+        config = {'schema': 1, 'engineVersion': 'fixture', 'engine': str(self.release / 'engine/azrael.exe'), 'bridge': str(self.release / 'engine/azrael-bridge.exe'), 'devinNative': {}, 'providerAccounts': {}}
         for owner, key in (('computer-use', 'computerUse'), ('window-control', 'windowControl')):
             self.write_json(self.release / owner / 'manifest.json', {'files': []})
             config[key] = {'manifestSha256': sha((self.release / owner / 'manifest.json').read_bytes())}
@@ -150,7 +150,7 @@ class AppReleaseTests(unittest.TestCase):
                 self.assertEqual(config['devinNative']['releaseDirectory'], '.')
 
     def test_engine_and_external_node_tamper_rejected(self):
-        for file, expected in ((self.release / 'engine/codex.exe', 'Hash mismatch'), (self.node, 'External Node hash mismatch')):
+        for file, expected in ((self.release / 'engine/azrael.exe', 'Hash mismatch'), (self.node, 'External Node hash mismatch')):
             old = file.read_bytes()
             file.write_bytes(b'tampered')
             self.assertIn(expected, self.package(1).stderr)
@@ -196,7 +196,7 @@ class AppReleaseTests(unittest.TestCase):
         self.assertTrue(receipt['preparedOnly'])
         self.assertFalse(receipt['installed'])
         self.assertEqual(receipt['runtimeConfig']['codexHome'], str(self.root / 'isolated-state'))
-        self.assertEqual(receipt['runtimeConfig']['engine'], str(destination / 'runtime/engine/codex.exe'))
+        self.assertEqual(receipt['runtimeConfig']['engine'], str(destination / 'runtime/engine/azrael.exe'))
         before = (destination / 'installer-receipt.json').read_bytes()
         self.assertIn('occupied', self.install(extracted, destination, 1).stderr)
         self.assertEqual((destination / 'installer-receipt.json').read_bytes(), before)
@@ -256,7 +256,7 @@ foreach ($path in @($Source, $NodeRoot)) {
                 receipt, config = self.installed_config(destination)
                 self.assertEqual(config['codexHome'], str(state))
                 self.assertEqual(config['devinExecutable'], str(devin))
-                self.assertEqual(config['engine'], str(destination / 'runtime/engine/codex.exe'))
+                self.assertEqual(config['engine'], str(destination / 'runtime/engine/azrael.exe'))
                 self.assertEqual(config['devinNative']['releaseDirectory'], str(destination / 'runtime'))
                 devin_manifest = json.loads((destination / 'runtime/devin-native-build.json').read_bytes())
                 self.assertEqual(devin_manifest['node']['path'], str(destination / 'runtime/node/node.exe'))
@@ -302,7 +302,7 @@ foreach ($path in @($Source, $NodeRoot)) {
         self.run_installer(extracted, ['-InstallRoot', destination,
                                        '-ReleasesRoot', 'invalid-ignored-option', *options], env)
         self.assertEqual(self.installed_config(destination)[1]['engine'],
-                         str(destination / 'runtime/engine/codex.exe'))
+                         str(destination / 'runtime/engine/azrael.exe'))
 
     def test_invalid_recipient_paths_fail_before_destination_creation(self):
         extracted = self.extract()

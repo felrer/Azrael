@@ -10,7 +10,6 @@ use codex_login::AzraelProfileAuth;
 use codex_login::AzraelProfileInfo;
 use codex_login::ExternalAuth;
 use std::io;
-use std::sync::atomic::Ordering;
 use tokio::sync::OwnedRwLockWriteGuard;
 use tokio_util::sync::CancellationToken;
 
@@ -672,7 +671,7 @@ impl AccountRequestProcessor {
     }
 
     async fn azrael_state(&self) -> AzraelAccountState {
-        let revision = self.azrael.revision.fetch_add(1, Ordering::Relaxed);
+        let revision = self.azrael.next_revision();
         let profiles = match self.azrael.store.list() {
             Ok(profiles) => profiles.into_iter().map(azrael_profile).collect(),
             Err(_) => {

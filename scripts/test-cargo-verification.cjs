@@ -116,3 +116,161 @@ for (const [name, scope, expected] of cases) {
     assert.throws(() => runWrapper(name, scope, { error: new Error("Cargo unavailable") }), /Cargo unavailable/);
   });
 }
+
+function runSharedNative({ platform = "win32", artifacts, compile = {}, runtime = {}, env = {}, imported = false, invoke } = {}) {
+  const root = path.resolve("artifacts", "verification", "selected-frozen-engine");
+  const calls = [], ordinary = [], output = { stdout: "", stderr: "" };
+  const processStub = {
+    argv: imported ? [] : [process.execPath, "check-shared-engine-native.cjs", root, "appserver"], platform, env,
+    stdout: { write(value) { output.stdout += value; } }, stderr: { write(value) { output.stderr += value; } },
+  };
+  const moduleStub = { exports: {} };
+  let statCalls = 0, error;
+  const requireStub = id => {
+    if (id === "node:fs") return { statSync() { statCalls++; return { isFile: () => true }; } };
+    if (id === "node:path") return path;
+    if (id === "./cargo-verification.cjs") return {
+      buildCargoTestCommand(sourceRoot, args, options) { return buildCargoTestCommand(sourceRoot, Array.from(args), { ...options, env }); },
+      runCargoTest(sourceRoot, args, options) { ordinary.push({ sourceRoot, args: Array.from(args), options }); return { status: 0 }; },
+    };
+    if (id === "node:child_process") return { spawnSync(command, args, options) {
+      calls.push({ command, args: Array.from(args), options });
+      if (command === "cargo") {
+        const crate = args[args.indexOf("-p") + 1];
+        const directory = crate === "codex-utils-pty" ? path.join("utils", "pty") : "app-server-daemon";
+        const artifact = {
+          reason: "compiler-artifact", manifest_path: path.join(root, "codex-rs", directory, "Cargo.toml"),
+          package_id: `selected-frozen-${crate}`, profile: { test: true }, executable: path.join(root, "selected-target", `${crate}-tests.exe`),
+          target: { name: crate.replaceAll("-", "_"), kind: ["lib"], src_path: path.join(root, "codex-rs", directory, "src", "lib.rs") },
+        };
+        return { status: 0, stdout: (artifacts ? artifacts(artifact) : [artifact]).map(value => typeof value === "string" ? value : JSON.stringify(value)).join("\n"),
+          stderr: "compiler diagnostics\n", ...compile };
+      }
+      return { status: 0, stdout: "native test diagnostics\n", stderr: "native stderr\n", ...runtime };
+    } };
+    throw new Error(`Unexpected dependency: ${id}`);
+  };
+  requireStub.main = imported ? {} : moduleStub;
+  try {
+    vm.runInNewContext(fs.readFileSync(path.join(__dirname, "check-shared-engine-native.cjs"), "utf8"), {
+      process: processStub, require: requireStub, module: moduleStub,
+    }, { filename: "check-shared-engine-native.cjs" });
+    if (invoke) {
+      const result = moduleStub.exports.runWindowsNativeTests(root, ...invoke);
+      if (result.error) throw result.error;
+      if (result.status !== 0) processStub.exitCode = result.status ?? 1;
+    }
+  } catch (caught) { error = caught; }
+  return { root, calls, ordinary, output, error, exitCode: processStub.exitCode, exported: moduleStub.exports, statCalls };
+}
+
+const nativeGroups = [
+  ["codex-utils-pty", "windows_tests::"],
+  ["codex-utils-pty", "win::process_tree::tests::"],
+  ["codex-utils-pty", "pipe::tests::process_fallback_interrupt_terminates_root"],
+  ["codex-app-server-daemon", "backend::pid::tests::"],
+];
+
+test("Windows native PTY and daemon groups compile selected frozen libtests then execute them outside Cargo", () => {
+  const result = runSharedNative({
+    env: { AZRAEL_SOCKET: "private", CODEX_HOME: "private", AZRAEL_CARGO_TARGET: "selected-triple", AZRAEL_CARGO_PROFILE: "test", RUSTUP_TOOLCHAIN: "pinned" },
+    artifacts: artifact => [
+      { ...artifact, manifest_path: path.join(path.dirname(artifact.manifest_path), "other", "Cargo.toml"), executable: path.join(path.dirname(artifact.executable), "wrong.exe") },
+      { ...artifact, profile: { test: false } }, artifact,
+    ],
+  });
+  assert.equal(result.error, undefined);
+  assert.equal(result.calls.length, nativeGroups.length * 2);
+  for (const [index, [crate, filter]] of nativeGroups.entries()) {
+    const [compile, direct] = result.calls.slice(index * 2, index * 2 + 2);
+    assert.equal(compile.command, "cargo");
+    assert.deepEqual(compile.args, ["test", "-p", crate, "--lib", filter, "--locked", "--offline", "--no-run", "--message-format=json", "--target", "selected-triple", "--profile", "test"]);
+    assert.equal(direct.command, path.join(result.root, "selected-target", `${crate}-tests.exe`));
+    assert.deepEqual(direct.args, [filter, "--test-threads=1", ...(crate === "codex-utils-pty" ? ["--nocapture"] : [])]);
+    assert.equal(direct.options.cwd, path.join(result.root, "codex-rs"));
+    assert.deepEqual(direct.options.env, compile.options.env);
+    assert.equal(direct.options.env.CODEX_HOME, undefined);
+    assert.equal(direct.options.env.AZRAEL_SOCKET, undefined);
+    assert.equal(direct.options.env.RUSTUP_TOOLCHAIN, "pinned");
+    assert.equal(direct.options.env.INSTA_UPDATE, "no");
+    assert.equal(direct.options.windowsHide, true);
+    assert.ok(Number.isSafeInteger(direct.options.maxBuffer) && direct.options.maxBuffer > 0);
+    assert.equal(direct.options.encoding, "utf8");
+  }
+  assert.match(result.output.stdout, /native test diagnostics/);
+  assert.match(result.output.stderr, /compiler diagnostics[\s\S]*native stderr/);
+  assert.equal(result.ordinary.length, 6);
+  assert.ok(!result.ordinary.some(call => call.args.includes("codex-utils-pty") || call.args.includes("backend::pid::tests::")));
+  assert.ok(result.ordinary.some(call => call.args.includes("azrael::tests::")));
+});
+
+test("native direct execution is Windows scoped", () => {
+  const result = runSharedNative({ platform: "linux" });
+  assert.equal(result.error, undefined);
+  assert.equal(result.calls.length, 0);
+  const group = result.ordinary.find(call => call.args.includes("backend::pid::tests::"));
+  assert.deepEqual(group.args, ["test", "-p", "codex-app-server-daemon", "--lib", "backend::pid::tests::", "--locked", "--offline", "--", "--test-threads=1"]);
+  assert.ok(!result.ordinary.some(call => call.args.includes("codex-utils-pty")));
+});
+
+test("importing Windows native runner exports a reusable helper without CLI side effects", () => {
+  const result = runSharedNative({ imported: true });
+  assert.equal(result.error, undefined);
+  assert.equal(typeof result.exported.runWindowsNativeTests, "function");
+  assert.equal(result.calls.length, 0);
+  assert.equal(result.ordinary.length, 0);
+  assert.equal(result.statCalls, 0);
+  assert.deepEqual(result.output, { stdout: "", stderr: "" });
+});
+
+for (const crate of ["codex-app-server-daemon", "codex-utils-pty"]) {
+  const invoke = [crate, crate === "codex-utils-pty" ? "windows_tests::" : "backend::pid::tests::"];
+  test(`${crate}: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts`, () => {
+    for (const artifacts of [
+      () => [],
+      artifact => [{ ...artifact, manifest_path: path.join(path.dirname(artifact.manifest_path), "foreign", "Cargo.toml") }],
+      artifact => [{ ...artifact, target: { ...artifact.target, src_path: path.join(path.dirname(artifact.target.src_path), "foreign.rs") } }],
+      artifact => [{ ...artifact, target: { ...artifact.target, name: "foreign_target" } }],
+      artifact => [{ ...artifact, target: { ...artifact.target, kind: ["bin"] } }],
+      artifact => [artifact, { ...artifact, executable: path.join(path.dirname(artifact.executable), "second.exe") }],
+      () => ["not JSON"],
+      artifact => [{ ...artifact, executable: "relative.exe" }],
+    ]) {
+      const result = runSharedNative({ imported: true, invoke, artifacts });
+      assert.ok(result.error);
+      assert.equal(result.calls.length, 1);
+      assert.equal(result.ordinary.length, 0);
+      assert.match(result.output.stderr, /compiler diagnostics/);
+    }
+  });
+
+  test(`${crate}: native runner propagates compile and runtime failures without continuing`, () => {
+    for (const [stage, failure, expectedStatus] of [
+      ["compile", { status: 7 }, 7], ["runtime", { status: 9 }, 9],
+      ["compile", { status: null, signal: "SIGTERM" }, 1], ["runtime", { status: null, signal: "SIGTERM" }, 1],
+    ]) {
+      const result = runSharedNative({ imported: true, invoke, [stage]: failure });
+      assert.equal(result.error, undefined);
+      assert.equal(result.exitCode, expectedStatus);
+      assert.equal(result.calls.length, stage === "compile" ? 1 : 2);
+      assert.equal(result.ordinary.length, 0);
+    }
+    for (const stage of ["compile", "runtime"]) {
+      const failure = new Error(`${stage} spawn failed`);
+      const result = runSharedNative({ imported: true, invoke, [stage]: { error: failure, stdout: "partial diagnostics\n" } });
+      assert.equal(result.error, failure);
+      assert.match(result.output.stdout, /partial diagnostics/);
+      assert.equal(result.ordinary.length, 0);
+    }
+  });
+}
+
+test("CLI stops subsequent native groups after the first compile or test failure", () => {
+  for (const stage of ["compile", "runtime"]) {
+    const result = runSharedNative({ [stage]: { status: 7 } });
+    assert.equal(result.error, undefined);
+    assert.equal(result.exitCode, 7);
+    assert.equal(result.calls.length, stage === "compile" ? 1 : 2);
+    assert.equal(result.ordinary.length, 0);
+  }
+});

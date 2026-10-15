@@ -9,7 +9,7 @@ import { join, resolve } from 'node:path';
 const root = resolve(import.meta.dirname, '..');
 const latest = JSON.parse(await readFile(join(root, 'artifacts/latest.json'), 'utf8'));
 const engineDir = join(latest.releaseDirectory, 'engine');
-const engine = join(engineDir, 'codex.exe');
+const engine = join(engineDir, 'azrael.exe');
 const binaryOnly = process.argv.includes('--binary-only');
 if (binaryOnly) assert.equal(resolve(engineDir), join(root, 'artifacts/releases/use_control_settings_20261007_r2/engine'), 'binary-only scope pins the originally selected release');
 const fixture = join(root, 'artifacts/verification/auto-review-20261007-openai');
@@ -29,7 +29,7 @@ const receipt = JSON.parse(await readFile(join(engineDir, 'azrael-engine-build.j
 summary.receipt = { path: join(engineDir, 'azrael-engine-build.json'), comparedSourceRoot: join(root, 'engine'), source: receipt.source, binaries: receipt.binaries };
 summary.currentSourceMatch = provenance.status === 0;
 summary.scope = binaryOnly ? 'Existing receipt-verified binary public API only; current engine sources/package compatibility unaccepted' : 'Source and binary verified public API';
-for (const name of ['codex.exe', 'azrael-bridge.exe', 'codex-code-mode-host.exe']) {
+for (const name of ['azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe']) {
   const actual = createHash('sha256').update(await readFile(join(engineDir, name))).digest('hex');
   assert.equal(actual, receipt.binaries[name], `receipt binary hash ${name}`);
 }

@@ -19,6 +19,8 @@ use codex_rmcp_client::EnterpriseOAuthCredentialGuard;
 mod azrael;
 mod azrael_login;
 mod azrael_state;
+pub(crate) use azrael_state::AzraelAccountBackendState;
+pub(crate) use azrael_state::AzraelAccountStatePaths;
 mod bedrock_gov_cloud;
 mod bedrock_setup;
 mod enterprise_login;
@@ -197,7 +199,34 @@ impl AccountRequestProcessor {
         config: Arc<Config>,
         config_manager: ConfigManager,
     ) -> Arc<Self> {
-        let azrael = Arc::new(azrael_state::AzraelAccountRuntime::new(&config));
+        Self::new_with_azrael_state_paths(
+            auth_manager,
+            thread_manager,
+            outgoing,
+            config,
+            config_manager,
+            None,
+            None,
+        )
+    }
+
+    pub(crate) fn new_with_azrael_state_paths(
+        auth_manager: Arc<AuthManager>,
+        thread_manager: Arc<ThreadManager>,
+        outgoing: Arc<OutgoingMessageSender>,
+        config: Arc<Config>,
+        config_manager: ConfigManager,
+        paths: Option<AzraelAccountStatePaths>,
+        backend: Option<AzraelAccountBackendState>,
+    ) -> Arc<Self> {
+        let azrael = match paths {
+            Some(paths) => azrael_state::AzraelAccountRuntime::new_with_state_paths(&config, paths),
+            None => azrael_state::AzraelAccountRuntime::new(&config),
+        };
+        let azrael = Arc::new(match backend {
+            Some(backend) => azrael.with_backend_state(backend),
+            None => azrael,
+        });
         if azrael.requires_startup_recovery() {
             let _ = retirement::block_saved_recovery(&auth_manager);
         }

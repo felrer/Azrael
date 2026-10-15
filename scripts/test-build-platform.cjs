@@ -40,6 +40,8 @@ test("source-built code mode rejects unselected V8 overrides before filesystem o
   assert.doesNotThrow(() => validateV8Inputs({}, { RUSTY_V8_ARCHIVE: "", RUSTY_V8_MIRROR: "", RUSTY_V8_SRC_BINDING_PATH: "" }));
 });
 test("engine version binds frozen Cargo declaration to the reported compiled version", () => {
+  assert.equal(assertEngineVersion("0.162.0", "azrael 0.162.0"), "0.162.0");
+  assert.throws(() => assertEngineVersion("0.162.0", "azrael 0.159.3"), /does not match/);
   assert.equal(assertEngineVersion("0.162.0", "codex-cli 0.162.0"), "0.162.0");
   assert.equal(assertEngineVersion("0.162.0-alpha.1", "codex-cli 0.162.0-alpha.1\n"), "0.162.0-alpha.1");
   assert.throws(() => assertEngineVersion("0.162.0", "codex-cli 0.159.3"), /does not match/);
@@ -84,7 +86,8 @@ test("native target plans never reuse cross-platform executables", () => {
     for (const [osName, arch, target, suffix] of [["win32", "x64", "x86_64-pc-windows-msvc", ".exe"], ["linux", "x64", "x86_64-unknown-linux-gnu", ""], ["darwin", "arm64", "aarch64-apple-darwin", ""]]) {
       const plan = buildPlan({ ...options, target }, osName, arch);
       assert.equal(plan.engineReuse, false);
-      assert.deepEqual(plan.binaries, ["codex", "azrael-bridge", "codex-code-mode-host"].map(name => name + suffix));
+      assert.deepEqual(plan.binaries, ["azrael", "azrael-bridge", "azrael-code-mode-host"].map(name => name + suffix));
+      assert.deepEqual(plan.sourceBinaries, ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => name + suffix));
       assert.throws(() => buildPlan({ ...options, target: "foreign-target" }, osName, arch), /Native-only/);
     }
     assert.throws(() => buildPlan(options, "linux", "arm64"), /Unsupported/);

@@ -98,6 +98,7 @@ mod app_info;
 mod app_server_tracing;
 mod attestation;
 mod auth_mode;
+mod azrael_shared_server;
 mod bespoke_event_handling;
 mod code_mode_host;
 mod codex_home_metrics;
@@ -489,6 +490,8 @@ pub struct AppServerRuntimeOptions {
     pub remote_control_startup_mode: RemoteControlStartupMode,
     pub install_shutdown_signal_handler: bool,
     pub managed_daemon: bool,
+    /// Private Azrael daemon multiplexes isolated window processors.
+    pub azrael_shared_windows: bool,
 }
 
 impl Default for AppServerRuntimeOptions {
@@ -499,6 +502,7 @@ impl Default for AppServerRuntimeOptions {
             remote_control_startup_mode: RemoteControlStartupMode::ResolvePersisted,
             install_shutdown_signal_handler: true,
             managed_daemon: false,
+            azrael_shared_windows: false,
         }
     }
 }
@@ -712,7 +716,7 @@ pub async fn run_main_with_transport_options(
     let analytics_events_client =
         analytics_events_client_from_config(Arc::clone(&auth_manager), &config);
     let outgoing_message_sender = Arc::new(OutgoingMessageSender::new(
-        outgoing_tx,
+        outgoing_tx.clone(),
         analytics_events_client.clone(),
     ));
     let feedback = CodexFeedback::new();
@@ -996,11 +1000,12 @@ pub async fn run_main_with_transport_options(
     });
 
     let recovery_file = daemon_recovery_file_path(&config.codex_home);
-    let processor_handle = tokio::spawn({
+    let azrael_shared_windows = runtime_options.azrael_shared_windows;
+    let processor_handle = {
         let auth_manager = Arc::clone(&auth_manager);
         let initialize_notification_sender = outgoing_message_sender.clone();
         let outbound_control_tx = outbound_control_tx;
-        let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
+        let processor_args = MessageProcessorArgs {
             outgoing: outgoing_message_sender,
             analytics_events_client,
             arg0_paths,
@@ -1016,6 +1021,8 @@ pub async fn run_main_with_transport_options(
                 &auth_manager,
             ))),
             auth_manager,
+            azrael_account_state_paths: None,
+            azrael_account_backend_state: None,
             installation_id,
             code_mode_session_provider,
             rpc_transport: analytics_rpc_transport(&transport),
@@ -1025,370 +1032,426 @@ pub async fn run_main_with_transport_options(
                 PluginStartupTasks::Start
             )
             .then_some(plugin_startup_config),
-        }));
-        let mut thread_created_rx = processor.thread_created_receiver();
-        let mut running_turn_count_rx = processor.subscribe_running_assistant_turn_count();
-        let mut active_admissions_rx = processor.turn_admission.subscribe_active();
-        let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
-        let mut connection_cleanup_tasks = ConnectionCleanupTasks::new();
-        let mut thread_listener_tasks = tokio::task::JoinSet::new();
-        let mut remote_control_status_rx = remote_control_handle.status_receiver();
-        let mut remote_control_status = remote_control_status_rx.borrow().clone();
-        let transport_shutdown_token = transport_shutdown_token.clone();
-        async move {
-            processor.restore_azrael_profile().await;
-            let recovery_task = if managed_daemon {
-                match daemon_thread_recovery::start_recovery(
-                    recovery_file.clone(),
-                    Arc::clone(&processor),
+        };
+        if runtime_options.azrael_shared_windows {
+            let outgoing_tx = outgoing_tx.clone();
+            let transport_shutdown_token = transport_shutdown_token.clone();
+            tokio::spawn(async move {
+                match azrael_shared_server::run(
+                    processor_args,
+                    transport,
+                    transport_event_rx,
+                    outgoing_tx,
+                    outbound_control_tx,
+                    transport_shutdown_token,
                 )
                 .await
                 {
-                    Ok(task) => Some(task),
-                    Err(err) => {
-                        warn!("failed to consume daemon recovery snapshot: {err}");
-                        None
+                    Ok(exit) => exit,
+                    Err(error) => {
+                        error!(%error, "shared window server failed closed");
+                        AppServerExit::Forced
                     }
                 }
-            } else {
-                None
-            };
-            let mut listen_for_threads = true;
-            // Keep force signals and daemon control events responsive while saving.
-            let mut snapshot = Box::pin(async {
-                let processor = Arc::clone(&processor);
-                let recovery_file = recovery_file.clone();
-                // Run independently: snapshot locks can require the event loop to make progress.
-                let task = tokio::spawn(async move {
-                    let saved = processor.daemon_recovery_snapshot().await;
-                    if let Err(err) = daemon_thread_recovery::snapshot(recovery_file, saved).await {
-                        warn!("failed to save threads during daemon shutdown: {err}");
+            })
+        } else {
+            let processor = Arc::new(MessageProcessor::new(processor_args));
+            let mut thread_created_rx = processor.thread_created_receiver();
+            let mut running_turn_count_rx = processor.subscribe_running_assistant_turn_count();
+            let mut active_admissions_rx = processor.turn_admission.subscribe_active();
+            let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
+            let mut connection_cleanup_tasks = ConnectionCleanupTasks::new();
+            let mut thread_listener_tasks = tokio::task::JoinSet::new();
+            let mut remote_control_status_rx = remote_control_handle.status_receiver();
+            let mut remote_control_status = remote_control_status_rx.borrow().clone();
+            let transport_shutdown_token = transport_shutdown_token.clone();
+            tokio::spawn(async move {
+                processor.restore_azrael_profile().await;
+                let recovery_task = if managed_daemon {
+                    match daemon_thread_recovery::start_recovery(
+                        recovery_file.clone(),
+                        Arc::clone(&processor),
+                    )
+                    .await
+                    {
+                        Ok(task) => Some(task),
+                        Err(err) => {
+                            warn!("failed to consume daemon recovery snapshot: {err}");
+                            None
+                        }
                     }
+                } else {
+                    None
+                };
+                let mut listen_for_threads = true;
+                // Keep force signals and daemon control events responsive while saving.
+                let mut snapshot = Box::pin(async {
+                    let processor = Arc::clone(&processor);
+                    let recovery_file = recovery_file.clone();
+                    // Run independently: snapshot locks can require the event loop to make progress.
+                    let task = tokio::spawn(async move {
+                        let saved = processor.daemon_recovery_snapshot().await;
+                        if let Err(err) =
+                            daemon_thread_recovery::snapshot(recovery_file, saved).await
+                        {
+                            warn!("failed to save threads during daemon shutdown: {err}");
+                        }
+                    });
+                    let _ = tokio_util::task::AbortOnDropHandle::new(task).await;
                 });
-                let _ = tokio_util::task::AbortOnDropHandle::new(task).await;
-            });
-            let mut snapshot_finished = !managed_daemon;
-            let mut clients_disconnected = false;
-            let mut shutdown_state = ShutdownState::default();
-            let mut shutdown_signal_future = Box::pin(shutdown_signal());
-            let exit_reason = loop {
-                // Sample submissions first: one can publish a running turn before
-                // releasing its permit, and shutdown must observe that new turn.
-                let active_admissions = *active_admissions_rx.borrow_and_update();
-                let running_turn_count = *running_turn_count_rx.borrow_and_update();
-                let ready_to_exit = matches!(
-                    shutdown_state.update(running_turn_count, active_admissions, connections.len()),
-                    ShutdownAction::Finish
-                );
-                if ready_to_exit {
-                    if let Some(task) = &recovery_task {
-                        task.abort();
+                let mut snapshot_finished = !managed_daemon;
+                let mut clients_disconnected = false;
+                let mut shutdown_state = ShutdownState::default();
+                let mut shutdown_signal_future = Box::pin(shutdown_signal());
+                let exit_reason = loop {
+                    // Sample submissions first: one can publish a running turn before
+                    // releasing its permit, and shutdown must observe that new turn.
+                    let active_admissions = *active_admissions_rx.borrow_and_update();
+                    let running_turn_count = *running_turn_count_rx.borrow_and_update();
+                    let ready_to_exit = matches!(
+                        shutdown_state.update(
+                            running_turn_count,
+                            active_admissions,
+                            connections.len()
+                        ),
+                        ShutdownAction::Finish
+                    );
+                    if ready_to_exit {
+                        if let Some(task) = &recovery_task {
+                            task.abort();
+                        }
+                        let finished = snapshot_finished || shutdown_state.forced();
+                        if finished {
+                            transport_shutdown_token.cancel();
+                        }
+                        if managed_daemon && shutdown_state.forced() {
+                            break "forced_shutdown_requested";
+                        }
+                        if !clients_disconnected {
+                            let _ = outbound_control_tx
+                                .send(OutboundControlEvent::DisconnectAll)
+                                .await;
+                            clients_disconnected = true;
+                        }
+                        if finished {
+                            break "shutdown_requested";
+                        }
                     }
-                    let finished = snapshot_finished || shutdown_state.forced();
-                    if finished {
-                        transport_shutdown_token.cancel();
-                    }
-                    if managed_daemon && shutdown_state.forced() {
-                        break "forced_shutdown_requested";
-                    }
-                    if !clients_disconnected {
-                        let _ = outbound_control_tx
-                            .send(OutboundControlEvent::DisconnectAll)
-                            .await;
-                        clients_disconnected = true;
-                    }
-                    if finished {
-                        break "shutdown_requested";
-                    }
-                }
 
-                tokio::select! {
-                    _ = &mut snapshot, if shutdown_state.requested() && active_admissions == 0 && !snapshot_finished => {
-                        snapshot_finished = true;
-                    }
-                    shutdown_signal_result = &mut shutdown_signal_future, if graceful_signal_restart_enabled && !shutdown_state.forced() => {
-                        shutdown_signal_future.set(shutdown_signal());
-                        let signal = match shutdown_signal_result {
-                            Ok(signal) => signal,
-                            Err(err) => {
-                                warn!("failed to listen for shutdown signal during graceful restart drain: {err}");
+                    tokio::select! {
+                        _ = &mut snapshot, if shutdown_state.requested() && active_admissions == 0 && !snapshot_finished => {
+                            snapshot_finished = true;
+                        }
+                        shutdown_signal_result = &mut shutdown_signal_future, if graceful_signal_restart_enabled && !shutdown_state.forced() => {
+                            shutdown_signal_future.set(shutdown_signal());
+                            let signal = match shutdown_signal_result {
+                                Ok(signal) => signal,
+                                Err(err) => {
+                                    warn!("failed to listen for shutdown signal during graceful restart drain: {err}");
+                                    continue;
+                                }
+                            };
+                            let running_turn_count = *running_turn_count_rx.borrow();
+                            shutdown_state.on_signal(signal, connections.len(), running_turn_count, &processor.turn_admission);
+                        }
+                        changed = running_turn_count_rx.changed(), if shutdown_state.requested() => {
+                            if changed.is_err() {
+                                warn!("running-turn watcher closed during graceful restart drain");
+                            }
+                        }
+                        changed = active_admissions_rx.changed(), if shutdown_state.requested() => {
+                            if changed.is_err() {
+                                warn!("turn admission watcher closed during graceful restart drain");
+                            }
+                        }
+                        event = transport_event_rx.recv() => {
+                            let Some(event) = event else {
+                                break "transport_channel_closed";
+                            };
+                            if ready_to_exit && !matches!(event, TransportEvent::DaemonShutdown) {
+                                if let TransportEvent::ConnectionOpened { disconnect_sender: Some(token), .. } = event {
+                                    token.cancel();
+                                }
                                 continue;
                             }
-                        };
-                        let running_turn_count = *running_turn_count_rx.borrow();
-                        shutdown_state.on_signal(signal, connections.len(), running_turn_count, &processor.turn_admission);
-                    }
-                    changed = running_turn_count_rx.changed(), if shutdown_state.requested() => {
-                        if changed.is_err() {
-                            warn!("running-turn watcher closed during graceful restart drain");
-                        }
-                    }
-                    changed = active_admissions_rx.changed(), if shutdown_state.requested() => {
-                        if changed.is_err() {
-                            warn!("turn admission watcher closed during graceful restart drain");
-                        }
-                    }
-                    event = transport_event_rx.recv() => {
-                        let Some(event) = event else {
-                            break "transport_channel_closed";
-                        };
-                        if ready_to_exit && !matches!(event, TransportEvent::DaemonShutdown) {
-                            if let TransportEvent::ConnectionOpened { disconnect_sender: Some(token), .. } = event {
-                                token.cancel();
-                            }
-                            continue;
-                        }
-                        match event {
-                            TransportEvent::DaemonShutdown => {
-                                shutdown_state.on_signal(ShutdownSignal::Forceable, connections.len(), *running_turn_count_rx.borrow(), &processor.turn_admission);
-                            }
-                            TransportEvent::ConnectionOpened {
-                                connection_id,
-                                origin,
-                                auth,
-                                writer,
-                                disconnect_sender,
-                            } => {
-                                let outbound_initialized = Arc::new(AtomicBool::new(false));
-                                let outbound_experimental_api_enabled =
-                                    Arc::new(AtomicBool::new(false));
-                                let outbound_opted_out_notification_methods =
-                                    Arc::new(RwLock::new(HashSet::new()));
-                                if outbound_control_tx
-                                    .send(OutboundControlEvent::Opened {
-                                        connection_id,
-                                        writer,
-                                        disconnect_sender,
-                                        initialized: Arc::clone(&outbound_initialized),
-                                        experimental_api_enabled: Arc::clone(
-                                            &outbound_experimental_api_enabled,
-                                        ),
-                                        opted_out_notification_methods: Arc::clone(
-                                            &outbound_opted_out_notification_methods,
-                                        ),
-                                    })
-                                    .await
-                                    .is_err()
-                                {
-                                    break "outbound_router_closed";
+                            match event {
+                                TransportEvent::DaemonShutdown => {
+                                    shutdown_state.on_signal(ShutdownSignal::Forceable, connections.len(), *running_turn_count_rx.borrow(), &processor.turn_admission);
                                 }
-                                connections.insert(
+                                TransportEvent::ConnectionOpened {
                                     connection_id,
-                                    ConnectionState::new(
-                                        origin,
-                                        auth,
-                                        outbound_initialized,
-                                        outbound_experimental_api_enabled,
-                                        outbound_opted_out_notification_methods,
-                                    ),
-                                );
-                            }
-                            TransportEvent::ConnectionClosed { connection_id } => {
-                                let Some(connection_state) = connections.remove(&connection_id) else {
-                                    continue;
-                                };
-                                let stdio_closed = connection_state.origin == ConnectionOrigin::Stdio;
-                                connection_state.session.rpc_gate.close().await;
-                                let outbound_closed = outbound_control_tx
-                                    .send(OutboundControlEvent::Closed { connection_id })
-                                    .await
-                                    .is_ok();
-                                let processor = Arc::clone(&processor);
-                                connection_cleanup_tasks.spawn(async move {
-                                    processor
-                                        .connection_closed(connection_id, &connection_state.session)
-                                        .await;
-                                });
-                                if !outbound_closed {
-                                    break "outbound_router_closed";
+                                    origin,
+                                    auth,
+                                    writer,
+                                    disconnect_sender,
+                                } => {
+                                    let outbound_initialized = Arc::new(AtomicBool::new(false));
+                                    let outbound_experimental_api_enabled =
+                                        Arc::new(AtomicBool::new(false));
+                                    let outbound_opted_out_notification_methods =
+                                        Arc::new(RwLock::new(HashSet::new()));
+                                    if outbound_control_tx
+                                        .send(OutboundControlEvent::Opened {
+                                            connection_id,
+                                            writer,
+                                            disconnect_sender,
+                                            initialized: Arc::clone(&outbound_initialized),
+                                            experimental_api_enabled: Arc::clone(
+                                                &outbound_experimental_api_enabled,
+                                            ),
+                                            opted_out_notification_methods: Arc::clone(
+                                                &outbound_opted_out_notification_methods,
+                                            ),
+                                        })
+                                        .await
+                                        .is_err()
+                                    {
+                                        break "outbound_router_closed";
+                                    }
+                                    connections.insert(
+                                        connection_id,
+                                        ConnectionState::new(
+                                            origin,
+                                            auth,
+                                            outbound_initialized,
+                                            outbound_experimental_api_enabled,
+                                            outbound_opted_out_notification_methods,
+                                        ),
+                                    );
                                 }
-                                if single_client_mode && stdio_closed {
-                                    // Pending remote enrollment must stop before RPCs drain.
-                                    remote_control_shutdown_token.cancel();
-                                    break "stdio_connection_closed";
-                                }
-                            }
-                            TransportEvent::IncomingMessage { connection_id, message } => {
-                                let Some(connection_state) = connections.get_mut(&connection_id) else {
-                                    warn!("dropping message from unknown connection: {connection_id:?}");
-                                    continue;
-                                };
-                                if connection_state.session.rpc_gate.is_closed() {
-                                    continue;
-                                }
-                                match message {
-                                    JSONRPCMessage::Request(request) => {
-                                        let was_initialized =
-                                            connection_state.session.initialized();
+                                TransportEvent::ConnectionClosed { connection_id } => {
+                                    let Some(connection_state) = connections.remove(&connection_id) else {
+                                        continue;
+                                    };
+                                    let stdio_closed = connection_state.origin == ConnectionOrigin::Stdio;
+                                    connection_state.session.rpc_gate.close().await;
+                                    let outbound_closed = outbound_control_tx
+                                        .send(OutboundControlEvent::Closed { connection_id })
+                                        .await
+                                        .is_ok();
+                                    let processor = Arc::clone(&processor);
+                                    connection_cleanup_tasks.spawn(async move {
                                         processor
-                                            .process_request(
-                                                connection_id,
-                                                request,
-                                                &transport,
-                                                Arc::clone(&connection_state.session),
+                                            .connection_closed(connection_id, &connection_state.session)
+                                            .await;
+                                    });
+                                    if !outbound_closed {
+                                        break "outbound_router_closed";
+                                    }
+                                    if single_client_mode && stdio_closed {
+                                        // Pending remote enrollment must stop before RPCs drain.
+                                        remote_control_shutdown_token.cancel();
+                                        break "stdio_connection_closed";
+                                    }
+                                }
+                                TransportEvent::IncomingMessage { connection_id, message } => {
+                                    let Some(connection_state) = connections.get_mut(&connection_id) else {
+                                        warn!("dropping message from unknown connection: {connection_id:?}");
+                                        continue;
+                                    };
+                                    if connection_state.session.rpc_gate.is_closed() {
+                                        continue;
+                                    }
+                                    match message {
+                                        JSONRPCMessage::Request(request) => {
+                                            let was_initialized =
+                                                connection_state.session.initialized();
+                                            processor
+                                                .process_request(
+                                                    connection_id,
+                                                    request,
+                                                    &transport,
+                                                    Arc::clone(&connection_state.session),
+                                                )
+                                                .await;
+                                            let opted_out_notification_methods_snapshot = connection_state
+                                                .session
+                                                .opted_out_notification_methods();
+                                            let experimental_api_enabled =
+                                                connection_state.session.experimental_api_enabled();
+                                            let is_initialized = connection_state.session.initialized();
+                                            if let Ok(mut opted_out_notification_methods) = connection_state
+                                                .outbound_opted_out_notification_methods
+                                                .write()
+                                            {
+                                                *opted_out_notification_methods =
+                                                    opted_out_notification_methods_snapshot;
+                                            } else {
+                                                warn!(
+                                                    "failed to update outbound opted-out notifications"
+                                                );
+                                            }
+                                            connection_state
+                                                .outbound_experimental_api_enabled
+                                                .store(
+                                                    experimental_api_enabled,
+                                                    std::sync::atomic::Ordering::Release,
+                                                );
+                                            if !was_initialized && is_initialized {
+                                                processor
+                                                    .send_initialize_notifications_to_connection(
+                                                        connection_id,
+                                                    )
+                                                    .await;
+                                                initialize_notification_sender
+                                                    .send_server_notification_to_connections(
+                                                        &[connection_id],
+                                                        ServerNotification::RemoteControlStatusChanged(
+                                                            remote_control_status.clone(),
+                                                        ),
+                                                    )
+                                                    .await;
+                                                processor
+                                                    .connection_initialized(
+                                                        connection_id,
+                                                        connection_state
+                                                            .session
+                                                            .request_attestation(),
+                                                    )
+                                                    .await;
+                                                connection_state
+                                                    .outbound_initialized
+                                                    .store(true, std::sync::atomic::Ordering::Release);
+                                            }
+                                        }
+                                        JSONRPCMessage::Response(response) => {
+                                            processor.process_response(connection_id, response).await;
+                                        }
+                                        JSONRPCMessage::Notification(notification) => {
+                                            processor.process_notification(notification).await;
+                                        }
+                                        JSONRPCMessage::Error(err) => {
+                                            processor.process_error(connection_id, err).await;
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        _ = connection_cleanup_tasks.reap_next() => {}
+                        result = thread_listener_tasks.join_next(), if !thread_listener_tasks.is_empty() => {
+                            if let Some(Err(err)) = result {
+                                warn!("thread listener attachment failed: {err}");
+                            }
+                        }
+                        changed = remote_control_status_rx.changed() => {
+                            if changed.is_err() {
+                                continue;
+                            }
+                            let status = remote_control_status_rx.borrow().clone();
+                            if remote_control_status == status {
+                                continue;
+                            }
+                            remote_control_status = status.clone();
+                            let notification = ServerNotification::RemoteControlStatusChanged(status);
+                            initialize_notification_sender
+                                .send_server_notification(notification)
+                                .await;
+                        }
+                        created = thread_created_rx.recv(), if listen_for_threads && !ready_to_exit => {
+                            match created {
+                                Ok(thread_id) => {
+                                    let mut initialized_connection_ids = Vec::new();
+                                    for (connection_id, connection_state) in &connections {
+                                        if connection_state.session.initialized() {
+                                            initialized_connection_ids.push(*connection_id);
+                                        }
+                                    }
+                                    let processor = Arc::clone(&processor);
+                                    // Attachment can wait on snapshot locks; keep force shutdown responsive.
+                                    thread_listener_tasks.spawn(async move {
+                                        processor
+                                            .try_attach_thread_listener(
+                                                thread_id,
+                                                initialized_connection_ids,
                                             )
                                             .await;
-                                        let opted_out_notification_methods_snapshot = connection_state
-                                            .session
-                                            .opted_out_notification_methods();
-                                        let experimental_api_enabled =
-                                            connection_state.session.experimental_api_enabled();
-                                        let is_initialized = connection_state.session.initialized();
-                                        if let Ok(mut opted_out_notification_methods) = connection_state
-                                            .outbound_opted_out_notification_methods
-                                            .write()
-                                        {
-                                            *opted_out_notification_methods =
-                                                opted_out_notification_methods_snapshot;
-                                        } else {
-                                            warn!(
-                                                "failed to update outbound opted-out notifications"
-                                            );
-                                        }
-                                        connection_state
-                                            .outbound_experimental_api_enabled
-                                            .store(
-                                                experimental_api_enabled,
-                                                std::sync::atomic::Ordering::Release,
-                                            );
-                                        if !was_initialized && is_initialized {
-                                            processor
-                                                .send_initialize_notifications_to_connection(
-                                                    connection_id,
-                                                )
-                                                .await;
-                                            initialize_notification_sender
-                                                .send_server_notification_to_connections(
-                                                    &[connection_id],
-                                                    ServerNotification::RemoteControlStatusChanged(
-                                                        remote_control_status.clone(),
-                                                    ),
-                                                )
-                                                .await;
-                                            processor
-                                                .connection_initialized(
-                                                    connection_id,
-                                                    connection_state
-                                                        .session
-                                                        .request_attestation(),
-                                                )
-                                                .await;
-                                            connection_state
-                                                .outbound_initialized
-                                                .store(true, std::sync::atomic::Ordering::Release);
-                                        }
-                                    }
-                                    JSONRPCMessage::Response(response) => {
-                                        processor.process_response(connection_id, response).await;
-                                    }
-                                    JSONRPCMessage::Notification(notification) => {
-                                        processor.process_notification(notification).await;
-                                    }
-                                    JSONRPCMessage::Error(err) => {
-                                        processor.process_error(connection_id, err).await;
-                                    }
+                                    });
+                                }
+                                Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
+                                    // TODO(jif) handle lag.
+                                    // Assumes thread creation volume is low enough that lag never happens.
+                                    // If it does, we log and continue without resyncing to avoid attaching
+                                    // listeners for threads that should remain unsubscribed.
+                                    warn!("thread_created receiver lagged; skipping resync");
+                                }
+                                Err(tokio::sync::broadcast::error::RecvError::Closed) => {
+                                    listen_for_threads = false;
                                 }
                             }
                         }
                     }
-                    _ = connection_cleanup_tasks.reap_next() => {}
-                    result = thread_listener_tasks.join_next(), if !thread_listener_tasks.is_empty() => {
-                        if let Some(Err(err)) = result {
-                            warn!("thread listener attachment failed: {err}");
-                        }
-                    }
-                    changed = remote_control_status_rx.changed() => {
-                        if changed.is_err() {
-                            continue;
-                        }
-                        let status = remote_control_status_rx.borrow().clone();
-                        if remote_control_status == status {
-                            continue;
-                        }
-                        remote_control_status = status.clone();
-                        let notification = ServerNotification::RemoteControlStatusChanged(status);
-                        initialize_notification_sender
-                            .send_server_notification(notification)
-                            .await;
-                    }
-                    created = thread_created_rx.recv(), if listen_for_threads && !ready_to_exit => {
-                        match created {
-                            Ok(thread_id) => {
-                                let mut initialized_connection_ids = Vec::new();
-                                for (connection_id, connection_state) in &connections {
-                                    if connection_state.session.initialized() {
-                                        initialized_connection_ids.push(*connection_id);
-                                    }
-                                }
-                                let processor = Arc::clone(&processor);
-                                // Attachment can wait on snapshot locks; keep force shutdown responsive.
-                                thread_listener_tasks.spawn(async move {
-                                    processor
-                                        .try_attach_thread_listener(
-                                            thread_id,
-                                            initialized_connection_ids,
-                                        )
-                                        .await;
-                                });
-                            }
-                            Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {
-                                // TODO(jif) handle lag.
-                                // Assumes thread creation volume is low enough that lag never happens.
-                                // If it does, we log and continue without resyncing to avoid attaching
-                                // listeners for threads that should remain unsubscribed.
-                                warn!("thread_created receiver lagged; skipping resync");
-                            }
-                            Err(tokio::sync::broadcast::error::RecvError::Closed) => {
-                                listen_for_threads = false;
-                            }
-                        }
-                    }
-                }
-            };
+                };
 
-            if let Some(task) = recovery_task {
-                task.abort();
-            }
-            drop(snapshot);
-            drop(thread_listener_tasks);
-            if !shutdown_state.forced() {
-                futures::future::join_all(connections.iter().map(
-                    |(&connection_id, connection_state)| {
-                        processor.connection_closed(connection_id, &connection_state.session)
-                    },
-                ))
-                .await;
-                connection_cleanup_tasks.drain().await;
-                processor.drain_background_tasks().await;
-                processor.shutdown_threads().await;
-            } else {
-                connection_cleanup_tasks.abort();
-            }
-            info!(
-                exit_reason,
-                remaining_connection_count = connections.len(),
-                shutdown_forced = shutdown_state.forced(),
-                "processor task exited"
-            );
-            if managed_daemon && shutdown_state.forced() {
-                AppServerExit::Forced
-            } else {
-                AppServerExit::Graceful
-            }
+                if let Some(task) = recovery_task {
+                    task.abort();
+                }
+                drop(snapshot);
+                drop(thread_listener_tasks);
+                if !shutdown_state.forced() {
+                    futures::future::join_all(connections.iter().map(
+                        |(&connection_id, connection_state)| {
+                            processor.connection_closed(connection_id, &connection_state.session)
+                        },
+                    ))
+                    .await;
+                    connection_cleanup_tasks.drain().await;
+                    processor.drain_background_tasks().await;
+                    processor.shutdown_threads().await;
+                } else {
+                    connection_cleanup_tasks.abort();
+                }
+                info!(
+                    exit_reason,
+                    remaining_connection_count = connections.len(),
+                    shutdown_forced = shutdown_state.forced(),
+                    "processor task exited"
+                );
+                if managed_daemon && shutdown_state.forced() {
+                    AppServerExit::Forced
+                } else {
+                    AppServerExit::Graceful
+                }
+            })
         }
-    });
+    };
 
     drop(transport_event_tx);
+    drop(outgoing_tx);
 
-    if matches!(processor_handle.await, Ok(AppServerExit::Forced)) {
+    let processor_exit = processor_handle.await;
+    if azrael_shared_windows {
+        info!(stage = "processor_returned", result = ?processor_exit, "shared window outer shutdown progress");
+    }
+    if matches!(processor_exit, Ok(AppServerExit::Forced)) {
         return Ok(AppServerExit::Forced);
+    }
+    if azrael_shared_windows {
+        info!(
+            stage = "outbound_router_wait",
+            "shared window outer shutdown progress"
+        );
     }
     let _ = outbound_handle.await;
 
     transport_shutdown_token.cancel();
+    if azrael_shared_windows {
+        info!(
+            stage = "telemetry_wait",
+            "shared window outer shutdown progress"
+        );
+    }
     let _ = otel_reloader_handle.await;
+    if azrael_shared_windows {
+        info!(
+            stage = "transport_acceptors_wait",
+            "shared window outer shutdown progress"
+        );
+    }
     for handle in transport_accept_handles {
         let _ = handle.await;
+    }
+    if azrael_shared_windows {
+        info!(stage = "complete", "shared window outer shutdown progress");
     }
 
     Ok(AppServerExit::Graceful)

@@ -661,6 +661,20 @@ impl Session {
         let agent_control = self.services.agent_control.clone();
         let thread_id = self.thread_id;
         tokio::spawn(async move {
+            let Some(session) = weak.upgrade() else {
+                return;
+            };
+            let home = session
+                .state
+                .lock()
+                .await
+                .session_configuration
+                .codex_home()
+                .clone();
+            if crate::azrael_manual_resume::requires_manual_resume(home.as_path(), thread_id) {
+                return;
+            }
+            drop(session);
             let timed = async {
                 let now = clock.current_time(thread_id).await?;
                 let delay = record
@@ -757,6 +771,15 @@ impl Session {
                 if control.closed.load(Ordering::Acquire) {
                     return Err(invalid("root runtime is closing"));
                 }
+                let home = session.state.lock().await.session_configuration.codex_home().clone();
+                if reason != RootResumeWakeReason::Manual
+                    && crate::azrael_manual_resume::requires_manual_resume(
+                        home.as_path(),
+                        session.thread_id,
+                    )
+                {
+                    return Err(invalid("thread requires explicit manual resume after host shutdown"));
+                }
                 let record = session
                     .root_resume_record()
                     .filter(|r| r.id == id && r.revision == revision)
@@ -786,6 +809,13 @@ impl Session {
                         return Err(invalid(error.to_string()));
                     }
                 };
+                if reason == RootResumeWakeReason::Manual {
+                    crate::azrael_manual_resume::clear_manual_resume(
+                        home.as_path(),
+                        session.thread_id,
+                    )
+                    .map_err(storage_error)?;
+                }
                 // A manual retry of a blocked write must first establish durable history.
                 let phase = RootResumePhase::new(timing.as_ref(), "history_flush");
                 let flushed = session.flush_rollout().await.map_err(storage_error);
@@ -1060,7 +1090,24 @@ impl Session {
             .parked_context
             .lock()
             .unwrap_or_else(|error| panic!("parked context: {error}")) = Some(context);
-        if matches!(
+        let home = self
+            .state
+            .lock()
+            .await
+            .session_configuration
+            .codex_home()
+            .clone();
+        if crate::azrael_manual_resume::requires_manual_resume(home.as_path(), self.thread_id) {
+            if record.state != RootResumeState::Blocked {
+                self.transition_root_resume_record(
+                    &record,
+                    RootResumeState::Blocked,
+                    None,
+                    Some("host shutdown; resume this thread manually".to_string()),
+                )
+                .await?;
+            }
+        } else if matches!(
             record.state,
             RootResumeState::Preparing | RootResumeState::Claimed
         ) {

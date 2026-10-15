@@ -244,7 +244,7 @@ try {
     # Source tests, engine checks and private package preparation must all pass before external probes.
     Wait-OwnedCommands @($sourceTests, $enginePreservation, $prepare)
     if ($VerifyAccountControls) {
-        $enginePath = Join-Path $release 'engine/codex.exe'
+        $enginePath = Join-Path $release 'engine/azrael.exe'
         $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
         $socketPath = Join-Path $accountControlsState 'socket/a.sock'
         if ([Text.Encoding]::UTF8.GetByteCount($socketPath) -gt 100) {

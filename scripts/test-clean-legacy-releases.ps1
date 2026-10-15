@@ -14,7 +14,7 @@ function Write-Json([string]$Path, $Data) {
 }
 function New-Release([string]$Name) {
     $path = Join-Path $fixture "artifacts/releases/$Name"
-    Write-Json (Join-Path $path 'build-info.json') @{ product = 'azrael-ex'; packageVersion = '0.4.0'; sha256 = @{ 'engine/codex.exe' = ('a' * 64) } }
+    Write-Json (Join-Path $path 'build-info.json') @{ product = 'azrael-ex'; packageVersion = '0.4.0'; sha256 = @{ 'engine/azrael.exe' = ('a' * 64) } }
     $path
 }
 try {
@@ -45,8 +45,8 @@ try {
     $originalHomePath = $env:HOMEPATH
     try {
         $env:LEGACY_CLEANUP_FIXTURE_ROOT = $shortcutRelease
-        $expandedShortcut = @(Get-LegacyShortcutPaths @{TargetPath='%LEGACY_CLEANUP_FIXTURE_ROOT%\\engine\\codex.exe';WorkingDirectory='';Arguments=''} $fixture)
-        Assert ((Join-Path $shortcutRelease 'engine/codex.exe') -in $expandedShortcut) 'Shortcut environment filesystem path not expanded.'
+        $expandedShortcut = @(Get-LegacyShortcutPaths @{TargetPath='%LEGACY_CLEANUP_FIXTURE_ROOT%\\engine\\azrael.exe';WorkingDirectory='';Arguments=''} $fixture)
+        Assert ((Join-Path $shortcutRelease 'engine/azrael.exe') -in $expandedShortcut) 'Shortcut environment filesystem path not expanded.'
         $env:HOMEDRIVE = $null; $env:HOMEPATH = $null
         Assert ((Expand-LegacyShortcutEnvironment '%HOMEDRIVE%%HOMEPATH%') -ieq (ConvertTo-LegacyPath ([Environment]::GetFolderPath('UserProfile')))) 'Verified UserProfile shortcut fallback failed.'
         $unresolvedFailed = $false
@@ -63,9 +63,9 @@ try {
     foreach ($item in @(@{name='current';path=$current;date='2026-10-08T02:00:00Z'},@{name='repeat-current';path=$current;date='2026-10-08T01:00:00Z'},@{name='previous';path=$previous;date='2026-10-07T00:00:00Z'})) {
         Write-Json (Join-Path $fixture "artifacts/deployments/$($item.name)/deployment.json") @{ hostInstalled = $true; status = 'installed-reload-required'; releaseDirectory = $item.path; generatedAt = $item.date; packageDirectory = (Join-Path $fixture "artifacts/deployments/$($item.name)/package") }
     }
-    $script:mockProcesses = @(@{ExecutablePath=(Join-Path $active 'engine/codex.exe');CommandLine='';ProcessId=7})
-    $script:mockInstalled = @(Join-Path $runtime 'engine/codex.exe')
-    $script:mockShortcuts = @([pscustomobject]@{command='--engine "' + (Join-Path $shortcutRelease 'engine/codex.exe') + '"'})
+    $script:mockProcesses = @(@{ExecutablePath=(Join-Path $active 'engine/azrael.exe');CommandLine='';ProcessId=7})
+    $script:mockInstalled = @(Join-Path $runtime 'engine/azrael.exe')
+    $script:mockShortcuts = @([pscustomobject]@{command='--engine "' + (Join-Path $shortcutRelease 'engine/azrael.exe') + '"'})
     $ProtectedPaths = @($explicit)
     $preview = Invoke-LegacyReleaseCleanup
     Assert ($preview.status -eq 'preview') 'Preview blocked unexpectedly.'
@@ -86,7 +86,7 @@ try {
     Assert (Test-Path -LiteralPath $outside) 'Link target damaged.'
     Remove-Item -LiteralPath $junction -Force
     $commandRelease = New-Release 'command'
-    $script:mockProcesses += @{ExecutablePath=$null;CommandLine='--engine "' + (Join-Path $commandRelease 'engine/codex.exe') + '"';ProcessId=8}
+    $script:mockProcesses += @{ExecutablePath=$null;CommandLine='--engine "' + (Join-Path $commandRelease 'engine/azrael.exe') + '"';ProcessId=8}
     $result = Invoke-LegacyReleaseCleanup
     Assert (@($result.candidates | Where-Object { $_.path -eq $commandRelease -and $_.reason -match 'Active command' }).Count -eq 1) 'Command-line reference ignored.'
     $fail = New-Release 'failclosed'
@@ -101,9 +101,9 @@ try {
     $extensionRoot = Join-Path $fixture 'extensions'
     $extensionPath = Join-Path $extensionRoot 'azrael-ex-local.azrael-1.0.0'
     Write-Json (Join-Path $extensionRoot 'extensions.json') @(@{ identifier=@{id='azrael-ex-local.azrael'};location=@{fsPath=$extensionPath;path='/c:/unused'} })
-    Write-Json (Join-Path $extensionPath 'out/azrael-runtime.json') @{engine=@{path=(Join-Path $runtime 'engine/codex.exe')}}
+    Write-Json (Join-Path $extensionPath 'out/azrael-runtime.json') @{engine=@{path=(Join-Path $runtime 'engine/azrael.exe')}}
     $refs = @(& $installedProbe $extensionRoot)
-    Assert ((Join-Path $runtime 'engine/codex.exe') -in $refs) 'Installed runtime absolute references missing.'
+    Assert ((Join-Path $runtime 'engine/azrael.exe') -in $refs) 'Installed runtime absolute references missing.'
     $vsixRoot = Join-Path $fixture 'artifacts/vsix/owned'
     New-Item -ItemType Directory -Path $vsixRoot -Force | Out-Null
     $zip = [IO.Compression.ZipFile]::Open((Join-Path $vsixRoot 'azrael-ex.vsix'), [IO.Compression.ZipArchiveMode]::Create)
@@ -118,7 +118,7 @@ try {
     $script:probeCount = 0
     function Get-LegacyProcesses {
         $script:probeCount++
-        if ($script:probeCount -gt 1) { @{ExecutablePath=(Join-Path $fresh 'engine/codex.exe');CommandLine='';ProcessId=9} }
+        if ($script:probeCount -gt 1) { @{ExecutablePath=(Join-Path $fresh 'engine/azrael.exe');CommandLine='';ProcessId=9} }
     }
     $result = Invoke-LegacyReleaseCleanup
     Assert ((Test-Path -LiteralPath $fresh) -and @($result.candidates | Where-Object { $_.path -eq $fresh -and $_.reason -match 'Active executable' }).Count -eq 1) 'Fresh process before deletion ignored.'

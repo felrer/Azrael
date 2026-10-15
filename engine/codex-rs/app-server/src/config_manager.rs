@@ -100,6 +100,35 @@ impl ConfigManager {
         self.codex_home.as_path()
     }
 
+    /// Retains configuration inputs while giving a window its own account and policy state.
+    pub(crate) fn fork_for_window(
+        &self,
+        auth_manager: Arc<AuthManager>,
+        chatgpt_base_url: String,
+        http_client_factory: codex_http_client::HttpClientFactory,
+    ) -> Self {
+        let fork = Self::new(
+            self.codex_home.clone(),
+            self.current_cli_overrides(),
+            self.loader_overrides.clone(),
+            self.strict_config,
+            CloudConfigBundleLoader::default(),
+            self.arg0_paths.clone(),
+            Arc::clone(&self.thread_config_loader),
+        );
+        *fork
+            .runtime_feature_enablement
+            .write()
+            .expect("new window feature lock") = self.current_runtime_feature_enablement();
+        // The initial loader is empty: replacement cannot retire another window's EMA policy.
+        fork.replace_cloud_config_bundle_loader(
+            auth_manager,
+            chatgpt_base_url,
+            http_client_factory,
+        );
+        fork
+    }
+
     pub(crate) fn with_embedded_network_policy(
         mut self,
         policy: crate::in_process::EmbeddedNetworkPolicy,
@@ -570,6 +599,100 @@ mod application_network_tests;
 #[cfg(test)]
 #[path = "config_manager_provider_tests.rs"]
 mod provider_tests;
+
+#[cfg(test)]
+mod window_context_tests {
+    use super::*;
+    use std::sync::atomic::AtomicUsize;
+    use std::sync::atomic::Ordering;
+
+    #[tokio::test]
+    async fn window_fork_isolates_configuration_changes_and_cloud_loader_retirement() {
+        let home = tempfile::tempdir().unwrap();
+        let config = ConfigBuilder::default()
+            .codex_home(home.path().to_path_buf())
+            .build()
+            .await
+            .unwrap();
+        let auth = AuthManager::shared_from_config(&config, false)
+            .await
+            .unwrap();
+        let reads = Arc::new(AtomicUsize::new(0));
+        let loader_reads = Arc::clone(&reads);
+        let policy = codex_config::CloudConfigBundlePolicy::default();
+        let manager = ConfigManager::new_for_tests(
+            home.path().to_path_buf(),
+            vec![(
+                "model".to_string(),
+                TomlValue::String("original".to_string()),
+            )],
+            LoaderOverrides::without_managed_config_for_tests(),
+            CloudConfigBundleLoader::from_getter(move || {
+                loader_reads.fetch_add(1, Ordering::SeqCst);
+                std::future::ready(Ok(None))
+            })
+            .with_ema_policy_snapshots(policy.clone(), || {
+                std::future::ready(codex_config::CloudConfigBundleSnapshot {
+                    bundle: Ok(None),
+                    binding: None,
+                })
+            }),
+        );
+        manager
+            .extend_runtime_feature_enablement([("original".to_string(), true)])
+            .unwrap();
+        let fork = manager.fork_for_window(
+            auth,
+            config.chatgpt_base_url.clone(),
+            config.http_client_factory(),
+        );
+        assert_eq!(fork.codex_home(), manager.codex_home());
+        assert_eq!(
+            fork.current_cli_overrides(),
+            manager.current_cli_overrides()
+        );
+        assert_eq!(
+            fork.current_runtime_feature_enablement(),
+            manager.current_runtime_feature_enablement()
+        );
+        assert!(!Arc::ptr_eq(
+            &fork.cloud_config_bundle,
+            &manager.cloud_config_bundle
+        ));
+        assert!(!Arc::ptr_eq(
+            &fork.network_policy_snapshot,
+            &manager.network_policy_snapshot
+        ));
+        assert!(!Arc::ptr_eq(
+            &fork.network_policy_reload,
+            &manager.network_policy_reload
+        ));
+        fork.cli_overrides.write().unwrap().clear();
+        fork.extend_runtime_feature_enablement([("window-only".to_string(), true)])
+            .unwrap();
+        fork.clear_cloud_config_bundle_loader();
+        assert!(
+            policy
+                .observe_remote_bundle(&codex_config::CloudConfigBundle::default())
+                .is_some()
+        );
+        assert_eq!(manager.current_cli_overrides().len(), 1);
+        assert!(
+            !manager
+                .current_runtime_feature_enablement()
+                .contains_key("window-only")
+        );
+        assert!(
+            manager
+                .current_cloud_config_bundle()
+                .get()
+                .await
+                .unwrap()
+                .is_none()
+        );
+        assert_eq!(reads.load(Ordering::SeqCst), 1);
+    }
+}
 
 pub(crate) fn protected_feature_keys(config_layer_stack: &ConfigLayerStack) -> BTreeSet<String> {
     let mut protected_features = config_layer_stack

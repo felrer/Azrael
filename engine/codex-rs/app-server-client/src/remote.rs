@@ -177,6 +177,33 @@ enum SocketPeerPolicy {
 }
 
 impl RemoteAppServerClient {
+    /// Registers the companion/window owner on the private Azrael daemon before
+    /// the ordinary initialize handshake. Reconnection never replays requests.
+    pub async fn connect_azrael_local_daemon(
+        args: RemoteAppServerConnectArgs,
+        registration: serde_json::Value,
+    ) -> IoResult<Self> {
+        let initialize_params = args.initialize_params();
+        let RemoteAppServerEndpoint::UnixSocket { socket_path } = args.endpoint else {
+            return Err(IoError::new(
+                ErrorKind::InvalidInput,
+                "Azrael daemon requires a Unix socket",
+            ));
+        };
+        let stream = codex_app_server_daemon::connect_azrael_registered(
+            socket_path.as_path(),
+            &registration,
+        )
+        .await?;
+        Self::connect_with_stream(
+            args.channel_capacity.max(1),
+            format!("unix://{}", socket_path.display()),
+            stream,
+            initialize_params,
+        )
+        .await
+    }
+
     pub async fn connect(args: RemoteAppServerConnectArgs) -> IoResult<Self> {
         Self::connect_with_policy(args, SocketPeerPolicy::ExplicitEndpoint).await
     }

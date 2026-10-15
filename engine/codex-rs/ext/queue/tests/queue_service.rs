@@ -558,6 +558,117 @@ async fn interrupted_turns_pause_queued_messages_but_failed_turns_drain_them() -
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn manual_resume_marker_preserves_automatic_queue_and_explicit_start_resumes_it()
+-> anyhow::Result<()> {
+    for compaction_first in [false, true] {
+        let server = start_mock_server().await;
+        let response = responses::mount_sse_sequence(
+            &server,
+            if compaction_first {
+                vec![
+                    responses::sse(vec![responses::ev_completed_with_tokens("seed", 90_000)]),
+                    responses::sse(vec![
+                        serde_json::json!({
+                            "type": "response.output_item.done",
+                            "item": { "type": "compaction", "encrypted_content": "manual-summary" }
+                        }),
+                        responses::ev_completed("manual-compact"),
+                    ]),
+                ]
+            } else {
+                vec![responses::sse_completed("manual-queue")]
+            },
+        )
+        .await;
+        let test = test_codex()
+            .with_config(|config| {
+                config.include_environment_context = false;
+                config.model_context_window = Some(100_000);
+                let _ = config.features.enable(Feature::RemoteCompactionV2);
+            })
+            .build_with_auto_env(&server)
+            .await?;
+        let thread_id = test.session_configured.thread_id;
+        // Unknown usage starts compaction; seed known usage above the 80,000-token
+        // threshold so this case exercises a real queued compaction request.
+        if compaction_first {
+            test.submit_text_turn("seed compactable context").await?;
+        }
+        let baseline_requests = response.requests().len();
+        assert_eq!(baseline_requests, usize::from(compaction_first));
+        let other_thread = ThreadId::new();
+        codex_core::azrael_manual_resume::mark_threads_for_manual_resume(
+            test.codex_home_path(),
+            [thread_id, other_thread],
+        )?;
+        let service = QueuedItemService::new(
+            loaded_thread_queue(&test)?,
+            Arc::downgrade(&test.thread_manager),
+            Arc::new(NoopExtensionEventSink),
+        );
+        let selected = if compaction_first {
+            service
+                .enqueue_compaction(thread_id, "manual-compact".to_string())
+                .await?
+        } else {
+            service
+                .enqueue(thread_id, user_input("manual queued message"))
+                .await?
+        };
+        let retained = service.list(thread_id).await?;
+        for cause in [ThreadIdleCause::Completed, ThreadIdleCause::Failed] {
+            emit_idle_with_cause(&service, thread_id, cause).await;
+            assert_eq!(service.list(thread_id).await?, retained);
+            assert_eq!(response.requests().len(), baseline_requests);
+        }
+        assert!(
+            service
+                .start(test.codex.as_ref(), Some("missing-item".to_string()), None)
+                .await
+                .is_err()
+        );
+        assert!(codex_core::azrael_manual_resume::requires_manual_resume(
+            test.codex_home_path(),
+            thread_id
+        ));
+        let submission = service
+            .start(test.codex.as_ref(), Some(selected.id), None)
+            .await?;
+        assert!(matches!(submission, QueuedItemSubmission::Started { .. }));
+        assert!(!codex_core::azrael_manual_resume::requires_manual_resume(
+            test.codex_home_path(),
+            thread_id
+        ));
+        assert!(codex_core::azrael_manual_resume::requires_manual_resume(
+            test.codex_home_path(),
+            other_thread
+        ));
+        wait_for_event_match(test.codex.as_ref(), |event| {
+            matches!(event, EventMsg::TurnComplete(_)).then_some(())
+        })
+        .await;
+        assert!(service.list(thread_id).await?.is_empty());
+        emit_idle(&service, thread_id).await;
+        assert_eq!(response.requests().len(), baseline_requests + 1);
+        assert_eq!(
+            response
+                .requests()
+                .last()
+                .unwrap()
+                .message_input_texts("user")
+                .last()
+                .map(String::as_str),
+            Some(if compaction_first {
+                "seed compactable context"
+            } else {
+                "manual queued message"
+            })
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn registered_queue_lifecycle_starts_messages_in_fifo_order() -> anyhow::Result<()> {
     let server = start_mock_server().await;
     let responses = responses::mount_sse_sequence(

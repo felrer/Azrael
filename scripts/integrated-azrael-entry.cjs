@@ -120,10 +120,22 @@ async function migrateAccountDefault(defaultFile, previousSessionRoot) {
 
 exports.activate = async function activate(context) {
   const stateFiles = accountStateFiles(context);
+  if (runtime.sharedEngine) {
+    const shared = require("./out/shared-engine-host.cjs");
+    await shared.verifyEngine(runtime);
+    const workspacePath = fileSystemPath(context.storageUri ?? context.globalStorageUri, "Extension storage");
+    runtime.env.AZRAEL_EX_WINDOW_CONTEXT = JSON.stringify(shared.windowContext(runtime, {
+      sessionId: vscode.env.sessionId || (fallbackWindowSessionId ??= randomUUID()),
+      workspacePath, hostPid: process.pid, accountStateFile: stateFiles.sessionFile,
+      accountDefaultFile: stateFiles.defaultFile,
+    }));
+  }
   runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE = stateFiles.sessionFile;
   runtime.env.AZRAEL_EX_ACCOUNT_DEFAULT_FILE = stateFiles.defaultFile;
   await migrateAccountDefault(stateFiles.defaultFile, stateFiles.previousSessionRoot);
-  recoveryActivation = recovery.initialize(context, vscode);
+  recoveryActivation = recovery.initialize(context, vscode, runtime.sharedEngine ? {
+    requiresManualResume: threadId => require("./out/shared-engine-host.cjs").requiresManualResume(runtime.codexHome, threadId),
+  } : undefined);
   try {
     if (runtime.localHistory?.sourceHome) {
       const output = vscode.window.createOutputChannel("Azrael Local History");

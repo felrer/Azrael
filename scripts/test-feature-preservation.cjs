@@ -256,14 +256,14 @@ else {
     assert.equal(git.status, 0, git.stderr);
     const engineSourceRoot = path.join(root, 'selected-engine-source'), engineDirectory = path.join(root, 'selected-engine-binaries');
     fs.mkdirSync(engineSourceRoot); fs.mkdirSync(engineDirectory);
-    fs.writeFileSync(path.join(engineSourceRoot, 'source.rs'), 'selected source'); fs.writeFileSync(path.join(engineDirectory, 'codex.exe'), 'synthetic binary');
+    fs.writeFileSync(path.join(engineSourceRoot, 'source.rs'), 'selected source'); fs.writeFileSync(path.join(engineDirectory, 'azrael.exe'), 'synthetic binary');
     let provenanceCalls = 0, provenanceVersion = 'verified-selected-binary';
     const realConfig = { ...config, area: 'all', outputDirectory: path.join(root, 'artifacts/output'), typeScriptPath: typescript,
       transformRules: { ...config.transformRules, 'content-font-resource:provenance.json': 'resource-content-digest' },
       identityProvider: undefined, engineSourceRoot, engineDirectory, execute: async (_executable, args, options) => {
         const provenance = args[0].endsWith('engine-provenance.py');
         if (provenance) { provenanceCalls++; assert.equal(args[3], engineSourceRoot); assert.equal(args[5], engineDirectory); }
-        const stdout = provenance ? JSON.stringify({ source: { sourceSha256: 'verified-selected-source' }, binaries: { 'codex.exe': provenanceVersion } }) : 'passing synthetic source check';
+        const stdout = provenance ? JSON.stringify({ source: { sourceSha256: 'verified-selected-source' }, binaries: { 'azrael.exe': provenanceVersion } }) : 'passing synthetic source check';
         fs.writeFileSync(options.logPath, stdout); fs.writeFileSync(options.errorPath, ''); return { exitCode: 0, stdout };
       } };
     const receipt = await gate.runPreservation(realConfig);

@@ -22,7 +22,7 @@ if ($state -ieq $ordinary -or $state.StartsWith($ordinary + [IO.Path]::Directory
     throw 'Use a dedicated Azrael state root.'
 }
 if ($AppServer -and $ResumeThreadId) { throw 'App-server clients resume through thread/resume.' }
-$engine = (Resolve-Path -LiteralPath (Join-Path $EngineDirectory 'codex.exe')).Path
+$engine = (Resolve-Path -LiteralPath (Join-Path $EngineDirectory 'azrael.exe')).Path
 $node = (Resolve-Path -LiteralPath $NodePath).Path
 $workspace = (Resolve-Path -LiteralPath $WorkspacePath).Path
 $helper = (Resolve-Path -LiteralPath $HelperPath).Path

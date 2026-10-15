@@ -1,6 +1,7 @@
 #![recursion_limit = "256"]
 
 use clap::Parser;
+use clap::{CommandFactory, FromArgMatches};
 use codex_app_server::AppServerCodeModeHostArgs;
 use codex_app_server::AppServerRuntimeOptions;
 use codex_app_server::AppServerTransport;
@@ -68,17 +69,140 @@ struct AppServerArgs {
     disable_plugin_startup_tasks_for_tests: bool,
 
     /// Enable remote control for this app-server process without changing persistence.
-    #[arg(long = "remote-control", hide = true)]
+    #[arg(
+        long = "remote-control",
+        hide = true,
+        conflicts_with = "azrael_shared_windows"
+    )]
     remote_control: bool,
 
     /// Save loaded threads during managed daemon shutdown.
     #[arg(long, hide = true)]
     managed_daemon: bool,
+
+    #[arg(long, hide = true)]
+    azrael_shared_windows: bool,
+
+    #[arg(long)]
+    analytics_default_enabled: bool,
+}
+
+fn parse_azrael_args(
+    args: impl IntoIterator<Item = std::ffi::OsString>,
+) -> Result<AppServerArgs, clap::Error> {
+    let mut args: Vec<_> = args.into_iter().collect();
+    let value_flags = [
+        "-c",
+        "--config",
+        "--code-mode-host",
+        "--listen",
+        "--session-source",
+        "--ws-auth",
+        "--ws-token-file",
+        "--ws-token-sha256",
+        "--ws-shared-secret-file",
+        "--ws-issuer",
+        "--ws-audience",
+        "--ws-max-clock-skew-seconds",
+    ];
+    if let Some(index) = args.iter().enumerate().skip(1).find_map(|(index, arg)| {
+        (arg == "app-server" && !value_flags.iter().any(|flag| args[index - 1] == *flag))
+            .then_some(index)
+    }) {
+        args.remove(index);
+    }
+    let matches = AppServerArgs::command()
+        .name("azrael")
+        .try_get_matches_from(args)?;
+    AppServerArgs::from_arg_matches(&matches)
+}
+
+fn remote_control_startup_mode(
+    shared_windows: bool,
+    remote_control: bool,
+    disabled: bool,
+) -> codex_app_server::RemoteControlStartupMode {
+    if shared_windows {
+        return codex_app_server::RemoteControlStartupMode::DisabledEphemeral;
+    }
+    match (remote_control, disabled) {
+        (true, _) => codex_app_server::RemoteControlStartupMode::EnabledEphemeral,
+        (false, true) => codex_app_server::RemoteControlStartupMode::DisabledEphemeral,
+        (false, false) => codex_app_server::RemoteControlStartupMode::ResolvePersisted,
+    }
 }
 
 fn main() -> anyhow::Result<()> {
+    run_entry(false)
+}
+
+impl AppServerArgs {
+    fn azrael_startup_args(&self) -> anyhow::Result<Vec<String>> {
+        anyhow::ensure!(
+            matches!(self.listen, AppServerTransport::Stdio),
+            "Azrael window proxy requires stdio; its shared daemon owns the private listener"
+        );
+        anyhow::ensure!(
+            !self.remote_control
+                && !self.managed_daemon
+                && self.auth == WebsocketAuthArgs::default(),
+            "Azrael window proxy does not accept remote control, managed daemon or WebSocket authentication flags"
+        );
+        let mut args = Vec::new();
+        let overrides = self
+            .config_overrides
+            .parse_overrides()
+            .map_err(anyhow::Error::msg)?;
+        if !overrides
+            .iter()
+            .any(|(key, _)| key == "features.code_mode_host")
+        {
+            args.extend(["-c".into(), "features.code_mode_host=true".into()]);
+        }
+        for value in &self.config_overrides.raw_overrides {
+            args.extend(["-c".into(), value.clone()]);
+        }
+        if let Some(endpoint) = &self.code_mode_host.code_mode_host {
+            args.extend(["--code-mode-host".into(), endpoint.to_string()]);
+        }
+        if self.strict_config {
+            args.push("--strict-config".into());
+        }
+        args.extend(["--session-source".into(), self.session_source.to_string()]);
+        if self.analytics_default_enabled {
+            args.push("--analytics-default-enabled".into());
+        }
+        #[cfg(debug_assertions)]
+        if self.disable_plugin_startup_tasks_for_tests {
+            args.push("--disable-plugin-startup-tasks-for-tests".into());
+        }
+        Ok(args)
+    }
+}
+
+pub(crate) fn azrael_main() -> anyhow::Result<()> {
+    run_entry(true)
+}
+
+fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
     let remote_control_disabled = codex_app_server::take_remote_control_disabled_env();
     arg0_dispatch_or_else(move |arg0_paths: Arg0DispatchPaths| async move {
+        let args = if azrael_entry {
+            parse_azrael_args(std::env::args_os()).unwrap_or_else(|error| error.exit())
+        } else {
+            AppServerArgs::parse()
+        };
+        if azrael_entry && !args.azrael_shared_windows {
+            if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
+                let registration = serde_json::from_str(&context.to_string_lossy())?;
+                return codex_app_server_daemon::run_azrael_stdio_proxy_with_args(
+                    &std::env::current_exe()?,
+                    registration,
+                    &args.azrael_startup_args()?,
+                )
+                .await;
+            }
+        }
         let AppServerArgs {
             config_overrides,
             code_mode_host,
@@ -90,7 +214,9 @@ fn main() -> anyhow::Result<()> {
             disable_plugin_startup_tasks_for_tests,
             remote_control,
             managed_daemon,
-        } = AppServerArgs::parse();
+            azrael_shared_windows,
+            analytics_default_enabled,
+        } = args;
         let loader_overrides = if disable_managed_config_from_debug_env() {
             LoaderOverrides::without_managed_config_for_tests()
         } else {
@@ -103,25 +229,25 @@ fn main() -> anyhow::Result<()> {
         let mut runtime_options = AppServerRuntimeOptions {
             code_mode_host_transport: code_mode_host.into(),
             managed_daemon,
+            azrael_shared_windows,
             ..Default::default()
         };
         #[cfg(debug_assertions)]
         if disable_plugin_startup_tasks_for_tests {
             runtime_options.plugin_startup_tasks = PluginStartupTasks::Skip;
         }
-        runtime_options.remote_control_startup_mode =
-            match (remote_control, remote_control_disabled) {
-                (true, _) => codex_app_server::RemoteControlStartupMode::EnabledEphemeral,
-                (false, true) => codex_app_server::RemoteControlStartupMode::DisabledEphemeral,
-                (false, false) => codex_app_server::RemoteControlStartupMode::ResolvePersisted,
-            };
+        runtime_options.remote_control_startup_mode = remote_control_startup_mode(
+            azrael_shared_windows,
+            remote_control,
+            remote_control_disabled,
+        );
 
         let exit = run_main_with_transport_options(
             arg0_paths,
             config_overrides,
             loader_overrides,
             strict_config,
-            /*default_analytics_enabled*/ false,
+            analytics_default_enabled,
             transport,
             session_source,
             auth,

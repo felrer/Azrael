@@ -49,9 +49,9 @@ class EngineProvenanceTests(unittest.TestCase):
         self.git("add", ".gitignore", "tracked.txt")
         self.git("commit", "--quiet", "-m", "fixture baseline")
         (self.source / "untracked.txt").write_text("untracked source\n", encoding="utf-8")
-        (self.engine / "codex.exe").write_bytes(b"codex fixture\x00")
+        (self.engine / "azrael.exe").write_bytes(b"codex fixture\x00")
         (self.engine / "azrael-bridge.exe").write_bytes(b"bridge fixture\x00")
-        (self.engine / "codex-code-mode-host.exe").write_bytes(b"code mode fixture\x00")
+        (self.engine / "azrael-code-mode-host.exe").write_bytes(b"code mode fixture\x00")
 
         self.snapshot_file = self.fixture / "source-before.json"
         self.clean_environment = os.environ.copy()
@@ -86,7 +86,7 @@ class EngineProvenanceTests(unittest.TestCase):
             arguments.extend(("--engine-dir", str(self.engine)))
         if action == "record":
             arguments.extend(
-                ("--code-mode-host-source", str(self.engine / "codex-code-mode-host.exe"))
+                ("--code-mode-host-source", str(self.engine / "azrael-code-mode-host.exe"))
             )
         return subprocess.run(
             arguments,
@@ -117,11 +117,11 @@ class EngineProvenanceTests(unittest.TestCase):
         self.assertEqual(receipt["source"]["fileCount"], 3)
         self.assertEqual(
             set(receipt["binaries"]),
-            {"codex.exe", "azrael-bridge.exe", "codex-code-mode-host.exe"},
+            {"azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"},
         )
         self.assertEqual(
             receipt["externalRuntimes"]["codeModeHost"]["sha256"],
-            receipt["binaries"]["codex-code-mode-host.exe"],
+            receipt["binaries"]["azrael-code-mode-host.exe"],
         )
 
     def test_tracked_edit_is_rejected(self) -> None:
@@ -214,20 +214,20 @@ class NativeTargetProvenanceTests(EngineProvenanceTests):
         if action in ("record", "verify"):
             args += ["--engine-dir", str(self.engine)]
         if action == "record":
-            args += ["--code-mode-host-built"] if built else ["--code-mode-host-source", str(self.engine / "codex-code-mode-host")]
+            args += ["--code-mode-host-built"] if built else ["--code-mode-host-source", str(self.engine / "azrael-code-mode-host")]
         return subprocess.run(args, capture_output=True, text=True, env=self.clean_environment)
 
     def test_unix_source_build_binds_target_three_hashes_and_source(self):
         for target in ("x86_64-unknown-linux-gnu", "aarch64-apple-darwin"):
             with self.subTest(target=target):
-                for name in ("codex", "azrael-bridge", "codex-code-mode-host"):
+                for name in ("azrael", "azrael-bridge", "azrael-code-mode-host"):
                     (self.engine / name).write_bytes(name.encode())
                 for action in ("snapshot", "record", "verify"):
                     result = self.native_provenance(action, target, built=True)
                     self.assertEqual(result.returncode, 0, result.stderr)
                 receipt = json.loads(result.stdout)
                 self.assertEqual(receipt["source"]["target"], target)
-                self.assertEqual(set(receipt["binaries"]), {"codex", "azrael-bridge", "codex-code-mode-host"})
+                self.assertEqual(set(receipt["binaries"]), {"azrael", "azrael-bridge", "azrael-code-mode-host"})
                 host = receipt["externalRuntimes"]["codeModeHost"]
                 self.assertEqual(host["kind"], "source-built")
                 self.assertEqual(host["sourceSha256"], receipt["source"]["sourceSha256"])
@@ -247,7 +247,7 @@ class NativeTargetProvenanceTests(EngineProvenanceTests):
         import hashlib
         self.provenance("snapshot")
         original = self.fixture / "original-host.exe"
-        frozen = self.engine / "codex-code-mode-host.exe"
+        frozen = self.engine / "azrael-code-mode-host.exe"
         selected_hash = hashlib.sha256(frozen.read_bytes()).hexdigest()
         original.write_bytes(b"later live bytes")
         args = [sys.executable, "-B", str(PROVENANCE), "record", "--root", str(self.source),

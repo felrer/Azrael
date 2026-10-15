@@ -520,6 +520,181 @@ async fn waiting_reservation_is_recovered_once_after_restart() {
 }
 
 #[tokio::test]
+async fn manual_resume_marker_blocks_durable_reservation_recovery() {
+    for state in [
+        RootResumeState::Waiting,
+        RootResumeState::Preparing,
+        RootResumeState::Claimed,
+    ] {
+        let server = start_mock_server().await;
+        let home = tempfile::tempdir().unwrap();
+        let clock = Arc::new(FakeClock::new());
+        let (first, turn, _events) = make_persistent_session_and_context_with_time_provider_and_rx(
+            home.path(),
+            InitialHistory::New,
+            clock.clone(),
+            format!("{}/v1", server.uri()),
+        )
+        .await
+        .unwrap();
+        let prepared = first
+            .prepare_root_resume(
+                &turn,
+                "marked-recovery",
+                Some(1),
+                None,
+                Vec::new(),
+                "wait".to_string(),
+            )
+            .await
+            .unwrap();
+        if state != RootResumeState::Preparing {
+            let waiting = first
+                .transition_root_resume_record(&prepared, RootResumeState::Waiting, None, None)
+                .await
+                .unwrap();
+            if state == RootResumeState::Claimed {
+                first
+                    .transition_root_resume_record(&waiting, RootResumeState::Claimed, None, None)
+                    .await
+                    .unwrap();
+            }
+        }
+        let thread_id = first.thread_id;
+        crate::azrael_manual_resume::mark_threads_for_manual_resume(home.path(), [thread_id])
+            .unwrap();
+        // This fixture sets reservation states directly instead of parking through
+        // run_hooks_and_record_inputs, which normally materializes the lazy thread.
+        // Persist that independent thread record before exercising native resume.
+        first
+            .try_ensure_rollout_materialized(codex_thread_store::PersistContext::Standard)
+            .await
+            .expect("materialize the thread before restarting the recovery fixture");
+        first
+            .flush_rollout()
+            .await
+            .expect("flush persisted thread before restarting the recovery fixture");
+        drop(turn);
+        drop(first);
+        let (restarted, _turn, _events) =
+            make_persistent_session_and_context_with_time_provider_and_rx(
+                home.path(),
+                InitialHistory::Resumed(ResumedHistory {
+                    conversation_id: thread_id,
+                    history: Arc::new(Vec::new()),
+                    history_revision: None,
+                    rollout_path: None,
+                }),
+                clock.clone(),
+                format!("{}/v1", server.uri()),
+            )
+            .await
+            .unwrap();
+        restarted.recover_root_resume().await.unwrap();
+        let blocked = restarted.root_resume_record().unwrap();
+        assert_eq!(blocked.state, RootResumeState::Blocked);
+        assert_eq!(
+            blocked.last_error.as_deref(),
+            Some("host shutdown; resume this thread manually")
+        );
+        assert!(restarted.active_turn.lock().await.is_none());
+        assert_eq!(clock.sleep_count(), 0);
+        clock.advance(Duration::from_secs(60));
+        restarted.recover_root_resume().await.unwrap();
+        assert_eq!(restarted.root_resume_record(), Some(blocked.clone()));
+        assert_eq!(
+            restarted
+                .state_db()
+                .unwrap()
+                .get_active_root_resume(&thread_id.to_string())
+                .await
+                .unwrap(),
+            Some(blocked)
+        );
+        assert_eq!(
+            response_request_count_for_thread(&server, thread_id).await,
+            0
+        );
+        assert!(crate::azrael_manual_resume::requires_manual_resume(
+            home.path(),
+            thread_id
+        ));
+    }
+}
+
+#[tokio::test]
+async fn manual_resume_marker_blocks_automatic_dispatch_and_validated_manual_clears_it() {
+    let server = start_mock_server().await;
+    let requests = mount_sse_once(
+        &server,
+        sse(vec![ev_response_created("manual"), ev_completed("manual")]),
+    )
+    .await;
+    let home = tempfile::tempdir().unwrap();
+    let (session, turn, _events) = make_persistent_session_and_context_with_time_provider_and_rx(
+        home.path(),
+        InitialHistory::New,
+        Arc::new(FakeClock::new()),
+        format!("{}/v1", server.uri()),
+    )
+    .await
+    .unwrap();
+    park_root(&session, &turn, 60_000).await;
+    let record = session.root_resume_record().unwrap();
+    session.stop_root_resume_timer();
+    crate::azrael_manual_resume::mark_threads_for_manual_resume(home.path(), [session.thread_id])
+        .unwrap();
+    for reason in [
+        RootResumeWakeReason::Deadline,
+        RootResumeWakeReason::AgentsCompleted,
+        RootResumeWakeReason::WorkCompleted,
+        RootResumeWakeReason::ParentRequest,
+    ] {
+        assert!(
+            session
+                .dispatch_root_resume(record.id.clone(), record.revision, reason)
+                .await
+                .is_err()
+        );
+        assert_eq!(session.root_resume_record(), Some(record.clone()));
+        assert!(session.active_turn.lock().await.is_none());
+    }
+    assert!(
+        session
+            .manually_resume_root(&record.id, record.revision + 1)
+            .await
+            .is_err()
+    );
+    assert!(crate::azrael_manual_resume::requires_manual_resume(
+        home.path(),
+        session.thread_id
+    ));
+    assert!(requests.requests().is_empty());
+    session
+        .manually_resume_root(&record.id, record.revision)
+        .await
+        .unwrap();
+    assert!(!crate::azrael_manual_resume::requires_manual_resume(
+        home.path(),
+        session.thread_id
+    ));
+    assert_eq!(
+        wait_for_state(&session, RootResumeState::Resumed)
+            .await
+            .wake_reason,
+        Some(RootResumeWakeReason::Manual)
+    );
+    tokio::time::timeout(Duration::from_secs(10), async {
+        while requests.requests().is_empty() {
+            tokio::task::yield_now().await;
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(requests.requests().len(), 1);
+}
+
+#[tokio::test]
 async fn codex_thread_steer_wakes_matching_parked_root_and_returns_actual_turn_id() {
     let server = start_mock_server().await;
     Mock::given(method("POST"))

@@ -28,7 +28,7 @@ if ($build.installationMode -cne 'native-azrael-host' -or -not $build.engineSour
 $sourceRoot = (Resolve-Path -LiteralPath ([string]$build.engineSourceRoot)).Path
 & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $release 'engine') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Release engine source provenance failed.' }
-foreach ($relative in @('engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe', 'azrael-ex.vsix')) {
+foreach ($relative in @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')) {
     $expected = [string]$build.sha256[$relative]
     if (-not $expected -or (Get-FileHash -LiteralPath (Join-Path $release $relative) -Algorithm SHA256).Hash -ine $expected) {
         throw "Release hash mismatch: $relative"
@@ -87,7 +87,7 @@ foreach ($candidate in $helpers.Values) {
 }
 [ordered]@{
     schema = 2
-    engine = Join-Path $release 'engine/codex.exe'
+    engine = Join-Path $release 'engine/azrael.exe'
     bridge = Join-Path $release 'engine/azrael-bridge.exe'
     codexHome = $state
     engineVersion = [string]$build.engineVersion

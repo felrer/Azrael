@@ -13,7 +13,7 @@ $destination = [IO.Path]::GetFullPath($OutputDirectory)
 if (Test-Path -LiteralPath $destination) { throw 'OutputDirectory must be new.' }
 $engine = (Resolve-Path -LiteralPath $EnginePath).Path
 $bridge = (Resolve-Path -LiteralPath $BridgePath).Path
-$codeModeHost = (Resolve-Path -LiteralPath (Join-Path (Split-Path $engine -Parent) 'codex-code-mode-host.exe')).Path
+$codeModeHost = (Resolve-Path -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-code-mode-host.exe')).Path
 $vsix = (Resolve-Path -LiteralPath $CompanionVsixPath).Path
 $archive = [IO.Compression.ZipFile]::OpenRead($vsix)
 try {
@@ -47,9 +47,9 @@ foreach ($name in $requiredScripts) {
 }
 New-Item -ItemType Directory -Path $destination | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $destination 'engine'), (Join-Path $destination 'scripts') | Out-Null
-Copy-Item -LiteralPath $engine -Destination (Join-Path $destination 'engine/codex.exe')
+Copy-Item -LiteralPath $engine -Destination (Join-Path $destination 'engine/azrael.exe')
 Copy-Item -LiteralPath $bridge -Destination (Join-Path $destination 'engine/azrael-bridge.exe')
-Copy-Item -LiteralPath $codeModeHost -Destination (Join-Path $destination 'engine/codex-code-mode-host.exe')
+Copy-Item -LiteralPath $codeModeHost -Destination (Join-Path $destination 'engine/azrael-code-mode-host.exe')
 Copy-Item -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-engine-build.json') -Destination (Join-Path $destination 'engine/azrael-engine-build.json')
 Copy-Item -LiteralPath $vsix -Destination (Join-Path $destination 'azrael-ex.vsix')
 foreach ($name in $requiredScripts) {
@@ -72,7 +72,7 @@ param(
     [switch]$PrepareOnly
 )
 $launch = @{
-    EnginePath = Join-Path $PSScriptRoot 'engine/codex.exe'
+    EnginePath = Join-Path $PSScriptRoot 'engine/azrael.exe'
     BridgePath = Join-Path $PSScriptRoot 'engine/azrael-bridge.exe'
     CompanionVsixPath = Join-Path $PSScriptRoot 'azrael-ex.vsix'
     WorkspacePath = $WorkspacePath
@@ -90,7 +90,7 @@ if ($DevinExecutable) { $launch.DevinExecutable = $DevinExecutable }
         "Install this release using the project scripts/install-azrael.ps1 -ReleaseDirectory `"$destination`". azrael-ex.vsix is an internal build input embedded in the independent azrael host, not a separately installed extension. Do not use the retired isolated launcher." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
     }
 }
-$files = @('engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe', 'azrael-ex.vsix')
+$files = @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')
 & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $destination 'engine') | Out-Null
 if ($LASTEXITCODE -ne 0) { throw 'Packaged engine/source changed during copying. Release is not accepted.' }
 $hashes = [ordered]@{}

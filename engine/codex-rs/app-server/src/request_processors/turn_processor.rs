@@ -704,6 +704,15 @@ impl TurnRequestProcessor {
         };
 
         if turn_has_input && started {
+            // An accepted direct user turn is an explicit continuation. Clear the
+            // intentional-stop guard only after acceptance; a failed submission
+            // must not release queued or reserved work.
+            if let Err(error) = codex_core::azrael_manual_resume::clear_manual_resume(
+                &self.config.codex_home,
+                thread_id,
+            ) {
+                warn!(%thread_id, %error, "accepted manual turn but could not clear intentional-stop guard; automatic work remains blocked");
+            }
             let config_snapshot = thread.config_snapshot().await;
             if config_snapshot.is_primary_environment_configured() {
                 codex_memories_write::start_memories_startup_task(

@@ -100,12 +100,12 @@ async function prepare(options) {
   const rgTarget=path.join(root,"bin",toolDirectory,platform.executableName("rg",selected)); fs.mkdirSync(path.dirname(rgTarget),{recursive:true}); fs.writeFileSync(rgTarget,rgBytes); if(selected.os!=="win32") fs.chmodSync(rgTarget,0o755);
   fs.cpSync(account,path.join(root,"account-ui"),{recursive:true,dereference:false,filter:file=>!path.relative(account,file).split(path.sep).some(part=>part===".git" || part===".env" || part===".bin")});
   const companionNativeTools=normalizeCompanionModes(path.join(root,"account-ui"),selected);
-  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of modules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"out",name));
   fs.copyFileSync(path.join(__dirname,"ordinary-runtime.cjs"),path.join(root,"out/azrael-runtime.cjs")); fs.copyFileSync(path.join(__dirname,"integrated-azrael-entry.cjs"),path.join(root,"integrated-azrael-entry.cjs"));
   const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","computer-use-runtime.cjs","computer-use-branding.cjs","window-control-runtime.cjs","use-control-settings.cjs","window-use-approvals.cjs","computer-use-approvals.cjs","use-settings-host.cjs","sky-control-policy.mjs","sky-controlled-service.mjs","inject-sky-control-policy.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of accountModules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"account-ui",name));
-  const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("codex",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
+  const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("azrael",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
   config.devinNative=require("./devin-native-host.cjs").readBundle(release); config.providerAccounts=require("./provider-accounts-host.cjs").readBundle(release);
   if(selected.desktopControl) {
     for(const [owner,reader] of [["computerUse","computer-use-runtime.cjs"],["windowControl","window-control-runtime.cjs"]]) {
@@ -121,6 +121,9 @@ async function prepare(options) {
     if(produced.engine!==config.engine || produced.bridge!==config.bridge) throw new Error("Producer runtime selects another release.");
     Object.assign(config,produced); if(selected.os!=="win32") {delete config.computerUse;delete config.windowControl;}
   }
+  config.sharedEngine=true; config.sharedEngineProtocol=1;
+  config.engineSha256=build.sha256[`engine/${platform.executableName("azrael",selected)}`]?.toLowerCase();
+  require("./shared-engine-host.cjs").validateSharedRuntime(config);
   fs.writeFileSync(path.join(root,"out/azrael-runtime.json"),shared.encode(config));
   const linuxSupervision=prepareLinuxSupervision(root,require(typescript),selected);
   await require("./namespace-azrael-host.cjs").transformExtension(root,require(typescript),options["host-version"],{typescriptSha256:shared.sha(fs.readFileSync(typescript))});

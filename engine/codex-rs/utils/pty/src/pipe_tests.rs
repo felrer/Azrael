@@ -1,4 +1,5 @@
 use super::*;
+use std::os::windows::io::AsRawHandle;
 use std::process::Stdio;
 
 #[test]
@@ -10,7 +11,9 @@ fn process_fallback_interrupt_terminates_root() -> anyhow::Result<()> {
         .stderr(Stdio::null())
         .spawn()?;
     let mut terminator = PipeChildTerminator {
-        windows: WindowsChildTerminator::Process(child.id()),
+        windows: WindowsChildTerminator::Process(Arc::new(
+            crate::win::process_tree::OwnedProcessTree::capture(child.as_raw_handle(), child.id())?,
+        )),
     };
 
     terminator.signal(ProcessSignal::Interrupt)?;

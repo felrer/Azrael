@@ -28,6 +28,11 @@ pub enum OutgoingMessage {
     /// "app server" as opposed to an MCP server.
     AppServerNotification(ServerNotificationEnvelope),
     Response(OutgoingResponse),
+    /// Private transport registration, outside the public protocol.
+    RawResponse {
+        id: RequestId,
+        result: serde_json::Value,
+    },
     Error(OutgoingError),
 }
 

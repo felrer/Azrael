@@ -9,7 +9,9 @@ use std::path::PathBuf;
 
 use serde::Serialize;
 
+pub use pid::AzraelProcessIdentity;
 pub(crate) use pid::PidBackend;
+pub use pid::capture_process_identity;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]

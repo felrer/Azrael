@@ -208,7 +208,13 @@ async fn run_control_socket_acceptor(
                 return;
             }
             let (websocket_writer, websocket_reader) = websocket_stream.split();
-            run_websocket_connection(websocket_writer, websocket_reader, transport_event_tx).await;
+            run_websocket_connection(
+                websocket_writer,
+                websocket_reader,
+                transport_event_tx,
+                super::ConnectionOrigin::UnixSocket,
+            )
+            .await;
         });
     }
     info!("control socket acceptor shutting down");

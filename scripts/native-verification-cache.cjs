@@ -11,7 +11,7 @@ const storage = require('./verification-result-cache.cjs');
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
-const BINARY_FILES = ['codex.exe', 'azrael-bridge.exe', 'codex-code-mode-host.exe'];
+const BINARY_FILES = ['azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe'];
 const rootFor = config => path.join(config.projectRoot, 'artifacts/cache/verification-results/native');
 async function contentState(root, files) {
   const { path: directory, ...state } = await getDirectoryState(root, files);

@@ -97,15 +97,25 @@ struct WindowsShell {
 }
 
 fn find_powershell() -> Option<String> {
-    ["pwsh.exe", "powershell.exe"]
+    // Use the inbox baseline for ConPTY checks. A successful ordinary spawn of
+    // Store PowerShell does not establish that its packaged executable supports
+    // CreateProcessW with an attached pseudoconsole.
+    let inbox = std::env::var_os("SystemRoot").map(|root| {
+        Path::new(&root)
+            .join("System32/WindowsPowerShell/v1.0/powershell.exe")
+            .to_string_lossy()
+            .into_owned()
+    });
+    inbox
         .into_iter()
+        .chain(["pwsh.exe".to_string(), "powershell.exe".to_string()])
         .find_map(|candidate| {
-            std::process::Command::new(candidate)
+            std::process::Command::new(&candidate)
                 .args(["-NoLogo", "-NoProfile", "-Command", "exit 0"])
                 .status()
                 .ok()
                 .filter(std::process::ExitStatus::success)
-                .map(|_| candidate.to_string())
+                .map(|_| candidate)
         })
 }
 
@@ -148,10 +158,10 @@ async fn assert_terminate_kills_descendant(
         "import pathlib,time; print('{READY_MARKER}',flush=True); time.sleep(1); pathlib.Path(bytes.fromhex('{}').decode()).write_text('survived')",
         utf8_hex(&marker.to_string_lossy())
     );
-    // Exercise descendants created after the best-effort pipe assignment,
-    // without making the test depend on winning the intentionally accepted race.
+    // Create the descendant immediately: both backends must assign the root
+    // before it runs, rather than relying on a delay before child creation.
     let code = format!(
-        "import subprocess,sys,time; time.sleep(0.5); code=bytes.fromhex('{}').decode(); subprocess.Popen([sys.executable,'-u','-c',code]); time.sleep(60)",
+        "import subprocess,sys,time; code=bytes.fromhex('{}').decode(); subprocess.Popen([sys.executable,'-u','-c',code]); time.sleep(60)",
         utf8_hex(&child_code)
     );
     let args = vec!["-u".to_string(), "-c".to_string(), code];
@@ -238,8 +248,7 @@ async fn assert_normal_exit_preserves_descendant(
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn terminate_kills_descendants_for_best_effort_pipe_and_atomic_conpty() -> anyhow::Result<()>
-{
+async fn terminate_kills_immediate_descendants_for_pipe_and_conpty() -> anyhow::Result<()> {
     let Some(python) = find_python() else {
         eprintln!("python not found; skipping Windows process-tree termination test");
         return Ok(());
@@ -247,6 +256,195 @@ async fn terminate_kills_descendants_for_best_effort_pipe_and_atomic_conpty() ->
     let env: HashMap<String, String> = std::env::vars().collect();
     assert_terminate_kills_descendant("pipe", &python, &env).await?;
     assert_terminate_kills_descendant("ConPTY", &python, &env).await
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn pipe_powershell_foreground_children_terminate_with_output_closed() -> anyhow::Result<()> {
+    let Some(python) = find_python() else {
+        eprintln!("python not found; skipping Windows pipe PowerShell child test");
+        return Ok(());
+    };
+    let mut candidates = Vec::new();
+    if let Some(root) = std::env::var_os("SystemRoot") {
+        candidates.push(
+            Path::new(&root)
+                .join("System32/WindowsPowerShell/v1.0/powershell.exe")
+                .to_string_lossy()
+                .into_owned(),
+        );
+    }
+    candidates.push("pwsh.exe".to_string());
+    let env: HashMap<String, String> = std::env::vars().collect();
+    for program in candidates {
+        if !std::process::Command::new(&program)
+            .args(["-NoLogo", "-NoProfile", "-Command", "exit 0"])
+            .status()
+            .is_ok_and(|status| status.success())
+        {
+            continue;
+        }
+        let fixture = tempfile::Builder::new()
+            .prefix("codex-pipe-powershell-")
+            .tempdir()?;
+        let marker = fixture.path().join("survived");
+        let child_pid_file = fixture.path().join("child.pid");
+        let child_script = fixture.path().join("foreground-child.py");
+        let code = format!(
+            "import os,pathlib,time; pathlib.Path(bytes.fromhex('{}').decode()).write_text(str(os.getpid())); print('{READY_MARKER}',flush=True); time.sleep(1); pathlib.Path(bytes.fromhex('{}').decode()).write_text('survived'); time.sleep(30)",
+            utf8_hex(&child_pid_file.to_string_lossy()),
+            utf8_hex(&marker.to_string_lossy())
+        );
+        std::fs::write(&child_script, code)?;
+        let script = format!(
+            "& '{}' -u '{}'",
+            python.replace('\'', "''"),
+            child_script.to_string_lossy().replace('\'', "''")
+        );
+        let spawned = spawn_pipe_process_no_stdin(
+            &program,
+            &[
+                "-NoLogo".to_string(),
+                "-NoProfile".to_string(),
+                "-Command".to_string(),
+                script,
+            ],
+            Path::new("."),
+            &env,
+            &None,
+            &[],
+        )
+        .await?;
+        let (session, mut output_rx, exit_rx) = combine_spawned_output(spawned);
+        wait_for_output_contains(&mut output_rx, READY_MARKER, /*timeout_ms*/ 10_000).await?;
+        let child_pid: u32 = std::fs::read_to_string(&child_pid_file)?.parse()?;
+        let child_handle = unsafe {
+            OpenProcess(
+                PROCESS_QUERY_LIMITED_INFORMATION
+                    | winapi::um::winnt::SYNCHRONIZE
+                    | winapi::um::winnt::PROCESS_TERMINATE,
+                0,
+                child_pid,
+            )
+        };
+        anyhow::ensure!(
+            !child_handle.is_null(),
+            "cannot capture fixture child {child_pid}: {}",
+            std::io::Error::last_os_error()
+        );
+        let child_handle = unsafe { OwnedHandle::from_raw_handle(child_handle.cast()) };
+        let mut closed_rx = output_rx.resubscribe();
+        session.request_terminate();
+        let child_exited = unsafe {
+            winapi::um::synchapi::WaitForSingleObject(child_handle.as_raw_handle().cast(), 10_000)
+        } == winapi::um::winbase::WAIT_OBJECT_0;
+        if !child_exited {
+            // Clean this nonce-owned fixture even when the regression fails.
+            crate::JobObject::terminate_process_handle(&child_handle)?;
+            anyhow::ensure!(
+                unsafe {
+                    winapi::um::synchapi::WaitForSingleObject(
+                        child_handle.as_raw_handle().cast(),
+                        10_000,
+                    )
+                } == winapi::um::winbase::WAIT_OBJECT_0,
+                "fixture child did not exit after failure cleanup"
+            );
+        }
+        let (_, exit_code) = collect_output_until_exit(output_rx, exit_rx, 10_000).await;
+        assert_ne!(exit_code, -1, "{program}: root did not exit");
+        tokio::time::timeout(Duration::from_secs(10), async {
+            loop {
+                match closed_rx.recv().await {
+                    Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                    Ok(_) | Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {}
+                }
+            }
+        })
+        .await?;
+        tokio::time::sleep(Duration::from_secs(2)).await;
+        let survived = marker.exists();
+        fixture.close()?;
+        assert!(
+            child_exited && !survived,
+            "{program}: foreground child survived termination"
+        );
+    }
+    Ok(())
+}
+
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn pipe_explicit_termination_cleans_breakaway_descendant() -> anyhow::Result<()> {
+    let Some(python) = find_python() else {
+        eprintln!("python not found; skipping Windows pipe breakaway test");
+        return Ok(());
+    };
+    let env: HashMap<String, String> = std::env::vars().collect();
+    let fixture = tempfile::Builder::new()
+        .prefix("codex-pipe-breakaway-")
+        .tempdir()?;
+    let child_pid_file = fixture.path().join("child.pid");
+    let code = format!(
+        "import pathlib,subprocess,sys; child=subprocess.Popen([sys.executable,'-c','import time; time.sleep(30)'],creationflags=subprocess.CREATE_BREAKAWAY_FROM_JOB); pathlib.Path(bytes.fromhex('{}').decode()).write_text(str(child.pid)); print('{READY_MARKER}',flush=True); child.wait()",
+        utf8_hex(&child_pid_file.to_string_lossy())
+    );
+    let spawned = spawn_pipe_process_no_stdin(
+        &python,
+        &["-u".to_string(), "-c".to_string(), code.to_string()],
+        Path::new("."),
+        &env,
+        &None,
+        &[],
+    )
+    .await?;
+    let (session, mut output_rx, exit_rx) = combine_spawned_output(spawned);
+    wait_for_output_contains(&mut output_rx, READY_MARKER, 10_000).await?;
+    let child_pid: u32 = std::fs::read_to_string(&child_pid_file)?.parse()?;
+    let raw = unsafe {
+        OpenProcess(
+            PROCESS_QUERY_LIMITED_INFORMATION
+                | winapi::um::winnt::SYNCHRONIZE
+                | winapi::um::winnt::PROCESS_TERMINATE,
+            0,
+            child_pid,
+        )
+    };
+    anyhow::ensure!(
+        !raw.is_null(),
+        "cannot capture breakaway fixture child: {}",
+        std::io::Error::last_os_error()
+    );
+    let child = unsafe { OwnedHandle::from_raw_handle(raw.cast()) };
+    let mut closed_rx = output_rx.resubscribe();
+    session.request_terminate();
+    let child_exited =
+        unsafe { winapi::um::synchapi::WaitForSingleObject(child.as_raw_handle().cast(), 10_000) }
+            == winapi::um::winbase::WAIT_OBJECT_0;
+    if !child_exited {
+        crate::JobObject::terminate_process_handle(&child)?;
+        anyhow::ensure!(
+            unsafe {
+                winapi::um::synchapi::WaitForSingleObject(child.as_raw_handle().cast(), 10_000)
+            } == winapi::um::winbase::WAIT_OBJECT_0,
+            "fixture child did not exit after failure cleanup"
+        );
+    }
+    let (_, exit_code) = collect_output_until_exit(output_rx, exit_rx, /*timeout_ms*/ 10_000).await;
+    tokio::time::timeout(Duration::from_secs(10), async {
+        loop {
+            match closed_rx.recv().await {
+                Err(tokio::sync::broadcast::error::RecvError::Closed) => break,
+                Ok(_) | Err(tokio::sync::broadcast::error::RecvError::Lagged(_)) => {}
+            }
+        }
+    })
+    .await?;
+    fixture.close()?;
+    assert_ne!(exit_code, -1, "breakaway fixture root did not exit");
+    assert!(
+        child_exited,
+        "successfully launched breakaway descendant survived explicit termination"
+    );
+    Ok(())
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]

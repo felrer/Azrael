@@ -39,8 +39,21 @@ async fn run(socket_path: AbsolutePathBuf) -> io::Result<()> {
         opt_out_notification_methods: Vec::new(),
         channel_capacity: 32,
     };
-    let connection = RemoteAppServerClient::connect_local_daemon(args);
-    let mut client = tokio::time::timeout(Duration::from_secs(15), connection).await??;
+    let mut client = if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
+        let mut registration: Value = serde_json::from_str(&context.to_string_lossy())?;
+        registration["role"] = Value::String("companion".into());
+        tokio::time::timeout(
+            codex_app_server_daemon::AZRAEL_STARTUP_TIMEOUT + Duration::from_secs(5),
+            RemoteAppServerClient::connect_azrael_local_daemon(args, registration),
+        )
+        .await??
+    } else {
+        tokio::time::timeout(
+            Duration::from_secs(15),
+            RemoteAppServerClient::connect_local_daemon(args),
+        )
+        .await??
+    };
     let mut stdout = tokio::io::stdout();
     let ready = json!({"method":"azrael/connected","params":{
         "codexHome":client.codex_home(), "serverVersion":client.server_version()

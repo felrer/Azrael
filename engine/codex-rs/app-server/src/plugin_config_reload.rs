@@ -7,6 +7,7 @@ use codex_utils_absolute_path::AbsolutePathBuf;
 use std::sync::Arc;
 
 /// The config-loading path used to select marketplaces for startup tasks.
+#[derive(Clone, Copy)]
 pub(crate) enum PluginStartupConfig {
     Current,
     Defaults,
