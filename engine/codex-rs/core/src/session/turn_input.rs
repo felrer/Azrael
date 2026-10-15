@@ -260,6 +260,24 @@ pub(super) async fn handle(
             root_turn_id,
         });
     }
+    // Legacy host queues use turn/start as well as the native queue API. Their
+    // automatic submissions must not clear a deliberate wait for user action.
+    // Acceptance reconciliation above remains available without replaying input.
+    if request.start.turn_trigger.as_deref() == Some("queue") {
+        let home = session
+            .state
+            .lock()
+            .await
+            .session_configuration
+            .codex_home
+            .clone();
+        if crate::azrael_manual_resume::requires_manual_resume(home.as_path(), session.thread_id) {
+            return Err(CodexErr::InvalidRequest(
+                "Queued inputs are paused until a new direct user message or explicit send-now/resume."
+                    .to_string(),
+            ));
+        }
+    }
     if let Some(origin) = session.root_resume_originating_turn() {
         match &mode {
             TurnInputMode::Steer { expected_turn_id }

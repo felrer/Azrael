@@ -337,6 +337,16 @@ The URL safety transport logs `azrael_url_safety_transport` (transport, HTTP sta
 
 ### Queue and compaction
 
+Structured waits for user action use `node scripts/check-queued-input-pause.cjs
+'<absolute frozen engine source root>'` with the selected absolute
+`CARGO_TARGET_DIR`. The sequential wrapper covers root-only pause admission,
+durable suspension, automatic local replay refusal, and the existing native queue
+manual-resume integration plus the actual pause-tool → final → retained queue →
+explicit resume flow. `node --test scripts/test-queue-consumption.cjs` covers
+saved queue/steer intention and automatic-start provenance. Source/native checks
+do not install an updated engine or establish live model compliance with the
+structured pause instruction.
+
 Provider context policy checks use `node --test scripts/test-provider-context.cjs` for the transformed settings and gauge and `node scripts/test-provider-context-engine.mjs '<absolute engine>' '<new absolute fixture directory>'` for native configuration and policy roundtrips. The native check uses fresh state without login or inference. Design: [provider context policy](../architecture/context-policy.md). Real account 1M admission and live compaction are separate from these fixtures. Model settings presentation uses `node scripts/verify-provider-context-render.mjs` with production settings functions and pinned native React/components/CSS in light, dark and narrow layouts, with a synthetic settings host. Screenshots and compact evidence are retained under `artifacts/logs/model-compaction/ui/`; the guarded cleanup removes the owned browser profile/fixture. This does not build or install the application.
 
 Manual request isolation uses `node --test scripts/test-provider-context.cjs scripts/test-queued-compaction.cjs scripts/test-queued-input.cjs scripts/test-composer-draft.cjs scripts/test-namespace-source.cjs`. It covers ID-only card requests, active-conversation cache invalidation, inline command custody, raw `/compact` interception, preserved drafts/attachments, duplicate requests and retry. `node scripts/verify-context-compaction-render.mjs` renders the transformed native card/button with pinned React/CSS in light/dark themes and exercises mouse/keyboard actions with synthetic host state; compact evidence is retained under `artifacts/logs/context-compaction/ui/`, and guarded cleanup removes the owned browser fixture/profile. These source checks do not build, install or establish installed-window acceptance.
