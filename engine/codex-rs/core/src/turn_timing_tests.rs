@@ -17,6 +17,39 @@ use super::response_item_records_turn_ttft;
 use crate::ResponseEvent;
 
 #[tokio::test]
+async fn response_performance_resets_per_turn_and_ignores_tool_elapsed_time() {
+    let state = std::sync::Arc::new(TurnTimingState::default());
+    state
+        .mark_turn_started(Instant::now() - Duration::from_secs(120))
+        .await;
+    let mut guard = state.begin_response_performance();
+    guard.started_at = Instant::now() - Duration::from_secs(2);
+    guard.complete(Some(100));
+    guard.complete(Some(999)); // A completion is admitted once by its guard.
+    drop(guard);
+    let stats = state.response_performance("turn-1");
+    assert_eq!(stats.turn_id, "turn-1");
+    assert_eq!(stats.output_tokens, 100);
+    assert_eq!(stats.completed_requests, 1);
+    assert!(stats.request_duration_ms >= 2000 && stats.request_duration_ms < 10000);
+    state.mark_turn_started(Instant::now()).await;
+    let stats = state.response_performance("turn-2");
+    assert_eq!(stats.completed_requests, 0);
+    assert_eq!(stats.output_tokens, 0);
+    assert_eq!(stats.request_duration_ms, 0);
+}
+
+#[test]
+fn response_performance_cancelled_request_is_unmeasured() {
+    let state = std::sync::Arc::new(TurnTimingState::default());
+    drop(state.begin_response_performance());
+    let stats = state.response_performance("interrupted");
+    assert_eq!(stats.completed_requests, 0);
+    assert_eq!(stats.unmeasured_requests, 1);
+    assert_eq!(stats.output_tokens, 0);
+}
+
+#[tokio::test]
 async fn turn_timing_state_records_ttft_only_once_per_turn() {
     let state = TurnTimingState::default();
     assert_eq!(

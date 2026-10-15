@@ -7284,6 +7284,7 @@ fn token_usage_notification(
         thread_id: thread_id.to_string(),
         turn_id: turn_id.to_string(),
         token_usage: ThreadTokenUsage {
+            response_performance: None,
             context_policy: None,
             total: TokenUsageBreakdown {
                 total_tokens: 10,

@@ -2371,6 +2371,9 @@ impl Session {
         };
         self.send_event(turn_context, EventMsg::TurnStarted(event))
             .await;
+        // Replace the preceding turn's throughput before admission/preparation
+        // can block. The native UI retains token usage across turn/started.
+        self.send_token_count_event(turn_context).await;
         if let Some(phase) = phase {
             phase.finish(true);
         }
@@ -4926,6 +4929,7 @@ impl Session {
         {
             let mut state = self.state.lock().await;
             let mut info = state.token_info().unwrap_or(TokenUsageInfo {
+                response_performance: None,
                 context_policy: None,
                 total_token_usage: TokenUsage::default(),
                 last_token_usage: TokenUsage::default(),
@@ -5047,6 +5051,7 @@ impl Session {
                 total_token_usage: TokenUsage::default(),
                 last_token_usage: TokenUsage::default(),
                 model_context_window: model_info.usable_context_window(),
+                response_performance: None,
                 context_policy: None,
             });
             info.model_context_window = model_info.usable_context_window();
@@ -5058,8 +5063,15 @@ impl Session {
 
     pub(crate) async fn send_token_count_event(&self, turn_context: &TurnContext) {
         let (mut info, rate_limits) = {
-            let state = self.state.lock().await;
-            state.token_info_and_rate_limits()
+            let mut state = self.state.lock().await;
+            let (mut info, rate_limits) = state.token_info_and_rate_limits();
+            if let Some(info) = info.as_mut() {
+                info.response_performance = Some(turn_context.turn_timing_state
+                    .response_performance(&turn_context.sub_id));
+                // Keep attach/reload replay consistent with live notifications.
+                state.set_token_info(Some(info.clone()));
+            }
+            (info, rate_limits)
         };
         if let Some(info) = info.as_mut()
             && info.context_policy.is_none()

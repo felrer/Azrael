@@ -80,6 +80,8 @@ export type { ResourceContent } from "./ResourceContent";
 export type { ResourceTemplate } from "./ResourceTemplate";
 export type { ResponseItem } from "./ResponseItem";
 export type { ResponseItemId } from "./ResponseItemId";
+export type { ResponseMinuteSample } from "./ResponseMinuteSample";
+export type { ResponsePerformance } from "./ResponsePerformance";
 export type { ReviewDecision } from "./ReviewDecision";
 export type { RootResumeAgentTask } from "./RootResumeAgentTask";
 export type { RootResumeReservation } from "./RootResumeReservation";

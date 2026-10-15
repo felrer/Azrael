@@ -5,6 +5,7 @@ use codex_protocol::protocol::TokenUsage;
 
 fn usage(total: i64, window: Option<i64>) -> TokenUsageInfo {
     TokenUsageInfo {
+        response_performance: None,
         context_policy: None,
         total_token_usage: TokenUsage::default(),
         last_token_usage: TokenUsage {

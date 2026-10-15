@@ -781,6 +781,55 @@
       ]
     },
     {
+      "id": "engine.response-tps",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/protocol/src/response_performance.rs",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/core/src/turn_timing.rs",
+        "engine/codex-rs/core/src/turn_timing_tests.rs",
+        "engine/codex-rs/core/src/session/turn.rs",
+        "engine/codex-rs/core/src/session/mod.rs",
+        "engine/codex-rs/core/src/tasks/mod.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/v2/thread.rs",
+        "scripts/check-response-tps-native.cjs"
+      ],
+      "contract": "docs/architecture/context-policy.md",
+      "checks": [
+        {
+          "id": "engine.response-tps.protocol",
+          "executable": "node",
+          "args": [
+            "scripts/check-response-tps-native.cjs",
+            "{engineSourceRoot}",
+            "protocol"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.response-tps.core",
+          "executable": "node",
+          "args": [
+            "scripts/check-response-tps-native.cjs",
+            "{engineSourceRoot}",
+            "core"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.response-tps.appserver",
+          "executable": "node",
+          "args": [
+            "scripts/check-response-tps-native.cjs",
+            "{engineSourceRoot}",
+            "appserver"
+          ],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.provider-context",
       "area": "engine",
       "owners": [

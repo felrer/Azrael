@@ -3625,6 +3625,7 @@ mod tests {
         let items = vec![RolloutItem::EventMsg(EventMsg::TokenCount(
             codex_protocol::protocol::TokenCountEvent {
                 info: Some(codex_protocol::protocol::TokenUsageInfo {
+                    response_performance: None,
                     context_policy: None,
                     total_token_usage: codex_protocol::protocol::TokenUsage {
                         input_tokens: 0,

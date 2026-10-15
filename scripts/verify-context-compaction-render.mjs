@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn,spawnSync} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir,access} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
@@ -9,12 +9,16 @@ const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
 const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
 const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/context-compaction-ui','artifacts/verification','Renderer fixture');
 const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/context-compaction/ui','artifacts/logs','Renderer logs');
+const evidence=process.env.AZRAEL_RENDER_EVIDENCE_ROOT?containedPath(process.env.AZRAEL_RENDER_EVIDENCE_ROOT,'artifacts/verification','Renderer evidence'):logs;
 const assets=join(root,"artifacts/upstream-ui/26.1007.21434/webview/assets");
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {injectProviderContext,CONTEXT_ASSET}=require('./inject-provider-context.cjs');
-await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
+const lifecycleId='context-render-'+fixture.slice(root.length+1).replace(/[^a-zA-Z0-9_-]/g,'-');
+function recordFixture(state){const result=spawnSync(process.execPath,[join(root,'scripts/artifact-lifecycle.cjs'),'record','--project-root',root,'--id',lifecycleId,'--kind','run','--owner','context-compaction-render','--state',state,'--membership-complete','true','--member','fixture='+fixture],{windowsHide:true,encoding:'utf8'});assert.equal(result.status,0,'fixture lifecycle registration: '+result.stderr)}
+recordFixture('pending');
+await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});await mkdir(evidence,{recursive:true});
 const mainName="app-initial-7a199c66e670.js";
 const main=injectProviderContext(await readFile(join(assets,mainName),'utf8'),CONTEXT_ASSET).text;
 const ast=ts.createSourceFile('main.js',main,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS);
@@ -28,7 +32,7 @@ const adapterSource=`
 const fixtureIntl=()=>({locale:window.fixtureState.locale,formatMessage:({defaultMessage},values)=>defaultMessage.replace('{percent}',values?.percent??''),formatNumber:x=>String(x)});
 function FixtureMessage({defaultMessage}){return defaultMessage}
 function FixtureNumber({value}){return value}
-window.fixtureState={id:'chat-a',locale:'en',mode:'pending',settingsMode:'ok'};window.fixtureEvents=[];window.fixtureSettingEvents=[];window.fixtureSubmits=0;window.fixtureSettings=new Map();
+window.fixtureState={id:'chat-a',locale:'en',mode:'pending',settingsMode:'ok',performance:{turnId:'turn-a',outputTokens:355,requestDurationMs:2000,completedRequests:2,unmeasuredRequests:0}};window.fixtureEvents=[];window.fixtureSettingEvents=[];window.fixtureSubmits=0;window.fixtureSettings=new Map();
 const fixtureManagerAtom={};const fixtureStore={get(atom,id){return atom===fixtureManagerAtom?fixtureManager:'local'}};
 const fixtureWl=()=>fixtureStore;
 const fixtureSettingListeners=new Set();
@@ -40,7 +44,7 @@ ${native}
 ${wrapper}
 const policy={providerId:'openai',modelId:'gpt-6-astra',contextWindow:1000000,safeContextWindow:950000,autoCompactTokenLimit:600000,inputTokens:247263,inputTokensEstimated:true,pricing:{status:'confirmed',inputTokenThreshold:272000,sourceUrl:'https://example.com/pricing'}};
 window.fixturePolicy=policy;
-function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:fixtureUsage({modelContextWindow:1000000,last:{totalTokens:247263},contextPolicy:policy})})]})}
+function Fixture(){gw();_A();$Sa();const React=wd(),[,update]=React.useState(0);window.fixtureRerender=()=>update(n=>n+1);return y7.jsxs('form',{onSubmit:e=>{e.preventDefault();fixtureSubmits++},className:'flex flex-col gap-4',children:[y7.jsx('textarea',{'aria-label':'Draft',defaultValue:'Unsent draft',className:'border p-3'}),y7.jsx('div',{'data-attachment':'image.png',children:'image.png'}),y7.jsx(fixtureGauge,{conversationId:fixtureState.id,contextUsage:fixtureUsage({modelContextWindow:1000000,last:{totalTokens:247263},contextPolicy:policy,responsePerformance:fixtureState.performance})})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
@@ -69,6 +73,29 @@ try{
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureState.id='chat-${theme}';fixtureState.locale='en';fixtureState.mode='pending';fixtureRerender()`);await open();
   check(theme+' auto-compaction donut and tooltip agree',await evaluate("(()=>{const gauge=document.querySelector('[data-azrael-pricing-boundary]'),circle=gauge.querySelectorAll('circle')[1];return Math.abs(Number(circle.getAttribute('stroke-dashoffset'))-58.7895)<0.0001&&gauge.getAttribute('aria-label').includes('600,000 tokens (41.2%)')&&gauge.getAttribute('aria-label').includes('1,000,000 tokens (24.7%)')})()"));
+  await wait("document.querySelector('[data-azrael-pricing-boundary]').getAttribute('aria-label').includes('177.5 tokens/s')");
+  check(theme+' measured TPS visible and accessible',await evaluate("document.body.innerText.includes('Current response average TPS')&&document.body.innerText.includes('177.5 tokens/s')"));
+  for(const [name,performance,expected] of [['partial',{turnId:'turn-a',outputTokens:355,requestDurationMs:2000,completedRequests:2,unmeasuredRequests:1},'177.5 tokens/s · partial'],['reset',{turnId:'turn-b',outputTokens:0,requestDurationMs:0,completedRequests:0,unmeasuredRequests:0},'Waiting for measurement'],['missing',null,'Unavailable'],['invalid',{turnId:'turn-c',outputTokens:355,requestDurationMs:0,completedRequests:1,unmeasuredRequests:0},'Unavailable']]){
+   await evaluate('fixtureState.performance='+JSON.stringify(performance)+';fixtureRerender()');await open();await wait('document.body.innerText.includes('+JSON.stringify(expected)+')');check(theme+' TPS '+name,await evaluate(`document.querySelector('[data-azrael-pricing-boundary]').getAttribute('aria-label').includes(${JSON.stringify(expected)})`));
+  }
+  await evaluate("fixtureState.performance={turnId:'turn-a',outputTokens:355,requestDurationMs:2000,completedRequests:2,unmeasuredRequests:1};fixtureRerender()");await open();
+  const minuteSamples=[{minute:0,outputTokens:100,requestDurationMs:1000},{minute:1,outputTokens:160,requestDurationMs:2000},{minute:3,outputTokens:100,requestDurationMs:1000}];
+  await evaluate('fixtureState.performance={...fixtureState.performance,graphEstimated:true,truncatedMinutes:false,minuteSamples:'+JSON.stringify(minuteSamples)+'};fixtureRerender()');await open();
+  await wait("!!document.querySelector('[data-azrael-response-tps-graph]')");
+  check(theme+' estimated graph points and tool gap',await evaluate("(()=>{const g=document.querySelector('[data-azrael-response-tps-graph]');return g.querySelectorAll('circle').length===3&&g.querySelectorAll('line').length===1&&g.getAttribute('aria-label').includes('1 min: 100.0 tokens/s')&&g.innerText.includes('estimated')})()"));
+  await evaluate("fixtureState.performance={...fixtureState.performance,minuteSamples:[{minute:4,outputTokens:0,requestDurationMs:1000}],truncatedMinutes:true};fixtureState.locale='ko-KR';fixtureRerender()");await open();
+  await wait("document.querySelector('[data-azrael-response-tps-graph]')?.getAttribute('aria-label').includes('5분: 0.0 토큰/초')");
+  check(theme+' localized zero single-point and truncated graph',await evaluate("(()=>{const g=document.querySelector('[data-azrael-response-tps-graph]');return g.querySelectorAll('circle').length===1&&g.querySelector('circle').getAttribute('cy')==='78'&&g.innerText.includes('최근 120분')&&g.innerText.includes('추정')})()"));
+  await evaluate("fixtureState.performance={...fixtureState.performance,minuteSamples:[{minute:0,outputTokens:10,requestDurationMs:0}]};fixtureRerender()");await open();await wait("!document.querySelector('[data-azrael-response-tps-graph]')");check(theme+' invalid minute samples hide graph',true);
+  await evaluate('fixtureState.locale="en";fixtureState.performance={...fixtureState.performance,truncatedMinutes:false,minuteSamples:'+JSON.stringify(minuteSamples)+'};fixtureRerender()');await open();await wait("!!document.querySelector('[data-azrael-response-tps-graph]')");
+  for(const width of [1000,360]){
+   await send('Emulation.setDeviceMetricsOverride',{width,height:950,deviceScaleFactor:1,mobile:false});await open();await evaluate('new Promise(r=>setTimeout(r,180))');
+   check(theme+' TPS tooltip fits '+width,await evaluate("(()=>{const e=document.querySelector('[data-azrael-context-compaction]').closest('[data-radix-popper-content-wrapper]')||document.querySelector('[data-azrael-context-compaction]').parentElement;const r=e.getBoundingClientRect();return r.left>=-1&&r.right<=innerWidth+1&&e.scrollWidth<=e.clientWidth+1})()"));
+   check(theme+' graph fits '+width,await evaluate("(()=>{const g=document.querySelector('[data-azrael-response-tps-graph] svg'),r=g.getBoundingClientRect();return r.width>100&&r.left>=0&&r.right<=innerWidth&&r.height<130})()"));
+   await writeFile(join(evidence,theme+'-tps-graph-'+width+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  }
+  await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});
+  await evaluate("fixtureState.performance={turnId:'turn-a',outputTokens:355,requestDurationMs:2000,completedRequests:2,unmeasuredRequests:0};fixtureRerender()");await open();
   const idle=await card();check(theme+' native button geometry and non-submit type',idle.type==='button'&&idle.width>80&&idle.height>20);summary[theme]={idle};
   const switchSelector='[data-azrael-thread-auto-compaction] [role=switch]';
   await wait(`document.querySelector('${switchSelector}')?.getAttribute('aria-checked')==='true'`);
@@ -108,7 +135,7 @@ try{
  }
  await evaluate("fixtureState.id=null;fixtureState.locale='ko-KR';fixtureRerender()");await open();await wait("document.querySelector('[data-azrael-context-compaction]').innerText.includes('대화를 선택')");check('missing ID disabled localized control',(await card()).disabled);
  summary.events=await evaluate('fixtureEvents');check('ID-only RPC',summary.events.every(e=>e.args.length===1&&typeof e.args[0]==='string'));
- check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
+ summary.browserErrors=await evaluate('fixtureErrors');check('no browser exceptions',exceptions.length===0&&summary.browserErrors.length===0);summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
@@ -116,6 +143,7 @@ finally{
  if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,30000);chrome.once('exit',finish)});
  const allowed=join(root,'artifacts/verification')+sep;
  if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){
+  recordFixture('complete');
   await writeFile(join(fixture,'check-result.json'),JSON.stringify({passed:summary.outcome==='passed',scope:summary.scope,checks:summary.checks})+'\n');
   const cleanup=async apply=>{const report=join(logs,apply?'cleanup-result.json':'cleanup-preview.json');const proc=spawn('pwsh',['-NoProfile','-Command','& $env:AZRAEL_CARD_CLEANUP_SCRIPT -ProjectRoot $env:AZRAEL_CARD_PROJECT -FixtureRoot $env:AZRAEL_CARD_FIXTURE -IncludeDiagnosedFixtures '+(apply?'-Apply ':'')+'-ReportPath $env:AZRAEL_CARD_REPORT'],{windowsHide:true,env:{...process.env,AZRAEL_CARD_CLEANUP_SCRIPT:join(root,'scripts/clean-verification-artifacts.ps1'),AZRAEL_CARD_PROJECT:root,AZRAEL_CARD_FIXTURE:fixture,AZRAEL_CARD_REPORT:report},stdio:['ignore','pipe','pipe']});let output='';proc.stdout.on('data',c=>output+=c);proc.stderr.on('data',c=>output+=c);const exit=await new Promise((r,j)=>{proc.once('error',j);proc.once('exit',r)});await writeFile(join(logs,apply?'cleanup.log':'cleanup-preview.log'),output);assert.equal(exit,0,'cleanup script exit');return JSON.parse(await readFile(report,'utf8'))};
   try { const preview=await cleanup(false);assert.equal(preview.candidates[0]?.status,'selected','owned fixture selected by guarded cleanup');const result=await cleanup(true);assert.equal(result.candidates[0]?.status,'deleted','owned fixture deleted');assert.equal(await access(fixture).then(()=>true,()=>false),false,'fixture/profile absent');summary.cleanup='Owned browser exited; project guarded cleanup removed fixture/profile'; }

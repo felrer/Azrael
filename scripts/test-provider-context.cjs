@@ -8,9 +8,54 @@ const transformed=injection.injectProviderContext(source,injection.CONTEXT_ASSET
 const ts=require(require.resolve("typescript",{paths:[path.resolve(__dirname,"../extensions/azrael-ex")]}));
 function declaration(text,name){const Cst=ts.createSourceFile("fixture.js",text,ts.ScriptTarget.Latest,true,ts.ScriptKind.JS),found=[];function visit(n){if(ts.isFunctionDeclaration(n)&&n.name?.text===name)found.push(n.getText(Cst));ts.forEachChild(n,visit)}visit(Cst);assert.equal(found.length,1,`unique declaration ${name}`);return found[0]}
 const jsx=(type,props)=>({type,props});
-function gaugeHarness(){const manager={getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:true}})},context={gw(){},vsi(){},_A(){},l4n(){},r4n:"native-switch",hA:{},nA:{},Px:()=>manager,Ou:()=>({get:atom=>atom===context.nA?manager:"local"}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useRef:v=>({current:v}),useEffect(){}}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
+function gaugeHarness(){const manager={getConversation:()=>({latestThreadSettings:{autoCompactionEnabled:true}})},context={gw(){},vsi(){},_A(){},l4n(){},r4n:"native-switch",hA:{},nA:{},Px:()=>manager,Ou:()=>({get:atom=>atom===context.nA?manager:"local"}),$:{},mw:"native-button",wd:()=>({useState:()=>[0,()=>{}],useRef:v=>({current:v}),useEffect(){},useMemo:fn=>fn()}),y7:{jsx,jsxs:jsx},QSa:{c:n=>Array(n).fill(Symbol.for("react.memo_cache_sentinel"))},st:()=>({locale:"en",formatMessage:(_,{percent})=>"Context usage: "+percent+"%",formatNumber:x=>String(x)}),q:"message",ZSa:()=>{},wr:"number",d5n:"donut",FT:"tooltip",Symbol};
   pm.createContext(context);pm.runInContext(declaration(transformed,"__azraelNativeContextUsage")+declaration(transformed,"__azraelNativeContextGauge")+"\n"+transformed.slice(transformed.lastIndexOf("function policyDescription"),transformed.lastIndexOf("/*azrael-provider-context")),context);return context}
 const policy=(input,status="confirmed",inclusive=false)=>({providerId:"openai",modelId:"m",contextWindow:400000,autoCompactBaseTokens:200000,safeContextWindow:380000,autoCompactTokenLimit:361000,autoCompactSource:"default",inputTokens:input,inputTokensEstimated:true,pricing:{status,inputTokenThreshold:272000,inclusive,sourceUrl:"https://example.com/pricing"}});
+test("current response performance forwards measured totals and replaces them on next turn",()=>{
+ const h=gaugeHarness(),snapshot={turnId:'turn-a',outputTokens:355,requestDurationMs:2000,completedRequests:2,unmeasuredRequests:0};
+ const usage=h.aCa({modelContextWindow:400000,last:{totalTokens:100},contextPolicy:policy(100),responsePerformance:snapshot});
+ assert.equal(usage.responsePerformance,snapshot);
+ const gauge=h.XSa({conversationId:'a',contextUsage:usage});
+ assert.match(gauge.props.children.props['aria-label'],/Current response average TPS: 177\.5 tokens\/s/);
+ assert.match(JSON.stringify(gauge.props.tooltipContent),/177\.5 tokens\/s/);
+ assert.equal(gauge.props.interactive,true);assert.equal(gauge.props.keyboardNavigation,true);assert.equal(gauge.props.children.props.tabIndex,0);
+ const reset=h.aCa({last:{totalTokens:100},contextPolicy:policy(100),responsePerformance:{turnId:'turn-b',outputTokens:0,requestDurationMs:0,completedRequests:0,unmeasuredRequests:0}});
+ assert.match(h.XSa({conversationId:'a',contextUsage:reset}).props.children.props['aria-label'],/Waiting for measurement/);
+ assert.doesNotMatch(h.XSa({contextUsage:reset}).props.children.props['aria-label'],/177\.5/);
+ assert.equal(h.aCa({last:{totalTokens:100}}).responsePerformance,undefined);
+});
+test("performance displays only finite measured rates, with localized empty and partial states",()=>{
+ const describe=injection.responsePerformanceDescription,base={turnId:'a',outputTokens:200,requestDurationMs:2000,completedRequests:1,unmeasuredRequests:0};
+ assert.equal(describe(base,false),'100.0 tokens/s');assert.equal(describe({...base,outputTokens:0},false),'0.0 tokens/s');
+ assert.equal(describe({...base,unmeasuredRequests:1},true),'100.0 토큰/초 · 일부 측정');
+ assert.equal(describe({...base,unmeasuredRequests:1},false),'100.0 tokens/s · partial');
+ assert.equal(describe({...base,completedRequests:0,requestDurationMs:0,outputTokens:0},true),'측정 대기');
+ for(const value of [null,undefined,{}, {...base,turnId:''}, {...base,requestDurationMs:0},{...base,requestDurationMs:Infinity},{...base,outputTokens:NaN},{...base,outputTokens:-1},{...base,completedRequests:0},{...base,completedRequests:0.5},{...base,unmeasuredRequests:-1}])assert.equal(describe(value,false),'Unavailable');
+ const native={type:'tooltip',props:{tooltipContent:'native usage',children:{type:'span',props:{'aria-label':'native usage',children:'donut'}}}},action=jsx('button',{type:'button',children:'Compact context'});
+ const tree=injection.decorateGauge(jsx,native,null,true,action,base);
+ assert.equal(tree.props.tooltipContent.props.children[1],action);assert.match(tree.props.children.props['aria-label'],/native usage\n현재 응답 평균 TPS: 100\.0 토큰\/초/);
+});
+test("minute TPS graph distinguishes estimates, gaps, zero and truncated history",()=>{
+ const base={turnId:'a',outputTokens:360,requestDurationMs:4000,completedRequests:2,unmeasuredRequests:0,graphEstimated:true,truncatedMinutes:false,minuteSamples:[{minute:0,outputTokens:100,requestDurationMs:1000},{minute:1,outputTokens:160,requestDurationMs:2000},{minute:3,outputTokens:100,requestDurationMs:1000}]};
+ const graph=injection.responsePerformanceGraph(jsx,base,false),svg=graph.props.children[1],children=svg.props.children,points=children.filter(n=>n?.type==='circle'),lines=children.filter(n=>n?.type==='line');
+ assert.equal(points.length,3);assert.equal(lines.length,1);assert.deepEqual(points.map(n=>n.props['data-tps']),[100,80,100]);
+ assert.equal(points[0].props.cx,24);assert.equal(points[2].props.cx,264);assert.match(graph.props['aria-label'],/estimated.*1 min: 100\.0 tokens\/s.*4 min: 100\.0 tokens\/s/);
+ assert.match(injection.responsePerformanceGraph(jsx,{...base,truncatedMinutes:true},true).props['aria-label'],/추정.*최근 120분/);
+ const zero=injection.responsePerformanceGraph(jsx,{...base,outputTokens:0,minuteSamples:[{minute:4,outputTokens:0,requestDurationMs:1000}]},false);
+ const dot=zero.props.children[1].props.children.find(n=>n?.type==='circle');assert.equal(dot.props.cy,78);assert.equal(dot.props.cx,144);assert.match(zero.props['aria-label'],/5 min: 0\.0 tokens\/s/);
+ for(const patch of [{minuteSamples:undefined},{minuteSamples:[]},{graphEstimated:false},{completedRequests:0},{minuteSamples:[{minute:-1,outputTokens:1,requestDurationMs:1}]},{minuteSamples:[{minute:0,outputTokens:Infinity,requestDurationMs:1}]},{minuteSamples:[{minute:0,outputTokens:1,requestDurationMs:0}]},{minuteSamples:[base.minuteSamples[1],base.minuteSamples[0]]},{minuteSamples:[base.minuteSamples[0],base.minuteSamples[0]]},{minuteSamples:[base.minuteSamples[0],{minute:120,outputTokens:1,requestDurationMs:1}]}])assert.equal(injection.responsePerformanceGraph(jsx,{...base,...patch},false),null);
+ const h=gaugeHarness(),usage=h.aCa({last:{totalTokens:100},contextPolicy:policy(100),responsePerformance:base}),tree=h.XSa({contextUsage:usage});
+ assert.match(tree.props.children.props['aria-label'],/Current response average TPS: 90\.0 tokens\/s\nTPS by minute · estimated/);
+ let previousDeps,memoValue,calculations=0,locale='en';const nativeReact=h.wd(),nativeIntl=h.st(),nativeGraph=h.responsePerformanceGraph,memoCalls=[];
+ h.responsePerformanceGraph=(...args)=>{calculations++;return nativeGraph(...args)};
+ h.st=()=>({...nativeIntl,locale});
+ h.wd=()=>({...nativeReact,useMemo(fn,deps){memoCalls.push(deps);if(!previousDeps||deps.some((v,i)=>!Object.is(v,previousDeps[i]))){previousDeps=deps;memoValue=fn()}return memoValue}});
+ h.XSa({conversationId:'a',contextUsage:usage});h.XSa({conversationId:'b',contextUsage:usage});assert.equal(calculations,1);assert.equal(memoCalls[0][0],base);assert.equal(memoCalls[0][1],false);
+ const nextUsage={...usage,responsePerformance:{...base,turnId:'b'}};h.XSa({conversationId:'b',contextUsage:nextUsage});assert.equal(calculations,2);
+ locale='ko-KR';const localized=h.XSa({conversationId:null,contextUsage:nextUsage});assert.equal(calculations,3);assert.equal(memoCalls.at(-1)[1],true);assert.match(localized.props.children.props['aria-label'],/분별 TPS · 추정/);
+ h.XSa({contextUsage:{...usage,responsePerformance:undefined}});assert.equal(calculations,4);assert.equal(memoCalls.length,5);assert.equal(memoCalls.at(-1)[0],undefined);
+ assert.doesNotMatch(declaration(transformed,'XSa'),/setInterval|setTimeout/);
+});
 test("disabled auto-compaction uses the second capacity lap only at the threshold",()=>{
  for(const [input,enabled,percent,lap] of [[599999,false,599999/600000*100,false],[600000,false,0,true],[800000,false,50,true],[1000000,false,100,true],[1200000,false,100,true],[600000,true,100,false],[800000,true,100,false]]){
   const p={...policy(input,"no-surcharge"),contextWindow:1000000,autoCompactTokenLimit:600000,autoCompactionEnabled:enabled};

@@ -29,12 +29,53 @@ function gaugeProgress(policy, fallback) {
   const secondLap = policy.autoCompactionEnabled === false && input >= limit && Number.isFinite(capacity) && capacity > limit;
   return {percent:Math.min(1, Math.max(0, secondLap ? (input-limit)/(capacity-limit) : input/limit))*100, secondLap};
 }
-function decorateGauge(jsx, node, policy, ko, action = null) {
+function responsePerformanceDescription(performance, ko) {
+  const unavailable = ko ? "측정값 없음" : "Unavailable";
+  if (!performance || typeof performance.turnId !== "string" || !performance.turnId.trim()) return unavailable;
+  const {outputTokens,requestDurationMs,completedRequests,unmeasuredRequests} = performance;
+  if (![outputTokens,requestDurationMs,completedRequests,unmeasuredRequests].every(n=>Number.isFinite(n)&&n>=0) || !Number.isInteger(completedRequests) || !Number.isInteger(unmeasuredRequests)) return unavailable;
+  const partial = unmeasuredRequests > 0 ? (ko ? " · 일부 측정" : " · partial") : "";
+  if (completedRequests === 0) return outputTokens === 0 && requestDurationMs === 0 ? (ko ? "측정 대기" : "Waiting for measurement") + partial : unavailable;
+  const rate = outputTokens / requestDurationMs * 1000;
+  if (requestDurationMs <= 0 || !Number.isFinite(rate)) return unavailable;
+  return rate.toLocaleString(ko ? "ko-KR" : "en-US", {minimumFractionDigits:1,maximumFractionDigits:1}) + (ko ? " 토큰/초" : " tokens/s") + partial;
+}
+function responsePerformanceGraph(jsx, performance, ko) {
+  if (!performance || performance.completedRequests <= 0 || performance.requestDurationMs <= 0 || responsePerformanceDescription(performance,false) === "Unavailable" || performance.graphEstimated !== true || !Array.isArray(performance.minuteSamples) || !performance.minuteSamples.length || performance.minuteSamples.length > 120) return null;
+  const samples=performance.minuteSamples;
+  if (samples.some((s,i)=>!s || !Number.isSafeInteger(s.minute) || s.minute<0 || !Number.isFinite(s.outputTokens) || s.outputTokens<0 || !Number.isFinite(s.requestDurationMs) || s.requestDurationMs<=0 || !Number.isFinite(s.outputTokens/s.requestDurationMs*1000) || i>0 && s.minute<=samples[i-1].minute) || samples.at(-1).minute-samples[0].minute>=120) return null;
+  const label=ko?"분별 TPS · 추정":"TPS by minute · estimated",range=performance.truncatedMinutes?(ko?"최근 120분":"Recent 120 minutes"):(ko?"분별 추이":"Minute trend"),unit=ko?"토큰/초":"tokens/s";
+  const formatter=new Intl.NumberFormat(ko?"ko-KR":"en-US",{maximumFractionDigits:1,minimumFractionDigits:1}),format=n=>formatter.format(n);
+  const points=samples.map(s=>({minute:s.minute,rate:s.outputTokens/s.requestDurationMs*1000})),first=points[0].minute,last=points.at(-1).minute,max=Math.max(1,...points.map(p=>p.rate));
+  const xy=p=>({x:first===last?144:24+(p.minute-first)/(last-first)*240,y:78-p.rate/max*54});
+  const segments=[];
+  for(const [i,p] of points.entries()){
+    const position=xy(p),previous=points[i-1];
+    if(previous && p.minute===previous.minute+1){const from=xy(previous);segments.push(jsx("line",{key:"line-"+p.minute,x1:from.x,y1:from.y,x2:position.x,y2:position.y,stroke:"currentColor",strokeWidth:1.5}))}
+    segments.push(jsx("circle",{key:"point-"+p.minute,cx:position.x,cy:position.y,r:2.5,fill:"currentColor","data-minute":p.minute,"data-tps":p.rate}));
+  }
+  const description=[label,range,(ko?"응답 시작 후 분; ":"Minutes since response start; ")+unit,...points.map(p=>(p.minute+1)+(ko?"분: ":" min: ")+format(p.rate)+" "+unit)].join(" · ");
+  return jsx("div",{"data-azrael-response-tps-graph":"estimated","aria-label":description,style:{display:"flex",flexDirection:"column",gap:4,minWidth:0},children:[
+    jsx("div",{style:{display:"flex",justifyContent:"space-between",gap:8,flexWrap:"wrap"},children:[jsx("strong",{children:label}),jsx("span",{className:"text-token-description-foreground",children:range})]}),
+    jsx("svg",{viewBox:"0 0 288 104",role:"img","aria-label":description,style:{display:"block",width:"100%",height:"auto",maxHeight:112,color:"var(--vscode-textLink-foreground, currentColor)"},children:[
+      jsx("path",{d:"M24 20V78H264",fill:"none",stroke:"currentColor",strokeOpacity:0.3}),
+      jsx("text",{x:24,y:13,fontSize:9,fill:"currentColor",children:format(max)+" "+unit}),...segments,
+      jsx("text",{x:18,y:81,textAnchor:"end",fontSize:9,fill:"currentColor",children:"0"}),
+      jsx("text",{x:first===last?144:24,y:96,textAnchor:first===last?"middle":"start",fontSize:9,fill:"currentColor",children:(first+1)+(ko?"분":" min")}),
+      first===last?null:jsx("text",{x:264,y:96,textAnchor:"end",fontSize:9,fill:"currentColor",children:(last+1)+(ko?"분":" min")})
+    ]})
+  ]});
+}
+function decorateGauge(jsx, node, policy, ko, action = null, performance = undefined, graph = responsePerformanceGraph(jsx,performance,ko)) {
   if (!node) return node;
+  const performanceLabel = ko ? "현재 응답 평균 TPS" : "Current response average TPS";
+  const performanceValue = responsePerformanceDescription(performance, ko);
+  const performanceDescription = performanceLabel + ": " + performanceValue + (graph?"\n"+graph.props["aria-label"]:"");
+  const row = (label, value) => jsx("div", {style:{display:"grid",gridTemplateColumns:"minmax(0,1fr) minmax(0,1fr)",gap:16,alignItems:"baseline"},children:[jsx("span",{children:label}),jsx("span",{style:{textAlign:"right",fontVariantNumeric:"tabular-nums",overflowWrap:"anywhere"},children:value})]});
   if (!policy) {
     if (!action) return node;
     const span=node.props.children;
-    return jsx(node.type,{...node.props,interactive:true,keyboardNavigation:true,tooltipContent:jsx("div",{className:"flex flex-col gap-2",children:[node.props.tooltipContent,action]}),children:jsx(span.type,{...span.props,tabIndex:0})});
+    return jsx(node.type,{...node.props,interactive:true,keyboardNavigation:true,tooltipContent:jsx("div",{className:"flex flex-col gap-2",children:[node.props.tooltipContent,action,row(performanceLabel,performanceValue),graph]}),children:jsx(span.type,{...span.props,tabIndex:0,"aria-label":[span.props["aria-label"],performanceDescription].filter(Boolean).join("\n")})});
   }
   const price = policy.pricing, input = policy.inputTokens;
   const secondLap = gaugeProgress(policy, null).secondLap;
@@ -54,10 +95,9 @@ function decorateGauge(jsx, node, policy, ko, action = null) {
       ? (price?.status === "reference" ? (ko ? "API 참고: 길이 추가 요금 없음" : "API reference: no length surcharge") : (ko ? "길이 추가 요금 없음" : "No length surcharge"))
       : (ko ? "요금 기준 알 수 없음" : "Pricing threshold unknown");
   const lapDescription = secondLap ? (ko ? "자동 압축 꺼짐 · 추가 용량: " : "Auto-compaction off · Additional capacity: ") + tokens(input-policy.autoCompactTokenLimit) + " / " + tokens(policy.contextWindow-policy.autoCompactTokenLimit) + (ko ? " 토큰" : " tokens") : "";
-  const description = [ko ? "사용량" : "Usage", ...rows.map(([label,value]) => label + ": " + value), (ko ? "모델: " : "Model: ") + model, (ko ? "요금 참고: " : "Pricing reference: ") + pricing, lapDescription].filter(Boolean).join("\n");
-  const row = (label, value) => jsx("div", {style:{display:"grid",gridTemplateColumns:"max-content minmax(0,1fr)",gap:16,alignItems:"baseline"},children:[jsx("span",{children:label}),jsx("span",{style:{textAlign:"right",fontVariantNumeric:"tabular-nums",overflowWrap:"anywhere"},children:value})]});
+  const description = [ko ? "사용량" : "Usage", ...rows.map(([label,value]) => label + ": " + value), performanceDescription, (ko ? "모델: " : "Model: ") + model, (ko ? "요금 참고: " : "Pricing reference: ") + pricing, lapDescription].filter(Boolean).join("\n");
   const tooltip = jsx("div", {style:{display:"flex",flexDirection:"column",gap:10,textAlign:"left",maxWidth:"min(440px, calc(100vw - 32px))",whiteSpace:"normal"},children:[
-    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"사용량":"Usage"}),...rows.map(([label,value])=>row(label,value))]}),
+    jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"사용량":"Usage"}),...rows.map(([label,value])=>row(label,value)),row(performanceLabel,performanceValue),graph]}),
     row(ko?"모델":"Model",model),
     jsx("div",{style:{display:"flex",flexDirection:"column",gap:4},children:[jsx("strong",{children:ko?"요금 참고":"Pricing reference"}),jsx("span",{children:pricing}),price?.sourceUrl ? jsx("a",{href:price.sourceUrl,target:"_blank",rel:"noopener noreferrer",style:{color:"var(--vscode-textLink-foreground)",width:"fit-content"},children:ko?"공식 문서 ↗":"Official documentation ↗"}) : null]}),
     lapDescription ? jsx("span",{className:"text-xs text-token-description-foreground",children:lapDescription}) : null,
@@ -261,7 +301,7 @@ function injectProviderContextControls(text, asset) {
     text=once(text,"(XSa,{contextUsage:y})", "(XSa,{contextUsage:y,conversationId:h})");
     text=once(text,"t[22]=y,t[23]=H,t[24]=W)", "t[22]=y,t[23]=H,t[24]=W,t[41]=h)");
     if (!/r4n as l9[,}]/.test(text) || !/l4n as d9[,}]/.test(text)) throw Error("Pinned native auto-compaction switch changed");
-    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action)}\n`;
+    text += `\n${policyDescription.toString()}\n${gaugeProgress.toString()}\n${responsePerformanceDescription.toString()}\n${responsePerformanceGraph.toString()}\n${decorateGauge.toString()}\n${useThreadAutoCompaction.toString()}\n${renderThreadAutoCompaction.toString()}\n${renderCompactionAction.toString()}\nconst __azraelCompactionEntries=new Map();\nfunction aCa(e){const usage=__azraelNativeContextUsage(e),policy=e?.contextPolicy??null;return {...usage,percent:gaugeProgress(policy,usage.percent).percent,contextPolicy:policy,responsePerformance:e?.responsePerformance}}\nfunction XSa(e){gw();_A();l4n();const ko=st().locale?.startsWith('ko'),graph=wd().useMemo(()=>responsePerformanceGraph(y7.jsx,e.contextUsage.responsePerformance,ko),[e.contextUsage.responsePerformance,ko]),store=Ou($),manager=e.conversationId==null?null:store.get(nA,store.get(hA,e.conversationId)),state=useThreadAutoCompaction(wd(),manager,e.conversationId,(method,params)=>Px(store,store.get(hA,e.conversationId)).sendRequest(method,params)),policy=e.contextUsage.contextPolicy?{...e.contextUsage.contextPolicy,autoCompactionEnabled:state.enabled}:null,usage={...e.contextUsage,contextPolicy:policy,percent:gaugeProgress(policy,e.contextUsage.percent).percent},manual=renderCompactionAction(wd(),y7.jsx,mw,store,e.conversationId,ko,__azraelCompactionEntries,(store,id)=>Px(store,store.get(hA,id)).compactThread(id)),action=y7.jsx('div',{className:'flex flex-col gap-3',children:[renderThreadAutoCompaction(y7.jsx,r4n,mw,state,e.conversationId,ko),manual]});return decorateGauge(y7.jsx,__azraelNativeContextGauge({...e,contextUsage:usage}),policy,ko,action,e.contextUsage.responsePerformance,graph)}\n`;
     count++;
   } else if (asset === SETTINGS_ASSET) {
     // Include host identity in the parent cache even when hidden instructions leave s null.
@@ -277,4 +317,4 @@ function injectProviderContextControls(text, asset) {
 function injectProviderContext(text, asset) {
   return runProviderContext(text, asset, injectProviderContextControls);
 }
-module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,gaugeProgress,decorateGauge,useThreadAutoCompaction,renderThreadAutoCompaction,renderCompactionAction,savePolicy,compactionPreview,renderSettings};
+module.exports={CONTEXT_ASSET,SETTINGS_ASSET,MARKER,injectProviderContext,injectProviderContextControls,policyDescription,gaugeProgress,responsePerformanceDescription,responsePerformanceGraph,decorateGauge,useThreadAutoCompaction,renderThreadAutoCompaction,renderCompactionAction,savePolicy,compactionPreview,renderSettings};

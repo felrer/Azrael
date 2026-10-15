@@ -4231,6 +4231,29 @@ class OtherResponseItem(BaseModel):
     type: Annotated[Literal["other"], Field(title="OtherResponseItemType")]
 
 
+class ResponseMinuteSample(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    minute: Annotated[int, Field(ge=0)]
+    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
+    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+
+
+class ResponsePerformance(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    completed_requests: Annotated[int, Field(alias="completedRequests", ge=0)]
+    graph_estimated: Annotated[bool | None, Field(alias="graphEstimated")] = False
+    minute_samples: Annotated[list[ResponseMinuteSample] | None, Field(alias="minuteSamples")] = []
+    output_tokens: Annotated[int, Field(alias="outputTokens", ge=0)]
+    request_duration_ms: Annotated[int, Field(alias="requestDurationMs", ge=0)]
+    truncated_minutes: Annotated[bool | None, Field(alias="truncatedMinutes")] = False
+    turn_id: Annotated[str, Field(alias="turnId")]
+    unmeasured_requests: Annotated[int, Field(alias="unmeasuredRequests", ge=0)]
+
+
 class ResponseUsageMetadata(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -12083,6 +12106,9 @@ class ThreadTokenUsage(BaseModel):
     context_policy: Annotated[ContextPolicy | None, Field(alias="contextPolicy")] = None
     last: TokenUsageBreakdown
     model_context_window: Annotated[int | None, Field(alias="modelContextWindow")] = None
+    response_performance: Annotated[
+        ResponsePerformance | None, Field(alias="responsePerformance")
+    ] = None
     total: TokenUsageBreakdown
 
 

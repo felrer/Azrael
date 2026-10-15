@@ -3,6 +3,7 @@ mod agent_path;
 pub mod auth;
 mod response_item_id;
 mod response_usage;
+pub mod response_performance;
 mod sanitized_git_url;
 mod session_id;
 mod thread_id;

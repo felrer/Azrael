@@ -3948,6 +3948,7 @@ mod tests {
         );
 
         let info = TokenUsageInfo {
+            response_performance: None,
             context_policy: None,
             total_token_usage: TokenUsage {
                 input_tokens: 100,
