@@ -79,6 +79,9 @@ try {
     Assert ((@($preview.candidates | Where-Object status -eq selected)).Count -eq 2) 'Only older and prerelease caches selected'
     Assert (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target/cache.txt')) 'Preview mutated cache'
     Write-Output 'PASS: preview, workspace-only version, semver prerelease, bounded root enumeration'
+    $unsafeReport = Join-Path $old 'codex-rs/target/new-report/report.json'
+    $unsafe = Run -Apply -Report $unsafeReport
+    Assert ($unsafe.status -eq 'blocked' -and (Test-Path -LiteralPath (Join-Path $old 'codex-rs/target/cache.txt')) -and -not (Test-Path -LiteralPath $unsafeReport)) 'Report inside cache candidate mutated or recreated the cache'
 
     foreach ($name in @('cargo.exe', 'rustc.exe', 'link.exe', 'MSBuild.exe')) {
         $global:EngineCacheFixtureProcesses = @([pscustomobject]@{ Name = $name; ProcessId = 42; ExecutablePath = 'C:\tools\build.exe' })

@@ -34,6 +34,8 @@ Each document or owning section labels its own state (see [document states](../R
 
 ## Tools, authority and diagnostics
 
+- [Project maintenance](project-maintenance.md): project-owned test bundles, separate build execution, artifact/backup inventory and model-directed cleanup.
+
 - [Computer Use backend](computer-use.md): package-owned desktop runtime, selected-window backend, tool ceiling, consent and lifetime.
 - [Window Use](window-use.md): staged product authority, current-window/whole-desktop requirements, app approvals, capture, task macros and concurrency boundaries.
 - [Window Use visualization](window-use-visualization.md): overlays, visible stop/recovery and target-specific observation/control presentation.

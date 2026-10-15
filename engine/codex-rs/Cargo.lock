@@ -1191,6 +1191,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "azrael-project-maintenance"
+version = "0.162.0"
+dependencies = [
+ "dunce",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "tempfile",
+ "windows-sys 0.61.2",
+]
+
+[[package]]
 name = "backtrace"
 version = "0.3.76"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2937,6 +2949,7 @@ dependencies = [
  "assert_cmd",
  "assert_matches",
  "async-channel",
+ "azrael-project-maintenance",
  "base64 0.22.1",
  "bm25",
  "chrono",

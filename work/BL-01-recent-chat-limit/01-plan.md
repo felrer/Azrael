@@ -10,6 +10,8 @@ root가 관련 injector, 등록 검사, 소유 계약 및 작업 기록을 순�
 
 검증: Windows에서 pinned native `runRecentConversationRefresh` 및 discovery policy를 실행했다. 기본 100개, 37개씩 돌아오는 페이지의 cursor 누적, 확장 500개/최근 hydrated 100개, disabled 및 필터 순서를 확인했다. UI 모양·컴포넌트 변경 없음; 실제 설치 화면·타 OS 네이티브 검증 없음.
 
-`node scripts/test-feature-preservation.cjs --recent-chat-check`: 종료 0, `artifacts/logs/recent-chat-limit/behavior.log`. 내부 recent-chat 검사 2개 통과.
-`node --test scripts/test-namespace-source.cjs scripts/test-namespace-cache-owner.cjs`: 10개 통과, 종료 0, `artifacts/logs/recent-chat-limit/integration.log`. workspace/provider request 계약 및 cache cold/warm 동일성을 확인했다. 테스트 자체의 fixture 정리 완료.
+`node scripts/test-feature-preservation.cjs --recent-chat-check`: 종료 0, `artifacts/tasks/BL-01-recent-chat-limit/runs/recent-chat-check-20261014/logs/behavior.log`. 내부 recent-chat 검사 2개 통과.
+`node --test scripts/test-namespace-source.cjs scripts/test-namespace-cache-owner.cjs`: 10개 통과, 종료 0, `artifacts/tasks/BL-01-recent-chat-limit/runs/namespace-cache-check-20261014/logs/integration.log`. workspace/provider request 계약 및 cache cold/warm 동일성을 확인했다. 테스트 자체의 fixture 정리 완료.
 이번 작업 파일의 `git diff --check` 통과. 전체 저장소 검사는 기존 다른 변경의 whitespace 문제로 실패했으며 해당 변경은 보존한다. 공유 namespace/feature inventory는 이번 변경 부분만 별도 stage한다. 전체 빌드·설치·게시 및 사용자 대화 데이터 변경 없음.
+
+2026-10-15 산출물 구조 이전: 완료된 검증의 로그·보고서·이미지를 위 task/run 경로로 복사하고 원본과 SHA-256 일치를 확인하여 참조를 전환했다. 원시 파일에 내장된 옛 경로는 당시 실행 이력이며 내용을 고치지 않았다. 구 경로의 정리는 BI-01 작업에서 실제 부재 확인 후 기록한다. 이 이전으로 새로운 UI·설치본 검증이나 과거 소스 identity를 만들지 않는다.

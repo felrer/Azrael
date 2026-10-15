@@ -208,7 +208,7 @@ test("changed-only unknowns and unowned assets are visible, Markdown selects non
   const changedTest = selection(["--changed-only", "--changed", "scripts/test-queue-consumption.cjs"]);
   assert.deepEqual(changedTest.files, ["scripts/test-queue-consumption.cjs"]);
   const runner = selection(["--changed-only", "--changed", "scripts/test-project.cjs"]);
-  assert.deepEqual(runner.files, ["scripts/test-project-fail-fast.cjs", "scripts/test-project-selection.cjs"]);
+  assert.deepEqual(runner.files, ["scripts/test-project-fail-fast.cjs", "scripts/test-project-maintenance.cjs", "scripts/test-project-selection.cjs"]);
   assert.deepEqual(selection(["--changed-only", "--area", "standalone"]).commands.at(-1).args, ["run", "test:standalone"]);
 });
 
@@ -397,4 +397,20 @@ test("source concurrency changes scheduling while retaining the exact full scope
   for (const value of ["0", "17", "1.5", "-1", "8garbage"]) {
     assert.throws(() => parseArgs(["--test-concurrency", value]), /concurrency/);
   }
+});
+
+
+test("work IDs do not change selection and reject unsafe filenames before output", () => {
+  assert.equal(parseArgs([]).logDirectory, undefined);
+  assert.deepEqual(select(parseArgs(["--changed", "docs/README.md", "--work-id", "BI-01.safe_id"])), select(parseArgs(["--changed", "docs/README.md"])));
+  for (const value of ["../escape", "a/b", "a\\b", "CON", "NUL.txt", "COM1", "LPT9.x", ".hidden", "trailing.", "x".repeat(121)]) {
+    assert.throws(() => parseArgs(["--work-id", value]), /Invalid --work-id/);
+  }
+  const workId = `list-only-${require("node:crypto").randomUUID()}`;
+  const output = path.join(__dirname, "..", "artifacts/tasks", workId);
+  const listed = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--changed", "docs/README.md", "--list", "--work-id", workId], { encoding: "utf8" });
+  assert.equal(listed.status, 0, listed.stderr);
+  assert.equal(JSON.parse(listed.stdout).commands.length, 0);
+  assert.equal(fs.existsSync(output), false);
+  assert.equal(require("./artifact-lifecycle.cjs").catalog(path.resolve(__dirname, "..")).some(record => record.id.startsWith(`run:${workId}:`)), false);
 });

@@ -98,6 +98,7 @@ members = [
     "voice-host",
     "protocol",
     "prompts",
+    "project-maintenance",
     "rollout",
     "rollout-trace",
     "rmcp-client",
@@ -170,6 +171,7 @@ edition = "2024"
 license = "Apache-2.0"
 
 [workspace.dependencies]
+azrael-project-maintenance = { path = "project-maintenance" }
 # Internal
 codex-realtime-webrtc = { path = "realtime-webrtc" }
 app_test_support = { path = "app-server/tests/common" }

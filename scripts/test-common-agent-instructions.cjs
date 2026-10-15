@@ -42,3 +42,13 @@ test("parent request guidance matches maintained source and travels as developer
   const result = compileRequest({ type: "request", protocol_version: 1, request_id: "parent-guidance", model: "fixture-model", instructions: "", input: [{ type: "message", role: "developer", content: [{ type: "input_text", text: guidance }] }], tools: [] });
   assert.ok(result.messages.some(message => message.role === "system" && message.content === guidance));
 });
+
+
+test("project maintenance guidance matches its capability-scoped engine source", async () => {
+  const maintained = fs.readFileSync(path.join(root, "instructions/instructions/project-maintenance-guidance.md"), "utf8");
+  assert.equal(fs.readFileSync(path.join(root, "engine/codex-rs/prompts/templates/project-maintenance-guidance.md"), "utf8"), maintained);
+  const { compileRequest } = await import("../providers/opencodex/inference-mapping.mjs");
+  const guidance = "<azrael_project_maintenance_guidance>" + maintained + "</azrael_project_maintenance_guidance>";
+  const result = compileRequest({ type: "request", protocol_version: 1, request_id: "maintenance-guidance", model: "fixture-model", instructions: "", input: [{ type: "message", role: "developer", content: [{ type: "input_text", text: guidance }] }], tools: [] });
+  assert.ok(result.messages.some(message => message.role === "system" && message.content === guidance));
+});

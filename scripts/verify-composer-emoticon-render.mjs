@@ -2,17 +2,51 @@ import { createRequire } from 'node:module';
 import { spawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
+import { lstatSync } from 'node:fs';
 import { resolve, dirname, join, extname, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { createHash } from 'node:crypto';
+import { createHash, randomUUID } from 'node:crypto';
 import assert from 'node:assert/strict';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const fixture = join(root, 'artifacts/verification/composer-emoticon-render');
-const logs = join(root, 'artifacts/logs/composer-session-emoticons/render');
+let runId, describePaths = false;
+for (let index = 2; index < process.argv.length; index++) {
+  const option = process.argv[index];
+  if (option === '--describe-paths' && !describePaths) describePaths = true;
+  else if (option === '--run-id' && runId === undefined) { runId = process.argv[++index]; if (!runId || runId.startsWith('--')) throw Error('Missing --run-id value'); }
+  else throw Error('Unknown or duplicate option: ' + option);
+}
+runId ??= new Date().toISOString().replace(/[:.]/g, '-') + '-' + randomUUID();
+if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,119}$/.test(runId) || runId.endsWith('.') || /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)/i.test(runId)) throw Error('Invalid --run-id; use a safe filename ID');
+const runRoot = join(root, 'artifacts/tasks/AO-01-composer-session-emoticons/runs', runId);
+const fixture = join(runRoot, 'temporary/fixture');
+const logs = join(runRoot, 'logs');
+const reports = join(runRoot, 'reports');
+const outputs = join(runRoot, 'outputs/render');
+const paths = { runId, runRoot, fixture, logs, reports, outputs };
+const require = createRequire(import.meta.url);
+const lifecycle = require('./artifact-lifecycle.cjs');
+const lifecycleRecord = { id: `run:AO-01-composer-session-emoticons:${runId}`, kind: 'run', owner: 'verify-composer-emoticon-render',
+  members: [{ path: runRoot, role: 'run' }, { path: fixture, role: 'fixture' }, { path: logs, role: 'logs' }, { path: reports, role: 'reports' }, { path: outputs, role: 'output' }] };
+for (const candidate of [runRoot, lifecycle.registryPath(root, lifecycleRecord.id)]) {
+  try { lstatSync(candidate); throw Error('Run identity already exists: ' + runId); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+}
+if (describePaths) { console.log(JSON.stringify(paths)); process.exit(0); }
+if (process.platform !== 'win32') throw Error('This renderer currently requires Windows Chrome; other platforms remain unverified');
+lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: 'pending', membership_complete: false, expected_revision: 0 });
 const profile = join(fixture, 'chrome-profile');
 const assets = join(root, 'artifacts/upstream-ui/26.1007.21434/webview/assets');
-const require = createRequire(import.meta.url);
+let chrome, socket, session, server, runClaimed = false, chromeStderr = '', id = 0;
+const pending = new Map();
+const summary = { scope: 'Production mPi placeholder with pinned React and CSS in a synthetic textarea surface. No full composer or installed-host acceptance.', paths, lifecycleId: lifecycleRecord.id, checks: [] };
+try {
+await mkdir(dirname(runRoot), { recursive: true });
+await mkdir(runRoot);
+runClaimed = true;
+await mkdir(logs);
+await mkdir(reports);
+await mkdir(outputs, { recursive: true });
 const ts = require('../extensions/azrael-ex/node_modules/typescript');
 const { COMPOSER_ASSET, COMPOSER_EMOTICONS, injectUiCleanup } = require('./inject-ui-cleanup.cjs');
 const native = injectUiCleanup(await readFile(join(root, 'artifacts/upstream-ui/26.1007.21434', COMPOSER_ASSET), 'utf8'),COMPOSER_ASSET,ts).text;
@@ -28,8 +62,7 @@ return React.createElement('main',{className:'mx-auto flex w-full max-w-xl flex-
 window.reactRoot=XAt().createRoot(document.getElementById('root'));window.reactRoot.render(React.createElement(Fixture));window.fixtureReady=true;`;
 const html = `<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"></head><body data-vscode-theme-kind="vscode-light"><div id="root"></div><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.js"></script></body></html>`;
 await mkdir(profile, { recursive: true });
-await mkdir(logs, { recursive: true });
-const server = createServer(async (req, res) => {
+server = createServer(async (req, res) => {
   try {
     if (req.url === '/') { res.setHeader('Content-Type', 'text/html'); res.end(html); return; }
     if (req.url === '/fixture.js') { res.setHeader('Content-Type', 'text/javascript'); res.end(adapter); return; }
@@ -43,11 +76,9 @@ const server = createServer(async (req, res) => {
   } catch (error) { res.statusCode = 500; res.end(String(error)); }
 });
 await new Promise(r => server.listen(0, '127.0.0.1', r));
-let chrome, socket, session, id = 0;
-const pending = new Map();
-const summary = { scope: 'Production mPi placeholder with pinned React and CSS in a synthetic textarea surface. No full composer or installed-host acceptance.', inputSha256: createHash('sha256').update(native).update(hook).digest('hex'), checks: [] };
-try {
+summary.inputSha256 = createHash('sha256').update(native).update(hook).digest('hex');
   chrome = spawn('C:/Program Files/Google/Chrome/Application/chrome.exe', ['--headless=new', '--no-first-run', '--no-default-browser-check', '--disable-gpu', '--remote-debugging-port=0', `--user-data-dir=${profile}`], { windowsHide: true, stdio: ['ignore', 'ignore', 'pipe'] });
+  chrome.stderr.on('data', chunk => { chromeStderr += chunk; });
   const endpoint = await new Promise((r, j) => { let output = ''; const timeout = setTimeout(() => j(Error('Chrome startup timeout')), 20000); chrome.stderr.on('data', c => { output += c; const match = output.match(/DevTools listening on (ws:\/\/[^\s]+)/); if (match) { clearTimeout(timeout); r(match[1]); } }); chrome.on('error', j); });
   socket = new WebSocket(endpoint);
   await new Promise((r, j) => { socket.addEventListener('open', r, { once: true }); socket.addEventListener('error', j, { once: true }); });
@@ -75,7 +106,7 @@ try {
     await evaluate(`var box=document.createElement('div');box.className='p-8 text-default';box.innerHTML=faces.map(face=>'<div style="padding:8px;font-size:16px">'+face+'</div>').join('');document.body.append(box)`);
     assert.deepEqual(await evaluate('fixtureErrors'),[]);
     await evaluate('new Promise(r=>requestAnimationFrame(()=>requestAnimationFrame(r)))');
-    const shot=await send('Page.captureScreenshot',{format:'png'});await writeFile(join(logs,theme+'.png'),Buffer.from(shot.data,'base64'));
+    const shot=await send('Page.captureScreenshot',{format:'png'});await writeFile(join(outputs,theme+'.png'),Buffer.from(shot.data,'base64'));
     await evaluate('document.body.lastElementChild.remove()');
     summary.checks.push(theme+': selection stable after input/clear and session revisit; all seven candidates rendered');
   }
@@ -89,28 +120,40 @@ try {
   await Promise.race([browserExited,new Promise((_,reject)=>setTimeout(()=>reject(Error('Browser close timeout')),20000))]);
 } catch (error) { summary.outcome = 'failed'; summary.error = String(error.stack || error); process.exitCode = 1; }
 finally {
-  socket?.close(); server.close();
+  socket?.close(); server?.close();
   if (chrome && chrome.exitCode === null && chrome.signalCode === null) { chrome.kill(); await new Promise(r => { const timer = setTimeout(r, 10000); chrome.once('exit', () => { clearTimeout(timer); r(); }); }); }
   summary.browserExitCode = chrome?.exitCode; summary.browserSignalCode = chrome?.signalCode;
-  if (chrome && (chrome.exitCode !== null || chrome.signalCode !== null)) {
-    const cleanupScript = String.raw`$ErrorActionPreference='Stop'
+  summary.browserExited = !!chrome && (chrome.exitCode !== null || chrome.signalCode !== null);
+  summary.fixtureProcessesClear = false;
+  if (summary.browserExited) {
+    const processCheckScript = String.raw`$ErrorActionPreference='Stop'
 $taskRoot=[IO.Path]::GetFullPath($env:AZRAEL_SUBMIT_FIXTURE)
-$expectedParent=[IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))
-if (-not $taskRoot.StartsWith($expectedParent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected cleanup target' }
-$preview=& ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $taskRoot -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_SUBMIT_CLEANUP
-if ($preview.status -ne 'preview' -or $preview.candidates.Count -ne 1 -or $preview.candidates[0].status -ne 'selected') { throw 'Cleanup preview refused' }
 $live=@(Get-CimInstance Win32_Process | Where-Object { ($_.CommandLine -and $_.CommandLine.Replace('/','\').Contains($taskRoot)) -or ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($taskRoot,[StringComparison]::OrdinalIgnoreCase)) })
-if ($live.Count) { throw 'Fixture referenced by live process' }
-Remove-Item -LiteralPath $taskRoot -Recurse
-if (Test-Path -LiteralPath $taskRoot) { throw 'Fixture survived cleanup' }
+@{liveCount=$live.Count; processIds=@($live | ForEach-Object {$_.ProcessId})} | ConvertTo-Json -Compress
 `;
-    const cleanup = spawn('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '-'], { cwd: root, windowsHide: true, env: { ...process.env, AZRAEL_SUBMIT_FIXTURE: fixture, AZRAEL_SUBMIT_CLEANUP: join(logs, 'cleanup-preview.json') }, stdio: ['pipe', 'pipe', 'pipe'] });
-    let output = ''; cleanup.stdout.on('data', b => output += b); cleanup.stderr.on('data', b => output += b); cleanup.stdin.end(cleanupScript);
-    summary.cleanupExitCode = await new Promise((r, j) => { cleanup.on('error', j); cleanup.on('exit', r); });
-    await writeFile(join(logs, 'cleanup.txt'), output);
-    if (summary.cleanupExitCode !== 0) process.exitCode = 1;
-  } else { summary.cleanup = 'Browser termination not confirmed; fixture retained'; process.exitCode = 1; }
+    try {
+      const check = spawn('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '-'], { cwd: root, windowsHide: true,
+        env: { ...process.env, AZRAEL_SUBMIT_FIXTURE: fixture }, stdio: ['pipe', 'pipe', 'pipe'] });
+      let stdout = '', stderr = '';
+      check.stdout.on('data', chunk => { stdout += chunk; }); check.stderr.on('data', chunk => { stderr += chunk; });
+      check.stdin.end(processCheckScript);
+      const code = await new Promise((r, j) => { check.once('error', j); check.once('close', r); });
+      if (code !== 0) throw Error('Fixture process check failed: ' + stderr);
+      summary.fixtureProcessCheck = JSON.parse(stdout.trim());
+      summary.fixtureProcessesClear = summary.fixtureProcessCheck.liveCount === 0;
+    } catch (error) { summary.fixtureProcessError = String(error.stack || error); }
+  }
+  summary.cleanup = { status: 'awaiting-model-review', fixtureRetained: true, decision: null,
+    reason: summary.browserExited && summary.fixtureProcessesClear ? 'Browser terminated and no fixture processes remain; whole run retained for native review and explicit delete/defer decision' : 'Browser or fixture process termination not confirmed; failed run remains protected' };
+  if (!summary.browserExited || !summary.fixtureProcessesClear) process.exitCode = 1;
   summary.exitCode = process.exitCode || 0;
-  await writeFile(join(logs, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
-  console.log(JSON.stringify({ outcome: summary.outcome, checks: summary.checks, error: summary.error, cleanupExitCode: summary.cleanupExitCode, exitCode: summary.exitCode }));
+  if (runClaimed) {
+    await mkdir(logs, { recursive: true });
+    await mkdir(reports, { recursive: true });
+    await writeFile(join(logs, 'chrome.stderr.log'), chromeStderr, { flag: 'wx' });
+    await writeFile(join(reports, 'cleanup.json'), JSON.stringify(summary.cleanup, null, 2) + '\n', { flag: 'wx' });
+    await writeFile(join(reports, 'summary.json'), JSON.stringify(summary, null, 2) + '\n', { flag: 'wx' });
+  }
+  lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: summary.outcome === 'passed' && summary.exitCode === 0 ? 'complete' : 'failed', membership_complete: summary.outcome === 'passed' && summary.exitCode === 0 });
+  console.log(JSON.stringify({ outcome: summary.outcome, checks: summary.checks, error: summary.error, browserExited: summary.browserExited, cleanup: summary.cleanup, paths, lifecycleId: lifecycleRecord.id, exitCode: summary.exitCode }));
 }

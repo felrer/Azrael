@@ -14,11 +14,13 @@ root가 UI 변환과 해당 기존 검사, `ui-presentation.md` 소유 절을 �
 
 ## 검증 근거
 
-- `node --test scripts/test-ui-cleanup.cjs`: 7/7 통과, 실제 종료 코드 0, 실행 147.924초. 로그: `artifacts/logs/composer-session-emoticons/source-tests.log`.
+- `node --test scripts/test-ui-cleanup.cjs`: 7/7 통과, 실제 종료 코드 0, 실행 147.924초. 로그: `artifacts/tasks/AO-01-composer-session-emoticons/runs/source-tests-20261015/logs/source-tests.log`.
 - 첫 검사 실행의 두 실패는 검사 fixture의 `get` 참조 및 `Math.floor` 누락이었다. fixture 수정 후 재실행해 통과했다. 제품 동작 변경을 통한 검사 우회는 없다.
 - Chromium 검사: production `mPi`, pinned React/CSS, synthetic textarea. 밝은/어두운 테마, 입력/지우기, 세션 재방문, 새로고침 통과. 전체 native composer 및 설치본 검증과 구분한다. 브라우저 종료 확인 지연으로 정리 확인을 보완했다.
 - 이번 소유 파일의 `git diff --check`: 종료 코드 0. 기존 타 작업 엔진 파일의 whitespace는 수정하지 않았다.
 - 새 입력란의 native 초안 키와 첫 전송 후 생성된 대화 키는 다르므로 최초 세션 생성 시 한 번 다른 후보가 표시될 수 있다. 대화 ID가 있는 세션은 유지한다.
 - 패키지 생성·설치 및 Linux/macOS 실행 검증은 수행하지 않았다. 별도 실행 요청 없이 전체 빌드하지 않는 build playbook을 따른다.
 
-Chromium 최종 검사와 fixture 정리 실제 종료 코드: 0. 로그: `artifacts/logs/composer-session-emoticons/render.log`, `render/summary.json`, `render/light.png`, `render/dark.png`. fixture 경로 부재를 확인했다. 화면은 synthetic textarea이며 7개 후보 목록의 전체 가시성은 스크린샷 범위에 포함되지 않는다.
+Chromium 최종 검사와 fixture 정리 실제 종료 코드: 0. 로그: `artifacts/tasks/AO-01-composer-session-emoticons/runs/chromium-render-20261015/logs/render.log`, `artifacts/tasks/AO-01-composer-session-emoticons/runs/chromium-render-20261015/reports/summary.json`, `artifacts/tasks/AO-01-composer-session-emoticons/runs/chromium-render-20261015/outputs/render/light.png`, `artifacts/tasks/AO-01-composer-session-emoticons/runs/chromium-render-20261015/outputs/render/dark.png`. fixture 경로 부재를 확인했다. 화면은 synthetic textarea이며 7개 후보 목록의 전체 가시성은 스크린샷 범위에 포함되지 않는다.
+
+2026-10-15 산출물 구조 이전: 완료된 검증의 로그·보고서·이미지를 위 task/run 경로로 복사하고 원본과 SHA-256 일치를 확인하여 참조를 전환했다. 원시 파일에 내장된 옛 경로는 당시 실행 이력이며 내용을 고치지 않았다. 구 경로의 정리는 BI-01 작업에서 실제 부재 확인 후 기록한다. 이 이전으로 새로운 UI·설치본 검증이나 과거 소스 identity를 만들지 않는다.

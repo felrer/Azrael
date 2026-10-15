@@ -19,7 +19,10 @@ Improve guidance from demonstrated needs. Promote reusable lessons to common sou
 - [Work](work.md): Applies to implementation, fixes, refactoring, migration, verification, and retirement cleanup; adds Azrael owner routes, project verification constraints, and task-level commits to `implementation`.
 - [App logging and error diagnosis](app-logging.md): Applies to a new app's initial logging, work that adds or changes logging, and diagnosis where missing logs prevent tracing a cause.
 - [Build and reinstall](build.md): Applies to project-local engine/bridge/VSIX generation, delegated validation, local installation, updates, rollback and artifact cleanup.
+- [Artifact lifecycle and migration](artifact-lifecycle.md): Applies to generated work/run and version evidence, shared-cache ownership, group cleanup decisions, and phased adoption of existing artifact paths. Documentation adoption is separate from verified writer/reader migration.
 
 ## Source Maintenance
 
 Work originated from `project-playbooks/work.md`, aligned on 2026-09-29. Its common execution body is now owned by the installed `implementation` skill; the local playbook maintains Azrael constraints, owner links, and task-level commit policy. App logging is imported from `project-playbooks/app-logging.md`, aligned on 2026-09-29, and maintained locally. Local adaptations use the configured project-local work location and defer plan allocation to the active planning skill. No source-specific runtime or deployment commands are introduced.
+
+Artifact lifecycle is imported from `Azrael/instructions/skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md` on 2026-10-15. The local copy preserves the reusable lifecycle/migration procedure and links Azrael's existing Work and Build owners; these rules do not claim that legacy paths or every writer have migrated. Concrete native APIs and adoption status remain in their architecture and operational owners.

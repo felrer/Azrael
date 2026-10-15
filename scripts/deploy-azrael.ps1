@@ -58,6 +58,17 @@ if ($WindowControlTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($Win
 if ($CargoVerificationCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CargoVerificationCacheProjectRoot)) { throw 'CargoVerificationCacheProjectRoot must be an absolute cache owner path.' }
 if ($NamespaceCacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($NamespaceCacheProjectRoot)) { throw 'NamespaceCacheProjectRoot must be an absolute cache owner path.' }
 if ($FullRegression -and $ChangedPath) { throw 'ChangedPath cannot be combined with FullRegression.' }
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+$lifecycleMembers = Get-VersionLifecycleMembers $project $ReleaseName
+$null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State pending -MembershipComplete $false -Members $lifecycleMembers
+$fixtureLifecycleId = "run:verification:$ReleaseName"
+$fixtureLifecycleMembers = [ordered]@{fixture=$fixture}
+$null = Register-ArtifactLifecycle -ProjectRoot $project -Id $fixtureLifecycleId -Kind run -Owner 'azrael-release' -State pending -MembershipComplete $false -Members $fixtureLifecycleMembers
+$accountLifecycleId = "run:account-controls:$ReleaseName"
+$accountLifecycleMembers = [ordered]@{fixture=$accountControlsState}
+if ($VerifyAccountControls) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -State pending -MembershipComplete $false -Members $accountLifecycleMembers }
+$lifecycleSucceeded = $false
+try {
 New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
@@ -173,7 +184,7 @@ function Assert-Package {
 try {
     $script:inputSnapshot = Get-ProjectSnapshot 'initial'
     $metrics.projectInputSha256 = $inputSnapshot
-    $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot)
+    $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
     if ($WindowControlTargetDirectory) { $buildArgs += @('-WindowControlTargetDirectory', $WindowControlTargetDirectory) }
@@ -367,15 +378,33 @@ if ($installExitCode -ne 0) {
             Copy-Item -LiteralPath $acceptancePath -Destination $archivedAcceptance -Force
             $acceptancePath = $archivedAcceptance
             $metrics.acceptanceResult = $archivedAcceptance
+            $metrics.fixtureLifecycle = Register-ArtifactLifecycle -ProjectRoot $project -Id $fixtureLifecycleId -Kind run -Owner 'azrael-release' -State complete -MembershipComplete $true -Members $fixtureLifecycleMembers
+            if ($VerifyAccountControls) {
+                $archivedAccount = Join-Path $project "artifacts/logs/verification-evidence/account-controls-$ReleaseName/verification.json"
+                for ($cursor = $archivedAccount; $cursor; $cursor = [IO.Path]::GetDirectoryName($cursor)) {
+                    if ((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)) { throw "Linked account archive path: $cursor" }
+                }
+                New-Item -ItemType Directory -Path (Split-Path $archivedAccount -Parent) -Force | Out-Null
+                Copy-Item -LiteralPath $metrics.accountControls.verification -Destination $archivedAccount
+                $metrics.accountControls.verification = $archivedAccount
+                $metrics.accountLifecycle = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -State complete -MembershipComplete $true -Members $accountLifecycleMembers
+            }
             $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
             $metrics.verificationCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $fixture -Apply -ReportPath (Join-Path $logs 'verification-cleanup.json')
             if ($VerifyAccountControls) {
                 $metrics.accountControlsCleanup = & (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -ProjectRoot $project -FixtureRoot $accountControlsState -Apply -ReportPath (Join-Path $logs 'account-controls-cleanup.json')
-                $accountCandidate = @($metrics.accountControlsCleanup.candidates | Where-Object status -eq 'deleted')
-                if ($accountCandidate.Count -eq 1) { $metrics.accountControls.verification = Join-Path $project "artifacts/logs/verification-evidence/account-controls-$ReleaseName/verification.json" }
             }
         } catch { $metrics.verificationCleanup = @{ status = 'blocked'; reason = $_.Exception.Message; fixtureRoot = $fixture } }
         $metrics | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath (Join-Path $logs 'deployment-metrics.json') -Encoding utf8NoBOM
     }
 }
+$lifecycleSucceeded = $metrics.status -in @('verified','installed')
 [pscustomobject]@{ Status = $metrics.status; ReleaseDirectory = $release; PreparedPackageDirectory = $package; AcceptanceResult = $acceptancePath; Metrics = (Join-Path $logs 'deployment-metrics.json') }
+} finally {
+    if ($lifecycleSucceeded) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State complete -MembershipComplete $true -Members $lifecycleMembers }
+    else { try {
+        $null = Register-ArtifactLifecycle -ProjectRoot $project -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State failed -MembershipComplete $false -Members $lifecycleMembers
+        $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $fixtureLifecycleId -Kind run -Owner 'azrael-release' -State failed -MembershipComplete $false -Members $fixtureLifecycleMembers
+        if ($VerifyAccountControls) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -State failed -MembershipComplete $false -Members $accountLifecycleMembers }
+    } catch { Write-Warning "Lifecycle failure receipt could not be updated: $($_.Exception.Message)" } }
+}

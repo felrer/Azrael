@@ -1167,6 +1167,139 @@
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "tool.project-maintenance",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/project-maintenance/examples/maintenance_dispatch.rs",
+        "engine/codex-rs/project-maintenance/src/apply.rs",
+        "engine/codex-rs/project-maintenance/src/lib.rs",
+        "engine/codex-rs/project-maintenance/src/paths.rs",
+        "engine/codex-rs/project-maintenance/src/planning.rs",
+        "engine/codex-rs/project-maintenance/src/storage.rs",
+        "engine/codex-rs/project-maintenance/tests/contracts.rs",
+        "engine/codex-rs/core/src/tools/handlers/project_maintenance.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/context/world_state/project_maintenance_guidance.rs",
+        "engine/codex-rs/prompts/src/project_maintenance_guidance.rs",
+        "engine/codex-rs/prompts/templates/project-maintenance-guidance.md",
+        "instructions/instructions/project-maintenance-guidance.md",
+        "project-maintenance.json",
+        "scripts/project-maintenance.cjs",
+        "scripts/check-project-maintenance.cjs",
+        "engine/codex-rs/project-maintenance/Cargo.toml",
+        "engine/codex-rs/core/Cargo.toml",
+        "engine/codex-rs/core/src/tools/handlers/mod.rs",
+        "engine/codex-rs/core/src/session/world_state.rs",
+        "engine/codex-rs/core/src/context/world_state/mod.rs",
+        "engine/codex-rs/prompts/src/lib.rs",
+        "scripts/test-project-maintenance.cjs",
+        "engine/codex-rs/project-maintenance/src/groups.rs",
+        "engine/codex-rs/project-maintenance/tests/groups.rs",
+        "scripts/artifact-lifecycle.cjs",
+        "scripts/artifact-lifecycle.ps1",
+        "scripts/test-artifact-lifecycle.cjs",
+        "scripts/build-platform.cjs",
+        "scripts/build-azrael.ps1",
+        "scripts/deploy-azrael.ps1",
+        "scripts/package-platform-release.cjs",
+        "scripts/clean-legacy-releases.ps1",
+        "scripts/clean-verification-artifacts.ps1",
+        "scripts/clean-engine-caches.ps1",
+        "scripts/check-artifact-lifecycle.cjs",
+        "scripts/test-platform-packaging.cjs",
+        "scripts/test-build-platform.cjs",
+        "scripts/test-clean-legacy-releases.ps1",
+        "scripts/test-clean-verification-artifacts.ps1",
+        "scripts/test-clean-engine-caches.ps1",
+        "scripts/test-deploy-azrael.ps1",
+        "engine/codex-rs/project-maintenance/src/registry.rs",
+        "engine/codex-rs/project-maintenance/tests/registry.rs",
+        "scripts/verify-composer-emoticon-render.mjs",
+        "scripts/test-project.cjs",
+        "scripts/test-project-fail-fast.cjs",
+        "scripts/test-project-selection.cjs"
+      ],
+      "contract": "docs/architecture/project-maintenance.md",
+      "checks": [
+        {
+          "id": "tool.project-maintenance.adapter",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-project-maintenance.cjs",
+            "scripts/test-common-agent-instructions.cjs",
+            "scripts/test-artifact-lifecycle.cjs",
+            "scripts/test-project-fail-fast.cjs",
+            "scripts/test-project-selection.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.project-maintenance.library",
+          "executable": "node",
+          "args": [
+            "scripts/check-project-maintenance.cjs",
+            "{engineSourceRoot}",
+            "--stage",
+            "library"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "tool.project-maintenance.prompts",
+          "executable": "node",
+          "args": [
+            "scripts/check-project-maintenance.cjs",
+            "{engineSourceRoot}",
+            "--stage",
+            "prompts"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "tool.project-maintenance.core",
+          "executable": "node",
+          "args": [
+            "scripts/check-project-maintenance.cjs",
+            "{engineSourceRoot}",
+            "--stage",
+            "core"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "tool.project-maintenance.lifecycle-source",
+          "executable": "node",
+          "args": [
+            "scripts/check-artifact-lifecycle.cjs",
+            "--stage",
+            "source"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.project-maintenance.windows-cleanup",
+          "executable": "node",
+          "args": [
+            "scripts/check-artifact-lifecycle.cjs",
+            "--stage",
+            "windows"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "tool.project-maintenance.ao-layout",
+          "executable": "node",
+          "args": [
+            "scripts/verify-composer-emoticon-render.mjs",
+            "--describe-paths"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": []
     }
   ]
 }

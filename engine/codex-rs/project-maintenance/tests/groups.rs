@@ -1,0 +1,646 @@
+//! Cohort contracts preserve logs/evidence until the corresponding version fate
+//! is fully reviewed, including partial physical deletion and metadata changes.
+use azrael_project_maintenance::{AccessMode, dispatch};
+use serde_json::{Value, json};
+use std::path::Path;
+use tempfile::TempDir;
+
+fn allow(_: &Path, _: AccessMode) -> Result<(), String> {
+    Ok(())
+}
+fn call(root: &TempDir, request: Value) -> Value {
+    dispatch(root.path(), request, &allow).unwrap()
+}
+fn fixture() -> TempDir {
+    let root = tempfile::tempdir().unwrap();
+    std::fs::create_dir(root.path().join("generated")).unwrap();
+    std::fs::write(root.path().join("project-maintenance.json"),serde_json::to_vec(&json!({"schema_version":1,"project_id":"group-fixture","managed_roots":["generated"],"bundles":[]})).unwrap()).unwrap();
+    root
+}
+fn member(id: &str, role: &str) -> Value {
+    json!({"id":id,"path":format!("generated/{id}"),"kind":"fixture","owner":"test","generated":true,"protection_known":true,"references":[],"lifecycle_role":role})
+}
+fn create(root: &TempDir, id: &str, role: &str) -> Value {
+    std::fs::write(root.path().join(format!("generated/{id}")), id).unwrap();
+    member(id, role)
+}
+fn registration(id: &str, members: Vec<Value>, complete: bool) -> Value {
+    json!({"operation":"register","group":{"id":id,"kind":"version","owner":"test","version":"old-version","membership_complete":complete,"provenance_ref":"receipt:producer-ledger","members":members}})
+}
+fn reviews(root: &TempDir, id: &str) -> Value {
+    call(root, json!({"operation":"review","group_ids":[id]}))
+}
+fn decisions(review: &Value, fate: &str) -> Vec<Value> {
+    review["items"].as_array().unwrap().iter().map(|item|json!({"id":item["id"],"token":item["token"],"decision":fate,"reason":"version review completed","revisit_condition":"consumer completes"})).collect()
+}
+
+#[test]
+fn apply_observes_membership_once_per_preflight_and_intent_boundary() {
+    use std::cell::Cell;
+    let root = fixture();
+    let source = root.path().join("generated/membership.json");
+    std::fs::write(&source, "{}").unwrap();
+    let mut request = registration("version", vec![create(&root, "artifact", "artifact")], true);
+    request["group"]["membership_source"] = json!("generated/membership.json");
+    call(&root, request);
+    let reads = Cell::new(0usize);
+    let authorize = |path: &Path, mode| {
+        if path == source && mode == AccessMode::Read {
+            reads.set(reads.get() + 1);
+        }
+        Ok(())
+    };
+    let reviewed = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &authorize,
+    )
+    .unwrap();
+    let one_observation = reads.replace(0);
+    assert!(one_observation > 0);
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    // One group preflight and one fresh observation on each side of intent.
+    assert_eq!(reads.get(), one_observation * 3);
+}
+
+#[test]
+fn authorization_and_intent_mutations_preserve_all_group_members() {
+    use std::cell::Cell;
+    for during_intent in [false, true] {
+        for change_source in [false, true] {
+            let root = fixture();
+            let source = root.path().join("generated/membership.json");
+            std::fs::write(&source, "{}").unwrap();
+            let artifact = root.path().join("generated/artifact");
+            let mut request = registration(
+                "version",
+                vec![
+                    create(&root, "artifact", "artifact"),
+                    create(&root, "log", "log"),
+                ],
+                true,
+            );
+            request["group"]["membership_source"] = json!("generated/membership.json");
+            call(&root, request);
+            let reviewed = reviews(&root, "version");
+            let changed = Cell::new(false);
+            let manifest_writes = Cell::new(0usize);
+            let authorize = |path: &Path, mode| {
+                if mode == AccessMode::Write {
+                    if path.file_name().is_some_and(|name| name == "manifest.json") {
+                        manifest_writes.set(manifest_writes.get() + 1);
+                    }
+                    // authorize_save is the first manifest write request; the
+                    // second belongs to the durable intent save itself.
+                    let boundary = if during_intent {
+                        path.file_name().is_some_and(|name| name == "manifest.json")
+                            && manifest_writes.get() == 2
+                    } else {
+                        path == artifact
+                    };
+                    if boundary && !changed.replace(true) {
+                        std::fs::write(
+                            if change_source { &source } else { &artifact },
+                            "changed during authorization",
+                        )
+                        .unwrap();
+                    }
+                }
+                Ok(())
+            };
+            let result = dispatch(
+                root.path(),
+                json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+                &authorize,
+            )
+            .unwrap();
+            assert!(changed.get());
+            assert_eq!(result["results"][0]["status"], "blocked");
+            assert!(artifact.exists());
+            assert!(root.path().join("generated/log").exists());
+            if during_intent {
+                let durable: Value = serde_json::from_slice(
+                    &std::fs::read(root.path().join("artifacts/maintenance/manifest.json"))
+                        .unwrap(),
+                )
+                .unwrap();
+                assert!(durable["decisions"][0]["attempt_id"].is_string());
+            }
+        }
+    }
+}
+
+#[test]
+fn authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group() {
+    use std::cell::Cell;
+    let root = fixture();
+    let artifact = root.path().join("generated/artifact");
+    let sibling = root.path().join("generated/log");
+    let members = vec![
+        create(&root, "artifact", "artifact"),
+        create(&root, "log", "log"),
+    ];
+    std::fs::write(&sibling, vec![b'a'; 65536]).unwrap();
+    call(&root, registration("version", members, true));
+    let reviewed = reviews(&root, "version");
+    let modified = std::fs::metadata(&sibling).unwrap().modified().unwrap();
+    let changed = Cell::new(false);
+    let authorize = |path: &Path, mode| {
+        if path == artifact && mode == AccessMode::Write && !changed.replace(true) {
+            // The group preflight has already hashed this other member. Its
+            // length and mtime match that cached observation after the rewrite.
+            std::fs::write(&sibling, vec![b'b'; 65536]).unwrap();
+            std::fs::File::options()
+                .write(true)
+                .open(&sibling)
+                .unwrap()
+                .set_times(std::fs::FileTimes::new().set_modified(modified))
+                .unwrap();
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(changed.get());
+    assert_eq!(result["results"][0]["status"], "blocked");
+    assert!(artifact.exists());
+    assert!(sibling.exists());
+}
+
+#[test]
+fn artifact_log_evidence_share_expanded_review_and_delete_fate() {
+    let root = fixture();
+    let members = vec![
+        create(&root, "artifact", "artifact"),
+        create(&root, "log", "log"),
+        create(&root, "evidence", "evidence"),
+    ];
+    call(&root, registration("version", members, true));
+    let expanded = call(&root, json!({"operation":"review","ids":["log"]}));
+    assert_eq!(expanded["items"].as_array().unwrap().len(), 3);
+    assert!(
+        expanded["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["group_member_ids"].as_array().unwrap().len() == 3)
+    );
+    let inventory = call(&root, json!({"operation":"inventory","limit":1}));
+    assert_eq!(inventory["pagination"]["groups_total"], 1);
+    assert_eq!(inventory["groups"][0]["cached_live_members"], 3);
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&expanded,"delete")}),
+    );
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    assert_eq!(result["results"][0]["id"], "artifact");
+    for id in ["artifact", "log", "evidence"] {
+        assert!(!root.path().join(format!("generated/{id}")).exists());
+    }
+    assert_eq!(
+        reviews(&root, "version")["items"].as_array().unwrap().len(),
+        0
+    );
+}
+
+#[test]
+fn missing_or_mixed_group_decisions_never_mutate_any_member() {
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    let reviewed = reviews(&root, "version");
+    let all = decisions(&reviewed, "delete");
+    let mut mixed = all.clone();
+    mixed[1]["decision"] = json!("defer");
+    for selected in [vec![all[0].clone()], mixed] {
+        assert!(
+            dispatch(
+                root.path(),
+                json!({"operation":"apply","decisions":selected}),
+                &allow
+            )
+            .is_err()
+        );
+        for id in ["artifact", "log"] {
+            assert!(root.path().join(format!("generated/{id}")).exists());
+        }
+    }
+}
+
+#[test]
+fn incomplete_or_protected_member_blocks_delete_but_all_defer_preserves() {
+    for complete in [false, true] {
+        let root = fixture();
+        let artifact = create(&root, "artifact", "artifact");
+        let mut log = create(&root, "log", "log");
+        if complete {
+            log["retain_reason"] = json!("consumer still requires evidence");
+        }
+        call(
+            &root,
+            registration("version", vec![artifact, log], complete),
+        );
+        let reviewed = reviews(&root, "version");
+        assert!(
+            reviewed["items"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+        );
+        let result = call(
+            &root,
+            json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        );
+        assert!(
+            result["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| item["status"] == "blocked")
+        );
+        let retained = reviews(&root, "version");
+        let result = call(
+            &root,
+            json!({"operation":"apply","decisions":decisions(&retained,"defer")}),
+        );
+        assert!(
+            result["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| item["status"] == "deferred")
+        );
+        assert!(root.path().join("generated/artifact").exists());
+        assert!(root.path().join("generated/log").exists());
+    }
+}
+
+#[test]
+fn retained_registered_child_protects_the_entire_group() {
+    let root = fixture();
+    std::fs::create_dir(root.path().join("generated/artifact")).unwrap();
+    std::fs::write(root.path().join("generated/artifact/child"), "keep").unwrap();
+    let log = create(&root, "log", "log");
+    call(
+        &root,
+        registration("version", vec![member("artifact", "artifact"), log], true),
+    );
+    call(
+        &root,
+        json!({"operation":"register","item":{"id":"child","path":"generated/artifact/child","kind":"fixture","owner":"test","generated":true,"protection_known":true,"references":["consumer"]}}),
+    );
+    let reviewed = reviews(&root, "version");
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+    );
+    assert!(
+        result["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["status"] == "blocked")
+    );
+    assert!(root.path().join("generated/log").exists());
+    assert!(root.path().join("generated/artifact/child").exists());
+}
+
+#[test]
+fn membership_change_invalidates_old_tokens_and_live_members_cannot_drop() {
+    let root = fixture();
+    let artifact = create(&root, "artifact", "artifact");
+    let log = create(&root, "log", "log");
+    call(
+        &root,
+        registration("version", vec![artifact.clone(), log.clone()], true),
+    );
+    let before = reviews(&root, "version");
+    assert!(
+        dispatch(
+            root.path(),
+            registration("version", vec![artifact.clone()], true),
+            &allow
+        )
+        .is_err()
+    );
+    let evidence = create(&root, "evidence", "evidence");
+    call(
+        &root,
+        registration("version", vec![artifact, log, evidence], true),
+    );
+    let after = reviews(&root, "version");
+    let mut choices = decisions(&before, "delete");
+    choices.extend(
+        decisions(&after, "delete")
+            .into_iter()
+            .filter(|choice| choice["id"] == "evidence"),
+    );
+    let result = call(&root, json!({"operation":"apply","decisions":choices}));
+    assert!(
+        result["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["status"] == "blocked")
+    );
+    for id in ["artifact", "log", "evidence"] {
+        assert!(root.path().join(format!("generated/{id}")).exists());
+    }
+}
+
+#[test]
+fn direct_registration_cannot_strip_or_spoof_group_membership() {
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    let mut direct = member("artifact", "artifact");
+    direct.as_object_mut().unwrap().remove("lifecycle_role");
+    assert!(
+        dispatch(
+            root.path(),
+            json!({"operation":"register","item":direct}),
+            &allow
+        )
+        .is_err()
+    );
+    let mut spoof = create(&root, "new", "artifact");
+    spoof["lifecycle_group_id"] = json!("version");
+    assert!(
+        dispatch(
+            root.path(),
+            json!({"operation":"register","item":spoof}),
+            &allow
+        )
+        .is_err()
+    );
+    let reviewed = reviews(&root, "version");
+    assert_eq!(reviewed["items"].as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn failed_group_registration_is_atomic_and_paths_must_be_disjoint() {
+    let root = fixture();
+    let valid = create(&root, "valid", "artifact");
+    let missing = member("missing", "log");
+    assert!(
+        dispatch(
+            root.path(),
+            registration("version", vec![valid, missing], true),
+            &allow
+        )
+        .is_err()
+    );
+    let inventory = call(&root, json!({"operation":"inventory"}));
+    assert_eq!(inventory["pagination"]["total"], 0);
+    assert_eq!(inventory["pagination"]["groups_total"], 0);
+    std::fs::create_dir(root.path().join("generated/tree")).unwrap();
+    std::fs::write(root.path().join("generated/tree/log"), "evidence").unwrap();
+    let mut child = member("child", "log");
+    child["path"] = json!("generated/tree/log");
+    assert!(
+        dispatch(
+            root.path(),
+            registration("version", vec![member("tree", "artifact"), child], true),
+            &allow
+        )
+        .is_err()
+    );
+}
+
+#[test]
+fn ungrouped_parent_cannot_bypass_a_descendant_lifecycle_group() {
+    let root = fixture();
+    std::fs::create_dir(root.path().join("generated/tree")).unwrap();
+    std::fs::write(root.path().join("generated/tree/artifact"), "owned").unwrap();
+    let mut artifact = member("artifact", "artifact");
+    artifact["path"] = json!("generated/tree/artifact");
+    call(
+        &root,
+        registration("version", vec![artifact, create(&root, "log", "log")], true),
+    );
+    let mut parent = member("parent", "artifact");
+    parent["path"] = json!("generated/tree");
+    parent.as_object_mut().unwrap().remove("lifecycle_role");
+    call(&root, json!({"operation":"register","item":parent}));
+    let reviewed = call(&root, json!({"operation":"review","ids":["parent"]}));
+    assert!(
+        !reviewed["items"][0]["blockers"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+    );
+    assert_eq!(result["results"][0]["status"], "blocked");
+    assert!(root.path().join("generated/tree/artifact").exists());
+    assert!(root.path().join("generated/log").exists());
+}
+
+#[cfg(windows)]
+#[test]
+fn partial_failure_retains_logs_and_independent_items_can_continue() {
+    use std::os::windows::fs::OpenOptionsExt;
+    let root = fixture();
+    let a = create(&root, "a-artifact", "artifact");
+    let b = create(&root, "b-artifact", "artifact");
+    let log = create(&root, "log", "log");
+    call(&root, registration("version", vec![log, b, a], true));
+    let _reader = std::fs::OpenOptions::new()
+        .read(true)
+        .share_mode(3)
+        .open(root.path().join("generated/b-artifact"))
+        .unwrap();
+    let independent = create(&root, "independent", "artifact");
+    let mut independent = independent;
+    independent
+        .as_object_mut()
+        .unwrap()
+        .remove("lifecycle_role");
+    call(&root, json!({"operation":"register","item":independent}));
+    let mut choices = decisions(&reviews(&root, "version"), "delete");
+    let separate = call(&root, json!({"operation":"review","ids":["independent"]}));
+    choices.extend(decisions(&separate, "delete"));
+    let result = call(&root, json!({"operation":"apply","decisions":choices}));
+    assert_eq!(result["groups"][0]["status"], "partial");
+    assert_eq!(result["results"][0]["id"], "a-artifact");
+    assert_eq!(result["results"][0]["status"], "deleted");
+    assert_eq!(result["results"][1]["status"], "failed");
+    assert_eq!(result["results"][2]["id"], "log");
+    assert_eq!(result["results"][2]["status"], "blocked");
+    assert_eq!(result["results"][3]["status"], "deleted");
+    assert!(root.path().join("generated/log").exists());
+    assert!(root.path().join("generated/b-artifact").exists());
+    assert!(!root.path().join("generated/a-artifact").exists());
+    assert!(!root.path().join("generated/independent").exists());
+}
+
+#[test]
+fn membership_directory_change_requires_fresh_full_registration() {
+    let root = fixture();
+    let members = vec![
+        create(&root, "artifact", "artifact"),
+        create(&root, "log", "log"),
+    ];
+    let ledger = root.path().join("generated/ledger");
+    std::fs::create_dir(&ledger).unwrap();
+    std::fs::write(ledger.join("producer.json"), "{}").unwrap();
+    let mut request = registration("version", members.clone(), true);
+    request["group"]["membership_source"] = json!("generated/ledger");
+    call(&root, request);
+    let before = reviews(&root, "version");
+    assert!(
+        before["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["blockers"].as_array().unwrap().is_empty())
+    );
+    // A newly added consumer file changes inbound reference knowledge without
+    // changing the producer's own file. The directory binding must catch it.
+    std::fs::write(
+        ledger.join("new-consumer.json"),
+        "{\"references\":[\"version\"]}",
+    )
+    .unwrap();
+    let changed = reviews(&root, "version");
+    assert!(
+        changed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+    );
+    let blocked = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&changed,"delete")}),
+    );
+    assert!(
+        blocked["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["status"] == "blocked")
+    );
+    assert!(root.path().join("generated/artifact").exists());
+    assert!(root.path().join("generated/log").exists());
+    // Omitting the optional source on update preserves its existing binding.
+    call(&root, registration("version", members, true));
+    let refreshed = reviews(&root, "version");
+    assert!(
+        refreshed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["blockers"].as_array().unwrap().is_empty())
+    );
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&refreshed,"delete")}),
+    );
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    assert!(ledger.join("new-consumer.json").exists());
+}
+
+#[test]
+fn missing_or_denied_membership_source_blocks_delete_and_control_source_is_protected() {
+    let root = fixture();
+    let source = root.path().join("generated/membership.json");
+    std::fs::write(&source, "{}").unwrap();
+    let mut request = registration(
+        "version",
+        vec![
+            create(&root, "artifact", "artifact"),
+            create(&root, "log", "log"),
+        ],
+        true,
+    );
+    request["group"]["membership_source"] = json!("generated/membership.json");
+    call(&root, request);
+    let deny = |path: &Path, mode| {
+        if path == source && mode == AccessMode::Read {
+            Err("source read denied".into())
+        } else {
+            Ok(())
+        }
+    };
+    let reviewed = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny,
+    )
+    .unwrap();
+    assert!(
+        reviewed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+    );
+    let mut source_item = member("source", "artifact");
+    source_item["path"] = json!("generated/membership.json");
+    source_item
+        .as_object_mut()
+        .unwrap()
+        .remove("lifecycle_role");
+    call(&root, json!({"operation":"register","item":source_item}));
+    let protected = call(&root, json!({"operation":"review","ids":["source"]}));
+    assert!(
+        !protected["items"][0]["blockers"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    std::fs::remove_file(&source).unwrap();
+    let missing = reviews(&root, "version");
+    assert!(
+        missing["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+    );
+    let blocked = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&missing,"delete")}),
+    );
+    assert!(
+        blocked["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["status"] == "blocked")
+    );
+    assert!(root.path().join("generated/artifact").exists());
+    assert!(root.path().join("generated/log").exists());
+}

@@ -3,7 +3,7 @@ const fs=require("node:fs"), path=require("node:path"), assert=require("node:ass
 const repo=path.join(__dirname,".."), root=path.join(repo,"artifacts/verification","portable-packaging-"+crypto.randomUUID());
 fs.mkdirSync(root,{recursive:true});
 const frozen=path.join(root,"scripts"); fs.mkdirSync(frozen);
-for(const name of ["install-platform-release.cjs","package-platform-release.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
+for(const name of ["install-platform-release.cjs","package-platform-release.cjs","artifact-lifecycle.cjs","prepare-platform-host.cjs","platform-runtime.cjs","azrael-platforms.json","prepare-official-ui.ps1","prepare-ordinary-vscode.ps1"]) fs.copyFileSync(path.join(__dirname,name),path.join(frozen,name));
 const s=require(path.join(frozen,"install-platform-release.cjs")), p=require(path.join(frozen,"platform-runtime.cjs")), pack=require(path.join(frozen,"package-platform-release.cjs"));
 let checks=0; function check(name,fn) {fn(); checks++;console.log("PASS "+name);}
 function put(root,name,data) {const file=path.join(root,name); fs.mkdirSync(path.dirname(file),{recursive:true}); fs.writeFileSync(file,data);return file;}
@@ -20,7 +20,7 @@ function packageFixture(options) {
     const bytes=s.writeZip(hostEntries);fs.writeFileSync(options["host-vsix"],bytes);
     const hostReceipt=receipt(new Map([["bin/signing-fixture",hostEntries.get("extension/bin/signing-fixture")]]));put(path.dirname(options["host-vsix"]),"macos-host-signing.json",s.encode(hostReceipt));put(path.dirname(options["host-vsix"]),"preparation.json",s.encode({signing:hostReceipt,hostSha256:s.sha(bytes)}));
   }
-  return pack.packageRelease(options);
+  return pack.packageRelease({...options,"project-root":repo});
 }
 const release=path.join(root,"release");fs.mkdirSync(release);
 const selected=p.resolvePlatform(), binaries={};for(const name of p.engineBinaryNames()) binaries[name]=s.sha(fs.readFileSync(put(release,"engine/"+name,process.platform==="darwin" ? Buffer.from("cffaedfe01020304","hex") : "frozen fixture "+name)));
@@ -42,15 +42,15 @@ check("producer-shaped bundled Node bootstrap matches inventoried path",()=>{
   const relative="runtime/node/"+p.executableName("node"),target=path.join(shaped,relative);fs.mkdirSync(path.dirname(target),{recursive:true});fs.renameSync(path.join(shaped,"node",p.executableName("node")),target);
   const native={...nativeManifest,node:{...nativeManifest.node,path:target,bundled:true}},metadata={...build,sha256:{...build.sha256}};delete metadata.sha256["node/"+p.executableName("node")];metadata.sha256[relative]=nodeHash;metadata.sha256["devin-native-build.json"]=s.sha(s.encode(native));put(shaped,"devin-native-build.json",s.encode(native));put(shaped,"build-info.json",s.encode(metadata));
   const shapedHost=put(root,"producer.vsix",s.writeZip(new Map([["extension/out/azrael-runtime.json",{data:s.encode({...config,engine:path.join(shaped,"engine",p.executableName("azrael")),bridge:path.join(shaped,"engine",p.executableName("azrael-bridge")),devinNative:{...config.devinNative,node:target}})}],["extension.vsixmanifest",{data:Buffer.from('<PackageManifest><Metadata><Identity Id="azrael" /></Metadata></PackageManifest>')}]])));
-  const shapedOutput=path.join(root,"producer-package");pack.packageRelease({release:shaped,"host-vsix":shapedHost,output:shapedOutput,version:"1.2.4"});assert(fs.readFileSync(path.join(shapedOutput,"INSTALL.txt"),"utf8").includes("runtime/"+relative));s.verifyPackage(shapedOutput);
-  native.node.sha256="0".repeat(64);put(shaped,"devin-native-build.json",s.encode(native));metadata.sha256["devin-native-build.json"]=s.sha(s.encode(native));put(shaped,"build-info.json",s.encode(metadata));assert.throws(()=>pack.packageRelease({release:shaped,"host-vsix":shapedHost,output:path.join(root,"bad-bootstrap"),version:"1.2.5"}),/Bundled installer Node/);
+  const shapedOutput=path.join(root,"producer-package");pack.packageRelease({"project-root":repo,release:shaped,"host-vsix":shapedHost,output:shapedOutput,version:"1.2.4"});assert(fs.readFileSync(path.join(shapedOutput,"INSTALL.txt"),"utf8").includes("runtime/"+relative));s.verifyPackage(shapedOutput);
+  native.node.sha256="0".repeat(64);put(shaped,"devin-native-build.json",s.encode(native));metadata.sha256["devin-native-build.json"]=s.sha(s.encode(native));put(shaped,"build-info.json",s.encode(metadata));assert.throws(()=>pack.packageRelease({"project-root":repo,release:shaped,"host-vsix":shapedHost,output:path.join(root,"bad-bootstrap"),version:"1.2.5"}),/Bundled installer Node/);
 });
 check("minimal package explicitly requires external Node without advertising a bundle",()=>{
   const minimal=path.join(root,"minimal-release");fs.mkdirSync(minimal);fs.cpSync(path.join(release,"engine"),path.join(minimal,"engine"),{recursive:true});
   const metadata={...build,sha256:Object.fromEntries(Object.entries(build.sha256).filter(([name])=>name.startsWith("engine/")))};put(minimal,"build-info.json",s.encode(metadata));
   const minimalConfig={...config,engine:path.join(minimal,"engine",p.executableName("azrael")),bridge:path.join(minimal,"engine",p.executableName("azrael-bridge"))};delete minimalConfig.devinNative;
   const minimalHost=put(root,"minimal.vsix",s.writeZip(new Map([["extension/out/azrael-runtime.json",{data:s.encode(minimalConfig)}],["extension.vsixmanifest",{data:Buffer.from('<PackageManifest><Metadata><Identity Id="azrael" /></Metadata></PackageManifest>')}]]))),minimalOutput=path.join(root,"minimal-package");
-  pack.packageRelease({release:minimal,"host-vsix":minimalHost,output:minimalOutput,version:"1.2.6"});const guidance=fs.readFileSync(path.join(minimalOutput,"INSTALL.txt"),"utf8");assert.match(guidance,/Run: node install-platform-release/);assert.match(guidance,/Use a compatible Node runtime/);assert(!guidance.includes("Bundled installer Node:"));s.verifyPackage(minimalOutput);
+  pack.packageRelease({"project-root":repo,release:minimal,"host-vsix":minimalHost,output:minimalOutput,version:"1.2.6"});const guidance=fs.readFileSync(path.join(minimalOutput,"INSTALL.txt"),"utf8");assert.match(guidance,/Run: node install-platform-release/);assert.match(guidance,/Use a compatible Node runtime/);assert(!guidance.includes("Bundled installer Node:"));s.verifyPackage(minimalOutput);
 });
 if(process.platform!=="win32") {
   check("native tar.gz extraction verifies inventory",()=>{const extracted=path.join(root,"extracted");fs.mkdirSync(extracted);const result=require("node:child_process").spawnSync("tar",["-xzf",output+".tar.gz","-C",extracted],{encoding:"utf8",shell:false});assert.equal(result.status,0,result.stderr);s.verifyPackage(extracted);});
@@ -96,4 +96,13 @@ check("Mac public signing receipts bind all native bytes and metadata",()=>{
 });
 console.log(JSON.stringify({checks,platform:p.platformIdentity(),nativeUnixExecution:false}));
 // Successful fixture contents are disposable; retain only the caller's test log.
-fs.rmSync(root,{recursive:true});
+const lifecycle=require("./artifact-lifecycle.cjs");
+const fixtureRoot=path.resolve(root);
+assert(fixtureRoot.startsWith(path.resolve(repo,"artifacts","verification")+path.sep));
+const owned=lifecycle.catalog(repo).filter(group=>group.owner==="package-platform-release" &&
+  group.members.length>0 && group.members.every(member=>path.resolve(member.path).startsWith(fixtureRoot+path.sep)));
+fs.rmSync(fixtureRoot,{recursive:true});
+for(const group of owned) {
+  lifecycle.recordLifecycle(repo,{...group,state:"complete",membership_complete:true});
+  assert.equal(lifecycle.finalize(repo,group.id).status,"finalized");
+}

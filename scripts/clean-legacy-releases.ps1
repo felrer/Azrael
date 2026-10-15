@@ -8,6 +8,7 @@ param(
     [string]$ReportPath
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 
 function ConvertTo-LegacyPath([string]$Path) {
     $Path = $Path.Replace('/', '\').Replace('\\?\UNC\', '\\').Replace('\\?\', '')
@@ -235,6 +236,13 @@ function Invoke-LegacyReleaseCleanup {
         $protected += @($shortcuts | Where-Object { $_ -is [string] })
         $report.protectedPaths = @($protected | Select-Object -Unique)
         $processes = @(Get-LegacyProcesses)
+        $allLifecycleCandidates = @()
+        foreach ($container in @('artifacts/releases','artifacts/vsix')) {
+            $candidateRoot = Join-Path $project $container
+            if (Test-Path -LiteralPath $candidateRoot) { $allLifecycleCandidates += @(Get-ChildItem -LiteralPath $candidateRoot -Directory -Force | ForEach-Object FullName) }
+        }
+        Assert-ArtifactReportOutside -ProjectRoot $project -Candidates $allLifecycleCandidates -ReportPath $ReportPath
+        $cleanupOperation = Start-ArtifactCleanupOperation $project $ReportPath
         foreach ($kind in @('release','vsix')) {
             $root = Join-Path $project $(if ($kind -eq 'release') { 'artifacts/releases' } else { 'artifacts/vsix' })
             Assert-LegacyUnlinked $root
@@ -256,28 +264,27 @@ function Invoke-LegacyReleaseCleanup {
                     if ($reason) { throw $reason }
                     Assert-LegacyUnlinked $target -Recursive
                     $row.identity = Get-LegacyOwnership $target $kind
-                    $row.status = 'selected'
-                    if ($Apply) {
-                        Assert-LegacyUnlinked $target -Recursive
-                        # Save compact identities before deletion. No binaries or user data copied.
-                        New-Item -ItemType Directory -Path $logs -Force | Out-Null
-                        $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8NoBOM
-                        $reason = Get-LegacyProcessReason $target @(Get-LegacyProcesses)
-                        if ($reason) { throw $reason }
-                        Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
-                        $row.absent = -not (Test-Path -LiteralPath $target -ErrorAction Stop)
-                        if (-not $row.absent) { throw 'Deletion returned but candidate still exists.' }
-                        $row.status = 'deleted'
+                    $checkMember = {
+                        param($memberPath)
+                        Assert-LegacyUnlinked $memberPath -Recursive
+                        foreach ($reference in $protected) { if ((Test-LegacyWithin $memberPath $reference) -or (Test-LegacyWithin $reference $memberPath)) { return "Protected reference: $reference" } }
+                        foreach ($shortcut in $shortcuts) { if ($shortcut -isnot [string] -and $shortcut.command.Replace('/', '\').IndexOf($memberPath, [StringComparison]::OrdinalIgnoreCase) -ge 0) { return 'Shortcut argument reference.' } }
+                        Get-LegacyProcessReason $memberPath @(Get-LegacyProcesses)
                     }
+                    $row.lifecycle = Invoke-ArtifactLifecycleCleanup -ProjectRoot $project -Candidate $target -ProtectedPaths $protected -ReportPath $ReportPath -Apply ([bool]$Apply) -CheckMember $checkMember
+                    $row.reason = $row.lifecycle.reason
+                    $row.status = if ($row.lifecycle.status -in @('selected','deleted')) { $row.lifecycle.status } else { 'preserved' }
+                    $row.absent = -not (Test-Path -LiteralPath $target)
                 } catch { $row.status = 'preserved'; $row.reason = $_.Exception.Message }
             }
         }
-        if ($Apply) { $report.status = 'applied' }
+        if ($Apply) { $report.status = if (@($report.candidates | Where-Object { $_.Contains('lifecycle') -and $_.lifecycle.status -eq 'partial' }).Count) {'partial'} else {'applied'} }
     } catch { $report.status = 'blocked'; $report.errors += $_.Exception.Message }
     if ($report.projectRoot -and $ReportPath -and $report.status -ne 'blocked') {
         Assert-LegacyUnlinked $ReportPath
         New-Item -ItemType Directory -Path (Split-Path $ReportPath -Parent) -Force | Out-Null
         $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8NoBOM
+        if ($cleanupOperation) { Complete-ArtifactCleanupOperation $project $cleanupOperation $ReportPath }
     }
     [pscustomobject]$report
 }

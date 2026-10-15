@@ -84,33 +84,33 @@
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 15398,
-        "sha256": "10040ab0ed0698252c1316866dfd29ec4d97ca17c3551dfa54d9eb9575ef700a"
+        "size": 17493,
+        "sha256": "05b7b490f61d79be4856eb332f7adfd35a1a6307c9670e5750ad036a67b8da35"
       },
-      "size": 15398,
-      "sha256": "10040ab0ed0698252c1316866dfd29ec4d97ca17c3551dfa54d9eb9575ef700a",
+      "size": 17665,
+      "sha256": "5287cd2fe15b67fd1dd96ff870f8eea3b45d48472493704730adb16b708544ab",
       "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/app-logging.md",
       "source": "project-bootstrap/assets/playbooks/app-logging.md",
       "original": {
-        "size": 4951,
-        "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343"
+        "size": 5112,
+        "sha256": "71a7a44dbf101b931c630d7b68763541c5a4dc73365b89c5aa64e69b02f8f040"
       },
-      "size": 4951,
-      "sha256": "9f732c8a58a9a374b21f403f311aa936dd505e3eb4ed016dcba93bbcf3b3c343",
+      "size": 5112,
+      "sha256": "71a7a44dbf101b931c630d7b68763541c5a4dc73365b89c5aa64e69b02f8f040",
       "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/assets/project-template/AGENTS.md",
       "source": "project-bootstrap/assets/project-template/AGENTS.md",
       "original": {
-        "size": 1532,
-        "sha256": "6d96574b2e3ce4f2c459a83d09e87fb7dbea9424f99248d8de4e9e57c18718f6"
+        "size": 1791,
+        "sha256": "5075ef9e6a7068722c350df494db2fda8fe7e06bdfa484a72505940eb307229e"
       },
-      "size": 1532,
-      "sha256": "6d96574b2e3ce4f2c459a83d09e87fb7dbea9424f99248d8de4e9e57c18718f6",
+      "size": 1791,
+      "sha256": "5075ef9e6a7068722c350df494db2fda8fe7e06bdfa484a72505940eb307229e",
       "adaptations": []
     },
     {
@@ -150,22 +150,22 @@
       "path": "skills/project-bootstrap/assets/project-template/docs/playbooks/README.md",
       "source": "project-bootstrap/assets/project-template/docs/playbooks/README.md",
       "original": {
-        "size": 3068,
-        "sha256": "3a0e3cb45f966228373c29b5de30b5b26c72a2cec5ffcf11990e372031e75250"
+        "size": 3414,
+        "sha256": "b052ee014a66a472d77b38478f64bda9034914b4c1c782ced8dd9c6ee6ccfe0c"
       },
-      "size": 3068,
-      "sha256": "3a0e3cb45f966228373c29b5de30b5b26c72a2cec5ffcf11990e372031e75250",
+      "size": 3414,
+      "sha256": "b052ee014a66a472d77b38478f64bda9034914b4c1c782ced8dd9c6ee6ccfe0c",
       "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/assets/project-template/docs/README.md",
       "source": "project-bootstrap/assets/project-template/docs/README.md",
       "original": {
-        "size": 3754,
-        "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae"
+        "size": 3950,
+        "sha256": "2e86ea05cd3b067d5d838d35670eeac2433144602c2dba310540a322a728ccd0"
       },
-      "size": 3754,
-      "sha256": "b197188dcc83f02c2ce06a50d18a80e98e30dec329c19c8c59be304dd5e681ae",
+      "size": 3950,
+      "sha256": "2e86ea05cd3b067d5d838d35670eeac2433144602c2dba310540a322a728ccd0",
       "adaptations": []
     },
     {
@@ -183,11 +183,11 @@
       "path": "skills/project-bootstrap/SKILL.md",
       "source": "project-bootstrap/SKILL.md",
       "original": {
-        "size": 8550,
-        "sha256": "f2851259364baecbd6baf14e73f3240f33eba6744b01081eb47471e8de76b6d4"
+        "size": 10154,
+        "sha256": "22e2de15c8557c2d14750380ff033d1bf7d186305bb0c5b42119107b22bba57e"
       },
-      "size": 8550,
-      "sha256": "f2851259364baecbd6baf14e73f3240f33eba6744b01081eb47471e8de76b6d4",
+      "size": 10154,
+      "sha256": "22e2de15c8557c2d14750380ff033d1bf7d186305bb0c5b42119107b22bba57e",
       "adaptations": []
     },
     {
@@ -195,11 +195,11 @@
       "source": "implementation/references/build-inputs.md",
       "adaptations": [],
       "original": {
-        "size": 4167,
-        "sha256": "e2a83cb9087133a44ff85a215fca8fbc6d6c540d365c95bf9ea70c78993dc2b9"
+        "size": 7768,
+        "sha256": "ff175bdbe9608caf52c07815a819b01e5149e456e133e8350ea4d29661fd2708"
       },
-      "size": 4167,
-      "sha256": "e2a83cb9087133a44ff85a215fca8fbc6d6c540d365c95bf9ea70c78993dc2b9"
+      "size": 7768,
+      "sha256": "ff175bdbe9608caf52c07815a819b01e5149e456e133e8350ea4d29661fd2708"
     },
     {
       "path": "skills/implementation/references/delegation.md",
@@ -243,6 +243,28 @@
       },
       "size": 6211,
       "sha256": "c250c61941f730ec778c2705c38248995a115e4f3b28448bcaf6f60166ec5f49",
+      "adaptations": []
+    },
+    {
+      "path": "skills/implementation/references/artifact-lifecycle.md",
+      "source": "implementation/references/artifact-lifecycle.md",
+      "size": 6656,
+      "sha256": "c921ec2ab718641e86631d29382941efb8d876a9c93314c1337b4896931dd94b",
+      "original": {
+        "size": 4357,
+        "sha256": "5ae09b6b1f5f3a65e645a7c0d242f70f8809c8f963c9b70cc759b4078ec90de0"
+      },
+      "adaptations": []
+    },
+    {
+      "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
+      "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
+      "size": 13615,
+      "sha256": "c11420e2eafe621a6d1f6baf892f299e58348a6311acd74894febfb7b5af41ff",
+      "original": {
+        "size": 10430,
+        "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"
+      },
       "adaptations": []
     }
   ],

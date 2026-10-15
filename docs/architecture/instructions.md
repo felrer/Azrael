@@ -20,6 +20,12 @@ The engine owners are `codex-rs/core/src/context/instruction_state_projection.rs
 
 Provider/model behavior templates and runtime/tool guidance are composed through [model harness profiles](model-harness-profiles.md). User templates replace the behavior layer; sandboxing, approvals, declared-tool eligibility and user/project provenance stay with the native runtime. Maintained profile prompts have identical embedded copies alongside the common agent behavior.
 
+## Project maintenance guidance
+
+Status: `partial` — maintained/installed instructions and capability-scoped native composition are verified in Windows source acceptance; installed-app exposure and real model compliance remain separate. Generic test and build principles in the maintained implementation skill work with existing project commands. They classify retained/one-off bundles, separate preparation/test/build results and require model review before item cleanup. They do not require a specific management program. Test creation criteria retain their existing owner.
+
+The engine-only `project-maintenance-guidance.md` template and its maintained instruction source describe the native tools. Actual tool registration selects the developer fragment; disabled or restricted capabilities replace/withdraw earlier guidance. Project settings own commands and policies; runtime state owns execution and cleanup receipts. No resident scheduler or separate model invocation is introduced. [Project maintenance](project-maintenance.md) owns the full behavior and feature `tool.project-maintenance`.
+
 ## Work intent, entry and feature preservation
 
 Status: `partial` — maintained instructions and active skill files define this policy; model behavior in real use remains a separate acceptance condition.
