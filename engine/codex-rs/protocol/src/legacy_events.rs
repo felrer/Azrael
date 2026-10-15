@@ -435,6 +435,7 @@ impl CollabAgentToolCallItem {
 impl SubAgentActivityItem {
     pub(crate) fn as_legacy_event(&self, occurred_at_ms: i64) -> EventMsg {
         EventMsg::SubAgentActivity(SubAgentActivityEvent {
+            parent_request: self.parent_request.clone(),
             model: self.model.clone(),
             reasoning_effort: self.reasoning_effort.clone(),
             event_id: self.id.clone(),

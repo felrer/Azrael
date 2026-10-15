@@ -3475,6 +3475,7 @@ fn core_turn_item_into_thread_item_converts_supported_variants() {
     );
 
     let sub_agent_activity_item = TurnItem::SubAgentActivity(SubAgentActivityItem {
+        parent_request: None,
         model: Some("gpt-5".into()),
         reasoning_effort: Some(ReasoningEffort::High),
         id: "activity-1".to_string(),
@@ -3488,6 +3489,7 @@ fn core_turn_item_into_thread_item_converts_supported_variants() {
     assert_eq!(
         ThreadItem::from(sub_agent_activity_item),
         ThreadItem::SubAgentActivity {
+            parent_request: None,
             model: Some("gpt-5".into()),
             reasoning_effort: Some(ReasoningEffort::High),
             id: "activity-1".to_string(),

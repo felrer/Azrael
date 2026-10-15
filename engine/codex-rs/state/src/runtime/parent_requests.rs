@@ -67,6 +67,24 @@ impl StateRuntime {
             .collect()
     }
 
+    pub async fn set_parent_request_presentation(
+        &self,
+        id: &str,
+        parent_thread_id: &str,
+        presentation: &codex_protocol::parent_request::ParentRequestPresentation,
+    ) -> Result<ParentRequest> {
+        ensure!(!presentation.parent_turn_id.is_empty(), "invalid_presentation_turn");
+        let mut tx = self.pool.begin().await?;
+        let mut record = locked_request(&mut tx, id).await?;
+        ensure!(record.parent_thread_id == parent_thread_id, "parent_request_owner_mismatch");
+        if record.presentation.is_none() {
+            record.presentation = Some(presentation.clone());
+            save_request(&mut tx, &record).await?;
+        }
+        tx.commit().await?;
+        Ok(record)
+    }
+
     pub async fn set_parent_request_delivery(
         &self,
         id: &str,

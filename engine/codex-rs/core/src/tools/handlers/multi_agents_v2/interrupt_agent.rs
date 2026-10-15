@@ -63,6 +63,7 @@ async fn handle_interrupt_agent(
         &session,
         &turn,
         SubAgentActivityItem {
+            parent_request: None,
             model: None,
             reasoning_effort: None,
             id: call_id,

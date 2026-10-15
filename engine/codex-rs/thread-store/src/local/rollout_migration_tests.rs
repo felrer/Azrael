@@ -3095,3 +3095,69 @@ async fn migration_skips_malformed_lines_and_trailing_partial_tail() {
     assert_eq!(turns.turns.len(), 1);
     assert_eq!(turns.turns[0].items.len(), 2);
 }
+
+#[tokio::test]
+async fn parent_request_activity_migration_preserves_payload_and_original_turn() {
+    use codex_protocol::parent_request::ParentRequest;
+    use codex_protocol::protocol::SubAgentActivityEvent;
+    use codex_protocol::protocol::SubAgentActivityKind;
+
+    let home = TempDir::new().expect("create Codex home");
+    let thread_id = ThreadId::new();
+    let child = ThreadId::new();
+    let request: ParentRequest = serde_json::from_value(json!({
+        "requestId": "route-decision", "requestKey": "route", "parentThreadId": thread_id.to_string(),
+        "childThreadId": child.to_string(), "childTaskId": "child-task",
+        "question": "Which route?", "context": "Two supported routes", "recommendation": "Route A",
+        "blockedAction": "Choose the route", "status": "resolved", "deliveryState": "blocked",
+        "deliveryReason": "response_delivery_failed", "createdAtMs": 1, "updatedAtMs": 2,
+        "response": {"status": "resolved", "decision": "Route A", "reason": "Supported", "retryCondition": null},
+        "presentation": {"parentTurnId": "original", "childAgentPath": "/root/worker"}
+    })).expect("build saved parent decision");
+    let ordinary = SubAgentActivityEvent {
+        parent_request: None, model: None, reasoning_effort: None,
+        event_id: "ordinary-report".into(), occurred_at_ms: 2,
+        agent_thread_id: child, agent_path: AgentPath::try_from("/root/worker").unwrap(),
+        kind: SubAgentActivityKind::Interacted,
+    };
+    let decision = SubAgentActivityEvent {
+        parent_request: Some(request.clone()),
+        event_id: "parent-request-route-decision".into(),
+        ..ordinary.clone()
+    };
+    let path = write_rollout(home.path(), thread_id, SessionSource::Cli, vec![
+        started("original"), user_message("original question"),
+        started("current"), user_message("current question"),
+        RolloutItem::EventMsg(EventMsg::SubAgentActivity(decision)),
+        RolloutItem::EventMsg(EventMsg::SubAgentActivity(ordinary)),
+        completed("current"),
+    ]);
+    let store = indexed_store(home.path()).await;
+    store.migrate_rollouts(apply_options()).await.expect("migrate parent decision activity");
+
+    let activities = read_rollout(&path).into_iter().filter_map(|line| match line.item {
+        RolloutItem::EventMsg(EventMsg::ItemCompleted(event)) => match event.item {
+            TurnItem::SubAgentActivity(activity) => Some((event.turn_id, activity)),
+            _ => None,
+        },
+        _ => None,
+    }).collect::<Vec<_>>();
+    assert_eq!(activities.len(), 2);
+    assert_eq!(activities[0].0, "original");
+    assert_eq!(activities[0].1.parent_request, Some(request.clone()));
+    assert_eq!(activities[0].1.kind, SubAgentActivityKind::Interacted);
+    assert_eq!(activities[1].0, "current");
+    assert_eq!(activities[1].1.parent_request, None);
+
+    let items = store.list_items(ListItemsParams {
+        thread_id, turn_id: None, include_archived: false, position: None, page_size: 10,
+        sort_direction: SortDirection::Asc, sort_key: ItemSortKey::CreatedAtOrdinal,
+        after_updated_at_ordinal: None,
+    }).await.expect("read projected parent decision");
+    let decision = items.items.iter().find(|item| {
+        serde_json::from_slice::<serde_json::Value>(&item.item_json).unwrap()["id"] == "parent-request-route-decision"
+    }).expect("projected decision row");
+    assert_eq!(decision.turn_id, "original");
+    let wire: serde_json::Value = serde_json::from_slice(&decision.item_json).unwrap();
+    assert_eq!(wire["parentRequest"], serde_json::to_value(request).unwrap());
+}

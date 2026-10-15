@@ -229,6 +229,7 @@ async fn handle_spawn_agent(
         &session,
         turn,
         SubAgentActivityItem {
+            parent_request: None,
             model: Some(agent_snapshot.model.clone()),
             reasoning_effort: agent_snapshot.reasoning_effort.clone(),
             id: call_id,

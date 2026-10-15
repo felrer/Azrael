@@ -20,6 +20,14 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## Parent decision request activity
+
+Status: `current` in source — guarded source transforms, native React/CSS activity rendering and Windows x64 MSVC engine storage/replay fixtures pass. Rendering covers light/dark themes and narrow width. Package, installed-host and other-platform acceptance remain separate in [the work record](../../work/AR-01-root-child-mail-analysis/01-plan.md).
+
+An immediate child decision request appears in its parent's chat history using the native sub-agent activity row, including existing avatars, child identity, spacing and theme tokens. Its pending label is **판단 요청**. Expanding the row reveals the question, context, recommendation and blocked action. A structured parent response updates that same request's row to **판단 완료**, **판단 보류** or **요청 취소** and exposes its decision, reason and any retry condition. Each request retains its own identity and state even when the child sends multiple requests. Ordinary progress mail retains its existing presentation.
+
+The activity is a presentation of the persisted [parent decision request](root-resume.md#parent-decision-requests); it does not complete the child, answer a request, grant approval or create a wake. The original parent turn and stable item ID keep response updates attached to the request through parent resume, history loading and reload. The same shared presentation applies to Windows x64, Linux x64 and macOS ARM64; actual platform and installed-host acceptance remain separate. Preservation feature: `ui.parent-request-activity`.
+
 ## File edit summary
 
 Status: `current` in source — native React/CSS rendering and scoped interactions pass on Windows in light/dark themes and at narrow width. Package, installed-host and native Linux/macOS acceptance remain separate; evidence is tracked in [the work plan](../../work/BG-01-compact-file-summary/01-plan.md).

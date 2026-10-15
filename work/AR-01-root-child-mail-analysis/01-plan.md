@@ -188,3 +188,54 @@ Windows x64 MSVC nativefixture범위수용. 현재기능소유engine40파일과�
 계약수용: 일반보고누적,즉시parent_request조기재개,requestkey멱등,동일childtask 비종료대기/응답native출처,명시cancel/defer와pending재대기금지,UTC/monotonic분리자동로그,알림으로늦춰지지않는60/300checkpoint,권한·작업변경·재시작보호,관련요청묶음지침. 앱전체build/package/install/publish/live모델호출과다른OS수용은수행하지않았다. nestedparent자체응답대기보류한계와자동timeout/승인없음은구조문서에명시. broadparent_가선택한기존7회귀불일치는이번범위밖에별도기록했고전체회귀통과를주장하지않는다. 최종변경분리/whitespace와taskcommit확인후완료한다.
 
 최종변경분리확인: 기존staged파일0,이번task54경로만stage,범위밖index0,staged/scoped whitespace exit0. 구현·필수fixture검증·지침활성사본동기화·진단fixture정리수용완료. taskcommit결과는Git기록및artifacts/logs/AR-01/task-commit.json에보존한다. 원격push/배포/앱설치는수행하지않는다.
+
+## 판단 요청 채팅 이력 표시 (2026-10-15)
+
+사용자는 기존 자식 활동 행의 아이콘·이름·간격을 재사용하고 즉시 요청을 `판단 요청`으로 표시하는 설계를 승인하고 구현을 지시했다. 일반 보고는 UI에 추가하지 않는다. 요청 행을 펼쳐 질문·상황·추천안·막힌 작업을 읽고, 부모의 구조화된 응답에 따라 같은 행을 `판단 완료`·`판단 보류`·`요청 취소`로 갱신한다. 요청별 ID와 상태를 유지하며 자식 완료 신호·권한·대기 및 재개 의미를 바꾸지 않는다.
+
+공통 요구: 기존 Windows x64/Linux x64/macOS ARM64 데스크톱 UI·엔진의 공유 경로. 실제 검증은 Windows x64에서 native 프로토콜/이력 및 고정 UI26.1007.21434의 React/CSS 밝음·어두움/좁은 화면·펼침/동일 ID 상태 갱신을 대상으로 한다. 다른 OS, 패키지·설치본·live 모델 검증은 별도다. 앱 전체 빌드·설치·배포 권한을 추가하지 않는다.
+
+입력/소유권: root는 UI transform·통합·문서·보존 목록·최종 검증을 소유하고, Gauss는 engine/codex-rs 요청 활동 payload/발행/이력 replay 및 해당 테스트를 담당한다. Curie는 고정 UI의 기존 활동 행/상세 렌더링 경로만 읽는다. engine 요청 payload 확정과 UI owner 확인이 통합 선행 조건이며, UI 준비·검증 환경은 독립 진행한다. 새 SQL 없이 record_json의 선택적 표시 위치를 사용하고 기존 SubAgentActivity에 선택적 parentRequest payload를 전달하는 방향을 확인한다. 불필요한 로그·일반 보고는 노출하지 않는다.
+
+작업 시작 시 다수 다른 작업의 dirty 변경이 있으므로 대상 기존 파일의 원본 바이트와 status를 `artifacts/logs/AR-ui/baseline/`에 보존했다. 해당 변경을 유지하며 이번 차이만 staging한다. 같은 Rust target/캐시는 잠금을 존중하고 실행 소스는 검사 전에 고정한다. 실행 결과·실패·정리·commit 근거는 이 절에 이어 기록한다.
+
+구현 계약: optional `SubAgentActivity.parentRequest`/legacy `parent_request`는 camelCase ParentRequest 전체를 전달한다. kind는 Interacted, item ID는 `parent-request-{request_id}`이며 일반 완료와 구분한다. record_json의 선택적 presentation은 parentTurnId/childAgentPath를 한번만 저장한다. 실제 최초 턴을 기준으로 pending/응답 행과 legacy replay를 upsert한다. 원래 child metadata와 실제 active/parked/reference context 어느 쪽에도 소유 턴이 없으면 임의 턴을 생성하지 않고 blocked delivery로 남긴다. 기존 turn metadata가 있는 정상 요청은 바로 표시된다.
+
+고정 native 입력 r1: `artifacts/aru1/engine`, 9257files, SHA256 `77559476b49bd0bf4b26f06bd08f1ae69bd918a992f57dfe50cf33ffc93d5a6a`. 선택 바이트를 복사·재해시했으며 source 변경은 이 입력에 합류하지 않는다. `native-input-r1.json`에 driver/helper 해시를 포함한다. 2026-10-15T01:35:47.208Z 시작, workId `cd2ab486-24d1-4a02-8d1f-677e51578e10`, exec22957, shared target/명시 Windows x64 MSVC/jobs1/외부격리TEMP 사용. 기존 `check-parent-requests.cjs`에 app-server-protocol만 추가하여 core/prompts/protocol/state 기존 scope를 유지한다. 최초 확인은 시작 10분 또는 terminal이며 전체 앱 빌드가 아니다.
+
+소스 1차: 요청13check와Cargo wrapper/cache owner 합계34tests/exit0(`source-r1.log`). 전체 namespace pipeline 두 asset의 request count는 각1/total2, syntax0/exit0(`namespace-r1.json`), feature inventory61개 validate통과. 별도 회귀에서 namespace/source·feature gate·folding17tests는 통과했으나 package 전용 `test-independent-namespace.cjs`를 인자 없이 node --test에 넣어 invocation실패(exit1)를 냈다. 제품 실패가 아니며 패키지 없이 해당 검사를 통과했다고 주장하지 않는다(`integration-source-r1.log`). 최종 source묶음은 실제 소스검사만 사용한다.
+
+UI 담당 native React/CSS r2는 33check/exit0, 밝음·어두움·좁은 화면/마우스·Enter·Space/동일ID 갱신/동일자식 독립요청/악성문자열 inert/기존 report·completion 보존을 확인했다. 첫 harness의 SVG 기대는 실제 Nf img 구조에 맞춰 정정했고 제품 경로를 바꾸지 않았다. root검토에서 새 동적 이름·본문의 font-content 경계 누락을 발견해 이름/고정상태를 분리하고 최종 UI입력으로 재검증을 요청했다. 이 수정은 native engine 입력과 독립이다.
+
+최종 UI r3: 이름과 고정상태를 분리하고 동적 name/dd에 font-content를 적용했다. source14check/exit0, 실제 native render35check/exit0, browser/guarded ordinary cleanup exit0/fixture부재(`artifacts/logs/AR-ui/r3/`). root도 light-expanded 화면의 native행·상세·focus·기존완료/보고행을 확인했다. injector SHA256 `5395afd44b69c7c50ec46453111166a4477c66f8231c01dacaa34eeb2c4ad0a9`. 통합source 최종51tests/exit0(`source-final.log`); namespace 최종 두 asset count1+1/syntax0/exit0와61feature validate(`namespace-final.json`). 새 checker와UI helper에만 관계되는 원래 테스트 결과를 유지하며 패키지검사는 수행하지 않는다.
+
+root검토에서 thread_history.rs의 불필요한 LF→CRLF 전체변환을 발견해 원래LF로 되돌렸다(기능diff60/2, i/lf w/lf). r1 고정 입력은 보존한다. 실제 thread-store legacy migration도 새 payload/소유turn을 전달하므로 해당 경계 회귀와 codex-thread-store 검사 대상을 보완한 최종 native 입력을 다음 식별자로 고정한다. 이 범위는 새 UI의 reload/replay 보존에 필요하며 일반 보고 의미를 바꾸지 않는다.
+
+r1 첫 확인 2026-10-15T01:46:13Z: work_completion running, 실제producer22972가 유지되고 처음 캐시잠금 대기 후 rama/codex 경로 의존성을 컴파일 중이며 causal error/test결과는 아직 없다. 시작10분 시점에만 로그16줄과 producer존재를 확인했다. 다음 확인15분 또는terminal; 다른 작업을 종료하거나 중복 컴파일을 시작하지 않는다. 최종 migration fixture는 실제 rollout migration+SQLite history projection에서 full response/presentation·원래turn·Interacted와 ordinary None을 검사하도록 준비됐다. 최종 engine소유30경로 중 r1이후변경은 LF복원과 이 fixture2개뿐이다.
+
+r1 두번째 확인 2026-10-15T02:02:29Z: signal running, producer유지, 로그는 codex-thread-store/rollout-trace 등 경로라이브러리를 지나 codex-core를 컴파일 중이다. cargo3/rustc1(이름·PID만) 확인, causal error 없음. 다음 확인10분 또는terminal. r1결과가 충분하면 byte동일한 core/protocol/state/prompts 결과를 재사용하고 LF정리/app-server-protocol과 실제 migration fixture/thread-store의 최종 입력만 추가 검사한다. 새 소스 경로만으로 모든 core 의존성을 불필요하게 다시 컴파일하지 않는다. 실패나 새 의미변경이 있으면 그 영향 범위는 다시 검사한다.
+
+r1 실제 종료 2026-10-15T02:04:06.618Z/exit101(28분19초). core라이브러리 컴파일에서 agent/control.rs의 EventMsg import를 제거한 뒤 spawn.rs의 `use super::*` 경로가 해당타입을 못찾는 E0433 4건. import를 원래 위치에 복원했다. 테스트는 실행되지 않아 앞선재사용계획의 전제는 성립하지 않는다. 기존 AgentControl import/parent_response_wait check_response warning은 별도이며 이 오류 원인은 아니다. r1입력과로그는 보존한다.
+
+최종 r2는 r1의 불변 선택입력에 작업소유30파일만 덮어쓴 별도copy이며 이후 다른 작업의 소스갱신을 따라가지 않는다. delta는 thread_history LF, control EventMsg import, thread_store 실제migration fixture3파일뿐이다. `artifacts/aru2/engine`/9257files/SHA256 `dba2c7dacbc30104d9fb30b1c1b193d5ad8b29246ce40e138e086ca692e1a5d9`, 현재작업30파일 해시전부일치. checker는 원래 core/prompts/protocol/state에 app-server-protocol/thread-store를 추가해 모든 기존 scope와 신규이력검사를 함께 수행한다. workId `64ed3111-f53e-4440-865e-00efe1e2c703`, native-input-r2.json에driver/helper식별정보. 최초확인10분 또는terminal.
+
+r2 producer54708/exec72974는 2026-10-15T02:06:14.753Z에 시작했다. UI 최종 문구는 합의된 colon형태 `Curie: 판단 요청`으로 맞췄고 r4 source14/render35check와browser/cleanup/fixture부재검사가 모두exit0(`r4/`). injector SHA256 `f8a1e63e062b005776b98bcb5ed89a4af2193dab5b7b8c882f8b00c3d330f8a8`, native renderer SHA256 `3c01bb0281fd77e88fae256bd4c4d6d69cad5eec1b13ee9841eb08fa5d559a33`. 상태/상세/동적글꼴 경계는 r3와동일하며 최종 renderer namespace asset만 추가확인한다. 일반보고행·기존완료행은 계속기존경로다.
+
+r2 최초확인 2026-10-15T02:16:26Z: terminal running, producer54708 유지, 로그는 shared target artifact lock 대기이며 아직 compile/test 결과가 없다. 캐시를 사용하는 다른 작업을 종료하거나 중복 검사를 시작하지 않는다. 다음 확인15분 또는terminal. r1 실패 실행의 외부fixture는 종료/프로세스참조/경로를 확인하고 일반삭제, 부재확인(cleanup-r1.json).
+
+r2 두번째확인 2026-10-15T02:31:51Z: terminal running, producer54708 유지. sharedtarget 잠금이 풀려 경로 의존성과 codex-app-server-protocol 컴파일까지 진행했다. 잠금 해제 정확한시각은 로그만으로 확정하지 않으며 새causal error/testresult는 없다. 다음확인10분 또는terminal.
+
+r2 세번째확인 2026-10-15T02:42:14Z: terminal running, core lib 컴파일 통과(기존warning12건), 현재 rustc50380/PPID62004 codex_core 테스트실행파일 컴파일 중. producer54708 유지, causal error/testresult아직없음. 다음확인10분 또는terminal.
+
+r2 네번째확인 2026-10-15T02:52:34Z: terminal running, codex-core lib test 컴파일이warning만남기고 다음 protocol테스트 컴파일(rustc53560/PPID62004)로 진행했다. producer54708 유지, 아직 testresult/causal error 없음. 다음확인10분 또는terminal.
+
+
+### 판단 요청 UI 최종 수용
+
+r2 2026-10-15T02:06:14.753Z–02:54:15.099Z,48분00초(공유cache잠금대기 포함), producer/checker actualexit0. Windows x64 MSVC: app-server-protocol1/core23/prompts1/state6/thread-store1=32tests pass, protocol0선택/컴파일확인. 새stable interaction·원래turn에모든응답replay·presentation단일지정/지속저장·실제legacy migration SQLite projection fixture 모두통과(native-r2.log/native-result-r2.json). core의부모요청/응답대기 기존회귀도같은scope에포함됐다.
+
+최종소스는 native r2의작업소유engine30파일/driver2와 UI r4의3파일 SHA256전부일치(final-input-match.json). source51tests/exit0, UI source14check/nativeReact render35check/exit0, namespace두asset count1+1/syntax0/61featurevalidate 근거를재사용한다. pending행은 `자식 이름: 판단 요청`이고상태변경/같은ID펼침유지/요청별분리/키보드/기존보고·완료행보존을확인했다. 전체host또는installedapp end-to-end 수용을주장하지않는다.
+
+종료된 r1/r2 외부fixture는정확한소유경로/프로세스참조0/재분석지점없음을확인후일반삭제하고부재확인(cleanup-r1.json/cleanup-r2.json). UIfixture도부재, frozen입력/로그/출처영수증유지. 다른작업의cache·sharedtarget·사용자데이터는정리하지않는다. ownerarchitecture상태를검증범위대로갱신했고일반보고·wake·권한의동작변경은없다. 앱전체build/package/install/push와다른OS수용은수행하지않았다. 기존dirty3파일은HEAD기준이번의미차이만별도index입력으로분리하며나머지작업변경을유지한다. 최종scopedwhitespace/staging/commit을확인한다.
+
+최종index39경로/범위밖0확인. 기본gitwhitespace는 기존 -text/CRLF Rust행의CR을공백으로보고하므로 원래줄끝을보존하고 cr-at-eol 조건으로검사한다. 새UI테스트끝의빈줄2개만제거후 source14checks/exit0 재확인(source-eof-final.log), UI제품injector/렌더검증및native소스는그대로다. final-input-match.json은해당wrapper새지문과근거로갱신했다. 부분stage namespace/inventory/root-resume은이번동작만포함함을diff로확인했다. finalwhitespace/staging 통과후commit결과는 artifacts/logs/AR-ui/task-commit.json에기록한다.

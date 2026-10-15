@@ -395,6 +395,9 @@ pub enum ThreadItem {
     #[serde(rename_all = "camelCase")]
     #[ts(rename_all = "camelCase")]
     SubAgentActivity {
+        #[serde(default, skip_serializing_if = "Option::is_none")]
+        #[ts(optional)]
+        parent_request: Option<codex_protocol::parent_request::ParentRequest>,
         /// Resolved model at sub-agent creation; absent from older records and other activities.
         model: Option<String>,
         /// Resolved reasoning effort at sub-agent creation, when known.
@@ -982,6 +985,7 @@ impl From<CoreTurnItem> for ThreadItem {
                     .collect(),
             },
             CoreTurnItem::SubAgentActivity(activity) => ThreadItem::SubAgentActivity {
+                parent_request: activity.parent_request,
                 model: activity.model,
                 reasoning_effort: activity.reasoning_effort,
                 id: activity.id,

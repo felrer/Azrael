@@ -3373,6 +3373,7 @@ mod tests {
                     thread_id: conversation_id,
                     turn_id: "turn-1".to_string(),
                     item: CoreTurnItem::SubAgentActivity(SubAgentActivityItem {
+                        parent_request: None,
                         model: None,
                         reasoning_effort: None,
                         id: "activity-1".to_string(),
@@ -3409,6 +3410,7 @@ mod tests {
             payload,
             ItemCompletedNotification {
                 item: ThreadItem::SubAgentActivity {
+                    parent_request: None,
                     model: None,
                     reasoning_effort: None,
                     id: "activity-1".to_string(),
