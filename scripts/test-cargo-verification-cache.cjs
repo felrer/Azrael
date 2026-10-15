@@ -101,7 +101,7 @@ test('full source, deleted lockfile and provenance bind keys', async () => {
 test('release directory alone is excluded while verified provenance and all other inputs remain bound', async () => {
   const f = setup(), runtime = await f.runtime(), inputs = await f.inputs();
   inputs.engine.directory = path.join(f.root, 'releases/first/engine');
-  inputs.engine.provenance.binaries = { 'codex.exe': 'verified-binary-sha256' };
+  inputs.engine.provenance.binaries = { 'azrael.exe': 'verified-binary-sha256' };
   inputs.engine.provenance.environment = { target: 'x86_64-pc-windows-msvc' };
   inputs.manifest = { checks: 'verified-manifest-sha256' };
   const original = structuredClone(inputs);
@@ -110,7 +110,7 @@ test('release directory alone is excluded while verified provenance and all othe
   relocated.engine.directory = path.join(f.root, 'releases/second/engine');
   assert.equal(await cache.key(f.config, f.group, relocated, runtime), baseline);
   assert.deepEqual(inputs, original, 'the full gate/receipt identity must not be mutated');
-  for (const mutate of [i => { i.engine.provenance.binaries['codex.exe'] = 'changed-binary'; },
+  for (const mutate of [i => { i.engine.provenance.binaries['azrael.exe'] = 'changed-binary'; },
     i => { i.engine.sourceRoot += '-different'; },
     i => { i.engine.provenance.source.sha256 = 'changed-source'; },
     i => { i.engine.provenance.environment.target = 'different-target'; },
@@ -128,7 +128,7 @@ test('release directory alone is excluded while verified provenance and all othe
   assert.match(await cache.key(f.config, f.group, {}, runtime), /^[a-f0-9]{64}$/);
 });
 
-test('all 13 declared Cargo groups share semantic keys across execution roots and preserve every bound input', async () => {
+test('all declared Cargo groups share semantic keys across execution roots and preserve every bound input', async () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
   const groups = new Map();
   for (const feature of manifest.features) for (const check of feature.checks) {
@@ -136,7 +136,11 @@ test('all 13 declared Cargo groups share semantic keys across execution roots an
     const name = JSON.stringify(check.args), group = groups.get(name) || { native: true, entries: [] };
     group.entries.push({ feature, check }); groups.set(name, group);
   }
-  assert.equal(groups.size, 13);
+  assert.equal(groups.size, 15);
+  for (const scope of ['appserver', 'manual']) {
+    assert(groups.has(JSON.stringify(['scripts/check-shared-engine-native.cjs', '{engineSourceRoot}', scope])),
+      `shared-engine ${scope} checks must bind their source and tool inputs`);
+  }
   const f = setup(), second = path.join(fixtures, 'semantic-second-execution');
   for (const group of groups.values()) for (const { feature, check } of group.entries) {
     for (const file of [...feature.owners, feature.contract]) write(f.root, file, file);
@@ -150,7 +154,7 @@ test('all 13 declared Cargo groups share semantic keys across execution roots an
   inputs.registered = { path: f.root, sha256: 'all-registered-bytes', fileCount: 30, bytes: 100, unknown: 'retain' };
   inputs.transformRules = { 'unrelated-ui.cjs': 'global-rule-hash' };
   inputs.engine.directory = path.join(f.root, 'release-first');
-  inputs.engine.provenance.binaries = { 'codex.exe': 'binary-sha' };
+  inputs.engine.provenance.binaries = { 'azrael.exe': 'binary-sha' };
   const nextInputs = structuredClone(inputs);
   nextInputs.projectSha256 = 'unrelated-work-note'; nextInputs.manifestSha256 = 'unrelated-manifest-declaration';
   nextInputs.registered.path = second; nextInputs.engine.directory = path.join(second, 'release-second');
@@ -164,7 +168,7 @@ test('all 13 declared Cargo groups share semantic keys across execution roots an
       group, nextInputs, nextRuntime), baseline, 'explicit source location remains bound');
     for (const mutate of [i => { i.engine.sourceRoot += '-changed'; },
       i => { i.engine.provenance.source.sha256 = 'changed-source-bytes'; },
-      i => { i.engine.provenance.binaries['codex.exe'] = 'changed-binary'; },
+      i => { i.engine.provenance.binaries['azrael.exe'] = 'changed-binary'; },
       i => { i.registered.sha256 = 'changed-registered-bytes'; },
       i => { i.registered.unknown = 'changed-unknown'; },
       i => { i.transformRules['unrelated-ui.cjs'] = 'changed-rule'; },
@@ -216,7 +220,7 @@ test('all 13 declared Cargo groups share semantic keys across execution roots an
   write(f.root, 'mock-stderr.log', '');
   const evidence = { exitCode: 0, signal: null, logPath: path.join(f.root, 'mock-stdout.log'),
     errorPath: path.join(f.root, 'mock-stderr.log') };
-  const benchmark = { scope: '13 actual declared command groups; two verified mock input snapshots; no full gate/Cargo execution' };
+  const benchmark = { scope: `${groups.size} actual declared command groups; two verified mock input snapshots; no full gate/Cargo execution` };
   for (const [name, makeKey] of [['schema2', legacyKey], ['schema4', cache.key]]) {
     const metrics = { executed: 0, reused: 0, elapsedMs: 0 }, started = performance.now();
     const owner = path.join(fixtures, `mock-benchmark-${name}`); fs.mkdirSync(owner, { recursive: true });
@@ -233,9 +237,9 @@ test('all 13 declared Cargo groups share semantic keys across execution roots an
     }
     metrics.elapsedMs = performance.now() - started; benchmark[name] = metrics;
   }
-  assert.equal(benchmark.schema2.executed, 26); assert.equal(benchmark.schema2.reused, 0);
-  assert.equal(benchmark.schema4.executed, 13); assert.equal(benchmark.schema4.reused, 13);
-  benchmark.mockExecutionsAvoided = 13;
+  assert.equal(benchmark.schema2.executed, groups.size * 2); assert.equal(benchmark.schema2.reused, 0);
+  assert.equal(benchmark.schema4.executed, groups.size); assert.equal(benchmark.schema4.reused, groups.size);
+  benchmark.mockExecutionsAvoided = groups.size;
   const evidenceRoot = path.resolve(__dirname, '../artifacts/logs/AF-01-resume-install/optimization-20min');
   fs.mkdirSync(evidenceRoot, { recursive: true });
   fs.writeFileSync(path.join(evidenceRoot, 'cargo-schema4-mock-benchmark.json'), JSON.stringify(benchmark, null, 2) + '\n');

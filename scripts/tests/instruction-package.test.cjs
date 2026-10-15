@@ -247,7 +247,7 @@ test("actual generated release assets agree with backend and native staged valid
   const f={v,manifest,urls,release,archive:await fs.readFile(path.join(assetRoot,manifest.archive.name)),docs:await fs.readFile(path.join(assetRoot,manifest.documentsAsset.name))};
   let engine;
   const latestFile=path.join(__dirname,"../../artifacts/latest.json");
-  if (await exists(latestFile)) {const latest=JSON.parse(await text(latestFile));const candidate=path.join(latest.releaseDirectory,"engine",process.platform==="win32" ? "codex.exe" : "codex");if(await exists(candidate))engine=candidate;}
+  if (await exists(latestFile)) {const latest=JSON.parse(await text(latestFile));const candidate=path.join(latest.releaseDirectory,"engine",process.platform==="win32" ? "azrael.exe" : "codex");if(await exists(candidate))engine=candidate;}
   if (engine) t.diagnostic(`Native validator: existing artifact ${engine}; features list only; isolated CODEX_HOME`);
   else t.diagnostic("No existing native artifact available; generated-asset integration uses injected validator");
   const {store,home,workspace}=await context(t,[f],{store:{repository:manifest.repository,...engine && {engine}}});

@@ -154,6 +154,8 @@ impl Harness {
             AnalyticsEventsClient::disabled(),
         ));
         let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
+            azrael_account_state_paths: None,
+            azrael_account_backend_state: None,
             outgoing: Arc::clone(&outgoing),
             analytics_events_client: AnalyticsEventsClient::disabled(),
             arg0_paths: Arg0DispatchPaths::default(),
@@ -171,9 +173,9 @@ impl Harness {
             code_mode_session_provider: None,
             rpc_transport: match origin {
                 ConnectionOrigin::InProcess => AppServerRpcTransport::InProcess,
-                ConnectionOrigin::Stdio | ConnectionOrigin::RemoteControl => {
-                    AppServerRpcTransport::Stdio
-                }
+                ConnectionOrigin::Stdio
+                | ConnectionOrigin::UnixSocket
+                | ConnectionOrigin::RemoteControl => AppServerRpcTransport::Stdio,
                 ConnectionOrigin::WebSocket => AppServerRpcTransport::Websocket,
             },
             remote_control_handle: None,
@@ -195,6 +197,7 @@ impl Harness {
                 // Remote control can share a process whose primary listener is stdio.
                 // Keeping that case tests that authorization uses the connection's origin.
                 ConnectionOrigin::Stdio
+                | ConnectionOrigin::UnixSocket
                 | ConnectionOrigin::InProcess
                 | ConnectionOrigin::RemoteControl => AppServerTransport::Stdio,
             },

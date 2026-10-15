@@ -25,10 +25,10 @@ function setup() {
   write(root, 'docs/contract.md', 'Native fixture contract');
   write(root, 'ui/view.js', 'UI bytes');
   write(root, 'engine-source/codex-rs/models-manager/models.json', '{"models":[]}');
-  for (const file of ['codex.exe', 'azrael-bridge.exe', 'codex-code-mode-host.exe']) write(root, `engine/${file}`, file);
+  for (const file of ['azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe']) write(root, `engine/${file}`, file);
   write(root, 'scripts/probe.cjs', `const fs=require('node:fs'),path=require('node:path');
 const [id,fixture,engine]=process.argv.slice(2);fs.mkdirSync(fixture,{recursive:true});
-if(!fs.existsSync(path.join(engine,'codex.exe')))process.exit(8);
+if(!fs.existsSync(path.join(engine,'azrael.exe')))process.exit(8);
 fs.appendFileSync('invocations.jsonl',JSON.stringify({id,fixture,engine})+'\\n');
 const control=fs.existsSync('control.json')?JSON.parse(fs.readFileSync('control.json')):{};
 if(control.mutate===id)fs.appendFileSync('scripts/helper.cjs','\\n// drift');
@@ -87,7 +87,7 @@ test('UI and unrelated engine source changes retain native keys; copied same-byt
   const relocated = path.join(f.root, 'relocated'); fs.cpSync(f.config.engineDirectory, relocated, { recursive: true });
   f.config.engineDirectory = relocated; await f.run(0, 3);
 });
-for (const file of ['engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe',
+for (const file of ['engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe',
   'engine-source/codex-rs/models-manager/models.json', 'scripts/helper.cjs', 'scripts/owner.cjs', 'docs/contract.md',
   'scripts/feature-preservation.cjs', 'scripts/native-verification-cache.cjs', 'scripts/verification-result-cache.cjs']) {
   test(`changed ${file} reruns and removes superseded key`, async () => {

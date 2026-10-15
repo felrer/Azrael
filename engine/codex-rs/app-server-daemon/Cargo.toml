@@ -13,6 +13,7 @@ doctest = false
 workspace = true
 
 [dependencies]
+sha2 = { workspace = true }
 anyhow = { workspace = true }
 codex-app-server-protocol = { workspace = true }
 codex-app-server-transport = { workspace = true }
@@ -29,6 +30,7 @@ blake3 = { workspace = true }
 tokio = { workspace = true, features = [
     "fs",
     "io-util",
+    "io-std",
     "macros",
     "process",
     "rt-multi-thread",

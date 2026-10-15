@@ -6,6 +6,102 @@ use toml::Value as TomlValue;
 use url::Url;
 
 #[test]
+fn azrael_accepts_native_host_and_daemon_launch_arguments() {
+    for optional_command in [false, true] {
+        let mut args = vec!["azrael", "-c", "features.code_mode_host=true"];
+        if optional_command {
+            args.push("app-server");
+        }
+        args.extend([
+            "--analytics-default-enabled",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--listen",
+            "unix://",
+        ]);
+        let parsed =
+            super::parse_azrael_args(args.into_iter().map(std::ffi::OsString::from)).unwrap();
+        assert!(parsed.analytics_default_enabled);
+        assert!(parsed.azrael_shared_windows);
+        assert!(parsed.managed_daemon);
+        assert_eq!(
+            parsed.config_overrides.raw_overrides,
+            vec!["features.code_mode_host=true"]
+        );
+    }
+}
+
+#[test]
+fn shared_windows_disable_persisted_remote_control_and_reject_explicit_remote_control() {
+    assert!(matches!(
+        super::remote_control_startup_mode(true, false, false),
+        codex_app_server::RemoteControlStartupMode::DisabledEphemeral
+    ));
+    let error =
+        AppServerArgs::try_parse_from(["azrael", "--azrael-shared-windows", "--remote-control"])
+            .expect_err("shared Azrael daemon must remain local only");
+    assert_eq!(error.kind(), clap::error::ErrorKind::ArgumentConflict);
+}
+
+#[test]
+fn azrael_proxy_preserves_global_startup_options_and_rejects_listener_changes() {
+    let parsed = super::parse_azrael_args(
+        [
+            "azrael",
+            "-c",
+            "features.code_mode_host=true",
+            "app-server",
+            "--analytics-default-enabled",
+        ]
+        .into_iter()
+        .map(std::ffi::OsString::from),
+    )
+    .unwrap();
+    assert_eq!(
+        parsed.azrael_startup_args().unwrap(),
+        vec![
+            "-c",
+            "features.code_mode_host=true",
+            "--session-source",
+            "vscode",
+            "--analytics-default-enabled"
+        ]
+    );
+    let parsed = super::parse_azrael_args(
+        [
+            "azrael",
+            "-c",
+            "model=\"fixture\"",
+            "--code-mode-host",
+            "https://example.test",
+            "--strict-config",
+            "--session-source",
+            "cli",
+        ]
+        .into_iter()
+        .map(std::ffi::OsString::from),
+    )
+    .unwrap();
+    assert_eq!(
+        parsed.azrael_startup_args().unwrap(),
+        vec![
+            "-c",
+            "features.code_mode_host=true",
+            "-c",
+            "model=\"fixture\"",
+            "--code-mode-host",
+            "https://example.test/",
+            "--strict-config",
+            "--session-source",
+            "cli"
+        ]
+    );
+    let parsed =
+        AppServerArgs::try_parse_from(["azrael", "--listen", "ws://127.0.0.1:9999"]).unwrap();
+    assert!(parsed.azrael_startup_args().is_err());
+}
+
+#[test]
 fn app_server_accepts_cli_config_overrides() {
     let args = AppServerArgs::try_parse_from([
         "codex-app-server",

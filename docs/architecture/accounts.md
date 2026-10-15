@@ -28,6 +28,10 @@ Additional login uses the native OAuth server in a staged authentication home. R
 
 ## Multiple windows and leases
 
+The [shared-engine runtime](azrael-runtime.md#공용-실행기와-창-수명) implementation is `partial`: a registered window retains its own native processor, AuthManager, thread manager and freshly forked configuration loader. Registration supplies the existing host-private selection/default paths explicitly, without changing process-wide environment variables. Cloud configuration loader retirement and mutable policy are isolated by window. Credential homes, refresh transaction locks and account retirement remain shared through their existing storage contracts. Source tests cover host context construction; Windows native read-only account identity and owner-context rejoin checks passed. Managed-account switching and installed-host acceptance remain pending in the [implementation record](../../work/BJ-01-build-resource-pressure/01-plan.md).
+
+Account-state `instanceId` identifies the common backend instance. Window account runtimes share that identity and its monotonic response-revision allocator while retaining separate selections, authentication and mutable state. Rejoining a retained thread context therefore preserves the account client's engine identity and response ordering. A new backend instance receives a fresh identity. The validated window registration and thread-owner routing enforce account isolation; a matching instance ID does not grant another window authority. Windows native read-only companion RPC verification confirmed the same identity and increasing revisions across two windows and a retained-context rejoin. Managed-account switching and installed-host acceptance remain pending in the same work record.
+
 ### Credential preservation across updates
 
 Status: `partial` — Windows source migration regressions pass with a mock keyring and the real encrypted-file backend; installed-update and native platform keyring acceptance remain separate.

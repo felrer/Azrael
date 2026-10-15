@@ -59,7 +59,7 @@ if (-not $manifest.sha256['computer-use/manifest.json'] -or $computerUse.manifes
 $windowControlText = & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-release --release $release --source-root (Join-Path $projectRoot 'native/window-control')
 if ($LASTEXITCODE -ne 0) { throw 'Window Control bundle validation failed. No host was installed.' }
 $windowControl = $windowControlText | ConvertFrom-Json
-foreach ($file in @('engine/codex.exe', 'engine/azrael-bridge.exe', 'engine/codex-code-mode-host.exe', 'azrael-ex.vsix')) {
+foreach ($file in @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')) {
     if ((Get-FileHash (Join-Path $release $file)).Hash -cne $manifest.sha256[$file]) { throw "Release hash mismatch: $file" }
 }
 $prepared = & (Join-Path $PSScriptRoot 'prepare-official-ui.ps1') -SourceExtensionPath $SourceExtensionPath -ExtensionsDir (Join-Path $OutputDirectory 'staging')
@@ -82,6 +82,7 @@ $hostText = Set-AzraelEngineResolver -HostText $hostText
 $guard = 'if(require("vscode").env.remoteName || require("vscode").workspace.getConfiguration("chatgpt").get("runCodexInWindowsSubsystemForLinux")) throw new Error("This azrael release requires local Windows VS Code. Disable Codex WSL execution for this window or use the official extension in the remote host.");'
 [IO.File]::WriteAllText($hostFile, $guard + "`n(function(process){`n" + $hostText + "`n}).call(this, require('./azrael-runtime.cjs').process);`n", [Text.UTF8Encoding]::new($false))
 Copy-Item (Join-Path $PSScriptRoot 'ordinary-runtime.cjs') (Join-Path $prepared.Extension 'out/azrael-runtime.cjs')
+Copy-Item (Join-Path $PSScriptRoot 'shared-engine-host.cjs') (Join-Path $prepared.Extension 'out/shared-engine-host.cjs')
 Copy-Item (Join-Path $PSScriptRoot 'devin-native-host.cjs') (Join-Path $prepared.Extension 'out/devin-native-host.cjs')
 Copy-Item (Join-Path $PSScriptRoot 'provider-accounts-host.cjs') (Join-Path $prepared.Extension 'out/provider-accounts-host.cjs')
 if (-not $DevinExecutable) {
@@ -91,9 +92,12 @@ if (-not $DevinExecutable) {
 if ($DevinExecutable) { $DevinExecutable = (Resolve-Path -LiteralPath $DevinExecutable).Path }
 [ordered]@{
     schema = 1
-    engine = Join-Path $release 'engine/codex.exe'
+    engine = Join-Path $release 'engine/azrael.exe'
     bridge = Join-Path $release 'engine/azrael-bridge.exe'
     engineVersion = [string]$manifest.engineVersion
+    sharedEngine = $true
+    sharedEngineProtocol = 1
+    engineSha256 = ([string]$manifest.sha256['engine/azrael.exe']).ToLowerInvariant()
     codexHome = $state
     devinExecutable = $DevinExecutable
     devinNative = $nativeConfig

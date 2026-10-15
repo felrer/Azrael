@@ -261,6 +261,8 @@ pub(super) async fn build_test_processor(
         analytics_events_client.clone(),
     ));
     let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
+        azrael_account_state_paths: None,
+        azrael_account_backend_state: None,
         outgoing,
         analytics_events_client,
         arg0_paths: Arg0DispatchPaths::default(),

@@ -104,7 +104,7 @@ def main():
         raise ValueError("Missing engine source fingerprint")
     for name, expected in build["engineProvenance"]["binaries"].items():
         verified(release, "engine/" + name, expected)
-    for name in ("codex.exe", "azrael-bridge.exe", "codex-code-mode-host.exe"):
+    for name in ("azrael.exe", "azrael-bridge.exe", "azrael-code-mode-host.exe"):
         if name not in build["engineProvenance"]["binaries"]:
             raise ValueError(f"Missing engine provenance: {name}")
     files = {}
@@ -179,11 +179,11 @@ def main():
     config = json.loads(host[runtime_key].decode("utf-8-sig"))
     if config.get("schema") != 1:
         raise ValueError("Unsupported host runtime schema")
-    for key, name in (("engine", "codex.exe"), ("bridge", "azrael-bridge.exe")):
+    for key, name in (("engine", "azrael.exe"), ("bridge", "azrael-bridge.exe")):
         source_file = Path(config[key])
         if digest(safe_file(source_file.parent, source_file.name).read_bytes()) != build["engineProvenance"]["binaries"][name].lower():
             raise ValueError(f"Host {key} does not match selected build")
-    portable = {"schema": 1, "engine": "engine/codex.exe", "bridge": "engine/azrael-bridge.exe", "engineVersion": config["engineVersion"], "codexHome": "@STATE@"}
+    portable = {"schema": 1, "engine": "engine/azrael.exe", "bridge": "engine/azrael-bridge.exe", "engineVersion": config["engineVersion"], "codexHome": "@STATE@"}
     for key in ("devinNative", "providerAccounts"):
         if key not in config:
             raise ValueError(f"Missing integrated host provider: {key}")

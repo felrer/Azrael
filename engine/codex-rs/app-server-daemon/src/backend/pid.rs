@@ -33,9 +33,71 @@ const STOP_FORCE_TIMEOUT: Duration = Duration::from_secs(10);
 const START_TIMEOUT: Duration = Duration::from_secs(10);
 const STDERR_LOG_TAIL_BYTES: u64 = 4096;
 
+/// Opaque native process identity. Windows keeps the process handle open;
+/// Unix records boot and creation identity, so PID reuse cannot extend a lease.
+pub struct AzraelProcessIdentity {
+    #[cfg(windows)]
+    process: super::windows::Process,
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    pid: u32,
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    identity: identity::ProcessIdentity,
+}
+
+pub async fn capture_process_identity(pid: u32) -> Result<Option<AzraelProcessIdentity>> {
+    anyhow::ensure!(pid != 0, "process identity requires a nonzero PID");
+    #[cfg(windows)]
+    {
+        let Some(process) = super::windows::Process::open(pid)? else {
+            return Ok(None);
+        };
+        if !process.is_running()? {
+            return Ok(None);
+        }
+        Ok(Some(AzraelProcessIdentity { process }))
+    }
+    #[cfg(any(target_os = "linux", target_os = "macos"))]
+    {
+        if !process_exists(pid) {
+            return Ok(None);
+        }
+        match identity::read_process_details(pid).await {
+            Ok((true, _)) => Ok(None),
+            Ok((false, identity)) => Ok(Some(AzraelProcessIdentity { pid, identity })),
+            Err(_) if !process_exists(pid) => Ok(None),
+            Err(err) => Err(err),
+        }
+    }
+    #[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
+    bail!("native process identity is unsupported on this platform")
+}
+
+impl AzraelProcessIdentity {
+    pub async fn is_alive(&self) -> Result<bool> {
+        #[cfg(windows)]
+        {
+            self.process.is_running()
+        }
+        #[cfg(any(target_os = "linux", target_os = "macos"))]
+        {
+            if !process_exists(self.pid) {
+                return Ok(false);
+            }
+            match self.identity.matches_process(self.pid).await {
+                Ok((zombie, matches)) => Ok(!zombie && matches),
+                Err(_) if !process_exists(self.pid) => Ok(false),
+                Err(err) => Err(err),
+            }
+        }
+        #[cfg(not(any(windows, target_os = "linux", target_os = "macos")))]
+        bail!("native process identity is unsupported on this platform")
+    }
+}
+
 #[derive(Debug)]
 #[cfg_attr(not(any(unix, windows)), allow(dead_code))]
 pub(crate) struct PidBackend {
+    explicit_args: Option<Vec<String>>,
     pub(super) feature_overrides: BTreeMap<String, bool>,
     codex_bin: PathBuf,
     pid_file: PathBuf,
@@ -90,6 +152,11 @@ enum PidCommandKind {
 }
 
 impl PidBackend {
+    pub(crate) fn with_explicit_args(mut self, args: Vec<String>) -> Self {
+        self.explicit_args = Some(args);
+        self
+    }
+
     pub(crate) async fn running_executable_identity(&self) -> Result<Option<ExecutableIdentity>> {
         match self.read_pid_file_state().await? {
             PidFileState::Running(record) if self.record_is_active(&record).await? => {
@@ -102,6 +169,7 @@ impl PidBackend {
     pub(crate) fn new(codex_bin: PathBuf, pid_file: PathBuf, remote_control_enabled: bool) -> Self {
         let lock_file = pid_file.with_extension("pid.lock");
         Self {
+            explicit_args: None,
             feature_overrides: BTreeMap::new(),
             codex_bin,
             pid_file,
@@ -119,6 +187,7 @@ impl PidBackend {
     ) -> Self {
         let lock_file = pid_file.with_extension("pid.lock");
         Self {
+            explicit_args: None,
             feature_overrides: BTreeMap::new(),
             codex_bin,
             pid_file,
@@ -381,6 +450,9 @@ impl PidBackend {
 
     #[cfg(any(unix, windows))]
     fn command_args(&self) -> Vec<Cow<'_, str>> {
+        if let Some(args) = &self.explicit_args {
+            return args.iter().map(|arg| Cow::Borrowed(arg.as_str())).collect();
+        }
         let mut args = match &self.command_kind {
             PidCommandKind::AppServer {
                 remote_control_enabled: true,

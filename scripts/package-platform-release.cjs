@@ -28,7 +28,7 @@ function packageRelease(options) {
   const config=JSON.parse(hostFiles.get("extension/out/azrael-runtime.json")?.data.toString("utf8") || "null");
   if (!config) throw new Error("Host template is missing runtime identity.");
   platform.validateRuntimePlatform(config.platform);
-  if (path.resolve(config.engine)!==path.join(release,"engine",platform.executableName("codex",selected))) throw new Error("Host template selects a different release.");
+  if (path.resolve(config.engine)!==path.join(release,"engine",platform.executableName("azrael",selected))) throw new Error("Host template selects a different release.");
   const files=new Map();
   const forbidden=/(^|\/)(?:\.env(?:\..*)?|auth\.json|accounts\.json|sessions|cache|\.codex|\.azrael-ex|node_modules\/\.cache)(?:\/|$)/i;
   // Runtime files must be declared by the build, not discovered from user state.

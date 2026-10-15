@@ -60,7 +60,7 @@ test("binary names use platform executable suffixes", () => {
     const descriptor = resolvePlatform(host.platform, host.arch);
     const suffix = host.platform === "win32" ? ".exe" : "";
     assert.equal(executableName("node", descriptor), "node" + suffix);
-    assert.deepEqual(engineBinaryNames(descriptor), ["codex", "azrael-bridge", "codex-code-mode-host"].map(name => name + suffix));
+    assert.deepEqual(engineBinaryNames(descriptor), ["azrael", "azrael-bridge", "azrael-code-mode-host"].map(name => name + suffix));
     assert.throws(() => executableName("../node", descriptor), /Invalid Azrael executable name/);
   }
 });

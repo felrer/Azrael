@@ -83,7 +83,7 @@ if($scenario.mode -eq 'source-fail'){
 }
 New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName"),(Join-Path $a "build/$ReleaseName/companion/node_modules/typescript/lib") -Force | Out-Null
 New-Item -ItemType Directory -Path (Join-Path $a "releases/$ReleaseName/engine") -Force | Out-Null
-'fixture engine' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/codex.exe")
+'fixture engine' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/azrael.exe")
 'fixture bridge' | Set-Content (Join-Path $a "releases/$ReleaseName/engine/azrael-bridge.exe")
 $buildInfo=@{engineSourceRoot=$SourceRoot}
 if($scenario.moduleCache){
@@ -114,7 +114,7 @@ if (scenario.mode === 'account-missing-report') process.exit(0);
 const result = {status:'passed', route:'account-controls', engine, bridge, modelRequests:0, usageCreditConsumeRequests:0};
 if (scenario.mode === 'account-status') result.status = 'failed';
 if (scenario.mode === 'account-route') result.route = 'other';
-if (scenario.mode === 'account-engine') result.engine = path.join(a, 'latest/codex.exe');
+if (scenario.mode === 'account-engine') result.engine = path.join(a, 'latest/azrael.exe');
 if (scenario.mode === 'account-bridge') result.bridge = path.join(a, 'latest/azrael-bridge.exe');
 if (scenario.mode === 'account-model-request') result.modelRequests = 1;
 if (scenario.mode === 'account-credit-request') result.usageCreditConsumeRequests = 1;
@@ -412,7 +412,7 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     }
     if($Mode -like 'account-*'){
         $accountArgs=Get-Content (Join-Path $a 'account-invocation.json') -Raw | ConvertFrom-Json
-        $engine=Join-Path $a 'releases/chosen/engine/codex.exe'
+        $engine=Join-Path $a 'releases/chosen/engine/azrael.exe'
         $bridge=Join-Path $a 'releases/chosen/engine/azrael-bridge.exe'
         $state=Join-Path $a 'verification/account-controls-chosen'
         Assert-True ($accountArgs.Count -eq 5 -and $accountArgs[0] -ceq $engine -and $accountArgs[1] -ceq $bridge -and $accountArgs[2] -ceq $state -and $accountArgs[4] -ceq '--account-controls-only') 'account gate did not forward exact release paths/route'

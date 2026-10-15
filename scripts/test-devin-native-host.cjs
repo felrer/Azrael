@@ -125,7 +125,7 @@ test("ordinary runtime loads its native host dependency with a private environme
   t.after(() => fs.rmSync(root, { recursive: true }));
   const runtimePath = path.join(root, "ordinary-runtime.cjs");
   const nativeHostPath = path.join(root, "devin-native-host.cjs");
-  const engine = path.join(root, "codex.exe");
+  const engine = path.join(root, "azrael.exe");
   const bridge = path.join(root, "azrael-bridge.exe");
   const state = path.join(root, "state");
   fs.copyFileSync(path.join(__dirname, "ordinary-runtime.cjs"), runtimePath);

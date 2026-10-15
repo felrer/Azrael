@@ -270,6 +270,12 @@ impl QueuedItemService {
                             let Ok(thread) = manager.get_thread(thread_id).await else {
                                 return;
                             };
+                            if codex_core::azrael_manual_resume::requires_manual_resume(
+                                thread.config().await.codex_home.as_path(),
+                                thread_id,
+                            ) {
+                                return;
+                            }
                             if thread.auth_admission().await.is_pending() {
                                 return;
                             }
@@ -473,6 +479,11 @@ impl QueuedItemService {
                 ),
             })?;
         let queued_item_id = item.id.clone();
+        codex_core::azrael_manual_resume::clear_manual_resume(
+            thread.config().await.codex_home.as_path(),
+            thread_id,
+        )
+        .map_err(QueueServiceError::AdmissionDenied)?;
         let submission = submit_queued_input(thread, item.input, trace).await?;
         if matches!(
             submission,
@@ -506,6 +517,12 @@ impl QueuedItemService {
         thread_id: ThreadId,
     ) -> Result<(), QueueServiceError> {
         loop {
+            if codex_core::azrael_manual_resume::requires_manual_resume(
+                thread.config().await.codex_home.as_path(),
+                thread_id,
+            ) {
+                return Ok(());
+            }
             let _account_guard = match thread.auth_admission().await.admit_request().await {
                 Ok(guard) => guard,
                 Err(error) if error.kind() == std::io::ErrorKind::WouldBlock => return Ok(()),
@@ -530,6 +547,12 @@ impl QueuedItemService {
                     continue;
                 }
             };
+            if codex_core::azrael_manual_resume::requires_manual_resume(
+                thread.config().await.codex_home.as_path(),
+                thread_id,
+            ) {
+                return Ok(());
+            }
             match submit_queued_input(thread, input, None).await {
                 Ok(QueuedItemSubmission::Started { .. }) => {
                     self.delete_locked(thread_id, queued_item_id).await?;

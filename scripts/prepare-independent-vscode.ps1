@@ -71,6 +71,7 @@ function Assert-IntegratedHostVsixContents {
             'extension/out/session-links.cjs',
             'extension/out/azrael-recovery.cjs',
             'extension/out/recovery-state.cjs',
+            'extension/out/shared-engine-host.cjs',
             'extension/out/optional-diagnostics.cjs',
             'extension/out/url-safety-transport.cjs',
             'extension/out/computer-use-approvals.cjs',
@@ -271,7 +272,7 @@ try {
             foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
-            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
+            foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }
         }
@@ -330,7 +331,7 @@ try {
         $environmentSnapshot = Invoke-PreparationPhase 'environment-validation' {
             $windowArguments = @()
             if ($build.sha256.'window-control/manifest.json') { $windowArguments = @('--window-control-directory', (Join-Path $release 'window-control')) }
-            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/codex.exe') --computer-use-directory (Join-Path $release 'computer-use') @windowArguments --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
+            $snapshot = & node (Join-Path $PSScriptRoot 'sync-codex-environment.cjs') --source-home $SourceCodexHome --state-root $prepared.StateRoot --mode validate --engine (Join-Path $release 'engine/azrael.exe') --computer-use-directory (Join-Path $release 'computer-use') @windowArguments --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json')
             if ($LASTEXITCODE -ne 0) { throw 'Codex environment validation failed.' }
             $snapshot | ConvertFrom-Json
         }
@@ -343,7 +344,7 @@ try {
         AzraelIntegratedAccounts = $true; AccountPayloadVersion = [string]$accountUiManifest.version
         UiSource = $hostReport.sourceUi; TransformRules = $hostReport.transformRules
         EngineSourceSha256 = [string]$build.engineProvenance.source.sourceSha256
-        EngineBinarySha256 = [string]$build.sha256.'engine/codex.exe'
+        EngineBinarySha256 = [string]$build.sha256.'engine/azrael.exe'
         HostSha256 = (Get-FileHash -LiteralPath $vsix).Hash
         PreservationFeatureIds = @($preservation.featureIds)
         PreservationReceipt = [string]$preservation.receiptPath

@@ -148,12 +148,21 @@ impl JobObject {
             return Err(io::Error::last_os_error());
         }
         let process = unsafe { OwnedHandle::from_raw_handle(process.cast()) };
-        let assignment = self.assign_process(process.as_raw_handle());
+        self.assign_and_resume_handle(process.as_raw_handle(), process_id)
+    }
 
-        let status = unsafe { NtResumeProcess(process.as_raw_handle().cast()) };
+    /// Uses the exact handle returned by process creation instead of reopening a PID.
+    pub(crate) fn assign_and_resume_handle(
+        &self,
+        process: RawHandle,
+        process_id: u32,
+    ) -> io::Result<bool> {
+        let assignment = self.assign_process(process);
+
+        let status = unsafe { NtResumeProcess(process.cast()) };
         if !NT_SUCCESS(status) {
             unsafe {
-                TerminateProcess(process.as_raw_handle().cast(), /*uExitCode*/ 1)
+                TerminateProcess(process.cast(), /*uExitCode*/ 1)
             };
             return Err(io::Error::other(format!(
                 "failed to resume suspended process: NTSTATUS {status:#x}"
@@ -239,6 +248,7 @@ impl JobObject {
             .lock()
             .map_err(|_| io::Error::other("job state lock poisoned"))?;
         if *preserve_descendants {
+            log::debug!("Windows job termination skipped: normal root exit preserved descendants");
             return Ok(());
         }
 

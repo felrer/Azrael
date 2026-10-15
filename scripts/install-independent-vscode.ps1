@@ -368,7 +368,7 @@ try {
             --source-home $SourceCodexHome `
             --state-root $state `
             --mode validate `
-            --engine (Join-Path $release 'engine/codex.exe') `
+            --engine (Join-Path $release 'engine/azrael.exe') `
             --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json') @computerUseArguments
         if ($LASTEXITCODE -ne 0) { throw 'Codex environment snapshot failed; the prepared host was not installed.' }
         $prepared | Add-Member -NotePropertyName CodexEnvironmentSnapshot -NotePropertyValue ($snapshotOutput | ConvertFrom-Json) -Force
@@ -395,7 +395,7 @@ try {
             --source-home $SourceCodexHome `
             --state-root $state `
             --mode apply `
-            --engine (Join-Path $release 'engine/codex.exe') `
+            --engine (Join-Path $release 'engine/azrael.exe') `
             --manifest (Join-Path $PSScriptRoot 'azrael-codex-environment.json') @computerUseArguments
         if ($LASTEXITCODE -ne 0) { throw 'Codex environment snapshot failed; host installation was not started.' }
         $receipt.codexEnvironmentSnapshot = $snapshotOutput | ConvertFrom-Json

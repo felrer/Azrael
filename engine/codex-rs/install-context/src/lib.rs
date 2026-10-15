@@ -13,6 +13,19 @@ const CODE_MODE_HOST_EXECUTABLE_NAME: &str = if cfg!(windows) {
 } else {
     "codex-code-mode-host"
 };
+const AZRAEL_CODE_MODE_HOST_EXECUTABLE_NAME: &str = if cfg!(windows) {
+    "azrael-code-mode-host.exe"
+} else {
+    "azrael-code-mode-host"
+};
+
+fn code_mode_host_executable_name(current_exe: Option<&Path>) -> &'static str {
+    if current_exe.and_then(Path::file_stem) == Some(OsStr::new("azrael")) {
+        AZRAEL_CODE_MODE_HOST_EXECUTABLE_NAME
+    } else {
+        CODE_MODE_HOST_EXECUTABLE_NAME
+    }
+}
 const PACKAGE_METADATA_FILENAME: &str = "codex-package.json";
 const PATH_DIRNAME: &str = "codex-path";
 const RELEASES_DIRNAME: &str = "releases";
@@ -174,15 +187,17 @@ impl InstallContext {
     }
 
     pub fn code_mode_host_program(&self) -> PathBuf {
+        let current_exe = std::env::current_exe().ok();
+        let host_name = code_mode_host_executable_name(current_exe.as_deref());
         // prefer the one packed under codex-resources
-        self.bundled_resource(CODE_MODE_HOST_EXECUTABLE_NAME)
-            .map_or_else(
-                || self.code_mode_host_program_from_exe(std::env::current_exe().ok().as_deref()),
-                AbsolutePathBuf::into_path_buf,
-            )
+        self.bundled_resource(host_name).map_or_else(
+            || self.code_mode_host_program_from_exe(current_exe.as_deref()),
+            AbsolutePathBuf::into_path_buf,
+        )
     }
 
     fn code_mode_host_program_from_exe(&self, current_exe: Option<&Path>) -> PathBuf {
+        let host_name = code_mode_host_executable_name(current_exe);
         let executable_dir = if let Some(package_layout) = &self.package_layout {
             Some(package_layout.bin_dir.clone())
         } else if let InstallMethod::Standalone { release_dir, .. } = &self.method {
@@ -193,7 +208,7 @@ impl InstallContext {
                 .and_then(canonical_absolute_path)
         };
         if let Some(executable_dir) = executable_dir {
-            let executable = executable_dir.join(CODE_MODE_HOST_EXECUTABLE_NAME);
+            let executable = executable_dir.join(host_name);
             if executable.is_file() {
                 return executable.into_path_buf();
             }
@@ -201,8 +216,8 @@ impl InstallContext {
 
         current_exe
             .and_then(Path::parent)
-            .map(|parent| parent.join(CODE_MODE_HOST_EXECUTABLE_NAME))
-            .unwrap_or_else(|| PathBuf::from(CODE_MODE_HOST_EXECUTABLE_NAME))
+            .map(|parent| parent.join(host_name))
+            .unwrap_or_else(|| PathBuf::from(host_name))
     }
 
     pub fn bundled_resource(&self, file_name: impl AsRef<Path>) -> Option<AbsolutePathBuf> {
@@ -382,6 +397,36 @@ mod bundle_tests;
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn azrael_entry_resolves_its_own_code_mode_host() -> std::io::Result<()> {
+        let directory = tempfile::tempdir()?;
+        let executable = directory.path().join(if cfg!(windows) {
+            "azrael.exe"
+        } else {
+            "azrael"
+        });
+        let expected = directory.path().join(AZRAEL_CODE_MODE_HOST_EXECUTABLE_NAME);
+        std::fs::write(&expected, "azrael host")?;
+        std::fs::write(
+            directory.path().join(CODE_MODE_HOST_EXECUTABLE_NAME),
+            "codex host",
+        )?;
+        let context = InstallContext::from_exe(false, Some(&executable), None);
+        assert_eq!(
+            context.code_mode_host_program_from_exe(Some(&executable)),
+            expected
+        );
+        assert_eq!(
+            code_mode_host_executable_name(None),
+            CODE_MODE_HOST_EXECUTABLE_NAME
+        );
+        assert_eq!(
+            code_mode_host_executable_name(Some(Path::new("codex"))),
+            CODE_MODE_HOST_EXECUTABLE_NAME
+        );
+        Ok(())
+    }
     use pretty_assertions::assert_eq;
     use std::fs;
 

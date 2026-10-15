@@ -168,7 +168,7 @@ try {
 
     $baseBeforeUpdateTest = [IO.File]::ReadAllBytes($baseSettingsPath)
     try {
-        $oldEngine = Join-Path $testPath 'old-version/codex.exe'
+        $oldEngine = Join-Path $testPath 'old-version/azrael.exe'
         $oldBridge = Join-Path $testPath 'old-version/azrael-bridge.exe'
         [ordered]@{
             'chatgpt.cliExecutable' = $oldEngine

@@ -63,7 +63,7 @@ function hostDiagnostic(event, entry, error, extra = {}) {
     rpcCode: rpcCode(error), errorCategory: errorCategory(error, entry.method), ...extra });
 }
 
-function initialize(context, vscode) {
+function initialize(context, vscode, options = {}) {
   if (ui) throw new Error("Azrael recovery is already initialized.");
   const output = vscode.window.createOutputChannel("Azrael Recovery", { log: true });
   const status = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Left, 30);
@@ -85,7 +85,7 @@ function initialize(context, vscode) {
     status.tooltip = `세션 ${latest.threadId}\n${latest.delayed ? "90초 동안 새 진행 신호가 없습니다. 실행 중단을 뜻하지 않습니다.\n" : ""}클릭하여 상태 확인 또는 중단 후 재개`;
     status.show();
   };
-  ui = { store: context.storageUri ? context.workspaceState : context.globalState, redraw,
+  ui = { store: context.storageUri ? context.workspaceState : context.globalState, redraw, requiresManualResume: options.requiresManualResume,
     log: record => {
       if (disposed) return;
       if (routineEvents.has(record.event) && record.outcome !== "rpc_error" &&
@@ -161,7 +161,7 @@ class BridgeController {
     this.requests = new Map();
     this.provider = `azrael-recovery-${randomUUID()}`;
     this.state = new RecoveryState({ store: ui.store, rpc: (method, params, timeout) => this.rpc(method, params, timeout),
-      changed: ui.redraw, log: ui.log });
+      changed: ui.redraw, log: ui.log, requiresManualResume: ui.requiresManualResume });
     this.registration = host.registerProvider(this.provider, {
       onResult: message => {
         const pending = this.pending.get(message.id);

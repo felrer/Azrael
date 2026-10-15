@@ -120,8 +120,13 @@ async fn websocket_upgrade_handler(
     websocket
         .on_upgrade(move |stream| async move {
             let (websocket_writer, websocket_reader) = stream.split();
-            run_websocket_connection(websocket_writer, websocket_reader, state.transport_event_tx)
-                .await;
+            run_websocket_connection(
+                websocket_writer,
+                websocket_reader,
+                state.transport_event_tx,
+                ConnectionOrigin::WebSocket,
+            )
+            .await;
         })
         .into_response()
 }
@@ -173,6 +178,7 @@ pub(crate) async fn run_websocket_connection<M, SinkError, StreamError>(
     websocket_writer: impl futures::sink::Sink<M, Error = SinkError> + Send + 'static,
     websocket_reader: impl futures::stream::Stream<Item = Result<M, StreamError>> + Send + 'static,
     transport_event_tx: mpsc::Sender<TransportEvent>,
+    origin: ConnectionOrigin,
 ) where
     M: AppServerWebSocketMessage + Send + 'static,
     SinkError: Send + 'static,
@@ -186,7 +192,7 @@ pub(crate) async fn run_websocket_connection<M, SinkError, StreamError>(
     if transport_event_tx
         .send(TransportEvent::ConnectionOpened {
             connection_id,
-            origin: ConnectionOrigin::WebSocket,
+            origin,
             auth: None,
             writer: writer_tx,
             disconnect_sender: Some(disconnect_token.clone()),

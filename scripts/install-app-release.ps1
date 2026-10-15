@@ -72,7 +72,7 @@ try {
             if ($name -ne 'package-manifest.json' -and -not $known.ContainsKey($name)) { throw "Unlisted package file: $name" }
         }
     }
-    foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/codex.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/codex-code-mode-host.exe')) {
+    foreach ($required in @('host-template.vsix', 'runtime/devin-native-build.json', 'runtime/opencodex-accounts-build.json', 'runtime/node/node.exe', 'runtime/engine/azrael.exe', 'runtime/engine/azrael-bridge.exe', 'runtime/engine/azrael-code-mode-host.exe')) {
         if (-not $known.ContainsKey($required)) { throw "Missing package dependency: $required" }
     }
     # Only recipient-owned settings are read here. The public template contains

@@ -90,9 +90,10 @@ function fingerprint(value) {
 }
 
 class RecoveryState {
-  constructor({ store, rpc, changed = () => {}, log = () => {}, now = Date.now, pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
+  constructor({ store, rpc, changed = () => {}, log = () => {}, requiresManualResume = () => false, now = Date.now, pause = ms => new Promise(resolve => setTimeout(resolve, ms)) }) {
     this.store = store;
     this.rpc = rpc;
+    this.requiresManualResume = requiresManualResume;
     this.changed = changed;
     this.log = record => {
       try { log({ ...record, generation: this.generation }); }
@@ -257,6 +258,7 @@ class RecoveryState {
       thread.status?.type === "systemError" || latest?.status === "failed" ? "error" :
         latest?.status === "interrupted" ? "interrupted" : latest?.status === "completed" ? "completed" : "idle";
     this.setStage(threadId, phase, latest?.id);
+    if (this.requiresManualResume(threadId)) this.setStage(threadId, "interrupted", latest?.id);
     return { thread, latest, active };
   }
 

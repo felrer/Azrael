@@ -46,7 +46,7 @@ try {
     try { $runtime = $reader.ReadToEnd() | ConvertFrom-Json } finally { $reader.Dispose() }
     if ($hostManifest.publisher -cne 'azrael-ex-local' -or $hostManifest.name -cne 'azrael' -or $hostManifest.version -cne $prepared.HostVersion -or
         $hostManifest.main -cne './dist/src/extension.js' -or $runtime.schema -ne 2 -or $runtime.codexHome -ine $state -or
-        $runtime.engine -ine (Join-Path $release 'engine/codex.exe') -or $runtime.bridge -ine (Join-Path $release 'engine/azrael-bridge.exe')) {
+        $runtime.engine -ine (Join-Path $release 'engine/azrael.exe') -or $runtime.bridge -ine (Join-Path $release 'engine/azrael-bridge.exe')) {
         throw 'Prepared native VSIX identity or runtime does not match its receipt.'
     }
 } finally { $archive.Dispose() }

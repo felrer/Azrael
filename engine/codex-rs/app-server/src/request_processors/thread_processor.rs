@@ -1281,6 +1281,71 @@ impl ThreadRequestProcessor {
         }
     }
 
+    /// Signal every loaded tree immediately; do not wait for a running turn to finish.
+    /// Retain handles so shared-window shutdown can prove child and owned-worker cleanup.
+    pub(crate) async fn fence_shared_window_threads(
+        &self,
+    ) -> (
+        Vec<ThreadId>,
+        Vec<codex_core::AgentTreeShutdown>,
+        Vec<std::io::Error>,
+    ) {
+        let ids = self.thread_manager.list_thread_ids().await;
+        let mut handles = Vec::new();
+        let mut errors = Vec::new();
+        for id in &ids {
+            match self.thread_manager.request_agent_tree_shutdown(*id).await {
+                Ok(handle) => handles.push(handle),
+                // Cancelling an owning root can remove its child before this duplicate signal.
+                Err(error) if matches!(error.details(), CodexErrorDetails::ThreadNotFound(_)) => {}
+                Err(error) => errors.push(std::io::Error::other(error)),
+            }
+        }
+        (ids, handles, errors)
+    }
+
+    pub(crate) async fn drain_shared_window_startup_tasks(&self) -> std::io::Result<()> {
+        self.background_tasks.close();
+        tokio::time::timeout(Duration::from_secs(10), self.background_tasks.wait())
+            .await
+            .map_err(|error| std::io::Error::new(std::io::ErrorKind::TimedOut, error))
+    }
+
+    /// Capture diagnostic metadata without writing to an already cancelled live recorder.
+    /// Canonical history/queue/reservation persistence is owned by the retained tree handles.
+    pub(crate) async fn shared_window_snapshot(
+        &self,
+    ) -> std::io::Result<codex_app_server_transport::daemon_recovery::RecoverySnapshot> {
+        let mut snapshot = codex_app_server_transport::daemon_recovery::RecoverySnapshot::default();
+        for id in self.thread_manager.list_thread_ids().await {
+            let Ok(thread) = self.thread_manager.get_thread(id).await else {
+                continue;
+            };
+            let config = thread.config_snapshot().await;
+            if config.ephemeral
+                || config.parent_thread_id.is_some()
+                || config.session_source.is_non_root_agent()
+            {
+                continue;
+            }
+            let interrupted = thread.interrupted_turn().await;
+            snapshot.loaded.insert(id.to_string());
+            if let Some((turn_id, options, environment)) = interrupted {
+                snapshot.interrupted.insert(
+                    id.to_string(),
+                    codex_app_server_transport::daemon_recovery::InterruptedTurn {
+                        turn_id,
+                        output_schema: options.final_output_json_schema,
+                        service_tier: options.service_tier,
+                        cyber_access_program: options.cyber_access_program,
+                        local_environment: Some((&environment).into()),
+                    },
+                );
+            }
+        }
+        Ok(snapshot)
+    }
+
     pub(crate) async fn clear_all_thread_listeners(&self) {
         self.thread_state_manager.clear_all_listeners().await;
     }

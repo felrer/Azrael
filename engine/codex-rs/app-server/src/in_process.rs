@@ -496,6 +496,8 @@ async fn start_uninitialized(mut args: InProcessStartArgs) -> IoResult<InProcess
         let (processor_tx, mut processor_rx) = mpsc::channel::<ProcessorCommand>(channel_capacity);
         let mut processor_handle = tokio::spawn(async move {
             let processor = Arc::new(MessageProcessor::new(MessageProcessorArgs {
+                azrael_account_state_paths: None,
+                azrael_account_backend_state: None,
                 outgoing: Arc::clone(&processor_outgoing),
                 analytics_events_client,
                 arg0_paths: args.arg0_paths,
@@ -684,6 +686,11 @@ async fn start_uninitialized(mut args: InProcessStartArgs) -> IoResult<InProcess
                     };
                     let outgoing_message = queued_message.message;
                     match outgoing_message {
+                        OutgoingMessage::RawResponse { id, .. } => {
+                            // Private window registration is available only on
+                            // the authenticated local socket transport.
+                            warn!(request_id = ?id, "dropping private socket response in embedded client");
+                        }
                         OutgoingMessage::Response(response) => {
                             if let Some(response_tx) = pending_request_responses.remove(&response.id) {
                                 let result = serde_json::to_value(response.result).map_err(|err| {

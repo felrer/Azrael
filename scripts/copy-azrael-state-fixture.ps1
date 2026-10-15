@@ -20,7 +20,7 @@ if ($source -ieq $ordinary -or $source.StartsWith($ordinary + [IO.Path]::Directo
 $project = Split-Path $PSScriptRoot -Parent
 $releaseRoot = [IO.Path]::GetFullPath((Join-Path $project 'artifacts/releases')).TrimEnd('\', '/') + [IO.Path]::DirectorySeparatorChar
 $active = @(Get-CimInstance Win32_Process | Where-Object {
-    $_.Name -in @('codex.exe', 'azrael-bridge.exe') -and $_.ExecutablePath -and
+    $_.Name -in @('codex.exe', 'azrael.exe', 'azrael-bridge.exe') -and $_.ExecutablePath -and
     $_.ExecutablePath.StartsWith($releaseRoot, [StringComparison]::OrdinalIgnoreCase)
 })
 if ($active.Count) { throw "Azrael release engines are still active ($($active.Count)); close the Azrael windows before copying state." }

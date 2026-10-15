@@ -614,6 +614,11 @@ ignored = [
 # use CARGO_PROFILE_DEV_DEBUG=full (or CARGO_PROFILE_TEST_DEBUG=full) for locals.
 debug = "line-tables-only"
 
+[profile.dev.package.sha2]
+# Shared-engine identity checks run during every native connection startup.
+# Optimize the hashing dependency without changing ordinary engine debug builds.
+opt-level = 3
+
 [profile.dev-small]
 inherits = "dev"
 opt-level = 0

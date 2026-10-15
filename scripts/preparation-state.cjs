@@ -21,7 +21,7 @@ async function inputs(config) {
   const scripts = [
     "preparation-state.cjs", "directory-state.cjs", "prepare-independent-vscode.ps1", "azrael-app-release.json",
     "prepare-ordinary-vscode.ps1", "prepare-official-ui.ps1", "engine-provenance.py",
-    "ordinary-runtime.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
+    "ordinary-runtime.cjs", "shared-engine-host.cjs", "devin-native-host.cjs", "provider-accounts-host.cjs",
     "integrated-azrael-entry.cjs", "sync-shared-environment.cjs", "sync-codex-environment.cjs", "computer-use-runtime.cjs",
     "azrael-recovery.cjs", "recovery-state.cjs", "optional-diagnostics.cjs", "package-local-host.cjs", "computer-use-approvals.cjs",
     "use-control-settings.cjs", "window-use-approvals.cjs", "use-settings-host.cjs", "sky-control-policy.mjs", "sky-controlled-service.mjs", "inject-sky-control-policy.cjs", "computer-use-branding.cjs", "window-control-runtime.cjs",

@@ -26,6 +26,8 @@ use crate::plugin_config_reload;
 use crate::plugin_config_reload::PluginStartupConfig;
 use crate::request_processors::AccountRequestProcessor;
 use crate::request_processors::AppsRequestProcessor;
+use crate::request_processors::AzraelAccountBackendState;
+use crate::request_processors::AzraelAccountStatePaths;
 use crate::request_processors::CatalogRequestProcessor;
 use crate::request_processors::CommandExecRequestProcessor;
 use crate::request_processors::ConfigRequestProcessor;
@@ -249,6 +251,7 @@ impl ConnectionSessionState {
     }
 }
 
+#[derive(Clone)]
 pub(crate) struct MessageProcessorArgs {
     pub(crate) outgoing: Arc<OutgoingMessageSender>,
     pub(crate) analytics_events_client: AnalyticsEventsClient,
@@ -262,6 +265,8 @@ pub(crate) struct MessageProcessorArgs {
     pub(crate) config_warnings: Vec<ConfigWarningNotification>,
     pub(crate) session_source: SessionSource,
     pub(crate) auth_manager: Arc<AuthManager>,
+    pub(crate) azrael_account_state_paths: Option<AzraelAccountStatePaths>,
+    pub(crate) azrael_account_backend_state: Option<AzraelAccountBackendState>,
     pub(crate) user_verification: Arc<crate::user_verification::Service>,
     pub(crate) installation_id: String,
     pub(crate) code_mode_session_provider: Option<Arc<dyn CodeModeSessionProvider>>,
@@ -390,6 +395,8 @@ impl MessageProcessor {
             config_warnings,
             session_source,
             auth_manager,
+            azrael_account_state_paths,
+            azrael_account_backend_state,
             user_verification,
             installation_id,
             code_mode_session_provider,
@@ -482,12 +489,14 @@ impl MessageProcessor {
                 None => manager,
             }
         });
-        let account_processor = AccountRequestProcessor::new(
+        let account_processor = AccountRequestProcessor::new_with_azrael_state_paths(
             auth_manager.clone(),
             Arc::clone(&thread_manager),
             outgoing.clone(),
             Arc::clone(&config),
             config_manager.clone(),
+            azrael_account_state_paths,
+            azrael_account_backend_state,
         );
         let model_catalog = Arc::new(crate::model_catalog::ModelCatalog::new(
             config_manager.clone(),
@@ -960,6 +969,32 @@ impl MessageProcessor {
             worker.shutdown();
         }
         self.thread_processor.drain_background_tasks().await;
+    }
+
+    pub(crate) async fn fence_shared_window_threads(
+        &self,
+    ) -> (
+        Vec<ThreadId>,
+        Vec<codex_core::AgentTreeShutdown>,
+        Vec<std::io::Error>,
+    ) {
+        self.thread_processor.fence_shared_window_threads().await
+    }
+
+    pub(crate) async fn drain_shared_window_startup_tasks(&self) -> std::io::Result<()> {
+        self.clear_runtime_references();
+        if let Some(worker) = &self.turn_cost_worker {
+            worker.shutdown();
+        }
+        self.thread_processor
+            .drain_shared_window_startup_tasks()
+            .await
+    }
+
+    pub(crate) async fn shared_window_snapshot(
+        &self,
+    ) -> std::io::Result<codex_app_server_transport::daemon_recovery::RecoverySnapshot> {
+        self.thread_processor.shared_window_snapshot().await
     }
 
     pub(crate) async fn cancel_active_login(&self) {

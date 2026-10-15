@@ -8,7 +8,7 @@ const { hash, copyTree, inventoryTree, freezeProject } = require("./freeze-platf
 const UPSTREAM = "9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19";
 function assertEngineVersion(declared, reported) {
   if (!/^\d+\.\d+\.\d+(?:[-.][\w.-]+)?$/.test(declared)) throw new Error("Frozen Cargo workspace has no valid engine version");
-  const match = /^codex(?:-cli)?\s+(\d+\.\d+\.\d+(?:[-.][\w.-]+)?)\s*$/.exec(reported);
+  const match = /^(?:azrael|codex(?:-cli)?)\s+(\d+\.\d+\.\d+(?:[-.][\w.-]+)?)\s*$/.exec(reported);
   if (!match || match[1] !== declared) throw new Error(`Built engine version does not match frozen Cargo workspace version ${declared}`);
   return declared;
 }
@@ -65,7 +65,8 @@ function buildPlan(options, platform = process.platform, arch = process.arch, en
   for (const key of ["account-ui-root", "npm-cli", "code-mode-host", "rg"]) if (settings[key] && !path.isAbsolute(settings[key])) throw new Error(`--${key} must be absolute`);
   if (fs.existsSync(settings.output)) throw new Error("--output must be a new path; existing releases cannot be overwritten");
   if (!fs.statSync(settings["target-directory"]).isDirectory()) throw new Error("--target-directory must be an existing selected native Cargo cache");
-  return { settings, platform: platformIdentity(descriptor), binaries: engineBinaryNames(descriptor), descriptor, engineReuse: false };
+  const sourceBinaries = ["azrael", "azrael-bridge", "codex-code-mode-host"].map(name => executableName(name, descriptor));
+  return { settings, platform: platformIdentity(descriptor), binaries: engineBinaryNames(descriptor), sourceBinaries, descriptor, engineReuse: false };
 }
 function write(file, value) { fs.mkdirSync(path.dirname(file), { recursive: true }); fs.writeFileSync(file, JSON.stringify(value, null, 2) + "\n"); }
 function linuxPtyBuild(platform, input, companion) {
@@ -136,14 +137,18 @@ async function build(options) {
   validateToolIdentity(run(bun, ["--eval", `console.log(${identityExpression})`], work, "bun-platform"), identity, "Selected Bun");
   if (s["code-mode-host"]) validateExecutableHeader(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), identity);
   const rust = path.join(work, "engine/codex-rs");
-  const cargoArgs = ["build", "--release", "--locked", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-cli", "--bin", "codex", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
+  const cargoArgs = ["build", "--release", "--locked", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
   if (!s["code-mode-host"]) cargoArgs.push("-p", "codex-code-mode-host", "--bin", "codex-code-mode-host");
   run("cargo", cargoArgs, rust, "cargo-engine");
   const compiledSourceSnapshot = path.join(logs, "engine-compiled-source.json");
   run(python, ["-B", frozenProvenance, "snapshot", "--root", path.join(work, "engine"), "--target", identity.target, "--file", compiledSourceSnapshot], work, "verify-compiled-source");
   if (fs.readFileSync(compiledSourceSnapshot, "utf8") !== fs.readFileSync(sourceSnapshot, "utf8")) throw new Error("Compiled engine source differs from frozen inputs");
   fs.mkdirSync(path.join(s.output, "engine"), { recursive: true });
-  for (const name of plan.binaries) copyTree(name === plan.binaries[2] && s["code-mode-host"] ? path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix) : path.join(s["target-directory"], identity.target, "release", name), path.join(s.output, "engine", name));
+  // Upstream Cargo binary names are build inputs, distinct from product bundle names.
+  for (const [index, name] of plan.binaries.entries()) {
+    const source = index === 2 && s["code-mode-host"] ? path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix) : path.join(s["target-directory"], identity.target, "release", plan.sourceBinaries[index]);
+    copyTree(source, path.join(s.output, "engine", name));
+  }
   const engineSigning = identity.os === "darwin" ? require("./macos-signing.cjs").ensureMacSignatures(path.join(s.output, "engine")) : null;
   const recordArgs = ["-B", frozenProvenance, "record", "--root", frozenEngine, "--target", identity.target, "--file", sourceSnapshot, "--engine-dir", path.join(s.output, "engine")];
   if (s["code-mode-host"]) recordArgs.push("--code-mode-host-source", path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), "--code-mode-host-original", s["code-mode-host"], "--code-mode-host-original-sha256", hash(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix)));
@@ -190,9 +195,9 @@ async function build(options) {
   write(path.join(s.output, "devin-native-build.json"), { schema: 1, platform: identity, mode: "opt-in", model: "devin/swe-2-high", upstreamRevision: UPSTREAM, node: { path: path.join(s.output, "runtime/node", executableName("node", plan.descriptor)), version: nodeVersion, sha256: hash(path.join(s.output, "runtime/node", executableName("node", plan.descriptor))), bundled: true }, files: { ...filesAt("providers/devin"), "scripts/devin-catalog.json": hash(path.join(s.output, "scripts/devin-catalog.json")) } });
   write(path.join(s.output, "opencodex-accounts-build.json"), { schema: 2, platform: identity, upstreamRevision: UPSTREAM, vendorSourceManifestSha256: vendorSha, helper: "providers/opencodex/helper.js", inferenceHelper: "providers/opencodex/inference.js", bun: { version: "1.4.2", path: bunRelative, sha256: hash(path.join(s.output, bunRelative)), bundled: true }, files: filesAt("providers/opencodex") });
   fs.mkdirSync(path.join(s.output, "host/out"), { recursive: true });
-  for (const name of ["ordinary-runtime.cjs", "platform-runtime.cjs", "azrael-platforms.json", "devin-native-host.cjs", "provider-accounts-host.cjs"]) copyTree(path.join(frozenProject, "scripts", name), path.join(s.output, "host/out", name === "ordinary-runtime.cjs" ? "azrael-runtime.cjs" : name));
-  write(path.join(s.output, "host/out/azrael-runtime.json"), { schema: 1, platform: identity, engine: path.join(s.output, "engine", plan.binaries[0]), bridge: path.join(s.output, "engine", plan.binaries[1]), engineVersion, codexHome: path.join(os.homedir(), ".azrael-ex"), devinNative: { releaseDirectory: s.output }, providerAccounts: { releaseDirectory: s.output } });
+  for (const name of ["ordinary-runtime.cjs", "shared-engine-host.cjs", "platform-runtime.cjs", "azrael-platforms.json", "devin-native-host.cjs", "provider-accounts-host.cjs"]) copyTree(path.join(frozenProject, "scripts", name), path.join(s.output, "host/out", name === "ordinary-runtime.cjs" ? "azrael-runtime.cjs" : name));
   const engineProvenance = JSON.parse(fs.readFileSync(path.join(s.output, "engine/azrael-engine-build.json"), "utf8"));
+  write(path.join(s.output, "host/out/azrael-runtime.json"), { schema: 1, platform: identity, sharedEngine: true, sharedEngineProtocol: 1, engineSha256: engineProvenance.binaries[plan.binaries[0]], engine: path.join(s.output, "engine", plan.binaries[0]), bridge: path.join(s.output, "engine", plan.binaries[1]), engineVersion, codexHome: path.join(os.homedir(), ".azrael-ex"), devinNative: { releaseDirectory: s.output }, providerAccounts: { releaseDirectory: s.output } });
   write(path.join(s.output, "build-info.json"), { platform: identity, engineVersion, sha256: Object.fromEntries(inventoryTree(s.output).files.map(file => [file.path, file.sha256])), engineProvenance, engineIncludesLocalChanges: true, engineSourceRoot: frozenEngine, inputSha256: receipt.sha256 });
   if (inventoryTree(input).sha256 !== receipt.sha256) throw new Error("Frozen build inputs changed during compilation");
   const prepareArgs = [path.join(frozenProject, "scripts/prepare-platform-host.cjs"), "--release", s.output, "--ui-root", path.join(input, "ui"), "--account-ui-root", s["account-ui-root"] ? path.join(input, "account-ui") : companion, "--output", path.join(s.output, "prepared-host"), "--host-version", s["host-version"] || "0.1.0"];

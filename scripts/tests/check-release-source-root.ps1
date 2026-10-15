@@ -35,14 +35,14 @@ try {
         & git -C $path -c user.name=Fixture -c user.email=fixture@example.invalid commit --quiet -m fixture
         if ($LASTEXITCODE -ne 0) { throw 'git fixture commit failed' }
     }
-    foreach ($name in @('codex.exe', 'azrael-bridge.exe', 'codex-code-mode-host.exe')) {
+    foreach ($name in @('azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe')) {
         [IO.File]::WriteAllBytes((Join-Path $engine $name), [Text.Encoding]::UTF8.GetBytes($name))
     }
     $provenance = Join-Path $scripts 'engine-provenance.py'
     $snapshot = Join-Path $fixture 'snapshot.json'
     & python -B $provenance snapshot --root $source --file $snapshot | Out-Null
     Assert-True ($LASTEXITCODE -eq 0) 'Source snapshot failed'
-    & python -B $provenance record --root $source --file $snapshot --engine-dir $engine --code-mode-host-source (Join-Path $engine 'codex-code-mode-host.exe') | Out-Null
+    & python -B $provenance record --root $source --file $snapshot --engine-dir $engine --code-mode-host-source (Join-Path $engine 'azrael-code-mode-host.exe') | Out-Null
     Assert-True ($LASTEXITCODE -eq 0) 'Engine provenance fixture failed'
 
     foreach ($scriptName in @('prepare-ordinary-vscode.ps1', 'install-independent-vscode.ps1')) {

@@ -47,7 +47,7 @@ function executableName(name, descriptor = resolvePlatform()) {
 }
 
 function engineBinaryNames(descriptor = resolvePlatform()) {
-  return ["codex", "azrael-bridge", "codex-code-mode-host"].map(name => executableName(name, descriptor));
+  return ["azrael", "azrael-bridge", "azrael-code-mode-host"].map(name => executableName(name, descriptor));
 }
 
 function canonicalPath(value, platform = process.platform) {

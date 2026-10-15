@@ -12,6 +12,24 @@ const continuation = (threadId = "thread-1", text = "continue") => ({
 const handlerPanicMarker = () => ({ code: -32603,
   data: { requestOutcome: "unknown", reason: "handlerPanicked" } });
 
+test("marked reopen attaches and shows interruption without starting work; explicit input still starts", async () => {
+  const calls = [];
+  const state = new RecoveryState({ store: memoryStore(), requiresManualResume: () => true,
+    rpc: async (method) => {
+      calls.push(method);
+      if (method === "thread/resume") return { thread: { id: "marked" } };
+      if (method === "thread/read") return { thread: { id: "marked", status: { type: "idle" } } };
+      if (method === "thread/turns/list") return { data: [{ id: "old", status: "completed" }] };
+      if (method === "turn/start") return { turn: { id: "new", status: "inProgress" } };
+      throw Error(method);
+    } });
+  await state.resume({ threadId: "marked" });
+  assert.equal(state.list()[0].phase, "interrupted");
+  assert.deepEqual(calls, ["thread/resume", "thread/read", "thread/turns/list"]);
+  await state.start({ threadId: "marked", input: [{ type: "text", text: "new user task" }] });
+  assert.equal(calls.filter(method => method === "turn/start").length, 1);
+});
+
 for (const method of ["turn/start", "turn/steer"]) {
   for (const marker of [handlerPanicMarker(), { code: -32603 },
     { code: -32603, data: { requestOutcome: "unknown" } },

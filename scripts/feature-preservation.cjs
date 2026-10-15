@@ -265,7 +265,7 @@ async function runPreservation(config) {
     await fs.promises.mkdir(path.join(config.projectRoot, 'artifacts', 'verification'), { recursive: true });
     for (const feature of features) for (const check of phaseChecks(feature, config.checkPhase)) {
       const fixture = path.join(config.projectRoot, 'artifacts', 'verification', `preservation-${crypto.randomUUID()}`);
-      const variables = { ...config, engine: config.engineDirectory && path.join(config.engineDirectory, 'codex.exe'), fixture };
+      const variables = { ...config, engine: config.engineDirectory && path.join(config.engineDirectory, 'azrael.exe'), fixture };
       const args = check.args.map(arg => arg.replace(/\{([^}]+)\}/g, (_, key) => {
         if (!variables[key]) throw Error(`Missing placeholder value: ${key}`);
         return variables[key];

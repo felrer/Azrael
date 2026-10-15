@@ -39,7 +39,11 @@ if (registry.has(runtimeKey)) {
   const physicalState = canonicalPath(fs.realpathSync.native(config.codexHome));
   const physicalOrdinary = fs.existsSync(ordinaryHome) ? canonicalPath(fs.realpathSync.native(ordinaryHome)) : ordinaryHome;
   if (physicalState === physicalOrdinary || physicalState.startsWith(physicalOrdinary + path.sep)) throw new Error("azrael requires its own state home.");
-  const socket = path.join(os.tmpdir(), `azo-${crypto.randomBytes(6).toString("hex")}`, "m.sock");
+  if (config.sharedEngine !== undefined && typeof config.sharedEngine !== "boolean") throw new Error("Invalid shared Azrael engine mode.");
+  if (config.sharedEngine) require("./shared-engine-host.cjs").validateSharedRuntime(config);
+  const socket = config.sharedEngine
+    ? path.join(config.codexHome, "app-server-control", "app-server-control.sock")
+    : path.join(os.tmpdir(), `azo-${crypto.randomBytes(6).toString("hex")}`, "m.sock");
   const env = { ...process.env, CODEX_HOME: config.codexHome, AZRAEL_EX_MANAGEMENT_SOCKET: socket };
   // Spreading process.env loses Windows' case-insensitive property lookup.
   // The pinned host reads PATH explicitly when appending its bundled tools.

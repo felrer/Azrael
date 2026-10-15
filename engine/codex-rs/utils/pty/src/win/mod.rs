@@ -43,6 +43,7 @@ use winapi::um::winbase::INFINITE;
 
 pub(crate) mod conpty;
 mod job;
+pub(crate) mod process_tree;
 mod procthreadattr;
 mod psuedocon;
 

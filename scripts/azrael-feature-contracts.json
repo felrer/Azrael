@@ -2,6 +2,95 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.shared-engine",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/Cargo.toml",
+        "engine/codex-rs/app-server/src/azrael_shared_server.rs",
+        "engine/codex-rs/app-server-daemon/src/lib.rs",
+        "engine/codex-rs/app-server/src/message_processor.rs",
+        "engine/codex-rs/app-server/src/config_manager.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael_state.rs",
+        "engine/codex-rs/app-server/src/request_processors/account_processor/azrael.rs",
+        "engine/codex-rs/app-server/src/request_processors.rs",
+        "engine/codex-rs/app-server/src/in_process.rs",
+        "engine/codex-rs/app-server/src/message_processor_tracing_tests.rs",
+        "engine/codex-rs/app-server/src/user_verification_test_support.rs",
+        "engine/codex-rs/app-server/src/request_processors/thread_processor.rs",
+        "engine/codex-rs/app-server/src/request_processors/turn_processor.rs",
+        "engine/codex-rs/install-context/src/lib.rs",
+        "engine/codex-rs/app-server/src/azrael_shared_server/tests.rs",
+        "engine/codex-rs/app-server/src/lib.rs",
+        "engine/codex-rs/app-server/src/main.rs",
+        "engine/codex-rs/app-server/src/bin/azrael.rs",
+        "engine/codex-rs/app-server-daemon/src/azrael.rs",
+        "engine/codex-rs/app-server-daemon/src/backend/pid.rs",
+        "engine/codex-rs/app-server-daemon/src/backend/pid_start.rs",
+        "engine/codex-rs/app-server-daemon/src/backend/pid_tests.rs",
+        "engine/codex-rs/utils/pty/Cargo.toml",
+        "engine/codex-rs/utils/pty/src/pipe_tests.rs",
+        "engine/codex-rs/utils/pty/src/win/mod.rs",
+        "engine/codex-rs/utils/pty/src/win/process_tree.rs",
+        "engine/codex-rs/utils/pty/src/pipe.rs",
+        "engine/codex-rs/utils/pty/src/child_command.rs",
+        "engine/codex-rs/utils/pty/src/windows_tests.rs",
+        "engine/codex-rs/utils/pty/src/win/job.rs",
+        "engine/codex-rs/app-server-client/src/remote.rs",
+        "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
+        "engine/codex-rs/core/src/azrael_manual_resume.rs",
+        "engine/codex-rs/core/src/session/root_resume.rs",
+        "engine/codex-rs/core/src/session/root_resume_timing.rs",
+        "engine/codex-rs/ext/queue/src/service.rs",
+        "scripts/ordinary-runtime.cjs",
+        "scripts/shared-engine-host.cjs",
+        "scripts/integrated-azrael-entry.cjs",
+        "scripts/azrael-recovery.cjs",
+        "scripts/recovery-state.cjs",
+        "scripts/preparation-state.cjs",
+        "scripts/check-shared-engine-native.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/check-shared-engine.mjs",
+        "scripts/check-shared-engine-resources.mjs",
+        "scripts/test-check-shared-engine.mjs",
+        "scripts/test-check-shared-engine-resources.mjs",
+        "scripts/test-shared-engine-host.cjs",
+        "scripts/test-ordinary-runtime-node.cjs",
+        "scripts/test-integrated-entry.cjs",
+        "engine/codex-rs/core/src/session/root_resume_tests.rs",
+        "engine/codex-rs/ext/queue/tests/queue_service.rs"
+      ],
+      "contract": "docs/architecture/azrael-runtime.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.shared-engine.fixture-guards",
+          "executable": "node",
+          "args": ["--test", "scripts/test-check-shared-engine.mjs", "scripts/test-check-shared-engine-resources.mjs", "scripts/test-cargo-verification.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "engine.shared-engine.host",
+          "executable": "node",
+          "args": ["--test", "scripts/test-shared-engine-host.cjs", "scripts/test-ordinary-runtime-node.cjs", "scripts/test-integrated-entry.cjs", "scripts/test-recovery-state.cjs", "scripts/test-preparation-state.cjs"],
+          "level": "source"
+        },
+        {
+          "id": "engine.shared-engine.appserver",
+          "executable": "node",
+          "args": ["scripts/check-shared-engine-native.cjs", "{engineSourceRoot}", "appserver"],
+          "level": "native"
+        },
+        {
+          "id": "engine.shared-engine.manual-resume",
+          "executable": "node",
+          "args": ["scripts/check-shared-engine-native.cjs", "{engineSourceRoot}", "manual"],
+          "level": "native"
+        }
+      ]
+    },
+
+    {
       "id": "engine.source-provenance",
       "area": "engine",
       "owners": [

@@ -98,7 +98,7 @@ if (-not $SkipEngineBuild -and 'engine' -notin $RebuildModule) {
         $candidateEngine = Join-Path $previousRelease 'engine'
         if (Test-Path -LiteralPath (Join-Path $candidateEngine 'azrael-engine-build.json')) {
             & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir $candidateEngine *> (Join-Path $logDirectory 'engine-auto-reuse.log')
-            if ($LASTEXITCODE -eq 0 -and $CodeModeHostPath -and (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash $CodeModeHostPath).Hash -ieq (Get-FileHash (Join-Path $candidateEngine 'codex-code-mode-host.exe')).Hash) {
+            if ($LASTEXITCODE -eq 0 -and $CodeModeHostPath -and (Test-Path -LiteralPath $CodeModeHostPath -PathType Leaf) -and (Get-FileHash $CodeModeHostPath).Hash -ieq (Get-FileHash (Join-Path $candidateEngine 'azrael-code-mode-host.exe')).Hash) {
                 $EngineDirectory=$candidateEngine;$SkipEngineBuild=$true
             }
         }
@@ -117,10 +117,10 @@ if (-not $SkipEngineBuild) {
         # The explicit cache may be reused across selected source snapshots.
         # Cargo must successfully build both binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
-        Invoke-BuildCommand 'cargo' @('build', '--locked', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-cli', '--bin', 'codex', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
+        Invoke-BuildCommand 'cargo' @('build', '--locked', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
-        $codeModeHostDestination = Join-Path $EngineDirectory 'codex-code-mode-host.exe'
+        $codeModeHostDestination = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
         if ($externalCodeModeHost -cne $codeModeHostDestination) {
             Copy-Item -LiteralPath $externalCodeModeHost -Destination $codeModeHostDestination -Force
         }
@@ -134,9 +134,9 @@ if (-not $SkipEngineBuild) {
 }
 $phase = Start-BuildStage $buildMetrics 'engine-provenance-and-binary-check'
 Invoke-BuildCommand 'python' @('-B', (Join-Path $PSScriptRoot 'engine-provenance.py'), 'verify', '--root', (Split-Path $rustRoot -Parent), '--engine-dir', $EngineDirectory) 'engine-source-check.log'
-$engine = Join-Path $EngineDirectory 'codex.exe'
+$engine = Join-Path $EngineDirectory 'azrael.exe'
 $bridge = Join-Path $EngineDirectory 'azrael-bridge.exe'
-$codeModeHost = Join-Path $EngineDirectory 'codex-code-mode-host.exe'
+$codeModeHost = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'
 foreach ($file in @($engine, $bridge, $codeModeHost)) {
     if (-not (Test-Path -LiteralPath $file -PathType Leaf)) { throw "Missing engine pair member: $file" }
 }
