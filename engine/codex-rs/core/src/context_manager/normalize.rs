@@ -14,6 +14,7 @@ use crate::context::ContextualUserFragment;
 use crate::context::UnsupportedMedia;
 use crate::util::error_or_panic;
 use tracing::info;
+use tracing::warn;
 
 // Changing this value would change model-visible IDs and invalidate prompt caches.
 const SYNTHETIC_OUTPUT_ID_NAMESPACE: Uuid = Uuid::from_u128(0x90d38d3e_6a5b_4d52_bfe2_2f1e634bfac4);
@@ -87,9 +88,7 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItemEnvelope>)
             ResponseItem::CustomToolCall { id, call_id, .. }
                 if !custom_tool_output_ids.contains(call_id.as_str()) =>
             {
-                error_or_panic(format!(
-                    "Custom tool call output is missing for call id: {call_id}"
-                ));
+                warn!("Recovering missing custom tool call output with aborted result");
                 missing_outputs_to_insert.push((
                     idx,
                     ResponseItemEnvelope::new(ResponseItem::CustomToolCallOutput {
@@ -107,9 +106,7 @@ pub(crate) fn ensure_call_outputs_present(items: &mut Vec<ResponseItemEnvelope>)
                 call_id: Some(call_id),
                 ..
             } if !function_output_ids.contains(call_id.as_str()) => {
-                error_or_panic(format!(
-                    "Local shell call output is missing for call id: {call_id}"
-                ));
+                warn!("Recovering missing local shell call output with aborted result");
                 missing_outputs_to_insert.push((
                     idx,
                     ResponseItemEnvelope::new(ResponseItem::FunctionCallOutput {

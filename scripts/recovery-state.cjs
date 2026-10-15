@@ -19,9 +19,13 @@ const continuationTimeouts = new Map([
 const continuationRejections = new Map([
   ["미분류 오류: native inference helper failed (provider_http_400)", "provider_request_rejected"],
 ]);
+const continuationTaskFailures = new Map([
+  ["Fatal error: session task panicked", "session_task_panicked"],
+]);
 const diagnosticErrors = new Map([
   ...continuationTimeouts,
   ...continuationRejections,
+  ...continuationTaskFailures,
   ["Fatal error: native inference helper unresponsive (no protocol frames for 120s)", "helper_unresponsive"],
   ["Fatal error: native inference helper failed (provider_failure)", "provider_failure"],
 ]);
@@ -73,7 +77,8 @@ function admitsContinuation(thread, latest) {
     (["usageLimitExceeded", "rateLimitExceeded"].includes(latest.error?.codexErrorInfo) ||
       serverErrorKind(latest.error) !== undefined ||
       (latest.error?.codexErrorInfo === "other" &&
-        (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message))));
+        (continuationTimeouts.has(latest.error.message) || continuationRejections.has(latest.error.message) ||
+          continuationTaskFailures.has(latest.error.message))));
 }
 
 function isContinuation(params) {

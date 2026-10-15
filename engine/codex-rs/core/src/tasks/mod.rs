@@ -12,12 +12,14 @@ impl Drop for TaskAccountLease {
     }
 }
 
+use std::panic::AssertUnwindSafe;
 use std::sync::Arc;
 use std::time::Duration;
 use std::time::Instant;
 
 use codex_diagnostics::Gauge;
 use codex_extension_api::ThreadIdleCause;
+use futures::FutureExt;
 use futures::future::BoxFuture;
 use tokio::select;
 use tokio::sync::Mutex;
@@ -404,15 +406,27 @@ impl Session {
         let task_future = async move {
             let _account_guard = TaskAccountLease(account_guard);
             let ctx_for_finish = Arc::clone(&ctx);
-            let task_result = task_for_run
-                .run(
+            // A crashed task must unwind before normal terminal processing. Otherwise
+            // its active-turn entry survives while the UI waits forever for completion.
+            // Include construction of the task future in the boundary as well.
+            let task_result = AssertUnwindSafe(async {
+                task_for_run.run(
                     Arc::clone(&session),
                     ctx,
                     task_input,
                     task_cancellation_token.child_token(),
                 )
                 .instrument(trace_span!("session_task.run"))
-                .await;
+                .await
+            })
+            .catch_unwind()
+            .await
+            .unwrap_or_else(|_panic| {
+                warn!(event = "session_task_panicked", "session task panicked");
+                Err(codex_protocol::error::CodexErr::Fatal(
+                    "session task panicked".to_string(),
+                ))
+            });
             let sess = Arc::clone(&session);
             // Private reviewers save their transcript together with the terminal event.
             // Errors and cancellation retain their existing save path.
@@ -1099,3 +1113,6 @@ impl Session {
 #[cfg(test)]
 #[path = "mod_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod panic_tests;

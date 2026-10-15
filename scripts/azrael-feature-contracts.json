@@ -938,6 +938,11 @@
       "id": "engine.recovery",
       "area": "engine",
       "owners": [
+        "engine/codex-rs/core/src/context_manager/normalize.rs",
+        "engine/codex-rs/core/src/context_manager/history_tests.rs",
+        "engine/codex-rs/core/src/tasks/mod.rs",
+        "engine/codex-rs/core/src/tasks/panic_tests.rs",
+        "scripts/check-task-recovery-native.cjs",
         "engine/codex-rs/core/src/session/response_preparation.rs",
         "engine/codex-rs/core/src/session/turn.rs",
         "engine/codex-rs/core/src/session/world_state.rs",
@@ -949,6 +954,15 @@
       ],
       "contract": "docs/architecture/reload-recovery.md",
       "checks": [
+        {
+          "id": "engine.recovery.task-failure",
+          "executable": "node",
+          "args": [
+            "scripts/check-task-recovery-native.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native"
+        },
         {
           "id": "engine.recovery.native",
           "executable": "node",

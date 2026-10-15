@@ -2275,7 +2275,6 @@ fn format_exec_output_prefers_line_marker_when_both_limits_exceeded() {
     assert_truncated_message_matches(&truncated, "line-0-", /*expected_removed*/ 17_423);
 }
 
-#[cfg(not(debug_assertions))]
 #[test]
 fn normalize_adds_missing_output_for_custom_tool_call() {
     let items = vec![ResponseItem::CustomToolCall {
@@ -2314,7 +2313,6 @@ fn normalize_adds_missing_output_for_custom_tool_call() {
     );
 }
 
-#[cfg(not(debug_assertions))]
 #[test]
 fn normalize_adds_missing_output_for_local_shell_call_with_id() {
     let items = vec![ResponseItem::LocalShellCall {
@@ -2607,6 +2605,95 @@ fn for_prompt_assigns_stable_id_to_synthetic_output_without_reordering_history()
 }
 
 #[test]
+fn for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history() {
+    let history = create_history_with_items(vec![
+        ResponseItem::CustomToolCall {
+            id: Some(ResponseItemId::with_suffix("ctc", "interrupted")),
+            status: None,
+            call_id: "tool-x".to_string(),
+            name: "custom".to_string(),
+            namespace: None,
+            input: "{}".to_string(),
+            internal_chat_message_metadata_passthrough: None,
+        },
+        ResponseItem::LocalShellCall {
+            id: Some(ResponseItemId::with_suffix("lsc", "interrupted")),
+            call_id: Some("shell-1".to_string()),
+            status: LocalShellStatus::Completed,
+            action: LocalShellAction::Exec(LocalShellExecAction {
+                command: vec!["echo".to_string(), "hi".to_string()],
+                timeout_ms: None,
+                working_directory: None,
+                env: None,
+                user: None,
+            }),
+            internal_chat_message_metadata_passthrough: None,
+        },
+        ResponseItem::Message {
+            id: Some(ResponseItemId::with_suffix("msg", "later")),
+            role: "user".to_string(),
+            content: vec![ContentItem::InputText {
+                text: "later turn".to_string(),
+            }],
+            phase: None,
+            internal_chat_message_metadata_passthrough: None,
+        },
+    ]);
+    let original = history.annotated_items().to_vec();
+    let first = history.clone().for_prompt(&default_input_modalities());
+    let second = history.clone().for_prompt(&default_input_modalities());
+
+    assert_eq!(first, second);
+    assert_eq!(history.annotated_items(), original.as_slice());
+    let [
+        custom_call,
+        ResponseItem::CustomToolCallOutput {
+            id: Some(custom_id),
+            call_id: custom_call_id,
+            output: custom_output,
+            ..
+        },
+        shell_call,
+        ResponseItem::FunctionCallOutput {
+            id: Some(shell_id),
+            call_id: Some(shell_call_id),
+            output: shell_output,
+            ..
+        },
+        later_message,
+    ] = first.as_slice()
+    else {
+        panic!("expected each interrupted call followed by its synthetic output");
+    };
+    assert_eq!(custom_call, &original[0].item);
+    assert_eq!(shell_call, &original[1].item);
+    assert_eq!(
+        later_message,
+        &ResponseItem::Message {
+            id: Some(ResponseItemId::with_suffix("msg", "later")),
+            role: "user".to_string(),
+            content: vec![ContentItem::InputText {
+                text: "later turn".to_string(),
+            }],
+            phase: None,
+            internal_chat_message_metadata_passthrough: Some(unknown_content_metadata()),
+        }
+    );
+    assert!(custom_id.starts_with("ctco_"));
+    assert!(shell_id.starts_with("fco_"));
+    assert_eq!(custom_call_id, "tool-x");
+    assert_eq!(shell_call_id, "shell-1");
+    let aborted = FunctionCallOutputPayload::from_text("aborted".to_string());
+    assert_eq!(custom_output, &aborted);
+    assert_eq!(shell_output, &aborted);
+    assert_eq!(
+        create_history_with_items(first.clone()).for_prompt(&default_input_modalities()),
+        first,
+        "normalizing recovered history should not add duplicate outputs"
+    );
+}
+
+#[test]
 fn normalize_adds_missing_output_for_tool_search_call() {
     let items = vec![ResponseItem::ToolSearchCall {
         id: None,
@@ -2641,44 +2728,6 @@ fn normalize_adds_missing_output_for_tool_search_call() {
             },
         ]
     );
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_adds_missing_output_for_custom_tool_call_panics_in_debug() {
-    let items = vec![ResponseItem::CustomToolCall {
-        id: None,
-        status: None,
-        call_id: "tool-x".to_string(),
-        name: "custom".to_string(),
-        namespace: None,
-        input: "{}".to_string(),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_adds_missing_output_for_local_shell_call_with_id_panics_in_debug() {
-    let items = vec![ResponseItem::LocalShellCall {
-        id: None,
-        call_id: Some("shell-1".to_string()),
-        status: LocalShellStatus::Completed,
-        action: LocalShellAction::Exec(LocalShellExecAction {
-            command: vec!["echo".to_string(), "hi".to_string()],
-            timeout_ms: None,
-            working_directory: None,
-            env: None,
-            user: None,
-        }),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
 }
 
 #[cfg(debug_assertions)]

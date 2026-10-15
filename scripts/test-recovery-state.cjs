@@ -820,6 +820,27 @@ test("preparation timeout remains terminal until explicit continuation and logs 
 });
 
 const openaiServerMessage = "stream disconnected before completion: An error occurred while processing your request. You can retry your request, or contact us through our help center at help.openai.com if the error persists. Please include the request ID 01619dc0-21cd-4823-b339-dd783eaf7254 in your message.";
+test("task panic permits only explicit continuation with the exact native error", async () => {
+  const message = "Fatal error: session task panicked";
+  for (const variant of [message, `${message}: private payload`, "session task panicked"]) {
+    const calls = [], records = [];
+    const error = { codexErrorInfo: "other", message: variant };
+    const state = new RecoveryState({ store: memoryStore(), log: r => records.push(r),
+      rpc: systemErrorRpc(calls, { error }) });
+    state.observe({ method: "turn/completed", params: { threadId: "task-panic",
+      turn: failedTurn("failed-panic", error) } });
+    assert.equal(calls.length, 0);
+    if (variant === message) {
+      await Promise.all([state.start(continuation("task-panic")), state.start(continuation("task-panic"))]);
+      assert.equal(calls.filter(c => c.method === "turn/start").length, 1);
+      assert.equal(records.find(r => r.event === "recovery.admission").errorKind, "session_task_panicked");
+    } else {
+      await assert.rejects(state.start(continuation("task-panic")));
+      assert.equal(calls.filter(c => c.method === "turn/start").length, 0);
+    }
+    assert.ok(!JSON.stringify(records).includes("Fatal error:"));
+  }
+});
 const serverErrors = [
   ...[["serverOverloaded", "server_overloaded"], ["internalServerError", "server_processing_error"],
     ["flexUnavailable", "server_unavailable"]].map(([category, kind]) => ({
@@ -845,6 +866,7 @@ const terminalErrors = [
     message: "미분류 오류: native inference helper failed (provider_http_400)" } },
   { name: "rate-limit", error: { codexErrorInfo: "rateLimitExceeded", message: "Provider request rate limit reached. Try again later." } },
   ...serverErrors,
+  { name: "task-panic", error: { codexErrorInfo: "other", message: "Fatal error: session task panicked" } },
 ];
 
 for (const { name, error, kind } of serverErrors) {
