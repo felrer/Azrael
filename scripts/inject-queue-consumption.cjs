@@ -10,16 +10,11 @@ const QUEUE_CONSUMPTION_MARKER = "/*azrael-queue-consumption-v3*/";
 // A locally accepted handle belongs to the queue, even when native dispatch
 // fails or loses admission. Complete that handle as queued without duplicating
 // its draft or changing uncertain delivery; explicit send-now still rejects.
-// Freeze the computed queue/steer intent before storage can yield to a settings
-// change. Idle starts retain the normal policy; restored intent also binds replay.
 function injectQueueConsumption(text) {
   const count = text.split(QUEUE_CONSUMPTION_MARKER).length - 1;
   if (count > 1) throw new Error("Duplicate queue-consumption marker");
   if (/\/\*azrael-queue-consumption-v[12]\*\//.test(text)) throw new Error("Outdated queue-consumption marker; use the original pinned asset");
   const edits = [
-    ["turnId:await e.start(u,n.start,o,s,l)", "turnId:await e.start(u,r===`when-idle`&&i===!0?{...n.start,request:{...n.start.request,turnTrigger:`queue`}}:n.start,o,s,l)"],
-    ["let t={...u,submissionIntent:this.submission.getSubmissionIntent(c,e,this.readMessages(l)?.some(e=>e.id!==u.id)===!0),submission:{hostId:this.options.hostId,status:`pending`,queueModeOverride:c.queueModeOverride,editPosition:c.editPosition}}", "let __azraelIntent=this.submission.getSubmissionIntent(c,e,this.readMessages(l)?.some(e=>e.id!==u.id)===!0),t={...u,submissionIntent:__azraelIntent,submission:{hostId:this.options.hostId,status:`pending`,queueModeOverride:__azraelIntent===`start`?c.queueModeOverride:__azraelIntent,editPosition:c.editPosition}}"],
-    ["queueModeOverride:n==null?r.submission.queueModeOverride:`send-now`", "queueModeOverride:n==null?r.submission.queueModeOverride??(r.submissionIntent===`queue`||r.submissionIntent===`send-now`?r.submissionIntent:void 0):`send-now`"],
     ["ljn=class extends DY{options;", "ljn=class extends DY{" + QUEUE_CONSUMPTION_MARKER + "__azraelAccepted=new Map;__azraelUnsent(e,t){let n=this.__azraelAccepted.get(e);return n==null||t==null?t:t.filter(e=>!n.has(e.id))}__azraelWasAccepted(e,t){return t?.submission!=null&&(this.options.wasMessageAccepted?.(e,t.id)||this.serverQueue?.findByClientMessageId(e,t.id)!=null)}async __azraelConsume(e,t,n){if(this.disposed)return;let r=this.__azraelAccepted.get(e);r==null&&this.__azraelAccepted.set(e,r=new Set);r.add(t.id);this.running.has(e)&&this.rerun.add(e);await this.#v(e,e=>e.filter(e=>e.id!==t.id),n)}options;"],
     ["this.messages.clear(),this.pending.clear(),this.loadedState=void 0", "this.messages.clear(),this.__azraelAccepted.clear(),this.pending.clear(),this.loadedState=void 0"],
     ["b.status===`sent`&&(o=!0,this.disposed||this.mutate(e,e=>e.filter(e=>!(0,F1.default)(e,r)),u)),c.onResult?.(e,r,b)", "try{if(b.status===`sent`){o=!0;if(!this.disposed){await this.__azraelConsume(e,r,u)}}}finally{c.onResult?.(e,r,b)}"],
