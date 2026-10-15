@@ -287,6 +287,18 @@ The current local source scope discovers root `scripts/test-*.cjs` files importi
 
 ### Host transforms
 
+#### Team 변경 관리와 병목 자료
+
+native local Lead와 그 자식은 `team.manage_changes`의 `status`로 동작별 인자 계약, 변경 원장과 관측 요약을 조회한다. 호출자는 native thread ID로 확인한다. Lead는 작업을 만들고 요구 버전을 변경하며 검증 근거를 검토해 반영을 승인한다. 배정된 작업자는 요구 적용을 확인하고 고정된 결과를 제출한다. 상세 계약과 현재 미구현 경계는 [Team 변경 관리](../architecture/work-orchestration.md#team-변경-관리)를 따른다. 새 소스가 포함된 호스트를 사용해야 하며 소스 검사가 설치된 앱을 갱신하지 않는다.
+
+자료는 Git common directory의 `azrael/teams/<Team ID SHA-256>/state.json`, `observations/`와 `refs/azrael/teams/<hash>/verified`에 있다. linked worktree는 같은 Git common directory를 사용한다. 일반 로그·표본 청소에서 변경 원장·활성 예약·검증 근거를 제외한다. 상태 2 MiB 또는 operation 1,024개 상한은 새 쓰기를 차단한다. 현재 필수 원장 보관·용량 회수는 자동화하지 않는다.
+
+일반 도구는 요청마다 고유한 `operationId`를 사용하고 재시도 시 같은 입력과 ID를 재사용한다. `finish_integration`의 근거는 제출 출처로 기록되므로 Lead는 후보·check·입력·환경·실제 로그를 확인한 뒤 승인한다. 이 도구는 테스트 명령을 실행하거나 활성 worktree·메인 브랜치를 갱신하지 않는다. `recover`는 같은 후보·권한 세대·관측 ref를 확인해 예약을 유지하거나 중단한다. 쓰기 프로세스가 중단되어 잠금이 남으면 `status.writeLock`의 `lockId`를 확인하고 Lead가 `recover_write_lock`을 요청한다. 같은 로컬 PID의 부재를 확인하지 못하면 회수하지 않는다. 다른 호스트·손상·확인 불가·복구 guard는 원인과 실행 상태를 조사한 뒤 처리하며 시간 경과만으로 삭제하지 않는다.
+
+`status.observation`에서 단계별 표본 수·p50/p95·활성 대기·실패·usage와 `health`를 함께 읽는다. `health.complete=false`, 표본 축약, 누락 기준값과 counter reset은 비교의 한계다. turn 시간은 도구 시간을 포함하며 중첩 단계 시간을 더해 전체 완료 시간으로 쓰지 않는다. 최초 usage 기준은 과거 사용량과 구분할 수 없어 누락으로 표시한다. native 관측 대기 상한에서 누락된 건수는 `nativeObservation`에 현재 호스트 수명 범위로 표시한다. 해당 수명 이전의 누락은 기존 호스트 진단과 표본의 지속되는 불완전 표시도 확인한다. 운영 기준선·알림 UI는 아직 연결되지 않았다.
+
+보존 검사는 `node --test scripts/test-team-change-service.cjs scripts/test-team-observability.cjs scripts/test-team-runtime-host.cjs scripts/test-team-runtime.cjs scripts/test-team-integration.cjs`다. 실제 Git scratch 저장소와 transformed native host fixture를 사용하며 실제 모델·설치된 앱 수용과 구분한다. 실행 전 `artifacts/tasks/BQ-01/runs/{core,observer,host}/`의 소유 run을 lifecycle에 등록하고 상태를 실행 중으로 표시한다. 종료 후 결과·로그를 검토하고 임시 저장소·프로세스·링크를 확인해 보통 삭제하며 작은 로그만 보존한다. 전체 앱 빌드나 실사용 저장소 반영은 별도 절차다.
+
 #### Local session link protocol
 
 The normal-profile installer registers `azrael://threads/<UUID>` under `HKCU\Software\Classes\azrael` with the owner `azrael-ex-local.azrael`. Its deployment receipt records `sessionProtocol.receiptPath`; that configuration pins the URL parser hash and VS Code executable. Custom extension directories and isolated user-data profiles skip registration. No build or source test registers the protocol. Existing `codex` ownership is preserved.

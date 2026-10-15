@@ -351,6 +351,45 @@
       "reportFields": ["webviewIdleEdits"]
     },
     {
+      "id": "ui.team-change-management",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-team-runtime.cjs",
+        "scripts/inject-computer-use.cjs",
+        "scripts/team-runtime-host.cjs",
+        "scripts/team-change-service.cjs",
+        "scripts/team-observability.cjs",
+        "scripts/namespace-azrael-host.cjs"
+      ],
+      "contract": "docs/architecture/work-orchestration.md",
+      "checks": [
+        {
+          "id": "ui.team-change-management.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-team-change-service.cjs",
+            "scripts/test-team-observability.cjs",
+            "scripts/test-team-runtime-host.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.team-change-management.transport",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-team-runtime.cjs",
+            "scripts/test-team-integration.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "teamRuntimeEdits"
+      ]
+    },
+    {
       "id": "ui.team-lead",
       "area": "ui",
       "owners": ["scripts/inject-team-ui.cjs","scripts/inject-team-runtime.cjs","instructions/skills/design-collaboration/references/team-lead.md","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
