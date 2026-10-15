@@ -34,7 +34,11 @@ function injectComputerUse(text) {
   if (text.includes("/*azrael-computer-use-approvals-v1*/")) throw new Error("Old computer-use approval injection requires a verified correction");
   const markers = text.split(MARKER).length - 1;
   if (markers) {
-    if (markers !== 1 || replacements.some(([, value]) => text.split(value).length - 1 !== 1)) throw new Error("Invalid computer-use approval injection marker");
+    // Team owns these two exact prefixes. Preserve this owner's callback body
+    // checks when the independently validated Team transform is composed later.
+    const checked = text.replace("onRequest:F=>{if(this.azraelHandleTeamTool(F))return;", "onRequest:F=>{")
+      .replace("onRawNotification:F=>{this.azraelObserveTeamNotification(F);", "onRawNotification:F=>{");
+    if (markers !== 1 || replacements.some(([, value]) => checked.split(value).length - 1 !== 1)) throw new Error("Invalid computer-use approval injection marker");
     return { text, count: 0 };
   }
   for (const [anchor] of replacements) if (text.split(anchor).length - 1 !== 1) throw new Error("Pinned computer-use approval anchor must occur exactly once: " + anchor.slice(0, 60));

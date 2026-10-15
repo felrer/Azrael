@@ -44,6 +44,12 @@ test("Maintained Lead instructions invalidate every affected runtime asset", () 
   const unrelated = pipeline.getAssetTransformRules("webview/assets/unrelated.js", rules);
   assert.equal(unrelated["team-lead-guidance"], undefined);
   assert.equal(unrelated["inject-team-runtime.cjs"], undefined);
+  for (const name of ["team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs"]) {
+    assert.equal(rules[name], sha(fs.readFileSync(path.join(project, "scripts", name))));
+    assert.equal(pipeline.getAssetTransformRules(runtime.HOST_ASSET, rules)[name], rules[name]);
+    assert.equal(pipeline.getAssetTransformRules(runtime.APP_ASSET, rules)[name], undefined);
+    assert.equal(unrelated[name], undefined);
+  }
 });
 
 test("Default local native selection accepts the Lead draft without a project assignment", async () => {

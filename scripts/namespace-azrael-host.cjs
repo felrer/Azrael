@@ -495,7 +495,7 @@ function getTransformRules() {
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
-    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "inject-task-profile.cjs", "task-profile-runtime.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
+    "inject-session-flags.cjs", "inject-team-ui.cjs", "inject-team-runtime.cjs", "team-runtime-host.cjs", "team-change-service.cjs", "team-observability.cjs", "inject-task-profile.cjs", "task-profile-runtime.cjs", "instruction-library.cjs", "inject-webview-idle.cjs", "webview-idle.cjs",
   ];
   return { ...Object.fromEntries(transformSources.map((name) =>
     [name, sha(fs.readFileSync(path.join(__dirname, name)))])), ...getContentFontRules(),
@@ -562,6 +562,9 @@ const ASSET_RULE_PATHS = {
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-team-ui.cjs": [TEAM_UI_ASSET],
   "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,
+  "team-runtime-host.cjs": ["out/extension.js"],
+  "team-change-service.cjs": ["out/extension.js"],
+  "team-observability.cjs": ["out/extension.js"],
   "inject-task-profile.cjs": TASK_PROFILE_ASSETS,
   "task-profile-runtime.cjs": TASK_PROFILE_ASSETS,
   "instruction-library.cjs": TASK_PROFILE_ASSETS,
