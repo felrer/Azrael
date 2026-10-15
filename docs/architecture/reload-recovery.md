@@ -12,6 +12,14 @@ The [shared-engine final-window shutdown](azrael-runtime.md#공용-실행기와-
 
 The integrated host owns recovery presentation and admission for resume requests. The native engine remains the authority for live thread/turn state, thread writer ownership and interruption. Its existing `thread/read` and `thread/resume` normalization marks historical in-progress turns interrupted when no live turn exists; the host does not rewrite rollout files or invent engine state.
 
+### Interrupted tool history and task failures
+
+Status: `partial` — implemented and verified by focused Windows x64 native tests and isolated two-turn resume with an interrupted rollout. Installed-host acceptance and other platforms remain unverified.
+
+An interrupted history can contain a custom or local-shell call without its output. Prompt normalization supplies the existing synthetic `aborted` result with a stable identity, including in debug builds. It operates on the prompt copy and preserves canonical history. The synthetic result indicates missing completion, not proof that an external action never executed; recovery never replays the tool.
+
+The native task execution boundary catches unwinding panics and passes the fixed fatal error `session task panicked` through normal turn failure and cleanup. It does not include the panic payload in the returned error or its diagnostic event. An already requested interruption retains ownership of its terminal event. This boundary covers task execution, not process aborts or failures inside terminal cleanup. A completed failure admits the user's explicit continuation through the host only for the exact native error; notifications alone never retry the task. Existing outcome-unknown receipt guards and live attachment still apply. Preservation belongs to `engine.recovery` and `ui.recovery`.
+
 The host records a bounded resume receipt in VS Code workspace state before dispatch. It records an operation identifier, a hash of request parameters, client message identity when supplied, dispatch state and acknowledged turn identifier, never prompt or tool contents. The write must finish before dispatch. Concurrent identical resume attempts share one promise. A standalone continue request or the native empty-input resume action attaches to an already active turn instead of injecting another continue. Ordinary new instructions retain native steering behaviour.
 
 ### Persisted delivery reconciliation
