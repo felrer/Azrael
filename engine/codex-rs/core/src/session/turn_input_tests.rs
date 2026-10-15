@@ -36,6 +36,34 @@ struct NeverEndingTask {
     listen_to_cancellation_token: bool,
 }
 
+#[tokio::test]
+async fn queued_input_pause_blocks_automatic_host_replay_without_releasing_guard() {
+    let (session, turn) = make_session_and_context().await;
+    let home = turn.config.codex_home.clone();
+    let session = Arc::new(session);
+    crate::azrael_manual_resume::mark_threads_for_manual_resume(home.as_path(), [session.thread_id])
+        .unwrap();
+    let request = TurnInputRequest::user_input(vec![UserInput::Text {
+        text: "saved queue message".to_string(),
+        text_elements: Vec::new(),
+    }])
+    .on_start(TurnStartOptions {
+        turn_trigger: Some("queue".to_string()),
+        ..Default::default()
+    });
+    let result = handle(
+        &session,
+        request,
+        TurnInputMode::StartOrSteer,
+        "automatic-queue-replay".to_string(),
+    )
+    .await;
+    let error = result.unwrap_err();
+    assert!(matches!(error.details(), CodexErrorDetails::InvalidRequest(message) if message.contains("Queued inputs are paused")));
+    assert!(session.active_turn.lock().await.is_none());
+    assert!(crate::azrael_manual_resume::requires_manual_resume(home.as_path(), session.thread_id));
+}
+
 impl SessionTask for NeverEndingTask {
     fn kind(&self) -> TaskKind {
         self.kind

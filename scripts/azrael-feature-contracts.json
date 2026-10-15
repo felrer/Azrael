@@ -2,6 +2,33 @@
   "schema": 1,
   "features": [
     {
+      "id": "engine.queued-input-pause",
+      "area": "engine",
+      "owners": [
+        "engine/codex-rs/core/src/tools/handlers/pause_queued_inputs.rs",
+        "engine/codex-rs/core/src/tools/handlers/pause_queued_inputs_tests.rs",
+        "engine/codex-rs/core/src/tools/handlers/mod.rs",
+        "engine/codex-rs/core/src/tools/spec_plan.rs",
+        "engine/codex-rs/core/src/session/turn_input.rs",
+        "engine/codex-rs/core/src/session/turn_input_tests.rs",
+        "engine/codex-rs/core/src/azrael_manual_resume.rs",
+        "engine/codex-rs/ext/queue/src/service.rs",
+        "engine/codex-rs/ext/queue/tests/queue_service.rs",
+        "scripts/inject-queue-consumption.cjs",
+        "scripts/check-queued-input-pause.cjs"
+      ],
+      "contract": "docs/architecture/queued-compaction.md",
+      "checks": [
+        {
+          "id": "engine.queued-input-pause.native",
+          "executable": "node",
+          "args": ["scripts/check-queued-input-pause.cjs", "{engineSourceRoot}"],
+          "level": "native"
+        }
+      ],
+      "reportFields": []
+    },
+    {
       "id": "engine.shared-engine",
       "area": "engine",
       "owners": [

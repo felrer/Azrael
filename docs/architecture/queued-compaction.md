@@ -35,6 +35,38 @@ ordinary message meaning.
 
 ## Queue execution
 
+### Waiting for user action
+
+Status: `current` in source, verified on Windows with four core checks, native
+queue pause/final/resume integration and 39 pinned coordinator checks. Model
+compliance and installed-window acceptance remain separate.
+
+Preservation features: `engine.queued-input-pause` and `ui.queue-consumption`.
+
+A final answer ends a model turn, but does not establish that the user's task
+was completed. Before ending a turn because user input or an external action is
+required, or because the task is blocked, the root calls `pause_queued_inputs`
+with `waiting_for_user` or `blocked`. The call durably suspends automatic input
+and reservation dispatch for that conversation using the manual-resume guard.
+It does not interrupt tools, discard queued inputs or end the current turn.
+Progress commentary and ordinary successful final answers retain their normal
+turn lifecycle. A tool failure alone does not suspend recoverable work.
+
+The model must explain the blocker and needed user action in its final answer.
+Suspension is based on the structured call, never inferred from answer text.
+A newly accepted direct user turn or an explicit idle queue start/resume releases
+the guard. Failed direct submissions and automatic queue replay do not release it.
+Steering into the current turn can deliver that selected input without releasing
+the automatic queue's pause.
+Local automatic starts carry the `queue` trigger so they cannot masquerade as
+direct user continuation. The guard survives host reloads and engine restarts.
+
+Local custody records preserve the computed queue/send-now intent when saved.
+Replay respects that intent even if the global follow-up mode changes; explicit
+send-now remains an intentional override.
+
+### Compaction operations
+
 Preservation feature: `ui.queued-compaction`; Core admission lives in
 `engine/codex-rs/core/src/session/compact_input.rs`, with boundary and admission
 tests in `compact_input_tests.rs` and host warning coverage in

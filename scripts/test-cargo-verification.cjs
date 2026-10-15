@@ -64,6 +64,7 @@ test("host isolation retains selected compilation settings and scrubs runtime so
 });
 
 const cases = [
+  ["check-queued-input-pause", undefined, [["codex-core", "queued_input_pause"], ["codex-queue-extension", "manual_resume_marker", "queue_service"], ["codex-queue-extension", "queued_input_pause_tool_final", "queue_service"]]],
   ["check-api-context", "prompts", [["codex-prompts", "api_projection"], ["codex-prompts", "configured_canonical_hint"]]],
   ["check-api-context", "skills", [["codex-skills-extension", "api_host_dedup"]]],
   ["check-api-context", "core", [["codex-core", "instruction_state_projection"], ["codex-core", "multi_agent_mode::tests"]]],

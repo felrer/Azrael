@@ -41,7 +41,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
   let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
-  const writes = [], loads = [], events = [], sends = [], warnings = [], blockedLocks = new Set();
+  const writes = [], loads = [], events = [], sends = [], starts = [], warnings = [], blockedLocks = new Set();
   const execution = {
     subscribe: handlers => { callbacks = handlers; return () => events.push("execution-disposed"); },
     isClientReady: () => ready, canAcquireOwnership: () => true,
@@ -49,7 +49,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     releaseStartTurn: () => events.push("start-released"),
     acquireSendLock: async (_thread, id) => { events.push(`lock-acquired:${id}`); return blockedLocks.has(id) ? null : { release: async sent => events.push(`lock-released:${id}:${sent}`) }; },
     errorReason: error => error.message,
-    prepare: async (thread, item) => ({ status: "ready", submission: { conversationId: thread, resume: { conversationId: thread }, start: { id: item.id }, steer: { id: item.id } } }),
+    prepare: async (thread, item) => ({ status: "ready", submission: { conversationId: thread, resume: { conversationId: thread }, start: { id: item.id, request: { turnTrigger: "user" }, context: {} }, steer: { id: item.id } } }),
   };
   const queue = new Coordinator({
     hostId: "local-host", createMessageThreadId: () => null, wasMessageAccepted: (_thread, id) => history.has(id), execution: () => execution, getStreamRole: () => role, canSend: () => canSend, isDurableThread: () => false, getMessageQueueMode: () => queueMode,
@@ -63,13 +63,13 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     submissionHost: {
       needsResume: () => false, getActiveTurnId: () => activeTurn, hasPendingTurnStart: () => false,
       canStartAfterSteerError: () => false, hasFinalAnswer: () => false,
-      start: async (_thread, input, _onMessageAdded, beforeSend) => { await beforeSend?.(); sends.push(input.id); events.push(`accepted:${input.id}`); if (sendFailure) throw sendFailure; return "turn"; },
+      start: async (_thread, input, _onMessageAdded, beforeSend) => { await beforeSend?.(); starts.push(input); sends.push(input.id); events.push(`accepted:${input.id}`); if (sendFailure) throw sendFailure; return "turn"; },
       steer: async (_thread, input, _onMessageAdded, beforeSend) => { await beforeSend?.(); sends.push(input.id); if (sendFailure) throw sendFailure; return "turn"; },
     },
   });
   return {
-    queue, writes, loads, events, sends, warnings, blockedLocks, DeliveryError,
-    submit: (item, editPosition) => queue.sendMessage({ conversationId: "thread", message: item, acceptLocally: true, editPosition }, async request => {
+    queue, writes, loads, events, sends, starts, warnings, blockedLocks, DeliveryError,
+    submit: (item, editPosition, queueModeOverride) => queue.sendMessage({ conversationId: "thread", message: item, acceptLocally: true, editPosition, queueModeOverride }, async request => {
       await prepareHook?.(); if (prepareFailure) throw prepareFailure;
       return { conversationId: "thread", resume: { conversationId: "thread" }, start: { id: request.message.id }, steer: { id: request.message.id } };
     }, added => { if (added.locallyAccepted) events.push("locally-accepted"); }),
@@ -413,5 +413,124 @@ test("actual acceptLocally native success retains the sent result and consumes i
   assert.equal(result.status, "sent"); assert.equal(result.messageId, item.id);
   assert.deepEqual(ids(f.queue.readMessages("thread")), ["next"]);
   assert.deepEqual(f.sends, [item.id]); assert.equal(f.queue.accepted.size, 0);
+  f.queue.dispose();
+});
+
+test("queue intent remains queued when global mode changes during initial persistence", async () => {
+  const f = fixture(patched, []), item = richMessage();
+  f.setReady(true); f.setActive("active-turn"); f.setQueueMode("queue");
+  let saved;
+  const result = await settleSubmission(f, f.submit(item), (write, index) => {
+    if (index === 0) {
+      saved = write.messages.find(message => message.id === item.id);
+      f.setQueueMode("steer");
+    }
+  });
+  assert.equal(saved.submissionIntent, "queue");
+  assert.equal(saved.submission.queueModeOverride, "queue");
+  assert.equal(result.status, "queued"); assert.deepEqual(f.sends, []);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), [item.id]);
+  f.queue.dispose();
+});
+
+test("restored queue intent without an override waits for idle but explicit send-now bypasses it", async () => {
+  const item = { ...localMessage("restored"), submissionIntent: "queue" };
+  delete item.submission.queueModeOverride;
+  const f = fixture(patched, [item]);
+  f.setActive("active-turn"); f.setQueueMode("steer"); f.setReady(true);
+  // A pending replay can run once even when canSend is false.
+  f.setCanSend(false);
+  await tick();
+  for (let index = 0; index < 5; index++) {
+    f.flushLoads();
+    for (const write of f.writes.splice(0)) write.resolve();
+    await tick();
+  }
+  assert.deepEqual(f.sends, []);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), [item.id]);
+  const result = await settleSubmission(f, f.send(item.id));
+  assert.equal(result.status, "sent"); assert.deepEqual(f.sends, [item.id]);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), []);
+  f.queue.dispose();
+});
+
+for (const mode of ["queue", "steer"]) {
+  test("ordinary " + mode + " intent retains its active-turn behavior", async () => {
+    const f = fixture(patched, []), item = richMessage();
+    f.setReady(true); f.setActive("active-turn"); f.setQueueMode(mode);
+    const result = await settleSubmission(f, f.submit(item));
+    assert.equal(result.status, mode === "queue" ? "queued" : "sent");
+    assert.deepEqual(f.sends, mode === "queue" ? [] : [item.id]);
+    f.queue.dispose();
+  });
+}
+
+for (const override of [undefined, "send-now"]) test((override ?? "computed send-now") + " intention survives a global steer-to-queue change during persistence", async () => {
+  const f = fixture(patched, []), item = richMessage();
+  f.setReady(true); f.setActive("active-turn"); f.setQueueMode("steer");
+  const result = await settleSubmission(f, f.submit(item, undefined, override), (_write, index) => {
+    if (index === 0) f.setQueueMode("queue");
+  });
+  assert.equal(result.status, "sent"); assert.deepEqual(f.sends, [item.id]);
+  f.queue.dispose();
+});
+
+test("only automatic when-idle starts mark RPC request queue provenance", async () => {
+  const f = fixture(patched, []);
+  const context = { selectedText: "preserve context", assertRequestCurrent: () => {} };
+  const request = { turnTrigger: "user", threadId: "thread", input: [{ type: "text", text: "preserve input" }] };
+  const prepared = { conversationId: "thread", resume: { conversationId: "thread" }, start: { request, context }, steer: { id: "queued" } };
+  const queued = await f.queue.submission.submitPrepared(prepared, "when-idle", true);
+  assert.equal(queued.status, "sent");
+  assert.equal(f.starts[0].request.turnTrigger, "queue");
+  assert.equal(f.starts[0].request.threadId, request.threadId);
+  assert.equal(f.starts[0].request.input, request.input);
+  assert.equal(f.starts[0].context, context, "automatic start preserves original host context");
+  assert.equal(request.turnTrigger, "user", "automatic start does not mutate prepared RPC request");
+  assert.equal(prepared.start.request, request);
+  for (const [mode, automatic] of [["when-idle", false], ["send-now", true], ["send-now", false]]) {
+    const direct = await f.queue.submission.submitPrepared(prepared, mode, automatic);
+    assert.equal(direct.status, "sent");
+    assert.equal(f.starts.at(-1), prepared.start, mode + ", automatic=" + automatic + " preserves original start object");
+    assert.equal(f.starts.at(-1).request, request);
+    assert.equal(f.starts.at(-1).context, context);
+    assert.equal(f.starts.at(-1).request.turnTrigger, "user");
+  }
+  f.queue.dispose();
+});
+
+test("idle start retains normal queue policy if a turn appears during persistence", async () => {
+  const f = fixture(patched, []), item = richMessage();
+  f.setReady(true); f.setQueueMode("queue");
+  const result = await settleSubmission(f, f.submit(item), (write, index) => {
+    if (index === 0) {
+      assert.equal(write.messages[0].submissionIntent, "start");
+      assert.equal(write.messages[0].submission.queueModeOverride, undefined);
+      f.setActive("new-active-turn");
+    }
+  });
+  assert.equal(result.status, "queued"); assert.deepEqual(f.sends, []);
+  f.queue.dispose();
+});
+
+test("locally accepted queue result releases its handle before final-triggered automatic replay", async () => {
+  const f = fixture(patched, []), item = richMessage();
+  f.setReady(true); f.setActive("active-turn"); f.setQueueMode("queue");
+  const result = await settleSubmission(f, f.submit(item));
+  assert.equal(result.status, "queued");
+  assert.equal(f.queue.accepted.size, 0, "queued result removes the direct submission handle synchronously");
+  assert.deepEqual(f.sends, []);
+  let written = f.writes.length;
+  f.setActive(null); f.completed();
+  for (let step = 0; step < 20; step++) {
+    await tick(); f.flushLoads();
+    while (written < f.writes.length) f.writes[written++].resolve();
+  }
+  assert.deepEqual(f.sends, [item.id]);
+  assert.equal(f.starts.length, 1);
+  assert.equal(f.starts[0].request.turnTrigger, "queue");
+  assert.equal(f.starts[0].context.turnTrigger, undefined);
+  assert.equal(f.queue.accepted.size, 0);
+  assert.deepEqual(ids(f.queue.readMessages("thread")), []);
   f.queue.dispose();
 });

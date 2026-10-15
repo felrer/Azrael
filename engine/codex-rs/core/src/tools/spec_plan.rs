@@ -20,6 +20,7 @@ use crate::tools::handlers::ListMcpResourcesHandler;
 use crate::tools::handlers::NewContextWindowHandler;
 use crate::tools::handlers::ParentRequestHandler;
 use crate::tools::handlers::PlanHandler;
+use crate::tools::handlers::PauseQueuedInputsHandler;
 use crate::tools::handlers::ReadMcpResourceHandler;
 use crate::tools::handlers::RequestPermissionsHandler;
 use crate::tools::handlers::RequestPluginInstallHandler;
@@ -1312,6 +1313,13 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
         registry.add(PlanHandler);
     }
 
+    if queued_input_pause_enabled(
+        turn_context.config.multi_agent_v2.tool_namespace.as_deref(),
+        turn_context.session_source.is_non_root_agent(),
+    ) {
+        registry.add_with_exposure(PauseQueuedInputsHandler, ToolExposure::DirectModelOnly);
+    }
+
     if features.enabled(Feature::DeferredExecutor) {
         registry.add(
             context
@@ -1626,6 +1634,23 @@ fn root_resume_tool_enabled(turn_context: &TurnContext) -> bool {
         turn_context.session_source.is_non_root_agent(),
         turn_context.provider.info(),
     )
+}
+
+fn queued_input_pause_enabled(namespace: Option<&str>, is_non_root_agent: bool) -> bool {
+    namespace == Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE) && !is_non_root_agent
+}
+
+#[cfg(test)]
+mod queued_input_pause_registration_tests {
+    use super::queued_input_pause_enabled;
+
+    #[test]
+    fn queued_input_pause_is_available_only_to_azrael_root_across_providers() {
+        assert!(queued_input_pause_enabled(Some("azrael_agents"), false));
+        assert!(!queued_input_pause_enabled(Some("azrael_agents"), true));
+        assert!(!queued_input_pause_enabled(None, false));
+        assert!(!queued_input_pause_enabled(Some("collaboration"), false));
+    }
 }
 
 fn root_resume_registration_enabled(
