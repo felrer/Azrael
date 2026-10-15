@@ -13,7 +13,7 @@ if (!fs.statSync(path.join(cwd, "Cargo.toml")).isFile()) {
   throw new Error("Selected engine source has no Cargo workspace");
 }
 const result = runCargoTest(sourceRoot, [
-  "test", "-p", "codex-core", "-p", "codex-prompts", "-p", "codex-protocol", "-p", "codex-state",
+  "test", "-p", "codex-core", "-p", "codex-prompts", "-p", "codex-protocol", "-p", "codex-state", "-p", "codex-app-server-protocol", "-p", "codex-thread-store",
   "--lib", "--locked", "--offline", "--", "--test-threads=1", "--nocapture", "parent_request", "parent_response_wait",
 ], { isolateHostEnvironment: true });
 if (result.error) throw result.error;

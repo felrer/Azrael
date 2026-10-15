@@ -1361,6 +1361,7 @@ async fn live_app_server_command_output_delta_transcript_snapshot() {
 async fn live_app_server_sub_agent_activity_renders_once() {
     let (mut chat, mut rx, _op_rx) = make_chatwidget_manual(/*model_override*/ None).await;
     let activity = AppServerThreadItem::SubAgentActivity {
+        parent_request: None,
         model: None,
         reasoning_effort: None,
         id: "activity-1".to_string(),

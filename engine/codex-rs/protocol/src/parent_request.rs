@@ -37,7 +37,18 @@ pub struct ParentResponse {
 #[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
 #[serde(rename_all = "camelCase")]
 #[ts(rename_all = "camelCase")]
+pub struct ParentRequestPresentation {
+    pub parent_turn_id: String,
+    pub child_agent_path: crate::AgentPath,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Serialize, Deserialize, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(rename_all = "camelCase")]
 pub struct ParentRequest {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub presentation: Option<ParentRequestPresentation>,
     pub request_id: String,
     pub request_key: String,
     pub parent_thread_id: String,

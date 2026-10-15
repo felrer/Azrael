@@ -5,9 +5,9 @@ use codex_protocol::AgentPath;
 use codex_protocol::ThreadId;
 use codex_protocol::error::{CodexErr, Result as CodexResult};
 use codex_protocol::parent_request::{
-    ParentRequest, ParentRequestDeliveryState, ParentRequestStatus, ParentResponse,
+    ParentRequest, ParentRequestDeliveryState, ParentRequestPresentation, ParentRequestStatus, ParentResponse,
 };
-use codex_protocol::protocol::{InterAgentCommunication, MultiAgentVersion};
+use codex_protocol::protocol::{HasLegacyEvent, InterAgentCommunication, MultiAgentVersion};
 use codex_protocol::root_resume::RootResumeState;
 use codex_protocol::turn_input::TurnStartOptions;
 use std::sync::Arc;
@@ -35,6 +35,60 @@ fn storage(error: impl std::fmt::Display) -> CodexErr {
 }
 
 impl Session {
+    pub(crate) async fn emit_sub_agent_activity(&self, turn_id: String, item: codex_protocol::items::SubAgentActivityItem) {
+        use codex_protocol::items::TurnItem;
+        use codex_protocol::protocol::{Event, EventMsg, ItemStartedEvent, ItemCompletedEvent};
+        use crate::turn_timing::now_unix_timestamp_ms;
+        let thread_id = self.thread_id;
+        let started_at_ms = now_unix_timestamp_ms();
+        let item = TurnItem::SubAgentActivity(item);
+        self.send_event_raw(Event {
+                id: turn_id.clone(),
+                msg: EventMsg::ItemStarted(ItemStartedEvent {
+                    thread_id,
+                    turn_id: turn_id.clone(),
+                    item: item.clone(),
+                    started_at_ms,
+                }),
+            })
+            .await;
+        let completed_at_ms = now_unix_timestamp_ms();
+        let completed = ItemCompletedEvent {
+            thread_id,
+            turn_id: turn_id.clone(),
+            item,
+            started_at_ms: Some(started_at_ms),
+            completed_at_ms,
+        };
+        self.send_event_raw(Event {
+                id: turn_id.clone(),
+                msg: EventMsg::ItemCompleted(completed.clone()),
+            })
+            .await;
+        for legacy in completed.as_legacy_events(/*show_raw_agent_reasoning*/ false) {
+            self.send_event_raw(Event {
+                    id: turn_id.clone(),
+                    msg: legacy,
+                })
+                .await;
+        }
+    }
+
+    async fn emit_parent_request_activity(&self, request: &ParentRequest) -> CodexResult<()> {
+        let presentation = request.presentation.as_ref().ok_or_else(|| invalid("parent request lacks presentation turn"))?;
+        let child = ThreadId::from_string(&request.child_thread_id).map_err(storage)?;
+        self.emit_sub_agent_activity(presentation.parent_turn_id.clone(), codex_protocol::items::SubAgentActivityItem {
+            parent_request: Some(request.clone()),
+            model: None,
+            reasoning_effort: None,
+            id: format!("parent-request-{}", request.request_id),
+            kind: codex_protocol::protocol::SubAgentActivityKind::Interacted,
+            agent_thread_id: child,
+            agent_path: presentation.child_agent_path.clone(),
+        }).await;
+        self.flush_rollout().await.map_err(storage)
+    }
+
     pub(crate) async fn request_parent(
         self: &Arc<Self>,
         turn: &Arc<TurnContext>,
@@ -69,6 +123,7 @@ impl Session {
             .ok_or_else(|| invalid("parent requests require persistent state"))?;
         let now = crate::turn_timing::now_unix_timestamp_ms();
         let request = ParentRequest {
+            presentation: turn.turn_metadata_state.parent_turn_id().zip(turn.session_source.get_agent_path()).map(|(parent_turn_id, child_agent_path)| ParentRequestPresentation { parent_turn_id, child_agent_path }),
             request_id: uuid::Uuid::now_v7().to_string(),
             request_key,
             parent_thread_id: parent.to_string(),
@@ -131,7 +186,7 @@ impl Session {
         let db = self
             .state_db()
             .ok_or_else(|| invalid("parent requests require persistent state"))?;
-        let request = db
+        let mut request = db
             .get_parent_request(request_id)
             .await
             .map_err(storage)?
@@ -141,6 +196,16 @@ impl Session {
         {
             return Err(invalid("parent request identity mismatch"));
         }
+        if request.presentation.is_none() {
+            let parent_turn_id = match self.root_resume_originating_turn() {
+                Some(id) => Some(id),
+                None => self.root_resume_task_identity().await,
+            }.ok_or_else(|| invalid("parent request requires an existing parent turn"))?;
+            request = db.set_parent_request_presentation(request_id, &self.thread_id.to_string(), &ParentRequestPresentation {
+                parent_turn_id, child_agent_path: author.clone(),
+            }).await.map_err(storage)?;
+        }
+        self.emit_parent_request_activity(&request).await?;
         if request.status != ParentRequestStatus::Pending
             || matches!(
                 request.delivery_state,
@@ -229,6 +294,15 @@ impl Session {
             .respond_parent_request(request_id, &self.thread_id.to_string(), &response, now)
             .await
             .map_err(storage)?;
+        let request = if request.presentation.is_none() {
+            let child = ThreadId::from_string(&request.child_thread_id).map_err(storage)?;
+            let info = self.services.agent_control.inspect(self.thread_id, crate::agent::api::AgentTarget::Id(child)).await?;
+            let child_agent_path = info.metadata().agent_path.clone().ok_or_else(|| invalid("parent request lacks child identity"))?;
+            db.set_parent_request_presentation(request_id, &self.thread_id.to_string(), &ParentRequestPresentation {
+                parent_turn_id: turn.sub_id.clone(), child_agent_path,
+            }).await.map_err(storage)?
+        } else { request };
+        self.emit_parent_request_activity(&request).await?;
         if request.delivery_state == ParentRequestDeliveryState::Delivered {
             return Ok(request);
         }
@@ -298,6 +372,9 @@ impl Session {
             .await
             .map_err(storage)?;
         for request in &pending {
+            if request.presentation.is_some() {
+                self.emit_parent_request_activity(request).await?;
+            }
             let marker = format!(
                 "Parent decision request (request_id={})",
                 request.request_id

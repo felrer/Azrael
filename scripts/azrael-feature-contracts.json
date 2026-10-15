@@ -50,7 +50,15 @@
         "engine/codex-rs/core/src/thread_manager.rs",
         "engine/codex-rs/state/src/runtime.rs",
         "engine/codex-rs/state/src/runtime/root_resume.rs",
-        "engine/codex-rs/protocol/src/root_resume.rs"
+        "engine/codex-rs/protocol/src/root_resume.rs",
+        "engine/codex-rs/protocol/src/items.rs",
+        "engine/codex-rs/protocol/src/protocol.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/v2/item.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs",
+        "engine/codex-rs/thread-store/src/local/rollout_migration/legacy_event.rs",
+        "engine/codex-rs/protocol/src/legacy_events.rs",
+        "engine/codex-rs/app-server-protocol/src/protocol/event_mapping.rs",
+        "engine/codex-rs/core/src/agent/control.rs"
       ],
       "contract": "docs/architecture/root-resume.md",
       "checks": [
@@ -470,6 +478,38 @@
       "reportFields": [
         "deferredTurnEdits",
         "deferredNativeTimingChecks"
+      ]
+    },
+    {
+      "id": "ui.parent-request-activity",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-parent-request-activity.cjs",
+        "scripts/verify-parent-request-activity-render.mjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.parent-request-activity.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-parent-request-activity.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.parent-request-activity.namespace-cache-owner",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        }
+      ],
+      "reportFields": [
+        "parentRequestActivityEdits"
       ]
     },
     {

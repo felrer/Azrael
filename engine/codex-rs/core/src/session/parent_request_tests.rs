@@ -22,6 +22,7 @@ use std::time::Duration;
 
 fn fixture_request(session: &Session, child: ThreadId) -> ParentRequest {
     ParentRequest {
+        presentation: None,
         request_id: "fixture-parent-request".into(),
         request_key: "fixture-decision".into(),
         parent_thread_id: session.thread_id.to_string(),
@@ -98,7 +99,10 @@ async fn parent_request_wakes_waiting_root_once_without_child_completion() {
         RootResumeState::Waiting
     );
     let child = ThreadId::new();
-    let request = fixture_request(&session, child);
+    let mut request = fixture_request(&session, child);
+    request.presentation = Some(codex_protocol::parent_request::ParentRequestPresentation {
+        parent_turn_id: turn.sub_id.clone(), child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
+    });
     db.create_parent_request(&request).await.unwrap();
     assert!(session.ensure_parent_requests_handled().await.is_err());
     session
@@ -173,7 +177,10 @@ async fn parent_request_preparing_race_cancels_parking_and_stopped_root_stays_st
         .await
         .unwrap();
     let child = ThreadId::new();
-    let request = fixture_request(&session, child);
+    let mut request = fixture_request(&session, child);
+    request.presentation = Some(codex_protocol::parent_request::ParentRequestPresentation {
+        parent_turn_id: turn.sub_id.clone(), child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
+    });
     let db = session.state_db().unwrap();
     db.create_parent_request(&request).await.unwrap();
     assert!(!session.defer_root_after_tools(&turn).await.unwrap());
@@ -212,4 +219,39 @@ async fn parent_request_preparing_race_cancels_parking_and_stopped_root_stays_st
     assert!(requests.requests().is_empty());
     session.close_root_resume_runtime().await;
     db.close().await;
+}
+
+#[tokio::test]
+async fn parent_request_activity_emits_stable_interaction_without_task_completion() {
+    use codex_protocol::protocol::EventMsg;
+    use codex_protocol::items::TurnItem;
+    use codex_protocol::protocol::SubAgentActivityKind;
+    let (session, turn, events) = crate::session::tests::make_session_and_context_with_rx().await;
+    let child = ThreadId::new();
+    let mut request = fixture_request(&session, child);
+    request.presentation = Some(codex_protocol::parent_request::ParentRequestPresentation {
+        parent_turn_id: turn.sub_id.clone(), child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
+    });
+    for status in [ParentRequestStatus::Pending, ParentRequestStatus::Resolved, ParentRequestStatus::Deferred, ParentRequestStatus::Cancelled] {
+        request.status = status;
+        session.emit_parent_request_activity(&request).await.unwrap();
+        for index in 0..3 {
+            let event = events.recv().await.unwrap();
+            assert_eq!(event.id, turn.sub_id);
+            let activity = match (index, event.msg) {
+                (0, EventMsg::ItemStarted(e)) => e.item,
+                (1, EventMsg::ItemCompleted(e)) => e.item,
+                (2, EventMsg::SubAgentActivity(e)) => {
+                    assert_eq!(e.kind, SubAgentActivityKind::Interacted);
+                    assert_eq!(e.parent_request.as_ref(), Some(&request));
+                    continue;
+                }
+                _ => panic!("expected activity lifecycle only"),
+            };
+            let TurnItem::SubAgentActivity(activity) = activity else { panic!("activity") };
+            assert_eq!(activity.id, format!("parent-request-{}", request.request_id));
+            assert_eq!(activity.kind, SubAgentActivityKind::Interacted);
+            assert_eq!(activity.parent_request.as_ref(), Some(&request));
+        }
+    }
 }

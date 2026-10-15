@@ -258,6 +258,7 @@ fn promotes_backing_agent_artifacts_once_without_a_client_request() {
         started_at_ms: 0,
     });
     let subagent = completed_item(TurnItem::SubAgentActivity(SubAgentActivityItem {
+        parent_request: None,
         model: None,
         reasoning_effort: None,
         id: "subagent-1".to_string(),

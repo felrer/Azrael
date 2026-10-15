@@ -359,6 +359,9 @@ pub struct CollabAgentToolCallItem {
 
 #[derive(Debug, Clone, Deserialize, Serialize, TS, JsonSchema, PartialEq, Eq)]
 pub struct SubAgentActivityItem {
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub parent_request: Option<crate::parent_request::ParentRequest>,
     /// Resolved model at sub-agent creation; absent from older records and other activities.
     pub model: Option<String>,
     /// Resolved reasoning effort at sub-agent creation, when known.

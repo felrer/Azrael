@@ -5,6 +5,7 @@ use codex_utils_absolute_path::test_support::PathExt;
 
 fn request() -> ParentRequest {
     ParentRequest {
+        presentation: None,
         request_id: "request-1".into(),
         request_key: "choice".into(),
         parent_thread_id: "parent".into(),
@@ -449,5 +450,28 @@ async fn parent_response_wait_actual_park_is_first_wins_and_separate_from_active
     );
     runtime.close().await;
     tokio::fs::remove_dir_all(path).await?;
+    Ok(())
+}
+
+#[tokio::test]
+async fn parent_request_activity_presentation_is_durable_and_assigned_once() -> Result<()> {
+    let path = unique_temp_dir();
+    let runtime = StateRuntime::init(crate::SqliteConfig::new_for_testing(path.as_path().abs()), "test".into()).await?;
+    let original = request();
+    runtime.create_parent_request(&original).await?;
+    let presentation = codex_protocol::parent_request::ParentRequestPresentation {
+        parent_turn_id: "original-parent-turn".into(),
+        child_agent_path: codex_protocol::AgentPath::try_from("/root/worker").unwrap(),
+    };
+    assert!(runtime.set_parent_request_presentation(&original.request_id, "other", &presentation).await.is_err());
+    let saved = runtime.set_parent_request_presentation(&original.request_id, "parent", &presentation).await?;
+    let mut later = presentation.clone();
+    later.parent_turn_id = "later-turn".into();
+    assert_eq!(runtime.set_parent_request_presentation(&original.request_id, "parent", &later).await?, saved);
+    assert_eq!(runtime.create_parent_request(&original).await?, saved);
+    runtime.close().await;
+    let runtime = StateRuntime::init(crate::SqliteConfig::new_for_testing(path.as_path().abs()), "test".into()).await?;
+    assert_eq!(runtime.get_parent_request(&original.request_id).await?.unwrap().presentation, Some(presentation));
+    runtime.close().await;
     Ok(())
 }

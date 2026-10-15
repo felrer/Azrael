@@ -258,6 +258,7 @@ pub(super) fn completed_item(
         )),
         EventMsg::SubAgentActivity(event) => Some((
             TurnItem::SubAgentActivity(SubAgentActivityItem {
+                parent_request: event.parent_request.clone(),
                 model: event.model.clone(),
                 reasoning_effort: event.reasoning_effort.clone(),
                 id: event.event_id.clone(),
@@ -265,7 +266,7 @@ pub(super) fn completed_item(
                 agent_thread_id: event.agent_thread_id,
                 agent_path: event.agent_path.clone(),
             }),
-            None,
+            event.parent_request.as_ref().and_then(|r| r.presentation.as_ref()).map(|p| p.parent_turn_id.clone()),
         )),
         EventMsg::ExecCommandEnd(event) => Some((
             TurnItem::CommandExecution(CommandExecutionItem {

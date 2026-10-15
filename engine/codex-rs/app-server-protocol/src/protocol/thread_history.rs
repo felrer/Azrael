@@ -1041,14 +1041,20 @@ impl ThreadHistoryBuilder {
         &mut self,
         payload: &codex_protocol::protocol::SubAgentActivityEvent,
     ) {
-        self.upsert_item_in_current_turn(ThreadItem::SubAgentActivity {
+        let item = ThreadItem::SubAgentActivity {
+            parent_request: payload.parent_request.clone(),
             model: payload.model.clone(),
             reasoning_effort: payload.reasoning_effort.clone(),
             id: payload.event_id.clone(),
             kind: payload.kind.into(),
             agent_thread_id: payload.agent_thread_id.to_string(),
             agent_path: String::from(payload.agent_path.clone()),
-        });
+        };
+        if let Some(presentation) = payload.parent_request.as_ref().and_then(|r| r.presentation.as_ref()) {
+            self.upsert_item_in_turn_id(&presentation.parent_turn_id, item);
+        } else {
+            self.upsert_item_in_current_turn(item);
+        }
     }
 
     fn handle_collab_waiting_begin(
@@ -5376,6 +5382,55 @@ mod tests {
     }
 
     #[test]
+    fn parent_request_activity_replay_updates_original_turn_for_all_decisions() {
+        use codex_protocol::protocol::HasLegacyEvent;
+        use codex_protocol::parent_request::{ParentRequest, ParentRequestStatus, ParentResponse};
+        let child = ThreadId::new();
+        let original: ParentRequest = serde_json::from_value(serde_json::json!({
+            "requestId": "decision", "requestKey": "route", "parentThreadId": "parent",
+            "childThreadId": child.to_string(), "childTaskId": "child-task",
+            "question": "Which route?", "context": "Two routes", "recommendation": "Route A",
+            "blockedAction": "Choose route", "status": "pending", "deliveryState": "queued",
+            "deliveryReason": null, "response": null, "createdAtMs": 1, "updatedAtMs": 1,
+            "presentation": {"parentTurnId": "turn-a", "childAgentPath": "/root/worker"}
+        })).unwrap();
+        for status in [ParentRequestStatus::Resolved, ParentRequestStatus::Deferred, ParentRequestStatus::Cancelled] {
+            let mut builder = ThreadHistoryBuilder::default();
+            for id in ["turn-a", "turn-b"] {
+                builder.handle_event(&EventMsg::TurnStarted(TurnStartedEvent {
+                    turn_attribution: None, turn_id: id.into(), root_turn_id: None,
+                    trace_id: None, started_at: None, model_context_window: None,
+                    collaboration_mode_kind: Default::default(),
+                }));
+            }
+            for answered in [false, true, true] {
+                let mut request = original.clone();
+                if answered {
+                    request.status = status.clone();
+                    request.response = Some(ParentResponse { status: status.clone(), decision: "Route A".into(), reason: "Supported".into(), retry_condition: (status == ParentRequestStatus::Deferred).then(|| "When ready".into()) });
+                }
+                let item = CoreTurnItem::SubAgentActivity(CoreSubAgentActivityItem {
+                    parent_request: Some(request), model: None, reasoning_effort: None,
+                    id: "parent-request-decision".into(), kind: CoreSubAgentActivityKind::Interacted,
+                    agent_thread_id: child, agent_path: codex_protocol::AgentPath::try_from("/root/worker").unwrap(),
+                });
+                let event = ItemCompletedEvent { thread_id: ThreadId::new(), turn_id: "turn-a".into(), item, started_at_ms: Some(1), completed_at_ms: 2 };
+                builder.handle_event(&EventMsg::ItemCompleted(event.clone()));
+                for legacy in event.as_legacy_events(false) { builder.handle_event(&legacy); }
+            }
+            let original_turn = builder.turn_snapshot("turn-a").unwrap();
+            assert_eq!(original_turn.items.len(), 1);
+            assert!(builder.turn_snapshot("turn-b").unwrap().items.is_empty());
+            let ThreadItem::SubAgentActivity { parent_request: Some(request), kind, .. } = &original_turn.items[0] else { panic!("request row") };
+            assert_eq!(request.status, status);
+            assert_eq!(*kind, crate::protocol::v2::SubAgentActivityKind::Interacted);
+            let json = serde_json::to_value(&original_turn.items[0]).unwrap();
+            assert_eq!(json["parentRequest"]["presentation"]["parentTurnId"], "turn-a");
+            assert_eq!(json["parentRequest"]["question"], "Which route?");
+        }
+    }
+
+    #[test]
     fn completed_sub_agent_activity_updates_completed_parent_turn() {
         use codex_protocol::protocol::HasLegacyEvent;
 
@@ -5387,6 +5442,7 @@ mod tests {
             thread_id: ThreadId::new(),
             turn_id: "turn-a".into(),
             item: CoreTurnItem::SubAgentActivity(CoreSubAgentActivityItem {
+                parent_request: None,
                 model: Some("gpt-5".into()),
                 reasoning_effort: Some(codex_protocol::openai_models::ReasoningEffort::High),
                 id: "spawn-child".into(),
@@ -5437,6 +5493,7 @@ mod tests {
                     thread_id: ThreadId::new(),
                     turn_id: "turn-a".into(),
                     item: CoreTurnItem::SubAgentActivity(CoreSubAgentActivityItem {
+                        parent_request: None,
                         model: None,
                         reasoning_effort: None,
                         id: "child-turn-completed".into(),
@@ -5457,6 +5514,7 @@ mod tests {
                 vec![
                     expected_spawn.clone(),
                     ThreadItem::SubAgentActivity {
+                        parent_request: None,
                         model: None,
                         reasoning_effort: None,
                         id: "child-turn-completed".into(),

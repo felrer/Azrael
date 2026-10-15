@@ -146,6 +146,7 @@ mod tests {
         ).await.unwrap();
         let db = session.state_db().unwrap();
         let request = ParentRequest {
+            presentation: None,
             request_id: "park-request".into(), request_key: "park-key".into(),
             parent_thread_id: codex_protocol::ThreadId::new().to_string(),
             child_thread_id: session.thread_id.to_string(), child_task_id: turn.sub_id.clone(),
@@ -197,6 +198,7 @@ mod tests {
         ).await.unwrap();
         let db = session.state_db().unwrap();
         db.create_parent_request(&ParentRequest {
+            presentation: None,
             request_id: "resume-request".into(), request_key: "resume-key".into(),
             parent_thread_id: codex_protocol::ThreadId::new().to_string(), child_thread_id: session.thread_id.to_string(),
             child_task_id: turn.sub_id.clone(), question: "private question".into(), context: String::new(),
