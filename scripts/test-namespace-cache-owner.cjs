@@ -53,7 +53,8 @@ test('module file identity must remain stable across the content read', t => {
   const f = fixture(t), owner = f.owner('owner'), filename = fs.realpathSync(path.join(owner, 'scripts/asset-transform-cache.cjs'));
   const original = fs.statSync; let reads = 0;
   fs.statSync = function (input, ...args) { const result = original.call(this, input, ...args);
-    if (input === filename && ++reads === 2) return { ...result, ino: result.ino + 1 };
+    // Windows file IDs can exceed Number.MAX_SAFE_INTEGER; +1 may be unchanged.
+    if (input === filename && ++reads === 2) return { ...result, ino: result.ino === 0 ? 1 : 0 };
     return result; };
   try { assert.throws(() => selectAssetCacheFactory(local, owner), /identity changed while reading/); }
   finally { fs.statSync = original; }

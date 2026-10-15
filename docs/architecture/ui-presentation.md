@@ -20,6 +20,14 @@ Shared bundle imports retain disabled empty query/state adapters and empty modul
 
 Full access text uses the same foreground tokens as Request approval in the permission selector and the selected composer control. Only the leading menu icons are tinted: Approve for me mixes the native sky-blue token with gray, and Full access mixes the native orange token with gray (55% accent, 45% description foreground). Permission values, selection behavior and native approvals retain their existing contracts; the display change does not imply that the two modes grant the same authority.
 
+## Sketch on an attached image
+
+Status: `current` in source — guarded transforms and Windows native React/CSS fixtures cover drawing and PNG attachment in light/dark themes. [The work plan](../../work/BN-01-image-sketch/01-plan.md) records verification scope; full composer, package, installed-host and other-platform acceptance are separate.
+
+The chat image lightbox and composer attachment preview offer a sketch action for the selected image, alongside their existing image-edit actions. It opens the existing sketch editor with that image as its background, keeping drawing coordinates aligned with the displayed image. The editor retains its native drawing tools and exports the full image bounds together with the drawing through the existing composer PNG attachment path, subject to the native export size limits. The source image remains intact; canceling returns without attaching a result. Reopening an annotated attachment retains its background and editable drawing. Empty sketch creation, image zoom/pan, download and close retain their existing behavior. Loading errors leave the preview available to retry; export failures retain the drawing and do not submit a partial attachment. The request belongs to its originating composer scope and is canceled when that scope or preview becomes stale.
+
+This is shared webview behavior for Windows x64, Linux x64 and macOS ARM64, with the existing image access and composer attachment permissions. It does not create a new host file or network permission. Preservation feature: `ui.image-sketch`.
+
 ## Parent decision request activity
 
 Status: `current` in source — guarded source transforms, native React/CSS activity rendering and Windows x64 MSVC engine storage/replay fixtures pass. Rendering covers light/dark themes and narrow width. Package, installed-host and other-platform acceptance remain separate in [the work record](../../work/AR-01-root-child-mail-analysis/01-plan.md).
