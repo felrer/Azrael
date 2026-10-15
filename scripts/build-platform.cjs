@@ -5,6 +5,7 @@ const os = require("node:os");
 const { spawnSync } = require("node:child_process");
 const { resolvePlatform, platformIdentity, engineBinaryNames, executableName } = require("./platform-runtime.cjs");
 const { hash, copyTree, inventoryTree, freezeProject } = require("./freeze-platform-inputs.cjs");
+const lifecycle = require("./artifact-lifecycle.cjs");
 const UPSTREAM = "9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19";
 function assertEngineVersion(declared, reported) {
   if (!/^\d+\.\d+\.\d+(?:[-.][\w.-]+)?$/.test(declared)) throw new Error("Frozen Cargo workspace has no valid engine version");
@@ -85,6 +86,11 @@ async function build(options) {
   const work = s.output + ".work";
   if (fs.existsSync(input) || fs.existsSync(work)) throw new Error("Task input/work path already exists; choose a new output identity");
   const logs = path.join(root, "artifacts/logs/multi-platform/build", path.basename(s.output));
+  const lifecycleRecord = { id: `version:${path.basename(s.output)}`, kind: "version", owner: "azrael-release",
+    membership_complete: false,
+    members: [{ path: s.output, role: "release" }, { path: input, role: "inputs" }, { path: work, role: "work" }, { path: logs, role: "logs" }] };
+  lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending" });
+  try {
   fs.mkdirSync(logs, { recursive: true });
   let sequence = 0;
   function run(executable, args, cwd, label, env = {}) {
@@ -205,7 +211,13 @@ async function build(options) {
   run(node, prepareArgs, work, "prepare-host");
   if (inventoryTree(input).sha256 !== receipt.sha256) throw new Error("Frozen build inputs changed during host preparation");
   write(path.join(logs, "result.json"), { exitCode: 0, release: s.output, inputs: input, work, platform: identity, inputSha256: receipt.sha256 });
+  lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "complete", membership_complete: true });
   return { release: s.output, inputs: input, work, logs, platform: identity };
+  } catch (error) {
+    try { lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "failed" }); }
+    catch (metadataError) { error.message += `; lifecycle update failed: ${metadataError.message}`; }
+    throw error;
+  }
 }
 if (require.main === module) build(parse(process.argv.slice(2))).then(result => console.log(JSON.stringify(result))).catch(error => { console.error(error.message); process.exitCode = 1; });
 module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild };

@@ -9,6 +9,7 @@ mod review_exit;
 mod review_request;
 mod root_coordination_instructions;
 mod parent_request_guidance;
+mod project_maintenance_guidance;
 mod update_plan_instructions;
 
 pub use compact::SUMMARIZATION_PROMPT;
@@ -96,3 +97,5 @@ mod azrael_identity_tests {
 
 pub use parent_request_guidance::ParentRequestGuidance;
 pub use parent_request_guidance::PARENT_REQUEST_GUIDANCE;
+pub use project_maintenance_guidance::ProjectMaintenanceGuidance;
+pub use project_maintenance_guidance::PROJECT_MAINTENANCE_GUIDANCE;

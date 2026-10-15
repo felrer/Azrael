@@ -113,6 +113,10 @@
           "target": "skills/implementation/SKILL.md"
         },
         {
+          "source": "skills/implementation/references/artifact-lifecycle.md",
+          "target": "skills/implementation/references/artifact-lifecycle.md"
+        },
+        {
           "source": "skills/implementation/references/build-inputs.md",
           "target": "skills/implementation/references/build-inputs.md"
         },
@@ -144,6 +148,10 @@
         {
           "source": "skills/project-bootstrap/assets/playbooks/app-logging.md",
           "target": "skills/project-bootstrap/assets/playbooks/app-logging.md"
+        },
+        {
+          "source": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
+          "target": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md"
         },
         {
           "source": "skills/project-bootstrap/assets/project-template/AGENTS.md",

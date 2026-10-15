@@ -10,6 +10,12 @@ param(
     [string]$ReportPath
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+$script:cacheReportRejected = $false
+function Assert-CacheReportOutside([string[]]$Candidates) {
+    try { Assert-ArtifactReportOutside -ProjectRoot $project -Candidates $Candidates -ReportPath $ReportPath -SkipLifecycle }
+    catch { $script:cacheReportRejected = $true; throw }
+}
 
 function Assert-NoReparseAncestor([string]$Path) {
     $cursor = [IO.Path]::GetFullPath($Path)
@@ -158,6 +164,7 @@ try {
         $target = [IO.Path]::GetFullPath($TargetDirectory).TrimEnd([IO.Path]::DirectorySeparatorChar)
         $candidate = [ordered]@{ sourceRoot = $currentRoot; path = $target; version = $null; status = 'unmanaged'; reason = $null }
         $report.candidates += $candidate
+        Assert-CacheReportOutside @($target)
         if ($target -ieq $project) { throw 'ProjectRoot cannot be an engine cache target.' }
         if (Test-InProject $target) {
             Assert-NoReparseAncestor $target
@@ -257,6 +264,7 @@ try {
         }
     }
     $selected = @($report.candidates | Where-Object { $_.status -eq 'selected' })
+    Assert-CacheReportOutside @($report.candidates | ForEach-Object path)
     if ($selected.Count) {
         # Query once before any mutation. Failure to inspect processes blocks cleanup.
         $processes = @(Get-CimInstance Win32_Process -ErrorAction Stop)
@@ -305,12 +313,14 @@ try {
     }
 }
 $json = $report | ConvertTo-Json -Depth 6
-if ($ReportPath) {
+if ($ReportPath -and -not $script:cacheReportRejected) {
     try {
         $outputPath = [IO.Path]::GetFullPath($ReportPath)
         Assert-NoReparseAncestor $outputPath
+        $cacheCleanupOperation = Start-ArtifactCleanupOperation $project $outputPath
         [IO.Directory]::CreateDirectory([IO.Path]::GetDirectoryName($outputPath)) | Out-Null
         [IO.File]::WriteAllText($outputPath, $json, [Text.UTF8Encoding]::new($false))
+        Complete-ArtifactCleanupOperation $project $cacheCleanupOperation $outputPath
     } catch {
         $report.errors += "Report write failed: $($_.Exception.Message)"
         $report.status = 'warning'

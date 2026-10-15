@@ -9,6 +9,7 @@ param(
     [string]$ReportPath
 )
 $ErrorActionPreference = 'Stop'
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 function Normalize-Path([string]$Path) {
     $Path = $Path.Replace('/', '\')
     if ($Path.StartsWith('\\?\UNC\', [StringComparison]::OrdinalIgnoreCase)) { $Path = '\\' + $Path.Substring(8) }
@@ -44,13 +45,14 @@ function Get-Protected([string]$Path) {
     }
 }
 function Add-References($Data) {
-    foreach ($key in @('fixtureRoot','stateRoot','extensionsDir','userDataDir','hostExtension','hostVsix','acceptanceResult')) {
+    foreach ($key in @('fixtureRoot','stateRoot','extensionsDir','userDataDir','hostExtension','hostVsix','acceptanceResult','releaseDirectory','packageDirectory')) {
         if ($Data[$key]) { $script:protected += Normalize-Path ([string]$Data[$key]) }
     }
 }
 function Archive-Evidence([string]$Path) {
     $destination = Join-Path $evidence ([IO.Path]::GetFileName($Path))
     Assert-Unlinked $destination
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $cleanupOperation -Kind work -Owner 'artifact-cleanup' -State pending -MembershipComplete $false -Members @{('evidence-' + [guid]::NewGuid().ToString('N'))=$destination}
     New-Item -ItemType Directory -Path $destination -Force | Out-Null
     $saved = @()
     # Only top-level result/receipt/report files are evidence. Never walk state,
@@ -79,7 +81,9 @@ $report = [ordered]@{ projectRoot = $null; apply = [bool]$Apply; includeDiagnose
 try {
     $project = Normalize-Path $ProjectRoot
     $root = Join-Path $project 'artifacts/verification'
-    $evidence = Join-Path $project 'artifacts/logs/verification-evidence'
+    $cleanupWorkRoot = Join-Path $project ('artifacts/logs/verification-cleanup/' + [guid]::NewGuid().ToString('N'))
+    $evidence = Join-Path $cleanupWorkRoot 'evidence'
+    if (-not $ReportPath) { $ReportPath = Join-Path $cleanupWorkRoot 'report.json' }
     $report.projectRoot = $project
     Assert-Unlinked $root
     Assert-Unlinked $evidence
@@ -114,6 +118,13 @@ try {
     }
     $processes = Get-Processes
     $targets = if ($FixtureRoot) { @(Normalize-Path $FixtureRoot) } elseif (Test-Path -LiteralPath $root) { @(Get-ChildItem -LiteralPath $root -Directory -Force | ForEach-Object FullName) } else { @() }
+    Assert-ArtifactReportOutside -ProjectRoot $project -Candidates $targets -ReportPath $ReportPath
+    $cleanupMetadataReportPath = $ReportPath
+    $cleanupOperation = Start-ArtifactCleanupOperation $project $ReportPath
+    if (-not $cleanupOperation) {
+        $cleanupMetadataReportPath = Join-Path $cleanupWorkRoot 'report.json'
+        $cleanupOperation = Start-ArtifactCleanupOperation $project $cleanupMetadataReportPath
+    }
     foreach ($target in $targets) {
         $candidate = [ordered]@{ path = $target; status = 'retained'; reason = $null; archived = @(); acceptanceResult = $null }
         $report.candidates += $candidate
@@ -147,28 +158,29 @@ try {
             $reason = Get-Protected $target
             if (-not $reason) { $reason = Get-ProcessReason $target $processes }
             if ($reason) { $candidate.reason = $reason; continue }
-            $candidate.status = 'selected'
-            if ($Apply) {
-                # Reinspect immediately before archival/deletion; failure preserves payload.
-                Assert-Unlinked $target
-                $reason = Get-ProcessReason $target (Get-Processes)
-                if ($reason) { $candidate.status = 'retained'; $candidate.reason = $reason; continue }
+            $checkMember = {
+                param($memberPath)
+                Assert-Unlinked $memberPath
+                $memberReason = Get-Protected $memberPath
+                if (-not $memberReason) { $memberReason = Get-ProcessReason $memberPath (Get-Processes) }
+                $memberReason
+            }
+            $beforeDelete = {
                 $candidate.archived = @(Archive-Evidence $target)
                 $candidate.acceptanceResult = $candidate.archived | Where-Object { [IO.Path]::GetFileName($_) -ieq 'check-result.json' } | Select-Object -First 1
-                Assert-Unlinked $target
-                # Native PowerShell 7 removal unlinks nested junctions without walking
-                # their targets. Candidate and every ancestor have been rejected if linked.
-                Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop
-                $candidate.status = 'deleted'
             }
+            $candidate.lifecycle = Invoke-ArtifactLifecycleCleanup -ProjectRoot $project -Candidate $target -ProtectedPaths $script:protected -ReportPath $ReportPath -Apply ([bool]$Apply) -CheckMember $checkMember -BeforeDelete $beforeDelete
+            $candidate.reason = $candidate.lifecycle.reason
+            $candidate.status = if ($candidate.lifecycle.status -in @('selected','deleted')) { $candidate.lifecycle.status } else { 'retained' }
         } catch { $candidate.status = 'retained'; $candidate.reason = $_.Exception.Message }
     }
-    if ($Apply) { $report.status = 'completed' }
+    if ($Apply) { $report.status = if (@($report.candidates | Where-Object { $_.Contains('lifecycle') -and $_.lifecycle.status -eq 'partial' }).Count) {'partial'} else {'completed'} }
 } catch { $report.status = 'blocked'; $report.errors += $_.Exception.Message }
-if ($ReportPath) {
+if ($ReportPath -and $report.status -ne 'blocked') {
     $reportFile = Normalize-Path $ReportPath
     Assert-Unlinked $reportFile
     New-Item -ItemType Directory -Path (Split-Path $reportFile -Parent) -Force | Out-Null
     $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $reportFile -Encoding utf8NoBOM
+    Complete-ArtifactCleanupOperation $project $cleanupOperation $cleanupMetadataReportPath
 }
 [pscustomobject]$report

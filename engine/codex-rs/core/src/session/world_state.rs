@@ -23,6 +23,7 @@ use crate::context::world_state::PluginsInstructionsState;
 use crate::context::world_state::RealtimeState;
 use crate::context::world_state::RootCoordinationState;
 use crate::context::world_state::ParentRequestGuidanceState;
+use crate::context::world_state::ProjectMaintenanceGuidanceState;
 use crate::context::ParentRequestGuidance;
 use crate::context::world_state::ToolsState;
 use crate::context::world_state::TopLevelToolsState;
@@ -384,6 +385,20 @@ impl Session {
         if !turn_context.session_source.is_non_root_agent() {
             world_state.add_section(RootCoordinationState);
         }
+        let available_maintenance_tools = crate::tools::handlers::project_maintenance::TOOL_NAMES
+            .into_iter()
+            .filter(|name| step_context.tool_router.exposes_tool(&ToolName::plain(*name)))
+            .map(|name| match name {
+                "project_inventory" => "project_inventory (list/register/status/projects/register_project/unregister_project)",
+                "project_tests" => "project_tests (plan/run/status/recover)",
+                "project_build" => "project_build (plan/run/status/recover)",
+                "project_cleanup_review" => "project_cleanup_review (review)",
+                _ => "project_cleanup_apply (apply)",
+            }.to_string())
+            .collect();
+        world_state.add_section(ProjectMaintenanceGuidanceState(codex_prompts::ProjectMaintenanceGuidance {
+            available_tools: available_maintenance_tools,
+        }));
         if !turn_context.session_source.is_non_root_agent() || turn_context.parent_thread_id.is_some() {
             world_state.add_section(ParentRequestGuidanceState(ParentRequestGuidance {
                 has_parent: turn_context.parent_thread_id.is_some(),

@@ -15,6 +15,9 @@ function Write-Json([string]$Path, $Data) {
 function New-Release([string]$Name) {
     $path = Join-Path $fixture "artifacts/releases/$Name"
     Write-Json (Join-Path $path 'build-info.json') @{ product = 'azrael-ex'; packageVersion = '0.4.0'; sha256 = @{ 'engine/azrael.exe' = ('a' * 64) } }
+    $associatedLog = Join-Path $fixture "artifacts/logs/$Name"
+    Write-Json (Join-Path $associatedLog 'build-result.json') @{status='complete'}
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id "version:$Name" -Kind version -Owner 'fixture' -State complete -MembershipComplete $true -Members @{release=$path;logs=$associatedLog}
     $path
 }
 try {
@@ -73,9 +76,54 @@ try {
     $Apply = $true
     $result = Invoke-LegacyReleaseCleanup
     Assert (-not (Test-Path -LiteralPath $old)) 'Old release still exists.'
+    Assert (-not (Test-Path -LiteralPath (Join-Path $fixture 'artifacts/logs/old'))) 'Associated old build log was orphaned.'
     $deleted = @($result.candidates | Where-Object status -eq 'deleted')
     Assert ($deleted.Count -eq 1 -and $deleted[0].absent -and $deleted[0].identity.receiptSha256.Length -eq 64) 'Deletion absence/compact hash evidence missing.'
     foreach ($keep in @($latestRelease,$current,$previous,$active,$runtime,$shortcutRelease,$explicit,$unknown)) { Assert (Test-Path -LiteralPath $keep) "Protected/unknown path removed: $keep" }
+    $associatedProtected = New-Release 'associated-protected'
+    $ProtectedPaths += Join-Path $fixture 'artifacts/logs/associated-protected'
+    $result = Invoke-LegacyReleaseCleanup
+    Assert ((Test-Path -LiteralPath $associatedProtected) -and @($result.candidates | Where-Object { $_.path -eq $associatedProtected -and $_.reason -match 'protected-member' }).Count -eq 1) 'Protected associated log did not preserve entire release group.'
+    $unregistered = Join-Path $fixture 'artifacts/releases/unregistered-owned'
+    Write-Json (Join-Path $unregistered 'build-info.json') @{product='azrael-ex';packageVersion='0.4.0';sha256=@{engine=('a'*64)}}
+    $result = Invoke-LegacyReleaseCleanup
+    Assert ((Test-Path -LiteralPath $unregistered) -and @($result.candidates | Where-Object { $_.path -eq $unregistered -and $_.reason -match 'lifecycle-membership-unreviewed' }).Count -eq 1) 'Unregistered owned body was deleted without complete lifecycle review.'
+    $reportRelease = New-Release 'report-member'
+    $reportMember = Join-Path $fixture 'artifacts/logs/legacy-release-cleanup/report-member'
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:report-member' -Kind version -Owner fixture -State complete -MembershipComplete $true -Members @{reportlog=$reportMember}
+    $ReportPath = Join-Path $reportMember 'cleanup.json'
+    $result = Invoke-LegacyReleaseCleanup
+    Assert ($result.status -eq 'blocked' -and (Test-Path -LiteralPath $reportRelease) -and -not (Test-Path -LiteralPath $ReportPath)) 'Report inside lifecycle candidate allowed mutation or recreated output.'
+    $ReportPath = $null
+    $ProtectedPaths += $reportRelease
+    $lockedRelease = New-Release 'locked-group'
+    $lockedLog = Join-Path $fixture 'artifacts/logs/locked-group'
+    $lockedHandle = [IO.File]::Open((Join-Path $lockedRelease 'build-info.json'), [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+    try {
+        $result = Invoke-LegacyReleaseCleanup
+        Assert ((Test-Path -LiteralPath $lockedLog) -and @($result.candidates | Where-Object { $_.path -eq $lockedRelease -and $_.lifecycle.status -eq 'partial' }).Count -eq 1) 'Failed body deletion continued into associated logs or hid partial group outcome.'
+    } finally { $lockedHandle.Dispose() }
+    $finalizeRelease = New-Release 'finalize-failure'
+    $script:lifecycleNodeImplementation = ${function:Invoke-ArtifactLifecycleNode}
+    function Invoke-ArtifactLifecycleNode([string[]]$Arguments) {
+        if ($Arguments[0] -eq 'finalize' -and $Arguments[-1] -eq 'version:finalize-failure') { throw 'fixture metadata finalization failure' }
+        & $script:lifecycleNodeImplementation -Arguments $Arguments
+    }
+    try {
+        $result = Invoke-LegacyReleaseCleanup
+        Assert (-not (Test-Path -LiteralPath $finalizeRelease) -and @($result.candidates | Where-Object { $_.path -eq $finalizeRelease -and $_.absent -and $_.lifecycle.status -eq 'partial' -and $_.lifecycle.finalization[0].status -eq 'failed' }).Count -eq 1) 'Metadata finalization failure hid observed deletion or reported full completion.'
+    } finally { Set-Item -LiteralPath Function:Invoke-ArtifactLifecycleNode -Value $script:lifecycleNodeImplementation }
+    $null = Invoke-ArtifactLifecycleNode @('finalize','--project-root',$fixture,'--id','version:finalize-failure')
+    $changedRelease = New-Release 'consumer-arrived'
+    $changedLog = Join-Path $fixture 'artifacts/logs/consumer-arrived'
+    $result = Invoke-ArtifactLifecycleCleanup -ProjectRoot $fixture -Candidate $changedRelease -Apply $true -CheckMember {param($path)} -BeforeDelete {
+        $registry = Join-Path $fixture 'artifacts/maintenance/lifecycles'
+        $consumer = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'work:new-consumer' -Kind work -Owner fixture -State complete -MembershipComplete $true -Members @{evidence=(Join-Path $fixture 'artifacts/logs/consumer-evidence')}
+        $consumer.references = @(@{id='version:consumer-arrived';reason='fixture concurrent consumer'})
+        $consumerPath = Join-Path $registry (([Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes('work:new-consumer'))).ToLowerInvariant()) + '.json')
+        Write-Json $consumerPath $consumer
+    }
+    Assert ((Test-Path -LiteralPath $changedRelease) -and (Test-Path -LiteralPath $changedLog) -and $result.status -eq 'partial' -and $result.reason -match 'Lifecycle changed before removal') 'Consumer added after preflight allowed group mutation.'
     $linked = New-Release 'linked'
     $outside = Join-Path $fixture 'outside'
     New-Item -ItemType Directory -Path $outside -Force | Out-Null
@@ -84,7 +132,7 @@ try {
     $result = Invoke-LegacyReleaseCleanup
     Assert (@($result.candidates | Where-Object { $_.path -eq $linked -and $_.reason -match 'Nested link' }).Count -eq 1) 'Nested link did not preserve release.'
     Assert (Test-Path -LiteralPath $outside) 'Link target damaged.'
-    Remove-Item -LiteralPath $junction -Force
+    Remove-Item -LiteralPath $junction
     $commandRelease = New-Release 'command'
     $script:mockProcesses += @{ExecutablePath=$null;CommandLine='--engine "' + (Join-Path $commandRelease 'engine/azrael.exe') + '"';ProcessId=8}
     $result = Invoke-LegacyReleaseCleanup
@@ -97,7 +145,7 @@ try {
     Write-Json (Join-Path $fixture 'artifacts/deployments/broken/deployment.json') @{hostInstalled=$true;status='uncertain'}
     $result = Invoke-LegacyReleaseCleanup
     Assert ($result.status -eq 'blocked' -and (Test-Path -LiteralPath $fail)) 'Uncertain deployment did not fail closed.'
-    Remove-Item -LiteralPath (Join-Path $fixture 'artifacts/deployments/broken') -Recurse -Force
+    Remove-Item -LiteralPath (Join-Path $fixture 'artifacts/deployments/broken') -Recurse
     $extensionRoot = Join-Path $fixture 'extensions'
     $extensionPath = Join-Path $extensionRoot 'azrael-ex-local.azrael-1.0.0'
     Write-Json (Join-Path $extensionRoot 'extensions.json') @(@{ identifier=@{id='azrael-ex-local.azrael'};location=@{fsPath=$extensionPath;path='/c:/unused'} })
@@ -112,6 +160,7 @@ try {
         $writer = [IO.StreamWriter]::new($entry.Open())
         try { $writer.Write('{"publisher":"azrael-ex-local","name":"azrael","version":"0.4.0"}') } finally { $writer.Dispose() }
     } finally { $zip.Dispose() }
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:owned-vsix' -Kind version -Owner fixture -State complete -MembershipComplete $true -Members @{vsix=$vsixRoot}
     $result = Invoke-LegacyReleaseCleanup
     Assert (@($result.candidates | Where-Object { $_.path -eq $vsixRoot -and $_.status -eq 'deleted' -and $_.absent }).Count -eq 1) 'Owned VSIX not deleted with absence receipt.'
     $fresh = New-Release 'fresh-process'
@@ -130,13 +179,13 @@ try {
     New-Item -ItemType Junction -Path $menuAlias -Target $programs | Out-Null
     $shortcutFiles = @(Get-LegacyShortcutFiles $menu $true)
     Assert ($shortcutFiles.Count -eq 1 -and $shortcutFiles[0].DirectoryName -eq $programs) 'Safe localized shortcut alias not deduplicated.'
-    Remove-Item -LiteralPath $menuAlias -Force
+    Remove-Item -LiteralPath $menuAlias
     $menuAlias = Join-Path $menu 'external'
     New-Item -ItemType Junction -Path $menuAlias -Target $outside | Out-Null
     function Get-LegacyShortcutReferences { Get-LegacyShortcutFiles $menu $true }
     $result = Invoke-LegacyReleaseCleanup
     Assert ($result.status -eq 'blocked' -and $result.errors[0] -match 'External shortcut alias' -and (Test-Path -LiteralPath $fresh)) 'External shortcut alias did not globally fail closed.'
-    Remove-Item -LiteralPath $menuAlias -Force
+    Remove-Item -LiteralPath $menuAlias
     $menuAlias = $null
     [pscustomobject]@{ passed = $passed; status = 'passed'; fixture = $fixture }
 } finally {
@@ -144,9 +193,9 @@ try {
         $absolute = [IO.Path]::GetFullPath($fixture)
         if (-not $absolute.StartsWith([IO.Path]::GetFullPath($logs) + '\', [StringComparison]::OrdinalIgnoreCase)) { throw 'Fixture teardown containment failed.' }
         # Junction is removed explicitly if an assertion failed before normal removal.
-        if ($junction -and (Test-Path -LiteralPath $junction)) { Remove-Item -LiteralPath $junction -Force }
-        if ($menuAlias -and (Test-Path -LiteralPath $menuAlias)) { Remove-Item -LiteralPath $menuAlias -Force }
-        Remove-Item -LiteralPath $fixture -Recurse -Force
+        if ($junction -and (Test-Path -LiteralPath $junction)) { Remove-Item -LiteralPath $junction }
+        if ($menuAlias -and (Test-Path -LiteralPath $menuAlias)) { Remove-Item -LiteralPath $menuAlias }
+        Remove-Item -LiteralPath $fixture -Recurse
         if (Test-Path -LiteralPath $fixture) { throw 'Fixture teardown failed.' }
     }
 }

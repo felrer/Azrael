@@ -3,19 +3,31 @@
 param([string[]]$Case, [switch]$ChangedOnly, [string]$ArtifactProjectRoot = (Split-Path $PSScriptRoot -Parent))
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
-$project = $ArtifactProjectRoot
+$project = [IO.Path]::GetFullPath($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ArtifactProjectRoot))
 $stamp = [guid]::NewGuid().ToString('N')
-$fixtures = Join-Path $project "artifacts/verification/deployment-pipeline-optimization/runner/$stamp spaces 한글"
-$logs = Join-Path $project "artifacts/logs/deployment-optimization/tests-deploy-$stamp"
-if ($ChangedOnly) {
-    $logs = Join-Path $project "artifacts/logs/session-completion-20261005/finish-changed-mock/$stamp"
-    $fixtures = Join-Path $logs "fixtures spaces 한글"
-}
+$runRoot = Join-Path $project "artifacts/tasks/deploy-checks/runs/$stamp"
+$fixtures = Join-Path $runRoot 'temporary/fixtures spaces 한글'
+$logs = Join-Path $runRoot 'logs'
+$reports = Join-Path $runRoot 'reports'
+$resultPath = Join-Path $reports 'results.json'
+$lifecycleId = "run:deploy-checks:$stamp"
+$lifecycleMembers = [ordered]@{run=$runRoot;logs=$logs;reports=$reports;fixture=$fixtures}
+$results = [Collections.Generic.List[object]]::new()
+$lifecycleRegistered = $false
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+try {
+    if (Test-Path -LiteralPath $runRoot) { throw "Run identity already exists: $stamp" }
+    $recordKey = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($lifecycleId))).ToLowerInvariant()
+    if (Test-Path -LiteralPath (Join-Path $project "artifacts/maintenance/lifecycles/$recordKey.json")) { throw "Run producer identity already exists: $stamp" }
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State pending -MembershipComplete $false -Members $lifecycleMembers
+    $lifecycleRegistered = $true
+    $runParent = Split-Path $runRoot -Parent
+    if (-not (Test-Path -LiteralPath $runParent)) { New-Item -ItemType Directory -Path $runParent | Out-Null }
+    New-Item -ItemType Directory -Path $runRoot | Out-Null
+    New-Item -ItemType Directory -Path $fixtures, $logs, $reports | Out-Null
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('full install', 'module cache install', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
-New-Item -ItemType Directory -Path $fixtures, $logs -Force | Out-Null
 $pwsh = (Get-Process -Id $PID).Path
-$results = [Collections.Generic.List[object]]::new()
 function Assert-True([bool]$Condition, [string]$Message) { if (-not $Condition) { throw $Message } }
 function Write-Utf8([string]$Path, [string]$Text) { $Text | Set-Content -LiteralPath $Path -Encoding utf8NoBOM }
 $nodeStub = @'
@@ -60,11 +72,18 @@ fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.
 })().catch(e=>{console.error(e);process.exit(9)});
 '@
 $buildStub = @'
-param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory)
+param([string]$ReleaseName,[string]$SourceRoot,[switch]$SkipEngineBuild,[string]$EngineDirectory,[string]$CodeModeHostPath,[string]$CompanionVsixPath,[string]$EngineTargetDirectory,[string]$ModuleCacheProjectRoot,[string]$WindowControlTargetDirectory,[string]$ComputerUseRuntimeDirectory,[string]$ComputerUsePluginDirectory,[switch]$LifecycleParentActive)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
+if(-not $LifecycleParentActive){throw 'deployment did not retain lifecycle ownership'}
+$lifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object id -eq "version:$ReleaseName")
+if($lifecycle.Count -ne 1 -or $lifecycle[0].state -ne 'pending' -or $lifecycle[0].membership_complete){throw 'version ownership was not pending before build'}
+$lifecycle[0] | ConvertTo-Json -Depth 12 | Set-Content (Join-Path $a 'build-lifecycle-start.json')
+$runLifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object kind -eq 'run')
+if(-not $runLifecycle.Count -or @($runLifecycle | Where-Object {$_.state -ne 'pending' -or $_.membership_complete}).Count){throw 'fixture run ownership was not pending before build'}
+ConvertTo-Json -InputObject $runLifecycle -Depth 12 | Set-Content (Join-Path $a 'build-fixture-lifecycle-start.json')
 @{ReleaseName=$ReleaseName;SourceRoot=$SourceRoot;SkipEngineBuild=[bool]$SkipEngineBuild;EngineDirectory=$EngineDirectory;EngineTargetDirectory=$EngineTargetDirectory;ModuleCacheProjectRoot=$ModuleCacheProjectRoot;WindowControlTargetDirectory=$WindowControlTargetDirectory;ComputerUseRuntimeDirectory=$ComputerUseRuntimeDirectory;ComputerUsePluginDirectory=$ComputerUsePluginDirectory} | ConvertTo-Json -Compress | Add-Content (Join-Path $a 'build-invocation.jsonl')
 @{pid=$PID;time=[DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()} | ConvertTo-Json | Set-Content (Join-Path $a 'build-start.json')
 $deadline=[DateTime]::UtcNow.AddSeconds(10)
@@ -268,6 +287,8 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
     Write-Utf8 (Join-Path $scripts 'feature-preservation.cjs') $preservationStub
@@ -279,9 +300,9 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     Write-Utf8 (Join-Path $scripts 'install-azrael.ps1') $installStub
     Write-Utf8 (Join-Path $root '.gitignore') "artifacts/`n"
     Write-Utf8 (Join-Path $root 'input.txt') 'original'
-    & git -C $root init --quiet
+    & git -c core.longpaths=true -C $root init --quiet
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git init failed'
-    & git -c core.autocrlf=false -C $root add -- .
+    & git -c core.longpaths=true -c core.autocrlf=false -C $root add -- .
     Assert-True ($LASTEXITCODE -eq 0) 'fixture git add failed'
     if($Mode -eq 'input-snapshot-fail'){
         Remove-Item -LiteralPath (Join-Path $root 'input.txt')
@@ -290,13 +311,13 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     if($Mode -eq 'submodule-mutation'){
         $vendor=Join-Path $root 'modules/vendor'
         New-Item -ItemType Directory -Path $vendor | Out-Null
-        & git -C $vendor init --quiet
+        & git -c core.longpaths=true -C $vendor init --quiet
         Write-Utf8 (Join-Path $vendor 'input.txt') 'original nested source'
-        & git -c core.autocrlf=false -C $vendor add -- .
-        & git -c user.name=Fixture -c user.email=fixture@example.invalid -C $vendor commit --quiet -m fixture
+        & git -c core.longpaths=true -c core.autocrlf=false -C $vendor add -- .
+        & git -c core.longpaths=true -c user.name=Fixture -c user.email=fixture@example.invalid -C $vendor commit --quiet -m fixture
         Assert-True ($LASTEXITCODE -eq 0) 'nested fixture commit failed'
-        $vendorHead=(& git -C $vendor rev-parse HEAD).Trim()
-        & git -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
+        $vendorHead=(& git -c core.longpaths=true -C $vendor rev-parse HEAD).Trim()
+        & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
     @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
@@ -544,9 +565,33 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         Assert-True ($buildRecord.exitCode -eq 1) 'command error exit code was not retained'
         Assert-True ((Get-Content $buildRecord.stderr -Raw) -match 'nonexistent-deployment-fixture-command') 'command error diagnostic was lost'
     }
+    if($Mode -in @('success','account-success','build-fail')){
+        $lifecycleSuccess=$Mode -in @('success','account-success')
+        $initialLifecycle=Get-Content -LiteralPath (Join-Path $a 'build-lifecycle-start.json') -Raw | ConvertFrom-Json
+        $finalLifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object id -eq 'version:chosen')
+        Assert-True ($finalLifecycle.Count -eq 1) 'version lifecycle was lost'
+        $expectedState=if($lifecycleSuccess){'complete'}else{'failed'}
+        Assert-True ($finalLifecycle[0].state -eq $expectedState -and $finalLifecycle[0].membership_complete -eq $lifecycleSuccess) 'version lifecycle completion does not match observed deployment'
+        Assert-True ($initialLifecycle.members.Count -ge 7 -and $finalLifecycle[0].members.Count -eq $initialLifecycle.members.Count) 'planned version membership was incomplete or lost'
+        foreach($member in $initialLifecycle.members){
+            Assert-True (@($finalLifecycle[0].members | Where-Object {$_.role -eq $member.role -and $_.path -eq $member.path}).Count -eq 1) "planned lifecycle member lost: $($member.role)"
+        }
+        $fixtureRuns=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object id -eq 'run:verification:chosen')
+        $initialRuns=@(Get-Content -LiteralPath (Join-Path $a 'build-fixture-lifecycle-start.json') -Raw | ConvertFrom-Json)
+        Assert-True ($initialRuns.Count -eq $(if($Mode -eq 'account-success'){2}else{1}) -and @($initialRuns | Where-Object {$_.state -ne 'pending' -or $_.membership_complete}).Count -eq 0) 'fixture run pending membership evidence missing'
+        Assert-True (@($finalLifecycle[0].members | Where-Object role -match 'fixture').Count -eq 0) 'ephemeral fixture retained as version payload'
+        if($lifecycleSuccess){
+            Assert-True ($fixtureRuns.Count -eq 0 -and $metrics.fixtureLifecycle.kind -eq 'run' -and $metrics.fixtureLifecycle.state -eq 'complete' -and $metrics.fixtureLifecycle.membership_complete -and $metrics.fixtureLifecycle.members.Count -eq 1) 'completed fixture run was not finalized independently of version'
+        } else {
+            Assert-True ($fixtureRuns.Count -eq 1 -and $fixtureRuns[0].state -eq 'failed' -and -not $fixtureRuns[0].membership_complete) 'failed fixture run ownership was lost'
+        }
+        if($Mode -eq 'account-success'){
+            $accountRuns=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object id -eq 'run:account-controls:chosen')
+            Assert-True ($accountRuns.Count -eq 0 -and $metrics.accountLifecycle.state -eq 'complete' -and $metrics.accountLifecycle.membership_complete -and $metrics.accountLifecycle.members.Count -eq 1) 'completed account fixture run was not finalized independently'
+        }
+    }
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
-try {
     Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'
     Invoke-Case 'dependencies-fail' 'dependencies-fail'
     Invoke-Case 'parallel prepare' 'success' $true
@@ -572,9 +617,20 @@ try {
     foreach($mode in @('source-fail','build-fail','command-error','prepare-fail','acceptance-command-fail','install-fail','build-mutation','prepare-mutation','check-mutation','check-addition','check-deletion','submodule-mutation','prepared-hash','prepared-version','wrong-package','missing-acceptance','missing-stage','null-stage','passed-false','passed-string','acceptance-hash','acceptance-version','acceptance-path','package-mutation')){Invoke-Case $mode $mode}
     foreach($stage in @('initialInventory','hostInstall','finalInventory','namespace','standaloneHost','host')){Invoke-Case "stage-$stage" 'failed-stage' $false $stage}
     Assert-True ($results.Count -gt 0) 'No regression cases matched Case.'
-    $results | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $logs 'results.json') -Encoding utf8NoBOM
-    [pscustomobject]@{Passed=$results.Count;Failed=0;Logs=$logs;Fixtures=$fixtures}
+    $results | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath $resultPath -Encoding utf8NoBOM
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State complete -MembershipComplete $true -Members $lifecycleMembers
+    [pscustomobject]@{Passed=$results.Count;Failed=0;Logs=$logs;Fixtures=$fixtures;RunRoot=$runRoot;Reports=$reports;LifecycleId=$lifecycleId;ResultPath=$resultPath}
 } catch {
-    @{passed=$results.Count;error=$_.Exception.Message;results=@($results.ToArray())} | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $logs 'failure.json') -Encoding utf8NoBOM
-    throw
+    $failure = $_
+    if ($lifecycleRegistered) {
+        try {
+            $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $lifecycleId -Kind run -Owner 'test-deploy-azrael' -State failed -MembershipComplete $false -Members $lifecycleMembers
+        } catch { Write-Warning "Failed to update run lifecycle: $($_.Exception.Message)" }
+    }
+    if (Test-Path -LiteralPath $reports -PathType Container) {
+        try {
+            @{passed=$results.Count;error=$failure.Exception.Message;results=@($results.ToArray());runRoot=$runRoot;logs=$logs;fixtures=$fixtures;lifecycleId=$lifecycleId} | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $reports 'failure.json') -Encoding utf8NoBOM
+        } catch { Write-Warning "Failed to write run failure report: $($_.Exception.Message)" }
+    }
+    throw $failure
 }

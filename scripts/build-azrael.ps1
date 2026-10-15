@@ -17,7 +17,8 @@ param(
     [switch]$IncludeProviderAccounts = $true,
     [ValidateSet('engine','companion','providers','window-control')][string[]]$RebuildModule = @(),
     [ValidateRange(0,10)][int]$KeepModuleCaches = 0,
-    [switch]$SkipCacheCleanup
+    [switch]$SkipCacheCleanup,
+    [switch]$LifecycleParentActive
 )
 
 $ErrorActionPreference = 'Stop'
@@ -40,6 +41,10 @@ if (-not (Test-Path -LiteralPath (Join-Path $rustRoot 'Cargo.toml') -PathType Le
 if ($EngineTargetDirectory -and $SkipEngineBuild) { throw 'EngineTargetDirectory requires a full engine build.' }
 if ($EngineTargetDirectory -and -not [IO.Path]::IsPathFullyQualified($EngineTargetDirectory)) { throw 'EngineTargetDirectory must be an absolute cache path.' }
 $engineTarget = if ($EngineTargetDirectory) { [IO.Path]::GetFullPath($EngineTargetDirectory) } else { Join-Path $rustRoot 'target' }
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+$lifecycleMembers = Get-VersionLifecycleMembers $projectRoot $ReleaseName
+$null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State pending -MembershipComplete $false -Members $lifecycleMembers
+try {
 if (-not $EngineDirectory) { $EngineDirectory = Join-Path $engineTarget 'x86_64-pc-windows-msvc/debug' }
 New-Item -ItemType Directory -Path $logDirectory -Force | Out-Null
 . (Join-Path $PSScriptRoot 'build-metrics.ps1')
@@ -397,6 +402,7 @@ if (-not $SkipCacheCleanup) {
     } catch { Write-Warning "Cache cleanup preserved uncertain paths: $($_.Exception.Message)"; @{status='blocked';reason=$_.Exception.Message}|ConvertTo-Json|Set-Content (Join-Path $logDirectory 'cache-cleanup-warning.json') }
 }
 Complete-BuildMetrics $buildMetrics -Status success
+$null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State $(if ($LifecycleParentActive) {'pending'} else {'complete'}) -MembershipComplete (-not $LifecycleParentActive) -Members $lifecycleMembers
 $global:LASTEXITCODE = 0
 [pscustomobject]@{ ReleaseDirectory = $release; Logs = $logDirectory; EngineReused = [bool]$SkipEngineBuild }
 } catch {
@@ -404,3 +410,7 @@ $global:LASTEXITCODE = 0
     throw
 }
 finally { $moduleCache.Lease.Dispose() }
+} catch {
+    try { $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State failed -MembershipComplete $false -Members $lifecycleMembers } catch { Write-Warning "Lifecycle failure receipt could not be updated: $($_.Exception.Message)" }
+    throw
+}

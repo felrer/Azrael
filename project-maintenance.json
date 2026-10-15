@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "project_id": "azrael",
+  "managed_roots": [
+    "artifacts/tasks",
+    "artifacts/versions",
+    "artifacts/shared",
+    "artifacts/verification",
+    "artifacts/logs",
+    "artifacts/build",
+    "artifacts/deployments",
+    "artifacts/cache",
+    "artifacts/releases",
+    "artifacts/app-releases",
+    "artifacts/vsix",
+    "engine/codex-rs/target"
+  ],
+  "protected_paths": [
+    "upstream",
+    "extensions",
+    "instructions",
+    "work",
+    ".git"
+  ],
+  "bundles": [
+    {
+      "id": "source-queue",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/project-maintenance.cjs",
+        "test",
+        "--area",
+        "queue"
+      ],
+      "inputs": [
+        "scripts/test-project.cjs",
+        "scripts/project-maintenance.cjs"
+      ]
+    },
+    {
+      "id": "source-recovery",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/project-maintenance.cjs",
+        "test",
+        "--area",
+        "recovery"
+      ],
+      "inputs": [
+        "scripts/test-project.cjs",
+        "scripts/project-maintenance.cjs"
+      ]
+    },
+    {
+      "id": "source-namespace",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/project-maintenance.cjs",
+        "test",
+        "--area",
+        "namespace"
+      ],
+      "inputs": [
+        "scripts/test-project.cjs",
+        "scripts/project-maintenance.cjs"
+      ]
+    },
+    {
+      "id": "maintenance-adapter",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-project-maintenance.cjs"
+      ],
+      "inputs": [
+        "scripts/project-maintenance.cjs",
+        "scripts/test-project.cjs",
+        "scripts/test-project-maintenance.cjs",
+        "project-maintenance.json"
+      ]
+    },
+    {
+      "id": "common-instructions",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-common-agent-instructions.cjs"
+      ],
+      "inputs": [
+        "scripts/test-common-agent-instructions.cjs",
+        "AGENTS.md",
+        "instructions/instructions/agent-behavior.md",
+        "instructions/skills/implementation/SKILL.md"
+      ]
+    },
+    {
+      "id": "extension-prepare",
+      "kind": "prepare",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/build-incremental.cjs"
+      ],
+      "cwd": "extensions/azrael-ex",
+      "inputs": [
+        "extensions/azrael-ex/package.json",
+        "extensions/azrael-ex/package-lock.json",
+        "extensions/azrael-ex/tsconfig.json",
+        "extensions/azrael-ex/scripts/build-incremental.cjs"
+      ],
+      "resource": "extension-dist"
+    },
+    {
+      "id": "extension-current",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/run-tests.cjs",
+        "current"
+      ],
+      "cwd": "extensions/azrael-ex",
+      "depends_on": [
+        "extension-prepare"
+      ],
+      "inputs": [
+        "extensions/azrael-ex/scripts/run-tests.cjs"
+      ]
+    },
+    {
+      "id": "extension-standalone",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/run-tests.cjs",
+        "standalone"
+      ],
+      "cwd": "extensions/azrael-ex",
+      "depends_on": [
+        "extension-prepare"
+      ],
+      "inputs": [
+        "extensions/azrael-ex/scripts/run-tests.cjs"
+      ]
+    },
+    {
+      "id": "extension-component-build",
+      "kind": "build",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/build-incremental.cjs"
+      ],
+      "cwd": "extensions/azrael-ex",
+      "inputs": [
+        "extensions/azrael-ex/package.json",
+        "extensions/azrael-ex/package-lock.json",
+        "extensions/azrael-ex/tsconfig.json",
+        "extensions/azrael-ex/scripts/build-incremental.cjs"
+      ],
+      "resource": "extension-dist"
+    },
+    {
+      "id": "maintenance-lifecycle-source",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/check-artifact-lifecycle.cjs",
+        "--stage",
+        "source"
+      ],
+      "inputs": [
+        "scripts/check-artifact-lifecycle.cjs",
+        "scripts/artifact-lifecycle.cjs",
+        "scripts/test-artifact-lifecycle.cjs",
+        "scripts/build-platform.cjs",
+        "scripts/package-platform-release.cjs",
+        "scripts/test-platform-packaging.cjs",
+        "scripts/test-build-platform.cjs"
+      ]
+    },
+    {
+      "id": "maintenance-lifecycle-windows",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "scripts/check-artifact-lifecycle.cjs",
+        "--stage",
+        "windows"
+      ],
+      "inputs": [
+        "scripts/check-artifact-lifecycle.cjs",
+        "scripts/artifact-lifecycle.cjs",
+        "scripts/artifact-lifecycle.ps1",
+        "scripts/deploy-azrael.ps1",
+        "scripts/clean-legacy-releases.ps1",
+        "scripts/clean-verification-artifacts.ps1",
+        "scripts/clean-engine-caches.ps1",
+        "scripts/test-deploy-azrael.ps1",
+        "scripts/test-clean-legacy-releases.ps1",
+        "scripts/test-clean-verification-artifacts.ps1",
+        "scripts/test-clean-engine-caches.ps1"
+      ]
+    }
+  ],
+  "policy": {
+    "classification": "mixed: common Rust meaning; Windows PowerShell producer/cleanup integration",
+    "verified_environment": "Windows x64 only",
+    "automatic_cleanup": false,
+    "reuse_owner": "Existing verification caches; bundle inputs are provenance hints, not adapter cache keys"
+  }
+}

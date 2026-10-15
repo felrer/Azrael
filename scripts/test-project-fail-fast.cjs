@@ -153,3 +153,91 @@ test("interrupted runner leaves completed groups and active incomplete group rea
     assert.equal(saved.activeCommand.completedUtc, null);
   } finally { fs.rmSync(directory, { recursive: true }); }
 });
+
+
+test("default runs register before execution and separate logs from successful reports", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-managed-run-"));
+  const lifecycle = require("./artifact-lifecycle.cjs");
+  try {
+    const report = await runSelection(selection(["source"]), { root, workId: "BI-01-fixture", runCommand: async (_command, directory) => {
+      const records = lifecycle.catalog(root);
+      assert.equal(records.length, 1);
+      assert.equal(records[0].state, "pending");
+      assert.equal(records[0].membership_complete, false);
+      assert.equal(directory, path.join(records[0].members[0].path, "logs"));
+      fs.writeFileSync(path.join(directory, "fixture.stdout.log"), "fixture");
+      return { status: "passed", exitCode: 0 };
+    } });
+    assert.equal(path.relative(root, report.runRoot).split(path.sep).slice(0, 4).join("/"), "artifacts/tasks/BI-01-fixture/runs");
+    assert.match(path.basename(report.runRoot), /^\d{4}-.*-[0-9a-f-]{36}$/);
+    assert.equal(report.logDirectory, path.join(report.runRoot, "logs"));
+    assert.equal(report.resultPath, path.join(report.runRoot, "reports/results.json"));
+    assert.equal(fs.existsSync(path.join(report.logDirectory, "results.json")), false);
+    const record = lifecycle.catalog(root)[0];
+    assert.equal(record.id, report.lifecycleId);
+    assert.equal(record.state, "complete");
+    assert.equal(record.membership_complete, true);
+    assert.deepEqual(record.members.map(member => member.role), ["run", "logs", "reports"]);
+    assert.equal(JSON.parse(fs.readFileSync(report.resultPath)).status, "passed");
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
+
+test("managed failures and checkpoint errors protect the incomplete producer", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-managed-failure-"));
+  const lifecycle = require("./artifact-lifecycle.cjs");
+  try {
+    const report = await runSelection(selection(["source", "later"]), { root, runCommand: async () => ({ status: "failed", exitCode: 6 }) });
+    assert.equal(report.exitCode, 6);
+    assert.equal(report.skipped.length, 1);
+    await assert.rejects(runSelection(selection(["source"]), { root, onCheckpoint: () => { throw new Error("checkpoint fixture"); }, runCommand: () => assert.fail("must not execute") }), /checkpoint fixture/);
+    const records = lifecycle.catalog(root);
+    assert.equal(records.length, 2);
+    assert.ok(records.every(record => record.state === "failed" && !record.membership_complete));
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
+
+test("producer registration failure prevents run creation and test execution", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-producer-failure-"));
+  try {
+    fs.mkdirSync(path.join(root, "artifacts/maintenance"), { recursive: true });
+    fs.writeFileSync(path.join(root, "artifacts/maintenance/lifecycles"), "blocked registry");
+    await assert.rejects(runSelection(selection(["source"]), { root, runCommand: () => assert.fail("must not execute") }), /EEXIST|ENOTDIR/);
+    assert.equal(fs.existsSync(path.join(root, "artifacts/tasks")), false);
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
+
+test("interrupted managed runs retain pending metadata and the active checkpoint", () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-managed-interrupted-"));
+  try {
+    const script = `const {runSelection} = require(${JSON.stringify(path.join(__dirname, "test-project.cjs"))});
+      runSelection(${JSON.stringify(selection(["source", "later"]))}, { root: ${JSON.stringify(root)},
+        runCommand: async command => { if (command.name === 'later') process.exit(12); return {status:'passed',exitCode:0}; }
+      });`;
+    const child = spawnSync(process.execPath, ["-e", script], { encoding: "utf8" });
+    assert.equal(child.status, 12, child.stderr);
+    const record = require("./artifact-lifecycle.cjs").catalog(root)[0];
+    assert.equal(record.state, "pending");
+    assert.equal(record.membership_complete, false);
+    const saved = JSON.parse(fs.readFileSync(path.join(record.members[0].path, "reports/results.json")));
+    assert.equal(saved.status, "running");
+    assert.equal(saved.results[0].status, "passed");
+    assert.equal(saved.activeCommand.name, "later");
+    assert.equal(saved.completedUtc, null);
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
+
+test("explicit log base and exact directory preserve legacy layout without lifecycle records", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-legacy-run-"));
+  try {
+    for (const override of [{ logDirectory: "custom-logs" }, { directory: path.join(root, "exact") }]) {
+      const report = await runSelection(selection([]), { root, workId: "unused", ...override });
+      assert.equal(report.lifecycleId, undefined);
+      assert.equal(report.runRoot, undefined);
+      assert.equal(path.basename(report.resultPath), "results.json");
+      if (override.directory) assert.equal(report.resultPath, path.join(override.directory, "results.json"));
+      else assert.equal(path.dirname(path.dirname(report.resultPath)), path.join(root, "custom-logs"));
+    }
+    assert.deepEqual(require("./artifact-lifecycle.cjs").catalog(root), []);
+    assert.equal(fs.existsSync(path.join(root, "artifacts")), false);
+  } finally { fs.rmSync(root, { recursive: true }); }
+});

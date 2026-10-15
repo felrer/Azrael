@@ -1,5 +1,6 @@
 # Operations
 
+- [Project maintenance](project-maintenance.md): test/build bundle registration, artifact and backup review, model decisions and native checks.
 - [Development](development.md): current installed state, source and state locations, build, prepare/verify/install, rollback, environment sync and per-feature checks.
 - [Devin native inference](devin-native.md): prerequisites, launch, validation, limits and diagnostics for native Devin.
 - [Provider accounts and managed inference](provider-accounts.md): account page use, provider storage, discovery and caching, validation and diagnostics.

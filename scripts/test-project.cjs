@@ -2,6 +2,8 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
+const { randomUUID } = require("node:crypto");
+const lifecycle = require("./artifact-lifecycle.cjs");
 const { spawn, spawnSync } = require("node:child_process");
 const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
@@ -22,13 +24,13 @@ const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
 function parseArgs(args) {
-  const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false, logDirectory: "artifacts/logs/project-tests" };
+  const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false };
   for (let i = 0; i < args.length; i++) {
     const option = args[i];
     if (option === "--list") { options.list = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
-    if (!["--area", "--changed", "--log-directory", "--test-concurrency"].includes(option)) throw new Error(`Unknown option: ${option}`);
+    if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
     if (option === "--area") {
@@ -37,7 +39,8 @@ function parseArgs(args) {
     } else if (option === "--test-concurrency") {
       if (!/^(?:[1-9]|1[0-6])$/.test(value)) throw new Error("Test concurrency must be an integer from 1 to 16");
       options.testConcurrency = Number(value);
-    } else if (option === "--changed") options.changed.push(normalize(value));
+    } else if (option === "--work-id") options.workId = checkedWorkId(value);
+    else if (option === "--changed") options.changed.push(normalize(value));
     else options.logDirectory = value;
   }
   return options;
@@ -390,59 +393,95 @@ async function runCommand(command, directory, index) {
   } finally { fs.closeSync(out); fs.closeSync(err); }
 }
 
+function checkedWorkId(value) {
+  if (typeof value !== "string" || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,119}$/.test(value) || value.endsWith(".") || /^(?:CON|PRN|AUX|NUL|COM[1-9]|LPT[1-9])(?:\.|$)/i.test(value))
+    throw new Error("Invalid --work-id; use a safe filename ID");
+  return value;
+}
+
 async function runSelection(selection, options = {}) {
-  const directory = options.directory || path.resolve(options.root || ROOT, options.logDirectory || "artifacts/logs/project-tests", `${new Date().toISOString().replace(/[:.]/g, "-")}-${process.pid}`);
-  fs.mkdirSync(directory, { recursive: true });
-  const resultPath = path.join(directory, "results.json");
-  const started = Date.now();
-  const report = { ...selection, plannedCommands: selection.commands, results: [], skipped: [],
-    collectFailures: !!options.collectFailures, status: "running", startedUtc: new Date(started).toISOString(),
-    completedUtc: null, wallTimeMs: 0, exitCode: null, activeCommand: null };
-  const checkpoint = () => {
-    report.wallTimeMs = Date.now() - started;
-    // Replace atomically so an interrupted write leaves the preceding checkpoint readable.
-    const temporary = `${resultPath}.tmp`;
-    fs.writeFileSync(temporary, JSON.stringify(report, null, 2) + "\n");
-    fs.renameSync(temporary, resultPath);
-    options.onCheckpoint?.(report, resultPath);
-  };
-  const passed = result => result.status === "passed" && result.exitCode === 0 && !result.signal && !result.error;
-  let failure, extensionBuildFailed = false;
-  checkpoint();
-  for (const [index, command] of selection.commands.entries()) {
-    const dependencyBlocked = extensionBuildFailed && command.name === "extension-changed";
-    if (dependencyBlocked || (failure && !options.collectFailures)) {
-      report.skipped.push({ ...command, status: "skipped", reason: dependencyBlocked
-        ? "Dependency extension-build did not pass" : `Stopped after failed command group ${failure.name}` });
-      checkpoint();
-      continue;
+  const root = path.resolve(options.root || ROOT);
+  const managed = !options.directory && !options.logDirectory;
+  let runRoot, lifecycleRecord;
+  if (managed) {
+    const workId = checkedWorkId(options.workId ?? "project-tests");
+    const runId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID()}`;
+    runRoot = path.join(root, "artifacts/tasks", workId, "runs", runId);
+    lifecycleRecord = { id: `run:${workId}:${runId}`, kind: "run", owner: "test-project",
+      members: [{ path: runRoot, role: "run" }, { path: path.join(runRoot, "logs"), role: "logs" }, { path: path.join(runRoot, "reports"), role: "reports" }] };
+    for (const candidate of [runRoot, lifecycle.registryPath(root, lifecycleRecord.id)]) {
+      try { fs.lstatSync(candidate); throw new Error(`Run identity already exists: ${runId}`); }
+      catch (error) { if (error.code !== "ENOENT") throw error; }
     }
-    const commandStarted = Date.now();
-    report.activeCommand = { ...command, status: "running", startedUtc: new Date(commandStarted).toISOString(), completedUtc: null, exitCode: null };
-    checkpoint();
-    let outcome;
-    try { outcome = await (options.runCommand || runCommand)(command, directory, index); }
-    catch (error) { outcome = { status: "runner-error", exitCode: null, error: error.message }; }
-    const completed = Date.now();
-    const result = { ...command, ...outcome, startedUtc: new Date(commandStarted).toISOString(),
-      completedUtc: new Date(completed).toISOString(), wallTimeMs: completed - commandStarted,
-      durationMs: outcome?.durationMs ?? completed - commandStarted };
-    // A status label alone cannot establish successful completion.
-    if (!passed(result)) {
-      if (!result.status || result.status === "passed") result.status = "incomplete";
-      failure ||= result;
-      if (command.name === "extension-build") extensionBuildFailed = true;
-    }
-    report.results.push(result);
-    report.activeCommand = null;
-    checkpoint();
-    options.onResult?.(result);
+    // Claim producer identity before any run output exists; a failed claim must not execute tests.
+    lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending", membership_complete: false, expected_revision: 0 });
   }
-  report.status = failure ? "failed" : "passed";
-  report.exitCode = failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
-  report.completedUtc = new Date().toISOString();
-  checkpoint();
-  return { ...report, resultPath };
+  const directory = managed ? path.join(runRoot, "logs") : options.directory || path.resolve(root, options.logDirectory, `${new Date().toISOString().replace(/[:.]/g, "-")}-${process.pid}`);
+  const resultPath = path.join(managed ? path.join(runRoot, "reports") : directory, "results.json");
+  try {
+    if (managed) {
+      fs.mkdirSync(path.dirname(runRoot), { recursive: true });
+      fs.mkdirSync(runRoot);
+      fs.mkdirSync(directory);
+      fs.mkdirSync(path.dirname(resultPath));
+    } else fs.mkdirSync(directory, { recursive: true });
+    const started = Date.now();
+    const report = { ...selection, ...(managed ? { lifecycleId: lifecycleRecord.id, runRoot, logDirectory: directory } : {}), plannedCommands: selection.commands, results: [], skipped: [],
+      collectFailures: !!options.collectFailures, status: "running", startedUtc: new Date(started).toISOString(),
+      completedUtc: null, wallTimeMs: 0, exitCode: null, activeCommand: null };
+    const checkpoint = () => {
+      report.wallTimeMs = Date.now() - started;
+      // Replace atomically so an interrupted write leaves the preceding checkpoint readable.
+      const temporary = `${resultPath}.tmp`;
+      fs.writeFileSync(temporary, JSON.stringify(report, null, 2) + "\n");
+      fs.renameSync(temporary, resultPath);
+      options.onCheckpoint?.(report, resultPath);
+    };
+    const passed = result => result.status === "passed" && result.exitCode === 0 && !result.signal && !result.error;
+    let failure, extensionBuildFailed = false;
+    checkpoint();
+    for (const [index, command] of selection.commands.entries()) {
+      const dependencyBlocked = extensionBuildFailed && command.name === "extension-changed";
+      if (dependencyBlocked || (failure && !options.collectFailures)) {
+        report.skipped.push({ ...command, status: "skipped", reason: dependencyBlocked
+          ? "Dependency extension-build did not pass" : `Stopped after failed command group ${failure.name}` });
+        checkpoint();
+        continue;
+      }
+      const commandStarted = Date.now();
+      report.activeCommand = { ...command, status: "running", startedUtc: new Date(commandStarted).toISOString(), completedUtc: null, exitCode: null };
+      checkpoint();
+      let outcome;
+      try { outcome = await (options.runCommand || runCommand)(command, directory, index); }
+      catch (error) { outcome = { status: "runner-error", exitCode: null, error: error.message }; }
+      const completed = Date.now();
+      const result = { ...command, ...outcome, startedUtc: new Date(commandStarted).toISOString(),
+        completedUtc: new Date(completed).toISOString(), wallTimeMs: completed - commandStarted,
+        durationMs: outcome?.durationMs ?? completed - commandStarted };
+      // A status label alone cannot establish successful completion.
+      if (!passed(result)) {
+        if (!result.status || result.status === "passed") result.status = "incomplete";
+        failure ||= result;
+        if (command.name === "extension-build") extensionBuildFailed = true;
+      }
+      report.results.push(result);
+      report.activeCommand = null;
+      checkpoint();
+      options.onResult?.(result);
+    }
+    report.status = failure ? "failed" : "passed";
+    report.exitCode = failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
+    report.completedUtc = new Date().toISOString();
+    checkpoint();
+    if (managed) lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: report.status === "passed" ? "complete" : "failed", membership_complete: report.status === "passed" });
+    return { ...report, resultPath };
+  } catch (error) {
+    if (managed) {
+      try { lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "failed", membership_complete: false }); }
+      catch (lifecycleError) { if (error instanceof Error) error.message += `; lifecycle failure update: ${lifecycleError.message}`; }
+    }
+    throw error;
+  }
 }
 
 async function main(args = process.argv.slice(2)) {

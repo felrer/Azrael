@@ -2,6 +2,7 @@
 const fs=require("node:fs"), path=require("node:path"), {spawnSync}=require("node:child_process");
 const {isDeepStrictEqual}=require("node:util");
 const shared=require("./install-platform-release.cjs"), platform=require("./platform-runtime.cjs");
+const lifecycle=require("./artifact-lifecycle.cjs");
 function isMachO(bytes) {
   return bytes.length >= 4 && ["feedface","cefaedfe","feedfacf","cffaedfe","cafebabe","bebafeca","cafebabf","bfbafeca"].includes(bytes.subarray(0,4).toString("hex"));
 }
@@ -78,15 +79,29 @@ function packageRelease(options) {
   // Recheck frozen inputs before writing a package, then verify the written copy.
   shared.verifyBuild(release);
   if (shared.sha(fs.readFileSync(host))!==shared.sha(hostBytes)) throw new Error("Host input changed during packaging.");
+  const archive=output+(selected.os==="win32" ? ".zip" : ".tar.gz");
+  const lifecycleRoot=options["project-root"] || path.resolve(__dirname,"..");
+  const parent=lifecycle.catalog(lifecycleRoot).find(record=>record.id===options["lifecycle-id"]);
+  if(options["lifecycle-id"] && (!parent || parent.kind!=="version" || !parent.members.some(member=>member.path===release && member.role==="release"))) throw new Error("Explicit lifecycle does not own selected release.");
+  const related=lifecycle.catalog(lifecycleRoot).find(record=>record.kind==="version" && record.members.some(member=>member.path===release && member.role==="release"));
+  const lifecycleRecord=parent ? {...parent,members:[{path:output,role:"package"},{path:archive,role:"archive"}]} :
+    {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:[{path:output,role:"package"},{path:archive,role:"archive"}],references:[{id:related?.id || `release:${release}`,reason:"packaging-input"}]};
+  lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"pending",membership_complete:false});
+  try {
   fs.mkdirSync(output,{recursive:true});
   for (const [name,item] of files) { const target=path.join(output,name); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.writeFileSync(target,item.data,{flag:"wx",mode:item.mode}); fs.chmodSync(target,item.mode); }
   fs.writeFileSync(path.join(output,"release-manifest.json"),shared.encode(manifest),{flag:"wx"});
   shared.verifyPackage(output);
-  const archive=output+(selected.os==="win32" ? ".zip" : ".tar.gz");
   if (fs.existsSync(archive)) throw new Error("Archive destination already exists.");
   if (selected.os==="win32") { files.set("release-manifest.json",{data:shared.encode(manifest),mode:0o644}); fs.writeFileSync(archive,shared.writeZip(files),{flag:"wx"}); }
   else { const result=spawnSync("tar",["-czf",archive,"-C",output,"--",...shared.walk(output)],{encoding:"utf8",shell:false}); if (result.error || result.status!==0) throw new Error("Release archive creation failed."); }
+  lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"complete",membership_complete:true});
   return {output,archive,platform:manifest.platform,version,files:inventory.length};
+  } catch(error) {
+    try { lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"failed",membership_complete:false}); }
+    catch(metadataError) { error.message+=`; lifecycle update failed: ${metadataError.message}`; }
+    throw error;
+  }
 }
 module.exports={packageRelease,verifySigning,isMachO};
 if (require.main===module) { try { console.log(JSON.stringify(packageRelease(shared.args(process.argv.slice(2))))); } catch(error) { console.error(error.message); process.exitCode=1; } }

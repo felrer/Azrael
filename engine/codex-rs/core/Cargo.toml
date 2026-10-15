@@ -12,6 +12,7 @@ path = "src/lib.rs"
 workspace = true
 
 [dependencies]
+azrael-project-maintenance = { path = "../project-maintenance" }
 codex-utils-process = { workspace = true }
 anyhow = { workspace = true }
 arc-swap = { workspace = true }

@@ -20,6 +20,7 @@ use crate::tools::handlers::ListMcpResourcesHandler;
 use crate::tools::handlers::NewContextWindowHandler;
 use crate::tools::handlers::ParentRequestHandler;
 use crate::tools::handlers::PlanHandler;
+use crate::tools::handlers::ProjectMaintenanceHandler;
 use crate::tools::handlers::ReadMcpResourceHandler;
 use crate::tools::handlers::RequestPermissionsHandler;
 use crate::tools::handlers::RequestPluginInstallHandler;
@@ -1270,6 +1271,13 @@ fn add_shell_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistr
         include_environment_id,
         include_windows_shell_guidance: should_include_windows_shell_guidance(context.environments),
     };
+    // Maintenance execution inherits the command ceiling, including tool-free models.
+    // Remote filesystems cannot be accessed through this host-local library.
+    add_project_maintenance_tools(
+        context.environments.turn_environments().any(|environment| !environment.environment.is_remote()),
+        options,
+        registry,
+    );
     if features.enabled(Feature::UnifiedExec) {
         registry.add(ExecCommandHandler::new(options));
         registry.add(WriteStdinHandler);
@@ -1278,6 +1286,50 @@ fn add_shell_tools(context: &CoreToolPlanContext<'_>, registry: &mut ToolRegistr
         // unified exec disabled. Preserve command execution without exposing a
         // resumable process or write_stdin authority prohibited by policy.
         registry.add(ExecCommandHandler::one_shot(options));
+    }
+}
+
+fn add_project_maintenance_tools(
+    has_local_environment: bool,
+    options: ExecCommandHandlerOptions,
+    registry: &mut ToolRegistry,
+) {
+    if !has_local_environment || !registry.tool_policy.allows(&ToolName::plain("exec_command")) {
+        return;
+    }
+    for name in crate::tools::handlers::project_maintenance::TOOL_NAMES {
+        registry.add(ProjectMaintenanceHandler::new(name, options));
+    }
+}
+
+#[cfg(test)]
+mod project_maintenance_registration_tests {
+    use super::*;
+
+    #[test]
+    fn maintenance_respects_command_ceiling_and_local_environment() {
+        let options = ExecCommandHandlerOptions {
+            include_login_parameter: false,
+            include_shell_parameter: true,
+            allow_tty: false,
+            exec_permission_approvals_enabled: false,
+            include_environment_id: false,
+            include_windows_shell_guidance: false,
+        };
+        for (allowed_tools, local, count) in [
+            (None, true, 5),
+            (None, false, 0),
+            (Some(Vec::new()), true, 0),
+            (Some(vec![ToolName::plain("project_tests")]), true, 0),
+            (Some(vec![ToolName::plain("exec_command"), ToolName::plain("project_tests")]), true, 1),
+        ] {
+            let mut registry = ToolRegistry::with_tool_policy(Arc::new(codex_extension_api::ToolPolicy {
+                allowed_tools,
+                ..Default::default()
+            }));
+            add_project_maintenance_tools(local, options, &mut registry);
+            assert_eq!(registry.entries().count(), count);
+        }
     }
 }
 

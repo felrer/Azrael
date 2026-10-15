@@ -23,6 +23,7 @@ Extend the categories when independently maintained feature, domain, UI, or flow
 | Set up, build, verify, release, operate, or recover the project | [Operations](ops/README.md) and the applicable component quickstart |
 | Perform or verify substantive work | [Project playbooks](playbooks/README.md), then applicable operational owners |
 | Prepare or update a work plan | Relevant owners and [Work Artifacts](#work-artifacts) |
+| Plan generated-output ownership, release evidence, shared caches, cleanup, or existing-artifact migration | The artifact lifecycle owner registered in [Project playbooks](playbooks/README.md) |
 
 ## Document State And Ownership
 
