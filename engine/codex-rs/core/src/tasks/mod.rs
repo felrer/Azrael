@@ -923,6 +923,7 @@ impl Session {
         let saved_guardian_completion =
             matches!(event, EventMsg::TurnComplete(_)) && self.is_private_guardian_reviewer().await;
         if !saved_guardian_completion {
+            self.send_token_count_event(turn_context.as_ref()).await;
             self.send_event(turn_context.as_ref(), event.clone()).await;
         }
 

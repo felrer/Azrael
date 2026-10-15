@@ -116,6 +116,7 @@ pub fn create_fake_rollout_with_token_usage(
     )?;
     let payload = serde_json::to_value(EventMsg::TokenCount(TokenCountEvent {
         info: Some(TokenUsageInfo {
+            response_performance: None,
             context_policy: None,
             total_token_usage: TokenUsage {
                 input_tokens: 120,

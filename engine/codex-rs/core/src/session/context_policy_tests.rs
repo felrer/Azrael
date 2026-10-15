@@ -44,6 +44,7 @@ async fn provider_context_policy_refreshes_existing_thread_next_turn_and_admissi
                     ..Default::default()
                 },
                 model_context_window: Some(1_000),
+                response_performance: None,
                 context_policy: None,
             }));
         let status = context_window_token_status(&session, &turn).await;
@@ -139,6 +140,7 @@ async fn provider_context_policy_preserves_body_after_prefix_and_hard_cap() {
                     ..Default::default()
                 },
                 model_context_window: turn.model_context_window(),
+                response_performance: None,
                 context_policy: None,
             }));
         let status = context_window_token_status(&session, &turn).await;

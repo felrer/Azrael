@@ -89,6 +89,7 @@ async fn selected_usage_is_cached_and_account_changes_discard_old_results() -> R
             thread_id: selected.to_string(),
             turn_id: "turn".into(),
             token_usage: ThreadTokenUsage {
+                response_performance: None,
                 context_policy: None,
                 total: tokens.clone(),
                 last: tokens.clone(),

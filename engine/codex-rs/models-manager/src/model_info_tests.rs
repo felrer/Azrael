@@ -509,6 +509,7 @@ fn provider_context_policy_preserves_request_identity_and_includes_cached_input_
     let mut policy = resolve_context_policy(&model, &Default::default(), None, true);
     policy.input_tokens = Some(200_001);
     let mut info = TokenUsageInfo {
+        response_performance: None,
         context_policy: Some(policy),
         total_token_usage: Default::default(),
         last_token_usage: Default::default(),

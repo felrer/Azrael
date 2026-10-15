@@ -1978,6 +1978,9 @@ impl From<codex_protocol::ResponseUsageMetadata> for ResponseUsageMetadata {
 pub struct ThreadTokenUsage {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     #[ts(optional)]
+    pub response_performance: Option<codex_protocol::response_performance::ResponsePerformance>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
     pub context_policy: Option<codex_protocol::context_policy::ContextPolicy>,
     pub total: TokenUsageBreakdown,
     pub last: TokenUsageBreakdown,
@@ -1989,11 +1992,37 @@ pub struct ThreadTokenUsage {
 impl From<CoreTokenUsageInfo> for ThreadTokenUsage {
     fn from(value: CoreTokenUsageInfo) -> Self {
         Self {
+            response_performance: value.response_performance,
             total: value.total_token_usage.into(),
             last: value.last_token_usage.into(),
             model_context_window: value.model_context_window,
             context_policy: value.context_policy,
         }
+    }
+}
+
+#[cfg(test)]
+mod response_performance_tests {
+    #[test]
+    fn response_performance_survives_usage_conversion_and_old_rollout_decode() {
+        let old = serde_json::json!({
+            "total_token_usage": {"input_tokens":0,"cached_input_tokens":0,"output_tokens":0,"reasoning_output_tokens":0,"total_tokens":0},
+            "last_token_usage": {"input_tokens":0,"cached_input_tokens":0,"output_tokens":0,"reasoning_output_tokens":0,"total_tokens":0},
+            "model_context_window": 1000
+        });
+        let mut info: codex_protocol::protocol::TokenUsageInfo = serde_json::from_value(old).unwrap();
+        assert!(info.response_performance.is_none());
+        let mut stats = codex_protocol::response_performance::ResponsePerformance {
+            turn_id: "turn-1".into(), ..Default::default()
+        };
+        stats.record(Some(123), 1000);
+        info.response_performance = Some(stats);
+        let persisted = serde_json::to_value(&info).unwrap();
+        let restored: codex_protocol::protocol::TokenUsageInfo = serde_json::from_value(persisted).unwrap();
+        let wire = serde_json::to_value(super::ThreadTokenUsage::from(restored)).unwrap();
+        assert_eq!(wire["responsePerformance"]["turnId"], "turn-1");
+        assert_eq!(wire["responsePerformance"]["outputTokens"], 123);
+        assert_eq!(wire["responsePerformance"]["completedRequests"], 1);
     }
 }
 

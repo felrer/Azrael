@@ -2805,6 +2805,7 @@ async fn try_run_sampling_request(
             )?;
         }
     }
+    let mut response_performance = turn_context.turn_timing_state.begin_response_performance();
     let mut stream = if crate::managed_catalog::is_managed(&step_context.settings.model_info.slug) {
         crate::managed_runtime::stream(
             sess.as_ref(),
@@ -3236,6 +3237,15 @@ async fn try_run_sampling_request(
                 usage_metadata,
                 end_turn,
             } => {
+                let estimated = usage_metadata.as_ref()
+                    .and_then(|usage| usage.metadata.as_ref())
+                    .and_then(|metadata| metadata.get("azraelPricing"))
+                    .and_then(|pricing| pricing.get("estimated"))
+                    .and_then(serde_json::Value::as_bool)
+                    .unwrap_or(false);
+                response_performance.complete(
+                    token_usage.as_ref().filter(|_| !estimated).map(|usage| usage.output_tokens),
+                );
                 sess.services
                     .analytics_events_client
                     .track_code_mode_tool_call(
@@ -3433,6 +3443,7 @@ async fn try_run_sampling_request(
     };
     drop(sampling_span);
     drop(sampling_timing_guard);
+    drop(response_performance);
 
     flush_assistant_text_segments_all(
         &sess,

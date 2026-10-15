@@ -16485,6 +16485,81 @@
         }
       ]
     },
+    "ResponseMinuteSample": {
+      "properties": {
+        "minute": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "outputTokens": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "requestDurationMs": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "minute",
+        "outputTokens",
+        "requestDurationMs"
+      ],
+      "type": "object"
+    },
+    "ResponsePerformance": {
+      "properties": {
+        "completedRequests": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "graphEstimated": {
+          "default": false,
+          "type": "boolean"
+        },
+        "minuteSamples": {
+          "default": [],
+          "items": {
+            "$ref": "#/definitions/ResponseMinuteSample"
+          },
+          "type": "array"
+        },
+        "outputTokens": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "requestDurationMs": {
+          "format": "uint64",
+          "minimum": 0.0,
+          "type": "integer"
+        },
+        "truncatedMinutes": {
+          "default": false,
+          "type": "boolean"
+        },
+        "turnId": {
+          "type": "string"
+        },
+        "unmeasuredRequests": {
+          "format": "uint32",
+          "minimum": 0.0,
+          "type": "integer"
+        }
+      },
+      "required": [
+        "completedRequests",
+        "outputTokens",
+        "requestDurationMs",
+        "turnId",
+        "unmeasuredRequests"
+      ],
+      "type": "object"
+    },
     "ResponseUsageMetadata": {
       "description": "Usage metadata reported for one upstream response.",
       "properties": {
@@ -24232,6 +24307,16 @@
           "type": [
             "integer",
             "null"
+          ]
+        },
+        "responsePerformance": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ResponsePerformance"
+            },
+            {
+              "type": "null"
+            }
           ]
         },
         "total": {

@@ -52,6 +52,18 @@ queue the operation. This entry is `current` in source with native light/dark
 rendering and interaction verification using synthetic host state. Build and
 installation were not performed; installed-window acceptance remains separate.
 
+### Current response throughput
+
+Status: `partial` — implemented in source. Windows scoped native aggregation, turn-timing, replay/notification baseline and wire-conversion tests pass. Pinned native UI tests pass in light, dark and narrow layouts. Changed-engine RPC acceptance, packaging, installation and Linux/macOS execution remain unverified; evidence and performance measurements are tracked in [the work plan](../../work/BO-01-session-tps/01-plan.md).
+
+The context tooltip includes a left-label, right-value **Current response average TPS** row, formatted to one decimal token per second, also available through keyboard focus and the gauge's accessible description. Current response means the current native turn, including its model/tool cycles; a new turn starts a new measurement. Child conversations have independent measurements. The mean is the sum of observed output tokens divided by the sum of those requests' elapsed seconds. Request time includes provider wait, input processing and transport; tool execution and idle intervals outside requests are excluded. This is observed request throughput, rather than server-only decode speed. Reasoning tokens already included in output are not counted again.
+
+The engine captures a monotonic clock at inference admission and completion and publishes a bounded turn snapshot through the existing token-usage notification and rollout/replay path. There is no per-token tokenizer, new polling, benchmark request or hover-triggered inference. Values update on completed model requests. Before the current turn has a valid completed observation, the row shows **Waiting for measurement**. Uninstrumented historical records show **Unavailable**. Missing/estimated output, failed or cancelled requests and invalid durations do not manufacture token counts or zero rates; the row indicates partial observations when applicable. Zero reported output over a valid duration remains a valid zero. Starting a new turn must not display the previous turn's TPS as current. The latest persisted snapshot retains turn identity on attach/reload and cannot be re-counted as new consumption.
+
+This shared feature targets local Windows x64, glibc Linux x64 and Apple Silicon macOS, with actual verification limited to its recorded environments. No platform support or permission boundary is expanded. Preservation mapping: `engine.response-tps` and the existing `ui.provider-context` checks.
+
+The same tooltip includes an explicitly **estimated** minute graph. Provider output totals are proportionally allocated across each completed request's overlap with minute boundaries measured from turn start. A bucket divides its allocated output by its measured request overlap, rather than by a full minute of wall time. These points describe estimated per-minute request throughput, not observed token emission timestamps. Missing/tool-only minutes break the line; zero observed output remains a zero point. A single measured bucket is a dot. The graph keeps the latest 120-minute span and indicates truncation without reducing the whole-turn mean. Request completion updates the row and graph together; in-progress unreported tokens are not extrapolated. All samples and graph state reset with the current turn, and historical snapshots without samples do not fabricate a curve.
+
 ## Final helper request input budget
 
 Status: `partial`. Source implementation and Windows helper/transport fixture

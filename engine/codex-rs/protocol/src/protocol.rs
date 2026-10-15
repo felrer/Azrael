@@ -2356,6 +2356,9 @@ pub struct TokenUsageRecord {
 #[derive(Debug, Clone, Deserialize, Serialize, PartialEq, Eq, JsonSchema, TS)]
 pub struct TokenUsageInfo {
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    #[ts(optional)]
+    pub response_performance: Option<crate::response_performance::ResponsePerformance>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     pub context_policy: Option<crate::context_policy::ContextPolicy>,
     pub total_token_usage: TokenUsage,
     pub last_token_usage: TokenUsage,
@@ -2380,6 +2383,7 @@ impl TokenUsageInfo {
                 total_token_usage: TokenUsage::default(),
                 last_token_usage: TokenUsage::default(),
                 model_context_window,
+                response_performance: None,
                 context_policy: None,
             },
         };
@@ -2425,6 +2429,7 @@ impl TokenUsageInfo {
             total_token_usage: TokenUsage::default(),
             last_token_usage: TokenUsage::default(),
             model_context_window: Some(context_window),
+            response_performance: None,
             context_policy: None,
         };
         info.fill_to_context_window(context_window);
@@ -6537,6 +6542,7 @@ mod tests {
     #[test]
     fn token_usage_info_new_or_append_updates_context_window_when_provided() {
         let initial = Some(TokenUsageInfo {
+            response_performance: None,
             context_policy: None,
             total_token_usage: TokenUsage::default(),
             last_token_usage: TokenUsage::default(),
@@ -6561,6 +6567,7 @@ mod tests {
     #[test]
     fn token_usage_info_new_or_append_preserves_context_window_when_not_provided() {
         let initial = Some(TokenUsageInfo {
+            response_performance: None,
             context_policy: None,
             total_token_usage: TokenUsage::default(),
             last_token_usage: TokenUsage::default(),
