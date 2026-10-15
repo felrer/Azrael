@@ -42,7 +42,7 @@ test("actual transformed placeholder keeps one selected emoticon for every compo
 
 test("retired slash-menu registrations are removed while toolbar and other commands remain", () => {
   const text = transformed[COMPOSER_ASSET];
-  for (const name of ["YDa", "sDa", "vDa", "hOa", "FEa", "HEa"]) {
+  for (const name of ["YDa", "sDa", "vDa", "hOa", "FEa", "HEa", "tka"]) {
     assert.ok(fn(original[COMPOSER_ASSET], name)?.includes("J3("), `pinned registration ${name}`);
     assert.equal(fn(text, name), undefined);
     assert.equal(nodes(text, n => ts.isIdentifier(n) && n.text === name).length, 0);
@@ -54,6 +54,25 @@ test("retired slash-menu registrations are removed while toolbar and other comma
     assert.ok(fn(text, name), `retained command component ${name}`);
   assert.ok(!fn(text, "zEa").includes("jsx)(FEa"));
   assert.ok(!fn(text, "zEa").includes("jsx)(HEa"));
+});
+
+test("slash speed options exclude ultrafast while Fast registration and selection remain native", async () => {
+  const text = transformed[COMPOSER_ASSET], registered = [], selected = [];
+  const options = [null, "priority", "ultrafast"].map(value => ({ value, label: value ?? "Standard", description: "speed" }));
+  const context = { bOa: memo, xOa: { jsx, Fragment: "fragment" },
+    l0e: () => ({ serviceTierAccess: {} }), Lb: () => true,
+    Ap: () => ({ serviceTierSettings: { availableOptions: options, isLoading: false, selectedServiceTier: null }, setServiceTier: (...args) => selected.push(args) }),
+    st: () => ({ formatMessage: e => e.defaultMessage }), Koa: (_, label) => label,
+    COa: { disableDescription: {} }, SOa: {}, J3: e => registered.push(e) };
+  const render = pm.runInNewContext(`(${fn(text, "vOa")})`, context);
+  const row = pm.runInNewContext(`(${fn(text, "yOa")})`, context); context.yOa = row;
+  const tree = render({ conversationId: "chat", hostId: "local" });
+  for (const child of tree.props.children) if (child) child.type(child.props);
+  assert.deepEqual(registered.map(e => e.id), ["service-tier:priority"]);
+  await registered[0].onSelect(); assert.deepEqual(selected, [["priority", "slash_command"]]);
+  assert.equal(options.length, 3); assert.equal(options[2].value, "ultrafast");
+  assert.equal(fn(text, "yOa"), fn(original[COMPOSER_ASSET], "yOa"));
+  assert.throws(() => injectUiCleanup(original[COMPOSER_ASSET].replace("e=e=>e.value==null?null:", "e=e=>e.value===null?null:"), COMPOSER_ASSET, ts));
 });
 
 test("goal and plan removed; sketch entry points and attachments preserved", async () => {

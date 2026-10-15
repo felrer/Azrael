@@ -73,7 +73,9 @@ function injectUiCleanup(text, relativePath, ts) {
       edits.push({start:placeholder.getStart(file),end:placeholder.end,replacement:'function mPi(e)'+PLACEHOLDER_BODY});
     }
     replace(requireFunction("bFa"), "Mc=mPi({intl:kn,", "Mc=mPi({sessionKey:[Jr,g_(he.value)],intl:kn,");
-    const retired = [["aOa","plan-mode"],["uDa","goal"],["YDa","model"],["sDa","fork"],["vDa","init"],["hOa","reasoning"],["FEa","review-mode"],["HEa","review-mode"]];
+    // Only slash registrations change; model-picker tiers and status services stay native.
+    replace(requireFunction("vOa"), "e=e=>e.value==null?null:", "e=e=>e.value==null||e.value===`ultrafast`?null:");
+    const retired = [["aOa","plan-mode"],["uDa","goal"],["YDa","model"],["sDa","fork"],["vDa","init"],["hOa","reasoning"],["FEa","review-mode"],["HEa","review-mode"],["tka","status"]];
     for (const [name,id] of retired) {
       if(marked){if(functions.has(name))throw new Error("Removed UI registration restored: "+name);continue}
       const node=requireFunction(name),source=node.getText(file);
