@@ -519,6 +519,37 @@
       ]
     },
     {
+      "id": "ui.image-sketch",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-image-sketch.cjs",
+        "scripts/image-sketch-render-fixture.mjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.image-sketch.behavior",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-image-sketch.cjs"
+          ],
+          "level": "source",
+          "cacheInputs": {
+            "schema": 1,
+            "files": [
+              "scripts/inject-image-sketch.cjs",
+              "scripts/namespace-azrael-host.cjs",
+              "scripts/asset-transform-cache.cjs"
+            ]
+          }
+        }
+      ],
+      "reportFields": [
+        "imageSketchEdits"
+      ]
+    },
+    {
       "id": "ui.ui-cleanup",
       "area": "ui",
       "owners": ["scripts/inject-ui-cleanup.cjs","scripts/namespace-cache-owner.cjs","scripts/test-namespace-cache-owner.cjs"],
