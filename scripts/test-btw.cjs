@@ -174,41 +174,93 @@ test("native slash registration opens /btw as an action without parent message a
   const command = registered[0];
   assert.equal(command.id, "btw"); assert.equal(command.requiresEmptyComposer, true); assert.equal(command.enabled, true);
   assert.match(command.description, /별도 질문/);
-  assert.ok(declaration(patched[1].text, "rDa").includes("__azraelRegisterBtw(n,__azraelBtwRouteScope,a)"));
+  assert.ok(declaration(patched[1].text, "rDa").includes("__azraelRegisterBtw(n,__azraelBtwComposerScope,a)"));
   await command.onSelect(); assert.equal(opened.length, 1); assert.equal(opened[0][2], "/btw"); assert.equal(opened[0][4], "local");
   ctx.__azraelTryBtw = async () => { throw Error("fork failed"); }; await command.onSelect(); assert.deepEqual(errors, ["fork failed"]);
   ctx.__azraelBtw.lookup = () => ({}); ctx.__azraelRegisterBtw("side", scope, { locale: "en" }); assert.equal(registered[1].enabled, false);
 });
 
-test("native slash component captures RouteScope rather than AppScope for side-chat state", async () => {
-  const opened = [], registered = [], cache = Array(31);
-  const appToken = { id: "app" }, routeToken = { id: "route" };
-  const app = { token: appToken, parent: null }, route = { token: routeToken, parent: app };
-  const ctx = { iDa: { c: () => cache }, $: appToken, Uf: routeToken,
-    Ou: token => token === routeToken ? route : app,
+test("native slash component uses ComposerScope for real attachment state and RouteScope ancestors across session switches", async () => {
+  const h = fixture(), registered = [], errors = [], cache = Array(31);
+  const appToken = { id: "app" }, routeToken = { id: "route" }, composerToken = { id: "composer" };
+  const hostAtom = { token: appToken }, toastAtom = { token: appToken }, intlAtom = { token: appToken };
+  const app = { token: appToken, parent: null }, instances = new Map([[appToken.id, app]]);
+  let route, composer, attachments, attachmentReads = 0;
+  const ctx = { iDa: { c: () => cache }, $: appToken, Uf: routeToken, Dh: composerToken,
+    Ou: token => token === composerToken ? composer : token === routeToken ? route : app,
     st: () => ({ locale: "ko", formatMessage: ({ defaultMessage }) => defaultMessage }),
     Hu: () => ({}), qCn: {}, aCa: () => ({}), d5n: {},
-    J3: command => registered.push(command), Rja() {}, hA: {}, hx: {}, goe: {}, IDe: {},
-    createBtwCommand, __azraelBtw: { lookup: () => undefined },
-    __azraelTryBtw: async scope => {
-      // Use the pinned state resolver, including the instance-map fallback that
-      // cannot discover a child RouteScope when starting from AppScope.
-      assert.equal(ctx.DK(scope, new Map([[appToken.id, app]]), routeToken), route);
-      opened.push(scope);
-    } };
+    J3: command => registered.push(command), Rja() {}, hA: hostAtom, hx: toastAtom, fm: intlAtom, goe: {}, IDe: {},
+    createBtwCommand, __azraelBtw: h.controller, Px: () => h.manager,
+    // Run the pinned QG atom's actual read function, resolving its required
+    // scope through the production DK/OK resolver before evaluating it.
+    ou: (token, read) => ({ token, read }), Mbr: "attachments", ZG: "extra", mK: "annotations", Wbr: "conflict",
+    nativeModule: { __azraelOpenBtwPanel: async options => {
+      assert.equal(ctx.DK(options.scope, instances, routeToken), route);
+      assert.equal(options.scope, composer);
+      return h.openPanel(options);
+    } } };
   vm.createContext(ctx);
   const common = fs.readFileSync(path.join(root, BTW_ASSETS[0]), "utf8");
+  const composerAst = ts.createSourceFile("composer.js", originals[1], 99, true, 1);
+  let attachmentInitializer;
+  function visit(node) {
+    if (ts.isBinaryExpression(node) && node.left.getText(composerAst) === "QG" && node.operatorToken.kind === ts.SyntaxKind.EqualsToken) attachmentInitializer = node.right.getText(composerAst);
+    ts.forEachChild(node, visit);
+  }
+  visit(composerAst);
+  assert.ok(attachmentInitializer?.startsWith("ou(Dh,"));
+  const importedScope = composerAst.statements.filter(ts.isImportDeclaration).flatMap(node =>
+    node.importClause?.namedBindings?.elements?.filter(spec => spec.name.text === "Dh").map(spec => [node.moduleSpecifier.text, spec.propertyName.text]) ?? []);
+  assert.deepEqual(importedScope, [["./app-initial-c014f9ee4429.js", "e2t"]]);
+  // Guard the pinned import's actual owner as well as the atom's scope token.
+  assert.match(originals[2], /Iv as e2t/);
+  assert.match(originals[2], /Iv=z\(`ComposerScope`,\{key:[\s\S]*?parent:Ev,retain:\{max:100\}\}\)/);
   vm.runInContext([declaration(common, "DK"), declaration(common, "OK"),
-    declaration(patched[1].text, "__azraelRegisterBtw"), declaration(patched[1].text, "rDa")].join("\n"), ctx);
-  app.get = route.get = () => "local";
-  assert.throws(() => ctx.DK(app, new Map([[appToken.id, app]]), routeToken), /Missing scope instance/);
-  ctx.rDa({ conversationId: "parent", isResponseInProgress: true });
-  await registered.find(command => command.id === "btw").onSelect();
-  assert.deepEqual(opened, [route]);
-  registered.length = 0;
-  ctx.rDa({ conversationId: "parent", isResponseInProgress: false });
-  await registered.find(command => command.id === "btw").onSelect();
-  assert.deepEqual(opened, [route, route]);
+    declaration(patched[1].text, "__azraelTryBtw").replace('import("./app-initial-c014f9ee4429.js")', 'Promise.resolve(nativeModule)'),
+    declaration(patched[1].text, "__azraelRegisterBtw"), declaration(patched[1].text, "rDa"),
+    "QG=" + attachmentInitializer].join("\n"), ctx);
+  function get(atom) {
+    const owner = ctx.DK(this, instances, atom.token);
+    if (atom === ctx.QG) {
+      attachmentReads++;
+      return atom.read({ scope: owner, get: key => ({ attachments, extra: {}, annotations: [], conflict: null })[key] });
+    }
+    if (atom === hostAtom) return "local";
+    if (atom === toastAtom) return { danger: error => errors.push(error) };
+    if (atom === intlAtom) return ctx.st();
+    assert.fail("Unexpected native atom");
+  }
+  app.get = get;
+  const parentBefore = structuredClone(h.parent);
+  for (const [conversationId, running] of [["parent", true], ["restored", false], ["parent", false]]) {
+    // Restoring/revisiting a conversation creates a fresh UI scope. No child
+    // ComposerScope is discoverable from the route's instance-map fallback.
+    route = { token: routeToken, parent: app, get };
+    composer = { token: composerToken, parent: route, value: { kind: "local", conversationId }, get };
+    attachments = {};
+    h.states.set(conversationId, h.parent);
+    assert.throws(() => route.get(ctx.QG), /Missing scope instance/);
+    registered.length = 0;
+    ctx.rDa({ conversationId, isResponseInProgress: running });
+    const command = registered.find(command => command.id === "btw");
+    const before = h.openings.length;
+    await command.onSelect();
+    assert.deepEqual(errors, []);
+    assert.equal(command.dependencies[0], composer);
+    assert.equal(h.openings.length, before + 1);
+    assert.equal(h.openings.at(-1).parentId, conversationId);
+    assert.equal(h.requests.length, 0, "bare menu selection must not start inference");
+    attachments = { imageAttachments: [{}] };
+    await command.onSelect();
+    assert.match(errors.pop(), /첨부/);
+    assert.equal(h.openings.length, before + 1, "attachment rejection must precede panel creation");
+  }
+  attachments = {};
+  assert.equal(await ctx.__azraelTryBtw(composer, "parent", "/btw Why?", { type: "local" }, "local", false, false, {}), true);
+  assert.equal(h.requests.at(-1).prompt, "Why?");
+  assert.ok(attachmentReads >= 7);
+  assert.deepEqual(h.parent, parentBefore);
 });
 
 test("actual native panel opener awaits source model and cwd RPC before native tab creation", async () => {

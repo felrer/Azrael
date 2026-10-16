@@ -24,6 +24,39 @@
   ],
   "bundles": [
     {
+      "id": "source-btw",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "scripts/test-btw.cjs",
+        "scripts/test-ui-test-transform-fixture.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "env": {
+        "AZRAEL_TEST_UI_TRANSFORM_CACHE_PROJECT_ROOT": ""
+      },
+      "inputs": [
+        "scripts/inject-btw.cjs",
+        "scripts/btw-conversation.cjs",
+        "scripts/test-btw.cjs",
+        "scripts/test-ui-test-transform-fixture.cjs",
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/ui-test-transform-fixture.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/asset-transform-cache.cjs",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/local-conversation-thread-2429c4b61076.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/local-conversation-turn-9fb266d5c020.js",
+        "extensions/azrael-ex/node_modules/typescript/lib/typescript.js"
+      ]
+    },
+    {
       "id": "source-queue",
       "kind": "test",
       "purpose": "retained",
