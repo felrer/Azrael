@@ -39,7 +39,8 @@ import {fixtureNotification,fixtureWrongNotification,fixtureMergeSnapshot,fixtur
 import {fixtureActivity} from './${threadName}';
 const fixtureLocale=()=>({locale:'en-US'});
 let fixtureStoreReady=false;
-const fixtureReservations=()=>[{id:'r1',revision:1,state:'waiting',agentTasks:[{threadId:'child-a',turnId:'a1',agentPath:'/root/first'},{threadId:'child-b',turnId:'b1',agentPath:'/root/second'}]}];
+window.fixtureCondition='agents';
+const fixtureReservations=()=>[{id:'r1',revision:1,state:'waiting',completionTasks:fixtureCondition==='agents'?[]:['work-1'],agentTasks:fixtureCondition==='work'?[]:[{threadId:'child-a',turnId:'a1',agentPath:'/root/first'},{threadId:'child-b',turnId:'b1',agentPath:'/root/second'}]}];
 window.fixtureResumeRequests=[];window.fixtureResumeFailure=false;
 let fixtureResumeReceive;
 azraelRootResumeStore=createRootResumeStore({subscribe:(_type,receive)=>{fixtureResumeReceive=receive;return()=>{}},dispatchMessage:(_type,request)=>{
@@ -47,6 +48,7 @@ azraelRootResumeStore=createRootResumeStore({subscribe:(_type,receive)=>{fixture
  if(request.action==='resume'){fixtureResumeRequests.push(request);window.fixtureCompleteManualResume=()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations().map(r=>({...r,state:fixtureResumeFailure?'waiting':'resumed',revision:fixtureResumeFailure?2:3})),error:fixtureResumeFailure?'예약 revision이 변경되었습니다. 다시 확인해 주세요.':null});return}
  queueMicrotask(()=>fixtureResumeReceive({clientId:'fixture',available:true,reservations:fixtureReservations()}));
 }},'fixture');
+window.fixtureSetCondition=kind=>{window.fixtureCondition=kind;azraelRootResumeStore.refresh()};
 const fixturePhoto='data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"><rect width="24" height="24" fill="#747cc5"/><circle cx="12" cy="9" r="5" fill="#f5d4bc"/><path d="M3 24a9 9 0 0118 0" fill="#394271"/></svg>');
 azraelDesignStore={subscribe:()=>()=>{},getSnapshot:()=>fixtureDesignSnapshot,dispose:()=>{}};
 const fixtureDesignSnapshot={students:[{id:1,url:fixturePhoto}],assignments:{'child-a':1,'child-b':1}};
@@ -112,6 +114,15 @@ try{
   await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===2");
   check(theme+' selected child photos overlap by one third',await evaluate("(()=>{const a=[...document.querySelectorAll('[data-azrael-root-resume] img')].map(e=>e.getBoundingClientRect());return a[0].width===24&&Math.abs(a[1].left-a[0].left-16)<1})()"));
   check(theme+' resume is native and right aligned',await evaluate("(()=>{const b=document.querySelector('[data-azrael-root-resume] button'),row=b.closest('[data-azrael-root-resume]').firstElementChild,r=b.getBoundingClientRect();return b.textContent==='재개'&&!b.disabled&&r.height>=22&&r.width>=35&&Math.abs(r.right-row.getBoundingClientRect().right)<1})()"));
+  check(theme+' agent-only wait label',(await oldText()).includes('하위 에이전트 응답 대기중'));
+  for(const [kind,text] of [['work','작업 완료 시 조기 재개'],['mixed','재개 조건 설정됨']]){
+   await evaluate(`fixtureSetCondition('${kind}')`);
+   await wait(`document.querySelector('[data-fixture-old]').innerText.includes('${text}')`);
+   check(theme+' '+kind+' wait label',(await oldText()).includes(text));
+   await screenshot(theme+'-'+kind+'-waiting-controls');
+  }
+  await evaluate("fixtureSetCondition('agents')");
+  await wait("document.querySelector('[data-fixture-old]').innerText.includes('하위 에이전트 응답 대기중')");
   await screenshot(theme+'-waiting-controls');
   await send('Emulation.setDeviceMetricsOverride',{width:360,height:740,deviceScaleFactor:1,mobile:false});
   await wait("window.innerWidth===360");
@@ -120,6 +131,7 @@ try{
   await evaluate("fixtureState.old.rootResumeWait={...fixtureState.old.rootResumeWait,canWakeEarly:false};fixtureRerender()");
   await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===0");
   check(theme+' deadline only wait has no child photos',await evaluate("document.querySelector('[data-azrael-root-resume] button').textContent==='재개'"));
+  check(theme+' deadline only wait has no condition label',!(await oldText()).includes(' · '));
   await evaluate("fixtureState.old.rootResumeWait={...fixtureState.old.rootResumeWait,canWakeEarly:true};fixtureRerender()");
   await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===2");
   await evaluate("fixtureResumeFailure=true;document.querySelector('[data-azrael-root-resume] button').click()");

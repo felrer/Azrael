@@ -45,13 +45,14 @@ function createRootResumeStore(bridge, clientId) {
     dispose: () => { clearTimeout(timer); send({ action: "unsubscribe" }); unsubscribe(); listeners.clear(); } };
 }
 
-function AzraelRootResumeControls({ wait, label, className }) {
+function AzraelRootResumeControls({ wait, elapsedMs, className }) {
   const react = X();
   ym(); Qo(); qSi();
   azraelRootResumeStore ??= createRootResumeStore(vm, crypto.randomUUID());
   const state = react.useSyncExternalStore(azraelRootResumeStore.subscribe, azraelRootResumeStore.getSnapshot, azraelRootResumeStore.getSnapshot);
   react.useEffect(() => { azraelRootResumeStore.refresh(); }, [wait.reservationId, wait.revision]);
   const reservation = state.reservations.find(item => item.id === wait.reservationId);
+  const label = azraelRootResumeWaitLabel(wait, elapsedMs, reservation);
   const active = wait.state === "waiting" && (!reservation || reservation.state === "waiting");
   const tasks = active && wait.canWakeEarly ? reservation?.agentTasks ?? [] : [];
   const busy = state.pending === wait.reservationId || wait.state === "claimed" || reservation?.state === "claimed";
@@ -167,7 +168,7 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "e===`cancelled`?{type:`worked-for`,status:`unknown`,startedAtMs:n,completedAtMs:null}",
     "e===`cancelled`?{type:`worked-for`,status:r==null?`unknown`:`stopped`,startedAtMs:n,completedAtMs:r}");
   text = replaceOnce(text, "function Bzi(e){let t=(0,Uzi.c)(13)", "function Bzi(e){let t=(0,Uzi.c)(14)");
-  text = replaceOnce(text, "let u=a??`text-tertiary`,d;", "if(e.rootResumeWait!=null)return(0,E7.jsx)(AzraelRootResumeControls,{wait:e.rootResumeWait,label:l,className:a??`text-tertiary`});let u=a??`text-tertiary`,d;");
+  text = replaceOnce(text, "let u=a??`text-tertiary`,d;", "if(e.rootResumeWait!=null)return(0,E7.jsx)(AzraelRootResumeControls,{wait:e.rootResumeWait,elapsedMs:c,className:a??`text-tertiary`});let u=a??`text-tertiary`,d;");
   text = replaceOnce(text, "flex min-h-0 flex-col items-start gap-2 text-size-chat text-secondary", "flex w-full min-h-0 flex-col items-start gap-2 text-size-chat text-secondary");
   text = replaceOnce(text, "t[0]!==a||t[1]!==i||t[2]!==r?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a}),t[0]=a,t[1]=i,t[2]=r,t[3]=o)",
     "t[0]!==a||t[1]!==i||t[2]!==r||t[13]!==e.rootResumeWait?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a,rootResumeWait:e.rootResumeWait}),t[0]=a,t[1]=i,t[2]=r,t[3]=o,t[13]=e.rootResumeWait)");

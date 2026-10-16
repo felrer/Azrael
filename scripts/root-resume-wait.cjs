@@ -266,7 +266,7 @@ function azraelRootResumeWaitItem(wait) {
   };
 }
 
-function azraelRootResumeWaitLabel(wait, elapsedMs) {
+function azraelRootResumeWaitLabel(wait, elapsedMs, reservation) {
   const elapsed = wait.waitStartedAtMs == null ||
     (wait.state !== "waiting" && wait.waitEndedAtMs == null)
     ? null : Math.floor(Math.max(0, elapsedMs) / 1000);
@@ -275,7 +275,18 @@ function azraelRootResumeWaitLabel(wait, elapsedMs) {
     case "waiting": {
       if (wait.waitStartedAtMs == null) return "재개 대기 · 대기 시간 확인 불가";
       const planned = Math.ceil(Math.max(0, wait.resumeAtMs - wait.waitStartedAtMs) / 1000);
-      return `재개까지 ${elapsed}/${planned}초${wait.canWakeEarly ? " · 재개 조건 설정됨" : ""}`;
+      let condition = "";
+      if (wait.canWakeEarly) {
+        condition = "재개 조건 설정됨";
+        if (reservation?.id === wait.reservationId && reservation.revision >= wait.revision &&
+            Array.isArray(reservation.agentTasks) && Array.isArray(reservation.completionTasks)) {
+          const agents = reservation.agentTasks.length > 0;
+          const work = reservation.completionTasks.length > 0;
+          if (agents && !work) condition = "하위 에이전트 응답 대기중";
+          if (work && !agents) condition = "작업 완료 시 조기 재개";
+        }
+      }
+      return `재개까지 ${elapsed}/${planned}초${condition ? " · " + condition : ""}`;
     }
     case "claimed": return `재개 처리 중 · ${duration}`;
     case "resumed": return elapsed == null ? `재개됨 · ${duration}` : `${duration} 후 재개됨`;
