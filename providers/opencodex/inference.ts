@@ -14,7 +14,7 @@ import { createProgressMonitor } from '../devin/progress.mjs';
 import { classifyConnectionError, createStallDiagnostics, createFailureStageTracker, observeRawReads, observeParser } from '../devin/stall-diagnostics.mjs';
 import { diagnosticPolicy } from '../devin/diagnostic-policy.mjs';
 import { accountIdentity, autoSwitchAvailable, autoSwitchAllowed, eligibleAccounts, withAutoSwitchPolicyMutation } from './auto-switch.ts';
-import { classifyManagedError, providerHttpError } from './inference-errors.ts';
+import { anthropicStopEvidence, classifyManagedError, providerHttpError } from './inference-errors.ts';
 import { apiCatalog, apiConfigCommand, isApiProvider } from './custom-api-config.ts';
 import { inferApi } from './custom-api.ts';
 import { createToolDiagnostics } from './tool-diagnostics.mjs';
@@ -309,7 +309,7 @@ export function observeDetails(response: Response, opaque: { details: any[]; ter
   return new Response(body, { status: response.status, headers: response.headers });
 }
 
-type UsageObservation = { terminal: boolean; cacheWrite1hInputTokens?: number; cacheWrite5mInputTokens?: number; billingInvalid?: boolean };
+type UsageObservation = { terminal: boolean; providerRefusal?: boolean; cacheWrite1hInputTokens?: number; cacheWrite5mInputTokens?: number; billingInvalid?: boolean };
 
 export async function* translate(events: AsyncIterable<any>, opaque: UsageObservation, onEvent?: (event: string) => void, tracker?: any) {
   let tools = false;
@@ -328,6 +328,7 @@ export async function* translate(events: AsyncIterable<any>, opaque: UsageObserv
       case 'tool_call_delta': yield { kind: 'tool_call_args', argsDelta: event.arguments }; break;
       case 'done':
         if (!opaque.terminal) fail('provider_eof');
+        if (opaque.providerRefusal || event.stopReason === 'refusal') fail('provider_refusal');
         if (event.stopReason && !['stop', 'tool_calls', 'end_turn', 'tool_use'].includes(event.stopReason)) fail('provider_incomplete');
         if (event.usage) {
           const oneHour = opaque.cacheWrite1hInputTokens, fiveMinutes = opaque.cacheWrite5mInputTokens;
@@ -372,6 +373,13 @@ export function observeAnthropic(response: Response, opaque: UsageObservation & 
       if (code) fail(code);
     }
     if (value.type === 'message_stop') opaque.terminal = true;
+    const stopEvidence = anthropicStopEvidence(value);
+    if (stopEvidence) {
+      // Classification is independent of optional telemetry and remains terminal
+      // even if a later malformed delta tries to replace the refused decision.
+      opaque.providerRefusal ||= stopEvidence.provider_stop_reason === 'refusal';
+      tracker?.providerError?.(stopEvidence);
+    }
     if (value.type === 'message_start' || value.type === 'message_delta') {
       const usage = value.type === 'message_start' ? value.message?.usage : value.usage;
       const split = usage?.cache_creation;

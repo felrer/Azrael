@@ -305,6 +305,8 @@ class InspectorTests(unittest.TestCase):
 
     def test_provider_error_evidence_and_outcomes_are_exported_safely(self):
         enums = {
+            "provider_stop_reason": ("end_turn", "tool_use", "stop_sequence", "max_tokens", "pause_turn", "refusal", "content_filter", "unknown"),
+            "provider_refusal_category": ("cyber", "bio", "frontier_llm", "reasoning_extraction", "general_harms", "unspecified", "unknown", "missing"),
             "provider_error_type": ("rate_limit_error", "rate_limit_exceeded", "rate_limited", "too_many_requests",
                 "usage_limit_reached", "quota_exceeded", "insufficient_quota", "credit_balance_too_low",
                 "invalid_request_error", "authentication_error", "permission_error", "billing_error",
@@ -321,7 +323,7 @@ class InspectorTests(unittest.TestCase):
             for kind in ("limit", "remaining", "reset_ms")]
         payloads = [{field: value} for field, values in enums.items() for value in values]
         payloads += [{field: value for field in numbers} for value in (0, 2**53 - 1)]
-        outcomes = ["provider_rate_limit", "provider_usage_limit", "provider_error_undefined"] + [
+        outcomes = ["provider_rate_limit", "provider_usage_limit", "provider_error_undefined", "provider_refusal"] + [
             f"provider_rate_limit_{kind}" for kind in
             ("requests", "input_tokens", "output_tokens", "tokens", "concurrency", "acceleration")]
         records = [("devin_native_progress", 'event="native_inference_transport" '
@@ -369,6 +371,8 @@ class InspectorTests(unittest.TestCase):
         data = {"error_stage": "adapter_parse", "error_name": "SECRET", "headers_status": 700,
                 "chunk_count": True, "read_wait_ms": -1, "parser_event_count": 2**54,
                 "content_block_open": "SECRET", "request_id_sha256": "SECRET",
+                "provider_stop_reason": "refusal SECRET", "provider_refusal_category": "cyber SECRET",
+                "explanation": "SECRET", "stop_details": {"explanation": "SECRET"},
                 "url": "SECRET", "text": "SECRET", "args": "SECRET"}
         report, stdout = self.inspect([("devin_native_progress", 'event="native_inference_transport" '
             'transport=' + json.dumps(data), "INFO")])

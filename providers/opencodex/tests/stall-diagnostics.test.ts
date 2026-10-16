@@ -91,6 +91,48 @@ test('actual inference mock records upstream SSE failure and owns deadline class
         }
       } finally { monitor.stop(); }
     }
+    // A refused completed tool block must never become a callable native item.
+    for (const transportEnabled of [false, true]) for (const [stopReason, terminal, expected] of [
+      ['refusal', true, 'provider_refusal'], ['refusal', false, 'provider_eof'],
+      ['content_filter', true, 'provider_incomplete'], ['max_tokens', true, 'provider_incomplete'],
+      ['new_reason', true, 'provider_incomplete'], ['tool_use', true, undefined],
+    ] as const) {
+      const frames: any[] = [], monitor = createProgressMonitor(() => {}, { transportEnabled });
+      const req = { ...request(), tools: [{ type: 'function', name: 'read_fixture', description: 'Read a fixture',
+        parameters: { type: 'object', properties: { path: { type: 'string' } }, required: ['path'] } }] };
+      let calls = 0;
+      try {
+        const pending = infer(req, frame => frames.push(frame), (async (_url: any, init: any) => {
+          calls++;
+          const name = JSON.parse(init.body).tools[0].name;
+          const events = [
+            { type: 'message_start', message: { usage: { input_tokens: 1 } } },
+            { type: 'content_block_start', index: 0, content_block: { type: 'tool_use', id: 'fixture_call', name, input: {} } },
+            { type: 'content_block_delta', index: 0, delta: { type: 'input_json_delta', partial_json: '{"path":"SECRET_PATH"}' } },
+            { type: 'content_block_stop', index: 0 },
+            { type: 'message_delta', delta: { stop_reason: stopReason,
+              stop_details: { type: 'refusal', category: 'cyber', explanation: 'SECRET_EXPLANATION' } }, usage: { output_tokens: 1 } },
+            ...(terminal ? [{ type: 'message_stop' }] : []),
+          ];
+          return new Response(events.map(wire).join(''));
+        }) as typeof fetch, monitor);
+        if (expected) {
+          await expect(pending).rejects.toThrow(expected);
+          expect(frames.some(frame => frame.type === 'completed' || frame.item?.type === 'function_call')).toBeFalse();
+        } else {
+          await pending;
+          expect(frames.at(-1).type).toBe('completed');
+          expect(frames.filter(frame => frame.item?.type === 'function_call')).toHaveLength(1);
+        }
+        expect(calls).toBe(1);
+        if (transportEnabled) {
+          const evidence = monitor.snapshot().transport;
+          expect(evidence.provider_stop_reason).toBe(stopReason === 'new_reason' ? 'unknown' : stopReason);
+          expect(evidence.provider_refusal_category).toBe(stopReason === 'refusal' ? 'cyber' : undefined);
+          expect(JSON.stringify(evidence)).not.toContain('SECRET');
+        }
+      } finally { monitor.stop(); }
+    }
     for (const stream of [false, true]) {
       const frames: any[] = [];
       const error = { type: 'usage_limit_reached', message: 'PRIVATE_QUOTA_MESSAGE' };

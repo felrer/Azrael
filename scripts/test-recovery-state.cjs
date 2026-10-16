@@ -1268,6 +1268,30 @@ test("admission diagnostics record allowlisted kinds and correlation ids without
   assert.equal(JSON.stringify(secretRecord).includes(secret), false);
 });
 
+test("refusal diagnostics require the exact message and category without admitting continuation", async () => {
+  const message = "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)";
+  for (const [error, expected] of [
+    [{ codexErrorInfo: "other", message }, "provider_refusal"],
+    [{ codexErrorInfo: "badRequest", message }, "other"],
+    [{ codexErrorInfo: "other", message: message.slice("Fatal error: ".length) }, "other"],
+    [{ codexErrorInfo: "other", message: message + " SECRET" }, "other"],
+    [{ codexErrorInfo: "other", message: "quoted: " + message }, "other"],
+    [{ codexErrorInfo: "badRequest", message: message + " SECRET" }, "other"],
+    [{ codexErrorInfo: "badRequest", message: "quoted: " + message }, "other"],
+    [{ codexErrorInfo: { badRequest: {}, other: {} }, message }, "other"],
+  ]) {
+    const calls = [], records = [];
+    const recovery = new RecoveryState({ store: memoryStore(), log: record => records.push(record),
+      rpc: systemErrorRpc(calls, { error }) });
+    await assert.rejects(recovery.start(continuation("thread-refusal")), /엔진 상태를 확인/);
+    const record = records.find(record => record.event === "recovery.admission");
+    assert.equal(record.errorKind, expected);
+    assert.equal(record.outcome, "blocked");
+    assert.equal(calls.filter(call => call.method === "turn/start").length, 0);
+    assert.equal(JSON.stringify(records).includes("SECRET"), false);
+  }
+});
+
 test("phase, dispatch, accepted and terminal records share thread and turn correlation", async () => {
   const records = [];
   const calls = [];

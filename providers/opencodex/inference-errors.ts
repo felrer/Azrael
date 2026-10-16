@@ -5,6 +5,26 @@ const knownTypes = new Set([...usageCodes, ...rateCodes, 'invalid_request_error'
 const usageMessage = /^(?:quota exceeded|quota exhausted|usage limit reached|usage limit exceeded|out of credits|insufficient credits|you have run out of credits|your limit will reset in [0-9]+\s*(?:seconds?|minutes?|hours?|days?))\.?$/i;
 const anthropicCredits = /^Your credit balance is too low to access the (?:Anthropic|Claude) API\.(?: Please go to Plans & Billing to upgrade or purchase credits\.)?$/i;
 type Evidence = Record<string, string | number>;
+
+const stopReasons = new Set(['end_turn', 'tool_use', 'stop_sequence', 'max_tokens', 'pause_turn', 'refusal', 'content_filter']);
+const refusalCategories = new Set(['cyber', 'bio', 'frontier_llm', 'reasoning_extraction', 'general_harms']);
+// Observe the provider's structured decision before adapters normalize stop reasons.
+// Freeform explanations and arbitrary provider values never enter diagnostics.
+export function anthropicStopEvidence(value: any): Record<string, string> | undefined {
+  if (value?.type !== 'message_delta' || typeof value.delta?.stop_reason !== 'string') return undefined;
+  const reason = value.delta.stop_reason;
+  const evidence: Record<string, string> = { provider_stop_reason: stopReasons.has(reason) ? reason : 'unknown' };
+  if (reason === 'refusal') {
+    const details = value.delta.stop_details;
+    evidence.provider_refusal_category = details === null ? 'unspecified'
+      : details === undefined ? 'missing'
+      : !object(details) || details.type !== 'refusal' ? 'unknown'
+      : details.category === null ? 'unspecified'
+      : details.category === undefined ? 'missing'
+      : refusalCategories.has(details.category) ? details.category : 'unknown';
+  }
+  return evidence;
+}
 type Classification = { code?: string; reason: string };
 const unknown = (): Classification => ({ reason: 'unknown' });
 const usage = (reason = 'usage_limit'): Classification => ({ code: 'provider_usage_limit', reason });

@@ -447,6 +447,19 @@ test("exact native account, image and watchdog guards retain established causes 
     assert.equal(describeTurnError({ message: `Fatal error: native inference helper failed (${code})`, codexErrorInfo: "other" }), "정의되지 않은 오류");
 });
 
+test("refusal display requires exact Fatal message with Other", () => {
+  const display = "모델 제공자가 응답을 거부했습니다. (provider_refusal)";
+  const message = `Fatal error: ${display}`;
+  for (const codexErrorInfo of ["other", { other: {} }])
+    assert.equal(describeTurnError({ message, codexErrorInfo }), display);
+  for (const variant of [display, message + " SECRET", "quoted: " + message, message + "\n", message.toUpperCase()])
+    assert.equal(describeTurnError({ message: variant, codexErrorInfo: "other" }), "정의되지 않은 오류");
+  for (const text of [display, message])
+    assert.equal(describeTurnError({ message: text, codexErrorInfo: "badRequest" }),
+      "The provider rejected this request. Check the selected model and input before retrying.");
+  assert.equal(describeTurnError({ message, codexErrorInfo: { other: {}, badRequest: {} } }), "정의되지 않은 오류");
+});
+
 test("failed turns require complete evidence and preserve only approved rate details", async () => {
   const wire = new MockServer();
   const chat = new ChatSession(wire, "/project");

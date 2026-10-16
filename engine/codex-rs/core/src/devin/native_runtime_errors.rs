@@ -8,6 +8,9 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
     // provider_http_429 may originate from a generic Connect resource failure;
     // only the transport can distinguish that from a confirmed usage limit.
     let details = match code {
+        Some("provider_refusal") => CodexErrorDetails::Fatal(
+            "모델 제공자가 응답을 거부했습니다. (provider_refusal)".to_string(),
+        ),
         Some("provider_account_removed") => CodexErrorDetails::InvalidRequest(
             "The provider account was removed. Work was stopped. Select a healthy account before continuing.".to_string(),
         ),
@@ -95,6 +98,29 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
 mod tests {
     use super::helper_error;
     use codex_protocol::protocol::CodexErrorInfo;
+
+    #[test]
+    fn provider_refusal_is_exact_terminal_fatal_error() {
+        let error = helper_error(Some("provider_refusal"));
+        assert_eq!(error.to_codex_protocol_error(), CodexErrorInfo::Other);
+        assert_eq!(
+            error.to_error_event(None).message,
+            "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)"
+        );
+        assert!(error.retry_delay(1).is_none());
+        assert!(error.retry_delay(10).is_none());
+        for code in [
+            "provider_refusal!",
+            " provider_refusal",
+            "provider_refusal_extra",
+            "PROVIDER_REFUSAL",
+        ] {
+            let unknown = helper_error(Some(code));
+            assert_eq!(unknown.to_codex_protocol_error(), CodexErrorInfo::Other);
+            assert_eq!(unknown.to_error_event(None).message, "정의되지 않은 오류");
+            assert!(unknown.retry_delay(1).is_none());
+        }
+    }
 
     #[test]
     fn retirement_errors_are_terminal_and_actionable() {

@@ -12,7 +12,7 @@ function containedOutput(value,fallback,allowed){
  if(!within||within==='..'||within.startsWith('..'+sep)||isAbsolute(within))throw Error('Render output must be contained beneath '+allowed);
  return candidate;
 }
-const run=join(root,'artifacts/tasks/error-specificity/runs/01');
+const run=containedOutput(process.env.AZRAEL_RENDER_RUN_ROOT,join(root,'artifacts/tasks/error-specificity/runs/01'),join(root,'artifacts/tasks'));
 const fixture=containedOutput(process.env.AZRAEL_RENDER_FIXTURE_ROOT,join(run,'temporary/error-render'),join(run,'temporary'));
 const logs=containedOutput(process.env.AZRAEL_RENDER_LOG_ROOT,join(run,'reports/error-render'),join(run,'reports'));
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets'),profile=join(fixture,'chrome-profile');
@@ -36,6 +36,7 @@ window.fixtureCases=[
  {id:'auth',message:'SECRET_AUTH',errorInfo:'unauthorized'},
  {id:'usage',message:'SECRET_USAGE',errorInfo:'usageLimitExceeded'},
  {id:'account',message:'The provider account requires reauthentication. Work was stopped. Sign in again or select a healthy account before continuing.',errorInfo:'badRequest'},
+ {id:'refusal',message:'Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)',errorInfo:'other'},
  {id:'image',message:'Attached images exceed the provider request limit. Remove images or start a new thread.',errorInfo:'badRequest'},
  {id:'wrapped',message:JSON.stringify({error:{message:'SECRET_WRAPPED'}}),errorInfo:'other'},
  {id:'retry',message:'SECRET_RETRY',errorInfo:'other',willRetry:true},
@@ -71,7 +72,7 @@ try{
  await send('Page.enable');await send('Runtime.enable');await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});await send('Page.navigate',{url:`http://127.0.0.1:${server.address().port}/`});
 
  await wait("window.fixtureReady && !!document.querySelector('[data-error-case=unknown]')");
- const expected={unknown:'정의되지 않은 오류',legacy:'정의되지 않은 오류',rate:'모델 입력 토큰 처리량 제한에 도달했습니다.',auth:'The selected provider rejected authentication. Check account authentication before resuming.',usage:'The provider usage limit was reached. Check account usage before resuming.',account:'The provider account requires reauthentication. Work was stopped. Sign in again or select a healthy account before continuing.',image:'Attached images exceed the provider request limit. Remove images or start a new thread.',wrapped:'정의되지 않은 오류'};
+ const expected={unknown:'정의되지 않은 오류',legacy:'정의되지 않은 오류',rate:'모델 입력 토큰 처리량 제한에 도달했습니다.',auth:'The selected provider rejected authentication. Check account authentication before resuming.',usage:'The provider usage limit was reached. Check account usage before resuming.',account:'The provider account requires reauthentication. Work was stopped. Sign in again or select a healthy account before continuing.',refusal:'모델 제공자가 응답을 거부했습니다. (provider_refusal)',image:'Attached images exceed the provider request limit. Remove images or start a new thread.',wrapped:'정의되지 않은 오류'};
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}'`);
   const state=await evaluate(`(()=>{const result={};for(const node of document.querySelectorAll('[data-error-case]')){const card=node.firstElementChild;const style=getComputedStyle(card),bounds=card.getBoundingClientRect();result[node.dataset.errorCase]={text:node.innerText,color:style.color,background:style.backgroundColor,width:bounds.width,height:bounds.height}}return {cards:result,body:document.body.innerText,overflow:document.documentElement.scrollWidth>innerWidth}})()`);

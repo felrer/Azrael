@@ -18,6 +18,8 @@ function describeTurnError(value) {
     if (detail !== undefined && requestGuards.includes(detail)) return detail;
   }
   if (code === "other") {
+    if (detail === "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)")
+      return "모델 제공자가 응답을 거부했습니다. (provider_refusal)";
     const watchdogGuards = [
       "Fatal error: response preparation exceeded its 90s deadline",
       "Fatal error: native inference helper became idle",
