@@ -1,6 +1,6 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 진단 요청의 refusal/cyber는 재현·분리했다. 실제 작업에서 refusal이 발생한 요청은 추가 식별이 필요하며 제품 수정 완료로 보고하지 않는다. 02-plan의 오류 분류 변경은 b7a03ee1로 완료했고 이번 후속 목표는 정상적인 요청이 refusal로 끝나는 원인을 좁혀 수정하는 것이다.
+상태: 진단 요청의 refusal/cyber는 재현·분리했다. 사용자가 지정한 세션 이어가기 문구+도구 catalog로 실제 호출했으나 HTTP429로 refusal 검증이 막혔다. 제품 수정 완료로 보고하지 않는다. 02-plan의 오류 분류 변경은 b7a03ee1로 완료했고 이번 후속 목표는 정상적인 요청이 refusal로 끝나는 원인을 좁혀 수정하는 것이다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
@@ -43,3 +43,17 @@ read-only agent refusal_request_contract는 OAuth pin/headers와 compatible syst
 ## 정리와 보관
 
 실행 종료 report, UUID/path/thread_id, lock 부재를 대조해 이 run의 임시 binding4개를 일반 삭제했고 모두 부재를 확인했다. 원래 binding/계정은 유지했다. temporary의 probe script4개는 검토 가능한 진단 근거로 reports/probe-scripts로 옮겼다. 고정 report 경로를 쓰는 원본 증거이므로 재실행하지 않는다. temporary plan-body와 빈 temporary directory는 일반 삭제했다. reports/cleanup.json이 실제 결과를 기록한다. logs/reports는 이 분석 소비가 끝나거나 후속 실제 refusal 사례로 대체될 때 재검토한다. 코드 변경이 없어 제품 회귀 검사/빌드/설치를 새로 수행하지 않았다.
+
+
+## 도구 사용 조건의 추가 재현
+
+사용자는 `"azrael://threads/01a12f03-0fcf-7550-adac-0df5148b0cf2" 이 세션의 작업 목표를 파악하고 작업을 이어서 진행해주세요`를 보내 모델의 도구 사용을 유도하도록 요청했다. 별도 제품 개발 요청으로 전환하지 않고 refusal 원인 조사 안에서 이 문구를 그대로 사용한다. run02는 같은 계정/model/high, 현재 compatible profile, 실제 Read/Bash tool schema를 전달한다. 첫 응답의 도구 호출과 stop_details를 관측하며 명령을 자동 실행하지 않는다. 필요한 경우 실제 읽기만 검증된 범위에서 수행한다. 첫 요청에는 자동 retry/모델 변경 없이 60초 deadline을 적용한다. 429면 refusal 검증 불가로 기록하고 제한을 재현하려는 반복 호출은 하지 않는다.
+
+산출물 소유는 work:BU-01-refusal-cause-run-02, 경로는 artifacts/tasks/refusal-cause/runs/02/{logs,reports,temporary}이다. 임시 새 UUID fork binding은 사전 owner record를 만들고 종료 후 검증하여 일반 삭제한다. 이 run의 JSON 보고서와 진단 script는 후속 원인 분석에 필요하므로 logs/reports에 보관한다. 진행 전 발견한 docs/architecture/window-use.md 변경과 기존 upstream/은 다른 작업의 것으로 보존한다.
+
+
+run02 결과: 2026-10-16T15:46:59.938Z~2026-10-16T15:47:00.974Z UTC, producer exit0, 실제 inference failed/provider_error_undefined, HTTP429, networkRequests1, toolCalls0/output0, SSE event0. 원래 binding 계정 일치와 source hashes 불변을 확인했다. tool catalog는 현재 compatible Read/Bash 2개이며 tool_choice를 강제하지 않았다. 원래 28개 catalog나 전체 세션 입력을 동일하게 재현한 것은 아니다. 모델의 실제 첫 도구 호출 이전 HTTP 단계에서 실패했으므로 이번 시도로 refusal 발생/해결 여부를 판단할 수 없다. 반복 호출로 429를 재현하는 실험은 하지 않았다.
+
+run02 진단 근거: artifacts/tasks/refusal-cause/runs/02/reports/probe-01.json, reports/probe-01.ts(실행 입력 근거, 고정 경로이므로 재실행 금지), logs/probe-01.log. 다음 검증은 공급자가 이 계정의 요청을 수락할 때 동일한 사용자 문구와 도구 조건으로 실제 tool_use/거부 category를 확인하는 것이다. 현재 HTTP 응답 단계의 차단을 제품 프롬프트 결함으로 추정하여 수정하지 않는다. 코드 변경이 없으므로 제품 회귀 검사/빌드를 실행하지 않았다.
+
+run02 정리: 종료 후 owner/thread/path/lock 검증을 거쳐 새 임시 binding과 빈 temporary directory를 일반 삭제했다. reports/cleanup.json에서 두 경로 부재와 원래 binding 보존을 확인했다. 로그·보고서·실행 입력 script는 work:BU-01-refusal-cause-run-02로 등록하고 후속 수락된 요청이 이 차단 근거를 대체할 때 재검토하도록 defer했다.
