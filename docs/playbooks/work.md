@@ -13,9 +13,7 @@ the Azrael-specific constraints and owning documents to apply alongside it.
   and [operational documentation](../ops/README.md) owns execution commands and repeatable procedures.
 - Store new work plans in the project-local `work/` specified by [Work Artifacts](../README.md#work-artifacts), and follow
   the session and plan rules in [Work documents](../../work/README.md). Do not create a separate work plan repository.
-- Check the support policy in the [multi-platform contract](../architecture/multi-platform.md) and the current plan's common, scoped, mixed and unresolved requirements.
-  Specify the required OS, CPU, version/ABI, local/remote and desktop conditions and excluded environments; distinguish requested targets, code ownership, regression impact and actually tested environments.
-  Do not interpret an unspecified platform as limited to the current host; carry forward existing decisions and authority. Currently verified support is limited to Windows.
+- Apply the [multi-platform contract](../architecture/multi-platform.md#requirement-applicability) when selecting the current work's platform scope and required acceptance.
 - Also select guidance applicable to the current work from the [playbook entry point](README.md).
   Read only the needed owner sections in documents linked by that guidance.
 

@@ -13,8 +13,8 @@
 
 ## Platform Scope (All Agents)
 
-- Before implementation, classify each requirement as common across the supported platforms, scoped to named environments, mixed, or unresolved. For scoped or mixed behavior, name relevant OS, CPU, version/ABI, local/remote execution, desktop conditions and exclusions; separate common meaning from platform-specific implementation.
-- Carry agreed requirement targets, implementation ownership, regression impact and required verification into the current task record and delegated work. Do not infer scope from the current host or treat untested environments as accepted. Reuse settled decisions and the work skills' existing process for consequential unresolved choices; this check adds no plan or approval stage.
+- Before choosing implementation scope, classify requirements as common across the project's supported or intended platforms, scoped to named environments, mixed, or unresolved. For scoped or mixed behavior, name relevant OS, CPU, version/ABI, local/remote execution, desktop conditions, exclusions and user-visible differences; separate common meaning from platform-specific implementation.
+- Keep requested targets, implementation ownership, regression impact and actually verified environments distinct in the current record and delegated work. Do not infer scope from the current host; keep intended support separate from verified support. Investigate facts and reuse settled decisions. Resolve consequential open changes to support, behavior or authority with recommendations and impacts through the existing work process; this adds no plan or approval stage.
 
 ## Build Inputs (All Agents)
 

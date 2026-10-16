@@ -17,7 +17,7 @@ Resolve important open questions about goals or scope within the ongoing work. U
 
 - Check project guidance, the current work's plan, and success criteria. Here, a plan means the approved work document or agreed conversation record used by the project; do not create a separate document just for this skill.
 - Identify affected execution environments and owners of features, data, and documents, and read only the guidance and sections needed for the work. Recheck existing evidence when relevant inputs change or a concrete information gap arises.
-- Check the current plan's classification of each requirement as common, environment-specific, mixed, or unresolved, and its exclusions. State necessary OS, CPU, version/ABI, local/remote execution, and desktop conditions, and distinguish requested targets, code ownership, regression impact, and actually verified environments. Do not interpret an unspecified platform as current-host-only scope. Even for small work, record only what is needed in the same record; investigate missing technical facts and resolve only open choices changing support scope, behavioral meaning, or authority within the existing work.
+- Apply **Platform Scope** in `CODEX_HOME/AGENTS.md` and the project's support contract; check the current plan's targets and required verification before execution.
 - Project planning guidance owns plan creation and agreement. Follow the owning documents for detailed documentation, testing, and deployment procedures and exact commands.
 
 <a id="작업별-상세-지침"></a>

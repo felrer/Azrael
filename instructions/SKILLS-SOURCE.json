@@ -54,9 +54,11 @@
         "size": 13170,
         "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b"
       },
-      "size": 13170,
-      "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b",
-      "adaptations": []
+      "size": 12222,
+      "sha256": "97c3b553172fb28f3a86eeafad3f9102572d389fe3edc10884c8d854f05ec023",
+      "adaptations": [
+        "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities."
+      ]
     },
     {
       "path": "skills/design-collaboration/SKILL.md",
@@ -87,9 +89,11 @@
         "size": 17375,
         "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 17547,
-      "sha256": "79a7aaa6899aced7766a4c41eb4e312f9b65e773c52b51913aa8aae9a7d7f8d5",
-      "adaptations": []
+      "size": 17098,
+      "sha256": "e9a8c129ec85043ca3d6d1b831369feb2567a424dce5af9c9b73fb95af2c9317",
+      "adaptations": [
+        "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities."
+      ]
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/app-logging.md",
