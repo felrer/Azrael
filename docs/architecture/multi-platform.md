@@ -10,9 +10,7 @@ The initial scope is local VS Code execution on Windows x64, glibc Linux x64 and
 
 ## Requirement applicability
 
-Every feature addition, fix, refactor, dependency update and build/install change determines whether its requested behavior is common, environment-scoped, mixed or unresolved. Common refers to a named supported set; mixed separates common policy from platform implementations and exceptions. Scoped requirements identify the relevant OS, architecture, version/ABI, local/remote execution and desktop conditions, as well as excluded environments.
-
-The task record distinguishes four scopes: requested behavior, code ownership, regression impact and actually verified environments. An OS-specific implementation may affect a shared contract; a shared implementation can require separate native verification. Missing platform information does not imply current-host-only scope. Support reductions, divergent product meaning and permission changes are product decisions; ascertainable technical facts are investigated rather than delegated to the user. The planning and execution skills own this procedure; the Work playbook routes to this contract.
+Apply the common [Platform Scope rules](../../instructions/instructions/AGENTS.snippet.md#platform-scope-all-agents) to feature, dependency and build/install work. Azrael's target set and acceptance status are defined above and in the linked release operations; the runtime descriptors identify candidates rather than establish support. Select native and installed-host verification through this contract's [installation and verification gates](#installation-update-and-verification).
 
 ## Shared and platform responsibilities
 
