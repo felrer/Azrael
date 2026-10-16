@@ -22,7 +22,7 @@ async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = fa
   const reveals = [];
   const panel = { webview: { postMessage(envelope) { posts.push(envelope); return true; }, onDidReceiveMessage() {} }, reveal(...args) { reveals.push(args); }, onDidDispose() {}, dispose() {} };
   const host = createHost({ runtime: { codexHome: home }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs: timeout, backend,
-    vscode: { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [] }, window: { createWebviewPanel() { return panel; } }, commands: { async executeCommand(command) { commands.push(command); await focus?.(); } } },
+    vscode: { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [] }, window: { showWarningMessage: async () => '허용', createWebviewPanel() { return panel; } }, commands: { async executeCommand(command) { commands.push(command); await focus?.(); } } },
     createServer() { const server = new EventEmitter(); server.listen = (_name, done) => done(); server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});
@@ -34,7 +34,7 @@ async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = fa
   started(turn); await host.threads.get(thread).ready;
   t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const call = (tool, args = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: turn } } });
-  async function select() { const candidate = (await call('list_windows')).candidates[0].candidateId; const result = call('select_window', { candidateId: candidate }); result.catch(() => {}); await until(() => posts.some(p => ['mcp-request', 'approval'].includes(p.type))); return { result, request: posts.find(p => ['mcp-request', 'approval'].includes(p.type)).request }; }
+  async function select() { const candidate = (await call('list_windows')).candidates[0].candidateId; const selected = await call('select_window', { candidateId: candidate }); const result = call('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Verify control consent notifications' }); result.catch(() => {}); await until(() => posts.some(p => ['mcp-request', 'approval'].includes(p.type))); return { result, request: posts.find(p => ['mcp-request', 'approval'].includes(p.type)).request }; }
   return { host, native, approvals, descriptor, publisher, navigate, posts, shows, hides, navigation, commands, backendCalls, reveals, call, select, started, click: id => listener({ requestId: id }), subscriptionDisposed: () => subscriptionDisposed,
     answer(request, action = 'accept') { host.respondApproval(native, request.id, { action, content: { persist: 'session' } }); } };
 }
@@ -50,7 +50,7 @@ test('notification follows delivered card, only navigates pending approval, and 
   f.click(shown.requestId); await until(() => f.navigation.length === 1);
   assert.deepEqual(f.commands, ['workbench.action.focusWindow']); assert.equal(f.navigation[0].id, thread); assert.equal(f.navigation[0].isPending(), true);
   assert.equal(f.approvals.hasAppApproval(f.descriptor.executable, thread), false); assert.equal(f.backendCalls.includes('observe'), false);
-  f.answer(request); assert.ok((await result).targetId); await until(() => f.hides.length > 0); assert.deepEqual(f.hides[0], { requestId: shown.requestId });
+  f.answer(request); assert.equal((await result).authorized, true); await until(() => f.hides.length > 0); assert.deepEqual(f.hides[0], { requestId: shown.requestId });
   assert.equal(f.navigation[0].isPending(), false); f.click(shown.requestId); await tick(); assert.equal(f.navigation.length, 1);
   await f.call('select_window', { candidateId: (await f.call('list_windows')).candidates[0].candidateId }); assert.equal(f.shows.length, 1);
 });
@@ -77,7 +77,7 @@ test('approval ending while focus awaits blocks navigation', async t => {
 });
 test('notification show failure leaves consent usable', async t => {
   const f = await fixture(t, { show() { throw new Error('native toast unavailable'); } }); const { result, request } = await f.select(); await until(() => f.shows.length === 1);
-  f.answer(request); assert.ok((await result).targetId); await until(() => f.hides.length > 0);
+  f.answer(request); assert.equal((await result).authorized, true); await until(() => f.hides.length > 0);
 });
 test('show finishing after cancellation is hidden and never navigates', async t => {
   let finishShow; const gate = new Promise(resolve => { finishShow = resolve; }); const f = await fixture(t, { show: () => gate });

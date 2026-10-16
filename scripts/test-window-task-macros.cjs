@@ -26,7 +26,7 @@ async function main() {
   if(method === 'act') {actions.push({...p});if(throwing) throw new Error('native failed with SECRET'); if(p.action === 'setValue') value=p.value; if(p.action === 'pressKey') value='submitted';}
   return {window:{...current}};
  }};
- const owner=createWindowOwner({backend,authorize:async()=>granted,approve:async()=>{approvals++;if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home,workspacePath:home});
+ const owner=createWindowOwner({backend,authorize:async(_window,_thread,context)=>context?.stage===1||granted,approve:async()=>{approvals++;if(pendingApproval) await pendingApproval;granted=true;return true;},codexHome:home,workspacePath:home});
  async function bind(){return owner.bind('t',current);}
  async function run(def,extra={}) {const target=owner.peek('t');return owner.call('t','run_task_macro',{targetId:target.targetId,definition:def,...extra});}
  try {
@@ -36,7 +36,7 @@ async function main() {
   await assert.rejects(owner.call('other','select_window',{candidateId:first.candidateId}),/Stale/);
   const second=(await owner.call('t','list_windows',{})).candidates[0];
   await assert.rejects(owner.call('t','select_window',{candidateId:first.candidateId}),/Stale/);
-  granted=false;const selected=await owner.call('t','select_window',{candidateId:second.candidateId});assert.equal(approvals,1);assert.equal(selected.state,'selected');
+  granted=false;const selected=await owner.call('t','select_window',{candidateId:second.candidateId});assert.equal(approvals,0);assert.equal(selected.state,'selected');granted=true;
   const stale=(await owner.call('t','list_windows',{})).candidates[0];current.processCreated='changed';
   await assert.rejects(owner.call('t','select_window',{candidateId:stale.candidateId}),/identity changed/);current={...w};
   await bind();

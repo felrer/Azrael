@@ -44,7 +44,7 @@ function classifyExpected(message) {
   if (/authorization revoked|permission.*denied|Native Disabled permission|authentication|trusted.*(metadata|identifier)|native.*(metadata|context|proof)/i.test(message)) return 'permission_denied';
   if (/Fresh selected-window observation|Stale or forged|identity changed|[Ww]indow .*minimized|Selected window paused|user resume required/.test(message)) return 'state_changed';
   if (/Unsupported (key|action|selected-window tool)|requested UIA pattern/.test(message)) return 'unsupported_action';
-  if (/^(Invalid (arguments|string|value|scroll amount|tool arguments|execution parameter|task)|Size must be|Provide definition or macroId|Unknown (task macro|macro)|Macros require|Tasks require|Wait limit|Exact name or automationId|Key requires|Unexpected (task|condition|key))/.test(message)) return 'invalid_request';
+  if (/^(Invalid (arguments|string|value|scroll amount|tool arguments|execution parameter|task|inspection mode|inspection limit|read fields|text range)|Size must be|Provide definition or macroId|Unknown (task macro|macro)|Macros require|Tasks require|Wait limit|Exact name or automationId|Key requires|Unexpected (task|condition|key)|Specify one name condition|Find requires a query|Read requires observation and element IDs|Read fields require read mode|Changes requires a base observation)/.test(message)) return 'invalid_request';
   if (/^(Ambiguous task selector|Task selector missing|Condition property unsupported|Task condition not met|Task postcondition not met|Task requires a complete accessibility observation|Password control excluded)$/.test(message)) return 'condition_failed';
   return 'unclassified';
 }

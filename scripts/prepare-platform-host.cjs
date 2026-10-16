@@ -82,6 +82,18 @@ function prepareLinuxSupervision(root,ts,selected) {
   return {sourceSha256:shared.sha(Buffer.from(before)),outputSha256:shared.sha(Buffer.from(after)),
     modules:Object.fromEntries(modules.map(name=>[name,shared.sha(fs.readFileSync(path.join(root,"out",name)))]))};
 }
+function stageDesktopRuntimes(release, root, selected) {
+  const config = {};
+  if (!selected.desktopControl) return config;
+  for (const [owner, reader] of [["computerUse", "computer-use-runtime.cjs"], ["windowControl", "window-control-runtime.cjs"]]) {
+    const directory = path.join(release, owner === "computerUse" ? "computer-use" : "window-control");
+    if (!fs.existsSync(directory)) continue;
+    const { manifest, ...verified } = require("./" + reader).verifyRuntime(directory);
+    config[owner] = verified;
+    fs.cpSync(directory, path.join(root, path.basename(directory)), { recursive: true });
+  }
+  return config;
+}
 async function prepare(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), ui=shared.inspectPath(shared.absolute(options["ui-root"])), account=shared.inspectPath(shared.absolute(options["account-ui-root"])), output=shared.inspectPath(shared.absolute(options.output));
   for (const input of [ui,account]) shared.disjoint(input,output);
@@ -107,12 +119,7 @@ async function prepare(options) {
   for (const name of accountModules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"account-ui",name));
   const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("azrael",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
   config.devinNative=require("./devin-native-host.cjs").readBundle(release); config.providerAccounts=require("./provider-accounts-host.cjs").readBundle(release);
-  if(selected.desktopControl) {
-    for(const [owner,reader] of [["computerUse","computer-use-runtime.cjs"],["windowControl","window-control-runtime.cjs"]]) {
-      const directory=path.join(release,owner==="computerUse" ? "computer-use" : "window-control");
-      if(fs.existsSync(directory)) { const result=require("./"+reader).verifyRuntime(directory); config[owner]={directory,manifestSha256:result.manifestSha256}; fs.cpSync(directory,path.join(root,path.basename(directory)),{recursive:true}); }
-    }
-  }
+  Object.assign(config, stageDesktopRuntimes(release, root, selected));
   for (const name of Object.keys(build.sha256).filter(name=>name.startsWith("host/") && /\.(?:cjs|mjs|json)$/.test(name))) {
     const target=path.join(root,"out",name.replace(/^host\/(?:out\/)?/,"")); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.copyFileSync(shared.fileAt(release,name),target);
   }
@@ -145,5 +152,5 @@ async function prepare(options) {
   if(shared.sha(fs.readFileSync(rgInput))!==rgSha256) throw new Error("Ripgrep source changed.");
   const result={schema:1,platform:config.platform,hostVersion:options["host-version"],hostVsix:vsix,hostSha256:shared.sha(fs.readFileSync(vsix)),release,sourceUi:ui,sourceAccountUi:account,companionNativeTools,...(linuxSupervision ? {linuxSupervision} : {}),...(signing ? {signing} : {}),ripgrep:{source:rgInput,sha256:rgSha256,target:`bin/${toolDirectory}/${platform.executableName("rg",selected)}`}}; fs.writeFileSync(path.join(output,"preparation.json"),shared.encode(result)); return result;
 }
-module.exports={prepare,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision};
+module.exports={prepare,stageDesktopRuntimes,brandHost,single,psLiteral,normalizeCompanionModes,projectMacSigning,prepareLinuxSupervision};
 if(require.main===module) prepare(shared.args(process.argv.slice(2))).then(result=>console.log(JSON.stringify(result))).catch(error=>{console.error(error.message);process.exitCode=1;});

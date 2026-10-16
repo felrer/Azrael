@@ -6,6 +6,12 @@ const { SKY_EXECUTABLE, brandComputerUse } = require('./computer-use-branding.cj
 const { TRANSPORT, TRANSPORT_POLICY_MODULES, transformTransport, generateSettingsModule } = require('./inject-sky-control-policy.cjs');
 const POLICY_MODULES = ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs'];
 const REQUIRED = ['node_repl.exe', 'node.exe', 'node_modules/@oai/sky/package.json', 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md', TRANSPORT, ...POLICY_MODULES, 'use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES];
+const TRANSPORT_POLICY_REEXPORT = `export { assertComputerUseEnabled } from '${path.posix.relative(path.posix.dirname(TRANSPORT), 'sky-control-policy.mjs')}';\n`;
+function generateTransportPolicyReexport(input) {
+  const content = Buffer.from(TRANSPORT_POLICY_REEXPORT);
+  return { content, transform: { kind: 'azrael-sky-policy-owner-reexport', version: 1, sourceSha256: hash(input), outputSha256: hash(content) } };
+}
+const WINDOW_GUIDES = ['common', 'stage-1', 'stage-2', 'stage-3', 'stage-4'].map(name => `docs/window-use/${name}.md`);
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
 function relative(value) {
   if (typeof value !== 'string' || !value || value.includes('\\') || value.includes(':') || value.startsWith('/') || value.split('/').some(x => !x || x === '.' || x === '..')) throw new Error(`Unsafe runtime path: ${value}`);
@@ -30,6 +36,24 @@ function walk(root, rel = '') {
   if (!stat.isDirectory()) throw new Error(`Unsupported runtime file: ${target}`);
   return fs.readdirSync(target).sort().flatMap(name => walk(root, rel ? `${rel}/${name}` : name));
 }
+// Verification-only transition for historical schema-1 settings wrappers. New
+// producers always use the current settings owner and ESM generator unchanged.
+function legacySettingsModule(input) {
+  const source = Buffer.from(input).toString('utf8').replace(/\r\n/g, '\n');
+  const registry = 'const registry = globalThis[Symbol.for("azrael.use-control.settings-owners.v1")] ??= new Map();\n';
+  const exports = 'module.exports = { createSettingsOwner, getSettings: () => owner().getSettings(), updateSettings: (...args) => owner().updateSettings(...args), assertComputerUseEnabled: () => owner().assertComputerUseEnabled() };\n';
+  const keys = ['path.resolve(home).toLowerCase()', 'process.platform === "win32" ? path.resolve(home).toLowerCase() : path.resolve(home)'];
+  const tails = keys.map(key => registry + `function owner() { const home = require("./azrael-runtime.cjs").runtime.codexHome, key = ${key}; if (!registry.has(key)) registry.set(key, createSettingsOwner(home)); return registry.get(key); }\n` + exports);
+  const tail = tails.find(value => source.endsWith(value));
+  if (!tail) throw new Error('Unsupported historical settings owner wrapper');
+  const currentTail = registry + 'function owner() { const home = require("./azrael-runtime.cjs").runtime.codexHome, key = process.platform === "win32" ? path.resolve(home).toLowerCase() : path.resolve(home); if (!registry.has(key)) registry.set(key, createSettingsOwner(home)); return registry.get(key); }\n' +
+    'module.exports = { createSettingsOwner, stageEnabled, assertStageEnabled: stage => owner().assertStageEnabled(stage), getSettings: () => owner().getSettings(), updateSettings: (...args) => owner().updateSettings(...args), assertComputerUseEnabled: () => owner().assertComputerUseEnabled() };\n';
+  const generated = generateSettingsModule(Buffer.from(source.slice(0, -tail.length) + currentTail));
+  const modernExport = 'export { createSettingsOwner, stageEnabled };\n';
+  if (!generated.content.toString('utf8').endsWith(modernExport)) throw new Error('Unsupported settings generator exports');
+  const content = Buffer.from(generated.content.toString('utf8').slice(0, -modernExport.length) + 'export { createSettingsOwner };\n');
+  return { content, transform: { kind: 'azrael-settings-owner-esm', version: 1, sourceSha256: hash(input), outputSha256: hash(content) } };
+}
 function verifyRuntime(directory) {
   directory = path.resolve(directory);
   const manifestBytes = fs.readFileSync(checked(directory, 'manifest.json'));
@@ -45,7 +69,9 @@ function verifyRuntime(directory) {
     const bytes = fs.readFileSync(file);
     if (bytes.length !== entry.bytes || hash(bytes) !== entry.sha256) throw new Error(`Runtime hash mismatch: ${rel}`);
   }
-  for (const rel of REQUIRED) if (!seen.has(rel.toLowerCase())) throw new Error(`Required runtime entry missing: ${rel}`);
+  const required = manifest.windowUseGuidanceVersion === 1 ? [...REQUIRED.filter(rel => rel !== 'skills/computer-use/SKILL.md'), 'docs/computer-use-skill.md', 'skills/window-use/SKILL.md', ...WINDOW_GUIDES] : REQUIRED;
+  if (manifest.windowUseGuidanceVersion === 1 && seen.has('skills/computer-use/skill.md')) throw new Error('Redundant managed Computer Use skill');
+  for (const rel of required) if (!seen.has(rel.toLowerCase())) throw new Error(`Required runtime entry missing: ${rel}`);
   for (const rel of walk(directory)) if (rel !== 'manifest.json' && !seen.has(rel.toLowerCase())) throw new Error(`Unrecorded runtime file: ${rel}`);
   for (const pkg of manifest.packages) {
     const pkgRel = relative(pkg.path);
@@ -55,9 +81,26 @@ function verifyRuntime(directory) {
   }
   const skyPackage = JSON.parse(fs.readFileSync(checked(directory, 'node_modules/@oai/sky/package.json')));
   const transportEntry = manifest.files.find(entry => entry.path === TRANSPORT);
-  const transformed = transformTransport(fs.readFileSync(checked(directory, TRANSPORT)), skyPackage.version);
+  const transportVersion = transportEntry.transform?.version;
+  if (![3, 4].includes(transportVersion) || (manifest.windowUseGuidanceVersion === 1 && transportVersion !== 4)) throw new Error('Unsupported Sky policy transform version for runtime');
+  const transformed = transformTransport(fs.readFileSync(checked(directory, TRANSPORT)), skyPackage.version, transportVersion);
   if (JSON.stringify(transportEntry.transform) !== JSON.stringify(transformed.transform) || transportEntry.sourceSha256 !== transformed.transform.sourceSha256 || transportEntry.sha256 !== transformed.transform.outputSha256) throw new Error('Sky policy transform provenance mismatch');
-  const settingsModule = generateSettingsModule(fs.readFileSync(checked(directory, 'use-control-settings.cjs')));
+  if (manifest.skyPolicyOwnerVersion !== undefined && manifest.skyPolicyOwnerVersion !== 1) throw new Error('Unsupported Sky policy owner version');
+  if (manifest.windowUseGuidanceVersion === 1 && manifest.skyPolicyOwnerVersion !== 1) throw new Error('Unified Sky policy owner provenance missing');
+  if (manifest.skyPolicyOwnerVersion === 1) {
+    const generated = generateTransportPolicyReexport(fs.readFileSync(checked(directory, 'sky-control-policy.mjs')));
+    for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) {
+      const entry = manifest.files.find(entry => entry.path === rel);
+      if (!fs.readFileSync(checked(directory, rel)).equals(generated.content) || JSON.stringify(entry.transform) !== JSON.stringify(generated.transform) || entry.sourceSha256 !== generated.transform.sourceSha256 || entry.sourceBytes !== fs.statSync(checked(directory, 'sky-control-policy.mjs')).size) throw new Error('Sky single-owner re-export provenance mismatch');
+    }
+  }
+  const settingsSource = fs.readFileSync(checked(directory, 'use-control-settings.cjs'));
+  let settingsModule;
+  try { settingsModule = generateSettingsModule(settingsSource); }
+  catch (error) {
+    if (manifest.windowUseGuidanceVersion === 1 || transportVersion !== 3) throw error;
+    settingsModule = legacySettingsModule(settingsSource);
+  }
   for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) {
     const entry = manifest.files.find(entry => entry.path === rel);
     if (!fs.readFileSync(checked(directory, rel)).equals(settingsModule.content) || JSON.stringify(entry.transform) !== JSON.stringify(settingsModule.transform) || entry.sourceSha256 !== settingsModule.transform.sourceSha256) throw new Error('Settings owner ESM provenance mismatch');
@@ -109,7 +152,12 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
     for (const name of Object.keys(pkg.dependencies || {}).sort()) pending.push(resolvePackage(bin, rel, name));
   }
   for (const rel of POLICY_MODULES) add(__dirname, rel, rel);
-  for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) add(__dirname, path.posix.basename(rel), rel);
+  const policySource = fs.readFileSync(files.get('sky-control-policy.mjs').source);
+  const policyReexport = generateTransportPolicyReexport(policySource);
+  for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) {
+    add(__dirname, 'sky-control-policy.mjs', rel);
+    Object.assign(files.get(rel), { content: policyReexport.content, transform: policyReexport.transform, sourceSha256: policyReexport.transform.sourceSha256, sourceBytes: policySource.length, sha256: hash(policyReexport.content), bytes: policyReexport.content.length });
+  }
   const settingsModule = generateSettingsModule(fs.readFileSync(files.get('use-control-settings.cjs').source));
   for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) {
     add(__dirname, 'use-control-settings.cjs', rel);
@@ -130,19 +178,19 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
   if (selectedWindowGuide) {
     const guideRoot = path.dirname(path.resolve(selectedWindowGuide));
     add(guideRoot, path.basename(selectedWindowGuide), 'docs/selected-window.md');
-    const skill = files.get('skills/computer-use/SKILL.md');
-    const original = fs.readFileSync(skill.source, 'utf8');
-    const routing = '\n## Window Use routing\n\nFor control of one window while the user continues using their mouse and keyboard, use the separate window-use skill and azrael_window tools. Computer Use follows the foreground Sky instructions below. Dedicated selectedWindow conversations retain their native tool ceiling.\n\n';
-    // Retain plugin front matter so skill discovery metadata remains valid.
-    const frontMatter = original.match(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/);
-    const offset = frontMatter ? frontMatter[0].length : 0;
-    skill.content = Buffer.from(original.slice(0, offset) + routing + original.slice(offset));
-    skill.sha256 = hash(skill.content); skill.bytes = skill.content.length;
-    const windowInstructions = Buffer.from('---\nname: window-use\ndescription: Discover, select and control a Windows window through Window Use while the user works in other apps. Use for window capture and structured task macros with azrael_window tools.\n---\n\n' + fs.readFileSync(selectedWindowGuide, 'utf8'));
+    // Preserve vendor instructions and their original source identity outside skill discovery.
+    const vendorSkill = files.get('skills/computer-use/SKILL.md');
+    files.delete('skills/computer-use/SKILL.md');
+    const vendorContent = Buffer.from(fs.readFileSync(vendorSkill.source, 'utf8').replaceAll('../../docs/', './'));
+    files.set('docs/computer-use-skill.md', { ...vendorSkill, path: 'docs/computer-use-skill.md', content: vendorContent,
+      sourceSha256: vendorSkill.sha256, sourceBytes: vendorSkill.bytes, sha256: hash(vendorContent), bytes: vendorContent.length,
+      transform: { kind: 'azrael-relocated-vendor-guide', version: 1 } });
+    for (const rel of WINDOW_GUIDES) add(guideRoot, rel.slice('docs/'.length), rel);
+    const windowInstructions = Buffer.from('---\nname: window-use\ndescription: Observe windows and control apps through managed Window Use stages, including current-window, isolated-session and desktop control.\n---\n\n' + fs.readFileSync(selectedWindowGuide, 'utf8'));
     files.set('skills/window-use/SKILL.md', { path: 'skills/window-use/SKILL.md', source: path.resolve(selectedWindowGuide), sha256: hash(windowInstructions), bytes: windowInstructions.length, content: windowInstructions });
   }
   for (const rel of walk(pluginDirectory).filter(x => /(^|\/)(plugin\.json|LICENSE(?:\.[^/]*)?|NOTICE(?:\.[^/]*)?)$/i.test(x))) add(pluginDirectory, rel, rel);
-  const manifest = { schema: 1, scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };
+  const manifest = { schema: 1, skyPolicyOwnerVersion: 1, ...(selectedWindowGuide ? { windowUseGuidanceVersion: 1 } : {}), scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of manifest.files) {
     const target = path.join(destination, entry.path);
@@ -154,7 +202,7 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
   fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   return verifyRuntime(destination);
 }
-module.exports = { stageRuntime, verifyRuntime, checked, walk, relative, hash };
+module.exports = { stageRuntime, verifyRuntime, checked, walk, relative, hash, WINDOW_GUIDES, TRANSPORT_POLICY_REEXPORT, generateTransportPolicyReexport };
 if (require.main === module) {
   try {
     const [command, ...args] = process.argv.slice(2), options = {};

@@ -95,6 +95,65 @@ pub fn hex(value: &str) -> Result<u64> {
 pub struct Target {
     pub window: Window,
 }
+#[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct NameQuery { pub equals: Option<String>, pub contains: Option<String> }
+#[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct ElementQuery {
+    pub name: Option<NameQuery>, pub automation_id: Option<String>, pub control_type: Option<String>,
+}
+impl ElementQuery {
+    pub fn matches(&self, name: &str, automation_id: &str, control_type: &str) -> bool {
+        self.name.as_ref().is_none_or(|q| q.equals.as_ref().is_none_or(|s| s == name)
+            && q.contains.as_ref().is_none_or(|s| name.contains(s)))
+            && self.automation_id.as_ref().is_none_or(|s| s == automation_id)
+            && self.control_type.as_ref().is_none_or(|s| s == control_type)
+    }
+}
+#[derive(Clone, Default, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct InspectScope { pub container_id: Option<String> }
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(deny_unknown_fields)]
+pub struct TextRange { pub start: i32, pub length: i32 }
+#[derive(Clone, Deserialize, Serialize)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+pub struct Inspect {
+    pub window: Window,
+    pub mode: Option<String>, pub query: Option<ElementQuery>, pub scope: Option<InspectScope>,
+    pub limit: Option<usize>, pub observation_id: Option<String>, pub element_id: Option<String>,
+    pub fields: Option<Vec<String>>, pub text_range: Option<TextRange>, pub base_observation_id: Option<String>,
+}
+impl Inspect {
+    pub fn mode(&self) -> &str { self.mode.as_deref().unwrap_or("summary") }
+    pub fn limit(&self) -> usize { self.limit.unwrap_or(20) }
+    pub fn validate(&self) -> Result<()> {
+        if !matches!(self.mode(), "summary" | "find" | "read" | "changes" | "task") || !(1..=100).contains(&self.limit()) {
+            return Err(Error::new("invalid-params", "Invalid inspection mode or limit"));
+        }
+        if let Some(r) = &self.text_range { if r.start < 0 || !(1..=4096).contains(&r.length) || r.start.checked_add(r.length).is_none() {
+            return Err(Error::new("invalid-params", "Invalid text range"));
+        }}
+        if let Some(q) = &self.query {
+            let names = q.name.as_ref();
+            for value in [q.automation_id.as_ref(), q.control_type.as_ref(), names.and_then(|n| n.equals.as_ref()), names.and_then(|n| n.contains.as_ref())].into_iter().flatten() {
+                if value.chars().count() > 512 || value.contains('\0') { return Err(Error::new("invalid-params", "Query exceeds supported bounds")); }
+            }
+        }
+        if let Some(fields) = &self.fields { if fields.len() > 12 || fields.iter().any(|s| !matches!(s.as_str(),
+            "name" | "controlType" | "automationId" | "enabled" | "isPassword" | "value" | "text" | "patterns" | "selected" | "toggleState" | "expandState")) {
+            return Err(Error::new("invalid-params", "Unsupported inspection field"));
+        }}
+        if self.mode() == "read" && (self.observation_id.is_none() || self.element_id.is_none()) {
+            return Err(Error::new("invalid-params", "Read requires observationId and elementId"));
+        }
+        if self.mode() == "read" && self.fields.as_ref().is_some_and(|f| f.iter().any(|s| s == "text")) && self.text_range.is_none() {
+            return Err(Error::new("invalid-params", "Text reads require textRange"));
+        }
+        Ok(())
+    }
+}
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 pub struct Resize {
@@ -225,6 +284,29 @@ pub fn validate_request(request: &Request) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    fn inspection(extra: Value) -> Inspect {
+        let mut value = serde_json::json!({"window":{"hwnd":"1","pid":1,"processCreated":"2","executable":"fixture","title":"fixture","minimized":false,"widthPx":100,"heightPx":100,"dpi":96}});
+        value.as_object_mut().unwrap().extend(extra.as_object().unwrap().clone());
+        serde_json::from_value(value).unwrap()
+    }
+    #[test]
+    fn retrieval_defaults_and_bounds() {
+        let p = inspection(serde_json::json!({}));
+        assert_eq!(p.mode(), "summary"); assert_eq!(p.limit(),20); assert!(p.validate().is_ok());
+        for invalid in [serde_json::json!({"limit":0}),serde_json::json!({"limit":101}),serde_json::json!({"mode":"all"}),
+            serde_json::json!({"mode":"read"}),serde_json::json!({"textRange":{"start":-1,"length":1}}),
+            serde_json::json!({"textRange":{"start":0,"length":4097}}),serde_json::json!({"fields":["unknown"]})] {
+            assert!(inspection(invalid).validate().is_err());
+        }
+        assert!(inspection(serde_json::json!({"mode":"read","observationId":"o","elementId":"e","fields":["text"],"textRange":{"start":0,"length":4096}})).validate().is_ok());
+    }
+    #[test]
+    fn query_combines_exact_and_contains_without_case_folding() {
+        let q: ElementQuery = serde_json::from_value(serde_json::json!({"name":{"equals":"Save document","contains":"document"},"automationId":"save","controlType":"button"})).unwrap();
+        assert!(q.matches("Save document","save","button"));
+        assert!(!q.matches("Save Document","save","button"));
+        assert!(!q.matches("Save document","other","button"));
+    }
     #[test]
     fn named_keys_are_closed_and_typed() {
         for key in ["Return", "Tab", "Escape", "BackSpace", "Delete", "Left", "Right",

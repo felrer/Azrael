@@ -1,0 +1,3 @@
+# Stage 1 — Observation
+
+Discover with `list_windows`; select an exact returned candidate with `select_window`. Selection grants no mutation authority. Stage 1 needs the master and stage 1 settings, without per-app/window consent. Use `capture` for the target’s own fresh image or bounded `inspect` for structured context. Observation must not activate, raise, restore, resize, launch, scroll, send input or write the clipboard. Whole-desktop capture is outside this stage. Respect native permissions, protected content, identity and freshness. Report coverage and limits; partial scans cannot establish absence or selector uniqueness. Request an appropriate control stage for a mutation.

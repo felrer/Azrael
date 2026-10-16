@@ -322,6 +322,7 @@ function main(argv = process.argv.slice(2)) {
   const computerUseDirectory = args["computer-use-directory"] ? path.resolve(args["computer-use-directory"]) : null;
   const windowControlDirectory = args["window-control-directory"] ? path.resolve(args["window-control-directory"]) : null;
   let windowControl = null;
+  let unifiedWindowUse = false;
   const ownedSourceStates = new Map();
   if (windowControlDirectory) {
     if (!computerUseDirectory) fail("Window Control requires owned Node runtime.");
@@ -333,7 +334,7 @@ function main(argv = process.argv.slice(2)) {
     for (const target of [computerUseDirectory, ...["manifest.json", "node_repl.exe", "node.exe"].map((name) => path.join(computerUseDirectory, name))]) {
       ownedSourceStates.set(target, pathState(target));
     }
-    require("./computer-use-runtime.cjs").verifyRuntime(computerUseDirectory);
+    unifiedWindowUse = require("./computer-use-runtime.cjs").verifyRuntime(computerUseDirectory).manifest.windowUseGuidanceVersion === 1;
     assertUnchanged(ownedSourceStates);
   }
   if (isWithin(stateRoot, sourceHome) || isWithin(sourceHome, stateRoot)) fail("Azrael and ordinary Codex state must not overlap, including filesystem aliases.");
@@ -343,7 +344,7 @@ function main(argv = process.argv.slice(2)) {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
   if (manifest.schema !== 1) fail("Unsupported Codex environment manifest schema.");
   if (computerUseDirectory && manifest.personalSkills.some((skill) => skill.name === "computer-use")) fail("Computer Use skill has conflicting snapshot ownership.");
-  if (windowControl && manifest.personalSkills.some((skill) => skill.name === "window-use")) fail("Window Use skill has conflicting snapshot ownership.");
+  if ((windowControl || unifiedWindowUse) && manifest.personalSkills.some((skill) => skill.name === "window-use")) fail("Window Use skill has conflicting snapshot ownership.");
   const copyGlobalInstructions = manifest.copyGlobalInstructions !== false;
   for (const name of [...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name), ...manifest.personalSkills.map((skill) => skill.name)]) {
     if (!/^[A-Za-z0-9_-]+$/.test(name)) fail(`Invalid managed name: ${name}`);
@@ -362,8 +363,8 @@ function main(argv = process.argv.slice(2)) {
     ...(copyGlobalInstructions ? [path.join(stateRoot, "AGENTS.md")] : []),
     ...[...manifest.agentRoles, ...manifest.generatedAgentRoles.map((role) => role.name)].map((name) => path.join(stateRoot, "agents", `${name}.toml`)),
     ...manifest.personalSkills.map((skill) => path.join(stateRoot, "skills", skill.name)),
-    ...(computerUseDirectory ? [path.join(stateRoot, "skills", "computer-use")] : []),
-    ...(windowControl ? [path.join(stateRoot, "skills", "window-use")] : []),
+    ...(computerUseDirectory && !unifiedWindowUse ? [path.join(stateRoot, "skills", "computer-use")] : []),
+    ...(windowControl || unifiedWindowUse ? [path.join(stateRoot, "skills", "window-use")] : []),
     ...[...sourceMarketplaces.keys()].map((name) => localMarketplacePath(stateRoot, name)),
     ...enabledPlugins(sourceConfig).map((plugin) => { const [name, marketplace] = plugin.split("@"); return path.join(stateRoot, "plugins", "cache", marketplace, name); }),
     receiptPath,
@@ -440,6 +441,12 @@ function main(argv = process.argv.slice(2)) {
     const skillHashes = {};
     const computerUseFiles = new Map();
     if (computerUseDirectory) {
+      if (unifiedWindowUse) {
+        // Existing standalone entries may still have active consumers. Preserve them
+        // until stage-4 acceptance and runtime reference protection permit retirement.
+        const legacy = path.join(stateRoot, 'skills', 'computer-use');
+        if (fs.existsSync(legacy)) warnings.push('Standalone Computer Use entry retained: stage-4 acceptance and active-consumer retirement checks are pending.');
+      } else {
       const skillDirectory = path.join(skillsDirectory, "computer-use");
       copyDirectory(path.join(computerUseDirectory, "skills", "computer-use"), skillDirectory);
       copyDirectory(path.join(computerUseDirectory, "docs"), path.join(skillDirectory, "docs"));
@@ -472,9 +479,10 @@ function main(argv = process.argv.slice(2)) {
       }
       collect(skillDirectory);
       skillHashes["computer-use"] = directoryHash(skillDirectory);
+      }
       runtimeEvidence.computerUse = { path: computerUseDirectory, sha256: ownedSourceStates.get(computerUseDirectory).sha256,
         manifestSha256: fileHash(path.join(computerUseDirectory, "manifest.json")) };
-      if (windowControl) {
+      if (windowControl || unifiedWindowUse) {
         const windowSkillSource = path.join(computerUseDirectory, 'skills', 'window-use');
         assertFile(path.join(windowSkillSource, 'SKILL.md'), 'owned Window Use skill');
         const windowSkillDestination = path.join(skillsDirectory, 'window-use');
@@ -653,7 +661,7 @@ function main(argv = process.argv.slice(2)) {
       process.stdout.write(JSON.stringify({ status: "applied", receipt: receiptPath, backup: backupDirectory, fingerprint, warnings }) + "\n");
     } catch (error) {
       for (const item of backups.reverse()) {
-        if (fs.lstatSync(item.target, { throwIfNoEntry: false })) fs.rmSync(item.target, { recursive: true, force: true });
+        if (fs.lstatSync(item.target, { throwIfNoEntry: false })) fs.rmSync(item.target, { recursive: true });
         if (item.existed) {
           fs.mkdirSync(path.dirname(item.target), { recursive: true });
           fs.renameSync(item.backup, item.target);
@@ -664,7 +672,7 @@ function main(argv = process.argv.slice(2)) {
   } finally {
     if (commitLock) fs.unlinkSync(commitLock);
     if (args["keep-stage"] === "true") process.stderr.write(`Retained staging directory: ${stage}\n`);
-    else fs.rmSync(stage, { recursive: true, force: true });
+    else fs.rmSync(stage, { recursive: true });
   }
 }
 

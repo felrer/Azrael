@@ -9,13 +9,17 @@ const { hash } = require('./computer-use-runtime.cjs');
 const { fingerprintNativeSource, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost } = require('./window-control-runtime.cjs');
 function fixture(t) {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'window-package-'));
-  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  t.after(() => fs.rmSync(root, { recursive: true }));
   const sourceRoot = path.join(root, 'source'), scriptDirectory = path.join(root, 'scripts'), skillDirectory = path.join(root, 'skill');
   for (const directory of [path.join(sourceRoot, 'src'), scriptDirectory, skillDirectory]) fs.mkdirSync(directory, { recursive: true });
   for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['THIRD_PARTY_NOTICES.md', 'Fixture third-party license notices'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
-  for (const name of ['window-control-mcp.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
+  for (const name of ['window-control-mcp.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
+  fs.mkdirSync(path.join(root, 'windows-child-session'));
+  fs.writeFileSync(path.join(root, 'windows-child-session/probe.ps1'), 'fixture read-only probe');
   const guidance = path.join(skillDirectory, 'selected-window.md');
   fs.writeFileSync(guidance, 'Selected window instructions');
+  fs.mkdirSync(path.join(skillDirectory, 'window-use'));
+  for (const name of ['common', 'stage-1', 'stage-2', 'stage-3', 'stage-4']) fs.writeFileSync(path.join(skillDirectory, 'window-use', `${name}.md`), `${name} instructions`);
   const executable = path.join(root, 'helper.exe'), provenance = path.join(root, 'build.json'), release = path.join(root, 'release'), destination = path.join(release, 'window-control');
   fs.writeFileSync(executable, 'fixture owned native binary');
   fs.writeFileSync(provenance, JSON.stringify({ schema: 1, sourceSha256: fingerprintNativeSource(sourceRoot), executableSha256: hash(fs.readFileSync(executable)) }));
@@ -26,7 +30,7 @@ test('stage closure includes required owned files and release binds provenance',
   const f = fixture(t), result = stageRuntime(f.options);
   const sha256 = { 'window-control/manifest.json': result.manifestSha256 };
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const content = `fixture ${module}`;
     fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -50,11 +54,13 @@ test('native source fingerprint excludes target while observing source content',
   assert.throws(() => stageRuntime(f.options), /build provenance mismatch/);
 });
 test('prepared host binds declared release, copied bundle and host modules', t => {
-  const f = fixture(t), runtime = stageRuntime(f.options), host = path.join(path.dirname(f.release), 'host');
+  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'prepared-child.exe');
+  fs.writeFileSync(helper, 'synthetic child helper');
+  const runtime = stageRuntime({ ...f.options, childSessionExecutable: helper }), host = path.join(path.dirname(f.release), 'host');
   const sha256 = { 'window-control/manifest.json': runtime.manifestSha256 };
   fs.mkdirSync(path.join(host, 'out'), { recursive: true });
   fs.mkdirSync(path.join(f.release, 'host'));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', 'window-desktop-authority.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const content = fs.readFileSync(path.join(__dirname, module));
     fs.writeFileSync(path.join(host, 'out', module), content); fs.writeFileSync(path.join(f.release, 'host', module), content); sha256[`host/${module}`] = hash(content);
   }
@@ -86,6 +92,8 @@ test('prepared host binds declared release, copied bundle and host modules', t =
   assert.equal(verifyPreparedHost(host, f.release).manifestSha256, runtime.manifestSha256);
   fs.writeFileSync(configFile, JSON.stringify({ windowControl: { ...windowControl, executable: 'external.exe' } }));
   assert.throws(() => verifyPreparedHost(host, f.release), /configuration mismatch/);
+  fs.writeFileSync(configFile, JSON.stringify({ windowControl: { ...windowControl, childSession: { ...windowControl.childSession, executable: 'external-child.exe' } } }));
+  assert.throws(() => verifyPreparedHost(host, f.release), /child-session configuration mismatch/);
   fs.writeFileSync(configFile, JSON.stringify({ windowControl }));
   fs.writeFileSync(path.join(host, 'out/window-control-host.cjs'), 'tampered module');
   assert.throws(() => verifyPreparedHost(host, f.release), /host module mismatch/);
@@ -146,4 +154,39 @@ test('rollback release without feature is allowed; undeclared or mismatched runt
 test('occupancy dependency is required and its runtime hash is verified',t=>{
  const f=fixture(t);stageRuntime(f.options); const file=path.join(f.destination,'window-control-occupancy.cjs');fs.writeFileSync(file,'tampered');assert.throws(()=>verifyRuntime(f.destination),/hash mismatch/);
  const target=path.join(f.destination,'manifest.json'),manifest=JSON.parse(fs.readFileSync(target));manifest.files=manifest.files.filter(e=>e.path!=='window-control-occupancy.cjs');fs.writeFileSync(target,JSON.stringify(manifest));fs.unlinkSync(file);assert.throws(()=>verifyRuntime(f.destination),/Required.*window-control-occupancy/);
+});
+
+
+test('Windows child helper is optional, hash-bound and returned only as a verified payload identity', t => {
+  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'fixture-child.exe');
+  fs.writeFileSync(helper, 'synthetic pinned executable; not native acceptance');
+  const result = stageRuntime({ ...f.options, childSessionExecutable: helper });
+  assert.deepEqual(result.childSession, { executable: path.join(f.destination, 'child-session/windows-child-session.exe'), sha256: hash(fs.readFileSync(helper)), probeScript: path.join(f.destination, 'child-session/probe.ps1') });
+  fs.appendFileSync(result.childSession.executable, 'tampered');
+  assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
+  fs.writeFileSync(result.childSession.executable, fs.readFileSync(helper));
+  const file = path.join(f.destination, 'manifest.json'), original = fs.readFileSync(file), manifest = JSON.parse(original);
+  delete manifest.childSession;
+  fs.writeFileSync(file, JSON.stringify(manifest));
+  assert.throws(() => verifyRuntime(f.destination), /Undeclared.*helper/);
+  fs.writeFileSync(file, original);
+  fs.unlinkSync(result.childSession.probeScript);
+  assert.throws(() => verifyRuntime(f.destination), /ENOENT/);
+});
+test('Windows read-only child probe stages without claiming helper availability', t => {
+  const f = fixture(t), result = stageRuntime(f.options);
+  assert.equal(result.childSession, undefined);
+  assert(result.manifest.files.some(entry => entry.path === 'child-session/probe.ps1'));
+  for (const name of ['window-use-resources.cjs', 'window-child-session.cjs']) assert(result.manifest.files.some(entry => entry.path === name));
+  assert.throws(() => stageRuntime({ ...f.options, destination: path.join(f.release, 'relative-child'), childSessionExecutable: 'relative.exe' }), /absolute Windows input/);
+});
+test('Linux payload excludes Windows child probe and helper and rejects Windows helper inputs', t => {
+  const f = fixture(t), linux = path.join(f.sourceRoot, '..', 'linux_backend.py');
+  fs.writeFileSync(linux, '# synthetic Linux fixture');
+  fs.writeFileSync(f.provenance, JSON.stringify({ schema: 1, sourceSha256: fingerprintNativeSource(f.sourceRoot), executableSha256: hash(fs.readFileSync(linux)) }));
+  const options = { ...f.options, executable: linux }, result = stageRuntime(options);
+  assert.equal(result.manifest.platform, 'linux');
+  assert.equal(result.childSession, undefined);
+  assert.equal(result.manifest.files.some(entry => entry.path.startsWith('child-session/')), false);
+  assert.throws(() => stageRuntime({ ...options, destination: path.join(f.release, 'linux-helper'), childSessionExecutable: linux }), /absolute Windows input/);
 });

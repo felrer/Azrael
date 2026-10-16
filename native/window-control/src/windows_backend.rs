@@ -42,6 +42,9 @@ struct Observation {
     id: String,
     window: Window,
     elements: HashMap<String, IUIAutomationElement>,
+    descriptors: Vec<Value>,
+    coverage: Value,
+    signature: Value,
 }
 
 impl Backend {
@@ -88,8 +91,9 @@ impl Backend {
                 self.observe(&p.window)
             }
             "inspect" => {
-                let p: protocol::Target = protocol::params(params)?;
-                self.inspect(&p.window)
+                let p: protocol::Inspect = protocol::params(params)?;
+                p.validate()?;
+                self.inspect(p)
             }
             "status" => {
                 let p: protocol::Target = protocol::params(params)?;
@@ -135,8 +139,7 @@ impl Backend {
         }
         let hwnd = handle(&current)?;
         let work = (|| -> Result<Value> {
-            // Resolve accessibility first: the subsequent captured frame is after those reads.
-            let (descriptors, elements, elements_truncated) = uia::elements(&self.automation, hwnd)?;
+
             let identity = format!(
                 "{}:{}:{}:{}",
                 current.hwnd, current.pid, current.process_created, current.executable
@@ -151,31 +154,94 @@ impl Backend {
                 .ok_or_else(|| Error::new("backend-exhausted", "Observation sequence exhausted"))?;
             let id = format!("observation-{}", self.sequence);
             self.last_frames.insert(identity, frame.timestamp);
-            self.observation = Some(Observation {
-                id: id.clone(),
-                window: after_capture.clone(),
-                elements,
-            });
             Ok(
                 json!({ "window": after_capture, "observationId": id, "frameTimestamp": frame.timestamp.to_string(),
                 "widthPx": frame.width, "heightPx": frame.height, "dpi": after_capture.dpi, "captureProtection": frame.protection,
-                "elements": descriptors, "elementsTruncated": elements_truncated, "image": { "mimeType": "image/png", "data": frame.data } }),
+                "elements": [], "elementsTruncated": false, "retrieval": {"mode":"image","coverage":"image-only","returnedCount":0}, "image": { "mimeType": "image/png", "data": frame.data } }),
             )
         })();
         work
     }
-    fn inspect(&mut self, requested: &Window) -> Result<Value> {
-        self.observation = None;
-        let current = verify(requested)?;
+    fn inspect(&mut self, request: protocol::Inspect) -> Result<Value> {
+        let current = verify(&request.window)?;
         ensure_not_minimized(&current)?;
-        let (descriptors, elements, elements_truncated) = uia::elements(&self.automation, handle(&current)?)?;
-        let after = verify(requested)?;
+        let hwnd = handle(&current)?;
+        let previous = self.observation.take();
+        let prior = previous.as_ref().filter(|o| o.window.same_identity(&current)
+            && ensure_capture_geometry(&o.window, &current).is_ok());
+        let exact = prior.filter(|o| request.observation_id.as_ref() == Some(&o.id));
+        let scope_compatible = request.mode() != "changes" || prior.is_some_and(|o|
+            request.base_observation_id.as_ref() == Some(&o.id) && o.signature == json!({"query":request.query,"scope":request.scope,"limit":request.limit()}));
+        let container = request.scope.as_ref().and_then(|s| s.container_id.as_ref()).filter(|_| scope_compatible);
+        let container_ref = if let Some(id) = container {
+            Some(exact.and_then(|o| o.elements.get(id)).ok_or_else(|| Error::new("stale-observation", "Scope requires an exact retained observation and container"))?)
+        } else { None };
+        if request.mode() == "read" {
+            let observation = exact.ok_or_else(|| Error::new("stale-observation", "Read requires an exact retained observation"))?;
+            let element = observation.elements.get(request.element_id.as_ref().unwrap())
+                .ok_or_else(|| Error::new("unknown-element", "Element was not retained in this observation"))?;
+            uia::assert_descendant(&self.automation, hwnd, element)?;
+            let mut descriptor = uia::read(&self.automation, hwnd, element, &request)?;
+            let after = verify(&request.window)?;
+            ensure_capture_geometry(&current, &after)?;
+            self.sequence = self.sequence.checked_add(1).ok_or_else(|| Error::new("backend-exhausted", "Observation sequence exhausted"))?;
+            let id = format!("observation-{}",self.sequence);
+            if descriptor.get("textRange").is_some() { descriptor["textRange"]["revision"] = json!(id); }
+            let result = json!({"window":after,"observationId":id,"elements":[descriptor],"elementsTruncated":false,
+                "retrieval":{"mode":"read","coverage":"requested-fields","returnedCount":1}});
+            self.observation = Some(Observation {id,window:after,elements:HashMap::from([(request.element_id.clone().unwrap(),element.clone())]),
+                descriptors:vec![descriptor],coverage:json!("requested-fields"),signature:Value::Null});
+            return Ok(result);
+        }
+        let signature = json!({"query":request.query,"scope":request.scope,"limit":request.limit()});
+        let compatible_base = prior.filter(|o| request.base_observation_id.as_ref() == Some(&o.id) && o.signature == signature);
+        let mut scan_request = request.clone();
+        if request.mode() == "changes" && compatible_base.is_none() {
+            scan_request.mode = Some("summary".to_owned());
+            scan_request.query = None; scan_request.scope = None; scan_request.limit = Some(20);
+        }
+        let (mut descriptors, mut elements, mut retrieval) = if request.mode() == "task" {
+            let (d,e,t) = uia::elements(&self.automation, hwnd)?;
+            let count = d.len();
+            (d,e,json!({"mode":"task","coverage":if t {"partial"} else {"complete"},"returnedCount":count,"incompleteReason":if t {Some("scan-limit")} else {None}}))
+        } else { uia::retrieve(&self.automation, hwnd, &scan_request,
+            if request.mode() == "changes" && compatible_base.is_none() { None } else { container_ref })? };
+        let mut changes = Value::Null;
+        if request.mode() == "changes" {
+            if let Some(base) = compatible_base {
+                // Compare actual provider identities; traversal positions alone do not identify controls.
+                let mut matched = std::collections::HashSet::new();
+                let mut changed = Vec::new();
+                let mut remapped = HashMap::new();
+                for (index, descriptor) in descriptors.iter_mut().enumerate() {
+                    let original = descriptor["id"].as_str().unwrap().to_owned();
+                    let element = elements.remove(&original).unwrap();
+                    let old = base.elements.iter().find(|(_, old)| unsafe { self.automation.CompareElements(&element, *old).is_ok_and(|v| v.as_bool()) });
+                    let id = old.map(|(id,_)| id.clone()).unwrap_or_else(|| format!("new-{}-{}",self.sequence + 1,index));
+                    descriptor["id"] = json!(id);
+                    if let Some((old_id,_)) = old { matched.insert(old_id.clone()); }
+                    if !base.descriptors.iter().any(|v| v == descriptor) { changed.push(descriptor.clone()); }
+                    remapped.insert(id,element);
+                }
+                elements = remapped;
+                let complete = retrieval["coverage"] == "complete" && base.coverage == "complete";
+                let removed: Vec<_> = if complete { base.elements.keys().filter(|id| !matched.contains(*id)).cloned().collect() } else { Vec::new() };
+                changes = json!({"updated":changed,"removed":removed,"removalsComplete":complete,"basis":"fresh-provider-scan"});
+            } else {
+                retrieval["fallback"] = json!("summary");
+                retrieval["fallbackReason"] = json!("base-unavailable-or-incompatible");
+            }
+        }
+        let after = verify(&request.window)?;
         ensure_capture_geometry(&current, &after)?;
         self.sequence = self.sequence.checked_add(1)
             .ok_or_else(|| Error::new("backend-exhausted", "Observation sequence exhausted"))?;
         let id = format!("observation-{}", self.sequence);
-        self.observation = Some(Observation { id: id.clone(), window: after.clone(), elements });
-        Ok(json!({ "window": after, "observationId": id, "elements": descriptors, "elementsTruncated": elements_truncated }))
+        let retained_signature = json!({"query":scan_request.query,"scope":scan_request.scope,"limit":scan_request.limit()});
+        self.observation = Some(Observation { id: id.clone(), window: after.clone(), elements,
+            descriptors:descriptors.clone(), coverage:retrieval["coverage"].clone(), signature:retained_signature });
+        Ok(json!({ "window": after, "observationId": id, "elements": descriptors,
+            "elementsTruncated": retrieval["coverage"] == "partial", "retrieval":retrieval,"changes":changes }))
     }
     fn act(&mut self, p: protocol::Act) -> Result<Value> {
         ensure_not_minimized(&verify(&p.window)?)?;

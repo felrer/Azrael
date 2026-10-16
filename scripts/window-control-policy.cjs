@@ -6,7 +6,7 @@ const os = require('node:os');
 const tasks = require('./window-task-macros.cjs');
 const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['context', 'request_stage', 'resource_status', 'cleanup', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
 const OBSERVATION_FAILURES = new Set(['stale-element', 'stale-observation', 'unknown-element', 'uia-value-limit',
   'capture-size-changed', 'capture-timeout', 'provider-timeout', 'backend-timeout', 'native-error',
@@ -22,6 +22,24 @@ function keys(value, allowed, required = []) {
 }
 function str(value, max = 256) { if (typeof value !== 'string' || !value.length || value.length > max || /[\x00-\x1f]/.test(value)) fail('Invalid string'); return value; }
 function size(value) { if (!Number.isFinite(value) || value < 100 || value > 8192) fail('Size must be between 100 and 8192 DIP'); return value; }
+function validateInspect(args) {
+  const mode = args.mode || 'summary';
+  if(!['summary','find','read','changes'].includes(mode)) fail('Invalid inspection mode');
+  if(args.limit !== undefined && (!Number.isInteger(args.limit) || args.limit < 1 || args.limit > 100)) fail('Invalid inspection limit');
+  if(args.query !== undefined) {
+    keys(args.query,['name','automationId','controlType']);
+    for(const key of ['automationId','controlType']) if(args.query[key] !== undefined) str(args.query[key],512);
+    if(args.query.name !== undefined) {keys(args.query.name,['equals','contains']);if(Object.keys(args.query.name).length !== 1) fail('Specify one name condition');for(const v of Object.values(args.query.name)) str(v,512);}
+  }
+  if(args.scope !== undefined) {keys(args.scope,['containerId'],['containerId']);str(args.scope.containerId);}
+  for(const key of ['observationId','elementId','baseObservationId']) if(args[key] !== undefined) str(args[key]);
+  if(mode === 'find' && (!plain(args.query) || !Object.keys(args.query).length)) fail('Find requires a query');
+  if(mode === 'read' && (!args.observationId || !args.elementId)) fail('Read requires observation and element IDs');
+  if(args.fields !== undefined && (!Array.isArray(args.fields) || args.fields.length > 12 || args.fields.some(k => !['name','controlType','automationId','patterns','enabled','isPassword','value','selected','toggleState','expandState','text'].includes(k)))) fail('Invalid read fields');
+  if(args.textRange !== undefined) {keys(args.textRange,['start','length'],['start','length']);if(!Number.isSafeInteger(args.textRange.start) || args.textRange.start < 0 || !Number.isInteger(args.textRange.length) || args.textRange.length < 1 || args.textRange.length > 4096) fail('Invalid text range');}
+  if(mode !== 'read' && ['fields','textRange','elementId'].some(k => Object.hasOwn(args,k))) fail('Read fields require read mode');
+  if(mode === 'changes' && !args.baseObservationId) fail('Changes requires a base observation');
+}
 function descriptor(value) {
   if (!plain(value)) fail('Invalid window descriptor');
   str(value.hwnd); if (!Number.isSafeInteger(value.pid) || value.pid <= 0) fail('Invalid window PID');
@@ -36,7 +54,7 @@ function macro(value) {
   if (!Array.isArray(value.steps) || value.steps.length < 1 || value.steps.length > 10) fail('Macros require 1 to 10 steps');
   return { id: value.id, name: value.name, steps: value.steps.map(step => { keys(step, ['widthDip', 'heightDip'], ['widthDip', 'heightDip']); return { widthDip: size(step.widthDip), heightDip: size(step.heightDip) }; }) };
 }
-function createWindowOwner({ backend, authorize, approve, onUserStop = () => {}, onOverlayError = () => {}, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now, occupancyDirectory, workspacePath, workspaceName = 'Azrael' }) {
+function createWindowOwner({ backend, authorize, approve, requestStage, context, resources, isolation, onUserStop = () => {}, onOverlayError = () => {}, codexHome = process.env.CODEX_HOME || path.join(os.homedir(), '.codex'), now = Date.now, occupancyDirectory, workspacePath, workspaceName = 'Azrael' }) {
   if (!backend || typeof backend.request !== 'function' || typeof authorize !== 'function') fail('Backend and authorization required');
   const bindings = new Map(); const candidates = new Map(); const selections = new Map(); const taskStore = tasks.createStore(codexHome, workspacePath); let queue = Promise.resolve(); let disposed = false;
   const userStoppedTargets = new Map();
@@ -92,11 +110,12 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
   }
   async function guard(b, thread, generation) {
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
-    if (!await authorize({ ...b.identity }, thread)) { pause(b, 'error'); b.generation++; occupancy.publish(); fail('Application authorization revoked'); }
+    if (!await authorize({ ...b.identity }, thread, { stage: b.operationStage || 1, operation: b.operation || 'status' })) { pause(b, 'error'); b.generation++; occupancy.publish(); throw windowError('permission_denied','Window Use authorization required or revoked'); }
     if (disposed || bindings.get(thread) !== b || b.generation !== generation) fail('Operation cancelled');
   }
   async function request(b, thread, generation, method, params = {}) {
     await guard(b, thread, generation);
+    if(['act','resize','restore'].includes(method) && !await authorize({...b.identity},thread,{stage:2,operation:method})) fail('Application authorization revoked');
     let result;
     try { result = await backend.request(method, { ...params, window: { ...b.identity } }); }
     catch (error) {
@@ -159,27 +178,29 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     if (!Array.isArray(r.elements)) fail('Invalid elements');
     if (typeof r.elementsTruncated !== 'boolean') fail('Invalid elementsTruncated');
     const elements = r.elements.map(e => {
-      str(e.id); if (typeof e.name !== 'string' || typeof e.controlType !== 'string' || !Array.isArray(e.patterns) || e.patterns.some(p => typeof p !== 'string')) fail('Invalid element');
-      const out = { id:e.id, name:e.name, controlType:e.controlType, patterns:[...e.patterns] };
-      for (const key of ['automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState']) if (Object.hasOwn(e,key)) out[key] = e[key];
+      str(e.id); if (typeof e.name !== 'string' || typeof e.controlType !== 'string' || (e.patterns !== undefined && (!Array.isArray(e.patterns) || e.patterns.some(p => typeof p !== 'string')))) fail('Invalid element');
+      const out = { id:e.id, name:e.name, controlType:e.controlType, ...(e.patterns ? {patterns:[...e.patterns]} : {}) };
+      for (const key of ['automationId','parentId','enabled','isPassword','value','valueTruncated','text','textRange','selected','toggleState','expandState']) if (Object.hasOwn(e,key)) out[key] = e[key];
       for (const key of ['enabled','isPassword','selected']) if (Object.hasOwn(out,key) && typeof out[key] !== 'boolean') fail('Invalid element property');
       for (const key of ['automationId','value']) if (Object.hasOwn(out,key) && typeof out[key] !== 'string') fail('Invalid element property');
       if (Object.hasOwn(out,'parentId') && out.parentId !== null && typeof out.parentId !== 'string') fail('Invalid element parent');
       if (Object.hasOwn(out,'toggleState') && !['off','on','indeterminate'].includes(out.toggleState)) fail('Invalid toggle state');
       if (Object.hasOwn(out,'expandState') && !['collapsed','expanded','partial','leaf'].includes(out.expandState)) fail('Invalid expand state');
-      if (out.isPassword) delete out.value;
+      if (out.isPassword) {delete out.value;delete out.text;}
       return out;
     });
     if (new Set(elements.map(e => e.id)).size !== elements.length) fail('Duplicate element IDs'); return elements;
   }
-  async function inspect(b, thread, generation) {
-    const r = await requestObservation(b, thread, generation, 'inspect'); str(r.observationId); const elements = elementsOf(r);
+  async function inspect(b, thread, generation, options = {}) {
+    const r = await requestObservation(b, thread, generation, 'inspect', options); str(r.observationId); const elements = elementsOf(r);
     b.observation = {id:r.observationId,generation,ids:new Set(elements.map(e => e.id))}; b.used = true;
-    return {...view(b),observationId:r.observationId,elementsTruncated:r.elementsTruncated,elements};
+    const metadata = {};
+    for (const key of ['retrieval','changes']) if(Object.hasOwn(r,key)) metadata[key] = r[key];
+    return {...view(b),observationId:r.observationId,elementsTruncated:r.elementsTruncated,elements,...metadata};
   }
-  async function requestObservation(b, thread, generation, method) {
+  async function requestObservation(b, thread, generation, method, options = {}) {
     for (let attempt = 0; attempt < 3; attempt++) {
-      try { return await request(b, thread, generation, method); }
+      try { return await request(b, thread, generation, method, options); }
       catch (error) {
         if (error.code !== 'state_changed' || error.nativeCode !== 'capture-size-changed' || error.mutationOutcome === 'unknown' || attempt === 2) throw error;
         // Re-read identity, authority and minimized state before replacing an
@@ -205,6 +226,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     } catch(e) {return Promise.reject(e);}
     const selection = selections.get(thread) || 0;
     return serial(async () => {
+      if(context && !await authorize(null,thread,{stage:1,operation:tool})) throw windowError('permission_denied','Window Use observation is disabled or unavailable');
       if(tool === 'list_task_macros') return taskStore.read();
       if(tool === 'save_task_macro') return taskStore.save(args.definition);
       if(tool === 'list_windows') {
@@ -219,7 +241,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
       const check = () => {if(disposed || (selections.get(thread) || 0) !== selection || candidates.get(thread)?.get(args.candidateId) !== identity) fail('Operation cancelled');};
       check(); const raw = await backend.request('listWindows',{}); check();
       if(!Array.isArray(raw) || !raw.map(descriptor).some(w => same(w,identity))) fail('Window candidate identity changed');
-      if(approve) {if(!await approve({...identity},thread)) fail('Application approval declined');check();}
+      // Selecting an observation target never grants or requests app control.
       const current = await backend.request('status',{window:{...identity}});check();
       const fresh = descriptor(current?.window || current); if(!same(fresh,identity)) fail('Window candidate identity changed');
       const result = await bindInternal(thread,fresh); check(); candidates.delete(thread); return result;
@@ -247,10 +269,11 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     try { await fs.writeFile(temp, JSON.stringify({ schema: 1, macros }), { flag: 'wx', mode: 0o600 }); await fs.rename(temp, macroPath); } finally { await fs.unlink(temp).catch(e => { if (e.code !== 'ENOENT') throw e; }); }
   }
   return {
-    listWindows: thread => serial(async () => { const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),occupancy:occupancyOf(w,thread)})); }),
+    listWindows: thread => serial(async () => { if(context && !await authorize(null,thread,{stage:1,operation:'list_windows'})) throw windowError('permission_denied','Window Use observation is disabled or unavailable'); const result = await backend.request('listWindows', {}); if (!Array.isArray(result)) fail('Invalid window list'); return result.map(w => ({...descriptor(w),occupancy:occupancyOf(w,thread)})); }),
     bind: (thread, selected) => { cancelSelection(thread); const selection = selections.get(thread); return serial(async () => { if (selections.get(thread) !== selection) fail('Operation cancelled'); const result = await bindInternal(thread, selected); userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, selected))); return result; }); },
     status: thread => serial(async () => { if (!bindings.has(thread)) return {state:'unbound',supportedActions:[...ACTIONS]}; const b = get(thread); await request(b, thread, b.generation, 'status'); return view(b); }),
-    resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.userStopped = false; b.state = 'selected'; delete b.pauseReason; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; await ready(b, thread, generation, true); return observe(b, thread, generation); }),
+    resume: thread => serial(async () => { const b = get(thread); const generation = ++b.generation; b.userStopped = false; b.state = 'selected'; delete b.pauseReason; userStoppedTargets.set(thread, (userStoppedTargets.get(thread) || []).filter(identity => !same(identity, b.identity))); b.observation = null; b.restoreAttempted = false; if(requestStage) {const result=await requestStage(thread,{stage:2,targetId:b.targetId,reason:'사용자가 창 제어를 다시 시작했습니다.'},{...b.identity});if(result.authorized!==true) fail('Application authorization revoked');} b.operationStage=2;await ready(b, thread, generation, true); return observe(b, thread, generation); }),
+    inspectForTask: thread => serial(async () => {const b=get(thread);b.operationStage=2;b.operation='inspect';await ready(b,thread,b.generation,false);return inspect(b,thread,b.generation,{mode:'task'});}),
     stop: thread => stopBinding(thread, true),
     clear: thread => { cancelSelection(thread); const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; } bindings.delete(thread); userStoppedTargets.delete(thread); occupancy.publish(); },
     invalidateObservation: thread => { const b = bindings.get(thread); if (b) { hideOverlay(b, b.generation); b.generation++; b.observation = null; return view(b); } },
@@ -261,11 +284,22 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
     deleteMacro: id => { str(id, 128); return serial(() => locked(async () => { const entries = await readMacros(); await writeMacros(entries.filter(m => m.id !== id)); })); },
     call: (thread, tool, args) => {
       if (!TOOLS.includes(tool)) return Promise.reject(new Error('Unsupported selected-window tool'));
+      if (tool === 'context') { try { keys(args, ['guideVersion']); if(args.guideVersion !== undefined) str(args.guideVersion); } catch(e) { return Promise.reject(e); } return serial(() => context ? context(thread, args) : {stage:1, executionContext:'parent-window'}); }
+      if (tool === 'resource_status' || tool === 'cleanup') { try { keys(args, tool==='cleanup'?['ids']:[]);if(args.ids!==undefined && (!Array.isArray(args.ids) || args.ids.length<1 || args.ids.length>20 || args.ids.some(id=>typeof id!=='string' || !/^[A-Za-z0-9_.-]{1,128}$/.test(id)))) throw windowError('invalid_request','Invalid cleanup resource IDs'); } catch(e) { return Promise.reject(e); } return serial(() => resources ? resources(tool, thread,args) : {status:'unavailable',resources:[]}); }
+      if (['launch_isolated','capture_isolated','input_isolated'].includes(tool)) {
+        try { keys(args,tool==='input_isolated'?['targetId','observationId','input']:['targetId'],tool==='input_isolated'?['targetId','observationId','input']:['targetId']);str(args.targetId);if(tool==='input_isolated') {str(args.observationId);if(!plain(args.input)) throw windowError('invalid_request','Invalid isolated input');} } catch(e) {return Promise.reject(e);}
+        return serial(async()=>{const b=bindings.get(thread);if(b?.userStopped) fail('User stop requires explicit resume');if(!isolation) throw windowError('unsupported_action','Isolated execution is unavailable');if(tool==='launch_isolated' && (!b || args.targetId!==b.targetId)) fail('Stale or forged target');return isolation(tool,thread,args,tool==='launch_isolated'?{...b.identity}:undefined);});
+      }
+      if (tool === 'request_stage') {
+        try { keys(args,['stage','targetId','reason'],['stage','reason']); if(![2,3,4].includes(args.stage)) fail('Invalid Window Use stage'); str(args.reason,1024); if(args.targetId !== undefined) str(args.targetId); } catch(e) { return Promise.reject(e); }
+        return serial(async () => { const b=bindings.get(thread); if(args.targetId !== undefined && args.targetId !== b?.targetId) fail('Stale or forged target'); if(args.stage===2 && !b) fail('Select an observation target first'); if(b?.userStopped) fail('User stop requires explicit resume'); if(!requestStage) fail('Stage transition is unavailable'); const result=await requestStage(thread,args,b ? {...b.identity}:undefined); if(b && bindings.get(thread)===b) { b.generation++; b.observation=null; if(result.authorized === true) {b.state='ready';delete b.pauseReason;} } return result; });
+      }
       if (['list_windows','select_window','list_task_macros','save_task_macro'].includes(tool)) return discovery(thread,tool,args);
       if (tool === 'status' && !bindings.has(thread)) { try { keys(args,['targetId']); if(Object.hasOwn(args,'targetId')) fail('Stale or forged target'); } catch(e) {return Promise.reject(e);} return serial(() => ({state:'unbound',supportedActions:[...ACTIONS]})); }
       const action = tool === 'set_value' ? 'setValue' : tool === 'press_key' ? 'pressKey' : tool;
       try {
         const allowed = ['targetId']; const required = tool === 'status' ? [] : ['targetId'];
+        if(tool === 'inspect') { allowed.push('mode','query','scope','limit','observationId','elementId','fields','textRange','baseObservationId'); validateInspect(args); }
         if (ACTIONS.includes(action) || action === 'pressKey') { allowed.push('observationId', 'elementId'); required.push('observationId', 'elementId'); if (action === 'setValue' || action === 'scroll') { allowed.push('value'); required.push('value'); } }
         if (action === 'pressKey') {allowed.push('key');required.push('key');}
         if (tool === 'run_task_macro') {allowed.push('definition','macroId','parameters');if(Boolean(args?.definition) === Boolean(args?.macroId)) fail('Provide definition or macroId');if(args?.definition) args = {...args,definition:tasks.definition(args.definition)};if(args?.macroId) str(args.macroId,128);if(args?.parameters !== undefined && !plain(args.parameters)) fail('Invalid task parameters');args = {...args,parameters:{...(args.parameters || {})}};}
@@ -286,6 +320,7 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
       let b; try { b = get(thread); } catch (e) { return Promise.reject(e); }
       const generation = b.generation;
       return serial(async () => {
+        b.operation = tool; b.operationStage = ['capture','inspect','status'].includes(tool) ? 1 : 2;
         await guard(b, thread, generation);
         if (Object.hasOwn(args, 'targetId') && args.targetId !== b.targetId) fail('Stale or forged target');
         if (tool === 'status') { await request(b, thread, generation, 'status'); const macros = await locked(readMacros); await guard(b, thread, generation); return { ...view(b), macros }; }
@@ -312,15 +347,15 @@ function createWindowOwner({ backend, authorize, approve, onUserStop = () => {},
         if (b.state === 'paused') { if (b.pauseReason === 'minimized') throw minimizedError(b); fail('Selected window paused; user resume required'); }
         b.running = true; occupancy.publish();
         try {
-        await showOverlay(b, thread, generation, tool);
+        if(b.operationStage !== 1) await showOverlay(b, thread, generation, tool);
         if (tool === 'run_task_macro') {
           const stored = args.definition ? null : await taskStore.read(); const snapshot = args.definition || stored.macros.find(m => m.id === args.macroId);if(!snapshot) fail('Unknown task macro');
-          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;pause(b,'error');}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,false);return inspect(b,thread,generation);},capture:async() => {await ready(b,thread,generation,false);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
+          const result = await tasks.run(snapshot,args.parameters,{progress:async ({index,total,action,phase}) => showOverlay(b,thread,generation,phase === 'verifying' ? 'assert' : action,(index+1)+'/'+total+' · '),cancel:() => {if(bindings.get(thread) === b && b.generation === generation) {b.generation++;pause(b,'error');}},guard:() => guard(b,thread,generation),inspect:async() => {await ready(b,thread,generation,false);return inspect(b,thread,generation,{mode:'task'});},capture:async() => {await ready(b,thread,generation,false);return observe(b,thread,generation);},act:async params => {await ready(b,thread,generation,false);const observation = b.observation;if(!observation || observation.id !== params.observationId || !observation.ids.has(params.elementId)) fail('Fresh selected-window observation required');b.observation = null;await request(b,thread,generation,'act',params);b.used = true;}});
           return {...result,occupancy:occupancyOf(b.identity,thread),...(stored ? {revision:stored.revision,macroId:args.macroId} : {})};
         }
         await ready(b, thread, generation, false);
         if (tool === 'capture') return await observe(b, thread, generation);
-        if (tool === 'inspect') return await inspect(b,thread,generation);
+        if (tool === 'inspect') { const {targetId,...options}=args; return await inspect(b,thread,generation,options); }
         if (ACTIONS.includes(action) || action === 'pressKey') {
           const observation = b.observation;
           if (!observation || observation.generation !== generation || observation.id !== args.observationId || !observation.ids.has(args.elementId)) fail('Fresh selected-window observation required');

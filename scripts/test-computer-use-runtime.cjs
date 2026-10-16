@@ -44,16 +44,26 @@ try {
   for (const rel of ['skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md', '.codex-plugin/plugin.json', 'LICENSE']) write(`plugin/${rel}`, 'fixture instructions');
   const options = { runtimeDirectory: path.join(root, 'source'), pluginDirectory: path.join(root, 'plugin'), destination: path.join(root, 'bundle') };
   write('mode-guide.md', 'Selected-window guidance');
+  for (const name of ['common', 'stage-1', 'stage-2', 'stage-3', 'stage-4']) write(`window-use/${name}.md`, `${name} guidance`);
   write('plugin/skills/computer-use/SKILL.md', '---\nname: computer-use\ndescription: Existing computer use\n---\nOriginal Sky instructions');
   const routed = stageRuntime({ ...options, destination: path.join(root, 'routed'), selectedWindowGuide: path.join(root, 'mode-guide.md') });
-  const routedSkill = fs.readFileSync(path.join(routed.directory, 'skills/computer-use/SKILL.md'), 'utf8');
+  const routedSkill = fs.readFileSync(path.join(routed.directory, 'docs/computer-use-skill.md'), 'utf8');
+  assert.equal(fs.existsSync(path.join(routed.directory, 'skills/computer-use')), false);
+  assert.equal(routed.manifest.windowUseGuidanceVersion, 1);
+  for (const rel of require('./computer-use-runtime.cjs').WINDOW_GUIDES) assert(routed.manifest.files.some(entry => entry.path === rel));
   assert(routedSkill.startsWith('---\nname: computer-use\n'));
   const windowSkill = fs.readFileSync(path.join(routed.directory, 'skills/window-use/SKILL.md'), 'utf8');
   assert(windowSkill.startsWith('---\nname: window-use\n'));
   assert(windowSkill.includes('Selected-window guidance'));
   assert(routedSkill.includes('Original Sky instructions'));
   assert.equal(fs.readFileSync(path.join(routed.directory, 'docs/selected-window.md'), 'utf8'), 'Selected-window guidance');
+  assert.equal(routed.manifest.files.find(entry => entry.path === require('./inject-sky-control-policy.cjs').TRANSPORT).transform.version, 4);
   assert.equal(verifyRuntime(routed.directory).manifestSha256, routed.manifestSha256);
+  const routedManifestFile = path.join(routed.directory, 'manifest.json'), routedManifestBytes = fs.readFileSync(routedManifestFile), routedManifest = JSON.parse(routedManifestBytes);
+  routedManifest.files.find(entry => entry.path === require('./inject-sky-control-policy.cjs').TRANSPORT).transform.version = 3;
+  fs.writeFileSync(routedManifestFile, JSON.stringify(routedManifest));
+  assert.throws(() => verifyRuntime(routed.directory), /Unsupported Sky policy transform version for runtime/);
+  fs.writeFileSync(routedManifestFile, routedManifestBytes);
   const staged = stageRuntime(options);
   assert.equal(staged.manifest.schema, 1);
   assert.equal(staged.manifest.packages.length, 4);
@@ -61,7 +71,10 @@ try {
   for (const rel of TRANSPORT_POLICY_MODULES) {
     const rootEntry = staged.manifest.files.find(entry => entry.path === path.posix.basename(rel));
     const packageEntry = staged.manifest.files.find(entry => entry.path === rel);
-    assert.equal(packageEntry.sha256, rootEntry.sha256);
+    if (rel.endsWith('/sky-control-policy.mjs')) {
+      assert.equal(packageEntry.sourceSha256, rootEntry.sha256);
+      assert.equal(fs.readFileSync(path.join(staged.directory, rel), 'utf8'), require('./computer-use-runtime.cjs').TRANSPORT_POLICY_REEXPORT);
+    } else assert.equal(packageEntry.sha256, rootEntry.sha256);
     assert.equal(packageEntry.source, rootEntry.source);
   }
   const sky = staged.manifest.files.find(e => e.path.endsWith('/codex-computer-use.exe'));
@@ -115,4 +128,27 @@ test('Sky display branding changes only its label and PE signature metadata and 
   assert.deepEqual(brandComputerUse(content).content, content);
   const tampered = Buffer.from(source); tampered[0] ^= 1;
   assert.throws(() => brandComputerUse(tampered), /Unsupported Sky/);
+});
+
+
+test('historical nonguidance v3 runtime verifies its declared receipt without reclassifying bytes', () => {
+  const historical = path.resolve(process.env.AZRAEL_TEST_LEGACY_COMPUTER_USE_RUNTIME || 'artifacts/releases/all_changes_20261007_r6/computer-use');
+  const before = fs.readFileSync(path.join(historical, 'manifest.json'));
+  const manifest = JSON.parse(before), { TRANSPORT, transformTransport } = require('./inject-sky-control-policy.cjs');
+  assert.equal(manifest.windowUseGuidanceVersion, undefined);
+  assert.equal(manifest.files.find(entry => entry.path === TRANSPORT).transform.version, 3);
+  const result = verifyRuntime(historical);
+  assert.equal(result.manifestSha256, require('./computer-use-runtime.cjs').hash(before));
+  assert.deepEqual(fs.readFileSync(path.join(historical, 'manifest.json')), before);
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-computer-use-packaging-'));
+  try {
+    const copy = path.join(root, 'historical'); fs.cpSync(historical, copy, { recursive: true });
+    const bytes = fs.readFileSync(path.join(copy, TRANSPORT));
+    const v4 = transformTransport(bytes, '0.7.4');
+    fs.writeFileSync(path.join(copy, TRANSPORT), v4.content);
+    const entry = manifest.files.find(entry => entry.path === TRANSPORT);
+    entry.sha256 = require('./computer-use-runtime.cjs').hash(v4.content); entry.bytes = v4.content.length;
+    fs.writeFileSync(path.join(copy, 'manifest.json'), JSON.stringify(manifest));
+    assert.throws(() => verifyRuntime(copy), /transform provenance mismatch/);
+  } finally { cleanup(root); }
 });
