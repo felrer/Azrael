@@ -283,6 +283,13 @@
         "engine/codex-rs/core/src/tools/handlers/claude_search.rs",
         "engine/codex-rs/core/src/tools/handlers/claude_controls.rs",
         "engine/codex-rs/core/src/session/step_context.rs",
+        "engine/codex-rs/core/src/context/world_state/model.rs",
+        "engine/codex-rs/core/src/session/world_state.rs",
+        "engine/codex-rs/core/src/context/world_state/model_tests.rs",
+        "engine/codex-rs/core/src/context/instruction_state_projection.rs",
+        "engine/codex-rs/core/src/context/instruction_state_projection_tests.rs",
+        "engine/codex-rs/core/tests/suite/model_switching.rs",
+        "scripts/check-model-harness-profiles.cjs",
         "engine/codex-rs/core/src/managed_runtime.rs",
         "providers/opencodex/inference-mapping.mjs",
         "providers/opencodex/inference.ts"
@@ -306,6 +313,16 @@
             "scripts/check-model-harness-profiles.cjs",
             "{engineSourceRoot}",
             "config"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.model-harness-profiles.context",
+          "executable": "node",
+          "args": [
+            "scripts/check-model-harness-profiles.cjs",
+            "{engineSourceRoot}",
+            "context"
           ],
           "level": "native"
         },

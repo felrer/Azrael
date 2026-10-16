@@ -99,16 +99,23 @@ impl Session {
             step_context.harness_profile.uses_claude_tools(),
             None,
         );
-        let model_instructions = if !turn_context.config.update_plan_enabled
+        let omit_update_plan = !turn_context.config.update_plan_enabled
             && turn_context.config.model_catalog.is_none()
             && (turn_context.config.base_instructions.is_none()
                 || matches!(
                     turn_context.config.base_instructions_provenance,
                     Some(BaseInstructionsProvenance::Model { .. })
-                )) {
+                ));
+        let model_instructions = if omit_update_plan {
             codex_prompts::without_update_plan_instructions(&model_instructions)
         } else {
             model_instructions
+        };
+        let initial_instructions = self.get_base_instructions().await.text;
+        let initial_instructions = if omit_update_plan {
+            codex_prompts::without_update_plan_instructions(&initial_instructions)
+        } else {
+            initial_instructions
         };
         tracing::info!(event = "response_preparation_stage", stage = "base_instructions", turn_id = %turn_context.sub_id);
         let base_instructions = self.get_step_base_instructions(step_context).await.text;
@@ -171,11 +178,14 @@ impl Session {
             world_state.add_section(TopLevelToolsState::new(definitions)?);
             world_state.add_section(BaseInstructionsState(base_instructions));
         }
-        world_state.add_section(ModelInstructionsState::new(
-            &model_info.slug,
-            previous_model.as_deref(),
-            model_instructions,
-        ));
+        world_state.add_section(
+            ModelInstructionsState::new(
+                &model_info.slug,
+                previous_model.as_deref(),
+                model_instructions,
+            )
+            .with_initial_instructions(&initial_instructions),
+        );
         let token_budget_enabled = turn_context.config.features.enabled(Feature::TokenBudget)
             && step_context
                 .settings
