@@ -94,7 +94,7 @@ test('Claude subscription wire carries user image blocks and tool_result images'
   expect(compatible.model).toBe('claude-sonnet-5');
   expect(compatible.tools[0].name).toBe('Read');
   expect(compatible.tools[1].name).toMatch(/^custom_az_[a-f0-9]{40}$/);
-  expect(compatible.system.map((part: any) => part.text).join('\n')).toBe('fixture instructions');
+  expect(compatible.system.map((part: any) => part.text).join('\n')).toBe("You are a Claude agent, built on Anthropic's Claude Agent SDK.\nfixture instructions");
   expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_use').name).toBe('Read');
   expect(compatible.messages.flatMap((message: any) => message.content).find((part: any) => part.type === 'tool_result').content.some((part: any) => part.type === 'image')).toBeTrue();
 });

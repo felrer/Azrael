@@ -1,7 +1,7 @@
 #requires -Version 7.0
 [CmdletBinding()]
 param(
-    [ValidateSet('SameWindow', 'Isolated', 'Existing')][string]$Target = 'SameWindow',
+    [ValidateSet('SameWindow')][string]$Target = 'SameWindow',
     [string]$ReleaseDirectory,
     [string]$WorkspacePath = (Split-Path $PSScriptRoot -Parent),
     [string]$StateRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.azrael-ex'),
@@ -15,17 +15,10 @@ param(
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$PrepareOnly,
     [switch]$NoLaunch = $true,
-    [switch]$UpdateDesktopShortcut = $true,
-    # Keep old parameter names bindable so retired commands get the migration error below.
-    [string]$InstallRoot,
-    [string]$OriginalExtensionPath
+    [switch]$UpdateDesktopShortcut = $true
 )
 
 $ErrorActionPreference = 'Stop'
-if ($Target -ne 'SameWindow' -or $InstallRoot -or $OriginalExtensionPath) {
-    throw 'The isolated/existing installer routes are retired by the independent same-window migration. Use -Target SameWindow for the azrael host beside the untouched original Codex extension; existing isolated installations remain recovery artifacts only.'
-}
-
 $arguments = @{
     WorkspacePath = $WorkspacePath
     StateRoot = $StateRoot

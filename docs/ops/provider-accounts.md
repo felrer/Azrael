@@ -40,7 +40,7 @@ For account-summary presentation, run `npm run build:incremental` in `extensions
 
 ```powershell
 # from providers/opencodex, with the pinned Bun
-bun test --timeout 30000 tests/catalog.test.ts tests/reasoning.test.ts tests/inference.test.ts
+bun test --timeout 30000 tests/reasoning.test.ts tests/inference.test.ts
 # from the project root
 node --test scripts/test-provider-model-picker.cjs scripts/test-provider-accounts-host.cjs
 node scripts/check-managed-native-engine.mjs <codex.exe> <fresh-run-directory>

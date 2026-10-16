@@ -226,18 +226,45 @@ try {
     Remove-Item -LiteralPath (Join-Path $fixture 'artifacts/deployments/broken') -Recurse
     $extensionRoot = Join-Path $fixture 'extensions'
     $extensionPath = Join-Path $extensionRoot 'azrael-ex-local.azrael-1.0.0'
-    Write-Json (Join-Path $extensionRoot 'extensions.json') @(@{ identifier=@{id='azrael-ex-local.azrael'};location=@{fsPath=$extensionPath;path='/c:/unused'} })
+    Write-Json (Join-Path $extensionRoot 'extensions.json') @(
+        @{ identifier=@{id='azrael-ex-local.azrael'};location=@{fsPath=$extensionPath;path='/c:/unused'} },
+        @{ identifier=@{id='azrael-ex-local.azrael-ex'};location=@{fsPath=(Join-Path $extensionRoot 'unrelated-missing-runtime')} }
+    )
     Write-Json (Join-Path $extensionPath 'out/azrael-runtime.json') @{engine=@{path=(Join-Path $runtime 'engine/azrael.exe')}}
     $refs = @(& $installedProbe $extensionRoot)
     Assert ((Join-Path $runtime 'engine/azrael.exe') -in $refs) 'Installed runtime absolute references missing.'
+    Assert ((Join-Path $extensionRoot 'unrelated-missing-runtime') -notin $refs) 'Former companion registration was interpreted as current host state.'
     $vsixRoot = Join-Path $fixture 'artifacts/vsix/owned'
     New-Item -ItemType Directory -Path $vsixRoot -Force | Out-Null
-    $zip = [IO.Compression.ZipFile]::Open((Join-Path $vsixRoot 'azrael-ex.vsix'), [IO.Compression.ZipArchiveMode]::Create)
+    $zip = [IO.Compression.ZipFile]::Open((Join-Path $vsixRoot 'azrael.vsix'), [IO.Compression.ZipArchiveMode]::Create)
     try {
         $entry = $zip.CreateEntry('extension/package.json')
         $writer = [IO.StreamWriter]::new($entry.Open())
         try { $writer.Write('{"publisher":"azrael-ex-local","name":"azrael","version":"0.4.0"}') } finally { $writer.Dispose() }
     } finally { $zip.Dispose() }
+    $zip = [IO.Compression.ZipFile]::Open((Join-Path $vsixRoot 'azrael-ex.vsix'), [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $entry = $zip.CreateEntry('extension/package.json')
+        $writer = [IO.StreamWriter]::new($entry.Open())
+        try { $writer.Write('{"publisher":"azrael-ex-local","name":"azrael-ex","version":"0.3.0"}') } finally { $writer.Dispose() }
+    } finally { $zip.Dispose() }
+    $ownedPackages = Get-LegacyOwnership $vsixRoot 'vsix'
+    Assert ($ownedPackages.packages.Count -eq 2) 'Current native host and integrated account payload VSIX ownership missing.'
+    $formerCompanionRoot = Join-Path $fixture 'unrelated-vsix'
+    New-Item -ItemType Directory -Path $formerCompanionRoot | Out-Null
+    $formerCompanionVsix = Join-Path $formerCompanionRoot 'azrael-ex.vsix'
+    $zip = [IO.Compression.ZipFile]::Open($formerCompanionVsix, [IO.Compression.ZipArchiveMode]::Create)
+    try {
+        $entry = $zip.CreateEntry('extension/package.json')
+        $writer = [IO.StreamWriter]::new($entry.Open())
+        try { $writer.Write('{"publisher":"azrael-ex-local","name":"azrael-ex","version":"0.1.0"}') } finally { $writer.Dispose() }
+    } finally { $zip.Dispose() }
+    $formerCompanionRejected = $false
+    try { $null = Get-LegacyOwnership $formerCompanionRoot 'vsix' } catch {
+        if ($_.Exception.Message -ne 'Unknown VSIX publisher/package.') { throw }
+        $formerCompanionRejected = $true
+    }
+    Assert ($formerCompanionRejected -and (Test-Path -LiteralPath $formerCompanionVsix)) 'Former standalone companion VSIX was assumed owned or changed.'
     $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'version:owned-vsix' -Kind version -Owner fixture -State complete -MembershipComplete $true -Members @{vsix=$vsixRoot}
     $result = Invoke-LegacyReleaseCleanup
     Assert (@($result.candidates | Where-Object { $_.path -eq $vsixRoot -and $_.status -eq 'deleted' -and $_.absent }).Count -eq 1) 'Owned VSIX not deleted with absence receipt.'

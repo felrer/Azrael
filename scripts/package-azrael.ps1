@@ -23,8 +23,8 @@ try {
 if ($companionManifest.publisher -cne 'azrael-ex-local' -or $companionManifest.name -cnotin @('azrael-ex', 'azrael')) { throw 'Unexpected Azrael VSIX identity.' }
 $nativeHost = $companionManifest.name -ceq 'azrael' -and [version]$companionManifest.version -ge [version]'0.4.0'
 if ($companionManifest.name -ceq 'azrael' -and -not $nativeHost) { throw 'Native Azrael host requires package version 0.4.0 or newer.' }
-$independentHost = [version]$companionManifest.version -ge [version]'0.2.0'
-$integratedAccounts = [version]$companionManifest.version -ge [version]'0.3.0'
+$integratedAccounts = $companionManifest.name -ceq 'azrael-ex' -and [version]$companionManifest.version -ge [version]'0.3.0'
+if (-not $nativeHost -and -not $integratedAccounts) { throw 'Package requires a current native host or integrated account payload.' }
 if (-not [IO.Path]::IsPathFullyQualified($SourceRoot)) { throw 'SourceRoot must be absolute.' }
 $sourceRoot = (Resolve-Path -LiteralPath ([IO.Path]::GetFullPath($SourceRoot))).Path
 if (-not (Test-Path -LiteralPath $sourceRoot -PathType Container)) { throw 'SourceRoot must be a directory.' }
@@ -39,56 +39,21 @@ $base = [string]$sourceReceipt.source.head
 if ($base -notmatch '^[0-9a-f]{40}$') { throw 'Could not read the verified engine source baseline.' }
 $engineVersion = & python -c 'import pathlib, sys, tomllib; print(tomllib.loads(pathlib.Path(sys.argv[1]).read_text(encoding="utf-8"))["workspace"]["package"]["version"])' (Join-Path $sourceRoot 'codex-rs/Cargo.toml')
 if ($LASTEXITCODE -ne 0 -or [string]::IsNullOrWhiteSpace($engineVersion)) { throw 'Could not read the engine source version.' }
-$requiredScripts = @('start-azrael.ps1', 'prepare-official-ui.ps1')
-if ($independentHost) { $requiredScripts = @() }
-if (-not $independentHost -and (Test-Path -LiteralPath (Join-Path $PSScriptRoot 'prepare-devin.ps1'))) { $requiredScripts += 'prepare-devin.ps1' }
-foreach ($name in $requiredScripts) {
-    if (-not (Test-Path -LiteralPath (Join-Path $PSScriptRoot $name) -PathType Leaf)) { throw "Missing launcher dependency: $name" }
-}
 New-Item -ItemType Directory -Path $destination | Out-Null
-New-Item -ItemType Directory -Path (Join-Path $destination 'engine'), (Join-Path $destination 'scripts') | Out-Null
+New-Item -ItemType Directory -Path (Join-Path $destination 'engine') | Out-Null
 Copy-Item -LiteralPath $engine -Destination (Join-Path $destination 'engine/azrael.exe')
 Copy-Item -LiteralPath $bridge -Destination (Join-Path $destination 'engine/azrael-bridge.exe')
 Copy-Item -LiteralPath $codeModeHost -Destination (Join-Path $destination 'engine/azrael-code-mode-host.exe')
 Copy-Item -LiteralPath (Join-Path (Split-Path $engine -Parent) 'azrael-engine-build.json') -Destination (Join-Path $destination 'engine/azrael-engine-build.json')
 Copy-Item -LiteralPath $vsix -Destination (Join-Path $destination 'azrael-ex.vsix')
-foreach ($name in $requiredScripts) {
-    Copy-Item -LiteralPath (Join-Path $PSScriptRoot $name) -Destination (Join-Path $destination "scripts/$name")
-}
-if ($requiredScripts -contains 'prepare-devin.ps1') {
-    Copy-Item -LiteralPath (Join-Path $sourceRoot 'codex-rs/models-manager/models.json') -Destination (Join-Path $destination 'scripts/devin-catalog.json')
-}
 foreach ($name in @('LICENSE', 'NOTICE')) {
     $license = Join-Path $sourceRoot $name
     if (Test-Path -LiteralPath $license -PathType Leaf) { Copy-Item -LiteralPath $license -Destination (Join-Path $destination "engine/$name") }
 }
-if (-not $independentHost) {
-@'
-[CmdletBinding()]
-param(
-    [string]$WorkspacePath = (Get-Location).Path,
-    [string]$StateRoot = (Join-Path ([Environment]::GetFolderPath('UserProfile')) '.azrael-ex'),
-    [string]$DevinExecutable,
-    [switch]$PrepareOnly
-)
-$launch = @{
-    EnginePath = Join-Path $PSScriptRoot 'engine/azrael.exe'
-    BridgePath = Join-Path $PSScriptRoot 'engine/azrael-bridge.exe'
-    CompanionVsixPath = Join-Path $PSScriptRoot 'azrael-ex.vsix'
-    WorkspacePath = $WorkspacePath
-    StateRoot = $StateRoot
-    UpdateEnginePair = $true
-    PrepareOnly = $PrepareOnly
-}
-if ($DevinExecutable) { $launch.DevinExecutable = $DevinExecutable }
-& (Join-Path $PSScriptRoot 'scripts/start-azrael.ps1') @launch
-'@ | Set-Content -LiteralPath (Join-Path $destination 'Launch.ps1') -Encoding utf8NoBOM
+if ($nativeHost) {
+    "Prepare this release using scripts/prepare-native-vscode.ps1, verify the prepared VSIX in a fresh VS Code profile, then install that exact VSIX. The package does not copy or activate the official Codex extension." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
 } else {
-    if ($nativeHost) {
-        "Prepare this release using scripts/prepare-native-vscode.ps1, verify the prepared VSIX in a fresh VS Code profile, then install that exact VSIX. The package does not copy or activate the official Codex extension." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
-    } else {
-        "Install this release using the project scripts/install-azrael.ps1 -ReleaseDirectory `"$destination`". azrael-ex.vsix is an internal build input embedded in the independent azrael host, not a separately installed extension. Do not use the retired isolated launcher." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
-    }
+    "Install this release using the project scripts/install-azrael.ps1 -ReleaseDirectory `"$destination`". azrael-ex.vsix is an internal build input embedded in the independent azrael host, not a separately installed extension." | Set-Content -LiteralPath (Join-Path $destination 'INSTALL.txt') -Encoding utf8NoBOM
 }
 $files = @('engine/azrael.exe', 'engine/azrael-bridge.exe', 'engine/azrael-code-mode-host.exe', 'azrael-ex.vsix')
 & python -B (Join-Path $PSScriptRoot 'engine-provenance.py') verify --root $sourceRoot --engine-dir (Join-Path $destination 'engine') | Out-Null
@@ -98,7 +63,7 @@ foreach ($file in $files) { $hashes[$file] = (Get-FileHash -LiteralPath (Join-Pa
 [ordered]@{
     product = 'azrael-ex'
     packageVersion = $companionManifest.version
-    installationMode = if ($nativeHost) { 'native-azrael-host' } elseif ($integratedAccounts) { 'same-window-integrated-host' } elseif ($independentHost) { 'same-window-independent-host' } else { 'legacy-isolated-host' }
+    installationMode = if ($nativeHost) { 'native-azrael-host' } else { 'same-window-integrated-host' }
     engineVersion = $engineVersion.Trim()
     officialExtensionVersion = if ($nativeHost) { $null } else { '26.908.40401' }
     engineBaseCommit = $base
