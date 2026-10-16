@@ -101,12 +101,7 @@ impl ConfigManager {
     }
 
     /// Retains configuration inputs while giving a window its own account and policy state.
-    pub(crate) fn fork_for_window(
-        &self,
-        auth_manager: Arc<AuthManager>,
-        chatgpt_base_url: String,
-        http_client_factory: codex_http_client::HttpClientFactory,
-    ) -> Self {
+    pub(crate) fn fork_for_window(&self) -> Self {
         let fork = Self::new(
             self.codex_home.clone(),
             self.current_cli_overrides(),
@@ -120,13 +115,27 @@ impl ConfigManager {
             .runtime_feature_enablement
             .write()
             .expect("new window feature lock") = self.current_runtime_feature_enablement();
-        // The initial loader is empty: replacement cannot retire another window's EMA policy.
-        fork.replace_cloud_config_bundle_loader(
-            auth_manager,
-            chatgpt_base_url,
-            http_client_factory,
-        );
         fork
+    }
+
+    /// Binds window authentication to this manager's policy before installing cloud bootstrap.
+    pub(crate) async fn load_azrael_window_config(
+        &self,
+        template: &Config,
+    ) -> std::io::Result<(Config, Arc<AuthManager>)> {
+        // Preserve the template's authentication requirements and route, but bind both auth
+        // bootstrap and application traffic to this window's new policy owners.
+        self.load_startup_config(None).await?;
+        let mut config = template.clone();
+        self.apply_network_policy(&mut config);
+        let auth = AuthManager::shared_for_azrael(&config, false).await?;
+        self.replace_cloud_config_bundle_loader(
+            Arc::clone(&auth),
+            config.chatgpt_base_url.clone(),
+            config.http_client_factory(),
+        );
+        let config = self.load_startup_config(None).await?;
+        Ok((config, auth))
     }
 
     pub(crate) fn with_embedded_network_policy(
@@ -607,16 +616,99 @@ mod window_context_tests {
     use std::sync::atomic::Ordering;
 
     #[tokio::test]
+    async fn window_auth_uses_new_policy_across_reload_and_other_windows() -> anyhow::Result<()> {
+        use codex_http_client::ClientRouteClass;
+        use wiremock::Mock;
+        use wiremock::MockServer;
+        use wiremock::ResponseTemplate;
+        use wiremock::matchers::method;
+
+        let server = MockServer::start().await;
+        Mock::given(method("GET"))
+            .respond_with(ResponseTemplate::new(200))
+            .expect(7)
+            .mount(&server)
+            .await;
+        let home = tempfile::tempdir()?;
+        let requirements = home.path().join("requirements.toml");
+        let manager = ConfigManager::new_for_tests(
+            home.path().to_path_buf(),
+            Vec::new(),
+            LoaderOverrides {
+                system_requirements_path: Some(requirements.clone()),
+                ..LoaderOverrides::without_managed_config_for_tests()
+            },
+            CloudConfigBundleLoader::default(),
+        );
+        let mut parent = manager.load_startup_config(None).await?;
+        parent.forced_chatgpt_workspace_id = Some(vec!["allowed-workspace".to_string()]);
+        let first = manager.fork_for_window();
+        let (config, auth) = first.load_azrael_window_config(&parent).await?;
+        let second = manager.fork_for_window();
+        let (other_config, other_auth) = second.load_azrael_window_config(&parent).await?;
+        assert_eq!(
+            auth.forced_chatgpt_workspace_id(),
+            parent.forced_chatgpt_workspace_id
+        );
+        assert_eq!(
+            auth.application_network_policy(),
+            config.application_network_policy
+        );
+        assert_eq!(
+            other_auth.application_network_policy(),
+            other_config.application_network_policy
+        );
+        assert_ne!(
+            config.application_network_policy,
+            parent.application_network_policy
+        );
+        assert_ne!(
+            config.application_network_policy,
+            other_config.application_network_policy
+        );
+
+        // Use the same account-bound transport as profile usage queries.
+        let client = auth
+            .http_client_factory()
+            .build_client(&server.uri(), ClientRouteClass::Other)?;
+        let other = other_auth
+            .http_client_factory()
+            .build_client(&server.uri(), ClientRouteClass::Other)?;
+        client.get(server.uri()).send().await?;
+        other.get(server.uri()).send().await?;
+        parent.application_network_policy.invalidate();
+        client.get(server.uri()).send().await?;
+        other.get(server.uri()).send().await?;
+
+        // Account-owner changes revoke this window until its manager republishes policy.
+        auth.application_network_policy().invalidate();
+        assert!(client.get(server.uri()).send().await.is_err());
+        other.get(server.uri()).send().await?;
+        first.load_startup_config(None).await?;
+        // Credentials captured before an account change must remain revoked.
+        assert!(client.get(server.uri()).send().await.is_err());
+        let client = auth
+            .http_client_factory()
+            .build_client(&server.uri(), ClientRouteClass::Other)?;
+        client.get(server.uri()).send().await?;
+        assert!(
+            parent
+                .application_network_policy
+                .acquire(&server.uri().parse()?)
+                .is_err()
+        );
+
+        // Reloading restrictions updates retained usage transports without affecting another window.
+        std::fs::write(&requirements, "[application.network]\nenabled = true\n")?;
+        first.load_startup_config(None).await?;
+        assert!(client.get(server.uri()).send().await.is_err());
+        other.get(server.uri()).send().await?;
+        Ok(())
+    }
+
+    #[tokio::test]
     async fn window_fork_isolates_configuration_changes_and_cloud_loader_retirement() {
         let home = tempfile::tempdir().unwrap();
-        let config = ConfigBuilder::default()
-            .codex_home(home.path().to_path_buf())
-            .build()
-            .await
-            .unwrap();
-        let auth = AuthManager::shared_from_config(&config, false)
-            .await
-            .unwrap();
         let reads = Arc::new(AtomicUsize::new(0));
         let loader_reads = Arc::clone(&reads);
         let policy = codex_config::CloudConfigBundlePolicy::default();
@@ -641,11 +733,7 @@ mod window_context_tests {
         manager
             .extend_runtime_feature_enablement([("original".to_string(), true)])
             .unwrap();
-        let fork = manager.fork_for_window(
-            auth,
-            config.chatgpt_base_url.clone(),
-            config.http_client_factory(),
-        );
+        let fork = manager.fork_for_window();
         assert_eq!(fork.codex_home(), manager.codex_home());
         assert_eq!(
             fork.current_cli_overrides(),

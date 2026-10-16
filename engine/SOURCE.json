@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 94305776,
+  "byteCount": 94309578,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -10783,8 +10783,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "53526282378d40c4686943fd608925b25590afb352374e91e35a416e98489168",
-      "size": 45264
+      "sha256": "18e3860e639ed11772731a914b9f9e3120ef2a4bc3a08757c4ee84315dbe6657",
+      "size": 45069
     },
     "codex-rs/app-server/src/azrael_shared_server/tests.rs": {
       "gitMode": "100644",
@@ -10867,8 +10867,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "4aec2503a7723e6b9aff8efae3b88715bc30a50ff750fba26c89eec504cd90c8",
-      "size": 28034
+      "sha256": "1070da6cbc8fef13979a022828c22b2c8e548c70e855cb93adff4db5b636efcc",
+      "size": 32031
     },
     "codex-rs/app-server/src/config_manager_provider_tests.rs": {
       "gitMode": "100644",
@@ -64864,7 +64864,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9264,
-  "inventorySha256": "29936562b38191f9bb8e3bd1bd3ea6f671c4fcb1c16b55dc9f66fc728d10c0af",
+  "inventorySha256": "500935f0400561f3e1385f4dc7cbbbc23b80bdbd0416c746a9bd4e568d27e1d8",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -65840,8 +65840,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "53526282378d40c4686943fd608925b25590afb352374e91e35a416e98489168",
-          "size": 45264
+          "sha256": "18e3860e639ed11772731a914b9f9e3120ef2a4bc3a08757c4ee84315dbe6657",
+          "size": 45069
         },
         "before": null
       },
@@ -65886,8 +65886,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "4aec2503a7723e6b9aff8efae3b88715bc30a50ff750fba26c89eec504cd90c8",
-          "size": 28034
+          "sha256": "1070da6cbc8fef13979a022828c22b2c8e548c70e855cb93adff4db5b636efcc",
+          "size": 32031
         },
         "before": {
           "gitMode": "100644",
@@ -134891,7 +134891,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "00094086caac823ed932973e76a9b7e45943a475",
+    "repositoryHead": "e6ed1ac656f56d0147b645801058fef909d71077",
     "schema": 4,
     "sourcePrefix": "engine"
   },

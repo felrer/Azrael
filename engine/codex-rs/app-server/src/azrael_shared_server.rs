@@ -339,13 +339,8 @@ async fn create_context(
     events: mpsc::Sender<ContextEvent>,
 ) -> io::Result<Context> {
     let mut args = template.clone();
-    let auth = codex_login::AuthManager::shared_for_azrael(args.config.as_ref(), false).await?;
-    let manager = args.config_manager.fork_for_window(
-        Arc::clone(&auth),
-        args.config.chatgpt_base_url.clone(),
-        args.config.http_client_factory(),
-    );
-    let config = manager.load_startup_config(None).await?;
+    let manager = args.config_manager.fork_for_window();
+    let (config, auth) = manager.load_azrael_window_config(&args.config).await?;
     args.config = Arc::new(config);
     args.config_manager = manager;
     args.auth_manager = Arc::clone(&auth);
