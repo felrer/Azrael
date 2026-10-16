@@ -1,6 +1,6 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 요청 변환 소스 수정과 Windows 검증 완료. 동일 프로필·계정·모델에서 산술 정답4/end_turn, 지정 세션 첫 tool_use, 별도 진단 Read→결과 전달→정답42/end_turn을 확인했다. 오프라인45개 검사와 inventory 검증 exit0이다. 설치본은 미갱신이며 공급자 문자열 오탐 전체 해소를 주장하지 않는다. 생성 binding3개는 자동 승인 검토의 삭제 차단으로 보존·정리 보류했다.
+상태: 요청 변환 소스 수정·Windows 검증·실험 상태 정리 완료. 동일 프로필·계정·모델에서 산술 정답4/end_turn, 지정 세션 첫 tool_use, 별도 진단 Read→결과 전달→정답42/end_turn을 확인했다. 오프라인45개 검사와 inventory 검증 exit0이다. 설치본은 미갱신이며 공급자 문자열 오탐 전체 해소를 주장하지 않는다. 보류했던 생성 binding3개도 사용자의 명시적 삭제 요청 후 일반 삭제와 실제 부재 확인을 완료했다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
@@ -31,7 +31,7 @@
 
 검사 harness의 최초 Bun 경로 표기 실수는 넓은 파일 필터로 해석되어 exit1(7tests/1pass/6fail/5errors)로 종료됐다. 최초 raw log는 exact baseline 실행 중 덮어써 복구하지 못했으며 wire-regression-harness-diagnostic.log는 관찰 요약임을 명시한다. 이후 ./scripts/… exact 경로로 baseline/final을 분리했다. 생성 fixture payload는 모두 제거됐다. 빈 wire-test 폴더의 child cleanup에서 PowerShell 예외가 있었으나 root가 일반 파일/자식0개/소유 절대경로를 확인한 동일 PowerShell 일반 삭제로 실제 부재를 확인했다. 강제 옵션/ACL/우회 삭제는 사용하지 않았다.
 
-남은 생성 binding3개는 reports/*-owner.json과 cleanup.json에 경로·thread identity·producer 종료·lock 부재가 기록돼 있다. 삭제 명령은 실행 전에 자동 승인 검토가 blocked by policy로 거절했고 세부 이유를 제공하지 않았다. 해당 삭제를 다른 shell/API로 재시도하지 않았다. 프로젝트 밖 binding을 native inventory에 소유 등록하려 했으나 path escapes project로 거절되어 group membership은 incomplete로 유지한다. logs12636bytes/reports49615bytes의 현재 두 멤버를 review하고 같은 defer 결정을 적용했다. 정책상 허용되는 정리에서 정확한 binding3개를 제거하고 동일 소스 설치 검증에 독립 근거를 보존한 뒤 work 참조를 해제할 때 전체 membership을 재등록·재검토한다. 원래 binding은 보존됐고 임시 fixture/temporary는 없다. 정리 보류를 실제 삭제 완료로 보고하지 않는다.
+생성 binding3개는 reports/*-owner.json과 cleanup.json에 경로·thread identity·producer 종료·lock 부재가 기록돼 있다. 앞선 일반 삭제 명령은 자동 승인 검토가 blocked by policy로 거절했고 세부 이유는 제공하지 않았다. 사용자가 해당 세 파일 삭제를 명시적으로 요청한 뒤 같은 exec 경계에서 정확한 세 경로/일반 파일/thread_id/SHA256/lock 부재를 다시 확인했다. 현재 도구의 approval_policy: never 설정에서는 관리자 권한 요청을 보낼 수 없으므로 권한 상승은 요청하지 않았다. 이 명시적 삭제 요청은 일반 PowerShell Remove-Item 실행이 허용되어 exit0으로 끝났고 세 파일의 실제 부재를 확인했다. 원래 binding은 보존됐으며 임시 fixture/temporary도 없다. cleanup.json은 삭제3/잔여0과 삭제 전 해시를 보존한다. 제품 소스 변경이 없는 정리 후속 작업이므로 회귀 검사를 반복하지 않았다. 남은 logs/reports는 동일 소스 설치 검증과 원인 분석의 근거로 보존하며, 외부 생성 binding이 모두 없어졌으므로 현재 실제 두 멤버로 complete group을 재등록하고 review/defer한다. 동일 소스 설치 검증에 독립 근거를 보존하고 work 참조를 해제할 때 전체 그룹을 재검토한다.
 
 ### 직접 원인 비교 결과 (run04)
 
