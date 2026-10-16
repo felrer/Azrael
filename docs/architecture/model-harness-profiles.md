@@ -52,7 +52,7 @@ The registry applies profile selection before discovery and code-mode planning. 
 | ToolSearch | Current registry and authoritative native search-output history |
 | AskUserQuestion | Native user-input delivery and actual answer wait where available |
 
-The shared runtime contract keeps Azrael identity, permissions, user language, work preservation and evidence requirements. Provider-owned tool guidance names only the compatible surface. User/project instruction files remain preserved with their provenance. The helper performs transport conversion; it never executes tools or decides approvals.
+The shared runtime contract keeps Azrael identity, permissions, user language, work preservation and evidence requirements. Provider-owned tool guidance names only the compatible surface. User/project instruction files remain preserved with their provenance. Managed Anthropic conversion preserves the OAuth adapter's existing first system block, then projects native instructions without rewriting their text or adding the vendor's escaped-tool catalog guidance. The adapter's final system cache boundary moves to the final native block; automatic, tool and message cache controls remain unchanged. This preserves the existing transport envelope without changing authentication or granting tool authority. The helper performs transport conversion; it never executes tools or decides approvals.
 
 ### MCP discovery
 

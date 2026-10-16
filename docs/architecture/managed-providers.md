@@ -119,7 +119,7 @@ Section contents use CDATA, splitting embedded `]]>` terminators to preserve the
 text. Formatting happens on the request copy before the existing size validation. The actual
 configured adapter selects this format; model names do not select it. Other adapters retain
 their existing format, including Claude models served through a different provider protocol.
-Legacy OAuth identity remains outside these sections. The compatible profile instead preserves Azrael native system content and exact built-in names at the owned projection boundary; live OAuth acceptance remains separate. Conversation files
+The adapter-owned OAuth system prefix remains outside these sections. Compatible profile conversion preserves that existing prefix and appends Azrael native system/developer blocks in their original order, without the vendor's escaped-tool catalog reminders or application-identity rewrites. It retains the adapter's final explicit system cache boundary on the final native block, together with automatic, tool and message caching. Exact compatible built-in names and escaped external names remain owned by the profile projection; headers and authentication are unchanged. Live OAuth acceptance remains separate from installed-host acceptance. Conversation files
 and the maintained common behavior source are unchanged by request formatting.
 
 ### Harness identity

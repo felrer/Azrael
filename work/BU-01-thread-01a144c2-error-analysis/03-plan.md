@@ -1,12 +1,12 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 관측된 refusal과 프로필 실패의 직접 조건 분석 완료. 같은 계정·모델의 15개 단일 요청에서 진단 문자열의 공급자 cyber 분류와 OAuth system 정체성 블록 변경에 따른 수락 실패를 분리했다. 비공개 classifier 내부 규칙, 원래 28개 도구를 포함한 전체 요청, 실제 작업 완료는 미확인이다. 제품/인증/설치 변경은 하지 않았다. 다음 구현에는 지원되는 인증·실행 경로 선택이 남는다.
+상태: 요청 변환 소스 수정과 Windows 검증 완료. 동일 프로필·계정·모델에서 산술 정답4/end_turn, 지정 세션 첫 tool_use, 별도 진단 Read→결과 전달→정답42/end_turn을 확인했다. 오프라인45개 검사와 inventory 검증 exit0이다. 설치본은 미갱신이며 공급자 문자열 오탐 전체 해소를 주장하지 않는다. 생성 binding3개는 자동 승인 검토의 삭제 차단으로 보존·정리 보류했다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
 범위: 공통 managed Anthropic 요청/응답 계약(Windows x64, Linux x64, macOS ARM64 공통 의미). 실제 검증은 Windows. source 변경과 필요한 작은 검사/실제 호출을 수행할 권한이 있으며 전체 배포 build/설치는 별도 범위다. 사용자 기존 upstream/은 보존한다.
 
-실행 소유: root는 실제 비교 실험과 공식 공급자 문서를 확인했고, read-only refusal_wire_contract_audit owner는 현재 profile/unprofiled wire 차이와 변환 계약을 조사했다. 별도 모델 전환, 계정 교체, 새 first-party identity 삽입 또는 안전 장치 회피는 도입하지 않았다. 이번 분석은 제품 코드를 변경하지 않으므로 기존 회귀 검사/빌드를 반복하지 않았다.
+실행 소유: root는 inference.ts·소유 문서·live 검증을 맡고 claude_profile_wire_regression owner는 scripts/check-claude-managed-inference.test.ts의 오프라인 wire 회귀만 맡는다. 구현 skill과 Work/Build/artifact lifecycle 지침을 적용한다. 원래 adapter 생성물을 보존하는 범위이며 새로운 identity 문자열/인증 header를 추가하거나 계정·모델을 바꾸지 않는다. 기존 분석에서 자체 가정으로 제외했던 전송 첫 블록의 보존은 이번 변환 수정 요청의 범위로 명확히 한다.
 
 검증: 기존 실패 근거는 최소 harmless prompt, HTTP200, input156/output0, refusal이다. 이전 probe는 원래 35k 맥락 재현이 아니다. 새 실제 호출은 동일 계정 binding의 임시 fork를 사용하고 단일 호출/60초 deadline/재시도 및 auto-switch 없음으로 제한한다. credential·일반 대화 원문은 기록하지 않고 stop_reason, allowlisted stop_details category, usage, 구조 및 source identity를 보존한다. run04의 합성 요청에 한해 공급자의 공개 거절 설명을 제한적으로 확인하며 실제 세션 context의 설명 원문은 저장하지 않는다. 성공에는 실제 end_turn/유효 출력과 관련 회귀 검사 exit0이 필요하다.
 
@@ -14,6 +14,24 @@
 
 
 ## 확인된 원인과 한계
+
+### 요청 변환 수정 (run05)
+
+공통 Windows/Linux/macOS transport 의미의 수정이고 실제 검증은 Windows다. 기존 OAuth adapter와 native profile projection을 재사용한다. profile만 바꾸어 adapter 첫 system block을 없애던 부분을 고친다. native system/developer 문구·순서, exact builtin/escaped external 도구명, private replay·call/result 연결, refusal/EOF 안전 처리, provider/account 선택, 권한은 유지한다. adapter 마지막 system block의 명시적 cache_control을 native 마지막 block으로 옮겨 cache breakpoint 수와 자동 캐시 정책도 보존한다. vendor 코드·공통 지침 원문·헤더·인증 설정은 변경하지 않는다.
+
+검증은 수정 전 actual infer/fetch body 회귀 실패→수정 후 통과, helper/profile/error focused tests, 같은 원래 계정·모델·high에서 이전에 실패한 profile 산술 및 지정 세션 첫 도구 요청의 실제 수락 확인이다. 도구 실행은 진단용 read-only 합성 fixture가 필요한 경우에만 수행하며 원래 세션 작업은 실행하지 않는다. 이 수락 검사는 공급자 오탐 전체 해소나 설치본 검증이 아니다. 전체 앱 build/설치는 범위 밖이다. 성공 시 source·검사·소유 문서와 work를 함께 commit한다.
+
+사전 출력 소유는 work:BU-01-refusal-cause-run-05, artifacts/tasks/refusal-cause/runs/05/{logs,reports,temporary}이다. logs/reports를 native inventory에 incomplete group으로 등록했다. 각 로그/실제 exit 및 read-only 진단 입력을 reports에 보존하고 원래 binding은 유지한다. wire-test/live-roundtrip fixture와 빈 temporary는 실제 producer 종료·소유 경로/내용 확인 후 일반 삭제했고 실제 부재를 확인했다. retained test는 AZRAEL_CLAUDE_TEST_ROOT override와 기본 tmpdir()를 사용하여 과거 run05를 재생성하지 않는다.
+
+수정은 inference.ts의 기존 전송 prefix 보존과 native 마지막 cache 경계 이관이다. vendor/common prompt/헤더/인증 설정은 바꾸지 않았다. 소유 architecture의 transport 계약을 갱신했고 기존 engine.model-harness-profiles 및 engine.error-classification inventory 소유/검사를 재사용하여 중복 항목을 추가하지 않았다. engine/ 변경은 없어 SOURCE receipt는 손대지 않았다. 최종 소스 hash가 모든 live 검증 입력과 일치한다.
+
+수정 전 exact-path 회귀는2개 중1pass/1fail(exit1)로 첫 system prefix와 cache 경계 누락을 검출했다. 수정 후 최종 회귀는2pass/62assertions(exit0, wire-regression-final.log)이며 exact builtins, external hash/prefix, typed ToolSearch alias, native 문구/순서, cache breakpoint 수, Read call/result replay/end_turn을 검증했다. error-classification14pass/416assertions, helper/profile/budget22pass/147assertions, profile mapping9pass 및 feature inventory 검증이 각각 exit0이다. 최종 회귀2개는14개 묶음에도 포함되므로 고유 테스트 수는45이며 반복 실행을 더해 세지 않는다. 해당 로그들은 run05/logs/가 소유한다. 프로필 변환 경계 밖 native config/tool 실행 구현은 바뀌지 않아 Cargo 전체 회귀를 반복하지 않았다. Linux/macOS와 전체 앱/설치 수락은 미검증이다.
+
+실제 검증은 2026-10-16T17:21:15.370Z~17:24:35.144Z UTC에 같은 원래 계정/claude-opus-5-5/high로 진행했다. 산술 profile1call은 HTTP200/end_turn/정답4이고, 지정 세션 원문+Read/Bash2의 profile1call은 HTTP200/tool_use이다. 두 검증 모두 이전에 실패한 조건을 유지했다. 별도 합성 파일은17과25를 담고 profile Read1call 후 harness가 정확한 지정 파일만 읽어 번호 있는 결과를 제공했다. 두 번째 실제 요청은 end_turn/정답42, cache_read710이었다. 합성 왕복은 실제 공급자/helper 통신과 read-only harness 동작이며 native 권한/executor의 전체 통합 실행을 뜻하지 않는다. 원래 세션 작업은 실행하지 않았다. 전체 HTTP 호출4개/2004개, 자동 retry0, 계정·모델 전환0, refusal0이다. requests/reports의 producer는 각각 exit0이며 종료와 최종 입력 hash를 확인했다. 요청 ID/구조/해시/stop/usage만 보존하고 대화 원문·thinking·credential은 저장하지 않았다.
+
+검사 harness의 최초 Bun 경로 표기 실수는 넓은 파일 필터로 해석되어 exit1(7tests/1pass/6fail/5errors)로 종료됐다. 최초 raw log는 exact baseline 실행 중 덮어써 복구하지 못했으며 wire-regression-harness-diagnostic.log는 관찰 요약임을 명시한다. 이후 ./scripts/… exact 경로로 baseline/final을 분리했다. 생성 fixture payload는 모두 제거됐다. 빈 wire-test 폴더의 child cleanup에서 PowerShell 예외가 있었으나 root가 일반 파일/자식0개/소유 절대경로를 확인한 동일 PowerShell 일반 삭제로 실제 부재를 확인했다. 강제 옵션/ACL/우회 삭제는 사용하지 않았다.
+
+남은 생성 binding3개는 reports/*-owner.json과 cleanup.json에 경로·thread identity·producer 종료·lock 부재가 기록돼 있다. 삭제 명령은 실행 전에 자동 승인 검토가 blocked by policy로 거절했고 세부 이유를 제공하지 않았다. 해당 삭제를 다른 shell/API로 재시도하지 않았다. 프로젝트 밖 binding을 native inventory에 소유 등록하려 했으나 path escapes project로 거절되어 group membership은 incomplete로 유지한다. logs12636bytes/reports49615bytes의 현재 두 멤버를 review하고 같은 defer 결정을 적용했다. 정책상 허용되는 정리에서 정확한 binding3개를 제거하고 동일 소스 설치 검증에 독립 근거를 보존한 뒤 work 참조를 해제할 때 전체 membership을 재등록·재검토한다. 원래 binding은 보존됐고 임시 fixture/temporary는 없다. 정리 보류를 실제 삭제 완료로 보고하지 않는다.
 
 ### 직접 원인 비교 결과 (run04)
 
