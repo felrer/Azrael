@@ -1,9 +1,13 @@
 'use strict';
 const fs = require('node:fs');
 const path = require('node:path');
-const { checked, walk, relative, hash } = require('./computer-use-runtime.cjs');
+const { checked, walk, relative, hash, WINDOW_GUIDES } = require('./computer-use-runtime.cjs');
 const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window-control-policy.cjs', 'docs/selected-window.md', 'THIRD_PARTY_NOTICES.md', 'window-task-macros.cjs', 'window-control-occupancy.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'window-control-errors.cjs'];
-const requiredFiles = platform => platform === 'linux' ? ['azrael-window-control', ...REQUIRED.slice(1)] : REQUIRED;
+const STAGED_MODULES = ['window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs'];
+const HOST_MODULES = [...STAGED_MODULES, 'window-desktop-authority.cjs'];
+const CHILD_PROBE = 'child-session/probe.ps1', CHILD_EXECUTABLE = 'child-session/windows-child-session.exe';
+const requiredFiles = (platform, unified = false) => [platform === 'linux' ? 'azrael-window-control' : REQUIRED[0], ...REQUIRED.slice(1),
+  ...(unified ? [...STAGED_MODULES, ...(platform === 'linux' ? [] : [CHILD_PROBE])] : [])];
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
 function sourceFingerprint(sourceRoot) {
   const files = ['Cargo.lock', 'Cargo.toml', 'THIRD_PARTY_NOTICES.md', ...walk(path.join(sourceRoot, 'src')).filter(rel => !rel.split('/').includes('__pycache__') && !rel.endsWith('.pyc')).map(rel => `src/${rel}`)].sort();
@@ -17,7 +21,7 @@ function verifyRuntime(directory) {
   if (manifest.schema !== 1 || manifest.kind !== 'azrael-window-control' || !Array.isArray(manifest.files) ||
       !manifest.source || !path.isAbsolute(manifest.source.directory || '') || !digest(manifest.source.sourceSha256) ||
       !digest(manifest.source.executableSha256) || manifest.source.builder !== (manifest.platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release')) throw new Error('Invalid Window Control manifest provenance');
-  const required = requiredFiles(manifest.platform);
+  const required = requiredFiles(manifest.platform, manifest.windowUseGuidanceVersion === 1);
   const seen = new Set();
   for (const entry of manifest.files) {
     const rel = relative(entry.path);
@@ -26,10 +30,17 @@ function verifyRuntime(directory) {
     const bytes = fs.readFileSync(checked(directory, rel));
     if (bytes.length !== entry.bytes || hash(bytes) !== entry.sha256) throw new Error(`Window Control hash mismatch: ${rel}`);
   }
-  for (const rel of required) if (!seen.has(rel.toLowerCase())) throw new Error(`Required Window Control entry missing: ${rel}`);
+  for (const rel of [...required, ...(manifest.windowUseGuidanceVersion === 1 ? WINDOW_GUIDES : [])]) if (!seen.has(rel.toLowerCase())) throw new Error(`Required Window Control entry missing: ${rel}`);
   for (const rel of walk(directory)) if (rel !== 'manifest.json' && !seen.has(rel.toLowerCase())) throw new Error(`Unrecorded Window Control file: ${rel}`);
   if (manifest.files.find(entry => entry.path === required[0])?.sha256 !== manifest.source.executableSha256) throw new Error('Window Control executable provenance mismatch');
-  return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest };
+  let childSession;
+  if (manifest.childSession) {
+    const child = manifest.childSession;
+    if (manifest.platform !== 'win32' || manifest.windowUseGuidanceVersion !== 1 || child.executable !== CHILD_EXECUTABLE || child.probeScript !== CHILD_PROBE || !digest(child.sha256) ||
+        !seen.has(CHILD_EXECUTABLE) || !seen.has(CHILD_PROBE) || manifest.files.find(entry => entry.path === CHILD_EXECUTABLE)?.sha256 !== child.sha256) throw new Error('Invalid Windows child-session helper provenance');
+    childSession = { executable: path.join(directory, CHILD_EXECUTABLE), sha256: child.sha256, probeScript: path.join(directory, CHILD_PROBE) };
+  } else if (seen.has(CHILD_EXECUTABLE)) throw new Error('Undeclared Windows child-session helper');
+  return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest, ...(childSession ? { childSession } : {}) };
 }
 function verifyRelease(release, sourceRoot) {
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
@@ -41,7 +52,7 @@ function verifyRelease(release, sourceRoot) {
   const result = verifyRuntime(path.join(release, 'window-control'));
   if (result.manifestSha256 !== expected.toLowerCase()) throw new Error('Release Window Control manifest hash mismatch');
   if (sourceRoot && sourceFingerprint(sourceRoot) !== result.manifest.source.sourceSha256) throw new Error('Window Control source provenance mismatch');
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', ...(result.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(release, `host/${module}`))) !== wanted.toLowerCase()) throw new Error(`Release Window Control host module mismatch: ${module}`);
   }
@@ -57,15 +68,18 @@ function verifyPreparedHost(directory, release) {
   for (const key of ['directory', 'executable', 'mcpScript', 'manifestSha256']) {
     if (config.windowControl?.[key] !== expected[key]) throw new Error(`Prepared Window Control configuration mismatch: ${key}`);
   }
+  if (expected.childSession) {
+    for (const key of ['executable', 'sha256', 'probeScript']) if (config.windowControl?.childSession?.[key] !== expected.childSession[key]) throw new Error(`Prepared Window Control child-session configuration mismatch: ${key}`);
+  } else if (config.windowControl?.childSession) throw new Error('Prepared Window Control declares unsupported child-session helper');
   if (verifyRuntime(path.join(directory, 'window-control')).manifestSha256 !== expected.manifestSha256) throw new Error('Prepared Window Control manifest mismatch');
   const build = JSON.parse(fs.readFileSync(checked(release, 'build-info.json')));
-  for (const module of ['window-control-host.cjs', 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
+  for (const module of ['window-control-host.cjs', ...(expected.manifest.windowUseGuidanceVersion === 1 ? HOST_MODULES : []), 'window-control-backend.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-control-mcp.cjs', 'window-task-macros.cjs', 'window-control-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs']) {
     const wanted = build.sha256?.[`host/${module}`];
     if (!wanted || hash(fs.readFileSync(checked(directory, `out/${module}`))) !== wanted.toLowerCase()) throw new Error(`Prepared Window Control host module mismatch: ${module}`);
   }
   return expected;
 }
-function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, guidance, destination }) {
+function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, guidance, destination, childSessionExecutable }) {
   for (const directory of [sourceRoot, scriptDirectory]) checked(directory);
   for (const file of [executable, provenance, guidance]) checked(path.dirname(path.resolve(file)), path.basename(file));
   destination = path.resolve(destination);
@@ -81,12 +95,17 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   const sourceSha256 = sourceFingerprint(sourceRoot), executableSha256 = hash(fs.readFileSync(executable));
   if (evidence.schema !== 1 || evidence.sourceSha256 !== sourceSha256 || evidence.executableSha256 !== executableSha256) throw new Error('Window Control build provenance mismatch');
   const platform = path.basename(executable) === 'linux_backend.py' ? 'linux' : 'win32';
+  if (childSessionExecutable && (!path.isAbsolute(childSessionExecutable) || platform !== 'win32')) throw new Error('Child-session executable requires an absolute Windows input path');
   const inputs = [[requiredFiles(platform)[0], executable], [REQUIRED[1], checked(scriptDirectory, REQUIRED[1])], [REQUIRED[2], checked(scriptDirectory, REQUIRED[2])], [REQUIRED[3], guidance], [REQUIRED[4], checked(sourceRoot, REQUIRED[4])], [REQUIRED[5], checked(scriptDirectory, REQUIRED[5])], [REQUIRED[6], checked(scriptDirectory, REQUIRED[6])]];
   for (const rel of ['window-control-errors.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) inputs.push([rel, checked(scriptDirectory, rel)]);
+  for (const rel of STAGED_MODULES) inputs.push([rel, checked(scriptDirectory, rel)]);
+  if (platform === 'win32') inputs.push([CHILD_PROBE, checked(path.resolve(sourceRoot, '../windows-child-session'), 'probe.ps1')]);
+  if (childSessionExecutable) inputs.push([CHILD_EXECUTABLE, checked(path.dirname(childSessionExecutable), path.basename(childSessionExecutable))]);
+  for (const rel of WINDOW_GUIDES) inputs.push([rel, checked(path.dirname(path.resolve(guidance)), rel.slice('docs/'.length))]);
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); if (entry.path === requiredFiles(platform)[0]) fs.chmodSync(target, 0o755); }
-  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', platform, source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
+  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', windowUseGuidanceVersion: 1, platform, ...(childSessionExecutable ? { childSession: { executable: CHILD_EXECUTABLE, probeScript: CHILD_PROBE, sha256: files.find(entry => entry.path === CHILD_EXECUTABLE).sha256 } } : {}), source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
   return verifyRuntime(destination);
 }
 module.exports = { sourceFingerprint, fingerprintNativeSource: sourceFingerprint, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost };
@@ -100,7 +119,7 @@ if (require.main === module) {
     else if (command === 'verify-release') result = verifyRelease(options['--release'], options['--source-root']);
     else if (command === 'verify-host') result = verifyPreparedHost(options['--directory'], options['--release']);
     else if (command === 'fingerprint') result = { sourceSha256: sourceFingerprint(options['--source'] || options['--source-root']) };
-    else if (command === 'stage') result = stageRuntime({ sourceRoot: options['--source-root'], executable: options['--executable'], provenance: options['--provenance'], scriptDirectory: options['--script-directory'], guidance: options['--guidance'], destination: options['--destination'] });
+    else if (command === 'stage') result = stageRuntime({ sourceRoot: options['--source-root'], executable: options['--executable'], provenance: options['--provenance'], scriptDirectory: options['--script-directory'], guidance: options['--guidance'], destination: options['--destination'], childSessionExecutable: options['--child-session-executable'] });
     else throw new Error('Unknown Window Control runtime command');
     if (result) delete result.manifest;
     console.log(JSON.stringify(result));

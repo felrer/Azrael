@@ -1,10 +1,10 @@
 # Window Use 동작 시각화
 
-Status: `partial` — native 구현, host 중지 연결과 소유한 실제 테스트 창의 light/dark 표시·입력 통과·대상별 중지를 검증했다. DWM 경계와 둥근 모서리 정렬은 144 DPI의 일반·작은 곡률·사각·이동·크기 변경·최대화 창에서 source 시각 수용을 통과했다. 이 경계 개선은 미패키징·미설치 상태다. 실제 사용자 창의 model/tool 실행, WGC 표시 제외와 다른 DPI의 모니터 전환 수용 검증은 별도다.
+Status: `partial` — Ctrl+Alt+Shift+F12 등록·충돌·해제와 일반 Escape 메시지의 앱 전달을 source 및 소유 fixture에서 검증했다. 물리 단축키 입력과 설치본 수용은 별도다. native 구현, host 중지 연결과 소유한 실제 테스트 창의 light/dark 표시·입력 통과·대상별 중지를 검증했다. DWM 경계와 둥근 모서리 정렬은 144 DPI의 일반·작은 곡률·사각·이동·크기 변경·최대화 창에서 source 시각 수용을 통과했다. 이 경계 개선은 미패키징·미설치 상태다. 실제 사용자 창의 model/tool 실행, WGC 표시 제외와 다른 DPI의 모니터 전환 수용 검증은 별도다.
 
 ## 플랫폼 범위
 
-이 문서의 DWM 경계, layered surface, 모서리 빛, 클릭 통과 안내와 Escape 계약은 Windows 구현에 적용한다. [Linux 선택 창 backend](window-use.md#linux-selected-window-backend)는 GTK 중지 버튼을 제공하고 `hotkeyRegistered: false`를 반환한다. Linux 경로는 Escape 등록이나 Windows 모서리 빛을 제공한다고 해석하지 않는다. Linux fixture와 설치 호스트의 검증 범위는 [Linux operations](../ops/linux.md)가 소유한다.
+이 문서의 DWM 경계, layered surface, 모서리 빛, 클릭 통과 안내와 Ctrl+Alt+Shift+F12 계약은 Windows 구현에 적용한다. [Linux 선택 창 backend](window-use.md#linux-selected-window-backend)는 GTK 중지 버튼을 제공하고 `hotkeyRegistered: false`를 반환한다. Linux 경로는 Ctrl+Alt+Shift+F12 등록이나 Windows 모서리 빛을 제공한다고 해석하지 않는다. Linux fixture와 설치 호스트의 검증 범위는 [Linux operations](../ops/linux.md)가 소유한다.
 
 ## 승인된 표시와 중지 동작
 
@@ -12,9 +12,9 @@ Window Use를 사용하는 실제 대상 창의 네 모서리에서 창 안쪽�
 
 제어 대상이 있는 모니터의 화면 좌측 하단, 작업 표시줄 위의 work area에 반투명 중지 안내를 둔다. 배경이 비치며 안내 전체와 모서리 효과는 마우스 클릭·스크롤·드래그를 아래 앱으로 통과시킨다. 현재 구현 범위의 안내는 표시 전용으로 버튼을 포함하지 않는다. Azrael의 기존 중지 컨트롤은 유지한다.
 
-Computer Use의 pinned Sky 0.7.4 실행파일은 `Azrael is using the computer`, `Esc to cancel` 안내를 포함한다. Window Use도 Escape를 사용한다. Computer Use overlay의 소스와 렌더링 근거는 공급되지 않으므로 같은 픽셀·색을 복제했다고 주장하지 않는다.
+Computer Use의 pinned Sky 0.7.4 실행파일은 `Azrael is using the computer`, `Esc to cancel` 안내를 포함한다. 이 공급자 실행파일의 표시는 변경하지 않았다. Window Use의 선택 창 제어는 Ctrl+Alt+Shift+F12를 사용한다. Computer Use overlay의 소스와 렌더링 근거는 공급되지 않으므로 같은 픽셀·색을 복제했다고 주장하지 않는다.
 
-- Escape는 현재 활성화된 정확한 제어 대상 창만 중지한다. 다른 앱이 foreground면 다른 제어 창을 중지하지 않는다.
+- Ctrl+Alt+Shift+F12는 현재 활성화된 정확한 제어 대상 창만 중지한다. 다른 앱이 foreground면 다른 제어 창을 중지하지 않는다.
 - 별도 top-level dialog를 자동으로 같은 제어 대상으로 확대하지 않는다.
 - 중지는 해당 창의 후속 동작과 대기 중 요청을 차단하고 명시적 사용자 재개를 요구한다. 모델의 같은 창 재선택으로 중지를 해제하지 않는다.
 - 이미 전달한 앱 동작은 적용될 수 있다. 중지와 원상복구는 별개이며 불확실한 결과를 자동 재실행하지 않는다.
@@ -24,7 +24,7 @@ Computer Use의 pinned Sky 0.7.4 실행파일은 `Azrael is using the computer`,
 
 ## 4단계 통합 표시
 
-Status: `target` — 위의 현재 Escape·표시 전용 overlay 구현과 구분한다.
+Status: `partial` — 통합 설정의 전체·단계별·앱 허용 스위치는 source와 light/dark 화면 검사를 통과했다. 실행 위치·입력 소유권의 통합 표시와 자식 세션 viewer 수용은 아직 target이며, 위의 현재 Ctrl+Alt+Shift+F12·표시 전용 overlay 구현과 구분한다.
 
 통합 Window Use 표시는 현재 관찰/제어 단계, 부모 창 또는 자식 세션의 실행 위치, 실제 입력 소유자와 중지·재개 상태를 구분한다. 1단계 관찰은 제어 중으로 표시하지 않는다. 3단계 원격 보기에서 사용자가 직접 조작을 선택하면 모델 입력을 중지하고, 명시적으로 돌려받은 뒤 새 관찰부터 이어간다. 부모 세션의 다른 앱 사용은 격리 제어 중지의 원인이 아니다.
 
@@ -32,7 +32,7 @@ Status: `target` — 위의 현재 Escape·표시 전용 overlay 구현과 구�
 
 격리 실행의 초기 준비 상태와 일반 사용자 실행 상태를 구분하고, UAC가 필요한 경우 변경 목적과 범위를 표시한다. 자원 표시는 활성 작업·직접 조작·유휴 대기·정리 보류/실패와 실제 회수 용량을 구분한다. 미저장 상태나 소유권 불명확으로 정리가 보류되면 사유를 제공한다.
 
-사용자가 현재 앱에 보내는 일반 Escape와 Window Use의 의도적인 중지를 구분한다. 기존 중지 컨트롤을 재사용하고 명시적인 중지 단축키를 제공한다. 명시적 중지는 재관찰이나 재선택으로 해제하지 않는다. 2단계에서 같은 대상에 사용자 입력이 발생하면 다음 입력을 보류하고 상태를 확인하며, 앱이나 세션을 자동 종료하지 않는다. 4단계의 데스크톱 입력 영향은 권한 요청과 제어 표시에 드러낸다.
+사용자가 현재 앱에 보내는 일반 Escape와 Window Use의 의도적인 중지를 구분한다. 기존 중지 컨트롤을 재사용하고 명시적인 중지 단축키 Ctrl+Alt+Shift+F12를 제공한다. 명시적 중지는 재관찰이나 재선택으로 해제하지 않는다. 2단계에서 같은 대상에 사용자 입력이 발생하면 다음 입력을 보류하고 상태를 확인하며, 앱이나 세션을 자동 종료하지 않는다. 4단계의 데스크톱 입력 영향은 권한 요청과 제어 표시에 드러낸다.
 
 별도 top-level dialog의 발견은 권한 확대가 아니며 새 대상 신원을 확인한다. 표시·직접 조작·중지 동작은 OpenAI 스타일과 기존 테마/컴포넌트를 사용하고 light/dark 및 실제 대상 창에서 확인한다. 기존 표시 구현의 실제 검증을 통합 표시의 수용 근거로 대신하지 않는다.
 
@@ -42,11 +42,11 @@ Status: `target` — 위의 현재 Escape·표시 전용 overlay 구현과 구�
 
 대상의 위치·크기·DPI를 따라가며 최소화·종료·선택 변경·작업 완료 시 정리한다. 대상의 겹침 순서를 따르고 다른 창 뒤의 대상을 앞으로 올리지 않는다.
 
-좌측 하단 안내는 짧은 제어 상태와 Escape 안내를 표시한다. 매크로에서는 단계 번호와 실행·결과 확인 상태를 보여준다. 입력값, 실행 파라미터, 비밀번호, 창의 내용을 안내 문구에 복사하지 않는다. 단축키가 동작하지 않는 상태를 사용 가능한 것처럼 표시하지 않는다.
+좌측 하단 안내는 짧은 제어 상태와 Ctrl+Alt+Shift+F12 안내를 표시한다. 매크로에서는 단계 번호와 실행·결과 확인 상태를 보여준다. 입력값, 실행 파라미터, 비밀번호, 창의 내용을 안내 문구에 복사하지 않는다. 단축키가 동작하지 않는 상태를 사용 가능한 것처럼 표시하지 않는다.
 
-현재 target이 foreground일 때만 Escape를 등록하고, 다른 앱으로 전환·완료·중지·종료하면 해제한다. 등록 충돌을 감지하면 Escape 사용 불가와 Azrael 중지 경로를 안내한다. 임의의 다른 키로 자동 변경하지 않는다. 포커스 변경과 키 처리가 경합할 수 있으므로 처리 시에도 대상 identity를 재확인한다.
+현재 target이 foreground일 때만 Ctrl+Alt+Shift+F12를 등록하고, 다른 앱으로 전환·완료·중지·종료하면 해제한다. 등록 충돌을 감지하면 Ctrl+Alt+Shift+F12 사용 불가와 Azrael 중지 경로를 안내한다. 임의의 다른 키로 자동 변경하지 않는다. 포커스 변경과 키 처리가 경합할 수 있으므로 처리 시에도 대상 identity를 재확인한다.
 
-빛 효과의 native renderer는 밝은 앱·어두운 앱 위에서 모두 내용을 가리지 않고 보인다. 반투명 안내는 배경을 보여주면서 읽을 수 있어야 한다. 현재 효과는 정적인 fade여서 움직임 감소 설정에서도 같은 의미를 전달한다. 안내 폭은 실제 글꼴로 측정하고 작업 영역 안에 제한하며, 좁은 폭에서는 작업 설명을 먼저 줄여 Escape 안내 또는 사용 불가 상태를 유지한다. 사용자 포인터나 전역 키보드 상태를 바꾸지 않는다.
+빛 효과의 native renderer는 밝은 앱·어두운 앱 위에서 모두 내용을 가리지 않고 보인다. 반투명 안내는 배경을 보여주면서 읽을 수 있어야 한다. 현재 효과는 정적인 fade여서 움직임 감소 설정에서도 같은 의미를 전달한다. 안내 폭은 실제 글꼴로 측정하고 작업 영역 안에 제한하며, 좁은 폭에서는 작업 설명을 먼저 줄여 Ctrl+Alt+Shift+F12 안내 또는 사용 불가 상태를 유지한다. 사용자 포인터나 전역 키보드 상태를 바꾸지 않는다.
 
 ## 실행 책임과 내부 연결
 
@@ -68,7 +68,7 @@ native main loop의 UIA 호출이 오래 걸려도 overlay UI thread가 메시�
 
 ## 플랫폼 재사용과 검증 경계
 
-기존 `windows = 0.58.0`의 Win32/GDI/HiDpi 기능을 재사용한다. 비활성·입력 통과 표시에는 layered window와 transparent/noactivate/toolwindow 스타일을 사용하고, Escape는 OS hotkey 등록을 사용한다. 근거: [Window features](https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features), [Extended styles](https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles), [RegisterHotKey](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey).
+기존 `windows = 0.58.0`의 Win32/GDI/HiDpi 기능을 재사용한다. 비활성·입력 통과 표시에는 layered window와 transparent/noactivate/toolwindow 스타일을 사용하고, Ctrl+Alt+Shift+F12는 OS hotkey 등록을 사용한다. 근거: [Window features](https://learn.microsoft.com/en-us/windows/win32/winmsg/window-features), [Extended styles](https://learn.microsoft.com/en-us/windows/win32/winmsg/extended-window-styles), [RegisterHotKey](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-registerhotkey).
 
 ### Layered API 충돌 복구
 

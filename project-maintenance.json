@@ -214,6 +214,51 @@
         "scripts/test-clean-verification-artifacts.ps1",
         "scripts/test-clean-engine-caches.ps1"
       ]
+    },
+    {
+      "id": "window-use-core",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-control-observation-recovery.cjs",
+        "scripts/test-window-task-macros.cjs",
+        "scripts/test-computer-use-approvals.cjs",
+        "scripts/test-sky-control-policy.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-desktop-authority.cjs"
+      ],
+      "inputs": [
+        "scripts/window-control-policy.cjs",
+        "scripts/window-control-mcp.cjs",
+        "scripts/window-control-errors.cjs",
+        "scripts/window-task-macros.cjs",
+        "scripts/window-control-occupancy.cjs",
+        "scripts/computer-use-approvals.cjs",
+        "scripts/sky-control-policy.mjs",
+        "scripts/inject-sky-control-policy.cjs",
+        "scripts/use-control-settings.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-control-observation-recovery.cjs",
+        "scripts/test-window-task-macros.cjs",
+        "scripts/test-computer-use-approvals.cjs",
+        "scripts/test-sky-control-policy.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-desktop-authority.cjs",
+        "scripts/window-child-session.cjs",
+        "scripts/window-use-resources.cjs",
+        "scripts/sky-controlled-service.mjs",
+        "scripts/computer-use-runtime.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-desktop-authority.cjs"
+      ]
     }
   ],
   "policy": {

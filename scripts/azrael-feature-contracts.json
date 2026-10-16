@@ -1029,7 +1029,13 @@
       "owners": [
         "scripts/inject-computer-use.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/sky-control-policy.mjs",
+        "scripts/computer-use-runtime.cjs",
+        "scripts/sync-codex-environment.cjs",
+        "scripts/window-desktop-authority.cjs",
+        "scripts/sky-controlled-service.mjs",
+        "scripts/inject-sky-control-policy.cjs"
       ],
       "contract": "docs/architecture/computer-use.md",
       "checks": [
@@ -1040,7 +1046,9 @@
             "--test",
             "scripts/test-computer-use-injection.cjs",
             "scripts/test-computer-use-approvals.cjs",
-            "scripts/test-computer-use-runtime.cjs"
+            "scripts/test-computer-use-runtime.cjs",
+            "scripts/test-window-desktop-authority.cjs",
+            "scripts/test-sky-control-policy.cjs"
           ],
           "level": "source"
         },
@@ -1067,9 +1075,24 @@
       "owners": [
         "scripts/inject-window-control.cjs",
         "scripts/namespace-cache-owner.cjs",
-        "scripts/test-namespace-cache-owner.cjs"
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-control-policy.cjs",
+        "scripts/window-control-mcp.cjs",
+        "scripts/use-control-settings.cjs",
+        "scripts/window-use-resources.cjs",
+        "scripts/window-child-session.cjs",
+        "native/window-control/src/uia.rs",
+        "native/windows-child-session/ChildSession.cs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-desktop-authority.cjs",
+        "scripts/use-settings-host.cjs",
+        "scripts/window-control-runtime.cjs",
+        "instructions/computer-use-selected-window.md",
+        "instructions/window-use/stage-3.md",
+        "native/window-control/src/overlay.rs"
       ],
-      "contract": "docs/architecture/computer-use.md",
+      "contract": "docs/architecture/window-use.md",
       "checks": [
         {
           "id": "ui.window-control.behavior",
@@ -1079,7 +1102,17 @@
             "scripts/test-window-control-injection.cjs",
             "scripts/test-window-approval-notifications.cjs",
             "scripts/test-window-control-policy.cjs",
-            "scripts/test-window-control-runtime.cjs"
+            "scripts/test-window-control-runtime.cjs",
+            "scripts/test-window-control-mcp.cjs",
+            "scripts/test-use-control-settings.cjs",
+            "scripts/test-use-settings-integration.cjs",
+            "scripts/test-window-use-resources.cjs",
+            "scripts/test-window-child-session.cjs",
+            "scripts/test-window-use-staging.cjs",
+            "scripts/test-window-use-isolation.cjs",
+            "scripts/test-window-use-stage-authority.cjs",
+            "scripts/test-use-settings-host.cjs",
+            "scripts/test-use-settings-ui.cjs"
           ],
           "level": "source"
         },

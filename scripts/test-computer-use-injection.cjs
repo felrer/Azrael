@@ -318,7 +318,7 @@ test("pinned computer-use approval card cancels the request through the native r
   } finally { fs.rmSync(home, { recursive: true }); }
 });
 
-test("local Windows approval management preserves native execution gates and memo correctness", async () => {
+test("unified Window Use settings replace legacy management while preserving native gates, queries and memo correctness", async () => {
   const root = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
   const original = fs.readFileSync(path.join(root, COMPUTER_USE_MANAGEMENT_ASSET), "utf8");
   const injected = injectComputerUseManagement(original, COMPUTER_USE_MANAGEMENT_ASSET);
@@ -383,7 +383,9 @@ test("local Windows approval management preserves native execution gates and mem
     nt: "settings-title", _i: "computer-use", u: "localized-label", K, q: { control: {}, alwaysAllowedApps: {} },
     Ur: "native-controls", oi: "macos-control", St: "boundary", li: "approvals", ii: "sound", Yt: "settings-page",
     AzraelWindowControlLauncher: "window-control-launcher" });
-  vm.runInContext(nativeVr, context);
+  // Preserve the native management transform's own gates independently from
+  // the final unified page, whose source-qualified rows replace legacy panels.
+  vm.runInContext(declaration(injected.text, "Hr"), context);
   const render = () => vm.runInContext("Hr()", context);
   function contains(node, type) {
     if (Array.isArray(node)) return node.some(child => contains(child, type));
@@ -411,6 +413,23 @@ test("local Windows approval management preserves native execution gates and mem
   host = "local"; platform = "windows"; assert(contains(render(), "approvals")); assert(!contains(render(), "sound"));
   availability = { available: true }; assert(contains(render(), "approvals")); assert(contains(render(), "sound"));
   availability = { available: false }; assert(contains(render(), "approvals")); assert(!contains(render(), "sound"));
+  plugin = {}; assert.equal(render().type, "plugin-page"); plugin = null;
+  browser = "chrome"; assert.equal(render().type, "browser-page");
+  browser = "unsupported"; assert.equal(render().type, "redirect"); browser = null;
+
+  memo.fill(Symbol.for("react.memo_cache_sentinel"));
+  vm.runInContext(nativeVr, context);
+  for (const selectedHost of ["local", "remote"]) for (const selectedPlatform of ["windows", "macOS", "linux"]) {
+    for (const available of [false, true]) {
+      host = selectedHost; platform = selectedPlatform; availability = { available };
+      const result = render();
+      assert.equal(result.type, "settings-page"); assert.equal(result.props.title, "Window Use");
+      assert(contains(result, "window-control-launcher"));
+      assert(!contains(result, "approvals"), "unified source-qualified rows replace the legacy app list");
+      assert(!contains(result, "native-controls")); assert(!contains(result, "sound"));
+      assert.equal(render(), result, "unchanged inputs reuse the final native page memo");
+    }
+  }
   plugin = {}; assert.equal(render().type, "plugin-page"); plugin = null;
   browser = "chrome"; assert.equal(render().type, "browser-page");
   browser = "unsupported"; assert.equal(render().type, "redirect"); browser = null;
@@ -444,7 +463,7 @@ test("local Windows approval management preserves native execution gates and mem
   vm.runInContext(declaration(transformed.text, "li"), ciContext);
   assert.equal(vm.runInContext("li()", ciContext).type, "approval-list");
   assert.equal(refetches, 1); assert.equal(reads, 1); assert.deepEqual(await fetched, { approvedApps });
-  console.log("PASS pinned Vr local Windows management, preserved native gates/sound, host/platform/availability memo invalidation and ungated native ci query mount");
+  console.log("PASS native management transform gates, memo and query mount; final unified launcher and preserved plugin/browser routes");
 });
 test('Window Use Azrael title is guarded and leaves Computer Use native title intact',()=>{
  const {injectWindowApprovalTitle,WINDOW_TITLE_MARKER,windowTitleReplacements}=require('./inject-computer-use.cjs');const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), COMPUTER_USE_APPROVAL_CARD_ASSET),'utf8');

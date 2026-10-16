@@ -249,15 +249,45 @@ class Backend:
             raise Failure('stale-element', 'Accessible window mapping is ambiguous')
         return matches[0] if matches else None
 
-    def elements(self, w):
+    def elements(self, w, request=None, container=None):
+        request = request or dict(mode='task')
+        legacy = request.get('mode') == 'task'
+        limit = 2048 if legacy else request.get('limit', 20)
         root = self.accessible_root(w)
         if root is None:
-            return [], {}, False
-        pending, descriptors, refs = [(root, None, 0)], [], {}
-        while pending and len(descriptors) < 2048:
+            return [], {}, 'accessibility-unavailable'
+        pending, descriptors, refs = [(container or root, None, 0)], [], {}
+        scanned, reason, started = 0, None, time.monotonic()
+        while pending:
+            if not legacy and time.monotonic()-started >= 1.5: reason = 'time-limit'; break
+            if scanned >= 2048: reason = 'scan-limit'; break
             element, parent, depth = pending.pop(0)
             if element.get_process_id() != w['pid']: continue
-            eid = f'element-{len(descriptors)+1}'
+            scanned += 1
+            eid = f'element-{scanned}'
+            password = element.get_role() == Atspi.Role.PASSWORD_TEXT
+            name = '' if password else element.get_name() or ''
+            role = element.get_role_name() or 'unknown'
+            query = request.get('query') or {}
+            nq = query.get('name') or {}
+            aid = (element.get_attributes() or {}).get('id', '') if 'automationId' in query else ''
+            matches = (('equals' not in nq or nq['equals'] == name) and ('contains' not in nq or nq['contains'] in name)
+                       and ('automationId' not in query or query['automationId'] == aid)
+                       and ('controlType' not in query or query['controlType'] == role))
+            if matches and len(descriptors) == limit: reason = 'output-limit'; break
+            if not legacy:
+                if matches:
+                    state = element.get_state_set()
+                    d = dict(id=eid,name=name[:160],controlType=role,isPassword=password,enabled=state.contains(Atspi.StateType.ENABLED))
+                    descriptors.append(d); refs[eid] = (element,d,root)
+                count = element.get_child_count()
+                if count and depth+1 >= 128: reason = 'depth-limit'; continue
+                room = 2048-scanned-len(pending)
+                for i in range(min(count,room)):
+                    if time.monotonic()-started >= 1.5: reason = 'time-limit'; break
+                    pending.append((element.get_child_at_index(i),eid,depth+1))
+                if count > room: reason = 'scan-limit'
+                continue
             patterns = []
             actions = element.get_action_iface()
             names = [actions.get_action_name(i).lower() for i in range(actions.get_n_actions())] if actions else []
@@ -284,7 +314,55 @@ class Backend:
             if depth < 128:
                 for i in range(min(element.get_child_count(), 2048-len(pending))):
                     pending.append((element.get_child_at_index(i), eid, depth+1))
-        return descriptors, refs, bool(pending)
+        return descriptors, refs, reason or ('scan-limit' if pending else None)
+
+    def retained_element(self, w, observation, eid):
+        ref = observation[2].get(eid)
+        if not ref: raise Failure('unknown-element', 'Element not retained')
+        element, _, root = ref
+        current = element
+        for _ in range(256):
+            if current == root: break
+            current = current.get_parent()
+            if current is None: raise Failure('stale-element', 'Element left selected frame')
+        else: raise Failure('stale-element', 'Ancestry exceeds bounds')
+        if element.get_process_id() != w['pid'] or self.accessible_root(w) != root:
+            raise Failure('stale-element', 'Accessible target changed')
+        return element
+
+    def read_element(self, w, p, observation):
+        e = self.retained_element(w,observation,p.get('elementId'))
+        password = e.get_role() == Atspi.Role.PASSWORD_TEXT
+        d = dict(id=p['elementId'],isPassword=password)
+        for f in p.get('fields', ['name','controlType','enabled']):
+            if f in ('value','text'):
+                if password: d[f]=None; d['redacted']=True; continue
+                text=e.get_text_iface()
+                if not text: raise Failure('unsupported-action','Text interface unavailable')
+                r=p.get('textRange')
+                if f=='text' and not r: raise Failure('invalid-params','Text requires textRange')
+                start,length=(r['start'],r['length']) if f=='text' else (0,4096)
+                count=text.get_character_count()
+                d[f]=Atspi.Text.get_text(text,min(start,count),min(start+length,count))
+                d['textRange']=dict(start=min(start,count),length=len(d[f]),omittedContent=start>0 or start+length<count,revision=p['observationId'])
+            elif f=='name': d[f]='' if password else (e.get_name() or '')[:160]
+            elif f=='controlType': d[f]=e.get_role_name() or 'unknown'
+            elif f=='automationId': d[f]=(e.get_attributes() or {}).get('id','')[:160]
+            elif f=='enabled': d[f]=e.get_state_set().contains(Atspi.StateType.ENABLED)
+            elif f=='isPassword': d[f]=password
+            elif f=='selected': d[f]=e.get_state_set().contains(Atspi.StateType.SELECTED)
+            elif f=='toggleState': d[f]='on' if e.get_state_set().contains(Atspi.StateType.CHECKED) else 'off'
+            elif f=='expandState': d[f]='expanded' if e.get_state_set().contains(Atspi.StateType.EXPANDED) else 'collapsed'
+            elif f=='patterns':
+                iface=e.get_action_iface()
+                names=[iface.get_action_name(i).lower() for i in range(min(iface.get_n_actions(),100))] if iface else []
+                d[f]=[n for n in ('toggle','expand','collapse') if n in names]
+                if any(n in names for n in ('click','activate','press','invoke')): d[f].append('invoke')
+                if e.get_role() == Atspi.Role.CHECK_BOX and 'toggle' not in d[f]: d[f].append('toggle')
+                if e.get_editable_text_iface() and e.get_state_set().contains(Atspi.StateType.EDITABLE): d[f].append('setValue')
+                if e.get_state_set().contains(Atspi.StateType.SELECTABLE): d[f].append('select')
+            else: raise Failure('invalid-params','Unsupported inspection field')
+        return d
 
     def act(self, p, w):
         observation, self.observation = self.observation, None
@@ -304,7 +382,10 @@ class Backend:
         if self.accessible_root(w) != root or e.get_process_id() != w['pid']:
             raise Failure('stale-element', 'Accessible target changed')
         action = p.get('action')
-        if action not in descriptor['patterns']: raise Failure('unsupported-action', 'Selected element does not expose this action')
+        patterns = self.read_element(w,dict(elementId=p.get('elementId'),fields=['patterns']),observation)['patterns']
+        if e.get_state_set().contains(Atspi.StateType.FOCUSED): patterns.append('pressKey')
+        if e.get_role() == Atspi.Role.SCROLL_BAR and e.get_value_iface(): patterns.append('scroll')
+        if action not in patterns: raise Failure('unsupported-action', 'Selected element does not expose this action')
         if not e.get_state_set().contains(Atspi.StateType.ENABLED): raise Failure('disabled-element', 'Element disabled')
         self.x.verify(w)
         if action == 'setValue':
@@ -421,14 +502,77 @@ class Backend:
         if method == 'act': return self.act(p,w)
         if method in ('observe','inspect'):
             initial_geometry = self.x.geometry(w)
-            self.observation = None
-            descriptors, refs, truncated = self.elements(w)
+            previous, self.observation = self.observation, None
+            identity = {k:w[k] for k in ('hwnd','pid','processCreated','executable')}
+            prior = previous if previous and previous[1] == identity and previous[3] == initial_geometry else None
+            exact = prior if prior and prior[0] == p.get('observationId') else None
+            mode, limit = p.get('mode','summary'), p.get('limit',20)
+            if mode not in ('summary','find','read','changes','task') or type(limit) is not int or not 1 <= limit <= 100:
+                raise Failure('invalid-params','Invalid inspection mode or limit')
+            query = p.get('query') or {}
+            scope = p.get('scope') or {}
+            if not isinstance(query,dict) or set(query)-{'name','automationId','controlType'} or not isinstance(scope,dict) or set(scope)-{'containerId'}:
+                raise Failure('invalid-params','Invalid query or scope')
+            nq = query.get('name') or {}
+            if not isinstance(nq,dict) or set(nq)-{'equals','contains'}:
+                raise Failure('invalid-params','Invalid name query')
+            for value in list(nq.values())+[v for k,v in query.items() if k!='name']+list(scope.values()):
+                if not isinstance(value,str) or len(value)>512 or '\0' in value:
+                    raise Failure('invalid-params','Query exceeds supported bounds')
+            r = p.get('textRange')
+            if r is not None and (not isinstance(r,dict) or set(r) != {'start','length'} or type(r['start']) is not int or
+                    type(r['length']) is not int or not 1 <= r['length'] <= 4096 or not 0 <= r['start'] <= 2147483647-r['length']):
+                raise Failure('invalid-params','Invalid text range')
+            fields = p.get('fields',[])
+            if not isinstance(fields,list) or len(fields)>12 or any(not isinstance(f,str) or f not in
+                    ('name','controlType','automationId','enabled','isPassword','value','text','patterns','selected','toggleState','expandState') for f in fields):
+                raise Failure('invalid-params','Unsupported inspection field')
+            if mode=='read' and 'text' in fields and r is None: raise Failure('invalid-params','Text requires textRange')
+            signature = dict(query=p.get('query'),scope=p.get('scope'),limit=limit)
+            changes = None
+            if method == 'observe':
+                descriptors, refs, reason = [], {}, None
+                metadata = dict(mode='image',coverage='image-only',returnedCount=0)
+            elif mode == 'read':
+                if not exact: raise Failure('stale-observation','Read requires exact retained observation')
+                descriptors,refs,reason = [self.read_element(w,p,exact)],exact[2],None
+                metadata = dict(mode=mode,coverage='requested-fields',returnedCount=1)
+            else:
+                compatible_base = prior and prior[0] == p.get('baseObservationId') and len(prior)>4 and prior[4] == signature
+                scan_request = p
+                if mode == 'changes' and not compatible_base:
+                    scan_request = dict(mode='summary',limit=20)
+                    signature = dict(query=None,scope=None,limit=20)
+                container_id = (p.get('scope') or {}).get('containerId')
+                if mode == 'changes' and not compatible_base: container_id = None
+                container = None
+                if container_id:
+                    if not exact: raise Failure('stale-observation','Scope requires exact retained observation')
+                    container = self.retained_element(w,exact,container_id)
+                descriptors,refs,reason = self.elements(w,scan_request,container)
+                metadata = dict(mode=mode,coverage='partial' if reason else 'complete',returnedCount=len(descriptors),incompleteReason=reason)
+                if mode == 'changes':
+                    if compatible_base:
+                        matched,updated,remapped = set(),[],{}
+                        for d in descriptors:
+                            e,_,root = refs[d['id']]
+                            old = next((oid for oid,ref in prior[2].items() if ref[0] == e),None)
+                            d['id'] = old or 'new-'+uuid.uuid4().hex
+                            if old: matched.add(old)
+                            if not old or prior[2][old][1] != d: updated.append(d)
+                            remapped[d['id']] = (e,d,root)
+                        refs = remapped
+                        complete = not reason and prior[5]=='complete'
+                        removed = [oid for oid in prior[2] if oid not in matched] if complete else []
+                        changes = dict(updated=updated,removed=removed,removalsComplete=complete,basis='fresh-provider-scan')
+                    else: metadata.update(fallback='summary',fallbackReason='base-unavailable-or-incompatible')
             after = self.x.verify(w)
             geometry = self.x.geometry(after)
             if initial_geometry != geometry or (w['widthPx'],w['heightPx']) != (after['widthPx'],after['heightPx']):
                 raise Failure('capture-size-changed','Window geometry changed during inspection')
             oid = 'observation-'+uuid.uuid4().hex
-            result = dict(window=w, observationId=oid, elements=descriptors, elementsTruncated=truncated)
+            if method=='inspect' and mode=='read' and 'textRange' in descriptors[0]: descriptors[0]['textRange']['revision']=oid
+            result = dict(window=w, observationId=oid, elements=descriptors, elementsTruncated=bool(reason),retrieval=metadata,changes=changes)
             if method == 'observe':
                 data = self.x.capture(w)
                 after = self.x.verify(w)
@@ -436,7 +580,9 @@ class Backend:
                     raise Failure('capture-size-changed', 'Window geometry changed during capture')
                 result.update(frameTimestamp=str(time.monotonic_ns()),widthPx=w['widthPx'],heightPx=w['heightPx'],dpi=96,
                               image=dict(mimeType='image/png',data=data))
-            self.observation = (oid,{k:w[k] for k in ('hwnd','pid','processCreated','executable')},refs,geometry)
+            if method=='inspect':
+                if mode=='read': refs={p['elementId']: (exact[2][p['elementId']][0],descriptors[0],exact[2][p['elementId']][2])}; signature=None
+                self.observation = (oid,identity,refs,geometry,signature,metadata['coverage'])
             return result
         raise Failure('unknown-method','Unknown native backend method')
 

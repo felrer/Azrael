@@ -80,11 +80,11 @@ if (require.main === module) test('computer disabled policy invalidates sessions
     probe(owner, request('persistent', 'saved.exe')); owner.response('persistent', { action: 'accept', content: { persist: 'always' } });
     probe(owner, request('session', 'session.exe')); owner.response('session', { action: 'accept', content: { persist: 'session' } });
     probe(owner, request('late', 'late.exe'));
-    settings.updateSettings({ computerUseEnabled: false }, 0);
+    settings.updateSettings({ stage4Enabled: false }, 0);
     assert.equal(owner.hasAppApproval('saved.exe', 'thread-a'), false);
     assert.equal(probe(owner, request('off')).sent.result.action, 'cancel');
     assert.equal(owner.getAppApprovals().approvedApps.length, 1);
-    settings.updateSettings({ computerUseEnabled: true }, 1);
+    settings.updateSettings({ stage4Enabled: true }, 1);
     assert.equal(owner.response('late', { action: 'accept', content: { persist: 'always' } }).action, 'cancel');
     assert.equal(owner.hasAppApproval('saved.exe', 'thread-a'), true);
     assert.equal(owner.hasAppApproval('session.exe', 'thread-a'), false);

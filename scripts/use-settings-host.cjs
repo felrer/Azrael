@@ -2,10 +2,11 @@
 const path = require('node:path');
 const { randomUUID } = require('node:crypto');
 const validClient = id => typeof id === 'string' && /^[a-zA-Z0-9_-]{1,128}$/.test(id);
-const actions = { read: [], update: ['patch','expectedRevision'], addApp: [], removeApp: ['bundleIdentifier'], open: [] };
-function createSettingsHost({ runtime, vscode, backend, settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome), approvals = require('./window-use-approvals.cjs').createOwner(runtime.codexHome), open = () => {} }) {
+const actions = { read: [], update: ['patch','expectedRevision'], addApp: [], removeApp: ['bundleIdentifier','source'], open: [] };
+function createSettingsHost({ runtime, vscode, backend, settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome), approvals = require('./window-use-approvals.cjs').createOwner(runtime.codexHome), desktopApprovals = require('./computer-use-approvals.cjs').createOwner(runtime.codexHome), open = () => {} }) {
   let disposed = false;
-  const snapshot = () => ({ settings: settingsOwner.getSettings(), approvedApps: approvals.getPersistentAppApprovals().approvedApps });
+  const owners = { window: approvals, desktop: desktopApprovals };
+  const snapshot = () => ({ settings: settingsOwner.getSettings(), approvedApps: Object.entries(owners).flatMap(([source, owner]) => owner.getPersistentAppApprovals().approvedApps.map(app => ({ ...app, source }))) });
   const check = () => { if (disposed) throw new Error('Settings host disposed'); };
   async function receive(webview, request) {
     if (!validClient(request?.clientId) || !validClient(request?.requestId) || typeof webview?.postMessage !== 'function') return;
@@ -32,12 +33,12 @@ function createSettingsHost({ runtime, vscode, backend, settingsOwner = require(
         }
       }
       if (request.action === 'removeApp') {
-        const entry = snapshot().approvedApps.find(app => app.bundleIdentifier === request.bundleIdentifier);
+        const entry = snapshot().approvedApps.find(app => app.source === request.source && app.bundleIdentifier === request.bundleIdentifier);
         if (!entry) throw new Error('Unknown approved application');
-        const answer = await vscode.window.showWarningMessage(`${entry.displayName}의 Window Use 항상 허용을 삭제할까요?`, { modal: true, detail: entry.bundleIdentifier }, '삭제'); check();
+        const answer = await vscode.window.showWarningMessage(`${entry.displayName}의 Window Use 항상 허용을 삭제할까요?`, { modal: true, detail: `${entry.source === 'desktop' ? '데스크톱 제어 승인' : '창 제어 승인'} · ${entry.bundleIdentifier}` }, '삭제'); check();
         if (answer === '삭제') {
-          if (!snapshot().approvedApps.some(app => app.bundleIdentifier === entry.bundleIdentifier)) throw new Error('Approved application changed');
-          await approvals.removeAppApproval(entry.bundleIdentifier);
+          if (!snapshot().approvedApps.some(app => app.source === entry.source && app.bundleIdentifier === entry.bundleIdentifier)) throw new Error('Approved application changed');
+          await owners[entry.source].removeAppApproval(entry.bundleIdentifier);
         }
       }
     } catch (e) { error = e.message || String(e); }

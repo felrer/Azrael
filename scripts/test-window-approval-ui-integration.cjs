@@ -11,7 +11,7 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
  try{
   const approvals=require('./window-use-approvals.cjs').createOwner(home),computer=require('./computer-use-approvals.cjs').createOwner(home),shown=[],engine=[],backendCalls=[];
   const native={registerProvider(){return {dispose(){}}},sendRequest(...args){engine.push({request:args})},sendResponse(id,result){engine.push({id,result})}};
-  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:150,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
+  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:150,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage:async()=> '허용'},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
   host.attach(native,()=>assert.fail('unexpected internal engine RPC'));
   const original=await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434'),'out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
   const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
@@ -25,15 +25,15 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   await assert.rejects(call('list_windows',{},false),{code:'permission_denied'});assert.equal(backendCalls.length,0);
   for(const persist of ['session','always']){
    const list=await call('list_windows',{}),before=shown.filter(e=>e.type==='mcp-request').length;
-   const selecting=call('select_window',{candidateId:list.candidates[0].candidateId});const request=await nextRequest(before);
+   const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const selecting=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify transformed native control consent'});const request=await nextRequest(before);
    assert.equal(request.params._meta.connector_name,'Window Use');assert.equal(request.params._meta.codex_approval_kind,'mcp_tool_call');
    context.host.receive({id:'unrelated',method:'unrelated',params:{}}); // Rebinding must preserve the pending approval.
    context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist}}}});
-   const selected=await selecting;assert(selected.targetId);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);assert.equal(approvals.hasAppApproval(descriptor.executable,'other-thread'),persist==='always');assert.equal(engine.length,1,'local response never reaches engine');
-   assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.requestId===request.id));approvals.removeAppApproval(descriptor.executable);
+   assert.equal((await selecting).authorized,true);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);assert.equal(approvals.hasAppApproval(descriptor.executable,'other-thread'),persist==='always');assert.equal(engine.length,1,'local response never reaches engine');
+   assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.requestId===request.id));approvals.removeAppApproval(descriptor.executable);host.observe(native,{method:'turn/started',params:{threadId:thread,turn:{id:'native-turn'}}});
   }
   const list=await call('list_windows',{}),before=shown.filter(e=>e.type==='mcp-request').length;
-  const expired=call('select_window',{candidateId:list.candidates[0].candidateId});const rejected=assert.rejects(expired,{code:'approval_timeout',approvalState:'expired',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
+  const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const expired=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify expiring control consent'});const rejected=assert.rejects(expired,{code:'approval_timeout',approvalState:'expired',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
   assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.threadId===thread&&e.notification.params.requestId===request.id));
   context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist:'always'}}}});assert.equal(engine.length,1);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),false);
   context.host.respond({type:'mcp-response',response:{id:'ordinary',result:{action:'accept'}}});assert.equal(engine.at(-1).id,'ordinary');

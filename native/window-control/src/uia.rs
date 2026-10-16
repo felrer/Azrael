@@ -42,6 +42,112 @@ pub fn assert_descendant(
 const MAX_ELEMENTS: usize = 2048;
 const MAX_DEPTH: usize = 128;
 
+pub fn short(value: &str) -> String { value.chars().take(160).collect() }
+
+// Batch only cheap summary properties. Never cache values or patterns while searching.
+pub fn retrieve(automation: &IUIAutomation, hwnd: HWND, request: &protocol::Inspect,
+    container: Option<&IUIAutomationElement>) -> Result<(Vec<Value>, HashMap<String, IUIAutomationElement>, Value)> {
+    unsafe {
+        let root = match container { Some(e) => e.clone(), None => automation.ElementFromHandle(hwnd)? };
+        assert_descendant(automation, hwnd, &root)?;
+        let cache = automation.CreateCacheRequest()?;
+        cache.SetTreeScope(TreeScope_Element)?;
+        for property in [UIA_NamePropertyId, UIA_AutomationIdPropertyId, UIA_ControlTypePropertyId,
+            UIA_IsEnabledPropertyId, UIA_IsPasswordPropertyId] { cache.AddProperty(property)?; }
+        let walker = automation.RawViewWalker()?;
+        let mut pending = VecDeque::from([(root, 0usize)]);
+        let mut references = HashMap::new();
+        let mut descriptors = Vec::new();
+        let mut scanned = 0usize;
+        let mut reason = None;
+        let started = std::time::Instant::now();
+        while let Some((element, depth)) = pending.pop_front() {
+            if started.elapsed() >= std::time::Duration::from_millis(1500) { reason = Some("time-limit"); break; }
+            if scanned >= MAX_ELEMENTS { reason = Some("scan-limit"); break; }
+            assert_descendant(automation, hwnd, &element)?;
+            let cached = element.BuildUpdatedCache(&cache)?;
+            scanned += 1;
+            let password = cached.CachedIsPassword()?.as_bool();
+            let name = if password { String::new() } else { cached.CachedName()?.to_string() };
+            let aid = cached.CachedAutomationId()?.to_string();
+            let role = control_type(cached.CachedControlType()?.0);
+            if request.query.as_ref().is_none_or(|q| q.matches(&name, &aid, &role)) {
+                if descriptors.len() == request.limit() { reason = Some("output-limit"); break; }
+                let id = format!("element-{scanned}");
+                descriptors.push(json!({"id":id,"name":short(&name),"controlType":role,
+                    "enabled":cached.CachedIsEnabled()?.as_bool(),"isPassword":password}));
+                references.insert(id, element.clone());
+            }
+            if let Some(mut child) = related_element(&walker, &element, false)? {
+                if depth + 1 >= MAX_DEPTH { reason = Some("depth-limit"); continue; }
+                loop {
+                    if started.elapsed() >= std::time::Duration::from_millis(1500) { reason = Some("time-limit"); break; }
+                    if scanned + pending.len() >= MAX_ELEMENTS { reason = Some("scan-limit"); break; }
+                    pending.push_back((child.clone(), depth + 1));
+                    match related_element(&walker, &child, true)? { Some(next) => child = next, None => break }
+                }
+            }
+        }
+        let incomplete = reason.is_some();
+        let metadata = json!({"mode":request.mode(),"coverage":if incomplete {"partial"} else {"complete"},
+            "incompleteReason":reason,"returnedCount":descriptors.len(),"scannedCount":scanned,
+            "scanLimit":MAX_ELEMENTS,"outputLimit":request.limit(),"timeLimitMs":1500});
+        Ok((descriptors, references, metadata))
+    }
+}
+
+pub fn read(automation: &IUIAutomation, hwnd: HWND, element: &IUIAutomationElement, request: &protocol::Inspect) -> Result<Value> {
+    unsafe {
+        let password = element.CurrentIsPassword()?.as_bool();
+        let mut result = json!({"id":request.element_id,"isPassword":password});
+        let defaults = vec!["name".to_owned(), "controlType".to_owned(), "enabled".to_owned()];
+        for field in request.fields.as_ref().unwrap_or(&defaults) {
+            let value = match field.as_str() {
+                "name" => json!(if password { String::new() } else { short(&element.CurrentName()?.to_string()) }),
+                "controlType" => json!(control_type(element.CurrentControlType()?.0)),
+                "automationId" => json!(short(&element.CurrentAutomationId()?.to_string())),
+                "enabled" => json!(element.CurrentIsEnabled()?.as_bool()),
+                "isPassword" => json!(password),
+                "value" if !password => {
+                    let p = element.GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId).map_err(unsupported)?;
+                    let text = p.CurrentValue()?.to_string();
+                    result["valueTruncated"] = json!(text.chars().count() > 4096);
+                    json!(text.chars().take(4096).collect::<String>())
+                },
+                "text" if !password => {
+                    let range = request.text_range.as_ref().ok_or_else(|| Error::new("invalid-params", "Text requires textRange"))?;
+                    let p = element.GetCurrentPatternAs::<IUIAutomationTextPattern>(UIA_TextPatternId).map_err(unsupported)?;
+                    let document = p.DocumentRange()?;
+                    document.MoveEndpointByRange(TextPatternRangeEndpoint_End, &document, TextPatternRangeEndpoint_Start)?;
+                    let moved = document.MoveEndpointByUnit(TextPatternRangeEndpoint_Start, TextUnit_Character, range.start)?;
+                    document.MoveEndpointByRange(TextPatternRangeEndpoint_End, &document, TextPatternRangeEndpoint_Start)?;
+                    document.MoveEndpointByUnit(TextPatternRangeEndpoint_End, TextUnit_Character, range.length)?;
+                    result["textRange"] = json!({"start":moved,"length":range.length,"omittedContent":true,"revision":request.observation_id});
+                    json!(document.GetText(range.length)?.to_string())
+                },
+                "value" | "text" => { result["redacted"] = json!(true); Value::Null },
+                "selected" => json!(element.GetCurrentPatternAs::<IUIAutomationSelectionItemPattern>(UIA_SelectionItemPatternId).map_err(unsupported)?.CurrentIsSelected()?.as_bool()),
+                "toggleState" => json!(match element.GetCurrentPatternAs::<IUIAutomationTogglePattern>(UIA_TogglePatternId).map_err(unsupported)?.CurrentToggleState()? { ToggleState_On => "on", ToggleState_Off => "off", _ => "indeterminate" }),
+                "expandState" => json!(match element.GetCurrentPatternAs::<IUIAutomationExpandCollapsePattern>(UIA_ExpandCollapsePatternId).map_err(unsupported)?.CurrentExpandCollapseState()? { ExpandCollapseState_Expanded => "expanded", ExpandCollapseState_Collapsed => "collapsed", ExpandCollapseState_PartiallyExpanded => "partial", _ => "leaf" }),
+                "patterns" => {
+                    let mut patterns = Vec::new();
+                    for (id, name) in [(UIA_InvokePatternId,"invoke"),(UIA_ValuePatternId,"setValue"),(UIA_TogglePatternId,"toggle"),
+                        (UIA_SelectionItemPatternId,"select"),(UIA_ExpandCollapsePatternId,"expand"),(UIA_ScrollPatternId,"scroll")] {
+                        if name == "setValue" && !element.GetCurrentPatternAs::<IUIAutomationValuePattern>(UIA_ValuePatternId)
+                            .is_ok_and(|p| element.CurrentIsEnabled().is_ok_and(|v| v.as_bool()) && p.CurrentIsReadOnly().is_ok_and(|v| !v.as_bool())) { continue; }
+                        if element.GetCurrentPattern(id).is_ok() { patterns.push(name); if name == "expand" {patterns.push("collapse");} }
+                    }
+                    if element.CurrentIsEnabled()?.as_bool() && key_target(automation,hwnd,element).is_ok() { patterns.push("pressKey"); }
+                    json!(patterns)
+                },
+                _ => return Err(Error::new("invalid-params", "Unsupported inspection field")),
+            };
+            result[field] = value;
+        }
+        Ok(result)
+    }
+}
+
 fn schedule<T>(pending: &mut VecDeque<T>, node: T, retained: usize, depth: usize, siblings: usize) -> bool {
     if depth >= MAX_DEPTH || siblings >= MAX_ELEMENTS || retained + pending.len() >= MAX_ELEMENTS {
         return false;
@@ -182,6 +288,10 @@ pub fn elements(
 #[cfg(test)]
 mod budget_tests {
     use super::*;
+    #[test]
+    fn summary_names_are_bounded_at_unicode_boundaries() {
+        assert_eq!(short(&"한".repeat(200)).chars().count(),160);
+    }
 
     fn walk(children: impl Fn(usize) -> Vec<usize>) -> (Vec<(usize, Option<usize>)>, bool) {
         let mut pending = VecDeque::from([(0, 0, None)]);

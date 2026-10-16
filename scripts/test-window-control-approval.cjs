@@ -41,7 +41,7 @@ test('selected window authorization respects app grants and revocation across ow
     assert.equal(a.hasAppApproval('C:\\Apps\\selected.exe', 'thread-a'), true);
     b.removeAppApproval('C:\\Apps\\selected.exe');
     assert.equal(a.hasAppApproval('C:\\Apps\\selected.exe', 'thread-a'), false);
-  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+  } finally { fs.rmSync(home, { recursive: true }); }
 });
 test('window store is isolated and allow-all changes cancel pending while preserving explicit grants', () => {
   const home = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-window-policy-'));
@@ -73,5 +73,5 @@ test('window store is isolated and allow-all changes cancel pending while preser
     assert.equal(old.hasAppApproval('C:\\Apps\\old.exe'), true);
     fs.writeFileSync(path.join(home, 'azrael/computer-use/use-settings.json'), 'bad');
     assert.throws(() => a.hasAppApproval('C:\\Apps\\saved.exe'));
-  } finally { fs.rmSync(home, { recursive: true, force: true }); }
+  } finally { fs.rmSync(home, { recursive: true }); }
 });

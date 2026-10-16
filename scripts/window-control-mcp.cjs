@@ -54,7 +54,7 @@ function toolDefinitions() {
   const condition = {type:'object',properties:{selector:fullSelector,property:{enum:['exists','enabled','value','selected','toggleState','expandState']},equals:{anyOf:[{type:'string'},{type:'boolean'},parameter]}},required:['selector','property','equals'],additionalProperties:false};
   condition.allOf = [{if:{properties:{property:{enum:['exists','enabled','selected']}}},then:{properties:{equals:{type:'boolean'}}}}];
   const definition = {type:'object',properties:{schema:{const:1},id:{type:'string'},name:{type:'string'},parameters:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:32},steps:{type:'array',minItems:1,maxItems:32,items:{type:'object',properties:{action:{enum:['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','wait_for','assert','capture']},selector:fullSelector,value:{anyOf:[{type:'string',maxLength:32768},parameter,{type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false}]},key:{enum:require('./window-task-macros.cjs').KEYS},condition,postcondition:condition,timeoutMs:{type:'integer',minimum:0,maximum:10000}},required:['action'],additionalProperties:false}}},required:['schema','steps'],additionalProperties:false};
-  const discovery = ['list_windows','select_window','list_task_macros','save_task_macro'];
+  const discovery = ['context','request_stage','resource_status','cleanup','list_windows','select_window','list_task_macros','save_task_macro'];
   const definitions = TOOLS.map(name => {
     const properties = discovery.includes(name) ? {} : {targetId:{type:'string',description:'Opaque selected target ID from select_window or status.'}};
     const required = discovery.includes(name) || name === 'status' ? [] : ['targetId'];
@@ -64,16 +64,36 @@ function toolDefinitions() {
       if(name === 'press_key') {properties.key = {enum:require('./window-task-macros.cjs').KEYS};required.push('key');}
     }
     if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
+    if(name === 'cleanup') properties.ids={type:'array',minItems:1,maxItems:20,items:{type:'string',maxLength:128},description:'Optional owned IDs from resource_status for immediate safe cleanup; omit to apply idle/quota policy.'};
+    if(name === 'context') properties.guideVersion = {type:'string'};
+    if(name === 'request_stage') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
+    if(name === 'input_isolated') {properties.observationId={type:'string'};properties.input={oneOf:[{type:'object',properties:{kind:{const:'text'},text:{type:'string',maxLength:4096}},required:['kind','text'],additionalProperties:false},{type:'object',properties:{kind:{const:'key'},scanCode:{type:'integer',minimum:1,maximum:127},action:{enum:['down','up']},extended:{type:'boolean'}},required:['kind','scanCode','action'],additionalProperties:false},{type:'object',properties:{kind:{const:'mouse'},x:{type:'integer',minimum:0},y:{type:'integer',minimum:0},action:{enum:['move','down','up','wheel']},button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200}},required:['kind','x','y','action'],additionalProperties:false}]};required.push('observationId','input');}
+    if(name === 'inspect') {
+      properties.mode={enum:['summary','find','read','changes'],default:'summary'};
+      properties.limit={type:'integer',minimum:1,maximum:100,default:20};
+      properties.query={type:'object',properties:{name:{type:'object',properties:{equals:{type:'string',maxLength:512},contains:{type:'string',maxLength:512}},additionalProperties:false,oneOf:[{required:['equals']},{required:['contains']}]},automationId:{type:'string',maxLength:512},controlType:{type:'string',maxLength:512}},additionalProperties:false};
+      properties.scope={type:'object',properties:{containerId:{type:'string'}},required:['containerId'],additionalProperties:false};
+      for(const key of ['observationId','elementId','baseObservationId']) properties[key]={type:'string'};
+      properties.fields={type:'array',maxItems:12,items:{enum:['name','controlType','automationId','patterns','enabled','isPassword','value','selected','toggleState','expandState','text']}};
+      properties.textRange={type:'object',properties:{start:{type:'integer',minimum:0},length:{type:'integer',minimum:1,maximum:4096}},required:['start','length'],additionalProperties:false};
+    }
     if(name === 'save_task_macro') {properties.definition = {...definition,required:['schema','id','name','steps']};required.push('definition');}
     if(name === 'run_task_macro') {properties.definition = definition;properties.macroId = {type:'string'};properties.parameters = {type:'object',additionalProperties:{type:'string',maxLength:32768}};}
     if(name === 'resize') {properties.widthDip = {type:'number',minimum:100,maximum:8192};properties.heightDip = {type:'number',minimum:100,maximum:8192};required.push('widthDip','heightDip');}
     if(name === 'run_size_macro') {properties.macroId = {type:'string'};required.push('macroId');}
     const descriptions = {
+      context:'Read current Window Use stages, prerequisites and concise guidance. Supply guideVersion to omit unchanged guidance.',
+      request_stage:'Request task authority for 2 current window, 3 isolated execution, or 4 desktop. App grants do not grant stages. Follow returned guidance before input.',
+      launch_isolated:'Launch the selected observed app as a new instance in the authorized Windows child session. Reuses stored profile data where the app permits. Requires app consent; does not move an existing window.',
+      capture_isolated:'Capture an opaque owned child-session target. Check verification and availability; a returned image alone does not establish app compatibility.',
+      input_isolated:'Send bounded input to the exact owned child target using a fresh capture observation. Never replay uncertain input or fall back to the parent desktop.',
+      resource_status:'Read owned Window Use temporary-resource usage and cleanup protection reasons.',
+      cleanup:'Request cleanup of eligible Window Use temporary resources. Active work and user data remain protected.',
       list_windows:'Discover opaque candidates and advisory session occupancy for this thread. Defer selection/control if another session occupies the window or occupancy is unknown. Refresh invalidates earlier candidate IDs. No targetId needed.',
-      select_window:'Select a candidate from the latest list_windows. Requests application approval and revalidates exact identity. No targetId needed. approval_timeout means awaiting the user response; the user has not declined. Tell the user and await an explicit retry; avoid repeated calls.',
+      select_window:'Select a candidate for read-only observation and revalidate its exact identity. Does not request or grant app control. Use request_stage before input.',
       status:'Call with {} to obtain the selected targetId, minimized state, pauseReason, restoreAllowed, observationRequired and fresh occupancy. Refresh before each action or restore; defer if occupied or unknown. Failures with recovery observe_again permit a fresh capture or inspect after status; never reuse old elements or replay input. A minimized target with restoreAllowed true can be recovered using restore_window. User stops and genuine error pauses require explicit user resume.',
       restore_window:'Restore the exact selected window after minimization only when fresh status reports restoreAllowed true and no other occupying session. Never resumes a user stop or another error pause. Does not replay input or macros. Obtain a new capture or inspect after restoration; old observations are invalid.',
-      inspect:'Inspect current UI Automation elements and states without a screenshot. Returns fresh observationId and element IDs. A failure with recovery observe_again retains selection and permits a new observation after checking status/occupancy; it does not guarantee success.',
+      inspect:'Read bounded accessibility data: summary, find by condition, read exact element fields/text range, or changes from a base observation. Check retrieval coverage before claiming absence or uniqueness.',
       press_key:'Send one supported key to the selected window through window messages. Delivery is unverified; inspect and assert its effect. Requires a fresh observation.',
       list_task_macros:'List task definitions and storage revision for the current Azrael workspace. Requires an open workspace; no targetId needed.',
       save_task_macro:'Save a schema 1 task definition with stable id/name in the current Azrael workspace. Requires an open workspace. Use parameter references for runtime values; never save secrets, element IDs, coordinates or native code. No targetId needed.',
@@ -81,7 +101,7 @@ function toolDefinitions() {
     };
     const inputSchema = {type:'object',properties,required,additionalProperties:false};
     if(name === 'run_task_macro') inputSchema.oneOf = [{required:['definition'],not:{required:['macroId']}},{required:['macroId'],not:{required:['definition']}}];
-    return {name,description:descriptions[name] || `Background selected-window ${name}. Requires selection and application approval. A failure with recovery observe_again permits a fresh capture or inspect after status/occupancy checks; discard prior elements and never replay input automatically. A window_minimized error with restoreAllowed true permits restore_window; genuine pauses require user resume. Inspect or capture before each element action.`,inputSchema};
+    return {name,description:descriptions[name] || `Selected-window ${name}; requires current stage authority and exact fresh target references. Follow context guidance.`,inputSchema};
   });
   definitions.push({name:'ui_operation',description:'Complete a prepared application UI operation for the authenticated thread.',inputSchema:{type:'object',properties:{requestToken:{type:'string',pattern:'^[a-fA-F0-9]{64}$',minLength:64,maxLength:64}},required:['requestToken'],additionalProperties:false},_meta:{ui:{visibility:['app']}}});
   return definitions;
@@ -132,10 +152,12 @@ function callResult(result) {
     if(value.occupancy) projected.occupancy = occupancy(value.occupancy);
     for(const key of ['targetId','state','supportedActions','observationId','frameTimestamp','widthPx','heightPx','dpi','observationRequired','delivery','verified','experimental','elementsTruncated','pauseReason','restoreAllowed','restored']) if(Object.hasOwn(value,key)) projected[key] = value[key];
     if(value.window) projected.window = Object.fromEntries(['title','widthPx','heightPx','dpi','minimized'].filter(k => Object.hasOwn(value.window,k)).map(k => [k,value.window[k]]));
-    if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(k === 'value' && e.isPassword)).map(k => [k,e[k]])));
+    if(Array.isArray(value.elements)) projected.elements = value.elements.map(e => Object.fromEntries(['id','name','controlType','patterns','automationId','parentId','enabled','isPassword','value','valueTruncated','text','textRange','selected','toggleState','expandState'].filter(k => Object.hasOwn(e,k) && !(['value','text'].includes(k) && e.isPassword)).map(k => [k,e[k]])));
+    for(const key of ['retrieval','changes']) if(Object.hasOwn(value,key)) projected[key]=value[key];
     return projected;
   }
   const text = observation(result);
+  for(const key of ['stage','backendDirectory','executionContext','enabled','stages','guideVersion','guide','authorized','missingPrerequisite','message','resources','freedBytes','deferred','failed','deleted','childSession','results','bytes','reservedBytes','maxBytes','overLimit','availableBytes','resourceCount','admissionReady','available','contentVerified','code','ok','width','height','delivered','readbackVerified','observationInvalidated','admissionScope','applicationCompatibility','resourceId']) if(Object.hasOwn(result,key)) text[key]=result[key];
   if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({candidateId:c.candidateId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
   if(Array.isArray(result.macros)) text.macros = result.schema === 1 ? result.macros.map(m => require('./window-task-macros.cjs').definition(m,true)) : result.macros.map(m => ({id:m.id,name:m.name,steps:m.steps.map(s => ({widthDip:s.widthDip,heightDip:s.heightDip}))}));
   for(const key of ['schema','revision','runId','status','macroId','error']) if(Object.hasOwn(result,key)) text[key] = result[key];

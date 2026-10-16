@@ -50,11 +50,13 @@ Package paths and hashes identify the runtime used by a prepared host and instal
 
 ## Control enable setting
 
-Status: `partial` — managed service and pinned transport checks pass with a synthetic native socket, including initialized clients, queued requests and stale consent. The official trusted-service loader and packaged host acceptance pass. Full installed settings navigation and native desktop capture/input checks remain separate.
+Status: `partial` — unified source settings and task-authority checks pass host and pinned-transport tests. Installed navigation and real desktop capture/input remain separate acceptance targets.
 
-The Computer Use settings page has a switch that enables desktop capture and input, initially on. It applies to all hosts sharing the Azrael state home. Disabling rejects new capture and input operations even when the Sky service was initialized or app consent was previously granted. Pending consent is invalidated and later acceptance cannot reinstate authority. Reenabling retains persistent app approvals. Ordinary code execution, browser services and Window Use retain their separate availability and authorization.
+Window Use owns the master switch, independent stage switches and all-app control setting. Stage 4 gates the existing desktop backend. Disabling the master or stage 4 rejects initialized and queued operations; reenabling preserves stored app approvals but grants no new task authority. Ordinary coding and Chrome control retain their own availability and authorization. See [stage authority](window-use.md#stage-authority-and-recovery).
 
-The control boundary checks current policy before each operation, including later operations of an already-running sequence. Already-delivered input is not reversible. A corrupt or unreadable policy rejects control. Computer Use retains the existing app approval file; Window Use has a separate app approval owner and does not inherit its grants.
+Every managed Sky call requires an explicit host stage-4 grant for the active thread and turn. The service reads immutable native Node REPL metadata, obtains a host lease, and checks its current settings generation and bounded revocation record before transport writes and result delivery. Nested transport policy reexports the same authority owner as the service. Environment metadata and model arguments do not create task authority. Stop, completion, execution-context changes and settings changes reject subsequent input. Already-delivered input is not reversible. This is a managed-tool boundary, not protection against arbitrary modification of the application by an unrestricted local process.
+
+The desktop backend retains its existing exact app identities and approval store. Window Use's selected-app grants are not inferred from ambiguous desktop app names. Both stores remain managed within the unified settings surface.
 
 ## User approval
 

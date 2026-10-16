@@ -81,10 +81,10 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
     try {
       if (!((typeof request.id === "string" && request.id.length > 0) || (typeof request.id === "number" && Number.isSafeInteger(request.id)))) throw new Error("Invalid computer-use approval request id");
       key = keyForApp(meta.tool_params?.app ?? meta.tool_params?.executable); state = fresh();
-      if (mode === "computer" && !state.policy.computerUseEnabled) throw new Error("Computer Use is disabled");
+      if (!state.policy.windowUseEnabled || (mode === "computer" && !state.policy.stage4Enabled) || (mode === "window" && ![2,3,4].some(stage => state.policy['stage'+stage+'Enabled']))) throw new Error("Window Use control is disabled");
     }
     catch { return send(request.id, cancelled("unclassified")); }
-    if (mode === "window" && state.policy.windowUseAllowAll) return send(request.id, { action: "accept", content: { source: "window-use-allow-all-state", scope: "global" } });
+    if (state.policy.windowUseAllowAll) return send(request.id, { action: "accept", content: { source: "window-use-allow-all-state", scope: "global" } });
     const offered = Array.isArray(meta.persist) ? meta.persist.filter(p => p === "session" || p === "always") : [];
     const threadId = typeof params.threadId === "string" && params.threadId ? params.threadId : null;
     if (offered.includes("always") && state.apps.some(a => a.bundleIdentifier === key)) return send(request.id, { action: "accept", content: { source: connector + "-persisted-state", scope: "global" } });
@@ -116,8 +116,8 @@ function createOwner(codexHome, { mode = "computer" } = {}) {
   }
   function hasAppApproval(app, threadId) {
     const key = keyForApp(app), state = fresh();
-    if (mode === "computer" && !state.policy.computerUseEnabled) return false;
-    if (mode === "window" && state.policy.windowUseAllowAll) return true;
+    if (!state.policy.windowUseEnabled || (mode === "computer" && !state.policy.stage4Enabled) || (mode === "window" && ![2,3,4].some(stage => state.policy['stage'+stage+'Enabled']))) return false;
+    if (state.policy.windowUseAllowAll) return true;
     return state.apps.some(entry => entry.bundleIdentifier === key) || !!sessions.get(threadId)?.has(key);
   }
   function removeAppApproval(app) {

@@ -1,6 +1,6 @@
 # Window Use
 
-Status: `partial` — Actual Firefox and File Explorer capture, inspection and status pass. Explorer capture passes with a higher foreground window geometrically overlapping 27.94% of its area. Explorer button and search-value effects pass, with foreground activation observed during mutations. Source permits foreground transitions without reporting interference; acceptance in the installed host remains pending. Physical-input routing during concurrent use, installed tool availability and GUI host acceptance remain unverified. Advisory session occupancy is implemented and covered by host and separate-process tests; installed UI acceptance remains separate. The existing selected-window boundary is described in [Computer Use](computer-use.md#selected-window-mode).
+Status: `partial` — Unified four-stage settings, task authority, bounded retrieval and resource ownership are implemented in source. Windows source/protocol and owned-fixture checks are distinct from packaged or installed acceptance. Same-user child-session connection, general app input and profile reuse remain unaccepted on the tested Home environment. Actual Firefox and File Explorer capture, inspection and status pass. Explorer capture passes with a higher foreground window geometrically overlapping 27.94% of its area. Explorer button and search-value effects pass, with foreground activation observed during mutations. Source permits foreground transitions without reporting interference; acceptance in the installed host remains pending. Physical-input routing during concurrent use, installed tool availability and GUI host acceptance remain unverified. Advisory session occupancy is implemented and covered by host and separate-process tests; installed UI acceptance remains separate. The existing selected-window boundary is described in [Computer Use](computer-use.md#selected-window-mode).
 
 ## Linux selected-window backend
 
@@ -8,13 +8,13 @@ Status: `partial` — Source implementation and isolated Linux GTK-window verifi
 
 Linux Xorg uses `native/window-control/src/linux_backend.py` through the verified runtime selected by `scripts/window-control-runtime.cjs`. The runtime requires Python, Gtk 3/Atspi 2, Pillow and X11/XComposite libraries. Capture reads the selected window's XComposite pixmap rather than the foreground desktop. AT-SPI supplies inspection and supported value, invoke, toggle, selection, expand/collapse and scrollbar actions. Supported patterns are determined from the actual element; missing patterns return an explicit unsupported result.
 
-The host retains selected-target identity, app approval, conversation authority, occupancy, cancellation and uncertain-result rules. Key delivery is restricted to the selected window's already-focused exact element. Return uses AT-SPI activation; other named keys use window-message delivery and can be ignored by the application, so delivery alone is not effect confirmation. The backend does not substitute global input, clipboard access or foreground activation. Wayland and whole-desktop Computer Use are excluded. Linux uses a GTK stop control, with `hotkeyRegistered: false`; Windows Escape and corner-glow behavior are not Linux guarantees. See [platform visualization](window-use-visualization.md#플랫폼-범위).
+The host retains selected-target identity, app approval, conversation authority, occupancy, cancellation and uncertain-result rules. Key delivery is restricted to the selected window's already-focused exact element. Return uses AT-SPI activation; other named keys use window-message delivery and can be ignored by the application, so delivery alone is not effect confirmation. The backend does not substitute global input, clipboard access or foreground activation. Wayland and whole-desktop Computer Use are excluded. Linux uses a GTK stop control, with `hotkeyRegistered: false`; the Windows stop shortcut and corner-glow behavior are not Linux guarantees. See [platform visualization](window-use-visualization.md#플랫폼-범위).
 
 ## Product requirements
 
-Status: `target`.
+Status: `partial` — the settings and managed authority paths are implemented; child-session admission and installed acceptance remain pending.
 
-Window Use is the single product name for window observation, isolated app execution, selected-window control in the user's session and whole-desktop control. Settings, approval cards, notifications, panels and model guidance use that name. The existing Computer Use/Sky runtime remains the internal desktop backend for stage 4; its implementation and verified limits are owned by [the desktop backend](computer-use.md). The four-stage policy and isolated execution are target behavior, not an accepted implementation.
+Window Use is the single product name for window observation, isolated app execution, selected-window control in the user's session and whole-desktop control. Settings, approval cards, notifications, panels and model guidance use that name. The existing Computer Use/Sky runtime remains the internal desktop backend for stage 4; its implementation and verified limits are owned by [the desktop backend](computer-use.md). The four-stage policy is implemented in source. Isolated execution has a pinned native helper and host adapter; its live environment admission remains unverified.
 
 | Stage | Scope | Authority |
 | --- | --- | --- |
@@ -37,7 +37,9 @@ Window Use must reduce model context and time to a verified result compared with
 
 ## Stage authority and recovery
 
-Status: `target`.
+Status: `partial` — source host and pinned-transport tests cover stage grants, cancellation and revocation; installed-host and real desktop behavior remain separate.
+
+Settings schema 2 stores a master switch and four independent stage switches. New defaults enable observation, current-window control and the existing desktop scope; the new isolated scope starts disabled. Migration preserves the prior master, all-app grant and desktop switch. Disabling the master preserves individual stage choices. Settings changes invalidate task grants and queued input without reenabling a stopped task.
 
 App approval and task-stage authority are separate. Individual app grants and the all-app setting apply to stages 2–4. The all-app setting skips app consent; it does not grant a higher stage, select a window, clear a user stop or alter native permissions. Existing accepted authority is reused within its scope. When a task needs additional authority, the request identifies the required stage, app/window, execution location, reason and effect on the user's work. The model requests elevation and cannot approve it.
 
@@ -51,7 +53,7 @@ Stage 1 defaults to enabled in a new configuration. While the master and stage 1
 
 Disabling an active stage stops further input and invalidates in-flight requests and references for that stage. Outstanding approvals cannot re-enable it. Stop model execution without force-closing user apps or discarding unsaved data; teardown remains bound to owned sessions and processes. Re-enabling a stage does not replay input or automatically resume a cancelled task. Capability responses and UI distinguish a disabled stage from a backend that is unavailable on the current platform. Settings retain each stage's value while the master is off, and migration preserves existing disabled scopes. Persist authority by capability and execution context, with a schema version; renumbering stages must not reinterpret a current-window grant as an isolated-execution grant or vice versa.
 
-Recoverable observation failures retain the target and require a fresh observation. Temporary user interaction can pause further input for state revalidation; an explicit user stop remains terminal until user resume. Ordinary Escape must not become an accidental stop merely because the app activated. A dedicated stop control and an intentional shortcut provide explicit interruption. Unknown mutation outcomes never authorize automatic replay or elevation. Already-delivered actions can still complete.
+Recoverable observation failures retain the target and require a fresh observation. Temporary user interaction can pause further input for state revalidation; an explicit user stop remains terminal until user resume. Ordinary Escape must not become an accidental stop merely because the app activated. A dedicated stop control and Ctrl+Alt+Shift+F12 provide explicit interruption on Windows when the exact target is foreground; shortcut conflicts report the Azrael stop path. Bare Escape is left to the application. Unknown mutation outcomes never authorize automatic replay or elevation. Already-delivered actions can still complete.
 
 ## Efficient observation and retrieval
 
@@ -69,9 +71,11 @@ Pagination cursors are opaque and bind the observation, query, target, execution
 
 Retained results and change tracking are bounded by target and execution context. Session changes, target replacement, grant revocation, cancellation and actions invalidate dependent references. Events can invalidate caches and support condition waits, but event absence does not prove unchanged UI. Every mutation revalidates live authority and target identity. Frame reuse or compression never labels an old screenshot as a fresh capture; unavailable or unchanged frames retain truthful freshness metadata.
 
+The public `inspect` tool accepts `summary`, `find`, `read` and `changes`. Native `task` inspection remains private to existing host macros. The initial limits are 20 returned elements, at most 100, a 6 KiB default/24 KiB maximum response budget and 4096-character text ranges. Provider work is bounded by scan count, depth and deadline. Results expose `retrieval.coverage`, omission reasons and budgets; a deadline-limited query cannot prove absence or uniqueness. A changed or incompatible baseline falls back to a small summary with a reason. Images carry no semantic element references. Current retrieval uses fresh bounded queries rather than public pagination cursors.
+
 ## Stage guidance and skill lifecycle
 
-Status: `target` — the short skill and staged-guidance approach is selected; implementation, installed discovery and retirement acceptance remain pending.
+Status: `partial` — runtime staging emits the short Window Use skill and versioned common/stage guides. Vendor desktop instructions are retained as nondiscoverable reference documents. Existing installed duplicate retirement and model/installed acceptance remain pending.
 
 The final model-facing skill entry is Window Use. It explains discovery, choosing the required stage, compact observation, requesting additional authority, obeying stop/unknown outcomes and the Chrome route. It links control to the managed MCP path and does not preload every backend's API guide. Computer Use/Sky functionality remains the stage-4 implementation; removing a redundant skill entry does not remove its runtime, operations, recovery or provenance requirements.
 
@@ -117,11 +121,13 @@ Stage 3 separates machine preparation from ordinary session use. Query existing 
 
 ## Isolated-execution lifecycle and cleanup
 
-Status: `target` — explicit agent cleanup and host-enforced automatic reclamation are the proposed mechanisms. Idle duration and storage limits remain work-plan proposals.
+Status: `partial` — explicit `resource_status`/`cleanup` tools and a host scheduler share the implemented cleanup policy. Initial warm-idle and disposable-storage defaults are 15 minutes and 256 MiB; these are implementation defaults, not measured capacity guarantees. Live child-session teardown remains unverified.
 
 The child session reuses installed apps and the existing user profile. It does not need a new VM disk or a copied profile per task. Session memory and Window Use temporary disk output have separate lifecycles. Shared app caches can still grow; deleting the child session does not revert its writes or make the whole user profile disposable.
 
 An explicit managed cleanup operation and an automatic host scheduler share one cleanup policy and report actual results. The agent can list owned resources and request cleanup; it cannot bypass active-use or data protections. The automatic path does not depend on the model remembering a final tool call. It runs while the host is available and reconciles interrupted work on startup; it does not imply a new always-running privileged service.
+
+The pinned child helper records one bounded private bootstrap journal and reconciles only its exact owned RunOnce entry. Changed, active, foreign or unverified entries block reuse and remain protected. The child worker never receives the parent's physical input; it uses child-local input with exact app identity checks. Managed targets and observations are opaque, input is bounded to fresh capture geometry, and system/task-switch shortcuts are rejected.
 
 The host tracks session identity, app/process creation identity, ownership, active leases, direct user control and generated paths. Last-task release starts a bounded warm reuse period. Idle time, viewer closure, disconnection or a missing heartbeat alone do not prove that work ended. Before session teardown, exclude active/queued work and direct user use, release held input, close owned apps normally, and verify no unsaved or unknown state, unrelated app or pending user decision remains. If safe closure cannot be established, defer and expose the reason. Verify child logoff and process termination; closing the viewer or [disconnecting](https://learn.microsoft.com/en-us/windows/win32/api/wtsapi32/nf-wtsapi32-wtsdisconnectsession) leaves the session running. A [logoff request](https://learn.microsoft.com/en-us/windows/win32/api/wtsapi32/nf-wtsapi32-wtslogoffsession) is not a substitute for protecting unsaved work. Never log off the parent or another unowned session.
 
@@ -231,13 +237,13 @@ Status: `partial` — native preflight, structured errors, exact-target recovery
 
 Occlusion and minimization are separate cases. A minimized target pauses observation and control with `window_minimized`; it is not a fresh capture source. Status and errors expose the minimized pause reason and whether restoration is allowed. The model can call `restore_window` for that exact target when restoration is allowed and fresh occupancy permits use. The host reuses non-activating native restoration, revalidates identity and authorization, discards old observations and requires a fresh observation before input. Restoration does not replay a failed input or macro.
 
-Model restoration is limited to minimization. Escape, the stop button, cancellation, revoked authorization and other error pauses cannot be cleared by this tool; explicit user resume retains its separate authority. A late restore response cannot unpause a stopped or replaced target. Known native minimized preflight failures report that the attempted observation or input was not executed; an explicitly uncertain mutation outcome remains uncertain.
+Model restoration is limited to minimization. The explicit stop shortcut, the stop button, cancellation, revoked authorization and other error pauses cannot be cleared by this tool; explicit user resume retains its separate authority. A late restore response cannot unpause a stopped or replaced target. Known native minimized preflight failures report that the attempted observation or input was not executed; an explicitly uncertain mutation outcome remains uncertain.
 
 ## Control overlay
 
 Status: `partial` — native implementation, host cancellation and owned light/dark fixture rendering/input behavior are verified. Installed-host, WGC exclusion and cross-monitor DPI acceptance remain separate.
 
-The selected target shows diffuse light fading inward from its corners while Window Use is running. A translucent, click-through Escape hint appears at the lower left of its monitor work area when that exact target is foreground. Escape stops that target's subsequent control, including queued steps, and requires explicit user resume. Already-delivered actions may still complete. The display, stop identity and native lifecycle contracts are owned by [Window Use visualization](window-use-visualization.md).
+The selected target shows diffuse light fading inward from its corners while Window Use is running. A translucent, click-through Ctrl+Alt+Shift+F12 hint appears at the lower left of its monitor work area when that exact target is foreground. This shortcut stops that target's subsequent control, including queued steps, and requires explicit user resume. Bare Escape remains available to the app. Already-delivered actions may still complete. The display, stop identity and native lifecycle contracts are owned by [Window Use visualization](window-use-visualization.md).
 
 ## Task macros
 

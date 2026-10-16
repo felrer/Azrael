@@ -39,7 +39,7 @@ pub fn guard(window: &Window) -> Result<()> {
     {
         return Err(Error::new(
             "operation-cancelled",
-            "Window operation stopped by Escape",
+            "Window operation stopped by Ctrl+Alt+Shift+F12",
         ));
     }
     Ok(())
@@ -190,10 +190,17 @@ unsafe fn hint_width(text: &str, height: i32, available: i32) -> i32 {
 }
 fn hint_text(label: &str, registered: bool) -> String {
     if registered {
-        format!("{label}  ·  Esc to cancel")
+        format!("{label}  ·  Ctrl+Alt+Shift+F12 to stop")
     } else {
-        format!("{label}  ·  Esc 사용 불가 · Azrael에서 중지")
+        format!("{label}  ·  Ctrl+Alt+Shift+F12 사용 불가 · Azrael에서 중지")
     }
+}
+// Keep the shortest clear stop path readable even in a very narrow work area.
+unsafe fn fitted_hint_height(mut height: i32, available: i32) -> i32 {
+    while height > 1 && hint_width("Azrael 중지", height, i32::MAX) > available {
+        height -= 1;
+    }
+    height
 }
 // Preserve the stop guidance before spending narrow work-area space on context.
 unsafe fn fitted_hint(label: &str, registered: bool, height: i32, available: i32) -> String {
@@ -201,17 +208,16 @@ unsafe fn fitted_hint(label: &str, registered: bool, height: i32, available: i32
     if hint_width(&full, height, i32::MAX) <= available {
         return full;
     }
-    let primary = if !registered {
-        "Esc 사용 불가"
-    } else if hint_width("Esc to cancel", height, i32::MAX) <= available {
-        "Esc to cancel"
+    let shortcut = "Ctrl+Alt+Shift+F12 to stop";
+    let primary = if registered && hint_width(shortcut, height, i32::MAX) <= available {
+        shortcut
     } else {
-        "Esc 중지"
+        "Azrael 중지"
     };
     let mut context = if registered {
         label.to_owned()
     } else {
-        format!("Azrael에서 중지 · {label}")
+        format!("단축키 사용 불가 · {label}")
     };
     while !context.is_empty() {
         let candidate = format!("{primary} · {context}…");
@@ -559,7 +565,13 @@ impl Active {
             }
             let _ = ShowWindow(self.layers[1].0, SW_HIDE);
         } else if !self.hotkey {
-            self.hotkey = RegisterHotKey(None, 1, MOD_NOREPEAT, 0x1b).is_ok();
+            self.hotkey = RegisterHotKey(
+                None,
+                1,
+                MOD_CONTROL | MOD_ALT | MOD_SHIFT | MOD_NOREPEAT,
+                VK_F12.0 as u32,
+            )
+            .is_ok();
         }
         let rect = visible_frame(target)?;
         let rounding = corner_radius(target, rect, current.dpi);
@@ -634,6 +646,7 @@ impl Active {
             .min(monitor.rcWork.bottom - monitor.rcWork.top - 2 * margin)
             .max(1);
         let available = monitor.rcWork.right - monitor.rcWork.left - 2 * margin;
+        let height = fitted_hint_height(height, available);
         let hint = fitted_hint(&self.show.label, self.hotkey, height, available);
         let width = hint_width(
             &hint,
@@ -793,6 +806,27 @@ mod tests {
         assert_eq!(corner_glow_pixel(0, 0, 190, 0), glow_pixel(0, 0, 190, 190));
     }
     #[test]
+    fn stop_hint_preserves_action_at_narrow_widths() {
+        unsafe {
+            let label = "창 작업 중";
+            assert!(hint_text(label, true).contains("Ctrl+Alt+Shift+F12 to stop"));
+            assert!(hint_text(label, false).contains("사용 불가 · Azrael에서 중지"));
+            for registered in [false, true] {
+                for available in [170, 200, 400, 1200] {
+                    let height = fitted_hint_height(63, available);
+                    let text = fitted_hint(label, registered, height, available);
+                    assert!(
+                        text.contains("Ctrl+Alt+Shift+F12 to stop")
+                            || text.contains("Azrael 중지")
+                            || text.contains("Azrael에서 중지")
+                    );
+                    assert!(hint_width(&text, height, i32::MAX) <= available);
+                    assert!(!text.contains("Esc"));
+                }
+            }
+        }
+    }
+    #[test]
     fn identity_validation_is_bounded() {
         assert!(valid_id("12345678-1234-1234-1234-123456789abc"));
         assert!(!valid_id("../../desktop"));
@@ -802,7 +836,11 @@ mod tests {
 #[cfg(test)]
 mod fixture {
     use super::*;
+    static ESCAPE_MESSAGES: std::sync::atomic::AtomicUsize = std::sync::atomic::AtomicUsize::new(0);
     unsafe extern "system" fn fixture_proc(h: HWND, m: u32, w: WPARAM, l: LPARAM) -> LRESULT {
+        if m == WM_KEYDOWN && w.0 == VK_ESCAPE.0 as usize {
+            ESCAPE_MESSAGES.fetch_add(1, std::sync::atomic::Ordering::SeqCst);
+        }
         let color = GetWindowLongPtrW(h, GWLP_USERDATA);
         if m == WM_PAINT && color != 0 {
             let mut paint = PAINTSTRUCT::default();
@@ -1124,7 +1162,18 @@ mod fixture {
             let show = |generation| json!({"window":descriptor,"targetId":target,"generation":generation,"label":"창 작업 중"});
             let result = call(&overlay, "overlayShow", show(1)).unwrap();
             assert_eq!(result["hotkeyRegistered"], true);
+            // Bare Escape remains available to the target app while control is active.
+            assert!(RegisterHotKey(None, 2, MOD_NOREPEAT, VK_ESCAPE.0 as u32).is_ok());
+            UnregisterHotKey(None, 2).unwrap();
+            let escape_before = ESCAPE_MESSAGES.load(std::sync::atomic::Ordering::SeqCst);
+            PostMessageW(first.0, WM_KEYDOWN, WPARAM(VK_ESCAPE.0 as usize), LPARAM(0)).unwrap();
+            PostMessageW(first.0, WM_KEYUP, WPARAM(VK_ESCAPE.0 as usize), LPARAM(0)).unwrap();
             pump();
+            assert_eq!(
+                ESCAPE_MESSAGES.load(std::sync::atomic::Ordering::SeqCst),
+                escape_before + 1
+            );
+            assert!(guard(&descriptor).is_ok());
             assert_eq!(GetForegroundWindow(), first.0);
             let handles: Vec<usize> = OWNED
                 .get_or_init(Default::default)
@@ -1227,8 +1276,14 @@ mod fixture {
             ReleaseDC(None, screen);
             capture(first.0, &format!("{out}/background-overlap.png"));
             assert!(
-                RegisterHotKey(None, 2, MOD_NOREPEAT, 0x1b).is_ok(),
-                "background target retained Escape"
+                RegisterHotKey(
+                    None,
+                    2,
+                    MOD_CONTROL | MOD_ALT | MOD_SHIFT | MOD_NOREPEAT,
+                    VK_F12.0 as u32
+                )
+                .is_ok(),
+                "background target retained stop shortcut"
             );
             let _ = UnregisterHotKey(None, 2);
             let _ = ShowWindow(first.0, SW_MINIMIZE);
@@ -1275,7 +1330,13 @@ mod fixture {
                 .lock()
                 .unwrap()
                 .is_empty());
-            assert!(RegisterHotKey(None, 2, MOD_NOREPEAT, 0x1b).is_ok());
+            assert!(RegisterHotKey(
+                None,
+                2,
+                MOD_CONTROL | MOD_ALT | MOD_SHIFT | MOD_NOREPEAT,
+                VK_F12.0 as u32
+            )
+            .is_ok());
             SetWindowPos(
                 first.0,
                 None,
@@ -1334,27 +1395,45 @@ mod fixture {
             capture(first.0, &format!("{out}/long-label-fallback.png"));
             let narrow = Layer::new(first.0).unwrap();
             SetWindowDisplayAffinity(narrow.0, WDA_NONE).unwrap();
+            SetWindowPos(
+                narrow.0,
+                HWND_TOP,
+                0,
+                0,
+                0,
+                0,
+                SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_SHOWWINDOW,
+            )
+            .unwrap();
             let text = fitted_hint(label, false, 63, 200);
-            assert_eq!(text, "Esc 사용 불가");
+            assert!(text.starts_with("Azrael 중지"));
             assert!(hint_width(&text, 63, i32::MAX) <= 200);
             assert_eq!(
                 fitted_hint(label, false, 63, 10000),
                 hint_text(label, false)
             );
-            assert_eq!(fitted_hint(label, true, 63, 170), "Esc 중지");
+            assert_eq!(fitted_hint(label, true, 63, 170), "Azrael 중지");
             narrow
                 .paint(x + 40, y + 40, 200, 63, None, Some(&text))
                 .unwrap();
             pump();
             capture(narrow.0, &format!("{out}/narrow-ellipsis.png"));
             let actionable = fitted_hint(label, true, 63, 200);
-            assert_eq!(actionable, "Esc to cancel");
+            assert!(actionable.starts_with("Azrael 중지"));
             assert!(hint_width(&actionable, 63, i32::MAX) <= 200);
             narrow
                 .paint(x + 40, y + 40, 200, 63, None, Some(&actionable))
                 .unwrap();
             pump();
             capture(narrow.0, &format!("{out}/narrow-active.png"));
+            let small_height = fitted_hint_height(63, 170);
+            let small_text = fitted_hint(label, true, small_height, 170);
+            assert!(hint_width(&small_text, small_height, i32::MAX) <= 170);
+            narrow
+                .paint(x + 40, y + 40, 170, small_height, None, Some(&small_text))
+                .unwrap();
+            pump();
+            capture(narrow.0, &format!("{out}/narrow-scaled.png"));
             drop(narrow);
 
             call(
@@ -1364,7 +1443,13 @@ mod fixture {
             )
             .unwrap();
             let _ = UnregisterHotKey(None, 2);
-            assert!(RegisterHotKey(None, 1, MOD_NOREPEAT, 0x1b).is_ok());
+            assert!(RegisterHotKey(
+                None,
+                1,
+                MOD_CONTROL | MOD_ALT | MOD_SHIFT | MOD_NOREPEAT,
+                VK_F12.0 as u32
+            )
+            .is_ok());
             let _ = UnregisterHotKey(None, 1);
             thread::scope(|scope| {
                 let task = scope.spawn(move || drop(overlay));
