@@ -35,14 +35,19 @@ When changing source or configuration during a build, apply the common [scope an
 <a id="빌드-사전-검사와-산출물-의존-조건"></a>
 ## Build Preflight and Artifact Dependencies
 
-- Before a long native build, use the smallest relevant checks to confirm target OS, CPU, ABI and release configuration, availability or build paths for required native modules,
-  acquisition of external tools, and the method for recording inputs. Do not treat a debug check as verification of the release path.
-  When applicable, check tools acquired by V8 and target-platform modules such as `node-pty` beforehand too.
-  Acquire and record required external build inputs before pinning them; do not use unrecorded preparation artifacts as distribution verification evidence.
-- Use the completed final artifact for final-package identity checks and installation verification. Do not reduce mandatory pre-installation verification.
-- After fixes, assign a new input identifier and regenerate affected artifacts. Retain unaffected components only after confirming reuse
-  through dependencies, source and build-environment fingerprints, and binary hashes.
-  Do not bypass existing engine reuse conditions or input pinning and provenance checks.
+Apply the common [build-input and result-reuse rules](../../instructions/skills/implementation/references/build-inputs.md#후속-소비자와-산출물-재사용) before expensive execution. Record input selection separately from check selection: including all current changes does not itself select `-FullRegression`. Choose full coverage for an engine replacement, a broad contract change or insufficient prior acceptance; choose affected registered checks when their owner mapping and preserved evidence establish coverage. Record the reason in the current work plan. Final package identity and all six fresh-state host stages remain mandatory for installation.
+
+Select early checks from the changed boundary, using the frozen source, toolchain, target/profile and absolute Cargo cache intended for the build:
+
+| Changed boundary | Early check before the long engine build | Later acceptance |
+| --- | --- | --- |
+| Windows engine replacement, PTY or process launch | The focused Windows PTY native preflight, including inherited Ctrl-C and detached-host cases | Selected engine preservation plus final host stages |
+| Native dependencies and external runtimes | Actual `node-pty` load, selected Bun/Node availability and pinned code-mode host identity; acquire required V8 assets when applicable | Actual native and bundled-runtime checks |
+| Host/UI/account packaging | Pinned pristine UI, lockfile/tool availability and affected registered source checks | Preparation preservation and the exact final VSIX host stages |
+
+[Development operations](../ops/development.md#windows-native-preflight) owns the focused command. Run it explicitly before deployment when its row applies; the deployment runner does not automatically schedule this additional narrow preflight. Its preparation compile may warm the compatible Cargo target, but its result does not replace the complete registered engine check or final-package acceptance. A debug preflight does not establish a release-profile pass.
+
+After failure, diagnose and pass the smallest reproducer before another long build. Keep the failed attempt distinct, assign a new input/build identity when correcting frozen source, and regenerate only affected artifacts and their required consumers. Unchanged components require the existing dependency, environment, provenance and binary-hash checks; compatible passing evidence may be reused at its owning scope. A new release name alone does not require deleting valid shared caches or repeating unrelated work.
 
 <a id="생성에서-설치까지"></a>
 ## From Generation to Installation
@@ -98,6 +103,6 @@ Repeated runs with the same pinned inputs use selected bytes and final fingerpri
 
 `deploy-azrael.ps1 -WindowControlTargetDirectory <absolute-path>` passes cache selection to the Window Control-owned builder. Do not change independent native owners' output contracts through global `CARGO_BUILD_TARGET`. Include selected input preparation and final package and host verification in repeated-run total elapsed time; distinguish already prepared pinned-input/cache cost from execution without caches. Do not reduce mandatory verification scope or failure conditions to claim a performance target pass.
 
-Retain the full source check list; select Node source test concurrency with `deploy-azrael.ps1 -SourceTestConcurrency 8` or `test-project.cjs --test-concurrency 8`. The default is 4 and the allowed range is 1–16. Select after checking actual memory, CPU and independent-process conditions, then compare total elapsed time, failures and memory impact after execution. This is separate from Cargo compilation concurrency.
+Retain the registered source check list for the selected scope; select Node source test concurrency with `deploy-azrael.ps1 -SourceTestConcurrency 8` or `test-project.cjs --test-concurrency 8`. The default is 4 and the allowed range is 1–16. Select Cargo jobs separately with its supported configuration after checking actual available memory, CPU, disk pressure and cache locks. Do not start a duplicate compile waiting on the same cache. Compare total elapsed time, failures and memory impact rather than summed overlapping stage times. Record native-test compilation, test execution and resource/lock waits separately where the owning tool exposes them; mark missing subdivisions as unmeasured. More detailed timing or evidence reuse needs an implementation change, not a claim that editing this playbook accelerates the runner.
 
 After build success and the post-build input identity check, ongoing source regression can overlap package preparation and engine verification. Monitor source failures while waiting for the build too; source, engine and preparation must all pass before proceeding to account probe, final host verification and installation. If any prerequisite fails, cancel the remaining work owned by that run. Record fixture verification of the reordered sequence separately from actual full-run time savings.

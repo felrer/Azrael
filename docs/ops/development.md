@@ -118,6 +118,23 @@ A full build compiles the engine and `azrael-bridge` together for `x86_64-pc-win
 - **Reuse:** `-SkipEngineBuild -EngineDirectory '<release>/engine'` reuses an engine bundle only when its receipt matches current sources and binaries; bundles without a receipt require a full build. Add `-CompanionVsixPath '<release>/azrael-ex.vsix'` to also reuse the account package for launcher- or packaging-only work. Reused binaries are never reported as newly built.
 - **Failures:** never overwrite a failed release directory; fix the first causal error in its logs and build under a new name. Running releases are never replaced in place.
 
+### Windows native preflight
+
+For a Windows x64 engine replacement or PTY/process-launch change, run the small PTY group before the long engine build. Use the frozen execution project's scripts and engine, the final build's absolute Cargo target directory, and its selected toolchain/target/profile. Run from that frozen project root. The log directory below must already belong to the registered task/run; do not pre-create the deployment runner's release/log paths.
+
+```powershell
+$engineSource = '<absolute frozen engine root>'
+$preflightLogs = '<existing registered run log directory>'
+$env:CARGO_TARGET_DIR = '<absolute Cargo cache used by the build>'
+$env:AZRAEL_CARGO_TARGET = 'x86_64-pc-windows-msvc'
+# Leave AZRAEL_CARGO_PROFILE unset for the current builder's default dev/test profiles.
+node -e 'const r = require("./scripts/check-shared-engine-native.cjs").runWindowsNativeTests(process.argv[1], "codex-utils-pty", "windows_tests::"); if (r.error) throw r.error; process.exitCode = r.status ?? 1;' $engineSource `
+  1> "$preflightLogs/windows-pty.stdout.log" 2> "$preflightLogs/windows-pty.stderr.log"
+if ($LASTEXITCODE -ne 0) { throw "Windows PTY preflight failed: $LASTEXITCODE" }
+```
+
+The existing native owner compiles with Cargo and executes the selected libtest directly outside Cargo's Windows job. This catches console inheritance/input failures before compiling the app. Its compatible intermediates remain in the shared Cargo target; the later `engine.shared-engine.appserver` gate still runs its complete required scope. This explicit operation adds no automatic runner stage. Record actual exit code, preparation/execution time where exposed and log locations in the work plan. Linux/macOS use their own relevant native checks; this command establishes only Windows coverage.
+
 ### Automated build, verification and installation
 
 Status: `current` — the complete automatic flow passed a full engine build, current/standalone source tests, preparation, six-stage host acceptance and installation in the ordinary user profile. Installation success/failure and receipt binding also have isolated fixture coverage. Existing user windows require reload to activate the installed host.

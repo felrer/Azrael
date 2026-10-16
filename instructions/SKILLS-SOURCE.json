@@ -193,13 +193,15 @@
     {
       "path": "skills/implementation/references/build-inputs.md",
       "source": "implementation/references/build-inputs.md",
-      "adaptations": [],
+      "adaptations": [
+        "Maintained build preflight, verification scope, failure recovery, reuse, resource coordination, timing and lifecycle guidance; final acceptance checks preserved."
+      ],
       "original": {
         "size": 7937,
         "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 7937,
-      "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
+      "size": 9777,
+      "sha256": "574d90d7ea42296e17bbaac42d8f6e0b6c7f25253e26c9b0d5ebf63481a6f924"
     },
     {
       "path": "skills/implementation/references/delegation.md",

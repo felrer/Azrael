@@ -14,14 +14,24 @@
 <a id="후속-소비자와-산출물-재사용"></a>
 ## Downstream Consumers and Artifact Reuse
 
-- Before expensive execution, check the inputs, settings, environments, paths and verification conditions required by downstream work.
-  Identical source does not establish reuse compatibility when OS, CPU, ABI, debug/release settings, tools, dependencies,
-  runtime environments or verification scope differ. Also check locking and recompilation effects of shared cache or path changes.
+- Before expensive execution, select the smallest relevant checks likely to expose failures at the changed boundary.
+  Check the actual target OS, CPU, ABI and build configuration, required tools and native dependency paths, input recording,
+  and downstream prerequisites. A check using a different configuration or native path does not verify the intended path.
+- Distinguish the inputs included in the frozen snapshot from verification scope. Including all selected changes does not itself require
+  full verification. Choose and record full or focused verification from regression risk, existing compatible passing evidence and mandatory
+  acceptance checks; broaden it when changes, failures or evidence gaps warrant it, within the authorized build scope.
+- Check reuse compatibility before choosing caches and output paths. Identical source does not establish compatibility when OS, CPU, ABI,
+  debug/release settings, tools, dependencies, runtime environments or verification scope differ. Check locking and recompilation effects
+  of cache or path changes. Set concurrency from available memory, CPU, disk capacity and contention, and cache ownership or leases;
+  coordinate shared work through [Delegation and integration](delegation.md#connecting-downstream-work-and-reporting-results).
+  Reuse or wait for the same compatible expensive compilation instead of launching duplicate work.
 - Where practical, arrange preliminary runs so the final work can reuse them, without making reuse mandatory.
   Do not make a small check expensive to prepare for reuse; weigh additional execution cost against early error detection.
-- After input changes, rerun only affected artifacts and downstream checks according to their dependencies. Before using unaffected results,
-  confirm matching inputs, environments, provenance and verification scope, and the project's reuse conditions.
-  Retain final artifact verification and package identity checks; do not extend preparation or diagnostic results into evidence that the final product passed.
+- After a failure, diagnose the cause, fix it within scope and pass the focused check before repeating expensive downstream work.
+  A frozen-input correction requires a new build identity. Regenerate only affected artifacts and downstream checks according to their dependencies;
+  reuse sufficient compatible passing evidence after confirming inputs, environments, provenance, verification scope and project reuse conditions.
+  Final immutable-input, provenance, completed-artifact and exact-package identity checks remain mandatory; preparation or diagnostic results
+  do not establish that the final product passed.
 - Artifacts handed to downstream work must remain unchanged while in use and have fixed identifying information.
   Do not hand off a directory still receiving output as a completed artifact. State downstream prerequisites and remaining checks.
 
@@ -29,7 +39,10 @@
 ## Distinguishing Test Preparation from Product Builds
 
 - Keep test execution plans and results separate from product build execution plans and results. If tests require compilation, record the target inputs,
-  settings, actual commands and exit codes as preparation. Successful test preparation compilation or partial checks do not mean the complete product build succeeded.
+  settings, actual commands, exit codes and elapsed time as preparation, separately from test execution. Successful test preparation compilation
+  or partial checks do not mean the complete product build succeeded. Record overall wall time separately, distinguishing dependency and resource
+  waits from execution; overlapping durations must not be added into overall elapsed time. Follow the existing
+  [coordination and timing guidance](delegation.md#connecting-downstream-work-and-reporting-results) without creating another reporting system.
 - Group tests with matching purposes, inputs and preparation conditions, and reuse prepared artifacts after checking the reuse conditions above.
   After changes, rerun affected preparation and checks. After fixing failures and completing revalidation, the model decides whether to delete or retain one-off verification artifacts.
   Apply this principle through existing project commands and tools as well; it does not require a particular management program or resident scheduler.
@@ -40,6 +53,8 @@
 - Before execution, register generated paths, bundles with a single owner and active references, and update them through failures, cancellations and unconfirmed termination.
   Follow [Artifact lifecycle](artifact-lifecycle.md) and the project lifecycle playbook for task/run, version and shared paths, and migration of existing projects.
   Keep raw logs in their generating run; before removing a task, retain required release verification at version scope with provenance and content identity.
+  Review obsolete run bundles, logs and consumer registry records under those same ownership and active-reference guards;
+  compact management records only through their lifecycle owner's rules, preserving active references and required evidence.
 - The model's decision to delete or retain applies to the entire bundle. Protect a bundle if any member is protected or uncertain,
   and check active and last required consumers of shared caches. After partial deletion, retain the basis for items not attempted and check actual remnants and references before retrying.
 - Manage backups created during work alongside artifacts and caches, while distinguishing them from originals and user files. Check each item's ownership, management root,
