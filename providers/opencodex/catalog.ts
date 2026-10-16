@@ -1,12 +1,11 @@
-import { normalizeOpenRouterReasoning, validateCatalogReasoning, type CatalogReasoning } from './reasoning.ts';
+import { validateCatalogReasoning, type CatalogReasoning } from './reasoning.ts';
 import { createHash, randomUUID } from 'node:crypto';
 import { mkdirSync, writeFileSync, renameSync, unlinkSync, realpathSync, openSync, fstatSync, readSync, closeSync, existsSync } from 'node:fs';
 import { join, relative, isAbsolute, resolve, dirname } from 'node:path';
 import { buildModelsRequest } from './vendor/src/oauth/index.ts';
 import { CLAUDE_CODE_HEADERS, claudeCodeSessionId } from './vendor/src/adapters/client-fingerprint.ts';
 import { providerOutboundGet, providerRedirectError } from './vendor/src/lib/provider-outbound.ts';
-import { resolveProviderModelDiscovery, readBoundedDiscoveryJson, extractProviderModelItems, isRegistryModelDiscoveryUrl } from './vendor/src/providers/model-discovery.ts';
-import { catalogHintsFromModelsApiItem } from './vendor/src/codex/catalog/provider-fetch.ts';
+import { readBoundedDiscoveryJson, isRegistryModelDiscoveryUrl } from './vendor/src/providers/model-discovery.ts';
 import { getProviderRegistryEntry } from './vendor/src/providers/registry.ts';
 import { usesAdaptiveThinking } from './vendor/src/adapters/anthropic.ts';
 
@@ -21,14 +20,11 @@ export function declaredInputModalities(declared: unknown): InputModalities {
 export type CatalogErrorCode = 'network' | 'timeout' | 'http' | 'invalid_response' | 'catalog_limit' | 'storage' | 'unavailable';
 export type ProviderCatalogStatus = { provider_id: string; state: 'ready' | 'stale' | 'empty' | 'error'; model_count: number; observed_at: number; error_code?: CatalogErrorCode };
 export const CATALOG_FRESH_MS = 5 * 60 * 1000;
-export const CATALOG_STALE_MS = 24 * 60 * 60 * 1000;
 const MAX_CACHE_BYTES = 1024 * 1024;
 const MAX_MODELS = 2000;
 const validId = (id: unknown): id is string => typeof id === 'string' && id.trim() === id && id.length > 0 && Buffer.byteLength(id) <= 256 && !/[\x00-\x1f\x7f-\x9f\u2028\u2029]/.test(id);
-const validEntry = (m: any): m is CatalogEntry => m?.provider_id === 'openrouter' && validId(m.model_id) && typeof m.display_name === 'string' && m.display_name.length > 0 && Buffer.byteLength(m.display_name) <= 4096 && !/[\x00-\x1f\x7f-\x9f]/.test(m.display_name) && Number.isSafeInteger(m.context_window) && m.context_window > 0 && validateCatalogReasoning(m.reasoning);
-type Snapshot = { version: 2; fingerprint: string; observed_at: number; models: CatalogEntry[] };
-export type OpenRouterCatalogOptions = { refresh?: boolean; now?: number; fetch?: typeof fetch; directory?: string };
-export type AnthropicCatalogOptions = OpenRouterCatalogOptions & { accountId: string; identity: readonly string[]; accessToken?: string };
+type CatalogOptions = { refresh?: boolean; now?: number; fetch?: typeof fetch; directory?: string };
+export type AnthropicCatalogOptions = CatalogOptions & { accountId: string; identity: readonly string[]; accessToken?: string };
 
 function contains(base: string, target: string): boolean {
   const rel = relative(base, target);
@@ -43,51 +39,12 @@ function safeCacheDirectory(directory: string): string {
   if (!contains(realpathSync(home), realpathSync(ancestor))) throw new Error('storage');
   return resolve(directory);
 }
-function cachePath(directory: string): string {
-  const safeDirectory = safeCacheDirectory(directory);
-  mkdirSync(safeDirectory, { recursive: true, mode: 0o700 });
-  safeCacheDirectory(safeDirectory);
-  return join(safeDirectory, 'openrouter.json');
-}
 function anthropicCachePath(directory: string): string {
   const safeDirectory = safeCacheDirectory(directory);
   mkdirSync(safeDirectory, { recursive: true, mode: 0o700 });
   safeCacheDirectory(safeDirectory);
   return join(safeDirectory, 'anthropic.json');
 }
-function removeSnapshot(path: string) {
-  safeCacheDirectory(dirname(path));
-  try { unlinkSync(path); }
-  catch (cause: any) { if (cause?.code !== 'ENOENT') throw new Error('storage'); }
-}
-function readSnapshot(path: string, fingerprint: string, now: number): Snapshot | undefined {
-  try {
-    const directory = realpathSync(join(path, '..'));
-    const rel = relative(directory, realpathSync(path));
-    if (rel.startsWith('..') || isAbsolute(rel)) return;
-    const fd = openSync(path, 'r');
-    let raw: string;
-    try {
-      const stat = fstatSync(fd);
-      if (!stat.isFile() || stat.size > MAX_CACHE_BYTES) return;
-      const bytes = Buffer.alloc(MAX_CACHE_BYTES + 1); let size = 0, count;
-      while (size < bytes.length && (count = readSync(fd, bytes, size, bytes.length - size, null)) > 0) size += count;
-      if (size > MAX_CACHE_BYTES) return;
-      raw = bytes.subarray(0, size).toString('utf8');
-    } finally { closeSync(fd); }
-    const value = JSON.parse(raw!);
-    if (value.version !== 2 || value.fingerprint !== fingerprint || !Number.isSafeInteger(value.observed_at) || value.observed_at > now || now - value.observed_at > CATALOG_STALE_MS || !Array.isArray(value.models) || value.models.length > MAX_MODELS || !value.models.every(validEntry) || new Set(value.models.map((m: CatalogEntry) => m.model_id)).size !== value.models.length) return;
-    return value;
-  } catch { return; }
-}
-function writeSnapshot(path: string, snapshot: Snapshot) {
-  const bytes = JSON.stringify(snapshot);
-  if (Buffer.byteLength(bytes) > MAX_CACHE_BYTES) throw new Error('catalog_limit');
-  const temp = path + '.' + randomUUID() + '.tmp';
-  try { writeFileSync(temp, bytes, { mode: 0o600, flag: 'wx' }); renameSync(temp, path); }
-  finally { try { safeCacheDirectory(dirname(temp)); unlinkSync(temp); } catch {} }
-}
-
 type AnthropicSnapshot = { version: 1; fingerprint: string; observed_at: number; models: CatalogEntry[] };
 const ANTHROPIC_EFFORTS = ['low', 'medium', 'high', 'xhigh', 'max'] as const;
 function knownAnthropicReasoning(modelId: string): CatalogReasoning {
@@ -240,79 +197,5 @@ export async function discoverAnthropicCatalog(provider: any, options: Anthropic
     if (cause?.name === 'TimeoutError' || cause?.name === 'AbortError') error = 'timeout';
     if (cause?.message === 'catalog_limit') error = 'catalog_limit';
     return status('stale', cached?.models ?? seed, cached?.observed_at ?? now, error);
-  }
-}
-// Inference consumes already-discovered identity-scoped metadata without a GET.
-export function readOpenRouterModelReasoning(provider: any, modelId: string, now = Date.now()): CatalogReasoning | undefined {
-  try {
-    if (!provider.apiKey) return undefined;
-    const request = buildModelsRequest(provider, provider.apiKey, 'openrouter');
-    const fingerprint = createHash('sha256').update(JSON.stringify([request.url, provider.apiKey, request.headers])).digest('hex');
-    const directory = safeCacheDirectory(join(process.env.OPENCODEX_HOME!, 'catalog'));
-    return readSnapshot(join(directory, 'openrouter.json'), fingerprint, now)?.models.find(model => model.model_id === modelId)?.reasoning;
-  } catch { return undefined; }
-}
-
-export function clearOpenRouterCatalog() {
-  try {
-    if (!process.env.OPENCODEX_HOME) throw new Error('storage');
-    removeSnapshot(join(process.env.OPENCODEX_HOME, 'catalog', 'openrouter.json'));
-  } catch { throw new Error('storage'); }
-}
-
-// Discovery metadata is authoritative: configured seeds cannot manufacture a callable roster.
-export async function discoverOpenRouterCatalog(provider: any, options: OpenRouterCatalogOptions = {}): Promise<{ models: CatalogEntry[]; status: ProviderCatalogStatus }> {
-  const now = options.now ?? Date.now();
-  const status = (state: ProviderCatalogStatus['state'], models: CatalogEntry[], observed_at = now, error_code?: CatalogErrorCode) => ({ models, status: { provider_id: 'openrouter', state, model_count: models.length, observed_at, ...(error_code ? { error_code } : {}) } });
-  if (!provider.apiKey) {
-    try { clearOpenRouterCatalog(); } catch { return status('error', [], now, 'storage'); }
-    return status('error', [], now, 'unavailable');
-  }
-  let request: ReturnType<typeof buildModelsRequest>;
-  try { request = buildModelsRequest(provider, provider.apiKey, 'openrouter'); }
-  catch {
-    try { clearOpenRouterCatalog(); } catch { return status('error', [], now, 'storage'); }
-    return status('error', [], now, 'unavailable');
-  }
-  const fingerprint = createHash('sha256').update(JSON.stringify([request.url, provider.apiKey, request.headers])).digest('hex');
-  let path: string;
-  try { path = cachePath(options.directory ?? join(process.env.OPENCODEX_HOME!, 'catalog')); }
-  catch { return status('error', [], now, 'storage'); }
-  const cached = readSnapshot(path, fingerprint, now);
-  // Remove the previous identity immediately, even if the new discovery fails.
-  if (!cached) { try { removeSnapshot(path); } catch { return status('error', [], now, 'storage'); } }
-  if (!options.refresh && cached && now - cached.observed_at < CATALOG_FRESH_MS) return status(cached.models.length ? 'ready' : 'empty', cached.models, cached.observed_at);
-  let error: CatalogErrorCode = 'network';
-  try {
-    const response = await providerOutboundGet('openrouter', { ...provider, ...(options.fetch ? { fetch: options.fetch } : {}) }, request.url, { headers: request.headers, signal: AbortSignal.timeout(8000) }, { isCanonicalUrl: isRegistryModelDiscoveryUrl });
-    if (!response.ok && response.status !== 408 && response.status !== 429 && response.status < 500) {
-      try { removeSnapshot(path); } catch { return status('error', [], now, 'storage'); }
-      return status('error', [], now, 'unavailable');
-    }
-    if (await providerRedirectError(response, request.url) || !response.ok) { error = 'http'; throw new Error(); }
-    const discovery = resolveProviderModelDiscovery('openrouter', provider);
-    const json = await readBoundedDiscoveryJson(response, discovery.maxResponseBytes);
-    if (!json.ok) { error = json.reason === 'response_too_large' ? 'catalog_limit' : 'invalid_response'; throw new Error(); }
-    const parsed = extractProviderModelItems(json.value, discovery);
-    if (!parsed.ok) { error = parsed.reason === 'too_many_models' ? 'catalog_limit' : 'invalid_response'; throw new Error(); }
-    const models: CatalogEntry[] = [];
-    const seen = new Set<string>();
-    for (const item of parsed.items) {
-      const architecture = item.architecture as any;
-      const hints = catalogHintsFromModelsApiItem('openrouter', item);
-      if (!validId(item.id) || seen.has(item.id) || !hints.inputModalities?.includes('text') || !Array.isArray(architecture?.output_modalities) || !architecture.output_modalities.includes('text') || !Array.isArray(item.supported_parameters) || !item.supported_parameters.includes('tools')) continue;
-      const model = { provider_id: 'openrouter', model_id: item.id, display_name: typeof item.name === 'string' ? item.name : item.id, context_window: hints.contextWindow!, reasoning: normalizeOpenRouterReasoning(item) };
-      if (!validEntry(model)) continue;
-      seen.add(item.id); models.push(model);
-    }
-    models.sort((a, b) => a.model_id.localeCompare(b.model_id));
-    // Retire prior callable IDs before persisting this authoritative observation.
-    // Storage failure must not turn a known empty roster into a stale selectable one.
-    try { removeSnapshot(path); writeSnapshot(path, { version: 2, fingerprint, observed_at: now, models }); }
-    catch (cause: any) { return status('error', [], now, cause?.message === 'catalog_limit' ? 'catalog_limit' : 'storage'); }
-    return status(models.length ? 'ready' : 'empty', models);
-  } catch (cause: any) {
-    if (cause?.name === 'TimeoutError' || cause?.name === 'AbortError') error = 'timeout';
-    return cached ? status('stale', cached.models, cached.observed_at, error) : status('error', [], now, error);
   }
 }

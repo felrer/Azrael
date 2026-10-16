@@ -58,7 +58,7 @@ function Get-Inventory {
     @($rows | Where-Object { $_ -match '^[^@]+@[^@]+$' } | Sort-Object)
 }
 $before = @(Get-Inventory)
-$unrelatedBefore = @($before | Where-Object { $_ -notmatch '^azrael-ex-local\.(azrael|azrael-ex)@' })
+$unrelatedBefore = @($before | Where-Object { $_ -notmatch '^azrael-ex-local\.azrael@' })
 $priorHost = @($before | Where-Object { $_ -match '^azrael-ex-local\.azrael@' })
 if ($priorHost.Count -gt 1) { throw 'Multiple prior Azrael host versions are registered.' }
 $rollbackVsix = $null
@@ -108,7 +108,7 @@ try {
         $candidateManifest = Join-Path $candidate.FullName 'package.json'
         if (-not (Test-Path -LiteralPath $candidateManifest -PathType Leaf)) { continue }
         try { $previous = Get-Content -LiteralPath $candidateManifest -Raw | ConvertFrom-Json } catch { continue }
-        if ("$($previous.publisher).$($previous.name)" -cnotin @('azrael-ex-local.azrael', 'azrael-ex-local.azrael-ex')) { continue }
+        if ("$($previous.publisher).$($previous.name)" -cne 'azrael-ex-local.azrael') { continue }
         New-Item -ItemType Directory -Path $backup -Force | Out-Null
         $target = Join-Path $backup $candidate.Name
         Copy-Item -LiteralPath $candidate.FullName -Destination $target -Recurse
@@ -122,12 +122,7 @@ try {
     Write-Receipt
     $after = @(Get-Inventory)
     if ($after -notcontains "azrael-ex-local.azrael@$($prepared.HostVersion)") { throw 'Installed native Azrael version was not found.' }
-    if (@($after | Where-Object { $_ -match '^azrael-ex-local\.azrael-ex@' }).Count) {
-        $null = @(& $code --extensions-dir $extensions --uninstall-extension 'azrael-ex-local.azrael-ex')
-        if ($LASTEXITCODE -ne 0) { throw 'Retired account companion removal failed.' }
-        $after = @(Get-Inventory)
-    }
-    $unrelatedAfter = @($after | Where-Object { $_ -notmatch '^azrael-ex-local\.(azrael|azrael-ex)@' })
+    $unrelatedAfter = @($after | Where-Object { $_ -notmatch '^azrael-ex-local\.azrael@' })
     if (($unrelatedAfter | ConvertTo-Json -Compress) -cne ($unrelatedBefore | ConvertTo-Json -Compress)) { throw 'An unrelated extension inventory entry changed.' }
     $receipt.inventoryAfter = $after
     $receipt.status = 'installed-reload-required'

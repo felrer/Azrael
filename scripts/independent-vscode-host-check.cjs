@@ -8,7 +8,6 @@ const { createInterface } = require("node:readline");
 
 const ORIGINAL_ID = "openai.chatgpt";
 const HOST_ID = "azrael-ex-local.azrael";
-const COMPANION_ID = "azrael-ex-local.azrael-ex";
 const ACCOUNT_COMMANDS = [
   "azrael.usage",
   "azrael.rootResume",
@@ -181,13 +180,11 @@ exports.run = async function run() {
 
     const original = vscode.extensions.getExtension(ORIGINAL_ID);
     const host = vscode.extensions.getExtension(HOST_ID);
-    const companion = vscode.extensions.getExtension(COMPANION_ID);
     diagnostics.discoveredExtensions = vscode.extensions.all.map((extension) => extension.id).sort();
-    diagnostics.expectedExtensions = { original: !!original, host: !!host, companion: !!companion };
+    diagnostics.expectedExtensions = { original: !!original, host: !!host };
     assert(host, "integrated azrael host was not discovered");
     if (standalone) assert(!original || !original.isActive, "disabled original extension was active in standalone mode");
     else assert(original, "original extension was not discovered in coexistence mode");
-    assert(!companion, "retired companion extension was discovered");
     assert(expectedOriginalVersion && /^\d+\.\d+\.\d+$/.test(expectedOriginalVersion), "expected original version was not supplied");
     if (original) assert(original.packageJSON.version === expectedOriginalVersion, `original version was ${original.packageJSON.version}`);
     assert(expectedHostVersion && host.packageJSON.version === expectedHostVersion, `host version was ${host.packageJSON.version}`);
@@ -267,7 +264,7 @@ exports.run = async function run() {
     assert(hostIds.configuration.every((id) => id.startsWith("azrael.")), "host configuration namespace was not independent");
     assert(host.packageJSON.azraelIntegratedAccounts === true, "host manifest did not mark integrated accounts");
     assert(host.packageJSON.extensionDependencies === undefined && host.packageJSON.extensionPack === undefined,
-      "host declared an original or companion extension dependency");
+      "host declared an external extension dependency");
     assert(host.packageJSON.enabledApiProposals === undefined && host.packageJSON.contributes?.chatSessions === undefined,
       "host activated with a proposed API declaration");
 
@@ -334,7 +331,6 @@ exports.run = async function run() {
           ? { id: ORIGINAL_ID, version: original.packageJSON.version, active: original.isActive, disabledForRun: standalone }
           : { id: ORIGINAL_ID, discovered: false, active: false, disabledForRun: standalone },
         host: { id: HOST_ID, version: host.packageJSON.version, active: host.isActive },
-        companion: { id: COMPANION_ID, installed: false },
       },
       openSidebarCommandsCalled: standalone ? ["azrael.openSidebar"] : ["chatgpt.openSidebar", "azrael.openSidebar"],
       contributions: hostIds,

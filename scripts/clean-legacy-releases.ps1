@@ -144,7 +144,7 @@ function Get-LegacyInstalledReferences([string]$Directory) {
     if ($registry -isnot [array]) { throw 'Installed extension registry is not an array.' }
     foreach ($extension in $registry) {
         if (-not $extension.identifier.id) { throw 'Installed extension registry contains an uncertain identity.' }
-        if ($extension.identifier.id -notin @('azrael-ex-local.azrael', 'azrael-ex-local.azrael-ex')) { continue }
+        if ($extension.identifier.id -ne 'azrael-ex-local.azrael') { continue }
         $location = $extension.location.fsPath
         if (-not $location) { $location = $extension.location.path; if ($location -match '^/[A-Za-z]:/') { $location = $location.Substring(1) } }
         if (-not $location -and $extension.relativeLocation) { $location = Join-Path $directoryPath $extension.relativeLocation }
@@ -173,7 +173,11 @@ function Get-LegacyOwnership([string]$Path, [string]$Kind) {
             if (-not $entry -or $entry.Length -gt 2MB) { throw 'Missing compact VSIX identity.' }
             $reader = [IO.StreamReader]::new($entry.Open())
             try { $manifest = $reader.ReadToEnd() | ConvertFrom-Json -AsHashtable } finally { $reader.Dispose() }
-            if ($manifest.publisher -cne 'azrael-ex-local' -or $manifest.name -cnotin @('azrael', 'azrael-ex') -or -not $manifest.version) { throw 'Unknown VSIX publisher/package.' }
+            $version = $null
+            if ($manifest.publisher -cne 'azrael-ex-local' -or -not [version]::TryParse([string]$manifest.version, [ref]$version)) { throw 'Unknown VSIX publisher/package.' }
+            $nativeHost = $manifest.name -ceq 'azrael' -and $version -ge [version]'0.4.0'
+            $integratedAccounts = $manifest.name -ceq 'azrael-ex' -and $version -ge [version]'0.3.0'
+            if (-not ($nativeHost -or $integratedAccounts)) { throw 'Unknown VSIX publisher/package.' }
             $packages += @{ file = $file.Name; version = $manifest.version; sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash }
         } finally { $zip.Dispose() }
     }

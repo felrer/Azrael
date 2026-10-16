@@ -40,7 +40,7 @@ foreach ($name in @('Get-FileState', 'Get-DirectoryState', 'ConvertTo-Comparable
     . ([scriptblock]::Create($definition.Extent.Text))
 }
 $hostId = 'azrael-ex-local.azrael'; $companionId = 'azrael-ex-local.azrael-ex'
-$ownIds = @($hostId, $companionId)
+$ownIds = @($hostId)
 $extensions = Join-Path $fixture 'extensions'
 [IO.Directory]::CreateDirectory($extensions) | Out-Null
 $hostName = "$hostId-1.0.0"; $companionName = "$companionId-0.9.0"
@@ -62,10 +62,17 @@ $beforeInventory = @("$hostId@1.0.0", "$companionId@0.9.0", 'openai.chatgpt@1.0.
 function Get-Plan($Registry = $registryBefore, $Inventory = $beforeInventory, $Root = $extensions) {
     Get-AzraelExtensionBackupPlan -ExtensionsDirectory $Root -Registry $Registry -OwnIds $ownIds -Inventory $Inventory
 }
-Test-Case 'registered host and legacy companion selected; stale folders skipped' {
+Test-Case 'registered host selected; unrelated extension and stale folders skipped' {
     $plan = Get-Plan
-    Assert-True ($plan.selected.Count -eq 2 -and $plan.skipped.Count -eq 2) 'Unexpected selected/skipped counts.'
+    Assert-True ($plan.selected.Count -eq 1 -and $plan.skipped.Count -eq 2) 'Unexpected selected/skipped counts.'
     Assert-True (@($plan.selected.id | Sort-Object) -join ',' -eq (@($ownIds | Sort-Object) -join ',')) 'Wrong selected IDs.'
+}
+Test-Case 'former companion registration is unrelated and not interpreted' {
+    $unrelated = Clone-Registration $companionEntry
+    $unrelated.relativeLocation = '../unrelated-location'
+    $unrelated.version = 'unrelated-version'
+    $plan = Get-Plan -Registry @($hostEntry, $unrelated)
+    Assert-True ($plan.selected.Count -eq 1 -and $plan.selected[0].id -eq $hostId) 'Unrelated registration affected current host selection.'
 }
 Test-Case 'fresh empty Azrael accepted' {
     $empty = Join-Path $fixture 'fresh'; [IO.Directory]::CreateDirectory($empty) | Out-Null
@@ -93,10 +100,6 @@ foreach ($case in @(
     }
 }
 Test-Case 'reject duplicate registrations' { Assert-Rejected { Get-Plan -Registry @($hostEntry, $hostEntry, $companionEntry) } 'Duplicate' }
-Test-Case 'reject duplicate source paths across own registrations' {
-    $entry = Clone-Registration $companionEntry; $entry.relativeLocation = $hostName
-    Assert-Rejected { Get-Plan -Registry @($hostEntry, $entry) } 'ambiguous'
-}
 Test-Case 'reject missing inventory registration' { Assert-Rejected { Get-Plan -Registry @($companionEntry) } 'no matching registration' }
 Test-Case 'reject absent inventory entry' { Assert-Rejected { Get-Plan -Inventory @("$companionId@0.9.0") } 'inventory' }
 Test-Case 'reject duplicate inventory entry' { Assert-Rejected { Get-Plan -Inventory ($beforeInventory + "$hostId@1.0.0") } 'inventory' }
@@ -113,7 +116,7 @@ Test-Case 'reject missing registered manifest' {
 Test-Case 'matching absolute file location accepted' {
     $entry = Clone-Registration $hostEntry; $entry.Remove('relativeLocation') | Out-Null
     $entry.location = @{ fsPath = $hostPath; scheme = 'file' }
-    Assert-True ((Get-Plan -Registry @($entry, $companionEntry)).selected.Count -eq 2) 'Valid absolute registration rejected.'
+    Assert-True ((Get-Plan -Registry @($entry, $companionEntry)).selected.Count -eq 1) 'Valid absolute registration rejected.'
 }
 Test-Case 'reject redirected registered directory; unregistered redirected folder skipped' {
     $link = Join-Path $extensions "$hostId-junction"
@@ -152,7 +155,7 @@ Assert-True ($null -ne $selectionAst) 'Missing production no-directory-backup re
 $selectionBlock = [scriptblock]::Create($selectionAst.Extent.Text)
 $staleBefore = Get-AzraelDirectoryState $stalePath; $invalidBefore = Get-AzraelDirectoryState $invalidStale
 $script:directoryHashMetrics = @()
-$originalBefore = Get-DirectoryState $originalPath; $settingsBefore = Get-FileState $settingsPath
+$originalBefore = Get-DirectoryState $originalPath; $companionBefore = Get-DirectoryState $companionPath; $settingsBefore = Get-FileState $settingsPath
 function Invoke-BackupPrefix([string]$Name, [switch]$FailCopy, [switch]$RegistryDrift, [switch]$ManifestDrift) {
     $deploymentDirectory = Join-Path $fixture $Name; [IO.Directory]::CreateDirectory($deploymentDirectory) | Out-Null
     $receiptPath = Join-Path $deploymentDirectory 'receipt.json'
@@ -196,7 +199,7 @@ function Invoke-BackupPrefix([string]$Name, [switch]$FailCopy, [switch]$Registry
             $saved = Get-Content -LiteralPath $receiptPath -Raw | ConvertFrom-Json
             Assert-True ($saved.previousOwnExtensionDirectories.Count -eq 0) 'Directory backups were recorded.'
             Assert-True ($saved.extensionBackupSelection.policy -eq 'none' -and $saved.extensionBackupSelection.reason -eq 'extension-directory-backups-disabled') 'Wrong backup policy.'
-            Assert-True ($saved.extensionBackupSelection.registered.Count -eq 2) 'Registered selection missing from receipt.'
+            Assert-True ($saved.extensionBackupSelection.registered.Count -eq 1) 'Registered selection missing from receipt.'
             Assert-True ($saved.extensionBackupSelection.skipped.Count -eq $extensionBackupPlan.skipped.Count) 'Skipped selection missing from receipt.'
             Assert-True ((Get-FileHash $saved.registryBackup).Hash -ceq (Get-FileHash $registryPath).Hash) 'Registry backup differs from source.'
         }
@@ -219,7 +222,7 @@ Test-Case 'production directory-backup function and receipt writes removed' {
     Assert-True ($ast.Extent.Text.Contains('previousOwnExtensionDirectories = @()')) 'Empty compatibility receipt field missing.'
 }
 Test-Case 'stale folders, original files and settings remain unchanged' {
-    foreach ($pair in @(@($stalePath, $staleBefore), @($invalidStale, $invalidBefore), @($originalPath, $originalBefore))) {
+    foreach ($pair in @(@($stalePath, $staleBefore), @($invalidStale, $invalidBefore), @($originalPath, $originalBefore), @($companionPath, $companionBefore))) {
         Assert-True ((Get-AzraelDirectoryState $pair[0]).sha256 -ceq $pair[1].sha256) "Changed fixture: $($pair[0])"
     }
     Assert-True ((Get-FileState $settingsPath).sha256 -ceq $settingsBefore.sha256) 'Settings changed.'
@@ -241,8 +244,8 @@ Test-Case 'production settings guard accepts unchanged and rejects mutation' {
 }
 Test-Case 'production unrelated inventory guard accepts unchanged and rejects mutation' {
     $guard = Get-ProductionGuard 'An unrelated extension inventory entry changed during installation.'
-    $unrelatedBefore = @('openai.chatgpt@1.0.0'); $unrelatedAfter = @('openai.chatgpt@1.0.0'); . $guard
-    $unrelatedAfter = @('openai.chatgpt@2.0.0'); Assert-Rejected { . $guard } 'unrelated extension inventory'
+    $unrelatedBefore = @('openai.chatgpt@1.0.0', "$companionId@0.9.0"); $unrelatedAfter = @($unrelatedBefore); . $guard
+    $unrelatedAfter = @('openai.chatgpt@1.0.0'); Assert-Rejected { . $guard } 'unrelated extension inventory'
 }
 Test-Case 'production original registry guard accepts unchanged and rejects mutation' {
     $guard = Get-ProductionGuard 'Original Codex registry object changed during installation.'
@@ -254,9 +257,9 @@ Test-Case 'production original registry guard accepts unchanged and rejects muta
 Test-Case 'production unrelated registry guard accepts unchanged and rejects mutation' {
     $guard = Get-ProductionGuard 'An unrelated extension registry object changed during installation.'
     $registry = @($registryBefore | ForEach-Object { Clone-Registration $_ })
-    $unrelatedRegistryCanonicalBefore = ConvertTo-RegistryComparableJson @($registry | Where-Object { $_.identifier.id -notin @($hostId, $companionId) } | Sort-Object { $_.identifier.id })
+    $unrelatedRegistryCanonicalBefore = ConvertTo-RegistryComparableJson @($registry | Where-Object { $_.identifier.id -notin @($hostId) } | Sort-Object { $_.identifier.id })
     . $guard
-    $registry[2].version = '2.0.0'; Assert-Rejected { . $guard } 'unrelated extension registry object changed'
+    $registry[1].version = 'changed'; Assert-Rejected { . $guard } 'unrelated extension registry object changed'
 }
 Test-Case 'registry canonicalization accepts equivalent external file URI serialization' {
     $entry = @{ identifier = @{ id = 'openai.chatgpt' }; version = '1.0.0'; location = @{

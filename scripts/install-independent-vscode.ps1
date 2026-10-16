@@ -23,7 +23,6 @@ $script:installationTimer = [Diagnostics.Stopwatch]::StartNew()
 $script:directoryHashMetrics = @()
 $projectRoot = (Resolve-Path -LiteralPath (Split-Path $PSScriptRoot -Parent)).Path
 $hostId = 'azrael-ex-local.azrael'
-$companionId = 'azrael-ex-local.azrael-ex'
 
 function Get-AbsolutePath {
     param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Name, [switch]$MustExist)
@@ -290,7 +289,7 @@ foreach ($legacyPatch in @('out/azrael-runtime.cjs', 'out/azrael-runtime.json', 
 $originalBefore = Get-DirectoryState -Path $originalPath
 $settingsPath = if ($UserDataDir) { Join-Path $UserDataDir 'User/settings.json' } else { Join-Path ([Environment]::GetFolderPath('ApplicationData')) 'Code/User/settings.json' }
 $settingsBefore = Get-FileState -Path $settingsPath
-$unrelatedBefore = @($beforeInventory | Where-Object { $_ -notmatch '^azrael-ex-local\.(azrael|azrael-ex)@' })
+$unrelatedBefore = @($beforeInventory | Where-Object { $_ -notmatch '^azrael-ex-local\.azrael@' })
 $registryPath = Join-Path $extensions 'extensions.json'
 $registryBeforeText = if (Test-Path -LiteralPath $registryPath -PathType Leaf) { Get-Content -LiteralPath $registryPath -Raw } else { $null }
 $registryBefore = if ($registryBeforeText) { @($registryBeforeText | ConvertFrom-Json -AsHashtable) } else { @() }
@@ -298,7 +297,7 @@ $officialRegistryBefore = @($registryBefore | Where-Object { $_.identifier.id -e
 if ($officialRegistryBefore.Count -ne 1) { throw "Expected one original openai.chatgpt registry object, found $($officialRegistryBefore.Count). No profile changes were made." }
 $officialRegistryComparableBefore = ConvertTo-ComparableJson $officialRegistryBefore
 $officialRegistryCanonicalBefore = ConvertTo-RegistryComparableJson $officialRegistryBefore
-$unrelatedRegistryBefore = @($registryBefore | Where-Object { $_.identifier.id -notin @($hostId, $companionId) } | Sort-Object { $_.identifier.id })
+$unrelatedRegistryBefore = @($registryBefore | Where-Object { $_.identifier.id -notin @($hostId) } | Sort-Object { $_.identifier.id })
 $unrelatedRegistryComparableBefore = ConvertTo-ComparableJson $unrelatedRegistryBefore
 $unrelatedRegistryCanonicalBefore = ConvertTo-RegistryComparableJson $unrelatedRegistryBefore
 $beforeRegistryByComparable = @{}
@@ -309,7 +308,7 @@ foreach ($entry in $unrelatedRegistryBefore) {
 }
 
 . (Join-Path $PSScriptRoot 'extension-backup-plan.ps1')
-$extensionBackupPlan = Get-AzraelExtensionBackupPlan -ExtensionsDirectory $extensions -Registry $registryBefore -OwnIds @($hostId, $companionId) -Inventory $beforeInventory
+$extensionBackupPlan = Get-AzraelExtensionBackupPlan -ExtensionsDirectory $extensions -Registry $registryBefore -OwnIds @($hostId) -Inventory $beforeInventory
 
 $source = $null
 if (-not $PreparedPackageDirectory) {
@@ -334,12 +333,12 @@ $receipt = [ordered]@{
     inventory = [ordered]@{ before = $beforeInventory; unrelatedBefore = $unrelatedBefore; after = $null; unrelatedUnchanged = $null }
     originalRegistryObjects = $officialRegistryBefore
     unrelatedRegistryObjects = $unrelatedRegistryBefore
-    previousOwnRegistryObjects = @($registryBefore | Where-Object { $_.identifier.id -in @($hostId, $companionId) })
+    previousOwnRegistryObjects = @($registryBefore | Where-Object { $_.identifier.id -in @($hostId) })
     previousOwnExtensionDirectories = @(); registryBackup = $null
     extensionBackupSelection = [ordered]@{ policy = 'none'; registered = $extensionBackupPlan.selected; skipped = $extensionBackupPlan.skipped; reason = 'extension-directory-backups-disabled' }
     hostExtension = $null; devinExecutable = $null; shortcutBackup = $null; validationError = $null
     hostVersion = $null; hostVsix = $null; companionVsix = $null; companionVsixRole = 'integrated-account-ui-provenance-input'
-    accountPayloadVersion = $null; hostInstalled = $false; legacyCompanionPresent = [bool](@($beforeInventory | Where-Object { $_ -like "$companionId@*" }).Count); legacyCompanionUninstalled = $false
+    accountPayloadVersion = $null; hostInstalled = $false
     shortcutUpdated = $false; reloadRequired = $false; error = $null
     sessionProtocol = [ordered]@{ status = 'not-applied'; receiptPath = $null }
 }
@@ -404,7 +403,7 @@ try {
 
     $currentRegistryText = Get-Content -LiteralPath $registryPath -Raw -ErrorAction Stop
     if ($currentRegistryText -cne $registryBeforeText) { throw 'Extension registry changed before installation. Retry installation.' }
-    $currentBackupPlan = Get-AzraelExtensionBackupPlan -ExtensionsDirectory $extensions -Registry $registryBefore -OwnIds @($hostId, $companionId) -Inventory $beforeInventory
+    $currentBackupPlan = Get-AzraelExtensionBackupPlan -ExtensionsDirectory $extensions -Registry $registryBefore -OwnIds @($hostId) -Inventory $beforeInventory
     if ((ConvertTo-ComparableJson $currentBackupPlan.selected) -cne (ConvertTo-ComparableJson $extensionBackupPlan.selected)) { throw 'Registered Azrael directories changed before installation.' }
     if ($registryBeforeText) {
         $registryBackup = Join-Path $deploymentDirectory 'extensions-before.json'
@@ -420,27 +419,18 @@ try {
     $null = @(& $resolvedCodePath @codeArguments --install-extension $receipt.hostVsix --force)
     if ($LASTEXITCODE -ne 0) { throw "Host VSIX installation failed with exit code $LASTEXITCODE." }
     $receipt.hostInstalled = $true; $receipt.reloadRequired = $true; $receipt.status = 'host-installed'; Write-Receipt -Receipt $receipt -Path $receiptPath
-    $postHostInventory = @(Get-Inventory -Executable $resolvedCodePath -Arguments $codeArguments)
-    if (@($postHostInventory | Where-Object { $_ -like "$companionId@*" }).Count) {
-        $null = @(& $resolvedCodePath @codeArguments --uninstall-extension $companionId)
-        if ($LASTEXITCODE -ne 0) { throw "Legacy companion uninstall failed with exit code $LASTEXITCODE." }
-        $receipt.legacyCompanionUninstalled = $true
-    }
-    $receipt.status = 'host-installed-companion-removed'; Write-Receipt -Receipt $receipt -Path $receiptPath
-
     $afterInventory = @(Get-Inventory -Executable $resolvedCodePath -Arguments $codeArguments)
     $requiredHost = "${hostId}@$($receipt.hostVersion)"
     if ($afterInventory -notcontains $requiredHost) { throw "Installed extension inventory is missing $requiredHost." }
-    if (@($afterInventory | Where-Object { $_ -like "$companionId@*" }).Count) { throw 'Legacy companion remains installed after integrated host installation.' }
-    $unrelatedAfter = @($afterInventory | Where-Object { $_ -notmatch '^azrael-ex-local\.(azrael|azrael-ex)@' })
+    $unrelatedAfter = @($afterInventory | Where-Object { $_ -notmatch '^azrael-ex-local\.azrael@' })
     if ((ConvertTo-ComparableJson $unrelatedAfter) -cne (ConvertTo-ComparableJson $unrelatedBefore)) { throw 'An unrelated extension inventory entry changed during installation.' }
     if (-not (Test-Path -LiteralPath $registryPath -PathType Leaf)) { throw 'VS Code extension registry is missing after installation.' }
     $registry = @(Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json -AsHashtable)
     if ((ConvertTo-RegistryComparableJson @($registry | Where-Object { $_.identifier.id -eq 'openai.chatgpt' })) -cne $officialRegistryCanonicalBefore) { throw 'Original Codex registry object changed during installation.' }
-    if ((ConvertTo-RegistryComparableJson @($registry | Where-Object { $_.identifier.id -notin @($hostId, $companionId) } | Sort-Object { $_.identifier.id })) -cne $unrelatedRegistryCanonicalBefore) { throw 'An unrelated extension registry object changed during installation.' }
+    if ((ConvertTo-RegistryComparableJson @($registry | Where-Object { $_.identifier.id -notin @($hostId) } | Sort-Object { $_.identifier.id })) -cne $unrelatedRegistryCanonicalBefore) { throw 'An unrelated extension registry object changed during installation.' }
     for ($index = 0; $index -lt $registry.Count; $index++) {
         $entry = $registry[$index]
-        if ($entry.identifier.id -notin @($hostId, $companionId)) {
+        if ($entry.identifier.id -notin @($hostId)) {
             $key = ConvertTo-RegistryComparableJson @($entry)
             if (-not $beforeRegistryByComparable.ContainsKey($key)) { throw "Cannot restore registry object exactly after installation: $($entry.identifier.id)" }
             $registry[$index] = $beforeRegistryByComparable[$key]
@@ -456,7 +446,7 @@ try {
     [IO.File]::Move($registryTemporary, $registryPath, $true)
     $registryVerified = @(Get-Content -LiteralPath $registryPath -Raw | ConvertFrom-Json -AsHashtable)
     if ((ConvertTo-ComparableJson @($registryVerified | Where-Object { $_.identifier.id -eq 'openai.chatgpt' })) -cne $officialRegistryComparableBefore) { throw 'Original Codex registry object was not preserved while pinning azrael extensions.' }
-    if ((ConvertTo-ComparableJson @($registryVerified | Where-Object { $_.identifier.id -notin @($hostId, $companionId) } | Sort-Object { $_.identifier.id })) -cne $unrelatedRegistryComparableBefore) { throw 'Unrelated extension registry objects were not preserved while pinning the azrael host.' }
+    if ((ConvertTo-ComparableJson @($registryVerified | Where-Object { $_.identifier.id -notin @($hostId) } | Sort-Object { $_.identifier.id })) -cne $unrelatedRegistryComparableBefore) { throw 'Unrelated extension registry objects were not preserved while pinning the azrael host.' }
     $hostEntries = @($registryVerified | Where-Object { $_.identifier.id -eq $hostId })
     if ($hostEntries.Count -eq 0 -or @($hostEntries | Where-Object { $_.metadata.pinned -eq $true }).Count -ne $hostEntries.Count) { throw "Azrael host registry entries were not pinned: $hostId" }
 

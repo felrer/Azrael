@@ -44,7 +44,6 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `scripts/start-devin-native.ps1` | Opt-in CLI/app-server launch with explicit helper, existing native policy and CLI-owned catalog. |
 | `scripts/devin-native-host.cjs`, `ordinary-runtime.cjs` | Verify the native release and configure the VS Code host's scoped helper/Node environment without changing other extensions. |
 | `scripts/check-devin-native-engine.mjs`, `check-devin-native-agents.mjs` | Isolated native tools, policy, resume and child lifecycle acceptance; deterministic and real-model scopes are separate. |
-| `scripts/start-azrael.ps1` | Prepare/launch an isolated VS Code instance with native azrael state and a matching engine/extension pair. |
 | `scripts/build-azrael.ps1` | Build or reuse the engine/bridge, explicitly pin a compatible external code-mode host, package the internal account payload and select the last successful package. |
 | `engine/SOURCE.json`, `scripts/import-engine-source.py`, `engine-provenance.py`, `build-engine-source-release.py` | Import and verify the selected engine snapshot, preserve recorded distribution adaptations, bind binaries to its content and generate a complete source archive. |
 | `instructions/`, `scripts/import-instructions.py`, `build-instruction-release.cjs` | Complete shared instruction library, independent version/component definitions, source mappings and ZIP/manifest/document release assets. |
@@ -77,12 +76,7 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `scripts/inject-local-file-drop.cjs`, `test-local-file-drop.cjs` | Recognize VS Code editor and Explorer local-file drag formats in the pinned composer, validate paths through existing host metadata, and reuse picked-file references and image attachments. |
 | `scripts/inject-image-file-open.cjs`, `pdf-file-open.cjs` | Route resolved image links to VS Code media preview and Windows PDF links to Chrome, retaining text selection and file-manager reveal behavior. |
 | `scripts/sync-codex-environment.cjs`, `azrael-codex-environment.json` | Transactionally snapshot the allowlisted ordinary Codex environment into Azrael, generate the Devin SWE-2 Medium role and retain validation/rollback receipts. |
-| `scripts/install-isolated-vscode.ps1` | Historical separate-profile installation retained with prior artifacts for recovery. |
-| `scripts/launch-installed-azrael.ps1` | Launch the selected isolated installation through the shared VS Code executable. |
-| `scripts/restore-original-codex.ps1` | Validate and back up known ordinary patches, then restore pristine Codex and remove the ordinary companion. |
-| `scripts/check-isolated-install.ps1` | Targeted installation, restoration, persistent-profile, launch isolation and failure/refusal checks in fixtures. |
-| `scripts/install-existing-vscode.ps1` | Legacy host regression fixture only; refuses ordinary profile deployment. |
-| `scripts/prepare-ordinary-vscode.ps1`, `ordinary-runtime.cjs` | Shared pinned host preparation and private runtime reused by isolated installation; historical filenames are retained for existing runtime tests. |
+| `scripts/prepare-ordinary-vscode.ps1`, `ordinary-runtime.cjs` | Shared pinned host preparation and private runtime used by current host preparation and provider setup. |
 | `extensions/azrael-ex/src/usageView.ts`, `accountView.ts` | Unified Codex-styled account/usage page; native OpenAI actions/status remain in a controller without a separate webview. |
 | `extensions/azrael-ex/src/providerAccountService.ts`, `providerAccountProtocol.ts` | Private account helper transport, sanitized provider identities, quota batching and account attribution. |
 | `providers/opencodex/` | Pinned upstream account selection, login and quota modules behind an isolated private helper. |
@@ -96,7 +90,6 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `providers/opencodex/auto-switch.ts`, `inference.ts::recoverAccount` | Identity-scoped permission and bounded provider binding recovery without default selection rewriting. |
 | `extensions/azrael-ex/src/usagePresentation.ts`, `resetCredit.ts` | Remaining quota bars, native ticket rows, exact selected-ticket consumption and persistent retry identity, with Spark exclusion. Render checks: `scripts/verify-ticket-usage-render.mjs`. |
 | `extensions/azrael-ex/src/devinUsage.ts` | Bounded CLI-owned quota helper, PTY screen parsing and process cleanup. |
-| `scripts/check-launcher.ps1` | Verify path refusal, settings preservation and child/caller environment isolation. |
 | `scripts/check-engine.mjs` | Exercise native stdio and dedicated config/state without login or model requests. |
 | `scripts/check-management.mjs` | Exercise simultaneous stdio/local bridge access and process/socket lifetime. |
 | `codex-rs/app-server/src/lib.rs` | Existing stdio startup plus the opt-in `AZRAEL_EX_MANAGEMENT_SOCKET` acceptor using the same processor. |

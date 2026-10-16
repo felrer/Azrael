@@ -1,12 +1,20 @@
-상태: 정적 조사 완료. 사용자는 정리 후보와 호스트·호환 지원 범위를 검토하면 된다. 삭제·비활성화·빌드·설치는 수행하지 않았다.
+상태: 지정 범위 삭제·관련 검증·임시 산출물 정리 완료. 기존 창 안전성 검사 1건은 선행 실패로 남아 있으며 제품 설치 수용은 수행하지 않았다.
 
 # 레거시 및 미사용 기능 전수조사
+
+## 승인된 삭제 범위와 실행
+
+사용자는 구 설치·복구·companion 코드와 옛 OpenRouter 검색·캐시 구현 삭제를 요청했다. 기존 조사 중 U1, L1–L3와 삭제된 실행 경로를 생성하는 옛 packaging 분기를 이번 실행 범위로 확정한다. 현재 native/integrated host, 통합 계정 payload, 현재 호스트 rollback·원본 Codex·다른 확장 보존, Anthropic catalog와 custom API는 유지한다. U2 설정 helper, U3 upstream CLI metadata, Devin ACP, alias 및 Goal/Plan은 이번 삭제 범위 밖이다. 실제 설치본·계정·대화·기존 복구 산출물을 삭제하거나 설치/빌드/배포하지 않는다. 구 companion을 현재 설치자의 소유 대상으로 해석하는 호환 코드를 제거하며, 이미 존재하는 구 companion은 다른 확장과 같이 그대로 보존한다.
+
+Windows 전용 설치 스크립트와 모든 플랫폼의 공통 provider 소스가 영향을 받는다. 의도 지원은 Windows x64/Linux x64/macOS ARM64이고 이번 검증 환경은 Windows다. root가 공용 계약/작업 문서, packaging/wrapper, 검사 등록과 최종 검증을 담당한다. 독립 소유자는 provider의 OpenRouter 하위 구현·전용 테스트·UPSTREAM 문서, 다른 소유자는 구 installer/checker 삭제 및 현재 설치자의 companion 호환 분기·관련 회귀를 수정한다. 각 소유자는 자신의 파일만 수정하고 서로의 변경을 보존한다.
+
+완료 조건은 구 실행 경로와 생성 지점/활성 문서의 참조 제거, 운영 미참조 OpenRouter 하위 구현 제거, Anthropic·현재 host/설치 보존 회귀 통과, 작업 산출물의 삭제/유보 검토와 단일 작업 커밋이다. 보존 검사는 기존 host window-safety/namespace, extension backup-plan, cleaner, provider catalog/inference/image/reasoning를 재사용하고 삭제된 동작만 검사하는 fixture는 함께 폐기한다. source 수준과 package/설치 수용은 구분한다.
 
 ## 핵심 결과
 
 등록된 67개 기능을 전수 대조하고 주요 자사 실행 경계를 추적했다. 운영 경로에서 분리된 옛 OpenRouter catalog 하위 구현, 설정 helper와 upstream CLI용 metadata가 우선 정리 후보이고, 구 설치/복구·companion·Devin ACP는 아직 호출 가능한 레거시다. native host와 integrated host의 병존 여부가 큰 정리 범위를 결정한다. 아래 후보 표와 정리 전제에 따라 후속 삭제 범위를 정해야 한다.
 
-정적 조사이므로 실제 설치본의 이용 여부와 외부 소비자까지 증명하지 않는다. 기능 삭제·비활성화·실제 계정 요청은 수행하지 않았다.
+정적 조사이므로 실제 설치본의 이용 여부와 외부 소비자까지 증명하지 않는다. 기능 기존 정적 조사에서 삭제·비활성화·실제 계정 요청은 수행하지 않았다. 아래 조사 결과의 코드 위치는 삭제 전 기준이며 실제 삭제 범위와 검증은 위 실행 절이 소유한다.
 
 ## 목표와 권한
 현재 Azrael의 기능·진입점·호출 관계를 조사해 사용되지 않는 기능과 정리 후보를 근거별로 구분한다. 산출물은 범위별 조사표, 코드 위치와 도달 가능성, 대체 경로, 삭제 전제와 우선순위다. 기능 삭제는 이번 요청의 실행 범위가 아니다.
@@ -180,3 +188,36 @@ vendor에는 별도 server의 `GET /v1/models` → `fetchAllModels` → `gatherR
 ### 완료 검토
 
 세 영역 조사 결과를 통합하고 OpenRouter 하위 경로는 추가 호출 분석으로 확정했다. 문서의 상대 링크 67개가 모두 존재하고 등록 기능 67개가 빠짐없이 조사표에 있다. UTF-8 대체 문자는 없다. 조사 도중 HEAD의 추가 변경은 기존 BU 작업 문서뿐인 것을 확인했으며 병행 source 변경은 이번 작업에 포함하지 않는다. root의 export 후보 검색은 최초에 파일 내부 호출도 누락 후보로 보았으나 같은 파일 참조를 포함해 재분류하고 네 export(세 catalog/settings 함수 및 test seam)만 남긴 후 직접 확인했다. 이 선별 과정의 중간 후보는 삭제 근거로 사용하지 않았다. 소스·테스트·제품 상태는 수정하지 않았고 생성 build/cache/log 산출물이 없어 별도 산출물 삭제는 없다. 조사 보고서는 후속 정리 범위를 결정하는 보존 작업 문서로 유지한다.
+
+## 삭제 실행 결과
+
+- 구 isolated/existing 설치·복구·launcher·검사 11개 파일을 삭제했다: `install-existing-vscode.ps1`, `check-existing-vscode.ps1`, `existing-vscode-host-check.cjs`, `install-isolated-vscode.ps1`, `launch-installed-azrael.ps1`, `restore-original-codex.ps1`, `check-isolated-install.ps1`, `check-vscode-host.ps1`, `vscode-host-check.cjs`, `start-azrael.ps1`, `check-launcher.ps1`. package producer가 old Launch.ps1/launcher 의존 파일을 생성하는 분기도 제거했다. 현재 native 및 integrated-host 경로는 보존했다.
+- 현재 installer/host checker/cleanup에서 구 설치 companion ID 관리·제거·backup·receipt/discovery 필드를 제거했다. 구 ID가 실제 설치되어 있어도 unrelated extension guard의 보호를 받는다. 현재 내부 계정 payload의 `CompanionVsixPath`, bundle 파일명, build cache 이름은 독립 확장 설치 기능이 아니므로 유지한다. cleaner는 native `azrael >=0.4.0`와 integrated account `azrael-ex >=0.3.0`의 현재 artifact identity를 구분한다.
+- `catalog.ts`에서 OpenRouter 전용 cache/discovery/lookup 하위 구현과 전용 `tests/catalog.test.ts`를 삭제했다. Anthropic 구현과 공유 helper/정책은 보존하고 옵션 타입을 일반 이름으로 정리했다. 현 관리형 provider에서 OpenRouter를 제외하는 계약과 custom API/vendor 구현은 변경하지 않았다.
+- 현재 아키텍처·운영·코드 맵과 provider UPSTREAM 설명을 갱신했다. 삭제된 구 설치/검사 경로는 feature inventory의 owner/check에 등록되어 있지 않아 삭제할 등록 항목이 없다. 유지된 등록 기능의 owner/check 경로가 존재하고 `validateManifest`가 통과하는 것을 확인했다. 다른 작업의 inventory 추가는 이번 변경에 포함하지 않는다.
+
+### 검증 결과와 제한
+
+Windows x64 source/fixture 검사만 수행했다. 제품 build·패키징·설치·실제 계정 요청은 실행하지 않았다. 첫 검증은 source 입력 SHA-256을 시작/종료에 비교했고 모든 입력이 동일했다. 네 경량 검증을 병행했으며 실제 명령별 결과는 `artifacts/tasks/BX-01/evidence/retirement-01/results.json`에 보존한다.
+
+| 검증 | 실제 결과 | 재사용·범위 |
+| --- | --- | --- |
+| Bun Anthropic catalog / images / inference / reasoning | 최초 29 pass, 1 fail, exit 1. 이미지 기대값 정정 후 images 5 pass, 0 fail, exit 0 | 첫 실행의 나머지 세 파일 25개 통과와 정정 후 이미지 5개를 결합해 30개 검증. Anthropic 운영 구현은 변경하지 않음 |
+| Node provider host / ordinary runtime / integrated entry / window-safety | 22 pass, 1 fail, exit 1 | 창 안전성의 선행 source assertion만 실패. 22개 독립 host/provider 검사는 통과 |
+| extension backup selection·production guards | 38 pass, 0 fail, exit 0 | current host만 소유하고 구 companion 파일/등록도 unrelated로 보존하는 검사 포함 |
+| legacy release/cache cleaner | 52 assertion pass, exit 0 | 현재 두 payload 인정, 구 standalone payload 거절/보존, 설치/프로세스·참조 보호 포함 |
+| 실제 package producer의 입력 거절/진입 fixture | 6 pass, harness exit 0 | 구 0.1/0.2 companion·0.3 native·타 publisher 거절. 현재 integrated/native 입력은 source-root 검증으로 진입. 모든 case가 실제 provenance/build 앞에서 중단하며 output directory를 생성하지 않음 |
+| PowerShell parser | 7 edited scripts pass, exit 0 | 설치·package·cleaner·검증 source syntax |
+| static retirement / feature manifest | pass, exit 0 | 11 source 경로 부재, 활성 source/doc 참조 없음, 제거된 OpenRouter symbol 운영/테스트 참조 없음. 등록 owner/check 누락 없음 |
+
+**창 안전성 선행 실패:** `test-independent-vscode-window-safety.cjs:8`은 현재 `check-independent-vscode.ps1`에 없는 keep-open runner 형태를 요구한다. 검사는 변경한 host-check 모듈을 읽기 전에 실패한다. 두 파일 모두 이번 수정 전 HEAD와 동일함을 정규화 byte 비교로 확인했다. 이 기존 불일치를 감추기 위해 테스트를 지우거나 제품 checker를 범위 밖에서 고치지 않았다. 따라서 전체 host 검증 통과나 설치 수용 완료로 보고하지 않는다.
+
+**이미지 검증 기대값:** 현재 Anthropic SDK prefix 보존 계약(`managed-providers.md`와 기존 inference 구현)에 맞춰 이미지 테스트 한 줄을 literal full-prefix + 원래 fixture instructions의 strict equality로 갱신했다. 도구/이미지 검사는 유지했다. 원 producer 종료와 입력 무결성 확인 뒤 수정했고 해당 파일만 다시 검증했다. 실패한 첫 receipt를 성공으로 덮어쓰지 않는다.
+
+검증은 cleaner의 169.41초가 네 병행 실행의 전체 시간을 결정했다. provider는 38.54초, backup은 5.65초, host는 0.79초였다. 결과 대기 중 package 입력 6건과 참조/문서 검토를 진행했다. 전체 source suite를 다시 돌리지 않고 입력이 동일한 독립 성공 결과를 재사용했다. 상세 명령·시각·exit와 source fingerprint 및 실패 진단은 보존 evidence에 남긴다.
+
+### 증거 보존과 정리
+
+원 실행의 로그·source fingerprint·명령/시각/실제 exit·38개 backup case 결과와 실패 진단을 [검증 증거](../../artifacts/tasks/BX-01/evidence/retirement-01/preservation.json)에 복사하고 SHA-256 일치를 확인했다. `bx01-retirement-verification` 전체를 explicit delete로 처리했고 `runs/retirement-01`의 실제 부재를 확인했다. backup fixture가 남긴 Junction 1개는 소유 run과 실제 target이 같은 task 안에 있는지 확인한 뒤 ordinary link removal로 해제해 producer teardown을 마쳤다. 링크를 따라 재귀 삭제하지 않았다.
+
+`bx01-retirement-evidence`는 결과·실패 진단과 재현 control을 함께 유보한다. 패키지/설치 수용과 기존 창 안전성 불일치가 해결되거나 동등한 독립 검증으로 대체되면 전체 증거 묶음 삭제를 재검토한다. cleanup apply의 run `remaining=false`, evidence `remaining=true` 결과를 확인했다. 기존 설치본·사용자 데이터·다른 작업의 source/산출물은 변경하지 않았다.
