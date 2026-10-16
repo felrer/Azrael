@@ -39,16 +39,99 @@ function safeMethod(value) {
     ? value : "unknown";
 }
 function rpcCode(error) { return Number.isSafeInteger(error?.code) ? error.code : undefined; }
-function errorCategory(error, method) {
-  const code = rpcCode(error);
-  const message = typeof error?.message === "string" ? error.message.slice(0, 512).toLowerCase() : "";
-  if (code === 401 || code === 403 || /(?:auth|unauthori[sz]ed|forbidden|credential|login|sign.in)/.test(message)) return "auth";
-  if (code === 429 || /(?:rate.limit|quota|usage.limit|billing|capacity|too many requests)/.test(message)) return "usage_rate_limit";
-  if (code === 408 || code === 504 || /(?:timed? out|deadline)/.test(message)) return "timeout";
-  if ([502, 503].includes(code) || /(?:disconnect|connection|network|socket|econn|unavailable)/.test(message)) return "connection";
-  if (typeof method === "string" && /(?:^|\/)tool(?:\/|$)/i.test(method) || /(?:tool.call|tool execution|tool failed)/.test(message)) return "tool";
-  if ([-32700, -32600, -32601, -32602].includes(code) || /(?:protocol|parse error|invalid request|invalid params)/.test(message)) return "protocol";
-  return "unknown";
+// Exact local guards and native fixed messages establish a cause. Arbitrary RPC
+// codes are not HTTP statuses, and quoted server text is not evidence.
+const recoveryErrors = new Map([
+  ...[
+    "재개 기록을 읽을 수 없습니다. 저장소를 확인해주세요.",
+    "미완료 재개 기록이 가득 찼습니다. 먼저 기존 작업 상태를 확인해주세요.",
+    "재개 기록 저장에 실패했습니다. 저장소를 확인한 뒤 다시 시도해주세요.",
+    "중단 완료를 확인하지 못했습니다. 새 작업은 시작하지 않았습니다.",
+    "실행 상태가 갱신 중입니다. 상태를 다시 확인해주세요.",
+    "엔진 상태를 확인한 뒤 재개해주세요.",
+    "이전 재개 요청의 결과가 불명확합니다. Ctrl+Shift+P → ‘azrael: 실행 상태 및 복구’에서 이 세션을 선택한 뒤 ‘대화 기록을 확인했으며 새 재개 실행’을 선택해주세요.",
+    "스레드 복구가 완료되지 않았습니다.",
+    "상태 확인 요청이 많습니다. 잠시 후 다시 시도해주세요.",
+    "Fatal error: session task panicked",
+    "The provider account was removed. Work was stopped. Select a healthy account before continuing.",
+    "The provider account requires reauthentication. Work was stopped. Sign in again or select a healthy account before continuing.",
+    "Attached images exceed the provider request limit. Remove images or start a new thread.",
+    ...["unsupported_image_format", "remote_image_unsupported", "invalid_image_input"].map(code =>
+      `This provider accepts PNG, JPEG, GIF or WebP image attachments only (${code})`),
+    "Selected model is at capacity. Please try a different model.",
+    "Flex capacity unavailable.",
+  ].map(message => [message, "unknown"]),
+  ...[
+    "연결이 변경되었습니다. 상태를 다시 확인해주세요.",
+    "엔진 연결에 실패했습니다. 상태를 다시 확인해주세요.",
+    "엔진 연결이 끊겼습니다. 상태를 다시 확인해주세요.",
+  ].map(message => [message, "connection"]),
+  ...[
+    "20초 안에 엔진 응답을 받지 못했습니다. 실행 여부를 확인한 뒤 재개해주세요.",
+    "Fatal error: response preparation exceeded its 90s deadline",
+    "Fatal error: native inference helper became idle",
+    "Fatal error: native inference produced no output frames for 120s",
+    "Fatal error: native inference request exceeded its deadline",
+    "Fatal error: native inference helper unresponsive (no protocol frames for 120s)",
+    ...["provider_headers_timeout", "provider_stream_idle", "provider_request_deadline"].map(code =>
+      `Fatal error: native inference helper failed (${code})`),
+  ].map(message => [message, "timeout"]),
+  ...["모델 호출 제한에 도달했습니다.", "모델 요청 수 제한에 도달했습니다.",
+    "모델 입력 토큰 처리량 제한에 도달했습니다.", "모델 출력 토큰 처리량 제한에 도달했습니다.",
+    "모델 토큰 처리량 제한에 도달했습니다.", "모델 동시 요청 수 제한에 도달했습니다.", "모델 요청 증가율 제한에 도달했습니다."].map(message => [`rate limit exceeded: ${message}`, "usage_rate_limit"]),
+  ...Object.entries({
+    provider_headers_failed: "모델 응답 헤더를 받기 전에 요청이 실패했습니다. 원인은 확인되지 않았습니다.",
+    provider_connection_dns: "모델 서버 주소의 DNS 조회에 실패했습니다.",
+    provider_connection_tls: "모델 서버와의 TLS 연결에 실패했습니다.",
+    provider_connection_reset: "모델 서버와의 연결이 끊어졌습니다.",
+    provider_connection_refused: "모델 서버 연결이 거부됐습니다.",
+    provider_connection_timeout: "모델 서버 연결 대기 시간이 초과됐습니다.",
+    provider_connection_unreachable: "모델 서버에 연결할 네트워크 경로를 사용할 수 없습니다.",
+    provider_connection_proxy: "프록시 연결에 실패했습니다.",
+  }).map(([code, cause]) => [`Fatal error: ${cause} 연결 상태와 기존 작업 결과를 확인한 뒤 이 세션에서 다시 요청하세요. (${code})`, "connection"]),
+]);
+function structuredCategory(error) {
+  const info = error?.codexErrorInfo;
+  return typeof info === "string" ? info : info && typeof info === "object" && !Array.isArray(info) &&
+    Object.keys(info).length === 1 ? Object.keys(info)[0] : info === undefined ? undefined : "unknownStructuredCategory";
+}
+function knownMessageCategory(message) {
+  if (recoveryErrors.has(message)) return recoveryErrors.get(message);
+  if (typeof message !== "string" || message.length > 512 || /[\r\n]/.test(message)) return undefined;
+  // Same complete historical server-message guards as recovery-state.cjs.
+  if (/^stream disconnected before completion: An error occurred while processing your request\. You can retry your request, or contact us through our help center at help\.openai\.com if the error persists\. Please include the request ID [0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12} in your message\.$/.test(message) ||
+      /^The '[A-Za-z0-9][A-Za-z0-9._/-]*' model is not supported when using Codex with a ChatGPT account\.$/.test(message)) return "unknown";
+  return undefined;
+}
+function errorCategory(error) {
+  const category = structuredCategory(error);
+  if (category === "rateLimitExceeded" && error?.message === "rate limit exceeded: Provider request rate limit reached. Try again later.") return "unknown";
+  if (category !== undefined && category !== "other") {
+    if (category === "unauthorized") return "auth";
+    if (["rateLimitExceeded", "usageLimitExceeded", "sessionBudgetExceeded"].includes(category)) return "usage_rate_limit";
+    if (["httpConnectionFailed", "responseStreamConnectionFailed", "responseStreamDisconnected"].includes(category)) return "connection";
+    if (category === "sandboxError") return "tool";
+    return "unknown";
+  }
+  if ([-32700, -32600, -32601, -32602].includes(rpcCode(error))) return "protocol";
+  return knownMessageCategory(error?.message) ?? "unknown";
+}
+function recoveryErrorMessage(error) {
+  const known = knownMessageCategory(error?.message);
+  if (known === undefined) return "정의되지 않은 오류";
+  const category = structuredCategory(error);
+  if (category !== undefined && category !== "other") {
+    if (known === "unknown") {
+      const message = error.message;
+      const requestGuard = category === "badRequest" &&
+        (/^The '[A-Za-z0-9][A-Za-z0-9._/-]*' model is not supported when using Codex with a ChatGPT account\.$/.test(message) ||
+          message.startsWith("The provider account ") || message.startsWith("Attached images exceed ") || message.startsWith("This provider accepts "));
+      const capacityGuard = category === "serverOverloaded" && message === "Selected model is at capacity. Please try a different model." ||
+        category === "flexUnavailable" && message === "Flex capacity unavailable.";
+      if (!requestGuard && !capacityGuard) return "정의되지 않은 오류";
+    } else if (errorCategory(error) !== known) return "정의되지 않은 오류";
+  }
+  return error.message;
 }
 function requestBook(host) {
   let book = hostRequests.get(host);
@@ -130,7 +213,7 @@ function initialize(context, vscode, options = {}) {
     } catch (error) {
       // Preserve native actionable errors in the UI, without copying server
       // payloads or prompts into recovery diagnostics.
-      await vscode.window.showErrorMessage(error.message);
+      await vscode.window.showErrorMessage(recoveryErrorMessage(error));
     }
   });
   timer = setInterval(redraw, 1000);

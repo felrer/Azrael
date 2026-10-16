@@ -303,6 +303,54 @@ class InspectorTests(unittest.TestCase):
         self.assertRegex(event["requestRef"], r"^[0-9a-f]{10}$")
         self.assertNotIn("private-thread", stdout)
 
+    def test_provider_error_evidence_and_outcomes_are_exported_safely(self):
+        enums = {
+            "provider_error_type": ("rate_limit_error", "rate_limit_exceeded", "rate_limited", "too_many_requests",
+                "usage_limit_reached", "quota_exceeded", "insufficient_quota", "credit_balance_too_low",
+                "invalid_request_error", "authentication_error", "permission_error", "billing_error",
+                "overloaded_error", "api_error", "unknown", "missing"),
+            "provider_error_reason": ("request_rate", "input_token_rate", "output_token_rate", "token_rate",
+                "concurrency", "acceleration", "usage_limit", "usage_five_hour", "usage_seven_day",
+                "usage_monthly", "rate_limit", "ambiguous", "unknown"),
+            "error_body_state": ("parsed", "invalid_json", "too_large", "timeout", "unreadable", "missing"),
+            "usage_5h_status": ("allowed", "allowed_warning", "rejected"),
+            "usage_7d_status": ("allowed", "allowed_warning", "rejected"),
+        }
+        numbers = ["retry_after_ms", "usage_5h_reset_ms", "usage_7d_reset_ms"] + [
+            f"rate_limit_{metric}_{kind}" for metric in ("requests", "input_tokens", "output_tokens", "tokens")
+            for kind in ("limit", "remaining", "reset_ms")]
+        payloads = [{field: value} for field, values in enums.items() for value in values]
+        payloads += [{field: value for field in numbers} for value in (0, 2**53 - 1)]
+        outcomes = ["provider_rate_limit", "provider_usage_limit", "provider_error_undefined"] + [
+            f"provider_rate_limit_{kind}" for kind in
+            ("requests", "input_tokens", "output_tokens", "tokens", "concurrency", "acceleration")]
+        records = [("devin_native_progress", 'event="native_inference_transport" '
+            f'outcome="{outcomes[index % len(outcomes)]}" transport=' + json.dumps(payload), "INFO")
+            for index, payload in enumerate(payloads)]
+        report, stdout = self.inspect(records)
+        events = report["eventsNewestFirst"]
+        self.assertEqual(len(events), len(payloads))
+        for index, event in enumerate(reversed(events)):
+            self.assertEqual(event["transportDiagnostics"], {
+                "transport": payloads[index], "outcome": outcomes[index % len(outcomes)]})
+        contexts, _ = self.inspect([self.context_record(self.context_payload(), outcome) for outcome in outcomes])
+        self.assertEqual(len(contexts["eventsNewestFirst"]), len(outcomes))
+        inference, _ = self.inspect([("devin_native_progress",
+            f'event="native_inference_progress" outcome="{outcome}" elapsed_ms=0', "INFO")
+            for outcome in outcomes])
+        self.assertEqual([event["inferenceDiagnostics"]["outcome"]
+                          for event in reversed(inference["eventsNewestFirst"])], outcomes)
+
+        invalid = [{field: value, "error_stage": "headers"} for field in enums
+                   for value in ("SECRET", 1, {"message": "SECRET"})]
+        invalid += [{field: value, "error_stage": "headers"} for field in numbers
+                    for value in (-1, 1.5, True, 2**53, "SECRET")]
+        report, stdout = self.inspect([("devin_native_progress", 'event="native_inference_transport" '
+            'outcome="provider_SECRET" transport=' + json.dumps(payload), "INFO") for payload in invalid])
+        for event in report["eventsNewestFirst"]:
+            self.assertEqual(event["transportDiagnostics"], {"transport": {"error_stage": "headers"}})
+        self.assertNotIn("SECRET", stdout)
+
     def test_deadline_transport_and_failure_are_correlated(self):
         request = 'request_id=01234567-0123-4567-89ab-0123456789ab '
         report, stdout = self.inspect([

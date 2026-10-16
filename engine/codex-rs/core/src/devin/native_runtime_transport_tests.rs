@@ -222,6 +222,116 @@ fn malformed_transport_never_deserializes_to_loggable_data() {
     }
 }
 
+#[test]
+fn provider_error_evidence_is_strict_and_roundtrips() {
+    for value in [
+        "rate_limit_error",
+        "rate_limit_exceeded",
+        "rate_limited",
+        "too_many_requests",
+        "usage_limit_reached",
+        "quota_exceeded",
+        "insufficient_quota",
+        "credit_balance_too_low",
+        "invalid_request_error",
+        "authentication_error",
+        "permission_error",
+        "billing_error",
+        "overloaded_error",
+        "api_error",
+        "unknown",
+        "missing",
+    ] {
+        let wire = json!({"provider_error_type": value});
+        let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+    }
+    for value in [
+        "request_rate",
+        "input_token_rate",
+        "output_token_rate",
+        "token_rate",
+        "concurrency",
+        "acceleration",
+        "usage_limit",
+        "usage_five_hour",
+        "usage_seven_day",
+        "usage_monthly",
+        "rate_limit",
+        "ambiguous",
+        "unknown",
+    ] {
+        let wire = json!({"provider_error_reason": value});
+        let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+    }
+    for value in [
+        "parsed",
+        "invalid_json",
+        "too_large",
+        "timeout",
+        "unreadable",
+        "missing",
+    ] {
+        let wire = json!({"error_body_state": value});
+        let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+    }
+    for value in ["allowed", "allowed_warning", "rejected"] {
+        let wire = json!({"usage_5h_status": value});
+        let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+    }
+    for value in ["allowed", "allowed_warning", "rejected"] {
+        let wire = json!({"usage_7d_status": value});
+        let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+        assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+    }
+    for field in [
+        "retry_after_ms",
+        "rate_limit_requests_limit",
+        "rate_limit_requests_remaining",
+        "rate_limit_requests_reset_ms",
+        "rate_limit_input_tokens_limit",
+        "rate_limit_input_tokens_remaining",
+        "rate_limit_input_tokens_reset_ms",
+        "rate_limit_output_tokens_limit",
+        "rate_limit_output_tokens_remaining",
+        "rate_limit_output_tokens_reset_ms",
+        "rate_limit_tokens_limit",
+        "rate_limit_tokens_remaining",
+        "rate_limit_tokens_reset_ms",
+        "usage_5h_reset_ms",
+        "usage_7d_reset_ms",
+    ] {
+        for value in [json!(0), json!(9_007_199_254_740_991u64)] {
+            let wire = json!({field: value});
+            let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+            assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+        }
+        for value in [
+            json!(-1),
+            json!(1.5),
+            json!(true),
+            json!("SECRET"),
+            json!(9_007_199_254_740_992u64),
+        ] {
+            assert!(serde_json::from_value::<Transport>(json!({field: value})).is_err());
+        }
+    }
+    for field in [
+        "provider_error_type",
+        "provider_error_reason",
+        "error_body_state",
+        "usage_5h_status",
+        "usage_7d_status",
+    ] {
+        for value in [json!("SECRET"), json!(1), json!({"message":"SECRET"})] {
+            assert!(serde_json::from_value::<Transport>(json!({field: value})).is_err());
+        }
+    }
+}
+
 #[derive(Clone, Default)]
 struct Capture(Arc<Mutex<Vec<BTreeMap<String, String>>>>);
 impl<S: tracing::Subscriber> Layer<S> for Capture {

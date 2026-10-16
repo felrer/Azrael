@@ -33,12 +33,18 @@ const PROVIDER_CLASSIFICATION_CODES = new Map([
   ['rate_limit', 'provider_rate_limit'],
 ]);
 
-// Returns the protocol code for an allowlisted transport classification, or
-// undefined when the error carries none. Callers keep deadline/local-code
-// precedence and fall back to provider_http_N/provider_failure.
+// A classification annotation alone may come from a bare HTTP status. Require
+// an independently allowlisted reason or explicit provider code before naming
+// the cause. Callers retain their HTTP/local-code fallback when evidence is absent.
 export function providerClassificationCode(error) {
   const classification = error?.classification;
-  if (typeof classification !== 'string') return undefined;
+  if (!PROVIDER_CLASSIFICATION_CODES.has(classification)) return undefined;
+  const diagnostics = safeProviderDiagnostics(error);
+  const explicitCodes = classification === 'usage_limit'
+    ? ['usage_limit_reached', 'quota_exceeded', 'insufficient_quota']
+    : ['rate_limit_exceeded', 'rate_limited', 'too_many_requests'];
+  if (diagnostics.provider_reason !== classification
+      && !explicitCodes.includes(diagnostics.provider_error_code)) return undefined;
   return PROVIDER_CLASSIFICATION_CODES.get(classification);
 }
 

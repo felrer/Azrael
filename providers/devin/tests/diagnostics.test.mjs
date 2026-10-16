@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { httpStatus, safeProviderDiagnostics, transportErrorCode } from '../diagnostics.mjs';
+import { httpStatus, providerClassificationCode, safeProviderDiagnostics, transportErrorCode } from '../diagnostics.mjs';
 import { AdapterError } from '../mapping.mjs';
 
 test('provider diagnostics independently revalidate all fields and discard arbitrary content', () => {
@@ -64,5 +64,42 @@ test('http_status accepts only numeric 100..599 status', () => {
   assert.equal(httpStatus({ status: 599 }), 599);
   for (const bad of [99, 600, 0, -1, 200.5, '503', NaN, undefined]) {
     assert.equal(httpStatus({ status: bad }), undefined);
+  }
+});
+
+test('provider classifications require explicit allowlisted cause evidence', () => {
+  for (const [classification, codes] of [
+    ['usage_limit', ['usage_limit_reached', 'quota_exceeded', 'insufficient_quota']],
+    ['rate_limit', ['rate_limit_exceeded', 'rate_limited', 'too_many_requests']],
+  ]) {
+    const expected = `provider_${classification}`;
+    assert.equal(providerClassificationCode({ classification,
+      providerDiagnostics: { provider_reason: classification } }), expected);
+    for (const code of codes) {
+      assert.equal(providerClassificationCode({ classification,
+        providerDiagnostics: { provider_error_code: code } }), expected);
+    }
+    for (const providerDiagnostics of [undefined, null, [], {},
+      { provider_error_code: 'resource_exhausted' },
+      { provider_reason: 'message_missing' },
+      { provider_error_code: 'SECRET', provider_reason: 'SECRET' },
+      { provider_error_code: `${codes[0]} SECRET` },
+      { provider_error_code: codes[0].toUpperCase() },
+      { provider_reason: `${classification} SECRET` },
+      { provider_reason: 'unrecognized_message', message: classification },
+      { provider_error_code: 429, provider_reason: [classification] },
+    ]) {
+      assert.equal(providerClassificationCode({ classification, status: 429, providerDiagnostics,
+        message: `${classification}: too many requests quota exceeded`,
+        stack: 'SECRET', body: { error: { code: codes[0] } } }), undefined);
+    }
+  }
+  assert.equal(providerClassificationCode({ classification: 'rate_limit',
+    providerDiagnostics: { provider_error_code: 'quota_exceeded', provider_reason: 'usage_limit' } }), undefined);
+  assert.equal(providerClassificationCode({ classification: 'usage_limit',
+    providerDiagnostics: { provider_error_code: 'too_many_requests', provider_reason: 'rate_limit' } }), undefined);
+  for (const classification of [undefined, null, 429, 'SECRET', 'usage_limit!', 'rate_limit_error']) {
+    assert.equal(providerClassificationCode({ classification,
+      providerDiagnostics: { provider_reason: 'rate_limit', provider_error_code: 'quota_exceeded' } }), undefined);
   }
 });

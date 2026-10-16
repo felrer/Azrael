@@ -179,11 +179,11 @@ def inference_diagnostics(body: str, target: str) -> dict:
     fields = body[marker.end():]
     outcome = re.search(r'(?<!\w)outcome="([a-z_]+)"(?=\s|$)', fields)
     if marker[1] in {"native_inference_progress", "native_inference_finished"} and (
-        not outcome or outcome[1] not in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline"} | CONNECTION_OUTCOMES
+        not outcome or outcome[1] not in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline"} | CONNECTION_OUTCOMES | PROVIDER_ERROR_OUTCOMES
     ):
         return {}
     result: dict = {"event": marker[1]}
-    if outcome and outcome[1] in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline", "retry_scheduled", "retry_exhausted", "failed", "completed"} | CONNECTION_OUTCOMES:
+    if outcome and outcome[1] in {"inference_output_idle", "provider_stream_idle", "provider_request_deadline", "provider_failure", "engine_deadline", "retry_scheduled", "retry_exhausted", "failed", "completed"} | CONNECTION_OUTCOMES | PROVIDER_ERROR_OUTCOMES:
         result["outcome"] = outcome[1]
     for field in ("elapsed_ms", "network_idle_ms", "event_idle_ms", "bytes_received", "event_count",
                   "frames_received", "output_bytes", "attempt"):
@@ -214,7 +214,23 @@ def inference_diagnostics(body: str, target: str) -> dict:
     return result
 
 
+RATE_LIMIT_OUTCOMES = {
+    "provider_rate_limit_requests", "provider_rate_limit_input_tokens", "provider_rate_limit_output_tokens",
+    "provider_rate_limit_tokens", "provider_rate_limit_concurrency", "provider_rate_limit_acceleration",
+}
+PROVIDER_ERROR_OUTCOMES = RATE_LIMIT_OUTCOMES | {"provider_rate_limit", "provider_usage_limit", "provider_error_undefined"}
+
 TRANSPORT_ENUMS = {
+    "provider_error_type": {"rate_limit_error", "rate_limit_exceeded", "rate_limited", "too_many_requests",
+                            "usage_limit_reached", "quota_exceeded", "insufficient_quota", "credit_balance_too_low",
+                            "invalid_request_error", "authentication_error", "permission_error", "billing_error",
+                            "overloaded_error", "api_error", "unknown", "missing"},
+    "provider_error_reason": {"request_rate", "input_token_rate", "output_token_rate", "token_rate", "concurrency",
+                              "acceleration", "usage_limit", "usage_five_hour", "usage_seven_day", "usage_monthly",
+                              "rate_limit", "ambiguous", "unknown"},
+    "error_body_state": {"parsed", "invalid_json", "too_large", "timeout", "unreadable", "missing"},
+    "usage_5h_status": {"allowed", "allowed_warning", "rejected"},
+    "usage_7d_status": {"allowed", "allowed_warning", "rejected"},
     "connection_error": CONNECTION_CATEGORIES,
     "connection_error_code": {"ENOTFOUND", "EAI_AGAIN", "ECONNRESET", "EPIPE", "UND_ERR_SOCKET", "ECONNREFUSED",
                               "ETIMEDOUT", "UND_ERR_CONNECT_TIMEOUT", "ENETUNREACH", "EHOSTUNREACH", "ENETDOWN",
@@ -235,6 +251,10 @@ TRANSPORT_ENUMS = {
 TRANSPORT_NUMBERS = {"headers_status", "headers_ms", "read_wait_ms", "read_count", "chunk_count",
                      "last_chunk_bytes", "sse_event_count", "heartbeat_count", "unknown_sse_count",
                      "sse_idle_ms", "sse_pending_bytes", "parser_wait_ms", "parser_event_count"}
+TRANSPORT_NUMBERS |= {"retry_after_ms", "usage_5h_reset_ms", "usage_7d_reset_ms"} | {
+    f"rate_limit_{metric}_{kind}" for metric in ("requests", "input_tokens", "output_tokens", "tokens")
+    for kind in ("limit", "remaining", "reset_ms")
+}
 
 
 def transport_diagnostics(body: str, target: str) -> dict:
@@ -271,7 +291,7 @@ def transport_diagnostics(body: str, target: str) -> dict:
     outcome = re.search(r'(?<!\w)outcome="([a-z_]+)"(?=\s|$)', fields)
     if outcome and outcome[1] in {"running", "completed", "inference_output_idle", "engine_deadline",
                                 "provider_request_deadline", "provider_failure", "provider_stream_idle",
-                                "provider_headers_timeout", "cancelled", "helper_error"} | CONNECTION_OUTCOMES:
+                                "provider_headers_timeout", "cancelled", "helper_error"} | CONNECTION_OUTCOMES | PROVIDER_ERROR_OUTCOMES:
         result["outcome"] = outcome[1]
     return result
 
@@ -295,7 +315,7 @@ TOOL_INVOCATION_OUTCOMES = {
     "provider_request_deadline", "provider_failure", "provider_stream_idle", "provider_headers_timeout",
     "undeclared_tool", "duplicate_call_id", "invalid_arguments", "invalid_custom_wrapper",
     "parallel_calls_disabled",
-} | CONNECTION_OUTCOMES
+} | CONNECTION_OUTCOMES | PROVIDER_ERROR_OUTCOMES
 
 
 def tool_invocation_diagnostics(body: str, target: str) -> dict:
@@ -336,7 +356,7 @@ def tool_invocation_diagnostics(body: str, target: str) -> dict:
 
 
 CONTEXT_COMPONENTS = {"instructions", "conversation", "tool_definitions", "tool_results", "tool_calls", "reasoning"}
-CONTEXT_OUTCOMES = (TOOL_INVOCATION_OUTCOMES - {"running"}) | {
+CONTEXT_OUTCOMES = (TOOL_INVOCATION_OUTCOMES - {"running"}) | PROVIDER_ERROR_OUTCOMES | {
     "provider_account_removed", "provider_account_revoked", "provider_usage_limit", "provider_rate_limit",
     "provider_context_limit", "image_input_too_large", "unsupported_image_format", "remote_image_unsupported",
     "invalid_image_input", "unknown"} | {f"provider_http_{code}" for code in range(100, 600)}

@@ -42,6 +42,7 @@ const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-
 const { MAX_REASONING_ASSETS, injectMaxReasoning } = require("./inject-max-reasoning.cjs");
 const { loadManifest, validateManifest, validateTransformReport } = require("./feature-preservation.cjs");
 const { CAPACITY_RETRY_ASSET, injectCapacityRetryStop } = require("./inject-capacity-retry-stop.cjs");
+const { ERROR_PRESENTATION_ASSET, injectErrorPresentation } = require("./inject-error-presentation.cjs");
 const { THREAD_BRANCH_ASSET, injectThreadBranch } = require("./inject-thread-branch.cjs");
 const { BTW_ASSETS, injectBtw } = require("./inject-btw.cjs");
 const { ASSET: RECENT_CHAT_FILTER_ASSET, injectRecentChatFilter } = require("./inject-recent-chat-filter.cjs");
@@ -380,7 +381,8 @@ function transformAsset(source, relativePath, filename, ts) {
   const maxReasoning = injectMaxReasoning(providerPicker.text, relativePath);
   const threadBranch = injectThreadBranch(maxReasoning.text, relativePath);
   const capacityRetryStop = injectCapacityRetryStop(threadBranch.text, relativePath);
-  const paginatedHistory = injectPaginatedHistory(capacityRetryStop.text, relativePath);
+  const errorPresentation = injectErrorPresentation(capacityRetryStop.text, relativePath);
+  const paginatedHistory = injectPaginatedHistory(errorPresentation.text, relativePath);
   const submitOnlyThread = injectSubmitOnlyThread(paginatedHistory.text, relativePath);
   const recentChatFilter = injectRecentChatFilter(submitOnlyThread.text, relativePath);
   const sessionFlags = injectSessionFlags(recentChatFilter.text, relativePath);
@@ -413,10 +415,10 @@ function transformAsset(source, relativePath, filename, ts) {
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
-  if (namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: taskProfile.text, asset: {
       path: relativePath,
-      edits: projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + parentRequestActivity.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + imageSketch.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: errorPresentation.count + projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + parentRequestActivity.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + imageSketch.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -437,6 +439,7 @@ function transformAsset(source, relativePath, filename, ts) {
       maxReasoningEdits: maxReasoning.count,
       threadBranchEdits: threadBranch.count,
       capacityRetryStopEdits: capacityRetryStop.count,
+      errorPresentationEdits: errorPresentation.count,
       btwEdits: btw.count,
       paginatedHistoryEdits: paginatedHistory.count,
       submitOnlyThreadEdits: submitOnlyThread.count,
@@ -492,6 +495,7 @@ function getTransformRules() {
     "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
     "inject-content-fonts.cjs", "content-fonts.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
+    "inject-error-presentation.cjs", "../extensions/azrael-ex/src/errorPresentation.js",
     "inject-btw.cjs", "btw-conversation.cjs",
     "inject-session-links.cjs", "session-links.cjs",
     "inject-recent-chat-filter.cjs", "inject-paginated-history.cjs", "inject-submit-only-thread.cjs", "inject-immediate-stop.cjs", "immediate-stop.cjs",
@@ -508,6 +512,8 @@ function getTransformRules() {
 // Unlisted rules (including generic label transforms and helper dependencies)
 // remain shared. The namespace/cache implementations also invalidate every asset.
 const ASSET_RULE_PATHS = {
+  "inject-error-presentation.cjs": [ERROR_PRESENTATION_ASSET],
+  "../extensions/azrael-ex/src/errorPresentation.js": [ERROR_PRESENTATION_ASSET],
   "inject-student-design.cjs": DESIGN_ASSETS,
   "inject-session-links.cjs": SESSION_LINK_ASSETS,
   "session-links.cjs": ["out/extension.js"],

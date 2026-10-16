@@ -503,7 +503,7 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
     stage = 'headers';
     const response = adapter.fetchResponse ? await adapter.fetchResponse(built, { abortSignal: signal, executor: fetcher, returnRawErrors: true, stream: true }) : await fetcher(built.url, { method: built.method, headers: built.headers, body: built.body, signal, redirect: 'error' });
     tracker.headers?.(response);
-    if (!response.ok) fail(await providerHttpError(response, request.provider_id));
+    if (!response.ok) fail(await providerHttpError(response, request.provider_id, evidence => tracker.providerError?.(evidence)));
     progress?.observe({ kind: 'phase', phase: 'stream' });
     const onBytes = (bytes: number) => progress?.observe({ kind: 'bytes', bytes });
     const observed = request.provider_id === 'anthropic' ? observeAnthropic(response, opaque, onBytes, tracker, event => progress?.observe(event), toolDiagnostics)

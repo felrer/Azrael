@@ -25,7 +25,25 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
             })
         }
         Some("provider_rate_limit") => CodexErrorDetails::RateLimitExceeded(
-            "Provider request rate limit reached. Try again later.".to_string(),
+            "모델 호출 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_requests") => CodexErrorDetails::RateLimitExceeded(
+            "모델 요청 수 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_input_tokens") => CodexErrorDetails::RateLimitExceeded(
+            "모델 입력 토큰 처리량 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_output_tokens") => CodexErrorDetails::RateLimitExceeded(
+            "모델 출력 토큰 처리량 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_tokens") => CodexErrorDetails::RateLimitExceeded(
+            "모델 토큰 처리량 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_concurrency") => CodexErrorDetails::RateLimitExceeded(
+            "모델 동시 요청 수 제한에 도달했습니다.".to_string(),
+        ),
+        Some("provider_rate_limit_acceleration") => CodexErrorDetails::RateLimitExceeded(
+            "모델 요청 증가율 제한에 도달했습니다.".to_string(),
         ),
         // Keep these terminal: assigning a retryable transport variant would
         // change the recovery policy merely to improve the displayed message.
@@ -68,10 +86,7 @@ pub(super) fn helper_error(code: Option<&str>) -> CodexErr {
                 sanitize_code(code)
             ))
         }
-        _ => CodexErrorDetails::Unclassified(format!(
-            "native inference helper failed ({})",
-            sanitize_code(code)
-        )),
+        _ => CodexErrorDetails::Unclassified("정의되지 않은 오류".to_string()),
     };
     CodexErr::new(details)
 }
@@ -112,12 +127,55 @@ mod tests {
             assert!(message.ends_with(&format!("({code})")));
             assert!(!message.contains("미분류 오류"));
         }
-        let unknown = helper_error(Some("provider_connection_dns!"));
-        assert!(
-            unknown
-                .to_error_event(/*message_prefix*/ None)
-                .message
-                .starts_with("미분류 오류:")
-        );
+        for code in [
+            None,
+            Some("provider_http_429"),
+            Some("provider_error_undefined"),
+            Some("provider_connection_dns!"),
+            Some("SECRET"),
+        ] {
+            let unknown = helper_error(code);
+            assert_eq!(unknown.to_codex_protocol_error(), CodexErrorInfo::Other);
+            assert!(unknown.retry_delay(1).is_none());
+            assert_eq!(unknown.to_error_event(None).message, "정의되지 않은 오류");
+        }
+    }
+
+    #[test]
+    fn specific_rate_limits_preserve_category_and_retry_policy() {
+        for (code, message) in [
+            (
+                "provider_rate_limit_requests",
+                "모델 요청 수 제한에 도달했습니다.",
+            ),
+            (
+                "provider_rate_limit_input_tokens",
+                "모델 입력 토큰 처리량 제한에 도달했습니다.",
+            ),
+            (
+                "provider_rate_limit_output_tokens",
+                "모델 출력 토큰 처리량 제한에 도달했습니다.",
+            ),
+            (
+                "provider_rate_limit_tokens",
+                "모델 토큰 처리량 제한에 도달했습니다.",
+            ),
+            (
+                "provider_rate_limit_concurrency",
+                "모델 동시 요청 수 제한에 도달했습니다.",
+            ),
+            (
+                "provider_rate_limit_acceleration",
+                "모델 요청 증가율 제한에 도달했습니다.",
+            ),
+        ] {
+            let error = helper_error(Some(code));
+            assert_eq!(
+                error.to_codex_protocol_error(),
+                CodexErrorInfo::RateLimitExceeded
+            );
+            assert!(error.retry_delay(1).is_some());
+            assert!(error.to_error_event(None).message.ends_with(message));
+        }
     }
 }

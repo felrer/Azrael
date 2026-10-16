@@ -124,6 +124,31 @@ async fn helper_failures_preserve_precise_client_error_categories() {
         ("provider_usage_limit", CodexErrorInfo::UsageLimitExceeded),
         ("provider_rate_limit", CodexErrorInfo::RateLimitExceeded),
         ("provider_http_429", CodexErrorInfo::Other),
+        ("provider_error_undefined", CodexErrorInfo::Other),
+        (
+            "provider_rate_limit_requests",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
+        (
+            "provider_rate_limit_input_tokens",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
+        (
+            "provider_rate_limit_output_tokens",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
+        (
+            "provider_rate_limit_tokens",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
+        (
+            "provider_rate_limit_concurrency",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
+        (
+            "provider_rate_limit_acceleration",
+            CodexErrorInfo::RateLimitExceeded,
+        ),
         ("provider_failure", CodexErrorInfo::Other),
         ("provider_usage_limit!", CodexErrorInfo::Other),
         ("future_provider_failure", CodexErrorInfo::Other),
@@ -164,21 +189,21 @@ process.exitCode = 1;
         assert_eq!(error.to_codex_protocol_error(), expected);
         assert_eq!(
             error.retry_delay(1).is_some(),
-            code == "provider_rate_limit"
+            code.starts_with("provider_rate_limit")
         );
         let event = error.to_error_event(/*message_prefix*/ None);
-        assert_eq!(event.codex_error_info, Some(expected));
+        assert_eq!(event.codex_error_info, Some(expected.clone()));
         if messages.len() < 3 {
             messages.push(event.message);
-        } else {
-            assert!(event.message.starts_with("미분류 오류:"));
+        } else if expected == CodexErrorInfo::Other {
+            assert_eq!(event.message, "정의되지 않은 오류");
         }
         assert!(stream.next().await.is_none());
     }
     insta::assert_snapshot!(messages.join("\n"), @"
     You’ve hit your usage limit. Try again later.
-    rate limit exceeded: Provider request rate limit reached. Try again later.
-    미분류 오류: native inference helper failed (provider_http_429)
+    rate limit exceeded: 모델 호출 제한에 도달했습니다.
+    정의되지 않은 오류
     ");
 }
 

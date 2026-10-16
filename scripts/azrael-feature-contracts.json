@@ -2740,6 +2740,116 @@
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "engine.error-classification",
+      "area": "engine",
+      "owners": [
+        "providers/opencodex/inference-errors.ts",
+        "providers/opencodex/inference.ts",
+        "providers/devin/diagnostics.mjs",
+        "providers/devin/stall-diagnostics.mjs",
+        "engine/codex-rs/core/src/devin/native_runtime_errors.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_transport.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_context_diagnostics.rs",
+        "engine/codex-rs/protocol/src/error.rs",
+        "scripts/inspect-native-azrael-errors.py",
+        "scripts/check-error-classification.cjs",
+        "scripts/check-error-classification-native.cjs",
+        "engine/codex-rs/core/src/devin/native_runtime_tests.rs",
+        "engine/codex-rs/core/src/devin/native_runtime_transport_tests.rs",
+        "engine/codex-rs/protocol/src/error_tests.rs",
+        "providers/opencodex/tests/inference-errors.test.ts",
+        "providers/opencodex/tests/stall-diagnostics.test.ts",
+        "providers/devin/tests/diagnostics.test.mjs",
+        "providers/devin/tests/stall-diagnostics.test.mjs",
+        "scripts/check-claude-managed-inference.test.ts",
+        "scripts/tests/test_inspect_native_azrael_errors.py"
+      ],
+      "contract": "docs/architecture/managed-providers.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.error-classification.providers",
+          "executable": "node",
+          "args": [
+            "scripts/check-error-classification.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.error-classification.telemetry",
+          "executable": "node",
+          "args": [
+            "--test",
+            "providers/devin/tests/diagnostics.test.mjs",
+            "providers/devin/tests/stall-diagnostics.test.mjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.error-classification.export",
+          "executable": "python",
+          "args": [
+            "-B",
+            "scripts/tests/test_inspect_native_azrael_errors.py"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "engine.error-classification.native",
+          "executable": "node",
+          "args": [
+            "scripts/check-error-classification-native.cjs",
+            "{engineSourceRoot}"
+          ],
+          "level": "native"
+        }
+      ]
+    },
+    {
+      "id": "ui.error-presentation",
+      "area": "ui",
+      "owners": [
+        "scripts/inject-error-presentation.cjs",
+        "extensions/azrael-ex/src/errorPresentation.js",
+        "extensions/azrael-ex/src/chatSession.ts",
+        "extensions/azrael-ex/src/chatView.ts",
+        "scripts/azrael-recovery.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/check-error-presentation.cjs",
+        "scripts/verify-error-presentation-render.mjs",
+        "extensions/azrael-ex/tsconfig.json",
+        "extensions/azrael-ex/test/chatSession.test.ts",
+        "scripts/test-error-presentation.cjs",
+        "scripts/test-recovery-presentation.cjs",
+        "scripts/test-recovery-bridge.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "reportFields": [
+        "errorPresentationEdits"
+      ],
+      "checks": [
+        {
+          "id": "ui.error-presentation.host",
+          "executable": "node",
+          "args": [
+            "scripts/check-error-presentation.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.error-presentation.transform",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-error-presentation.cjs",
+            "scripts/test-recovery-presentation.cjs",
+            "scripts/test-recovery-bridge.cjs"
+          ],
+          "level": "source"
+        }
+      ]
     }
   ]
 }

@@ -192,7 +192,7 @@ pub enum CodexErrorDetails {
     Fatal(String),
     /// A failure whose cause has not been established. Do not imply a fatal
     /// engine defect or retry a provider operation without positive evidence.
-    #[error("미분류 오류: {0}")]
+    #[error("정의되지 않은 오류")]
     Unclassified(String),
     // -----------------------------------------------------------------
     // Automatic conversions for common external error types
@@ -519,8 +519,10 @@ impl CodexErr {
     pub fn to_error_event(&self, message_prefix: Option<String>) -> ErrorEvent {
         let error_message = self.to_string();
         let message: String = match message_prefix {
-            Some(prefix) => format!("{prefix}: {error_message}"),
-            None => error_message,
+            Some(prefix) if !matches!(&self.details, CodexErrorDetails::Unclassified(_)) => {
+                format!("{prefix}: {error_message}")
+            }
+            _ => error_message,
         };
         ErrorEvent {
             message,

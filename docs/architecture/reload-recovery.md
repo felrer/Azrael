@@ -88,6 +88,8 @@ Model-independent context capture, initial context/display-root preparation, wor
 
 The host admits an explicit continuation or empty-input play action after this exact native failure with category `other`, while retaining live-turn attachment, duplicate coalescing and unresolved-delivery guards. Error notifications alone never dispatch a new request. Diagnostics use `response_preparation_timeout`; engine tracing records stage, outcome, elapsed time and thread/turn references without payloads. World-state tracing identifies base instructions, subagent context, clock/environment context and the numeric extension contributor being prepared.
 
+Error presentation and telemetry categories follow the [evidence-based error contract](managed-providers.md#evidence-based-error-classification). Recovery actions preserve exact known host/native guards and structured categories; arbitrary incoming RPC messages and keyword matches do not establish a cause. Unmatched action failures display exactly `정의되지 않은 오류`. Delivery receipts, admission, state transitions and original native notifications retain their own contracts.
+
 Preservation belongs to `engine.recovery` and `ui.recovery` in the feature inventory. Deterministic stalled-preparation and continuation checks are described in [recovery operations](../ops/development.md#reload-recovery).
 
 ## Visible states and recovery actions
