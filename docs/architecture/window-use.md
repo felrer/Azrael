@@ -18,10 +18,10 @@ Window Use is the single product name for window observation, isolated app execu
 
 | Stage | Scope | Authority |
 | --- | --- | --- |
-| 1 — Observation | Discover and select an exact window; read status, capture and accessibility state | Window Use enabled; no per-app or per-window consent |
-| 2 — Isolated execution | Launch and control an approved app in a same-user Windows child session with independent input | Individual or all-app approval plus authority for the task's stage and execution context |
-| 3 — Current-window control | Control the exact selected window in the user's Windows session | Individual or all-app approval plus authority for the task's stage and execution context |
-| 4 — Whole-desktop control | Use the desktop backend across the user's current desktop | Individual or all-app approval plus authority for the task's desktop scope |
+| 1 — Observation | Discover and select an exact window; read status, capture and accessibility state | Master and stage 1 enabled; all-window observation enabled by default, or scoped observation permission when it is off |
+| 2 — Isolated execution | Launch and control an approved app in a same-user Windows child session with independent input | Master and stage 2 enabled; individual or all-app approval plus authority for the task's stage and execution context |
+| 3 — Current-window control | Control the exact selected window in the user's Windows session | Master and stage 3 enabled; individual or all-app approval plus authority for the task's stage and execution context |
+| 4 — Whole-desktop control | Use the desktop backend across the user's current desktop | Master and stage 4 enabled; individual or all-app approval plus authority for the task's desktop scope |
 
 Observation must not raise a window, change focus, restore a minimized window, resize it, launch an app, deliver input or write the clipboard. An occluded capture returns the target's own content. Selection identifies an observation target and does not approve mutations. Capturing the whole desktop is not stage-1 window observation. Native permission, target identity, protected-capture, freshness and request-authentication checks remain mandatory at every stage.
 
@@ -45,6 +45,12 @@ Stages are not a compulsory sequence. Prefer isolated execution when a new app i
 
 One Window Use enable setting gates every managed observation and control path. Disabling or revoking authority rejects subsequent steps, invalidates outstanding requests and prevents late replies from restoring authority across hosts. Existing app grants are preserved through settings conversion without treating discovery, observation or an ambiguous app name as consent. Existing disabled scopes must not be enabled implicitly during conversion.
 
+Each stage also has an independent enable setting. Disabling stage N disables admission to that stage, without automatically disabling lower or higher stages. Stage 1 gates standalone observation; an independently authorized stage 2, 3 or 4 may still perform the target observations required to execute and verify its own task. Those observations inherit that control context and cannot expose unrelated windows through the disabled observation stage. The master switch overrides every stage. A disabled stage cannot be entered through an all-app grant, a macro, a backend-specific tool or an elevation request.
+
+Stage 1 defaults to enabled with all-window observation allowed when Window Use is enabled in a new configuration. The user can turn off all-window observation while keeping stage 1 enabled. This setting controls observation only and does not enable all-app control in stages 2–4. With it disabled, unrestricted window content is unavailable and scoped observation permission is required; the app-versus-window grant unit is resolved in the work plan. Discovery exposes only the metadata needed to request a target and must not become an unrestricted content-read bypass. Switching off all-window observation invalidates observations admitted only by that setting; independent scoped authority remains effective where applicable.
+
+Disabling an active stage stops further input and invalidates in-flight requests and references for that stage. Outstanding approvals cannot re-enable it. Stop model execution without force-closing user apps or discarding unsaved data; teardown remains bound to owned sessions and processes. Re-enabling a stage does not replay input or automatically resume a cancelled task. Capability responses and UI distinguish a disabled stage from a backend that is unavailable on the current platform. Settings retain each stage's value while the master is off, and migration preserves existing disabled scopes.
+
 Recoverable observation failures retain the target and require a fresh observation. Temporary user interaction can pause further input for state revalidation; an explicit user stop remains terminal until user resume. Ordinary Escape must not become an accidental stop merely because the app activated. A dedicated stop control and an intentional shortcut provide explicit interruption. Unknown mutation outcomes never authorize automatic replay or elevation. Already-delivered actions can still complete.
 
 ## Efficient observation and retrieval
@@ -65,7 +71,7 @@ Retained results and change tracking are bounded by target and execution context
 
 ## Stage guidance and skill lifecycle
 
-Status: `draft` — the short skill text and staged guidance require user review before installation or retirement of existing skill entries.
+Status: `target` — the short skill and staged-guidance approach is selected; implementation, installed discovery and retirement acceptance remain pending.
 
 The final model-facing skill entry is Window Use. It explains discovery, choosing the required stage, compact observation, requesting additional authority, obeying stop/unknown outcomes and the Chrome route. It links control to the managed MCP path and does not preload every backend's API guide. Computer Use/Sky functionality remains the stage-4 implementation; removing a redundant skill entry does not remove its runtime, operations, recovery or provenance requirements.
 
