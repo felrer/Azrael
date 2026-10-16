@@ -49,7 +49,7 @@ Recoverable observation failures retain the target and require a fresh observati
 
 ## Efficient observation and retrieval
 
-Status: `draft` — proposed observation contract awaiting review with the skill and work plan. Existing capture and inspect behavior retains its current acceptance scope.
+Status: `target` — summary, find, read and changes are the selected structured-observation design. Implementation and performance acceptance remain pending; numerical budgets are reviewed in the work plan. Existing capture and inspect behavior retains its current acceptance scope.
 
 Observation has separate image and structured-data paths. Image capture defaults to a fresh target image without accessibility-tree enumeration. Structured observation defaults to a bounded summary; it does not return the full raw tree or complete document values. Either path carries its execution context, live target identity, observation identity and explicit coverage. An image observation without element references cannot authorize a semantic element action; an element query does not establish a captured frame for coordinate input.
 
@@ -68,6 +68,8 @@ Retained results and change tracking are bounded by target and execution context
 Status: `draft` — the short skill text and staged guidance require user review before installation or retirement of existing skill entries.
 
 The final model-facing skill entry is Window Use. It explains discovery, choosing the required stage, compact observation, requesting additional authority, obeying stop/unknown outcomes and the Chrome route. It links control to the managed MCP path and does not preload every backend's API guide. Computer Use/Sky functionality remains the stage-4 implementation; removing a redundant skill entry does not remove its runtime, operations, recovery or provenance requirements.
+
+Action restrictions, untrusted-content boundaries and task-specific confirmation requirements are common to all applicable control stages. App approval and stage authority do not replace confirmation or user handoff required for a particular action. Provide these common rules before the first mutation and retain the skill's short reminder; stage-specific guidance supplies backend mechanics rather than weakening common rules. Host-enforceable checks remain in the host, while judgment requiring user intent remains explicit model guidance. Relocating a rule does not make it enforceable by the host automatically.
 
 The authenticated host provides a small context and capability response for the current conversation. It includes the stage, execution location, supported operations, current target and any missing prerequisite or authority. Entering a granted stage provides only that stage's necessary usage guide with a guide version. Repeated unchanged guides, blanket tree output and identical error-policy paragraphs are omitted from routine tool results and descriptions. An unresolved prerequisite returns its reason and available authorized next actions; documentation never grants authority.
 
