@@ -1,8 +1,8 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
-import { resolve } from 'node:path';
+import { resolve, parse } from 'node:path';
 import { spawn } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
+import { readFile, mkdir } from 'node:fs/promises';
 import { waitForExit } from './lib/azrael-rpc-check.mjs';
 import { parseVersion, checkSocketPath, startSharedProvider, resolveBridgePath, resolveCodeHostPath, codeModeChildSource, validateOwnedDaemonReceipt, startupRemaining, RPC_TIMEOUT_MS, windowAccountStateFile, resumePendingTurn, generatedGitAttributeRepair, validateAccountStateProgress, runCheck, diagnosticRootPids, captureOwnedProcessTree } from './check-shared-engine.mjs';
 
@@ -12,6 +12,7 @@ test('Windows PowerShell process-tree probe handles a JSON PID array and records
   await new Promise((done, reject) => { child.once('spawn', done); child.once('error', reject); });
   const output = resolve(import.meta.dirname, '..', 'artifacts', 'logs', 'BJ-01-shared-engine');
   try {
+    await mkdir(output, { recursive: true });
     const summary = await captureOwnedProcessTree(output, 'source-guard', [child.pid, 0xffffffff]);
     assert(summary.processCount >= 1);
     const snapshot = JSON.parse(await readFile(resolve(output, 'process-tree-source-guard.json'), 'utf8'));
@@ -119,7 +120,7 @@ test('native version parser accepts branded output and refuses arbitrary output'
   }
 });
 test('Windows socket preflight rejects an overlength native AF_UNIX path', () => {
-  const short = resolve('bj-home');
+  const short = resolve(parse(process.cwd()).root, 'bj-home');
   assert(checkSocketPath(short, 'win32').endsWith('app-server-control.sock'));
   assert.throws(() => checkSocketPath(resolve('x'.repeat(110)), 'win32'), /AF_UNIX/);
   assert.throws(() => checkSocketPath('relative-home', 'win32'), /absolute_fixture_home/);
@@ -134,14 +135,14 @@ test('real bridge selects the engine bundle sibling and requires an absolute exp
   assert.throws(() => resolveBridgePath('relative-engine.exe'), /absolute_frozen_engine/);
 });
 test('early-startup cleanup accepts only matching scoped daemon receipts and a PID start identity', () => {
-  const home = resolve('bj-home');
+  const home = resolve(parse(process.cwd()).root, 'bj-home');
   const expected = { home, engineIdentity: 'a'.repeat(64), engineVersion: '0.162.0' };
   const receipt = { engineIdentity: expected.engineIdentity, engineVersion: expected.engineVersion,
     socketPath: checkSocketPath(home), nativeArgv: ['app-server', '--azrael-shared-windows', '--listen', `unix://${checkSocketPath(home)}`] };
   const pid = { pid: 123, processStartTime: '134364988564380375' };
   assert.equal(validateOwnedDaemonReceipt(receipt, pid, expected), 123);
   for (const override of [{ engineIdentity: 'b'.repeat(64) }, { engineVersion: 'other' },
-    { socketPath: checkSocketPath(resolve('another-home')) }, { nativeArgv: [] }]) {
+    { socketPath: checkSocketPath(resolve(parse(process.cwd()).root, 'another-home')) }, { nativeArgv: [] }]) {
     assert.throws(() => validateOwnedDaemonReceipt({ ...receipt, ...override }, pid, expected));
   }
   assert.throws(() => validateOwnedDaemonReceipt(receipt, { ...pid, pid: -1 }, expected));

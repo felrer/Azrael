@@ -330,7 +330,12 @@ class InstructionStore {
     const args={codexHome:stage,configPath:path.join(stage,"config.toml")};
     if (typeof this.engine === "function") { if (await this.engine(args) === false) throw new Error("Native instruction configuration validation failed"); }
     else if (this.engine && typeof this.engine.validateConfig === "function") { if (await this.engine.validateConfig(args) === false) throw new Error("Native instruction configuration validation failed"); }
-    else if (typeof this.engine === "string") await new Promise((resolve,reject)=>execFile(this.engine,["features","list"],{env:{...process.env,CODEX_HOME:stage},timeout:LIMITS.timeout,maxBuffer:1024*1024},(error)=>error ? reject(new Error(`Native instruction configuration validation failed: ${error.message}`)) : resolve()));
+    else if (typeof this.engine === "string") await new Promise((resolve,reject)=>{
+      const env={...process.env,CODEX_HOME:stage,CODEX_INTERNAL_APP_SERVER_REMOTE_CONTROL_DISABLED:"1"};
+      delete env.AZRAEL_EX_WINDOW_CONTEXT; delete env.AZRAEL_EX_MANAGEMENT_SOCKET;
+      const child=execFile(this.engine,["app-server","--strict-config"],{env,windowsHide:true,timeout:LIMITS.timeout,maxBuffer:1024*1024},(error)=>error ? reject(new Error(`Native instruction configuration validation failed: ${error.message}`)) : resolve());
+      child.stdin.end();
+    });
     else throw new Error("Native engine required to validate instruction configuration");
   }
   async apply(v,ids) { return this.locked(()=>this.applyLocked(v,ids)); }

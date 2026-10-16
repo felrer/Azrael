@@ -2,52 +2,56 @@
 
 - At build start, freeze the selected source, scripts, lockfiles and other inputs, including selected uncommitted changes. Use that immutable snapshot through packaging, verification and installation. Exclude changes added afterward until the next build; do not refresh or restart a running build to follow concurrent checkout edits. A correction to a frozen input requires a new build identity.
 
-- 사용자가 명시적으로 앱 버전 변경을 지시하지 않으면 현재 앱 버전을 유지하고, 검증한 같은 버전의 새 빌드로 기존 설치를 대체한다. 빌드·수정·재설치 요청 자체는 버전 증가 권한이 아니다. 빌드 입력과 산출물 식별값은 새로 부여하되 앱 버전과 구분한다. 실행 중인 런타임과 직전 롤백본을 보존하고 사용자 데이터는 유지한다. 원격 게시에는 해당 서비스의 별도 권한과 불변성 규칙을 적용한다.
+- Keep the current app version unless the user explicitly instructs a version change, and replace the existing installation with a verified new build of that same version. A request to build, modify or reinstall does not itself authorize a version increment. Assign new identifiers to build inputs and artifacts, keeping them distinct from the app version. Preserve the running runtime, the immediately preceding rollback copy and user data. Apply the service's separate authorization and immutability rules to remote publishing.
 
-## 빌드 오류 수정의 범위와 변경 보고
+<a id="빌드-오류-수정의-범위와-변경-보고"></a>
+## Scope of Build Error Fixes and Change Reporting
 
-- 빌드·패키징·설치 오류를 고치기 전에 실패 원인과 수정 대상의 소유 경계를 확인한다. 빌드 성공을 위해 기존 엔진 정책, 기능, 권한, 설정, 데이터 처리, UI 디자인이나 기존 패치를 임의로 제거·완화·대체하지 않는다. 합의된 동작을 바꾸는 선택은 기존 승인 범위를 확인하고, 범위를 벗어나면 적용 전에 사용자에게 확인받는다. 완료 보고는 사전 확인을 대신하지 않는다.
-- 특정 플랫폼 빌드의 오류 제거가 목적이면 해당 OS·CPU·ABI·빌드 설정 또는 플랫폼 어댑터 경계에 수정을 한정하고, 다른 플랫폼의 기존 엔진·기능·UI 동작을 보존한다. 공통 코드 수정이 필요하면 다른 플랫폼의 동작이 유지되는 근거와 관련 회귀 검증을 확보한다. 다른 플랫폼의 동작 변경이 불가피하면 빌드 오류 수정에 포함해 임의로 적용하지 않고, 변경 전 영향과 대안을 설명해 별도 사용자 지시를 받은 뒤 진행한다. 미검증을 무영향의 근거로 삼지 않는다.
-- 빌드 과정의 수정은 같은 작업 기록에 목적, 원인, 변경 파일·설정과 적용 플랫폼을 남긴다. 작업 완료 후 사용자에게 엔진 시스템·기능·권한·데이터·UI 디자인의 각 변경을 변경 전 → 변경 후로 설명하고, 수정 이유, 기존 패치의 제거·대체 여부, 다른 플랫폼 영향, 실제 검증 환경과 미검증 범위를 보고한다. 의도하지 않은 영향이나 원복·보완 결과도 포함한다. 컴파일·패키징만 바뀐 경우에는 제품 동작 변경이 없었음을 밝히고, 빌드 성공만으로 이를 단정하지 않는다.
+- Before fixing a build, packaging or installation error, identify its cause and the ownership boundary of the proposed fix. Do not arbitrarily remove, relax or replace existing engine policies, features, permissions, settings, data handling, UI design or existing patches to make a build succeed. For choices that change agreed behavior, check existing authorization and obtain user confirmation before applying changes outside that scope. A completion report does not replace prior confirmation.
+- When the objective is to resolve an error in a specific platform build, limit the fix to that OS, CPU, ABI, build configuration or platform adapter boundary, preserving existing engine, feature and UI behavior on other platforms. If common code must change, obtain evidence that other platforms retain their behavior and perform relevant regression verification. If behavior changes on other platforms are unavoidable, explain the impact and alternatives before the change and obtain separate user instructions; do not arbitrarily include them in a build error fix. Lack of verification is not evidence of no impact.
+- Record the purpose, cause, changed files and settings, and applicable platforms of build-related fixes in the same work record. At completion, explain each change to engine systems, features, permissions, data and UI design as before → after, and report its reason, whether existing patches were removed or replaced, effects on other platforms, actual verification environments and unverified scope. Include unintended effects and the results of reversions or corrective work. If only compilation or packaging changed, state that product behavior did not change, without inferring this solely from build success.
 
-## 후속 소비자와 산출물 재사용
+<a id="후속-소비자와-산출물-재사용"></a>
+## Downstream Consumers and Artifact Reuse
 
-- 비용이 큰 실행 전에 후속 작업이 요구하는 입력·설정·환경·경로·검증 조건을 확인한다.
-  소스가 같아도 OS·CPU·ABI, debug/release 설정, 도구·의존성, 실행 환경과 검증 범위가 다르면
-  그대로 사용할 수 있다고 판단하지 않는다. 공유 캐시·경로 변경의 잠금과 재컴파일 영향도 확인한다.
-- 사전 실행은 가능한 경우 최종 작업에서 재사용할 수 있게 구성하되 재사용을 의무화하지 않는다.
-  재사용 준비 때문에 작은 검사를 무겁게 만들지 않으며, 추가 실행 비용과 조기 오류 발견의 이익을 비교한다.
-- 입력 수정 시 의존 관계에 따라 영향받은 산출물과 후속 검사만 다시 실행한다. 영향받지 않은 결과도
-  입력·환경·출처·검증 범위의 일치와 해당 프로젝트의 재사용 조건을 확인한 뒤 사용한다.
-  최종 산출물 검증과 패키지 동일성 확인은 유지하며, 준비·진단 결과를 최종 제품 통과 근거로 확대하지 않는다.
-- 후속 작업에 전달하는 산출물은 사용 중 변경되지 않는 상태와 고정된 식별 정보를 갖춰야 한다.
-  파일 출력 중인 디렉터리를 완료 산출물로 넘기지 않는다. 후속 작업의 필수 조건과 남은 검사를 명시한다.
+- Before expensive execution, check the inputs, settings, environments, paths and verification conditions required by downstream work.
+  Identical source does not establish reuse compatibility when OS, CPU, ABI, debug/release settings, tools, dependencies,
+  runtime environments or verification scope differ. Also check locking and recompilation effects of shared cache or path changes.
+- Where practical, arrange preliminary runs so the final work can reuse them, without making reuse mandatory.
+  Do not make a small check expensive to prepare for reuse; weigh additional execution cost against early error detection.
+- After input changes, rerun only affected artifacts and downstream checks according to their dependencies. Before using unaffected results,
+  confirm matching inputs, environments, provenance and verification scope, and the project's reuse conditions.
+  Retain final artifact verification and package identity checks; do not extend preparation or diagnostic results into evidence that the final product passed.
+- Artifacts handed to downstream work must remain unchanged while in use and have fixed identifying information.
+  Do not hand off a directory still receiving output as a completed artifact. State downstream prerequisites and remaining checks.
 
-## 테스트 준비와 제품 빌드의 구분
+<a id="테스트-준비와-제품-빌드의-구분"></a>
+## Distinguishing Test Preparation from Product Builds
 
-- 테스트 실행 계획·결과와 제품 빌드 실행 계획·결과를 구분한다. 테스트에 컴파일이 필요하면 대상 입력·설정과
-  실제 명령·종료 코드를 준비 단계로 기록한다. 테스트 준비 컴파일이나 일부 검사의 성공은 전체 제품 빌드 성공이 아니다.
-- 목적과 입력·준비 조건이 맞는 테스트를 묶고, 이미 준비한 산출물은 위 재사용 조건을 확인해 사용한다.
-  수정 후에는 영향받은 준비·검사를 다시 실행하며, 실패 수정과 재검증을 마친 뒤 모델이 일회성 검증물의 삭제·보류를 결정한다.
-  이 원칙은 기존 프로젝트 명령·도구로도 적용하며 특정 관리 프로그램이나 상주 스케줄러를 요구하지 않는다.
+- Keep test execution plans and results separate from product build execution plans and results. If tests require compilation, record the target inputs,
+  settings, actual commands and exit codes as preparation. Successful test preparation compilation or partial checks do not mean the complete product build succeeded.
+- Group tests with matching purposes, inputs and preparation conditions, and reuse prepared artifacts after checking the reuse conditions above.
+  After changes, rerun affected preparation and checks. After fixing failures and completing revalidation, the model decides whether to delete or retain one-off verification artifacts.
+  Apply this principle through existing project commands and tools as well; it does not require a particular management program or resident scheduler.
 
-## 산출물·캐시·백업의 보호와 정리
+<a id="산출물캐시백업의-보호와-정리"></a>
+## Protection and Cleanup of Artifacts, Caches and Backups
 
-- 생성 경로·단일 소유 묶음·활성 참조를 실행 전에 등록하고 실패·취소·종료 미확인 상태까지 갱신한다.
-  작업/run·버전·공유 경로와 기존 프로젝트 이관은 [산출물 수명주기](artifact-lifecycle.md), 프로젝트 수명주기 Playbook을 따른다.
-  원시 로그는 생성 run에 두고 작업 제거 전 필요한 릴리스 검증은 출처·내용 identity와 함께 버전 범위에 보존한다.
-- 모델의 삭제·보류 판단은 묶음 전체를 대상으로 한다. 하나라도 보호되거나 불확실한 구성원이 있으면 해당 묶음을 보호하며,
-  공유 캐시의 활성·마지막 필수 소비자도 확인한다. 부분 삭제에서는 미시도 근거를 보존하고 실제 잔여와 참조를 확인한 뒤 재시도한다.
-- 작업 중 만든 백업도 산출물·캐시와 함께 관리하되 원본·사용자 파일과 구분한다. 항목별 소유권, 관리 루트,
-  생성 근거, 입력·출처와 현재 소비자를 확인한다. 이름·나이·검증 통과만으로 삭제 가능성을 추정하지 않는다.
-- 실행 중인 작업, 고정 입력, 준비 후 인계 대기 산출물, 활성 캐시와 유효한 복구본을 보호한다. 같은 내용의 사본도
-  다른 활성 소비자가 있으면 보존한다. 확인할 수 없는 소유권·사용·복구 상태는 불확실성으로 남겨 보류한다.
-- 기존 권한 안에서 모델이 묶음별 삭제 또는 보류를 선택한다. 보류에는 이유와 재검토 조건을 남기며,
-  실행·기간 만료만으로 자동 삭제하거나 매번 사용자 승인을 다시 요구하지 않는다. 저장소 전체 정리로 범위를 넓히지 않는다.
-- 삭제 적용 직전에 실제 경로, 링크와 관리 루트 경계, 보호·실행·복구 참조를 다시 확인한다. 모델이 삭제를 선택했고
-  소유권·생성 근거·원본과의 구분이 확인된 생성물에 한해, 필요한 경우 ReadOnly·Hidden 속성을 해제한 뒤 일반 삭제한다.
-  원본·사용자 파일·확인되지 않은 항목의 속성은 변경하지 않으며, System 속성·ACL·소유자 변경과 강제 삭제는 허용하지 않는다.
-  실패를 다른 셸이나 API로 우회하지 않는다.
-- 변경한 경로와 속성의 전후 상태, 일반 삭제의 실제 결과·오류와 잔여 경로를 기록한다. 재확인·속성 변경·삭제가 실패하면
-  보류 또는 실패로 남기고, 재시도 시 현재 상태를 다시 확인한다. 정리 시도 완료를 삭제 완료로 표시하지 않으며,
-  빌드·검증 결과, 모델의 정리 결정과 실제 정리 결과를 각각 보고한다.
+- Before execution, register generated paths, bundles with a single owner and active references, and update them through failures, cancellations and unconfirmed termination.
+  Follow [Artifact lifecycle](artifact-lifecycle.md) and the project lifecycle playbook for task/run, version and shared paths, and migration of existing projects.
+  Keep raw logs in their generating run; before removing a task, retain required release verification at version scope with provenance and content identity.
+- The model's decision to delete or retain applies to the entire bundle. Protect a bundle if any member is protected or uncertain,
+  and check active and last required consumers of shared caches. After partial deletion, retain the basis for items not attempted and check actual remnants and references before retrying.
+- Manage backups created during work alongside artifacts and caches, while distinguishing them from originals and user files. Check each item's ownership, management root,
+  creation basis, inputs, provenance and current consumers. Do not infer eligibility for deletion from names, age or successful verification alone.
+- Protect running work, frozen inputs, prepared artifacts awaiting handoff, active caches and valid recovery copies. Preserve copies with identical content
+  when another active consumer uses them. Leave unconfirmed ownership, usage or recovery status as uncertainty and defer deletion.
+- Within existing authorization, the model chooses deletion or retention for each bundle. For retention, record the reason and review conditions;
+  do not delete automatically merely because execution occurred or a period expired, or require renewed user approval every time. Do not expand the scope to repository-wide cleanup.
+- Immediately before deletion, recheck actual paths, links, management-root boundaries and protection, execution and recovery references. Only for generated items the model has chosen to delete,
+  whose ownership, creation basis and distinction from originals are confirmed, clear ReadOnly or Hidden attributes if needed, then delete normally.
+  Do not change attributes of originals, user files or unconfirmed items. Changing System attributes, ACLs or owners and force deletion are prohibited.
+  Do not bypass failures through another shell or API.
+- Record paths changed, attribute states before and after, actual normal-deletion results and errors, and remaining paths. If rechecking, attribute changes or deletion fail,
+  leave the item deferred or failed and recheck current state before retrying. Do not mark a completed cleanup attempt as completed deletion;
+  report build and verification results, the model's cleanup decisions and actual cleanup outcomes separately.

@@ -130,7 +130,7 @@ A parked root holds no ongoing inference. Resuming makes a new request from reta
 
 ## Preservation mapping
 
-Registered features: `ui.deferred-turn`, `ui.work-segment-folding`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+Registered features: `ui.deferred-turn`, `ui.work-segment-folding`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately. The UI test transform fixture reuses complete transformed output through the guarded asset cache; the original behavioral assertions remain mandatory. Its registered guard checks tool, environment, exact path context and cache-owner changes, and runs once when shared by selected features.
 
 ## Parent decision requests
 

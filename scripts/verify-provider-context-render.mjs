@@ -1,5 +1,5 @@
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn,spawnSync} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir,access} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
@@ -13,6 +13,9 @@ const assets=join(root,"artifacts/upstream-ui/26.1007.21434/webview/assets");
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const {renderSettings,savePolicy,compactionPreview}=require('./inject-provider-context.cjs');
+const lifecycleId='provider-context-render-'+fixture.slice(root.length+1).replace(/[^a-zA-Z0-9_-]/g,'-');
+function recordFixture(state){const result=spawnSync(process.execPath,[join(root,'scripts/artifact-lifecycle.cjs'),'record','--project-root',root,'--id',lifecycleId,'--kind','run','--owner','provider-context-render','--state',state,'--membership-complete','true','--member','fixture='+fixture],{windowsHide:true,encoding:'utf8'});assert.equal(result.status,0,'fixture lifecycle registration: '+result.stderr)}
+recordFixture('pending');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const adapterSource=`import {nLt,$At,XAt} from '/assets/app-initial-97d3534ad35f.js';
 import {W3 as Card,G3,Q3 as Row,t6} from '/assets/app-initial-c014f9ee4429.js';
@@ -93,6 +96,7 @@ finally{
  if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,10000);chrome.once('exit',finish)});
  const allowed=join(root,'artifacts/verification')+sep;
  if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){
+  recordFixture('complete');
   await writeFile(join(fixture,'check-result.json'),JSON.stringify({passed:summary.outcome==='passed',scope:summary.scope,checks:summary.checks})+'\n');
   const cleanup=async apply=>{const report=join(logs,apply?'cleanup-result.json':'cleanup-preview.json');const proc=spawn('pwsh',['-NoProfile','-Command','& $env:AZRAEL_CARD_CLEANUP_SCRIPT -ProjectRoot $env:AZRAEL_CARD_PROJECT -FixtureRoot $env:AZRAEL_CARD_FIXTURE -IncludeDiagnosedFixtures '+(apply?'-Apply ':'')+'-ReportPath $env:AZRAEL_CARD_REPORT'],{windowsHide:true,env:{...process.env,AZRAEL_CARD_CLEANUP_SCRIPT:join(root,'scripts/clean-verification-artifacts.ps1'),AZRAEL_CARD_PROJECT:root,AZRAEL_CARD_FIXTURE:fixture,AZRAEL_CARD_REPORT:report},stdio:['ignore','pipe','pipe']});let output='';proc.stdout.on('data',c=>output+=c);proc.stderr.on('data',c=>output+=c);const exit=await new Promise((r,j)=>{proc.once('error',j);proc.once('exit',r)});await writeFile(join(logs,apply?'cleanup.log':'cleanup-preview.log'),output);assert.equal(exit,0,'cleanup script exit');return JSON.parse(await readFile(report,'utf8'))};
   try { const preview=await cleanup(false);assert.equal(preview.candidates[0]?.status,'selected','owned fixture selected by guarded cleanup');const result=await cleanup(true);assert.equal(result.candidates[0]?.status,'deleted','owned fixture deleted');assert.equal(await access(fixture).then(()=>true,()=>false),false,'fixture/profile absent');summary.cleanup='Owned browser exited; project guarded cleanup removed fixture/profile'; }

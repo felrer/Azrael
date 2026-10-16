@@ -4,6 +4,11 @@ import { compileRequest } from '../providers/devin/mapping.mjs';
 let raw = '';
 for await (const chunk of process.stdin) raw += chunk;
 const [, request] = raw.trim().split('\n').map(JSON.parse);
+if (request.type === 'estimate') {
+  process.stdout.write(JSON.stringify({ protocol_version: 1, request_id: request.request_id,
+    seq: 0, type: 'error', code: 'unsupported_input_budget' }) + '\n');
+  process.exit(0);
+}
 // Validate the actual native registry/history through the production mapper.
 compileRequest(request);
 let seq = 0;

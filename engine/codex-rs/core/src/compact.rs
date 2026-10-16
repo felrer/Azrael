@@ -303,7 +303,7 @@ async fn run_compact_task_inner_impl(
                 provenance: None,
             }
         } else {
-            sess.get_harness_base_instructions(&profile, &turn_context.config).await
+            sess.get_harness_base_instructions(&profile, &turn_context.config, &turn_context.model_info().slug).await
         };
         let prompt = Prompt {
             input: turn_input,

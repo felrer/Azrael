@@ -13,6 +13,8 @@ pub(crate) struct ContentCache {
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct FileVersion {
     identity: [u64; 3],
+    #[cfg(windows)]
+    usn: i64,
     changed: (i64, i64),
     modified: (i64, i64),
     length: u64,
@@ -42,6 +44,43 @@ fn file_version(file: &fs::File) -> Option<FileVersion> {
         FILE_BASIC_INFO, FILE_ID_INFO, FILE_STANDARD_INFO, FileBasicInfo, FileIdInfo,
         FileStandardInfo, GetFileInformationByHandleEx,
     };
+    use windows_sys::Win32::System::IO::DeviceIoControl;
+    use windows_sys::Win32::System::Ioctl::FSCTL_READ_FILE_USN_DATA;
+    // NTFS timestamps can collide even after a closed writer restores mtime.
+    // Bind the last journaled change as well; unsupported/unavailable journals
+    // select full hashing rather than timestamp-only cache reuse.
+    let mut journal = [0u8; 4096];
+    let mut returned = 0u32;
+    if unsafe {
+        DeviceIoControl(
+            file.as_raw_handle(),
+            FSCTL_READ_FILE_USN_DATA,
+            std::ptr::null(),
+            0,
+            journal.as_mut_ptr().cast(),
+            journal.len() as u32,
+            &mut returned,
+            std::ptr::null_mut(),
+        )
+    } == 0
+    {
+        return None;
+    }
+    let returned = usize::try_from(returned).ok()?;
+    let record_length = u32::from_le_bytes(journal[..4].try_into().ok()?) as usize;
+    let major = u16::from_le_bytes(journal[4..6].try_into().ok()?);
+    let offset = match major {
+        2 => 24,
+        3 => 40,
+        _ => return None,
+    };
+    if returned > journal.len() || record_length > returned || record_length < offset + 8 {
+        return None;
+    }
+    let usn = i64::from_le_bytes(journal[offset..offset + 8].try_into().ok()?);
+    if usn <= 0 {
+        return None;
+    }
     let mut basic = FILE_BASIC_INFO::default();
     let mut id = FILE_ID_INFO::default();
     let mut standard = FILE_STANDARD_INFO::default();
@@ -87,6 +126,7 @@ fn file_version(file: &fs::File) -> Option<FileVersion> {
             u64::from_le_bytes(id.FileId.Identifier[..8].try_into().ok()?),
             u64::from_le_bytes(id.FileId.Identifier[8..].try_into().ok()?),
         ],
+        usn,
         changed: (basic.ChangeTime, 0),
         modified: (basic.LastWriteTime, 0),
         length: standard.EndOfFile as u64,
@@ -497,6 +537,32 @@ mod content_cache_tests {
                     Sha256::digest(vec![b'b'; CONTENT_CACHE_MIN_BYTES as usize])
                 )
             );
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn restored_mtime_rewrite_has_distinct_usn() {
+        let root = tempfile::tempdir().unwrap();
+        let path = root.path().join("file");
+        for _ in 0..16 {
+            fs::write(&path, vec![b'a'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
+            let reader = fs::File::open(&path).unwrap();
+            let Some(before) = file_version(&reader) else {
+                // The file system cannot prove a journaled version: no cache.
+                return;
+            };
+            let modified = reader.metadata().unwrap().modified().unwrap();
+            fs::write(&path, vec![b'b'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
+            fs::File::options()
+                .write(true)
+                .open(&path)
+                .unwrap()
+                .set_times(fs::FileTimes::new().set_modified(modified))
+                .unwrap();
+            let after = file_version(&reader).unwrap();
+            assert_ne!(before.usn, after.usn);
+            assert_ne!(before, after);
         }
     }
 

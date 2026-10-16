@@ -67,6 +67,6 @@ Use the smallest applicable existing checks; documentation adoption does not req
 | Shared cache | Matching content/tool/environment identity, one owner, explicit consumers and last-consumer protection |
 | Mixed user/generated files | User/source, links and uncertain legacy items remain protected; no filename-based classification or broad parent deletion |
 | Failure or active work | Failed/canceled/unconfirmed outputs remain attributable; active references block cleanup; partial results and recovery/rerun evidence are truthful |
+| Test-only or existing user profile | Generated bundle and processes recorded before launch; completed use confirms owned-process exit and actual absence, or reports unresolved state; existing user additions removed and modifications restored without deleting the profile |
 
 Retain only necessary verification in version scope before task cleanup. Record deferred groups, unknown legacy paths, failed cleanup and revisit conditions in the current work record. Keep repeatable supported commands in their operational owner and link them here only when they exist.
-| Test-only or existing user profile | Generated bundle and processes recorded before launch; completed use confirms owned-process exit and actual absence, or reports unresolved state; existing user additions removed and modifications restored without deleting the profile |

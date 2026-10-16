@@ -12,6 +12,8 @@ The [shared-engine final-window shutdown](azrael-runtime.md#공용-실행기와-
 
 The integrated host owns recovery presentation and admission for resume requests. The native engine remains the authority for live thread/turn state, thread writer ownership and interruption. Its existing `thread/read` and `thread/resume` normalization marks historical in-progress turns interrupted when no live turn exists; the host does not rewrite rollout files or invent engine state.
 
+Native thread metadata reads share the existing per-thread writer lock with durable rollout writes and SQLite projection. A read waits for an initial write to finish before interpreting an exposed rollout path. An existing empty or malformed rollout without an active write still fails through the strict metadata parser. This common implementation is covered by the thread-store FIFO regression test and the provider-context native check; changed-engine and installed-host acceptance remain separate.
+
 ### Interrupted tool history and task failures
 
 Status: `partial` — implemented and verified by focused Windows x64 native tests and isolated two-turn resume with an interrupted rollout. Installed-host acceptance and other platforms remain unverified.

@@ -36,9 +36,14 @@ if (process.argv.includes('--catalog')) {
     assert.equal(first.type, 'init');
     assert.equal(first.protocol_version, 1);
     assert.equal(first.request_id, request.request_id);
-    trace({ kind: 'inference', scenario: control.scenario, account: control.account, request });
+    trace({ kind: request.type === 'estimate' ? 'estimate' : 'inference', scenario: control.scenario, account: control.account, request });
     let seq = 0;
     const emit = frame => process.stdout.write(JSON.stringify({ protocol_version: 1, request_id: request.request_id, seq: seq++, ...frame }) + '\n');
+    if (request.type === 'estimate') {
+      emit({ type: 'error', code: 'unsupported_input_budget' });
+      lines.close();
+      process.exit(0);
+    }
     const done = item => emit({ type: 'item_done', item });
     emit({ type: 'created' });
     const output = request.input.find(item => item.type === 'function_call_output' && item.call_id === 'effect-once');

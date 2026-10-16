@@ -25,7 +25,9 @@ function main(argv) {
   // Keep Git's initial config path below Windows' pre-config path limit.
   // The full UUID still identifies the run; removing separators is lossless.
   const run = path.join(root, "artifacts/tasks/lifecycle-checks/runs", id.replaceAll("-", ""));
-  const selected = commands(argv[1], process.platform, path.join(run, "temporary"));
+  // Child deploy checks own registered sibling runs. Nesting another project
+  // under this run can make Git discover the parent instead of its fixture.
+  const selected = commands(argv[1], process.platform, root);
   const record = {id:`run:lifecycle-check:${id}`,kind:"run",owner:"artifact-lifecycle-checks",members:[{path:run,role:"run"}]};
   lifecycle.recordLifecycle(root,{...record,state:"pending",membership_complete:false});
   fs.mkdirSync(path.join(run,"logs"),{recursive:true});

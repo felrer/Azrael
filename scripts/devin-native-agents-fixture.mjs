@@ -5,6 +5,12 @@ import { compileRequest } from '../providers/devin/mapping.mjs';
 let raw = '';
 for await (const chunk of process.stdin) raw += chunk;
 const lines = raw.trim().split(/\r?\n/).filter(Boolean).map(JSON.parse);
+const estimate = lines.find(value => value.type === 'estimate');
+if (estimate) {
+  process.stdout.write(JSON.stringify({ protocol_version: 1, request_id: estimate.request_id,
+    seq: 0, type: 'error', code: 'unsupported_input_budget' }) + '\n');
+  process.exit(0);
+}
 const request = lines.find(value => value.type === 'request');
 if (!request) throw new Error('missing_request');
 // Compile every real engine request through the production provider mapper.

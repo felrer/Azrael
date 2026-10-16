@@ -34,7 +34,7 @@ Product version and unique build identity are separate: two builds of the same v
 
 After execution, review results and fix/rerun as needed. The model chooses delete or defer for each reviewed group within existing authority, with reason and revisit condition for deferral. Age, passing tests or finishing a run never selects deletion automatically. Test creation criteria and required verification remain unchanged.
 
-Protect the whole selected group if any member is an active input, running output, pending handoff, required release evidence, sole usable recovery copy, user/source file, or has unknown ownership/use. Check all descendants before deleting a work parent. Recheck actual paths, links and references immediately before application. Use ordinary deletion and the generated-file-only attribute rules in [build inputs](build-inputs.md#산출물캐시백업의-보호와-정리).
+Protect the whole selected group if any member is an active input, running output, pending handoff, required release evidence, sole usable recovery copy, user/source file, or has unknown ownership/use. Check all descendants before deleting a work parent. Recheck actual paths, links and references immediately before application. Use ordinary deletion and the generated-file-only attribute rules in [build inputs](build-inputs.md#protection-and-cleanup-of-artifacts-caches-and-backups).
 
 Record decision, attempted members, actual deleted/retained paths and errors separately from test/build success. Partial deletion leaves the group partial/failed; preserve unattempted evidence and retry only after reconciling actual remaining paths and current protections. An attempted cleanup is not a deleted group.
 
