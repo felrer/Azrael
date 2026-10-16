@@ -1,6 +1,6 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 사용자 지시에 따라 refusal 전달 개선·회귀 검사·실제 도구 요청 재시도를 진행한다. 정상 작업 완료는 실제 결과로 판단한다.
+상태: refusal 전달 개선과 재시도는 완료했고 정상 프로필의 요청 성공/거부 방지는 미해결이다. 후속 요청의 Claude 프로필 컨텍스트 감사도 완료했다. 고정 입력과 누적 경로는 확인했으나 refusal 인과관계는 미확정이다. 사용자 추가 입력은 필요 없다. 이번 후속 범위는 읽기 전용 코드·기존 기록 조사와 분석 문서이며 제품 수정·모델 재호출·설치는 하지 않는다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
@@ -135,3 +135,38 @@ SOURCE recorder 두 번째 시도는 reviewed delta에서 transport test 변경�
 공식 recorder-04 및 최종 source snapshot은 각각 exit0이다. SOURCE receipt SHA256=73ee93b71556294b6152a52ed05fa2657ea10b7a6c930a4c19c91b999a842bd3, sourceSha256=f72486ef238d32d93d1bbbf49235e5a7f7c5da1831c05c96279cf4590d927fa0,9264files이다. 통합 기준 HEAD=00094086이며 이번 작업과 독립적인 Window Use 문서 commit을 보존했다. run03 logs479698bytes/reports305714bytes의 완전한 lifecycle group을 등록·review했고 현재 work 참조 및 미해결 원인 분석 때문에 두 멤버 모두 defer를 적용했다. 동일 소스 release에 독립 검증을 승격하고 profile 원인을 대체 근거로 종결한 뒤 참조를 해제할 때 재검토한다. 임시 상태 삭제와 로그/보고서 보존을 구분한다.
 
 이번 작업의 완료 범위는 오류 식별/진단 전달 개선, 같은 계정·모델 재시도 및 남은 문제의 해결안 제시이다. 정상 호환 프로필의 실제 작업 완료와 공급자 refusal 방지는 미검증/미해결이며 이를 완료로 표시하지 않는다. 변경은 소스에만 반영했고 설치본은 갱신하지 않았다.
+
+## Claude 프로필의 컨텍스트 감사
+
+목표는 Claude용 도구 프로필이 과도하거나 중복된 컨텍스트를 제공하는지 확인하는 것이다. root는 managed projection과 원래 rollout의 수량을 맡고, read-only native 조사 owner는 prompt/registry/history/discovery 경로를 맡는다. 공통 로직은 Windows/Linux/macOS에 해당하고 실제 저장 기록·오프라인 수치는 Windows만 확인했다. 현재 소스와 원래 실행의 설치 일치를 추정하지 않으며 기존 live 비교 결과를 재사용한다. 컨텍스트 초과·요청 비용/부담·공급자의 refusal 원인을 각각 구분한다.
+
+원래 실패 요청은 기존 wire diagnostics 기준 35385 추정 tokens/125192 bytes이고, instructions22160(62.6%),tool_definitions8624(24.4%),conversation4601(13.0%)이다. 도구 결과·호출·추론 및 이미지는0이다. 실제 provider usage가 아니라 heuristic이며 모델 창1M/당시 자동 압축600k 대비 초과 증거는 없다. 작업 시작 전부터 약87%가 지침·도구 정의라는 구성은 확인된다.
+
+원래19개 rollout record의 텍스트를 출력하지 않고 block별 길이·종류·정확한 중복을 조사했다. 기록된 기본 지침18430chars, 스킬 catalog36274chars/85entries, root coordination8817chars, maintenance guidance6175chars, 프로젝트 AGENTS15380chars이다. 120chars 이상 paragraph의 정확한 반복은 없었다. 이는 의미상 반복이나 무관한 안내가 없다는 증명은 아니다. 원래 기본 지침과 실제 송신 시 합성된 기본 지침은 별도이며 wire component22160이 전체 지침량의 기존 근거다.
+
+기존 pinned Bun과 현재 estimateTokens를 쓰는 네트워크 없는 read-only 계산(exit0)에서 기본 지침은5266tokens, 스킬 catalog10364, root coordination2520, maintenance1765로 추정했다. 이 block별 현재 추정은 원래 전체 wire 값과 별도이며 실사용량으로 합산하지 않는다. 스킬 전체 본문85개를 읽은 것이 아니라 목록/설명/경로가 자동 주입됐다. 원래 state.host_skills.body는36231chars로 렌더 전후 길이도 부합한다. 스킬 항목 중 Vercel33개11912chars, Figma16개7630chars로 두 그룹의 목록만19542chars이다. 세션 조회 요청 전에 전체 설치 스킬의 긴 설명을 먼저 제공하는 공통 정책이 주요 고정 부담이다.
+
+현재 코드의 중요한 구성은 다음과 같다.
+
+- config/harness_profiles.rs는 Anthropic 기본 prompt를 builtin/anthropic-default로 선택한다. model_instructions.rs:56의 builtin/claude-lean에서만 lean template을 쓴다. 일반 Anthropic preset은 COMMON_AGENT_INSTRUCTIONS를 도구 이름만 적응해 사용하므로 claude-code-core 선택이 짧은 지침을 뜻하지 않는다. runtime core와 tool environment는 별도로 합성된다. 현재 세 template은1060/1935/1084chars(각303/553/310 추정tokens)이다. 같은 공통/runtime 조건에서 lean 선택은 행동 template 분량을 약4.7k tokens 줄일 가능성이 있지만 catalog/프로젝트 지침/도구 정의는 남는다.
+- ext/skills/src/render.rs:126의 기본 metadata budget은 model window의2%이다. 창1M이면20k tokens이며,10k 상한은 명시적으로 skills.max_context_tokens를 설정한 경우에만 적용된다. world_state_catalogs.rs:131에서 모델 창과 설정을 받아 공통 catalog budget을 구성한다. 현재 로컬 config에는 harness override와 skills.max_context_tokens가 없다. 현재 설정 부재를 과거 설정의 증명으로 쓰지는 않는다. render.rs:332 이하에는 설명 축약과 끝내 목록 누락까지 가능한 예산 allocator가 이미 있어 재사용 가능하다.
+- inference-mapping.mjs:133/163은 Claude 프로필의 XML wrapper를 생략한다. inference.ts:491은 vendor가 조합한 identity/catalog 안내를 native systemPrompt로 교체한다. 따라서 현재 이 경로는 추가 XML이나 vendor 도구 catalog 안내를 중복으로 늘리지 않는다. projectRequest는 system/developer를 systemPrompt 배열로 이동하고 user/tool 결과와 구분한다.
+- tool_search_output은 전체 schema를 매번 복제하지 않고 현 catalog의 이름 참조로 줄이며 additional_tools history는 다시 직렬화하지 않는다. 실제 schema는 현재 tools 배열에서 유지한다. 검색 반복으로 schema 원문이 매 결과마다 중복된다는 주장은 기존 검사와 코드에 맞지 않는다.
+
+실제 비교에서도 현재 호환 프로필 probe01은 system2263chars/도구2개로 HTTP429였고 기존 unprofiled probe03은 더 큰 system3428chars/도구2개로 HTTP200/tool_use였다. 과거 harmless refusal은 도구0개/input156tokens이었다. 따라서 큰 컨텍스트는 개선할 부담이지만 실패·refusal의 필요조건이나 확정 원인으로 결론 내릴 수 없다. 어느 system 내용/형식이 결과 차이와 관련되는지는 여전히 미확정이다.
+
+개선 우선순위 제안은 (1) 고정 지침/스킬 설명/도구 schema를 각각 계측하고 (2) 필수 지침과 스킬 접근성을 보존하면서 스킬 catalog의 독립 예산·짧은 설명을 적용하고 (3) 합의된 작업에는 기존 claude-lean을 선택해 전체 공통 지침을 줄이고 (4) 탐색 도구와 대형 결과의 세션 누적을 관리하는 것이다. 단순히 프로젝트 AGENTS/권한 안내를 삭제하거나 원인 확인 없이 profile을 제거하지 않는다. 낮은 스킬 예산은 목록 누락을 일으킬 수 있으므로 필수5개/명시 호출/재탐색 가능성을 검증해야 한다. 구현 결정과 검증은 별도이며 이번 분석에서 설정을 바꾸지 않았다.
+
+네이티브 조사 결과(읽기 전용 source audit):
+
+- source turn/step 경로에서는 Claude가 incremental tools를 쓰지 않아 composed base를 각 sampling request에 보낸다. 이는 과거 이력에 같은 지침을 매번 append하는 것과 다르다. world-state의 변하지 않은 section은 새 fragment를 만들지 않는다. 변경된 section은 update/replacement 안내를 append하므로 이전 지침 메시지는 compaction 전까지 history에 남을 수 있다. helper가 retained developer 내용을 systemPrompt로 옮기므로 장기 세션에서는 이전 안내도 함께 전송될 여지가 있다. 원래19-record 실패에는 장기 누적 증거가 없다. 근거: core/src/session/step_context.rs:54, session/turn.rs:1676,1774, session/world_state.rs:220, context_manager/history.rs:456, context_manager/updates.rs:30.
+- model switch 때 새 profile behavior가 base와 'previously using a different model' 안내에 함께 나타날 수 있는 조건부 중복 경로가 있다. 매 턴 발생하지 않으며 원래 실패 요청에서 발생했다고 확인된 것은 아니다. 근거: core/src/context/world_state/model.rs:46, core/src/session/mod.rs:1577,3561.
+- 직접 도구 schema는 profile 적용 후 registry 전체를 포함하고 구체적 수/바이트는 runtime settings에 달려 있다. 원래28개 전체가 Claude preset의 고정 개수라는 뜻은 아니다. compatible builtin12개 이외에 공통 lifecycle/collaboration 등 현재 노출된 registry가 합쳐진다. Claude Agent schema가 전체 모델 roster를 enum으로 포함하는 것은 아니며 별도 conditional model catalog에는1000 rendered bytes cap이 있다. 근거: tools/spec_plan.rs:678,2002, handlers/claude_controls.rs:402, context/world_state/model_catalog.rs:18.
+- retained conversation의 call/search에서 발견된 아직 유효한 도구 schema는 identity를 합쳐 유지한다. API 경로의8tools/64KiB active cap을 Claude에 적용하지 않는 것은 현재 명시된 설계다. 원문 schema의 검색 결과별 복제와는 다르지만 distinct tool 수가 늘면 요청당 도구 정의 비용이 증가한다. 전체 request budget/auto compaction은 남아 있어 무한 무제한이라는 표현은 부정확하다. 근거: tools/router.rs:203, docs/architecture/model-harness-profiles.md MCP discovery.
+- Read는 기본2000lines/32KiB 출력 제한이다. Bash와 TaskOutput은10000token 요청 상한과 모델 truncation policy를 쓴다. 대형 파일의 여러 range를 읽고 전체 읽기 coverage를 확보하는 동안 결과가 누적될 수 있다. 실제 managed budget 경로는 최종 helper projection을 계측해 auto-compaction 판단에 사용한다. 따라서 'tool schema가 예산에 빠져 있다'는 결론은 맞지 않는다. 근거: handlers/claude_files.rs:36,418; claude_shell.rs:184,254; session/request_budget.rs:42; session/turn.rs:1812. 원래 실패는 tool output0이므로 이 경로가 해당 실패 입력을 키운 것은 아니다.
+
+감사 결론: 짧은 첫 작업에서도 공통 행동·스킬·운영 지침과 직접 도구 정의가 큰 고정 입력을 만든다. 기본 Claude tool preset 자체가 lean prompt를 선택해 주지 않고, 큰 모델 창에 비례한 스킬 예산은 이 고정 비용을 줄여 주지 않는다. 원래 실패에서 정확한 긴 paragraph 복제는 발견하지 못했다. 도구 탐색과 지침 변경의 장기 누적은 추가 개선 대상이지만 이 첫 실패의 입증된 원인은 아니다. XML/catalog 중복 추가, 전 모델 roster enum, tool output 폭증, 창 초과는 이번 증거로 주원인이라고 할 수 없다.
+
+권장 순서: 고정 context component 계측을 기준으로 우선순위를 정하고, 스킬 이름·짧은 routing 설명·온디맨드 원문을 보존하는 독립 절대 예산과 필수 스킬 보존을 검증한다. 다음으로 Claude prompt를 기존 lean 구성에 맞추되 사용자/프로젝트 지침·권한·도구 계약은 유지한다. 공통 coordination/maintenance의 세부 절차는 상시 핵심 계약과 분리하는 설계를 검토한다. 장기 세션에서는 superseded 안내의 의미를 보존하는 최신 상태 투영과 재탐색 가능한 bounded discovered set을 설계한다. 단순 cap 적용은 현재 discovery 계약의 변경이므로 누락·재탐색·실행 권한·replay를 검증해야 한다. 최소 첫 요청이 이미 실패한 기존 비교를 고려하면, 이 최적화와 별개로 provider request system 형식의 호환 문제도 계속 남는다.
+
+이번 감사는 제품/설정 변경0, live inference0, build0이다. 기존 source와 기록을 읽고 pinned Bun의 estimator를 네트워크 없이 실행(exit0)했으며 generated artifact는 만들지 않았다. native owner의 read-only 결과를 재사용했고 분석만 같은 work 문서에 통합했다. 코드 변경이 없어 회귀 검사를 다시 실행하지 않았다. Windows 외 환경과 실제 설치본의 일치는 이번 결과로 주장하지 않는다.
