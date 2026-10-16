@@ -63,7 +63,7 @@ function main() {
       ["codex-app-server-daemon", "backend::pid::tests::"],
       ["codex-app-server", "azrael_shared_server::tests::"],
       ["codex-app-server", "azrael_state::"],
-      ["codex-app-server", "window_fork_isolates_configuration_changes_and_cloud_loader_retirement"],
+      ["codex-app-server", "config_manager::window_context_tests::"],
       ["codex-install-context", "azrael_entry_resolves_its_own_code_mode_host"],
       ["codex-app-server", "entry::tests::", ["--bin", "azrael"]]],
     manual: [["codex-core", "azrael_manual_resume::tests::"],
