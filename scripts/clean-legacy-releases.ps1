@@ -5,6 +5,7 @@ param(
     [string[]]$ProtectedPaths = @(),
     [string]$ExtensionsDirectory = (Join-Path $env:USERPROFILE '.vscode/extensions'),
     [switch]$Apply,
+    [switch]$IncludeModuleCaches,
     [string]$ReportPath
 )
 $ErrorActionPreference = 'Stop'
@@ -179,6 +180,7 @@ function Get-LegacyOwnership([string]$Path, [string]$Kind) {
     @{ kind = $Kind; packages = $packages }
 }
 function Invoke-LegacyReleaseCleanup {
+    $cleanupOperation = $null
     $report = [ordered]@{ schema = 1; generatedAt = [DateTime]::UtcNow.ToString('o'); apply = [bool]$Apply; status = 'preview'; projectRoot = $null; protectedPaths = @(); candidates = @(); errors = @() }
     try {
         $project = ConvertTo-LegacyPath $ProjectRoot
@@ -242,6 +244,13 @@ function Invoke-LegacyReleaseCleanup {
             if (Test-Path -LiteralPath $candidateRoot) { $allLifecycleCandidates += @(Get-ChildItem -LiteralPath $candidateRoot -Directory -Force | ForEach-Object FullName) }
         }
         Assert-ArtifactReportOutside -ProjectRoot $project -Candidates $allLifecycleCandidates -ReportPath $ReportPath
+        if ($IncludeModuleCaches) {
+            . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
+            $moduleRoot = Join-Path $project 'artifacts/cache/modules'
+            Assert-LegacyUnlinked $moduleRoot
+            Assert-ArtifactReportOutside -ProjectRoot $project -Candidates @($moduleRoot) -ReportPath $ReportPath
+            $report.moduleCaches = [ordered]@{ status = 'pending'; candidates = @(); errors = @() }
+        }
         $cleanupOperation = Start-ArtifactCleanupOperation $project $ReportPath
         foreach ($kind in @('release','vsix')) {
             $root = Join-Path $project $(if ($kind -eq 'release') { 'artifacts/releases' } else { 'artifacts/vsix' })
@@ -279,8 +288,36 @@ function Invoke-LegacyReleaseCleanup {
             }
         }
         if ($Apply) { $report.status = if (@($report.candidates | Where-Object { $_.Contains('lifecycle') -and $_.lifecycle.status -eq 'partial' }).Count) {'partial'} else {'applied'} }
+        if ($IncludeModuleCaches) {
+            $cache = $null
+            try {
+                if (-not (Test-Path -LiteralPath $moduleRoot)) {
+                    $report.moduleCaches.status = 'no-cache'
+                } else {
+                    # Validate the existing owner and protections before Open can
+                    # acquire its lease or update its project registry.
+                    Assert-LegacyUnlinked $moduleRoot -Recursive
+                    $ownerProbe = @{ Root = $moduleRoot; Owner = $project; Project = $project }
+                    Get-BuildCacheProjects $ownerProbe | Out-Null
+                    $cacheProtected = @($protected) + @(Get-ProtectedBuildCachePaths $ownerProbe)
+                    $cache = Open-BuildModuleCache -ProjectRoot $project
+                    $cacheProtected += @(Get-ProtectedBuildCachePaths $cache)
+                    $report.moduleCaches.candidates = @(Remove-OldBuildModuleCaches $cache -Keep 0 -ProtectedPaths $cacheProtected -Preview:(-not $Apply))
+                    $outcomes = @($report.moduleCaches.candidates | ForEach-Object { $_.status; if ($_.lifecycle) { $_.lifecycle.status } })
+                    $report.moduleCaches.status = if ('partial' -in $outcomes -or 'failed' -in $outcomes) { 'partial' } elseif ('blocked' -in $outcomes) { 'blocked' } elseif ('preserved' -in $outcomes -or 'deferred' -in $outcomes) { 'preserved' } elseif ($Apply) { 'applied' } else { 'preview' }
+                    if ($Apply -and $report.moduleCaches.status -in @('partial','blocked','preserved')) {
+                        if ($report.status -ne 'partial') { $report.status = $report.moduleCaches.status }
+                    }
+                }
+            } catch {
+                $report.moduleCaches.status = 'blocked'
+                $report.moduleCaches.errors += $_.Exception.Message
+                $report.errors += $_.Exception.Message
+                if ($Apply) { $report.status = 'partial' } else { $report.status = 'blocked' }
+            } finally { if ($cache -and $cache.Lease) { $cache.Lease.Dispose() } }
+        }
     } catch { $report.status = 'blocked'; $report.errors += $_.Exception.Message }
-    if ($report.projectRoot -and $ReportPath -and $report.status -ne 'blocked') {
+    if ($report.projectRoot -and $ReportPath -and ($report.status -ne 'blocked' -or ($cleanupOperation -and $IncludeModuleCaches -and $report.moduleCaches.status -eq 'blocked'))) {
         Assert-LegacyUnlinked $ReportPath
         New-Item -ItemType Directory -Path (Split-Path $ReportPath -Parent) -Force | Out-Null
         $report | ConvertTo-Json -Depth 20 | Set-Content -LiteralPath $ReportPath -Encoding utf8NoBOM

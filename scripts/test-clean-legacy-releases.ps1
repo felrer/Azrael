@@ -1,9 +1,12 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param()
+param(
+    [string]$RunDirectory = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/tasks/cache-management/runs/cm-20261016'),
+    [switch]$CoordinatedOnly
+)
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
-$logs = Join-Path $project 'artifacts/logs/legacy-release-cleanup'
+$logs = Join-Path $RunDirectory 'temporary/legacy-release-cleanup'
 New-Item -ItemType Directory -Path $logs -Force | Out-Null
 $fixture = Join-Path $logs ('fixture-' + [guid]::NewGuid().ToString('N'))
 $passed = 0
@@ -20,8 +23,83 @@ function New-Release([string]$Name) {
     $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id "version:$Name" -Kind version -Owner 'fixture' -State complete -MembershipComplete $true -Members @{release=$path;logs=$associatedLog}
     $path
 }
+function Invoke-CoordinatedFixtureTests {
+    $fixture = Join-Path $fixture 'coordinated'
+    $ProjectRoot = $fixture
+    $ProtectedPaths = @(); $ReportPath = $null; $Apply = $false; $IncludeModuleCaches = $true
+    function Get-LegacyProcesses { @() }
+    function Get-CimInstance { if ($runningPath) { @{Name='fixture.exe';CommandLine="--module $runningPath";ProcessId=123} } }
+    function Get-LegacyShortcutReferences { @() }
+    function Get-LegacyInstalledReferences { @() }
+    $result = Invoke-LegacyReleaseCleanup
+    Assert ($result.moduleCaches.status -eq 'no-cache' -and -not (Test-Path (Join-Path $fixture 'artifacts/cache/modules'))) 'Absent module root recreated for cleanup.'
+    . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
+    $cache = Open-BuildModuleCache $fixture
+    $cache.Lease.Dispose()
+    $entries = @{}
+    $keys = @('a','b','c','d','e','f','1','2')
+    $names = @('old','current','previous','runtime','consumer','locked','preview','running')
+    for ($index = 0; $index -lt $names.Count; $index++) {
+        $name = $names[$index]; $key = $keys[$index] * 64
+        $path = Join-Path $cache.Root "companion/$key"
+        $log = Join-Path $path 'logs'
+        Write-Json (Join-Path $path 'owner.json') @{schema=1;module='companion';key=$key}
+        Write-Json (Join-Path $path 'cache.json') @{schema=1;module='companion';key=$key}
+        Write-Json (Join-Path $log 'build.json') @{status='complete'}
+        $id = "run:module-cache:companion:$key"
+        $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id $id -Kind run -Owner module-build-cache -State complete -MembershipComplete $true -Members @{'cache-entry'=$path}
+        $entries[$name] = @{path=$path;log=$log;id=$id}
+    }
+    $runningPath = $entries.running.path
+    function Add-FixtureReference([string]$Id, [string]$Target) {
+        $recordPath = Join-Path $fixture ('artifacts/maintenance/lifecycles/' + [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($Id))).ToLowerInvariant() + '.json')
+        $record = Get-Content $recordPath -Raw | ConvertFrom-Json -AsHashtable
+        $record.references = @(@{id=$Target;reason='fixture consumer'})
+        Write-Json $recordPath $record
+    }
+    $old = New-Release old
+    Add-FixtureReference 'version:old' $entries.old.id
+    foreach ($name in @('current','previous')) {
+        $release = New-Release $name
+        $package = Join-Path $fixture "artifacts/deployments/$name/package"
+        Write-Json (Join-Path $package 'preparation-inputs.json') @{toolDirectory=$entries[$name].path}
+        Write-Json (Join-Path $fixture "artifacts/deployments/$name/deployment.json") @{hostInstalled=$true;status='installed-reload-required';releaseDirectory=$release;packageDirectory=$package;generatedAt=$(if($name -eq 'current'){'2026-10-16T02:00:00Z'}else{'2026-10-15T02:00:00Z'})}
+    }
+    $runtimePath = $entries.runtime.path
+    function Get-LegacyInstalledReferences { $runtimePath }
+    $null = Register-ArtifactLifecycle -ProjectRoot $fixture -Id 'work:consumer' -Kind work -Owner fixture -State complete -MembershipComplete $true -Members @{evidence=(Join-Path $fixture 'artifacts/consumer-evidence')}
+    Add-FixtureReference 'work:consumer' $entries.consumer.id
+    $ProtectedPaths = @($entries.locked.path)
+    $preview = Invoke-LegacyReleaseCleanup
+    Assert ($preview.status -eq 'preview' -and (Test-Path $old) -and (Test-Path $entries.old.path) -and (Test-Path $entries.old.log)) 'Coordinated preview deleted version/cache/log members.'
+    Assert (@($preview.moduleCaches.candidates | Where-Object { $_.absent -eq $true }).Count -eq 0) 'Preview fabricated cache absence.'
+    Assert (@($preview.moduleCaches.candidates | Where-Object { $_.path -eq $entries.preview.path -and $_.status -eq 'selected' }).Count -eq 1 -and (Test-Path $entries.preview.log)) ("Eligible module cache/log preview was not selected without deletion: " + ($preview.moduleCaches | ConvertTo-Json -Depth 8 -Compress))
+    $IncludeModuleCaches = $false; $Apply = $true
+    $result = Invoke-LegacyReleaseCleanup
+    Assert (-not (Test-Path $old) -and (Test-Path $entries.old.path) -and (Test-Path $entries.old.log)) 'Default cleanup changed module caches.'
+    $old = New-Release old
+    Add-FixtureReference 'version:old' $entries.old.id
+    $IncludeModuleCaches = $true
+    $result = Invoke-LegacyReleaseCleanup
+    Assert (-not (Test-Path $old) -and -not (Test-Path (Join-Path $fixture 'artifacts/logs/old')) -and -not (Test-Path $entries.old.path) -and -not (Test-Path $entries.old.log)) 'Coordinated retirement left obsolete version/cache/log members.'
+    foreach ($name in @('current','previous','runtime','consumer','locked','running')) { Assert ((Test-Path $entries[$name].path) -and (Test-Path $entries[$name].log)) "Coordinated cleanup damaged protected cache/log group $name" }
+    $ProtectedPaths = @()
+    $handle = [IO.File]::Open((Join-Path $entries.locked.log 'build.json'),[IO.FileMode]::Open,[IO.FileAccess]::Read,[IO.FileShare]::Read)
+    try {
+        $result = Invoke-LegacyReleaseCleanup
+        Assert ($result.status -in @('partial','blocked','preserved') -and (Test-Path $entries.locked.log)) 'Module log failure reported completed cleanup.'
+    } finally { $handle.Dispose() }
+    Write-Json (Join-Path $cache.Root '.projects.json') @{schema=99;projects=@($fixture)}
+    $result = Invoke-LegacyReleaseCleanup
+    Assert ($result.status -eq 'partial' -and $result.moduleCaches.status -eq 'blocked' -and $result.moduleCaches.errors.Count -gt 0) 'Module owner error was hidden.'
+}
 try {
     . (Join-Path $PSScriptRoot 'clean-legacy-releases.ps1') -ProjectRoot $fixture
+    if ($CoordinatedOnly) {
+        Invoke-CoordinatedFixtureTests
+        [pscustomobject]@{ passed = $passed; status = 'passed'; fixture = $fixture }
+        return
+    }
     $installedProbe = ${function:Get-LegacyInstalledReferences}
     # Only platform discovery is mocked, and all destructive candidates are fixtures.
     function Get-LegacyProcesses { if ($script:failProbe) { throw 'mock process inspection failed' }; $script:mockProcesses }
@@ -187,6 +265,7 @@ try {
     Assert ($result.status -eq 'blocked' -and $result.errors[0] -match 'External shortcut alias' -and (Test-Path -LiteralPath $fresh)) 'External shortcut alias did not globally fail closed.'
     Remove-Item -LiteralPath $menuAlias
     $menuAlias = $null
+    Invoke-CoordinatedFixtureTests
     [pscustomobject]@{ passed = $passed; status = 'passed'; fixture = $fixture }
 } finally {
     if (Test-Path -LiteralPath $fixture) {

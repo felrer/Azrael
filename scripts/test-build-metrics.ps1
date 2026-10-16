@@ -132,14 +132,20 @@ Test-Case 'release-selection-provenance-guard' {
     $ast = [Management.Automation.Language.Parser]::ParseFile((Join-Path $PSScriptRoot 'build-azrael.ps1'), [ref]$tokens, [ref]$errors)
     $topTry = @($ast.EndBlock.Statements | Where-Object { $_ -is [Management.Automation.Language.TryStatementAst] })
     Assert-True ($topTry.Count -eq 1) 'Expected one top-level build try/catch.'
-    $tryText = $topTry[0].Body.Extent.Text
+    $buildTry = @($ast.FindAll({param($node)
+        $node -is [Management.Automation.Language.TryStatementAst] -and
+        $node.CatchClauses.Count -eq 1 -and
+        $node.CatchClauses[0].Extent.Text -match 'Complete-BuildMetrics.*-Status failed'
+    }, $true))
+    Assert-True ($buildTry.Count -eq 1) 'Expected one metrics-owning build try/catch inside lifecycle protection.'
+    $tryText = $buildTry[0].Body.Extent.Text
     $gate = $tryText.LastIndexOf("'packaged-source-check.log'")
     $move = $tryText.IndexOf('[IO.File]::Move(')
     Assert-True ($gate -ge 0 -and $move -gt $gate) 'Latest selection must follow final provenance command.'
     Assert-True (($tryText.Substring($gate, $move - $gate)) -notmatch '(?m)^\s*(catch|finally|if|else|try)\b') 'Final provenance command must unconditionally precede selection.'
     $allText = $ast.Extent.Text
     Assert-True ([regex]::Matches($allText, '\[IO.File\]::Move\(').Count -eq 1) 'Unexpected alternative pointer publication.'
-    Assert-True ($topTry[0].CatchClauses.Count -eq 1 -and $topTry[0].CatchClauses[0].Extent.Text -match 'Complete-BuildMetrics.*-Status failed' -and $topTry[0].CatchClauses[0].Extent.Text -match '\bthrow\b') 'Failure must finalize metrics and rethrow.'
+    Assert-True ($buildTry[0].CatchClauses[0].Extent.Text -match '\bthrow\b') 'Failure must finalize metrics and rethrow.'
     Assert-True ($tryText.IndexOf('Complete-BuildMetrics $buildMetrics -Status success') -gt $move) 'Total success must follow pointer publication.'
 }
 Test-Case 'actual-build-isolated-provenance-failure' {
@@ -148,7 +154,7 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     $source = Join-Path $fixture 'source'
     $engine = Join-Path $fixture 'engine'
     New-Item -ItemType Directory -Path $fixtureScripts, (Join-Path $source 'codex-rs'), $engine, (Join-Path $fixture 'artifacts') -Force | Out-Null
-    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'engine-provenance.py', 'azrael-platforms.json')) {
+    foreach ($name in @('build-azrael.ps1', 'build-metrics.ps1', 'build-module-cache.ps1', 'build-module-companion-recipe.ps1', 'build-module-providers-recipe.ps1', 'artifact-lifecycle.ps1', 'artifact-lifecycle.cjs', 'engine-provenance.py', 'azrael-platforms.json')) {
         Copy-Item (Join-Path $PSScriptRoot $name) (Join-Path $fixtureScripts $name)
         Assert-True ((Get-FileHash (Join-Path $PSScriptRoot $name)).Hash -eq (Get-FileHash (Join-Path $fixtureScripts $name)).Hash) 'Fixture must execute byte-identical production scripts.'
     }
@@ -173,6 +179,16 @@ Test-Case 'actual-build-isolated-provenance-failure' {
     [ordered]@{ actualExitCode = $actualExit; metricsStageCount = $j.stages.Count; latestUnchanged = $true } | ConvertTo-Json | Set-Content (Join-Path $runDirectory 'integration-summary.json')
 }
 $failed = @($results | Where-Object status -eq 'failed')
+if (-not $failed.Count) {
+    $fixture = [IO.Path]::GetFullPath((Join-Path $runDirectory 'project'))
+    $boundary = [IO.Path]::GetFullPath($runDirectory) + [IO.Path]::DirectorySeparatorChar
+    Assert-True ($fixture.StartsWith($boundary, [StringComparison]::OrdinalIgnoreCase)) 'Fixture cleanup escaped generated run.'
+    if (Test-Path -LiteralPath $fixture) {
+        Assert-True (-not @(Get-ChildItem -LiteralPath $fixture -Force -Recurse | Where-Object { $_.Attributes -band [IO.FileAttributes]::ReparsePoint }).Count) 'Unexpected fixture link before cleanup.'
+        Remove-Item -LiteralPath $fixture -Recurse -ErrorAction Stop
+        Assert-True (-not (Test-Path -LiteralPath $fixture)) 'Metrics fixture remains after cleanup.'
+    }
+}
 [ordered]@{ passed = $results.Count - $failed.Count; failed = $failed.Count; results = @($results); runDirectory = $runDirectory } | ConvertTo-Json -Depth 6 | Set-Content (Join-Path $runDirectory 'results.json')
 Write-Host "Build metrics validation: $($results.Count - $failed.Count) passed, $($failed.Count) failed. Results: $runDirectory"
 if ($failed.Count) { $failed | ForEach-Object { Write-Host "$($_.name): $($_.error)" }; exit 1 }

@@ -1,3 +1,4 @@
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
 # Module cache primitives. All mutation is serialized under the build-owned lock.
 function Assert-BuildCachePath([string]$Path, [string]$Root) {
     $full=[IO.Path]::GetFullPath($Path);$boundary=[IO.Path]::GetFullPath($Root).TrimEnd('\','/')
@@ -101,10 +102,83 @@ function Get-BuildModuleKey([string[]]$Inputs, [string[]]$Values=@()) {
     $json=ConvertTo-Json -InputObject @($records.ToArray()) -Depth 5 -Compress
     return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($json))).ToLowerInvariant()
 }
-function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][string]$Module,[string[]]$Inputs,[string[]]$Values=@(),[switch]$Force) {
+function Get-BuildModuleLifecycleRecord($Cache,[string]$Module,[string]$Key,[string]$Path) {
+    $id="run:module-cache:${Module}:$Key"
+    $hash=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($id))).ToLowerInvariant()
+    $recordPath=Assert-BuildCachePath (Join-Path $Cache.Owner "artifacts/maintenance/lifecycles/$hash.json") $Cache.Owner
+    if(-not(Test-Path -LiteralPath $recordPath)){throw 'Unregistered legacy module cache; ownership and references require review'}
+    $record=Get-Content -LiteralPath $recordPath -Raw|ConvertFrom-Json
+    if($record.schema -ne 1 -or $record.id -cne $id -or $record.owner -cne 'module-build-cache' -or $record.kind -cne 'run' -or @($record.members).Count -ne 1 -or $record.members[0].role -cne 'cache-entry' -or $record.members[0].path -ine $Path){throw 'Unexpected module cache lifecycle ownership or membership'}
+    return $record
+}
+function Assert-BuildModuleConsumers($Cache,[string]$Id) {
+    $projects=@(Get-BuildCacheProjects $Cache)
+    foreach($project in $projects){
+      $registry=Assert-BuildCachePath (Join-Path $project 'artifacts/maintenance/lifecycles') $Cache.Owner
+      if($project -ine $Cache.Owner -and -not(Test-Path -LiteralPath $registry -PathType Container)){throw "Missing lifecycle catalog for registered cache project: $project"}
+    }
+    foreach($project in $projects){
+      $offset=0
+      do {
+        $catalog=Invoke-ArtifactLifecycleNode @('catalog','--project-root',$project,'--limit','200','--offset',"$offset")
+        foreach($group in $catalog.groups){
+          if(-not $group.ContainsKey('references')){throw 'Lifecycle catalog omits consumer references'}
+          if(@($group.references|Where-Object id -CEQ $Id).Count){throw "Active module consumer $($group.id) in project $project"}
+        }
+        $offset+=200
+      } while($offset -lt $catalog.total)
+    }
+}
+function Remove-BuildModuleOwnedContents($Cache,[string]$Path) {
+    Assert-BuildCacheTree $Path $Cache.Root
+    # Preserve diagnostics and ownership if any payload cannot be removed.
+    foreach($child in Get-ChildItem -LiteralPath $Path -Force -ErrorAction Stop | Where-Object Name -NotIn @('logs','cache.json','owner.json')){
+      Assert-BuildCachePath $child.FullName $Path|Out-Null
+      Remove-Item -LiteralPath $child.FullName -Recurse -ErrorAction Stop
+      if(Test-Path -LiteralPath $child.FullName){throw "Module payload remains: $($child.FullName)"}
+    }
+    $logs=Join-Path $Path 'logs'
+    if(Test-Path -LiteralPath $logs){Remove-Item -LiteralPath $logs -Recurse -ErrorAction Stop}
+    if(Test-Path -LiteralPath $logs){throw "Module logs remain: $logs"}
+    foreach($name in @('cache.json','owner.json')){
+      $receipt=Join-Path $Path $name
+      if(Test-Path -LiteralPath $receipt){Remove-Item -LiteralPath $receipt -ErrorAction Stop}
+    }
+    Remove-Item -LiteralPath $Path -ErrorAction Stop
+}
+function Remove-BuildModuleEntry($Cache,[string]$Module,[string]$Key,[string]$Path,[string[]]$ProtectedPaths=@(),[switch]$Preview,[switch]$Retry) {
+    if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Cleanup requires the cache lease.'}
+    $record=Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path
+    $owner=Get-Content -LiteralPath (Join-Path $Path 'owner.json') -Raw|ConvertFrom-Json
+    if($owner.schema -ne 1 -or $owner.module -cne $Module -or $owner.key -cne $Key){throw 'Unknown cache owner'}
+    $check={param($member)
+      if($member -ine $Path){return 'Unexpected module lifecycle member'}
+      try {
+        Assert-BuildCacheTree $member $Cache.Root
+        Get-BuildModuleLifecycleRecord $Cache $Module $Key $Path|Out-Null
+        Assert-BuildModuleConsumers $Cache $record.id
+        $protected=@($ProtectedPaths)+@(Get-ProtectedBuildCachePaths $Cache)
+        if(@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($Path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($Path+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase))}).Count){return 'Installed or protected module cache'}
+        $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+        if(@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($Path,[StringComparison]::OrdinalIgnoreCase) -ge 0)}).Count){return 'Running process or compiler reference'}
+      }catch{return $_.Exception.Message}
+    }
+    $reason=& $check $Path
+    if($reason){return @{status='blocked';reason=$reason}}
+    # Selecting the same key for retry closes the diagnosed attempt. Other failed
+    # or pending generations remain protected from background eviction.
+    if($Retry -and $record.state -ne 'complete'){
+      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $record.id -Kind run -Owner 'module-build-cache' -State complete -MembershipComplete $true -Members @{'cache-entry'=$Path}
+    }
+    $remove={param($member) Remove-BuildModuleOwnedContents $Cache $member}
+    Invoke-ArtifactLifecycleCleanup -ProjectRoot $Cache.Owner -CandidatePath $Path -ProtectedPaths $ProtectedPaths -Apply (-not $Preview) -CheckMember $check -RemoveMember $remove
+}
+function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][string]$Module,[string[]]$Inputs,[string[]]$Values=@(),[switch]$Force,[scriptblock]$AdditionalInputs) {
     Get-BuildCacheProjects $Cache|Out-Null
+    $sourceInputs=$Inputs
+    if($AdditionalInputs){$Inputs=@($sourceInputs)+@(& $AdditionalInputs)}
     $key=Get-BuildModuleKey $Inputs $Values;$path=Assert-BuildCachePath (Join-Path $Cache.Root "$Module/$key") $Cache.Root
-    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;Values=$Values;Hit=$false;Cache=$Cache}
+    $entry=@{Module=$Module;Key=$key;Path=$path;Inputs=$Inputs;SourceInputs=$sourceInputs;AdditionalInputs=$AdditionalInputs;Values=$Values;Hit=$false;Cache=$Cache;LifecycleId="run:module-cache:${Module}:$key";LogDirectory=(Join-Path $path 'logs')}
     $receiptPath=Join-Path $path 'cache.json'
     if(-not $Force -and (Test-Path -LiteralPath $receiptPath)){
       try{
@@ -121,28 +195,37 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
       }catch{$entry.Hit=$false}
     }
     if(-not $entry.Hit){
-      if(Test-Path -LiteralPath $path){Assert-BuildCachePath $path $Cache.Root|Out-Null;Remove-Item -LiteralPath $path -Recurse -ErrorAction Stop}
-      [IO.Directory]::CreateDirectory($path)|Out-Null
+      if(Test-Path -LiteralPath $path){
+        $removed=Remove-BuildModuleEntry $Cache $Module $key $path -Retry
+        if($removed.status -ne 'deleted' -or (Test-Path -LiteralPath $path)){throw "Selected cache cannot be replaced: $($removed.reason)"}
+      }
+      $null=Register-ArtifactLifecycle -ProjectRoot $Cache.Owner -Id $entry.LifecycleId -Kind run -Owner 'module-build-cache' -State pending -MembershipComplete $false -Members @{'cache-entry'=$path}
+      [IO.Directory]::CreateDirectory($entry.LogDirectory)|Out-Null
       @{schema=1;module=$Module;key=$key}|ConvertTo-Json|Set-Content (Join-Path $path 'owner.json') -Encoding utf8NoBOM
     }
     $Cache.Entries+=,$entry;$Cache.Results+=@{module=$Module;key=$key;reused=$entry.Hit;path=$path}
     return $entry
 }
+function Get-BuildModuleCurrentKey($Entry) {
+    $inputs=if($Entry.AdditionalInputs){@($Entry.SourceInputs)+@(& $Entry.AdditionalInputs)}else{$Entry.Inputs}
+    Get-BuildModuleKey $inputs $Entry.Values
+}
 function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
     Get-BuildCacheProjects $Entry.Cache|Out-Null
-    if((Get-BuildModuleKey $Entry.Inputs $Entry.Values) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}
+    if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed during compilation; cache is not reusable.'}
     $files=@(foreach($output in $Outputs){
       $p=Assert-BuildCachePath (Join-Path $Entry.Path $output) $Entry.Path
       if(-not(Test-Path -LiteralPath $p)){throw "Missing module output: $p"}
       $items=@(Get-BuildModuleFiles $p $Entry.Path)
       foreach($file in $items){@{path=[IO.Path]::GetRelativePath($Entry.Path,$file.FullName);sha256=(Get-BuildModuleFileHash $file.FullName)}}
     })
-    if((Get-BuildModuleKey $Entry.Inputs $Entry.Values) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
+    if((Get-BuildModuleCurrentKey $Entry) -cne $Entry.Key){throw 'Module inputs changed before cache publication.'}
     $temporary=Join-Path $Entry.Path ('cache-'+[guid]::NewGuid().ToString('N')+'.tmp')
     try {
       @{schema=1;module=$Entry.Module;key=$Entry.Key;lastUsedUtc=[DateTime]::UtcNow.ToString('o');outputs=$Outputs;files=$files}|ConvertTo-Json -Depth 6|Set-Content $temporary -Encoding utf8NoBOM
       [IO.File]::Move($temporary,(Join-Path $Entry.Path 'cache.json'),$true)
     } finally {if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
+    $null=Register-ArtifactLifecycle -ProjectRoot $Entry.Cache.Owner -Id $Entry.LifecycleId -Kind run -Owner 'module-build-cache' -State complete -MembershipComplete $true -Members @{'cache-entry'=$Entry.Path}
     $cache=$Entry.Cache
     if($cache -and -not $cache.SkipCleanup){
       try {
@@ -178,7 +261,7 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
       $entries=@(Get-ChildItem -LiteralPath $container -Directory|Where-Object {$_.Name -match '^[a-f0-9]{64}$'}|Sort-Object LastWriteTimeUtc -Descending)
       $retained=0
       foreach($directory in $entries){
-        $path=$directory.FullName
+        $path=$directory.FullName;$result=$null
         try{
           Assert-BuildCachePath $path $Cache.Root|Out-Null
           $owner=Get-Content (Join-Path $path 'owner.json') -Raw|ConvertFrom-Json
@@ -186,9 +269,13 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
           $used=@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($path+'\',[StringComparison]::OrdinalIgnoreCase))}).Count -gt 0
           $used=$used -or $compilerActive -or @($processes|Where-Object {$_.CommandLine -and $_.CommandLine.IndexOf($path,[StringComparison]::OrdinalIgnoreCase) -ge 0}).Count -gt 0
           $complete=Test-Path -LiteralPath (Join-Path $path 'cache.json')
-          if($used -or ($complete -and $retained -lt $Keep)){if($complete){$retained++};$status='preserved';$reason=if($used){'Selected, installed, running process or compiler reference'}else{'Explicit retention'}}else{Assert-BuildCacheTree $path $Cache.Root;$status=if($Preview){'selected'}else{Remove-Item -LiteralPath $path -Recurse -ErrorAction Stop;'removed'};$reason=$null}
-          $report+=@{path=$path;status=$status;reason=$reason}
-        }catch{$report+=@{path=$path;status='preserved';reason=$_.Exception.Message}}
+          if($used -or ($complete -and $retained -lt $Keep)){if($complete){$retained++};$status='preserved';$reason=if($used){'Selected, installed, running process or compiler reference'}else{'Explicit retention'}}else{
+            $result=Remove-BuildModuleEntry $Cache $module $directory.Name $path -ProtectedPaths $protected -Preview:$Preview
+            $status=if($result.status -eq 'deleted' -and -not(Test-Path -LiteralPath $path)){'removed'}elseif($result.status -eq 'selected'){'selected'}elseif($result.status -eq 'partial'){'partial'}else{'preserved'}
+            $reason=$result.reason
+          }
+          $report+=@{path=$path;status=$status;reason=$reason;absent=(-not(Test-Path -LiteralPath $path));lifecycle=$result}
+        }catch{$report+=@{path=$path;status='preserved';reason=$_.Exception.Message;absent=(-not(Test-Path -LiteralPath $path));lifecycle=$result}}
       }
     }
     return $report
