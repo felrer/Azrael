@@ -486,9 +486,16 @@ export async function infer(request: any, emit: (frame: any) => void, fetcher = 
       for (const message of wireBody.messages ?? []) for (const part of Array.isArray(message.content) ? message.content : [])
         if (part.type === 'tool_use') part.name = compatibleName(part.name);
       if (wireBody.tool_choice?.type === 'tool') wireBody.tool_choice.name = compatibleName(wireBody.tool_choice.name);
-      // Native policy owns the compatible tool contract. The vendored system
-      // adds a Claude identity and a catalog using its escaped tool names.
-      wireBody.system = parsed.context.systemPrompt.filter(Boolean).map((text: string) => ({ type: 'text', text }));
+      // Keep the OAuth adapter's transport prefix. Replace only its composed
+      // policy/catalog block so native instructions and compatible tool names
+      // remain authoritative, without dropping the adapter's cache boundary.
+      const transportSystem = wireBody.system?.[0];
+      if (transportSystem?.type !== 'text' || typeof transportSystem.text !== 'string') fail('unsupported_provider_output');
+      const nativeSystem: { type: string; text: string; cache_control?: unknown }[] = parsed.context.systemPrompt
+        .filter(Boolean).map((text: string) => ({ type: 'text', text }));
+      const cacheControl = wireBody.system.at(-1)?.cache_control;
+      if (cacheControl && nativeSystem.length) nativeSystem[nativeSystem.length - 1].cache_control = cacheControl;
+      wireBody.system = [transportSystem, ...nativeSystem];
       built.body = JSON.stringify(wireBody);
     }
     if (request.provider_id === 'anthropic' && Array.isArray(wireBody.tools)) {
