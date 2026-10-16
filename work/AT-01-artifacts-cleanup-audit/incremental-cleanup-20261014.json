@@ -1,0 +1,9 @@
+{
+  "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex-0160-rust-target\\debug\\incremental",
+  "exists": true,
+  "depsExists": true,
+  "buildExists": true,
+  "checkedAt": "2026-10-14T00:13:45.7646297+09:00",
+  "status": "blocked-no-deletion",
+  "reason": "Engine cache preview blocked by running Cargo/Rust compiler"
+}

@@ -1,13 +1,15 @@
-# 작업 문서
+<a id="작업-문서"></a>
 
-작업 계획의 저장 위치는 [문서 안내](../docs/README.md#work-artifacts)의 `Work directory: work` 설정이 소유합니다. 상대 경로는 프로젝트 루트를 기준으로 해석합니다.
+# Work Documents
 
-앞으로 작업 계획은 이 폴더에 저장합니다. 작업 대상·세션별 하위 폴더에 `01-plan.md`, `02-plan.md` 순서로 문서를 만들고, 같은 작업의 요구사항·결정·진행·검증 결과는 현재 계획 문서에 갱신합니다. 이 README에 작업 목록이나 진행 이력을 누적하지 않습니다.
+The `Work directory: work` setting in the [documentation guide](../docs/README.md#work-artifacts) owns the storage location for work plans. Resolve relative paths from the project root.
 
-공통 진입 지침이 현재 의도와 권한을 확인한 뒤, 연결된 선택의 논의가 필요하면 `design-collaboration`, 조사 후 계획과 질문을 정리할 수 있으면 `development-workflow`를 선택합니다. 같은 작업 기록에 이해 통일·현재 설계 대비 차이·추천안과 영향·보존 기준·검증을 모읍니다. 작은 작업은 짧은 계획으로 충분하며, 스킬 전환으로 별도 문서나 승인 단계를 추가하지 않습니다. 질문은 문서에 쓰고 대화에는 링크와 결정할 핵심을 짧게 알립니다.
+Store new work plans in this folder. Create `01-plan.md`, `02-plan.md` and subsequent documents in a subfolder for each target and session, and update the current plan with that task's requirements, decisions, progress and verification results. Do not accumulate task lists or progress history in this README.
 
-폴더와 계획 번호는 활성화된 `development-workflow` 스킬의 `work_artifacts.py`로 할당합니다. 사용자가 분류를 지정하지 않으면 도구의 기본 할당 규칙을 사용합니다. 기존 세션을 이어가는 경우 해당 세션 경로를 재사용합니다.
+After the common entry guidance establishes current intent and authority, choose `design-collaboration` when linked choices need discussion, or `development-workflow` when investigation can produce a plan and questions. Keep shared understanding, differences from the current design, recommendations and impacts, preservation criteria and verification in the same work record. A short plan is enough for small work; changing skills does not add a separate document or approval stage. Put questions in the document and briefly announce its link and the key decision in the conversation.
 
-이전 외부 저장 위치에 있는 작업 기록은 기존 경로에 보존합니다. 새 계획의 저장 위치 변경은 기존 기록의 이동을 뜻하지 않습니다. 기존 문서를 참조할 때는 원래 링크를 유지합니다.
+Allocate folders and plan numbers using `work_artifacts.py` from the active `development-workflow` skill. Use the tool's default allocation rules unless the user specifies a category. Reuse the session path when continuing an existing session.
 
-설계·아키텍처·운영 문서는 기존 `docs/` 분류에 유지합니다. 빌드 산출물과 임시 실행 로그는 프로젝트 playbook이 정한 위치를 사용합니다.
+Preserve work records in earlier external storage locations at their existing paths. Changing the location for new plans does not move existing records. Keep original links when referencing existing documents.
+
+Keep design, architecture and operational documents in their existing `docs/` categories. Use the locations defined by the project playbooks for build outputs and temporary execution logs.

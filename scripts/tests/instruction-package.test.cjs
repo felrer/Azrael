@@ -245,10 +245,10 @@ test("actual generated release assets agree with backend and native staged valid
   const urls={manifest:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/azrael-instructions-${v}-manifest.json`,archive:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.archive.name}`,docs:`https://github.com/felrer/Azrael/releases/download/instructions-v${v}/${manifest.documentsAsset.name}`};
   const release={tag_name:`instructions-v${v}`,draft:false,prerelease:false,assets:[{name:`azrael-instructions-${v}-manifest.json`,browser_download_url:urls.manifest},{name:manifest.archive.name,browser_download_url:urls.archive},{name:manifest.documentsAsset.name,browser_download_url:urls.docs}]};
   const f={v,manifest,urls,release,archive:await fs.readFile(path.join(assetRoot,manifest.archive.name)),docs:await fs.readFile(path.join(assetRoot,manifest.documentsAsset.name))};
-  let engine;
+  let engine=process.env.AZRAEL_INSTRUCTION_TEST_ENGINE;
   const latestFile=path.join(__dirname,"../../artifacts/latest.json");
-  if (await exists(latestFile)) {const latest=JSON.parse(await text(latestFile));const candidate=path.join(latest.releaseDirectory,"engine",process.platform==="win32" ? "azrael.exe" : "codex");if(await exists(candidate))engine=candidate;}
-  if (engine) t.diagnostic(`Native validator: existing artifact ${engine}; features list only; isolated CODEX_HOME`);
+  if (!engine && await exists(latestFile)) {const latest=JSON.parse(await text(latestFile));const candidate=path.join(latest.releaseDirectory,"engine",process.platform==="win32" ? "azrael.exe" : "codex");if(await exists(candidate))engine=candidate;}
+  if (engine) t.diagnostic(`Native validator: existing artifact ${engine}; strict app-server config and closed stdin; isolated CODEX_HOME`);
   else t.diagnostic("No existing native artifact available; generated-asset integration uses injected validator");
   const {store,home,workspace}=await context(t,[f],{store:{repository:manifest.repository,...engine && {engine}}});
   const docs=await store.getDocuments(v);assert.equal(docs.length,manifest.documents.length);await store.download(v);
@@ -259,4 +259,26 @@ test("actual generated release assets agree with backend and native staged valid
   for(const c of manifest.components)for(const file of c.files){const target=path.join(c.scope==="home" ? home : workspace,file.target);assert.equal(await exists(target),true);}
   const receipt=JSON.parse(await text(store.file("state.json")));assert.equal(receipt.appliedVersion,v);assert.deepEqual(receipt.selectedComponentIds,ids);assert.deepEqual((await store.planApply(v,ids)).diffs,[]);
   t.diagnostic(`Verified generated assets ${assetRoot}; ${manifest.files.length} archive files; ${ids.length} components; ${Object.keys(receipt.managed).length} managed targets`);
+});
+
+test("selected native validator checks strict staged config without inherited window connections",async t=>{
+  const engine=process.env.AZRAEL_INSTRUCTION_TEST_ENGINE;
+  if(!engine){t.skip("Set AZRAEL_INSTRUCTION_TEST_ENGINE to run native configuration acceptance");return;}
+  assert(path.isAbsolute(engine));
+  const {store,dir,home}=await context(t,[],{store:{engine}});
+  const stage=path.join(dir,"strict-stage");await fs.mkdir(stage);
+  const previousWindow=process.env.AZRAEL_EX_WINDOW_CONTEXT,previousSocket=process.env.AZRAEL_EX_MANAGEMENT_SOCKET;
+  process.env.AZRAEL_EX_WINDOW_CONTEXT="invalid inherited context must not be parsed";
+  process.env.AZRAEL_EX_MANAGEMENT_SOCKET="invalid-inherited-socket";
+  try{
+    await fs.writeFile(path.join(stage,"config.toml"),'[agents]\nmax_threads=4\n');
+    await store.validate(stage);
+    await fs.writeFile(path.join(stage,"config.toml"),'[agents]\nmax_threads="wrong"\n');
+    await assert.rejects(store.validate(stage),/Native instruction configuration validation failed:[\s\S]*invalid type/);
+    assert.equal(await exists(path.join(home,"AGENTS.md")),false);
+    assert.equal(await exists(store.file("state.json")),false);
+  }finally{
+    if(previousWindow===undefined)delete process.env.AZRAEL_EX_WINDOW_CONTEXT;else process.env.AZRAEL_EX_WINDOW_CONTEXT=previousWindow;
+    if(previousSocket===undefined)delete process.env.AZRAEL_EX_MANAGEMENT_SOCKET;else process.env.AZRAEL_EX_MANAGEMENT_SOCKET=previousSocket;
+  }
 });

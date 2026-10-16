@@ -1,0 +1,562 @@
+{
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "apply": false,
+  "includeDiagnosedFixtures": false,
+  "status": "preview",
+  "candidates": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\AK-02-api-context-fix",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\browser-control",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\computer-use-integration",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\computer-use-spacing",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\deployment-pipeline-optimization",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\design-page-render",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\heretic2-api-20261013",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-01ad2031-d152-4b3c-9ba5-3f9bce848813",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-0aad06a4-da5c-43dd-acf5-661f639a2802",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-1072caff-70f3-4c3a-9e36-2fcfb1ce44a3",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-16f1283b-7345-4879-8f35-4b3e43c07c20",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-17de08c2-007f-4cb4-8ea2-f71af529fba9",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-19a78bf3-31d0-40cf-8eab-8c2db50766ec",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-1dc70391-c378-49c1-8627-85116903e687",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-1ffc4af6-04ea-4c74-b8bf-a3a64a0c5669",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-207db188-fbcb-4fcd-ba56-6091426b9367",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-26502aff-6c22-4007-9913-dafa27996163",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-26da1851-7374-426d-b483-c93e3dc2a15e",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-2743256b-eb79-4aea-bd37-57f205346be5",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-2c29500b-c1c5-43d9-ae89-aeb6dcce72ee",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-2fb70405-97fb-4d87-831b-6dac11d6ec85",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-41baff09-1927-4e84-a461-1fd8eb995ce4",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-44414e9f-6bf8-4b92-aea5-37149da301a2",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-4f0d2fad-7ec8-417a-894f-fdb57218e22c",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-4ff65ac9-7d9b-44c4-8148-6eea7bf4c8aa",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-51558210-2cc0-4999-982c-b17897546636",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-59c31c31-4b54-46ef-b05f-414b0de87b76",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-646ec099-e9c7-4d98-8c44-f82f9ca249b0",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-700c4ba3-0712-4cc6-b8fc-64fde2468659",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-714a646e-fbd3-42bf-83ee-bd79810abe9e",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-719948c9-6f51-48de-82d8-6c623fcfbfd1",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-79d1181f-812c-4fe3-8f9b-e679c90fc490",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-7c1ddc60-9c3e-447b-9484-468978afc210",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-7f055dbf-1639-44ab-b7bf-1af0a27b96e4",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-7f9cda5c-002e-40f5-9431-4788fcca0358",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-80f9fb83-0a73-4fc9-ac7f-626a9936ab59",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-8677c5e8-b8ea-4bd5-bc51-ce5d4cfb041a",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-90f67775-9de5-4d15-a312-7dea5f820b68",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-92c3fbb2-442e-46c5-8e98-748a047a1189",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-9fcf9a00-340e-4c9a-9a64-03c9c608d801",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-9ffb5e4c-337c-443a-bb7d-3b186c86fb75",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-a09d854d-2ac2-457b-a1ed-e88531f16499",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-a6aa7721-ac25-481d-abe4-f8cd0a0a2e53",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-a7451082-6685-487f-b9c6-41fa370b4644",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-a8e450c7-a63e-4c9e-b741-0b67301f6590",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-ab3bde97-0619-4094-a890-08288a8f04a1",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-b0c461c5-35ba-4c11-865a-df9fb3495a00",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-b46fd676-b23a-4686-8b58-7a30f6f3360d",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-b8cb5ea1-bb6b-4d9d-a990-9ef740d1478c",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-bc052454-a8f7-463c-b480-b395a82511ab",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-be62e375-7d26-4a71-bcdc-1f2af36810bf",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-c2b7a62c-4161-4a05-90ac-d5d26f7fa985",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-c991b2b8-26e6-488a-8fd8-afaedc589e13",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cache-a0XIv1",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cache-C5YGB8",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cache-v2MrvA",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cc12fbf3-f44d-4c9b-bda4-3938c414f7b5",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cc416a28-819f-4825-9fab-d6d745bc0d48",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cc68bc48-bf31-41d3-be15-eead13d8e3b5",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-cdd27330-33ad-4290-b5bd-dd7001c1a4a2",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-ce3d1965-9114-48c8-a5be-01212c687d8c",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-d201a7d7-8ce2-4792-a633-e7ddf3b98ae5",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-d5b72d5d-7c6f-4416-9178-5faa18eb5228",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-d7f72b83-2b86-4628-bb2d-87689d8146b7",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-d9211622-a037-47b9-ad04-c9a90f98a64a",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-dc9b8bef-c694-4d43-b11e-4d2036256221",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-de2392f0-17d1-4bbc-baf0-f79e0a51b7ce",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-edf99492-da6f-4ece-8636-a349760731e6",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-eed15f77-396b-4674-84f0-c4ff349a35a2",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-f14f2183-9f16-4999-8abc-1fdc2a2b597e",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-fa765cfe-41e6-483a-9a0c-3b429a147c1a",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\preservation-fb0b4dab-1219-424d-9367-5ef6441fe2eb",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\provider-model-picker-transformed",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\response-preparation-history",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\settings-open-fix",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\task-group-20261013",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\title-fonts",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\use-settings-integration-20261007",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\window-use-rdp-child-trial",
+      "status": "retained",
+      "reason": "Unknown or incomplete fixture; retain until diagnosis.",
+      "archived": [],
+      "acceptanceResult": null
+    }
+  ],
+  "errors": []
+}

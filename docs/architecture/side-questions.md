@@ -30,4 +30,4 @@ Source fixtures exercise the actual transformed composer, native command registr
 
 ## Preservation mapping
 
-Registered features: `ui.btw`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+Registered features: `ui.btw`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately. The UI test transform fixture reuses complete transformed output through the guarded asset cache; the original behavioral assertions remain mandatory. Its registered guard checks tool, environment, exact path context and cache-owner changes, and runs once when shared by selected features.

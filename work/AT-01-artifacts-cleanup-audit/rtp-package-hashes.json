@@ -1,0 +1,22 @@
+[
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\rtp\\azrael-host.vsix",
+    "bytes": 536376964,
+    "sha256": "D1222422209145263170E5819CA944727C4C78B42D47502618FA25207BD6F22A"
+  },
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\rtp11\\azrael-host.vsix",
+    "bytes": 536378179,
+    "sha256": "B8CECD6AB2D78695BBD008C29FD3C00387CAC49554B3B96CE7EF17C07E8A7CA3"
+  },
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\rtp12\\azrael-host.vsix",
+    "bytes": 536378220,
+    "sha256": "B515C45705E4FAF6A7700BE066C8F48AD771D9039D168DD191E4BC45ACA739E1"
+  },
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\rtp13\\azrael-host.vsix",
+    "bytes": 536378243,
+    "sha256": "5EA948CD8C2464F72C74AFE120AF8CF27B0E727CF0B430A9A3CBC7EE02B7ADAE"
+  }
+]

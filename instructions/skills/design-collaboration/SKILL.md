@@ -1,109 +1,123 @@
 ---
 name: design-collaboration
-description: 사용자 답변에 따라 다음 선택의 방향이 달라져 여러 턴의 논의가 필요한 작업을 시작합니다. 추천안과 영향을 설명하며 같은 작업 기록에서 설계를 발전시킵니다. 목표가 충분히 명확해 바로 계획과 질문을 정리할 수 있으면 development-workflow를 사용합니다.
+description: Start work that needs multiple turns of discussion because the user's answers change the direction of subsequent choices. Explain recommendations and impacts while developing the design in the same work record. Use development-workflow when the goal is clear enough to produce a plan and questions directly.
 ---
 
 # Design Collaboration
 
-사용자와 제품·시스템의 방향과 세부 동작을 함께 고민하고, 합의된 범위의 전체 설계를 문서로 완성할 때 사용합니다. 처음부터 설계하거나 기존 프로젝트의 기능 추가·변경 중 미결 설계를 구체화할 때 적용하며, 이미 정해진 설계의 단순 문구 수정에는 전체 절차를 적용하지 않습니다.
+Use this skill to explore product and system direction and detailed behavior with the user and complete the full design for the agreed scope in documents. It applies to designing from scratch or resolving open design for features added to or changed in an existing project. Do not apply the full procedure to simple wording edits in an already settled design.
 
-목표는 사용자가 제시한 항목에 답하는 데서 끝나지 않고, 필요한 결정을 이해하도록 돕고 빠진 주제까지 찾아 연결된 설계를 만드는 것입니다. 전체 설계의 범위는 합의한 목표와 사용 사례로 정하며, 가능한 모든 기능을 뜻하지 않습니다.
+The goal extends beyond answering the user's listed items: help them understand necessary decisions and find missing topics to produce a connected design. The full design scope is defined by agreed goals and use cases, not every possible feature.
 
-현재 세션이 명시적으로 Team의 **Lead**로 생성·지정된 경우에만 [Team Lead 지침](references/team-lead.md)을 함께 읽습니다. 일반 설계 세션과 실행 작업자는 상속된 대화나 이 참조를 읽은 것만으로 Lead 역할을 얻지 않습니다. Lead에서는 아래 공통 설계 원칙을 재사용하고, 실행 이관과 역할 경계는 해당 참조를 따릅니다.
+Read [Team Lead guidance](references/team-lead.md) only when the current session is explicitly created or designated as a Team **Lead**. Ordinary design sessions and execution workers do not acquire the Lead role through inherited conversation or merely reading that reference. A Lead reuses the common design principles below and follows that reference for execution handoff and role boundaries.
 
-## 1. 기존 작업과 연결
+<a id="1-기존-작업과-연결"></a>
 
-- 설계만 요청된 작업은 이 스킬로 시작하고 설계 문서의 완성을 산출물로 삼습니다. 아직 정할 수 없는 구현 계획을 먼저 요구하지 않습니다.
-- 진행 중인 개발 작업에서는 기존 목표·제약·결정·권한과 기록을 이어받습니다. 별도 계획이나 승인 단계를 추가하거나 작업을 처음부터 다시 시작하지 않습니다.
-- 공통 진입 지침이 대화의 목표·요청 산출물·허용 작업·확정 결정·미결 사항을 먼저 판단합니다. 스킬 이름이나 수정 필요성을 언급한 것만으로 실행 단계로 바꾸지 않습니다. 설계 중의 “보완해주세요”는 설계 보완, 승인된 구현 중의 같은 표현은 그 구현 범위의 보완으로 해석합니다. 범위나 권한이 달라지는 모호함이 맥락으로 해결되지 않을 때만 확인합니다.
-- 기술적 규모보다 선택의 연결성을 보고 이 스킬을 사용합니다. 한 답변이 다음 설계 선택을 바꾸면 논의로 좁혀가고, 조사 후 접근 방법과 질문을 한 번에 정리할 수 있으면 `development-workflow`가 바로 계획을 작성합니다. 도중에 판단이 바뀌어도 같은 기록을 이어갑니다.
-- 설계 문서의 구성과 유지는 `design-documentation`을 사용합니다. 이 스킬은 무엇을 함께 결정하고 어떤 누락을 다음으로 다룰지 소유합니다.
-- 설계 합의와 구현·배포의 실행 권한을 구분합니다. 구현까지 요청되고 필요한 결정이 정리되면 기존 작업의 구현·검증으로 이어가며, 코드 실행 규칙은 `implementation`이 소유합니다.
-- 지속적으로 유지할 설계와 이번 작업의 미결 사항은 프로젝트 문서 체계에 따른 기존 소유 위치를 사용합니다. 특정 폴더나 작업 기록 형식을 전제하지 않습니다.
+## 1. Connect with existing work
 
-## 2. 시작할 때 전체 범위를 잡기
+- Start design-only requests with this skill and make the completed design documents the deliverable. Do not first demand an implementation plan that cannot yet be settled.
+- For ongoing development, carry forward existing goals, constraints, decisions, authority, and records. Do not add a separate plan or approval stage or restart the work.
+- Common work-entry guidance first establishes the conversation's goal, requested deliverable, permitted actions, settled decisions, and open questions. Mentioning a skill or a needed change does not switch the work into execution. Interpret "please improve this" during design as improving the design, and the same wording during approved implementation as improving that implementation within scope. Clarify only when context cannot resolve ambiguity that changes scope or authority.
+- Choose this skill based on how choices are linked, rather than technical size. If one answer changes the next design choice, narrow the design through discussion; if investigation can establish an approach and questions together, `development-workflow` writes the plan directly. Continue in the same record if that judgment changes along the way.
+- Use `design-documentation` to structure and maintain design documents. This skill owns what to decide together and which missing topics to address next.
+- Distinguish agreement on design from authority to implement or deploy it. If implementation was requested and necessary decisions are settled, continue into implementation and verification of the existing work; `implementation` owns code execution rules.
+- Use the existing owning locations in the project's documentation system for lasting design and the current work's open questions. Do not assume a particular folder or work record format.
 
-먼저 사용자의 목표, 주요 사용자와 사용 사례, 제약, 이번에 완성할 범위를 짧게 정리합니다. 기존 대화와 문서에서 확정된 사항을 재사용하고, 조사로 확인할 수 있는 사실을 사용자에게 묻지 않습니다. 기존 제품을 바꾸는 설계라면 현재 동작과 바꾸려는 부분을 먼저 구분합니다.
+<a id="2-시작할-때-전체-범위를-잡기"></a>
 
-다음 내용을 기존 작업 기록에 필요한 만큼 유지합니다. 작업 계획을 사용하는 개발 작업에서는 그 문서에 설계 선택도 기록하고, 방향이 정리되면 `development-workflow`가 같은 기록을 실행 가능한 계획으로 발전시킵니다. 설계만 요청된 작업이나 짧은 논의는 기존 설계 기록 또는 허용된 대화를 사용할 수 있습니다. 기록 위치는 프로젝트 규칙을 따르며, 이해 통일을 위한 별도 선행 문서나 빈 설계 파일을 만들지 않습니다.
+## 2. Establish the full scope at the start
 
-- **완료 기준:** 어떤 사용 사례와 경계까지 설명되면 이번 설계가 완성되는지.
-- **설계 주제와 담당 문서:** 이미 정해진 부분, 논의할 부분, 다른 결정에 의존하는 부분이 어디에 있는지.
-- **미결 사항과 다음 주제:** 사용자의 판단이 필요한 질문, 조사할 사실, 다음으로 다룰 중요한 빈틈.
+First, briefly establish the user's goal, main users and use cases, constraints, and scope to complete this time. Reuse decisions already settled in conversation and documents, and do not ask the user for facts that investigation can establish. When designing changes to an existing product, first distinguish current behavior from the intended changes.
 
-아직 범위가 불분명하면 사용자의 목표를 바탕으로 추천 범위를 제시하고 중요한 경계를 함께 정합니다. 설명에 필요한 임시 가정은 가정임을 밝히며, 답변이 없다는 이유로 확정된 요구사항으로 바꾸지 않습니다.
+Maintain the following in the existing work record as needed. In development work using a work plan, record design choices there too; once the direction is settled, `development-workflow` develops that same record into an executable plan. Design-only work or short discussions may use an existing design record or authorized conversation. Follow project rules for record locations; do not create a separate preliminary shared-understanding document or empty design file.
 
-기존 프로젝트에 대한 요청이 조사할 만큼 명확하면, 이미 정해진 방향을 재확인하는 질문부터 하지 않습니다. 관련 구현과 재사용 가능한 기능, 실제로 얻을 수 있는 데이터와 제약을 확인한 뒤 그 근거로 남은 선택을 논의합니다. 반대로 미결 선택이 조사 방향을 바꾼다면 그 선택을 먼저 다룹니다. 조사와 설계 논의는 필요에 따라 오가며 진행합니다.
+- **Completion criteria:** Which use cases and boundaries must be explained for this design to be complete.
+- **Design topics and owning documents:** Where settled portions, discussion topics, and portions depending on other decisions belong.
+- **Open questions and next topics:** Questions requiring user judgment, facts to investigate, and the next important gaps to address.
 
-관련 architecture의 합의된 계약과 draft 제안을 구분하고 기존 코드·테스트·실제 동작과 대조합니다. 변경 후 보존할 기능·제약·권한을 같은 기록에 남기며, 문서에 없는 기능도 보존 대상으로 확인합니다. 명시된 설계와 다른 구현이나 기능 축소가 필요하면 이유·대안·영향을 관련 구현 전에 검토받습니다. 오류 회피를 위한 삭제·숨김·비활성화·검증 축소를 내부 구현 선택으로 처리하지 않습니다.
+If scope is still unclear, recommend a scope based on the user's goal and settle important boundaries together. Label temporary explanatory assumptions as assumptions; do not turn them into confirmed requirements because no answer arrived.
 
-## 3. 사용자가 결정할 사항을 먼저 드러내기
+If a request about an existing project is clear enough to investigate, do not begin by asking the user to reconfirm the settled direction. Check the relevant implementation, reusable features, obtainable data, and constraints, then use that evidence to discuss the remaining choices. If an unresolved choice instead changes the investigation's direction, address it first. Move between investigation and design discussion as needed.
 
-사용자 경험, 기능 범위, 우선순위, 데이터의 의미와 보존, 접근 권한, 비용이나 운영 부담을 바꾸는 선택은 사용자 판단이 필요한 사항으로 다룹니다. 기술적인 표현으로 설명하더라도 실제로 이런 영향을 준다면 구현 세부사항으로 간주해 임의로 정하지 않습니다.
+Distinguish agreed architecture contracts from draft proposals and compare them with existing code, tests, and actual behavior. Record the features, constraints, and authority to preserve after the change in the same record; include undocumented features in preservation checks. If the implementation must differ from the stated design or functionality must be reduced, have the reasons, alternatives, and impacts reviewed before the related implementation. Do not treat deletion, hiding, disabling, or reduced verification to avoid errors as internal implementation choices.
 
-에이전트는 다음을 구분합니다.
+<a id="3-사용자가-결정할-사항을-먼저-드러내기"></a>
 
-| 구분 | 처리 |
+## 3. Expose decisions the user must make first
+
+Treat choices that change user experience, feature scope, priorities, data meaning and retention, access permissions, costs, or operational burden as matters requiring user judgment. Even if described technically, a choice with these effects is not an implementation detail to settle arbitrarily.
+
+Distinguish the following:
+
+| Category | Handling |
 |---|---|
-| 기존 자료로 확인할 수 있는 사실 | 직접 조사하고 확인 범위와 불확실성을 구분합니다. |
-| 합의된 결과에 영향을 주지 않는 내부 구성 | 기존 구조와 재사용 가능성을 확인해 처리합니다. |
-| 사용자가 판단해야 할 설계 선택 | 추천안과 영향을 설명하고 답을 받은 뒤 의존하는 설계를 확정합니다. |
-| 사용자가 명시적으로 맡긴 선택 | 위임된 기준과 범위 안에서 결정하고 결과와 중요한 이유를 알립니다. |
+| Facts discoverable from existing material | Investigate directly and distinguish confirmed scope from uncertainty. |
+| Internal structure that does not affect the agreed result | Check existing structure and reuse opportunities, then handle it. |
+| Design choices requiring user judgment | Explain a recommendation and its impact, receive an answer, then finalize dependent design. |
+| Choices explicitly delegated by the user | Decide within the delegated criteria and scope, and report the result and important reasons. |
 
-추천안을 이미 결정된 동작처럼 본문에 섞거나, 그 선택을 전제로 여러 후속 결정을 확정하지 않습니다. 답을 기다리는 동안에는 독립적인 조사, 기존 합의의 문서화, 선택지 비교를 진행할 수 있습니다. 필요한 경우 조건별 초안을 제시하되 제안 상태를 유지합니다.
+Do not mix a recommendation into the text as settled behavior or finalize several subsequent decisions that assume it. While waiting for an answer, independent investigation, documentation of existing agreements, and option comparisons may continue. Present conditional drafts if needed, keeping them in proposal status.
 
-## 4. 방향을 제시하며 한 주제씩 논의하기
+<a id="4-방향을-제시하며-한-주제씩-논의하기"></a>
 
-사용자가 배경지식을 갖고 있다고 가정하지 않습니다. 먼저 목표에 맞는 방향을 제안하고, 선택의 의미를 이해하는 데 필요한 개념만 쉬운 말과 구체적인 상황으로 설명합니다. 선택지만 나열하거나 넓은 질문을 던져 설계 책임을 사용자에게 넘기지 않습니다.
+## 4. Guide the discussion one topic at a time
 
-각 주제는 다음 순서로 진행합니다.
+Do not assume the user has background knowledge. First recommend a direction suited to the goal, then explain only the concepts needed to understand the choice in plain language and concrete situations. Do not hand design responsibility to the user by merely listing options or asking broad questions.
 
-1. **문제와 영향:** 지금 무엇을 정해야 하며 실제 사용에 어떤 차이를 만드는지 설명합니다.
-2. **추천 방향:** 현재 목표와 제약에 비추어 추천하는 안과 이유를 말합니다.
-3. **대안과 절충점:** 실제로 가능한 대안을 필요한 만큼 비교하고, 각 선택에서 얻는 점과 감수할 점을 설명합니다. 비교 가치가 없는 대안을 억지로 만들지 않습니다.
-4. **결정 질문:** 사용자가 판단해야 할 차이를 중심으로 짧게 묻습니다. 한 답으로 다른 질문의 전제가 바뀐다면 앞선 결정부터 다룹니다.
-5. **답변 반영:** 답의 의미가 분명하면 해당 결정을 반영합니다. 결과를 바꿀 정도로 모호하거나 기존 합의와 충돌할 때만 구체적으로 확인합니다.
+Proceed through each topic in this order:
 
-예를 들어 목록 공유 방식을 논의한다면 “권한 모델을 정해주세요”보다 “실수로 수정되는 것을 줄이려면 초대받은 사람은 기본적으로 열람만 가능하고, 소유자가 편집 권한을 주도록 하는 방향을 추천합니다. 모두가 바로 편집할 수 있게 하면 협업은 빠르지만 변경 통제가 줄어듭니다. 어느 쪽이 실제 사용에 맞나요?”처럼 설명합니다. 질문에 답하기 전에 이 추천안을 확정된 권한 규칙으로 기록하지 않습니다.
+1. **Problem and impact:** Explain what must be decided now and how it affects actual use.
+2. **Recommended direction:** Give the recommendation and reasons in light of current goals and constraints.
+3. **Alternatives and trade-offs:** Compare genuinely feasible alternatives as needed, explaining benefits and costs of each. Do not invent alternatives with no comparison value.
+4. **Decision question:** Ask briefly about the differences the user needs to judge. If one answer changes another question's premise, address the earlier decision first.
+5. **Incorporate the answer:** Apply the decision when the answer is clear. Clarify specifically only when ambiguity could change the outcome or the answer conflicts with an existing agreement.
 
-한 번에 사용자가 판단할 수 있는 양만 다룹니다. 밀접한 질문은 묶을 수 있지만, 설계 전체의 질문 목록을 한꺼번에 답하도록 요구하지 않습니다. 사용자가 지식 부족이나 불확실성을 표현하면 설명과 사례를 보충하고, 목표에 따른 추천을 더 구체화합니다. 이를 선택 권한의 위임으로 해석하지 않습니다.
+For example, when discussing list sharing, explain: "To reduce accidental edits, I recommend that invited people can initially view the list and the owner grants editing access. Letting everyone edit immediately speeds up collaboration but reduces control over changes. Which fits actual use?" This is more useful than asking the user to choose a permission model. Do not record the recommendation as a confirmed permission rule before the user answers.
 
-## 5. 합의 후에는 빠진 주제를 찾아 이어가기
+Address only as much as the user can judge at once. Closely related questions may be grouped, but do not require answers to the entire design's question list at once. If the user expresses limited knowledge or uncertainty, add explanations and examples and make the goal-based recommendation more concrete. Do not interpret that as delegation of the choice.
 
-한 주제가 정리되면 담당 문서에 반영하고 미결 목록을 갱신한 뒤, 현재 설계에서 다음으로 중요한 빈틈을 찾아 화제로 올립니다. 사용자가 다음 질문을 만들 때까지 기다리거나 매번 “더 필요한 것이 있나요?”로 끝내지 않습니다.
+<a id="5-합의-후에는-빠진-주제를-찾아-이어가기"></a>
 
-다음 주제는 다른 설계에 미치는 영향, 선행 결정 여부, 잘못 정했을 때의 비용을 기준으로 고릅니다. 왜 지금 다룰 필요가 있는지와 추천 방향을 함께 제시합니다. 새 주제를 발견했다고 기능 범위까지 자동으로 늘리지는 않습니다. 합의 범위의 필수 누락인지 선택적 확장인지 구분하고, 범위를 바꿔야 하면 먼저 제안합니다.
+## 5. Find and continue with missing topics after agreement
 
-사용 사례를 처음부터 끝까지 따라가며 아래 관점에서 누락을 확인합니다. 모든 작업에 모든 항목을 적용하거나 각각 별도 문서를 만들 필요는 없습니다.
+Once a topic is settled, update its owning document and the open-question list, then raise the next important gap in the current design. Do not wait for the user to invent the next question or end every turn by asking whether anything else is needed.
 
-- **사용 흐름:** 진입 조건, 정상 처리, 완료 상태, 취소·수정·재시도, 빈 상태와 오류 시 사용자가 할 일.
-- **데이터와 상태:** 누가 만들고 소유하는지, 값의 의미와 수명, 저장·변경·삭제, 중복·동시 변경과 복구.
-- **책임과 연결:** 구성요소의 역할, 경계와 인터페이스, 외부 시스템 의존, 실패가 전달되는 방식.
-- **권한과 보호:** 누가 무엇을 볼 수 있고 바꿀 수 있는지, 민감한 정보와 위험한 작업의 처리.
-- **운영과 품질:** 실제로 필요한 성능·규모·비용·접근성, 관찰과 장애 대응, 기존 제품의 전환 제약.
-- **검증 가능성:** 의도한 동작과 실패 처리가 올바른지 어떤 시나리오와 기준으로 판단할 수 있는지.
+Choose the next topic based on its effect on other design, whether it is a prerequisite, and the cost of getting it wrong. Explain why it needs attention now and recommend a direction. Finding a new topic does not automatically expand feature scope. Distinguish required omissions within the agreed scope from optional extensions, and propose any scope change first.
 
-새 결정이 앞선 설계의 전제를 바꾸면 영향받는 문서와 사용 사례를 다시 확인합니다. 서로 충돌하는 내용을 남긴 채 다음 주제로 넘어가지 않습니다.
+Trace use cases from start to finish and check for omissions from the perspectives below. Not every item applies to every task or needs a separate document.
 
-## 6. 설계 문서를 논의와 함께 완성하기
+- **User flow:** Entry conditions, normal processing, completion state, cancellation, editing, retrying, and user actions for empty and error states.
+- **Data and state:** Creation and ownership, value meaning and lifetime, storage, changes, deletion, duplicates, concurrent changes, and recovery.
+- **Responsibilities and connections:** Component roles, boundaries and interfaces, external dependencies, and failure propagation.
+- **Permissions and protection:** Who can view and change what, and handling of sensitive information and dangerous actions.
+- **Operations and quality:** Actually required performance, scale, cost, accessibility, observability, incident response, and transition constraints for existing products.
+- **Verifiability:** Scenarios and criteria for judging intended behavior and failure handling.
 
-이해 통일에 필요한 문제·요구사항·선택지·결정은 같은 작업 기록에 모으고, 지속적인 합의된 설계는 `design-documentation`으로 기존 담당 절에 반영합니다. 계획과 architecture의 소유권을 구분하며 문서 반영을 별도의 승인 단계로 만들지 않습니다. 미결 선택은 제안으로 구분하고 변경된 문서와 결정의 결과를 짧게 알립니다. 실행으로 이어질 때는 같은 기록과 기존 권한을 전달하며, 문서 작성이나 설계안 동의를 새로운 실행 승인으로 간주하지 않습니다.
+If a new decision changes an earlier premise, revisit affected documents and use cases. Do not proceed to the next topic while leaving conflicting content unresolved.
 
-미결 질문·임시 가정·다음 주제는 기존 작업 기록에서 관리하고, 상세 설계는 담당 문서를 연결합니다. 합의한 내용은 본문에 직접 반영하며, 해결된 질문과 폐기된 대안은 정리합니다. 대화 시각·답변 원문·“사용자 결정” 표식을 반복하지 않습니다. 승인 근거나 변경 이력은 실제 보존 필요나 프로젝트 규칙이 있을 때만 지정된 기록에 최소한으로 남깁니다.
+<a id="6-설계-문서를-논의와-함께-완성하기"></a>
 
-문서의 구성·분할·공통 규칙 소유권·상태 표시·검증 근거 분리는 `design-documentation`과 프로젝트 지침을 따릅니다. 합의된 설계가 실제로 구현되었다고 표시하지 않습니다.
+## 6. Complete design documents alongside discussion
 
-## 7. 전체 설계 검토와 마무리
+Collect the problem, requirements, options, and decisions needed for a shared understanding in the same work record, and use `design-documentation` to put the lasting agreed design in its existing owning sections. Distinguish ownership of plans and architecture, and do not make documentation a separate approval stage. Mark unresolved choices as proposals and briefly report changed documents and the consequences of decisions. When moving into execution, pass on the same record and existing authority; do not treat writing documents or agreeing to a design as new execution approval.
 
-개별 질문에 답을 받았다는 이유만으로 설계를 완료했다고 보고하지 않습니다. 합의한 범위를 기준으로 다음을 함께 확인합니다.
+Manage open questions, temporary assumptions, and next topics in the existing work record, linking to the owning documents for detailed design. Incorporate agreements directly into the text and clear out resolved questions and discarded alternatives. Do not repeat conversation timestamps, verbatim responses, or "user decision" markers. Retain minimal approval evidence or change history only in the designated record when actual retention needs or project rules require it.
 
-- 주요 사용 사례가 시작부터 종료까지 이어지고, 중요한 예외와 실패 시 동작을 설명할 수 있습니다.
-- 구현자가 사용자에게 영향을 주는 핵심 동작·데이터 의미·책임을 임의로 결정하지 않아도 됩니다.
-- 문서 간 용어·상태·권한·계약이 일치하고, 각 설계 항목의 담당 문서와 참조를 찾을 수 있습니다.
-- 범위 안의 중요한 미결 결정이 해결되었으며, 보류할 사항은 그 영향과 다시 다룰 조건이 명확합니다. 현재 완료 기준에 필요한 결정을 단순히 보류 목록으로 옮겨 완료 처리하지 않습니다.
-- 목표 설계와 확인된 구현이 구분되며, 검증 가능한 완료 기준이 있습니다. 설계 작업만으로 실행·성능 검증까지 끝났다고 주장하지 않습니다.
-- 설계 본문에 대화 이력, 중복 설명, 불필요한 날짜·결정 표식이 누적되지 않았습니다.
+Follow `design-documentation` and project guidance for document structure, splitting, ownership of common rules, status labels, and separation of verification evidence. Do not mark agreed design as actually implemented.
 
-검토는 문서 간 대조와 시나리오 점검을 중심으로 수행하고, 실현 가능성의 중요한 불확실성에는 필요한 범위의 코드 조사나 실험을 더합니다. 확인하지 못한 것은 설계의 한계 또는 남은 검증으로 구분합니다.
+<a id="7-전체-설계-검토와-마무리"></a>
 
-설계만 요청된 작업은 완성한 범위와 설계 문서 링크, 남은 사항 및 완료에 미치는 영향을 전달하며 마무리합니다. 구현까지 요청된 작업은 합의된 설계, 성공 기준, 남은 검증과 제약을 기존 작업에 연결해 구현·검증으로 이어갑니다. 설계 논의를 별도 작업으로 다시 시작하거나 같은 결정을 재승인받지 않습니다. 실행 권한이 없거나 기존 합의를 벗어나는 선택이 생겼을 때는 필요한 부분만 확인합니다.
+## 7. Review and finish the full design
+
+Do not report design completion merely because individual questions were answered. Check the following together against the agreed scope:
+
+- Main use cases connect from start to finish, and important exceptions and failure behavior can be explained.
+- Implementers need not arbitrarily decide key user-facing behavior, data meaning, or responsibilities.
+- Terminology, states, permissions, and contracts agree across documents, and the owning document and references for each design item can be found.
+- Important open decisions within scope are resolved; deferred items have clear impacts and conditions for revisiting them. Do not mark completion merely by moving decisions needed for current completion criteria to a deferred list.
+- Target design is distinct from confirmed implementation, and completion criteria are verifiable. Do not claim execution or performance verification is complete on the strength of design work alone.
+- The design text has not accumulated conversation history, duplicate explanations, or unnecessary dates and decision markers.
+
+Review mainly through cross-document comparison and scenario checks, adding bounded code investigation or experiments for important feasibility uncertainties. Identify unconfirmed matters as design limitations or remaining verification.
+
+For design-only requests, finish by reporting the completed scope, links to design documents, remaining matters, and their effect on completion. If implementation was also requested, connect the agreed design, success criteria, remaining verification, and constraints to the existing work and continue into implementation and verification. Do not restart the design discussion as a separate task or request approval for the same decisions again. Clarify only the necessary portions when execution authority is absent or a choice falls outside existing agreement.

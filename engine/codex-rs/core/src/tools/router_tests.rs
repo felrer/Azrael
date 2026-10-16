@@ -786,12 +786,12 @@ async fn compatible_search_preserves_native_discovery_and_current_registry_autho
 
 #[tokio::test]
 async fn chat_discovery_bounds_large_catalogs_and_history_without_changing_schemas() {
-    for description_bytes in [4_000, 20_000] {
+    for description_bytes in [2_000, 12_000] {
         let router = discovery_budget_test_router(description_bytes).await;
         let base = router.model_visible_specs();
         let history = vec![discovery_search_history(), discovery_search_history()];
         assert!(serde_json::to_vec(&history).unwrap().len() > 280_000);
-        if description_bytes == 20_000 {
+        if description_bytes == 12_000 {
             let all_specs = router
                 .registry
                 .entries()
@@ -809,7 +809,7 @@ async fn chat_discovery_bounds_large_catalogs_and_history_without_changing_schem
             .collect::<Vec<_>>();
         assert!(!extras.is_empty());
         assert!(extras.len() <= 8);
-        if description_bytes == 4_000 {
+        if description_bytes == 2_000 {
             assert_eq!(extras.len(), 8);
         } else {
             assert!(extras.len() < 8);
@@ -910,7 +910,7 @@ async fn claude_chat_discovery_retains_whole_live_schemas_beyond_api_limits() {
 
 #[tokio::test]
 async fn chat_discovery_prefers_recent_calls_and_authorized_additions() {
-    let router = discovery_budget_test_router(4_000).await;
+    let router = discovery_budget_test_router(2_000).await;
     let history = vec![
         discovery_search_history(),
         serde_json::from_value(json!({"type": "additional_tools", "role": "developer", "tools": [

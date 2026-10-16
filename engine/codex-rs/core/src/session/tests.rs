@@ -7375,6 +7375,8 @@ async fn make_session_with_history_source_agent_control_time_and_rx(
     config.ephemeral = ephemeral;
     if let Some(model_base_url) = model_base_url {
         config.model_provider.base_url = Some(model_base_url);
+        // Persistent-session fixtures mount SSE handlers, not a WebSocket server.
+        config.model_provider.supports_websockets = false;
     }
     if external_time_provider.is_some() {
         config.current_time_reminder = Some(crate::config::CurrentTimeReminderConfig {

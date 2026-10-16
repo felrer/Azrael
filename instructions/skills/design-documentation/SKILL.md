@@ -1,58 +1,72 @@
 ---
 name: design-documentation
-description: 합의된 요구사항과 설계 결정을 제품·시스템의 동작과 구조로 구체화하고, 설계 논의 중이나 구현을 준비할 때 담당 설계 문서를 작성하거나 갱신합니다.
+description: Turn agreed requirements and design decisions into product and system behavior and structure, and create or update the owning design documents during design discussion or implementation preparation.
 ---
 
 # Design Documentation
 
-설계 문서는 대화에 참여하지 않은 사람이 의도한 동작과 구조, 지켜야 할 조건, 중요한 결정의 이유를 이해하고 구현·검토·변경할 수 있게 작성합니다. 현재 합의된 요구사항과 설계 결정을 바탕으로 관련 문서와 기존 구현을 확인합니다.
+Write design documents so that someone who did not join the conversation can understand the intended behavior and structure, required conditions, and reasons for important decisions, and can implement, review, and change them. Check related documents and the existing implementation against the currently agreed requirements and design decisions.
 
-설계 문서는 변경 기록이 아니라 현재 합의된 설계를 담습니다. 과거 경위를 모르는 사람도 지금의 동작과 구조를 그대로 이해할 수 있어야 합니다.
+Design documents contain the current agreed design rather than a change log. Someone unfamiliar with its history must be able to understand the current behavior and structure directly.
 
-문서 반영만 요청된 경우 직접 사용합니다. 설계 선택을 함께 구체화해야 하면 `design-collaboration`을 사용하고, 합의된 부분의 문서화는 계속합니다. 이 스킬은 작업 전체의 진행이나 코드 구현·검증 절차를 소유하지 않습니다.
+Use this skill directly when only documentation updates are requested. If design choices need to be developed together, use `design-collaboration` and continue documenting the agreed portions. This skill does not own overall work coordination or code implementation and verification procedures.
 
-이해 통일에 필요한 요구사항·선택지·미결 사항·진행은 같은 작업 기록이 소유하고, 이 스킬은 지속적인 합의된 설계를 기존 담당 문서에 반영합니다. 이해 통일 문서를 계획의 필수 선행 단계로 만들지 않습니다. 전체 계획 확정 전에도 허용된 범위의 합의된 부분부터 반영할 수 있지만, 미결 선택은 제안으로 구분하고 문서 반영 자체를 실행 승인이나 추가 검토 단계로 처리하지 않습니다.
+The same work record owns the requirements, options, open questions, and progress needed for a shared understanding; this skill puts the lasting agreed design in its existing owning documents. Do not make a shared-understanding document a mandatory prerequisite for planning. Agreed portions within the authorized scope may be documented before the full plan is finalized, but distinguish unresolved choices as proposals and do not treat documentation itself as execution approval or an additional review stage.
 
-## 설명할 내용
+<a id="설명할-내용"></a>
 
-해결할 문제, 원하는 결과와 제약을 설명하고, 주요 사용 사례를 구체적인 동작으로 풀어냅니다. 그 동작을 성립시키는 데이터의 의미, 구성요소의 책임, 상태와 상호작용을 연결해 설명합니다. 결과에 영향을 주는 실패·충돌 상황과 처리도 포함합니다.
+## What to explain
 
-중요한 결정에는 목표와 제약에 비추어 선택한 이유를 남깁니다. 실제 판단에 영향을 준 대안과 절충점은 같은 선택을 다시 검토하지 않도록 하는 데 필요한 만큼 설명합니다.
+Explain the problem, desired outcome, and constraints, and describe the main use cases as concrete behavior. Connect the meaning of the data, component responsibilities, states, and interactions that enable that behavior. Include failures and conflicts that affect the result and how they are handled.
 
-## 구체성과 분량
+For important decisions, record why the choice fits the goals and constraints. Explain alternatives and trade-offs that actually affected the judgment only as far as needed to avoid reopening the same choice.
 
-구현자가 중요한 제품 동작과 책임을 임의로 정하지 않아도 되고, 검토자가 요구 충족 여부를 판단할 수 있는 수준으로 씁니다. 추상적인 설명으로 해석이 갈리는 부분은 예시, 데이터 형태, 상태 변화나 조건으로 명확히 합니다.
+<a id="구체성과-분량"></a>
 
-내용에 맞는 구성을 선택하고, 필요한 만큼만 설명합니다. 코드에서 쉽게 확인할 수 있는 내부 세부사항과 파일별 수정 목록, 실행 절차는 반복하지 않습니다.
+## Specificity and length
 
-## 최신 설계만 유지
+Write enough that implementers need not arbitrarily decide important product behavior or responsibilities and reviewers can judge whether requirements are met. Clarify abstract descriptions that allow conflicting interpretations with examples, data shapes, state changes, or conditions.
 
-변경을 반영할 때는 해당 내용을 담당하는 문장과 절을 직접 고쳐, 변경 후에 참인 설계만 남깁니다.
+Choose a structure suited to the content and explain only what is needed. Do not repeat internal details readily visible in code, lists of edits by file, or execution procedures.
 
-- 대체된 동작, 폐기된 구조, 번복된 결정은 삭제합니다. 과거 경위는 버전 관리나 필요한 기존 작업 기록에서 확인하며, 프로젝트에 보관 체계가 있으면 그 지침을 따릅니다. 보존 필요가 없는 대화 이력을 다른 문서로 옮겨 쌓지 않습니다.
-- "수정", "이전에는", "더 이상 … 않는다", "대체됨", "correction", "previously", "no longer", "superseded"처럼 변경 과정을 서술하는 표현과 날짜별로 덧붙인 단락을 쓰지 않습니다. 기존 동작과의 관계가 중요하면 현재 설계의 조건이나 제약으로 표현합니다.
-- 사용자 응답, 조사 과정, 작업 진행 상황, 구현 순서를 옮기지 않습니다. 문장마다 “사용자 결정”, “확인 완료”, 대화 시각을 붙이지 않고, 현재 동작과 필요한 판단 이유를 직접 설명합니다.
+<a id="최신-설계만-유지"></a>
 
-## 상태 표시와 검증 근거
+## Keep only the current design
 
-프로젝트의 문서 상태 체계(예: `target`, `current`, `partial`)를 문서나 절 단위로 한 번 표시합니다. 구현된 부분과 목표인 부분이 섞이면 절을 나누어 구분합니다. 문장이나 단락마다 날짜, 검증 여부, 버전을 덧붙이지 않습니다. 승인은 구현을 뜻하지 않으므로, 확인되지 않은 부분은 목표 상태로 둡니다.
+When incorporating a change, edit the owning sentences and sections directly, leaving only the design that is true after the change.
 
-검증 명령, 종료 코드, 해시, 산출물 경로, 실행 날짜 같은 근거는 설계 문서에 쓰지 않습니다. 작업별 검증 결과는 기존 작업 기록에, 반복 가능한 검증 절차는 운영 문서에 두고, 판단 근거가 필요하면 링크합니다. 작업 기록은 프로젝트 규칙에 따른 계획 문서나 허용된 대화 기록을 사용하며, 검증 근거를 위해 별도 계획 문서를 만들지 않습니다. 구현과 검증이 끝나면 해당 절의 상태 표시를 실제로 확인된 범위에 맞게 갱신합니다.
+- Remove replaced behavior, discarded structures, and reversed decisions. Consult version control or necessary existing work records for history, and follow the project's retention system if one exists. Do not accumulate conversation history in another document when it has no retention purpose.
+- Avoid change-process wording such as "correction", "previously", "no longer", or "superseded", and paragraphs appended by date. If the relationship to existing behavior matters, express it as a condition or constraint of the current design.
+- Do not copy user responses, investigation steps, work progress, or implementation order. Explain current behavior and necessary reasons directly, without attaching "user decision", "confirmed", or conversation timestamps to every sentence.
 
-## 문서 구성
+<a id="상태-표시와-검증-근거"></a>
 
-주요 기능을 기준으로 폴더를 구성하고 관련 설계 문서를 모읍니다. 함께 이해하고 수정하는 내용은 한 문서에 유지하며, 세부 요소마다 폴더나 파일을 만들지 않습니다. 서로 독립적으로 바뀌는 기능이 한 문서에 섞여 찾거나 고치기 어려워지면 기능별로 나눕니다.
+## Status and verification evidence
 
-해당 내용을 담당하는 기존 문서에 반영하며, 새 문서는 프로젝트의 문서 체계에 맞춰 작성합니다. 여러 기능에 공통인 규칙은 한곳에서 정의하고 다른 문서에서는 연결합니다.
+Apply the project's document status system (for example, `target`, `current`, `partial`) once per document or section. If implemented and target portions are mixed, separate them into sections. Do not append dates, verification status, or versions to every sentence or paragraph. Approval does not mean implementation, so keep unconfirmed portions in the target state.
 
-## 반영 후 확인
+Do not put verification commands, exit codes, hashes, artifact paths, or execution dates in design documents. Keep task-specific verification results in the existing work record and repeatable verification procedures in operational documents, linking to evidence when needed. Use the project's plan document or authorized conversation record as the work record; do not create a separate plan document just for verification evidence. Once implementation and verification are complete, update the section's status to match the scope actually confirmed.
 
-문서가 승인된 요구사항 및 관련 문서와 일치하는지 확인하고 프로젝트의 문서 검증 지침을 따릅니다. 이번 변경으로 사실이 아니게 된 문장이 다른 절이나 문서에 남아 있지 않은지, 변경 과정 서술이나 문장 단위 상태·날짜 표시가 새로 생기지 않았는지 확인합니다.
+<a id="문서-구성"></a>
 
-## 새로운 결정이나 변경이 필요할 때
+## Document structure
 
-설계를 구체화하다 새로운 선택이 필요해지면 진행 중인 설계 논의에 추천 방향과 영향을 제시합니다. 사용자가 이미 정한 내용과 명시적으로 맡긴 판단 범위를 존중하고, 그 밖의 선택을 임의로 확정하지 않습니다. 답변을 기다리는 동안에는 독립적으로 합의된 부분의 문서화를 계속합니다.
+Organize folders by major feature and group related design documents. Keep content understood and changed together in one document; do not create a folder or file for every detail. Split by feature when independently changing features become difficult to find or edit in a shared document.
 
-실제 동작과 설계가 다르면 어느 쪽이 합의된 기준인지 확인합니다. 오류 수정 결과에 맞춰 architecture를 고쳐 기능 삭제나 축소를 정당화하지 않습니다. 문서에 없는 기존 기능은 설계의 공백으로 확인하고, 기능 변화가 합의된 뒤 담당 절을 갱신합니다.
+Update the existing document that owns the content, and create new documents within the project's documentation structure. Define rules shared by several features in one place and link to them elsewhere.
 
-결정이 정리되면 관련 설계와 미결 기록을 갱신하고, 앞선 설계의 전제가 바뀌었다면 영향받는 문서와 사용 사례를 함께 확인합니다. 이미 합의된 내용을 문서에 반영한다는 이유로 재승인을 요구하지 않습니다. 구현 중 설계와 다른 결정이 확정되면 같은 방식으로 담당 문서를 갱신합니다.
+<a id="반영-후-확인"></a>
+
+## Check after updating
+
+Check that the document agrees with approved requirements and related documents, and follow the project's documentation validation guidance. Check that statements made false by this change do not remain in other sections or documents, and that no change-process narrative or sentence-level status or date annotations have been introduced.
+
+<a id="새로운-결정이나-변경이-필요할-때"></a>
+
+## When a new decision or change is needed
+
+If developing the design reveals a new choice, present a recommendation and its impact in the ongoing design discussion. Respect the user's existing decisions and explicitly delegated judgment, and do not arbitrarily finalize other choices. While waiting for an answer, continue documenting independently agreed portions.
+
+If actual behavior differs from the design, establish which is the agreed baseline. Do not revise architecture to fit a fix and thereby justify removing or reducing functionality. Treat existing undocumented functionality as a design gap, and update the owning section after the behavior change is agreed.
+
+Once decisions are settled, update the related design and open-question record; if an earlier premise changed, check affected documents and use cases together. Do not request approval again merely to document an existing agreement. If a different design decision is finalized during implementation, update the owning document in the same way.

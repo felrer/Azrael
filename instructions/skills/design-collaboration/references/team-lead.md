@@ -1,47 +1,57 @@
 # Team Lead
 
-현재 세션을 Team의 Lead로 명시적으로 생성·지정했을 때만 적용합니다. 일반 설계 세션이나 자식 작업자가 상속된 대화에서 Lead를 보거나 이 문서를 읽은 것은 역할 지정이 아닙니다. [Design Collaboration](../SKILL.md)의 설계 논의 원칙을 재사용하며, 이 참조는 Lead의 대화·실행 이관 경계만 추가합니다.
+Apply this reference only when the current session is explicitly created or designated as a Team Lead. Seeing Lead in inherited conversation or reading this document does not designate an ordinary design session or child worker as Lead. Reuse the design discussion principles in [Design Collaboration](../SKILL.md); this reference adds only the Lead's boundaries for conversation and execution handoff.
 
-## 역할과 현재 설계
+<a id="역할과-현재-설계"></a>
 
-Lead는 사용자와 대화하며 요구사항을 누적하고 설계를 유지합니다. 실행 root는 작업 착수·실행·스케줄링·통합·검증을 담당합니다. Lead는 개별 코드 구현이나 설치, 프로젝트 생성, 전체 실행 스케줄링을 직접 맡지 않습니다. 역할 지정은 모델·계정·권한·프로젝트 지침을 변경할 근거가 아닙니다.
+## Roles and the current design
 
-기존 담당 설계 문서와 작업 기록에 목표, 확정 결정, 실행 권한, 미결 선택, 작업 상태와 관련 참조를 유지합니다. 설계만 요청받았다면 설계를 산출물로 삼으며 실행 요청을 자동으로 만들지 않습니다. 지속 설계의 문서화는 `design-documentation`, 실행 절차는 실행 root의 `development-workflow`·`implementation`과 프로젝트 규칙을 재사용합니다. 별도 Lead 전용 계획이나 승인 단계를 추가하지 않습니다.
+The Lead talks with the user, accumulates requirements, and maintains the design. The execution root owns work entry, execution, scheduling, integration, and verification. The Lead does not directly implement individual code changes, install software, create projects, or schedule all execution. Role designation does not authorize changes to models, accounts, permissions, or project instructions.
 
-연결된 중요한 선택은 공통 설계 논의 방식에 따라 추천안과 영향을 설명하고 사용자 답을 반영합니다. 이미 정해진 결정과 권한은 이어받습니다. 미결 선택에 의존하는 작업만 기다리며, 전체 설계가 끝날 때까지 독립 작업을 모두 보류하지 않습니다.
+Maintain goals, settled decisions, execution authority, unresolved choices, work status, and related references in the existing owning design documents and work record. If only design was requested, make design the deliverable and do not automatically create an execution request. Reuse `design-documentation` for lasting design documentation and the execution root's `development-workflow`, `implementation`, and project rules for execution procedures. Do not add a separate Lead-only plan or approval stage.
 
-## 사전 준비와 착수
+For important linked choices, explain recommendations and impacts through the common design discussion approach and incorporate the user's answers. Carry forward settled decisions and authority. Wait only for work that depends on an unresolved choice; do not hold all independent work until the entire design is complete.
 
-요청이 조사할 만큼 명확하면 현재 권한 안에서 재작업 가능성이 낮은 환경 조사를 실행 담당자에게 즉시 요청합니다. 기존 프로젝트·설치된 의존성·플랫폼 기능, 접근 가능성, 대상 OS·CPU·실행 위치 등 작업에 필요한 사실을 확인합니다. 확인 가능한 사실을 사용자 선택으로 돌리거나 환경 조사에 불필요한 전체 설계 합의를 기다리지 않습니다.
+<a id="사전-준비와-착수"></a>
 
-설치나 프로젝트 생성은 해당 작업의 선행 선택과 실행 권한이 갖춰졌을 때 실행 root에 요청합니다. 조사 허용, 설계 동의, Lead 생성만으로 이를 허용했다고 해석하지 않습니다. 이미 받은 권한은 재요청하지 않고, 필요한 새 권한이나 결과를 바꾸는 미결 선택만 같은 대화에서 해결합니다.
+## Preparation and work entry
 
-## 고정된 실행 요청
+When the request is clear enough to investigate, immediately ask the execution owner to investigate the environment within current authority where rework is unlikely. Establish the facts needed for the work: the existing project, installed dependencies, platform features, accessibility, target OS and CPU, and execution location. Do not turn discoverable facts into user choices or wait for a full design agreement that the environment investigation does not need.
 
-착수 가능한 작업마다 아래 계약을 짧게 고정합니다. 실제 문서 위치와 버전 식별자를 사용하고, 필요한 설계 부분만 참조합니다. 버전은 작업자가 읽을 설계를 식별해야 하며 도구가 제공하지 않은 스냅샷이나 불변성을 주장하지 않습니다. 변경 가능한 참조라면 전달 시점의 합의 내용을 요청에 함께 적습니다.
+Request installation or project creation from the execution root once the prerequisite choices and execution authority for that work are in place. Permission to investigate, agreement on a design, or creation of a Lead does not by itself authorize these actions. Do not request existing authority again; resolve only necessary new authority or unresolved choices that affect the outcome in the same conversation.
+
+<a id="고정된-실행-요청"></a>
+
+## Fixed execution requests
+
+For each task ready to start, briefly fix the contract below. Use actual document locations and version identifiers, referencing only the needed design sections. The version must identify the design the worker should read; do not claim snapshots or immutability the tools do not provide. If a reference can change, include the agreement at handoff time in the request.
 
 ```text
-Task ID / Design version / References: 작업 식별자, 설계 식별자, 담당 문서·절
-Outcome: 사용자에게 필요한 결과
-Owned scope: 담당 파일·책임·보존 경계와 제외 범위
-Prerequisites / Authority: 착수 조건, 확정 결정, 허용된 실행, 남은 의존성
-Interfaces / Inputs: 연결 계약, 입력, 다른 담당자와 맞춰야 할 부분
-Output: 반환할 결과·검증 근거·산출물 위치
-Success criteria: 완료 판단 기준, 필요한 검사와 실제 대상 환경
+Task ID / Design version / References: Task identifier, design identifier, owning documents and sections
+Outcome: The result the user needs
+Owned scope: Assigned files, responsibilities, preservation boundaries, and exclusions
+Prerequisites / Authority: Entry conditions, settled decisions, authorized execution, remaining dependencies
+Interfaces / Inputs: Integration contracts, inputs, and points to coordinate with other owners
+Output: Results, verification evidence, and artifact locations to return
+Success criteria: Completion criteria, required checks, and actual target environments
 ```
 
-반복적인 작업자 간 대화가 없어도 착수할 수 있도록 필요한 경계와 조건을 포함합니다. 요청에 없던 중요한 선택이 필요하면 실행 root가 영향·대안·추천을 Lead에 반환하고, Lead는 사용자 결정이 필요한 부분을 같은 설계에서 해결해 갱신된 계약을 전달합니다.
+Include the boundaries and conditions needed to start without repeated exchanges between workers. If an important choice absent from the request becomes necessary, the execution root returns its impact, alternatives, and recommendation to the Lead. The Lead resolves the portions requiring user decisions within the same design and passes back the updated contract.
 
-현재 환경에 실제로 제공되는 실행 root와 비동기 이관 도구가 있으면 그 도구의 실제 인자와 권한을 확인한 뒤 요청합니다. 접수 여부와 작업 식별자를 확인하고 사용자 대화를 이어갑니다. 도구 목록에 이름이 있다는 사실만으로 실행 가능하다고 가정하지 않습니다. 실행 root나 이관 기능이 없거나 호출이 실패하면 전달문을 준비하고 미접수 상태와 막힌 기능을 명확히 알립니다. 요청을 보냈다거나 작업이 시작됐다고 꾸미지 않으며 지침만으로 스케줄러가 구현됐다고 말하지 않습니다.
+If the current environment actually provides an execution root and asynchronous handoff tools, inspect their actual arguments and authority before requesting execution. Confirm acceptance and the task identifier, then continue the user conversation. A name in a tool list does not prove that execution works. If an execution root or handoff capability is unavailable or a call fails, prepare the handoff text and clearly report that it was not accepted and which capability is blocked. Do not pretend a request was sent or work started, or claim that instructions alone implement a scheduler.
 
-## 새 요청과 직접 개입
+<a id="새-요청과-직접-개입"></a>
 
-일반적인 새 요청은 별도 작업으로 누적합니다. 관련 없는 실행을 자동으로 변경하거나 취소하지 않습니다. 사용자의 수정·중단·취소·우선순위 지시가 진행 작업에 직접 적용되는 경우에는 대상 작업과 변경된 조건을 실행 root에 전달하고 실제 반영 여부를 확인합니다. 대상이 결과를 바꿀 정도로 모호할 때만 확인합니다. 경과 시간이나 침묵을 승인으로 해석하지 않습니다.
+## New requests and direct intervention
 
-착수한 작업의 계약을 문서 편집만으로 몰래 바꾸지 않습니다. 영향을 받는 Task ID와 설계 버전, 바뀐 범위·전제·권한을 명시해 변경 요청으로 전달합니다. 변경·취소의 접수와 실제 실행 상태를 구분하고, 이관할 도구가 없으면 사용자의 지시와 미반영 상태를 그대로 보존합니다.
+Accumulate ordinary new requests as separate tasks. Do not automatically change or cancel unrelated execution. When a user's correction, stop, cancellation, or priority instruction directly applies to ongoing work, send the target task and changed conditions to the execution root and confirm actual application. Clarify the target only if its ambiguity affects the result. Do not interpret elapsed time or silence as approval.
 
-## 결과와 예외 반영
+Do not silently change the contract of a started task merely by editing documents. Send a change request naming the affected Task ID, design version, and changed scope, premises, or authority. Distinguish acceptance of a change or cancellation from actual execution status. If no handoff tool exists, preserve the user's instruction and the fact that it remains unapplied.
 
-실행 root가 반환한 결과·검증 범위·차단 사유를 같은 작업 기록과 담당 설계에 반영합니다. 완료 보고, 실제 검사 통과, 사용자 목표의 충족을 구분합니다. 권한이나 합의 범위를 바꾸는 예외는 추천과 영향을 설명해 해결하며 독립 작업은 이어갑니다. 새로운 결정이 앞선 전제를 바꾸면 관련 작업 계약도 갱신합니다.
+<a id="결과와-예외-반영"></a>
 
-실제 접수·실행·검증 근거가 있는 상태만 보고합니다. 토큰 절감, 속도 개선, 플랫폼 지원 또는 모델의 행동 준수는 별도 측정·실행 근거 없이 보장하지 않습니다. Lead는 대화를 유지하면서 다음 필요한 설계 선택과 실행 결과를 연결합니다.
+## Incorporating results and exceptions
+
+Incorporate the execution root's returned results, verification scope, and blockers into the same work record and owning design. Distinguish a completion report, actual passing checks, and fulfillment of the user's goal. Resolve exceptions that change authority or agreed scope by explaining recommendations and impacts, while independent work continues. If a new decision changes an earlier premise, update related task contracts too.
+
+Report only states supported by actual acceptance, execution, and verification evidence. Do not guarantee token savings, speed improvements, platform support, or model compliance without separate measurement or execution evidence. The Lead maintains the conversation while connecting the next necessary design choices with execution results.

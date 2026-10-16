@@ -1,0 +1,153 @@
+{
+  "measurement": "Current session ALL_TOOLS strings; UTF-16 string length, includes prose and exec TypeScript declaration. Not initial model prompt, not provider wire bytes, not tokens.",
+  "windowTools": [
+    {
+      "name": "mcp__azrael_window__capture",
+      "descriptionChars": 608
+    },
+    {
+      "name": "mcp__azrael_window__collapse",
+      "descriptionChars": 656
+    },
+    {
+      "name": "mcp__azrael_window__expand",
+      "descriptionChars": 652
+    },
+    {
+      "name": "mcp__azrael_window__inspect",
+      "descriptionChars": 472
+    },
+    {
+      "name": "mcp__azrael_window__invoke",
+      "descriptionChars": 652
+    },
+    {
+      "name": "mcp__azrael_window__list_task_macros",
+      "descriptionChars": 257
+    },
+    {
+      "name": "mcp__azrael_window__list_windows",
+      "descriptionChars": 354
+    },
+    {
+      "name": "mcp__azrael_window__press_key",
+      "descriptionChars": 556
+    },
+    {
+      "name": "mcp__azrael_window__resize",
+      "descriptionChars": 647
+    },
+    {
+      "name": "mcp__azrael_window__restore_window",
+      "descriptionChars": 512
+    },
+    {
+      "name": "mcp__azrael_window__run_size_macro",
+      "descriptionChars": 641
+    },
+    {
+      "name": "mcp__azrael_window__run_task_macro",
+      "descriptionChars": 745
+    },
+    {
+      "name": "mcp__azrael_window__save_task_macro",
+      "descriptionChars": 978
+    },
+    {
+      "name": "mcp__azrael_window__scroll",
+      "descriptionChars": 704
+    },
+    {
+      "name": "mcp__azrael_window__select",
+      "descriptionChars": 652
+    },
+    {
+      "name": "mcp__azrael_window__select_window",
+      "descriptionChars": 425
+    },
+    {
+      "name": "mcp__azrael_window__set_value",
+      "descriptionChars": 675
+    },
+    {
+      "name": "mcp__azrael_window__status",
+      "descriptionChars": 683
+    },
+    {
+      "name": "mcp__azrael_window__toggle",
+      "descriptionChars": 652
+    }
+  ],
+  "connectors": {
+    "chatgpt_space": {
+      "count": 35,
+      "metadataChars": 104470
+    },
+    "figma": {
+      "count": 43,
+      "metadataChars": 78493
+    },
+    "github": {
+      "count": 89,
+      "metadataChars": 75167
+    },
+    "google_drive": {
+      "count": 45,
+      "metadataChars": 65770
+    },
+    "pets": {
+      "count": 11,
+      "metadataChars": 8761
+    },
+    "plugin_management": {
+      "count": 6,
+      "metadataChars": 12118
+    },
+    "search_service": {
+      "count": 1,
+      "metadataChars": 9297
+    },
+    "topview": {
+      "count": 74,
+      "metadataChars": 125734
+    },
+    "vercel": {
+      "count": 235,
+      "metadataChars": 334969
+    }
+  },
+  "largestTools": [
+    {
+      "name": "mcp__codex_apps__chatgpt_space_edit_page",
+      "metadataChars": 14090
+    },
+    {
+      "name": "mcp__codex_apps__chatgpt_space_read_page",
+      "metadataChars": 12654
+    },
+    {
+      "name": "mcp__codex_apps__topview_use_tiktok_data",
+      "metadataChars": 10720
+    },
+    {
+      "name": "web__run",
+      "metadataChars": 10479
+    },
+    {
+      "name": "mcp__codex_apps__chatgpt_space_patch_page",
+      "metadataChars": 10414
+    },
+    {
+      "name": "mcp__codex_apps__search_service_web_run",
+      "metadataChars": 9297
+    },
+    {
+      "name": "mcp__codex_apps__topview_use_amazon_data",
+      "metadataChars": 7832
+    },
+    {
+      "name": "mcp__codex_apps__chatgpt_space_create_page_visualization",
+      "metadataChars": 7624
+    }
+  ]
+}

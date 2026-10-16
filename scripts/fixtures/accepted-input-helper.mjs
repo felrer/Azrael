@@ -10,6 +10,9 @@ const request = frames[1];
 if (request.type === 'capabilities') {
   process.stdout.write(JSON.stringify({ protocol_version: 1, request_id: request.request_id,
     seq: 0, type: 'capabilities', image_model_ids: [] }) + '\n');
+} else if (request.type === 'estimate') {
+  process.stdout.write(JSON.stringify({ protocol_version: 1, request_id: request.request_id,
+    seq: 0, type: 'error', code: 'unsupported_input_budget' }) + '\n');
 } else {
 compileRequest(request);
 appendFileSync(process.env.AZRAEL_ACCEPTED_INPUT_TRACE, JSON.stringify({

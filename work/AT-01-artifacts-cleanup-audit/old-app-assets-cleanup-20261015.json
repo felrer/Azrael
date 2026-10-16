@@ -1,0 +1,50 @@
+{
+  "status": "completed",
+  "generatedAt": "2026-10-15T03:25:04.9172915Z",
+  "installedVersion": "2026.0.7",
+  "installedRuntime": "artifacts/w14w/artifacts/releases/w14y",
+  "separateInstalledReleases": [
+    "2026.0.4",
+    "2026.0.5"
+  ],
+  "items": [
+    {
+      "version": "2026.0.0",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.0\\assets\\Azrael-2026.0.0-windows-x64.zip",
+      "bytes": 818532478,
+      "sha256": "9d404fa52de7208f0c20ba74175ad76a92f685205fd85b711729de383f9478ae",
+      "attributes": "Archive",
+      "status": "deleted",
+      "manifest": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.0\\assets\\release-manifest.json"
+    },
+    {
+      "version": "2026.0.1",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.1\\assets\\Azrael-2026.0.1-windows-x64.zip",
+      "bytes": 818628234,
+      "sha256": "6a4920d12795e84f6503ab68c82e0a7449205e0f5ab1a2aae13cd80c6b14fc75",
+      "attributes": "Archive",
+      "status": "deleted",
+      "manifest": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.1\\assets\\release-manifest.json"
+    },
+    {
+      "version": "2026.0.2",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.2\\assets\\Azrael-2026.0.2-windows-x64.zip",
+      "bytes": 818653942,
+      "sha256": "ae9459aab14bb23720ac448618edef016b0951f43a48261aa957b438aeebfa3c",
+      "attributes": "Archive",
+      "status": "deleted",
+      "manifest": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.2\\assets\\release-manifest.json"
+    },
+    {
+      "version": "2026.0.3",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.3\\assets-r3\\Azrael-2026.0.3-windows-x64.zip",
+      "bytes": 825230079,
+      "sha256": "b42cacead7d9373e2b61616e69734834a120b18bfcfc38d163a872cbac2bab50",
+      "attributes": "Archive",
+      "status": "deleted",
+      "manifest": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\app-releases\\2026.0.3\\assets-r3\\release-manifest.json"
+    }
+  ],
+  "errors": [],
+  "finishedAt": "2026-10-15T03:25:25.7738326Z"
+}

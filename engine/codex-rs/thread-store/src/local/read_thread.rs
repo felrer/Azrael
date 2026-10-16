@@ -33,6 +33,9 @@ pub(super) async fn read_thread(
     params: ReadThreadParams,
 ) -> ThreadStoreResult<StoredThread> {
     let thread_id = params.thread_id;
+    // Persist can expose the rollout path before its initial SessionMeta is durable.
+    // Share the writer barrier so SQLite and rollout metadata describe a completed write.
+    let _live_writer_guard = store.live_writer_locks.lock(thread_id).await;
     let sqlite_metadata = read_sqlite_metadata(store, thread_id).await;
     let persisted_model_settings = sqlite_metadata
         .as_ref()
@@ -586,6 +589,110 @@ mod tests {
     use crate::local::test_support::write_session_file;
     use crate::local::test_support::write_session_file_with_fork;
     use crate::local::test_support::write_session_file_with_history_mode;
+
+    #[tokio::test]
+    async fn read_thread_waits_for_durable_session_meta_under_live_writer_lock() {
+        use std::future::Future;
+        use std::task::Context;
+        use std::task::Waker;
+
+        use codex_protocol::models::BaseInstructions;
+        use codex_rollout::RolloutConfig;
+        use codex_rollout::RolloutRecorderParams;
+
+        let home = TempDir::new().expect("temp dir");
+        let config = test_config(home.path());
+        let runtime = codex_state::StateRuntime::init(
+            config.sqlite.clone(),
+            config.default_model_provider_id.clone(),
+        )
+        .await
+        .expect("state db should initialize");
+        let store = LocalThreadStore::new(config.clone(), Some(runtime.clone()));
+        let thread_id = ThreadId::new();
+        let recorder = RolloutRecorder::new(
+            &RolloutConfig {
+                codex_home: home.path().to_path_buf(),
+                sqlite: config.sqlite.clone(),
+                cwd: home.path().to_path_buf(),
+                model_provider_id: config.default_model_provider_id.clone(),
+                generate_memories: false,
+            },
+            RolloutRecorderParams::new(
+                thread_id,
+                None,
+                None,
+                SessionSource::Exec,
+                None,
+                "writer-originator".to_string(),
+                BaseInstructions::default(),
+                Vec::new(),
+            )
+            .with_history_mode(ThreadHistoryMode::Paginated),
+        )
+        .await
+        .expect("create deferred recorder");
+        let rollout_path = recorder.rollout_path().to_path_buf();
+        std::fs::create_dir_all(rollout_path.parent().expect("rollout parent"))
+            .expect("create rollout directory");
+        std::fs::write(&rollout_path, "").expect("expose empty rollout");
+        let metadata = ThreadMetadataBuilder::new(
+            thread_id,
+            rollout_path.clone(),
+            Utc::now(),
+            SessionSource::Exec,
+        )
+        .build(config.default_model_provider_id.as_str());
+        runtime
+            .upsert_thread(&metadata)
+            .await
+            .expect("seed metadata");
+        let params = || ReadThreadParams {
+            thread_id,
+            include_archived: false,
+            include_history: false,
+        };
+
+        // An existing empty rollout without an active write must still fail strictly.
+        let err = store
+            .read_thread(params())
+            .await
+            .expect_err("empty rollout");
+        assert!(matches!(err, ThreadStoreError::Internal { .. }));
+        assert!(err.to_string().contains("failed to read session metadata"));
+
+        let writer_guard = store.live_writer_locks.lock(thread_id).await;
+        let mut read = store.read_thread(params());
+        let mut context = Context::from_waker(Waker::noop());
+        assert!(read.as_mut().poll(&mut context).is_pending());
+        let mut following_writer = Box::pin(store.live_writer_locks.lock(thread_id));
+        assert!(following_writer.as_mut().poll(&mut context).is_pending());
+
+        recorder
+            .persist()
+            .await
+            .expect("persist initial SessionMeta");
+        super::super::thread_history_materialization::materialize_to_sqlite(
+            &store,
+            thread_id,
+            &rollout_path,
+        )
+        .await
+        .expect("project durable metadata");
+        assert!(read.as_mut().poll(&mut context).is_pending());
+        drop(writer_guard);
+        // Tokio's FIFO mutex reserves the next permit for the queued read. This fails
+        // deterministically if read_thread never queued on the shared writer lock.
+        assert!(following_writer.as_mut().poll(&mut context).is_pending());
+        let thread = read.await.expect("read durable metadata after writer");
+        assert_eq!(thread.thread_id, thread_id);
+        assert_eq!(thread.rollout_path, Some(rollout_path));
+        assert_eq!(thread.history_mode, ThreadHistoryMode::Paginated);
+        assert_eq!(thread.originator.as_deref(), Some("writer-originator"));
+        assert!(thread.history.is_none());
+        drop(following_writer.await);
+        recorder.shutdown().await.expect("close recorder");
+    }
 
     #[tokio::test]
     async fn read_thread_returns_active_rollout_summary() {

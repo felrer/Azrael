@@ -1,0 +1,16 @@
+{
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "apply": false,
+  "includeDiagnosedFixtures": true,
+  "status": "preview",
+  "candidates": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\deployments\\manual-integrated_latest_20261007_r3\\package\\stage-22ad2d267586496ba495c0b77c2cf921",
+      "status": "retained",
+      "reason": "Active command path: 38268",
+      "archived": [],
+      "acceptanceResult": null
+    }
+  ],
+  "errors": []
+}

@@ -253,6 +253,8 @@ class RecorderTests(unittest.TestCase):
 
     def test_reviewed_source_addition_path_scope(self):
         for name in ("new.md", "codex-rs/prompts/agent_behavior.md",
+                     "Cargo.toml", "codex-rs/Cargo.toml", "codex-rs/new/nested/Cargo.toml",
+                     "other/new/Cargo.toml", "codex-rs/new/config.toml",
                      "codex-rs/prompts/templates-other/agent_behavior.md",
                      "codex-rs/prompts/templates/agent_behavior.sql", "new.ts",
                      "codex-rs/app-server-protocol/schema-other/typescript/Model.ts",
@@ -263,6 +265,23 @@ class RecorderTests(unittest.TestCase):
                     self.record(("edit.rs", name))
                 self.git(self.repo, "rm", "--cached", "engine/" + name)
                 (self.destination / name).unlink()
+
+    def test_reviewed_crate_manifest_is_explicit_tracked_and_content_bound(self):
+        name = "codex-rs/new-crate/Cargo.toml"
+        self.add_module(name)
+        (self.destination / name).write_text('[package]\nname = "new-crate"\nversion = "0.1.0"\n', encoding="utf-8")
+        with self.assertRaises(ValueError):
+            self.record()
+        self.record(("edit.rs", name))
+        receipt = self.receipt()
+        self.assertEqual(receipt["localIntegration"]["originalReceipt"], self.original)
+        self.assertIsNone(receipt["localIntegration"]["changes"][name]["before"])
+        importer.validate_receipt(self.destination, receipt)
+        (self.destination / name).write_text('[package]\nname = "changed"\n', encoding="utf-8")
+        with self.assertRaises(ValueError):
+            importer.validate_receipt(self.destination, receipt)
+        self.update((name,))
+        importer.validate_receipt(self.destination, self.receipt())
 
     def test_reviewed_protocol_typescript_addition_preserves_provenance(self):
         name = "codex-rs/app-server-protocol/schema/typescript/ModelAutoCompact.ts"

@@ -1,53 +1,58 @@
-# 위임 예시
+<a id="위임-예시"></a>
+# Delegation Examples
 
-위임 전에 [위임·통합 지침](../skills/implementation/references/delegation.md)을 읽습니다. worktree는 [수명 주기 지침](../skills/implementation/references/worktrees.md), 빌드는 [입력 고정 지침](../skills/implementation/references/build-inputs.md), UI 작업은 [UI 검증 지침](../skills/implementation/references/ui.md)을 함께 적용합니다. 작업자에게 적용되는 제약과 해당 참조를 전달합니다.
+Read the [delegation and integration guidance](../skills/implementation/references/delegation.md) before delegating. Also apply the [lifecycle guidance](../skills/implementation/references/worktrees.md) for worktrees, [input freezing guidance](../skills/implementation/references/build-inputs.md) for builds, and [UI verification guidance](../skills/implementation/references/ui.md) for UI work. Pass the applicable constraints and references to workers.
 
-아래 경로와 심볼은 설명을 위한 가상 예시입니다. 실제 프로젝트의 경로로 바꿔 사용하세요.
+The paths and symbols below are fictional examples for illustration. Replace them with actual project paths.
 
-## 직접 처리할 때
+<a id="직접-처리할-때"></a>
+## When to Handle Work Directly
 
-설정값 한 개 조회, 알려진 파일의 짧은 수정, 이미 확보한 근거의 요약은 부모가 직접 처리합니다. 위임 전달문을 작성하고 결과를 통합하는 비용이 더 크기 때문입니다.
+The parent directly handles looking up one setting, making a short edit to a known file, or summarizing evidence already obtained, because writing a delegation handoff and integrating results would cost more.
 
-문서 수정도 현재 유효한 내용을 해당 위치에서 고칩니다. 사용자의 답이 확정되면 질문을 지우고 요구사항이나 계획에 반영하며, 날짜별 응답 기록이나 조사 로그를 덧붙이지 않습니다. 변경 내역 자체가 목적일 때만 이력을 남깁니다.
+For document edits, update the currently valid content in place. Once the user's answer is settled, remove the question and incorporate the answer into requirements or the plan; do not append dated response records or research logs. Keep history only when change history itself is the objective.
 
-빌드·재설치를 위임해도 사용자 지시 없이는 앱 버전을 올리지 않습니다. 새 산출물 식별값과 현재 앱 버전을 구분하고, 검증된 같은 버전 패키지로 설치를 대체하며 실행 중인 런타임·롤백본·사용자 데이터를 보존합니다.
+Delegating builds or reinstalls does not authorize increasing the app version without user instructions. Distinguish new artifact identifiers from the current app version, replace the installation with a verified package of the same version, and preserve the running runtime, rollback copy and user data.
 
-빌드 오류 수정을 맡길 때는 대상 플랫폼과 보존할 기존 엔진·기능·UI 동작을 명시합니다. 특정 플랫폼 오류는 해당 플랫폼 경계에서 해결하고, 다른 플랫폼의 동작 변경이 불가피하면 적용 전에 root에게 영향·대안을 보고해 사용자 지시를 받도록 합니다. 작업자는 수정 이유·변경 전후·기존 패치 제거 또는 대체·플랫폼 영향·검증 및 미검증 범위를 반환하고, root는 완료 후 이를 사용자에게 보고합니다. 완료 보고가 승인 범위를 벗어난 변경의 사전 확인을 대신하지 않습니다.
+When assigning build error fixes, specify the target platform and existing engine, feature and UI behavior to preserve. Resolve platform-specific errors at that platform's boundary. If behavior changes on other platforms are unavoidable, require the worker to report the impact and alternatives to root and obtain user instructions before applying them. Workers return the reason for each fix, before and after behavior, removal or replacement of existing patches, platform impact, and verified and unverified scope; root reports these to the user at completion. A completion report does not replace prior confirmation of changes outside the authorized scope.
 
-## worktree에서 작업할 때
+<a id="worktree에서-작업할-때"></a>
+## When Working in a Worktree
 
-빌드를 맡길 때는 시작 시점에 선택된 미커밋 변경까지 포함한 소스·스크립트·lockfile·입력을 고정하고, 해당 스냅샷과 식별값을 전달합니다. 패키징·검증·설치도 같은 스냅샷을 사용하며 이후 주 체크아웃에 추가된 변경은 다음 빌드에 반영합니다. 동시 작업의 변경 때문에 실행 중인 빌드 입력을 갱신하거나 다시 시작하지 않습니다. 고정 입력 자체의 오류를 수정하면 새 입력 식별값을 가진 새 빌드로 시작합니다.
+When assigning a build, freeze the source, scripts, lockfiles and inputs selected at the start, including selected uncommitted changes, and pass that snapshot and its identifiers. Use the same snapshot for packaging, verification and installation; incorporate later changes to the main checkout in the next build. Do not update the inputs or restart a running build to follow concurrent changes. Fixing an error in the frozen inputs starts a new build with new input identifiers.
 
-작업용 worktree를 만들었다면 미커밋 변경을 포함한 모든 변경사항을 주 체크아웃(`main` 또는 저장소의 기존 주 브랜치)에 통합하고 충돌을 해결한 뒤 통합 결과를 검증합니다. 기존 변경사항은 보존합니다. 통합 후 해당 worktree는 예외 없이 **무조건 삭제**하며, Git 등록과 실제 디렉터리가 모두 제거됐는지 확인합니다. 필요한 소스 출처 기록과 재사용할 빌드 캐시는 먼저 worktree 밖에 보존합니다. 통합·삭제가 커밋이나 게시 권한을 의미하지는 않습니다.
+If a task worktree was created, integrate all changes, including uncommitted changes, into the main checkout (`main` or the repository's existing main branch), resolve conflicts and verify the integrated result. Preserve existing changes. After integration, **always delete** that worktree without exception, and confirm removal of both its Git registration and actual directory. First retain required source provenance records and reusable build caches outside the worktree. Integration and deletion do not authorize commits or publishing.
 
-위임하는 경우에도 부모가 최종 통합과 삭제 완료를 확인할 책임을 명시합니다. 사용자가 직접 작업을 요청했다면 별도 에이전트를 사용하지 않습니다.
+When delegating, explicitly assign the parent responsibility for confirming final integration and completed deletion. If the user asks for direct work, do not use a separate agent.
 
-## 긴 실행과 후속 검증을 연결할 때
+<a id="긴-실행과-후속-검증을-연결할-때"></a>
+## Connecting Long Executions and Downstream Verification
 
-다음은 가상의 빌드·검증 handoff입니다. 실제 경로·설정·단계 이벤트 지원을 확인한 뒤 적용합니다.
+The following is a fictional build and verification handoff. Confirm actual paths, settings and stage event support before applying it.
 
 ```text
-Objective: 고정한 Windows x64 release 입력으로 후속 검증이 사용할 패키지를 생성한다.
-Scope: 지정된 빌드·로그 경로만 소유한다. 기존 소스와 다른 작업자의 캐시는 변경하지 않는다.
-Constraints: 후속 소비자는 설치 검증 담당자다. 고정한 소스·도구·의존성과 release 설정을 사용하고, 패키지를 쓰기 완료한 뒤 사용 중 변경되지 않는 경로로 전달한다. 사전 검사 결과는 최종 입력·환경·범위가 일치할 때만 재사용한다.
-Done when: 준비 완료는 패키지 생성·필수 무결성 검사·후속 사용 조건 확인이다. 전체 완료는 최종 보고와 배정된 정리까지 포함한다. 패키지 생성이 설치 검증 통과를 뜻하지 않는다.
-Return format: 기존 역할 필드 안에 단계 상태, 고정된 패키지 경로·해시·입력 식별 정보, 충족한 조건·남은 검사·종료 코드·로그를 포함한다. 긴 실행은 시작·종료 시각, 대기 사유와 재실행 원인을 간결하게 보고한다.
+Objective: Produce a package for downstream verification from frozen Windows x64 release inputs.
+Scope: Own only the designated build and log paths. Do not change existing source or other workers' caches.
+Constraints: The downstream consumer is the installation verification owner. Use the frozen source, tools, dependencies and release settings, and hand off the package at a path that remains unchanged while in use after writing is complete. Reuse preliminary check results only when final inputs, environments and scope match.
+Done when: Readiness requires package creation, mandatory integrity checks and confirmation of downstream use conditions. Full completion also includes final reporting and assigned cleanup. Package creation does not mean installation verification passed.
+Return format: Within the existing role fields, include stage status, fixed package path, hash and input identifiers, satisfied conditions, remaining checks, exit codes and logs. For long executions, briefly report start and end times, reasons for waits and causes of reruns.
 ```
 
-root는 빌드 중 설치 검증 환경을 준비하고 작은 실제 실행으로 확인합니다. 단계 이벤트가 현재 런타임에서
-지원되면 패키지 준비 단계만 대기 대상으로 선택하며, 일반 진행 메시지가 root를 깨운다고 가정하지 않습니다.
-재개 후 실제 상태와 후속 실행 조건을 확인합니다. 설치 검증과 최종 산출물 동일성 확인은 유지합니다.
-전체 경과 시간으로 효과를 평가하고 겹치는 빌드·환경 준비 시간을 합산하지 않습니다.
+root prepares the installation verification environment during the build and checks it with a small actual execution. If the current runtime
+supports stage events, wait only for the package readiness stage; do not assume ordinary progress messages wake root.
+After resuming, confirm actual status and downstream execution conditions. Retain installation verification and final artifact identity checks.
+Evaluate effects by total elapsed time; do not sum overlapping build and environment preparation time.
 
-### `defer_root` 호출 인자
+<a id="defer_root-호출-인자"></a>
+### Arguments for `defer_root`
 
-현재 도구가 지원되는 경우 다음처럼 필요한 담당자의 종료를 기다립니다. `resume_after_ms`는
-1~43,200,000밀리초이며, 아래 예시는 10분을 대체 재개 시점으로 둡니다.
+When the current tool is supported, wait for the required owner's termination as follows. `resume_after_ms` accepts
+1–43,200,000 milliseconds; the example below sets 10 minutes as a fallback resumption time.
 
 ```json
 {
   "resume_after_ms": 600000,
-  "reason": "조사 계약이 준비되어야 호출부 구현을 시작할 수 있다",
+  "reason": "The research contract must be ready before implementing the caller",
   "wake_on": {
     "agent_paths": ["/root/research"],
     "condition": "all_terminal"
@@ -55,88 +60,92 @@ root는 빌드 중 설치 검증 환경을 준비하고 작은 실제 실행으�
 }
 ```
 
-절대 시각을 지정하려면 `resume_after_ms` 대신 `resume_at`에 앞으로 12시간 이내의 RFC3339 UTC
-시각(`YYYY-MM-DDTHH:MM:SSZ`)을 전달합니다. 두 인자 중 하나만 지정하고, `deadline`이라는 인자는
-사용하지 않습니다. 실제 호출에서는 필요한 담당자 경로와 대기 이유로 바꿉니다.
+To specify an absolute time, pass an RFC3339 UTC time (`YYYY-MM-DDTHH:MM:SSZ`) within the next 12 hours
+through `resume_at` instead of `resume_after_ms`. Specify only one of these arguments; do not use an argument
+named `deadline`. In actual calls, substitute the required owner path and reason for waiting.
 
-## 탐색을 맡길 때
+<a id="탐색을-맡길-때"></a>
+## When Assigning Exploration
 
-다음은 부모가 구현 범위를 판단하는 동안 자식에게 독립적인 근거 조사를 맡기는 예시입니다. 한 줄 조회가 아닌 여러 호출·조건을 추적하는 질문을 사용합니다.
+The following example assigns independent evidence research to a child while the parent determines implementation scope. Use questions that trace multiple calls and conditions, rather than a one-line lookup.
 
-다음 구현을 막는 질문부터 우선순위를 지정하고, 첫 조사 범위는 후속 실행에 필요한 최소 계약을 확인하는 완료 가능한 단위로 정합니다. 아래 예시에서는 설정 전달 경로와 기본값 적용 조건이 첫 인계 대상이며, 추가 조사가 필요하면 같은 담당자에게 후속 범위로 전달합니다. 확정된 계약으로 수행 가능한 구현·검증 준비는 계속하고, 미확정 동작을 임의로 채우지 않습니다.
+Prioritize questions blocking the next implementation, and define the initial research scope as a completable unit that establishes the minimum contract needed for downstream execution. In the example below, the first handoff covers the configuration propagation path and defaulting conditions; assign additional research to the same owner as follow-up scope if needed. Continue implementation and verification preparation possible under confirmed contracts, and do not arbitrarily fill unsettled behavior.
 
-대기 직전에는 기존 작업 기록에 `현재 선행 조건 / 바로 실행할 독립 작업 / 다음 인계 산출물`을 필요한 만큼 남깁니다. 대기 이유는 막힌 작업과 필요한 산출물을 명시합니다. 실행 가능한 구현·검증 준비가 남아 있는데 문서 정리만 수행한 뒤 대기하지 않으며, 일반 중간 보고가 root를 깨운다고 가정하지 않습니다.
+Immediately before waiting, record `current prerequisites / independent work to execute immediately / next handoff artifact` in the existing work record as needed. The reason for waiting must identify blocked work and the required artifact. Do not wait after only organizing documents when executable implementation or verification preparation remains, and do not assume ordinary progress reports wake root.
 
 ```text
 Role: luna_explorer
-Objective: 재시도 횟수 설정이 요청 처리까지 전달되는 경로와 기본값 적용 조건을 확인한다.
-Scope: src/config/와 src/client/를 읽기 전용으로 조사한다.
-Constraints: 코드 변경·테스트 실행·설계 결정은 하지 않는다. 범위 밖 의존성이 필요하면 위치와 이유를 보고한다. 병렬 조회의 합산 출력량을 실행 전에 제한하고, 전체 Git 상태와 상세 로그는 작업 파일에 보관한다. Windows의 rg 검색은 디렉터리와 -g 필터를 사용한다.
-References: src/config/retry.ts의 loadRetryConfig, src/client/request.ts의 sendRequest
-Done when: 설정 로딩부터 재시도 분기까지의 경로, 기본값 조건, 미확인 부분이 근거와 함께 정리된다.
+Objective: Identify how the retry count setting reaches request processing and when defaults apply.
+Scope: Read-only research in src/config/ and src/client/.
+Constraints: Do not change code, run tests or make design decisions. If dependencies outside scope are needed, report their locations and reasons. Bound the combined output of parallel queries before execution, and retain full Git status and detailed logs in work files. Use directories and -g filters for rg searches on Windows.
+References: loadRetryConfig in src/config/retry.ts; sendRequest in src/client/request.ts
+Done when: Summarize the path from configuration loading to retry branching, defaulting conditions and unconfirmed parts with evidence.
 Return format: STATUS / ANSWER / EVIDENCE / SEARCHED / UNRESOLVED
 ```
 
-`spawn_agent`에는 `agent_type="luna_explorer"`를 명시하고 GPT-6 Luna / xhigh 역할 기본값을 유지합니다. 지원되는 override는 구체적인 필요가 있을 때만 사용하며.
+Explicitly set `agent_type="luna_explorer"` on `spawn_agent` and preserve the GPT-6 Luna / xhigh role defaults. Use supported overrides only for a concrete need.
 
-반환 예시 역시 가상 결과입니다.
+The return example is also fictional.
 
 ```text
 STATUS: ANSWERED
-ANSWER: loadRetryConfig가 읽은 값을 sendRequest에 전달한다. 설정 미지정일 때만 기본값을 사용한다.
+ANSWER: The value read by loadRetryConfig is passed to sendRequest. Defaults apply only when the setting is unspecified.
 EVIDENCE: src/config/retry.ts:loadRetryConfig; src/client/request.ts:sendRequest
-SEARCHED: src/config/와 src/client/의 설정 전달 경로
+SEARCHED: Configuration propagation paths in src/config/ and src/client/
 UNRESOLVED: None
 ```
 
-## 구현을 맡길 때
+<a id="구현을-맡길-때"></a>
+## When Assigning Implementation
 
-부모는 대화의 목표·산출물·허용 작업을 먼저 확인하고, 연결된 사용자 선택을 여러 턴 논의해야 하면 `design-collaboration`, 조사 후 접근 방법과 질문을 계획에 모을 수 있으면 `development-workflow`로 진입합니다. 같은 작업 기록을 이어가며 합의된 지속적인 설계는 `design-documentation`, 정해진 구현·검증·정리는 `implementation`이 담당합니다. 작은 작업은 짧은 계획으로 정리하고, 위임이나 스킬 전환으로 승인 단계를 추가하지 않습니다. 작업자는 전달받은 범위를 실행하며 설계 차이·기능 축소가 필요하면 관련 구현 전에 부모에게 근거·대안·영향을 보고합니다. architecture에 없는 기존 기능도 코드·테스트·동작 근거로 보존합니다.
+The parent first identifies the conversation's goal, deliverables and permitted actions. Enter through `design-collaboration` when linked user choices require multiple turns of discussion, or `development-workflow` when investigation can produce a plan with an approach and questions. Continue the same work record; `design-documentation` owns agreed enduring design, and `implementation` owns settled implementation, verification and cleanup. Use a short plan for small work, and do not add approval stages through delegation or skill transitions. Workers execute the assigned scope; if design differences or feature reductions are needed, report evidence, alternatives and impact to the parent before the affected implementation. Preserve existing features absent from architecture documentation using code, tests and behavioral evidence.
 
-탐색 결과를 바탕으로 부모가 요구사항과 수정 범위를 결정한 뒤 전달합니다. Codex와 Azrael 모두 `sol_executor`(GPT-6.1 Sol, medium)를 사용합니다. 아래 0 처리 규칙은 예시의 합의된 조건입니다.
-
-```text
-Role: sol_executor
-Objective: 공통 큐 설정에서 재시도 횟수 0을 유효한 설정으로 처리한다.
-Scope: src/config/retry.ts와 tests/retry.test.ts만 수정한다.
-Constraints: 요구 의미는 지원 정책의 모든 플랫폼에 공통이다. undefined일 때만 기본값을 사용하고 0은 재시도하지 않음을 뜻한다. 공개 함수 시그니처는 유지한다. OS별 기본값·저장 경로·프로세스 코드는 변경하지 않는다. 공통 함수 소비자가 있는 모든 플랫폼을 회귀 영향으로 기록한다. 다른 작업자와 기존 변경을 보존한다.
-References: src/config/retry.ts의 loadRetryConfig; tests/retry.test.ts
-Done when: 미지정·0·양수의 공통 입출력 계약이 통과하고 플랫폼 어댑터에 추가 변경이 필요한지 보고한다. 실제 실행한 OS/CPU·검사·종료 코드와 타 환경의 미검증 범위를 구분한다. OS 한정 차이가 발견되면 임의로 제외하지 말고 부모에게 반환한다.
-Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
-```
-
-요구사항 전달에 도움이 되면 짧은 코드 조각, 평가 알고리즘, 입출력 예시, 기존 테스트 참조 등을 선택적으로 덧붙입니다. 예를 들어 위 작업은 `undefined → 기본값`, `0 → 0`, `양수 → 입력값 유지`라는 입출력 예시로 판정 기준을 설명할 수 있습니다.
-
-혼합 기능은 부모가 공통 계약을 확정하고 작업자가 특정 환경의 구현만 소유하도록 전달합니다. 다음 예시는 Windows 백엔드 변경의 수용을 다른 OS의 네이티브 실행 성공으로 확대하지 않습니다.
+The parent determines requirements and edit scope from exploration results before handing off. Use `sol_executor` (GPT-6.1 Sol, medium) in both Codex and Azrael. The handling of 0 below is an agreed condition of this example.
 
 ```text
 Role: sol_executor
-Objective: 합의된 창 캡처 계약의 Windows 백엔드를 구현한다.
-Scope: src/capture/windows.ts와 해당 백엔드 계약 테스트만 수정한다.
-Constraints: 혼합 요구다. 공통 승인·응답 스키마는 부모가 소유하며 작업자는 변경하지 않는다. 요구 대상은 Windows x64 로컬 대화형 데스크톱의 사용자 승인 창이다. 원격·비대화형 실행과 다른 OS 백엔드는 제외한다. 공통 스키마 소비 환경은 회귀 영향으로 기록하고 권한·데스크톱 조건 차이를 임의로 숨기지 않는다. 기존 변경과 다른 작업자의 소유권을 보존한다.
-References: src/capture/windows.ts; docs/capture.md의 공통 승인·응답 계약과 Windows 데스크톱 조건
-Done when: 공통 응답 계약과 대상 Windows의 네이티브 캡처·권한 동작을 확인한다. 실제 OS/CPU·버전·데스크톱·검사·종료 코드와 다른 환경의 미검증 범위를 보고한다. 다른 백엔드나 공통 계약 변경이 필요하면 부모에게 반환한다.
+Objective: Treat a retry count of 0 as a valid setting in common queue configuration.
+Scope: Modify only src/config/retry.ts and tests/retry.test.ts.
+Constraints: The required meaning is common to all platforms in the support policy. Apply defaults only for undefined; 0 means no retries. Preserve public function signatures. Do not change OS-specific defaults, storage paths or process code. Record all platforms consuming the common function as regression impact. Preserve other workers' work and existing changes.
+References: loadRetryConfig in src/config/retry.ts; tests/retry.test.ts
+Done when: The common input/output contract for unspecified, 0 and positive values passes, and report whether platform adapters need additional changes. Distinguish actual OS/CPU, checks and exit codes from unverified scope in other environments. Return discovered OS-specific differences to the parent rather than arbitrarily excluding them.
 Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
 ```
 
-UI 작업을 위임할 때는 OpenAI 스타일과 재사용할 기존 페이지·설정 행·토글·버튼·테마 토큰의 소유 위치를 함께 전달합니다. 완료 기준에는 밝은 테마와 어두운 테마의 실제 렌더링 및 주요 상호작용 확인을 포함합니다. 사용자가 다른 스타일을 요청한 경우 해당 요구를 우선합니다.
+Optionally add short code snippets, evaluation algorithms, input/output examples or references to existing tests when they help communicate requirements. For example, explain the acceptance criteria above with `undefined → default`, `0 → 0` and `positive number → preserve input value`.
 
-실질적으로 다른 독립 목표를 위임할 때는 새 자식에 `fork_turns="none"`을 지정합니다. 지원되지 않으면 지원되는 최소 이력 범위를 사용하고 제한을 알립니다. 같은 목표의 수정·검증은 기존 담당자에게 변경분만 전달하며, 완료했다는 이유나 문맥 갱신만을 위해 결합된 작업을 나누지 않습니다.
+For mixed features, the parent settles the common contract and assigns the worker ownership only of a specific environment's implementation. The following example does not extend acceptance of a Windows backend change to successful native execution on other operating systems.
 
-상세 실행 로그는 작업별 파일에 보존합니다. 성공한 테스트·빌드는 실행 범위, 결과, 실제 종료 코드와 로그·산출물 경로를 반환합니다. 실패하면 실패 대상, 첫 원인 오류와 진단에 필요한 스택·문맥을 보고하고 추가 로그는 필요한 부분만 읽습니다.
+```text
+Role: sol_executor
+Objective: Implement the Windows backend for the agreed window capture contract.
+Scope: Modify only src/capture/windows.ts and that backend's contract tests.
+Constraints: This is a mixed requirement. The parent owns the common approval and response schemas; the worker must not change them. The requested target is user-approved windows on a Windows x64 local interactive desktop. Remote and noninteractive execution and other OS backends are excluded. Record environments consuming the common schema as regression impact, and do not arbitrarily hide differences in permission or desktop conditions. Preserve existing changes and other workers' ownership.
+References: src/capture/windows.ts; common approval and response contracts and Windows desktop conditions in docs/capture.md
+Done when: Verify the common response contract and native capture and permission behavior on the target Windows environment. Report actual OS/CPU, version, desktop, checks and exit codes, and unverified scope in other environments. Return required changes to other backends or the common contract to the parent.
+Return format: STATUS / CHANGED / VALIDATION / UNRESOLVED / ARTIFACTS
+```
 
-## 설치 후 작은 확인 작업
+When delegating UI work, pass the OpenAI style requirement and owning locations of existing pages, setting rows, toggles, buttons and theme tokens to reuse. Completion criteria must include actual rendering in light and dark themes and verification of key interactions. Prioritize a different style if the user requests it.
 
-자신의 프로젝트에서 위 탐색 예시의 경로를 실제 경로로 바꿔 `luna_explorer` 하나만 실행합니다. 자식 화면에서 선택된 역할·모델을 확인하고, 파일 변경 없이 정해진 필드와 근거를 반환했는지 확인하세요. 실패하면 역할 발견, 모델 접근, 지침 병합 문제를 구분해 수정합니다. 이 확인은 토큰 절감 실험이 아닙니다.
+For a materially different independent objective that warrants delegation, create a fresh child with `fork_turns="none"`. If unsupported, use the smallest supported history scope and disclose the limitation. Send only the delta to the existing owner for corrections and verification of the same objective; do not split coupled work merely because it completed or to refresh context.
 
-## 부모 판단이 현재 작업을 막을 때
+Retain detailed execution logs in task-specific files. For successful tests and builds, return executed scope, outcome, actual exit codes and log and artifact paths. On failure, report failing targets, the first causal error and the stack or context needed for diagnosis; read only necessary sections of additional logs.
 
-현재 세션에 해당 도구가 제공되는 경우의 예시입니다. 관련 질문과 근거를 묶되, 막힌 결정을 관련 없는 완료까지 미루지 않습니다.
+<a id="설치-후-작은-확인-작업"></a>
+## A Small Check After Installation
 
-1. 자식은 검증 준비 결과를 `send_message`로 보고합니다. 일반 보고는 부모의 즉시 재개를 보장하지 않습니다.
-2. 자식은 고정 입력 교체 결정이 필요하면 `request_parent({request_key: "replace-input-r2", question: "수정한 입력으로 검증을 다시 시작할까요?", context: "기존 입력에서 필수 파일 누락을 확인했습니다.", recommendation: "수정 입력을 고정하고 영향받은 검사만 다시 실행합니다.", blocked_action: "수정 입력을 사용하는 검증 실행"})`으로 요청합니다.
-3. 접수된 `request_id`를 유지한 채 허용된 독립 준비를 진행합니다. 준비가 끝나 답변 없이는 진행할 수 없으면 같은 ID로 `await_parent_response({request_id})`를 사용합니다. final이나 추가 wake를 만들지 않습니다.
-4. 부모는 허용된 범위를 확인하고 `respond_to_request({request_id, status: "resolved", decision: "수정 입력을 고정하고 영향받은 검사만 실행하세요.", reason: "기존 승인 범위 안의 필수 검증입니다."})`으로 답합니다. 사용자 판단이 필요하면 `status: "deferred"`와 이유·`retry_condition`으로 기록합니다.
-5. 자식은 명시적인 답변 범위 안에서 진행합니다. 전체 할당·검증·정리가 끝난 뒤 final로 보고합니다. 엔진이 대기 시간을 기록하므로 로그용 sleep이나 반복 조회는 추가하지 않습니다.
+Replace the exploration example's paths with actual paths in your project and run just one `luna_explorer`. Confirm the selected role and model in the child view, and check that it returned the specified fields and evidence without changing files. If it fails, distinguish and fix role discovery, model access and instruction merging problems. This check is not a token savings experiment.
 
-도구가 없는 세션에서는 `send_message`와 독립 작업을 사용합니다. 더 진행할 수 없으면 완료 범위·결정·재개 조건을 `PARTIAL` final에 적어 턴을 종료합니다. source 구현과 실제 세션 가용성을 구분합니다.
+<a id="부모-판단이-현재-작업을-막을-때"></a>
+## When a Parent Decision Blocks Current Work
+
+This example applies when the tools are provided in the current session. Batch related questions and evidence, but do not delay a blocked decision until unrelated work completes.
+
+1. The child reports verification preparation results through `send_message`. Ordinary reports do not guarantee immediate parent resumption.
+2. If a decision to replace frozen inputs is needed, the child requests it through `request_parent({request_key: "replace-input-r2", question: "Should verification restart with the corrected inputs?", context: "A required file is missing from the existing inputs.", recommendation: "Freeze the corrected inputs and rerun only affected checks.", blocked_action: "Verification execution using the corrected inputs"})`.
+3. Retain the accepted `request_id` and continue authorized independent preparation. When preparation ends and progress requires an answer, use `await_parent_response({request_id})` with the same ID. Do not issue a final or additional wake.
+4. The parent checks the authorized scope and answers through `respond_to_request({request_id, status: "resolved", decision: "Freeze the corrected inputs and run only affected checks.", reason: "This is required verification within existing authorization."})`. If user judgment is needed, record `status: "deferred"` with the reason and `retry_condition`.
+5. The child proceeds within the explicit answer's scope. Report through final after the entire assignment, verification and cleanup are complete. The engine records wait time; do not add sleeps for logging or repeated polling.
+
+In sessions without these tools, use `send_message` and independent work. When no further progress is possible, end the turn with a `PARTIAL` final stating the completed scope, required decision and resumption conditions. Distinguish source implementation from actual session availability.

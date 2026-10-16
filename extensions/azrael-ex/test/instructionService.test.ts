@@ -32,8 +32,10 @@ async function fixture(t: TestContext) {
   });
   const home = path.join(dir, "home"), workspace = path.join(dir, "workspace");
   await fs.mkdir(home); await fs.mkdir(workspace);
-  const latest = JSON.parse(await fs.readFile(path.join(root, "artifacts/latest.json"), "utf8"));
-  const engine = path.join(latest.releaseDirectory, "engine", process.platform === "win32" ? "codex.exe" : "codex");
+  const engine = process.env.AZRAEL_INSTRUCTION_TEST_ENGINE ?? path.join(
+    JSON.parse(await fs.readFile(path.join(root, "artifacts/latest.json"), "utf8")).releaseDirectory,
+    "engine", process.platform === "win32" ? "codex.exe" : "codex");
+  assert(path.isAbsolute(engine), "Instruction fixture engine must be explicitly absolute");
   await fs.access(engine);
   const control: { repository: string; workspace: string; failure?: string; gate?: Promise<void> } = { repository: manifest.repository, workspace };
   const warnings: string[] = [], requests: string[] = [], options: any[] = [];

@@ -17,3 +17,11 @@
 커밋 경계: session/mod.rs, step_context.rs와 prompts 파일에는 앞선 harness-profile 작업의 미커밋 변경이 겹친다. 그 작업의 지침 구성 함수가 이번 API 연결부의 선행 조건이다. unrelated staged 파일과 변경을 포함한 커밋을 만들지 않으며, 분리 가능성은 최종 diff에서 다시 판단한다.
 
 재현 반복 1: skills 검사 종료 101(05:22:49Z→05:53:41Z). analytics/src/client.rs:926 Turn 생성에 parent_turn_id/turn_trigger 누락(E0063)으로 새 검사 코드 이전에 실패했다. 최신 작업 파일에는 해당 보완이 이미 존재하므로 제품 파일을 중복 수정하지 않았다. 기존 입력을 input-01/engine으로 보존하고 같은 논리 입력에 analytics 변환 파일만 교체한 generation 2를 만든다. 새 경로 복제로 모든 Rust 의존성을 다시 컴파일하지 않도록 실행 경로를 유지하고, 동일 파일의 원래 수정 시각을 복원한다. 최초 완료 모니터는 외부 process의 ExitCode가 null이어서 실패 신호를 냈다. 실제 tool session 종료 101을 확인했고, generation 2 producer가 직접 실제 native 종료 코드와 signal을 기록하도록 개선했다.
+
+재현 반복 2: generation 2 skills 8/8 종료 0(05:59:21Z→06:10:16Z), core 컴파일 종료 101(06:10:16Z→06:37:45Z). get_harness_base_instructions에 모델 인수를 추가한 뒤 compaction/provider handoff 호출부의 두 인수가 snapshot에 남아 E0061이 발생했다. 최신 작업 파일의 두 호출부는 실제 source/turn model_info.slug를 이미 전달하도록 보완돼 있어 이를 확인했다. 이 두 연결부만 새 generation 3에 반영한다. API 스킬 입력은 동일하므로 통과 결과를 재사용하고 core/build만 실행한다. 종료된 입력은 input-02/engine에 보존하며 변경 없는 frozen 파일은 hard link로 복제한다. 교체 파일은 새 링크를 일반 삭제한 뒤 복사해 이전 입력 inode/내용을 보존했다.
+
+자원 경계 변경: generation 3 core는 06:44Z부터 공유 cache lock에서 대기했고 다른 세션의 새 검사들이 계속 들어왔다. 공유 debug deps는 약 56GB(rlib 27GB, rmeta 7GB, pdb 16GB, exe 4.6GB), build 2.8GB, fingerprint 8MB였다. 최초 판단은 가용 RAM 약 7GB/복제 비용 때문에 대기 유지였지만 계속된 cache 대기와 경로 간 재컴파일 때문에 작업 전용 target으로 전환했다. 부모 node command가 AK-02를 가리키는 대기 Cargo PID 34052만 확인해 일반 Stop-Process로 종료했다. deps의 exe/pdb를 제외한 필요한 cache, build와 fingerprint를 robocopy로 복사하며 다른 작업의 프로세스/cache는 변경하지 않는다. CARGO_BUILD_JOBS=1로 해당 고정 입력 core/build만 수행한다. producer는 source 변경 없이 cache만 바꾼 재실행이며 이전 대기 중단을 코드 실패와 구분한다.
+
+재현 반복 3: private cache generation 3에서 제품 core 컴파일은 완료했으나 단위 테스트 fixture의 Session 경로, PermissionProfile 경로, claude_file_state, claude_tools, temporary borrow 등 6개 오류로 종료 101이다. 최신 checkout에 이미 있는 네 fixture 파일 보완만 generation 4에 반영한다. API 제품 로직은 변경하지 않고 이전 prompts/skills 통과를 재사용한다. build를 먼저 실행하여 SHA-256을 확인한 독립 엔진으로 실제 API 검증을 시작한 뒤 core 집중 검사를 이어간다. 이전 실패 log/input은 generation별로 보존한다.
+
+Generation 4 입력 준비 완료: 10,749파일 SHA-256 18e4aab6cab5e85fbc83745f1d83100db50240bfc5280a34f10184297b7b6444. 입력 복제 완료 전 시작한 build는 Cargo.toml 미존재로 종료 1(준비 순서 오류)이며 소스/컴파일 실패와 구분한다. 입력 완료를 실제 확인한 후 새 producer로 재실행한다.

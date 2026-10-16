@@ -62,44 +62,44 @@
       "path": "skills/design-collaboration/SKILL.md",
       "source": "design-collaboration/SKILL.md",
       "original": {
-        "size": 15133,
-        "sha256": "f310a982dbfd870920afe8529b23d9d410b4a62c6eb50f0b8bc8a2ac75070282"
+        "size": 14406,
+        "sha256": "944f3389e4d54e01279788c6b178864ece3a7bbf69332fa9f946bd5e2279184f"
       },
-      "size": 15133,
-      "sha256": "f310a982dbfd870920afe8529b23d9d410b4a62c6eb50f0b8bc8a2ac75070282",
+      "size": 14406,
+      "sha256": "944f3389e4d54e01279788c6b178864ece3a7bbf69332fa9f946bd5e2279184f",
       "adaptations": []
     },
     {
       "path": "skills/design-documentation/SKILL.md",
       "source": "design-documentation/SKILL.md",
       "original": {
-        "size": 6975,
-        "sha256": "df0abf98f68d3c69ddd0349b0cb9f589729e65f9da4caaaa02f383ee45e04f13"
+        "size": 6721,
+        "sha256": "83b8f9d9836c6b011570b0e70348c55f3dc6b274984f66ed02bfe9e67eb224aa"
       },
-      "size": 6975,
-      "sha256": "df0abf98f68d3c69ddd0349b0cb9f589729e65f9da4caaaa02f383ee45e04f13",
+      "size": 6721,
+      "sha256": "83b8f9d9836c6b011570b0e70348c55f3dc6b274984f66ed02bfe9e67eb224aa",
       "adaptations": []
     },
     {
       "path": "skills/implementation/SKILL.md",
       "source": "implementation/SKILL.md",
       "original": {
-        "size": 17493,
-        "sha256": "05b7b490f61d79be4856eb332f7adfd35a1a6307c9670e5750ad036a67b8da35"
+        "size": 17375,
+        "sha256": "433d2b1a4327254ca42015a94e05de8471166dd8d25a490e04a7e5f044897ea7"
       },
-      "size": 17665,
-      "sha256": "5287cd2fe15b67fd1dd96ff870f8eea3b45d48472493704730adb16b708544ab",
+      "size": 17547,
+      "sha256": "79a7aaa6899aced7766a4c41eb4e312f9b65e773c52b51913aa8aae9a7d7f8d5",
       "adaptations": []
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/app-logging.md",
       "source": "project-bootstrap/assets/playbooks/app-logging.md",
       "original": {
-        "size": 5112,
-        "sha256": "71a7a44dbf101b931c630d7b68763541c5a4dc73365b89c5aa64e69b02f8f040"
+        "size": 5276,
+        "sha256": "c51c2be7e0bf7101fc97f49e5ccf7c8ba3cfca1f02572bbf9f5273c560004001"
       },
-      "size": 5112,
-      "sha256": "71a7a44dbf101b931c630d7b68763541c5a4dc73365b89c5aa64e69b02f8f040",
+      "size": 5276,
+      "sha256": "c51c2be7e0bf7101fc97f49e5ccf7c8ba3cfca1f02572bbf9f5273c560004001",
       "adaptations": []
     },
     {
@@ -195,22 +195,22 @@
       "source": "implementation/references/build-inputs.md",
       "adaptations": [],
       "original": {
-        "size": 7768,
-        "sha256": "ff175bdbe9608caf52c07815a819b01e5149e456e133e8350ea4d29661fd2708"
+        "size": 7937,
+        "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 7768,
-      "sha256": "ff175bdbe9608caf52c07815a819b01e5149e456e133e8350ea4d29661fd2708"
+      "size": 7937,
+      "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
     },
     {
       "path": "skills/implementation/references/delegation.md",
       "source": "implementation/references/delegation.md",
       "adaptations": [],
       "original": {
-        "size": 7225,
-        "sha256": "fd1e35bd7fcdffc3117c816af0d287f0983f2e7c52c899207cf659753a8d03e4"
+        "size": 7310,
+        "sha256": "aafc6acdd2a4a90f65b4739075a0a6b0cfa199881be3bfd37a193e80efdd7a7f"
       },
-      "size": 7225,
-      "sha256": "fd1e35bd7fcdffc3117c816af0d287f0983f2e7c52c899207cf659753a8d03e4"
+      "size": 7310,
+      "sha256": "aafc6acdd2a4a90f65b4739075a0a6b0cfa199881be3bfd37a193e80efdd7a7f"
     },
     {
       "path": "skills/implementation/references/ui.md",
@@ -238,21 +238,21 @@
       "path": "skills/design-collaboration/references/team-lead.md",
       "source": "design-collaboration/references/team-lead.md",
       "original": {
-        "size": 6211,
-        "sha256": "c250c61941f730ec778c2705c38248995a115e4f3b28448bcaf6f60166ec5f49"
+        "size": 6418,
+        "sha256": "cf43e6d2cce44818091d41a138019d15e6bc8d8b8e58c6515b6c97da3d9c0e6c"
       },
-      "size": 6211,
-      "sha256": "c250c61941f730ec778c2705c38248995a115e4f3b28448bcaf6f60166ec5f49",
+      "size": 6418,
+      "sha256": "cf43e6d2cce44818091d41a138019d15e6bc8d8b8e58c6515b6c97da3d9c0e6c",
       "adaptations": []
     },
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 6656,
-      "sha256": "c921ec2ab718641e86631d29382941efb8d876a9c93314c1337b4896931dd94b",
+      "size": 6669,
+      "sha256": "98012e99f36e036b4f9c8f51866723c64ebbe8c53e332a6d62de4241493b513f",
       "original": {
-        "size": 4357,
-        "sha256": "5ae09b6b1f5f3a65e645a7c0d242f70f8809c8f963c9b70cc759b4078ec90de0"
+        "size": 4370,
+        "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
       },
       "adaptations": []
     },
@@ -260,7 +260,7 @@
       "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "size": 13615,
-      "sha256": "c11420e2eafe621a6d1f6baf892f299e58348a6311acd74894febfb7b5af41ff",
+      "sha256": "caf2378feb09efb54db08daf3f3499b9a12401d8e68d0bd60f3d43b4c11326b2",
       "original": {
         "size": 10430,
         "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"

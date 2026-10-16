@@ -1,0 +1,614 @@
+[
+  {
+    "name": "bun.exe",
+    "pid": 27472,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wb1\\artifacts\\releases\\windows_all_20261011_r3\\providers\\opencodex\\runtime\\bun.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\wb1\\artifacts\\releases\\windows_all_20261011_r3\\providers\\opencodex\\helper.js"
+    ]
+  },
+  {
+    "name": "bun.exe",
+    "pid": 44724,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w6a\\artifacts\\releases\\w06-all-20261011-r5\\providers\\opencodex\\runtime\\bun.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w6a\\artifacts\\releases\\w06-all-20261011-r5\\providers\\opencodex\\helper.js"
+    ]
+  },
+  {
+    "name": "codex.exe",
+    "pid": 35440,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex.exe"
+    ]
+  },
+  {
+    "name": "azrael-bridge.exe",
+    "pid": 50376,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\azrael-bridge.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 58452,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 2856,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "codex-code-mode-host.exe",
+    "pid": 35076,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex-code-mode-host.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 3264,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 43440,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 39792,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 51648,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 23684,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 32104,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 10816,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 22932,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 19872,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 20628,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "bun.exe",
+    "pid": 45624,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w6a\\artifacts\\releases\\w06-all-20261011-r5\\providers\\opencodex\\runtime\\bun.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w6a\\artifacts\\releases\\w06-all-20261011-r5\\providers\\opencodex\\helper.js"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 18548,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 43856,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 32644,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 20796,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "codex.exe",
+    "pid": 49688,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex.exe"
+    ]
+  },
+  {
+    "name": "azrael-bridge.exe",
+    "pid": 24976,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\azrael-bridge.exe"
+    ]
+  },
+  {
+    "name": "codex-code-mode-host.exe",
+    "pid": 26912,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex-code-mode-host.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 21036,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 55752,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 7596,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 55132,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 56240,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 58356,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 14164,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 5480,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 35556,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 26876,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 20972,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "azrael-window-control.exe",
+    "pid": 29556,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\azrael-window-control.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 51744,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 54920,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 504,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 40700,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 24424,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 37072,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 18112,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 43288,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "codex.exe",
+    "pid": 3400,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex.exe"
+    ]
+  },
+  {
+    "name": "azrael-bridge.exe",
+    "pid": 45500,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\azrael-bridge.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 54476,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 54856,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 21964,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 48900,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "codex-code-mode-host.exe",
+    "pid": 58492,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex-code-mode-host.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 23812,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 36436,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 56656,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 21100,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "codex.exe",
+    "pid": 54160,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex.exe"
+    ]
+  },
+  {
+    "name": "azrael-bridge.exe",
+    "pid": 48064,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\azrael-bridge.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 20684,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 50548,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "codex-code-mode-host.exe",
+    "pid": 56384,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\engine\\codex-code-mode-host.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 34196,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 44248,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "pwsh.exe",
+    "pid": 30744,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\AF-01-resume-install\\run-windows-r17.ps1"
+    ]
+  },
+  {
+    "name": "pwsh.exe",
+    "pid": 47948,
+    "paths": [
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/scripts/deploy-azrael.ps1",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/engine",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/artifacts/external/codex-code-mode-host.exe",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/artifacts/external/computer-use-runtime",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/artifacts/external/computer-use-plugin",
+      "C:/Users/felre/Desktop/pi-harness-init/artifacts/w14p/artifacts/upstream-ui/26.1007.21434"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 50028,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 12212,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 56436,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 23644,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 52840,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 18584,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 15392,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 55356,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 12780,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 12580,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 43528,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w14p\\scripts\\feature-preservation.cjs",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w14p\\artifacts\\logs\\deploy-w14q\\engine-preservation-inputs.json"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 41276,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 53268,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 58948,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w14p\\engine"
+    ]
+  },
+  {
+    "name": "node.exe",
+    "pid": 3172,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\computer-use\\node.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\window-control\\window-control-mcp.cjs"
+    ]
+  },
+  {
+    "name": "node_repl.exe",
+    "pid": 12588,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\releases\\all_changes_20261007_r6\\computer-use\\node_repl.exe"
+    ]
+  },
+  {
+    "name": "bun.exe",
+    "pid": 31908,
+    "paths": [
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\providers\\opencodex\\runtime\\bun.exe",
+      "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\w13b\\artifacts\\releases\\w13e\\providers\\opencodex\\inference.js"
+    ]
+  }
+]

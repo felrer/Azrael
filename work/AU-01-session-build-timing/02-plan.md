@@ -1,4 +1,18 @@
-상태: 구현·관련 Windows fixture 검증 완료. 전체 배포본 빌드·사용자 설치 및 단축률 측정은 이번 실행에 포함하지 않았다.
+상태: 최적화 구현·관련 Windows fixture 검증 완료. 승인된 Windows x64 `2026.0.7` 전체 빌드·설치를 이어가는 중이며 최종 수용과 단축률 실측은 아직 완료하지 않았다.
+
+재개 검사: r17 actual terminal은 failed/exit1이다. 종료 receipt에는 18개 검사 결과가 있고 native 자동 압축의 수동 압축 보존 assert 실패, provider native thread/read의 빈 rollout, accepted-input tool/call timeout, native Devin 추정 terminal frame 오류가 추가 확인됐다. `inherited-failures.json`에 실패별 원인·로그 경로를 보존했다. 엔진 빌드 성공을 기능 수용으로 취급하지 않으며 이 실패를 진단·수정한 뒤 최종 입력을 다시 선택한다. 준비된 cleanup-v2 SHA1d104c7532e97e38699d120041e92169def52c59e75e855dc6512008a0d92c35 입력은 아직 배포에 사용하지 않았다. cache-cleanup 기존 fixture 검증은 exit0이고 모든 시험 fixture를 제거했다.
+
+후속 상태: 2026-10-14 사용자가 원래 세션 작업 인계와 최적화 적용 후 빌드 마무리를 요청했다. 원래 승인된 `2026.0.7` Windows x64/MSVC 빌드·일반 프로필 설치를 이어간다. 버전 증가·원격 게시·다른 플랫폼 설치는 추가하지 않는다. 제품의 초기 메타데이터 읽기 경합을 재현했으므로 수정한 엔진을 새 고정 입력으로 빌드한다. 진행 중인 입력은 변경하지 않는다.
+
+현재 의존성: 원래 r17 producer는 failed/exit1로 종료했고 설치하지 않았다. 성공 release `w14q`의 engine dev build는 2573.086초(42분53초)이며 source SHA d83bb231efac42919522b8a4cb4a08694903627fb205cb3c0fda22a7b507deab이다. 다른 작업의 Cargo 컴파일과 캐시 잠금을 공유하며 검사와 빌드를 직렬 실행한다.
+
+독립 준비: read-only 담당자가 원래 빌드/설치 인계 근거를 회수하고, 입력 담당자는 원래 제품/엔진/manifest bytes를 보존한 채 c9f791c7의 pipeline scripts만 적용한 새 불변 입력을 준비한다. root는 통합·성능 판정·최종 패키지 검사·원래 승인된 설치·정리를 소유한다. 후속 실행은 입력 준비와 r17 실제 terminal 결과를 전제로 선택하며, 추가 최적화는 실제로 확인된 재작업·대기 원인에 한정한다. 기록 경로는 `artifacts/logs/AU-01-pipeline-resume/`다.
+
+준비 인계: `artifacts/optimized-w14-input` 최초 파생 입력은 SHA93c9b2507a672e56bef382407203606b1e438756cde1d0b150b42dcdecd0030a / 24,180파일이며 원제품·manifest·engine SOURCE.json bytes 동일성을 확인했다. 원래 `w14q`의 세 바이너리 출처 검사는 exit0이다. Bun86MB와 download receipt를 각각 해시 확인 후 새 ignored tool 경로에 복사했고 pinned provider/extension 의존성 준비가 모두 exit0이다. 준비를 제품 수용으로 보고하지 않는다.
+
+추가 개선: `build-module-cache.ps1`의 강제 삭제 4곳을 일반 삭제·오류 전달로 교체하여 기존 잠금·경로/소유권 검증·삭제 실패 보존 계약을 유지한다. 수정 검증 후 최종 프로젝트 입력 지문을 새로 부여하며 이전 준비 지문을 빌드에 사용하지 않는다. 기존 수동 압축 검사의 잘못된 reset-version oracle은 현재의 실제 문맥 교체·checkpoint·lifecycle 검사로 바로잡았다. estimate fixture 4개는 v1 terminal 응답과 추론/추정 구분을 준수하며 기존 inference assert를 유지한다. 기존 세션별 writer lock을 메타데이터 읽기에도 적용해 초기 기록 완료를 기다리며, 비활성 손상 기록의 오류는 유지한다. deterministic FIFO 회귀 검사를 새 고정 입력에서 실행한 뒤 그 입력으로 엔진을 다시 빌드한다. primary Cargo target의 incremental은 재사용하되 새 source provenance를 기록하고 `FullRegression` 강제 실행은 유지한다.
+
+인계 검증: estimate fixture 담당자는 Node 59개, native/code-mode/accepted-input/자동 계정 전환/multi-agent 검사를 원래 바이너리로 exit0 확인하고 시험 데이터를 제거했다(`artifacts/logs/estimate_fixtures-20261014/`). 세션 잠금 담당자는 read_thread.rs 단일 파일의 rustfmt/diff check exit0을 확인했다. Cargo 실행은 root가 새 불변 입력에서 담당한다. 2026-10-14 02시대 KST 다른 parent_request Cargo 검사 PID21516이 primary target을 사용하므로 해당 자원 대기를 빌드 경과와 구분한다.
 
 # 빌드·회귀·기능 보존 검사 파이프라인 최적화
 
@@ -111,3 +125,5 @@ Windows 검증 증거는 `artifacts/logs/AU-01-pipeline/`에 보존한다. Node 
 전체 앱 빌드·사용자 설치·실제 native 성능 비교는 실행하지 않았다. 20% 단축은 제안 목표이며 측정 결과가 아니다. macOS/Linux 실기기 수용도 미검증이다. 다음 성능 측정에서는 동일 고정 입력의 첫 성공과 실패 후 재시도를 각각 비교하고 cold/warm cache, target/profile, 실행 자원 및 전체 경과 시간을 기록해야 한다.
 
 배포 전체 회귀 62개가 종료 코드 0으로 통과했다(`deploy-regression.log`). 실행 겹침을 강제하는 별도 `parallel prepare` fixture도 1개 통과했다(`deploy-overlap.log`). 전체 회귀 결과와 계측 60개는 `artifacts/logs/deployment-optimization/tests-deploy-dd55e61db8554f778ba1107219408137/`에 남겼다. 나머지 2개는 잘못된 target 입력을 계측 초기화 전에 거부하는 사례다. 이번 작업의 배포 fixture 3개 묶음과 build-metrics 내부 복제 project 2개를 삭제하고 제거를 확인했다. fixture Git의 숨김·읽기 전용 속성을 확인하고 해당 메타데이터만 해제한 뒤 일반 삭제했다. 정리 근거는 `fixture-cleanup.json`에 보존하며 기존 다른 작업의 fixture는 유지했다.
+
+최종 입력 고정: metadata-v3 project SHA 6976d7c72f673e0b61297e4e7751f5a48306f952c52a2f0777e7e6f9678b2947 / engine source SHA 57164434f66880571614c8f2d4d9f8e07dcae3ce0d2b219cd9d2c5a44df4931a / 24,180파일. c9 적용 입력 대비 허용된 9개 경로만 변경됨을 확인했고 SOURCE originalReceipt와 migrationAdditions를 유지했다. 기록·snapshot 종료 코드 0. 2026-10-13T18:33:02.3893067Z에 고정 입력의 codex-thread-store read_thread 필터 검사를 시작했다. primary Cargo 캐시 대기는 별도 UTC로 기록한다.

@@ -1,0 +1,72 @@
+{
+  "staging": [
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\settings_fixed_20261005_r1"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\main_integrated_20261005_r1"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r3"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r2"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r1"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_c1608_isolated"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_c1606"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_20261004_134754"
+    },
+    {
+      "reason": "Installed, running process, compiler reference or explicit retention",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\student_design_20261004_v3"
+    }
+  ],
+  "protected": [
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\4abe297c9bed0edba0236006522bafbb6a48a86653b2c35abf9f4b3e7130dc65",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\4abe297c9bed0edba0236006522bafbb6a48a86653b2c35abf9f4b3e7130dc65\\companion\\node_modules\\typescript\\lib\\typescript.js",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\4abe297c9bed0edba0236006522bafbb6a48a86653b2c35abf9f4b3e7130dc65",
+    "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\4abe297c9bed0edba0236006522bafbb6a48a86653b2c35abf9f4b3e7130dc65\\companion\\node_modules\\typescript\\lib\\typescript.js"
+  ],
+  "modules": [
+    {
+      "reason": "Selected, installed, running process or compiler reference",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\de7ef6f2b7872685915fecbd885ad6b2d39f7ac3e75de62050b7e73e12b119ec"
+    },
+    {
+      "reason": "Selected, installed, running process or compiler reference",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\companion\\4abe297c9bed0edba0236006522bafbb6a48a86653b2c35abf9f4b3e7130dc65"
+    },
+    {
+      "reason": "Selected, installed, running process or compiler reference",
+      "status": "preserved",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\cache\\modules\\providers\\1a4bab0600e468805166f40d17e8666015cfca3052d844106857ccd500dd42fc"
+    }
+  ]
+}

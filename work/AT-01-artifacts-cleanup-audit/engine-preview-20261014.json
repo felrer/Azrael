@@ -1,0 +1,230 @@
+{
+  "projectRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init",
+  "currentVersion": "0.162.0",
+  "apply": false,
+  "status": "blocked",
+  "candidates": [
+    {
+      "sourceRoot": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\engine\\codex-rs\\target",
+      "version": "0.162.0",
+      "status": "preserved-current-or-newer",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\account_controls_20261004_v3",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\AF-01-native-01",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\AF-01-native-02",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\AF-01-native-03",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex-0160-rust-target",
+      "version": null,
+      "status": "blocked",
+      "reason": "Running process: cargo.exe (18216), rustc.exe (35760)",
+      "kind": "cargo-target"
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160-account-candidate",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160-account-font-union-20261005",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160-account-font-union-20261005-b",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_20261004_134754",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_c1606",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_full_c1608_isolated",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r1",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r2",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\codex0160_union_20261005_c16010_r3",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\computer_use_20261004_v6",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\cua-repair-1004-154109-source",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\cua-repair-1004-154621-source",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\input-delivery-diagnostics-20261004",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\linux-context-hotfix-20261012",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\main_integrated_20261005_r1",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\selected-window-native",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\settings_fixed_20261005_r1",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\student_design_20261004_v2",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\student_design_20261004_v3",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\window-control-native",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\window-use-20261006-fixture",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\worktree-preserved-caches",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\worktree-preserved-caches\\azrael-0.157.1\\codex-rs\\target",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null,
+      "kind": "cargo-target"
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\worktree-preserved-caches\\azrael-0.159.3\\codex-rs\\target",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null,
+      "kind": "cargo-target"
+    },
+    {
+      "sourceRoot": null,
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\build\\worktree-preserved-caches\\sd-20261002\\codex-rs\\target",
+      "version": null,
+      "status": "unmanaged",
+      "reason": null,
+      "kind": "cargo-target"
+    }
+  ],
+  "errors": []
+}

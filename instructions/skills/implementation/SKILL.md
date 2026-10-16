@@ -1,156 +1,124 @@
 ---
 name: implementation
-description: 작업 진입에서 정리한 계획·설계·실행 권한을 이어받아 코드 구현·수정·리팩터링·마이그레이션과 검증·정리를 수행합니다. 새 작업의 의도 해석과 진입 방식은 공통 진입 지침, design-collaboration, development-workflow가 소유합니다.
+description: Carry forward the plan, design, and execution authority established at work entry to implement, modify, refactor, migrate, verify, and clean up code. Common work-entry guidance, design-collaboration, and development-workflow own interpretation and entry routing for new work.
 ---
 
 # Implementation
 
-합의된 목표와 설계를 코드 변경, 검증, 정리까지 완수하는 수행 규칙을 소유합니다. 프로젝트별 명령·환경·배포 절차는 해당 프로젝트의 소유 문서를 따릅니다.
+This skill owns execution rules for carrying agreed goals and design through code changes, verification, and cleanup. Follow the project's owning documents for project-specific commands, environments, and deployment procedures.
 
-두 작업 진입 방식에서 정리한 계획·설계·성공 조건·실행 권한을 이어받습니다. 작은 작업은 짧은 계획으로 충분하며 이미 권한과 검토 사항이 정리됐으면 승인 대기를 추가하지 않습니다. 이해 통일 문서나 새 계획을 다시 만들지 않고 실행 결과를 같은 작업 기록에 남깁니다. 전문 스킬 선택이나 읽기는 현재 단계·범위·권한을 확대하지 않습니다. 스킬 사용은 별도 세션이나 서브에이전트 생성을 뜻하지 않습니다.
+Carry forward the plan, design, success criteria, and execution authority established through either work-entry route. A short plan is sufficient for small work; do not add an approval wait when authority and review matters are already settled. Do not recreate a shared-understanding document or new plan; record execution results in the same work record. Selecting or reading a specialized skill does not expand the current phase, scope, or authority. Using a skill does not mean creating a separate session or subagent.
 
-목표나 범위에 중요한 미결 사항이 있으면 진행 중인 작업에서 해결합니다. 복합 작업의 진행 관리는 `development-workflow`, 설계 선택은 `design-collaboration`, 합의된 설계의 문서화는 `design-documentation`을 사용합니다. 이미 정해진 내용과 위임된 판단은 재확인하지 않고, 미결 선택에 의존하지 않는 허용된 작업은 계속합니다.
+Resolve important open questions about goals or scope within the ongoing work. Use `development-workflow` to coordinate complex work, `design-collaboration` for design choices, and `design-documentation` to document agreed design. Do not reconfirm settled matters or delegated judgment, and continue authorized work that does not depend on unresolved choices.
 
-## 1. 적용 범위와 시작점
+<a id="1-적용-범위와-시작점"></a>
 
-- 프로젝트 지침, 현재 작업의 계획과 성공 조건을 확인한다. 여기서 계획은 프로젝트에서 사용하는 승인된
-  작업 문서나 합의된 대화 기록을 뜻하며, 이 스킬만을 위해 별도 문서를 만들지 않는다.
-- 영향을 받는 실행 환경과 기능·데이터·문서의 소유자를 찾고, 해당 작업에 필요한 지침과 절만 읽는다.
-  이미 확인한 근거는 관련 입력이 바뀌거나 구체적인 정보 공백이 생겼을 때 다시 확인한다.
-- 현재 계획에서 각 요구의 공통·환경 한정·혼합·미결 분류와 제외 대상을 확인한다. 필요한 OS·CPU·버전/ABI·로컬/원격·데스크톱 조건을 명시하고,
-  요구 대상·코드 소유권·회귀 영향·실제 검증 환경을 구분한다. 플랫폼 미지정을 현재 호스트 한정으로 해석하지 않는다.
-  작은 작업도 필요한 내용만 같은 기록에 남기며, 누락된 기술 사실은 조사하고 지원 범위·동작 의미·권한을 바꾸는 미결 선택만 기존 작업에서 해결한다.
-- 계획 작성과 합의 절차는 프로젝트의 계획 지침이 소유한다. 문서 수정, 테스트, 배포의 상세 절차와
-  정확한 명령은 해당 소유 문서를 따른다.
+## 1. Scope and starting point
 
-## 작업별 상세 지침
+- Check project guidance, the current work's plan, and success criteria. Here, a plan means the approved work document or agreed conversation record used by the project; do not create a separate document just for this skill.
+- Identify affected execution environments and owners of features, data, and documents, and read only the guidance and sections needed for the work. Recheck existing evidence when relevant inputs change or a concrete information gap arises.
+- Check the current plan's classification of each requirement as common, environment-specific, mixed, or unresolved, and its exclusions. State necessary OS, CPU, version/ABI, local/remote execution, and desktop conditions, and distinguish requested targets, code ownership, regression impact, and actually verified environments. Do not interpret an unspecified platform as current-host-only scope. Even for small work, record only what is needed in the same record; investigate missing technical facts and resolve only open choices changing support scope, behavioral meaning, or authority within the existing work.
+- Project planning guidance owns plan creation and agreement. Follow the owning documents for detailed documentation, testing, and deployment procedures and exact commands.
 
-현재 작업에 해당하는 참조만 실행 전에 읽는다. 위임 시 worker에게 적용되는 제약과 필요한 참조를 전달하며,
-worker가 부모의 로드 이력을 안다고 가정하지 않는다.
+<a id="작업별-상세-지침"></a>
 
-- UI 변경: [UI 재사용과 렌더링 검증](references/ui.md), 프로젝트 UI 계약.
-- 빌드·패키징·빌드 검증·설치·생성물/백업 정리: [빌드 입력 고정과 산출물 관리](references/build-inputs.md), 프로젝트 빌드 Playbook.
-- 작업·버전·공유 산출물의 경로·소유권·보존·이관: [산출물 수명주기](references/artifact-lifecycle.md), 프로젝트 산출물 수명주기 Playbook.
+## Detailed guidance by task
+
+Read only references applicable to the current work before execution. When delegating, pass applicable constraints and required references to the worker; do not assume the worker knows the parent's loading history.
+
+- UI changes: [UI reuse and rendering verification](references/ui.md), project UI contract.
+- Builds, packaging, build verification, installation, and generated artifact/backup cleanup: [Immutable build inputs and artifact management](references/build-inputs.md), project build playbook.
+- Paths, ownership, retention, and handoff for task, version, and shared artifacts: [Artifact lifecycle](references/artifact-lifecycle.md), project artifact lifecycle playbook.
 - Test-only application profiles and their extension/cache/log/backup bundle: [Test-profile cleanup](references/artifact-lifecycle.md#test-profiles-and-application-state).
-- 작업 worktree 생성·사용·통합·정리: [Worktree lifecycle](references/worktrees.md).
-- 부모의 작업 위임·통합: [Delegation and integration](references/delegation.md).
+- Creating, using, integrating, and cleaning up task worktrees: [Worktree lifecycle](references/worktrees.md).
+- Parent delegation and integration: [Delegation and integration](references/delegation.md).
 
-## 2. 작업 범위와 판단 기준
+<a id="2-작업-범위와-판단-기준"></a>
 
-- 승인된 목표, 성공 조건, 제약을 기준으로 구현한다. 목표에 필요하지 않은 기능, 설정, 호환 계층이나
-  미래 확장 구조를 임의로 추가하지 않는다.
-- 코드·설정·실행 근거로 확인할 수 있는 사실과 내부 구현 선택은 조사로 결정한다. 사용자에게 보이는
-  결과나 합의된 범위를 바꾸는 선택, 새로운 실행 권한이 필요한 작업은 기존 합의와 구분해 해결한다.
-- 계획의 준비 상태와 실행 권한은 별개다. 기존 승인을 재요청하지 않으며, 데이터 변경이나 배포 등은
-  이미 허용된 범위와 프로젝트 절차에 따라 실행한다.
-- 승인되지 않은 architecture 차이나 범위 밖의 변경이 필요하면 영향받는 구현을 멈추고 같은 계획에 새 근거·대안·영향을 반영해 변경분만 검토받는다. 확정된 결정을 재승인받지 않고 독립적인 승인 작업은 계속한다. 합의된 결과에 맞춰 담당 설계 문서를 갱신한다.
-- 최소 변경은 수정 줄 수보다 요구사항을 만족하는 책임 구조와 유지 비용을 기준으로 판단한다.
-  해당 변경으로 불필요해진 코드의 정리도 작업 범위에 포함한다.
-- 공통 정책·제품 로직과 플랫폼별 동작의 책임을 유지한다. 다른 환경에 영향을 발견하면 같은 기록의 대상·회귀 영향·검증 범위를 갱신하며,
-  합의 범위를 벗어나는 지원 축소나 권한 변경을 임의로 결정하지 않는다. 확정된 결정과 실행 권한은 재사용한다.
-- 문서의 목표 상태와 실제 구현 상태를 구분한다. 검증하지 못했다는 사실을 불가능하거나 안전하다는
-  근거로 사용하지 않는다.
+## 2. Work scope and decision criteria
 
-## 3. 기존 구현 조사와 재사용
+- Implement against approved goals, success criteria, and constraints. Do not arbitrarily add features, settings, compatibility layers, or structures for future expansion that the goal does not need.
+- Use investigation to settle facts discoverable from code, configuration, and execution evidence, and internal implementation choices. Resolve choices changing user-visible results or agreed scope, and work requiring new execution authority, separately from existing agreements.
+- Plan readiness and execution authority are separate. Do not request existing approval again; perform data changes, deployments, and similar work within existing authority and project procedures.
+- If an unapproved architecture difference or out-of-scope change is required, stop affected implementation, add new evidence, alternatives, and impacts to the same plan, and have only the change reviewed. Do not request approval again for settled decisions; continue independent approved work. Update owning design documents to match the agreed result.
+- Judge minimal change by responsibility structure and maintenance cost that meet requirements, rather than edited line count. Cleanup of code made unnecessary by the change is within the work scope.
+- Preserve responsibility for common policy and product logic and for platform-specific behavior. If effects on other environments are discovered, update targets, regression impact, and verification scope in the same record. Do not arbitrarily reduce support or change authority beyond the agreement. Reuse settled decisions and execution authority.
+- Distinguish documented target state from actual implementation state. Do not treat lack of verification as evidence of impossibility or safety.
 
-작업 전에 architecture의 상태와 관련 동작·제약·권한을 확인하고 코드·테스트·실제 동작과 대조한다. 문서에 없는 기능도 보존 대상이며 문서의 부재나 draft 제안은 삭제 권한이 아니다. 오류 회피를 위한 기능 삭제·숨김·비활성화·검증 기준 축소는 범위 변경으로 관련 구현 전에 검토받는다. 동작을 보존하는 내부 코드 교체·정리는 기능 축소와 구분한다. 수정 결과를 정당화하려고 architecture를 사후 변경하지 않는다.
+<a id="3-기존-구현-조사와-재사용"></a>
 
-- 변경 전에 실제 호출 경로, 읽기·쓰기 경계, 데이터 계약과 관련 테스트를 확인한다. 소유자가 불명확하면
-  경로와 선언 위치부터 찾고 필요한 함수와 계약을 읽는다.
-- 기존 프로젝트 구현, 표준 라이브러리·플랫폼 기능, 설치된 의존성을 먼저 검토한다. 필요한 경우 성숙한
-  재사용 대안도 확인하고, 현재 요구사항을 충족하는 최소 변경을 선택한다.
-- 새 구현이나 의존성은 기존 대안으로 해결되지 않는 구체적인 요구가 있을 때만 추가한다. 중요한 대체는
-  검토한 후보, 재사용·확장·제외 판단과 남은 차이를 계획에 간결하게 남긴다.
-- 테스트 fixture나 실행 도구에 제품 로직을 복제하지 않는다. 검증 편의를 위해 별도 제품 실행 경로나
-  불필요한 추상 계층을 만들지 않는다.
+## 3. Investigate and reuse existing implementation
 
-- 영향을 받는 소유자와 의존 순서를 실행에 필요한 만큼 확인한다. 각 검증은 무엇을 확인하고 어떤 결과를 성공으로 해석하는지 정하되, 명령·파일 목록을 사용자 승인용 체크리스트로 만들지 않는다.
+Before working, check architecture status and relevant behavior, constraints, and authority against code, tests, and actual behavior. Undocumented features also require preservation; missing documentation or a draft proposal does not authorize deletion. Treat feature deletion, hiding, disabling, or lowering verification criteria to avoid errors as scope changes requiring review before related implementation. Distinguish internal code replacement and cleanup that preserve behavior from functional reduction. Do not retrospectively change architecture to justify the result of a fix.
 
-## 4. 구현과 파일 구조 관리
+- Before changing code, inspect actual call paths, read/write boundaries, data contracts, and related tests. If ownership is unclear, first locate paths and declarations, then read the needed functions and contracts.
+- First check existing project implementation, standard-library and platform features, and installed dependencies. Check mature reusable alternatives when needed, and choose the smallest change that meets current requirements.
+- Add new implementation or dependencies only for concrete requirements existing alternatives cannot meet. For important replacements, briefly record considered candidates, decisions to reuse, extend, or exclude them, and remaining gaps in the plan.
+- Do not duplicate product logic in test fixtures or execution tools. Do not create a separate product execution path or unnecessary abstraction layer for verification convenience.
 
-- 기존 책임 경계에 변경을 배치하고 관련 코드, 테스트, 실행 스크립트를 담당 기능이나 모듈에 모은다.
-  기존 프로젝트 구조와 명명 규칙을 우선한다.
-- 장기 작업에서는 코드, 테스트, 스크립트, 문서와 임시 산출물의 위치를 계획하고 단계별 정리에 포함한다.
-  중복 구현·임시 파일·폐기 파일이 누적되지 않도록 하며, 예상되는 확장만을 위한 빈 디렉터리나 계층은
-  만들지 않는다.
-- 명령 실행 전에 계획된 생성 경로와 작업/run·버전·공유 묶음 중 하나의 소유자를 등록한다. 로그·백업·snapshot·패키지도
-  같은 수명주기를 따르며, 실패·취소·종료 미확인 실행의 부분 생성물도 실행 기록과 보호 상태를 남긴다.
-- 파일을 이동하면 import, 문서 참조, 테스트·빌드·실행 경로를 함께 갱신한다. 임시 산출물은 프로젝트의
-  지정된 위치에 두고 보존 목적이 끝나면 정리한다.
-- 기존 사용자 변경과 다른 작업의 변경을 보존한다. 배정된 파일과 책임의 소유권을 지키고,
-  변경된 계약과 통합 영향을 결과에 포함한다.
+- Identify affected owners and dependency order as far as execution requires. Define what each verification checks and which result means success, without turning command and file lists into a user approval checklist.
 
-## 5. 레거시 호환과 데이터 전환
+<a id="4-구현과-파일-구조-관리"></a>
 
-- 레거시 데이터 형식이나 구버전 서버와의 호환은 승인된 계획에 명시된 대상과 범위에 한해서만 구현하거나
-  유지한다. 계획에 없는 호환 분기, fallback, 이중 읽기·쓰기를 임의로 추가하거나 유지하지 않는다.
-- 레거시 데이터 호환이 명시되지 않았다면 기존 데이터를 해당 변경이 목표로 하는 최신 지원 스키마로
-  마이그레이션하고, 일반 실행 경로는 해당 스키마만 사용한다. 구형 데이터 해석은 전환 경계에 한정한다.
-  데이터 마이그레이션이 구버전 서버 통신 지원을 의미하지는 않는다.
-- 구현 중 계획에 없는 호환 요구를 발견하면 근거와 영향을 확인하고 승인된 계획에 반영한 뒤 구현한다.
-  임시 호환과 마이그레이션 코드에는 종료 조건과 정리 시점을 둔다.
-- 데이터 보존과 상시 호환을 구분한다. 전환 완료를 판단할 대상과 데이터 보존 검증을 정하고, 실제 적용은
-  프로젝트의 데이터 보호·배포 절차를 따른다. 마이그레이션 기본값이 운영 데이터 변경 권한을 부여하지는 않는다.
-- 데이터 전환과 되돌릴 수 없는 제거를 구분하고, 외부 적용 전에 중단 조건과 복구 절차의 소유자를 확인한다.
+## 4. Implementation and file structure management
 
-## 6. 앱 로그와 오류 진단
+- Place changes within existing responsibility boundaries and group related code, tests, and execution scripts with the owning feature or module. Prefer existing project structure and naming conventions.
+- For long-running work, plan locations for code, tests, scripts, documents, and temporary artifacts, and include them in cleanup by phase. Prevent duplicate implementations, temporary files, and obsolete files from accumulating; do not create empty directories or layers solely for anticipated expansion.
+- Before executing commands, register planned output paths and an owner in one of the task/run, version, or shared groups. Logs, backups, snapshots, and packages follow the same lifecycle; record execution and protection status for partial outputs of failed, canceled, or termination-unconfirmed runs too.
+- When moving files, update imports, document references, and test, build, and execution paths together. Put temporary artifacts in designated project locations and clean them up when their retention purpose ends.
+- Preserve existing user changes and changes from other work. Respect assigned file and responsibility ownership, and include changed contracts and integration impacts in results.
 
-- 변경한 경로에서 실패가 발생하면 기존 로그로 실패 지점과 원인을 추적할 수 있는지 확인한다. 부족하면 기존 목표와
-  권한 안에서 필요한 최소 보완을 수행한다. 수집 데이터, 보존 정책, 비용이나 합의된 범위를 바꾸는 보완은 근거와 영향을
-  결정 사항으로 제시해 해결한 뒤 진행하며, 내부 진단 보완이라는 이유만으로 별도 승인을 추가하지 않는다.
-- 새 앱의 초기 구현, 로깅 자체의 추가·변경, 로그 부족으로 원인 추적이 어려운 진단 작업에는
-  프로젝트의 앱 로그와 오류 진단 지침이 있으면 함께 적용한다. 지침이 없으면 실제 진단 공백과 필요한 범위를 확인해 처리하며, 지침을 만들기 위해 관련 없는 작업을 늘리지 않는다.
+<a id="5-레거시-호환과-데이터-전환"></a>
 
-## 7. 검증과 테스트 관리
+## 5. Legacy compatibility and data transition
 
-수정한 실패가 해결됐는지와 기존 기능·제약·권한이 보존됐는지를 각각 확인한다. 보존할 동작에 맞는 기존 테스트나 실제 동작 확인을 재사용하고, 빠진 근거는 영향에 맞게 보완한다. 모델의 의도 해석·스킬 선택 정책을 바꾼 경우 문구·형식 검사와 실제 대화에서 수행한 행동의 일치 검증을 구분하며, 후자를 수행하지 않았다면 해결을 검증했다고 보고하지 않는다.
+- Implement or retain compatibility with legacy data formats or older servers only for targets and scope specified in the approved plan. Do not arbitrarily add or retain unplanned compatibility branches, fallbacks, or dual reads/writes.
+- If legacy data compatibility is not specified, migrate existing data to the latest supported schema targeted by the change, and use only that schema in normal execution paths. Confine interpretation of old data to the transition boundary. Data migration does not imply support for communication with older servers.
+- If implementation reveals an unplanned compatibility requirement, check its evidence and impact and incorporate it into the approved plan before implementing it. Give temporary compatibility and migration code exit conditions and a cleanup point.
+- Distinguish data preservation from ongoing compatibility. Define the targets for judging transition completion and data-preservation verification; follow project data-protection and deployment procedures for actual application. A migration default does not authorize changes to production data.
+- Distinguish data transition from irreversible removal, and identify stop conditions and recovery procedure owners before external application.
 
-- 변경된 계약, 성공 조건과 중요한 위험을 확인할 최소 검증을 선택한다. 기존 검증과 근거를 먼저 확인하고,
-  새로운 위험·실패·입력 변경이나 프로젝트의 필수 요구가 있을 때 범위를 넓힌다.
-- 배정된 범위의 검증을 수행하고, 공유 자원 제약이나 범위 변경이 필요하면 root에 보고한다.
-- 실제 변경과 통합 위험에 맞춰 공통 검사, 플랫폼 계약 검사, 대상 환경의 네이티브 실행과 호스트 검증을 선택한다.
-  완료 보고에는 요구 대상과 실제 검증 환경·방법·미검증 범위를 구분한다. 단일 OS 통과를 다른 OS의 수용 근거로 확대하지 않는다.
-- 영향을 받는 기존 테스트와 실행 스크립트는 현재 계약을 기준으로 유지, 수정, 통합, 삭제를 판단한다.
-  기존 기대값을 맞추기 위해 폐기된 동작을 복원하지 않고, 실패한다는 이유만으로 유효한 계약을 삭제하지 않는다.
-- 테스트·fixture·스크립트를 목적과 입력·준비 조건에 맞는 묶음으로 관리하고, 계속 유지할 검증과 이번 작업의
-  일회성 검증을 구분한다. 유지할 검증에는 보호하는 위험과 실행 조건이 있어야 하며, 이름·나이·실패 여부만으로
-  일회성으로 분류하지 않는다. 테스트 추가 기준과 유효한 계약·필수 검증은 유지하고, 세부 분류는 프로젝트 지침을 따른다.
-- 각 묶음을 실행한 뒤 결과를 검토하고, 문제가 있으면 수정·재실행한다. 일회성은 한 번만 실행하거나 실행 직후
-  삭제한다는 뜻이 아니다. 결과 검토와 필요한 재검증을 마친 뒤 모델이 묶음별 삭제 또는 보류를 결정한다.
-  통과 여부나 시간 경과만으로 자동 삭제하지 않으며, 보류 이유와 다시 검토할 조건을 같은 작업 기록에 남긴다.
-  실패·진단 중인 검증물도 필요하면 보류한다. 기존 권한 안의 결정을 매번 사용자 승인으로 되돌리지 않는다.
-- 테스트 실행과 결과를 제품 빌드 실행·결과와 구분한다. 테스트에 필요한 컴파일은 명시적인 준비 단계로 기록하며,
-  그 성공을 전체 제품 빌드 성공으로 보고하지 않는다. 입력·환경과 프로젝트의 재사용 조건을 확인해 중복 준비·실행을 줄인다.
-- 테스트뿐 아니라 문서 비교, 화면 확인, 데이터 검사, 실험 평가 중 작업에 맞는 방법을 사용한다.
-  확인한 범위를 넘어 결과를 일반화하거나 검증 실패를 이유로 성공 조건을 임의로 낮추지 않는다.
-- 검증 근거는 성격에 맞는 한곳에 둔다. 이번 작업의 검증 명령·결과·종료 코드·로그 위치는 기존 작업 기록에,
-  다음에도 반복할 검증 절차는 운영 문서에 둔다. 설계 문서에는 상태 표시만 갱신하고 근거가 필요하면 링크한다.
-  운영 문서에는 절차와 현재 유효한 기준값만 두고, 실행별 결과·해시·날짜 기록을 쌓지 않는다.
+<a id="6-앱-로그와-오류-진단"></a>
 
-- 실험으로 구현 방향을 판단할 때는 최종 성공 조건과 중간 지표를 구분하고, 평가나 파싱 오류로 결과를 해석할 수 없는 상태인지 먼저 확인한다. 최초 비교와 결과별 다음 조치를 정하고, 근거 없는 장기 실행을 반복하지 않는다.
+## 6. App logs and error diagnosis
 
-## 8. 정리와 문서 반영
+- If a changed path fails, check whether existing logs can locate the failure and its cause. If insufficient, make the smallest necessary improvements within existing goals and authority. Resolve improvements changing collected data, retention policy, cost, or agreed scope as decisions with evidence and impact before proceeding; do not add separate approval merely because an improvement concerns internal diagnosis.
+- For initial implementation of a new app, additions or changes to logging itself, or diagnosis hindered by insufficient logs, also apply project app logging and error diagnosis guidance if available. Without such guidance, establish and address the actual diagnostic gap and necessary scope; do not expand unrelated work just to create guidance.
 
-- 계획한 레거시 코드, 테스트, 실행 스크립트의 정리를 수행한다. 대체된 모델·분기·설정과 전용 fixture도
-  함께 확인하고, 안전하게 제거할 수 있는 항목은 같은 작업에서 제거한다.
-- 삭제 전에 현재 caller, 데이터 전환, 배포·복구 경로의 의존을 확인한다. 구형 코드나 테스트가 존재한다는
-  사실만으로 유지하지 않으며, 남길 항목은 현재 필요성과 제거 조건을 밝힌다.
-- 작업 중 만든 산출물·캐시·백업도 소유권·생성 근거와 활성 사용·복구 참조를 확인해 묶음별로 삭제 또는 보류를
-  결정한다. 불확실한 항목은 보류 이유와 재검토 조건을 남긴다. 일반 삭제의 실제 결과와 잔여 경로를 확인하고,
-  검증·빌드 성공, 정리 결정과 실제 정리 완료를 구분한다. 상세 보호·속성 처리 기준은 빌드 참조를 따른다.
-- 동작, 데이터 계약, 책임 경계나 실행 절차가 바뀌면 이를 소유하는 최소 문서만 수정한다. 구현 세부만
-  바뀌고 문서화된 계약이 유지된다면 불필요한 문서 수정을 추가하지 않는다.
-- 문서는 현재 유효한 내용을 직접 갱신하고, 이동·통합 시 필요한 내용과 참조를 처리한다. 문서 수정과
-  보존·삭제의 상세 기준은 프로젝트 문서 지침을 따른다.
-  확정된 답은 관련 절에 통합하고 해결된 질문·폐기된 내용·중복을 제거한다. 이력 자체가 문서 목적이 아니면
-  응답 기록·날짜별 확인 메모·조사나 상세 로그를 덧붙이지 않으며, 현재 이해·실행·검증에 필요한 내용만 유지한다.
-- 변경과 관계없는 저장소 전체 정리로 범위를 넓히지 않는다.
+<a id="7-검증과-테스트-관리"></a>
 
-## 9. 실행 결과와 완료
+## 7. Verification and test management
 
-- 성공 조건, 적용되는 필수 검증, 계획한 정리와 필요한 문서 반영을 확인한 뒤 완료로 보고한다.
-- 최종 변경을 함께 검토해 승인된 범위가 빠짐없이 반영됐는지, 관련 없는 변경이 섞이지 않았는지 확인한다.
-- 결과와 검증 범위·성공 여부를 간결하게 보고한다. 실행 검증은 실제 종료 코드와 필요한 로그·산출물 위치를
-  남기고, 미확인 사항, 남은 작업, 임시 유지 항목의 근거와 제거 조건을 구분한다.
-- 후속 작업이 있다면 현재 계획, 관련 소유 문서, 충분한 검증 근거와 미해결 사항을 전달한다.
-  커밋, 배포, 산출물 보존 정책은 프로젝트의 해당 지침과 허용된 범위를 따른다.
+Check separately that the targeted failure is fixed and that existing features, constraints, and authority are preserved. Reuse existing tests or actual behavior checks matching the behavior to preserve, and supplement missing evidence proportionately to impact. When changing the model's intent interpretation or skill selection policy, distinguish wording and format checks from verification that behavior in actual conversation matches the policy. Do not report the fix as verified if the latter was not performed.
+
+- Choose the minimum verification of changed contracts, success criteria, and important risks. Check existing verification and evidence first; widen scope for new risks, failures, input changes, or mandatory project requirements.
+- Verify the assigned scope and report shared-resource constraints or needed scope changes to root.
+- Choose common checks, platform contract checks, native execution in target environments, and host verification according to actual changes and integration risk. In completion reports, distinguish requested targets from actual verification environments, methods, and unverified scope. Do not extend a pass on one OS into acceptance evidence for another.
+- Decide whether to retain, modify, consolidate, or delete affected tests and execution scripts against the current contract. Do not restore obsolete behavior merely to satisfy old expectations, or delete a valid contract merely because a test fails.
+- Group tests, fixtures, and scripts by purpose, inputs, and preparation conditions, and distinguish ongoing verification from verification specific to this task. Retained verification must have a risk it protects and execution conditions; do not classify it as task-specific solely by name, age, or failure status. Preserve test-addition criteria, valid contracts, and required verification, and follow project guidance for detailed classification.
+- Review results after running each group, fixing and rerunning when needed. Task-specific does not mean run only once or delete immediately after execution. After result review and necessary rechecks, the model decides whether to delete or retain each group. Do not automatically delete based on passing status or elapsed time; record retention reasons and revisit conditions in the same work record. Retain failing or diagnostic verification artifacts when needed too. Do not turn every decision within existing authority back into a request for user approval.
+- Distinguish test execution and results from product build execution and results. Record compilation needed for tests as an explicit preparation step; do not report its success as a successful full product build. Check inputs, environments, and project reuse conditions to reduce duplicate preparation and execution.
+- Besides tests, use document comparison, screen inspection, data checks, or experimental evaluation as appropriate. Do not generalize beyond the verified scope or arbitrarily lower success criteria because verification fails.
+- Keep verification evidence in one place suited to its nature. Put this task's commands, results, exit codes, and log locations in the existing work record, and procedures to repeat later in operational documents. Update only status labels in design documents, linking evidence when needed. Keep procedures and currently valid reference values in operational documents, without accumulating per-run results, hashes, or date records.
+
+- When experiments guide implementation direction, distinguish final success criteria from intermediate metrics and first check whether evaluation or parsing errors make the results uninterpretable. Define the initial comparison and next actions for each result; do not repeat long runs without evidence.
+
+<a id="8-정리와-문서-반영"></a>
+
+## 8. Cleanup and documentation
+
+- Perform planned cleanup of legacy code, tests, and execution scripts. Check replaced models, branches, settings, and their dedicated fixtures too, and remove what can safely be removed in the same task.
+- Before deleting, check current callers and dependencies in data transition, deployment, and recovery paths. Do not retain old code or tests merely because they exist; state current need and removal conditions for retained items.
+- For artifacts, caches, and backups created during the work, check ownership, creation evidence, active use, and recovery references, then decide deletion or retention by group. Record retention reasons and revisit conditions for uncertain items. Confirm actual ordinary-deletion results and remaining paths, distinguishing verification/build success, cleanup decisions, and actual cleanup completion. Follow the build reference for detailed protection and attribute-handling criteria.
+- If behavior, data contracts, responsibility boundaries, or execution procedures change, update only the minimum owning documents. Do not add unnecessary document edits when only implementation details change and documented contracts hold.
+- Update current document content directly, handling necessary content and references when moving or consolidating. Follow project documentation guidance for detailed editing, retention, and deletion criteria. Integrate settled answers into relevant sections and remove resolved questions, discarded content, and duplication. Unless history is the document's purpose, do not append response records, dated confirmation notes, investigations, or detailed logs; retain only what current understanding, execution, and verification require.
+- Do not widen scope into repository-wide cleanup unrelated to the change.
+
+<a id="9-실행-결과와-완료"></a>
+
+## 9. Execution results and completion
+
+- Report completion after checking success criteria, applicable mandatory verification, planned cleanup, and necessary documentation updates.
+- Review final changes together to confirm the approved scope is fully covered and unrelated changes are absent.
+- Briefly report results, verification scope, and success or failure. For execution verification, retain actual exit codes and needed log/artifact locations, and distinguish unconfirmed matters, remaining work, and reasons and removal conditions for temporarily retained items.
+- If follow-up work remains, pass on the current plan, owning documents, sufficient verification evidence, and unresolved matters. Follow applicable project guidance and authorized scope for commits, deployment, and artifact retention.

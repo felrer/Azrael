@@ -558,7 +558,7 @@ const ASSET_RULE_PATHS = {
   "inject-capacity-retry-stop.cjs": [CAPACITY_RETRY_ASSET],
   "inject-btw.cjs": BTW_ASSETS,
   "btw-conversation.cjs": BTW_ASSETS,
-  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET],
+  "inject-recent-chat-filter.cjs": [RECENT_CHAT_FILTER_ASSET, RECENT_THREAD_LIST_ASSET],
   "inject-session-flags.cjs": [SESSION_FLAGS_ASSET],
   "inject-team-ui.cjs": [TEAM_UI_ASSET],
   "inject-team-runtime.cjs": TEAM_RUNTIME_ASSETS,

@@ -1,0 +1,12 @@
+[
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\crate\\third_party\\rust-toolchain\\lib\\rustlib\\x86_64-pc-windows-msvc\\lib\\rustc_driver-23a5e4250c4e1b80.pdb",
+    "bytes": 581967872,
+    "sha256": "8CB20EC28D492690A3DB4F186685BBD4BA44060E880CCD7C3AEE10643A16CC5E"
+  },
+  {
+    "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tools\\rusty-v8-150.4.0-source\\crate\\third_party\\rust-toolchain\\bin\\rustc_driver-23a5e4250c4e1b80.pdb",
+    "bytes": 581967872,
+    "sha256": "8CB20EC28D492690A3DB4F186685BBD4BA44060E880CCD7C3AEE10643A16CC5E"
+  }
+]
