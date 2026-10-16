@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 94288156,
+  "byteCount": 94291029,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -60000,8 +60000,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "74650b399552798803a2c758680151259e71b455ef8f42f05a1d116cc580d79f",
-      "size": 1035
+      "sha256": "bb6eb9ce7b85558991976cee1993ff746c5f1e4b3af2c10cee290dc8405fd8d2",
+      "size": 1054
     },
     "codex-rs/utils/pty/README.md": {
       "gitMode": "100644",
@@ -60231,8 +60231,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "b08362a7204d866dcadfd5f87e31fcbec6dd47130371e5af631116cfeaf3033c",
-      "size": 13140
+      "sha256": "1c67e7144b91b0ff9ce2cd75984a7fc77571034fccbc613888a0a5d4264474ae",
+      "size": 13809
     },
     "codex-rs/utils/pty/src/win/psuedocon_tests.rs": {
       "gitMode": "100644",
@@ -60259,8 +60259,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "cd9a38e3825db139e26b25209ce30d913ecac350d93ee53e51353dd3ce399925",
-      "size": 26824
+      "sha256": "f8b4305fa9e353e5e427fa4c845a6066e503478c8615726ada00f539928b6467",
+      "size": 29009
     },
     "codex-rs/utils/pty/tests/conpty_search_path.rs": {
       "gitMode": "100644",
@@ -64864,7 +64864,7 @@
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
   "inventoryCount": 9264,
-  "inventorySha256": "3e0bd39d38fe0ba5f3497cd024f7e991796051bbc366e8daa2421fba82926292",
+  "inventorySha256": "ab8b9c267b9def262c8ccfd83e9f65613f2acd93c56e114ee5726bcedea3d433",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -70200,8 +70200,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "74650b399552798803a2c758680151259e71b455ef8f42f05a1d116cc580d79f",
-          "size": 1035
+          "sha256": "bb6eb9ce7b85558991976cee1993ff746c5f1e4b3af2c10cee290dc8405fd8d2",
+          "size": 1054
         },
         "before": {
           "gitMode": "100644",
@@ -70285,13 +70285,29 @@
         },
         "before": null
       },
+      "codex-rs/utils/pty/src/win/psuedocon.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "1c67e7144b91b0ff9ce2cd75984a7fc77571034fccbc613888a0a5d4264474ae",
+          "size": 13809
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "b08362a7204d866dcadfd5f87e31fcbec6dd47130371e5af631116cfeaf3033c",
+          "size": 13140
+        }
+      },
       "codex-rs/utils/pty/src/windows_tests.rs": {
         "after": {
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "cd9a38e3825db139e26b25209ce30d913ecac350d93ee53e51353dd3ce399925",
-          "size": 26824
+          "sha256": "f8b4305fa9e353e5e427fa4c845a6066e503478c8615726ada00f539928b6467",
+          "size": 29009
         },
         "before": {
           "gitMode": "100644",
@@ -134779,7 +134795,7 @@
       "upstreamUrl": "C:/Users/felre/Desktop/pi-harness-init/artifacts/sources/engine-latest-20261009"
     },
     "originalReceiptSha256": "028f02a89b108c40b56c857f13ddc481608be2508336b0941318c2c3d5271c21",
-    "repositoryHead": "dd41f7f6d816a0d04bfce1255540a52586c36f1e",
+    "repositoryHead": "3792323236e2cd951f00a01ad5f0b8009d2e4ee8",
     "schema": 4,
     "sourcePrefix": "engine"
   },

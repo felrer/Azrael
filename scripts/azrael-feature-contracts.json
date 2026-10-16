@@ -36,6 +36,7 @@
         "engine/codex-rs/utils/pty/src/child_command.rs",
         "engine/codex-rs/utils/pty/src/windows_tests.rs",
         "engine/codex-rs/utils/pty/src/win/job.rs",
+        "engine/codex-rs/utils/pty/src/win/psuedocon.rs",
         "engine/codex-rs/app-server-client/src/remote.rs",
         "engine/codex-rs/app-server-client/src/bin/azrael-bridge.rs",
         "engine/codex-rs/core/src/azrael_manual_resume.rs",

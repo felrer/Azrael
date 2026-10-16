@@ -641,6 +641,59 @@ async fn conpty_delivers_input_to_foreground_children() -> anyhow::Result<()> {
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
 async fn conpty_ctrl_c_interrupts_powershell_foreground_child() -> anyhow::Result<()> {
+    // Isolate the deliberately inherited process-wide ignore attribute from
+    // other tests. The PTY owner must restore Ctrl-C delivery for its client.
+    const PROBE: &str = "CODEX_PTY_CTRL_C_INHERITANCE_PROBE";
+    if std::env::var_os(PROBE).is_none() {
+        for (mode, flags) in [
+            ("ignored", 0),
+            ("detached", winapi::um::winbase::DETACHED_PROCESS),
+            ("ignored-then-detached", 0),
+        ] {
+            let output = std::process::Command::new(std::env::current_exe()?)
+                .args([
+                    "--exact",
+                    "tests::windows_tests::conpty_ctrl_c_interrupts_powershell_foreground_child",
+                    "--nocapture",
+                ])
+                .env(PROBE, mode)
+                .creation_flags(flags)
+                .output()?;
+            anyhow::ensure!(
+                output.status.success(),
+                "{mode} Ctrl-C probe failed:\n{}\n{}",
+                String::from_utf8_lossy(&output.stdout),
+                String::from_utf8_lossy(&output.stderr),
+            );
+        }
+        return Ok(());
+    }
+    let probe_mode = std::env::var(PROBE)?;
+    if probe_mode == "ignored" || probe_mode == "ignored-then-detached" {
+        anyhow::ensure!(
+            unsafe { winapi::um::consoleapi::SetConsoleCtrlHandler(None, 1) } != 0,
+            "failed to establish inherited ignore-Ctrl-C fixture: {}",
+            std::io::Error::last_os_error(),
+        );
+    }
+    if probe_mode == "ignored-then-detached" {
+        let output = std::process::Command::new(std::env::current_exe()?)
+            .args([
+                "--exact",
+                "tests::windows_tests::conpty_ctrl_c_interrupts_powershell_foreground_child",
+                "--nocapture",
+            ])
+            .env(PROBE, "detached")
+            .creation_flags(winapi::um::winbase::DETACHED_PROCESS)
+            .output()?;
+        anyhow::ensure!(
+            output.status.success(),
+            "detached child of ignored parent failed:\n{}\n{}",
+            String::from_utf8_lossy(&output.stdout),
+            String::from_utf8_lossy(&output.stderr),
+        );
+        return Ok(());
+    }
     let Some(program) = find_powershell() else {
         return Ok(());
     };

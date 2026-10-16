@@ -20,6 +20,9 @@ if (-not $FixtureRoot) { $FixtureRoot = Join-Path $projectRoot "artifacts/verifi
 if (-not [IO.Path]::IsPathFullyQualified($FixtureRoot)) { throw 'FixtureRoot must be an absolute path.' }
 $fixture = [IO.Path]::GetFullPath($FixtureRoot).TrimEnd('\', '/')
 if (Test-Path -LiteralPath $fixture) { throw "FixtureRoot must be a new path: $fixture" }
+. (Join-Path $PSScriptRoot 'verification-state.ps1')
+$state = [IO.Path]::GetFullPath($StateRoot).TrimEnd('\', '/')
+Assert-AzraelVerificationStatePath -StateRoot $state
 
 function Resolve-File {
     param([Parameter(Mandatory)][string]$Path, [Parameter(Mandatory)][string]$Name)
@@ -73,7 +76,6 @@ if ("$($originalManifest.publisher).$($originalManifest.name)" -cne 'openai.chat
     throw 'Selected official Codex and audio must have matching versions and the expected extension-pack entry.'
 }
 $typescript = Resolve-File -Path $TypeScriptPath -Name 'TypeScriptPath'
-$state = [IO.Path]::GetFullPath($StateRoot).TrimEnd('\', '/')
 $fixturePrefix = $fixture + [IO.Path]::DirectorySeparatorChar
 if ($UseFreshState -and -not $state.StartsWith($fixturePrefix, [StringComparison]::OrdinalIgnoreCase)) {
     throw 'UseFreshState requires StateRoot to be inside the new FixtureRoot.'
