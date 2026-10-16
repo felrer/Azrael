@@ -10,7 +10,7 @@ const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
 const RECOVERY = ["recovery-state", "recovery-bridge", "fetch-response", "queue-consumption", "send-result-integration", "immediate-stop", "edit-stop-integration"].map(name => `scripts/test-${name}.cjs`);
 const NAMESPACE = ["scripts/test-integrated-entry.cjs", "scripts/test-namespace-source.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-preservation-integration.cjs"];
-const BUILD = ["scripts/test-build-module-cache.ps1", "scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1"];
+const BUILD = ["scripts/test-build-module-cache.ps1", "scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1", "scripts/test-verification-state.ps1"];
 const AREAS = ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build", "settings", "accounts", "window-control", "build-cache"];
 const FEATURE_TESTS = {
   settings: /(?:test-(?:instruction-settings|account-settings|student-design|student-avatar-assets|pets-cleanup)\.cjs$|\/(?:instructionService|instructionView|studentDesign)\.test\.ts$)/,
@@ -300,6 +300,9 @@ function selectChanged(options, root) {
     ["scripts/build-metrics.ps1", "scripts/test-build-metrics.ps1"],
     ["scripts/build-module-cache.ps1", "scripts/test-build-module-cache.ps1"],
     ["scripts/deploy-azrael.ps1", "scripts/test-deploy-azrael.ps1"],
+    ["scripts/verification-state.ps1", "scripts/test-verification-state.ps1"],
+    ["scripts/check-independent-vscode.ps1", "scripts/test-verification-state.ps1"],
+    ["scripts/deploy-azrael.ps1", "scripts/test-verification-state.ps1"],
     ["scripts/feature-preservation.cjs", "scripts/test-feature-preservation.cjs"],
     ["scripts/azrael-feature-contracts.json", "scripts/test-feature-preservation.cjs"],
     ["scripts/verification-result-cache.cjs", "scripts/test-verification-result-cache.cjs"],

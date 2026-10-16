@@ -45,6 +45,9 @@ $release = Join-Path $project "artifacts/releases/$ReleaseName"
 $package = Join-Path $project "artifacts/deployments/$run/package"
 $fixture = Join-Path $project "artifacts/verification/$run"
 $accountControlsState = Join-Path $project "artifacts/verification/account-controls-$ReleaseName"
+. (Join-Path $PSScriptRoot 'verification-state.ps1')
+Assert-AzraelVerificationStatePath -StateRoot $StateRoot
+Assert-AzraelVerificationStatePath -StateRoot (Join-Path $fixture 'state')
 $runPaths = @($logs, $release, (Join-Path $project "artifacts/logs/$ReleaseName"), (Split-Path $package -Parent), $fixture)
 if ($VerifyAccountControls) { $runPaths += $accountControlsState }
 foreach ($path in $runPaths) {

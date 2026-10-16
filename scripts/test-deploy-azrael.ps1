@@ -361,6 +361,15 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         return
     }
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Destination $scripts
+    # This orchestration fixture starts no native socket. Real Windows UTF-8
+    # limits belong to test-verification-state.ps1, not these deep mock roots.
+    Write-Utf8 (Join-Path $scripts 'verification-state.ps1') @'
+function Assert-AzraelVerificationStatePath {
+    param([Parameter(Mandatory)][string]$StateRoot)
+    if (-not [IO.Path]::IsPathFullyQualified($StateRoot)) { throw 'Expected absolute verification state.' }
+    $StateRoot | Add-Content -LiteralPath (Join-Path $PSScriptRoot '../artifacts/verification-state-paths.txt')
+}
+'@
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts

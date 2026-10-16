@@ -45,8 +45,10 @@ use std::sync::Arc;
 use winapi::shared::minwindef::DWORD;
 use winapi::shared::ntdef::NTSTATUS;
 use winapi::shared::ntstatus::STATUS_SUCCESS;
+use winapi::shared::winerror::ERROR_INVALID_HANDLE;
 use winapi::shared::winerror::HRESULT;
 use winapi::shared::winerror::S_OK;
+use winapi::um::consoleapi::SetConsoleCtrlHandler;
 use winapi::um::handleapi::*;
 use winapi::um::processthreadsapi::*;
 use winapi::um::winbase::CREATE_UNICODE_ENVIRONMENT;
@@ -188,6 +190,17 @@ impl PsuedoCon {
 
         let cwd = resolve_current_directory(&cmd);
         let mut env_block = build_environment_block(&cmd);
+
+        // A host can pass down the inheritable ignore-Ctrl-C attribute. Restore
+        // normal delivery before creating an interactive console client, as
+        // node-pty does, without removing any application-defined handlers.
+        if unsafe { SetConsoleCtrlHandler(None, 0) } == 0 {
+            let error = IoError::last_os_error();
+            // A detached host has no console attribute to reset.
+            if error.raw_os_error() != Some(ERROR_INVALID_HANDLE as i32) {
+                return Err(error.into());
+            }
+        }
 
         let res = unsafe {
             CreateProcessW(
