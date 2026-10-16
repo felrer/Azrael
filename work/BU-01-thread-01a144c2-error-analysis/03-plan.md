@@ -1,6 +1,6 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 진단 요청의 refusal/cyber는 재현·분리했다. 사용자가 지정한 세션 이어가기 문구+도구 catalog로 실제 호출했으나 HTTP429로 refusal 검증이 막혔다. 제품 수정 완료로 보고하지 않는다. 02-plan의 오류 분류 변경은 b7a03ee1로 완료했고 이번 후속 목표는 정상적인 요청이 refusal로 끝나는 원인을 좁혀 수정하는 것이다.
+상태: 확보된 refusal과 처리 경로의 원인 분석 및 해결 방안 정리 완료. 공급자 내부 판정과 실제 작업의 정상화는 미검증이며, 아래 변경안은 제안이다. 기존 오류 분류 변경은 b7a03ee1로 완료했다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
@@ -38,7 +38,7 @@
 
 read-only agent refusal_request_contract는 OAuth pin/headers와 compatible system projection의 소유를 확인했다. 현재 compiled.claudeProfile 분기는 vendored system 대신 native system을 보내도록 의도됐고 기존 offline fixture가 보존한다. 이 경로의 실제 성공은 이번 제한 때문에 확인하지 못했다. marker 문구는 providers/opencodex, instructions, engine/codex-rs와 관련 architecture 문서에서 발견되지 않았다.
 
-사용자에게 실제 작업에서 refusal이 기록된 세션 링크를 요청했다. 최초 주신 세션의 실패는 HTTP429이며 refusal이 저장된 사건은 root의 진단 probe이므로, 실제 작업을 고치려면 해당 실패 요청을 구분해야 한다. 답변 전까지 결과를 제품 수정 완료로 보고하지 않는다.
+사용자가 실제 실패를 유도할 요청으로 이전 세션의 목표를 파악하고 이어서 진행하라는 문구를 지정했다. 최초 링크의 기록된 실패는 HTTP429이며, 공급자 cyber refusal의 직접 근거는 root의 진단 probe이다. 지정된 문구의 도구 조건 재현 결과와 이 직접 근거의 범위를 구분한다.
 
 ## 정리와 보관
 
@@ -57,3 +57,28 @@ run02 결과: 2026-10-16T15:46:59.938Z~2026-10-16T15:47:00.974Z UTC, producer ex
 run02 진단 근거: artifacts/tasks/refusal-cause/runs/02/reports/probe-01.json, reports/probe-01.ts(실행 입력 근거, 고정 경로이므로 재실행 금지), logs/probe-01.log. 다음 검증은 공급자가 이 계정의 요청을 수락할 때 동일한 사용자 문구와 도구 조건으로 실제 tool_use/거부 category를 확인하는 것이다. 현재 HTTP 응답 단계의 차단을 제품 프롬프트 결함으로 추정하여 수정하지 않는다. 코드 변경이 없으므로 제품 회귀 검사/빌드를 실행하지 않았다.
 
 run02 정리: 종료 후 owner/thread/path/lock 검증을 거쳐 새 임시 binding과 빈 temporary directory를 일반 삭제했다. reports/cleanup.json에서 두 경로 부재와 원래 binding 보존을 확인했다. 로그·보고서·실행 입력 script는 work:BU-01-refusal-cause-run-02로 등록하고 후속 수락된 요청이 이 차단 근거를 대체할 때 재검토하도록 defer했다.
+
+
+## 원인 분석과 권고 변경안
+
+현재 요청 범위는 문제 원인 분석과 해결 방안 제시다. 추가 제품 변경·외부 계정 변경·공급자 메시지 전송 없이 기존 live evidence, 현재 소스, 공식 API 계약을 대조했다. 이번 턴에는 inference를 추가 호출하지 않았다.
+
+확정 가능한 직접 원인: run01/probe02에서 공급자가 HTTP200 스트림의 message_delta에 stop_reason=refusal, stop_details.type=refusal, category=cyber를 전송했다. 출력은0이고 tool catalog도0이다. 그러므로 로컬 도구 실행 오류는 그 실패의 원인이 아니며 도구 사용은 refusal 발생의 필수 조건이 아니다. cyber는 공급자가 붙인 분류이고, 악성 작업이 실제 존재했다는 로컬 판정은 아니다. diagnostic 요청 내용은 해가 없는 고정 문자열 반환이며 false positive 가능성을 강하게 시사한다. 다만 본문 explanation은 존재/길이만 보존했고 공급자 내부 판정 근거는 없다. '특정 marker 자체가 원인'이라는 앞선 설명은 증거보다 강했다. 시스템 지침과 사용자 입력이 함께 바뀐 비교이므로 어느 부분이 촉발했는지는 미확정이다.
+
+확정된 앱의 진단 결함: vendor/src/adapters/anthropic.ts:1237의 message_delta 처리는 usage와 stop_reason만 취하고 stop_details를 버린다. message_stop 경로(1086 emitDone)는 refusal stopReason을 전달하지만, EOF 보완 분기(1289)는 refusal/content_filter를 content_filter로 합친다. inference.ts:330은 허용한 네 종료 사유 외의 모든 값을 provider_incomplete로 합친다. observeAnthropic(:358)도 stop_details를 보존하지 않는다. 결과적으로 공급자 refusal, 출력 예산 초과, 기타 미완료를 구별할 근거가 상위 경로에 남지 않는다. 이 진단 결함은 최초 공급자 refusal을 발생시키지는 않지만 원인별 해결을 방해한다.
+
+미확정 요소: 사용자가 지정한 세션 이어가기 문구+도구 조건은 run02에서 HTTP429로 스트림 시작 전 종료됐다. 그 작업의 refusal 범주가 cyber인지, tool definition/전체 지침/이전 맥락/호출 결과 중 어느 부분이 관련되는지 검증되지 않았다. 같은 계정/model/high의 간단 요청은 성공했으므로 항상 발생하는 인증 실패라는 결론도 성립하지 않는다. compatible profile의 system override는 의도된 기존 계약이며 실패 원인이라는 근거 없이 identity/header를 바꾸지 않는다.
+
+권고 순서:
+
+1. 공급자 거부의 구조화된 전달을 먼저 보완한다. 실제 stop_reason=refusal일 때만 provider_refusal로 구별하고 원래 stop_reason과 allowlisted stop_details.category를 진단으로 보존한다. EOF 분기에서도 의미를 동일하게 유지한다. null/미지원 category는 그대로 미정으로 남기고 미확인 오류는 '정의되지 않은 오류'로 처리한다. freeform explanation을 오류 분류 규칙으로 파싱하거나 원문 요청을 로그로 남기지 않는다. 이 변경은 진단 개선이며 정상 응답 보장과 구분한다. 영향 소유자는 vendor adapter/types, managed inference observer/translate, native error transport/diagnostic export 및 UI의 명확한 refusal 표시다.
+
+2. 실제 실패 요청에서 정상화할 입력 경계를 결정한다. 동일한 사용자 문구, 계정, 모델, reasoning과 인증 경로를 고정하고 user/task only → 실제 Read/Bash schema 추가 → 현재 native 지침 → 실제 이전 맥락의 단계별 차이를 비교한다. 한 번에 한 요소를 바꾸고 HTTP200인 비교만 refusal의 인과 근거로 사용한다. 사용자가 제공한 조건을 우선 재현한다. 도구 호출 전 실패와 tool_result 다음 실패를 구분한다. 거부된 정상 요청에서 불필요한 과거 시스템/진단 내용을 새 지침으로 중복 주입하는 투영 오류가 확인되면 그 소유 경계만 고친다. 정책·권한 지침을 숨기거나 무작정 제거하는 축소는 제안하지 않는다. 수락 기준은 실제 tool_use → 유효 도구 입력/실행 → 결과 전달 → end_turn의 정상 완료다.
+
+3. 세션 이어가기의 실행 경로는 기존 thread/read API 재사용을 우선 검토한다. 현재 app-server-protocol/src/protocol/common.rs:858에 thread/read, protocol/v2/thread.rs:1728에 ThreadReadParams, app-server/src/request_processors/thread_processor.rs:865에 thread_read가 있다. paginated thread는 metadata 조회 후 기존 thread/turns/list와 thread/items/list로 필요한 범위만 읽는 계약을 따른다. UI 링크 탐색 경로와 모델의 세션 조회는 별도 책임이다. 권한 있는 같은 Azrael 세션만 검증한 뒤 구조화된 대화/작업 상태를 읽기 전용으로 제공하면, 모델이 전체 private 상태 디렉터리를 Bash로 탐색하고 raw rollout 내부 제어/진단 기록을 작업 지침으로 읽게 할 필요가 줄어든다. 원래 링크 형식과 사용자 내용은 보존한다. 이것은 재사용 가능한 흐름 개선안이며 cyber 거부의 원인으로 입증되거나 해소가 검증된 변경은 아니다. 도구 노출/권한/전달 범위 설계가 필요하다.
+
+4. 정상 요청의 공급자 false positive가 유지되면 공급자가 제공하는 대응을 선택한다. 공식 refusals-and-fallback 문서는 server-side fallbacks=default + server-side-fallback-2026-07-01을 설명한다. 다만 현재 OAuth 경로의 지원은 확인되지 않았고 현재 parser는 fallback content block을 허용하지 않는다. 따라서 beta header 한 줄 추가로 완료할 수 없으며 원래 model 고정 계약, 실제 응답 model/replay 범위, fallback block, iterations billing, 부분 출력 폐기/도구 미실행을 함께 설계해야 한다. 모델 변경이 허용되지 않으면 대체 없이 공급자에 false positive 조정을 요청하는 경로가 남는다. 이는 정상 요청을 전달하기 위한 공식 선택지이며 모든 refusal을 없애는 보장은 아니다. 외부 문의는 사용자가 지시하기 전 전송하지 않는다.
+
+제안 검증은 거부/정상/end_turn/tool_use/max_tokens/알 수 없는 종료, 실제 terminal 유무, 알려진/미지원/null category 및 부분 tool input 후 refusal에서 도구 실행0을 확인하는 focused 검사와 실제 사용자 요청의 정상 왕복을 포함한다. 공통 계약은 Windows/Linux/macOS에 적용하되 실제 live 근거는 Windows에 한정한다. 새로운 코드나 배포 수락을 주장하지 않는다.
+
+공식 계약 근거: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback (HTTP200 refusal과 stop_details, cyber false positives, 공식 fallback과 model/usage/부분 출력 의미). 이 문서의 일반 설명을 공급자의 비공개 내부 결정 근거로 취급하지 않는다. 현재 비교와 코드 조사만으로 근거가 부족한 '프롬프트 크기 때문에 refusal', 'tool 이름이 원인', 'OAuth 식별 문자열 복원이 해결' 같은 가설은 채택하지 않는다.
