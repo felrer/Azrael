@@ -8,6 +8,8 @@ Status: `target`.
 
 The product name for all observation and desktop-control stages is Window Use. This document owns the existing Computer Use/Sky backend, its runtime and current verification limits. The backend supplies Window Use stage 4; unified enablement, stages 1–4, app approval and task-stage authority are owned by [Window Use](window-use.md). The staged policy is not yet implemented. Technical names such as Sky, node_repl, computerUseMode and existing package/storage identifiers describe implementation boundaries rather than separate product authority.
 
+The proposed model-facing skill transition is owned by [Window Use stage guidance and skill lifecycle](window-use.md#stage-guidance-and-skill-lifecycle). Its standalone Computer Use entry retires only after reviewed stage-4 guidance and unified control preserve this backend's operations, visibility, confirmations, recovery and package provenance. Internal Node REPL/Sky identifiers and pinned dependencies can remain; a skill-name cleanup does not authorize removing the backend or widening existing conversations' tool ceilings.
+
 ## Selected-window mode
 
 The unified product requirements and task macros are owned by [Window Use](window-use.md). This section describes the existing selected-window prototype and its implementation boundary; the source's current approval and recovery behavior must be distinguished from the staged target policy.
