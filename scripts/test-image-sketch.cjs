@@ -69,17 +69,88 @@ test('export failure keeps drawing recoverable and queues no attachment',async()
   const active=f.state.getSnapshot().active;active.editor.export=async()=>{throw Error('tainted canvas')};
   await f.state.save();assert.equal(f.state.getSnapshot().active,active);assert.equal(active.saving,null);assert.equal(f.attachments.length,0);f.state.dispose();
 });
-test('bridge isolates composer scopes, respects cancellation and cleans subscriptions',async()=>{
-  const listeners=new Map(),scope={},opened=[],images=[];let cleanup;
-  const bridge=vm.runInNewContext('('+declaration(transformed(injection.COMPOSER_ASSET),'azraelUseImageSketchBridge')+')',{
-    g5:{useEffect:fn=>{cleanup=fn()}},window:{addEventListener:(name,fn)=>listeners.set(name,fn),removeEventListener:name=>listeners.delete(name)},
-    Image:class{constructor(){images.push(this);this.naturalWidth=80;this.naturalHeight=50}decode(){return new Promise(resolve=>this.resolve=resolve)}}
-  });
-  bridge(scope,options=>{opened.push(options);options.azraelOnOpened(true);return true},{current:null},true,'composer',()=>assert.fail('unexpected load failure'));
-  const listener=listeners.get('azrael:image-sketch');
-  const other={scope:{},isCurrent:()=>true};listener({detail:other});assert.equal(other.handled,undefined);
-  let current=true,count=0;const request={scope,src:'data:image/png;base64,x',isCurrent:()=>current,onOpened:()=>count++};
-  listener({detail:request});assert.equal(request.handled,true);current=false;images[0].resolve();await new Promise(setImmediate);assert.equal(opened.length,0);
-  current=true;listener({detail:{...request,handled:false}});images[1].resolve();await new Promise(setImmediate);assert.equal(opened.length,1);assert.equal(count,1);assert.equal(opened[0].azraelBackground.width,80);
-  cleanup();assert.equal(listeners.size,0);
+// Use the real native scope hook: separate components receive distinct wrappers
+// for the same descriptor/provider node. A shared {} would conceal the bug.
+let nativeScopeDeclaration;
+function nativeScopes() {
+  const text=source('webview/assets/app-initial-97d3534ad35f.js');
+  const node={},descriptor={},chain={node};
+  const context={chain,VRt:{useContext:()=>context.chain,useRef:()=>({current:null})},
+    oq:()=>null,OK:chain=>chain.node,YIt:()=>({conversationId:'conversation'}),GIt:()=>({})};
+  nativeScopeDeclaration??=declaration(text,'BRt');
+  const hook=vm.runInNewContext('('+nativeScopeDeclaration+')',context);
+  const composer=hook(descriptor),attachment=hook(descriptor);
+  context.chain={node:{}};const other=hook(descriptor);
+  return{composer,attachment,other};
+}
+let bridgeDeclarations;
+function bridgeFixture({canOpen=true,active=null,mount=true,openResult=true}={}) {
+  if(!bridgeDeclarations){
+    const text=transformed(injection.COMPOSER_ASSET);
+    bridgeDeclarations=['azraelUseImageSketchBridge','azraelRequestImageSketch'].map(name=>declaration(text,name)).join('\n');
+  }
+  const scopes=nativeScopes(),listeners=new Set(),images=[],opened=[],toasts=[];let cleanup,openCount=0;
+  const context={g5:{useEffect:fn=>{cleanup=fn()}},
+    window:{addEventListener:(_name,fn)=>listeners.add(fn),removeEventListener:(_name,fn)=>listeners.delete(fn),dispatchEvent:event=>{for(const fn of listeners)fn(event)}},
+    CustomEvent:class{constructor(type,{detail}){this.type=type;this.detail=detail}},
+    azraelImageSketchToasts:()=>Object.fromEntries(['info','danger'].map(kind=>[kind,message=>{
+      const toast={kind,message,closed:false};toasts.push(toast);return{close:()=>{toast.closed=true}};
+    }])),
+    Image:class{constructor(){images.push(this);this.naturalWidth=80;this.naturalHeight=50}decode(){return new Promise((resolve,reject)=>{this.resolve=resolve;this.reject=reject})}}
+  };
+  vm.createContext(context);vm.runInContext(bridgeDeclarations,context);
+  if(mount)context.azraelUseImageSketchBridge(scopes.composer,options=>{
+    opened.push(options);if(openResult instanceof Error)throw openResult;
+    if(openResult)options.azraelOnOpened(true);return openResult;
+  },{current:active?{state:{getSnapshot:()=>({active})}}:null},canOpen,'composer');
+  return{...scopes,images,opened,toasts,listeners,cleanup:()=>cleanup?.(),
+    request:(scope=scopes.attachment,isCurrent=()=>true,locale='en')=>context.azraelRequestImageSketch(scope,'data:image/png;base64,x',isCurrent,()=>{openCount++},locale),
+    get openCount(){return openCount}};
+}
+const tick=()=>new Promise(setImmediate);
+
+test('distinct native scope wrappers for the same node open the image sketch',async()=>{
+  const f=bridgeFixture();assert.notEqual(f.composer,f.attachment);
+  assert.equal(f.composer.node,f.attachment.node);
+  const result=f.request();assert.equal(f.toasts[0].kind,'info');
+  f.images[0].resolve();assert.equal(await result,'opened');
+  assert.equal(f.opened.length,1);assert.equal(f.openCount,1);
+  assert.equal(f.opened[0].azraelBackground.width,80);assert.equal(f.toasts[0].closed,true);
+  f.cleanup();assert.equal(f.listeners.size,0);
+});
+
+test('unavailable receiver, different node/descriptor and disabled composer report a reason',async()=>{
+  for(const options of [{mount:false},{canOpen:false},{other:true},{descriptor:true}]){
+    const f=bridgeFixture(options);
+    const scope=options.other?f.other:options.descriptor?{node:f.attachment.node,scope:{}}:f.attachment;
+    assert.equal(await f.request(scope,()=>true,'ko'),'unavailable');
+    assert.equal(f.images.length,0);assert.equal(f.toasts.length,1);assert.equal(f.toasts[0].kind,'danger');
+    assert.match(f.toasts[0].message,/입력창/);f.cleanup();
+  }
+});
+
+test('active and pending sketches report busy without consuming the original request',async()=>{
+  const active=bridgeFixture({active:{}});assert.equal(await active.request(),'busy');assert.equal(active.images.length,0);active.cleanup();
+  const f=bridgeFixture(),first=f.request();assert.equal(await f.request(),'busy');
+  assert.equal(f.images.length,1);f.images[0].resolve();assert.equal(await first,'opened');assert.equal(f.openCount,1);f.cleanup();
+});
+
+test('preview cancellation and effect disposal settle requests and prevent stale opening',async()=>{
+  for(const unmount of [false,true]){
+    const f=bridgeFixture();let current=true;const result=f.request(f.attachment,()=>current);
+    if(unmount)f.cleanup();else current=false;
+    f.images[0].resolve();assert.equal(await result,'cancelled');await tick();
+    assert.equal(f.opened.length,0);assert.equal(f.openCount,0);
+    assert.equal(f.toasts[0].closed,true);assert.equal(f.toasts.filter(t=>t.kind==='danger').length,0);f.cleanup();
+  }
+});
+
+test('image load and native open failures close loading feedback and permit retry',async()=>{
+  const f=bridgeFixture(),first=f.request();f.images[0].reject(Error('decode failed'));
+  assert.equal(await first,'failed');assert.equal(f.toasts[0].closed,true);assert.equal(f.openCount,0);
+  const retry=f.request();f.images[1].resolve();assert.equal(await retry,'opened');assert.equal(f.openCount,1);f.cleanup();
+  for(const openResult of [false,Error('open failed')]){
+    const rejected=bridgeFixture({openResult}),result=rejected.request();rejected.images[0].resolve();
+    assert.equal(await result,'failed');assert.equal(rejected.toasts.filter(t=>t.kind==='danger').length,1);rejected.cleanup();
+  }
 });
