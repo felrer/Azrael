@@ -176,7 +176,7 @@ fn configure_model_switching_fixture(model: &mut ModelInfo) {
 #[test_case(None; "model only")]
 #[test_case(Some(Personality::Pragmatic); "model and personality")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn first_turn_model_change_appends_model_instructions_developer_message(
+async fn first_turn_model_change_does_not_repeat_shared_profile_instructions(
     personality: Option<Personality>,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
@@ -208,11 +208,8 @@ async fn first_turn_model_change_appends_model_instructions_developer_message(
         .find(|model| model.slug == next_model)
         .expect("expected target model in bundled catalog");
     let expected_instructions = render_model_instructions(&expected_model);
-    assert!(
-        developer_texts.iter().any(|text| {
-            text.contains("<model_switch>") && text.contains(&expected_instructions)
-        })
-    );
+    assert!(developer_texts.iter().all(|text| !text.contains("<model_switch>")));
+    assert_eq!(developer_texts.join("\n").matches(&expected_instructions).count(), 1);
     assert!(
         developer_texts
             .iter()
@@ -278,8 +275,10 @@ async fn first_turn_after_empty_prefix_fork_preserves_inherited_base_instruction
     let request = resp_mock.single_request();
     assert_eq!(request.body_json()["model"], turn_model);
     if let Some(instructions) = custom_base_instructions {
-        assert_eq!(request.instructions_text(), instructions);
+        assert_eq!(request.instructions_text().matches(instructions).count(), 1);
     }
+    let identity = "You are working in Azrael, the application and agent harness for this workspace.";
+    assert_eq!(request.instructions_text().matches(identity).count(), 1);
     let model_switch_count = request
         .message_input_texts("developer")
         .iter()
@@ -287,15 +286,15 @@ async fn first_turn_after_empty_prefix_fork_preserves_inherited_base_instruction
         .count();
     assert_eq!(
         model_switch_count,
-        usize::from(custom_base_instructions.is_none() && turn_model != initial_model),
-        "only inherited model-generated instructions should change models"
+        0,
+        "the inherited custom instructions and shared profile must not repeat after a fork"
     );
 
     Ok(())
 }
 
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn model_change_appends_model_instructions_developer_message() -> Result<()> {
+async fn model_change_with_shared_profile_does_not_repeat_instructions() -> Result<()> {
     skip_if_no_network!(Ok(()));
 
     let server = MockServer::start().await;
@@ -347,16 +346,14 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
     assert_eq!(requests.len(), 2, "expected two model requests");
 
     let second_request = requests.last().expect("expected second request");
-    assert!(second_request.has_content_kinds(&["model_switch.instructions"]));
+    assert!(!second_request.has_content_kinds(&["model_switch.instructions"]));
     let developer_texts = second_request.message_input_texts("developer");
-    let model_switch_text = developer_texts
+    assert!(developer_texts
         .iter()
-        .find(|text| text.contains("<model_switch>"))
-        .expect("expected model switch message in developer input");
-    assert!(
-        model_switch_text.contains("The user was previously using a different model."),
-        "expected model switch preamble, got: {model_switch_text:?}"
-    );
+        .all(|text| !text.contains("<model_switch>")));
+    let identity = "You are working in Azrael, the application and agent harness for this workspace.";
+    assert_eq!(developer_texts.join("\n").matches(identity).count(), 1);
+    assert_eq!(second_request.body_json()["model"], next_model);
 
     test.codex.ensure_rollout_materialized().await;
     test.codex.flush_rollout().await?;
@@ -370,6 +367,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
             RolloutItem::WorldState(item) => item
                 .state
                 .get("model")
+                .and_then(|snapshot| snapshot.get("model"))
                 .and_then(serde_json::Value::as_str)
                 .map(str::to_string),
             _ => None,
@@ -390,7 +388,7 @@ async fn model_change_appends_model_instructions_developer_message() -> Result<(
 #[test_case(Some(Personality::Friendly); "friendly clears opt-out")]
 #[test_case(Some(Personality::Pragmatic); "pragmatic clears opt-out")]
 #[tokio::test(flavor = "multi_thread", worker_threads = 2)]
-async fn model_change_respects_personality_opt_out_updates(
+async fn model_change_preserves_shared_profile_during_personality_updates(
     personality: Option<Personality>,
 ) -> Result<()> {
     skip_if_no_network!(Ok(()));
@@ -442,16 +440,8 @@ async fn model_change_respects_personality_opt_out_updates(
 
     let second_request = requests.last().expect("expected second request");
     let developer_texts = second_request.message_input_texts("developer");
-    let model_switch = developer_texts
-        .iter()
-        .find(|text| text.contains("<model_switch>"))
-        .expect("expected model switch message when model changes");
-    let expected_instructions = if personality.is_some() {
-        "Catalog instructions.\n# Personality\nCatalog style.\n# Rules\nKeep the rules."
-    } else {
-        "Catalog instructions.\n# Rules\nKeep the rules."
-    };
-    assert!(model_switch.contains(expected_instructions));
+    assert!(developer_texts.iter().all(|text| !text.contains("<model_switch>")));
+    assert_eq!(second_request.body_json()["model"], next_model);
     assert!(
         !developer_texts
             .iter()

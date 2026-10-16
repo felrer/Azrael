@@ -18,6 +18,7 @@ fn replaceable_kind(role: &str, kind: &str) -> Option<&'static str> {
         ("developer", "plugins.usage_instructions") => Some("plugins.usage_instructions"),
         ("developer", "environments.instructions") => Some("environments.instructions"),
         ("developer", "host_skills.instructions") => Some("host_skills.instructions"),
+        ("developer", "model_switch.instructions") => Some("model_switch.instructions"),
         // Environment context contains deltas; generic developer instructions,
         // permissions, plugin activations and skill invocations are additive.
         _ => None,

@@ -77,6 +77,7 @@ fn latest_typed_replacements_and_removals_preserve_raw_history() {
         ("developer", "apps.instructions"),
         ("developer", "plugins.usage_instructions"),
         ("developer", "environments.instructions"),
+        ("developer", "model_switch.instructions"),
     ] {
         let old = message(role, &[("old policy", kind)]);
         let new = message(role, &[("replacement policy", kind)]);
@@ -106,6 +107,22 @@ fn off_on_and_identical_guidance_do_not_accumulate() {
             vec![disabled]
         );
     }
+}
+
+#[test]
+fn model_switch_keeps_latest_behavior_without_removing_user_or_additive_instructions() {
+    let old = message("developer", &[("old model behavior", "model_switch.instructions")]);
+    let current = message("developer", &[("current model behavior", "model_switch.instructions")]);
+    let user = message("user", &[("old model behavior", "model_switch.instructions")]);
+    let additive = message("developer", &[("old model behavior", "generic.developer_instructions")]);
+    let mut untyped = old.clone();
+    if let ResponseItem::Message { internal_chat_message_metadata_passthrough, .. } = &mut untyped.item {
+        *internal_chat_message_metadata_passthrough = None;
+    }
+    let raw = vec![old, user.clone(), additive.clone(), untyped.clone(), current.clone()];
+    let saved = raw.clone();
+    assert_eq!(project_instruction_state(raw.clone()), vec![user, additive, untyped, current]);
+    assert_eq!(raw, saved, "projection must preserve the recorded conversation");
 }
 
 #[test]
