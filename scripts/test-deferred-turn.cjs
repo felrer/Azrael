@@ -767,6 +767,15 @@ test("waiting uses the existing clock hook, then freezes after early resume or c
   clock.advance(12000);
   assert.equal(waitHelpers.azraelRootResumeWaitLabel(wait, clock.render(item).elapsedMs),
     "재개까지 12/60초 · 재개 조건 설정됨");
+  const selected = { id: wait.reservationId, revision: wait.revision, agentTasks: [{}], completionTasks: [] };
+  const label = value => waitHelpers.azraelRootResumeWaitLabel(wait, 12000, value);
+  assert.equal(label(selected), "재개까지 12/60초 · 하위 에이전트 응답 대기중");
+  assert.equal(label({ ...selected, agentTasks: [], completionTasks: [{}] }), "재개까지 12/60초 · 작업 완료 시 조기 재개");
+  assert.equal(label({ ...selected, completionTasks: [{}] }), "재개까지 12/60초 · 재개 조건 설정됨");
+  for (const value of [{ ...selected, revision: wait.revision - 1 }, { ...selected, id: "other" },
+    { ...selected, completionTasks: undefined }]) {
+    assert.equal(label(value), "재개까지 12/60초 · 재개 조건 설정됨");
+  }
   const ended = { ...wait, state: "resumed", revision: 3, waitEndedAtMs: 66000 };
   item = waitHelpers.azraelRootResumeWaitItem(ended);
   assert.equal(clock.render(item).elapsedMs, 46000);

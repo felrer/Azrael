@@ -1599,6 +1599,7 @@
       "area": "ui",
       "owners": [
         "scripts/inject-deferred-turn.cjs",
+        "scripts/root-resume-wait.cjs",
         "scripts/ui-test-transform-fixture.cjs",
         "scripts/test-ui-test-transform-fixture.cjs",
         "scripts/namespace-cache-owner.cjs",
@@ -1618,6 +1619,7 @@
             "schema": 2,
             "files": [
               "scripts/inject-deferred-turn.cjs",
+              "scripts/root-resume-wait.cjs",
               "scripts/ui-test-transform-fixture.cjs",
               "scripts/test-ui-test-transform-fixture.cjs",
               "scripts/namespace-cache-owner.cjs",
