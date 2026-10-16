@@ -34,15 +34,25 @@ const HOST_PATCHES = [
 ];
 
 // Register against the native composer scope, never a global "active" thread.
-function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId, reportFailure) {
+function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId) {
   g5.useEffect(() => {
-    let disposed = false, pending = false;
+    let disposed = false, pending = null;
     const listener = event => {
       const request = event.detail;
-      if (!request || request.scope !== scope || request.handled || !canOpen || pending || stateRef.current?.state.getSnapshot().active) return;
+      // Native useScope returns a component-local wrapper. The descriptor and
+      // resolved provider node, not that wrapper, identify the target composer.
+      if (!request || !scope.node || request.scope?.node !== scope.node || request.scope?.scope !== scope.scope || request.handled) return;
       request.handled = true;
-      pending = true;
-      const current = () => { const valid = !disposed && request.isCurrent(); if (!valid) pending = false; return valid; };
+      if (!canOpen) { request.respond('unavailable'); return; }
+      if (pending || stateRef.current?.state.getSnapshot().active) { request.respond('busy'); return; }
+      pending = request;
+      const finish = status => { if (pending === request) pending = null; request.respond(status); };
+      const current = () => {
+        const valid = !disposed && request.isCurrent();
+        if (!valid) finish('cancelled');
+        return valid;
+      };
+      if (!current()) return;
       const image = new Image();
       image.referrerPolicy = 'no-referrer';
       if (/^https?:/i.test(request.src)) image.crossOrigin = 'anonymous';
@@ -51,19 +61,44 @@ function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId, 
         if (!current()) return;
         if (!image.naturalWidth || !image.naturalHeight) throw Error('Image has no dimensions');
         const accepted = open({ azraelBackground: { src: request.src, image, width: image.naturalWidth, height: image.naturalHeight },
-          isRequestCurrent: current, azraelOnOpened: accepted => { pending = false; if (accepted && current()) request.onOpened(); } });
-        if (!accepted) { pending = false; reportFailure(); }
-      }).catch(() => { pending = false; if (current()) reportFailure(); });
+          isRequestCurrent: current, azraelOnOpened: accepted => {
+            if (!current()) return;
+            if (accepted) { request.onOpened(); finish('opened'); }
+            else finish('failed');
+          } });
+        if (!accepted && current()) finish('failed');
+      }).catch(() => { if (current()) finish('failed'); });
     };
     window.addEventListener('azrael:image-sketch', listener);
-    return () => { disposed = true; window.removeEventListener('azrael:image-sketch', listener); };
+    return () => { disposed = true; pending?.respond('cancelled'); pending = null; window.removeEventListener('azrael:image-sketch', listener); };
   }, [scope, open, stateRef, canOpen, composerId]);
 }
 
-function azraelRequestImageSketch(scope, src, isCurrent, onOpened) {
-  const detail = { scope, src, isCurrent, onOpened, handled: false };
+function azraelImageSketchToasts() { return LMt(); }
+
+function azraelRequestImageSketch(scope, src, isCurrent, onOpened, locale) {
+  const ko = locale?.startsWith('ko');
+  const messages = ko ? {
+    loading: '사진 편집기를 여는 중…', unavailable: '현재 입력창에서 사진 편집기를 열 수 없습니다. 잠시 후 다시 시도해주세요.',
+    busy: '진행 중인 스케치를 먼저 완료하거나 닫아주세요.', failed: '사진 편집기를 열지 못했습니다. 다시 시도해주세요.'
+  } : {
+    loading: 'Opening image sketch…', unavailable: 'Image sketch is unavailable in this composer. Please try again shortly.',
+    busy: 'Finish or close the current sketch first.', failed: "Image sketch couldn't be opened. Please try again."
+  };
+  let resolve, settled = false, loading;
+  const result = new Promise(done => { resolve = done; });
+  const respond = status => {
+    if (settled) return;
+    settled = true;
+    loading?.close();
+    if (messages[status] && status !== 'loading') azraelImageSketchToasts().danger(messages[status]);
+    resolve(status);
+  };
+  const detail = { scope, src, isCurrent, onOpened, handled: false, respond };
   window.dispatchEvent(new CustomEvent('azrael:image-sketch', { detail }));
-  return detail.handled;
+  if (!detail.handled) respond('unavailable');
+  else if (!settled) loading = azraelImageSketchToasts().info(messages.loading);
+  return result;
 }
 
 function azraelImageSketchIcon(jsx) {
@@ -72,24 +107,26 @@ function azraelImageSketchIcon(jsx) {
 }
 
 const COMPOSER_PATCHES = [
-  ["let w=Jm(C),T;t[17]===w", "let w=Jm(C);azraelUseImageSketchBridge(l,w,m,a,r,()=>l.get(hx).danger(u.formatMessage({id:`azrael.sketch.imageLoadError`,defaultMessage:`Image sketch couldn't be opened. Please try again.`})));let T;t[17]===w"],
+  ["let w=Jm(C),T;t[17]===w", "let w=Jm(C);azraelUseImageSketchBridge(l,w,m,a,r);let T;t[17]===w"],
   ["m.current.state.openNew(t),m.current.state.getSnapshot().active!=null&&c?.()",
     "(t.azraelOnOpened??(()=>{}))(m.current.state.openNew(t)),m.current.state.getSnapshot().active!=null&&c?.()"],
-  ["}).catch(()=>{i===h.current&&r()&&l.get(hx).danger", "}).catch(()=>{t.azraelOnOpened?.(!1);i===h.current&&r()&&l.get(hx).danger"],
+  ["g.current.then(e=>{i===h.current&&v().canOpenSketch&&r()&&(",
+    "g.current.then(e=>{if(!(i===h.current&&v().canOpenSketch&&r())){t.azraelOnOpened?.(!1);return} ("],
+  ["}).catch(()=>{i===h.current&&r()&&l.get(hx).danger", "}).catch(()=>{t.azraelOnOpened?.(!1);!t.azraelOnOpened&&i===h.current&&r()&&l.get(hx).danger"],
   ["I=S&&n!=null,L,R,z,B,V;", "I=S&&n!=null,L,R,z,B,V;let azraelSketchScope=Ou(Dh),azraelSketchPreview=(0,b8.useRef)({});(0,b8.useEffect)(()=>()=>{azraelSketchPreview.current={open:!1}},[]);"],
   ["let H=P>0?P-1:null", "azraelSketchPreview.current={open:A,src:L?.src};let H=P>0?P-1:null"],
   ["image:{...L.overlayImage,imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}", "image:{...L.overlayImage,azraelSketch:{scope:azraelSketchScope,src:L.src,isCurrent:()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src,onOpened:()=>z(!1)},imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}"],
-  ["editButton:fe,onPreviousImage:pe,onNextImage:me,portalContainer:l", "editButton:fe,toolbarActions:[{ariaLabel:E.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon(x8.jsx),onClick:()=>azraelRequestImageSketch(azraelSketchScope,L.src,()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src,()=>z(!1))}],onPreviousImage:pe,onNextImage:me,portalContainer:l"],
+  ["editButton:fe,onPreviousImage:pe,onNextImage:me,portalContainer:l", "editButton:fe,toolbarActions:[{ariaLabel:E.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon(x8.jsx),onClick:()=>azraelRequestImageSketch(azraelSketchScope,L.src,()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src,()=>z(!1),E.locale)}],onPreviousImage:pe,onNextImage:me,portalContainer:l"],
 ];
 
 const ATTACHMENT_PATCHES = [
   ["P=b??fe,F=x??pe,me;", "P=b??fe,F=x??pe,me;let azraelSketchOpen=(0,In.useRef)(P);azraelSketchOpen.current=P;(0,In.useEffect)(()=>()=>{azraelSketchOpen.current=!1},[]);"],
   ["let R=ve&&L,z;", "let azraelSketchSource=(0,In.useRef)(I);azraelSketchSource.current=I;let R=ve&&L,z;"],
-  ["editButton:Le,triggerContent:Ie", "editButton:Le,toolbarActions:M?[{ariaLabel:O.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon($.jsx),onClick:()=>azraelRequestImageSketch(D,I,()=>azraelSketchOpen.current&&azraelSketchSource.current===I,()=>F(!1))}]:void 0,triggerContent:Ie"],
+  ["editButton:Le,triggerContent:Ie", "editButton:Le,toolbarActions:M?[{ariaLabel:O.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon($.jsx),onClick:()=>azraelRequestImageSketch(D,I,()=>azraelSketchOpen.current&&azraelSketchSource.current===I,()=>F(!1),O.locale)}]:void 0,triggerContent:Ie"],
   ["image:{alt:H,availableImageCount:E,imageRef:ie", "image:{azraelSketch:M?{scope:D,src:I,isCurrent:()=>azraelSketchOpen.current&&azraelSketchSource.current===I,onOpened:()=>F(!1)}:void 0,alt:H,availableImageCount:E,imageRef:ie"],
 ];
 const OVERLAY_PATCHES = [
-  ["let L;t[57]!==k||t[58]!==j.zoom", "if(n.azraelSketch){let title=I,request=n.azraelSketch;I=(...args)=>(0,E.jsxs)(`div`,{className:`flex min-w-0 items-center gap-2`,children:[title?.(...args),(0,E.jsx)(Fe,{uniform:!0,\"aria-label\":y.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,onClick:()=>azraelRequestImageSketch(request.scope,request.src,request.isCurrent,request.onOpened),children:azraelImageSketchIcon(E.jsx)})]})}let L;t[57]!==k||t[58]!==j.zoom"],
+  ["let L;t[57]!==k||t[58]!==j.zoom", "if(n.azraelSketch){let title=I,request=n.azraelSketch;I=(...args)=>(0,E.jsxs)(`div`,{className:`flex min-w-0 items-center gap-2`,children:[title?.(...args),(0,E.jsx)(Fe,{uniform:!0,\"aria-label\":y.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,onClick:()=>azraelRequestImageSketch(request.scope,request.src,request.isCurrent,request.onOpened,y.locale),children:azraelImageSketchIcon(E.jsx)})]})}let L;t[57]!==k||t[58]!==j.zoom"],
 ];
 
 function injectImageSketch(text, asset) {
@@ -103,7 +140,7 @@ function injectImageSketch(text, asset) {
       if (text.split(after).length !== 2) throw Error("Damaged image sketch transform");
     } else text = replaceOnce(text, before, after);
   }
-  const helpers = asset === COMPOSER_ASSET ? [azraelUseImageSketchBridge,azraelRequestImageSketch,azraelImageSketchIcon].map(f=>f.toString()).join("\n") : [ATTACHMENT_ASSET,OVERLAY_ASSET].includes(asset) ? [azraelRequestImageSketch,azraelImageSketchIcon].map(f=>f.toString()).join("\n") : "";
+  const helpers = asset === COMPOSER_ASSET ? [azraelUseImageSketchBridge,azraelImageSketchToasts,azraelRequestImageSketch,azraelImageSketchIcon].map(f=>f.toString()).join("\n") : [ATTACHMENT_ASSET,OVERLAY_ASSET].includes(asset) ? 'import{ZUt as azraelImageSketchToasts}from"./app-initial-7a199c66e670.js";\n' + [azraelRequestImageSketch,azraelImageSketchIcon].map(f=>f.toString()).join("\n") : "";
   if (marked && helpers && !text.includes(helpers)) throw Error("Damaged image sketch helper");
   if (!marked && helpers) text += "\n" + helpers;
   return marked ? { text, count: 0 } : { text: text + "\n" + MARKER + "\n", count: 1 };

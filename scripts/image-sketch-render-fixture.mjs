@@ -25,23 +25,92 @@ const { injectImageSketch, COMPOSER_ASSET } = require('./inject-image-sketch.cjs
 const ts = require('../extensions/azrael-ex/node_modules/typescript');
 const composer = injectImageSketch(await readFile(join(root, 'artifacts/upstream-ui/26.1007.21434', COMPOSER_ASSET), 'utf8'), COMPOSER_ASSET).text;
 const ast = ts.createSourceFile('composer.js', composer, 99, true, 1);
-const helpers = ['azraelUseImageSketchBridge', 'azraelRequestImageSketch', 'azraelImageSketchIcon'].map(name => ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name.text === name).getText(ast)).join('\n');
+// Extract product declarations rather than maintaining a second composer/bridge.
+function declaration(source, name) {
+  const tree = typeof source === 'string' ? ts.createSourceFile('native.js', source, 99, true, 1) : source;
+  const node = tree.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === name);
+  if (!node) throw Error('Missing native fixture declaration: ' + name);
+  return node.getText(tree);
+}
+const shared = await readFile(join(assets, 'app-initial-97d3534ad35f.js'), 'utf8');
+const common = await readFile(join(assets, 'app-initial-c014f9ee4429.js'), 'utf8');
+const helpers = ['azraelUseImageSketchBridge', 'azraelRequestImageSketch', 'azraelImageSketchIcon'].map(name => declaration(ast, name)).join('\n');
+const nativeComposer = declaration(ast, 'cda');
+const nativeScope = declaration(shared, 'BRt');
+const nativeStableCallback = declaration(common, 'Nv');
+// Fail closed if the fixture would silently lose the actual lazy/state boundary.
+for (const anchor of ['UPe()', 'e.createSketchComposerState', 'Host:e.SketchComposerHost', 'azraelUseImageSketchBridge(l,w,m,a,r)']) {
+  if (!nativeComposer.includes(anchor)) throw Error('Native composer fixture contract changed: ' + anchor);
+}
 const html = `<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style>${['app-initial-aad627bd9dff.css','app-initial-49150e6a0951.css','app-initial-f5b2ced5ef25.css','app-initial-1805ad19110d.css'].map(n=>`<link rel="stylesheet" href="/assets/${n}">`).join('')}</head><body data-vscode-theme-kind="vscode-light"><div id="root"></div><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.js"></script></body></html>`;
-const adapter = `import {nLt,XAt,Abt,Vbt} from '/assets/app-initial-97d3534ad35f.js';
-import {Lv as Lightbox,Rv as initLightbox} from '/assets/app-initial-c014f9ee4429.js';
-import {r as initHost,t as Host} from '/assets/composer-host-68250d08cc40.js';
-import {createSketchComposerState} from '/assets/composer-state-ce2239a4a82f.js';
-const React=nLt(),g5=React;Abt();initLightbox();initHost();
-${helpers}
+const adapter = `import {nLt,XAt,Abt,Vbt,tLt as nativeMemo} from '/assets/app-initial-97d3534ad35f.js';
+import {Lv as Lightbox,Rv as initLightbox,Hf as UPe} from '/assets/app-initial-c014f9ee4429.js';
+const React=nLt(),g5=React,VRt=React,iit=React,fda=nativeMemo(),rit=fda;
+Abt();initLightbox();
+// Native compiler output and callback implementation; only the app's event
+// instrumentation guard is absent in this isolated React root.
+const Qrt=()=>false;
+${nativeStableCallback}
+const Jm=Nv,pda={jsx:(type,props)=>React.createElement(type,props)};
 const intl={locale:'en',formatMessage:(m,v)=>m.defaultMessage?.replace(/\\{(\\w+)\\}/g,(_,k)=>v?.[k]??k)??m.id,formatNumber:(n,o)=>new Intl.NumberFormat('en',o).format(n),formatDate:()=>'',formatTime:()=>''};
+const Theme=React.createContext(false),ScopeContext=React.createContext(null),Dh={name:'fixture-composer'},hx={name:'toast'};
+const node={id:'thread-a/host-a'},otherNode={id:'thread-b/host-a'};
+const chain={node,value:{thread:'a',host:'a'}};
+// Bounded application scope environment for the unmodified native BRt hook.
+// BRt itself creates distinct component-local wrappers with one descriptor/node.
+const oq=()=>ScopeContext,OK=(chain)=>chain.node,YIt=(node)=>node===otherNode?{thread:'b',host:'a'}:chain.value,GIt=()=>({});
+const xK=()=>true,CK=()=>({get:()=>toastService});
+${nativeScope}
+const Ou=(descriptor)=>{const scope=BRt(descriptor);window.fixture.receiverScope=scope;return scope};
+const st=()=>intl,U_=()=>React.useContext(Theme),lda=()=>true;
+function toast(kind,message){const el=document.getElementById('status');el.dataset.kind=kind;el.textContent=message;let closed=false;return{close(){if(!closed&&el.textContent===message)el.textContent='Ready';closed=true}}}
+const toastService={info:message=>toast('info',message),danger:message=>toast('danger',message)};
+// App toast service is an explicit visible fixture sink; request/bridge logic is product code.
+const azraelImageSketchToasts=()=>toastService;
+${helpers}
+${nativeComposer}
 const canvas=document.createElement('canvas');canvas.width=800;canvas.height=500;const ctx=canvas.getContext('2d');ctx.fillStyle='#d5e7f1';ctx.fillRect(0,0,800,500);ctx.fillStyle='#4a8b66';ctx.fillRect(80,80,260,300);ctx.fillStyle='#e9b86c';ctx.fillRect(420,120,260,260);ctx.fillStyle='#172b3c';ctx.font='28px sans-serif';ctx.fillText('Photo — 800 × 500',235,450);const src=canvas.toDataURL();
-const scope={}, scopeRef={composerId:'fixture',canOpenSketch:true,canEditSketch:true,isDarkMode:false};
-let notify;const state=createSketchComposerState(()=>scopeRef,{subscribe:cb=>(notify=cb,()=>{}),createFileName:()=> 'annotated.png',track:()=>{},save:async(file,options)=>{const reader=new FileReader();reader.readAsDataURL(file);await new Promise(r=>reader.onload=r);document.querySelector('#result').src=reader.result;document.querySelector('#result').hidden=false;document.querySelector('#status').textContent='Attached '+file.name;options.onQueued('result');notify(['result']);options.onComplete('success');}});
-window.fixture={state,scope,src};
-function App(){const [open,setOpen]=React.useState(false),[dark,setDark]=React.useState(false);const openRef=React.useRef(false);openRef.current=open;const stateRef=React.useRef({state});
-const openSketch=React.useCallback(options=>{const accepted=state.openNew(options);options?.azraelOnOpened?.(accepted);return accepted},[]);
-azraelUseImageSketchBridge(scope,openSketch,stateRef,true,'fixture',()=>{document.querySelector('#status').textContent='Image failed to load'});
-return React.createElement(Vbt.Provider,{value:intl},React.createElement('main',{className:'p-8 text-default'},React.createElement('h1',null,'Image sketch fixture'),React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>setOpen(true)},'Preview photo'),React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>state.openNew()},'New sketch'),React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>{const next=!dark;scopeRef.isDarkMode=next;document.documentElement.dataset.theme=next?'dark':'light';document.documentElement.classList.toggle('dark',next);document.body.dataset.vscodeThemeKind=next?'vscode-dark':'vscode-light';setDark(next)}},dark?'Light theme':'Dark theme'),React.createElement('p',{id:'status'},'Ready'),React.createElement('img',{id:'result',hidden:true,alt:'Annotated attachment',className:'max-w-lg'}),React.createElement(Lightbox,{src,alt:'Photo',open,onOpenChange:setOpen,toolbarActions:[{ariaLabel:'Sketch on image',icon:azraelImageSketchIcon(React.createElement),onClick:()=>azraelRequestImageSketch(scope,src,()=>openRef.current,()=>setOpen(false))}]}),React.createElement(Host,{state,canOpenSketch:true,canEditSketch:true,isDarkMode:dark})));}
+let attachmentNotify=()=>{};
+const attachments={subscribe:cb=>(attachmentNotify=cb,()=>{attachmentNotify=()=>{}}),createFileName:()=> 'annotated.png',track:()=>{},save:async(file,options)=>{
+ const data=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=()=>reject(reader.error);reader.readAsDataURL(file)});
+ document.querySelector('#result').src=data;document.querySelector('#result').hidden=false;
+ window.fixture.saved={name:file.name,type:file.type,size:file.size,data};
+ document.querySelector('#status').textContent='Attached '+file.name;options.onQueued('result');attachmentNotify(['result']);options.onComplete('success');
+}};
+window.fixture={src,results:[],boundaries:{composer:'native transformed cda',lazyLoader:'native UPe',scopeHook:'native BRt with fixture context resolution',state:'native createSketchComposerState',host:'native SketchComposerHost',lightbox:'native Lightbox',mocked:['scope context resolution','locale/theme','event instrumentation guard','toast sink','attachment repository']}};
+function Preview({composerRef,canOpen,setCanOpen,sourceMode}){
+ const scope=BRt(Dh);window.fixture.requesterScope=scope;
+ const [open,setOpen]=React.useState(false);const current=React.useRef({open:false,generation:0});current.current.open=open;
+ React.useEffect(()=>()=>{current.current.open=false;current.current.generation++},[]);
+ function request(wrongScope=false){const generation=current.current.generation;const requestScope=wrongScope?{node:otherNode,scope:scope.scope}:scope;
+ const selected=sourceMode==='invalid'?'/invalid-image.png':sourceMode==='slow'?'/slow-image.svg?nonce='+Date.now():src;
+ return azraelRequestImageSketch(requestScope,selected,()=>current.current.open&&current.current.generation===generation,()=>setOpen(false),intl.locale).then(status=>{window.fixture.results.push(status);document.querySelector('#terminal').textContent=status;return status});}
+ window.fixture.request=request;window.fixture.cancel=()=>{current.current.generation++;setOpen(false)};
+ window.fixture.identity={sameWrapper:scope===window.fixture.receiverScope,sameNode:scope.node===window.fixture.receiverScope?.node,sameDescriptor:scope.scope===window.fixture.receiverScope?.scope};
+ return React.createElement(React.Fragment,null,
+ React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>{current.current.generation++;setOpen(true)}},'Preview photo'),
+ React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>composerRef.current?.openNew()},'New sketch'),
+ React.createElement(Lightbox,{src,alt:'Photo',open,onOpenChange:value=>{current.current.generation++;setOpen(value)},toolbarActions:[
+ {ariaLabel:'Sketch on image',icon:azraelImageSketchIcon(React.createElement),onClick:()=>request()},
+ {ariaLabel:'Request other scope',icon:React.createElement('span',null,'Other scope'),onClick:()=>request(true)},
+ {ariaLabel:'Request while sketch busy',icon:React.createElement('span',null,'Busy'),onClick:async()=>{if(!composerRef.current?.openNew())return;for(let attempt=0;attempt<100;attempt++){if(composerRef.current?.isOpen()){await request();return}await new Promise(done=>setTimeout(done,50))}throw Error('Native composer did not open for busy fixture')}},
+ {ariaLabel:'Cancel image load',icon:React.createElement('span',null,'Cancel load'),onClick:()=>{current.current.generation++;document.querySelector('#terminal').textContent='cancellation requested'}},
+ {ariaLabel:'Disable composer during load',icon:React.createElement('span',null,'Disable'),onClick:()=>setCanOpen(false)}
+ ]}));
+}
+function App(){const [dark,setDark]=React.useState(false),[canOpen,setCanOpen]=React.useState(true),[sourceMode,setSourceMode]=React.useState('valid');const composerRef=React.useRef(null);
+ window.fixture.composerRef=composerRef;
+ return React.createElement(Vbt.Provider,{value:intl},React.createElement(Theme.Provider,{value:dark},React.createElement(ScopeContext.Provider,{value:chain},React.createElement('main',{className:'p-8 text-default'},
+ React.createElement('h1',null,'Native composer image sketch fixture'),
+ React.createElement('p',null,'Native cda → lazy loader → state → Host. Separate native scope wrappers share a thread and host.'),
+ React.createElement(cda,{ref:composerRef,composerId:'thread-a/host-a',canOpenSketch:canOpen,canEditSketch:true,attachments}),
+ React.createElement(Preview,{composerRef,canOpen,setCanOpen,sourceMode}),
+ React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>setCanOpen(!canOpen)},canOpen?'Disable composer':'Enable composer'),
+ React.createElement('button',{className:'m-2 rounded-lg border p-3',onClick:()=>{const next=!dark;document.documentElement.dataset.theme=next?'dark':'light';document.documentElement.classList.toggle('dark',next);document.body.dataset.vscodeThemeKind=next?'vscode-dark':'vscode-light';setDark(next)}},dark?'Light theme':'Dark theme'),
+ React.createElement('label',null,'Image source ',React.createElement('select',{value:sourceMode,onChange:e=>setSourceMode(e.target.value),className:'rounded-lg border p-3'},['valid','invalid','slow'].map(value=>React.createElement('option',{key:value,value},value)))),
+ React.createElement('p',{id:'status',role:'status',className:'fixed bottom-6 right-6 z-[1000] max-w-md rounded-lg border bg-token-main-surface-primary p-3 shadow-lg'},'Ready'),React.createElement('p',null,'Terminal result: ',React.createElement('output',{id:'terminal'},'none')),
+ React.createElement('img',{id:'result',hidden:true,alt:'Annotated attachment',className:'max-w-lg'})
+ ))));}
 XAt().createRoot(document.getElementById('root')).render(React.createElement(App));`;
 await writeFile(join(run, 'fixture.html'), html);
 await writeFile(join(run, 'fixture.js'), adapter);
@@ -55,6 +124,15 @@ const server = createServer(async (req, res) => {
     if (url.pathname === '/fixture.js') {
       res.setHeader('Content-Type', 'text/javascript');
       res.end(await readFile(join(run, 'fixture.js'))); return;
+    }
+    if (url.pathname === '/slow-image.svg') {
+      await new Promise(done => setTimeout(done, 2500));
+      res.setHeader('Content-Type', 'image/svg+xml');
+      res.setHeader('Cache-Control', 'no-store');
+      res.end('<svg xmlns="http://www.w3.org/2000/svg" width="800" height="500"><rect width="800" height="500" fill="#d5e7f1"/></svg>'); return;
+    }
+    if (url.pathname === '/invalid-image.png') {
+      res.setHeader('Content-Type', 'image/png');res.end('invalid image fixture');return;
     }
     if (url.pathname.startsWith('/assets/')) {
       const file = resolve(assets, decodeURIComponent(url.pathname.slice(8)));
