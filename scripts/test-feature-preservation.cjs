@@ -249,7 +249,7 @@ else {
     const { config, root, manifest } = setup();
     const { spawnSync } = require('node:child_process');
     fs.writeFileSync(path.join(root, '.gitignore'), 'artifacts/\n');
-    for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs']) fs.writeFileSync(path.join(root, 'scripts', file), 'static identity fixture');
+    for (const file of ['feature-preservation.cjs', 'directory-state.cjs', 'deployment-input-snapshot.cjs', 'source-test-policy.cjs']) fs.writeFileSync(path.join(root, 'scripts', file), 'static identity fixture');
     fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
     const typescript = path.join(root, 'typescript.js'); fs.writeFileSync(typescript, 'fixture parser identity');
     const git = spawnSync('git', ['init', '--quiet', root], { encoding: 'utf8', shell: false, windowsHide: true });
@@ -279,12 +279,57 @@ else {
     for (const key of ['manifestSha256', 'projectSha256', 'transformRules', 'ui', 'sourceUi', 'typeScriptSha256', 'engine'])
       assert.deepEqual(empty.inputs[key], receipt.inputs[key], `${key} is still bound`);
     assert.equal((await gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath })).status, 'passed');
+    const policyConfig = { ...emptyConfig, sourceTestPolicy: { changedPaths: [], exhaustive: false } };
+    const policyReceipt = await gate.runPreservation(policyConfig);
+    assert.equal(policyReceipt.status, 'passed', policyReceipt.error);
+    assert.deepEqual(policyReceipt.inputs.sourceTestPolicy, policyConfig.sourceTestPolicy);
+    assert.equal((await gate.verifyReceipt({ ...policyConfig, receiptPath: policyReceipt.receiptPath })).status, 'passed');
+    for (const sourceTestPolicy of [{ changedPaths: [], exhaustive: true }, { changedPaths: ['scripts/inject-fixture.cjs'], exhaustive: false }]) {
+      await assert.rejects(gate.verifyReceipt({ ...policyConfig, sourceTestPolicy, receiptPath: policyReceipt.receiptPath }), /identity is stale/);
+    }
     provenanceVersion = 'changed-binary';
     await assert.rejects(gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath }), /identity is stale/);
     provenanceVersion = 'verified-selected-binary';
     fs.writeFileSync(path.join(config.uiRoot, 'picker.js'), 'candidate drift');
     await assert.rejects(gate.verifyReceipt({ ...emptyConfig, receiptPath: empty.receiptPath }), /identity is stale/);
     await assert.rejects(gate.verifyReceipt({ ...realConfig, receiptPath: receipt.receiptPath }), /identity is stale/);
+  });
+  test('routine preservation records skipped slow cases while owner changes and exhaustive retain them', async () => {
+    const { root, manifest, config } = setup();
+    const script = 'scripts/test-session-links.cjs';
+    fs.writeFileSync(path.join(root, script), 'fixture');
+    manifest.features[0].checks[0].args = ['--test', script];
+    const executed = [];
+    const execute = async (_executable, args, options) => {
+      executed.push(args);
+      fs.writeFileSync(options.logPath, 'passing selected tests');
+      fs.writeFileSync(options.errorPath, '');
+      return { exitCode: 0 };
+    };
+    const run = policy => gate.runPreservation({ ...config, execute, sourceTestPolicy: policy });
+    const routine = await run({ changedPaths: ['extensions/azrael-ex/src/unrelated.ts'], exhaustive: false });
+    assert.equal(routine.status, 'passed', routine.error);
+    assert.ok(executed.at(-1).some(arg => arg.startsWith('--test-skip-pattern=')));
+    assert.equal(routine.testPolicy.omitted[0].file, script);
+    for (const policy of [{ changedPaths: [script], exhaustive: false }, { changedPaths: [], exhaustive: true }]) {
+      const full = await run(policy);
+      assert.equal(full.status, 'passed', full.error);
+      assert.deepEqual(full.testPolicy.omitted, []);
+      assert.deepEqual(executed.at(-1), ['--test', script]);
+    }
+  });
+  test('source policy rejects invalid input and cannot omit a whole registered gate', async () => {
+    const { root, manifest, config } = setup();
+    for (const policy of [{ changedPaths: [], exhaustive: 'false' }, { changedPaths: ['../escape'], exhaustive: false }, { changedPaths: ['C:/outside'], exhaustive: false }]) {
+      const result = await gate.runPreservation({ ...config, sourceTestPolicy: policy });
+      assert.equal(result.status, 'failed'); assert.match(result.error, /Invalid source test policy/);
+      assert.deepEqual(result.checks, []);
+    }
+    const script = 'scripts/test-project-selection.cjs';
+    fs.writeFileSync(path.join(root, script), 'fixture');
+    manifest.features[0].checks[0].args = ['--test', script];
+    const result = await gate.runPreservation({ ...config, sourceTestPolicy: { changedPaths: [], exhaustive: false } });
+    assert.equal(result.status, 'failed'); assert.match(result.error, /cannot be deferred as a whole/);
   });
   test('CLI retains failure and returns nonzero for incomplete manifest', async () => {
     const { root, config } = setup();

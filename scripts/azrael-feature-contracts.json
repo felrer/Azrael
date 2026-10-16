@@ -675,7 +675,9 @@
           "level": "source"
         }
       ],
-      "reportFields": ["teamRuntimeEdits"]
+      "reportFields": [
+        "teamRuntimeEdits"
+      ]
     },
     {
       "id": "ui.team-lead",
@@ -826,8 +828,8 @@
             "scripts/tests/inject-task-profile.test.cjs",
             "scripts/tests/instruction-module-packaging.test.cjs",
             "scripts/test-instruction-library-host.cjs",
-              "scripts/tests/instruction-package.test.cjs"
-            ],
+            "scripts/tests/instruction-package.test.cjs"
+          ],
           "level": "source"
         },
         {
@@ -2276,7 +2278,8 @@
           "executable": "node",
           "args": [
             "scripts/check-thread-auto-compaction.cjs",
-            "{engineSourceRoot}"
+            "{engineSourceRoot}",
+            "lib"
           ],
           "level": "native"
         },
@@ -2318,6 +2321,33 @@
         }
       ],
       "reportFields": []
+    },
+    {
+      "id": "engine.thread-auto-compaction-integration",
+      "area": "engine",
+      "owners": [
+        "scripts/check-thread-auto-compaction.cjs",
+        "engine/codex-rs/core/tests/all.rs",
+        "engine/codex-rs/core/tests/suite/token_budget.rs",
+        "engine/codex-rs/core/src/session/auto_compaction_tests.rs",
+        "engine/codex-rs/core/src/session/context_window.rs",
+        "engine/codex-rs/core/src/session/request_budget.rs",
+        "engine/codex-rs/core/src/session/thread_settings.rs"
+      ],
+      "contract": "docs/architecture/context-policy.md",
+      "reportFields": [],
+      "checks": [
+        {
+          "id": "engine.thread-auto-compaction-integration.token-budget",
+          "executable": "node",
+          "args": [
+            "scripts/check-thread-auto-compaction.cjs",
+            "{engineSourceRoot}",
+            "integration"
+          ],
+          "level": "native"
+        }
+      ]
     },
     {
       "id": "engine.capacity-recovery",

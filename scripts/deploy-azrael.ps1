@@ -27,6 +27,7 @@ param(
     [switch]$VerifyOnly,
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$FullRegression,
+    [switch]$ExhaustiveRegression,
     [ValidateRange(1,16)][int]$SourceTestConcurrency = 4,
     [switch]$ForceNativeVerification,
     [string[]]$ChangedPath,
@@ -35,6 +36,7 @@ param(
 )
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
+if ($ExhaustiveRegression) { $FullRegression = $true }
 $UiSourcePath = [IO.Path]::GetFullPath($UiSourcePath)
 $project = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
 $run = "deploy-$ReleaseName"
@@ -181,9 +183,57 @@ function Assert-Package {
         if ([string]$manifest.version -cne [string]$prepared.HostVersion) { throw 'Prepared package version mismatch.' }
     } finally { $archive.Dispose() }
 }
+
+function Get-FocusedEngineFeatureIds {
+    param([string[]]$PolicyPaths, [string]$EngineSourceRoot)
+    $selected = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
+    $defaultEngine = [IO.Path]::GetFullPath((Join-Path $project 'engine'))
+    $unknownEngine = [IO.Path]::GetFullPath($EngineSourceRoot).TrimEnd('\', '/') -ine $defaultEngine.TrimEnd('\', '/')
+    # Only clearly unrelated inputs may omit the integration gate.
+    $related = @($PolicyPaths | Where-Object {
+        $_ -notmatch '^(docs/|work/|companion/|extension/|ui/)' -and
+        $_ -notmatch '^scripts/(inject-(content-fonts|file-open-menu|image-file-open|image-sketch|ui-cleanup|student-design)\.cjs|test-(asset-transform-cache|session-links|namespace-source)\.cjs)$'
+    })
+    if ($unknownEngine -or @($PolicyPaths).Count -eq 0 -or $related.Count -gt 0) {
+        $selected += 'engine.thread-auto-compaction-integration'
+    }
+    return $selected
+}
 try {
     $script:inputSnapshot = Get-ProjectSnapshot 'initial'
     $metrics.projectInputSha256 = $inputSnapshot
+    # Read NUL-delimited git output without shell quoting or line-based path decoding.
+    $policyPaths = @($ChangedPath)
+    if (-not $ChangedPath) {
+        $policyPaths = @()
+        foreach ($gitArguments in @(@('diff', 'HEAD', '--name-only', '-z'), @('ls-files', '--others', '--exclude-standard', '-z'))) {
+            $gitStart = [Diagnostics.ProcessStartInfo]::new('git')
+            $gitStart.WorkingDirectory = $project
+            $gitStart.UseShellExecute = $false
+            $gitStart.RedirectStandardOutput = $true
+            $gitStart.RedirectStandardError = $true
+            $gitStart.StandardOutputEncoding = [Text.Encoding]::UTF8
+            $gitStart.StandardErrorEncoding = [Text.Encoding]::UTF8
+            foreach ($argument in $gitArguments) { $gitStart.ArgumentList.Add($argument) }
+            $gitProcess = [Diagnostics.Process]::Start($gitStart)
+            try {
+                $stdoutTask = $gitProcess.StandardOutput.ReadToEndAsync()
+                $stderrTask = $gitProcess.StandardError.ReadToEndAsync()
+                $gitProcess.WaitForExit()
+                if ($gitProcess.ExitCode -ne 0) { throw "Cannot determine source test policy inputs: $($stderrTask.GetAwaiter().GetResult())" }
+                $policyPaths += @($stdoutTask.GetAwaiter().GetResult().Split([char]0, [StringSplitOptions]::RemoveEmptyEntries))
+            } finally { $gitProcess.Dispose() }
+        }
+    }
+    $policyPaths = @($policyPaths | ForEach-Object {
+        $absolute = [IO.Path]::GetFullPath($_, $project)
+        $relative = [IO.Path]::GetRelativePath($project, $absolute).Replace('\', '/')
+        if ($relative -eq '..' -or $relative.StartsWith('../') -or [IO.Path]::IsPathFullyQualified($relative)) { throw "Changed path is outside project: $_" }
+        $relative
+    } | Sort-Object -Unique)
+    $sourceTestPolicyPath = Join-Path $logs 'source-test-policy-inputs.json'
+    @{changedPaths = @($policyPaths); exhaustive = [bool]$ExhaustiveRegression} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceTestPolicyPath -Encoding utf8NoBOM
+    $focusedEngineFeatureIds = @(Get-FocusedEngineFeatureIds -PolicyPaths $policyPaths -EngineSourceRoot $SourceRoot)
     $buildArgs = @('-ReleaseName', $ReleaseName, '-SourceRoot', $SourceRoot, '-LifecycleParentActive')
     if ($EngineTargetDirectory) { $buildArgs += @('-EngineTargetDirectory', $EngineTargetDirectory) }
     if ($ModuleCacheProjectRoot) { $buildArgs += @('-ModuleCacheProjectRoot', $ModuleCacheProjectRoot) }
@@ -194,11 +244,12 @@ try {
     if ($CompanionVsixPath) { $buildArgs += @('-CompanionVsixPath', $CompanionVsixPath) }
     $sourceTestArgs = @((Join-Path $PSScriptRoot 'test-project.cjs'))
     $sourceTestArgs += @('--test-concurrency', [string]$SourceTestConcurrency)
-    if ($FullRegression) { $sourceTestArgs += @('--area', 'current', '--area', 'standalone') }
+    if ($FullRegression) { $sourceTestArgs += @('--area', 'current', '--area', 'standalone', '--defer-preservation-cache-owner') }
     else {
         $sourceTestArgs += '--changed-only'
-        foreach ($path in $ChangedPath) { $sourceTestArgs += @('--changed', $path) }
     }
+    foreach ($path in $policyPaths) { $sourceTestArgs += @('--changed', $path) }
+    if ($ExhaustiveRegression) { $sourceTestArgs += '--exhaustive' }
     $sourceTestArgs += @('--log-directory', (Join-Path $logs 'source-tests'))
     $metrics.testScope = $(if ($FullRegression) { 'full' } else { 'changed' })
     $metrics.forceNativeVerification = [bool]$ForceNativeVerification
@@ -210,7 +261,7 @@ try {
     }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
-    if (-not $FullRegression) { $sourceConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input') }
+    if (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
     $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
@@ -234,7 +285,7 @@ try {
     if ($EngineTargetDirectory) { $enginePreservationConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoVerificationCacheProjectRoot) { $enginePreservationConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) {
-        $enginePreservationConfig.featureIds = @('engine.provider-context', 'engine.recovery', 'engine.accepted-input')
+        $enginePreservationConfig.featureIds = $focusedEngineFeatureIds
     }
     $enginePreservationConfigPath = Join-Path $logs 'engine-preservation-inputs.json'
     $enginePreservationConfig | ConvertTo-Json | Set-Content -LiteralPath $enginePreservationConfigPath -Encoding utf8NoBOM
@@ -247,6 +298,7 @@ try {
     }
     $TypeScriptPath = (Resolve-Path -LiteralPath $TypeScriptPath).Path
     $prepareArgs = @('-ReleaseDirectory', $release, '-OutputDirectory', $package, '-StateRoot', $StateRoot, '-SourceCodexHome', $SourceCodexHome, '-SourceExtensionPath', $UiSourcePath, '-TypeScriptPath', $TypeScriptPath)
+    $prepareArgs += @('-SourceTestPolicyPath', $sourceTestPolicyPath)
     if ($HostVersion) { $prepareArgs += @('-HostVersion', $HostVersion) }
     if ($NamespaceCacheProjectRoot) { $prepareArgs += @('-NamespaceCacheProjectRoot', $NamespaceCacheProjectRoot) }
     if ($SkipCodexEnvironmentSnapshot) { $prepareArgs += '-SkipCodexEnvironmentSnapshot' }

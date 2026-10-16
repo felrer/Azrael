@@ -27,6 +27,28 @@ function reference(root, relative) {
   return resolved;
 }
 function checkSources(check) { return check.args.filter(arg => /\.(?:cjs|mjs|js|py)$/.test(arg) && !arg.includes('{')); }
+function sourceTestPolicy(config) {
+  if (config.sourceTestPolicy === undefined) return null;
+  const policy = config.sourceTestPolicy;
+  if (!policy || typeof policy !== 'object' || Array.isArray(policy) ||
+      !same(Object.keys(policy).sort(), ['changedPaths', 'exhaustive']) ||
+      typeof policy.exhaustive !== 'boolean' || !Array.isArray(policy.changedPaths) ||
+      policy.changedPaths.some(file => typeof file !== 'string' || !file || file.includes('\0') ||
+        path.isAbsolute(file) || /^[A-Za-z]:[\\/]/.test(file) || file.replace(/\\/g, '/').split('/').includes('..'))) {
+    throw Error('Invalid source test policy');
+  }
+  return { changedPaths: [...new Set(policy.changedPaths.map(file => file.replace(/\\/g, '/').replace(/^\.\//, '')))].sort(), exhaustive: policy.exhaustive };
+}
+function sourceTestCommand(config, check, args) {
+  const policy = sourceTestPolicy(config);
+  if (!policy || check.level !== 'source' || check.executable !== 'node' || !args.includes('--test')) return { args, omitted: [] };
+  const plan = require('./source-test-policy.cjs').planSourceTests({ files: checkSources(check), ...policy });
+  if (plan.files.length !== checkSources(check).length) throw Error('A registered preservation check cannot be deferred as a whole');
+  if (!plan.skipPattern) return { args, omitted: [] };
+  const selected = [...args];
+  selected.splice(selected.indexOf('--test') + 1, 0, `--test-skip-pattern=${plan.skipPattern}`);
+  return { args: selected, omitted: plan.omitted };
+}
 function validateManifest(manifest, projectRoot, transformRules = {}) {
   if (manifest.schema !== 1 || !Array.isArray(manifest.features) || !manifest.features.length) throw Error('Invalid feature manifest schema');
   const ids = new Set(), checks = new Set(), covered = new Set();
@@ -105,11 +127,14 @@ async function sourceUiIdentity(config) {
 async function identity(config, manifest, rules, features, execution = execute) {
   if (config.identityProvider) return config.identityProvider(config, manifest, rules, features);
   const references = new Set([manifestName, 'scripts/feature-preservation.cjs', 'scripts/directory-state.cjs', 'scripts/deployment-input-snapshot.cjs']);
+  const testPolicy = sourceTestPolicy(config);
+  if (testPolicy) references.add('scripts/source-test-policy.cjs');
   features.forEach(feature => { feature.owners.forEach(owner => references.add(owner)); references.add(feature.contract); feature.checks.forEach(check => checkSources(check).forEach(source => references.add(source))); });
   // Resource entries bind their content digest through transformRules; they are not script filenames.
   for (const key of Object.keys(rules).filter(key => !key.includes(':') && /\.(?:cjs|json)$/.test(key))) references.add(`scripts/${key}`);
   const input = { manifestSha256: hash(canonical(manifest)), projectSha256: (await snapshotProject(config.projectRoot)).sha256,
     registered: await getDirectoryState(path.resolve(config.projectRoot), [...references].sort()), transformRules: rules };
+  if (testPolicy) input.sourceTestPolicy = testPolicy;
   if (['ui', 'all'].includes(config.area)) {
     if (!config.uiRoot || !path.isAbsolute(config.uiRoot)) throw Error('Explicit absolute uiRoot required');
     input.ui = await getDirectoryState(config.uiRoot);
@@ -241,6 +266,8 @@ async function runPreservation(config) {
     if (!Number.isInteger(concurrency) || concurrency < 1 || concurrency > 4) throw Error('sourceConcurrency must be an integer from 1 to 4');
     if (config.reuseSourceChecks !== undefined && typeof config.reuseSourceChecks !== 'boolean') throw Error('reuseSourceChecks must be boolean');
     if (config.reuseNativeChecks !== undefined && typeof config.reuseNativeChecks !== 'boolean') throw Error('reuseNativeChecks must be boolean');
+    const testPolicy = sourceTestPolicy(config);
+    if (testPolicy) receipt.testPolicy = { ...testPolicy, omitted: [] };
     manifest = config.manifest ?? loadManifest(config.projectRoot); rules = rulesFor(config);
     validateManifest(manifest, config.projectRoot, rules);
     features = selected(manifest, config.area, config);
@@ -266,10 +293,13 @@ async function runPreservation(config) {
     for (const feature of features) for (const check of phaseChecks(feature, config.checkPhase)) {
       const fixture = path.join(config.projectRoot, 'artifacts', 'verification', `preservation-${crypto.randomUUID()}`);
       const variables = { ...config, engine: config.engineDirectory && path.join(config.engineDirectory, 'azrael.exe'), fixture };
-      const args = check.args.map(arg => arg.replace(/\{([^}]+)\}/g, (_, key) => {
+      const resolvedArgs = check.args.map(arg => arg.replace(/\{([^}]+)\}/g, (_, key) => {
         if (!variables[key]) throw Error(`Missing placeholder value: ${key}`);
         return variables[key];
       }));
+      const selection = sourceTestCommand(config, check, resolvedArgs);
+      const args = selection.args;
+      if (receipt.testPolicy) receipt.testPolicy.omitted.push(...selection.omitted.map(item => ({ checkId: check.id, ...item })));
       // Existing fixture tests must select this candidate; a pinned fallback is safe only behind the supplied environment contract.
       if (feature.area === 'ui') for (const source of checkSources(check)) {
         const text = fs.readFileSync(path.join(config.projectRoot, source), 'utf8');

@@ -13,11 +13,27 @@ param(
     [switch]$SkipCodexEnvironmentSnapshot,
     [switch]$Resume,
     [switch]$ChangedOnlyTests,
+    [string]$SourceTestPolicyPath,
+    [switch]$ExhaustiveTests,
     [string]$CacheDirectory,
     [string]$NamespaceCacheProjectRoot
 )
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot -Parent
+$sourceTestPolicy = $null
+if ($SourceTestPolicyPath) {
+    $sourceTestPolicy = Get-Content -LiteralPath $SourceTestPolicyPath -Raw | ConvertFrom-Json
+    if ($null -eq $sourceTestPolicy -or $null -eq $sourceTestPolicy.PSObject.Properties['changedPaths'] -or
+        $sourceTestPolicy.changedPaths -isnot [array] -or
+        @($sourceTestPolicy.changedPaths | Where-Object { $_ -isnot [string] }).Count -gt 0 -or
+        $null -eq $sourceTestPolicy.PSObject.Properties['exhaustive'] -or $sourceTestPolicy.exhaustive -isnot [bool]) {
+        throw 'SourceTestPolicyPath requires changedPaths as a string array and exhaustive as a boolean.'
+    }
+}
+if ($ExhaustiveTests) {
+    if ($null -eq $sourceTestPolicy) { $sourceTestPolicy = [pscustomobject]@{changedPaths = @(); exhaustive = $true} }
+    else { $sourceTestPolicy.exhaustive = $true }
+}
 if (-not $HostVersion) {
     $appRelease = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'azrael-app-release.json') -Raw | ConvertFrom-Json
     $HostVersion = [string]$appRelease.version
@@ -198,6 +214,7 @@ function Invoke-PreparationPhase {
 $checkpointTool = Join-Path $PSScriptRoot 'preparation-state.cjs'
 $config = [ordered]@{ release = $release; source = $source; stateRoot = [IO.Path]::GetFullPath($StateRoot); devinExecutable = $DevinExecutable; sourceCodexHome = [IO.Path]::GetFullPath($SourceCodexHome); skipSnapshot = [bool]$SkipCodexEnvironmentSnapshot; toolDirectory = $toolDirectory.FullName }
 $config.changedOnlyTests = [bool]$ChangedOnlyTests
+if ($null -ne $sourceTestPolicy) { $config.sourceTestPolicy = $sourceTestPolicy }
 $config.hostVersion = $HostVersion
 $config.cacheDirectory = [IO.Path]::GetFullPath($CacheDirectory)
 $config.namespaceCacheProjectRoot = if ($NamespaceCacheProjectRoot) { [IO.Path]::GetFullPath($NamespaceCacheProjectRoot) } else { $null }
@@ -227,6 +244,7 @@ try {
         area = 'ui'; typeScriptPath = (Join-Path $toolDirectory.FullName 'companion/node_modules/typescript/lib/typescript.js')
     }
     if ($ChangedOnlyTests) { $preservationConfig.featureIds = @() }
+    if ($null -ne $sourceTestPolicy) { $preservationConfig.sourceTestPolicy = $sourceTestPolicy }
     $preservationConfigPath = Join-Path $OutputDirectory 'feature-preservation-inputs.json'
     $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
     $preservation = Invoke-PreparationPhase 'feature-preservation' {
