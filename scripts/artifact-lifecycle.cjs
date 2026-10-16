@@ -153,11 +153,12 @@ function finalize(root, id) {
   } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
 }
 function main(argv = process.argv.slice(2)) {
-  const action = argv.shift(), options = {}, members = [], paths = [], protectedPaths = [];
+  const action = argv.shift(), options = {}, members = [], references = [], paths = [], protectedPaths = [];
   for (let i = 0; i < argv.length; i++) {
     const key = argv[i], value = argv[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing ${key} value`);
     if (key === "--member") { const split = value.indexOf("="); if (split < 1) throw new Error("Expected role=ABS"); members.push({ role: value.slice(0, split), path: value.slice(split + 1) }); }
+    else if (key === "--reference") { const split = value.indexOf("="); if (split < 1 || split === value.length - 1) throw new Error("Expected lifecycle-id=reason"); references.push({ id: value.slice(0, split), reason: value.slice(split + 1) }); }
     else if (key === "--candidate") paths.push(value);
     else if (key === "--protected") protectedPaths.push(value);
     else if (["--project-root", "--id", "--kind", "--owner", "--version", "--state", "--report", "--membership-complete", "--limit", "--offset"].includes(key) && !Object.hasOwn(options, key.slice(2))) options[key.slice(2)] = value;
@@ -168,7 +169,7 @@ function main(argv = process.argv.slice(2)) {
   if (action === "record") {
     if (options["membership-complete"] && !["true", "false"].includes(options["membership-complete"])) throw new Error("--membership-complete true|false");
     return recordLifecycle(root, { id: options.id, kind: options.kind, owner: options.owner, version: options.version,
-      state: options.state, membership_complete: options["membership-complete"] === "true", members });
+      state: options.state, membership_complete: options["membership-complete"] === "true", members, references });
   }
   if (action === "plan") return planCleanup(root, { paths, protectedPaths, reportPath: options.report });
   if (action === "register") return registerRequest(root, options.id);
@@ -177,7 +178,7 @@ function main(argv = process.argv.slice(2)) {
     const limit = options.limit === undefined ? 50 : Number(options.limit), offset = options.offset === undefined ? 0 : Number(options.offset);
     if (!Number.isInteger(limit) || limit < 1 || limit > 200 || !Number.isInteger(offset) || offset < 0) throw new Error("Catalog limit 1..200 and nonnegative offset required");
     const records = catalog(root);
-    return { total: records.length, offset, limit, groups: records.slice(offset, offset + limit).map(({ id, kind, owner, version, state, membership_complete, members, revision }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, revision })) };
+    return { total: records.length, offset, limit, groups: records.slice(offset, offset + limit).map(({ id, kind, owner, version, state, membership_complete, members, references, revision }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, references, revision })) };
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }

@@ -57,41 +57,14 @@ function Resolve-CodeModeHost {
     return (Resolve-Path -LiteralPath $CodeModeHostPath).Path
 }
 
-function Get-ProviderAccountsSourceFingerprint {
-    $providerRoot = Join-Path $projectRoot 'providers/opencodex'
-    $files = @(
-        Get-ChildItem -LiteralPath $providerRoot -File | Where-Object Extension -In '.ts', '.mjs'
-        Get-Item -LiteralPath (Join-Path $providerRoot 'package.json'), (Join-Path $providerRoot 'bun.lock'), (Join-Path $providerRoot 'LICENSE.opencodex'), (Join-Path $providerRoot 'UPSTREAM.md'), (Join-Path $providerRoot 'vendor-source-manifest.json')
-        Get-Item -LiteralPath (Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'), (Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs')
-        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs')
-        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs')
-        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs')
-        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/tool-search-history.mjs')
-        Get-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/context-budget.mjs')
-        Get-ChildItem -LiteralPath (Join-Path $providerRoot 'vendor/src') -File -Recurse
-    ) | Sort-Object FullName
-    $inventory = foreach ($file in $files) {
-        [ordered]@{
-            path = [IO.Path]::GetRelativePath($providerRoot, $file.FullName).Replace('\', '/')
-            sha256 = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-        }
-    }
-    $json = $inventory | ConvertTo-Json -Compress
-    $bytes = [Text.Encoding]::UTF8.GetBytes($json)
-    return [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData($bytes)).ToLowerInvariant()
-}
-
-function Get-ProviderVendorManifestFingerprint {
-    $vendorRoot = Join-Path $projectRoot 'providers/opencodex/vendor/src'
-    return (Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'), $vendorRoot) 'provider-vendor-manifest.log' -CaptureOutput).Trim()
-}
-
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
 $moduleCache = Open-BuildModuleCache $projectRoot $ModuleCacheProjectRoot
 $moduleCache.Keep = $KeepModuleCaches
 $moduleCache.SkipCleanup = [bool]$SkipCacheCleanup
 $moduleCache.LogDirectory = $logDirectory
-$moduleInputs = @((Join-Path $PSScriptRoot 'build-azrael.ps1'), (Join-Path $PSScriptRoot 'build-module-cache.ps1'))
+$moduleInputs = @((Join-Path $PSScriptRoot 'build-module-cache.ps1'), (Join-Path $PSScriptRoot 'build-metrics.ps1'))
+. (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1')
+. (Join-Path $PSScriptRoot 'build-module-providers-recipe.ps1')
 $moduleTypeScriptPath = $null
 try {
 # Automatically reuse a complete source-verified engine bundle. Explicit reuse
@@ -151,33 +124,12 @@ if (-not $CompanionVsixPath) {
     $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
     $nodeVersion = (& node --version).Trim()
     $npmVersion = (& npm.cmd --version).Trim()
-    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource, (Join-Path $PSScriptRoot 'platform-runtime.cjs'), (Join-Path $PSScriptRoot 'azrael-platforms.json'))+$moduleInputs) @($nodeVersion,$npmVersion) -Force:('companion' -in $RebuildModule)
+    $companionCache = Get-BuildModuleEntry $moduleCache companion (@($companionSource, (Join-Path $PSScriptRoot 'platform-runtime.cjs'), (Join-Path $PSScriptRoot 'azrael-platforms.json'), (Join-Path $PSScriptRoot 'build-module-companion-recipe.ps1'))+$moduleInputs) @($nodeVersion,$npmVersion) -AdditionalInputs {Get-BuildCompanionToolInputs} -Force:('companion' -in $RebuildModule)
+    $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id "version:$ReleaseName" -Kind version -Owner 'azrael-release' -State pending -MembershipComplete $false -Members $lifecycleMembers -References @{ $companionCache.LifecycleId='companion-tool' }
     $CompanionVsixPath = Join-Path $companionCache.Path 'azrael-ex.vsix'
     $moduleTypeScriptPath = Join-Path $companionCache.Path 'companion/node_modules/typescript/lib/typescript.js'
     if (-not $companionCache.Hit) {
-    $vsixDirectory = $companionCache.Path
-    New-Item -ItemType Directory -Path $vsixDirectory -Force | Out-Null
-    $CompanionVsixPath = Join-Path $vsixDirectory 'azrael-ex.vsix'
-    # A running extension/test host can retain node-pty's native DLL. Build from
-    # a fresh source copy so npm ci never removes modules used by that host.
-    $companionSource = Join-Path $projectRoot 'extensions/azrael-ex'
-    $companionBuild = Join-Path $companionCache.Path 'companion'
-    New-Item -ItemType Directory -Path $companionBuild -Force | Out-Null
-    Invoke-BuildCommand 'robocopy.exe' @($companionSource, $companionBuild, '/E', '/COPY:DAT', '/DCOPY:DAT', '/R:1', '/W:1', '/XD', 'node_modules', 'dist', 'artifacts', '.git', '/NFL', '/NDL', '/NJH', '/NJS', '/NP') 'companion-stage.log' -MaximumSuccessExitCode 7
-    $global:LASTEXITCODE = 0
-    Complete-BuildStage $buildMetrics $phase
-    $phase = Start-BuildStage $buildMetrics 'companion-build'
-    Push-Location $companionBuild
-    $previousPlatformRuntimeSource = $env:AZRAEL_PLATFORM_RUNTIME_SOURCE
-    try {
-        Invoke-BuildCommand 'npm.cmd' @('ci') 'npm-ci.log'
-        $env:AZRAEL_PLATFORM_RUNTIME_SOURCE = $PSScriptRoot
-        Invoke-BuildCommand 'npm.cmd' @('run', 'package', '--', $CompanionVsixPath) 'companion-package.log'
-    } finally {
-        $env:AZRAEL_PLATFORM_RUNTIME_SOURCE = $previousPlatformRuntimeSource
-        Pop-Location
-    }
-    Save-BuildModuleEntry $companionCache @('azrael-ex.vsix','companion/node_modules','companion/dist')
+    . Invoke-BuildModuleCompanionRecipe
     }
     Complete-BuildStage $buildMetrics $phase
 }
@@ -254,120 +206,13 @@ if ($IncludeDevinNative) {
     Complete-BuildStage $buildMetrics $phase
 }
 if ($IncludeProviderAccounts) {
-    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs'),(Join-Path $projectRoot 'providers/devin/tool-search-history.mjs'),(Join-Path $projectRoot 'providers/devin/context-budget.mjs'),(Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'),(Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
+    $providerCache = Get-BuildModuleEntry $moduleCache providers (@((Join-Path $projectRoot 'providers/opencodex'),(Join-Path $projectRoot 'providers/devin/progress.mjs'),(Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),(Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs'),(Join-Path $projectRoot 'providers/devin/tool-search-history.mjs'),(Join-Path $projectRoot 'providers/devin/context-budget.mjs'),(Join-Path $PSScriptRoot 'provider-vendor-manifest.cjs'),(Join-Path $PSScriptRoot 'freeze-platform-inputs.cjs'),(Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'),(Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'), (Join-Path $PSScriptRoot 'build-module-providers-recipe.ps1'))+$moduleInputs) -Force:('providers' -in $RebuildModule)
     if ($providerCache.Hit) {
         New-Item -ItemType Directory -Path (Join-Path $release 'providers') -Force | Out-Null
         Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/providers/opencodex') -Destination (Join-Path $release 'providers/opencodex') -Recurse
         Copy-Item -LiteralPath (Join-Path $providerCache.Path 'output/opencodex-accounts-build.json') -Destination $release
     } else {
-    $phase = Start-BuildStage $buildMetrics 'provider-source-and-runtime-checks'
-    $providerSource = Join-Path $projectRoot 'providers/opencodex'
-    $bunSource = Join-Path $artifactRoot 'tools/bun-1.4.2/package/bin/bun.exe'
-    foreach ($required in @(
-        (Join-Path $providerSource 'helper.ts'),
-        (Join-Path $providerSource 'inference.ts'),
-        (Join-Path $providerSource 'vendor/src'),
-        (Join-Path $providerSource 'package.json'),
-        (Join-Path $providerSource 'bun.lock'),
-        (Join-Path $providerSource 'LICENSE.opencodex'),
-        (Join-Path $providerSource 'UPSTREAM.md'),
-        (Join-Path $projectRoot 'providers/devin/progress.mjs'),
-        (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs'),
-        (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs'),
-        (Join-Path $projectRoot 'providers/devin/tool-search-history.mjs'),
-        (Join-Path $projectRoot 'providers/devin/context-budget.mjs'),
-        $bunSource
-    )) {
-        if (-not (Test-Path -LiteralPath $required)) { throw "Provider accounts build input is missing: $required" }
-    }
-    $bunVersion = (Invoke-BuildCommand $bunSource @('--version') 'opencodex-bun-version.log' -CaptureOutput).Trim()
-    if ($bunVersion -cne '1.4.2') {
-        throw "Provider accounts requires the pinned Bun 1.4.2 runtime; selected runtime reported '$bunVersion'."
-    }
-    $bunDownloadManifest = Join-Path $artifactRoot 'tools/bun-1.4.2/download.json'
-    if (-not (Test-Path -LiteralPath $bunDownloadManifest -PathType Leaf)) { throw 'Pinned Bun download provenance is missing.' }
-    $providerSourceBefore = Get-ProviderAccountsSourceFingerprint
-    $vendorSourceManifest = Get-ProviderVendorManifestFingerprint
-    $reviewedVendorManifest = Get-Content -LiteralPath (Join-Path $providerSource 'vendor-source-manifest.json') -Raw | ConvertFrom-Json
-    if ($vendorSourceManifest -cne $reviewedVendorManifest.reviewedWindowsManifestSha256) {
-        throw 'Provider accounts vendor sources do not match the reviewed patched-source manifest.'
-    }
-    Complete-BuildStage $buildMetrics $phase
-    $phase = Start-BuildStage $buildMetrics 'provider-staging'
-    $providerStage = Join-Path $providerCache.Path 'staging/opencodex'
-    New-Item -ItemType Directory -Path (Join-Path $providerStage 'vendor') -Force | Out-Null
-    $progressStage = Join-Path $providerCache.Path 'staging/devin'
-    New-Item -ItemType Directory -Path $progressStage -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/progress.mjs') -Destination $progressStage
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/stall-diagnostics.mjs') -Destination $progressStage
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/diagnostic-policy.mjs') -Destination $progressStage
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/tool-search-history.mjs') -Destination $progressStage
-    Copy-Item -LiteralPath (Join-Path $projectRoot 'providers/devin/context-budget.mjs') -Destination $progressStage
-    Get-ChildItem -LiteralPath $providerSource -File | Where-Object Extension -In '.ts', '.mjs' | Copy-Item -Destination $providerStage
-    Copy-Item -LiteralPath (Join-Path $providerSource 'package.json'), (Join-Path $providerSource 'bun.lock'), (Join-Path $providerSource 'LICENSE.opencodex'), (Join-Path $providerSource 'UPSTREAM.md'), (Join-Path $providerSource 'vendor-source-manifest.json') -Destination $providerStage
-    Copy-Item -LiteralPath (Join-Path $providerSource 'vendor/src') -Destination (Join-Path $providerStage 'vendor/src') -Recurse
-    Complete-BuildStage $buildMetrics $phase
-    Push-Location $providerStage
-    try {
-        Invoke-BuildCommand $bunSource @('install', '--frozen-lockfile', '--production') 'opencodex-bun-install.log'
-    } finally { Pop-Location }
-    $phase = Start-BuildStage $buildMetrics 'provider-native-dependency-checks'
-    $keyring = Join-Path $providerStage 'node_modules/@napi-rs/keyring'
-    $keyringNative = Join-Path $providerStage 'node_modules/@napi-rs/keyring-win32-x64-msvc'
-    foreach ($required in @($keyring, $keyringNative)) {
-        if (-not (Test-Path -LiteralPath $required -PathType Container)) { throw "Provider accounts native dependency is missing: $required" }
-    }
-    Complete-BuildStage $buildMetrics $phase
-    $providerDestination = Join-Path $release 'providers/opencodex'
-    New-Item -ItemType Directory -Path (Join-Path $providerDestination 'node_modules/@napi-rs') -Force | Out-Null
-    Invoke-BuildCommand $bunSource @('build', (Join-Path $providerStage 'helper.ts'), '--target=bun', '--external=@napi-rs/keyring', ('--outfile=' + (Join-Path $providerDestination 'helper.js'))) 'opencodex-helper-bundle.log'
-    Invoke-BuildCommand $bunSource @('build', (Join-Path $providerStage 'inference.ts'), '--target=bun', '--external=@napi-rs/keyring', ('--outfile=' + (Join-Path $providerDestination 'inference.js'))) 'opencodex-inference-bundle.log'
-    $phase = Start-BuildStage $buildMetrics 'provider-release-copy'
-    Get-ChildItem -LiteralPath $providerStage -File | Where-Object Extension -In '.ts', '.mjs' | Copy-Item -Destination $providerDestination
-    Copy-Item -LiteralPath (Join-Path $providerStage 'package.json'), (Join-Path $providerStage 'bun.lock'), (Join-Path $providerStage 'LICENSE.opencodex'), (Join-Path $providerStage 'UPSTREAM.md'), (Join-Path $providerStage 'vendor-source-manifest.json') -Destination $providerDestination
-    Copy-Item -LiteralPath $keyring -Destination (Join-Path $providerDestination 'node_modules/@napi-rs/keyring') -Recurse
-    Copy-Item -LiteralPath $keyringNative -Destination (Join-Path $providerDestination 'node_modules/@napi-rs/keyring-win32-x64-msvc') -Recurse
-    $runtimeDirectory = Join-Path $providerDestination 'runtime'
-    New-Item -ItemType Directory -Path $runtimeDirectory -Force | Out-Null
-    Copy-Item -LiteralPath $bunSource -Destination (Join-Path $runtimeDirectory 'bun.exe')
-    Complete-BuildStage $buildMetrics $phase
-    $phase = Start-BuildStage $buildMetrics 'provider-source-stability-and-hash-checks'
-    if ((Get-ProviderAccountsSourceFingerprint) -cne $providerSourceBefore) {
-        throw 'Provider accounts source changed during packaging. Retry with stable sources.'
-    }
-    $providerFiles = [ordered]@{}
-    foreach ($file in Get-ChildItem -LiteralPath $providerDestination -File -Recurse | Sort-Object FullName) {
-        $relative = [IO.Path]::GetRelativePath($release, $file.FullName).Replace('\', '/')
-        $providerFiles[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
-    }
-    $helperRelative = 'providers/opencodex/helper.js'
-    $inferenceRelative = 'providers/opencodex/inference.js'
-    $bunRelative = 'providers/opencodex/runtime/bun.exe'
-    [ordered]@{
-        schema = 2
-        upstreamRevision = '9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19'
-        upstreamSourceTree = 'fbdc3ee52e3ecde4fa5e4a5cf630ccae98a73698'
-        vendorSourceManifestSha256 = $vendorSourceManifest
-        sourceSha256 = $providerSourceBefore
-        helper = $helperRelative
-        inferenceHelper = $inferenceRelative
-        bun = [ordered]@{
-            path = $bunRelative
-            version = $bunVersion
-            sha256 = $providerFiles[$bunRelative]
-            bundled = $true
-            npmPackage = '@oven/bun-windows-x64@1.4.2'
-            npmIntegrity = 'sha512-+bN6OuVld/9diT/RLSXSW7JE6CvNE3gL9XsAEjULi1nUsXd6DNO6GuA9jNdNb3r8PdJFnYHr5aypNV1Oj3Rd9g=='
-            downloadManifestSha256 = (Get-FileHash -LiteralPath $bunDownloadManifest -Algorithm SHA256).Hash.ToLowerInvariant()
-        }
-        files = $providerFiles
-    } | ConvertTo-Json -Depth 6 | Set-Content -LiteralPath (Join-Path $release 'opencodex-accounts-build.json') -Encoding utf8NoBOM
-    Complete-BuildStage $buildMetrics $phase
-    $cacheOutput=Join-Path $providerCache.Path 'output'
-    New-Item -ItemType Directory (Join-Path $cacheOutput 'providers') -Force | Out-Null
-    Copy-Item -LiteralPath (Join-Path $release 'providers/opencodex') -Destination (Join-Path $cacheOutput 'providers/opencodex') -Recurse
-    Copy-Item -LiteralPath (Join-Path $release 'opencodex-accounts-build.json') -Destination $cacheOutput
-    Save-BuildModuleEntry $providerCache @('output')
+    . Invoke-BuildModuleProvidersRecipe
     }
 }
 $phase = Start-BuildStage $buildMetrics 'packaged-engine-provenance-check'

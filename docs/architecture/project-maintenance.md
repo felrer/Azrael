@@ -42,6 +42,20 @@ Windows 모의 배포 검사도 `deploy-checks`의 실행별 `temporary/`, `logs
 
 ## 정리 결정과 적용
 
+### 기능 의존 캐시와 연결 정리
+
+Status: `current` for the script-level cache/log integration verified on Windows x64; full product builds, installation and other-platform execution remain separate acceptance scopes.
+
+재생성 범위는 기능 이름의 추측 목록 대신 실제 입력 바이트, 모듈별 생성 recipe, 도구·플랫폼 identity로 결정한다. companion과 providers는 서로 다른 recipe를 키에 포함하며 공통 cache/command helper 변경은 양쪽 키에 반영한다. Cargo 중간 컴파일은 Cargo의 dependency fingerprint를 사용하고, 완성 엔진 번들 재사용은 전체 source provenance와 bundle hash 일치를 요구한다. asset 및 검사 결과는 기존 파일/검사별 owner의 키와 lease를 유지한다.
+
+모듈 생성의 원시 로그는 해당 content-key의 `logs/`에 기록한다. 캐시 payload와 로그는 한 producer lifecycle 구성원이며, 새 키의 입력·출력 검증과 publication 이후 같은 모듈의 사용이 끝난 이전 키만 정리한다. 실패한 새 생성은 이전 정상 키를 교체하지 않는다. 캐시 hit는 생성 명령을 다시 실행하지 않으며 build metrics에는 사용한 키와 결과를 기록한다. 버전의 acceptance evidence는 raw module log의 영구 참조에 의존하지 않는다.
+
+설치·준비 도구를 직접 참조하는 companion 캐시는 해당 버전의 소비 참조로 보호한다. 공유 cache owner는 등록된 모든 project의 producer registry를 검사하며, 어느 하나의 활성·잔존 소비 참조나 조회 불확실성도 삭제를 차단한다. 복사되어 독립적으로 읽을 수 있는 provider payload는 캐시의 영구 소비자로 취급하지 않는다. 소비 record는 전체 구성원의 실제 부재를 검증한 finalize 이후 해제한다.
+
+검토된 이전 버전 정리에서 module cache 정리를 함께 선택하면, 기존 설치·직전 복구·실행·shortcut 보호 아래 버전 payload와 그 원시 로그를 먼저 정리하고, 이어 cache owner의 lease 아래 더 이상 소비자가 없는 모듈 key와 그 로그를 정리한다. 성공·시간 경과만으로 버전 삭제를 선택하지 않는다. legacy 미등록 cache는 소유·소비 근거를 확인하기 전 보존한다. 모듈 정리는 산출물을 먼저 삭제하고 로그, cache/owner receipt, 빈 root 순서로 진행한다. 산출물 삭제가 실패하면 로그와 소유 기록을 남기고, 로그 삭제가 실패하면 소유 기록을 남겨 재시도할 수 있게 한다. 부분 실패는 실제 잔여와 미시도 로그를 기록하며 전체 완료로 보고하지 않는다.
+
+### 생성물 소유와 삭제 검토
+
 생성물의 기본 소유 단위는 작업/실행, 버전, 공유 캐시다. 각 파일은 한 소유 단위에 속하며 다른 작업의 사용은 명시적 소비 참조로 표현한다. 신규 프로젝트와 단계적 이전의 기본 구조는 `artifacts/tasks/<work-id>/runs/<run-id>/{inputs,temporary,outputs,logs,reports}`, `artifacts/versions/<product-version+unique-build-id>/{payload,verification}`, `artifacts/shared/<cache-kind>/<content-key>`다. 동일 제품 버전도 빌드 ID로 구별한다. 원시 로그는 생성 실행에 두고, 보존할 버전에 필요한 검증 근거만 독립적으로 읽을 수 있게 버전 소유로 승격하고 참조를 전환한다. [수명주기와 마이그레이션 playbook](../playbooks/artifact-lifecycle.md)이 도입 절차를 소유한다.
 
 기존 producer의 경로를 당장 옮길 수 없는 경우 `scripts/artifact-lifecycle.cjs`와 PowerShell 어댑터가 같은 수명의 payload·입력·로그·보고서·패키지·배포 근거를 하나의 producer record에 연결한다. 실행 전 예상 경로를 pending/incomplete로 기록하고 실제 종료 뒤 결과와 구성원을 조정한다. 실패·중단·미확인 결과는 자동 삭제되지 않는다. 이 어댑터는 프로젝트의 기존 Node 실행 환경을 재사용하는 출처 연결 계층이며 내장 Rust 관리 도구를 대체하는 상주 서비스가 아니다.

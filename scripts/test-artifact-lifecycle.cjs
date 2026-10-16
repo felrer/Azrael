@@ -159,3 +159,43 @@ test("finalization removes only own registry after every recorded member is actu
   assert.equal(lifecycle.finalize(root, "shared").status, "retained");
   assert.equal(lifecycle.main(["catalog", "--project-root", root, "--limit", "1"]).groups.length, 1);
 });
+
+test("CLI cache consumers protect the last shared key until payload and logs are both gone", t => {
+  const { root, at, record } = fixture(t);
+  record("module-key", [["cache/modules/companion/key", "cache-entry"]], { kind: "run" });
+  for (const id of ["version-one", "version-two"]) {
+    lifecycle.main(["record", "--project-root", root, "--id", id, "--kind", "version",
+      "--owner", "fixture-producer", "--state", "complete", "--membership-complete", "true",
+      "--member", `release=${at(`releases/${id}`)}`, "--member", `build-logs=${at(`logs/${id}`)}`,
+      "--reference", "module-key=companion-tool"]);
+    fs.mkdirSync(at(`releases/${id}`), { recursive: true });
+    fs.mkdirSync(at(`logs/${id}`), { recursive: true });
+  }
+  const groups = lifecycle.main(["catalog", "--project-root", root, "--limit", "200"]).groups;
+  assert.deepEqual(groups.find(group => group.id === "version-one").references,
+    [{ id: "module-key", reason: "companion-tool" }]);
+  assert.equal(lifecycle.registerRequest(root, "module-key").group.members[0].references.length, 2);
+  fs.rmdirSync(at("releases/version-one"));
+  assert.equal(lifecycle.finalize(root, "version-one").status, "retained");
+  fs.rmdirSync(at("logs/version-one"));
+  assert.equal(lifecycle.finalize(root, "version-one").status, "finalized");
+  let blockers = lifecycle.planCleanup(root, { paths: [at("cache/modules/companion/key")] }).groups[0].blockers;
+  assert.deepEqual(blockers, ["active-reference:version-two"]);
+  fs.rmdirSync(at("releases/version-two")); fs.rmdirSync(at("logs/version-two"));
+  assert.equal(lifecycle.finalize(root, "version-two").status, "finalized");
+  blockers = lifecycle.planCleanup(root, { paths: [at("cache/modules/companion/key")] }).groups[0].blockers;
+  assert.deepEqual(blockers, []);
+  for (const invalid of ["module-key", "=reason", "module-key="]) {
+    assert.throws(() => lifecycle.main(["record", "--project-root", root, "--reference", invalid]), /Expected lifecycle-id=reason/);
+  }
+});
+
+test("Windows lifecycle acceptance includes module management and keeps metric fixtures in the registered run", () => {
+  const { commands } = require("./check-artifact-lifecycle.cjs");
+  const run = path.join(repo, "artifacts/tasks/lifecycle-checks/runs/command-fixture");
+  const selected = commands("windows", "win32", repo, run);
+  const metrics = selected.find(([, args]) => args.includes("scripts/test-build-metrics.ps1"));
+  assert.ok(metrics);
+  assert.equal(metrics[1][metrics[1].indexOf("-OutputDirectory") + 1], path.join(run, "temporary/metrics"));
+  assert.ok(selected.some(([, args]) => args.includes("scripts/test-build-module-cache.ps1")));
+});

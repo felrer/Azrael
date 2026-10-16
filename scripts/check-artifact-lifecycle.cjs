@@ -5,13 +5,16 @@ const fs = require("node:fs");
 const crypto = require("node:crypto");
 const { spawnSync } = require("node:child_process");
 const lifecycle = require("./artifact-lifecycle.cjs");
-function commands(stage, platform = process.platform, artifactRoot) {
+function commands(stage, platform = process.platform, artifactRoot, runRoot) {
   if (stage === "source") return [
     [process.execPath, ["--test", "scripts/test-artifact-lifecycle.cjs", "scripts/test-build-platform.cjs"]],
     [process.execPath, ["scripts/test-platform-packaging.cjs"]],
   ];
   if (stage !== "windows" || platform !== "win32") throw new Error("Windows cleanup checks require --stage windows on Windows");
   return [
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1",
+      ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/metrics")] : [])]],
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1"]],
     ...["legacy-releases", "verification-artifacts", "engine-caches"].map(name =>
       ["pwsh", ["-NoLogo", "-NoProfile", "-File", `scripts/test-clean-${name}.ps1`]]),
     ...["verify only", "account-success", "build-fail"].map(name =>
@@ -27,7 +30,7 @@ function main(argv) {
   const run = path.join(root, "artifacts/tasks/lifecycle-checks/runs", id.replaceAll("-", ""));
   // Child deploy checks own registered sibling runs. Nesting another project
   // under this run can make Git discover the parent instead of its fixture.
-  const selected = commands(argv[1], process.platform, root);
+  const selected = commands(argv[1], process.platform, root, run);
   const record = {id:`run:lifecycle-check:${id}`,kind:"run",owner:"artifact-lifecycle-checks",members:[{path:run,role:"run"}]};
   lifecycle.recordLifecycle(root,{...record,state:"pending",membership_complete:false});
   fs.mkdirSync(path.join(run,"logs"),{recursive:true});

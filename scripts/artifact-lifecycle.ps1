@@ -11,9 +11,11 @@ function Invoke-ArtifactLifecycleNode {
 }
 function Register-ArtifactLifecycle {
     param([string]$ProjectRoot, [string]$Id, [ValidateSet('version','run','work')][string]$Kind, [string]$Owner,
-        [ValidateSet('pending','complete','failed','retained')][string]$State, [bool]$MembershipComplete, [System.Collections.IDictionary]$Members)
+        [ValidateSet('pending','complete','failed','retained')][string]$State, [bool]$MembershipComplete, [System.Collections.IDictionary]$Members,
+        [System.Collections.IDictionary]$References = @{})
     $arguments = @('record','--project-root',$ProjectRoot,'--id',$Id,'--kind',$Kind,'--owner',$Owner,'--state',$State,'--membership-complete',$MembershipComplete.ToString().ToLowerInvariant())
     foreach ($role in $Members.Keys) { $arguments += @('--member',("{0}={1}" -f $role, [IO.Path]::GetFullPath($Members[$role]))) }
+    foreach ($id in $References.Keys) { $arguments += @('--reference',("{0}={1}" -f $id, $References[$id])) }
     Invoke-ArtifactLifecycleNode $arguments
 }
 function Get-VersionLifecycleMembers([string]$ProjectRoot, [string]$ReleaseName) {
@@ -58,7 +60,7 @@ function Assert-ArtifactReportOutside {
 }
 function Invoke-ArtifactLifecycleCleanup {
     param([string]$ProjectRoot, [Alias('Candidate')][string]$CandidatePath, [string[]]$ProtectedPaths = @(), [string]$ReportPath,
-        [bool]$Apply, [scriptblock]$CheckMember, [scriptblock]$BeforeDelete)
+        [bool]$Apply, [scriptblock]$CheckMember, [scriptblock]$BeforeDelete, [scriptblock]$RemoveMember)
     $plan = Get-ArtifactLifecyclePlan -ProjectRoot $ProjectRoot -Candidates @($CandidatePath) -ProtectedPaths $ProtectedPaths -ReportPath $ReportPath
     $result = [ordered]@{status='selected';reason=$null;groups=@($plan.groups | ForEach-Object id);members=@();finalization=@()}
     $blockers = @($plan.blockers) + @($plan.groups | ForEach-Object { $_.blockers })
@@ -82,7 +84,10 @@ function Invoke-ArtifactLifecycleCleanup {
             if ($freshBlockers.Count -or @($freshPlan.standalone).Count -or $freshScope -cne $plannedScope) { throw ('Lifecycle changed before removal: ' + ($freshBlockers -join '; ')) }
             $reason = & $CheckMember $member.path
             if ($reason) { throw $reason }
-            if (Test-Path -LiteralPath $member.path) { Remove-Item -LiteralPath $member.path -Recurse -ErrorAction Stop }
+            if (Test-Path -LiteralPath $member.path) {
+                if ($RemoveMember) { $null = & $RemoveMember $member.path }
+                else { Remove-Item -LiteralPath $member.path -Recurse -ErrorAction Stop }
+            }
             if (Test-Path -LiteralPath $member.path) { throw "Lifecycle member remains: $($member.path)" }
             $member.status='deleted'
         } catch { $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';$result.reason=$_.Exception.Message;break }
