@@ -1,19 +1,53 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: refusal 전달 개선과 재시도는 완료했고 정상 프로필의 요청 성공/거부 방지는 미해결이다. 후속 요청의 Claude 프로필 컨텍스트 감사도 완료했다. 고정 입력과 누적 경로는 확인했으나 refusal 인과관계는 미확정이다. 사용자 추가 입력은 필요 없다. 이번 후속 범위는 읽기 전용 코드·기존 기록 조사와 분석 문서이며 제품 수정·모델 재호출·설치는 하지 않는다.
+상태: 관측된 refusal과 프로필 실패의 직접 조건 분석 완료. 같은 계정·모델의 15개 단일 요청에서 진단 문자열의 공급자 cyber 분류와 OAuth system 정체성 블록 변경에 따른 수락 실패를 분리했다. 비공개 classifier 내부 규칙, 원래 28개 도구를 포함한 전체 요청, 실제 작업 완료는 미확인이다. 제품/인증/설치 변경은 하지 않았다. 다음 구현에는 지원되는 인증·실행 경로 선택이 남는다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
 범위: 공통 managed Anthropic 요청/응답 계약(Windows x64, Linux x64, macOS ARM64 공통 의미). 실제 검증은 Windows. source 변경과 필요한 작은 검사/실제 호출을 수행할 권한이 있으며 전체 배포 build/설치는 별도 범위다. 사용자 기존 upstream/은 보존한다.
 
-진행: root는 안전한 실제 응답의 stop_details와 원인 범주 및 현재 구현을 조사하고, read-only refusal_request_contract agent는 요청 projection/auth/header와 기존 검사 근거를 확인한다. 별도 모델 전환, 계정 교체, 인증 위장 또는 요청 내용의 안전 장치 회피는 도입하지 않는다. 원인을 확인한 뒤 해당 소유 코드와 최소 회귀 검사를 수정한다.
+실행 소유: root는 실제 비교 실험과 공식 공급자 문서를 확인했고, read-only refusal_wire_contract_audit owner는 현재 profile/unprofiled wire 차이와 변환 계약을 조사했다. 별도 모델 전환, 계정 교체, 새 first-party identity 삽입 또는 안전 장치 회피는 도입하지 않았다. 이번 분석은 제품 코드를 변경하지 않으므로 기존 회귀 검사/빌드를 반복하지 않았다.
 
-검증: 기존 실패 근거는 최소 harmless prompt, HTTP200, input156/output0, refusal이다. 이전 probe는 원래 35k 맥락 재현이 아니다. 새 실제 호출은 동일 계정 binding의 임시 fork를 사용하고 단일 호출/60초 deadline/재시도 및 auto-switch 없음으로 제한한다. 원문·credential은 기록하지 않고 stop_reason, allowlisted stop_details category, usage, 구조 및 source identity만 보존한다. 성공에는 실제 end_turn/유효 출력과 관련 회귀 검사 exit0이 필요하다.
+검증: 기존 실패 근거는 최소 harmless prompt, HTTP200, input156/output0, refusal이다. 이전 probe는 원래 35k 맥락 재현이 아니다. 새 실제 호출은 동일 계정 binding의 임시 fork를 사용하고 단일 호출/60초 deadline/재시도 및 auto-switch 없음으로 제한한다. credential·일반 대화 원문은 기록하지 않고 stop_reason, allowlisted stop_details category, usage, 구조 및 source identity를 보존한다. run04의 합성 요청에 한해 공급자의 공개 거절 설명을 제한적으로 확인하며 실제 세션 context의 설명 원문은 저장하지 않는다. 성공에는 실제 end_turn/유효 출력과 관련 회귀 검사 exit0이 필요하다.
 
 산출물 소유: work:BU-01-refusal-cause-run-01. artifacts/tasks/refusal-cause/runs/01/logs, reports는 진단 근거로 보존한다. temporary의 probe script 및 새 UUID binding은 생성 전 소유를 기록하고 producer 종료와 실제 경로/내용을 검증한 뒤 일반 삭제한다. 관리 근거는 본 문서와 reports에 보존하고 최종 등록/검토한다. 기존 error-specificity run의 자료는 수정하지 않는다.
 
 
 ## 확인된 원인과 한계
+
+### 직접 원인 비교 결과 (run04)
+
+실행은 2026-10-16T17:03:22.546Z~2026-10-16T17:08:39.913Z UTC에 순차 진행했다. 15개 producer는 각각 exit0으로 결과를 저장했고, 추론 결과는 HTTP200 11개(end_turn7/tool_use1/refusal3), HTTP429 4개다. 각 요청의 실제 network1, 원래 계정 일치, claude-opus-5-5/high, 제품 소스 입력 불변을 확인했다. live 응답의 message_start.model도 claude-opus-5-5였다. 실제 도구 실행0, 계정/모델 전환0, 자동 retry0이다. 결과·요청 ID·본문 필드별 SHA256은 artifacts/tasks/refusal-cause/runs/04/reports/summary.json 및 개별 JSON이 소유한다. 로그는 같은 run의 logs/에 있다. 전체 body·credential·thinking 내용은 저장하지 않았다.
+
+| 비교 | 고정 조건에서 바뀐 요소 | 실제 결과 |
+| --- | --- | --- |
+| 진단 원문 | 과거 root가 만든 diagnostic system + AZRAEL_ERROR_PROBE_OK 출력 요구 | HTTP200/refusal/cyber, input156/output0 |
+| 진단 system 축소 | 같은 사용자 문구에서 system만 짧은 일반 안내로 변경 | HTTP200/refusal/cyber, input124/output0 |
+| 진단 토큰 한 단어 변경 | 위 일반 system에서 PROBE→CHECK | HTTP200/refusal/cyber |
+| 진단 양성 대조 | 같은 일반 system·출력 요구 문형에서 대상만 OK / AZRAEL / ERROR_PROBE_OK로 각각 변경 | 각각 HTTP200/end_turn/nonempty output |
+| 산술 기본 / 프로필 | 같은 instructions·질문·도구0에서 profile 유무만 변경 | 기존 경로200/end_turn, profile429 |
+| 사용자 메시지 포맷 | 정상 산술 wire의 messages만 profile과 같은 raw user 형태로 변경 | HTTP200/end_turn |
+| 첫 system 블록 제거 | 정상 산술 wire의 기존 첫 정체성 블록만 제거 | HTTP429/rate_limit_error/message=Error |
+| 정체성 내용 교체 | 기존 첫 블록 개수/위치를 유지하고 내용만 사실에 맞는 Azrael 안내로 교체 | HTTP429/rate_limit_error/message=Error |
+| 캐시 경계 제거 | 정상 산술 wire의 system.cache_control만 제거 | HTTP200/end_turn |
+| 지정 세션 작업 | 같은 원문·lean 안내·Read/Bash2에서 profile 유무만 변경 | profile429, 기존 경로200/tool_use/Bash1 |
+| 원래 저장 context | 저장된 base/developer/user10개를 기존 경로로 전달, tools 제외 | HTTP200/end_turn, input4+cache_creation30972, output360 |
+
+기록된 refusal의 직접 발생 계층은 공급자 safety classifier다. 응답 설명은 violative cyber content 제한으로 차단했다는 일반 정책 안내(206chars)였고, native/helper가 refusal을 만들어 낸 것이 아니다. 현재 개선 소스도 세 refusal을 모두 provider_refusal로 전달했다. 이 무해한 문자열 출력 요청을 cyber로 분류한 것은 관측상 오탐이다. 같은 system과 요청 문형에서 분리된 문자열들은 정상 종료하고 결합 문자열들은 거절되므로, 이번 진단에서는 입력 내용 조합에 따라 결과가 바뀐다. PROBE 단어 단독, 도구 사용, 대형 컨텍스트, 고정 출력 요구 자체가 반드시 원인이라는 가설은 지지되지 않는다. 다만 개별 변형마다 이번 run은1회이며 비공개 classifier의 정확한 token/규칙과 일반적인 문자열 차단 목록은 확정하지 않는다. 이 marker는 제품에 없고 root가 만든 과거 진단에만 있었다. 실제 사용자 작업에서 발생한 refusal의 직접 조건으로 일반화하지 않는다.
+
+실제 작업의 프로필 실패는 별개다. providers/opencodex/inference.ts:491의 wireBody.system 재작성은 OAuth adapter가 넣은 첫 정체성 블록을 제거한다. 정상 wire에서 그 블록만 제거하거나 내용만 Azrael로 바꾸면 실패하고, messages 포맷만 바꾸거나 system 캐시 경계만 제거하면 정상이다. 필드별 해시도 비교 대상에서 선언한 system/messages 이외가 같음을 확인했다. 각 요청의 endpoint와 공개 protocol header도 같았다. 따라서 이 계정·모델·현재 OAuth 경로에서 첫 system 정체성 내용 변경이 HTTP 수락 실패를 만드는 직접 조건으로 좁혀졌다. 도구 이름/개수/과도한 context가 없어도 발생한다. 이는 공개 계약에서 모든 OAuth 요청에 특정 문구가 필수임을 증명한 것이 아니며 서버 내부가 왜 일반 rate_limit_error/"Error"로 응답하는지는 공개되지 않았다. 429를 cyber refusal이나 실제 사용량 소진으로 재분류하지 않는다.
+
+원래 저장 지침·대화의 system75987chars 및 약3.1만 provider 입력 tokens가 정상 종료해 context 양 자체가 거절/수락 실패의 충분조건이라는 가설도 약해졌다. 이 비교는 원래 28개 tool schema를 제외했고 원래 wire 재현이나 전체 작업 수락이 아니다. 지정 세션 작업도 첫 Bash 요청까지이며 명령은 실행하지 않았다.
+
+공식 근거: [Refusals and fallback](https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback)은 refusal을 성공 HTTP200의 classifier 판단으로 정의하고 cyber에 benign 작업도 걸릴 수 있다고 명시한다. [Claude Code 인증·credential 안내](https://code.claude.com/docs/en/legal-and-compliance#authentication-and-credential-use)는 자체 앱의 API key/지원 cloud 경로와 수정하지 않은 Claude Code를 통한 구독 사용을 구분한다. 해당 문서는 임의 OAuth POST에서 특정 정체성 문구를 쓰면 지원된다고 보장하지 않는다.
+
+해결 방향은 context 최적화만으로 두 문제를 해결했다고 취급하지 않는 것이다. 자체 도구 프로필을 직접 공급자 API로 보내려면 정식 API key/지원 transport로 연결하는 설계를 검토해야 한다. 구독을 유지하려면 수정하지 않은 Claude Code 실행을 연결하는 방향을 검토한다. 현재 프로필에 first-party 문구를 다시 넣어 통과시키는 수정은 하지 않는다. 진단에서는 오탐이 확인된 marker를 사용하지 않고 의미 있는 무해 작업으로 정상 응답을 검증한다. 공급자 오탐의 내부 판정 수정은 요청 ID와 최소 사례를 바탕으로 공급자가 확인해야 하며, 여기서 모델/계정을 바꾸거나 거절을 숨기지 않는다. 직접 원인 분석과 제품의 정상 작업 복구를 분리한다.
+
+15개 실험 binding은 모든 producer 종료 후 원래 계정 일치/thread_id/정확한 session 폴더/일반 파일/lock 부재를 검증하고 PowerShell Remove-Item으로 삭제했다. cleanup.json은15개 실제 부재와 원래 binding 보존을 확인한다. 남은 run04 logs/reports는 분석 근거로 보존하며 제품 수정·회귀 테스트·설치 산출물은 없다.
+
+run04의 소유자는 work:BU-01-refusal-cause-run-04이며 출력은 artifacts/tasks/refusal-cause/runs/04/{logs,reports}이다. root만 live 실행한다. 각 호출은 새 UUID fork/원래 계정·모델·high/60초 deadline/자동 재시도0/최대 network1을 보존하며 실제 도구는 실행하지 않는다. 먼저 과거 무해한 marker 요청과 정상 대조 요청을 재확인하고, 결과에 따라 사용자 문구·system/profile 중 한 축만 바꾼다. 공급자 설명은 이 합성 요청에 대한 stop_details.explanation과 HTTP error.message만 길이 제한·credential/개인정보 필터 후 수집한다. 일반 대화·계정·토큰·thinking 내용은 수집하지 않는다. wire에는 구조·해시·공개 프로토콜 header만 기록한다. 429는 refusal 증거로 쓰지 않고, 똑같은 요청을 429 재현 목적으로 반복하지 않는다. 원인 수락 기준은 정확한 요청 차이와 양방향 비교 또는 공급자의 직접 설명으로 실패 계층/결정 조건을 특정하는 것이다. 내부 비공개 classifier의 규칙을 추측으로 확정하지 않는다. 실제 Windows, 공통 transport 의미는 다른 OS에도 해당하나 다른 OS 실행 증거는 만들지 않는다. producer 종료 후 새 binding의 실제 identity/path/lock 부재를 확인하여 일반 삭제했다. logs6740bytes/reports92410bytes의 완전한 group을 등록·review한 뒤 두 멤버에 defer를 적용했다. 지원 transport에서 정상 작업을 검증하고 독립 근거로 대체한 뒤 work 참조를 해제할 때 전체 group을 재검토한다.
+
+### 이전 재현의 근거와 한계 (run01~03)
 
 앞선 작업의 원문 probe를 이 작업 세션 rollout의 도구 입력에서 복원했다. 지침은 `This is a diagnostic probe. Reply with exactly AZRAEL_ERROR_PROBE_OK. Do not call tools.`, 사용자 입력은 `Reply with exactly AZRAEL_ERROR_PROBE_OK.`였다. 이 문구는 제품 코드에 없고 root가 만든 일회성 진단 요청에만 있었다. 같은 문자열을 현재 동일 계정/model/high에 다시 보내자 HTTP200, input156/output0, `stop_reason: refusal`, `stop_details.type: refusal`, `category: cyber`를 수신했다. 설명 원문은 보관하지 않고 존재와 길이206만 기록했다. 이 benign 요청에 공급자 cyber 분류가 걸린 것은 확인됐지만, 어떤 단어나 내부 규칙이 결정했는지까지 알 수 없다. 모든 요청에 적용되는 인증 실패라는 기존 가능성은 이 비교로 뒷받침되지 않는다.
 
@@ -109,7 +143,7 @@ probe03에서 같은task/tools의 기존unprofiled projection이 HTTP200/tool_us
 
 현재 검증: 첫 native 실행(16:08:44~16:14:56 UTC, exit101)은 InvalidRequest→Other 매핑 때문에 오류 기대값1개가 실패했고 protocol1/core3 검사는 통과했다. 실제 프로토콜을 바꾸지 않고 Fatal/Other 계약으로 수정했으며 -02 native 검사를 고정된 Rust 입력으로 재시작했다. source formatter/recovery330 및 source chat25는 수정 계약으로 exit0이다. SOURCE 공식 recorder도 두 번째 변경을 검증한다. 첫 실패/첫 렌더 결과는 중간 증거로 보존하며 최신 수락 근거와 구분한다.
 
-probe04는 도구 이름만 custom_ 접두사로 변경해도 HTTP429/ambiguous로 실패했다. probe03의 같은 task/tools unprofiled 경로는 HTTP200/tool_use/Bash1까지 성공했다. 도구는 실행하지 않았으므로 전체 작업 수락 기준은 미충족이다. profile 경로의 system projection/공급자 호환 계약 차이가 남지만 어떤 필드가 원인인지 확정되지 않았다. 특정 first-party identity 문자열 추가로 인증·클라이언트 정체성을 위장하는 해결은 적용하지 않는다.
+probe04는 도구 이름만 custom_ 접두사로 변경해도 HTTP429/ambiguous로 실패했다. probe03의 같은 task/tools unprofiled 경로는 HTTP200/tool_use/Bash1까지 성공했다. 도구는 실행하지 않았으므로 전체 작업 수락 기준은 미충족이다. profile 경로의 system projection/공급자 호환 계약 차이가 남지만 당시에는 어떤 필드가 원인인지 확정되지 않았으며 run04의 직접 비교가 이 공백을 보완한다. 특정 first-party identity 문자열 추가로 인증·클라이언트 정체성을 위장하는 해결은 적용하지 않는다.
 
 ## 개선 결과와 남은 문제
 
@@ -124,7 +158,7 @@ probe04는 도구 이름만 custom_ 접두사로 변경해도 HTTP429/ambiguous�
 
 5-hour/weekly 조회는 각각0%였으나 별도 속도/동시성/조직 제한까지 부정하는 근거는 아니다. profile 두 실패는 공급자의 구체적 제한 원인 필드가 없으므로 UI는 정의되지 않은 오류를 유지한다. 현재 비교는 시간에 따른 공급자 상태까지 통제한 실험이 아니므로 profile 차이의 연관성을 시사할 뿐 인과 필드를 확정하지 않는다. 과거 진단 요청의 cyber refusal과 이번 실제 작업의 HTTP429를 같은 원인이라고 결론 내리지 않는다.
 
-다음 해결 우선순위는 공급자가 지원하는 인증·클라이언트 계약 안에서 요청 projection을 정합화하는 것이다. 현재 inference.ts의 compiled.claudeProfile 분기는 adapter가 만든 system을 native systemPrompt로 교체하고 builtin 도구 escaping을 되돌린다. 기존 unprofiled adapter는 identity/system envelope와 도구 catalog를 포함한다. 비교로 남은 차이는 system/envelope/catalog이며, 잘못 중복되거나 상충한 내용이 있는지 읽기 전용 wire 구조 비교로 좁힌 후 확인된 변환 오류만 수정한다. 인증상 허용되지 않은 SDK/first-party identity를 흉내 내거나 profile 전체를 비활성화하는 변경은 적용하지 않았다. 이 인증 경로에서 지원되는 정합한 형식을 확인할 수 없으면 공식 지원 SDK/CLI 통합 또는 API-key 경로가 대안이며, 인증/실행 구조·비용 변화는 별도 설계 선택으로 다룬다.
+다음 해결 우선순위는 공급자가 지원하는 인증·클라이언트 계약 안에서 요청 projection을 정합화하는 것이다. 현재 inference.ts의 compiled.claudeProfile 분기는 adapter가 만든 system을 native systemPrompt로 교체하고 builtin 도구 escaping을 되돌린다. 기존 unprofiled adapter는 identity/system envelope와 도구 catalog를 포함한다. run04에서 system의 첫 정체성 내용 변경으로 수락 실패가 발생하는 조건까지 좁혔고, XML/message 포맷 및 system 캐시 경계의 단독 변경은 성공했다. 지원되는 인증·실행 경로를 선택하는 구현은 남아 있다. 인증상 허용되지 않은 SDK/first-party identity를 흉내 내거나 profile 전체를 비활성화하는 변경은 적용하지 않았다. 이 인증 경로에서 지원되는 정합한 형식을 확인할 수 없으면 공식 지원 SDK/CLI 통합 또는 API-key 경로가 대안이며, 인증/실행 구조·비용 변화는 별도 설계 선택으로 다룬다.
 
 세션 링크 작업은 기존 thread/read, thread/turns/list, thread/items/list를 재사용하는 범위 제한 읽기 도구가 후속 개선안이다. 링크의 대상과 권한을 검증하고 필요한 목표/진행 상태만 반환하면 모델이 raw rollout/전체 private 상태를 탐색할 필요가 줄어든다. 이것은 작업 전달 개선이며 refusal 해소가 입증된 조치는 아니다. 전체 수락은 지정 프로필에서 같은 요청의 tool_use→실제 유효 도구 실행→결과 전달→end_turn까지 확인해야 한다.
 
@@ -134,7 +168,7 @@ SOURCE recorder 두 번째 시도는 reviewed delta에서 transport test 변경�
 
 공식 recorder-04 및 최종 source snapshot은 각각 exit0이다. SOURCE receipt SHA256=73ee93b71556294b6152a52ed05fa2657ea10b7a6c930a4c19c91b999a842bd3, sourceSha256=f72486ef238d32d93d1bbbf49235e5a7f7c5da1831c05c96279cf4590d927fa0,9264files이다. 통합 기준 HEAD=00094086이며 이번 작업과 독립적인 Window Use 문서 commit을 보존했다. run03 logs479698bytes/reports305714bytes의 완전한 lifecycle group을 등록·review했고 현재 work 참조 및 미해결 원인 분석 때문에 두 멤버 모두 defer를 적용했다. 동일 소스 release에 독립 검증을 승격하고 profile 원인을 대체 근거로 종결한 뒤 참조를 해제할 때 재검토한다. 임시 상태 삭제와 로그/보고서 보존을 구분한다.
 
-이번 작업의 완료 범위는 오류 식별/진단 전달 개선, 같은 계정·모델 재시도 및 남은 문제의 해결안 제시이다. 정상 호환 프로필의 실제 작업 완료와 공급자 refusal 방지는 미검증/미해결이며 이를 완료로 표시하지 않는다. 변경은 소스에만 반영했고 설치본은 갱신하지 않았다.
+run03 구현의 완료 범위는 오류 식별/진단 전달 개선, 같은 계정·모델 재시도 및 남은 문제의 해결안 제시이다. 정상 호환 프로필의 실제 작업 완료와 공급자 refusal 방지는 미검증/미해결이며 이를 완료로 표시하지 않는다. 변경은 소스에만 반영했고 설치본은 갱신하지 않았다.
 
 ## Claude 프로필의 컨텍스트 감사
 
@@ -153,7 +187,7 @@ SOURCE recorder 두 번째 시도는 reviewed delta에서 transport test 변경�
 - inference-mapping.mjs:133/163은 Claude 프로필의 XML wrapper를 생략한다. inference.ts:491은 vendor가 조합한 identity/catalog 안내를 native systemPrompt로 교체한다. 따라서 현재 이 경로는 추가 XML이나 vendor 도구 catalog 안내를 중복으로 늘리지 않는다. projectRequest는 system/developer를 systemPrompt 배열로 이동하고 user/tool 결과와 구분한다.
 - tool_search_output은 전체 schema를 매번 복제하지 않고 현 catalog의 이름 참조로 줄이며 additional_tools history는 다시 직렬화하지 않는다. 실제 schema는 현재 tools 배열에서 유지한다. 검색 반복으로 schema 원문이 매 결과마다 중복된다는 주장은 기존 검사와 코드에 맞지 않는다.
 
-실제 비교에서도 현재 호환 프로필 probe01은 system2263chars/도구2개로 HTTP429였고 기존 unprofiled probe03은 더 큰 system3428chars/도구2개로 HTTP200/tool_use였다. 과거 harmless refusal은 도구0개/input156tokens이었다. 따라서 큰 컨텍스트는 개선할 부담이지만 실패·refusal의 필요조건이나 확정 원인으로 결론 내릴 수 없다. 어느 system 내용/형식이 결과 차이와 관련되는지는 여전히 미확정이다.
+실제 비교에서도 현재 호환 프로필 probe01은 system2263chars/도구2개로 HTTP429였고 기존 unprofiled probe03은 더 큰 system3428chars/도구2개로 HTTP200/tool_use였다. 과거 harmless refusal은 도구0개/input156tokens이었다. 따라서 큰 컨텍스트는 개선할 부담이지만 실패·refusal의 필요조건이나 확정 원인으로 결론 내릴 수 없다. 이후 run04에서 현재 OAuth 첫 system 정체성 내용의 변경으로 수락 결과가 바뀌는 조건을 확인했다. 서버 내부 이유는 공개되지 않았다.
 
 개선 우선순위 제안은 (1) 고정 지침/스킬 설명/도구 schema를 각각 계측하고 (2) 필수 지침과 스킬 접근성을 보존하면서 스킬 catalog의 독립 예산·짧은 설명을 적용하고 (3) 합의된 작업에는 기존 claude-lean을 선택해 전체 공통 지침을 줄이고 (4) 탐색 도구와 대형 결과의 세션 누적을 관리하는 것이다. 단순히 프로젝트 AGENTS/권한 안내를 삭제하거나 원인 확인 없이 profile을 제거하지 않는다. 낮은 스킬 예산은 목록 누락을 일으킬 수 있으므로 필수5개/명시 호출/재탐색 가능성을 검증해야 한다. 구현 결정과 검증은 별도이며 이번 분석에서 설정을 바꾸지 않았다.
 
@@ -167,6 +201,6 @@ SOURCE recorder 두 번째 시도는 reviewed delta에서 transport test 변경�
 
 감사 결론: 짧은 첫 작업에서도 공통 행동·스킬·운영 지침과 직접 도구 정의가 큰 고정 입력을 만든다. 기본 Claude tool preset 자체가 lean prompt를 선택해 주지 않고, 큰 모델 창에 비례한 스킬 예산은 이 고정 비용을 줄여 주지 않는다. 원래 실패에서 정확한 긴 paragraph 복제는 발견하지 못했다. 도구 탐색과 지침 변경의 장기 누적은 추가 개선 대상이지만 이 첫 실패의 입증된 원인은 아니다. XML/catalog 중복 추가, 전 모델 roster enum, tool output 폭증, 창 초과는 이번 증거로 주원인이라고 할 수 없다.
 
-권장 순서: 고정 context component 계측을 기준으로 우선순위를 정하고, 스킬 이름·짧은 routing 설명·온디맨드 원문을 보존하는 독립 절대 예산과 필수 스킬 보존을 검증한다. 다음으로 Claude prompt를 기존 lean 구성에 맞추되 사용자/프로젝트 지침·권한·도구 계약은 유지한다. 공통 coordination/maintenance의 세부 절차는 상시 핵심 계약과 분리하는 설계를 검토한다. 장기 세션에서는 superseded 안내의 의미를 보존하는 최신 상태 투영과 재탐색 가능한 bounded discovered set을 설계한다. 단순 cap 적용은 현재 discovery 계약의 변경이므로 누락·재탐색·실행 권한·replay를 검증해야 한다. 최소 첫 요청이 이미 실패한 기존 비교를 고려하면, 이 최적화와 별개로 provider request system 형식의 호환 문제도 계속 남는다.
+권장 순서: 고정 context component 계측을 기준으로 우선순위를 정하고, 스킬 이름·짧은 routing 설명·온디맨드 원문을 보존하는 독립 절대 예산과 필수 스킬 보존을 검증한다. 다음으로 Claude prompt를 기존 lean 구성에 맞추되 사용자/프로젝트 지침·권한·도구 계약은 유지한다. 공통 coordination/maintenance의 세부 절차는 상시 핵심 계약과 분리하는 설계를 검토한다. 장기 세션에서는 superseded 안내의 의미를 보존하는 최신 상태 투영과 재탐색 가능한 bounded discovered set을 설계한다. 단순 cap 적용은 현재 discovery 계약의 변경이므로 누락·재탐색·실행 권한·replay를 검증해야 한다. 최소 첫 요청이 이미 실패한 기존 비교를 고려하면, 이 최적화와 별개로 run04에서 확인한 OAuth 첫 system 정체성 변경에 따른 실패의 통합 해결이 남는다.
 
 이번 감사는 제품/설정 변경0, live inference0, build0이다. 기존 source와 기록을 읽고 pinned Bun의 estimator를 네트워크 없이 실행(exit0)했으며 generated artifact는 만들지 않았다. native owner의 read-only 결과를 재사용했고 분석만 같은 work 문서에 통합했다. 코드 변경이 없어 회귀 검사를 다시 실행하지 않았다. Windows 외 환경과 실제 설치본의 일치는 이번 결과로 주장하지 않는다.
