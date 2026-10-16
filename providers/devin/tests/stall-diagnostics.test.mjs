@@ -119,3 +119,20 @@ test('instrumentation failure cannot fail the underlying byte stream', async () 
   assert.deepEqual([...new Uint8Array(await response.arrayBuffer())], [1, 2, 255]);
   assert.doesNotThrow(() => tracker.snapshot());
 });
+
+
+test('provider stop diagnostics accept only closed refusal labels', () => {
+  for (const provider_stop_reason of ['end_turn', 'tool_use', 'stop_sequence', 'max_tokens', 'pause_turn', 'refusal', 'content_filter', 'unknown']) {
+    const tracker = createStallDiagnostics(); tracker.providerError({ provider_stop_reason });
+    assert.equal(tracker.snapshot().provider_stop_reason, provider_stop_reason);
+  }
+  for (const provider_refusal_category of ['cyber', 'bio', 'frontier_llm', 'reasoning_extraction', 'general_harms', 'unspecified', 'unknown', 'missing']) {
+    const tracker = createStallDiagnostics(); tracker.providerError({ provider_refusal_category });
+    assert.equal(tracker.snapshot().provider_refusal_category, provider_refusal_category);
+  }
+  const tracker = createStallDiagnostics();
+  tracker.providerError({ provider_stop_reason: 'SECRET', provider_refusal_category: 'SECRET', explanation: 'SECRET' });
+  assert.equal(tracker.snapshot().provider_stop_reason, undefined);
+  assert.equal(tracker.snapshot().provider_refusal_category, undefined);
+  assert(!JSON.stringify(tracker.snapshot()).includes('SECRET'));
+});

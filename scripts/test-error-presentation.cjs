@@ -56,4 +56,16 @@ test("native current/history selector hides unknown nested detail and preserves 
   context.utn = () => ({});
   assert.equal(render({ message: "PRIVATE", errorInfo: "other" }), null);
 });
+test("native refusal display requires exact Fatal message and Other category", () => {
+  const { render } = selector();
+  const display = "모델 제공자가 응답을 거부했습니다. (provider_refusal)";
+  const message = `Fatal error: ${display}`;
+  assert.equal(render({ message, errorInfo: "other" }), display);
+  for (const variant of [display, message + " SECRET", "quoted: " + message, message + "\n", message.toUpperCase()])
+    assert.equal(render({ message: variant, errorInfo: "other" }), "정의되지 않은 오류");
+  for (const text of [message, display])
+    assert.equal(render({ message: text, errorInfo: "badRequest" }),
+      "The provider rejected this request. Check the selected model and input before retrying.");
+  assert.equal(render({ message, errorInfo: "other", willRetry: true }), null);
+});
 module.exports = { selector };

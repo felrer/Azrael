@@ -24,6 +24,6 @@ Status: `partial` — Windows에서 엔진·helper·호스트 소스 회귀 검�
 
 기존 tracing/SQLite 및 VS Code 로그 채널과 보관 정책을 재사용한다. `RUST_LOG`는 stderr 출력 필터이므로 이 수집 정책을 대신하지 않는다. upstream의 모든 로그와 외부 code-mode-host 바이너리 내부 로그를 끄는 설정은 아니다.
 
-모델 오류는 [근거 기반 오류 분류](managed-providers.md#evidence-based-error-classification)를 따른다. HTTP 상태만으로 제한의 종류를 추측하지 않으며, 상세 진단에는 허용된 오류 유형·사유·본문 판독 결과와 검증된 제한 수치·헤더만 보존한다. 분류되지 않은 오류의 사용자 문구는 `정의되지 않은 오류`다. 원문 본문과 인증 정보는 기록하지 않는다.
+모델 오류는 [근거 기반 오류 분류](managed-providers.md#evidence-based-error-classification)를 따른다. HTTP 상태만으로 제한의 종류를 추측하지 않으며, 상세 진단에는 허용된 오류 유형·사유·본문 판독 결과와 검증된 제한 수치·헤더만 보존한다. 분류되지 않은 오류의 사용자 문구는 `정의되지 않은 오류`다. 공급자의 종료 사유와 refusal 범주도 `provider_stop_reason`·`provider_refusal_category`의 닫힌 허용값으로만 보존한다. 명시적 null은 unspecified, 누락은 missing, 미지원 값은 unknown으로 구분한다. refusal 판정은 상세 진단의 활성 여부와 독립적이다. 원문 본문과 인증 정보는 기록하지 않는다.
 
 정책은 Windows x64, Linux x64, macOS ARM64의 공통 실행 경계에 적용한다. OS별 환경 전달과 설치된 패키지 검증은 별도이며, 소스 테스트를 다른 OS의 설치 수용 근거로 사용하지 않는다. 실제 사용 절차는 [네이티브 진단](../ops/native-diagnostics.md#상세-진단-켜기끄기)에 둔다.

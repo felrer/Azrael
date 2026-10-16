@@ -218,9 +218,11 @@ RATE_LIMIT_OUTCOMES = {
     "provider_rate_limit_requests", "provider_rate_limit_input_tokens", "provider_rate_limit_output_tokens",
     "provider_rate_limit_tokens", "provider_rate_limit_concurrency", "provider_rate_limit_acceleration",
 }
-PROVIDER_ERROR_OUTCOMES = RATE_LIMIT_OUTCOMES | {"provider_rate_limit", "provider_usage_limit", "provider_error_undefined"}
+PROVIDER_ERROR_OUTCOMES = RATE_LIMIT_OUTCOMES | {"provider_rate_limit", "provider_usage_limit", "provider_error_undefined", "provider_refusal"}
 
 TRANSPORT_ENUMS = {
+    "provider_stop_reason": {"end_turn", "tool_use", "stop_sequence", "max_tokens", "pause_turn", "refusal", "content_filter", "unknown"},
+    "provider_refusal_category": {"cyber", "bio", "frontier_llm", "reasoning_extraction", "general_harms", "unspecified", "unknown", "missing"},
     "provider_error_type": {"rate_limit_error", "rate_limit_exceeded", "rate_limited", "too_many_requests",
                             "usage_limit_reached", "quota_exceeded", "insufficient_quota", "credit_balance_too_low",
                             "invalid_request_error", "authentication_error", "permission_error", "billing_error",

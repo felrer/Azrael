@@ -60,6 +60,7 @@ function serverErrorKind(error) {
 }
 
 const diagnosticError = error => !error ? "none" :
+  error.codexErrorInfo === "other" && error.message === "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)" ? "provider_refusal" :
   error.codexErrorInfo === "usageLimitExceeded" ? "usage_limit_exceeded" :
   error.codexErrorInfo === "rateLimitExceeded" ? "rate_limit_exceeded" :
   serverErrorKind(error) ?? diagnosticErrors.get(error.message) ?? "other";

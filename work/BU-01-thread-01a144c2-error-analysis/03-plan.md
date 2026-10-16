@@ -1,6 +1,6 @@
 # Claude refusal 원인과 정상 응답 복구
 
-상태: 확보된 refusal과 처리 경로의 원인 분석 및 해결 방안 정리 완료. 공급자 내부 판정과 실제 작업의 정상화는 미검증이며, 아래 변경안은 제안이다. 기존 오류 분류 변경은 b7a03ee1로 완료했다.
+상태: 사용자 지시에 따라 refusal 전달 개선·회귀 검사·실제 도구 요청 재시도를 진행한다. 정상 작업 완료는 실제 결과로 판단한다.
 
 사용자 결정: 429 재현은 필요 없다. `stop_reason: refusal` 없이 정상 응답을 받는 것이 성공 기준이다. refusal을 성공으로 바꾸거나 숨기는 것은 성공이 아니다. 기존 계정과 모델을 보존하며 변경의 근거를 확보한다.
 
@@ -82,3 +82,56 @@ run02 정리: 종료 후 owner/thread/path/lock 검증을 거쳐 새 임시 bind
 제안 검증은 거부/정상/end_turn/tool_use/max_tokens/알 수 없는 종료, 실제 terminal 유무, 알려진/미지원/null category 및 부분 tool input 후 refusal에서 도구 실행0을 확인하는 focused 검사와 실제 사용자 요청의 정상 왕복을 포함한다. 공통 계약은 Windows/Linux/macOS에 적용하되 실제 live 근거는 Windows에 한정한다. 새로운 코드나 배포 수락을 주장하지 않는다.
 
 공식 계약 근거: https://platform.claude.com/docs/en/build-with-claude/refusals-and-fallback (HTTP200 refusal과 stop_details, cyber false positives, 공식 fallback과 model/usage/부분 출력 의미). 이 문서의 일반 설명을 공급자의 비공개 내부 결정 근거로 취급하지 않는다. 현재 비교와 코드 조사만으로 근거가 부족한 '프롬프트 크기 때문에 refusal', 'tool 이름이 원인', 'OAuth 식별 문자열 복원이 해결' 같은 가설은 채택하지 않는다.
+
+
+## 실행 범위와 공유 계약
+
+사용자가 개선 후 재시도와 남은 문제의 해결 방안을 요청했다. 이번 실행은 제안1의 최소 구현(거부 분류/진단 보존)과 같은 모델·계정의 도구 요청 재시도를 우선한다. 새 세션 조회 기능이나 자동 모델 fallback은 도입하지 않는다. root는 managed observer/translate, 공유 JS diagnostics, 소유 문서/feature inventory, source provenance와 최종 검증/실제 요청을 담당한다. native 통합 owner는 Rust 오류·transport 검증, Python export, 기존 공통 UI formatter/복구의 정확한 메시지 보존과 해당 검사만 담당한다.
+
+공유 계약: 실제 upstream stop_reason=refusal을 provider_refusal로 전달하고 native Fatal/Other의 정확한 문구 `Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)`로 전달하고 UI에서 고정 prefix를 제거해 표시한다. 최초 InvalidRequest/BadRequest 가정은 실제 native 검사에서 InvalidRequest가 Other로 변환되는 것을 확인하여 폐기했다. protocol 매핑을 한국어 문구로 변경하지 않으며 실제 terminal Fatal 계약과 정확한 Other/message pair를 사용한다. 자동 retry/계정 전환/도구 실행 허용은 바꾸지 않는다. 확인한 wire stop 사유는 provider_stop_reason(허용값 end_turn/tool_use/stop_sequence/max_tokens/pause_turn/refusal/content_filter/unknown), 실제 refusal의 category는 provider_refusal_category(허용값 cyber/bio/frontier_llm/reasoning_extraction/general_harms/unspecified/unknown/missing)로 기존 transport 경로에만 남긴다. 명시적 null은 unspecified, 누락은 missing, 미지원/상충 type은 unknown이며 freeform explanation/원문은 저장하지 않는다. terminal frame이 없으면 기존 provider_eof 실패를 보존한다. 알려지지 않은 오류는 기존 정의되지 않은 오류를 유지한다.
+
+run03 소유: work:BU-01-refusal-cause-run-03, artifacts/tasks/refusal-cause/runs/03/{logs,reports,temporary}. producer별 로그와 JSON 결과를 분리하며 실패/차단도 보존한다. 준비 컴파일과 focused test만 수행하고 전체 distribution build/설치는 하지 않는다. primary engine/가 현재 소유 소스이며 SOURCE 공식 갱신은 root만 한다. Windows 실제 회귀와 동일 계정 live request가 검증 대상이고 다른 OS는 공통 구현 영향만 기록한다. 시작 때 Git 변경은 기존 upstream/뿐이다.
+
+
+run03 helper 개선과 선행 검증: providerStopEvidence는 구조화된 Anthropic stop_reason과 type/category만 해석하며 자유 설명을 저장하지 않는다. managed observer는 선택 진단과 독립적으로 refusal을 기억하고 실제 message_stop 이후에만 provider_refusal로 종료한다. 버퍼에 완성된 도구 JSON이 있어도 거부/EOF/미완료이면 executable item과 completed를 내보내지 않는 실제 infer mock으로 검증했다. node scripts/check-error-classification.cjs는13 tests/387 assertions/exit0(provider-tests-01.log), 공통 diagnostics16 tests/exit0(shared-diagnostics.log), standalone 준비 컴파일+chat24 tests/exit0(host-build-chat.log)이다. delegated native integration의 Python21/Node329/source chat24도 각각 exit0이며 native-integration-{python,node,chat}.log에 보관했다.
+
+run03 실제 재시도: 2026-10-16T16:08:01.289Z~2026-10-16T16:08:03.052Z UTC. 동일 원래 계정/model/high/current compatible profile/실제 Read,Bash2 schemas/사용자 지정 원문, automatic retry0, tool execution0이다. producer exit0과 별도로 inference는 HTTP429/provider_error_undefined로 실패했다. 새 transport 근거는 provider_error_type=rate_limit_error, provider_error_reason=ambiguous, error_body_state=parsed이며 retry_after와 명확한 subscription rejection 수치는 없었다. refusal SSE나 도구 호출을 받지 않았으므로 이번 실요청의 정상화 또는 refusal 재현 완료로 보고하지 않는다. 소스 hash는 요청 전후 불변이다. reports/probe-01.json과 logs/probe-01.log가 실제 결과를 소유한다.
+
+차단 분석을 위해 inference 재호출 대신 기존 quota helper를 읽기 전용으로 사용했다. 원래 계정 존재와 Anthropic roster1개를 확인해 다른 계정 조회를 피했고 계정 선택/삭제/usage reset은 하지 않았다. 현재 조회는5-hour0%, weekly0%이며 reports/account-quota.json과 logs/account-quota.log에 수치/리셋 시각만 보존했다. 이 시점 조회상 두 사용량 창의 소진 근거는 없지만 그것만으로 속도·동시성·조직/별도 제한을 모두 배제할 수 없다. HTTP429를 '구독 사용량 소진'이라고 바꾸지 않는다. known source feature IDs와 기존 checks가 변경 파일/계약을 이미 소유하므로 runtime transport field를 packaging transform reportFields로 오인해 추가하지 않았다.
+
+렌더 검증은 기존 verify-error-presentation-render.mjs를 재사용하며 AZRAEL_RENDER_RUN_ROOT로 run03을 지정한다. 새 프로필/fixture는 run03/temporary/error-render(사전 부재), 결과는 run03/reports/error-render이다. 현재 Windows free physical 약7.8GiB를 확인했고 기존 Cargo producer와 중복 컴파일 없이 렌더 검사를 시작한다. Cargo가 준비 컴파일 중이며 source recorder도 원본 manifest를 검증 중이다. 각각 별도 terminal exit을 확인한다.
+
+사용량 조회가 성공하고0%를 반환하여 대조 검증1회를 추가한다. run03/probe02는 이전에 성공했던 arithmetic/no-tools/unprofiled 조건을 보존하며 계정/model/high와 변경 소스는 같다. 원래 도구 요청과 동일한 요청이라는 주장은 하지 않는다. 새로운 UUID binding owner를 미리 기록하고, 자동 retry는 없으며 실제 visible 답이4인지 boolean만 저장한다. 이것은 현재 차단 범위를 좁히는 대조군이고 429 유도 실험이나 새 모델/계정 전환이 아니다.
+
+probe02 정상 결과에 따라 추가 비교probe03은 probe01과 동일한 task/tools/instructions/account/model/high에서 기존 unprofiled projection만 선택한다. identity/header 자체를 편집하지 않고 기존 경로를 비교한다. 제품 profile을 비활성화하는 변경이 아니다.
+
+probe03에서 같은task/tools의 기존unprofiled projection이 HTTP200/tool_use/Bash1을 반환해 전역 계정 차단 가설이 약해졌다. 비교probe04는 현재compatible profile의 system/header/identity를 그대로 두고 사용자 정의 도구 이름만 기존 OAuth escaping(custom_Read/custom_Bash)으로 보내는 단일 변인 실험이다. 실행은 첫 tool request 관측까지이며 auth identity를 위장하거나 제품 profile을 비활성화하지 않는다. 명시적인 wire 차이는 보고서에 남긴다.
+
+현재 검증: 첫 native 실행(16:08:44~16:14:56 UTC, exit101)은 InvalidRequest→Other 매핑 때문에 오류 기대값1개가 실패했고 protocol1/core3 검사는 통과했다. 실제 프로토콜을 바꾸지 않고 Fatal/Other 계약으로 수정했으며 -02 native 검사를 고정된 Rust 입력으로 재시작했다. source formatter/recovery330 및 source chat25는 수정 계약으로 exit0이다. SOURCE 공식 recorder도 두 번째 변경을 검증한다. 첫 실패/첫 렌더 결과는 중간 증거로 보존하며 최신 수락 근거와 구분한다.
+
+probe04는 도구 이름만 custom_ 접두사로 변경해도 HTTP429/ambiguous로 실패했다. probe03의 같은 task/tools unprofiled 경로는 HTTP200/tool_use/Bash1까지 성공했다. 도구는 실행하지 않았으므로 전체 작업 수락 기준은 미충족이다. profile 경로의 system projection/공급자 호환 계약 차이가 남지만 어떤 필드가 원인인지 확정되지 않았다. 특정 first-party identity 문자열 추가로 인증·클라이언트 정체성을 위장하는 해결은 적용하지 않는다.
+
+## 개선 결과와 남은 문제
+
+실제 refusal의 식별 손실은 수정했다. 공급자가 HTTP200으로 refusal을 보냈을 때 adapter의 일반 incomplete 처리로 의미가 희석되던 경계를 observer에서 포착하고, managed helper→native terminal Fatal/Other→정확한 UI 문구→진단 export까지 연결했다. 알려지지 않은 이유를 refusal로 추측하지 않으며 freeform 설명을 수집하지 않는다. 이는 공급자의 거부 판단을 바꾸는 수정과 구분한다.
+
+| 실제 재시도 | 고정/변경 조건 | 결과 | 해석 한계 |
+| --- | --- | --- | --- |
+| probe01 | 원래 계정·모델·high, 사용자 문구, 현재 호환 프로필, Read/Bash | HTTP429, parsed rate_limit_error, ambiguous | refusal 판단이나 tool_use에 도달하지 않음 |
+| probe02 | 같은 계정·모델·high, 작은 산술 요청, 기존 unprofiled 경로 | HTTP200, end_turn, 실제 답4 | 일반 계정/모델 호출이 가능함. 실제 작업 정상화 근거는 아님 |
+| probe03 | probe01과 같은 문구·도구·지침·계정·모델·high, 기존 unprofiled 경로만 선택 | HTTP200, tool_use, Bash1 | 첫 도구 호출까지 성공. 실행/결과 전달/작업 완료는 검증하지 않음 |
+| probe04 | probe01에서 도구 이름만 custom_Read/custom_Bash로 전환 | HTTP429, parsed rate_limit_error, ambiguous | 도구 이름 접두사 하나를 바꾸는 해결은 효과를 확인하지 못함 |
+
+5-hour/weekly 조회는 각각0%였으나 별도 속도/동시성/조직 제한까지 부정하는 근거는 아니다. profile 두 실패는 공급자의 구체적 제한 원인 필드가 없으므로 UI는 정의되지 않은 오류를 유지한다. 현재 비교는 시간에 따른 공급자 상태까지 통제한 실험이 아니므로 profile 차이의 연관성을 시사할 뿐 인과 필드를 확정하지 않는다. 과거 진단 요청의 cyber refusal과 이번 실제 작업의 HTTP429를 같은 원인이라고 결론 내리지 않는다.
+
+다음 해결 우선순위는 공급자가 지원하는 인증·클라이언트 계약 안에서 요청 projection을 정합화하는 것이다. 현재 inference.ts의 compiled.claudeProfile 분기는 adapter가 만든 system을 native systemPrompt로 교체하고 builtin 도구 escaping을 되돌린다. 기존 unprofiled adapter는 identity/system envelope와 도구 catalog를 포함한다. 비교로 남은 차이는 system/envelope/catalog이며, 잘못 중복되거나 상충한 내용이 있는지 읽기 전용 wire 구조 비교로 좁힌 후 확인된 변환 오류만 수정한다. 인증상 허용되지 않은 SDK/first-party identity를 흉내 내거나 profile 전체를 비활성화하는 변경은 적용하지 않았다. 이 인증 경로에서 지원되는 정합한 형식을 확인할 수 없으면 공식 지원 SDK/CLI 통합 또는 API-key 경로가 대안이며, 인증/실행 구조·비용 변화는 별도 설계 선택으로 다룬다.
+
+세션 링크 작업은 기존 thread/read, thread/turns/list, thread/items/list를 재사용하는 범위 제한 읽기 도구가 후속 개선안이다. 링크의 대상과 권한을 검증하고 필요한 목표/진행 상태만 반환하면 모델이 raw rollout/전체 private 상태를 탐색할 필요가 줄어든다. 이것은 작업 전달 개선이며 refusal 해소가 입증된 조치는 아니다. 전체 수락은 지정 프로필에서 같은 요청의 tool_use→실제 유효 도구 실행→결과 전달→end_turn까지 확인해야 한다.
+
+Windows focused native 검사는 16:20:50~16:23:03 UTC(약2분13초)에 protocol1/core errors4/core transport6/helper failure1 모두 exit0이다. 준비 컴파일은 기존 warm cache4 jobs를 재사용했다. 실제 host 준비 컴파일+chat25, source formatter/recovery330, recovery transform32, Python export21, provider13/387 assertions, 공통 diagnostics16, namespace cache7 및 renderer47 검사는 모두 exit0이다. renderer-02의 light/dark 이미지를 직접 확인했다. 첫 native 실행 실패 후 계약 수정으로1회 재실행했고, 이전 provider 검사는 입력 불변이므로 재실행하지 않았다. 전체 앱 빌드/배포/설치와 Linux/macOS 실행은 수행하지 않았다.
+
+SOURCE recorder 두 번째 시도는 reviewed delta에서 transport test 변경을 빠뜨려 거절됐고 세 번째는 실제 native 테스트가 생성한 기존 pending-snap 한 줄 때문에 거절됐다. native producer exit0을 확인하고 해당 생성 부수효과만 원래 HEAD로 복구한 뒤 실제 두 변경 경로를 지정해 공식 recorder를 재실행했다. 원래 baseline/source 소유권 검사를 우회하거나 수동 receipt를 만들지 않았다. 네 binding은 각 producer 종료와 thread identity/path/lock 부재를 확인해 일반 삭제했고 원래 세션 binding은 보존했다. renderer fixture/profile과 빈 temporary 디렉터리도 제거했다. cleanup.json이 실제 부재를 기록한다.
+
+공식 recorder-04 및 최종 source snapshot은 각각 exit0이다. SOURCE receipt SHA256=73ee93b71556294b6152a52ed05fa2657ea10b7a6c930a4c19c91b999a842bd3, sourceSha256=f72486ef238d32d93d1bbbf49235e5a7f7c5da1831c05c96279cf4590d927fa0,9264files이다. 통합 기준 HEAD=00094086이며 이번 작업과 독립적인 Window Use 문서 commit을 보존했다. run03 logs479698bytes/reports305714bytes의 완전한 lifecycle group을 등록·review했고 현재 work 참조 및 미해결 원인 분석 때문에 두 멤버 모두 defer를 적용했다. 동일 소스 release에 독립 검증을 승격하고 profile 원인을 대체 근거로 종결한 뒤 참조를 해제할 때 재검토한다. 임시 상태 삭제와 로그/보고서 보존을 구분한다.
+
+이번 작업의 완료 범위는 오류 식별/진단 전달 개선, 같은 계정·모델 재시도 및 남은 문제의 해결안 제시이다. 정상 호환 프로필의 실제 작업 완료와 공급자 refusal 방지는 미검증/미해결이며 이를 완료로 표시하지 않는다. 변경은 소스에만 반영했고 설치본은 갱신하지 않았다.

@@ -5,6 +5,8 @@ const parserKinds = ['text_delta', 'thinking_delta', 'reasoning_raw_delta', 'thi
 const errorEvidenceEnums = {
   provider_error_type: ['rate_limit_error', 'rate_limit_exceeded', 'rate_limited', 'too_many_requests', 'usage_limit_reached', 'quota_exceeded', 'insufficient_quota', 'credit_balance_too_low', 'invalid_request_error', 'authentication_error', 'permission_error', 'billing_error', 'overloaded_error', 'api_error', 'unknown', 'missing'],
   provider_error_reason: ['request_rate', 'input_token_rate', 'output_token_rate', 'token_rate', 'concurrency', 'acceleration', 'usage_limit', 'usage_five_hour', 'usage_seven_day', 'usage_monthly', 'rate_limit', 'ambiguous', 'unknown'],
+  provider_stop_reason: ['end_turn', 'tool_use', 'stop_sequence', 'max_tokens', 'pause_turn', 'refusal', 'content_filter', 'unknown'],
+  provider_refusal_category: ['cyber', 'bio', 'frontier_llm', 'reasoning_extraction', 'general_harms', 'unspecified', 'unknown', 'missing'],
   error_body_state: ['parsed', 'invalid_json', 'too_large', 'timeout', 'unreadable', 'missing'],
   usage_5h_status: ['allowed', 'allowed_warning', 'rejected'],
   usage_7d_status: ['allowed', 'allowed_warning', 'rejected'],

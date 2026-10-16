@@ -12,6 +12,55 @@ use tracing_subscriber::Layer;
 use tracing_subscriber::layer::SubscriberExt;
 
 #[test]
+fn provider_stop_and_refusal_evidence_is_closed_and_roundtrips() {
+    for (field, values) in [
+        (
+            "provider_stop_reason",
+            [
+                "end_turn",
+                "tool_use",
+                "stop_sequence",
+                "max_tokens",
+                "pause_turn",
+                "refusal",
+                "content_filter",
+                "unknown",
+            ],
+        ),
+        (
+            "provider_refusal_category",
+            [
+                "cyber",
+                "bio",
+                "frontier_llm",
+                "reasoning_extraction",
+                "general_harms",
+                "unspecified",
+                "unknown",
+                "missing",
+            ],
+        ),
+    ] {
+        for value in values {
+            let wire = json!({field: value});
+            let transport: Transport = serde_json::from_value(wire.clone()).unwrap();
+            assert_eq!(serde_json::to_value(transport).unwrap(), wire);
+        }
+        for value in [
+            json!("SECRET"),
+            json!("refusal SECRET"),
+            json!(1),
+            json!({"explanation":"SECRET"}),
+        ] {
+            assert!(serde_json::from_value::<Transport>(json!({field: value})).is_err());
+        }
+    }
+    assert!(serde_json::from_value::<Transport>(json!({
+        "provider_stop_reason":"refusal", "provider_refusal_category":"cyber", "explanation":"SECRET"
+    })).is_err());
+}
+
+#[test]
 fn connection_diagnostics_roundtrip_only_allowlisted_evidence() {
     let evidence = json!({
         "error_stage": "headers",
@@ -363,6 +412,7 @@ async fn transport_wire_is_logged_safely_and_errors_never_release_tools() {
     for mode in [
         "success",
         "error",
+        "refusal",
         "precreated_error",
         "malformed",
         "legacy",
@@ -373,7 +423,8 @@ async fn transport_wire_is_logged_safely_and_errors_never_release_tools() {
             "headers_status":200, "read_state":"pending", "read_count":2,
             "last_sse_event":"content_block_start", "content_block_kind":"thinking",
             "content_block_open":true, "parser_state":"pending", "finish_seen":false,
-            "server_sha256":"a".repeat(64)
+            "server_sha256":"a".repeat(64),
+            "provider_stop_reason":"refusal", "provider_refusal_category":"cyber"
         });
         let script = format!(
             r#"
@@ -391,6 +442,7 @@ emit({{type:'created'}});
 emit({{type:'item_done',item:{{type:'function_call',name:'exec',call_id:'transport-call',arguments:'{{}}'}}}});
 emit({{type:'progress',progress}});
 if ('{mode}' === 'error') emit({{type:'error',code:'provider_stream_idle',progress}});
+else if ('{mode}' === 'refusal') emit({{type:'error',code:'provider_refusal',progress}});
 else emit({{type:'completed',progress}});
 }}
 "#
@@ -456,6 +508,12 @@ else emit({{type:'completed',progress}});
         } else {
             assert_eq!(events.len(), 0);
             assert_eq!(errors.len(), 1);
+            if mode == "refusal" {
+                assert_eq!(
+                    errors[0],
+                    "Fatal error: 모델 제공자가 응답을 거부했습니다. (provider_refusal)"
+                );
+            }
         }
         if mode == "malformed" || mode == "legacy" {
             assert!(telemetry.is_empty());

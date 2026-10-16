@@ -1,5 +1,5 @@
 import { expect, test } from 'bun:test';
-import { classifyManagedError, providerHttpError } from '../inference-errors.ts';
+import { anthropicStopEvidence, classifyManagedError, providerHttpError } from '../inference-errors.ts';
 import { observeDetails, observeAnthropic } from '../inference.ts';
 
 test('all managed providers reduce explicit exhaustion to the native usage code', () => {
@@ -117,4 +117,26 @@ test('error evidence accepts numeric rate headers without exposing payloads or a
   expect(evidence.retry_after_ms).toBeUndefined();
   expect(evidence.provider_error_type).toBe('unknown');
   expect(JSON.stringify(evidence)).not.toContain('PRIVATE');
+});
+
+
+test('Anthropic stop evidence trusts structured refusal only and never retains provider prose', () => {
+  const event = (stop_reason: any, stop_details?: any) => ({ type: 'message_delta', delta: { stop_reason, stop_details } });
+  for (const category of ['cyber', 'bio', 'frontier_llm', 'reasoning_extraction', 'general_harms']) {
+    expect(anthropicStopEvidence(event('refusal', { type: 'refusal', category, explanation: 'SECRET_PROSE' })))
+      .toEqual({ provider_stop_reason: 'refusal', provider_refusal_category: category });
+  }
+  for (const [details, expected] of [[null, 'unspecified'], [undefined, 'missing'],
+    [{ type: 'refusal', category: null }, 'unspecified'], [{ type: 'refusal' }, 'missing'],
+    [{ type: 'refusal', category: 'SECRET_NEW_CATEGORY' }, 'unknown'],
+    [{ type: 'not_refusal', category: 'cyber' }, 'unknown'], ['SECRET', 'unknown']]) {
+    const evidence = anthropicStopEvidence(event('refusal', details));
+    expect(evidence?.provider_refusal_category).toBe(expected);
+    expect(JSON.stringify(evidence)).not.toContain('SECRET');
+  }
+  for (const reason of ['end_turn', 'tool_use', 'max_tokens', 'content_filter', 'stop_sequence', 'pause_turn'])
+    expect(anthropicStopEvidence(event(reason, { type: 'refusal', category: 'cyber' }))).toEqual({ provider_stop_reason: reason });
+  expect(anthropicStopEvidence(event('SECRET'))).toEqual({ provider_stop_reason: 'unknown' });
+  for (const value of [null, {}, event(null), event(42), { type: 'error', delta: { stop_reason: 'refusal' } },
+    { type: 'message_delta', message: 'refusal cyber' }]) expect(anthropicStopEvidence(value)).toBeUndefined();
 });

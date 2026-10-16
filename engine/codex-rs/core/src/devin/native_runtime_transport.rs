@@ -110,6 +110,10 @@ pub(super) struct Transport {
     #[serde(default, skip_serializing_if = "Option::is_none")]
     provider_error_reason: Option<ProviderErrorReason>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
+    provider_stop_reason: Option<ProviderStopReason>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    provider_refusal_category: Option<ProviderRefusalCategory>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
     error_body_state: Option<ErrorBodyState>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     usage_5h_status: Option<UsageStatus>,
@@ -340,6 +344,32 @@ enum ErrorBodyState {
     TooLarge,
     Timeout,
     Unreadable,
+    Missing,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ProviderStopReason {
+    EndTurn,
+    ToolUse,
+    StopSequence,
+    MaxTokens,
+    PauseTurn,
+    Refusal,
+    ContentFilter,
+    Unknown,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ProviderRefusalCategory {
+    Cyber,
+    Bio,
+    FrontierLlm,
+    ReasoningExtraction,
+    GeneralHarms,
+    Unspecified,
+    Unknown,
     Missing,
 }
 
