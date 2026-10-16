@@ -390,7 +390,7 @@ test("recovery diagnostics off preserves failures and receipt state, then re-ena
     recovery.observe(host, { method: "turn/completed", params: { threadId: "thread", turn: { id: "turn", status: "completed" } } });
     assert.ok(records.some(r => r.event === "recovery.turn_terminal"));
     recovery.observe(host, { method: "turn/error", params: { error: { code: 429, message: "quota" } } });
-    assert.ok(records.some(r => r.event === "host.notification_error" && r.errorCategory === "usage_rate_limit"));
+    assert.ok(records.some(r => r.event === "host.notification_error" && r.errorCategory === "unknown"));
     process.env.AZRAEL_DIAGNOSTICS_RECOVERY = "on";
     recovery.observe(host, notification);
     assert.equal(records.filter(r => r.event === "host.user_message_received").length, 2);
@@ -681,13 +681,13 @@ test("ordinary host errors correlate bounded sanitized requests without changing
     const sends = [];
     const raw = (...args) => { sends.push(args); return "native-return"; };
     const cases = [
-      ["auth", 401, "login failed"],
-      ["usage_rate_limit", 429, "quota exceeded"],
-      ["timeout", 504, "deadline reached"],
-      ["connection", 503, "socket disconnected"],
+      ["unknown", 401, "login failed"],
+      ["unknown", 429, "quota exceeded"],
+      ["unknown", 504, "deadline reached"],
+      ["unknown", 503, "socket disconnected"],
       ["unknown", -32001, "generic engine failure"],
       ["protocol", -32602, "invalid params"],
-      ["tool", -32042, "tool call failed"],
+      ["unknown", -32042, "tool call failed"],
       ["unknown", -32042, "engine failure"],
     ];
     cases.forEach(([category, code, message], index) => {
@@ -714,7 +714,7 @@ test("ordinary host errors correlate bounded sanitized requests without changing
     assert.equal(sends.length, cases.length);
     recovery.observe(host, { method: "turn/error", error: { code: 429, message: secret }, params: { prompt: secret } });
     const notification = logRecords.find(record => record.event === "host.notification_error");
-    assert.equal(notification.errorCategory, "usage_rate_limit");
+    assert.equal(notification.errorCategory, "unknown");
     assert.equal(notification.method, "turn/error");
     recovery.observe(host, { method: "turn/completed", params: { error: { code: -32600, message: secret }, output: secret } });
     assert.equal(logRecords.filter(record => record.event === "host.notification_error").at(-1).errorCategory, "protocol");
@@ -737,7 +737,7 @@ test("ordinary host errors correlate bounded sanitized requests without changing
     const sendError = Object.assign(new Error(`socket closed ${secret}`), { code: 503 });
     assert.throws(() => recovery.dispatch(host, ["client", `send-fail-${secret}`, "thread/list",
       { threadId: secret }, false, true], () => { throw sendError; }), error => error === sendError);
-    assert.equal(logRecords.filter(record => record.event === "host.rpc_send_failed").at(-1).errorCategory, "connection");
+    assert.equal(logRecords.filter(record => record.event === "host.rpc_send_failed").at(-1).errorCategory, "unknown");
     assert.equal(JSON.stringify(logRecords).includes(secret), false);
   } finally {
     disposable.dispose();

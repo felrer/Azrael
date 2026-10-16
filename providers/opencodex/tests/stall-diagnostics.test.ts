@@ -76,6 +76,21 @@ test('actual inference mock records upstream SSE failure and owns deadline class
         }
       } finally { monitor.stop(); }
     }
+    for (const transportEnabled of [false, true]) {
+      const monitor = createProgressMonitor(() => {}, { transportEnabled });
+      try {
+        await expect(infer(request(), () => {}, (async () => Response.json({ error: { type: 'rate_limit_error', message: 'SECRET_UNRECOGNIZED_MESSAGE' } }, {
+          status: 429, headers: { 'anthropic-ratelimit-unified-5h-status': 'rejected', 'anthropic-ratelimit-unified-5h-reset': '1800000000', 'retry-after': '60' },
+        })) as typeof fetch, monitor)).rejects.toThrow('provider_usage_limit');
+        if (transportEnabled) {
+          const snapshot = monitor.snapshot();
+          expect(snapshot.transport.headers_status).toBe(429);
+          expect(snapshot.transport.provider_error_reason).toBe('usage_five_hour');
+          expect(snapshot.transport.retry_after_ms).toBe(60000);
+          expect(JSON.stringify(snapshot)).not.toContain('SECRET');
+        }
+      } finally { monitor.stop(); }
+    }
     for (const stream of [false, true]) {
       const frames: any[] = [];
       const error = { type: 'usage_limit_reached', message: 'PRIVATE_QUOTA_MESSAGE' };

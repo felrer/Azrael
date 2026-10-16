@@ -92,7 +92,7 @@ test('managed Claude uses pinned OAuth, native prompt and tool frames', async ()
     await expect(infer({ ...request, turn_id: 'unauthorized-turn' }, frame => rejectedFrames.push(frame), (async () => new Response('unauthorized', { status: 401 })) as typeof fetch)).rejects.toThrow('provider_http_401');
     expect(rejectedFrames.some(frame => frame.type === 'completed' || frame.item?.type === 'function_call')).toBeFalse();
     await expect(infer({ ...request, turn_id: 'quota-turn' }, () => {}, (async () => new Response(JSON.stringify({ error: { code: 'insufficient_quota' } }), { status: 429 })) as typeof fetch)).rejects.toThrow('provider_usage_limit');
-    await expect(infer({ ...request, turn_id: 'rate-turn' }, () => {}, (async () => new Response(JSON.stringify({ error: { code: 'RESOURCE_EXHAUSTED' } }), { status: 429 })) as typeof fetch)).rejects.toThrow('provider_rate_limit');
+    await expect(infer({ ...request, turn_id: 'rate-turn' }, () => {}, (async () => new Response(JSON.stringify({ error: { code: 'RESOURCE_EXHAUSTED' } }), { status: 429 })) as typeof fetch)).rejects.toThrow('provider_error_undefined');
     const oversizedFrames: any[] = [];
     const oversizedData = Array.from({ length: 129 }, () => `data: ${'x'.repeat(65_536)}\n`).join('') + '\n';
     await expect(infer({ ...request, turn_id: 'oversized-stream-turn' }, frame => oversizedFrames.push(frame), (async () => new Response(oversizedData, { headers: { 'content-type': 'text/event-stream' } })) as typeof fetch)).rejects.toThrow('output_limit');

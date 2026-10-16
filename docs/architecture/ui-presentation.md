@@ -42,6 +42,16 @@ Status: `current` in source — native React/CSS rendering and scoped interactio
 
 Completed turn diffs use the native resource card with compact vertical padding, a 24px icon surface and a 16px glyph. The edited-file title and total added/removed lines share one row. The header has no Undo/Reapply or View changes buttons or hover subtitle. Multiple-file rows are 32px high and retain native diff opening, modifier-key file opening, file menus and expansion controls. A single-file header retains its accessible native diff-opening trigger. Diff data, host permissions and editor ownership retain their native contracts. This shared presentation applies to Windows x64, Linux x64 and macOS ARM64; package, installed-host and native platform acceptance are separate. Preservation feature: `ui.ui-cleanup`.
 
+## Conversation error messages
+
+Status: `partial` — shared formatter and guarded pinned renderer implementation; verification and installed-host limits are in [the work record](../../work/BU-01-thread-01a144c2-error-analysis/02-plan.md). Preservation feature: `ui.error-presentation`.
+
+The native integrated error selector and standalone conversation view share one evidence-based formatter. Known structured categories use safe fixed messages; exact approved rate details preserve their specific dimension. Unsupported-model and connection details require complete recognized formats, and cannot override a contradictory category. Authentication failure does not imply expired credentials, and a session budget is distinct from provider account usage. Unknown detail, including nested provider JSON, displays exactly `정의되지 않은 오류`.
+
+The exact historical helper text `rate limit exceeded: Provider request rate limit reached. Try again later.` also represented ambiguous HTTP 429 responses. Even with its saved `rateLimitExceeded` category, that particular legacy text displays as undefined and does not establish a rate-limit cause in recovery diagnostics. Conversation storage and recovery admission are unchanged.
+
+Existing native error cards, typography, spacing and theme tokens remain in use. The native selector continues to suppress errors while retrying and preserves separately owned policy-error presentation. The formatter changes displayed errors only; conversation storage, tool results, permissions and retry/admission state remain with their owners. This shared presentation applies to Windows x64, Linux x64 and macOS ARM64; source/renderer fixtures do not establish installed acceptance.
+
 ## Capacity retry controls
 
 Status: `current` in source — Windows behavior fixtures and native React/CSS rendering pass in light/dark themes. Package, installation and native Linux/macOS acceptance remain unverified.

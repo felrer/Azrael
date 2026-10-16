@@ -1,6 +1,9 @@
+import { describeTurnError } from "./errorPresentation";
 import { EventEmitter } from "node:events";
 import { randomUUID } from "node:crypto";
 import type { AppServerTransport } from "./appServerTransport";
+
+class ChatPresentationError extends Error {}
 
 type Wire = Pick<AppServerTransport, "start" | "request" | "respond" | "respondError" | "dispose"> & {
   on(event: string, listener: (...args: any[]) => void): unknown;
@@ -114,12 +117,12 @@ export class ChatSession extends EventEmitter {
     try { return await this.wire.request(method, params); }
     catch (error) {
       const detail = error instanceof Error ? error.message : "";
-      this.state.error = detail.startsWith("app-server request timed out;")
+      this.state.error = detail === `app-server request timed out; outcome is uncertain (${method})`
         ? `${method} timed out. Its result is uncertain; refresh the thread before trying again.`
-        : detail.startsWith("app-server is disconnected") || detail.startsWith("app-server disconnected")
+        : detail === "app-server is disconnected" || (!/[\r\n]/.test(detail) && /^app-server disconnected \((?:-?\d+|SIG[A-Z0-9]+|unknown)\)$/.test(detail))
           ? "Azrael connection closed. Reopen the chat to reconnect; check the last turn before resending it."
-          : `${method} failed. Review the thread state before trying again.`;
-      this.publish(); throw new Error(this.state.error);
+          : describeTurnError(error);
+      this.publish(); throw new ChatPresentationError(this.state.error);
     }
   }
   async start(): Promise<void> {
@@ -399,41 +402,18 @@ export class ChatSession extends EventEmitter {
   dispose(): void { this.disposed = true; this.wire.dispose(); this.removeAllListeners(); }
 }
 
-function describeTurnError(value: unknown): string {
-  const info = object(value) ? value.codexErrorInfo : undefined;
-  const code = typeof info === "string" ? info : object(info) ? Object.keys(info)[0] : undefined;
-  const detail = object(value) ? str(value.message) : undefined;
-  const connectionCode = code === "other" ? detail?.match(/\((provider_headers_failed|provider_connection_(?:dns|tls|reset|refused|timeout|unreachable|proxy))\)$/)?.[1] : undefined;
-  if (connectionCode) {
-    const causes: Record<string, string> = {
-      provider_headers_failed: "모델 응답 헤더를 받기 전에 요청이 실패했습니다. 원인은 확인되지 않았습니다.",
-      provider_connection_dns: "모델 서버 주소의 DNS 조회에 실패했습니다.",
-      provider_connection_tls: "모델 서버와의 TLS 연결에 실패했습니다.",
-      provider_connection_reset: "모델 서버와의 연결이 끊어졌습니다.",
-      provider_connection_refused: "모델 서버 연결이 거부됐습니다.",
-      provider_connection_timeout: "모델 서버 연결 대기 시간이 초과됐습니다.",
-      provider_connection_unreachable: "모델 서버에 연결할 네트워크 경로를 사용할 수 없습니다.",
-      provider_connection_proxy: "프록시 연결에 실패했습니다.",
-    };
-    return `${causes[connectionCode]} 연결 상태와 기존 작업 결과를 확인한 뒤 이 세션에서 다시 요청하세요.`;
-  }
-  if (detail && /model is not supported when using Codex with a ChatGPT account/i.test(detail)) {
-    return "The selected model is unavailable to this ChatGPT account. Choose an available model or sign in with the intended account.";
-  }
-  switch (code) {
-    case "unauthorized": return "Authentication expired. Sign in to the selected provider again, then resume this thread.";
-    case "usageLimitExceeded":
-    case "sessionBudgetExceeded": return "The provider usage limit was reached. Check account usage before resuming.";
-    case "rateLimitExceeded": return "The provider rate limit was reached. Wait before resuming this thread.";
-    case "httpConnectionFailed":
-    case "responseStreamConnectionFailed":
-    case "responseStreamDisconnected": return "The provider connection or response stream was interrupted. Review the thread before resuming; a tool result may be uncertain.";
-    case "responseTooManyFailedAttempts":
-    case "serverOverloaded":
-    case "internalServerError": return "The provider could not complete this turn. Wait and review the thread before resuming.";
-    case "contextWindowExceeded": return "The context window is full. Compact the thread before continuing.";
-    case "badRequest": return "The provider rejected this request. Check the selected model and input before retrying.";
-    case "sandboxError": return "A local tool or sandbox action failed. Review the tool result before continuing.";
-    default: return "Turn failed. Review the thread and Azrael diagnostics before continuing.";
-  }
+export function describeChatActionError(value: unknown): string {
+  if (value instanceof ChatPresentationError) return value.message;
+  const detail = value instanceof Error ? value.message : undefined;
+  const guards = ["Invalid data response", "Invalid thread response", "Invalid queue response", "Invalid queue start response",
+    "Model catalog is missing model or provider identity", "Model catalog returned duplicate model IDs", "Model catalog exceeded page limit",
+    "Unknown model", "Unknown reasoning effort", "Wait for or cancel pending queue items before changing the model or effort.",
+    "Thread list exceeded page limit", "Azrael did not activate Full access for this thread.", "Unknown thread", "Thread history exceeded page limit",
+    "Stop the current turn before changing providers.", "Azrael did not preserve Full access while changing providers.",
+    "Provider change returned a different thread", "Azrael did not activate the selected provider.", "Queue exceeded page limit",
+    "Select a model from the Azrael catalog first.", "Unknown approval",
+    "Azrael connection closed. Reopen the chat to reconnect; check the last turn before resending it."];
+  if (detail && guards.includes(detail)) return detail;
+  if (detail && !/[\r\n]/.test(detail) && /^[a-z]+(?:\/[a-z]+)* timed out\. Its result is uncertain; refresh the thread before trying again\.$/.test(detail)) return detail;
+  return describeTurnError(value);
 }

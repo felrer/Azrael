@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import * as vscode from "vscode";
-import { ChatSession } from "./chatSession";
+import { ChatSession, describeChatActionError } from "./chatSession";
 
 export class ChatView implements vscode.WebviewViewProvider, vscode.Disposable {
   private view?: vscode.WebviewView;
@@ -14,7 +14,7 @@ export class ChatView implements vscode.WebviewViewProvider, vscode.Disposable {
     view.webview.html = html(view.webview.cspSource);
     view.webview.onDidReceiveMessage((message: unknown) => {
       void this.dispatch(message).catch(error => {
-        const reason = error instanceof Error ? error.message : "Chat action failed";
+        const reason = describeChatActionError(error);
         void vscode.window.showErrorMessage(reason);
       });
     });

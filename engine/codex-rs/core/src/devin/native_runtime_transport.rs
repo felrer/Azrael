@@ -105,6 +105,46 @@ pub(super) struct Transport {
     connection_error: Option<ConnectionError>,
     #[serde(default, skip_serializing_if = "Option::is_none")]
     connection_error_code: Option<ConnectionErrorCode>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    provider_error_type: Option<ProviderErrorType>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    provider_error_reason: Option<ProviderErrorReason>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    error_body_state: Option<ErrorBodyState>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    usage_5h_status: Option<UsageStatus>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    usage_7d_status: Option<UsageStatus>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    retry_after_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_requests_limit: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_requests_remaining: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_requests_reset_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_input_tokens_limit: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_input_tokens_remaining: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_input_tokens_reset_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_output_tokens_limit: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_output_tokens_remaining: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_output_tokens_reset_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_tokens_limit: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_tokens_remaining: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    rate_limit_tokens_reset_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    usage_5h_reset_ms: Option<SafeInteger>,
+    #[serde(default, skip_serializing_if = "Option::is_none")]
+    usage_7d_reset_ms: Option<SafeInteger>,
 }
 
 #[derive(Debug, Deserialize, Serialize)]
@@ -251,6 +291,64 @@ enum ErrorName {
     TypeError,
     AdapterError,
     Unknown,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ProviderErrorType {
+    RateLimitError,
+    RateLimitExceeded,
+    RateLimited,
+    TooManyRequests,
+    UsageLimitReached,
+    QuotaExceeded,
+    InsufficientQuota,
+    CreditBalanceTooLow,
+    InvalidRequestError,
+    AuthenticationError,
+    PermissionError,
+    BillingError,
+    OverloadedError,
+    ApiError,
+    Unknown,
+    Missing,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ProviderErrorReason {
+    RequestRate,
+    InputTokenRate,
+    OutputTokenRate,
+    TokenRate,
+    Concurrency,
+    Acceleration,
+    UsageLimit,
+    UsageFiveHour,
+    UsageSevenDay,
+    UsageMonthly,
+    RateLimit,
+    Ambiguous,
+    Unknown,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum ErrorBodyState {
+    Parsed,
+    InvalidJson,
+    TooLarge,
+    Timeout,
+    Unreadable,
+    Missing,
+}
+
+#[derive(Debug, Deserialize, Serialize)]
+#[serde(rename_all = "snake_case")]
+enum UsageStatus {
+    Allowed,
+    AllowedWarning,
+    Rejected,
 }
 
 #[cfg(test)]

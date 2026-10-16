@@ -15,8 +15,12 @@ const source = fs.readFileSync(filename, "utf8");
 const ast = ts.createSourceFile(filename, source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
 assert.equal(ast.parseDiagnostics.length, 0);
 let labels, initialize;
+const errorOwners = new Map();
 function locate(node) {
   if (ts.isVariableDeclaration(node) && node.name.text === "labels") labels = node.initializer;
+  if (ts.isVariableDeclaration(node) && node.name.text === "recoveryErrors") errorOwners.set(node.name.text, `const ${node.getText(ast)};`);
+  if (ts.isFunctionDeclaration(node) && ["rpcCode", "structuredCategory", "knownMessageCategory", "errorCategory", "recoveryErrorMessage"].includes(node.name?.text))
+    errorOwners.set(node.name.text, node.getText(ast));
   if (ts.isFunctionDeclaration(node) && node.name?.text === "initialize") initialize = node;
   ts.forEachChild(node, locate);
 }
@@ -30,6 +34,47 @@ for (const statement of initialize.body.statements) {
 }
 assert.ok(ts.isArrowFunction(locals.get("redraw")?.initializer), "redraw must be owned by initialize");
 const textOf = node => source.slice(node.getStart(ast), node.end);
+
+test("recovery errors expose only established guards and classify evidence without keyword inference", () => {
+  assert.equal(errorOwners.size, 6);
+  const actual = new vm.Script([...errorOwners.values(), "({ errorCategory, recoveryErrorMessage })"].join("\n"))
+    .runInNewContext();
+  for (const message of ["login failed", "not a quota error", 'quoted "connection timeout"',
+    "tool execution succeeded", "invalid params are not involved", "unavailable",
+    "Fatal error: native inference helper failed (provider_headers_timeout) injected",
+    "SECRET (provider_connection_dns)",
+    "미분류 오류: native inference helper failed (provider_http_400)",
+    "Fatal error: native inference helper failed (provider_failure)",
+    "Fatal error: native inference helper failed (provider_http_503)"]) {
+    assert.equal(actual.recoveryErrorMessage({ message }), "정의되지 않은 오류");
+    for (const code of [401, 403, 408, 429, 502, 503, 504, -32001])
+      assert.equal(actual.errorCategory({ code, message }, "tool/call"), "unknown");
+  }
+  for (const code of [-32700, -32600, -32601, -32602])
+    assert.equal(actual.errorCategory({ code, message: "SECRET" }), "protocol");
+  for (const [codexErrorInfo, category] of [["unauthorized", "auth"], ["usageLimitExceeded", "usage_rate_limit"],
+    ["rateLimitExceeded", "usage_rate_limit"], [{ responseStreamDisconnected: {} }, "connection"], ["sandboxError", "tool"]])
+    assert.equal(actual.errorCategory({ codexErrorInfo, message: "SECRET" }), category);
+  for (const message of ["연결이 변경되었습니다. 상태를 다시 확인해주세요.",
+    "재개 기록 저장에 실패했습니다. 저장소를 확인한 뒤 다시 시도해주세요.",
+    "Fatal error: native inference helper failed (provider_headers_timeout)",
+    "rate limit exceeded: 모델 요청 수 제한에 도달했습니다."]) {
+    assert.equal(actual.recoveryErrorMessage({ message }), message);
+    assert.equal(actual.recoveryErrorMessage({ message: `${message}\n` }), "정의되지 않은 오류");
+    assert.equal(actual.recoveryErrorMessage({ message: `not true: ${message}` }), "정의되지 않은 오류");
+    assert.equal(actual.recoveryErrorMessage({ message, codexErrorInfo: "unauthorized" }), "정의되지 않은 오류");
+  }
+  assert.equal(actual.errorCategory({ codexErrorInfo: "unauthorized", message: "rate limit exceeded: 모델 요청 수 제한에 도달했습니다." }), "auth");
+  assert.equal(actual.errorCategory({ codexErrorInfo: { unauthorized: {}, sandboxError: {} }, message: "SECRET" }), "unknown");
+  const legacy = { codexErrorInfo: "rateLimitExceeded", message: "rate limit exceeded: Provider request rate limit reached. Try again later." };
+  assert.equal(actual.errorCategory(legacy), "unknown");
+  assert.equal(actual.recoveryErrorMessage(legacy), "정의되지 않은 오류");
+  const unsupported = "The 'gpt-6-astra' model is not supported when using Codex with a ChatGPT account.";
+  assert.equal(actual.recoveryErrorMessage({ message: unsupported, codexErrorInfo: "badRequest" }), unsupported);
+  for (const codexErrorInfo of ["unauthorized", "rateLimitExceeded", "unknownCategory", { badRequest: {}, unauthorized: {} }])
+    assert.equal(actual.recoveryErrorMessage({ message: unsupported, codexErrorInfo }), "정의되지 않은 오류");
+  assert.match(textOf(initialize), /showErrorMessage\(recoveryErrorMessage\(error\)\)/);
+});
 
 function presentation() {
   let now = 1000, shown = 0, hidden = 0;

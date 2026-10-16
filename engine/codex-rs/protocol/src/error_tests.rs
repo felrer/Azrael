@@ -18,9 +18,13 @@ fn unclassified_error_preserves_unknown_cause_without_automatic_retry() {
     ));
     assert!(error.retry_delay(1).is_none());
     assert_eq!(
+        error.to_error_event(Some("SECRET context".to_string())).message,
+        "정의되지 않은 오류"
+    );
+    assert_eq!(
         error.to_error_event(/*message_prefix*/ None),
         ErrorEvent {
-            message: "미분류 오류: provider_failure".to_string(),
+            message: "정의되지 않은 오류".to_string(),
             codex_error_info: Some(CodexErrorInfo::Other),
             misalignment: None,
         }

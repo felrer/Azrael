@@ -2,6 +2,15 @@
 import { createHash } from 'node:crypto';
 const sseKinds = ['message_start', 'content_block_start', 'content_block_delta', 'content_block_stop', 'message_delta', 'message_stop', 'ping', 'error', 'google_data'];
 const parserKinds = ['text_delta', 'thinking_delta', 'reasoning_raw_delta', 'thinking_signature', 'tool_call_start', 'tool_call_delta', 'tool_call_end', 'heartbeat', 'usage', 'done', 'error'];
+const errorEvidenceEnums = {
+  provider_error_type: ['rate_limit_error', 'rate_limit_exceeded', 'rate_limited', 'too_many_requests', 'usage_limit_reached', 'quota_exceeded', 'insufficient_quota', 'credit_balance_too_low', 'invalid_request_error', 'authentication_error', 'permission_error', 'billing_error', 'overloaded_error', 'api_error', 'unknown', 'missing'],
+  provider_error_reason: ['request_rate', 'input_token_rate', 'output_token_rate', 'token_rate', 'concurrency', 'acceleration', 'usage_limit', 'usage_five_hour', 'usage_seven_day', 'usage_monthly', 'rate_limit', 'ambiguous', 'unknown'],
+  error_body_state: ['parsed', 'invalid_json', 'too_large', 'timeout', 'unreadable', 'missing'],
+  usage_5h_status: ['allowed', 'allowed_warning', 'rejected'],
+  usage_7d_status: ['allowed', 'allowed_warning', 'rejected'],
+};
+const errorEvidenceNumbers = new Set(['retry_after_ms', 'usage_5h_reset_ms', 'usage_7d_reset_ms',
+  ...['requests', 'input_tokens', 'output_tokens', 'tokens'].flatMap(metric => ['limit', 'remaining', 'reset_ms'].map(field => `rate_limit_${metric}_${field}`))]);
 const integer = value => Math.min(Number.MAX_SAFE_INTEGER, Math.max(0, Math.floor(value)));
 const connectionCodes = new Map([
   ...['ENOTFOUND', 'EAI_AGAIN'].map(code => [code, 'dns']),
@@ -57,6 +66,11 @@ export function createStallDiagnostics({ now = () => performance.now() } = {}) {
         const value = response.headers.get(header);
         // Skip oversized values rather than retain or truncate arbitrary headers.
         if (value && Buffer.byteLength(value) <= 4096) state[field] = createHash('sha256').update(value).digest('hex');
+      }
+    }),
+    providerError: safe(evidence => {
+      for (const [field, value] of Object.entries(evidence)) {
+        if (errorEvidenceEnums[field]?.includes(value) || errorEvidenceNumbers.has(field) && Number.isSafeInteger(value) && value >= 0) state[field] = value;
       }
     }),
     readBegin: safe(() => { state.read_state = 'pending'; readStarted = now(); add('read_count'); }),

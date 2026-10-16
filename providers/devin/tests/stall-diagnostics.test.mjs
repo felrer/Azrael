@@ -3,6 +3,22 @@ import { test } from 'node:test';
 import { classifyConnectionError, createStallDiagnostics, observeRawReads, observeParser } from '../stall-diagnostics.mjs';
 import { createProgressMonitor } from '../progress.mjs';
 
+test('provider failure evidence retains only closed labels and safe numeric rate fields', () => {
+  const tracker = createStallDiagnostics();
+  tracker.providerError({ provider_error_type: 'rate_limit_error', provider_error_reason: 'usage_five_hour',
+    error_body_state: 'parsed', usage_5h_status: 'rejected', usage_5h_reset_ms: 1800000000000,
+    rate_limit_input_tokens_limit: 50000, rate_limit_input_tokens_remaining: 0, retry_after_ms: 60000,
+    provider_message: 'SECRET_BODY', authorization: 'SECRET_TOKEN', server: 'SECRET_SERVER',
+    usage_7d_status: 'SECRET_STATUS', rate_limit_output_tokens_limit: -1, rate_limit_tokens_limit: Infinity });
+  const evidence = tracker.snapshot();
+  assert.equal(evidence.provider_error_reason, 'usage_five_hour');
+  assert.equal(evidence.rate_limit_input_tokens_remaining, 0);
+  assert.equal(evidence.usage_5h_reset_ms, 1800000000000);
+  assert.equal(evidence.retry_after_ms, 60000);
+  for (const field of ['provider_message', 'authorization', 'server', 'usage_7d_status', 'rate_limit_output_tokens_limit', 'rate_limit_tokens_limit']) assert.equal(evidence[field], undefined);
+  assert(!JSON.stringify(evidence).includes('SECRET'));
+});
+
 test('connection classification uses exact bounded, cycle-safe cause codes only', () => {
   const categories = {
     dns: ['ENOTFOUND', 'EAI_AGAIN'], reset: ['ECONNRESET', 'EPIPE', 'UND_ERR_SOCKET'], refused: ['ECONNREFUSED'],
