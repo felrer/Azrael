@@ -81,11 +81,11 @@ test("queue/recovery union executes each file once in one isolated Node test com
   assert.equal(result.files.length, 12);
 });
 
-test("shared and unknown sources select current including new root and tooling tests", () => {
+test("shared and unknown sources select current while tool regression follows its own owners", () => {
   for (const changed of ["scripts/namespace-azrael-host.cjs", "some-new-source.js"]) {
     const result = selection(["--changed", changed]);
     assert.ok(result.areas.includes("current"));
-    assert.ok(result.files.includes("scripts/test-project-selection.cjs"));
+    assert.equal(result.files.includes("scripts/test-project-selection.cjs"), false);
     assert.ok(result.files.includes("scripts/tests/sync-codex-environment.test.cjs"));
     assert.ok(result.commands.some(command => command.name === "extension"));
     assert.ok(!result.areas.includes("build"));
@@ -413,4 +413,31 @@ test("work IDs do not change selection and reject unsafe filenames before output
   assert.equal(JSON.parse(listed.stdout).commands.length, 0);
   assert.equal(fs.existsSync(output), false);
   assert.equal(require("./artifact-lifecycle.cjs").catalog(path.resolve(__dirname, "..")).some(record => record.id.startsWith(`run:${workId}:`)), false);
+});
+
+
+test("routine source selection records case omissions and exhaustive restores the supplied source scope", () => {
+  const routine = selection(["--area", "current", "--area", "standalone", "--changed", "docs/README.md"]);
+  const exhaustive = selection(["--area", "current", "--area", "standalone", "--changed", "docs/README.md", "--exhaustive"]);
+  assert.equal(routine.testPolicy.omitted.length, 5);
+  assert.equal(routine.testPolicy.exhaustive, false);
+  assert.ok(routine.commands.find(command => command.name === "source").args.includes(`--test-skip-pattern=${routine.testPolicy.skipPattern}`));
+  assert.deepEqual(exhaustive.testPolicy.omitted, []);
+  assert.ok(exhaustive.files.includes("scripts/test-project-selection.cjs"));
+  assert.ok(!exhaustive.commands.find(command => command.name === "source").args.some(arg => arg.startsWith("--test-skip-pattern=")));
+  assert.deepEqual(routine.commands.find(command => command.name === "extension-all"), exhaustive.commands.find(command => command.name === "extension-all"));
+  const direct = selection(["--changed-only", "--changed", "scripts/test-session-links.cjs"]);
+  assert.deepEqual(direct.files, ["scripts/test-session-links.cjs"]);
+  assert.equal(direct.testPolicy.skipPattern, "");
+});
+
+test("preservation deferral requires full UI source scope and records precisely one gate-owned check", () => {
+  for (const args of [[], ["--changed-only"], ["--area", "standalone"], ["--area", "build"]])
+    assert.throws(() => selection([...args, "--defer-preservation-cache-owner"]), /mandatory UI preservation gate/);
+  const result = selection(["--area", "current", "--changed", "docs/README.md", "--defer-preservation-cache-owner"]);
+  assert.deepEqual(result.deferredChecks.map(item => item.file), ["scripts/test-namespace-cache-owner.cjs"]);
+  assert.equal(result.deferredChecks[0].owner, "UI preservation gate");
+  assert.ok(!result.files.includes("scripts/test-namespace-cache-owner.cjs"));
+  assert.ok(!result.commands.some(command => command.files.includes("scripts/test-namespace-cache-owner.cjs")));
+  assert.ok(result.files.includes("scripts/test-namespace-source.cjs"));
 });

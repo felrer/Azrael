@@ -31,6 +31,9 @@ test("display branding preserves backend HTTP header names and accepted app bran
   assert.equal(headers["OAI-App-Brand"], "codex");
   assert.equal(headers["x-openai-codex-pricing-chooser"], "1");
   assert.ok(rewritten.includes('Nl="Azrael"'));
+});
+
+test("pinned display branding preserves backend HTTP header names and accepted app brand", () => {
   const asset = "webview/assets/app-initial-c014f9ee4429.js";
   const pinned = fs.readFileSync(path.join(originalRoot, asset), "utf8");
   const result = transformer.rewriteJavaScript(pinned, asset, ts).text;

@@ -37,7 +37,7 @@ The registry links below identify registered acceptance scope, not every current
 | [reload-recovery](reload-recovery.md) | `ui.recovery`, `ui.fetch-response`, `ui.immediate-stop`, `engine.recovery`, `engine.accepted-input` |
 | [computer-use](computer-use.md) | `ui.url-safety-transport`, `ui.computer-use`, `ui.window-control` |
 | [auto-review](auto-review.md) | `ui.auto-review` |
-| [context-policy](context-policy.md) | `ui.provider-context`, `engine.provider-context` |
+| [context-policy](context-policy.md) | `ui.provider-context`, `engine.provider-context`, `engine.thread-auto-compaction-integration` |
 | [root-resume](root-resume.md) | `ui.deferred-turn`, `ui.work-segment-folding` |
 | [queued-compaction](queued-compaction.md) | `ui.compaction-progress`, `ui.queue-refresh`, `ui.queue-consumption`, `ui.queued-compaction` |
 | [side-questions](side-questions.md) | `ui.btw` |

@@ -39,6 +39,10 @@ Apply the common [build-input and result-reuse rules](../../instructions/skills/
 
 Select early checks from the changed boundary, using the frozen source, toolchain, target/profile and absolute Cargo cache intended for the build:
 
+Routine source selection keeps product behavior and small cache-safety cases while running the registered expensive cache matrices, legacy pinned-link compatibility and pinned branding counts only for related changes. Runner-selection regression likewise follows its own owner changes. The shared owner is `scripts/source-test-policy.cjs`; selection reports and preservation receipts record omitted cases and reasons. Use the [exhaustive operations](../ops/development.md#source-test-scope) for the complete source/tool matrix. These are conditional test exclusions, not evidence that excluded cases passed. Direct test changes and policy-owner changes retain the affected complete cases.
+
+Full engine regression retains both auto-compaction library contracts and the separate token-budget integration feature. Focused deployment includes the large integration harness for related engine/session/context/dependency or verification-policy changes. Preserve all six final host stages. A full deployment may defer only the namespace-cache-owner source file to its mandatory UI preservation gate; source-only and changed-only runs keep that file when selected. Do not infer cross-stage equivalence for other files from a filename intersection.
+
 | Changed boundary | Early check before the long engine build | Later acceptance |
 | --- | --- | --- |
 | Windows engine replacement, PTY or process launch | The focused Windows PTY native preflight, including inherited Ctrl-C and detached-host cases | Selected engine preservation plus final host stages |

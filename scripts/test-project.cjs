@@ -4,6 +4,7 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { randomUUID } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
+const { planSourceTests } = require("./source-test-policy.cjs");
 const { spawn, spawnSync } = require("node:child_process");
 const ROOT = path.resolve(__dirname, "..");
 const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
@@ -24,9 +25,11 @@ const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
 function parseArgs(args) {
-  const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false };
+  const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false, exhaustive: false, deferPreservationCacheOwner: false };
   for (let i = 0; i < args.length; i++) {
     const option = args[i];
+    if (option === "--exhaustive") { options.exhaustive = true; continue; }
+    if (option === "--defer-preservation-cache-owner") { options.deferPreservationCacheOwner = true; continue; }
     if (option === "--list") { options.list = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
@@ -72,6 +75,8 @@ function changedFiles(root) {
 }
 
 function select(options, root = ROOT) {
+  if (options.deferPreservationCacheOwner && (options.changedOnly || !options.areas.some(area => ["current", "ui"].includes(area))))
+    throw new Error("--defer-preservation-cache-owner requires an explicit current/ui area and the mandatory UI preservation gate");
   // Explicit areas retain their full-area contracts, even with --changed-only.
   if (options.changedOnly && !options.areas.length) return selectChanged(options, root);
   const discovered = discover(root);
@@ -140,11 +145,21 @@ function select(options, root = ROOT) {
     } else add("current", `unmapped change conservatively selects current: ${file}`);
   }
   if (!changed.length && !options.areas.length) reasons.push({ reason: "No changed paths; no tests selected" });
+  const policyChanged = options.changed.length ? options.changed : options.policyChangedPaths ?? changed;
+  const testPolicy = { ...planSourceTests({ files: [...files].sort(), changedPaths: policyChanged, exhaustive: options.exhaustive }), exhaustive: !!options.exhaustive, changedPaths: policyChanged };
+  const deferredChecks = [];
+  if (options.deferPreservationCacheOwner && testPolicy.files.includes("scripts/test-namespace-cache-owner.cjs")) {
+    const file = "scripts/test-namespace-cache-owner.cjs";
+    testPolicy.files = testPolicy.files.filter(selected => selected !== file);
+    deferredChecks.push({ file, owner: "UI preservation gate", reason: "Caller requires the complete UI preservation gate before acceptance" });
+  }
+  files.clear();
+  for (const file of testPolicy.files) files.add(file);
   const commands = [];
   const scripts = new Set([...files].filter(file => BUILD.includes(file)));
   if (areas.has("build")) for (const file of BUILD) scripts.add(file);
   const source = [...files].filter(file => !scripts.has(file)).sort();
-  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...source], cwd: root, files: source });
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...(testPolicy.skipPattern ? [`--test-skip-pattern=${testPolicy.skipPattern}`] : []), ...source], cwd: root, files: source });
   if (areas.has("standalone") && !areas.has("extension") && extensionFiles.size) {
     const { STANDALONE_FILES } = require(path.join(extension.extension, "scripts/run-tests.cjs"));
     for (const file of extension.tests) if (STANDALONE_FILES.includes(path.basename(file).replace(/\.ts$/, ".js"))) extensionFiles.add(file);
@@ -156,7 +171,7 @@ function select(options, root = ROOT) {
     commands.push(...selectedExtensionCommands([...extensionFiles].sort(), extension.extension, root));
   }
   for (const file of [...scripts].sort()) commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath, args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file] : [file], cwd: root, files: [file] });
-  return { changed, areas: [...areas], files: [...files].sort(), extensionFiles: [...extensionFiles].sort(), reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
+  return { testPolicy, deferredChecks, changed, areas: [...areas], files: [...files].sort(), extensionFiles: [...extensionFiles].sort(), reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
 }
 
 function selectedExtensionCommands(files, extension, root) {
@@ -354,9 +369,12 @@ function selectChanged(options, root) {
     }
   }
   if (!changed.length) reasons.push({ reason: "No changed paths; no tests selected" });
+  const testPolicy = { ...planSourceTests({ files: [...files].sort(), changedPaths: changed, exhaustive: options.exhaustive }), exhaustive: !!options.exhaustive, changedPaths: changed };
+  files.clear();
+  for (const file of testPolicy.files) files.add(file);
   const commands = [];
   const source = [...files].filter(file => !BUILD.includes(file)).sort();
-  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...source], cwd: root, files: source });
+  if (source.length) commands.push({ name: "source", executable: process.execPath, args: ["--test", `--test-concurrency=${options.testConcurrency ?? 4}`, ...(testPolicy.skipPattern ? [`--test-skip-pattern=${testPolicy.skipPattern}`] : []), ...source], cwd: root, files: source });
   for (const file of [...files].filter(file => BUILD.includes(file)).sort())
     commands.push({ name: path.basename(file, path.extname(file)), executable: file.endsWith(".ps1") ? "pwsh" : process.execPath,
       args: file.endsWith(".ps1") ? ["-NoProfile", "-File", file, ...(file === "scripts/test-deploy-azrael.ps1" ? ["-ChangedOnly"] : [])] : [file], cwd: root, files: [file] });
@@ -365,7 +383,7 @@ function selectChanged(options, root) {
     // Incremental build decides whether compilation is stale; never clean dist or run a partition wholesale.
     commands.push(...selectedExtensionCommands(selectedExtension, extension.extension, root));
   }
-  return { changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
+  return { testPolicy, deferredChecks: [], changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
 }
 
 async function runCommand(command, directory, index) {
@@ -486,6 +504,10 @@ async function runSelection(selection, options = {}) {
 
 async function main(args = process.argv.slice(2)) {
   const options = parseArgs(args);
+  // Explicit areas do not expand selection with Git changes. Only their policy
+  // receives this single CLI snapshot; library callers can inject the same input.
+  // Git failure remains fatal rather than silently omitting owner regressions.
+  if (options.areas.length && !options.changed.length) options.policyChangedPaths = changedFiles(ROOT);
   const selection = select(options);
   if (options.list) { console.log(JSON.stringify(selection, null, 2)); return 0; }
   const report = await runSelection(selection, { ...options,
