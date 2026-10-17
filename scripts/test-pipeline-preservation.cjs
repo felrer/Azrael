@@ -71,7 +71,7 @@ test('Cargo pass evidence survives an independent failure and honors explicit fo
   try {
     const { config, calls, state } = fixture();
     config.engineSourceRoot = path.join(config.projectRoot, 'engine'); fs.mkdirSync(config.engineSourceRoot);
-    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
+    for (const name of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs', 'artifact-lifecycle.cjs', 'cargo-target-owner.cjs', 'cargo-config-self-contained.py', 'verification-result-cache.cjs', 'directory-state.cjs', 'check-api-context.cjs']) fs.writeFileSync(path.join(config.projectRoot, 'scripts', name), 'stable helper');
     const checks = config.manifest.features[0].checks;
     checks.splice(1, 0, { id: 'engine.fixture.cargo', executable: 'node', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'skills'], level: 'native' });
     state.fail = 'scripts/native.cjs'; const failed = await gate.runPreservation(config); assert.equal(failed.status, 'failed');

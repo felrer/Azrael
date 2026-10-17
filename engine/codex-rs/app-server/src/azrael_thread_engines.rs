@@ -51,16 +51,16 @@ impl ThreadEngineLeases {
             .map_err(io::Error::other)?;
         let mut directory = home.to_path_buf();
         check_metadata(&std::fs::symlink_metadata(&directory)?, true)?;
-        for part in ["azrael", "runtime", "thread-engines"] {
-            directory.push(part);
-            match std::fs::symlink_metadata(&directory) {
-                Ok(metadata) => check_metadata(&metadata, true)?,
-                Err(error) if error.kind() == io::ErrorKind::NotFound => {}
-                Err(error) => return Err(error),
-            }
-            codex_uds::prepare_private_socket_directory(&directory).await?;
-            check_metadata(&std::fs::symlink_metadata(&directory)?, true)?;
+        // General Azrael application data may already have inherited permissions.
+        // Only this home-global control leaf requires a private-directory ACL.
+        directory.push("azrael-thread-engines-v1");
+        match std::fs::symlink_metadata(&directory) {
+            Ok(metadata) => check_metadata(&metadata, true)?,
+            Err(error) if error.kind() == io::ErrorKind::NotFound => {}
+            Err(error) => return Err(error),
         }
+        codex_uds::prepare_private_socket_directory(&directory).await?;
+        check_metadata(&std::fs::symlink_metadata(&directory)?, true)?;
         Ok(Self {
             home: home.into(),
             directory,
@@ -129,6 +129,65 @@ impl ThreadEngineLeases {
 mod tests {
     use super::*;
 
+    #[cfg(windows)]
+    fn inspect_acl(path: &Path) -> Vec<u8> {
+        let output = std::process::Command::new("icacls.exe")
+            .arg(path)
+            .output()
+            .unwrap();
+        assert!(
+            output.status.success(),
+            "{}",
+            String::from_utf8_lossy(&output.stderr)
+        );
+        output.stdout
+    }
+
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn lease_preserves_existing_application_data_and_permissions() {
+        let home = tempfile::tempdir().unwrap();
+        let application = home.path().join("azrael");
+        let window_use = application.join("window-use");
+        std::fs::create_dir_all(&window_use).unwrap();
+        let data = window_use.join("existing.json");
+        std::fs::write(&data, b"preserve window-use data").unwrap();
+        let paths = [
+            home.path(),
+            application.as_path(),
+            window_use.as_path(),
+            data.as_path(),
+        ];
+        let before = paths.map(inspect_acl);
+
+        let mut keeper = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+            .await
+            .unwrap();
+        keeper.acquire(&ThreadId::new().to_string()).unwrap();
+        assert_eq!(
+            keeper.directory,
+            home.path().join("azrael-thread-engines-v1")
+        );
+        assert_eq!(std::fs::read(&data).unwrap(), b"preserve window-use data");
+        assert_eq!(before, paths.map(inspect_acl));
+        assert!(!application.join("runtime").exists());
+    }
+
+    #[cfg(windows)]
+    #[tokio::test]
+    async fn refuses_existing_inherited_control_directory_without_repair() {
+        let home = tempfile::tempdir().unwrap();
+        let directory = home.path().join("azrael-thread-engines-v1");
+        std::fs::create_dir(&directory).unwrap();
+        let before = inspect_acl(&directory);
+        let error = ThreadEngineLeases::new(home.path(), &"a".repeat(64))
+            .await
+            .err()
+            .expect("inherited control directory must be rejected");
+        assert_eq!(error.kind(), io::ErrorKind::PermissionDenied);
+        assert_eq!(before, inspect_acl(&directory));
+    }
+
     #[tokio::test]
     async fn engine_lease_reuse_conflict_drop_and_shutdown_filter() {
         let home = tempfile::tempdir().unwrap();
@@ -171,7 +230,11 @@ mod tests {
         assert!(keeper.acquire(&thread.to_string()).is_err());
         assert_eq!(std::fs::read(&target).unwrap(), b"preserve");
         let other = tempfile::tempdir().unwrap();
-        symlink(home.path().join("azrael"), other.path().join("azrael")).unwrap();
+        symlink(
+            &keeper.directory,
+            other.path().join("azrael-thread-engines-v1"),
+        )
+        .unwrap();
         assert!(
             ThreadEngineLeases::new(other.path(), &"b".repeat(64))
                 .await

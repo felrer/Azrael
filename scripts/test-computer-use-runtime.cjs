@@ -9,7 +9,7 @@ const { stageRuntime, verifyRuntime } = require('./computer-use-runtime.cjs');
 // Sky 0.7.4 is the supported transform input; the installed Azrael executable is already branded.
 const officialRuntime = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77'));
 const officialBin = path.join(officialRuntime, 'bin');
-const officialPlugin = path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.930.21537');
+const officialPlugin = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_PLUGIN || path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.930.21537'));
 function cleanup(root) {
   if (path.dirname(path.resolve(root)) !== path.resolve(os.tmpdir()) || !path.basename(root).startsWith('azrael-computer-use-packaging-')) throw new Error('Unsafe fixture cleanup path');
   fs.rmSync(root, { recursive: true });
