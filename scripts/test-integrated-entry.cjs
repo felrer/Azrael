@@ -19,7 +19,8 @@ test("integrated entry preserves activation, account storage migration and failu
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
     fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
-    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false, endpointError } = {}) {
+    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false, endpointError,
+    runtimeReady, runtimeError } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
     const recovery = { listener: undefined, disposed: false };
@@ -61,6 +62,8 @@ test("integrated entry preserves activation, account storage migration and failu
       async reconnectAfterEngineRestart() { events.push(["account.reconnect"]); },
     };
     const module = { exports: {} };
+    let runtimeValidated = false;
+    const loads = [];
     vm.runInNewContext(wrapper, {
       module,
       exports: module.exports,
@@ -82,10 +85,19 @@ test("integrated entry preserves activation, account storage migration and failu
           if (historyError) throw historyError;
           return { imported: 1 };
         } };
-        if (request === "./out/extension.js") return nativeExtension;
-        if (request === "./account-ui/dist/src/extension.js") return accountUi;
+        if (request === "./out/extension.js" || request === "./account-ui/dist/src/extension.js") {
+          assert.equal(runtimeValidated, true, "native modules require completed runtime validation");
+          if (sharedEngine) assert.ok(runtime.socket, "native modules require the shared endpoint");
+          loads.push(request);
+          return request === "./out/extension.js" ? nativeExtension : accountUi;
+        }
         if (request === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl }) };
-        if (request === "./out/azrael-runtime.cjs") return { runtime };
+        if (request === "./out/azrael-runtime.cjs") return { async initialize() {
+          await runtimeReady;
+          if (runtimeError) throw runtimeError;
+          runtimeValidated = true;
+          return runtime;
+        } };
         if (request === "./out/shared-engine-host.cjs") {
           const shared = require("./shared-engine-host.cjs");
           return { ...shared, resolveEngineEndpoint: receivedRuntime => shared.resolveEngineEndpoint(receivedRuntime, {
@@ -114,7 +126,8 @@ test("integrated entry preserves activation, account storage migration and failu
         throw new Error(`wrapper required unexpected module ${request}`);
       },
     }, { filename: wrapperPath });
-    return { api: module.exports, events, context, runtime, nativeApi, recovery };
+    assert.deepEqual(loads, [], "loading the entry must not load native modules");
+    return { api: module.exports, events, context, runtime, nativeApi, recovery, loads };
   }
 
   function writeOldAccountState(root, scope, contents, modified) {
@@ -126,9 +139,25 @@ test("integrated entry preserves activation, account storage migration and failu
   }
 
   async function testWrapperLifecycle() {
+    let releaseRuntime;
+    const gated = wrapperFixture({ runtimeReady: new Promise(resolve => { releaseRuntime = resolve; }) });
+    const activation = gated.api.activate(gated.context);
+    await Promise.resolve();
+    assert.deepEqual(gated.loads, []);
+    assert.deepEqual(gated.events, []);
+    releaseRuntime();
+    await activation;
+    assert.equal(gated.loads.length, 2);
+    assert.equal(gated.events[0][0], "native.activate");
+    await gated.api.deactivate();
+    const invalidRuntime = wrapperFixture({ runtimeError: new Error("runtime integrity failure") });
+    await assert.rejects(invalidRuntime.api.activate(invalidRuntime.context), /runtime integrity failure/);
+    assert.deepEqual(invalidRuntime.loads, []);
+    assert.deepEqual(invalidRuntime.events, []);
     const unavailableEndpoint = wrapperFixture({ sharedEngine: true, endpointError: new Error("discovery failed") });
     await assert.rejects(unavailableEndpoint.api.activate(unavailableEndpoint.context), /endpoint discovery failed/);
     assert.deepEqual(unavailableEndpoint.events.map(event => event[0]), ["endpoint.resolve"]);
+    assert.deepEqual(unavailableEndpoint.loads, []);
     assert.equal(unavailableEndpoint.runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
     assert.equal(fs.existsSync(unavailableEndpoint.context.globalStorageUri.fsPath), false);
     const sharedA = wrapperFixture({ sharedEngine: true, sessionId: "window-A" });

@@ -13,6 +13,59 @@ const runtimeKey = process.platform === "win32" ? physicalPath.toLowerCase() : p
 if (registry.has(runtimeKey)) {
   module.exports = registry.get(runtimeKey);
 } else {
+  let runtime;
+  let scopedProcess;
+  let initialization;
+  function publish(completed) {
+    const env = completed.env;
+    runtime = completed;
+    // Only the pinned bundle sees this environment; the host stays untouched.
+    scopedProcess = new Proxy(process, {
+      get(target, key) { return key === "env" ? env : Reflect.get(target, key); },
+    });
+    return runtime;
+  }
+  function ready() {
+    if (runtime) return runtime;
+    if (initialization) throw new Error("Azrael runtime initialization is still pending; await initialize().");
+    return publish(initializeSync());
+  }
+  Object.defineProperties(exports, {
+    runtime: { enumerable: true, get: ready },
+    process: { enumerable: true, get() { ready(); return scopedProcess; } },
+  });
+  exports.initialize = function initialize() {
+    if (initialization) return initialization;
+    if (runtime) return Promise.resolve(runtime);
+    const { Worker } = require("node:worker_threads");
+    initialization = new Promise((resolve, reject) => {
+      const worker = new Worker(`
+        const { parentPort, workerData } = require("node:worker_threads");
+        parentPort.postMessage(require(workerData.filename).runtime);
+      `, { eval: true, workerData: { filename: physicalPath } });
+      let completed;
+      let received = false;
+      let failure;
+      worker.on("message", value => { completed = value; received = true; });
+      worker.on("error", error => { failure = error; });
+      worker.once("exit", code => {
+        if (failure) reject(failure);
+        else if (code !== 0) reject(new Error(`Azrael runtime validation worker exited with code ${code}.`));
+        else if (!received) reject(new Error("Azrael runtime validation worker exited without a result."));
+        else resolve(completed);
+      });
+    }).then(completed => {
+      initialization = undefined;
+      return publish(completed);
+    }, error => {
+      initialization = undefined;
+      throw error;
+    });
+    return initialization;
+  };
+  registry.set(runtimeKey, module.exports);
+
+  function initializeSync() {
   const config = JSON.parse(fs.readFileSync(path.join(__dirname, "azrael-runtime.json"), "utf8"));
   validateRuntimePlatform(config.platform);
   if (config.windowControlRelative) {
@@ -61,11 +114,6 @@ if (registry.has(runtimeKey)) {
   if (config.devinExecutable) env.AZRAEL_EX_DEVIN_EXECUTABLE = config.devinExecutable;
   require("./devin-native-host.cjs").configureEnvironment(env, config);
   require("./provider-accounts-host.cjs").configureEnvironment(env, config);
-  exports.runtime = { ...config, socket, env };
-  // Only the pinned Codex bundle sees this environment. Other extensions and
-  // terminal launches retain the VS Code process's original environment.
-  exports.process = new Proxy(process, {
-    get(target, key) { return key === "env" ? env : Reflect.get(target, key); },
-  });
-  registry.set(runtimeKey, module.exports);
+  return { ...config, socket, env };
+  }
 }

@@ -44,6 +44,11 @@
         "engine/codex-rs/core/src/session/root_resume_timing.rs",
         "engine/codex-rs/ext/queue/src/service.rs",
         "scripts/ordinary-runtime.cjs",
+        "scripts/check-startup-performance-native.cjs",
+        "engine/codex-rs/app-server/src/request_processors/resume_history_reuse_tests.rs",
+        "engine/codex-rs/thread-store/src/store.rs",
+        "engine/codex-rs/thread-store/src/local/mod.rs",
+        "engine/codex-rs/thread-store/src/local/history_revision.rs",
         "scripts/shared-engine-host.cjs",
         "scripts/integrated-azrael-entry.cjs",
         "scripts/azrael-recovery.cjs",
@@ -108,6 +113,15 @@
             "scripts/check-shared-engine-native.cjs",
             "{engineSourceRoot}",
             "appserver"
+          ],
+          "level": "native"
+        },
+        {
+          "id": "engine.shared-engine.startup-performance",
+          "executable": "node",
+          "args": [
+            "scripts/check-startup-performance-native.cjs",
+            "{engineSourceRoot}"
           ],
           "level": "native"
         },

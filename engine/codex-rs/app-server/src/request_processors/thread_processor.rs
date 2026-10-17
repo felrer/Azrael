@@ -7,6 +7,10 @@ mod daemon_snapshot;
 #[path = "side_question.rs"]
 mod side_question;
 
+#[cfg(test)]
+#[path = "resume_history_reuse_tests.rs"]
+mod resume_history_reuse_tests;
+
 use super::persisted_resume_settings::PersistedResumeSettings;
 use super::persisted_resume_settings::latest_persisted_resume_settings;
 use super::thread_enrichment::enrich_loaded_threads;
@@ -101,6 +105,58 @@ struct ResumeConfigState {
 struct PreparedResumeConfig {
     state: ResumeConfigState,
     config: Config,
+}
+
+// Request-local history retained only while configuration is loaded without the metadata permit.
+// Store metadata is always resolved again before consulting this snapshot.
+struct PreparedResumeHistory {
+    thread_id: ThreadId,
+    rollout_path: Option<PathBuf>,
+    history_mode: ThreadHistoryMode,
+    history: InitialHistory,
+}
+
+impl PreparedResumeHistory {
+    fn new(stored: &StoredThread, history: &InitialHistory) -> Option<Self> {
+        let InitialHistory::Resumed(resumed) = history else {
+            return None;
+        };
+        resumed.history_revision.as_ref()?;
+        stored.rollout_path.as_ref()?;
+        Some(Self {
+            thread_id: stored.thread_id,
+            rollout_path: stored.rollout_path.clone(),
+            history_mode: stored.history_mode,
+            history: history.clone(),
+        })
+    }
+}
+
+async fn load_resume_history_with_prepared<V, VF, L, LF>(
+    stored: StoredThread,
+    prepared: Option<PreparedResumeHistory>,
+    validate: V,
+    load: L,
+) -> Result<(InitialHistory, StoredThread), JSONRPCErrorError>
+where
+    V: FnOnce(PathBuf, String) -> VF,
+    VF: std::future::Future<Output = codex_thread_store::ThreadStoreResult<bool>>,
+    L: FnOnce(StoredThread) -> LF,
+    LF: std::future::Future<Output = Result<(InitialHistory, StoredThread), JSONRPCErrorError>>,
+{
+    if let Some(prepared) = prepared
+        && prepared.thread_id == stored.thread_id
+        && prepared.rollout_path == stored.rollout_path
+        && prepared.history_mode == stored.history_mode
+        && let InitialHistory::Resumed(resumed) = &prepared.history
+        && let (Some(path), Some(revision)) = (&stored.rollout_path, &resumed.history_revision)
+        && validate(path.clone(), revision.clone())
+            .await
+            .unwrap_or(false)
+    {
+        return Ok((prepared.history, stored));
+    }
+    load(stored).await
 }
 
 struct ThreadRevertRuntimeSnapshot {
@@ -566,6 +622,7 @@ impl ThreadRequestProcessor {
         client_mcp_extensions: ClientMcpExtensions,
     ) -> Result<Option<ClientResponsePayload>, JSONRPCErrorError> {
         let mut prepared_config = None;
+        let mut prepared_history = None;
         // Keep the resume future off the request handler's stack.
         while Box::pin(self.thread_resume_inner(
             &target,
@@ -574,6 +631,7 @@ impl ThreadRequestProcessor {
             app_server_client_version.clone(),
             client_mcp_extensions.clone(),
             &mut prepared_config,
+            &mut prepared_history,
         ))
         .await?
         .is_continue()
@@ -3737,6 +3795,7 @@ impl ThreadRequestProcessor {
         app_server_client_version: Option<String>,
         client_mcp_extensions: ClientMcpExtensions,
         prepared_config: &mut Option<PreparedResumeConfig>,
+        prepared_history: &mut Option<PreparedResumeHistory>,
     ) -> Result<ControlFlow<()>, JSONRPCErrorError> {
         if let Ok(thread_id) = ThreadId::from_string(&params.thread_id)
             && self
@@ -3815,6 +3874,8 @@ impl ThreadRequestProcessor {
             initial_turns_page,
         } = params.clone();
         let include_turns = !exclude_turns;
+        // Consume the previous attempt even when this attempt selects another resume source.
+        let previous_history = prepared_history.take();
 
         let resume_result = if let Some(history) = history {
             let mut supplied_history = self.resume_thread_from_history(history.as_slice()).await?;
@@ -3857,7 +3918,7 @@ impl ThreadRequestProcessor {
             }
             Ok((supplied_history, None))
         } else if let Some(stored_thread) = stored_thread_from_running_probe {
-            self.load_resume_initial_history_from_stored_thread(*stored_thread)
+            self.load_resume_initial_history_with_prepared(*stored_thread, previous_history)
                 .await
                 .map(|(thread_history, stored_thread)| (thread_history, Some(stored_thread)))
         } else {
@@ -3870,7 +3931,7 @@ impl ThreadRequestProcessor {
                 .await
             {
                 Ok(stored_thread) => self
-                    .load_resume_initial_history_from_stored_thread(stored_thread)
+                    .load_resume_initial_history_with_prepared(stored_thread, previous_history)
                     .await
                     .map(|(thread_history, stored_thread)| (thread_history, Some(stored_thread))),
                 Err(error) => Err(error),
@@ -4095,6 +4156,9 @@ impl ThreadRequestProcessor {
         let mut config = match prepared_config.take() {
             Some(prepared) if prepared.state == config_state => prepared.config,
             _ => {
+                *prepared_history = resume_source_thread
+                    .as_ref()
+                    .and_then(|stored| PreparedResumeHistory::new(stored, &thread_history));
                 // Config loading can call back into Desktop; release both locks during host work.
                 drop(_goal_resume_guard);
                 drop(_thread_list_state_permit);
@@ -4744,6 +4808,20 @@ impl ThreadRequestProcessor {
                 .map(|item| RolloutItem::ResponseItem(item.into()))
                 .collect(),
         ))
+    }
+
+    async fn load_resume_initial_history_with_prepared(
+        &self,
+        stored_thread: StoredThread,
+        prepared: Option<PreparedResumeHistory>,
+    ) -> Result<(InitialHistory, StoredThread), JSONRPCErrorError> {
+        load_resume_history_with_prepared(
+            stored_thread,
+            prepared,
+            |path, revision| self.thread_store.validate_history_revision(path, revision),
+            |stored| self.load_resume_initial_history_from_stored_thread(stored),
+        )
+        .await
     }
 
     async fn load_resume_initial_history_from_stored_thread(

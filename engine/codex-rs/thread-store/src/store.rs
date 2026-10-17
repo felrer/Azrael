@@ -3,6 +3,7 @@ use codex_protocol::protocol::ThreadHistoryMode;
 use codex_rollout::RolloutItem;
 use std::any::Any;
 use std::future::Future;
+use std::path::PathBuf;
 use std::pin::Pin;
 use std::sync::Arc;
 
@@ -104,6 +105,17 @@ pub trait ThreadStore: Any + Send + Sync {
     /// already paginated should override this instead of relying on core to infer storage behavior.
     fn default_history_mode(&self) -> ThreadHistoryMode {
         ThreadHistoryMode::Legacy
+    }
+
+    /// Checks whether an opaque revision still identifies the history at this exact path.
+    /// This is an advisory snapshot check; resume must validate again under writer ownership.
+    /// Stores without revision validation conservatively require a fresh history load.
+    fn validate_history_revision(
+        &self,
+        _rollout_path: PathBuf,
+        _revision: String,
+    ) -> ThreadStoreFuture<'_, bool> {
+        Box::pin(async { Ok(false) })
     }
 
     /// Creates a new live thread.
