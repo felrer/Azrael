@@ -1627,6 +1627,27 @@
       ]
     },
     {
+      "id": "ui.scroll-fade",
+      "area": "ui",
+      "owners": [
+        "scripts/scroll-fade.cjs",
+        "scripts/inject-scroll-fade.cjs",
+        "scripts/test-scroll-fade.cjs",
+        "scripts/fixtures/scroll-timeline-selection.html",
+        "scripts/verify-scroll-timeline-crash-host.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.scroll-fade.behavior",
+          "executable": "node",
+          "args": ["--test", "scripts/test-scroll-fade.cjs"],
+          "level": "source"
+        }
+      ],
+      "reportFields": ["scrollFadeEdits"]
+    },
+    {
       "id": "ui.content-fonts",
       "area": "ui",
       "owners": [

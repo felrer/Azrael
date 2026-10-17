@@ -26,6 +26,7 @@ const { UI_CLEANUP_ASSETS, injectUiCleanup } = require("./inject-ui-cleanup.cjs"
 const { AUTO_REVIEW_ASSETS, injectAutoReview } = require("./inject-auto-review.cjs");
 const { PETS_CLEANUP_ASSETS, injectPetsCleanup } = require("./inject-pets-cleanup.cjs");
 const { CONTENT_FONT_ASSETS, CONTENT_FONT_CSS_ASSET, injectContentFonts } = require("./inject-content-fonts.cjs");
+const { injectScrollFade } = require("./inject-scroll-fade.cjs");
 const { getContentFontRules, copyContentFontAssets } = require("./content-fonts.cjs");
 const { CONTEXT_ASSET, SETTINGS_ASSET, injectProviderContextControls } = require("./inject-provider-context.cjs");
 const { runProviderContext } = require("./provider-context-labels.cjs");
@@ -410,15 +411,16 @@ function transformAsset(source, relativePath, filename, ts) {
   const autoReview = injectAutoReview(uiCleanup.text, relativePath, ts);
   const petsCleanup = injectPetsCleanup(autoReview.text, relativePath, ts);
   const contentFonts = injectContentFonts(petsCleanup.text, relativePath, ts);
-  const uiInputDiagnostics = injectUiInputDiagnostics(contentFonts.text, relativePath, ts);
+  const scrollFade = injectScrollFade(contentFonts.text, relativePath);
+  const uiInputDiagnostics = injectUiInputDiagnostics(scrollFade.text, relativePath, ts);
   const sessionLinks = injectSessionLinks(uiInputDiagnostics.text, relativePath);
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
-  if (errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     return { text: taskProfile.text, asset: {
       path: relativePath,
-      edits: errorPresentation.count + projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + parentRequestActivity.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + imageSketch.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: errorPresentation.count + projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + parentRequestActivity.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + imageSketch.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + scrollFade.count + uiInputDiagnostics.count + sessionLinks.count,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -472,6 +474,7 @@ function transformAsset(source, relativePath, filename, ts) {
       autoReviewEdits: autoReview.count,
       petsCleanupEdits: petsCleanup.count,
       contentFontEdits: contentFonts.count,
+      scrollFadeEdits: scrollFade.count,
       uiInputDiagnosticsEdits: uiInputDiagnostics.count,
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
@@ -493,7 +496,7 @@ function getTransformRules() {
     "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
     "inject-student-design.cjs", "student-avatar-assets.cjs",
     "inject-provider-context.cjs", "provider-context-labels.cjs", "inject-ui-cleanup.cjs", "inject-image-sketch.cjs", "inject-auto-review.cjs", "inject-pets-cleanup.cjs",
-    "inject-content-fonts.cjs", "content-fonts.cjs",
+    "inject-content-fonts.cjs", "content-fonts.cjs", "inject-scroll-fade.cjs", "scroll-fade.cjs",
     "inject-thread-branch.cjs", "thread-branch.cjs",
     "inject-error-presentation.cjs", "../extensions/azrael-ex/src/errorPresentation.js",
     "inject-btw.cjs", "btw-conversation.cjs",
@@ -539,6 +542,8 @@ const ASSET_RULE_PATHS = {
   "inject-auto-review.cjs": AUTO_REVIEW_ASSETS,
   "inject-pets-cleanup.cjs": PETS_CLEANUP_ASSETS,
   "inject-content-fonts.cjs": CONTENT_FONT_ASSETS,
+  "inject-scroll-fade.cjs": [CONTENT_FONT_CSS_ASSET, COMPOSER_ASSET],
+  "scroll-fade.cjs": [COMPOSER_ASSET],
   "content-fonts.cjs": CONTENT_FONT_ASSETS.filter(name => name.endsWith(".css") || name.includes("app-initial-7a199c66e670")),
   ...Object.fromEntries(Object.keys(getContentFontRules()).map(name => [name, name === "content-font-policy" ? CONTENT_FONT_ASSETS.filter(asset => asset.endsWith(".css") || asset.includes("app-initial-7a199c66e670")) : [CONTENT_FONT_CSS_ASSET]])),
   "inject-deferred-turn.cjs": ["out/extension.js", DEFERRED_REDUCER_ASSET, DEFERRED_PRESENTATION_ASSET,
@@ -700,6 +705,11 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   }, { concurrency: readConcurrency, statistics: performanceReport.reads, readMetrics: stages.sourceRead });
   performanceReport.reads.scanElapsedMs = performance.now() - scanStarted;
   const finalizeStarted = performance.now();
+  for (const [assetPath, count] of [[CONTENT_FONT_CSS_ASSET, 4], [COMPOSER_ASSET, 1]]) {
+    if (!report.assets.some(asset => asset.path === assetPath && asset.scrollFadeEdits === count)) {
+      throw new Error(`Scroll fade transformation was incomplete: ${assetPath}`);
+    }
+  }
   for (const [field, paths] of [["webviewIdleEdits", ["out/extension.js", WEBVIEW_IDLE_ASSET]], ["sessionFlagEdits", [SESSION_FLAGS_ASSET]], ["teamUIEdits", [TEAM_UI_ASSET]], ["teamRuntimeEdits", TEAM_RUNTIME_ASSETS], ["imageSketchEdits", IMAGE_SKETCH_ASSETS], ["uiCleanupEdits", UI_CLEANUP_ASSETS], ["autoReviewEdits", AUTO_REVIEW_ASSETS], ["petsCleanupEdits", PETS_CLEANUP_ASSETS], ["contentFontEdits", CONTENT_FONT_ASSETS]]) {
     for (const assetPath of paths) {
       if (!report.assets.some(asset => asset.path === assetPath && asset[field] > 0)) {

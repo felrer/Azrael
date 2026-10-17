@@ -104,6 +104,16 @@ Flags use the native persisted UI preference store, keyed by host and conversati
 
 `scripts/verify-session-flags-render.mjs` exercises the production Flag helper with the pinned native React, preference atom, row components and CSS. Host services and localization are synthetic; installed VS Code and real host persistence remain separate checks.
 
+## Scroll fades and renderer compatibility
+
+Status: `partial` — source transform and isolated Windows native Webview verification; packaging and installed-host acceptance are separate.
+
+The pinned horizontal and three vertical scroll fade masks preserve their gradients, distances and keyframe stops. Their four `scroll(self x/y)` animations are replaced by a shared frame-coalesced geometry observer that writes the existing fade variables. Layout reads precede style writes; scroll, viewport resize, content changes and newly mounted scrollers refresh the fades. Non-overflowing elements have no fade. Removal and disposal restore only inline values still owned by this observer. Unrelated view timelines remain unchanged.
+
+This common renderer policy avoids a Chromium lifecycle check failure observed on Windows x64, VS Code 1.142.0 / Electron 43.7.7 / Chromium 150.0.7871.250 when text selection, ScrollTimeline and scroll-container visibility changes overlap. The original incident and synthetic native reproduction share the exception location; exact private symbols and the user's original pointer sequence are unavailable. Linux x64 and macOS ARM64 share the implementation but have no native acceptance evidence from this task.
+
+Preservation feature `ui.scroll-fade` owns strict pinned CSS anchors, the serialized runtime, transform cache dependencies and mandatory source checks. `scripts/verify-scroll-timeline-crash-host.cjs` provides separate isolated native crash/control experiments and production-mask measurements/screenshots in light/dark themes. Synthetic Webview acceptance does not establish installed-package acceptance or recovery from every renderer crash.
+
 ## Hidden conversation webviews
 
 Status: `partial` — shared source policy and guarded pinned host/composer transforms are implemented; packaged and installed-host acceptance remains pending.
@@ -240,4 +250,4 @@ The candidate system uses a 24×24 coordinate grid, `currentColor`, consistent s
 
 ## Preservation mapping
 
-Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.scroll-fade`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
