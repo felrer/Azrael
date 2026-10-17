@@ -5,7 +5,18 @@ const fs = require("node:fs");
 const path = require("node:path");
 const os = require("node:os");
 const { spawnSync } = require("node:child_process");
-const { buildPlan, parse, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild } = require("./build-platform.cjs");
+const { buildPlan, parse, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild, managedCargoInvocation } = require("./build-platform.cjs");
+
+test('native Cargo build uses the same target owner with exact selected arguments', () => {
+  const node = path.resolve('selected node', 'node'), project = path.resolve('frozen project'), target = path.resolve('shared cargo cache');
+  const args = ['build', '--release', '--locked', '--target', 'aarch64-apple-darwin', '--target-dir', target, '-p', 'codex-app-server'];
+  const before = [...args], result = managedCargoInvocation(node, project, target, args);
+  assert.equal(result.executable, node);
+  assert.deepEqual(result.args, [path.join(project, 'scripts/cargo-target-owner.cjs'), ...before]);
+  assert.deepEqual(result.env, { CARGO_TARGET_DIR: target });
+  assert.deepEqual(args, before);
+  assert.throws(() => managedCargoInvocation(node, project, 'relative', args), /absolute/);
+});
 const { freezeProject, hash, inventoryTree, copyTree } = require("./freeze-platform-inputs.cjs");
 test("only Linux rebuilds node-pty with frozen headers and the selected npm node-gyp", () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-pty-input-"));

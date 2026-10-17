@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require("node:path");
-const { buildCargoTestCommand } = require("./cargo-verification.cjs");
+const { buildCargoTestCommand, runManagedCargoSync } = require("./cargo-verification.cjs");
 
 const [sourceRoot, ...extra] = process.argv.slice(2);
 if (!sourceRoot || !path.isAbsolute(sourceRoot) || extra.length) {
@@ -17,7 +17,7 @@ for (const filter of [
 ]) {
   const { command, args, ...options } = buildCargoTestCommand(sourceRoot, ["test", "-p", "codex-core", "--lib", filter,
     "--locked", "--offline", "--", "--test-threads=1"], { isolateHostEnvironment: true });
-  const result = require("node:child_process").spawnSync(command, args, { ...options, stdio: "pipe", encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+  const result = runManagedCargoSync({ command, args, ...options, stdio: "pipe", encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
   process.stdout.write(result.stdout || "");
   process.stderr.write(result.stderr || "");
   if (result.error) throw result.error;

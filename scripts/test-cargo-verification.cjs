@@ -9,16 +9,18 @@ const { buildCargoTestCommand, runCargoTest } = require("./cargo-verification.cj
 
 const args = ["test", "-p", "codex-core", "--lib", "filter", "--locked", "--offline", "--", "--test-threads=1"];
 test("execution uses the same pure command contract without additional compile calls", context => {
-  const sourceRoot = path.resolve("artifacts", "verification", "cargo-fixture");
-  const expected = buildCargoTestCommand(sourceRoot, args, { env: {} });
+  const fixture = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests", "command-contract");
+  const sourceRoot = path.join(fixture, "engine");
+  const env = { INSTA_PENDING_DIR: path.join(fixture, "pending") };
+  const expected = buildCargoTestCommand(sourceRoot, args, { env });
   const spawn = context.mock.method(require("node:child_process"), "spawnSync", (command, actualArgs, options) => {
-    const { command: expectedCommand, args: expectedArgs, ...expectedOptions } = expected;
+    const { command: expectedCommand, args: expectedArgs, selectedSourceRoot, ...expectedOptions } = expected;
     assert.equal(command, expectedCommand);
     assert.deepEqual(actualArgs, expectedArgs);
     assert.deepEqual(options, expectedOptions);
     return { status: 0 };
   });
-  assert.deepEqual(runCargoTest(sourceRoot, args, { env: {} }), { status: 0 });
+  assert.deepEqual(runCargoTest(sourceRoot, args, { env }), { status: 0 });
   assert.equal(spawn.mock.callCount(), 1);
 });
 for (const [platform, pathImpl, sourceRoot] of [
@@ -130,6 +132,7 @@ function runSharedNative({ platform = "win32", artifacts, compile = {}, runtime 
     if (id === "node:fs") return { statSync() { statCalls++; return { isFile: () => true }; } };
     if (id === "node:path") return path;
     if (id === "./cargo-verification.cjs") return {
+      runManagedCargoSync(spec) { const { command, args, ...options } = spec; return requireStub("node:child_process").spawnSync(command, args, options); },
       buildCargoTestCommand(sourceRoot, args, options) { return buildCargoTestCommand(sourceRoot, Array.from(args), { ...options, env }); },
       runCargoTest(sourceRoot, args, options) { ordinary.push({ sourceRoot, args: Array.from(args), options }); return { status: 0 }; },
     };

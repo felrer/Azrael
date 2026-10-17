@@ -95,7 +95,7 @@ if (-not $SkipEngineBuild) {
         # The explicit cache may be reused across selected source snapshots.
         # Cargo must successfully build both binaries before provenance is recorded.
         $env:CARGO_TARGET_DIR = $engineTarget
-        Invoke-BuildCommand 'cargo' @('build', '--locked', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
+        Invoke-BuildCommand 'node' @((Join-Path $PSScriptRoot 'cargo-target-owner.cjs'), 'build', '--locked', '--target', 'x86_64-pc-windows-msvc', '-p', 'codex-app-server', '--bin', 'azrael', '-p', 'codex-app-server-client', '--bin', 'azrael-bridge') 'engine.log'
         $check = Start-BuildStage $buildMetrics 'engine-host-hash-check-and-copy'
         if ((Get-FileHash -LiteralPath $externalCodeModeHost -Algorithm SHA256).Hash -cne $externalCodeModeHostHash) { throw 'Selected code-mode host changed during compilation; rebuild with a stable runtime.' }
         $codeModeHostDestination = Join-Path $EngineDirectory 'azrael-code-mode-host.exe'

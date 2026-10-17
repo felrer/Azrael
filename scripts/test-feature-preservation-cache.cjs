@@ -9,7 +9,7 @@ const gate = require('./feature-preservation.cjs');
 const verificationCache = require('./verification-result-cache.cjs');
 const { getDirectoryState } = require('./directory-state.cjs');
 const repository = path.resolve(__dirname, '..');
-const fixtures = path.join(repository, 'artifacts/verification');
+const fixtures = path.resolve(process.env.AZRAEL_FEATURE_PRESERVATION_TEST_ROOT || path.join(repository, 'artifacts/verification'));
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
 const roots = [];
 const evidence = [];
@@ -238,7 +238,8 @@ test('schema2 runtime reaffirm rejects actual project compiler drift and whole f
 });
 
 after(() => {
-  const directory = path.join(repository, 'artifacts/logs/verification-result-cache/integration');
+  const directory = process.env.AZRAEL_FEATURE_PRESERVATION_TEST_ROOT
+    ? path.join(fixtures, 'evidence') : path.join(repository, 'artifacts/logs/verification-result-cache/integration');
   fs.mkdirSync(directory, { recursive: true }); fs.writeFileSync(path.join(directory, 'fixture-receipts.json'), JSON.stringify(evidence, null, 2) + '\n');
   // Only this suite's generated fixture roots may be recursively removed.
   for (const root of roots) {

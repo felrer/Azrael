@@ -8,7 +8,7 @@ const cache = require('./cargo-verification-cache.cjs');
 const storage = require('./verification-result-cache.cjs');
 const { getDirectoryState } = require('./directory-state.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
-const fixtureParent = path.resolve(__dirname, '../artifacts/verification');
+const fixtureParent = process.env.AZRAEL_CARGO_OWNER_TEST_ROOT ? path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT) : path.resolve(__dirname, '../artifacts/verification');
 fs.mkdirSync(fixtureParent, { recursive: true });
 const fixtures = fs.mkdtempSync(path.join(fixtureParent, 'cargo-cache-'));
 let sequence = 0;
@@ -19,6 +19,7 @@ const write = (root, file, value) => {
 function setup() {
   const root = path.join(fixtures, String(++sequence));
   for (const file of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs',
+    'cargo-target-owner.cjs', 'artifact-lifecycle.cjs',
     'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
   write(root, 'scripts/owner.cjs', 'owner'); write(root, 'docs/contract.md', 'contract');
   write(root, 'engine/codex-rs/Cargo.lock', 'lock'); write(root, 'engine/codex-rs/core/src/lib.rs', 'source');
@@ -189,7 +190,7 @@ test('all declared Cargo groups share semantic keys across execution roots and p
     const changedGroup = structuredClone(group); changedGroup.entries[0].check.args.push('--changed');
     assert.notEqual(await cache.key(secondConfig, changedGroup, nextInputs, nextRuntime), baseline);
     const first = group.entries[0];
-    for (const file of new Set([first.feature.owners[0], first.feature.contract, first.check.args[0], 'scripts/cargo-verification.cjs'])) {
+    for (const file of new Set([first.feature.owners[0], first.feature.contract, first.check.args[0], 'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs'])) {
       const full = path.join(second, file), original = fs.readFileSync(full);
       fs.appendFileSync(full, '\nchanged bound bytes');
       assert.notEqual(await cache.key(secondConfig, group, nextInputs, nextRuntime), baseline, file);
@@ -240,7 +241,8 @@ test('all declared Cargo groups share semantic keys across execution roots and p
   assert.equal(benchmark.schema2.executed, groups.size * 2); assert.equal(benchmark.schema2.reused, 0);
   assert.equal(benchmark.schema4.executed, groups.size); assert.equal(benchmark.schema4.reused, groups.size);
   benchmark.mockExecutionsAvoided = groups.size;
-  const evidenceRoot = path.resolve(__dirname, '../artifacts/logs/AF-01-resume-install/optimization-20min');
+  const evidenceRoot = process.env.AZRAEL_CARGO_OWNER_TEST_ROOT
+    ? path.join(fixtureParent, 'evidence') : path.resolve(__dirname, '../artifacts/logs/AF-01-resume-install/optimization-20min');
   fs.mkdirSync(evidenceRoot, { recursive: true });
   fs.writeFileSync(path.join(evidenceRoot, 'cargo-schema4-mock-benchmark.json'), JSON.stringify(benchmark, null, 2) + '\n');
   console.log(JSON.stringify(benchmark));
@@ -269,6 +271,7 @@ test('declared check flags, owners, contract and implementation inputs bind keys
   f.group.check.args.push('--new-flag'); assert.notEqual(await f.key(), baseline); f.group.check.args.pop();
   for (const file of ['scripts/owner.cjs', 'docs/contract.md', 'scripts/check-api-context.cjs',
     'scripts/verification-result-cache.cjs', 'scripts/cargo-verification-cache.cjs',
+    'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs',
     'scripts/cargo-config-self-contained.py']) {
     const previous = await f.key(); fs.appendFileSync(path.join(f.root, file), ' changed');
     assert.notEqual(await f.key(), previous);

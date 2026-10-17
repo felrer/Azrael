@@ -27,6 +27,34 @@ function reference(root, relative) {
   return resolved;
 }
 function checkSources(check) { return check.args.filter(arg => /\.(?:cjs|mjs|js|py)$/.test(arg) && !arg.includes('{')); }
+// Scheduling hints never change commands, filters, compilation identity or reuse.
+// Only independent wrappers consuming the selected source may opt in. Keep all
+// other native checks in their original relative order.
+const schedulableCargoWrappers = new Set(['scripts/check-api-context.cjs',
+  'scripts/check-model-harness-profiles.cjs', 'scripts/check-task-work-time-native.cjs',
+  'scripts/check-response-tps-native.cjs', 'scripts/check-capacity-recovery.cjs']);
+function validateCargoSchedule(feature, check) {
+  if (!Object.hasOwn(check, 'cargoScheduleGroup')) return;
+  if (feature.area !== 'engine' || check.level !== 'native' || check.executable !== 'node' ||
+      typeof check.cargoScheduleGroup !== 'string' || !/^[a-z][a-z0-9-]{0,63}$/.test(check.cargoScheduleGroup) ||
+      !schedulableCargoWrappers.has(check.args[0]) ||
+      check.args.length !== (check.args[0] === 'scripts/check-capacity-recovery.cjs' ? 2 : 3) ||
+      check.args[1] !== '{engineSourceRoot}' || (check.args.length === 3 && /[{}]/.test(check.args[2]))) {
+    throw Error(`Invalid Cargo scheduling hint: ${check.id}`);
+  }
+}
+function scheduleNativeGroups(groups) {
+  const batches = new Map(), remaining = [];
+  for (const group of groups) {
+    for (const entry of group.entries) validateCargoSchedule(entry.feature, entry.check);
+    const labels = group.entries.map(entry => entry.check.cargoScheduleGroup);
+    const label = labels[0];
+    if (!label || labels.some(value => value !== label)) { remaining.push(group); continue; }
+    if (!batches.has(label)) batches.set(label, []);
+    batches.get(label).push(group);
+  }
+  return [...batches.values()].flat().concat(remaining);
+}
 function sourceTestPolicy(config) {
   if (config.sourceTestPolicy === undefined) return null;
   const policy = config.sourceTestPolicy;
@@ -65,6 +93,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       checks.add(check.id);
       if (!['node', 'python'].includes(check.executable) || !['source', 'native'].includes(check.level) || !Array.isArray(check.args) || !check.args.length || check.args.some(arg => typeof arg !== 'string' || arg.includes('\0') || arg === '--live')) throw Error(`Invalid check command: ${check.id}`);
       if (feature.area === 'ui' && check.level !== 'source') throw Error(`UI check must be source: ${check.id}`);
+      validateCargoSchedule(feature, check);
       const sources = checkSources(check);
       if (!sources.length) throw Error(`Missing executable check source: ${check.id}`);
       sources.forEach(source => reference(projectRoot, source));
@@ -433,7 +462,9 @@ async function runPreservation(config) {
       }
     }));
     if (executionError) throw executionError;
-    for (const group of [...shared.values()].filter(group => group.native)) await runGroup(group);
+    const nativeSchedule = scheduleNativeGroups([...shared.values()].filter(group => group.native));
+    receipt.nativeExecutionOrder = nativeSchedule.flatMap(group => group.entries.map(entry => entry.check.id));
+    for (const group of nativeSchedule) await runGroup(group);
     identityStarted = performance.now();
     if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
     receipt.timings.identityAfterMs = performance.now() - identityStarted;
@@ -515,7 +546,7 @@ async function verifyPackage(config) {
   if (!same(binding, current)) throw Error('Package preservation binding is stale');
   return { ...binding, bindingPath, status: 'passed' };
 }
-module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt };
+module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt, scheduleNativeGroups };
 if (require.main === module) (async () => {
   const [action, flag, filename, ...extra] = process.argv.slice(2);
   if (!['run', 'bind', 'verify', 'verify-receipt'].includes(action) || flag !== '--config' || !filename || extra.length) throw Error('Usage: feature-preservation.cjs run|bind|verify|verify-receipt --config <JSON>');

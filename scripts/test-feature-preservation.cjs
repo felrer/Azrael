@@ -49,7 +49,7 @@ if (process.argv.includes('--recent-chat-check')) { recentChatCheck(); console.l
 else {
   const { test, after } = require('node:test');
   const gate = require('./feature-preservation.cjs');
-  const artifactRoot = path.resolve(__dirname, '../artifacts/logs/feature-preservation');
+  const artifactRoot = path.resolve(process.env.AZRAEL_FEATURE_PRESERVATION_TEST_ROOT || path.join(__dirname, '../artifacts/logs/feature-preservation'));
   fs.mkdirSync(artifactRoot, { recursive: true });
   const ownedFixtureRoots = [];
   after(() => {

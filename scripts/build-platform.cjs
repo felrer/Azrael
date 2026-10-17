@@ -7,6 +7,13 @@ const { resolvePlatform, platformIdentity, engineBinaryNames, executableName } =
 const { hash, copyTree, inventoryTree, freezeProject } = require("./freeze-platform-inputs.cjs");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const UPSTREAM = "9f7397ed1582d95c6c1fcf4ae9951213b3fa2d19";
+function managedCargoInvocation(node, frozenProject, targetDirectory, args) {
+  if (![node, frozenProject, targetDirectory].every(value => typeof value === 'string' && path.isAbsolute(value))) {
+    throw new Error('Managed native Cargo requires absolute selected Node, frozen project and target paths');
+  }
+  return { executable: node, args: [path.join(frozenProject, 'scripts/cargo-target-owner.cjs'), ...args],
+    env: { CARGO_TARGET_DIR: targetDirectory } };
+}
 function assertEngineVersion(declared, reported) {
   if (!/^\d+\.\d+\.\d+(?:[-.][\w.-]+)?$/.test(declared)) throw new Error("Frozen Cargo workspace has no valid engine version");
   const match = /^(?:azrael|codex(?:-cli)?)\s+(\d+\.\d+\.\d+(?:[-.][\w.-]+)?)\s*$/.exec(reported);
@@ -145,7 +152,8 @@ async function build(options) {
   const rust = path.join(work, "engine/codex-rs");
   const cargoArgs = ["build", "--release", "--locked", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
   if (!s["code-mode-host"]) cargoArgs.push("-p", "codex-code-mode-host", "--bin", "codex-code-mode-host");
-  run("cargo", cargoArgs, rust, "cargo-engine");
+  const ownedCargo = managedCargoInvocation(node, frozenProject, s["target-directory"], cargoArgs);
+  run(ownedCargo.executable, ownedCargo.args, rust, "cargo-engine", ownedCargo.env);
   const compiledSourceSnapshot = path.join(logs, "engine-compiled-source.json");
   run(python, ["-B", frozenProvenance, "snapshot", "--root", path.join(work, "engine"), "--target", identity.target, "--file", compiledSourceSnapshot], work, "verify-compiled-source");
   if (fs.readFileSync(compiledSourceSnapshot, "utf8") !== fs.readFileSync(sourceSnapshot, "utf8")) throw new Error("Compiled engine source differs from frozen inputs");
@@ -220,4 +228,4 @@ async function build(options) {
   }
 }
 if (require.main === module) build(parse(process.argv.slice(2))).then(result => console.log(JSON.stringify(result))).catch(error => { console.error(error.message); process.exitCode = 1; });
-module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild };
+module.exports = { parse, buildPlan, build, validateToolIdentity, validateExecutableHeader, assertEngineVersion, validateV8Inputs, linuxPtyBuild, managedCargoInvocation };
