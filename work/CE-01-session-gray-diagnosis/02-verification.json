@@ -1,0 +1,52 @@
+{
+  "scope": "Source and isolated Windows x64 Webview only; no package or installation",
+  "native": {
+    "id": "patched-1792250097709-1",
+    "outcome": "survived",
+    "exitCode": 0,
+    "cleanupExitCode": 0,
+    "ua": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.142.0 Chrome/150.0.7871.250 Electron/43.7.7 Safari/537.36",
+    "selection": "Synthetic selec",
+    "clicks": 6,
+    "responsive": true,
+    "themeCases": 24,
+    "allComputedMasksEqual": true,
+    "started": "2026-10-17T15:14:57.815Z",
+    "finished": "2026-10-17T15:15:37.050Z"
+  },
+  "crashes": [
+    {
+      "exception": "0x80000003",
+      "moduleOffset": "0x2a81a49",
+      "rax": "0x8"
+    },
+    {
+      "exception": "0x80000003",
+      "moduleOffset": "0x2a81a49",
+      "rax": "0x8"
+    },
+    {
+      "exception": "0x80000003",
+      "moduleOffset": "0x2a81a49",
+      "rax": "0x8"
+    },
+    {
+      "exception": "0x80000003",
+      "moduleOffset": "0x2a81a49",
+      "rax": "0x8"
+    }
+  ],
+  "source": {
+    "tests": 5,
+    "passed": 5,
+    "exitCode": 0,
+    "maintenanceRun": "run-51008-648-1792250077096717000",
+    "inputIdentity": "0d8397209ac90cf1badb2937c26b1856b198322a67e900f57d69d51a8500fc94"
+  },
+  "sha256": {
+    "scripts/scroll-fade.cjs": "f8469397be69d487b6c901bdb0061796db9b81bc9f8359d4aad68572645bb658",
+    "scripts/inject-scroll-fade.cjs": "5371e197e630994acffe5a8084b57b143802bd123ebbb2c67f25fb81ead0d4fd",
+    "scripts/test-scroll-fade.cjs": "e87b67e8d6897f3193921b2f964a43aff44278592bb8b9cfb3dc9550952b49ff",
+    "scripts/namespace-azrael-host.cjs": "885275b4d7cd231a750c33882cc92a49f6b197687addf8a78a559ca50fbe3c0e"
+  }
+}

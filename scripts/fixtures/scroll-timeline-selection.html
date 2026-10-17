@@ -1,0 +1,22 @@
+<!doctype html><meta charset="utf-8"><title>ScrollTimeline selection crash</title>
+<style>
+body { font: 16px sans-serif; margin: 24px; }
+.scroller { width: 400px; height: 100px; overflow: auto;
+  animation: fade linear both; animation-timeline: scroll(self y); }
+.content { height: 300px; background: #ccc; }
+@keyframes fade { from { opacity: .5; } to { opacity: 1; } }
+</style>
+<p id="text">Synthetic selectable text. This page automatically selects the first few words.</p>
+<button id="toggle">Toggle scroll container</button>
+<div class="scroller"><div class="content">Synthetic A</div></div>
+<div class="scroller" style="display:none"><div class="content">Synthetic B</div></div>
+<script>
+const range = document.createRange();
+range.setStart(document.querySelector('#text').firstChild, 0);
+range.setEnd(document.querySelector('#text').firstChild, 15);
+getSelection().addRange(range);
+document.querySelector('#toggle').onclick = () => {
+  for (const scroller of document.querySelectorAll('.scroller'))
+    scroller.style.display = scroller.style.display === 'none' ? 'block' : 'none';
+};
+</script>

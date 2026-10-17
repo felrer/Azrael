@@ -24,6 +24,21 @@
   ],
   "bundles": [
     {
+      "id": "source-scroll-fade",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "--test", "scripts/test-scroll-fade.cjs"],
+      "inputs": [
+        "scripts/scroll-fade.cjs",
+        "scripts/inject-scroll-fade.cjs",
+        "scripts/test-scroll-fade.cjs",
+        "scripts/inject-content-fonts.cjs",
+        "scripts/content-fonts.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-aad627bd9dff.css"
+      ]
+    },
+    {
       "id": "source-btw",
       "kind": "test",
       "purpose": "retained",
