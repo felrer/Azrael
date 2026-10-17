@@ -2,51 +2,7 @@
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
 const path = require('node:path');
-const vm = require('node:vm');
 
-function recentChatCheck() {
-  require('node:child_process').execFileSync(process.execPath, ['--test', path.join(__dirname, 'test-recent-chat-filter.cjs')], { stdio: 'pipe' });
-  const injector = require('./inject-recent-chat-filter.cjs');
-  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.1007.21434');
-  const source = fs.readFileSync(path.join(root, injector.ASSET), 'utf8');
-  const result = injector.injectRecentChatFilter(source, injector.ASSET);
-  // Execute the real header setup, including its declarations, so a renamed
-  // local cannot silently shadow a query hook used earlier in the same scope.
-  const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || require.resolve('typescript', { paths: [path.resolve(__dirname, '../extensions/azrael-ex')] }));
-  const ast = ts.createSourceFile(injector.ASSET, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
-  const header = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Fn');
-  const setupEnd = header.body.statements.find(node => ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'S')).end;
-  const setup = result.text.slice(header.body.getStart(ast) + 1, setupEnd);
-  const renderContext = { Bn: { c: () => Array(66).fill(Symbol()) }, p: () => ({ pathname: '/' }), Ln: () => {},
-    nt: () => false, In: null, z: () => ({ data: [] }), te: () => ({ data: [] }), Fe: null,
-    azraelRecentChatTasks: () => ['rendered-header'] };
-  assert.deepEqual(Array.from(vm.runInNewContext(`(function(e){${setup};return S})({})`, renderContext)), ['rendered-header']);
-  assert.throws(() => vm.runInNewContext(`(function(e){${setup.replace('C=l||Fe==null,w;', 'C=l||Fe==null,te;')};return S})({})`, renderContext), /before initialization/);
-  assert.equal(result.count, 1);
-  assert.equal(injector.injectRecentChatFilter(result.text, injector.ASSET).count, 0);
-  assert.throws(() => injector.injectRecentChatFilter(source + source, injector.ASSET));
-  const local = { kind: 'local', conversation: {} }, cloud = { kind: 'cloud' }, orphan = { kind: 'local' };
-  let filter = 'recent';
-  const environment = { id: 'selected' };
-  // Resolve hook aliases from the actual pinned imports rather than inventing
-  // callable mocks for similarly named module initializers.
-  const importAliases = new Map(ast.statements.filter(ts.isImportDeclaration).flatMap(node =>
-    node.importClause?.namedBindings?.elements?.map(e => [e.propertyName?.text ?? e.name.text, e.name.text]) ?? []));
-  assert.equal(importAliases.get('Slt'), 'l');
-  assert.equal(importAliases.get('t$'), 'ce');
-  assert.match(injector.HELPER, /It\(\);let filter=l\(Pt\)/);
-  assert.match(injector.HELPER, /environmentId=l\(Ft\).*environments}=ce\(\)/);
-  const context = { It: () => {}, Pt: 'filter', Ft: 'environment', l: atom => atom === 'filter' ? filter : 'selected', ce: () => ({ data: [environment] }),
-    fn: (_tasks, _conversations, selected) => { assert.equal(selected, environment); return [local, cloud, orphan]; },
-    gn: { useMemo: action => action() }, yn: row => row.kind === 'cloud' };
-  vm.createContext(context);
-  vm.runInContext(injector.HELPER, context);
-  assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [local, cloud, orphan]);
-  filter = 'local'; assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [local]);
-  filter = 'cloud'; assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [cloud]);
-}
-if (process.argv.includes('--recent-chat-check')) { recentChatCheck(); console.log('Recent chat filtering behavior passed'); }
-else {
   const { test, after } = require('node:test');
   const gate = require('./feature-preservation.cjs');
   const artifactRoot = path.resolve(process.env.AZRAEL_FEATURE_PRESERVATION_TEST_ROOT || path.join(__dirname, '../artifacts/logs/feature-preservation'));
@@ -398,4 +354,49 @@ else {
     const receipt = JSON.parse(result.stdout);
     assert.equal(receipt.status, 'failed'); assert(fs.existsSync(receipt.receiptPath));
   });
-}
+
+  test('UI shared file checks preserve every feature result and propagate shared failures', async () => {
+    const obligations = {
+      'ui.submit-only-thread': ['submit-only-thread', 'project-drafts', 'composer-draft'],
+      'ui.session-flags': ['session-flags', 'project-drafts'],
+      'ui.project-drafts': ['project-drafts'],
+      'ui.composer-draft': ['composer-draft'],
+      'ui.team-change-management': ['team-change-service', 'team-observability', 'team-runtime-host', 'team-runtime', 'team-integration'],
+      'ui.team-lead': ['team-ui', 'team-runtime', 'team-integration'],
+      'ui.recovery': ['recovery-state', 'recovery-bridge', 'recovery-presentation'],
+      'ui.error-presentation': ['error-presentation', 'recovery-presentation', 'recovery-bridge'],
+    };
+    const inventory = gate.loadManifest(path.resolve(__dirname, '..'));
+    for (const failFile of [undefined, 'scripts/test-project-drafts.cjs']) {
+      const { root, manifest, config } = setup();
+      manifest.features = inventory.features.filter(feature => obligations[feature.id]).map(feature => ({
+        ...structuredClone(feature), owners: ['scripts/inject-fixture.cjs'], contract: 'docs/contract.md', reportFields: ['fixtureEdits']
+      }));
+      const expected = [];
+      for (const feature of manifest.features) {
+        const files = feature.checks.flatMap(check => check.args.filter(arg => arg.startsWith('scripts/test-')));
+        for (const name of obligations[feature.id]) assert.ok(files.includes(`scripts/test-${name}.cjs`), `${feature.id}: ${name}`);
+        for (const file of files) { expected.push(file); fs.writeFileSync(path.join(root, file), 'fixture'); }
+        fs.writeFileSync(path.join(root, 'scripts/check-error-presentation.cjs'), 'fixture');
+      }
+      const calls = [];
+      const execute = config.execute;
+      config.execute = async (executable, args, options) => {
+        calls.push(args);
+        const result = await execute(executable, args, options);
+        return { ...result, exitCode: args.includes(failFile) ? 19 : 0 };
+      };
+      const receipt = await gate.runPreservation(config);
+      assert.equal(receipt.status, failFile ? 'failed' : 'passed', receipt.error);
+      const drafts = receipt.checks.filter(check => check.args.includes('scripts/test-project-drafts.cjs'));
+      assert.equal(drafts.length, 3);
+      assert.ok(drafts.every(check => check.exitCode === (failFile ? 19 : 0)));
+      assert.equal(calls.filter(args => args.includes('scripts/test-project-drafts.cjs')).length, 1);
+      if (!failFile) {
+        assert.equal(receipt.checks.length, manifest.features.reduce((count, feature) => count + feature.checks.length, 0));
+        const executed = calls.flatMap(args => args.filter(arg => arg.startsWith('scripts/test-')));
+        assert.deepEqual([...new Set(executed)].sort(), [...new Set(expected)].sort());
+        assert.equal(executed.length, new Set(executed).size);
+      }
+    }
+  });

@@ -43,3 +43,44 @@ test("latest native recent menu callback preserves merged order and persisted en
   selected="local";assert.deepEqual(Array.from(context.azraelRecentChatTasks(tasks,conversations)),[rows[0]]);
   selected="cloud";assert.deepEqual(Array.from(context.azraelRecentChatTasks(tasks,conversations)),[rows[1]]);
 });
+
+test("pinned header executes without shadowing and resolves real filter hook aliases", () => {
+  const injector = require('./inject-recent-chat-filter.cjs');
+  const root = process.env.AZRAEL_PRESERVATION_UI_ROOT || path.resolve(__dirname, '../artifacts/upstream-ui/26.1007.21434');
+  const source = fs.readFileSync(path.join(root, injector.ASSET), 'utf8');
+  const result = injector.injectRecentChatFilter(source, injector.ASSET);
+  // Execute the real header setup, including its declarations, so a renamed
+  // local cannot silently shadow a query hook used earlier in the same scope.
+  const ts = require(process.env.AZRAEL_PRESERVATION_TYPESCRIPT_PATH || require.resolve('typescript', { paths: [path.resolve(__dirname, '../extensions/azrael-ex')] }));
+  const ast = ts.createSourceFile(injector.ASSET, result.text, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS);
+  const header = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name?.text === 'Fn');
+  const setupEnd = header.body.statements.find(node => ts.isVariableStatement(node) && node.declarationList.declarations.some(d => d.name.getText(ast) === 'S')).end;
+  const setup = result.text.slice(header.body.getStart(ast) + 1, setupEnd);
+  const renderContext = { Bn: { c: () => Array(66).fill(Symbol()) }, p: () => ({ pathname: '/' }), Ln: () => {},
+    nt: () => false, In: null, z: () => ({ data: [] }), te: () => ({ data: [] }), Fe: null,
+    azraelRecentChatTasks: () => ['rendered-header'] };
+  assert.deepEqual(Array.from(vm.runInNewContext(`(function(e){${setup};return S})({})`, renderContext)), ['rendered-header']);
+  assert.throws(() => vm.runInNewContext(`(function(e){${setup.replace('C=l||Fe==null,w;', 'C=l||Fe==null,te;')};return S})({})`, renderContext), /before initialization/);
+  assert.equal(result.count, 1);
+  assert.equal(injector.injectRecentChatFilter(result.text, injector.ASSET).count, 0);
+  assert.throws(() => injector.injectRecentChatFilter(source + source, injector.ASSET));
+  const local = { kind: 'local', conversation: {} }, cloud = { kind: 'cloud' }, orphan = { kind: 'local' };
+  let filter = 'recent';
+  const environment = { id: 'selected' };
+  // Resolve hook aliases from the actual pinned imports rather than inventing
+  // callable mocks for similarly named module initializers.
+  const importAliases = new Map(ast.statements.filter(ts.isImportDeclaration).flatMap(node =>
+    node.importClause?.namedBindings?.elements?.map(e => [e.propertyName?.text ?? e.name.text, e.name.text]) ?? []));
+  assert.equal(importAliases.get('Slt'), 'l');
+  assert.equal(importAliases.get('t$'), 'ce');
+  assert.match(injector.HELPER, /It\(\);let filter=l\(Pt\)/);
+  assert.match(injector.HELPER, /environmentId=l\(Ft\).*environments}=ce\(\)/);
+  const context = { It: () => {}, Pt: 'filter', Ft: 'environment', l: atom => atom === 'filter' ? filter : 'selected', ce: () => ({ data: [environment] }),
+    fn: (_tasks, _conversations, selected) => { assert.equal(selected, environment); return [local, cloud, orphan]; },
+    gn: { useMemo: action => action() }, yn: row => row.kind === 'cloud' };
+  vm.createContext(context);
+  vm.runInContext(injector.HELPER, context);
+  assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [local, cloud, orphan]);
+  filter = 'local'; assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [local]);
+  filter = 'cloud'; assert.deepEqual(Array.from(context.azraelRecentChatTasks([], [])), [cloud]);
+});

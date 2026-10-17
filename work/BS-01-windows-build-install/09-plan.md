@@ -1,10 +1,10 @@
-상태: 검사 실행 범위 축소 후보 조사 완료. 구현·검사 삭제·테스트·빌드·설치는 실행하지 않았다. 권장 우선순위 1~3을 제시하며 실제 변경은 후속 실행 지시 대상이다.
+상태: 권장 1~3 구현·검증·임시 fixture 정리 완료. 4~5와 추가 후보는 제외한다.
 
 # 검사 실행 범위 축소 후보
 
 ## 목표·권한·판단 기준
 
-이전 레거시 정리(`6eb1f2c4`) 이후 남은 검사 중 평상시 선택 범위나 반복 실행을 줄일 대상을 추린다. 이번 허용 범위는 코드·manifest·계약 조회, 부작용 없는 selector 실행 및 조사 기록 작성이다. 제품 코드, 검사 등록·선택 정책, 검사 본문과 설치 상태는 변경하지 않는다. 소요 시간 분석은 요청에서 제외된 상태를 유지한다.
+이전 레거시 정리(`6eb1f2c4`) 이후 남은 검사 중 평상시 선택 범위나 반복 실행을 줄일 대상을 추린다. 후속 실행 승인 전 조사 범위는 코드·manifest·계약 조회, 부작용 없는 selector 실행 및 조사 기록 작성이다. 제품 코드, 검사 등록·선택 정책, 검사 본문과 설치 상태는 변경하지 않는다. 소요 시간 분석은 요청에서 제외된 상태를 유지한다.
 
 현재 checkout의 engine 영역은 22기능·51검사(source 17/native 34), UI는 45기능·103검사다. 이는 논리 check ID 수이며 실제 프로세스·테스트 케이스 수와 다르다. 현재 HEAD는 `6eb1f2c4`이고 daemon 공존·model harness 등의 미커밋 변경은 다른 작업 소유다. 조사는 그 현재 working tree를 읽었으며 실행 중 설치본이나 변경 없는 최종 릴리스의 수용 근거로 일반화하지 않는다.
 
@@ -40,3 +40,23 @@ Windows x64에서 소스와 선택 결과를 확인했다. 배포 경로 분류�
 - 각 후보의 실제 도입 전에는 선택 감소와 유지 범위를 별도로 검증한다. 무관 변경·공통 변경·삭제/신규/미확인 입력·실패/변조 receipt·전체 회귀를 포함한 선택기 검사와, 공유 명령의 feature별 결과 연결이 필요하다. 실제 속도·컴파일 감소는 측정하지 않았으며 추정 시간도 제시하지 않는다.
 
 산출물은 이 조사 기록뿐이다. 임시 문서 본문은 번호 할당 후 일반 삭제한다. 작업별 커밋에는 조사 기록만 포함하고 다른 미커밋 소스는 유지한다.
+
+## 승인된 실행 범위
+
+사용자의 “권장대로 1~3을 축소해주세요”에 따라 최근 대화 검사 책임 분리, 표시 전용 확장 변경의 compaction integration 선택 축소, UI 중복 명령 공유를 구현하고 소스·정책 회귀를 검증한다. 기존 조사 전용 권한을 이 세 항목에 한해 실행 권한으로 갱신한다. 제품 빌드·설치와 소요 시간 분석은 제외한다. 기존 mandatory feature/check 의미, pinned UI assertion, 기본 engine 3기능과 미확인 변경의 넓은 검사를 유지한다.
+
+Root가 최근 대화·UI manifest·통합 검증·문서·커밋을 소유한다. 독립 작업자 presentation_selection은 deploy selector와 해당 PowerShell 회귀만 소유한다. Windows에서 source/mock 실행을 검증하며 공통 변경의 Linux/macOS 실행은 이번 증거에 포함하지 않는다. 일반 runner의 완전 동일 argv 공유와 기존 recent-chat node:test 파일을 재사용한다. 실행 로그와 fixture는 artifacts/tasks/windows-2026-0-9/runs/test-scope-reduction-r1에 사전 귀속시키며, fixture는 종료 후 정리하고 독립 검증 증거를 보존한다.
+
+## 구현 및 검증 결과
+
+1. 실제 pinned header 실행·TDZ 재현·hook alias·idempotence·filter assertion을 기존 test-recent-chat-filter.cjs로 옮기고 gate suite의 UI CLI branch와 중첩 테스트 호출을 제거했다. manifest는 해당 파일을 직접 node --test로 실행하며 무관한 gate cacheInputs 의존성을 제거했다. injector 변경의 changed-only는 namespace guard/recent-chat 2파일(이전3)이고, gate/source-reuse 변경 및 current/exhaustive는 도구 suite를 유지한다.
+2. usagePresentation.ts의 snapshot→HTML/CSS 표시 책임을 확인해 exact 경로 하나만 compaction integration 제외 대상으로 추가했다. 잘못된 extension/ 전체 제외는 제거했다. 공통 helper·protocol·host·request/context/queue/recovery·미확인·혼합·빈 입력·별도 engine root는 integration 포함4기능, 표시 전용은 기존 고정3기능이다. 전체 회귀는 유지한다.
+3. UI draft/team/recovery의 중복6파일을 동일 단일 파일 argv로 나눴다. project-drafts는3기능, 다른5파일은 각각2기능의 결과를 유지하며 파일별 distinct command는1개다. 모두 선택될 때 실행 중복7회를 제거한다. engine.shared-engine.host와의 추가 중복과 native 검사는 변경하지 않았다.
+
+실제 manifest 전체 reference/coverage 검증과 순수 선택 결과는 artifacts/tasks/windows-2026-0-9/runs/test-scope-reduction-r1/selection.json에 보존했다. Windows Node9파일 실행은136개 중135개 통과, 신규 공유 검사 fixture의 필수 reportFields 누락으로1개 실패(exit1)했다. fixture 수정 후 최종 해당 검사1개가 통과했다(exit0). 나머지135개는 관련 입력이 그대로여서 이전 결과를 재사용했다. 단일 명령 exit19가 project-drafts 세 기능 검사에 모두 기록되고 receipt를 실패시키는 경우도 최종 검사로 확인했다. source.log, shared-checks-final.log와 실제 exit JSON, verification-summary.json을 보존했다.
+
+배포 정책 검사와 related/explicit/full-regression verify-only mock4개는 프로세스 한정 Git core.longpaths=true에서 통과했다(exit0). 앞선2회는 긴 fixture 경로의 Git 제한으로 exit1이었고 실패 결과는 보존한다. 제품 빌드·native·설치·사용자 창·Linux/macOS 실행 검증은 이번 증거에 없다. 일반 gate fixture와 빈 루트를 삭제·부재 확인했다. 소스 검증 증거는 run:test-scope-reduction:r1에 등록하여 후속 수용 버전이 동등 증거를 보존할 때 재검토하도록 defer했다.
+
+정책 mock의 성공1개·실패2개 fixture는 모두 lifecycle 검토 후 삭제·부재 확인했다. 실패2개는 exit1 원본과 전체 membership/종료 근거를 failed-evidence에 남기고 생성 종료만 reconcile했다. Hidden/ReadOnly 생성물만 native cleanup callback이 기록 후 정상화했으며 강제 삭제나 System/ACL/소유 변경은 없었다. 정책 producer.json의 최종 두 소스 해시를 현재 파일과 대조했고4케이스 exit0을 확인했다. 정책 증거는 run:test-scope-reduction:policy로 등록·defer한다. 소스/정책 evidence의 재검토 조건은 이 변경의 수용 및 후속 수용 버전의 동등 검증 근거 보존이다.
+
+작업별 커밋에는 위1~3의8파일만 포함한다. manifest의 다른 engine owner 확장과 기존 daemon/model-harness 등의 미커밋 변경은 유지한다.

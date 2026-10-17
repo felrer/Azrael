@@ -459,3 +459,15 @@ test("preservation deferral requires full UI source scope and records precisely 
   assert.ok(!result.commands.some(command => command.files.includes("scripts/test-namespace-cache-owner.cjs")));
   assert.ok(result.files.includes("scripts/test-namespace-source.cjs"));
 });
+
+test("recent-chat edits select their pinned UI suite without gate regressions", () => {
+  const ui = selection(["--changed-only", "--changed", "scripts/inject-recent-chat-filter.cjs"]);
+  assert.ok(ui.files.includes("scripts/test-recent-chat-filter.cjs"));
+  assert.ok(!ui.files.includes("scripts/test-feature-preservation.cjs"));
+  for (const source of ["scripts/feature-preservation.cjs", "scripts/source-preflight-reuse.cjs"]) {
+    const tools = selection(["--changed-only", "--changed", source]);
+    assert.ok(tools.files.includes("scripts/test-feature-preservation.cjs"), source);
+  }
+  const all = selection(["--area", "current", "--exhaustive"]);
+  for (const file of ["scripts/test-feature-preservation.cjs", "scripts/test-recent-chat-filter.cjs"]) assert.ok(all.files.includes(file));
+});

@@ -318,11 +318,36 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
         try {
             $project = $root
             $defaultEngine = Join-Path $root 'engine'
-            foreach ($paths in @(@(), @('engine/codex-rs/unlisted/new.rs'), @('scripts/source-test-policy.cjs'))) {
-                Assert-True ('engine.thread-auto-compaction-integration' -in @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)) 'unknown or engine input omitted integration'
+            $baseFeatures = 'engine.provider-context|engine.recovery|engine.accepted-input'
+            $integrationFeatures = "$baseFeatures|engine.thread-auto-compaction-integration"
+            $displayPath = 'extensions/azrael-ex/src/usagePresentation.ts'
+            foreach ($paths in @(@('docs/README.md'), @($displayPath), @($displayPath, 'docs/README.md', 'scripts/inject-content-fonts.cjs'))) {
+                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
+                Assert-True (($selected -join '|') -ceq $baseFeatures) 'display-only selection changed the fixed base features or retained integration'
+                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot (Join-Path $root 'external-engine'))
+                Assert-True (($selected -join '|') -ceq $integrationFeatures) 'external engine omitted integration or fixed base features'
             }
-            Assert-True ('engine.thread-auto-compaction-integration' -notin @(Get-FocusedEngineFeatureIds -PolicyPaths @('docs/README.md') -EngineSourceRoot $defaultEngine)) 'unrelated docs did not omit integration'
-            Assert-True ('engine.thread-auto-compaction-integration' -in @(Get-FocusedEngineFeatureIds -PolicyPaths @('docs/README.md') -EngineSourceRoot (Join-Path $root 'external-engine'))) 'external engine omitted integration'
+            $relatedPaths = @(
+                'engine/codex-rs/unlisted/new.rs', 'scripts/source-test-policy.cjs',
+                'extensions/azrael-ex/src/usageView.ts', 'extensions/azrael-ex/src/protocol.ts',
+                'extensions/azrael-ex/src/providerAccountProtocol.ts', 'extensions/azrael-ex/src/providerBrandAssets.ts',
+                'extensions/azrael-ex/media/content-font-policy.cjs', 'extensions/azrael-ex/src/extension.ts',
+                'extensions/azrael-ex/src/hostRequest.ts', 'extensions/azrael-ex/src/context.ts',
+                'extensions/azrael-ex/src/queue.ts', 'extensions/azrael-ex/src/recovery.ts',
+                'extensions/azrael-ex/src/unlisted.ts', 'extensions/another/src/usagePresentation.ts',
+                'extension/usagePresentation.ts', 'extensions/azrael-ex/src/usagePresentation.ts/new.ts',
+                'extensions/azrael-ex/src/UsagePresentation.ts', '', ' '
+            )
+            foreach ($path in $relatedPaths) {
+                foreach ($paths in @(@($path), @($displayPath, $path))) {
+                    $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
+                    Assert-True (($selected -join '|') -ceq $integrationFeatures) "related or mixed input omitted integration or fixed base features: $path"
+                }
+            }
+            foreach ($paths in @($null, @())) {
+                $selected = @(Get-FocusedEngineFeatureIds -PolicyPaths $paths -EngineSourceRoot $defaultEngine)
+                Assert-True (($selected -join '|') -ceq $integrationFeatures) 'unknown input omitted integration or fixed base features'
+            }
             Write-Utf8 (Join-Path $root 'tracked.txt') 'baseline'
             & git -C $root init --quiet
             Assert-True ($LASTEXITCODE -eq 0) 'policy fixture init failed'
