@@ -312,7 +312,7 @@ function localMarketplacePath(home, name) {
     : path.join(home, "azrael", "codex-environment", "marketplaces", name);
 }
 
-function main(argv = process.argv.slice(2)) {
+async function main(argv = process.argv.slice(2)) {
   const args = parseArgs(argv);
   const sourceHome = path.resolve(args["source-home"] || path.join(os.homedir(), ".codex"));
   const stateRoot = path.resolve(args["state-root"] || path.join(os.homedir(), ".azrael-ex"));
@@ -534,19 +534,12 @@ function main(argv = process.argv.slice(2)) {
     runtimeEvidence.engine = { path: engine, sha256: fileHash(engine) };
     sourceStates.set(engine, pathState(engine));
 
-    const env = { ...process.env, CODEX_HOME: stageHome };
-    run(engine, ["features", "list"], { env }, "staged strict config load");
-    const pluginResults = [];
-    for (const plugin of enabledPlugins(sourceConfig)) {
-      let result;
-      try {
-        result = run(engine, ["plugin", "add", plugin, "--json"], { env }, `plugin materialization ${plugin}`);
-      } catch (error) {
-        const inventory = spawnSync(engine, ["plugin", "list", "--available", "--json"], { env, encoding: "utf8", windowsHide: true });
-        fail(`${error.message}; staged marketplace inventory: ${(inventory.stdout || inventory.stderr || "<empty>").trim()}`);
-      }
-      pluginResults.push({ plugin, result: JSON.parse(result) });
-    }
+    const nativeEngine = await require("./lib/codex-environment-engine.cjs").createEnvironmentEngine(engine);
+    await nativeEngine.validate(stageHome);
+    const pluginResults = await nativeEngine.materialize(stageHome, enabledPlugins(sourceConfig),
+      new Map([...sourceMarketplaces.keys()].map(name => [name, localMarketplacePath(stageHome, name)])),
+      { copyDirectory, directoryHash });
+    await nativeEngine.validate(stageHome);
     const stagedNodeEnvironment = configSections(stageConfig, "mcp_servers.node_repl.env")[0]?.lines.join("\n");
     if (!stagedNodeEnvironment) fail("Staged node_repl environment is missing.");
     for (const directory of (assignment(stagedNodeEnvironment, "NODE_REPL_NODE_MODULE_DIRS") || "").split(";").filter(Boolean)) {
@@ -582,7 +575,7 @@ function main(argv = process.argv.slice(2)) {
     assertUnchanged(sourceStates);
     assertUnchanged(destinationStates);
     if (args.mode === "validate") {
-      process.stdout.write(JSON.stringify({ status: "validated", fingerprint, stateRoot, applied: false, warnings }) + "\n");
+      process.stdout.write(JSON.stringify({ status: "validated", fingerprint, stateRoot, applied: false, pluginResults, warnings }) + "\n");
       return;
     }
     const artifactsUnchanged = existingReceipt?.managedStates && [...destinationStates].every(([target, state]) =>
@@ -657,7 +650,7 @@ function main(argv = process.argv.slice(2)) {
       };
       fs.mkdirSync(path.dirname(receiptPath), { recursive: true });
       fs.writeFileSync(receiptPath, JSON.stringify(receipt, null, 2) + "\n", "utf8");
-      run(engine, ["features", "list"], { env: { ...process.env, CODEX_HOME: stateRoot } }, "committed config load");
+      await nativeEngine.validate(stateRoot);
       process.stdout.write(JSON.stringify({ status: "applied", receipt: receiptPath, backup: backupDirectory, fingerprint, warnings }) + "\n");
     } catch (error) {
       for (const item of backups.reverse()) {
@@ -677,7 +670,7 @@ function main(argv = process.argv.slice(2)) {
 }
 
 if (require.main === module) {
-  try { main(); } catch (error) { process.stderr.write(`${error.stack || error.message}\n`); process.exitCode = 1; }
+  main().catch(error => { process.stderr.write(`${error.stack || error.message}\n`); process.exitCode = 1; });
 }
 
 module.exports = { assertManagedTarget, assertUnchanged, assignment, directoryHash, enabledPlugins, generatedRole, instructionBody, marketplaceSources, parseToml, pathState, replaceAssignment, selectedConfig, splitToml, stringifyToml, assertDirectory, assertFile, copyDirectory, fail, fileHash, isWithin, parseArgs, run, sha256 };

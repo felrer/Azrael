@@ -100,7 +100,9 @@ function catalog(root = ROOT) {
   const config = JSON.parse(fs.readFileSync(path.join(root, "project-maintenance.json"), "utf8"));
   return { schema_version: 1, project_id: config.project_id, selectorAreas: project.AREAS,
     bundles: config.bundles.map(bundle => ({ ...bundle, phase: bundle.kind,
-      checkIds: bundle.id.startsWith("source-") ? planSelection(project.parseArgs(["--area", bundle.id.slice(7)]), root).commands.flatMap(command => command.checkIds) : [bundle.id] })) };
+      checkIds: bundle.argv?.[1] === "scripts/project-maintenance.cjs" && bundle.argv[2] === "test"
+        ? planSelection(project.parseArgs(bundle.argv.slice(3)), root).commands.flatMap(command => command.checkIds)
+        : [bundle.id] })) };
 }
 
 // Known producer receipt only; no filename/age scan. A historical receipt cannot

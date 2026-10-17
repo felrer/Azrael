@@ -365,6 +365,9 @@ function selectChanged(options, root) {
         separateChecks.add(`Extension owner discovery requires a separate check for ${file}: ${error.message}`);
       }
     }
+    if (file === "extensions/azrael-ex/tsconfig.json") {
+      separateChecks.add(`${file}: Extension compiler configuration requires a separate extension build and test check`);
+    }
     if (!matched) {
       const reason = "No direct test owner mapped; separate check required (no whole-suite fallback)";
       reasons.push({ path: file, reason });

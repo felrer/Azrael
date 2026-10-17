@@ -82,11 +82,12 @@ fn instruction_updates_are_applied_once_in_retained_history() {
 }
 
 #[test]
-fn catalog_collaboration_messages_select_mode_variant() {
+fn catalog_collaboration_policy_cannot_replace_mode_instructions() {
     let bundled = ResolvedModelMessages::bundled().collaboration_modes();
     for (default, plan) in [
         ("catalog default instructions", "catalog plan instructions"),
         (bundled.default.text(), bundled.plan.text()),
+        ("", ""),
     ] {
         let mut model = model_info_from_slug("test-model");
         model.model_messages = Some(ModelMessages {
@@ -97,16 +98,23 @@ fn catalog_collaboration_messages_select_mode_variant() {
             ..Default::default()
         });
         let messages = ResolvedModelMessages::from_model(&model).collaboration_modes();
+        assert_eq!(messages.default.catalog_override(), None);
+        assert_eq!(messages.plan.catalog_override(), None);
 
-        for (mode, expected) in [(ModeKind::Default, default), (ModeKind::Plan, plan)] {
-            let state = CollaborationModeState::from_collaboration_mode(
-                &collaboration_mode(mode, Some("legacy instructions")),
-                messages,
-                /*update_plan_enabled*/ true,
-                /*custom_model_catalog*/ false,
-            );
+        for mode in [ModeKind::Default, ModeKind::Plan] {
+            for instructions in [Some("legacy instructions"), Some(""), None] {
+                let state = CollaborationModeState::from_collaboration_mode(
+                    &collaboration_mode(mode, instructions),
+                    messages,
+                    /*update_plan_enabled*/ true,
+                    /*custom_model_catalog*/ false,
+                );
 
-            assert_eq!(state.instructions.as_deref(), Some(expected));
+                assert_eq!(
+                    state.instructions.as_deref(),
+                    instructions.filter(|text| !text.is_empty()),
+                );
+            }
         }
     }
 }

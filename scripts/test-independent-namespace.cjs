@@ -80,6 +80,16 @@ const originalManifestText = hs.readFileSync(path.join(originalRoot, "package.js
 const originalManifest = JSON.parse(originalManifestText);
 const hostManifest = readJson(hostRoot, "package.json");
 const payloadManifest = readJson(hostRoot, "account-ui/package.json");
+for (const name of ["codex-environment-engine.cjs", "azrael-rpc-check.mjs"]) {
+  assert.deepEqual(hs.readFileSync(path.join(hostRoot, "account-ui/lib", name)),
+    hs.readFileSync(path.join(__dirname, "lib", name)), `packaged environment dependency differs: ${name}`);
+}
+assert.equal(typeof require(path.join(hostRoot, "account-ui/lib/codex-environment-engine.cjs")).createEnvironmentEngine, "function");
+const environmentImport = require("node:child_process").spawnSync(process.execPath,
+  ["--input-type=module", "-e", "const m=await import(process.argv[1]); if(typeof m.JsonLinePeer!=='function')throw Error('Missing JsonLinePeer');",
+    require("node:url").pathToFileURL(path.join(hostRoot, "account-ui/lib/azrael-rpc-check.mjs")).href],
+  { encoding: "utf8", windowsHide: true, timeout: 10000 });
+assert.equal(environmentImport.status, 0, environmentImport.error?.message || environmentImport.stderr);
 const originalBundle = hs.readFileSync(path.join(originalRoot, "out", "extension.js"), "utf8");
 const hostBundle = hs.readFileSync(path.join(hostRoot, "out", "extension.js"), "utf8");
 assert.equal(count(originalBundle, require("./inject-image-file-open.cjs").MARKER), 0,

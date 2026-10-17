@@ -239,7 +239,22 @@ test("namespace composition respects declared feature and cache inputs without i
 
 test("btw and native cache deltas select their actual owners without unrelated UI composition", () => {
   const btw = selection(["--changed-only", "--changed", "scripts/inject-btw.cjs"]);
-  assert.deepEqual(btw.files, ["scripts/test-asset-transform-cache.cjs", "scripts/test-btw.cjs", "scripts/test-composer-draft.cjs", "scripts/test-namespace-cache-owner.cjs", "scripts/test-send-result-integration.cjs", "scripts/test-ui-test-transform-fixture.cjs"]);
+  // ui.computer-use declares namespace composition, whose composer-draft dependency imports BTW.
+  assert.deepEqual(btw.files, [
+    "scripts/test-asset-transform-cache.cjs",
+    "scripts/test-btw.cjs",
+    "scripts/test-composer-draft.cjs",
+    "scripts/test-computer-use-approvals.cjs",
+    "scripts/test-computer-use-injection.cjs",
+    "scripts/test-computer-use-runtime.cjs",
+    "scripts/test-namespace-cache-owner.cjs",
+    "scripts/test-send-result-integration.cjs",
+    "scripts/test-sky-control-policy.cjs",
+    "scripts/test-ui-test-transform-fixture.cjs",
+    "scripts/test-window-desktop-authority.cjs",
+    "scripts/tests/codex-environment-engine.test.cjs",
+    "scripts/tests/sync-codex-environment.test.cjs",
+  ]);
   const native = selection(["--changed-only", "--changed", "scripts/native-verification-cache.cjs"]);
   assert.deepEqual(native.files, ["scripts/test-feature-preservation-cache.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-native-verification-cache.cjs", "scripts/test-pipeline-preservation.cjs", "scripts/test-preservation-integration.cjs", "scripts/test-student-design.cjs"]);
   // Student design explicitly imports the preservation gate; other UI tests do not.
@@ -355,7 +370,9 @@ test("changed-only TypeScript owners preserve affected standalone tests and comp
   const changedTest = selection(["--changed-only", "--changed", "extensions/azrael-ex/test/standaloneHostContract.test.ts"]);
   assert.deepEqual(changedTest.extensionFiles, ["extensions/azrael-ex/test/standaloneHostContract.test.ts"]);
   const config = selection(["--changed-only", "--changed", "extensions/azrael-ex/tsconfig.json"]);
-  assert.equal(config.commands.length, 0);
+  for (const file of ["scripts/test-error-presentation.cjs", "scripts/test-recovery-bridge.cjs", "scripts/test-recovery-presentation.cjs"])
+    assert.ok(config.files.includes(file), `declared compiler-config owner missing: ${file}`);
+  assert.ok(!config.commands.some(command => command.name === "extension-build"));
   assert.ok(config.separateChecks.some(reason => reason.includes("tsconfig.json")));
 });
 

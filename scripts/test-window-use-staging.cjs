@@ -67,7 +67,7 @@ test('generated settings ESM retains schema-2 independent stage admission', asyn
   owner.updateSettings({ windowUseEnabled: false }, 1);
   assert.throws(() => owner.assertStageEnabled(4), /disabled/i);
 });
-test('unified sync installs only Window Use and preserves unknown standalone Computer Use consumers', t => {
+test('unified sync installs only Window Use and preserves unknown standalone Computer Use consumers', async t => {
   const { root, write } = fixture(t);
   const engine = write('engine.exe', 'mock engine'), source = path.join(root, 'source'), state = path.join(root, 'state'), runtime = path.join(root, 'runtime');
   write('source/config.toml', `notify = [${JSON.stringify(engine)}]\n`);
@@ -76,11 +76,24 @@ test('unified sync installs only Window Use and preserves unknown standalone Com
   write('runtime/node_modules/placeholder', 'mock'); write('runtime/sky-controlled-service.mjs', 'mock sky');
   write('runtime/skills/window-use/SKILL.md', '---\nname: window-use\ndescription: unified\n---\nManaged context');
   const legacy = write('state/skills/computer-use/SKILL.md', 'independently managed or active legacy entry');
+  const validations = [];
   const sync = load('sync-codex-environment.cjs', {
     './computer-use-runtime.cjs': { verifyRuntime: () => ({ manifest: { windowUseGuidanceVersion: 1 } }) },
-    'node:child_process': { spawnSync: (command, args, options) => command === engine ? { status: 0, stdout: '', stderr: '' } : require('node:child_process').spawnSync(command, args, options) },
+    // This fixture owns skill staging. Native strict configuration and plugin
+    // materialization have separate selected-engine integration coverage.
+    './lib/codex-environment-engine.cjs': { createEnvironmentEngine: async selected => {
+      assert.equal(selected, engine);
+      return {
+        validate: async home => { validations.push(home); },
+        materialize: async (home, selectors) => { assert.equal(selectors.length, 0); return []; },
+      };
+    } },
   }, '\nmodule.exports.main = main;');
-  sync.main(['--source-home', source, '--state-root', state, '--engine', engine, '--manifest', manifest, '--computer-use-directory', runtime]);
+  await sync.main(['--source-home', source, '--state-root', state, '--engine', engine, '--manifest', manifest, '--computer-use-directory', runtime]);
+  assert.equal(validations.length, 3);
+  assert.equal(validations[0], validations[1]);
+  assert.notEqual(validations[0], state);
+  assert.equal(validations[2], state);
   assert.equal(fs.readFileSync(legacy, 'utf8'), 'independently managed or active legacy entry');
   assert.equal(fs.readFileSync(path.join(state, 'skills/window-use/SKILL.md'), 'utf8'), fs.readFileSync(path.join(runtime, 'skills/window-use/SKILL.md'), 'utf8'));
   const receipt = JSON.parse(fs.readFileSync(path.join(state, 'azrael/codex-environment/snapshot.json')));

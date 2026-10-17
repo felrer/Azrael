@@ -63,6 +63,16 @@ test("native catalog keeps component build receipts separate and explicit test p
   assert.ok(catalog.bundles.find(bundle => bundle.id === "source-queue").checkIds.length >= 6);
 });
 
+test("direct source-named bundles retain their configured command instead of inventing an area", () => {
+  const directory = fs.mkdtempSync(path.join(require("node:os").tmpdir(), "azrael-catalog-"));
+  try {
+    fs.writeFileSync(path.join(directory, "project-maintenance.json"), JSON.stringify({
+      project_id: "fixture", bundles: [{ id: "source-custom", kind: "test", argv: ["node", "--test", "scripts/test-custom.cjs"] }],
+    }));
+    assert.deepEqual(adapter.catalog(directory).bundles[0].checkIds, ["source-custom"]);
+  } finally { fs.rmSync(directory, { recursive: true }); }
+});
+
 test("native configuration admits Cargo target descendants while excluding source owners", () => {
   const config = JSON.parse(fs.readFileSync(path.join(root, "project-maintenance.json"), "utf8"));
   // Inspect configuration only: the native library enforces managed-root equality,
