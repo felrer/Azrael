@@ -232,6 +232,63 @@ else {
     fs.writeFileSync(receipt.receiptPath, original); fs.writeFileSync(receipt.checks[0].errorPath, 'tampered');
     await assert.rejects(gate.verifyReceipt(verifyConfig), /evidence changed/);
   });
+  test('engine preflight shares whole-file checks and rejects changed evidence or environment', async () => {
+    const { root, manifest, config } = setup();
+    const file = 'scripts/test-fixture.cjs';
+    fs.writeFileSync(path.join(root, file), 'fixture source');
+    const feature = manifest.features.find(item => item.area === 'engine');
+    feature.checks = [{ id: 'engine.fixture.source', executable: 'node', args: ['--test', file], level: 'source' }];
+    fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
+    let executions = 0;
+    const sourceConfig = { ...config, area: 'engine', checkPhase: 'source', execute: async (...args) => {
+      executions++; return config.execute(...args);
+    } };
+    const receipt = await gate.runPreservation(sourceConfig);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    assert.equal(executions, 1);
+    const { bindSourcePreflight } = require('./source-preflight-reuse.cjs');
+    const selection = { files: [file, 'scripts/remaining.cjs'], commands: [{ name: 'source', executable: process.execPath,
+      args: ['--test', '--test-concurrency=4', file, 'scripts/remaining.cjs'], cwd: root, files: [file, 'scripts/remaining.cjs'] }] };
+    const reuseConfig = { ...sourceConfig, receiptPath: receipt.receiptPath };
+    const bound = await bindSourcePreflight(selection, reuseConfig, root);
+    assert.deepEqual(bound.selection.commands[0].files, ['scripts/remaining.cjs']);
+    assert.deepEqual(bound.selection.sourcePreflight.files, [file]);
+    assert.deepEqual(bound.environment, gate.checkEnvironment(sourceConfig));
+    await bound.validate();
+    assert.equal(executions, 1, 'reuse must not execute checks again');
+    const original = fs.readFileSync(receipt.receiptPath, 'utf8');
+    const damaged = JSON.parse(original); damaged.checks[0].signal = 'SIGTERM';
+    fs.writeFileSync(receipt.receiptPath, JSON.stringify(damaged));
+    await assert.rejects(bindSourcePreflight(selection, reuseConfig, root), /mandatory check failed/);
+    await assert.rejects(bound.validate(), /receipt changed/);
+    fs.writeFileSync(receipt.receiptPath, original);
+    const oldEnvironment = process.env.AZRAEL_PREFLIGHT_REUSE_TEST;
+    try {
+      process.env.AZRAEL_PREFLIGHT_REUSE_TEST = 'changed';
+      await assert.rejects(bound.validate(), /environment changed/);
+    } finally {
+      if (oldEnvironment === undefined) delete process.env.AZRAEL_PREFLIGHT_REUSE_TEST;
+      else process.env.AZRAEL_PREFLIGHT_REUSE_TEST = oldEnvironment;
+    }
+    fs.writeFileSync(receipt.checks[0].logPath, 'changed');
+    await assert.rejects(bound.validate(), /evidence changed/);
+  });
+  test('filtered engine preflight never claims complete file coverage', async () => {
+    const { root, manifest, config } = setup();
+    const file = 'scripts/test-fixture.cjs';
+    fs.writeFileSync(path.join(root, file), 'fixture');
+    const feature = manifest.features.find(item => item.area === 'engine');
+    feature.checks = [{ id: 'engine.fixture.filtered', executable: 'node', args: ['--test', '--test-name-pattern=one', file], level: 'source' }];
+    fs.writeFileSync(path.join(root, 'scripts/azrael-feature-contracts.json'), JSON.stringify(manifest));
+    const sourceConfig = { ...config, area: 'engine', checkPhase: 'source' };
+    const receipt = await gate.runPreservation(sourceConfig);
+    assert.equal(receipt.status, 'passed', receipt.error);
+    const selection = { commands: [{ name: 'source', executable: process.execPath, args: ['--test', file], files: [file], cwd: root }] };
+    const bound = await require('./source-preflight-reuse.cjs').bindSourcePreflight(selection,
+      { ...sourceConfig, receiptPath: receipt.receiptPath }, root);
+    assert.deepEqual(bound.selection.sourcePreflight.files, []);
+    assert.deepEqual(bound.selection.commands, selection.commands);
+  });
   test('positive counters cannot bind reports for old rules or another pristine UI', async () => {
     const { config, root } = setup(); const receipt = await gate.runPreservation(config);
     const bindConfig = { ...config, outputDirectory: undefined, receiptPath: receipt.receiptPath,

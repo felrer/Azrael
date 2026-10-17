@@ -145,6 +145,15 @@ try {
     throw new Error('Fresh state unexpectedly contains an account');
   }
 
+  // Check the fresh logged-out state before any configuration mutation.
+  const threads = await enginePeer.request('thread/list', { limit: 10 });
+  if (!Array.isArray(threads?.data)) {
+    throw new Error(`Invalid fresh thread/list response: ${JSON.stringify(threads)}`);
+  }
+  if (threads.data.length !== 0) {
+    throw new Error('Fresh state unexpectedly contains threads');
+  }
+
   await enginePeer.request('config/value/write', {
     keyPath: 'model',
     value: 'azrael-management-probe',
@@ -196,6 +205,7 @@ try {
     checks: [
       'stdio initialize and bridge ready notification',
       'concurrent logged-out identity over stdio and bridge',
+      'fresh logged-out empty thread list over stdio before config mutation',
       'native config write observed through bridge',
       'bridge account/logout denied with -32601',
       'bridge close preserves stdio',

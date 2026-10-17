@@ -9,6 +9,21 @@ const { test } = require("node:test");
 // Execute the actual wrappers with an in-memory Cargo boundary. No workspace,
 // compilation, host state, or temporary fixture is needed for these contracts.
 const sourceRoot = path.resolve("frozen engine fixture");
+test('shared guidance and Python diagnostics retain each feature with identical invocation', () => {
+  const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
+  const check = id => manifest.features.flatMap(feature => feature.checks).find(item => item.id === id);
+  const guidance = ['engine.parent-requests.guidance', 'engine.model-harness-profiles.guidance', 'tool.project-maintenance.guidance'].map(check);
+  for (const item of guidance) {
+    assert.equal(item.level, 'source');
+    assert.equal(item.executable, 'node');
+    assert.deepEqual(item.args, ['--test', 'scripts/test-common-agent-instructions.cjs']);
+  }
+  const diagnostics = ['engine.provider-context.safe-context-export', 'engine.error-classification.export'].map(check);
+  for (const item of diagnostics) {
+    assert.equal(item.executable, 'python');
+    assert.deepEqual(item.args, ['-B', 'scripts/tests/test_inspect_native_azrael_errors.py']);
+  }
+});
 function runWrapper(name, args = [sourceRoot], results = [{ status: 0 }], workspaceExists = true) {
   const calls = [];
   const processStub = { argv: [process.execPath, name, ...args], exitCode: undefined };

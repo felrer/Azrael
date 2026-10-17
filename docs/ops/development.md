@@ -490,7 +490,8 @@ node scripts/check-accounts.mjs '<engine>' '<bridge>' '<new state directory>' '<
 node scripts/check-accounts.mjs '<engine>' '<bridge>' '<new state directory>' '<new short socket path>' --account-controls-only
 node scripts/check-multiwindow-accounts.mjs '<engine>' '<bridge>' '<new directory under artifacts/verification>' '<new short socket directory>'
 node scripts/check-management.mjs '<engine>' '<bridge>' '<new state directory>' '<new short socket path>'
-node scripts/check-engine.mjs '<engine>' '<new check directory>'
+# deterministic transport mock; does not establish native engine acceptance
+node scripts/test-check-management.mjs '<new absolute output directory>'
 ```
 
 These use disposable mock profiles or synthetic local credentials and make no model requests or reset-credit use. The `--account-controls-only` route requires the real management bridge and verifies paid timer defaults, automatic-switch/timer enable-disable responses, invalid-profile refusal, and settings across engine restarts. Its `verification.json` is retained in the requested fixture state directory. The multi-window check starts two engine/bridge pairs on one disposable home and verifies that stopping one leaves the other connected; initialize the first empty SQLite store before starting the second, because simultaneous first-time bootstrap has a separate initialization race. A profile used by another window cannot be removed; finish that work and close its window instead of bypassing the lease. Provider account procedures: [provider accounts](provider-accounts.md).

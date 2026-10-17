@@ -1,7 +1,6 @@
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 
-export const thoughtSignature = 'c3ludGhldGljLWdvb2dsZS10aG91Z2h0';
 export const echoIdentity = 'MANAGED_NATIVE_FIXTURE_NAMESPACE_B_ECHO';
 
 // Only implements provider wire responses; inference and native history conversion
@@ -17,11 +16,7 @@ export async function startFixture() {
     try {
       if (req.method === 'GET' && req.url === '/openrouter/api/v1/models') {
         controls.catalogRequests++;
-        const ids = ['fixture/model-with-slash', ...Array.from({ length: 150 }, (_, i) => `fixture/catalog-${i}`)];
-        res.writeHead(200, { 'content-type': 'application/json' });
-        res.end(JSON.stringify({ data: ids.map(id => ({ id, name: id, context_length: 32768,
-          architecture: { input_modalities: ['text'], output_modalities: ['text'] }, supported_parameters: ['tools'] })) }));
-        return;
+        throw new Error('fixture_retired_openrouter_catalog_requested');
       }
       assert.equal(req.method, 'POST');
       let raw = '';
@@ -63,7 +58,7 @@ export async function startFixture() {
         send({ type: 'response.completed', response: { id, usage: { input_tokens: 12, output_tokens: 8, total_tokens: 20 } } });
         res.end(); return;
       }
-      assert(['google', 'xai', 'openrouter', 'anthropic'].includes(provider));
+      assert.equal(provider, 'anthropic', 'fixture_retired_provider_requested');
       if (provider === 'anthropic') {
         assert.equal(req.url, '/anthropic/v1/messages', 'claude_official_messages_path');
         assert.equal(req.headers.authorization, 'Bearer synthetic-managed-anthropic-oauth-access', 'claude_oauth_bearer');
@@ -77,10 +72,7 @@ export async function startFixture() {
       const final = raw.includes(result);
       const compact = controls.compact || handoff; controls.compact = false;
       requests.push({ provider, path: req.url, sequence, final, compact, handoff, body });
-      const declarations = provider === 'google'
-        ? (body.tools ?? []).flatMap(tool => tool.functionDeclarations ?? [])
-        : provider === 'anthropic' ? (body.tools ?? [])
-        : (body.tools ?? []).map(tool => tool.function).filter(Boolean);
+      const declarations = body.tools ?? [];
       const alias = declarations.find(tool => tool.description?.includes(echoIdentity))?.name
         ?? declarations.find(tool => tool.name?.includes('namespace_b') && tool.name.includes('echo'))?.name;
       if (!compact) assert(alias, `missing_declared_namespaced_echo:${JSON.stringify(declarations.map(tool => tool.name))}`);
@@ -89,20 +81,16 @@ export async function startFixture() {
         assert(blocks.some(block => block.type === 'tool_use' && block.input?.value === marker), 'claude_replays_tool_use');
         assert(blocks.some(block => block.type === 'tool_result' && JSON.stringify(block).includes(result)), 'claude_replays_tool_result');
       }
-      if (provider === 'google') {
-        for (const content of body.contents ?? []) for (const part of content.parts ?? []) {
-          if (final && !handoff && part.functionCall && (part.functionCall.id === `call_${sequence}` || part.functionCall.args?.value === marker)) {
-            assert.equal(part.thoughtSignature, thoughtSignature, 'google_current_turn_signature_replay');
-          }
-        }
-      }
       res.writeHead(200, { 'content-type': 'text/event-stream', 'cache-control': 'no-cache' });
-      const send = value => res.write(`data: ${JSON.stringify(value)}\n\n`);
+      const event = value => res.write(`event: ${value.type}\ndata: ${JSON.stringify(value)}\n\n`);
+      function partialAnthropic(type, delta, name) {
+        event({ type: 'message_start', message: { id: 'msg_partial', type: 'message', role: 'assistant', model: body.model, content: [], usage: { input_tokens: 12, output_tokens: 0 } } });
+        event({ type: 'content_block_start', index: 0, content_block: type === 'text' ? { type, text: '' } : { type, id: 'cancel_partial', name, input: {} } });
+        event({ type: 'content_block_delta', index: 0, delta });
+      }
       if (handoff && controls.handoffDelay) {
         controls.handoffDelay = false;
-        assert.equal(provider, 'xai');
-        send({ id: 'partial_handoff', object: 'chat.completion.chunk', created: 1, model: body.model,
-          choices: [{ index: 0, delta: { role: 'assistant', content: 'UNFINISHED_HANDOFF_MUST_NOT_PERSIST' }, finish_reason: null }] });
+        partialAnthropic('text', { type: 'text_delta', text: 'UNFINISHED_HANDOFF_MUST_NOT_PERSIST' });
         handoffResolve();
         const timer = setTimeout(() => res.destroy(), 30_000);
         res.once('close', () => clearTimeout(timer));
@@ -110,9 +98,7 @@ export async function startFixture() {
       }
       if (controls.delay) {
         controls.delay = false;
-        assert.equal(provider, 'xai', 'cancellation_fixture_uses_chat_wire');
-        send({ id: 'delayed_partial', object: 'chat.completion.chunk', created: 1, model: body.model,
-          choices: [{ index: 0, delta: { role: 'assistant', tool_calls: [{ index: 0, id: 'cancel_partial', type: 'function', function: { name: alias, arguments: '{"value":' } }] }, finish_reason: null }] });
+        partialAnthropic('tool_use', { type: 'input_json_delta', partial_json: '{"value":' }, alias);
         delayedResolve();
         const timer = setTimeout(() => res.destroy(), 30_000);
         res.once('close', () => clearTimeout(timer));
@@ -135,19 +121,6 @@ export async function startFixture() {
         }
         event({ type: 'message_delta', delta: { stop_reason: final || compact ? 'end_turn' : 'tool_use' }, usage: { output_tokens: 8 } });
         event({ type: 'message_stop' });
-      } else if (provider === 'google') {
-        send({ candidates: [{ index: 0, content: { role: 'model', parts: final || compact
-          ? [{ text: summary ?? answer }]
-          : [{ functionCall: { name: alias, args: { value: marker }, id: `call_${sequence}` }, thoughtSignature }] }, finishReason: 'STOP' }],
-          usageMetadata: { promptTokenCount: 12, candidatesTokenCount: 8, totalTokenCount: 20 } });
-      } else {
-        const chunk = (delta, finish_reason = null) => ({ id: `fixture_${sequence}`, object: 'chat.completion.chunk', created: 1,
-          model: body.model, choices: [{ index: 0, delta, finish_reason }] });
-        send(chunk({ role: 'assistant', ...(final || compact ? { content: summary ?? answer } : {
-          tool_calls: [{ index: 0, id: `call_${sequence}`, type: 'function', function: { name: alias, arguments: JSON.stringify({ value: marker }) } }],
-        }) }));
-        send(chunk({}, final || compact ? 'stop' : 'tool_calls'));
-        res.write('data: [DONE]\n\n');
       }
       res.end();
     } catch (error) {

@@ -273,6 +273,9 @@ try {
     Wait-OwnedCommands @($sourcePreflight)
     $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
     if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
+    $sourceConfig.receiptPath = [string]$sourcePreflightResult.receiptPath
+    $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+    $sourceTestArgs += @('--source-preflight-config', $sourceConfigPath)
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     # Build completion releases binary consumers; source failures still cancel owned work.

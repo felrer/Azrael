@@ -571,6 +571,10 @@ function Assert-AzraelVerificationStatePath {
     $policy=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/source-test-policy-inputs.json') -Raw | ConvertFrom-Json
     Assert-True ((@($policy.changedPaths) -join '|') -ceq ($expectedPolicyPaths -join '|') -and $policy.exhaustive -eq $Exhaustive) 'source policy inputs mismatch'
     $expectedSourceArgs+=@('--log-directory',(Join-Path $a 'logs/deploy-chosen/source-tests'))
+    $sourceReuseConfigPath=Join-Path $a 'logs/deploy-chosen/engine-source-preflight-inputs.json'
+    $expectedSourceArgs+=@('--source-preflight-config',$sourceReuseConfigPath)
+    $sourceReuseConfig=Get-Content -LiteralPath $sourceReuseConfigPath -Raw | ConvertFrom-Json
+    Assert-True ($sourceReuseConfig.checkPhase -ceq 'source' -and (Test-Path -LiteralPath $sourceReuseConfig.receiptPath -PathType Leaf)) 'source runner did not receive the completed preflight receipt'
     Assert-True (($invocation -join '|') -ceq ($expectedSourceArgs -join '|')) 'source argv did not match selected regression scope'
     Assert-True ($metrics.testScope -ceq $(if($FullRegression){'full'}else{'changed'})) 'source test scope metric lost'
     Assert-True ($metrics.forceNativeVerification -is [bool] -and $metrics.forceNativeVerification -eq $ForceNative) 'native verification policy metric lost'
