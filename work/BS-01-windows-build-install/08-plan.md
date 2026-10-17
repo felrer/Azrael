@@ -1,8 +1,8 @@
-상태: 소스·등록·실행 경로 조사 완료. 삭제·검사 축소 후보와 보존 조건을 제안한다. 제품 코드 삭제·빌드·네이티브 검사는 실행하지 않았다.
+상태: 승인된 레거시 정리와 Windows source/mock 통합 검증 완료. 사용자 추가 조치 없음. 실제 native engine·Linux/macOS 검증과 제품 빌드·설치는 수행하지 않았다.
 
 # 엔진 검사 레거시·삭제 후보 조사
 
-사용자 요청은 현재 엔진 검사에 남은 레거시 단계와 불필요한 검사를 조사하는 것이다. 이전 빌드 효율화와 연결된 별도 후속 조사이며 실제 삭제·검사 축소는 제안으로만 남긴다.
+사용자 요청은 현재 엔진 검사에 남은 레거시 단계와 불필요한 검사를 조사하는 것이다. 이전 빌드 효율화와 연결된 별도 후속 조사이며 이후 사용자가 권장 정리와 문제 해결을 승인해 기존 보호 동작을 유지하며 실행한다.
 
 공통 검사 선택기·feature inventory·Windows 배포 경로와 수동 엔진 fixture를 대상으로 실제 호출자, 보호 계약, 대체 검사와 공백을 확인한다. 현재 소스는 docs/ops/development.md가 선택하는 engine/ 통합 0.162.0이다. Windows x64에서 파일·호출 경로를 조사하며 네이티브 빌드나 Linux/macOS 동작을 검증하지 않는다.
 
@@ -48,4 +48,18 @@ check-devin-engine.mjs는 현재 manifest의 native gate가 아니다. 그러나
 
 실제 삭제·축소 전에는 (1) 유지할 feature별 assertion과 새 check ID 매핑, (2) shared invocation 하나로 여러 feature receipt 보존, (3) 누락·입력 변경·실패 시 재사용 거절, (4) 명령 선택기 및 해당 mock/native fixture를 검증해야 한다. 빌드 시간 개선은 대상 검사의 현재 실행 여부와 원래 로그 시간을 연결해 추정하고 실제 후속 빌드에서 측정한다. 수동 legacy 스크립트 삭제가 현재 기본 Rust 컴파일 시간을 줄인다고 주장하지 않는다.
 
-조사는 읽기 전용 코드·문서·manifest 조회 및 순수 selector 조회로 수행했다. Rust/Node 테스트 suite나 native binary를 실행하지 않았고, 실사용 계정·세션·설치·서비스·생성 cache를 변경하지 않았다. 새 파일은 이 조사 기록 하나이며 임시 plan 본문은 일반 삭제했다. 상위 엔진의 모든 Rust 테스트를 전수 평가하거나 실제 현재 binary에서 구형 mode 실패를 재현한 결과는 아니다.
+초기 조사의 후보 판단은 읽기 전용 코드·문서·manifest 조회와 순수 selector 근거이며, 상위 Rust 테스트 전수 평가나 현재 binary의 구형 mode 실패 재현은 포함하지 않는다. 승인 후 구현과 source/mock 검증의 실제 범위는 아래 실행·재개 항목이 소유한다. 실사용 계정·세션·설치·서비스는 이번 정리에서 변경하지 않았다.
+
+## 승인된 실행 범위와 분담
+
+현재 provider 지원 동작에 맞춰 구형 key-provider positive fixture를 정리하고 Claude 기본 경로/Devin handoff/옛 route 거부를 보존한다. management에 fresh empty-thread 계약을 이식한 뒤 check-engine을 폐기한다. root는 Python/common-agent 명령 통합, source runner와 검증 gate 결과 공유, 검사 등록·문서·통합 검증을 소유한다. 기존 세션의 실행 담당들이 provider fixture와 management smoke/map을 수정했으며, 재개 후 root가 문서와 검증을 통합했다. 다른 BW-01 및 daemon version 공존 변경은 보존한다. 제품 지원 범위·사용자 데이터·설치 버전은 변경하지 않는다. 검증은 Windows x64의 scoped source/mock/public RPC fixture로 진행하고, Rust 전체 제품 빌드는 실행하지 않는다.
+
+로그·fixture 소유는 work:engine-check-retirement-r1이고 artifacts/tasks/windows-2026-0-9/runs/engine-check-retirement-r1 아래 기록한다. 먼저 각 경계의 작은 회귀 검사를 통과시키고 최종 manifest/receipt/selection 통합 검증을 수행한다. 생성 fixture는 실제 종료 후 일반 삭제하며 로그는 후속 계약 검증으로 대체되고 참조가 없을 때 재검토한다.
+
+## 세션 재개와 검증
+
+기존 미완료 변경을 이어서 Windows x64에서 source/mock 통합을 검증한다. 별도 daemon 공존·provider context 변경은 다른 작업 소유로 보존한다. 설치본은 이후 다른 작업에서 2026.0.8로 rollback된 기록이 있으므로 이번 정리 작업은 설치를 변경하지 않는다. root 단독으로 잔여 통합을 수행한다. 검증 기록은 `artifacts/tasks/windows-2026-0-9/runs/engine-check-retirement-r2` 소유이며 두 one-off bundle의 출력·임시 fixture를 포함한다. 기존 r1은 이전 담당 결과와 진단 근거로 유지하며 종료·구성 확인 후 별도 검토한다. 재사용 검증에 Node 실행 파일/환경 binding과 같은 source 환경 전달을 보완했다. 제품 빌드·Rust 재컴파일·재설치는 이번 검증 범위에 없다.
+
+검증 결과: 초기 source/mock 100개 중 97개 통과, 부분 SSE 청크 가정 2개와 새 의존성 선택 목록 1개 실패를 수정했다. 해당 재검사 6개 모두 통과(exit 0), 기능별 공유 명령 등록 검사 포함 25개 통과(exit 0), management mock 6개 통과(exit 0), 배포 mock 성공/필수 receipt 누락 2개 통과(exit 0). source 재사용의 입력·로그·receipt·환경 변경 거부와 필터 검사 제외는 초기 실행에서 통과했다. 관리 도구 첫 실행은 10초 제한으로 exit 124이며 통과로 계산하지 않았다. 해당 producer가 종료된 뒤 완료 관측이 가능한 직접 실행으로 재검증했다. 로그는 r2 `source-tests.log`, `targeted-retry.log`, `manifest-checks.log`, `management-tests.log`, `deploy-tests-r3.log`에 있다. Windows x64 source/mock 검증이며 Linux/macOS와 실제 engine/helper 동작은 미검증이다. 소요 시간 분석은 수행하지 않는다.
+
+정리 결과: r2 임시 fixture 디렉터리와 이번 배포 모의검사 두 run을 삭제하고 실제 부재를 확인했다. 배포 결과·stage metrics·로그 및 management 결과는 삭제 전에 r2 `reports/`에 독립적으로 보존했다. one-off bundle 두 개는 검증 후 설정에서 제거했다. r2 로그·검증 요약은 이번 소스 계약의 근거로 보존하며 대체 검증 기록 확보와 소비 참조 해제 시 재검토한다. 이전 세션의 r1은 producer 종료·전체 구성 확인이 끝나지 않아 보호 보류하며, 이를 확인하고 r2와 중복되지 않는 근거를 옮긴 뒤 삭제를 재검토한다.

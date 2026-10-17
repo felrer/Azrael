@@ -90,8 +90,7 @@ Selected-window Computer Use uses `scripts/window-control-host.cjs` for conversa
 | `providers/opencodex/auto-switch.ts`, `inference.ts::recoverAccount` | Identity-scoped permission and bounded provider binding recovery without default selection rewriting. |
 | `extensions/azrael-ex/src/usagePresentation.ts`, `resetCredit.ts` | Remaining quota bars, native ticket rows, exact selected-ticket consumption and persistent retry identity, with Spark exclusion. Render checks: `scripts/verify-ticket-usage-render.mjs`. |
 | `extensions/azrael-ex/src/devinUsage.ts` | Bounded CLI-owned quota helper, PTY screen parsing and process cleanup. |
-| `scripts/check-engine.mjs` | Exercise native stdio and dedicated config/state without login or model requests. |
-| `scripts/check-management.mjs` | Exercise simultaneous stdio/local bridge access and process/socket lifetime. |
+| `scripts/check-management.mjs` | Exercise fresh logged-out identity, empty threads, native config/state, simultaneous stdio/local bridge access and process/socket lifetime without login or model requests. |
 | `codex-rs/app-server/src/lib.rs` | Existing stdio startup plus the opt-in `AZRAEL_EX_MANAGEMENT_SOCKET` acceptor using the same processor. |
 | `codex-rs/app-server-client/src/bin/azrael-bridge.rs` | Restricted companion RPC and account events over the native secure local client. |
 | `codex-rs/login/src/auth/profiles.rs` | Native secure profile authentication, metadata and process leases. |

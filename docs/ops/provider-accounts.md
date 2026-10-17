@@ -4,7 +4,7 @@ Procedures for provider account management, model discovery and managed inferenc
 
 ## Verified scope
 
-- **Deterministic engine fixtures:** all directed Google/xAI/OpenRouter transitions in one thread, A→B→A, native OpenAI and Devin boundaries, dynamic tools, restart/resume, fork, compaction with recall, partial-stream cancellation, credential exclusion, provider handoff (opaque-source summary, quota fallback, summary cancellation/retry, no tool replay), mid-tool catalog loss and refresh failure, complete picker pagination and one discovery per explicit refresh. These use loopback providers, not live inference.
+- **Deterministic engine fixtures:** the supported default fixture exercises Claude OAuth, native OpenAI and Devin boundaries, dynamic tools, restart/resume, fork, compaction with recall, cancellation, credential exclusion and provider handoff. It rejects historical Google/xAI/OpenRouter key routes without fetching them. Earlier directed key-provider transitions and OpenRouter discovery/pagination evidence are historical and do not establish support in the active helper. Fixture assertions and fresh native execution are separate; source/mock tests alone do not accept a release engine.
 - **Live:** Google Antigravity catalog discovery; `gemini-3.8-flash` text and a harmless tool/result round trip through the helper and one native engine turn. Claude reasoning selection was verified with synthetic inference only.
 - **User-verified:** login, provider quota accuracy, rendered picker behavior and live inference for other providers and models. The stored Anthropic subscription login needs reauthentication before its live Models API can be checked.
 
@@ -23,6 +23,8 @@ OpenAI profiles use the native keyring under `~/.azrael-ex/azrael/accounts`. Oth
 The provider bundle manifest (schema 2) hashes the account helper, runtime, dependencies and the `inferenceHelper`; preparation sets `AZRAEL_PROVIDER_INFERENCE_HELPER`. A missing or modified bundle fails verification. Releases with a schema 1 bundle offer accounts only and clear any ambient inference helper.
 
 ## Discovery and caching
+
+The active helper supports Antigravity, Anthropic and Meta Muse. The following OpenRouter cache contract describes retained historical metadata; it does not enable its retired key inference route.
 
 OpenRouter discovery includes models whose metadata supports text input, text output and tools. The catalog cache is fresh for five minutes; the picker refresh button forces a lookup. Transient failures may show a clearly marked previous roster for up to 24 hours. Authentication failure, an authoritative empty roster or a changed identity never reuses old model IDs. Adding, selecting or removing a key invalidates the provider's discovery cache. Discovery snapshots use schema 2; older snapshots are rediscovered. The app-server startup refresh worker forces an immediate refresh that can overlap a picker request, so tests that count refreshes must wait for startup to complete.
 
@@ -48,6 +50,8 @@ node scripts/check-managed-native-engine.mjs <codex.exe> <fresh-run-directory> -
 # from the engine source's codex-rs
 cargo test -p codex-core managed_catalog
 ```
+
+The default command uses the supported Claude path; `--claude-only` is an alias, and retired `--managed-only` is rejected. `node --test scripts/test-managed-native-fixture.cjs` checks mode selection and the generated transport guard without a native engine or live credentials.
 
 The `--devin-handoff-only` scope uses a synthetic Devin peer and loopback OpenAI endpoint to cover normal, exhausted-quota, fork/restart, generic-400 and rate-limit boundaries. It verifies public history and exact tool results, excludes source reasoning and does not perform live inference.
 

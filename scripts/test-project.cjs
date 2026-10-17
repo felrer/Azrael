@@ -33,7 +33,7 @@ function parseArgs(args) {
     if (option === "--list") { options.list = true; continue; }
     if (option === "--collect-failures") { options.collectFailures = true; continue; }
     if (option === "--changed-only") { options.changedOnly = true; continue; }
-    if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id"].includes(option)) throw new Error(`Unknown option: ${option}`);
+    if (!["--area", "--changed", "--log-directory", "--test-concurrency", "--work-id", "--source-preflight-config"].includes(option)) throw new Error(`Unknown option: ${option}`);
     const value = args[++i];
     if (!value || value.startsWith("--")) throw new Error(`Missing value for ${option}`);
     if (option === "--area") {
@@ -43,6 +43,7 @@ function parseArgs(args) {
       if (!/^(?:[1-9]|1[0-6])$/.test(value)) throw new Error("Test concurrency must be an integer from 1 to 16");
       options.testConcurrency = Number(value);
     } else if (option === "--work-id") options.workId = checkedWorkId(value);
+    else if (option === "--source-preflight-config") options.sourcePreflightConfig = value;
     else if (option === "--changed") options.changed.push(normalize(value));
     else options.logDirectory = value;
   }
@@ -392,7 +393,7 @@ function selectChanged(options, root) {
   return { testPolicy, deferredChecks: [], changed, areas: [], files: [...files].sort(), extensionFiles: selectedExtension, reasons, separateChecks: [...separateChecks], coverageStatus: separateChecks.size ? "requires-separate-checks" : "selected-source-scope", commands };
 }
 
-async function runCommand(command, directory, index) {
+async function runCommand(command, directory, index, environment) {
   const stem = `${String(index + 1).padStart(2, "0")}-${command.name}`;
   const stdout = path.join(directory, `${stem}.stdout.log`);
   const stderr = path.join(directory, `${stem}.stderr.log`);
@@ -407,7 +408,7 @@ async function runCommand(command, directory, index) {
   }
   try {
     return await new Promise(resolve => {
-      const child = spawn(executable, args, { cwd: command.cwd, stdio: ["ignore", out, err], windowsHide: true });
+      const child = spawn(executable, args, { cwd: command.cwd, env: environment, stdio: ["ignore", out, err], windowsHide: true });
       child.once("error", error => {
         fs.writeSync(err, `${error.stack}\n`);
         resolve({ ...command, exitCode: null, status: "spawn-error", error: error.message, durationMs: Date.now() - started, stdout, stderr });
@@ -425,6 +426,14 @@ function checkedWorkId(value) {
 
 async function runSelection(selection, options = {}) {
   const root = path.resolve(options.root || ROOT);
+  let sourcePreflight;
+  if (options.sourcePreflightConfig) {
+    const config = JSON.parse(fs.readFileSync(options.sourcePreflightConfig, 'utf8').replace(/^\uFEFF/, ''));
+    if (['manifest', 'identityProvider', 'execute', 'transformRules'].some(key => Object.hasOwn(config, key)))
+      throw new Error('Source preflight config cannot override verification owners');
+    sourcePreflight = await require('./source-preflight-reuse.cjs').bindSourcePreflight(selection, config, root);
+    selection = sourcePreflight.selection;
+  }
   const managed = !options.directory && !options.logDirectory;
   let runRoot, lifecycleRecord;
   if (managed) {
@@ -476,7 +485,8 @@ async function runSelection(selection, options = {}) {
       report.activeCommand = { ...command, status: "running", startedUtc: new Date(commandStarted).toISOString(), completedUtc: null, exitCode: null };
       checkpoint();
       let outcome;
-      try { outcome = await (options.runCommand || runCommand)(command, directory, index); }
+      try { outcome = await (options.runCommand || runCommand)(command, directory, index,
+        command.name === 'source' ? sourcePreflight?.environment : undefined); }
       catch (error) { outcome = { status: "runner-error", exitCode: null, error: error.message }; }
       const completed = Date.now();
       const result = { ...command, ...outcome, startedUtc: new Date(commandStarted).toISOString(),
@@ -493,6 +503,7 @@ async function runSelection(selection, options = {}) {
       checkpoint();
       options.onResult?.(result);
     }
+    if (sourcePreflight) await sourcePreflight.validate();
     report.status = failure ? "failed" : "passed";
     report.exitCode = failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
     report.completedUtc = new Date().toISOString();

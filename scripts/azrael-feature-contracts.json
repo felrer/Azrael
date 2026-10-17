@@ -307,7 +307,6 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-common-agent-instructions.cjs",
             "providers/opencodex/tests/harness-mapping.test.mjs"
           ],
           "level": "source"
@@ -342,6 +341,15 @@
           ],
           "level": "native",
           "cargoScheduleGroup": "core-lib"
+        },
+        {
+          "id": "engine.model-harness-profiles.guidance",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-common-agent-instructions.cjs"
+          ],
+          "level": "source"
         }
       ],
       "reportFields": []
@@ -2385,6 +2393,7 @@
           "id": "engine.provider-context.safe-context-export",
           "executable": "python",
           "args": [
+            "-B",
             "scripts/tests/test_inspect_native_azrael_errors.py"
           ],
           "level": "source"
@@ -2749,7 +2758,8 @@
         "scripts/verify-composer-emoticon-render.mjs",
         "scripts/test-project.cjs",
         "scripts/test-project-fail-fast.cjs",
-        "scripts/test-project-selection.cjs"
+        "scripts/test-project-selection.cjs",
+        "scripts/source-preflight-reuse.cjs"
       ],
       "contract": "docs/architecture/project-maintenance.md",
       "checks": [
@@ -2759,7 +2769,6 @@
           "args": [
             "--test",
             "scripts/test-project-maintenance.cjs",
-            "scripts/test-common-agent-instructions.cjs",
             "scripts/test-artifact-lifecycle.cjs",
             "scripts/test-project-fail-fast.cjs",
             "scripts/test-project-selection.cjs"
@@ -2825,6 +2834,15 @@
           "args": [
             "scripts/verify-composer-emoticon-render.mjs",
             "--describe-paths"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "tool.project-maintenance.guidance",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-common-agent-instructions.cjs"
           ],
           "level": "source"
         }

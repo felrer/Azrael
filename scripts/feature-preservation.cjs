@@ -196,7 +196,7 @@ function expectedReceipt(manifest, features, receipt) {
   if (!Array.isArray(receipt.checks) || receipt.checks.length !== required.length) throw Error('Receipt mandatory checks missing');
   for (const check of required) {
     const entries = receipt.checks.filter(entry => entry.featureId === check.featureId && entry.checkId === check.checkId && entry.area === check.area);
-    if (entries.length !== 1 || entries[0].exitCode !== 0) throw Error(`Receipt mandatory check failed: ${check.checkId}`);
+    if (entries.length !== 1 || entries[0].exitCode !== 0 || entries[0].signal || entries[0].error) throw Error(`Receipt mandatory check failed: ${check.checkId}`);
   }
 }
 async function verifyLogs(receipt) {
@@ -207,6 +207,11 @@ async function verifyLogs(receipt) {
 function checkEnvironment(config) {
   return { ...process.env, ...(config.cargoTargetDirectory ? { CARGO_TARGET_DIR: config.cargoTargetDirectory } : {}), AZRAEL_PRESERVATION_UI_ROOT: config.uiRoot ?? '',
     AZRAEL_PRESERVATION_TYPESCRIPT_PATH: config.typeScriptPath || path.join(config.projectRoot, 'extensions/azrael-ex/node_modules/typescript/lib/typescript.js') };
+}
+async function sourceExecutionIdentity(config) {
+  return { executable: process.execPath, sha256: await fileHash(process.execPath),
+    version: process.version, platform: process.platform, arch: process.arch,
+    environmentSha256: hash(canonical(checkEnvironment(config))) };
 }
 async function sourceCacheRuntime(config, bindProjectTypeScript = false) {
   const typescriptPath = path.resolve(checkEnvironment(config).AZRAEL_PRESERVATION_TYPESCRIPT_PATH);
@@ -306,6 +311,7 @@ async function runPreservation(config) {
     receipt.timings = { identityBeforeMs: 0, identityAfterMs: 0, checkExecutionMs: 0, cacheLookupMs: 0, cacheInputMs: 0 };
     let identityStarted = performance.now();
     receipt.inputs = await identity(config, manifest, rules, features, execution);
+    if (config.checkPhase === 'source') receipt.sourceExecution = await sourceExecutionIdentity(config);
     receipt.timings.identityBeforeMs = performance.now() - identityStarted;
     if (config.expectedInputs && !same(config.expectedInputs, receipt.inputs)) throw Error('Expected input identity differs');
     await persist();
@@ -468,6 +474,7 @@ async function runPreservation(config) {
     identityStarted = performance.now();
     if (!same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
     receipt.timings.identityAfterMs = performance.now() - identityStarted;
+    if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
     receipt.status = 'passed';
     expectedReceipt(manifest, features, receipt);
     await publishPassingCaches(false);
@@ -518,6 +525,7 @@ async function verifyReceipt(config) {
   const features = selected(manifest, config.area, config);
   expectedReceipt(manifest, features, receipt);
   await verifyLogs(receipt);
+  if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
   await fs.promises.mkdir(config.outputDirectory, { recursive: true });
   const inputs = await identity(config, manifest, rules, features, config.execute ?? execute);
   if (!same(receipt.inputs, inputs) || (config.expectedInputs && !same(config.expectedInputs, inputs))) throw Error('Preservation receipt input identity is stale');
@@ -546,7 +554,7 @@ async function verifyPackage(config) {
   if (!same(binding, current)) throw Error('Package preservation binding is stale');
   return { ...binding, bindingPath, status: 'passed' };
 }
-module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt, scheduleNativeGroups };
+module.exports = { loadManifest, validateManifest, validateTransformReport, runPreservation, bindPackage, verifyPackage, verifyReceipt, scheduleNativeGroups, sourceExecutionIdentity, checkEnvironment };
 if (require.main === module) (async () => {
   const [action, flag, filename, ...extra] = process.argv.slice(2);
   if (!['run', 'bind', 'verify', 'verify-receipt'].includes(action) || flag !== '--config' || !filename || extra.length) throw Error('Usage: feature-preservation.cjs run|bind|verify|verify-receipt --config <JSON>');
