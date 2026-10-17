@@ -490,6 +490,16 @@ impl ThreadStore for LocalThreadStore {
         self
     }
 
+    fn validate_history_revision(
+        &self,
+        rollout_path: PathBuf,
+        revision: String,
+    ) -> ThreadStoreFuture<'_, bool> {
+        Box::pin(async move {
+            Ok(history_revision::read(&rollout_path).await.as_ref() == Some(&revision))
+        })
+    }
+
     fn create_thread(&self, params: CreateThreadParams) -> ThreadStoreFuture<'_, ()> {
         Box::pin(async move { live_writer::create_thread(self, params).await })
     }

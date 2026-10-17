@@ -4,13 +4,13 @@ const path = require("node:path");
 const { createHash, randomUUID } = require("node:crypto");
 const fs = require("node:fs/promises");
 const vscode = require("vscode");
-const nativeExtension = require("./out/extension.js");
-const accountUi = require("./account-ui/dist/src/extension.js");
-const { runtime } = require("./out/azrael-runtime.cjs");
+const runtimeModule = require("./out/azrael-runtime.cjs");
 const recovery = require("./out/azrael-recovery.cjs");
 const { validateRuntimePlatform } = require("./out/platform-runtime.cjs");
 
 let nativeActivated = false;
+let nativeExtension;
+let accountUi;
 let accountUiActivationAttempted = false;
 let fallbackWindowSessionId;
 let recoveryActivation;
@@ -119,6 +119,7 @@ async function migrateAccountDefault(defaultFile, previousSessionRoot) {
 }
 
 exports.activate = async function activate(context) {
+  const runtime = await runtimeModule.initialize();
   const stateFiles = accountStateFiles(context);
   if (runtime.sharedEngine) {
     const shared = require("./out/shared-engine-host.cjs");
@@ -131,6 +132,8 @@ exports.activate = async function activate(context) {
       accountDefaultFile: stateFiles.defaultFile,
     }));
   }
+  nativeExtension = require("./out/extension.js");
+  accountUi = require("./account-ui/dist/src/extension.js");
   runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE = stateFiles.sessionFile;
   runtime.env.AZRAEL_EX_ACCOUNT_DEFAULT_FILE = stateFiles.defaultFile;
   await migrateAccountDefault(stateFiles.defaultFile, stateFiles.previousSessionRoot);

@@ -57,7 +57,7 @@ test("prepared Linux host ships its supervisor and restarts through the injected
       if (name === "node:fs/promises") return { access: async () => {} };
       if (name === "./out/extension.js") return { async activate() { events.push("native"); }, async deactivate() {} };
       if (name === "./account-ui/dist/src/extension.js") return { async activate() { events.push("account"); }, async deactivate() {} };
-      if (name === "./out/azrael-runtime.cjs") return { runtime: { env: {} } };
+      if (name === "./out/azrael-runtime.cjs") return { async initialize() { return { env: {} }; } };
       if (name === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
       if (name === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl: false }) };
       return load(name);
