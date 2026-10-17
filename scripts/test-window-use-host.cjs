@@ -9,8 +9,8 @@ async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
   let releaseListen, panels = 0; const calls = [];
   const window = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
-  const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace' }, approvals,
-    vscode: { workspace: {workspaceFile: workspaceFile ? {fsPath:workspaceFile} : undefined}, window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } },
+  const host = createHost({ occupancyDirectory: occupancyDirectory || path.join(home, 'occupancy'), runtime: { codexHome: home, workspacePath: 'C:/private/Workspace', windowControl: {} }, approvals,
+    vscode: { workspace: {workspaceFile: workspaceFile ? {fsPath:workspaceFile} : undefined}, window: { createWebviewPanel() { panels++; throw new Error('ordinary thread must not open a panel'); }, showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael'), showWarningMessage: async message => { assert.match(message, /Window Use 2단계/); return '허용'; } } },
     backend: { request: async (method, params) => { calls.push({ method, params }); return method === 'listWindows' ? [window] : window; }, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
   });
@@ -19,7 +19,7 @@ async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
   host.registerApprovalUI(native, envelope => {
     if (envelope.type === 'mcp-request') assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);
   });
-  t.after(async () => { releaseListen?.(); await host.dispose(); await fs.rm(home, { recursive: true, force: true }); });
+  t.after(async () => { releaseListen?.(); await host.dispose(); await fs.rm(home, { recursive: true }); });
   const file = id => path.join(home, 'azrael/computer-use/window-sessions', id + '.json');
   const started = (id = ids[0], turn = 'turn-one', engine = native) => host.observe(engine, { method: 'turn/started', params: { threadId: id, turn: { id: turn } } });
   const message = (id = ids[0], turn = 'turn-one') => ({ nonce: host.nonce, threadId: id, method: 'call', tool: 'status', arguments: {}, _meta: { threadId: id, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: id, turn_id: turn } } });
@@ -33,8 +33,9 @@ async function replayResult(f, method, expected, returned = expected) {
 }
 test('host task macros use the runtime workspace', async t => {
   const f = await fixture(t);
+  f.started(); await f.host.threads.get(ids[0]).ready;
   const definition = {schema:1,id:'workspace',name:'Workspace',steps:[{action:'capture'}]};
-  await f.host.owner.call(ids[0],'save_task_macro',{definition});
+  await f.host.handlePipe({ ...f.message(), tool: 'save_task_macro', arguments: {definition} });
   const tasks = require('./window-task-macros.cjs');
   assert.equal((await tasks.createStore(f.home,'C:/private/Workspace').read()).macros[0].id,'workspace');
   assert.deepEqual((await tasks.createStore(f.home,'C:/private/Other').read()).macros,[]);
@@ -42,8 +43,9 @@ test('host task macros use the runtime workspace', async t => {
 test('saved multi-root workspace owns macros rather than its first folder', async t => {
   const workspaceFile = 'C:/private/Team.code-workspace';
   const f = await fixture(t,false,undefined,workspaceFile);
+  f.started(); await f.host.threads.get(ids[0]).ready;
   const definition = {schema:1,id:'team',name:'Team',steps:[{action:'capture'}]};
-  await f.host.owner.call(ids[0],'save_task_macro',{definition});
+  await f.host.handlePipe({ ...f.message(), tool: 'save_task_macro', arguments: {definition} });
   const tasks = require('./window-task-macros.cjs');
   assert.equal((await tasks.createStore(f.home,workspaceFile).read()).macros[0].id,'team');
   assert.deepEqual((await tasks.createStore(f.home,'C:/private/Workspace').read()).macros,[]);
@@ -89,6 +91,8 @@ test('ordinary threads select independently with app consent and reject stale ca
   const selected = await Promise.all([call(ids[0], 'select_window', { candidateId: fresh.candidates[0].candidateId }), call(ids[1], 'select_window', { candidateId: second.candidates[0].candidateId })]);
   assert.notEqual(selected[0].targetId, selected[1].targetId); assert.equal(f.panels(), 0);
   const occupancy = (await call(ids[0], 'status')).occupancy; assert.equal(occupancy.status,'occupied'); assert.deepEqual(occupancy.sessions.map(s=>s.isCurrentSession).sort(),[false,true]);
+  for (const id of ids) assert.equal(f.approvals.hasAppApproval('C:/fixture/app.exe', id), false);
+  for (const [index, id] of ids.entries()) assert.equal((await call(id, 'request_stage', { stage: 2, targetId: selected[index].targetId, reason: 'Verify per-thread control approval and cleanup' })).authorized, true);
   for (const id of ids) assert.equal(f.approvals.hasAppApproval('C:/fixture/app.exe', id), true);
   f.host.observe(f.native, { method: 'thread/closed', params: { threadId: ids[0] } }); await new Promise(resolve => setImmediate(resolve));
   assert.equal(f.approvals.hasAppApproval('C:/fixture/app.exe', ids[0]), false); assert.equal(f.approvals.hasAppApproval('C:/fixture/app.exe', ids[1]), true);

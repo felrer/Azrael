@@ -290,6 +290,11 @@ try {
             foreach ($module in @('sync-shared-environment.cjs', 'sync-codex-environment.cjs', 'instruction-package.cjs', 'instruction-library.cjs', 'instruction-publisher.cjs', 'task-profile-runtime.cjs', 'computer-use-runtime.cjs', 'computer-use-branding.cjs', 'window-control-runtime.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs', 'use-settings-host.cjs', 'sky-control-policy.mjs', 'sky-controlled-service.mjs', 'inject-sky-control-policy.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $accountUiDirectory $module)
             }
+            $environmentLib = Join-Path $accountUiDirectory 'lib'
+            New-Item -ItemType Directory -Path $environmentLib -Force | Out-Null
+            foreach ($module in @('codex-environment-engine.cjs', 'azrael-rpc-check.mjs')) {
+                Copy-Item -LiteralPath (Join-Path $PSScriptRoot "lib/$module") -Destination (Join-Path $environmentLib $module)
+            }
             foreach ($module in @('session-links.cjs', 'azrael-recovery.cjs', 'recovery-state.cjs', 'shared-engine-host.cjs', 'optional-diagnostics.cjs', 'url-safety-transport.cjs', 'pdf-file-open.cjs', 'computer-use-approvals.cjs')) {
                 Copy-Item -LiteralPath (Join-Path $PSScriptRoot $module) -Destination (Join-Path $prepared.OfficialExtension "out/$module")
             }

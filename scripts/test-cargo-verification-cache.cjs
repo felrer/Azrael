@@ -136,7 +136,7 @@ test('all declared Cargo groups share semantic keys across execution roots and p
     const name = JSON.stringify(check.args), group = groups.get(name) || { native: true, entries: [] };
     group.entries.push({ feature, check }); groups.set(name, group);
   }
-  assert.equal(groups.size, 15);
+  assert.equal(groups.size, 17);
   for (const scope of ['appserver', 'manual']) {
     assert(groups.has(JSON.stringify(['scripts/check-shared-engine-native.cjs', '{engineSourceRoot}', scope])),
       `shared-engine ${scope} checks must bind their source and tool inputs`);

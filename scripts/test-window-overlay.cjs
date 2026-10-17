@@ -128,8 +128,8 @@ test('macro progress uses safe action and step labels without parameter content'
 test('host stop callback revokes only stopped thread approval during stalled act', async t => {
   const f = await policy(t); f.owner.dispose();
   const approvals = require('./window-use-approvals.cjs').createOwner(f.home);
-  const host = createHost({ runtime: { codexHome: f.home }, occupancyDirectory: path.join(f.home, 'host-occupancy'), approvals,
-    vscode: { window: { showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael') } }, backend: { ...f.backend, dispose: async () => {} },
+  const host = createHost({ runtime: { codexHome: f.home, windowControl: {} }, occupancyDirectory: path.join(f.home, 'host-occupancy'), approvals,
+    vscode: { window: { showInformationMessage: () => assert.fail('Window Use consent must remain inside Azrael'), showWarningMessage: async message => { assert.match(message, /Window Use 2단계/); return '허용'; } } }, backend: { ...f.backend, dispose: async () => {} },
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => ready(); server.close = () => {}; return server; },
   });
   t.after(() => host.dispose());
@@ -142,6 +142,7 @@ test('host stop callback revokes only stopped thread approval during stalled act
   const call = (threadId, tool, args = {}) => host.handlePipe({ nonce: host.nonce, threadId, method: 'call', tool, arguments: args, _meta: { threadId, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: threadId, turn_id: 'turn' } } });
   const targets = [];
   for (const [index, id] of ids.entries()) { const list = await call(id, 'list_windows'); targets.push(await call(id, 'select_window', { candidateId: list.candidates[index].candidateId })); }
+  for (const [index, id] of ids.entries()) assert.equal((await call(id, 'request_stage', { stage: 2, targetId: targets[index].targetId, reason: 'Verify overlay Stop cancels only its authorized task' })).authorized, true);
   const image = await call(ids[0], 'capture', { targetId: targets[0].targetId });
   let release, began; const started = new Promise(resolve => { began = resolve; });
   f.setAct(() => { began(); return new Promise(resolve => { release = resolve; }); });

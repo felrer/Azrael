@@ -247,15 +247,15 @@ fn permissions_state(
     approval_policy: AskForApproval,
 ) -> PermissionsState {
     let approval_messages = ApprovalMessages {
-        on_request: Some("Ask for approval.".to_string()),
+        on_request: Some("catalog-only-approval-policy".to_string()),
         on_request_auto_review: None,
         never: None,
         unless_trusted: None,
     };
     let permission_messages = PermissionMessages {
-        danger_full_access: Some("Full access.".to_string()),
-        workspace_write: Some("Workspace write.".to_string()),
-        read_only: Some("Read only.".to_string()),
+        danger_full_access: Some("catalog-only-full-access".to_string()),
+        workspace_write: Some("catalog-only-workspace-write".to_string()),
+        read_only: Some("catalog-only-read-only".to_string()),
     };
     let mut model = model_info_from_slug("test-model");
     model.model_messages = Some(ModelMessages {
@@ -264,7 +264,7 @@ fn permissions_state(
         ..Default::default()
     });
     let model_messages = ResolvedModelMessages::from_model(&model);
-    PermissionsState::new(
+    let state = PermissionsState::new(
         &permission_profile,
         approval_policy,
         ApprovalPromptContext::new(ApprovalsReviewer::User, model_messages),
@@ -273,7 +273,23 @@ fn permissions_state(
         /*paths*/ None,
         /*exec_permission_approvals_enabled*/ false,
         /*request_permissions_tool_enabled*/ false,
-    )
+    );
+    let common_state = PermissionsState::new(
+        &permission_profile,
+        approval_policy,
+        ApprovalPromptContext::new(ApprovalsReviewer::User, ResolvedModelMessages::bundled()),
+        &Policy::empty(),
+        Path::new("/workspace"),
+        /*paths*/ None,
+        /*exec_permission_approvals_enabled*/ false,
+        /*request_permissions_tool_enabled*/ false,
+    );
+    assert_eq!(
+        state.instructions.render(),
+        common_state.instructions.render()
+    );
+    assert!(!state.instructions.body().contains("catalog-only-"));
+    state
 }
 
 fn permissions_state_with_default_messages(exec_policy: &Policy) -> PermissionsState {

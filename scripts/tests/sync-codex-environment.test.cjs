@@ -238,20 +238,13 @@ test("owned Computer Use preserves browser and Chrome configuration with home pa
   }
 });
 
-test("owned snapshot transaction installs instructions, repairs drift, and rejects invalid payloads", {
-  skip: !process.env.AZRAEL_CONFIG_TEST_ENGINE && "Set AZRAEL_CONFIG_TEST_ENGINE to a verified engine for isolated transaction acceptance",
-}, (t) => {
-  const fixtureParent = path.resolve("artifacts/verification/computer-use-integration/config-transaction-fixture");
-  fs.mkdirSync(fixtureParent, { recursive: true });
-  const root = fs.mkdtempSync(path.join(fixtureParent, "run-"));
-  t.after(() => cleanupOwnedFixture(root, fixtureParent, "run-"));
-  const source = path.join(root, "ordinary"), state = path.join(root, "azrael"), runtime = path.join(root, "runtime");
-  const fixtureManifest = { schema: 1, config: { rootKeys: ["notify"], tables: ["mcp_servers.node_repl", "mcp_servers.node_repl.env"], tableKeys: { features: ["js_repl"] }, protectedRootKeys: ["model", "model_reasoning_effort"] }, agentRoles: [], generatedAgentRoles: [], personalSkills: [], copyGlobalInstructions: false };
+function prepareOwnedRuntimeFixture(root) {
+  const runtime = path.join(root, 'runtime');
   const files = {
     "node_repl.exe": "fixture repl", "node.exe": "fixture node",
     "node_modules/@oai/sky/package.json": JSON.stringify({ name: "@oai/sky", version: "0.7.4" }),
     "node_modules/@oai/sky/bin/windows/codex-computer-use.exe": "fixture helper",
-    "skills/computer-use/SKILL.md": "---\nname: computer-use\ndescription: fixture\n---\nRead [guidance](../../docs/guidance.md).\nWindows.Graphics.Capture screenshots that work even when windows are occluded.\nLicense: fixture attribution.\n",
+    "docs/computer-use-skill.md": "---\nname: computer-use\ndescription: fixture\n---\nRead [guidance](../../docs/guidance.md).\nWindows.Graphics.Capture screenshots that work even when windows are occluded.\nLicense: fixture attribution.\n",
     "skills/window-use/SKILL.md": "---\nname: window-use\ndescription: fixture window control\n---\nUse azrael_window tools for the selected window.\n",
     "docs/guidance.md": "fixture guidance", "docs/api.md": "fixture api", "docs/confirmations.md": "fixture confirmations",
   };
@@ -261,15 +254,21 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   for (const name of ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs']) files[name] = fs.readFileSync(path.join(__dirname, '..', name), 'utf8');
   const settingsEsm = generateSettingsModule(Buffer.from(files['use-control-settings.cjs']));
   files['use-control-settings.mjs'] = settingsEsm.content.toString('utf8');
-  for (const rel of TRANSPORT_POLICY_MODULES) files[rel] = rel.endsWith('/use-control-settings.mjs') ? files['use-control-settings.mjs'] : fs.readFileSync(path.join(__dirname, '..', path.posix.basename(rel)), 'utf8');
+  const { generateTransportPolicyReexport } = require('../computer-use-runtime.cjs');
+  const policyReexport = generateTransportPolicyReexport(Buffer.from(files['sky-control-policy.mjs']));
+  for (const rel of TRANSPORT_POLICY_MODULES) files[rel] = rel.endsWith('/use-control-settings.mjs') ? files['use-control-settings.mjs'] : policyReexport.content.toString('utf8');
+  const { WINDOW_GUIDES } = require('../computer-use-runtime.cjs');
+  files['skills/window-use/SKILL.md'] += fs.readFileSync(path.join(__dirname, '../../instructions/computer-use-selected-window.md'), 'utf8');
+  for (const rel of WINDOW_GUIDES) files[rel] = fs.readFileSync(path.join(__dirname, '../../instructions', rel.slice('docs/'.length)), 'utf8');
   for (const [relative, contents] of Object.entries(files)) {
     const target = path.join(runtime, relative);
     fs.mkdirSync(path.dirname(target), { recursive: true });
     fs.writeFileSync(target, contents);
   }
-  const runtimeManifest = { schema: 1, packages: [{ name: "@oai/sky", version: "0.7.4", path: "node_modules/@oai/sky" }], files: Object.entries(files).map(([relative, contents]) => ({ path: relative, source: "synthetic fixture", sha256: crypto.createHash("sha256").update(contents).digest("hex"), bytes: Buffer.byteLength(contents) })) };
+  const runtimeManifest = { schema: 1, windowUseGuidanceVersion: 1, skyPolicyOwnerVersion: 1, packages: [{ name: "@oai/sky", version: "0.7.4", path: "node_modules/@oai/sky" }], files: Object.entries(files).map(([relative, contents]) => ({ path: relative, source: "synthetic fixture", sha256: crypto.createHash("sha256").update(contents).digest("hex"), bytes: Buffer.byteLength(contents) })) };
   Object.assign(runtimeManifest.files.find(entry => entry.path === TRANSPORT), { transform: policyTransport.transform, sourceSha256: policyTransport.transform.sourceSha256 });
   for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) Object.assign(runtimeManifest.files.find(entry => entry.path === rel), { transform: settingsEsm.transform, sourceSha256: settingsEsm.transform.sourceSha256 });
+  for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) Object.assign(runtimeManifest.files.find(entry => entry.path === rel), { transform: policyReexport.transform, sourceSha256: policyReexport.transform.sourceSha256, sourceBytes: Buffer.byteLength(files['sky-control-policy.mjs']) });
   const runtimeManifestPath = path.join(runtime, "manifest.json");
   fs.writeFileSync(runtimeManifestPath, JSON.stringify(runtimeManifest));
   const runtimeBefore = pathState(runtime);
@@ -279,14 +278,45 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   fs.mkdirSync(path.join(windowSource, "src"), { recursive: true });
   fs.mkdirSync(windowScripts, { recursive: true });
   for (const [relative, contents] of [["Cargo.toml", "[package]"], ["Cargo.lock", "fixture lock"], ["THIRD_PARTY_NOTICES.md", "Fixture native notices"], ["src/main.rs", "fn main() {}"]]) fs.writeFileSync(path.join(windowSource, relative), contents);
-  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs", "use-control-settings.cjs", "window-use-approvals.cjs", "computer-use-approvals.cjs", "use-settings-host.cjs"]) fs.copyFileSync(path.join(__dirname, "..", name), path.join(windowScripts, name));
+  for (const name of ["window-control-mcp.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs", "use-control-settings.cjs", "window-use-approvals.cjs", "computer-use-approvals.cjs", "use-settings-host.cjs", "window-use-resources.cjs", "window-child-session.cjs", "window-use-isolation.cjs", "window-desktop-authority.cjs"]) fs.copyFileSync(path.join(__dirname, "..", name), path.join(windowScripts, name));
   const windowExecutable = path.join(root, "fixture-window-helper.exe"), windowProvenance = path.join(root, "window-build.json"), windowGuide = path.join(root, "selected-window.md");
   fs.writeFileSync(windowExecutable, "fixture native helper; never executed");
-  fs.writeFileSync(windowGuide, "Fixture Window Use guidance");
+  fs.writeFileSync(windowGuide, fs.readFileSync(path.join(__dirname, '../../instructions/computer-use-selected-window.md')));
+  const probe = path.join(root, 'windows-child-session', 'probe.ps1');
+  fs.mkdirSync(path.dirname(probe), { recursive: true });
+  fs.copyFileSync(path.join(__dirname, '../../native/windows-child-session/probe.ps1'), probe);
+  for (const rel of WINDOW_GUIDES) {
+    const target = path.join(root, rel.slice('docs/'.length));
+    fs.mkdirSync(path.dirname(target), { recursive: true });
+    fs.writeFileSync(target, files[rel]);
+  }
   const { fingerprintNativeSource, stageRuntime: stageWindowRuntime } = require("../window-control-runtime.cjs");
   fs.writeFileSync(windowProvenance, JSON.stringify({ schema: 1, sourceSha256: fingerprintNativeSource(windowSource), executableSha256: crypto.createHash("sha256").update(fs.readFileSync(windowExecutable)).digest("hex") }));
   stageWindowRuntime({ sourceRoot: windowSource, scriptDirectory: windowScripts, guidance: windowGuide, executable: windowExecutable, provenance: windowProvenance, destination: windowRuntime });
   const windowRuntimeBefore = pathState(windowRuntime);
+  require('../computer-use-runtime.cjs').verifyRuntime(runtime);
+  return { runtime, files, runtimeManifest, runtimeManifestPath, runtimeBefore, windowRuntime, windowRuntimeBefore };
+}
+
+test('owned transaction fixture verifies the unified Window Use runtime closure without an engine', (t) => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-config-runtime-'));
+  t.after(() => cleanupOwnedFixture(root, os.tmpdir(), 'azrael-config-runtime-'));
+  const fixture = prepareOwnedRuntimeFixture(root);
+  assert.equal(fixture.runtimeManifest.windowUseGuidanceVersion, 1);
+  assert.equal(fs.existsSync(path.join(fixture.runtime, 'skills/computer-use')), false);
+  assert.equal(require('../window-control-runtime.cjs').verifyRuntime(fixture.windowRuntime).manifest.windowUseGuidanceVersion, 1);
+});
+
+test("owned snapshot transaction installs instructions, repairs drift, and rejects invalid payloads", {
+  skip: !process.env.AZRAEL_CONFIG_TEST_ENGINE && "Set AZRAEL_CONFIG_TEST_ENGINE to a verified engine for isolated transaction acceptance",
+}, (t) => {
+  const fixtureParent = path.resolve("artifacts/verification/computer-use-integration/config-transaction-fixture");
+  fs.mkdirSync(fixtureParent, { recursive: true });
+  const root = fs.mkdtempSync(path.join(fixtureParent, "run-"));
+  t.after(() => cleanupOwnedFixture(root, fixtureParent, "run-"));
+  const source = path.join(root, "ordinary"), state = path.join(root, "azrael"), runtime = path.join(root, "runtime");
+  const fixtureManifest = { schema: 1, config: { rootKeys: ["notify"], tables: ["mcp_servers.node_repl", "mcp_servers.node_repl.env"], tableKeys: { features: ["js_repl"] }, protectedRootKeys: ["model", "model_reasoning_effort"] }, agentRoles: [], generatedAgentRoles: [], personalSkills: [], copyGlobalInstructions: false };
+  const { files, runtimeManifest, runtimeManifestPath, runtimeBefore, windowRuntime, windowRuntimeBefore } = prepareOwnedRuntimeFixture(root);
   fs.mkdirSync(source, { recursive: true });
   fs.mkdirSync(path.join(state, "skills", "computer-use"), { recursive: true });
   fs.mkdirSync(path.join(state, "skills", "user-skill"), { recursive: true });
@@ -317,24 +347,15 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   assert.deepEqual(pathState(state), before);
   const applied = sync("apply");
   assert.equal(applied.status, "applied");
-  assert.equal(fs.readFileSync(path.join(applied.backup, "previous/skills/computer-use/SKILL.md"), "utf8"), "previous skill");
   assert.equal(fs.readFileSync(path.join(applied.backup, "previous/skills/window-use/SKILL.md"), "utf8"), "previous window skill");
-  const managedSkill = fs.readFileSync(path.join(state, "skills/computer-use/SKILL.md"), "utf8");
-  assert.ok(managedSkill.startsWith("---\nname: computer-use\ndescription: fixture\n---\n"));
-  assert.ok(managedSkill.includes("Read [guidance](./docs/guidance.md)."));
-  assert.ok(managedSkill.includes("License: fixture attribution."));
-  assert.ok(!managedSkill.includes("screenshots that work even when windows are occluded"));
-  const managedGuidance = fs.readFileSync(path.join(state, "skills/computer-use/docs/guidance.md"), "utf8");
-  for (const text of [managedSkill, managedGuidance]) {
-    assert.match(text, /Activate the exact selected target window/);
-    assert.match(text, /fresh observation before capture or input/);
-    assert.match(text, /returned screenshot shows the selected target's content/);
-    assert.match(text, /Discard unexpected screenshot content/);
-    assert.match(text, /pause if physical user activity or an unexpected other foreground window/);
-    assert.match(text, /Do not repeatedly steal focus/);
-  }
-  assert.ok(managedGuidance.endsWith(files["docs/guidance.md"]));
-  for (const name of ["api", "confirmations"]) assert.equal(fs.readFileSync(path.join(state, "skills/computer-use/docs", `${name}.md`), "utf8"), files[`docs/${name}.md`]);
+  // Unified Window Use must preserve standalone entries until retirement checks permit removal.
+  const legacySkill = path.join(state, 'skills/computer-use');
+  assert.equal(fs.readFileSync(path.join(legacySkill, 'SKILL.md'), 'utf8'), 'previous skill');
+  const snapshot = JSON.parse(fs.readFileSync(path.join(state, 'azrael/codex-environment/snapshot.json'), 'utf8'));
+  assert.equal(snapshot.skillHashes['computer-use'], undefined);
+  assert.equal(Object.hasOwn(snapshot.managedStates, path.join('skills', 'computer-use')), false);
+  assert.ok(snapshot.warnings.some(warning => warning.includes('active-consumer retirement checks are pending')));
+  const legacyBefore = pathState(legacySkill);
   assert.equal(fs.readFileSync(path.join(state, "skills/user-skill/SKILL.md"), "utf8"), "user skill");
   assert.equal(fs.readFileSync(path.join(state, "skills/window-use/SKILL.md"), "utf8"), files["skills/window-use/SKILL.md"]);
   const config = parseToml(fs.readFileSync(path.join(state, "config.toml"), "utf8"));
@@ -346,10 +367,10 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   assert.equal(config.model, "native-model");
   assert.deepEqual(config.mcp_servers.azrael_window, { command: path.join(runtime, "node.exe"), args: [path.join(windowRuntime, "window-control-mcp.cjs")], env: { CODEX_HOME: state }, enabled: true });
   assert.equal(sync("apply").status, "unchanged");
-  fs.writeFileSync(path.join(state, "skills/computer-use/docs/api.md"), "drift");
   fs.writeFileSync(path.join(state, "skills/window-use/SKILL.md"), "window skill drift");
   assert.equal(sync("apply").status, "applied");
   assert.equal(fs.readFileSync(path.join(state, "skills/window-use/SKILL.md"), "utf8"), files["skills/window-use/SKILL.md"]);
+  assert.deepEqual(pathState(legacySkill), legacyBefore);
   assert.deepEqual(pathState(runtime), runtimeBefore);
   assert.deepEqual(pathState(windowRuntime), windowRuntimeBefore);
   const committed = pathState(state);
@@ -367,5 +388,6 @@ test("owned snapshot transaction installs instructions, repairs drift, and rejec
   fs.writeFileSync(path.join(windowRuntime, "window-task-macros.cjs"), "tampered task module");
   assert.match(sync("apply", 1), /Window Control hash mismatch: window-task-macros.cjs/);
   assert.deepEqual(pathState(state), committed);
+  assert.deepEqual(pathState(legacySkill), legacyBefore);
   assert.deepEqual(pathState(source), ordinaryBefore);
 });
