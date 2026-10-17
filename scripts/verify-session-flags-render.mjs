@@ -135,6 +135,25 @@ try{
    if(phase==='waiting')await shot(theme+'-two-list-waiting');
   }
  }
+ for(const theme of ['light','dark']){
+  await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme)+';fixtureResumePhase="cancelled";fixtureRerender()');
+  for(const kind of ['menu','preview']){
+   const selector='[data-fixture-'+kind+'] [data-azrael-session-flag]';
+   for(const edge of ['left','right']){
+    for(const pressed of ['false','true']){
+    await mouse(selector);
+    const hit=await evaluate('(()=>{const b=document.querySelector('+JSON.stringify(selector)+'),r=b.querySelector("svg").getBoundingClientRect(),x=r.x+'+(edge==='left'?'4':'14')+',y=r.y+r.height/2,e=document.elementFromPoint(x,y);return {x,y,owns:b.contains(e),target:e?.outerHTML.slice(0,350),before:b.getAttribute("aria-pressed")}})()');
+    check(theme+' '+kind+' flag '+edge+' icon hit belongs to button: '+hit.target,hit.owns);
+    check(theme+' '+kind+' '+edge+' begins with pressed='+pressed,hit.before===pressed);
+    await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:hit.x,y:hit.y});
+    await send('Input.dispatchMouseEvent',{type:'mousePressed',x:hit.x,y:hit.y,button:'left',clickCount:1});
+    await send('Input.dispatchMouseEvent',{type:'mouseReleased',x:hit.x,y:hit.y,button:'left',clickCount:1});
+    await wait('document.querySelector('+JSON.stringify(selector)+').getAttribute("aria-pressed")!=='+JSON.stringify(hit.before));
+    check(theme+' '+kind+' flag '+edge+' coordinate click toggles without row actions',await noActions());
+    }
+   }
+  }
+ }
  await evaluate('fixtureMenu=false;fixturePreview=false;fixtureResumePhase=undefined;fixtureRerender()');
  for(const theme of ['light','dark']){
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));await leave();

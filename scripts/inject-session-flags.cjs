@@ -20,7 +20,7 @@ function azraelFlaggedSessionRow(props){
   const flagged=flags[key]===true;
   const label=intl.formatMessage({id:flagged?"azrael.sessionFlag.remove":"azrael.sessionFlag.set",defaultMessage:flagged?"Remove flag":"Set flag"});
   const button=(0,Z.jsx)("button",{type:"button","data-azrael-session-flag":key,"aria-label":label,"aria-pressed":flagged,title:label,
-    className:"flex size-7 shrink-0 cursor-interaction items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "+(flagged?"text-danger":"text-tertiary opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"),
+    className:"relative z-20 flex size-7 shrink-0 cursor-interaction items-center justify-center transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 "+(flagged?"text-danger":"text-tertiary opacity-0 pointer-events-none group-hover:opacity-100 group-hover:pointer-events-auto group-focus-within:opacity-100 group-focus-within:pointer-events-auto"),
     style:{marginInlineEnd:12,background:"transparent",boxShadow:"none"},
     onPointerDown:event=>event.stopPropagation(),onDoubleClick:event=>event.stopPropagation(),
     onClick:event=>{event.preventDefault();event.stopPropagation();store.set(azraelSessionFlagsAtom,current=>{const next={...current};if(next[key]===true)delete next[key];else next[key]=true;return next})},
