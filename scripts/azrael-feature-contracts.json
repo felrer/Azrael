@@ -369,9 +369,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-submit-only-thread.cjs",
-            "scripts/test-project-drafts.cjs",
-            "scripts/test-composer-draft.cjs"
+            "scripts/test-submit-only-thread.cjs"
           ],
           "level": "source"
         },
@@ -381,6 +379,24 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.submit-only-thread.project-drafts",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-project-drafts.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.submit-only-thread.composer-draft",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-composer-draft.cjs"
           ],
           "level": "source"
         }
@@ -695,8 +711,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-team-runtime.cjs",
-            "scripts/test-team-integration.cjs"
+            "scripts/test-team-runtime.cjs"
           ],
           "level": "source"
         },
@@ -706,6 +721,15 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.team-change-management.integration",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-team-integration.cjs"
           ],
           "level": "source"
         }
@@ -731,9 +755,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-team-ui.cjs",
-            "scripts/test-team-runtime.cjs",
-            "scripts/test-team-integration.cjs"
+            "scripts/test-team-ui.cjs"
           ],
           "level": "source"
         },
@@ -743,6 +765,24 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.team-lead.runtime",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-team-runtime.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.team-lead.integration",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-team-integration.cjs"
           ],
           "level": "source"
         }
@@ -768,8 +808,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-session-flags.cjs",
-            "scripts/test-project-drafts.cjs"
+            "scripts/test-session-flags.cjs"
           ],
           "level": "source"
         },
@@ -779,6 +818,15 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.session-flags.project-drafts",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-project-drafts.cjs"
           ],
           "level": "source"
         }
@@ -935,9 +983,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-recovery-state.cjs",
-            "scripts/test-recovery-bridge.cjs",
-            "scripts/test-recovery-presentation.cjs"
+            "scripts/test-recovery-state.cjs"
           ],
           "level": "source"
         },
@@ -947,6 +993,24 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.recovery.bridge",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-recovery-bridge.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.recovery.presentation",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-recovery-presentation.cjs"
           ],
           "level": "source"
         }
@@ -2221,14 +2285,13 @@
           "id": "ui.recent-chat-filter.behavior",
           "executable": "node",
           "args": [
-            "scripts/test-feature-preservation.cjs",
-            "--recent-chat-check"
+            "--test",
+            "scripts/test-recent-chat-filter.cjs"
           ],
           "level": "source",
           "cacheInputs": {
             "schema": 1,
             "files": [
-              "scripts/test-feature-preservation.cjs",
               "scripts/inject-recent-chat-filter.cjs",
               "scripts/test-recent-chat-filter.cjs"
             ]
@@ -2953,9 +3016,7 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-error-presentation.cjs",
-            "scripts/test-recovery-presentation.cjs",
-            "scripts/test-recovery-bridge.cjs"
+            "scripts/test-error-presentation.cjs"
           ],
           "level": "source"
         },
@@ -2965,6 +3026,24 @@
           "args": [
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.error-presentation.recovery-presentation",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-recovery-presentation.cjs"
+          ],
+          "level": "source"
+        },
+        {
+          "id": "ui.error-presentation.recovery-bridge",
+          "executable": "node",
+          "args": [
+            "--test",
+            "scripts/test-recovery-bridge.cjs"
           ],
           "level": "source"
         }

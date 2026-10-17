@@ -194,7 +194,10 @@ function Get-FocusedEngineFeatureIds {
     $unknownEngine = [IO.Path]::GetFullPath($EngineSourceRoot).TrimEnd('\', '/') -ine $defaultEngine.TrimEnd('\', '/')
     # Only clearly unrelated inputs may omit the integration gate.
     $related = @($PolicyPaths | Where-Object {
-        $_ -notmatch '^(docs/|work/|companion/|extension/|ui/)' -and
+        $_ -notmatch '^(docs/|work/|companion/|ui/)' -and
+        # This renderer reads usage snapshots and emits account HTML/CSS only.
+        # Keep host handlers, protocol/shared helpers and unknown extension paths related.
+        $_ -cne 'extensions/azrael-ex/src/usagePresentation.ts' -and
         $_ -notmatch '^scripts/(inject-(content-fonts|file-open-menu|image-file-open|image-sketch|ui-cleanup|student-design)\.cjs|test-(asset-transform-cache|session-links|namespace-source)\.cjs)$'
     })
     if ($unknownEngine -or @($PolicyPaths).Count -eq 0 -or $related.Count -gt 0) {
