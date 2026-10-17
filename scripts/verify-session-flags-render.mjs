@@ -13,7 +13,15 @@ const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/ses
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
-const {injectDeferredPresentation,injectDeferredHeader}=require('./inject-deferred-turn.cjs');
+const {injectDeferredPresentation,injectDeferredHeader,injectDeferredTurn,DEFERRED_REDUCER_ASSET}=require('./inject-deferred-turn.cjs');
+const {createDeferredListStateFixture}=require('./deferred-list-state-fixture.cjs');
+const reducer=injectDeferredTurn(await readFile(join(assets,DEFERRED_REDUCER_ASSET.split('/').at(-1)),'utf8')).text;
+const listProducer=createDeferredListStateFixture(reducer,ts);
+const listStates=Object.fromEntries(['waiting','claimed','resumed','cancelled','blocked','completed'].map(state=>{
+ const turn={turnId:'origin',status:state==='completed'?'completed':'deferred',items:[],rootResumeWait:{state:state==='completed'?'waiting':state}};
+ const conversation={id:'same-id',hostId:'local',hasUnreadTurn:false,requests:[],turns:[],turnHistory:{kind:'canonical',history:{entitiesByKey:{origin:turn},islands:[{entries:[{value:'origin'}],newerBoundary:{status:'exhausted'}}]}}};
+ return [state,listProducer.getListState(conversation)];
+}));
 const headerName=ASSET.split('/').at(-1),rowsName='app-initial-c014f9ee4429.js';
 const original=await readFile(join(assets,headerName),'utf8'),header=injectSessionFlags(injectDeferredHeader(original).text,ASSET).text;
 assert.equal(header.split('(0,Z.jsx)(azraelFlaggedSessionRow,{').length-1,2);
@@ -29,7 +37,7 @@ for(const e of edits.sort((a,b)=>b.start-a.start))render=render.slice(0,e.start)
 render=render.replace('function Gjr(','function fixtureGjr(');
 const rowAdapter=`
 const fixture_ta=()=>({get:()=>false}),fixture_K=()=>false,fixture_le=()=>({formatMessage:({defaultMessage})=>defaultMessage}),fixture_VC=()=>null,fixture_Ajr=()=>null,fixture_Gqn=()=>false;
-const fixture_J=(atom,key)=>atom===oDr?(key?.threadId==='unflagged'?'Unflagged chat':'Review session changes'):atom===Yj?'idle':atom===Ap?{summary:{hasUnreadTurn:false},isRootResumePending:window.fixturePending}:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
+const fixture_J=(atom,key)=>atom===oDr?(key?.threadId==='unflagged'?'Unflagged chat':'Review session changes'):atom===Yj?'idle':atom===Ap?window.fixtureListStates[window.fixtureResumePhase??(window.fixturePending?'waiting':'cancelled')]:atom===qj?{roomId:null,hasUnread:false}:atom===rc?{data:null}:null;
 const fixture_Rjr=()=> 'local';
 const fixture_n2n=()=>()=>{},fixture_M4t=()=>{},fixture_j4t=()=>null;
 const fixture_cIe=(_store,id,host)=>{window.fixtureEvents.push({type:'navigate',id,host});return true};
@@ -58,7 +66,7 @@ const headerAdapter=`
 import {fixtureGjr,fixtureInitRow,fixtureInitPreferences} from './${rowsName}';
 import {Clt as FixtureScope,Hbt as FixtureIntlContext,fixtureInitScope} from './app-initial-97d3534ad35f.js';
 const FixtureReact=v();window.fixtureEvents=[];window.fixtureHost='local';window.fixtureOpen=true;
-window.fixturePending=false;
+window.fixturePending=false;window.fixtureListStates=${JSON.stringify(listStates)};
 window.fixtureMenu=false;window.fixturePreview=false;window.fixtureCurrentId=null;
 const fixtureConversations=[{id:'same-id',hostId:'local',title:'Review session changes',createdAt:Date.now(),updatedAt:Date.now(),turns:[]},{id:'unflagged',hostId:'local',title:'Unflagged chat',createdAt:Date.now(),updatedAt:Date.now(),turns:[]}];
 const fixtureMerged=fixtureConversations.map(conversation=>({kind:'local',key:conversation.id,conversation}));
@@ -81,7 +89,7 @@ const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8">
 const server=createServer(async(req,res)=>{try{if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=pathname===join(assets,headerName)?servedHeader:pathname===join(assets,rowsName)?rows+rowAdapter:await readFile(pathname);if(pathname===join(assets,'app-initial-97d3534ad35f.js'))source=source.toString()+'\nexport {kRt as fixtureInitScope};';res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}res.statusCode=404;res.end()}catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
-const summary={scope:'Pinned native React, CSS, Gjr/rQ/Bkr rows, On recent-chat trigger with production kn predicate and verbatim session flag helper; fixture-only host/query/localization services. No installed VS Code or real session mutation.',inputSha256:createHash('sha256').update(header).update(rows).digest('hex'),checks:[]},pending=new Map(),exceptions=[];
+const summary={scope:'Native getListState/vQ/F_n producer with canonical turns feeds pinned React/CSS popup and sidebar rows. Runtime admission, host/query/localization hooks are fixtures; no installed VS Code or real session mutation.',inputSha256:createHash('sha256').update(header).update(rows).update(reducer).digest('hex'),checks:[]},pending=new Map(),exceptions=[];
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -114,6 +122,20 @@ try{
   await wait("document.querySelector('[data-fixture-trigger] [aria-live]').textContent==='Count: 0'");
   check(theme+' ended wait removes native row and header spinners',!(await spinning('[data-fixture-row]'))&&!(await spinning('[data-fixture-trigger]')));
  }
+ for(const theme of ['light','dark']){
+  for(const phase of ['waiting','claimed','resumed','cancelled','blocked','completed']){
+   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme)+';fixtureMenu=true;fixturePreview=true;fixtureResumePhase='+JSON.stringify(phase)+';fixtureRerender()');
+   await wait('!!document.querySelector("[data-fixture-menu] [data-azrael-session-flag]")&&!!document.querySelector("[data-fixture-preview] [data-azrael-session-flag]")');
+   await new Promise(r=>setTimeout(r,100));
+   const expected=['waiting','claimed'].includes(phase);
+   for(const kind of ['menu','preview']){
+    const spin=await evaluate('Array.from(document.querySelectorAll("[data-fixture-'+kind+'] *")).some(e=>getComputedStyle(e).animationName.split(",").map(s=>s.trim()).includes("spin"))');
+    check(theme+' '+phase+' '+kind+' uses native list state; spinner='+expected,spin===expected);
+   }
+   if(phase==='waiting')await shot(theme+'-two-list-waiting');
+  }
+ }
+ await evaluate('fixtureMenu=false;fixturePreview=false;fixtureResumePhase=undefined;fixtureRerender()');
  for(const theme of ['light','dark']){
   await evaluate('document.documentElement.dataset.theme='+JSON.stringify(theme)+';document.body.dataset.vscodeThemeKind='+JSON.stringify('vscode-'+theme));await leave();
   check(theme+' inactive hidden until row hover/focus',await evaluate('getComputedStyle(document.querySelector('+JSON.stringify(flag)+')).opacity==="0"'));

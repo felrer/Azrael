@@ -567,6 +567,7 @@
               "scripts/task-work-time.cjs",
               "scripts/task-work-time-history.cjs",
               "scripts/inject-deferred-turn.cjs",
+              "scripts/deferred-list-state-fixture.cjs",
               "scripts/root-resume-wait.cjs",
               "engine/codex-rs/app-server-protocol/src/protocol/thread_history.rs",
               "engine/codex-rs/app-server-protocol/src/protocol/thread_history_projection.rs",
@@ -1616,6 +1617,8 @@
       "area": "ui",
       "owners": [
         "scripts/inject-deferred-turn.cjs",
+        "scripts/deferred-list-state-fixture.cjs",
+        "scripts/verify-session-flags-render.mjs",
         "scripts/root-resume-wait.cjs",
         "scripts/ui-test-transform-fixture.cjs",
         "scripts/test-ui-test-transform-fixture.cjs",
@@ -1636,6 +1639,7 @@
             "schema": 2,
             "files": [
               "scripts/inject-deferred-turn.cjs",
+              "scripts/deferred-list-state-fixture.cjs",
               "scripts/root-resume-wait.cjs",
               "scripts/ui-test-transform-fixture.cjs",
               "scripts/test-ui-test-transform-fixture.cjs",
