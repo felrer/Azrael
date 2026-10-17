@@ -177,7 +177,7 @@ async function runtime(config, env, providers = {}) {
     os: { release: os.release(), version: os.version(), machine: os.machine() }, tools, externalTools,
     cargoConfigs: configs, configParser,
     environmentSha256: sha(canonical(env)), normalized,
-    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs']) };
+    helper: await getDirectoryState(config.projectRoot, ['scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs']) };
 }
 
 async function key(config, group, inputs, runtimeIdentity) {
@@ -187,7 +187,7 @@ async function key(config, group, inputs, runtimeIdentity) {
     throw Error('Cargo cache requires an absolute engine source root');
   }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
-    'scripts/cargo-verification.cjs', 'scripts/cargo-config-self-contained.py',
+    'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/cargo-config-self-contained.py',
     'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
     feature.owners.forEach(file => files.add(file)); files.add(feature.contract); files.add(check.args[0]);

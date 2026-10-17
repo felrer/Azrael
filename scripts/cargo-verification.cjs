@@ -1,6 +1,8 @@
 "use strict";
 
 const path = require("node:path");
+const { createHash } = require("node:crypto");
+const { physicalPath, runManagedCargoSync } = require("./cargo-target-owner.cjs");
 
 // Pure command construction is shared by execution and verification identity.
 // Cargo owns compilation reuse; every requested test filter still executes.
@@ -32,12 +34,22 @@ function buildCargoTestCommand(sourceRoot, cargoArgs, {
   cargoEnv.CARGO_TARGET_DIR = pathImpl.normalize(targetDirectory);
   cargoEnv.RUST_MIN_STACK ||= "33554432";
   cargoEnv.INSTA_UPDATE = "no";
-  return { command: "cargo", args, cwd, env: cargoEnv, stdio: "inherit", windowsHide: true };
+  const physical = value => pathImpl === path ? physicalPath(value) : pathImpl.normalize(value);
+  const identity = value => pathImpl === path.win32 || (pathImpl === path && process.platform === "win32") ? value.toLowerCase() : value;
+  const targetIdentity = identity(physical(cargoEnv.CARGO_TARGET_DIR));
+  const outputRoot = pathImpl === path ? path.join(__dirname, "..", "artifacts", "verification", "cargo-pending")
+    : pathImpl.join(pathImpl.dirname(sourceRoot), "artifacts", "verification", "cargo-pending");
+  cargoEnv.INSTA_PENDING_DIR ||= pathImpl.join(outputRoot, createHash("sha256").update(targetIdentity).digest("hex"));
+  if (!pathImpl.isAbsolute(cargoEnv.INSTA_PENDING_DIR)) throw new Error("INSTA_PENDING_DIR must be absolute and outside selected engine source");
+  const relative = pathImpl.relative(identity(physical(sourceRoot)), identity(physical(cargoEnv.INSTA_PENDING_DIR)));
+  if (relative === "" || (!relative.startsWith(`..${pathImpl.sep}`) && relative !== ".." && !pathImpl.isAbsolute(relative))) {
+    throw new Error("INSTA_PENDING_DIR must be outside selected engine source");
+  }
+  return { command: "cargo", args, cwd, selectedSourceRoot: physical(sourceRoot), env: cargoEnv, stdio: "inherit", windowsHide: true };
 }
 
 function runCargoTest(sourceRoot, cargoArgs, options) {
-  const { command, args, ...spawnOptions } = buildCargoTestCommand(sourceRoot, cargoArgs, options);
-  return require("node:child_process").spawnSync(command, args, spawnOptions);
+  return runManagedCargoSync(buildCargoTestCommand(sourceRoot, cargoArgs, options));
 }
 
-module.exports = { buildCargoTestCommand, runCargoTest };
+module.exports = { buildCargoTestCommand, runCargoTest, runManagedCargoSync };

@@ -2,7 +2,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { buildCargoTestCommand, runCargoTest } = require("./cargo-verification.cjs");
+const { buildCargoTestCommand, runCargoTest, runManagedCargoSync } = require("./cargo-verification.cjs");
 
 const windowsNativePackages = {
   "codex-app-server-daemon": { directory: "app-server-daemon", target: "codex_app_server_daemon" },
@@ -24,7 +24,7 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
   };
-  const compiled = spawnSync(command, args, captureOptions);
+  const compiled = runManagedCargoSync({ command, args, ...captureOptions });
   emit(compiled);
   if (compiled.error || compiled.status !== 0) return compiled;
   const normalized = value => process.platform === "win32" ? path.resolve(value).toLowerCase() : path.resolve(value);

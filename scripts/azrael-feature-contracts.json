@@ -59,7 +59,10 @@
         "scripts/test-ordinary-runtime-node.cjs",
         "scripts/test-integrated-entry.cjs",
         "engine/codex-rs/core/src/session/root_resume_tests.rs",
-        "engine/codex-rs/ext/queue/tests/queue_service.rs"
+        "engine/codex-rs/ext/queue/tests/queue_service.rs",
+        "scripts/cargo-target-owner.cjs",
+        "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-scheduling.cjs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],
@@ -71,7 +74,9 @@
             "--test",
             "scripts/test-check-shared-engine.mjs",
             "scripts/test-check-shared-engine-resources.mjs",
-            "scripts/test-cargo-verification.cjs"
+            "scripts/test-cargo-verification.cjs",
+            "scripts/test-cargo-target-owner.cjs",
+            "scripts/test-cargo-scheduling.cjs"
           ],
           "level": "source"
         },
@@ -239,7 +244,8 @@
             "{engineSourceRoot}",
             "core"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "core-lib"
         }
       ],
       "reportFields": []
@@ -334,7 +340,8 @@
             "{engineSourceRoot}",
             "tools"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "core-lib"
         }
       ],
       "reportFields": []
@@ -460,7 +467,8 @@
             "{engineSourceRoot}",
             "protocol"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "appserver-protocol-lib-isolated"
         },
         {
           "id": "engine.task-work-time.store",
@@ -2300,7 +2308,8 @@
             "{engineSourceRoot}",
             "core"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "core-lib-isolated"
         },
         {
           "id": "engine.response-tps.appserver",
@@ -2310,7 +2319,8 @@
             "{engineSourceRoot}",
             "appserver"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "appserver-protocol-lib-isolated"
         }
       ],
       "reportFields": []
@@ -2450,7 +2460,8 @@
             "scripts/check-capacity-recovery.cjs",
             "{engineSourceRoot}"
           ],
-          "level": "native"
+          "level": "native",
+          "cargoScheduleGroup": "core-lib-isolated"
         }
       ],
       "reportFields": []
