@@ -85,10 +85,15 @@ export class InstructionService implements InstructionUiPort {
       }
       const notices: InstructionUiText[] = [];
       let library: InstructionUiState["library"];
+      let libraryError: InstructionUiText | undefined;
       try { library = await this.personalLibrary.snapshot(); }
       catch (error) {
         // Older portable fixtures and installations retain their baseline release manager.
-        if (!(error instanceof Error && error.message.startsWith("Instruction module missing:"))) throw error;
+        if (!(error instanceof Error && error.message.startsWith("Instruction module missing:"))) {
+          const detail = error instanceof Error ? error.message : String(error);
+          libraryError = { en: `Personal resource library: ${detail}`, ko: `개인 리소스 라이브러리: ${detail}` };
+          this.log.warn(`instruction library snapshot failed: ${detail}`);
+        }
       }
       if (state.installedRepository && state.installedRepository !== repository) notices.push({ en: `The applied instructions come from ${state.installedRepository}. Browsing ${repository}.`, ko: `현재 적용된 지침의 출처는 ${state.installedRepository}입니다. 조회 대상은 ${repository}입니다.` });
       if (state.currentWorkspaceVersion && state.currentWorkspaceVersion !== state.appliedVersion) notices.push({ en: `The current workspace uses instruction version ${state.currentWorkspaceVersion}.`, ko: `현재 작업공간의 지침 버전은 ${state.currentWorkspaceVersion}입니다.` });
@@ -98,7 +103,7 @@ export class InstructionService implements InstructionUiPort {
         documents: this.documents.map(({ path, title, kind }) => ({ path, title: title ?? path, kind: kind ?? "reference" })),
         components: this.components, preview: this.preview, conflicts: this.conflicts,
         selectedComponentIds: state.appliedVersion ? state.selectedComponentIds : undefined,
-        message: notices.length ? notices : undefined, library };
+        message: notices.length ? notices : undefined, library, error: libraryError };
     } catch (error) {
       return { repository, currentVersion: null, pinnedVersion: null, selectedVersion: null, versions: [],
         downloadedVersions: [], documents: [], components: [], conflicts: [], error: this.error(error) };

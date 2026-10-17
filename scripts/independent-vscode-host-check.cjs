@@ -17,6 +17,8 @@ const ACCOUNT_COMMANDS = [
   "azrael.refreshAccounts",
   "azrael.openCodex",
   "azrael.openCodexSettings",
+  "azrael.instructions",
+  "azrael.instructionsEmbedded",
 ];
 
 function assert(value, message) { if (!value) throw new Error(message); }
@@ -36,6 +38,64 @@ async function waitFor(predicate, timeoutMs, label) {
     await new Promise((resolve) => setTimeout(resolve, 250));
   }
   throw new Error(`${label} timed out${lastError ? `: ${lastError.message}` : ""}`);
+}
+
+async function verifyEmbeddedInstructions(diagnostics) {
+  const summary = { command: "azrael.instructionsEmbedded", locales: [] };
+  diagnostics.embeddedInstructions = summary;
+  for (const locale of ["ko", "en"]) {
+    const clientId = `installed-host-check-${process.pid}-${locale}`;
+    const requestId = `mount-${locale}`;
+    const messages = [];
+    const checked = { locale, clientId, requestId, passed: false, unmounted: false };
+    summary.locales.push(checked);
+    // Exercise the installed command and its real service. Only the receiving
+    // Webview surface is synthetic; mounting reads local state without refresh,
+    // acquisition, publication or model requests.
+    const receiver = {
+      postMessage: async message => {
+        messages.push(message);
+        return true;
+      },
+    };
+    try {
+      await vscode.commands.executeCommand(summary.command, receiver, {
+        type: "azrael-instructions", action: "mount", clientId, requestId, locale,
+      });
+      checked.messageCount = messages.length;
+      checked.responses = messages.map(message => ({
+        type: message?.type, clientId: message?.clientId, requestId: message?.requestId,
+        htmlLength: typeof message?.html === "string" ? message.html.length : null,
+      }));
+      assert(messages.length === 1, `installed instruction mount (${locale}) returned ${messages.length} messages`);
+      const response = messages[0];
+      assert(response?.type === "azrael-instructions-state", `installed instruction mount (${locale}) returned the wrong response type`);
+      assert(response.clientId === clientId && response.requestId === requestId,
+        `installed instruction mount (${locale}) returned mismatched client/request IDs`);
+      assert(typeof response.html === "string", `installed instruction mount (${locale}) returned no HTML`);
+      const html = response.html;
+      const revision = /\bdata-library-revision="(\d+)"/.exec(html);
+      checked.libraryRevision = revision ? Number(revision[1]) : null;
+      checked.baselineDistribution = html.includes(`<summary>${locale === "ko" ? "기본 지침 배포" : "Baseline distribution"}</summary>`);
+      checked.localized = html.includes(`<main lang="${locale}"`) && html.includes(`aria-label="${locale === "ko" ? "지침 라이브러리" : "Instruction library"}"`);
+      checked.hasAlert = /\brole\s*=\s*["']alert["']/i.test(html);
+      checked.hasMissingModule = /Cannot find module/i.test(html);
+      // Retain a bounded error excerpt instead of the rendered documents.
+      const alert = /<[^>]*\brole\s*=\s*["']alert["'][^>]*>([\s\S]*?)<\/[^>]+>/i.exec(html);
+      if (alert) checked.alertText = alert[1].replace(/<[^>]*>/g, "").slice(0, 400);
+      assert(revision && Number.isSafeInteger(checked.libraryRevision), `installed instruction mount (${locale}) omitted the personal library revision`);
+      assert(checked.baselineDistribution, `installed instruction mount (${locale}) omitted baseline distribution`);
+      assert(checked.localized, `installed instruction mount (${locale}) did not use the requested locale`);
+      assert(!checked.hasAlert && !checked.hasMissingModule, `installed instruction mount (${locale}) rendered an instruction error: ${checked.alertText ?? "missing module"}`);
+      checked.passed = true;
+    } finally {
+      await vscode.commands.executeCommand(summary.command, receiver, {
+        type: "azrael-instructions", action: "unmount", clientId, requestId: `unmount-${locale}`,
+      });
+      checked.unmounted = true;
+    }
+  }
+  return summary;
 }
 
 function bridgeSession(executable, socket, env) {
@@ -239,6 +299,7 @@ exports.run = async function run() {
       return false;
     }, 125_000, "packaged Azrael renderer readiness");
     diagnostics.rendererReady = true;
+    await verifyEmbeddedInstructions(diagnostics);
     await vscode.commands.executeCommand("azrael.manageAccounts");
     const accountsWebview = await waitFor(
       () => findWebview("계정 및 사용량", "azrael.accounts"), 30_000, "integrated accounts Webview");
@@ -338,6 +399,7 @@ exports.run = async function run() {
       ordinaryCodexHome: expectedOrdinaryHome,
       integratedAccountUiUsesHostRuntime: true,
       embeddedStartupConnect: startupConnectResult,
+      embeddedInstructions: diagnostics.embeddedInstructions,
       webviews: { accounts: accountsWebview.input.viewType, usage: usageWebview.input.viewType, rootResume: rootResumeWebview.input.viewType },
       accountCount: state.profiles.length,
       mode,
