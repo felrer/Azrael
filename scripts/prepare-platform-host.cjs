@@ -115,7 +115,7 @@ async function prepare(options) {
   const modules=["session-links.cjs","azrael-recovery.cjs","recovery-state.cjs", "shared-engine-host.cjs", "optional-diagnostics.cjs","url-safety-transport.cjs","pdf-file-open.cjs","computer-use-approvals.cjs","use-control-settings.cjs","devin-native-host.cjs","provider-accounts-host.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of modules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"out",name));
   fs.copyFileSync(path.join(__dirname,"ordinary-runtime.cjs"),path.join(root,"out/azrael-runtime.cjs")); fs.copyFileSync(path.join(__dirname,"integrated-azrael-entry.cjs"),path.join(root,"integrated-azrael-entry.cjs"));
-  const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","computer-use-runtime.cjs","computer-use-branding.cjs","window-control-runtime.cjs","use-control-settings.cjs","window-use-approvals.cjs","computer-use-approvals.cjs","use-settings-host.cjs","sky-control-policy.mjs","sky-controlled-service.mjs","inject-sky-control-policy.cjs","platform-runtime.cjs","azrael-platforms.json"];
+  const accountModules=["sync-shared-environment.cjs","sync-codex-environment.cjs","instruction-package.cjs","instruction-library.cjs","instruction-publisher.cjs","task-profile-runtime.cjs","computer-use-runtime.cjs","computer-use-branding.cjs","window-control-runtime.cjs","use-control-settings.cjs","window-use-approvals.cjs","computer-use-approvals.cjs","use-settings-host.cjs","sky-control-policy.mjs","sky-controlled-service.mjs","inject-sky-control-policy.cjs","platform-runtime.cjs","azrael-platforms.json"];
   for (const name of accountModules) fs.copyFileSync(path.join(__dirname,name),path.join(root,"account-ui",name));
   const config={schema:1,platform:platform.platformIdentity(selected),engine:path.join(release,"engine",platform.executableName("azrael",selected)),bridge:path.join(release,"engine",platform.executableName("azrael-bridge",selected)),engineVersion:build.engineVersion,codexHome:path.join(os.homedir(),".azrael-ex"),originalExtension:ui};
   config.devinNative=require("./devin-native-host.cjs").readBundle(release); config.providerAccounts=require("./provider-accounts-host.cjs").readBundle(release);
@@ -138,6 +138,7 @@ async function prepare(options) {
   if(signing) {
     for(const tool of companionNativeTools) tool.sha256=shared.sha(fs.readFileSync(path.join(root,tool.path)));
   }
+  require("./check-instruction-modules.cjs").checkInstructionModules(path.join(root,"account-ui"));
   const vsix=path.join(output,"azrael-host.vsix"), previous=process.cwd();
   try { process.chdir(root); await require("./package-local-host.cjs").packageLocalHost(vsce,vsix,ui); } finally {process.chdir(previous);}
   const files=shared.readZip(fs.readFileSync(vsix)), xml=files.get("extension.vsixmanifest");

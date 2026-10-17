@@ -310,6 +310,10 @@ try {
             if ($LASTEXITCODE -ne 0) { throw 'Could not save completed namespace checkpoint.' }
         }
     }
+    Invoke-PreparationPhase 'instruction-module-verification' {
+        & node (Join-Path $PSScriptRoot 'check-instruction-modules.cjs') (Join-Path $prepared.OfficialExtension 'account-ui') | Out-Null
+        if ($LASTEXITCODE -ne 0) { throw 'Prepared or resumed instruction module dependency closure verification failed.' }
+    }
     Invoke-PreparationPhase 'window-control-host-verification' {
         & node (Join-Path $PSScriptRoot 'window-control-runtime.cjs') verify-host --directory $prepared.OfficialExtension --release $release | Out-Null
         if ($LASTEXITCODE -ne 0) { throw 'Prepared or resumed Window Control host dependency closure verification failed.' }

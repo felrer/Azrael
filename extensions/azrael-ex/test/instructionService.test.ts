@@ -176,6 +176,37 @@ test("changing workspace maps its own selection and preserves retained workspace
   assert.equal(restored.message, undefined);
 });
 
+test("personal library failure preserves baseline version, cache and actions and remains visible until recovery", async t => {
+  const f = await fixture(t);
+  assert.equal((await f.service.request("download", { version: "1.0.0" })).error, undefined);
+  assert.equal((await f.service.request("apply", { version: "1.0.0", componentIds: ["global-instructions"] })).error, undefined);
+  assert.equal((await f.service.request("pin", { version: "1.0.0" })).error, undefined);
+  const restarted = f.createService();
+  const library = (restarted as any).personalLibrary;
+  const snapshot = library.snapshot.bind(library);
+  library.snapshot = async () => { throw new Error("Cannot find module 'yazl'"); };
+  const before = f.requests.length;
+  const state = await restarted.snapshot();
+  assert.equal(f.requests.length, before, "opening cached settings stays offline even on library failure");
+  assert.equal(state.currentVersion, "1.0.0"); assert.equal(state.pinnedVersion, "1.0.0");
+  assert.equal(state.selectedVersion, "1.0.0"); assert.deepEqual(state.downloadedVersions, ["1.0.0"]);
+  assert.deepEqual(state.selectedComponentIds, ["global-instructions"]);
+  assert(state.documents.length); assert(state.components.length); assert.equal(state.library, undefined);
+  assert.match(uiText(state.error, "en"), /Personal resource library: Cannot find module 'yazl'/);
+  assert.match(uiText(state.error, "ko"), /개인 리소스 라이브러리/);
+  assert(f.warnings.some(message => message.includes("instruction library snapshot failed")));
+  const unpinned = await restarted.request("unpin", {});
+  assert.equal(unpinned.currentVersion, "1.0.0"); assert.equal(unpinned.pinnedVersion, null);
+  assert.match(uiText(unpinned.error), /yazl/);
+  const refreshed = await restarted.request("refresh", {});
+  assert.equal(refreshed.currentVersion, "1.0.0"); assert(refreshed.versions.length);
+  assert.match(uiText(refreshed.error), /yazl/);
+  library.snapshot = snapshot;
+  const recovered = await restarted.snapshot();
+  assert.equal(recovered.error, undefined); assert(recovered.library);
+  assert.equal(recovered.currentVersion, "1.0.0");
+});
+
 test("restarted adapter browses and rolls back verified cached instructions without any network requests", async t => {
   const f = await fixture(t);
   await f.service.request("download", { version: "1.0.0" });
