@@ -9,6 +9,7 @@ const { rewriteJavaScript } = require("./namespace-azrael-host.cjs");
 const { transformAsset } = require("./ui-test-transform-fixture.cjs");
 const patch = require("./inject-deferred-turn.cjs");
 const waitHelpers = require("./root-resume-wait.cjs");
+const { createDeferredListStateFixture } = require("./deferred-list-state-fixture.cjs");
 
 const root = process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 const inputs = [
@@ -42,24 +43,46 @@ test("pending root resume is display-only and ends on terminal reservation or tu
   assert.equal(pending(null), false);
   assert.equal(pending({ status: "deferred" }), false);
   assert.equal(header({ nativeRunning: true }), true);
-  const listState = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Pbn")})`, {
+  const metadata = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "Pbn")})`, {
     rQ: e => e.turns.at(-1), uQ: () => null, __n: e => e.turns.length, T_n: () => null,
     azraelIsRootResumePending: pending,
   });
-  const project = xm.runInNewContext(`(${functionNamed(inputs[0].result.text, "F_n")})`, {
-    aQ: e => e.turns.at(-1), rQ: e => e.turns.at(-1), gQ: () => false,
-  });
   const turn = { status: "deferred", turnId: "origin", rootResumeWait: { state: "waiting" } };
   const conversation = { turns: [turn], requests: [] };
-  const summary = listState(conversation);
-  assert.equal(summary.isRootResumePending, true);
-  const view = project(conversation, summary, null);
-  assert.equal(view.isRootResumePending, true);
-  assert.equal(view.isResponseInProgress, false);
-  assert.equal(view.isConversationInProgress, false);
+  assert.equal(metadata(conversation).isRootResumePending, true);
   turn.rootResumeWait.state = "cancelled";
-  assert.equal(listState(conversation).isRootResumePending, false);
+  assert.equal(metadata(conversation).isRootResumePending, false);
   assert.ok(inputs[0].result.text.includes("e.isRootResumePending===t.isRootResumePending"));
+});
+test("native getListState derives resume indicators from legacy and canonical latest turns, not list summaries", () => {
+  const producer = createDeferredListStateFixture(inputs[0].result.text, ts);
+  for (const canonical of [false, true]) {
+    const turn = { status: "deferred", turnId: "origin", items: [], rootResumeWait: { state: "waiting", revision: 1 } };
+    const history = { entitiesByKey: { origin: turn }, islands: [{ entries: [{ value: "origin" }], newerBoundary: { status: "exhausted" } }] };
+    const conversation = { id: "thread", requests: [], turns: canonical ? [] : [turn],
+      ...(canonical ? { turnHistory: { kind: "canonical", history } } : {}) };
+    const initial = producer.getListState(conversation);
+    assert.equal(Object.hasOwn(initial.summary, "isRootResumePending"), false);
+    for (const state of ["waiting", "claimed", "resumed", "cancelled", "blocked", "waiting"]) {
+      turn.rootResumeWait = { state, revision: turn.rootResumeWait.revision + 1 };
+      const view = producer.getListState(conversation);
+      assert.equal(view.summary, initial.summary, "reuse the actual cached vQ summary");
+      assert.equal(view.isRootResumePending, ["waiting", "claimed"].includes(state), `${canonical}:${state}`);
+      assert.equal(view.isResponseInProgress, false);
+      assert.equal(view.isConversationInProgress, false);
+    }
+    for (const status of ["completed", "interrupted", "failed"]) {
+      turn.status = status;
+      assert.equal(producer.getListState(conversation).isRootResumePending, false);
+    }
+    const resumed = { turnId: "resumed", status: "inProgress", items: [] };
+    if (canonical) { history.entitiesByKey.resumed = resumed; history.islands[0].entries.push({ value: "resumed" }); }
+    else conversation.turns.push(resumed);
+    const view = producer.getListState(conversation);
+    assert.equal(view.latestTurnId, "resumed");
+    assert.equal(view.isRootResumePending, false, "older reservation cannot mark the resumed turn waiting");
+    assert.equal(view.isResponseInProgress, true, "normal running indicator remains independent");
+  }
 });
 function sourceAst(source) {
   if (!astCache.has(source)) astCache.set(source, ts.createSourceFile("fixture.js", source, ts.ScriptTarget.Latest, true, ts.ScriptKind.JS));

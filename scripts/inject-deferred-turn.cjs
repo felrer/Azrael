@@ -143,7 +143,7 @@ function injectDeferredTurn(text) {
   text = replaceOnce(text, "e.lastTurnStatus===t.lastTurnStatus&&e.hasPendingTurnSubmission",
     "e.lastTurnStatus===t.lastTurnStatus&&e.isRootResumePending===t.isRootResumePending&&e.hasPendingTurnSubmission");
   text = replaceOnce(text, "isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:",
-    "isRootResumePending:t.isRootResumePending,isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:");
+    "isRootResumePending:azraelIsRootResumePending(a),isResponseInProgress:i?.status===`inProgress`,isConversationInProgress:");
   return { text, count: 15, nativeTimingChecks: 1 };
 }
 
