@@ -2,15 +2,17 @@ import assert from 'node:assert/strict';
 import test from 'node:test';
 import { resolve, parse } from 'node:path';
 import { spawn } from 'node:child_process';
+import { createHash } from 'node:crypto';
 import { readFile, mkdir } from 'node:fs/promises';
 import { waitForExit } from './lib/azrael-rpc-check.mjs';
-import { parseVersion, checkSocketPath, startSharedProvider, resolveBridgePath, resolveCodeHostPath, codeModeChildSource, validateOwnedDaemonReceipt, startupRemaining, RPC_TIMEOUT_MS, windowAccountStateFile, resumePendingTurn, generatedGitAttributeRepair, validateAccountStateProgress, runCheck, diagnosticRootPids, captureOwnedProcessTree } from './check-shared-engine.mjs';
+import { parseVersion, checkSocketPath, queryEngineEndpoint, SHARED_CHECK_STARTUP_ARGS, startSharedProvider, resolveBridgePath, resolveCodeHostPath, codeModeChildSource, validateOwnedDaemonReceipt, startupRemaining, RPC_TIMEOUT_MS, windowAccountStateFile, resumePendingTurn, generatedGitAttributeRepair, validateAccountStateProgress, runCheck, diagnosticRootPids, captureOwnedProcessTree } from './check-shared-engine.mjs';
 
 test('Windows PowerShell process-tree probe handles a JSON PID array and records owned process identity', { skip: process.platform !== 'win32' }, async () => {
   const child = spawn(process.execPath, ['-e', 'process.stdin.resume();process.stdin.on("end",()=>process.exit(0));setTimeout(()=>process.exit(0),20000);'],
     { windowsHide: true, stdio: ['pipe', 'ignore', 'ignore'] });
   await new Promise((done, reject) => { child.once('spawn', done); child.once('error', reject); });
-  const output = resolve(import.meta.dirname, '..', 'artifacts', 'logs', 'BJ-01-shared-engine');
+  const output = resolve(process.env.AZRAEL_SHARED_ENGINE_SOURCE_OUTPUT ??
+    resolve(import.meta.dirname, '..', 'artifacts', 'logs', 'BJ-01-shared-engine'));
   try {
     await mkdir(output, { recursive: true });
     const summary = await captureOwnedProcessTree(output, 'source-guard', [child.pid, 0xffffffff]);
@@ -120,10 +122,36 @@ test('native version parser accepts branded output and refuses arbitrary output'
   }
 });
 test('Windows socket preflight rejects an overlength native AF_UNIX path', () => {
-  const short = resolve(parse(process.cwd()).root, 'bj-home');
-  assert(checkSocketPath(short, 'win32').endsWith('app-server-control.sock'));
+  const short = resolve(parse(process.cwd()).root, 'bj-home', 'selected-instance.sock');
+  assert.equal(checkSocketPath(short, 'win32'), short);
   assert.throws(() => checkSocketPath(resolve('x'.repeat(110)), 'win32'), /AF_UNIX/);
-  assert.throws(() => checkSocketPath('relative-home', 'win32'), /absolute_fixture_home/);
+  assert.throws(() => checkSocketPath('relative.sock', 'win32'), /absolute_native_socket/);
+});
+
+test('checker queries the selected binary with exactly its launch startup identity and validates native descriptor', async () => {
+  const home = resolve(parse(process.cwd()).root, 'bj-home');
+  const identity = createHash('sha256').update(await readFile(process.execPath)).digest('hex');
+  const descriptor = { schema: 2, instanceId: 'a'.repeat(64), socketPath: resolve(home, 'app-server-control', 'selected.sock'),
+    engineVersion: '0.162.0', engineIdentity: identity };
+  let calls = 0;
+  function discover(value = descriptor) {
+    return queryEngineEndpoint(process.execPath, home, identity, descriptor.engineVersion, {
+      execFile(engine, argv, options, callback) {
+        calls++;
+        assert.equal(engine, process.execPath);
+        assert.deepEqual(argv, [...SHARED_CHECK_STARTUP_ARGS, '--azrael-engine-endpoint']);
+        assert(SHARED_CHECK_STARTUP_ARGS.includes('--disable-plugin-startup-tasks-for-tests'));
+        assert.equal(options.env.CODEX_HOME, home);
+        assert.equal(options.env.AZRAEL_EX_WINDOW_CONTEXT, undefined);
+        assert.equal(options.env.AZRAEL_EX_MANAGEMENT_SOCKET, undefined);
+        callback(null, JSON.stringify(value), '');
+      },
+    });
+  }
+  assert.deepEqual(await discover(), descriptor);
+  await assert.rejects(discover({ ...descriptor, schema: 1 }), /descriptor/);
+  await assert.rejects(discover({ ...descriptor, socketPath: resolve(parse(process.cwd()).root, 'outside-owned-home.sock') }), /inside_owned_fixture_home/);
+  assert.equal(calls, 3);
 });
 test('real bridge selects the engine bundle sibling and requires an absolute explicit override', () => {
   const engine = resolve('frozen-bundle', 'azrael.exe');
@@ -136,13 +164,15 @@ test('real bridge selects the engine bundle sibling and requires an absolute exp
 });
 test('early-startup cleanup accepts only matching scoped daemon receipts and a PID start identity', () => {
   const home = resolve(parse(process.cwd()).root, 'bj-home');
-  const expected = { home, engineIdentity: 'a'.repeat(64), engineVersion: '0.162.0' };
-  const receipt = { engineIdentity: expected.engineIdentity, engineVersion: expected.engineVersion,
-    socketPath: checkSocketPath(home), nativeArgv: ['app-server', '--azrael-shared-windows', '--listen', `unix://${checkSocketPath(home)}`] };
+  const endpoint = { schema: 2, instanceId: 'b'.repeat(64), socketPath: resolve(home, 'app-server-control', 'selected.sock') };
+  const expected = { endpoint, engineIdentity: 'a'.repeat(64), engineVersion: '0.162.0' };
+  const receipt = { ...endpoint, engineIdentity: expected.engineIdentity, engineVersion: expected.engineVersion,
+    nativeArgv: ['app-server', '--azrael-shared-windows', '--azrael-engine-instance', endpoint.instanceId, '--listen', `unix://${endpoint.socketPath}`] };
   const pid = { pid: 123, processStartTime: '134364988564380375' };
   assert.equal(validateOwnedDaemonReceipt(receipt, pid, expected), 123);
   for (const override of [{ engineIdentity: 'b'.repeat(64) }, { engineVersion: 'other' },
-    { socketPath: checkSocketPath(resolve(parse(process.cwd()).root, 'another-home')) }, { nativeArgv: [] }]) {
+    { schema: 1 }, { instanceId: 'c'.repeat(64) }, { socketPath: resolve(home, 'another.sock') }, { nativeArgv: [] },
+    { nativeArgv: ['app-server', '--azrael-shared-windows', '--listen', `unix://${endpoint.socketPath}`] }]) {
     assert.throws(() => validateOwnedDaemonReceipt({ ...receipt, ...override }, pid, expected));
   }
   assert.throws(() => validateOwnedDaemonReceipt(receipt, { ...pid, pid: -1 }, expected));

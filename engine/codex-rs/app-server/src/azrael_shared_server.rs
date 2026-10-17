@@ -91,6 +91,8 @@ struct Owner {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 struct SavedRegistry {
     schema: u32,
+    #[serde(default)]
+    instance_id: Option<String>,
     owners: HashMap<String, Owner>,
     threads: HashMap<String, String>,
 }
@@ -111,6 +113,17 @@ struct Registry {
     last_window_gone: Option<Instant>,
 }
 impl Registry {
+    fn load_scoped(path: &Path, instance: &str) -> io::Result<Self> {
+        let mut registry = Self::load(path)?;
+        if path.try_exists()? {
+            if registry.saved.instance_id.as_deref() != Some(instance) {
+                return Err(invalid("window registry engine instance mismatch"));
+            }
+        } else {
+            registry.saved.instance_id = Some(instance.to_owned());
+        }
+        Ok(registry)
+    }
     fn load(path: &Path) -> io::Result<Self> {
         let saved = match std::fs::read(path) {
             Ok(bytes) => serde_json::from_slice::<SavedRegistry>(&bytes).map_err(invalid)?,
@@ -483,6 +496,7 @@ pub(crate) async fn run(
     outgoing: mpsc::Sender<OutgoingEnvelope>,
     control: mpsc::Sender<OutboundControlEvent>,
     shutdown: CancellationToken,
+    engine_instance: Option<String>,
 ) -> io::Result<AppServerExit> {
     if !matches!(transport, AppServerTransport::UnixSocket { .. }) {
         return Err(invalid("shared windows require the private local socket"));
@@ -494,8 +508,12 @@ pub(crate) async fn run(
         .await
         .map_err(invalid)?;
     let home = template.config.codex_home.clone();
-    let registry_path = home.join("azrael/runtime/window-owners.json");
-    let mut registry = Registry::load(&registry_path)?;
+    let instance = engine_instance.ok_or_else(|| invalid("shared engine instance is missing"))?;
+    let registry_path =
+        codex_app_server_daemon::azrael_window_registry_path(&home, &instance).map_err(invalid)?;
+    let mut registry = Registry::load_scoped(&registry_path, &instance)?;
+    let mut thread_engines =
+        crate::azrael_thread_engines::ThreadEngineLeases::new(&home, &instance).await?;
     let mut contexts = HashMap::<String, Context>::new();
     let mut connections = HashMap::<ConnectionId, ConnectionState>::new();
     let mut owners = HashMap::<ConnectionId, String>::new();
@@ -527,6 +545,9 @@ pub(crate) async fn run(
                 match event {
                     Some(ContextEvent::Outgoing(context, envelope)) => {
                         let message = match &envelope { OutgoingEnvelope::Broadcast { message } | OutgoingEnvelope::ToConnection { message, .. } => message };
+                        if let Some(thread) = published_thread(message) {
+                            if let Err(error) = thread_engines.acquire(thread) { terminal_error = Some(error); break; }
+                        }
                         match record_published_thread(&mut registry, &context, message) {
                             Ok(true) => if let Err(error) = registry.save(&registry_path) { terminal_error = Some(error); break; },
                             Ok(false) => {},
@@ -552,6 +573,7 @@ pub(crate) async fn run(
                         }
                     },
                     Some(ContextEvent::ThreadCreated(context, thread)) => {
+                        if let Err(error) = thread_engines.acquire(&thread.to_string()) { terminal_error = Some(error); break; }
                         if registry.saved.threads.get(&thread.to_string()).is_some_and(|owner| *owner != context) {
                             terminal_error = Some(invalid("cross-window duplicate thread detected"));
                         } else {
@@ -659,6 +681,10 @@ pub(crate) async fn run(
                                         }
                                     }
                                 }
+                                if let Err(error) = thread_engines.acquire(thread) {
+                                    send_error(&outgoing, connection_id, request.id.clone(), error).await?;
+                                    continue;
+                                }
                                 match registry.select_thread(&owner_id, thread, request.method == "thread/resume") {
                                     Ok(selected) => {
                                         let rebound = context_id != selected;
@@ -717,12 +743,7 @@ pub(crate) async fn run(
     for context in contexts.values() {
         context.processor.turn_admission.begin_drain();
     }
-    let mut ids: HashSet<ThreadId> = registry
-        .saved
-        .threads
-        .keys()
-        .map(|id| ThreadId::from_string(id).map_err(invalid))
-        .collect::<io::Result<_>>()?;
+    let mut ids = thread_engines.owned_threads();
     // Fence and cancel all existing trees before snapshot I/O or any RPC/startup-task waits.
     // Capture loaded IDs first: children may leave the manager as soon as cancellation starts.
     let mut initial_trees = Vec::new();
@@ -737,13 +758,17 @@ pub(crate) async fn run(
     {
         let (loaded, handles, errors) = result;
         for id in &loaded {
+            if let Err(error) = thread_engines.acquire(&id.to_string()) {
+                retain_shutdown_error(&mut terminal_error, error);
+                continue;
+            }
+            ids.insert(*id);
             registry
                 .saved
                 .threads
                 .entry(id.to_string())
                 .or_insert(owner.clone());
         }
-        ids.extend(loaded);
         initial_trees.extend(handles);
         for error in errors {
             retain_shutdown_error(&mut terminal_error, error);
@@ -904,11 +929,18 @@ pub(crate) async fn run(
                 event = context_rx.recv() => {
                     // Keep bounded relays moving and immediately cancel any late admitted root.
                     if let Some(ContextEvent::ThreadCreated(context, thread)) = event {
+                        if let Err(error) = thread_engines.acquire(&thread.to_string()) { retain_shutdown_error(&mut terminal_error, error); continue; }
                         ids.insert(thread);
                         registry.saved.threads.entry(thread.to_string()).or_insert(context.clone());
                         if let Some(ctx) = contexts.get(&context) {
                             let (loaded, handles, errors) = ctx.processor.fence_shared_window_threads().await;
-                            ids.extend(loaded); late_trees.extend(handles);
+                            for id in loaded {
+                                match thread_engines.acquire(&id.to_string()) {
+                                    Ok(()) => { ids.insert(id); },
+                                    Err(error) => retain_shutdown_error(&mut terminal_error, error),
+                                }
+                            }
+                            late_trees.extend(handles);
                             for error in errors { retain_shutdown_error(&mut terminal_error, error); }
                         }
                     }
@@ -919,6 +951,10 @@ pub(crate) async fn run(
     match tokio::time::timeout(SHUTDOWN_TIMEOUT, final_drain).await {
         Ok((snapshots, loaded, errors)) => {
             for (thread, owner) in loaded {
+                if let Err(error) = thread_engines.acquire(&thread.to_string()) {
+                    retain_shutdown_error(&mut terminal_error, error);
+                    continue;
+                }
                 ids.insert(thread);
                 registry
                     .saved
@@ -932,7 +968,12 @@ pub(crate) async fn run(
             for snapshot in snapshots {
                 for thread in snapshot.loaded {
                     if let Ok(thread) = ThreadId::from_string(&thread) {
-                        ids.insert(thread);
+                        match thread_engines.acquire(&thread.to_string()) {
+                            Ok(()) => {
+                                ids.insert(thread);
+                            }
+                            Err(error) => retain_shutdown_error(&mut terminal_error, error),
+                        }
                     }
                 }
             }
@@ -967,3 +1008,19 @@ pub(crate) async fn run(
 
 #[cfg(test)]
 mod tests;
+
+#[cfg(test)]
+mod instance_tests {
+    #[test]
+    fn persisted_registry_requires_full_instance_binding() {
+        let home = tempfile::tempdir().unwrap();
+        let first = "a".repeat(64);
+        let second = format!("{}{}", "a".repeat(24), "b".repeat(40));
+        let path =
+            codex_app_server_daemon::azrael_window_registry_path(home.path(), &first).unwrap();
+        let registry = super::Registry::load_scoped(&path, &first).unwrap();
+        registry.save(&path).unwrap();
+        assert!(super::Registry::load_scoped(&path, &first).is_ok());
+        assert!(super::Registry::load_scoped(&path, &second).is_err());
+    }
+}

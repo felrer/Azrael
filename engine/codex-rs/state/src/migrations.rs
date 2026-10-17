@@ -167,3 +167,44 @@ pub(crate) async fn repair_legacy_root_wait_migration_version(
 #[cfg(test)]
 #[path = "migrations_tests.rs"]
 mod tests;
+
+/// Bump for incompatible non-SQL JSON storage or persisted protocol semantics.
+/// SQL migration changes are represented independently by embedded checksums.
+pub const AZRAEL_NON_SQL_STORAGE_ABI_VERSION: u32 = 1;
+
+/// Deterministic, credential-free metadata for every embedded runtime migrator.
+/// Equal manifests permit participating engines to share storage concurrently;
+/// this manifest does not replace native migration checksum validation.
+pub fn azrael_storage_compatibility_manifest() -> String {
+    let migrators = [
+        ("state", &STATE_MIGRATOR),
+        ("logs", &LOGS_MIGRATOR),
+        ("goals", &GOALS_MIGRATOR),
+        ("memories", &MEMORIES_MIGRATOR),
+        ("queue", &QUEUE_MIGRATOR),
+        ("thread_history", &THREAD_HISTORY_MIGRATOR),
+    ];
+    let entries: Vec<_> = migrators
+        .into_iter()
+        .map(|(label, migrator)| {
+            let migrations: Vec<_> = migrator
+                .migrations
+                .iter()
+                .map(|migration| {
+                    serde_json::json!({
+                        "version": migration.version,
+                        "description": migration.description.as_ref(),
+                        "checksum": migration.checksum.as_ref(),
+                    })
+                })
+                .collect();
+            serde_json::json!({ "label": label, "migrations": migrations })
+        })
+        .collect();
+    serde_json::json!({
+        "protocol": 1,
+        "non_sql_storage_abi": AZRAEL_NON_SQL_STORAGE_ABI_VERSION,
+        "migrators": entries,
+    })
+    .to_string()
+}

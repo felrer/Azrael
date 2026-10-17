@@ -3,13 +3,16 @@
 const fs = require("node:fs");
 const path = require("node:path");
 const { createHash } = require("node:crypto");
+const { execFile } = require("node:child_process");
 const verified = new Map();
+const endpoints = new WeakMap();
+const endpointOutputLimit = 16 * 1024;
 const digest = text => createHash("sha256").update(text, "utf8").digest("hex");
 
 function validateSharedRuntime(runtime) {
   if (runtime.sharedEngine !== true) throw new Error("Shared Azrael engine mode is not enabled.");
-  if (runtime.sharedEngineProtocol !== 1 || !/^[0-9a-f]{64}$/.test(runtime.engineSha256 ?? "")) {
-    throw new Error("Shared Azrael engine requires protocol 1 and engineSha256 from the immutable build receipt. Prepare the host with the matching engine release.");
+  if (runtime.sharedEngineProtocol !== 2 || !/^[0-9a-f]{64}$/.test(runtime.engineSha256 ?? "")) {
+    throw new Error("Shared Azrael engine requires protocol 2 and engineSha256 from the immutable build receipt. Prepare the host with the matching engine release.");
   }
 }
 
@@ -25,6 +28,67 @@ function verifyEngine(runtime) {
       reject(new Error("Azrael engine does not match its immutable build receipt. Prepare the matching release again.")));
   }));
   return verified.get(key);
+}
+
+// Discovery uses the selected executable's native identity calculation. It must
+// finish before any account/window authority is passed to the official host.
+async function resolveEngineEndpoint(runtime, options = {}) {
+  validateSharedRuntime(runtime);
+  if (!endpoints.has(runtime)) endpoints.set(runtime, (async () => {
+    await verifyEngine(runtime);
+    if (typeof runtime.env?.CODEX_HOME !== "string" || !path.isAbsolute(runtime.env.CODEX_HOME)) {
+      throw new Error("Azrael engine endpoint discovery requires an absolute selected CODEX_HOME.");
+    }
+    const timeoutMs = options.timeoutMs ?? 10000;
+    if (!Number.isInteger(timeoutMs) || timeoutMs < 1 || timeoutMs > 60000) {
+      throw new Error("Invalid Azrael engine endpoint discovery timeout.");
+    }
+    const env = { ...runtime.env };
+    for (const key of Object.keys(env)) {
+      if (["AZRAEL_EX_WINDOW_CONTEXT", "AZRAEL_EX_MANAGEMENT_SOCKET"].includes(key.toUpperCase())) delete env[key];
+    }
+    const stdout = await new Promise((resolve, reject) => {
+      let child, finished = false;
+      const finish = (error, output) => {
+        if (finished) return;
+        finished = true;
+        clearTimeout(timer);
+        if (error) reject(new Error("Azrael engine endpoint discovery failed.", { cause: error }));
+        else resolve(output);
+      };
+      const timer = setTimeout(() => {
+        try { child?.kill(); } catch { /* Discovery already failed closed. */ }
+        finish(new Error("Azrael engine endpoint discovery timed out."));
+      }, timeoutMs);
+      try {
+        child = (options.execFile ?? execFile)(runtime.engine,
+          ["-c", "features.code_mode_host=true", "app-server", "--analytics-default-enabled", "--azrael-engine-endpoint"],
+          { env, encoding: "utf8", timeout: timeoutMs, maxBuffer: endpointOutputLimit, windowsHide: true },
+          (error, output, stderr) => {
+            if (error) return finish(error);
+            if (typeof output !== "string" || Buffer.byteLength(output) > endpointOutputLimit ||
+                typeof stderr !== "string" || Buffer.byteLength(stderr) > endpointOutputLimit) {
+              return finish(new Error("Azrael engine endpoint discovery exceeded its output limit."));
+            }
+            finish(null, output);
+          });
+      } catch (error) { finish(error); }
+    });
+    let descriptor;
+    try { descriptor = JSON.parse(stdout); } catch {
+      throw new Error("Invalid Azrael engine endpoint descriptor JSON.");
+    }
+    if (!descriptor || descriptor.schema !== 2 || typeof descriptor.instanceId !== "string" || !/^[0-9a-f]{64}$/.test(descriptor.instanceId) ||
+        typeof descriptor.socketPath !== "string" || !path.isAbsolute(descriptor.socketPath) || descriptor.socketPath.includes("\0") ||
+        typeof descriptor.engineVersion !== "string" || descriptor.engineVersion !== runtime.engineVersion || descriptor.engineIdentity !== runtime.engineSha256) {
+      throw new Error("Azrael engine endpoint descriptor does not match the selected release.");
+    }
+    runtime.socket = descriptor.socketPath;
+    runtime.env.AZRAEL_EX_MANAGEMENT_SOCKET = descriptor.socketPath;
+    runtime.engineInstanceId = descriptor.instanceId;
+    return Object.freeze(descriptor);
+  })());
+  return endpoints.get(runtime);
 }
 
 function windowContext(runtime, { sessionId, workspacePath, hostPid, accountStateFile, accountDefaultFile }) {
@@ -51,4 +115,4 @@ function requiresManualResume(home, threadId) {
   } catch (error) { return error?.code !== "ENOENT"; }
 }
 
-module.exports = { validateSharedRuntime, verifyEngine, windowContext, requiresManualResume };
+module.exports = { validateSharedRuntime, verifyEngine, resolveEngineEndpoint, windowContext, requiresManualResume };

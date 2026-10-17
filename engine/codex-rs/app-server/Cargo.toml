@@ -40,6 +40,7 @@ axum = { workspace = true, default-features = false, features = [
     "ws",
 ] }
 codex-analytics = { workspace = true }
+codex-uds = { workspace = true }
 codex-api = { workspace = true }
 codex-agent-extension = { workspace = true }
 codex-arg0 = { workspace = true }
@@ -137,7 +138,6 @@ libc = { workspace = true }
 codex-windows-sandbox = { workspace = true }
 
 [dev-dependencies]
-codex-uds = { workspace = true }
 app_test_support = { workspace = true }
 axum = { workspace = true, default-features = false, features = [
     "http1",

@@ -1,14 +1,15 @@
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn, execFile } from 'node:child_process';
 import { createHash, randomBytes } from 'node:crypto';
 import { createReadStream } from 'node:fs';
 import { createServer } from 'node:http';
 import { createInterface } from 'node:readline';
-import { mkdir, readFile, writeFile, access, appendFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile, access, appendFile, copyFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve, relative, dirname, extname, basename } from 'node:path';
 import { tmpdir } from 'node:os';
 import { pathToFileURL } from 'node:url';
 import { JsonLinePeer, captureStderr, waitForExit } from './lib/azrael-rpc-check.mjs';
+import sharedEngineHost from './shared-engine-host.cjs';
 
 // Native prerequisite acceptance; --extended adds synthetic loopback turns.
 // Usage: node scripts/check-shared-engine.mjs <frozen absolute azrael executable>
@@ -20,6 +21,18 @@ const ROOT = resolve(import.meta.dirname, '..');
 export const RPC_TIMEOUT_MS = 30_000;
 const WINDOW_STARTUP_MS = 90_000;
 const BRIDGE_STARTUP_MS = 70_000; // Native bridge outer startup is 65s; allow 5s scheduling grace.
+export const SHARED_CHECK_STARTUP_ARGS = Object.freeze(['-c', 'features.code_mode_host=true', 'app-server',
+  '--analytics-default-enabled', '--disable-plugin-startup-tasks-for-tests']);
+export async function queryEngineEndpoint(engine, home, engineIdentity, engineVersion, options = {}) {
+  const runtime = { engine, engineVersion, engineSha256: engineIdentity, sharedEngine: true, sharedEngineProtocol: 2,
+    env: { ...process.env, CODEX_HOME: home } };
+  const endpoint = await sharedEngineHost.resolveEngineEndpoint(runtime, { execFile: (executable, _args, settings, callback) =>
+    (options.execFile ?? execFile)(executable, [...SHARED_CHECK_STARTUP_ARGS, '--azrael-engine-endpoint'], settings, callback) });
+  checkSocketPath(endpoint.socketPath);
+  const inside = relative(home, endpoint.socketPath);
+  assert(inside && !inside.startsWith('..') && !isAbsolute(inside), 'native_endpoint_must_be_inside_owned_fixture_home');
+  return endpoint;
+}
 export function startupRemaining(startedAt, now = Date.now(), budget = WINDOW_STARTUP_MS) {
   const remaining = budget - (now - startedAt);
   assert(remaining > 0, 'native_fixture_startup_deadline_exhausted');
@@ -117,9 +130,8 @@ export function parseVersion(output) {
   assert(match, `unexpected_native_version:${output.trim()}`);
   return match[1];
 }
-export function checkSocketPath(home, platform = process.platform) {
-  assert(isAbsolute(home), 'absolute_fixture_home_required');
-  const socket = join(home, 'app-server-control', 'app-server-control.sock');
+export function checkSocketPath(socket, platform = process.platform) {
+  assert(isAbsolute(socket), 'absolute_native_socket_required');
   if (platform === 'win32') assert(Buffer.byteLength(socket) < 108,
     `Windows AF_UNIX path requires a shorter explicit isolated fixture root: ${socket}`);
   return socket;
@@ -159,12 +171,16 @@ export function resolveCodeHostPath(engine) {
   const suffix = extname(engine) === '.exe' ? '.exe' : '';
   return join(dirname(engine), `${basename(engine, suffix) === 'azrael' ? 'azrael' : 'codex'}-code-mode-host${suffix}`);
 }
-export function validateOwnedDaemonReceipt(receipt, pidRecord, { home, engineIdentity, engineVersion }) {
+export function validateOwnedDaemonReceipt(receipt, pidRecord, { endpoint, engineIdentity, engineVersion }) {
+  assert.equal(receipt.schema, 2, 'fixture_daemon_protocol_required');
+  assert.equal(receipt.instanceId, endpoint.instanceId, 'fixture_daemon_instance_mismatch');
   assert.equal(receipt.engineIdentity, engineIdentity, 'fixture_daemon_engine_hash_mismatch');
   assert.equal(receipt.engineVersion, engineVersion, 'fixture_daemon_version_mismatch');
-  assert.equal(resolve(receipt.socketPath), resolve(checkSocketPath(home)), 'fixture_daemon_socket_owner_mismatch');
+  assert.equal(resolve(receipt.socketPath), resolve(checkSocketPath(endpoint.socketPath)), 'fixture_daemon_socket_owner_mismatch');
   assert(Array.isArray(receipt.nativeArgv) && receipt.nativeArgv.includes('--azrael-shared-windows'), 'fixture_shared_daemon_argv_required');
   assert(receipt.nativeArgv.includes(`unix://${receipt.socketPath}`), 'fixture_daemon_listen_endpoint_mismatch');
+  const instanceIndex = receipt.nativeArgv.indexOf('--azrael-engine-instance');
+  assert(instanceIndex >= 0 && receipt.nativeArgv[instanceIndex + 1] === endpoint.instanceId, 'fixture_daemon_instance_argv_mismatch');
   assert(Number.isInteger(pidRecord.pid) && pidRecord.pid > 0 && pidRecord.pid <= 0xffffffff, 'fixture_daemon_pid_required');
   assert(/^\d+$/.test(pidRecord.processStartTime), 'fixture_daemon_start_identity_required');
   return pidRecord.pid;
@@ -384,7 +400,6 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     ? join(tmpdir(), `bj-${nonce.slice(0, 8)}`)
     : join(ROOT, 'artifacts', 'verification', `BJ-01-${nonce}`)));
   const home = join(run, 'h');
-  checkSocketPath(home);
   await access(engine);
   await access(bridge); // Require the matching bundle's real management bridge.
   if (codeHost) await access(codeHost);
@@ -399,44 +414,47 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
       'manual resume marker clearing by explicit turn', 'queue/reservation restart suppression',
       'owned exec child and code-mode host final-close exit', 'read-only account state identity and revision across rejoin'] };
   const proxies = [], hosts = [];
+  const primary = { engine, bridge, label: '' };
+  const generations = [primary];
   let provider;
   let daemonPid, failure, cleanupFailure;
   const record = (name, details = {}) => report.checks.push({ name, ...details });
   const json = async path => JSON.parse(await readFile(path, 'utf8'));
-  const pidFile = join(home, 'app-server-daemon', 'daemon.pid');
-  const receiptFile = join(home, 'app-server-daemon', 'azrael-selected-engine.json');
-  async function preserveBackendEvidence(phase) {
-    const dir = join(home, 'app-server-daemon');
+  const daemonDirectory = generation => join(home, 'app-server-daemon', 'engines', generation.endpoint.instanceId);
+  async function preserveBackendEvidence(phase, generation = primary) {
+    if (!generation.endpoint) return null;
+    const dir = daemonDirectory(generation);
     const saved = {};
-    for (const name of ['daemon.pid', 'azrael-selected-engine.json', 'daemon.stderr.log']) {
+    for (const name of ['azrael.pid', 'azrael-selected-engine.json', 'azrael.stderr.log']) {
       try {
         const bytes = await readFile(join(dir, name));
-        await writeFile(join(output, `backend-${phase}-${name}`), name.endsWith('.log') ? bytes.subarray(-128_000) : bytes);
-        if (name.endsWith('.json') || name === 'daemon.pid') saved[name] = bytes.toString('utf8');
+        await writeFile(join(output, `${generation.label}backend-${phase}-${name}`), name.endsWith('.log') ? bytes.subarray(-128_000) : bytes);
+        if (name.endsWith('.json') || name === 'azrael.pid') saved[name] = bytes.toString('utf8');
       } catch (error) { if (error.code !== 'ENOENT') throw error; }
     }
     if (phase === 'before-cleanup') {
-      for (const name of ['daemon.stderr.log', 'daemon.stderr.log.previous']) {
-        try { await writeFile(join(output, `backend-full-${name}`), await readFile(join(dir, name))); }
+      for (const name of ['azrael.stderr.log', 'azrael.stderr.log.previous']) {
+        try { await writeFile(join(output, `${generation.label}backend-full-${name}`), await readFile(join(dir, name))); }
         catch (error) { if (error.code !== 'ENOENT') throw error; }
       }
     }
-    if (!saved['daemon.pid'] && !saved['azrael-selected-engine.json']) return null;
-    assert(saved['daemon.pid'] && saved['azrael-selected-engine.json'], 'partial_native_backend_receipts_preserved_refusing_delete');
-    const pidRecord = JSON.parse(saved['daemon.pid']), receipt = JSON.parse(saved['azrael-selected-engine.json']);
-    const pid = validateOwnedDaemonReceipt(receipt, pidRecord, { home, ...report });
-    const alive = await validateLiveDaemonProcess(pidRecord, engine);
+    if (!saved['azrael.pid'] && !saved['azrael-selected-engine.json']) return null;
+    assert(saved['azrael.pid'] && saved['azrael-selected-engine.json'], 'partial_native_backend_receipts_preserved_refusing_delete');
+    const pidRecord = JSON.parse(saved['azrael.pid']), receipt = JSON.parse(saved['azrael-selected-engine.json']);
+    const pid = validateOwnedDaemonReceipt(receipt, pidRecord, { ...report, endpoint: generation.endpoint });
+    generation.pid = pid;
+    const alive = await validateLiveDaemonProcess(pidRecord, generation.engine);
     report.nativeBackendEvidence ??= [];
-    report.nativeBackendEvidence.push({ phase, pid, alive, processStartTime: pidRecord.processStartTime, receipt });
+    report.nativeBackendEvidence.push({ phase, pid, alive, engine: generation.engine, processStartTime: pidRecord.processStartTime, receipt });
     return { pid, alive };
   }
-  async function daemon() {
-    const pidRecord = await json(pidFile);
+  async function daemon(generation = primary) {
+    const pidRecord = await json(join(daemonDirectory(generation), 'azrael.pid'));
     assert(Number.isInteger(pidRecord.pid) && pidRecord.pid > 0, 'native_pid_record_required');
     assert(live(pidRecord.pid), 'native_daemon_not_alive');
-    const receipt = await json(receiptFile);
-    assert.equal(receipt.engineIdentity, report.engineIdentity);
-    assert.equal(receipt.engineVersion, report.engineVersion);
+    const receipt = await json(join(daemonDirectory(generation), 'azrael-selected-engine.json'));
+    validateOwnedDaemonReceipt(receipt, pidRecord, { ...report, endpoint: generation.endpoint });
+    generation.pid = pidRecord.pid;
     return { pid: pidRecord.pid, receipt };
   }
   async function window(workspace, owner = randomBytes(32).toString('hex')) {
@@ -459,19 +477,19 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     delete environment.AZRAEL_EX_MANAGEMENT_SOCKET;
     return environment;
   }
-  function launch(win, override = {}) {
+  function launch(win, override = {}, generation = primary) {
     const startedAt = Date.now();
-    const child = spawn(engine, ['-c', 'features.code_mode_host=true', 'app-server', '--analytics-default-enabled'],
+    const child = spawn(generation.engine, SHARED_CHECK_STARTUP_ARGS,
       { cwd: win.cwd, env: scopedEnvironment(win, override), windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     const stderr = captureStderr(child, 128_000);
     const peer = new SharedPeer(child, `proxy-${proxies.length}`);
     const instance = { child, peer, stderr, startedAt }; proxies.push(instance);
     return instance;
   }
-  async function launchBridge(win, socketPath) {
-    assert.equal(resolve(socketPath), resolve(checkSocketPath(home)), 'bridge_socket_must_be_owned_fixture_endpoint');
+  async function launchBridge(win, socketPath, generation = primary) {
+    assert.equal(resolve(socketPath), resolve(checkSocketPath(generation.endpoint.socketPath)), 'bridge_socket_must_be_owned_fixture_endpoint');
     const startedAt = Date.now();
-    const child = spawn(bridge, [socketPath], { cwd: win.cwd, env: scopedEnvironment(win),
+    const child = spawn(generation.bridge, [socketPath], { cwd: win.cwd, env: scopedEnvironment(win),
       windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
     const peer = new SharedPeer(child, `bridge-${proxies.length}`);
     const instance = { child, peer, stderr: captureStderr(child, 128_000), startedAt };
@@ -520,6 +538,23 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     report.engineIdentity = await hashFile(engine);
     report.bridgeIdentity = await hashFile(bridge);
     record('native_version_and_binary_identity', { version: report.engineVersion });
+    primary.endpoint = await queryEngineEndpoint(engine, home, report.engineIdentity, report.engineVersion);
+    report.endpoint = primary.endpoint;
+    const generationDirectory = join(run, 'release-b');
+    await mkdir(generationDirectory);
+    const second = { engine: join(generationDirectory, basename(engine)), bridge: join(generationDirectory, basename(bridge)),
+      label: 'generation-b-' };
+    generations.push(second);
+    await copyFile(engine, second.engine);
+    await copyFile(bridge, second.bridge);
+    assert.equal(await hashFile(second.engine), report.engineIdentity, 'owned_generation_copy_engine_hash_mismatch');
+    assert.equal(await hashFile(second.bridge), report.bridgeIdentity, 'owned_generation_copy_bridge_hash_mismatch');
+    second.endpoint = await queryEngineEndpoint(second.engine, home, report.engineIdentity, report.engineVersion);
+    assert.notEqual(second.endpoint.instanceId, primary.endpoint.instanceId, 'different_canonical_engine_paths_must_select_distinct_instances');
+    assert.notEqual(second.endpoint.socketPath, primary.endpoint.socketPath, 'distinct_generations_must_have_distinct_sockets');
+    report.generationCopy = { sourceEngine: engine, sourceBridge: bridge, engine: second.engine, bridge: second.bridge,
+      engineIdentity: report.engineIdentity, bridgeIdentity: report.bridgeIdentity, endpoint: second.endpoint };
+    record('native_discovery_binds_identical_bytes_at_distinct_owned_release_paths_to_distinct_instances');
     const [a, b] = await Promise.all([window('a'), window('b')]);
     const pa = launch(a), pb = launch(b);
     await Promise.all([initialize(pa), initialize(pb)]);
@@ -568,6 +603,24 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     record('independent_thread_models_and_workspaces');
     await assert.rejects(pb.peer.request('thread/resume', { threadId: threadA }), /another window/);
     record('other_workspace_cannot_resume_owned_thread');
+    const secondWindow = await window('a');
+    const secondProxy = launch(secondWindow, {}, second); await initialize(secondProxy);
+    const secondDaemon = await daemon(second);
+    assert.notEqual(secondDaemon.pid, daemonPid, 'different_generations_must_have_distinct_live_daemons');
+    assert.equal((await daemon()).pid, daemonPid, 'starting_second_generation_replaced_first_daemon');
+    const secondBridge = await launchBridge(secondWindow, second.endpoint.socketPath, second);
+    const [secondConfig, secondAccount, firstAccount] = await Promise.all([
+      secondBridge.peer.request('config/read', { includeLayers: false }),
+      secondBridge.peer.request('account/read', { refreshToken: false }),
+      managementBridge.peer.request('account/read', { refreshToken: false }),
+    ]);
+    assert.deepEqual(secondConfig.config, bridgeConfig.config, 'same_home_generations_must_read_same_fixture_config');
+    assert.equal(secondAccount.account, null); assert.equal(firstAccount.account, null);
+    await assert.rejects(secondProxy.peer.request('thread/resume', { threadId: threadA }), /open in another Azrael engine/);
+    assert((await pa.peer.request('thread/loaded/list', {})).data.includes(threadA));
+    report.generationCopy.enginePid = secondDaemon.pid;
+    record('same_home_distinct_generations_coexist_with_readonly_config_account_bridges_and_refuse_cross_engine_thread_resume',
+      { firstEnginePid: daemonPid, secondEnginePid: secondDaemon.pid });
     for (const override of [{ engineVersion: '0.0.0' }, { engineIdentity: '0'.repeat(64) }]) {
       const wrong = launch(b, override);
       const ended = await waitForExit(wrong.child, 'mismatched proxy', startupRemaining(wrong.startedAt));
@@ -706,6 +759,15 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
     }
     record('open_native_companion_does_not_keep_engine_alive_after_last_actual_window_host_exits');
     record('open_real_management_bridge_does_not_count_as_window_or_keep_engine_alive');
+    assert.equal((await daemon(second)).pid, secondDaemon.pid, 'closing_first_generation_stopped_other_generation');
+    assert.equal((await secondBridge.peer.request('account/read', { refreshToken: false })).account, null);
+    await secondBridge.peer.request('config/read', { includeLayers: false });
+    record('closing_last_window_of_first_generation_preserves_other_generation_and_its_management_bridge');
+    assert.equal(secondBridge.child.exitCode, null);
+    assert.equal(secondBridge.child.stdin.writableEnded, false);
+    await closeInput(secondWindow.host, 'last second-generation window host death');
+    await until(() => !live(secondDaemon.pid), 'second-generation daemon exits after its last actual host', 50_000);
+    record('second_generation_stops_independently_with_open_management_bridge');
     const marker = await json(join(home, 'azrael', 'runtime', 'manual-resume.json'));
     assert.equal(marker.schema, 1);
     assert(marker.threads.includes(threadA)); assert(marker.threads.includes(threadB));
@@ -750,24 +812,27 @@ export async function runCheck(engine, output, { fixtureRoot, extended = false, 
   } catch (error) { failure = error; report.error = error.stack; }
   finally {
     try {
-      let before, beforeEvidenceError;
-      try { before = await preserveBackendEvidence('before-cleanup'); } catch (error) {
-        beforeEvidenceError = error;
-        report.beforeCleanupEvidenceError = error.stack;
+      const evidenceErrors = new Map();
+      for (const generation of generations) {
+        try { await preserveBackendEvidence('before-cleanup', generation); } catch (error) {
+          evidenceErrors.set(generation, error);
+          report.beforeCleanupEvidenceError ??= [];
+          report.beforeCleanupEvidenceError.push({ engine: generation.engine, error: error.stack });
+        }
       }
-      if (!daemonPid && before) daemonPid = before.pid;
       await Promise.all([
         ...hosts.map((host, i) => closeInput(host, `cleanup fixture host ${i}`)),
         ...proxies.map((proxy, i) => closeInput(proxy.child, `cleanup proxy ${i}`)),
       ]);
-      const after = await preserveBackendEvidence('after-clients-close');
-      if (!after && beforeEvidenceError) throw beforeEvidenceError;
-      if (after) daemonPid = after.pid;
-      if (daemonPid) await until(() => !live(daemonPid), 'cleanup validated daemon exit', 50_000);
-      await preserveBackendEvidence('after-daemon-exit');
+      for (const generation of generations) {
+        const after = await preserveBackendEvidence('after-clients-close', generation);
+        if (!after && evidenceErrors.has(generation)) throw evidenceErrors.get(generation);
+        if (generation.pid) await until(() => !live(generation.pid), 'cleanup validated daemon exit', 50_000);
+        await preserveBackendEvidence('after-daemon-exit', generation);
+      }
       if (report.ownedExecChild) await until(() => !live(report.ownedExecChild.pid), 'cleanup owned exec child exit', 10_000);
       if (report.ownedCodeHosts) await until(() => report.ownedCodeHosts.every(process => !live(process.ProcessId)), 'cleanup owned code-mode host exit', 10_000);
-      await removeOwnedFixture(run, nonce, { output, pids: [...new Set([daemonPid,
+      await removeOwnedFixture(run, nonce, { output, pids: [...new Set([...generations.map(generation => generation.pid), daemonPid,
         report.ownedExecChild?.pid, ...(report.ownedCodeHosts ?? []).map(process => process.ProcessId)].filter(Boolean))] });
       report.fixtureRemoved = true;
     } catch (error) {

@@ -99,6 +99,7 @@ mod app_server_tracing;
 mod attestation;
 mod auth_mode;
 mod azrael_shared_server;
+mod azrael_thread_engines;
 mod bespoke_event_handling;
 mod code_mode_host;
 mod codex_home_metrics;
@@ -492,6 +493,8 @@ pub struct AppServerRuntimeOptions {
     pub managed_daemon: bool,
     /// Private Azrael daemon multiplexes isolated window processors.
     pub azrael_shared_windows: bool,
+    /// Native-verified per-release/config execution namespace.
+    pub azrael_engine_instance: Option<String>,
 }
 
 impl Default for AppServerRuntimeOptions {
@@ -503,6 +506,7 @@ impl Default for AppServerRuntimeOptions {
             install_shutdown_signal_handler: true,
             managed_daemon: false,
             azrael_shared_windows: false,
+            azrael_engine_instance: None,
         }
     }
 }
@@ -544,6 +548,20 @@ pub async fn run_main_with_transport_options(
         )
     })?;
     let codex_home = find_codex_home()?;
+    // Hold compatibility admission before any writable config/auth/DB startup.
+    // Other instances may share this home only with the same storage contract.
+    let _azrael_storage_lease = if runtime_options.azrael_shared_windows {
+        Some(
+            codex_app_server_daemon::acquire_azrael_storage_lease(
+                &codex_home,
+                &codex_state::azrael_storage_compatibility_manifest(),
+            )
+            .await
+            .map_err(std::io::Error::other)?,
+        )
+    } else {
+        None
+    };
     let local_runtime_paths = ExecServerRuntimeOptions::from_optional_paths(
         arg0_paths.codex_self_exe.clone(),
         arg0_paths.codex_linux_sandbox_exe.clone(),
@@ -1036,6 +1054,7 @@ pub async fn run_main_with_transport_options(
         if runtime_options.azrael_shared_windows {
             let outgoing_tx = outgoing_tx.clone();
             let transport_shutdown_token = transport_shutdown_token.clone();
+            let engine_instance = runtime_options.azrael_engine_instance.clone();
             tokio::spawn(async move {
                 match azrael_shared_server::run(
                     processor_args,
@@ -1044,6 +1063,7 @@ pub async fn run_main_with_transport_options(
                     outgoing_tx,
                     outbound_control_tx,
                     transport_shutdown_token,
+                    engine_instance,
                 )
                 .await
                 {

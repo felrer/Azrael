@@ -157,6 +157,38 @@ impl PidBackend {
         self
     }
 
+    #[cfg(any(windows, test))]
+    fn shutdown_socket_path(&self) -> Result<PathBuf> {
+        if let Some(args) = &self.explicit_args
+            && args.iter().any(|arg| arg == "--azrael-shared-windows")
+        {
+            // Azrael's per-instance PID is nested below the daemon state root.
+            // Its trusted launch argv owns the endpoint; parent traversal here
+            // would address an unrelated daemon (or infer the wrong home).
+            let path = args
+                .windows(2)
+                .find(|pair| pair[0] == "--listen")
+                .and_then(|pair| pair[1].strip_prefix("unix://"))
+                .context("shared Azrael launch has no private listener")?;
+            let path = PathBuf::from(path);
+            anyhow::ensure!(
+                path.is_absolute(),
+                "shared Azrael listener must be absolute"
+            );
+            return Ok(path);
+        }
+        let codex_home = self
+            .pid_file
+            .parent()
+            .and_then(Path::parent)
+            .context("daemon pid path has no Codex home")?;
+        Ok(
+            codex_app_server_transport::app_server_control_socket_path(codex_home)?
+                .as_path()
+                .to_path_buf(),
+        )
+    }
+
     pub(crate) async fn running_executable_identity(&self) -> Result<Option<ExecutableIdentity>> {
         match self.read_pid_file_state().await? {
             PidFileState::Running(record) if self.record_is_active(&record).await? => {
@@ -257,16 +289,8 @@ impl PidBackend {
                 }
                 match self.command_kind {
                     PidCommandKind::AppServer { .. } => {
-                        let codex_home = self
-                            .pid_file
-                            .parent()
-                            .and_then(Path::parent)
-                            .context("daemon pid path has no Codex home")?;
-                        let socket_path =
-                            codex_app_server_transport::app_server_control_socket_path(codex_home)?;
-                        if let Err(err) =
-                            crate::client::request_shutdown(socket_path.as_path(), pid).await
-                        {
+                        let socket_path = self.shutdown_socket_path()?;
+                        if let Err(err) = crate::client::request_shutdown(&socket_path, pid).await {
                             tracing::warn!(%pid, %err, "managed app-server shutdown request failed; waiting for force deadline");
                         }
                     }
@@ -879,3 +903,39 @@ mod windows;
 #[cfg(any(unix, windows))]
 #[path = "pid_start.rs"]
 mod start;
+
+#[cfg(test)]
+mod azrael_endpoint_tests {
+    use super::*;
+
+    #[test]
+    fn shutdown_uses_instance_listener_and_preserves_legacy_home_resolution() {
+        let home = std::env::current_dir().unwrap();
+        let legacy = PidBackend::new(
+            home.join("azrael"),
+            home.join("app-server-daemon/daemon.pid"),
+            false,
+        );
+        assert_eq!(
+            legacy.shutdown_socket_path().unwrap(),
+            codex_app_server_transport::app_server_control_socket_path(&home)
+                .unwrap()
+                .as_path()
+        );
+        let socket = home.join("app-server-control/0123456789abcdef01234567.sock");
+        let shared = PidBackend::new(
+            home.join("azrael"),
+            home.join("app-server-daemon/engines/full-instance/azrael.pid"),
+            false,
+        )
+        .with_explicit_args(vec![
+            "app-server".into(),
+            "--azrael-shared-windows".into(),
+            "--listen".into(),
+            format!("unix://{}", socket.display()),
+        ]);
+        assert_eq!(shared.shutdown_socket_path().unwrap(), socket);
+        let missing = shared.with_explicit_args(vec!["--azrael-shared-windows".into()]);
+        assert!(missing.shutdown_socket_path().is_err());
+    }
+}

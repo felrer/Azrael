@@ -27,18 +27,22 @@ test('Node directory is rejected before host activation',()=>assert.throws(()=>l
 test('missing Node executable is rejected before host activation',()=>assert.throws(()=>load(path.join(os.tmpdir(),'azrael-no-such-node-'+process.pid)),/ENOENT/));
 test('runtime without explicit Node retains its existing desktop fallback',()=>assert.equal(load(undefined).nodeExecutable,undefined));
 
-test('shared runtime uses a deterministic home endpoint and preserves unrelated environment',()=>{
+test('shared runtime awaits native release endpoint and preserves unrelated environment',()=>{
   const before=process.env.AZRAEL_EX_MANAGEMENT_SOCKET;
   const home=fs.mkdtempSync(path.join(os.tmpdir(),'azrael-shared-home-'));
   try {
-  const extra={sharedEngine:true,sharedEngineProtocol:1,engineSha256:'a'.repeat(64),codexHome:home};
+  const extra={sharedEngine:true,sharedEngineProtocol:2,engineSha256:'a'.repeat(64),codexHome:home};
   const first=load(undefined,extra);
   const second=load(undefined,extra);
   assert.equal(first.socket,second.socket);
-  assert.equal(first.socket,path.join(first.codexHome,'app-server-control','app-server-control.sock'));
+  assert.equal(first.socket,undefined);
+  assert.equal(first.env.AZRAEL_EX_MANAGEMENT_SOCKET,undefined);
+  first.socket=path.join(home,'release-instance','control.sock');
+  assert.equal(first.socket,path.join(home,'release-instance','control.sock'));
   const other={...extra}; delete other.codexHome;
-  assert.notEqual(load(undefined,other).socket,first.socket);
+  assert.equal(load(undefined,other).socket,undefined);
   assert.equal(process.env.AZRAEL_EX_MANAGEMENT_SOCKET,before);
   } finally { fs.rmSync(home,{recursive:true}); }
 });
 test('shared runtime rejects a missing receipt identity',()=>assert.throws(()=>load(undefined,{sharedEngine:true}),/immutable build receipt/));
+test('shared runtime rejects a protocol 1 manifest',()=>assert.throws(()=>load(undefined,{sharedEngine:true,sharedEngineProtocol:1,engineSha256:'a'.repeat(64)}),/protocol 2/));

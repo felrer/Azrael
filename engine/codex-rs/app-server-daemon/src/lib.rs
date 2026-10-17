@@ -1,10 +1,16 @@
 //! Managed app-server lifecycle, serialized across CLI invocations and the updater.
 
 mod azrael;
+mod azrael_storage;
+pub use azrael_storage::AzraelStorageLease;
+pub use azrael_storage::acquire_azrael_storage_lease;
 mod backend;
 pub use azrael::AZRAEL_STARTUP_TIMEOUT;
 pub use azrael::AzraelDaemonEndpoint;
 pub use azrael::azrael_engine_sha256;
+pub use azrael::azrael_engine_endpoint_with_args;
+pub use azrael::azrael_window_registry_path;
+pub use azrael::normalize_azrael_startup_args;
 pub use azrael::connect_azrael_registered;
 pub use azrael::ensure_azrael_started;
 pub use azrael::ensure_azrael_started_with_args;
@@ -334,6 +340,15 @@ struct Daemon {
 }
 
 impl Daemon {
+    fn for_azrael_instance(mut self, endpoint: &AzraelDaemonEndpoint) -> Result<Self> {
+        let state = self.pid_file.parent().context("daemon state root missing")?
+            .join("engines").join(&endpoint.instance_id);
+        self.socket_path = endpoint.socket_path.clone();
+        self.pid_file = state.join("azrael.pid");
+        self.operation_lock_file = state.join("start.lock");
+        Ok(self)
+    }
+
     fn from_environment() -> Result<Self> {
         let codex_home = find_codex_home().context("failed to resolve CODEX_HOME")?;
         let socket_path = app_server_control_socket_path(codex_home.as_path())?

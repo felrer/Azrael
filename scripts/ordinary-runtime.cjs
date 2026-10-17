@@ -42,9 +42,10 @@ if (registry.has(runtimeKey)) {
   if (config.sharedEngine !== undefined && typeof config.sharedEngine !== "boolean") throw new Error("Invalid shared Azrael engine mode.");
   if (config.sharedEngine) require("./shared-engine-host.cjs").validateSharedRuntime(config);
   const socket = config.sharedEngine
-    ? path.join(config.codexHome, "app-server-control", "app-server-control.sock")
+    ? undefined
     : path.join(os.tmpdir(), `azo-${crypto.randomBytes(6).toString("hex")}`, "m.sock");
   const env = { ...process.env, CODEX_HOME: config.codexHome, AZRAEL_EX_MANAGEMENT_SOCKET: socket };
+  if (config.sharedEngine) delete env.AZRAEL_EX_MANAGEMENT_SOCKET;
   // Spreading process.env loses Windows' case-insensitive property lookup.
   // The pinned host reads PATH explicitly when appending its bundled tools.
   if (process.platform === "win32") {
@@ -60,7 +61,7 @@ if (registry.has(runtimeKey)) {
   if (config.devinExecutable) env.AZRAEL_EX_DEVIN_EXECUTABLE = config.devinExecutable;
   require("./devin-native-host.cjs").configureEnvironment(env, config);
   require("./provider-accounts-host.cjs").configureEnvironment(env, config);
-  exports.runtime = Object.freeze({ ...config, socket, env });
+  exports.runtime = { ...config, socket, env };
   // Only the pinned Codex bundle sees this environment. Other extensions and
   // terminal launches retain the VS Code process's original environment.
   exports.process = new Proxy(process, {
