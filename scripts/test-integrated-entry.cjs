@@ -13,12 +13,13 @@ const wrapperPath = path.join(__dirname, "integrated-azrael-entry.cjs");
 const wrapper = fs.readFileSync(wrapperPath, "utf8");
 
 test("integrated entry preserves activation, account storage migration and failure cleanup", async () => {
+  const inheritedWindowContext = process.env.AZRAEL_EX_WINDOW_CONTEXT;
   const wrapperTestRoot = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-wrapper-test-"));
   let wrapperFixtureIndex = 0;
 
   function wrapperFixture({ accountActivationError, sessionId = "11111111-1111-4111-8111-111111111111",
     fallbackUuid = "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa", windowControl, desktopControl = true, remoteName,
-    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false } = {}) {
+    hostPlatform = process.platform, localHistory, historyError, sharedEngine = false, endpointError } = {}) {
     const fixtureRoot = path.join(wrapperTestRoot, `fixture-${++wrapperFixtureIndex}`);
     const events = [];
     const recovery = { listener: undefined, disposed: false };
@@ -29,15 +30,20 @@ test("integrated entry preserves activation, account storage migration and failu
       storageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "workspace-storage") },
       globalStorageUri: { scheme: "file", fsPath: path.join(fixtureRoot, "global-storage") },
     };
-    const runtimeEnvironment = { EXISTING_VALUE: "preserved" };
+    const runtimeEnvironment = { EXISTING_VALUE: "preserved", CODEX_HOME: path.join(fixtureRoot, "state") };
     const engine = path.join(fixtureRoot, "engine-fixture");
     if (sharedEngine) { fs.mkdirSync(fixtureRoot, { recursive: true }); fs.writeFileSync(engine, "synthetic engine"); }
-    const runtime = Object.freeze({ marker: "shared-runtime", windowControl, localHistory, env: runtimeEnvironment,
-      sharedEngine, sharedEngineProtocol: 1, engine, engineVersion: "0.162.0", codexHome: path.join(fixtureRoot, "state"),
-      engineSha256: crypto.createHash("sha256").update("synthetic engine").digest("hex") });
+    const runtime = { marker: "shared-runtime", windowControl, localHistory, env: runtimeEnvironment,
+      sharedEngine, sharedEngineProtocol: 2, engine, engineVersion: "0.162.0", codexHome: path.join(fixtureRoot, "state"),
+      engineSha256: crypto.createHash("sha256").update("synthetic engine").digest("hex") };
     const nativeApi = { marker: "native-api" };
     const nativeExtension = {
       async activate(value) {
+        if (sharedEngine) {
+          assert.equal(runtime.socket, path.join(fixtureRoot, "native-release", "control.sock"));
+          assert.equal(runtime.env.AZRAEL_EX_MANAGEMENT_SOCKET, runtime.socket);
+          assert.ok(runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
+        }
         events.push(["native.activate", value, runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE,
           runtime.env.AZRAEL_EX_ACCOUNT_DEFAULT_FILE,
           fs.existsSync(runtime.env.AZRAEL_EX_ACCOUNT_DEFAULT_FILE)
@@ -80,7 +86,19 @@ test("integrated entry preserves activation, account storage migration and failu
         if (request === "./account-ui/dist/src/extension.js") return accountUi;
         if (request === "./out/platform-runtime.cjs") return { validateRuntimePlatform: () => ({ desktopControl }) };
         if (request === "./out/azrael-runtime.cjs") return { runtime };
-        if (request === "./out/shared-engine-host.cjs") return require("./shared-engine-host.cjs");
+        if (request === "./out/shared-engine-host.cjs") {
+          const shared = require("./shared-engine-host.cjs");
+          return { ...shared, resolveEngineEndpoint: receivedRuntime => shared.resolveEngineEndpoint(receivedRuntime, {
+            execFile(_engine, _args, options, callback) {
+              events.push(["endpoint.resolve"]);
+              assert.equal(options.env.AZRAEL_EX_WINDOW_CONTEXT, undefined);
+              assert.equal(receivedRuntime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
+              callback(endpointError, JSON.stringify({ schema: 2, instanceId: "a".repeat(64),
+                socketPath: path.join(fixtureRoot, "native-release", "control.sock"),
+                engineVersion: runtime.engineVersion, engineIdentity: runtime.engineSha256 }), "");
+            },
+          }) };
+        }
         if (request === "./out/azrael-recovery.cjs") return { initialize: () => ({ dispose() {} }) };
         if (request === "./out/linux-native-supervision.cjs") return { onRestart(listener) {
           recovery.listener = listener;
@@ -108,10 +126,17 @@ test("integrated entry preserves activation, account storage migration and failu
   }
 
   async function testWrapperLifecycle() {
+    const unavailableEndpoint = wrapperFixture({ sharedEngine: true, endpointError: new Error("discovery failed") });
+    await assert.rejects(unavailableEndpoint.api.activate(unavailableEndpoint.context), /endpoint discovery failed/);
+    assert.deepEqual(unavailableEndpoint.events.map(event => event[0]), ["endpoint.resolve"]);
+    assert.equal(unavailableEndpoint.runtime.env.AZRAEL_EX_ACCOUNT_STATE_FILE, undefined);
+    assert.equal(fs.existsSync(unavailableEndpoint.context.globalStorageUri.fsPath), false);
     const sharedA = wrapperFixture({ sharedEngine: true, sessionId: "window-A" });
     const sharedB = wrapperFixture({ sharedEngine: true, sessionId: "window-B" });
     sharedB.context.storageUri = sharedA.context.storageUri;
     await sharedA.api.activate(sharedA.context); await sharedB.api.activate(sharedB.context);
+    assert.equal(sharedA.events[0][0], "endpoint.resolve");
+    assert.equal(sharedA.events[1][0], "native.activate");
     const a = JSON.parse(sharedA.runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
     const b = JSON.parse(sharedB.runtime.env.AZRAEL_EX_WINDOW_CONTEXT);
     assert.notEqual(a.ownerId, b.ownerId); assert.equal(a.workspaceId, b.workspaceId);
@@ -119,7 +144,7 @@ test("integrated entry preserves activation, account storage migration and failu
     assert.equal(a.role, "window"); assert.equal(a.schema, 1);
     assert.notEqual(a.accountStateFile, b.accountStateFile);
     assert.equal(a.accountDefaultFile, b.accountDefaultFile);
-    assert.equal(process.env.AZRAEL_EX_WINDOW_CONTEXT, undefined);
+    assert.equal(process.env.AZRAEL_EX_WINDOW_CONTEXT, inheritedWindowContext);
     await sharedA.api.deactivate(); await sharedB.api.deactivate();
     const reopened = wrapperFixture({ sharedEngine: true, sessionId: "window-A-reopened" });
     reopened.context.storageUri = sharedA.context.storageUri;

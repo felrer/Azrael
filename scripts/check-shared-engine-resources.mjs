@@ -106,11 +106,11 @@ async function removeOwnedFixture(run, nonce, roots, output, pids) {
   await assert.rejects(access(run), { code: 'ENOENT' });
 }
 
-export async function runResources(baseline, candidate, output, { sharedOnly = false } = {}) {
+export async function runResources(baseline, candidate, output, { sharedOnly = false, fixtureRoot } = {}) {
   assert.equal(process.platform, 'win32', 'Windows_only_fixture');
   validateInputs(baseline, candidate, output, { sharedOnly });
   const nonce = randomBytes(8).toString('hex');
-  const run = resolve(tmpdir(), `br-${nonce.slice(0, 8)}`);
+  const run = resolve(fixtureRoot ?? join(tmpdir(), `br-${nonce.slice(0, 8)}`));
   checkSocketPath(join(run, 's', 'h'));
   await Promise.all((sharedOnly ? [candidate] : [baseline, candidate]).map(path => access(path)));
   // Existing result directories and state are never reused.
@@ -128,7 +128,7 @@ export async function runResources(baseline, candidate, output, { sharedOnly = f
     !value.startsWith('sequential baseline') && !value.startsWith('reconnect includes'));
   const children = [], hosts = [], ownedRoots = [];
   report.fixtureOwnerRoots = ownedRoots;
-  let daemonPid, sharedHome, failure, cleanupFailure;
+  let daemonPid, sharedDirectory, sharedEndpoint, failure, cleanupFailure;
   try {
     const env = isolatedEnvironment(join(run, 'version-home'));
     await mkdir(env.CODEX_HOME);
@@ -148,11 +148,14 @@ export async function runResources(baseline, candidate, output, { sharedOnly = f
         const cwd = join(windowRoot, `w${i}`), home = join(windowRoot, 'h');
         await mkdir(cwd);
         if (i === 0 || mode === 'baseline') { await mkdir(home); await writeFile(join(home, 'config.toml'), CONFIG); }
-        if (mode === 'shared') sharedHome = home;
         const host = spawn(process.execPath, ['-e', 'process.stdin.resume();process.stdin.on("end",()=>process.exit(0));'],
           { windowsHide: true, stdio: ['pipe', 'ignore', 'pipe'] }); hosts.push(host);
         await new Promise((done, reject) => { host.once('spawn', done); host.once('error', reject); });
-        const runtime = { sharedEngine: true, sharedEngineProtocol: 1, engine: id.path, engineSha256: id.sha256, engineVersion: id.version };
+        const runtime = { sharedEngine: true, sharedEngineProtocol: 2, engine: id.path, engineSha256: id.sha256, engineVersion: id.version, env: isolatedEnvironment(home) };
+        if (mode === 'shared' && i === 0) {
+          sharedEndpoint = await sharedHost.resolveEngineEndpoint(runtime);
+          sharedDirectory = join(home, 'app-server-daemon', 'engines', sharedEndpoint.instanceId);
+        }
         const context = sharedHost.windowContext(runtime, { sessionId: `${nonce}-${i}`, workspacePath: cwd, hostPid: host.pid,
           accountStateFile: join(modeRoot, `account-${i}.json`), accountDefaultFile: null });
         windows.push({ cwd, home, host, context });
@@ -187,10 +190,12 @@ export async function runResources(baseline, candidate, output, { sharedOnly = f
       report.modes.push(measured);
       const entries = instances.map(instance => ({ pid: instance.child.pid, path: id.path, role: mode === 'shared' ? 'proxy' : 'engine' }));
       if (mode === 'shared') {
-        daemonPid = JSON.parse(await readFile(join(sharedHome, 'app-server-daemon', 'daemon.pid'), 'utf8')).pid;
+        daemonPid = JSON.parse(await readFile(join(sharedDirectory, 'azrael.pid'), 'utf8')).pid;
         assert(Number.isInteger(daemonPid) && daemonPid > 0 && alive(daemonPid));
         assert(!entries.some(entry => entry.pid === daemonPid));
-        measured.daemonReceipt = JSON.parse(await readFile(join(sharedHome, 'app-server-daemon', 'azrael-selected-engine.json'), 'utf8'));
+        measured.daemonReceipt = JSON.parse(await readFile(join(sharedDirectory, 'azrael-selected-engine.json'), 'utf8'));
+        assert.equal(measured.daemonReceipt.instanceId, sharedEndpoint.instanceId);
+        assert.equal(measured.daemonReceipt.socketPath, sharedEndpoint.socketPath);
         assert.equal(measured.daemonReceipt.engineIdentity, id.sha256);
         assert.equal(measured.daemonReceipt.engineVersion, id.version);
         entries.push({ pid: daemonPid, path: id.path, role: 'daemon' });
@@ -220,7 +225,7 @@ export async function runResources(baseline, candidate, output, { sharedOnly = f
         const resumed = await replacement.peer.request('thread/resume', { threadId: threads[0].id });
         assert.equal(resumed.thread.id, threads[0].id);
         measured.reconnectElapsedMs = performance.now() - reconnectStart; measured.reconnectPid = replacement.child.pid;
-        if (mode === 'shared') assert.equal(JSON.parse(await readFile(join(sharedHome, 'app-server-daemon', 'daemon.pid'), 'utf8')).pid, daemonPid);
+        if (mode === 'shared') assert.equal(JSON.parse(await readFile(join(sharedDirectory, 'azrael.pid'), 'utf8')).pid, daemonPid);
       }
       for (const instance of children.filter(item => item.mode === mode)) { await close(instance.child, `${mode} transport`); instance.peer.close(); }
       for (const win of windows) await close(win.host, `${mode} window host`);
@@ -242,8 +247,8 @@ export async function runResources(baseline, candidate, output, { sharedOnly = f
         await close(instance.child, 'cleanup transport'); instance.peer.close();
       }));
       const hostStops = await Promise.allSettled(hosts.map(host => close(host, 'cleanup host')));
-      if (!daemonPid && sharedHome) {
-        try { daemonPid = JSON.parse(await readFile(join(sharedHome, 'app-server-daemon', 'daemon.pid'), 'utf8')).pid; }
+      if (!daemonPid && sharedDirectory) {
+        try { daemonPid = JSON.parse(await readFile(join(sharedDirectory, 'azrael.pid'), 'utf8')).pid; }
         catch (error) { if (error.code !== 'ENOENT') throw error; }
       }
       if (daemonPid) { assert(Number.isInteger(daemonPid) && daemonPid > 0); await until(() => !alive(daemonPid), 'cleanup daemon'); }

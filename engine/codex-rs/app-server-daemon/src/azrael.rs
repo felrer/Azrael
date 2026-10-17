@@ -27,6 +27,8 @@ const REGISTER_ID: &str = "azrael-private-window-registration";
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 #[serde(rename_all = "camelCase")]
 pub struct AzraelDaemonEndpoint {
+    pub schema: u32,
+    pub instance_id: String,
     pub socket_path: PathBuf,
     pub engine_version: String,
     pub engine_identity: String,
@@ -69,6 +71,96 @@ fn validate_startup_args(args: &[String]) -> Result<()> {
     Ok(())
 }
 
+/// One canonical startup representation shared by discovery and launch. Config
+/// override order is significant (the last override wins), so preserve it.
+pub fn normalize_azrael_startup_args(args: &[String]) -> Result<Vec<String>> {
+    validate_startup_args(args)?;
+    let mut overrides = Vec::new();
+    let mut code_mode = None;
+    let mut source = "vscode".to_owned();
+    let mut switches = std::collections::BTreeSet::new();
+    let mut values = args.iter();
+    while let Some(arg) = values.next() {
+        match arg.as_str() {
+            "-c" => overrides.push(values.next().unwrap().clone()),
+            "--code-mode-host" => code_mode = values.next().cloned(),
+            "--session-source" => source = values.next().unwrap().clone(),
+            _ => {
+                switches.insert(arg.clone());
+            }
+        }
+    }
+    let mut normalized = Vec::new();
+    for value in overrides {
+        normalized.extend(["-c".into(), value]);
+    }
+    if let Some(value) = code_mode {
+        normalized.extend(["--code-mode-host".into(), value]);
+    }
+    if switches.remove("--strict-config") {
+        normalized.push("--strict-config".into());
+    }
+    normalized.extend(["--session-source".into(), source]);
+    normalized.extend(switches);
+    Ok(normalized)
+}
+
+fn instance_id(exe: &Path, identity: &str, args: &[String]) -> Result<String> {
+    // Serialize a framed tuple; concatenating inputs would permit ambiguity.
+    Ok(format!(
+        "{:x}",
+        Sha256::digest(serde_json::to_vec(&(
+            "azrael-engine-endpoint-v2",
+            exe,
+            identity,
+            args,
+        ))?)
+    ))
+}
+
+pub fn azrael_window_registry_path(home: &Path, instance: &str) -> Result<PathBuf> {
+    ensure!(
+        instance.len() == 64
+            && instance
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b)),
+        "invalid Azrael engine instance"
+    );
+    Ok(home
+        .join("azrael/runtime/engines")
+        .join(instance)
+        .join("window-owners.json"))
+}
+
+/// Side-effect-free discovery: no config, auth, state creation or daemon startup.
+pub async fn azrael_engine_endpoint_with_args(
+    selected_exe: &Path,
+    startup_args: &[String],
+) -> Result<AzraelDaemonEndpoint> {
+    let args = normalize_azrael_startup_args(startup_args)?;
+    let exe = tokio::fs::canonicalize(selected_exe).await?;
+    let identity = azrael_engine_sha256(&exe).await?;
+    let daemon = crate::Daemon::from_environment()?;
+    endpoint_from_inputs(&exe, identity, &args, &daemon.socket_path)
+}
+
+fn endpoint_from_inputs(
+    exe: &Path,
+    identity: String,
+    args: &[String],
+    legacy_socket: &Path,
+) -> Result<AzraelDaemonEndpoint> {
+    let instance_id = instance_id(exe, &identity, args)?;
+    let socket_path = legacy_socket.with_file_name(format!("{}.sock", &instance_id[..24]));
+    Ok(AzraelDaemonEndpoint {
+        schema: 2,
+        instance_id,
+        socket_path,
+        engine_version: env!("CARGO_PKG_VERSION").into(),
+        engine_identity: identity,
+    })
+}
+
 pub async fn ensure_azrael_started(selected_exe: &Path) -> Result<AzraelDaemonEndpoint> {
     ensure_azrael_started_with_args(selected_exe, &default_startup_args()).await
 }
@@ -100,11 +192,20 @@ pub async fn ensure_azrael_started_with_args(
     selected_exe: &Path,
     startup_args: &[String],
 ) -> Result<AzraelDaemonEndpoint> {
-    validate_startup_args(startup_args)?;
+    let startup_args = normalize_azrael_startup_args(startup_args)?;
     let selected_exe = tokio::fs::canonicalize(selected_exe)
         .await
         .context("selected Azrael executable is unavailable")?;
-    let daemon = crate::Daemon::from_environment()?;
+    let legacy_daemon = crate::Daemon::from_environment()?;
+    match tokio::time::timeout(TIMEOUT, probe_existing_socket(&legacy_daemon.socket_path)).await {
+        Ok(Ok(true)) => bail!("A legacy Azrael shared engine is running. Close all Azrael windows once to complete the coordinated engine upgrade, then reopen them."),
+        Ok(Ok(false)) => {},
+        Ok(Err(error)) if error.kind() == io::ErrorKind::ConnectionRefused => {},
+        Ok(Err(error)) => return Err(error).context("cannot verify legacy Azrael engine; close all Azrael windows for the coordinated upgrade"),
+        Err(_) => bail!("legacy Azrael engine check timed out; close all Azrael windows for the coordinated upgrade"),
+    }
+    let endpoint = azrael_engine_endpoint_with_args(&selected_exe, &startup_args).await?;
+    let daemon = legacy_daemon.for_azrael_instance(&endpoint)?;
     // Binary hashing can be slow in debug builds. Read immutable selected inputs
     // before taking the shared lifecycle lock, then verify them again under it.
     let selected_identity = crate::managed_install::executable_identity(&selected_exe).await?;
@@ -128,12 +229,6 @@ pub async fn ensure_azrael_started_with_args(
         version == env!("CARGO_PKG_VERSION"),
         "selected Azrael version differs from launcher"
     );
-    let sha256 = azrael_engine_sha256(&selected_exe).await?;
-    let endpoint = AzraelDaemonEndpoint {
-        socket_path: daemon.socket_path.clone(),
-        engine_version: version.to_owned(),
-        engine_identity: sha256,
-    };
     let receipt_path = daemon
         .pid_file
         .with_file_name("azrael-selected-engine.json");
@@ -141,10 +236,12 @@ pub async fn ensure_azrael_started_with_args(
         "app-server".into(),
         "--azrael-shared-windows".into(),
         "--managed-daemon".into(),
+        "--azrael-engine-instance".into(),
+        endpoint.instance_id.clone(),
         "--listen".into(),
         format!("unix://{}", endpoint.socket_path.display()),
     ];
-    native_argv.extend_from_slice(startup_args);
+    native_argv.extend_from_slice(&startup_args);
     let receipt = AzraelDaemonReceipt {
         endpoint: endpoint.clone(),
         native_argv: native_argv.clone(),
@@ -155,6 +252,10 @@ pub async fn ensure_azrael_started_with_args(
     ensure!(
         crate::managed_install::executable_identity(&selected_exe).await? == selected_identity,
         "selected Azrael executable changed while checking its identity; retry with immutable inputs"
+    );
+    ensure!(
+        azrael_engine_sha256(&selected_exe).await? == endpoint.engine_identity,
+        "selected Azrael executable changed during endpoint discovery; retry with immutable inputs"
     );
     let backend =
         crate::backend::PidBackend::new(selected_exe.clone(), daemon.pid_file.clone(), false)
@@ -531,6 +632,82 @@ mod tests {
             azrael_engine_sha256(file.path()).await.unwrap(),
             "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
         );
+    }
+
+    #[test]
+    fn endpoint_identity_partitions_release_and_configuration() {
+        let exe = std::env::current_dir().unwrap().join("azrael");
+        let args = normalize_azrael_startup_args(&default_startup_args()).unwrap();
+        let id = instance_id(&exe, &"a".repeat(64), &args).unwrap();
+        assert_eq!(id, instance_id(&exe, &"a".repeat(64), &args).unwrap());
+        assert_ne!(
+            id,
+            instance_id(&exe.with_file_name("other"), &"a".repeat(64), &args).unwrap()
+        );
+        assert_ne!(id, instance_id(&exe, &"b".repeat(64), &args).unwrap());
+        assert_ne!(id, instance_id(&exe, &"a".repeat(64), &[]).unwrap());
+        let reordered = vec![
+            "--analytics-default-enabled".into(),
+            "-c".into(),
+            "features.code_mode_host=true".into(),
+        ];
+        assert_eq!(args, normalize_azrael_startup_args(&reordered).unwrap());
+        let overrides = vec!["-c".into(), "x=1".into(), "-c".into(), "x=2".into()];
+        let reversed = vec!["-c".into(), "x=2".into(), "-c".into(), "x=1".into()];
+        assert_ne!(
+            normalize_azrael_startup_args(&overrides).unwrap(),
+            normalize_azrael_startup_args(&reversed).unwrap()
+        );
+    }
+
+    #[test]
+    fn descriptor_and_receipt_bind_full_instance_with_bounded_socket_leaf() {
+        let home = std::env::current_dir().unwrap();
+        let endpoint = endpoint_from_inputs(
+            &home.join("azrael"),
+            "a".repeat(64),
+            &[],
+            &home.join("control/legacy.sock"),
+        )
+        .unwrap();
+        assert_eq!(endpoint.schema, 2);
+        assert!(endpoint.socket_path.is_absolute());
+        assert_eq!(
+            endpoint
+                .socket_path
+                .file_name()
+                .unwrap()
+                .to_string_lossy()
+                .len(),
+            29
+        );
+        let value = serde_json::to_value(&endpoint).unwrap();
+        assert_eq!(value["instanceId"], endpoint.instance_id);
+        let receipt = AzraelDaemonReceipt {
+            endpoint: endpoint.clone(),
+            native_argv: vec![],
+        };
+        let mut altered = serde_json::to_value(&receipt).unwrap();
+        let prefix = &endpoint.instance_id[..24];
+        altered["instanceId"] = json!(format!("{prefix}{}", "0".repeat(40)));
+        assert_ne!(
+            receipt,
+            serde_json::from_value::<AzraelDaemonReceipt>(altered).unwrap()
+        );
+        let registry = azrael_window_registry_path(&home, &endpoint.instance_id).unwrap();
+        assert_eq!(
+            registry,
+            home.join("azrael/runtime/engines")
+                .join(&endpoint.instance_id)
+                .join("window-owners.json")
+        );
+        for invalid in [
+            "../escape".to_owned(),
+            "A".repeat(64),
+            format!("{}\\", "a".repeat(63)),
+        ] {
+            assert!(azrael_window_registry_path(&home, &invalid).is_err());
+        }
     }
 
     #[tokio::test]

@@ -202,9 +202,12 @@ test("Windows native PTY and daemon groups compile selected frozen libtests then
   }
   assert.match(result.output.stdout, /native test diagnostics/);
   assert.match(result.output.stderr, /compiler diagnostics[\s\S]*native stderr/);
-  assert.equal(result.ordinary.length, 6);
+  assert.equal(result.ordinary.length, 10);
   assert.ok(!result.ordinary.some(call => call.args.includes("codex-utils-pty") || call.args.includes("backend::pid::tests::")));
   assert.ok(result.ordinary.some(call => call.args.includes("azrael::tests::")));
+  for (const filter of ["azrael_storage::tests::", "azrael_shared_server::instance_tests::", "azrael_thread_engines::tests::", "entry::endpoint_tests::"]) {
+    assert.ok(result.ordinary.some(call => call.args.includes(filter)), `missing coexistence guard ${filter}`);
+  }
 });
 
 test("native direct execution is Windows scoped", () => {

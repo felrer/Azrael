@@ -130,7 +130,7 @@ async function prepare(options) {
     if(produced.engine!==config.engine || produced.bridge!==config.bridge) throw new Error("Producer runtime selects another release.");
     Object.assign(config,produced); if(selected.os!=="win32") {delete config.computerUse;delete config.windowControl;}
   }
-  config.sharedEngine=true; config.sharedEngineProtocol=1;
+  config.sharedEngine=true; config.sharedEngineProtocol=2;
   config.engineSha256=build.sha256[`engine/${platform.executableName("azrael",selected)}`]?.toLowerCase();
   require("./shared-engine-host.cjs").validateSharedRuntime(config);
   fs.writeFileSync(path.join(root,"out/azrael-runtime.json"),shared.encode(config));

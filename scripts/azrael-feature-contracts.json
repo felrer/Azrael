@@ -62,7 +62,15 @@
         "engine/codex-rs/ext/queue/tests/queue_service.rs",
         "scripts/cargo-target-owner.cjs",
         "scripts/test-cargo-target-owner.cjs",
-        "scripts/test-cargo-scheduling.cjs"
+        "scripts/test-cargo-scheduling.cjs",
+        "engine/codex-rs/app-server/Cargo.toml",
+        "engine/codex-rs/app-server/src/azrael_thread_engines.rs",
+        "engine/codex-rs/app-server-daemon/src/azrael_storage.rs",
+        "engine/codex-rs/state/src/migrations.rs",
+        "engine/codex-rs/state/src/lib.rs",
+        "scripts/prepare-ordinary-vscode.ps1",
+        "scripts/prepare-platform-host.cjs",
+        "scripts/build-platform.cjs"
       ],
       "contract": "docs/architecture/azrael-runtime.md",
       "reportFields": [],

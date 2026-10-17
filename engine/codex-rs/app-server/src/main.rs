@@ -83,6 +83,12 @@ struct AppServerArgs {
     #[arg(long, hide = true)]
     azrael_shared_windows: bool,
 
+    #[arg(long, hide = true)]
+    azrael_engine_endpoint: bool,
+
+    #[arg(long, hide = true, requires = "azrael_shared_windows")]
+    azrael_engine_instance: Option<String>,
+
     #[arg(long)]
     analytics_default_enabled: bool,
 }
@@ -97,6 +103,7 @@ fn parse_azrael_args(
         "--code-mode-host",
         "--listen",
         "--session-source",
+        "--azrael-engine-instance",
         "--ws-auth",
         "--ws-token-file",
         "--ws-token-sha256",
@@ -139,12 +146,12 @@ fn main() -> anyhow::Result<()> {
 impl AppServerArgs {
     fn azrael_startup_args(&self) -> anyhow::Result<Vec<String>> {
         anyhow::ensure!(
-            matches!(self.listen, AppServerTransport::Stdio),
+            self.azrael_shared_windows || matches!(self.listen, AppServerTransport::Stdio),
             "Azrael window proxy requires stdio; its shared daemon owns the private listener"
         );
         anyhow::ensure!(
             !self.remote_control
-                && !self.managed_daemon
+                && (self.azrael_shared_windows || !self.managed_daemon)
                 && self.auth == WebsocketAuthArgs::default(),
             "Azrael window proxy does not accept remote control, managed daemon or WebSocket authentication flags"
         );
@@ -176,7 +183,7 @@ impl AppServerArgs {
         if self.disable_plugin_startup_tasks_for_tests {
             args.push("--disable-plugin-startup-tasks-for-tests".into());
         }
-        Ok(args)
+        codex_app_server_daemon::normalize_azrael_startup_args(&args)
     }
 }
 
@@ -192,6 +199,40 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
         } else {
             AppServerArgs::parse()
         };
+        if args.azrael_engine_endpoint {
+            anyhow::ensure!(
+                azrael_entry && !args.azrael_shared_windows,
+                "endpoint discovery requires the Azrael window entry"
+            );
+            let endpoint = codex_app_server_daemon::azrael_engine_endpoint_with_args(
+                &std::env::current_exe()?,
+                &args.azrael_startup_args()?,
+            )
+            .await?;
+            println!("{}", serde_json::to_string(&endpoint)?);
+            return Ok(());
+        }
+        if args.azrael_shared_windows {
+            anyhow::ensure!(
+                azrael_entry && args.managed_daemon,
+                "shared engines require the managed Azrael entry"
+            );
+            let endpoint = codex_app_server_daemon::azrael_engine_endpoint_with_args(
+                &std::env::current_exe()?,
+                &args.azrael_startup_args()?,
+            )
+            .await?;
+            anyhow::ensure!(
+                args.azrael_engine_instance.as_deref() == Some(endpoint.instance_id.as_str()),
+                "shared engine instance does not match executable and startup configuration"
+            );
+            anyhow::ensure!(
+                args.listen
+                    == format!("unix://{}", endpoint.socket_path.display())
+                        .parse::<AppServerTransport>()?,
+                "shared engine listener does not match its native endpoint"
+            );
+        }
         if azrael_entry && !args.azrael_shared_windows {
             if let Some(context) = std::env::var_os("AZRAEL_EX_WINDOW_CONTEXT") {
                 let registration = serde_json::from_str(&context.to_string_lossy())?;
@@ -215,6 +256,8 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
             remote_control,
             managed_daemon,
             azrael_shared_windows,
+            azrael_engine_endpoint: _,
+            azrael_engine_instance,
             analytics_default_enabled,
         } = args;
         let loader_overrides = if disable_managed_config_from_debug_env() {
@@ -230,6 +273,7 @@ fn run_entry(azrael_entry: bool) -> anyhow::Result<()> {
             code_mode_host_transport: code_mode_host.into(),
             managed_daemon,
             azrael_shared_windows,
+            azrael_engine_instance,
             ..Default::default()
         };
         #[cfg(debug_assertions)]
@@ -291,3 +335,39 @@ fn managed_config_path_from_debug_env() -> Option<PathBuf> {
 #[cfg(test)]
 #[path = "main_tests.rs"]
 mod tests;
+
+#[cfg(test)]
+mod endpoint_tests {
+    #[test]
+    fn discovery_and_daemon_use_identical_startup_normalization() {
+        let parse = |args: &[&str]| {
+            super::parse_azrael_args(args.iter().map(|arg| std::ffi::OsString::from(*arg))).unwrap()
+        };
+        let discovery = parse(&[
+            "azrael",
+            "-c",
+            "features.code_mode_host=true",
+            "app-server",
+            "--analytics-default-enabled",
+            "--azrael-engine-endpoint",
+        ]);
+        let daemon = parse(&[
+            "azrael",
+            "app-server",
+            "--azrael-shared-windows",
+            "--managed-daemon",
+            "--azrael-engine-instance",
+            &"a".repeat(64),
+            "--listen",
+            "unix://",
+            "--analytics-default-enabled",
+            "-c",
+            "features.code_mode_host=true",
+        ]);
+        assert!(discovery.azrael_engine_endpoint);
+        assert_eq!(
+            discovery.azrael_startup_args().unwrap(),
+            daemon.azrael_startup_args().unwrap()
+        );
+    }
+}

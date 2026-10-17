@@ -21,6 +21,8 @@ mod sqlite;
 mod telemetry;
 
 pub use log_db::LogWriteFailureReporter;
+pub use migrations::AZRAEL_NON_SQL_STORAGE_ABI_VERSION;
+pub use migrations::azrael_storage_compatibility_manifest;
 pub use model::CreatedProject;
 pub use model::LogEntry;
 pub use model::LogQuery;

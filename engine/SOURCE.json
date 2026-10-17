@@ -1,7 +1,7 @@
 {
   "acceptancePolicy": "latest-source",
   "baseTag": "rust-v0.162.0",
-  "byteCount": 94333620,
+  "byteCount": 94376582,
   "copyPolicy": "current filesystem bytes; Git symlink placeholders retained with mode metadata",
   "coverageVerified": true,
   "distributionFiles": {
@@ -11,7 +11,7 @@
     }
   },
   "excludedIgnoredPaths": [],
-  "fileCount": 9264,
+  "fileCount": 9266,
   "files": {
     ".bazelignore": {
       "gitMode": "100644",
@@ -1781,8 +1781,15 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "091d51f8325a29b947bdd8498efe572e3f6f6bbe7c3cef28a5d83cf1e7064dd0",
-      "size": 21869
+      "sha256": "a57b28c4e1f092e0309c0fcde4b0f3116dfe342f35354e10397cdc4fd5046f8d",
+      "size": 28850
+    },
+    "codex-rs/app-server-daemon/src/azrael_storage.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "390bc3f6e37e977064b2d89e91038cecf4fba88983737cf9ec8cc170d09b3d37",
+      "size": 17417
     },
     "codex-rs/app-server-daemon/src/backend/mod.rs": {
       "gitMode": "100644",
@@ -1795,8 +1802,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "88b9e074114634089f2827ce2d95d67a204c8145c473e2b8f88cc0c44743fd63",
-      "size": 31779
+      "sha256": "e725ee5014ec5f49b550055b40c1a408f1269e867bac2be6b272cc1aecf26e30",
+      "size": 33989
     },
     "codex-rs/app-server-daemon/src/backend/pid_identity.rs": {
       "gitMode": "100644",
@@ -1907,8 +1914,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "d670a18b04a07f1f1b54d19ca0192f12f94ca5723fcd3c6577f59d59f6f6938d",
-      "size": 55347
+      "sha256": "aa46a4f470fe86fd8b4013d61e39f5262e5fb91c821bb8e3dc023df8f6d1c5f8",
+      "size": 56041
     },
     "codex-rs/app-server-daemon/src/managed_install.rs": {
       "gitMode": "100644",
@@ -10706,7 +10713,7 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "f53ab4286e4e97ed1ccf2097a0bdbce132f941a5b1553321f1e879270f8f072a",
+      "sha256": "849f19c8ed34ace3a7401269bba1619820df5a027627f6914503f7307f6d3096",
       "size": 5495
     },
     "codex-rs/app-server/README.md": {
@@ -10783,8 +10790,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "18e3860e639ed11772731a914b9f9e3120ef2a4bc3a08757c4ee84315dbe6657",
-      "size": 45069
+      "sha256": "790ea0ec094463a8edc5b59cc616a46891a5d95af16a527dcb23edb0dd98603e",
+      "size": 48151
     },
     "codex-rs/app-server/src/azrael_shared_server/tests.rs": {
       "gitMode": "100644",
@@ -10792,6 +10799,13 @@
       "permissions": 438,
       "sha256": "44edc2c69dc1c1f2b4c9b1bc9c73dda9979b1b9ae37afee2f1800961b674d42c",
       "size": 11571
+    },
+    "codex-rs/app-server/src/azrael_thread_engines.rs": {
+      "gitMode": "100644",
+      "kind": "file",
+      "permissions": 438,
+      "sha256": "58d59ebcf3b391bebe2b4d25d3f54a3fe72973a76f43105005883cb4a93b231f",
+      "size": 6947
     },
     "codex-rs/app-server/src/bespoke_event_handling.rs": {
       "gitMode": "100644",
@@ -11077,8 +11091,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "03c340bdb7bd71bde546263f0ab4fba4e830ecc88216c04cef74831c79559639",
-      "size": 71113
+      "sha256": "455972fbe6ee09ce33ebf96fd5984de0d4cc7ce7e2e5e3c52e199beb1575c347",
+      "size": 71951
     },
     "codex-rs/app-server/src/log_write_warning.rs": {
       "gitMode": "100644",
@@ -11098,8 +11112,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "5dfe4b7086e231e30df0fd645eca47858634e4e53d7da23f1de43376564d18fc",
-      "size": 9986
+      "sha256": "ca996445d352b7ef114832e97c0d45f93270df52966267ff0411fc66af505233",
+      "size": 13045
     },
     "codex-rs/app-server/src/main_tests.rs": {
       "gitMode": "100644",
@@ -40141,8 +40155,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "186cf55eeb15e1c3269f600c7160105b8c4c1cd4d28f870fe6be2de87e0e405f",
-      "size": 6842
+      "sha256": "6193f58fd98c35c3502086b510232a777f95c2fa340b5eba14dda67fdb5c2fba",
+      "size": 6957
     },
     "codex-rs/state/src/log_db.rs": {
       "gitMode": "100644",
@@ -40176,8 +40190,8 @@
       "gitMode": "100644",
       "kind": "file",
       "permissions": 438,
-      "sha256": "aa878b1910de008cfad654cceb8e11dc20839661348329e32ee8d0b6fc96486e",
-      "size": 5433
+      "sha256": "a0f930f706d8c2d0f54e9f37578fc7f5248db2e5e6c5da85ab73016362aa5126",
+      "size": 7052
     },
     "codex-rs/state/src/migrations_tests.rs": {
       "gitMode": "100644",
@@ -64863,8 +64877,8 @@
     }
   },
   "head": "980211bf54cbd57880c0c71bfe15ad2a425ac235",
-  "inventoryCount": 9264,
-  "inventorySha256": "a06cef7407b8a17758a72a649155bab89a2790e14efe43230f3bf2691b42d2ed",
+  "inventoryCount": 9266,
+  "inventorySha256": "745ea659d20440ba4d76468e9f0777bd97ccd61855a189bb170bddcffbfac97a",
   "localIntegration": {
     "changes": {
       ".gitattributes": {
@@ -65064,8 +65078,18 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "091d51f8325a29b947bdd8498efe572e3f6f6bbe7c3cef28a5d83cf1e7064dd0",
-          "size": 21869
+          "sha256": "a57b28c4e1f092e0309c0fcde4b0f3116dfe342f35354e10397cdc4fd5046f8d",
+          "size": 28850
+        },
+        "before": null
+      },
+      "codex-rs/app-server-daemon/src/azrael_storage.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "390bc3f6e37e977064b2d89e91038cecf4fba88983737cf9ec8cc170d09b3d37",
+          "size": 17417
         },
         "before": null
       },
@@ -65090,8 +65114,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "88b9e074114634089f2827ce2d95d67a204c8145c473e2b8f88cc0c44743fd63",
-          "size": 31779
+          "sha256": "e725ee5014ec5f49b550055b40c1a408f1269e867bac2be6b272cc1aecf26e30",
+          "size": 33989
         },
         "before": {
           "gitMode": "100644",
@@ -65138,8 +65162,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "d670a18b04a07f1f1b54d19ca0192f12f94ca5723fcd3c6577f59d59f6f6938d",
-          "size": 55347
+          "sha256": "aa46a4f470fe86fd8b4013d61e39f5262e5fb91c821bb8e3dc023df8f6d1c5f8",
+          "size": 56041
         },
         "before": {
           "gitMode": "100644",
@@ -65824,7 +65848,7 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "f53ab4286e4e97ed1ccf2097a0bdbce132f941a5b1553321f1e879270f8f072a",
+          "sha256": "849f19c8ed34ace3a7401269bba1619820df5a027627f6914503f7307f6d3096",
           "size": 5495
         },
         "before": {
@@ -65840,8 +65864,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "18e3860e639ed11772731a914b9f9e3120ef2a4bc3a08757c4ee84315dbe6657",
-          "size": 45069
+          "sha256": "790ea0ec094463a8edc5b59cc616a46891a5d95af16a527dcb23edb0dd98603e",
+          "size": 48151
         },
         "before": null
       },
@@ -65852,6 +65876,16 @@
           "permissions": 438,
           "sha256": "44edc2c69dc1c1f2b4c9b1bc9c73dda9979b1b9ae37afee2f1800961b674d42c",
           "size": 11571
+        },
+        "before": null
+      },
+      "codex-rs/app-server/src/azrael_thread_engines.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "58d59ebcf3b391bebe2b4d25d3f54a3fe72973a76f43105005883cb4a93b231f",
+          "size": 6947
         },
         "before": null
       },
@@ -65918,8 +65952,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "03c340bdb7bd71bde546263f0ab4fba4e830ecc88216c04cef74831c79559639",
-          "size": 71113
+          "sha256": "455972fbe6ee09ce33ebf96fd5984de0d4cc7ce7e2e5e3c52e199beb1575c347",
+          "size": 71951
         },
         "before": {
           "gitMode": "100644",
@@ -65934,8 +65968,8 @@
           "gitMode": "100644",
           "kind": "file",
           "permissions": 438,
-          "sha256": "5dfe4b7086e231e30df0fd645eca47858634e4e53d7da23f1de43376564d18fc",
-          "size": 9986
+          "sha256": "ca996445d352b7ef114832e97c0d45f93270df52966267ff0411fc66af505233",
+          "size": 13045
         },
         "before": {
           "gitMode": "100644",
@@ -69433,6 +69467,38 @@
           "permissions": 438,
           "sha256": "1bcca7e469c9677a18635282a0a5abfb537d1b5f0a39b9497d2c7d62623b6dd0",
           "size": 36106
+        }
+      },
+      "codex-rs/state/src/lib.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "6193f58fd98c35c3502086b510232a777f95c2fa340b5eba14dda67fdb5c2fba",
+          "size": 6957
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "186cf55eeb15e1c3269f600c7160105b8c4c1cd4d28f870fe6be2de87e0e405f",
+          "size": 6842
+        }
+      },
+      "codex-rs/state/src/migrations.rs": {
+        "after": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "a0f930f706d8c2d0f54e9f37578fc7f5248db2e5e6c5da85ab73016362aa5126",
+          "size": 7052
+        },
+        "before": {
+          "gitMode": "100644",
+          "kind": "file",
+          "permissions": 438,
+          "sha256": "aa878b1910de008cfad654cceb8e11dc20839661348329e32ee8d0b6fc96486e",
+          "size": 5433
         }
       },
       "codex-rs/state/src/runtime.rs": {

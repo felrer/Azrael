@@ -48,6 +48,12 @@ test('bounded resource fixture retains graceful owned cleanup and idle-only RPC 
   assert(!/(?:child|host)\.kill\(|(?:turn\/start|turn\/steer)|Remove-Item[^\n]*-Force/.test(source));
   assert.match(source, /process\.kill\(pid, 0\)/); // Liveness probe only.
   assert.match(source, /sharedHost\.windowContext/);
+  assert.match(source, /sharedEngineProtocol: 2/);
+  assert.match(source, /await sharedHost\.resolveEngineEndpoint\(runtime\)/);
+  assert.match(source, /'app-server-daemon', 'engines', sharedEndpoint\.instanceId/);
+  assert.match(source, /daemonReceipt\.instanceId, sharedEndpoint\.instanceId/);
+  assert.match(source, /join\(sharedDirectory, 'azrael\.pid'\)/);
+  assert(!source.includes("join(sharedHome, 'app-server-daemon', 'daemon.pid')"));
   assert.match(source, /removeOwnedFixture as removeReceiptedFixture/);
   assert.match(source, /removeReceiptedFixture\(root, nonce, \{ output, pids \}\)/);
   assert.match(source, /removeReceiptedFixture\(run, nonce, \{ output, pids \}\)/);
