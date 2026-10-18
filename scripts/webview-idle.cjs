@@ -72,6 +72,7 @@ function createWebviewIdleManager(host, clock = globalThis, delay = 60 * 60 * 10
       r.suspended = true;
       host.suspended(r.webview, snapshot);
       r.webview.html = blank;
+      host.diagnostic?.(r.webview, "idle_suspended");
     } catch (error) {
       host.error(error);
       if (!r.disposed && !r.view.visible && r.epoch === epoch) { r.hiddenAt = clock.Date.now(); arm(r, delay); }
@@ -86,12 +87,14 @@ function createWebviewIdleManager(host, clock = globalThis, delay = 60 * 60 * 10
     r.restorePending = true;
     const epoch = r.epoch;
     try {
+      host.diagnostic?.(r.webview, "idle_restore_started");
       const html = await host.content(r.webview, r.snapshot);
       if (r.disposed || r.epoch !== epoch) return;
       r.suspended = false;
       r.restoring = true;
       r.webview.html = html;
-    } catch (error) { host.error(error); }
+      host.diagnostic?.(r.webview, "idle_restored");
+    } catch (error) { host.diagnostic?.(r.webview, "idle_restore_failed"); host.error(error); }
     finally {
       r.restorePending = false;
       if (!r.disposed && r.suspended && r.view.visible && r.epoch !== epoch) void restore(r);

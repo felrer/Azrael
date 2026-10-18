@@ -75,7 +75,7 @@ test("host environment metadata gates serialized diagnostics and restores output
     const count = logs.length;
     context.__azraelUiInputDiagnostics.queue(thread,id,true,true);
     assert.equal(logs.length-count, expected ? 1 : 0);
-    assert.equal(output.replace(/<meta name="azrael-ui-input-diagnostics" content="(?:true|false)">/, ""), html);
+    assert.equal(output.replace(/<meta name="azrael-ui-(?:input|health)-diagnostics" content="(?:true|false)">/g, ""), html);
     if (!expected) assert.equal(context.__azraelUiInputDiagnostics.snapshot(() => { throw Error("disabled scan executed"); }), null);
   }
 });

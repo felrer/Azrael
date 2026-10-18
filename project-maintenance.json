@@ -24,6 +24,13 @@
   ],
   "bundles": [
     {
+      "id": "source-ui-health",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "--test", "--test-concurrency=1", "scripts/test-ui-health.cjs", "scripts/test-ui-input-diagnostics.cjs", "scripts/test-optional-diagnostics.cjs", "scripts/test-recovery-bridge.cjs", "scripts/test-webview-idle.cjs"],
+      "inputs": ["scripts/ui-health-runtime.cjs", "scripts/optional-diagnostics.cjs", "scripts/inject-ui-input-diagnostics.cjs", "scripts/ui-input-diagnostics-runtime.cjs", "scripts/inject-recovery.cjs", "scripts/namespace-azrael-host.cjs", "scripts/webview-idle.cjs", "scripts/inject-webview-idle.cjs", "scripts/test-ui-health.cjs", "scripts/test-ui-input-diagnostics.cjs", "scripts/test-optional-diagnostics.cjs", "scripts/test-recovery-bridge.cjs", "scripts/test-webview-idle.cjs", "artifacts/upstream-ui/26.1007.21434/out/extension.js", "artifacts/upstream-ui/26.1007.21434/webview/index.html", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js", "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-c014f9ee4429.js"]
+    },
+    {
       "id": "source-command-drag-block",
       "kind": "test",
       "purpose": "retained",

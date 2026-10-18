@@ -1,5 +1,7 @@
 # Native Azrael diagnostics
 
+For gray/blank UI failures, see [Webview health diagnostics](webview-health.md) to distinguish startup, JavaScript/resource/CSP, drag, idle and signal-loss evidence from confirmed native renderer crashes.
+
 The VS Code chat panel reports turn failures with separate messages for authentication, usage and rate limits, connection or stream loss, unsupported requests, and local tool errors. After installing a new VSIX, open a new VS Code window or run **Developer: Reload Window** in the window to test; the already-running extension host retains the prior code until then.
 
 Managed connection diagnostics and guidance have source-test coverage; a matching engine/helper/host release is required for installed use. Accepted transport codes distinguish DNS, TLS, reset, refusal, connection timeout, unreachable network and proxy failures. `provider_headers_failed` means a `TypeError` occurred before response headers were obtained, with no recognized cause; it does not prove the request never reached the server. The guidance asks the user to review existing work and continue in the same session. These error classifications do not add automatic retries.
