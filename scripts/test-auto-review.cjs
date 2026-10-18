@@ -36,6 +36,23 @@ test("actual shared QXr tracks provider/model switches without stale memo and ig
   assert.equal(state.FXr(config({isAzraelAutoReviewSupported:false,isAutoReviewRequiredForSelectedModel:true,hasAuthoritativeGuardianApprovalDefault:true,isGuardianApprovalEnabledByStatsig:true})).showGuardianOption,false);
   assert.equal(state.FXr(config({isAzraelAutoReviewSupported:false,requirements:{allowedApprovalsReviewers:["guardian_subagent"]}})).availableAgentModes.length,0);
 });
+test("model loading leaves manual and full access available while actual config and policy gates remain", () => {
+  const state=runtime(transformed),read=()=>state.QXr({hostId:"local",cwdOverride:"C:/workspace"});
+  state.modelSettings={isLoading:true,model:"gpt-5"};
+  const loading=read(),modes=state.FXr(loading);
+  assert.equal(loading.isConfigDataPending,false);
+  assert.equal(loading.isAzraelAutoReviewSupported,false);
+  assert.equal(modes.availableAgentModes.includes("auto"),true);
+  assert.equal(modes.canUnlock,true);
+  assert.equal(modes.isGuardianModeAvailable,false);
+  state.configPending=true;assert.equal(read().isConfigDataPending,true);
+  state.configPending=false;state.requirementsPending=true;assert.equal(read().isConfigDataPending,true);
+  state.requirementsPending=false;state.requirements={allowedSandboxModes:["read-only"]};
+  assert.equal(state.FXr(read()).canUnlock,false);
+  state.requirements=null;state.modelSettings={isLoading:false,model:"gpt-5"};
+  assert.equal(read().isAzraelAutoReviewSupported,true);
+});
+
 test("native eligibility enables local option without Statsig and preserves requirements/config/pending", () => {
   assert.equal(runtime(original).FXr(config()).isGuardianModeAvailable, false);
   const enabled = native.FXr(config()); assert.equal(enabled.isGuardianModeAvailable, true); assert.equal(enabled.configNonFullAccessMode, "auto");

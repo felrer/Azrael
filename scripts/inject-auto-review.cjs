@@ -10,7 +10,7 @@ const CHANGES = {
   ],
   QXr: [
     ["{let t=(0,WX.c)(24)", "{const azraelAutoReviewModel=gh(e.conversationId).modelSettings;let t=(0,WX.c)(24)"],
-    ["let F=m||h||g||j||E||T==null||P,", "let F=m||h||g||j||E||T==null||azraelAutoReviewModel.isLoading,"],
+    ["let F=m||h||g||j||E||T==null||P,", "let F=m||h||g||j||E||T==null,"],
     ["L):L=t[23],L}", "L):L=t[23],{...L,isAzraelAutoReviewSupported:!F&&azraelAutoReviewModel.isLoading===!1&&typeof azraelAutoReviewModel.model===`string`&&azraelAutoReviewModel.model.trim().length>0&&!azraelAutoReviewModel.model.startsWith(`devin/`)&&!azraelAutoReviewModel.model.startsWith(`managed/`)&&(N?.model_provider==null||N.model_provider===`openai`)}}"],
   ],
   // Native preference writes occur only in selection callbacks; project the saved mode into the manual label.

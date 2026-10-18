@@ -1221,6 +1221,7 @@
         "scripts/window-control-host.cjs",
         "scripts/window-control-policy.cjs",
         "scripts/window-control-mcp.cjs",
+        "scripts/window-control-errors.cjs",
         "scripts/use-control-settings.cjs",
         "scripts/window-use-resources.cjs",
         "scripts/window-child-session.cjs",
@@ -1241,6 +1242,12 @@
       ],
       "contract": "docs/architecture/window-use.md",
       "checks": [
+        {
+          "id": "ui.window-control.stop-recovery",
+          "executable": "node",
+          "args": ["--test", "--test-name-pattern", "user stop|recovery instructions|tool errors retain|minimized pause metadata", "scripts/test-window-control-errors.cjs"],
+          "level": "source"
+        },
         {
           "id": "ui.window-control.behavior",
           "executable": "node",

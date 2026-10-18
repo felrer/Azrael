@@ -1,7 +1,7 @@
 import {createRequire} from 'node:module';
 import {spawn} from 'node:child_process';
 import {createServer} from 'node:http';
-import {readFile,writeFile,mkdir,rm} from 'node:fs/promises';
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
@@ -117,9 +117,22 @@ try{
  }
  await evaluate("fixtureModelSettings={isLoading:false,model:'gpt-5'};fixtureConfig={...fixtureConfig,resolvedConfig:{model_provider:'custom'}};fixtureRerender()");
  await wait("![...document.querySelectorAll('[role=menuitem]')].some(e=>e.textContent.includes('Approve for me'))");check('custom config provider excludes option',true);
- await evaluate("fixtureConfig={...fixtureConfig,resolvedConfig:{model_provider:'openai'}};fixtureModelSettings={isLoading:true,model:'gpt-5'};fixtureRerender()");await wait("document.querySelector('button[aria-label=\"Change permissions\"]').disabled");check('loading selection denies interaction',true);
+ await evaluate("fixtureConfig={...fixtureConfig,resolvedConfig:{model_provider:'openai'}};fixtureModelSettings={isLoading:true,model:'gpt-5'};fixtureRerender()");await wait("!document.querySelector('button[aria-label=\"Change permissions\"]').disabled && ![...document.querySelectorAll('[role=menuitem]')].some(e=>e.textContent.includes('Approve for me'))");check('model loading keeps permissions available while excluding Auto-review',true);
  await evaluate("fixtureModelSettings={isLoading:false,model:'gpt-5'};fixtureRerender()");await wait("[...document.querySelectorAll('[role=menuitem]')].some(e=>e.textContent.includes('Only ask for actions detected as potentially unsafe'))");check('return to OpenAI restores option without stale memo',true);
  check('temporary scope switch never writes preset/preferences or running-thread permissions',await evaluate(`fixtureEvents.slice(${scopeEventStart}).every(e=>!['mode','persist','preferred'].includes(e.type))`));
+ for(const theme of ['light','dark']){
+  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureModelSettings={isLoading:true,model:'gpt-5'};fixtureRerender()`);
+  await wait("!document.querySelector('button[aria-label=\"Change permissions\"]').disabled && ![...document.querySelectorAll('[role=menuitem]')].some(e=>e.textContent.includes('Approve for me'))");
+  check(theme+' loading retains enabled manual and Full access options',await evaluate("['Ask for approval','Full access'].every(label=>{const item=[...document.querySelectorAll('[role=menuitem]')].find(e=>e.textContent.includes(label));return item && item.getAttribute('aria-disabled')!=='true' && !item.hasAttribute('data-disabled')})"));
+  await writeFile(join(logs,theme+'-model-loading.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+  await evaluate("[...document.querySelectorAll('[role=menuitem]')].find(e=>e.textContent.includes('Ask for approval')).click()");
+  await wait("fixtureState.agentMode==='auto' && !document.querySelector('[role=menuitem]')");
+  check(theme+' manual selection works during model loading',await evaluate("fixtureEvents.at(-1).type==='persist' && fixtureEvents.at(-1).value.agentMode==='auto'"));
+  await open();
+  await evaluate("fixtureConfig={...fixtureConfig,isConfigDataPending:true};fixtureRerender()");
+  await wait("document.querySelector('button[aria-label=\"Change permissions\"]').disabled");check(theme+' actual config loading still disables permissions',true);
+  await evaluate("fixtureConfig={...fixtureConfig,isConfigDataPending:false};fixtureRerender()");await wait("!document.querySelector('button[aria-label=\"Change permissions\"]').disabled");
+ }
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);
  summary.events=await evaluate('fixtureEvents');summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
@@ -129,6 +142,6 @@ finally{
  if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
  summary.browserExitCode=chrome?.exitCode;summary.browserSignalCode=chrome?.signalCode;
  const allowed=join(root,'artifacts/verification')+sep;
- if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.startsWith(allowed)){await rm(fixture,{recursive:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser exited; guarded fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
+ if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.startsWith(allowed)){summary.cleanup='Owned browser exited; fixture/profile retained for explicit cleanup review'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }
