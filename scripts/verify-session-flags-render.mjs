@@ -1,5 +1,7 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn as nativeSpawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {createHash} from 'node:crypto';
@@ -7,9 +9,12 @@ import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const artifactRun=beginArtifactRun(root,{workId:'verify-session-flags-render',owner:'scripts/verify-session-flags-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(root,process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(root,process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
 const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
-const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/session-flags','artifacts/verification','Renderer fixture');
-const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||'artifacts/logs/session-flags','artifacts/logs','Renderer logs'),profile=join(fixture,'chrome-profile');
+const fixture=artifactRun.temporary;
+const logs=artifactRun.logs,profile=join(fixture,'chrome-profile');
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
 const {ASSET,HELPER,injectSessionFlags}=require('./inject-session-flags.cjs');
@@ -228,26 +233,10 @@ summary.visualFindings='Hover shows only the outlined flag without a button tile
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- summary.browserExitCode=chrome?.exitCode;summary.browserSignalCode=chrome?.signalCode;
- const allowed=join(root,'artifacts/verification')+sep;
- if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){const cleanupScript=String.raw`try {
-$ErrorActionPreference='Stop'
-$taskRoot = [IO.Path]::GetFullPath($env:AZRAEL_FLAGS_FIXTURE)
-$expectedParent = [IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))
-if (-not $taskRoot.StartsWith($expectedParent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected cleanup target' }
-$preview = & ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $taskRoot -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_FLAGS_CLEANUP_REPORT
-if ($preview.status -ne 'preview' -or $preview.candidates.Count -ne 1 -or $preview.candidates[0].status -ne 'selected') { throw ('Cleanup guarded preview refused: '+($preview|ConvertTo-Json -Depth 8 -Compress)) }
-# Use native removal after the project guard; its Apply archives evidence into
-# a different owner's log directory, while this task must retain only its own logs.
-$live = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object { ($_.CommandLine -and $_.CommandLine.Replace('/','\').Contains($taskRoot)) -or ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($taskRoot,[StringComparison]::OrdinalIgnoreCase)) })
-if ($live.Count) { throw 'Cleanup path still referenced by a live process' }
-Remove-Item -LiteralPath $taskRoot -Recurse -ErrorAction Stop
-if (Test-Path -LiteralPath $taskRoot) { throw 'Fixture survived cleanup' }
-Write-Output 'Guarded preview selected owned fixture; native PowerShell removal confirmed absent.'
-} catch { [Console]::Error.WriteLine($_); exit 1 }
-
-`;
- const cleanup=spawn('pwsh',['-NoLogo','-NoProfile','-NonInteractive','-Command','-'],{cwd:root,windowsHide:true,env:{...process.env,AZRAEL_FLAGS_FIXTURE:fixture,AZRAEL_FLAGS_CLEANUP_REPORT:join(logs,'cleanup-preview.json')},stdio:['pipe','pipe','pipe']});let output='';cleanup.stdout.on('data',b=>output+=b);cleanup.stderr.on('data',b=>output+=b);cleanup.stdin.end(cleanupScript);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});await writeFile(join(logs,'cleanup.txt'),output);summary.cleanup=summary.cleanupExitCode===0?'Owned browser exited; project guarded preview passed; native PowerShell fixture/profile removal confirmed absent':'Cleanup failed; see cleanup.txt';if(summary.cleanupExitCode!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
- summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({runRoot:artifactRun.runRoot,lifecycleId:artifactRun.lifecycleId,outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

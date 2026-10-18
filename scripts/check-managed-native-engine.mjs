@@ -1,5 +1,6 @@
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { access, copyFile, mkdir, readFile, writeFile, readdir } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
@@ -81,10 +82,13 @@ if (process.argv.includes('--guard-check')) {
 async function main() {
 const mode = selectFixtureMode(process.argv.slice(4)); // --claude-only remains an accepted alias.
 assert(process.argv[2] && isAbsolute(process.argv[2]), 'absolute_engine_executable_required');
-assert(process.argv[3] && isAbsolute(process.argv[3]), 'absolute_new_fixture_root_required');
-const engine = process.argv[2], run = process.argv[3];
+if (process.argv[3]) assert(isAbsolute(process.argv[3]), 'absolute_new_fixture_root_required');
+const engine = process.argv[2];
 const devinHandoffOnly = mode === 'devin-handoff';
 const root = resolve(import.meta.dirname, '..');
+const artifactRun = beginArtifactRun(root, { workId: 'check-managed-native-engine', owner: 'check-managed-native-engine', paths: process.argv[3] ? { temporary: resolve(process.argv[3]) } : {} });
+const run = artifactRun.temporary;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const releaseOption = process.argv.indexOf('--release-directory');
 const release = releaseOption < 0 ? null : process.argv[releaseOption + 1];
 if (releaseOption >= 0) assert(release && isAbsolute(release), 'absolute_release_directory_required');
@@ -92,7 +96,7 @@ const bundle = release ? createRequire(import.meta.url)('./provider-accounts-hos
 const bun = bundle?.bun ?? join(root, 'artifacts/tools/bun-1.4.2/package/bin/bun.exe');
 const helper = bundle?.inferenceHelper ?? join(root, 'providers/opencodex/inference.ts');
 await Promise.all([access(engine), access(bun), access(helper)]);
-await mkdir(run); // Refuse to overwrite or reuse an earlier run or ordinary state.
+// The lifecycle helper has claimed and created the fresh fixture root.
 const state = join(run, 'codex'), ocx = join(state, 'azrael', 'providers', 'opencodex'), cwd = join(run, 'work');
 await Promise.all([state, ocx, cwd, join(run, 'temp'), join(run, 'appdata')].map(path => mkdir(path, { recursive: true })));
 const keys = ['synthetic-managed-google-key', 'synthetic-managed-xai-key', 'synthetic-managed-openrouter-key'];
@@ -529,7 +533,7 @@ try {
   await writeFile(join(run, 'requests.json'), JSON.stringify(fixture.requests, null, 2));
   await writeFile(join(run, 'events.json'), JSON.stringify(peers.map(value => ({ events: value.events, calls: value.calls })), null, 2));
   await writeFile(join(run, 'result.json'), JSON.stringify(report, null, 2));
-  console.log(JSON.stringify({ ...report, run }));
+  console.log(JSON.stringify({ ...report, run, lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot }));
 }
 
 }

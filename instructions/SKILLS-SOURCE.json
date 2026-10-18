@@ -254,24 +254,32 @@
     {
       "path": "skills/implementation/references/artifact-lifecycle.md",
       "source": "implementation/references/artifact-lifecycle.md",
-      "size": 6669,
-      "sha256": "98012e99f36e036b4f9c8f51866723c64ebbe8c53e332a6d62de4241493b513f",
+      "size": 10329,
+      "sha256": "76fab4467fa7423e4976395f94825b1b4419e954523fd271bae3bb7b0c2cf7b0",
       "original": {
         "size": 4370,
         "sha256": "834485e7b1e853611b50da821109b8f171cd342b27e4438890aa9bb007fa3abe"
       },
-      "adaptations": []
+      "adaptations": [
+        "Clarified inventory coverage, cleanup ownership boundaries, retained legacy custody, evidence reuse, interrupted deletion reconciliation and completion layers; synchronized active installed copy.",
+        "Clarified batching of ready independent cleanup groups with measured call overhead, preserved per-group decisions and completion-aware progress.",
+        "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence."
+      ]
     },
     {
       "path": "skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
       "source": "project-bootstrap/assets/playbooks/artifact-lifecycle.md",
-      "size": 13615,
-      "sha256": "caf2378feb09efb54db08daf3f3499b9a12401d8e68d0bd60f3d43b4c11326b2",
+      "size": 18164,
+      "sha256": "87f7fb1ed894ed83d8e40be45fbdc06f8040de6874d5f61efd37f9ca6a70e01d",
       "original": {
         "size": 10430,
         "sha256": "6f05e9cb306732e7b74b7c064066de63da2776d19c2e5d161aa072bcf431c15a"
       },
-      "adaptations": []
+      "adaptations": [
+        "Clarified inventory coverage, cleanup ownership boundaries, retained legacy custody, evidence reuse, interrupted deletion reconciliation and completion layers; synchronized active installed copy.",
+        "Clarified batching of ready independent cleanup groups with measured call overhead, preserved per-group decisions and completion-aware progress.",
+        "Clarified creation-time ancestor/descendant claim checks, unique generation boundaries and verified migration without rewriting historical cleanup evidence."
+      ]
     }
   ],
   "exclusions": [

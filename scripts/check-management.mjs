@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { access, mkdir, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join, resolve } from 'node:path';
 import {
@@ -25,6 +26,9 @@ if (
 const enginePath = resolve(engineArgument);
 const bridgePath = resolve(bridgeArgument);
 const stateDirectory = resolve(stateArgument);
+const artifactRun = beginArtifactRun(resolve(import.meta.dirname, '..'), { workId: 'check-management', owner: 'check-management' });
+const reportDirectory = artifactRun.reports;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const socketPath = resolve(socketArgument);
 const socketDirectory = dirname(socketPath);
 const socketExtension = extname(socketPath);
@@ -196,7 +200,7 @@ try {
   await waitUntilMissing(socketPath, 'Management socket');
   await removeSocketFixture();
 
-  const result = {
+  const result = { lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot,
     status: 'passed',
     engine: enginePath,
     bridge: bridgePath,
@@ -214,7 +218,7 @@ try {
     realLogin: false,
     modelRequest: false,
   };
-  await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+  await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result));
 } catch (error) {
   await stopChild(bridgeChild);
@@ -234,7 +238,7 @@ try {
       '\n--- bridge stderr ---\n',
       bridgeStderr(),
     ].join('');
-    await writeFile(join(stateDirectory, 'failure.log'), failure);
+    await writeFile(join(reportDirectory, 'failure.log'), failure);
   }
   console.error(error.stack ?? String(error));
   process.exitCode = 1;

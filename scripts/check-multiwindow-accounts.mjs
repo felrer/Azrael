@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { access, mkdir, readFile, rmdir, unlink, writeFile } from 'node:fs/promises';
 import { basename, dirname, extname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +30,9 @@ if (
 const enginePath = resolve(engineArgument);
 const bridgePath = resolve(bridgeArgument);
 const stateDirectory = resolve(stateArgument);
+const artifactRun = beginArtifactRun(resolve(import.meta.dirname, '..'), { workId: 'check-multiwindow-accounts', owner: 'check-multiwindow-accounts' });
+const reportDirectory = artifactRun.reports;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const socketDirectory = resolve(socketDirectoryArgument);
 const authPath = join(stateDirectory, 'auth.json');
 const fixtureApiKey = 'sk-multiwindow-local-fixture';
@@ -194,16 +198,16 @@ async function startInstance(instance) {
 async function writeLogs(status, error) {
   for (const instance of instances) {
     await writeFile(
-      join(stateDirectory, `${instance.name}-engine.stderr.log`),
+      join(reportDirectory, `${instance.name}-engine.stderr.log`),
       instance.engineStderr?.() ?? '',
     );
     await writeFile(
-      join(stateDirectory, `${instance.name}-bridge.stderr.log`),
+      join(reportDirectory, `${instance.name}-bridge.stderr.log`),
       instance.bridgeStderr?.() ?? '',
     );
   }
-  if (error) await writeFile(join(stateDirectory, 'failure.log'), error.stack ?? String(error));
-  const result = {
+  if (error) await writeFile(join(reportDirectory, 'failure.log'), error.stack ?? String(error));
+  const result = { lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot,
     status,
     engine: enginePath,
     bridge: bridgePath,
@@ -226,7 +230,7 @@ async function writeLogs(status, error) {
       'Fresh-root database bootstrap was serialized; simultaneous empty-store bootstrap is outside this account-concurrency check.',
     ],
   };
-  await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+  await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(result, null, 2));
   return result;
 }
 

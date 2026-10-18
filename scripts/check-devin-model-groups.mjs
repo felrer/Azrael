@@ -1,4 +1,5 @@
-import { spawn } from 'node:child_process';
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { writeFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
@@ -7,6 +8,8 @@ const [engineArgument, stateArgument, devinArgument] = process.argv.slice(2);
 if (!engineArgument || !stateArgument || !devinArgument || !isAbsolute(stateArgument)) {
   throw new Error('Usage: node scripts/check-devin-model-groups.mjs <engine> <prepared absolute state root> <devin executable>');
 }
+const artifactRun = beginArtifactRun(resolve(import.meta.dirname, '..'), { workId: 'check-devin-model-groups', owner: 'check-devin-model-groups' });
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const engine = resolve(engineArgument);
 const stateRoot = resolve(stateArgument);
 const devinExecutable = resolve(devinArgument);
@@ -95,10 +98,10 @@ try {
     loginPerformed: false,
     modelRequestPerformed: false,
   };
-  await writeFile(join(stateRoot, 'devin-model-groups.json'), `${JSON.stringify(result, null, 2)}\n`, 'utf8');
-  console.log(JSON.stringify(result));
+  await writeFile(join(artifactRun.reports, 'devin-model-groups.json'), `${JSON.stringify(result, null, 2)}\n`, 'utf8');
+  console.log(JSON.stringify({ ...result, lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot }));
 } catch (error) {
-  await writeFile(join(stateRoot, 'failure.log'), `${error instanceof Error ? error.stack : String(error)}\n${stderr}`, 'utf8');
+  await writeFile(join(artifactRun.logs, 'failure.log'), `${error instanceof Error ? error.stack : String(error)}\n${stderr}`, 'utf8');
   throw error;
 } finally {
   lines.close();

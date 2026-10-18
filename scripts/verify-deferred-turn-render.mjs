@@ -1,5 +1,7 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn as nativeSpawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
@@ -7,9 +9,12 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 import {createHash} from 'node:crypto';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
+const artifactRun=beginArtifactRun(root,{workId:'verify-deferred-turn-render',owner:'scripts/verify-deferred-turn-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(root,process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...((process.env.AZRAEL_RENDER_LOG_ROOT || process.env.AZRAEL_DEFERRED_RENDER_LOG_DIR) ? {logs:resolve(root,(process.env.AZRAEL_RENDER_LOG_ROOT || process.env.AZRAEL_DEFERRED_RENDER_LOG_DIR))} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
 const containedPath=(value,parent,label)=>{const target=resolve(root,value),allowed=resolve(root,parent)+sep;assert.ok(target.toLowerCase().startsWith(allowed.toLowerCase()),label+' must be a descendant of '+parent);return target};
-const fixture=containedPath(process.env.AZRAEL_RENDER_FIXTURE_ROOT||'artifacts/verification/deferred-timer-ui','artifacts/verification','Renderer fixture');
-const logs=containedPath(process.env.AZRAEL_RENDER_LOG_ROOT||process.env.AZRAEL_DEFERRED_RENDER_LOG_DIR||'artifacts/logs/resume-timer-fix-20261008/ui','artifacts/logs','Renderer logs');
+const fixture=artifactRun.temporary;
+const logs=artifactRun.logs;
 const assets=join(root,"artifacts/upstream-ui/26.1007.21434/webview/assets");
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
@@ -185,9 +190,10 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const finish=()=>{clearTimeout(t);chrome.off('exit',finish);r()};const t=setTimeout(finish,10000);chrome.once('exit',finish)});
- const allowed=join(root,'artifacts/verification')+sep;
- if(chrome&&(chrome.exitCode!==null||chrome.signalCode!==null)&&fixture.toLowerCase().startsWith(allowed.toLowerCase())){const cleanupCommand=String.raw`$ErrorActionPreference='Stop'; $target=[IO.Path]::GetFullPath($env:AZRAEL_TIMER_FIXTURE); $allowed=[IO.Path]::GetFullPath($env:AZRAEL_TIMER_PARENT).TrimEnd('\')+'\'; if(-not $target.StartsWith($allowed,[StringComparison]::OrdinalIgnoreCase)){throw 'Fixture containment failed'}; for($cursor=$target;$cursor;$cursor=[IO.Path]::GetDirectoryName($cursor)){if((Test-Path -LiteralPath $cursor) -and ((Get-Item -LiteralPath $cursor -Force).Attributes -band [IO.FileAttributes]::ReparsePoint)){throw 'Linked cleanup path'}}; for($attempt=0;$attempt -lt 20;$attempt++){ $references=@(Get-CimInstance Win32_Process | Where-Object {$_.Name -eq 'chrome.exe' -and $_.CommandLine -and $_.CommandLine.Contains($target)}); if($references.Count -eq 0){break}; Start-Sleep -Milliseconds 250 }; if($references.Count -ne 0){throw 'Owned browser still references fixture'}; Remove-Item -LiteralPath $target -Recurse; if(Test-Path -LiteralPath $target){throw 'Fixture remains'}`;
- const cleanup=spawn('powershell.exe',['-NoProfile','-NonInteractive','-Command',cleanupCommand],{windowsHide:true,env:{...process.env,AZRAEL_TIMER_FIXTURE:fixture,AZRAEL_TIMER_PARENT:join(root,'artifacts/verification')},stdio:['ignore','pipe','pipe']});let cleanupOutput='';cleanup.stdout.on('data',c=>cleanupOutput+=c);cleanup.stderr.on('data',c=>cleanupOutput+=c);const cleanupExit=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r)});summary.cleanupExitCode=cleanupExit;summary.cleanup=cleanupExit===0?'Owned browser exited; guarded native PowerShell fixture/profile removal verified':cleanupOutput; if(cleanupExit!==0)process.exitCode=1}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
- summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({runRoot:artifactRun.runRoot,lifecycleId:artifactRun.lifecycleId,outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

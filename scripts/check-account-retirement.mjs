@@ -1,27 +1,28 @@
+import artifactRunTools from './artifact-run.cjs';
+const { beginArtifactRun, trackArtifactChild } = artifactRunTools;
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { createInterface } from 'node:readline';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { basename, dirname, isAbsolute, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { JsonLinePeer, RpcError, stopChild, waitForExit } from './lib/azrael-rpc-check.mjs';
+import { JsonLinePeer, RpcError, stopChild } from './lib/azrael-rpc-check.mjs';
 import { accountFixtureEnvironment } from './account-fixture-environment.mjs';
 import { OpenAiAutoSwitchFixture } from './openai-auto-switch-fixture.mjs';
 
 // Real app-server acceptance, using only disposable file-backed credentials.
-// Usage: node scripts/check-account-retirement.mjs <absolute engine> <fresh absolute fixture>
+// Usage: node scripts/check-account-retirement.mjs <absolute engine> [fresh absolute fixture]
 const [engine, argument, scenarioOnly] = process.argv.slice(2);
 assert(scenarioOnly === undefined || scenarioOnly === '--no-candidate-only', 'optional --no-candidate-only accepted');
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-assert(engine && isAbsolute(engine) && argument && isAbsolute(argument), 'absolute engine and fresh fixture paths required');
-const run = resolve(argument), retained = join(root, 'artifacts', 'verification');
-const rel = relative(retained, run);
-assert(rel && !rel.startsWith('..') && !isAbsolute(rel), 'fixture must be below artifacts/verification');
+assert(engine && isAbsolute(engine) && (argument === undefined || isAbsolute(argument)), 'absolute engine and optional fresh fixture paths required');
+const retained = join(root, 'artifacts', 'verification');
+if (argument) { const rel = relative(retained, resolve(argument)); assert(rel && !rel.startsWith('..') && !isAbsolute(rel), 'fixture must be below artifacts/verification'); }
 await access(engine);
-await mkdir(run); // Refuse reuse, including state belonging to other work.
-const logs = join(root, 'artifacts', 'logs', 'account-retirement', 'engine-probe', rel.replaceAll(/[\\/]/g, '-'));
-await mkdir(logs, { recursive: true });
+const artifactRun = beginArtifactRun(root, { workId: 'account-retirement', owner: 'scripts/check-account-retirement.mjs', paths: argument ? { temporary: resolve(argument) } : {} });
+const spawn = (...args) => trackArtifactChild(artifactRun, nativeSpawn(...args));
+const run = artifactRun.temporary, logs = artifactRun.logs;
 const report = { engine, run, status: 'failed', checks: [], gaps: ['unrelated managed-provider concurrent turn', 'queued work and parked reservations'], cleanup: null };
 const peers = new Set(), backendRequests = [];
 const model = 'azrael-retirement-fixture';
@@ -251,16 +252,8 @@ finally {
   for (const instance of [...peers]) { try { await close(instance); } catch (error) { report.cleanupError = error.stack; process.exitCode = 1; } }
   server.closeAllConnections(); await new Promise(resolve => server.close(resolve));
   report.requests = backendRequests;
-  // Use native ordinary PowerShell deletion, within this fresh owned fixture.
-  // Never retry a deletion failure through force options or another API.
-  if (peers.size === 0 && !report.credentialCleanupError) {
-    const quoted = run.replaceAll("'", "''"), owner = retained.replaceAll("'", "''");
-    const cleanup = spawn('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `$ErrorActionPreference='Stop'; $target=(Resolve-Path -LiteralPath '${quoted}').Path; $owner=(Resolve-Path -LiteralPath '${owner}').Path; if (-not $target.StartsWith($owner + '\\', [StringComparison]::OrdinalIgnoreCase)) { throw 'cleanup containment failed' }; Remove-Item -LiteralPath $target -Recurse; if (Test-Path -LiteralPath $target) { throw 'fixture remains' }`], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'] });
-    let output = ''; cleanup.stdout.on('data', chunk => { output += chunk; }); cleanup.stderr.on('data', chunk => { output += chunk; });
-    const exit = await waitForExit(cleanup, 'retirement fixture cleanup');
-    report.cleanup = { exitCode: exit.code, output: output.trim(), removed: exit.code === 0 };
-    if (exit.code !== 0) process.exitCode = 1;
-  } else report.cleanup = { removed: false, retainedReason: report.credentialCleanupError ? 'native credential cleanup failed; retain home until cleanup succeeds' : 'owned engine may still be running' };
+  report.cleanup = { removed: false, retainedReason: report.credentialCleanupError ? 'native credential cleanup failed; retain home until cleanup succeeds' : peers.size ? 'owned engine may still be running' : 'Retained for explicit lifecycle review' };
+  if (peers.size) artifactRun.producerStopped = false;
   report.exitCode = process.exitCode ?? 0;
   await writeFile(join(logs, 'report.json'), JSON.stringify(report, null, 2));
   console.log(JSON.stringify({ status: report.status, exitCode: report.exitCode, checks: report.checks, error: report.error, cleanup: report.cleanup, logs }));

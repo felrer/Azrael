@@ -1,20 +1,23 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, writeFile, readFile, access, realpath } from 'node:fs/promises';
+import { mkdir, writeFile, readFile, realpath } from 'node:fs/promises';
 import { resolve, join, sep, dirname } from 'node:path';
 import { Script } from 'node:vm';
 
 const root = resolve(import.meta.dirname, '..');
-const fixture = resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT || join(root, 'artifacts/verification/window-errors-render'));
-const logs = resolve(process.env.AZRAEL_RENDER_LOG_ROOT || join(root, 'artifacts/logs/window-use-errors/ui'));
-assert.equal(dirname(fixture).toLowerCase(), join(root, 'artifacts/verification').toLowerCase(), 'fixture must be an immediate verification child');
-assert(logs.toLowerCase().startsWith((join(root, 'artifacts/logs') + sep).toLowerCase()), 'logs must stay inside project artifact logs');
+const artifactRun=beginArtifactRun(root,{workId:'verify-window-errors-render',owner:'scripts/verify-window-errors-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture = artifactRun.temporary;
+const logs = artifactRun.logs;
 const readmeTarget = process.env.AZRAEL_RENDER_README_TARGET_IMAGE;
 const targetImagePath = readmeTarget ? await realpath(resolve(readmeTarget)) : undefined;
 if (targetImagePath) {
-  assert(targetImagePath.toLowerCase().startsWith((join(root, 'artifacts/logs') + sep).toLowerCase()), 'README target must stay inside project verification logs');
+  assert(['artifacts/logs','artifacts/tasks'].some(base=>targetImagePath.toLowerCase().startsWith((join(root,base)+sep).toLowerCase())), 'README target must stay inside project verification logs');
   assert.equal(targetImagePath, join(dirname(targetImagePath), 'standalone-light-1050-collapsed.png'), 'README target must be the synthetic account fixture');
   const accountSummary = JSON.parse(await readFile(join(dirname(targetImagePath), 'overview-render-summary.json'), 'utf8'));
   assert(accountSummary.outcome === 'passed' && accountSummary.exitCode === 0 && accountSummary.screenshots.includes('standalone-light-1050-collapsed.png'), 'README target requires a successful production account capture');
@@ -95,24 +98,10 @@ try {
 finally {
   if (socket?.readyState === WebSocket.OPEN && chrome && !exited()) await send('Browser.close', {}, null).catch(() => {});
   socket?.close(); for (const p of pending.values()) clearTimeout(p.timer); await host.dispose(); await new Promise(r => server?.close(r) ?? r());
-  if (chrome && !exited()) await Promise.race([new Promise(r => chrome.once('exit', r)), new Promise(r => setTimeout(r, 5000))]);
-  if (!chrome || exited()) {
-    const cleanup = async apply => {
-      const reportPath = join(logs, apply ? 'cleanup.json' : 'cleanup-preview.json');
-      // Keep the cleanup command static: its process guard must not mistake its
-      // own literal argument path for a process still using the browser profile.
-      const child = spawn('pwsh', ['-NoProfile', '-Command', '& $env:AZRAEL_RENDER_CLEANUP_SCRIPT -ProjectRoot $env:AZRAEL_RENDER_PROJECT_ROOT -FixtureRoot $env:AZRAEL_RENDER_FIXTURE_ROOT -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_RENDER_CLEANUP_REPORT -Apply:([bool]::Parse($env:AZRAEL_RENDER_CLEANUP_APPLY))'], { windowsHide: true, stdio: ['ignore', 'pipe', 'pipe'], env: { ...process.env, AZRAEL_RENDER_CLEANUP_SCRIPT: join(root, 'scripts/clean-verification-artifacts.ps1'), AZRAEL_RENDER_PROJECT_ROOT: root, AZRAEL_RENDER_FIXTURE_ROOT: fixture, AZRAEL_RENDER_CLEANUP_REPORT: reportPath, AZRAEL_RENDER_CLEANUP_APPLY: String(apply) } });
-      let output = ''; child.stdout.on('data', data => { output += data; }); child.stderr.on('data', data => { output += data; });
-      const exitCode = await new Promise((r, j) => { child.once('error', j); child.once('exit', r); });
-      await writeFile(join(logs, apply ? 'cleanup.log' : 'cleanup-preview.log'), output);
-      check('guarded cleanup ' + (apply ? 'apply' : 'preview') + ' succeeded', exitCode === 0);
-    };
-    try {
-      await cleanup(false); await cleanup(true);
-      summary.fixtureRemoved = await access(fixture).then(() => false, error => { if (error.code === 'ENOENT') return true; throw error; });
-      check('fixture absence verified after cleanup', summary.fixtureRemoved);
-    } catch (error) { summary.fixtureRemoved = false; summary.retentionReason = error.message; summary.outcome = 'failed'; process.exitCode = 1; }
-  }
-  else { summary.fixtureRemoved = false; summary.retentionReason = 'Owned browser has not confirmed exit; remove after its exit.'; process.exitCode = 1; }
-  summary.exitCode = process.exitCode || 0; await writeFile(join(logs, 'result.json'), JSON.stringify(summary, null, 2) + '\n');
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0; await writeFile(join(logs, 'result.json'), JSON.stringify(summary, null, 2) + '\n');
 }

@@ -1,12 +1,18 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import { createRequire } from 'node:module';
 import Module from 'node:module';
 import { EventEmitter } from 'node:events';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, join, sep, extname } from 'node:path';
 import assert from 'node:assert/strict';
-const root = resolve(import.meta.dirname, '..'), logs = join(root, 'artifacts/logs/custom-api-models/ui'), fixture = join(root, 'artifacts/verification/custom-api-ui');
+const root = resolve(import.meta.dirname, '..');
+const artifactRun=beginArtifactRun(root,{workId:'verify-custom-api-render',owner:'scripts/verify-custom-api-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const logs=artifactRun.logs,fixture=artifactRun.temporary;
 const assets = join(root, 'artifacts/upstream-ui/26.1007.21434/webview/assets');
 await mkdir(join(fixture, 'chrome-profile'), { recursive: true }); await mkdir(logs, { recursive: true });
 const require = createRequire(import.meta.url), load = Module._load;
@@ -84,13 +90,10 @@ try {
 finally {
   view?.dispose();server.closeAllConnections();await new Promise(r=>server.close(r));
   if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++seq,method:'Browser.close'}));}catch{}socket.close();}for(const p of pending.values())clearTimeout(p.timer);
-  if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,15000);chrome.once('exit',()=>{clearTimeout(timer);r();});});
-  await writeFile(join(fixture,'check-result.json'),JSON.stringify(summary,null,2));
-  // The guarded cleaner independently verifies live process references. A Chrome
-  // launcher can close before Node reports its exit; uncertain paths stay intact.
-  summary.browserExitReported=!!chrome&&(chrome.exitCode!==null||chrome.signalCode!==null);
-  if(chrome) {
-    const cleanup=spawn('pwsh',['-NoProfile','-Command','& ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $env:API_FIXTURE -IncludeDiagnosedFixtures -Apply -ReportPath $env:API_CLEANUP_REPORT'],{cwd:root,env:{...process.env,API_FIXTURE:fixture,API_CLEANUP_REPORT:join(logs,'cleanup-report.json')},windowsHide:true,stdio:['ignore','pipe','pipe']});let output='';cleanup.stdout.on('data',b=>output+=b);cleanup.stderr.on('data',b=>output+=b);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r);});await writeFile(join(logs,'cleanup.log'),output);summary.fixtureRemoved=await access(fixture).then(()=>false,()=>true);if(summary.cleanupExitCode!==0||!summary.fixtureRemoved)process.exitCode=1;
-  } else { summary.retentionReason='Chrome exit unconfirmed';process.exitCode=1; }
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'chrome-profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
   summary.exitCode=process.exitCode||0;await writeFile(join(logs,'render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));
 }

@@ -4,7 +4,9 @@ const fs = require("node:fs");
 const path = require("node:path");
 const { ICONS, GROUPS, iconSvg } = require("./ui-soft-icons.cjs");
 const { FONT_FAMILY, CONTENT_FONT_CSS, copyContentFontAssets } = require("./content-fonts.cjs");
-const output = path.resolve(__dirname, "../artifacts/visualizations/azrael-ui-icons");
+const { beginArtifactRun } = require("./artifact-run.cjs");
+const artifactRun = beginArtifactRun(path.resolve(__dirname, ".."), { workId: "create-ui-icon-review", owner: "create-ui-icon-review", paths: process.argv[2] ? { outputs: path.resolve(process.argv[2]) } : {} });
+const output = artifactRun.outputs;
 const escape = value => String(value).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[c]);
 if (new Set(ICONS.map(icon => icon.id)).size !== ICONS.length || new Set(ICONS.map(icon => icon.key)).size !== ICONS.length) {
   throw new Error("Icon review IDs and keys must be unique.");
@@ -46,4 +48,4 @@ for (const group of GROUPS) {
   y += Math.ceil(icons.length / columns) * cellHeight + 30;
 }
 fs.writeFileSync(path.join(output, "overview.svg"), `<svg xmlns="http://www.w3.org/2000/svg" width="${width}" height="${y + 20}" viewBox="0 0 ${width} ${y + 20}" role="img" aria-label="Azrael 전체 아이콘 시안" style="font-family:'Noto Sans KR','Malgun Gothic',sans-serif;color:#262b32"><rect width="100%" height="100%" fill="#f8f9fb"/><text x="24" y="40" font-size="28" font-weight="500">Azrael · 부드러운 곡선 아이콘 ${ICONS.length}개</text><text x="24" y="70" font-size="14" fill="#69727b">번호로 수정 항목을 지정하세요 · 고정 UI Noto Sans KR · 가변 텍스트 경기천년제목 Light + Consolas</text>${sheet.join("")}</svg>`);
-console.log(JSON.stringify({ html: path.join(output, "index.html"), overview: path.join(output, "overview.svg"), iconCount: ICONS.length, groups: GROUPS.length }));
+console.log(JSON.stringify({ lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot, html: path.join(output, "index.html"), overview: path.join(output, "overview.svg"), iconCount: ICONS.length, groups: GROUPS.length }));

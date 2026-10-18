@@ -29,6 +29,23 @@ function fixture(t) {
   return { root, at, record };
 }
 
+test("legacy custody preserves uncertainty through parent projection and later producer updates", t => {
+  const { root, at, record } = fixture(t);
+  record("custody", [["legacy", "legacy-custody"]], { state: "retained", membership_complete: false,
+    members: [{ path: at("legacy"), role: "legacy-custody", generated: false, protection_known: false }] });
+  record("custody", [["legacy", "legacy-custody"]], { state: "complete" });
+  assert.equal(lifecycle.catalog(root)[0].members[0].generated, false);
+  assert.ok(lifecycle.planCleanup(root, { paths: [at("legacy")] }).groups[0].blockers.includes("unconfirmed-generated-ownership"));
+  assert.equal(lifecycle.registerRequest(root, "custody").group.members[0].generated, false);
+  assert.throws(() => record("custody", [], { members: [{ path: at("legacy"), role: "legacy-custody", generated: true }] }), /Cannot promote/);
+  const projection = lifecycle.projectMembers([{ path: at("mixed"), role: "run", generated: true, protection_known: true },
+    { path: at("mixed/source"), role: "unknown", generated: false, protection_known: false }]);
+  assert.equal(projection.length, 1);
+  assert.equal(projection[0].generated, false);
+  assert.equal(projection[0].protection_known, false);
+  assert.throws(() => record("bad", [], { members: [{ path: at("bad"), role: "unknown", generated: "yes" }] }), /Invalid lifecycle member/);
+});
+
 test("failed producer retains its whole pending identity and append-only membership", t => {
   const { root, at, record } = fixture(t);
   const before = record("release-one", [["releases/one", "release"], ["releases/one.inputs", "inputs"], ["logs/one", "logs"]], { state: "pending", membership_complete: false });
@@ -188,6 +205,27 @@ test("CLI cache consumers protect the last shared key until payload and logs are
   for (const invalid of ["module-key", "=reason", "module-key="]) {
     assert.throws(() => lifecycle.main(["record", "--project-root", root, "--reference", invalid]), /Expected lifecycle-id=reason/);
   }
+});
+
+test("explicit retirement compacts absent failed or unknown records without inventing a passing exit", t => {
+  const { root, at, record } = fixture(t);
+  const evidence = path.join(root, 'retirement.json');
+  fs.writeFileSync(evidence, JSON.stringify({ original_exit: 7, stopped_tree_verified: true }));
+  const retirement = { producer_stopped_verified: true, reason: 'Owned producer tree stopped; diagnosis preserved', evidence_ref: evidence };
+  record('failed-retirement', [['outputs/failed-retirement', 'output']], { state: 'failed', membership_complete: false });
+  fs.mkdirSync(at('outputs'), { recursive: true });fs.writeFileSync(at('outputs/failed-retirement'), 'partial');
+  assert.equal(lifecycle.finalize(root, 'failed-retirement', retirement).status, 'retained');
+  fs.unlinkSync(at('outputs/failed-retirement'));
+  assert.equal(lifecycle.finalize(root, 'failed-retirement').status, 'retained');
+  assert.throws(() => lifecycle.finalize(root, 'failed-retirement', { ...retirement, producer_stopped_verified: false }), /Verified producer/);
+  assert.throws(() => lifecycle.finalize(root, 'failed-retirement', { ...retirement, evidence_ref: at('outputs/failed-retirement/evidence') }), /must survive/);
+  assert.throws(() => lifecycle.finalize(root, 'failed-retirement', { ...retirement, evidence_ref: path.join(root, 'missing') }), /ENOENT/);
+  const result = lifecycle.finalize(root, 'failed-retirement', retirement);
+  assert.equal(result.status, 'finalized'); assert.equal(result.retirement.original_state, 'failed');
+  assert.equal(JSON.parse(fs.readFileSync(evidence)).original_exit, 7);
+  record('unknown-retirement', [['outputs/never-created', 'output']], { state: 'pending', membership_complete: false });
+  record('consumer', [['outputs/consumer', 'output']], { references: [{ id: 'unknown-retirement', reason: 'needed' }] });
+  assert.equal(lifecycle.finalize(root, 'unknown-retirement', retirement).status, 'retained');
 });
 
 test("Windows lifecycle acceptance includes module management and keeps metric fixtures in the registered run", () => {

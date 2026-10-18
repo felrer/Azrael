@@ -2,8 +2,8 @@ param(
     [Parameter(Mandatory = $true)][string]$EnginePath,
     [Parameter(Mandatory = $true)][string]$DevinExecutable,
     [Parameter(Mandatory = $true)][string]$StateRoot,
-    [Parameter(Mandatory = $true)][string]$FixtureRoot,
-    [Parameter(Mandatory = $true)][string]$LogRoot,
+    [string]$FixtureRoot,
+    [string]$LogRoot,
     [switch]$AllowUnrestrictedDevin
 )
 
@@ -11,12 +11,25 @@ $ErrorActionPreference = 'Stop'
 $engine = (Resolve-Path -LiteralPath $EnginePath).Path
 $devin = (Resolve-Path -LiteralPath $DevinExecutable).Path
 $state = (Resolve-Path -LiteralPath $StateRoot).Path
-$fixture = [IO.Path]::GetFullPath($FixtureRoot)
-$logs = [IO.Path]::GetFullPath($LogRoot)
-New-Item -ItemType Directory -Force -Path $fixture, $logs | Out-Null
 if (-not $AllowUnrestrictedDevin) {
     throw 'Live Devin probes require the explicit -AllowUnrestrictedDevin opt-in.'
 }
+$projectRoot = [IO.Path]::GetFullPath((Split-Path $PSScriptRoot -Parent))
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+$runId = [guid]::NewGuid().ToString('N')
+$runRoot = Join-Path $projectRoot "artifacts/tasks/check-collaboration-contract/runs/$runId"
+$lifecycleId = "run:check-collaboration-contract:$runId"
+$fixture = if ($FixtureRoot) { [IO.Path]::GetFullPath($FixtureRoot) } else { Join-Path $runRoot 'temporary' }
+$logs = if ($LogRoot) { [IO.Path]::GetFullPath($LogRoot) } else { Join-Path $runRoot 'logs' }
+foreach ($destination in @($fixture,$logs)) { if (Test-Path -LiteralPath $destination) { throw "Output must be a new path: $destination" } }
+$preflight = @(& node -e 'const path=require("node:path"),fs=require("node:fs"),{catalog}=require(process.argv[1]);const root=process.argv[2],destinations=process.argv.slice(3),inside=(a,b)=>{const r=path.relative(a,b);return !r||(!path.isAbsolute(r)&&r!==".."&&!r.startsWith(".."+path.sep))};for(const d of destinations){if(!inside(path.join(root,"artifacts"),d)||d===path.join(root,"artifacts"))throw Error("Output outside artifacts");if(catalog(root).some(r=>r.members.some(m=>inside(m.path,d)||inside(d,m.path))))throw Error("Output already claimed")}if(inside(destinations[1],destinations[2])||inside(destinations[2],destinations[1]))throw Error("Output destinations overlap");' (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') $projectRoot $runRoot $fixture $logs 2>&1)
+if ($LASTEXITCODE -ne 0) { throw ($preflight -join "`n") }
+$lifecycleMembers = [ordered]@{run=$runRoot;fixture=$fixture;logs=$logs}
+$null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id $lifecycleId -Kind run -Owner 'check-collaboration-contract' -State pending -MembershipComplete $false -Members $lifecycleMembers
+New-Item -ItemType Directory -Path $runRoot | Out-Null
+New-Item -ItemType Directory -Path $fixture,$logs | Out-Null
+$lifecycleSucceeded = $false
+$producerStopped = $true
 
 function Invoke-Probe {
     param(
@@ -222,7 +235,11 @@ Do not pass model or reasoning_effort. Finally reply exactly APP_SERVER_ROOT_DON
   process.exitCode = 1;
 } finally {
   child.stdin.end();
-  setTimeout(() => child.kill(), 1_000).unref();
+  await new Promise(resolve => {
+    if (child.exitCode !== null || child.signalCode !== null) return resolve();
+    const timer = setTimeout(() => child.kill(), 1_000);
+    child.once('close', () => { clearTimeout(timer); resolve(); });
+  });
 }
 '@ | Set-Content -LiteralPath $helper -Encoding utf8NoBOM
     & node $helper $engine $fixture (Join-Path $logs 'app-server-lifecycle.events.jsonl') 1> $stdout 2> $stderr
@@ -259,7 +276,7 @@ Mandatory live tool exercise: do not print ROOT_NATIVE_MESSAGE_DONE unless every
 Mandatory live tool exercise: do not print ROOT_NATIVE_INTERRUPT_DONE unless every requested tool receipt succeeded. Use azrael_agents.spawn_agent exactly once with task_name "native_interrupt_child", agent_type "luna_explorer", fork_turns "none", and message "Wait for further parent instructions and do not finish early." Immediately use azrael_agents.interrupt_agent exactly once on that child. Finally reply exactly ROOT_NATIVE_INTERRUPT_DONE. Do not use any other tool.
 '@
     Invoke-AppServerLifecycleProbe
-    $summary = [pscustomobject]@{ engine = $engine; engineSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $engine).Hash; results = $results }
+    $summary = [pscustomobject]@{ lifecycleId = $lifecycleId; runRoot = $runRoot; engine = $engine; engineSha256 = (Get-FileHash -Algorithm SHA256 -LiteralPath $engine).Hash; results = $results }
     $summary | ConvertTo-Json -Depth 8 | Set-Content -LiteralPath (Join-Path $logs 'summary.json') -Encoding utf8NoBOM
 
     foreach ($result in $results) {
@@ -282,9 +299,17 @@ Mandatory live tool exercise: do not print ROOT_NATIVE_INTERRUPT_DONE unless eve
     if ($nativeMessage.messages -notcontains 'ROOT_NATIVE_MESSAGE_DONE') { throw 'Native message lifecycle root marker missing.' }
     $nativeInterrupt = $results | Where-Object name -eq 'astra-native-interrupt-lifecycle'
     if ($nativeInterrupt.messages -notcontains 'ROOT_NATIVE_INTERRUPT_DONE') { throw 'Native interrupt root marker missing.' }
+    $lifecycleSucceeded = $true
     $summary
 } finally {
+    try {
+        $remaining = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object { $_.ExecutablePath -and $_.ExecutablePath -ieq $engine -and $_.CommandLine -and $_.CommandLine.Contains($fixture) })
+        $producerStopped = $remaining.Count -eq 0
+    } catch { $producerStopped = $false }
+    $stateResult = if (-not $producerStopped) { 'pending' } elseif ($lifecycleSucceeded) { 'complete' } else { 'failed' }
+    $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id $lifecycleId -Kind run -Owner 'check-collaboration-contract' -State $stateResult -MembershipComplete ($lifecycleSucceeded -and $producerStopped) -Members $lifecycleMembers
     $env:CODEX_HOME = $previousHome
     $env:AZRAEL_EX_DEVIN_EXECUTABLE = $previousDevin
     $env:AZRAEL_EX_PLAINTEXT_AGENTS = $previousPlaintext
+    if (-not $producerStopped) { throw 'Owned verification process exit remains unconfirmed; artifacts remain pending.' }
 }

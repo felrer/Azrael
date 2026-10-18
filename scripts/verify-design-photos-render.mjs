@@ -1,5 +1,7 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn as nativeSpawn} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir,realpath} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
@@ -7,18 +9,19 @@ import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT ?? join(root,'artifacts/verification/custom-subagent-photos-20261012'));
-const logs=resolve(process.env.AZRAEL_RENDER_LOG_ROOT ?? join(root,'artifacts/logs/custom-subagent-photos-20261012'));
+const artifactRun=beginArtifactRun(root,{workId:'verify-design-photos-render',owner:'scripts/verify-design-photos-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture=artifactRun.temporary;
+const logs=artifactRun.logs;
 const assets=join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? join(root,'artifacts/upstream-ui/26.1007.21434'),'webview/assets');
-assert.ok(fixture.startsWith(join(root,'artifacts/verification')+sep),'Fixture containment');
-assert.ok(logs.startsWith(join(root,'artifacts/logs')+sep),'Log containment');
 const require=createRequire(import.meta.url);
 const {AzraelDesignSettings,createDesignStore,pickStudentPreview}=require('./inject-student-design.cjs');
 const {azraelSettingsText}=require('./inject-instruction-settings.cjs');
 await mkdir(fixture,{recursive:true}); await mkdir(logs,{recursive:true});
 const profile=join(fixture,'chrome-profile');
 await mkdir(profile,{recursive:true});
-const fixtureRealPath=await realpath(fixture),verificationRealPath=await realpath(join(root,'artifacts/verification'));
+const fixtureRealPath=await realpath(fixture),verificationRealPath=await realpath(join(root,'artifacts'));
 assert.ok(fixtureRealPath.startsWith(verificationRealPath+sep),'Real fixture containment');
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-1805ad19110d.css"></head><body class="bg-primary text-default" data-vscode-theme-kind="vscode-light"><main id="root" style="height:950px"></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module" src="/fixture.mjs"></script></body></html>`;
 const moduleSource=`import {nLt,$At,XAt,Pc as AzraelPhotoMenu,Fc as initAzraelPhotoMenu} from '/assets/app-initial-97d3534ad35f.js';
@@ -48,20 +51,7 @@ const server=createServer(async(req,res)=>{try{
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 
-async function confirmOwnedBrowserExit(child,profilePath){
- if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
- if(child.exitCode===null&&child.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,10000);child.once('exit',()=>{clearTimeout(timer);r()})});
- const result={confirmed:child.exitCode!==null||child.signalCode!==null,exitCode:child.exitCode,signalCode:child.signalCode};
- if(process.platform==='win32'){
-  const query=spawn('pwsh',['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $ownedChrome=@(Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe'\" | Where-Object { $_.ProcessId -eq [int]$env:AZRAEL_RENDER_BROWSER_PID -or ($_.CommandLine -and $_.CommandLine.Contains($env:AZRAEL_RENDER_BROWSER_PROFILE)) } | Select-Object -ExpandProperty ProcessId); ConvertTo-Json -Compress -InputObject $ownedChrome"],{windowsHide:true,timeout:15000,env:{...process.env,AZRAEL_RENDER_BROWSER_PID:String(child.pid),AZRAEL_RENDER_BROWSER_PROFILE:profilePath},stdio:['ignore','pipe','pipe']});
-  let output='',error='';query.stdout.on('data',c=>output+=c);query.stderr.on('data',c=>error+=c);
-  const queryExit=await new Promise(r=>{query.once('error',e=>{error+=String(e);r(null)});query.once('exit',r)});
-  result.processInspectionExitCode=queryExit;
-  try{if(queryExit!==0)throw Error(error||'Process inspection failed');result.processIds=JSON.parse(output);assert.ok(Array.isArray(result.processIds));result.confirmed=result.processIds.length===0}catch(e){result.confirmed=false;result.inspectionError=String(e)}
- }
- if(result.confirmed){child.unref();child.stderr?.destroy()}
- return result;
-}
+
 
 let socket,session,id=0,chrome,summary={scope:'Production Design component/store and native React/settings controls/CSS; synthetic host replies. No installed VS Code or real file-dialog acceptance.',checks:[]};
 const pending=new Map(),exceptions=[];
@@ -122,9 +112,12 @@ finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));
  if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
- if(summary.browserExit.confirmed){assert.equal(await realpath(fixture),fixtureRealPath);
-  const cleanup=spawn('pwsh',['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $target=[IO.Path]::GetFullPath($env:AZRAEL_DESIGN_FIXTURE); $owner=[IO.Path]::GetFullPath($env:AZRAEL_DESIGN_OWNER); if(-not $target.StartsWith($owner+[IO.Path]::DirectorySeparatorChar)){throw 'Containment failed'}; Remove-Item -LiteralPath $target -Recurse; if(Test-Path -LiteralPath $target){throw 'Fixture still exists'}"],{windowsHide:true,env:{...process.env,AZRAEL_DESIGN_FIXTURE:fixture,AZRAEL_DESIGN_OWNER:join(root,'artifacts/verification')},stdio:['ignore','pipe','pipe']});let error='';cleanup.stderr.on('data',c=>error+=c);const code=await new Promise(r=>cleanup.once('exit',r));summary.cleanupExitCode=code;summary.cleanup=code===0?'Owned browser exited; guarded fixture removed':error;if(code!==0)process.exitCode=1;
- }else{summary.cleanup='Browser exit uncertain; owned profile retained until confirmed closed';process.exitCode=1}
- await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify(summary));
+  assert.equal(await realpath(fixture),fixtureRealPath);
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;
+  await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify(summary));
 }

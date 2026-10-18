@@ -1,9 +1,13 @@
 "use strict";
 // Isolated Windows VS Code Webview experiment. No product build or user profile access.
-const fs = require('node:fs'), path = require('node:path'), net = require('node:net'), crypto = require('node:crypto'), assert = require('node:assert/strict'), { spawn, spawnSync } = require('node:child_process');
+const fs = require('node:fs'), path = require('node:path'), net = require('node:net'), crypto = require('node:crypto'), assert = require('node:assert/strict'), {spawn:nativeSpawn, spawnSync } = require('node:child_process');
 const commandDrag = process.argv.includes('--command-drag');
 const workId = commandDrag ? 'ce02-command-drag-r1' : 'ce01-gray-repro-r1';
-const root = path.resolve(__dirname, '..'), base = path.join(root, 'artifacts/tasks', workId, 'native'), logs = path.join(root, 'artifacts/logs', workId, 'native');
+const root = path.resolve(__dirname, '..');
+const {beginArtifactRun,trackArtifactChild}=require('./artifact-run.cjs');
+const artifactRun=beginArtifactRun(root,{workId:'verify-scroll-timeline-crash-host',owner:'scripts/verify-scroll-timeline-crash-host.cjs'});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const base=artifactRun.temporary,logs=artifactRun.logs;
 const arg = n => process.argv.find(x => x.startsWith('--' + n + '='))?.slice(n.length + 3), mode = arg('mode') || 'baseline', runs = Number(arg('runs') || 1);
 assert.ok(['baseline', 'control', 'patched'].includes(mode));
 assert.ok(Number.isInteger(runs) && runs >= 1 && runs <= 3);
@@ -199,7 +203,7 @@ async function one(index) {
         result.launchExitCode = child.exitCode;
         fs.writeFileSync(path.join(evidence, 'launch.log'), output);
         result.outputCrashLines = output.split(/\r?\n/).filter(l => /crash|exception|0xc0000005|renderer process/i.test(l));
-        // Keep owned crash dumps for diagnosis; remove only disposable state after process-reference checks.
+        // Retain the whole fixture bundle after owned-process exit checks.
         const cleanup = spawnSync('powershell.exe', ['-NoProfile', '-NonInteractive', '-Command', `
 $ErrorActionPreference='Stop'
 $fixture=[IO.Path]::GetFullPath($env:SCROLL_FIXTURE)
@@ -211,18 +215,15 @@ $owned=@(Get-CimInstance Win32_Process -Filter "Name='Code.exe'" | Where-Object 
 foreach($process in $owned){$process | Select-Object ProcessId,CreationDate,CommandLine | ConvertTo-Json -Compress; Stop-Process -Id $process.ProcessId -ErrorAction SilentlyContinue}
 $live=@(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine.Replace('/','\\').Contains($fixture) })
 if($live.Count){$live | Select-Object ProcessId,Name | ConvertTo-Json; throw 'Owned fixture still referenced'}
-foreach($name in @('profile','shared-data','extensions','extension','state')){
- $target=Join-Path $fixture $name
- if(Test-Path -LiteralPath $target){Remove-Item -LiteralPath $target -Recurse}
- if(Test-Path -LiteralPath $target){throw 'Cleanup incomplete'}
-}
-'Disposable fixture absent; no live references.'`], { env: { ...process.env, SCROLL_FIXTURE: fixture, SCROLL_BASE: base }, encoding: 'utf8', windowsHide: true, timeout: 30000 });
+'Owned fixture retained; no live references.'`], { env: { ...process.env, SCROLL_FIXTURE: fixture, SCROLL_BASE: base }, encoding: 'utf8', windowsHide: true, timeout: 30000 });
         result.cleanupExitCode = cleanup.status;
+        if(cleanup.status!==0)artifactRun.producerStopped=false;
+        result.runRoot=artifactRun.runRoot;result.lifecycleId=artifactRun.lifecycleId;result.retentionReason='Retained raw fixture, profile and crash evidence for lifecycle review';
         fs.writeFileSync(path.join(evidence, 'cleanup.log'), String(cleanup.stdout || '') + String(cleanup.stderr || '') + String(cleanup.error || ''));
         result.finished = new Date().toISOString();
         result.exitCode = result.outcome === 'harness-error' || cleanup.status !== 0 ? 1 : 0;
         fs.writeFileSync(path.join(evidence, 'result.json'), JSON.stringify(result, null, 2));
-        console.log(JSON.stringify({ id, outcome: result.outcome, exitCode: result.exitCode, evidence, fixture, error: result.error }));
+        console.log(JSON.stringify({runRoot:artifactRun.runRoot,lifecycleId:artifactRun.lifecycleId,id, outcome: result.outcome, exitCode: result.exitCode, evidence, fixture, error: result.error }));
     }
     return result;
 }

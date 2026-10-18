@@ -31,6 +31,7 @@ function validate(root, record) {
   for (const member of record.members) {
     checked(root, member.path, true);
     if (typeof member.role !== "string" || !member.role) throw new Error("Lifecycle member role required");
+    for (const key of ["generated", "protection_known"]) if (member[key] !== undefined && typeof member[key] !== "boolean") throw new Error(`Invalid lifecycle member ${key}`);
   }
   if (!Array.isArray(record.references) || record.references.some(ref => typeof ref.id !== "string" || !ref.id || typeof ref.reason !== "string" || !ref.reason)) throw new Error("Invalid lifecycle references");
   return record;
@@ -47,6 +48,9 @@ function catalog(root) {
 }
 function projectMembers(members) {
   return members.filter((member, index) => !members.some((other, otherIndex) => otherIndex !== index && inside(other.path, member.path) && (other.path !== member.path || otherIndex < index)))
+    .map(member => ({ ...member,
+      ...(members.some(child => inside(member.path, child.path) && child.generated === false) ? { generated: false } : {}),
+      ...(members.some(child => inside(member.path, child.path) && child.protection_known === false) ? { protection_known: false } : {}) }))
     .sort((a, b) => Number(/log|report|evidence/.test(a.role)) - Number(/log|report|evidence/.test(b.role)));
 }
 function recordLifecycle(root, request) {
@@ -65,7 +69,13 @@ function recordLifecycle(root, request) {
     const members = [...(previous?.members || [])];
     for (const member of incoming.members) {
       const normalized = { path: checked(root, member.path, true), role: member.role };
-      if (!members.some(old => old.path === normalized.path && old.role === normalized.role)) members.push(normalized);
+      for (const key of ["generated", "protection_known"]) if (member[key] !== undefined) normalized[key] = member[key];
+      const old = members.find(old => old.path === normalized.path && old.role === normalized.role);
+      if (!old) members.push(normalized);
+      else for (const key of ["generated", "protection_known"]) {
+        if (old[key] === false && normalized[key] === true) throw new Error(`Cannot promote protected lifecycle member ${key}`);
+        if (normalized[key] !== undefined) old[key] = normalized[key];
+      }
     }
     const references = [...(previous?.references || [])];
     for (const reference of incoming.references) if (!references.some(old => old.id === reference.id && old.reason === reference.reason)) references.push(reference);
@@ -94,6 +104,7 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath } = {})
     const blockers = [];
     if (record.state !== "complete") blockers.push(`lifecycle-state:${record.state}`);
     if (!record.membership_complete) blockers.push("incomplete-membership");
+    if (record.members.some(member => member.generated === false)) blockers.push("unconfirmed-generated-ownership");
     if (record.members.some(member => protectedList.some(protectedPath => overlap(member.path, protectedPath)))) blockers.push("protected-member");
     if (report && record.members.some(member => inside(member.path, report))) blockers.push("report-inside-member");
     for (const other of records) if (other.references.some(ref => ref.id === record.id)) blockers.push(`active-reference:${other.id}`);
@@ -128,10 +139,10 @@ function registerRequest(root, id) {
       lifecycle_role: /(?:^|[-_\s])logs?(?:$|[-_\s])/i.test(member.role) ? "log"
         : /(?:^|[-_\s])(?:reports?|evidence|verification)(?:$|[-_\s])/i.test(member.role) ? "evidence"
         : /(?:^|[-_\s])(?:snapshots?|inputs?)(?:$|[-_\s])/i.test(member.role) ? "snapshot" : "artifact",
-      kind: member.role, owner: record.owner, generated: true, protection_known: false,
+      kind: member.role, owner: record.owner, generated: member.generated !== false, protection_known: member.protection_known === true,
       references: inbound, provenance_ref: provenance })) } };
 }
-function finalize(root, id) {
+function finalize(root, id, retirement) {
   const filename = registryPath(root, id);
   const lock = filename + ".lock";
   const descriptor = fs.openSync(checked(root, lock), "wx");
@@ -144,12 +155,22 @@ function finalize(root, id) {
     }).map(member => member.path);
     const references = records.filter(other => other.references.some(reference => reference.id === id)).map(other => other.id);
     const blockers = [];
-    if (record.state !== "complete") blockers.push(`lifecycle-state:${record.state}`);
-    if (!record.membership_complete) blockers.push("incomplete-membership");
+    let retirementEvidence = null;
+    if (retirement !== undefined) {
+      if (retirement.producer_stopped_verified !== true || typeof retirement.reason !== "string" || !retirement.reason.trim()) throw new Error("Verified producer retirement and reason required");
+      const evidence = checked(root, retirement.evidence_ref);
+      if (record.members.some(member => overlap(member.path, evidence)) || inside(registry(root), evidence)) throw new Error("Retirement evidence must survive the retired group and registry");
+      const stat = fs.lstatSync(evidence);
+      if (!stat.isFile()) throw new Error("Readable retirement evidence file required");
+      retirementEvidence = { path: evidence, sha256: sha(fs.readFileSync(evidence)), reason: retirement.reason, original_state: record.state, original_membership_complete: record.membership_complete };
+    }
+    if (!retirementEvidence && record.state !== "complete") blockers.push(`lifecycle-state:${record.state}`);
+    if (!retirementEvidence && !record.membership_complete) blockers.push("incomplete-membership");
     if (remaining.length || references.length || blockers.length) return { id, status: "retained", remaining, references, blockers, registryPath: filename };
     // Metadata reconciliation follows verified absence, never a producer state label.
     fs.unlinkSync(filename);
-    return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename };
+    return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename,
+      ...(retirementEvidence ? { retirement: retirementEvidence } : {}) };
   } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
 }
 function main(argv = process.argv.slice(2)) {

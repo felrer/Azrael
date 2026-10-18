@@ -1,6 +1,8 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { resolve, join } from 'node:path';
@@ -8,8 +10,11 @@ import { runInNewContext } from 'node:vm';
 import { EventEmitter } from 'node:events';
 
 const root = resolve(import.meta.dirname, '..');
-const fixture = join(root, 'artifacts/verification/work-completion-render');
-const logs = join(root, 'artifacts/logs/work-completion');
+const artifactRun=beginArtifactRun(root,{workId:'verify-work-completion-render',owner:'scripts/verify-work-completion-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture = artifactRun.temporary;
+const logs = artifactRun.logs;
 await mkdir(fixture, { recursive: true }); await mkdir(logs, { recursive: true });
 const require = createRequire(import.meta.url);
 const ts = require(require.resolve('typescript', { paths: [join(root, 'extensions/azrael-ex')] }));
@@ -79,9 +84,11 @@ try {
 finally {
   if (socket?.readyState === WebSocket.OPEN && !exited()) await send('Browser.close', {}, null).catch(() => {});
   socket?.close(); for (const request of pending.values()) clearTimeout(request.timer); view?.dispose(); await new Promise(r => server?.close(r) ?? r());
-  if (chrome && !exited()) await Promise.race([new Promise(r => chrome.once('exit', r)), new Promise(r => setTimeout(r, 5000))]);
-  summary.browserExited = !chrome || exited(); summary.fixtureCleanup = 'Remove owned fixture with native PowerShell after confirmed browser exit.';
-  if (!summary.browserExited) process.exitCode = 1;
-  summary.exitCode = process.exitCode || 0; await writeFile(join(logs, 'management-render-result.json'), JSON.stringify(summary, null, 2) + '\n');
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0; await writeFile(join(logs, 'management-render-result.json'), JSON.stringify(summary, null, 2) + '\n');
   console.log(JSON.stringify(summary));
 }

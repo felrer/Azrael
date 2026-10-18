@@ -1,18 +1,21 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn as nativeSpawn} from 'node:child_process';
 import {createServer} from 'node:http';
-import {readFile,writeFile,mkdir,rm,realpath} from 'node:fs/promises';
+import {readFile,writeFile,mkdir,realpath} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-const fixture=resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT ?? join(root,'artifacts/verification/computer-use-spacing'));
-const logs=resolve(process.env.AZRAEL_RENDER_LOG_ROOT ?? join(root,'artifacts/logs/computer-use-spacing'));
+const artifactRun=beginArtifactRun(root,{workId:'verify-use-settings-render',owner:'scripts/verify-use-settings-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture=artifactRun.temporary;
+const logs=artifactRun.logs;
 const assets=join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? join(root,'artifacts/upstream-ui/26.1007.21434'),'webview/assets');
-const contained=location=>['artifacts/verification','artifacts/logs','artifacts/tasks'].some(base=>location.startsWith(join(root,base)+sep));
-assert.ok(contained(fixture),'Fixture containment');
-assert.ok(contained(logs),'Log containment');
+
 const require=createRequire(import.meta.url);
 const {AzraelWindowControlLauncher,createUseSettingsStore}=require('./inject-window-control.cjs');
 const {createSettingsHost}=require('./use-settings-host.cjs');
@@ -56,20 +59,7 @@ const server=createServer(async(req,res)=>{try{
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 
-async function confirmOwnedBrowserExit(child,profilePath){
- if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
- if(child.exitCode===null&&child.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,10000);child.once('exit',()=>{clearTimeout(timer);r()})});
- const result={confirmed:child.exitCode!==null||child.signalCode!==null,exitCode:child.exitCode,signalCode:child.signalCode};
- if(process.platform==='win32'){
-  const query=spawn('pwsh',['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $ownedChrome=@(Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe'\" | Where-Object { $_.ProcessId -eq [int]$env:AZRAEL_RENDER_BROWSER_PID -or ($_.CommandLine -and $_.CommandLine.Contains($env:AZRAEL_RENDER_BROWSER_PROFILE)) } | Select-Object -ExpandProperty ProcessId); ConvertTo-Json -Compress -InputObject $ownedChrome"],{windowsHide:true,timeout:15000,env:{...process.env,AZRAEL_RENDER_BROWSER_PID:String(child.pid),AZRAEL_RENDER_BROWSER_PROFILE:profilePath},stdio:['ignore','pipe','pipe']});
-  let output='',error='';query.stdout.on('data',c=>output+=c);query.stderr.on('data',c=>error+=c);
-  const queryExit=await new Promise(r=>{query.once('error',e=>{error+=String(e);r(null)});query.once('exit',r)});
-  result.processInspectionExitCode=queryExit;
-  try{if(queryExit!==0)throw Error(error||'Process inspection failed');result.processIds=JSON.parse(output);assert.ok(Array.isArray(result.processIds));result.confirmed=result.processIds.length===0}catch(e){result.confirmed=false;result.inspectionError=String(e)}
- }
- if(result.confirmed){child.unref();child.stderr?.destroy()}
- return result;
-}
+
 
 let socket,session,id=0,chrome,summary={scope:'Actual production settings section, real pinned React/native components/CSS and production settings host/store/persistence; synthetic running-window and confirmation decisions. No full installed VS Code navigation.',checks:[]};
 const pending=new Map(),exceptions=[];
@@ -140,7 +130,12 @@ finally{
  host.dispose();held.splice(0).forEach(entry=>entry.finish());server.closeAllConnections();await new Promise(r=>server.close(r));
  if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
- if(summary.browserExit.confirmed){assert.equal(await realpath(fixture),fixtureRealPath);await rm(fixture,{recursive:true,maxRetries:5,retryDelay:200});summary.cleanup='Owned browser closed; isolated profile and host fixtures removed'}else{summary.cleanup='Browser exit uncertain; owned profile retained until confirmed closed';process.exitCode=1}
- await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify(summary));
+  assert.equal(await realpath(fixture),fixtureRealPath);
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;
+  await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify(summary));
 }

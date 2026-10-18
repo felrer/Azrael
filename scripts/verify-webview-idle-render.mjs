@@ -1,10 +1,16 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn} from 'node:child_process';
+import {spawn as nativeSpawn} from 'node:child_process';
 import {mkdir,writeFile} from 'node:fs/promises';
 import {resolve,join} from 'node:path';
 import assert from 'node:assert/strict';
 const require=createRequire(import.meta.url),{UI_HELPER}=require('./inject-webview-idle.cjs');
-const root=resolve(import.meta.dirname,'..'),fixture=join(root,'artifacts/verification/webview-idle-render'),logs=join(root,'artifacts/logs/webview-idle');
+const root=resolve(import.meta.dirname,'..');
+const artifactRun=beginArtifactRun(root,{workId:'verify-webview-idle-render',owner:'scripts/verify-webview-idle-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture=artifactRun.temporary,logs=artifactRun.logs;
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 await mkdir(fixture,{recursive:true});await mkdir(logs,{recursive:true});
 const chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new','--no-first-run','--no-default-browser-check','--disable-gpu','--remote-debugging-port=0','--user-data-dir='+join(fixture,'profile')],{windowsHide:true,stdio:['ignore','ignore','pipe']});
@@ -32,9 +38,10 @@ try{
 }catch(error){summary.outcome='failed';summary.error=String(error.stack||error);summary.exceptions=exceptions;process.exitCode=1}
 finally{
  if(socket?.readyState===WebSocket.OPEN){socket.send(JSON.stringify({id:++seq,method:'Browser.close'}));await sleep(250);socket.close()}for(const p of pending.values())clearTimeout(p.t);
- if(chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const t=setTimeout(r,10000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- summary.browserExitCode=chrome.exitCode;
- const script=`$ErrorActionPreference='Stop'\n$taskRoot=[IO.Path]::GetFullPath($env:AZRAEL_IDLE_RENDER_FIXTURE)\n$parent=[IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))\nif(-not $taskRoot.StartsWith($parent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Invalid fixture path'}\n$live=@(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine.Replace('/','\\').Contains($taskRoot) })\nif($live.Count){throw 'Fixture still in use'}\nRemove-Item -LiteralPath $taskRoot -Recurse\nif(Test-Path -LiteralPath $taskRoot){throw 'Fixture remains'}\n'Fixture removed'\n`;
- const clean=spawn('pwsh',['-NoProfile','-NonInteractive','-Command','-'],{cwd:root,windowsHide:true,env:{...process.env,AZRAEL_IDLE_RENDER_FIXTURE:fixture},stdio:['pipe','pipe','pipe']});let output='';clean.stdout.on('data',b=>output+=b);clean.stderr.on('data',b=>output+=b);clean.stdin.end(script);summary.cleanupExitCode=await new Promise((r,j)=>{clean.on('error',j);clean.on('exit',r)});await writeFile(join(logs,'render-cleanup.log'),output);if(summary.cleanupExitCode!==0)process.exitCode=1;
- summary.exitCode=process.exitCode||0;await writeFile(join(logs,'render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));
 }

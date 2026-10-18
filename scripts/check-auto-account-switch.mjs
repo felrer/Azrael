@@ -1,19 +1,21 @@
+import artifactRunTools from './artifact-run.cjs';
+const { beginArtifactRun, trackArtifactChild } = artifactRunTools;
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn as nativeSpawn } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { appendFileSync } from 'node:fs';
 import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { isAbsolute, join, resolve } from 'node:path';
 
-const engine = process.argv[2], run = process.argv[3];
+const engine = process.argv[2], explicitRun = process.argv[3];
 assert(engine && isAbsolute(engine), 'absolute engine path required');
-assert(run && isAbsolute(run), 'absolute fresh fixture path required');
+assert(explicitRun === undefined || isAbsolute(explicitRun), 'absolute fresh fixture path required');
 const root = resolve(import.meta.dirname, '..');
-assert(resolve(run).startsWith(join(root, 'artifacts', 'verification') + '\\'), 'fixture must be under artifacts/verification');
+if (explicitRun) assert(resolve(explicitRun).startsWith(join(root, 'artifacts', 'verification') + '\\'), 'fixture must be under artifacts/verification');
 await access(engine);
-await mkdir(run); // Refuse reuse of state from an earlier run.
-const logs = join(root, 'artifacts', 'logs', 'auto-account-switch', run.split(/[\\/]/).at(-1));
-await mkdir(logs, { recursive: true });
+const artifactRun = beginArtifactRun(root, { workId: 'auto-account-switch', owner: 'scripts/check-auto-account-switch.mjs', paths: explicitRun ? { temporary: resolve(explicitRun) } : {} });
+const spawn = (...args) => trackArtifactChild(artifactRun, nativeSpawn(...args));
+const run = artifactRun.temporary, logs = artifactRun.logs;
 const helper = join(root, 'scripts', 'auto-account-switch-fixture.mjs');
 const model = 'managed/anthropic/fixture-auto-switch';
 const timeout = 30000;

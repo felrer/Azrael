@@ -9,14 +9,19 @@ param(
     [switch]$UseFreshState,
     [string]$CodePath = 'code.cmd',
     [string]$FixtureRoot,
+    [string]$ParentLifecycleId,
     [string]$TypeScriptPath = (Join-Path (Split-Path $PSScriptRoot -Parent) 'artifacts/build/integrated_accounts_20260913/companion/node_modules/typescript/lib/typescript.js')
 )
 
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $projectRoot = (Resolve-Path -LiteralPath (Split-Path $PSScriptRoot -Parent)).Path
+. (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1')
+$runId = [guid]::NewGuid().ToString('N')
+$runRoot = Join-Path $projectRoot "artifacts/tasks/check-independent-vscode/runs/$runId"
+$lifecycleId = "run:check-independent-vscode:$runId"
 $stamp = Get-Date -Format 'yyyyMMdd-HHmmss-fff'
-if (-not $FixtureRoot) { $FixtureRoot = Join-Path $projectRoot "artifacts/verification/same-window-$stamp" }
+if (-not $FixtureRoot) { $FixtureRoot = Join-Path $projectRoot "artifacts/tasks/check-independent-vscode/runs/$runId/temporary" }
 if (-not [IO.Path]::IsPathFullyQualified($FixtureRoot)) { throw 'FixtureRoot must be an absolute path.' }
 $fixture = [IO.Path]::GetFullPath($FixtureRoot).TrimEnd('\', '/')
 if (Test-Path -LiteralPath $fixture) { throw "FixtureRoot must be a new path: $fixture" }
@@ -88,7 +93,15 @@ $codeCommand = Get-Command $CodePath -CommandType Application -ErrorAction Stop 
 $code = $codeCommand.Source
 if (-not $code) { throw "CodePath did not resolve to an executable: $CodePath" }
 
-$logDirectory = Join-Path $projectRoot 'artifacts/logs/same-window-validation'
+$parentLifecycle = $null
+$ownershipCheck = @(& node -e 'const path=require("node:path"),{catalog}=require(process.argv[1]);const root=process.argv[2],fixture=process.argv[3],parentId=process.argv[4],runRoot=process.argv[5],inside=(a,b)=>{const r=path.relative(a,b);return !r||(!path.isAbsolute(r)&&r!==".."&&!r.startsWith(".."+path.sep))};const records=catalog(root);if(parentId!=="none"){const parent=records.find(r=>r.id===parentId);if(!parent||parent.state!=="pending"||!parent.members.some(m=>inside(m.path,fixture)))throw Error("Parent lifecycle must own planned fixture");process.stdout.write(JSON.stringify(parent));}else{for(const d of [runRoot,fixture]){if(!inside(path.join(root,"artifacts"),d)||d===path.join(root,"artifacts"))throw Error("Output outside artifacts");if(records.some(r=>r.members.some(m=>inside(m.path,d)||inside(d,m.path))))throw Error("Output already claimed");}process.stdout.write("null");}' (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') $projectRoot $fixture $(if ($ParentLifecycleId) { $ParentLifecycleId } else { 'none' }) $runRoot 2>&1)
+if ($LASTEXITCODE -ne 0) { throw ($ownershipCheck -join "`n") }
+$parentLifecycle = ($ownershipCheck -join "`n") | ConvertFrom-Json
+if ($parentLifecycle) { $lifecycleId = $ParentLifecycleId; $runRoot = $fixture }
+$logDirectory = Join-Path $runRoot 'logs'
+$lifecycleMembers = [ordered]@{run=$runRoot;fixture=$fixture;logs=$logDirectory}
+if (-not $parentLifecycle) { $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id $lifecycleId -Kind run -Owner 'check-independent-vscode' -State pending -MembershipComplete $false -Members $lifecycleMembers }
+$lifecycleSucceeded = $false
 $logPath = Join-Path $logDirectory "same-window-$stamp.log"
 $namespaceLog = Join-Path $logDirectory "namespace-$stamp.log"
 $resultPath = Join-Path $fixture 'host-result.json'
@@ -264,7 +277,7 @@ exports.deactivate = function () {};
         throw 'Actual host validation changed original Codex files.'
     }
     $summary = [ordered]@{
-        passed = $true; fixtureRoot = $fixture; standaloneHostResult = $standaloneResultPath; hostResult = $resultPath; log = $logPath; namespaceLog = $namespaceLog
+        passed = $true; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; standaloneHostResult = $standaloneResultPath; hostResult = $resultPath; log = $logPath; namespaceLog = $namespaceLog
         exitCodes = $exitCodes; inventory = $inventory; useFreshState = [bool]$UseFreshState
         uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256; version = $hostVersion; installedPath = $installedHost }
@@ -275,16 +288,28 @@ exports.deactivate = function () {};
     }
     $summary | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
     [pscustomobject]$summary
+    $lifecycleSucceeded = $true
     $global:LASTEXITCODE = 0
 } catch {
     $failure = $_
     if (-not (Test-Path -LiteralPath $logPath -PathType Leaf)) { $failure.Exception.ToString() | Set-Content -LiteralPath $logPath -Encoding utf8NoBOM }
     $failureResult = [ordered]@{
-        passed = $false; fixtureRoot = $fixture; log = $logPath; namespaceLog = $namespaceLog; exitCodes = $exitCodes; useFreshState = [bool]$UseFreshState
+        passed = $false; lifecycleId = $lifecycleId; runRoot = $runRoot; fixtureRoot = $fixture; log = $logPath; namespaceLog = $namespaceLog; exitCodes = $exitCodes; useFreshState = [bool]$UseFreshState
         hostPackage = [ordered]@{ vsix = $hostVsix; sha256 = $hostVsixSha256 }; runtimeConfigOverride = $runtimeConfigOverride
         uiSourcePath = $uiSource; officialVersions = [ordered]@{ codex = $originalVersion; audio = $audioVersion }
         error = $failure.Exception.Message; loginPerformed = $false; modelRequestPerformed = $false; newThreadPerformed = $false; testObjectMutationPerformed = $false
     }
     $failureResult | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $summaryPath -Encoding utf8NoBOM
     throw
+}
+
+finally {
+    $producerStopped = $false
+    try {
+        $ownedProcesses = @(Get-CimInstance Win32_Process -ErrorAction Stop | Where-Object { $_.CommandLine -and ($_.CommandLine.Contains($userData) -or $_.CommandLine.Contains($standaloneUserData) -or $_.CommandLine.Contains($coexistenceUserData)) })
+        $producerStopped = $ownedProcesses.Count -eq 0
+    } catch { $producerStopped = $false }
+    $stateResult = if (-not $producerStopped) { 'pending' } elseif ($lifecycleSucceeded) { 'complete' } else { 'failed' }
+    if (-not $parentLifecycle) { $null = Register-ArtifactLifecycle -ProjectRoot $projectRoot -Id $lifecycleId -Kind run -Owner 'check-independent-vscode' -State $stateResult -MembershipComplete ($lifecycleSucceeded -and $producerStopped) -Members $lifecycleMembers }
+    if (-not $producerStopped) { throw 'Owned verification process exit remains unconfirmed; artifacts remain pending.' }
 }

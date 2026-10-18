@@ -1,5 +1,7 @@
+import artifactRunTools from './artifact-run.cjs';
+const { beginArtifactRun, trackArtifactChild } = artifactRunTools;
 import assert from 'node:assert/strict';
-import { spawn, spawnSync } from 'node:child_process';
+import { spawn as nativeSpawn, spawnSync } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { createServer } from 'node:http';
 import { appendFileSync } from 'node:fs';
@@ -12,9 +14,9 @@ const engineDir = join(latest.releaseDirectory, 'engine');
 const engine = join(engineDir, 'azrael.exe');
 const binaryOnly = process.argv.includes('--binary-only');
 if (binaryOnly) assert.equal(resolve(engineDir), join(root, 'artifacts/releases/use_control_settings_20261007_r2/engine'), 'binary-only scope pins the originally selected release');
-const fixture = join(root, 'artifacts/verification/auto-review-20261007-openai');
-const logs = join(root, 'artifacts/logs/auto-review-20261007/openai');
-await mkdir(logs, { recursive: true });
+const artifactRun = beginArtifactRun(root, { workId: 'auto-review-engine', owner: 'scripts/check-auto-review-engine.mjs', paths: {} });
+const spawn = (...args) => trackArtifactChild(artifactRun, nativeSpawn(...args));
+const fixture = artifactRun.temporary, logs = artifactRun.logs;
 const summary = { status: 'failed', engine, engineReused: true, built: false, syntheticOnly: true, binaryOnly, scenarios: [], checks: [], unrun: [] };
 const scenarios = ['allow', 'deny', 'malformed', 'routine', 'never', 'manual'];
 const expectedSchema = { type: 'object', additionalProperties: false, properties: {

@@ -1,7 +1,9 @@
+import artifactRunTools from './artifact-run.cjs';
+const { beginArtifactRun, trackArtifactChild } = artifactRunTools;
 // Public custom-API configuration -> catalog -> native tool protocol, loopback only.
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { spawn } from 'node:child_process';
+import { spawn as nativeSpawn } from 'node:child_process';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { randomUUID } from 'node:crypto';
 import { resolve, join } from 'node:path';
@@ -9,11 +11,11 @@ import { fileURLToPath } from 'node:url';
 
 const root = resolve(fileURLToPath(new URL('..', import.meta.url)));
 const bun = resolve(process.argv[2] ?? join(root, 'artifacts/tools/bun-1.4.2/package/bin/bun.exe'));
-const fixture = join(root, 'artifacts/verification', `custom-api-helper-${randomUUID()}`);
+const artifactRun = beginArtifactRun(root, { workId: 'custom-api-helper', owner: 'scripts/check-custom-api-helper.mjs', paths: {} });
+const spawn = (...args) => trackArtifactChild(artifactRun, nativeSpawn(...args));
+const fixture = artifactRun.temporary, logs = artifactRun.logs;
 const state = join(fixture, 'state');
-const logs = join(root, 'artifacts/logs/custom-api-models/root');
 await mkdir(state, { recursive: true });
-await mkdir(logs, { recursive: true });
 const token = `fixture-${randomUUID()}`;
 const tokenPath = join(fixture, 'token.txt');
 await writeFile(tokenPath, token);

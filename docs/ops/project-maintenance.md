@@ -93,6 +93,12 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 ## 작업·버전 묶음 연결과 이전
 
+현재 단독 writer의 기본 결과는 stdout의 `runRoot`/`lifecycleId`와 해당 run의 `reports/producer.json`으로 찾는다. 기존 고정 `artifacts/logs/...` 경로는 과거 실행 근거일 수 있으며 새 실행의 출력 경로로 가정하지 않는다. renderer의 기존 요약·스크린샷 파일명은 run의 `logs/`, native/check의 검증 결과는 `reports/`에 둔다. `check-management` 결과는 `<runRoot>/reports/verification.json`이다. 명시한 pending 부모가 소유하는 deploy/accounts 검사는 기존 부모 내부 결과 경로를 유지한다. instruction CLI JSON의 manifest 부모를 `AZRAEL_INSTRUCTION_RELEASE_ASSETS`로 전달하면 해당 release의 integration reader를 선택할 수 있다. caller가 명시한 외부 출력·실제 auth/state는 기존 소유자를 유지한다.
+
+`maintenance-lifecycle-writers` 묶음은 공용 helper, native/check 및 29개 renderer의 생성 전 소유·고유 경로·충돌·성공/실패/미종료와 작은 instruction packaging fixture를 검사한다. `project_tests plan/run`에 이 ID를 명시하거나 `node scripts/check-artifact-lifecycle.cjs --stage writers`를 사용한다. runner가 검사 fixture와 로그를 먼저 등록하며 실제 browser/host 전체 수용과 live API 검사는 별도다. Windows의 대표 browser6·host12 및 모의 deploy3 수용 결과와 재시도 원인은 [인수 근거](../../work/BI-01-project-maintenance/04-adoption-acceptance.json)에 보존한다.
+
+기존 경로의 [adoption map](../../work/BI-01-project-maintenance/05-adoption-map.json)은 현재 관리 경계별 분류다. 미확정 자료는 `work:BI-01-legacy-custody:20261019`의 non-generated retained/incomplete 보관 기록과 재검토 조건으로 보호한다. 이는 원래 생성 이력의 확인이나 삭제 승인을 뜻하지 않는다. 삭제하려는 정확한 묶음만 native로 측정·검토하고 전체 파일의 반복 해시를 수행하지 않는다. 과거 정리 명령이 관찰한 대상과 원래 producer 소유를 구별하며 현재/복구/활성 참조를 유지한다.
+
 새 프로젝트 도입과 기존 경로의 단계적 이전은 [Artifact lifecycle and migration](../playbooks/artifact-lifecycle.md)을 따른다. playbook을 복사하거나 bootstrap하는 동작은 파일 이동·기존 산출물 삭제를 실행하지 않는다. 현재 Azrael은 producer record로 기존 build/package/deploy 경로를 연결하는 방식을 지원하며, 모든 과거 경로나 공유 캐시가 새 기본 디렉터리로 이전됐다는 뜻은 아니다.
 
 프로젝트 producer는 생성 전에 `scripts/artifact-lifecycle.cjs record` 또는 PowerShell 어댑터로 예상 경로·ID·소유자·pending/incomplete 상태를 등록하고 종료 후 실제 구성과 결과를 조정한다. `catalog`의 CLI 조회는 기본 50개/최대 200개씩 반환한다. 다음 예시의 ID는 실제 등록값으로 바꾼다.
@@ -113,6 +119,8 @@ node scripts/artifact-lifecycle.cjs register --project-root C:/work/example --id
 ```powershell
 node scripts/artifact-lifecycle.cjs finalize --project-root C:/work/example --id version:BUILD_ID
 ```
+
+진단이 끝난 실패·미확인 실행은 필요한 결과를 먼저 독립적으로 보존하고 전체 producer 종료와 실제 구성 범위를 확인한 후 모델이 삭제를 결정한다. native에는 그 근거 파일을 `membership_source`로 둔 완결된 검토 묶음을 제출할 수 있으며 원래 command exit와 상태를 근거에 그대로 보존한다. 실제 삭제 결과·부재·참조 해제를 확인한 다음 Node API `finalize(root,id,{producer_stopped_verified:true,reason,evidence_ref})`로 빈 기록을 조정한다. 증거 파일은 삭제 묶음과 registry 밖에 있어야 한다. 종료 근거가 없거나 실제 파일·소비 참조가 남으면 축약하지 않는다.
 
 legacy release/verification cleaner의 Apply는 미등록 후보를 `lifecycle-membership-unreviewed`로 차단한다. 기존 명세·설치 영수증·현재 실행을 대조해 전체 수명 묶음을 등록한 뒤 기존 보호 검사를 통과해야 한다. 파일명으로 로그를 추측해 삭제하거나 관리 디렉터리 밖의 원본을 묶음에 넣지 않는다. 공유 cache cleaner는 기존 cache owner의 잠금·회수 조건을 계속 적용한다.
 
