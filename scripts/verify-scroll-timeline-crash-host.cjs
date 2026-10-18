@@ -1,13 +1,15 @@
 "use strict";
 // Isolated Windows VS Code Webview experiment. No product build or user profile access.
 const fs = require('node:fs'), path = require('node:path'), net = require('node:net'), crypto = require('node:crypto'), assert = require('node:assert/strict'), { spawn, spawnSync } = require('node:child_process');
-const root = path.resolve(__dirname, '..'), base = path.join(root, 'artifacts/tasks/ce01-gray-repro-r1/native'), logs = path.join(root, 'artifacts/logs/ce01-gray-repro-r1/native');
+const commandDrag = process.argv.includes('--command-drag');
+const workId = commandDrag ? 'ce02-command-drag-r1' : 'ce01-gray-repro-r1';
+const root = path.resolve(__dirname, '..'), base = path.join(root, 'artifacts/tasks', workId, 'native'), logs = path.join(root, 'artifacts/logs', workId, 'native');
 const arg = n => process.argv.find(x => x.startsWith('--' + n + '='))?.slice(n.length + 3), mode = arg('mode') || 'baseline', runs = Number(arg('runs') || 1);
 assert.ok(['baseline', 'control', 'patched'].includes(mode));
 assert.ok(Number.isInteger(runs) && runs >= 1 && runs <= 3);
 const production = process.argv.includes('--production') || mode === 'patched';
 const { CSS_ASSET, injectScrollFade, RUNTIME } = require('./inject-scroll-fade.cjs');
-const input = path.join(__dirname, 'fixtures/scroll-timeline-selection.html'), source = fs.readFileSync(input, 'utf8'), sha = s => crypto.createHash('sha256').update(s).digest('hex');
+const input = path.join(__dirname, commandDrag ? 'verify-command-drag-checks.cjs' : 'fixtures/scroll-timeline-selection.html'), source = fs.readFileSync(input, 'utf8'), sha = s => crypto.createHash('sha256').update(s).digest('hex');
 const sleep = ms => new Promise(r => setTimeout(r, ms));
 async function checkVisuals(evaluate, shot) {
     const rows = [];
@@ -53,16 +55,16 @@ async function one(index) {
     const code = path.join(process.env.LOCALAPPDATA, 'Programs/Microsoft VS Code/Code.exe');
     assert.ok(fs.existsSync(code));
     let html = source;
-    if (mode !== 'baseline')
+    if (!commandDrag && mode !== 'baseline')
         html = html.replace('animation-timeline: scroll(self y);', 'animation-timeline: auto;');
-    if (production) {
+    if (!commandDrag && production) {
         const nativeCss = fs.readFileSync(path.join(root, 'artifacts/upstream-ui/26.1007.21434', CSS_ASSET), 'utf8');
         html = html.replace('animation: fade linear both; animation-timeline: ' + (mode === 'baseline' ? 'scroll(self y)' : 'auto') + ';', '').replaceAll('class="scroller"', 'class="scroller vertical-scroll-fade-mask"');
         html = html.replace('<style>', '<style>' + (mode === 'patched' ? injectScrollFade(nativeCss, CSS_ASSET).text : nativeCss));
         if (mode === 'patched')
             html = html.replace('<script>', '<script>' + RUNTIME);
     }
-    html = html.replace('for (const scroller of', 'window.toggleCount=(window.toggleCount||0)+1; for (const scroller of');
+    html = commandDrag ? require('./verify-command-drag-checks.cjs').makeHtml() : html.replace('for (const scroller of', 'window.toggleCount=(window.toggleCount||0)+1; for (const scroller of');
     fs.writeFileSync(path.join(extension, 'fixture.html'), html);
     fs.writeFileSync(path.join(extension, 'package.json'), JSON.stringify({ name: 'scroll-timeline-fixture', publisher: 'azrael-test', version: '0.0.1', engines: { vscode: '^1.96.0' }, activationEvents: ['*'], main: 'extension.cjs' }));
     fs.writeFileSync(path.join(extension, 'extension.cjs'), `const vscode=require('vscode'),fs=require('fs'),path=require('path');exports.activate=()=>{globalThis.__scrollFixture={open(){const p=vscode.window.createWebviewPanel('scrollFixture','ScrollTimeline synthetic fixture',vscode.ViewColumn.One,{enableScripts:true,retainContextWhenHidden:true});p.webview.html=fs.readFileSync(path.join(__dirname,'fixture.html'),'utf8');},quit:()=>vscode.commands.executeCommand('workbench.action.quit')};};`);
@@ -127,10 +129,6 @@ async function one(index) {
         assert.ok(view, 'synthetic Webview context ready');
         result.stage = 'exercise';
         const evaluate = s => view.eval(s, ctx);
-        result.before = await evaluate("({ua:navigator.userAgent,timeline:getComputedStyle(document.querySelector('.scroller')).animationTimeline,selection:getSelection().toString(),rangeCount:getSelection().rangeCount})");
-        assert.ok(result.before.selection.length > 0);
-        assert.equal(result.before.timeline, mode === 'baseline' ? 'scroll(self y)' : 'auto');
-        result.checks.push('Noncollapsed selection and requested timeline confirmed in actual native Webview');
         const shot = async (name) => { try {
             const s = await (page || view).send('Page.captureScreenshot', { format: 'png' });
             fs.writeFileSync(path.join(evidence, name + '.png'), Buffer.from(s.data, 'base64'));
@@ -138,6 +136,13 @@ async function one(index) {
         catch (e) {
             result.limitations.push(String(e));
         } };
+        if (commandDrag) {
+            await require('./verify-command-drag-checks.cjs').check({ evaluate, view, shot, result });
+        } else {
+        result.before = await evaluate("({ua:navigator.userAgent,timeline:getComputedStyle(document.querySelector('.scroller')).animationTimeline,selection:getSelection().toString(),rangeCount:getSelection().rangeCount})");
+        assert.ok(result.before.selection.length > 0);
+        assert.equal(result.before.timeline, mode === 'baseline' ? 'scroll(self y)' : 'auto');
+        result.checks.push('Noncollapsed selection and requested timeline confirmed in actual native Webview');
         await shot('before');
         if (production)
             result.visuals = await checkVisuals(evaluate, shot);
@@ -158,6 +163,7 @@ async function one(index) {
                 break;
             }
         }
+        }
         await sleep(1200);
         result.events = connections.flatMap(c => c.events);
         result.crashed = result.events.some(e => /crash/i.test(e.method));
@@ -170,7 +176,7 @@ async function one(index) {
         }
         await shot('after');
         result.outcome = result.crashed ? 'renderer-crash' : result.responsive ? 'survived' : 'unresponsive';
-        assert.equal(result.outcome, mode === 'baseline' ? 'renderer-crash' : 'survived', 'expected experiment outcome');
+        assert.equal(result.outcome, !commandDrag && mode === 'baseline' ? 'renderer-crash' : 'survived', 'expected experiment outcome');
         if (result.outcome === 'survived')
             assert.equal(result.after.toggleCount, 6, 'trusted clicks must invoke the handler');
     }

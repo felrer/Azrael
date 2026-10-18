@@ -1,0 +1,182 @@
+{
+    "scope":  "Source-only command drag mitigation; no package build or installation",
+    "status":  "passed",
+    "runId":  "run-45928-673-1792282651950398600",
+    "configIdentity":  "8cd2eda3ada526e1eb52f10083798ce9efddb0f13f3de82d858841f32fa04cba",
+    "source":  [
+                   {
+                       "bundles":  [
+                                       "source-command-drag-block"
+                                   ],
+                       "argv":  [
+                                    "node",
+                                    "--test",
+                                    "scripts/test-command-drag-block.cjs"
+                                ],
+                       "exitCode":  0,
+                       "inputIdentity":  "778b956a2d6eb8535846be4a09eb1e20e417bdb72f741bd7eb845eb6976a3f05",
+                       "integrity":  "valid",
+                       "logRef":  "tool-call:exec-1c3942bd-5c13-46ff-8be2-a58b22eb5e35:step-8cbfc216c1cec5d0828b4be6a0489382786254103a465599eaf6db689eacc30b",
+                       "output":  "??only command scopes cancel selection and drag; disposal releases both capture listeners (1.4301ms)\n??dynamic execution results are scoped without changing unrelated tool and message nodes (0.2213ms)\n??pinned assets keep native controls, reject drift and remain idempotent (378.6096ms)\n??namespace CSS composition preserves typography and scroll-fade guards; scoped cache inputs are bound (143.6072ms)\n??tests 4\n??suites 0\n??pass 4\n??fail 0\n??cancelled 0\n??skipped 0\n??todo 0\n??duration_ms 616.0485\n",
+                       "inputs":  [
+                                      {
+                                          "identity":  "d20771567cc9fe63c7a27b0f0a1c280b4b3f90264698f3a38c5a728e1b69e016",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\command-drag-policy.cjs"
+                                      },
+                                      {
+                                          "identity":  "6aef20b6b114067d7cc02393b12829436bc34f252550d22094d09a9268e0d8af",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\inject-command-drag-block.cjs"
+                                      },
+                                      {
+                                          "identity":  "2eef43c611b08137451003001c48cfbf315b431fe05ad93561c5c7abc006c101",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-command-drag-block.cjs"
+                                      },
+                                      {
+                                          "identity":  "fadc219e3ffac31ac0dccfd55fddfaa3b46860ce89124ba9640a9d081b86fe0c",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\namespace-azrael-host.cjs"
+                                      },
+                                      {
+                                          "identity":  "073800ff5d020e9aaf69636c0d9fe5c7b1a3c9cfa1f9dca5c0212dfea9ce901c",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\inject-scroll-fade.cjs"
+                                      },
+                                      {
+                                          "identity":  "ececf9ac7fe1dad7d395cda47f2f35dd0826c0ac25eaee91006667657c066533",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\scroll-fade.cjs"
+                                      },
+                                      {
+                                          "identity":  "817df876d077c62d56cc8ffb780bba8cb1d88f29569f77c4ae384760ba7c3d42",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434\\webview\\assets\\app-initial-aad627bd9dff.css"
+                                      },
+                                      {
+                                          "identity":  "3b6dd79ddce6df6e2577a11a07b58195ae61b794545eca489e29632a673fc969",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434\\webview\\assets\\app-initial-7a199c66e670.js"
+                                      },
+                                      {
+                                          "identity":  "19c8687915c52aa27fd37bd3bd1c06e86e6abb645f41c744747b76bb3be250f0",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434\\webview\\assets\\sites-end-resource-90d3046b3014.js"
+                                      },
+                                      {
+                                          "identity":  "92891032833149e010171e457574d5f63a29804b5e27761ce155a76bc3318bfb",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434\\webview\\assets\\user-message-attachments-f6a72702c1d3.js"
+                                      }
+                                  ]
+                   },
+                   {
+                       "bundles":  [
+                                       "source-scroll-fade"
+                                   ],
+                       "argv":  [
+                                    "node",
+                                    "--test",
+                                    "scripts/test-scroll-fade.cjs"
+                                ],
+                       "exitCode":  0,
+                       "inputIdentity":  "a1d82472c971643036ccbe8c54835686329ceea92b407406351216022c070fd4",
+                       "integrity":  "valid",
+                       "logRef":  "tool-call:exec-1c3942bd-5c13-46ff-8be2-a58b22eb5e35:step-1f9bf31e190b7ba7c0bc3ec822c9d3d8899740e5e84ecf67ab75dbdc14a7f4ac",
+                       "output":  "??production CSS and bootstrap injectors compose and bind both cache dependencies (325.2212ms)\n??pinned fade transforms reject drift and preserve masks, keyframes and unrelated timelines (17.8326ms)\n??vertical fades preserve native stops and refresh after hidden content expands (1.1296ms)\n??horizontal fades update at both edges, coalesce scroll events and accept negative offsets (0.3114ms)\n??top/bottom variants and dynamically inserted scrollers remain independent (1.1565ms)\n??tests 5\n??suites 0\n??pass 5\n??fail 0\n??cancelled 0\n??skipped 0\n??todo 0\n??duration_ms 433.2084\n",
+                       "inputs":  [
+                                      {
+                                          "identity":  "ececf9ac7fe1dad7d395cda47f2f35dd0826c0ac25eaee91006667657c066533",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\scroll-fade.cjs"
+                                      },
+                                      {
+                                          "identity":  "073800ff5d020e9aaf69636c0d9fe5c7b1a3c9cfa1f9dca5c0212dfea9ce901c",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\inject-scroll-fade.cjs"
+                                      },
+                                      {
+                                          "identity":  "ff1790debdec50f1a41d8339739a8285f38afaced3181521ab7e5854a31f3cec",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\test-scroll-fade.cjs"
+                                      },
+                                      {
+                                          "identity":  "d0b8490d9f9cd77a8e7c9d871fa526aba7a074b48cbbf491a55f9563ec89c8ef",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\inject-content-fonts.cjs"
+                                      },
+                                      {
+                                          "identity":  "4eb53a60683a55898678a6f3e7788ed2a6da497bf616a1c1f295742409a98f32",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\content-fonts.cjs"
+                                      },
+                                      {
+                                          "identity":  "fadc219e3ffac31ac0dccfd55fddfaa3b46860ce89124ba9640a9d081b86fe0c",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\namespace-azrael-host.cjs"
+                                      },
+                                      {
+                                          "identity":  "817df876d077c62d56cc8ffb780bba8cb1d88f29569f77c4ae384760ba7c3d42",
+                                          "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\upstream-ui\\26.1007.21434\\webview\\assets\\app-initial-aad627bd9dff.css"
+                                      }
+                                  ]
+                   }
+               ],
+    "nativeEvidence":  {
+                           "id":  "patched-1792282608952-1",
+                           "input":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\scripts\\verify-command-drag-checks.cjs",
+                           "inputSha256":  "63524179be901f7ab508d74086529ccf599f9a0165a24e161a28a70039b452b9",
+                           "fixtureHtmlSha256":  "88aa87eb2e416cf381c92c6d18aa174a6831c2fce9a65a17a9237087880bbfa9",
+                           "runtimeSha256":  "c5538823062bd1c6094d19ef9246e2c2e27a4a99ac03e43fca2f7b0e8e972faa",
+                           "platform":  "win32",
+                           "arch":  "x64",
+                           "started":  "2026-10-18T00:16:49.001Z",
+                           "finished":  "2026-10-18T00:17:00.077Z",
+                           "before":  {
+                                          "ua":  "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Code/1.142.0 Chrome/150.0.7871.250 Electron/43.7.7 Safari/537.36"
+                                      },
+                           "commandDragChecks":  [
+                                                     {
+                                                         "theme":  "light",
+                                                         "trustedCommandSelectionBlocked":  true,
+                                                         "trustedOutputSelectionBlocked":  true,
+                                                         "ordinarySelectionPreserved":  true,
+                                                         "events":  {
+                                                                        "command:selectstart":  true,
+                                                                        "ordinary:selectstart":  false,
+                                                                        "command:dragstart":  true,
+                                                                        "ordinary:dragstart":  false
+                                                                    },
+                                                         "controls":  {
+                                                                          "toggleCount":  6,
+                                                                          "copyCount":  1,
+                                                                          "copiedText":  "node synthetic-command.js --check",
+                                                                          "focused":  "copy",
+                                                                          "hidden":  false
+                                                                      },
+                                                         "scrollTop":  180,
+                                                         "dropCount":  1
+                                                     },
+                                                     {
+                                                         "theme":  "dark",
+                                                         "trustedCommandSelectionBlocked":  true,
+                                                         "trustedOutputSelectionBlocked":  true,
+                                                         "ordinarySelectionPreserved":  true,
+                                                         "events":  {
+                                                                        "command:selectstart":  true,
+                                                                        "ordinary:selectstart":  false,
+                                                                        "command:dragstart":  true,
+                                                                        "ordinary:dragstart":  false
+                                                                    },
+                                                         "controls":  {
+                                                                          "toggleCount":  6,
+                                                                          "copyCount":  2,
+                                                                          "copiedText":  "node synthetic-command.js --check",
+                                                                          "focused":  "copy",
+                                                                          "hidden":  false
+                                                                      },
+                                                         "scrollTop":  180,
+                                                         "dropCount":  2
+                                                     }
+                                                 ],
+                           "responsive":  true,
+                           "crashed":  false,
+                           "outcome":  "survived",
+                           "exitCode":  0,
+                           "launchExitCode":  0,
+                           "cleanupExitCode":  0,
+                           "limitations":  [
+                                               "Synthetic DOM exercises production policy/CSS in native Windows Webview; it does not mount the full application, use the OS clipboard, attach a real file or establish installed-package acceptance."
+                                           ]
+                       },
+    "limitations":  [
+                        "Screenshot startup error root cause is not established by this mitigation.",
+                        "Native synthetic DOM exercises production policy/CSS, not a full application mount or installed package.",
+                        "OS clipboard, real file attachment, Linux and macOS are not verified."
+                    ]
+}

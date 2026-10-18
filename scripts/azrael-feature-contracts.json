@@ -1641,6 +1641,26 @@
       ]
     },
     {
+      "id": "ui.command-drag-block",
+      "area": "ui",
+      "owners": [
+        "scripts/command-drag-policy.cjs",
+        "scripts/inject-command-drag-block.cjs",
+        "scripts/test-command-drag-block.cjs",
+        "scripts/verify-command-drag-checks.cjs"
+      ],
+      "contract": "docs/architecture/ui-presentation.md",
+      "checks": [
+        {
+          "id": "ui.command-drag-block.behavior",
+          "executable": "node",
+          "args": ["--test", "scripts/test-command-drag-block.cjs"],
+          "level": "source"
+        }
+      ],
+      "reportFields": ["commandDragBlockEdits"]
+    },
+    {
       "id": "ui.scroll-fade",
       "area": "ui",
       "owners": [
