@@ -49,7 +49,7 @@ function classifyExpected(message) {
   return 'unclassified';
 }
 function expectedError(message, options = {}) {
-  if (message === 'User stop requires explicit resume') {
+  if (message === 'User stop requires explicit resume' || message === 'Selected window paused by the user; explicit resume required') {
     return windowError('state_changed', '사용자가 창 제어를 중지했습니다. 다시 시작한 뒤 권한을 요청해주세요.', {
       ...options, pauseReason: 'user_stopped', recovery: 'user_resume', restoreAllowed: false, actionExecuted: false,
     });

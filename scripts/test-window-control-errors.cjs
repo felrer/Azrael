@@ -46,8 +46,8 @@ function socketFixture() {
   socket.setTimeout = (ms, callback) => { socket.expire = callback; socket.timeoutMs = ms; };
   return socket;
 }
-test('user stop reports explicit resume guidance through MCP without granting permission', async () => {
-  const protocol = createProtocol({ relay: async () => { throw expectedError('User stop requires explicit resume'); } });
+for (const message of ['User stop requires explicit resume', 'Selected window paused by the user; explicit resume required']) test(`user stop reports explicit resume guidance through MCP: ${message}`, async () => {
+  const protocol = createProtocol({ relay: async () => { throw expectedError(message); } });
   const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'request_stage', arguments: { stage: 2, reason: 'Resume fixture' }, _meta: meta } });
   assert.equal(reply.result.isError, true);
   const payload = JSON.parse(reply.result.content[0].text);
@@ -57,6 +57,35 @@ test('user stop reports explicit resume guidance through MCP without granting pe
   });
   assert.deepEqual(errorPayload(fromPayload(payload)), payload);
   assert.deepEqual(errorPayload(expectedError('Unexpected internal failure')), { code: 'unclassified', message: '미분류된 오류' });
+});
+
+test('user stop blocks stage prompts and reselection until the user resume path', async () => {
+  const filename = path.join(__dirname, 'window-control-policy.cjs');
+  const nativeRequire = require('node:module').createRequire(filename), module = { exports: {} };
+  const fixtureRequire = name => name === './window-control-occupancy.cjs'
+    ? { createRegistry: () => ({ publish() {}, read: () => ({ status: 'available', sessions: [] }), dispose() {} }) }
+    : name === './window-task-macros.cjs' ? { createStore: () => ({}) } : nativeRequire(name);
+  new Function('require', 'module', 'exports', await fs.readFile(filename, 'utf8'))(fixtureRequire, module, module.exports);
+  const window = { hwnd: '1', pid: 123, processCreated: 'fixture', executable: 'C:/fixture.exe', title: 'Fixture', minimized: false, widthPx: 100, heightPx: 100, dpi: 96 };
+  let prompts = 0;
+  const owner = module.exports.createWindowOwner({
+    backend: { request: async method => method === 'listWindows' ? [window] : method === 'observe'
+      ? { window, observationId: 'fresh', frameTimestamp: 'now', widthPx: 100, heightPx: 100, dpi: 96, elements: [], elementsTruncated: false, image: { mimeType: 'image/png', data: 'YQ==' } } : { window } },
+    authorize: async () => true, requestStage: async () => { prompts++; return { authorized: true }; }, codexHome: 'C:/fixture',
+  });
+  try {
+    const selected = await owner.bind('fixture', window);
+    owner.stop('fixture');
+    const stopped = error => error.code === 'state_changed' && error.recovery === 'user_resume' && error.pauseReason === 'user_stopped';
+    for (const stage of [2, 4]) await assert.rejects(owner.call('fixture', 'request_stage', { stage, targetId: selected.targetId, reason: 'Fixture' }), stopped);
+    const { candidates } = await owner.call('fixture', 'list_windows', {});
+    await assert.rejects(owner.call('fixture', 'select_window', { candidateId: candidates[0].candidateId }), stopped);
+    assert.equal(prompts, 0);
+    const resumed = await owner.resume('fixture');
+    assert.equal(resumed.state, 'ready');
+    assert.equal(resumed.observationId, 'fresh');
+    assert.equal(prompts, 1);
+  } finally { owner.dispose(); }
 });
 
 test('recovery instructions round trip through host transport and MCP with strict field validation', async () => {
