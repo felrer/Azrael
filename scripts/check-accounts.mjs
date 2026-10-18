@@ -1,4 +1,6 @@
-import { spawn } from 'node:child_process';
+import { catalog } from './artifact-lifecycle.cjs';
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { createServer } from 'node:http';
 import {
   access,
@@ -18,6 +20,9 @@ import { accountFixtureEnvironment } from './account-fixture-environment.mjs';
 
 const WAIT_MS = 30_000;
 const arguments_ = process.argv.slice(2);
+const parentIndex = arguments_.indexOf('--parent-lifecycle-id');
+const parentLifecycleId = parentIndex < 0 ? null : arguments_.splice(parentIndex, 2)[1];
+if (parentIndex >= 0 && !parentLifecycleId) throw new Error('--parent-lifecycle-id requires an ID');
 const autoSwitchOnly = arguments_.includes('--auto-switch-only');
 const accountControlsOnly = arguments_.includes('--account-controls-only');
 if (autoSwitchOnly && accountControlsOnly) {
@@ -45,6 +50,16 @@ const enginePath = resolve(engineArgument);
 const standaloneAppServer = /^codex-app-server(?:-[a-z0-9-]+)?(?:\.exe)?$/i.test(basename(enginePath));
 const bridgePath = resolve(bridgeArgument);
 const stateDirectory = resolve(stateArgument);
+const projectRoot = resolve(import.meta.dirname, '..');
+const parentLifecycle = parentLifecycleId ? catalog(projectRoot).find(record => record.id === parentLifecycleId) : null;
+if (parentLifecycleId && (!parentLifecycle || parentLifecycle.state !== 'pending' || !parentLifecycle.members.some(member => {
+  const relative = stateDirectory.slice(member.path.length);
+  return stateDirectory === member.path || (stateDirectory.startsWith(member.path) && /^[\\/]/.test(relative));
+}))) throw new Error('Parent lifecycle must own the planned fixture state');
+const artifactRun = parentLifecycle ? null : beginArtifactRun(projectRoot, { workId: 'check-accounts', owner: 'check-accounts' });
+const reportDirectory = parentLifecycle ? stateDirectory : artifactRun.reports;
+const lifecycleSummary = { lifecycleId: parentLifecycle?.id ?? artifactRun.lifecycleId, runRoot: artifactRun?.runRoot ?? stateDirectory };
+const spawn = (...args) => { const child = spawnUntracked(...args); return artifactRun ? trackArtifactChild(artifactRun, child) : child; };
 const socketPath = resolve(socketArgument);
 const socketDirectory = dirname(socketPath);
 const socketExtension = extname(socketPath);
@@ -743,11 +758,11 @@ try {
     await removeSocketFixture();
     if (modelRequests !== 0 || consumeRequests !== 0) throw new Error('Account controls cleanup made a forbidden request');
     accountControlsChecks.push('synthetic credential cleanup with zero model and usage credit consumption requests');
-    const result = { status: 'passed', route: 'account-controls', engine: enginePath,
+    const result = { ...lifecycleSummary, status: 'passed', route: 'account-controls', engine: enginePath,
       bridge: bridgePath, stateRoot: stateDirectory, profilesTested: 2,
       realLogin: false, liveModelRequest: false, userCredentialRead: false,
       modelRequests, usageCreditConsumeRequests: consumeRequests, checks: accountControlsChecks };
-    await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+    await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(result, null, 2));
     console.log(JSON.stringify(result));
   } else if (autoSwitchOnly) {
     await runOpenAiAutoSwitch({ fixture: autoSwitchFixture, first, second, accounts,
@@ -756,11 +771,11 @@ try {
     if (consumeRequests !== 0) throw new Error('Automatic recovery consumed a usage credit');
     await cleanProfiles();
     await removeSocketFixture();
-    const result = { status: 'passed', route: 'openai-auto-switch', executionMode: 'disposable ordinary app-server', hostBoundaryVerified: false, engine: enginePath,
+    const result = { ...lifecycleSummary, status: 'passed', route: 'openai-auto-switch', executionMode: 'disposable ordinary app-server', hostBoundaryVerified: false, engine: enginePath,
       bridge: bridgePath, stateRoot: stateDirectory, realLogin: false, liveModelRequest: false,
       modelRequests, usageCreditConsumeRequests: consumeRequests, checks: autoSwitchFixture.checks,
       requests: autoSwitchFixture.requests };
-    await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+    await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(result, null, 2));
     console.log(JSON.stringify(result));
   } else {
   currentPair = await startPair('account operations');
@@ -960,7 +975,7 @@ try {
   }
   await cleanProfiles();
   await removeSocketFixture();
-  const result = {
+  const result = { ...lifecycleSummary,
     status: 'passed',
     engine: enginePath,
     bridge: bridgePath,
@@ -988,7 +1003,7 @@ try {
     usageCreditConsumeRequests: consumeRequests,
     modelRequests,
   };
-  await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify(result, null, 2));
+  await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify(result, null, 2));
   console.log(JSON.stringify(result));
   }
 } catch (error) {
@@ -1018,21 +1033,21 @@ try {
   }
   if (stateOwned) {
     if (accountControlsOnly) {
-      await writeFile(join(stateDirectory, 'verification.json'), JSON.stringify({
+      await writeFile(join(reportDirectory, 'verification.json'), JSON.stringify({ ...lifecycleSummary,
         status: 'failed', route: 'account-controls', engine: enginePath, bridge: bridgePath,
         stateRoot: stateDirectory, realLogin: false, liveModelRequest: false, userCredentialRead: false,
         modelRequests, usageCreditConsumeRequests: consumeRequests, checks: accountControlsChecks,
       }, null, 2));
     }
     if (autoSwitchFixture) {
-      await writeFile(join(stateDirectory, 'auto-switch-requests.json'), JSON.stringify({
+      await writeFile(join(reportDirectory, 'auto-switch-requests.json'), JSON.stringify({
         checks: autoSwitchFixture.checks, requests: autoSwitchFixture.requests,
       }, null, 2));
     }
     const failure = [primaryError.stack ?? String(primaryError), ...stderrSections.map(get => get())]
       .join('')
       .replaceAll(/Bearer\s+[^\s]+/gi, 'Bearer <redacted>');
-    await writeFile(join(stateDirectory, 'failure.log'), failure);
+    await writeFile(join(reportDirectory, 'failure.log'), failure);
   }
   console.error(primaryError.stack ?? String(primaryError));
   process.exitCode = 1;

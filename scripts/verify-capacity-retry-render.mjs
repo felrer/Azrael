@@ -1,18 +1,19 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import {createRequire} from 'node:module';
-import {spawn,spawnSync} from 'node:child_process';
+import {spawn as nativeSpawn,} from 'node:child_process';
 import {createServer} from 'node:http';
 import {readFile,writeFile,mkdir} from 'node:fs/promises';
 import {resolve,dirname,join,extname,sep,relative,isAbsolute} from 'node:path';
 import {fileURLToPath} from 'node:url';
 import assert from 'node:assert/strict';
 const root=resolve(dirname(fileURLToPath(import.meta.url)),'..');
-function containedOutput(value,fallback,allowed){
- const candidate=resolve(value||fallback),within=relative(allowed,candidate);
- if(!within||within==='..'||within.startsWith('..'+sep)||isAbsolute(within))throw Error('Render output must be contained beneath '+allowed);
- return candidate;
-}
-const fixture=containedOutput(process.env.AZRAEL_RENDER_FIXTURE_ROOT,join(root,'artifacts/verification/capacity-retry-ui'),join(root,'artifacts/verification'));
-const logs=containedOutput(process.env.AZRAEL_RENDER_LOG_ROOT,join(root,'artifacts/logs/capacity-retry-stop/render'),join(root,'artifacts/logs'));
+const artifactRun=beginArtifactRun(root,{workId:'verify-capacity-retry-render',owner:'scripts/verify-capacity-retry-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+
+const fixture=artifactRun.temporary;
+const logs=artifactRun.logs;
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets'),profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 
@@ -85,8 +86,10 @@ try{
 finally{
  server.closeAllConnections();await new Promise(r=>server.close(r));if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++id,method:'Browser.close'}))}catch{}await new Promise(r=>setTimeout(r,250));socket.close()}
  for(const p of pending.values())clearTimeout(p.t);
- if(chrome&&chrome.exitCode===null&&chrome.signalCode===null)await new Promise(r=>{const t=setTimeout(r,30000);chrome.once('exit',()=>{clearTimeout(t);r()})});
- const browserExited=chrome!=null&&(chrome.exitCode!==null||chrome.signalCode!==null);
- if(browserExited){const cleaned=spawnSync('powershell.exe',['-NoProfile','-Command','$taskFixture = $env:AZRAEL_CAPACITY_FIXTURE; Remove-Item -LiteralPath $taskFixture -Recurse; if (Test-Path -LiteralPath $taskFixture) { exit 1 }'],{windowsHide:true,env:{...process.env,AZRAEL_CAPACITY_FIXTURE:fixture},encoding:'utf8'});if(cleaned.status!==0)throw Error('Fixture cleanup failed: '+cleaned.stderr);summary.cleanup='Owned browser exited; contained fixture/profile removed'}else{summary.cleanup='Browser exit uncertain; profile retained until confirmed closed';process.exitCode=1}
- summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;await writeFile(join(logs,'summary.json'),JSON.stringify(summary,null,2)+'\n');console.log(JSON.stringify({runRoot:artifactRun.runRoot,lifecycleId:artifactRun.lifecycleId,outcome:summary.outcome,checks:summary.checks,error:summary.error,cleanup:summary.cleanup,exitCode:summary.exitCode}));
 }

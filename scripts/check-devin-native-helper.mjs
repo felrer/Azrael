@@ -1,13 +1,16 @@
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
 // Bounded real-model transport/tool round-trip. It executes no provider tool;
 // a synthetic result checks call correlation before native engine acceptance.
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 import { homedir } from 'node:os';
-import { spawn } from 'node:child_process';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 
 const root = resolve(import.meta.dirname, '..');
-const output = resolve(process.argv[2] ?? join(root, 'artifacts/verification/devin-native-20260915/helper-live.json'));
+const artifactRun = beginArtifactRun(root, { workId: 'check-devin-native-helper', owner: 'check-devin-native-helper', paths: process.argv[2] ? { reports: resolve(process.argv[2], '..') } : {} });
+const output = process.argv[2] ? resolve(process.argv[2]) : join(artifactRun.reports, 'helper-live.json');
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const credentialFile = process.platform === 'win32' ? join(process.env.APPDATA, 'devin/credentials.toml') :
   join(process.env.XDG_DATA_HOME || join(homedir(), '.local/share'), 'devin/credentials.toml');
 const raw = await readFile(credentialFile, 'utf8');
@@ -51,4 +54,4 @@ try {
 } catch (error) { result.error_code = error.message; process.exitCode = 1; }
 await mkdir(resolve(output, '..'), { recursive: true });
 await writeFile(output, JSON.stringify(result, null, 2));
-console.log(JSON.stringify(result));
+console.log(JSON.stringify({ ...result, lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot }));

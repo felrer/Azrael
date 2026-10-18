@@ -1,7 +1,11 @@
 "use strict";
 // Actual Windows VS Code lifecycle, with synthetic native state and no inference.
-const fs=require("node:fs"),path=require("node:path"),{spawn}=require("node:child_process"),net=require("node:net"),assert=require("node:assert/strict");
-const root=path.resolve(__dirname,".."),fixture=path.join(root,"artifacts/verification/webview-idle-host"),logs=path.join(root,"artifacts/logs/webview-idle");
+const fs=require("node:fs"),path=require("node:path"),{spawn:nativeSpawn,spawnSync}=require("node:child_process"),net=require("node:net"),assert=require("node:assert/strict");
+const root=path.resolve(__dirname,"..");
+const {beginArtifactRun,trackArtifactChild}=require('./artifact-run.cjs');
+const artifactRun=beginArtifactRun(root,{workId:'verify-webview-idle-host',owner:'scripts/verify-webview-idle-host.cjs'});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const fixture=path.join(artifactRun.temporary,'host'),logs=artifactRun.logs;
 const {UI_HELPER}=require("./inject-webview-idle.cjs");
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 async function freePort(){const server=net.createServer();await new Promise(r=>server.listen(0,"127.0.0.1",r));const port=server.address().port;await new Promise(r=>server.close(r));return port}
@@ -24,7 +28,7 @@ exports.activate=()=>{vscode.window.registerCustomEditorProvider('azrael.testIdl
   const extension=path.join(fixture,"extension");fs.writeFileSync(path.join(extension,"package.json"),JSON.stringify(manifest));fs.writeFileSync(path.join(extension,"extension.cjs"),boot);fs.copyFileSync(path.join(__dirname,"webview-idle.cjs"),path.join(extension,"webview-idle.cjs"));fs.writeFileSync(path.join(extension,"a.azrael-idle"),"");fs.writeFileSync(path.join(extension,"scratch.txt"),"scratch");
   const port=await freePort(),code=path.join(process.env.LOCALAPPDATA,"Programs/Microsoft VS Code/Code.exe");assert.ok(fs.existsSync(code));
   const env={...process.env};for(const key of Object.keys(env))if(/^(ELECTRON_RUN_AS_NODE|VSCODE_IPC_HOOK_CLI|VSCODE_CLI|VSCODE_PID)$/i.test(key))delete env[key];
-  const child=spawn(code,["--new-window","--disable-extensions","--skip-welcome","--skip-release-notes","--disable-workspace-trust","--disable-updates","--user-data-dir="+path.join(fixture,"profile"),"--extensions-dir="+path.join(fixture,"extensions"),"--extensionDevelopmentPath="+extension,"--inspect-extensions="+port,extension],{windowsHide:true,env,stdio:["ignore","pipe","pipe"]});
+  const child=spawn(code,["--new-window","--disable-extensions","--skip-welcome","--skip-release-notes","--disable-workspace-trust","--disable-updates","--user-data-dir="+path.join(fixture,"profile"),"--shared-data-dir="+path.join(fixture,"shared-data"),"--extensions-dir="+path.join(fixture,"extensions"),"--extensionDevelopmentPath="+extension,"--inspect-extensions="+port,extension],{windowsHide:true,env,stdio:["ignore","pipe","pipe"]});
   let launchOutput="";child.stdout.on("data",b=>launchOutput+=b);child.stderr.on("data",b=>launchOutput+=b);child.on("error",e=>launchOutput+=String(e));
   let socket,seq=0,pending=new Map(),checks=[],summary={environment:"Windows local VS Code; production lifetime manager and renderer snapshot helper; synthetic composer/host state; no model calls"};
   let quitting=false;
@@ -32,8 +36,10 @@ exports.activate=()=>{vscode.window.registerCustomEditorProvider('azrael.testIdl
     let target;for(let i=0;i<120&&!target;i++){try{target=(await(await fetch('http://127.0.0.1:'+port+'/json/list',{signal:AbortSignal.timeout(1000)})).json()).find(t=>t.webSocketDebuggerUrl)}catch{}if(child.exitCode!=null&&child.exitCode!==0)throw Error('VS Code launch failed: '+launchOutput);if(!target)await sleep(500)}assert.ok(target,"extension inspector started");
     socket=new WebSocket(target.webSocketDebuggerUrl);await new Promise((r,j)=>{socket.addEventListener('open',r,{once:true});socket.addEventListener('error',j,{once:true})});
     socket.addEventListener('message',event=>{let m=JSON.parse(event.data),p=pending.get(m.id);if(p){pending.delete(m.id);clearTimeout(p.timeout);m.error?p.reject(Error(JSON.stringify(m.error))):p.resolve(m.result)}});
-    const evaluate=expression=>new Promise((resolve,reject)=>{let id=++seq,timeout=setTimeout(()=>{pending.delete(id);reject(Error('Inspector timeout'))},10000);pending.set(id,{resolve:r=>r.exceptionDetails?reject(Error(JSON.stringify(r.exceptionDetails))):resolve(r.result.value),reject,timeout});socket.send(JSON.stringify({id,method:'Runtime.evaluate',params:{expression,awaitPromise:true,returnByValue:true}}))});
-    const api=expression=>evaluate('globalThis.__azraelIdleFixture.'+expression);
+    const send=(method,params)=>new Promise((resolve,reject)=>{const id=++seq,timeout=setTimeout(()=>{pending.delete(id);reject(Error('Inspector timeout '+method))},10000);pending.set(id,{resolve,reject:error=>reject(Error('Inspector '+method+': '+error.message)),timeout});socket.send(JSON.stringify({id,method,params}))});
+    const evaluate=async(expression,awaitPromise=false)=>{const result=await send('Runtime.evaluate',{expression,awaitPromise,returnByValue:true});if(result.exceptionDetails)throw Error('Inspector evaluation '+expression+': '+JSON.stringify(result.exceptionDetails));return result.result.value};
+    const api=expression=>evaluate('globalThis.__azraelIdleFixture.'+expression,true);
+    await send('Runtime.enable',{});
     const wait=async(predicate,label)=>{for(let i=0;i<100;i++){if(await predicate()){checks.push(label);return}await sleep(200)}throw Error('Timed out: '+label)};
     await wait(()=>evaluate('!!globalThis.__azraelIdleFixture'),'test extension activated');
     await api('open()');await wait(async()=>{let s=await api('stats()');return s.ready===1&&s.lastState?.scroll===420},'native custom editor and production snapshot helper ready');
@@ -44,13 +50,16 @@ exports.activate=()=>{vscode.window.registerCustomEditorProvider('azrael.testIdl
       await api('latest()');await api('show()');await wait(async()=>{const s=await api('stats()');return !s.suspended&&s.lastState?.history==='latest-model-result'&&s.lastState?.scroll===420},theme+': latest host state and scroll restored');
       s=await api('stats()');assert.equal(s.lastState.text,'unsent draft');assert.equal(s.lastState.attachments[0].path,'fixture.txt');assert.equal(s.errors.length,0);checks.push(theme+': composer draft/attachment retained');
     }
-    summary.outcome='passed';summary.final=await api('stats()');quitting=true;await api('quit()').catch(()=>{});
+    summary.outcome='passed';summary.final=await api('stats()');quitting=true;summary.quitRequested=await evaluate('void globalThis.__azraelIdleFixture.quit()').then(()=>true,()=>false);
   }catch(error){summary.outcome='failed';summary.error=String(error.stack||error);process.exitCode=1}
   finally{
     if(socket?.readyState===WebSocket.OPEN&&!quitting){socket.send(JSON.stringify({id:++seq,method:'Runtime.evaluate',params:{expression:'globalThis.__azraelIdleFixture?.quit()'}}));await sleep(500)}socket?.close();for(const p of pending.values())clearTimeout(p.timeout);
-    // Same-shell checked cleanup; never terminate user windows or force deletion.
-    const script=`$ErrorActionPreference='Stop'\n$taskRoot=[IO.Path]::GetFullPath($env:AZRAEL_IDLE_FIXTURE)\n$parent=[IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))\nif(-not $taskRoot.StartsWith($parent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)){throw 'Invalid fixture path'}\nfor($attempt=0;$attempt -lt 50;$attempt++){ $live=@(Get-CimInstance Win32_Process | Where-Object { $_.CommandLine -and $_.CommandLine.Replace('/','\\').Contains($taskRoot) }); if($live.Count -eq 0){break}; Start-Sleep -Milliseconds 200 }\nif($live.Count){throw 'Fixture still has live processes'}\nRemove-Item -LiteralPath $taskRoot -Recurse\nif(Test-Path -LiteralPath $taskRoot){throw 'Fixture survived cleanup'}\n'Fixture absent; no live references.'\n`;
-    const clean=spawn('pwsh',['-NoProfile','-NonInteractive','-Command','-'],{cwd:root,windowsHide:true,env:{...process.env,AZRAEL_IDLE_FIXTURE:fixture},stdio:['pipe','pipe','pipe']});let output='';clean.stdout.on('data',b=>output+=b);clean.stderr.on('data',b=>output+=b);clean.stdin.end(script);summary.cleanupExitCode=await new Promise((r,j)=>{clean.on('error',j);clean.on('exit',r)});fs.writeFileSync(path.join(logs,'host-cleanup.log'),output);if(summary.cleanupExitCode!==0)process.exitCode=1;
+
+    const inspection=spawnSync(path.join(process.env.SystemRoot||process.env.WINDIR||path.join('C:',path.sep,'Windows'),'System32','WindowsPowerShell','v1.0','powershell.exe'),['-NoProfile','-NonInteractive','-Command',"$ErrorActionPreference='Stop'; $fixture=$env:AZRAEL_OWNED_HOST_FIXTURE; for($attempt=0;$attempt -lt 50;$attempt++){ $live=@(Get-CimInstance Win32_Process | Where-Object { ($_.CommandLine -and $_.CommandLine.Replace('/','\\').Contains($fixture)) -or ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($fixture,[StringComparison]::OrdinalIgnoreCase)) }); if($live.Count -eq 0){break}; Start-Sleep -Milliseconds 200 }; if($live.Count){$live | Select-Object ProcessId,Name | ConvertTo-Json -Compress; exit 1}; 'No owned fixture process references'"],{windowsHide:true,timeout:15000,encoding:'utf8',env:{...process.env,AZRAEL_OWNED_HOST_FIXTURE:fixture}});
+    summary.processInspectionExitCode=inspection.status;
+    if(inspection.status!==0){artifactRun.producerStopped=false;process.exitCode=1;}
+    summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;summary.retentionReason='Retained raw fixture and profile for lifecycle review';
+    fs.writeFileSync(path.join(logs,'process-inspection.log'),String(inspection.stdout||'')+String(inspection.stderr||'')+String(inspection.error||''));
     summary.launchExitCode=child.exitCode;fs.writeFileSync(path.join(logs,"host-launch.log"),launchOutput);summary.checks=checks;summary.exitCode=process.exitCode||0;fs.writeFileSync(path.join(logs,'host-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify(summary));
   }
 })().catch(error=>{console.error(error);process.exitCode=1});

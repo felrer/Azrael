@@ -1,0 +1,38 @@
+{
+  "at": "2026-10-18T18:22:22.203Z",
+  "links": [
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\root-run-helper\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\root-run-helper",
+      "action": "test owner teardown of deliberately created link before native review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-2\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-2",
+      "action": "test owner teardown of deliberately created link before native review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-3\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-3",
+      "action": "test owner teardown of deliberately created link before native review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-4\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-4",
+      "action": "test owner teardown of deliberately created link before native review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-ps-delta\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption\\temporary\\writers\\helper-ps-delta",
+      "action": "test owner teardown of deliberately created link before native review"
+    },
+    {
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\1ee3b38647074131968770d91e6ef70f\\temporary\\helper\\project\\artifacts\\tasks\\link",
+      "target": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\1ee3b38647074131968770d91e6ef70f\\temporary\\helper",
+      "action": "test owner teardown of deliberately created link before native review"
+    }
+  ],
+  "other": [],
+  "ordinary_deletion_attempt_failed": false,
+  "scope": "Exact known test-created links only. Native cleanup remains responsible for the generated run; native source/link protection is unchanged."
+}

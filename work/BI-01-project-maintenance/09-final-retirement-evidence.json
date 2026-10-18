@@ -1,0 +1,155 @@
+﻿{
+    "schema":  1,
+    "at":  "2026-10-18T18:38:16.534Z",
+    "scope":  "Final three owned verification runs; frozen evidence remains outside all selected roots",
+    "reason":  "All writer/test/cleanup children completed with actual terminal evidence. Diagnosis and acceptance reports are independently readable in work. No remaining consumer/recovery requirement for disposable synthetic fixtures or raw task logs.",
+    "producer_completion":  {
+                                "main":  {
+                                             "all_child_owners_terminal":  true,
+                                             "native_cleanup_17":  "completed; actual paths and records zero",
+                                             "all_run_writes_finished":  true
+                                         },
+                                "direct_packaging":  {
+                                                         "spawnSync_actual_exits":  [
+                                                                                        0,
+                                                                                        0
+                                                                                    ],
+                                                         "cases":  [
+                                                                       26,
+                                                                       1
+                                                                   ]
+                                                     }
+                            },
+    "records":  [
+                    {
+                        "schema":  1,
+                        "id":  "run:BI-01-project-maintenance:20261019-full-adoption",
+                        "kind":  "run",
+                        "owner":  "BI-01-project-maintenance",
+                        "version":  null,
+                        "state":  "complete",
+                        "membership_complete":  true,
+                        "members":  [
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+                                            "role":  "run"
+                                        }
+                                    ],
+                        "references":  [
+
+                                       ],
+                        "revision":  2,
+                        "created_at":  "2026-10-18T17:51:32.584Z",
+                        "updated_at":  "2026-10-18T18:38:16.082Z"
+                    },
+                    {
+                        "schema":  1,
+                        "id":  "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+                        "kind":  "run",
+                        "owner":  "scripts/test-platform-packaging.cjs",
+                        "version":  null,
+                        "state":  "complete",
+                        "membership_complete":  true,
+                        "members":  [
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+                                            "role":  "run"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\\temporary",
+                                            "role":  "temporary"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\\logs",
+                                            "role":  "logs"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\\reports",
+                                            "role":  "reports"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\\outputs",
+                                            "role":  "outputs"
+                                        }
+                                    ],
+                        "references":  [
+
+                                       ],
+                        "revision":  2,
+                        "created_at":  "2026-10-18T18:29:01.772Z",
+                        "updated_at":  "2026-10-18T18:29:16.095Z"
+                    },
+                    {
+                        "schema":  1,
+                        "id":  "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+                        "kind":  "run",
+                        "owner":  "scripts/tests/instruction-package.test.cjs",
+                        "version":  null,
+                        "state":  "complete",
+                        "membership_complete":  true,
+                        "members":  [
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+                                            "role":  "run"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240\\temporary",
+                                            "role":  "temporary"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240\\logs",
+                                            "role":  "logs"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240\\reports",
+                                            "role":  "reports"
+                                        },
+                                        {
+                                            "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240\\outputs",
+                                            "role":  "outputs"
+                                        }
+                                    ],
+                        "references":  [
+
+                                       ],
+                        "revision":  2,
+                        "created_at":  "2026-10-18T18:29:19.906Z",
+                        "updated_at":  "2026-10-18T18:29:20.651Z"
+                    }
+                ],
+    "evidence":  [
+                     {
+                         "name":  "04-adoption-acceptance.json",
+                         "sha256":  "0e604b9a2d8c68778188773a5b665a9906fc2a5eee74b0cb11707bf784b5e509"
+                     },
+                     {
+                         "name":  "06-retirement-processes.json",
+                         "sha256":  "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b"
+                     },
+                     {
+                         "name":  "07-test-link-teardown.json",
+                         "sha256":  "773b81ef7a315f57ccad8a8a654f8e4b42a48932a7fb5bf3d4e3fb44f6c3eaa2"
+                     },
+                     {
+                         "name":  "08-adoption-closeout.json",
+                         "sha256":  "5a2b6a0a87ecdd021cbaad5113ffe86f0167a9886656a824e340d90960198a70"
+                     }
+                 ],
+    "process_observation":  {
+                                "at":  "2026-10-18T18:38:17.8075591Z",
+                                "method":  "Full Win32_Process snapshot: executable and command line exact member-root references, combined with actual terminal child/owner evidence; not PID absence alone",
+                                "observed_processes":  601,
+                                "inspection_ancestor_pids":  [
+                                                                 10268,
+                                                                 45928,
+                                                                 42508,
+                                                                 31196,
+                                                                 20784,
+                                                                 32776,
+                                                                 14084
+                                                             ],
+                                "matches":  [
+
+                                            ]
+                            }
+}

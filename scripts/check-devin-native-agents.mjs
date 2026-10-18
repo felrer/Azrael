@@ -1,5 +1,6 @@
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { randomUUID } from 'node:crypto';
 import { createInterface } from 'node:readline';
 import { copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
@@ -7,8 +8,10 @@ import { join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const engine = resolve(process.argv[2]);
-const run = resolve(process.argv[3] ?? join(root, 'artifacts/verification/devin-native-20260915', `agents-${randomUUID()}`));
-const logRoot = join(root, 'artifacts/logs/devin-native-20260915');
+const artifactRun = beginArtifactRun(root, { workId: 'check-devin-native-agents', owner: 'check-devin-native-agents', paths: process.argv[3] ? { temporary: resolve(process.argv[3]) } : {} });
+const run = artifactRun.temporary;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
+const logRoot = artifactRun.logs;
 const state = join(run, 'state');
 const cwd = join(run, 'work');
 const appdata = join(run, 'appdata');
@@ -195,5 +198,5 @@ try {
     await peer.close();
   }
   await writeFile(join(run, 'result.json'), JSON.stringify(report, null, 2));
-  console.log(JSON.stringify({ ...report, run }));
+  console.log(JSON.stringify({ ...report, run, lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot }));
 }

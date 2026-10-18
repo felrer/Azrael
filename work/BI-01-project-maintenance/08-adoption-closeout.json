@@ -1,0 +1,1169 @@
+{
+  "schema": 1,
+  "at": "2026-10-18T18:37:36.126Z",
+  "scope": "BI-01 adoption final deltas and native cleanup, Windows x64",
+  "standalone_writers": 52,
+  "prior_evidence": "04-adoption-acceptance.json",
+  "retirement_process_evidence": "06-retirement-processes.json",
+  "test_link_teardown": "07-test-link-teardown.json",
+  "native_receipt_reuse": {
+    "original_bundle": "maintenance-lifecycle-writers",
+    "original_commands": 4,
+    "original_actual_exits": [
+      0,
+      0,
+      0,
+      0
+    ],
+    "changed_inputs_revalidated": [
+      "test-artifact-run exact owned junction finally: actual exit 0",
+      "instruction-package default owned fixture: actual exit 0"
+    ],
+    "unaffected_commands_reused": [
+      "check ownership",
+      "render ownership"
+    ],
+    "claim": "The original receipt covers its frozen inputs; final changed tests have separate actual execution evidence."
+  },
+  "deploy_line_endings": {
+    "normalized_content_unchanged": true,
+    "reason": "Restored original mixed line endings after successful mock verification; no semantic edit."
+  },
+  "inputs": [
+    {
+      "path": "scripts/test-artifact-run.cjs",
+      "sha256": "5c757c42a23f0b34386f62d93bea29bf040b1a74a903d3cbd9a75c8718f2b2ca"
+    },
+    {
+      "path": "scripts/test-platform-packaging.cjs",
+      "sha256": "5027b2dd5967148b14cfd1b6df870718c14ddba17121f4728896ea3daee96d17"
+    },
+    {
+      "path": "scripts/tests/instruction-package.test.cjs",
+      "sha256": "6a9fc10d45be672a9dcf5d2198131a652d4ae82c11c4cec383f8167ce89c8faf"
+    },
+    {
+      "path": "scripts/test-deploy-azrael.ps1",
+      "sha256": "28689faf023a62c280f3638c71daeb40f35d755e9d3b95e7db8246713d7fb751"
+    }
+  ],
+  "reports": {
+    "root-direct-packaging.json": {
+      "sha256": "827675936febee5c87759b7611ba12aab8259b3f7b0cb782b46f5f5ab75e05a7",
+      "data": [
+        {
+          "name": "root-packaging-direct",
+          "args": [
+            "scripts/test-platform-packaging.cjs"
+          ],
+          "exit": 0,
+          "ms": 17252,
+          "output": "PASS package frozen runtime and schema2 inventory\nPASS standalone package references a protected real imported input owner\nPASS imported input owner is reused without promoting its retained state\nPASS failed packaging records pending before output and preserves the failed outcome\nPASS explicit lifecycle must be a version that owns the selected release\nPASS source paths cannot be adopted as generated packaging inputs\nPASS existing release version owner is reused and explicit ownership remains supported\nPASS imported identity changes, path changes and overlapping ownership stay distinct\nPASS imported ID collisions cannot replace an existing owner's identity\nPASS explicit version state is preserved and concurrent changes are never overwritten\nPASS producer-shaped bundled Node bootstrap matches inventoried path\nPASS minimal package explicitly requires external Node without advertising a bundle\nPASS ZIP mode roundtrip\nPASS path traversal refused before mutation\nPASS wrong platform refused\nPASS tampered runtime refused before destination creation\nPASS invalid executable inventory mode refused\nPASS unlisted state files refused\nPASS relocated prepare-only install preserves state and binds runtime\nPASS side-by-side destination cannot be overwritten\nPASS ordinary Codex state refused\nPASS state/runtime overlap refused\nPASS ZIP archive traversal rejected\nPASS ZIP compressed entry tamper rejected\nPASS pinned branding owner operands and anchors\nPASS Mac public signing receipts bind all native bytes and metadata\n{\"checks\":26,\"platform\":{\"os\":\"win32\",\"arch\":\"x64\",\"target\":\"x86_64-pc-windows-msvc\"},\"nativeUnixExecution\":false,\"fixtureProject\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\platform-packaging-checks\\\\runs\\\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\\\\temporary\\\\portable-packaging-2c7c2119-0667-4121-973e-0515ba665b05\",\"retained\":true,\"runRoot\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\platform-packaging-checks\\\\runs\\\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\",\"lifecycleId\":\"run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca\"}\n",
+          "stderr": ""
+        },
+        {
+          "name": "root-instruction-direct",
+          "args": [
+            "--test",
+            "--test-name-pattern=instruction release ownership",
+            "scripts/tests/instruction-package.test.cjs"
+          ],
+          "exit": 0,
+          "ms": 4648,
+          "output": "{\"instructionReleaseFixture\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\instruction-packaging-checks\\\\runs\\\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240\\\\temporary\\\\instruction-release-3RTkY7\",\"retained\":true,\"pendingCount\":3}\n✔ instruction release ownership preserves CLI paths, failures and caller-owned API outputs (3629.2676ms)\nℹ tests 1\nℹ suites 0\nℹ pass 1\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 4496.3098\n",
+          "stderr": ""
+        }
+      ]
+    },
+    "playbooks-final.json": {
+      "sha256": "cc051fae6ef6aad3c8666cf09bd887004f8b6bfabd23a3c862d73113eb2b93d7",
+      "data": {
+        "status": "DONE",
+        "scope": "Ready independent cleanup group batching; common policy, Windows host validation",
+        "files": [
+          {
+            "path": "docs/playbooks/artifact-lifecycle.md",
+            "size": 18013,
+            "sha256": "e78e85b74837e8fab302b626a9abd692a20011750da69fa6d0702984e0dab633"
+          },
+          {
+            "path": "instructions/skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
+            "size": 17330,
+            "sha256": "6dbfc27f7b3a1cd6681f294e295b4ca10d8e4fb4161ebd62eb553f9261f7c5ac",
+            "installed_path": "C:\\Users\\felre\\.azrael-ex\\skills\\project-bootstrap\\assets\\playbooks\\artifact-lifecycle.md",
+            "installed_equal": true,
+            "provenance_matches": true,
+            "component_mapping_present": true
+          },
+          {
+            "path": "instructions/skills/implementation/references/artifact-lifecycle.md",
+            "size": 9495,
+            "sha256": "986ee7cb15fe9e9e5136aabf87cf5ab9a46b5e9d05d7fa6a8e4cc3bb0866f66d",
+            "installed_path": "C:\\Users\\felre\\.azrael-ex\\skills\\implementation\\references\\artifact-lifecycle.md",
+            "installed_equal": true,
+            "provenance_matches": true,
+            "component_mapping_present": true
+          },
+          {
+            "path": "instructions/SKILLS-SOURCE.json",
+            "size": 11395,
+            "sha256": "943de0791daa87f9f2f82cd47996a3cc6214c4a26b8fae8f3cf1348094eee4f7"
+          }
+        ],
+        "checks": [
+          {
+            "command": "C:/Users/felre/AppData/Local/Programs/Python/Python313/python.exe -B scripts/import-instructions.py --check",
+            "actual_exit_code": 0
+          },
+          {
+            "command": "git diff --check -- <four assigned repository paths>",
+            "actual_exit_code": 0
+          },
+          {
+            "name": "Installed equality, current provenance, existing mappings and local boundary",
+            "outcome": "PASS"
+          }
+        ],
+        "component_mapping_change_required": false,
+        "unverified": [
+          "Runtime batching/performance, actual deletion and non-Windows execution; this change documents procedure."
+        ],
+        "logs": [
+          "artifacts/tasks/BI-01-project-maintenance/runs/20261019-full-adoption/logs/playbooks-final.log"
+        ]
+      }
+    },
+    "root-helper-link-final.json": {
+      "sha256": "ff27f6d655b0181e3a4bb037937e94ff6fd092a87fb53944ab436b533c1e559c",
+      "data": {
+        "name": "helper exact test-created link teardown",
+        "exit": 0,
+        "output": "{\"status\":\"passed\",\"checks\":[\"precreation ownership, complete result, collision refusal, retained payload\",\"nonzero failure and unknown termination remain incomplete\",\"safe IDs, containment and explicit path ownership\",\"registry-only claim and linked destination rejected before creation\",\"uncaught writer and partial preparation failures reconciled\",\"unclosed owned child prevents success until actual close\",\"failed producer report cannot leave a completed lifecycle\"],\"fixture\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\BI-01-project-maintenance\\\\runs\\\\20261019-full-adoption\\\\temporary\\\\root-helper-link-final\",\"retained\":true}\n",
+        "stderr": "",
+        "sha256": "5c757c42a23f0b34386f62d93bea29bf040b1a74a903d3cbd9a75c8718f2b2ca"
+      }
+    },
+    "native-cleanup.json": {
+      "sha256": "6803dad16d31e246303949b2094aeeeb26e54bdeda3cef1991f7604ef66cd987",
+      "data": {
+        "schema": 1,
+        "scope": "Exact 17 retirement candidates from 04, excluding root main run",
+        "status": "completed",
+        "startedAt": "2026-10-18T18:21:57.427Z",
+        "finishedAt": "2026-10-18T18:37:10.490Z",
+        "elapsedSecondsSinceSuccessfulPreflight": 913.063,
+        "platform": "Windows x64",
+        "selectedGroups": 17,
+        "nativeDeletedGroups": 17,
+        "finalizedRecords": 17,
+        "remainingSelectedPaths": 0,
+        "remainingSelectedRecords": 0,
+        "logicalBytesReclaimed": 94817573,
+        "physicalBytesReclaimed": null,
+        "originalStates": {
+          "complete": 8,
+          "failed": 6,
+          "pending": 3
+        },
+        "originalProducerStatesPromotedToSuccess": false,
+        "mainRunPreserved": true,
+        "mainAndTwoDirectPackagingRunsNotSelected": true,
+        "evidence": {
+          "acceptance": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\04-adoption-acceptance.json",
+          "producerStopped": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+          "linkTeardown": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\07-test-link-teardown.json"
+        },
+        "nativeBatchTimings": {
+          "reviewSeconds": 102.173,
+          "applySeconds": 326.651
+        },
+        "commandExits": {
+          "preflight": 0,
+          "preapply": 0,
+          "finalize": 0,
+          "finalCensus": 0,
+          "nativeToolExitCodes": null
+        },
+        "nativeResults": [
+          {
+            "id": "6adcb5b263aa359259befc78c6d228732e3ead489516d966ab0fff8e97f7f011",
+            "groupId": "run:deploy-checks:3af8426991504f89969f8ef7f3a62c45",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 20
+          },
+          {
+            "id": "df5c3ba5ab703819dcd3dbac44ec74ea3110ec26d841cff65206e7732721abcf",
+            "groupId": "run:check-management:20261018T181224971Z-9c141f39-a928-4f33-b498-fd7c2b695a4c",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "2c534cacd0c09605649aac64717d99452f699232a351ad3765733b6c9a97da95",
+            "groupId": "run:check-management:20261018T181222150Z-6c8a5b03-d287-46ed-b0ab-4b7d97008f4e",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "77759d6cf6fe27f9269f3a4b29da8ab05b0ff423dd04d6810716a3b2155419aa",
+            "groupId": "run:verify-webview-idle-host:20261018T180829467Z-2d662c76-1087-4138-b6c7-f32816a94698",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "12a1c82a9c576339699c074f646a2e57b24ee3cad002441057d456dc1b1e8dbb",
+            "groupId": "run:deploy-checks:1c0f4a524c2e48bc911419999ca96794",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 20
+          },
+          {
+            "id": "219873798e97fbcdb6aa6921f869efa5aeb0d403a410cdb9406217f6606c8a9d",
+            "groupId": "run:deploy-checks:18acd7ebce4a45599af990b9592df260",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 20
+          },
+          {
+            "id": "368663bccef311a9796951b9bd014aa362457810bf44b30207a7bb4e41d5cb77",
+            "groupId": "run:check-management:20261018T181221133Z-d8660bdb-f48a-4f75-8ba6-d2bb844d411a",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "4a1505708be87566cbc3bbdfe76228e0d65994a846fad404876aaeabb5d913be",
+            "groupId": "run:verify-webview-idle-render:20261018T180540862Z-2ef776e4-0304-4635-8c2d-e9f54400fcc8",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "6bed45526ff2995071614295c651f4d3ddc55782cf83b52f2556aa200d935b9d",
+            "groupId": "run:verify-webview-idle-host:20261018T180952743Z-3791a545-eae2-4d1a-816d-c647ad6fdf7f",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "83e46cf1c684caa3762f776cae143d308ceaa0a88519394f5d6cb295d9addb4c",
+            "groupId": "run:lifecycle-check:1ee3b386-4707-4131-9687-70d91e6ef70f",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "88ef12fa1f67ec8d0874b75d5a9a29a1150ef910964588b6a9d3573e89474aba",
+            "groupId": "run:deploy-checks:faad5db9caed4f5583206a207fff2476",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 20
+          },
+          {
+            "id": "c1d34382dd2ad1721830498870ff57143645e1fcbcbd3b55e904725722f838b8",
+            "groupId": "run:verify-webview-idle-render:20261018T180154348Z-273910b8-fbf1-4da4-9e2f-23fef40e223a",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "dc427694c47b23bed503f6a1f160a5baae73864764e91aa28ff8698ea2b0687b",
+            "groupId": "run:check-management:20261018T181223909Z-a0d86edd-bd96-40a4-bb68-b86e17a79256",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "ecb6ed2827d987e4009a372fb56e5ab6f0da1f85e49f62fe405f0a5483e6e21f",
+            "groupId": "run:deploy-checks:70ea8c62f9ea4082914c3601886cd9cd",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 20
+          },
+          {
+            "id": "ecbe791e3e66467b990d5687100e6984ba1ec3cb326bf34f7fdc1ed93518d119",
+            "groupId": "run:check-management:20261018T181220166Z-59505800-89fe-4baa-931b-10707eca89fa",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "ed9f4ca4df005a34460e59ef3ddf350ad904245bef1e7e2cbe1552b4a1ada373",
+            "groupId": "run:verify-webview-idle-host:20261018T180314906Z-0b6a25c4-4d2c-452a-921f-eefd1b126f7d",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          },
+          {
+            "id": "f2655c9b84d8e0125d86369d05c44e89565681a0a9dd59bb43d8ff158adc1a26",
+            "groupId": "run:check-management:20261018T181223029Z-7fbd8cc8-9344-4258-bf89-3bfa1e3c8d36",
+            "status": "deleted",
+            "remaining": false,
+            "error": null,
+            "attributeNormalizationCount": 0
+          }
+        ],
+        "groups": [
+          {
+            "id": "run:deploy-checks:3af8426991504f89969f8ef7f3a62c45",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 190448,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\3af8426991504f89969f8ef7f3a62c45"
+            ],
+            "finalize": {
+              "id": "run:deploy-checks:3af8426991504f89969f8ef7f3a62c45",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\01991f7c35a83fe0585ac59151f0b17ca4bb4b52ebd4fa166ac2f9df6a7f0976.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181224971Z-9c141f39-a928-4f33-b498-fd7c2b695a4c",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 1114,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181224971Z-9c141f39-a928-4f33-b498-fd7c2b695a4c"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181224971Z-9c141f39-a928-4f33-b498-fd7c2b695a4c",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\17210c70c94342349337cfd08de8e1e1309fd3d873c90861a2f5b643701a98eb.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181222150Z-6c8a5b03-d287-46ed-b0ab-4b7d97008f4e",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 1388,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181222150Z-6c8a5b03-d287-46ed-b0ab-4b7d97008f4e"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181222150Z-6c8a5b03-d287-46ed-b0ab-4b7d97008f4e",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\1ae41cc5c6e9f866efd7c13fa38e1eb4ceccf14602ce5e78839c33ec4385665c.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:verify-webview-idle-host:20261018T180829467Z-2d662c76-1087-4138-b6c7-f32816a94698",
+            "originalState": "pending",
+            "originalRevision": 2,
+            "logicalBytes": 25010616,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-webview-idle-host\\runs\\20261018T180829467Z-2d662c76-1087-4138-b6c7-f32816a94698"
+            ],
+            "finalize": {
+              "id": "run:verify-webview-idle-host:20261018T180829467Z-2d662c76-1087-4138-b6c7-f32816a94698",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2d90e3fb1fb90764a9da79efda06a1d6ed28120b76e55068df1d79550adbf3f7.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "pending",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:verify-webview-idle-render:20261018T180540862Z-2ef776e4-0304-4635-8c2d-e9f54400fcc8",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 10049789,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-webview-idle-render\\runs\\20261018T180540862Z-2ef776e4-0304-4635-8c2d-e9f54400fcc8"
+            ],
+            "finalize": {
+              "id": "run:verify-webview-idle-render:20261018T180540862Z-2ef776e4-0304-4635-8c2d-e9f54400fcc8",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\47f4185414cc7ee8194f4e8aeef4e96075dcc5e62c99c044b177e6ef82ee3b1d.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:verify-webview-idle-host:20261018T180952743Z-3791a545-eae2-4d1a-816d-c647ad6fdf7f",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 25073598,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-webview-idle-host\\runs\\20261018T180952743Z-3791a545-eae2-4d1a-816d-c647ad6fdf7f"
+            ],
+            "finalize": {
+              "id": "run:verify-webview-idle-host:20261018T180952743Z-3791a545-eae2-4d1a-816d-c647ad6fdf7f",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\4c4f4edee5527a58605643924ecd609eaf04e71d6bc6d580a945eedb969bbf00.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:deploy-checks:1c0f4a524c2e48bc911419999ca96794",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 212318,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\1c0f4a524c2e48bc911419999ca96794"
+            ],
+            "finalize": {
+              "id": "run:deploy-checks:1c0f4a524c2e48bc911419999ca96794",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5d80d64e7eb5cea6eccc8f1cd5fa36d1ce34aefcaf9c3f9ab14954f0987f395d.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181221133Z-d8660bdb-f48a-4f75-8ba6-d2bb844d411a",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 1363,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181221133Z-d8660bdb-f48a-4f75-8ba6-d2bb844d411a"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181221133Z-d8660bdb-f48a-4f75-8ba6-d2bb844d411a",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\6f4a209ba342c794c64734c41b69fcd700827d5c2e32448374c2409c4ac7f54d.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:deploy-checks:70ea8c62f9ea4082914c3601886cd9cd",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 233054,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\70ea8c62f9ea4082914c3601886cd9cd"
+            ],
+            "finalize": {
+              "id": "run:deploy-checks:70ea8c62f9ea4082914c3601886cd9cd",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7738d4cac8cbc464a6eb02d1ecc8a5ed2192d611de6849a989fba08e836600d4.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:deploy-checks:18acd7ebce4a45599af990b9592df260",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 230969,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\18acd7ebce4a45599af990b9592df260"
+            ],
+            "finalize": {
+              "id": "run:deploy-checks:18acd7ebce4a45599af990b9592df260",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7905bdc736a09e8fd8a501132cd940d1ef21ab45fa508191a15e2ad60aa30715.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181220166Z-59505800-89fe-4baa-931b-10707eca89fa",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 2432,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181220166Z-59505800-89fe-4baa-931b-10707eca89fa"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181220166Z-59505800-89fe-4baa-931b-10707eca89fa",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\89d910fbe853675b178ba50ef9b1c5c323c67345c46e16cea8a88903120dc0eb.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:verify-webview-idle-host:20261018T180314906Z-0b6a25c4-4d2c-452a-921f-eefd1b126f7d",
+            "originalState": "pending",
+            "originalRevision": 2,
+            "logicalBytes": 24967512,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-webview-idle-host\\runs\\20261018T180314906Z-0b6a25c4-4d2c-452a-921f-eefd1b126f7d"
+            ],
+            "finalize": {
+              "id": "run:verify-webview-idle-host:20261018T180314906Z-0b6a25c4-4d2c-452a-921f-eefd1b126f7d",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\95ddeecf98d610bfcbf3d7052f6bbc583e3135ed4b82168ed16b0d473ea132ee.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "pending",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:verify-webview-idle-render:20261018T180154348Z-273910b8-fbf1-4da4-9e2f-23fef40e223a",
+            "originalState": "pending",
+            "originalRevision": 2,
+            "logicalBytes": 8297874,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\verify-webview-idle-render\\runs\\20261018T180154348Z-273910b8-fbf1-4da4-9e2f-23fef40e223a"
+            ],
+            "finalize": {
+              "id": "run:verify-webview-idle-render:20261018T180154348Z-273910b8-fbf1-4da4-9e2f-23fef40e223a",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\96544d572a8ea5d6b064196ce11ecef6597402b78ced4447b948d69420fe3651.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "pending",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181223029Z-7fbd8cc8-9344-4258-bf89-3bfa1e3c8d36",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 1377,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181223029Z-7fbd8cc8-9344-4258-bf89-3bfa1e3c8d36"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181223029Z-7fbd8cc8-9344-4258-bf89-3bfa1e3c8d36",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\9dc3d15e8a6d9d0c91dd2e5cc3b313d6da98087a71f45beb0bb7a0b0d801bd04.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:check-management:20261018T181223909Z-a0d86edd-bd96-40a4-bb68-b86e17a79256",
+            "originalState": "failed",
+            "originalRevision": 2,
+            "logicalBytes": 1369,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\check-management\\runs\\20261018T181223909Z-a0d86edd-bd96-40a4-bb68-b86e17a79256"
+            ],
+            "finalize": {
+              "id": "run:check-management:20261018T181223909Z-a0d86edd-bd96-40a4-bb68-b86e17a79256",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\b94b102f36b2d1450f452b8e468f642020c6a9aec6f9f287d595e5e76418fc80.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "failed",
+                "original_membership_complete": false
+              }
+            }
+          },
+          {
+            "id": "run:lifecycle-check:1ee3b386-4707-4131-9687-70d91e6ef70f",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 286636,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\lifecycle-checks\\runs\\1ee3b38647074131968770d91e6ef70f"
+            ],
+            "finalize": {
+              "id": "run:lifecycle-check:1ee3b386-4707-4131-9687-70d91e6ef70f",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d1e22659d30bd3aaa1ccc0b8f583f8e694cd1a75eba666054de46f27f65f2766.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          },
+          {
+            "id": "run:deploy-checks:faad5db9caed4f5583206a207fff2476",
+            "originalState": "complete",
+            "originalRevision": 2,
+            "logicalBytes": 255716,
+            "paths": [
+              "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\deploy-checks\\runs\\faad5db9caed4f5583206a207fff2476"
+            ],
+            "finalize": {
+              "id": "run:deploy-checks:faad5db9caed4f5583206a207fff2476",
+              "status": "finalized",
+              "remaining": [],
+              "references": [],
+              "blockers": [],
+              "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\fa70c6dab605a935f4e308dfd4bafdbe76a690778fb7843764faddf6aff383c6.json",
+              "retirement": {
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\06-retirement-processes.json",
+                "sha256": "a467038790c9496cf465a5129c606b65ad5ac5e0365a492a1c376b7d95f83a1b",
+                "reason": "Verification/diagnosis finished; independently readable evidence promoted to 04; exact owned producer stopped and current inbound/process refs absent.",
+                "original_state": "complete",
+                "original_membership_complete": true
+              }
+            }
+          }
+        ],
+        "logFiles": [
+          "logs/native-cleanup.00.json",
+          "logs/native-cleanup.01.json",
+          "logs/native-cleanup.02.json",
+          "logs/native-cleanup.03.json",
+          "logs/native-cleanup.preflight.json",
+          "logs/native-cleanup.registrations.json",
+          "logs/native-cleanup.batch-review.json",
+          "logs/native-cleanup.batch-apply.json",
+          "logs/native-cleanup.batch-finalize.json"
+        ],
+        "handledIssues": [
+          {
+            "issue": "Preflight found deliberate test link",
+            "resolution": "Paused affected group; parent test owner removed exact links and preserved teardown evidence in 07. Repeated preflight found zero links before registration."
+          },
+          {
+            "issue": "Batch raw log exceeded Windows shell command length after native apply had completed successfully",
+            "resolution": "Native result retained in memory, not retried. Raw logging completed using small sequential chunks and parsed successfully."
+          }
+        ],
+        "unresolved": "Parent owns final promotion and cleanup of main run, two new direct packaging runs and bounded control metadata."
+      }
+    }
+  },
+  "logs": [
+    {
+      "name": "root-lifecycle-final.log",
+      "sha256": "e2363af16a7c3276ca03632888d91a10492fea88552f0ce47ae8b16b4f5c9e59",
+      "text": "✔ legacy custody preserves uncertainty through parent projection and later producer updates (49.1495ms)\n✔ failed producer retains its whole pending identity and append-only membership (46.8535ms)\n✔ build producer records all planned members before first output creation fails (38.3591ms)\n✔ selection expands all sibling outputs and native projection keeps disjoint roots (34.8943ms)\n✔ shared member protection, report destinations and active consumers protect whole groups (42.4545ms)\n✔ native projection protects dependencies from inbound consumers without protecting consumers from outbound dependencies (45.2918ms)\n✔ native projection marks logs and reports for evidence-last deletion ordering (18.3899ms)\n✔ native projection declares producer registry semantics without changing its source directory (16.5499ms)\n✔ legacy candidates retain their own cleaner boundary and report conflicts are explicit (3.685ms)\n✔ source, management, traversal and linked paths cannot become lifecycle ownership (6.755ms)\n✔ finalization removes only own registry after every recorded member is actually absent (62.5009ms)\n✔ CLI cache consumers protect the last shared key until payload and logs are both gone (79.6442ms)\n✔ explicit retirement compacts absent failed or unknown records without inventing a passing exit (60.9278ms)\n✔ Windows lifecycle acceptance includes module management and keeps metric fixtures in the registered run (1.0777ms)\nℹ tests 14\nℹ suites 0\nℹ pass 14\nℹ fail 0\nℹ cancelled 0\nℹ skipped 0\nℹ todo 0\nℹ duration_ms 624.2355\n"
+    },
+    {
+      "name": "root-check-ownership-final.log",
+      "sha256": "4c4dc381566a6f013d431da3b00dbaf45a609eb38ad2bc0437a08e5867189b45",
+      "text": "{\"passed\":[\"success\",\"failure\",\"unknown\",\"unclosed-child-remains-pending\",\"writer-adoption-and-prepared-state-boundaries\",\"actual-management-success-failure-with-confirmed-close\",\"powershell-embedded-parent-and-collision-guards\"],\"fixture\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\BI-01-project-maintenance\\\\runs\\\\20261019-full-adoption\\\\temporary\\\\root-check-ownership-final\\\\check-ownership-4055e24b-b46c-4817-9636-e767d0ff216c\",\"retained\":\"parent review after integration\"}\n"
+    },
+    {
+      "name": "root-helper-link-final.log",
+      "sha256": "8ae41ba9ff0d145107297e9685c31c406f369a1abaac71fd60572126464c38d5",
+      "text": "{\"status\":\"passed\",\"checks\":[\"precreation ownership, complete result, collision refusal, retained payload\",\"nonzero failure and unknown termination remain incomplete\",\"safe IDs, containment and explicit path ownership\",\"registry-only claim and linked destination rejected before creation\",\"uncaught writer and partial preparation failures reconciled\",\"unclosed owned child prevents success until actual close\",\"failed producer report cannot leave a completed lifecycle\"],\"fixture\":\"C:\\\\Users\\\\felre\\\\Desktop\\\\pi-harness-init\\\\artifacts\\\\tasks\\\\BI-01-project-maintenance\\\\runs\\\\20261019-full-adoption\\\\temporary\\\\root-helper-link-final\",\"retained\":true}\n"
+    }
+  ],
+  "limitations": [
+    "Windows x64 verified; Linux/macOS execution not performed.",
+    "No product build/install/live account or live provider acceptance.",
+    "Original generation provenance of 3074 historical boundaries remains unknown and non-generated custody protected.",
+    "11 source-hardlinked Git remnants remain protected.",
+    "Five absent historical producer records retain unresolved termination/provenance protection."
+  ],
+  "final_cleanup": {
+    "status": "payload_and_node_cleanup_complete_native_control_retained",
+    "scope": "Frozen 09 final three producer runs, with verified boundary migration in 10 and approved native alias for the migrated main payload",
+    "started_at": "2026-10-18T18:39:12.806Z",
+    "finished_at": "2026-10-18T18:55:50.520Z",
+    "elapsed_seconds": 997.666,
+    "selected_producer_run_ids": [
+      "run:BI-01-project-maintenance:20261019-full-adoption",
+      "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+      "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240"
+    ],
+    "payload_run_groups_completed": 3,
+    "work_total_payload_run_groups_completed": 20,
+    "remaining_selected_payload_paths": 0,
+    "remaining_selected_node_records": 0,
+    "work_total_remaining_selected_payload_paths": 0,
+    "work_total_remaining_selected_node_records": 0,
+    "logical_bytes_reclaimed": 37131647,
+    "work_total_logical_bytes_reclaimed": 131949220,
+    "physical_bytes_reclaimed": null,
+    "native_exit_code": null,
+    "native_apply_aborted": false,
+    "original_native_groups_marked_deleted": 2,
+    "native_alias_groups_marked_deleted": 1,
+    "retained_native_control_records": 1,
+    "evidence": {
+      "retirement09": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\09-final-retirement-evidence.json",
+      "retirement09_sha256": "ee4a8f56985386dda9f2914ffdf0a60fca72b3a6d43076d180694321b9329ca8",
+      "migration10": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\10-boundary-migration.json",
+      "migration10_sha256": "8d77cb8a16a98ca6df63c454f02d232fb27c426af5f1f2d92eb71c14eb778688",
+      "original_closeout_sha256": "5a2b6a0a87ecdd021cbaad5113ffe86f0167a9886656a824e340d90960198a70"
+    },
+    "helper_command_exits": {
+      "initial_preflight": 0,
+      "direct_preapply": 0,
+      "direct_absence_and_finalize": 0,
+      "migration_preflight": 0,
+      "alias_preflight": 0,
+      "main_absence_and_default_finalize": 0,
+      "final_twenty_run_census": 0
+    },
+    "timings_seconds": {
+      "direct_two_apply": 87.325,
+      "alias_registration": 12.6,
+      "alias_review": 12.288,
+      "alias_apply": 106.67
+    },
+    "native_items": [
+      {
+        "id": "3a4ee2bcaaa2ab09602d2d45d680b40a8b4d25e10815fa594825602927d8f609",
+        "native_group_id": "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+        "producer_run_id": "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\platform-packaging-checks\\runs\\20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "actual_absence": true,
+        "finalize_status": "finalized",
+        "native_exit_code": null,
+        "review_token": "1fd0dc323b17f74c7315ad848547fcab04116a808cd5257daec5bd72133ac70f",
+        "review_identity": "73dd606fb501531a5a0ac5eb66f073c6a37839fff44176f6b5b96868157097a5",
+        "review_blockers": [],
+        "attribute_normalization_count": 0
+      },
+      {
+        "id": "d030d12ffc738a9e7a1b613ae02c81320392402623ffa3f7443a85d23e34e18f",
+        "native_group_id": "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+        "producer_run_id": "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\instruction-packaging-checks\\runs\\20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "actual_absence": true,
+        "finalize_status": "finalized",
+        "native_exit_code": null,
+        "review_token": "5e76117776b7b50d779088f916ede02eefe4fb3c9a06b6d0d0314af62504f884",
+        "review_identity": "4e9c8de66a8fd962998d2ec1655475fa4a0b17d90217572b9c8ad73b3f0d2a4f",
+        "review_blockers": [],
+        "attribute_normalization_count": 0
+      },
+      {
+        "id": "70526ff81c3348dd70d0ee2d190f37e5ca9ca8ebebdd0fdfd1fd0bc4dcd749ed",
+        "native_group_id": "run:BI-01-project-maintenance:20261019-full-adoption:migrated",
+        "producer_run_id": "run:BI-01-project-maintenance:20261019-full-adoption",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-adoption-closeout-20261019",
+        "status": "deleted",
+        "remaining": false,
+        "error": null,
+        "actual_absence": true,
+        "finalize_status": "finalized",
+        "native_exit_code": null,
+        "review_token": "4d1c7aae4f3646a8676b4d2e89c44a151af8ef57ca3d9cb4717985ad23da8338",
+        "review_identity": "7b87689e561ffd0975221b8918eb68ce10bb124f68bafce7e90e6682d42a61cc",
+        "review_blockers": [],
+        "attribute_normalization_count": 0
+      }
+    ],
+    "producer_finalizations": [
+      {
+        "id": "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\2170f0a8ebcbe7e5d35fe20ad2407779fa91bd423e7af63583df1af56771c20a.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\09-final-retirement-evidence.json",
+          "sha256": "ee4a8f56985386dda9f2914ffdf0a60fca72b3a6d43076d180694321b9329ca8",
+          "reason": "Direct packaging owner terminated with actual exit 0; independent evidence retained in 08 and frozen 09; current references absent.",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      },
+      {
+        "id": "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\d0435f40620f5966fa1c2143789fe7a7cd30bc412bc4d1eb7880f1030ae0579d.json",
+        "retirement": {
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\09-final-retirement-evidence.json",
+          "sha256": "ee4a8f56985386dda9f2914ffdf0a60fca72b3a6d43076d180694321b9329ca8",
+          "reason": "Direct packaging owner terminated with actual exit 0; independent evidence retained in 08 and frozen 09; current references absent.",
+          "original_state": "complete",
+          "original_membership_complete": true
+        }
+      },
+      {
+        "id": "run:BI-01-project-maintenance:20261019-full-adoption",
+        "status": "finalized",
+        "remaining": [],
+        "references": [],
+        "blockers": [],
+        "registryPath": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\3eb6cd9407e1f4535e40f0bd1c25ae7738b2890fe49edf5e69b07b1a0e60f010.json"
+      }
+    ],
+    "migration": {
+      "source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance",
+      "destination": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-adoption-closeout-20261019",
+      "evidence_status": "verified",
+      "actual_move_command_exit": 0,
+      "source_parent_absent": true,
+      "destination_absent_after_native_delete": true,
+      "original_node_record_revision": 4,
+      "original_node_record_finalized": true,
+      "native_alias_id": "run:BI-01-project-maintenance:20261019-full-adoption:migrated",
+      "alias_owner": "BI-01-project-maintenance",
+      "alias_membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\10-boundary-migration.json",
+      "alias_membership_source_format": null,
+      "alias_representation": "Current complete live payload of the original producer after verified same-volume migration; static independent evidence in 10; no producer alias record was created."
+    },
+    "stale_native_control": {
+      "group_id": "run:BI-01-project-maintenance:20261019-full-adoption",
+      "item_id": "bd7febd1ead0dd932a1f4e0f87aeac0ea8bf437c9806393d8b71f88f3ab0080b",
+      "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+      "cached_remaining": true,
+      "cached_group_cleanup_status": null,
+      "actual_remaining": false,
+      "producer_source_record_present": false,
+      "preserved_without_native_rewrite": true,
+      "reason": "Registration measures every member and rejects absent old paths; cached-live group rules prevent dropping or replacing that old member. The original control remains unresolved after actual payload cleanup and producer finalization.",
+      "revisit_condition": "Reconcile through a supported native absence-adjustment or compaction API when available, using frozen 09/10 identity and actual-absence evidence; preserve the historical producer outcome."
+    },
+    "historical_native_work_group": {
+      "id": "work:BI-01-project-maintenance",
+      "cleanup_status": "deleted",
+      "cached_live_members": 0,
+      "modified": false,
+      "original_member_paths_absent": true
+    },
+    "additional_diagnosis_history": [
+      {
+        "status": "native_full_two_member_registration_failed",
+        "tool": "project_inventory.register",
+        "error": "tree entry disappeared",
+        "native_exit_code": null,
+        "main_apply_dispatched": false,
+        "source_evidence": [
+          "engine/codex-rs/project-maintenance/src/groups.rs:127",
+          "engine/codex-rs/project-maintenance/src/groups.rs:148",
+          "engine/codex-rs/project-maintenance/src/lib.rs:877",
+          "engine/codex-rs/project-maintenance/src/paths.rs:369"
+        ],
+        "cached_native_old_member": {
+          "id": "bd7febd1ead0dd932a1f4e0f87aeac0ea8bf437c9806393d8b71f88f3ab0080b",
+          "remaining": true,
+          "cleanup_status": null
+        },
+        "resolution": "Parent authorized a new static-evidence native representation for only the existing migrated payload; historical native controls preserved."
+      }
+    ],
+    "limitations": [
+      "Physical disk reclamation was not measured.",
+      "The original main native cached-live control remains unresolved; complete native metadata cleanup is not claimed.",
+      "Cleanup execution was verified on Windows x64."
+    ],
+    "history": [
+      {
+        "status": "blocked_before_apply",
+        "record": {
+          "status": "blocked_before_apply",
+          "scope": "Frozen 09 records only: main verification run and two direct packaging fixture runs",
+          "selected_group_ids": [
+            "run:BI-01-project-maintenance:20261019-full-adoption",
+            "run:platform-packaging-checks:20261018T182858934Z-dcfeeb6d-2d20-48ca-ab04-ccc3dceb5cca",
+            "run:instruction-packaging-checks:20261018T182917014Z-cedff6b8-0cd6-4754-bbde-b7bc1deea240"
+          ],
+          "evidence_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\work\\BI-01-project-maintenance\\09-final-retirement-evidence.json",
+          "evidence_sha256": "ee4a8f56985386dda9f2914ffdf0a60fca72b3a6d43076d180694321b9329ca8",
+          "original_closeout_sha256": "5a2b6a0a87ecdd021cbaad5113ffe86f0167a9886656a824e340d90960198a70",
+          "preflight_exit_code": 0,
+          "preflight_logical_bytes": 37131647,
+          "registered_groups": 3,
+          "reviewed_groups": 3,
+          "reviewed_items": 3,
+          "native_exit_code": null,
+          "apply_dispatched": false,
+          "deleted_groups": 0,
+          "finalized_records": 0,
+          "review_seconds": 40.926,
+          "blockers": [
+            {
+              "id": "bd7febd1ead0dd932a1f4e0f87aeac0ea8bf437c9806393d8b71f88f3ab0080b",
+              "group_id": "run:BI-01-project-maintenance:20261019-full-adoption",
+              "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+              "blockers": [
+                "overlapping lifecycle member requires its own whole-group decision",
+                "a lifecycle group member is protected"
+              ],
+              "related_items": [
+                {
+                  "id": "203547d64485fe27a49b3bb9cba70860f431e89c2fde47089b0fb6bffa525c51",
+                  "blockers": []
+                }
+              ]
+            }
+          ],
+          "overlapping_group": {
+            "id": "work:BI-01-project-maintenance",
+            "cleanup_status": "deleted",
+            "members_total": 4,
+            "items": [
+              {
+                "id": "203547d64485fe27a49b3bb9cba70860f431e89c2fde47089b0fb6bffa525c51",
+                "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance",
+                "logical_bytes": 27677351,
+                "blockers": [
+                  "overlapping lifecycle member requires its own whole-group decision",
+                  "lifecycle membership source changed or is unavailable; re-register full current membership",
+                  "a lifecycle group member is protected"
+                ],
+                "membership_source_observation": {
+                  "reason": "producer owner record missing",
+                  "status": "unavailable"
+                }
+              }
+            ]
+          },
+          "unresolved": "Existing deleted native work-group ancestor claim overlaps the new main run and lacks its producer membership source. No permission was given to change this fourth group. Parent decision required before main-run deletion.",
+          "reported_at": "2026-10-18T18:43:54.143Z"
+        }
+      }
+    ]
+  },
+  "playbook_generation_delta": {
+    "scope": "Native ancestor generation reuse and formal migration preflight",
+    "files": [
+      {
+        "path": "docs/playbooks/artifact-lifecycle.md",
+        "sha256": "48a60b017ffd5fafd321e0473efeef54efd5dd3e81523426eca3508edbc57127"
+      },
+      {
+        "path": "instructions/skills/project-bootstrap/assets/playbooks/artifact-lifecycle.md",
+        "sha256": "87f7fb1ed894ed83d8e40be45fbdc06f8040de6874d5f61efd37f9ca6a70e01d"
+      },
+      {
+        "path": "instructions/skills/implementation/references/artifact-lifecycle.md",
+        "sha256": "76fab4467fa7423e4976395f94825b1b4419e954523fd271bae3bb7b0c2cf7b0"
+      },
+      {
+        "path": "instructions/SKILLS-SOURCE.json",
+        "sha256": "04055a73fe3da17e1744c9b6ae8ec53b679789055a5b744d22c17fb2e3575904"
+      }
+    ],
+    "checks": [
+      {
+        "command": "python.exe -B scripts/import-instructions.py --check",
+        "actual_exit_code": 0
+      },
+      {
+        "command": "git diff --check -- <assigned four paths>",
+        "actual_exit_code": 0
+      }
+    ],
+    "installed_copies_equal": true,
+    "original_provenance_preserved": true,
+    "mappings_unchanged": true,
+    "new_artifacts": []
+  },
+  "final_source_validation": {
+    "chunk_id": "e3751a",
+    "exit_code": 0,
+    "original_token_count": 38,
+    "output": "{\"syntax_checked\":59,\"failures\":[],\"task_only_whole_manifest\":\"valid\",\"feature_owners\":111,\"feature_checks\":9,\"bundle\":\"maintenance-lifecycle-writers\"}\n",
+    "wall_time_seconds": 3.3692891
+  },
+  "line_ending_delta": {
+    "files": [
+      {
+        "path": "scripts/test-deploy-azrael.ps1",
+        "changed_added_line_endings": 19,
+        "normalized_content_equal": true,
+        "sha256": "6714ef1ee22fa8e202b7be8cab8c3a5d231ef3b28947bd669444a7d41d88ddf0"
+      },
+      {
+        "path": "scripts/verify-btw-render.mjs",
+        "changed_added_line_endings": 4,
+        "normalized_content_equal": true,
+        "sha256": "9c2f7677b99f11a2cd023f98f269ad5be919cf8047dc269f57b03dbe1b2d22ae"
+      }
+    ],
+    "git_diff_cached_check_actual_exit": 0
+  },
+  "default_writer_native_claim_check": {
+    "chunk_id": "34e0f5",
+    "exit_code": 0,
+    "original_token_count": 362,
+    "output": "{\"default_work_ids\":[\"account-retirement\",\"auto-account-switch\",\"auto-review-engine\",\"auto-review-render\",\"check-accounts\",\"check-devin-engine\",\"check-devin-engine-live\",\"check-devin-model-groups\",\"check-devin-native-agents\",\"check-devin-native-engine\",\"check-devin-native-helper\",\"check-managed-native-engine\",\"check-management\",\"check-multiwindow-accounts\",\"create-ui-design-preview\",\"create-ui-icon-review\",\"custom-api-helper\",\"instruction-release\",\"ticket-usage-render\",\"ui-icon-refinement\",\"verify-account-overview-render\",\"verify-astra-speed-render\",\"verify-btw-render\",\"verify-capacity-retry-render\",\"verify-compaction-skip-render\",\"verify-context-compaction-render\",\"verify-custom-api-render\",\"verify-deferred-turn-render\",\"verify-design-photos-render\",\"verify-error-presentation-render\",\"verify-file-summary-render\",\"verify-missing-image-render\",\"verify-parent-request-activity-render\",\"verify-provider-context-render\",\"verify-question-withdrawal-render\",\"verify-scroll-timeline-crash-host\",\"verify-session-flags-render\",\"verify-submit-only-thread-render\",\"verify-task-work-time-host\",\"verify-task-work-time-render\",\"verify-team-ui-render\",\"verify-use-settings-render\",\"verify-webview-idle-host\",\"verify-webview-idle-render\",\"verify-window-approval-render\",\"verify-window-errors-render\",\"verify-window-native-approval-render\",\"verify-work-completion-render\",\"verify-work-segment-folding-render\"],\"count\":49,\"native_ancestor_claims\":[]}\n",
+    "wall_time_seconds": 0.2837128
+  },
+  "final_validation_note": "Later byte-only line-ending normalization affects 19 added deploy-test lines and 4 added renderer lines. Normalized source text is identical; Node syntax and PowerShell parse actual exit 0. Prior behavioral evidence is reused. Later playbook hashes supersede the historical playbooks-final snapshot; installed equality and import check passed for these final hashes.",
+  "closed_at": "2026-10-18T19:00:33.016Z",
+  "final_mapping": {
+    "file": "05-adoption-map.json",
+    "sha256": "d31a335a391c31c2e31be035b008ec1d623fdcb83ee6afc6a5cf033c0633b2af",
+    "counts": {
+      "protected-unclassified": 3074,
+      "user-state": 1,
+      "managed": 333,
+      "protected-management-user": 1,
+      "fixed-input": 2,
+      "management-control": 1,
+      "overlapping-ownership": 0,
+      "tool-input": 1,
+      "management-container": 5,
+      "managed-with-legacy-native-consumer-claim": 1
+    },
+    "access_errors": 0,
+    "unknown_original_provenance": 3074,
+    "known_empty_routing_containers": 5,
+    "absent_historical_node_records": 5,
+    "native_absent_controls": 1,
+    "legacy_native_consumer_claims": 1
+  },
+  "final_acceptance": {
+    "status": "implementation_mapping_protection_and_selected_payload_cleanup_complete_with_documented_native_control_retention",
+    "standalone_writers": 52,
+    "selected_payload_runs_deleted": 20,
+    "selected_payload_paths_remaining": 0,
+    "selected_node_records_remaining": 0,
+    "logical_bytes": 131949220,
+    "physical_bytes_measured": false,
+    "platform_verified": "Windows x64",
+    "current_native_tool_limitations": [
+      "One absent cached-live native main control cannot be reconciled by v1.",
+      "One historical native wrapper consumer claim remains protected; canonical producer and current explicit consumer are established."
+    ],
+    "retained_historical_material": "3074 boundaries of unknown original provenance, 11 source-hardlinked Git remnants, five absent historical Node records, and retained source/user/fixed/runtime/recovery/cache inputs remain protected."
+  },
+  "closeout_checks": {
+    "scope": "Task-only index and final retained evidence",
+    "task_paths": 81,
+    "unowned_staged_paths": 0,
+    "utf8": "valid",
+    "json_files_valid": 10,
+    "changed_local_links_checked": 16,
+    "invalid_changed_links": 0,
+    "frozen_09_10_hashes": "unchanged",
+    "git_diff_cached_check_actual_exit": 0,
+    "source_syntax_files": 59,
+    "task_only_feature_manifest": "valid",
+    "source_syntax_actual_exit": 0,
+    "external_working_changes": "Preserved, including separate hunks in project-maintenance.json, feature manifest and development operations guide."
+  }
+}

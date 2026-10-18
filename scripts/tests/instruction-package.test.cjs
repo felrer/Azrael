@@ -73,6 +73,42 @@ async function text(file) {return fs.readFile(file,"utf8");}
 async function exists(file) {try{await fs.stat(file);return true;}catch(e){if(e.code==="ENOENT")return false;throw e;}}
 function updateArchive(f,archive) {f.archive=archive;f.manifest.archive.sha256=hash(archive);f.manifest.archive.size=archive.length;}
 
+test("instruction release ownership preserves CLI paths, failures and caller-owned API outputs",async()=>{
+  const sync=require("node:fs"),{buildRelease,buildCliRelease}=require("../build-instruction-release.cjs"),lifecycle=require("../artifact-lifecycle.cjs");
+  const artifactRun=process.env.AZRAEL_INSTRUCTION_PACKAGING_TEST_ROOT ? null : require('../artifact-run.cjs').beginArtifactRun(path.resolve(__dirname,'../..'),{workId:'instruction-packaging-checks',owner:'scripts/tests/instruction-package.test.cjs'});
+  const base=process.env.AZRAEL_INSTRUCTION_PACKAGING_TEST_ROOT || artifactRun.temporary;
+  await fs.mkdir(base,{recursive:true});const projectRoot=await fs.mkdtemp(path.join(base,"instruction-release-"));
+  const source=path.join(projectRoot,"source");await fs.mkdir(source);
+  await fs.writeFile(path.join(source,"azrael-environment.json"),JSON.stringify({schemaVersion:1,instructionVersion:"1.0.0",minimumAppVersion:"0.4.0",components:[{id:"example",files:[{source:"example.md",target:"example.md"}]}]}));
+  await fs.writeFile(path.join(source,"example.md"),"small release fixture\n");
+  const options={source,allowDirty:true,sourceCommit:"a".repeat(40)},record=lifecycle.recordLifecycle,pending=[];
+  lifecycle.recordLifecycle=(root,request)=>{
+    if(root===projectRoot && request.state==="pending") {
+      const destination=request.members.find(member=>member.role==="outputs").path;
+      assert.equal(sync.existsSync(destination),false);pending.push(request.id);
+    }
+    return record(root,request);
+  };
+  try {
+    const automatic=await buildCliRelease(options,{projectRoot});
+    assert.match(automatic.archive,/artifacts[\\/]tasks[\\/]instruction-release[\\/]runs[\\/][^\\/]+[\\/]outputs[\\/]release[\\/]/);
+    assert.equal(JSON.parse(await fs.readFile(automatic.manifest,"utf8")).files.length,2);
+    const explicit=path.join(projectRoot,"artifacts/selected-release"),result=await buildCliRelease({...options,output:explicit},{projectRoot});
+    assert.equal(path.dirname(result.archive),explicit);
+    let records=lifecycle.catalog(projectRoot);assert.equal(records.length,2);assert(records.every(group=>group.state==="complete" && group.membership_complete));assert.equal(pending.length,2);
+    const before=records;await assert.rejects(buildCliRelease({...options,output:explicit},{projectRoot}),/Release output already exists/);assert.deepEqual(lifecycle.catalog(projectRoot),before);
+    const create=sync.createWriteStream,failedOutput=path.join(projectRoot,"artifacts/failed-release");
+    sync.createWriteStream=(...args)=>{sync.writeFileSync(path.join(source,"changed.txt"),"changed during packaging");return create(...args);};
+    try {await assert.rejects(buildCliRelease({...options,output:failedOutput},{projectRoot}),/Instruction sources changed during packaging/);} finally {sync.createWriteStream=create;}
+    records=lifecycle.catalog(projectRoot);const failed=records.find(group=>group.members.some(member=>member.path===failedOutput));assert.equal(failed.state,"failed");assert.equal(failed.membership_complete,false);assert.equal((await fs.readdir(failedOutput)).length,1);assert.equal(pending.length,3);
+    const count=records.length,external=path.join(projectRoot,"caller-selected-output"),apiOutput=path.join(projectRoot,"caller-api-output");
+    assert.equal(path.dirname((await buildCliRelease({...options,output:external},{projectRoot})).archive),external);
+    assert.equal(path.dirname((await buildRelease({...options,output:apiOutput})).archive),apiOutput);
+    await assert.rejects(buildRelease({...options,output:apiOutput}),/Release output already exists/);assert.equal(lifecycle.catalog(projectRoot).length,count);
+    console.log(JSON.stringify({instructionReleaseFixture:projectRoot,retained:true,pendingCount:pending.length}));
+  } finally {lifecycle.recordLifecycle=record;}
+});
+
 test("GitHub release identity, documents before download, drafts and compatibility",async t=>{
   const fixtures=[await fixture(),await fixture("2.0.0",{minimumAppVersion:"1.0.0"}),await fixture("1.1.0-beta.1")]; fixtures[2].release.prerelease=true;
   const {store,calls}=await context(t,fixtures);

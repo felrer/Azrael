@@ -1,0 +1,252 @@
+﻿{
+    "schema":  1,
+    "at":  "2026-10-18T18:46:29.050Z",
+    "action":  "same-volume ordinary move of current synthetic run and its empty routing parents; no deletion or historical native record rewrite",
+    "source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance",
+    "destination":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-adoption-closeout-20261019",
+    "source_contents_exact":  [
+                                  "runs/20261019-full-adoption"
+                              ],
+    "before":  {
+                   "files":  1616,
+                   "directories":  2543,
+                   "logical_bytes":  27677351,
+                   "identity":  "4ec69114735fd8daa4505db782616e4a6c0700bf026b0f073eb77c02a67892b6",
+                   "root_file_id":  "1125899918509925"
+               },
+    "after":  {
+                  "files":  1616,
+                  "directories":  2543,
+                  "logical_bytes":  27677351,
+                  "identity":  "4ec69114735fd8daa4505db782616e4a6c0700bf026b0f073eb77c02a67892b6",
+                  "root_file_id":  "1125899918509925"
+              },
+    "original_record":  {
+                            "schema":  1,
+                            "id":  "run:BI-01-project-maintenance:20261019-full-adoption",
+                            "kind":  "run",
+                            "owner":  "BI-01-project-maintenance",
+                            "version":  null,
+                            "state":  "complete",
+                            "membership_complete":  true,
+                            "members":  [
+                                            {
+                                                "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+                                                "role":  "run"
+                                            }
+                                        ],
+                            "references":  [
+
+                                           ],
+                            "revision":  2,
+                            "created_at":  "2026-10-18T17:51:32.584Z",
+                            "updated_at":  "2026-10-18T18:38:16.082Z"
+                        },
+    "planned_record":  {
+                           "schema":  1,
+                           "id":  "run:BI-01-project-maintenance:20261019-full-adoption",
+                           "kind":  "run",
+                           "owner":  "BI-01-project-maintenance",
+                           "version":  null,
+                           "state":  "pending",
+                           "membership_complete":  false,
+                           "members":  [
+                                           {
+                                               "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+                                               "role":  "run"
+                                           },
+                                           {
+                                               "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-adoption-closeout-20261019",
+                                               "role":  "migration-destination",
+                                               "generated":  true,
+                                               "protection_known":  true
+                                           }
+                                       ],
+                           "references":  [
+
+                                          ],
+                           "revision":  3,
+                           "created_at":  "2026-10-18T17:51:32.584Z",
+                           "updated_at":  "2026-10-18T18:46:29.046Z"
+                       },
+    "old_native_group":  {
+                             "cleanup_status":  "deleted",
+                             "id":  "work:BI-01-project-maintenance",
+                             "kind":  "work",
+                             "members":  [
+                                             "0734b9d97d3f7b57faa3c5d20d612bb5c86f1ad97c03ae652fe4c5b857d854f1",
+                                             "203547d64485fe27a49b3bb9cba70860f431e89c2fde47089b0fb6bffa525c51",
+                                             "5e8d9694b32edece2222ad7fb4964ca41cd9ba0eab17a16016bf2b80994d9f91",
+                                             "ed9d5d5728ec22cae1c23f1343ed41084a132ae78a0bd6dc3601e5d3c4d4eeee"
+                                         ],
+                             "membership_complete":  true,
+                             "membership_source":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+                             "membership_source_format":  "producer_registry_v1",
+                             "membership_source_identity":  "789c318c427d2dbaeb8d2138567a74b2255978a6babc34d12bc0c18827d71f5f",
+                             "owner":  "project-maintenance-implementation",
+                             "provenance_ref":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ba5fd316f01dbf20332bd17f8652d6f822a29bdd3c8aa831f0725f265ceda21.json",
+                             "registered_at_ms":  1792048340712,
+                             "version":  null
+                         },
+    "old_native_items":  [
+                             {
+                                 "cache_schema":  null,
+                                 "cleanup_status":  "deleted",
+                                 "created_at_ms":  null,
+                                 "generated":  true,
+                                 "id":  "0734b9d97d3f7b57faa3c5d20d612bb5c86f1ad97c03ae652fe4c5b857d854f1",
+                                 "identity":  "5ca599700d80c5e6a02bd8864a9fafe728d18f37b867a20c732430373c18f85f",
+                                 "kind":  "inputs",
+                                 "lifecycle_group_id":  "work:BI-01-project-maintenance",
+                                 "lifecycle_role":  "snapshot",
+                                 "logical_bytes":  0,
+                                 "measured_at_ms":  1792048198403,
+                                 "owner":  "project-maintenance-implementation",
+                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\BI-01-engine-v1",
+                                 "protection_known":  true,
+                                 "provenance":  null,
+                                 "provenance_ref":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ba5fd316f01dbf20332bd17f8652d6f822a29bdd3c8aa831f0725f265ceda21.json",
+                                 "references":  [
+
+                                                ],
+                                 "registered_at_ms":  1792048198403,
+                                 "remaining":  false,
+                                 "role":  "inputs",
+                                 "source_path":  null,
+                                 "tool":  null,
+                                 "version":  null
+                             },
+                             {
+                                 "cache_schema":  null,
+                                 "cleanup_status":  "deleted",
+                                 "created_at_ms":  null,
+                                 "generated":  true,
+                                 "id":  "203547d64485fe27a49b3bb9cba70860f431e89c2fde47089b0fb6bffa525c51",
+                                 "identity":  "b46e50fdd1b9165d0959222162b70384677e9a0e492391f04deece55953aeb98",
+                                 "kind":  "work",
+                                 "lifecycle_group_id":  "work:BI-01-project-maintenance",
+                                 "lifecycle_role":  "artifact",
+                                 "logical_bytes":  0,
+                                 "measured_at_ms":  1792048060009,
+                                 "owner":  "project-maintenance-implementation",
+                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance",
+                                 "protection_known":  true,
+                                 "provenance":  null,
+                                 "provenance_ref":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ba5fd316f01dbf20332bd17f8652d6f822a29bdd3c8aa831f0725f265ceda21.json",
+                                 "references":  [
+
+                                                ],
+                                 "registered_at_ms":  1792048060009,
+                                 "remaining":  false,
+                                 "role":  "work",
+                                 "source_path":  null,
+                                 "tool":  null,
+                                 "version":  null
+                             },
+                             {
+                                 "cache_schema":  null,
+                                 "cleanup_status":  "deleted",
+                                 "created_at_ms":  null,
+                                 "generated":  true,
+                                 "id":  "5e8d9694b32edece2222ad7fb4964ca41cd9ba0eab17a16016bf2b80994d9f91",
+                                 "identity":  "9adb0eaa2a0a6ec757c50e52238442bae20c293241ce796a5ca8f96dd682e290",
+                                 "kind":  "inputs",
+                                 "lifecycle_group_id":  "work:BI-01-project-maintenance",
+                                 "lifecycle_role":  "snapshot",
+                                 "logical_bytes":  0,
+                                 "measured_at_ms":  1792048337537,
+                                 "owner":  "project-maintenance-implementation",
+                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\verification\\BI-01-engine-v2",
+                                 "protection_known":  true,
+                                 "provenance":  null,
+                                 "provenance_ref":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ba5fd316f01dbf20332bd17f8652d6f822a29bdd3c8aa831f0725f265ceda21.json",
+                                 "references":  [
+
+                                                ],
+                                 "registered_at_ms":  1792048337537,
+                                 "remaining":  false,
+                                 "role":  "inputs",
+                                 "source_path":  null,
+                                 "tool":  null,
+                                 "version":  null
+                             },
+                             {
+                                 "cache_schema":  null,
+                                 "cleanup_status":  "deleted",
+                                 "created_at_ms":  null,
+                                 "generated":  true,
+                                 "id":  "ed9d5d5728ec22cae1c23f1343ed41084a132ae78a0bd6dc3601e5d3c4d4eeee",
+                                 "identity":  "44c3e7f31b1d03284c1dc61b0a6117b0f4423aafc875b3493798fa78ad25bbfe",
+                                 "kind":  "logs",
+                                 "lifecycle_group_id":  "work:BI-01-project-maintenance",
+                                 "lifecycle_role":  "log",
+                                 "logical_bytes":  0,
+                                 "measured_at_ms":  1792048339868,
+                                 "owner":  "project-maintenance-implementation",
+                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\logs\\BI-01-project-maintenance",
+                                 "protection_known":  true,
+                                 "provenance":  null,
+                                 "provenance_ref":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\5ba5fd316f01dbf20332bd17f8652d6f822a29bdd3c8aa831f0725f265ceda21.json",
+                                 "references":  [
+
+                                                ],
+                                 "registered_at_ms":  1792048339868,
+                                 "remaining":  false,
+                                 "role":  "logs",
+                                 "source_path":  null,
+                                 "tool":  null,
+                                 "version":  null
+                             }
+                         ],
+    "reason":  "A cached deleted native ancestor claim was revived by reusing its path for a new generation. Move current fully attributed output to a fresh boundary; preserve the historical deletion identity and reconcile the current full lifecycle including both old and new paths.",
+    "producer_stop_evidence":  "09-final-retirement-evidence.json",
+    "reader_contract":  "No live producer or inbound consumer; all acceptance evidence is independently readable under work. Raw diagnostic paths have no live consumers.",
+    "status":  "verified",
+    "completed_record":  {
+                             "schema":  1,
+                             "id":  "run:BI-01-project-maintenance:20261019-full-adoption",
+                             "kind":  "run",
+                             "owner":  "BI-01-project-maintenance",
+                             "version":  null,
+                             "state":  "complete",
+                             "membership_complete":  true,
+                             "members":  [
+                                             {
+                                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-project-maintenance\\runs\\20261019-full-adoption",
+                                                 "role":  "run"
+                                             },
+                                             {
+                                                 "path":  "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\BI-01-adoption-closeout-20261019",
+                                                 "role":  "migration-destination",
+                                                 "generated":  true,
+                                                 "protection_known":  true
+                                             }
+                                         ],
+                             "references":  [
+
+                                            ],
+                             "revision":  4,
+                             "created_at":  "2026-10-18T17:51:32.584Z",
+                             "updated_at":  "2026-10-18T18:46:48.438Z"
+                         },
+    "actual_move_command_exit":  0,
+    "original_parent_absent":  true,
+    "identity_and_file_id_preserved":  true,
+    "process_observation":  {
+                                "at":  "2026-10-18T18:46:49.5435643Z",
+                                "method":  "Full process executable/command-line references, combined with 09 exact producer termination, unchanged file identities and no live run writer",
+                                "observed_processes":  602,
+                                "inspection_ancestor_pids":  [
+                                                                 36820,
+                                                                 45928,
+                                                                 42508,
+                                                                 31196,
+                                                                 20784,
+                                                                 32776,
+                                                                 14084
+                                                             ],
+                                "matches":  [
+
+                                            ]
+                            }
+}

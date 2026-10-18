@@ -1,12 +1,15 @@
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
 import assert from 'node:assert/strict';
-import { spawn } from 'node:child_process';
+import { spawn as spawnUntracked } from 'node:child_process';
 import { createInterface } from 'node:readline';
 import { access, copyFile, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
 const engine = resolve(process.argv[2]);
-const run = resolve(process.argv[3] ?? join(root, 'artifacts/verification/devin-native-20260915', `engine-${Date.now()}`));
+const artifactRun = beginArtifactRun(root, { workId: 'check-devin-native-engine', owner: 'check-devin-native-engine', paths: process.argv[3] ? { temporary: resolve(process.argv[3]) } : {} });
+const run = artifactRun.temporary;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const live = process.argv.includes('--live');
 const codeMode = process.argv.includes('--code-mode');
 const launcher = process.argv.includes('--launcher');
@@ -237,5 +240,5 @@ try {
     await peer.close();
   }
   await writeFile(join(run, 'result.json'), JSON.stringify(report, null, 2));
-  console.log(JSON.stringify({ ...report, run }));
+  console.log(JSON.stringify({ ...report, run, lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot }));
 }

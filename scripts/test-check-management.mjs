@@ -107,6 +107,7 @@ if (process.env.AZRAEL_MANAGEMENT_SMOKE_FIXTURE) {
           child.stderr.end();
           appendFileSync(trace, `${JSON.stringify({ role, exitCode: 0 })}\n`);
           child.emit('exit', 0, null);
+          child.emit('close', 0, null);
         });
       },
     });
@@ -167,7 +168,8 @@ if (process.env.AZRAEL_MANAGEMENT_SMOKE_FIXTURE) {
       }
       if (scenario === 'empty') {
         assert.ok(threadIndex < methods.indexOf('config/value/write'));
-        const evidence = JSON.parse(await readFile(join(state, 'verification.json'), 'utf8'));
+        const commandResult = JSON.parse(run.stdout);
+        const evidence = JSON.parse(await readFile(join(commandResult.runRoot, 'reports', 'verification.json'), 'utf8'));
         assert.equal(evidence.status, 'passed');
         assert.equal(evidence.realLogin, false);
         assert.equal(evidence.modelRequest, false);

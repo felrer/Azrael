@@ -60,6 +60,12 @@ Status: `current` for the script-level cache/log integration verified on Windows
 
 기존 producer의 경로를 당장 옮길 수 없는 경우 `scripts/artifact-lifecycle.cjs`와 PowerShell 어댑터가 같은 수명의 payload·입력·로그·보고서·패키지·배포 근거를 하나의 producer record에 연결한다. 실행 전 예상 경로를 pending/incomplete로 기록하고 실제 종료 뒤 결과와 구성원을 조정한다. 실패·중단·미확인 결과는 자동 삭제되지 않는다. 이 어댑터는 프로젝트의 기존 Node 실행 환경을 재사용하는 출처 연결 계층이며 내장 Rust 관리 도구를 대체하는 상주 서비스가 아니다.
 
+단독 검사·renderer·검토 자료 writer는 `scripts/artifact-run.cjs`로 생성 전에 고유 run을 등록한다. 실제 부모 exit와 추적한 모든 child의 close를 확인한 뒤 complete/failed를 기록하고, 미확인 종료는 pending으로 둔다. `reports/producer.json`을 먼저 쓴 뒤 terminal metadata를 기록하므로 보고서 쓰기 실패를 성공으로 남기지 않는다. 안전한 명시 출력도 같은 소유에 포함하고 기존 목적지·다른 소유·링크·경로 탈출 충돌은 쓰기 전에 거절한다. deploy의 accounts/independent 검사는 명시한 pending 부모의 실제 경로 포함을 확인한 후 그 소유를 재사용하며 부모 상태를 변경하지 않는다. Windows 브라우저 종료 검사는 기본 Windows PowerShell의 절대 경로를 사용한다. PATH의 `pwsh` 가용성을 종료 증거로 가정하지 않는다.
+
+단독 packaging의 입력은 실제 version 소유자에 연결한다. 미등록 legacy 입력은 검증 과정에서 실제로 읽는 선언 파일만 retained/incomplete 입력 소유로 귀속하고 참조한다. 혼합 release 부모 전체를 생성물로 만들거나 기존 pending/failed/retained 입력을 성공으로 승격하지 않는다. instruction release의 기본 CLI 출력도 고유 run을 쓰며 명시한 외부 API 출력은 호출자의 소유 계약을 유지한다.
+
+과거 경로의 관리 범위는 producer/native/cache owner와 소스·사용자·고정 입력 계약을 함께 대조한다. 출처 미확정 경로는 원래 생성자를 추정하지 않고 보관 책임, 근거, 다음 발견 조건을 기록한다. Node member의 `generated:false`는 이 불확실성을 보존하며 cleanup 계획을 차단한다. 중첩 member를 부모로 투영해도 자식의 불확실성을 유지하고, 일반 업데이트로 이를 true로 승격할 수 없다. 정리 명령의 관찰 대상은 그 명령이 생성한 출력이 아니다. 정리 명령은 자신의 보고서만 소유하고 다른 묶음의 자료 사용은 소비 참조로 표현한다. 서로 다른 native/producer ID가 동일 생성 소유자의 같은 자료를 가리키는 경우 mapping에 별칭을 명시한다. 현 프로젝트의 경계·별칭·보호 및 미확정 목록은 [현재 adoption map](../../work/BI-01-project-maintenance/05-adoption-map.json)에 있다.
+
 완료된 BL-01/AO-01 자료의 시험 이전은 task/run별 logs·reports·outputs에 배치하고 원본 해시와 reader 참조를 검증한다. AO Chromium 검증 writer는 기본 고유 실행 ID와 선택한 안전한 `--run-id`를 사용하며 `--describe-paths`는 생성 전 경로만 조회한다. 쓰기 전 pending/incomplete를 등록하고 충돌을 거부한다. fixture·프로필은 같은 run의 temporary, 로그·보고서·이미지는 해당 하위 경로에 두며 브라우저 종료와 프로세스 참조를 확인한 뒤 실제 결과를 기록한다. 통과한 run도 fixture를 자동 삭제하지 않고 전체 run의 모델 삭제/보류를 기다린다.
 
 임시 deploy/account fixture는 retained version payload와 다른 run 소유다. 모든 producer의 종료와 필요한 검증 근거의 승격을 확인한 뒤 기존 성공 fixture 정리를 수행한다. 실패·미확인 fixture는 실패 상태로 보호한다. 설치 버전을 보존한다는 이유로 임시 프로필·패키지 복사본을 무기한 유지하지 않는다. legacy 정리도 삭제 직전 각 구성원의 최신 group 정의와 소비 참조를 다시 확인하고 변경되면 나머지 시도를 멈춘다.
@@ -69,6 +75,8 @@ Status: `current` for the script-level cache/log integration verified on Windows
 하나의 구성원을 검토해도 전체 live 묶음으로 확장한다. 구성원마다 같은 삭제 또는 보류 결정을 제출해야 하며, 어느 하나의 보호·참조·불확실성도 전체 묶음에 적용한다. 삭제 전 전체 구성원을 재확인하고 payload부터 시도하며 로그·근거는 뒤에 둔다. 실패하면 해당 묶음의 나머지 시도를 중단하고 미시도 근거를 보존한다. 부분 삭제 상태와 실제 잔여를 남겨 재검토한다. 독립된 다른 묶음의 상태를 성공이나 실패로 바꾸지 않는다.
 
 producer registry는 `artifacts/maintenance/lifecycles/`에 둔다. 구성원 전체의 실제 부재와 들어오는 소비 참조의 해제를 확인한 뒤 해당 record만 정리한다. 파일 본체를 지운 뒤 무한한 빈 버전 목록이나 원시 로그 보관소를 남기지 않는다. Rust의 결정·복구 상태는 별도로 보호하며 근거 없는 축약이나 잠금 제거를 하지 않는다. 기존 미등록 항목은 목록과 근거를 보완하기 전 destructive legacy cleanup을 차단한다. 공유 엔진 캐시는 기존 cache owner의 사용·잠금 보호 절차를 유지한다.
+
+실패·미확인 producer를 성공으로 바꿔 빈 기록을 없애지 않는다. Node `finalize(root,id,retirement)`는 명시적으로 검증한 producer 전체 종료, 이유와 삭제 범위 밖의 읽을 수 있는 `evidence_ref`를 받을 수 있다. 실제 구성원이 전부 없고 들어오는 참조도 없을 때만 원래 상태·증거 SHA를 반환하며 해당 기록을 축약한다. 증거 없는 기본 finalize는 기존 complete/완결 조건을 유지한다. 이 절차는 native 실행의 unknown 결과나 exit를 바꾸는 recover가 아니다.
 
 정리는 `등록 → 실행/사용 → 검토 → 삭제 또는 보류 → 실제 결과 확인`을 따른다. 모델은 항목 ID, 검토 토큰, 결정, 이유를 제출한다. 보류에는 다음 검토 조건을 남긴다. 기간 만료나 용량 초과, 테스트 통과만으로 삭제하지 않는다.
 

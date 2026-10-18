@@ -1,20 +1,20 @@
-import { spawn, spawnSync } from 'node:child_process';
+import { beginArtifactRun, trackArtifactChild } from './artifact-run.cjs';
+import { spawn as spawnUntracked, spawnSync } from 'node:child_process';
 import { constants } from 'node:fs';
 import {
   access,
   appendFile,
   mkdir,
-  mkdtemp,
   readFile,
-  rm,
   writeFile,
 } from 'node:fs/promises';
 import { createServer } from 'node:http';
-import { tmpdir } from 'node:os';
-import { basename, dirname, isAbsolute, join, relative, resolve, sep } from 'node:path';
+import { basename, dirname, isAbsolute, join, resolve } from 'node:path';
 import { createInterface } from 'node:readline';
 import { fileURLToPath } from 'node:url';
 
+let artifactRun;
+const spawn = (...args) => trackArtifactChild(artifactRun, spawnUntracked(...args));
 const WAIT_MS = 30_000;
 const LIVE_WAIT_MS = 300_000;
 const AGENTS_MARKER = 'AZRAEL_DEVIN_AGENTS_CONTEXT_MARKER';
@@ -315,21 +315,6 @@ async function waitForFixtureProcessExit(pid) {
     await new Promise(resolvePromise => setTimeout(resolvePromise, 25));
   }
   throw new Error(`cancelled ACP fixture process ${pid} did not exit`);
-}
-
-async function removeVerifiedWorkRoot(path) {
-  const target = resolve(path);
-  const temporaryRoot = resolve(tmpdir());
-  const childPath = relative(temporaryRoot, target);
-  const withinTemporaryRoot =
-    childPath !== '' &&
-    childPath !== '..' &&
-    !childPath.startsWith(`..${sep}`) &&
-    !isAbsolute(childPath);
-  if (!withinTemporaryRoot || !basename(target).startsWith('azrael-devin-engine-')) {
-    throw new Error(`refusing to remove unverified harness directory: ${target}`);
-  }
-  await rm(target, { recursive: true, force: true });
 }
 
 async function expectRpcError(promise, description, messageFragment) {
@@ -685,16 +670,6 @@ function validateFixtureScript(path) {
   }
 }
 
-async function requireNewAbsoluteDirectory(path, label) {
-  if (!path || !isAbsolute(path)) throw new Error(`${label} must be an absolute path`);
-  try {
-    await access(path);
-    throw new Error(`${label} already exists: ${path}`);
-  } catch (error) {
-    if (error.code !== 'ENOENT') throw error;
-  }
-  await mkdir(path, { recursive: false });
-}
 
 function completedAgentTexts(peer, threadId, turnId) {
   return peer
@@ -727,8 +702,10 @@ async function runLiveWork() {
     if (!path || !isAbsolute(path)) throw new Error(`${label} must be an absolute path`);
     await access(path, label === 'state root' ? constants.R_OK : constants.X_OK);
   }
-  await requireNewAbsoluteDirectory(fixtureRoot, 'fixture root');
-  await requireNewAbsoluteDirectory(logRoot, 'log root');
+  for (const [label, outputPath] of [['fixture root', fixtureRoot], ['log root', logRoot]]) {
+    if (!outputPath || !isAbsolute(outputPath)) throw new Error(`${label} must be an absolute path`);
+  }
+  artifactRun = beginArtifactRun(resolve(import.meta.dirname, '..'), { workId: 'check-devin-engine-live', owner: 'check-devin-engine', paths: { temporary: resolve(fixtureRoot), logs: resolve(logRoot) } });
   await writeFile(join(fixtureRoot, 'input.txt'), 'one\n');
   await writeFile(
     join(fixtureRoot, 'check-value.cjs'),
@@ -1106,6 +1083,7 @@ Finally reply exactly ROOT_WORK_DONE.`;
       status: 'passed',
       mode: permissionSmoke ? 'permission-smoke' : 'live-work',
       logRoot,
+      lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot,
       fixtureRoot,
     }));
   } catch (error) {
@@ -1136,7 +1114,8 @@ Finally reply exactly ROOT_WORK_DONE.`;
 if (liveWork) {
   await runLiveWork();
 } else {
-const workRoot = await mkdtemp(join(tmpdir(), 'azrael-devin-engine-'));
+artifactRun = beginArtifactRun(resolve(import.meta.dirname, '..'), { workId: 'check-devin-engine', owner: 'check-devin-engine' });
+const workRoot = artifactRun.temporary;
 const stateDirectory = join(workRoot, 'state');
 const fixtureDirectory = join(workRoot, 'fixture');
 const fixtureStatePath = join(workRoot, 'devin-state.json');
@@ -1160,7 +1139,6 @@ const bundledCatalogPath = join(
 let child;
 let peer;
 let stderr = '';
-let succeeded = false;
 let responses;
 
 try {
@@ -2375,10 +2353,10 @@ readline.createInterface({ input: process.stdin }).on('line', line => {
   const exit = await waitForExit(child);
   if (exit.code !== 0) throw new Error(`engine exited abnormally: ${JSON.stringify(exit)}`);
   peer.close();
-  succeeded = true;
   console.log(
     JSON.stringify({
       status: 'passed',
+      lifecycleId: artifactRun.lifecycleId, runRoot: artifactRun.runRoot,
       engine: enginePath,
       checks: [
         'cold Devin thread/start refreshes before any UI model/list request',
@@ -2447,6 +2425,6 @@ readline.createInterface({ input: process.stdin }).on('line', line => {
   }
   peer?.close();
   await closeServer(responses?.server);
-  if (succeeded) await removeVerifiedWorkRoot(workRoot);
+  // Retain the owned fixture for explicit model review after execution.
 }
 }

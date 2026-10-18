@@ -1,15 +1,18 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import assert from 'node:assert/strict';
 import { createRequire } from 'node:module';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFile, mkdir, writeFile, rm } from 'node:fs/promises';
+import { readFile, mkdir, writeFile } from 'node:fs/promises';
 import { resolve, join, sep, extname } from 'node:path';
 
 const root = resolve(import.meta.dirname, '..');
-const fixture = resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT || join(root, 'artifacts/verification/window-errors-render'));
-const logs = resolve(process.env.AZRAEL_RENDER_LOG_ROOT || join(root, 'artifacts/logs/window-use-in-app-approval/native-ui'));
-assert([join(root,'artifacts/logs'),join(root,'artifacts/tasks')].some(base=>logs.startsWith(base+sep)));
-assert([join(root,'artifacts/verification'),join(root,'artifacts/tasks')].some(base=>fixture.startsWith(base+sep)));
+const artifactRun=beginArtifactRun(root,{workId:'verify-window-native-approval-render',owner:'scripts/verify-window-native-approval-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture = artifactRun.temporary;
+const logs = artifactRun.logs;
 await mkdir(fixture, { recursive: true }); await mkdir(logs, { recursive: true });
 const assets=join(root,'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require=createRequire(import.meta.url),ts=require('../extensions/azrael-ex/node_modules/typescript');
@@ -77,8 +80,10 @@ try {
 finally {
   if (socket?.readyState === WebSocket.OPEN && chrome && !exited()) await send('Browser.close', {}, null).catch(() => {});
   socket?.close(); for (const p of pending.values()) clearTimeout(p.timer); await new Promise(r => server?.close(r) ?? r());
-  if (chrome && !exited()) await Promise.race([new Promise(r => chrome.once('exit', r)), new Promise(r => setTimeout(r, 15000))]);
-  if (!chrome || exited()) { await rm(fixture, { recursive: true }); summary.fixtureRemoved = true; }
-  else { summary.fixtureRemoved = false; summary.retentionReason = 'Owned browser has not confirmed exit; remove after its exit.'; process.exitCode = 1; }
-  summary.exitCode = process.exitCode || 0; await writeFile(join(logs, 'result.json'), JSON.stringify(summary, null, 2) + '\n');
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0; await writeFile(join(logs, 'result.json'), JSON.stringify(summary, null, 2) + '\n');
 }

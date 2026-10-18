@@ -140,10 +140,18 @@ $buildInfo | ConvertTo-Json | Set-Content (Join-Path $a "releases/$ReleaseName/b
 if($scenario.mode -eq 'build-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 '@
 $accountControlsStub = @'
+import { catalog } from './artifact-lifecycle.cjs';
 import fs from 'node:fs'; import path from 'node:path'; import { fileURLToPath } from 'node:url';
 const root = path.dirname(path.dirname(fileURLToPath(import.meta.url))); const a = path.join(root, 'artifacts');
 const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
-const args = process.argv.slice(2); const [engine, bridge, state, socket, flag] = args;
+const args = process.argv.slice(2);
+const parentOption = args.indexOf('--parent-lifecycle-id');
+if (parentOption !== 5 || args.length !== 7) throw new Error('account parent lifecycle option mismatch');
+const parentId = args.splice(parentOption, 2)[1];
+const [engine, bridge, state, socket, flag] = args;
+const parent = catalog(root).find(record => record.id === parentId);
+const inside = (base, candidate) => { const relative = path.relative(base, candidate); return relative === '' || (!path.isAbsolute(relative) && relative !== '..' && !relative.startsWith('..' + path.sep)); };
+if (parentId !== 'run:account-controls:chosen' || !parent || parent.state !== 'pending' || !parent.members.some(member => inside(member.path, state))) throw new Error('account parent must own planned fixture state');
 if (!fs.existsSync(path.join(a, 'build-end.json')) || !fs.existsSync(path.join(a, 'source-end.json')) ||
     !fs.existsSync(path.join(a, 'logs/deploy-chosen/inputs-post-build.json')) || !fs.existsSync(path.join(a, 'prepare-end.json')) || !fs.existsSync(path.join(a, 'native-end.json'))) throw new Error('account gate ordering mismatch');
 if (args.length !== 5 || flag !== '--account-controls-only' || fs.existsSync(state) || fs.existsSync(path.dirname(socket))) throw new Error('account gate arguments/freshness mismatch');
@@ -252,16 +260,24 @@ $featureIds=if($ChangedOnlyTests){@()}else{@($scenario.uiFeatureIds)}
 if($scenario.mode -eq 'prepare-mutation'){'changed' | Set-Content (Join-Path $root 'input.txt')}
 '@
 $checkStub = @'
-param([string]$HostVsixPath,[string]$FixtureRoot,[string]$StateRoot,[switch]$UseFreshState,[string]$TypeScriptPath,[string]$UiSourcePath,[string]$OriginalExtensionPath,[string]$OriginalAudioPath,[string]$CodePath)
+param([string]$HostVsixPath,[string]$FixtureRoot,[string]$ParentLifecycleId,[string]$StateRoot,[switch]$UseFreshState,[string]$TypeScriptPath,[string]$UiSourcePath,[string]$OriginalExtensionPath,[string]$OriginalAudioPath,[string]$CodePath)
 $ErrorActionPreference='Stop'
 $root=Split-Path $PSScriptRoot -Parent
 $a=Join-Path $root 'artifacts'
+if ($ParentLifecycleId -cne 'run:verification:chosen') { throw 'acceptance parent lifecycle ID mismatch' }
+$parentKey=[Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($ParentLifecycleId))).ToLowerInvariant()
+$parent=Get-Content -LiteralPath (Join-Path $a "maintenance/lifecycles/$parentKey.json") -Raw | ConvertFrom-Json
+$containsFixture=@($parent.members | Where-Object {
+ $relative=[IO.Path]::GetRelativePath($_.path,$FixtureRoot)
+ $relative -eq '.' -or (-not [IO.Path]::IsPathRooted($relative) -and $relative -ne '..' -and -not $relative.StartsWith('..'+[IO.Path]::DirectorySeparatorChar))
+}).Count -gt 0
+if ($parent.id -cne $ParentLifecycleId -or $parent.state -cne 'pending' -or -not $containsFixture) { throw 'acceptance parent must own planned fixture' }
 $scenario=Get-Content (Join-Path $a 'scenario.json') -Raw | ConvertFrom-Json
 if(-not (Test-Path (Join-Path $a 'source-end.json'))){throw 'acceptance started before source tests passed'}
 if($scenario.mode -like 'account-*'){
  foreach($marker in @('native-end.json','prepare-end.json','account-passed.json')){if(-not (Test-Path (Join-Path $a $marker))){throw "acceptance prerequisite missing: $marker"}}
 }
-@{HostVsixPath=$HostVsixPath;FixtureRoot=$FixtureRoot;StateRoot=$StateRoot;UseFreshState=[bool]$UseFreshState;TypeScriptPath=$TypeScriptPath;UiSourcePath=$UiSourcePath;OriginalExtensionPath=$OriginalExtensionPath;OriginalAudioPath=$OriginalAudioPath;CodePath=$CodePath} | ConvertTo-Json | Set-Content (Join-Path $a 'check-invocation.json')
+@{HostVsixPath=$HostVsixPath;FixtureRoot=$FixtureRoot;ParentLifecycleId=$ParentLifecycleId;StateRoot=$StateRoot;UseFreshState=[bool]$UseFreshState;TypeScriptPath=$TypeScriptPath;UiSourcePath=$UiSourcePath;OriginalExtensionPath=$OriginalExtensionPath;OriginalAudioPath=$OriginalAudioPath;CodePath=$CodePath} | ConvertTo-Json | Set-Content (Join-Path $a 'check-invocation.json')
 New-Item -ItemType Directory -Path $FixtureRoot | Out-Null
 if($scenario.mode -eq 'acceptance-command-fail'){[Console]::Error.WriteLine('causal acceptance failure');exit 31}
 if($scenario.mode -eq 'missing-acceptance'){exit 0}

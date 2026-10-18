@@ -1,18 +1,21 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import { createRequire } from 'node:module';
 import Module from 'node:module';
 import { EventEmitter } from 'node:events';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
-import { readFile, writeFile, mkdir, access } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, dirname, join, sep, extname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import assert from 'node:assert/strict';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const logs = resolve(process.env.AZRAEL_RENDER_LOG_ROOT || join(root, 'artifacts/logs/accounts-usage-redesign'));
-const fixture = resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT || join(root, 'artifacts/verification/accounts-usage-redesign'));
-assert(fixture.startsWith(join(root, 'artifacts/verification') + sep));
-assert(logs.startsWith(join(root, 'artifacts/logs') + sep));
+const artifactRun=beginArtifactRun(root,{workId:'verify-account-overview-render',owner:'scripts/verify-account-overview-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const logs = artifactRun.logs;
+const fixture = artifactRun.temporary;
 const assets = join(root, 'artifacts/upstream-ui/26.1007.21434/webview/assets');
 await mkdir(join(fixture, 'chrome-profile'), { recursive: true });
 await mkdir(logs, { recursive: true });
@@ -241,11 +244,11 @@ finally {
   view?.dispose();server.closeAllConnections();await new Promise(r=>server.close(r));
   if(socket?.readyState===WebSocket.OPEN){try{socket.send(JSON.stringify({id:++seq,method:'Browser.close'}));}catch{}await delay(250);socket.close();}
   for(const p of pending.values())clearTimeout(p.timer);
-  if(chrome?.exitCode===null&&chrome?.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,5000);chrome.once('exit',()=>{clearTimeout(timer);r();});});
-  summary.browserExited=!!chrome&&(chrome.exitCode!==null||chrome.signalCode!==null);
-  await writeFile(join(fixture,'check-result.json'),JSON.stringify(summary,null,2));
-  if(summary.browserExited){
-    const cleanup=spawn('pwsh',['-NoProfile','-Command','& ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $env:AZRAEL_RENDER_CLEANUP_FIXTURE -IncludeDiagnosedFixtures -Apply -ReportPath $env:AZRAEL_RENDER_CLEANUP_REPORT'],{cwd:root,env:{...process.env,AZRAEL_RENDER_CLEANUP_FIXTURE:fixture,AZRAEL_RENDER_CLEANUP_REPORT:join(logs,'cleanup-report.json')},windowsHide:true,stdio:['ignore','pipe','pipe']});let text='';cleanup.stdout.on('data',b=>text+=b);cleanup.stderr.on('data',b=>text+=b);summary.cleanupExitCode=await new Promise((r,j)=>{cleanup.on('error',j);cleanup.on('exit',r);});await writeFile(join(logs,'cleanup.log'),text);summary.fixtureRemoved=await access(fixture).then(()=>false,()=>true);if(summary.cleanupExitCode!==0||!summary.fixtureRemoved)process.exitCode=1;
-  }else{summary.retentionReason='Browser exit unconfirmed; remove profile after exit';process.exitCode=1;}
-  summary.resetNotices=resetNotices;summary.resetCalls=resetCalls;summary.exitCode=process.exitCode||0;await writeFile(join(logs,'overview-render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify({outcome:summary.outcome,checks:summary.checks.length,error:summary.error,exitCode:summary.exitCode,fixtureRemoved:summary.fixtureRemoved}));
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,join(fixture,'chrome-profile'));
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;
+  summary.resetNotices=resetNotices;summary.resetCalls=resetCalls;summary.exitCode=process.exitCode||0;await writeFile(join(logs,'overview-render-summary.json'),JSON.stringify(summary,null,2));console.log(JSON.stringify({runRoot:artifactRun.runRoot,lifecycleId:artifactRun.lifecycleId,outcome:summary.outcome,checks:summary.checks.length,error:summary.error,exitCode:summary.exitCode,fixtureRemoved:summary.fixtureRemoved}));
 }

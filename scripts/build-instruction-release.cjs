@@ -5,6 +5,7 @@ const path = require("node:path");
 const crypto = require("node:crypto");
 const { execFileSync } = require("node:child_process");
 const { pipeline } = require("node:stream/promises");
+const { beginArtifactRun, finishArtifactRun } = require("./artifact-run.cjs");
 
 const sha256 = (bytes) => crypto.createHash("sha256").update(bytes).digest("hex");
 function dependency(name) {
@@ -29,7 +30,9 @@ function enumerate(root, folder = root) {
   return files.sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
 }
 
-async function buildRelease({ source, output, repository = "felrer/Azrael", allowDirty = false, sourceCommit }) {
+// API callers own their selected output (including OS temporary directories).
+// The CLI supplies ownership only after the existing collision checks pass.
+async function buildRelease({ source, output, repository = "felrer/Azrael", allowDirty = false, sourceCommit, beforeCreate }) {
   source = fs.realpathSync(source);
   output = path.resolve(output);
   const sourceRelative = path.relative(source, output);
@@ -62,6 +65,7 @@ async function buildRelease({ source, output, repository = "felrer/Azrael", allo
   const documentData = Buffer.from(JSON.stringify({ documents: documents.map(document => ({ ...document,
     text: fs.readFileSync(path.join(source, ...document.path.split("/")), "utf8"),
   })) }, null, 2) + "\n");
+  beforeCreate?.();
   fs.mkdirSync(output, { recursive: true });
   const prefix = `azrael-instructions-${metadata.instructionVersion}`;
   const archivePath = path.join(output, `${prefix}.zip`);
@@ -87,6 +91,29 @@ async function buildRelease({ source, output, repository = "felrer/Azrael", allo
     fileCount: files.length, documentCount: documents.length, archive: archivePath, manifest: manifestPath, documents: documentsPath };
 }
 
+async function buildCliRelease(options, { projectRoot = path.resolve(__dirname, "..") } = {}) {
+  const runId = new Date().toISOString().replace(/[-:.]/g, "") + "-" + crypto.randomUUID();
+  const artifacts = path.join(projectRoot, "artifacts");
+  const output = options.output ? path.resolve(options.output) : path.join(artifacts, "tasks/instruction-release/runs", runId, "outputs/release");
+  const relative = path.relative(artifacts, output);
+  const managed = relative && relative !== ".." && !relative.startsWith(".." + path.sep) && !path.isAbsolute(relative);
+  let run;
+  try {
+    const result = await buildRelease({ ...options, output, beforeCreate: managed ? () => {
+      run = beginArtifactRun(projectRoot, { workId: "instruction-release", owner: "build-instruction-release", runId,
+        ...(options.output ? { paths: { outputs: output } } : {}) });
+    } : undefined });
+    if (run) finishArtifactRun(run, { exitCode: 0, producerStopped: true });
+    return result;
+  } catch (error) {
+    if (run) {
+      try { finishArtifactRun(run, { exitCode: 1, producerStopped: true }); }
+      catch (metadataError) { error.message += `; lifecycle update failed: ${metadataError.message}`; }
+    }
+    throw error;
+  }
+}
+
 if (require.main === module) {
   const options = { source: path.join(__dirname, "../instructions"), repository: "felrer/Azrael" };
   for (let i = 2; i < process.argv.length; i++) {
@@ -96,9 +123,8 @@ if (require.main === module) {
       options[key === "--source-commit" ? "sourceCommit" : key.slice(2)] = process.argv[++i];
     } else throw new Error(`Unknown or missing argument: ${key}`);
   }
-  options.output ??= path.join(__dirname, "../artifacts/instructions", `${Date.now()}`);
-  buildRelease(options).then(result => process.stdout.write(JSON.stringify(result, null, 2) + "\n"))
+  buildCliRelease(options).then(result => process.stdout.write(JSON.stringify(result, null, 2) + "\n"))
     .catch(error => { process.stderr.write(error.message + "\n"); process.exitCode = 1; });
 }
 
-module.exports = { buildRelease, enumerate };
+module.exports = { buildRelease, buildCliRelease, enumerate };

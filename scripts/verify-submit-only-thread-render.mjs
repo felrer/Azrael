@@ -1,5 +1,7 @@
+import artifactRunTools from './artifact-run.cjs';
+const {beginArtifactRun,trackArtifactChild}=artifactRunTools;
 import { createRequire } from 'node:module';
-import { spawn } from 'node:child_process';
+import {spawn as nativeSpawn } from 'node:child_process';
 import { createServer } from 'node:http';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { resolve, dirname, join, extname, sep } from 'node:path';
@@ -8,8 +10,11 @@ import { createHash } from 'node:crypto';
 import assert from 'node:assert/strict';
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const fixture = join(root, 'artifacts/verification/submit-only-thread-render');
-const logs = join(root, 'artifacts/logs/submit-only-thread/render');
+const artifactRun=beginArtifactRun(root,{workId:'verify-submit-only-thread-render',owner:'scripts/verify-submit-only-thread-render.mjs',paths:{...(process.env.AZRAEL_RENDER_FIXTURE_ROOT ? {temporary:resolve(process.env.AZRAEL_RENDER_FIXTURE_ROOT)} : {}),...(process.env.AZRAEL_RENDER_LOG_ROOT ? {logs:resolve(process.env.AZRAEL_RENDER_LOG_ROOT)} : {})}});
+const spawn=(...args)=>trackArtifactChild(artifactRun,nativeSpawn(...args));
+const confirmOwnedBrowserExit=(child,profilePath)=>artifactRunTools.confirmOwnedBrowserExit(child,profilePath,spawn);
+const fixture = artifactRun.temporary;
+const logs = artifactRun.logs;
 const profile = join(fixture, 'chrome-profile');
 const assets = join(root, 'artifacts/upstream-ui/26.1007.21434/webview/assets');
 const require = createRequire(import.meta.url);
@@ -90,26 +95,13 @@ try {
 finally {
   socket?.close(); server.close();
   if (chrome && chrome.exitCode === null && chrome.signalCode === null) { chrome.kill(); await new Promise(r => { const timer = setTimeout(r, 10000); chrome.once('exit', () => { clearTimeout(timer); r(); }); }); }
-  summary.browserExitCode = chrome?.exitCode; summary.browserSignalCode = chrome?.signalCode;
-  if (chrome && (chrome.exitCode !== null || chrome.signalCode !== null)) {
-    const cleanupScript = String.raw`$ErrorActionPreference='Stop'
-$taskRoot=[IO.Path]::GetFullPath($env:AZRAEL_SUBMIT_FIXTURE)
-$expectedParent=[IO.Path]::GetFullPath((Join-Path (Get-Location) 'artifacts/verification'))
-if (-not $taskRoot.StartsWith($expectedParent+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase)) { throw 'Unexpected cleanup target' }
-$preview=& ./scripts/clean-verification-artifacts.ps1 -FixtureRoot $taskRoot -IncludeDiagnosedFixtures -ReportPath $env:AZRAEL_SUBMIT_CLEANUP
-if ($preview.status -ne 'preview' -or $preview.candidates.Count -ne 1 -or $preview.candidates[0].status -ne 'selected') { throw 'Cleanup preview refused' }
-$live=@(Get-CimInstance Win32_Process | Where-Object { ($_.CommandLine -and $_.CommandLine.Replace('/','\').Contains($taskRoot)) -or ($_.ExecutablePath -and $_.ExecutablePath.StartsWith($taskRoot,[StringComparison]::OrdinalIgnoreCase)) })
-if ($live.Count) { throw 'Fixture referenced by live process' }
-Remove-Item -LiteralPath $taskRoot -Recurse
-if (Test-Path -LiteralPath $taskRoot) { throw 'Fixture survived cleanup' }
-`;
-    const cleanup = spawn('pwsh', ['-NoLogo', '-NoProfile', '-NonInteractive', '-Command', '-'], { cwd: root, windowsHide: true, env: { ...process.env, AZRAEL_SUBMIT_FIXTURE: fixture, AZRAEL_SUBMIT_CLEANUP: join(logs, 'cleanup-preview.json') }, stdio: ['pipe', 'pipe', 'pipe'] });
-    let output = ''; cleanup.stdout.on('data', b => output += b); cleanup.stderr.on('data', b => output += b); cleanup.stdin.end(cleanupScript);
-    summary.cleanupExitCode = await new Promise((r, j) => { cleanup.on('error', j); cleanup.on('exit', r); });
-    await writeFile(join(logs, 'cleanup.txt'), output);
-    if (summary.cleanupExitCode !== 0) process.exitCode = 1;
-  } else { summary.cleanup = 'Browser termination not confirmed; fixture retained'; process.exitCode = 1; }
-  summary.exitCode = process.exitCode || 0;
+
+  summary.browserExit=await confirmOwnedBrowserExit(chrome,profile);
+  artifactRun.producerStopped=summary.browserExit.confirmed;
+  summary.runRoot=artifactRun.runRoot;summary.lifecycleId=artifactRun.lifecycleId;
+  summary.fixtureRemoved=false;summary.retentionReason='Retained fixture, profile and raw results for lifecycle review';
+  if(!summary.browserExit.confirmed)process.exitCode=1;
+  summary.exitCode=process.exitCode||0;
   await writeFile(join(logs, 'summary.json'), JSON.stringify(summary, null, 2) + '\n');
   console.log(JSON.stringify({ outcome: summary.outcome, checks: summary.checks, error: summary.error, cleanupExitCode: summary.cleanupExitCode, exitCode: summary.exitCode }));
 }

@@ -1,0 +1,79 @@
+{
+  "at": "2026-10-18T18:19:26.2777272Z",
+  "inspection": "CIM full process executable/commandline member references; own inspection ancestry excluded; combined with recorded child close, actual command exits and owned browser/host shutdown evidence",
+  "process_count": 614,
+  "groups": [
+    {
+      "id": "run:deploy-checks:3af8426991504f89969f8ef7f3a62c45",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181224971Z-9c141f39-a928-4f33-b498-fd7c2b695a4c",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181222150Z-6c8a5b03-d287-46ed-b0ab-4b7d97008f4e",
+      "processes": []
+    },
+    {
+      "id": "run:verify-webview-idle-host:20261018T180829467Z-2d662c76-1087-4138-b6c7-f32816a94698",
+      "processes": []
+    },
+    {
+      "id": "run:BI-01-project-maintenance:20261019-full-adoption",
+      "processes": []
+    },
+    {
+      "id": "run:verify-webview-idle-render:20261018T180540862Z-2ef776e4-0304-4635-8c2d-e9f54400fcc8",
+      "processes": []
+    },
+    {
+      "id": "run:verify-webview-idle-host:20261018T180952743Z-3791a545-eae2-4d1a-816d-c647ad6fdf7f",
+      "processes": []
+    },
+    {
+      "id": "run:deploy-checks:1c0f4a524c2e48bc911419999ca96794",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181221133Z-d8660bdb-f48a-4f75-8ba6-d2bb844d411a",
+      "processes": []
+    },
+    {
+      "id": "run:deploy-checks:70ea8c62f9ea4082914c3601886cd9cd",
+      "processes": []
+    },
+    {
+      "id": "run:deploy-checks:18acd7ebce4a45599af990b9592df260",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181220166Z-59505800-89fe-4baa-931b-10707eca89fa",
+      "processes": []
+    },
+    {
+      "id": "run:verify-webview-idle-host:20261018T180314906Z-0b6a25c4-4d2c-452a-921f-eefd1b126f7d",
+      "processes": []
+    },
+    {
+      "id": "run:verify-webview-idle-render:20261018T180154348Z-273910b8-fbf1-4da4-9e2f-23fef40e223a",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181223029Z-7fbd8cc8-9344-4258-bf89-3bfa1e3c8d36",
+      "processes": []
+    },
+    {
+      "id": "run:check-management:20261018T181223909Z-a0d86edd-bd96-40a4-bb68-b86e17a79256",
+      "processes": []
+    },
+    {
+      "id": "run:lifecycle-check:1ee3b386-4707-4131-9687-70d91e6ef70f",
+      "processes": []
+    },
+    {
+      "id": "run:deploy-checks:faad5db9caed4f5583206a207fff2476",
+      "processes": []
+    }
+  ]
+}

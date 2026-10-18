@@ -19,6 +19,18 @@ function verifySigning(receipt, entries, selected) {
   }
   return receipt;
 }
+function importedInputOwner(root, release, names, records) {
+  // Only verified, declared inputs are adopted. Other files under the release
+  // directory may be source or user data and remain outside this ownership.
+  const inputs=[...names].sort().map(name=>({path:shared.fileAt(release,name),sha256:shared.sha(fs.readFileSync(shared.fileAt(release,name)))}));
+  const id=`platform-package-input:${shared.sha(shared.encode({release,inputs}))}`;
+  const members=inputs.map(input=>({path:input.path,role:"imported-release-input"}));
+  const previous=records.find(record=>record.id===id);
+  if(previous && (previous.kind!=="version" || previous.owner!=="package-platform-release:imported-input" || previous.version!==null || !isDeepStrictEqual(previous.members,members))) throw new Error("Conflicting imported packaging input identity.");
+  const conflicts=records.filter(record=>record.id!==id && record.members.some(member=>inputs.some(input=>shared.within(member.path,input.path) || shared.within(input.path,member.path))));
+  if(conflicts.length) throw new Error("Conflicting imported packaging input ownership: "+conflicts.map(record=>record.id).join(", "));
+  return previous || lifecycle.recordLifecycle(root,{id,kind:"version",owner:"package-platform-release:imported-input",state:"retained",membership_complete:false,members});
+}
 function packageRelease(options) {
   const release=shared.inspectPath(shared.absolute(options.release)), host=shared.inspectPath(shared.absolute(options["host-vsix"]));
   const output=shared.inspectPath(shared.absolute(options.output)), version=shared.version(options.version);
@@ -81,12 +93,14 @@ function packageRelease(options) {
   if (shared.sha(fs.readFileSync(host))!==shared.sha(hostBytes)) throw new Error("Host input changed during packaging.");
   const archive=output+(selected.os==="win32" ? ".zip" : ".tar.gz");
   const lifecycleRoot=options["project-root"] || path.resolve(__dirname,"..");
-  const parent=lifecycle.catalog(lifecycleRoot).find(record=>record.id===options["lifecycle-id"]);
+  const records=lifecycle.catalog(lifecycleRoot),parent=records.find(record=>record.id===options["lifecycle-id"]);
   if(options["lifecycle-id"] && (!parent || parent.kind!=="version" || !parent.members.some(member=>member.path===release && member.role==="release"))) throw new Error("Explicit lifecycle does not own selected release.");
-  const related=lifecycle.catalog(lifecycleRoot).find(record=>record.kind==="version" && record.members.some(member=>member.path===release && member.role==="release"));
+  const owners=records.filter(record=>record.kind==="version" && record.members.some(member=>member.path===release && member.role==="release"));
+  if(owners.length>1) throw new Error("Conflicting packaging release ownership.");
+  const related=parent || owners[0] || importedInputOwner(lifecycleRoot,release,names,records);
   const lifecycleRecord=parent ? {...parent,members:[{path:output,role:"package"},{path:archive,role:"archive"}]} :
-    {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:[{path:output,role:"package"},{path:archive,role:"archive"}],references:[{id:related?.id || `release:${release}`,reason:"packaging-input"}]};
-  lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"pending",membership_complete:false});
+    {id:`platform-package:${output}`,kind:"run",owner:"package-platform-release",version,members:[{path:output,role:"package"},{path:archive,role:"archive"}],references:[{id:related.id,reason:"packaging-input"}]};
+  const pending=lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"pending",membership_complete:false,...(parent ? {expected_revision:parent.revision} : {})});
   try {
   fs.mkdirSync(output,{recursive:true});
   for (const [name,item] of files) { const target=path.join(output,name); fs.mkdirSync(path.dirname(target),{recursive:true}); fs.writeFileSync(target,item.data,{flag:"wx",mode:item.mode}); fs.chmodSync(target,item.mode); }
@@ -95,10 +109,10 @@ function packageRelease(options) {
   if (fs.existsSync(archive)) throw new Error("Archive destination already exists.");
   if (selected.os==="win32") { files.set("release-manifest.json",{data:shared.encode(manifest),mode:0o644}); fs.writeFileSync(archive,shared.writeZip(files),{flag:"wx"}); }
   else { const result=spawnSync("tar",["-czf",archive,"-C",output,"--",...shared.walk(output)],{encoding:"utf8",shell:false}); if (result.error || result.status!==0) throw new Error("Release archive creation failed."); }
-  lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"complete",membership_complete:true});
+  lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:parent ? parent.state : "complete",membership_complete:parent ? parent.membership_complete : true,expected_revision:pending.revision});
   return {output,archive,platform:manifest.platform,version,files:inventory.length};
   } catch(error) {
-    try { lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"failed",membership_complete:false}); }
+    try { lifecycle.recordLifecycle(lifecycleRoot,{...lifecycleRecord,state:"failed",membership_complete:false,expected_revision:pending.revision}); }
     catch(metadataError) { error.message+=`; lifecycle update failed: ${metadataError.message}`; }
     throw error;
   }
