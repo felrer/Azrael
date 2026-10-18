@@ -2,6 +2,12 @@
 
 # Window Use 관리자 준비 및 런타임 반영
 
+### 재설치 후 그림판 재시험 — 2026-10-18
+
+사용자의 재시험 요청으로 외부 프로필의 기존 테스트 전달기를 재실행하고 실제 native RPC를 통해 기존 외부 Agent 대화에 `retry-005`를 전달했다. 제품이나 권한 설정은 변경하지 않았다. 실제 thread `01a14c5c-7f32-7da3-a6b3-82c56f5a79ce`, turn `01a14cf9-218a-7af1-93bb-c67697ad7c25`는 UTC 03:05:57 시작 응답 후 03:06:51 `completed`, `error:null`로 끝났다. 근거는 `C:/Users/felre/av18/artifacts/f/agent-io/retry-005-{producer,delivered,events,completed}` 파일이다.
+
+결과는 그림판 제어 통과가 아니다. 관리형 내부 권한 준비는 `authorized:true`, `prepared:true`였으나 실제 `request_stage(3)`가 `authorized:false`, `existing_child_not_owned`를 반환했다. 최신 Agent 진단은 자식 세션 6 생존, `ownershipVerified:false`, `connectionAttempted:false`다. 그림판 앱 승인·입력·전후 캡처를 수행하지 않았고 기존 앱과 세션을 유지했다. 내부 승인 UI 변경은 이 별도 소유권 장애를 해결하지 않는다. 기존 소유 관리형 연결 복구 또는 검증된 복구 경로가 다음 선행 조건이다. 해당 실패를 재현하고 후속 테스트에 사용하기 위해 외부 프로필·전달기·작은 요청/결과 기록을 보존하며, 소유 연결 문제가 해결되고 세션 유지 요구와 활성 참조가 해제되면 함께 정리 여부를 검토한다.
+
 ### 외부 설치 확인 — 2026-10-18
 
 외부 검증 복사본 정리도 최종 완료했다. `deployment/external-cleanup-result.json`의 그룹·항목 결과가 모두 `deleted`, `remaining:false`, `error:null`이고 실제 `f/host6-u19c` 경로 소멸을 확인했다. Native 삭제 도구가 전체 트리 재검증·해시·Windows 경로/속성 검사를 반복하므로 3.17GB·57,413개 항목 정리에 긴 대기가 발생했다. 등록은 UTC 02:20~02:33, 삭제 실행은 약 02:39~03:00이었고, 대기 중 동일 생산자를 중복 실행하지 않았다. 완료된 정리 원장과 설정을 작업 근거로 복사한 뒤 임시 프로젝트 별칭, 외부 정리 설정·출처 파일·정리 원장과 이번에 만든 빈 부모 디렉터리를 제거했다. 실제 외부 프로필과 기존 Windows 자식 세션 6은 삭제 대상에 포함하지 않았다. 아래의 ‘삭제 결과 별도 확정’은 이 최종 결과로 충족한다.
