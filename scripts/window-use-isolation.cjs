@@ -5,7 +5,43 @@ const copy = value => JSON.parse(JSON.stringify(value));
 function equal(a, b) { const ordered = v => v && typeof v === 'object' ? Object.keys(v).sort().map(k => [k, ordered(v[k])]) : v; return JSON.stringify(ordered(a)) === JSON.stringify(ordered(b)); }
 function text(value, label) { if (typeof value !== 'string' || !value.trim() || value.length > 2048) throw new Error(`Invalid ${label}`); return value; }
 function fields(value, allowed) { if (!value || typeof value !== 'object' || Array.isArray(value) || Object.keys(value).some(key => !allowed.includes(key))) throw new Error('Unsupported isolation request fields'); }
-function success(result, operation) { if (!result || result.ok !== true) throw Object.assign(new Error(result?.message || result?.code || `Child ${operation} failed`), { code: result?.code || 'child_operation_failed' }); return result; }
+// Only these bounded native failure fields may cross the host boundary. Treat
+// diagnostic text as untrusted; preserve machine-readable context independently.
+function childDiagnostic(source = {}, operation) {
+  source = source || {};
+  const detail = source.diagnostic && typeof source.diagnostic === 'object' ? source.diagnostic : source;
+  const result = {};
+  const identifier = value => typeof value === 'string' && /^[a-z][a-z0-9_.:-]{0,95}$/i.test(value) && !/[a-f0-9]{64}/i.test(value) ? value : undefined;
+  const code = identifier(source.code) || identifier(detail.code);
+  if (code) result.code = code;
+  const hresult = source.hresult ?? detail.hresult;
+  if (Number.isInteger(hresult) && hresult >= -2147483648 && hresult <= 4294967295) result.hresult = hresult;
+  const cleanup = source.cleanupUnconfirmed ?? detail.cleanupUnconfirmed;
+  if (typeof cleanup === 'boolean') result.cleanupUnconfirmed = cleanup;
+  const phase = identifier(detail.phase) || identifier(operation);
+  const type = identifier(detail.type) || identifier(detail.errorType);
+  if (phase) result.phase = phase;
+  if (type) result.type = type;
+  const message = detail.message ?? source.message;
+  if (typeof message === 'string' && message) {
+    // Redact the whole message for secret/path/command or serialized payload
+    // shapes. This avoids exporting partial quoted values or command arguments.
+    const unsafe = message.length > 8192 || /[\x00-\x1f\x7f{}<>`|;$]|[a-z]:[\\/]|\\\\|\/(?:Users|home)\/|~[\\/]|[a-f0-9]{64}|\b(?:bearer\s+|[a-z0-9_-]*(?:password|passwd|token|secret|api[-_]?key|nonce|challenge|pipe)[a-z0-9_-]*\s*[=:])|\.(?:exe|cmd|bat|ps1)\b|\b(?:powershell|pwsh|cmd|bash|sh|node|python|curl)\s+/i.test(message);
+    result.message = unsafe ? '[redacted diagnostic message]' : message.slice(0, 512);
+  }
+  return result;
+}
+function success(result, operation) {
+  if (!result || result.ok !== true) {
+    const diagnostic = childDiagnostic(result, operation);
+    throw Object.assign(new Error(diagnostic.message || diagnostic.code || `Child ${operation} failed`), {
+      code: diagnostic.code || 'child_operation_failed', diagnostic,
+      ...(diagnostic.hresult !== undefined ? { hresult: diagnostic.hresult } : {}),
+      ...(diagnostic.cleanupUnconfirmed !== undefined ? { cleanupUnconfirmed: diagnostic.cleanupUnconfirmed } : {}),
+    });
+  }
+  return result;
+}
 function geometry(result, identity) {
   if (result.sessionId !== identity.childSessionId || !Number.isSafeInteger(result.width) || !Number.isSafeInteger(result.height) || result.width < 1 || result.height < 1 || result.width > 8192 || result.height > 8192 || result.width * result.height > 16777216) throw new Error('Unverified child capture geometry');
   return { width: result.width, height: result.height };
@@ -192,4 +228,4 @@ function createIsolationController({ childSession, resources, authorize = async 
     observeSession, closeSession,
   };
 }
-module.exports = { createIsolationController };
+module.exports = { createIsolationController, childDiagnostic };

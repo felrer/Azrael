@@ -84,6 +84,40 @@ test('non-Windows probe is explicit without executing native code', async () => 
   assert.equal(result.available, false);
 });
 
+test('stale child ID is absent only after successful native enumeration', () => {
+  const value = environment();
+  value.childSessions.childSessionId = 3;
+  value.childSessions.reportedChildSessionLive = false;
+  assert.ok(describeChildSession(value, { enabled: true }).prerequisites.some(item => item.code === 'existing_child_not_owned'));
+  value.childSessions.sessionEnumerationSucceeded = true;
+  assert.deepEqual(describeChildSession(value, { enabled: true }).prerequisites, []);
+  value.childSessions.reportedChildSessionLive = true;
+  assert.ok(describeChildSession(value, { enabled: true }).prerequisites.some(item => item.code === 'existing_child_not_owned'));
+});
+
+test('machine preparation requires task authority and rechecks it before connection', async () => {
+  for (const scenario of ['denied', 'cancelled', 'unknown', 'revoked', 'failed-reprobe', 'success']) {
+    let prepared = false, setupCalls = 0, transportCalls = 0;
+    const manager = createWindowsChildSessionManager({ enabled: true,
+      nativeHelper: { path: 'C:\\fixture\\trusted.exe', sha256: 'a'.repeat(64) },
+      bootstrapJournalPath: 'C:\\fixture\\bootstrap.json',
+      probe: async () => { const value = environment(); value.childSessions.enabled = prepared && scenario !== 'failed-reprobe'; value.service.status = prepared ? 'Running' : 'Stopped'; return value; },
+      authorize: async () => scenario !== 'denied' && !(prepared && scenario === 'revoked'),
+      prepareMachine: async () => { setupCalls++; prepared = true; return scenario === 'cancelled' ? { ok: false, code: 'child_setup_cancelled' } : scenario === 'unknown' ? { ok: false, code: 'child_setup_unknown', cleanupUnconfirmed: true } : { ok: true }; },
+      transportFactory: () => { transportCalls++; return { request: async () => ({ ok: false, code: 'fixture_reconciliation_stop' }), disconnect() {} }; },
+    });
+    const result = await manager.start({ ownerId: 'task-a' });
+    assert.equal(setupCalls, scenario === 'denied' ? 0 : 1, scenario);
+    assert.equal(transportCalls, scenario === 'success' ? 1 : 0, scenario);
+    assert.equal(result.code, { denied: 'child_session_authority_required', cancelled: 'child_setup_cancelled', unknown: 'child_setup_unknown', revoked: 'child_session_authority_required', 'failed-reprobe': 'child_session_prerequisites', success: 'fixture_reconciliation_stop' }[scenario]);
+    assert.equal((await manager.describe()).cleanupUnconfirmed, scenario === 'unknown', scenario);
+    if (scenario === 'unknown') {
+      assert.equal((await manager.start({ ownerId: 'task-a' })).code, 'child_cleanup_unconfirmed');
+      assert.equal(setupCalls, 1);
+    }
+  }
+});
+
 function mockAdmission(identity) {
   return { scope: 'child_platform_fixture', helperSha256: 'a'.repeat(64), identity: { ...identity },
     gates: Object.fromEntries(['connection', 'render', 'keyboard', 'mouse', 'parentIdentity', 'dataProfile']

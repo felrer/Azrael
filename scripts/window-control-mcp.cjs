@@ -54,7 +54,7 @@ function toolDefinitions() {
   const condition = {type:'object',properties:{selector:fullSelector,property:{enum:['exists','enabled','value','selected','toggleState','expandState']},equals:{anyOf:[{type:'string'},{type:'boolean'},parameter]}},required:['selector','property','equals'],additionalProperties:false};
   condition.allOf = [{if:{properties:{property:{enum:['exists','enabled','selected']}}},then:{properties:{equals:{type:'boolean'}}}}];
   const definition = {type:'object',properties:{schema:{const:1},id:{type:'string'},name:{type:'string'},parameters:{type:'array',items:{type:'string'},uniqueItems:true,maxItems:32},steps:{type:'array',minItems:1,maxItems:32,items:{type:'object',properties:{action:{enum:['invoke','set_value','toggle','select','expand','collapse','scroll','press_key','wait_for','assert','capture']},selector:fullSelector,value:{anyOf:[{type:'string',maxLength:32768},parameter,{type:'object',properties:{horizontal:{type:'integer',minimum:-2,maximum:2},vertical:{type:'integer',minimum:-2,maximum:2}},required:['horizontal','vertical'],additionalProperties:false}]},key:{enum:require('./window-task-macros.cjs').KEYS},condition,postcondition:condition,timeoutMs:{type:'integer',minimum:0,maximum:10000}},required:['action'],additionalProperties:false}}},required:['schema','steps'],additionalProperties:false};
-  const discovery = ['context','request_stage','resource_status','cleanup','list_windows','select_window','list_task_macros','save_task_macro'];
+  const discovery = ['context','prepare_permissions','request_stage','resource_status','cleanup','list_windows','select_window','list_task_macros','save_task_macro'];
   const definitions = TOOLS.map(name => {
     const properties = discovery.includes(name) ? {} : {targetId:{type:'string',description:'Opaque selected target ID from select_window or status.'}};
     const required = discovery.includes(name) || name === 'status' ? [] : ['targetId'];
@@ -66,7 +66,8 @@ function toolDefinitions() {
     if(name === 'select_window') {properties.candidateId = {type:'string'};required.push('candidateId');}
     if(name === 'cleanup') properties.ids={type:'array',minItems:1,maxItems:20,items:{type:'string',maxLength:128},description:'Optional owned IDs from resource_status for immediate safe cleanup; omit to apply idle/quota policy.'};
     if(name === 'context') properties.guideVersion = {type:'string'};
-    if(name === 'request_stage') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
+    if(name === 'request_stage' || name === 'prepare_permissions') {properties.stage={enum:[2,3,4]};properties.targetId={type:'string'};properties.reason={type:'string',minLength:1,maxLength:1024};required.push('stage','reason');}
+    if(name === 'prepare_permissions') properties.candidateIds={type:'array',maxItems:8,uniqueItems:true,items:{type:'string'},description:'Fresh opaque candidate IDs from list_windows for known apps to approve before work. No executable paths or wildcard grants. Selecting a window invalidates old candidates; enumerate again if needed.'};
     if(name === 'input_isolated') {properties.observationId={type:'string'};properties.input={oneOf:[{type:'object',properties:{kind:{const:'text'},text:{type:'string',maxLength:4096}},required:['kind','text'],additionalProperties:false},{type:'object',properties:{kind:{const:'key'},scanCode:{type:'integer',minimum:1,maximum:127},action:{enum:['down','up']},extended:{type:'boolean'}},required:['kind','scanCode','action'],additionalProperties:false},{type:'object',properties:{kind:{const:'mouse'},x:{type:'integer',minimum:0},y:{type:'integer',minimum:0},action:{enum:['move','down','up','wheel']},button:{enum:['left','right','middle']},delta:{type:'integer',minimum:-1200,maximum:1200}},required:['kind','x','y','action'],additionalProperties:false}]};required.push('observationId','input');}
     if(name === 'inspect') {
       properties.mode={enum:['summary','find','read','changes'],default:'summary'};
@@ -84,6 +85,7 @@ function toolDefinitions() {
     const descriptions = {
       context:'Read current Window Use stages, prerequisites and concise guidance. Supply guideVersion to omit unchanged guidance.',
       request_stage:'Request task authority for 2 current window, 3 isolated execution, or 4 desktop. App grants do not grant stages. Follow returned guidance before input.',
+      prepare_permissions:'At task start, request the required stage and known app permissions through Azrael cards before execution. Each request allows 50 seconds. Supply up to eight fresh observed candidateIds. Does not create a child session, launch apps, select a target or perform input. Additional scope still requires approval; call request_stage to activate a prepared child session.',
       launch_isolated:'Launch the selected observed app as a new instance in the authorized Windows child session. Reuses stored profile data where the app permits. Requires app consent; does not move an existing window.',
       capture_isolated:'Capture an opaque owned child-session target. Check verification and availability; a returned image alone does not establish app compatibility.',
       input_isolated:'Send bounded input to the exact owned child target using a fresh capture observation. Never replay uncertain input or fall back to the parent desktop.',
@@ -125,7 +127,7 @@ function pipeRequest(pipe, message, { connect = net.createConnection, timeoutMs 
         let result;
         try { result = JSON.parse(buffer.slice(0, newline)); } catch (cause) { return finish(windowError('unclassified', '', { stage, cause })); }
         buffer = buffer.slice(newline + 1);
-        if (result?.progress && ['queued', 'running', 'approval'].includes(result.progress.stage)) { stage = result.progress.stage; continue; }
+        if (result?.progress && ['queued', 'running', 'approval'].includes(result.progress.stage)) { stage = result.progress.stage; socket.setTimeout(stage === 'approval' ? 60000 : timeoutMs, () => finish(timeout())); continue; }
         if (!result || typeof result !== 'object' || (!Object.hasOwn(result, 'result') && !Object.hasOwn(result, 'error'))) return finish(windowError('unclassified', '', { stage }));
         if (result.error) finish(fromPayload(result.error)); else finish(null, result.result);
       }
@@ -141,7 +143,8 @@ function createRelay({ codexHome = process.env.CODEX_HOME || path.join(os.homedi
     let session;
     try { const raw = await readFile(path.join(codexHome, 'azrael', 'computer-use', 'window-sessions', threadId + '.json'), 'utf8'); if (raw.length > 16384) throw windowError('unclassified', ''); session = JSON.parse(raw); } catch (cause) { if (cause.code === 'ENOENT') throw windowError('selection_required', 'No selected-window session for this thread', { stage: 'session' }); throw windowError('unclassified', '', { stage: 'session', cause }); }
     if (!session || session.schema !== 1 || Object.keys(session).some(k => !['schema', 'pipe', 'nonce'].includes(k)) || typeof session.pipe !== 'string' || !(process.platform === 'win32' ? /^\\\\\.\\pipe\\azrael-window-[A-Za-z0-9_-]{16,128}$/.test(session.pipe) : /^\/tmp\/azw-[A-Za-z0-9]{6}\/w\.sock$/.test(session.pipe)) || typeof session.nonce !== 'string' || !/^[A-Za-z0-9_-]{32,256}$/.test(session.nonce)) throw expectedError('Invalid selected-window session');
-    return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta });
+    return request(session.pipe, { nonce: session.nonce, threadId, method: 'call', tool, arguments: args, _meta: trustedMeta },
+      tool === 'request_stage' && args?.stage === 3 ? { timeoutMs: 360000 } : undefined);
   };
 }
 function callResult(result) {
@@ -158,7 +161,11 @@ function callResult(result) {
   }
   const text = observation(result);
   for(const key of ['stage','backendDirectory','executionContext','enabled','stages','guideVersion','guide','authorized','missingPrerequisite','message','resources','freedBytes','deferred','failed','deleted','childSession','results','bytes','reservedBytes','maxBytes','overLimit','availableBytes','resourceCount','admissionReady','available','contentVerified','code','ok','width','height','delivered','readbackVerified','observationInvalidated','admissionScope','applicationCompatibility','resourceId']) if(Object.hasOwn(result,key)) text[key]=result[key];
+  if(typeof result.prepared==='boolean') text.prepared=result.prepared;
+  if(typeof result.appsAuthorized==='boolean') text.appsAuthorized=result.appsAuthorized;
+  if(Array.isArray(result.appResults)) text.appResults=result.appResults.slice(0,8).map(r=>({index:r.index,authorized:r.authorized,...(typeof r.code==='string'&&/^[a-z_]{1,64}$/.test(r.code)?{code:r.code}:{})}));
   if(Array.isArray(result.candidates)) text.candidates = result.candidates.map(c => ({candidateId:c.candidateId,appName:c.appName,title:c.title,minimized:c.minimized,...(c.occupancy ? {occupancy:occupancy(c.occupancy)} : {})}));
+  if(result.diagnostic && typeof result.diagnostic === 'object' && !Array.isArray(result.diagnostic)) text.diagnostic = require('./window-use-isolation.cjs').childDiagnostic({diagnostic:result.diagnostic});
   if(Array.isArray(result.macros)) text.macros = result.schema === 1 ? result.macros.map(m => require('./window-task-macros.cjs').definition(m,true)) : result.macros.map(m => ({id:m.id,name:m.name,steps:m.steps.map(s => ({widthDip:s.widthDip,heightDip:s.heightDip}))}));
   for(const key of ['schema','revision','runId','status','macroId','error']) if(Object.hasOwn(result,key)) text[key] = result[key];
   if(result.definition) text.definition = require('./window-task-macros.cjs').definition(result.definition,true);

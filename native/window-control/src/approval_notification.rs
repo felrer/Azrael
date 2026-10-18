@@ -366,7 +366,7 @@ fn run(receiver: mpsc::Receiver<Command>, ready: mpsc::Sender<Result<()>>) {
                         return Ok(json!({"shown":false}));
                     }
                     let xml = XmlDocument::new()?;
-                    xml.LoadXml(&HSTRING::from(format!("<toast launch=\"{}\" activationType=\"foreground\" duration=\"long\"><visual><binding template=\"ToastGeneric\"><text>Window Use approval requested</text><text>{}</text><text>{{remaining}}</text></binding></visual><audio silent=\"true\"/></toast>",p.request_id,escape(&p.app_title))))?;
+                    xml.LoadXml(&HSTRING::from(format!("<toast launch=\"{}\" activationType=\"foreground\" duration=\"long\"><visual><binding template=\"ToastGeneric\"><text>Window Use approval requested</text><text>{}</text><text>{{remaining}}</text></binding></visual></toast>",p.request_id,escape(&p.app_title))))?;
                     let toast = ToastNotification::CreateToastNotification(&xml)?;
                     toast.Failed(
                         &TypedEventHandler::<ToastNotification, ToastFailedEventArgs>::new(

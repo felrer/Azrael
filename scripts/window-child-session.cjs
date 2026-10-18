@@ -1,6 +1,7 @@
 'use strict';
 
 const path = require('node:path');
+const os = require('node:os');
 const { execFile, spawn } = require('node:child_process');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
@@ -17,20 +18,28 @@ const missingAdapters = Object.freeze([
 async function probeWindowsChildSession(options = {}) {
   const platform = options.platform || process.platform;
   if (platform !== 'win32') return { schemaVersion: 1, platform, readOnly: true, supported: false, errors: [] };
+  let temporaryDirectory;
   try {
     // Absolute system PowerShell, no shell interpolation, no UAC or configuration changes.
     const windowsRoot = process.env.SystemRoot || 'C:\\Windows';
     const scriptPath = options.probePath || probePath;
     if (!path.isAbsolute(scriptPath)) throw new Error('Trusted absolute prerequisite probe path required');
+    const temporaryRoot = options.tempDirectory || path.join(os.homedir(), '.azrael-ex', 'tmp', 'window-child-probe');
+    if (!path.isAbsolute(temporaryRoot)) throw new Error('Absolute prerequisite temporary directory required');
+    await fs.promises.mkdir(temporaryRoot, { recursive: true });
+    temporaryDirectory = await fs.promises.mkdtemp(path.join(temporaryRoot, 'probe-'));
     const result = await runFile(path.join(windowsRoot, 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe'),
       ['-NoLogo', '-NoProfile', '-NonInteractive', '-STA', '-ExecutionPolicy', 'Bypass', '-File', scriptPath],
-      { windowsHide: true, timeout: 20000, maxBuffer: 128 * 1024, encoding: 'utf8' });
+      { windowsHide: true, timeout: 20000, maxBuffer: 128 * 1024, encoding: 'utf8',
+        env: { ...process.env, TEMP: temporaryDirectory, TMP: temporaryDirectory } });
     const value = JSON.parse(result.stdout.replace(/^\uFEFF/, '').trim());
     if (value.schemaVersion !== 1 || value.platform !== 'win32' || value.readOnly !== true) throw new Error('Invalid child-session probe response');
     return value;
   } catch (error) {
     return { schemaVersion: 1, platform, readOnly: true, errors: [{ operation: 'nativeProbe', code: error.code || null,
       message: error.message, stderr: String(error.stderr || '').slice(0, 4096) }] };
+  } finally {
+    if (temporaryDirectory) await fs.promises.rm(temporaryDirectory, { recursive: true }).catch(() => {});
   }
 }
 
@@ -47,7 +56,8 @@ function describeChildSession(environment, { enabled = false } = {}) {
       add('child_sessions_not_enabled', 'Machine setup is required; app approval does not authorize enabling it.');
     if (!environment.childSessions?.idQuerySucceeded && environment.childSessions?.idError !== 1168)
       add('child_identity_query_failed', environment.childSessions?.idError ?? null);
-    else if (environment.childSessions.childSessionId != null)
+    else if (environment.childSessions.childSessionId != null
+      && !(environment.childSessions.sessionEnumerationSucceeded === true && environment.childSessions.reportedChildSessionLive === false))
       add('existing_child_not_owned', 'An existing child session cannot be adopted or logged off from this probe.');
     if (environment.service?.status !== 'Running') add('termservice_not_running', environment.service?.status || 'unknown');
     if (environment.activeX?.activated !== true) add('activex_unavailable', environment.activeX?.error || null);
@@ -70,12 +80,37 @@ function describeChildSession(environment, { enabled = false } = {}) {
   };
 }
 
-function createNativeTransport(helper, { reconcileBootstrap = false } = {}) {
+function verifyNativeHelper(helper) {
   if (!helper || !path.isAbsolute(helper.path) || !/^[a-f0-9]{64}$/i.test(helper.sha256 || '')) throw new Error('Pinned trusted native helper is required');
   const stat = fs.lstatSync(helper.path);
   if (!stat.isFile() || stat.isSymbolicLink()) throw new Error('Native helper must be a regular executable');
   const actual = crypto.createHash('sha256').update(fs.readFileSync(helper.path)).digest('hex');
   if (actual !== helper.sha256.toLowerCase()) throw new Error('Native helper hash mismatch');
+}
+
+async function prepareWindowsChildSession(helper) {
+  try {
+    verifyNativeHelper(helper);
+    const result = await runFile(helper.path, ['--request-machine-setup'], {
+      windowsHide: true, timeout: 180000, maxBuffer: 128 * 1024, encoding: 'utf8',
+    });
+    const value = JSON.parse(result.stdout.replace(/^\uFEFF/, '').trim());
+    if (!value || typeof value.ok !== 'boolean') throw new Error('Invalid machine setup response');
+    return value;
+  } catch (error) {
+    if (error.stdout && !error.killed && Number.isInteger(error.code)) {
+      try {
+        const value = JSON.parse(String(error.stdout).replace(/^\uFEFF/, '').trim());
+        if (value?.ok === false && typeof value.code === 'string') return value;
+      } catch {}
+    }
+    return { ok: false, code: error.killed ? 'child_setup_unknown' : 'child_setup_failed', message: error.message,
+      cleanupUnconfirmed: error.killed === true };
+  }
+}
+
+function createNativeTransport(helper, { reconcileBootstrap = false } = {}) {
+  verifyNativeHelper(helper);
   const child = spawn(helper.path, reconcileBootstrap ? ['--reconcile-bootstrap'] : [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
   const lines = readline.createInterface({ input: child.stdout });
   let pending, terminal, diagnostic = '';
@@ -119,7 +154,8 @@ function passedChildAdmission(proof, identity, helper) {
 }
 
 function createWindowsChildSessionManager({ enabled = false, probe = probeWindowsChildSession,
-  nativeHelper, bootstrapJournalPath, authorize = async () => false, transportFactory = createNativeTransport } = {}) {
+  nativeHelper, bootstrapJournalPath, authorize = async () => false, transportFactory = createNativeTransport,
+  prepareMachine = prepareWindowsChildSession } = {}) {
   let transport, identity, inputOwner, inFlight = false, uncertain = false, lastClosure, lastReconciliation, admission, admissionAccepted = false;
   const isEnabled = () => typeof enabled === 'function' ? enabled() === true : enabled === true;
   const admitted = () => admissionAccepted && isEnabled() && !uncertain && transport?.healthy !== false && passedChildAdmission(admission, identity, nativeHelper);
@@ -181,9 +217,11 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
     status: describe,
     async reconcileBootstrap() { return exclusive(reconcileBootstrap); },
     async start(request = {}) { return exclusive(async () => {
-      const status = await describe();
+      let status = await describe();
       const blockers = status.prerequisites.filter(item => !(item.code === 'child_identity_query_failed' && item.detail === 1168));
-      if (status.state === 'disabled' || blockers.length || !nativeHelper || uncertain) return {
+      const setupCodes = new Set(['child_sessions_not_enabled', 'termservice_not_running']);
+      const unsafeBlockers = blockers.filter(item => !setupCodes.has(item.code));
+      if (status.state === 'disabled' || unsafeBlockers.length || !nativeHelper || uncertain) return {
         ok: false, code: status.state === 'disabled' ? 'stage3_disabled' : uncertain ? 'child_cleanup_unconfirmed'
           : blockers.length ? 'child_session_prerequisites' : 'child_session_backend_incomplete',
         message: 'No child session was created. See prerequisite and verification gates.', ...status,
@@ -191,8 +229,17 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
       owner(request);
       if (identity) return { ok: false, code: 'child_session_already_owned', identity };
       if (await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
+      if (blockers.length) {
+        const setup = await prepareMachine(nativeHelper);
+        if (setup.cleanupUnconfirmed === true || setup.code === 'child_setup_unknown') uncertain = true;
+        if (setup.ok !== true) return { ...setup, ok: false, available: false, admissionReady: false };
+        status = await describe();
+        if (status.prerequisites.length) return { ...status, ok: false, code: 'child_session_prerequisites' };
+      }
+      if (!isEnabled() || await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
       const reconciliation = await reconcileBootstrap();
       if (!reconciliation.ok) return { ok: false, code: reconciliation.code || 'child_bootstrap_reconciliation_required', reconciliation };
+      if (!isEnabled() || await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
       try {
         transport = transportFactory(nativeHelper);
         const result = await transport.request({ operation: 'start', helperSha256: nativeHelper.sha256.toLowerCase(), bootstrapJournalPath, ownerId: request.ownerId }, 55000);

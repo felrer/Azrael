@@ -6,7 +6,7 @@ const os = require('node:os');
 const tasks = require('./window-task-macros.cjs');
 const { createRegistry } = require('./window-control-occupancy.cjs');
 const ACTIONS = Object.freeze(['invoke', 'setValue', 'toggle', 'select', 'expand', 'collapse', 'scroll']);
-const TOOLS = Object.freeze(['context', 'request_stage', 'resource_status', 'cleanup', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
+const TOOLS = Object.freeze(['context', 'prepare_permissions', 'request_stage', 'resource_status', 'cleanup', 'launch_isolated', 'capture_isolated', 'input_isolated', 'list_windows', 'select_window', 'inspect', 'press_key', 'list_task_macros', 'save_task_macro', 'run_task_macro', 'capture', 'status', 'restore_window', 'invoke', 'set_value', 'toggle', 'select', 'expand', 'collapse', 'scroll', 'resize', 'run_size_macro']);
 const OVERLAY_LABELS = Object.freeze({ capture: '화면 확인 중', inspect: '화면 요소 확인 중', invoke: '버튼 실행 중', set_value: '입력값 변경 중', toggle: '전환 중', select: '항목 선택 중', expand: '펼치는 중', collapse: '접는 중', scroll: '스크롤 중', press_key: '키 전달 중', wait_for: '결과 대기 중', assert: '결과 확인 중', resize: '창 크기 변경 중', run_size_macro: '창 크기 변경 중', run_task_macro: '매크로 실행 중' });
 const OBSERVATION_FAILURES = new Set(['stale-element', 'stale-observation', 'unknown-element', 'uia-value-limit',
   'capture-size-changed', 'capture-timeout', 'provider-timeout', 'backend-timeout', 'native-error',
@@ -289,6 +289,37 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
       if (['launch_isolated','capture_isolated','input_isolated'].includes(tool)) {
         try { keys(args,tool==='input_isolated'?['targetId','observationId','input']:['targetId'],tool==='input_isolated'?['targetId','observationId','input']:['targetId']);str(args.targetId);if(tool==='input_isolated') {str(args.observationId);if(!plain(args.input)) throw windowError('invalid_request','Invalid isolated input');} } catch(e) {return Promise.reject(e);}
         return serial(async()=>{const b=bindings.get(thread);if(b?.userStopped) fail('User stop requires explicit resume');if(!isolation) throw windowError('unsupported_action','Isolated execution is unavailable');if(tool==='launch_isolated' && (!b || args.targetId!==b.targetId)) fail('Stale or forged target');return isolation(tool,thread,args,tool==='launch_isolated'?{...b.identity}:undefined);});
+      }
+      if (tool === 'prepare_permissions') {
+        try {
+          keys(args,['stage','targetId','reason','candidateIds'],['stage','reason']);
+          if(![2,3,4].includes(args.stage)) fail('Invalid Window Use stage');
+          str(args.reason,1024); if(args.targetId!==undefined) str(args.targetId);
+          if(args.candidateIds!==undefined && (!Array.isArray(args.candidateIds) || args.candidateIds.length>8 || new Set(args.candidateIds).size!==args.candidateIds.length)) fail('Expected up to eight unique observed app candidates');
+          for(const id of args.candidateIds||[]) str(id);
+        } catch(e) {return Promise.reject(e);}
+        return serial(async()=>{
+          const b=bindings.get(thread),selection=selections.get(thread)||0,entries=candidates.get(thread);
+          if(args.targetId!==undefined && args.targetId!==b?.targetId) fail('Stale or forged target');
+          if(args.stage===2 && !b) fail('Select an observation target first');
+          if(b?.userStopped) fail('User stop requires explicit resume');
+          if(!requestStage) fail('Stage transition is unavailable');
+          const apps=(args.candidateIds||[]).map(id=>{const app=entries?.get(id);if(!app) fail('Stale or forged window candidate');return {...app};});
+          if(apps.length){
+            if(context && !await authorize(null,thread,{stage:1,operation:tool})) throw windowError('permission_denied','Window Use observation is disabled or unavailable');
+            const raw=await backend.request('listWindows',{});
+            if(!Array.isArray(raw)) fail('Invalid window list');
+            if(disposed || (selections.get(thread)||0)!==selection || candidates.get(thread)!==entries) fail('Operation cancelled');
+            const live=raw.map(descriptor);
+            for(const app of apps){
+              if(!live.some(w=>same(w,app))) fail('Window candidate identity changed');
+              if((userStoppedTargets.get(thread)||[]).some(w=>same(w,app))) fail('User stop requires explicit resume');
+              const occupied=occupancyOf(app,thread);
+              if(occupied.status==='unknown' || occupied.sessions.some(s=>!s.isCurrentSession)) throw windowError('state_changed','App candidate occupancy is unknown or belongs to another task');
+            }
+          }
+          return requestStage(thread,{stage:args.stage,reason:args.reason,prepareOnly:true},b?{...b.identity}:undefined,apps);
+        });
       }
       if (tool === 'request_stage') {
         try { keys(args,['stage','targetId','reason'],['stage','reason']); if(![2,3,4].includes(args.stage)) fail('Invalid Window Use stage'); str(args.reason,1024); if(args.targetId !== undefined) str(args.targetId); } catch(e) { return Promise.reject(e); }

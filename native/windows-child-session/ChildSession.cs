@@ -1,5 +1,5 @@
 // Windows-only source backend. Compilation is preparation, not admission evidence.
-// Protocol: newline JSON on stdin/stdout. Never run with an elevated token.
+// Protocol: newline JSON on stdin/stdout. Only --prepare-machine may configure an elevated machine.
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -13,6 +13,7 @@ using System.Runtime.InteropServices;
 using System.Security.AccessControl;
 using System.Security.Cryptography;
 using System.Security.Principal;
+using System.ServiceProcess;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -48,15 +49,17 @@ class ChildSession {
    if(args.Length==1&&args[0]=="--self-test") {
     Guard(Marshal.SizeOf(typeof(Native.Input))==(IntPtr.Size==8?40:28),"INPUT ABI size mismatch");
     Guard(SameSecret("abc","abc")&&!SameSecret("abc","abd")&&!SameSecret("abc","abcd"),"Secret comparison failure");
-    BootstrapJournal.SelfTest();
+    BootstrapJournal.SelfTest(); MachineSetup.SelfTest();
     var admissionGates=new Dictionary<string,object>(); foreach(string name in new[]{"connection","render","keyboard","mouse","parentIdentity","dataProfile"})admissionGates[name]=Gate(true,"fixture");
     Guard(AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Complete admission gates rejected");
     admissionGates["keyboard"]=Gate(false,"fixture"); Guard(!AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Failed keyboard gate accepted");
     admissionGates["keyboard"]=new { passed="true" }; Guard(!AdmissionPassed(new { gates=admissionGates,fixtureClosed=Gate(true,"fixture") }),"Unknown keyboard evidence accepted");
-    Console.WriteLine(Json.Serialize(new { ok=true, inputBytes=Marshal.SizeOf(typeof(Native.Input)), bootstrapJournalFixtureChecks=14,admissionGateFixtureChecks=3,connected=false, configurationWritten=false })); return 0;
+    Console.WriteLine(Json.Serialize(new { ok=true, inputBytes=Marshal.SizeOf(typeof(Native.Input)), bootstrapJournalFixtureChecks=14,machineSetupFixtureChecks=17,admissionGateFixtureChecks=3,connected=false, configurationWritten=false })); return 0;
    }
+   if(args.Length>0&&args[0]=="--prepare-machine") return MachineSetup.Prepare(args);
    Native.SetProcessDpiAwarenessContext(new IntPtr(-4));
    Guard(!new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator),"Ordinary user token required");
+   if(args.Length==1&&args[0]=="--request-machine-setup") { var result=MachineSetup.Request(); Console.WriteLine(Json.Serialize(result)); return Convert.ToBoolean(result["ok"])?0:1; }
    if(args.Length==1&&args[0]=="--reconcile-bootstrap") {
     var request=Read(new StreamReader(Console.OpenStandardInput(),Encoding.UTF8),0);
     Guard(Text(request,"helperSha256")==Hash(Exe),"Trusted helper content hash mismatch");
@@ -68,6 +71,133 @@ class ChildSession {
    using(var host=new Host()) Application.Run(host);
    return 0;
   } catch(Exception e) { Console.WriteLine(Json.Serialize(Failure(e))); return 1; }
+ }
+
+ // A returned child ID can outlive its session. Only a successful enumeration proves it stale.
+ static bool ChildAbsent(bool found,uint id,int error) {
+  if(!found)return error==1168;
+  if(id==UInt32.MaxValue)return true;
+  IntPtr buffer=IntPtr.Zero; int count;
+  if(!Native.WTSEnumerateSessions(IntPtr.Zero,0,1,out buffer,out count))return false;
+  try {
+   Guard(count>=0&&count<=65536&&(count==0||buffer!=IntPtr.Zero),"Invalid WTS session count");
+   for(int i=0;i<count;i++)if(((Native.WtsSession)Marshal.PtrToStructure(IntPtr.Add(buffer,i*Marshal.SizeOf(typeof(Native.WtsSession))),typeof(Native.WtsSession))).id==id)return false;
+   return true;
+  } finally { if(buffer!=IntPtr.Zero)Native.WTSFreeMemory(buffer); }
+ }
+
+ static class MachineSetup {
+  static string Root { get { string local=Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData); Guard(!String.IsNullOrWhiteSpace(local)&&Path.IsPathRooted(local),"Local application data directory unavailable"); return Path.Combine(local,"Azrael","WindowUse","machine-setup"); } }
+  static bool Hex(string value,int length) { return value!=null&&value.Length==length&&value.All(c=>"0123456789abcdef".IndexOf(c)>=0); }
+  static void ValidatePath(string file,string root) {
+   Guard(!String.IsNullOrWhiteSpace(file)&&Path.IsPathRooted(file)&&file==Path.GetFullPath(file),"Canonical machine setup receipt path required");
+   var directory=Path.GetDirectoryName(file);
+   Guard(Path.GetFileName(file)=="receipt.json"&&Hex(Path.GetFileName(directory),32)&&String.Equals(Path.GetDirectoryName(directory),Path.GetFullPath(root),StringComparison.OrdinalIgnoreCase),"Machine setup receipt must use its fixed private hierarchy");
+  }
+  static void ValidateIdentity(string nonce,string expectedSid,int expectedSession) {
+   Guard(Hex(nonce,64),"Invalid machine setup nonce");
+   Guard(expectedSid==Sid&&expectedSession==Session,"Machine setup requires the same signed-in user and parent session");
+  }
+  static void InspectDirectory(string file) {
+   ValidatePath(file,Root);
+   var directory=new DirectoryInfo(Path.GetDirectoryName(file)); Guard(directory.Exists,"Machine setup directory missing");
+   for(var current=directory;current!=null;current=current.Parent)Guard((current.Attributes&FileAttributes.ReparsePoint)==0,"Machine setup path cannot contain reparse points");
+   var security=directory.GetAccessControl();
+   Guard(security.GetOwner(typeof(SecurityIdentifier)).Value==Sid&&security.AreAccessRulesProtected,"Machine setup directory must be private and user-owned");
+   Guard(security.GetAccessRules(true,true,typeof(SecurityIdentifier)).Cast<FileSystemAccessRule>().All(rule=>rule.IdentityReference.Value==Sid),"Machine setup directory includes another principal");
+  }
+  static void InspectExistingAncestors(string directory) {
+   for(var current=new DirectoryInfo(directory);current!=null;current=current.Parent)if(current.Exists)Guard((current.Attributes&FileAttributes.ReparsePoint)==0,"Machine setup ancestors cannot contain reparse points");
+  }
+  static object State() {
+   bool enabled; bool queried=Native.WTSIsChildSessionsEnabled(out enabled); int error=queried?0:Marshal.GetLastWin32Error();
+   using(var service=new ServiceController("TermService"))return new { enabledQuerySucceeded=queried,enabled=queried?(object)enabled:null,enabledError=error,serviceStatus=service.Status.ToString() };
+  }
+  static bool Ready(object state) { var value=Json.Deserialize<Dictionary<string,object>>(Json.Serialize(state)); return Text(value,"enabledQuerySucceeded")=="True"&&Text(value,"enabled")=="True"&&Text(value,"serviceStatus")=="Running"; }
+  static Dictionary<string,object> Result(bool ok,string code,string message,string nonce,object before,object after) {
+   return new Dictionary<string,object> { {"ok",ok},{"code",code},{"message",message},{"nonce",nonce},{"sid",Sid},{"parentSessionId",Session},{"before",before},{"after",after} };
+  }
+  internal static int Prepare(string[] args) {
+   // This branch never enters the session host or worker, even after an error.
+   try {
+    Guard(args.Length==5,"Invalid machine setup arguments"); int expectedSession; Guard(Int32.TryParse(args[4],out expectedSession),"Invalid parent session");
+    ValidateIdentity(args[2],args[3],expectedSession); InspectDirectory(args[1]);
+    Guard(!File.Exists(args[1])&&!Directory.Exists(args[1]),"Machine setup receipt already exists");
+    Guard(new WindowsPrincipal(WindowsIdentity.GetCurrent()).IsInRole(WindowsBuiltInRole.Administrator),"Machine preparation requires an elevated token");
+    object before=null,after=null; Dictionary<string,object> result;
+    try {
+     before=State(); var state=Json.Deserialize<Dictionary<string,object>>(Json.Serialize(before));
+     Guard(Text(state,"enabledQuerySucceeded")=="True","Child enablement query failed");
+     if(Text(state,"enabled")!="True")Guard(Native.WTSEnableChildSessions(true),"Child session enablement failed: "+Marshal.GetLastWin32Error());
+     using(var service=new ServiceController("TermService")) {
+      if(service.Status==ServiceControllerStatus.Stopped)service.Start();
+      service.Refresh();
+      if(service.Status==ServiceControllerStatus.StartPending)service.WaitForStatus(ServiceControllerStatus.Running,TimeSpan.FromSeconds(20));
+     }
+     after=State(); bool ok=Ready(after); result=Result(ok,ok?"child_setup_ready":"child_setup_failed",ok?"Machine preparation verified":"Machine preparation prerequisites remain unavailable",args[2],before,after);
+    } catch(Exception e) {
+     try { after=State(); } catch { }
+     result=Result(false,"child_setup_failed",e.Message,args[2],before,after);
+    }
+    InspectDirectory(args[1]); var bytes=new UTF8Encoding(false).GetBytes(Json.Serialize(result)); Guard(bytes.Length<=16384,"Machine setup receipt exceeds size limit");
+    using(var stream=new FileStream(args[1],FileMode.CreateNew,FileAccess.Write,FileShare.None)) { stream.Write(bytes,0,bytes.Length); stream.Flush(true); }
+    return Convert.ToBoolean(result["ok"])?0:1;
+   } catch { return 1; }
+  }
+  static void ValidateReceipt(Dictionary<string,object> result,string nonce) {
+   Guard(SameSecret(Text(result,"nonce"),nonce)&&Text(result,"sid")==Sid&&Number(result,"parentSessionId")==Session,"Machine setup receipt identity mismatch");
+   Guard(result.ContainsKey("ok")&&result["ok"] is bool&&Text(result,"code").StartsWith("child_setup_",StringComparison.Ordinal)&&Text(result,"message").Length<=8192,"Malformed machine setup receipt");
+   if((bool)result["ok"])Guard(Text(result,"code")=="child_setup_ready"&&result.ContainsKey("after")&&Ready(result["after"]),"Machine setup receipt lacks verified readiness");
+  }
+  internal static Dictionary<string,object> Request() {
+   string file=null; string nonce=RandomSecret(); bool launched=false,finished=false;
+   try {
+    // Query first: an already prepared machine needs no UAC request.
+    var before=State(); if(Ready(before))return Result(true,"child_setup_ready","Machine prerequisites already verified",nonce,before,before);
+    InspectExistingAncestors(Root); Directory.CreateDirectory(Root); InspectExistingAncestors(Root);
+    string directory=Path.Combine(Root,Guid.NewGuid().ToString("N")); Guard(!Directory.Exists(directory)&&!File.Exists(directory),"Machine setup run identity collision");
+    var access=new DirectorySecurity(); access.SetAccessRuleProtection(true,false); access.SetOwner(new SecurityIdentifier(Sid));
+    access.AddAccessRule(new FileSystemAccessRule(new SecurityIdentifier(Sid),FileSystemRights.FullControl,InheritanceFlags.ContainerInherit|InheritanceFlags.ObjectInherit,PropagationFlags.None,AccessControlType.Allow));
+    Directory.CreateDirectory(directory,access); file=Path.Combine(directory,"receipt.json"); InspectDirectory(file);
+    using(var process=Process.Start(new ProcessStartInfo(Exe) { UseShellExecute=true,Verb="runas",WindowStyle=ProcessWindowStyle.Hidden,Arguments="--prepare-machine \""+file+"\" "+nonce+" "+Sid+" "+Session })) {
+     launched=true; Guard(process!=null,"Machine setup process identity unavailable");
+     Guard(process.WaitForExit(30000),"Machine setup result timed out; elevated process may still be running"); finished=true;
+     InspectDirectory(file); var info=new FileInfo(file);
+     Guard(info.Exists&&(info.Attributes&FileAttributes.ReparsePoint)==0&&info.Length>0&&info.Length<=16384,"Machine setup receipt missing or unsafe");
+     string receiptText;
+     using(var stream=new FileStream(file,FileMode.Open,FileAccess.Read,FileShare.Read)) {
+      Guard(stream.Length>0&&stream.Length<=16384,"Machine setup receipt exceeds size limit");
+      using(var reader=new StreamReader(stream,Encoding.UTF8))receiptText=reader.ReadToEnd();
+     }
+     var result=Json.Deserialize<Dictionary<string,object>>(receiptText); ValidateReceipt(result,nonce);
+     Guard(process.ExitCode==((bool)result["ok"]?0:1),"Machine setup exit and receipt disagree");
+     // Cleanup only the exact receipt and the now-empty owned run directory.
+     File.Delete(file); Directory.Delete(directory,false); return result;
+    }
+   } catch(Exception e) {
+    bool cancelled=e is System.ComponentModel.Win32Exception&&((System.ComponentModel.Win32Exception)e).NativeErrorCode==1223;
+    var result=Result(false,cancelled?"child_setup_cancelled":"child_setup_unknown",e.Message,nonce,null,null);
+    if(cancelled&&!launched&&file!=null) {
+     try { InspectDirectory(file); Guard(!File.Exists(file),"Unexpected receipt after cancellation"); Directory.Delete(Path.GetDirectoryName(file),false); file=null; } catch { }
+    }
+    result["receiptPath"]=file; result["setupProcessExited"]=finished; result["cleanupUnconfirmed"]=file!=null; return result;
+   }
+  }
+  internal static void SelfTest() {
+   string root=Path.Combine(Path.GetTempPath(),"azrael-path-fixture"); string file=Path.Combine(root,new string('a',32),"receipt.json");
+   ValidatePath(file,root); ValidateIdentity(new string('b',64),Sid,Session);
+   foreach(string invalid in new[]{Path.Combine(root,"other","receipt.json"),Path.Combine(root,new string('a',32),"other.json"),Path.Combine(root,new string('a',32),"..",new string('a',32),"receipt.json"),Path.Combine(root+"-other",new string('a',32),"receipt.json")}) {
+    bool rejected=false; try { ValidatePath(invalid,root); } catch { rejected=true; } Guard(rejected,"Unsafe machine setup path accepted");
+   }
+   foreach(string invalid in new[]{"",new string('b',63),new string('G',64),new string('b',65)}) { bool rejected=false; try { ValidateIdentity(invalid,Sid,Session); } catch { rejected=true; } Guard(rejected,"Invalid setup nonce accepted"); }
+   bool identityRejected=false; try { ValidateIdentity(new string('b',64),Sid+"-other",Session); } catch { identityRejected=true; } Guard(identityRejected,"Alternate administrator identity accepted");
+   bool sessionRejected=false; try { ValidateIdentity(new string('b',64),Sid,Session+1); } catch { sessionRejected=true; } Guard(sessionRejected,"Foreign parent session accepted");
+   var receipt=Result(true,"child_setup_ready","fixture",new string('b',64),null,new { enabledQuerySucceeded=true,enabled=true,serviceStatus="Running" }); ValidateReceipt(receipt,new string('b',64));
+   receipt["nonce"]=new string('c',64); bool forged=false; try { ValidateReceipt(receipt,new string('b',64)); } catch { forged=true; } Guard(forged,"Forged setup receipt nonce accepted");
+   receipt["nonce"]=new string('b',64); receipt["after"]=new { enabledQuerySucceeded=false,enabled=true,serviceStatus="Running" }; bool unverified=false; try { ValidateReceipt(receipt,new string('b',64)); } catch { unverified=true; } Guard(unverified,"Unverified setup readiness accepted");
+   receipt["ok"]=false; receipt["sid"]=Sid+"-other"; bool foreignSid=false; try { ValidateReceipt(receipt,new string('b',64)); } catch { foreignSid=true; } Guard(foreignSid,"Foreign setup receipt SID accepted");
+   receipt["sid"]=Sid; receipt["parentSessionId"]=Session+1; bool foreignSession=false; try { ValidateReceipt(receipt,new string('b',64)); } catch { foreignSession=true; } Guard(foreignSession,"Foreign setup receipt session accepted");
+  }
  }
 
  sealed class BootstrapJournal : IDisposable {
@@ -145,7 +275,7 @@ class ChildSession {
    } } catch(ArgumentException) { }
    // PID absence alone is insufficient: exclude a live child and every possible same-helper worker.
    uint child; bool found=Native.WTSGetChildSessionId(out child); int error=Marshal.GetLastWin32Error();
-   Guard((found&&child==UInt32.MaxValue)||(!found&&error==1168),"Existing or unknown child session protects bootstrap state");
+   Guard(ChildAbsent(found,child,error),"Existing or unknown child session protects bootstrap state");
    foreach(var process in Process.GetProcessesByName(Path.GetFileNameWithoutExtension(Exe)))using(process) {
     if(process.Id==Process.GetCurrentProcess().Id)continue;
     Guard(!String.Equals(process.MainModule.FileName,Exe,StringComparison.OrdinalIgnoreCase),"A matching helper or worker is still active");
@@ -245,7 +375,7 @@ class ChildSession {
   void Start(Dictionary<string,object> request) {
    bool enabled; Guard(Native.WTSIsChildSessionsEnabled(out enabled)&&enabled,"Child sessions not enabled; machine setup required");
    uint existing; bool found=Native.WTSGetChildSessionId(out existing); int queryError=Marshal.GetLastWin32Error();
-   Guard((found&&existing==UInt32.MaxValue)||(!found&&queryError==1168),"Existing or unknown child session cannot be adopted: "+queryError);
+   Guard(ChildAbsent(found,existing,queryError),"Existing or unknown child session cannot be adopted: "+queryError);
    Guard(Text(request,"helperSha256")==Hash(Exe),"Trusted helper content hash mismatch");
    using(var bootstrap=new BootstrapJournal(Text(request,"bootstrapJournalPath"))) {
    bootstrap.Prepare();
@@ -265,7 +395,9 @@ class ChildSession {
      client.AdvancedSettings7.RedirectClipboard=false;
      client.AdvancedSettings7.EnableCredSspSupport=true;
      var settings=(ExtendedSettings)rdp.Client; object yes=true; settings.set_Property("ConnectToChildSession",ref yes);
-     Guard(client.AdvancedSettings7.RedirectClipboard==false,"Clipboard isolation was not applied");
+     // Keep the Guard call statically bound to ChildSession, not dynamic Host.Guard.
+     bool clipboardRedirected=client.AdvancedSettings7.RedirectClipboard;
+     Guard(!clipboardRedirected,"Clipboard isolation was not applied");
      client.Connect();
     });
     var waiting=pipe.BeginWaitForConnection(null,null);
@@ -313,7 +445,7 @@ class ChildSession {
    ValidateIdentity();
    Guard(Native.WTSLogoffSession(IntPtr.Zero,(uint)child,true),"Owned child logoff failed: "+Marshal.GetLastWin32Error());
    uint current; bool found=Native.WTSGetChildSessionId(out current); int logoffQueryError=Marshal.GetLastWin32Error();
-   Guard((found&&current==UInt32.MaxValue)||(!found&&logoffQueryError==1168),"Child logoff not verified: "+logoffQueryError);
+   Guard(ChildAbsent(found,current,logoffQueryError),"Child logoff not verified: "+logoffQueryError);
    try { using(var p=Process.GetProcessById(workerPid)) Guard(p.StartTime.ToUniversalTime().Ticks.ToString()!=workerCreated,"Worker termination not verified"); } catch(ArgumentException) {}
    started=false; return new { ok=true, state="closed", identity=Identity(), ownershipVerified=true,
     processesStopped=true,logoffConfirmed=true,pendingWork=false,directUser=false,unsavedWork=false,
@@ -576,6 +708,9 @@ class ChildSession {
   HeldKeys.Clear(); HeldMouse=0;
  }
  static class Native {
+  [DllImport("wtsapi32.dll",SetLastError=true)] internal static extern bool WTSEnableChildSessions(bool enabled);
+  [StructLayout(LayoutKind.Sequential)] internal struct WtsSession { internal uint id; internal IntPtr station; internal int state; }
+  [DllImport("wtsapi32.dll",CharSet=CharSet.Unicode,SetLastError=true)] internal static extern bool WTSEnumerateSessions(IntPtr server,int reserved,int version,out IntPtr buffer,out int count);
   [DllImport("wtsapi32.dll",SetLastError=true)] internal static extern bool WTSIsChildSessionsEnabled(out bool enabled);
   [DllImport("wtsapi32.dll",SetLastError=true)] internal static extern bool WTSGetChildSessionId(out uint id);
   [DllImport("wtsapi32.dll",SetLastError=true)] internal static extern bool WTSLogoffSession(IntPtr server,uint session,bool wait);

@@ -4,20 +4,22 @@ const fs = require('node:fs/promises'), path = require('node:path'), os = requir
 const { createHost } = require('./window-control-host.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const otherThread = '12345678-1234-1234-1234-123456789abd';
-async function fixture(t, mode) {
+async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'window-stage-authority-'));
   const settings = require('./use-control-settings.cjs').createSettingsOwner(home);
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 4, processCreated: 'created', executable: 'C:/fixture/editor.exe', title: 'Fixture', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
+  const descriptors=[descriptor];
   const modals = [], backendCalls = [], cards = [];
   let answer = '허용';
-  const host = createHost({ runtime: { codexHome: home, computerUse: { directory: path.join(home, 'desktop-runtime') }, windowControl: {} }, occupancyDirectory: path.join(home, 'occupancy'), approvals,
+  const host = createHost({ runtime: { codexHome: home, computerUse: { directory: path.join(home, 'desktop-runtime') }, windowControl: childRuntime ? { childSession: childRuntime } : {} }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs,
     vscode: { window: { async showWarningMessage(...args) { modals.push(args); return typeof answer === 'function' ? answer() : answer; } } },
-    backend: { async request(method) { backendCalls.push(method); return method === 'listWindows' ? [descriptor] : descriptor; }, async dispose() {} } });
+    backend: { async request(method) { backendCalls.push(method); return method === 'listWindows' ? descriptors : descriptor; }, async dispose() {} } });
   t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const native = { registerProvider() { return { dispose() {} }; } };
   host.attach(native, () => assert.fail('Unexpected engine RPC'));
-  host.registerApprovalUI(native, envelope => { cards.push(envelope); return true; });
+  const publisher=envelope => { cards.push(envelope); if(envelope.type==='mcp-request') {Promise.resolve().then(()=>typeof answer==='function'?answer(envelope.request):answer).then(value=>{if(value==='pending')return;host.respondApproval(native,envelope.request.id,{action:value==='허용'?'accept':value==='거부'?'decline':'cancel',content:{persist:'session'}});});}return true; };
+  host.registerApprovalUI(native, publisher);
   async function register(id, computerUseMode = mode) {
     const result = { id: 'fixture-provider:' + id, result: { thread: { id }, computerUseMode } };
     // The request ID is independent of the returned thread ID.
@@ -36,7 +38,8 @@ async function fixture(t, mode) {
   const desktop = (meta = metadata(), extra = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'desktop_authority', _meta: meta, ...extra });
   const requestStage = (stage, targetId) => call('request_stage', { stage, ...(targetId ? { targetId } : {}), reason: 'Perform the explicitly requested fixture task' });
   const select = async () => call('select_window', { candidateId: (await call('list_windows')).candidates[0].candidateId });
-  return { host, native, home, settings, approvals, modals, backendCalls, cards, register, start, call, desktop, metadata, requestStage, select, setAnswer: value => answer = value,
+  return { host, native, home, settings, approvals, modals, backendCalls, cards, publisher, register, start, call, desktop, metadata, requestStage, select, setAnswer: value => answer = value,
+    addApp(){descriptors.push({...descriptor,hwnd:'second',pid:5,executable:'C:/fixture/second.exe',title:'Second fixture'});},
     update(patch) { return settings.updateSettings(patch, settings.getSettings().revision); }, complete() { host.observe(native, { method: 'turn/completed', params: { threadId: thread, turn: { status: 'completed' } } }); } };
 }
 test('ordinary thread stage4 requires explicit consent, active native turn and enabled global stage', async t => {
@@ -45,7 +48,8 @@ test('ordinary thread stage4 requires explicit consent, active native turn and e
   await assert.rejects(f.desktop(), { code: 'permission_denied' });
   f.setAnswer(undefined); await assert.rejects(f.requestStage(4), { code: 'cancelled' }); await assert.rejects(f.desktop(), { code: 'permission_denied' });
   f.setAnswer('허용'); const granted = await f.requestStage(4); assert.equal(granted.authorized, true); assert.equal(granted.stage, 4);
-  assert.equal(f.modals.length, 2); assert.equal(f.modals[1][0], 'Window Use 4단계를 허용할까요?'); assert.equal(f.modals[1][1].modal, true); assert.match(f.modals[1][1].detail, /fixture task/);
+  assert.equal(f.modals.length, 0); const card=f.cards.filter(value=>value.type==='mcp-request').at(-1).request;
+  assert.equal(card.params._meta.tool_params.app, 'Window Use 4단계');assert.deepEqual(card.params._meta.persist,['session']);assert.match(card.params._meta.tool_params_display.find(field=>field.name==='reason').value,/fixture task/);
   const lease = await f.desktop(); assert.equal(lease.threadId, thread); assert.equal(lease.turnId, 'turn-one'); assert.match(lease.token, /^[a-f0-9]{64}$/);
   f.update({ stage4Enabled: false }); await assert.rejects(f.desktop(), { code: 'permission_denied' }); await assert.rejects(f.requestStage(4), { code: 'permission_denied' });
   f.update({ stage4Enabled: true }); await assert.rejects(f.desktop(), { code: 'permission_denied' });
@@ -107,6 +111,55 @@ test('persisted desktop task lease replacement invalidates the granted authority
   await assert.rejects(f.desktop(), /replaced/);
 });
 
+for(const ending of ['decline','timeout','ui-disappeared','policy']) test(`stage card ${ending} cannot grant authority and retires its UI`,async t=>{
+  const f=await fixture(t,undefined,undefined,ending==='timeout'?35:1000);f.setAnswer('pending');
+  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,error=>error.code===(ending==='decline'?'approval_declined':ending==='timeout'?'approval_timeout':'cancelled'));
+  for(let i=0;i<100&&!f.cards.some(value=>value.type==='mcp-request');i++)await new Promise(resolve=>setImmediate(resolve));
+  const request=f.cards.find(value=>value.type==='mcp-request').request;
+  assert.equal(request.params._meta.window_use_approval_kind,'stage');assert.deepEqual(request.params._meta.persist,['session']);
+  assert.equal(f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'always'}}),true);
+  await assert.rejects(f.desktop(),{code:'permission_denied'},'a stage always response is never accepted');
+  if(ending==='decline')f.host.respondApproval(f.native,request.id,{action:'decline'});
+  if(ending==='ui-disappeared')f.host.registerApprovalUI(f.native,undefined);
+  if(ending==='policy'){f.update({stage4Enabled:false});f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});}
+  await rejected;await assert.rejects(f.desktop(),{code:'permission_denied'});
+  f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});
+  assert.equal((await f.call('context')).stage,1);assert.deepEqual(f.approvals.getPersistentAppApprovals(),{approvedApps:[]});
+  if(ending!=='ui-disappeared')assert.ok(f.cards.some(value=>value.notification?.method==='serverRequest/resolved'&&value.notification.params.requestId===request.id));
+});
+
+test('stage response checks elapsed deadline even before the timeout callback runs',async t=>{
+  const f=await fixture(t,undefined,undefined,40);f.setAnswer('pending');
+  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,{code:'approval_timeout'});
+  for(let i=0;i<100&&!f.cards.some(value=>value.type==='mcp-request');i++)await new Promise(resolve=>setImmediate(resolve));
+  const request=f.cards.find(value=>value.type==='mcp-request').request;
+  const until=Date.now()+55;while(Date.now()<until){} // Hold the event loop past the deadline.
+  f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});
+  await rejected;assert.equal((await f.call('context')).stage,1);
+});
+
+test('prepare permissions returns independent app results and performs no native mutation',async t=>{
+  const f=await fixture(t);f.addApp();const windows=await f.call('list_windows');const candidates=windows.candidates.map(value=>value.candidateId);
+  let apps=0;f.setAnswer(request=>request.params._meta.window_use_approval_kind==='stage'?'허용':(++apps===1?'거부':'허용'));
+  const result=await f.call('prepare_permissions',{stage:4,candidateIds:candidates,reason:'Prepare requested fixture work'});
+  assert.deepEqual(result,{authorized:true,prepared:true,stage:4,appsAuthorized:false,appResults:[{index:0,authorized:false,code:'approval_declined'},{index:1,authorized:true}]});
+  assert.ok(f.backendCalls.every(method=>method==='listWindows'));assert.equal(f.modals.length,0);
+});
+
+for(const ending of ['cancel','stop','policy','timeout']) test(`prepare app ${ending} stops before the next app card`,async t=>{
+  const f=await fixture(t,undefined,undefined,ending==='timeout'?40:1000);f.addApp();const candidates=(await f.call('list_windows')).candidates.map(value=>value.candidateId);
+  f.setAnswer(request=>request.params._meta.window_use_approval_kind==='stage'?'허용':'pending');
+  const waiting=f.call('prepare_permissions',{stage:4,candidateIds:candidates,reason:'Verify sequential application permission cancellation'}),rejected=assert.rejects(waiting);
+  for(let i=0;i<100&&f.cards.filter(value=>value.type==='mcp-request').length<2;i++)await new Promise(resolve=>setImmediate(resolve));
+  const card=f.cards.filter(value=>value.type==='mcp-request')[1].request;
+  if(ending==='cancel')f.host.respondApproval(f.native,card.id,{action:'cancel'});
+  if(ending==='stop')f.host.request(f.native,'fixture-provider','prepare-stop','turn/interrupt',{threadId:thread,turnId:'turn-one'});
+  if(ending==='policy'){f.update({stage4Enabled:false});f.host.respondApproval(f.native,card.id,{action:'accept',content:{persist:'session'}});}
+  await rejected;assert.equal(f.cards.filter(value=>value.type==='mcp-request').length,2);
+  f.host.respondApproval(f.native,card.id,{action:'accept',content:{persist:'always'}});
+  assert.equal(f.approvals.hasAppApproval('C:/fixture/second.exe',thread),false);
+});
+
 
 test('late app-store notification preserves a fresh grant and later revocation removes it', async t => {
   const f = await fixture(t);
@@ -121,4 +174,86 @@ test('late app-store notification preserves a fresh grant and later revocation r
   const deadline=Date.now()+2000;
   for(;;) {try{await fs.stat(fresh.recordPath);}catch(error){if(error.code==='ENOENT')break;throw error;}if(Date.now()>deadline)assert.fail('App revocation did not release the persisted task grant');await new Promise(resolve=>setTimeout(resolve,25));}
   await assert.rejects(f.desktop(),{code:'permission_denied'});
+});
+
+// The host and isolation controller are real; only the native manager boundary is
+// substituted. These checks establish propagation and authority, not native RDP.
+async function failingChildFixture(t, failure, thrown = false) {
+  const childModule = require('./window-child-session.cjs');
+  const original = childModule.createWindowsChildSessionManager;
+  let starts = 0, releases = 0;
+  const state = { admissionReady: false, available: false, cleanupUnconfirmed: true, state: 'unknown' };
+  childModule.createWindowsChildSessionManager = () => ({
+    describe: async () => ({ ...state }), reconcileBootstrap: async () => ({ ok: true }),
+    start: async () => { starts++; if (thrown) throw Object.assign(new Error(failure.message), failure); return failure; },
+    release: async () => { releases++; return { ok: true }; },
+  });
+  let f;
+  try { f = await fixture(t, undefined, { executable: 'fixture.exe', sha256: 'a'.repeat(64) }); }
+  finally { childModule.createWindowsChildSessionManager = original; }
+  f.update({ stage3Enabled: true });
+  return { ...f, state, counts: () => ({ starts, releases }) };
+}
+
+test('prepared stage3 approval defers startup until ordinary request_stage',async t=>{
+  const f=await failingChildFixture(t,{ok:false,code:'fixture_admission_failed'});
+  const prepared=await f.call('prepare_permissions',{stage:3,candidateIds:[],reason:'Prepare child-session permission before starting native work'});
+  assert.deepEqual(prepared,{authorized:true,prepared:true,stage:3,appsAuthorized:true,appResults:[]});
+  assert.deepEqual(f.counts(),{starts:0,releases:0});
+  const cards=f.cards.filter(value=>value.type==='mcp-request').length;
+  const result=await f.requestStage(3);assert.equal(result.authorized,false);assert.equal(f.counts().starts,1);
+  assert.equal(f.cards.filter(value=>value.type==='mcp-request').length,cards,'prepared consent is reused while deferred startup executes');
+});
+
+test('stage3 native failure survives real isolation and host catch without authority or retry', async t => {
+  const failure = { ok: false, code: 'native_child_error', hresult: -2146233088, cleanupUnconfirmed: true,
+    message: "'ChildSession.Host'에 'Guard'에 대한 정의가 없습니다." };
+  const f = await failingChildFixture(t, failure);
+  const result = await f.requestStage(3);
+  assert.equal(result.authorized, false);
+  assert.equal(result.stage, 1);
+  assert.equal(result.missingPrerequisite, failure.code);
+  assert.equal(result.message, '격리 실행을 시작하지 못했습니다. 자식 세션의 준비·연결 상태를 확인해주세요.');
+  assert.deepEqual(result.childSession, f.state);
+  assert.deepEqual(result.diagnostic, { code: failure.code, hresult: failure.hresult, cleanupUnconfirmed: true,
+    phase: 'start', message: failure.message });
+  assert.deepEqual(f.counts(), { starts: 1, releases: 0 });
+  assert.equal(f.modals.length, 0);assert.equal(f.cards.filter(value=>value.type==='mcp-request').length,1);
+  await assert.rejects(f.call('launch_isolated', { targetId: 'forged' }));
+  assert.deepEqual(f.backendCalls, []);
+});
+
+test('stage3 diagnostics redact untrusted text while retaining safe native context', async t => {
+  const messages = [
+    'Failed at C:\\Users\\private-user\\AppData\\secret.json',
+    'Failed at /home/private-user/.config/state',
+    'Connect \\\\.\\pipe\\private-channel',
+    'challenge=' + 'a'.repeat(64),
+    'Authorization: Bearer private-credential',
+    'password="secret with spaces" token=other-secret api_key=private',
+    'access_token=private refresh_token=private client_secret=private',
+    'powershell -Command Get-Content private.json',
+    '{"request":{"token":"private"},"result":"secret"}',
+    'Error stack\n at privateFunction',
+    'x'.repeat(9000),
+  ];
+  for (const message of messages) {
+    const f = await failingChildFixture(t, { ok: false, code: 'native_child_error', hresult: 2147500037,
+      cleanupUnconfirmed: true, diagnostic: { phase: 'child_connect', type: 'COMException', message, request: 'must not escape', stack: 'must not escape' } });
+    const result = await f.requestStage(3);
+    assert.equal(result.authorized, false);
+    assert.deepEqual(result.childSession, f.state);
+    assert.deepEqual(result.diagnostic, { code: 'native_child_error', hresult: 2147500037, cleanupUnconfirmed: true,
+      phase: 'child_connect', type: 'COMException', message: '[redacted diagnostic message]' });
+    assert.deepEqual(f.counts(), { starts: 1, releases: 0 });
+  }
+});
+
+test('stage3 catches thrown manager errors and bounds diagnostic fields', async t => {
+  const f = await failingChildFixture(t, { code: 'native_child_error', hresult: 1.5, cleanupUnconfirmed: true,
+    phase: 'invalid phase', type: 'invalid type', message: 'x'.repeat(700), stack: 'private' }, true);
+  const result = await f.requestStage(3);
+  assert.equal(result.authorized, false);
+  assert.deepEqual(result.diagnostic, { code: 'native_child_error', cleanupUnconfirmed: true, phase: 'start', message: 'x'.repeat(512) });
+  assert.deepEqual(f.counts(), { starts: 1, releases: 0 });
 });
