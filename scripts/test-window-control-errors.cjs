@@ -3,7 +3,7 @@ const assert = require('node:assert/strict');
 const { EventEmitter } = require('node:events');
 const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os');
 const { test } = require('node:test');
-const { windowError, errorPayload, fromPayload } = require('./window-control-errors.cjs');
+const { windowError, errorPayload, fromPayload, expectedError } = require('./window-control-errors.cjs');
 const { createRelay, createProtocol, callResult, pipeRequest } = require('./window-control-mcp.cjs');
 const threadId = '12345678-1234-1234-1234-123456789abc';
 const meta = { threadId, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } } };
@@ -46,6 +46,19 @@ function socketFixture() {
   socket.setTimeout = (ms, callback) => { socket.expire = callback; socket.timeoutMs = ms; };
   return socket;
 }
+test('user stop reports explicit resume guidance through MCP without granting permission', async () => {
+  const protocol = createProtocol({ relay: async () => { throw expectedError('User stop requires explicit resume'); } });
+  const reply = await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/call', params: { name: 'request_stage', arguments: { stage: 2, reason: 'Resume fixture' }, _meta: meta } });
+  assert.equal(reply.result.isError, true);
+  const payload = JSON.parse(reply.result.content[0].text);
+  assert.deepEqual(payload, {
+    code: 'state_changed', message: '사용자가 창 제어를 중지했습니다. 다시 시작한 뒤 권한을 요청해주세요.',
+    pauseReason: 'user_stopped', recovery: 'user_resume', restoreAllowed: false, actionExecuted: false,
+  });
+  assert.deepEqual(errorPayload(fromPayload(payload)), payload);
+  assert.deepEqual(errorPayload(expectedError('Unexpected internal failure')), { code: 'unclassified', message: '미분류된 오류' });
+});
+
 test('recovery instructions round trip through host transport and MCP with strict field validation', async () => {
   for (const recovery of ['observe_again', 'reselect', 'user_resume']) {
     for (const observationRequired of [true, false]) {
