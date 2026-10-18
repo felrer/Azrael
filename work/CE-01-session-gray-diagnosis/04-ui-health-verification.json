@@ -1,0 +1,302 @@
+{
+  "scope": "Windows x64 production runtime/source fixtures; no package, installation or native renderer crash acceptance",
+  "command": "node --test --test-concurrency=1 scripts/test-ui-health.cjs scripts/test-ui-input-diagnostics.cjs scripts/test-optional-diagnostics.cjs scripts/test-recovery-bridge.cjs scripts/test-webview-idle.cjs",
+  "environment": {
+    "node": "v26.7.0",
+    "platform": "win32",
+    "arch": "x64",
+    "NODE_OPTIONS": "--max-old-space-size=6144"
+  },
+  "exitCode": 0,
+  "tests": 49,
+  "passed": 49,
+  "failed": 0,
+  "durationMs": 84421.4713,
+  "rawLogSha256": "880830d1562511c2c1394c6b10035f629c555d4eb42130e22e4bece3a21b8ea5",
+  "sourceLog": "✔ host and account policies preserve defaults, override and fallback consistently (0.9991ms)\r\n✔ host staging and provenance include the runtime policy dependency (0.9153ms)\r\n✔ account helper operations succeed quietly when off, errors remain, and override restores logs (94.5623ms)\r\n✔ pinned bridge transform executes its owning class and preserves ordinary routing (2719.9841ms)\r\n✔ runtime adapter initializes against VS Code APIs and disposes every resource (1.3782ms)\r\n✔ Windows path casing aliases share one recovery runtime (1.8895ms)\r\n✔ user item receipt diagnostics hash identities and exclude message contents (1.4822ms)\r\n✔ recovery diagnostics off preserves failures and receipt state, then re-enables chatter (2.3487ms)\r\n✔ lost steer response returns actual wake turn through the original bridge request (1.7695ms)\r\n✔ lost start response returns native accepted turn through the original bridge request (1.0983ms)\r\n✔ late steering response logs the same wire reference without changing the failed result (1.3388ms)\r\n✔ native response receipt logs precede normal callback and preserve its payload (0.9572ms)\r\n✔ late-response matching respects its count and age limits (9.8316ms)\r\n✔ runtime identity record reports host configuration without environment secrets (0.7408ms)\r\n✔ recovery RPC diagnostics keep payload secrets out of log records (1.2818ms)\r\n✔ ordinary host errors correlate bounded sanitized requests without changing delivery (3.4151ms)\r\n✔ a failing output channel does not break initialization or recovery actions (0.9105ms)\r\n✔ actual transformed startup guard waits for progress, fails silent or endless startup, and cancels readiness timers (1424.9833ms)\r\n✔ host distinguishes startup, JS/resource/CSP failure, pending drag, signal loss and recovery with one correlation (6.6969ms)\r\n✔ hidden views, host observer gaps and deliberate idle blanking are distinguished from lost renderer signals (0.3859ms)\r\n✔ logging failures, rate bounds, malformed input and HTML failure preserve product outcomes without leaking errors (2.0822ms)\r\n✔ renderer serializes allowlisted evidence, observes cancelled drags and disposes; diagnostic failure never cancels user input (1.4665ms)\r\n✔ UI health policy can be disabled independently of input diagnostics (0.2141ms)\r\n✔ selected pinned assets transform, parse, and reject partial or duplicate instrumentation (34527.3028ms)\r\ndiagnostics profiler: 1000 snapshots of 100 loaded turns / 200 items: 67.4 ms\r\n✔ serialized initialization uses the real host channel and catches sync and async failures (1849.7397ms)\r\n✔ identity remains while representations change, invalid identifiers and malformed snapshots never leak (4.0584ms)\r\n✔ host environment metadata gates serialized diagnostics and restores output (5.6414ms)\r\n✔ actual state method observes both update branches, no-op, exceptions and unavailable diagnostics (2433.5382ms)\r\n✔ actual queue method preserves persistence return/error and captures receipt before consume (2262.2032ms)\r\n✔ actual renderer hook deduplicates unchanged suppression and logs changed reasons only (1.2446ms)\r\n✔ actual renderer suppression operands retain short-circuit order, return values and thrown exceptions (2270.1985ms)\r\n✔ bounded rate, repeat and render caches, without timers (4.976ms)\r\n✔ loaded-turn scan timing is bounded and recorded (68.6886ms)\r\n✔ continuous hidden hour, retained tab, snapshot and fresh renderer on return (3.2896ms)\r\n✔ sidebar visibility and display reset; non-active visible split stays retained (0.7396ms)\r\n✔ flag lookup scopes hosts, checks after capture, and flag removal rechecks overdue view (0.5371ms)\r\n✔ native work guard protects active, queued, resuming, approval and unknown states across routes (0.8031ms)\r\n✔ host safety failure and approval race retain renderer and start a new full hidden hour (1.3137ms)\r\n✔ flag update invalidates a safety capture instead of releasing with stale preferences (0.3155ms)\r\n✔ approval delivered after release restores a hidden renderer without revealing its tab (0.399ms)\r\n✔ flag updates during background restoration keep the approval handshake alive (0.3489ms)\r\n✔ production engine reservation gate checks fresh state, rejects errors and connection changes (62.6143ms)\r\n✔ show/dispose race invalidates capture; missing or unsafe state retries without deletion (0.6233ms)\r\n✔ async restoration race and failure preserve saved state for next show (0.5667ms)\r\n✔ suspended history is dropped; deliberate navigation and approvals wait for ready (0.2856ms)\r\n✔ native composer mount restores attachments and native prompt without submitting (1.3732ms)\r\n✔ pinned host/UI transforms validate exact anchors, syntax and idempotence (2429.7355ms)\r\n✔ production host callbacks reconnect before HTML, retain native requests and refresh route (650.6754ms)\r\n✔ production namespace pipeline and cache own both renderer and host lifecycle (32105.9331ms)\r\nℹ tests 49\r\nℹ suites 0\r\nℹ pass 49\r\nℹ fail 0\r\nℹ cancelled 0\r\nℹ skipped 0\r\nℹ todo 0\r\nℹ duration_ms 84421.4713\r\n",
+  "files": [
+    {
+      "path": "scripts/ui-health-runtime.cjs",
+      "sha256": "f89e22d86d13c2604152b50b0bfefd39780b7d464cd955047ac580f17a70a0d2"
+    },
+    {
+      "path": "scripts/optional-diagnostics.cjs",
+      "sha256": "10dff85127076bf967cddd5683957f9775654c8c324ceb1bc66de5d3b57436f3"
+    },
+    {
+      "path": "scripts/inject-recovery.cjs",
+      "sha256": "2bc84b324bb112cfca8a61a2447fff08ccd2aef9f203954f957f5180113d406d"
+    },
+    {
+      "path": "scripts/inject-ui-input-diagnostics.cjs",
+      "sha256": "e6bd2def3d8fc0584358e8e41345821b36d75cca5e2598c1da625aa8559b707a"
+    },
+    {
+      "path": "scripts/namespace-azrael-host.cjs",
+      "sha256": "fcfafed2257a128b9e1abb048ab5bc337b865d3e72b7b65490031c9b17164ce9"
+    },
+    {
+      "path": "scripts/webview-idle.cjs",
+      "sha256": "9140fbb5c55e45470aa804597c65a28bc4b0a278a562687622157333b7053172"
+    },
+    {
+      "path": "scripts/inject-webview-idle.cjs",
+      "sha256": "3045d15b3871570598b6abdab14fff9c0f068509ec1aee15b484fcd1640ef9e5"
+    },
+    {
+      "path": "scripts/test-ui-health.cjs",
+      "sha256": "d0aae1ea9b3f3138bc935d267e718777fddeb7a054b007710967aac7e4da519d"
+    },
+    {
+      "path": "scripts/test-recovery-bridge.cjs",
+      "sha256": "21eb861dac3892e1a0d095bc8233caa5e1caaa64c739ebd64f447bf3d87db52c"
+    },
+    {
+      "path": "scripts/test-ui-input-diagnostics.cjs",
+      "sha256": "654b58bf12770c7b13687ef94f08c63e01eef09d204036fb7df3ff9c25724000"
+    },
+    {
+      "path": "scripts/test-webview-idle.cjs",
+      "sha256": "758358ec2d8d17242f285e9d41cd2c3aac5fc41aed1cfb6eb745b3adf59d11b4"
+    }
+  ],
+  "sampleEvidence": {
+    "scope": "Production monitor/logger contract with synthetic inputs and clock; not user incident records",
+    "records": [
+      {
+        "level": "info",
+        "event": "ui_health.html_requested",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "html_pending",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.html_prepared",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "html_assigned",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.startup_phase",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.bootstrap_evaluated",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "hidden": false,
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.javascript_error",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.resource_load_failed",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.csp_violation",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.unhandled_rejection",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.drag_blocked",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "warn",
+        "event": "ui_health.drag_end_unobserved",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:00.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "hidden": false,
+        "dragging": true,
+        "dragAgeMs": 35000,
+        "droppedCount": 0
+      },
+      {
+        "level": "warn",
+        "event": "ui_health.signal_lost",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "signalAgeMs": 40000,
+        "rendererExitConfirmed": false,
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.signal_resumed",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.idle_suspended",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.idle_restore_started",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.idle_restore_failed",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      },
+      {
+        "level": "error",
+        "event": "ui_health.startup_timeout",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "signalObserved": false,
+        "droppedCount": 0
+      },
+      {
+        "level": "info",
+        "event": "ui_health.disposed",
+        "webviewRef": "57b7f944-38c8-4fc4-b26e-6de3464bd326",
+        "component": "webview",
+        "observedAt": "1970-01-01T00:00:40.000Z",
+        "platform": "win32",
+        "arch": "x64",
+        "extensionVersion": "source-fixture",
+        "role": "sidebar",
+        "lastPhase": "renderer_ready",
+        "droppedCount": 0
+      }
+    ]
+  },
+  "priorAttempts": [
+    "Native maintenance run run-45928-698-1792287257023346100 failed actual exit 124; initial fixture had a variable declaration collision. This is not a passing receipt.",
+    "Direct initial suite exited 1 with 47/49: wrong Webview test owner caused first failure and incomplete fixture teardown caused second. Fixed test owner, bridge rerun exit 0, then final full 49/49 exit 0.",
+    "After final run, original mixed line endings were preserved while removing formatting-only diff noise. Executable statements unchanged; final node --check and staged diff --check passed."
+  ],
+  "retention": "Independent evidence preserved here; ce03-ui-health-r1 raw logs reviewed for deletion after producer termination/process absence."
+}

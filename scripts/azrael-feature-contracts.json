@@ -2774,6 +2774,11 @@
       "owners": [
         "scripts/inject-ui-input-diagnostics.cjs",
         "scripts/ui-input-diagnostics-runtime.cjs",
+        "scripts/ui-health-runtime.cjs",
+        "scripts/optional-diagnostics.cjs",
+        "scripts/inject-recovery.cjs",
+        "scripts/webview-idle.cjs",
+        "scripts/inject-webview-idle.cjs",
         "scripts/namespace-cache-owner.cjs",
         "scripts/test-namespace-cache-owner.cjs"
       ],
@@ -2784,7 +2789,8 @@
           "executable": "node",
           "args": [
             "--test",
-            "scripts/test-ui-input-diagnostics.cjs"
+            "scripts/test-ui-input-diagnostics.cjs",
+            "scripts/test-ui-health.cjs"
           ],
           "level": "source"
         },

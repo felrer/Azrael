@@ -1,5 +1,6 @@
 "use strict";
 const { createUiInputDiagnostics } = require("./ui-input-diagnostics-runtime.cjs");
+const { installUiHealth } = require("./ui-health-runtime.cjs");
 const UI_INPUT_DIAGNOSTICS_ASSETS = ["webview/assets/app-initial-7a199c66e670.js", "webview/assets/app-initial-97d3534ad35f.js", "webview/assets/app-initial-c014f9ee4429.js"];
 const UI_INPUT_DIAGNOSTICS_MARKER = "/*azrael-ui-input-diagnostics-v1*/";
 function injectUiInputDiagnostics(text, relativePath, ts) {
@@ -14,9 +15,10 @@ function injectUiInputDiagnostics(text, relativePath, ts) {
   const edits = [];
   if (relativePath === UI_INPUT_DIAGNOSTICS_ASSETS[0]) {
     const init = UI_INPUT_DIAGNOSTICS_MARKER + "try{globalThis.__azraelUiInputDiagnostics=(" + createUiInputDiagnostics.toString() + ")(safe=>Dm.dispatchMessage(`log-message`,{level:`warning`,message:`[azrael-ui-input] `+JSON.stringify(safe)}),()=>Date.now(),()=>globalThis.document?.querySelector(`meta[name=azrael-ui-input-diagnostics]`)?.content!==`false`)}catch{}";
-    if (markerCount) { if (!text.includes(init)) throw Error("Partial UI diagnostics initialization"); return { text, count: 0 }; }
+    const health = "try{(" + installUiHealth.toString() + ")(globalThis.window,safe=>Dm.dispatchMessage(`log-message`,{level:`info`,message:`[azrael-ui-health] `+JSON.stringify(safe)}))}catch{}";
+    if (markerCount) { if (!text.includes(init + health)) throw Error("Partial UI diagnostics initialization"); return { text, count: 0 }; }
     const anchor = find(n => ts.isExportDeclaration(n));
-    edits.push([anchor.getStart(hst), anchor.getStart(hst), init]);
+    edits.push([anchor.getStart(hst), anchor.getStart(hst), init + health]);
   } else if (relativePath === UI_INPUT_DIAGNOSTICS_ASSETS[1]) {
     const state = find(n => ts.isMethodDeclaration(n) && n.name.getText(hst) === "updateConversationState" && ts.isBinaryExpression(n.parent.parent) && n.parent.parent.left.getText(hst) === "dSn");
     const consume = find(n => ts.isMethodDeclaration(n) && n.name.getText(hst) === "__azraelConsume");

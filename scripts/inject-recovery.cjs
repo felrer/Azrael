@@ -5,7 +5,11 @@ const STARTUP_GUARD = `class{constructor(onTimeout){this.onTimeout=onTimeout}tim
 
 function injectStartupGuard(text) {
   if (text.split(PINNED_STARTUP_GUARD).length !== 2) throw new Error("Pinned renderer startup guard changed.");
-  return { text: text.replace(PINNED_STARTUP_GUARD, STARTUP_GUARD), count: 1 };
+  const guarded = STARTUP_GUARD
+    .replace("this.startedAt=this.lastProgressAt=Date.now();", "this.diagnostics?.start();this.startedAt=this.lastProgressAt=Date.now();")
+    .replace("this.dispose();this.onTimeout(", "this.dispose();this.diagnostics?.startupTimeout();this.onTimeout(")
+    .replace("handleStartupPhase(phase){", "handleStartupPhase(phase){this.diagnostics?.phase(phase);");
+  return { text: text.replace(PINNED_STARTUP_GUARD, guarded), count: 1 };
 }
 
 // Pin structural boundaries, not minified variable names. Fail packaging when
@@ -17,12 +21,35 @@ function injectRecovery(text, filename, ts) {
   const counts = { sendProviderRequest: 0, routeIncomingMessage: 0, teardownProcess: 0 };
   let webviewCount = 0;
   const visit = node => {
+    if (ts.isMethodDeclaration(node) && node.name?.text === "initializeWebview") {
+      if (node.parameters.length !== 4 || !node.parameters.every(p => ts.isIdentifier(p.name))) throw Error("Pinned Webview initialization signature changed.");
+      const [view, role, dispose] = node.parameters.map(p => p.name.text);
+      const listeners = [], guards = [];
+      function scan(n) {
+        if (ts.isCallExpression(n) && n.expression.getText(source) === view + ".onDidReceiveMessage") listeners.push(n);
+        if (ts.isVariableDeclaration(n) && n.initializer && ts.isNewExpression(n.initializer) && n.initializer.getText(source).includes("renderer_ready_timeout")) guards.push(n);
+        ts.forEachChild(n, scan);
+      }
+      scan(node.body);
+      if (listeners.length !== 1 || guards.length !== 1 || !ts.isIdentifier(guards[0].name)) throw Error("Pinned Webview diagnostics owner changed.");
+      const callback = listeners[0].arguments[0];
+      if (!ts.isArrowFunction(callback) || !ts.isBlock(callback.body) || callback.parameters.length !== 1 || !ts.isIdentifier(callback.parameters[0].name)) throw Error("Pinned Webview message callback changed.");
+      edits.push({ start: node.body.getStart(source) + 1, end: node.body.getStart(source) + 1,
+        text: `const __azraelWebviewDiagnostics=require("./optional-diagnostics.cjs").monitorWebview(${view},this.logger,{role:${role},extensionVersion:this.extensionVersion},fn=>this.subscriptions.push(${dispose}(fn)));` });
+      edits.push({ start: callback.body.getStart(source) + 1, end: callback.body.getStart(source) + 1,
+        text: `if(__azraelWebviewDiagnostics.observe(${callback.parameters[0].name.text}))return;` });
+      // Bind before HTML generation/start, so telemetry does not count as startup progress.
+      node.__azraelGuard = guards[0].name.text;
+    }
     if (ts.isBinaryExpression(node) && ts.isPropertyAccessExpression(node.left) &&
         node.left.name.text === "html" && ts.isAwaitExpression(node.right) &&
         ts.isCallExpression(node.right.expression) && ts.isPropertyAccessExpression(node.right.expression.expression) &&
         node.right.expression.expression.name.text === "getWebviewContent") {
+      let owner = node.parent;
+      while (owner && !ts.isMethodDeclaration(owner)) owner = owner.parent;
+      if (!owner?.__azraelGuard) throw Error("Pinned Webview HTML owner changed.");
       edits.push({ start: node.right.getStart(source), end: node.right.end,
-        text: `require("./optional-diagnostics.cjs").injectUiInputPolicy(${node.right.getText(source)})` });
+        text: `(${owner.__azraelGuard}.diagnostics=__azraelWebviewDiagnostics,await __azraelWebviewDiagnostics.prepare(()=>${node.right.expression.getText(source)}))` });
       webviewCount++;
     }
     if (ts.isMethodDeclaration(node) && node.name?.text === "sendProviderRequest") {

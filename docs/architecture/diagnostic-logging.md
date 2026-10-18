@@ -12,6 +12,7 @@ Status: `partial` — Windows에서 엔진·helper·호스트 소스 회귀 검�
 | `AZRAEL_DIAGNOSTICS_TOOLS` | 카탈로그·스키마 분석 및 도구 호출 상세 계측·기록 |
 | `AZRAEL_DIAGNOSTICS_RECOVERY` | 호스트 RPC와 정상 메시지 처리의 반복 진단 기록 |
 | `AZRAEL_DIAGNOSTICS_UI_INPUT` | webview 입력 진단의 수집·전송 |
+| `AZRAEL_DIAGNOSTICS_UI_HEALTH` | Webview 부팅·오류·드래그·응답 신호의 상세 수집·전송; 호스트가 이미 확인한 생성 실패·준비 시간 초과의 오류 기록은 유지 |
 | `AZRAEL_DIAGNOSTICS_ACCOUNTS` | provider 계정 helper 요청의 정상 시작·완료 기록 |
 
 환경은 호스트, 엔진, helper 경계에서 상속한다. 실행 중인 프로세스의 환경을 변경하는 UI는 제공하지 않으며 변경 후 관련 프로세스를 재시작한다. 일반 빌드에 진단 코드가 포함되므로 재빌드 없이 다시 활성화할 수 있다. 자동 만료와 진단 전용 빌드는 이 계약에 포함하지 않는다.

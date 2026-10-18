@@ -13,7 +13,7 @@ function idleNativeManager() {
   };
 }
 function fixture({sidebar=false}={}) {
-  let now=0, id=0, visibility, closed, preferences={}, sent=[], pendingCapture, errors=[];
+  let now=0, id=0, visibility, closed, preferences={}, sent=[], pendingCapture, errors=[], diagnostics=[];
   const timers=new Map(), clock={Date:{now:()=>now},setTimeout(fn,ms){timers.set(++id,{fn,at:now+ms});return id},clearTimeout(id){timers.delete(id)}};
   const view={visible:true,onDidDispose(fn){closed=fn;return{dispose(){}}}};
   view[sidebar?"onDidChangeVisibility":"onDidChangeViewState"]=fn=>{visibility=fn;return{dispose(){}}};
@@ -23,11 +23,12 @@ function fixture({sidebar=false}={}) {
     send(w,m){sent.push(m);pendingCapture=m.id},preferences:async()=>preferences,
     canRelease:async()=>typeof canRelease==="function"?canRelease():canRelease,hasPendingRequests:()=>pendingRequests,
     suspended(){suspendCount++},error:e=>errors.push(e),
+    diagnostic:(_webview,event)=>diagnostics.push(event),
     content:async(w,s)=>{restoreCount++;return contentResolver?await contentResolver(s):"native-ui-restored"},
   },clock);
   manager.attach(view,webview);
   const flush=async()=>{for(let i=0;i<16;i++)await Promise.resolve()};
-  return {manager,view,webview,sent,errors,timers,flush,
+  return {manager,view,webview,sent,errors,diagnostics,timers,flush,
     safety(value){canRelease=value},pending(value){pendingRequests=value},count:()=>({suspendCount,restoreCount}),flags(value){preferences={"azrael-session-flags":value}},
     setContent(fn){contentResolver=fn},close(){closed()},
     async visible(value){view.visible=value;visibility();await flush()},
@@ -41,6 +42,7 @@ test("continuous hidden hour, retained tab, snapshot and fresh renderer on retur
   assert.ok(!f.webview.html.includes("native-ui"));assert.equal(f.count().suspendCount,1);
   assert.equal(f.manager.snapshot(f.webview).draft.prompt,"unsent");
   await f.visible(true);assert.equal(f.webview.html,"native-ui-restored");assert.equal(f.count().restoreCount,1);
+  assert.deepEqual(f.diagnostics,["idle_suspended","idle_restore_started","idle_restored"]);
   await f.visible(false);await f.tick(3599999);assert.equal(f.sent.length,1);f.close();assert.equal(f.timers.size,0);
 });
 test("sidebar visibility and display reset; non-active visible split stays retained",async()=>{

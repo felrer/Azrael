@@ -30,7 +30,7 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   const ts = require(typescriptPath);
   const original = fs.readFileSync(originalBundle, "utf8");
   const transformed = injectRecovery(original, originalBundle, ts);
-  assert.equal(transformed.count, 5);
+  assert.equal(transformed.count, 7);
   assert.equal(ts.createSourceFile(originalBundle, transformed.text, ts.ScriptTarget.Latest, false, ts.ScriptKind.JS).parseDiagnostics.length, 0);
 
   const { ast, owner } = owningClass(ts, transformed.text, originalBundle);
@@ -70,14 +70,44 @@ test("pinned bridge transform executes its owning class and preserves ordinary r
   });
   const context = vm.createContext({
     require(specifier) {
+      if (specifier === "./optional-diagnostics.cjs") return require(specifier);
       assert.equal(specifier, "./azrael-recovery.cjs");
       return recovery;
     },
-    clearTimeout,
+    clearTimeout, setTimeout,
+    je: { Uri: { joinPath: () => "fixture-webview" } },
     [adapter(2)]: method => method === "turn/start",
     [adapter(3)]: params => params?.threadId,
   });
   const Bridge = new vm.Script(`(${classText})`, { filename: "pinned-bridge-owner.js" }).runInContext(context);
+  // Execute the actual transformed initialization and message interception,
+  // using the production monitor and existing native logger contract.
+  let guardNode;
+  function locateGuard(n) { if (ts.isClassExpression(n) && n.members.some(m => m.name?.text === "handleStartupPhase")) guardNode = n; ts.forEachChild(n, locateGuard); }
+  locateGuard(ast); assert.ok(guardNode);
+  let init;
+  function locateInit(n) { if (ts.isMethodDeclaration(n) && n.name?.text === "initializeWebview") init = n; ts.forEachChild(n, locateInit); }
+  locateInit(ast); assert.ok(init);
+  const guardName = init.getText(ast).match(/let (\w+)=new (\w+)\(/)[2];
+  context[guardName] = new vm.Script("(" + guardNode.getText(ast) + ")").runInContext(context);
+  const health = [], closes = []; let receive, healthGuard, healthRouted = 0;
+  const webview = { onDidReceiveMessage(fn) { receive = fn; return { dispose() {} }; } };
+  const healthOwner = new vm.Script("({" + init.getText(ast) + "})").runInContext(context);
+  const healthBridge = Object.assign(Object.create(healthOwner), {
+    logger: Object.fromEntries(["info", "warn", "error"].map(level => [level, (_text, record) => health.push(record.safe)])),
+    extensionVersion: "fixture", subscriptions: [], workerBusMessageHandler: { registerWebview() {} }, chunkedMessageSender: { dispose() {} },
+    registerClientCoordinationForWebview(_view, _dispose, guard) { healthGuard = guard; },
+    getWebviewContent: async () => "<head></head>", handleMessage() { healthRouted++; }
+  });
+  await healthBridge.initializeWebview(webview, "sidebar", fn => { closes.push(fn); return { dispose() {} }; });
+  healthGuard.handleStartupPhase("renderer_ready");
+  receive({ type: "log-message", message: '[azrael-ui-health] {"event":"javascript_error","errorKind":"type_error","stack":"PRIVATE-CANARY"}' });
+  receive({ type: "fixture-ordinary-message" });
+  for (const close of closes) close();
+  assert.equal(healthRouted, 1); assert.ok(health.some(r => r.event === "ui_health.javascript_error"));
+  assert.ok(health.some(r => r.event === "ui_health.startup_phase" && r.lastPhase === "renderer_ready"));
+  assert.ok(health.some(r => r.event === "ui_health.disposed"));
+  assert.equal(new Set(health.map(r => r.webviewRef)).size, 1); assert.ok(!JSON.stringify(health).includes("PRIVATE-CANARY"));
   const bridge = Object.create(Bridge.prototype);
   const delivered = [];
   const deliveryEvents = [];
