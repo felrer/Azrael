@@ -48,5 +48,12 @@ function classifyExpected(message) {
   if (/^(Ambiguous task selector|Task selector missing|Condition property unsupported|Task condition not met|Task postcondition not met|Task requires a complete accessibility observation|Password control excluded)$/.test(message)) return 'condition_failed';
   return 'unclassified';
 }
-function expectedError(message, options = {}) { return windowError(classifyExpected(message), message, options); }
+function expectedError(message, options = {}) {
+  if (message === 'User stop requires explicit resume') {
+    return windowError('state_changed', '사용자가 창 제어를 중지했습니다. 다시 시작한 뒤 권한을 요청해주세요.', {
+      ...options, pauseReason: 'user_stopped', recovery: 'user_resume', restoreAllowed: false, actionExecuted: false,
+    });
+  }
+  return windowError(classifyExpected(message), message, options);
+}
 module.exports = { CODES, UNCLASSIFIED, windowError, expectedError, errorPayload, fromPayload };
