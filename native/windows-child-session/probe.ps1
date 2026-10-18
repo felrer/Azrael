@@ -9,6 +9,19 @@ public static class AzraelChildSessionProbe {
  public static extern bool WTSIsChildSessionsEnabled([MarshalAs(UnmanagedType.Bool)] out bool enabled);
  [DllImport("wtsapi32.dll", SetLastError=true)] [return:MarshalAs(UnmanagedType.Bool)]
  public static extern bool WTSGetChildSessionId(out uint sessionId);
+ [StructLayout(LayoutKind.Sequential)] private struct WtsSession { public uint id; public IntPtr station; public int state; }
+ [DllImport("wtsapi32.dll", CharSet=CharSet.Unicode, SetLastError=true)] [return:MarshalAs(UnmanagedType.Bool)]
+ private static extern bool WTSEnumerateSessions(IntPtr server,int reserved,int version,out IntPtr buffer,out int count);
+ [DllImport("wtsapi32.dll")] private static extern void WTSFreeMemory(IntPtr buffer);
+ public static bool TrySessionExists(uint id,out bool exists,out int error) {
+  exists=true; error=0; IntPtr buffer=IntPtr.Zero; int count;
+  if(!WTSEnumerateSessions(IntPtr.Zero,0,1,out buffer,out count)) { error=Marshal.GetLastWin32Error(); return false; }
+  try {
+   if(count<0||count>65536||(count>0&&buffer==IntPtr.Zero)) { error=13; return false; }
+   for(int i=0;i<count;i++)if(((WtsSession)Marshal.PtrToStructure(IntPtr.Add(buffer,i*Marshal.SizeOf(typeof(WtsSession))),typeof(WtsSession))).id==id)return true;
+   exists=false; return true;
+  } finally { if(buffer!=IntPtr.Zero)WTSFreeMemory(buffer); }
+ }
 }
 '@
 $result = [ordered]@{
@@ -33,10 +46,16 @@ try {
  [uint32]$childId = [uint32]::MaxValue
  $idOk = [AzraelChildSessionProbe]::WTSGetChildSessionId([ref]$childId)
  $idError = if ($idOk) { 0 } else { [Runtime.InteropServices.Marshal]::GetLastWin32Error() }
+ $enumerated = $false; $sessionExists = $true; $enumerationError = 0
+ if ($idOk -and $childId -ne [uint32]::MaxValue) {
+  $enumerated = [AzraelChildSessionProbe]::TrySessionExists($childId, [ref]$sessionExists, [ref]$enumerationError)
+ }
  $result.childSessions = @{
   enabledQuerySucceeded = $enabledOk; enabled = $(if ($enabledOk) { $enabled } else { $null })
   enabledError = $enabledError; idQuerySucceeded = $idOk; idError = $idError
-  childAbsent = (($idOk -and $childId -eq [uint32]::MaxValue) -or (!$idOk -and $idError -eq 1168))
+  childAbsent = (($idOk -and $childId -eq [uint32]::MaxValue) -or (!$idOk -and $idError -eq 1168) -or ($idOk -and $enumerated -and !$sessionExists))
+  sessionEnumerationSucceeded = $enumerated; sessionEnumerationError = $enumerationError
+  reportedChildSessionLive = $(if ($enumerated) { $sessionExists } else { $null })
   childSessionId = $(if ($idOk -and $childId -ne [uint32]::MaxValue) { $childId } else { $null })
  }
 } catch { $result.errors += @{ operation = 'wtsIdentityProbe'; message = $_.Exception.Message; hresult = $_.Exception.HResult } }

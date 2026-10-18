@@ -15,7 +15,7 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
   host.attach(native,()=>assert.fail('unexpected internal engine RPC'));
   const original=await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434'),'out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
   const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
-  context.host={codexMcpConnection:native,broadcastToAllViews(envelope){shown.push(envelope)},pendingMcpRequests:new Map()};
+  context.host={codexMcpConnection:native,broadcastToAllViews(envelope){if(envelope.type==='mcp-request'&&envelope.request.params._meta?.window_use_approval_kind==='stage'){queueMicrotask(()=>context.host.respond({type:'mcp-response',response:{id:envelope.request.id,result:{action:'accept',content:{persist:'session'}}}}));return;}shown.push(envelope)},pendingMcpRequests:new Map()};
   vm.runInContext(`host.outgoing=function(r,e){switch(r.type){case'mcp-request':{${replacements[2][1]}}}};host.respond=function(r){switch(r.type){${replacements[1][1]}}};host.receive=function(){return ({${replacements[0][1]}}).onRequest}.call(host);`,context);
   context.host.outgoing({type:'mcp-request',request:{id:'normal-request',method:'thread/read',params:{threadId:thread}}},{});
   assert.equal(engine.length,1);

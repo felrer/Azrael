@@ -3,12 +3,15 @@ const APPROVAL_CLASSIFIER_ASSET = 'webview/assets/app-initial-c014f9ee4429.js';
 const CLASSIFIER_MARKER = '/*azrael-window-native-approval-v1*/';
 const CLASSIFIER_ANCHOR = 'return t===`computer-use`||t.startsWith(`computer-use-`)';
 const CLASSIFIER_PATCH = CLASSIFIER_ANCHOR + '||t===`window-use`' + CLASSIFIER_MARKER;
+const STAGE_SUBTITLE_ANCHOR = 'persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle';
+const STAGE_SUBTITLE_PATCH = 'persistModes:n,riskLevel:e.riskLevel,subtitle:t.connector_id===`window-use`&&t.window_use_approval_kind===`stage`?[e.message,e.subtitle,...(Array.isArray(t.tool_params_display)?t.tool_params_display.filter(f=>[`stage`,`location`,`reason`].includes(f?.name)&&typeof f.value===`string`).map(f=>`${typeof f.display_name===`string`?f.display_name:f.name}: ${f.value}`):[])].filter(v=>typeof v===`string`&&v.length).join(`\\n\\n`):e.subtitle';
 function injectWindowApprovalClassifier(text, relativePath) {
   if(relativePath!==APPROVAL_CLASSIFIER_ASSET)return {text,count:0};
   const markers=text.split(CLASSIFIER_MARKER).length-1;
-  if(markers){if(markers!==1||text.split(CLASSIFIER_PATCH).length-1!==1)throw Error('Invalid Window Use native approval classifier marker');return {text,count:0};}
+  if(markers){if(markers!==1||text.split(CLASSIFIER_PATCH).length-1!==1||text.split(STAGE_SUBTITLE_PATCH).length-1!==1)throw Error('Invalid Window Use native approval classifier marker');return {text,count:0};}
   if(text.split(CLASSIFIER_ANCHOR).length-1!==1)throw Error('Pinned Window Use native approval classifier changed');
-  return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH),count:1};
+  if(text.split(STAGE_SUBTITLE_ANCHOR).length-1!==1)throw Error('Pinned Window Use stage approval subtitle changed');
+  return {text:text.replace(CLASSIFIER_ANCHOR,CLASSIFIER_PATCH).replace(STAGE_SUBTITLE_ANCHOR,STAGE_SUBTITLE_PATCH),count:1};
 }
 const SETTINGS_ASSET = 'webview/assets/computer-use-settings-a06e6e547020.js';
 const HOST_MARKER = '/*azrael-window-control-bridge-v2*/';

@@ -18,7 +18,7 @@ test('settings host updates govern a separate Window host while Computer Use is 
   const win = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   let calls = 0;
   const backend = { request: async method => { calls++; return method === 'listWindows' ? [win] : win; }, dispose: async () => {} };
-  const control = require('./window-control-host.cjs').createHost({ runtime: { codexHome: home }, approvals: controlApprovals, backend, vscode: { window: { showInformationMessage: async () => '취소', showWarningMessage: async () => '허용' } }, createServer: () => { const s = new EventEmitter(); s.listen = (_, done) => done(); s.close = () => {}; return s; } });
+  const control = require('./window-control-host.cjs').createHost({ runtime: { codexHome: home }, approvals: controlApprovals, backend, vscode: { window: { showInformationMessage() { assert.fail('External app approval modal forbidden'); }, showWarningMessage() { assert.fail('External stage approval modal forbidden'); } } }, createServer: () => { const s = new EventEmitter(); s.listen = (_, done) => done(); s.close = () => {}; return s; } });
   const host = require('./use-settings-host.cjs').createSettingsHost({ runtime: { codexHome: home }, backend, vscode: {}, settingsOwner: settings });
   t.after(async () => { host.dispose(); await control.dispose(); fs.rmSync(home, { recursive: true }); });
   let reply; const web = { postMessage: async value => { reply = value; } };
@@ -27,6 +27,14 @@ test('settings host updates govern a separate Window host while Computer Use is 
   await update({ stage4Enabled: false, windowUseAllowAll: true });
   assert.equal(require('./use-control-settings.cjs').createSettingsOwner(home).getSettings().stage4Enabled, false);
   const native = { registerProvider() { return { dispose() {} }; } }; control.attach(native, () => {});
+  const stageCards=[];
+  control.registerApprovalUI(native,envelope=>{
+    if(envelope.type!=='mcp-request')return true;
+    const request=envelope.request,meta=request.params._meta;
+    assert.equal(meta.window_use_approval_kind,'stage','settings fixtures already authorize apps through allow-all or their explicit app store');
+    assert.equal(meta.connector_id,'window-use');assert.deepEqual(meta.persist,['session']);stageCards.push(request);
+    queueMicrotask(()=>control.respondApproval(native,request.id,{action:'accept',content:{persist:'session'}}));return true;
+  });
   const thread = '12345678-1234-1234-1234-123456789abc'; control.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id: 'turn' } } }); await control.threads.get(thread).ready;
   const nextRevocation = () => {
     let timer, listener;
@@ -45,6 +53,8 @@ test('settings host updates govern a separate Window host while Computer Use is 
   let beforeStage = calls; await assert.rejects(call('resize', { targetId: selected.targetId, widthDip: 800, heightDip: 600 }), { code: 'permission_denied' }); assert.equal(calls, beforeStage, 'all-app grant cannot grant task-stage authority');
   const controlStage = () => call('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Resize this fixture window' });
   assert.equal((await controlStage()).authorized, true);
+  assert.equal(stageCards.length,1);assert.equal(stageCards[0].params._meta.tool_params.app,'Window Use 2단계');
+  assert.deepEqual(approvals.getPersistentAppApprovals().approvedApps,[],'a stage card never creates an app approval');
   const settingsRevoked = nextRevocation();
   let before = calls;
   try { await update({ windowUseAllowAll: false }); await settingsRevoked.observed; }
@@ -52,6 +62,7 @@ test('settings host updates govern a separate Window host while Computer Use is 
   assert.equal(calls, before, 'settings revocation must not call the window backend');
   await assert.rejects(call('resize', { targetId: selected.targetId, widthDip: 800, heightDip: 600 }), /revoked/); assert.equal(calls, before);
   approvals.addAppApproval(win.executable, 'Fixture'); selected = await select(); await call('status', { targetId: selected.targetId }); assert.equal((await controlStage()).authorized, true);
+  assert.equal(stageCards.length,2,'settings revocation requires a fresh internal stage card');
   const appRevoked = nextRevocation(); before = calls;
   try { approvals.removeAppApproval(win.executable); await appRevoked.observed; }
   finally { appRevoked.dispose(); }

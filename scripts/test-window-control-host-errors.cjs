@@ -45,7 +45,7 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
     }; server.close = () => {}; return server; }
   });
   const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});
-  host.registerApprovalUI(native, envelope => { posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
+  host.registerApprovalUI(native, envelope => { if(envelope.type==='mcp-request' && envelope.request.params._meta.window_use_approval_kind==='stage') {queueMicrotask(()=>host.respondApproval(native,envelope.request.id,{action:'accept',content:{persist:'session'}}));return true;} posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
   const started = id => { turn = id; host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id } } }); };
   t.after(async () => { await host.dispose(); if (socketPath) await assert.rejects(fs.stat(path.dirname(socketPath)), { code: 'ENOENT' }); await fs.rm(home, { recursive: true }); });
   if (registerThread) { started(turn); await host.threads.get(thread).ready; }
@@ -54,13 +54,15 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
     assert.equal((await fs.stat(socketPath)).mode & 0o777, 0o600);
   }
   const request = (tool, args = {}) => ({ nonce: host.nonce, threadId: thread, method: 'call', tool, arguments: args, _meta: { threadId: thread, 'codex/sandbox-state-meta': { permissionProfile: { type: 'disabled' } }, 'x-codex-turn-metadata': { thread_id: thread, turn_id: turn } } });
-  function socketCall(tool, args) {
-    const socket = new EventEmitter(), progress = []; let ended = false;
-    socket.setTimeout = (_ms, fn) => { socket.expire = fn; }; socket.destroy = () => { socket.destroyed = true; socket.emit('close'); };
+  function socketCall(tool, args, { deferData = false, method = 'call' } = {}) {
+    const socket = new EventEmitter(), progress = [], timeouts = []; let ended = false;
+    socket.setTimeout = (ms, fn) => { timeouts.push(ms); if (fn) socket.expire = fn; }; socket.destroy = () => { socket.destroyed = true; socket.emit('close'); };
     socket.write = bytes => { progress.push(JSON.parse(bytes).progress.stage); };
     const reply = new Promise(resolve => { socket.end = bytes => { ended = true; resolve(JSON.parse(bytes)); }; });
-    connect(socket); socket.emit('data', Buffer.from(JSON.stringify(request(tool, args)) + '\n'));
-    return { socket, reply, progress, ended: () => ended };
+    connect(socket);
+    const send = () => socket.emit('data', Buffer.from(JSON.stringify({ ...request(tool, args), method }) + '\n'));
+    if (!deferData) send();
+    return { socket, reply, progress, timeouts, send, ended: () => ended };
   }
   async function controlRequest(candidateId) { const selected = await host.handlePipe(request('select_window', { candidateId: candidateId ?? await candidate() })); return socketCall('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Verify the requested fixture control and approval lifecycle' }); }
   async function candidate() { return (await host.handlePipe(request('list_windows'))).candidates[0].candidateId; }
@@ -68,13 +70,44 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
   return { host, native, home, approvals, posts, latestRequest: () => latestRequest, request, started, socketCall, controlRequest, candidate, prompted, answer: value => resolveAnswer(value), promptCount: () => promptCount };
 }
 
+test('only a complete stage3 admission request extends the initial socket deadline', async t => {
+  const f = await fixture(t);
+  const admission = f.socketCall('request_stage', { stage: 3, reason: 'Verify admission deadline' }, { deferData: true });
+  assert.deepEqual(admission.timeouts, [30000], 'initial read retains its bounded deadline');
+  admission.send();
+  assert.deepEqual(admission.timeouts, [30000, 360000]);
+  await admission.reply;
+  for (const [tool, args, method] of [
+    ['status', {}, 'call'], ['request_stage', { stage: 2 }, 'call'],
+    ['request_stage', { stage: '3' }, 'call'], ['request_stage', { stage: 3 }, 'desktop_authority'],
+    ['capture_isolated', { stage: 3 }, 'call'],
+  ]) {
+    const ordinary = f.socketCall(tool, args, { method });
+    assert.deepEqual(ordinary.timeouts, [30000]);
+    await ordinary.reply;
+  }
+});
+
+test('extended stage3 socket deadline preserves cancellation before queued execution', async t => {
+  const f = await fixture(t, 5000), pending = await f.controlRequest(); await f.prompted();
+  const admission = f.socketCall('request_stage', { stage: 3, reason: 'Verify cancelled admission' });
+  assert.deepEqual(admission.timeouts, [30000, 360000]);
+  admission.socket.expire();
+  assert.equal(admission.socket.destroyed, true);
+  f.answer(undefined); await pending.reply;
+  await f.socketCall('status').reply;
+  assert.equal(admission.ended(), false, 'cancelled request never delivers a late response');
+  assert.equal(f.promptCount(), 1, 'cancelled request cannot open another consent');
+  assert.equal(f.approvals.hasAppApproval(app, thread), false);
+});
+
 for (const method of ['thread/start', 'thread/resume']) test(`${method} pins Window Use relay to the declared release without mutating user configuration`, async t => {
   const directory = path.resolve('artifacts/runtime-fixture/computer-use'), mcpScript = path.resolve('artifacts/runtime-fixture/window-control-mcp.cjs');
   const f = await fixture(t, 100, { computerUse: { directory }, windowControl: { mcpScript } });
   const params = { threadId: thread, config: { 'mcp_servers.azrael_window.command': 'C:/old/r6/node.exe', 'mcp_servers.azrael_window.args': ['C:/old/r6/window-control-mcp.cjs'], 'mcp_servers.azrael_window.env.CODEX_HOME': 'C:/old/home', 'mcp_servers.azrael_window.enabled': false, 'mcp_servers.other.command': 'other-command', 'model': 'preserved' } };
   const before = structuredClone(params), prepared = f.host.prepareRequest(method, params);
   assert.notEqual(prepared, params); assert.notEqual(prepared.config, params.config); assert.deepEqual(params, before);
-  assert.deepEqual(prepared, { ...params, config: { ...params.config, 'mcp_servers.azrael_window.command': path.join(directory, nodeName), 'mcp_servers.azrael_window.args': [mcpScript], 'mcp_servers.azrael_window.env.CODEX_HOME': f.home } });
+  assert.deepEqual(prepared, { ...params, config: { ...params.config, 'mcp_servers.azrael_window.command': path.join(directory, nodeName), 'mcp_servers.azrael_window.tool_timeout_sec':600, 'mcp_servers.azrael_window.args': [mcpScript], 'mcp_servers.azrael_window.env.CODEX_HOME': f.home } });
   assert.equal(f.host.prepareRequest('turn/start', params), params);
 });
 for (const method of ['thread/start', 'thread/resume']) test(`${method} binds an explicit Node executable without a desktop runtime`, async t => {
@@ -127,7 +160,8 @@ test('unresolved approval times out, releases queued status, and ignores a late 
   assert.ok(f.host.owner.peek(thread)?.targetId);
   assert.equal(f.posts.at(-1).notification.method, 'serverRequest/resolved');
   assert.deepEqual(f.posts.at(-1).notification.params, { threadId: thread, requestId: f.latestRequest().id });
-  assert.deepEqual(selecting.progress, ['queued', 'running', 'approval']);
+  assert.deepEqual(selecting.progress, ['queued', 'running', 'approval','running','approval','running']);
+  assert.ok(selecting.timeouts.filter(ms=>ms===10100).length===2,'each card refreshes the approval inactivity budget');
   assert.equal((await status.reply).result.state, 'selected');
   f.answer('항상 허용'); await new Promise(resolve => setImmediate(resolve));
   assert.equal(f.approvals.hasAppApproval(app, thread), false);

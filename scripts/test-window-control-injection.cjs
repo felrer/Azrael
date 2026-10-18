@@ -212,9 +212,16 @@ test('Window Use classifier is exact, guarded and tracked by packaging',()=>{
  const original=fs.readFileSync(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434"), APPROVAL_CLASSIFIER_ASSET),'utf8');
  const result=injectWindowApprovalClassifier(original,APPROVAL_CLASSIFIER_ASSET);assert.equal(result.count,1);assert.equal(injectWindowApprovalClassifier(result.text,APPROVAL_CLASSIFIER_ASSET).count,0);
  assert.throws(()=>injectWindowApprovalClassifier(result.text.replace(CLASSIFIER_PATCH,'tampered /*azrael-window-native-approval-v1*/'),APPROVAL_CLASSIFIER_ASSET));
+ assert.throws(()=>injectWindowApprovalClassifier(original.replace('persistModes:n,riskLevel:e.riskLevel,subtitle:e.subtitle','changed'),APPROVAL_CLASSIFIER_ASSET),/stage approval subtitle changed/);
+ assert.throws(()=>injectWindowApprovalClassifier(result.text.replace('subtitle:t.connector_id===','subtitle:changed==='),APPROVAL_CLASSIFIER_ASSET),/classifier marker/);
  const parsed=require('../extensions/azrael-ex/node_modules/typescript').createSourceFile('classifier.js',result.text,99,true,1),owner=parsed.statements.find(node=>require('../extensions/azrael-ex/node_modules/typescript').isFunctionDeclaration(node)&&node.getText(parsed).includes(CLASSIFIER_PATCH));assert(owner);const context=vm.createContext({});vm.runInContext(owner.getText(parsed),context);
  for(const name of ['Computer Use','computer-use-plugin','Window Use'])assert.equal(context[owner.name.text](name),true);
  for(const name of ['window-use-other','browser-use','other'])assert.equal(context[owner.name.text](name),false);
+ const cardOwner=parsed.statements.find(node=>require('../extensions/azrael-ex/node_modules/typescript').isFunctionDeclaration(node)&&node.name?.text==='Abt');
+ const stageContext=vm.createContext({Obt:p=>p,Mbt:()=>true,jbt:t=>t.tool_params.app});vm.runInContext(cardOwner.getText(parsed),stageContext);
+ const stage={kind:'mcpToolCall',message:'Task scope <script>literal</script>',approval:{connector_id:'window-use',window_use_approval_kind:'stage',persist:['session'],tool_params:{app:'Window Use 3단계'},tool_params_display:[{name:'stage',value:'3단계'},{name:'location',value:'User desktop'},{name:'reason',value:'<img src=x> Edit document'}]}};
+ const stageCard=stageContext.Abt(stage);assert.equal(stageCard.persistModes.join(','),'session');for(const value of [stage.message,'3단계','User desktop','<img src=x> Edit document'])assert(stageCard.subtitle.includes(value));
+ for(const connector of ['window-use','computer-use'])assert.equal(stageContext.Abt({...stage,subtitle:'Original subtitle',approval:{...stage.approval,connector_id:connector,window_use_approval_kind:undefined}}).subtitle,'Original subtitle');
  const transformer=require('./namespace-azrael-host.cjs'),ts=require('../extensions/azrael-ex/node_modules/typescript');const prepared=transformer.transformAsset(original,APPROVAL_CLASSIFIER_ASSET,APPROVAL_CLASSIFIER_ASSET,ts);assert.equal(prepared.asset.windowApprovalClassifierEdits,1);assert(transformer.getAssetTransformRules(APPROVAL_CLASSIFIER_ASSET)['inject-window-control.cjs']);
 });
 test('selected runtime request preparation precedes registration and actual native send',()=>{

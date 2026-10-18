@@ -2,6 +2,8 @@
 
 Read before the first mutation. These rules apply to applicable control stages regardless of app approval or stage authority. Scope and action-time confirmations remain distinct. Stop on cancellation or revoked authority, discard stale references and late responses, and never replay an unknown mutation. User handoff must not be automated.
 
+At task start, collect the required stage, execution location and known apps. Use `prepare_permissions` with the required stage, reason and up to eight fresh `list_windows` candidate IDs to request those permissions inside Azrael before execution. Each card gives the user 50 seconds to respond; Windows notifications lead to the in-app card and cannot grant permission. Stage 2 still requires a selected target; selecting invalidates earlier candidates, so enumerate again for app preparation. Preparation does not launch apps, create a child session or perform input. Activate a prepared isolated session with `request_stage` before launch. Reuse accepted permissions only within their scope; request newly discovered apps or expanded authority when needed. Do not change all-app settings, select approval buttons, replace Windows UAC or bypass action-time confirmations. On timeout, report that no answer was received and wait for an explicit retry; never replay a timed-out request automatically.
+
 ## Mandatory Windows automation denies
 
 

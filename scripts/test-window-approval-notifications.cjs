@@ -7,26 +7,28 @@ const { createBackend } = require('./window-control-backend.cjs');
 const thread = '12345678-1234-1234-1234-123456789abc';
 const tick = () => new Promise(resolve => setImmediate(resolve));
 async function until(predicate) { for (let i = 0; i < 100 && !predicate(); i++) await tick(); assert.ok(predicate()); }
-async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = false } = {}) {
+async function fixture(t, { timeout = 1000, show, publish, focus, dedicated = false, autoStage = true } = {}) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-approval-notification-'));
   const approvals = require('./window-use-approvals.cjs').createOwner(home);
   const descriptor = { hwnd: 'fixture', pid: 1, processCreated: 'created', executable: 'C:/fixture/app.exe', title: 'Fixture app', minimized: false, widthPx: 800, heightPx: 600, dpi: 96 };
   const posts = [], shows = [], hides = [], navigation = [], commands = [], backendCalls = [];
+  const stageIds=new Set();
+  const deliverStage=envelope=>{if(autoStage && ['mcp-request','approval'].includes(envelope.type)&&envelope.request.params._meta.window_use_approval_kind==='stage') {stageIds.add(envelope.request.id.slice('azrael-window-consent-'.length));queueMicrotask(()=>host.respondApproval(native,envelope.request.id,{action:'accept',content:{persist:'session'}}));return true;}return false;};
   let listener, subscriptionDisposed = false, turn = 'turn-one';
   const backend = {
     async request(method) { backendCalls.push(method); return method === 'listWindows' ? [descriptor] : descriptor; },
-    showApprovalNotification(params) { shows.push(params); return show?.(params); },
-    hideApprovalNotification(params) { hides.push(params); },
+    showApprovalNotification(params) { if(stageIds.has(params.requestId))return;shows.push(params); return show?.(params); },
+    hideApprovalNotification(params) { if(!stageIds.has(params.requestId))hides.push(params); },
     onApprovalNotificationActivated(callback) { listener = callback; return { dispose() { subscriptionDisposed = true; } }; }, async dispose() {},
   };
   const reveals = [];
-  const panel = { webview: { postMessage(envelope) { posts.push(envelope); return true; }, onDidReceiveMessage() {} }, reveal(...args) { reveals.push(args); }, onDidDispose() {}, dispose() {} };
+  const panel = { webview: { postMessage(envelope) { if(deliverStage(envelope))return true;posts.push(envelope); return true; }, onDidReceiveMessage() {} }, reveal(...args) { reveals.push(args); }, onDidDispose() {}, dispose() {} };
   const host = createHost({ runtime: { codexHome: home }, occupancyDirectory: path.join(home, 'occupancy'), approvals, approvalTimeoutMs: timeout, backend,
     vscode: { ViewColumn: { One: 1 }, workspace: { workspaceFolders: [] }, window: { showWarningMessage: async () => '허용', createWebviewPanel() { return panel; } }, commands: { async executeCommand(command) { commands.push(command); await focus?.(); } } },
     createServer() { const server = new EventEmitter(); server.listen = (_name, done) => done(); server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});
-  const publisher = envelope => { posts.push(envelope); return publish?.(envelope); };
+  const publisher = envelope => { if(deliverStage(envelope))return true;posts.push(envelope); return publish?.(envelope); };
   const navigate = (id, isPending) => navigation.push({ id, isPending });
   host.registerApprovalUI(native, publisher, navigate);
   if (dedicated) { host.open(); host.attach(native).rpc = async () => ({ computerUseMode: 'selectedWindow', thread: { id: thread } }); await host.startThread(); }
@@ -86,6 +88,18 @@ test('show finishing after cancellation is hidden and never navigates', async t 
 });
 test('failed card delivery never shows a notification', async t => {
   const f = await fixture(t, { publish: () => false }); const { result } = await f.select(); await assert.rejects(result, { code: 'connection_error' }); assert.equal(f.shows.length, 0);
+});
+
+for(const ending of ['accept','decline','cancel','expire','disconnect']) test(`stage ${ending} follows delivered card and retires its own notification`,async t=>{
+  const f=await fixture(t,{autoStage:false,timeout:ending==='expire'?35:1000});
+  const {result,request}=await f.select();await until(()=>f.shows.length===1);
+  assert.equal(request.params._meta.window_use_approval_kind,'stage');assert.deepEqual(request.params._meta.persist,['session']);
+  assert.equal(f.shows[0].appTitle,'Window Use 2단계');assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);
+  if(ending==='accept') { f.answer(request);await until(()=>f.posts.filter(p=>['mcp-request','approval'].includes(p.type)).length===2);const appRequest=f.posts.filter(p=>['mcp-request','approval'].includes(p.type)).at(-1).request;f.answer(appRequest,'cancel'); }
+  else if(ending==='disconnect')f.host.disconnect(f.native);
+  else if(ending!=='expire')f.answer(request,ending);
+  await assert.rejects(result);await until(()=>f.hides.some(item=>item.requestId===f.shows[0].requestId));
+  f.click(f.shows[0].requestId);await tick();assert.equal(f.navigation.length,0);assert.equal(f.approvals.hasAppApproval(f.descriptor.executable,thread),false);
 });
 
 function backendFixture(respond) {

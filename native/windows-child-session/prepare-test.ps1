@@ -18,7 +18,7 @@ $log = Join-Path $destination 'compile.log'
  compiler=$compiler; command='csc /target:exe /platform:x64; --self-test (no connect or configuration writes)'
 } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $destination 'producer.json') -Encoding UTF8
 Copy-Item -LiteralPath $source -Destination $frozen
-& $compiler /nologo /target:exe /platform:x64 /optimize+ "/out:$binary" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:Microsoft.CSharp.dll $frozen *> $log
+& $compiler /nologo /target:exe /platform:x64 /optimize+ "/out:$binary" /reference:System.Windows.Forms.dll /reference:System.Drawing.dll /reference:System.Web.Extensions.dll /reference:System.ServiceProcess.dll /reference:Microsoft.CSharp.dll $frozen *> $log
 $compileExit = $LASTEXITCODE
 $selfExit = $null
 if ($compileExit -eq 0) {
