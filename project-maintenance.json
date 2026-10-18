@@ -24,6 +24,21 @@
   ],
   "bundles": [
     {
+      "id": "source-command-drag-block",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": ["node", "--test", "scripts/test-command-drag-block.cjs"],
+      "inputs": [
+        "scripts/command-drag-policy.cjs", "scripts/inject-command-drag-block.cjs",
+        "scripts/test-command-drag-block.cjs", "scripts/namespace-azrael-host.cjs",
+        "scripts/inject-scroll-fade.cjs", "scripts/scroll-fade.cjs",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-aad627bd9dff.css",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/sites-end-resource-90d3046b3014.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/user-message-attachments-f6a72702c1d3.js"
+      ]
+    },
+    {
       "id": "source-scroll-fade",
       "kind": "test",
       "purpose": "retained",

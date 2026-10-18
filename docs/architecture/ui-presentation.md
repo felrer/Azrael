@@ -104,6 +104,14 @@ Flags use the native persisted UI preference store, keyed by host and conversati
 
 `scripts/verify-session-flags-render.mjs` exercises the production Flag helper with the pinned native React, preference atom, row components and CSS. Host services and localization are synthetic; installed VS Code and real host persistence remain separate checks.
 
+## Model command drag policy
+
+Status: `partial` — source transforms and Windows native Webview policy checks pass in light and dark themes. Full application, packaged/installed acceptance and Linux/macOS checks remain unverified.
+
+Model command execution cards, their command/output shell blocks and dynamic `functions.exec`, `functions.exec_command` and `functions.write_stdin` results disable mouse text selection and HTML drag starts. This temporary mitigation uses a scoped CSS class plus capture cancellation of `selectstart` and `dragstart`. It does not cancel pointer-down, click, key, wheel or drop events, so the native disclosure, copy controls, focus and scrolling keep their owners. Ordinary conversation text, Markdown code blocks, other tool results and composer attachments retain their current interaction policy. Existing selected text is not globally cleared.
+
+The policy is common to Windows x64, Linux x64 and macOS ARM64. Windows native Webview checks establish the verified environment; packaging and installation are separate. Preservation feature: `ui.command-drag-block`.
+
 ## Scroll fades and renderer compatibility
 
 Status: `partial` — source transform and isolated Windows native Webview verification; packaging and installed-host acceptance are separate.
@@ -250,4 +258,4 @@ The candidate system uses a 24×24 coordinate grid, `currentColor`, consistent s
 
 ## Preservation mapping
 
-Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.scroll-fade`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
+Registered features: `ui.submit-only-thread`, `ui.session-flags`, `ui.student-design`, `ui.project-drafts`, `ui.file-open-menu`, `ui.image-file-open`, `ui.missing-image`, `ui.local-file-drop`, `ui.composer-draft`, `ui.ui-cleanup`, `ui.pets-cleanup`, `ui.content-fonts`, `ui.command-drag-block`, `ui.scroll-fade`, `ui.thread-branch`, `ui.paginated-history`, `ui.recent-chat-filter`, `ui.session-links`, `ui.input-diagnostics`. The [contract index](upstream-preservation.md#contract-index) links to the executable inventory. Each section's stated source, native, package, installed and platform limits determine what that registered scope establishes; broader behavior is reviewed separately.
