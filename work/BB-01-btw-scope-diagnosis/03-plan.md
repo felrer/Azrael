@@ -1,0 +1,23 @@
+상태: 발견한 scope 계약 위반 소스 수정·관련 검사·생성물 정리 완료. 설치 앱의 실제 패널 미표시 재현과 빌드·설치는 별도 범위.
+
+# /btw 패널 미표시 원인 조사
+
+- 요청과 권한: 사용자가 추가 조사 뒤 발견한 문제의 수정을 승인했다. scope 분리 구현·관련 자동 검증·문서 갱신·작업 커밋을 수행한다. 제품 전체 빌드·설치·사용자 창 조작은 포함하지 않는다.
+- 사용자 확인: 메뉴 선택 뒤 별도 입력창 자체가 열리지 않는다. 별도 질문 전송 후 답변이 시작되지 않는 문제와 구분한다.
+- 범위: 공통 UI 계약 문제이며 이번 확인 환경은 Windows의 로컬 소스와 일반 프로필 설치 파일이다. 실제 실행 창의 로드 버전·route 값·스택과 다른 OS 실행은 미확인이다.
+- 설치 확인: 일반 프로필의 `azrael-ex-local.azrael-2026.0.10` composer 자산은 `__azraelBtwComposerScope=Ou(Dh)`를 포함한다. 이전 수정의 설치 누락을 주된 원인으로 제시할 근거는 없다.
+- 코드 확인: `createBtwCommand.enabled`는 대화 존재 여부와 별도 대화 여부를 사용하며 본 작업 실행 중 상태로 비활성화하지 않는다. helper도 본 작업 실행 중 사용을 차단하지 않는다. bare `/btw`는 별도 패널 진입점이며 본 입력창의 모드를 전환하는 구현이 아니다.
+- 추가 결함: `__azraelOpenBtwPanel`은 options.scope를 그대로 native `gJi`로 넘긴다. 이전 수정 후 해당 값은 ComposerScope다. 그러나 gJi는 route 소유 atom 외에도 `e.value.pathname`, `e.value.search`를 직접 읽어 parentNavigationPath를 만든다. 하위 scope가 route atom을 조회할 수 있다는 사실은 그 scope.value도 route 데이터라는 뜻이 아니다. 앞서 ComposerScope 하나로 두 계약을 모두 충족한다고 제안한 설명은 이 직접 읽기를 놓쳤다.
+- 제한된 재현: pinned 실제 gJi 함수를 Node VM에서 실행하고 tab/RPC 경계만 합성했다. RouteScope value에서는 parentNavigationPath가 `/thread/source`, ComposerScope value에서는 문자열 `undefined`였다. 종료 코드 0. 모델 요청이나 사용자 상태 변경은 없으며 이 실험은 설치 패널 미표시를 재현한 것이 아니다.
+- 패널 미생성의 다른 분기: gJi는 route의 persistentWorkspace/routeKind에 따른 `tj` 조건 불충족, openPendingTab의 null 결과 등에서도 패널 없이 돌아올 수 있다. 실제 사용자 창이 어느 분기를 탔는지는 런타임 기록이 없어 확정하지 않는다. 최근 일반 VS Code 로그 세션 두 개에서도 해당 오류의 스택을 확보하지 못했다.
+- 기존 검증 한계: `scripts/test-btw.cjs`는 opener 테스트에서 gJi를 대체하고, scope 회귀 검사도 패널 경계를 대체한다. render fixture는 합성 채팅·메뉴 진입을 사용한다. 기존 26개 소스·20개 렌더 통과가 실제 메뉴 → native panel → 입력창 생성까지 입증하지 않았음을 유지한다.
+- 합의한 구현: 현재 ComposerScope는 첨부 확인에 사용한다. native route-scoped query `q(Ev,({scope})=>scope)`를 재사용해 활성 RouteScope를 조회하고 gJi에는 그 객체를 전달한다. 새 상태 저장소나 수동 부모 탐색을 만들지 않고 메뉴·직접 입력·후속 질문이 같은 패널 진입점을 사용한다.
+- 소유권: root가 `scripts/inject-btw.cjs`, `scripts/test-btw.cjs`, `docs/architecture/side-questions.md`와 이 계획을 수정한다. 다른 작업이 변경 중인 `project-maintenance.json`과 feature inventory는 유지하며 기존 feature `ui.btw`와 retained `source-btw` 검사 묶음을 재사용한다.
+- 검증: 기존 첨부·격리·본 작업 실행 중 메뉴·직접 입력 회귀를 유지한다. 추가 검증은 실제 patched gJi와 실제 tj readiness query·DK/OK resolver를 실행해 route 객체·pathname/search·pending tab 요청·child preparation·tab completion까지 확인한다. tab storage와 RPC는 합성 경계이며 설치 앱 전체 UI/포커스 재현은 아니다. route 거부 및 tab 생성 불가에서 fork가 시작되지 않는 계약도 확인한다.
+- 실행·생성물: 고정 입력의 Node 소스 검사와 native React/CSS light/dark 렌더를 수행한다. 렌더 writer는 `artifact-run.cjs`의 `verify-btw-render` 작업별 run에 fixture/profile/log/reports를 생성 전에 기록한다. 추가 테스트 로그가 필요하면 `BB-01-btw-panel-route` 작업별 run을 동일 API로 생성 전에 등록한다. 종료·실제 결과를 확인한 뒤 producer와 native inventory를 연결하고 그룹별 delete/defer를 결정한다. 실제 생성 경로와 결과는 아래에 기록한다.
+- 수용 범위: 발견한 scope 계약 위반의 소스 수정·관련 검사 통과·작업 커밋이다. 이번 설치 창의 직접 실패 지점 및 실제 구 세션의 입력창 표시·포커스 수용은 별도 설치 검증으로 남는다.
+- 실행 준비: 내장 `source-btw` 실행 `run-45928-1023-1792381214056558100`은 10초 경계에서 종료 코드 124로 실패했다. 입력 무결성 valid, producer_completed=true, session_id=null을 확인했다. 동일 argv/env를 긴 exec 세션에서 새로 실행하고 `BB-01-btw-panel-route`의 artifact-run에 stdout/stderr, 시작·종료, 실제 exit와 입력 해시를 기록한다. 원 실행이 종료되어 중복 producer를 만들지 않는다. 고정 JS 5개·TS와 선택된 소스 입력을 검사 전후에 비교한다. 최초 진행 확인 시점은 4분이며 기존 pinned 변환 검사 이력에 따라 수 분이 예상된다.
+- 재실행 원인: 첫 긴 소스 검사 `20261019T034110990Z-a194a34a-9857-4b85-bcd7-7846182cbbba`는 exit 1, 입력 해시 불변이었다. 추출된 opener를 실행하는 두 VM fixture에서 새 모듈 변수 `__azraelBtwRouteScope` 선언을 제공하지 않아 ReferenceError가 발생했다. fixture에 변수를 제공해 동일 범위를 다시 실행한다. 제품 코드의 선언은 이미 포함되어 있다.
+- 최종 소스 검증: `node --test --test-concurrency=1 scripts/test-btw.cjs scripts/test-ui-test-transform-fixture.cjs scripts/test-namespace-cache-owner.cjs`, `AZRAEL_TEST_UI_TRANSFORM_CACHE_PROJECT_ROOT=""`. Windows에서 27개 통과, fail 0, exit 0, 175.9초. `artifacts/tasks/BB-01-btw-panel-route/runs/20261019T034436213Z-c7b81c71-30b4-45d2-adcf-729533a9736e/`의 `logs/source-tests.log`, `reports/source-tests.json`, `reports/producer.json`에 명령·시작/종료·입력 해시 불변·producerStopped=true를 보존한다. 두 JS의 `node --check` 및 해당 diff whitespace 검사도 exit 0이다.
+- 렌더 검증·정리: `node scripts/verify-btw-render.mjs`, light/dark 20개 통과, exit 0. 원 run `20261019T034132436Z-a89e20a2-6070-4d0b-a1ab-339c4604c294`의 browserExit confirmed=true, processIds=[]를 확인했다. summary·light/dark 화면·producer proof와 원본 해시를 첫 소스 run의 `outputs/render-evidence/`에 독립 보존했다. native cleanup review/apply에서 해당 렌더 그룹을 delete하고 remaining=false를 확인했으며 lifecycle finalize도 remaining=[]로 완료했다. 테스트 브라우저 프로필을 포함한 원 run은 제거되었다.
+- 보존 결정: 두 소스 run은 native review/apply로 그룹 전체 defer했다. 첫 run은 실패 원인 및 독립 렌더 증거, 최종 run은 통과 로그·입력 무결성 증거를 보존한다. 일치하는 빌드 설치 후 실행 중·복원 대화의 실제 패널 동작을 수용하면 최소 증거를 보존하고 다시 정리 검토한다. 실패 run의 불완전 membership 표시는 그대로 유지한다. retained 소스 회귀 검사는 `ui.btw`의 route/첨부/격리 계약을 계속 보호한다.
