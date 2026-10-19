@@ -18,6 +18,19 @@ use std::sync::Arc;
 pub(crate) const MULTI_AGENT_V2_NAMESPACE_DESCRIPTION: &str =
     "Tools for spawning and managing sub-agents.";
 
+/// Shared by Azrael's direct-call classification and its execution guard.
+pub(crate) fn requires_plaintext_arguments(name: &str) -> bool {
+    matches!(
+        name,
+        "spawn_agent"
+            | "send_message"
+            | "followup_task"
+            | "request_parent"
+            | "await_parent_response"
+            | "respond_to_request"
+    )
+}
+
 pub(super) fn multi_agent_v2_handler(
     handler: impl CoreToolRuntime + 'static,
     namespace: Option<&str>,
