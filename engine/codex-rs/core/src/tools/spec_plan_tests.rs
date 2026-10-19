@@ -3344,15 +3344,19 @@ async fn azrael_agent_namespace_is_plaintext_direct_model_only() {
     }
 }
 
-struct RecordingFollowupHandler(Arc<AtomicUsize>);
+struct RecordingAgentHandler(Arc<AtomicUsize>, &'static str);
 
-impl ToolExecutor<ToolInvocation> for RecordingFollowupHandler {
+impl ToolExecutor<ToolInvocation> for RecordingAgentHandler {
     fn tool_name(&self) -> ToolName {
-        ToolName::plain("followup_task")
+        ToolName::plain(self.1)
     }
 
     fn spec(&self) -> ToolSpec {
-        create_followup_task_tool()
+        let mut spec = create_followup_task_tool();
+        if let ToolSpec::Function(tool) = &mut spec {
+            tool.name = self.1.to_string();
+        }
+        spec
     }
 
     fn handle<'a>(&'a self, _invocation: ToolInvocation) -> codex_tools::ToolExecutorFuture<'a>
@@ -3369,7 +3373,7 @@ impl ToolExecutor<ToolInvocation> for RecordingFollowupHandler {
     }
 }
 
-impl CoreToolRuntime for RecordingFollowupHandler {}
+impl CoreToolRuntime for RecordingAgentHandler {}
 
 async fn agent_message_invocation(source: ToolCallSource) -> ToolInvocation {
     let (session, turn) = make_session_and_context().await;
@@ -3393,7 +3397,7 @@ async fn agent_message_invocation(source: ToolCallSource) -> ToolInvocation {
 async fn azrael_namespace_wrapper_dispatches_plaintext_and_rejects_opaque_sources() {
     let calls = Arc::new(AtomicUsize::new(0));
     let wrapper = AzraelMultiAgentTool {
-        handler: Arc::new(RecordingFollowupHandler(Arc::clone(&calls))),
+        handler: Arc::new(RecordingAgentHandler(Arc::clone(&calls), "followup_task")),
     };
 
     let plaintext_source = ToolCall {
@@ -3438,6 +3442,149 @@ async fn azrael_namespace_wrapper_dispatches_plaintext_and_rejects_opaque_source
         );
     }
     assert_eq!(calls.load(Ordering::Relaxed), 1);
+}
+
+#[tokio::test]
+async fn parent_request_router_dispatches_plaintext_and_rejects_opaque_sources() {
+    let (session, turn) = make_session_and_context().await;
+    let session = Arc::new(session);
+    let turn = Arc::new(turn);
+    for name in [
+        "spawn_agent", "send_message", "followup_task",
+        "request_parent", "await_parent_response", "respond_to_request",
+    ] {
+        let calls = Arc::new(AtomicUsize::new(0));
+        let mut registry = crate::tools::registry::ToolRegistry::default();
+        registry.register_trusted_with_exposure(
+            super::multi_agent_v2_handler(
+                RecordingAgentHandler(Arc::clone(&calls), name),
+                Some("azrael_agents"), None, None,
+            ),
+            ToolExposure::DirectModelOnly,
+        );
+        let router = ToolRouter::from_parts(
+            registry, Vec::new(), ToolMode::Direct, BTreeMap::new(), None, &[],
+        );
+        for (index, metadata) in [None, Some(Vec::new()), Some(vec!["opaque".into()]), None]
+            .into_iter().enumerate()
+        {
+            let call = ToolCall {
+                tool_name: ToolName::namespaced("azrael_agents", name),
+                call_id: format!("{name}-{index}"),
+                payload: ToolPayload::Function { arguments: "{}".into() },
+                encrypted_function_args: metadata,
+            };
+            let source = if index == 3 {
+                ToolCallSource::CodeMode {
+                    cell_id: "cell".into(), runtime_tool_call_id: "nested-call".into(),
+                }
+            } else { call.direct_source() };
+            let result = router.dispatch_tool_call_with_code_mode_result(
+                Arc::clone(&session), StepContext::for_test(Arc::clone(&turn)),
+                tokio_util::sync::CancellationToken::new(),
+                Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new())), call, source,
+            ).await;
+            if index < 2 {
+                assert!(result.is_ok(), "{name}: plaintext dispatch failed");
+            } else {
+                let Err(error) = result else { panic!("{name}: opaque dispatch reached handler") };
+                assert!(error.to_string().contains("requires direct plaintext arguments"));
+            }
+        }
+        assert_eq!(calls.load(Ordering::Relaxed), 2, "{name}");
+    }
+}
+
+async fn dispatch_parent_request_fixture(
+    session: Arc<crate::session::session::Session>,
+    turn: Arc<TurnContext>,
+    handler: crate::tools::handlers::ParentRequestHandler,
+    arguments: serde_json::Value,
+) -> serde_json::Value {
+    let runtime = super::multi_agent_v2_handler(handler, Some("azrael_agents"), None, None);
+    let tool_name = runtime.tool_name();
+    let mut registry = crate::tools::registry::ToolRegistry::default();
+    registry.register_trusted_with_exposure(runtime, ToolExposure::DirectModelOnly);
+    let router = ToolRouter::from_parts(
+        registry, Vec::new(), ToolMode::Direct, BTreeMap::new(), None, &[],
+    );
+    let call = ToolCall {
+        tool_name, call_id: uuid::Uuid::new_v4().to_string(),
+        payload: ToolPayload::Function { arguments: arguments.to_string() },
+        encrypted_function_args: None,
+    };
+    let source = call.direct_source();
+    let item = router.dispatch_tool_call_with_code_mode_result(
+        session, StepContext::for_test(turn), tokio_util::sync::CancellationToken::new(),
+        Arc::new(tokio::sync::Mutex::new(TurnDiffTracker::new())), call, source,
+    ).await.expect("real parent request handler must accept direct plaintext").into_response().item;
+    let codex_protocol::models::ResponseItem::FunctionCallOutput { output, .. } = item else {
+        panic!("expected function call output");
+    };
+    let codex_protocol::models::FunctionCallOutputBody::Text(text) = output.body else {
+        panic!("expected parent request JSON");
+    };
+    serde_json::from_str(&text).unwrap()
+}
+
+#[tokio::test]
+async fn parent_request_real_router_persists_request_wait_and_response() {
+    use crate::tools::handlers::ParentRequestHandler;
+    use codex_protocol::parent_request::{ParentRequestPresentation, ParentRequestStatus};
+    use crate::session::tests::make_persistent_session_and_context_with_time_provider_and_rx;
+    let server = core_test_support::responses::start_mock_server().await;
+    let home = tempfile::tempdir().unwrap();
+    let (parent, parent_turn, _parent_events) =
+        make_persistent_session_and_context_with_time_provider_and_rx(
+            home.path(), codex_history::InitialHistory::New,
+            Arc::new(crate::current_time::SystemTimeProvider), format!("{}/v1", server.uri()),
+        ).await.unwrap();
+    let (child, mut child_turn, _child_events) =
+        make_persistent_session_and_context_with_time_provider_and_rx(
+            home.path(), codex_history::InitialHistory::New,
+            Arc::new(crate::current_time::SystemTimeProvider), format!("{}/v1", server.uri()),
+        ).await.unwrap();
+    Arc::get_mut(&mut child_turn).unwrap().session_source =
+        SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+            parent_thread_id: parent.thread_id, depth: 1,
+            agent_path: Some(AgentPath::try_from("/root/worker").unwrap()),
+            agent_nickname: None, agent_role: None,
+        });
+    let arguments = json!({
+        "request_key": "router-decision", "question": "Use route A?",
+        "context": "Two routes exist", "recommendation": "Use A",
+        "blocked_action": "Select the route",
+    });
+    let first = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
+        ParentRequestHandler::Request, arguments.clone()).await;
+    let retry = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
+        ParentRequestHandler::Request, arguments).await;
+    assert_eq!(first["requestId"], retry["requestId"]);
+    let id = first["requestId"].as_str().unwrap();
+    let db = child.state_db().unwrap();
+    let request = db.get_parent_request(id).await.unwrap().unwrap();
+    assert_eq!(request.child_thread_id, child.thread_id.to_string());
+    assert_eq!(request.child_task_id, child_turn.sub_id);
+    assert_eq!(request.status, ParentRequestStatus::Pending);
+    let wait = dispatch_parent_request_fixture(Arc::clone(&child), Arc::clone(&child_turn),
+        ParentRequestHandler::Await, json!({"request_id": id})).await;
+    let wait_id = wait["waitId"].as_str().unwrap();
+    assert!(db.get_parent_response_wait(wait_id).await.unwrap().is_some());
+    // LocalAgentControl is deliberately detached: delivery is checked by separate lifecycle fixtures.
+    db.set_parent_request_presentation(id, &parent.thread_id.to_string(), &ParentRequestPresentation {
+        parent_turn_id: parent_turn.sub_id.clone(),
+        child_agent_path: AgentPath::try_from("/root/worker").unwrap(),
+    }).await.unwrap();
+    dispatch_parent_request_fixture(Arc::clone(&parent), parent_turn,
+        ParentRequestHandler::Respond, json!({"request_id": id, "status": "resolved",
+            "decision": "Use A", "reason": "A meets the requirement"})).await;
+    assert_eq!(db.get_parent_request(id).await.unwrap().unwrap().status, ParentRequestStatus::Resolved);
+    let answered = dispatch_parent_request_fixture(Arc::clone(&child), child_turn,
+        ParentRequestHandler::Await, json!({"request_id": id})).await;
+    assert_eq!(answered["response"]["decision"], "Use A");
+    child.cancel_parent_response_wait().await.unwrap();
+    parent.state_db().unwrap().close().await;
+    db.close().await;
 }
 
 #[tokio::test]

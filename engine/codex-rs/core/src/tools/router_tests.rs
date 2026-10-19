@@ -111,6 +111,48 @@ fn direct_source_accepts_only_expected_plaintext_message_shapes() {
     );
 }
 
+#[test]
+fn parent_request_direct_sources_preserve_namespace_encryption_and_log_boundaries() {
+    for name in [
+        "spawn_agent",
+        "send_message",
+        "followup_task",
+        "request_parent",
+        "await_parent_response",
+        "respond_to_request",
+        "wait_agent",
+    ] {
+        for namespace in ["azrael_agents", "collaboration", "other"] {
+            for metadata in [None, Some(Vec::new()), Some(vec!["opaque".to_string()])] {
+                let old_message = matches!(name, "spawn_agent" | "send_message" | "followup_task");
+                let expected_plaintext = (namespace == "azrael_agents" && name != "wait_agent"
+                    && metadata.as_ref().is_none_or(Vec::is_empty))
+                    || (namespace == "collaboration" && old_message
+                        && metadata.as_ref().is_some_and(Vec::is_empty));
+                let payload = ToolPayload::Function {
+                    arguments: json!({"question": "private question", "decision": "private answer"})
+                        .to_string(),
+                };
+                let source = ToolCall {
+                    tool_name: ToolName::namespaced(namespace, name),
+                    call_id: "parent-request-source".into(),
+                    payload: payload.clone(),
+                    encrypted_function_args: metadata.clone(),
+                }
+                .direct_source();
+                assert_eq!(
+                    source == ToolCallSource::DirectPlaintextMessage,
+                    expected_plaintext,
+                    "{namespace}.{name}: {metadata:?}"
+                );
+                if expected_plaintext {
+                    assert_eq!(tool_log_payload(&payload, &source), "[plaintext arguments]");
+                }
+            }
+        }
+    }
+}
+
 impl codex_extension_api::ToolContributor for ExtensionEchoContributor {
     fn tools(
         &self,

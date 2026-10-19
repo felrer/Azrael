@@ -47,18 +47,21 @@ impl ToolCall {
             self.tool_name.name.as_str(),
             "spawn_agent" | "send_message" | "followup_task"
         );
-        let native_plaintext = self.tool_name.namespace.as_deref() == Some("collaboration")
+        let native_plaintext = message_tool
+            && self.tool_name.namespace.as_deref() == Some("collaboration")
             && self
                 .encrypted_function_args
                 .as_ref()
                 .is_some_and(Vec::is_empty);
-        let azrael_plaintext = self.tool_name.namespace.as_deref()
+        let azrael_plaintext = super::multi_agent_tool::requires_plaintext_arguments(
+            self.tool_name.name.as_str(),
+        ) && self.tool_name.namespace.as_deref()
             == Some(crate::config::AZRAEL_AGENT_TOOL_NAMESPACE)
             && self
                 .encrypted_function_args
                 .as_ref()
                 .is_none_or(Vec::is_empty);
-        if message_tool && (native_plaintext || azrael_plaintext) {
+        if native_plaintext || azrael_plaintext {
             ToolCallSource::DirectPlaintextMessage
         } else {
             ToolCallSource::Direct

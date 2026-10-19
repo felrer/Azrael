@@ -1911,14 +1911,8 @@ impl ToolExecutor<crate::tools::context::ToolInvocation> for AzraelMultiAgentToo
     where
         crate::tools::context::ToolInvocation: 'a,
     {
-        if matches!(
+        if super::multi_agent_tool::requires_plaintext_arguments(
             self.handler.tool_name().name.as_str(),
-            "spawn_agent"
-                | "send_message"
-                | "followup_task"
-                | "request_parent"
-                | "await_parent_response"
-                | "respond_to_request"
         ) && !matches!(
             invocation.source,
             crate::tools::context::ToolCallSource::DirectPlaintextMessage
