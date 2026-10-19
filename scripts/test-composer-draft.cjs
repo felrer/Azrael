@@ -52,7 +52,7 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
   };
   const noop = () => {};
   const context = pm.createContext({
-    Symbol, JSON, performance, WeakMap, DOMException, o6e: class extends Error {}, g_: () => "thread", jnt: () => "thread", RG: { drafts$: "drafts" }, IG: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
+    Symbol, JSON, performance, WeakMap, DOMException, o6e: class extends Error {}, g_: value => value.conversationId, jnt: () => "thread", RG: { drafts$: "drafts", setDraft(_scope, keys, value) { assert.ok(keys.includes("thread")); draft = value; } }, IG: { default: (a, b) => util.isDeepStrictEqual(JSON.parse(JSON.stringify(a ?? null)), JSON.parse(JSON.stringify(b ?? null))) },
     Px: (_scope, host) => ({ compactThread: async id => { compactions.push({ host, id }); await compact?.(); } }),
     ...Object.fromEntries(["QG", "uK", "OW", "DW", "iW", "lW", "xW", "SW", "UG", "WG", "dq", "dg", "q6", "Kf", "Dj", "Hk"].map(k => [k, k])),
     Nx: () => ({ u: x => x, d() { if (this.e) throw this.e; } }), zut: () => false, LMa: x => x, lja: async () => [],
@@ -62,18 +62,21 @@ function fixture({ type = "local", text = "A", beforePreparation, submission, si
     du: {}, mp: { warning: noop, debug: noop },
     hFe: class extends Error {}, HT: class extends Error {}, UT: class extends Error {}, QZ: class extends Error {},
     o7: noop, Pba: noop, OYr: noop, nya: noop, aQ: noop, uxr: noop, Cfr: noop,
-    Gyr() { for (const k of attachmentFields) attachments[k] = []; if (!retained) draft = undefined; },
-    NG(ge, value, _text, options) { if (!retained || options?.discardRetainedDraft) draft = value; },
+    Gyr() { for (const k of attachmentFields) attachments[k] = []; context.NG(scope, undefined); },
+    FG: value => value ?? "", d_: value => value, Ryr: noop,
   });
-  for (const name of ["PG", "sbr", "cbr", "dbr", "Fyr", "Bba", "RMa", "__azraelComposerSnapshot", "__azraelComposerMatches", "zMa"]) pm.runInContext(declarations.get(name), context);
+  for (const name of ["PG", "abr", "NG", "sbr", "cbr", "dbr", "Fyr", "Bba", "RMa", "__azraelComposerSnapshot", "__azraelComposerMatches", "zMa"]) pm.runInContext(declarations.get(name), context);
   pm.runInContext("const __azraelCompactActions=new WeakMap", context);
   for (const name of ["I2i", "__azraelCompactAction", "__azraelRunSlashSelection", "__azraelSubmitCompaction"]) pm.runInContext(declarations.get(name), context);
   if (!isolation) pm.runInContext(baselineSubmit, context);
   const clear = context.Bba({ scope, composerController: controller, attachmentGeneration: { current: 0 }, fileAttachments: [], pastedTextAttachments: [], commentAttachments: [], clearPendingAppshotCaptures: noop, setComments: noop, setPendingFileAttachments: noop, setPriorConversation: noop });
   const f = {
     attachments, atoms, controller, context, scope, events, errors, compactions, submissions,
-    text: () => editor, retained: () => retained, clears: () => clears, restores: () => restores, unsubscribes: () => unsubscribes,
+    text: () => editor, savedDraft: () => draft, retained: () => retained, clears: () => clears, restores: () => restores, unsubscribes: () => unsubscribes,
     edit(value) { controller.setText(value); },
+    typeWithoutPersist(value) { editor = value; },
+    saveDraft(value) { draft = value; },
+    revisit() { editor = context.PG(draft)?.prompt ?? ""; },
     added(flags = {}) { assert(callback, "submission callback is available"); callback(flags); },
     async run() {
       await context.zMa({
@@ -203,7 +206,56 @@ for (const [text, options] of [["/compactness", {}], ["ordinary /compact mention
 
 test("unchanged early callback clears once; duplicate callback and final success are safe", async () => {
   const f = fixture({ submission: async f => { f.added(); f.added({ locallyAccepted: true }); f.added({ requestDispatched: true }); return { messageResult: { status: "queued" } }; } });
-  await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), ""); assert.equal(f.clears(), 1); assert.equal(f.retained(), undefined); assert.equal(f.unsubscribes(), 1);
+  await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), ""); assert.equal(f.clears(), 1); assert.equal(f.retained(), undefined); assert.equal(f.unsubscribes(), 1); assert.equal(f.savedDraft(), undefined);
+});
+
+for (const acceptance of ["locallyAccepted", "requestDispatched", "final"]) {
+  for (const change of ["selection", "attachment", "context"]) {
+    test(`accepted ${acceptance} removes sent saved draft after ${change} change and revisit stays empty`, async () => {
+      const f = fixture({ submission: async f => {
+        f.added();
+        assert.equal(f.savedDraft().prompt, "A", "saved draft stays in custody before acceptance");
+        if (change === "selection") f.atoms.set("xW", 1);
+        else f.attachments[change === "context" ? "mcpAppModelContextAttachments" : "fileAttachments"].push({ id: "B", kind: "context" });
+        if (acceptance !== "final") f.added({ [acceptance]: true });
+        return { messageResult: { status: "queued" } };
+      } });
+      await f.run();
+      assert.deepEqual(f.errors, []); assert.equal(f.savedDraft(), undefined); assert.equal(f.retained(), undefined);
+      assert.equal(f.atoms.get("xW"), change === "selection" ? 1 : 0);
+      if (change !== "selection") assert.equal(f.attachments[change === "context" ? "mcpAppModelContextAttachments" : "fileAttachments"][0].id, "B");
+      f.revisit(); assert.equal(f.text(), ""); assert.equal(f.clears(), 1);
+    });
+  }
+}
+
+for (const text of ["B", "A"]) {
+  for (const persisted of [true, false]) {
+    test(`acceptance preserves newer ${JSON.stringify(text)} with persistence ${persisted}`, async () => {
+      const f = fixture({ submission: async f => {
+        f.added();
+        persisted ? f.edit(text) : f.typeWithoutPersist(text);
+        f.added({ locallyAccepted: true });
+        return { messageResult: { status: "queued" } };
+      } });
+      await f.run(); assert.deepEqual(f.errors, []); assert.equal(f.text(), text);
+      assert.equal(f.savedDraft().prompt, persisted ? text : "A");
+      assert.equal(f.retained(), undefined);
+      if (persisted) { f.revisit(); assert.equal(f.text(), text); }
+    });
+  }
+}
+
+test("acceptance preserves a newer saved draft even while the visible editor is empty", async () => {
+  const next = { prompt: "B", pullRequestChecks: [] };
+  const f = fixture({ submission: async f => { f.added(); f.saveDraft(next); return { messageResult: { status: "queued" } }; } });
+  await f.run(); assert.equal(f.savedDraft(), next); f.revisit(); assert.equal(f.text(), "B");
+});
+
+test("failure after a selection change retains the sent draft for retry", async () => {
+  const f = fixture({ submission: async f => { f.added(); f.atoms.set("xW", 1); throw Error("rejected"); } });
+  await f.run(); assert.equal(f.errors.length, 1); assert.equal(f.restores(), 0);
+  assert.equal(f.savedDraft().prompt, "A"); f.revisit(); assert.equal(f.text(), "A");
 });
 test("preparation edits survive the first callback and final success", async () => {
   const f = fixture({ beforePreparation: f => f.edit("B") });
@@ -319,7 +371,7 @@ test("locally held follow-ups remain visible during the optimistic send window",
   assert.equal(select("thread", { get: key => key === "messages" ? [legacy] : key === "admitted" ? ["submitted"] : false }).length, 0);
 });
 test("pinned transform fails closed for missing, repeated and partial anchors", () => {
-  for (const version of [1, 2]) assert.throws(() => injectComposerDraft(original + `/*azrael-composer-draft-v${version}*/`), /Outdated/);
+  for (const version of [1, 2, 3]) assert.throws(() => injectComposerDraft(original + `/*azrael-composer-draft-v${version}*/`), /Outdated/);
   assert.throws(() => injectComposerDraft(original.replace("async function zMa({", "async function changed({")), /anchor/);
   assert.throws(() => injectComposerDraft(original + "async function zMa({"), /anchor/);
   assert.throws(() => injectComposerDraft(transformed.replace("__azraelClear(ut)", "u(ut)")), /partial/);

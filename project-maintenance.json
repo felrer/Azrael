@@ -24,6 +24,14 @@
   ],
   "bundles": [
     {
+      "id": "sent-draft-restoration-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-composer-draft.cjs", "scripts/test-namespace-cache-owner.cjs", "scripts/test-btw.cjs", "scripts/test-project-drafts.cjs"],
+      "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
       "id": "resume-boundary-branch-source",
       "kind": "test",
       "purpose": "retained",
