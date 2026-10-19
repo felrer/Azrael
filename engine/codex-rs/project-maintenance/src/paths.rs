@@ -141,28 +141,16 @@ fn file_version(_: &fs::File) -> Option<FileVersion> {
 
 const CONTENT_CACHE_MIN_BYTES: u64 = 65536;
 
-struct CacheGuard {
-    #[cfg(windows)]
-    _file: fs::File,
-}
+struct CacheGuard {}
 
 #[cfg(windows)]
-fn cache_guard(path: &Path, version: &FileVersion) -> Option<CacheGuard> {
-    use std::os::windows::fs::OpenOptionsExt;
-    use windows_sys::Win32::Storage::FileSystem::{FILE_SHARE_DELETE, FILE_SHARE_READ};
-    // Windows can defer write/change timestamps until a writer closes. Denying
-    // write sharing proves no writer is open during this observation. Failure
-    // simply selects ordinary full hashing; no callback runs with this guard.
-    let guard = fs::OpenOptions::new()
-        .read(true)
-        .share_mode(FILE_SHARE_READ | FILE_SHARE_DELETE)
-        .open(path)
-        .ok()?;
-    if file_version(&guard).as_ref() == Some(version) {
-        Some(CacheGuard { _file: guard })
-    } else {
-        None
-    }
+fn cache_guard(_: &Path, _: &FileVersion) -> Option<CacheGuard> {
+    // NTFS coalesces repeated reasons until the final close, so a stable USN
+    // does not prove unchanged bytes while another reader keeps the file open.
+    // Denying write sharing excludes only current writers; even share_mode(0)
+    // permits attribute-only handles and cannot prove a final-close boundary.
+    // Keep version observations for change detection, but rehash Windows hits.
+    None
 }
 
 #[cfg(not(windows))]
@@ -228,8 +216,6 @@ fn content_digest(
             .files
             .insert(path.to_owned(), (version, digest.clone()));
     }
-    // On Windows the deny-write guard spans every cached-hit observation and
-    // cache update. No authorization callback runs while this handle is held.
     drop(guard);
     Ok((digest, length))
 }
@@ -351,6 +337,231 @@ pub(crate) fn checked_metadata(
     }
     Ok(leaf)
 }
+
+/// Observe only the registered object, without enumerating or reading its payload.
+pub(crate) fn registered_observation(
+    root: &Path,
+    path: &Path,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    let Some(metadata) = checked_metadata(root, path, auth)? else {
+        return Ok(json!({"presence":"absent"}));
+    };
+    let kind = if metadata.is_dir() {
+        "directory"
+    } else if metadata.is_file() {
+        "file"
+    } else {
+        return Err("special file rejected".into());
+    };
+    let identity = registered_identity(path, &metadata)?;
+    Ok(json!({"presence":"present","kind":kind,"identity":identity}))
+}
+
+#[cfg(unix)]
+fn registered_identity(_: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
+    use std::os::unix::fs::MetadataExt;
+    if metadata.ino() == 0 {
+        return Err("registered object identity unavailable".into());
+    }
+    Ok(json!({"device":metadata.dev(),"inode":metadata.ino()}))
+}
+
+#[cfg(windows)]
+fn registered_identity(path: &Path, metadata: &fs::Metadata) -> Result<Value, String> {
+    let (_, id, standard) = registered_handle_information(path)?;
+    if standard.Directory != metadata.is_dir() {
+        return Err("registered object kind changed while observing".into());
+    }
+    // Attributes and timestamps deliberately do not identify this object.
+    Ok(json!({"volume":id.VolumeSerialNumber,"file_id":id.FileId.Identifier}))
+}
+
+#[cfg(windows)]
+fn registered_handle_information(
+    path: &Path,
+) -> Result<
+    (
+        windows_sys::Win32::Storage::FileSystem::FILE_BASIC_INFO,
+        windows_sys::Win32::Storage::FileSystem::FILE_ID_INFO,
+        windows_sys::Win32::Storage::FileSystem::FILE_STANDARD_INFO,
+    ),
+    String,
+> {
+    use std::os::windows::fs::OpenOptionsExt;
+    use std::os::windows::io::AsRawHandle;
+    use windows_sys::Win32::Storage::FileSystem::{
+        FILE_ATTRIBUTE_REPARSE_POINT, FILE_BASIC_INFO, FILE_FLAG_BACKUP_SEMANTICS,
+        FILE_FLAG_OPEN_REPARSE_POINT, FILE_ID_INFO, FILE_READ_ATTRIBUTES, FILE_STANDARD_INFO,
+        FileBasicInfo, FileIdInfo, FileStandardInfo, GetFileInformationByHandleEx,
+    };
+    // Metadata-only access works for directories and does not follow the leaf.
+    let file = fs::OpenOptions::new()
+        .access_mode(FILE_READ_ATTRIBUTES)
+        .custom_flags(FILE_FLAG_BACKUP_SEMANTICS | FILE_FLAG_OPEN_REPARSE_POINT)
+        .open(path)
+        .map_err(|e| e.to_string())?;
+    let mut basic = FILE_BASIC_INFO::default();
+    let mut id = FILE_ID_INFO::default();
+    let mut standard = FILE_STANDARD_INFO::default();
+    // The borrowed handle and correctly sized destinations live through each call.
+    unsafe {
+        let handle = file.as_raw_handle();
+        if GetFileInformationByHandleEx(
+            handle,
+            FileBasicInfo,
+            (&mut basic as *mut FILE_BASIC_INFO).cast(),
+            std::mem::size_of_val(&basic) as u32,
+        ) == 0
+            || GetFileInformationByHandleEx(
+                handle,
+                FileIdInfo,
+                (&mut id as *mut FILE_ID_INFO).cast(),
+                std::mem::size_of_val(&id) as u32,
+            ) == 0
+            || GetFileInformationByHandleEx(
+                handle,
+                FileStandardInfo,
+                (&mut standard as *mut FILE_STANDARD_INFO).cast(),
+                std::mem::size_of_val(&standard) as u32,
+            ) == 0
+        {
+            return Err(std::io::Error::last_os_error().to_string());
+        }
+    }
+    if basic.FileAttributes & FILE_ATTRIBUTE_REPARSE_POINT != 0
+        || standard.DeletePending
+        || id.VolumeSerialNumber == 0
+        || id.FileId.Identifier == [0; 16]
+    {
+        return Err("registered object identity unavailable or reparse path rejected".into());
+    }
+    Ok((basic, id, standard))
+}
+
+#[cfg(not(any(windows, unix)))]
+fn registered_identity(_: &Path, _: &fs::Metadata) -> Result<Value, String> {
+    Err("registered object identity unsupported on this platform".into())
+}
+
+#[cfg(all(test, any(windows, unix)))]
+mod registered_observation_tests {
+    use super::*;
+    use crate::Context;
+
+    fn allow(_: &Path, _: AccessMode) -> Result<(), String> {
+        Ok(())
+    }
+
+    #[test]
+    fn observes_only_root_and_stays_stable_after_content_edits() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("registered");
+        fs::create_dir(&target).unwrap();
+        let file = target.join("payload");
+        fs::write(&file, "before").unwrap();
+        let root_only = |path: &Path, _: AccessMode| {
+            if path != target && path.starts_with(&target) {
+                Err("descendant observation prohibited".into())
+            } else {
+                Ok(())
+            }
+        };
+        let context = Context::new(&root_only);
+        let before = registered_observation(root.path(), &target, &context).unwrap();
+        assert_eq!(before["presence"], "present");
+        assert_eq!(before["kind"], "directory");
+        fs::write(&file, "changed payload length").unwrap();
+        fs::write(target.join("new descendant"), "new").unwrap();
+        assert_eq!(
+            registered_observation(root.path(), &target, &context).unwrap(),
+            before
+        );
+        let context = Context::new(&allow);
+        let file_before = registered_observation(root.path(), &file, &context).unwrap();
+        assert_eq!(file_before["kind"], "file");
+        fs::write(&file, "another edit").unwrap();
+        assert_eq!(
+            registered_observation(root.path(), &file, &context).unwrap(),
+            file_before
+        );
+        assert_eq!(context.content.borrow().hashes, 0);
+    }
+
+    #[test]
+    fn detects_registered_root_replacement() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("registered");
+        fs::create_dir(&target).unwrap();
+        let context = Context::new(&allow);
+        let before = registered_observation(root.path(), &target, &context).unwrap();
+        // Retain the old object so the filesystem cannot reuse its identity.
+        fs::rename(&target, root.path().join("original")).unwrap();
+        fs::create_dir(&target).unwrap();
+        assert_ne!(
+            registered_observation(root.path(), &target, &context).unwrap(),
+            before
+        );
+    }
+
+    #[test]
+    fn absent_paths_still_require_ancestor_authorization() {
+        let root = tempfile::tempdir().unwrap();
+        let absent = root.path().join("missing").join("leaf");
+        let context = Context::new(&allow);
+        assert_eq!(
+            registered_observation(root.path(), &absent, &context).unwrap(),
+            json!({"presence":"absent"})
+        );
+        let deny_root = |path: &Path, _: AccessMode| {
+            if path == root.path() {
+                Err("ancestor denied".into())
+            } else {
+                Ok(())
+            }
+        };
+        let context = Context::new(&deny_root);
+        assert_eq!(
+            registered_observation(root.path(), &absent, &context).unwrap_err(),
+            "ancestor denied"
+        );
+        assert!(registered_observation(&absent, root.path(), &context).is_err());
+    }
+
+    #[test]
+    fn rejects_leaf_links_and_link_ancestors() {
+        let root = tempfile::tempdir().unwrap();
+        let target = root.path().join("target");
+        let link = root.path().join("link");
+        fs::create_dir(&target).unwrap();
+        fs::write(target.join("file"), "payload").unwrap();
+        #[cfg(unix)]
+        std::os::unix::fs::symlink(&target, &link).unwrap();
+        #[cfg(windows)]
+        {
+            // Directory junction creation does not require symlink privileges.
+            let output = std::process::Command::new("cmd.exe")
+                .args(["/D", "/C", "mklink", "/J"])
+                .arg(&link)
+                .arg(&target)
+                .output()
+                .unwrap();
+            assert!(
+                output.status.success(),
+                "junction fixture failed: {}",
+                String::from_utf8_lossy(&output.stderr)
+            );
+        }
+        let context = Context::new(&allow);
+        for path in [&link, &link.join("file")] {
+            assert!(
+                registered_observation(root.path(), path, &context)
+                    .unwrap_err()
+                    .contains("link/reparse")
+            );
+        }
+    }
+}
 #[cfg(windows)]
 fn reparse(m: &fs::Metadata) -> bool {
     use std::os::windows::fs::MetadataExt;
@@ -446,14 +657,17 @@ mod content_cache_tests {
     }
 
     #[test]
-    fn unchanged_content_hashes_once_and_new_operation_hashes_again() {
+    fn unchanged_content_reuses_only_supported_proofs_and_new_operation_hashes_again() {
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("file");
         fs::write(&path, vec![b'a'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
         let context = Context::new(&allow);
         let first = measure(root.path(), &path, &context).unwrap();
         assert_eq!(measure(root.path(), &path, &context).unwrap(), first);
-        assert_eq!(context.content.borrow().hashes, 1);
+        assert_eq!(
+            context.content.borrow().hashes,
+            if cfg!(unix) { 1 } else { 2 }
+        );
         let next = Context::new(&allow);
         assert_eq!(measure(root.path(), &path, &next).unwrap(), first);
         assert_eq!(next.content.borrow().hashes, 1);
@@ -542,28 +756,35 @@ mod content_cache_tests {
 
     #[cfg(windows)]
     #[test]
-    fn restored_mtime_rewrite_has_distinct_usn() {
+    fn persistent_reader_restored_mtime_rewrites_rehash_current_content() {
+        use sha2::{Digest, Sha256};
         let root = tempfile::tempdir().unwrap();
         let path = root.path().join("file");
-        for _ in 0..16 {
-            fs::write(&path, vec![b'a'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
-            let reader = fs::File::open(&path).unwrap();
-            let Some(before) = file_version(&reader) else {
-                // The file system cannot prove a journaled version: no cache.
-                return;
-            };
-            let modified = reader.metadata().unwrap().modified().unwrap();
-            fs::write(&path, vec![b'b'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
+        fs::write(&path, vec![b'a'; CONTENT_CACHE_MIN_BYTES as usize]).unwrap();
+        let reader = fs::File::open(&path).unwrap();
+        let modified = reader.metadata().unwrap().modified().unwrap();
+        let context = Context::new(&allow);
+        let initial = super::content_digest(&path, CONTENT_CACHE_MIN_BYTES, &context).unwrap();
+        assert_eq!(
+            super::content_digest(&path, CONTENT_CACHE_MIN_BYTES, &context).unwrap(),
+            initial
+        );
+        assert_eq!(context.content.borrow().hashes, 2);
+        for round in 0..16 {
+            let payload = vec![b'b' + round as u8; CONTENT_CACHE_MIN_BYTES as usize];
+            fs::write(&path, &payload).unwrap();
             fs::File::options()
                 .write(true)
                 .open(&path)
                 .unwrap()
                 .set_times(fs::FileTimes::new().set_modified(modified))
                 .unwrap();
-            let after = file_version(&reader).unwrap();
-            assert_ne!(before.usn, after.usn);
-            assert_ne!(before, after);
+            let observed = super::content_digest(&path, CONTENT_CACHE_MIN_BYTES, &context).unwrap();
+            assert_eq!(observed.0, format!("{:x}", Sha256::digest(&payload)));
+            assert_ne!(observed.0, initial.0);
+            assert_eq!(context.content.borrow().hashes, round + 3);
         }
+        drop(reader);
     }
 
     #[cfg(windows)]

@@ -1,7 +1,8 @@
 //! A durable intent precedes each destructive attempt. Each result is committed
 //! before advancing to another item; a crash leaves an honest pending intent.
 use crate::{
-    AccessMode, Auth, Config, State, groups, hash, now_ms, paths, review, storage::Store, string,
+    AccessMode, Auth, Config, State, Verification, groups, hash, now_ms, paths, review,
+    storage::Store, string,
 };
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
@@ -15,6 +16,7 @@ pub(crate) fn apply(
     store: &mut Store,
     auth: Auth<'_>,
 ) -> Result<Value, String> {
+    let verification = Verification::requested(request)?;
     let choices = request["decisions"].as_array().ok_or("missing decisions")?;
     if choices.is_empty() || choices.len() > 200 {
         return Err("apply requires 1..200 explicit decisions".into());
@@ -57,6 +59,9 @@ pub(crate) fn apply(
         {
             return Err(format!("invalid registered item: {id}"));
         }
+        if verification == Some(Verification::Registered) && groups::id(item).is_none() {
+            return Err("registered verification requires lifecycle grouped items".into());
+        }
         paths::resolve(root, Path::new(string(item, "path")?))?;
         if !item["source_path"].is_null() {
             paths::resolve(root, Path::new(string(item, "source_path")?))?;
@@ -75,7 +80,15 @@ pub(crate) fn apply(
             if batches.contains_key(group_id) {
                 continue;
             }
-            let batch = groups::batch(root, config, config_identity, &store.state, group_id, auth)?;
+            let batch = groups::batch(
+                root,
+                config,
+                config_identity,
+                &store.state,
+                group_id,
+                auth,
+                verification.unwrap_or(Verification::Registered),
+            )?;
             let initial = batch.initial()?;
             if !batch.members.contains_key(string(choice, "id")?) {
                 return Err("selected grouped item is not live in its membership".into());
@@ -153,6 +166,7 @@ pub(crate) fn apply(
                 choice,
                 auth,
                 group_id.as_ref().and_then(|group| batches.get(group)),
+                None,
             ) {
                 Ok(entries) if entries.is_empty() => {
                     outcome["status"] = json!("deleted");
@@ -203,6 +217,15 @@ pub(crate) fn apply(
                 choice,
                 auth,
                 group_id.as_ref().and_then(|group| batches.get(group)),
+                if group_id
+                    .as_ref()
+                    .and_then(|group| batches.get(group))
+                    .is_some_and(|batch| batch.verification == Verification::Registered)
+                {
+                    entries.as_deref()
+                } else {
+                    None
+                },
             ) {
                 Err(error) => {
                     outcome["status"] = json!("blocked");
@@ -373,6 +396,7 @@ fn safe_entries(
     choice: &Value,
     auth: Auth<'_>,
     batch: Option<&groups::Batch>,
+    approved: Option<&[PathBuf]>,
 ) -> Result<Vec<PathBuf>, String> {
     let observe = || -> Result<Value, String> {
         if let Some(batch) = batch {
@@ -385,7 +409,9 @@ fn safe_entries(
         }
     };
     let path = Path::new(string(item, "path")?);
-    let entries = if batch.is_some() && paths::checked_metadata(root, path, auth)?.is_none() {
+    let entries = if let Some(approved) = approved {
+        approved.to_vec()
+    } else if batch.is_some() && paths::checked_metadata(root, path, auth)?.is_none() {
         Vec::new()
     } else {
         paths::entries(root, path, auth)?

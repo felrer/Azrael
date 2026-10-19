@@ -509,7 +509,10 @@ fn authorization_and_intent_mutations_preserve_all_group_members() {
             );
             request["group"]["membership_source"] = json!("generated/membership.json");
             call(&root, request);
-            let reviewed = reviews(&root, "version");
+            let reviewed = call(
+                &root,
+                json!({"operation":"review","group_ids":["version"],"verification":"full"}),
+            );
             let changed = Cell::new(false);
             let manifest_writes = Cell::new(0usize);
             let authorize = |path: &Path, mode| {
@@ -537,7 +540,7 @@ fn authorization_and_intent_mutations_preserve_all_group_members() {
             };
             let result = dispatch(
                 root.path(),
-                json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+                json!({"operation":"apply","verification":"full","decisions":decisions(&reviewed,"delete")}),
                 &authorize,
             )
             .unwrap();
@@ -569,7 +572,10 @@ fn authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group() {
     ];
     std::fs::write(&sibling, vec![b'a'; 65536]).unwrap();
     call(&root, registration("version", members, true));
-    let reviewed = reviews(&root, "version");
+    let reviewed = call(
+        &root,
+        json!({"operation":"review","group_ids":["version"],"verification":"full"}),
+    );
     let modified = std::fs::metadata(&sibling).unwrap().modified().unwrap();
     let changed = Cell::new(false);
     let authorize = |path: &Path, mode| {
@@ -588,7 +594,7 @@ fn authorization_mutating_a_cached_sibling_with_restored_mtime_blocks_group() {
     };
     let result = dispatch(
         root.path(),
-        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        json!({"operation":"apply","verification":"full","decisions":decisions(&reviewed,"delete")}),
         &authorize,
     )
     .unwrap();
@@ -1064,4 +1070,225 @@ fn missing_or_denied_membership_source_blocks_delete_and_control_source_is_prote
     );
     assert!(root.path().join("generated/artifact").exists());
     assert!(root.path().join("generated/log").exists());
+}
+
+#[test]
+fn registered_default_reviews_cached_measurements_without_descendant_reads() {
+    let root = fixture();
+    let tree = root.path().join("generated/tree");
+    std::fs::create_dir(&tree).unwrap();
+    let child = tree.join("child");
+    std::fs::write(&child, "registered").unwrap();
+    call(
+        &root,
+        registration("version", vec![member("tree", "artifact")], true),
+    );
+    let deny_child = |path: &Path, _: AccessMode| {
+        if path == child {
+            Err("payload must not be read".into())
+        } else {
+            Ok(())
+        }
+    };
+    let before = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny_child,
+    )
+    .unwrap();
+    assert_eq!(before["items"][0]["verification"], "registered");
+    assert!(
+        before["items"][0]["blockers"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    std::fs::write(&child, "unreported changed content").unwrap();
+    let after = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny_child,
+    )
+    .unwrap();
+    assert_eq!(before["items"][0]["token"], after["items"][0]["token"]);
+    assert_eq!(
+        before["items"][0]["measured_at_ms"],
+        after["items"][0]["measured_at_ms"]
+    );
+    let full = call(
+        &root,
+        json!({"operation":"review","group_ids":["version"],"verification":"full"}),
+    );
+    assert_ne!(before["items"][0]["identity"], full["items"][0]["identity"]);
+}
+
+#[test]
+fn registered_apply_reads_each_descendant_only_for_single_safe_enumeration() {
+    use std::cell::Cell;
+    let root = fixture();
+    let tree = root.path().join("generated/tree");
+    std::fs::create_dir(&tree).unwrap();
+    let child = tree.join("child");
+    std::fs::write(&child, "owned").unwrap();
+    call(
+        &root,
+        registration("version", vec![member("tree", "artifact")], true),
+    );
+    let reviewed = reviews(&root, "version");
+    let reads = Cell::new(0);
+    let authorize = |path: &Path, mode| {
+        if path == child && mode == AccessMode::Read {
+            reads.set(reads.get() + 1);
+            if reads.get() > 1 {
+                return Err("repeated payload traversal".into());
+            }
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert_eq!(result["results"][0]["status"], "deleted", "{result}");
+    assert_eq!(reads.get(), 1);
+}
+
+#[test]
+fn verification_modes_are_validated_and_bound_to_tokens() {
+    let root = fixture();
+    call(
+        &root,
+        registration("version", vec![create(&root, "artifact", "artifact")], true),
+    );
+    for mode in [json!("invalid"), json!(null), json!(1)] {
+        assert!(
+            dispatch(
+                root.path(),
+                json!({"operation":"review","group_ids":["version"],"verification":mode}),
+                &allow
+            )
+            .is_err()
+        );
+        assert!(
+            dispatch(
+                root.path(),
+                json!({"operation":"apply","decisions":[],"verification":mode}),
+                &allow
+            )
+            .is_err()
+        );
+    }
+    let registered = reviews(&root, "version");
+    let full = call(
+        &root,
+        json!({"operation":"review","group_ids":["version"],"verification":"full"}),
+    );
+    assert_ne!(registered["items"][0]["token"], full["items"][0]["token"]);
+    let blocked = call(
+        &root,
+        json!({"operation":"apply","verification":"full","decisions":decisions(&registered,"delete")}),
+    );
+    assert_eq!(blocked["results"][0]["status"], "blocked");
+    let mut independent = create(&root, "independent", "artifact");
+    independent
+        .as_object_mut()
+        .unwrap()
+        .remove("lifecycle_role");
+    call(&root, json!({"operation":"register","item":independent}));
+    assert!(
+        dispatch(
+            root.path(),
+            json!({"operation":"review","ids":["independent"],"verification":"registered"}),
+            &allow
+        )
+        .is_err()
+    );
+    let mixed = call(
+        &root,
+        json!({"operation":"review","ids":["independent","artifact"]}),
+    );
+    assert_eq!(mixed["items"][0]["verification"], "registered");
+    assert_eq!(mixed["items"][1]["verification"], "full");
+}
+
+#[test]
+fn replaced_registered_root_invalidates_review() {
+    let root = fixture();
+    call(
+        &root,
+        registration("version", vec![create(&root, "artifact", "artifact")], true),
+    );
+    let reviewed = reviews(&root, "version");
+    std::fs::rename(
+        root.path().join("generated/artifact"),
+        root.path().join("generated/old"),
+    )
+    .unwrap();
+    std::fs::write(root.path().join("generated/artifact"), "artifact").unwrap();
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+    );
+    assert_eq!(result["results"][0]["status"], "blocked");
+}
+
+#[test]
+fn registered_backup_does_not_silently_measure_replacement() {
+    let root = fixture();
+    let mut replacement = create(&root, "replacement", "artifact");
+    replacement
+        .as_object_mut()
+        .unwrap()
+        .remove("lifecycle_role");
+    replacement["retain_reason"] = json!("verified recovery copy");
+    call(&root, json!({"operation":"register","item":replacement}));
+    let mut backup = create(&root, "backup", "artifact");
+    backup["kind"] = json!("backup");
+    backup["provenance"] = json!({"superseded_by":"replacement","recovery_verified":true});
+    call(&root, registration("version", vec![backup.clone()], true));
+    let replacement_path = root.path().join("generated/replacement");
+    let deny_replacement = |path: &Path, _: AccessMode| {
+        if path == replacement_path {
+            Err("replacement payload must not be read".into())
+        } else {
+            Ok(())
+        }
+    };
+    let registered = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny_replacement,
+    )
+    .unwrap();
+    assert!(
+        registered["items"][0]["blockers"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .any(|reason| reason
+                .as_str()
+                .unwrap()
+                .contains("explicit full verification"))
+    );
+    let full = call(
+        &root,
+        json!({"operation":"review","group_ids":["version"],"verification":"full"}),
+    );
+    assert!(full["items"][0]["blockers"].as_array().unwrap().is_empty());
+    backup["provenance"] = json!({"recovery_completed":{"verified":true,"reason":"recovery and consumers finished","evidence_ref":"receipt:recovery-accepted"}});
+    call(&root, registration("version", vec![backup], true));
+    let completed = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny_replacement,
+    )
+    .unwrap();
+    assert!(
+        completed["items"][0]["blockers"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
 }
