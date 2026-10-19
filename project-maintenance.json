@@ -24,6 +24,21 @@
   ],
   "bundles": [
     {
+      "id": "instruction-library-backend", "kind": "test", "purpose": "retained",
+      "argv": ["node", "scripts/check-instruction-library.cjs", "backend"],
+      "inputs": ["scripts/check-instruction-library.cjs", "scripts/artifact-run.cjs", "scripts/instruction-library.cjs", "scripts/instruction-publisher.cjs", "scripts/instruction-catalog.cjs", "scripts/tests/instruction-library.test.cjs", "scripts/tests/instruction-playbooks.test.cjs", "scripts/tests/instruction-publisher.test.cjs", "scripts/tests/instruction-catalog.test.cjs"]
+    },
+    {
+      "id": "instruction-library-host", "kind": "test", "purpose": "retained",
+      "argv": ["node", "scripts/check-instruction-library.cjs", "host"],
+      "inputs": ["scripts/check-instruction-library.cjs", "extensions/azrael-ex/src/instructionProtocol.ts", "extensions/azrael-ex/src/instructionLibraryService.ts", "extensions/azrael-ex/src/instructionView.ts", "extensions/azrael-ex/test/instructionLibraryService.test.ts", "extensions/azrael-ex/test/instructionCatalogFlow.test.ts", "extensions/azrael-ex/test/instructionService.test.ts", "scripts/test-instruction-library-host.cjs", "extensions/azrael-ex/test/instructionView.test.ts", "scripts/inject-instruction-settings.cjs", "scripts/instruction-catalog.cjs", "scripts/instruction-library.cjs", "scripts/instruction-publisher.cjs", "scripts/test-instruction-settings.cjs", "scripts/check-instruction-modules.cjs", "scripts/prepare-independent-vscode.ps1", "scripts/prepare-platform-host.cjs"]
+    },
+    {
+      "id": "instruction-library-types", "kind": "test", "purpose": "retained",
+      "argv": ["node", "scripts/check-instruction-library.cjs", "types"],
+      "inputs": ["scripts/check-instruction-library.cjs", "extensions/azrael-ex/src", "extensions/azrael-ex/test", "extensions/azrael-ex/tsconfig.json"]
+    },
+    {
       "id": "maintenance-lifecycle-writers",
       "kind": "test",
       "purpose": "retained",

@@ -14,7 +14,7 @@ permission. App release versions and authorized local upload automation are owne
 
 Status: `partial` in source; the new personal-resource flow has Windows offline host/protocol, native skill-root isolation and isolated rendered UI evidence. It has not replaced the installed application, contacted a real instruction repository or passed final installed task lifecycle acceptance. The [architecture](../architecture/instructions.md#personal-skill-management) owns sharing and activation semantics; the [work record](../../work/BA-01-instruction-skill-sharing/01-plan.md) owns execution evidence.
 
-Open Instruction documents in Azrael settings. Create a resource or import its complete folder, edit its files and save locally. Save does not apply or upload it. New personal resources default to collaborators. The checkout uses ignored `instruction-library/`; other installations use a separate `<CODEX_HOME>-instruction-library` directory. Configure `azrael.instructions.libraryRoot` only to an untracked, Git-ignored directory when it resides within another repository.
+Open Instruction documents in Azrael settings. Create a resource or import its complete folder, edit its files and save locally. Save does not apply or upload it. New personal resources default to collaborators; Playbooks default to local-only. The checkout uses ignored `instruction-library/`; other installations use a separate `<CODEX_HOME>-instruction-library` directory. Configure `azrael.instructions.libraryRoot` only to an untracked, Git-ignored directory when it resides within another repository.
 
 Apply previews installation changes and conflicts before writing. Existing identical files can be adopted and their originals remain recoverable. A task profile instead prepares an immutable model/resource recipe and opens its selected new conversation. Inspect the effective model, package digests and persistent context before starting. Unknown models, missing pinned packages, role conflicts or incompatible harness choices stop activation. Other conversations and project defaults are preserved.
 
@@ -27,6 +27,16 @@ Run the maintained source tests with `node --test scripts/test-instruction-setti
 Instruction runtime packages, including `yazl`, belong in the account extension's production dependencies and lockfile. Windows and portable host preparation run `node scripts/check-instruction-modules.cjs <absolute-account-ui-directory>` on the staged payload, including resumed Windows preparation. The fresh child loads the real instruction modules and rejects dependency resolution outside that payload. The production-closure fixture also verifies missing direct and transitive dependencies cannot be supplied by ancestor directories or `NODE_PATH`.
 
 Run native scope/cache regressions with `node scripts/check-task-profile-skills.cjs <absolute-engine-source-root>`. Semantic extension checking uses the installed TypeScript compiler with `--noEmit`. Application packaging/install follows the [build playbook](../playbooks/build.md), including its separate full-build authorization and final package acceptance gates.
+
+## Catalog and project Playbooks
+
+The catalog searches the personal library, explicit installed/built-in resource roots and connected repositories. Search filters cached metadata; Refresh library explicitly refreshes connected release metadata. A repository failure leaves other sources usable. Resource content is verified and cached when previewed or acquired; cached previews remain available offline. Listing alone does not import or install resources.
+
+Use resource kind, source, sharing and destination filters in the list, or switch to cards. Expand Versions and differences to compare two snapshots or actual destination files. Preview version opens the chosen content; the primary detail action prepares installation of that exact version. Review the destination and changes before confirming. Library-only acquisition is available in detail management.
+
+Choose a local project for Playbooks. Download writes `docs/playbooks/<resource-id>/PLAYBOOK.md` and support files. Download status compares document identity and version; it does not imply runtime activation. A new Playbook starts at `0.1.0`; valid content changes increment the patch version. Local edits and unmanaged destination files stop updates until resolved.
+
+Source verification uses `node scripts/check-instruction-library.cjs backend`, `host` and `types`. Set `AZRAEL_INSTRUCTION_TEST_ENGINE` to an existing verified validator for host tests. These runners isolate fixtures under their recorded artifact run. `node scripts/verify-instruction-library-render.mjs` checks the actual renderer and client with fixture host responses in light/dark desktop and narrow layouts; it does not exercise the installed application or live repository authentication. See [execution evidence](../../work/CM-01-instruction-library-experience/01-plan.md).
 
 ## Source ownership
 

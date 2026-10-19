@@ -11,68 +11,176 @@ function azraelSettingsText(locale, english, korean) {
 
 // Serialized into the native and standalone clients. No filesystem or credentials.
 function instructionClientTools(root) {
-  const drafts = new Map(), filters = new Map(), disclosures = new Map();
-  const value = (name, scope = root) => scope.querySelector('[data-field="' + name + '"]')?.value;
-  const capture = () => {
-    const editor = root.querySelector('[data-editor-id]');
-    if (editor?.dataset.editorId) drafts.set(editor.dataset.editorId, [...editor.querySelectorAll('[data-field],textarea[data-file-path]')].map(e => ({ field: e.dataset.field, path: e.dataset.filePath, value: e.value })));
-    for (const e of root.querySelectorAll('[data-filter]')) filters.set(e.dataset.filter, e.value);
-    for (const e of root.querySelectorAll('details')) disclosures.set(e.querySelector('summary')?.textContent, e.open);
-  };
-  const filter = () => {
-    const search = root.querySelector('[data-filter="search"]')?.value.toLowerCase() ?? '';
-    const kind = root.querySelector('[data-filter="kind"]')?.value;
-    const sharing = root.querySelector('[data-filter="sharing"]')?.value;
-    for (const e of root.querySelectorAll('button.library-entry')) e.hidden = !(e.dataset.name.toLowerCase().includes(search) && (!kind || e.dataset.kind === kind) && (!sharing || e.dataset.sharing === sharing));
-  };
-  const file = target => {
-    if (target?.dataset.field !== 'file-path') return;
-    for (const e of root.querySelectorAll('[data-file-panel]')) e.hidden = e.dataset.filePanel !== target.value;
-  };
-  const restore = () => {
-    const editor = root.querySelector('[data-editor-id]');
-    const draft = drafts.get(editor?.dataset.editorId);
-    if (draft) for (const e of editor.querySelectorAll('[data-field],textarea[data-file-path]')) {
-      const saved = draft.find(d => d.field === e.dataset.field && d.path === e.dataset.filePath);
-      if (saved) e.value = saved.value;
-    }
-    for (const e of root.querySelectorAll('[data-filter]')) if (filters.has(e.dataset.filter)) e.value = filters.get(e.dataset.filter);
-    for (const e of root.querySelectorAll('details')) if (disclosures.has(e.querySelector('summary')?.textContent)) e.open = disclosures.get(e.querySelector('summary')?.textContent);
-    file(root.querySelector('[data-field="file-path"]')); filter();
-  };
-  const error = failure => {
-    let alert = root.querySelector('[data-client-error]');
-    if (!alert) { alert = root.ownerDocument.createElement('p'); alert.setAttribute('role', 'alert'); root.append(alert); }
-    alert.textContent = failure instanceof Error ? failure.message : String(failure);
-  };
-  const payload = button => {
-    const action = button.dataset.action, id = button.dataset.id;
-    const revision = Number(root.querySelector('[data-library-revision]')?.dataset.libraryRevision);
-    if (action === 'librarySelect') return { id };
-    if (['libraryApply', 'libraryPublish', 'libraryStartTask'].includes(action)) return { token: button.dataset.token };
-    if (action === 'libraryCreate') {
-      const name = value('create-name'), kind = value('create-kind'), sharing = value('create-sharing');
-      if (!name?.trim()) throw new Error('Enter a resource name / 리소스 이름을 입력하세요.');
-      return kind === 'task-profile' ? { name, kind, sharing, profile: { model: '', dependencies: [] } } : { name, kind, sharing, files: [{ path: kind === 'skill' ? 'SKILL.md' : kind === 'agent-role' ? 'ROLE.md' : 'CONTEXT.md', encoding: 'utf8', content: kind === 'skill' ? '---\nname: ' + name + '\ndescription: Describe this skill.\n---\n\n# ' + name + '\n' : '# ' + name + '\n' }] };
-    }
-    if (action === 'librarySave') {
-      const editor = root.querySelector('[data-editor-id]');
-      const json = value('profile', editor);
-      const result = { id, name: value('name', editor), sharing: value('sharing', editor), revision };
-      if (json !== undefined) result.profile = JSON.parse(json);
-      else result.files = [...editor.querySelectorAll('textarea[data-file-path]')].map(e => ({ path: e.dataset.filePath, encoding: e.dataset.encoding, content: e.value }));
-      return result;
-    }
-    if (action === 'libraryPlanApply') return { ids: [id] };
-    if (action === 'libraryPlanPublish') return { ids: [id], version: value('publish-version') };
-    if (action === 'libraryPrepareTask') return { id, model: value('model'), provider: value('provider') || undefined, reasoningEffort: value('reasoningEffort') || undefined };
-    if (action === 'libraryConnect' || action === 'libraryRemoteRefresh' || action === 'libraryRemoteImport') {
-      const scope = button.closest('[data-connection]');
-      return action === 'libraryConnect' ? { sharing: button.dataset.sharing, repository: value('repository', scope), branch: value('branch', scope) } : action === 'libraryRemoteImport' ? { sharing: button.dataset.sharing, version: value('remote-version', scope) } : { sharing: button.dataset.sharing };
-    }
-    return {};
-  };
-  return { capture, restore, filter, file, payload, error };
+    const drafts = new Map(), filters = new Map(), disclosures = new Map();
+    const versionChoices = new Map();
+    let listScroll = 0, previousDetail = false, selectedId = '';
+    const scroller = () => {
+        let node = root.host;
+        while (node) {
+            if (node.scrollHeight > node.clientHeight && /auto|scroll/.test(root.ownerDocument.defaultView.getComputedStyle(node).overflowY))
+                return node;
+            node = node.parentElement;
+        }
+        return root.ownerDocument?.scrollingElement;
+    };
+    const suggest = (name) => {
+        const ascii = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48).replace(/-$/, '');
+        return /[^\x00-\x7f]/.test(name) || !ascii ? (ascii || 'skill') + '-' + globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 12) : ascii;
+    };
+    const value = (name, scope = root) => scope.querySelector('[data-field="' + name + '"]')?.value;
+    const capture = () => {
+        const editor = root.querySelector('[data-editor-id]');
+        if (editor?.dataset.editorId)
+            drafts.set(editor.dataset.editorId, [...editor.querySelectorAll('[data-field],textarea[data-file-path]')].map(e => ({ field: e.dataset.field, path: e.dataset.filePath, value: e.value })));
+        for (const e of root.querySelectorAll('[data-filter]'))
+            filters.set(e.dataset.filter, e.value);
+        for (const e of root.querySelectorAll('details'))
+            disclosures.set(e.dataset.disclosure ?? e.querySelector('summary')?.textContent, e.open);
+        for (const e of root.querySelectorAll('[data-version-controls]'))
+            if (!e.closest('[data-library-browse][hidden]'))
+                versionChoices.set(e.dataset.versionControls, { from: value('from-digest', e), to: value('to-digest', e) });
+        const browse = root.querySelector('[data-library-browse]');
+        if (browse && !browse.hidden)
+            listScroll = scroller()?.scrollTop ?? 0;
+        previousDetail = !!browse?.hidden;
+    };
+    const filter = () => {
+        const search = root.querySelector('[data-filter="search"]')?.value.toLowerCase() ?? '';
+        const kind = root.querySelector('[data-filter="kind"]')?.value;
+        const sharing = root.querySelector('[data-filter="sharing"]')?.value;
+        const source = root.querySelector('[data-filter="source"]')?.value;
+        const state = root.querySelector('[data-filter="state"]')?.value;
+        let count = 0;
+        for (const e of root.querySelectorAll('.library-entry')) {
+            e.hidden = !(e.dataset.name.toLowerCase().includes(search) && (!kind || e.dataset.kind === kind) && (!sharing || e.dataset.sharing === sharing) && (!source || e.dataset.source === source) && (!state || e.dataset.state === state));
+            if (!e.hidden)
+                count++;
+        }
+        const counter = root.querySelector('[data-result-count]'), empty = root.querySelector('[data-no-results]');
+        if (counter)
+            counter.textContent = String(count);
+        if (empty)
+            empty.hidden = count > 0;
+        const catalog = root.querySelector('[data-catalog]');
+        if (catalog)
+            catalog.dataset.layout = root.querySelector('[data-filter="layout"]')?.value ?? 'list';
+    };
+    const file = (target) => {
+        if (target?.dataset.field === 'create-name') {
+            const installation = root.querySelector('[data-field="create-installation-name"]');
+            if (installation && (!installation.value || installation.dataset.suggested === installation.value)) {
+                installation.value = target.value.trim() ? suggest(target.value) : '';
+                installation.dataset.suggested = installation.value;
+            }
+        }
+        if (target?.dataset.field !== 'file-path')
+            return;
+        for (const e of root.querySelectorAll('[data-file-panel]'))
+            e.hidden = e.dataset.filePanel !== target.value;
+    };
+    const restore = () => {
+        const editor = root.querySelector('[data-editor-id]');
+        const draft = drafts.get(editor?.dataset.editorId);
+        if (draft)
+            for (const e of editor.querySelectorAll('[data-field],textarea[data-file-path]')) {
+                const saved = draft.find((d) => d.field === e.dataset.field && d.path === e.dataset.filePath);
+                if (saved)
+                    e.value = saved.value;
+            }
+        for (const e of root.querySelectorAll('[data-filter]'))
+            if (filters.has(e.dataset.filter))
+                e.value = filters.get(e.dataset.filter);
+        for (const e of root.querySelectorAll('details')) {
+            const key = e.dataset.disclosure ?? e.querySelector('summary')?.textContent;
+            if (disclosures.has(key))
+                e.open = disclosures.get(key);
+        }
+        for (const e of root.querySelectorAll('[data-version-controls]')) {
+            const saved = versionChoices.get(e.dataset.versionControls);
+            if (saved)
+                for (const [field, choice] of [['from-digest', saved.from], ['to-digest', saved.to]]) {
+                    const select = e.querySelector('[data-field="' + field + '"]');
+                    if (select && [...select.options].some(o => o.value === choice))
+                        select.value = choice;
+                }
+        }
+        file(root.querySelector('[data-field="file-path"]'));
+        filter();
+        const browse = root.querySelector('[data-library-browse]'), scroll = scroller();
+        if (browse && previousDetail !== browse.hidden) {
+            if (scroll)
+                scroll.scrollTop = browse.hidden ? 0 : listScroll;
+            if (!browse.hidden && selectedId)
+                [...root.querySelectorAll('button[data-action="librarySelect"]')].find(e => e.dataset.id === selectedId)?.focus({ preventScroll: true });
+        }
+    };
+    const error = (failure) => {
+        let alert = root.querySelector('[data-client-error]');
+        if (!alert) {
+            alert = root.ownerDocument.createElement('p');
+            alert.setAttribute('role', 'alert');
+            root.append(alert);
+        }
+        alert.textContent = failure instanceof Error ? failure.message : String(failure);
+    };
+    const payload = (button) => {
+        const action = button.dataset.action, id = button.dataset.id;
+        const revision = Number(root.querySelector('[data-library-revision]')?.dataset.libraryRevision);
+        if (action === 'librarySelect') {
+            selectedId = id;
+            return { id };
+        }
+        if (action === 'libraryImport' || action === 'libraryOpenInstalled')
+            return id ? { id } : {};
+        if (action === 'librarySetProject')
+            return { project: value('project') };
+        if (action === 'libraryPlanAcquire') {
+            const scope = button.closest('[data-version-controls]') ?? [...root.querySelectorAll('.library-reading [data-version-controls]')].find(e => e.dataset.versionControls === id);
+            if (!scope)
+                throw new Error('Select an available version / 사용 가능한 버전을 선택하세요.');
+            return { id, digest: value('to-digest', scope) };
+        }
+        if (action === 'libraryCompare' || action === 'libraryInspectVersion') {
+            const scope = button.closest('[data-version-controls]');
+            return action === 'libraryCompare' ? { id, fromDigest: value('from-digest', scope), toDigest: value('to-digest', scope) } : { id, digest: value('to-digest', scope) };
+        }
+        if (['libraryApply', 'libraryAcquire', 'libraryPublish', 'libraryStartTask'].includes(action))
+            return { token: button.dataset.token };
+        if (action === 'libraryCreate') {
+            const name = value('create-name'), kind = value('create-kind'), sharing = value('create-sharing');
+            if (!name?.trim())
+                throw new Error('Enter a resource name / 리소스 이름을 입력하세요.');
+            const explicit = value('create-installation-name')?.trim();
+            const identifier = explicit || suggest(name);
+            if (kind === 'skill' && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(identifier))
+                throw new Error('Use lowercase ASCII letters, numbers and hyphens / 영문 소문자, 숫자, 하이픈을 사용하세요.');
+            const path = kind === 'skill' ? 'SKILL.md' : kind === 'agent-role' ? 'role.toml' : kind === 'playbook' ? 'PLAYBOOK.md' : 'CONTEXT.md';
+            const content = kind === 'skill' ? '---\nname: ' + identifier + '\ndescription: Describe this skill.\n---\n\n# ' + name + '\n' : kind === 'agent-role' ? 'description = ' + JSON.stringify(name) + '\ndeveloper_instructions = """\nDescribe this agent role.\n"""\n' : '# ' + name + '\n';
+            return kind === 'task-profile' ? { name, kind, sharing, profile: { model: '', dependencies: [] } } : { name, kind, sharing, files: [{ path, encoding: 'utf8', content }] };
+        }
+        if (action === 'librarySave') {
+            const editor = root.querySelector('[data-editor-id]');
+            const json = value('profile', editor);
+            const result = { id, name: value('name', editor), sharing: value('sharing', editor), revision };
+            if (json !== undefined)
+                result.profile = JSON.parse(json);
+            else
+                result.files = [...editor.querySelectorAll('textarea[data-file-path]')].map(e => ({ path: e.dataset.filePath, encoding: e.dataset.encoding, content: e.value }));
+            return result;
+        }
+        if (action === 'libraryPlanApply')
+            return { ids: [id] };
+        if (action === 'libraryPlanPublish')
+            return { ids: [id], version: value('publish-version') };
+        if (action === 'libraryPrepareTask')
+            return { id, model: value('model'), provider: value('provider') || undefined, reasoningEffort: value('reasoningEffort') || undefined };
+        if (action === 'libraryConnect' || action === 'libraryRemoteRefresh' || action === 'libraryRemoteImport') {
+            const scope = button.closest('[data-connection]');
+            return action === 'libraryConnect' ? { sharing: button.dataset.sharing, repository: value('repository', scope), branch: value('branch', scope) } : action === 'libraryRemoteImport' ? { sharing: button.dataset.sharing, version: value('remote-version', scope) } : { sharing: button.dataset.sharing };
+        }
+        return {};
+    };
+    return { capture, restore, filter, file, payload, error };
 }
 
 function AzraelInstructionNavigationIcon(props) {

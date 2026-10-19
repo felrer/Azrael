@@ -19,7 +19,7 @@ async function fixture(t: TestContext) {
   const assets = new Map<string, Buffer>();
   for (const name of [manifestName, manifest.archive.name, manifest.documentsAsset.name]) assets.set(name, await fs.readFile(path.join(assetRoot, name)));
   const release = { tag_name: "instructions-v1.0.0", draft: false, prerelease: false, body: "Generated release notes", assets: [...assets.keys()].map(name => ({ name, browser_download_url: `https://github.com/${manifest.repository}/releases/download/instructions-v1.0.0/${name}` })) };
-  const verification = path.join(root, "artifacts/verification");
+  const verification = process.env.AZRAEL_INSTRUCTION_TEST_ROOT || path.join(root, "artifacts/verification");
   await fs.mkdir(verification, { recursive: true });
   const dir = await fs.mkdtemp(path.join(verification, "instruction-service-"));
   t.after(async () => {

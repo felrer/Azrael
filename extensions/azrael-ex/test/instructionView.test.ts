@@ -5,6 +5,51 @@ import type { InstructionUiState } from "../src/instructionProtocol";
 
 const base: InstructionUiState = { repository: "felrer/Azrael", currentVersion: "1.0.0", pinnedVersion: null, selectedVersion: "1.1.0", versions: [{ version: "1.1.0", compatible: true, prerelease: false, notes: "<script>notes</script>" }], downloadedVersions: ["1.1.0"], components: [{ id: "agents", title: "Agents", kind: "agents", scope: "home", default: true }], documents: [{ path: "AGENTS.md", title: "Instructions", kind: "agents" }], preview: { path: "AGENTS.md", text: "<img src=x onerror=alert(1)>" }, conflicts: [] };
 
+test("catalog browsing, version differences and acquisition retain separate actions", () => {
+  const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
+  const original = api._load;
+  api._load = function (request, parent, isMain) { return request === "vscode" ? {} : original.call(this, request, parent, isMain); };
+  try {
+    const { renderInstructionMarkup, renderInstructionDifference, validInstructionRequest } = require("../src/instructionView") as typeof import("../src/instructionView");
+    const resource = { id: "builtin", catalogId: "host-owned-id", name: "한국어", kind: "playbook" as const, sharing: "local" as const, digest: "v2", readOnly: true, sourceKind: "builtin" as const, description: "Use this playbook", versions: [{ digest: "v1", label: "1.0" }, { digest: "v2", label: "2.0" }], validationErrors: [], publications: [], files: [{ path: "PLAYBOOK.md", encoding: "utf8" as const, content: "# Read me" }] };
+    const library = { revision: 1, entries: [resource], connections: [], projects: [{ id: "project-one", name: "Project one" }], selectedProject: "project-one", comparison: { id: "host-owned-id", from: "v1", to: "v2", files: [{ path: "PLAYBOOK.md", current: "old", proposed: "new" }] } };
+    const list = renderInstructionMarkup({ ...base, library });
+    assert.match(list, /class="library-catalog" data-catalog/); assert.match(list, /data-disclosure="filters"/);
+    assert.match(list, /data-action="libraryCompare" data-id="host-owned-id"/);
+    assert.match(list, /class="diff-deleted">− old/); assert.match(list, /class="diff-added">\+ new/);
+    assert.match(list, /data-comparison-label>1\.0 → 2\.0<\/p>/);
+    assert.match(list, /data-no-results hidden/); assert.match(list, /data-filter="layout"/);
+    const detail = renderInstructionMarkup({ ...base, library: { ...library, selected: resource, plan: { token: "review", kind: "apply", acquire: true, summary: "Download", conflicts: [] } } });
+    assert.match(detail, /data-library-browse hidden/); assert.match(detail, /data-action="libraryBack"/);
+    assert.match(detail, /data-action="libraryPlanAcquire" data-id="host-owned-id">/);
+    assert.match(detail, /data-action="libraryAcquire" data-token="review">/);
+    assert.match(detail, /data-disclosure="manage" hidden/);
+    const skill = { ...resource, kind: "skill" as const };
+    const skillHtml = renderInstructionMarkup({ ...base, library: { ...library, selectedProject: undefined, selected: skill } });
+    const primary = skillHtml.slice(skillHtml.indexOf('class="library-reading"'), skillHtml.indexOf('data-version-controls="host-owned-id"'));
+    assert.match(primary, /data-action="libraryPlanAcquire" data-id="host-owned-id">Install in Azrael/);
+    assert(!primary.includes('libraryPlanApply')); assert(!primary.includes('Download to project'));
+    const contextHtml = renderInstructionMarkup({ ...base, library: { ...library, selected: { ...resource, kind: "context" } } });
+    const contextPrimary = contextHtml.slice(contextHtml.indexOf('class="library-reading"'), contextHtml.indexOf('data-version-controls="host-owned-id"'));
+    assert(!contextPrimary.includes('libraryPlanAcquire')); assert.match(contextPrimary, /data-action="libraryImport"/);
+    const localContextHtml = renderInstructionMarkup({ ...base, library: { ...library, selected: { ...resource, readOnly: false, kind: "context" } } });
+    assert(!localContextHtml.includes('data-action="libraryPlanApply"'));
+    const sourceLabels = { "My library": "내 라이브러리", "Azrael baseline": "Azrael 기본 지침", "Installed skills": "설치된 스킬", "Installed global instructions": "설치된 전역 지침", "System skills": "시스템 스킬", "Installed agent roles": "설치된 에이전트 역할" };
+    for (const [sourceLabel, expected] of Object.entries(sourceLabels)) {
+      const localized = renderInstructionMarkup({ ...base, library: { ...library, selected: { ...resource, kind: "context", sourceLabel, versionLabel: "Local installation" }, comparison: { ...library.comparison, from: "@installed" } } }, undefined, "ko");
+      assert(localized.includes(expected)); assert(localized.includes("참고 문서")); assert(localized.includes("로컬 설치"));
+      assert.match(localized, /data-comparison-label>실제 설치 \/ 프로젝트 파일 → 2\.0<\/p>/);
+    }
+    const repository = renderInstructionMarkup({ ...base, library: { ...library, selected: { ...resource, sourceLabel: "org/repository" } } }, undefined, "ko");
+    assert(repository.includes("org/repository"));
+    assert.match(renderInstructionDifference(undefined, "<added>"), /diff-added.*&lt;added&gt;/);
+    assert.match(renderInstructionDifference("removed", undefined), /diff-deleted.*removed/);
+    assert.match(renderInstructionDifference("same", "same"), /No changes/);
+    assert(validInstructionRequest({ kind: "playbook", id: "host-owned-id", digest: "v2", fromDigest: "@installed", toDigest: "v2", project: "project-one" }));
+    assert(!validInstructionRequest({ digest: 42 }));
+  } finally { api._load = original; }
+});
+
 test("library markup separates local drafts, frozen plans and source-scoped remote versions", () => {
   const api = Module as unknown as { _load(request: string, parent: unknown, isMain: boolean): unknown };
   const original = api._load;

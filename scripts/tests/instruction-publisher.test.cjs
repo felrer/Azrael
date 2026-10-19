@@ -98,6 +98,85 @@ class Github {
   };
 }
 function setup(name,github = new Github()) { return {github,publisher:new InstructionPublisher({stateRoot:path.join(fixtureRoot,name),request:github.request})}; }
+function catalogFixture(packages = [pkg("catalog")]) {
+  const fixture = setup("catalog"), c = conn(), repository = fixture.github.repo(c.repository);
+  const metadata = packages.map(entry => ({...entry,files:entry.files.map(file => { const data = Buffer.from(file.content,file.encoding); return {path:file.path,encoding:file.encoding,size:data.length,sha256:sha(data)}; })}));
+  const heads = Object.fromEntries(packages.map(entry => [entry.id,entry.digest]).sort(([a],[b]) => a.localeCompare(b,"en")));
+  const index = encode({schemaVersion:1,heads}), files = [{path:"index.json",size:index.length,sha256:sha(index)}];
+  for (const entry of metadata) {
+    const data = encode(entry), root = `packages/${entry.id}/${entry.digest}`;
+    files.push({path:`${root}/package.json`,size:data.length,sha256:sha(data)});
+    for (const file of entry.files) files.push({path:`${root}/files/${file.path}`,size:file.size,sha256:file.sha256});
+  }
+  const manifest = {schemaVersion:1,repository:c.repository,version:"1.0.0",sharing:c.sharing,sourceCommit:"a".repeat(40),archive:{name:"azrael-resources-1.0.0.zip",size:1,sha256:"b".repeat(64)},files,packages:metadata,heads};
+  const manifestAsset = {id:1,name:"azrael-resources-1.0.0-manifest.json",size:0,data:Buffer.alloc(0)}, archiveAsset = {id:2,name:manifest.archive.name,size:1,data:Buffer.from("x")};
+  const release = {id:3,tag_name:"azrael-resources-v1.0.0",draft:false,prerelease:false,assets:[manifestAsset,archiveAsset]};
+  repository.assets.set(1,manifestAsset); repository.assets.set(2,archiveAsset); repository.releases.push(release);
+  const refresh = () => { manifestAsset.data = encode(manifest); manifestAsset.size = manifestAsset.data.length; };
+  refresh(); return {...fixture,c,repository,manifest,manifestAsset,archiveAsset,release,refresh};
+}
+test("release catalog reads manifest evidence without fetching archives or mutating local state",async () => {
+  const old = pkg("guide"), current = {...pkg("guide","public","new"),version:2};
+  const playbook = {...pkg("playbook"),kind:"playbook",documentVersion:"1.2.3",version:7}; playbook.digest = packageDigest(playbook);
+  playbook.files.push({path:"support/data.bin",encoding:"base64",content:Buffer.from([0,255]).toString("base64")}); playbook.digest = packageDigest(playbook);
+  const fixture = catalogFixture([old,current,playbook]), {publisher,c,github,archiveAsset} = fixture;
+  const before = await fs.stat(publisher.stateRoot).catch(() => null), result = await publisher.describeRelease(c,"1.0.0");
+  assert.deepEqual(result.packages.filter(entry => entry.id === "guide").map(entry => entry.current).sort(),[false,true]);
+  const described = result.packages.find(entry => entry.id === "playbook");
+  assert.equal(described.documentVersion,"1.2.3"); assert.equal(described.version,7); assert.equal(described.files.length,2);
+  assert.ok(described.files.every(file => !Object.hasOwn(file,"content") && /^[a-f0-9]{64}$/.test(file.sha256)));
+  assert.deepEqual(await fs.stat(publisher.stateRoot).catch(() => null),before);
+  assert.ok(github.calls.every(call => call.method === "GET" && !call.url.endsWith(`/releases/assets/${archiveAsset.id}`)));
+  // Valid catalog metadata cannot make an unverified ZIP safe to acquire.
+  await assert.rejects(publisher.download(c,"1.0.0"),/integrity/);
+});
+test("release catalog rejects unsafe identities, inventories and incomplete heads offline",async () => {
+  const attacks = [
+    ["repository",f => { f.manifest.repository = "other/repo"; }],
+    ["sharing",f => { f.manifest.sharing = "collaborators"; }],
+    ["version",f => { f.manifest.version = "2.0.0"; }],
+    ["release identity",f => { f.release.tag_name = "wrong"; f.publisher._release = async () => f.release; }],
+    ["draft",f => { f.release.draft = true; }],
+    ["archive bounds",f => { f.archiveAsset.size = 64*1024*1024+1; }],
+    ["duplicate asset",f => { f.release.assets.push({...f.manifestAsset}); }],
+    ["traversal",f => { f.manifest.files[0].path = "../index.json"; }],
+    ["case collision",f => { f.manifest.files.push({...f.manifest.files[0],path:"INDEX.json"}); }],
+    ["directory case collision",f => { f.manifest.files.push({path:"Packages/extra",size:0,sha256:sha(Buffer.alloc(0))}); }],
+    ["file directory collision",f => { f.manifest.files.push({path:"index.json/child",size:0,sha256:sha(Buffer.alloc(0))}); }],
+    ["file size",f => { f.manifest.files[0].size = -1; }],
+    ["package id",f => { f.manifest.packages[0].id = "../escape"; }],
+    ["package digest",f => { f.manifest.packages[0].digest = "unsafe"; }],
+    ["package revision",f => { f.manifest.packages[0].version = 0; }],
+    ["document version",f => { f.manifest.packages[0].documentVersion = "v1.0.0"; }],
+    ["local package",f => { f.manifest.packages[0].sharing = "local"; }],
+    ["duplicate package",f => { f.manifest.packages.push(f.manifest.packages[0]); }],
+    ["file encoding",f => { f.manifest.packages[0].files[0].encoding = "hex"; }],
+    ["duplicate package file",f => { f.manifest.packages[0].files.push({...f.manifest.packages[0].files[0]}); }],
+    ["unknown head",f => { f.manifest.heads.catalog = "c".repeat(64); }],
+    ["missing file",f => { f.manifest.files.pop(); }],
+    ["extra file",f => { f.manifest.files.push({path:"extra",size:0,sha256:sha(Buffer.alloc(0))}); }],
+  ];
+  for (const [label,mutate] of attacks) {
+    const fixture = catalogFixture(); mutate(fixture); fixture.refresh();
+    await assert.rejects(fixture.publisher.describeRelease(fixture.c,"1.0.0"),undefined,label);
+    assert.ok(fixture.github.calls.every(call => !call.url.endsWith("/releases/assets/2")),label);
+  }
+  const fixture = catalogFixture(); fixture.manifestAsset.size++;
+  await assert.rejects(fixture.publisher.describeRelease(fixture.c,"1.0.0"),/size mismatch/);
+  await assert.rejects(fixture.publisher.describeRelease({...fixture.c,sharing:"local"},"1.0.0"),/connection/);
+  await assert.rejects(fixture.publisher.describeRelease(fixture.c,"v1.0.0"),/version/);
+});
+test("Playbook publication preserves identity, document version and all support files",async () => {
+  const {publisher} = setup("playbook"), c = conn();
+  const entry = {...pkg("playbook-release"),kind:"playbook",version:3,documentVersion:"1.4.2",files:[{path:"PLAYBOOK.md",encoding:"utf8",content:"# Guide"},{path:"support/icon.bin",encoding:"base64",content:"AP8="}]};
+  entry.digest = packageDigest(entry);
+  await publisher.publish(plan([entry]),c,{version:"1.0.0"});
+  const acquired = (await publisher.download(c,"1.0.0")).packages[0];
+  assert.deepEqual(acquired,{...entry,current:true});
+  assert.equal((await publisher.describeRelease(c,"1.0.0")).packages[0].documentVersion,"1.4.2");
+  const localEntry = {...entry,sharing:"local"}; localEntry.digest = packageDigest(localEntry);
+  await assert.rejects(publisher.publish(plan([localEntry],{sharing:"public"}),c,{version:"2.0.0"}),/excluded/);
+});
 test("approved selection excludes local metadata and preserves unselected remote snapshots",async () => {
   const {publisher,github} = setup("selection"), c = conn();
   const first = pkg("first"), second = pkg("second");
