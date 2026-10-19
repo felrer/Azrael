@@ -72,7 +72,7 @@ When handling generated inputs, logs, reports, backups and version evidence, als
 <a id="windows-산출물-삭제"></a>
 ## Windows Artifact Deletion
 
-- Cleanup follows the protection and retention criteria in the [Build and reinstall playbook](build.md). Prefer the
+- Cleanup follows the protection and retention criteria in the [Build and reinstall playbook](build.md). For registered groups, first use the [management-tool workflow](../ops/project-maintenance.md#registered-group-cleanup) and rely on the checks it implements. For operations outside that coverage, prefer the
   [verification artifact cleanup script](../../scripts/clean-verification-artifacts.ps1) for verification fixtures and the
   [engine cache cleanup script](../../scripts/clean-engine-caches.ps1) for registered engine caches.
   Check target paths and preview results, then apply through an invocation permitted in that environment.

@@ -52,6 +52,7 @@
 
 - Before execution, register generated paths, bundles with a single owner and active references, and update them through failures, cancellations and unconfirmed termination.
   Follow [Artifact lifecycle](artifact-lifecycle.md) and the project lifecycle playbook for task/run, version and shared paths, and migration of existing projects.
+  For registered bundles, use that reference's management-tool workflow and reuse its evidence; investigate only checks outside the tool's coverage or concrete conflicts and uncertainty.
   Keep raw logs in their generating run; before removing a task, retain required release verification at version scope with provenance and content identity.
   Review obsolete run bundles, logs and consumer registry records under those same ownership and active-reference guards;
   compact management records only through their lifecycle owner's rules, preserving active references and required evidence.
@@ -63,7 +64,7 @@
   when another active consumer uses them. Leave unconfirmed ownership, usage or recovery status as uncertainty and defer deletion.
 - Within existing authorization, the model chooses deletion or retention for each bundle. For retention, record the reason and review conditions;
   do not delete automatically merely because execution occurred or a period expired, or require renewed user approval every time. Do not expand the scope to repository-wide cleanup.
-- Immediately before deletion, recheck actual paths, links, management-root boundaries and protection, execution and recovery references. Only for generated items the model has chosen to delete,
+- Immediately before deletion, have the owning tool recheck actual paths, links, management-root boundaries and protection, execution and recovery references within its coverage; resolve uncovered checks without repeating covered ones. Only for generated items the model has chosen to delete,
   whose ownership, creation basis and distinction from originals are confirmed, clear ReadOnly or Hidden attributes if needed, then delete normally.
   Do not change attributes of originals, user files or unconfirmed items. Changing System attributes, ACLs or owners and force deletion are prohibited.
   Do not bypass failures through another shell or API.
