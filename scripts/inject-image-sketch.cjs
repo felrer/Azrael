@@ -16,6 +16,7 @@ function replaceOnce(text, before, after) {
 
 const EDITOR_PATCHES = [
   ["onRequestClose:d,onDone:ee}=e", "onRequestClose:d,onDone:ee,azraelBackground}=e"],
+  ["let I=M||A.effectiveDocument.objects.length===0", "let I=M||!azraelBackground&&A.effectiveDocument.objects.length===0"],
   // Native canvas coordinates use the image's logical dimensions. Its own fit
   // transform and object-fit:contain use the same centered aspect ratio.
   ["backgroundColor:L,clipboardScope:g,editor:a,surfaceSize:v,readOnly:M",
@@ -24,8 +25,12 @@ const EDITOR_PATCHES = [
 ];
 
 const STATE_PATCHES = [
+  ["if(!f()||!o.canOpenSketch||d.active!=null)return!1", "if(!f()||!o.canOpenSketch||d.active!=null||n.azraelReplaceUploadId!=null&&!c.includes(n.azraelReplaceUploadId))return!1"],
   ["let s=a.at(-1);return s==null?", "let s=n.azraelBackground?null:a.at(-1);return s==null?"],
+  ["uploadId:null,fileName:null", "uploadId:n.azraelReplaceUploadId??null,fileName:null"],
   ["undoRetentionCount:0,openOptions:{...n}", "undoRetentionCount:0,azraelBackground:n.azraelBackground,openOptions:{...n}"],
+  ["if(s.objects.length===0)return;", "if(!r.azraelBackground&&s.objects.length===0)return;"],
+  ["if(r.savedDocument!=null&&(0,o.default)(s,r.savedDocument))", "if(!r.azraelBackground&&r.savedDocument!=null&&(0,o.default)(s,r.savedDocument))"],
   ["r.editor.export({backgroundColor:i.isDarkMode?`#212121`:`#ffffff`,padding:36,scale:1,mimeType:`image/png`})",
     "r.editor.export(r.azraelBackground?{outputBounds:{x:0,y:0,width:r.azraelBackground.width,height:r.azraelBackground.height},padding:0,scale:1,mimeType:`image/png`,drawBackground:ctx=>ctx.drawImage(r.azraelBackground.image,0,0,r.azraelBackground.width,r.azraelBackground.height)}:{backgroundColor:i.isDarkMode?`#212121`:`#ffffff`,padding:36,scale:1,mimeType:`image/png`})"],
 ];
@@ -53,6 +58,11 @@ function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId) 
         return valid;
       };
       if (!current()) return;
+      // Reuse editable strokes and the original photo, rather than flattening a
+      // previously annotated PNG into the background of another sketch.
+      if (request.uploadId != null && stateRef.current?.state.openAttachment(request.uploadId)) {
+        request.onOpened(); finish('opened'); return;
+      }
       const image = new Image();
       image.referrerPolicy = 'no-referrer';
       if (/^https?:/i.test(request.src)) image.crossOrigin = 'anonymous';
@@ -61,6 +71,7 @@ function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId) 
         if (!current()) return;
         if (!image.naturalWidth || !image.naturalHeight) throw Error('Image has no dimensions');
         const accepted = open({ azraelBackground: { src: request.src, image, width: image.naturalWidth, height: image.naturalHeight },
+          azraelReplaceUploadId: request.uploadId,
           isRequestCurrent: current, azraelOnOpened: accepted => {
             if (!current()) return;
             if (accepted) { request.onOpened(); finish('opened'); }
@@ -76,7 +87,7 @@ function azraelUseImageSketchBridge(scope, open, stateRef, canOpen, composerId) 
 
 function azraelImageSketchToasts() { return LMt(); }
 
-function azraelRequestImageSketch(scope, src, isCurrent, onOpened, locale) {
+function azraelRequestImageSketch(scope, src, isCurrent, onOpened, locale, uploadId) {
   const ko = locale?.startsWith('ko');
   const messages = ko ? {
     loading: '사진 편집기를 여는 중…', unavailable: '현재 입력창에서 사진 편집기를 열 수 없습니다. 잠시 후 다시 시도해주세요.',
@@ -94,7 +105,7 @@ function azraelRequestImageSketch(scope, src, isCurrent, onOpened, locale) {
     if (messages[status] && status !== 'loading') azraelImageSketchToasts().danger(messages[status]);
     resolve(status);
   };
-  const detail = { scope, src, isCurrent, onOpened, handled: false, respond };
+  const detail = { scope, src, isCurrent, onOpened, uploadId, handled: false, respond };
   window.dispatchEvent(new CustomEvent('azrael:image-sketch', { detail }));
   if (!detail.handled) respond('unavailable');
   else if (!settled) loading = azraelImageSketchToasts().info(messages.loading);
@@ -114,9 +125,10 @@ const COMPOSER_PATCHES = [
     "g.current.then(e=>{if(!(i===h.current&&v().canOpenSketch&&r())){t.azraelOnOpened?.(!1);return} ("],
   ["}).catch(()=>{i===h.current&&r()&&l.get(hx).danger", "}).catch(()=>{t.azraelOnOpened?.(!1);!t.azraelOnOpened&&i===h.current&&r()&&l.get(hx).danger"],
   ["I=S&&n!=null,L,R,z,B,V;", "I=S&&n!=null,L,R,z,B,V;let azraelSketchScope=Ou(Dh),azraelSketchPreview=(0,b8.useRef)({});(0,b8.useEffect)(()=>()=>{azraelSketchPreview.current={open:!1}},[]);"],
-  ["let H=P>0?P-1:null", "azraelSketchPreview.current={open:A,src:L?.src};let H=P>0?P-1:null"],
-  ["image:{...L.overlayImage,imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}", "image:{...L.overlayImage,azraelSketch:{scope:azraelSketchScope,src:L.src,isCurrent:()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src,onOpened:()=>z(!1)},imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}"],
-  ["editButton:fe,onPreviousImage:pe,onNextImage:me,portalContainer:l", "editButton:fe,toolbarActions:[{ariaLabel:E.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon(x8.jsx),onClick:()=>azraelRequestImageSketch(azraelSketchScope,L.src,()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src,()=>z(!1),E.locale)}],onPreviousImage:pe,onNextImage:me,portalContainer:l"],
+  ["onOpenEditor:n,showEditButton:S!=null,src:Dba(e)", "onOpenEditor:n,showEditButton:S!=null,src:Dba(e),azraelUploadId:e.id"],
+  ["let H=P>0?P-1:null", "azraelSketchPreview.current={open:A,src:L?.src,uploadId:L?.azraelUploadId};let H=P>0?P-1:null"],
+  ["image:{...L.overlayImage,imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}", "image:{...L.overlayImage,azraelSketch:{scope:azraelSketchScope,src:L.src,uploadId:L.azraelUploadId,isCurrent:()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src&&azraelSketchPreview.current.uploadId===L.azraelUploadId,onOpened:()=>z(!1)},imageRef:e=>Sh(M,L.overlayImage?.imageRef)(e)}"],
+  ["editButton:fe,onPreviousImage:pe,onNextImage:me,portalContainer:l", "editButton:fe,toolbarActions:[{ariaLabel:E.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,icon:azraelImageSketchIcon(x8.jsx),onClick:()=>azraelRequestImageSketch(azraelSketchScope,L.src,()=>azraelSketchPreview.current.open&&azraelSketchPreview.current.src===L.src&&azraelSketchPreview.current.uploadId===L.azraelUploadId,()=>z(!1),E.locale,L.azraelUploadId)}],onPreviousImage:pe,onNextImage:me,portalContainer:l"],
 ];
 
 const ATTACHMENT_PATCHES = [
@@ -126,7 +138,7 @@ const ATTACHMENT_PATCHES = [
   ["image:{alt:H,availableImageCount:E,imageRef:ie", "image:{azraelSketch:M?{scope:D,src:I,isCurrent:()=>azraelSketchOpen.current&&azraelSketchSource.current===I,onOpened:()=>F(!1)}:void 0,alt:H,availableImageCount:E,imageRef:ie"],
 ];
 const OVERLAY_PATCHES = [
-  ["let L;t[57]!==k||t[58]!==j.zoom", "if(n.azraelSketch){let title=I,request=n.azraelSketch;I=(...args)=>(0,E.jsxs)(`div`,{className:`flex min-w-0 items-center gap-2`,children:[title?.(...args),(0,E.jsx)(Fe,{uniform:!0,\"aria-label\":y.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,onClick:()=>azraelRequestImageSketch(request.scope,request.src,request.isCurrent,request.onOpened,y.locale),children:azraelImageSketchIcon(E.jsx)})]})}let L;t[57]!==k||t[58]!==j.zoom"],
+  ["let L;t[57]!==k||t[58]!==j.zoom", "if(n.azraelSketch){let title=I,request=n.azraelSketch;I=(...args)=>(0,E.jsxs)(`div`,{className:`flex min-w-0 items-center gap-2`,children:[title?.(...args),(0,E.jsx)(Fe,{uniform:!0,\"aria-label\":y.locale?.startsWith(`ko`)?`사진 위에 그리기`:`Sketch on image`,onClick:()=>azraelRequestImageSketch(request.scope,request.src,request.isCurrent,request.onOpened,y.locale,request.uploadId),children:azraelImageSketchIcon(E.jsx)})]})}let L;t[57]!==k||t[58]!==j.zoom"],
 ];
 
 function injectImageSketch(text, asset) {
