@@ -420,9 +420,9 @@ function transformAsset(source, relativePath, filename, ts) {
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
   if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
-    return { text: taskProfile.text, asset: {
+    const asset = {
       path: relativePath,
-      edits: errorPresentation.count + projectDrafts.count + namespaced.count + accountSettings.count + instructionSettings.count + studentDesign.count + filtered.count + fetchResponse.count + recovered.count + deferred.count + workSegmentFolding.count + parentRequestActivity.count + taskWorkTime.count + compactionProgress.count + queueRefresh.count + queuedCompaction.count + queueConsumption.count + accountQueue.count + providerPicker.count + maxReasoning.count + threadBranch.count + capacityRetryStop.count + paginatedHistory.count + submitOnlyThread.count + recentChatFilter.count + sessionFlags.count + teamUI.count + teamRuntime.count + taskProfile.count + webviewIdle.count + immediateStop.count + urlSafety.count + computerUse.count + computerUseSettings.count + computerUseCancelRequest.count + windowApprovalTitle.count + computerUseManagement.count + windowControl.count + windowApprovalClassifier.count + fileOpenMenu.count + imageFileOpen.count + missingImage.count + localFileDrop.count + composerDraft.count + btw.count + providerContext.count + imageSketch.count + uiCleanup.count + autoReview.count + petsCleanup.count + contentFonts.count + commandDragBlock.count + scrollFade.count + uiInputDiagnostics.count + sessionLinks.count,
+      edits: 0,
       accountSettingsEdits: accountSettings.count,
       instructionSettingsEdits: instructionSettings.count,
       studentDesignEdits: studentDesign.count,
@@ -482,7 +482,9 @@ function transformAsset(source, relativePath, filename, ts) {
       sessionLinkEdits: sessionLinks.count,
       sourceSha256: sha(source),
       sha256: sha(taskProfile.text),
-    } };
+    };
+    asset.edits = Object.entries(asset).filter(([name]) => name.endsWith("Edits")).reduce((total, [, count]) => total + count, 0);
+    return { text: taskProfile.text, asset };
   }
   return { text: taskProfile.text, asset: null };
 }
@@ -804,7 +806,7 @@ async function transformExtension(directory, ts, hostVersion, options = {}) {
   if (report.assets.reduce((total, asset) => total + asset.queueRefreshNativeChecks, 0) !== 1) {
     throw new Error("Native queue-refresh validation was incomplete.");
   }
-  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 43) {
+  if (report.assets.reduce((total, asset) => total + asset.deferredTurnEdits, 0) !== 46) {
     throw new Error("Deferred-turn transformation was incomplete.");
   }
   if (report.assets.reduce((total, asset) => total + (asset.parentRequestActivityEdits ?? 0), 0) !== PARENT_REQUEST_ACTIVITY_TOTAL) {

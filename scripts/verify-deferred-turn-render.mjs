@@ -19,7 +19,7 @@ const assets=join(root,"artifacts/upstream-ui/26.1007.21434/webview/assets");
 const profile=join(fixture,'chrome-profile');
 const require=createRequire(import.meta.url);
 const ts=require(require.resolve('typescript',{paths:[join(root,'extensions/azrael-ex')]}));
-const {injectDeferredPresentation,injectDeferredTurn,injectDeferredThread,DEFERRED_PRESENTATION_ASSET,DEFERRED_REDUCER_ASSET,DEFERRED_THREAD_ASSET}=require('./inject-deferred-turn.cjs');
+const {injectDeferredPresentation,injectDeferredTurn,injectDeferredThread,DEFERRED_PRESENTATION_ASSET,DEFERRED_REDUCER_ASSET,DEFERRED_THREAD_ASSET,DEFERRED_TURN_ASSET,injectDeferredTurnView}=require('./inject-deferred-turn.cjs');
 await mkdir(profile,{recursive:true});await mkdir(logs,{recursive:true});
 const mainName=DEFERRED_PRESENTATION_ASSET.split('/').at(-1);
 const {injectStudentDesign}=require('./inject-student-design.cjs');
@@ -38,10 +38,14 @@ const thread=injectDeferredThread(await readFile(join(assets,threadName),'utf8')
 const reducerAdapter=String.raw`
 export {ZTn as fixtureNotification,Lle as fixtureMergeSnapshot,rxn as fixtureHistory,lg as fixtureInitializeReducer,vg as fixtureFindTurn,yg as fixtureFindEntry,Sg as fixtureCanonicalHistory,azraelFlushDeferred as fixtureFlushDeferred};
 export const fixtureWrongNotification=${named(reducerAst,'ZTn').getText(reducerAst).replace('function ZTn(', 'function fixtureWrongNotification(').replaceAll('l=B(s);','l=_e(s);')};`;
+const turnName=DEFERRED_TURN_ASSET.split('/').at(-1);
+const branchTurn=injectDeferredTurnView(await readFile(join(assets,turnName),'utf8')).text+'\nexport {azraelResumeBranchScope};';
 const threadAdapter="\nexport function fixtureActivity(turn){return fp({requests:[],generatedImages:[],isBackgroundSubagentsEnabled:false},turn,{key:turn.turnId,itemIds:turn.items.map(item=>item.id),state:'active',presentation:'codex',startedAtMs:turn.turnStartedAtMs,completedAtMs:null},null,false).turnState;}";
 const adapterSource=String.raw`
 import {fixtureNotification,fixtureWrongNotification,fixtureMergeSnapshot,fixtureHistory,fixtureInitializeReducer,fixtureFindTurn,fixtureFindEntry,fixtureCanonicalHistory,fixtureFlushDeferred} from './${reducerName}';
 import {fixtureActivity} from './${threadName}';
+import {azraelResumeBranchScope as fixtureBranchScope} from './${turnName}';
+window.fixtureBranchEnabled=false;window.fixtureBranchCalls=[];
 const fixtureLocale=()=>({locale:'en-US'});
 let fixtureStoreReady=false;
 window.fixtureCondition='agents';
@@ -78,17 +82,19 @@ window.fixtureStale=resume=>{replaceTurn('old',fixtureMergeSnapshot(fixtureState
 window.fixtureResume=()=>{fixtureEmit('turn/rootResumeWait/updated',{turnId:'old',wait:waitValue('resumed',2)});fixtureEmit('turn/started',{turn:{id:'new',status:'inProgress',durationMs:null,error:null}});fixtureEnvironment.notificationContext.updateTurnState('thread-live','new',t=>t.items.push({id:'new-reason',type:'reasoning',summary:['Resumed native work'],content:[]}));fixtureRerender()};
 window.fixtureLoadOld=()=>{setTurns([oldTurn(),...allTurns().filter(t=>t.turnId!=='old')]);fixtureEnvironment.manager.broadcastConversationSnapshot('thread-live')};
 window.fixtureReload=()=>{setTurns(fixtureHistory({threadId:'thread-live',permissions:{approvalPolicy:'never',approvalsReviewer:'user',sandboxPolicy:{type:'dangerFullAccess'}},turns:allTurns().map(t=>({id:t.turnId,status:t.status,startedAt:t.turnStartedAtMs/1000,completedAt:null,durationMs:t.durationMs,rootResumeWait:t.rootResumeWait,items:[]}))}));fixtureEnvironment.manager.broadcastConversationSnapshot('thread-live')};
-function Fixture(){if(!fixtureStoreReady){rC();fixtureInitializeReducer();Gm();a3e({},()=>{});fixtureStoreReady=true}Gzi();const [,update]=Wzi.useState(0);window.fixtureRerender=()=>update(n=>n+1);const projected=(fixtureState.old?fixtureActivity(fixtureState.old).items:[]).filter(item=>item.type==='worked-for');return E7.jsxs('div',{children:[E7.jsx('div',{'data-fixture-old':'',children:projected.map((item,i)=>E7.jsx(fixtureDivider,item,i))},document.documentElement.dataset.theme),fixtureState.current&&E7.jsx('div',{'data-fixture-new':'',children:fixtureActivity(fixtureState.current).items.filter(item=>item.type==='worked-for').map((item,i)=>E7.jsx(fixtureDivider,item,i))})]})}
+function Fixture(){if(!fixtureStoreReady){rC();fixtureInitializeReducer();Gm();a3e({},()=>{});fixtureStoreReady=true}Gzi();const [,update]=Wzi.useState(0);window.fixtureRerender=()=>update(n=>n+1);const projected=(fixtureState.old?fixtureActivity(fixtureState.old).items:[]).filter(item=>item.type==='worked-for');return E7.jsxs('div',{children:[E7.jsx('div',{'data-fixture-old':'',children:projected.map((item,i)=>fixtureBranchScope(E7.jsx(fixtureDivider,item,i),fixtureBranchEnabled?()=>fixtureBranchCalls.push(fixtureState.old.turnId):undefined))},document.documentElement.dataset.theme),fixtureState.current&&E7.jsx('div',{'data-fixture-new':'',children:fixtureActivity(fixtureState.current).items.filter(item=>item.type==='worked-for').map((item,i)=>E7.jsx(fixtureDivider,item,i))})]})}
 export {Fixture};`;
 const html=`<!doctype html><html data-theme="light"><head><meta charset="utf-8"><style>@layer theme,base,components,utilities;</style><link rel="stylesheet" href="/assets/app-initial-aad627bd9dff.css"><link rel="stylesheet" href="/assets/app-initial-49150e6a0951.css"><link rel="stylesheet" href="/assets/app-initial-f5b2ced5ef25.css"></head><body data-vscode-theme-kind="vscode-light"><main class="mx-auto flex w-full max-w-3xl flex-col p-8"><div id="root"></div></main><script>globalThis.acquireVsCodeApi=()=>({postMessage(){},getState:()=>({}),setState(){}});window.fixtureErrors=[];addEventListener('error',e=>fixtureErrors.push(e.message));addEventListener('unhandledrejection',e=>fixtureErrors.push(String(e.reason)));</script><script type="module">import {$At,XAt} from '/assets/app-initial-97d3534ad35f.js';import {Fixture} from '/assets/${mainName}';const $=$At();window.reactRoot=XAt().createRoot(document.getElementById('root'));reactRoot.render($.jsx(Fixture,{}));window.fixtureReady=true;</script></body></html>`;
 const server=createServer(async(req,res)=>{try{
  if(req.url==='/'){res.setHeader('Content-Type','text/html');res.end(html);return}
- if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;if(pathname===join(assets,reducerName))source=reducer+reducerAdapter;if(pathname===join(assets,threadName))source=thread+threadAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
+ if(req.url.startsWith('/assets/')){const pathname=resolve(assets,decodeURIComponent(req.url.slice(8)).split('?')[0]);if(!pathname.startsWith(assets+sep))throw Error('Invalid asset');let source=await readFile(pathname);if(pathname===join(assets,mainName))source=main+adapterSource;if(pathname===join(assets,reducerName))source=reducer+reducerAdapter;if(pathname===join(assets,turnName))source=branchTurn;if(pathname===join(assets,threadName))source=thread+threadAdapter;res.setHeader('Content-Type',({'.js':'text/javascript','.css':'text/css','.woff2':'font/woff2','.svg':'image/svg+xml'})[extname(pathname)]||'application/octet-stream');res.end(source);return}
  res.statusCode=404;res.end();
 }catch(e){res.statusCode=500;res.end(String(e))}});
 await new Promise(r=>server.listen(0,'127.0.0.1',r));
 let socket,session,id=0,chrome;
 const summary={sourceSha256:createHash('sha256').update(await readFile(join(root,'scripts/root-resume-wait.cjs'))).digest('hex'),scope:"Actual transformed module-bound notifications and native imported converter -> synthetic host store -> native fp/Yo/BS/Cyt projection, history mapper, snapshot merge and React clock/divider with native CSS in light/dark. Synthetic host/localization and advanced clock; no installed app or release build.",checks:[]},pending=new Map(),exceptions=[];
+const renderScope=process.env.AZRAEL_DEFERRED_RENDER_SCOPE??'full';
+assert.ok(['full','branch'].includes(renderScope));summary.renderScope=renderScope;
 try{
  chrome=spawn('C:/Program Files/Google/Chrome/Application/chrome.exe',['--headless=new',"--no-first-run",'--no-default-browser-check','--disable-gpu','--remote-debugging-port=0',`--user-data-dir=${profile}`],{windowsHide:true,stdio:['ignore','ignore','pipe']});
  const endpoint=await new Promise((r,j)=>{let s='';const t=setTimeout(()=>j(Error('Chrome startup timeout')),20000);chrome.stderr.on('data',c=>{s+=c;const m=s.match(/DevTools listening on (ws:\/\/[^\s]+)/);if(m){clearTimeout(t);r(m[1])}});chrome.on('error',j)});
@@ -104,6 +110,7 @@ try{
  const oldText=()=>evaluate("document.querySelector('[data-fixture-old]').innerText");
  const advance=async ms=>{await evaluate('fixtureNow+='+ms);await new Promise(r=>setTimeout(r,1100))};
  const screenshot=async name=>writeFile(join(logs,name+'.png'),Buffer.from((await send('Page.captureScreenshot',{format:'png'})).data,'base64'));
+ if(renderScope==='full'){
  for(const theme of ['light','dark']){
   await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureReset();fixtureRerender()`);
   check(theme+' actual native error-classifier alias misses deferred notification',await evaluate('fixtureBugProbe()'));
@@ -118,7 +125,7 @@ try{
   await screenshot(theme+'-waiting');
   await wait("document.querySelectorAll('[data-azrael-root-resume] img').length===2");
   check(theme+' selected child photos overlap by one third',await evaluate("(()=>{const a=[...document.querySelectorAll('[data-azrael-root-resume] img')].map(e=>e.getBoundingClientRect());return a[0].width===24&&Math.abs(a[1].left-a[0].left-16)<1})()"));
-  check(theme+' resume is native and right aligned',await evaluate("(()=>{const b=document.querySelector('[data-azrael-root-resume] button'),row=b.closest('[data-azrael-root-resume]').firstElementChild,r=b.getBoundingClientRect();return b.textContent==='재개'&&!b.disabled&&r.height>=22&&r.width>=35&&Math.abs(r.right-row.getBoundingClientRect().right)<1})()"));
+  check(theme+' resume is native and right aligned',await evaluate("(()=>{const b=document.querySelector('[data-azrael-root-resume] button'),row=b.closest('[data-azrael-root-resume]').querySelector('[data-azrael-resume-row]'),r=b.getBoundingClientRect();return b.textContent==='재개'&&!b.disabled&&r.height>=22&&r.width>=35&&Math.abs(r.right-row.getBoundingClientRect().right)<1})()"));
   check(theme+' agent-only wait label',(await oldText()).includes('하위 에이전트 응답 대기중'));
   for(const [kind,text] of [['work','작업 완료 시 조기 재개'],['mixed','재개 조건 설정됨']]){
    await evaluate(`fixtureSetCondition('${kind}')`);
@@ -185,6 +192,38 @@ try{
 
  }
  check('native themes change label color',summary.light.style.color!==summary.dark.style.color);
+ }
+ for(const theme of ['light','dark']){
+  await evaluate(`document.documentElement.dataset.theme='${theme}';document.body.dataset.vscodeThemeKind='vscode-${theme}';fixtureNow=20000;fixtureReset();fixtureDefer();fixtureBranchEnabled=true;fixtureRerender()`);
+  await wait("!!document.querySelector('.azrael-resume-branch')");
+  await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:5,y:5});
+  check(theme+' branch hidden until hover or focus',await evaluate("getComputedStyle(document.querySelector('.azrael-resume-branch')).opacity==='0'"));
+  const row=await evaluate("(()=>{const r=document.querySelector('[data-azrael-resume-row]').getBoundingClientRect();return {x:r.left+5,y:r.top+r.height/2}})()");
+  await send('Input.dispatchMouseEvent',{type:'mouseMoved',...row});
+  check(theme+' branch appears on real row hover',await evaluate("getComputedStyle(document.querySelector('.azrael-resume-branch')).opacity==='1'"));
+  await screenshot(theme+'-branch-hover');
+  const button=await evaluate("(()=>{const r=document.querySelector('.azrael-resume-branch').getBoundingClientRect();return {x:r.left+r.width/2,y:r.top+r.height/2}})()");
+  for(const type of ['mousePressed','mouseReleased'])await send('Input.dispatchMouseEvent',{type,...button,button:'left',clickCount:1});
+  check(theme+' click selects previous canonical turn',await evaluate("fixtureBranchCalls.at(-1)==='old'&&fixtureState.old.status==='deferred'"));
+  await evaluate('fixtureResume()');
+  await wait("!!document.querySelector('[data-fixture-new]')");
+  await send('Input.dispatchMouseEvent',{type:'mouseMoved',x:5,y:5});
+  await evaluate('document.body.tabIndex=-1;document.body.focus()');
+  // The branch is the first focusable control: reach it through real Tab input.
+  await send('Input.dispatchKeyEvent',{type:'keyDown',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+  await send('Input.dispatchKeyEvent',{type:'keyUp',key:'Tab',code:'Tab',windowsVirtualKeyCode:9});
+  check(theme+' keyboard focus reveals branch',await evaluate("document.activeElement.matches('.azrael-resume-branch')&&getComputedStyle(document.activeElement).opacity==='1'"));
+  await screenshot(theme+'-branch-focus');
+  for(const type of ['keyDown','keyUp'])await send('Input.dispatchKeyEvent',{type,key:'Enter',code:'Enter',windowsVirtualKeyCode:13});
+  check(theme+' Enter branches old turn while new work continues',await evaluate("fixtureBranchCalls.at(-1)==='old'&&fixtureState.current.turnId==='new'&&fixtureState.current.status==='inProgress'&&allTurns().length===2"));
+  await send('Emulation.setDeviceMetricsOverride',{width:360,height:950,deviceScaleFactor:1,mobile:false});
+  check(theme+' narrow branch stays within viewport',await evaluate("(()=>{const r=document.querySelector('.azrael-resume-branch').getBoundingClientRect();return document.documentElement.scrollWidth<=360&&r.left>=0&&r.right<=360&&r.height>=22})()"));
+  await screenshot(theme+'-branch-narrow');
+  await send('Emulation.setDeviceMetricsOverride',{width:1000,height:950,deviceScaleFactor:1,mobile:false});
+  await evaluate('fixtureBranchEnabled=false;fixtureRerender()');
+  await wait("!document.querySelector('.azrael-resume-branch')");
+  check(theme+' unavailable native callback hides branch',await evaluate("!document.querySelector('.azrael-resume-branch')"));
+ }
  check('no browser exceptions',exceptions.length===0&&(await evaluate('fixtureErrors')).length===0);summary.outcome='passed';await evaluate('reactRoot.unmount()');await send('Browser.close',{},null).catch(()=>{});
 }catch(e){summary.outcome='failed';summary.error=String(e.stack||e);summary.exceptions=exceptions;process.exitCode=1}
 finally{

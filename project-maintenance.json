@@ -24,6 +24,22 @@
   ],
   "bundles": [
     {
+      "id": "resume-boundary-branch-source",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "--test", "scripts/test-deferred-turn.cjs", "scripts/test-thread-branch.cjs", "scripts/test-ui-test-transform-fixture.cjs", "scripts/test-namespace-cache-owner.cjs", "scripts/test-work-segment-folding.cjs"],
+      "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
+      "id": "resume-boundary-branch-render",
+      "kind": "test",
+      "purpose": "retained",
+      "cwd": ".",
+      "argv": ["node", "scripts/verify-deferred-turn-render.mjs"],
+      "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
+    },
+    {
       "id": "instruction-library-backend", "kind": "test", "purpose": "retained",
       "argv": ["node", "scripts/check-instruction-library.cjs", "backend"],
       "inputs": ["scripts/check-instruction-library.cjs", "scripts/artifact-run.cjs", "scripts/instruction-library.cjs", "scripts/instruction-publisher.cjs", "scripts/instruction-catalog.cjs", "scripts/tests/instruction-library.test.cjs", "scripts/tests/instruction-playbooks.test.cjs", "scripts/tests/instruction-publisher.test.cjs", "scripts/tests/instruction-catalog.test.cjs"]

@@ -128,6 +128,14 @@ Collapse state belongs to the existing native conversation and segment search ke
 
 Work and waiting measurements remain owned by the turn and reservation contracts. Folding changes neither their identities nor their status or duration. Work headers and reservation waiting/resume dividers remain visible when the activity contents are collapsed, so the reservation's state can be checked without expanding the work.
 
+### Branching at a resume boundary
+
+Status: `partial` — source implementation; scoped verification is recorded in [the work plan](../../work/CP-01-resume-boundary-branch/01-plan.md). Packaged and installed-host acceptance remain separate.
+
+The waiting/resumed divider offers **여기서 브랜치** when its row is hovered or contains keyboard focus. It uses the native button and theme tokens, reserves its space while hidden, and remains reachable by Tab. It creates a new conversation through the divider's canonical deferred turn, excluding the later resumed turns; the original conversation continues independently. Ordinary and transcript renderers share the turn's existing branch callback through React context. Read-only, unsupported host, missing canonical identity and in-progress-turn restrictions remain with the existing branch action. Errors follow the ordinary branch flow. No callbacks enter persisted waiting metadata.
+
+This is shared webview behavior for Windows x64, Linux x64 and macOS ARM64. Preservation IDs: `ui.deferred-turn` and `ui.thread-branch`; their existing source checks cover eligibility and target-turn routing, and `scripts/verify-deferred-turn-render.mjs` covers themed display and interaction.
+
 ## Cost characteristics
 
 A parked root holds no ongoing inference. Resuming makes a new request from retained conversation state, and provider prompt-cache reuse is independent of the reservation, so a cache miss can raise the input cost of the first resumed request. Savings come from avoiding repeated model wakeups and status checks, not from elapsed wall time. Prefer waking on selected child completion with a useful fallback deadline over short repeated timed wakeups intended only to keep a cache warm.
