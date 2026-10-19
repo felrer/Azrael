@@ -100,7 +100,7 @@ test("instruction release ownership preserves CLI paths, failures and caller-own
     const create=sync.createWriteStream,failedOutput=path.join(projectRoot,"artifacts/failed-release");
     sync.createWriteStream=(...args)=>{sync.writeFileSync(path.join(source,"changed.txt"),"changed during packaging");return create(...args);};
     try {await assert.rejects(buildCliRelease({...options,output:failedOutput},{projectRoot}),/Instruction sources changed during packaging/);} finally {sync.createWriteStream=create;}
-    records=lifecycle.catalog(projectRoot);const failed=records.find(group=>group.members.some(member=>member.path===failedOutput));assert.equal(failed.state,"failed");assert.equal(failed.membership_complete,false);assert.equal((await fs.readdir(failedOutput)).length,1);assert.equal(pending.length,3);
+    records=lifecycle.catalog(projectRoot);const failed=records.find(group=>group.members.some(member=>member.path===failedOutput));assert.equal(failed.state,"failed");assert.equal(failed.membership_complete,true);assert.equal(failed.producer.status,"stopped");assert.equal(failed.producer.outcome,"failure");assert.equal(failed.producer.exit_code,1);assert.equal((await fs.readdir(failedOutput)).length,1);assert.equal(pending.length,3);
     const count=records.length,external=path.join(projectRoot,"caller-selected-output"),apiOutput=path.join(projectRoot,"caller-api-output");
     assert.equal(path.dirname((await buildCliRelease({...options,output:external},{projectRoot})).archive),external);
     assert.equal(path.dirname((await buildRelease({...options,output:apiOutput})).archive),apiOutput);

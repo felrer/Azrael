@@ -182,7 +182,7 @@ test("default runs register before execution and separate logs from successful r
   } finally { fs.rmSync(root, { recursive: true }); }
 });
 
-test("managed failures and checkpoint errors protect the incomplete producer", async () => {
+test("managed stopped failures close truthfully while checkpoint errors remain protected", async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-managed-failure-"));
   const lifecycle = require("./artifact-lifecycle.cjs");
   try {
@@ -192,7 +192,27 @@ test("managed failures and checkpoint errors protect the incomplete producer", a
     await assert.rejects(runSelection(selection(["source"]), { root, onCheckpoint: () => { throw new Error("checkpoint fixture"); }, runCommand: () => assert.fail("must not execute") }), /checkpoint fixture/);
     const records = lifecycle.catalog(root);
     assert.equal(records.length, 2);
-    assert.ok(records.every(record => record.state === "failed" && !record.membership_complete));
+    const settled = records.find(record => record.id === report.lifecycleId);
+    assert.equal(settled.state, "failed");
+    assert.equal(settled.membership_complete, true);
+    assert.equal(settled.producer.status, "stopped");
+    assert.equal(settled.producer.outcome, "failure");
+    assert.equal(settled.producer.exit_code, 6);
+    assert.ok(settled.members.every(member => member.protection_known === true));
+    assert.ok(records.some(record => record.id !== settled.id && record.state === "failed" && !record.membership_complete));
+  } finally { fs.rmSync(root, { recursive: true }); }
+});
+
+test("managed unknown command completion keeps producer protection", async () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-managed-unknown-"));
+  try {
+    const report = await runSelection(selection(["source"]), { root,
+      runCommand: async () => ({ status: "runner-error", exitCode: null, error: "lost execution session" }) });
+    const record = require("./artifact-lifecycle.cjs").catalog(root)[0];
+    assert.equal(record.id, report.lifecycleId);
+    assert.equal(record.state, "pending");
+    assert.equal(record.membership_complete, false);
+    assert.equal(record.producer, undefined);
   } finally { fs.rmSync(root, { recursive: true }); }
 });
 

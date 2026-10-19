@@ -143,10 +143,28 @@ function recordPending(lease, state, membershipComplete) {
   const identity = value => process.platform === "win32" ? value.toLowerCase() : value;
   // An explicitly supplied output keeps its caller's lifecycle owner.
   if (identity(physicalPath(lease.owner.pendingDirectory)) !== identity(pending)) return;
-  require("./artifact-lifecycle.cjs").recordLifecycle(projectRoot, {
-    id: `shared:cargo-pending:${hash}`, kind: "work", owner: "cargo-target-owner", state,
-    membership_complete: membershipComplete, members: [{ role: "pending", path: pending }],
-  });
+  const lifecycle = require("./artifact-lifecycle.cjs");
+  const id = `shared:cargo-pending:${hash}`;
+  if (!membershipComplete) {
+    if (lease.pendingRecord) return; // Unknown termination retains the running generation unchanged.
+    const previous = lifecycle.catalog(projectRoot).find(record => record.id === id);
+    lifecycle.recordLifecycle(projectRoot, { id, kind: "work", owner: "cargo-target-owner", state,
+      generation: lease.owner.token, expected_revision: previous?.revision || 0,
+      membership_complete: false, members: [{ role: "pending", path: pending, generated: true, protection_known: true }] });
+    lease.pendingRecord = true;
+    return;
+  }
+  if (!lease.pendingRecord) return;
+  const directory = path.join(projectRoot, "artifacts/maintenance/cargo-terminal");
+  fs.mkdirSync(directory, { recursive: true });
+  const evidence = path.join(directory, `${hash}.json`);
+  fs.writeFileSync(evidence, JSON.stringify(lease.owner, null, 2) + "\n");
+  const record = lifecycle.catalog(projectRoot).find(record => record.id === id);
+  if (!record || record.generation !== lease.owner.token) throw new Error("Cargo pending producer generation changed");
+  lifecycle.closeLifecycle(projectRoot, id, { owner: "cargo-target-owner", expected_revision: record.revision,
+    producer_stopped_verified: true, outcome: state === "complete" ? "success" : "failure", exit_code: lease.owner.exitCode,
+    reason: "Synchronous Cargo producer terminal result", evidence_ref: evidence,
+    evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") });
 }
 
 if (require.main === module) {

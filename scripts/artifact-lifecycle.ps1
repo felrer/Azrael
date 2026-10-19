@@ -12,11 +12,23 @@ function Invoke-ArtifactLifecycleNode {
 function Register-ArtifactLifecycle {
     param([string]$ProjectRoot, [string]$Id, [ValidateSet('version','run','work')][string]$Kind, [string]$Owner,
         [ValidateSet('pending','complete','failed','retained')][string]$State, [bool]$MembershipComplete, [System.Collections.IDictionary]$Members,
-        [System.Collections.IDictionary]$References = @{})
+        [System.Collections.IDictionary]$References = @{}, [switch]$Generated, [switch]$ProtectionKnown,
+        [ValidateSet('execution','installation','recovery','evidence','dependency')][string]$ReferenceKind)
     $arguments = @('record','--project-root',$ProjectRoot,'--id',$Id,'--kind',$Kind,'--owner',$Owner,'--state',$State,'--membership-complete',$MembershipComplete.ToString().ToLowerInvariant())
     foreach ($role in $Members.Keys) { $arguments += @('--member',("{0}={1}" -f $role, [IO.Path]::GetFullPath($Members[$role]))) }
     foreach ($id in $References.Keys) { $arguments += @('--reference',("{0}={1}" -f $id, $References[$id])) }
+    if ($PSBoundParameters.ContainsKey('Generated')) { $arguments += @('--generated', $Generated.IsPresent.ToString().ToLowerInvariant()) }
+    if ($PSBoundParameters.ContainsKey('ProtectionKnown')) { $arguments += @('--protection-known', $ProtectionKnown.IsPresent.ToString().ToLowerInvariant()) }
+    if ($ReferenceKind) { $arguments += @('--reference-kind', $ReferenceKind) }
     Invoke-ArtifactLifecycleNode $arguments
+}
+function Close-ArtifactLifecycle {
+    param([string]$ProjectRoot, [string]$Id, [string]$RequestFile)
+    Invoke-ArtifactLifecycleNode @('close','--project-root',$ProjectRoot,'--id',$Id,'--request-file',$RequestFile)
+}
+function Release-ArtifactLifecycleReferences {
+    param([string]$ProjectRoot, [string]$Id, [string]$RequestFile)
+    Invoke-ArtifactLifecycleNode @('release','--project-root',$ProjectRoot,'--id',$Id,'--request-file',$RequestFile)
 }
 function Get-VersionLifecycleMembers([string]$ProjectRoot, [string]$ReleaseName) {
     [ordered]@{
@@ -76,6 +88,10 @@ function Invoke-ArtifactLifecycleCleanup {
     if (-not $Apply) { return $result }
     if ($BeforeDelete) { $null = & $BeforeDelete }
     $plannedScope = @($plan.groups | ForEach-Object { $group=$_; @($group.members | ForEach-Object { "$($group.id)`0$($_.role)`0$($_.path)" }) } | Sort-Object) -join "`n"
+    $catalogLock = $null
+    try {
+    # Match Node's create-exclusive catalog lock. Never bypass an occupied lock.
+    $catalogLock = [IO.File]::Open((Join-Path $ProjectRoot 'artifacts/maintenance/lifecycles/catalog.lock'), [IO.FileMode]::CreateNew, [IO.FileAccess]::Write, [IO.FileShare]::None)
     foreach ($member in $result.members) {
         try {
             $freshPlan = Get-ArtifactLifecyclePlan $ProjectRoot @($CandidatePath) $ProtectedPaths $ReportPath
@@ -91,6 +107,13 @@ function Invoke-ArtifactLifecycleCleanup {
             if (Test-Path -LiteralPath $member.path) { throw "Lifecycle member remains: $($member.path)" }
             $member.status='deleted'
         } catch { $member.status='failed';$member.reason=$_.Exception.Message;$result.status='partial';$result.reason=$_.Exception.Message;break }
+    }
+    } catch { $result.status='blocked';$result.reason=$_.Exception.Message;return $result }
+    finally {
+        if ($catalogLock) {
+            $catalogLock.Dispose()
+            Remove-Item -LiteralPath (Join-Path $ProjectRoot 'artifacts/maintenance/lifecycles/catalog.lock') -ErrorAction Stop
+        }
     }
     foreach ($group in $plan.groups) {
         try { $result.finalization += Invoke-ArtifactLifecycleNode @('finalize','--project-root',$ProjectRoot,'--id',$group.id) }

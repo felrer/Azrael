@@ -80,7 +80,7 @@ try{
   $phase=Start-BuildStage $buildMetrics 'failure-staging';$script:recipeFail=$true
   try{. Invoke-BuildModuleCompanionRecipe;throw 'Missing recipe failure'}catch{Assert ($_.Exception.Message -match 'exit code 9') 'Recipe preserves actual failing native exit'}
   Assert ((Get-Location).Path -eq $beforeLocation -and $env:AZRAEL_PLATFORM_RUNTIME_SOURCE -eq $beforeEnvironment) 'Failed recipe restores cwd and environment'
-  Assert ((Test-Path (Join-Path $good.Path 'cache.json')) -and -not(Test-Path (Join-Path $companionCache.Path 'cache.json'))) 'Failed recipe retains last good publication'
+  Assert (-not(Test-Path $good.Path) -and -not(Test-Path (Join-Path $companionCache.Path 'cache.json'))) 'Failed recipe does not retain an unused superseded publication'
   Assert (Test-Path (Join-Path $companionCache.LogDirectory 'npm-ci.log')) 'Failed recipe log retained'
   $metrics=Get-Content (Join-Path $fixture 'recipe-metrics.json') -Raw|ConvertFrom-Json
   Assert (@($metrics.stages|Where-Object {$_.status -eq 'failed' -and $_.exitCode -eq 9}).Count -eq 1) 'Failed native command metric preserved'
@@ -124,8 +124,9 @@ try{
  }
  Test-ModuleDeletionOrder
  if($CleanupOnly){Write-Output 'Production module cleanup: ReadOnly payload preserves logs/receipts; locked log follows payload and preserves receipts; retries verify absence; exit=0';return}
+ $cache.SkipCleanup=$false
  Test-CompanionProductionRecipe
- if($RecipeOnly){Write-Output 'Production companion recipe scope, raw logs, metrics, cache hit, failed exit and last-good retention; provider command routing passed; exit=0';return}
+ if($RecipeOnly){Write-Output 'Production companion recipe scope, raw logs, metrics, cache hit, failed exit and superseded-key retirement; provider command routing passed; exit=0';return}
  $cache.SkipCleanup=$true
  try{Open-BuildModuleCache $fixture|Out-Null;throw 'Missing lock failure'}catch{Assert ($_.Exception.Message -match 'Another modular') 'Concurrent build must fail closed'}
  $a=Get-BuildModuleEntry $cache companion @($source) @('node1');Assert (-not $a.Hit) 'First build must miss'
@@ -164,20 +165,36 @@ try{
  (Get-Item (Split-Path $legacy)).LastWriteTimeUtc=[DateTime]::UtcNow.AddDays(-3)
  $r=@(Remove-OldBuildStaging $cache -Keep 1 -ProtectedPaths @($legacy));Assert (Test-Path $legacy) 'Legacy protected tool path preserved'
  $r=@(Remove-OldBuildStaging $cache -Keep 1);Assert (-not(Test-Path $legacy)) 'Old known staging removed';Assert (Test-Path $new) 'Newest staging preserved'
- # Automatic collection happens only after publication, and only for that module.
+ # Selecting a replacement collects unused keys before generation, only for that module.
  $provider=Get-BuildModuleEntry $cache providers @($source) @('provider-old')
  Set-Content (Join-Path $provider.Path 'output.txt') 'provider';Save-BuildModuleEntry $provider @('output.txt')
  $old=Get-BuildModuleEntry $cache companion @($source) @('auto-old')
  Set-Content (Join-Path $old.Path 'output.txt') 'old';Save-BuildModuleEntry $old @('output.txt')
+ $referenced=Get-BuildModuleEntry $cache companion @($source) @('auto-referenced')
+ Set-Content (Join-Path $referenced.Path 'output.txt') 'referenced';Save-BuildModuleEntry $referenced @('output.txt')
+ $selectionConsumerId='version:selection-consumer'
+ $null=Register-ArtifactLifecycle -ProjectRoot $fixture -Id $selectionConsumerId -Kind version -Owner 'fixture-consumer' -State complete -MembershipComplete $true -Members @{release=(Join-Path $fixture 'artifacts/selection-consumer')} -References @{$referenced.LifecycleId='companion-tool'}
  $cache.SkipCleanup=$false
- $next=Get-BuildModuleEntry $cache companion @($source) @('auto-next')
- Assert (Test-Path $old.Path) 'Prior successful cache must survive before publication'
+ try{
+   $next=Get-BuildModuleEntry $cache companion @($source) @('auto-next')
+   throw 'fixture generation failed before Save'
+ }catch{Assert ($_.Exception.Message -eq 'fixture generation failed before Save') 'Generation fails before publication'}
+ Assert (-not(Test-Path $old.Path)) 'Selection retires unused prior key despite failure before Save'
+ Assert (Test-Path $referenced.Path) 'Actual lifecycle consumer protects prior key despite replacement failure'
+ Assert (Test-Path $next.Path) 'Failed generation keeps selected key'
+ $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$fixture,'--id',$selectionConsumerId)
  try{Save-BuildModuleEntry $next @('missing.txt');throw 'Expected output failure'}catch{Assert ($_.Exception.Message -match 'Missing module output') 'Missing output must reject publication'}
- Assert (Test-Path $old.Path) 'Failed publication must preserve prior cache'
+ Assert (-not(Test-Path $old.Path)) 'Failed publication does not restore retired keys'
  Set-Content (Join-Path $next.Path 'output.txt') 'next';Save-BuildModuleEntry $next @('output.txt')
  Assert (Test-Path (Join-Path $next.Path 'cache.json')) 'Replacement receipt published'
- Assert (-not(Test-Path $old.Path)) 'Default automatic prune removes prior selected cache immediately'
- Assert (Test-Path $provider.Path) 'Publication collects only the published module'
+ $cache.SkipCleanup=$true
+ $hitObsolete=Get-BuildModuleEntry $cache companion @($source) @('hit-obsolete')
+ Set-Content (Join-Path $hitObsolete.Path 'output.txt') 'obsolete';Save-BuildModuleEntry $hitObsolete @('output.txt')
+ $cache.SkipCleanup=$false
+ $hit=Get-BuildModuleEntry $cache companion @($source) @('auto-next')
+ Assert ($hit.Hit -and -not(Test-Path $hitObsolete.Path)) 'Cache-hit selection also retires obsolete keys'
+ Assert (-not(Test-Path $referenced.Path)) 'Released lifecycle consumer allows collection on next selection'
+ Assert (Test-Path $provider.Path) 'Selection collects only the selected module'
  $cache.Keep=2
  $retained=Get-BuildModuleEntry $cache companion @($source) @('auto-retained')
  Set-Content (Join-Path $retained.Path 'output.txt') 'retained';Save-BuildModuleEntry $retained @('output.txt')
@@ -193,7 +210,7 @@ try{
  Assert (Test-Path $compiler.Path) 'Uncertain process state fails closed'
  Assert (@($cache.CleanupResults|Where-Object reason -Match 'Process inspection failed').Count -gt 0) 'Uncertainty reported'
  $script:inspectionFails=$false
- # Installed current and previous tool references are protected during publication.
+ # Installed current and previous tool references are protected during selection.
  foreach($pin in @($retained,$compiler)){
    $deployment=Join-Path $fixture ('artifacts/deployments/'+$pin.Key)
    $package=Join-Path $deployment 'package';$release=Join-Path $deployment 'release'
@@ -330,5 +347,5 @@ try{
    try{Open-BuildModuleCache $projectB 'relative-owner'|Out-Null;throw 'Missing absolute owner failure'}catch{Assert ($_.Exception.Message -match 'fully qualified') 'Relative shared owner rejected'}
    $shared=Open-BuildModuleCache $projectB $sharedOwner;Assert (@(Get-BuildCacheProjects $shared).Count -eq 2) 'Successful registered projects retained after failure recovery'
  }finally{if($shared -and $shared.Lease){$shared.Lease.Dispose()};if(Test-Path -LiteralPath $registryLink){Remove-Item -LiteralPath $registryLink -ErrorAction Stop}}
- Write-Output 'Module cache: reuse, corruption, source/tool changes, force, leases, publication-before-prune, failed publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary provider-only legacy staging, content-based cross-snapshot reuse, shared installed pins, platform/role identity and registry fail-closed passed; exit=0'
+ Write-Output 'Module cache: reuse, corruption, source/tool changes, force, leases, selection-time pruning, failed generation/publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary provider-only legacy staging, content-based cross-snapshot reuse, shared installed pins, platform/role identity and registry fail-closed passed; exit=0'
 }finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()};Assert-BuildCachePath $fixture ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/verification')))|Out-Null;Remove-Item -LiteralPath $fixture -Recurse -ErrorAction Stop; Assert (-not(Test-Path -LiteralPath $fixture)) 'Fixture removal verified'; $null=Register-ArtifactLifecycle -ProjectRoot $testProject -Id $fixtureLifecycle -Kind run -Owner 'module-cache-tests' -State complete -MembershipComplete $true -Members @{fixture=$fixture}; $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$testProject,'--id',$fixtureLifecycle)}

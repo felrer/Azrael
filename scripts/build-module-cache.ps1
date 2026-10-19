@@ -204,6 +204,18 @@ function Get-BuildModuleEntry($Cache,[ValidateSet('companion','providers')][stri
       @{schema=1;module=$Module;key=$key}|ConvertTo-Json|Set-Content (Join-Path $path 'owner.json') -Encoding utf8NoBOM
     }
     $Cache.Entries+=,$entry;$Cache.Results+=@{module=$Module;key=$key;reused=$entry.Hit;path=$path}
+    # Selection supersedes unused keys even when generation fails before publication.
+    if(-not $Cache.SkipCleanup){
+      try {
+        $protected=@(Get-ProtectedBuildCachePaths $Cache)
+        $Cache.CleanupResults+=@(Remove-OldBuildModuleCaches $Cache -Module $Module -Keep $Cache.Keep -ProtectedPaths $protected)
+      } catch {
+        $Cache.CleanupResults+=@{path=$entry.Path;status='preserved';reason=$_.Exception.Message}
+      }
+      if($Cache.LogDirectory){
+        $Cache.CleanupResults|ConvertTo-Json -Depth 5|Set-Content (Join-Path $Cache.LogDirectory 'module-cache-cleanup.json') -Encoding utf8NoBOM
+      }
+    }
     return $entry
 }
 function Get-BuildModuleCurrentKey($Entry) {
@@ -230,7 +242,6 @@ function Save-BuildModuleEntry($Entry,[string[]]$Outputs) {
     if($cache -and -not $cache.SkipCleanup){
       try {
         $protected=@(Get-ProtectedBuildCachePaths $cache)
-        $cache.CleanupResults+=@(Remove-OldBuildModuleCaches $cache -Module $Entry.Module -Keep $cache.Keep -ProtectedPaths $protected)
         $cache.StagingCleanupResults+=@(Remove-OldBuildStaging $cache -Keep $cache.Keep -ProtectedPaths $protected)
       } catch {
         $cache.CleanupResults+=@{path=$Entry.Path;status='preserved';reason=$_.Exception.Message}

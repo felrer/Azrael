@@ -1,11 +1,12 @@
 #requires -Version 7.4
 [CmdletBinding()]
-param([string[]]$Case, [switch]$ChangedOnly, [string]$ArtifactProjectRoot = (Split-Path $PSScriptRoot -Parent))
+param([string[]]$Case, [switch]$ChangedOnly, [string]$ArtifactProjectRoot = (Split-Path $PSScriptRoot -Parent), [string]$RunRoot)
 Set-StrictMode -Version Latest
 $ErrorActionPreference = 'Stop'
 $project = [IO.Path]::GetFullPath($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($ArtifactProjectRoot))
 $stamp = [guid]::NewGuid().ToString('N')
-$runRoot = Join-Path $project "artifacts/tasks/deploy-checks/runs/$stamp"
+if ($RunRoot) { $runRoot = [IO.Path]::GetFullPath($ExecutionContext.SessionState.Path.GetUnresolvedProviderPathFromPSPath($RunRoot)) }
+else { $runRoot = Join-Path $project "artifacts/tasks/deploy-checks/runs/$stamp" }
 $fixtures = Join-Path $runRoot 'temporary/fixtures spaces 한글'
 $logs = Join-Path $runRoot 'logs'
 $reports = Join-Path $runRoot 'reports'
@@ -708,6 +709,8 @@ function Assert-AzraelVerificationStatePath {
         $initialLifecycle=Get-Content -LiteralPath (Join-Path $a 'build-lifecycle-start.json') -Raw | ConvertFrom-Json
         $finalLifecycle=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object id -eq 'version:chosen')
         Assert-True ($finalLifecycle.Count -eq 1) 'version lifecycle was lost'
+        Assert-True (@($initialLifecycle.members | Where-Object { $_.generated -cne $true -or $_.protection_known -cne $true }).Count -eq 0) 'planned version generated ownership or protection knowledge missing'
+        Assert-True (@($finalLifecycle[0].members | Where-Object { $_.generated -cne $true -or $_.protection_known -cne $true }).Count -eq 0) 'final version generated ownership or protection knowledge missing'
         $expectedState=if($lifecycleSuccess){'complete'}else{'failed'}
         Assert-True ($finalLifecycle[0].state -eq $expectedState -and $finalLifecycle[0].membership_complete -eq $lifecycleSuccess) 'version lifecycle completion does not match observed deployment'
         Assert-True ($initialLifecycle.members.Count -ge 7 -and $finalLifecycle[0].members.Count -eq $initialLifecycle.members.Count) 'planned version membership was incomplete or lost'
@@ -718,6 +721,9 @@ function Assert-AzraelVerificationStatePath {
         $initialRuns=@(Get-Content -LiteralPath (Join-Path $a 'build-fixture-lifecycle-start.json') -Raw | ConvertFrom-Json)
         Assert-True ($initialRuns.Count -eq $(if($Mode -eq 'account-success'){2}else{1}) -and @($initialRuns | Where-Object {$_.state -ne 'pending' -or $_.membership_complete}).Count -eq 0) 'fixture run pending membership evidence missing'
         Assert-True (@($finalLifecycle[0].members | Where-Object role -match 'fixture').Count -eq 0) 'ephemeral fixture retained as version payload'
+        foreach ($initialRun in $initialRuns) {
+            Assert-True (@($initialRun.members | Where-Object { $_.generated -cne $true -or $_.protection_known -cne $true }).Count -eq 0) 'planned fixture generated ownership or protection knowledge missing'
+        }
         if($lifecycleSuccess){
             Assert-True ($fixtureRuns.Count -eq 0 -and $metrics.fixtureLifecycle.kind -eq 'run' -and $metrics.fixtureLifecycle.state -eq 'complete' -and $metrics.fixtureLifecycle.membership_complete -and $metrics.fixtureLifecycle.members.Count -eq 1) 'completed fixture run was not finalized independently of version'
         } else {

@@ -48,7 +48,7 @@ Status: `current` for the script-level cache/log integration verified on Windows
 
 재생성 범위는 기능 이름의 추측 목록 대신 실제 입력 바이트, 모듈별 생성 recipe, 도구·플랫폼 identity로 결정한다. companion과 providers는 서로 다른 recipe를 키에 포함하며 공통 cache/command helper 변경은 양쪽 키에 반영한다. Cargo 중간 컴파일은 Cargo의 dependency fingerprint를 사용하고, 완성 엔진 번들 재사용은 전체 source provenance와 bundle hash 일치를 요구한다. asset 및 검사 결과는 기존 파일/검사별 owner의 키와 lease를 유지한다.
 
-모듈 생성의 원시 로그는 해당 content-key의 `logs/`에 기록한다. 캐시 payload와 로그는 한 producer lifecycle 구성원이며, 새 키의 입력·출력 검증과 publication 이후 같은 모듈의 사용이 끝난 이전 키만 정리한다. 실패한 새 생성은 이전 정상 키를 교체하지 않는다. 캐시 hit는 생성 명령을 다시 실행하지 않으며 build metrics에는 사용한 키와 결과를 기록한다. 버전의 acceptance evidence는 raw module log의 영구 참조에 의존하지 않는다.
+모듈 생성의 원시 로그는 해당 content-key의 `logs/`에 기록한다. 캐시 payload와 로그는 한 producer lifecycle 구성원이다. 새 키를 선택하면 같은 모듈의 사용이 끝난 이전 키를 기존 cache owner의 guard와 명시한 보존 수 아래 정리하며, 새 출력의 검증·publication 성공까지 기다리지 않는다. 새 생성이 실패해도 이전 키를 fallback으로 보존하지 않는다. 선택 키·실제 설치·다른 소비자·실행 중인 캐시는 계속 보호하고 다음 빌드는 수정한 입력에 해당하는 키를 사용한다. 캐시 hit에서도 이전 미사용 키를 정리하며 생성 명령은 다시 실행하지 않는다. build metrics에는 사용한 키와 결과를 기록한다. 버전의 acceptance evidence는 raw module log의 영구 참조에 의존하지 않는다.
 
 설치·준비 도구를 직접 참조하는 companion 캐시는 해당 버전의 소비 참조로 보호한다. 공유 cache owner는 등록된 모든 project의 producer registry를 검사하며, 어느 하나의 활성·잔존 소비 참조나 조회 불확실성도 삭제를 차단한다. 복사되어 독립적으로 읽을 수 있는 provider payload는 캐시의 영구 소비자로 취급하지 않는다. 소비 record는 전체 구성원의 실제 부재를 검증한 finalize 이후 해제한다.
 
@@ -91,6 +91,16 @@ producer registry는 `artifacts/maintenance/lifecycles/`에 둔다. 구성원 �
 모델이 삭제를 선택한 확인된 생성물에 한해 ReadOnly·Hidden 속성을 해제한 뒤 일반 삭제할 수 있다. 생성 이력·소유권·원본과의 구분 및 사용/보호 상태가 확인되어야 한다. 원본·사용자 파일의 속성, System 속성, ACL과 소유자는 변경하지 않는다. 강제 삭제나 실패 후 다른 API로의 우회는 없다. Windows는 한 PowerShell 실행에서 정확한 절대 경로에 `Remove-Item -LiteralPath`를 사용한다. 긴 경로도 같은 cmdlet 경계의 확장 literal 경로로 처리하며 승인 경로와 열거 결과를 동일하게 비교한다. 속성 audit는 실제 바뀐 항목의 원래 승인 경로와 전후 값만 남긴다. 잔여 조회가 실패하면 부재로 단정하지 않는다.
 
 결과는 항목별 삭제·보류·차단·실패·불확실 상태, 속성 변경 전후와 실제 잔여를 기록한다. 요청 묶음의 모든 ID와 결정을 변경 전에 검사하고, 파괴적 시도 전 의도와 이후 결과를 항목별로 영속 기록한다. 중단 시 확인되지 않은 결과는 pending/unknown으로 남기며 실제 잔여를 다시 확인한다. 등록된 하위 항목이나 원본의 보호도 상위 폴더 삭제에 적용한다. 일부 삭제나 조회 완료를 전체 정리 완료로 표시하지 않는다. 재시도는 남은 항목의 identity와 보호 상태를 다시 확인한다.
+
+## 보호의 종료와 참조 해제
+
+실행 결과와 생산자 종료, 구성 완결은 독립 사실이다. producer record의 `producer`는 종료 상태·성공/실패/미확인 결과·실제 exit code와 종료 근거 identity를 보존한다. 소유자가 정확한 revision과 읽을 수 있는 근거를 제출한 `closeLifecycle`은 확인된 종료와 구성 완결을 기록하고 명시한 `execution` 참조만 해제한다. 종료된 실패도 `failed`를 유지한 채 정리 검토가 가능하다. 미확인 종료·결과와 남은 자식 작업은 보호하며 완료로 바꾸지 않는다. 새 run writer는 자신이 배타적으로 생성한 경로에만 generated/protection_known을 명시한다. 기존 미확정 자료를 종료했다는 이유로 소유 확인된 자료로 승격하지 않는다.
+
+참조의 종류는 `execution`, `installation`, `recovery`, `evidence`, `dependency`다. 종류 없는 기존 참조는 지속 의존성으로 남긴다. `releaseReferences`는 소비자 소유자·revision·선택한 reference ID·이유와 근거 identity를 검증하여 지정한 참조만 해제한다. 설치 교체·복구 종료·증거 인계는 새 보호를 먼저 확립하고 기존 보호를 해제한다. 파일 보존과 일시 참조 해제를 분리하며 소비자 묶음을 삭제해야만 참조를 풀 수 있는 제약을 없앤다. 종료·해제는 같은 요청의 재시도를 구분하고 다른 근거·소유자·generation의 재시도를 거부한다. 공유 Cargo 출력의 재사용은 알려진 종료 뒤 명시적인 새 generation으로만 시작한다.
+
+Node writer·참조 해제·finalize, PowerShell 정리, native 적용과 metadata refresh는 producer catalog의 `catalog.lock`을 배타적 생성하는 같은 프로토콜을 사용한다. 참조 추가와 삭제가 엇갈리지 않도록 최종 보호 확인부터 물리 삭제까지 잠금을 유지하고, 점유·중단 잠금은 우회하지 않는다. 직접 파일을 바꾸는 비협조 writer까지 잠금으로 막는다고 가정하지 않으며 기존 identity·내용·보호 재확인을 유지한다.
+
+`project_inventory`의 `register`에 `refresh_group:{id}`를 전달하면 `producer_registry_v1` 그룹의 현재 보호 메타데이터만 조정한다. 등록 소유자·종류·버전·전체 투영 경로·role이 같아야 하며, 내용 identity·측정 시각·크기는 보존한다. 참조·보호 확인·구성 완결과 관련 source identity를 갱신하되 pending 의도와 보존 이유는 유지하고 명시된 비생성물을 생성물로 승격하지 않는다. 구성이나 소유 경계가 바뀌면 전체 재등록이 필요하다. 갱신 이후 새 검토 토큰으로 명시적인 삭제·보류 결정을 적용한다. 보호 해제·갱신은 삭제 승인이 아니다.
 
 ## 지침과 적용 환경
 
