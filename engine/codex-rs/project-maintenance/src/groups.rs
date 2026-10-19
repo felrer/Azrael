@@ -1,6 +1,7 @@
 //! Explicit version/run/work cohorts share one reviewed retain/delete fate.
 use crate::{
-    Auth, Config, State, hash, now_ms, paths, prepare_registered_item, review_ungrouped, string,
+    Auth, Config, State, Verification, hash, now_ms, paths, prepare_registered_item,
+    review_ungrouped, string,
 };
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
@@ -318,6 +319,7 @@ pub(crate) struct Batch {
     source: Value,
     source_members: BTreeMap<String, Value>,
     pub completed: BTreeSet<String>,
+    pub verification: Verification,
 }
 fn source_measurement(
     root: &Path,
@@ -366,6 +368,7 @@ pub(crate) fn batch(
     state: &State,
     group_id: &str,
     auth: Auth<'_>,
+    verification: Verification,
 ) -> Result<Batch, String> {
     let group = state
         .groups
@@ -385,11 +388,20 @@ pub(crate) fn batch(
         let item = state.items.get(&id).ok_or("unknown member")?;
         reviews.insert(
             id.clone(),
-            review_ungrouped(root, config, config_identity, state, item, auth)?,
+            review_ungrouped(
+                root,
+                config,
+                config_identity,
+                state,
+                item,
+                auth,
+                verification,
+            )?,
         );
         members.insert(id, item.clone());
     }
     Ok(Batch {
+        verification,
         definition: definition(group),
         members,
         reviews,
@@ -456,6 +468,23 @@ impl Batch {
         if definition(current) != self.definition {
             return Err("lifecycle group membership or metadata changed".into());
         }
+        let live = live_ids(root, state, current, auth)?
+            .into_iter()
+            .collect::<BTreeSet<_>>();
+        let expected = self
+            .members
+            .keys()
+            .filter(|id| !self.completed.contains(*id))
+            .cloned()
+            .collect::<BTreeSet<_>>();
+        if live
+            .difference(&self.completed)
+            .cloned()
+            .collect::<BTreeSet<_>>()
+            != expected
+        {
+            return Err("lifecycle live membership changed".into());
+        }
         let mut reviews = BTreeMap::new();
         for (id, item) in &self.members {
             if self.completed.contains(id) {
@@ -467,7 +496,15 @@ impl Batch {
             } else {
                 reviews.insert(
                     id.clone(),
-                    review_ungrouped(root, config, config_identity, state, item, auth)?,
+                    review_ungrouped(
+                        root,
+                        config,
+                        config_identity,
+                        state,
+                        item,
+                        auth,
+                        self.verification,
+                    )?,
                 );
             }
         }
@@ -489,6 +526,7 @@ pub(crate) fn review_selection(
     if request.get("ids").is_none() && request.get("group_ids").is_none() {
         return Err("review requires ids or group_ids".into());
     }
+    let verification = Verification::requested(request)?;
     let mut ids = BTreeSet::new();
     let mut group_ids = BTreeSet::new();
     if let Some(selected) = request.get("ids") {
@@ -507,6 +545,9 @@ pub(crate) fn review_selection(
             group_ids.insert(id.as_str().ok_or("invalid group id")?.to_owned());
         }
     }
+    if verification == Some(Verification::Registered) && !ids.is_empty() {
+        return Err("registered verification requires lifecycle grouped items".into());
+    }
     let mut reviews = BTreeMap::new();
     for id in ids {
         reviews.insert(
@@ -518,12 +559,21 @@ pub(crate) fn review_selection(
                 state,
                 &state.items[&id],
                 auth,
+                Verification::Full,
             )?,
         );
     }
     let mut groups = Vec::new();
     for id in group_ids {
-        let batch = batch(root, config, config_identity, state, &id, auth)?;
+        let batch = batch(
+            root,
+            config,
+            config_identity,
+            state,
+            &id,
+            auth,
+            verification.unwrap_or(Verification::Registered),
+        )?;
         reviews.extend(batch.initial()?);
         groups.push(summary(state, &state.groups[&id]));
     }

@@ -652,6 +652,29 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     Ok(result)
 }
 
+#[derive(Clone, Copy, PartialEq, Eq)]
+pub(crate) enum Verification {
+    Registered,
+    Full,
+}
+impl Verification {
+    pub(crate) fn requested(request: &Value) -> Result<Option<Self>, String> {
+        match request.get("verification") {
+            None => Ok(None),
+            Some(Value::String(mode)) if mode == "registered" => Ok(Some(Self::Registered)),
+            Some(Value::String(mode)) if mode == "full" => Ok(Some(Self::Full)),
+            _ => Err("verification must be registered or full".into()),
+        }
+    }
+    fn name(self) -> &'static str {
+        if self == Self::Registered {
+            "registered"
+        } else {
+            "full"
+        }
+    }
+}
+
 fn review_ungrouped(
     root: &Path,
     config: &Config,
@@ -659,8 +682,18 @@ fn review_ungrouped(
     state: &State,
     item: &Value,
     auth: Auth<'_>,
+    verification: Verification,
 ) -> Result<Value, String> {
-    let mut selected = review_single(root, config, config_identity, state, item, auth, true)?;
+    let mut selected = review_single(
+        root,
+        config,
+        config_identity,
+        state,
+        item,
+        auth,
+        true,
+        verification,
+    )?;
     let target = Path::new(string(item, "path")?);
     let mut related = Vec::new();
     for group in state.groups.values() {
@@ -709,7 +742,16 @@ fn review_ungrouped(
                         "overlapping lifecycle member requires its own whole-group decision"
                     ));
             }
-            let reviewed = review_single(root, config, config_identity, state, other, auth, false)?;
+            let reviewed = review_single(
+                root,
+                config,
+                config_identity,
+                state,
+                other,
+                auth,
+                false,
+                verification,
+            )?;
             if !reviewed["blockers"].as_array().is_some_and(Vec::is_empty) {
                 selected["blockers"]
                     .as_array_mut()
@@ -739,9 +781,20 @@ fn review_single(
     item: &Value,
     auth: Auth<'_>,
     measure: bool,
+    verification: Verification,
 ) -> Result<Value, String> {
     let path = Path::new(string(item, "path")?);
-    let measured = if measure && groups::id(item).is_some() {
+    let observation = if measure && verification == Verification::Registered {
+        match paths::registered_observation(root, path, auth) {
+            Ok(value) => value,
+            Err(error) => json!({"presence":"unknown","error":error}),
+        }
+    } else {
+        Value::Null
+    };
+    let measured = if measure && verification == Verification::Registered {
+        json!({"identity":item["identity"],"logical_bytes":item["logical_bytes"],"presence":observation["presence"],"remaining":match observation["presence"].as_str() { Some("present")=>Some(true),Some("absent")=>Some(false),_=>None },"error":observation["error"]})
+    } else if measure && groups::id(item).is_some() {
         match paths::checked_metadata(root, path, auth) {
             Ok(None) => json!({"presence":"absent","remaining":false}),
             Ok(Some(_)) => match paths::measure(root, path, auth) {
@@ -824,7 +877,9 @@ fn review_single(
             .and_then(|p| p["superseded_by"].as_str())
             .filter(|id| Some(*id) != item["id"].as_str())
             .and_then(|id| state.items.get(id));
-        if let Some(replacement) = replacement {
+        if verification == Verification::Registered {
+            blockers.push("backup replacement requires explicit full verification or verified recovery_completed receipt");
+        } else if let Some(replacement) = replacement {
             let replacement_path = Path::new(string(replacement, "path")?);
             recovery_state = paths::measure(root, replacement_path, auth)?;
             let retained = valid_references(&replacement["references"])
@@ -880,10 +935,10 @@ fn review_single(
         }
     }
     let token = hash(
-        &json!({"item":item,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity}),
+        &json!({"item":item,"verification":verification.name(),"observation":observation,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity}),
     )?;
     Ok(
-        json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"measured_at_ms":now_ms()?,"token":token,"blockers":blockers}),
+        json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"verification":verification.name(),"root_observation":observation,"observed_at_ms":now_ms()?,"measured_at_ms":if verification == Verification::Registered {item["measured_at_ms"].clone()} else {json!(now_ms()?)},"token":token,"blockers":blockers}),
     )
 }
 
@@ -970,13 +1025,29 @@ fn review(
     auth: Auth<'_>,
 ) -> Result<Value, String> {
     if let Some(group) = groups::id(item) {
-        let members =
-            groups::batch(root, config, config_identity, state, group, auth)?.initial()?;
+        let members = groups::batch(
+            root,
+            config,
+            config_identity,
+            state,
+            group,
+            auth,
+            Verification::Registered,
+        )?
+        .initial()?;
         members
             .get(string(item, "id")?)
             .cloned()
             .ok_or("selected lifecycle member is no longer live".into())
     } else {
-        review_ungrouped(root, config, config_identity, state, item, auth)
+        review_ungrouped(
+            root,
+            config,
+            config_identity,
+            state,
+            item,
+            auth,
+            Verification::Full,
+        )
     }
 }
