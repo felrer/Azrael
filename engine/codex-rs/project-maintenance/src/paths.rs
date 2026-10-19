@@ -322,7 +322,7 @@ pub(crate) fn resolve(root: &Path, path: &Path) -> Result<PathBuf, String> {
 pub(crate) fn check(root: &Path, path: &Path, auth: Auth<'_>) -> Result<(), String> {
     checked_metadata(root, path, auth).map(|_| ())
 }
-fn checked_metadata(
+pub(crate) fn checked_metadata(
     root: &Path,
     path: &Path,
     auth: Auth<'_>,

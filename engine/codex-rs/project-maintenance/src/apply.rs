@@ -154,6 +154,12 @@ pub(crate) fn apply(
                 auth,
                 group_id.as_ref().and_then(|group| batches.get(group)),
             ) {
+                Ok(entries) if entries.is_empty() => {
+                    outcome["status"] = json!("deleted");
+                    outcome["attempted"] = json!(false);
+                    outcome["remaining"] = json!(false);
+                    None
+                }
                 Ok(entries) => {
                     destructive = true;
                     Some(entries)
@@ -262,6 +268,16 @@ pub(crate) fn apply(
                 outcome["observation_error"] = json!(error);
             }
         }
+        if !destructive && outcome["status"] == "deleted" {
+            if outcome["remaining"] == false {
+                if let Some(batch) = group_id.as_ref().and_then(|group| batches.get_mut(group)) {
+                    batch.completed.insert(id.to_owned());
+                }
+            } else {
+                outcome["status"] = json!("blocked");
+                outcome["error"] = json!("previously absent target reappeared or is unavailable");
+            }
+        }
         group_outcome(
             &mut store.state,
             &batches,
@@ -334,7 +350,14 @@ fn record(state: &mut State, index: usize, outcome: &Value) {
         .as_str()
         .and_then(|id| state.items.get_mut(id))
     {
-        item["cleanup_status"] = outcome["status"].clone();
+        // A new decision is not recovery evidence for an earlier unresolved
+        // attempt. Keep that protection when no terminal deletion result exists.
+        if item["cleanup_status"] != "pending"
+            || outcome.get("attempt_id").is_some()
+            || !matches!(outcome["status"].as_str(), Some("blocked" | "deferred"))
+        {
+            item["cleanup_status"] = outcome["status"].clone();
+        }
         item["remaining"] = outcome["remaining"].clone();
         if outcome["status"] == "deleted" && outcome["remaining"] == false {
             item["logical_bytes"] = json!(0);
@@ -362,11 +385,17 @@ fn safe_entries(
         }
     };
     let path = Path::new(string(item, "path")?);
-    let entries = paths::entries(root, path, auth)?;
+    let entries = if batch.is_some() && paths::checked_metadata(root, path, auth)?.is_none() {
+        Vec::new()
+    } else {
+        paths::entries(root, path, auth)?
+    };
     for entry in &entries {
         auth(entry, AccessMode::Write)?;
     }
-    auth(path.parent().ok_or("missing parent")?, AccessMode::Write)?;
+    if !entries.is_empty() {
+        auth(path.parent().ok_or("missing parent")?, AccessMode::Write)?;
+    }
     // Observe after every write authorization: callbacks may change either the
     // target or another group member. Compare directly with the model's review,
     // retaining a fresh observation on both sides of the durable intent save.
