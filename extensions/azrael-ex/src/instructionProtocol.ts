@@ -3,7 +3,7 @@ export interface InstructionVersion { version: string; compatible: boolean; prer
 export interface InstructionComponent { id: string; title: string; kind: string; scope: "home" | "workspace"; default: boolean }
 export interface InstructionDocument { path: string; title: string; kind: string }
 export interface InstructionConflict { target: string; reason: string; current?: string; proposed?: string }
-export type InstructionResourceKind = "skill" | "agent-role" | "context" | "task-profile";
+export type InstructionResourceKind = "skill" | "agent-role" | "context" | "task-profile" | "playbook";
 export type InstructionSharing = "public" | "collaborators" | "local";
 export interface InstructionResourceFile { path: string; encoding: "utf8" | "base64"; content: string }
 export interface InstructionResource {
@@ -11,13 +11,27 @@ export interface InstructionResource {
   validationErrors: string[]; installedDigest?: string | null;
   publications: Array<{ repository: string; version: string; digest: string; commit?: string }>;
   files?: InstructionResourceFile[];
+  version?: number;
+  documentVersion?: string;
+  catalogId?: string;
+  description?: string;
+  sourceKind?: "library" | "builtin" | "installed" | "remote";
+  sourceLabel?: string;
+  readOnly?: boolean;
+  versionLabel?: string;
+  versions?: Array<{ digest: string; label: string }>;
+  projectStatus?: { state: "missing" | "downloaded" | "different" | "unknown" | "conflict"; version?: string; path: string };
   profile?: { model: string; provider?: string; reasoningEffort?: string; dependencies: Array<{ id: string; digest: string; optional?: boolean }>; instructions?: string; harness?: unknown };
 }
 export interface InstructionLibraryUiState {
   revision: number; entries: InstructionResource[]; selected?: InstructionResource;
   connections: Array<{ sharing: "public" | "collaborators"; repository: string; branch: string; readable?: boolean; writable?: boolean }>;
   remoteVersions?: Array<{ version: string; notes?: string; sharing?: "public" | "collaborators"; repository?: string }>;
-  plan?: { token: string; kind: "apply" | "publish" | "task"; summary: InstructionUiText; conflicts: InstructionConflict[]; diffs?: Array<{ path?: string; target?: string; current?: string; proposed?: string }>; model?: string; provider?: string };
+  projects?: Array<{ id: string; name: string }>;
+  selectedProject?: string;
+  notices?: InstructionUiText[];
+  comparison?: { id: string; from: string; to: string; files: Array<{ path: string; current?: string; proposed?: string }>; error?: InstructionUiText };
+  plan?: { token: string; kind: "apply" | "publish" | "task"; acquire?: boolean; summary: InstructionUiText; conflicts: InstructionConflict[]; diffs?: Array<{ path?: string; target?: string; current?: string; proposed?: string }>; model?: string; provider?: string };
   operation?: { id?: string; phase: string; repository?: string; version?: string };
 }
 export interface InstructionUiState {
@@ -40,12 +54,14 @@ export interface InstructionUiState {
 export type InstructionAction = "refresh" | "selectVersion" | "preview" | "download" | "apply" | "pin" | "unpin" | "rollback"
   | "libraryRefresh" | "libraryImport" | "libraryCreate" | "librarySelect" | "librarySave"
   | "libraryPlanApply" | "libraryApply" | "libraryPlanPublish" | "libraryPublish" | "libraryRecover"
-  | "libraryConnect" | "libraryRemoteRefresh" | "libraryRemoteImport" | "libraryPrepareTask" | "libraryStartTask";
+  | "libraryConnect" | "libraryRemoteRefresh" | "libraryRemoteImport" | "libraryPrepareTask" | "libraryStartTask"
+  | "libraryCompare" | "libraryInspectVersion" | "librarySetProject" | "libraryPlanAcquire" | "libraryAcquire" | "libraryBack" | "libraryOpenInstalled";
 export interface InstructionRequest {
   version?: string; path?: string; componentIds?: string[]; id?: string; ids?: string[];
   name?: string; kind?: InstructionResourceKind; sharing?: InstructionSharing; files?: InstructionResourceFile[];
   profile?: InstructionResource["profile"]; revision?: number; token?: string;
   repository?: string; branch?: string; model?: string; provider?: string; reasoningEffort?: string;
+  digest?: string; fromDigest?: string; toDigest?: string; project?: string;
 }
 export interface InstructionUiPort {
   snapshot(): Promise<InstructionUiState>;

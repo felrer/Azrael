@@ -900,9 +900,15 @@
         "extensions/azrael-ex/src/instructionLibraryService.ts",
         "extensions/azrael-ex/src/instructionView.ts",
         "extensions/azrael-ex/test/instructionLibraryService.test.ts",
+        "extensions/azrael-ex/test/instructionCatalogFlow.test.ts",
         "extensions/azrael-ex/test/instructionService.test.ts",
         "extensions/azrael-ex/test/instructionView.test.ts",
         "scripts/instruction-library.cjs",
+        "scripts/instruction-catalog.cjs",
+        "scripts/tests/instruction-catalog.test.cjs",
+        "scripts/tests/instruction-playbooks.test.cjs",
+        "scripts/check-instruction-library.cjs",
+        "scripts/verify-instruction-library-render.mjs",
         "scripts/instruction-publisher.cjs",
         "scripts/check-instruction-modules.cjs",
         "scripts/independent-vscode-host-check.cjs",
@@ -933,6 +939,8 @@
           "args": [
             "--test",
             "scripts/tests/instruction-library.test.cjs",
+            "scripts/tests/instruction-playbooks.test.cjs",
+            "scripts/tests/instruction-catalog.test.cjs",
             "scripts/tests/instruction-publisher.test.cjs",
             "scripts/tests/task-profile-runtime.test.cjs",
             "scripts/tests/inject-task-profile.test.cjs",
@@ -949,6 +957,12 @@
             "--test",
             "scripts/test-namespace-cache-owner.cjs"
           ],
+          "level": "source"
+        },
+        {
+          "id": "ui.instruction-settings.catalog-render",
+          "executable": "node",
+          "args": ["scripts/verify-instruction-library-render.mjs"],
           "level": "source"
         }
       ],

@@ -7,7 +7,7 @@ const { spawnSync } = require("node:child_process");
 
 const instructionModules = Object.freeze([
   "instruction-package.cjs", "instruction-library.cjs",
-  "instruction-publisher.cjs", "task-profile-runtime.cjs",
+  "instruction-publisher.cjs", "instruction-catalog.cjs", "task-profile-runtime.cjs",
 ]);
 
 function accountRoot(directory) {
@@ -37,7 +37,8 @@ function verifyIsolated(directory) {
   // external services. All state paths are inert until a method is called.
   new loaded[1].InstructionLibrary({ root: path.join(root, ".check-library"), installedRoot: path.join(root, ".check-home") });
   new loaded[2].InstructionPublisher({ stateRoot: path.join(root, ".check-operations") });
-  new loaded[3].TaskProfileRuntime({ codexHome: path.join(root, ".check-home"), request: async () => { throw new Error("No network allowed in packaging check"); } });
+  const taskRuntime = loaded[instructionModules.indexOf("task-profile-runtime.cjs")];
+  new taskRuntime.TaskProfileRuntime({ codexHome: path.join(root, ".check-home"), request: async () => { throw new Error("No network allowed in packaging check"); } });
   return { modules: instructionModules };
 }
 

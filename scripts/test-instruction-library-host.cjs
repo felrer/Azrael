@@ -4,7 +4,7 @@ const path = require("node:path");
 const fs = require("node:fs");
 const { spawnSync } = require("node:child_process");
 const root = path.resolve(__dirname, "..");
-const tests = ["instructionView", "instructionService", "instructionLibraryService"];
+const tests = ["instructionView", "instructionService", "instructionLibraryService", "instructionCatalogFlow"];
 if (process.argv[2] === "--run-ts") {
   const name = process.argv[3];
   if (!tests.includes(name)) throw new Error("Unknown instruction host test");
@@ -22,7 +22,7 @@ if (process.argv[2] === "--run-ts") {
   const assert = require("node:assert/strict");
   for (const name of tests) test(`instruction host ${name}`, () => {
     const result = spawnSync(process.execPath, [__filename, "--run-ts", name], {
-      cwd: root, encoding: "utf8", windowsHide: true, maxBuffer: 4 * 1024 * 1024,
+      cwd: root, encoding: "utf8", windowsHide: true, maxBuffer: 4 * 1024 * 1024, env: { ...process.env, NODE_TEST_CONTEXT: undefined },
     });
     assert.equal(result.status, 0, result.error?.message ?? result.stdout + result.stderr);
   });

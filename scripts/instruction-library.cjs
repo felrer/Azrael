@@ -6,7 +6,7 @@ const crypto = require("node:crypto");
 const { promisify } = require("node:util");
 const execFile = promisify(require("node:child_process").execFile);
 const toml = require(require.resolve("smol-toml", { paths: [__dirname, path.join(__dirname, "../extensions/azrael-ex")] }));
-const KINDS = new Set(["skill", "agent-role", "context", "task-profile"]);
+const KINDS = new Set(["skill", "agent-role", "context", "task-profile", "playbook"]);
 const SHARING = new Set(["public", "collaborators", "local"]);
 const sha = value => crypto.createHash("sha256").update(value).digest("hex");
 const clone = value => JSON.parse(JSON.stringify(value));
@@ -62,6 +62,29 @@ function frontmatter(text) {
   const result = {}; for (const line of match[1].split(/\r?\n/)) { const item = /^(name|description):\s*(.+)$/.exec(line); if (item) result[item[1]] = item[2].replace(/^(["'])(.*)\1$/, "$2"); }
   if (!result.name || !result.description) throw new Error("Skill name and description required"); return result;
 }
+const SEMVER = /^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)$/;
+function mainMarkdown(files) { return files.find(f => f.path === "PLAYBOOK.md") || files.find(f => /\.md$/i.test(f.path)); }
+function playbookMetadata(text) {
+  const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(text);
+  if (!match) return {};
+  const result = {};
+  for (const line of match[1].split(/\r?\n/)) {
+    const item = /^(azrael_playbook_id|azrael_playbook_version):\s*(.*?)\s*$/.exec(line);
+    if (item) { if (result[item[1]] !== undefined) throw new Error("Duplicate Playbook metadata"); result[item[1]] = item[2].replace(/^(["'])(.*)\1$/, "$2"); }
+  }
+  return result;
+}
+function withPlaybookMetadata(files, id, version) {
+  files = clone(files); const main = mainMarkdown(files); if (!main || main.encoding !== "utf8") return files;
+  try { const current = playbookMetadata(main.content); if (current.azrael_playbook_id === id && current.azrael_playbook_version === version) return files; } catch { /* Authoring repairs duplicate identity fields. */ }
+  const match = /^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/.exec(main.content);
+  const rest = match ? match[1].split(/\r?\n/).filter(l => !/^azrael_playbook_(?:id|version):/.test(l)).join("\n") : "";
+  main.content = `---\nazrael_playbook_id: ${id}\nazrael_playbook_version: ${version}\n${rest ? rest + "\n" : ""}---\n${match ? main.content.slice(match[0].length) : main.content}`;
+  return files;
+}
+function playbookContent(files) {
+  return files.map(f => ({ ...f, content: f.encoding === "utf8" && f === mainMarkdown(files) ? f.content.replace(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/, (_, body) => { const lines = body.split(/\r?\n/).filter(l => !/^azrael_playbook_(?:id|version):/.test(l)); return lines.length ? `---\n${lines.join("\n")}\n---\n` : ""; }) : f.content }));
+}
 function engineName(entry) {
   let name = entry.name;
   if (entry.kind === "skill") name = frontmatter(content(entry.files.find(f => f.path === "SKILL.md")).toString("utf8")).name;
@@ -77,6 +100,13 @@ function validation(entry) {
       if (Object.keys(parsed).some(k => !["model", "model_reasoning_effort", "developer_instructions", "description"].includes(k))) throw new Error("Role contains machine configuration");
     }
     if (entry.kind === "context" && !entry.files.length) throw new Error("Context content required");
+    if (entry.kind === "playbook") {
+      const main = mainMarkdown(entry.files);
+      if (!main || main.encoding !== "utf8" || !main.content.replace(/^---\r?\n[\s\S]*?\r?\n---(?:\r?\n|$)/, "").trim()) throw new Error("Playbook Markdown content required");
+      if (typeof entry.documentVersion !== "string" || !SEMVER.test(entry.documentVersion)) throw new Error("Invalid Playbook document version");
+      const meta = playbookMetadata(main.content);
+      if (meta.azrael_playbook_id !== entry.id || meta.azrael_playbook_version !== entry.documentVersion) throw new Error("Playbook identity/version metadata mismatch");
+    }
     if (entry.kind === "task-profile") {
       const p = entry.profile; if (!p || typeof p.model !== "string" || !p.model.trim() || !Array.isArray(p.dependencies)) throw new Error("Profile model and pinned dependencies required");
       for (const ref of p.dependencies) { identity(ref.id); digest(ref.digest); if (ref.optional !== undefined && typeof ref.optional !== "boolean") throw new Error("Invalid optional dependency"); }
@@ -86,12 +116,22 @@ function validation(entry) {
   } catch(e) { errors.push(e.message); }
   return errors;
 }
-function packageData(entry) { const data = { name: entry.name, kind: entry.kind, sharing: entry.sharing, files: entry.files }; if (entry.profile !== undefined) data.profile = entry.profile; return data; }
+function packageData(entry) { const data = { name: entry.name, kind: entry.kind, sharing: entry.sharing, files: entry.files }; if (entry.profile !== undefined) data.profile = entry.profile; if (entry.kind === "playbook" && entry.documentVersion !== undefined) data.documentVersion = entry.documentVersion; return data; }
 function makeEntry(input, id, version) {
   if (!KINDS.has(input.kind) || !SHARING.has(input.sharing) || typeof input.name !== "string" || !input.name.trim()) throw new Error("Invalid package metadata");
   const entry = { id, version, name: input.name, kind: input.kind, sharing: input.sharing, files: inventory(input.files || []) };
   if (input.profile !== undefined) entry.profile = clone(input.profile);
+  if (input.kind === "playbook" && input.documentVersion !== undefined) entry.documentVersion = input.documentVersion;
   entry.digest = hash(packageData(entry)); entry.validationErrors = validation(entry); return entry;
+}
+function preparePlaybook(input) {
+  if (!input || input.kind !== "playbook") throw new Error("Playbook resource required");
+  const id = identity(input.id), version = input.version === undefined ? 1 : input.version;
+  if (!Number.isSafeInteger(version) || version < 1) throw new Error("Invalid Playbook resource version");
+  const documentVersion = input.documentVersion === undefined ? "0.1.0" : input.documentVersion;
+  const entry = makeEntry({ ...input, sharing: input.sharing === undefined ? "local" : input.sharing, documentVersion, files: withPlaybookMetadata(inventory(input.files || []), id, documentVersion) }, id, version);
+  if (entry.validationErrors.length) throw new Error("Invalid Playbook: " + entry.validationErrors.join("; "));
+  return entry;
 }
 function metadata(entry) { const { files, ...meta } = entry; return meta; }
 function sealed(value) { const result = clone(value); result.digest = hash(value); return freeze(result); }
@@ -168,9 +208,21 @@ class InstructionLibrary {
   async getState() { const s = await this._state(); return { schemaVersion: 1, revision: s.revision, entries: clone(s.entries) }; }
   async list() { return (await this.getState()).entries; }
   async read(id) { const s = await this._state(); const meta = s.entries.find(e => e.id === identity(id)); if (!meta) throw new Error("Unknown package"); return { ...await this._version(id, meta.digest), ...clone(meta) }; }
+  async listVersions(id) {
+    identity(id); await this._state(); let names;
+    try { await safe(this.file(`packages/${id}`)); names = await fs.readdir(this.file(`packages/${id}`)); } catch(e) { if (e.code === "ENOENT") return []; throw e; }
+    const versions = [];
+    for (const name of names) if (/^[a-f0-9]{64}\.json$/.test(name)) { const entry = await this._version(id, name.slice(0, -5)); if (!validation(entry).length) versions.push(entry); }
+    return versions.sort((a, b) => b.version - a.version || b.digest.localeCompare(a.digest));
+  }
+  async readVersion(id, pinned) { await this._state(); const entry = await this._version(id, pinned); if (validation(entry).length) throw new Error("Invalid package version"); return entry; }
   async create(input) {
     return this._lock(async () => {
-      const state = await this._state(); const entry = makeEntry({ ...input, sharing: input.sharing || "collaborators" }, crypto.randomUUID(), 1);
+      const state = await this._state(); const id = input.kind === "playbook" && input.preserveIdentity ? identity(input.preserveIdentity) : crypto.randomUUID();
+      if (state.entries.some(e => e.id === id)) throw new Error("Package identity already exists");
+      const authored = { ...input, sharing: input.sharing || (input.kind === "playbook" ? "local" : "collaborators") };
+      if (input.kind === "playbook") { authored.documentVersion = input.documentVersion || "0.1.0"; authored.files = withPlaybookMetadata(inventory(input.files || []), id, authored.documentVersion); }
+      const entry = makeEntry(authored, id, 1);
       await atomic(this.file(`packages/${entry.id}/${entry.digest}.json`), JSON.stringify(entry));
       state.entries.push({ ...metadata(entry), installedDigest: null, publications: [] }); await this._commit(state); return { ...entry, ...state.entries.at(-1) };
     });
@@ -181,7 +233,17 @@ class InstructionLibrary {
       const index = state.entries.findIndex(e => e.id === identity(id)); if (index < 0) throw new Error("Unknown package"); const old = state.entries[index];
       if (Object.keys(changes).some(k => !["name", "kind", "sharing", "files", "profile"].includes(k))) throw new Error("Immutable package field");
       const supplied = Object.fromEntries(Object.entries(changes).filter(([,v]) => v !== undefined));
-      const entry = makeEntry({ ...await this._version(id, old.digest), ...supplied }, id, old.version + 1);
+      const previous = await this._version(id, old.digest), next = { ...previous, ...supplied };
+      if (next.kind === "playbook") {
+        const valid = (await this.listVersions(id)).find(e => e.kind === "playbook");
+        next.documentVersion = valid?.documentVersion || previous.documentVersion || "0.1.0";
+        next.files = withPlaybookMetadata(inventory(next.files || []), id, next.documentVersion);
+        const candidate = makeEntry(next, id, old.version + 1);
+        if (!candidate.validationErrors.length && valid && hash(playbookContent(candidate.files)) !== hash(playbookContent(valid.files))) {
+          const parts = valid.documentVersion.split("."); parts[2] = (BigInt(parts[2]) + 1n).toString(); next.documentVersion = parts.join("."); next.files = withPlaybookMetadata(next.files, id, next.documentVersion);
+        }
+      }
+      const entry = makeEntry(next, id, old.version + 1);
       if (entry.digest === old.digest) return { ...await this._version(id, old.digest), ...old };
       const versionPath = this.file(`packages/${id}/${entry.digest}.json`);
       if (!await bytes(versionPath)) await atomic(versionPath, JSON.stringify(entry));
@@ -218,10 +280,13 @@ class InstructionLibrary {
     };
     const add = async (target, rel) => { const data = await bytes(target); const text = data.toString("utf8"); const utf = Buffer.from(text).equals(data) && !data.includes(0); files.push({ path: rel, encoding: utf ? "utf8" : "base64", content: utf ? text : data.toString("base64") }); };
     if (stat.isDirectory()) await walk(source); else if (stat.isFile()) await add(source, path.basename(source)); else throw new Error("Invalid import source");
-    const kind = options.kind || (files.some(f => f.path === "SKILL.md") ? "skill" : files.length === 1 && files[0].path.endsWith(".toml") ? "agent-role" : "context");
-    return this.create({ ...options, kind, name: options.name || path.basename(source).replace(/\.toml$/, ""), files });
+    const kind = options.kind || (files.some(f => f.path === "SKILL.md") ? "skill" : files.some(f => f.path === "PLAYBOOK.md") ? "playbook" : files.length === 1 && files[0].path.endsWith(".toml") ? "agent-role" : "context");
+    const imported = kind === "playbook" && mainMarkdown(inventory(files)) ? playbookMetadata(mainMarkdown(inventory(files)).content) : {};
+    if (imported.azrael_playbook_id !== undefined) identity(imported.azrael_playbook_id);
+    if (imported.azrael_playbook_version !== undefined && !SEMVER.test(imported.azrael_playbook_version)) throw new Error("Invalid imported Playbook version");
+    return this.create({ ...options, kind, name: options.name || path.basename(source).replace(/\.toml$/, ""), files, ...(kind === "playbook" ? { preserveIdentity: imported.azrael_playbook_id, documentVersion: imported.azrael_playbook_version || options.documentVersion } : {}) });
   }
-  async _closure(ids, state, sharing) {
+  async _closure(ids, state, sharing, digests = {}, staged = new Map()) {
     const found = new Map(), visiting = new Set(), versions = new Map();
     const visit = async (id, pinned, optional = false) => {
       identity(id); const current = state.entries.find(e => e.id === id);
@@ -231,7 +296,7 @@ class InstructionLibrary {
       if (visiting.has(id)) throw new Error("Dependency cycle");
       if (!sharing && versions.has(id) && versions.get(id) !== d) throw new Error("Dependency version mismatch");
       const key = id + ":" + d; if (found.has(key)) return;
-      let entry; try { entry = await this._version(id, d); } catch(e) { if (optional && e.message === "Missing dependency version") return; throw e; }
+      let entry; try { entry = staged.get(key) || await this._version(id, d); } catch(e) { if (optional && e.message === "Missing dependency version") return; throw e; }
       if (entry.validationErrors.length || validation(entry).length) throw new Error("Invalid package: " + id);
       if (sharing && entry.sharing !== sharing) throw new Error("Package sharing mismatch");
       visiting.add(id); versions.set(id, d);
@@ -239,7 +304,7 @@ class InstructionLibrary {
       visiting.delete(id); found.set(key, entry);
     };
     if (!Array.isArray(ids) || !ids.length || new Set(ids).size !== ids.length) throw new Error("Explicit unique package selection required");
-    for (const id of ids) await visit(id); return [...found.values()];
+    for (const id of ids) await visit(id, digests[id]); return [...found.values()];
   }
   async resolveProfile(id, overrides = {}) {
     if (Object.keys(overrides).some(k => !["model", "provider", "reasoningEffort"].includes(k))) throw new Error("Invalid profile override");
@@ -248,7 +313,7 @@ class InstructionLibrary {
     const instructions = [];
     for (const p of packages) {
       if (p.kind === "task-profile" && p.profile.instructions) instructions.push({ id: p.id, text: p.profile.instructions, loading: "persistent" });
-      if (p.kind === "context") for (const f of p.files.filter(f => f.encoding === "utf8" && /\.md$/.test(f.path))) instructions.push({ id: p.id, text: f.content, loading: "on-demand" });
+      if (["context", "playbook"].includes(p.kind)) for (const f of p.files.filter(f => f.encoding === "utf8" && /\.md$/.test(f.path))) instructions.push({ id: p.id, text: f.content, loading: "on-demand" });
     }
     const result = { profileId: id, model: effective.model, packages, instructions }; for (const k of ["provider", "reasoningEffort"]) if (effective[k] !== undefined) result[k] = effective[k];
     return sealed(result);
@@ -283,8 +348,25 @@ class InstructionLibrary {
     }
     return [];
   }
-  async planApply(ids) {
-    const state = await this._state(), entries = await this._closure(ids, state), conflicts = [], diffs = [], adoptions = [], releases = [], targets = new Map(); const selected = new Set(entries.map(e => e.id));
+  async planApply(ids, options = {}) {
+    const digests = { ...(options.digests || {}) }, resources = options.resources || [], provenance = options.provenance || null;
+    if (!options.digests && options.digests !== undefined || !resources || !Array.isArray(resources) || Object.keys(options).some(k => !["digests", "resources", "provenance"].includes(k))) throw new Error("Invalid installation selection");
+    if (options.digests !== undefined && (typeof options.digests !== "object" || Array.isArray(options.digests))) throw new Error("Invalid installation selection");
+    if (provenance && (!/^[\w.-]+\/[\w.-]+$/.test(provenance.repository || "") || typeof provenance.version !== "string" || typeof provenance.commit !== "string" || Object.keys(provenance).some(k => !["repository", "version", "commit"].includes(k)))) throw new Error("Invalid staged source provenance");
+    const staged = new Map(), stagedResources = [];
+    for (const input of resources) {
+      identity(input.id); digest(input.digest);
+      if (!Number.isSafeInteger(input.version) || input.version < 1) throw new Error("Invalid staged resource version");
+      const entry = makeEntry(input, input.id, input.version), key = `${entry.id}:${entry.digest}`;
+      if (entry.digest !== input.digest || entry.validationErrors.length || staged.has(key)) throw new Error("Invalid or duplicate staged resource");
+      staged.set(key, entry); stagedResources.push(entry);
+      if (ids.includes(entry.id) && !digests[entry.id]) digests[entry.id] = entry.digest;
+    }
+    for (const [id, pinned] of Object.entries(digests)) { identity(id); digest(pinned); if (!ids.includes(id)) throw new Error("Pinned installation must select a root package"); }
+    const state = await this._state();
+    for (const entry of stagedResources) if (!state.entries.some(e => e.id === entry.id)) state.entries.push({ ...metadata(entry), installedDigest: null, publications: [] });
+    const entries = await this._closure(ids, state, undefined, digests, staged), conflicts = [], diffs = [], adoptions = [], releases = [], targets = new Map(); const selected = new Set(entries.map(e => e.id));
+    if (stagedResources.some(e => !entries.some(selectedEntry => selectedEntry.id === e.id && selectedEntry.digest === e.digest))) throw new Error("Staged resource is outside selected dependency closure");
     for (const entry of entries) for (const target of this._targets(entry)) {
       const key = target.relative.toLowerCase(); if (targets.has(key)) conflicts.push(`Duplicate destination ownership: ${target.relative}`); targets.set(key, { ...target, id: entry.id });
     }
@@ -303,17 +385,28 @@ class InstructionLibrary {
       if (!managed && old !== null && sha(old) === next) adoptions.push({ path: target.relative, id: target.id, digest: next, original: old.toString("base64") });
       if ((old ? sha(old) : null) !== next) diffs.push({ path: target.relative, id: target.id, beforeDigest: old ? sha(old) : null, afterDigest: next, encoding: "base64", beforeContent: old ? old.toString("base64") : null, content: target.data ? target.data.toString("base64") : null });
     }
-    return sealed({ schemaVersion: 1, revision: state.revision, rootIds: [...ids], entries, conflicts, diffs, adoptions, releases });
+    return sealed({ schemaVersion: 1, revision: state.revision, rootIds: [...ids], requestedDigests: clone(digests), stagedResources, provenance: provenance ? clone(provenance) : null, entries, conflicts, diffs, adoptions, releases });
   }
   async apply(plan) {
     verifyPlan(plan); if (plan.conflicts.length) throw new Error("Apply has destination conflicts");
     return this._lock(() => this._writer(async () => {
       const state = await this._state(); if (state.revision !== plan.revision) throw new Error("Library revision conflict");
-      const fresh = await this.planApply(plan.rootIds); if (fresh.digest !== plan.digest) throw new Error("Apply preview changed or external edit detected");
+      const fresh = await this.planApply(plan.rootIds, { digests: plan.requestedDigests || {}, resources: plan.stagedResources || [], provenance: plan.provenance }); if (fresh.digest !== plan.digest) throw new Error("Apply preview changed or external edit detected");
       const journal = { schemaVersion: 1, state: clone(state), diffs: [], adoptions: clone(plan.adoptions), releases: clone(plan.releases) };
       for (const diff of plan.diffs) { const old = await bytes(path.join(this.installedRoot, relative(diff.path))); journal.diffs.push({ ...diff, beforeContent: old ? old.toString("base64") : null }); }
       await atomic(this.file("journal.json"), JSON.stringify(journal));
       try {
+        for (const entry of plan.stagedResources || []) {
+          const versionPath = this.file(`packages/${entry.id}/${entry.digest}.json`);
+          if (!await bytes(versionPath)) await atomic(versionPath, JSON.stringify(entry)); else await this._version(entry.id, entry.digest);
+          let meta = state.entries.find(e => e.id === entry.id);
+          if (!meta) { meta = { ...metadata(entry), installedDigest: null, publications: [] }; state.entries.push(meta); }
+          if (plan.provenance) {
+            if (meta.publications.some(p => p.digest === entry.digest && p.destination !== plan.provenance.repository)) throw new Error("Staged package source conflict");
+            const publication = { destination: plan.provenance.repository, version: plan.provenance.version, commit: plan.provenance.commit, digest: entry.digest, sharing: entry.sharing };
+            if (!meta.publications.some(p => canonical(p) === canonical(publication))) meta.publications.push(publication);
+          }
+        }
         for (const adoption of plan.adoptions) {
           const current = await bytes(path.join(this.installedRoot, relative(adoption.path)));
           if (!current || sha(current) !== adoption.digest || current.toString("base64") !== adoption.original) throw new Error("External edit during adoption");
@@ -358,4 +451,140 @@ class InstructionLibrary {
     return this._lock(() => this._writer(async () => { const data = await bytes(this.file("journal.json")); if (!data) return { recovered: false }; await this._rollback(JSON.parse(data)); return { recovered: true }; }, true), true);
   }
 }
-module.exports = { InstructionLibrary, packageDigest: entry => hash(packageData(entry)), verifyPlan, canonicalDigest: hash };
+class PlaybookStore {
+  constructor({ stateRoot } = {}) {
+    if (!stateRoot || !path.isAbsolute(stateRoot) || path.resolve(stateRoot) === path.parse(path.resolve(stateRoot)).root) throw new Error("Absolute Playbook state root required");
+    this.stateRoot = path.resolve(stateRoot);
+  }
+  async _workspace(workspaceRoot) {
+    if (!workspaceRoot || !path.isAbsolute(workspaceRoot)) throw new Error("Explicit absolute project root required");
+    const root = await safe(workspaceRoot); if (!(await fs.stat(root)).isDirectory()) throw new Error("Project root must be a directory");
+    return root;
+  }
+  _control(root, name) { const key = process.platform === "win32" ? root.toLowerCase() : root; return path.join(this.stateRoot, sha(key), name); }
+  _destination(resource, root) { return path.join(root, "docs", "playbooks", identity(resource.id)); }
+  _resource(resource) {
+    identity(resource.id); digest(resource.digest);
+    const entry = makeEntry(resource, resource.id, resource.version);
+    if (entry.kind !== "playbook" || entry.digest !== resource.digest || entry.validationErrors.length) throw new Error("Valid verified Playbook required");
+    const main = mainMarkdown(entry.files);
+    const files = inventory(entry.files.map(f => ({ ...f, path: f === main ? "PLAYBOOK.md" : f.path })));
+    return { entry, files };
+  }
+  async _state(root) {
+    const data = await bytes(this._control(root, "receipt.json"));
+    const state = data ? JSON.parse(data) : { schemaVersion: 1, workspaceRoot: root, revision: 0, managed: {} };
+    if (state.schemaVersion !== 1 || state.workspaceRoot !== root || !Number.isSafeInteger(state.revision) || !state.managed || typeof state.managed !== "object" || Array.isArray(state.managed)) throw new Error("Invalid Playbook receipt");
+    return state;
+  }
+  async _files(destination) {
+    await safe(destination); const files = [];
+    const walk = async (directory, prefix = "") => {
+      let names; try { names = await fs.readdir(directory); } catch(e) { if (e.code === "ENOENT") return; throw e; }
+      for (const name of names.sort()) {
+        const rel = relative(prefix + name), target = path.join(directory, name); await safe(target); const stat = await fs.lstat(target);
+        if (stat.isDirectory()) await walk(target, rel + "/");
+        else if (stat.isFile()) { const data = await bytes(target), text = data.toString("utf8"); files.push({ path: rel, encoding: Buffer.from(text).equals(data) && !data.includes(0) ? "utf8" : "base64", content: Buffer.from(text).equals(data) && !data.includes(0) ? text : data.toString("base64") }); }
+        else throw new Error("Special project file rejected");
+      }
+    };
+    await walk(destination); return inventory(files);
+  }
+  async status(resource, workspaceRoot) {
+    const root = await this._workspace(workspaceRoot), destination = this._destination(resource, root), main = path.join(destination, "PLAYBOOK.md");
+    try {
+      const data = await bytes(main); if (!data) return { state: "missing", path: main };
+      const meta = playbookMetadata(data.toString("utf8"));
+      if (!meta.azrael_playbook_id || !meta.azrael_playbook_version || !SEMVER.test(meta.azrael_playbook_version)) return { state: "unknown", path: main };
+      if (meta.azrael_playbook_id !== resource.id) return { state: "conflict", version: meta.azrael_playbook_version, path: main };
+      return { state: meta.azrael_playbook_version === resource.documentVersion ? "downloaded" : "different", version: meta.azrael_playbook_version, path: main };
+    } catch(e) { if (/Symlink|Case alias|Duplicate|Invalid or oversized/.test(e.message) || ["ENOTDIR", "EISDIR"].includes(e.code)) return { state: "conflict", path: main }; throw e; }
+  }
+  async readProject(resource, workspaceRoot) { const root = await this._workspace(workspaceRoot); return this._files(this._destination(resource, root)); }
+  async plan(resource, workspaceRoot) {
+    const root = await this._workspace(workspaceRoot), { entry, files } = this._resource(resource), destination = this._destination(entry, root);
+    const statePath = path.resolve(this.stateRoot), destinationPath = path.resolve(destination);
+    if (statePath === destinationPath || statePath.startsWith(destinationPath + path.sep) || destinationPath.startsWith(statePath + path.sep)) throw new Error("Project destination overlaps Playbook state");
+    const state = await this._state(root), actual = await this._files(destination), managed = state.managed[entry.id], conflicts = [], diffs = [], adoptions = [];
+    const oldFiles = new Map(actual.map(f => [f.path, f])), targets = new Map(files.map(f => [f.path, f]));
+    const owned = new Map((managed?.files || []).map(f => [relative(f.path), digest(f.digest)]));
+    const all = new Set([...oldFiles.keys(), ...targets.keys(), ...owned.keys()]);
+    for (const rel of [...all].sort()) {
+      const before = oldFiles.get(rel), after = targets.get(rel), beforeDigest = before ? sha(content(before)) : null, afterDigest = after ? sha(content(after)) : null;
+      if (owned.has(rel) ? beforeDigest !== owned.get(rel) : before && beforeDigest !== afterDigest) conflicts.push(`External or unmanaged destination: ${rel}`);
+      if (!owned.has(rel) && before && beforeDigest === afterDigest) adoptions.push(rel);
+      if (beforeDigest !== afterDigest) diffs.push({ path: rel, encoding: "base64", beforeContent: before ? content(before).toString("base64") : null, content: after ? content(after).toString("base64") : null, beforeDigest, afterDigest });
+    }
+    // Inventory validation also rejects aliases between existing and prospective file paths.
+    try { inventory([...all].map(rel => ({ path: rel, encoding: "utf8", content: "" }))); } catch(e) { conflicts.push(e.message); }
+    return sealed({ schemaVersion: 1, workspaceRoot: root, destination, revision: state.revision, receiptDigest: hash(state), resource: entry, files, actual, conflicts, diffs, adoptions });
+  }
+  async _lock(root, action, recovery = false) {
+    const lock = this._control(root, "writer.lock"); await safe(lock); await fs.mkdir(path.dirname(lock), { recursive: true }); await safe(lock);
+    let handle; try { handle = await fs.open(lock, "wx"); } catch(e) { if (e.code === "EEXIST") throw new Error("Project Playbook writer is locked; recover first"); throw e; }
+    try {
+      await handle.writeFile(JSON.stringify({ pid: process.pid, workspaceRoot: root, owner: "playbook-store" }));
+      if (!recovery && await bytes(this._control(root, "journal.json"))) throw new Error("Interrupted Playbook update requires recovery");
+      return await action();
+    } finally { await handle.close(); await unlink(lock); }
+  }
+  async apply(plan) {
+    verifyPlan(plan); if (plan.schemaVersion !== 1 || plan.conflicts.length) throw new Error("Playbook plan has destination conflicts");
+    const root = await this._workspace(plan.workspaceRoot);
+    return this._lock(root, async () => {
+      const fresh = await this.plan(plan.resource, root); if (fresh.digest !== plan.digest) throw new Error("Playbook preview changed or external edit detected");
+      const before = await this._state(root), after = clone(before); after.revision++;
+      after.managed[plan.resource.id] = { digest: plan.resource.digest, documentVersion: plan.resource.documentVersion, files: plan.files.map(f => ({ path: f.path, digest: sha(content(f)) })) };
+      const journal = sealed({ schemaVersion: 1, plan, before, after }); const journalFile = this._control(root, "journal.json");
+      await atomic(journalFile, JSON.stringify(journal));
+      try {
+        for (const diff of plan.diffs) {
+          const target = path.join(plan.destination, relative(diff.path)), current = await bytes(target);
+          if ((current ? sha(current) : null) !== diff.beforeDigest) throw new Error("External edit during Playbook apply");
+          if (diff.content === null) await unlink(target); else await atomic(target, Buffer.from(diff.content, "base64"));
+        }
+        const actual = await this._files(plan.destination);
+        if (hash(actual.map(f => ({ path: f.path, digest: sha(content(f)) }))) !== hash(after.managed[plan.resource.id].files)) throw new Error("External edit during Playbook apply");
+        await atomic(this._control(root, "receipt.json"), JSON.stringify(after)); await unlink(journalFile);
+        return { digest: plan.digest, revision: after.revision, path: path.join(plan.destination, "PLAYBOOK.md"), version: plan.resource.documentVersion };
+      } catch(e) {
+        try { await this._rollback(root, journal); } catch(recovery) { throw new Error(`${e.message}; recovery required: ${recovery.message}`, { cause: e }); }
+        throw e;
+      }
+    });
+  }
+  async _rollback(root, journal) {
+    verifyPlan(journal); const plan = journal.plan; verifyPlan(plan); this._resource(plan.resource);
+    if (journal.schemaVersion !== 1 || plan.workspaceRoot !== root || plan.destination !== this._destination(plan.resource, root) || journal.before.workspaceRoot !== root || journal.after.workspaceRoot !== root || hash(journal.before) !== plan.receiptDigest) throw new Error("Invalid Playbook recovery journal");
+    const currentState = await this._state(root);
+    if (![hash(journal.before), hash(journal.after)].includes(hash(currentState))) throw new Error("Playbook receipt changed during recovery");
+    // Validate every backup and destination before restoring any file, preserving external edits.
+    for (const diff of plan.diffs) {
+      relative(diff.path);
+      for (const [field, expected] of [["beforeContent", "beforeDigest"], ["content", "afterDigest"]]) {
+        if (diff[field] === null) { if (diff[expected] !== null) throw new Error("Playbook recovery integrity mismatch"); }
+        else if (typeof diff[field] !== "string" || Buffer.from(diff[field], "base64").toString("base64") !== diff[field] || sha(Buffer.from(diff[field], "base64")) !== diff[expected]) throw new Error("Playbook recovery integrity mismatch");
+      }
+      const current = await bytes(path.join(plan.destination, diff.path)), d = current ? sha(current) : null;
+      if (d !== diff.beforeDigest && d !== diff.afterDigest) throw new Error("Recovery blocked by external edit");
+    }
+    for (const diff of [...plan.diffs].reverse()) {
+      const target = path.join(plan.destination, diff.path), current = await bytes(target), d = current ? sha(current) : null;
+      if (d === diff.beforeDigest) continue;
+      if (d !== diff.afterDigest) throw new Error("Recovery blocked by external edit");
+      if (diff.beforeContent === null) await unlink(target); else await atomic(target, Buffer.from(diff.beforeContent, "base64"));
+    }
+    await atomic(this._control(root, "receipt.json"), JSON.stringify(journal.before)); await unlink(this._control(root, "journal.json"));
+  }
+  async recover(workspaceRoot) {
+    const root = await this._workspace(workspaceRoot), lockFile = this._control(root, "writer.lock"), data = await bytes(lockFile);
+    if (data) {
+      const lock = JSON.parse(data);
+      if (lock.owner !== "playbook-store" || lock.workspaceRoot !== root || !Number.isSafeInteger(lock.pid) || lock.pid <= 0) throw new Error("Unknown project writer lock is protected");
+      try { process.kill(lock.pid, 0); throw new Error("Project Playbook writer is still active"); } catch(e) { if (e.code !== "ESRCH") throw e; }
+      const current = await bytes(lockFile); if (!current || !current.equals(data)) throw new Error("Project writer lock changed during recovery"); await unlink(lockFile);
+    }
+    return this._lock(root, async () => { const journal = await bytes(this._control(root, "journal.json")); if (!journal) return { recovered: false }; await this._rollback(root, JSON.parse(journal)); return { recovered: true }; }, true);
+  }
+}
+module.exports = { InstructionLibrary, PlaybookStore, preparePlaybook, packageDigest: entry => hash(packageData(entry)), verifyPlan, canonicalDigest: hash };

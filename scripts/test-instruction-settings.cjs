@@ -9,6 +9,25 @@ const { INSTRUCTION_SETTINGS_ASSETS, injectInstructionSettings, AzraelInstructio
 const { injectAccountSettings } = require("./inject-account-settings.cjs");
 const root = path.resolve(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.resolve(__dirname, "../artifacts/upstream-ui/26.1007.21434"));
 
+test("native and standalone instruction clients share the same serialized tools", () => {
+  const source = fs.readFileSync(path.resolve(__dirname, "../extensions/azrael-ex/src/instructionView.ts"), "utf8");
+  const ast = ts.createSourceFile("instructionView.ts", source, ts.ScriptTarget.Latest, true);
+  const declaration = ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "instructionClientTools");
+  const serialized = ts.transpileModule(declaration.getText(ast).replace(/^export /, ""), { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.CommonJS } }).outputText.trim();
+  assert.equal(instructionClientTools.toString(), serialized);
+});
+
+test("acquisition uses the selected version in the active detail instead of hidden catalog controls", () => {
+  const controls = digest => ({ dataset: { versionControls: "entry" }, querySelector: selector => selector === '[data-field="to-digest"]' ? { value: digest } : undefined });
+  const detail = controls("historical"), hidden = controls("latest");
+  const shadow = { querySelector: () => undefined, querySelectorAll: selector => selector === '.library-reading [data-version-controls]' ? [detail] : [hidden, detail] };
+  const tools = instructionClientTools(shadow);
+  const button = { dataset: { action: "libraryPlanAcquire", id: "entry" }, closest: () => null };
+  assert.deepEqual(tools.payload(button), { id: "entry", digest: "historical" });
+  button.closest = () => controls("inline-choice");
+  assert.deepEqual(tools.payload(button), { id: "entry", digest: "inline-choice" });
+});
+
 test("library client preserves full source drafts through busy/plan rerenders and sends scoped actions", () => {
   const field = (name, value) => ({ dataset: { field: name }, value });
   const file = (name, encoding, value) => ({ dataset: { filePath: name, encoding }, value });
@@ -24,7 +43,7 @@ test("library client preserves full source drafts through busy/plan rerenders an
   const alert = { textContent: "" };
   const shadow = {
     querySelector: selector => selector === '[data-editor-id]' ? editor : selector === '[data-library-revision]' ? revision : selector === '[data-client-error]' ? alert : filters.find(e => selector.includes('"' + e.dataset.filter + '"')) ?? [...fields, ...create].find(e => selector.includes('"' + e.dataset.field + '"')),
-    querySelectorAll: selector => selector === '[data-filter]' ? filters : selector === 'button.library-entry' ? entries : selector === '[data-file-panel]' ? panels : [],
+    querySelectorAll: selector => selector === '[data-filter]' ? filters : selector === '.library-entry' ? entries : selector === '[data-file-panel]' ? panels : [],
   };
   const tools = instructionClientTools(shadow);
   tools.capture();
@@ -41,9 +60,23 @@ test("library client preserves full source drafts through busy/plan rerenders an
   fields.push(field("publish-version", "1.2.0"));
   assert.deepEqual(tools.payload(button("libraryPlanPublish")), { ids: ["one"], version: "1.2.0" });
   assert.deepEqual(tools.payload(button("libraryPublish")), { token: "frozen-token" });
-  assert.deepEqual(tools.payload(button("libraryImport")), {});
+  assert.deepEqual(tools.payload(button("libraryImport")), { id: "one" });
   const created = tools.payload(button("libraryCreate"));
   assert.equal(created.sharing, "collaborators"); assert.equal(created.files[0].path, "SKILL.md"); assert.match(created.files[0].content, /name: new-skill/);
+  create[0].value = "한국어 제목";
+  const korean = tools.payload(button("libraryCreate"));
+  assert.equal(korean.name, "한국어 제목"); assert.match(korean.files[0].content, /name: skill-[a-f0-9]{12}\n/);
+  create.push(field("create-installation-name", "my-skill"));
+  assert.match(tools.payload(button("libraryCreate")).files[0].content, /name: my-skill\n/);
+  create.at(-1).value = "잘못된 이름";
+  assert.throws(() => tools.payload(button("libraryCreate")), /ASCII/);
+  create.at(-1).value = ""; create[1].value = "playbook";
+  assert.equal(tools.payload(button("libraryCreate")).files[0].path, "PLAYBOOK.md");
+  create[1].value = "agent-role";
+  const role = tools.payload(button("libraryCreate")).files[0];
+  assert.equal(role.path, "role.toml"); assert.match(role.content, /developer_instructions = """/);
+  assert.deepEqual(tools.payload(button("libraryAcquire")), { token: "frozen-token" });
+  assert.deepEqual(tools.payload(button("libraryOpenInstalled")), { id: "one" });
   fields.push(field("profile", '{"model":"recommended","dependencies":[{"id":"context","digest":"pinned"}]}'));
   assert.deepEqual(tools.payload(button("librarySave")).profile.dependencies, [{ id: "context", digest: "pinned" }]);
   fields.at(-1).value = '{ malformed'; assert.throws(() => tools.payload(button("librarySave")), SyntaxError);

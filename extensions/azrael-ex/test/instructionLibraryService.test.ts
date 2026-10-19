@@ -13,7 +13,7 @@ const { InstructionLibrary, verifyPlan } = require(backendFile);
 const files = (name = "adapter") => [{ path: "SKILL.md", encoding: "utf8" as const, content: `---\nname: ${name}\ndescription: Adapter fixture\n---\nSelected content\n` }];
 
 async function fixture(t: TestContext) {
-  const verification = path.join(root, "artifacts/verification"); await fs.mkdir(verification, { recursive: true });
+  const verification = process.env.AZRAEL_INSTRUCTION_TEST_ROOT || path.join(root, "artifacts/verification"); await fs.mkdir(verification, { recursive: true });
   const directory = await fs.mkdtemp(path.join(verification, "instruction-library-service-"));
   const libraryRoot = path.join(directory, "library"), home = path.join(directory, "home");
   const values = new Map<string, any>(), secrets = new Map<string, string>();

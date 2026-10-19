@@ -50,19 +50,23 @@ function fileBytes(file) {
   if (output.length > FILE_MAX || file.encoding === "base64" && output.toString("base64") !== file.content) throw new Error("Invalid resource file bytes");
   return output;
 }
-function sanitizePackage(pkg, sharing) {
-  if (!pkg || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,100}$/.test(pkg.id) || typeof pkg.name !== "string" || !["skill", "agent-role", "context", "task-profile"].includes(pkg.kind) || pkg.sharing === "local" || (sharing === "public" && pkg.sharing !== "public") || !["public", "collaborators"].includes(pkg.sharing) || !/^[a-f0-9]{64}$/.test(pkg.digest) || !Array.isArray(pkg.files)) throw new Error("Invalid or excluded publication package");
+function sanitizePackage(pkg, sharing, metadataOnly = false) {
+  if (!pkg || !/^[a-zA-Z0-9][a-zA-Z0-9._-]{0,100}$/.test(pkg.id) || typeof pkg.name !== "string" || !["skill", "agent-role", "context", "task-profile", "playbook"].includes(pkg.kind) || pkg.sharing === "local" || (sharing === "public" && pkg.sharing !== "public") || !["public", "collaborators"].includes(pkg.sharing) || !/^[a-f0-9]{64}$/.test(pkg.digest) || !Array.isArray(pkg.files) || pkg.files.length > 10000) throw new Error("Invalid or excluded publication package");
   relative(pkg.id);
   const seen = new Set(), prefixes = new Map();
   const files = pkg.files.map(file => {
-    const data = fileBytes(file), key = file.path.toLowerCase();
+    if (!file || typeof file !== "object") throw new Error("Invalid resource file inventory");
+    relative(file.path);
+    const data = metadataOnly ? null : fileBytes(file), key = file.path.toLowerCase();
+    if (metadataOnly && (!["utf8", "base64"].includes(file.encoding) || !Number.isSafeInteger(file.size) || file.size < 0 || file.size > FILE_MAX || !/^[a-f0-9]{64}$/.test(file.sha256))) throw new Error("Invalid resource file inventory");
     if (seen.has(key)) throw new Error("Duplicate resource path"); seen.add(key);
     const parts = file.path.split("/");
     for (let i = 1; i <= parts.length; i++) { const prefix = parts.slice(0,i).join("/"), folded = prefix.toLowerCase(); if (prefixes.has(folded) && prefixes.get(folded) !== prefix) throw new Error("Case-colliding resource directory"); prefixes.set(folded,prefix); }
     for (const other of seen) if (other !== key && (other.startsWith(key + "/") || key.startsWith(other + "/"))) throw new Error("Resource file and directory collision");
-    return { path: file.path, encoding: file.encoding, content: data.toString(file.encoding) };
+    return metadataOnly ? { path: file.path, encoding: file.encoding, size: file.size, sha256: file.sha256 } : { path: file.path, encoding: file.encoding, content: data.toString(file.encoding) };
   }).sort((a,b) => a.path.localeCompare(b.path, "en"));
   const result = { id: pkg.id, name: pkg.name, kind: pkg.kind, sharing: pkg.sharing, digest: pkg.digest, files };
+  if (pkg.documentVersion !== undefined) result.documentVersion = version(pkg.documentVersion);
   if (pkg.version !== undefined) {
     if (!Number.isSafeInteger(pkg.version) || pkg.version < 1) throw new Error("Invalid package revision");
     result.version = pkg.version;
@@ -89,12 +93,12 @@ function sanitizePackage(pkg, sharing) {
       return { id: dep.id, digest: dep.digest, ...(dep.optional ? { optional: true } : {}) };
     });
   }
-  if (packageDigest(result) !== result.digest) throw new Error("Package content digest mismatch");
+  if (!metadataOnly && packageDigest(result) !== result.digest) throw new Error("Package content digest mismatch");
   return result;
 }
-function validatePackages(packages, sharing, checkDependencies = true) {
+function validatePackages(packages, sharing, checkDependencies = true, metadataOnly = false) {
   if (!Array.isArray(packages) || packages.length > 1000) throw new Error("Invalid resource packages");
-  const sanitized = packages.map(pkg => sanitizePackage(pkg, sharing)), ids = new Map(), spellings = new Map();
+  const sanitized = packages.map(pkg => sanitizePackage(pkg, sharing, metadataOnly)), ids = new Map(), spellings = new Map();
   for (const pkg of sanitized) {
     const folded = pkg.id.toLowerCase(), key = `${folded}@${pkg.digest}`;
     if (ids.has(key) || spellings.has(folded) && spellings.get(folded) !== pkg.id) throw new Error("Duplicate resource package");
@@ -203,6 +207,49 @@ class InstructionPublisher {
     if (current === j.base) return false;
     const comparison = await this._api(c,`/compare/${j.commit}...${current}`);
     return ["ahead","identical"].includes(comparison.status) && comparison.merge_base_commit?.sha === j.commit;
+  }
+  async describeRelease(value,v) {
+    const c = connection(value); version(v); await this.checkConnection(c);
+    const release = await this._release(c,v);
+    if (!release || release.draft || release.prerelease || release.tag_name !== `azrael-resources-v${v}`) throw new Error("Published resource release unavailable");
+    const manifestName = `azrael-resources-${v}-manifest.json`, archiveName = `azrael-resources-${v}.zip`;
+    const manifests = release.assets?.filter(a => a.name === manifestName), archives = release.assets?.filter(a => a.name === archiveName);
+    if (manifests?.length !== 1 || archives?.length !== 1) throw new Error("Resource release assets unavailable");
+    const asset = manifests[0], archiveAsset = archives[0];
+    if (!Number.isSafeInteger(asset.size) || asset.size < 0 || asset.size > 2*1024*1024 || !Number.isSafeInteger(archiveAsset.id) || archiveAsset.id <= 0 || archiveAsset.id === asset.id || !Number.isSafeInteger(archiveAsset.size) || archiveAsset.size < 0 || archiveAsset.size > MAX) throw new Error("Invalid resource release asset");
+    const data = await this._asset(c,asset);
+    if (data.length !== asset.size || data.length > 2*1024*1024) throw new Error("Resource manifest size mismatch");
+    const manifest = parse(data);
+    if (!manifest || manifest.schemaVersion !== 1 || manifest.repository !== c.repository || manifest.version !== v || manifest.sharing !== c.sharing || !/^[a-f0-9]{40}$/.test(manifest.sourceCommit) || manifest.archive?.name !== archiveName || manifest.archive.size !== archiveAsset.size || !/^[a-f0-9]{64}$/.test(manifest.archive.sha256) || !Array.isArray(manifest.files) || manifest.files.length > 10000) throw new Error("Invalid resource manifest");
+    const expected = new Map(), prefixes = new Map(), directories = new Set(); let size = 0;
+    for (const file of manifest.files) {
+      if (!file || typeof file !== "object") throw new Error("Invalid resource file inventory");
+      relative(file.path);
+      const key = file.path.toLowerCase(), parts = file.path.split("/");
+      if (expected.has(key) || directories.has(key) || !Number.isSafeInteger(file.size) || file.size < 0 || file.size > FILE_MAX || !/^[a-f0-9]{64}$/.test(file.sha256) || (size += file.size) > MAX) throw new Error("Invalid resource file inventory");
+      for (let i = 1; i <= parts.length; i++) {
+        const prefix = parts.slice(0,i).join("/"), folded = prefix.toLowerCase();
+        if (prefixes.has(folded) && prefixes.get(folded) !== prefix || i < parts.length && expected.has(folded)) throw new Error("Case-colliding resource directory or file");
+        if (i < parts.length) directories.add(folded);
+        prefixes.set(folded,prefix);
+      }
+      expected.set(key,file);
+    }
+    // Descriptors are untrusted listing evidence. Only download() verifies archive bytes and package digests.
+    const packages = validatePackages(manifest.packages,c.sharing,true,true), heads = validateHeads(manifest.heads,packages), claimed = new Set();
+    const claim = (filePath, fileSize, digest) => {
+      const record = expected.get(filePath.toLowerCase());
+      if (!record || record.path !== filePath || record.size !== fileSize || record.sha256 !== digest || claimed.has(filePath)) throw new Error("Resource package metadata mismatch");
+      claimed.add(filePath);
+    };
+    const index = bytes({schemaVersion:1,heads}); claim("index.json",index.length,hash(index));
+    for (const metadata of manifest.packages) {
+      const encoded = bytes(metadata), root = `packages/${metadata.id}/${metadata.digest}`;
+      claim(`${root}/package.json`,encoded.length,hash(encoded));
+      for (const file of metadata.files) claim(`${root}/files/${file.path}`,file.size,file.sha256);
+    }
+    if (claimed.size !== expected.size) throw new Error("Unexpected resource manifest files");
+    return {manifest,packages:packages.map(pkg => ({...pkg,current:heads[pkg.id] === pkg.digest}))};
   }
   async download(value,v) {
     const c = connection(value); version(v); await this.checkConnection(c); const release = await this._release(c,v);

@@ -2,7 +2,7 @@ import * as vscode from "vscode";
 import { randomBytes } from "node:crypto";
 import { InstructionAction, InstructionRequest, InstructionUiPort, InstructionUiState, InstructionUiText } from "./instructionProtocol";
 
-const actions = new Set<InstructionAction>(["refresh", "selectVersion", "preview", "download", "apply", "pin", "unpin", "rollback", "libraryRefresh", "libraryImport", "libraryCreate", "librarySelect", "librarySave", "libraryPlanApply", "libraryApply", "libraryPlanPublish", "libraryPublish", "libraryRecover", "libraryConnect", "libraryRemoteRefresh", "libraryRemoteImport", "libraryPrepareTask", "libraryStartTask"]);
+const actions = new Set<InstructionAction>(["refresh", "selectVersion", "preview", "download", "apply", "pin", "unpin", "rollback", "libraryRefresh", "libraryImport", "libraryCreate", "librarySelect", "librarySave", "libraryPlanApply", "libraryApply", "libraryPlanPublish", "libraryPublish", "libraryRecover", "libraryConnect", "libraryRemoteRefresh", "libraryRemoteImport", "libraryPrepareTask", "libraryStartTask", "libraryCompare", "libraryInspectVersion", "librarySetProject", "libraryPlanAcquire", "libraryAcquire", "libraryBack", "libraryOpenInstalled"]);
 const escape = (value: unknown): string => String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]!));
 const record = (value: unknown): value is Record<string, unknown> => !!value && typeof value === "object" && !Array.isArray(value);
 interface Mount { clientId: string; requestId: string; locale: "en" | "ko"; disposal?: vscode.Disposable }
@@ -10,10 +10,10 @@ interface Mount { clientId: string; requestId: string; locale: "en" | "ko"; disp
 /** Structural limits here precede the service's semantic and filesystem validation. */
 export function validInstructionRequest(value: Record<string, unknown>): boolean {
   const string = (v: unknown, max = 4096) => typeof v === "string" && v.length <= max;
-  if (Object.keys(value).some(key => !["version", "path", "componentIds", "id", "ids", "name", "kind", "sharing", "files", "profile", "revision", "token", "repository", "branch", "model", "provider", "reasoningEffort"].includes(key))) return false;
-  for (const key of ["version", "path", "id", "name", "token", "repository", "branch", "model", "provider", "reasoningEffort"]) if (value[key] !== undefined && !string(value[key])) return false;
+  if (Object.keys(value).some(key => !["version", "path", "componentIds", "id", "ids", "name", "kind", "sharing", "files", "profile", "revision", "token", "repository", "branch", "model", "provider", "reasoningEffort", "digest", "fromDigest", "toDigest", "project"].includes(key))) return false;
+  for (const key of ["version", "path", "id", "name", "token", "repository", "branch", "model", "provider", "reasoningEffort", "digest", "fromDigest", "toDigest", "project"]) if (value[key] !== undefined && !string(value[key])) return false;
   for (const key of ["ids", "componentIds"]) if (value[key] !== undefined && (!Array.isArray(value[key]) || value[key].length > 1000 || value[key].some(v => !string(v)))) return false;
-  if (value.kind !== undefined && !["skill", "agent-role", "context", "task-profile"].includes(value.kind as string)) return false;
+  if (value.kind !== undefined && !["skill", "agent-role", "context", "task-profile", "playbook"].includes(value.kind as string)) return false;
   if (value.sharing !== undefined && !["public", "collaborators", "local"].includes(value.sharing as string)) return false;
   if (value.revision !== undefined && (!Number.isSafeInteger(value.revision) || (value.revision as number) < 0)) return false;
   if (value.files !== undefined) {
@@ -43,30 +43,69 @@ function renderLibrary(state: InstructionUiState, locale: "en" | "ko"): string {
   const t = (en: string, ko: string) => locale === "ko" ? ko : en;
   const selected = library.selected;
   const button = (action: string, title: string, data = "", blocked = false) => `<button type="button" data-action="${action}" ${data}${state.busy || blocked ? " disabled" : ""}>${title}</button>`;
-  const kinds = [["skill", "Skill", "스킬"], ["agent-role", "Agent role", "에이전트 역할"], ["context", "Context", "컨텍스트"], ["task-profile", "Task profile", "작업 프로필"]];
+  const kinds = [["playbook", "Playbook", "플레이북"], ["skill", "Skill", "스킬"], ["agent-role", "Agent role", "에이전트 역할"], ["context", "Reference document", "참고 문서"], ["task-profile", "Task profile", "작업 프로필"]];
+  const knownLabel = (label: string | undefined) => {
+    const labels: Record<string, string> = { "My library": "내 라이브러리", "Azrael baseline": "Azrael 기본 지침", "Installed skills": "설치된 스킬", "Installed global instructions": "설치된 전역 지침", "System skills": "시스템 스킬", "Installed agent roles": "설치된 에이전트 역할", "Local installation": "로컬 설치" };
+    return label ? locale === "ko" ? labels[label] ?? label : label : "";
+  };
+  const sourceLabel = (entry: typeof library.entries[number]) => knownLabel(entry.sourceLabel) || ({ library: t("My library", "내 라이브러리"), builtin: t("Built in", "기본 제공"), installed: t("Installed", "설치됨"), remote: t("Remote", "원격") })[entry.sourceKind ?? "library"];
   const classes = [["collaborators", "Collaborators", "협업자"], ["public", "Public", "공개"], ["local", "Local only", "로컬 전용"]];
   const options = (values: string[][], current?: string) => values.map(([id, en, ko]) => `<option value="${id}"${id === current ? " selected" : ""}>${t(en, ko)}</option>`).join("");
   const input = (name: string, title: string, value = "") => `<label>${title}<input data-field="${name}" value="${escape(value)}"></label>`;
-  const data = selected ? `data-id="${escape(selected.id)}"` : "";
+  const data = selected ? `data-id="${escape(selected.catalogId ?? selected.id)}"` : "";
   const plan = library.plan;
   const conflicts = plan?.conflicts ?? [];
+  const primaryActions = () => {
+    if (!selected) return "";
+    let primary = "";
+    if (selected.kind === "playbook") primary = button("libraryPlanAcquire", selected.projectStatus?.state === "different" ? t("Update project…", "프로젝트 업데이트…") : t("Download to project…", "프로젝트에 다운로드…"), data, !library.selectedProject || !!selected.validationErrors.length);
+    else if (selected.kind === "skill" || selected.kind === "agent-role") primary = button("libraryPlanAcquire", t("Install in Azrael…", "Azrael에 설치…"), data, !!selected.validationErrors.length);
+    else if (selected.kind === "task-profile" && !selected.readOnly) primary = button("libraryPrepareTask", t("Use for task…", "작업에 사용…"), data, !!selected.validationErrors.length);
+    if (selected.readOnly) primary += button("libraryImport", t("Add to my library", "내 라이브러리에 추가"), data);
+    if (selected.installedDigest || selected.projectStatus?.path) primary += button("libraryOpenInstalled", t("Open installed file", "설치된 파일 열기"), data);
+    return primary;
+  };
+  const versionControls = (entry: typeof library.entries[number]) => {
+    const id = entry.catalogId ?? entry.id, data = `data-id="${escape(id)}"`;
+    const versions = entry.versions ?? [{ digest: entry.digest, label: entry.versionLabel ?? t("Current", "현재") }];
+    const opts = versions.map(v => `<option value="${escape(v.digest)}"${v.digest === entry.digest ? " selected" : ""}>${escape(knownLabel(v.label))}</option>`).join("");
+    const c = library.comparison?.id === id ? library.comparison : undefined;
+    const versionLabel = (digest: string) => digest === "@installed" ? t("Actual installed / project files", "실제 설치 / 프로젝트 파일") : knownLabel(versions.find(v => v.digest === digest)?.label) || t("Version unavailable", "버전 정보 없음");
+    return `<div data-version-controls="${escape(id)}"><div class="library-fields"><label>${t("Compare from", "비교 기준")}<select data-field="from-digest"><option value="@installed">${t("Actual installed / project files", "실제 설치 / 프로젝트 파일")}</option>${opts.replace(/ selected/g, "")}</select></label><label>${t("Available version", "사용 가능한 버전")}<select data-field="to-digest">${opts}</select></label></div><div class="actions">${button("libraryCompare", t("Compare", "비교"), data)}${button("libraryInspectVersion", t("Preview version", "버전 미리보기"), data)}</div>${c ? c.error ? `<p class="error" role="alert">${escape(resolveInstructionText(c.error, locale))}</p>` : `<p class="muted" data-comparison-label>${escape(versionLabel(c.from))} → ${escape(versionLabel(c.to))}</p>${c.files.map(f => `<h3>${escape(f.path)}</h3>${renderInstructionDifference(f.current, f.proposed, locale)}`).join("") || `<p>${t("No changed files.", "변경된 파일이 없습니다.")}</p>`}` : ""}</div>`;
+  };
   return `<section aria-label="${t("Instruction library", "지침 라이브러리")}" data-library-revision="${library.revision}">
-    <h2>${t("Library", "라이브러리")}</h2><p class="muted">${t("Save edits locally before planning. Plans use saved source; apply and publish each require a separate reviewed plan. Task profiles affect only the selected new conversation.", "계획을 준비하기 전에 편집을 로컬에 저장하세요. 계획은 저장된 소스를 사용하며, 적용과 게시에는 각각 검토한 계획이 필요합니다. 작업 프로필은 선택한 새 대화에만 적용됩니다.")}</p>
-    <div class="library-fields"><label>${t("Search", "검색")}<input data-filter="search" type="search"></label><label>${t("Kind", "종류")}<select data-filter="kind"><option value="">${t("All kinds", "모든 종류")}</option>${options(kinds)}</select></label><label>${t("Sharing", "공유")}<select data-filter="sharing"><option value="">${t("All sharing", "모든 공유")}</option>${options(classes)}</select></label></div>
+    ${(library.notices ?? []).map(n => `<p class="notice" role="status">${escape(resolveInstructionText(n, locale))}</p>`).join("")}
+    <div class="library-fields"><label>${t("Project", "프로젝트")}<select data-field="project"><option value="">${t("Select a project", "프로젝트 선택")}</option>${(library.projects ?? []).map(p => `<option value="${escape(p.id)}"${p.id === library.selectedProject ? " selected" : ""}>${escape(p.name)}</option>`).join("")}</select></label>${button("librarySetProject", t("Choose project", "프로젝트 선택"))}</div>
+    ${selected ? `<div class="actions">${button("libraryBack", t("Back to library", "라이브러리로 돌아가기"))}</div><section class="library-reading"><h2>${escape(selected.name)}</h2><p>${escape(selected.description)}</p><p class="muted">${escape(sourceLabel(selected))} · ${escape(knownLabel(selected.versionLabel))}</p><div class="actions">${primaryActions()}</div>${versionControls(selected)}${selected.profile ? `<pre class="preview" tabindex="0">${escape(selected.profile.instructions ?? JSON.stringify(selected.profile, null, 2))}</pre>` : (selected.files ?? []).map(f => `<h3>${escape(f.path)}</h3><pre class="preview" tabindex="0">${f.encoding === "base64" ? t("Binary support file", "바이너리 지원 파일") : escape(f.content)}</pre>`).join("")}</section>` : ""}
+    <div data-library-browse${selected ? " hidden" : ""}><h2>${t("Library", "라이브러리")}</h2>
+    <div class="library-fields"><label class="search">${t("Search", "검색")}<input data-filter="search" type="search"></label><label>${t("Kind", "종류")}<select data-filter="kind"><option value="">${t("All kinds", "모든 종류")}</option>${options(kinds)}</select></label><label>${t("View", "보기")}<select data-filter="layout"><option value="list">${t("List", "목록")}</option><option value="cards">${t("Cards", "카드")}</option></select></label></div>
+    <details data-disclosure="filters"><summary>${t("Filters", "필터")}</summary><div class="library-fields"><label>${t("Source", "소스")}<select data-filter="source"><option value="">${t("All sources", "모든 소스")}</option>${options([["library", "My library", "내 라이브러리"], ["builtin", "Built in", "기본 제공"], ["installed", "Installed", "설치됨"], ["remote", "Remote", "원격"]])}</select></label><label>${t("Sharing", "공유")}<select data-filter="sharing"><option value="">${t("All sharing", "모든 공유")}</option>${options(classes)}</select></label><label>${t("Project state", "프로젝트 상태")}<select data-filter="state"><option value="">${t("All states", "모든 상태")}</option>${options([["missing", "Not downloaded", "다운로드 전"], ["downloaded", "Downloaded", "다운로드됨"], ["different", "Different version", "다른 버전"], ["unknown", "Unknown", "미확인"], ["conflict", "Conflict", "충돌"]])}</select></label></div></details>
     <div class="actions">${button("libraryRefresh", t("Refresh library", "라이브러리 새로고침"))}${button("libraryImport", t("Import source folder…", "소스 폴더 가져오기…"))}</div>
-    <details><summary>${t("Create resource", "리소스 만들기")}</summary><div class="library-fields">${input("create-name", t("Name", "이름"))}<label>${t("Kind", "종류")}<select data-field="create-kind">${options(kinds, "skill")}</select></label><label>${t("Sharing", "공유")}<select data-field="create-sharing">${options(classes, "collaborators")}</select></label></div>${button("libraryCreate", t("Create", "만들기"))}</details>
-    <div class="documents"><nav class="list" aria-label="${t("Library entries", "라이브러리 항목")}">${library.entries.map(entry => `<button class="library-entry" data-action="librarySelect" data-id="${escape(entry.id)}" data-name="${escape(entry.name)}" data-kind="${escape(entry.kind)}" data-sharing="${escape(entry.sharing)}" aria-current="${entry.id === selected?.id}"${state.busy ? " disabled" : ""}>${escape(entry.name)}<br><small>${escape(entry.kind)} · ${escape(entry.sharing)} · ${entry.installedDigest ? (entry.installedDigest === entry.digest ? t("Applied", "적용됨") : t("Local changes", "로컬 변경")) : t("Not applied", "미적용")}${entry.publications.length ? t(" · Previously published", " · 이전 게시됨") : t(" · Not published", " · 미게시")}${entry.validationErrors.length ? t(" · Invalid draft", " · 유효하지 않은 초안") : ""}</small></button>`).join("") || `<p>${t("Import a folder or create a resource to begin.", "폴더를 가져오거나 리소스를 만드세요.")}</p>`}</nav>
+    <details data-disclosure="create"><summary>${t("Create resource", "리소스 만들기")}</summary><div class="library-fields">${input("create-name", t("Display title", "표시 제목"))}${input("create-installation-name", t("Installation name (ASCII; optional)", "설치 이름 (영문; 선택 사항)"))}<label>${t("Kind", "종류")}<select data-field="create-kind">${options(kinds, "skill")}</select></label><label>${t("Sharing", "공유")}<select data-field="create-sharing">${options(classes, "local")}</select></label></div>${button("libraryCreate", t("Create", "만들기"))}</details>
+    <p role="status"><span data-result-count>${library.entries.length}</span> ${t("resources", "개 리소스")}</p><div class="library-catalog" data-catalog>${library.entries.map(entry => `<article class="library-entry" data-name="${escape(entry.name + " " + (entry.description ?? ""))}" data-kind="${escape(entry.kind)}" data-sharing="${escape(entry.sharing)}" data-source="${escape(entry.sourceKind ?? "library")}" data-state="${escape(entry.projectStatus?.state ?? "unknown")}"><button class="entry-open" data-action="librarySelect" data-id="${escape(entry.catalogId ?? entry.id)}"${state.busy ? " disabled" : ""}><strong>${escape(entry.name)}</strong><span>${escape(entry.description)}</span><small>${escape(kinds.find(k => k[0] === entry.kind)?.[locale === "ko" ? 2 : 1] ?? entry.kind)} · ${escape(sourceLabel(entry))} · ${escape(knownLabel(entry.versionLabel))} · ${escape(({ missing: t("Not downloaded", "다운로드 전"), downloaded: t("Downloaded", "다운로드됨"), different: t("Different version", "다른 버전"), unknown: t("Unknown", "미확인"), conflict: t("Conflict", "충돌") })[entry.projectStatus?.state ?? "unknown"])}</small></button><details data-disclosure="compare-${escape(entry.catalogId ?? entry.id)}"><summary>${t("Versions and differences", "버전 및 차이")}</summary>${versionControls(entry)}</details></article>`).join("")}</div>${library.entries.length ? `<p data-no-results hidden>${t("No resources match your filters.", "필터와 일치하는 리소스가 없습니다.")}</p>` : `<p>${t("Import a folder or create a resource to begin.", "폴더를 가져오거나 리소스를 만드세요.")}</p>`}</div>
+    <details data-disclosure="manage"${!selected || selected.readOnly ? " hidden" : ""}><summary>${t("Edit and manage", "편집 및 관리")}</summary>
     <section data-editor-id="${escape(selected?.id ?? "")}" aria-label="${t("Resource editor", "리소스 편집기")}">${selected ? `<h2>${escape(selected.name)}</h2><div class="library-fields">${input("name", t("Name", "이름"), selected.name)}<label>${t("Sharing", "공유")}<select data-field="sharing">${options(classes, selected.sharing)}</select></label></div>
       <p class="muted">${escape(selected.kind)} · ${escape(selected.digest)}</p>
       ${selected.profile ? `<label>${t("Profile JSON (dependencies pin IDs and digests)", "프로필 JSON (의존성 ID와 다이제스트 고정)")}<textarea data-field="profile">${escape(JSON.stringify(selected.profile, null, 2))}</textarea></label>` : `<label>${t("Support files", "지원 파일")}<select data-field="file-path">${(selected.files ?? []).map(file => `<option value="${escape(file.path)}">${escape(file.path)}${file.encoding === "base64" ? t(" (binary, preserved)", " (바이너리, 보존됨)") : ""}</option>`).join("")}</select></label>${(selected.files ?? []).map((file, index) => `<label data-file-panel="${escape(file.path)}"${index ? " hidden" : ""}>${escape(file.path)}<textarea data-file-path="${escape(file.path)}" data-encoding="${file.encoding}"${file.encoding === "base64" ? " readonly" : ""}>${escape(file.content)}</textarea></label>`).join("")}`}
       <p class="error" data-client-error role="alert"></p>${selected.validationErrors.map(error => `<p class="error" role="alert">${escape(error)}</p>`).join("")}
       ${selected.publications.map(pub => `<p>${t("Previously published", "이전 게시됨")}: ${escape(pub.repository)} · ${escape(pub.version)} · ${escape(pub.commit ?? pub.digest)}</p>`).join("")}
-      <div class="library-fields">${input("publish-version", t("Publication version", "게시 버전"), "0.1.0")}</div><div class="actions">${button("librarySave", t("Save locally", "로컬 저장"), data)}${button("libraryPlanApply", t("Plan apply", "적용 계획"), data, !!selected.validationErrors.length)}${button("libraryPlanPublish", t("Plan publish", "게시 계획"), data, !!selected.validationErrors.length || selected.sharing === "local")}</div>
-      ${selected.profile ? `<h2>${t("Selected new conversation", "선택한 새 대화")}</h2><p>${t("Recommended model", "권장 모델")}: ${escape(selected.profile.model)}</p><div class="library-fields">${input("model", t("Model override", "모델 변경"), selected.profile.model)}${input("provider", t("Provider", "제공자"), selected.profile.provider)}${input("reasoningEffort", t("Reasoning effort", "추론 수준"), selected.profile.reasoningEffort)}</div>${button("libraryPrepareTask", t("Prepare task", "작업 준비"), data, !!selected.validationErrors.length)}` : ""}` : `<p>${t("Select a resource to edit its complete source.", "전체 소스를 편집할 리소스를 선택하세요.")}</p>`}</section></div>
-    ${plan ? `<section data-plan-token="${escape(plan.token)}"><h2>${t("Review frozen plan", "고정된 계획 검토")}: ${escape(plan.kind)}</h2><pre class="preview">${escape(resolveInstructionText(plan.summary, locale))}</pre>${plan.model ? `<p>${t("Effective model", "실제 모델")}: ${escape(plan.model)} · ${escape(plan.provider)}</p>` : ""}${[...(plan.diffs ?? []), ...conflicts].map(diff => `<p>${escape("reason" in diff ? diff.reason : "")} ${escape(diff.target ?? ("path" in diff ? diff.path : ""))}</p><div class="diff"><pre class="preview">${escape(diff.current)}</pre><pre class="preview">${escape(diff.proposed)}</pre></div>`).join("")}${button(plan.kind === "apply" ? "libraryApply" : plan.kind === "publish" ? "libraryPublish" : "libraryStartTask", plan.kind === "apply" ? t("Apply reviewed plan", "검토한 계획 적용") : plan.kind === "publish" ? t("Publish reviewed plan", "검토한 계획 게시") : t("Start selected new task", "선택한 새 작업 시작"), `data-token="${escape(plan.token)}"`, !!conflicts.length)}</section>` : ""}
+      <div class="library-fields">${input("publish-version", t("Publication version", "게시 버전"), "0.1.0")}</div><div class="actions">${button("librarySave", t("Save locally", "로컬 저장"), data)}${selected.kind === "skill" || selected.kind === "agent-role" ? button("libraryPlanApply", t("Plan apply", "적용 계획"), data, !!selected.validationErrors.length) : ""}${button("libraryPlanPublish", t("Plan publish", "게시 계획"), data, !!selected.validationErrors.length || selected.sharing === "local")}</div>
+      ${selected.profile ? `<h2>${t("Selected new conversation", "선택한 새 대화")}</h2><p>${t("Recommended model", "권장 모델")}: ${escape(selected.profile.model)}</p><div class="library-fields">${input("model", t("Model override", "모델 변경"), selected.profile.model)}${input("provider", t("Provider", "제공자"), selected.profile.provider)}${input("reasoningEffort", t("Reasoning effort", "추론 수준"), selected.profile.reasoningEffort)}</div>${button("libraryPrepareTask", t("Prepare task", "작업 준비"), data, !!selected.validationErrors.length)}` : ""}` : `<p>${t("Select a resource to edit its complete source.", "전체 소스를 편집할 리소스를 선택하세요.")}</p>`}</section></details>
+    ${plan ? `<section data-plan-token="${escape(plan.token)}"><h2>${t("Review frozen plan", "고정된 계획 검토")}: ${escape(plan.kind)}</h2><pre class="preview">${escape(resolveInstructionText(plan.summary, locale))}</pre>${plan.model ? `<p>${t("Effective model", "실제 모델")}: ${escape(plan.model)} · ${escape(plan.provider)}</p>` : ""}${[...(plan.diffs ?? []), ...conflicts].map(diff => `<p>${escape("reason" in diff ? diff.reason : "")} ${escape(diff.target ?? ("path" in diff ? diff.path : ""))}</p><div class="diff"><pre class="preview">${escape(diff.current)}</pre><pre class="preview">${escape(diff.proposed)}</pre></div>`).join("")}${button(plan.kind === "apply" ? (plan.acquire ? "libraryAcquire" : "libraryApply") : plan.kind === "publish" ? "libraryPublish" : "libraryStartTask", plan.kind === "apply" ? t("Apply reviewed plan", "검토한 계획 적용") : plan.kind === "publish" ? t("Publish reviewed plan", "검토한 계획 게시") : t("Start selected new task", "선택한 새 작업 시작"), `data-token="${escape(plan.token)}"`, !!conflicts.length)}</section>` : ""}
     <details><summary>${t("Distribution and connections", "배포·연결")}</summary>${["public", "collaborators"].map(sharing => { const connection = library.connections.find(c => c.sharing === sharing); return `<section data-connection="${sharing}"><h2>${sharing === "public" ? t("Public repository", "공개 저장소") : t("Collaborator repository", "협업자 저장소")}</h2><div class="library-fields">${input("repository", t("Repository (owner/name)", "저장소 (소유자/이름)"), connection?.repository)}${input("branch", t("Branch", "브랜치"), connection?.branch ?? "main")}</div><p>${connection ? `${escape(connection.repository)} · ${t("Read", "읽기")}: ${connection.readable === undefined ? t("Unknown", "미확인") : connection.readable} · ${t("Write", "쓰기")}: ${connection.writable === undefined ? t("Unknown", "미확인") : connection.writable}` : t("Not connected", "연결되지 않음")}</p><div class="actions">${button("libraryConnect", t("Connect / check access", "연결 / 권한 확인"), `data-sharing="${sharing}"`)}${button("libraryRemoteRefresh", t("Check remote versions", "원격 버전 확인"), `data-sharing="${sharing}"`)}</div><label>${t("Remote version", "원격 버전")}<select data-field="remote-version">${(library.remoteVersions ?? []).filter(v => v.sharing === sharing).map(v => `<option value="${escape(v.version)}">${escape(v.version)} ${escape(v.notes)}</option>`).join("")}</select></label>${button("libraryRemoteImport", t("Import selected version", "선택 버전 가져오기"), `data-sharing="${sharing}"`, !library.remoteVersions?.some(v => v.sharing === sharing))}</section>`; }).join("")}</details>
     ${library.operation ? `<p class="notice" role="status">${escape(library.operation.phase)} · ${escape(library.operation.repository)} · ${escape(library.operation.version)}</p>${button("libraryRecover", t("Recover operation", "작업 복구"))}` : ""}
   </section>`;
+}
+
+/** Show a changed range with context in linear time, including added/deleted files. */
+export function renderInstructionDifference(current: string | undefined, proposed: string | undefined, locale: "en" | "ko" = "en"): string {
+  if (current === proposed) return `<p>${locale === "ko" ? "변경 없음" : "No changes"}</p>`;
+  const a = current === undefined ? [] : current.split("\n"), b = proposed === undefined ? [] : proposed.split("\n");
+  let start = 0, end = 0;
+  while (start < a.length && start < b.length && a[start] === b[start]) start++;
+  while (end < a.length - start && end < b.length - start && a[a.length - 1 - end] === b[b.length - 1 - end]) end++;
+  const lines = [...a.slice(Math.max(0, start - 2), start).map(l => "  " + escape(l)), ...a.slice(start, a.length - end).map(l => `<span class="diff-deleted">− ${escape(l)}</span>`), ...b.slice(start, b.length - end).map(l => `<span class="diff-added">+ ${escape(l)}</span>`), ...a.slice(a.length - end, a.length - end + Math.min(end, 2)).map(l => "  " + escape(l))];
+  return `<pre class="preview line-diff" tabindex="0">${lines.join("\n")}</pre>`;
 }
 
 export const normalizeInstructionLocale = (locale: string = vscode.env?.language ?? "en"): "en" | "ko" => /^ko(?:[-_]|$)/i.test(locale) ? "ko" : "en";
@@ -82,7 +121,7 @@ const busyText: Record<string, { en: string; ko: string }> = {
   rollback: { en: "Rolling back", ko: "롤백 중" }
 };
 
-export const instructionStyles = `:host,body{color:var(--vscode-foreground,#262626);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}main{max-width:900px;margin:auto;padding:20px 28px;overflow-wrap:anywhere}h1{font-size:22px;font-weight:600;margin:0 0 24px}h2{font-size:15px;font-weight:600;margin:24px 0 12px}p{margin:8px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--vscode-widget-border,#ddd)}.muted,small{color:var(--vscode-descriptionForeground,#777)}textarea{width:100%;min-height:260px;resize:vertical;background:var(--vscode-input-background,#fff);color:var(--vscode-input-foreground,#262626);border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;padding:12px;font:12px/1.6 var(--vscode-editor-font-family,monospace)}input:not([type=checkbox]){background:var(--vscode-input-background,#fff);border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;padding:7px;max-width:100%}.library-fields{display:flex;flex-wrap:wrap;gap:12px}.library-fields label{display:flex;flex-direction:column;gap:4px}.library-entry{padding:10px}details>summary{cursor:pointer;padding:14px 0;font-weight:600}button,select,input{font:inherit;color:inherit}button,select{border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;background:var(--vscode-editor-background,#fff);padding:7px 12px}button{cursor:pointer}button:hover,button[aria-current=true]{background:var(--vscode-list-hoverBackground,#eee)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:2px solid var(--vscode-focusBorder,#777);outline-offset:2px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.documents>*{min-width:0}.library-fields>label{min-width:0}select{max-width:100%}.documents{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,2fr);gap:16px}.list{max-height:360px;overflow:auto}.list button{display:block;border:0;text-align:left;width:100%;margin-bottom:3px;overflow-wrap:anywhere}.preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:440px;overflow:auto;margin:0;padding:16px;border-radius:10px;background:var(--vscode-textCodeBlock-background,#f5f5f5);font:12px/1.6 var(--vscode-editor-font-family,monospace)}.notice{border-radius:8px;padding:12px;background:var(--vscode-textBlockQuote-background,#eee)}.error{color:var(--vscode-errorForeground,#b22)}fieldset{border:0;padding:0;margin:0}label.component{display:flex;align-items:center;gap:10px;padding:8px 0}.diff{display:grid;grid-template-columns:1fr 1fr;gap:12px}svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.3}aside{width:190px;padding:24px 12px;flex-shrink:0}aside button{display:flex;align-items:center;gap:10px;width:100%;border:0;text-align:left;margin-bottom:4px}body{margin:0;background:var(--vscode-editor-background,#fff)}.shell{display:flex;min-height:100vh}.shell main{width:100%}@media(max-width:650px){main{padding:16px}.documents,.diff{grid-template-columns:minmax(0,1fr)}aside{width:145px;padding:16px 6px}.row{align-items:flex-start;flex-direction:column}}`;
+export const instructionStyles = `.library-catalog{display:flex;flex-direction:column;gap:4px}.library-catalog[data-layout=cards]{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));gap:12px}.library-entry{border-bottom:1px solid var(--vscode-widget-border,#ddd);min-width:0}.library-entry[hidden],[hidden]{display:none!important}.entry-open{display:flex;flex-direction:column;gap:6px;text-align:left;width:100%;border:0;padding:16px 12px;background:transparent}.library-entry details{padding:0 12px}.library-reading h2{font-size:22px}.library-reading>.preview{max-height:none}.search{flex:1}.line-diff span{display:block}.diff-added{background:var(--vscode-diffEditor-insertedTextBackground,#10801018)}.diff-deleted{background:var(--vscode-diffEditor-removedTextBackground,#d0101018)}:host,body{color:var(--vscode-foreground,#262626);font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}*{box-sizing:border-box}main{max-width:900px;margin:auto;padding:20px 28px;overflow-wrap:anywhere}h1{font-size:22px;font-weight:600;margin:0 0 24px}h2{font-size:15px;font-weight:600;margin:24px 0 12px}p{margin:8px 0}.row{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:14px 0;border-bottom:1px solid var(--vscode-widget-border,#ddd)}.muted,small{color:var(--vscode-descriptionForeground,#777)}textarea{width:100%;min-height:260px;resize:vertical;background:var(--vscode-input-background,#fff);color:var(--vscode-input-foreground,#262626);border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;padding:12px;font:12px/1.6 var(--vscode-editor-font-family,monospace)}input:not([type=checkbox]){background:var(--vscode-input-background,#fff);border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;padding:7px;max-width:100%}.library-fields{display:flex;flex-wrap:wrap;gap:12px}.library-fields label{display:flex;flex-direction:column;gap:4px}.library-entry{padding:10px}details>summary{cursor:pointer;padding:14px 0;font-weight:600}button,select,input{font:inherit;color:inherit}button,select{border:1px solid var(--vscode-widget-border,#ddd);border-radius:8px;background:var(--vscode-editor-background,#fff);padding:7px 12px}button{cursor:pointer}button:hover,button[aria-current=true]{background:var(--vscode-list-hoverBackground,#eee)}button:disabled{opacity:.5;cursor:default}:focus-visible{outline:2px solid var(--vscode-focusBorder,#777);outline-offset:2px}.actions{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0}.documents>*{min-width:0}.library-fields>label{min-width:0}select{max-width:100%}.documents{display:grid;grid-template-columns:minmax(160px,1fr) minmax(0,2fr);gap:16px}.list{max-height:360px;overflow:auto}.list button{display:block;border:0;text-align:left;width:100%;margin-bottom:3px;overflow-wrap:anywhere}.preview{white-space:pre-wrap;overflow-wrap:anywhere;max-height:440px;overflow:auto;margin:0;padding:16px;border-radius:10px;background:var(--vscode-textCodeBlock-background,#f5f5f5);font:12px/1.6 var(--vscode-editor-font-family,monospace)}.notice{border-radius:8px;padding:12px;background:var(--vscode-textBlockQuote-background,var(--vscode-editorWidget-background,var(--vscode-editor-background,transparent)))}.error{color:var(--vscode-errorForeground,#b22)}fieldset{border:0;padding:0;margin:0}label.component{display:flex;align-items:center;gap:10px;padding:8px 0}.diff{display:grid;grid-template-columns:1fr 1fr;gap:12px}svg{width:18px;height:18px;fill:none;stroke:currentColor;stroke-width:1.3}aside{width:190px;padding:24px 12px;flex-shrink:0}aside button{display:flex;align-items:center;gap:10px;width:100%;border:0;text-align:left;margin-bottom:4px}body{margin:0;background:var(--vscode-editor-background,#fff)}.shell{display:flex;min-height:100vh}.shell main{width:100%}@media(max-width:650px){main{padding:16px}.documents,.diff{grid-template-columns:minmax(0,1fr)}aside{width:145px;padding:16px 6px}.row{align-items:flex-start;flex-direction:column}}`;
 
 export function renderInstructionMarkup(state: InstructionUiState, selected: readonly string[] = state.selectedComponentIds ?? state.components.filter(c => c.default).map(c => c.id), locale?: string): string {
   const language = normalizeInstructionLocale(locale);
@@ -190,20 +229,53 @@ export class InstructionView implements vscode.Disposable {
 
 export function instructionClientTools(root: any) {
   const drafts = new Map<string, any>(), filters = new Map<string, string>(), disclosures = new Map<string, boolean>();
+  const versionChoices = new Map<string, any>();
+  let listScroll = 0, previousDetail = false, selectedId = '';
+  const scroller = () => {
+    let node = root.host;
+    while (node) { if (node.scrollHeight > node.clientHeight && /auto|scroll/.test(root.ownerDocument.defaultView.getComputedStyle(node).overflowY)) return node; node = node.parentElement; }
+    return root.ownerDocument?.scrollingElement;
+  };
+  const suggest = (name: string) => {
+    const ascii = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 48).replace(/-$/, '');
+    return /[^\x00-\x7f]/.test(name) || !ascii ? (ascii || 'skill') + '-' + globalThis.crypto.randomUUID().replace(/-/g, '').slice(0, 12) : ascii;
+  };
   const value = (name: string, scope = root) => scope.querySelector('[data-field="' + name + '"]')?.value;
   const capture = () => {
     const editor = root.querySelector('[data-editor-id]');
     if (editor?.dataset.editorId) drafts.set(editor.dataset.editorId, [...editor.querySelectorAll('[data-field],textarea[data-file-path]')].map(e => ({ field: e.dataset.field, path: e.dataset.filePath, value: e.value })));
     for (const e of root.querySelectorAll('[data-filter]')) filters.set(e.dataset.filter, e.value);
-    for (const e of root.querySelectorAll('details')) disclosures.set(e.querySelector('summary')?.textContent, e.open);
+    for (const e of root.querySelectorAll('details')) disclosures.set(e.dataset.disclosure ?? e.querySelector('summary')?.textContent, e.open);
+    for (const e of root.querySelectorAll('[data-version-controls]')) if (!e.closest('[data-library-browse][hidden]')) versionChoices.set(e.dataset.versionControls, { from: value('from-digest', e), to: value('to-digest', e) });
+    const browse = root.querySelector('[data-library-browse]');
+    if (browse && !browse.hidden) listScroll = scroller()?.scrollTop ?? 0;
+    previousDetail = !!browse?.hidden;
   };
   const filter = () => {
     const search = root.querySelector('[data-filter="search"]')?.value.toLowerCase() ?? '';
     const kind = root.querySelector('[data-filter="kind"]')?.value;
     const sharing = root.querySelector('[data-filter="sharing"]')?.value;
-    for (const e of root.querySelectorAll('button.library-entry')) e.hidden = !(e.dataset.name.toLowerCase().includes(search) && (!kind || e.dataset.kind === kind) && (!sharing || e.dataset.sharing === sharing));
+    const source = root.querySelector('[data-filter="source"]')?.value;
+    const state = root.querySelector('[data-filter="state"]')?.value;
+    let count = 0;
+    for (const e of root.querySelectorAll('.library-entry')) {
+      e.hidden = !(e.dataset.name.toLowerCase().includes(search) && (!kind || e.dataset.kind === kind) && (!sharing || e.dataset.sharing === sharing) && (!source || e.dataset.source === source) && (!state || e.dataset.state === state));
+      if (!e.hidden) count++;
+    }
+    const counter = root.querySelector('[data-result-count]'), empty = root.querySelector('[data-no-results]');
+    if (counter) counter.textContent = String(count);
+    if (empty) empty.hidden = count > 0;
+    const catalog = root.querySelector('[data-catalog]');
+    if (catalog) catalog.dataset.layout = root.querySelector('[data-filter="layout"]')?.value ?? 'list';
   };
   const file = (target: any) => {
+    if (target?.dataset.field === 'create-name') {
+      const installation = root.querySelector('[data-field="create-installation-name"]');
+      if (installation && (!installation.value || installation.dataset.suggested === installation.value)) {
+        installation.value = target.value.trim() ? suggest(target.value) : '';
+        installation.dataset.suggested = installation.value;
+      }
+    }
     if (target?.dataset.field !== 'file-path') return;
     for (const e of root.querySelectorAll('[data-file-panel]')) e.hidden = e.dataset.filePanel !== target.value;
   };
@@ -215,8 +287,23 @@ export function instructionClientTools(root: any) {
       if (saved) e.value = saved.value;
     }
     for (const e of root.querySelectorAll('[data-filter]')) if (filters.has(e.dataset.filter)) e.value = filters.get(e.dataset.filter);
-    for (const e of root.querySelectorAll('details')) if (disclosures.has(e.querySelector('summary')?.textContent)) e.open = disclosures.get(e.querySelector('summary')?.textContent);
+    for (const e of root.querySelectorAll('details')) {
+      const key = e.dataset.disclosure ?? e.querySelector('summary')?.textContent;
+      if (disclosures.has(key)) e.open = disclosures.get(key);
+    }
+    for (const e of root.querySelectorAll('[data-version-controls]')) {
+      const saved = versionChoices.get(e.dataset.versionControls);
+      if (saved) for (const [field, choice] of [['from-digest', saved.from], ['to-digest', saved.to]]) {
+        const select = e.querySelector('[data-field="' + field + '"]');
+        if (select && [...select.options].some(o => o.value === choice)) select.value = choice;
+      }
+    }
     file(root.querySelector('[data-field="file-path"]')); filter();
+    const browse = root.querySelector('[data-library-browse]'), scroll = scroller();
+    if (browse && previousDetail !== browse.hidden) {
+      if (scroll) scroll.scrollTop = browse.hidden ? 0 : listScroll;
+      if (!browse.hidden && selectedId) [...root.querySelectorAll('button[data-action="librarySelect"]')].find(e => e.dataset.id === selectedId)?.focus({ preventScroll: true });
+    }
   };
   const error = (failure: unknown) => {
     let alert = root.querySelector('[data-client-error]');
@@ -226,12 +313,28 @@ export function instructionClientTools(root: any) {
   const payload = (button: any) => {
     const action = button.dataset.action, id = button.dataset.id;
     const revision = Number(root.querySelector('[data-library-revision]')?.dataset.libraryRevision);
-    if (action === 'librarySelect') return { id };
-    if (['libraryApply', 'libraryPublish', 'libraryStartTask'].includes(action)) return { token: button.dataset.token };
+    if (action === 'librarySelect') { selectedId = id; return { id }; }
+    if (action === 'libraryImport' || action === 'libraryOpenInstalled') return id ? { id } : {};
+    if (action === 'librarySetProject') return { project: value('project') };
+    if (action === 'libraryPlanAcquire') {
+      const scope = button.closest('[data-version-controls]') ?? [...root.querySelectorAll('.library-reading [data-version-controls]')].find(e => e.dataset.versionControls === id);
+      if (!scope) throw new Error('Select an available version / 사용 가능한 버전을 선택하세요.');
+      return { id, digest: value('to-digest', scope) };
+    }
+    if (action === 'libraryCompare' || action === 'libraryInspectVersion') {
+      const scope = button.closest('[data-version-controls]');
+      return action === 'libraryCompare' ? { id, fromDigest: value('from-digest', scope), toDigest: value('to-digest', scope) } : { id, digest: value('to-digest', scope) };
+    }
+    if (['libraryApply', 'libraryAcquire', 'libraryPublish', 'libraryStartTask'].includes(action)) return { token: button.dataset.token };
     if (action === 'libraryCreate') {
       const name = value('create-name'), kind = value('create-kind'), sharing = value('create-sharing');
       if (!name?.trim()) throw new Error('Enter a resource name / 리소스 이름을 입력하세요.');
-      return kind === 'task-profile' ? { name, kind, sharing, profile: { model: '', dependencies: [] } } : { name, kind, sharing, files: [{ path: kind === 'skill' ? 'SKILL.md' : kind === 'agent-role' ? 'ROLE.md' : 'CONTEXT.md', encoding: 'utf8', content: kind === 'skill' ? '---\nname: ' + name + '\ndescription: Describe this skill.\n---\n\n# ' + name + '\n' : '# ' + name + '\n' }] };
+      const explicit = value('create-installation-name')?.trim();
+      const identifier = explicit || suggest(name);
+      if (kind === 'skill' && !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(identifier)) throw new Error('Use lowercase ASCII letters, numbers and hyphens / 영문 소문자, 숫자, 하이픈을 사용하세요.');
+      const path = kind === 'skill' ? 'SKILL.md' : kind === 'agent-role' ? 'role.toml' : kind === 'playbook' ? 'PLAYBOOK.md' : 'CONTEXT.md';
+      const content = kind === 'skill' ? '---\nname: ' + identifier + '\ndescription: Describe this skill.\n---\n\n# ' + name + '\n' : kind === 'agent-role' ? 'description = ' + JSON.stringify(name) + '\ndeveloper_instructions = """\nDescribe this agent role.\n"""\n' : '# ' + name + '\n';
+      return kind === 'task-profile' ? { name, kind, sharing, profile: { model: '', dependencies: [] } } : { name, kind, sharing, files: [{ path, encoding: 'utf8', content }] };
     }
     if (action === 'librarySave') {
       const editor = root.querySelector('[data-editor-id]');
