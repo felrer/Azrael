@@ -22,6 +22,7 @@
 | --- | --- | --- | --- | --- |
 | [요구사항 보드](prototype/README.md) | 입력·분류·공간 배치와 작업 전달 | [실행 방법](prototype/README.md) | 기본 `artifacts/board-data/prototype/`; 화면의 설정·백업에서 변경 | `partial`: Windows Chrome 수용, Linux/macOS 미검증 |
 | [스케치 보드](sketch/README.md) | 그림·화면 캡처에 요구사항 표시와 전달 | [실행 방법](sketch/README.md) | 기본 `artifacts/board-data/sketch/`; 화면의 설정에서 변경 | `partial`: Windows Chrome 저장·복구·전달 수용, Linux/macOS 미검증 |
+| [목록·카드 시험 보드](catalog/README.md) | 폴더·목록 관리와 카드·필터 모듈의 더미 편집·저장 시험 | [실행 방법](catalog/README.md) | 기본 `artifacts/board-data/catalog/`; 화면의 저장 위치·백업에서 변경 | `partial`: Windows Chrome 편집·저장·복구 수용, Linux/macOS 미검증 |
 
 실제 존재하는 프로그램만 등록한다. 실행 진입점은 해당 프로그램의 짧은 README 또는 실행 파일로 연결한다.
 데이터 위치에는 실제 저장 위치 또는 그것을 확인하는 화면·설정 경로를 기록한다.
@@ -79,6 +80,10 @@ docs/boards/
 저장·백업 구현을 복사하지 않는다. 화면에서 공통으로 제공할 저장 위치·저장 상태·백업·분류 조작은
 보드 목적에 맞는 입력 화면과 조합한다.
 
+폴더·목록과 카드·검색 화면은 `shared/modules/folder-list.mjs`와 `card-browser.mjs`를 재사용한다.
+두 모듈은 문서·선택·필터를 받아 콜백으로 편집 의도를 전달하고, 파일 저장은 호출자가 공통 저장 계층으로 수행한다.
+[목록·카드 시험 보드](catalog/README.md#두-모듈의-사용-계약)가 모듈 API와 조합 예제를 소유한다.
+
 ### 새 보드의 양식
 
 [prototype](prototype/README.md) 폴더가 작은 제작 양식이다. 해당 폴더를 새 이름으로 복사하고
@@ -90,10 +95,12 @@ docs/boards/
 
 ### 데이터와 보존
 
-한 보드의 `workspace` 자료를 JSON 파일로 관리한다. `schemaVersion`, `boardId`, `datasetId`,
+한 보드의 `workspace` 자료를 JSON 파일로 관리한다. 기본 요구사항 보드는 `schemaVersion`, `boardId`, `datasetId`,
 `revision`, 제목·분류·map·항목과 저장 시각을 포함한다.
 항목에는 이름과 독립적인 id, categoryId, position, size, values, note와 `specifiedFields`를 둔다.
 `specifiedFields`는 사용자가 직접 조작한 양식 필드를 구분한다. 나머지는 기본값으로 해석한다.
+별도 편집기는 같은 저장·충돌·백업 경계에 전용 검증 codec을 연결한다. 목록·카드 보드는
+`kind: catalog` 문서의 folders·lists·items를 ID로 연결하고, 스케치 보드는 그림 원본 형식을 사용한다.
 
 데이터 저장소는 UI에서 설정하고 현재 위치를 표시한다.
 기본 경로는 프로젝트의 `artifacts/board-data/<name>/`이며 사용자 데이터는 Git에 포함하지 않는다.

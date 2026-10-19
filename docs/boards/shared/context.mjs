@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { BoardError } from './model.mjs';
 export const digest = value => createHash('sha256').update(value).digest('hex');
 export const json = value => JSON.stringify(value, null, 2) + '\n';
-function fenced(value, language) {
+export function fenced(value, language) {
   const runs = value.match(/`+/g) || [];
   const fence = '`'.repeat(Math.max(3, ...runs.map(run => run.length + 1)));
   return `${fence}${language}\n${value}\n${fence}`;

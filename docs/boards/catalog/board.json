@@ -1,0 +1,12 @@
+{
+  "id": "catalog",
+  "title": "목록·카드 시험 보드",
+  "description": "폴더 목록과 카드 검색 모듈을 더미 데이터로 시험하세요.",
+  "schemaVersion": 1,
+  "editor": "catalog",
+  "rules": "rules.md",
+  "features": ["folders", "lists", "cards", "backup", "handoff"],
+  "map": { "unit": "px", "origin": "top-left", "width": 1600, "height": 1000 },
+  "fields": [],
+  "initialCategories": [{ "id": "catalog-items", "name": "항목", "color": "#777777" }]
+}
