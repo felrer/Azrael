@@ -17,6 +17,15 @@ function declaration(source, name) {
   const node = ast.statements.find(node => ts.isFunctionDeclaration(node) && node.name.text === name);
   assert.ok(node, name); return node.getText(ast);
 }
+function assignedExpression(source, name) {
+  const ast = ts.createSourceFile("pinned.js", source, 99, true, ts.ScriptKind.JS);
+  let expression;
+  function visit(node) {
+    if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.EqualsToken && ts.isIdentifier(node.left) && node.left.text === name) expression = node.right.getText(ast);
+    ts.forEachChild(node, visit);
+  }
+  visit(ast); assert.ok(expression, name); return expression;
+}
 test("btw imports the actual latest native button wrapper and initializer", () => {
   const ast = ts.createSourceFile("composer.js", originals[1], 99, true, ts.ScriptKind.JS);
   const exports = new Map(ast.statements.filter(ts.isExportDeclaration).flatMap(node =>
@@ -265,25 +274,95 @@ test("native slash component uses ComposerScope for real attachment state and Ro
 
 test("actual native panel opener awaits source model and cwd RPC before native tab creation", async () => {
   const calls = [], source = { latestThreadSettings: { model: "gpt-6.1-sol", effort: "medium" } };
+  const routeScope = { value: { pathname: "/local/parent", search: "" } };
+  const scope = { get: atom => atom.read({ scope: routeScope }) };
   const ctx = { EJi() {}, DDn() {}, qqi() {}, OJi() {}, __azraelInitBtwButton() {}, bc: host => { assert.equal(host, "local"); return false; },
-    __azraelBtwPanel: "Panel", gJi: async (...args) => { calls.push(args); return "side"; } };
+    Ev: {}, q: (_token, read) => ({ read }),
+    __azraelBtwRouteScope: undefined, __azraelBtwPanel: "Panel", gJi: async (...args) => { calls.push(args); return "side"; } };
   vm.createContext(ctx); vm.runInContext(declaration(patched[2].text, "__azraelOpenBtwPanel"), ctx);
-  const result = await ctx.__azraelOpenBtwPanel({ scope: {}, hostId: "local", parentId: "parent",
+  const result = await ctx.__azraelOpenBtwPanel({ scope, hostId: "local", parentId: "parent",
     manager: { getConversation: async () => source, getConversationCwd: async () => "/workspace" }, intl: {}, prepare() {}, onDiscard() {} });
-  assert.equal(result, "side"); assert.equal(calls[0][2].cwd, "/workspace");
+  assert.equal(result, "side"); assert.equal(calls[0][0], routeScope); assert.equal(calls[0][2].cwd, "/workspace");
   assert.equal(calls[0][2].collaborationMode.settings.model, "gpt-6.1-sol"); assert.equal(calls[0][2].sideQuestion, true);
   assert.ok(declaration(originals[2], "EJi")); assert.ok(declaration(originals[2], "DDn"));
   let observer, refreshes = 0;
   ctx.__azraelBtwPanel = undefined;
   Object.assign(ctx, { xJi: {}, SJi: {}, __azraelBtwButton: {}, DJi: {}, __azraelBtw: {}, TDn: "native turn atom",
     createBtwPanel: (...args) => { observer = args[5]; return "Panel"; } });
-  await ctx.__azraelOpenBtwPanel({ scope: {}, hostId: "local", parentId: "parent",
+  await ctx.__azraelOpenBtwPanel({ scope, hostId: "local", parentId: "parent",
     manager: { getConversation: async () => source, getConversationCwd: async () => "/workspace" }, intl: {}, prepare() {}, onDiscard() {} });
   const stop = () => {};
   assert.equal(observer({ id: "side", scope: { watch: callback => {
     callback({ get: (atom, key) => { assert.equal(atom, "native turn atom"); assert.equal(key.conversationId, "side"); } }); return stop;
   } } }, () => refreshes++), stop);
   assert.equal(refreshes, 1);
+});
+
+test("actual native panel creation receives RouteScope and preserves paths, preparation and readiness for bare and direct btw", async () => {
+  const routeToken = { id: "route" }, composerToken = { id: "composer" };
+  const instances = new Map(), pending = [], forks = [], completed = [], watched = [];
+  let route, composer, h, tabUnavailable = false;
+  const panel = { panelId: "right", tabs$: "tabs", tabById$: "tabById",
+    async openPendingTab(scope, _type, options) {
+      assert.equal(scope, route, "native tab state must receive the route, not the composer");
+      pending.push(options); if (tabUnavailable) return null;
+      return { isCurrent: () => true, complete: (_type, tab) => { completed.push(tab); return true; }, fail() {} };
+    } };
+  const ctx = { EJi() {}, DDn() {}, qqi() {}, OJi() {}, __azraelInitBtwButton() {}, bc: () => false,
+    Ev: routeToken, q: (scope, read) => ({ scope, read }), __azraelBtwRouteScope: undefined, __azraelBtwPanel: "Panel",
+    gVi: {}, Md: "archived", Tq: "archiving", c9: { dropDestinations: ["right"] }, Aj: () => panel,
+    CJi: "pending:", XOn: "sidechat:", SJi: { jsx: (type, props) => ({ type, props }) }, TJi: {},
+    Eg: "instructions", c$e: "model", Ist: () => ({}), Sp: () => null, hd: "toast", dJi: {}, uJi: {},
+    s0t: (scope, _parent, _child) => { assert.equal(scope, route); },
+    mJi: (scope, options) => { assert.equal(scope, route); watched.push(options.conversationId); return () => {}; },
+    Qqi: async options => {
+      assert.equal(options.scope, route); forks.push(options);
+      h.states.set("side", { threadRuntimeStatus: { type: "idle" }, turns: [] });
+      return { conversationId: "side", hostId: "local", creation: { status: "created", firstTurn: { status: "not-requested" } } };
+    } };
+  vm.createContext(ctx);
+  vm.runInContext([declaration(originals[0], "DK"), declaration(originals[0], "OK"),
+    "tj=" + assignedExpression(originals[2], "tj"), declaration(patched[2].text, "gJi"),
+    declaration(patched[2].text, "__azraelOpenBtwPanel")].join("\n"), ctx);
+  function get(atom) {
+    if (atom?.scope) {
+      const owner = ctx.DK(this, instances, atom.scope);
+      return atom.read({ scope: owner, get: key => owner.get(key) });
+    }
+    if (atom === "tabs") return [];
+    if (atom === "tabById") return { contentInstance: "native-tab" };
+    if (["archived", "archiving"].includes(atom)) return false;
+    if (atom === "model") return h.parent.latestModel;
+    if (atom === "instructions") return {};
+    assert.fail("Unexpected native atom");
+  }
+  for (const [parentId, running, text, search] of [["parent", true, "/btw", "?tab=source"], ["restored", false, "/btw", ""],
+    ["parent", true, "/btw Why?", "?tab=source"], ["restored", false, "/btw Why?", ""]]) {
+    h = fixture(); h.parent.threadRuntimeStatus.type = running ? "running" : "idle";
+    h.states.set(parentId, h.parent);
+    const before = structuredClone(h.parent);
+    route = { token: routeToken, parent: null, value: { pathname: "/local/" + parentId, search, routeKind: "local-thread" }, get };
+    composer = { token: composerToken, parent: route, value: { kind: "local", conversationId: parentId }, get };
+    assert.equal(await h.submit({ scope: composer, conversationId: parentId, text, openPanel: ctx.__azraelOpenBtwPanel }), true);
+    assert.equal(forks.at(-1).parentNavigationPath, route.value.pathname + search);
+    assert.equal(forks.at(-1).sideQuestion, true);
+    assert.equal(completed.at(-1).props.SideChatTab, "Panel");
+    assert.equal(completed.at(-1).props.conversationId, "side");
+    assert.equal(h.controller.lookup("side").parentId, parentId, "native preparation must register the isolated child");
+    assert.equal(h.requests.length, text === "/btw" ? 0 : 1);
+    if (text !== "/btw") assert.equal(h.requests[0].id, "side");
+    assert.deepEqual(h.parent, before);
+  }
+  assert.equal(pending.length, 4); assert.equal(completed.length, 4); assert.equal(watched.length, 4);
+  for (const blocked of [{ routeKind: "other" }, { persistentWorkspace: {} }]) {
+    h = fixture(); Object.assign(route.value, { routeKind: "local-thread", persistentWorkspace: null }, blocked);
+    await assert.rejects(h.submit({ scope: composer, text: "/btw", openPanel: ctx.__azraelOpenBtwPanel }), /패널/);
+    assert.equal(pending.length, 4); assert.equal(forks.length, 4); assert.equal(h.requests.length, 0);
+  }
+  Object.assign(route.value, { routeKind: "local-thread", persistentWorkspace: null });
+  h = fixture(); tabUnavailable = true;
+  await assert.rejects(h.submit({ scope: composer, text: "/btw", openPanel: ctx.__azraelOpenBtwPanel }), /패널/);
+  assert.equal(forks.length, 4, "unavailable native tabs must prevent the fork");
 });
 
 test("actual native fork request preserves ephemeral/excludeTurns, sends sideQuestion and has no goal continuation", async () => {

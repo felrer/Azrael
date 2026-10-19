@@ -42,17 +42,19 @@ function __azraelRegisterBtw(conversationId,scope,intl){
 
 const SIDE = `
 ${createBtwPanel.toString()}
-var __azraelBtwPanel;
+var __azraelBtwPanel,__azraelBtwRouteScope;
 async function __azraelOpenBtwPanel(options){
  EJi();DDn();qqi();OJi();__azraelInitBtwButton();
  if(bc(options.hostId))throw Error("/btw는 네이티브 대화에서 사용할 수 있습니다.");
+ __azraelBtwRouteScope??=q(Ev,({scope})=>scope);
+ const routeScope=options.scope.get(__azraelBtwRouteScope);
  __azraelBtwPanel??=createBtwPanel(xJi,SJi,__azraelBtwButton,DJi,globalThis.__azraelBtw,(entry,refresh)=>entry.scope.watch(({get})=>{get(TDn,{conversationId:entry.id,isBackgroundSubagentsEnabled:false});refresh()}));
  const source=await options.manager.getConversation(options.parentId),settings=source?.latestThreadSettings;
  const model=settings?.model??source?.latestModel,effort=settings&&Object.hasOwn(settings,"effort")?settings.effort:source?.latestReasoningEffort??null;
  if(!model)throw Error("본 작업의 모델 선택을 불러오지 못했습니다.");
  const mode={mode:"default",settings:{model,reasoning_effort:effort,developer_instructions:null}};
  let child;
- return gJi(options.scope,__azraelBtwPanel,{sourceConversationId:options.parentId,threadSource:"user",cwd:source.cwd??await options.manager.getConversationCwd(options.parentId),hostId:options.hostId,collaborationMode:mode,intl:options.intl,displayTitle:"/btw",confirmBeforeClose:false,sideQuestion:true,replaceTabId:options.previousId?"sidechat:"+options.previousId:undefined,
+ return gJi(routeScope,__azraelBtwPanel,{sourceConversationId:options.parentId,threadSource:"user",cwd:source.cwd??await options.manager.getConversationCwd(options.parentId),hostId:options.hostId,collaborationMode:mode,intl:options.intl,displayTitle:"/btw",confirmBeforeClose:false,sideQuestion:true,replaceTabId:options.previousId?"sidechat:"+options.previousId:undefined,
   onDiscardStart:()=>{if(child)options.onDiscard(child)},
   prepareConversation:async id=>{child=id;await options.prepare(id)}
  });
