@@ -28,12 +28,16 @@ function registryPath(root, id) { return checked(root, path.join(registry(root),
 function validate(root, record) {
   if (record.schema !== 1 || typeof record.id !== "string" || !record.id || !["version", "run", "work"].includes(record.kind) || typeof record.owner !== "string" || !record.owner || !["pending", "complete", "failed", "retained"].includes(record.state) || typeof record.membership_complete !== "boolean" || !Array.isArray(record.members) || !record.members.length) throw new Error("Invalid lifecycle record");
   if (record.version != null && (typeof record.version !== "string" || !record.version)) throw new Error("Invalid lifecycle version");
+  if (record.generation !== undefined && (typeof record.generation !== "string" || !record.generation.trim())) throw new Error("Invalid lifecycle generation");
   for (const member of record.members) {
     checked(root, member.path, true);
     if (typeof member.role !== "string" || !member.role) throw new Error("Lifecycle member role required");
     for (const key of ["generated", "protection_known"]) if (member[key] !== undefined && typeof member[key] !== "boolean") throw new Error(`Invalid lifecycle member ${key}`);
   }
-  if (!Array.isArray(record.references) || record.references.some(ref => typeof ref.id !== "string" || !ref.id || typeof ref.reason !== "string" || !ref.reason)) throw new Error("Invalid lifecycle references");
+  if (!Array.isArray(record.references) || record.references.some(ref => typeof ref.id !== "string" || !ref.id || typeof ref.reason !== "string" || !ref.reason.trim() || (ref.kind !== undefined && !referenceKinds.has(ref.kind)) || (ref.reference_id !== undefined && (typeof ref.reference_id !== "string" || !ref.reference_id)))) throw new Error("Invalid lifecycle references");
+  if (new Set(record.references.map(referenceIdentity)).size !== record.references.length) throw new Error("Duplicate reference identity");
+  record.references = record.references.map(reference => ({ ...reference, reference_id: referenceIdentity(reference) }));
+  if (record.producer && (record.producer.status !== "stopped" || !["success", "failure", "unknown"].includes(record.producer.outcome) || !(record.producer.exit_code === null || Number.isInteger(record.producer.exit_code)) || typeof record.producer.reason !== "string" || !record.producer.reason.trim() || typeof record.producer.evidence_ref !== "string" || !/^[a-f0-9]{64}$/.test(record.producer.evidence_sha256 || ""))) throw new Error("Invalid lifecycle producer");
   return record;
 }
 function catalog(root) {
@@ -53,7 +57,79 @@ function projectMembers(members) {
       ...(members.some(child => inside(member.path, child.path) && child.protection_known === false) ? { protection_known: false } : {}) }))
     .sort((a, b) => Number(/log|report|evidence/.test(a.role)) - Number(/log|report|evidence/.test(b.role)));
 }
-function recordLifecycle(root, request) {
+function withCatalogLock(root, action) {
+  const directory = registry(root);
+  fs.mkdirSync(directory, { recursive: true });
+  const lock = checked(root, path.join(directory, "catalog.lock"));
+  const descriptor = fs.openSync(lock, "wx");
+  try { return action(); } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+}
+const referenceKinds = new Set(["execution", "installation", "recovery", "evidence", "dependency"]);
+function referenceIdentity(reference) { return reference.reference_id || sha(JSON.stringify([reference.id, reference.reason, reference.kind ?? null])); }
+function cleanupReady(record) { return record.producer ? record.producer.status === "stopped" && record.producer.outcome !== "unknown" : record.state === "complete"; }
+function writeRecord(root, filename, record) {
+  const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
+  fs.writeFileSync(temporary, JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
+  fs.renameSync(temporary, filename);
+}
+function checkedEvidence(root, request) {
+  if (typeof request.reason !== "string" || !request.reason.trim()) throw new Error("Nonblank reason required");
+  const evidence = checked(root, request.evidence_ref);
+  if (!fs.lstatSync(evidence).isFile()) throw new Error("Readable evidence file required");
+  const hash = sha(fs.readFileSync(evidence));
+  if (!/^[a-f0-9]{64}$/.test(request.evidence_sha256 || "") || request.evidence_sha256 !== hash) throw new Error("Evidence SHA256 changed or missing");
+  return { evidence_ref: evidence, evidence_sha256: hash, reason: request.reason };
+}
+function mutateLifecycle(root, id, request, operation, mutate) {
+  return withCatalogLock(root, () => {
+    const filename = registryPath(root, id), lock = checked(root, filename + ".lock");
+    const descriptor = fs.openSync(lock, "wx");
+    try {
+      const record = validate(root, JSON.parse(fs.readFileSync(filename, "utf8")));
+      if (record.id !== id || request.owner !== record.owner) throw new Error("Exact lifecycle owner required");
+      const evidence = checkedEvidence(root, request);
+      const identity = sha(JSON.stringify(Object.keys(request).sort().map(key => [key, request[key]])));
+      const receiptKey = operation + "_receipt";
+      if (record[receiptKey]?.request_sha256 === identity) {
+        if (operation === "release" && record.references.some(reference => request.reference_ids.includes(referenceIdentity(reference)))) throw new Error("Conflicting release retry after reference replacement");
+        return record;
+      }
+      if (request.expected_revision !== record.revision) throw new Error("Stale lifecycle revision");
+      mutate(record, evidence);
+      record[receiptKey] = { request_sha256: identity, ...evidence };
+      record.revision++;
+      record.updated_at = new Date().toISOString();
+      validate(root, record);
+      writeRecord(root, filename, record);
+      return record;
+    } finally { fs.closeSync(descriptor); fs.unlinkSync(lock); }
+  });
+}
+function closeLifecycle(root, id, request) {
+  return mutateLifecycle(root, id, request, "close", (record, evidence) => {
+    if (record.producer) throw new Error("Conflicting lifecycle close retry");
+    if (request.producer_stopped_verified !== true) throw new Error("Verified producer stop required");
+    if (!["success", "failure", "unknown"].includes(request.outcome) || !(request.exit_code === null || Number.isInteger(request.exit_code)) || (request.outcome === "success" && request.exit_code !== 0) || (request.outcome === "failure" && request.exit_code === 0) || (request.outcome === "unknown" && request.exit_code !== null)) throw new Error("Invalid terminal producer outcome");
+    // Reconcile owned planned roots, including absent outputs, without expanding ownership.
+    for (const member of record.members) {
+      checked(root, member.path, true);
+      try { fs.lstatSync(member.path); } catch (error) { if (error.code !== "ENOENT") throw error; }
+    }
+    record.producer = { status: "stopped", outcome: request.outcome, exit_code: request.exit_code, ...evidence };
+    record.state = request.outcome === "success" ? "complete" : request.outcome === "failure" ? "failed" : "pending";
+    record.membership_complete = request.outcome !== "unknown";
+    record.references = record.references.filter(reference => reference.kind !== "execution");
+  });
+}
+function releaseReferences(root, id, request) {
+  return mutateLifecycle(root, id, request, "release", record => {
+    if (!Array.isArray(request.reference_ids) || !request.reference_ids.length || request.reference_ids.some(value => typeof value !== "string" || !value) || new Set(request.reference_ids).size !== request.reference_ids.length) throw new Error("Explicit unique reference_ids required");
+    if (request.reference_ids.some(id => !record.references.some(reference => referenceIdentity(reference) === id))) throw new Error("Unknown reference identity or conflicting release retry");
+    record.references = record.references.filter(reference => !request.reference_ids.includes(referenceIdentity(reference)));
+  });
+}
+function recordLifecycle(root, request) { return withCatalogLock(root, () => recordLifecycleUnlocked(root, request)); }
+function recordLifecycleUnlocked(root, request) {
   root = path.resolve(root);
   const incoming = validate(root, { ...request, schema: 1, references: request.references || [] });
   const filename = registryPath(root, incoming.id);
@@ -64,6 +140,9 @@ function recordLifecycle(root, request) {
   try {
     const previous = fs.existsSync(filename) ? validate(root, JSON.parse(fs.readFileSync(filename, "utf8"))) : null;
     if (previous && (previous.id !== incoming.id || previous.kind !== incoming.kind || previous.owner !== incoming.owner || (previous.version ?? null) !== (incoming.version ?? null))) throw new Error("Conflicting lifecycle identity");
+    const newGeneration = previous && incoming.generation !== undefined && incoming.generation !== previous.generation;
+    if (newGeneration && (request.expected_revision !== previous.revision || previous.producer?.status !== "stopped" || previous.producer.outcome === "unknown" || incoming.state !== "pending" || incoming.membership_complete)) throw new Error("New lifecycle generation requires exact revision and known stopped producer");
+    if (previous?.producer && !newGeneration && (incoming.state !== previous.state || incoming.membership_complete !== previous.membership_complete || incoming.members.some(member => !previous.members.some(old => old.path === member.path && old.role === member.role)))) throw new Error("Closed lifecycle cannot restart or extend membership");
     if (previous && incoming.members.some(member => member.role === "release" && previous.members.some(old => old.role === "release" && old.path !== checked(root, member.path, true)))) throw new Error("Conflicting lifecycle release identity");
     if (request.expected_revision !== undefined && request.expected_revision !== (previous?.revision || 0)) throw new Error("Stale lifecycle revision");
     const members = [...(previous?.members || [])];
@@ -78,9 +157,25 @@ function recordLifecycle(root, request) {
       }
     }
     const references = [...(previous?.references || [])];
-    for (const reference of incoming.references) if (!references.some(old => old.id === reference.id && old.reason === reference.reason)) references.push(reference);
+    for (const reference of incoming.references) {
+      const normalized = { ...reference, reference_id: referenceIdentity(reference) };
+      const old = references.find(old => referenceIdentity(old) === normalized.reference_id);
+      if (old && (old.id !== normalized.id || old.reason !== normalized.reason || old.kind !== normalized.kind)) throw new Error("Conflicting reference identity");
+      if (!old) {
+        const target = catalog(root).find(record => record.id === reference.id);
+        if (target && cleanupReady(target) && target.membership_complete && !target.members.some(member => {
+          try { fs.lstatSync(checked(root, member.path, true)); return true; }
+          catch (error) { if (error.code === "ENOENT") return false; throw error; }
+        })) throw new Error("Reference target has no extant lifecycle member");
+        references.push(normalized);
+      }
+    }
     const result = { schema: 1, id: incoming.id, kind: incoming.kind, owner: incoming.owner, version: incoming.version ?? null,
       state: incoming.state, membership_complete: incoming.membership_complete, members, references,
+      ...(incoming.generation !== undefined || previous?.generation !== undefined ? { generation: incoming.generation ?? previous.generation } : {}),
+      ...(!newGeneration && previous?.producer ? { producer: previous.producer } : {}),
+      ...(!newGeneration && previous?.close_receipt ? { close_receipt: previous.close_receipt } : {}),
+      ...(!newGeneration && previous?.release_receipt ? { release_receipt: previous.release_receipt } : {}),
       revision: (previous?.revision || 0) + 1, created_at: previous?.created_at || new Date().toISOString(), updated_at: new Date().toISOString() };
     const temporary = checked(root, filename + "." + crypto.randomUUID() + ".tmp");
     fs.writeFileSync(temporary, JSON.stringify(result, null, 2) + "\n", { flag: "wx" });
@@ -102,9 +197,10 @@ function planCleanup(root, { paths = [], protectedPaths = [], reportPath } = {})
   }
   const groups = records.filter(record => selected.has(record.id)).map(record => {
     const blockers = [];
-    if (record.state !== "complete") blockers.push(`lifecycle-state:${record.state}`);
+    if (!cleanupReady(record)) blockers.push(`lifecycle-state:${record.state}`);
     if (!record.membership_complete) blockers.push("incomplete-membership");
     if (record.members.some(member => member.generated === false)) blockers.push("unconfirmed-generated-ownership");
+    if (record.members.some(member => member.protection_known === false)) blockers.push("unknown-member-protection");
     if (record.members.some(member => protectedList.some(protectedPath => overlap(member.path, protectedPath)))) blockers.push("protected-member");
     if (report && record.members.some(member => inside(member.path, report))) blockers.push("report-inside-member");
     for (const other of records) if (other.references.some(ref => ref.id === record.id)) blockers.push(`active-reference:${other.id}`);
@@ -133,7 +229,7 @@ function registerRequest(root, id) {
   const inbound = records.flatMap(consumer => consumer.references.filter(reference => reference.id === id)
     .map(reference => `${consumer.id}:${reference.reason}`));
   return { operation: "register", group: { id, kind: record.kind, owner: record.owner, version: record.version,
-    membership_complete: record.state === "complete" && record.membership_complete, provenance_ref: provenance,
+    membership_complete: cleanupReady(record) && record.membership_complete, provenance_ref: provenance,
     membership_source: registry(root), membership_source_format: "producer_registry_v1",
     members: projectMembers(record.members).map(member => ({ id: sha(id + "\0" + member.path), path: member.path, role: member.role,
       lifecycle_role: /(?:^|[-_\s])logs?(?:$|[-_\s])/i.test(member.role) ? "log"
@@ -142,7 +238,8 @@ function registerRequest(root, id) {
       kind: member.role, owner: record.owner, generated: member.generated !== false, protection_known: member.protection_known === true,
       references: inbound, provenance_ref: provenance })) } };
 }
-function finalize(root, id, retirement) {
+function finalize(root, id, retirement) { return withCatalogLock(root, () => finalizeUnlocked(root, id, retirement)); }
+function finalizeUnlocked(root, id, retirement) {
   const filename = registryPath(root, id);
   const lock = filename + ".lock";
   const descriptor = fs.openSync(checked(root, lock), "wx");
@@ -164,7 +261,7 @@ function finalize(root, id, retirement) {
       if (!stat.isFile()) throw new Error("Readable retirement evidence file required");
       retirementEvidence = { path: evidence, sha256: sha(fs.readFileSync(evidence)), reason: retirement.reason, original_state: record.state, original_membership_complete: record.membership_complete };
     }
-    if (!retirementEvidence && record.state !== "complete") blockers.push(`lifecycle-state:${record.state}`);
+    if (!retirementEvidence && !cleanupReady(record)) blockers.push(`lifecycle-state:${record.state}`);
     if (!retirementEvidence && !record.membership_complete) blockers.push("incomplete-membership");
     if (remaining.length || references.length || blockers.length) return { id, status: "retained", remaining, references, blockers, registryPath: filename };
     // Metadata reconciliation follows verified absence, never a producer state label.
@@ -182,12 +279,26 @@ function main(argv = process.argv.slice(2)) {
     else if (key === "--reference") { const split = value.indexOf("="); if (split < 1 || split === value.length - 1) throw new Error("Expected lifecycle-id=reason"); references.push({ id: value.slice(0, split), reason: value.slice(split + 1) }); }
     else if (key === "--candidate") paths.push(value);
     else if (key === "--protected") protectedPaths.push(value);
-    else if (["--project-root", "--id", "--kind", "--owner", "--version", "--state", "--report", "--membership-complete", "--limit", "--offset"].includes(key) && !Object.hasOwn(options, key.slice(2))) options[key.slice(2)] = value;
+    else if (["--project-root", "--id", "--kind", "--owner", "--version", "--state", "--report", "--membership-complete", "--limit", "--offset", "--request-file", "--generated", "--protection-known", "--reference-kind"].includes(key) && !Object.hasOwn(options, key.slice(2))) options[key.slice(2)] = value;
     else throw new Error(`Unknown or duplicate option ${key}`);
   }
   if (!options["project-root"] || !path.isAbsolute(options["project-root"])) throw new Error("--project-root ABS required");
   const root = options["project-root"];
+  if (["close", "release"].includes(action)) {
+    const requestFile = checked(root, options["request-file"]);
+    const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
+    return action === "close" ? closeLifecycle(root, options.id, request) : releaseReferences(root, options.id, request);
+  }
   if (action === "record") {
+    if (options["reference-kind"] !== undefined) {
+      if (!referenceKinds.has(options["reference-kind"])) throw new Error("Invalid reference kind");
+      for (const reference of references) reference.kind = options["reference-kind"];
+    }
+    for (const key of ["generated", "protection-known"]) if (options[key] !== undefined && !["true", "false"].includes(options[key])) throw new Error(`--${key} true|false`);
+    for (const member of members) {
+      if (options.generated !== undefined) member.generated = options.generated === "true";
+      if (options["protection-known"] !== undefined) member.protection_known = options["protection-known"] === "true";
+    }
     if (options["membership-complete"] && !["true", "false"].includes(options["membership-complete"])) throw new Error("--membership-complete true|false");
     return recordLifecycle(root, { id: options.id, kind: options.kind, owner: options.owner, version: options.version,
       state: options.state, membership_complete: options["membership-complete"] === "true", members, references });
@@ -199,9 +310,9 @@ function main(argv = process.argv.slice(2)) {
     const limit = options.limit === undefined ? 50 : Number(options.limit), offset = options.offset === undefined ? 0 : Number(options.offset);
     if (!Number.isInteger(limit) || limit < 1 || limit > 200 || !Number.isInteger(offset) || offset < 0) throw new Error("Catalog limit 1..200 and nonnegative offset required");
     const records = catalog(root);
-    return { total: records.length, offset, limit, groups: records.slice(offset, offset + limit).map(({ id, kind, owner, version, state, membership_complete, members, references, revision }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, references, revision })) };
+    return { total: records.length, offset, limit, groups: records.slice(offset, offset + limit).map(({ id, kind, owner, version, state, membership_complete, members, references, revision, producer, generation }) => ({ id, kind, owner, version, state, membership_complete, member_count: members.length, references, revision, ...(producer ? { producer } : {}), ...(generation ? { generation } : {}) })) };
   }
   throw new Error("Expected record, plan, register, catalog or finalize");
 }
-module.exports = { recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
+module.exports = { withCatalogLock, closeLifecycle, releaseReferences, recordLifecycle, planCleanup, registerRequest, catalog, registryPath, projectMembers, finalize, main };
 if (require.main === module) { try { console.log(JSON.stringify(main())); } catch (error) { console.error(error.message); process.exitCode = 1; } }

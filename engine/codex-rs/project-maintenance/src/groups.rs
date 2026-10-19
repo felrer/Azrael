@@ -234,6 +234,83 @@ pub(crate) fn register(
     Ok(json!({"group":group,"items":items}))
 }
 
+/// Refresh producer protection without traversing or hashing payload content.
+/// Membership and ownership changes require full registration instead.
+pub(crate) fn refresh(
+    root: &Path,
+    group_id: &str,
+    state: &mut State,
+    auth: Auth<'_>,
+) -> Result<Value, String> {
+    let mut group = state
+        .groups
+        .get(group_id)
+        .ok_or("unknown lifecycle group")?
+        .clone();
+    if group["membership_source_format"] != "producer_registry_v1" {
+        return Err("refresh_group requires producer_registry_v1".into());
+    }
+    let source = paths::resolve(root, Path::new(string(&group, "membership_source")?))?;
+    let mut items = BTreeMap::new();
+    for member in group["members"].as_array().ok_or("invalid group members")? {
+        let id = member.as_str().ok_or("invalid group member id")?;
+        let item = state.items.get(id).ok_or("missing group member")?;
+        if self::id(item) != Some(group_id) {
+            return Err("inconsistent group member".into());
+        }
+        let path = paths::resolve(root, Path::new(string(item, "path")?))?;
+        paths::check(root, &path, auth)?;
+        if paths::within(&path, &source) || paths::within(&source, &path) {
+            return Err("membership source overlaps deletion member".into());
+        }
+        items.insert(id.to_owned(), item.clone());
+    }
+    let observed = source_measurement(root, &group, &items, auth)?;
+    let owner = &observed["owner"];
+    if owner["owner"] != group["owner"]
+        || owner["kind"] != group["kind"]
+        || owner["version"] != group["version"]
+        || observed["membership_matches"] != true
+    {
+        return Err("producer identity or membership changed; re-register full membership".into());
+    }
+    let members = owner["members"]
+        .as_array()
+        .ok_or("invalid producer members")?;
+    for item in items.values_mut() {
+        let path = Path::new(string(item, "path")?);
+        let source_member = members
+            .iter()
+            .find(|member| {
+                let candidate = Path::new(member["path"].as_str().unwrap_or(""));
+                paths::within(path, candidate) && paths::within(candidate, path)
+            })
+            .ok_or("producer member missing")?;
+        let descendants = members
+            .iter()
+            .filter(|member| paths::within(Path::new(member["path"].as_str().unwrap_or("")), path));
+        let generated = item["generated"] == true
+            && !descendants
+                .clone()
+                .any(|member| member["generated"] == false);
+        let protection_known = source_member["protection_known"] == true
+            && !descendants
+                .clone()
+                .any(|member| member["protection_known"] == false);
+        item["generated"] = json!(generated);
+        item["protection_known"] = json!(protection_known);
+        item["references"] = observed["references"].clone();
+        item["protection_revision"] = observed["identity"].clone();
+    }
+    group["membership_complete"] = observed["settled"].clone();
+    group["membership_source_identity"] = observed["identity"].clone();
+    group["protection_revision"] = observed["identity"].clone();
+    let refreshed_items = items.values().cloned().collect::<Vec<_>>();
+    state.items.extend(items);
+    state.groups.insert(group_id.to_owned(), group.clone());
+    Ok(json!({"group":group,"items":refreshed_items}))
+}
+
 pub(crate) struct Batch {
     definition: Value,
     pub members: BTreeMap<String, Value>,

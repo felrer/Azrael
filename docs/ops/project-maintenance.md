@@ -102,6 +102,14 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 느린 호출은 진행 단계를 확인하고 실제 완료를 기다린다. 같은 대상을 다시 스캔하거나 미종료 producer를 중복 실행하지 않는다. 적용 후에는 항목별 실제 결과와 잔여를 확인하고 참조 해제·finalize를 수행한다. 도구가 이미 확인한 부재는 모순이나 미확인 결과가 없는 한 재귀 조사하지 않는다. 이 절차는 에이전트의 중복 조사를 줄이며 현재 native 구현의 내부 재귀 측정을 생략하는 기능을 추가하지 않는다.
 
+## 종료·참조 해제와 보호 갱신
+
+새 run writer는 정상 종료와 확인된 실패 종료를 `closeLifecycle`로 기록한다. 결과를 성공으로 고치지 않고 구성 완결과 실행 수명의 종료를 구분하며, 미확인 실행은 보호한다. `scripts/artifact-lifecycle.cjs close --project-root <absolute-root> --id <consumer-id> --request-file <absolute-json>`의 요청은 `owner`, `expected_revision`, `producer_stopped_verified:true`, `outcome` (`success`/`failure`/`unknown`), `exit_code`, `reason`, `evidence_ref`, `evidence_sha256`을 가진다. 요청 파일은 프로젝트 안에 두고 실제 종료 근거와 SHA256을 제출한다. 명시한 execution 참조만 종료와 함께 해제하며 기존 종류 없는 참조는 유지한다.
+
+지속 참조를 해제하려면 같은 CLI의 `release`와 요청 파일에 소유자·revision·`reference_ids`·이유·근거 경로·SHA256을 명시한다. catalog의 각 reference ID를 그대로 사용한다. 설치·복구·증거 인계는 새 참조를 먼저 등록하고 이전 참조를 해제한다. 참조를 푼 뒤 `project_inventory(action:register,request:{refresh_group:{id}})`로 같은 소유·경로·role의 native 보호 상태를 갱신하고 fresh review를 받는다. 내용 identity·크기·측정 시각은 재측정하지 않으며 실제 삭제 전 검사는 유지한다. 오래된 설치본에서 이 request가 지원되지 않으면 기존 전체 재등록 경로를 사용하고 기능이 구현됐다고 가정하지 않는다.
+
+모듈 cache owner는 새 키 선택 직후 이전 미사용 키를 정리한다. 새 빌드 실패 때문에 이전 키를 fallback으로 남기지 않으며 별도의 레거시 정리 요청을 요구하지 않는다. 명시적 보존 수, 실제 설치·다른 소비자·실행 중인 자료와 조회 불확실성은 기존 guard가 보호하고 결과에 사유를 남긴다. 이미 누적된 기존 unknown/pending 기록은 종료 근거 없이 일괄 해제하지 않는다.
+
 ## 작업·버전 묶음 연결과 이전
 
 현재 단독 writer의 기본 결과는 stdout의 `runRoot`/`lifecycleId`와 해당 run의 `reports/producer.json`으로 찾는다. 기존 고정 `artifacts/logs/...` 경로는 과거 실행 근거일 수 있으며 새 실행의 출력 경로로 가정하지 않는다. renderer의 기존 요약·스크린샷 파일명은 run의 `logs/`, native/check의 검증 결과는 `reports/`에 둔다. `check-management` 결과는 `<runRoot>/reports/verification.json`이다. 명시한 pending 부모가 소유하는 deploy/accounts 검사는 기존 부모 내부 결과 경로를 유지한다. instruction CLI JSON의 manifest 부모를 `AZRAEL_INSTRUCTION_RELEASE_ASSETS`로 전달하면 해당 release의 integration reader를 선택할 수 있다. caller가 명시한 외부 출력·실제 auth/state는 기존 소유자를 유지한다.

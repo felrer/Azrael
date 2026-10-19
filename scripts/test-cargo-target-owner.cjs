@@ -80,6 +80,7 @@ test("missing executable releases a lease only when no producer started", () => 
   const result = owner.runManagedCargoSync({ ...spec, command: path.join(spec.cwd, "missing-cargo") });
   assert.equal(result.error.code, "ENOENT");
   assert.ok(!fs.existsSync(leasePath(spec)));
+
 });
 
 test("explicit target arguments cannot bypass the lease and aliases are pinned before spawn", context => {
@@ -167,6 +168,17 @@ test("copied-project default pending lifecycle precedes the producer and reconci
   assert.ok(records[0].id.startsWith("shared:cargo-pending:"));
   assert.equal(path.dirname(records[0].members[0].path), owner.physicalPath(physicalOutput));
   assert.ok(!fs.existsSync(leasePath(spec)));
+  const firstGeneration = records[0].generation;
+  const failed = copiedVerification.runManagedCargoSync({ ...command, command: process.execPath, args: ["-e", "process.exitCode=7"], stdio: "pipe", encoding: "utf8" });
+  assert.equal(failed.status, 7);
+  const [failedRecord] = copiedLifecycle.catalog(spec.cwd);
+  assert.equal(copiedLifecycle.catalog(spec.cwd).length, 1);
+  assert.equal(failedRecord.id, records[0].id);
+  assert.notEqual(failedRecord.generation, firstGeneration);
+  assert.equal(failedRecord.state, "failed"); assert.equal(failedRecord.membership_complete, true);
+  assert.equal(failedRecord.producer.exit_code, 7);
+  assert.equal(failedRecord.producer.outcome, "failure");
+  assert.ok(!failedRecord.producer.evidence_ref.startsWith(failedRecord.members[0].path + path.sep));
 });
 
 test("compilation signatures retain package/features/target/profile/env while omitting runtime filters/arguments", () => {

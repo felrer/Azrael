@@ -81,7 +81,8 @@ async function main() {
   const producer = JSON.parse(fs.readFileSync(path.join(writer.run.reports, 'producer.json'), 'utf8'));
   assert.equal(producer.exitCode, 7);
   assert.equal(producer.producerStopped, true);
-  assert.equal(producer.membership_complete, false);
+  assert.equal(producer.membership_complete, true);
+  assert.equal(writer.run.record.producer.outcome, 'failure');
   assert.equal(producer.lifecycleId, writer.run.lifecycleId);
   assert.throws(() => initialize(file, testRoot, { AZRAEL_RENDER_FIXTURE_ROOT: path.join(testRoot, 'outside') }), /outside generated output scope/);
   console.log(JSON.stringify({ passed: true, writerCount: files.length, cases, checks: ['unique repeated paths', 'pending before output use', 'explicit path collision preserves evidence', 'actual writer child tracking', 'unclosed child remains pending', 'failed exit remains failed', 'outside override rejected'], outputRoot: destination }));

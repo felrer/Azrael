@@ -4,6 +4,89 @@ use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::{Path, PathBuf};
 
+pub(crate) struct CatalogLock<'a> {
+    path: PathBuf,
+    _file: std::fs::File,
+    auth: Auth<'a>,
+}
+impl Drop for CatalogLock<'_> {
+    fn drop(&mut self) {
+        // Removal is ordinary deletion; an unexpected failure remains visible
+        // as contention on the next operation rather than bypassing the lock.
+        if (self.auth)(&self.path, AccessMode::Write).is_ok() {
+            let _ = std::fs::remove_file(&self.path);
+        }
+        self.auth.catalog_locks.borrow_mut().remove(&self.path);
+    }
+}
+pub(crate) fn lock_request<'a>(
+    root: &Path,
+    request: &Value,
+    state: &crate::State,
+    auth: Auth<'a>,
+) -> Result<Vec<CatalogLock<'a>>, String> {
+    let mut sources = BTreeSet::new();
+    let mut add = |group: &Value| -> Result<(), String> {
+        if group["membership_source_format"] == "producer_registry_v1" {
+            sources.insert(paths::resolve(
+                root,
+                Path::new(string(group, "membership_source")?),
+            )?);
+        }
+        Ok(())
+    };
+    match request["operation"].as_str() {
+        Some("apply") => {
+            for choice in request["decisions"].as_array().ok_or("missing decisions")? {
+                if let Some(group) = state
+                    .items
+                    .get(string(choice, "id")?)
+                    .and_then(crate::groups::id)
+                    .and_then(|id| state.groups.get(id))
+                {
+                    add(group)?;
+                }
+            }
+        }
+        Some("register") if request.get("refresh_group").is_some() => {
+            add(state
+                .groups
+                .get(string(&request["refresh_group"], "id")?)
+                .ok_or("unknown lifecycle group")?)?;
+        }
+        _ => {}
+    }
+    let mut locks = Vec::new();
+    for source in sources {
+        paths::check(root, &source, auth)?;
+        auth(&source, AccessMode::Write)?;
+        let path = source.join("catalog.lock");
+        paths::check(root, &path, auth)?;
+        auth(&path, AccessMode::Write)?;
+        let file = std::fs::OpenOptions::new()
+            .write(true)
+            .create_new(true)
+            .open(&path)
+            .map_err(|e| format!("producer catalog lock unavailable: {e}"))?;
+        auth.catalog_locks.borrow_mut().insert(path.clone());
+        locks.push(CatalogLock {
+            path,
+            _file: file,
+            auth,
+        });
+    }
+    Ok(locks)
+}
+fn check_lock(root: &Path, source: &Path, auth: Auth<'_>) -> Result<(), String> {
+    let path = source.join("catalog.lock");
+    if !auth.catalog_locks.borrow().contains(&path)
+        && paths::checked_metadata(root, &path, auth)?.is_some()
+    {
+        return Err("producer catalog writer is active".into());
+    }
+    Ok(())
+}
+
 fn nonblank(value: &Value, key: &str) -> Result<(), String> {
     if string(value, key)?.trim().is_empty() {
         return Err(format!("blank producer registry {key}"));
@@ -86,11 +169,36 @@ fn validate(root: &Path, record: &Value, auth: Auth<'_>) -> Result<(), String> {
     if !record["version"].is_null() {
         nonblank(record, "version")?;
     }
+    if let Some(producer) = record.get("producer") {
+        let outcome = string(producer, "outcome")?;
+        let exit = &producer["exit_code"];
+        if producer["status"] != "stopped"
+            || !["success", "failure", "unknown"].contains(&outcome)
+            || !(exit.is_null() || exit.as_i64().is_some())
+            || (outcome == "success" && exit != 0)
+            || (outcome == "failure" && exit == 0)
+            || (outcome == "unknown" && !exit.is_null())
+            || !producer.get("exit_code").is_some()
+            || !string(producer, "evidence_sha256")?
+                .bytes()
+                .all(|b| b.is_ascii_digit() || (b'a'..=b'f').contains(&b))
+            || string(producer, "evidence_sha256")?.len() != 64
+        {
+            return Err("invalid producer stop evidence".into());
+        }
+        nonblank(producer, "reason")?;
+        nonblank(producer, "evidence_ref")?;
+    }
     let members = record["members"]
         .as_array()
         .filter(|m| !m.is_empty())
         .ok_or("invalid producer members")?;
     for member in members {
+        for key in ["generated", "protection_known"] {
+            if member.get(key).is_some_and(|value| !value.is_boolean()) {
+                return Err(format!("invalid producer member {key}"));
+            }
+        }
         nonblank(member, "role")?;
         let path = Path::new(string(member, "path")?);
         if !path.is_absolute() {
@@ -140,6 +248,7 @@ fn canonical(value: &Value) -> Value {
 }
 
 fn catalog(root: &Path, source: &Path, auth: Auth<'_>) -> Result<BTreeMap<String, Value>, String> {
+    check_lock(root, source, auth)?;
     let mut records = BTreeMap::new();
     for path in names(root, source, auth)? {
         let bytes = read(root, &path, auth)?;
@@ -154,6 +263,7 @@ fn catalog(root: &Path, source: &Path, auth: Auth<'_>) -> Result<BTreeMap<String
             return Err("duplicate producer id".into());
         }
     }
+    check_lock(root, source, auth)?;
     Ok(records)
 }
 fn relevant(records: &BTreeMap<String, Value>, id: &str) -> Vec<Value> {
@@ -217,7 +327,13 @@ pub(crate) fn observe(
     {
         blockers.push("producer owner metadata differs from registered group".into());
     }
-    if owner["state"] != "complete" || owner["membership_complete"] != true {
+    let settled = owner["membership_complete"] == true
+        && if let Some(producer) = owner.get("producer") {
+            producer["outcome"] == "success" || producer["outcome"] == "failure"
+        } else {
+            owner["state"] == "complete"
+        };
+    if !settled {
         blockers.push("producer owner membership is not complete".into());
     }
     let members = owner["members"].as_array().ok_or("invalid owner members")?;
@@ -236,6 +352,12 @@ pub(crate) fn observe(
     }
     let mut matched = BTreeSet::new();
     for (path, role) in &projected {
+        if members.iter().any(|member| {
+            paths::within(Path::new(member["path"].as_str().unwrap_or("")), path)
+                && (member["generated"] == false || member["protection_known"] == false)
+        }) {
+            blockers.push("producer member ownership or protection is unconfirmed".into());
+        }
         if let Some((id, _)) = items.iter().find(|(_, item)| {
             let registered = Path::new(item["path"].as_str().unwrap_or(""));
             paths::within(path, registered)
@@ -247,20 +369,36 @@ pub(crate) fn observe(
             matched.insert(id);
         }
     }
-    if projected.len() != items.len() || matched.len() != items.len() {
+    let membership_matches = projected.len() == items.len() && matched.len() == items.len();
+    if !membership_matches {
         blockers.push(
             "producer projected membership differs from registered member roots or roles".into(),
         );
     }
+    let mut references = Vec::new();
     for (consumer_id, record) in &records {
         let inbound = record["references"]
             .as_array()
             .is_some_and(|references| references.iter().any(|reference| reference["id"] == id));
         if inbound {
+            for reference in record["references"]
+                .as_array()
+                .ok_or("invalid producer references")?
+            {
+                if reference["id"] == id {
+                    references.push(json!(format!(
+                        "{consumer_id}:{}",
+                        string(reference, "reason")?
+                    )));
+                }
+            }
             blockers.push(format!(
                 "producer inbound consumer protects group: {consumer_id}"
             ));
         }
     }
-    Ok(json!({"status":"measured","identity":hash(&relevant(&records, id))?,"blockers":blockers}))
+    Ok(
+        json!({"status":"measured","identity":hash(&relevant(&records, id))?,"blockers":blockers,
+        "owner":owner,"membership_matches":membership_matches,"settled":settled,"references":references}),
+    )
 }

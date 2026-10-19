@@ -98,6 +98,7 @@ test("shared member protection, report destinations and active consumers protect
   assert.ok(plan.groups.every(group => group.blockers.length));
   plan = lifecycle.planCleanup(root, { paths: [at("shared/key")], reportPath: at("releases/a/cleanup.json") });
   assert.ok(plan.groups.find(group => group.id === "a").blockers.includes("report-inside-member"));
+  fs.mkdirSync(at("releases/a"), { recursive: true });
   record("consumer", [["verification/consumer", "run"]], { kind: "run", state: "pending", references: [{ id: "a", reason: "active cache consumer" }] });
   plan = lifecycle.planCleanup(root, { paths: [at("releases/a")] });
   assert.ok(plan.groups.find(group => group.id === "a").blockers.includes("active-reference:consumer"));
@@ -106,6 +107,7 @@ test("shared member protection, report destinations and active consumers protect
 test("native projection protects dependencies from inbound consumers without protecting consumers from outbound dependencies", t => {
   const { root, at, record } = fixture(t);
   record("release", [["releases/main", "release"]]);
+  fs.mkdirSync(at("releases/main"), { recursive: true });
   record("package", [["packages/main", "package"]], { kind: "run", references: [{ id: "release", reason: "packaging-input" }] });
   const packagePlan = lifecycle.planCleanup(root, { paths: [at("packages/main")] });
   assert.deepEqual(packagePlan.groups[0].blockers, []);
@@ -172,6 +174,7 @@ test("finalization removes only own registry after every recorded member is actu
   const pending = lifecycle.finalize(root, "pending");
   assert.equal(pending.status, "retained"); assert.ok(pending.blockers.includes("lifecycle-state:pending"));
   record("shared", [["shared/item", "cache"]]);
+  fs.mkdirSync(at("shared/item"), { recursive: true });
   record("referrer", [["outputs/referrer", "output"]], { references: [{ id: "shared", reason: "still in use" }] });
   assert.equal(lifecycle.finalize(root, "shared").status, "retained");
   assert.equal(lifecycle.main(["catalog", "--project-root", root, "--limit", "1"]).groups.length, 1);
@@ -180,6 +183,7 @@ test("finalization removes only own registry after every recorded member is actu
 test("CLI cache consumers protect the last shared key until payload and logs are both gone", t => {
   const { root, at, record } = fixture(t);
   record("module-key", [["cache/modules/companion/key", "cache-entry"]], { kind: "run" });
+  fs.mkdirSync(at("cache/modules/companion/key"), { recursive: true });
   for (const id of ["version-one", "version-two"]) {
     lifecycle.main(["record", "--project-root", root, "--id", id, "--kind", "version",
       "--owner", "fixture-producer", "--state", "complete", "--membership-complete", "true",
@@ -189,8 +193,8 @@ test("CLI cache consumers protect the last shared key until payload and logs are
     fs.mkdirSync(at(`logs/${id}`), { recursive: true });
   }
   const groups = lifecycle.main(["catalog", "--project-root", root, "--limit", "200"]).groups;
-  assert.deepEqual(groups.find(group => group.id === "version-one").references,
-    [{ id: "module-key", reason: "companion-tool" }]);
+  assert.equal(groups.find(group => group.id === "version-one").references[0].id, "module-key");
+  assert.ok(groups.find(group => group.id === "version-one").references[0].reference_id);
   assert.equal(lifecycle.registerRequest(root, "module-key").group.members[0].references.length, 2);
   fs.rmdirSync(at("releases/version-one"));
   assert.equal(lifecycle.finalize(root, "version-one").status, "retained");
@@ -236,4 +240,106 @@ test("Windows lifecycle acceptance includes module management and keeps metric f
   assert.ok(metrics);
   assert.equal(metrics[1][metrics[1].indexOf("-OutputDirectory") + 1], path.join(run, "temporary/metrics"));
   assert.ok(selected.some(([, args]) => args.includes("scripts/test-build-module-cache.ps1")));
+});
+
+function stopEvidence(root, record, extra = {}) {
+  const evidence = path.join(root, "terminal.json");
+  fs.writeFileSync(evidence, "owned producer and process tree stopped; exit 7");
+  return { owner: record.owner, expected_revision: record.revision, producer_stopped_verified: true,
+    outcome: "failure", exit_code: 7, reason: "Verified owned terminal result", evidence_ref: evidence,
+    evidence_sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(evidence)).digest("hex"), ...extra };
+}
+test("known failure releases execution references while persistent and untyped references require explicit release", t => {
+  const { root, at, record } = fixture(t);
+  record("target", [["shared/target", "cache"]]); fs.mkdirSync(at("shared/target"), { recursive: true });
+  const before = record("consumer", [["outputs/consumer", "output"]], { state: "pending", membership_complete: false,
+    references: [{ id: "target", reason: "active", kind: "execution", reference_id: "active" },
+      { id: "target", reason: "installed", kind: "installation", reference_id: "installed" },
+      { id: "target", reason: "legacy", reference_id: "legacy" }] });
+  const request = stopEvidence(root, before);
+  const closed = lifecycle.closeLifecycle(root, "consumer", request);
+  assert.equal(closed.state, "failed"); assert.equal(closed.membership_complete, true);
+  assert.equal(closed.producer.exit_code, 7);
+  assert.deepEqual(closed.references.map(ref => ref.reference_id), ["installed", "legacy"]);
+  assert.deepEqual(lifecycle.planCleanup(root, { paths: [at("outputs/consumer")] }).groups[0].blockers, []);
+  assert.equal(lifecycle.closeLifecycle(root, "consumer", request).revision, closed.revision);
+  assert.throws(() => lifecycle.closeLifecycle(root, "consumer", { ...request, owner: "other" }), /owner/);
+  assert.throws(() => lifecycle.closeLifecycle(root, "consumer", { ...request, expected_revision: closed.revision, reason: "different retry" }), /Conflicting/);
+  const release = { owner: closed.owner, expected_revision: closed.revision, reason: "Installation and legacy consumers independently retired",
+    evidence_ref: request.evidence_ref, evidence_sha256: request.evidence_sha256, reference_ids: ["installed", "legacy"] };
+  const released = lifecycle.releaseReferences(root, "consumer", release);
+  assert.deepEqual(released.references, []);
+  assert.equal(lifecycle.releaseReferences(root, "consumer", release).revision, released.revision);
+  assert.deepEqual(lifecycle.planCleanup(root, { paths: [at("shared/target")] }).groups[0].blockers, []);
+  assert.throws(() => lifecycle.releaseReferences(root, "consumer", { ...release, reference_ids: ["active"] }), /Stale/);
+  fs.writeFileSync(request.evidence_ref, "changed evidence");
+  assert.throws(() => lifecycle.closeLifecycle(root, "consumer", request), /SHA256/);
+});
+test("unknown terminal outcome remains protected; closure cannot promote legacy ownership flags", t => {
+  const { root, at, record } = fixture(t);
+  const before = record("unknown", [["outputs/unknown", "output"]], { state: "pending", membership_complete: false });
+  const request = stopEvidence(root, before, { outcome: "unknown", exit_code: null });
+  const closed = lifecycle.closeLifecycle(root, "unknown", request);
+  assert.equal(closed.state, "pending"); assert.equal(closed.membership_complete, false);
+  assert.ok(lifecycle.planCleanup(root, { paths: [at("outputs/unknown")] }).groups[0].blockers.includes("incomplete-membership"));
+  const legacy = record("legacy-close", [], { state: "pending", membership_complete: false,
+    members: [{ path: at("outputs/legacy"), role: "output", generated: false, protection_known: false }] });
+  const stopped = lifecycle.closeLifecycle(root, legacy.id, stopEvidence(root, legacy));
+  assert.equal(stopped.members[0].generated, false); assert.equal(stopped.members[0].protection_known, false);
+  assert.ok(lifecycle.planCleanup(root, { paths: [at("outputs/legacy")] }).groups[0].blockers.includes("unconfirmed-generated-ownership"));
+});
+test("closure and release reject stale revisions, unverifiable stops and invalid evidence before mutation", t => {
+  const { root, record } = fixture(t);
+  const before = record("stale", [["outputs/stale", "output"]], { state: "pending", membership_complete: false });
+  const request = stopEvidence(root, before);
+  for (const invalid of [{ expected_revision: 0 }, { producer_stopped_verified: false }, { reason: " " },
+    { evidence_ref: path.join(root, "missing") }, { evidence_ref: path.dirname(root) }, { evidence_sha256: "0".repeat(64) }]) {
+    assert.throws(() => lifecycle.closeLifecycle(root, before.id, { ...request, ...invalid }));
+    assert.equal(lifecycle.catalog(root)[0].revision, before.revision);
+  }
+  const requestFile = path.join(root, "close-request.json"); fs.writeFileSync(requestFile, JSON.stringify(request));
+  assert.equal(lifecycle.main(["close", "--project-root", root, "--id", before.id, "--request-file", requestFile]).state, "failed");
+  assert.throws(() => lifecycle.main(["close", "--project-root", root, "--id", before.id, "--request-file", "relative.json"]), /absolute/);
+});
+test("catalog lock serializes mutations, and reference registration preserves external and planned targets", t => {
+  const { root, at, record } = fixture(t);
+  const before = record("locked", [["outputs/locked", "output"]], { state: "pending", membership_complete: false });
+  const request = stopEvidence(root, before);
+  lifecycle.withCatalogLock(root, () => {
+    assert.throws(() => record("other", [["outputs/other", "output"]]), /EEXIST/);
+    assert.throws(() => lifecycle.closeLifecycle(root, before.id, request), /EEXIST/);
+    assert.throws(() => lifecycle.releaseReferences(root, before.id, request), /EEXIST/);
+    assert.throws(() => lifecycle.finalize(root, before.id), /EEXIST/);
+  });
+  record("planned", [["outputs/planned", "output"]], { state: "pending", membership_complete: false });
+  const external = record("external", [["outputs/external", "output"]], { references: [{ id: "another-project:key", reason: "external cache" }, { id: "planned", reason: "future output" }] });
+  assert.equal(external.references.length, 2);
+  record("absent", [["outputs/absent", "output"]]);
+  assert.throws(() => record("dangling", [["outputs/dangling", "output"]], { references: [{ id: "absent", reason: "already removed" }] }), /no extant/);
+  fs.mkdirSync(at("outputs/absent"), { recursive: true });
+  record("live", [["outputs/live", "output"]], { references: [{ id: "absent", reason: "still present" }] });
+});
+test("shared producer generation reopens only known stopped identity and invalidates old retry receipts", t => {
+  const { root, record } = fixture(t);
+  const before = record("generation", [["outputs/generation", "output"]], { state: "pending", membership_complete: false, generation: "one" });
+  const request = stopEvidence(root, before);
+  const closed = lifecycle.closeLifecycle(root, before.id, request);
+  assert.throws(() => record(before.id, [["outputs/generation", "output"]], { state: "pending", membership_complete: false }), /Closed/);
+  const reopened = record(before.id, [["outputs/generation", "output"]], { state: "pending", membership_complete: false, generation: "two", expected_revision: closed.revision });
+  assert.equal(reopened.producer, undefined); assert.equal(reopened.close_receipt, undefined);
+  assert.throws(() => lifecycle.closeLifecycle(root, before.id, request), /Stale/);
+  assert.throws(() => record(before.id, [["outputs/generation", "output"]], { state: "pending", membership_complete: false, generation: "three", expected_revision: reopened.revision }), /known stopped/);
+});
+
+test("PowerShell deletion holds the shared catalog lock through physical removal", { skip: process.platform !== "win32" }, t => {
+  const { root, at, record } = fixture(t);
+  const member = at("outputs/ps-lock"); fs.mkdirSync(path.dirname(member), { recursive: true }); fs.writeFileSync(member, "owned fixture");
+  record("ps-lock", [["outputs/ps-lock", "output"]]);
+  const quote = value => "'" + value.replaceAll("'", "''") + "'";
+  const probe = "const l=require(" + JSON.stringify(require.resolve("./artifact-lifecycle.cjs")) + ");try{l.recordLifecycle(" + JSON.stringify(root) + ",{id:'new-consumer',kind:'run',owner:'fixture',state:'pending',membership_complete:false,members:[{path:" + JSON.stringify(at("outputs/new-consumer")) + ",role:'output'}],references:[{id:'ps-lock',reason:'race'}]});process.exitCode=9}catch(e){if(e.code!=='EEXIST')throw e;process.stdout.write('catalog-locked')}";
+  const script = "$ErrorActionPreference='Stop'; . " + quote(path.join(__dirname, "artifact-lifecycle.ps1")) + "; $result=Invoke-ArtifactLifecycleCleanup -ProjectRoot " + quote(root) + " -CandidatePath " + quote(member) + " -Apply $true -CheckMember { param($member) } -RemoveMember { param($member); $probe=& " + quote(process.execPath) + " -e " + quote(probe) + "; if ($LASTEXITCODE -ne 0 -or $probe -ne 'catalog-locked') { throw 'catalog lock was not held' }; Remove-Item -LiteralPath $member -ErrorAction Stop }; if ($result.status -ne 'deleted') { throw ($result | ConvertTo-Json -Depth 10 -Compress) }; Write-Output 'ps-lock-passed'";
+  const executable = path.join(process.env.LOCALAPPDATA, "Microsoft/WindowsApps/pwsh.exe");
+  const child = require("node:child_process").spawnSync(executable, ["-NoProfile", "-NonInteractive", "-Command", script], { encoding: "utf8", windowsHide: true });
+  assert.equal(child.status, 0, child.error?.message || child.stderr || child.stdout);
+  assert.match(child.stdout, /ps-lock-passed/); assert.equal(fs.existsSync(member), false);
 });

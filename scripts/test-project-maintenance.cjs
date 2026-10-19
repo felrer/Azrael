@@ -110,7 +110,7 @@ test("failed explicit preparation blocks dependent tests even when collecting fa
   }
 });
 
-test("default adapter output exposes the managed run and preserves failure protection", async () => {
+test("default adapter output exposes the managed run and closes known outcomes", async () => {
   const lifecycle = require("./artifact-lifecycle.cjs");
   fs.mkdirSync(path.join(root, "artifacts/verification"), { recursive: true });
   const fixture = fs.mkdtempSync(path.join(root, "artifacts/verification/maintenance-run-layout-"));
@@ -127,7 +127,10 @@ test("default adapter output exposes the managed run and preserves failure prote
       assert.equal(result.logDirectory, path.join(result.runRoot, "logs"));
       const record = lifecycle.catalog(fixture).find(item => item.id === result.lifecycleId);
       assert.equal(record.state, exitCode === 0 ? "complete" : "failed");
-      assert.equal(record.membership_complete, exitCode === 0);
+      assert.equal(record.membership_complete, true);
+      assert.equal(record.producer.status, "stopped");
+      assert.equal(record.producer.outcome, exitCode === 0 ? "success" : "failure");
+      assert.equal(record.producer.exit_code, exitCode);
       const registration = lifecycle.registerRequest(fixture, result.lifecycleId);
       assert.equal(registration.group.id, result.lifecycleId);
       assert.equal(registration.group.members.length, 1);

@@ -2,7 +2,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { randomUUID } = require("node:crypto");
+const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const { planSourceTests } = require("./source-test-policy.cjs");
 const { spawn, spawnSync } = require("node:child_process");
@@ -441,13 +441,14 @@ async function runSelection(selection, options = {}) {
     const runId = `${new Date().toISOString().replace(/[:.]/g, "-")}-${randomUUID()}`;
     runRoot = path.join(root, "artifacts/tasks", workId, "runs", runId);
     lifecycleRecord = { id: `run:${workId}:${runId}`, kind: "run", owner: "test-project",
-      members: [{ path: runRoot, role: "run" }, { path: path.join(runRoot, "logs"), role: "logs" }, { path: path.join(runRoot, "reports"), role: "reports" }] };
+      members: [{ path: runRoot, role: "run" }, { path: path.join(runRoot, "logs"), role: "logs" }, { path: path.join(runRoot, "reports"), role: "reports" }]
+        .map(member => ({ ...member, generated: true, protection_known: true })) };
     for (const candidate of [runRoot, lifecycle.registryPath(root, lifecycleRecord.id)]) {
       try { fs.lstatSync(candidate); throw new Error(`Run identity already exists: ${runId}`); }
       catch (error) { if (error.code !== "ENOENT") throw error; }
     }
     // Claim producer identity before any run output exists; a failed claim must not execute tests.
-    lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending", membership_complete: false, expected_revision: 0 });
+    lifecycleRecord = lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending", membership_complete: false, expected_revision: 0 });
   }
   const directory = managed ? path.join(runRoot, "logs") : options.directory || path.resolve(root, options.logDirectory, `${new Date().toISOString().replace(/[:.]/g, "-")}-${process.pid}`);
   const resultPath = path.join(managed ? path.join(runRoot, "reports") : directory, "results.json");
@@ -508,7 +509,21 @@ async function runSelection(selection, options = {}) {
     report.exitCode = failure ? (failure.exitCode > 0 ? failure.exitCode : 1) : 0;
     report.completedUtc = new Date().toISOString();
     checkpoint();
-    if (managed) lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: report.status === "passed" ? "complete" : "failed", membership_complete: report.status === "passed" });
+    if (managed) {
+      const settled = report.results.every(result => Number.isInteger(result.exitCode) && !result.signal && !result.error
+        && ["passed", "failed"].includes(result.status));
+      if (settled) {
+        lifecycleRecord = lifecycle.closeLifecycle(root, lifecycleRecord.id, {
+          owner: lifecycleRecord.owner, expected_revision: lifecycleRecord.revision,
+          producer_stopped_verified: true, outcome: report.status === "passed" ? "success" : "failure",
+          exit_code: report.exitCode, reason: "Every executed command returned a terminal close result; owned run output roots reconciled.",
+          evidence_ref: resultPath, evidence_sha256: createHash("sha256").update(fs.readFileSync(resultPath)).digest("hex"),
+        });
+      } else {
+        lifecycleRecord = lifecycle.recordLifecycle(root, { ...lifecycleRecord, state: "pending", membership_complete: false,
+          expected_revision: lifecycleRecord.revision });
+      }
+    }
     return { ...report, resultPath };
   } catch (error) {
     if (managed) {

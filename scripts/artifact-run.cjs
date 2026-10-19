@@ -2,7 +2,7 @@
 // Short-lived writer ownership. Cleanup remains an explicit maintenance decision.
 const fs = require("node:fs");
 const path = require("node:path");
-const { randomUUID } = require("node:crypto");
+const { randomUUID, createHash } = require("node:crypto");
 const lifecycle = require("./artifact-lifecycle.cjs");
 const inside = (parent, child) => { const rel = path.relative(parent, child); return rel === "" || (rel !== ".." && !rel.startsWith(".." + path.sep) && !path.isAbsolute(rel)); };
 function safeId(value) {
@@ -26,7 +26,7 @@ function beginArtifactRun(projectRoot, { workId, owner, runId = new Date().toISO
   const runRoot = checked(projectRoot, path.join(projectRoot, "artifacts/tasks", workId, "runs", runId));
   const run = { projectRoot, workId, owner, runId, lifecycleId: `run:${workId}:${runId}`, runRoot, references, children: new Set(), producerStopped: true };
   for (const role of ["temporary", "logs", "reports", "outputs"]) run[role] = checked(projectRoot, paths[role] ?? path.join(runRoot, role));
-  const members = [{ path: runRoot, role: "run" }, ...["temporary", "logs", "reports", "outputs"].map(role => ({ path: run[role], role }))];
+  const members = [{ path: runRoot, role: "run", generated: true, protection_known: true }, ...["temporary", "logs", "reports", "outputs"].map(role => ({ path: run[role], role, ...(inside(runRoot, run[role]) ? { generated: true, protection_known: true } : {}) }))];
   for (const [role, value] of Object.entries(paths)) {
     if (!["temporary", "logs", "reports", "outputs"].includes(role)) throw Error("Unknown artifact role");
     if (inside(value, runRoot) || Object.entries(paths).some(([other, otherPath]) => other !== role && (inside(value, otherPath) || inside(otherPath, value)))) throw Error("Overlapping artifact destinations");
@@ -67,11 +67,17 @@ function trackArtifactChild(run, child) {
   return child;
 }
 function finishArtifactRun(run, { exitCode, producerStopped }) {
+  if (run.record.producer) return run.record;
   const stopped = producerStopped === true && [...run.children].every(child => child.artifactClosed);
   const success = exitCode === 0 && stopped;
   const state = success ? "complete" : stopped && Number.isInteger(exitCode) && exitCode !== 0 ? "failed" : "pending";
-  if (fs.existsSync(run.reports)) fs.writeFileSync(path.join(run.reports, "producer.json"), JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode, producerStopped: stopped, state, membership_complete: success }, null, 2) + "\n");
-  run.record = lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: success, expected_revision: run.record.revision });
+  const evidence = fs.existsSync(run.reports) ? path.join(run.reports, "producer.json") : path.join(run.projectRoot, "artifacts/maintenance/lifecycle-evidence", createHash("sha256").update(run.lifecycleId).digest("hex") + ".json");
+  fs.mkdirSync(path.dirname(evidence), { recursive: true });
+  fs.writeFileSync(evidence, JSON.stringify({ lifecycleId: run.lifecycleId, runRoot: run.runRoot, argv: process.argv, exitCode: exitCode ?? null, producerStopped: stopped, children: [...run.children].map(child => ({ pid: child.pid ?? null, closed: child.artifactClosed })), state, membership_complete: stopped && Number.isInteger(exitCode) }, null, 2) + "\n");
+  run.record = stopped ? lifecycle.closeLifecycle(run.projectRoot, run.lifecycleId, { owner: run.owner, expected_revision: run.record.revision,
+    producer_stopped_verified: true, outcome: Number.isInteger(exitCode) ? (success ? "success" : "failure") : "unknown", exit_code: Number.isInteger(exitCode) ? exitCode : null,
+    reason: "Owned producer and tracked children stopped", evidence_ref: evidence, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex") })
+    : lifecycle.recordLifecycle(run.projectRoot, { ...run.record, state, membership_complete: false, expected_revision: run.record.revision });
   process.removeListener("exit", run.onExit);
   return run.record;
 }

@@ -25,6 +25,7 @@ pub(crate) type Auth<'a> = &'a Context<'a>;
 pub(crate) struct Context<'a> {
     authorize: &'a dyn Fn(&Path, AccessMode) -> Result<(), String>,
     content: std::cell::RefCell<paths::ContentCache>,
+    catalog_locks: std::cell::RefCell<std::collections::BTreeSet<PathBuf>>,
 }
 
 impl<'a> Context<'a> {
@@ -32,6 +33,7 @@ impl<'a> Context<'a> {
         Self {
             authorize,
             content: Default::default(),
+            catalog_locks: Default::default(),
         }
     }
 }
@@ -185,6 +187,9 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
     ) {
         store.authorize_save(authorize)?;
     }
+    // Keep producer metadata stable through the final manifest commit, including
+    // all durable deletion intents and results written by apply.
+    let _catalog_locks = registry::lock_request(&root, &request, &store.state, authorize)?;
     if operation == "apply" {
         return apply::apply(
             &root,
@@ -281,7 +286,12 @@ fn dispatch_inner(root: &Path, request: Value, authorize: Auth<'_>) -> Result<Va
             json!({"project_id":config.project_id,"project_root":root,"items":items,"groups":groups,"bundles":bundles,"runs":runs,"decisions":decisions,"pagination":{"offset":offset,"limit":limit,"total":state.items.len(),"groups_total":state.groups.len(),"runs_total":state.runs.len(),"decisions_total":state.decisions.len(),"bundles_total":config.bundles.len()},"logical_bytes":total,"measurement":"cached logical bytes; not reclaimed physical space","policy":config.metadata})
         }
         "register" => {
-            if request.get("group").is_some() {
+            if let Some(refresh) = request.get("refresh_group") {
+                if request.get("group").is_some() || request.get("item").is_some() {
+                    return Err("refresh_group cannot include item or group".into());
+                }
+                groups::refresh(&root, string(refresh, "id")?, state, authorize)?
+            } else if request.get("group").is_some() {
                 if request.get("item").is_some() {
                     return Err("register accepts item or group, not both".into());
                 }

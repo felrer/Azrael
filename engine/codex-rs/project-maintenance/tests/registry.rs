@@ -255,3 +255,217 @@ fn new_records_during_observation_distinguish_consumers_from_unrelated_work() {
         }
     }
 }
+
+fn stopped(outcome: &str) -> Value {
+    json!({"status":"stopped","outcome":outcome,"exit_code":if outcome == "failure" { json!(7) } else if outcome == "success" { json!(0) } else { Value::Null },"reason":"verified producer stop","evidence_ref":"retained-proof","evidence_sha256":"a".repeat(64)})
+}
+
+#[test]
+fn stopped_failure_is_settled_and_unknown_remains_protected() {
+    for outcome in ["failure", "unknown"] {
+        let root = fixture();
+        let mut owner = record(&root, "version");
+        owner["state"] = json!("failed");
+        owner["producer"] = stopped(outcome);
+        write(&root, "version", &owner);
+        call(&root, registration(&root));
+        assert_eq!(blocked(&review(&root)), outcome == "unknown");
+        if outcome == "failure" {
+            assert_eq!(
+                apply(&root, &review(&root))["groups"][0]["status"],
+                "deleted"
+            );
+        }
+    }
+}
+
+#[test]
+fn refresh_releases_consumers_without_payload_measurement() {
+    let root = fixture();
+    let mut owner = record(&root, "version");
+    for member in owner["members"].as_array_mut().unwrap() {
+        member["protection_known"] = json!(true);
+    }
+    write(&root, "version", &owner);
+    let mut consumer = record(&root, "consumer");
+    consumer["references"] = json!([{"id":"version","reason":"required"}]);
+    write(&root, "consumer", &consumer);
+    let mut request = registration(&root);
+    for member in request["group"]["members"].as_array_mut().unwrap() {
+        member["references"] = json!(["consumer:required"]);
+        member["retain_reason"] = json!("retain diagnostic context");
+    }
+    let registered = call(&root, request);
+    consumer["references"] = json!([]);
+    write(&root, "consumer", &consumer);
+    // Change payload bytes: refresh must retain the old measurement and only
+    // review/apply may perform the next content observation.
+    std::fs::write(
+        root.path().join("artifacts/registry-fixtures/artifact"),
+        "changed payload bytes",
+    )
+    .unwrap();
+    let refreshed = call(
+        &root,
+        json!({"operation":"register","refresh_group":{"id":"version"}}),
+    );
+    for (old, new) in registered["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .zip(refreshed["items"].as_array().unwrap())
+    {
+        for key in [
+            "identity",
+            "logical_bytes",
+            "measured_at_ms",
+            "registered_at_ms",
+            "retain_reason",
+        ] {
+            assert_eq!(old[key], new[key], "{key}");
+        }
+        assert_eq!(new["references"], json!([]));
+        assert_eq!(new["protection_known"], true);
+        assert!(new["protection_revision"].is_string());
+    }
+    let reviewed = review(&root);
+    assert!(
+        !reviewed
+            .to_string()
+            .contains("references active or unknown")
+    );
+    assert!(reviewed.to_string().contains("retention reason active"));
+}
+
+#[test]
+fn refresh_rejects_changed_identity_membership_and_roles() {
+    for mutation in ["owner", "kind", "version", "path", "role", "extra"] {
+        let root = fixture();
+        call(&root, registration(&root));
+        let before = call(&root, json!({"operation":"inventory"}));
+        let mut owner = record(&root, "version");
+        match mutation {
+            "owner" => owner["owner"] = json!("different"),
+            "kind" => owner["kind"] = json!("work"),
+            "version" => owner["version"] = json!("v2"),
+            "path" => owner["members"][0]["path"] = json!(root.path().join("artifacts/registry-fixtures/different")),
+            "role" => owner["members"][0]["role"] = json!("evidence"),
+            "extra" => owner["members"].as_array_mut().unwrap().push(json!({"path":root.path().join("artifacts/registry-fixtures/extra"),"role":"artifact"})),
+            _ => unreachable!(),
+        }
+        write(&root, "version", &owner);
+        assert!(
+            dispatch(
+                root.path(),
+                json!({"operation":"register","refresh_group":{"id":"version"}}),
+                &allow
+            )
+            .is_err(),
+            "{mutation}"
+        );
+        let after = call(&root, json!({"operation":"inventory"}));
+        assert_eq!(before["items"], after["items"]);
+        assert_eq!(before["groups"], after["groups"]);
+    }
+}
+
+#[test]
+fn refresh_preserves_explicit_unknown_ownership_and_pending_producer() {
+    let root = fixture();
+    let mut request = registration(&root);
+    request["group"]["members"][0]["generated"] = json!(false);
+    call(&root, request);
+    let manifest_path = root.path().join("artifacts/maintenance/manifest.json");
+    let mut manifest: Value =
+        serde_json::from_slice(&std::fs::read(&manifest_path).unwrap()).unwrap();
+    manifest["items"]["artifact"]["cleanup_status"] = json!("pending");
+    manifest["groups"]["version"]["cleanup_status"] = json!("pending");
+    std::fs::write(&manifest_path, serde_json::to_vec(&manifest).unwrap()).unwrap();
+    let mut owner = record(&root, "version");
+    owner["state"] = json!("pending");
+    owner["producer"] = stopped("unknown");
+    for member in owner["members"].as_array_mut().unwrap() {
+        member["generated"] = json!(true);
+        member["protection_known"] = json!(true);
+    }
+    write(&root, "version", &owner);
+    let refreshed = call(
+        &root,
+        json!({"operation":"register","refresh_group":{"id":"version"}}),
+    );
+    assert_eq!(refreshed["items"][0]["generated"], false);
+    assert_eq!(refreshed["items"][0]["cleanup_status"], "pending");
+    assert_eq!(refreshed["group"]["cleanup_status"], "pending");
+    assert_eq!(refreshed["group"]["membership_complete"], false);
+    assert!(blocked(&review(&root)));
+}
+
+#[test]
+fn catalog_contention_blocks_mutation_and_apply_holds_lock() {
+    use std::cell::Cell;
+    let root = fixture();
+    call(&root, registration(&root));
+    let reviewed = review(&root);
+    let lock = directory(&root).join("catalog.lock");
+    std::fs::write(&lock, "writer").unwrap();
+    assert!(
+        dispatch(
+            root.path(),
+            json!({"operation":"register","refresh_group":{"id":"version"}}),
+            &allow
+        )
+        .is_err()
+    );
+    let decisions = reviewed["items"].as_array().unwrap().iter().map(|item|
+        json!({"id":item["id"],"token":item["token"],"decision":"delete","reason":"settled"})).collect::<Vec<_>>();
+    let request = json!({"operation":"apply","decisions":decisions});
+    assert!(dispatch(root.path(), request.clone(), &allow).is_err());
+    std::fs::remove_file(&lock).unwrap();
+    let contended = Cell::new(false);
+    let owner_path = directory(&root).join("version.json");
+    let authorize = |path: &Path, mode| {
+        if path == owner_path && mode == AccessMode::Read {
+            assert!(
+                std::fs::OpenOptions::new()
+                    .write(true)
+                    .create_new(true)
+                    .open(&lock)
+                    .is_err()
+            );
+            contended.set(true);
+        }
+        if contended.get() && mode == AccessMode::Write && path.ends_with("manifest.pending") {
+            assert!(
+                lock.exists(),
+                "catalog lock must cover intent and result persistence"
+            );
+        }
+        Ok(())
+    };
+    let result = dispatch(root.path(), request, &authorize).unwrap();
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    assert!(contended.get());
+    assert!(!lock.exists());
+}
+
+#[test]
+fn malformed_producer_evidence_is_rejected() {
+    for mutation in ["status", "exit", "digest", "reason", "null"] {
+        let root = fixture();
+        let mut owner = record(&root, "version");
+        owner["producer"] = stopped("failure");
+        match mutation {
+            "status" => owner["producer"]["status"] = json!("running"),
+            "exit" => owner["producer"]["exit_code"] = json!(0),
+            "digest" => owner["producer"]["evidence_sha256"] = json!("bad"),
+            "reason" => owner["producer"]["reason"] = json!(" "),
+            "null" => owner["producer"] = Value::Null,
+            _ => unreachable!(),
+        }
+        write(&root, "version", &owner);
+        assert!(
+            dispatch(root.path(), registration(&root), &allow).is_err(),
+            "{mutation}"
+        );
+    }
+}
