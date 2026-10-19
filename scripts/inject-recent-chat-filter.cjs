@@ -2,14 +2,15 @@
 
 const ASSET = "webview/assets/header-57b689833777.js";
 const DISCOVERY_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
-const DISCOVERY_MARKER = "/*azrael-recent-chat-limit-100-v1*/";
+const DISCOVERY_MARKER = "/*azrael-recent-chat-limit-200-v1*/";
 const DISCOVERY_REPLACEMENTS = [
-  ["let r=this.params.getHistoryLimit?.()??50", "let r=this.params.getHistoryLimit?.()??100"],
-  ["let n=this.params.getHistoryLimit?.()??50;if(t&&n<=50", "let n=this.params.getHistoryLimit?.()??100;if(t&&n<=100"],
-  ["(t===`expanded`||n)&&r>50,a=i?r:50", "(t===`expanded`||n)&&r>100,a=i?r:100"],
-  ["c=e.slice(0,50)}else r>50", "c=e.slice(0,100)}else r>100"],
-  ["r<=50&&this.threadSummaries.length>0", "r<=100&&this.threadSummaries.length>0"],
-  ["function ewn(e,t,n){return te(e)||!t&&e===`local`?50:n?0:500}", "function ewn(e,t,n){return te(e)||!t&&e===`local`?100:n?0:500}"],
+  ["limit:i?Math.min(a,100):a", "limit:Math.min(a,100)"],
+  ["let r=this.params.getHistoryLimit?.()??50", "let r=this.params.getHistoryLimit?.()??200"],
+  ["let n=this.params.getHistoryLimit?.()??50;if(t&&n<=50", "let n=this.params.getHistoryLimit?.()??200;if(t&&n<=200"],
+  ["(t===`expanded`||n)&&r>50,a=i?r:50", "(t===`expanded`||n)&&r>200,a=i?r:200"],
+  ["c=e.slice(0,50)}else r>50", "c=e.slice(0,200)}else r>200"],
+  ["r<=50&&this.threadSummaries.length>0", "r<=200&&this.threadSummaries.length>0"],
+  ["function ewn(e,t,n){return te(e)||!t&&e===`local`?50:n?0:500}", "function ewn(e,t,n){return te(e)||!t&&e===`local`?200:n?0:500}"],
 ];
 const MARKER = "/*azrael-recent-chat-filter-v1*/";
 const ORIGINAL = "let S=fn(b.data,x,null),C=l||Fe==null,w;";
