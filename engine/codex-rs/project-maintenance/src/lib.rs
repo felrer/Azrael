@@ -836,7 +836,14 @@ fn review_single(
         let base = root.join(p);
         paths::within(path, &base) && !paths::within(&base, path)
     }) {
-        blockers.push("not a managed descendant");
+        if config.managed_roots.iter().any(|p| {
+            let base = root.join(p);
+            paths::within(path, &base) && paths::within(&base, path)
+        }) {
+            blockers.push("managed root itself is protected; select owned descendants");
+        } else {
+            blockers.push("outside configured managed roots");
+        }
     }
     if paths::reserved(root, path) {
         blockers.push("source, user state or maintenance state protected");

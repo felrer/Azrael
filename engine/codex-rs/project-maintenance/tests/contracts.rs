@@ -101,6 +101,42 @@ fn protection_references_backup_original_and_roots() {
     );
 }
 #[test]
+fn managed_boundary_blockers_distinguish_root_from_outside() {
+    let root = fixture();
+    std::fs::write(root.path().join("generated/child"), "owned").unwrap();
+    std::fs::write(root.path().join("outside"), "owned").unwrap();
+    register(&root, "child", "generated/child", json!({}));
+    let child = review(&root, "child");
+    assert!(child["blockers"].as_array().unwrap().is_empty(), "{child}");
+    for (id, path, reason) in [
+        (
+            "managed-root",
+            "generated",
+            "managed root itself is protected; select owned descendants",
+        ),
+        ("outside", "outside", "outside configured managed roots"),
+    ] {
+        register(&root, id, path, json!({}));
+        let observed = review(&root, id);
+        assert!(
+            observed["blockers"]
+                .as_array()
+                .unwrap()
+                .contains(&json!(reason)),
+            "{observed}"
+        );
+        assert!(
+            !observed["blockers"]
+                .as_array()
+                .unwrap()
+                .contains(&json!("not a managed descendant"))
+        );
+        assert_eq!(delete(&root, id, &observed["token"])["status"], "blocked");
+        assert!(root.path().join(path).exists());
+    }
+}
+
+#[test]
 fn rejects_escape_foreign_paths_and_denied_reads() {
     let root = fixture();
     for path in [
