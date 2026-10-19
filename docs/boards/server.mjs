@@ -6,6 +6,7 @@ import { randomBytes, randomUUID } from 'node:crypto';
 import { BoardError, validateDefinition } from './shared/model.mjs';
 import { BoardStorage, atomicWrite } from './shared/storage.mjs';
 import { sketchCodec } from './shared/sketch-context.mjs';
+import { catalogCodec } from './shared/catalog-context.mjs';
 
 const boardsRoot = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(boardsRoot, '../..');
@@ -16,8 +17,8 @@ export async function createBoardServer({ board = 'prototype', dataRoot, configP
   if ((await lstat(boardRoot)).isSymbolicLink()) throw new BoardError('보드 경로를 확인하세요.');
   const definitionSource = await readFile(join(boardRoot, 'board.json'), 'utf8');
   const definition = validateDefinition(JSON.parse(definitionSource));
-  if (definition.editor !== undefined && definition.editor !== 'excalidraw') throw new BoardError('지원하지 않는 편집기입니다.');
-  const sketch = definition.editor === 'excalidraw', codec = sketch ? sketchCodec : undefined;
+  if (definition.editor !== undefined && !['excalidraw', 'catalog'].includes(definition.editor)) throw new BoardError('지원하지 않는 편집기입니다.');
+  const sketch = definition.editor === 'excalidraw', codec = sketch ? sketchCodec : definition.editor === 'catalog' ? catalogCodec : undefined;
   const assetOwner = resolve(projectRoot, 'artifacts/boards/sketch');
   if (sketch && !publicRoot) {
     try { publicRoot = JSON.parse(await readFile(join(assetOwner, 'current.json'), 'utf8')).publicRoot; }
@@ -109,7 +110,8 @@ export async function createBoardServer({ board = 'prototype', dataRoot, configP
         if (sketch && publicRoot && relative === 'index.html') { target = join(publicRoot, 'index.html'); allowedRoot = publicRoot; }
         else { target = resolve(boardRoot, relative); allowedRoot = boardRoot; }
         if (!target.startsWith(allowedRoot + sep) || !mime[extname(target)]) throw new BoardError('파일 경로를 확인하세요.', 'NOT_FOUND', 404);
-      } else if (['/shared/model.mjs', '/shared/ui.mjs', '/shared/board.css', '/shared/sketch-model.mjs'].includes(path)) {
+      } else if (['/shared/model.mjs', '/shared/ui.mjs', '/shared/board.css', '/shared/sketch-model.mjs', '/shared/catalog-model.mjs',
+        '/shared/modules/folder-list.mjs', '/shared/modules/card-browser.mjs', '/shared/modules/catalog-widgets.css'].includes(path)) {
         if (sketch && publicRoot && ['/shared/model.mjs', '/shared/sketch-model.mjs'].includes(path)) { target = join(publicRoot, path.slice('/shared/'.length)); allowedRoot = publicRoot; }
         else { target = join(boardsRoot, path.slice(1)); allowedRoot = join(boardsRoot, 'shared'); }
       }

@@ -415,6 +415,71 @@
         "scripts/test-window-use-isolation.cjs",
         "scripts/test-window-desktop-authority.cjs"
       ]
+    },
+    {
+      "id": "boards-catalog-unit",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "docs/boards/tests/catalog-verify.mjs",
+        "unit"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "docs/boards/server.mjs",
+        "docs/boards/shared/storage.mjs",
+        "docs/boards/shared/model.mjs",
+        "docs/boards/shared/context.mjs",
+        "docs/boards/shared/catalog-model.mjs",
+        "docs/boards/shared/catalog-context.mjs",
+        "docs/boards/shared/sketch-model.mjs",
+        "docs/boards/shared/sketch-context.mjs",
+        "docs/boards/shared/modules/card-browser.mjs",
+        "docs/boards/catalog/board.json",
+        "docs/boards/catalog/rules.md",
+        "docs/boards/prototype/board.json",
+        "docs/boards/prototype/rules.md",
+        "docs/boards/sketch/board.json",
+        "docs/boards/sketch/rules.md",
+        "docs/boards/tests/catalog-verify.mjs",
+        "docs/boards/tests/catalog.test.mjs",
+        "docs/boards/tests/boards.test.mjs",
+        "docs/boards/tests/sketch.test.mjs",
+        "scripts/artifact-lifecycle.cjs"
+      ]
+    },
+    {
+      "id": "boards-catalog-ui",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "docs/boards/tests/catalog-verify.mjs",
+        "ui"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "docs/boards/server.mjs",
+        "docs/boards/shared/storage.mjs",
+        "docs/boards/shared/model.mjs",
+        "docs/boards/shared/context.mjs",
+        "docs/boards/shared/catalog-model.mjs",
+        "docs/boards/shared/catalog-context.mjs",
+        "docs/boards/shared/board.css",
+        "docs/boards/shared/modules/folder-list.mjs",
+        "docs/boards/shared/modules/card-browser.mjs",
+        "docs/boards/shared/modules/catalog-widgets.css",
+        "docs/boards/catalog/index.html",
+        "docs/boards/catalog/board.js",
+        "docs/boards/catalog/catalog.css",
+        "docs/boards/catalog/board.json",
+        "docs/boards/catalog/rules.md",
+        "docs/boards/tests/catalog-verify.mjs",
+        "docs/boards/tests/catalog-render.mjs",
+        "docs/boards/tests/browser-driver.mjs",
+        "scripts/artifact-lifecycle.cjs"
+      ]
     }
   ],
   "policy": {
