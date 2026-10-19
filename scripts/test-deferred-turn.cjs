@@ -18,7 +18,7 @@ const inputs = [
   ["out/extension.js", patch.injectDeferredHostNotification, 1],
   [patch.DEFERRED_WAIT_RENDERER_ASSET, patch.injectDeferredWaitRenderer, 2],
   [patch.DEFERRED_THREAD_ASSET, patch.injectDeferredThread, 8],
-  [patch.DEFERRED_TURN_ASSET, patch.injectDeferredTurnView, 3],
+  [patch.DEFERRED_TURN_ASSET, patch.injectDeferredTurnView, 6],
   [patch.DEFERRED_COLLAPSED_ASSET, patch.injectDeferredCollapsed, 2],
   [patch.DEFERRED_NOTIFICATION_ASSET, patch.injectDeferredRendererNotification, 1],
   [patch.DEFERRED_HEADER_ASSET, patch.injectDeferredHeader, 1],
@@ -29,6 +29,36 @@ const inputs = [
 });
 
 const astCache = new Map();
+test("both native turn render routes scope resume branching to the eligible canonical callback", () => {
+  const source = inputs[5].result.text;
+  const ast = ts.createSourceFile("turn.js", source, 99, true, ts.ScriptKind.JS);
+  assert.equal(ast.parseDiagnostics.length, 0);
+  const turn = ast.statements.find(n => ts.isFunctionDeclaration(n) && n.name?.text === "Ks");
+  const calls = [];
+  function visit(n) {
+    if (ts.isCallExpression(n) && n.expression.getText(ast) === "azraelResumeBranchScope") calls.push(n);
+    ts.forEachChild(n, visit);
+  }
+  visit(turn);
+  assert.equal(calls.length, 2, "ordinary and transcript paths both provide context");
+  for (const call of calls) {
+    const eligibility = call.arguments[1].getText(ast);
+    for (const K of [true, false]) {
+      const ue = () => "canonical-old-turn";
+      assert.equal(xm.runInNewContext(eligibility, { K, ue }), K ? undefined : ue);
+    }
+  }
+  const callback = () => "canonical-old-turn";
+  const scope = xm.runInNewContext(`(${functionNamed(source, "azraelResumeBranchScope")})`, {
+    n: () => ({ jsx: (type, props) => ({ type, props }) }),
+    azraelRootResumeBranchContext: () => ({ Provider: "provider" }),
+  });
+  const scoped = scope("native children", callback);
+  assert.equal(scoped.props.value(), "canonical-old-turn");
+  assert.equal(scoped.props.children, "native children");
+  assert.equal(scope("read only", undefined).props.value, null);
+});
+
 test("pending root resume is display-only and ends on terminal reservation or turn", () => {
   const pending = waitHelpers.azraelIsRootResumePending;
   const header = xm.runInNewContext(`(${functionNamed(inputs.at(-1).result.text, "kn")})`, {

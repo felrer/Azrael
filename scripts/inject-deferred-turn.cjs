@@ -47,6 +47,7 @@ function createRootResumeStore(bridge, clientId) {
 
 function AzraelRootResumeControls({ wait, elapsedMs, className }) {
   const react = X();
+  const onFork = react.useContext(azraelRootResumeBranchContext());
   ym(); Qo(); qSi();
   azraelRootResumeStore ??= createRootResumeStore(vm, crypto.randomUUID());
   const state = react.useSyncExternalStore(azraelRootResumeStore.subscribe, azraelRootResumeStore.getSnapshot, azraelRootResumeStore.getSnapshot);
@@ -57,14 +58,24 @@ function AzraelRootResumeControls({ wait, elapsedMs, className }) {
   const tasks = active && wait.canWakeEarly ? reservation?.agentTasks ?? [] : [];
   const busy = state.pending === wait.reservationId || wait.state === "claimed" || reservation?.state === "claimed";
   return (0, E7.jsxs)("div", { className: "flex w-full min-w-0 flex-col gap-1", "data-azrael-root-resume": wait.reservationId, children: [
-    (0, E7.jsxs)("div", { className: "flex w-full min-w-0 items-center gap-2", children: [
+    (0, E7.jsx)("style", { children: "[data-azrael-root-resume] .azrael-resume-branch{opacity:0;pointer-events:none}[data-azrael-resume-row]:hover .azrael-resume-branch,[data-azrael-resume-row]:focus-within .azrael-resume-branch{opacity:1;pointer-events:auto}" }),
+    (0, E7.jsxs)("div", { className: "flex w-full min-w-0 items-center gap-2", "data-azrael-resume-row": "", children: [
       (0, E7.jsx)("span", { className, children: label }),
+      typeof onFork === "function" && (0, E7.jsx)(Ou, { color: "secondary", size: "default",
+        className: "azrael-resume-branch",
+        "aria-label": "여기서 브랜치", title: "이 작업까지 새 대화로 분기", onClick: onFork, children: "여기서 브랜치" }),
       tasks.length > 0 && (0, E7.jsx)("span", { className: "flex shrink-0 items-center", "aria-label": "응답을 기다리는 subagent", children: tasks.map((task, index) =>
         (0, E7.jsx)("span", { title: task.agentPath, style: { marginLeft: index ? -8 : 0, position: "relative", zIndex: tasks.length - index, width: 24, height: 24 }, children:
           (0, E7.jsx)(VSi, { seed: task.threadId, className: "size-6 rounded-full border-2 border-default", style: { width: 24, height: 24 }, "aria-label": task.agentPath }) }, task.threadId + ":" + task.turnId)) }),
       (active || busy) && (0, E7.jsx)("span", { className: "ml-auto shrink-0", children: (0, E7.jsx)(Ou, { color: "secondary", size: "default", disabled: busy || !!state.pending || !state.available || !reservation || reservation.revision < wait.revision,
         onClick: () => azraelRootResumeStore.resume(reservation), children: busy ? "재개 중…" : "재개" }) }) ] }),
     active && state.error && (0, E7.jsx)("span", { role: "alert", className: "text-sm text-danger", children: state.error }) ] });
+}
+
+// One native React context shared by the turn and its ordinary/transcript wait
+// renderers. Keep callbacks out of persisted reservation and history metadata.
+function azraelRootResumeBranchContext() {
+  return azraelResumeBranchContext ??= X().createContext(null);
 }
 
 const boundaryHelpers = () => azraelHasDeferredBoundary.toString() + "\n" + azraelNormalizeDeferredTurn.toString() + "\n";
@@ -172,7 +183,8 @@ function injectDeferredPresentation(text) {
   text = replaceOnce(text, "flex min-h-0 flex-col items-start gap-2 text-size-chat text-secondary", "flex w-full min-h-0 flex-col items-start gap-2 text-size-chat text-secondary");
   text = replaceOnce(text, "t[0]!==a||t[1]!==i||t[2]!==r?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a}),t[0]=a,t[1]=i,t[2]=r,t[3]=o)",
     "t[0]!==a||t[1]!==i||t[2]!==r||t[13]!==e.rootResumeWait?(o=(0,E7.jsx)(zzi,{status:r,startedAtMs:i,completedAtMs:a,rootResumeWait:e.rootResumeWait}),t[0]=a,t[1]=i,t[2]=r,t[3]=o,t[13]=e.rootResumeWait)");
-  text += "\n" + createRootResumeStore.toString() + "\n" + AzraelRootResumeControls.toString() + "\nvar azraelRootResumeStore;window.addEventListener('pagehide',()=>azraelRootResumeStore?.dispose(),{once:true});";
+  text += "\n" + createRootResumeStore.toString() + "\n" + AzraelRootResumeControls.toString() + "\n" +
+    azraelRootResumeBranchContext.toString() + "\nvar azraelResumeBranchContext;export {azraelRootResumeBranchContext};\nvar azraelRootResumeStore;window.addEventListener('pagehide',()=>azraelRootResumeStore?.dispose(),{once:true});";
   text = replaceOnce(text, "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At;",
     "let Jt=Kt&&qt?.parentThreadId!=null,Yt=At===`idle`&&ut?.isRootResumePending?`loading`:At;");
   return { text, count: 10 };
@@ -228,7 +240,14 @@ function injectDeferredTurnView(text) {
     "ft=!q&&!et&&v?.status===`interrupted`&&v.rootResumeWait==null&&we?");
   text = replaceOnce(text, "Ai.filter(e=>e.type!==`worked-for`||n===`all`&&ft==null)",
     "Ai.filter(e=>e.type!==`worked-for`||e.rootResumeWait!=null||y.status===`deferred`||n===`all`&&ft==null)");
-  return { text, count: 3 };
+  // Both native render routes must provide the same canonical-turn callback.
+  // K and ue are the existing action-row eligibility and onForkTurn callback.
+  text = replaceOnce(text, "return t[207]===oe?", "return azraelResumeBranchScope((t[207]===oe?");
+  text = replaceOnce(text, "}),l]})}for(let e of Fn)", "}),l]})),K?void 0:ue)}for(let e of Fn)");
+  text = replaceOnce(text, "t[237]=xo):xo=t[237],xo}", "t[237]=xo):xo=t[237],azraelResumeBranchScope(xo,K?void 0:ue)}");
+  text += '\nimport {azraelRootResumeBranchContext} from "./app-initial-c014f9ee4429.js";\n' +
+    'function azraelResumeBranchScope(children,onFork){return n().jsx(azraelRootResumeBranchContext().Provider,{value:onFork??null,children})}\n';
+  return { text, count: 6 };
 }
 
 function injectDeferredCollapsed(text) {
