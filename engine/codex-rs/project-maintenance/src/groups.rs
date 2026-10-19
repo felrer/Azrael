@@ -1,5 +1,7 @@
 //! Explicit version/run/work cohorts share one reviewed retain/delete fate.
-use crate::{Auth, Config, State, hash, now_ms, paths, prepare_item, review_ungrouped, string};
+use crate::{
+    Auth, Config, State, hash, now_ms, paths, prepare_registered_item, review_ungrouped, string,
+};
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 use std::path::Path;
@@ -32,11 +34,8 @@ pub(crate) fn live_ids(
         }
         if !cached_live(item) {
             let path = Path::new(string(item, "path")?);
-            paths::check(root, path, auth)?;
-            match std::fs::symlink_metadata(path) {
-                Err(error) if error.kind() == std::io::ErrorKind::NotFound => continue,
-                Err(error) => return Err(error.to_string()),
-                Ok(_) => {}
+            if matches!(paths::checked_metadata(root, path, auth), Ok(None)) {
+                continue;
             }
         }
         live.push(member.to_owned());
@@ -124,7 +123,15 @@ pub(crate) fn register(
             return Err("lifecycle_role cannot be blank".into());
         }
         member["lifecycle_role"] = json!(role);
-        member = prepare_item(root, member, auth)?;
+        let previous_member = state.items.get(&member_id).filter(|old| {
+            id(old) == Some(group_id.as_str())
+                && previous.is_some_and(|group| {
+                    group["members"]
+                        .as_array()
+                        .is_some_and(|members| members.iter().any(|id| id == &member_id))
+                })
+        });
+        member = prepare_registered_item(root, member, previous_member, auth)?;
         if let Some(old) = state.items.get(&member_id) {
             if cached_live(old) {
                 let old_path = Path::new(string(old, "path")?);
@@ -134,21 +141,36 @@ pub(crate) fn register(
                 }
             }
         }
-        for other in prepared.values() {
-            let a = Path::new(string(other, "path")?);
-            let b = Path::new(string(&member, "path")?);
-            if paths::within(a, b) || paths::within(b, a) {
-                return Err(
-                    "group members must have disjoint paths to preserve evidence ordering".into(),
-                );
-            }
-        }
         prepared.insert(member_id, member);
     }
     if let Some(old) = previous {
         for member_id in live_ids(root, state, old, auth)? {
             if !prepared.contains_key(&member_id) {
-                return Err("group update cannot drop a live member".into());
+                let old = &state.items[&member_id];
+                if paths::checked_metadata(root, Path::new(string(old, "path")?), auth)?.is_some() {
+                    return Err("group update cannot drop a live member".into());
+                }
+                // Keep the historical member attached to its owner. Absence is
+                // an observation, not an implicit cleanup decision.
+                let mut absent = old.clone();
+                absent["presence"] = json!("absent");
+                absent["remaining"] = json!(false);
+                prepared.insert(member_id, absent);
+            }
+        }
+    }
+    if prepared.len() > 200 {
+        return Err("group exceeds 200 members including historical absent members".into());
+    }
+    let prepared_items = prepared.values().collect::<Vec<_>>();
+    for (index, item) in prepared_items.iter().enumerate() {
+        for other in &prepared_items[index + 1..] {
+            let a = Path::new(string(item, "path")?);
+            let b = Path::new(string(other, "path")?);
+            if paths::within(a, b) || paths::within(b, a) {
+                return Err(
+                    "group members must have disjoint paths to preserve evidence ordering".into(),
+                );
             }
         }
     }
@@ -361,11 +383,8 @@ impl Batch {
         for (id, item) in &self.members {
             if self.completed.contains(id) {
                 let path = Path::new(string(item, "path")?);
-                paths::check(root, path, auth)?;
-                match std::fs::symlink_metadata(path) {
-                    Err(error) if error.kind() == std::io::ErrorKind::NotFound => {}
-                    Err(error) => return Err(error.to_string()),
-                    Ok(_) => return Err("deleted lifecycle member reappeared".into()),
+                if paths::checked_metadata(root, path, auth)?.is_some() {
+                    return Err("deleted lifecycle member reappeared".into());
                 }
                 reviews.insert(id.clone(), self.reviews[id].clone());
             } else {

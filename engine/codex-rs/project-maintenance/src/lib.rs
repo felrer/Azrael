@@ -731,12 +731,28 @@ fn review_single(
     measure: bool,
 ) -> Result<Value, String> {
     let path = Path::new(string(item, "path")?);
-    let measured = if measure {
+    let measured = if measure && groups::id(item).is_some() {
+        match paths::checked_metadata(root, path, auth) {
+            Ok(None) => json!({"presence":"absent","remaining":false}),
+            Ok(Some(_)) => match paths::measure(root, path, auth) {
+                Ok(mut measured) => {
+                    measured["presence"] = json!("present");
+                    measured["remaining"] = json!(true);
+                    measured
+                }
+                Err(error) => json!({"presence":"unknown","error":error}),
+            },
+            Err(error) => json!({"presence":"unknown","error":error}),
+        }
+    } else if measure {
         paths::measure(root, path, auth)?
     } else {
         Value::Null
     };
     let mut blockers = Vec::new();
+    if measured["presence"] == "unknown" {
+        blockers.push("target observation unavailable");
+    }
     if item["cleanup_status"] == "pending" {
         blockers.push("cleanup attempt pending recovery");
     }
@@ -857,11 +873,20 @@ fn review_single(
         &json!({"item":item,"measurement":measured,"recovery":recovery_state,"runs":state.runs,"config":config_identity}),
     )?;
     Ok(
-        json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"measured_at_ms":now_ms()?,"token":token,"blockers":blockers}),
+        json!({"id":item["id"],"path":path,"identity":measured["identity"],"logical_bytes":measured["logical_bytes"],"presence":measured["presence"],"remaining":measured["remaining"],"observation_error":measured["error"],"measured_at_ms":now_ms()?,"token":token,"blockers":blockers}),
     )
 }
 
-fn prepare_item(root: &Path, mut item: Value, authorize: Auth<'_>) -> Result<Value, String> {
+fn prepare_item(root: &Path, item: Value, authorize: Auth<'_>) -> Result<Value, String> {
+    prepare_registered_item(root, item, None, authorize)
+}
+
+fn prepare_registered_item(
+    root: &Path,
+    mut item: Value,
+    previous: Option<&Value>,
+    authorize: Auth<'_>,
+) -> Result<Value, String> {
     string(&item, "id")?;
     string(&item, "owner")?;
     string(&item, "kind")?;
@@ -874,10 +899,28 @@ fn prepare_item(root: &Path, mut item: Value, authorize: Auth<'_>) -> Result<Val
         return Err("references must be an explicit array of nonempty reference strings".into());
     }
     let path = paths::resolve(root, Path::new(string(&item, "path")?))?;
-    let measured = paths::measure(root, &path, authorize)?;
+    let absent = if let Some(old) = previous {
+        let old_path = Path::new(string(old, "path")?);
+        paths::within(old_path, &path)
+            && paths::within(&path, old_path)
+            && paths::checked_metadata(root, &path, authorize)?.is_none()
+    } else {
+        false
+    };
+    let measured = if absent {
+        previous
+            .expect("absence requires a registered member")
+            .clone()
+    } else {
+        paths::measure(root, &path, authorize)?
+    };
     let timestamp = now_ms()?;
     item["registered_at_ms"] = json!(timestamp);
-    item["measured_at_ms"] = json!(timestamp);
+    item["measured_at_ms"] = if absent {
+        measured["measured_at_ms"].clone()
+    } else {
+        json!(timestamp)
+    };
     for key in [
         "created_at_ms",
         "version",
@@ -887,17 +930,24 @@ fn prepare_item(root: &Path, mut item: Value, authorize: Auth<'_>) -> Result<Val
         "cache_schema",
     ] {
         if item.get(key).is_none() {
-            item[key] = Value::Null;
+            item[key] = if absent {
+                measured[key].clone()
+            } else {
+                Value::Null
+            };
         }
     }
     item["path"] = json!(path);
     item["identity"] = measured["identity"].clone();
     item["logical_bytes"] = measured["logical_bytes"].clone();
 
-    if let Some(record) = item.as_object_mut() {
+    if absent && measured["cleanup_status"] == "pending" {
+        item["cleanup_status"] = json!("pending");
+    } else if let Some(record) = item.as_object_mut() {
         record.remove("cleanup_status");
     }
-    item["remaining"] = json!(true);
+    item["presence"] = json!(if absent { "absent" } else { "present" });
+    item["remaining"] = json!(!absent);
     Ok(item)
 }
 

@@ -35,6 +35,427 @@ fn decisions(review: &Value, fate: &str) -> Vec<Value> {
 }
 
 #[test]
+fn absent_member_is_reviewed_and_reconciled_before_remaining_evidence() {
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    std::fs::remove_file(root.path().join("generated/artifact")).unwrap();
+    let reviewed = reviews(&root, "version");
+    assert_eq!(reviewed["items"].as_array().unwrap().len(), 2);
+    let missing = &reviewed["items"][0];
+    assert_eq!(missing["id"], "artifact");
+    assert_eq!(missing["presence"], "absent");
+    assert_eq!(missing["remaining"], false);
+    assert!(missing["blockers"].as_array().unwrap().is_empty());
+    let result = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+    );
+    assert_eq!(result["results"][0]["id"], "artifact");
+    assert_eq!(result["results"][0]["status"], "deleted");
+    assert_eq!(result["results"][0]["attempted"], false);
+    assert_eq!(result["results"][0]["remaining"], false);
+    assert!(result["results"][0]["attempt_id"].is_null());
+    assert_eq!(result["results"][1]["id"], "log");
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    assert!(!root.path().join("generated/log").exists());
+}
+
+#[test]
+fn full_and_omitted_missing_member_updates_preserve_history_and_group_ownership() {
+    for omit in [false, true] {
+        let root = fixture();
+        let mut artifact = create(&root, "artifact", "artifact");
+        artifact["provenance"] = json!({"receipt":"last-measured"});
+        let log = create(&root, "log", "log");
+        let initial = call(
+            &root,
+            registration("version", vec![artifact, log.clone()], true),
+        );
+        let original = &initial["items"][0];
+        std::fs::remove_file(root.path().join("generated/artifact")).unwrap();
+        let members = if omit {
+            vec![log]
+        } else {
+            vec![member("artifact", "artifact"), log]
+        };
+        let updated = call(&root, registration("version", members, true));
+        let historical = &updated["items"][0];
+        assert_eq!(historical["id"], "artifact");
+        assert_eq!(historical["identity"], original["identity"]);
+        assert_eq!(historical["provenance"], original["provenance"]);
+        assert_eq!(historical["measured_at_ms"], original["measured_at_ms"]);
+        assert_eq!(historical["presence"], "absent");
+        assert_eq!(historical["remaining"], false);
+        assert_eq!(historical["lifecycle_group_id"], "version");
+        assert_eq!(updated["group"]["members"], json!(["artifact", "log"]));
+        let reviewed = reviews(&root, "version");
+        assert_eq!(reviewed["items"].as_array().unwrap().len(), 2);
+        let result = call(
+            &root,
+            json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        );
+        assert_eq!(result["groups"][0]["status"], "deleted");
+    }
+}
+
+#[test]
+fn all_absent_members_complete_without_write_authorization_and_stay_reconciled() {
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    // Missing ancestors are also a verified absence when all read checks pass.
+    std::fs::remove_file(root.path().join("generated/artifact")).unwrap();
+    std::fs::remove_file(root.path().join("generated/log")).unwrap();
+    std::fs::remove_dir(root.path().join("generated")).unwrap();
+    let reviewed = reviews(&root, "version");
+    let deny_target_writes = |path: &Path, mode| {
+        if path.starts_with(root.path().join("generated")) && mode == AccessMode::Write {
+            Err("absent target must not need deletion authority".into())
+        } else {
+            Ok(())
+        }
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &deny_target_writes,
+    )
+    .unwrap();
+    assert_eq!(result["groups"][0]["status"], "deleted");
+    for outcome in result["results"].as_array().unwrap() {
+        assert_eq!(outcome["status"], "deleted");
+        assert_eq!(outcome["attempted"], false);
+        assert_eq!(outcome["remaining"], false);
+        assert!(outcome["attempt_id"].is_null());
+    }
+    assert!(
+        reviews(&root, "version")["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    assert!(
+        reviews(&root, "version")["items"]
+            .as_array()
+            .unwrap()
+            .is_empty()
+    );
+    let durable: Value = serde_json::from_slice(
+        &std::fs::read(root.path().join("artifacts/maintenance/manifest.json")).unwrap(),
+    )
+    .unwrap();
+    assert_eq!(durable["groups"]["version"]["cleanup_status"], "deleted");
+    assert_eq!(durable["decisions"].as_array().unwrap().len(), 2);
+}
+
+#[test]
+fn denied_missing_member_stays_unknown_and_protects_the_whole_group() {
+    let root = fixture();
+    let artifact = create(&root, "artifact", "artifact");
+    let log = create(&root, "log", "log");
+    call(
+        &root,
+        registration("version", vec![artifact.clone(), log.clone()], true),
+    );
+    let path = root.path().join("generated/artifact");
+    std::fs::remove_file(&path).unwrap();
+    let deny = |candidate: &Path, mode| {
+        if candidate == path && mode == AccessMode::Read {
+            Err("member read denied".into())
+        } else {
+            Ok(())
+        }
+    };
+    let reviewed = dispatch(
+        root.path(),
+        json!({"operation":"review","group_ids":["version"]}),
+        &deny,
+    )
+    .unwrap();
+    assert_eq!(reviewed["items"][0]["presence"], "unknown");
+    assert!(reviewed["items"][0]["remaining"].is_null());
+    assert_eq!(
+        reviewed["items"][0]["observation_error"],
+        "member read denied"
+    );
+    assert!(
+        reviewed["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+    );
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &deny,
+    )
+    .unwrap();
+    assert!(
+        result["results"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["status"] == "blocked")
+    );
+    for members in [vec![artifact, log.clone()], vec![log]] {
+        assert!(dispatch(root.path(), registration("version", members, true), &deny).is_err());
+    }
+    assert!(root.path().join("generated/log").exists());
+}
+
+#[test]
+fn absence_changes_invalidate_old_group_tokens() {
+    for reappears in [false, true] {
+        let root = fixture();
+        call(
+            &root,
+            registration(
+                "version",
+                vec![
+                    create(&root, "artifact", "artifact"),
+                    create(&root, "log", "log"),
+                ],
+                true,
+            ),
+        );
+        let path = root.path().join("generated/artifact");
+        if reappears {
+            std::fs::remove_file(&path).unwrap();
+        }
+        let reviewed = reviews(&root, "version");
+        if reappears {
+            std::fs::write(&path, "artifact").unwrap();
+        } else {
+            std::fs::remove_file(&path).unwrap();
+        }
+        let result = call(
+            &root,
+            json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        );
+        assert!(
+            result["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| item["status"] == "blocked")
+        );
+        assert!(root.path().join("generated/log").exists());
+        assert_eq!(path.exists(), reappears);
+    }
+}
+
+#[test]
+fn reconciled_absent_member_reappearing_during_batch_retains_evidence() {
+    use std::cell::Cell;
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    let artifact = root.path().join("generated/artifact");
+    let log = root.path().join("generated/log");
+    std::fs::remove_file(&artifact).unwrap();
+    let reviewed = reviews(&root, "version");
+    let recreated = Cell::new(false);
+    let authorize = |path: &Path, mode| {
+        if path == log && mode == AccessMode::Write && !recreated.replace(true) {
+            std::fs::write(&artifact, "reappeared").unwrap();
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(recreated.get());
+    assert_eq!(result["results"][0]["status"], "deleted");
+    assert_eq!(result["results"][1]["status"], "blocked");
+    assert_eq!(result["groups"][0]["status"], "partial");
+    assert!(artifact.exists());
+    assert!(log.exists());
+    // A later review must include the reappeared member despite cached deletion.
+    assert_eq!(reviews(&root, "version")["items"][0]["presence"], "present");
+}
+
+#[test]
+fn absent_member_updates_keep_unresolved_cleanup_intent_protected() {
+    for omit in [false, true] {
+        let root = fixture();
+        call(
+            &root,
+            registration(
+                "version",
+                vec![
+                    create(&root, "artifact", "artifact"),
+                    create(&root, "log", "log"),
+                ],
+                true,
+            ),
+        );
+        let manifest = root.path().join("artifacts/maintenance/manifest.json");
+        let mut state: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+        state["items"]["artifact"]["cleanup_status"] = json!("pending");
+        state["items"]["artifact"]["remaining"] = Value::Null;
+        std::fs::write(&manifest, serde_json::to_vec(&state).unwrap()).unwrap();
+        std::fs::remove_file(root.path().join("generated/artifact")).unwrap();
+        let mut members = vec![member("log", "log")];
+        if !omit {
+            members.push(member("artifact", "artifact"));
+        }
+        let updated = call(&root, registration("version", members, true));
+        assert_eq!(updated["items"][0]["cleanup_status"], "pending");
+        let reviewed = reviews(&root, "version");
+        assert_eq!(reviewed["items"][0]["presence"], "absent");
+        assert!(
+            reviewed["items"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| !item["blockers"].as_array().unwrap().is_empty())
+        );
+        let result = call(
+            &root,
+            json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        );
+        assert!(
+            result["results"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .all(|item| item["status"] == "blocked")
+        );
+        assert!(root.path().join("generated/log").exists());
+        // Neither a blocked delete nor a defer decision resolves the original
+        // pending attempt. Fresh reviews and deletion retries remain protected.
+        for fate in ["defer", "delete"] {
+            let durable: Value =
+                serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+            assert_eq!(durable["items"]["artifact"]["cleanup_status"], "pending");
+            let fresh = reviews(&root, "version");
+            assert!(
+                fresh["items"][0]["blockers"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .any(|reason| reason == "cleanup attempt pending recovery")
+            );
+            let retry = call(
+                &root,
+                json!({"operation":"apply","decisions":decisions(&fresh,fate)}),
+            );
+            let expected = if fate == "defer" {
+                "deferred"
+            } else {
+                "blocked"
+            };
+            assert!(
+                retry["results"]
+                    .as_array()
+                    .unwrap()
+                    .iter()
+                    .all(|item| item["status"] == expected)
+            );
+            assert!(root.path().join("generated/log").exists());
+        }
+        let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+        assert_eq!(durable["items"]["artifact"]["cleanup_status"], "pending");
+        assert!(
+            reviews(&root, "version")["items"][0]["blockers"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .any(|reason| reason == "cleanup attempt pending recovery")
+        );
+    }
+}
+
+#[test]
+fn denied_authorization_after_new_intent_records_known_blocked_result() {
+    use std::cell::Cell;
+    let root = fixture();
+    call(
+        &root,
+        registration(
+            "version",
+            vec![
+                create(&root, "artifact", "artifact"),
+                create(&root, "log", "log"),
+            ],
+            true,
+        ),
+    );
+    let artifact = root.path().join("generated/artifact");
+    let manifest = root.path().join("artifacts/maintenance/manifest.json");
+    let reviewed = reviews(&root, "version");
+    let manifest_writes = Cell::new(0usize);
+    let authorize = |path: &Path, mode| {
+        if path == manifest && mode == AccessMode::Write {
+            manifest_writes.set(manifest_writes.get() + 1);
+        }
+        // The second manifest write authorization belongs to intent persistence.
+        if manifest_writes.get() >= 2 && path == artifact && mode == AccessMode::Write {
+            return Err("target write denied after intent".into());
+        }
+        Ok(())
+    };
+    let result = dispatch(
+        root.path(),
+        json!({"operation":"apply","decisions":decisions(&reviewed,"delete")}),
+        &authorize,
+    )
+    .unwrap();
+    assert!(manifest_writes.get() >= 2);
+    assert_eq!(result["results"][0]["status"], "blocked");
+    assert!(result["results"][0]["attempt_id"].is_string());
+    assert!(artifact.exists());
+    assert!(root.path().join("generated/log").exists());
+    let durable: Value = serde_json::from_slice(&std::fs::read(&manifest).unwrap()).unwrap();
+    assert_eq!(durable["items"]["artifact"]["cleanup_status"], "blocked");
+    let fresh = reviews(&root, "version");
+    assert!(
+        fresh["items"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .all(|item| item["blockers"].as_array().unwrap().is_empty())
+    );
+    let retry = call(
+        &root,
+        json!({"operation":"apply","decisions":decisions(&fresh,"delete")}),
+    );
+    assert_eq!(retry["groups"][0]["status"], "deleted");
+}
+
+#[test]
 fn apply_observes_membership_once_per_preflight_and_intent_boundary() {
     use std::cell::Cell;
     let root = fixture();
