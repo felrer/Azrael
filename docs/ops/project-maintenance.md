@@ -91,6 +91,15 @@ node scripts/project-maintenance.cjs collect --native-install-receipt artifacts/
 
 기존 프로필 이전은 이름·미등록·오래된 날짜만으로 결정하지 않는다. 실제 배포 소유, 현재 등록·실행·shortcut·복구·소비 참조와 사용자 파일 혼합 여부를 확인하고 검토된 생성물만 선택한다. 공유 `extensions.json`·`.obsolete` 같은 제어 파일 전체를 구버전 묶음으로 삭제하지 않는다. 일반 삭제·허용된 생성물 속성 처리·부분 실패 기록은 [생성물 관리 절차](../playbooks/artifact-lifecycle.md)를 따른다.
 
+<a id="registered-group-cleanup"></a>
+## 등록된 묶음 정리
+
+등록된 묶음은 `project_inventory`의 현재 기록에서 시작해 `project_cleanup_review`로 검토하고 `project_cleanup_apply`로 명시적인 삭제·보류 결정을 적용한다. 모델은 허용 범위와 결정을 담당하고, 도구가 구현한 identity·구성·소유·참조·권한·보호 검사는 도구에 맡긴다. 동일 검사를 별도 셸 목록, 재귀 해시 또는 두 번째 관리 명세로 반복하지 않는다.
+
+구성이나 참조가 바뀌면 지원되는 등록 동작으로 해당 묶음 정보를 갱신하고 새 검토 토큰을 받는다. 변경 전 삭제 승인은 재사용하지 않는다. 바뀌지 않은 묶음은 다시 등록하지 않는다. 직접 조사는 미등록 경로, 실제 상태와 기록의 충돌, 도구가 보고한 불확실성, registry에 반영되지 않은 설치·실행 참조 등 확인 범위 밖의 구체적 공백으로 한정한다. 도구가 지원하지 않는 동작은 기존 소유자의 절차를 사용하며, 기록이 있다는 이유로 구현되지 않은 확인 능력을 가정하지 않는다.
+
+느린 호출은 진행 단계를 확인하고 실제 완료를 기다린다. 같은 대상을 다시 스캔하거나 미종료 producer를 중복 실행하지 않는다. 적용 후에는 항목별 실제 결과와 잔여를 확인하고 참조 해제·finalize를 수행한다. 도구가 이미 확인한 부재는 모순이나 미확인 결과가 없는 한 재귀 조사하지 않는다. 이 절차는 에이전트의 중복 조사를 줄이며 현재 native 구현의 내부 재귀 측정을 생략하는 기능을 추가하지 않는다.
+
 ## 작업·버전 묶음 연결과 이전
 
 현재 단독 writer의 기본 결과는 stdout의 `runRoot`/`lifecycleId`와 해당 run의 `reports/producer.json`으로 찾는다. 기존 고정 `artifacts/logs/...` 경로는 과거 실행 근거일 수 있으며 새 실행의 출력 경로로 가정하지 않는다. renderer의 기존 요약·스크린샷 파일명은 run의 `logs/`, native/check의 검증 결과는 `reports/`에 둔다. `check-management` 결과는 `<runRoot>/reports/verification.json`이다. 명시한 pending 부모가 소유하는 deploy/accounts 검사는 기존 부모 내부 결과 경로를 유지한다. instruction CLI JSON의 manifest 부모를 `AZRAEL_INSTRUCTION_RELEASE_ASSETS`로 전달하면 해당 release의 integration reader를 선택할 수 있다. caller가 명시한 외부 출력·실제 auth/state는 기존 소유자를 유지한다.
