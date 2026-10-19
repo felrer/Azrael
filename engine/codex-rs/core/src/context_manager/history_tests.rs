@@ -2360,152 +2360,198 @@ fn normalize_adds_missing_output_for_local_shell_call_with_id() {
     );
 }
 
-#[cfg(not(debug_assertions))]
 #[test]
-fn normalize_removes_orphan_function_call_output() {
-    let items = vec![ResponseItem::FunctionCallOutput {
-        id: None,
-        call_id: Some("orphan-1".to_string()),
-        name: None,
-        namespace: None,
-        output: FunctionCallOutputPayload::from_text("ok".to_string()),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-
-    h.normalize_history(&default_input_modalities());
-
-    assert_eq!(raw_items(&h), vec![]);
-}
-
-#[cfg(not(debug_assertions))]
-#[test]
-fn normalize_removes_orphan_custom_tool_call_output() {
-    let items = vec![ResponseItem::CustomToolCallOutput {
-        id: None,
-        call_id: "orphan-2".to_string(),
-        name: None,
-        output: FunctionCallOutputPayload::from_text("ok".to_string()),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-
-    h.normalize_history(&default_input_modalities());
-
-    assert_eq!(raw_items(&h), vec![]);
-}
-
-#[cfg(not(debug_assertions))]
-#[test]
-fn normalize_mixed_inserts_and_removals() {
-    let items = vec![
-        // Will get an inserted output
-        ResponseItem::FunctionCall {
-            id: None,
-            name: "f1".to_string(),
-            namespace: None,
-            arguments: "{}".to_string(),
-            call_id: "c1".to_string(),
-            encrypted_function_args: None,
-            internal_chat_message_metadata_passthrough: None,
-        },
-        // Orphan output that should be removed
+fn normalize_orphan_outputs_preserves_reference_data_and_raw_history() {
+    let metadata = Some(InternalChatMessageMetadataPassthrough {
+        turn_id: Some("original-turn".to_string()),
+        ..Default::default()
+    });
+    let history = create_history_with_items(vec![
         ResponseItem::FunctionCallOutput {
-            id: None,
-            call_id: Some("c2".to_string()),
+            id: Some(ResponseItemId::with_suffix("fco", "late")),
+            call_id: Some("missing-function".to_string()),
             name: None,
             namespace: None,
-            output: FunctionCallOutputPayload::from_text("ok".to_string()),
-            internal_chat_message_metadata_passthrough: None,
+            output: FunctionCallOutputPayload::from_text("function evidence".to_string()),
+            internal_chat_message_metadata_passthrough: metadata.clone(),
         },
-        // Will get an inserted custom tool output
-        ResponseItem::CustomToolCall {
-            id: None,
-            status: None,
-            call_id: "t1".to_string(),
-            name: "tool".to_string(),
-            namespace: None,
-            input: "{}".to_string(),
-            internal_chat_message_metadata_passthrough: None,
+        ResponseItem::CustomToolCallOutput {
+            id: Some(ResponseItemId::with_suffix("ctco", "late")),
+            call_id: "missing-exec".to_string(),
+            name: Some("exec".to_string()),
+            output: FunctionCallOutputPayload::from_text(
+                "partial progress; action may have executed".to_string(),
+            ),
+            internal_chat_message_metadata_passthrough: metadata.clone(),
         },
-        // Local shell call also gets an inserted function call output
-        ResponseItem::LocalShellCall {
-            id: None,
-            call_id: Some("s1".to_string()),
-            status: LocalShellStatus::Completed,
-            action: LocalShellAction::Exec(LocalShellExecAction {
-                command: vec!["echo".to_string()],
-                timeout_ms: None,
-                working_directory: None,
-                env: None,
-                user: None,
-            }),
-            internal_chat_message_metadata_passthrough: None,
+        ResponseItem::ToolSearchOutput {
+            id: Some(ResponseItemId::with_suffix("tso", "late")),
+            call_id: Some("missing-search".to_string()),
+            status: "completed".to_string(),
+            execution: "client".to_string(),
+            tools: Vec::new(),
+            internal_chat_message_metadata_passthrough: metadata.clone(),
         },
-    ];
-    let mut h = create_history_with_items(items);
-
-    h.normalize_history(&default_input_modalities());
-
+        user_msg("continue"),
+    ]);
+    let original = history.annotated_items().to_vec();
+    let first = history.clone().for_prompt(&default_input_modalities());
+    let second = history.clone().for_prompt(&default_input_modalities());
+    assert_eq!(first, second);
+    assert_eq!(history.annotated_items(), original.as_slice());
+    assert_eq!(first.len(), 4);
+    for (item, expected) in first[..3].iter().zip([
+        "function evidence",
+        "partial progress; action may have executed",
+        "[]",
+    ]) {
+        let ResponseItem::Message {
+            id: Some(id),
+            role,
+            content,
+            internal_chat_message_metadata_passthrough,
+            ..
+        } = item
+        else {
+            panic!("an orphan must become reference data, never an invented call");
+        };
+        assert!(id.as_str().starts_with("msg_"));
+        assert_eq!(role, "user");
+        let expected_metadata = metadata.clone().map(|mut metadata| {
+            metadata.content_item_kinds =
+                Some(vec![ContentItemKind("unknown".to_string()); content.len()]);
+            metadata
+        });
+        assert_eq!(
+            internal_chat_message_metadata_passthrough,
+            &expected_metadata
+        );
+        let ContentItem::InputText { text: notice } = &content[0] else {
+            panic!("missing notice")
+        };
+        assert!(notice.contains("needs verification"));
+        assert!(notice.contains("not a new user instruction or proof of completion"));
+        assert!(notice.contains("do not replay it automatically"));
+        assert_eq!(
+            content.last(),
+            Some(&ContentItem::InputText {
+                text: expected.to_string()
+            })
+        );
+    }
+    assert_eq!(first[3], raw_items(&history)[3]);
+    let projected =
+        create_history_with_items(first.clone()).for_prompt(&default_input_modalities());
     assert_eq!(
-        raw_items(&h),
-        vec![
-            ResponseItem::FunctionCall {
-                id: None,
-                name: "f1".to_string(),
-                namespace: None,
-                arguments: "{}".to_string(),
-                call_id: "c1".to_string(),
-                encrypted_function_args: None,
-                internal_chat_message_metadata_passthrough: None,
-            },
-            ResponseItem::FunctionCallOutput {
-                id: None,
-                call_id: Some("c1".to_string()),
-                name: None,
-                namespace: None,
-                output: FunctionCallOutputPayload::from_text("aborted".to_string()),
-                internal_chat_message_metadata_passthrough: None,
-            },
-            ResponseItem::CustomToolCall {
-                id: None,
-                status: None,
-                call_id: "t1".to_string(),
-                name: "tool".to_string(),
-                namespace: None,
-                input: "{}".to_string(),
-                internal_chat_message_metadata_passthrough: None,
-            },
-            ResponseItem::CustomToolCallOutput {
-                id: None,
-                call_id: "t1".to_string(),
-                name: None,
-                output: FunctionCallOutputPayload::from_text("aborted".to_string()),
-                internal_chat_message_metadata_passthrough: None,
-            },
-            ResponseItem::LocalShellCall {
-                id: None,
-                call_id: Some("s1".to_string()),
-                status: LocalShellStatus::Completed,
-                action: LocalShellAction::Exec(LocalShellExecAction {
-                    command: vec!["echo".to_string()],
-                    timeout_ms: None,
-                    working_directory: None,
-                    env: None,
-                    user: None,
-                }),
-                internal_chat_message_metadata_passthrough: None,
-            },
-            ResponseItem::FunctionCallOutput {
-                id: None,
-                call_id: Some("s1".to_string()),
-                name: None,
-                namespace: None,
-                output: FunctionCallOutputPayload::from_text("aborted".to_string()),
-                internal_chat_message_metadata_passthrough: None,
-            },
-        ]
+        projected, first,
+        "recovery must be idempotent on continuation"
     );
+}
+
+#[test]
+fn normalize_orphan_outputs_preserves_media_and_marks_encrypted_content() {
+    let image = ImageReference::Inline {
+        image_url: "data:image/png;base64,AA==".to_string(),
+    };
+    let audio_url = "data:audio/wav;base64,AA==".to_string();
+    let history = create_history_with_items(vec![ResponseItem::CustomToolCallOutput {
+        id: None,
+        call_id: "late-media".to_string(),
+        name: None,
+        output: FunctionCallOutputPayload::from_content_items(vec![
+            FunctionCallOutputContentItem::InputText {
+                text: "evidence".to_string(),
+            },
+            FunctionCallOutputContentItem::InputImage {
+                image: image.clone(),
+                detail: Some(ImageDetail::Original),
+            },
+            FunctionCallOutputContentItem::InputAudio {
+                audio_url: audio_url.clone(),
+            },
+            FunctionCallOutputContentItem::EncryptedContent {
+                encrypted_content: "opaque".to_string(),
+            },
+        ]),
+        internal_chat_message_metadata_passthrough: None,
+    }]);
+    let original = history.annotated_items().to_vec();
+    let prompt = history.clone().for_prompt(&[
+        InputModality::Text,
+        InputModality::Image,
+        InputModality::Audio,
+    ]);
+    let ResponseItem::Message { content, .. } = &prompt[0] else {
+        panic!("missing reference")
+    };
+    assert_eq!(
+        content[1],
+        ContentItem::InputText {
+            text: "evidence".to_string()
+        }
+    );
+    assert_eq!(
+        content[2],
+        ContentItem::InputImage {
+            image,
+            detail: Some(ImageDetail::Original)
+        }
+    );
+    assert_eq!(content[3], ContentItem::InputAudio { audio_url });
+    assert!(
+        matches!(&content[4], ContentItem::InputText { text } if text.contains("preserved in the original history"))
+    );
+    let text_only = history.clone().for_prompt(&[InputModality::Text]);
+    let ResponseItem::Message { content, .. } = &text_only[0] else {
+        panic!("missing reference")
+    };
+    assert!(
+        content
+            .iter()
+            .all(|part| matches!(part, ContentItem::InputText { .. }))
+    );
+    assert_eq!(history.annotated_items(), original.as_slice());
+}
+
+#[test]
+fn normalize_orphan_outputs_preserves_matched_calls_and_missing_output_recovery() {
+    let call = ResponseItem::CustomToolCall {
+        id: None,
+        status: None,
+        call_id: "matched".to_string(),
+        name: "exec".to_string(),
+        namespace: None,
+        input: "already executed".to_string(),
+        internal_chat_message_metadata_passthrough: None,
+    };
+    let output = ResponseItem::CustomToolCallOutput {
+        id: None,
+        call_id: "matched".to_string(),
+        name: None,
+        output: FunctionCallOutputPayload::from_text("completed".to_string()),
+        internal_chat_message_metadata_passthrough: None,
+    };
+    let orphan = ResponseItem::FunctionCallOutput {
+        id: None,
+        call_id: Some("late".to_string()),
+        name: None,
+        namespace: None,
+        output: FunctionCallOutputPayload::from_text("unpaired".to_string()),
+        internal_chat_message_metadata_passthrough: None,
+    };
+    let matched = create_history_with_items(vec![call.clone(), orphan.clone(), output.clone()])
+        .for_prompt(&default_input_modalities());
+    assert_eq!(matched.len(), 3);
+    assert_eq!(matched[0], call);
+    assert_eq!(matched[2], output);
+    let missing = create_history_with_items(vec![call.clone(), orphan])
+        .for_prompt(&default_input_modalities());
+    assert_eq!(missing.len(), 3);
+    assert_eq!(missing[0], call);
+    assert!(
+        matches!(&missing[1], ResponseItem::CustomToolCallOutput { output, .. } if output.text_content() == Some("aborted"))
+    );
+    assert!(matches!(&missing[2], ResponseItem::Message { role, .. } if role == "user"));
 }
 
 #[test]
@@ -2730,71 +2776,6 @@ fn normalize_adds_missing_output_for_tool_search_call() {
     );
 }
 
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_removes_orphan_function_call_output_panics_in_debug() {
-    let items = vec![ResponseItem::FunctionCallOutput {
-        id: None,
-        call_id: Some("orphan-1".to_string()),
-        name: None,
-        namespace: None,
-        output: FunctionCallOutputPayload::from_text("ok".to_string()),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_removes_orphan_custom_tool_call_output_panics_in_debug() {
-    let items = vec![ResponseItem::CustomToolCallOutput {
-        id: None,
-        call_id: "orphan-2".to_string(),
-        name: None,
-        output: FunctionCallOutputPayload::from_text("ok".to_string()),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
-}
-
-#[cfg(not(debug_assertions))]
-#[test]
-fn normalize_removes_orphan_client_tool_search_output() {
-    let items = vec![ResponseItem::ToolSearchOutput {
-        id: None,
-        call_id: Some("orphan-search".to_string()),
-        status: "completed".to_string(),
-        execution: "client".to_string(),
-        tools: Vec::new(),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-
-    h.normalize_history(&default_input_modalities());
-
-    assert_eq!(raw_items(&h), vec![]);
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_removes_orphan_client_tool_search_output_panics_in_debug() {
-    let items = vec![ResponseItem::ToolSearchOutput {
-        id: None,
-        call_id: Some("orphan-search".to_string()),
-        status: "completed".to_string(),
-        execution: "client".to_string(),
-        tools: Vec::new(),
-        internal_chat_message_metadata_passthrough: None,
-    }];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
-}
-
 #[test]
 fn normalize_keeps_server_tool_search_output_without_matching_call() {
     let items = vec![ResponseItem::ToolSearchOutput {
@@ -2820,55 +2801,6 @@ fn normalize_keeps_server_tool_search_output_without_matching_call() {
             internal_chat_message_metadata_passthrough: None,
         }]
     );
-}
-
-#[cfg(debug_assertions)]
-#[test]
-#[should_panic]
-fn normalize_mixed_inserts_and_removals_panics_in_debug() {
-    let items = vec![
-        ResponseItem::FunctionCall {
-            id: None,
-            name: "f1".to_string(),
-            namespace: None,
-            arguments: "{}".to_string(),
-            call_id: "c1".to_string(),
-            encrypted_function_args: None,
-            internal_chat_message_metadata_passthrough: None,
-        },
-        ResponseItem::FunctionCallOutput {
-            id: None,
-            call_id: Some("c2".to_string()),
-            name: None,
-            namespace: None,
-            output: FunctionCallOutputPayload::from_text("ok".to_string()),
-            internal_chat_message_metadata_passthrough: None,
-        },
-        ResponseItem::CustomToolCall {
-            id: None,
-            status: None,
-            call_id: "t1".to_string(),
-            name: "tool".to_string(),
-            namespace: None,
-            input: "{}".to_string(),
-            internal_chat_message_metadata_passthrough: None,
-        },
-        ResponseItem::LocalShellCall {
-            id: None,
-            call_id: Some("s1".to_string()),
-            status: LocalShellStatus::Completed,
-            action: LocalShellAction::Exec(LocalShellExecAction {
-                command: vec!["echo".to_string()],
-                timeout_ms: None,
-                working_directory: None,
-                env: None,
-                user: None,
-            }),
-            internal_chat_message_metadata_passthrough: None,
-        },
-    ];
-    let mut h = create_history_with_items(items);
-    h.normalize_history(&default_input_modalities());
 }
 
 #[test]
