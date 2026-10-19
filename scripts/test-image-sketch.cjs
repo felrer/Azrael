@@ -36,9 +36,9 @@ test('complete namespace pipeline preserves native image editing and counts all 
   assert.ok(namespace.getAssetTransformRules(injection.EDITOR_ASSET)['inject-image-sketch.cjs']);
 });
 
-function stateFixture() {
+function stateFixture(initialIds=[]) {
   const exported=[], editors=[], attachments=[];
-  let notify;
+  let notify, ids=[...initialIds];
   const env={composerId:'a',canOpenSketch:true,canEditSketch:true,isDarkMode:false};
   const factory=vm.runInNewContext('('+declaration(transformed(injection.STATE_ASSET),'a')+')',{
     crypto,AbortController,File,URL,Image:class{},o:{default:isDeepStrictEqual},r:()=>{
@@ -46,8 +46,13 @@ function stateFixture() {
       editors.push(editor);return editor;
     }
   });
-  const state=factory(()=>env,{subscribe:cb=>(notify=cb,()=>{}),track(){},createFileName:()=> 'sketch.png',save:async(file,options)=>{attachments.push({file,options});options.onQueued('upload');notify(['upload']);options.onComplete('success')}});
-  return{state,env,exported,editors,attachments};
+  const state=factory(()=>env,{subscribe:cb=>{notify=cb;cb(ids);return()=>{}},track(){},createFileName:()=> 'sketch.png',save:async(file,options)=>{
+    if(env.failSave)throw Error('upload failed');
+    if(options.replaceUploadId!=null&&!ids.includes(options.replaceUploadId))throw Error('replacement target removed');
+    const id=options.replaceUploadId??'upload';attachments.push({file,options});
+    options.onQueued(id);if(!ids.includes(id))ids.push(id);notify(ids);options.onComplete('success');
+  }});
+  return{state,env,exported,editors,attachments,get ids(){return [...ids]},setIds:next=>{ids=[...next];notify(ids)}};
 }
 test('image composition uses full image bounds, retains background on reopen, and preserves ordinary sketch export',async()=>{
   const f=stateFixture(),image={},background={src:'data:image/png;base64,x',width:800,height:500,image};
@@ -69,6 +74,46 @@ test('export failure keeps drawing recoverable and queues no attachment',async()
   const active=f.state.getSnapshot().active;active.editor.export=async()=>{throw Error('tainted canvas')};
   await f.state.save();assert.equal(f.state.getSnapshot().active,active);assert.equal(active.saving,null);assert.equal(f.attachments.length,0);f.state.dispose();
 });
+test('draft image editing replaces the selected attachment and saves erased and unchanged images',async()=>{
+  const f=stateFixture(['photo','other']),background={src:'original',image:{},width:800,height:500};
+  assert.equal(f.state.openNew({azraelBackground:background,azraelReplaceUploadId:'photo'}),true);
+  const editor=f.editors[0];await f.state.save();
+  assert.equal(f.attachments[0].options.replaceUploadId,'photo');assert.deepEqual(f.ids,['photo','other']);
+  assert.equal(f.state.openAttachment('photo'),true);assert.equal(f.state.getSnapshot().active.editor,editor);
+  assert.equal(f.state.getSnapshot().active.azraelBackground,background);
+  editor.replaceDocument({objects:[]});await f.state.save();
+  assert.equal(f.exported.length,2);assert.equal(f.attachments[1].options.replaceUploadId,'photo');
+  assert.equal(f.state.openAttachment('photo'),true);await f.state.save();
+  assert.equal(f.exported.length,3);assert.deepEqual(f.ids,['photo','other']);assert.equal(f.state.getSnapshot().active,null);f.state.dispose();
+});
+test('untouched photos save while ordinary empty sketches retain their native policy',async()=>{
+  const f=stateFixture(['photo']);f.state.openNew({azraelBackground:{image:{},width:80,height:50},azraelReplaceUploadId:'photo'});
+  f.editors[0].replaceDocument({objects:[]});await f.state.save();assert.equal(f.attachments.length,1);
+  f.state.openNew();f.state.getSnapshot().active.editor.replaceDocument({objects:[]});await f.state.save();
+  assert.equal(f.attachments.length,1);assert.notEqual(f.state.getSnapshot().active,null);f.state.dispose();
+});
+test('replacement failure preserves the original and editable state; vanished targets cannot append',async()=>{
+  const f=stateFixture(['photo','other']);
+  assert.equal(f.state.openNew({azraelBackground:{},azraelReplaceUploadId:'removed'}),false);
+  f.state.openNew({azraelBackground:{image:{},width:80,height:50},azraelReplaceUploadId:'photo'});
+  const active=f.state.getSnapshot().active;f.env.failSave=true;await f.state.save();
+  assert.equal(f.state.getSnapshot().active,active);assert.deepEqual(f.ids,['photo','other']);assert.equal(f.attachments.length,0);
+  f.env.failSave=false;await f.state.save();assert.deepEqual(f.ids,['photo','other']);
+  f.state.openAttachment('photo');f.setIds(['other']);assert.equal(f.state.getSnapshot().active,null);f.state.dispose();
+});
+test('native preview mapper and upload adapter preserve the selected draft image ID',async()=>{
+  const text=transformed(injection.COMPOSER_ASSET),ast=ts.createSourceFile('composer.js',text,99,true,1);
+  const component=ast.statements.find(n=>ts.isFunctionDeclaration(n)&&n.name?.text==='dba');let mapper;
+  function visit(node){if(ts.isBinaryExpression(node)&&node.operatorToken.kind===ts.SyntaxKind.EqualsToken&&node.left.getText(ast)==='Ue'&&ts.isArrowFunction(node.right))mapper=node.right;else ts.forEachChild(node,visit)}visit(component);
+  assert.ok(mapper);const preview=vm.runInNewContext('('+mapper.getText(ast)+')',{C:null,S:null,x:null,Dba:e=>e.src})({id:'photo',src:'original'});
+  assert.equal(preview.azraelUploadId,'photo');
+  let queued,completed,nativeItem,nativeOptions;
+  const adapter=vm.runInNewContext('('+declaration(text,'oda')+')',{$G:{},Nf:async()=> 'encoded',_x(){},g_:()=> 'conversation'});
+  await adapter({get:()=> 'local',value:{}},async(createItem,options)=>{
+    nativeOptions=options;nativeItem=await createItem(options.replaceImageId);options.onQueued(nativeItem.id);options.onComplete('success');
+  },new File(['png'],'photo.png',{type:'image/png'}),{id:'sketch',replaceUploadId:preview.azraelUploadId,onQueued:id=>{queued=id},onComplete:status=>{completed=status}});
+  assert.equal(nativeOptions.replaceImageId,'photo');assert.equal(nativeItem.id,'photo');assert.equal(nativeItem.sketchId,'sketch');assert.equal(queued,'photo');assert.equal(completed,'success');
+});
 // Use the real native scope hook: separate components receive distinct wrappers
 // for the same descriptor/provider node. A shared {} would conceal the bug.
 let nativeScopeDeclaration;
@@ -84,7 +129,7 @@ function nativeScopes() {
   return{composer,attachment,other};
 }
 let bridgeDeclarations;
-function bridgeFixture({canOpen=true,active=null,mount=true,openResult=true}={}) {
+function bridgeFixture({canOpen=true,active=null,mount=true,openResult=true,state=null}={}) {
   if(!bridgeDeclarations){
     const text=transformed(injection.COMPOSER_ASSET);
     bridgeDeclarations=['azraelUseImageSketchBridge','azraelRequestImageSketch'].map(name=>declaration(text,name)).join('\n');
@@ -102,9 +147,9 @@ function bridgeFixture({canOpen=true,active=null,mount=true,openResult=true}={})
   if(mount)context.azraelUseImageSketchBridge(scopes.composer,options=>{
     opened.push(options);if(openResult instanceof Error)throw openResult;
     if(openResult)options.azraelOnOpened(true);return openResult;
-  },{current:active?{state:{getSnapshot:()=>({active})}}:null},canOpen,'composer');
+  },{current:state?{state}:active?{state:{getSnapshot:()=>({active})}}:null},canOpen,'composer');
   return{...scopes,images,opened,toasts,listeners,cleanup:()=>cleanup?.(),
-    request:(scope=scopes.attachment,isCurrent=()=>true,locale='en')=>context.azraelRequestImageSketch(scope,'data:image/png;base64,x',isCurrent,()=>{openCount++},locale),
+    request:(scope=scopes.attachment,isCurrent=()=>true,locale='en',uploadId)=>context.azraelRequestImageSketch(scope,'data:image/png;base64,x',isCurrent,()=>{openCount++},locale,uploadId),
     get openCount(){return openCount}};
 }
 const tick=()=>new Promise(setImmediate);
@@ -117,6 +162,13 @@ test('distinct native scope wrappers for the same node open the image sketch',as
   assert.equal(f.opened.length,1);assert.equal(f.openCount,1);
   assert.equal(f.opened[0].azraelBackground.width,80);assert.equal(f.toasts[0].closed,true);
   f.cleanup();assert.equal(f.listeners.size,0);
+});
+test('bridge forwards the draft target and reopens its original editable sketch',async()=>{
+  const f=bridgeFixture(),result=f.request(f.attachment,()=>true,'en','photo');
+  f.images[0].resolve();assert.equal(await result,'opened');assert.equal(f.opened[0].azraelReplaceUploadId,'photo');f.cleanup();
+  const saved=stateFixture(['photo']);saved.state.openNew({azraelBackground:{image:{},width:80,height:50},azraelReplaceUploadId:'photo'});await saved.state.save();
+  const reopened=bridgeFixture({state:saved.state});assert.equal(await reopened.request(reopened.attachment,()=>true,'en','photo'),'opened');
+  assert.equal(reopened.images.length,0);assert.equal(reopened.opened.length,0);assert.equal(saved.editors.length,1);reopened.cleanup();saved.state.dispose();
 });
 
 test('unavailable receiver, different node/descriptor and disabled composer report a reason',async()=>{
