@@ -72,6 +72,12 @@ Unsent new-chat drafts on the home screen and in new-chat panels are saved separ
 
 The native composer and persisted-record merge remain in use. Initial synchronization, later broadcasts and draft writes resolve the workspace through the provider's `fetchWrapper.extensionFetchHandler.getWorkspaceProject()`; the webview provider does not own that method. Initial synchronization includes other persisted preferences, so this owner boundary also preserves session flag restoration. Initial synchronization and later broadcasts expose only the current project's new-chat entries. Old global new-chat drafts remain stored but are not restored because their project ownership is unknown. Legacy conversation drafts still migrate through the native store. No input is submitted by saving or restoring a draft.
 
+### Submitted draft custody
+
+Status: `current` in source; Windows pinned-function fixtures cover submission and persistence. Installed-window and Linux/macOS acceptance remain separate in [the work record](../../work/CQ-01-sent-draft-restoration-diagnosis/01-plan.md).
+
+After successful submission, the composer discards the saved copy of the submitted draft so revisiting the session restores only unsent work. Selection or attachment changes after the editor clears do not retain the submitted text. Deletion requires the same composer session, unchanged cleared editor text and persisted-text representation, the same retained submission owner, and a saved draft matching that owner's content. A newer typed or saved draft remains protected, including retyping the same text before persistence completes. New attachments and selections remain in place. Failed submissions retain their retry draft; restoring into the visible editor still requires ownership of its complete editable state. These shared webview semantics apply to Windows, Linux and macOS. Preservation feature: `ui.composer-draft`.
+
 ### Session creation at submission
 
 Status: `partial` — source creation/admission fixtures and native composer-effect rendering pass on Windows in both themes. Packaging, installed-window resume and native Linux/macOS acceptance remain separate.
