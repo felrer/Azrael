@@ -10,7 +10,7 @@ if (!sourceRoot || !path.isAbsolute(sourceRoot) || extra.length) {
 // These tests execute debug-assertion recovery, panic unwinding/terminal delivery,
 // interruption ownership and a subsequent task in the same native session.
 for (const filter of [
-  "context_manager::history::tests::normalize_adds_missing_output_for_",
+  "context_manager::history::tests::normalize_",
   "context_manager::history::tests::for_prompt_recovers_interrupted_tools_with_stable_ids_and_preserves_raw_history",
   "tasks::panic_tests::",
   "tasks::tests::",
