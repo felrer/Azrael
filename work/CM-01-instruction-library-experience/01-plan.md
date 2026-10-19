@@ -65,3 +65,9 @@ Playbook은 로컬 전용·0.1.0으로 시작하고 유효한 본문/지원 파�
 기존 `all_changes_20261007_r6/engine/codex.exe`는 baseline fixture의 격리 검증기로만 재사용했다. SHA256 `ebeee44638fe9ec25bc4e7b788ac4fcf6fc99a5f3d401cd155d9f17ecaa16c76`. 현재 소스로 engine을 빌드했다는 의미가 아니다. 테스트는 서로 겹쳐 실행했으며 위 소요 시간을 합산하지 않는다. native maintenance 실행은 10초 경계에서 exit 124로 중단됐고 성공으로 간주하지 않았다. 실제 종료 확인 후 같은 검사를 직접 command 경계로 재실행했다. 초기 실패는 module loader 위치 인덱스, validator 경로, fixture 격리/긴 Windows SQLite 경로, 제거된 workspace 상태 조회와 렌더 fixture 변수/버전 선택 설정이었다. 원인을 수정한 범위만 재검증했고 최종 host/backend/type/render 결과가 이를 대체한다. 마지막 CSS 대비 수정은 renderer로 검증했으며 backend/host를 반복 실행하지 않았다.
 
 실제 GitHub 권한·출시 저장소, 최종 제품 패키지/활성 설치본, Linux/macOS는 미검증이다. 저장소의 최근 30개 release가 현재 원격 탐색 범위이며 연결하지 않은 외부 저장소는 검색하지 않는다. 기존 다른 작업 수정은 보존한다.
+
+## 보관과 완료
+
+기능 커밋: `d31048d7` (`Add searchable instruction catalog and versioned project Playbooks`). 다른 작업의 공유 문서·inventory·maintenance 변경을 제외하고 이 작업 소유 구간만 커밋했다. 커밋 대상 whitespace 검사도 통과했다.
+
+생성한 14개 run을 native maintenance에 등록하고 review/apply 결과를 확인했다. 모두 `deferred`, `remaining: true`, `aborted: false`로 보관했다. 최종 검증 로그·스크린샷과 앞선 진단 기록은 다음 패키지 수용 검증 후 보관 참조와 producer membership을 정리하는 시점에 재검토한다. 중단된 최초 native 실행은 membership 불완전 상태를 유지하며 성공으로 바꾸지 않았다. 렌더 검사의 임시 브라우저 profile은 실제 브라우저 종료 확인 후 제거됐다. 유지된 검사·타입 산출물과 진단 자료는 삭제하지 않았다. 강제 삭제·제품 빌드·설치·게시·push는 수행하지 않았다.
