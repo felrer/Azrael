@@ -67,9 +67,11 @@
         "size": 14406,
         "sha256": "944f3389e4d54e01279788c6b178864ece3a7bbf69332fa9f946bd5e2279184f"
       },
-      "size": 14406,
-      "sha256": "944f3389e4d54e01279788c6b178864ece3a7bbf69332fa9f946bd5e2279184f",
-      "adaptations": []
+      "size": 14683,
+      "sha256": "029557ff61125ce17fcb1844e5c86c798613a3aa5a030a331e238c9675290401",
+      "adaptations": [
+        "Clarify incorporating user answers and reporting design changes, impacts, and the next recommended topic within existing authority."
+      ]
     },
     {
       "path": "skills/design-documentation/SKILL.md",
