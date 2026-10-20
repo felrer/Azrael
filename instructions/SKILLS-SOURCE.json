@@ -54,10 +54,11 @@
         "size": 13170,
         "sha256": "877313fa06dbf4fe0b8d081986074b08cd0757867cd2810e6af63a6f82474c2b"
       },
-      "size": 12222,
-      "sha256": "97c3b553172fb28f3a86eeafad3f9102572d389fe3edc10884c8d854f05ec023",
+      "size": 11842,
+      "sha256": "a4b69393234ec2c3779986f3f3348f9ccc24c79c8324eed0bb5780093175aa82",
       "adaptations": [
-        "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities."
+        "Centralized platform scope checklist in global AGENTS; retain skill-specific routing and verification responsibilities.",
+        "Remove the three user-selected investigation-first and linked-choice routing sentences."
       ]
     },
     {
@@ -67,10 +68,11 @@
         "size": 14406,
         "sha256": "944f3389e4d54e01279788c6b178864ece3a7bbf69332fa9f946bd5e2279184f"
       },
-      "size": 14683,
-      "sha256": "029557ff61125ce17fcb1844e5c86c798613a3aa5a030a331e238c9675290401",
+      "size": 14483,
+      "sha256": "8d3813105e8f47a4b27969b06a9733d689142e43df09ea11b7a0c8dd51da5aa5",
       "adaptations": [
-        "Clarify incorporating user answers and reporting design changes, impacts, and the next recommended topic within existing authority."
+        "Clarify incorporating user answers and reporting design changes, impacts, and the next recommended topic within existing authority.",
+        "Remove the user-selected sentence routing linked choices to discussion and investigation to direct planning."
       ]
     },
     {

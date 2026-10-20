@@ -7,7 +7,7 @@ description: Start work by investigating and writing one plan with questions, re
 
 Own the goal, scope, success criteria, unresolved decisions, work sequence, and final acceptance of a code-change task. Keep the work moving across investigation, design, and implementation without restarting the task at each transition.
 
-The common work-entry instructions choose between this skill and `design-collaboration` after identifying conversational intent and authority. Use this route when investigation can gather the approach and user questions into one plan. Use `design-collaboration` when one user answer changes the direction of later choices and iterative discussion is needed. Complexity or code size alone does not determine the route. Use `design-documentation` for enduring agreed design and `implementation` for execution within existing authority; these responsibilities do not create mandatory separate stages.
+The common work-entry instructions choose between this skill and `design-collaboration` after identifying conversational intent and authority. Complexity or code size alone does not determine the route. Use `design-documentation` for enduring agreed design and `implementation` for execution within existing authority; these responsibilities do not create mandatory separate stages.
 
 ## Work Plan Document
 
@@ -39,7 +39,7 @@ Inspect the actual code's call paths, owners, data and state contracts, and rele
 
 Compare applicable architecture with code, tests and observed behavior, distinguishing agreed/current contracts from draft proposals. Record the existing behavior, constraints and permissions that the change must preserve, including features not yet documented. An implementation different from specified architecture behavior, structure or contracts needs review before the affected implementation unless that difference is already approved. Missing or apparently stale documentation is not authority to remove a feature or rewrite the design to justify a fix.
 
-Before plan review, investigate the affected boundaries enough to gather related decisions reasonably discoverable now, with recommendations, impacts and verification. Avoid deferring known decisions to execution. Label remaining uncertainty. If linked choices require iterative discussion, continue with `design-collaboration` in the same record instead of creating a new task or restarting settled review.
+Before plan review, investigate the affected boundaries enough to gather related decisions reasonably discoverable now, with recommendations, impacts and verification. Avoid deferring known decisions to execution. Label remaining uncertainty.
 
 If the requirements cannot be met as stated, or only at a cost the user may not accept, present the feasible options and their trade-offs as a decision instead of choosing a compromise.
 
