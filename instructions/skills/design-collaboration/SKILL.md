@@ -80,7 +80,7 @@ Address only as much as the user can judge at once. Closely related questions ma
 
 ## 5. Find and continue with missing topics after agreement
 
-Once a topic is settled, update its owning document and the open-question list, then raise the next important gap in the current design. Do not wait for the user to invent the next question or end every turn by asking whether anything else is needed.
+When the user's answer is clear, incorporate it into the existing design, work record, and open-question list, and briefly explain what changed and its impact. If the design is incomplete, present the next important topic, the recommended direction and reasons, and any decision question that requires user judgment. Do not ask whether to perform work already required by this skill and within existing authority. Do not wait for the user to invent the next question or end every turn by asking whether anything else is needed.
 
 Choose the next topic based on its effect on other design, whether it is a prerequisite, and the cost of getting it wrong. Explain why it needs attention now and recommend a direction. Finding a new topic does not automatically expand feature scope. Distinguish required omissions within the agreed scope from optional extensions, and propose any scope change first.
 
