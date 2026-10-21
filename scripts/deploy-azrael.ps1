@@ -399,7 +399,7 @@ try {
         $bridgePath = Join-Path $release 'engine/azrael-bridge.exe'
         $socketPath = Join-Path $accountControlsState 'socket/a.sock'
         if ([Text.Encoding]::UTF8.GetByteCount($socketPath) -gt 100) {
-            $socketPath = Join-Path ([IO.Path]::GetFullPath([IO.Path]::GetTempPath())) "ac-$([guid]::NewGuid().ToString('N'))/a.sock"
+            $socketPath = Join-Path ([IO.Path]::GetFullPath([IO.Path]::GetTempPath())) "a$([guid]::NewGuid().ToString('N').Substring(0, 12))/a.sock"
         }
         if ([Text.Encoding]::UTF8.GetByteCount($socketPath) -gt 100) { throw 'Account controls socket path exceeds the Windows AF_UNIX limit.' }
         if (Test-Path -LiteralPath (Split-Path $socketPath -Parent)) { throw 'Account controls socket directory already exists.' }
