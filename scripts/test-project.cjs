@@ -25,7 +25,24 @@ const SHARED = new Set(["scripts/namespace-azrael-host.cjs", "scripts/integrated
 const normalize = value => value.replace(/\\/g, "/").replace(/^\.\//, "");
 
 function parseArgs(args) {
+  let argumentIdentity;
+  if (args.includes("--args-file")) {
+    if (![2, 4].includes(args.length) || args[0] !== "--args-file" || !path.isAbsolute(args[1]) ||
+        (args.length === 4 && (args[2] !== "--args-sha256" || !/^[a-f0-9]{64}$/i.test(args[3]))))
+      throw new Error("--args-file requires one absolute path and cannot be mixed with other arguments");
+    const file = args[1];
+    const bytes = fs.readFileSync(file);
+    const sha256 = createHash("sha256").update(bytes).digest("hex");
+    if (args.length === 4 && sha256 !== args[3].toLowerCase()) throw new Error("--args-file SHA-256 mismatch");
+    args = JSON.parse(bytes.toString("utf8").replace(/^\uFEFF/, ""));
+    if (!Array.isArray(args) || args.some(value => typeof value !== "string" || value.includes("\0")))
+      throw new Error("--args-file must contain a JSON array of strings without NUL characters");
+    if (args.includes("--args-file") || args.includes("--args-sha256")) throw new Error("Recursive --args-file transport is not allowed");
+    argumentIdentity = { path: file, sha256, count: args.length,
+      characterCount: args.reduce((count, value) => count + value.length, 0) };
+  }
   const options = { areas: [], changed: [], changedOnly: false, list: false, collectFailures: false, exhaustive: false, deferPreservationCacheOwner: false };
+  if (argumentIdentity) options.argumentIdentity = argumentIdentity;
   for (let i = 0; i < args.length; i++) {
     const option = args[i];
     if (option === "--exhaustive") { options.exhaustive = true; continue; }
@@ -541,6 +558,7 @@ async function main(args = process.argv.slice(2)) {
   // Git failure remains fatal rather than silently omitting owner regressions.
   if (options.areas.length && !options.changed.length) options.policyChangedPaths = changedFiles(ROOT);
   const selection = select(options);
+  if (options.argumentIdentity) selection.argumentIdentity = options.argumentIdentity;
   if (options.list) { console.log(JSON.stringify(selection, null, 2)); return 0; }
   const report = await runSelection(selection, { ...options,
     onResult: result => console.log(`${result.name}: ${result.status} (exit ${result.exitCode}, ${result.durationMs}ms)`) });

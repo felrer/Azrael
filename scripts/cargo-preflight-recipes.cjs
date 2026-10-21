@@ -181,7 +181,7 @@ function selectedSourcePath(config, changed) {
 }
 
 // Deliberately narrow declaration reader, not a general TOML parser. Unknown,
-// quoted/dotted/inherited/ambiguous declarations disable priority narrowing.
+// quoted/dotted/inherited/ambiguous declarations disable early scheduling narrowing.
 function literalPackageName(text) {
   if (text.includes('"""') || text.includes("'''")) return undefined;
   const sections = text.split(/\r?\n/);
@@ -231,8 +231,9 @@ function plan(config, features, { changedPaths = [] } = {}) {
   // Rust outside the selected tree or an unresolvable owner is still a native
   // scope uncertainty. Ordinary documentation and JS edits do not select Rust.
   const unknownRust = paths.some(({ changed, source }) => !source && /(?:\.rs|(?:^|\/)Cargo\.(?:toml|lock)|(?:^|\/)rust-toolchain(?:\.toml)?|(?:^|\/)\.cargo\/config(?:\.toml)?)$/.test(slash(changed)));
-  if (changedPaths.length && !nativePaths.length && !unknownRust) return { cargoPreparations: [], gaps: [], skipped: [...skipped, ...entries.map(({ check }) => ({ checkId: check.id, reason: 'changed paths do not affect native source' }))], changedPackages: [], selection: 'no-native-changes' };
-  const changedPackages = [...new Set(nativePaths.map(({ source }) => closestPackage(config, source)).filter(Boolean))];
+  if (changedPaths.length && !nativePaths.length && !unknownRust) return { cargoPreparations: [], deferredPreparations: [], gaps: [], skipped: [...skipped, ...entries.map(({ check }) => ({ checkId: check.id, reason: 'changed paths do not affect native source' }))], changedPackages: [], selection: 'no-native-changes' };
+  const packageNames = nativePaths.map(({ source }) => closestPackage(config, source));
+  const changedPackages = [...new Set(packageNames.filter(Boolean))];
   const changedOwners = new Set(entries.filter(({ feature }) => (feature.owners || []).some(owner => paths.some(({ changed, source }) => slash(owner) === slash(changed) || (source && selectedSourcePath(config, owner) === source)))).map(({ check }) => check.id));
   const candidates = [];
   const gaps = [];
@@ -253,9 +254,23 @@ function plan(config, features, { changedPaths = [] } = {}) {
       if (!previous.checkIds.includes(recipe.checkId)) previous.checkIds.push(recipe.checkId);
     } else dedup.set(key, { ...recipe, checkIds: [recipe.checkId] });
   }
-  // Source dependency closure has not been proven isolated: changed-crate and
-  // owner matches determine priority, never remove other selected recipes.
-  return { cargoPreparations: [...dedup.values()], gaps, skipped, changedPackages, selection: 'conservative-selected-native' };
+  const allPreparations = [...dedup.values()];
+  // This only schedules preparation earlier. Every selected native consumer
+  // retains its own type-check, nonzero selection and test execution gates.
+  // Configuration/build inputs and unresolved source ownership need all early
+  // preparations; package matches do not prove dependency closure isolation.
+  const narrow = nativePaths.length > 0 && !unknownRust && !gaps.length
+    && nativePaths.every(({ source }, index) => packageNames[index]
+      && path.extname(source) === '.rs' && path.basename(source) !== 'build.rs')
+    && changedPackages.every(name => allPreparations.some(recipe => packages(recipe.args).includes(name)));
+  const affected = recipe => packages(recipe.args).some(name => changedPackages.includes(name))
+    || recipe.checkIds.some(id => changedOwners.has(id));
+  const cargoPreparations = narrow ? allPreparations.filter(affected) : allPreparations;
+  const deferredPreparations = narrow ? allPreparations.filter(recipe => !affected(recipe)).map(recipe => ({
+    ...recipe, reason: 'prepared by selected native consumer if reusable evidence misses',
+  })) : [];
+  return { cargoPreparations, deferredPreparations, gaps, skipped, changedPackages,
+    selection: narrow ? 'affected-selected-native' : 'conservative-selected-native' };
 }
 
 module.exports = { plan, recipesForCheck, literalPackageName };

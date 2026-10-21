@@ -59,7 +59,7 @@ test('dedup removes only identical preparation semantics and retains every ownin
   assert.equal(result.cargoPreparations.filter(x => x.args.includes('codex-core/integration-tests')).length, 1);
 });
 
-test('closest actual manifest name prioritizes its owning crate without dropping dependency consumers', () => {
+test('closest actual manifest name schedules its owning crate and defers dependency consumers', () => {
   fixtures({ 'codex-rs/Cargo.toml': '[workspace]\nmembers=[]',
     'codex-rs/unexpected-directory/Cargo.toml': '[package]\nname = "codex-rmcp-client"\n',
     'codex-rs/unexpected-directory/nested/Cargo.toml': '[package]\nname="codex-core"\n' });
@@ -67,10 +67,83 @@ test('closest actual manifest name prioritizes its owning crate without dropping
     const features = [feature([capacity]), feature([oauth('default')], ['engine/codex-rs/unexpected-directory/src/oauth.rs'])];
     const result = plan(config, features, { changedPaths: ['engine/codex-rs/unexpected-directory/src/oauth.rs'] });
     assert.deepEqual(result.changedPackages, ['codex-rmcp-client']);
-    assert.deepEqual(result.cargoPreparations.map(x => x.checkId), ['oauth-default', 'check-capacity-recovery']);
+    assert.deepEqual(result.cargoPreparations.map(x => x.checkId), ['oauth-default']);
+    assert.deepEqual(result.deferredPreparations.map(x => x.checkId), ['check-capacity-recovery']);
+    assert.equal(result.selection, 'affected-selected-native');
     const nested = plan(config, features, { changedPaths: [path.join(engineSourceRoot, 'codex-rs/unexpected-directory/nested/src/lib.rs')] });
     assert.deepEqual(nested.changedPackages, ['codex-core']);
     assert.equal(nested.cargoPreparations[0].checkId, 'check-capacity-recovery');
+    assert.deepEqual(nested.deferredPreparations.map(x => x.checkId), ['oauth-default']);
+  } finally { mock.restoreAll(); }
+});
+
+test('mapped OAuth and skills test changes split exact deduplicated recipes and conserve all check owners', () => {
+  fixtures({
+    'codex-rs/rmcp-client/Cargo.toml': '[package]\nname="codex-rmcp-client"',
+    'codex-rs/skills/Cargo.toml': '[package]\nname="codex-skills-extension"',
+  });
+  try {
+    const features = [feature([capacity, check('check-task-recovery-native')]),
+      feature([oauth('default'), oauth('preserve-order')]),
+      feature([check('check-task-profile-skills')], ['engine/codex-rs/skills/src/tests.rs']),
+      feature([check('check-window-approval-native', ['queue'])])];
+    const full = plan(config, features);
+    const result = plan(config, features, { changedPaths: [
+      'engine/codex-rs/rmcp-client/src/oauth.rs', 'engine/codex-rs/skills/src/tests.rs', 'docs/readme.md',
+    ] });
+    assert.deepEqual(result.gaps, []);
+    assert.equal(result.selection, 'affected-selected-native');
+    assert.deepEqual(result.changedPackages, ['codex-rmcp-client', 'codex-skills-extension']);
+    assert.equal(result.cargoPreparations.length, 4);
+    assert.equal(result.deferredPreparations.length, 2);
+    assert.ok(result.cargoPreparations.every(recipe => recipe.checkIds.every(id =>
+      ['oauth-default', 'oauth-preserve-order', 'check-task-profile-skills'].includes(id))));
+    assert.ok(result.cargoPreparations.some(recipe => recipe.args.includes('codex-config')),
+      'a direct owner retains its other package recipe');
+    assert.deepEqual(result.deferredPreparations.find(recipe => recipe.checkId === capacity.id).checkIds,
+      [capacity.id, 'check-task-recovery-native']);
+    assert.ok(result.deferredPreparations.some(recipe => recipe.envRecipe === 'sdk-python-path'));
+    assert.ok(result.deferredPreparations.every(recipe => recipe.reason ===
+      'prepared by selected native consumer if reusable evidence misses'));
+    const semantics = recipe => JSON.stringify({ ...recipe, reason: undefined });
+    const combined = [...result.cargoPreparations, ...result.deferredPreparations];
+    assert.deepEqual(combined.map(semantics).sort(), full.cargoPreparations.map(semantics).sort());
+    assert.deepEqual(new Set(combined.flatMap(recipe => recipe.checkIds)),
+      new Set(features.flatMap(entry => entry.checks.map(check => check.id))));
+  } finally { mock.restoreAll(); }
+});
+
+test('one unknown, unmatched, shared or build input keeps every selected preparation early', () => {
+  fixtures({
+    'codex-rs/rmcp-client/Cargo.toml': '[package]\nname="codex-rmcp-client"',
+    'codex-rs/unselected/Cargo.toml': '[package]\nname="unselected"',
+  });
+  try {
+    for (const changed of ['engine/codex-rs/unknown/src/lib.rs', 'engine/codex-rs/unselected/src/lib.rs',
+      'engine/codex-rs/shared.rs', 'engine/other/src/lib.rs', 'external/src/lib.rs',
+      'engine/codex-rs/rmcp-client/build.rs', 'engine/codex-rs/rmcp-client/Cargo.toml',
+      'engine/codex-rs/Cargo.lock', 'engine/codex-rs/rust-toolchain', 'engine/rust-toolchain.toml',
+      'engine/.cargo/config.toml', 'engine/codex-rs/.cargo/config', 'engine/codex-rs/dependencies.toml']) {
+      const result = plan(config, [feature([capacity, oauth('default')])], { changedPaths: [
+        'engine/codex-rs/rmcp-client/src/oauth.rs', changed,
+      ] });
+      assert.equal(result.selection, 'conservative-selected-native', changed);
+      assert.equal(result.cargoPreparations.length, 2, changed);
+      assert.deepEqual(result.deferredPreparations, [], changed);
+    }
+  } finally { mock.restoreAll(); }
+});
+
+test('mapped changes still validate all selected consumers before narrowing preparation', () => {
+  fixtures({ 'codex-rs/rmcp-client/Cargo.toml': '[package]\nname="codex-rmcp-client"' });
+  try {
+    const result = plan(config, [feature([oauth('default'), capacity, check('check-new-wrapper')])], {
+      changedPaths: ['engine/codex-rs/rmcp-client/src/oauth.rs'],
+    });
+    assert.equal(result.selection, 'conservative-selected-native');
+    assert.equal(result.cargoPreparations.length, 2);
+    assert.deepEqual(result.deferredPreparations, []);
+    assert.deepEqual(result.gaps, [{ checkId: 'check-new-wrapper', reason: 'no reviewed Cargo recipe for wrapper' }]);
   } finally { mock.restoreAll(); }
 });
 

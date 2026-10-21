@@ -8,6 +8,67 @@ const { spawnSync } = require("node:child_process");
 const { AREAS, parseArgs, select, runCommand } = require("./test-project.cjs");
 const selection = args => select(parseArgs(args));
 
+test("args-file carries 5502 changed paths beyond Windows argv limits through the existing selector", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-args-file-"));
+  try {
+    const changed = Array.from({ length: 5502 }, (_, index) => `docs/${index}-${"x".repeat(65)}.md`);
+    changed[0] = 'docs/spaces 한글 "quote" $() & ; newline\nback\\slash.md';
+    changed[1] = "scripts/test-session-links.cjs";
+    changed[2] = `docs/${"x".repeat(474736 - changed.reduce((sum, value) => sum + value.length, 0) + changed[2].length - 8)}.md`;
+    assert.equal(changed.reduce((sum, value) => sum + value.length, 0), 474736);
+    const logical = ["--changed-only", ...changed.flatMap(value => ["--changed", value]), "--list"];
+    const file = path.join(directory, "arguments 한글 spaces.json");
+    fs.writeFileSync(file, JSON.stringify(logical));
+    const sha256 = require("node:crypto").createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+    const options = parseArgs(["--args-file", file]);
+    assert.deepEqual(options.changed, changed.map(value => value.replace(/\\/g, "/")));
+    const launched = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--args-file", file, "--args-sha256", sha256], { encoding: "utf8", maxBuffer: 20 * 1024 * 1024 });
+    assert.equal(launched.status, 0, launched.stderr);
+    const report = JSON.parse(launched.stdout);
+    const { argumentIdentity, ...scope } = report;
+    assert.deepEqual(scope, selection(logical));
+    assert.deepEqual(scope.files, ["scripts/test-session-links.cjs"]);
+    assert.deepEqual(argumentIdentity, { path: file, sha256: require("node:crypto").createHash("sha256").update(fs.readFileSync(file)).digest("hex"),
+      count: logical.length, characterCount: logical.reduce((sum, value) => sum + value.length, 0) });
+  } finally { fs.rmSync(directory, { recursive: true }); }
+});
+
+test("args-file rejects malformed, recursive and mixed invocation and retains identity in execution reports", () => {
+  const directory = fs.mkdtempSync(path.join(os.tmpdir(), "azrael-args-file-validation-"));
+  try {
+    const file = path.join(directory, "arguments.json");
+    for (const content of ["{", "{}", '"text"', "null", "[1]", '["a",null]', JSON.stringify(["--changed", "nul\0.md"]), JSON.stringify(["--args-file", file])]) {
+      fs.writeFileSync(file, content);
+      assert.throws(() => parseArgs(["--args-file", file]));
+    }
+    fs.writeFileSync(file, JSON.stringify(["--changed", "docs/README.md"]));
+    const expectedSha = require("node:crypto").createHash("sha256").update(fs.readFileSync(file)).digest("hex");
+    assert.equal(parseArgs(["--args-file", file, "--args-sha256", expectedSha]).argumentIdentity.sha256, expectedSha);
+    fs.appendFileSync(file, " ");
+    assert.throws(() => parseArgs(["--args-file", file, "--args-sha256", expectedSha]), /SHA-256 mismatch/);
+    const tampered = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--args-file", file, "--args-sha256", expectedSha], { encoding: "utf8" });
+    assert.equal(tampered.status, 1);
+    assert.match(tampered.stderr, /SHA-256 mismatch/);
+    for (const args of [["--args-file"], ["--args-file", "relative.json"], ["--list", "--args-file", file], ["--args-file", file, "--list"],
+      ["--args-file", file, "--args-sha256", "invalid"], ["--args-file", file, "--list", expectedSha],
+      ["--args-file", file, "--args-sha256", expectedSha, "--list"]])
+      assert.throws(() => parseArgs(args), /--args-file/);
+    fs.writeFileSync(file, "[false]");
+    const failed = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--args-file", file], { encoding: "utf8" });
+    assert.equal(failed.status, 1);
+    assert.match(failed.stderr, /JSON array of strings/);
+    const logical = ["--changed-only", "--changed", "docs/README.md", "--log-directory", path.join(directory, "logs")];
+    fs.writeFileSync(file, JSON.stringify(logical));
+    const passed = spawnSync(process.execPath, [path.join(__dirname, "test-project.cjs"), "--args-file", file], { encoding: "utf8" });
+    assert.equal(passed.status, 0, passed.stderr);
+    const report = JSON.parse(fs.readFileSync(path.join(directory, "logs", fs.readdirSync(path.join(directory, "logs"))[0], "results.json")));
+    assert.equal(report.exitCode, 0);
+    assert.equal(report.argumentIdentity.count, logical.length);
+    assert.equal(report.argumentIdentity.sha256, parseArgs(["--args-file", file]).argumentIdentity.sha256);
+    assert.deepEqual(report.plannedCommands, []);
+  } finally { fs.rmSync(directory, { recursive: true }); }
+});
+
 test("twelve areas retain the eight original scopes and expose bounded feature/cache selections", () => {
   assert.equal(AREAS.length, 12);
   for (const area of ["current", "extension", "standalone", "queue", "recovery", "ui", "namespace", "build"]) assert.ok(AREAS.includes(area));

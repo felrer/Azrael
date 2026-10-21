@@ -203,15 +203,15 @@
       "path": "skills/implementation/references/build-inputs.md",
       "source": "implementation/references/build-inputs.md",
       "adaptations": [
-        "Maintained build preflight, verification scope, failure recovery, reuse, resource coordination, timing and lifecycle guidance; final acceptance checks preserved.",
+        "Consolidated build execution around owner-scoped reuse decisions before preparation, stable compatible paths and per-consumer prerequisites; preserve immutable-input audit, acceptance and lifecycle guards.",
         "Use management-tool group records and reviews as primary operational evidence; limit duplicate scans and separate initial adoption from registered cleanup; synchronized active installed copy."
       ],
       "original": {
         "size": 7937,
         "sha256": "868716a446492454ed131f725f4aed1a40142b0dd8db080c0e8412dfda5f71fc"
       },
-      "size": 10062,
-      "sha256": "e5dec36c66f1da80902bf8e42a9d4c6a8f08f78c25691e555cb6b7b136e5bc23"
+      "size": 9842,
+      "sha256": "2fb7105cc02baabfd247408e1b2131a7516c1caf4df89670bb785c8ab26fc4f8"
     },
     {
       "path": "skills/implementation/references/delegation.md",
