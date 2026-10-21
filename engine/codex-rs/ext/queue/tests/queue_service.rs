@@ -1425,7 +1425,10 @@ async fn invalid_head_is_skipped_and_a_live_user_turn_is_accepted() -> anyhow::R
     let response =
         responses::mount_sse_once(&server, responses::sse_completed("queued-turn")).await;
     let test = test_codex()
-        .with_config(|config| config.include_environment_context = false)
+        .with_config(|config| {
+            config.include_environment_context = false;
+            config.project_doc_max_bytes = 0;
+        })
         .build_with_auto_env(&server)
         .await?;
     let thread_id = test.session_configured.thread_id;
@@ -1732,6 +1735,7 @@ async fn queued_compaction_executes_between_user_messages() -> anyhow::Result<()
         .with_extensions(extensions)
         .with_config(|config| {
             config.include_environment_context = false;
+            config.project_doc_max_bytes = 0;
             let _ = config.features.enable(Feature::RemoteCompactionV2);
             config.model_context_window = Some(100_000);
         })
