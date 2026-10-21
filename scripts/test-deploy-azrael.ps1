@@ -29,7 +29,7 @@ try {
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
-$changedCases += @('environment preflight failure', 'cargo planner gap', 'test preparation failure', 'missing registered cache project', 'test preparation input mutation', 'temporary references preserved', 'registered engine owner selection')
+$changedCases += @('environment preflight failure', 'cargo planner gap', 'test preparation failure', 'missing registered cache project', 'test preparation input mutation', 'temporary references preserved', 'registered engine owner selection', 'account socket path')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -332,6 +332,44 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if ($Mode -eq 'account-socket-path') {
+        $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        $socketStart = $deployText.IndexOf('        $socketPath = Join-Path $accountControlsState')
+        $socketEnd = $deployText.IndexOf('        $reportPath =', $socketStart)
+        $socketSelector = [scriptblock]::Create($deployText.Substring($socketStart, $socketEnd - $socketStart))
+        $savedTemp = $env:TEMP; $savedTmp = $env:TMP
+        try {
+            # Computation only: match the 71-byte workspace TEMP independently of checkout depth.
+            $tempVolume = [IO.Path]::GetPathRoot($project)
+            $workspaceTemp = Join-Path $tempVolume ('t' * (71 - [Text.Encoding]::UTF8.GetByteCount($tempVolume)))
+            Assert-True ([Text.Encoding]::UTF8.GetByteCount($workspaceTemp) -eq 71) 'socket regression TEMP byte budget changed'
+            $env:TEMP = $workspaceTemp; $env:TMP = $workspaceTemp
+            $accountControlsState = Join-Path $root ('account-state-' + ('s' * 100))
+            Assert-True ([Text.Encoding]::UTF8.GetByteCount((Join-Path $accountControlsState 'socket/a.sock')) -gt 100) 'socket regression did not require fallback'
+            Assert-True ([Text.Encoding]::UTF8.GetByteCount((Join-Path $workspaceTemp ('ac-' + ('0' * 32) + '/a.sock'))) -gt 100) 'workspace TEMP regression would accept the old fallback'
+            . $socketSelector
+            $firstSocket = $socketPath
+            . $socketSelector
+            $secondSocket = $socketPath
+            foreach ($selectedSocket in @($firstSocket, $secondSocket)) {
+                Assert-True ([Text.Encoding]::UTF8.GetByteCount($selectedSocket) -le 100) 'workspace TEMP fallback exceeds socket byte limit'
+                Assert-True ((Split-Path (Split-Path $selectedSocket -Parent) -Parent) -eq $workspaceTemp) 'socket fallback escaped workspace TEMP'
+                Assert-True (-not (Test-Path -LiteralPath (Split-Path $selectedSocket -Parent))) 'socket fallback parent is not fresh'
+                Assert-True ((Split-Path $selectedSocket -Parent) -ne (Join-Path $accountControlsState 'socket')) 'socket fallback reused account state parent'
+            }
+            Assert-True ((Split-Path $firstSocket -Parent) -ne (Split-Path $secondSocket -Parent)) 'socket fallback parents are not distinct'
+            $freshnessRejected = $false
+            try { & { function Test-Path { param([string]$LiteralPath) return $true }; . $socketSelector } }
+            catch { $freshnessRejected = $_.Exception.Message -eq 'Account controls socket directory already exists.' }
+            Assert-True $freshnessRejected 'socket fallback accepted an existing parent'
+            $env:TEMP = Join-Path $workspaceTemp ('t' * 40); $env:TMP = $env:TEMP
+            $lengthRejected = $false
+            try { . $socketSelector } catch { $lengthRejected = $_.Exception.Message -eq 'Account controls socket path exceeds the Windows AF_UNIX limit.' }
+            Assert-True $lengthRejected 'socket fallback accepted a truly too-long TEMP'
+            $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=@{workspaceTemp=$workspaceTemp;fallbackBytes=[Text.Encoding]::UTF8.GetByteCount($firstSocket);distinctFreshParents=$true;tooLongTempRejected=$true;existingParentRejected=$true}})
+        } finally { $env:TEMP = $savedTemp; $env:TMP = $savedTmp }
+        return
+    }
     if($Mode -eq 'registered-owner-selection'){
         $deployText=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
         $ast=[Management.Automation.Language.Parser]::ParseInput($deployText,[ref]$null,[ref]$null)
@@ -878,6 +916,7 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
     Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
+    Invoke-Case 'account socket path' 'account-socket-path'
     Invoke-Case 'registered engine owner selection' 'registered-owner-selection'
     Invoke-Case 'cargo planner gap' 'cargo-planner-gap'
     Invoke-Case 'test preparation failure' 'test-preparation-fail'
