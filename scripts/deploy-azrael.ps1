@@ -349,7 +349,12 @@ try {
     $sourceConfig.receiptPath = [string]$sourcePreflightResult.receiptPath
     $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $sourceTestArgs += @('--source-preflight-config', $sourceConfigPath)
-    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
+    # Keep logical argv in owned logs; Windows Process.Start has a 32K command-line limit.
+    $sourceTestArgsPath = Join-Path $logs 'source-test-arguments.json'
+    $sourceLogicalArgs = @($sourceTestArgs | Select-Object -Skip 1)
+    ConvertTo-Json -InputObject $sourceLogicalArgs -Depth 5 | Set-Content -LiteralPath $sourceTestArgsPath -Encoding utf8NoBOM
+    $metrics.sourceTestArguments = [ordered]@{ path = $sourceTestArgsPath; sha256 = (Get-FileHash -LiteralPath $sourceTestArgsPath -Algorithm SHA256).Hash.ToLowerInvariant(); count = $sourceLogicalArgs.Count; characterCount = ($sourceLogicalArgs | Measure-Object -Property Length -Sum).Sum }
+    $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source @($sourceTestArgs[0], '--args-file', $sourceTestArgsPath, '--args-sha256', $metrics.sourceTestArguments.sha256)
     $testPreparation = Start-OwnedCommand 'changed-test-type-preparation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), '--prepare-tests', $sourceConfigPath)
     Wait-OwnedCommands @($testPreparation) -MonitoredCommands @($sourceTests)
     Assert-ProjectSnapshot 'post-test-preparation'

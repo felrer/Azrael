@@ -59,7 +59,11 @@ $nodeStub = @'
 const fs = require('node:fs'); const path = require('node:path');
 const root = path.dirname(__dirname); const a = path.join(root, 'artifacts');
 const scenario = JSON.parse(fs.readFileSync(path.join(a, 'scenario.json')));
-fs.writeFileSync(path.join(a, 'test-invocation.json'), JSON.stringify(process.argv.slice(2)));
+const launchArgs = process.argv.slice(2);
+if(launchArgs.length!==4 || launchArgs[0]!=='--args-file' || !path.isAbsolute(launchArgs[1]) || launchArgs[2]!=='--args-sha256') throw Error('Expected exclusive absolute args-file launch');
+if(require('node:crypto').createHash('sha256').update(fs.readFileSync(launchArgs[1])).digest('hex')!==launchArgs[3]) throw Error('Argument SHA-256 mismatch');
+fs.writeFileSync(path.join(a, 'test-launch.json'), JSON.stringify(launchArgs));
+fs.writeFileSync(path.join(a, 'test-invocation.json'), JSON.stringify(JSON.parse(fs.readFileSync(launchArgs[1], 'utf8'))));
 fs.writeFileSync(path.join(a, 'source-start.json'), JSON.stringify({pid:process.pid, time:Date.now()}));
 (async () => {
  const deadline = Date.now()+10000;
@@ -424,6 +428,36 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
             $FullRegression = $true
             . $argumentBuilder (Join-Path $savedProject 'scripts')
             Assert-True ('--exhaustive' -in $sourceTestArgs -and '--defer-preservation-cache-owner' -in $sourceTestArgs -and '--changed-only' -notin $sourceTestArgs) 'full exhaustive source argv policy lost'
+            # Exercise the production serializer with a logical argv that cannot enter Process.Start directly.
+            $largePaths = @(0..5501 | ForEach-Object { 'docs/' + $_ + '-' + ('x' * 65) + '.md' })
+            $largePaths[0] = 'docs/spaces 한글 "quote" $() & ;.md'
+            $largePaths[1] = 'scripts/test-session-links.cjs'
+            $padding = 474736 - ($largePaths | Measure-Object -Property Length -Sum).Sum
+            $largePaths[2] += 'x' * $padding
+            $sourceTestArgs = @((Join-Path $savedProject 'scripts/test-project.cjs'), '--changed-only')
+            foreach ($changed in $largePaths) { $sourceTestArgs += @('--changed', $changed) }
+            $sourceTestArgs += '--list'
+            $transportStart = $deployText.IndexOf("    `$sourceTestArgsPath = Join-Path")
+            $transportEnd = $deployText.IndexOf("    `$testPreparation =", $transportStart)
+            function Start-OwnedCommand { param($Name, $Executable, [string[]]$Arguments) [pscustomobject]@{Executable=$Executable;Arguments=$Arguments} }
+            $metrics = [ordered]@{}
+            . ([scriptblock]::Create($deployText.Substring($transportStart, $transportEnd - $transportStart)))
+            Assert-True ($sourceTests.Arguments.Count -eq 5 -and $sourceTests.Arguments[1] -ceq '--args-file' -and $sourceTests.Arguments[3] -ceq '--args-sha256') 'large logical argv entered process command line'
+            $retainedArgs = @(Get-Content -LiteralPath $metrics.sourceTestArguments.path -Raw | ConvertFrom-Json)
+            Assert-True (($retainedArgs | ConvertTo-Json -Compress) -ceq (@($sourceTestArgs | Select-Object -Skip 1) | ConvertTo-Json -Compress)) 'retained logical argv changed'
+            Assert-True ($metrics.sourceTestArguments.count -eq $retainedArgs.Count -and $metrics.sourceTestArguments.sha256 -ceq (Get-FileHash -LiteralPath $metrics.sourceTestArguments.path).Hash.ToLowerInvariant()) 'argv identity metric changed'
+            $launch = [Diagnostics.ProcessStartInfo]::new($sourceTests.Executable)
+            $launch.UseShellExecute=$false; $launch.CreateNoWindow=$true; $launch.RedirectStandardOutput=$true; $launch.RedirectStandardError=$true
+            foreach ($argument in $sourceTests.Arguments) { $launch.ArgumentList.Add($argument) }
+            $child = [Diagnostics.Process]::Start($launch)
+            try {
+                $out = $child.StandardOutput.ReadToEndAsync(); $err = $child.StandardError.ReadToEndAsync()
+                $child.WaitForExit()
+                Assert-True ($child.ExitCode -eq 0) "large args-file launch failed: $($err.GetAwaiter().GetResult())"
+                $selected = $out.GetAwaiter().GetResult() | ConvertFrom-Json
+                Assert-True (($selected.files -join '|') -ceq 'scripts/test-session-links.cjs' -and $selected.changed.Count -eq 5502) 'large argv selected different tests or lost changed paths'
+                Assert-True ($selected.argumentIdentity.sha256 -ceq $metrics.sourceTestArguments.sha256) 'runner and deployment argv identity disagree'
+            } finally { $child.Dispose() }
             $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$sourceTestPolicyPath})
         } finally { $project = $savedProject }
         return
@@ -702,6 +736,9 @@ console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-ga
     }
     foreach($record in $metrics.stages){Assert-True ($null -ne $record.exitCode) "Missing actual exit code in $Name/$($record.name)";Assert-True (Test-Path -LiteralPath $record.stdout) 'stdout not retained';Assert-True (Test-Path -LiteralPath $record.stderr) 'stderr not retained'}
     $invocation=Get-Content (Join-Path $a 'test-invocation.json') -Raw | ConvertFrom-Json
+    $sourceLaunch = @(Get-Content -LiteralPath (Join-Path $a 'test-launch.json') -Raw | ConvertFrom-Json)
+    Assert-True ($sourceLaunch.Count -eq 4 -and $sourceLaunch[0] -ceq '--args-file' -and $sourceLaunch[1] -ceq $metrics.sourceTestArguments.path -and $sourceLaunch[2] -ceq '--args-sha256' -and $sourceLaunch[3] -ceq $metrics.sourceTestArguments.sha256) 'source launch lost owned argument file or expected identity'
+    Assert-True ($metrics.sourceTestArguments.count -eq $invocation.Count -and $metrics.sourceTestArguments.sha256 -ceq (Get-FileHash -LiteralPath $sourceLaunch[1]).Hash.ToLowerInvariant()) 'source argv metrics lost logical identity'
     $expectedSourceArgs=@('--test-concurrency','4')
     $expectedSourceArgs+=@(if($FullRegression){'--area';'current';'--area';'standalone';'--defer-preservation-cache-owner'}else{'--changed-only'})
     $expectedPolicyPaths=@(if($PolicyChangedPath){$PolicyChangedPath.Replace('\','/')}elseif($Mode -eq 'submodule-mutation'){'modules/vendor'})
