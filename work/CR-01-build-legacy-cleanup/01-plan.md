@@ -1,3 +1,5 @@
+Current execution: release r16/w11t, requested app version 2026.0.11, Windows x64 ordinary user-profile installation. Root owns frozen input v11k, existing immutable engine v11i/engine, warm primary Cargo target and final acceptance; cargo_owner_recovery owned the settled helper/test addition. Helper 15/15 passed exit0; exact r15 process-tree termination proof allowed metadata-only recovery with original Cargo result unknown/null. Independent UI/Bun/extension dependency reuse is preparing. Freeze current reviewed inputs after helper readiness; use affected plus mandatory gates without FullRegression/force, six fresh final host stages, then installation and owned cleanup. Later primary edits are excluded.
+
 ## Current work: approved build-guidance simplification
 
 Scope: apply the seven annotated decisions and only the six selected consolidation/removal recommendations. This changes common instructions for all supported platforms and Azrael owner references; product code, build execution and installation are outside this task. Root owns all edits; no delegation or worktree is needed.

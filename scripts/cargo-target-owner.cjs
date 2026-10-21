@@ -90,6 +90,93 @@ function finishTargetOwner(lease, result) {
   return owner;
 }
 
+const pathIdentity = value => process.platform === "win32" ? value.toLowerCase() : value;
+const sha256 = bytes => createHash("sha256").update(bytes).digest("hex");
+function containsPath(parent, child) {
+  const relative = path.relative(pathIdentity(parent), pathIdentity(child));
+  return relative === "" || (!path.isAbsolute(relative) && relative !== ".." && !relative.startsWith(`..${path.sep}`));
+}
+function exactStat(filename, directory = false) {
+  const stat = fs.lstatSync(filename, { bigint: true });
+  if (stat.isSymbolicLink() || !(directory ? stat.isDirectory() : stat.isFile()) || (!directory && stat.nlink !== 1n)) throw new Error("Uncertain Cargo recovery filesystem identity");
+  return { dev: String(stat.dev), ino: String(stat.ino), birthtimeNs: String(stat.birthtimeNs) };
+}
+function inspectTargetOwner({ targetDirectory }) {
+  if (typeof targetDirectory !== "string" || !path.isAbsolute(targetDirectory)) throw new Error("Absolute Cargo target required");
+  const target = fs.realpathSync.native(targetDirectory);
+  const leasePath = path.join(target, ".azrael-cargo-owner"), ownerPath = path.join(leasePath, "owner.json");
+  const targetStat = exactStat(target, true);
+  if (!fs.existsSync(leasePath)) return { exists: false, targetDirectory: target, targetStat };
+  const leaseStat = exactStat(leasePath, true);
+  const names = fs.readdirSync(leasePath);
+  if (names.length !== 1 || names[0] !== "owner.json") throw new Error("Unidentified Cargo lease contents");
+  const ownerStat = exactStat(ownerPath);
+  if (fs.statSync(ownerPath).size > 65536) throw new Error("Oversized Cargo owner");
+  const bytes = fs.readFileSync(ownerPath), owner = JSON.parse(bytes);
+  if (JSON.stringify(exactStat(ownerPath)) !== JSON.stringify(ownerStat)) throw new Error("Cargo owner identity changed");
+  return { exists: true, targetDirectory: target, targetStat, leasePath, leaseStat, ownerPath, ownerStat,
+    token: owner.token, ownerSha256: sha256(bytes), owner, ownerBytesBase64: bytes.toString("base64") };
+}
+function refuseLiveOwner(owner) {
+  for (const [name, pid] of [["coordinator", owner.coordinatorPid], ["producer", owner.producerPid]]) {
+    if (name === "producer" && pid === null) continue;
+    if (!Number.isSafeInteger(pid) || pid <= 0) throw new Error(`Uncertain Cargo ${name} PID`);
+    try { process.kill(pid, 0); }
+    catch (error) { if (error.code === "ESRCH") continue; throw error; }
+    throw new Error(`Cargo ${name} PID is live; recovery refused`);
+  }
+}
+// The caller supplies independent exact producer-tree verification. PID absence
+// only removes a veto; it never establishes termination or a Cargo result.
+function recoverTargetOwner(options) {
+  const hash = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+  if (options.producer_stopped_verified !== true || typeof options.reason !== "string" || !options.reason.trim() ||
+      typeof options.expectedToken !== "string" || !options.expectedToken || !hash(options.expectedOwnerSha256) || !hash(options.evidence_sha256)) {
+    throw new Error("Exact verified recovery, token, hashes and reason required");
+  }
+  const current = inspectTargetOwner(options);
+  if (!current.exists || current.token !== options.expectedToken || current.ownerSha256 !== options.expectedOwnerSha256) throw new Error("Cargo lease identity changed");
+  const prior = current.owner;
+  if (prior.schema !== 1 || typeof prior.cwd !== "string" || !path.isAbsolute(prior.cwd) ||
+      pathIdentity(prior.targetDirectory) !== pathIdentity(current.targetDirectory) || prior.targetIdentity !== pathIdentity(current.targetDirectory) ||
+      !["running", "unknown", "interrupted"].includes(prior.status)) throw new Error("Uncertain Cargo owner metadata");
+  const source = physicalPath(prior.cwd);
+  const artifacts = physicalPath(path.resolve(__dirname, "../artifacts"));
+  function externalFile(value, receipt = false) {
+    if (typeof value !== "string" || !path.isAbsolute(value) || value.split(/[\\/]/).includes("..")) throw new Error("Absolute recovery evidence/receipt path required");
+    const filename = physicalPath(value);
+    if (containsPath(current.targetDirectory, filename) || containsPath(source, filename) || (receipt && !containsPath(artifacts, filename))) throw new Error("Recovery evidence/receipt must survive outside target/source; receipt must be in project artifacts");
+    exactStat(path.dirname(filename), true);
+    if (!receipt) exactStat(filename);
+    else if (fs.existsSync(filename)) throw new Error("Recovery receipt already exists");
+    return filename;
+  }
+  const evidence = externalFile(options.evidence_ref), receipt = externalFile(options.receipt_ref, true);
+  if (pathIdentity(evidence) === pathIdentity(receipt)) throw new Error("Separate recovery receipt required");
+  const evidenceStat = exactStat(evidence);
+  function recheck() {
+    const final = inspectTargetOwner(options);
+    if (JSON.stringify(final) !== JSON.stringify(current)) throw new Error("Cargo lease identity changed");
+    if (externalFile(options.evidence_ref) !== evidence || JSON.stringify(exactStat(evidence)) !== JSON.stringify(evidenceStat) || sha256(fs.readFileSync(evidence)) !== options.evidence_sha256) throw new Error("Recovery evidence changed");
+    if (physicalPath(options.receipt_ref) !== receipt) throw new Error("Recovery receipt path changed");
+    refuseLiveOwner(final.owner);
+  }
+  recheck();
+  const decision = { schema: 1, action: "verified-cargo-lease-retirement", lease: current,
+    result: { status: prior.status === "interrupted" ? "interrupted" : "unknown", exitCode: prior.exitCode ?? null },
+    producer_stopped_verified: true, reason: options.reason, evidence_ref: evidence, evidence_sha256: options.evidence_sha256,
+    decidedAt: new Date().toISOString() };
+  // Exclusive publication survives partial failure and never changes cache validity.
+  fs.writeFileSync(receipt, JSON.stringify(decision, null, 2) + "\n", { flag: "wx" });
+  recheck();
+  fs.unlinkSync(current.ownerPath);
+  // A changed/nonempty directory fails ordinary removal and remains protected.
+  if (JSON.stringify(exactStat(current.leasePath, true)) !== JSON.stringify(current.leaseStat) ||
+      JSON.stringify(exactStat(current.targetDirectory, true)) !== JSON.stringify(current.targetStat)) throw new Error("Cargo lease directory identity changed");
+  fs.rmdirSync(current.leasePath);
+  return { recovered: true, targetDirectory: current.targetDirectory, receipt_ref: receipt, result: decision.result };
+}
+
 function runManagedCargoSync(spec) {
   let pending = spec.env.INSTA_PENDING_DIR;
   if (pending) {
@@ -175,4 +262,4 @@ if (require.main === module) {
   process.exitCode = result.status ?? 1;
 }
 
-module.exports = { physicalPath, compilationSignature, acquireTargetOwner, finishTargetOwner, runManagedCargoSync };
+module.exports = { physicalPath, compilationSignature, acquireTargetOwner, finishTargetOwner, inspectTargetOwner, recoverTargetOwner, runManagedCargoSync };

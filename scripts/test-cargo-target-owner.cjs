@@ -7,6 +7,7 @@ const { spawn, spawnSync } = require("node:child_process");
 const { once } = require("node:events");
 const { test } = require("node:test");
 const owner = require("./cargo-target-owner.cjs");
+const { createHash } = require("node:crypto");
 const { buildCargoTestCommand } = require("./cargo-verification.cjs");
 const root = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests");
 fs.mkdirSync(root, { recursive: true });
@@ -18,6 +19,111 @@ function fixture(name) {
     stdio: "pipe", encoding: "utf8" };
 }
 const leasePath = spec => path.join(spec.env.CARGO_TARGET_DIR, ".azrael-cargo-owner");
+
+function recoveryFixture(name) {
+  const spec = fixture(name), lease = owner.acquireTargetOwner(spec);
+  // Synthetic dead PID observations avoid touching real process lifetimes.
+  const metadata = { ...lease.owner, coordinatorPid: 2147483646, producerPid: null, status: "unknown", exitCode: null };
+  fs.writeFileSync(lease.ownerPath, JSON.stringify(metadata));
+  const evidence = path.join(root, `${path.basename(spec.cwd)}-evidence.json`);
+  fs.writeFileSync(evidence, JSON.stringify({ synthetic: true, exactProducerTreeStopped: true }));
+  const inspected = owner.inspectTargetOwner({ targetDirectory: spec.env.CARGO_TARGET_DIR });
+  return { spec, lease, options: { targetDirectory: spec.env.CARGO_TARGET_DIR, expectedToken: inspected.token,
+    expectedOwnerSha256: inspected.ownerSha256, producer_stopped_verified: true, reason: "Synthetic exact tree verification",
+    evidence_ref: evidence, evidence_sha256: createHash("sha256").update(fs.readFileSync(evidence)).digest("hex"),
+    receipt_ref: path.join(root, `${path.basename(spec.cwd)}-receipt.json`) } };
+}
+function mockDeadPid(context) {
+  context.mock.method(process, "kill", (pid, signal) => {
+    assert.equal(signal, 0);
+    if (pid === 2147483646) throw Object.assign(new Error("synthetic absent PID"), { code: "ESRCH" });
+    if (pid === process.pid) return true;
+    throw new Error(`Unexpected PID observation ${pid}`);
+  });
+}
+
+test("recovery requires exact identity, independent assertion and pinned evidence", context => {
+  mockDeadPid(context);
+  const { lease, options } = recoveryFixture("recover-refusal");
+  for (const altered of [ { expectedToken: "wrong" }, { expectedOwnerSha256: "0".repeat(64) },
+    { producer_stopped_verified: false }, { reason: " " }, { evidence_sha256: "0".repeat(64) },
+    { evidence_ref: path.join(root, "absent-proof.json") }, { targetDirectory: "relative" },
+    { receipt_ref: path.join(options.targetDirectory, "receipt.json") }, { receipt_ref: path.join(lease.owner.cwd, "receipt.json") } ]) {
+    assert.throws(() => owner.recoverTargetOwner({ ...options, ...altered }));
+    assert.ok(fs.existsSync(lease.ownerPath));
+    assert.ok(!fs.existsSync(options.receipt_ref));
+  }
+  fs.writeFileSync(options.evidence_ref, "changed");
+  assert.throws(() => owner.recoverTargetOwner(options), /evidence changed/);
+});
+
+test("recovery vetoes live coordinator and producer without trusting PID absence", context => {
+  mockDeadPid(context);
+  for (const field of ["coordinatorPid", "producerPid"]) {
+    const { lease, options } = recoveryFixture(`recover-live-${field}`);
+    const metadata = JSON.parse(fs.readFileSync(lease.ownerPath)); metadata[field] = process.pid;
+    fs.writeFileSync(lease.ownerPath, JSON.stringify(metadata));
+    options.expectedOwnerSha256 = owner.inspectTargetOwner(options).ownerSha256;
+    assert.throws(() => owner.recoverTargetOwner(options), /PID is live/);
+    assert.ok(fs.existsSync(lease.ownerPath));
+    assert.ok(!fs.existsSync(options.receipt_ref));
+  }
+});
+
+test("explicit recovery preserves unknown/interrupted results and all target payload", context => {
+  mockDeadPid(context);
+  for (const status of ["running", "unknown", "interrupted"]) {
+    const { lease, options } = recoveryFixture(`recover-${status}`);
+    const metadata = JSON.parse(fs.readFileSync(lease.ownerPath)); metadata.status = status;
+    fs.writeFileSync(lease.ownerPath, JSON.stringify(metadata));
+    const original = fs.readFileSync(lease.ownerPath);
+    options.expectedOwnerSha256 = owner.inspectTargetOwner(options).ownerSha256;
+    const payload = path.join(options.targetDirectory, "warm-cache.bin"); fs.writeFileSync(payload, "warm compiled payload");
+    const result = owner.recoverTargetOwner(options);
+    assert.equal(result.recovered, true);
+    assert.deepEqual(result.result, { status: status === "interrupted" ? status : "unknown", exitCode: null });
+    assert.ok(!fs.existsSync(lease.leasePath));
+    assert.equal(fs.readFileSync(payload, "utf8"), "warm compiled payload");
+    const receipt = JSON.parse(fs.readFileSync(options.receipt_ref));
+    assert.equal(receipt.lease.ownerBytesBase64, original.toString("base64"));
+    assert.deepEqual(receipt.result, result.result);
+    assert.equal(owner.inspectTargetOwner(options).exists, false);
+  }
+});
+
+test("receipt publication failure and post-publication owner/evidence races retain lease", context => {
+  mockDeadPid(context);
+  for (const mutation of ["write-failure", "owner", "evidence", "owner-identity", "lease-identity"]) {
+    const { lease, options } = recoveryFixture(`recover-race-${mutation}`);
+    const originalWrite = fs.writeFileSync;
+    const mock = context.mock.method(fs, "writeFileSync", (filename, ...args) => {
+      if (filename !== options.receipt_ref) return originalWrite(filename, ...args);
+      if (mutation === "write-failure") throw Object.assign(new Error("receipt publication denied"), { code: "EACCES" });
+      originalWrite(filename, ...args);
+      if (mutation === "owner") originalWrite(lease.ownerPath, JSON.stringify({ ...lease.owner, token: "replacement" }));
+      if (mutation === "evidence") originalWrite(options.evidence_ref, "changed after publication");
+      if (mutation === "owner-identity") { fs.renameSync(lease.ownerPath, path.join(lease.owner.cwd, "old-owner.json")); originalWrite(lease.ownerPath, Buffer.from(JSON.parse(fs.readFileSync(filename)).lease.ownerBytesBase64, "base64")); }
+      if (mutation === "lease-identity") { fs.renameSync(lease.leasePath, path.join(lease.owner.cwd, "old-lease")); fs.mkdirSync(lease.leasePath); originalWrite(lease.ownerPath, Buffer.from(JSON.parse(fs.readFileSync(filename)).lease.ownerBytesBase64, "base64")); }
+    });
+    assert.throws(() => owner.recoverTargetOwner(options), /changed|denied/);
+    mock.mock.restore();
+    assert.ok(fs.existsSync(lease.ownerPath));
+    assert.equal(fs.existsSync(options.receipt_ref), mutation !== "write-failure");
+  }
+});
+
+test("ordinary metadata removal failure retains independently readable unknown receipt", context => {
+  mockDeadPid(context);
+  const { lease, options } = recoveryFixture("recover-unlink-failure");
+  const originalUnlink = fs.unlinkSync;
+  context.mock.method(fs, "unlinkSync", filename => {
+    if (filename === lease.ownerPath) throw Object.assign(new Error("ordinary unlink denied"), { code: "EACCES" });
+    return originalUnlink(filename);
+  });
+  assert.throws(() => owner.recoverTargetOwner(options), /ordinary unlink denied/);
+  assert.ok(fs.existsSync(lease.ownerPath));
+  assert.deepEqual(JSON.parse(fs.readFileSync(options.receipt_ref)).result, { status: "unknown", exitCode: null });
+});
 
 test("tiny process returns exact output/exit and releases normal success and failure", () => {
   const spec = fixture("terminal");
