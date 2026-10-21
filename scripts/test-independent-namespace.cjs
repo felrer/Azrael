@@ -154,7 +154,7 @@ const provenance = readJson(hostRoot, ".azrael-independent-host.json");
 assert.equal(provenance.hostId, "azrael-ex-local.azrael");
 assert.equal(provenance.hostVersion, hostManifest.version);
 assert.equal(provenance.sourceVersion, originalManifest.version);
-assert.equal(provenance.assets.find(asset => asset.path === "out/extension.js").recoveryEdits, 5);
+assert.equal(provenance.assets.find(asset => asset.path === "out/extension.js").recoveryEdits, 7);
 assert(commandIds(hostManifest).includes("azrael.recoveryStatus"));
 assert.equal(hostManifest.enabledApiProposals, undefined, "local host opted into proposed APIs");
 assert.equal(hostManifest.contributes?.chatSessions, undefined, "local host contributed proposed chat sessions");
