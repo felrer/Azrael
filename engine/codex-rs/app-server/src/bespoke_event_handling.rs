@@ -1273,7 +1273,9 @@ pub(crate) async fn apply_bespoke_event_handling(
                 ))
                 .await;
         }
-        EventMsg::ThreadRolledBack(_) | EventMsg::ThreadQueueChanged(_) => {}
+        EventMsg::ThreadRolledBack(_)
+        | EventMsg::ThreadQueueChanged(_)
+        | EventMsg::HostApprovalLedgerUpdated(_) => {}
         EventMsg::ThreadSettingsApplied(_) => {
             let thread_settings =
                 thread_settings_from_config_snapshot(&conversation.config_snapshot().await);

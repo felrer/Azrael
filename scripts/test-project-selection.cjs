@@ -78,7 +78,9 @@ test("queue/recovery union executes each file once in one isolated Node test com
   assert.equal(result.files.filter(file => file.endsWith("test-queue-consumption.cjs")).length, 1);
   assert.equal(result.commands.length, 1);
   assert.deepEqual(result.commands[0].args.slice(0, 2), ["--test", "--test-concurrency=4"]);
-  assert.equal(result.files.length, 12);
+  assert.equal(result.files.length, 14);
+  assert.ok(result.files.includes("scripts/test-question-withdrawal.cjs"));
+  assert.ok(result.files.includes("scripts/test-question-queue.cjs"));
 });
 
 test("shared and unknown sources select current while tool regression follows its own owners", () => {
@@ -179,7 +181,8 @@ test("changed-only selects transitive queue/recovery owners without whole-area e
   const result = selection(["--changed-only", "--changed", "scripts/inject-queue-consumption.cjs"]);
   assert.equal(result.areas.length, 0);
   assert.ok(result.files.includes("scripts/test-queue-consumption.cjs"));
-  assert.ok(!result.files.includes("scripts/test-queue-refresh.cjs"));
+  // The composed queue-refresh regression directly imports queue consumption.
+  assert.ok(result.files.includes("scripts/test-queue-refresh.cjs"));
   assert.ok(!result.files.includes("scripts/test-recovery-state.cjs"));
   assert.ok(!result.files.includes("scripts/test-project-selection.cjs"));
   assert.equal(new Set(result.files).size, result.files.length);

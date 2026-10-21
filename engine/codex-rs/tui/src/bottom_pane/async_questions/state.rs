@@ -28,6 +28,7 @@ impl AsyncQuestions {
             }
             // Bound work before cloning or wrapping model-authored suggestions.
             let question = AsyncUserInputQuestion {
+                withdrawn: false,
                 title: question.title.clone(),
                 options: question.options.as_ref().map(|options| {
                     options

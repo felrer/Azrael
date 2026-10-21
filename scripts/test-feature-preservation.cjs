@@ -400,3 +400,13 @@ const path = require('node:path');
       }
     }
   });
+
+  test('repository Cargo bundle declarations satisfy the actual preservation manifest', () => {
+    const root = path.resolve(__dirname, '..');
+    const manifest = gate.loadManifest(root);
+    assert.doesNotThrow(() => gate.validateManifest(manifest, root));
+    const native = manifest.features.flatMap(feature => feature.checks).find(check => check.cargoPreflight);
+    assert.ok(native);
+    delete native.cargoPreflight;
+    assert.throws(() => gate.validateManifest(manifest, root), /Cargo preflight declaration/);
+  });

@@ -7,6 +7,9 @@ param(
     [string]$ModuleCacheProjectRoot,
     [string]$CargoVerificationCacheProjectRoot,
     [string]$NamespaceCacheProjectRoot,
+    [string[]]$PreflightToolDirectory,
+    [long]$RequiredFreeBytes = 0,
+    [long]$EstimatedCompilerGrowthBytes = 0,
     [string]$WindowControlTargetDirectory,
     [switch]$SkipEngineBuild,
     [string]$EngineDirectory,
@@ -73,10 +76,14 @@ $accountLifecycleId = "run:account-controls:$ReleaseName"
 $accountLifecycleMembers = [ordered]@{fixture=$accountControlsState}
 if ($VerifyAccountControls) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $accountLifecycleMembers }
 $lifecycleSucceeded = $false
+$temporaryLifecycleId = $null
+$temporaryLifecycleMembers = $null
+$temporaryConsumerReason = 'Deployment temporary inputs'
 try {
 New-Item -ItemType Directory -Path $logs | Out-Null
 $timer = [Diagnostics.Stopwatch]::StartNew()
 $children = [Collections.Generic.List[object]]::new()
+$script:environmentPatch = @{}
 $metrics = [ordered]@{ schema = 1; releaseName = $ReleaseName; startedUtc = [DateTime]::UtcNow.ToString('o'); status = 'running'; verifyOnly = [bool]$VerifyOnly; releaseDirectory = $release; packageDirectory = $package; fixtureRoot = $fixture; stages = @(); inputChecks = @(); engineTargetDirectory = $EngineTargetDirectory; wallTimeMs = 0 }
 $pwsh = (Get-Process -Id $PID).Path
 
@@ -110,7 +117,13 @@ function Get-ProjectSnapshot {
 }
 function Assert-ProjectSnapshot {
     param([string]$Phase)
-    if ((Get-ProjectSnapshot $Phase) -cne $script:inputSnapshot) { throw 'Project inputs changed during deployment. Use a new ReleaseName after source edits stop.' }
+    $currentSnapshot = Get-ProjectSnapshot $Phase
+    if ($currentSnapshot -cne $script:inputSnapshot) {
+        $difference = Join-Path $logs "input-changes-$Phase.json"
+        & (Get-Command node -CommandType Application).Source (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') compare (Join-Path $logs 'inputs-initial.json') (Join-Path $logs "inputs-$Phase.json") $difference $script:inputSnapshot $currentSnapshot *> (Join-Path $logs "input-changes-$Phase.log")
+        if ($LASTEXITCODE -ne 0) { throw "Consumed deployment inputs changed and the detailed comparison could not be validated. See $logs/input-changes-$Phase.log. Select new inputs and a new ReleaseName." }
+        throw "Consumed deployment inputs changed under $project. See $difference for exact changed paths. Changes outside the selected input root are excluded; select corrected inputs and a new ReleaseName."
+    }
 }
 function Start-OwnedCommand {
     param([string]$Name, [string]$Executable, [string[]]$Arguments)
@@ -120,6 +133,10 @@ function Start-OwnedCommand {
     $info.CreateNoWindow = $true
     $info.RedirectStandardOutput = $true
     $info.RedirectStandardError = $true
+    foreach ($entry in $script:environmentPatch.GetEnumerator()) {
+        foreach ($key in @($info.Environment.Keys | Where-Object { $_ -ieq $entry.Key })) { $null = $info.Environment.Remove($key) }
+        $info.Environment[$entry.Key] = [string]$entry.Value
+    }
     foreach ($arg in $Arguments) { $info.ArgumentList.Add($arg) }
     $record = [ordered]@{ name = $Name; executable = $Executable; arguments = $Arguments; startedUtc = [DateTime]::UtcNow.ToString('o'); durationMs = 0; exitCode = $null; terminated = $false; completedUtc = $null; stdout = (Join-Path $logs "$Name.stdout.log"); stderr = (Join-Path $logs "$Name.stderr.log") }
     $metrics.stages += $record
@@ -203,7 +220,26 @@ function Get-FocusedEngineFeatureIds {
     if ($unknownEngine -or @($PolicyPaths).Count -eq 0 -or $related.Count -gt 0) {
         $selected += 'engine.thread-auto-compaction-integration'
     }
-    return $selected
+    $inventoryPath = Join-Path $project 'scripts/azrael-feature-contracts.json'
+    if (Test-Path -LiteralPath $inventoryPath -PathType Leaf) {
+        $engineFeatures = @((Get-Content -LiteralPath $inventoryPath -Raw | ConvertFrom-Json).features | Where-Object area -eq 'engine')
+        $ownerMatches = @($engineFeatures | Where-Object {
+            $owners = @($_.owners)
+            @($PolicyPaths | Where-Object { $changed = $_; @($owners | Where-Object { $changed -ceq $_ -or $changed.StartsWith($_.TrimEnd('/') + '/', [StringComparison]::Ordinal) }).Count -gt 0 }).Count -gt 0
+        })
+        $selected += @($ownerMatches | ForEach-Object id)
+        $unmappedNative = @($PolicyPaths | Where-Object {
+            $changed = $_
+            $changed -match '^engine/.*(\.rs|Cargo\.(toml|lock)|rust-toolchain(\.toml)?)$' -and
+            @($engineFeatures | Where-Object { $changed -cin @($_.owners) }).Count -eq 0
+        })
+        # A shared dependency or unmapped Rust input cannot be treated as an
+        # unrelated presentation edit just because its direct owner is absent.
+        if ($unmappedNative.Count -or @($PolicyPaths | Where-Object { $_ -in @('scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs') }).Count) {
+            $selected += @($engineFeatures | ForEach-Object id)
+        }
+    }
+    return @($selected | Select-Object -Unique)
 }
 try {
     $script:inputSnapshot = Get-ProjectSnapshot 'initial'
@@ -262,14 +298,48 @@ try {
     $metrics.changedPaths = @($ChangedPath)
     $sourceConfig = [ordered]@{
         projectRoot = $project; engineSourceRoot = [IO.Path]::GetFullPath($SourceRoot)
+        uiRoot = $UiSourcePath
         outputDirectory = (Join-Path $logs 'engine-source-preflight'); area = 'engine'; checkPhase = 'source'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
+        cargoTarget = 'x86_64-pc-windows-msvc'
+        changedPaths = @($policyPaths)
+        preparationLogDirectory = (Join-Path $logs 'changed-test-preparation')
+        temporaryDirectory = (Join-Path $project 'artifacts/verification/build-temp')
     }
+    if ($PreflightToolDirectory) { $sourceConfig.toolDirectories = @($PreflightToolDirectory) }
+    if ($RequiredFreeBytes -lt 0) { throw 'RequiredFreeBytes must not be negative.' }
+    if ($RequiredFreeBytes) { $sourceConfig.requiredFreeBytes = $RequiredFreeBytes }
+    if ($EstimatedCompilerGrowthBytes -lt 0) { throw 'EstimatedCompilerGrowthBytes must not be negative.' }
+    if ($EstimatedCompilerGrowthBytes) { $sourceConfig.estimatedGrowthBytes = $EstimatedCompilerGrowthBytes }
     if ($EngineTargetDirectory) { $sourceConfig.cargoTargetDirectory = $EngineTargetDirectory }
     if ($CargoVerificationCacheProjectRoot) { $sourceConfig.cargoVerificationCacheProjectRoot = $CargoVerificationCacheProjectRoot }
     if (-not $FullRegression) { $sourceConfig.featureIds = $focusedEngineFeatureIds }
     $sourceConfigPath = Join-Path $logs 'engine-source-preflight-inputs.json'
+    $temporaryIdentity = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($sourceConfig.temporaryDirectory))).ToLowerInvariant()
+    $temporaryLifecycleId = "work:deployment-temporary:$temporaryIdentity"
+    $temporaryLifecycleMembers = [ordered]@{ temporary = $sourceConfig.temporaryDirectory }
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $temporaryLifecycleId -Kind work -Owner 'azrael-deployment-temporary' -Generated -ProtectionKnown -State pending -MembershipComplete $false -Members $temporaryLifecycleMembers -References @{ "version:$ReleaseName" = $temporaryConsumerReason } -ReferenceKind execution
     $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+    $environmentPreflight = Start-OwnedCommand 'environment-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), '--environment', $sourceConfigPath)
+    Wait-OwnedCommands @($environmentPreflight)
+    $environmentResult = Get-Content -LiteralPath $environmentPreflight.Record.stdout -Raw | ConvertFrom-Json
+    if (-not $environmentResult.PSObject.Properties['environmentPatch']) { throw 'Environment preflight did not return a validated environment patch.' }
+    foreach ($entry in $environmentResult.environmentPatch.PSObject.Properties) { $script:environmentPatch[$entry.Name] = [string]$entry.Value }
+    $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $temporaryLifecycleId -Kind work -Owner 'azrael-deployment-temporary' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members $temporaryLifecycleMembers
+    $metrics.environmentPreflight = [ordered]@{ report = $environmentPreflight.Record.stdout; required = $environmentResult.required }
+    . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
+    $preflightModuleCache = Open-BuildModuleCache $project $ModuleCacheProjectRoot
+    try {
+        $metrics.moduleCachePreflight = [ordered]@{ owner = $preflightModuleCache.Owner; root = $preflightModuleCache.Root; registeredProjects = @(Get-BuildCacheProjects $preflightModuleCache) }
+    } finally { $preflightModuleCache.Lease.Dispose() }
+    $preparationPlan = Start-OwnedCommand 'cargo-preparation-plan' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'cargo-preflight-recipes.cjs'), $sourceConfigPath)
+    Wait-OwnedCommands @($preparationPlan)
+    $recipePlan = Get-Content -LiteralPath $preparationPlan.Record.stdout -Raw | ConvertFrom-Json
+    if (-not $recipePlan.PSObject.Properties['cargoPreparations'] -or -not $recipePlan.PSObject.Properties['gaps']) { throw 'Cargo preparation plan is incomplete.' }
+    if (@($recipePlan.gaps).Count) { throw "Cargo preparation has unresolved input or recipe mappings. See $($preparationPlan.Record.stdout)." }
+    $sourceConfig.cargoPreparations = @($recipePlan.cargoPreparations)
+    if (-not @($recipePlan.cargoPreparations).Count) { $sourceConfig.cargoPreparationReason = 'No affected selected Cargo test compilation; see the retained preparation plan.' }
+    $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $dependencies = Start-OwnedCommand 'verification-dependencies' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), $sourceConfigPath)
     Wait-OwnedCommands @($dependencies)
     $sourcePreflight = Start-OwnedCommand 'engine-source-preflight' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'feature-preservation.cjs'), 'run', '--config', $sourceConfigPath)
@@ -277,9 +347,12 @@ try {
     $sourcePreflightResult = Get-Content -LiteralPath $sourcePreflight.Record.stdout -Raw | ConvertFrom-Json
     if (-not $sourcePreflightResult.receiptPath) { throw 'Source preflight receipt missing.' }
     $sourceConfig.receiptPath = [string]$sourcePreflightResult.receiptPath
-    $sourceConfig | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
+    $sourceConfig | ConvertTo-Json -Depth 12 | Set-Content -LiteralPath $sourceConfigPath -Encoding utf8NoBOM
     $sourceTestArgs += @('--source-preflight-config', $sourceConfigPath)
     $sourceTests = Start-OwnedCommand 'source-tests' (Get-Command node -CommandType Application).Source $sourceTestArgs
+    $testPreparation = Start-OwnedCommand 'changed-test-type-preparation' (Get-Command node -CommandType Application).Source @((Join-Path $PSScriptRoot 'pipeline-preflight.cjs'), '--prepare-tests', $sourceConfigPath)
+    Wait-OwnedCommands @($testPreparation) -MonitoredCommands @($sourceTests)
+    Assert-ProjectSnapshot 'post-test-preparation'
     $build = Start-OwnedCommand 'build' $pwsh (@('-NoLogo', '-NoProfile', '-NonInteractive', '-File', (Join-Path $PSScriptRoot 'build-azrael.ps1')) + $buildArgs)
     # Build completion releases binary consumers; source failures still cancel owned work.
     Wait-OwnedCommands @($build) -MonitoredCommands @($sourceTests)
@@ -287,6 +360,7 @@ try {
     $preservationBuild = Get-Content -LiteralPath (Join-Path $release 'build-info.json') -Raw | ConvertFrom-Json
     $enginePreservationConfig = [ordered]@{
         projectRoot = $project; engineSourceRoot = [string]$preservationBuild.engineSourceRoot
+        uiRoot = $UiSourcePath
         engineDirectory = (Join-Path $release 'engine'); outputDirectory = (Join-Path $logs 'engine-preservation'); area = 'engine'
         reuseNativeChecks = -not [bool]$ForceNativeVerification
         sourceReceiptPath = [string]$sourcePreflightResult.receiptPath
@@ -468,4 +542,20 @@ $lifecycleSucceeded = $metrics.status -in @('verified','installed')
         $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $fixtureLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State failed -MembershipComplete $false -Members $fixtureLifecycleMembers
         if ($VerifyAccountControls) { $null = Register-ArtifactLifecycle -ProjectRoot $project -Id $accountLifecycleId -Kind run -Owner 'azrael-release' -Generated -ProtectionKnown -State failed -MembershipComplete $false -Members $accountLifecycleMembers }
     } catch { Write-Warning "Lifecycle failure receipt could not be updated: $($_.Exception.Message)" } }
+    if ($temporaryLifecycleId -and $metrics.completedUtc) {
+        # Release only this completed consumer. Other executions, installations,
+        # recovery and evidence references belong to their own owners.
+        $uncertainConsumers = @($metrics.stages | Where-Object { $null -eq $_.exitCode -or $_.name -in @('source-tests','build','engine-preservation','prepare','acceptance','account-controls','install') })
+        if ($lifecycleSucceeded -or $uncertainConsumers.Count -eq 0) {
+            try {
+                $record = Register-ArtifactLifecycle -ProjectRoot $project -Id $temporaryLifecycleId -Kind work -Owner 'azrael-deployment-temporary' -Generated -ProtectionKnown -State complete -MembershipComplete $true -Members $temporaryLifecycleMembers
+                $referenceIdentity = ConvertTo-Json -InputObject @("version:$ReleaseName", $temporaryConsumerReason, 'execution') -Compress
+                $referenceHash = [Convert]::ToHexString([Security.Cryptography.SHA256]::HashData([Text.Encoding]::UTF8.GetBytes($referenceIdentity))).ToLowerInvariant()
+                $terminalEvidence = Join-Path $logs 'deployment-metrics.json'
+                $requestPath = Join-Path $logs 'temporary-consumer-release.json'
+                @{ owner = 'azrael-deployment-temporary'; expected_revision = $record.revision; reference_ids = @($referenceHash); reason = 'This deployment consumer has terminated; preserve all other references.'; evidence_ref = $terminalEvidence; evidence_sha256 = (Get-FileHash -LiteralPath $terminalEvidence -Algorithm SHA256).Hash.ToLowerInvariant() } | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath $requestPath -Encoding utf8NoBOM
+                $null = Release-ArtifactLifecycleReferences -ProjectRoot $project -Id $temporaryLifecycleId -RequestFile $requestPath
+            } catch { Write-Warning "Temporary consumer protection retained: $($_.Exception.Message)" }
+        } else { Write-Warning 'Temporary consumer protection retained until interrupted or failed downstream producers are diagnosed and their closure is verified.' }
+    }
 }

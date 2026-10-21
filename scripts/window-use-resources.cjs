@@ -14,6 +14,12 @@ function identityEqual(a, b) {
     ? Object.keys(value).sort().map(k => [k, canonical(value[k])]) : value;
   return JSON.stringify(canonical(a)) === JSON.stringify(canonical(b));
 }
+function sameSessionAnchor(a, b) {
+  return a && b && Number.isInteger(a.sessionAnchorPid) && a.sessionAnchorPid > 0
+    && typeof a.sessionAnchorCreated === 'string' && /^[1-9][0-9]{0,18}$/.test(a.sessionAnchorCreated)
+    && ['sid', 'profile', 'parentSessionId', 'childSessionId', 'sessionAnchorPid', 'sessionAnchorCreated'].every(k => a[k] !== undefined && a[k] === b[k])
+    && Number.isInteger(b.workerPid) && b.workerPid > 0 && typeof b.workerCreated === 'string' && /^[1-9][0-9]{0,18}$/.test(b.workerCreated);
+}
 async function statOrNull(file) { try { return await fs.lstat(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; } }
 async function safeParents(file) {
   const resolved = path.resolve(file), parsed = path.parse(resolved);
@@ -165,6 +171,11 @@ function createResourceManager(options = {}) {
     });
   }
   async function observedSession(record) {
+    // A saved exact closure receipt survives host loss; it never grants control.
+    if (record.state === 'closed' && record.closure?.logoffConfirmed === true && record.closure?.processesStopped === true && identityEqual(record.closure.identity, record.identity)) return {
+      identity: clone(record.identity), state: 'closed', ownershipVerified: true, logoffConfirmed: true, processesStopped: true,
+      pendingWork: false, directUser: false, unsavedWork: false, unknownState: false, unrelatedApps: false, pendingUserDecision: false, heldInput: false,
+    };
     if (typeof options.inspectSession !== 'function') throw new Error('Session observation is unavailable');
     const observation = await options.inspectSession(clone(record.identity));
     if (!observation || !identityEqual(observation.identity, record.identity) || observation.ownershipVerified !== true || !['running', 'closed'].includes(observation.state)) throw new Error('Exact session ownership/state is unverified');
@@ -172,15 +183,31 @@ function createResourceManager(options = {}) {
     if (observation.state === 'closed' && (observation.processesStopped !== true || observation.logoffConfirmed !== true)) throw new Error('Session logoff/process termination is unconfirmed');
     return observation;
   }
+  function recordClosure(record) {
+    if (record.state === 'protected') record.protected = true;
+    record.state = 'closed';
+    record.closure = { identity: clone(record.identity), logoffConfirmed: true, processesStopped: true, confirmedAt: now() };
+    // Session leases cover input, not independent file producers. Positive
+    // closure releases only these leases; payload producer leases stay protected.
+    record.leases = [];
+  }
+  function cleanupOutcome(records, filesCleanupState) {
+    const sessions = records.filter(r => r.kind === 'session');
+    return { ...(sessions.length ? { logoffConfirmed: sessions.every(r => r.state === 'closed' && r.closure?.logoffConfirmed === true) } : {}), filesCleanupState };
+  }
   async function cleanup(input = {}) {
     return locked(async data => {
-      // Reconcile an interrupted close only from positive exact closure evidence.
-      for (const record of data.records.filter(r => r.kind === 'session' && r.state === 'closing')) {
-        try { if ((await observedSession(record)).state === 'closed') { record.state = 'closed'; await save(data); } } catch { /* Remains protected and visible as closing. */ }
+      // Reconcile external logoff and host loss without adopting a live session.
+      for (const record of data.records.filter(r => r.kind === 'session' && r.state !== 'closed')) {
+        try {
+          if ((await observedSession(record)).state === 'closed') { recordClosure(record); await save(data); }
+        } catch (error) {
+          record.reconciliation = { phase: 'observe_closure', code: error.code || 'session_closure_unverified' };
+        }
       }
       const before = await usage(data), results = [];
       if (input.ids && (!Array.isArray(input.ids) || input.ids.some(id => !data.records.some(r => r.id === id)))) throw new Error('Unknown cleanup resource');
-      const selected = new Set(input.ids || data.records.filter(r => now() - r.idleSince >= idleMs || before.overLimit).map(r => r.id));
+      const selected = new Set(input.ids || data.records.filter(r => r.kind === 'session' && r.state === 'closed' || now() - r.idleSince >= idleMs || before.overLimit).map(r => r.id));
       // Disk groups and their sessions are inseparable for protection checks.
       for (const record of data.records) if (record.kind === 'generated' && (selected.has(record.id) || record.sessionIds.some(id => selected.has(id)))) { selected.add(record.id); for (const id of record.sessionIds) selected.add(id); }
       const remaining = new Set(selected);
@@ -198,8 +225,8 @@ function createResourceManager(options = {}) {
         if (!reason) for (const r of records.filter(r => r.kind === 'session')) {
           try { await observedSession(r); } catch (error) { reason = error.message; break; }
         }
-        if (reason) { results.push({ ids: [...component], state: 'deferred', reason }); continue; }
-        let freedBytes = 0;
+        if (reason) { results.push({ ids: [...component], state: 'deferred', reason, ...cleanupOutcome(records, 'deferred'), remainingPaths: records.filter(r => r.kind === 'generated').map(resourcePath) }); continue; }
+        let freedBytes = 0, phase = 'logoff';
         try {
           for (const r of records.filter(r => r.kind === 'session')) {
             const observed = await observedSession(r);
@@ -209,8 +236,9 @@ function createResourceManager(options = {}) {
               await options.closeSession(clone(r.identity));
               if ((await observedSession(r)).state !== 'closed') throw new Error('Normal session closure was not confirmed');
             }
-            r.state = 'closed'; await save(data);
+            recordClosure(r); await save(data);
           }
+          phase = 'delete_files';
           for (const r of records.filter(r => r.kind === 'generated')) {
             const target = resourcePath(r), actual = await tree(target);
             if (!sameTree(r.entries, actual, r.state === 'deleting')) throw new Error('Payload changed before deletion');
@@ -224,15 +252,16 @@ function createResourceManager(options = {}) {
             }
             if (await statOrNull(target)) throw new Error('Payload remains after deletion');
           }
+          phase = 'retire_metadata';
           const previousRecords = data.records;
           data.records = data.records.filter(r => !component.has(r.id));
-          const result = { ids: [...component], state: 'deleted', freedBytes, at: now(), reason: input.reason || 'managed disposable resource policy' };
+          const result = { ids: [...component], state: 'deleted', freedBytes, at: now(), reason: input.reason || 'managed disposable resource policy', ...cleanupOutcome(records, 'complete'), remainingPaths: [] };
           data.history.push(result);
           try { await save(data); } catch (error) { data.records = previousRecords; data.history.pop(); throw error; }
           results.push(result);
         } catch (error) {
           // A closing session remains uncertain until exact closure is reconciled.
-          const result = { ids: [...component], state: 'failed', freedBytes, reason: error.message, remainingPaths: [] };
+          const result = { ids: [...component], state: 'failed', freedBytes, reason: error.message, ...cleanupOutcome(records, phase === 'logoff' ? 'deferred' : 'partial'), diagnostic: { phase, code: error.code || 'resource_cleanup_failed' }, remainingPaths: [] };
           for (const r of records.filter(r => r.kind === 'generated')) if (await statOrNull(resourcePath(r))) result.remainingPaths.push(resourcePath(r));
           data.history.push({ ...result, at: now() });
           try { await save(data); } catch (metadataError) { result.metadataError = metadataError.message; }
@@ -243,10 +272,32 @@ function createResourceManager(options = {}) {
     });
   }
   function entryWithoutPath(entry) { const { relative, ...rest } = entry; return rest; }
+  function acceptConnection(record, verification) {
+    if (verification?.ok !== true || verification.ownershipVerified !== true || verification.inputReleased !== true || verification.admissionReady !== true || verification.available !== true) throw new Error('Exact live session and input release are unverified');
+    if (identityEqual(verification.identity, record.identity)) return;
+    if (verification.connectionRecovered !== true || !identityEqual(verification.previousIdentity, record.identity) || !sameSessionAnchor(record.identity, verification.identity)) throw new Error('Session connection rollover is unverified');
+    record.identity = clone(verification.identity);
+  }
   return {
     directory, registerGenerated: input => register('generated', input), registerSession: input => register('session', input),
     inspect: () => locked(usage), cleanup,
     acquireLease: (id, consumer) => locked(async data => { requireText(consumer, 'consumer'); const r = find(data, id); if (!['ready', 'pending'].includes(r.state)) throw new Error('Resource cannot be admitted in its current state'); const token = crypto.randomUUID(); r.leases.push({ token, consumer }); await save(data); return token; }),
+    // Live proof, not editing a saved failure flag, admits a warm or legacy-unknown session.
+    // Callback belongs to the authenticated controller; this is not a model tool.
+    acquireSessionLease: (id, consumer, verifyCurrent) => locked(async data => {
+      requireText(consumer, 'consumer'); const r = find(data, id);
+      if (r.kind !== 'session' || !['ready', 'pending', 'unknown'].includes(r.state) || r.protected || r.leases.length || r.consumers.length || typeof verifyCurrent !== 'function') throw new Error('Session cannot be revalidated in its current state');
+      const verification = await verifyCurrent();
+      acceptConnection(r, verification);
+      const token = crypto.randomUUID(); r.state = 'ready'; r.leases.push({ token, consumer }); await save(data);
+      return { lease: token, verification: clone(verification) };
+    }),
+    refreshSessionLease: (id, token, verification) => locked(async data => {
+      const r = find(data, id);
+      if (r.kind !== 'session' || !['ready', 'pending', 'unknown'].includes(r.state) || r.protected || r.consumers.length || r.leases.length !== 1 || r.leases[0].token !== token) throw new Error('Exact active session lease is required for reconnect');
+      acceptConnection(r, verification); r.state = 'ready'; await save(data);
+      return { identity: clone(r.identity), lease: token };
+    }),
     releaseLease: (id, token, input = {}) => locked(async data => {
       const r = find(data, id), index = r.leases.findIndex(lease => lease.token === token);
       if (index < 0) throw new Error('Unknown resource lease');
@@ -255,7 +306,7 @@ function createResourceManager(options = {}) {
       r.leases.splice(index, 1); r.state = state; if (!r.leases.length) r.idleSince = now(); await save(data);
     }),
     setProtection: (id, input) => locked(async data => { const r = find(data, id); if (typeof input.protected !== 'boolean' || !Array.isArray(input.consumers) || input.consumers.some(v => typeof v !== 'string' || !v || v.length > 2048)) throw new Error('Explicit protection and consumers required'); r.protected = input.protected; r.consumers = [...new Set(input.consumers)]; await save(data); }),
-    reconcileSession: id => locked(async data => { const r = find(data, id); if (r.kind !== 'session') throw new Error('Not a session'); const observed = await observedSession(r); if (observed.state !== 'closed') throw new Error('Session closure is still unconfirmed'); r.state = 'closed'; await save(data); return { id, state: 'closed' }; }),
+    reconcileSession: id => locked(async data => { const r = find(data, id); if (r.kind !== 'session') throw new Error('Not a session'); const observed = await observedSession(r); if (observed.state !== 'closed') throw new Error('Session closure is still unconfirmed'); recordClosure(r); await save(data); return { id, state: 'closed', logoffConfirmed: true }; }),
     // Only an exact external process-identity observer can release an abandoned lock.
     recoverLock: async verifyOwnerStopped => {
       await initialize(); await safeParents(lock);

@@ -1,7 +1,7 @@
 "use strict";
 
 const path = require("node:path");
-const { buildCargoTestCommand, runManagedCargoSync } = require("./cargo-verification.cjs");
+const { runCargoTest } = require("./cargo-verification.cjs");
 
 const [sourceRoot, ...extra] = process.argv.slice(2);
 if (!sourceRoot || !path.isAbsolute(sourceRoot) || extra.length) {
@@ -15,9 +15,8 @@ for (const filter of [
   "tasks::panic_tests::",
   "tasks::tests::",
 ]) {
-  const { command, args, ...options } = buildCargoTestCommand(sourceRoot, ["test", "-p", "codex-core", "--lib", filter,
-    "--locked", "--offline", "--", "--test-threads=1"], { isolateHostEnvironment: true });
-  const result = runManagedCargoSync({ command, args, ...options, stdio: "pipe", encoding: "utf8", maxBuffer: 32 * 1024 * 1024 });
+  const result = runCargoTest(sourceRoot, ["test", "-p", "codex-core", "--lib", filter,
+    "--locked", "--offline", "--", "--test-threads=1"], { isolateHostEnvironment: true, capture: true });
   process.stdout.write(result.stdout || "");
   process.stderr.write(result.stderr || "");
   if (result.error) throw result.error;

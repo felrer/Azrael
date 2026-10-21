@@ -8,6 +8,7 @@ fn questions_flush_buffered_typing_and_record_activity() {
     let (tx, _rx) = unbounded_channel();
     let mut pane = super::tests::test_pane(AppEventSender::new(tx));
     let questions = [codex_protocol::items::AsyncUserInputQuestion {
+        withdrawn: false,
         title: "Which way?".into(),
         options: None,
     }];

@@ -172,6 +172,7 @@ jobs:
           archive_dir="${RUNNER_TEMP}/nextest-archive"
           mkdir -p "${archive_dir}"
           cargo nextest archive \
+            --tests --bins --features codex-core/integration-tests,codex-app-server/integration-tests \
             --target "${CODEX_CI_TARGET}" \
             --cargo-profile "${CODEX_CI_PROFILE}" \
             --timings \

@@ -48,6 +48,102 @@
       "inputs": ["scripts", "artifacts/upstream-ui/26.1007.21434", "extensions/azrael-ex/node_modules/typescript"]
     },
     {
+      "id": "window-async-approval-inventory",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-feature-preservation.cjs",
+        "scripts/test-cargo-verification.cjs"
+      ],
+      "cwd": ".",
+      "env": {
+        "AZRAEL_FEATURE_PRESERVATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-async-approval-r1/integration/temporary/features"
+      },
+      "inputs": [
+        "scripts/feature-preservation.cjs",
+        "scripts/test-feature-preservation.cjs",
+        "scripts/cargo-verification.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/azrael-feature-contracts.json",
+        "scripts/check-window-approval-native.cjs"
+      ]
+    },
+    {
+      "id": "window-async-approval-source",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-use-async-approvals.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "scripts/window-control-host.cjs",
+        "scripts/window-use-async-approvals.cjs",
+        "scripts/window-control-errors.cjs",
+        "scripts/test-window-use-async-approvals.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/namespace-azrael-host.cjs",
+        "scripts/namespace-cache-owner.cjs",
+        "scripts/asset-transform-cache.cjs",
+        "scripts/test-namespace-cache-owner.cjs"
+      ]
+    },
+    {
+      "id": "compile-scope-source",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-compile-scope.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-engine-check-selection.cjs",
+        "scripts/test-build-platform.cjs"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "scripts/check-shared-engine-native.cjs",
+        "scripts/test-compile-scope.cjs",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-engine-check-selection.cjs",
+        "scripts/test-build-platform.cjs",
+        "scripts/cargo-verification.cjs",
+        "scripts/cargo-target-owner.cjs",
+        "scripts/azrael-feature-contracts.json",
+        "scripts/build-platform.cjs",
+        "scripts/build-azrael.ps1",
+        "scripts/check-question-withdrawal-native.cjs",
+        "engine/.github/workflows/rust-ci-full-nextest-platform.yml",
+        "engine/scripts/just-shell.py",
+        "engine/justfile",
+        "engine/codex-rs/core/Cargo.toml",
+        "engine/codex-rs/app-server/Cargo.toml",
+        "engine/codex-rs/app-server-client/Cargo.toml",
+        "engine/codex-rs/app-server-daemon/Cargo.toml",
+        "engine/codex-rs/core/tests/all.rs",
+        "engine/codex-rs/core/tests/suite/mod.rs",
+        "engine/codex-rs/core/tests/request_user_input_async.rs",
+        "engine/codex-rs/core/tests/integration_test_setup.rs",
+        "scripts/check-model-harness-profiles.cjs",
+        "scripts/check-thread-auto-compaction.cjs",
+        "engine/.github/scripts/verify_cargo_workspace_manifests.py",
+        "engine/defs.bzl",
+        "engine/codex-rs/core/BUILD.bazel",
+        "engine/codex-rs/app-server-client/BUILD.bazel",
+        "engine/codex-rs/app-server-daemon/BUILD.bazel",
+        "scripts/tests/test_compile_scope_manifests.py"
+      ],
+      "env": {
+        "AZRAEL_CARGO_OWNER_TEST_ROOT": "artifacts/tasks/CL-01-question-withdrawal/runs/compile-scope-3/fixtures/source-cargo"
+      }
+    },
+    {
       "id": "instruction-library-backend", "kind": "test", "purpose": "retained",
       "argv": ["node", "scripts/check-instruction-library.cjs", "backend"],
       "inputs": ["scripts/check-instruction-library.cjs", "scripts/artifact-run.cjs", "scripts/instruction-library.cjs", "scripts/instruction-publisher.cjs", "scripts/instruction-catalog.cjs", "scripts/tests/instruction-library.test.cjs", "scripts/tests/instruction-playbooks.test.cjs", "scripts/tests/instruction-publisher.test.cjs", "scripts/tests/instruction-catalog.test.cjs"]
@@ -61,6 +157,35 @@
       "id": "instruction-library-types", "kind": "test", "purpose": "retained",
       "argv": ["node", "scripts/check-instruction-library.cjs", "types"],
       "inputs": ["scripts/check-instruction-library.cjs", "extensions/azrael-ex/src", "extensions/azrael-ex/test", "extensions/azrael-ex/tsconfig.json"]
+    },
+    {
+      "id": "cargo-preflight-source",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-scheduling.cjs",
+        "scripts/test-cargo-verification-cache.cjs",
+        "scripts/test-feature-preservation.cjs"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "scripts/cargo-verification.cjs",
+        "scripts/cargo-target-owner.cjs",
+        "scripts/feature-preservation.cjs",
+        "scripts/cargo-verification-cache.cjs",
+        "scripts/check-shared-engine-native.cjs",
+        "scripts/check-task-recovery-native.cjs",
+        "scripts/azrael-feature-contracts.json",
+        "scripts/test-cargo-verification.cjs",
+        "scripts/test-cargo-target-owner.cjs",
+        "scripts/test-cargo-scheduling.cjs",
+        "scripts/test-cargo-verification-cache.cjs",
+        "scripts/test-feature-preservation.cjs"
+      ]
     },
     {
       "id": "maintenance-lifecycle-writers",
@@ -134,6 +259,268 @@
       ]
     },
     {
+      "id": "window-viewer-regression",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-window-installed-launch.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-feature-preservation.cjs"
+      ],
+      "env": {
+        "WINDOW_USE_LOGOFF_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/temporary/logoff",
+        "AZRAEL_FEATURE_PRESERVATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/temporary/features"
+      },
+      "inputs": [
+        "scripts/window-child-session.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-use-resources.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-control-errors.cjs",
+        "scripts/window-control-policy.cjs",
+        "scripts/window-child-session-cleanup.cjs",
+        "native/windows-child-session/ChildSession.cs",
+        "scripts/azrael-feature-contracts.json",
+        "instructions/window-use/stage-3.md",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-window-installed-launch.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-feature-preservation.cjs"
+      ]
+    },
+    {
+      "id": "window-viewer-revalidation",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-input-revalidation.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-use-resources.cjs"
+      ],
+      "env": {
+        "WINDOW_USE_RESOURCE_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/temporary/resources",
+        "WINDOW_USE_ISOLATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-viewer-revalidation/temporary/isolation"
+      },
+      "inputs": [
+        "scripts/window-child-session.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-use-resources.cjs",
+        "scripts/test-window-input-revalidation.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-use-resources.cjs"
+      ]
+    },
+    {
+      "id": "question-queue-source",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-question-queue.cjs"
+      ],
+      "inputs": [
+        "scripts/inject-question-queue.cjs",
+        "scripts/test-question-queue.cjs",
+        "scripts/inject-account-switch-queue.cjs",
+        "scripts/inject-queue-consumption.cjs",
+        "scripts/inject-queued-compaction.cjs",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-97d3534ad35f.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js",
+        "artifacts/upstream-ui/26.1007.21434/webview/assets/queued-message-list-616ed03f7f35.js"
+      ]
+    },
+    {
+      "id": "window-use-logoff-preservation",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "--test-concurrency=4",
+        "scripts/test-window-control-injection.cjs",
+        "scripts/test-window-approval-notifications.cjs",
+        "scripts/test-window-control-policy.cjs",
+        "scripts/test-window-control-runtime.cjs",
+        "scripts/test-window-control-mcp.cjs",
+        "scripts/test-window-permission-preparation.cjs",
+        "scripts/test-use-control-settings.cjs",
+        "scripts/test-use-settings-integration.cjs",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-installed-application.cjs",
+        "scripts/test-window-installed-launch.cjs",
+        "scripts/test-window-use-staging.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-use-stage-authority.cjs",
+        "scripts/test-use-settings-host.cjs",
+        "scripts/test-use-settings-ui.cjs",
+        "scripts/test-window-control-errors.cjs",
+        "scripts/test-namespace-cache-owner.cjs",
+        "scripts/test-feature-preservation.cjs"
+      ],
+      "env": {
+        "WINDOW_USE_RESOURCE_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/resources",
+        "WINDOW_USE_ISOLATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/isolation",
+        "WINDOW_USE_LOGOFF_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/logoff-cli",
+        "AZRAEL_FEATURE_PRESERVATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/feature-preservation"
+      },
+      "inputs": [
+        "scripts/window-use-resources.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-child-session.cjs",
+        "scripts/window-control-host.cjs",
+        "scripts/window-control-runtime.cjs",
+        "scripts/window-child-session-cleanup.cjs",
+        "scripts/request-window-child-logoff.ps1",
+        "native/windows-child-session/ChildSession.cs",
+        "scripts/azrael-feature-contracts.json",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-control-runtime.cjs"
+      ]
+    },
+    {
+      "id": "window-child-reconnect",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-reconnect.cjs",
+        "scripts/test-window-child-reconnect-integration.cjs",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-input-revalidation.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-control-errors.cjs"
+      ],
+      "env": {
+        "WINDOW_USE_RESOURCE_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/integration/temporary/resources",
+        "WINDOW_USE_ISOLATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/integration/temporary/isolation",
+        "WINDOW_CHILD_RECONNECT_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-reconnect-r1/integration/temporary/reconnect"
+      },
+      "inputs": [
+        "scripts/window-child-session.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-use-resources.cjs",
+        "scripts/window-control-errors.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-reconnect.cjs",
+        "scripts/test-window-child-reconnect-integration.cjs",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-input-revalidation.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-control-errors.cjs"
+      ]
+    },
+    {
+      "id": "window-child-bootstrap-length",
+      "kind": "test",
+      "purpose": "one_off",
+      "argv": [
+        "powershell.exe",
+        "-NoProfile",
+        "-ExecutionPolicy",
+        "Bypass",
+        "-File",
+        "native/windows-child-session/test-bootstrap.ps1",
+        "-OutputDirectory",
+        "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/native-a2"
+      ],
+      "inputs": [
+        "native/windows-child-session/ChildSession.cs",
+        "native/windows-child-session/test-bootstrap.ps1"
+      ]
+    },
+    {
+      "id": "window-child-bootstrap-regression",
+      "kind": "test",
+      "purpose": "one_off",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-use-staging.cjs"
+      ],
+      "env": {
+        "TEMP": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/js",
+        "TMP": "C:/Users/felre/Desktop/pi-harness-init/artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/js",
+        "AZRAEL_CHILD_HELPER_FIXTURE": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/native-a2/windows-child-session.exe",
+        "AZRAEL_CHILD_JOURNAL_FIXTURE": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/js/absent-journal.json"
+      },
+      "inputs": [
+        "scripts/window-child-session.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-use-staging.cjs",
+        "scripts/computer-use-runtime.cjs",
+        "scripts/use-control-settings.cjs",
+        "scripts/sync-codex-environment.cjs",
+        "scripts/prepare-platform-host.cjs",
+        "native/windows-child-session/ChildSession.cs",
+        "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261019-bootstrap-length-r1/temporary/native-a2/windows-child-session.exe"
+      ]
+    },
+    {
+      "id": "window-use-logoff-files",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-control-runtime.cjs"
+      ],
+      "env": {
+        "WINDOW_USE_RESOURCE_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/resources",
+        "WINDOW_USE_ISOLATION_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/isolation",
+        "WINDOW_USE_LOGOFF_TEST_ROOT": "artifacts/tasks/CF-01-window-use-admin-setup/runs/20261018-logoff-cleanup/temporary/logoff-cli"
+      },
+      "inputs": [
+        "scripts/window-use-resources.cjs",
+        "scripts/window-use-isolation.cjs",
+        "scripts/window-child-session.cjs",
+        "scripts/window-child-session-cleanup.cjs",
+        "scripts/request-window-child-logoff.ps1",
+        "scripts/window-control-runtime.cjs",
+        "native/windows-child-session/ChildSession.cs",
+        "scripts/test-window-use-resources.cjs",
+        "scripts/test-window-use-isolation.cjs",
+        "scripts/test-window-child-session.cjs",
+        "scripts/test-window-child-recovery.cjs",
+        "scripts/test-window-child-logoff.cjs",
+        "scripts/test-window-control-runtime.cjs"
+      ]
+    },
+    {
       "id": "source-ui-health",
       "kind": "test",
       "purpose": "retained",
@@ -153,6 +540,39 @@
         "artifacts/upstream-ui/26.1007.21434/webview/assets/app-initial-7a199c66e670.js",
         "artifacts/upstream-ui/26.1007.21434/webview/assets/sites-end-resource-90d3046b3014.js",
         "artifacts/upstream-ui/26.1007.21434/webview/assets/user-message-attachments-f6a72702c1d3.js"
+      ]
+    },
+    {
+      "id": "sky-policy-package-boundary",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "--test",
+        "--test-concurrency=1",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/test-computer-use-approvals.cjs",
+        "scripts/test-computer-use-runtime.cjs",
+        "scripts/test-window-desktop-authority.cjs",
+        "scripts/test-sky-control-policy.cjs"
+      ],
+      "env": {
+        "AZRAEL_TEST_COMPUTER_USE_RUNTIME": "artifacts/tasks/DU-01-window-use-stages/runs/20261017-skill-r1/inputs/sky074-pristine",
+        "AZRAEL_TEST_SKY_POLICY_TEMPORARY": "artifacts/tasks/sky-policy-package-boundary/temporary"
+      },
+      "inputs": [
+        "scripts/computer-use-runtime.cjs",
+        "scripts/inject-sky-control-policy.cjs",
+        "scripts/sky-control-policy.mjs",
+        "scripts/sky-controlled-service.mjs",
+        "scripts/use-control-settings.cjs",
+        "scripts/window-desktop-authority.cjs",
+        "scripts/computer-use-approvals.cjs",
+        "scripts/test-computer-use-injection.cjs",
+        "scripts/test-computer-use-approvals.cjs",
+        "scripts/test-computer-use-runtime.cjs",
+        "scripts/test-window-desktop-authority.cjs",
+        "scripts/test-sky-control-policy.cjs"
       ]
     },
     {
@@ -470,7 +890,10 @@
         "docs/boards/tests/catalog.test.mjs",
         "docs/boards/tests/boards.test.mjs",
         "docs/boards/tests/sketch.test.mjs",
-        "scripts/artifact-lifecycle.cjs"
+        "scripts/artifact-lifecycle.cjs",
+        "docs/boards/tests/board-verify.mjs",
+        "docs/boards/shared/design-context.mjs",
+        "docs/boards/shared/design-model.mjs"
       ]
     },
     {
@@ -501,6 +924,86 @@
         "docs/boards/catalog/rules.md",
         "docs/boards/tests/catalog-verify.mjs",
         "docs/boards/tests/catalog-render.mjs",
+        "docs/boards/tests/browser-driver.mjs",
+        "scripts/artifact-lifecycle.cjs",
+        "docs/boards/tests/board-verify.mjs",
+        "docs/boards/shared/design-context.mjs",
+        "docs/boards/shared/design-model.mjs"
+      ]
+    },
+    {
+      "id": "boards-design-unit",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "docs/boards/tests/design-verify.mjs",
+        "unit"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "docs/boards/server.mjs",
+        "docs/boards/shared/storage.mjs",
+        "docs/boards/shared/model.mjs",
+        "docs/boards/shared/context.mjs",
+        "docs/boards/shared/catalog-model.mjs",
+        "docs/boards/shared/catalog-context.mjs",
+        "docs/boards/shared/sketch-model.mjs",
+        "docs/boards/shared/sketch-context.mjs",
+        "docs/boards/shared/design-model.mjs",
+        "docs/boards/shared/design-context.mjs",
+        "docs/boards/shared/modules/card-browser.mjs",
+        "docs/boards/design/board.json",
+        "docs/boards/design/rules.md",
+        "docs/boards/catalog/board.json",
+        "docs/boards/catalog/rules.md",
+        "docs/boards/prototype/board.json",
+        "docs/boards/prototype/rules.md",
+        "docs/boards/sketch/board.json",
+        "docs/boards/sketch/rules.md",
+        "docs/boards/tests/board-verify.mjs",
+        "docs/boards/tests/design-verify.mjs",
+        "docs/boards/tests/design.test.mjs",
+        "docs/boards/tests/catalog.test.mjs",
+        "docs/boards/tests/boards.test.mjs",
+        "docs/boards/tests/sketch.test.mjs",
+        "scripts/artifact-lifecycle.cjs"
+      ]
+    },
+    {
+      "id": "boards-design-ui",
+      "kind": "test",
+      "purpose": "retained",
+      "argv": [
+        "node",
+        "docs/boards/tests/design-verify.mjs",
+        "ui"
+      ],
+      "cwd": ".",
+      "inputs": [
+        "docs/boards/server.mjs",
+        "docs/boards/shared/storage.mjs",
+        "docs/boards/shared/model.mjs",
+        "docs/boards/shared/context.mjs",
+        "docs/boards/shared/catalog-model.mjs",
+        "docs/boards/shared/catalog-context.mjs",
+        "docs/boards/shared/sketch-model.mjs",
+        "docs/boards/shared/sketch-context.mjs",
+        "docs/boards/shared/design-model.mjs",
+        "docs/boards/shared/design-context.mjs",
+        "docs/boards/shared/preview-document.mjs",
+        "docs/boards/shared/board.css",
+        "docs/boards/shared/modules/device-preview.mjs",
+        "docs/boards/shared/modules/design-gallery.mjs",
+        "docs/boards/shared/modules/design-preview.css",
+        "docs/boards/design/board.json",
+        "docs/boards/design/rules.md",
+        "docs/boards/design/index.html",
+        "docs/boards/design/board.js",
+        "docs/boards/design/design.css",
+        "docs/boards/tests/board-verify.mjs",
+        "docs/boards/tests/design-verify.mjs",
+        "docs/boards/tests/design-render.mjs",
         "docs/boards/tests/browser-driver.mjs",
         "scripts/artifact-lifecycle.cjs"
       ]

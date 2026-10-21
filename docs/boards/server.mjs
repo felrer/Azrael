@@ -7,6 +7,7 @@ import { BoardError, validateDefinition } from './shared/model.mjs';
 import { BoardStorage, atomicWrite } from './shared/storage.mjs';
 import { sketchCodec } from './shared/sketch-context.mjs';
 import { catalogCodec } from './shared/catalog-context.mjs';
+import { designCodec } from './shared/design-context.mjs';
 
 const boardsRoot = dirname(fileURLToPath(import.meta.url));
 const projectRoot = resolve(boardsRoot, '../..');
@@ -17,8 +18,8 @@ export async function createBoardServer({ board = 'prototype', dataRoot, configP
   if ((await lstat(boardRoot)).isSymbolicLink()) throw new BoardError('보드 경로를 확인하세요.');
   const definitionSource = await readFile(join(boardRoot, 'board.json'), 'utf8');
   const definition = validateDefinition(JSON.parse(definitionSource));
-  if (definition.editor !== undefined && !['excalidraw', 'catalog'].includes(definition.editor)) throw new BoardError('지원하지 않는 편집기입니다.');
-  const sketch = definition.editor === 'excalidraw', codec = sketch ? sketchCodec : definition.editor === 'catalog' ? catalogCodec : undefined;
+  if (definition.editor !== undefined && !['excalidraw', 'catalog', 'design'].includes(definition.editor)) throw new BoardError('지원하지 않는 편집기입니다.');
+  const sketch = definition.editor === 'excalidraw', codec = sketch ? sketchCodec : definition.editor === 'catalog' ? catalogCodec : definition.editor === 'design' ? designCodec : undefined;
   const assetOwner = resolve(projectRoot, 'artifacts/boards/sketch');
   if (sketch && !publicRoot) {
     try { publicRoot = JSON.parse(await readFile(join(assetOwner, 'current.json'), 'utf8')).publicRoot; }
@@ -64,7 +65,7 @@ export async function createBoardServer({ board = 'prototype', dataRoot, configP
     res.setHeader('Cache-Control', 'no-store');
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('Referrer-Policy', 'no-referrer');
-    res.setHeader('Content-Security-Policy', "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'");
+    res.setHeader('Content-Security-Policy', `default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self'; frame-src ${definition.editor === 'design' ? "'self' about:" : "'none'"}; frame-ancestors 'none'; base-uri 'none'; form-action 'none'`);
     try {
       if (req.headers.host !== new URL(origin).host) throw new BoardError('로컬 서버 주소로 접속하세요.', 'HOST_DENIED', 403);
       if (req.headers.origin && req.headers.origin !== origin) throw new BoardError('이 화면에서 보드에 접근할 수 없습니다.', 'ORIGIN_DENIED', 403);
@@ -111,7 +112,8 @@ export async function createBoardServer({ board = 'prototype', dataRoot, configP
         else { target = resolve(boardRoot, relative); allowedRoot = boardRoot; }
         if (!target.startsWith(allowedRoot + sep) || !mime[extname(target)]) throw new BoardError('파일 경로를 확인하세요.', 'NOT_FOUND', 404);
       } else if (['/shared/model.mjs', '/shared/ui.mjs', '/shared/board.css', '/shared/sketch-model.mjs', '/shared/catalog-model.mjs',
-        '/shared/modules/folder-list.mjs', '/shared/modules/card-browser.mjs', '/shared/modules/catalog-widgets.css'].includes(path)) {
+        '/shared/modules/folder-list.mjs', '/shared/modules/card-browser.mjs', '/shared/modules/catalog-widgets.css',
+        '/shared/design-model.mjs', '/shared/preview-document.mjs', '/shared/modules/device-preview.mjs', '/shared/modules/design-gallery.mjs', '/shared/modules/design-preview.css'].includes(path)) {
         if (sketch && publicRoot && ['/shared/model.mjs', '/shared/sketch-model.mjs'].includes(path)) { target = join(publicRoot, path.slice('/shared/'.length)); allowedRoot = publicRoot; }
         else { target = join(boardsRoot, path.slice(1)); allowedRoot = join(boardsRoot, 'shared'); }
       }

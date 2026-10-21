@@ -2,7 +2,7 @@
 
 const fs = require("node:fs");
 const path = require("node:path");
-const { buildCargoTestCommand, runCargoTest, runManagedCargoSync } = require("./cargo-verification.cjs");
+const { preflightCommands, buildCargoTestCommand, runCargoTest, runManagedCargoSync } = require("./cargo-verification.cjs");
 
 const windowsNativePackages = {
   "codex-app-server-daemon": { directory: "app-server-daemon", target: "codex_app_server_daemon" },
@@ -24,9 +24,14 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
     if (result.stdout) process.stdout.write(result.stdout);
     if (result.stderr) process.stderr.write(result.stderr);
   };
+  const typeCheck = preflightCommands({ command, args: args.filter(arg => arg !== "--no-run" && arg !== "--message-format=json"), ...options }).typeCheck;
+  const checked = runManagedCargoSync({ ...typeCheck, ...captureOptions });
+  emit(checked);
+  process.stderr.write(`[cargo-preflight] ${JSON.stringify({ phase: "typeCheck", args: typeCheck.args, exitCode: checked.status ?? null, signal: checked.signal ?? null })}\n`);
+  if (checked.error || checked.signal || checked.status !== 0) return { ...checked, status: checked.status === 0 ? 1 : checked.status };
   const compiled = runManagedCargoSync({ command, args, ...captureOptions });
   emit(compiled);
-  if (compiled.error || compiled.status !== 0) return compiled;
+  if (compiled.error || compiled.signal || compiled.status !== 0) return { ...compiled, status: compiled.status === 0 ? 1 : compiled.status };
   const normalized = value => process.platform === "win32" ? path.resolve(value).toLowerCase() : path.resolve(value);
   const manifest = normalized(path.join(sourceRoot, "codex-rs", selected.directory, "Cargo.toml"));
   const source = normalized(path.join(sourceRoot, "codex-rs", selected.directory, "src", "lib.rs"));
@@ -48,6 +53,14 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
   if (executables.size !== 1) {
     throw new Error(`Expected exactly one ${crate} libtest executable from the selected frozen package; found ${executables.size}`);
   }
+  const listed = spawnSync([...executables][0], [filter, "--list", "--format=terse"], captureOptions);
+  emit(listed);
+  const selectedTests = (String(listed.stdout || "").match(/^.+: test\r?$/gm) || []).length;
+  process.stderr.write(`[cargo-preflight] ${JSON.stringify({ phase: "selection", executable: [...executables][0], filter, selectedTests, exitCode: listed.status ?? null, signal: listed.signal ?? null })}\n`);
+  if (listed.error || listed.signal || listed.status !== 0) return { ...listed, status: listed.status === 0 ? 1 : listed.status };
+  if (selectedTests === 0) {
+    return { ...listed, status: 1, error: new Error(`Cargo preflight selected zero tests for ${crate}`) };
+  }
   const tested = spawnSync([...executables][0], [filter, "--test-threads=1", ...(crate === "codex-utils-pty" ? ["--nocapture"] : [])], captureOptions);
   emit(tested);
   return tested;
@@ -56,10 +69,12 @@ function runWindowsNativeTests(sourceRoot, crate, filter) {
 function main() {
   const [sourceRoot, scope, ...extra] = process.argv.slice(2);
   const scopes = {
+    bridge: [["codex-app-server-client", "remote::tests::", ["--no-default-features", "--lib", "--bin", "azrael-bridge"]]],
     appserver: [...(process.platform === "win32" ? [["codex-utils-pty", "windows_tests::"],
       ["codex-utils-pty", "win::process_tree::tests::"],
       ["codex-utils-pty", "pipe::tests::process_fallback_interrupt_terminates_root"]] : []),
       ["codex-app-server-daemon", "azrael::tests::"],
+      ["codex-app-server-daemon", "registration::tests::"],
       ["codex-app-server-daemon", "azrael_storage::tests::"],
       ["codex-app-server-daemon", "backend::pid::tests::"],
       ["codex-app-server", "azrael_shared_server::tests::"],
@@ -75,7 +90,7 @@ function main() {
       ["codex-queue-extension", "manual_resume_marker", "queue_service"]],
   };
   if (!sourceRoot || !path.isAbsolute(sourceRoot) || !Object.hasOwn(scopes, scope) || extra.length) {
-    throw new Error("Usage: check-shared-engine-native.cjs <absolute frozen engine source root> <appserver|manual>");
+    throw new Error("Usage: check-shared-engine-native.cjs <absolute frozen engine source root> <appserver|manual|bridge>");
   }
   if (!fs.statSync(path.join(sourceRoot, "codex-rs", "Cargo.toml")).isFile()) {
     throw new Error("Selected engine source has no Cargo workspace");

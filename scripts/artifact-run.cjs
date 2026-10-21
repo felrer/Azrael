@@ -83,15 +83,34 @@ function finishArtifactRun(run, { exitCode, producerStopped }) {
 }
 async function confirmOwnedBrowserExit(child,profilePath,spawn){
  if(!child)return {confirmed:true,exitCode:null,signalCode:null,processIds:[]};
- if(child.exitCode===null&&child.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,10000);child.once('exit',()=>{clearTimeout(timer);r()})});
+ if(process.platform!=='win32'&&child.exitCode===null&&child.signalCode===null)await new Promise(r=>{const timer=setTimeout(r,10000);child.once('exit',()=>{clearTimeout(timer);r()})});
  const result={confirmed:child.exitCode!==null||child.signalCode!==null,exitCode:child.exitCode,signalCode:child.signalCode};
  if(process.platform==='win32'){
+  result.confirmed=false;
   const windowsPowerShell=path.join(process.env.SystemRoot || process.env.WINDIR || path.join('C:',path.sep,'Windows'),'System32','WindowsPowerShell','v1.0','powershell.exe');
-  const query=spawn(windowsPowerShell,['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $ownedChrome=@(Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe'\" | Where-Object { $_.ProcessId -eq [int]$env:AZRAEL_RENDER_BROWSER_PID -or ($_.CommandLine -and $_.CommandLine.Contains($env:AZRAEL_RENDER_BROWSER_PROFILE)) } | Select-Object -ExpandProperty ProcessId); ConvertTo-Json -Compress -InputObject $ownedChrome"],{windowsHide:true,timeout:15000,env:{...process.env,AZRAEL_RENDER_BROWSER_PID:String(child.pid),AZRAEL_RENDER_BROWSER_PROFILE:profilePath},stdio:['ignore','pipe','pipe']});
+  const deadline=Date.now()+10000;
+  // Browser.close can finish the root before Chrome's profile-owning children drain.
+  // These snapshots retain the existing profile/root predicate, not a full tree identity proof.
+  do {
+  const remaining=deadline-Date.now();
+  if(remaining<=0)break;
+  try {
+  const query=spawn(windowsPowerShell,['-NoProfile','-Command',"$ErrorActionPreference='Stop'; $ownedChrome=@(Get-CimInstance Win32_Process -Filter \"Name = 'chrome.exe'\" | Where-Object { $_.ProcessId -eq [int]$env:AZRAEL_RENDER_BROWSER_PID -or ($_.CommandLine -and $_.CommandLine.Contains($env:AZRAEL_RENDER_BROWSER_PROFILE)) } | Select-Object -ExpandProperty ProcessId); ConvertTo-Json -Compress -InputObject $ownedChrome"],{windowsHide:true,timeout:remaining,env:{...process.env,AZRAEL_RENDER_BROWSER_PID:String(child.pid),AZRAEL_RENDER_BROWSER_PROFILE:profilePath},stdio:['ignore','pipe','pipe']});
   let output='',error='';query.stdout.on('data',c=>output+=c);query.stderr.on('data',c=>error+=c);
-  const queryExit=await new Promise(r=>{query.once('error',e=>{error+=String(e);r(null)});query.once('exit',r)});
+  const queryExit=await new Promise(r=>{query.once('error',e=>{error+=String(e);r(null)});query.once('close',r)});
   result.processInspectionExitCode=queryExit;
-  try{if(queryExit!==0)throw Error(error||'Process inspection failed');result.processIds=JSON.parse(output);if(!Array.isArray(result.processIds))throw Error('Invalid process inspection result');result.confirmed=result.processIds.length===0}catch(e){result.confirmed=false;result.inspectionError=String(e)}
+  if(queryExit!==0)throw Error(error||'Process inspection failed');
+  const processIds=JSON.parse(output);
+  if(!Array.isArray(processIds)||!processIds.every(pid=>Number.isInteger(pid)&&pid>0))throw Error('Invalid process inspection result');
+  result.processIds=processIds;
+  result.exitCode=child.exitCode;result.signalCode=child.signalCode;
+  result.confirmed=(result.exitCode!==null||result.signalCode!==null)&&processIds.length===0;
+  } catch(e) {result.confirmed=false;result.inspectionError=String(e);break}
+  if(result.confirmed)break;
+  const pause=Math.min(200,deadline-Date.now());
+  if(pause>0)await new Promise(r=>setTimeout(r,pause));
+  } while(Date.now()<deadline);
+  result.exitCode=child.exitCode;result.signalCode=child.signalCode;
  }
  if(result.confirmed){child.unref();child.stderr?.destroy()}
  return result;

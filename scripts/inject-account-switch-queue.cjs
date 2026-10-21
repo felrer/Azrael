@@ -1,4 +1,5 @@
 "use strict";
+const { questionQueueValidationView } = require("./inject-question-queue.cjs");
 
 const ACCOUNT_QUEUE_CORE_ASSET = "webview/assets/app-initial-97d3534ad35f.js";
 const ACCOUNT_QUEUE_PRESENTATION_ASSET = "webview/assets/app-initial-7a199c66e670.js";
@@ -46,8 +47,11 @@ function apply(text, owner, edits) {
   const marker = `/*azrael-account-switch-queue-${owner}-v2*/`;
   if (text.includes(`/*azrael-account-switch-queue-${owner}-v1*/`)) throw Error("Stale account-switch queue transform; use the pinned original asset");
   if (text.includes(marker)) {
+    const asset = { core: ACCOUNT_QUEUE_CORE_ASSET, presentation: ACCOUNT_QUEUE_PRESENTATION_ASSET, list: ACCOUNT_QUEUE_LIST_ASSET }[owner];
+    const validationText = questionQueueValidationView(text, asset);
+    if (validationText.split(marker).length !== 2) throw Error("Partial account-switch queue transform");
     for (const [, replacement] of edits) {
-      if (text.split(replacement.replace("$MARKER", marker)).length !== 2) throw Error("Partial account-switch queue transform");
+      if (validationText.split(replacement.replace("$MARKER", marker)).length !== 2) throw Error("Partial account-switch queue transform");
     }
     return { text, count: 0 };
   }

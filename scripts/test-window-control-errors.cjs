@@ -184,3 +184,21 @@ test('partial accessibility and experimental key flags survive model projection'
   const projected = JSON.parse(callResult({ elements: [], elementsTruncated: true, experimental: true, delivery: 'windowMessage', verified: false }).content[0].text);
   assert.equal(projected.elementsTruncated, true); assert.equal(projected.experimental, true); assert.equal(projected.verified, false);
 });
+
+
+test('isolated viewer and action recovery metadata survives pipe and MCP without diagnostic secrets',async()=>{
+  for(const code of ['isolated_viewer_minimized','state_changed']) {
+    const payload=errorPayload(windowError(code,'Recover isolated execution',{nativeCode:'native_input_failed',actionExecuted:false,inputReleaseConfirmed:true,viewerState:'minimized',requiredUserAction:'restore_isolated_viewer',mutationOutcome:'unknown',recovery:'observe_again',observationRequired:true,diagnostic:{code:'native_input_failed',phase:'input',hresult:-1,message:'token=private',stack:'private',path:'C:/private'}}));
+    assert.equal(payload.diagnostic.message,'[redacted diagnostic message]');assert.doesNotMatch(JSON.stringify(payload),/private|stack/);
+    assert.deepEqual(errorPayload(fromPayload(payload)),payload);
+    const socket=socketFixture(),protocol=createProtocol({relay:()=>pipeRequest('fixture',{}, {connect:()=>socket})});
+    const reply=protocol({jsonrpc:'2.0',id:1,method:'tools/call',params:{name:'capture_isolated',arguments:{targetId:'child'},_meta:meta}});
+    socket.emit('connect');socket.emit('data',Buffer.from(JSON.stringify({error:payload})+'\n'));
+    assert.deepEqual(JSON.parse((await reply).result.content[0].text),payload);
+  }
+  const plain={code:'state_changed',message:'Changed'};
+  for(const invalid of [{viewerState:'private',requiredUserAction:'private',inputReleaseConfirmed:'true',diagnostic:'private'},{viewerState:null,requiredUserAction:1,inputReleaseConfirmed:1,diagnostic:[]}]) {
+    assert.deepEqual(errorPayload(fromPayload({...plain,...invalid})),plain);
+    assert.deepEqual(errorPayload({...plain,...invalid}),plain);
+  }
+});

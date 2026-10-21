@@ -518,6 +518,106 @@ mod tests {
         assert_eq!(requests.requests().len(), 1);
         cancellation.cancel();
     }
+    #[tokio::test]
+    async fn host_approval_parent_wait_cancel_wakes_after_submission_gate_is_released_once() {
+        use codex_protocol::host_approvals::*;
+        use core_test_support::responses::{
+            ev_completed, ev_response_created, mount_sse_once, sse, start_mock_server,
+        };
+        let server = start_mock_server().await;
+        let requests = mount_sse_once(
+            &server,
+            sse(vec![
+                ev_response_created("approval-parent-resume"),
+                ev_completed("approval-parent-resume"),
+            ]),
+        )
+        .await;
+        let home = tempfile::tempdir().unwrap();
+        let (session, turn, events, _) =
+            persistent_wait(home.path(), format!("{}/v1", server.uri())).await;
+        session
+            .start_task(Arc::clone(&turn), Vec::new(), IdleTask)
+            .await;
+        let cancellation = session
+            .active_turn
+            .lock()
+            .await
+            .as_ref()
+            .unwrap()
+            .task
+            .as_ref()
+            .unwrap()
+            .cancellation_token
+            .clone();
+        assert!(
+            session
+                .defer_parent_response_after_tools(&turn)
+                .await
+                .unwrap()
+        );
+        assert!(session.finish_deferred_parent_response(&turn).await);
+        let owner = "a".repeat(64);
+        let scope = "b".repeat(64);
+        session
+            .request_host_approval(
+                &owner,
+                "host:parent-blocked".into(),
+                scope.clone(),
+                serde_json::json!({}),
+            )
+            .await
+            .unwrap();
+        session
+            .defer_host_approval(&owner, "host:parent-blocked", &scope)
+            .await
+            .unwrap();
+        let pending = session
+            .resolve_host_approval(
+                &owner,
+                "host:parent-blocked",
+                &scope,
+                HostApprovalDecision::Decline,
+                None,
+                true,
+            )
+            .await
+            .unwrap();
+        assert_eq!(pending.resume_state, HostApprovalResumeState::Pending);
+        let gate = session.root_resume_submission_guard().await;
+        tokio::time::timeout(
+            Duration::from_secs(5),
+            session.cancel_parent_response_wait(),
+        )
+        .await
+        .expect("cancellation must post a wake instead of reacquiring its caller's gate")
+        .unwrap();
+        assert_eq!(
+            session.list_host_approvals(&owner).unwrap()[0].resume_state,
+            HostApprovalResumeState::Pending
+        );
+        drop(gate);
+        let complete = tokio::time::timeout(Duration::from_secs(15), async {
+            loop {
+                if let EventMsg::TurnComplete(event) = events.recv().await.unwrap().msg {
+                    break event;
+                }
+            }
+        })
+        .await
+        .unwrap();
+        let record = session.list_host_approvals(&owner).unwrap().pop().unwrap();
+        assert_eq!(record.resume_state, HostApprovalResumeState::Resumed);
+        assert_eq!(
+            record.resume_turn_id.as_deref(),
+            Some(complete.turn_id.as_str())
+        );
+        session.cancel_parent_response_wait().await.unwrap();
+        session.maybe_resume_host_approval().await.unwrap();
+        assert_eq!(requests.requests().len(), 1);
+        cancellation.cancel();
+        session.live_thread().unwrap().shutdown().await.unwrap();
+    }
 }
 
 struct WaitingChild {
@@ -871,7 +971,7 @@ impl Session {
         }
     }
 
-    pub(crate) async fn cancel_parent_response_wait(&self) -> CodexResult<()> {
+    pub(crate) async fn cancel_parent_response_wait(self: &Arc<Self>) -> CodexResult<()> {
         let control = self.parent_response_wait_control();
         let mut state = control.state.lock().await;
         if control.closed.load(Ordering::Acquire) { return Ok(()) }
@@ -897,6 +997,8 @@ impl Session {
         *state = None;
         control.deferred.store(false, Ordering::Release);
         control.activity.notify_one();
+        drop(state);
+        self.schedule_host_approval_resume();
         Ok(())
     }
 

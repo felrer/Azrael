@@ -211,6 +211,8 @@ base_url = "{}/v1"
     assert_eq!(
         queue,
         ThreadQueueListResponse {
+            pending_approval_count: 0,
+            pending_question_count: 0,
             data: vec![queued.queued_submission.clone()],
             next_cursor: None,
         }

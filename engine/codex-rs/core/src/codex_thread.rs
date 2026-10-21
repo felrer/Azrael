@@ -478,10 +478,23 @@ impl CodexThread {
 
     /// Starts compaction only when idle, skipping known usage strictly below 15%.
     pub async fn compact_if_idle(&self) -> CodexResult<CompactIfIdleSubmission> {
+        self.compact_if_idle_with_authority(false).await
+    }
+
+    pub async fn compact_if_idle_explicit(&self) -> CodexResult<CompactIfIdleSubmission> {
+        self.compact_if_idle_with_authority(true).await
+    }
+
+    async fn compact_if_idle_with_authority(
+        &self,
+        explicit: bool,
+    ) -> CodexResult<CompactIfIdleSubmission> {
         self.ensure_execution_capacity_for_turn_start(self.session.services.agent_control.as_ref())
             .await?;
         let (reply, result) = oneshot::channel();
-        self.io.submit(Op::CompactIfIdle { reply }).await?;
+        self.io
+            .submit(Op::CompactIfIdle { explicit, reply })
+            .await?;
         result.await.unwrap_or(Err(CodexErr::InternalAgentDied))
     }
 
@@ -1068,6 +1081,7 @@ impl CodexThread {
             self.session
                 .account_retired
                 .store(false, std::sync::atomic::Ordering::Release);
+            self.session.schedule_host_approval_resume();
         }
     }
 
@@ -1086,6 +1100,84 @@ impl CodexThread {
 
     /// Recover accepted input during explicit idle resume without starting model work.
     /// Active turns retain their pending queue and are never replayed here.
+    pub fn pending_approval_count(&self) -> usize {
+        self.session.pending_approval_count()
+    }
+    pub fn host_approvals_from_history(
+        thread_id: ThreadId,
+        history: &[codex_history::RolloutItem],
+        token: &str,
+    ) -> CodexResult<Vec<codex_protocol::host_approvals::HostApprovalRecord>> {
+        crate::session::host_approvals::HostApprovals::from_history(thread_id, history).list(token)
+    }
+    pub fn pending_approval_count_from_history(
+        thread_id: ThreadId,
+        history: &[codex_history::RolloutItem],
+    ) -> usize {
+        crate::session::host_approvals::HostApprovals::from_history(thread_id, history)
+            .pending_count()
+    }
+    pub fn list_host_approvals(
+        &self,
+        token: &str,
+    ) -> CodexResult<Vec<codex_protocol::host_approvals::HostApprovalRecord>> {
+        self.session.list_host_approvals(token)
+    }
+    pub async fn request_host_approval(
+        &self,
+        token: &str,
+        id: String,
+        scope: String,
+        payload: serde_json::Value,
+    ) -> CodexResult<codex_protocol::host_approvals::HostApprovalRecord> {
+        self.session
+            .request_host_approval(token, id, scope, payload)
+            .await
+    }
+    pub async fn resolve_host_approval(
+        &self,
+        token: &str,
+        id: &str,
+        scope: &str,
+        decision: codex_protocol::host_approvals::HostApprovalDecision,
+        persistence: Option<codex_protocol::host_approvals::HostApprovalPersistence>,
+        resume: bool,
+    ) -> CodexResult<codex_protocol::host_approvals::HostApprovalRecord> {
+        self.session
+            .resolve_host_approval(token, id, scope, decision, persistence, resume)
+            .await
+    }
+    pub async fn defer_host_approval(
+        &self,
+        token: &str,
+        id: &str,
+        scope: &str,
+    ) -> CodexResult<codex_protocol::host_approvals::HostApprovalRecord> {
+        self.session.defer_host_approval(token, id, scope).await
+    }
+    pub async fn withdraw_host_approvals(
+        &self,
+        token: Option<&str>,
+        id: Option<&str>,
+    ) -> CodexResult<Vec<codex_protocol::host_approvals::HostApprovalRecord>> {
+        self.session.withdraw_host_approvals(token, id).await
+    }
+
+    pub fn pending_question_count(&self) -> usize {
+        self.session.pending_question_count()
+    }
+
+    pub fn pending_question_count_from_history(
+        history: &[codex_history::RolloutItem],
+        accepted: &[Vec<codex_protocol::user_input::UserInput>],
+    ) -> usize {
+        let mut questions = crate::session::user_questions::UserQuestions::from_history(history);
+        for content in accepted {
+            questions.answer_content(content);
+        }
+        questions.pending_count()
+    }
+
     pub async fn recover_accepted_user_inputs_on_resume(&self) -> CodexResult<()> {
         self.session.recover_accepted_user_inputs_on_resume().await
     }

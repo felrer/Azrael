@@ -7,9 +7,15 @@ const { TRANSPORT, TRANSPORT_POLICY_MODULES, transformTransport, generateSetting
 const POLICY_MODULES = ['sky-controlled-service.mjs', 'sky-control-policy.mjs', 'use-control-settings.cjs'];
 const REQUIRED = ['node_repl.exe', 'node.exe', 'node_modules/@oai/sky/package.json', 'node_modules/@oai/sky/bin/windows/codex-computer-use.exe', 'skills/computer-use/SKILL.md', 'docs/guidance.md', 'docs/api.md', 'docs/confirmations.md', TRANSPORT, ...POLICY_MODULES, 'use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES];
 const TRANSPORT_POLICY_REEXPORT = `export { assertComputerUseEnabled } from '${path.posix.relative(path.posix.dirname(TRANSPORT), 'sky-control-policy.mjs')}';\n`;
+const PACKAGE_POLICY_OWNER = TRANSPORT_POLICY_MODULES.find(rel => rel.endsWith('/sky-control-policy.mjs'));
+const ROOT_POLICY_REEXPORT = `export * from './${PACKAGE_POLICY_OWNER}';\n`;
 function generateTransportPolicyReexport(input) {
   const content = Buffer.from(TRANSPORT_POLICY_REEXPORT);
   return { content, transform: { kind: 'azrael-sky-policy-owner-reexport', version: 1, sourceSha256: hash(input), outputSha256: hash(content) } };
+}
+function generateRootPolicyReexport(input) {
+  const content = Buffer.from(ROOT_POLICY_REEXPORT);
+  return { content, transform: { kind: 'azrael-sky-policy-owner-reexport', version: 2, sourceSha256: hash(input), outputSha256: hash(content) } };
 }
 const WINDOW_GUIDES = ['common', 'stage-1', 'stage-2', 'stage-3', 'stage-4'].map(name => `docs/window-use/${name}.md`);
 const hash = bytes => crypto.createHash('sha256').update(bytes).digest('hex');
@@ -85,14 +91,20 @@ function verifyRuntime(directory) {
   if (![3, 4].includes(transportVersion) || (manifest.windowUseGuidanceVersion === 1 && transportVersion !== 4)) throw new Error('Unsupported Sky policy transform version for runtime');
   const transformed = transformTransport(fs.readFileSync(checked(directory, TRANSPORT)), skyPackage.version, transportVersion);
   if (JSON.stringify(transportEntry.transform) !== JSON.stringify(transformed.transform) || transportEntry.sourceSha256 !== transformed.transform.sourceSha256 || transportEntry.sha256 !== transformed.transform.outputSha256) throw new Error('Sky policy transform provenance mismatch');
-  if (manifest.skyPolicyOwnerVersion !== undefined && manifest.skyPolicyOwnerVersion !== 1) throw new Error('Unsupported Sky policy owner version');
-  if (manifest.windowUseGuidanceVersion === 1 && manifest.skyPolicyOwnerVersion !== 1) throw new Error('Unified Sky policy owner provenance missing');
+  if (manifest.skyPolicyOwnerVersion !== undefined && ![1, 2].includes(manifest.skyPolicyOwnerVersion)) throw new Error('Unsupported Sky policy owner version');
+  if (manifest.windowUseGuidanceVersion === 1 && ![1, 2].includes(manifest.skyPolicyOwnerVersion)) throw new Error('Unified Sky policy owner provenance missing');
   if (manifest.skyPolicyOwnerVersion === 1) {
     const generated = generateTransportPolicyReexport(fs.readFileSync(checked(directory, 'sky-control-policy.mjs')));
     for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) {
       const entry = manifest.files.find(entry => entry.path === rel);
       if (!fs.readFileSync(checked(directory, rel)).equals(generated.content) || JSON.stringify(entry.transform) !== JSON.stringify(generated.transform) || entry.sourceSha256 !== generated.transform.sourceSha256 || entry.sourceBytes !== fs.statSync(checked(directory, 'sky-control-policy.mjs')).size) throw new Error('Sky single-owner re-export provenance mismatch');
     }
+  }
+  if (manifest.skyPolicyOwnerVersion === 2) {
+    const policySource = fs.readFileSync(checked(directory, PACKAGE_POLICY_OWNER));
+    const generated = generateRootPolicyReexport(policySource);
+    const entry = manifest.files.find(entry => entry.path === 'sky-control-policy.mjs');
+    if (!fs.readFileSync(checked(directory, entry.path)).equals(generated.content) || JSON.stringify(entry.transform) !== JSON.stringify(generated.transform) || entry.sourceSha256 !== hash(policySource) || entry.sourceBytes !== policySource.length) throw new Error('Sky package-contained policy owner provenance mismatch');
   }
   const settingsSource = fs.readFileSync(checked(directory, 'use-control-settings.cjs'));
   let settingsModule;
@@ -153,10 +165,13 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
   }
   for (const rel of POLICY_MODULES) add(__dirname, rel, rel);
   const policySource = fs.readFileSync(files.get('sky-control-policy.mjs').source);
-  const policyReexport = generateTransportPolicyReexport(policySource);
+  // Node REPL limits package-relative imports to configured node_modules roots.
+  // Keep the single authority owner beside the transport; the service's root
+  // facade imports that same instance without escaping the package boundary.
+  const policyReexport = generateRootPolicyReexport(policySource);
+  Object.assign(files.get('sky-control-policy.mjs'), { content: policyReexport.content, transform: policyReexport.transform, sourceSha256: hash(policySource), sourceBytes: policySource.length, sha256: hash(policyReexport.content), bytes: policyReexport.content.length });
   for (const rel of TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/sky-control-policy.mjs'))) {
     add(__dirname, 'sky-control-policy.mjs', rel);
-    Object.assign(files.get(rel), { content: policyReexport.content, transform: policyReexport.transform, sourceSha256: policyReexport.transform.sourceSha256, sourceBytes: policySource.length, sha256: hash(policyReexport.content), bytes: policyReexport.content.length });
   }
   const settingsModule = generateSettingsModule(fs.readFileSync(files.get('use-control-settings.cjs').source));
   for (const rel of ['use-control-settings.mjs', ...TRANSPORT_POLICY_MODULES.filter(rel => rel.endsWith('/use-control-settings.mjs'))]) {
@@ -190,7 +205,7 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
     files.set('skills/window-use/SKILL.md', { path: 'skills/window-use/SKILL.md', source: path.resolve(selectedWindowGuide), sha256: hash(windowInstructions), bytes: windowInstructions.length, content: windowInstructions });
   }
   for (const rel of walk(pluginDirectory).filter(x => /(^|\/)(plugin\.json|LICENSE(?:\.[^/]*)?|NOTICE(?:\.[^/]*)?)$/i.test(x))) add(pluginDirectory, rel, rel);
-  const manifest = { schema: 1, skyPolicyOwnerVersion: 1, ...(selectedWindowGuide ? { windowUseGuidanceVersion: 1 } : {}), scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };
+  const manifest = { schema: 1, skyPolicyOwnerVersion: 2, ...(selectedWindowGuide ? { windowUseGuidanceVersion: 1 } : {}), scope: 'local installation', source: { runtimeDirectory, runtimeVersion: path.basename(runtimeDirectory === bin ? path.dirname(bin) : runtimeDirectory), pluginDirectory, pluginVersion: path.basename(pluginDirectory) }, packages, files: [...files.values()].map(({content, ...entry}) => entry).sort((a,b) => a.path.localeCompare(b.path)) };
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of manifest.files) {
     const target = path.join(destination, entry.path);
@@ -202,7 +217,7 @@ function stageRuntime({ runtimeDirectory, pluginDirectory, destination, selected
   fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify(manifest, null, 2) + '\n');
   return verifyRuntime(destination);
 }
-module.exports = { stageRuntime, verifyRuntime, checked, walk, relative, hash, WINDOW_GUIDES, TRANSPORT_POLICY_REEXPORT, generateTransportPolicyReexport };
+module.exports = { stageRuntime, verifyRuntime, checked, walk, relative, hash, WINDOW_GUIDES, TRANSPORT_POLICY_REEXPORT, generateTransportPolicyReexport, PACKAGE_POLICY_OWNER, ROOT_POLICY_REEXPORT, generateRootPolicyReexport };
 if (require.main === module) {
   try {
     const [command, ...args] = process.argv.slice(2), options = {};

@@ -745,6 +745,7 @@ pub enum Op {
 
     /// Request compaction without replacing active work.
     CompactIfIdle {
+        explicit: bool,
         reply: oneshot::Sender<CodexResult<CompactIfIdleSubmission>>,
     },
 
@@ -1479,6 +1480,9 @@ pub enum EventMsg {
 
     /// A durable thread-scoped user-message queue changed.
     ThreadQueueChanged(ThreadQueueChangedEvent),
+
+    /// Private durable host approval ledger update. Never a model or user message.
+    HostApprovalLedgerUpdated(crate::host_approvals::HostApprovalLedgerEvent),
 
     /// Incremental MCP startup progress updates.
     McpStartupUpdate(McpStartupUpdateEvent),

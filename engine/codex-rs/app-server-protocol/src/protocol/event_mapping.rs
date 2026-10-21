@@ -415,7 +415,7 @@ pub fn item_event_to_server_notification(
         EventMsg::ItemCompleted(item_completed_event) => {
             ServerNotification::ItemCompleted(ItemCompletedNotification {
                 thread_id,
-                turn_id,
+                turn_id: item_completed_event.turn_id,
                 item: item_completed_event.item.into(),
                 completed_at_ms: item_completed_event.completed_at_ms,
             })

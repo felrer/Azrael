@@ -24,6 +24,10 @@ function commands(stage, platform = process.platform, artifactRoot, runRoot) {
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-metrics.ps1",
       ...(runRoot ? ["-OutputDirectory", path.join(runRoot, "temporary/metrics")] : [])]],
     ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1"]],
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1", "-RegistryOnly",
+      ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/module-registry")] : [])]],
+    ["pwsh", ["-NoLogo", "-NoProfile", "-File", "scripts/test-build-module-cache.ps1", "-LegacyRegistryOnly",
+      ...(runRoot ? ["-FixtureRoot", path.join(runRoot, "temporary/module-legacy-registry")] : [])]],
     ...["legacy-releases", "verification-artifacts", "engine-caches"].map(name =>
       ["pwsh", ["-NoLogo", "-NoProfile", "-File", `scripts/test-clean-${name}.ps1`]]),
     ...["verify only", "account-success", "build-fail"].map(name =>

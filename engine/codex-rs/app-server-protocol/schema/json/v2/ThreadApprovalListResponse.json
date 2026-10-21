@@ -1,0 +1,101 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "HostApprovalPersistence": {
+      "enum": [
+        "session",
+        "always"
+      ],
+      "type": "string"
+    },
+    "HostApprovalRecord": {
+      "properties": {
+        "originalRootTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "originalTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "payload": true,
+        "persistence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HostApprovalPersistence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "resumeState": {
+          "$ref": "#/definitions/HostApprovalResumeState"
+        },
+        "resumeTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/HostApprovalState"
+        },
+        "waiterDetached": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "payload",
+        "requestId",
+        "resumeState",
+        "scopeKey",
+        "state",
+        "waiterDetached"
+      ],
+      "type": "object"
+    },
+    "HostApprovalResumeState": {
+      "enum": [
+        "none",
+        "pending",
+        "claimed",
+        "resumed",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "HostApprovalState": {
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "cancelled"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "requests": {
+      "items": {
+        "$ref": "#/definitions/HostApprovalRecord"
+      },
+      "type": "array"
+    }
+  },
+  "required": [
+    "requests"
+  ],
+  "title": "ThreadApprovalListResponse",
+  "type": "object"
+}

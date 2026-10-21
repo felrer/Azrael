@@ -105,6 +105,54 @@ class RecorderTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "cannot add"):
             importer.validate_receipt(self.destination, receipt)
 
+    def test_direct_generated_protocol_contracts_are_explicit_tracked_and_content_bound(self):
+        names = ("codex-rs/app-server-protocol/schema/typescript/HostApproval.ts",
+                 "codex-rs/app-server-protocol/schema/typescript/v2/ThreadApprovalParams.ts",
+                 "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalParams.json")
+        for name in names:
+            self.add_module(name)
+        with self.assertRaisesRegex(ValueError, "coverage|delta"):
+            self.record(("edit.rs", names[0]))
+        self.record(("edit.rs", *names))
+        receipt = self.receipt()
+        importer.validate_receipt(self.destination, receipt)
+        for name in names:
+            self.assertIsNone(receipt["localIntegration"]["changes"][name]["before"])
+        (self.destination / names[-1]).write_text('{"changed":true}\n', encoding="utf-8")
+        with self.assertRaises(ValueError):
+            importer.validate_receipt(self.destination, receipt)
+
+    def test_generated_protocol_additions_reject_other_directories_and_extensions(self):
+        names = ("codex-rs/app-server-protocol/schema/typescript/v2/nested/Params.ts",
+                 "codex-rs/app-server-protocol/schema/json/v2/nested/Params.json",
+                 "codex-rs/app-server-protocol/schema/json/Params.json",
+                 "codex-rs/app-server-protocol/schema/json/v3/Params.json",
+                 "codex-rs/app-server-protocol/schema/typescript/v2/Params.json",
+                 "codex-rs/app-server-protocol/schema/json/v2/Params.ts",
+                 "elsewhere/Params.json")
+        for name in names:
+            with self.subTest(name=name):
+                self.assertFalse(importer.is_reviewed_source_addition(name))
+                with self.assertRaisesRegex(ValueError, "not ordinary"):
+                    self.record(("edit.rs", name))
+
+    def test_generated_protocol_contract_requires_tracking_mode_and_regular_file(self):
+        name = "codex-rs/app-server-protocol/schema/json/v2/ThreadApprovalParams.json"
+        target = self.destination / name
+        target.parent.mkdir(parents=True)
+        target.write_text('{}\n', encoding="utf-8")
+        with self.assertRaisesRegex(ValueError, "Git-tracked"):
+            self.record(("edit.rs", name))
+        self.git(self.repo, "add", "engine/" + name)
+        self.git(self.repo, "update-index", "--chmod=+x", "engine/" + name)
+        with self.assertRaises(ValueError):
+            self.record(("edit.rs", name))
+        self.git(self.repo, "update-index", "--chmod=-x", "engine/" + name)
+        target.unlink()
+        target.mkdir()
+        with self.assertRaises(ValueError):
+            self.record(("edit.rs", name))
+
     def add_migration(self, name="codex-rs/state/migrations/0002_reviewed.sql", data=b"SELECT 2;\n"):
         path = self.destination / name
         path.parent.mkdir(parents=True, exist_ok=True)

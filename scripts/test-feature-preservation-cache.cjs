@@ -48,6 +48,23 @@ function keys(f, id) { const slot = path.join(f.root, 'artifacts/cache/verificat
 function entry(f, id, receipt) { return path.join(f.root, 'artifacts/cache/verification-results/v1', sha(`${id}.check`), receipt.checks.find(c => c.checkId === `${id}.check`).cacheKey); }
 function counts(receipt, executed, reused) { assert.equal(receipt.cache.executed, executed); assert.equal(receipt.cache.reused, reused); assert.equal(receipt.checks.filter(c => c.reused).length, reused); }
 
+test('completed checks validate and publish before later checks while returning execution leases', async () => {
+  const f = setup();
+  let observedLaterCheck = false;
+  f.hook(args => {
+    if (args[0] !== 'scripts/native.cjs') return;
+    observedLaterCheck = true;
+    const leases = path.join(f.root, 'artifacts/cache/verification-results/.leases');
+    assert.deepEqual(fs.readdirSync(leases), [], 'completed UI checks must not retain execution leases');
+    assert.equal(keys(f, 'alpha').length, 1, 'individually validated evidence survives a later abrupt stop');
+  });
+  await f.run();
+  assert.equal(observedLaterCheck, true);
+  assert.equal(keys(f, 'alpha').length, 1, 'final publication reacquires its cache lease');
+  f.hook(null);
+  counts(await f.run(), 2, 3);
+});
+
 test('cold/hit reuse, selective dependencies, unrelated project drift and package authority', async () => {
   const f = setup(); const cold = await f.run(); counts(cold, 5, 0); const warm = await f.run(); counts(warm, 2, 3);
   assert.deepEqual(f.calls(), ['scripts/uncached.cjs', 'scripts/native.cjs']);
@@ -90,15 +107,51 @@ test('UI, execution environment, runner and declared contract changes invalidate
   const noRuntime = await f.run(); counts(noRuntime, 5, 0); assert.ok(noRuntime.cache.disabledReason); f.config.typeScriptPath = original;
 });
 
-test('failed and drifting runs publish no passing check results', async () => {
+test('later failure preserves passing checks and a new complete gate receipt reuses them', async () => {
   const f = setup(); f.write('scripts/uncached.cjs', 'process.exit(7);');
   const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed'); assert(failed.checks.some(c => c.exitCode === 7));
-  for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
-  f.write('scripts/uncached.cjs', 'console.log("fixed");'); let mutated = false;
+  for (const id of ['alpha', 'beta', 'gamma']) assert.equal(keys(f, id).length, 1);
+  await assert.rejects(gate.verifyReceipt({ ...f.config, receiptPath: failed.receiptPath }), /passing feature scope/);
+  f.write('scripts/uncached.cjs', 'console.log("fixed");');
+  const complete = await f.run(); counts(complete, 2, 3);
+  await gate.verifyReceipt({ ...f.config, receiptPath: complete.receiptPath });
+  assert.equal(JSON.parse(fs.readFileSync(failed.receiptPath)).status, 'failed');
+});
+
+test('input mutation before per-check publication rejects evidence', async () => {
+  const f = setup(); let mutated = false;
   f.hook(() => { if (!mutated) { mutated = true; f.write('portable/unrelated.txt', 'drift during execution'); } });
   const drift = await gate.runPreservation(f.config); assert.equal(drift.status, 'failed'); assert.match(drift.error, /Inputs changed/);
   for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
   f.hook(null); counts(await f.run(), 5, 0);
+});
+
+test('publication refusal preserves successful execution without creating reusable evidence', async () => {
+  const f = setup();
+  const begin = verificationCache.begin;
+  verificationCache.begin = async options => {
+    const handle = await begin(options);
+    if (options.checkId === 'alpha.check') handle.publish = async () => ({ published: false, reason: 'injected publication refusal' });
+    return handle;
+  };
+  try {
+    const receipt = await f.run();
+    assert.equal(receipt.checks.find(check => check.checkId === 'alpha.check').exitCode, 0);
+    assert.deepEqual(keys(f, 'alpha'), []);
+    assert.ok(receipt.cache.deferred.some(item => item.reason === 'injected publication refusal'));
+  } finally { verificationCache.begin = begin; }
+  counts(await f.run(), 3, 2);
+});
+
+test('final gate still rejects declared input mutation after an earlier check was reused', async () => {
+  const f = setup(); await f.run();
+  f.hook(args => {
+    if (args[0] === 'scripts/uncached.cjs') f.write('scripts/alpha.cjs', 'console.log("changed after reuse");');
+  });
+  const failed = await gate.runPreservation(f.config);
+  assert.equal(failed.status, 'failed');
+  assert.equal(failed.checks.find(check => check.checkId === 'alpha.check').reused, true);
+  assert.match(failed.error, /source cache inputs changed/);
 });
 
 test('corrupt cache receipt/log misses and copied run logs survive invalidation', async () => {
@@ -226,15 +279,15 @@ test('schema2 with the same provided and actual compiler still binds the complet
   counts(await f.run(), 5, 0);
 });
 
-test('schema2 runtime reaffirm rejects actual project compiler drift and whole failures publish nothing', async () => {
+test('schema2 runtime reaffirm rejects compiler drift while later failures preserve completed checks', async () => {
   const f = setupV2(); let changed = false;
   f.hook(() => { if (!changed) { changed = true; fs.appendFileSync(path.join(f.projectTypeScript, 'lib/typescript.d.ts'), '\n// drift during execution\n'); } });
   const drift = await gate.runPreservation(f.config); assert.equal(drift.status, 'failed'); assert.match(drift.error, /changed during verification/);
   for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
   f.hook(null); f.write('scripts/uncached.cjs', 'process.exit(7);');
   const failed = await gate.runPreservation(f.config); assert.equal(failed.status, 'failed');
-  for (const id of ['alpha', 'beta', 'gamma']) assert.deepEqual(keys(f, id), []);
-  f.write('scripts/uncached.cjs', 'console.log("fixed");'); counts(await f.run(), 5, 0); counts(await f.run(), 2, 3);
+  for (const id of ['alpha', 'beta', 'gamma']) assert.equal(keys(f, id).length, 1);
+  f.write('scripts/uncached.cjs', 'console.log("fixed");'); counts(await f.run(), 2, 3);
 });
 
 after(() => {
@@ -244,8 +297,14 @@ after(() => {
   // Only this suite's generated fixture roots may be recursively removed.
   for (const root of roots) {
     assert.equal(path.dirname(root), fixtures); assert.match(path.basename(root), /^preservation-cache-/);
-    const quoted = root.replace(/'/g, "''");
-    const result = spawnSync('pwsh', ['-NoProfile', '-Command', `Remove-Item -LiteralPath '${quoted}' -Recurse -ErrorAction Stop`], { encoding: 'utf8' });
-    assert.equal(result.status, 0, result.stderr); assert.equal(fs.existsSync(root), false);
+    const installedPowerShell = process.platform === 'win32' && process.env.LOCALAPPDATA
+      ? path.join(process.env.LOCALAPPDATA, 'Microsoft/WindowsApps/pwsh.exe') : null;
+    const cleanupArgs = ['-NoProfile', '-Command',
+      '$target = [IO.Path]::GetFullPath($env:AZRAEL_OWNED_FIXTURE); $boundary = [IO.Path]::GetFullPath($env:AZRAEL_OWNED_FIXTURE_PARENT); if ([IO.Path]::GetDirectoryName($target) -ne $boundary) { throw "Fixture outside owned boundary" }; Remove-Item -LiteralPath $target -Recurse -ErrorAction Stop'],
+      cleanupOptions = { encoding: 'utf8', env: { ...process.env, AZRAEL_OWNED_FIXTURE: root, AZRAEL_OWNED_FIXTURE_PARENT: fixtures } };
+    let result = spawnSync('pwsh', cleanupArgs, cleanupOptions);
+    // Windows app execution aliases can launch even when existsSync is false.
+    if (result.error?.code === 'ENOENT' && installedPowerShell) result = spawnSync(installedPowerShell, cleanupArgs, cleanupOptions);
+    assert.equal(result.status, 0, result.error?.message || result.stderr || 'Fixture cleanup failed'); assert.equal(fs.existsSync(root), false);
   }
 });

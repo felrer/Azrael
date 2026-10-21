@@ -150,7 +150,7 @@ async function build(options) {
   validateToolIdentity(run(bun, ["--eval", `console.log(${identityExpression})`], work, "bun-platform"), identity, "Selected Bun");
   if (s["code-mode-host"]) validateExecutableHeader(path.join(input, "tools", "code-mode-host" + plan.descriptor.executableSuffix), identity);
   const rust = path.join(work, "engine/codex-rs");
-  const cargoArgs = ["build", "--release", "--locked", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
+  const cargoArgs = ["build", "--release", "--locked", "--no-default-features", "--target", identity.target, "--target-dir", s["target-directory"], "-p", "codex-app-server", "--bin", "azrael", "-p", "codex-app-server-client", "--bin", "azrael-bridge"];
   if (!s["code-mode-host"]) cargoArgs.push("-p", "codex-code-mode-host", "--bin", "codex-code-mode-host");
   const ownedCargo = managedCargoInvocation(node, frozenProject, s["target-directory"], cargoArgs);
   run(ownedCargo.executable, ownedCargo.args, rust, "cargo-engine", ownedCargo.env);

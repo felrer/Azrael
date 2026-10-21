@@ -82,6 +82,7 @@ pub use request_permissions::RequestPermissionsHandler;
 pub use request_plugin_install::RequestPluginInstallHandler;
 pub use request_user_input::RequestUserInputHandler;
 pub use request_user_input_async::RequestUserInputAsyncHandler;
+pub use request_user_input_async::WithdrawUserQuestionsHandler;
 pub(crate) use root_resume::RootResumeHandler;
 pub(crate) use work_completion::WorkCompletionHandler;
 pub use send_message_to_user_async::SendMessageToUserAsyncHandler;

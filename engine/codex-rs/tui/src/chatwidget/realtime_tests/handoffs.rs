@@ -185,6 +185,7 @@ async fn delegated_async_question_stays_local_and_expires_when_its_turn_ends() {
         text: "Which option?".into(),
         phase: Some(MessagePhase::FinalAnswer),
         questions: Some(vec![AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which option?".into(),
             options: None,
         }]),

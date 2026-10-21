@@ -26,7 +26,7 @@ test('settings host updates govern a separate Window host while Computer Use is 
   assert.deepEqual(approvals.getPersistentAppApprovals().approvedApps, []);
   await update({ stage4Enabled: false, windowUseAllowAll: true });
   assert.equal(require('./use-control-settings.cjs').createSettingsOwner(home).getSettings().stage4Enabled, false);
-  const native = { registerProvider() { return { dispose() {} }; } }; control.attach(native, () => {});
+  const native = { registerProvider() { return { dispose() {} }; } }; require('./window-approval-engine-fixture.cjs').attachApprovalEngine(control,native,()=>{});
   const stageCards=[];
   control.registerApprovalUI(native,envelope=>{
     if(envelope.type!=='mcp-request')return true;

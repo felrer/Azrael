@@ -6,7 +6,10 @@ const test = require("node:test");
 const pm = require("node:vm");
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { rewriteJavaScript, transformAsset } = require("./namespace-azrael-host.cjs");
-const { ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE } = require("./inject-account-switch-queue.cjs");
+const { ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
+const { QUESTION_QUEUE_ASSETS, QUESTION_QUEUE_PRESENTATION_ASSET, QUESTION_QUEUE_CORE_ASSET, QUESTION_QUEUE_LIST_ASSET, injectQuestionQueue, questionQueueEditsFor } = require("./inject-question-queue.cjs");
+const { injectQueueConsumption } = require("./inject-queue-consumption.cjs");
+const { injectQueuedCompactionList } = require("./inject-queued-compaction.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ??
   path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), QUEUE_REFRESH_ASSET);
@@ -78,6 +81,10 @@ test("production repeat validates the exact owned presentation prelude and rejec
   const transformed = transformAsset(original, QUEUE_REFRESH_ASSET, filename, ts).text;
   assert.equal(transformAsset(transformed, QUEUE_REFRESH_ASSET, filename, ts).asset, null);
   assert.equal(injectQueueRefresh(transformed).text, transformed);
+  const questionMarker = `/*azrael-question-queue-${QUESTION_QUEUE_ASSETS.indexOf(QUESTION_QUEUE_PRESENTATION_ASSET)}-v1*/`;
+  const questionEdits = questionQueueEditsFor(QUESTION_QUEUE_PRESENTATION_ASSET);
+  assert.ok(transformed.includes(questionMarker));
+  assert.ok(transformed.includes("pendingApprovalCount"));
   for (const damaged of [
     transformed.replace(ACCOUNT_QUEUE_PRESENTATION_PRELUDE, ACCOUNT_QUEUE_PRESENTATION_MARKER),
     transformed.replace("let __azraelPending=false", "let __azraelPending=true"),
@@ -86,5 +93,27 @@ test("production repeat validates the exact owned presentation prelude and rejec
     transformed + ACCOUNT_QUEUE_PRESENTATION_PREFIX,
     transformed + ACCOUNT_QUEUE_PRESENTATION_MARKER,
     transformed.replace("o.delete(e),s.delete(e)", "o.delete(e)"),
+    transformed.replace(questionMarker, ""),
+    transformed + questionMarker,
+    ...questionEdits.flatMap(([anchor, replacement]) => [
+      transformed.replace(replacement, anchor),
+      transformed + replacement,
+    ]),
+    transformed.replace("__azraelCount=__azraelPendingResponseCounts(r)", "__azraelCount=__azraelPendingQuestionCount(r)"),
   ]) assert.throws(() => injectQueueRefresh(damaged), /queue-refresh/);
+});
+
+test("account validation retains exact question and approval boundaries in core and list composition", () => {
+  for (const asset of [QUESTION_QUEUE_CORE_ASSET, QUESTION_QUEUE_LIST_ASSET]) {
+    const source = hs.readFileSync(path.join(path.dirname(path.dirname(path.dirname(filename))), asset), "utf8");
+    const prepared = asset === QUESTION_QUEUE_CORE_ASSET ? injectQueueConsumption(source).text : injectQueuedCompactionList(source).text;
+    const account = injectAccountSwitchQueue(prepared, asset).text;
+    const composed = injectQuestionQueue(account, asset).text;
+    assert.deepEqual(injectAccountSwitchQueue(composed, asset), { text: composed, count: 0 });
+    assert.deepEqual(injectQuestionQueue(composed, asset), { text: composed, count: 0 });
+    const marker = `/*azrael-question-queue-${QUESTION_QUEUE_ASSETS.indexOf(asset)}-v1*/`;
+    for (const damaged of [composed.replace(marker, ""), composed + marker,
+      ...questionQueueEditsFor(asset).flatMap(([anchor, replacement]) => [composed.replace(replacement, anchor), composed + replacement]),
+    ]) assert.throws(() => injectAccountSwitchQueue(damaged, asset), /question queue/);
+  }
 });

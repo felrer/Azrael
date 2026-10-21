@@ -263,15 +263,16 @@ mod plugin_selection;
 mod provider_handoff;
 pub(crate) use provider_handoff::prepare as prepare_provider_handoff;
 mod accepted_user_inputs;
+pub(crate) mod host_approvals;
+pub(crate) mod parent_request;
+mod parent_response_wait;
 mod realtime_history;
 mod request_budget;
-mod retained_context;
 mod response_preparation;
+mod retained_context;
 mod review;
 mod rollout_budget;
 mod rollout_reconstruction;
-pub(crate) mod parent_request;
-mod parent_response_wait;
 mod root_resume;
 pub(crate) mod root_resume_timing;
 #[allow(clippy::module_inception)]
@@ -287,6 +288,7 @@ pub(crate) mod turn;
 pub(crate) mod turn_context;
 mod turn_input;
 mod turn_suspension;
+pub(crate) mod user_questions;
 pub(crate) mod work_completion;
 mod world_state;
 use self::code_mode_warning::unsupported_code_mode_warning;
@@ -1588,7 +1590,8 @@ impl Session {
         let model = config.model.as_deref().unwrap_or_default();
         let profile = step_context::resolve_harness_profile(&config, model)
             .expect("configuration validates harness profiles before session admission");
-        self.get_harness_base_instructions(&profile, &config, model).await
+        self.get_harness_base_instructions(&profile, &config, model)
+            .await
     }
 
     pub(crate) async fn get_step_base_instructions(&self, step: &StepContext) -> BaseInstructions {
@@ -1596,7 +1599,8 @@ impl Session {
             &step.harness_profile,
             &step.turn.config,
             &step.settings.model_info.slug,
-        ).await
+        )
+        .await
     }
 
     pub(crate) async fn get_harness_base_instructions(
@@ -1606,16 +1610,27 @@ impl Session {
         model: &str,
     ) -> BaseInstructions {
         let mut instructions = self.get_base_instructions().await;
-        let custom = (!matches!(instructions.provenance, Some(BaseInstructionsProvenance::Model { .. })))
-            .then_some(instructions.text.as_str());
+        let custom = (!matches!(
+            instructions.provenance,
+            Some(BaseInstructionsProvenance::Model { .. })
+        ))
+        .then_some(instructions.text.as_str());
         instructions.text = codex_prompts::compose_harness_instructions(
-            &profile.prompt_variant, profile.behavior_template.as_deref(), profile.uses_claude_tools(), custom,
+            &profile.prompt_variant,
+            profile.behavior_template.as_deref(),
+            profile.uses_claude_tools(),
+            custom,
         );
         if model.starts_with("api/") {
             instructions.text = codex_prompts::project_api_base_instructions(&instructions.text);
         }
-        if !config.update_plan_enabled && config.model_catalog.is_none()
-            && matches!(instructions.provenance, Some(BaseInstructionsProvenance::Model { .. })) {
+        if !config.update_plan_enabled
+            && config.model_catalog.is_none()
+            && matches!(
+                instructions.provenance,
+                Some(BaseInstructionsProvenance::Model { .. })
+            )
+        {
             instructions.text = codex_prompts::without_update_plan_instructions(&instructions.text);
         }
         instructions
@@ -2600,6 +2615,7 @@ impl Session {
     }
 
     async fn send_event_raw_with_persistence(&self, event: Event, persist: bool) {
+        self.observe_user_question_event(&event.msg);
         let flush_guardian_completion = persist
             && matches!(event.msg, EventMsg::TurnComplete(_))
             && self.is_private_guardian_reviewer().await;
@@ -3960,7 +3976,8 @@ impl Session {
             tool_router,
             extension_data,
         ) = prepared_tools??;
-        let harness_profile = step_context::resolve_harness_profile(&turn_context.config, &settings.model_info.slug)?;
+        let harness_profile =
+            step_context::resolve_harness_profile(&turn_context.config, &settings.model_info.slug)?;
         Ok(Arc::new(StepContext {
             preempt: turn_context
                 .config
@@ -5066,8 +5083,11 @@ impl Session {
             let mut state = self.state.lock().await;
             let (mut info, rate_limits) = state.token_info_and_rate_limits();
             if let Some(info) = info.as_mut() {
-                info.response_performance = Some(turn_context.turn_timing_state
-                    .response_performance(&turn_context.sub_id));
+                info.response_performance = Some(
+                    turn_context
+                        .turn_timing_state
+                        .response_performance(&turn_context.sub_id),
+                );
                 // Keep attach/reload replay consistent with live notifications.
                 state.set_token_info(Some(info.clone()));
             }
@@ -5161,6 +5181,13 @@ impl Session {
                 vec![ResponseItemEnvelope {
                     item: response_item,
                     metadata: metadata.acceptance_order.map(|order| CodexHarnessMetadata {
+                        answered_async_question_ids: if metadata.origin
+                            == codex_history::UserInputOrigin::Queue
+                        {
+                            Vec::new()
+                        } else {
+                            user_questions::reply_ids_from_content(input)
+                        },
                         user_input_order: Some(order),
                         ..Default::default()
                     }),
@@ -5237,6 +5264,10 @@ impl Session {
     pub async fn interrupt_task(self: &Arc<Self>) {
         info!("interrupt received: abort current task, if any");
         let _reservation_guard = self.root_resume_submission_guard().await;
+        if let Err(error) = self.withdraw_host_approvals_locked(None, None).await {
+            warn!(%error, "could not persist host approval cancellation on explicit interrupt");
+            return;
+        }
         let parked = self.parked_root_context();
         if let Err(error) = self.supersede_root_resume().await {
             warn!(%error, "could not cancel root reservation on interrupt");

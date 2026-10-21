@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "ownerToken": {
+      "type": "string"
+    },
+    "reason": {
+      "type": "string"
+    },
+    "requestId": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "threadId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ownerToken",
+    "reason",
+    "threadId"
+  ],
+  "title": "ThreadApprovalWithdrawParams",
+  "type": "object"
+}

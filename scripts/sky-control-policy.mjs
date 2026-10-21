@@ -9,7 +9,15 @@ const identity = value => typeof value === 'string' && /^[A-Za-z0-9_-]{1,128}$/.
 export function trustedDesktopMetadata() {
   const runtime = Object.getOwnPropertyDescriptor(globalThis, 'nodeRepl');
   if (!runtime || runtime.configurable || runtime.writable !== false || !runtime.value) throw new Error('Trusted NodeRepl runtime is required');
-  const descriptor = Object.getOwnPropertyDescriptor(runtime.value, 'requestMeta');
+  let owner = runtime.value;
+  let descriptor = Object.getOwnPropertyDescriptor(owner, 'requestMeta');
+  // Native trusted services expose the frozen bridge through a frozen child.
+  // Retain the nearest descriptor so a shadow cannot select another identity.
+  while (!descriptor && Object.isFrozen(owner)) {
+    owner = Object.getPrototypeOf(owner);
+    if (!owner || !Object.isFrozen(owner)) break;
+    descriptor = Object.getOwnPropertyDescriptor(owner, 'requestMeta');
+  }
   if (!descriptor || descriptor.configurable || typeof descriptor.get !== 'function' || descriptor.set) throw new Error('Trusted NodeRepl metadata is required');
   const meta = descriptor.get.call(runtime.value), turn = meta?.['x-codex-turn-metadata'];
   if (!meta || !Object.isFrozen(meta) || !turn || !Object.isFrozen(turn) || !identity(turn.thread_id) || !identity(turn.turn_id) || turn.sandbox_mode !== 'danger-full-access' || turn.sandbox !== 'none') throw new Error('Trusted active unsandboxed NodeRepl turn is required');

@@ -54,6 +54,8 @@ Status: `current` for the script-level cache/log integration verified on Windows
 
 설치·준비 도구를 직접 참조하는 companion 캐시는 해당 버전의 소비 참조로 보호한다. 공유 cache owner는 등록된 모든 project의 producer registry를 검사하며, 어느 하나의 활성·잔존 소비 참조나 조회 불확실성도 삭제를 차단한다. 복사되어 독립적으로 읽을 수 있는 provider payload는 캐시의 영구 소비자로 취급하지 않는다. 소비 record는 전체 구성원의 실제 부재를 검증한 finalize 이후 해제한다.
 
+과거 출력과 lifecycle catalog가 함께 사라진 등록은 기본 `inspect`/`retire` 경로에서 계속 차단한다. 명시적 `inspect-legacy`/`retire-legacy` 경로는 등록된 project의 모든 `artifacts`와 별도 생성 출력의 부재, 실행·설치·복구 소비 해제 및 사용자 정리 권한을 검증한 뒤 등록만 해제한다. project·registry identity, 외부 증거와 권한 기록의 SHA256을 lease 아래 다시 확인한다. 원래 소비 목록은 `unavailable`, 실행 결과는 미확인 상태로 남긴다. 빈 catalog를 만들어 대체하거나 이 동작에서 source·payload·cache를 삭제하지 않는다. 이후 cache 삭제에는 기존 실제 소비자 검사와 별도 삭제 결정이 필요하다. 구현 owner와 필수 검사는 feature inventory의 `tool.project-maintenance`에 연결한다. 이 경로와 기존 모듈 캐시 회귀 검사는 CR-01에서 Windows x64 PowerShell 7.6.7로 통과했다. 다른 OS와 제품 빌드 검증은 별도 범위다.
+
 검토된 이전 버전 정리에서 module cache 정리를 함께 선택하면, 기존 설치·직전 복구·실행·shortcut 보호 아래 버전 payload와 그 원시 로그를 먼저 정리하고, 이어 cache owner의 lease 아래 더 이상 소비자가 없는 모듈 key와 그 로그를 정리한다. 성공·시간 경과만으로 버전 삭제를 선택하지 않는다. legacy 미등록 cache는 소유·소비 근거를 확인하기 전 보존한다. 모듈 정리는 산출물을 먼저 삭제하고 로그, cache/owner receipt, 빈 root 순서로 진행한다. 산출물 삭제가 실패하면 로그와 소유 기록을 남기고, 로그 삭제가 실패하면 소유 기록을 남겨 재시도할 수 있게 한다. 부분 실패는 실제 잔여와 미시도 로그를 기록하며 전체 완료로 보고하지 않는다.
 
 ### 생성물 소유와 삭제 검토

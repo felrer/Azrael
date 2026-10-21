@@ -1,24 +1,37 @@
 [package]
 name = "codex-app-server"
+autotests = false
 version.workspace = true
 edition.workspace = true
 license.workspace = true
 
+[features]
+integration-tests = []
+
+[[test]]
+name = "all"
+path = "tests/all.rs"
+required-features = ["integration-tests"]
+
 [[bin]]
 name = "codex-app-server"
 path = "src/main.rs"
+test = false
 
 [[bin]]
 name = "azrael"
 path = "src/bin/azrael.rs"
+test = false
 
 [[bin]]
 name = "codex-app-server-test-notify-capture"
 path = "src/bin/notify_capture.rs"
+test = false
 
 [[bin]]
 name = "exec-server"
 path = "src/bin/exec_server.rs"
+test = false
 
 [lib]
 name = "codex_app_server"

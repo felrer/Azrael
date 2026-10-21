@@ -259,11 +259,14 @@ function finalizeUnlocked(root, id, retirement) {
       if (record.members.some(member => overlap(member.path, evidence)) || inside(registry(root), evidence)) throw new Error("Retirement evidence must survive the retired group and registry");
       const stat = fs.lstatSync(evidence);
       if (!stat.isFile()) throw new Error("Readable retirement evidence file required");
-      retirementEvidence = { path: evidence, sha256: sha(fs.readFileSync(evidence)), reason: retirement.reason, original_state: record.state, original_membership_complete: record.membership_complete };
+      const evidenceHash = sha(fs.readFileSync(evidence));
+      if (retirement.evidence_sha256 !== undefined && (!/^[a-f0-9]{64}$/.test(retirement.evidence_sha256) || retirement.evidence_sha256 !== evidenceHash)) throw new Error("Retirement evidence SHA256 changed");
+      retirementEvidence = { path: evidence, sha256: evidenceHash, reason: retirement.reason, original_state: record.state, original_membership_complete: record.membership_complete };
     }
     if (!retirementEvidence && !cleanupReady(record)) blockers.push(`lifecycle-state:${record.state}`);
     if (!retirementEvidence && !record.membership_complete) blockers.push("incomplete-membership");
     if (remaining.length || references.length || blockers.length) return { id, status: "retained", remaining, references, blockers, registryPath: filename };
+    if (retirementEvidence && sha(fs.readFileSync(checked(root, retirementEvidence.path))) !== retirementEvidence.sha256) throw new Error("Retirement evidence changed before finalization");
     // Metadata reconciliation follows verified absence, never a producer state label.
     fs.unlinkSync(filename);
     return { id, status: "finalized", remaining: [], references: [], blockers: [], registryPath: filename,
@@ -279,11 +282,14 @@ function main(argv = process.argv.slice(2)) {
     else if (key === "--reference") { const split = value.indexOf("="); if (split < 1 || split === value.length - 1) throw new Error("Expected lifecycle-id=reason"); references.push({ id: value.slice(0, split), reason: value.slice(split + 1) }); }
     else if (key === "--candidate") paths.push(value);
     else if (key === "--protected") protectedPaths.push(value);
-    else if (["--project-root", "--id", "--kind", "--owner", "--version", "--state", "--report", "--membership-complete", "--limit", "--offset", "--request-file", "--generated", "--protection-known", "--reference-kind"].includes(key) && !Object.hasOwn(options, key.slice(2))) options[key.slice(2)] = value;
+    else if (["--project-root", "--id", "--kind", "--owner", "--version", "--state", "--report", "--membership-complete", "--limit", "--offset", "--producer-stopped-verified", "--evidence-ref", "--evidence-sha256", "--reason", "--request-file", "--generated", "--protection-known", "--reference-kind"].includes(key) && !Object.hasOwn(options, key.slice(2))) options[key.slice(2)] = value;
     else throw new Error(`Unknown or duplicate option ${key}`);
   }
   if (!options["project-root"] || !path.isAbsolute(options["project-root"])) throw new Error("--project-root ABS required");
   const root = options["project-root"];
+  const retirementKeys = ["producer-stopped-verified", "evidence-ref", "evidence-sha256", "reason"];
+  const retirementRequested = retirementKeys.some(key => Object.hasOwn(options, key));
+  if (retirementRequested && !["finalize", "reconcile"].includes(action)) throw new Error("Retirement options require finalize or reconcile");
   if (["close", "release"].includes(action)) {
     const requestFile = checked(root, options["request-file"]);
     const request = JSON.parse(fs.readFileSync(requestFile, "utf8"));
@@ -305,7 +311,12 @@ function main(argv = process.argv.slice(2)) {
   }
   if (action === "plan") return planCleanup(root, { paths, protectedPaths, reportPath: options.report });
   if (action === "register") return registerRequest(root, options.id);
-  if (action === "finalize" || action === "reconcile") return finalize(root, options.id);
+  if (action === "finalize" || action === "reconcile") {
+    if (!retirementRequested) return finalize(root, options.id);
+    if (retirementKeys.some(key => !Object.hasOwn(options, key)) || options["producer-stopped-verified"] !== "true" ||
+        !path.isAbsolute(options["evidence-ref"]) || !/^[a-f0-9]{64}$/.test(options["evidence-sha256"]) || !options.reason.trim()) throw new Error("Explicit verified retirement, absolute evidence path, SHA256 and reason required");
+    return finalize(root, options.id, { producer_stopped_verified: true, evidence_ref: options["evidence-ref"], evidence_sha256: options["evidence-sha256"], reason: options.reason });
+  }
   if (action === "catalog") {
     const limit = options.limit === undefined ? 50 : Number(options.limit), offset = options.offset === undefined ? 0 : Number(options.offset);
     if (!Number.isInteger(limit) || limit < 1 || limit > 200 || !Number.isInteger(offset) || offset < 0) throw new Error("Catalog limit 1..200 and nonnegative offset required");

@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "definitions": {
+    "HostApprovalDecision": {
+      "enum": [
+        "accept",
+        "decline",
+        "cancel"
+      ],
+      "type": "string"
+    },
+    "HostApprovalPersistence": {
+      "enum": [
+        "session",
+        "always"
+      ],
+      "type": "string"
+    }
+  },
+  "properties": {
+    "decision": {
+      "$ref": "#/definitions/HostApprovalDecision"
+    },
+    "ownerToken": {
+      "type": "string"
+    },
+    "persistence": {
+      "anyOf": [
+        {
+          "$ref": "#/definitions/HostApprovalPersistence"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "requestId": {
+      "type": "string"
+    },
+    "resume": {
+      "type": "boolean"
+    },
+    "scopeKey": {
+      "type": "string"
+    },
+    "threadId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "decision",
+    "ownerToken",
+    "requestId",
+    "resume",
+    "scopeKey",
+    "threadId"
+  ],
+  "title": "ThreadApprovalResolveParams",
+  "type": "object"
+}

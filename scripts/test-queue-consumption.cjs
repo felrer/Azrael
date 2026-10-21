@@ -5,10 +5,13 @@ const path = require("node:path");
 const test = require("node:test");
 const vm = require("node:vm");
 const { QUEUE_CONSUMPTION_ASSET, QUEUE_CONSUMPTION_MARKER, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
+const { injectQuestionQueue } = require("./inject-question-queue.cjs");
+const { injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const ts = require("../extensions/azrael-ex/node_modules/typescript");
 const filename = path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? process.env.AZRAEL_PINNED_HOST_ROOT ?? path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname, "../artifacts/upstream-ui/26.1007.21434")), QUEUE_CONSUMPTION_ASSET);
 const original = fs.readFileSync(filename, "utf8");
 const patched = injectQueueConsumption(original).text;
+const questionPatched = injectQuestionQueue(injectAccountSwitchQueue(patched, QUEUE_CONSUMPTION_ASSET).text, QUEUE_CONSUMPTION_ASSET).text;
 const tick = () => new Promise(resolve => setImmediate(resolve));
 const message = id => ({ id, text: "identical input", context: {} });
 const ids = items => Array.from(items, item => item.id);
@@ -41,6 +44,7 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
   });
   let state = { thread: initial }, role = { role: "owner" }, callbacks, broadcastHandler;
   let sendFailure, prepareFailure, prepareHook, activeTurn = null, ready = false, canSend = true, queueMode = "steer";
+  let pendingQuestions = false, questionStateFailure;
   const writes = [], loads = [], events = [], sends = [], warnings = [], blockedLocks = new Set();
   const execution = {
     subscribe: handlers => { callbacks = handlers; return () => events.push("execution-disposed"); },
@@ -61,6 +65,8 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     coordination: { registerBroadcastHandler: handler => { broadcastHandler = handler; return () => events.push("broadcast-disposed"); }, broadcast: async () => {} },
     logger: { error: (...args) => warnings.push(args), warning: (...args) => warnings.push(args) },
     submissionHost: {
+      accountChangePending: async () => false,
+      hasPendingQuestions: async () => { events.push("question-check"); if (questionStateFailure) throw questionStateFailure; return pendingQuestions; },
       needsResume: () => false, getActiveTurnId: () => activeTurn, hasPendingTurnStart: () => false,
       canStartAfterSteerError: () => false, hasFinalAnswer: () => false,
       start: async (_thread, input, _onMessageAdded, beforeSend) => { await beforeSend?.(); sends.push(input.id); events.push(`accepted:${input.id}`); if (sendFailure) throw sendFailure; return "turn"; },
@@ -80,8 +86,31 @@ function fixture(source, initial = [message("accepted"), message("next")], histo
     broadcast: (items, thread = "thread") => broadcastHandler({ params: { conversationId: thread, messages: items }, sourceClientId: "owner-client" }),
     setState: value => { state = value; }, setFailure: value => { sendFailure = value; },
     setCanSend: value => { canSend = value; }, setActive: value => { activeTurn = value; }, setReady: value => { ready = value; },
+    setQuestions: value => { pendingQuestions = value; }, setQuestionFailure: value => { questionStateFailure = value; },
   };
 }
+
+test("legacy queue waits for questions without acquiring a send lock, then resumes after removal", async () => {
+  const f = fixture(questionPatched); await f.queue.executionReady; await f.queue.loadMessages("thread"); f.setQuestions(true); f.setReady(true); f.changed(); await tick();
+  assert.ok(f.events.includes("question-check")); assert.deepEqual(f.sends, []);
+  assert.ok(!f.events.some(value => value.startsWith("lock-acquired")));
+  assert.deepEqual(ids(f.queue.readMessages("thread")), ["accepted", "next"]);
+  f.setQuestions(false); f.changed(); await tick();
+  assert.deepEqual(f.sends, ["accepted"]);
+  f.setReady(false); for (const write of f.writes) write.resolve(); await tick(); f.queue.dispose();
+});
+
+test("question-state query failure retains legacy queued messages without sending", async () => {
+  const f = fixture(questionPatched); await f.queue.executionReady; await f.queue.loadMessages("thread"); f.setQuestionFailure(Error("state unavailable")); f.setReady(true); f.changed(); await tick();
+  assert.deepEqual(f.sends, []); assert.deepEqual(ids(f.queue.readMessages("thread")), ["accepted", "next"]);
+  assert.ok(f.warnings.length > 0); f.queue.dispose();
+});
+
+test("explicit legacy send-now retains user authority while questions are pending", async () => {
+  const f = fixture(questionPatched); f.setQuestions(true);
+  const sending = f.send(); await finishWrite(f); assert.equal((await sending).status, "sent");
+  assert.deepEqual(f.sends, ["accepted"]); assert.ok(!f.events.includes("question-check")); f.queue.dispose();
+});
 
 async function finishWrite(f) {
   await tick(); assert.equal(f.writes.length, 1); f.writes[0].resolve(); await tick();

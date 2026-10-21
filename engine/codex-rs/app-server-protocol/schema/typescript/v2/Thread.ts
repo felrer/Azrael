@@ -12,6 +12,9 @@ import type { ThreadStatus } from "./ThreadStatus";
 import type { Turn } from "./Turn";
 
 export type Thread = {/**
+ * Current live or latest saved thread-owned automatic compaction setting.
+ */
+autoCompactionEnabled?: boolean | null, /**
  * Identifier for this thread. Codex-generated thread IDs are UUIDv7.
  */
 id: string, /**

@@ -488,6 +488,7 @@ fn question_wrapped_other_shares_the_text_indent() {
 
 fn question(title: &str, options: Option<Vec<String>>) -> AsyncUserInputQuestion {
     AsyncUserInputQuestion {
+        withdrawn: false,
         title: title.into(),
         options,
     }

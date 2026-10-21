@@ -3,6 +3,7 @@ const test = require('node:test'), assert = require('node:assert/strict');
 const fs = require('node:fs/promises'), path = require('node:path'), os = require('node:os');
 const { EventEmitter } = require('node:events');
 const { createHost } = require('./window-control-host.cjs');
+const { attachApprovalEngine } = require('./window-approval-engine-fixture.cjs');
 const ids = ['12345678-1234-1234-1234-123456789abc', '22345678-1234-1234-1234-123456789abc'];
 async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
   const home = await fs.mkdtemp(path.join(os.tmpdir(), 'azrael-window-use-host-'));
@@ -15,7 +16,7 @@ async function fixture(t, delayed = false, occupancyDirectory, workspaceFile) {
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => { releaseListen = ready; if (!delayed) ready(); }; server.close = () => {}; return server; },
   });
   const native = { registerProvider() { return { dispose() {} }; } };
-  host.attach(native, () => {});
+  attachApprovalEngine(host, native);
   host.registerApprovalUI(native, envelope => {
     if (envelope.type === 'mcp-request') assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);
   });

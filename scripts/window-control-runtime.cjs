@@ -6,6 +6,7 @@ const REQUIRED = ['azrael-window-control.exe', 'window-control-mcp.cjs', 'window
 const STAGED_MODULES = ['window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs'];
 const HOST_MODULES = [...STAGED_MODULES, 'window-desktop-authority.cjs'];
 const CHILD_PROBE = 'child-session/probe.ps1', CHILD_EXECUTABLE = 'child-session/windows-child-session.exe';
+const CHILD_LOGOFF = ['request-window-child-logoff.ps1', 'window-child-session-cleanup.cjs'];
 const requiredFiles = (platform, unified = false) => [platform === 'linux' ? 'azrael-window-control' : REQUIRED[0], ...REQUIRED.slice(1),
   ...(unified ? [...STAGED_MODULES, ...(platform === 'linux' ? [] : [CHILD_PROBE])] : [])];
 const digest = value => typeof value === 'string' && /^[a-f0-9]{64}$/.test(value);
@@ -39,6 +40,10 @@ function verifyRuntime(directory) {
     if (manifest.platform !== 'win32' || manifest.windowUseGuidanceVersion !== 1 || child.executable !== CHILD_EXECUTABLE || child.probeScript !== CHILD_PROBE || !digest(child.sha256) ||
         !seen.has(CHILD_EXECUTABLE) || !seen.has(CHILD_PROBE) || manifest.files.find(entry => entry.path === CHILD_EXECUTABLE)?.sha256 !== child.sha256) throw new Error('Invalid Windows child-session helper provenance');
     childSession = { executable: path.join(directory, CHILD_EXECUTABLE), sha256: child.sha256, probeScript: path.join(directory, CHILD_PROBE) };
+    if (child.logoffCleanupVersion !== undefined) {
+      if (child.logoffCleanupVersion !== 1 || CHILD_LOGOFF.some(rel => !seen.has(rel))) throw new Error('Invalid child logoff cleanup closure');
+      childSession.logoffScript = path.join(directory, CHILD_LOGOFF[0]);
+    }
   } else if (seen.has(CHILD_EXECUTABLE)) throw new Error('Undeclared Windows child-session helper');
   return { directory, executable: path.join(directory, required[0]), mcpScript: path.join(directory, required[1]), manifestSha256: hash(bytes), manifest, ...(childSession ? { childSession } : {}) };
 }
@@ -101,11 +106,12 @@ function stageRuntime({ sourceRoot, executable, provenance, scriptDirectory, gui
   for (const rel of STAGED_MODULES) inputs.push([rel, checked(scriptDirectory, rel)]);
   if (platform === 'win32') inputs.push([CHILD_PROBE, checked(path.resolve(sourceRoot, '../windows-child-session'), 'probe.ps1')]);
   if (childSessionExecutable) inputs.push([CHILD_EXECUTABLE, checked(path.dirname(childSessionExecutable), path.basename(childSessionExecutable))]);
+  if (childSessionExecutable) for (const rel of CHILD_LOGOFF) inputs.push([rel, checked(scriptDirectory, rel)]);
   for (const rel of WINDOW_GUIDES) inputs.push([rel, checked(path.dirname(path.resolve(guidance)), rel.slice('docs/'.length))]);
   const files = inputs.map(([rel, source]) => { const bytes = fs.readFileSync(source); return { path: relative(rel), sha256: hash(bytes), bytes: bytes.length, source: path.resolve(source) }; });
   fs.mkdirSync(destination, { recursive: true });
   for (const entry of files) { const target = path.join(destination, entry.path); fs.mkdirSync(path.dirname(target), { recursive: true }); fs.copyFileSync(entry.source, target); if (entry.path === requiredFiles(platform)[0]) fs.chmodSync(target, 0o755); }
-  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', windowUseGuidanceVersion: 1, platform, ...(childSessionExecutable ? { childSession: { executable: CHILD_EXECUTABLE, probeScript: CHILD_PROBE, sha256: files.find(entry => entry.path === CHILD_EXECUTABLE).sha256 } } : {}), source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
+  fs.writeFileSync(path.join(destination, 'manifest.json'), JSON.stringify({ schema: 1, kind: 'azrael-window-control', windowUseGuidanceVersion: 1, platform, ...(childSessionExecutable ? { childSession: { executable: CHILD_EXECUTABLE, probeScript: CHILD_PROBE, sha256: files.find(entry => entry.path === CHILD_EXECUTABLE).sha256, logoffCleanupVersion: 1 } } : {}), source: { directory: path.resolve(sourceRoot), sourceSha256, executableSha256, builder: platform === 'linux' ? 'python3 -m py_compile' : 'cargo --locked --release' }, files }, null, 2) + '\n');
   return verifyRuntime(destination);
 }
 module.exports = { sourceFingerprint, fingerprintNativeSource: sourceFingerprint, stageRuntime, verifyRuntime, verifyRelease, verifyPreparedHost };

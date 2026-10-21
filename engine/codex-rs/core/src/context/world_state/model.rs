@@ -10,16 +10,26 @@ use crate::context::ModelSwitchInstructions;
 #[derive(Clone, Debug)]
 pub(crate) struct ModelInstructionsState {
     model: String,
+    provider: String,
     previous_model: Option<String>,
+    previous_provider: Option<String>,
     instructions: String,
     initial_behavior_matches: bool,
 }
 
 impl ModelInstructionsState {
-    pub(crate) fn new(model: &str, previous_model: Option<&str>, instructions: String) -> Self {
+    pub(crate) fn new(
+        model: &str,
+        provider: &str,
+        previous_model: Option<&str>,
+        previous_provider: Option<&str>,
+        instructions: String,
+    ) -> Self {
         Self {
             model: model.to_string(),
+            provider: provider.to_string(),
             previous_model: previous_model.map(str::to_string),
+            previous_provider: previous_provider.map(str::to_string),
             instructions,
             initial_behavior_matches: false,
         }
@@ -35,6 +45,7 @@ impl ModelInstructionsState {
     fn snapshot(&self) -> ModelInstructionsSnapshot {
         ModelInstructionsSnapshot {
             model: self.model.clone(),
+            provider: Some(self.provider.clone()),
             instructions: WorldStateHash::from_fragment(&ModelSwitchInstructions::new(
                 self.instructions.clone(),
             )),
@@ -45,6 +56,8 @@ impl ModelInstructionsState {
 #[derive(Clone, Debug, serde::Serialize, serde::Deserialize)]
 pub(crate) struct ModelInstructionsSnapshot {
     model: String,
+    #[serde(default)]
+    provider: Option<String>,
     instructions: WorldStateHash,
 }
 
@@ -62,19 +75,21 @@ impl WorldStateSection for ModelInstructionsState {
     ) -> SectionTransition<Self::Snapshot> {
         let current = self.snapshot();
         let instructions_changed = match previous {
-            PreviousSectionState::Known(previous) => previous.instructions != current.instructions,
-            // Model-only legacy snapshots are reconstructed as Unknown at the section
-            // deserialization boundary. Preserve their existing conservative fallback.
-            PreviousSectionState::Unknown => self
-                .previous_model
-                .as_deref()
-                .is_some_and(|previous| previous != self.model),
+            PreviousSectionState::Known(previous) => {
+                previous.provider != current.provider
+                    || previous.instructions != current.instructions
+            }
+            // Legacy snapshots cannot establish the provider that received the behavior.
+            PreviousSectionState::Unknown => true,
             PreviousSectionState::Absent => {
-                !self.initial_behavior_matches
-                    && self
-                        .previous_model
-                        .as_deref()
-                        .is_some_and(|previous| previous != self.model)
+                self.previous_provider
+                    .as_deref()
+                    .is_some_and(|previous| previous != self.provider)
+                    || (!self.initial_behavior_matches
+                        && self
+                            .previous_model
+                            .as_deref()
+                            .is_some_and(|previous| previous != self.model))
             }
         };
 

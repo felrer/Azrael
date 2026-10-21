@@ -652,6 +652,7 @@ fn open_questions(chat: &mut ChatWidget, options: Option<Vec<String>>) {
             delivery: None,
             questions: Some(vec![
                 AsyncUserInputQuestion {
+                    withdrawn: false,
                     title: "First?".into(),
                     options,
                 },
@@ -853,6 +854,7 @@ fn assert_answer(op: Op, expected: &str) {
 
 fn question(title: &str, options: Option<Vec<String>>) -> AsyncUserInputQuestion {
     AsyncUserInputQuestion {
+        withdrawn: false,
         title: title.into(),
         options,
     }

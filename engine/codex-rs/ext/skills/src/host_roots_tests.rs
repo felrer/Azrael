@@ -543,7 +543,24 @@ async fn repo_ancestry_without_project_marker_does_not_walk_parents() {
     fs::create_dir_all(outer.join(".agents/skills")).expect("create outer skills");
     fs::create_dir_all(cwd.join(".agents/skills")).expect("create cwd skills");
 
-    let roots = repo_agents_skill_roots(Some(Arc::clone(&LOCAL_FS)), &stack(Vec::new()), &cwd)
+    // Keep this absent-marker fixture independent of an enclosing checkout.
+    let marker = format!(
+        ".skills-no-project-marker-{}",
+        temp_dir
+            .path()
+            .file_name()
+            .expect("temp directory name")
+            .to_string_lossy()
+    );
+    let config = toml::Value::try_from(serde_json::json!({
+        "project_root_markers": [marker],
+    }))
+    .expect("fixture project markers");
+    let config_stack = stack(vec![ConfigLayerEntry::new(
+        ConfigLayerSource::SessionFlags,
+        config,
+    )]);
+    let roots = repo_agents_skill_roots(Some(Arc::clone(&LOCAL_FS)), &config_stack, &cwd)
         .await
         .into_iter()
         .map(|root| root.path)

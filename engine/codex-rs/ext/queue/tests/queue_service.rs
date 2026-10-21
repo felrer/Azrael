@@ -67,6 +67,100 @@ const TINY_PNG_BYTES: &[u8] = &[
 ];
 const TINY_PNG_DATA_URL: &str = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAAC0lEQVR4nGNgAAIAAAUAAXpeqz8AAAAASUVORK5CYII=";
 
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn async_question_partial_withdrawal_retains_queue_until_last_withdrawal()
+-> anyhow::Result<()> {
+    let server = start_mock_server().await;
+    let call = |response: &str, call: &str, tool: &str, args: serde_json::Value| {
+        responses::sse(vec![
+            responses::ev_response_created(response),
+            responses::ev_function_call_with_namespace(call, "functions", tool, &args.to_string()),
+            responses::ev_completed(response),
+        ])
+    };
+    let requests = responses::mount_sse_sequence(
+        &server,
+        vec![
+            call(
+                "ask",
+                "question-list",
+                "request_user_input_async",
+                serde_json::json!({"questions": [{"title": "First?"}, {"title": "Second?"}]}),
+            ),
+            responses::sse_completed("ask-finished"),
+        ],
+    )
+    .await;
+    let (installed, extensions) = registered_queue_extensions();
+    let test = test_codex()
+        .with_extensions(extensions)
+        .with_model_info_override("gpt-5.2", |model| {
+            model
+                .experimental_supported_tools
+                .push("request_user_input_async".into());
+        })
+        .build_with_auto_env(&server)
+        .await?;
+    let queue = install_registered_queue(&test, installed.as_ref())?;
+    let thread_id = test.session_configured.thread_id;
+    let thread = test.thread_manager.get_thread(thread_id).await?;
+    test.submit_text_turn("Ask the questions.").await?;
+    assert_eq!(thread.pending_question_count(), 2);
+    let output: serde_json::Value = serde_json::from_str(
+        &requests.requests()[1]
+            .function_call_output_text("question-list")
+            .expect("accepted question output"),
+    )?;
+    let ids = output["question_ids"].as_array().expect("question IDs");
+    let partial = responses::mount_sse_sequence(
+        &server,
+        vec![
+            call(
+                "partial",
+                "withdraw-first",
+                "withdraw_user_questions",
+                serde_json::json!({"question_ids": [ids[0]]}),
+            ),
+            responses::sse_completed("partial-finished"),
+        ],
+    )
+    .await;
+    let queued = queue
+        .enqueue(thread_id, user_input("Run after questions are cleared."))
+        .await?;
+    assert_eq!(queue.list(thread_id).await?.len(), 1);
+    assert_eq!(requests.requests().len(), 2);
+    test.submit_text_turn("Withdraw the first question.")
+        .await?;
+    assert_eq!(thread.pending_question_count(), 1);
+    assert_eq!(queue.list(thread_id).await?[0].id, queued.id);
+    assert_eq!(partial.requests().len(), 2);
+    let last = responses::mount_sse_sequence(
+        &server,
+        vec![
+            call(
+                "last",
+                "withdraw-last",
+                "withdraw_user_questions",
+                serde_json::json!({"question_ids": [ids[1]]}),
+            ),
+            responses::sse_completed("last-finished"),
+            responses::sse_completed("queued-finished"),
+        ],
+    )
+    .await;
+    test.submit_text_turn("Withdraw the remaining question.")
+        .await?;
+    wait_for_event_match(test.codex.as_ref(), |event| {
+        matches!(event, EventMsg::TurnComplete(_)).then_some(())
+    })
+    .await;
+    wait_for_queue_empty(queue.as_ref(), thread_id).await?;
+    assert_eq!(thread.pending_question_count(), 0);
+    assert_eq!(last.requests().len(), 3);
+    Ok(())
+}
+
 #[derive(Debug)]
 struct TestAdmission(AtomicBool);
 
@@ -1617,7 +1711,7 @@ async fn queued_compaction_executes_between_user_messages() -> anyhow::Result<()
         &server,
         vec![
             responses::sse(vec![responses::ev_completed_with_tokens(
-                "turn-a", /*total_tokens*/ 20_000,
+                "turn-a", /*total_tokens*/ 80_000,
             )]),
             responses::sse(vec![
                 serde_json::json!({

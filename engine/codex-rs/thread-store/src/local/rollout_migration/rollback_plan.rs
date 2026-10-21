@@ -159,7 +159,11 @@ impl RollbackPlanner {
         self.pending_delivery_boundary = None;
 
         match &line.item {
-            RolloutItem::SessionMeta(_) => self.record_boundaries[index] = None,
+            RolloutItem::SessionMeta(_)
+            | RolloutItem::EventMsg(EventMsg::HostApprovalLedgerUpdated(_)) => {
+                // Consent receipts and revocations survive model-history rollback.
+                self.record_boundaries[index] = None;
+            }
             RolloutItem::ResponseItem(response) => {
                 if matches!(&response.item, ResponseItem::Message { role, .. } if role == "assistant")
                     || matches!(&response.item, ResponseItem::FunctionCall { .. })
@@ -610,4 +614,85 @@ fn user_response_matches_event(content: &[ContentItem], event: &UserMessageEvent
                 .collect::<Vec<_>>()
         && event.local_images.is_empty()
         && event.local_audio.is_empty()
+}
+
+#[cfg(test)]
+mod host_approval_tests {
+    use super::*;
+    use codex_protocol::host_approvals::*;
+    use codex_protocol::protocol::ThreadRolledBackEvent;
+    #[test]
+    fn host_approval_rollback_migration_preserves_terminal_receipts() {
+        let thread_id = codex_protocol::ThreadId::new();
+        let mut record = HostApprovalRecord {
+            request_id: "host:rollback".into(),
+            scope_key: "b".repeat(64),
+            payload: serde_json::json!({}),
+            state: HostApprovalState::Accepted,
+            persistence: Some(HostApprovalPersistence::Session),
+            original_turn_id: Some("turn".into()),
+            original_root_turn_id: Some("turn".into()),
+            waiter_detached: false,
+            resume_state: HostApprovalResumeState::None,
+            resume_turn_id: None,
+        };
+        let update = |request| {
+            RolloutItem::EventMsg(EventMsg::HostApprovalLedgerUpdated(
+                HostApprovalLedgerEvent {
+                    thread_id,
+                    updates: vec![StoredHostApproval {
+                        owner_hash: "a".repeat(64),
+                        request,
+                    }],
+                },
+            ))
+        };
+        let accepted = update(record.clone());
+        record.state = HostApprovalState::Cancelled;
+        record.persistence = None;
+        record.resume_state = HostApprovalResumeState::Cancelled;
+        let items = vec![
+            accepted,
+            RolloutItem::EventMsg(EventMsg::UserMessage(
+                serde_json::from_value(
+                    serde_json::json!({"message":"rolled back", "images":null,"audio":null}),
+                )
+                .unwrap(),
+            )),
+            update(record),
+            RolloutItem::EventMsg(EventMsg::ThreadRolledBack(ThreadRolledBackEvent {
+                num_turns: 1,
+            })),
+        ];
+        let lines: Vec<_> = items
+            .into_iter()
+            .map(|item| RolloutLine {
+                timestamp: "2026-10-19T00:00:00Z".into(),
+                ordinal: None,
+                item,
+            })
+            .collect();
+        let mut planner = RollbackPlanner::new();
+        for line in &lines {
+            planner.observe(line).unwrap();
+        }
+        let plan = planner.finish();
+        let kept: Vec<_> = lines
+            .into_iter()
+            .enumerate()
+            .filter_map(|(index, line)| plan.apply(index, line).unwrap())
+            .collect();
+        assert_eq!(kept.len(), 2);
+        let mut ledger = std::collections::BTreeMap::new();
+        for line in kept {
+            if let RolloutItem::EventMsg(EventMsg::HostApprovalLedgerUpdated(update)) = line.item {
+                update.apply_to(thread_id, &mut ledger);
+            }
+        }
+        assert_eq!(
+            ledger["host:rollback"].request.state,
+            HostApprovalState::Cancelled
+        );
+        assert!(!ledger["host:rollback"].request.requires_invalidation());
+    }
 }

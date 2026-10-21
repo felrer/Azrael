@@ -44,7 +44,7 @@ fn capacity_request_id(input: &TurnInput, turn_id: &str, trigger: Option<&str>) 
     else {
         return None;
     };
-    if content.is_empty() || metadata.origin != codex_history::UserInputOrigin::User {
+    if content.is_empty() || metadata.origin == codex_history::UserInputOrigin::Heartbeat {
         return None;
     }
     // Retry/play and parked-root resume are continuations of an existing request.

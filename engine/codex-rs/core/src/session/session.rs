@@ -58,6 +58,8 @@ type McpToolApprovalMetadataMap =
 ///
 /// A session has at most 1 running task at a time, and can be interrupted by user input.
 pub(crate) struct Session {
+    pub(crate) host_approvals: std::sync::Mutex<super::host_approvals::HostApprovals>,
+    pub(crate) user_questions: std::sync::Mutex<super::user_questions::UserQuestions>,
     pub(crate) account_retired: std::sync::atomic::AtomicBool,
     pub(crate) retired_provider: std::sync::Mutex<Option<String>>,
     pub(crate) managed_auth_admissions:
@@ -1915,6 +1917,8 @@ impl Session {
             };
             let (mcp_prewarm_tx, mcp_prewarm_rx) = async_channel::bounded(1);
             let sess = Arc::new(Session {
+                host_approvals: Default::default(),
+            user_questions: Default::default(),
                 account_retired: std::sync::atomic::AtomicBool::new(false),
                 retired_provider: std::sync::Mutex::new(None),
                 managed_auth_admissions: std::sync::Mutex::new(std::collections::HashMap::new()),
@@ -2060,6 +2064,8 @@ impl Session {
 
             // record_initial_history can emit events. We record only after the SessionConfiguredEvent is emitted.
             let recover_accepted_inputs = matches!(&initial_history, InitialHistory::Resumed(_));
+            sess.restore_user_questions(&initial_history).await?;
+            sess.restore_host_approvals(&initial_history).await?;
             let accepted_inputs_reconciled = Box::pin(sess.record_initial_history(initial_history)).await;
             if recover_accepted_inputs && accepted_inputs_reconciled {
                 Box::pin(sess.recover_accepted_user_inputs()).await;
@@ -2088,6 +2094,9 @@ impl Session {
         match session_result {
             Ok(sess) => {
                 live_thread_init.commit();
+                if let Err(error) = sess.maybe_resume_host_approval().await {
+                    tracing::warn!(%error, "restored host approval resume did not start");
+                }
                 Ok(sess)
             }
             Err(err) => {

@@ -16,7 +16,6 @@ use super::OAuthStore;
 use super::OAuthStoreLock;
 use super::OAuthStoreLockFailure;
 use super::StoredOAuthTokens;
-use super::compute_store_key;
 use super::delete_oauth_tokens_from_direct_keyring;
 use super::delete_oauth_tokens_from_file;
 use super::delete_oauth_tokens_from_secrets_keyring;
@@ -201,8 +200,7 @@ impl ResolvedOAuthCredentialStore {
     ) -> Result<bool> {
         let mut observation = telemetry::resolved(self, Operation::Delete);
         let result = match self.backend {
-            Backend::File => compute_store_key(server_name, url)
-                .and_then(|key| delete_oauth_tokens_from_file(&key)),
+            Backend::File => delete_oauth_tokens_from_file(server_name, url),
             Backend::Keyring(AuthKeyringBackendKind::Direct) => {
                 delete_oauth_tokens_from_direct_keyring(keyring_store, server_name, url)
             }

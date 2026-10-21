@@ -171,7 +171,7 @@ test("combined host pipeline preserves fetch normalization, recovery hooks and c
   const hst = Nf.createSourceFile(hostFilename, combined.text, Nf.ScriptTarget.Latest, true, Nf.ScriptKind.JS);
   assert.equal(hst.parseDiagnostics.length, 0);
   assert.equal(combined.asset.fetchResponseEdits, 1);
-  assert.equal(combined.asset.recoveryEdits, 5);
+  assert.equal(combined.asset.recoveryEdits, 7);
   assert.equal(combined.text.split(MARKER).length - 1, 1);
   assert.equal(combined.text.split(NORMALIZED_ANCHOR).length - 1, 1);
   assert.equal(combined.text.includes(ANCHOR), false);

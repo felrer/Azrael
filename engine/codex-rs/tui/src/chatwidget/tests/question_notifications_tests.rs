@@ -14,6 +14,7 @@ async fn live_async_question_notifies_once_and_takes_priority_over_turn_completi
         memory_citation: None,
         delivery: None,
         questions: Some(vec![AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which environment?".into(),
             options: None,
         }]),
@@ -66,6 +67,7 @@ async fn async_question_notifications_respect_settings_and_ignore_empty_batches(
         chat.add_async_questions(
             "question",
             &[AsyncUserInputQuestion {
+                withdrawn: false,
                 title: "Which way?".into(),
                 options: None,
             }],
@@ -79,10 +81,12 @@ async fn async_question_notification_summarizes_batches_and_bounds_long_titles()
     let (mut chat, _rx, _ops) = make_chatwidget_manual(/*model_override*/ None).await;
     let questions = vec![
         AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which environment should we deploy this change to?".into(),
             options: None,
         },
         AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Any details?".into(),
             options: None,
         },
@@ -112,6 +116,7 @@ async fn async_question_notification_expires_when_turn_ends() {
         chat.add_async_questions(
             "question",
             &[AsyncUserInputQuestion {
+                withdrawn: false,
                 title: "Which way?".into(),
                 options: None,
             }],

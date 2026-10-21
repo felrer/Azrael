@@ -9,6 +9,7 @@ const { randomUUID } = require('node:crypto');
 const { createBackend } = require('./window-control-backend.cjs');
 const { createWindowOwner, TOOLS } = require('./window-control-policy.cjs');
 const { createHost } = require('./window-control-host.cjs');
+const { attachApprovalEngine } = require('./window-approval-engine-fixture.cjs');
 const tick = () => new Promise(resolve => setImmediate(resolve));
 function transport(t) {
   const declaration = { executable: 'C:/verified/helper.exe', manifestSha256: 'hash' };
@@ -81,7 +82,7 @@ test('stop bypasses stalled act, cancels queued mutation, and requires explicit 
   assert.equal(f.calls.filter(c => c.method === 'resize').length, 0); assert.equal(f.owner.peek('a').state, 'paused');
   await assert.rejects(f.owner.call('a', 'capture', { targetId: a.targetId }), /resume/);
   const list = await f.owner.call('a', 'list_windows', {});
-  await assert.rejects(f.owner.call('a', 'select_window', { candidateId: list.candidates[0].candidateId }), /explicit resume/);
+  await assert.rejects(f.owner.call('a', 'select_window', { candidateId: list.candidates[0].candidateId }), error => error.code === 'state_changed' && error.pauseReason === 'user_stopped' && error.recovery === 'user_resume' && error.restoreAllowed === false && error.actionExecuted === false);
   await f.owner.call('b', 'capture', { targetId: b.targetId });
   await f.owner.resume('a'); await f.owner.call('a', 'capture', { targetId: a.targetId });
   f.emit({ type: 'overlayStop', targetId: active.targetId, generation: active.generation }); assert.equal(f.owner.peek('a').state, 'ready');
@@ -96,7 +97,7 @@ test('manual selection releases only the successfully selected stopped identity'
     const list = await f.owner.call('a', 'list_windows', {});
     return f.owner.call('a', 'select_window', { candidateId: list.candidates[0].candidateId });
   }
-  await assert.rejects(modelSelectA(), /explicit resume/);
+  await assert.rejects(modelSelectA(), error => error.code === 'state_changed' && error.pauseReason === 'user_stopped' && error.recovery === 'user_resume' && error.restoreAllowed === false && error.actionExecuted === false);
   const originalRequest = f.backend.request, failedBind = new Error('selected window unavailable');
   f.backend.request = async (method, params) => {
     if (method === 'status' && params.window.hwnd === f.windows[0].hwnd) throw failedBind;
@@ -104,7 +105,7 @@ test('manual selection releases only the successfully selected stopped identity'
   };
   try { await assert.rejects(f.owner.bind('a', f.windows[0]), error => error === failedBind); }
   finally { f.backend.request = originalRequest; }
-  await assert.rejects(modelSelectA(), /explicit resume/);
+  await assert.rejects(modelSelectA(), error => error.code === 'state_changed' && error.pauseReason === 'user_stopped' && error.recovery === 'user_resume' && error.restoreAllowed === false && error.actionExecuted === false);
   await f.owner.bind('a', f.windows[0]);
   const selected = await modelSelectA(); assert.equal(selected.state, 'selected');
   await f.owner.call('a', 'capture', { targetId: selected.targetId });
@@ -133,7 +134,7 @@ test('host stop callback revokes only stopped thread approval during stalled act
     createServer: () => { const server = new EventEmitter(); server.listen = (_pipe, ready) => ready(); server.close = () => {}; return server; },
   });
   t.after(() => host.dispose());
-  const native = { registerProvider: () => ({ dispose() {} }) }; host.attach(native, () => {});
+  const native = { registerProvider: () => ({ dispose() {} }) }; attachApprovalEngine(host, native);
   host.registerApprovalUI(native, envelope => {
     if (envelope.type === 'mcp-request') assert.equal(host.respondApproval(native, envelope.request.id, { action: 'accept', _meta: { persist: 'session' } }), true);
   });

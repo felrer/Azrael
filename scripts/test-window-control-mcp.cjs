@@ -74,6 +74,11 @@ async function main() {
   assert.deepEqual((await protocol({ jsonrpc: '2.0', id: 1, method: 'initialize' })).result.capabilities.experimental, { 'codex/sandbox-state-meta': {} });
   const listed = (await protocol({ jsonrpc: '2.0', id: 1, method: 'tools/list' })).result.tools;
   assert.match(listed.find(t => t.name === 'select_window').description, /read-only observation.*Does not request or grant app control/);
+  const installedLaunch = listed.find(t => t.name === 'launch_isolated');
+  assert.deepEqual(installedLaunch.inputSchema.required, []);
+  assert.deepEqual(installedLaunch.inputSchema.oneOf.map(branch => branch.required), [['targetId'], ['packageName']]);
+  assert.equal(installedLaunch.inputSchema.properties.packageName.pattern, '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$');
+  assert.match(installedLaunch.description, /No parent app window is required/);
   const hiddenUi = listed.find(t => t.name === 'ui_operation');
   assert.deepEqual(hiddenUi._meta, { ui: { visibility: ['app'] } });
   assert.deepEqual(hiddenUi.inputSchema.required, ['requestToken']); assert.equal(hiddenUi.inputSchema.additionalProperties, false);

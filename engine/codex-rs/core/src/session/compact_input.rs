@@ -13,9 +13,18 @@ use codex_protocol::protocol::WarningEvent;
 use codex_protocol::turn_input::CompactIfIdleSubmission;
 use codex_protocol::turn_input::NotSubmittedReason;
 
+#[cfg(test)]
 pub(super) async fn handle(
     session: &Arc<Session>,
     submission_id: String,
+) -> CodexResult<CompactIfIdleSubmission> {
+    handle_with_authority(session, submission_id, false).await
+}
+
+pub(super) async fn handle_with_authority(
+    session: &Arc<Session>,
+    submission_id: String,
+    explicit: bool,
 ) -> CodexResult<CompactIfIdleSubmission> {
     let model = session.current_execution_model().await;
     if session.account_is_retired_for_model(&model)
@@ -31,7 +40,12 @@ pub(super) async fn handle(
         ));
     }
     let _reservation_guard = session.root_resume_submission_guard().await;
-    if session.has_root_resume_reservation() {
+    if (!explicit
+        && (session.pending_question_count() > 0
+            || session.pending_approval_count() > 0
+            || session.has_host_approval_resume()))
+        || session.has_root_resume_reservation()
+    {
         return Ok(CompactIfIdleSubmission::NotSubmitted {
             reason: NotSubmittedReason::NotIdle,
         });

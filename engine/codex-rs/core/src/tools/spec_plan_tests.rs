@@ -4089,3 +4089,25 @@ async fn anthropic_profile_replaces_native_tools_and_other_providers_exclude_com
         }
     }
 }
+
+#[tokio::test]
+async fn async_question_claude_fallback_retains_withdrawal_only_for_async_backend() {
+    for blocking in [false, true] {
+        let (_session, mut turn) = make_session_and_context().await;
+        let config = Arc::make_mut(&mut turn.config);
+        config.model_provider_id = "azrael-managed".into();
+        config.experimental_request_user_input_enabled = blocking;
+        let mut settings = turn.initial_settings.as_ref().clone();
+        let model = Arc::make_mut(&mut settings.model_info);
+        model.slug = "managed/anthropic/future-model".into();
+        model.experimental_supported_tools.push("request_user_input_async".into());
+        turn.initial_settings = Arc::new(settings);
+        let plan = ToolPlanProbe::from_router(plan_with_model(&turn, turn.model_info(), ToolPlanInputs::default()));
+        plan.assert_registered_contains(&["AskUserQuestion"]);
+        plan.assert_registered_lacks(&["request_user_input_async"]);
+        if blocking { plan.assert_registered_lacks(&["withdraw_user_questions"]); }
+        else { plan.assert_registered_contains(&["withdraw_user_questions"]); }
+        let ToolSpec::Function(tool) = plan.visible_spec("AskUserQuestion") else { panic!("expected compatible function") };
+        assert_eq!(tool.description.matches("If a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions.").count(), usize::from(!blocking));
+    }
+}

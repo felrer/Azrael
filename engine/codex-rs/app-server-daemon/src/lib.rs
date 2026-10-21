@@ -1,83 +1,150 @@
 //! Managed app-server lifecycle, serialized across CLI invocations and the updater.
 
+mod registration;
+pub use registration::AZRAEL_STARTUP_TIMEOUT;
+pub use registration::connect_azrael_registered;
+pub use registration::validate_azrael_registration;
+
+#[cfg(feature = "lifecycle")]
 mod azrael;
+#[cfg(feature = "lifecycle")]
 mod azrael_storage;
+#[cfg(feature = "lifecycle")]
 pub use azrael_storage::AzraelStorageLease;
+#[cfg(feature = "lifecycle")]
 pub use azrael_storage::acquire_azrael_storage_lease;
+#[cfg(feature = "lifecycle")]
 mod backend;
-pub use azrael::AZRAEL_STARTUP_TIMEOUT;
+#[cfg(feature = "lifecycle")]
 pub use azrael::AzraelDaemonEndpoint;
-pub use azrael::azrael_engine_sha256;
+#[cfg(feature = "lifecycle")]
 pub use azrael::azrael_engine_endpoint_with_args;
+#[cfg(feature = "lifecycle")]
+pub use azrael::azrael_engine_sha256;
+#[cfg(feature = "lifecycle")]
 pub use azrael::azrael_window_registry_path;
-pub use azrael::normalize_azrael_startup_args;
-pub use azrael::connect_azrael_registered;
+#[cfg(feature = "lifecycle")]
 pub use azrael::ensure_azrael_started;
+#[cfg(feature = "lifecycle")]
 pub use azrael::ensure_azrael_started_with_args;
+#[cfg(feature = "lifecycle")]
+pub use azrael::normalize_azrael_startup_args;
+#[cfg(feature = "lifecycle")]
 pub use azrael::run_azrael_stdio_proxy;
+#[cfg(feature = "lifecycle")]
 pub use azrael::run_azrael_stdio_proxy_with_args;
-pub use azrael::validate_azrael_registration;
+#[cfg(feature = "lifecycle")]
 pub use backend::AzraelProcessIdentity;
+#[cfg(feature = "lifecycle")]
 pub use backend::capture_process_identity;
+#[cfg(feature = "lifecycle")]
 mod background_command;
 #[cfg(windows)]
+#[cfg(feature = "lifecycle")]
 pub use backend::windows::DetachedLaunchRestricted;
 #[cfg(windows)]
+#[cfg(feature = "lifecycle")]
 pub use backend::windows::is_elevated;
 #[cfg(windows)]
+#[cfg(feature = "lifecycle")]
 use backend::windows::try_lock_file;
+#[cfg(feature = "lifecycle")]
 mod client;
+#[cfg(feature = "lifecycle")]
 mod diagnostics;
+#[cfg(feature = "lifecycle")]
 mod install_lock;
+#[cfg(feature = "lifecycle")]
 mod launch;
+#[cfg(feature = "lifecycle")]
 pub use launch::restart_with_features;
+#[cfg(feature = "lifecycle")]
 pub use launch::start_with_features;
+#[cfg(feature = "lifecycle")]
 mod managed_install;
+#[cfg(feature = "lifecycle")]
 mod prepare_install;
+#[cfg(feature = "lifecycle")]
 pub use prepare_install::InstallRequest;
+#[cfg(feature = "lifecycle")]
 pub use prepare_install::update_from_cli;
+#[cfg(feature = "lifecycle")]
 mod remote_control_client;
+#[cfg(feature = "lifecycle")]
 mod settings;
+#[cfg(feature = "lifecycle")]
 pub mod telemetry;
+#[cfg(feature = "lifecycle")]
 mod thread_recovery;
+#[cfg(feature = "lifecycle")]
 mod update_loop;
 
+#[cfg(feature = "lifecycle")]
 use std::collections::BTreeMap;
+#[cfg(feature = "lifecycle")]
 use std::path::Path;
+#[cfg(feature = "lifecycle")]
 use std::path::PathBuf;
+#[cfg(feature = "lifecycle")]
 use std::time::Duration;
 
+#[cfg(feature = "lifecycle")]
 use anyhow::Context;
+#[cfg(feature = "lifecycle")]
 use anyhow::Result;
+#[cfg(feature = "lifecycle")]
 use anyhow::anyhow;
+#[cfg(feature = "lifecycle")]
 pub use backend::BackendKind;
+#[cfg(feature = "lifecycle")]
 use backend::BackendPaths;
+#[cfg(feature = "lifecycle")]
 use codex_app_server_protocol::RemoteControlConnectionStatus;
+#[cfg(feature = "lifecycle")]
 use codex_app_server_protocol::RemoteControlPairingStartResponse;
+#[cfg(feature = "lifecycle")]
 use codex_app_server_transport::app_server_control_socket_path;
+#[cfg(feature = "lifecycle")]
 use codex_utils_home_dir::find_codex_home;
+#[cfg(feature = "lifecycle")]
 use managed_install::managed_codex_bin;
 #[cfg(any(unix, windows))]
+#[cfg(feature = "lifecycle")]
 use managed_install::managed_codex_version;
+#[cfg(feature = "lifecycle")]
 use serde::Serialize;
+#[cfg(feature = "lifecycle")]
 use settings::DaemonSettings;
+#[cfg(feature = "lifecycle")]
 use settings::MAX_SHUTDOWN_GRACE_SECONDS;
+#[cfg(feature = "lifecycle")]
 use tokio::time::sleep;
 
+#[cfg(feature = "lifecycle")]
 const START_POLL_INTERVAL: Duration = Duration::from_millis(50);
+#[cfg(feature = "lifecycle")]
 const START_TIMEOUT: Duration = Duration::from_secs(10);
 // Leave room for the longest graceful stop, forced-exit check, and restart.
+#[cfg(feature = "lifecycle")]
 const OPERATION_LOCK_TIMEOUT: Duration =
     Duration::from_secs(MAX_SHUTDOWN_GRACE_SECONDS as u64 + 75);
+#[cfg(feature = "lifecycle")]
 const LEGACY_PID_FILE_NAME: &str = "app-server.pid";
+#[cfg(feature = "lifecycle")]
 const LEGACY_UPDATE_PID_FILE_NAME: &str = "app-server-updater.pid";
+#[cfg(feature = "lifecycle")]
 const DAEMON_PID_FILE_NAME: &str = "daemon.pid";
+#[cfg(feature = "lifecycle")]
 const DAEMON_UPDATE_PID_FILE_NAME: &str = "daemon-updater.pid";
+#[cfg(feature = "lifecycle")]
 const OPERATION_LOCK_FILE_NAME: &str = "daemon.lock";
+#[cfg(feature = "lifecycle")]
 const SETTINGS_FILE_NAME: &str = "settings.json";
+#[cfg(feature = "lifecycle")]
 const STATE_DIR_NAME: &str = "app-server-daemon";
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub enum LifecycleCommand {
     Start,
     Restart,
@@ -87,6 +154,7 @@ pub enum LifecycleCommand {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub enum LifecycleStatus {
     AlreadyRunning,
     Started,
@@ -98,6 +166,7 @@ pub enum LifecycleStatus {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub struct LifecycleOutput {
     pub status: LifecycleStatus,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -114,24 +183,28 @@ pub struct LifecycleOutput {
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub struct BootstrapOptions {
     pub remote_control_enabled: bool,
 }
 
 /// Passively probes an existing app-server socket and returns its reported
 /// app-server version.
+#[cfg(feature = "lifecycle")]
 pub async fn probe_app_server_version(socket_path: &Path) -> Result<String> {
     Ok(client::probe(socket_path).await?.app_server_version)
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub enum BootstrapStatus {
     Bootstrapped,
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub struct BootstrapOutput {
     pub status: BootstrapStatus,
     pub backend: BackendKind,
@@ -146,6 +219,7 @@ pub struct BootstrapOutput {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub enum UpdateStatus {
     Updated,
     NoUpdate,
@@ -154,6 +228,7 @@ pub enum UpdateStatus {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, serde::Deserialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub struct UpdateOutput {
     pub status: UpdateStatus,
     pub managed_codex_path: PathBuf,
@@ -164,12 +239,14 @@ pub struct UpdateOutput {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(untagged)]
+#[cfg(feature = "lifecycle")]
 pub enum RemoteControlStartOutput {
     Bootstrap(BootstrapOutput),
     Start(LifecycleOutput),
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub struct RemoteControlReadyStatus {
     pub status: RemoteControlConnectionStatus,
     pub server_name: String,
@@ -178,17 +255,20 @@ pub struct RemoteControlReadyStatus {
 }
 
 #[derive(Debug, Clone, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub struct RemoteControlReadyOutput {
     pub daemon: RemoteControlStartOutput,
     pub remote_control: RemoteControlReadyStatus,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub enum RemoteControlMode {
     Enabled,
     Disabled,
 }
 
+#[cfg(feature = "lifecycle")]
 impl RemoteControlMode {
     fn is_enabled(self) -> bool {
         matches!(self, Self::Enabled)
@@ -197,6 +277,7 @@ impl RemoteControlMode {
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub enum RemoteControlStatus {
     Enabled,
     Disabled,
@@ -206,6 +287,7 @@ pub enum RemoteControlStatus {
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "camelCase")]
+#[cfg(feature = "lifecycle")]
 pub struct RemoteControlOutput {
     pub status: RemoteControlStatus,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -219,6 +301,7 @@ pub struct RemoteControlOutput {
 
 #[cfg(any(unix, windows))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub(crate) enum RestartIfRunningOutcome {
     Busy,
     NotRunning,
@@ -229,6 +312,7 @@ pub(crate) enum RestartIfRunningOutcome {
 
 #[cfg(any(unix, windows))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 pub(crate) enum RestartMode {
     IfVersionChanged,
     IfBinaryOrVersionChanged,
@@ -237,12 +321,14 @@ pub(crate) enum RestartMode {
 
 #[cfg(any(unix, windows))]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[cfg(feature = "lifecycle")]
 enum RestartDecision {
     NotReady,
     AlreadyCurrent,
     Restart,
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn run(command: LifecycleCommand) -> Result<LifecycleOutput> {
     ensure_supported_platform()?;
     #[cfg(windows)]
@@ -253,6 +339,7 @@ pub async fn run(command: LifecycleCommand) -> Result<LifecycleOutput> {
     Box::pin(Daemon::from_environment()?.run(command)).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn bootstrap(options: BootstrapOptions) -> Result<BootstrapOutput> {
     ensure_supported_platform()?;
     #[cfg(windows)]
@@ -260,6 +347,7 @@ pub async fn bootstrap(options: BootstrapOptions) -> Result<BootstrapOutput> {
     Box::pin(Daemon::from_environment()?.bootstrap(options)).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn ensure_remote_control_ready() -> Result<RemoteControlReadyOutput> {
     ensure_supported_platform()?;
     #[cfg(windows)]
@@ -267,6 +355,7 @@ pub async fn ensure_remote_control_ready() -> Result<RemoteControlReadyOutput> {
     Box::pin(Daemon::from_environment()?.ensure_remote_control_ready()).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn enable_remote_control_on_socket(
     socket_path: &Path,
     connect_timeout: Duration,
@@ -282,12 +371,14 @@ pub async fn enable_remote_control_on_socket(
 }
 
 /// Starts a manual pairing session through an already-running daemon app-server.
+#[cfg(feature = "lifecycle")]
 pub async fn start_remote_control_pairing() -> Result<RemoteControlPairingStartResponse> {
     ensure_supported_platform()?;
     let daemon = Daemon::from_environment()?;
     remote_control_client::start_pairing(&daemon.socket_path).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn set_remote_control(mode: RemoteControlMode) -> Result<RemoteControlOutput> {
     ensure_supported_platform()?;
     #[cfg(windows)]
@@ -295,6 +386,7 @@ pub async fn set_remote_control(mode: RemoteControlMode) -> Result<RemoteControl
     Box::pin(Daemon::from_environment()?.set_remote_control(mode)).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn run_pid_update_loop(
     http_client_factory: codex_http_client::HttpClientFactory,
     restore_release: Option<String>,
@@ -305,6 +397,7 @@ pub async fn run_pid_update_loop(
     update_loop::run(http_client_factory, restore_release).await
 }
 
+#[cfg(feature = "lifecycle")]
 pub async fn update(
     http_client_factory: codex_http_client::HttpClientFactory,
 ) -> Result<UpdateOutput> {
@@ -315,11 +408,13 @@ pub async fn update(
 }
 
 #[cfg(any(unix, windows))]
+#[cfg(feature = "lifecycle")]
 fn ensure_supported_platform() -> Result<()> {
     Ok(())
 }
 
 #[cfg(not(any(unix, windows)))]
+#[cfg(feature = "lifecycle")]
 fn ensure_supported_platform() -> Result<()> {
     Err(anyhow!(
         "codex app-server daemon lifecycle is only supported on Unix and Windows platforms"
@@ -327,6 +422,7 @@ fn ensure_supported_platform() -> Result<()> {
 }
 
 #[derive(Clone)]
+#[cfg(feature = "lifecycle")]
 struct Daemon {
     // Feature-aware TUI startup owns a live terminal. Direct lifecycle commands
     // must still report their diagnostics to stderr.
@@ -339,10 +435,15 @@ struct Daemon {
     managed_codex_bin: PathBuf,
 }
 
+#[cfg(feature = "lifecycle")]
 impl Daemon {
     fn for_azrael_instance(mut self, endpoint: &AzraelDaemonEndpoint) -> Result<Self> {
-        let state = self.pid_file.parent().context("daemon state root missing")?
-            .join("engines").join(&endpoint.instance_id);
+        let state = self
+            .pid_file
+            .parent()
+            .context("daemon state root missing")?
+            .join("engines")
+            .join(&endpoint.instance_id);
         self.socket_path = endpoint.socket_path.clone();
         self.pid_file = state.join("azrael.pid");
         self.operation_lock_file = state.join("start.lock");
@@ -1131,6 +1232,7 @@ impl Daemon {
     }
 }
 
+#[cfg(feature = "lifecycle")]
 fn remote_control_status(mode: RemoteControlMode) -> RemoteControlStatus {
     match mode {
         RemoteControlMode::Enabled => RemoteControlStatus::Enabled,
@@ -1138,6 +1240,7 @@ fn remote_control_status(mode: RemoteControlMode) -> RemoteControlStatus {
     }
 }
 
+#[cfg(feature = "lifecycle")]
 fn already_remote_control_status(mode: RemoteControlMode) -> RemoteControlStatus {
     match mode {
         RemoteControlMode::Enabled => RemoteControlStatus::AlreadyEnabled,
@@ -1146,6 +1249,7 @@ fn already_remote_control_status(mode: RemoteControlMode) -> RemoteControlStatus
 }
 
 #[cfg(any(unix, windows))]
+#[cfg(feature = "lifecycle")]
 fn restart_decision(
     mode: RestartMode,
     info: Option<&client::ProbeInfo>,
@@ -1166,6 +1270,7 @@ fn restart_decision(
 }
 
 #[cfg(unix)]
+#[cfg(feature = "lifecycle")]
 fn try_lock_file(file: &tokio::fs::File) -> Result<bool> {
     use std::os::fd::AsRawFd;
 
@@ -1182,11 +1287,13 @@ fn try_lock_file(file: &tokio::fs::File) -> Result<bool> {
 }
 
 #[cfg(not(any(unix, windows)))]
+#[cfg(feature = "lifecycle")]
 fn try_lock_file(_file: &tokio::fs::File) -> Result<bool> {
     Ok(true)
 }
 
 #[cfg(all(test, any(unix, windows)))]
+#[cfg(feature = "lifecycle")]
 mod tests {
     use pretty_assertions::assert_eq;
     use tempfile::TempDir;

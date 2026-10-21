@@ -61,7 +61,7 @@ function configuration(options) {
   if (!inside(allowed, cacheRoot)) throw Error('Verification result cache must be inside project artifacts/cache/verification-results');
   return { cacheRoot, projectRoot };
 }
-async function acquire(root, filename, waitMs = 0) {
+async function acquireRaw(root, filename, waitMs = 0, details = {}) {
   await directory(path.dirname(filename), true);
   const deadline = Date.now() + waitMs;
   for (;;) {
@@ -73,15 +73,157 @@ async function acquire(root, filename, waitMs = 0) {
     }
   }
   const token = crypto.randomUUID();
-  try { await fs.writeFile(path.join(filename, 'owner.json'), JSON.stringify({ token, pid: process.pid }), { flag: 'wx' }); }
+  const ownerBytes = JSON.stringify({ ...details, token, pid: process.pid, acquisitionTime: new Date().toISOString(), coordinator: { pid: process.pid, parentPid: process.ppid, processStartTime: new Date(require('node:perf_hooks').performance.timeOrigin).toISOString() } });
+  try { await fs.writeFile(path.join(filename, 'owner.json'), ownerBytes, { flag: 'wx' }); }
   catch (error) { await fs.rmdir(filename).catch(() => {}); throw error; }
-  return async () => {
+  let released = false;
+  const assertOwned = async () => {
     await directory(filename);
+    const names = await fs.readdir(filename);
+    if (names.length !== 1 || names[0] !== 'owner.json') throw Error(`Lease retirement in progress: ${filename}`);
     await inspect(path.join(filename, 'owner.json'), 'file');
     const owner = JSON.parse(await fs.readFile(path.join(filename, 'owner.json'), 'utf8'));
-    if (owner.token !== token) throw Error(`Lease ownership changed: ${filename}`);
-    await remove(root, filename);
+    if (owner.token !== token || sha(await fs.readFile(path.join(filename, 'owner.json'))) !== sha(ownerBytes)) throw Error(`Lease ownership changed: ${filename}`);
   };
+  const release = async () => {
+    if (released) return;
+    await assertOwned();
+    await remove(root, filename);
+    released = true;
+  };
+  release.assertOwned = assertOwned;
+  release.owner = JSON.parse(ownerBytes);
+  return release;
+}
+// All cooperating lease mutations and publications share this short guard. An
+// abandoned guard is deliberately fail-closed, never stolen by PID or age.
+const accessQueues = new Map();
+async function access(root, details = {}) {
+  const canonical = await fs.realpath(root);
+  const key = process.platform === 'win32' ? canonical.toLowerCase() : canonical;
+  const previous = accessQueues.get(key) || Promise.resolve();
+  let next;
+  const pending = new Promise(resolve => { next = resolve; });
+  accessQueues.set(key, pending);
+  const finish = () => { if (accessQueues.get(key) === pending) accessQueues.delete(key); next(); };
+  await previous;
+  try {
+    const release = await acquireRaw(root, path.join(root, '.lease-access'), 2000, { runDirectory: null, checkId: null, operation: 'lease-access', ...details });
+    if (!release) throw Error('Lease access guard busy; independent retirement required');
+    // Keep the local FIFO slot until the disk guard release finishes. A failed
+    // release leaves that disk ownership intact and later callers fail closed.
+    return async () => { try { await release(); } finally { finish(); } };
+  } catch (error) { finish(); throw error; }
+}
+async function acquire(root, filename, waitMs = 0, details = {}) {
+  const deadline = Date.now() + waitMs;
+  for (;;) {
+    const unlock = await access(root, details);
+    let lease;
+    try { lease = await acquireRaw(root, filename, 0, details); }
+    finally { await unlock(); }
+    if (lease) {
+      const release = async () => { const unlock = await access(root, details); try { await lease(); } finally { await unlock(); } };
+      release.assertOwned = lease.assertOwned;
+      release.owner = lease.owner;
+      return release;
+    }
+    if (Date.now() >= deadline) return null;
+    await delay(Math.min(10, deadline - Date.now()));
+  }
+}
+
+function leasePath(cacheRoot, lease) {
+  if (!['.lifecycle', '.lease-access'].includes(lease) && !isHash(lease)) throw Error('Expected exact lifecycle/access or check hash lease');
+  return lease.startsWith('.') ? path.join(cacheRoot, lease) : path.join(cacheRoot, '.leases', lease);
+}
+async function inspectLease(options) {
+  const { cacheRoot } = configuration(options), target = leasePath(cacheRoot, options.lease);
+  await directory(path.dirname(target));
+  if (!await inspect(target, 'directory', true)) return { lease: options.lease, path: target, exists: false };
+  const names = await fs.readdir(target);
+  const claimNames = names.filter(name => /^retirement(?:-[1-9][0-9]*-[a-f0-9-]{36})?\.json$/.test(name));
+  if (!names.includes('owner.json') || claimNames.length > 1 || names.some(name => name !== 'owner.json' && !(options.lease === '.lease-access' && claimNames.includes(name)))) throw Error('Unidentified lease contents; exact retirement requires owner.json');
+  const filename = path.join(target, 'owner.json');
+  const stat = await inspect(filename, 'file');
+  if (stat.size > 16384) throw Error('Oversized lease owner');
+  const bytes = await fs.readFile(filename);
+  let owner = null;
+  try { owner = JSON.parse(bytes); } catch { /* Exact malformed bytes remain inspectable for explicit retirement. */ }
+  const token = owner && typeof owner.token === 'string' && owner.token ? owner.token : null;
+  let retirement = null;
+  if (claimNames.length) {
+    const name = claimNames[0], claimPath = path.join(target, name);
+    const stat = await inspect(claimPath, 'file');
+    if (stat.size > 16384) throw Error('Oversized retirement claim');
+    const bytes = await fs.readFile(claimPath), claim = JSON.parse(bytes);
+    const resumedPid = /^retirement-([1-9][0-9]*)-/.exec(name);
+    retirement = { name, claim, claimantPid: resumedPid ? Number(resumedPid[1]) : claim.pid, sha256: sha(bytes) };
+  }
+  return { lease: options.lease, path: target, exists: true, owner, token, ownerSha256: sha(bytes), retirement };
+}
+function refuseLivePid(pid) {
+  if (Number.isSafeInteger(pid) && pid > 0) {
+    try { process.kill(pid, 0); throw Error('Lease producer PID is live; retirement refused'); }
+    catch (error) { if (error.code !== 'ESRCH') throw error; }
+  }
+}
+async function externalFile(projectRoot, cacheRoot, value, create = false) {
+  if (typeof value !== 'string' || !path.isAbsolute(value) || value.split(/[\\/]/).includes('..')) throw Error('Absolute project evidence path required');
+  const filename = path.resolve(value);
+  if (!inside(projectRoot, filename) || inside(cacheRoot, filename)) throw Error('Evidence and receipt must survive outside cache inside project');
+  await directory(path.dirname(filename), create);
+  await inspect(filename, 'file', create);
+  return filename;
+}
+// Trusted caller attests independent verification of the exact producer tree.
+// PID absence is never evidence. A positive live PID observation vetoes recovery.
+async function recoverLease(options) {
+  const { projectRoot, cacheRoot } = configuration(options);
+  leasePath(cacheRoot, options.lease);
+  if (options.producer_stopped_verified !== true || typeof options.reason !== 'string' || !options.reason.trim() || !isHash(options.expectedOwnerSha256) || !isHash(options.evidence_sha256) || !(options.expectedToken === null || typeof options.expectedToken === 'string' && options.expectedToken)) throw Error('Exact verified retirement, token, hashes and reason required');
+  const evidence = await externalFile(projectRoot, cacheRoot, options.evidence_ref);
+  const receipt = await externalFile(projectRoot, cacheRoot, options.receipt_ref, true);
+  if (receipt === evidence) throw Error('Recovery receipt must be separate from evidence');
+  const verifyEvidence = async () => { await externalFile(projectRoot, cacheRoot, evidence); if (sha(await fs.readFile(evidence)) !== options.evidence_sha256) throw Error('Retirement evidence changed'); };
+  await verifyEvidence();
+  let unlock, retirementClaim = null;
+  if (options.lease !== '.lease-access') unlock = await access(cacheRoot, { operation: 'verified-retirement', lease: options.lease });
+  try {
+    const current = await inspectLease(options);
+    if (!current.exists || current.token !== options.expectedToken || current.ownerSha256 !== options.expectedOwnerSha256) throw Error('Lease identity changed');
+    refuseLivePid(current.owner?.pid);
+    if (options.lease === '.lease-access') {
+      // A claim stays in the dead guard on interruption. Only its exact proven
+      // dead claimant can be resumed; competitors never remove this claim.
+      const claimPath = path.join(current.path, 'retirement.json');
+      if (current.retirement) {
+        if (!isHash(options.expectedRetirementSha256) || current.retirement.sha256 !== options.expectedRetirementSha256 || options.expectedRetirementName !== current.retirement.name) throw Error('Exact retirement claim identity required');
+        refuseLivePid(current.retirement.claimantPid);
+        // Claim names are never reused. Atomic rename transfers the exact old
+        // claim once, so two resumptions cannot both own the same retirement.
+        await fs.rename(path.join(current.path, current.retirement.name), path.join(current.path, `retirement-${process.pid}-${crypto.randomUUID()}.json`));
+      } else {
+        if (options.expectedRetirementSha256 !== undefined) throw Error('Retirement claim identity changed');
+        await fs.writeFile(claimPath, JSON.stringify({ token: crypto.randomUUID(), pid: process.pid, ownerSha256: current.ownerSha256, evidence_sha256: options.evidence_sha256 }), { flag: 'wx' });
+      }
+      // New acquisitions remain excluded by the existing directory. All other
+      // recovery attempts are excluded by the exclusively created claim.
+      const claimed = await inspectLease(options);
+      if (claimed.ownerSha256 !== current.ownerSha256 || claimed.token !== current.token || claimed.retirement.claim.ownerSha256 !== current.ownerSha256 || claimed.retirement.claimantPid !== process.pid) throw Error('Lease identity changed');
+      retirementClaim = claimed.retirement;
+    }
+    await verifyEvidence();
+    await safeTree(cacheRoot, current.path);
+    const decision = { schema: 1, action: 'verified-lease-retirement', lease: current, retirementClaim, evidence_ref: evidence, evidence_sha256: options.evidence_sha256, reason: options.reason, producer_stopped_verified: true, decidedAt: new Date().toISOString() };
+    // The immutable decision precedes deletion and survives a partial failure.
+    await fs.writeFile(receipt, JSON.stringify(decision, null, 2) + '\n', { flag: 'wx' });
+    await verifyEvidence();
+    const final = await inspectLease(options);
+    if (final.token !== current.token || final.ownerSha256 !== current.ownerSha256) throw Error('Lease identity changed');
+    await remove(cacheRoot, current.path);
+    return { recovered: true, lease: options.lease, receipt_ref: receipt, evidence_sha256: options.evidence_sha256 };
+  } finally { if (unlock) await unlock(); }
 }
 async function obsolete(root, deferred) {
   const leases = path.join(root, '.leases');
@@ -96,7 +238,7 @@ async function pruneObsoleteVersions(options = {}) {
   let release;
   try {
     await directory(cacheRoot, true);
-    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000);
+    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-obsolete' });
     if (!release) return { deferred: ['obsolete versions: lifecycle lease busy'] };
     await obsolete(cacheRoot, deferred);
   } catch (error) { deferred.push(message(error)); }
@@ -111,7 +253,7 @@ async function pruneRemovedChecks(options) {
   let release;
   try {
     await directory(cacheRoot, true);
-    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000);
+    release = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory: options.runDirectory ? path.resolve(options.runDirectory) : null, checkId: options.checkId || null, operation: 'prune-removed' });
     if (!release) return { removed, deferred: ['removed checks: lifecycle lease busy'] };
     const version = path.join(cacheRoot, `v${CACHE_SCHEMA}`);
     await directory(path.join(cacheRoot, '.leases'), true);
@@ -164,28 +306,42 @@ async function begin(options) {
   const runDirectory = path.resolve(options.runDirectory), deferred = [];
   if (inside(cacheRoot, runDirectory)) throw Error('Run evidence must be outside the verification result cache');
   const slot = path.join(cacheRoot, `v${CACHE_SCHEMA}`, sha(checkId)), entry = path.join(slot, key);
-  let releaseCheck, releaseLifecycle, closed = false, publishing = false;
-  const handle = { hit: null, reason: null, deferred, publish: async () => ({ published: false, reason: handle.reason || 'cache unavailable' }), close: async () => {
-    if (closed) return;
-    if (publishing) throw Error('Cannot close cache while publishing');
-    closed = true;
-    if (releaseCheck) {
-      await releaseCheck().catch(error => deferred.push(`lease release: ${message(error)}`));
-      // The final active check releases deferred obsolete schema storage. The
-      // lifecycle lock also prevents a new begin racing the idle-root check.
-      if (!releaseLifecycle) {
-        const cleanup = await pruneObsoleteVersions(options);
-        deferred.push(...cleanup.deferred);
+  let releaseCheck, releaseLifecycle, closing, needsPrune = false, closeRequested = false, closed = false, publishing = false;
+  const handle = { hit: null, reason: null, deferred, publish: async () => ({ published: false, reason: handle.reason || 'cache unavailable' }), close: () => {
+    if (closed) return Promise.resolve();
+    if (closing) return closing;
+    if (publishing) return Promise.reject(Error('Cannot close cache while publishing'));
+    closeRequested = true;
+    closing = (async () => {
+      if (releaseCheck) {
+        try { await releaseCheck(); releaseCheck = null; }
+        catch (error) { deferred.push(`lease release: ${message(error)}`); }
       }
-    }
+      if (releaseLifecycle) {
+        try { await releaseLifecycle(); releaseLifecycle = null; }
+        catch (error) { deferred.push(`lifecycle release: ${message(error)}`); }
+      }
+      if (!releaseCheck && !releaseLifecycle) {
+        // The final active check releases deferred obsolete schema storage. The
+        // lifecycle lock also prevents a new begin racing the idle-root check.
+        if (needsPrune) {
+          const cleanup = await pruneObsoleteVersions(options);
+          deferred.push(...cleanup.deferred);
+        }
+        closed = true;
+      }
+    })().finally(() => { closing = null; });
+    return closing;
   } };
   try {
     await directory(cacheRoot, true);
-    releaseLifecycle = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000);
+    releaseLifecycle = await acquire(cacheRoot, path.join(cacheRoot, '.lifecycle'), 2000, { runDirectory, checkId });
     if (!releaseLifecycle) { handle.reason = 'busy: lifecycle lease'; return handle; }
     await obsolete(cacheRoot, deferred);
-    releaseCheck = await acquire(cacheRoot, path.join(cacheRoot, '.leases', sha(checkId)));
+    releaseCheck = await acquire(cacheRoot, path.join(cacheRoot, '.leases', sha(checkId)), 0, { runDirectory, checkId });
     if (!releaseCheck) { handle.reason = 'busy: check lease'; return handle; }
+    needsPrune = true;
+    handle.lease = { ...releaseCheck.owner, lease: sha(checkId), ownerSha256: (await inspectLease({ ...options, lease: sha(checkId) })).ownerSha256 };
     await directory(slot, true);
     await pruneKeys(cacheRoot, slot, key, deferred);
     // A forced probe must revoke the old pass before executing, so a later
@@ -193,8 +349,10 @@ async function begin(options) {
     if (options.force && await inspect(entry, 'directory', true)) await remove(cacheRoot, entry);
   } catch (error) { handle.reason = message(error); await handle.close(); return handle; }
   finally {
-    if (releaseLifecycle) await releaseLifecycle().catch(error => deferred.push(`lifecycle release: ${message(error)}`));
-    releaseLifecycle = null;
+    if (releaseLifecycle) {
+      try { await releaseLifecycle(); releaseLifecycle = null; }
+      catch (error) { deferred.push(`lifecycle release: ${message(error)}`); }
+    }
   }
   try {
     if (options.force) throw Error('forced execution');
@@ -207,11 +365,14 @@ async function begin(options) {
     handle.hit = { exitCode: 0, signal: null, error: undefined, logPath, errorPath, logSha256: cached.receipt.logSha256, errorSha256: cached.receipt.errorSha256, stdout: cached.stdout.toString(), stderr: cached.stderr.toString(), reused: true };
   } catch (error) { handle.reason = `miss: ${message(error)}`; }
   handle.publish = async record => {
-    if (closed || publishing) return { published: false, reason: closed ? 'closed' : 'publication already active' };
+    if (closeRequested || publishing) return { published: false, reason: closeRequested ? 'closed' : 'publication already active' };
     if (!record || record.exitCode !== 0 || record.signal != null || record.error != null) return { published: false, reason: 'check did not succeed' };
     publishing = true;
     const temp = path.join(slot, `.tmp-${crypto.randomUUID()}`);
+    let unlock;
     try {
+      unlock = await access(cacheRoot, { runDirectory, checkId, operation: 'publish' });
+      await releaseCheck.assertOwned();
       await directory(slot);
       const [stdout, stderr] = await Promise.all([log(record.logPath), log(record.errorPath)]);
       const receipt = { schema: CACHE_SCHEMA, checkId, key, exitCode: 0, signal: null, error: null, logSha256: sha(stdout), errorSha256: sha(stderr) };
@@ -221,10 +382,13 @@ async function begin(options) {
       let valid = false;
       try { await readEntry(entry, checkId, key); valid = true; } catch { /* Invalid evidence is replaced only after safe tree inspection. */ }
       if (!valid) {
+        await releaseCheck.assertOwned();
         if (await fs.lstat(entry).catch(error => { if (error.code === 'ENOENT') return null; throw error; })) await remove(cacheRoot, entry);
+        await releaseCheck.assertOwned();
         await fs.rename(temp, entry);
       }
       await readEntry(entry, checkId, key);
+      await releaseCheck.assertOwned();
       await pruneKeys(cacheRoot, slot, key, deferred);
       return { published: true, deferred };
     } catch (error) { return { published: false, reason: message(error), deferred }; }
@@ -234,9 +398,10 @@ async function begin(options) {
         if (temporary) await remove(cacheRoot, temp);
       } catch (error) { deferred.push(`temporary cleanup: ${message(error)}`); }
       publishing = false;
+      if (unlock) await unlock();
     }
   };
   return handle;
 }
 
-module.exports = { CACHE_SCHEMA, begin, pruneObsoleteVersions, pruneRemovedChecks };
+module.exports = { CACHE_SCHEMA, begin, pruneObsoleteVersions, pruneRemovedChecks, inspectLease, recoverLease };

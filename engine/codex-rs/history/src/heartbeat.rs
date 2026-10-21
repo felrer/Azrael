@@ -18,12 +18,15 @@ pub enum UserInputOrigin {
     User,
     /// Input submitted by a scheduled heartbeat, including when it steers an active turn.
     Heartbeat,
+    /// Input accepted from the durable queue; it does not answer async questions.
+    Queue,
 }
 
 impl UserInputOrigin {
     pub fn from_turn_trigger(trigger: Option<&str>) -> Self {
         match trigger {
             Some("automation_heartbeat_scheduled") => Self::Heartbeat,
+            Some("queue" | "queue_user") => Self::Queue,
             _ => Self::User,
         }
     }

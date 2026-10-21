@@ -29,6 +29,7 @@ try {
 $uiFeatureIds = @((Get-Content (Join-Path $PSScriptRoot 'azrael-feature-contracts.json') -Raw | ConvertFrom-Json).features | Where-Object area -eq 'ui' | ForEach-Object id)
 $changedCases = @('policy selection', 'full install', 'module cache install', 'exhaustive regression verify only', 'related integration verify only', 'explicit policy verify only', 'full regression verify only', 'full regression force native', 'selected force native', 'shared module cache install', 'skip environment snapshot install', 'engine-preservation-fail', 'engine-preservation-missing-receipt', 'package-preservation-fail', 'package-preservation-binding', 'package-preservation-receipt', 'engine-preservation-recheck')
 $pwsh = (Get-Process -Id $PID).Path
+$changedCases += @('environment preflight failure', 'cargo planner gap', 'test preparation failure', 'missing registered cache project', 'test preparation input mutation', 'temporary references preserved', 'registered engine owner selection')
 # Execute the preparation policy reader independently of package/build inputs.
 $prepareSource = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'prepare-independent-vscode.ps1') -Raw
 $policyStart = $prepareSource.IndexOf('$sourceTestPolicy = $null')
@@ -181,6 +182,7 @@ const scenario=JSON.parse(fs.readFileSync(path.join(a,'scenario.json'),'utf8'));
 fs.appendFileSync(path.join(a,'preservation-invocation.jsonl'),JSON.stringify({action:args[0],config})+'\n');
 function same(actual,expected,label){if(actual!==expected)throw Error(label+' forwarding mismatch');}
 same(config.projectRoot,root,'project root');
+same(config.uiRoot,path.join(a,'pristine UI'),'preservation UI root');
 same(config.engineSourceRoot,path.join(a,'engine source 한글'),'engine source');
 fs.mkdirSync(config.outputDirectory,{recursive:true});
 const receiptPath=path.join(config.outputDirectory,'receipt.json');
@@ -326,6 +328,30 @@ function Invoke-Case([string]$Name, [string]$Mode, [bool]$VerifyOnly = $false, [
     $scripts = Join-Path $root 'scripts'
     $a = Join-Path $root 'artifacts'
     New-Item -ItemType Directory -Path $scripts, $a | Out-Null
+    if($Mode -eq 'registered-owner-selection'){
+        $deployText=Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
+        $ast=[Management.Automation.Language.Parser]::ParseInput($deployText,[ref]$null,[ref]$null)
+        $selector=$ast.Find({param($node) $node -is [Management.Automation.Language.FunctionDefinitionAst] -and $node.Name -eq 'Get-FocusedEngineFeatureIds'},$true)
+        . ([scriptblock]::Create($selector.Extent.Text))
+        @{features=@(
+            @{id='engine.oauth';area='engine';owners=@('engine/codex-rs/oauth/src/store_tests.rs')},
+            @{id='engine.other';area='engine';owners=@('engine/codex-rs/other/src/lib.rs')},
+            @{id='ui.fixture';area='ui';owners=@('engine/codex-rs/unowned.rs')}
+        )} | ConvertTo-Json -Depth 5 | Set-Content -LiteralPath (Join-Path $scripts 'azrael-feature-contracts.json') -Encoding utf8NoBOM
+        $savedProject=$project
+        try{
+            $project=$root;$engine=Join-Path $root 'engine'
+            $selected=@(Get-FocusedEngineFeatureIds -PolicyPaths @('engine/codex-rs/oauth/src/store_tests.rs') -EngineSourceRoot $engine)
+            Assert-True ('engine.oauth' -cin $selected -and 'engine.other' -cnotin $selected) 'changed registered Rust test owner not selected precisely'
+            $docs=@(Get-FocusedEngineFeatureIds -PolicyPaths @('docs/README.md') -EngineSourceRoot $engine)
+            Assert-True (($docs -join '|') -ceq 'engine.provider-context|engine.recovery|engine.accepted-input') 'documentation-only input expanded engine selection'
+            foreach($changed in @('engine/codex-rs/unowned.rs','scripts/cargo-verification.cjs')){
+                $all=@(Get-FocusedEngineFeatureIds -PolicyPaths @($changed) -EngineSourceRoot $engine)
+                Assert-True ('engine.oauth' -cin $all -and 'engine.other' -cin $all -and 'ui.fixture' -cnotin $all) 'unmapped Rust or shared Cargo owner did not select registered engine checks conservatively'
+            }
+        }finally{$project=$savedProject}
+        $results.Add([pscustomobject]@{case=$Name;exitCode=0;passed=$true;metrics=$null});return
+    }
     if ($Mode -eq 'policy-selection') {
         $deployText = Get-Content -LiteralPath (Join-Path $PSScriptRoot 'deploy-azrael.ps1') -Raw
         $ast = [Management.Automation.Language.Parser]::ParseInput($deployText, [ref]$null, [ref]$null)
@@ -415,10 +441,44 @@ function Assert-AzraelVerificationStatePath {
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'clean-verification-artifacts.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'artifact-lifecycle.cjs') -Destination $scripts
+    Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'build-module-cache.ps1') -Destination $scripts
     Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'deployment-input-snapshot.cjs') -Destination $scripts
     Write-Utf8 (Join-Path $scripts 'test-project.cjs') $nodeStub
     Write-Utf8 (Join-Path $scripts 'feature-preservation.cjs') $preservationStub
-    Write-Utf8 (Join-Path $scripts 'pipeline-preflight.cjs') "const fs=require('node:fs'),path=require('node:path');const s=JSON.parse(fs.readFileSync(path.join(path.dirname(__dirname),'artifacts/scenario.json')));if(s.mode==='dependencies-fail'){console.error('causal dependency failure');process.exit(52);}console.log('{}');"
+    Write-Utf8 (Join-Path $scripts 'pipeline-preflight.cjs') @'
+const fs=require('node:fs'),path=require('node:path');
+const root=path.dirname(__dirname),a=path.join(root,'artifacts');
+const s=JSON.parse(fs.readFileSync(path.join(a,'scenario.json')));
+(async()=>{
+ if(process.argv.includes('--environment')){
+  if(s.mode==='environment-preflight-fail'){console.error('causal environment preflight failure');process.exitCode=61;return;}
+  const config=JSON.parse(fs.readFileSync(process.argv.at(-1),'utf8'));
+  fs.mkdirSync(config.temporaryDirectory,{recursive:true});
+  if(s.retainTemporaryReference){
+   const lifecycle=require('./artifact-lifecycle.cjs');
+   const record=lifecycle.catalog(root).find(record=>record.owner==='azrael-deployment-temporary');
+   lifecycle.recordLifecycle(root,{...record,references:[{id:'version:other-consumer',reason:'Other active deployment must retain protection',kind:'execution'}]});
+  }
+  console.log(JSON.stringify({environmentPatch:{TEMP:config.temporaryDirectory,TMP:config.temporaryDirectory,TMPDIR:config.temporaryDirectory},required:{python:false,cargo:false}}));return;
+ }
+ if(process.argv.includes('--prepare-tests')){
+  if(['test-preparation-fail','test-preparation-mutation'].includes(s.mode)){
+   const deadline=Date.now()+10000;
+   while(!fs.existsSync(path.join(a,'source-start.json'))){if(Date.now()>deadline)throw Error('owned source sibling did not start');await new Promise(resolve=>setTimeout(resolve,20));}
+   if(s.mode==='test-preparation-fail'){console.error('causal test type preparation failure');process.exitCode=62;return;}
+   fs.writeFileSync(path.join(root,'input.txt'),'mutated by test preparation');
+  }
+  console.log(JSON.stringify({status:0,preparations:[]}));return;
+ }
+ if(s.mode==='dependencies-fail'){console.error('causal dependency failure');process.exitCode=52;return;}
+ console.log('{}');
+})().catch(error=>{console.error(error);process.exitCode=9;});
+'@
+    Write-Utf8 (Join-Path $scripts 'cargo-preflight-recipes.cjs') @'
+const fs=require('node:fs'),path=require('node:path');
+const s=JSON.parse(fs.readFileSync(path.join(path.dirname(__dirname),'artifacts/scenario.json')));
+console.log(JSON.stringify({cargoPreparations:[],gaps:s.mode==='cargo-planner-gap'?[{path:'engine/codex-rs/unowned/tests.rs',reason:'No registered preparation recipe'}]:[],skipped:[]}));
+'@
     Write-Utf8 (Join-Path $scripts 'build-azrael.ps1') $buildStub
     Write-Utf8 (Join-Path $scripts 'check-accounts.mjs') $accountControlsStub
     Write-Utf8 (Join-Path $scripts 'prepare-independent-vscode.ps1') $prepareStub
@@ -448,7 +508,12 @@ function Assert-AzraelVerificationStatePath {
         & git -c core.longpaths=true -C $root update-index --add --cacheinfo "160000,$vendorHead,modules/vendor"
         Assert-True ($LASTEXITCODE -eq 0) 'fixture gitlink registration failed'
     }
-    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    @{mode=$Mode;stage=$Stage;uiFeatureIds=$uiFeatureIds;moduleCache=$ModuleCache;overlap=($Name -eq 'parallel prepare');slowSource=($Name -eq 'parallel prepare' -or $Mode -eq 'account-success');retainTemporaryReference=($Name -eq 'temporary references preserved')} | ConvertTo-Json | Set-Content (Join-Path $a 'scenario.json')
+    if($Mode -eq 'missing-registered-cache-project'){
+        $cacheRoot=Join-Path $a 'cache/modules'
+        New-Item -ItemType Directory -Path $cacheRoot | Out-Null
+        @{schema=1;projects=@((Join-Path $root 'missing registered project'))} | ConvertTo-Json -Depth 4 | Set-Content -LiteralPath (Join-Path $cacheRoot '.projects.json') -Encoding utf8NoBOM
+    }
     # A newer-looking deployment/tool directory must never influence explicit selection.
     New-Item -ItemType Directory -Path (Join-Path $a 'latest'), (Join-Path $a 'build/zz-newest/companion/node_modules/typescript/lib') -Force | Out-Null
     Write-Utf8 (Join-Path $a 'latest/azrael-host.vsix') 'untested latest package'
@@ -469,7 +534,8 @@ function Assert-AzraelVerificationStatePath {
     if($Exhaustive){$argsList += '-ExhaustiveRegression'}elseif($FullRegression){$argsList += '-FullRegression'}
     if($PolicyChangedPath){$argsList += @('-ChangedPath',$PolicyChangedPath)}
     if($ForceNative){$argsList += '-ForceNativeVerification'}
-    $moduleOwner=if($SharedModuleOwner){Join-Path $a 'shared module owner 한글'}else{''}
+    # The real shared cache owner must contain its registered execution project.
+    $moduleOwner=if($SharedModuleOwner){$fixtures}else{''}
     $windowTarget=if($SharedModuleOwner){Join-Path $a 'shared window target 한글'}else{''}
     if($SharedModuleOwner){$argsList += @('-ModuleCacheProjectRoot',$moduleOwner,'-WindowControlTargetDirectory',$windowTarget,'-CargoVerificationCacheProjectRoot',$moduleOwner,'-NamespaceCacheProjectRoot',$moduleOwner)}
     if($Mode -like 'account-*' -or $Mode -eq 'source-fail-after-build'){$argsList += '-VerifyAccountControls'}
@@ -495,6 +561,37 @@ function Assert-AzraelVerificationStatePath {
         return
     }
     $metrics=Get-Content -LiteralPath $metricsPath -Raw | ConvertFrom-Json
+    if($Mode -in @('environment-preflight-fail','cargo-planner-gap','test-preparation-fail','missing-registered-cache-project','test-preparation-mutation')){
+        Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'early preparation rejection did not abort deploy'
+        foreach($marker in @('build-start.json','native-start.json','prepare-invocation.json','account-invocation.json','check-invocation.json','install-invocation.json')){
+            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a $marker))) "early preparation rejection started downstream: $marker"
+        }
+        $stages=@($metrics.stages)
+        if($Mode -in @('environment-preflight-fail','cargo-planner-gap','missing-registered-cache-project')){
+            Assert-True (-not (Test-Path -LiteralPath (Join-Path $a 'source-start.json'))) 'early prerequisite rejection started source tests'
+            Assert-True (@($stages | Where-Object name -eq 'changed-test-type-preparation').Count -eq 0) 'early prerequisite rejection started compilation'
+        }
+        if($Mode -eq 'environment-preflight-fail'){
+            Assert-True (@($stages | Where-Object { $_.name -eq 'environment-preflight' -and $_.exitCode -eq 61 }).Count -eq 1) 'actual environment preflight exit lost'
+        }elseif($Mode -eq 'cargo-planner-gap'){
+            Assert-True (@($stages | Where-Object { $_.name -eq 'cargo-preparation-plan' -and $_.exitCode -eq 0 }).Count -eq 1) 'planner successful command exit lost'
+            Assert-True ((Get-Content -LiteralPath $stages[-1].stdout -Raw | ConvertFrom-Json).gaps.Count -eq 1) 'planner gap evidence lost'
+        }elseif($Mode -eq 'missing-registered-cache-project'){
+            Assert-True ((Get-Content -LiteralPath (Join-Path $logs "$Name.stderr.log") -Raw) -match 'Missing registered cache project') 'cache project registry cause lost'
+        }else{
+            $preparation=@($stages | Where-Object name -eq 'changed-test-type-preparation')
+            $source=@($stages | Where-Object name -eq 'source-tests')
+            Assert-True ($preparation.Count -eq 1 -and $preparation[0].exitCode -eq $(if($Mode -eq 'test-preparation-fail'){62}else{0})) 'actual preparation exit lost'
+            Assert-True ($source.Count -eq 1 -and $source[0].terminated -and $null -ne $source[0].exitCode) 'owned source sibling was not collected'
+            $ownedPid=(Get-Content -LiteralPath (Join-Path $a 'source-start.json') -Raw | ConvertFrom-Json).pid
+            Assert-True ($null -eq (Get-Process -Id $ownedPid -ErrorAction SilentlyContinue)) 'owned source sibling survived rejection'
+            if($Mode -eq 'test-preparation-mutation'){
+                $difference=Get-Content -LiteralPath (Join-Path $a 'logs/deploy-chosen/input-changes-post-test-preparation.json') -Raw | ConvertFrom-Json
+                Assert-True ($difference.status -ceq 'consumed-inputs-changed' -and @($difference.changes).Count -eq 1 -and $difference.changes[0].path -ceq 'input.txt' -and $difference.changes[0].kind -ceq 'modified') 'preparation mutation did not produce the exact consumed input difference'
+            }
+        }
+        $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath});return
+    }
     if($Mode -eq 'input-snapshot-fail'){
         Assert-True ($exit -ne 0 -and $metrics.status -ceq 'failed') 'snapshot failure did not abort deploy'
         Assert-True ($metrics.inputChecks.Count -eq 1 -and $metrics.inputChecks[0].phase -ceq 'initial' -and $metrics.inputChecks[0].exitCode -ne 0) 'helper nonzero exit was not propagated'
@@ -537,7 +634,7 @@ function Assert-AzraelVerificationStatePath {
         Assert-True ($metrics.status -ceq 'failed') 'preservation rejection was not reported as failed'
         $calls=@(Get-Content (Join-Path $a 'preservation-invocation.jsonl') | ForEach-Object { $_ | ConvertFrom-Json })
         $stageNames=@($metrics.stages.name)
-        $expectedStages='verification-dependencies|engine-source-preflight|source-tests|build|engine-preservation|prepare'
+        $expectedStages='environment-preflight|cargo-preparation-plan|verification-dependencies|engine-source-preflight|source-tests|changed-test-type-preparation|build|engine-preservation|prepare'
         $expectedActions='run|run'
         $markers=@('check-invocation.json','install-invocation.json')
         if($Mode -like 'package-preservation-*'){
@@ -633,7 +730,7 @@ function Assert-AzraelVerificationStatePath {
             Assert-True ($null -ne $call.config.PSObject.Properties['featureIds']) 'package verification feature selection missing'
             Assert-True ((@($call.config.featureIds) -join '|') -ceq (@($expectedUiIds) -join '|')) 'package verification feature scope lost'
         }
-        Assert-True (($metrics.inputChecks.phase -join '|') -ceq 'initial|post-build|pre-install') 'whole-project guard phases changed or redundant guard returned'
+        Assert-True (($metrics.inputChecks.phase -join '|') -ceq 'initial|post-test-preparation|post-build|pre-install') 'whole-project guard phases changed or redundant guard returned'
         foreach($inputCheck in $metrics.inputChecks){
             Assert-True ($inputCheck.exitCode -eq 0 -and $inputCheck.durationMs -ge 0 -and $inputCheck.fileCount -gt 0 -and $inputCheck.bytes -gt 0) 'missing successful content-snapshot metrics'
             Assert-True ($inputCheck.sha256 -ceq $metrics.projectInputSha256 -and (Test-Path -LiteralPath $inputCheck.report)) 'input guard digest/report lost'
@@ -734,8 +831,22 @@ function Assert-AzraelVerificationStatePath {
             Assert-True ($accountRuns.Count -eq 0 -and $metrics.accountLifecycle.state -eq 'complete' -and $metrics.accountLifecycle.membership_complete -and $metrics.accountLifecycle.members.Count -eq 1) 'completed account fixture run was not finalized independently'
         }
     }
+    if($Name -eq 'temporary references preserved'){
+        $temporaryRecords=@(Get-ChildItem -LiteralPath (Join-Path $a 'maintenance/lifecycles') -Filter '*.json' | ForEach-Object {Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json} | Where-Object owner -eq 'azrael-deployment-temporary')
+        Assert-True ($temporaryRecords.Count -eq 1 -and $temporaryRecords[0].state -ceq 'complete') 'stable temporary lifecycle missing after successful deployment'
+        Assert-True (@($temporaryRecords[0].references | Where-Object { $_.id -ceq 'version:chosen' -and $_.kind -ceq 'execution' }).Count -eq 0) 'completed deployment temporary execution reference retained'
+        Assert-True (@($temporaryRecords[0].references | Where-Object { $_.id -ceq 'version:other-consumer' -and $_.kind -ceq 'execution' }).Count -eq 1) 'another active temporary consumer reference was released'
+        Assert-True ($temporaryRecords[0].members[0].path -ceq (Join-Path $a 'verification/build-temp')) 'deployment temporary output used an unstable path'
+    }
     $results.Add([pscustomobject]@{case=$Name;exitCode=$exit;passed=$true;metrics=$metricsPath})
 }
+    Invoke-Case 'environment preflight failure' 'environment-preflight-fail'
+    Invoke-Case 'registered engine owner selection' 'registered-owner-selection'
+    Invoke-Case 'cargo planner gap' 'cargo-planner-gap'
+    Invoke-Case 'test preparation failure' 'test-preparation-fail'
+    Invoke-Case 'missing registered cache project' 'missing-registered-cache-project'
+    Invoke-Case 'test preparation input mutation' 'test-preparation-mutation'
+    Invoke-Case 'temporary references preserved' 'success'
     Invoke-Case 'policy selection' 'policy-selection'
     Invoke-Case 'engine-source-preflight-fail' 'engine-source-preflight-fail'
     Invoke-Case 'dependencies-fail' 'dependencies-fail'

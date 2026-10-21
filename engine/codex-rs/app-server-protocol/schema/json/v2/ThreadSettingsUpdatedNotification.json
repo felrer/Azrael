@@ -318,6 +318,10 @@
         "approvalsReviewer": {
           "$ref": "#/definitions/ApprovalsReviewer"
         },
+        "autoCompactionEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
         "collaborationMode": {
           "$ref": "#/definitions/CollaborationMode"
         },

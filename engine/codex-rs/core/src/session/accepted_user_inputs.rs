@@ -245,7 +245,20 @@ impl Session {
                 origin,
             };
             let json = serde_json::to_string(&payload).map_err(storage_error)?;
-            if receipt.payload_sha256 != format!("{:x}", Sha256::digest(json.as_bytes())) {
+            let mut matches_payload =
+                receipt.payload_sha256 == format!("{:x}", Sha256::digest(json.as_bytes()));
+            // Before queue provenance was recorded, queued receipts used the User origin.
+            // Accept only the identical payload under that prior origin.
+            if !matches_payload && origin == UserInputOrigin::Queue {
+                let legacy = AcceptedPayload {
+                    origin: UserInputOrigin::User,
+                    ..payload
+                };
+                let json = serde_json::to_string(&legacy).map_err(storage_error)?;
+                matches_payload =
+                    receipt.payload_sha256 == format!("{:x}", Sha256::digest(json.as_bytes()));
+            }
+            if !matches_payload {
                 return Err(CodexErr::InvalidRequest(
                     "client input ID was already accepted with a different payload".into(),
                 ));
@@ -300,6 +313,9 @@ impl Session {
                     return Err(storage_error("concurrent duplicate input submission"));
                 }
             }
+        }
+        if origin != UserInputOrigin::Queue {
+            self.accept_question_replies(content).await;
         }
         Ok(Some(order))
     }
@@ -438,6 +454,8 @@ impl Session {
                 .pending_user_inputs(self.thread_id)
                 .await?;
             for receipt in pending {
+                let accepted: AcceptedPayload = serde_json::from_str(receipt.payload_json.as_deref().ok_or_else(|| anyhow::anyhow!("pending input has no payload"))?)?;
+                if accepted.origin != UserInputOrigin::Queue { self.accept_question_replies(&accepted.content).await; }
                 if let Some(index) = rollout.iter().position(|item| recorded_receipt(item, &receipt.turn_id, receipt.acceptance_order)) {
                     let payload: AcceptedPayload = serde_json::from_str(receipt.payload_json.as_deref().ok_or_else(|| anyhow::anyhow!("pending input has no payload"))?)?;
                     let RolloutItem::ResponseItem(envelope) = &rollout[index] else { unreachable!() };

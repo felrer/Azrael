@@ -58,7 +58,7 @@ const libArgs = [
   "--lib", "auto_compaction", "--locked", "--offline", "--", "--test-threads=1",
 ];
 const integrationArgs = [
-  "test", "-p", "codex-core", "--test", "all", "auto_compaction", "--locked", "--offline", "--", "--test-threads=1",
+  "test", "-p", "codex-core", "--test", "all", "--features", "codex-core/integration-tests", "auto_compaction", "--locked", "--offline", "--", "--test-threads=1",
 ];
 
 test("parent requests drops only codex-protocol and retains filters and host isolation", () => {

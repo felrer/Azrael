@@ -29,6 +29,10 @@
             "null"
           ]
         },
+        "autoCompactionEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
         "contextWindow": {
           "format": "int64",
           "type": [

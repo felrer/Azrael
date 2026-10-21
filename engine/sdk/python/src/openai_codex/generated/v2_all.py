@@ -387,6 +387,7 @@ class AsyncUserInputQuestion(BaseModel):
     )
     options: list[str] | None = None
     title: str
+    withdrawn: bool | None = None
 
 
 class AuthMode(Enum):
@@ -411,6 +412,7 @@ class AuthRecoveryNotification(BaseModel):
 
 
 class AutoCompactSource(Enum):
+    model = "model"
     provider = "provider"
     global_ = "global"
     default = "default"
@@ -2178,6 +2180,32 @@ class HooksListParams(BaseModel):
     ] = None
 
 
+class HostApprovalDecision(Enum):
+    accept = "accept"
+    decline = "decline"
+    cancel = "cancel"
+
+
+class HostApprovalPersistence(Enum):
+    session = "session"
+    always = "always"
+
+
+class HostApprovalResumeState(Enum):
+    none = "none"
+    pending = "pending"
+    claimed = "claimed"
+    resumed = "resumed"
+    cancelled = "cancelled"
+
+
+class HostApprovalState(Enum):
+    pending = "pending"
+    accepted = "accepted"
+    declined = "declined"
+    cancelled = "cancelled"
+
+
 class ImageDetail(Enum):
     auto = "auto"
     low = "low"
@@ -2876,6 +2904,14 @@ class ModelAccessPrograms(BaseModel):
     cyber: Annotated[list[CyberAccessProgram], Field(description="Accepted explicit selections.")]
 
 
+class ModelAutoCompact(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    percentage: Annotated[int | None, Field(ge=1)] = None
+    token_limit: Annotated[int | None, Field(ge=1)] = None
+
+
 class ModelAvailabilityNux(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -3122,6 +3158,38 @@ class NullableGetAccountTokenUsageParams(RootModel[GetAccountTokenUsageParams | 
     root: Annotated[
         GetAccountTokenUsageParams | None, Field(title="Nullable_GetAccountTokenUsageParams")
     ]
+
+
+class ParentRequestDeliveryState(Enum):
+    queued = "queued"
+    resume_scheduled = "resume_scheduled"
+    delivered = "delivered"
+    blocked = "blocked"
+
+
+class ParentRequestPresentation(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    child_agent_path: Annotated[AgentPath, Field(alias="childAgentPath")]
+    parent_turn_id: Annotated[str, Field(alias="parentTurnId")]
+
+
+class ParentRequestStatus(Enum):
+    pending = "pending"
+    resolved = "resolved"
+    cancelled = "cancelled"
+    deferred = "deferred"
+
+
+class ParentResponse(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    decision: str
+    reason: str
+    retry_condition: Annotated[str | None, Field(alias="retryCondition")] = None
+    status: ParentRequestStatus
 
 
 class PatchApplyStatus(Enum):
@@ -3749,10 +3817,39 @@ class ProjectSortKey(Enum):
     recency_at = "recencyAt"
 
 
+class ProjectUsageModel(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    amount: float
+    model: str
+    provider: str
+    unpriced: int
+
+
+class ProjectUsageParams(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    year: int
+
+
+class ProjectUsageProject(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    amount: float
+    id: str
+    models: list[ProjectUsageModel]
+    name: str
+    unpriced: int
+
+
 class ProviderAutoCompact(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
     )
+    models: dict[str, ModelAutoCompact] | None = None
     percentage: Annotated[int | None, Field(ge=1)] = None
     token_limit: Annotated[int | None, Field(ge=1)] = None
 
@@ -4401,6 +4498,13 @@ class RootResumeParams(BaseModel):
     revision: int | None = None
 
 
+class RootResumeReasoningSettings(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    effort: ReasoningEffort | None = None
+
+
 class RootResumeState(Enum):
     preparing = "preparing"
     waiting = "waiting"
@@ -4436,6 +4540,7 @@ class RootResumeWakeReason(Enum):
     deadline = "deadline"
     agents_completed = "agents_completed"
     work_completed = "work_completed"
+    parent_request = "parent_request"
     user_input = "user_input"
     manual = "manual"
 
@@ -5335,6 +5440,63 @@ class ThreadActiveFlag(Enum):
     waiting_on_user_input = "waitingOnUserInput"
 
 
+class ThreadApprovalDeferParams(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    owner_token: Annotated[str, Field(alias="ownerToken")]
+    request_id: Annotated[str, Field(alias="requestId")]
+    scope_key: Annotated[str, Field(alias="scopeKey")]
+    thread_id: Annotated[str, Field(alias="threadId")]
+
+
+class ThreadApprovalListParams(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    owner_token: Annotated[str, Field(alias="ownerToken")]
+    thread_id: Annotated[str, Field(alias="threadId")]
+
+
+class ThreadApprovalRequestParams(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    owner_token: Annotated[str, Field(alias="ownerToken")]
+    payload: Any
+    request_id: Annotated[str, Field(alias="requestId")]
+    scope_key: Annotated[str, Field(alias="scopeKey")]
+    thread_id: Annotated[str, Field(alias="threadId")]
+
+
+class ThreadApprovalResolveParams(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    decision: HostApprovalDecision
+    owner_token: Annotated[str, Field(alias="ownerToken")]
+    persistence: HostApprovalPersistence | None = None
+    request_id: Annotated[str, Field(alias="requestId")]
+    resume: bool
+    scope_key: Annotated[str, Field(alias="scopeKey")]
+    thread_id: Annotated[str, Field(alias="threadId")]
+
+
+class ThreadApprovalWithdrawParams(BaseModel):
+    model_config = ConfigDict(
+        extra="forbid",
+        populate_by_name=True,
+    )
+    owner_token: Annotated[str, Field(alias="ownerToken")]
+    reason: str
+    request_id: Annotated[str | None, Field(alias="requestId")] = None
+    thread_id: Annotated[str, Field(alias="threadId")]
+
+
 class ThreadApproveGuardianDeniedActionParams(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -5703,30 +5865,6 @@ class DynamicToolCallThreadItem(BaseModel):
     success: bool | None = None
     tool: str
     type: Annotated[Literal["dynamicToolCall"], Field(title="DynamicToolCallThreadItemType")]
-
-
-class SubAgentActivityThreadItem(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-    )
-    agent_path: Annotated[str, Field(alias="agentPath")]
-    agent_thread_id: Annotated[str, Field(alias="agentThreadId")]
-    id: str
-    kind: SubAgentActivityKind
-    model: Annotated[
-        str | None,
-        Field(
-            description="Resolved model at sub-agent creation; absent from older records and other activities."
-        ),
-    ] = None
-    reasoning_effort: Annotated[
-        ReasoningEffort | None,
-        Field(
-            alias="reasoningEffort",
-            description="Resolved reasoning effort at sub-agent creation, when known.",
-        ),
-    ] = None
-    type: Annotated[Literal["subAgentActivity"], Field(title="SubAgentActivityThreadItemType")]
 
 
 class ImageViewThreadItem(BaseModel):
@@ -7264,6 +7402,61 @@ class ThreadGoalGetRequest(BaseModel):
     params: ThreadGoalGetParams
 
 
+class ThreadApprovalDeferRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["thread/approval/defer"], Field(title="Thread/approval/deferRequestMethod")
+    ]
+    params: ThreadApprovalDeferParams
+
+
+class ThreadApprovalRequestRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["thread/approval/request"], Field(title="Thread/approval/requestRequestMethod")
+    ]
+    params: ThreadApprovalRequestParams
+
+
+class ThreadApprovalListRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["thread/approval/list"], Field(title="Thread/approval/listRequestMethod")
+    ]
+    params: ThreadApprovalListParams
+
+
+class ThreadApprovalResolveRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["thread/approval/resolve"], Field(title="Thread/approval/resolveRequestMethod")
+    ]
+    params: ThreadApprovalResolveParams
+
+
+class ThreadApprovalWithdrawRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["thread/approval/withdraw"], Field(title="Thread/approval/withdrawRequestMethod")
+    ]
+    params: ThreadApprovalWithdrawParams
+
+
 class ThreadMetadataUpdateRequest(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -7933,6 +8126,17 @@ class AzraelRootResumeRequest(BaseModel):
     id: RequestId
     method: Annotated[Literal["azrael/rootResume"], Field(title="Azrael/rootResumeRequestMethod")]
     params: RootResumeParams
+
+
+class AzraelProjectUsageRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    id: RequestId
+    method: Annotated[
+        Literal["azrael/projectUsage"], Field(title="Azrael/projectUsageRequestMethod")
+    ]
+    params: ProjectUsageParams
 
 
 class AccountRateLimitsReadRequest(BaseModel):
@@ -8939,6 +9143,22 @@ class HooksListResponse(BaseModel):
     data: list[HooksListEntry]
 
 
+class HostApprovalRecord(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    original_root_turn_id: Annotated[str | None, Field(alias="originalRootTurnId")] = None
+    original_turn_id: Annotated[str | None, Field(alias="originalTurnId")] = None
+    payload: Any
+    persistence: HostApprovalPersistence | None = None
+    request_id: Annotated[str, Field(alias="requestId")]
+    resume_state: Annotated[HostApprovalResumeState, Field(alias="resumeState")]
+    resume_turn_id: Annotated[str | None, Field(alias="resumeTurnId")] = None
+    scope_key: Annotated[str, Field(alias="scopeKey")]
+    state: HostApprovalState
+    waiter_detached: Annotated[bool, Field(alias="waiterDetached")]
+
+
 class ListMcpServerStatusParams(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -9234,6 +9454,40 @@ class OverriddenMetadata(BaseModel):
     overriding_layer: Annotated[ConfigLayerMetadata, Field(alias="overridingLayer")]
 
 
+class ParentRequest(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    blocked_action: Annotated[str, Field(alias="blockedAction")]
+    child_task_id: Annotated[str, Field(alias="childTaskId")]
+    child_thread_id: Annotated[str, Field(alias="childThreadId")]
+    context: str
+    created_at_ms: Annotated[int, Field(alias="createdAtMs")]
+    delivery_reason: Annotated[
+        str | None,
+        Field(
+            alias="deliveryReason",
+            description="Content-free delivery diagnostic code; never question or response text.",
+        ),
+    ] = None
+    delivery_state: Annotated[
+        ParentRequestDeliveryState,
+        Field(
+            alias="deliveryState",
+            description="Delivery of the current leg: request before response, response after save.",
+        ),
+    ]
+    parent_thread_id: Annotated[str, Field(alias="parentThreadId")]
+    presentation: ParentRequestPresentation | None = None
+    question: str
+    recommendation: str
+    request_id: Annotated[str, Field(alias="requestId")]
+    request_key: Annotated[str, Field(alias="requestKey")]
+    response: ParentResponse | None = None
+    status: ParentRequestStatus
+    updated_at_ms: Annotated[int, Field(alias="updatedAtMs")]
+
+
 class PermissionProfileListResponse(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -9328,6 +9582,22 @@ class Project(BaseModel):
     ] = None
     roots: list[ProjectRoot]
     updated_at: Annotated[int, Field(alias="updatedAt")]
+
+
+class ProjectUsageDay(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    date: str
+    projects: list[ProjectUsageProject]
+
+
+class ProjectUsageResponse(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    currency: str
+    days: list[ProjectUsageDay]
 
 
 class QueuedSubmission(BaseModel):
@@ -9490,6 +9760,9 @@ class RootResumeReservation(BaseModel):
     last_error: Annotated[str | None, Field(alias="lastError")] = None
     originating_turn_id: Annotated[str, Field(alias="originatingTurnId")]
     reason: str
+    reasoning_settings: Annotated[
+        RootResumeReasoningSettings | None, Field(alias="reasoningSettings")
+    ] = None
     resume_at_ms: Annotated[int, Field(alias="resumeAtMs")]
     resume_turn_id: Annotated[str, Field(alias="resumeTurnId")]
     revision: int
@@ -10257,6 +10530,20 @@ class SubAgentSource(
     root: SubAgentSourceValue | ThreadSpawnSubAgentSource | OtherSubAgentSource
 
 
+class ThreadApprovalListResponse(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    requests: list[HostApprovalRecord]
+
+
+class ThreadApprovalResponse(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    request: HostApprovalRecord
+
+
 class ThreadForkParams(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -10510,6 +10797,31 @@ class CollabAgentToolCallThreadItem(BaseModel):
     ]
 
 
+class SubAgentActivityThreadItem(BaseModel):
+    model_config = ConfigDict(
+        populate_by_name=True,
+    )
+    agent_path: Annotated[str, Field(alias="agentPath")]
+    agent_thread_id: Annotated[str, Field(alias="agentThreadId")]
+    id: str
+    kind: SubAgentActivityKind
+    model: Annotated[
+        str | None,
+        Field(
+            description="Resolved model at sub-agent creation; absent from older records and other activities."
+        ),
+    ] = None
+    parent_request: Annotated[ParentRequest | None, Field(alias="parentRequest")] = None
+    reasoning_effort: Annotated[
+        ReasoningEffort | None,
+        Field(
+            alias="reasoningEffort",
+            description="Resolved reasoning effort at sub-agent creation, when known.",
+        ),
+    ] = None
+    type: Annotated[Literal["subAgentActivity"], Field(title="SubAgentActivityThreadItemType")]
+
+
 class WebSearchThreadItem(BaseModel):
     model_config = ConfigDict(
         populate_by_name=True,
@@ -10741,6 +11053,7 @@ class ThreadSettings(BaseModel):
     ] = None
     approval_policy: Annotated[AskForApproval, Field(alias="approvalPolicy")]
     approvals_reviewer: Annotated[ApprovalsReviewer, Field(alias="approvalsReviewer")]
+    auto_compaction_enabled: Annotated[bool | None, Field(alias="autoCompactionEnabled")] = True
     collaboration_mode: Annotated[CollaborationMode, Field(alias="collaborationMode")]
     cwd: AbsolutePathBuf
     disabled_plugin_ids: Annotated[
@@ -11310,6 +11623,7 @@ class ContextPolicy(BaseModel):
     auto_compact_base_tokens: Annotated[int | None, Field(alias="autoCompactBaseTokens")] = None
     auto_compact_source: Annotated[AutoCompactSource, Field(alias="autoCompactSource")]
     auto_compact_token_limit: Annotated[int | None, Field(alias="autoCompactTokenLimit")] = None
+    auto_compaction_enabled: Annotated[bool | None, Field(alias="autoCompactionEnabled")] = True
     context_window: Annotated[int | None, Field(alias="contextWindow")] = None
     input_tokens: Annotated[int | None, Field(alias="inputTokens")] = None
     input_tokens_estimated: Annotated[bool, Field(alias="inputTokensEstimated")]
@@ -12154,6 +12468,10 @@ class Turn(BaseModel):
             description="Describes how much of `items` has been loaded for this turn.",
         ),
     ] = "full"
+    parent_turn_id: Annotated[
+        str | None,
+        Field(alias="parentTurnId", description="Parent recorded by the engine, when known."),
+    ] = None
     root_resume_wait: Annotated[
         RootResumeWait | None,
         Field(
@@ -12173,6 +12491,13 @@ class Turn(BaseModel):
         Field(alias="startedAt", description="Unix timestamp (in seconds) when the turn started."),
     ] = None
     status: TurnStatus
+    turn_trigger: Annotated[
+        str | None,
+        Field(
+            alias="turnTrigger",
+            description="Recorded trigger such as `user` or `root_resume`; absent in older history.",
+        ),
+    ] = None
 
 
 class TurnCompletedNotification(BaseModel):
@@ -12671,6 +12996,13 @@ class Thread(BaseModel):
         Field(
             alias="agentRole",
             description="Optional role (agent_role) assigned to an AgentControl-spawned sub-agent.",
+        ),
+    ] = None
+    auto_compaction_enabled: Annotated[
+        bool | None,
+        Field(
+            alias="autoCompactionEnabled",
+            description="Current live or latest saved thread-owned automatic compaction setting.",
         ),
     ] = None
     cli_version: Annotated[
@@ -13215,6 +13547,11 @@ class ClientRequest(
         | ThreadGoalSetRequest
         | ThreadGoalGetRequest
         | ThreadGoalClearRequest
+        | ThreadApprovalDeferRequest
+        | ThreadApprovalRequestRequest
+        | ThreadApprovalListRequest
+        | ThreadApprovalResolveRequest
+        | ThreadApprovalWithdrawRequest
         | ThreadMetadataUpdateRequest
         | ThreadAttachmentAddRequest
         | ThreadAttachmentListRequest
@@ -13292,6 +13629,7 @@ class ClientRequest(
         | AzraelDevinRequest
         | AzraelAccountRequest
         | AzraelRootResumeRequest
+        | AzraelProjectUsageRequest
         | AccountRateLimitsReadRequest
         | AccountRateLimitResetCreditConsumeRequest
         | AccountUsageReadRequest
@@ -13329,6 +13667,11 @@ class ClientRequest(
         | ThreadGoalSetRequest
         | ThreadGoalGetRequest
         | ThreadGoalClearRequest
+        | ThreadApprovalDeferRequest
+        | ThreadApprovalRequestRequest
+        | ThreadApprovalListRequest
+        | ThreadApprovalResolveRequest
+        | ThreadApprovalWithdrawRequest
         | ThreadMetadataUpdateRequest
         | ThreadAttachmentAddRequest
         | ThreadAttachmentListRequest
@@ -13406,6 +13749,7 @@ class ClientRequest(
         | AzraelDevinRequest
         | AzraelAccountRequest
         | AzraelRootResumeRequest
+        | AzraelProjectUsageRequest
         | AccountRateLimitsReadRequest
         | AccountRateLimitResetCreditConsumeRequest
         | AccountUsageReadRequest

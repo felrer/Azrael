@@ -40,6 +40,8 @@ const { COMPACTION_PROGRESS_REDUCER_ASSET, injectCompactionProgress } = require(
 const { QUEUE_REFRESH_ASSET, injectQueueRefresh } = require("./inject-queue-refresh.cjs");
 const { ACCOUNT_QUEUE_CORE_ASSET, ACCOUNT_QUEUE_PRESENTATION_ASSET, ACCOUNT_QUEUE_LIST_ASSET, injectAccountSwitchQueue } = require("./inject-account-switch-queue.cjs");
 const { QUEUE_CONSUMPTION_ASSET, injectQueueConsumption } = require("./inject-queue-consumption.cjs");
+const { QUESTION_WITHDRAWAL_ASSETS, injectQuestionWithdrawal } = require("./inject-question-withdrawal.cjs");
+const { QUESTION_QUEUE_ASSETS, injectQuestionQueue } = require("./inject-question-queue.cjs");
 const { PROVIDER_PICKER_ASSETS, injectProviderModelPicker } = require("./inject-provider-model-picker.cjs");
 const { MAX_REASONING_ASSETS, injectMaxReasoning } = require("./inject-max-reasoning.cjs");
 const { loadManifest, validateManifest, validateTransformReport } = require("./feature-preservation.cjs");
@@ -379,7 +381,9 @@ function transformAsset(source, relativePath, filename, ts) {
       relativePath === QUEUED_COMPACTION_LIST_ASSET ? injectQueuedCompactionList(queueRefresh.text) : { text: queueRefresh.text, count: 0 };
   const queueConsumption = relativePath === QUEUE_CONSUMPTION_ASSET ? injectQueueConsumption(queuedCompaction.text) : { text: queuedCompaction.text, count: 0 };
   const accountQueue = injectAccountSwitchQueue(queueConsumption.text, relativePath);
-  const providerPicker = injectProviderModelPicker(accountQueue.text, relativePath);
+  const questionQueue = injectQuestionQueue(accountQueue.text, relativePath);
+  const questionWithdrawal = injectQuestionWithdrawal(questionQueue.text, relativePath);
+  const providerPicker = injectProviderModelPicker(questionWithdrawal.text, relativePath);
   const maxReasoning = injectMaxReasoning(providerPicker.text, relativePath);
   const threadBranch = injectThreadBranch(maxReasoning.text, relativePath);
   const capacityRetryStop = injectCapacityRetryStop(threadBranch.text, relativePath);
@@ -419,7 +423,7 @@ function transformAsset(source, relativePath, filename, ts) {
   // Role admission must preserve request hooks already added by approvals and recovery.
   const teamRuntime = injectTeamRuntime(sessionLinks.text, relativePath);
   const taskProfile = injectTaskProfile(teamRuntime.text, relativePath);
-  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
+  if (commandDragBlock.count || scrollFade.count || errorPresentation.count || namespaced.count || accountSettings.count || instructionSettings.count || studentDesign.count || filtered.count || fetchResponse.count || recovered.count || deferred.count || workSegmentFolding.count || parentRequestActivity.count || taskWorkTime.count || compactionProgress.count || queueRefresh.count || queuedCompaction.count || queueConsumption.count || accountQueue.count || questionWithdrawal.count || questionQueue.count || providerPicker.count || maxReasoning.count || threadBranch.count || capacityRetryStop.count || paginatedHistory.count || submitOnlyThread.count || recentChatFilter.count || sessionFlags.count || teamUI.count || teamRuntime.count || taskProfile.count || webviewIdle.count || immediateStop.count || urlSafety.count || computerUse.count || computerUseSettings.count || computerUseCancelRequest.count || windowApprovalTitle.count || computerUseManagement.count || windowControl.count || windowApprovalClassifier.count || fileOpenMenu.count || imageFileOpen.count || missingImage.count || localFileDrop.count || composerDraft.count || btw.count || providerContext.count || imageSketch.count || uiCleanup.count || autoReview.count || petsCleanup.count || contentFonts.count || uiInputDiagnostics.count || sessionLinks.count) {
     const asset = {
       path: relativePath,
       edits: 0,
@@ -457,6 +461,8 @@ function transformAsset(source, relativePath, filename, ts) {
       queuedCompactionEdits: queuedCompaction.count,
       queueConsumptionEdits: queueConsumption.count,
       accountSwitchQueueEdits: accountQueue.count,
+      questionWithdrawalEdits: questionWithdrawal.count,
+      questionQueueEdits: questionQueue.count,
       urlSafetyTransportEdits: urlSafety.count,
       computerUseApprovalEdits: computerUse.count,
       computerUseSettingsEdits: computerUseSettings.count,
@@ -491,12 +497,12 @@ function transformAsset(source, relativePath, filename, ts) {
 
 function getTransformRules() {
   const transformSources = [
-    "inject-window-control.cjs", "window-control-host.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
+    "inject-window-control.cjs", "window-control-host.cjs", "window-use-async-approvals.cjs", "window-control-backend.cjs", "window-control-policy.cjs", "window-control-errors.cjs", "window-control-occupancy.cjs", "window-task-macros.cjs",
     "namespace-azrael-host.cjs", "asset-transform-cache.cjs", "namespace-cache-owner.cjs", "ordered-asset-reader.cjs", "inject-recovery.cjs", "inject-fetch-response.cjs", "inject-project-drafts.cjs", "inject-url-safety-transport.cjs", "inject-computer-use.cjs", "computer-use-approvals.cjs", "inject-image-file-open.cjs", "inject-missing-image.cjs", "inject-file-open-menu.cjs", "pdf-file-open.cjs", "inject-local-file-drop.cjs", "inject-composer-draft.cjs",
     "inject-deferred-turn.cjs", "inject-work-segment-folding.cjs", "inject-parent-request-activity.cjs", "root-resume-wait.cjs", "inject-compaction-progress.cjs", "inject-queue-refresh.cjs",
     "inject-task-work-time.cjs", "task-work-time.cjs", "task-work-time-history.cjs",
     "inject-ui-input-diagnostics.cjs", "ui-input-diagnostics-runtime.cjs", "ui-health-runtime.cjs", "optional-diagnostics.cjs",
-    "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs",
+    "inject-queue-consumption.cjs", "inject-queued-compaction.cjs", "inject-account-switch-queue.cjs", "inject-question-withdrawal.cjs", "inject-question-queue.cjs",
     "inject-provider-model-picker.cjs", "provider-model-picker.cjs", "astra-speed-toggle.cjs", "inject-account-settings.cjs", "inject-instruction-settings.cjs",
     "inject-max-reasoning.cjs", "feature-preservation.cjs", "azrael-feature-contracts.json",
     "inject-student-design.cjs", "student-avatar-assets.cjs",
@@ -528,6 +534,7 @@ const ASSET_RULE_PATHS = {
   "session-links.cjs": ["out/extension.js"],
   "inject-window-control.cjs": ["out/extension.js", WINDOW_CONTROL_SETTINGS_ASSET, APPROVAL_CLASSIFIER_ASSET],
   "window-control-host.cjs": ["out/extension.js"],
+  "window-use-async-approvals.cjs": ["out/extension.js"],
   "window-control-backend.cjs": ["out/extension.js"],
   "window-control-policy.cjs": ["out/extension.js"],
   "window-control-errors.cjs": ["out/extension.js"],
@@ -564,6 +571,8 @@ const ASSET_RULE_PATHS = {
   "inject-compaction-progress.cjs": [COMPACTION_PROGRESS_REDUCER_ASSET],
   "inject-queue-refresh.cjs": [QUEUE_REFRESH_ASSET],
   "inject-queue-consumption.cjs": [QUEUE_CONSUMPTION_ASSET],
+  "inject-question-withdrawal.cjs": QUESTION_WITHDRAWAL_ASSETS,
+  "inject-question-queue.cjs": QUESTION_QUEUE_ASSETS,
   "inject-ui-input-diagnostics.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
   "ui-input-diagnostics-runtime.cjs": [QUEUE_CONSUMPTION_ASSET, COMPOSER_DRAFT_ASSET, "webview/assets/app-initial-c014f9ee4429.js"],
   "ui-health-runtime.cjs": ["webview/assets/app-initial-7a199c66e670.js"],

@@ -105,6 +105,68 @@ fn provider_changes_are_separate_from_model_changes() {
     );
 }
 
+#[tokio::test]
+async fn world_state_refreshes_shared_profile_across_providers_including_full_handoff() {
+    use crate::context::world_state::WorldStateUpdateContent;
+    use crate::session::step_context::StepContext;
+
+    let has_model_instructions = |updates: Vec<crate::context::world_state::WorldStateUpdate>| {
+        updates.iter().any(|update| match &update.content {
+            WorldStateUpdateContent::Fragment(fragment) => {
+                fragment.content_kind().0 == "model_switch.instructions"
+            }
+            WorldStateUpdateContent::Item(_) => false,
+        })
+    };
+
+    let (session, mut turn) = crate::session::tests::make_session_and_context().await;
+    // Native routing must use the saved native provider rather than the managed router ID.
+    let config = Arc::make_mut(&mut turn.config);
+    config.native_model_provider = Some(("native-test".into(), config.model_provider.clone()));
+    config.model_provider_id = "managed".into();
+    let turn = Arc::new(turn);
+    let step = StepContext::for_test(Arc::clone(&turn));
+    let model = turn.model_info().slug.clone();
+    session
+        .set_previous_turn_settings(Some(PreviousTurnSettings {
+            model: "api/0123456789abcdef0123456789abcdef/vendor/model".into(),
+            comp_hash: None,
+            cyber_access_program: None,
+            realtime_active: None,
+        }))
+        .await;
+    for new_window in [false, true] {
+        let world = session
+            .build_world_state_for_step(&step, new_window)
+            .await
+            .unwrap();
+        let (snapshot, updates) = world.render_full();
+        let snapshot = snapshot.into_object();
+        assert_eq!(snapshot["model"]["provider"], "native-test");
+        assert!(has_model_instructions(updates));
+    }
+    let world = session
+        .build_world_state_for_step(&step, false)
+        .await
+        .unwrap();
+    let (snapshot, _) = world.render_full();
+    session
+        .set_previous_turn_settings(Some(PreviousTurnSettings {
+            model,
+            comp_hash: None,
+            cyber_access_program: None,
+            realtime_active: None,
+        }))
+        .await;
+    let world = session
+        .build_world_state_for_step(&step, false)
+        .await
+        .unwrap();
+    let (_, updates) =
+        world.render_history_diff(Some(&snapshot), std::iter::empty::<&ResponseItem>());
+    assert!(!has_model_instructions(updates));
+}
+
 #[test]
 fn only_confirmed_quota_failures_authorize_context_loss() {
     assert!(quota_exhausted(&CodexErr::new(

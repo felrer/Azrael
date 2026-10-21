@@ -8,7 +8,9 @@ const gate = require('./feature-preservation.cjs');
 const { getDirectoryState } = require('./directory-state.cjs');
 const cache = require('./verification-result-cache.cjs');
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
-const fixtures = fs.mkdtempSync(path.resolve(__dirname, '../artifacts/verification/native-cache-'));
+const output = path.resolve(process.env.AZRAEL_NATIVE_CACHE_TEST_OUTPUT || path.resolve(__dirname, '../artifacts/logs/test-reduction/native'));
+fs.mkdirSync(output, { recursive: true });
+const fixtures = fs.mkdtempSync(path.join(output, 'native-cache-'));
 const summaries = [];
 let sequence = 0;
 function write(root, file, contents) {
@@ -56,7 +58,8 @@ console.log('passing native evidence '+id);process.exit(control.fail===id?9:0);`
     assert.equal(calls().length - before, executed);
     assert.equal(receipt.nativeCache.executed, executed); assert.equal(receipt.nativeCache.reused, reused);
     if (status === 'passed') {
-      assert.equal(identities - identityBefore, 2, 'full identities must run before and after every hit');
+      const completedEligible = config.manifest.features.some(feature => feature.checks.some(check => check.nativeCacheInputs)) ? executed : 0;
+      assert.equal(identities - identityBefore, 2 + completedEligible, 'full gate identities and per-completed-check publication identities must run');
       for (const duration of Object.values(receipt.timings)) assert(Number.isFinite(duration) && duration >= 0);
       assert.equal(receipt.checks.filter(check => check.executionStatus === 'reused').length, reused);
       assert(receipt.checks.every(check => check.executionReason && check.exitCode === 0));
@@ -72,7 +75,7 @@ console.log('passing native evidence '+id);process.exit(control.fail===id?9:0);`
 test('public gate cold/warm executes three real child probes and retains independent evidence', async () => {
   const f = setup(), cold = await f.run(3, 0), warm = await f.run(0, 3);
   assert.equal(cold.nativeCache.eligible, 3); assert.equal(warm.nativeCache.eligible, 3);
-  assert.equal(f.identities(), 4);
+  assert.equal(f.identities(), 7);
   assert.equal(new Set(f.calls().map(call => call.fixture)).size, 3);
   for (let i = 0; i < 3; i++) {
     assert.notEqual(cold.checks[i].args[2], warm.checks[i].args[2]);
@@ -115,7 +118,7 @@ test('missing, corrupt or tampered stored evidence executes the affected probe',
     await f.run(1, 2); await f.run(0, 3);
   }
 });
-test('failed probes, full identity drift and native input drift never publish successes', async () => {
+test('completed native probes survive later failure while drifting inputs reject publication', async () => {
   for (const mode of ['fail', 'identity', 'native']) {
     const f = setup();
     if (mode === 'fail') write(f.root, 'control.json', JSON.stringify({ fail: 'recovery' }));
@@ -124,12 +127,15 @@ test('failed probes, full identity drift and native input drift never publish su
       write(f.root, 'control.json', JSON.stringify({ mutate: 'recovery' }));
       f.stable(true);
     }
-    const failed = await f.run(mode === 'fail' ? 2 : 3, 0, 'failed');
+    const failed = await f.run(mode === 'identity' ? 1 : 2, 0, 'failed');
     assert.match(failed.error, mode === 'fail' ? /mandatory check failed/ : /changed during verification/);
-    for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), false);
+    for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), mode !== 'identity' && check.checkId.includes('provider-context'));
     write(f.root, 'control.json', '{}');
     f.stable();
-    await f.run(3, 0); await f.run(0, 3);
+    const complete = await f.run(mode === 'fail' ? 2 : 3, mode === 'fail' ? 1 : 0);
+    await gate.verifyReceipt({ ...f.config, receiptPath: complete.receiptPath });
+    assert.equal(JSON.parse(fs.readFileSync(failed.receiptPath)).status, 'failed');
+    await f.run(0, 3);
   }
 });
 test('warm cache still rejects failed engine provenance before any native probe', async () => {
@@ -145,11 +151,11 @@ test('boolean opt-out forces probes, rejects nonboolean and undeclared native ch
   write(f.root, 'control.json', JSON.stringify({ fail: 'recovery' }));
   const failed = await f.run(2, 0, 'failed');
   assert.match(failed.error, /mandatory check failed/);
-  for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), false, 'forced failure removes prior same-key pass');
+  for (const check of failed.checks) assert.equal(fs.existsSync(f.entries(check)), check.exitCode === 0, 'only independently completed forced checks retain same-key evidence');
   write(f.root, 'control.json', '{}');
   assert(failed.skipped.some(check => check.checkId.includes('accepted-input')), 'failure must block the remaining probe');
   f.config.reuseNativeChecks = true;
-  await f.run(2, 1); await f.run(0, 3);
+  await f.run(1, 2); await f.run(0, 3);
   f.config.reuseNativeChecks = 'false'; const bad = await gate.runPreservation(f.config);
   assert.equal(bad.status, 'failed'); assert.match(bad.error, /must be boolean/);
   delete f.config.reuseNativeChecks;
@@ -166,7 +172,6 @@ test('manifest rejects native declarations outside engine/node/native whole-fixt
   }
 });
 after(() => {
-  const output = path.resolve(__dirname, '../artifacts/logs/test-reduction/native'); fs.mkdirSync(output, { recursive: true });
   fs.writeFileSync(path.join(output, 'native-summary.json'), JSON.stringify({ fixtures, runs: summaries }, null, 2));
   // Same containment/link guard used by the existing storage-cache test hook.
   function clean(filename) {

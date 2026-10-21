@@ -30,6 +30,8 @@ The **Azrael provider accounts** VS Code Output channel records account action s
 
 VS Code's **Log (Extension Host)** can show extension activation faults. The host still discards app-server stderr content because upstream messages may include secrets; only a capped byte count survives a disconnect. A missing row in `logs_2.sqlite` or the Output channel does not prove that no error occurred. These records improve host/provider error attribution but do not yet satisfy the full AZ-01 injected-failure and safe-resume matrix.
 
+For Window Use stage 3 startup failures, retain the authenticated `request_stage` response's `diagnostic` fields together with the occurrence time and runtime identity. The source host preserves native code, HRESULT, cleanup uncertainty and bounded safe text through the isolation error boundary; phase and type are included when supplied. Sensitive-looking messages are redacted. This response uses the existing tool-history channel rather than a separate file logger. The generic localized message alone does not identify the native cause. A source fix requires deployment before an installed window returns these fields, and `cleanupUnconfirmed` still blocks automatic retries.
+
 ## 상세 진단 켜기/끄기
 
 기본값은 기존 상세 로그를 모두 켜는 것이다. 전체 설정 `AZRAEL_DIAGNOSTICS`와 분야별 덮어쓰기의 의미·보존 범위는 [상세 진단 계약](../architecture/diagnostic-logging.md)에 둔다. 설정은 이를 지원하는 엔진/helper/host 소스가 포함된 배포본에서 적용되며 기존에 설치된 바이너리는 바뀌지 않는다.

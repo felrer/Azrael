@@ -11,8 +11,8 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
  try{
   const approvals=require('./window-use-approvals.cjs').createOwner(home),computer=require('./computer-use-approvals.cjs').createOwner(home),shown=[],engine=[],backendCalls=[];
   const native={registerProvider(){return {dispose(){}}},sendRequest(...args){engine.push({request:args})},sendResponse(id,result){engine.push({id,result})}};
-  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:150,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage:async()=> '허용'},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
-  host.attach(native,()=>assert.fail('unexpected internal engine RPC'));
+  host=createHost({runtime:{codexHome:home},approvalTimeoutMs:30,occupancyDirectory:path.join(home,'occupancy'),approvals,vscode:{window:{showWarningMessage(){assert.fail('External stage approval modal');}},workspace:{workspaceFolders:[]}},backend:{async request(method){backendCalls.push(method);return method==='listWindows'?[descriptor]:descriptor},async dispose(){}},createServer(){return require('node:net').createServer()}});
+  const {engine:ledger}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native);
   const original=await fs.readFile(path.join(process.env.AZRAEL_PRESERVATION_UI_ROOT ?? path.join(__dirname,'../artifacts/upstream-ui/26.1007.21434'),'out/extension.js'),'utf8'),injected=injectComputerUse(original);for(const index of [0,1,2])assert(injected.text.includes(replacements[index][1]),'exact transformed production handler');
   const context=vm.createContext({require(name){if(name==='./azrael-runtime.cjs')return {runtime:{windowControl:true}};if(name==='./window-control-host.cjs')return host;if(name==='./computer-use-approvals.cjs')return computer;throw Error(name)},IR:'native-provider'});
   context.host={codexMcpConnection:native,broadcastToAllViews(envelope){if(envelope.type==='mcp-request'&&envelope.request.params._meta?.window_use_approval_kind==='stage'){queueMicrotask(()=>context.host.respond({type:'mcp-response',response:{id:envelope.request.id,result:{action:'accept',content:{persist:'session'}}}}));return;}shown.push(envelope)},pendingMcpRequests:new Map()};
@@ -33,9 +33,11 @@ test('actual Window Use host consumes transformed native approvals, scopes and e
    assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.requestId===request.id));approvals.removeAppApproval(descriptor.executable);host.observe(native,{method:'turn/started',params:{threadId:thread,turn:{id:'native-turn'}}});
   }
   const list=await call('list_windows',{}),before=shown.filter(e=>e.type==='mcp-request').length;
-  const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const expired=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify expiring control consent'});const rejected=assert.rejects(expired,{code:'approval_timeout',approvalState:'expired',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
-  assert(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.threadId===thread&&e.notification.params.requestId===request.id));
+  const selected=await call('select_window',{candidateId:list.candidates[0].candidateId});const detached=call('request_stage',{stage:2,targetId:selected.targetId,reason:'Verify durable pending control consent'});const rejected=assert.rejects(detached,{code:'permission_pending',approvalState:'pending',userResponded:false,actionExecuted:false});const request=await nextRequest(before);await rejected;
+  assert.equal(shown.some(e=>e.notification?.method==='serverRequest/resolved'&&e.notification.params.threadId===thread&&e.notification.params.requestId===request.id),false,'pending card remains available');
   context.host.respond({type:'mcp-response',response:{id:request.id,result:{action:'accept',content:{},_meta:{persist:'always'}}}});assert.equal(engine.length,1);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),false);
+  for(let i=0;i<100&&!ledger.resumes.length;i++)await new Promise(resolve=>setImmediate(resolve));assert.equal(ledger.resumes.length,1);
+  assert.equal((await call('request_stage',{stage:2,targetId:selected.targetId,reason:'Apply the authorized pending receipt'})).authorized,true);assert.equal(approvals.hasAppApproval(descriptor.executable,thread),true);
   context.host.respond({type:'mcp-response',response:{id:'ordinary',result:{action:'accept'}}});assert.equal(engine.at(-1).id,'ordinary');
  }finally{await host?.dispose();await fs.rm(home,{recursive:true})}
 });

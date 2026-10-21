@@ -1118,6 +1118,18 @@ impl ThreadRequestProcessor {
         thread_id: ThreadId,
         operation: &str,
     ) -> Result<(), JSONRPCErrorError> {
+        if matches!(operation, "archive" | "delete") {
+            if let Ok(thread) = self.thread_manager.get_thread(thread_id).await {
+                thread
+                    .withdraw_host_approvals(None, None)
+                    .await
+                    .map_err(|error| {
+                        internal_error(format!(
+                            "failed to invalidate host approvals before {operation}: {error}"
+                        ))
+                    })?;
+            }
+        }
         let removed_conversation = self
             .thread_manager
             .remove_thread_for_client(&thread_id)

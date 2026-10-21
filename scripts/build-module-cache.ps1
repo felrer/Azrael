@@ -28,6 +28,142 @@ function Get-BuildCacheProjects($Cache) {
       $validated
     })
 }
+function Get-BuildCacheProjectInspection($Cache,[string]$Project) {
+    $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
+    $project=Assert-BuildCachePath $Project $Cache.Owner
+    $result=[ordered]@{project=$project;status='blocked';reason=$null;recoveryCondition=$null;registrySha256=(Get-BuildModuleFileHash $registry);catalogSha256=$null;groups=@()}
+    try {
+      if($project -notin @(Get-BuildCacheProjects $Cache)){throw 'Project is not registered'}
+      $catalog=Assert-BuildCachePath (Join-Path $project 'artifacts/maintenance/lifecycles') $Cache.Owner
+      if(-not(Test-Path -LiteralPath $catalog -PathType Container)){
+        $result.reason='Missing lifecycle catalog'
+        $result.recoveryCondition='Restore a genuine matching lifecycle catalog from original provenance, or recover a verified original consumer index through the canonical lifecycle owner; never fabricate an empty catalog.'
+        return $result
+      }
+      $records=@();$offset=0
+      do {$page=Invoke-ArtifactLifecycleNode @('catalog','--project-root',$project,'--limit','200','--offset',"$offset");$records+=@($page.groups);$offset+=200}while($offset -lt $page.total)
+      $result.groups=@($records)
+      # Include every directory entry: pending locks or unknown files cannot be
+      # mistaken for an empty catalog by the canonical JSON-record filter.
+      $items=@(Get-ChildItem -LiteralPath $catalog -Force -ErrorAction Stop)
+      foreach($item in $items){Assert-BuildCachePath $item.FullName $Cache.Owner|Out-Null;if($item.PSIsContainer -or $item.Name -notmatch '^[a-f0-9]{64}\.json$'){throw 'Unresolved lifecycle catalog entry or producer lock'}}
+      $result.catalogSha256=Get-BuildModuleKey @($catalog)
+      if($records.Count){throw 'Lifecycle groups remain; reconcile their actual members, references and producers through the canonical lifecycle owner first'}
+      $result.status='ready-for-proof';$result.recoveryCondition='Supply independently verified producer closure and release of all consumers, installations and rollback references, pinned to this registry and catalog identity.'
+    }catch{$result.reason=$_.Exception.Message;$result.recoveryCondition='Resolve the reported ownership, catalog, reference or path uncertainty and inspect again.'}
+    $result
+}
+function Remove-BuildCacheProjectRegistration($Cache,[string]$Project,[string]$EvidencePath,[string]$EvidenceSha256,[switch]$Apply) {
+    if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Project retirement requires the cache lease.'}
+    $inspection=Get-BuildCacheProjectInspection $Cache $Project
+    if($inspection.status -ne 'ready-for-proof'){return $inspection}
+    $project=$inspection.project
+    if($project -ieq $Cache.Owner -or $project -ieq $Cache.Project){throw 'Cannot retire cache owner or current execution project'}
+    $evidence=Assert-BuildCachePath $EvidencePath $Cache.Owner
+    foreach($boundary in @($project,$Cache.Root)){
+      $relative=[IO.Path]::GetRelativePath($boundary,$evidence)
+      if($relative -eq '.' -or (-not [IO.Path]::IsPathRooted($relative) -and $relative -ne '..' -and -not $relative.StartsWith('..'+[IO.Path]::DirectorySeparatorChar))){throw 'Retirement evidence must survive project and cache retirement'}
+    }
+    if($EvidenceSha256 -notmatch '^[a-fA-F0-9]{64}$' -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Stale retirement evidence identity'}
+    $proof=Get-Content -LiteralPath $evidence -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop
+    if($proof.schema -ne 1 -or $proof.project -cne $project -or $proof.registry_sha256 -ine $inspection.registrySha256 -or $proof.catalog_sha256 -ine $inspection.catalogSha256){throw 'Retirement evidence project or registry/catalog identity mismatch'}
+    foreach($flag in @('producer_stopped_verified','consumers_released_verified','installations_released_verified','rollback_released_verified')){
+      if($proof.$flag -isnot [bool] -or $proof.$flag -ne $true){throw "Independent retirement proof required: $flag"}
+    }
+    if([string]::IsNullOrWhiteSpace($proof.reason)){throw 'Retirement reason required'}
+    # Existing installation owner checks remain authoritative. Any installation
+    # record in this project requires explicit canonical retirement first.
+    $deployments=Assert-BuildCachePath (Join-Path $project 'artifacts/deployments') $Cache.Owner
+    if(Test-Path -LiteralPath $deployments){
+      foreach($receipt in Get-ChildItem -LiteralPath $deployments -Filter deployment.json -Recurse -Force -ErrorAction Stop){Assert-BuildCachePath $receipt.FullName $Cache.Owner|Out-Null;$installed=Get-Content -LiteralPath $receipt.FullName -Raw|ConvertFrom-Json;if($installed.hostInstalled){throw 'Installed or rollback deployment remains in project'}}
+    }
+    $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+    if(@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($project,[StringComparison]::OrdinalIgnoreCase) -ge 0)}).Count){throw 'Running project process or compiler reference'}
+    $fresh=Get-BuildCacheProjectInspection $Cache $project
+    if($fresh.status -ne 'ready-for-proof' -or $fresh.registrySha256 -cne $inspection.registrySha256 -or $fresh.catalogSha256 -cne $inspection.catalogSha256 -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Project retirement inputs changed; inspect and verify fresh proof'}
+    $result=[ordered]@{project=$project;status='selected';registrationAbsent=$false;evidence=$evidence;evidenceSha256=$EvidenceSha256;reason=$proof.reason}
+    if($Apply){
+      $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
+      $projects=@(Get-BuildCacheProjects $Cache|Where-Object {$_ -ine $project})
+      $temporary=Join-Path $Cache.Root ('.projects-'+[guid]::NewGuid().ToString('N')+'.tmp')
+      try{
+        @{schema=1;projects=$projects}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath $temporary -Encoding utf8NoBOM
+        if((Get-BuildModuleFileHash $registry) -cne $inspection.registrySha256){throw 'Project registry changed before retirement'}
+        [IO.File]::Move($temporary,$registry,$true)
+      }finally{if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
+      $result.registrationAbsent=$project -notin @(Get-BuildCacheProjects $Cache)
+      $result.status=if($result.registrationAbsent){'retired'}else{'blocked'}
+    }
+    $result
+}
+function Get-BuildCacheLegacyProjectInspection($Cache,[string]$Project) {
+    if(-not [IO.Path]::IsPathFullyQualified($Project)){throw 'Legacy retirement requires fully qualified Project'}
+    $project=Assert-BuildCachePath $Project $Cache.Owner
+    $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
+    $result=[ordered]@{project=$project;action='retire-legacy';status='blocked';reason=$null;registrySha256=(Get-BuildModuleFileHash $registry);historical_consumer_index='unavailable';historicalOutcome='unknown';catalogSha256=$null}
+    try {
+      if(-not(Test-Path -LiteralPath $project -PathType Container)){throw 'Existing legacy project directory required'}
+      if($project -notin @(Get-BuildCacheProjects $Cache)){throw 'Project is not registered'}
+      if($project -ieq $Cache.Owner -or $project -ieq $Cache.Project){throw 'Cannot retire cache owner or current execution project'}
+      # No catalog is synthesized: even an empty artifacts directory requires the normal owner.
+      foreach($relative in @('artifacts','engine/codex-rs/target','providers/opencodex/node_modules','extensions/azrael-ex/node_modules','extensions/azrael-ex/dist','providers/opencodex/gui/dist','providers/opencodex/gui/node_modules','providers/opencodex/native/remote-workspace-helper/target')){
+        $output=Assert-BuildCachePath (Join-Path $project $relative) $Cache.Owner
+        if(Test-Path -LiteralPath $output){throw "Legacy generated output exists; use normal lifecycle retirement: $output"}
+      }
+      $result.status='ready-for-proof'
+    }catch{$result.reason=$_.Exception.Message}
+    $result
+}
+function Assert-BuildCacheRetirementEvidencePath($Cache,[string]$Project,[string]$Path) {
+    $full=Assert-BuildCachePath $Path $Cache.Owner
+    foreach($boundary in @($Project,$Cache.Root)){
+      $relative=[IO.Path]::GetRelativePath($boundary,$full)
+      if($relative -eq '.' -or (-not [IO.Path]::IsPathRooted($relative) -and $relative -ne '..' -and -not $relative.StartsWith('..'+[IO.Path]::DirectorySeparatorChar))){throw 'Retirement evidence must survive project and cache retirement'}
+    }
+    if(-not(Test-Path -LiteralPath $full -PathType Leaf)){throw 'Readable retirement evidence file required'}
+    $full
+}
+function Remove-BuildCacheLegacyProjectRegistration($Cache,[string]$Project,[string]$EvidencePath,[string]$EvidenceSha256,[switch]$Apply) {
+    if(-not $Cache.Lease -or -not $Cache.Lease.CanWrite){throw 'Project retirement requires the cache lease.'}
+    $inspection=Get-BuildCacheLegacyProjectInspection $Cache $Project
+    if($inspection.status -ne 'ready-for-proof'){return $inspection}
+    $project=$inspection.project
+    $evidence=Assert-BuildCacheRetirementEvidencePath $Cache $project $EvidencePath
+    if($EvidenceSha256 -notmatch '^[a-fA-F0-9]{64}$' -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256){throw 'Stale retirement evidence identity'}
+    $proof=Get-Content -LiteralPath $evidence -Raw -ErrorAction Stop|ConvertFrom-Json -ErrorAction Stop
+    if($proof.schema -ne 2 -or $proof.action -cne 'retire-legacy' -or $proof.project -cne $project -or $proof.registry_sha256 -ine $inspection.registrySha256 -or $proof.historical_consumer_index -cne 'unavailable'){throw 'Legacy retirement evidence project or registry identity mismatch'}
+    foreach($flag in @('producer_stopped_verified','consumers_released_verified','installations_released_verified','rollback_released_verified','payload_absent_verified')){
+      if($proof.$flag -isnot [bool] -or $proof.$flag -ne $true){throw "Independent retirement proof required: $flag"}
+    }
+    if($proof.reason -isnot [string] -or [string]::IsNullOrWhiteSpace($proof.reason) -or $proof.authority_ref -isnot [string] -or [string]::IsNullOrWhiteSpace($proof.authority_ref)){throw 'Retirement reason and authority_ref required'}
+    $authority=Assert-BuildCacheRetirementEvidencePath $Cache $project $proof.authority_ref
+    if($proof.authority_sha256 -notmatch '^[a-fA-F0-9]{64}$' -or (Get-BuildModuleFileHash $authority) -ine $proof.authority_sha256){throw 'Stale retirement authority identity'}
+    # An absent artifacts root excludes all deployment/installation/rollback receipts.
+    # Process inspection remains fail-closed and uses the normal retirement guard.
+    $check={
+      $processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)
+      if(@($processes|Where-Object {$_.ProcessId -ne $PID -and ($_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$' -or ($_.CommandLine -and $_.CommandLine.IndexOf($project,[StringComparison]::OrdinalIgnoreCase) -ge 0) -or ($_.ExecutablePath -and ($_.ExecutablePath -ieq $project -or $_.ExecutablePath.StartsWith($project.TrimEnd('\','/')+[IO.Path]::DirectorySeparatorChar,[StringComparison]::OrdinalIgnoreCase))))}).Count){throw 'Running project process or compiler reference'}
+      $fresh=Get-BuildCacheLegacyProjectInspection $Cache $project
+      $null=Assert-BuildCacheRetirementEvidencePath $Cache $project $evidence
+      $null=Assert-BuildCacheRetirementEvidencePath $Cache $project $authority
+      if($fresh.status -ne 'ready-for-proof' -or $fresh.registrySha256 -cne $inspection.registrySha256 -or (Get-BuildModuleFileHash $evidence) -ine $EvidenceSha256 -or (Get-BuildModuleFileHash $authority) -ine $proof.authority_sha256){throw 'Legacy retirement inputs changed; inspect and verify fresh proof'}
+    }
+    & $check
+    $result=[ordered]@{project=$project;action='retire-legacy';status='selected';registrationAbsent=$false;historical_consumer_index='unavailable';historicalOutcome='unknown';evidence=$evidence;evidenceSha256=$EvidenceSha256;authority_ref=$authority;authority_sha256=$proof.authority_sha256;registrySha256=$inspection.registrySha256;reason=$proof.reason}
+    if($Apply){
+      $registry=Assert-BuildCachePath (Join-Path $Cache.Root '.projects.json') $Cache.Root
+      $projects=@(Get-BuildCacheProjects $Cache|Where-Object {$_ -ine $project})
+      $temporary=Join-Path $Cache.Root ('.projects-'+[guid]::NewGuid().ToString('N')+'.tmp')
+      try{
+        @{schema=1;projects=$projects}|ConvertTo-Json -Depth 4|Set-Content -LiteralPath $temporary -Encoding utf8NoBOM
+        & $check
+        [IO.File]::Move($temporary,$registry,$true)
+      }finally{if(Test-Path -LiteralPath $temporary){Remove-Item -LiteralPath $temporary -ErrorAction Stop}}
+      $result.registrationAbsent=$project -notin @(Get-BuildCacheProjects $Cache)
+      $result.status=if($result.registrationAbsent){'retired'}else{'blocked'}
+    }
+    $result
+}
 function Open-BuildModuleCache([string]$ProjectRoot,[string]$CacheProjectRoot) {
     if($CacheProjectRoot -and -not [IO.Path]::IsPathFullyQualified($CacheProjectRoot)){throw 'CacheProjectRoot must be fully qualified.'}
     $owner=if($CacheProjectRoot){[IO.Path]::GetFullPath($CacheProjectRoot)}else{[IO.Path]::GetFullPath($ProjectRoot)}
@@ -264,7 +400,7 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
     Get-BuildCacheProjects $Cache|Out-Null
     $selected=@(foreach($name in @('companion','providers')){$Cache.Entries|Where-Object Module -EQ $name|Select-Object -Last 1})
     $protected=@($ProtectedPaths)+@($selected|ForEach-Object Path);$report=@()
-    try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$Cache.Root;status='preserved';reason="Process inspection failed: $($_.Exception.Message)"}}
+    try {$processes=@(Get-CimInstance Win32_Process -ErrorAction Stop)}catch{return @{path=$Cache.Root;status='preserved';reason="Process inspection failed: $($_.Exception.Message)";absent=(-not(Test-Path -LiteralPath $Cache.Root));deletedItemCount=0;deletedFileCount=0;deletedBytes=[long]0;cleanupComplete=$false;revisitCondition='Restore complete process inspection, then preview and recheck cache protections.'}}
     $compilerActive=@($processes|Where-Object {$_.Name -match '^(cargo|rustc|link|MSBuild)(\.exe)?$'}).Count -gt 0
     foreach($moduleName in $Module){
       $module=$moduleName
@@ -272,9 +408,11 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
       $entries=@(Get-ChildItem -LiteralPath $container -Directory|Where-Object {$_.Name -match '^[a-f0-9]{64}$'}|Sort-Object LastWriteTimeUtc -Descending)
       $retained=0
       foreach($directory in $entries){
-        $path=$directory.FullName;$result=$null
+        $path=$directory.FullName;$result=$null;$measured=@()
         try{
           Assert-BuildCachePath $path $Cache.Root|Out-Null
+          Assert-BuildCacheTree $path $Cache.Root
+          $measured=@(Get-BuildModuleFiles $path $Cache.Root|ForEach-Object {@{path=$_.FullName;bytes=$_.Length}})
           $owner=Get-Content (Join-Path $path 'owner.json') -Raw|ConvertFrom-Json
           if($owner.schema -ne 1 -or $owner.module -cne $module -or $owner.key -cne $directory.Name){throw 'Unknown cache owner'}
           $used=@($protected|Where-Object {$_ -and ([IO.Path]::GetFullPath($_).Equals($path,[StringComparison]::OrdinalIgnoreCase) -or [IO.Path]::GetFullPath($_).StartsWith($path+'\',[StringComparison]::OrdinalIgnoreCase))}).Count -gt 0
@@ -287,6 +425,13 @@ function Remove-OldBuildModuleCaches($Cache,[ValidateRange(0,10)][int]$Keep=0,[s
           }
           $report+=@{path=$path;status=$status;reason=$reason;absent=(-not(Test-Path -LiteralPath $path));lifecycle=$result}
         }catch{$report+=@{path=$path;status='preserved';reason=$_.Exception.Message;absent=(-not(Test-Path -LiteralPath $path));lifecycle=$result}}
+        $row=$report[-1]
+        $deleted=@($measured|Where-Object {-not(Test-Path -LiteralPath $_.path)})
+        $row.deletedFileCount=$deleted.Count
+        $row.deletedBytes=[long](($deleted|Measure-Object -Property bytes -Sum).Sum)
+        $row.deletedItemCount=if($row.absent -and $row.status -eq 'removed'){1}else{0}
+        $row.cleanupComplete=$row.status -eq 'removed' -and $row.absent
+        $row.revisitCondition=if($row.cleanupComplete){$null}elseif($row.reason -match 'Missing lifecycle catalog'){'Restore genuine matching catalog provenance or a verified original consumer index; inspect project registration retirement after canonical reconciliation.'}else{'Release selected/installed/rollback/consumer/process protection or resolve the reported deletion/ownership failure, then preview and recheck actual remaining paths.'}
       }
     }
     return $report

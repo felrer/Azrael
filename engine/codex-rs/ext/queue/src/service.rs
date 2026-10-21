@@ -484,7 +484,7 @@ impl QueuedItemService {
             thread_id,
         )
         .map_err(QueueServiceError::AdmissionDenied)?;
-        let submission = submit_queued_input(thread, item.input, trace).await?;
+        let submission = submit_queued_input(thread, item.input, trace, true).await?;
         if matches!(
             submission,
             QueuedItemSubmission::Started { .. } | QueuedItemSubmission::Skipped
@@ -553,7 +553,7 @@ impl QueuedItemService {
             ) {
                 return Ok(());
             }
-            match submit_queued_input(thread, input, None).await {
+            match submit_queued_input(thread, input, None, false).await {
                 Ok(QueuedItemSubmission::Started { .. }) => {
                     self.delete_locked(thread_id, queued_item_id).await?;
                     return Ok(());
@@ -612,6 +612,7 @@ async fn submit_queued_input(
     thread: &CodexThread,
     input: QueuedInput,
     trace: Option<W3cTraceContext>,
+    explicit: bool,
 ) -> Result<QueuedItemSubmission, CodexErr> {
     match input {
         QueuedInput::UserInput {
@@ -622,7 +623,9 @@ async fn submit_queued_input(
                 match thread
                     .start_turn_if_idle(TurnInputRequest::new(input).with_trace(trace).on_start(
                         TurnStartOptions {
-                            turn_trigger: Some("queue".to_string()),
+                            turn_trigger: Some(
+                                if explicit { "queue_user" } else { "queue" }.to_string(),
+                            ),
                             ..Default::default()
                         },
                     ))
@@ -641,8 +644,12 @@ async fn submit_queued_input(
                 },
             )
         }
-        QueuedInput::ContextCompaction { client_id } => {
-            Ok(match thread.compact_if_idle().await? {
+        QueuedInput::ContextCompaction { client_id } => Ok(
+            match if explicit {
+                thread.compact_if_idle_explicit().await?
+            } else {
+                thread.compact_if_idle().await?
+            } {
                 CompactIfIdleSubmission::Started { turn_id } => {
                     tracing::info!(%turn_id, %client_id, "started queued context compaction");
                     QueuedItemSubmission::Started {
@@ -658,8 +665,8 @@ async fn submit_queued_input(
                     tracing::info!(%client_id, "skipped queued context compaction below usage threshold");
                     QueuedItemSubmission::Skipped
                 }
-            })
-        }
+            },
+        ),
     }
 }
 

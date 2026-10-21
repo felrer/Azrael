@@ -4,4 +4,4 @@
 import type { AutoCompactSource } from "./AutoCompactSource";
 import type { ContextPricing } from "./ContextPricing";
 
-export type ContextPolicy = { providerId: string, modelId: string, contextWindow: number | null, safeContextWindow: number | null, autoCompactBaseTokens: number | null, autoCompactTokenLimit: number | null, autoCompactSource: AutoCompactSource, pricing: ContextPricing, inputTokens: number | null, inputTokensEstimated: boolean, };
+export type ContextPolicy = { autoCompactionEnabled: boolean, providerId: string, modelId: string, contextWindow: number | null, safeContextWindow: number | null, autoCompactBaseTokens: number | null, autoCompactTokenLimit: number | null, autoCompactSource: AutoCompactSource, pricing: ContextPricing, inputTokens: number | null, inputTokensEstimated: boolean, };

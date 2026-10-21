@@ -1398,6 +1398,7 @@ fn add_core_utility_tools(context: &CoreToolPlanContext<'_>, registry: &mut Tool
                 )
             })
     {
+        registry.add_with_exposure(crate::tools::handlers::WithdrawUserQuestionsHandler, ToolExposure::DirectModelOnly);
         let model_messages = ResolvedModelMessages::from_model(context.model_info);
         registry.add_with_exposure(
             RequestUserInputAsyncHandler {
@@ -2110,6 +2111,9 @@ fn apply_harness_tool_profile(
         }) as Arc<dyn crate::tools::registry::CoreToolRuntime>
     });
     let asynchronous = registry.remove(&ToolName::plain("request_user_input_async"));
+    if blocking.is_some() || asynchronous.is_none() {
+        registry.remove(&ToolName::plain("withdraw_user_questions"));
+    }
     if let Some(handler) = ClaudeControlHandler::ask_user_question(
         blocking.clone(),
         if blocking.is_some() {

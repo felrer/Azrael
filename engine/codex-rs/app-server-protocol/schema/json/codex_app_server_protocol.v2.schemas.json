@@ -1292,6 +1292,9 @@
         },
         "title": {
           "type": "string"
+        },
+        "withdrawn": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -2471,6 +2474,126 @@
             "params"
           ],
           "title": "Thread/goal/clearRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/RequestId"
+            },
+            "method": {
+              "enum": [
+                "thread/approval/defer"
+              ],
+              "title": "Thread/approval/deferRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/ThreadApprovalDeferParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Thread/approval/deferRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/RequestId"
+            },
+            "method": {
+              "enum": [
+                "thread/approval/request"
+              ],
+              "title": "Thread/approval/requestRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/ThreadApprovalRequestParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Thread/approval/requestRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/RequestId"
+            },
+            "method": {
+              "enum": [
+                "thread/approval/list"
+              ],
+              "title": "Thread/approval/listRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/ThreadApprovalListParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Thread/approval/listRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/RequestId"
+            },
+            "method": {
+              "enum": [
+                "thread/approval/resolve"
+              ],
+              "title": "Thread/approval/resolveRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/ThreadApprovalResolveParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Thread/approval/resolveRequest",
+          "type": "object"
+        },
+        {
+          "properties": {
+            "id": {
+              "$ref": "#/definitions/RequestId"
+            },
+            "method": {
+              "enum": [
+                "thread/approval/withdraw"
+              ],
+              "title": "Thread/approval/withdrawRequestMethod",
+              "type": "string"
+            },
+            "params": {
+              "$ref": "#/definitions/ThreadApprovalWithdrawParams"
+            }
+          },
+          "required": [
+            "id",
+            "method",
+            "params"
+          ],
+          "title": "Thread/approval/withdrawRequest",
           "type": "object"
         },
         {
@@ -7171,6 +7294,10 @@
             "null"
           ]
         },
+        "autoCompactionEnabled": {
+          "default": true,
+          "type": "boolean"
+        },
         "contextWindow": {
           "format": "int64",
           "type": [
@@ -10374,6 +10501,97 @@
       "title": "HooksListResponse",
       "type": "object"
     },
+    "HostApprovalDecision": {
+      "enum": [
+        "accept",
+        "decline",
+        "cancel"
+      ],
+      "type": "string"
+    },
+    "HostApprovalPersistence": {
+      "enum": [
+        "session",
+        "always"
+      ],
+      "type": "string"
+    },
+    "HostApprovalRecord": {
+      "properties": {
+        "originalRootTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "originalTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "payload": true,
+        "persistence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HostApprovalPersistence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "resumeState": {
+          "$ref": "#/definitions/HostApprovalResumeState"
+        },
+        "resumeTurnId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "state": {
+          "$ref": "#/definitions/HostApprovalState"
+        },
+        "waiterDetached": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "payload",
+        "requestId",
+        "resumeState",
+        "scopeKey",
+        "state",
+        "waiterDetached"
+      ],
+      "type": "object"
+    },
+    "HostApprovalResumeState": {
+      "enum": [
+        "none",
+        "pending",
+        "claimed",
+        "resumed",
+        "cancelled"
+      ],
+      "type": "string"
+    },
+    "HostApprovalState": {
+      "enum": [
+        "pending",
+        "accepted",
+        "declined",
+        "cancelled"
+      ],
+      "type": "string"
+    },
     "ImageDetail": {
       "enum": [
         "auto",
@@ -12922,6 +13140,157 @@
         "effectiveValue",
         "message",
         "overridingLayer"
+      ],
+      "type": "object"
+    },
+    "ParentRequest": {
+      "properties": {
+        "blockedAction": {
+          "type": "string"
+        },
+        "childTaskId": {
+          "type": "string"
+        },
+        "childThreadId": {
+          "type": "string"
+        },
+        "context": {
+          "type": "string"
+        },
+        "createdAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "deliveryReason": {
+          "description": "Content-free delivery diagnostic code; never question or response text.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "deliveryState": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ParentRequestDeliveryState"
+            }
+          ],
+          "description": "Delivery of the current leg: request before response, response after save."
+        },
+        "parentThreadId": {
+          "type": "string"
+        },
+        "presentation": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ParentRequestPresentation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ParentResponse"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/ParentRequestStatus"
+        },
+        "updatedAtMs": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blockedAction",
+        "childTaskId",
+        "childThreadId",
+        "context",
+        "createdAtMs",
+        "deliveryState",
+        "parentThreadId",
+        "question",
+        "recommendation",
+        "requestId",
+        "requestKey",
+        "status",
+        "updatedAtMs"
+      ],
+      "type": "object"
+    },
+    "ParentRequestDeliveryState": {
+      "enum": [
+        "queued",
+        "resume_scheduled",
+        "delivered",
+        "blocked"
+      ],
+      "type": "string"
+    },
+    "ParentRequestPresentation": {
+      "properties": {
+        "childAgentPath": {
+          "$ref": "#/definitions/AgentPath"
+        },
+        "parentTurnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "childAgentPath",
+        "parentTurnId"
+      ],
+      "type": "object"
+    },
+    "ParentRequestStatus": {
+      "enum": [
+        "pending",
+        "resolved",
+        "cancelled",
+        "deferred"
+      ],
+      "type": "string"
+    },
+    "ParentResponse": {
+      "properties": {
+        "decision": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "retryCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/ParentRequestStatus"
+        }
+      },
+      "required": [
+        "decision",
+        "reason",
+        "status"
       ],
       "type": "object"
     },
@@ -16872,6 +17241,22 @@
       "title": "RootResumeParams",
       "type": "object"
     },
+    "RootResumeReasoningSettings": {
+      "description": "Effective effort captured by the step that requested deferral. The wrapper distinguishes a captured unset effort from an older reservation.",
+      "properties": {
+        "effort": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ReasoningEffort"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "type": "object"
+    },
     "RootResumeReservation": {
       "properties": {
         "agentTasks": {
@@ -16911,6 +17296,17 @@
         },
         "reason": {
           "type": "string"
+        },
+        "reasoningSettings": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/RootResumeReasoningSettings"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         },
         "resumeAtMs": {
           "format": "int64",
@@ -17077,6 +17473,7 @@
         "deadline",
         "agents_completed",
         "work_completed",
+        "parent_request",
         "user_input",
         "manual"
       ],
@@ -19954,6 +20351,13 @@
             "null"
           ]
         },
+        "autoCompactionEnabled": {
+          "description": "Current live or latest saved thread-owned automatic compaction setting.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "cliVersion": {
           "description": "Version of the CLI that created the thread.",
           "type": "string"
@@ -20163,6 +20567,179 @@
         "waitingOnUserInput"
       ],
       "type": "string"
+    },
+    "ThreadApprovalDeferParams": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "requestId",
+        "scopeKey",
+        "threadId"
+      ],
+      "title": "ThreadApprovalDeferParams",
+      "type": "object"
+    },
+    "ThreadApprovalListParams": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "threadId"
+      ],
+      "title": "ThreadApprovalListParams",
+      "type": "object"
+    },
+    "ThreadApprovalListResponse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "requests": {
+          "items": {
+            "$ref": "#/definitions/HostApprovalRecord"
+          },
+          "type": "array"
+        }
+      },
+      "required": [
+        "requests"
+      ],
+      "title": "ThreadApprovalListResponse",
+      "type": "object"
+    },
+    "ThreadApprovalRequestParams": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "payload": true,
+        "requestId": {
+          "type": "string"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "payload",
+        "requestId",
+        "scopeKey",
+        "threadId"
+      ],
+      "title": "ThreadApprovalRequestParams",
+      "type": "object"
+    },
+    "ThreadApprovalResolveParams": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/definitions/HostApprovalDecision"
+        },
+        "ownerToken": {
+          "type": "string"
+        },
+        "persistence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HostApprovalPersistence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "resume": {
+          "type": "boolean"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision",
+        "ownerToken",
+        "requestId",
+        "resume",
+        "scopeKey",
+        "threadId"
+      ],
+      "title": "ThreadApprovalResolveParams",
+      "type": "object"
+    },
+    "ThreadApprovalResponse": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "properties": {
+        "request": {
+          "$ref": "#/definitions/HostApprovalRecord"
+        }
+      },
+      "required": [
+        "request"
+      ],
+      "title": "ThreadApprovalResponse",
+      "type": "object"
+    },
+    "ThreadApprovalWithdrawParams": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "reason",
+        "threadId"
+      ],
+      "title": "ThreadApprovalWithdrawParams",
+      "type": "object"
     },
     "ThreadApproveGuardianDeniedActionParams": {
       "$schema": "http://json-schema.org/draft-07/schema#",
@@ -21670,6 +22247,16 @@
               "type": [
                 "string",
                 "null"
+              ]
+            },
+            "parentRequest": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ParentRequest"
+                },
+                {
+                  "type": "null"
+                }
               ]
             },
             "reasoningEffort": {
@@ -23636,6 +24223,10 @@
         },
         "approvalsReviewer": {
           "$ref": "#/definitions/ApprovalsReviewer"
+        },
+        "autoCompactionEnabled": {
+          "default": true,
+          "type": "boolean"
         },
         "collaborationMode": {
           "$ref": "#/definitions/CollaborationMode"

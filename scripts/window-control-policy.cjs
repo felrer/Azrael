@@ -287,8 +287,15 @@ function createWindowOwner({ backend, authorize, approve, requestStage, context,
       if (tool === 'context') { try { keys(args, ['guideVersion']); if(args.guideVersion !== undefined) str(args.guideVersion); } catch(e) { return Promise.reject(e); } return serial(() => context ? context(thread, args) : {stage:1, executionContext:'parent-window'}); }
       if (tool === 'resource_status' || tool === 'cleanup') { try { keys(args, tool==='cleanup'?['ids']:[]);if(args.ids!==undefined && (!Array.isArray(args.ids) || args.ids.length<1 || args.ids.length>20 || args.ids.some(id=>typeof id!=='string' || !/^[A-Za-z0-9_.-]{1,128}$/.test(id)))) throw windowError('invalid_request','Invalid cleanup resource IDs'); } catch(e) { return Promise.reject(e); } return serial(() => resources ? resources(tool, thread,args) : {status:'unavailable',resources:[]}); }
       if (['launch_isolated','capture_isolated','input_isolated'].includes(tool)) {
-        try { keys(args,tool==='input_isolated'?['targetId','observationId','input']:['targetId'],tool==='input_isolated'?['targetId','observationId','input']:['targetId']);str(args.targetId);if(tool==='input_isolated') {str(args.observationId);if(!plain(args.input)) throw windowError('invalid_request','Invalid isolated input');} } catch(e) {return Promise.reject(e);}
-        return serial(async()=>{const b=bindings.get(thread);if(b?.userStopped) fail('User stop requires explicit resume');if(!isolation) throw windowError('unsupported_action','Isolated execution is unavailable');if(tool==='launch_isolated' && (!b || args.targetId!==b.targetId)) fail('Stale or forged target');return isolation(tool,thread,args,tool==='launch_isolated'?{...b.identity}:undefined);});
+        try {
+          if(tool==='launch_isolated') {
+            keys(args,['targetId','packageName','applicationId']);
+            if((args.targetId!==undefined)===(args.packageName!==undefined)) throw windowError('invalid_request','Select exactly one observed target or installed package');
+            if(args.targetId!==undefined) {str(args.targetId);if(args.applicationId!==undefined) throw windowError('invalid_request','Application ID requires an installed package');}
+            else for(const name of ['packageName','applicationId']) if(args[name]!==undefined && (typeof args[name]!=='string'||!/^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(args[name]))) throw windowError('invalid_request','Invalid installed application identity');
+          } else {keys(args,tool==='input_isolated'?['targetId','observationId','input']:['targetId'],tool==='input_isolated'?['targetId','observationId','input']:['targetId']);str(args.targetId);if(tool==='input_isolated') {str(args.observationId);if(!plain(args.input)) throw windowError('invalid_request','Invalid isolated input');}}
+        } catch(e) {return Promise.reject(e);}
+        return serial(async()=>{const b=bindings.get(thread);if(b?.userStopped) fail('User stop requires explicit resume');if(!isolation) throw windowError('unsupported_action','Isolated execution is unavailable');if(tool==='launch_isolated' && args.targetId!==undefined && (!b || args.targetId!==b.targetId)) fail('Stale or forged target');return isolation(tool,thread,args,tool==='launch_isolated' && args.targetId!==undefined?{...b.identity}:undefined);});
       }
       if (tool === 'prepare_permissions') {
         try {

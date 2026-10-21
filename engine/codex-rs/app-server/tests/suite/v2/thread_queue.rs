@@ -923,9 +923,10 @@ async fn queue_start_without_id_starts_the_head_when_idle() -> Result<()> {
         .await?;
     let started: ThreadQueueStartResponse =
         timeout(READ_TIMEOUT, app.read_response(start_request_id)).await??;
+    let started_turn = started.turn.as_ref().expect("queued turn started");
     assert_eq!(
-        started.turn.root_turn_id.as_deref(),
-        Some(started.turn.id.as_str())
+        started_turn.root_turn_id.as_deref(),
+        Some(started_turn.id.as_str())
     );
     let started_item = loop {
         let started_item: ItemStartedNotification =
@@ -955,7 +956,7 @@ async fn queue_start_without_id_starts_the_head_when_idle() -> Result<()> {
         .filter(|request| request.url.path().ends_with("/responses"))
         .collect::<Vec<_>>();
     assert_eq!(response_requests.len(), 3);
-    for request in &response_requests[1..] {
+    for (index, request) in response_requests[1..].iter().enumerate() {
         let metadata_header = request
             .headers
             .get("x-codex-turn-metadata")
@@ -963,7 +964,10 @@ async fn queue_start_without_id_starts_the_head_when_idle() -> Result<()> {
             .to_str()
             .context("queued turn metadata header is not valid ASCII")?;
         let metadata: Value = serde_json::from_str(metadata_header)?;
-        assert_eq!(metadata["turn_trigger"].as_str(), Some("queue"));
+        assert_eq!(
+            metadata["turn_trigger"].as_str(),
+            Some(if index == 0 { "queue_user" } else { "queue" })
+        );
     }
     Ok(())
 }
@@ -1145,6 +1149,8 @@ async fn list_queue(app: &mut TestAppServer, thread_id: &str) -> Result<ThreadQu
         cursor = page.next_cursor;
         if cursor.is_none() {
             return Ok(ThreadQueueListResponse {
+                pending_approval_count: page.pending_approval_count,
+                pending_question_count: page.pending_question_count,
                 data,
                 next_cursor: None,
             });
@@ -1176,4 +1182,238 @@ fn text(value: &str) -> UserInput {
         text: value.to_string(),
         text_elements: Vec::new(),
     }
+}
+
+#[test_case::test_case(codex_app_server_protocol::ThreadHistoryMode::Legacy)]
+#[test_case::test_case(codex_app_server_protocol::ThreadHistoryMode::Paginated)]
+#[tokio::test]
+async fn host_approval_rpc_restores_private_ledger_and_queue_hold(
+    history_mode: codex_app_server_protocol::ThreadHistoryMode,
+) -> Result<()> {
+    use codex_app_server_protocol::{
+        HostApprovalDecision, HostApprovalPersistence, HostApprovalState, ThreadApprovalListParams,
+        ThreadApprovalListResponse, ThreadApprovalRequestParams, ThreadApprovalResolveParams,
+        ThreadApprovalResponse, ThreadApprovalWithdrawParams,
+    };
+    let (mut app, codex_home, _server) = queue_app(Vec::new()).await?;
+    let thread_id = app
+        .start_thread(ThreadStartParams {
+            history_mode: Some(history_mode),
+            ..Default::default()
+        })
+        .await?
+        .thread
+        .id;
+    let owner_token = "a".repeat(64);
+    let scope_key = "b".repeat(64);
+    let request_id = "host:rpc-test".to_string();
+    let created: ThreadApprovalResponse = app.request(|id| ClientRequest::ThreadApprovalRequest {
+        request_id: id,
+        params: ThreadApprovalRequestParams {
+            thread_id: thread_id.clone(), owner_token: owner_token.clone(),
+            request_id: request_id.clone(), scope_key: scope_key.clone(),
+            payload: json!({"request": {"title": "Private host approval"}, "binding": {"task": "test"}}),
+        },
+    }).await?;
+    assert_eq!(created.request.state, HostApprovalState::Pending);
+    let queue = list_queue(&mut app, &thread_id).await?;
+    assert_eq!(queue.pending_approval_count, 1);
+    assert_eq!(queue.pending_question_count, 0);
+    let hidden: ThreadApprovalListResponse = app
+        .request(|id| ClientRequest::ThreadApprovalList {
+            request_id: id,
+            params: ThreadApprovalListParams {
+                thread_id: thread_id.clone(),
+                owner_token: "c".repeat(64),
+            },
+        })
+        .await?;
+    assert!(hidden.requests.is_empty());
+    let invalid = app.send_raw_request("thread/approval/resolve", Some(json!({
+        "threadId": thread_id, "ownerToken": "c".repeat(64), "requestId": request_id,
+        "scopeKey": scope_key, "decision": "accept", "persistence": "session", "resume": false,
+    }))).await?;
+    timeout(
+        READ_TIMEOUT,
+        app.read_stream_until_error_message(RequestId::Integer(invalid)),
+    )
+    .await??;
+    drop(app);
+    let mut app = TestAppServer::builder()
+        .with_codex_home(codex_home.path())
+        .without_managed_config()
+        .build()
+        .await?;
+    app.initialize_with_capabilities(
+        ClientInfo {
+            name: "host-approval-restore".into(),
+            title: None,
+            version: "0.1.0".into(),
+        },
+        Some(InitializeCapabilities {
+            experimental_api: true,
+            ..Default::default()
+        }),
+    )
+    .await?;
+    let restored: ThreadApprovalListResponse = app
+        .request(|id| ClientRequest::ThreadApprovalList {
+            request_id: id,
+            params: ThreadApprovalListParams {
+                thread_id: thread_id.clone(),
+                owner_token: owner_token.clone(),
+            },
+        })
+        .await?;
+    assert_eq!(restored.requests, vec![created.request]);
+    assert_eq!(
+        list_queue(&mut app, &thread_id)
+            .await?
+            .pending_approval_count,
+        1
+    );
+    let resume_id = app
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: thread_id.clone(),
+            ..Default::default()
+        })
+        .await?;
+    let _: ThreadResumeResponse = timeout(READ_TIMEOUT, app.read_response(resume_id)).await??;
+    let accepted: ThreadApprovalResponse = app
+        .request(|id| ClientRequest::ThreadApprovalResolve {
+            request_id: id,
+            params: ThreadApprovalResolveParams {
+                thread_id: thread_id.clone(),
+                owner_token: owner_token.clone(),
+                request_id: request_id.clone(),
+                scope_key: scope_key.clone(),
+                decision: HostApprovalDecision::Accept,
+                persistence: Some(HostApprovalPersistence::Session),
+                resume: false,
+            },
+        })
+        .await?;
+    assert_eq!(accepted.request.state, HostApprovalState::Accepted);
+    let withdrawn: ThreadApprovalListResponse = app
+        .request(|id| ClientRequest::ThreadApprovalWithdraw {
+            request_id: id,
+            params: ThreadApprovalWithdrawParams {
+                thread_id: thread_id.clone(),
+                owner_token: owner_token.clone(),
+                request_id: Some(request_id.clone()),
+                reason: "test completed".into(),
+            },
+        })
+        .await?;
+    assert_eq!(withdrawn.requests.len(), 1);
+    assert_eq!(withdrawn.requests[0].state, HostApprovalState::Cancelled);
+    assert_eq!(
+        list_queue(&mut app, &thread_id)
+            .await?
+            .pending_approval_count,
+        0
+    );
+    let late_defer = app
+        .send_raw_request(
+            "thread/approval/defer",
+            Some(json!({
+                "threadId": thread_id, "ownerToken": owner_token,
+                "requestId": request_id, "scopeKey": scope_key,
+            })),
+        )
+        .await?;
+    timeout(
+        READ_TIMEOUT,
+        app.read_stream_until_error_message(RequestId::Integer(late_defer)),
+    )
+    .await??;
+    Ok(())
+}
+
+#[tokio::test]
+async fn host_approval_rpc_subagent_uses_exact_owner_without_user_input_admission() -> Result<()> {
+    use codex_app_server_protocol::{ThreadApprovalListResponse, ThreadApprovalResponse};
+    use codex_protocol::protocol::{SessionSource, SubAgentSource};
+    let (app, home, _server) = queue_app(Vec::new()).await?;
+    drop(app);
+    let config_path = home.path().join("config.toml");
+    let mut config = std::fs::read_to_string(&config_path)?;
+    config.push_str("\n[features.multi_agent_v2]\nenabled = true\n");
+    std::fs::write(config_path, config)?;
+    let thread_id = app_test_support::create_fake_rollout_with_source(
+        home.path(),
+        "2026-10-19T02-00-00",
+        "2026-10-19T02:00:00Z",
+        "Approval child",
+        Some("mock_provider"),
+        None,
+        SessionSource::SubAgent(SubAgentSource::ThreadSpawn {
+            parent_thread_id: codex_protocol::ThreadId::new(),
+            depth: 1,
+            agent_path: None,
+            agent_nickname: None,
+            agent_role: None,
+        }),
+    )?;
+    let mut app = TestAppServer::builder()
+        .with_codex_home(home.path())
+        .without_managed_config()
+        .build_initialized()
+        .await?;
+    let token = "a".repeat(64);
+    let scope = "b".repeat(64);
+    let cold = app
+        .send_raw_request(
+            "thread/approval/list",
+            Some(json!({
+                "threadId": thread_id, "ownerToken": token,
+            })),
+        )
+        .await?;
+    let cold: ThreadApprovalListResponse = timeout(READ_TIMEOUT, app.read_response(cold)).await??;
+    assert!(cold.requests.is_empty());
+    let resumed = app
+        .send_thread_resume_request(ThreadResumeParams {
+            thread_id: thread_id.clone(),
+            ..Default::default()
+        })
+        .await?;
+    let _: ThreadResumeResponse = timeout(READ_TIMEOUT, app.read_response(resumed)).await??;
+    let created = app.send_raw_request("thread/approval/request", Some(json!({
+        "threadId": thread_id, "ownerToken": token, "requestId": "host:child", "scopeKey": scope,
+        "payload": {"request": {"title": "Approval"}, "binding": {"task": "child"}},
+    }))).await?;
+    let _: ThreadApprovalResponse = timeout(READ_TIMEOUT, app.read_response(created)).await??;
+    for capability in [None, Some("c".repeat(64))] {
+        let mut params = json!({"threadId": thread_id, "requestId": "host:child", "scopeKey": scope,
+            "decision": "accept", "persistence": "session", "resume": false});
+        if let Some(capability) = capability {
+            params["ownerToken"] = json!(capability);
+        }
+        let invalid = app
+            .send_raw_request("thread/approval/resolve", Some(params))
+            .await?;
+        timeout(
+            READ_TIMEOUT,
+            app.read_stream_until_error_message(RequestId::Integer(invalid)),
+        )
+        .await??;
+    }
+    assert_eq!(
+        list_queue(&mut app, &thread_id)
+            .await?
+            .pending_approval_count,
+        1
+    );
+    let withdrawn = app
+        .send_raw_request(
+            "thread/approval/withdraw",
+            Some(json!({
+                "threadId": thread_id, "ownerToken": token, "reason": "test done",
+            })),
+        )
+        .await?;
+    let _: ThreadApprovalListResponse =
+        timeout(READ_TIMEOUT, app.read_response(withdrawn)).await??;
+    Ok(())
 }

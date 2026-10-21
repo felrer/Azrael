@@ -124,6 +124,26 @@ test("complete download, progress, persistent state and compatible pin/unpin",as
   await assert.rejects(store.pin("2.0.0"),/incompatible/);assert.equal((await store.getState()).pinnedVersion,"1.0.0");await store.pin(null);assert.equal((await store.getState()).pinnedVersion,null);
   await assert.rejects(store.download("2.0.0"),/incompatible/);
 });
+test("Windows version publication retries transient rename errors and keeps verified content",{skip:process.platform!=="win32"},async t=>{
+  const f=await fixture(),{store}=await context(t,[f]);const rename=fs.rename;let attempts=0;
+  fs.rename=async(from,to)=>{if(to===store.cache(f.v) && ++attempts<3)throw Object.assign(new Error("temporary sharing violation"),{code:attempts===1?"EPERM":"EBUSY"});return rename(from,to);};
+  try{assert.deepEqual((await store.download(f.v)).downloadedVersions,[f.v]);}finally{fs.rename=rename;}
+  assert.equal(attempts,3);await store.verifyCache(f.v,f.manifest);
+});
+test("Windows version publication bounds persistent failures and preserves the original error",{skip:process.platform!=="win32"},async t=>{
+  const f=await fixture(),{store}=await context(t,[f]);const rename=fs.rename;let attempts=0;
+  const failure=Object.assign(new Error("persistent access denial"),{code:"EPERM"});
+  fs.rename=async(from,to)=>{if(to===store.cache(f.v)){attempts++;throw failure;}return rename(from,to);};
+  try{await assert.rejects(store.download(f.v),error=>error===failure);}finally{fs.rename=rename;}
+  assert.equal(attempts,6);assert.equal(await exists(store.cache(f.v)),false);
+  assert.equal((await fs.readdir(store.stateRoot)).some(name=>name.startsWith("staging-")),false);
+});
+test("Windows version publication never replaces a version appearing during retry",{skip:process.platform!=="win32"},async t=>{
+  const f=await fixture(),{store}=await context(t,[f]);const rename=fs.rename;let attempts=0;
+  fs.rename=async(from,to)=>{if(to===store.cache(f.v)){attempts++;await fs.mkdir(to);await fs.writeFile(path.join(to,"retained.txt"),"other owner");throw Object.assign(new Error("sharing violation"),{code:"EPERM"});}return rename(from,to);};
+  try{await assert.rejects(store.download(f.v),/Immutable version cache identity conflict/);}finally{fs.rename=rename;}
+  assert.equal(attempts,1);assert.equal(await text(path.join(store.cache(f.v),"retained.txt")),"other owner");
+});
 test("cached-only documents succeed after restart and never request missing or corrupt data",async t=>{
   const f=await fixture();const {store,home}=await context(t,[f]);await store.download(f.v);let calls=0;
   const restarted=new InstructionStore({stateRoot:home,appVersion:"0.4.0",request:async()=>{calls++;throw new Error("cached-only must not request network");}});

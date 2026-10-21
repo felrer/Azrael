@@ -44,7 +44,7 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
       void fs.writeFile(pipe, '').then(done, error => server.emit('error', error));
     }; server.close = () => {}; return server; }
   });
-  const native = { registerProvider() { return { dispose() {} }; } }; host.attach(native, () => {});
+  const native = { registerProvider() { return { dispose() {} }; } }; const {engine}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native,()=>{});
   host.registerApprovalUI(native, envelope => { if(envelope.type==='mcp-request' && envelope.request.params._meta.window_use_approval_kind==='stage') {queueMicrotask(()=>host.respondApproval(native,envelope.request.id,{action:'accept',content:{persist:'session'}}));return true;} posts.push(envelope); if (envelope.type === 'mcp-request') { promptCount++; latestRequest = envelope.request; resolveAnswer = value => host.respondApproval(native, envelope.request.id, { action: value === '거부' ? 'decline' : value === undefined ? 'cancel' : 'accept', content: { persist: value === '항상 허용' ? 'always' : 'session' } }); } });
   const started = id => { turn = id; host.observe(native, { method: 'turn/started', params: { threadId: thread, turn: { id } } }); };
   t.after(async () => { await host.dispose(); if (socketPath) await assert.rejects(fs.stat(path.dirname(socketPath)), { code: 'ENOENT' }); await fs.rm(home, { recursive: true }); });
@@ -67,7 +67,7 @@ async function fixture(t, approvalTimeoutMs = 100, runtimeOverrides = {}, regist
   async function controlRequest(candidateId) { const selected = await host.handlePipe(request('select_window', { candidateId: candidateId ?? await candidate() })); return socketCall('request_stage', { stage: 2, targetId: selected.targetId, reason: 'Verify the requested fixture control and approval lifecycle' }); }
   async function candidate() { return (await host.handlePipe(request('list_windows'))).candidates[0].candidateId; }
   async function prompted() { for (let i = 0; i < 100 && !resolveAnswer; i++) await new Promise(resolve => setImmediate(resolve)); assert.ok(resolveAnswer); }
-  return { host, native, home, approvals, posts, latestRequest: () => latestRequest, request, started, socketCall, controlRequest, candidate, prompted, answer: value => resolveAnswer(value), promptCount: () => promptCount };
+  return { host, native, home, approvals, posts, engine, latestRequest: () => latestRequest, request, started, socketCall, controlRequest, candidate, prompted, answer: value => resolveAnswer(value), promptCount: () => promptCount };
 }
 
 test('only a complete stage3 admission request extends the initial socket deadline', async t => {
@@ -141,7 +141,7 @@ for (const runtime of [{ windowControl: {} }, { windowControl: { mcpScript: 'rel
 test('dedicated start uses the same release binding and explicitly enables Window Use', async t => {
   const directory = path.resolve('artifacts/runtime-fixture/computer-use'), mcpScript = path.resolve('artifacts/runtime-fixture/window-control-mcp.cjs');
   const f = await fixture(t, 100, { computerUse: { directory }, windowControl: { mcpScript }, workspacePath: 'C:/fixture' }); let request;
-  f.host.attach(f.native).rpc = async (method, params) => { request = { method, params }; return { computerUseMode: 'selectedWindow', thread: { id: thread } }; };
+  const originalRpc=f.host.attach(f.native).rpc.bind(f.host.attach(f.native));f.host.attach(f.native).rpc = async (method, params) => { if(method.startsWith('thread/approval/'))return originalRpc(method,params);request = { method, params }; return { computerUseMode: 'selectedWindow', thread: { id: thread } }; };
   await f.host.startThread(); assert.equal(request.method, 'thread/start'); assert.equal(request.params.config['mcp_servers.azrael_window.enabled'], true); assert.equal(request.params.config['mcp_servers.azrael_window.command'], path.join(directory, nodeName)); assert.deepEqual(request.params.config['mcp_servers.azrael_window.args'], [mcpScript]); assert.equal(request.params.config['mcp_servers.azrael_window.env.CODEX_HOME'], f.home);
 });
 
@@ -152,18 +152,18 @@ test('oversized requests report a request limit instead of an unexplained discon
   assert.equal(reply.error.code, 'invalid_request');
   assert.equal(reply.error.message, '요청 크기가 Window Use 제한을 초과했습니다.');
 });
-test('unresolved approval times out, releases queued status, and ignores a late grant', async t => {
+test('unresolved approval detaches, releases queued status, and retains its card for a late receipt', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   const status = f.socketCall('status');
   const result = await selecting.reply;
-  assert.deepEqual(result.error, { code: 'approval_timeout', message: '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.', stage: 'approval', approvalState: 'expired', userResponded: false, actionExecuted: false });
+  assert.equal(result.error.code,'permission_pending');assert.equal(result.error.approvalState,'pending');assert.equal(result.error.approvalRequestId,f.latestRequest().id);assert.equal(result.error.actionExecuted,false);
   assert.ok(f.host.owner.peek(thread)?.targetId);
-  assert.equal(f.posts.at(-1).notification.method, 'serverRequest/resolved');
-  assert.deepEqual(f.posts.at(-1).notification.params, { threadId: thread, requestId: f.latestRequest().id });
+  assert.equal(f.posts.some(post=>post.notification?.params?.requestId===f.latestRequest().id),false,'detaching does not resolve the card');
   assert.deepEqual(selecting.progress, ['queued', 'running', 'approval','running','approval','running']);
   assert.ok(selecting.timeouts.filter(ms=>ms===10100).length===2,'each card refreshes the approval inactivity budget');
   assert.equal((await status.reply).result.state, 'selected');
-  f.answer('항상 허용'); await new Promise(resolve => setImmediate(resolve));
+  f.answer('항상 허용'); for(let i=0;i<100&&!f.engine.resumes.length;i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.equal(f.engine.resumes.length,1,'late acceptance creates a typed resume receipt');
   assert.equal(f.approvals.hasAppApproval(app, thread), false);
   assert.equal((await f.host.handlePipe(f.request('status'))).state, 'selected');
 });
@@ -201,24 +201,23 @@ test('missing UI transport fails explicitly without a fallback modal', async t =
   const result = await (await f.controlRequest()).reply;
   assert.equal(result.error.code, 'connection_error'); assert.equal(result.error.userResponded, false); assert.equal(result.error.actionExecuted, false); assert.equal(f.promptCount(), 0); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
-for (const delivery of ['false', 'throw', 'reject', 'hang']) test(`UI delivery ${delivery} releases approval without authority`, async t => {
+for (const delivery of ['false', 'throw', 'reject']) test(`UI delivery ${delivery} releases approval without authority`, async t => {
   const f = await fixture(t, 20); f.host.registerApprovalUI(f.native, envelope => {
     if (envelope.type === 'mcp-notification') return new Promise(() => {});
     if (delivery === 'false') return false; if (delivery === 'throw') throw new Error('transport'); if (delivery === 'reject') return Promise.reject(new Error('transport')); return new Promise(() => {});
   });
   const result = await (await f.controlRequest()).reply;
-  assert.equal(result.error.code, delivery === 'hang' ? 'approval_timeout' : 'connection_error'); assert.equal(result.error.userResponded, false); assert.equal(f.approvals.hasAppApproval(app, thread), false);
+  assert.equal(result.error.code,'connection_error'); assert.equal(result.error.userResponded, false); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
 test('native card persistence metadata retains session scope', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   assert.equal(f.host.respondApproval(f.native, f.latestRequest().id, { action: 'accept', _meta: { persist: 'session' } }), true);
   assert.equal((await selecting.reply).result.authorized, true); assert.equal(f.approvals.hasAppApproval(app, thread), true); f.approvals.stop(thread); assert.equal(f.approvals.hasAppApproval(app, thread), false);
 });
-test('replacing a UI registration cancels its pending consent and retires its answer', async t => {
+test('replacing a UI registration preserves the pending consent until a valid response', async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   f.host.registerApprovalUI(f.native, () => {});
-  const error = (await selecting.reply).error; assert.equal(error.code, 'cancelled'); assert.equal(error.userResponded, false); assert.equal(error.actionExecuted, false);
-  f.answer('항상 허용'); assert.equal(f.approvals.hasAppApproval(app, thread), false);
+  f.answer('항상 허용');assert.equal((await selecting.reply).result.authorized,true);assert.equal(f.approvals.hasAppApproval(app,thread),true);
 });
 for (const failure of ['store', 'settings', 'save']) test(`${failure} failure returns unclassified rather than refusal`, async t => {
   const f = await fixture(t), candidateId = await f.candidate();
@@ -236,12 +235,13 @@ test('a disconnected queued request never starts or opens another approval', asy
   await selecting.reply; await new Promise(resolve => setImmediate(resolve));
   assert.deepEqual(queued.progress, ['queued']); assert.equal(queued.ended(), false); assert.equal(f.promptCount(), 1);
 });
-for (const revocation of ['app', 'policy']) test(`${revocation} revocation during consent returns permission_denied`, async t => {
+for (const revocation of ['app', 'policy']) test(`${revocation} revocation cancels consent before any grant or resume`, async t => {
   const f = await fixture(t), selecting = await f.controlRequest(); await f.prompted();
   if (revocation === 'app') f.approvals.removeAppApproval(app);
   else require('./use-control-settings.cjs').createSettingsOwner(f.home).updateSettings({ windowUseAllowAll: true }, 0);
   f.answer('항상 허용');
-  assert.deepEqual((await selecting.reply).error, { code: 'permission_denied', message: 'Application authorization revoked' });
+  const error=(await selecting.reply).error;assert.equal(error.code,'cancelled');assert.equal(error.actionExecuted,false);
+  assert.equal(f.engine.resumes.length,0);
   assert.deepEqual(f.approvals.getPersistentAppApprovals(), { approvedApps: [] });
 });
 for (const grant of ['stored', 'accepted']) test(`${grant} consent with no resulting grant returns permission_denied`, async t => {

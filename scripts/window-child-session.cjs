@@ -109,11 +109,16 @@ async function prepareWindowsChildSession(helper) {
   }
 }
 
-function createNativeTransport(helper, { reconcileBootstrap = false } = {}) {
+function createNativeTransport(helper, { reconcileBootstrap = false, mode } = {}) {
   verifyNativeHelper(helper);
-  const child = spawn(helper.path, reconcileBootstrap ? ['--reconcile-bootstrap'] : [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+  if (mode !== undefined && mode !== 'inspectClosure') throw new Error('Unsupported native child transport mode');
+  if (mode && reconcileBootstrap) throw new Error('Conflicting native child transport modes');
+  const child = spawn(helper.path, mode === 'inspectClosure' ? ['--inspect-closure'] : reconcileBootstrap ? ['--reconcile-bootstrap'] : [], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
   const lines = readline.createInterface({ input: child.stdout });
   let pending, terminal, diagnostic = '';
+  let exited = false, resolveExit;
+  const exitPromise = new Promise(resolve => { resolveExit = resolve; });
+  child.on('close', () => { exited = true; resolveExit(true); });
   child.stderr.on('data', value => { diagnostic = (diagnostic + value).slice(-4096); });
   function fail(error) { terminal = error; if (pending) { clearTimeout(pending.timer); pending.reject(error); pending = null; } }
   child.on('error', fail);
@@ -139,12 +144,83 @@ function createNativeTransport(helper, { reconcileBootstrap = false } = {}) {
       });
     },
     disconnect() { child.stdin.end(); },
+    async waitForExit(timeoutMs = 15000) {
+      if (exited) return true;
+      let timer;
+      try { return await Promise.race([exitPromise, new Promise(resolve => { timer = setTimeout(() => resolve(false), timeoutMs); })]); }
+      finally { clearTimeout(timer); }
+    },
     get healthy() { return !terminal; },
   };
 }
 
 const admissionIdentityKeys = ['sid', 'profile', 'parentSessionId', 'childSessionId', 'workerPid', 'workerCreated'];
+const closureIdentityKeys = [...admissionIdentityKeys, 'sessionAnchorPid', 'sessionAnchorCreated'];
+const closureUnsafeFlags = ['pendingWork', 'directUser', 'unsavedWork', 'unknownState', 'unrelatedApps', 'pendingUserDecision', 'heldInput'];
+function completeClosureIdentity(value) {
+  return value && Object.keys(value).length === closureIdentityKeys.length && closureIdentityKeys.every(key => Object.hasOwn(value, key))
+    && typeof value.sid === 'string' && value.sid.length > 0 && typeof value.profile === 'string' && value.profile.length > 0
+    && Number.isInteger(value.parentSessionId) && value.parentSessionId >= 0 && Number.isInteger(value.childSessionId) && value.childSessionId > 0 && value.childSessionId !== value.parentSessionId
+    && Number.isInteger(value.workerPid) && value.workerPid > 0 && Number.isInteger(value.sessionAnchorPid) && value.sessionAnchorPid > 0 && value.sessionAnchorPid !== value.workerPid
+    && typeof value.workerCreated === 'string' && /^[1-9][0-9]{0,18}$/.test(value.workerCreated)
+    && typeof value.sessionAnchorCreated === 'string' && /^[1-9][0-9]{0,18}$/.test(value.sessionAnchorCreated);
+}
 const admissionGateNames = ['connection', 'render', 'keyboard', 'mouse', 'parentIdentity', 'dataProfile'];
+function readManualRecoveryRequest(file, environment) {
+  if (!file) return null;
+  if (!path.isAbsolute(file)) throw new Error('Absolute manual recovery request path required');
+  let stat;
+  try { stat = fs.lstatSync(file); } catch (error) { if (error.code === 'ENOENT') return null; throw error; }
+  if (!stat.isFile() || stat.isSymbolicLink() || stat.nlink !== 1 || stat.size > 8192) throw new Error('Invalid manual recovery request file');
+  for (let directory = path.dirname(file); ; directory = path.dirname(directory)) {
+    const info = fs.lstatSync(directory);
+    if (!info.isDirectory() || info.isSymbolicLink()) throw new Error('Manual recovery request ancestry changed');
+    if (path.dirname(directory) === directory) break;
+  }
+  const value = JSON.parse(fs.readFileSync(file, 'utf8').replace(/^\uFEFF/, ''));
+  const keys = ['schemaVersion', 'requestId', 'sid', 'profile', 'parentSessionId', 'childSessionId', 'createdUtc', 'expiresUtc'];
+  const parent = environment?.parent, child = environment?.childSessions;
+  const created = Date.parse(value.createdUtc), expires = Date.parse(value.expiresUtc), now = Date.now();
+  if (Object.keys(value).some(key => !keys.includes(key)) || value.schemaVersion !== 1
+    || !/^[a-f0-9]{8}-(?:[a-f0-9]{4}-){3}[a-f0-9]{12}$/i.test(value.requestId || '')
+    || !Number.isInteger(value.childSessionId) || value.childSessionId <= 0 || value.childSessionId === parent?.sessionId
+    || value.sid !== parent?.sid || value.parentSessionId !== parent?.sessionId
+    || typeof value.profile !== 'string' || typeof parent?.profile !== 'string'
+    || path.win32.resolve(value.profile).toLowerCase() !== path.win32.resolve(parent.profile).toLowerCase()
+    || !Number.isFinite(created) || !Number.isFinite(expires) || created > now + 5000 || expires <= now
+    || expires <= created || expires - created > 600000 || now - created > 600000
+    || child?.idQuerySucceeded !== true || child.sessionEnumerationSucceeded !== true
+    || child.reportedChildSessionLive !== true || child.childSessionId !== value.childSessionId)
+    throw new Error('Manual recovery request is expired or does not identify the current same-user child');
+  return { value, identity: `${stat.dev}:${stat.ino}:${stat.size}:${stat.mtimeMs}` };
+}
+function consumeManualRecoveryRequest(file, observed, environment) {
+  const current = readManualRecoveryRequest(file, environment);
+  if (!current || current.identity !== observed.identity || JSON.stringify(current.value) !== JSON.stringify(observed.value))
+    throw new Error('Manual recovery request changed before consumption');
+  const consumed = path.join(path.dirname(file), `consumed-${observed.value.requestId}.json`);
+  if (fs.existsSync(consumed)) throw new Error('Manual recovery request was already consumed');
+  fs.renameSync(file, consumed);
+  const renamed = fs.lstatSync(consumed);
+  if (`${renamed.dev}:${renamed.ino}:${renamed.size}:${renamed.mtimeMs}` !== observed.identity)
+    throw new Error('Manual recovery request identity changed');
+  return { value: observed.value, file: consumed, identity: observed.identity };
+}
+function cleanupConsumedRecoveryRequest(consumed) {
+  try {
+    for (let parent = path.dirname(consumed.file); ; parent = path.dirname(parent)) {
+      const info = fs.lstatSync(parent);
+      if (!info.isDirectory() || info.isSymbolicLink()) throw new Error('Recovery request ancestry changed');
+      if (path.dirname(parent) === parent) break;
+    }
+    const info = fs.lstatSync(consumed.file);
+    if (!info.isFile() || info.isSymbolicLink() || info.nlink !== 1
+      || `${info.dev}:${info.ino}:${info.size}:${info.mtimeMs}` !== consumed.identity
+      || JSON.stringify(JSON.parse(fs.readFileSync(consumed.file, 'utf8'))) !== JSON.stringify(consumed.value)) throw new Error('Consumed request identity changed');
+    fs.unlinkSync(consumed.file);
+    return { state: fs.existsSync(consumed.file) ? 'deferred' : 'complete', remainingPaths: fs.existsSync(consumed.file) ? [consumed.file] : [] };
+  } catch { return { state: 'deferred', remainingPaths: [consumed.file] }; }
+}
 function passedChildAdmission(proof, identity, helper) {
   return Boolean(proof && identity && helper && proof.scope === 'child_platform_fixture'
     && typeof helper.sha256 === 'string' && /^[a-f0-9]{64}$/i.test(helper.sha256)
@@ -154,9 +230,9 @@ function passedChildAdmission(proof, identity, helper) {
 }
 
 function createWindowsChildSessionManager({ enabled = false, probe = probeWindowsChildSession,
-  nativeHelper, bootstrapJournalPath, authorize = async () => false, transportFactory = createNativeTransport,
+  nativeHelper, bootstrapJournalPath, manualRecoveryRequestPath, authorize = async () => false, transportFactory = createNativeTransport,
   prepareMachine = prepareWindowsChildSession } = {}) {
-  let transport, identity, inputOwner, inFlight = false, uncertain = false, lastClosure, lastReconciliation, admission, admissionAccepted = false;
+  let transport, identity, inputOwner, inFlight = false, uncertain = false, inputNeedsRelease = false, lastClosure, lastReconciliation, admission, admissionAccepted = false;
   const isEnabled = () => typeof enabled === 'function' ? enabled() === true : enabled === true;
   const admitted = () => admissionAccepted && isEnabled() && !uncertain && transport?.healthy !== false && passedChildAdmission(admission, identity, nativeHelper);
   async function describe() {
@@ -172,21 +248,22 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
       if (value.state === 'backend_incomplete') value.state = 'unverified';
     }
     if (transport?.healthy === false) uncertain = true;
+    let liveIdentity = false;
     if (identity) {
       const observed = value.environment;
       value.prerequisites = value.prerequisites.filter(item => item.code !== 'existing_child_not_owned'
         || observed.childSessions?.childSessionId !== identity.childSessionId);
       const sameParent = observed.parent?.sessionId === identity.parentSessionId && observed.parent?.sid === identity.sid && observed.parent?.profile === identity.profile;
-      if (!sameParent || !observed.childSessions?.idQuerySucceeded || observed.childSessions.childSessionId !== identity.childSessionId) uncertain = true;
-      if (value.prerequisites.length) uncertain = true;
-      value.state = admitted() && !value.prerequisites.length ? 'admitted' : 'connected_unverified';
+      liveIdentity = sameParent && observed.childSessions?.idQuerySucceeded === true && observed.childSessions.childSessionId === identity.childSessionId;
+      value.state = admitted() && liveIdentity && !value.prerequisites.length ? 'admitted' : 'connected_unverified';
       value.available = value.admissionReady = value.state === 'admitted';
-      value.capabilities = { ...value.capabilities, connection: !uncertain, sameSidWorker: !uncertain, appLaunch: value.available,
-        capture: value.available, isolatedInput: value.available, sessionCleanup: !uncertain };
+      value.capabilities = { ...value.capabilities, connection: !uncertain && liveIdentity, sameSidWorker: !uncertain && liveIdentity, appLaunch: value.available,
+        capture: value.available, isolatedInput: value.available && !inputNeedsRelease, sessionCleanup: !uncertain && liveIdentity };
     }
     value.admission = admission || null;
     value.cleanupUnconfirmed = uncertain;
-    value.ownershipVerified = Boolean(identity && !uncertain);
+    value.ownershipVerified = Boolean(identity && !uncertain && liveIdentity);
+    value.inputRevalidationRequired = inputNeedsRelease;
     value.applicationCompatibility = 'unverified';
     return value;
   }
@@ -198,6 +275,115 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
     if (inFlight) return { ok: false, code: 'child_session_occupied' };
     inFlight = true;
     try { return await action(); } finally { inFlight = false; }
+  }
+  async function retireTransport() {
+    if (!transport) return true;
+    transport.disconnect();
+    // A broken pipe is not proof that its producer has stopped. Never spawn a
+    // second helper until this exact transport reports terminal process closure.
+    if (typeof transport.waitForExit !== 'function' || await transport.waitForExit() !== true) return false;
+    transport = null;
+    return true;
+  }
+  async function recoverConnection(request, status) {
+    owner(request);
+    if (!isEnabled()) return { ok: false, code: 'stage3_disabled' };
+    const previousIdentity = identity && { ...identity };
+    if (previousIdentity && !completeClosureIdentity(previousIdentity)) return { ok: false, code: 'child_session_identity_mismatch' };
+    if (await authorize(previousIdentity ? 'acquire' : 'start', request, previousIdentity) !== true) return { ok: false, code: 'child_session_authority_required' };
+    status ||= await describe();
+    const env = status.environment, child = env?.childSessions;
+    if (!nativeHelper || status.prerequisites.some(item => item.code !== 'existing_child_not_owned')
+      || child?.idQuerySucceeded !== true || child.sessionEnumerationSucceeded !== true || child.reportedChildSessionLive !== true
+      || (previousIdentity && (child.childSessionId !== previousIdentity.childSessionId || env.parent?.sid !== previousIdentity.sid
+        || env.parent?.profile !== previousIdentity.profile || env.parent?.sessionId !== previousIdentity.parentSessionId)))
+      return { ok: false, code: 'child_session_identity_mismatch', actionExecuted: false };
+    if (!await retireTransport()) return { ok: false, code: 'child_transport_termination_unconfirmed', cleanupUnconfirmed: true };
+    if (await authorize(previousIdentity ? 'acquire' : 'start', request, previousIdentity) !== true || !isEnabled()) return { ok: false, code: 'child_session_authority_required' };
+    try {
+      admissionAccepted = false;
+      transport = transportFactory(nativeHelper);
+      const result = await transport.request({ operation: 'recover', automaticRecovery: true, recoveryRequestId: crypto.randomUUID(),
+        childSessionId: child.childSessionId, ownerId: request.ownerId, helperSha256: nativeHelper.sha256.toLowerCase(), bootstrapJournalPath,
+        ...(previousIdentity ? { expectedIdentity: previousIdentity } : {}) }, 240000);
+      if (result.ok !== true) {
+        uncertain = result.cleanupUnconfirmed === true;
+        await retireTransport();
+        return { ...result, available: false, admissionReady: false };
+      }
+      const peer = result.identity;
+      const anchorKeys = ['sid', 'profile', 'parentSessionId', 'childSessionId', 'sessionAnchorPid', 'sessionAnchorCreated'];
+      if (result.ownershipVerified !== true || result.inputReleased !== true || !completeClosureIdentity(peer)
+        || peer.sid !== env.parent.sid || peer.profile !== env.parent.profile || peer.parentSessionId !== env.parent.sessionId
+        || peer.childSessionId !== child.childSessionId || (previousIdentity && !anchorKeys.every(key => peer[key] === previousIdentity[key]))
+        || !passedChildAdmission(result.admission, peer, nativeHelper)
+        || !closureIdentityKeys.every(key => result.admission.identity?.[key] === peer[key])) {
+        uncertain = true;
+        return { ok: false, code: 'child_session_identity_mismatch', available: false, admissionReady: false, cleanupUnconfirmed: true };
+      }
+      identity = { ...peer }; admission = JSON.parse(JSON.stringify(result.admission)); uncertain = false; inputNeedsRelease = false;
+      inputOwner = request.ownerId;
+      if (await authorize(previousIdentity ? 'acquire' : 'start', request, identity) !== true || !isEnabled()) {
+        const released = await transport.request({ operation: 'releaseLease' });
+        if (released?.ok === true && released.inputReleased === true) inputOwner = null;
+        else inputNeedsRelease = true;
+        return { ok: false, code: 'child_session_authority_required', identity, previousIdentity, available: false, admissionReady: false };
+      }
+      admissionAccepted = true;
+      return { ...result, identity: { ...identity }, previousIdentity, connectionRecovered: true, inputReleased: true,
+        admission, available: true, admissionReady: true, inputOwner };
+    } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
+  }
+  async function ensureConnected(request) {
+    owner(request);
+    if (!isEnabled()) return { ok: false, code: 'stage3_disabled' };
+    if (!identity) return recoverConnection(request);
+    if (await authorize('acquire', request, identity) !== true) return { ok: false, code: 'child_session_authority_required' };
+    if (uncertain || !transport || transport.healthy === false || !admissionAccepted) return recoverConnection(request);
+    try {
+      const current = await describe();
+      if (!current.available) return { ok: false, code: 'child_session_live_validation_required' };
+      const observed = await transport.request({ operation: 'status' });
+      if (observed?.ok !== true || observed.ownershipVerified !== true || observed.sessionId !== identity.childSessionId || observed.state !== 'running'
+        || (observed.identity && !closureIdentityKeys.every(key => observed.identity[key] === identity[key]))) {
+        admissionAccepted = false;
+        return { ok: false, code: observed?.code || 'child_session_identity_mismatch' };
+      }
+      if (!inputOwner) {
+        const acquired = await transport.request({ operation: 'acquireLease', ownerId: request.ownerId });
+        if (acquired?.ok !== true) return acquired;
+        if (acquired.inputReleased !== true || !(acquired.sessionId === identity.childSessionId
+          || (acquired.ownershipVerified === true && closureIdentityKeys.every(key => acquired.identity?.[key] === identity[key]))))
+          return { ok: false, code: 'child_session_identity_mismatch' };
+        inputOwner = request.ownerId;
+      }
+      if (await authorize('acquire', request, identity) !== true || !isEnabled()) {
+        admissionAccepted = false;
+        const released = await transport.request({ operation: 'releaseLease' });
+        if (released?.ok === true) inputOwner = null;
+        return { ok: false, code: 'child_session_authority_required' };
+      }
+      return { ok: true, ownershipVerified: true, identity: { ...identity }, admission, available: admitted(), admissionReady: admitted(), inputOwner };
+    } catch { uncertain = true; return recoverConnection(request); }
+  }
+  async function revalidateInput(request) {
+    owner(request);
+    if (!identity || uncertain || transport?.healthy === false) return { ok: false, code: 'child_session_not_connected' };
+    if (!isEnabled()) return { ok: false, code: 'stage3_disabled' };
+    if (await authorize('acquire', request, identity) !== true) return { ok: false, code: 'child_session_authority_required' };
+    const current = await describe();
+    if (current.available !== true) return { ok: false, code: 'child_session_live_validation_required' };
+    try {
+      const observed = await transport.request({ operation: 'status' });
+      if (observed?.ok !== true || observed.sessionId !== identity.childSessionId || observed.ownershipVerified !== true || observed.state !== 'running') return { ok: false, code: 'child_session_identity_mismatch' };
+      // Release only: never replay the uncertain action or reconnect/create a session.
+      inputNeedsRelease = true;
+      const released = await transport.request({ operation: 'releaseInput' });
+      if (released?.ok !== true || released.inputReleased !== true || released.sessionId !== identity.childSessionId) return { ok: false, code: 'child_input_release_unconfirmed', inputReleaseConfirmed: false };
+      inputNeedsRelease = false;
+      if (!isEnabled() || await authorize('acquire', request, identity) !== true) return { ok: false, code: 'child_session_authority_required' };
+      return { ok: true, ownershipVerified: true, identity: { ...identity }, inputReleased: true, admissionReady: admitted(), available: admitted(), admission };
+    } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
   }
   async function reconcileBootstrap() {
     if (!nativeHelper) return lastReconciliation = { ok: false, code: 'child_session_backend_incomplete' };
@@ -216,11 +402,44 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
     describe,
     status: describe,
     async reconcileBootstrap() { return exclusive(reconcileBootstrap); },
+    async inspectClosure(original) {
+      const deferred = () => ({ ok: false, state: 'unknown', ownershipVerified: false, unknownState: true,
+        code: 'child_closure_unconfirmed', logoffConfirmed: false, processesStopped: false });
+      if (!nativeHelper || !completeClosureIdentity(original)) return deferred();
+      const expected = { ...original };
+      let channel;
+      try {
+        channel = transportFactory(nativeHelper, { mode: 'inspectClosure' });
+        const result = await channel.request({ helperSha256: nativeHelper.sha256.toLowerCase(), identity: expected });
+        if (result.ok !== true || result.state !== 'closed' || result.ownershipVerified !== true
+          || result.logoffConfirmed !== true || result.processesStopped !== true || !completeClosureIdentity(result.identity)
+          || !closureIdentityKeys.every(key => result.identity[key] === expected[key])
+          || !closureUnsafeFlags.every(key => result[key] === false)) return deferred();
+        return { ok: true, state: 'closed', identity: expected, ownershipVerified: true, logoffConfirmed: true,
+          processesStopped: true, ...Object.fromEntries(closureUnsafeFlags.map(key => [key, false])) };
+      } catch { return deferred(); }
+      finally { if (channel) channel.disconnect(); }
+    },
+    async retireClosed(original) { return exclusive(async () => {
+      if (!identity || !completeClosureIdentity(original) || !closureIdentityKeys.every(key => identity[key] === original[key]))
+        return { ok: false, code: 'child_session_identity_mismatch', ownershipVerified: false, state: 'unknown' };
+      const closure = await this.inspectClosure(original);
+      if (closure.ok !== true) return closure;
+      if (transport) transport.disconnect();
+      lastClosure = closure; identity = null; admission = null; admissionAccepted = false; inputOwner = null; transport = null; uncertain = false;
+      return closure;
+    }); },
     async start(request = {}) { return exclusive(async () => {
       let status = await describe();
+      if (identity) return ensureConnected(request);
+      let recovery;
+      try { recovery = status.state === 'disabled' ? null : readManualRecoveryRequest(manualRecoveryRequestPath, status.environment); }
+      catch (error) { return { ok: false, code: 'manual_recovery_request_invalid', message: error.message, available: false, admissionReady: false }; }
+      if (!recovery && status.environment?.childSessions?.reportedChildSessionLive === true
+        && status.environment.childSessions.sessionEnumerationSucceeded === true) return recoverConnection(request, status);
       const blockers = status.prerequisites.filter(item => !(item.code === 'child_identity_query_failed' && item.detail === 1168));
       const setupCodes = new Set(['child_sessions_not_enabled', 'termservice_not_running']);
-      const unsafeBlockers = blockers.filter(item => !setupCodes.has(item.code));
+      const unsafeBlockers = blockers.filter(item => !setupCodes.has(item.code) && !(recovery && item.code === 'existing_child_not_owned'));
       if (status.state === 'disabled' || unsafeBlockers.length || !nativeHelper || uncertain) return {
         ok: false, code: status.state === 'disabled' ? 'stage3_disabled' : uncertain ? 'child_cleanup_unconfirmed'
           : blockers.length ? 'child_session_prerequisites' : 'child_session_backend_incomplete',
@@ -229,7 +448,8 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
       owner(request);
       if (identity) return { ok: false, code: 'child_session_already_owned', identity };
       if (await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
-      if (blockers.length) {
+      if (recovery && blockers.some(item => item.code !== 'existing_child_not_owned')) return { ...status, ok: false, code: 'child_session_prerequisites' };
+      if (!recovery && blockers.length) {
         const setup = await prepareMachine(nativeHelper);
         if (setup.cleanupUnconfirmed === true || setup.code === 'child_setup_unknown') uncertain = true;
         if (setup.ok !== true) return { ...setup, ok: false, available: false, admissionReady: false };
@@ -237,38 +457,85 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
         if (status.prerequisites.length) return { ...status, ok: false, code: 'child_session_prerequisites' };
       }
       if (!isEnabled() || await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
-      const reconciliation = await reconcileBootstrap();
-      if (!reconciliation.ok) return { ok: false, code: reconciliation.code || 'child_bootstrap_reconciliation_required', reconciliation };
+      if (!recovery) {
+        const reconciliation = await reconcileBootstrap();
+        if (!reconciliation.ok) return { ok: false, code: reconciliation.code || 'child_bootstrap_reconciliation_required', reconciliation };
+      }
       if (!isEnabled() || await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required' };
       try {
+        if (recovery) {
+          status = await describe();
+          recovery = consumeManualRecoveryRequest(manualRecoveryRequestPath, recovery, status.environment);
+          if (!isEnabled() || await authorize('start', request) !== true) return { ok: false, code: 'child_session_authority_required', recoveryRequestCleanup: cleanupConsumedRecoveryRequest(recovery) };
+        }
         transport = transportFactory(nativeHelper);
-        const result = await transport.request({ operation: 'start', helperSha256: nativeHelper.sha256.toLowerCase(), bootstrapJournalPath, ownerId: request.ownerId }, 55000);
+        const result = await transport.request({ operation: recovery ? 'recover' : 'start', helperSha256: nativeHelper.sha256.toLowerCase(), bootstrapJournalPath, ownerId: request.ownerId,
+          ...(recovery ? { childSessionId: recovery.value.childSessionId, recoveryRequestId: recovery.value.requestId } : {}) }, recovery ? 240000 : 55000);
+        // The request bytes have been consumed; a terminal native reply no longer uses this file.
+        if (recovery) result.recoveryRequestCleanup = cleanupConsumedRecoveryRequest(recovery);
         const peer = result.identity, parent = status.environment.parent;
-        if (!peer && result.ok !== true) { uncertain = true; return { ...result, admissionReady: false, available: false, cleanupUnconfirmed: true }; }
+        if (!peer && result.ok !== true) { uncertain = result.cleanupUnconfirmed === true; return { ...result, admissionReady: false, available: false }; }
         if (result.ownershipVerified !== true || !peer || peer.parentSessionId !== parent.sessionId || peer.childSessionId === parent.sessionId
-          || !Number.isInteger(peer.childSessionId) || peer.sid !== parent.sid || peer.profile !== parent.profile
+          || !Number.isInteger(peer.childSessionId) || (recovery && peer.childSessionId !== recovery.value.childSessionId) || peer.sid !== parent.sid || peer.profile !== parent.profile
           || !Number.isInteger(peer.workerPid) || peer.workerPid <= 0 || typeof peer.workerCreated !== 'string' || !peer.workerCreated) {
-          uncertain = true; return { ok: false, code: 'child_session_identity_mismatch' };
+          uncertain = true; return { ok: false, code: 'child_session_identity_mismatch', ...(result.recoveryRequestCleanup ? { recoveryRequestCleanup: result.recoveryRequestCleanup } : {}) };
         }
         identity = { ...peer }; inputOwner = request.ownerId; uncertain = result.cleanupUnconfirmed === true;
         admission = result.admission ? JSON.parse(JSON.stringify(result.admission)) : null;
         admissionAccepted = result.ok === true && passedChildAdmission(admission, identity, nativeHelper);
+        if (recovery && (!isEnabled() || await authorize('start', request, identity) !== true)) {
+          admissionAccepted = false;
+          try { await transport.request({ operation: 'releaseInput' }); } catch { uncertain = true; }
+          return { ...result, ok: false, code: 'child_session_authority_required', admissionReady: false, available: false, cleanupUnconfirmed: uncertain };
+        }
         const ready = result.ok === true && admitted();
         return { ...result, ok: ready, code: ready ? undefined : 'child_session_admission_failed',
           ownershipVerified: true, admissionReady: ready, available: ready, admission,
           applicationCompatibility: 'unverified', requiredVerification: status.requiredVerification };
-      } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
+      } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true,
+        ...(recovery?.file ? { recoveryRequestCleanup: { state: 'deferred', remainingPaths: [recovery.file] } } : {}) }; }
     }); },
     async request(request = {}) { return exclusive(async () => {
       owner(request);
-      if (!identity || uncertain) return { ok: false, code: 'child_session_not_connected' };
+      if (!identity) return { ok: false, code: 'child_session_not_connected' };
+      if (!['launch', 'capture', 'input', 'releaseInput'].includes(request.operation)) return { ok: false, code: 'child_operation_unsupported' };
+      if (uncertain || transport?.healthy === false) {
+        const recovery = await recoverConnection(request);
+        return { ...recovery, ok: false, code: recovery.ok ? 'child_connection_recovered_observation_required' : recovery.code,
+          actionExecuted: false, executionState: 'not_executed', mutationOutcome: 'not_executed', observationRequired: true,
+          ...(recovery.ok ? { connectionVerification: recovery } : {}) };
+      }
       if (request.ownerId !== inputOwner) return { ok: false, code: 'child_input_lease_required' };
       if (!isEnabled() && request.operation !== 'releaseInput') return { ok: false, code: 'stage3_disabled' };
       if (!['launch', 'capture', 'input', 'releaseInput'].includes(request.operation)) return { ok: false, code: 'child_operation_unsupported' };
       if (request.operation !== 'releaseInput' && !admitted()) return { ok: false, code: 'child_session_admission_required' };
       if (await authorize(request.operation, request, identity) !== true) return { ok: false, code: 'child_session_authority_required' };
-      try { return await transport.request(request); }
-      catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
+      if (request.operation === 'input' && inputNeedsRelease) return { ok: false, code: 'child_input_revalidation_required', actionExecuted: false };
+      try {
+        const result = await transport.request(request);
+        if (result?.cleanupUnconfirmed === true || transport.healthy === false) {
+          uncertain = true;
+          const recovery = await recoverConnection(request);
+          const outcome = result?.mutationOutcome || (result?.actionExecuted === false ? 'not_executed' : 'unknown');
+          return { ...result, ok: false, mutationOutcome: outcome, executionState: outcome, observationRequired: true,
+            cleanupUnconfirmed: uncertain, connectionRecovered: recovery.connectionRecovered === true, recovery,
+            ...(recovery.connectionRecovered ? { connectionVerification: recovery, identity: recovery.identity,
+              previousIdentity: recovery.previousIdentity, inputReleased: true, admission: recovery.admission } : {}) };
+        }
+        if (request.operation === 'input' && result?.ok !== true) inputNeedsRelease = result?.inputReleaseConfirmed !== true;
+        if (request.operation === 'releaseInput') {
+          inputNeedsRelease = result?.ok !== true || result.inputReleased !== true || result.sessionId !== identity.childSessionId;
+          if (inputNeedsRelease) return { ok: false, code: 'child_input_release_unconfirmed', inputReleaseConfirmed: false };
+        }
+        return result;
+      }
+      catch (error) {
+        uncertain = true;
+        const recovery = await recoverConnection(request);
+        return { ok: false, code: 'child_transport_failed', message: error.message, executionState: 'unknown', mutationOutcome: 'unknown', observationRequired: true,
+          cleanupUnconfirmed: uncertain, connectionRecovered: recovery.connectionRecovered === true, recovery,
+          ...(recovery.connectionRecovered ? { connectionVerification: recovery, identity: recovery.identity, previousIdentity: recovery.previousIdentity, inputReleased: true, admission: recovery.admission } : {}) };
+      }
     }); },
     async stop(request = {}) { return exclusive(async () => {
       owner(request);
@@ -293,29 +560,125 @@ function createWindowsChildSessionManager({ enabled = false, probe = probeWindow
       owner(request);
       if (!identity || uncertain) return { ok: false, code: 'child_session_not_connected' };
       try {
-        const result = await transport.request({ operation: 'releaseInput' });
-        if (result.ok) inputOwner = null;
+        const result = await transport.request({ operation: 'releaseLease' });
+        if (result.ok !== true || result.inputReleased !== true || !(result.sessionId === identity.childSessionId
+          || (result.ownershipVerified === true && closureIdentityKeys.every(key => result.identity?.[key] === identity[key])))) { inputNeedsRelease = true; return { ok: false, code: 'child_input_release_unconfirmed', inputReleaseConfirmed: false }; }
+        inputNeedsRelease = false; inputOwner = null;
         return result;
       } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
     }); },
+    revalidateInput: (request = {}) => exclusive(() => revalidateInput(request)),
+    ensureConnected: (request = {}) => exclusive(() => ensureConnected(request)),
     async acquire(request = {}) { return exclusive(async () => {
-      owner(request);
-      if (!identity || uncertain) return { ok: false, code: 'child_session_not_connected' };
-      if (!isEnabled()) return { ok: false, code: 'stage3_disabled' };
-      if (await authorize('acquire', request, identity) !== true) return { ok: false, code: 'child_session_authority_required' };
-      try {
-        const result = await transport.request({ operation: 'status' });
-        if (!result.ok || result.sessionId !== identity.childSessionId || result.ownershipVerified !== true) {
-          uncertain = true; return { ok: false, code: 'child_session_identity_mismatch' };
-        }
-        inputOwner = request.ownerId;
-        return { ok: true, ownershipVerified: true, identity, inputOwner, admissionReady: admitted(), available: admitted(), admission };
-      } catch (error) { uncertain = true; return { ok: false, code: 'child_transport_failed', message: error.message, cleanupUnconfirmed: true }; }
+      const verified = await ensureConnected(request);
+      if (verified.ok !== true) return verified;
+      inputOwner = request.ownerId;
+      return { ...verified, inputOwner };
     }); },
   };
 }
 
 module.exports = { probeWindowsChildSession, describeChildSession, createWindowsChildSessionManager, createNativeTransport };
+
+function installedApplicationError(code) {
+  return Object.assign(new Error(code), { code });
+}
+
+// Fixed current-user registration query. Model-provided values travel only through stdin.
+const installedApplicationQuery = String.raw`
+$ErrorActionPreference = 'Stop'
+[Console]::OutputEncoding = New-Object System.Text.UTF8Encoding($false)
+$request = [Console]::In.ReadToEnd() | ConvertFrom-Json
+$packages = @(Get-AppxPackage -Name $request.packageName | Where-Object { $_.Name -ceq $request.packageName })
+if ($packages.Count -ne 1) { throw 'installed_application_registration_missing_or_ambiguous' }
+$package = $packages[0]
+$manifest = Get-AppxPackageManifest -Package $package.PackageFullName
+$applications = @($manifest.Package.Applications.Application | ForEach-Object {
+  @{ id = [string]$_.Id; executable = [string]$_.Executable; entryPoint = [string]$_.EntryPoint }
+})
+if ($applications.Count -gt 128) { throw 'installed_application_registration_invalid' }
+@{ name = [string]$package.Name; fullName = [string]$package.PackageFullName; installLocation = [string]$package.InstallLocation; applications = $applications } | ConvertTo-Json -Depth 5 -Compress
+`;
+
+async function queryInstalledApplication(packageName) {
+  return new Promise((resolve, reject) => {
+    const executable = path.join(process.env.SystemRoot || 'C:\\Windows', 'System32', 'WindowsPowerShell', 'v1.0', 'powershell.exe');
+    const child = spawn(executable, ['-NoLogo', '-NoProfile', '-NonInteractive', '-EncodedCommand', Buffer.from(installedApplicationQuery, 'utf16le').toString('base64')], { windowsHide: true, stdio: ['pipe', 'pipe', 'pipe'] });
+    let settled = false, bytes = 0;
+    const output = [];
+    const finish = (error, value) => {
+      if (settled) return;
+      settled = true; clearTimeout(timer);
+      if (error) reject(error); else resolve(value);
+    };
+    const timer = setTimeout(() => { child.kill(); finish(installedApplicationError('installed_application_query_timeout')); }, 20000);
+    child.on('error', () => finish(installedApplicationError('installed_application_query_failed')));
+    child.stdin.on('error', () => {});
+    child.stdout.on('data', chunk => {
+      bytes += chunk.length;
+      if (bytes > 65536) { child.kill(); finish(installedApplicationError('installed_application_query_oversize')); return; }
+      output.push(chunk);
+    });
+    // Drain stderr without returning platform diagnostics or unbounded registration data.
+    child.stderr.on('data', chunk => { bytes += chunk.length; if (bytes > 65536) { child.kill(); finish(installedApplicationError('installed_application_query_oversize')); } });
+    child.on('close', code => {
+      if (code !== 0) return finish(installedApplicationError('installed_application_query_failed'));
+      try { finish(null, JSON.parse(Buffer.concat(output).toString('utf8').replace(/^\uFEFF/, '').trim())); }
+      catch { finish(installedApplicationError('installed_application_registration_invalid')); }
+    });
+    child.stdin.end(JSON.stringify({ packageName }));
+  });
+}
+
+async function inspectInstalledExecutable(root, executable) {
+  // Inspect every ancestor as well as the final file. Junctions and symbolic links
+  // cannot redirect a registered package path outside its inspected installation.
+  let current = executable;
+  for (;;) {
+    const info = await fs.promises.lstat(current);
+    if (info.isSymbolicLink() || (current === executable ? !info.isFile() : !info.isDirectory())) throw installedApplicationError('installed_application_path_invalid');
+    // Node's asynchronous native Windows realpath opens each ancestor and is
+    // denied on WindowsApps itself. The standard synchronous walker resolves
+    // links using the inspected entries without requiring directory-open rights.
+    const resolved = fs.realpathSync(current);
+    if (path.normalize(resolved).toLowerCase() !== path.normalize(current).toLowerCase()) throw installedApplicationError('installed_application_path_invalid');
+    const parent = path.dirname(current);
+    if (parent === current) break;
+    current = parent;
+  }
+  if (!path.relative(root, executable) || path.relative(root, executable).startsWith('..' + path.sep)) throw installedApplicationError('installed_application_path_invalid');
+}
+
+async function resolveInstalledApplication(request, options = {}) {
+  if ((options.platform || process.platform) !== 'win32') throw installedApplicationError('installed_application_platform_unsupported');
+  const identifier = value => typeof value === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$/.test(value);
+  if (!request || typeof request !== 'object' || Array.isArray(request) || !identifier(request.packageName)
+    || (request.applicationId !== undefined && !identifier(request.applicationId))
+    || Object.keys(request).some(key => !['packageName', 'applicationId'].includes(key))) throw installedApplicationError('installed_application_request_invalid');
+  const registration = await (options.queryPackage || queryInstalledApplication)(request.packageName);
+  if (!registration || typeof registration !== 'object' || registration.name !== request.packageName
+    || typeof registration.fullName !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9._-]{0,255}$/.test(registration.fullName)
+    || !registration.fullName.startsWith(request.packageName + '_')
+    || typeof registration.installLocation !== 'string' || registration.installLocation.length > 2048
+    || !path.isAbsolute(registration.installLocation) || !Array.isArray(registration.applications) || registration.applications.length > 128) throw installedApplicationError('installed_application_registration_invalid');
+  const root = path.normalize(registration.installLocation);
+  if (root.startsWith('\\\\') || root.includes('\0') || registration.installLocation.split(/[\\/]/).includes('..')) throw installedApplicationError('installed_application_path_invalid');
+  const candidates = registration.applications.filter(app => app && app.entryPoint === 'Windows.FullTrustApplication'
+    && (request.applicationId === undefined || app.id === request.applicationId));
+  if (candidates.length !== 1) throw installedApplicationError(candidates.length ? 'installed_application_ambiguous' : 'installed_application_not_found');
+  const application = candidates[0], relative = application.executable;
+  if (!identifier(application.id) || typeof relative !== 'string' || relative.length > 1024
+    || !/^[A-Za-z0-9_ .\\/-]+\.exe$/i.test(relative) || path.isAbsolute(relative)
+    || relative.split(/[\\/]/).some(part => !part || part === '.' || part === '..' || part.endsWith('.') || part.endsWith(' '))) throw installedApplicationError('installed_application_path_invalid');
+  const executable = path.resolve(root, relative);
+  if (!executable.toLowerCase().startsWith(root.toLowerCase().replace(/[\\/]$/, '') + path.sep)) throw installedApplicationError('installed_application_path_invalid');
+  try { await inspectInstalledExecutable(root, executable); }
+  catch (error) { if (error.code?.startsWith('installed_application_')) throw error; throw installedApplicationError('installed_application_path_unavailable'); }
+  return { source: 'installed-package', packageName: registration.name, packageFullName: registration.fullName,
+    applicationId: application.id, executable, title: registration.name };
+}
+
+module.exports.resolveInstalledApplication = resolveInstalledApplication;
 if (require.main === module) {
   createWindowsChildSessionManager({ enabled: process.argv.includes('--enabled') }).describe()
     .then(value => process.stdout.write(`${JSON.stringify(value, null, 2)}\n`))

@@ -14,6 +14,7 @@ function fixture(t) {
   for (const directory of [path.join(sourceRoot, 'src'), scriptDirectory, skillDirectory]) fs.mkdirSync(directory, { recursive: true });
   for (const [rel, content] of [['Cargo.toml', '[package]'], ['Cargo.lock', 'lock'], ['THIRD_PARTY_NOTICES.md', 'Fixture third-party license notices'], ['src/main.rs', 'fn main() {}']]) fs.writeFileSync(path.join(sourceRoot, rel), content);
   for (const name of ['window-control-mcp.cjs', 'window-use-resources.cjs', 'window-child-session.cjs', 'window-use-isolation.cjs', 'window-control-policy.cjs', 'window-control-errors.cjs', 'window-control-occupancy.cjs', 'window-task-macros.cjs', 'use-control-settings.cjs', 'window-use-approvals.cjs', 'computer-use-approvals.cjs']) fs.writeFileSync(path.join(scriptDirectory, name), "'use strict';\n");
+  for (const name of ['request-window-child-logoff.ps1', 'window-child-session-cleanup.cjs']) fs.copyFileSync(path.join(__dirname, name), path.join(scriptDirectory, name));
   fs.mkdirSync(path.join(root, 'windows-child-session'));
   fs.writeFileSync(path.join(root, 'windows-child-session/probe.ps1'), 'fixture read-only probe');
   const guidance = path.join(skillDirectory, 'selected-window.md');
@@ -52,6 +53,20 @@ test('native source fingerprint excludes target while observing source content',
   fs.writeFileSync(path.join(f.sourceRoot, 'Cargo.lock'), 'new lock');
   assert.notEqual(fingerprintNativeSource(f.sourceRoot), before);
   assert.throws(() => stageRuntime(f.options), /build provenance mismatch/);
+});
+
+test('Windows child runtime binds the administrator wrapper and common finalizer', t => {
+  const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'logoff-child.exe');
+  fs.writeFileSync(helper, 'synthetic child helper');
+  const result = stageRuntime({ ...f.options, childSessionExecutable: helper });
+  assert.equal(result.manifest.childSession.logoffCleanupVersion, 1);
+  assert.equal(result.childSession.logoffScript, path.join(f.destination, 'request-window-child-logoff.ps1'));
+  assert.ok(result.manifest.files.some(entry => entry.path === 'window-child-session-cleanup.cjs'));
+  const manifest = result.manifest;
+  manifest.files = manifest.files.filter(entry => entry.path !== 'window-child-session-cleanup.cjs');
+  fs.unlinkSync(path.join(f.destination, 'window-child-session-cleanup.cjs'));
+  fs.writeFileSync(path.join(f.destination, 'manifest.json'), JSON.stringify(manifest));
+  assert.throws(() => verifyRuntime(f.destination), /logoff cleanup closure/);
 });
 test('prepared host binds declared release, copied bundle and host modules', t => {
   const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'prepared-child.exe');
@@ -161,7 +176,7 @@ test('Windows child helper is optional, hash-bound and returned only as a verifi
   const f = fixture(t), helper = path.join(f.sourceRoot, '..', 'fixture-child.exe');
   fs.writeFileSync(helper, 'synthetic pinned executable; not native acceptance');
   const result = stageRuntime({ ...f.options, childSessionExecutable: helper });
-  assert.deepEqual(result.childSession, { executable: path.join(f.destination, 'child-session/windows-child-session.exe'), sha256: hash(fs.readFileSync(helper)), probeScript: path.join(f.destination, 'child-session/probe.ps1') });
+  assert.deepEqual(result.childSession, { executable: path.join(f.destination, 'child-session/windows-child-session.exe'), sha256: hash(fs.readFileSync(helper)), probeScript: path.join(f.destination, 'child-session/probe.ps1'), logoffScript: path.join(f.destination, 'request-window-child-logoff.ps1') });
   fs.appendFileSync(result.childSession.executable, 'tampered');
   assert.throws(() => verifyRuntime(f.destination), /hash mismatch/);
   fs.writeFileSync(result.childSession.executable, fs.readFileSync(helper));

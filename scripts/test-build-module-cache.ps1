@@ -1,19 +1,150 @@
 #requires -Version 7.0
-param([switch]$RecipeOnly,[switch]$CleanupOnly)
+param([switch]$RecipeOnly,[switch]$CleanupOnly,[switch]$RegistryOnly,[switch]$LegacyRegistryOnly,[string]$FixtureRoot)
 $ErrorActionPreference='Stop'
 . (Join-Path $PSScriptRoot 'build-module-cache.ps1')
-$fixture=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))
+$fixture=if($FixtureRoot){Assert-BuildCachePath $FixtureRoot ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/tasks')))}else{[IO.Path]::GetFullPath((Join-Path $PSScriptRoot ('../artifacts/verification/module-cache-'+[guid]::NewGuid().ToString('N'))))}
+if(Test-Path -LiteralPath $fixture){throw 'New isolated fixture path required'}
 $fixtureLifecycle='run:module-cache-test:'+ [IO.Path]::GetFileName($fixture)
 $testProject=[IO.Path]::GetFullPath((Join-Path $PSScriptRoot '..'))
-$null=Register-ArtifactLifecycle -ProjectRoot $testProject -Id $fixtureLifecycle -Kind run -Owner 'module-cache-tests' -State pending -MembershipComplete $false -Members @{fixture=$fixture}
+if(-not $FixtureRoot){$null=Register-ArtifactLifecycle -ProjectRoot $testProject -Id $fixtureLifecycle -Kind run -Owner 'module-cache-tests' -State pending -MembershipComplete $false -Members @{fixture=$fixture}}
 New-Item -ItemType Directory $fixture -Force|Out-Null
 function Assert($Condition,$Message){if(-not $Condition){throw $Message}}
 # No real processes are terminated or simulated as idle for actual cleanup.
 $script:running=@()
 $script:inspectionFails=$false
-function Get-CimInstance {param($ClassName,$ErrorAction) if($script:inspectionFails){throw 'fixture process inspection unavailable'};$script:running}
+function Get-CimInstance {param($ClassName,$ErrorAction) if($script:inspectionFails){throw 'fixture process inspection unavailable'};if($script:inspectionMutation){if($script:inspectionMutationDelay -gt 0){$script:inspectionMutationDelay--}else{& $script:inspectionMutation;$script:inspectionMutation=$null}};if($script:registryRace){Add-Content -LiteralPath $script:registryRace ' ';$script:registryRace=$null};$script:running}
 $cache=$null
 try{
+ if($LegacyRegistryOnly){
+   $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/legacy'
+   New-Item -ItemType Directory $project -Force|Out-Null
+   $source=Join-Path $project 'source.txt';Set-Content $source 'original source'
+   $cache=Open-BuildModuleCache $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $project $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $owner
+   $payload=Join-Path $cache.Root 'preserved-cache.bin';Set-Content $payload 'unchanged cache bytes'
+   $sourceHash=Get-BuildModuleFileHash $source;$payloadHash=Get-BuildModuleFileHash $payload
+   $registry=Join-Path $cache.Root '.projects.json';$registryBytes=[IO.File]::ReadAllBytes($registry)
+   $normal=Get-BuildCacheProjectInspection $cache $project
+   Assert ($normal.reason -eq 'Missing lifecycle catalog') 'Normal missing-catalog inspection stays blocked'
+   Assert ((Remove-BuildCacheProjectRegistration $cache $project 'unused' 'unused' -Apply).status -eq 'blocked') 'Normal retirement stays blocked'
+   $inspection=Get-BuildCacheLegacyProjectInspection $cache $project
+   Assert ($inspection.status -eq 'ready-for-proof' -and $inspection.historicalOutcome -eq 'unknown') 'Legacy inspection preserves unknown history'
+   $authority=Join-Path $owner 'authority.txt';Set-Content $authority 'User authorized retirement of this inactive fixture only'
+   $evidence=Join-Path $owner 'legacy-proof.json'
+   $proof=@{schema=2;action='retire-legacy';project=$project;registry_sha256=$inspection.registrySha256;historical_consumer_index='unavailable';producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;payload_absent_verified=$true;reason='Verified current absence; historical producer result remains unknown';authority_ref=$authority;authority_sha256=(Get-BuildModuleFileHash $authority)}
+   $save={ $proof|ConvertTo-Json|Set-Content $evidence }
+   & $save
+   $unchanged={Assert ((Get-BuildModuleFileHash $registry) -eq $inspection.registrySha256) 'Rejected retirement cannot mutate registry'}
+   $heldProject=Assert-BuildCachePath (Join-Path $owner 'snapshots/held-legacy') $owner
+   $null=Assert-BuildCachePath $project $owner
+   Move-Item -LiteralPath $project -Destination $heldProject -ErrorAction Stop
+   try{
+     $missing=Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply
+     Assert ($missing.status -eq 'blocked' -and $missing.reason -eq 'Existing legacy project directory required') 'Registered absent source directory cannot retire'
+     & $unchanged
+   }finally{Move-Item -LiteralPath $heldProject -Destination $project -ErrorAction Stop}
+   $reject={param($Pattern) try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected rejection missing'}catch{Assert ($_.Exception.Message -match $Pattern) "Expected guard: $Pattern"}; & $unchanged}
+   try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence ('0'*64) -Apply|Out-Null;throw 'Expected stale rejection'}catch{Assert ($_.Exception.Message -match 'Stale retirement') 'Pinned evidence required'}
+   $proof.project=$owner;& $save;& $reject 'identity mismatch';$proof.project=$project
+   $proof.registry_sha256='0'*64;& $save;& $reject 'identity mismatch';$proof.registry_sha256=$inspection.registrySha256
+   $proof.payload_absent_verified='true';& $save;& $reject 'payload_absent_verified';$proof.payload_absent_verified=$true
+   $proof.authority_ref=$source;& $save;& $reject 'must survive';$proof.authority_ref=$authority
+   $proof.authority_ref=$payload;& $save;& $reject 'must survive';$proof.authority_ref=$authority
+   & $save
+   $script:running=@([pscustomobject]@{Name='cargo.exe';CommandLine='cargo check'})
+   try{& $reject 'compiler reference'}finally{$script:running=@()}
+   $script:running=@([pscustomobject]@{Name='node.exe';CommandLine="node $project/producer.js";ProcessId=987654})
+   try{& $reject 'compiler reference'}finally{$script:running=@()}
+   $script:running=@([pscustomobject]@{Name='azrael.exe';CommandLine=$null;ExecutablePath=(Join-Path $project 'bin/azrael.exe');ProcessId=987654})
+   try{& $reject 'compiler reference'}finally{$script:running=@()}
+   $script:inspectionFails=$true
+   try{& $reject 'inspection unavailable'}finally{$script:inspectionFails=$false}
+   foreach($output in @('artifacts','engine/codex-rs/target','providers/opencodex/node_modules','extensions/azrael-ex/node_modules','extensions/azrael-ex/dist','providers/opencodex/gui/dist','providers/opencodex/gui/node_modules','providers/opencodex/native/remote-workspace-helper/target')){
+     $path=Join-Path $project $output;New-Item -ItemType Directory $path -Force|Out-Null
+     Assert ((Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply).status -eq 'blocked') 'Existing output prevents legacy retirement'
+     & $unchanged;Remove-Item -LiteralPath $path -Recurse -ErrorAction Stop
+   }
+   $script:inspectionMutation={New-Item -ItemType Directory (Join-Path $project 'artifacts')|Out-Null}
+   try{& $reject 'inputs changed'}finally{Remove-Item -LiteralPath (Join-Path $project 'artifacts') -ErrorAction Stop}
+   $script:inspectionMutation={Add-Content -LiteralPath $evidence ' '}
+   & $reject 'inputs changed';& $save
+   $script:inspectionMutation={Add-Content -LiteralPath $authority 'changed'}
+   & $reject 'inputs changed';Set-Content $authority 'User authorized retirement of this inactive fixture only'
+   $script:inspectionMutationDelay=1
+   $script:inspectionMutation={New-Item -ItemType Directory (Join-Path $project 'artifacts')|Out-Null}
+   try{& $reject 'inputs changed'}finally{Remove-Item -LiteralPath (Join-Path $project 'artifacts') -ErrorAction Stop}
+   $script:registryRace=$registry
+   try{Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Expected registry race rejection'}catch{Assert ($_.Exception.Message -match 'inputs changed') 'Registry race fails closed'}finally{[IO.File]::WriteAllBytes($registry,$registryBytes)}
+   $cache.Project=$project
+   try{Assert ((Get-BuildCacheLegacyProjectInspection $cache $project).status -eq 'blocked') 'Current project protected'}finally{$cache.Project=$owner}
+   $linked=Join-Path $owner 'linked';New-Item -ItemType Junction -Path $linked -Target $project|Out-Null
+   try{Get-BuildCacheLegacyProjectInspection $cache $linked|Out-Null;throw 'Expected linked rejection'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Linked project protected'}finally{Remove-Item -LiteralPath $linked -ErrorAction Stop}
+   # Exercise CLI dispatch and its actual process inspection in a separate PS7 process.
+   $cache.Lease.Dispose()
+   $pwsh=(Get-Process -Id $PID).Path
+   $cli=Join-Path $PSScriptRoot 'manage-module-cache-projects.ps1'
+   $cliInspection=& $pwsh -NoProfile -File $cli -CacheProjectRoot $owner -Action inspect-legacy -Project $project
+   Assert ($LASTEXITCODE -eq 0 -and (($cliInspection|ConvertFrom-Json).status -eq 'ready-for-proof')) 'Explicit legacy CLI inspection'
+   $cliPreview=& $pwsh -NoProfile -File $cli -CacheProjectRoot $owner -Action retire-legacy -Project $project -EvidencePath $evidence -EvidenceSha256 (Get-BuildModuleFileHash $evidence)
+   Assert ($LASTEXITCODE -eq 0 -and (($cliPreview|ConvertFrom-Json).status -eq 'selected')) 'CLI retirement preview uses real process inspection'
+   $cache=Open-BuildModuleCache $owner
+   $preview=Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence)
+   Assert ($preview.status -eq 'selected' -and -not $preview.registrationAbsent) 'Preview selects without unregistering';& $unchanged
+   $retired=Remove-BuildCacheLegacyProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply
+   Assert ($retired.status -eq 'retired' -and $retired.registrationAbsent -and $retired.historicalOutcome -eq 'unknown' -and $retired.historical_consumer_index -eq 'unavailable') 'Retirement retains historical unknown state'
+   Assert ((Get-BuildModuleFileHash $source) -eq $sourceHash -and (Get-BuildModuleFileHash $payload) -eq $payloadHash -and -not(Test-Path (Join-Path $project 'artifacts'))) 'Source/cache bytes preserved and no historical catalog fabricated'
+   Write-Output 'Legacy registration retirement: opt-in absence, proof/authority identity, process, outputs/races, source/cache preservation and unknown history passed; exit=0'
+   return
+ }
+ if($RegistryOnly){
+   $owner=Join-Path $fixture 'owner';$project=Join-Path $owner 'snapshots/retired'
+   New-Item -ItemType Directory $project -Force|Out-Null
+   $cache=Open-BuildModuleCache $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $project $owner
+   $cache.Lease.Dispose();$cache=Open-BuildModuleCache $owner
+   $missing=Get-BuildCacheProjectInspection $cache $project
+   Assert ($missing.status -eq 'blocked' -and $missing.reason -eq 'Missing lifecycle catalog' -and $missing.recoveryCondition -match 'genuine') 'Missing catalog requires genuine recovery, never an empty fabricated catalog'
+   $member=Join-Path $project 'artifacts/consumer'
+   $null=Register-ArtifactLifecycle $project 'run:consumer' run fixture pending $false @{payload=$member} @{'run:module-cache:fixture'='active dependency'}
+   $active=Get-BuildCacheProjectInspection $cache $project
+   Assert ($active.status -eq 'blocked' -and $active.groups.Count -eq 1) 'Active/pending consumer prevents project retirement'
+   # Canonical owner retires a terminal group only after actual member absence.
+   $null=Register-ArtifactLifecycle $project 'run:consumer' run fixture complete $true @{payload=$member}
+   $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$project,'--id','run:consumer')
+   $inspection=Get-BuildCacheProjectInspection $cache $project
+   Assert ($inspection.status -eq 'ready-for-proof') 'Genuine catalog survives canonical finalization'
+   $evidence=Join-Path $owner 'retirement-proof.json'
+   $proof=@{schema=1;project=$project;registry_sha256=$inspection.registrySha256;catalog_sha256=$inspection.catalogSha256;producer_stopped_verified=$true;consumers_released_verified=$true;installations_released_verified=$true;rollback_released_verified=$true;reason='Fixture producer and all consumers independently closed'}
+   $proof|ConvertTo-Json|Set-Content $evidence
+   $hash=Get-BuildModuleFileHash $evidence
+   try{Remove-BuildCacheProjectRegistration $cache $project $evidence ('0'*64) -Apply|Out-Null;throw 'Missing stale evidence guard'}catch{Assert ($_.Exception.Message -match 'Stale retirement') 'Stale evidence hash fails closed'}
+   $proof.registry_sha256='0'*64;$proof|ConvertTo-Json|Set-Content $evidence
+   try{Remove-BuildCacheProjectRegistration $cache $project $evidence (Get-BuildModuleFileHash $evidence) -Apply|Out-Null;throw 'Missing registry identity guard'}catch{Assert ($_.Exception.Message -match 'identity mismatch') 'Changed registry identity fails closed'}
+   $proof.registry_sha256=$inspection.registrySha256;$proof|ConvertTo-Json|Set-Content $evidence;$hash=Get-BuildModuleFileHash $evidence
+   $script:running=@([pscustomobject]@{Name='cargo.exe';CommandLine='cargo check'})
+   try{Remove-BuildCacheProjectRegistration $cache $project $evidence $hash -Apply|Out-Null;throw 'Missing compiler guard'}catch{Assert ($_.Exception.Message -match 'compiler reference') 'Compiler protects project retirement'}finally{$script:running=@()}
+   $script:inspectionFails=$true
+   try{
+     try{Remove-BuildCacheProjectRegistration $cache $project $evidence $hash -Apply|Out-Null;throw 'Missing inspection guard'}catch{Assert ($_.Exception.Message -match 'inspection unavailable') 'Unavailable process inspection fails closed'}
+     $cache.Entries=@();$blockedCleanup=Remove-OldBuildModuleCaches $cache
+     Assert ($blockedCleanup.deletedBytes -eq 0 -and $blockedCleanup.deletedItemCount -eq 0 -and -not $blockedCleanup.cleanupComplete -and $blockedCleanup.revisitCondition) 'Process inspection failure reports zero actual deletion and recovery condition'
+   }finally{$script:inspectionFails=$false}
+   $registry=Join-Path $cache.Root '.projects.json';$originalRegistry=[IO.File]::ReadAllBytes($registry);$script:registryRace=$registry
+   try{Remove-BuildCacheProjectRegistration $cache $project $evidence $hash -Apply|Out-Null;throw 'Missing registry race guard'}catch{Assert ($_.Exception.Message -match 'inputs changed') 'Registry mutation during inspection refuses retirement'}finally{[IO.File]::WriteAllBytes($registry,$originalRegistry);$script:registryRace=$null}
+   $deployment=Join-Path $project 'artifacts/deployments/installed';New-Item -ItemType Directory $deployment -Force|Out-Null
+   @{hostInstalled=$true}|ConvertTo-Json|Set-Content (Join-Path $deployment 'deployment.json')
+   try{Remove-BuildCacheProjectRegistration $cache $project $evidence $hash -Apply|Out-Null;throw 'Missing installed guard'}catch{Assert ($_.Exception.Message -match 'Installed or rollback') 'Installed/rollback deployment prevents retirement'}finally{Remove-Item -LiteralPath $deployment -Recurse -ErrorAction Stop}
+   $linked=Join-Path $owner 'linked-project';New-Item -ItemType Junction -Path $linked -Target $project|Out-Null
+   try{Get-BuildCacheProjectInspection $cache $linked|Out-Null;throw 'Missing linked project guard'}catch{Assert ($_.Exception.Message -match 'Linked cache path') 'Reparse project path refuses inspection'}finally{Remove-Item -LiteralPath $linked -ErrorAction Stop}
+   $preview=Remove-BuildCacheProjectRegistration $cache $project $evidence $hash
+   Assert ($preview.status -eq 'selected' -and $project -in @(Get-BuildCacheProjects $cache)) 'Preview preserves registration'
+   $retired=Remove-BuildCacheProjectRegistration $cache $project $evidence $hash -Apply
+   Assert ($retired.status -eq 'retired' -and $retired.registrationAbsent -and (Test-Path $project) -and (Test-Path $evidence)) 'Exact retirement removes only registration and preserves source/evidence'
+   try{Get-BuildCacheProjectInspection $cache (Join-Path $fixture 'outside')|Out-Null;throw 'Missing escape guard'}catch{Assert ($_.Exception.Message -match 'escapes root') 'Escaping project blocked'}
+   Write-Output 'Module cache registration: missing provenance, pending consumer, canonical empty catalog, stale proof/registry, compiler and inspection guards, preview and exact registration retirement passed; exit=0'
+   return
+ }
  $source=Join-Path $fixture 'source';New-Item -ItemType Directory $source|Out-Null;Set-Content (Join-Path $source 'code.ts') 'one'
  # Module recipes select only their own implementation and common helpers.
  $runner=Join-Path $fixture 'runner.ps1';$recipe=Join-Path $fixture 'recipe.ps1';$common=Join-Path $fixture 'common.ps1'
@@ -121,6 +252,13 @@ try{
   }finally{$stream.Dispose()}
   $result=Remove-BuildModuleEntry $cache providers $entry.Key $entry.Path
   Assert ($result.status -eq 'deleted' -and -not(Test-Path $entry.Path)) 'Unlocked log retry removes whole remaining entry'
+  $entry=Get-BuildModuleEntry $cache providers @($source) @('deleted-byte-count')
+  Set-Content (Join-Path $entry.Path 'output.txt') 'count bytes';Save-BuildModuleEntry $entry @('output.txt')
+  $expected=[long]((Get-BuildModuleFiles $entry.Path $cache.Root|Measure-Object Length -Sum).Sum)
+  $cache.Entries=@()
+  $report=@(Remove-OldBuildModuleCaches $cache -Module providers)
+  $row=@($report|Where-Object path -EQ $entry.Path)[0]
+  Assert ($row.deletedBytes -eq $expected -and $row.deletedItemCount -eq 1 -and $row.cleanupComplete -and $row.absent) 'Deletion report counts actual removed entry bytes and verified absence'
  }
  Test-ModuleDeletionOrder
  if($CleanupOnly){Write-Output 'Production module cleanup: ReadOnly payload preserves logs/receipts; locked log follows payload and preserves receipts; retries verify absence; exit=0';return}
@@ -348,4 +486,4 @@ try{
    $shared=Open-BuildModuleCache $projectB $sharedOwner;Assert (@(Get-BuildCacheProjects $shared).Count -eq 2) 'Successful registered projects retained after failure recovery'
  }finally{if($shared -and $shared.Lease){$shared.Lease.Dispose()};if(Test-Path -LiteralPath $registryLink){Remove-Item -LiteralPath $registryLink -ErrorAction Stop}}
  Write-Output 'Module cache: reuse, corruption, source/tool changes, force, leases, selection-time pruning, failed generation/publication, module isolation, retention, runtime/installed pins/compiler, uncertainty, race, nested links, path boundary provider-only legacy staging, content-based cross-snapshot reuse, shared installed pins, platform/role identity and registry fail-closed passed; exit=0'
-}finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()};Assert-BuildCachePath $fixture ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts/verification')))|Out-Null;Remove-Item -LiteralPath $fixture -Recurse -ErrorAction Stop; Assert (-not(Test-Path -LiteralPath $fixture)) 'Fixture removal verified'; $null=Register-ArtifactLifecycle -ProjectRoot $testProject -Id $fixtureLifecycle -Kind run -Owner 'module-cache-tests' -State complete -MembershipComplete $true -Members @{fixture=$fixture}; $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$testProject,'--id',$fixtureLifecycle)}
+}finally{if($cache -and $cache.Lease){$cache.Lease.Dispose()};Assert-BuildCachePath $fixture ([IO.Path]::GetFullPath((Join-Path $PSScriptRoot '../artifacts')))|Out-Null;Remove-Item -LiteralPath $fixture -Recurse -ErrorAction Stop; Assert (-not(Test-Path -LiteralPath $fixture)) 'Fixture removal verified'; if(-not $FixtureRoot){$null=Register-ArtifactLifecycle -ProjectRoot $testProject -Id $fixtureLifecycle -Kind run -Owner 'module-cache-tests' -State complete -MembershipComplete $true -Members @{fixture=$fixture}; $null=Invoke-ArtifactLifecycleNode @('finalize','--project-root',$testProject,'--id',$fixtureLifecycle)}}

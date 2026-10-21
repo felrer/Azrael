@@ -203,6 +203,7 @@ def codex_rust_crate(
         deps_extra = [],
         integration_compile_data_extra = [],
         integration_test_args = [],
+        integration_test_exclude = [],
         unit_test_args = [],
         binary_test_target_compatible_with = [],
         integration_test_timeout = None,
@@ -251,6 +252,8 @@ def codex_rust_crate(
             Typically only needed when features add additional deps.
         integration_compile_data_extra: Extra compile_data for integration tests.
         integration_test_args: Optional args for integration test binaries.
+        integration_test_exclude: Glob patterns for helper Rust files under tests/
+            that must not become standalone integration test targets.
         unit_test_args: Optional args for the unit test binary.
         binary_test_target_compatible_with: Platform constraints for binary unit tests.
         integration_test_timeout: Optional Bazel timeout for integration test
@@ -519,7 +522,7 @@ def codex_rust_crate(
     if integration_test_timeout:
         integration_test_kwargs["timeout"] = integration_test_timeout
 
-    for test in native.glob(["tests/*.rs"], allow_empty = True):
+    for test in native.glob(["tests/*.rs"], exclude = integration_test_exclude, allow_empty = True):
         test_file_stem = test.removeprefix("tests/").removesuffix(".rs")
         test_crate_name = test_file_stem.replace("-", "_")
         test_name = name + "-" + test_file_stem.replace("/", "-")

@@ -541,6 +541,9 @@ impl ThreadHistoryBuilder {
     }
 
     fn handle_agent_message(&mut self, payload: &AgentMessageEvent) {
+        if payload.questions.is_some() && self.current_turn.as_ref().is_some_and(|turn| turn.items.iter().any(|item| matches!(item, ThreadItem::AgentMessage { text, questions, .. } if text == &payload.message && questions == &payload.questions))) {
+            return;
+        }
         if payload.message.is_empty() {
             return;
         }
@@ -655,6 +658,7 @@ impl ThreadHistoryBuilder {
                 | codex_protocol::items::TurnItem::ExitedReviewMode(_)
         );
         let should_upsert = match item {
+            codex_protocol::items::TurnItem::AgentMessage(message) => message.questions.is_some(),
             codex_protocol::items::TurnItem::Plan(plan) => !plan.text.is_empty(),
             codex_protocol::items::TurnItem::HookPrompt(_)
             | codex_protocol::items::TurnItem::FunctionCallOutput(_)
@@ -666,7 +670,6 @@ impl ThreadHistoryBuilder {
             | codex_protocol::items::TurnItem::EnteredReviewMode(_)
             | codex_protocol::items::TurnItem::ExitedReviewMode(_) => true,
             codex_protocol::items::TurnItem::UserMessage(_)
-            | codex_protocol::items::TurnItem::AgentMessage(_)
             | codex_protocol::items::TurnItem::Reasoning(_)
             | codex_protocol::items::TurnItem::WebSearch(_)
             | codex_protocol::items::TurnItem::ImageView(_)
@@ -1050,7 +1053,11 @@ impl ThreadHistoryBuilder {
             agent_thread_id: payload.agent_thread_id.to_string(),
             agent_path: String::from(payload.agent_path.clone()),
         };
-        if let Some(presentation) = payload.parent_request.as_ref().and_then(|r| r.presentation.as_ref()) {
+        if let Some(presentation) = payload
+            .parent_request
+            .as_ref()
+            .and_then(|r| r.presentation.as_ref())
+        {
             self.upsert_item_in_turn_id(&presentation.parent_turn_id, item);
         } else {
             self.upsert_item_in_current_turn(item);
@@ -2786,10 +2793,12 @@ mod tests {
     fn preserves_agent_message_phase_delivery_and_questions_in_history() {
         let questions = vec![
             AsyncUserInputQuestion {
+                withdrawn: false,
                 title: "Which environment?".into(),
                 options: Some(vec!["Staging".into(), "Production".into()]),
             },
             AsyncUserInputQuestion {
+                withdrawn: false,
                 title: "Anything else?".into(),
                 options: None,
             },
@@ -2819,6 +2828,73 @@ mod tests {
                 questions: Some(questions),
             }
         );
+    }
+
+    #[test]
+    fn async_question_withdrawal_upserts_original_turn_and_item_id() {
+        let thread_id = ThreadId::new();
+        let started = |turn: &str| {
+            RolloutItem::EventMsg(EventMsg::TurnStarted(TurnStartedEvent {
+                turn_attribution: None,
+                turn_id: turn.into(),
+                root_turn_id: None,
+                trace_id: None,
+                started_at: None,
+                model_context_window: None,
+                collaboration_mode_kind: Default::default(),
+            }))
+        };
+        let message = codex_protocol::items::AgentMessageItem {
+            id: "stable-question-message".into(),
+            content: vec![codex_protocol::items::AgentMessageContent::Text {
+                text: "Continue?".into(),
+            }],
+            phase: None,
+            memory_citation: None,
+            delivery: Some(AgentMessageDelivery::Async),
+            questions: Some(vec![AsyncUserInputQuestion {
+                withdrawn: false,
+                title: "Continue?".into(),
+                options: None,
+            }]),
+        };
+        let completed = |message: codex_protocol::items::AgentMessageItem| {
+            RolloutItem::EventMsg(EventMsg::ItemCompleted(ItemCompletedEvent {
+                thread_id,
+                turn_id: "original".into(),
+                item: CoreTurnItem::AgentMessage(message),
+                started_at_ms: None,
+                completed_at_ms: 1,
+            }))
+        };
+        let legacy = RolloutItem::EventMsg(EventMsg::AgentMessage(AgentMessageEvent {
+            message: "Continue?".into(),
+            phase: None,
+            memory_citation: None,
+            delivery: Some(AgentMessageDelivery::Async),
+            questions: message.questions.clone(),
+        }));
+        let mut withdrawn = message.clone();
+        withdrawn.questions.as_mut().unwrap()[0].withdrawn = true;
+        let turns = build_turns_from_rollout_items(&[
+            started("original"),
+            completed(message),
+            legacy,
+            started("subsequent"),
+            completed(withdrawn),
+        ]);
+        assert_eq!(turns[0].items.len(), 1);
+        let ThreadItem::AgentMessage {
+            id,
+            questions: Some(questions),
+            ..
+        } = &turns[0].items[0]
+        else {
+            panic!("expected original question message")
+        };
+        assert_eq!(id, "stable-question-message");
+        assert!(questions[0].withdrawn);
+        assert!(turns[1].items.is_empty());
     }
 
     #[test]

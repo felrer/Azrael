@@ -706,8 +706,13 @@ pub(super) async fn submission_loop(
                     reload_user_config(&sess).await;
                     false
                 }
-                Op::CompactIfIdle { reply } => {
-                    let result = super::compact_input::handle(&sess, sub.id.clone()).await;
+                Op::CompactIfIdle { explicit, reply } => {
+                    let result = super::compact_input::handle_with_authority(
+                        &sess,
+                        sub.id.clone(),
+                        explicit,
+                    )
+                    .await;
                     let _ = reply.send(result);
                     false
                 }

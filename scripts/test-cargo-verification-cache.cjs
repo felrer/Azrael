@@ -20,7 +20,7 @@ function setup() {
   const root = path.join(fixtures, String(++sequence));
   for (const file of ['feature-preservation.cjs', 'cargo-verification-cache.cjs', 'cargo-verification.cjs',
     'cargo-target-owner.cjs', 'artifact-lifecycle.cjs',
-    'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
+    'verification-result-cache.cjs', 'directory-state.cjs', 'cargo-config-self-contained.py', 'cargo-preflight-recipes.cjs', 'check-api-context.cjs']) write(root, `scripts/${file}`, file);
   write(root, 'scripts/owner.cjs', 'owner'); write(root, 'docs/contract.md', 'contract');
   write(root, 'engine/codex-rs/Cargo.lock', 'lock'); write(root, 'engine/codex-rs/core/src/lib.rs', 'source');
   const tools = path.join(root, 'tools');
@@ -129,6 +129,52 @@ test('release directory alone is excluded while verified provenance and all othe
   assert.match(await cache.key(f.config, f.group, {}, runtime), /^[a-f0-9]{64}$/);
 });
 
+test('audited source-backed checks omit complete product payload identity but retain source and unknown inputs', async () => {
+  const f = setup(), inputs = await f.inputs(), runtime = await f.runtime();
+  Object.assign(f.group.entries[0].check, { cargoPreflight: 'selected-tests-v1', args: ['scripts/check-api-context.cjs', '{engineSourceRoot}', 'core'] });
+  for (const file of ['check-api-context.cjs', 'cargo-verification.cjs', 'cargo-target-owner.cjs'])
+    write(f.root, `scripts/${file}`, fs.readFileSync(path.join(__dirname, file), 'utf8'));
+  const hash = character => character.repeat(64);
+  inputs.engine.provenance = { source: { sourceSha256: hash('a'), target: 'x86_64-pc-windows-msvc', buildEnvironment: {} },
+    binaries: { 'azrael.exe': hash('b'), 'azrael-bridge.exe': hash('c'), 'azrael-code-mode-host.exe': hash('d') },
+    externalRuntimes: { codeModeHost: { kind: 'external-import', sourcePath: path.join(f.root, 'external/host.exe'), sha256: hash('d') } } };
+  const original = structuredClone(inputs), baseline = await cache.key(f.config, f.group, inputs, runtime);
+  const copied = structuredClone(inputs);
+  copied.engine.provenance.binaries['azrael.exe'] = hash('e');
+  copied.engine.provenance.binaries['azrael-code-mode-host.exe'] = hash('f');
+  copied.engine.provenance.externalRuntimes.codeModeHost.sha256 = hash('f');
+  copied.engine.provenance.externalRuntimes.codeModeHost.sourcePath = path.join(f.root, 'another/host.exe');
+  assert.equal(await cache.key(f.config, f.group, copied, runtime), baseline);
+  assert.deepEqual(inputs, original);
+  for (const mutate of [value => { value.engine.provenance.source.sourceSha256 = hash('e'); },
+    value => { value.engine.provenance.extraInput = 'unknown'; },
+    value => { value.engine.provenance.externalRuntimes.anotherRuntime = 'unknown'; },
+    value => { value.engine.provenance.externalRuntimes.codeModeHost.extraInput = 'unknown'; }]) {
+    const changed = structuredClone(copied); mutate(changed);
+    assert.notEqual(await cache.key(f.config, f.group, changed, runtime), baseline);
+  }
+  const incomplete = structuredClone(inputs); delete incomplete.engine.provenance.binaries['azrael-bridge.exe'];
+  const changed = structuredClone(incomplete); changed.engine.provenance.binaries['azrael.exe'] = hash('e');
+  assert.notEqual(await cache.key(f.config, f.group, incomplete, runtime), await cache.key(f.config, f.group, changed, runtime));
+  const malformed = structuredClone(inputs); malformed.engine.provenance.externalRuntimes.codeModeHost.sourcePath = {};
+  const malformedChanged = structuredClone(malformed); malformedChanged.engine.provenance.binaries['azrael.exe'] = hash('e');
+  assert.notEqual(await cache.key(f.config, f.group, malformed, runtime), await cache.key(f.config, f.group, malformedChanged, runtime));
+  for (const platform of ['x86_64-unknown-linux-gnu', 'aarch64-apple-darwin']) {
+    const unix = structuredClone(inputs);
+    unix.engine.provenance.source.target = platform;
+    unix.engine.provenance.binaries = { azrael: hash('b'), 'azrael-bridge': hash('c'), 'azrael-code-mode-host': hash('d') };
+    unix.engine.provenance.externalRuntimes.codeModeHost = { kind: 'source-built', sha256: hash('d'), sourceSha256: hash('a') };
+    const equivalent = structuredClone(unix); equivalent.engine.provenance.binaries.azrael = hash('e');
+    assert.equal(await cache.key(f.config, f.group, equivalent, runtime), await cache.key(f.config, f.group, unix, runtime));
+  }
+  for (const file of ['check-api-context.cjs', 'cargo-verification.cjs']) {
+    const filename = path.join(f.root, 'scripts', file), before = fs.readFileSync(filename);
+    fs.appendFileSync(filename, '\n// source-only boundary must be audited again\n');
+    assert.notEqual(await cache.key(f.config, f.group, copied, runtime), await cache.key(f.config, f.group, inputs, runtime));
+    fs.writeFileSync(filename, before);
+  }
+});
+
 test('all declared Cargo groups share semantic keys across execution roots and preserve every bound input', async () => {
   const manifest = JSON.parse(fs.readFileSync(path.join(__dirname, 'azrael-feature-contracts.json'), 'utf8'));
   const groups = new Map();
@@ -137,7 +183,7 @@ test('all declared Cargo groups share semantic keys across execution roots and p
     const name = JSON.stringify(check.args), group = groups.get(name) || { native: true, entries: [] };
     group.entries.push({ feature, check }); groups.set(name, group);
   }
-  assert.equal(groups.size, 17);
+  assert.equal(groups.size, 18);
   for (const scope of ['appserver', 'manual']) {
     assert(groups.has(JSON.stringify(['scripts/check-shared-engine-native.cjs', '{engineSourceRoot}', scope])),
       `shared-engine ${scope} checks must bind their source and tool inputs`);
@@ -260,6 +306,9 @@ test('tools, versions, full environment, target/profile/flags and helper default
   write(f.tools, 'cargo' + (process.platform === 'win32' ? '.EXE' : ''), 'new shim bytes');
   assert.notEqual(await f.key(), previous); previous = await f.key();
   write(f.root, 'scripts/cargo-verification.cjs', 'helper change'); assert.notEqual(await f.key(), previous);
+  previous = await f.key();
+  f.group.entries[0].check.cargoPreflight = 'selected-tests-v1';
+  assert.notEqual(await f.key(), previous, 'preflight declaration must invalidate older passing evidence');
   const runtime = await f.runtime();
   assert.equal(runtime.normalized[0].rustMinStack, '33554432'); assert.equal(runtime.normalized[0].instaUpdate, 'no');
   assert(runtime.normalized[0].args.includes('release')); assert(runtime.normalized[0].args.includes('fixture-target'));
@@ -452,7 +501,8 @@ test('explicit Cargo storage owner shares evidence and leases while enforcing pa
   const f = setup(), owner = path.join(fixtures, 'shared-cargo-owner');
   fs.mkdirSync(owner, { recursive: true });
   assert.deepEqual(cache.options(f.config), { projectRoot: f.root,
-    cacheRoot: path.join(f.root, 'artifacts/cache/verification-results/cargo') });
+    cacheRoot: path.join(f.root, 'artifacts/cache/verification-results/cargo-v2') });
+  assert.equal(cache.CACHE_NAMESPACE, 'cargo-v2');
   for (const value of ['relative', '', null, 1, {}]) {
     assert.throws(() => cache.options({ ...f.config, cargoVerificationCacheProjectRoot: value }), /absolute path/);
   }
@@ -460,7 +510,7 @@ test('explicit Cargo storage owner shares evidence and leases while enforcing pa
   const opts = { ...cache.options(config), checkId: f.group.check.id, key: sha('same semantic check'),
     runDirectory: path.join(f.root, 'artifacts/results'), logName: 'shared-owner-check' };
   assert.equal(opts.projectRoot, owner);
-  assert.equal(opts.cacheRoot, path.join(owner, 'artifacts/cache/verification-results/cargo'));
+  assert.equal(opts.cacheRoot, path.join(owner, 'artifacts/cache/verification-results/cargo-v2'));
   write(f.root, 'stdout.log', 'mock Cargo passed'); write(f.root, 'stderr.log', '');
   const record = { exitCode: 0, signal: null, logPath: path.join(f.root, 'stdout.log'), errorPath: path.join(f.root, 'stderr.log') };
   let cold = await cache.begin(opts);
@@ -484,6 +534,36 @@ test('explicit Cargo storage owner shares evidence and leases while enforcing pa
     assert.equal(handle.hit, null); assert.match(handle.reason, /Unsafe|Redirected/); await handle.close();
     assert.equal(fs.readFileSync(path.join(target, 'keep.txt'), 'utf8'), 'preserve');
   } finally { fs.unlinkSync(unsafe.cacheRoot); }
+});
+
+test('fresh Cargo namespace isolates evidence and leases while preserving unprovable legacy owners', async () => {
+  const f = setup(), checkId = f.group.check.id, key = sha('namespace-migration');
+  const opts = { ...cache.options(f.config), checkId, key, runDirectory: path.join(f.root, 'artifacts/results') };
+  const legacyRoot = path.join(f.root, 'artifacts/cache/verification-results/cargo');
+  write(f.root, 'stdout.log', 'legacy passing evidence'); write(f.root, 'stderr.log', '');
+  const record = { exitCode: 0, signal: null, logPath: path.join(f.root, 'stdout.log'), errorPath: path.join(f.root, 'stderr.log') };
+  const legacy = await storage.begin({ ...opts, cacheRoot: legacyRoot });
+  assert.equal((await legacy.publish(record)).published, true); await legacy.close();
+  const ownerBytes = JSON.stringify({ token: 'unprovable-legacy-owner', pid: 52716 });
+  for (const lease of [path.join('.leases', sha(checkId)), '.lease-access', '.lifecycle']) {
+    write(legacyRoot, path.join(lease, 'owner.json'), ownerBytes);
+  }
+  const before = await getDirectoryState(legacyRoot);
+  const fresh = await cache.begin(opts);
+  assert.equal(fresh.hit, null, 'legacy passing entries must not be read under new locks');
+  assert.match(fresh.reason, /^miss:/);
+  const lease = path.join(opts.cacheRoot, '.leases', sha(checkId), 'owner.json');
+  const freshOwner = fs.readFileSync(lease);
+  const busy = await cache.begin(opts);
+  assert.equal(busy.hit, null); assert.match(busy.reason, /busy: check lease/); await busy.close();
+  assert.deepEqual(fs.readFileSync(lease), freshOwner, 'live new-namespace ownership stays exclusive');
+  fs.writeFileSync(record.logPath, 'fresh passing evidence');
+  assert.equal((await fresh.publish(record)).published, true); await fresh.close();
+  const warm = await cache.begin(opts);
+  assert.equal(warm.hit.reused, true); assert.equal(warm.hit.stdout, 'fresh passing evidence'); await warm.close();
+  assert.deepEqual(fs.readdirSync(path.join(opts.cacheRoot, '.leases')), []);
+  for (const lease of ['.lifecycle', '.lease-access']) assert.equal(fs.existsSync(path.join(opts.cacheRoot, lease)), false);
+  assert.deepEqual(await getDirectoryState(legacyRoot), before, 'legacy evidence and owner bytes stay unchanged');
 });
 
 after(() => {

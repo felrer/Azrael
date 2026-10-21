@@ -62,6 +62,9 @@ pub struct ResponseItemEnvelope {
 ///
 #[derive(Serialize, Deserialize, Debug, Clone, Default, PartialEq, Eq, JsonSchema)]
 pub struct CodexHarnessMetadata {
+    /// Async questions resolved by this accepted direct input. Host-only.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub answered_async_question_ids: Vec<String>,
     /// Complete retained records actually delivered by this Guardian message. Host-only.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub guardian_sources: Vec<RetainedSource>,
