@@ -74,6 +74,7 @@ async fn misalignment_policy_failure_stops_the_thread_and_renders_once() {
     chat.add_async_questions(
         "question",
         &[codex_protocol::items::AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which way?".into(),
             options: None,
         }],
@@ -191,6 +192,7 @@ async fn misalignment_turn_end_discards_history_search_and_question_drafts() {
     chat.add_async_questions(
         "question",
         &[codex_protocol::items::AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which way?".into(),
             options: None,
         }],

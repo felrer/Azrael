@@ -132,10 +132,17 @@ impl Session {
                             BaseInstructionsProvenance::Model { model } => Some(model),
                             BaseInstructionsProvenance::Custom => None,
                         })
-                        .filter(|_| base_instructions != model_instructions)
                         .cloned()
                 })
         };
+        let native_provider = turn_context.config.native_model_provider.as_ref().map_or(
+            turn_context.config.model_provider_id.as_str(),
+            |(id, _)| id.as_str(),
+        );
+        let provider = super::provider_handoff::provider_id(&model_info.slug, native_provider);
+        let previous_provider = previous_model
+            .as_deref()
+            .map(|model| super::provider_handoff::provider_id(model, native_provider));
         tracing::info!(event = "response_preparation_stage", stage = "subagent_context", turn_id = %turn_context.sub_id);
         let environment_subagents = if turn_context.config.include_environment_context {
             match turn_context.multi_agent_version {
@@ -181,7 +188,9 @@ impl Session {
         world_state.add_section(
             ModelInstructionsState::new(
                 &model_info.slug,
+                provider.as_ref(),
                 previous_model.as_deref(),
+                previous_provider.as_deref(),
                 model_instructions,
             )
             .with_initial_instructions(&initial_instructions),

@@ -1,0 +1,110 @@
+[
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+      "kind": "run",
+      "owner": "/root",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\19ebba7b58c56c455a8e4d96b681c0af98df4b556104d498d3c6a79ecdb9af12.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "1b98935d39844258bf8319b9ca2cd2faeb44e61927d1a20e824ee5815a051ec9",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r1",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "/root",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\19ebba7b58c56c455a8e4d96b681c0af98df4b556104d498d3c6a79ecdb9af12.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+      "kind": "run",
+      "owner": "/root",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7fa4b7e0b27b398f8e69fa609d0d590a759b636f11bc4eefb1839e37408fb282.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "1b738c307901c1ce1472cb68cd09d05fefab38d569d93552b5db894e5f2fb3f5",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r2",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "/root",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7fa4b7e0b27b398f8e69fa609d0d590a759b636f11bc4eefb1839e37408fb282.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+      "kind": "run",
+      "owner": "/root",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\075fe8c6fb49f4a8d8c8b26ea25c0252afbee42c533455b19b451e3623c61c9b.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "26c8a73cef545c6c36ddd9f09bc6efa0c535f69366b3405eb06e4aab772b7ae3",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r3",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "/root",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\075fe8c6fb49f4a8d8c8b26ea25c0252afbee42c533455b19b451e3623c61c9b.json"
+        }
+      ]
+    }
+  },
+  {
+    "operation": "register",
+    "group": {
+      "id": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+      "kind": "run",
+      "owner": "/root",
+      "version": null,
+      "membership_complete": true,
+      "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e6b4d924456d732f6296b62a551482b2a270e95ebb07ae7f5933131243433ec8.json",
+      "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+      "membership_source_format": "producer_registry_v1",
+      "members": [
+        {
+          "id": "447a634153854806dc68d97f356957164ee48c9797ef61d97f73e440756f0a3f",
+          "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\cleanup-20261020-r1",
+          "role": "run",
+          "lifecycle_role": "artifact",
+          "kind": "run",
+          "owner": "/root",
+          "generated": true,
+          "protection_known": true,
+          "references": [],
+          "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e6b4d924456d732f6296b62a551482b2a270e95ebb07ae7f5933131243433ec8.json"
+        }
+      ]
+    }
+  }
+]

@@ -7093,6 +7093,8 @@ pub(crate) async fn make_session_and_context() -> (Session, TurnContext) {
     };
 
     let session = Session {
+        host_approvals: Default::default(),
+        user_questions: Default::default(),
         account_retired: std::sync::atomic::AtomicBool::new(false),
         retired_provider: std::sync::Mutex::new(None),
         managed_auth_admissions: std::sync::Mutex::new(std::collections::HashMap::new()),
@@ -9466,6 +9468,8 @@ where
     };
 
     let session = Arc::new(Session {
+        host_approvals: Default::default(),
+        user_questions: Default::default(),
         account_retired: std::sync::atomic::AtomicBool::new(false),
         retired_provider: std::sync::Mutex::new(None),
         managed_auth_admissions: std::sync::Mutex::new(std::collections::HashMap::new()),

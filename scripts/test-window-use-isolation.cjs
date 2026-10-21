@@ -23,26 +23,78 @@ async function fixture(t, options = {}) {
   const childSession = {
     describe: async () => ({ admissionReady: false, available: false, environment: { parent: { sessionId: 10, sid: 'same-sid', profile: 'existing-profile' } } }),
     start: async ({ ownerId }) => { calls.push('start'); childOwner = ownerId; closed = false; if (options.onStart) await options.onStart(); return { ok: options.startOk ?? true, ownershipVerified: true, identity: options.badIdentity ? { ...identity, sid: 'different' } : identity, admissionReady: state.admissionReady, available: state.admissionReady, admission: mockAdmission() }; },
-    acquire: async ({ ownerId }) => { calls.push('acquire'); childOwner = ownerId; return { ok: true, ownershipVerified: true, identity, admissionReady: state.admissionReady, available: state.admissionReady, admission: mockAdmission() }; },
+    acquire: async ({ ownerId }) => { calls.push('acquire'); if (!releaseOk) return { ok: false, code: 'unconfirmed-release' }; childOwner = ownerId; return { ok: true, ownershipVerified: true, identity, inputReleased: true, admissionReady: state.admissionReady, available: state.admissionReady, admission: mockAdmission() }; },
+    revalidateInput: async () => { calls.push('revalidateInput'); return releaseOk ? { ok: true, identity, inputReleased: true } : { ok: false, code: 'unconfirmed-release' }; },
     request: async request => {
-      calls.push({ ...request }); if (options.onRequest) await options.onRequest(request, state);
+      calls.push({ ...request }); if (options.onRequest) { const result = await options.onRequest(request, state); if (result !== undefined) return result; }
       if (request.operation === 'launch') return { ok: true, sessionId: 20, pid: 40, created: 'app-created', hwnd: '123', executable: request.executable };
       if (request.operation === 'capture') return { ok: true, sessionId: 20, width: state.width, height: state.height, png: 'fixture-png', contentVerified: false };
       return { ok: true, sessionId: 20, delivered: true, readbackVerified: false };
     },
-    release: async () => { calls.push('release'); if (!releaseOk) return { ok: false, code: 'unconfirmed-release' }; childOwner = null; return { ok: true }; },
+    release: async () => { calls.push('release'); if (!releaseOk) return { ok: false, code: 'unconfirmed-release' }; childOwner = null; return { ok: true, inputReleased: true }; },
     observe: async () => ({ identity, ownershipVerified: true, state: closed ? 'closed' : 'running', pendingWork: Boolean(childOwner), directUser: false, unsavedWork: state.unsavedWork, unknownState: state.unknownState, unrelatedApps: false, pendingUserDecision: false, heldInput: false, processesStopped: closed, logoffConfirmed: closed }),
     stop: async () => { calls.push('stop'); closed = true; return { ok: true, state: 'closed' }; },
+    retireClosed: async () => { throw new Error('Normal stop already retired the child manager'); },
   };
   const resources = createResourceManager({ directory, idleMs: 0, inspectSession: identity => controller.observeSession(identity), closeSession: identity => controller.closeSession(identity) });
   controller = createIsolationController({ childSession, resources,
-    authorize: async (_owner, operation, parent) => { if (['capture', 'input'].includes(operation)) { assert.deepEqual(parent, approvedParent); return allowed && appAllowed; } return allowed; },
+    authorize: async (_owner, operation, parent) => { if (['capture', 'input'].includes(operation) || operation === 'launch' && parent !== undefined) { assert.deepEqual(parent, approvedParent); return allowed && appAllowed; } return allowed; },
     approveApp: async (_owner, parent) => { try { assert.deepEqual(parent, approvedParent); return true; } catch { return false; } },
-    resolveExecutable: async parent => { assert.deepEqual(parent, approvedParent); return { executable: path.resolve('fixture-existing-app.exe'), sha256: 'a'.repeat(64) }; } });
+    resolveExecutable: async parent => { assert.deepEqual(parent, approvedParent); if(options.onResolveExecutable) await options.onResolveExecutable(); return { executable: path.resolve('fixture-existing-app.exe'), sha256: 'a'.repeat(64) }; } });
   t.after(async () => { await resources.stopScheduler(); await remove(directory); });
-  return { controller, resources, calls, state, identity, setAllowed: value => { allowed = value; }, setAppAllowed: value => { appAllowed = value; }, setReleaseOk: value => { releaseOk = value; } };
+  return { controller, childSession, resources, calls, state, identity, setAllowed: value => { allowed = value; }, setAppAllowed: value => { appAllowed = value; }, setReleaseOk: value => { releaseOk = value; } };
 }
 async function ready(f) { const started = await f.controller.start({ ownerId: 'one' }); const launched = await f.controller.launch({ ownerId: 'one', parentIdentity: 'approved-parent' }); const captured = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId }); return { started, launched, captured }; }
+
+test('fresh host observes exact external closure without adopting or stopping a live session', async t => {
+  const f = await fixture(t);
+  const proof = { identity: f.identity, state: 'closed', ownershipVerified: true, processesStopped: true, logoffConfirmed: true,
+    ...Object.fromEntries(['pendingWork', 'directUser', 'unsavedWork', 'unknownState', 'unrelatedApps', 'pendingUserDecision', 'heldInput'].map(key => [key, false])) };
+  f.childSession.inspectClosure = async identity => { assert.deepEqual(identity, f.identity); return proof; };
+  const fresh = createIsolationController({ childSession: f.childSession, resources: f.resources });
+  assert.deepEqual(await fresh.observeSession(f.identity), proof);
+  assert.equal(f.calls.length, 0);
+  proof.identity = { ...f.identity, workerCreated: 'reused' };
+  assert.equal((await fresh.observeSession(f.identity)).state, 'unknown');
+  proof.identity = f.identity; delete proof.heldInput;
+  assert.equal((await fresh.observeSession(f.identity)).state, 'unknown');
+  assert.equal(f.calls.length, 0);
+});
+
+test('external closure retires stale task input and rejects old target input', async t => {
+  const f = await fixture(t); const { captured } = await ready(f);
+  const proof = { identity: f.identity, state: 'closed', ownershipVerified: true, processesStopped: true, logoffConfirmed: true,
+    ...Object.fromEntries(['pendingWork', 'directUser', 'unsavedWork', 'unknownState', 'unrelatedApps', 'pendingUserDecision', 'heldInput'].map(key => [key, false])) };
+  f.childSession.observe = async () => ({ identity: f.identity, state: 'unknown', ownershipVerified: false });
+  f.childSession.inspectClosure = async () => proof;
+  let retirements = 0; f.childSession.retireClosed = async identity => { assert.deepEqual(identity, f.identity); retirements++; return proof; };
+  assert.equal((await f.resources.cleanup()).results[0].state, 'deleted');
+  assert.equal(retirements, 1);
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: captured.targetId, observationId: captured.observationId, input: { kind: 'text', text: 'stale' } }), /lease required/);
+  assert.ok(!f.calls.includes('stop'));
+});
+
+test('app grant revoked during executable resolution prevents child launch', async t => {
+  const f = await fixture(t, { onResolveExecutable: () => f.setAppAllowed(false) });
+  await f.controller.start({ ownerId: 'one' });
+  await assert.rejects(f.controller.launch({ ownerId: 'one', parentIdentity: 'approved-parent' }), /authority/);
+  assert.equal(f.calls.filter(c => c.operation === 'launch').length, 0);
+});
+
+test('installed application identity retains app consent and owned child input without a parent window', async t => {
+  const installed = { source: 'installed-package', packageName: 'Microsoft.Paint', packageFullName: 'registered-package', applicationId: 'App', executable: 'C:/installed/Paint.exe', title: 'Paint' };
+  const f = await fixture(t, { parentIdentity: installed });
+  await f.controller.start({ ownerId: 'one' });
+  const launched = await f.controller.launch({ ownerId: 'one', parentIdentity: installed });
+  assert.match(launched.targetId, /^[a-f0-9-]{36}$/);
+  assert.equal(f.calls.filter(c => c.operation === 'launch').length, 1);
+  const captured = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId });
+  f.setAppAllowed(false);
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: captured.observationId, input: { kind: 'mouse', action: 'move', x: 2, y: 2 } }), /authority/);
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 0);
+  await assert.rejects(f.controller.launch({ ownerId: 'one', parentIdentity: { ...installed, executable: 'C:/other/Paint.exe' } }), /approval/);
+  assert.equal(f.calls.filter(c => c.operation === 'launch').length, 1);
+});
 
 test('mock admitted child returns opaque targets without claiming application compatibility', async t => {
   const f = await fixture(t), { started, launched, captured } = await ready(f);
@@ -71,14 +123,15 @@ test('mock failed or incomplete platform gates deny app/input and release owned 
     await assert.rejects(f.controller.launch({ ownerId: 'one', parentIdentity: 'approved-parent' }), /lease|admission/);
     await assert.rejects(f.controller.input({ ownerId: 'one', targetId: 'unadmitted', observationId: 'unadmitted', input: { kind: 'text', text: 'denied' } }), /lease|admission/);
     assert.equal(f.calls.filter(value => value.operation === 'launch' || value.operation === 'input').length, 0);
-    assert.equal((await f.resources.cleanup()).results[0].state, 'deleted');
+    const cleaned = (await f.resources.cleanup()).results[0];
+    assert.equal(cleaned.state, 'deleted', JSON.stringify(cleaned));
   }
 });
 
 test('mock warm reacquisition must retain authenticated current-session admission', async t => {
   const f = await fixture(t), { launched } = await ready(f);
   await f.controller.release('one'); f.state.admissionReady = false;
-  const reused = await f.controller.start({ ownerId: 'one' }); assert.equal(reused.ok, false); assert.equal(reused.admissionReady, false);
+  await assert.rejects(f.controller.start({ ownerId: 'one' }), /admission is unverified/);
   await assert.rejects(f.controller.capture({ ownerId: 'one', targetId: launched.targetId }), /lease|admission/);
   assert.equal((await f.resources.inspect()).resources[0].leases.length, 0);
 });
@@ -140,14 +193,50 @@ test('Stop before queued start prevents native creation; Stop during creation le
   assert.ok(running.calls.includes('release')); assert.ok(!running.calls.includes('stop'));
 });
 
-test('an uncertain native mutation blocks further input and protects the released session', async t => {
+test('uncertain input remains an action outcome; capture and verified warm reuse remain possible without replay', async t => {
   let fail = false;
   const f = await fixture(t, { onRequest: async request => { if (fail && request.operation === 'input') throw new Error('uncertain-native-input'); } });
   const { launched, captured } = await ready(f); fail = true;
   await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: captured.observationId, input: { kind: 'key', scanCode: 30, action: 'down' } }), error => error.mutationOutcome === 'unknown');
-  await assert.rejects(f.controller.capture({ ownerId: 'one', targetId: launched.targetId }), /outcome is unknown/);
+  const fresh = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId });
+  assert.equal(fresh.inputReady, false);
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 1);
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: fresh.observationId, input: { kind: 'text', text: 'a new action' } }), error => error.code === 'child_input_revalidated' && error.actionExecuted === false);
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 1);
+  fail = false;
+  const afterValidation = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId });
+  await f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: afterValidation.observationId, input: { kind: 'text', text: 'newly observed action' } });
   await f.controller.release('one');
-  assert.match((await f.resources.cleanup()).results[0].reason, /unknown/);
+  assert.equal((await f.resources.inspect()).resources[0].state, 'ready');
+  assert.equal((await f.controller.start({ ownerId: 'one' })).ok, true);
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 2);
+});
+
+test('failed release leaves input gated while fresh read-only capture stays available', async t => {
+  const f = await fixture(t, { onRequest: request => { if (request.operation === 'input') throw new Error('uncertain delivery'); } });
+  const { launched, captured } = await ready(f);
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: captured.observationId, input: { kind: 'text', text: 'uncertain' } }));
+  f.setReleaseOk(false);
+  const fresh = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId });
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: fresh.observationId, input: { kind: 'text', text: 'new' } }), /unconfirmed-release/);
+  await assert.rejects(f.controller.release('one'), /unconfirmed-release/);
+  assert.equal((await f.resources.inspect()).resources[0].blocked, 'active leases');
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 1);
+});
+
+test('viewer minimization is a proven preflight rejection and restored capture does not replay input', async t => {
+  let minimized = false;
+  const f = await fixture(t, { onRequest: request => {
+    if (minimized && request.operation === 'capture') return { ok: false, code: 'isolated_viewer_minimized', actionExecuted: false, mutationOutcome: 'not_executed', viewerState: 'minimized', requiredUserAction: 'restore_isolated_viewer' };
+  } });
+  const { launched, captured } = await ready(f); minimized = true;
+  await assert.rejects(f.controller.input({ ownerId: 'one', targetId: launched.targetId, observationId: captured.observationId, input: { kind: 'mouse', action: 'down', x: 1, y: 1 } }), error => error.code === 'isolated_viewer_minimized' && error.actionExecuted === false && error.mutationOutcome === 'not_executed' && error.requiredUserAction === 'restore_isolated_viewer');
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 0);
+  minimized = false;
+  const restored = await f.controller.capture({ ownerId: 'one', targetId: launched.targetId });
+  assert.equal(restored.ok, true);
+  assert.equal(restored.inputReady, false);
+  assert.equal(f.calls.filter(c => c.operation === 'input').length, 0);
 });
 
 test('revocation denies input while safety release persists warm state without RAM teardown', async t => {

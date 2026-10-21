@@ -20,6 +20,7 @@ pub use thread_id::ThreadId;
 pub use tool_name::DEFAULT_FUNCTION_NAMESPACE;
 pub use tool_name::ToolName;
 pub mod approvals;
+pub mod host_approvals;
 pub mod capabilities;
 mod codex_error_info;
 pub mod config_types;

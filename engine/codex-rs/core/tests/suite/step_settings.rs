@@ -2424,7 +2424,7 @@ async fn tool_messages_follow_mid_turn_model_changes() -> Result<()> {
         [MODEL_A, MODEL_B]
             .map(|model| json!({
                 "model": model,
-                "async_description": format!("Async message description for {model}."),
+                "async_description": format!("Async message description for {model}.\nIf a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions."),
                 "async_parameters": async_parameters(model),
                 "multi_agent_messages": MULTI_AGENT_TOOLS
                     .map(|name| (name.to_string(), json!({

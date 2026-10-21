@@ -1,4 +1,5 @@
 [package]
+autotests = false
 edition.workspace = true
 license.workspace = true
 name = "codex-core"
@@ -7,6 +8,29 @@ version.workspace = true
 [lib]
 name = "codex_core"
 path = "src/lib.rs"
+
+[features]
+integration-tests = []
+
+[[test]]
+name = "all"
+path = "tests/all.rs"
+required-features = ["integration-tests"]
+
+[[test]]
+name = "mcp_trace_propagation"
+path = "tests/mcp_trace_propagation.rs"
+required-features = ["integration-tests"]
+
+[[test]]
+name = "responses_headers"
+path = "tests/responses_headers.rs"
+required-features = ["integration-tests"]
+
+[[test]]
+name = "request_user_input_async"
+path = "tests/request_user_input_async.rs"
+required-features = ["integration-tests"]
 
 [lints]
 workspace = true

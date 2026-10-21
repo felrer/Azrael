@@ -5,23 +5,110 @@ const fs = require("node:fs");
 const path = require("node:path");
 const vm = require("node:vm");
 const { test } = require("node:test");
-const { buildCargoTestCommand, runCargoTest } = require("./cargo-verification.cjs");
+const { PREFLIGHT, PREFLIGHT_ID, validateCargoPreflight, preflightCommands, buildCargoTestCommand, runCargoTest, prepareCargoTests } = require("./cargo-verification.cjs");
 
 const args = ["test", "-p", "codex-core", "--lib", "filter", "--locked", "--offline", "--", "--test-threads=1"];
-test("execution uses the same pure command contract without additional compile calls", context => {
-  const fixture = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests", "command-contract");
+function commandFixture(name) {
+  const root = path.resolve(process.env.AZRAEL_CARGO_OWNER_TEST_ROOT || "artifacts/verification/cargo-owner-tests");
+  fs.mkdirSync(root, { recursive: true });
+  return fs.mkdtempSync(path.join(root, `${name}-`));
+}
+test("early type preparation leases the actual target, preserves configuration and writes separate evidence", context => {
+  const fixture = commandFixture("early-prepare");
+  const env = { CARGO_TARGET_DIR: path.join(fixture, "target"), INSTA_PENDING_DIR: path.join(fixture, "pending"), RUSTUP_TOOLCHAIN: "pinned", AZRAEL_CARGO_TARGET: "selected-triple", AZRAEL_CARGO_PROFILE: "release" };
+  const logDirectory = path.join(fixture, "logs"); let calls = 0;
+  context.mock.method(require("node:child_process"), "spawnSync", (_command, actualArgs, options) => {
+    calls++; assert.equal(actualArgs[0], "check");
+    for (const value of ["codex-core", "--features", "one", "--target", "selected-triple", "--profile", "release", "--tests"]) assert.ok(actualArgs.includes(value));
+    assert.equal(options.env.RUSTUP_TOOLCHAIN, "pinned");
+    assert.ok(fs.existsSync(path.join(env.CARGO_TARGET_DIR, ".azrael-cargo-owner/owner.json")));
+    return { status: 101, stdout: "compiler output", stderr: "type failure" };
+  });
+  const result = prepareCargoTests(path.join(fixture, "source"), ["test", "-p", "codex-core", "--lib", "filter", "--features", "one"], { env, logDirectory });
+  assert.equal(calls, 1); assert.equal(result.status, 101); assert.equal(result.preparation.phase, "prepare");
+  assert.equal(JSON.parse(fs.readFileSync(path.join(logDirectory, "preparation.json"))).exitCode, 101);
+  assert.equal(fs.readFileSync(path.join(logDirectory, "stderr.log"), "utf8"), "type failure");
+  assert.throws(() => prepareCargoTests(path.join(fixture, "source"), args, { env, logDirectory }), /already contains evidence/);
+  assert.equal(calls, 1);
+});
+test("early preparation cannot launch Cargo when a physical target already has an owner", context => {
+  const fixture = commandFixture("early-conflict"); const target = path.join(fixture, "target");
+  fs.mkdirSync(path.join(target, ".azrael-cargo-owner"), { recursive: true });
+  fs.writeFileSync(path.join(target, ".azrael-cargo-owner/owner.json"), JSON.stringify({ status: "running", run: "other-owner" }));
+  context.mock.method(require("node:child_process"), "spawnSync", () => { throw Error("must not launch"); });
+  assert.throws(() => prepareCargoTests(path.join(fixture, "source"), args, { env: { CARGO_TARGET_DIR: target, INSTA_PENDING_DIR: path.join(fixture, "pending") } }), /owner conflict/);
+});
+test("type check and nonempty selection gate execution using the same Cargo cache", context => {
+  const fixture = commandFixture("command-contract");
   const sourceRoot = path.join(fixture, "engine");
   const env = { INSTA_PENDING_DIR: path.join(fixture, "pending") };
   const expected = buildCargoTestCommand(sourceRoot, args, { env });
+  let phase = 0;
   const spawn = context.mock.method(require("node:child_process"), "spawnSync", (command, actualArgs, options) => {
     const { command: expectedCommand, args: expectedArgs, selectedSourceRoot, ...expectedOptions } = expected;
     assert.equal(command, expectedCommand);
-    assert.deepEqual(actualArgs, expectedArgs);
-    assert.deepEqual(options, expectedOptions);
-    return { status: 0 };
+    const index = phase++;
+    assert.deepEqual(actualArgs, index < 2 ? Object.values(preflightCommands(expected))[index].args : expectedArgs);
+    assert.equal(options.cwd, expectedOptions.cwd);
+    assert.deepEqual(options.env, expectedOptions.env);
+    return { status: 0, ...(index === 1 ? { stdout: "fixture: test\n" } : {}) };
   });
-  assert.deepEqual(runCargoTest(sourceRoot, args, { env }), { status: 0 });
-  assert.equal(spawn.mock.callCount(), 1);
+  const result = runCargoTest(sourceRoot, args, { env });
+  assert.equal(result.status, 0);
+  assert.equal(result.preflight.phases[1].selectedTests, 1);
+  assert.equal(spawn.mock.callCount(), 3);
+});
+
+for (const [name, failedPhase, failure] of [
+  ["type failure", 0, { status: 101 }], ["selection failure", 1, { status: 101 }],
+  ["zero tests", 1, { status: 0, stdout: "0 tests, 0 benchmarks\n" }],
+  ["interruption", 0, { status: null, signal: "SIGTERM" }],
+  ["inconsistent interruption", 1, { status: 0, signal: "SIGTERM", stdout: "fixture: test\n" }],
+  ["missing tool", 0, { status: null, error: new Error("missing Cargo") }],
+]) test(`preflight blocks execution after ${name}`, context => {
+  let calls = 0;
+  context.mock.method(require("node:child_process"), "spawnSync", () => calls++ === failedPhase ? failure : { status: 0 });
+  const fixture = commandFixture(`gate-${failedPhase}-${name.replaceAll(" ", "-")}`);
+  const result = runCargoTest(path.join(fixture, "engine"), args, { env: { INSTA_PENDING_DIR: path.join(fixture, "pending") } });
+  assert.equal(calls, failedPhase + 1);
+  assert.ok(result.status !== 0 || result.error || result.signal);
+});
+
+test("preflight preserves selectors, features, target and effective test profile", () => {
+  const spec = buildCargoTestCommand("/frozen", ["test", "-p", "crate", "--lib", "filter", "--features", "one", "--locked", "--offline", "--", "--exact"], { pathImpl: path.posix, env: {} });
+  assert.deepEqual(preflightCommands(spec).typeCheck.args, ["check", "-p", "crate", "--lib", "--features", "one", "--locked", "--offline", "--tests", "--profile", "test"]);
+  assert.deepEqual(preflightCommands(spec).selection.args.slice(-3), ["--exact", "--list", "--format=terse"]);
+  assert.throws(() => preflightCommands({ ...spec, args: ["test", "--no-run"] }), /compile-only/);
+  assert.equal(PREFLIGHT.testSelection, "nonzero");
+});
+
+test("Cargo bundles require the supported preflight contract and reject undeclared or weakened policy", () => {
+  const check = { id: "engine.fixture", executable: "node", level: "native", args: ["scripts/check-api-context.cjs"] };
+  assert.throws(() => validateCargoPreflight(check), /preflight declaration/);
+  assert.throws(() => validateCargoPreflight({ ...check, cargoPreflight: "skip" }), /preflight declaration/);
+  assert.doesNotThrow(() => validateCargoPreflight({ ...check, cargoPreflight: PREFLIGHT_ID }));
+  assert.throws(() => validateCargoPreflight({ ...check, level: "source", cargoPreflight: PREFLIGHT_ID }), /preflight declaration/);
+});
+
+test("task recovery retains captured pass-count validation after joining the preflight gate", () => {
+  for (const passed of [1, 0]) {
+    let calls = 0;
+    const script = fs.readFileSync(path.join(__dirname, "check-task-recovery-native.cjs"), "utf8");
+    const execute = () => vm.runInNewContext(script, {
+      process: { argv: ["node", "check-task-recovery-native.cjs", path.resolve("artifacts/frozen")],
+        stdout: { write() {} }, stderr: { write() {} } },
+      require(id) {
+        if (id === "node:path") return path;
+        if (id === "./cargo-verification.cjs") return { runCargoTest(_root, _args, options) {
+          calls++; assert.equal(options.capture, true); assert.equal(options.isolateHostEnvironment, true);
+          return { status: 0, stdout: `test result: ok. ${passed} passed; 0 failed;` };
+        } };
+        throw Error(`Unexpected dependency: ${id}`);
+      },
+    });
+    if (passed) { assert.doesNotThrow(execute); assert.equal(calls, 4); }
+    else { assert.throws(execute, /no passing tests/); assert.equal(calls, 1); }
+  }
 });
 for (const [platform, pathImpl, sourceRoot] of [
   ["Windows", path.win32, "C:\\frozen\\engine"],
@@ -104,7 +191,7 @@ for (const [name, scope, expected] of cases) {
     for (let index = 0; index < calls.length; index++) {
       const [crates, filter, integration] = expected[index];
       const packages = (Array.isArray(crates) ? crates : [crates]).flatMap(crate => ["-p", crate]);
-      assert.deepEqual(calls[index].args, ["test", ...packages, ...integration ? ["--test", integration] : ["--lib"], filter, "--locked", "--offline", "--", "--test-threads=1"]);
+      assert.deepEqual(calls[index].args, ["test", ...packages, ...integration ? ["--test", integration, "--features", "codex-core/integration-tests"] : ["--lib"], filter, "--locked", "--offline", "--", "--test-threads=1"]);
       assert.equal(calls[index].env.CARGO_TARGET_DIR, path.join(calls[index].cwd, "target"));
     }
     if (calls.length > 1) assert.deepEqual(calls[0].env, calls[1].env);
@@ -119,7 +206,7 @@ for (const [name, scope, expected] of cases) {
   });
 }
 
-function runSharedNative({ platform = "win32", artifacts, compile = {}, runtime = {}, env = {}, imported = false, invoke } = {}) {
+function runSharedNative({ platform = "win32", artifacts, typeCheck = {}, listing = {}, compile = {}, runtime = {}, env = {}, imported = false, invoke } = {}) {
   const root = path.resolve("artifacts", "verification", "selected-frozen-engine");
   const calls = [], ordinary = [], output = { stdout: "", stderr: "" };
   const processStub = {
@@ -134,11 +221,13 @@ function runSharedNative({ platform = "win32", artifacts, compile = {}, runtime 
     if (id === "./cargo-verification.cjs") return {
       runManagedCargoSync(spec) { const { command, args, ...options } = spec; return requireStub("node:child_process").spawnSync(command, args, options); },
       buildCargoTestCommand(sourceRoot, args, options) { return buildCargoTestCommand(sourceRoot, Array.from(args), { ...options, env }); },
+      preflightCommands(spec) { return preflightCommands(spec); },
       runCargoTest(sourceRoot, args, options) { ordinary.push({ sourceRoot, args: Array.from(args), options }); return { status: 0 }; },
     };
     if (id === "node:child_process") return { spawnSync(command, args, options) {
       calls.push({ command, args: Array.from(args), options });
       if (command === "cargo") {
+        if (args[0] === "check") return { status: 0, ...typeCheck };
         const crate = args[args.indexOf("-p") + 1];
         const directory = crate === "codex-utils-pty" ? path.join("utils", "pty") : "app-server-daemon";
         const artifact = {
@@ -149,6 +238,7 @@ function runSharedNative({ platform = "win32", artifacts, compile = {}, runtime 
         return { status: 0, stdout: (artifacts ? artifacts(artifact) : [artifact]).map(value => typeof value === "string" ? value : JSON.stringify(value)).join("\n"),
           stderr: "compiler diagnostics\n", ...compile };
       }
+      if (args.includes("--list")) return { status: 0, stdout: "selected_native: test\n", ...listing };
       return { status: 0, stdout: "native test diagnostics\n", stderr: "native stderr\n", ...runtime };
     } };
     throw new Error(`Unexpected dependency: ${id}`);
@@ -183,9 +273,11 @@ test("Windows native PTY and daemon groups compile selected frozen libtests then
     ],
   });
   assert.equal(result.error, undefined);
-  assert.equal(result.calls.length, nativeGroups.length * 2);
+  assert.equal(result.calls.length, nativeGroups.length * 4);
   for (const [index, [crate, filter]] of nativeGroups.entries()) {
-    const [compile, direct] = result.calls.slice(index * 2, index * 2 + 2);
+    const [typeCheck, compile, list, direct] = result.calls.slice(index * 4, index * 4 + 4);
+    assert.equal(typeCheck.args[0], "check");
+    assert.deepEqual(list.args, [filter, "--list", "--format=terse"]);
     assert.equal(compile.command, "cargo");
     assert.deepEqual(compile.args, ["test", "-p", crate, "--lib", filter, "--locked", "--offline", "--no-run", "--message-format=json", "--target", "selected-triple", "--profile", "test"]);
     assert.equal(direct.command, path.join(result.root, "selected-target", `${crate}-tests.exe`));
@@ -202,10 +294,10 @@ test("Windows native PTY and daemon groups compile selected frozen libtests then
   }
   assert.match(result.output.stdout, /native test diagnostics/);
   assert.match(result.output.stderr, /compiler diagnostics[\s\S]*native stderr/);
-  assert.equal(result.ordinary.length, 10);
+  assert.equal(result.ordinary.length, 11);
   assert.ok(!result.ordinary.some(call => call.args.includes("codex-utils-pty") || call.args.includes("backend::pid::tests::")));
   assert.ok(result.ordinary.some(call => call.args.includes("azrael::tests::")));
-  for (const filter of ["azrael_storage::tests::", "azrael_shared_server::instance_tests::", "azrael_thread_engines::tests::", "entry::endpoint_tests::"]) {
+  for (const filter of ["registration::tests::", "azrael_storage::tests::", "azrael_shared_server::instance_tests::", "azrael_thread_engines::tests::", "entry::endpoint_tests::"]) {
     assert.ok(result.ordinary.some(call => call.args.includes(filter)), `missing coexistence guard ${filter}`);
   }
 });
@@ -231,6 +323,16 @@ test("importing Windows native runner exports a reusable helper without CLI side
 
 for (const crate of ["codex-app-server-daemon", "codex-utils-pty"]) {
   const invoke = [crate, crate === "codex-utils-pty" ? "windows_tests::" : "backend::pid::tests::"];
+  test(`${crate}: direct execution stops on failed type checking or empty/interrupted listing`, () => {
+    const typed = runSharedNative({ imported: true, invoke, typeCheck: { status: 101 } });
+    assert.equal(typed.calls.length, 1);
+    assert.equal(typed.exitCode, 101);
+    for (const listing of [{ status: 0, stdout: "0 tests, 0 benchmarks\n" }, { status: 1 }, { status: null, signal: "SIGTERM" }]) {
+      const result = runSharedNative({ imported: true, invoke, listing });
+      assert.equal(result.calls.length, 3);
+      assert.ok(result.error || result.exitCode !== 0);
+    }
+  });
   test(`${crate}: native runner rejects missing, foreign, ambiguous and malformed Cargo artifacts`, () => {
     for (const artifacts of [
       () => [],
@@ -244,7 +346,7 @@ for (const crate of ["codex-app-server-daemon", "codex-utils-pty"]) {
     ]) {
       const result = runSharedNative({ imported: true, invoke, artifacts });
       assert.ok(result.error);
-      assert.equal(result.calls.length, 1);
+      assert.equal(result.calls.length, 2);
       assert.equal(result.ordinary.length, 0);
       assert.match(result.output.stderr, /compiler diagnostics/);
     }
@@ -258,7 +360,7 @@ for (const crate of ["codex-app-server-daemon", "codex-utils-pty"]) {
       const result = runSharedNative({ imported: true, invoke, [stage]: failure });
       assert.equal(result.error, undefined);
       assert.equal(result.exitCode, expectedStatus);
-      assert.equal(result.calls.length, stage === "compile" ? 1 : 2);
+      assert.equal(result.calls.length, stage === "compile" ? 2 : 4);
       assert.equal(result.ordinary.length, 0);
     }
     for (const stage of ["compile", "runtime"]) {
@@ -276,7 +378,7 @@ test("CLI stops subsequent native groups after the first compile or test failure
     const result = runSharedNative({ [stage]: { status: 7 } });
     assert.equal(result.error, undefined);
     assert.equal(result.exitCode, 7);
-    assert.equal(result.calls.length, stage === "compile" ? 1 : 2);
+    assert.equal(result.calls.length, stage === "compile" ? 2 : 4);
     assert.equal(result.ordinary.length, 0);
   }
 });

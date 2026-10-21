@@ -1,4 +1,4 @@
-상태: 소스 구현·관련 Windows 검증·생성물 보존 결정 완료. 작업 변경만 로컬 커밋하며, 실행 중인 앱의 빌드·설치는 별도 범위이다.
+상태: 기존 중복 방지 수정 커밋 `aafcb314` 완료. 후속 provider 전환 재삽입의 소스 구현과 Windows 검증 완료. 공유 source receipt의 다른 작업 변경 때문에 후속 작업별 커밋은 분리 대기 중이며, 실행 중인 앱의 빌드·설치는 별도 범위이다.
 
 # OpenAI 모델 프로필의 컨텍스트 중복 분석
 
@@ -98,3 +98,28 @@ OpenAI 공식 문서상 callable function definitions는 입력 토큰과 컨텍
 - 검증 환경은 Windows x64/Rust 1.95.0이다. Linux/macOS 실행, 제품 배포 빌드, 설치 실행 파일과의 동일성 및 실전 API의 토큰 절감량은 검증하지 않았다.
 - final group의 native review/apply도 deferred·remaining=true로 완료했다. `artifacts/tasks/bw3`은 검증된 입력·로그·receipt의 현재 소유자이며 이 작업 기록이 소비자이다. 다음 설치 후보에 입력/검증 identity와 통과 근거가 독립적으로 보존되거나 동등한 compact evidence로 대체되면 참조를 해제하고 전체 group 삭제를 재검토한다. 세 group 모두 삭제했다고 주장하지 않는다.
 - 공유 feature inventory에는 다른 작업의 namespace-cache-owner 변경이 함께 있어, 이번 engine profile owner/context check의 두 hunk만 커밋 대상으로 분리한다. 그 외 기존 작업·공유 Cargo 캐시·설치된 앱을 보존한다.
+
+## Provider 전환 후속 수정
+
+- 승인: 같은 profile·provider에서는 동일 지침을 생략하고, provider가 바뀌면 같은 지침도 추가 삽입한다. 실제 지침이 바뀌는 기존 갱신 계약은 유지한다.
+- 공통 요청 경로의 provider identity는 기존 handoff 판별 함수를 재사용한다. managed/API 연결 ID/Devin 및 native fallback을 동일한 기준으로 비교한다. snapshot에 provider를 저장하고, provider 없는 구형 snapshot은 한 번 보수적으로 갱신한다.
+- handoff의 full world-state 재구성에서도 초기 지침 일치가 provider 변경을 숨기지 않도록 이전 모델의 provider를 전달한다. 일반 요청에서는 직전 snapshot의 provider와 지침 hash를 비교한다.
+- root가 model state·session wiring·기존 provider handoff 테스트와 owning architecture/check registration을 담당한다. 다른 진행 중 변경과 기존 staging을 보존한다. 공통 지원 범위 Windows x64/Linux x64/macOS ARM64, 실제 검증은 Windows x64이다.
+- 준비 완료 후 고정 입력 하나로 model state·provider handoff/session·instruction projection·model switching을 순차 실행한다. 공유 Cargo target을 재사용하며 제품 빌드·설치는 하지 않는다. 실제 결과·생성물 결정은 이 절에 기록한다.
+
+- 실행 입력 `artifacts/tasks/bwp1/engine`: 9,266파일, SHA-256 `b894286c78ac9b4053258f43cbde8c78eb3d9a91c2eda688940ecbaa16f5552d`. 생성 전에 lifecycle `work:BW-01-profile-provider-run-01`로 계획했다. primary의 다른 작업 변경을 포함한 입력 고정이며 수정 소유권 확대를 뜻하지 않는다.
+- source mapping 9/9 통과·exit 0, checker 구문·feature manifest validation·이번 소유 파일 whitespace 검사 exit 0. 전체 diff whitespace는 다른 작업의 permissions snapshot 공백 때문에 실패했으며 그 snapshot은 수정하지 않았다.
+- native context 실행은 2026-10-17 01:05:37 UTC 시작했다. 초기 Cargo 단계는 다른 작업의 auto-compaction 검사가 공유 target 잠금을 보유해 대기 중이다. 별도 producer를 중복 시작하지 않았다. source provenance recorder는 고정 입력 준비 후 독립 실행한다. 로그·단계별 실제 exit/시각은 `artifacts/tasks/bwp1/evidence/`에 기록한다.
+
+- model state 12/12 통과·exit 0. 첫 native 단계는 01:05:37–01:34:38 UTC였으며 공유 Cargo 잠금 대기와 준비 컴파일을 포함한다. 실제 state 테스트는 0.01초였다.
+- source recorder 1차는 다른 작업의 HEAD 변경을 감지해 exit 1로 게시를 거부했다. 최신 HEAD에서 재시도한 2차는 01:14:02–01:20:51 UTC, exit 0으로 검토한 Rust 파일 5개만 추가 갱신했다. 기존 다른 작업의 source receipt delta를 보존했다.
+- 첫 provider-handoff Cargo 단계는 테스트 실행 전 공유 target 잠금에 다시 대기했다. exact Cargo PID/부모/명령/자식 부재를 확인하고 그 대기 producer만 중단했다(exit 4294967295). 첫 수집기의 missing-result 실패도 보존한다. 이는 테스트 실패나 통과로 간주하지 않는다.
+- 동일 입력으로 만든 library 실행 파일의 새 session 테스트 존재 여부와 SHA-256을 확인해 두 후속 library 검사를 직접 실행했다. provider handoff/session 9/9·exit 0(7.83초), instruction projection 16/16·exit 0. 각 실행 후 binary hash 일치도 확인했다. 원래 준비 컴파일을 반복하지 않았다.
+- model-switching integration은 01:37:29 UTC 같은 고정 입력·공유 Cargo target에서 시작했다. 결과와 최종 입력 무결성을 별도 producer가 수집하며 실패/중단 증거를 덮어쓰지 않는다.
+
+- final model switching 24/24 통과·exit 0, 01:37:29–01:41:19 UTC(실제 테스트 181.99초). source mapping 9개와 native 61개(model 12 + handoff/session 9 + projection 16 + integration 24), 총 70개가 통과했다. 로그와 actual exit는 각 `*-result.json` 및 `.log`에 보존한다.
+- 최종 audit는 frozen 9,266파일의 전체 목록·각 SHA-256이 입력 inventory와 동일하고 primary의 수정 Rust 5파일도 일치함을 확인했다. library binary SHA-256은 `c2b49cf671e3a50e8dbd3125d255ec546b7246330e64535a3c59ecaab432b479`이며 새 session 계약 테스트 존재 및 재사용 전후 동일성을 검증했다. 최종 receipt: `artifacts/tasks/bwp1/evidence/final-verification.json`.
+- 검증은 Windows x64/Rust 1.95.0에서 수행했다. Linux/macOS 실행·제품 배포 빌드·설치는 하지 않았다. 선행 실패/중단은 최종 passing 결과와 구분해 보존했다.
+- 변경 분리 점검: 공유 `engine/SOURCE.json`에는 시작 전부터 다른 작업의 collaboration/permissions 테스트 4파일 delta가 있고, official recorder가 이번 5파일 delta와 전체 inventory hash를 함께 기록했다. 다른 작업의 source 수정이나 기존 staging을 함께 커밋하지 않는다. 다른 작업의 receipt/delta가 먼저 통합되거나 공식 provenance를 작업별로 분리할 수 있을 때 후속 로컬 커밋을 완료한다. shared manifest의 이번 변경은 profile feature의 provider_handoff 소유자 2줄이며 다른 hunk를 보존했다.
+
+- 생성물 정리 결정 완료: lifecycle `work:BW-01-profile-provider-run-01`의 native register/review/apply를 수행했다. 한 member `artifacts/tasks/bwp1`(101,802,854 bytes)은 group 전체 deferred·remaining=true이다. 보존 이유는 이 작업 기록이 소비하는 검증 입력·통과 결과 및 실패/중단 진단과 아직 분리되지 않은 공유 provenance이다. native review의 generation/usage protection unconfirmed도 보존했다. 작업별 통합 또는 다음 승인 후보가 동등한 입력 identity·검증 근거를 보존하면 참조와 보호 상태를 확인하고 전체 group 삭제를 재검토한다. 삭제했다고 주장하지 않는다. 공유 Cargo target과 다른 작업의 생성물은 보존한다.

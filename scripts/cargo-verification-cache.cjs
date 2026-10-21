@@ -10,6 +10,10 @@ const { spawnSync } = require('node:child_process');
 const { getDirectoryState } = require('./directory-state.cjs');
 const { buildCargoTestCommand } = require('./cargo-verification.cjs');
 const storage = require('./verification-result-cache.cjs');
+// This namespace owns both evidence and its locks. Legacy cargo owners may have
+// only {token,pid}, without enough producer identity for verified retirement.
+// Leave that entire root protected; never import its entries under new locks.
+const CACHE_NAMESPACE = 'cargo-v2';
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
 const sha = value => crypto.createHash('sha256').update(value).digest('hex');
@@ -18,6 +22,17 @@ const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles
   'check-thread-auto-compaction.cjs', 'check-parent-requests.cjs',
   'check-capacity-recovery.cjs', 'check-task-profile-skills.cjs',
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
+const sourceOnlyHelpers = {
+  'scripts/cargo-verification.cjs': '07edcd7bdab380342a1fefcb369340ede5179e60f7075b623bb52065ab6768bb',
+  'scripts/cargo-target-owner.cjs': 'a1aa884c33c635dabf641b4ac8ee43f422eb88033cc8b331252ab5634e3a343b',
+};
+function auditedSourceOnly(config, group) {
+  try {
+    if (!group.entries.every(({ check }) => require('./cargo-preflight-recipes.cjs').recipesForCheck(config, check).gaps.length === 0)) return false;
+    return Object.entries(sourceOnlyHelpers).every(([filename, expected]) =>
+      sha(fs.readFileSync(path.join(config.projectRoot, filename), 'utf8').replace(/\r\n/g, '\n')) === expected);
+  } catch { return false; }
+}
 
 function isEligible(group) {
   return Boolean(group?.native && Array.isArray(group.entries) && group.entries.length &&
@@ -187,6 +202,7 @@ async function key(config, group, inputs, runtimeIdentity) {
     throw Error('Cargo cache requires an absolute engine source root');
   }
   const files = new Set(['scripts/feature-preservation.cjs', 'scripts/cargo-verification-cache.cjs',
+    'scripts/cargo-preflight-recipes.cjs',
     'scripts/cargo-verification.cjs', 'scripts/cargo-target-owner.cjs', 'scripts/artifact-lifecycle.cjs', 'scripts/cargo-config-self-contained.py',
     'scripts/verification-result-cache.cjs', 'scripts/directory-state.cjs']);
   const declared = group.entries.map(({ feature, check }) => {
@@ -202,6 +218,30 @@ async function key(config, group, inputs, runtimeIdentity) {
   if (inputs.engine && typeof inputs.engine === 'object' && !Array.isArray(inputs.engine)) {
     cargoInputs.engine = { ...inputs.engine };
     delete cargoInputs.engine.directory;
+    // These audited wrappers compile and run their own Cargo test artifacts.
+    // The gate still verifies the complete supplied product bundle, but its
+    // copied binaries/external host are not inputs to these source-only checks.
+    // Normalize only a complete recognized receipt; keep unknown fields bound.
+    const receipt = inputs.engine.provenance;
+    const source = receipt?.source;
+    const binaries = receipt?.binaries;
+    const host = receipt?.externalRuntimes?.codeModeHost;
+    const names = typeof source?.target === 'string' && source.target.includes('windows')
+      ? ['azrael.exe', 'azrael-bridge.exe', 'azrael-code-mode-host.exe'] : ['azrael', 'azrael-bridge', 'azrael-code-mode-host'];
+    const complete = source && /^[a-f0-9]{64}$/.test(source.sourceSha256 || '') && typeof source.target === 'string' &&
+      binaries && Object.keys(binaries).length === names.length && names.every(name => /^[a-f0-9]{64}$/.test(binaries[name] || '')) &&
+      host && ['external-import', 'source-built'].includes(host.kind) && host.sha256 === binaries[names[2]] &&
+      (host.kind === 'source-built' ? host.sourceSha256 === source.sourceSha256 : typeof host.sourcePath === 'string' && path.isAbsolute(host.sourcePath));
+    if (complete && auditedSourceOnly(config, group)) {
+      const externalRuntimes = { ...receipt.externalRuntimes };
+      // Extra fields on the known host remain significant until audited.
+      const retainedHost = { ...host };
+      for (const field of ['kind', 'sha256', 'sourcePath', 'sourceSha256']) delete retainedHost[field];
+      if (Object.keys(retainedHost).length) externalRuntimes.codeModeHost = retainedHost;
+      else delete externalRuntimes.codeModeHost;
+      cargoInputs.engine.provenance = { ...receipt, externalRuntimes };
+      delete cargoInputs.engine.provenance.binaries;
+    }
   }
   if (inputs.registered && typeof inputs.registered === 'object' && !Array.isArray(inputs.registered)) {
     cargoInputs.registered = { ...inputs.registered };
@@ -225,7 +265,7 @@ async function key(config, group, inputs, runtimeIdentity) {
   }
   const fileIdentity = await getDirectoryState(config.projectRoot, [...files].sort());
   delete fileIdentity.path;
-  return sha(canonical({ schema: 4,
+  return sha(canonical({ schema: 5,
     engineSourceRoot: path.resolve(config.engineSourceRoot), inputs: cargoInputs, declared,
     files: fileIdentity, runtime: cargoRuntime }));
 }
@@ -237,7 +277,7 @@ function options(config) {
     throw Error('Cargo verification cache project root must be an absolute path');
   }
   return { projectRoot,
-    cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results/cargo') };
+    cacheRoot: path.join(projectRoot, 'artifacts/cache/verification-results', CACHE_NAMESPACE) };
 }
-module.exports = { isEligible, runtime, key, options, resolveExecutable, CACHE_SCHEMA: storage.CACHE_SCHEMA,
+module.exports = { isEligible, runtime, key, options, resolveExecutable, CACHE_NAMESPACE, CACHE_SCHEMA: storage.CACHE_SCHEMA,
   begin: storage.begin, pruneObsoleteVersions: storage.pruneObsoleteVersions, pruneRemovedChecks: storage.pruneRemovedChecks };

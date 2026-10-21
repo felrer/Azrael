@@ -4,11 +4,13 @@ const assert = require('node:assert/strict');
 const fs = require('node:fs/promises');
 const path = require('node:path');
 const { spawnSync } = require('node:child_process');
-const { snapshotProject } = require('./deployment-input-snapshot.cjs');
+const { snapshotProject, compareSnapshots } = require('./deployment-input-snapshot.cjs');
 
 const project = path.dirname(__dirname);
 const stamp = `${Date.now()}-${process.pid}`;
-const fixtures = path.join(project, 'artifacts/verification/deployment-optimization', `snapshot-${stamp} spaces 한글`);
+const fixtureParent = process.env.AZRAEL_DEPLOYMENT_SNAPSHOT_TEST_ROOT
+  ? path.resolve(process.env.AZRAEL_DEPLOYMENT_SNAPSHOT_TEST_ROOT) : path.join(project, 'artifacts/verification/deployment-optimization');
+const fixtures = path.join(fixtureParent, `snapshot-${stamp} spaces 한글`);
 const results = [];
 
 function git(root, ...args) {
@@ -45,6 +47,22 @@ function summary(snapshot) {
 }
 
 async function main() {
+  await test('checkout edits outside selected inputs do not invalidate the selected snapshot', async () => {
+    const selected = await repository('selected-frozen');
+    const checkout = await repository('separate-checkout');
+    const before = await snapshotProject(selected);
+    await fs.writeFile(path.join(checkout, 'input.txt'), 'later checkout change');
+    assert.equal(compareSnapshots(before, await snapshotProject(selected)).status, 'unchanged');
+    await fs.writeFile(path.join(selected, 'input.txt'), 'selected mutation');
+    const changed = compareSnapshots(before, await snapshotProject(selected));
+    assert.equal(changed.status, 'consumed-inputs-changed');
+    assert.equal(changed.action, 'reject-affected-results-and-select-new-inputs');
+    assert.deepEqual(changed.changes.map(entry => [entry.path, entry.kind]), [['input.txt', 'modified']]);
+    assert.throws(() => compareSnapshots(before, { ...before, sha256: '0'.repeat(64) }), /digest mismatch/);
+    const moved = structuredClone(before);
+    moved.inventory[0].root = checkout;
+    assert.equal(compareSnapshots(before, moved).rootChanged, true);
+  });
   await test('deterministic across concurrency and repeated runs', async () => {
     const root = await repository('deterministic');
     for (let i = 0; i < 25; i++) await fs.writeFile(path.join(root, `input ${i} 한글.txt`), `content ${i}\n`);
@@ -106,6 +124,8 @@ async function main() {
     await fs.writeFile(inner, 'bravo');
     const dirty = await snapshotProject(root);
     assert.notEqual(dirty.sha256, before.sha256);
+    const difference = compareSnapshots(before, dirty);
+    assert.deepEqual(difference.changes.map(entry => entry.path), ['modules/vendor/nested/input.txt']);
     await fs.writeFile(path.join(root, 'modules/vendor/new.txt'), 'new nested input');
     assert.notEqual((await snapshotProject(root)).sha256, dirty.sha256);
     git(root, 'submodule', 'deinit', '--force', '--', 'modules/vendor');
@@ -124,6 +144,12 @@ async function main() {
     assert.equal(output.sha256, full.sha256);
     assert.equal(Object.hasOwn(output, 'inventory'), false);
     assert.deepEqual(summary(full), summary(await snapshotProject(root)));
+    const comparison = path.join(root, 'reports/comparison.json');
+    const compared = spawnSync(process.execPath, [helper, 'compare', report, report, comparison, full.sha256, full.sha256], { encoding: 'utf8' });
+    assert.equal(compared.status, 0, compared.stderr);
+    assert.equal(JSON.parse(await fs.readFile(comparison, 'utf8')).status, 'unchanged');
+    const forged = spawnSync(process.execPath, [helper, 'compare', report, report, comparison, '0'.repeat(64), full.sha256], { encoding: 'utf8' });
+    assert.notEqual(forged.status, 0);
     const withoutReport = spawnSync(process.execPath, [helper, root], { encoding: 'utf8' });
     assert.equal(withoutReport.status, 0, withoutReport.stderr);
     assert.equal(JSON.parse(withoutReport.stdout).sha256, output.sha256);

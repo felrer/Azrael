@@ -17,7 +17,7 @@ async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
     backend: { async request(method) { backendCalls.push(method); return method === 'listWindows' ? descriptors : descriptor; }, async dispose() {} } });
   t.after(async () => { await host.dispose(); await fs.rm(home, { recursive: true }); });
   const native = { registerProvider() { return { dispose() {} }; } };
-  host.attach(native, () => assert.fail('Unexpected engine RPC'));
+  const {engine}=require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native);
   const publisher=envelope => { cards.push(envelope); if(envelope.type==='mcp-request') {Promise.resolve().then(()=>typeof answer==='function'?answer(envelope.request):answer).then(value=>{if(value==='pending')return;host.respondApproval(native,envelope.request.id,{action:value==='허용'?'accept':value==='거부'?'decline':'cancel',content:{persist:'session'}});});}return true; };
   host.registerApprovalUI(native, publisher);
   async function register(id, computerUseMode = mode) {
@@ -38,10 +38,17 @@ async function fixture(t, mode, childRuntime, approvalTimeoutMs=1000) {
   const desktop = (meta = metadata(), extra = {}) => host.handlePipe({ nonce: host.nonce, threadId: thread, method: 'desktop_authority', _meta: meta, ...extra });
   const requestStage = (stage, targetId) => call('request_stage', { stage, ...(targetId ? { targetId } : {}), reason: 'Perform the explicitly requested fixture task' });
   const select = async () => call('select_window', { candidateId: (await call('list_windows')).candidates[0].candidateId });
-  return { host, native, home, settings, approvals, modals, backendCalls, cards, publisher, register, start, call, desktop, metadata, requestStage, select, setAnswer: value => answer = value,
+  return { host, native, home, engine, settings, approvals, modals, backendCalls, cards, publisher, register, start, call, desktop, metadata, requestStage, select, setAnswer: value => answer = value,
     addApp(){descriptors.push({...descriptor,hwnd:'second',pid:5,executable:'C:/fixture/second.exe',title:'Second fixture'});},
     update(patch) { return settings.updateSettings(patch, settings.getSettings().revision); }, complete() { host.observe(native, { method: 'turn/completed', params: { threadId: thread, turn: { status: 'completed' } } }); } };
 }
+test('installed package launch cannot bypass stage authority or open app consent without it', async t => {
+  const f = await fixture(t);
+  await assert.rejects(f.call('launch_isolated', { packageName: 'Microsoft.Paint' }), { code: 'permission_denied' });
+  assert.equal(f.cards.length, 0);
+  assert.deepEqual(f.backendCalls, []);
+});
+
 test('ordinary thread stage4 requires explicit consent, active native turn and enabled global stage', async t => {
   const f = await fixture(t);
   await f.select(); assert.equal(f.cards.length, 0, 'stage1 observation does not ask app consent');
@@ -111,31 +118,32 @@ test('persisted desktop task lease replacement invalidates the granted authority
   await assert.rejects(f.desktop(), /replaced/);
 });
 
-for(const ending of ['decline','timeout','ui-disappeared','policy']) test(`stage card ${ending} cannot grant authority and retires its UI`,async t=>{
-  const f=await fixture(t,undefined,undefined,ending==='timeout'?35:1000);f.setAnswer('pending');
-  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,error=>error.code===(ending==='decline'?'approval_declined':ending==='timeout'?'approval_timeout':'cancelled'));
+for(const ending of ['decline','policy']) test(`stage card ${ending} cannot grant authority and retires its UI`,async t=>{
+  const f=await fixture(t);f.setAnswer('pending');
+  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,error=>error.code===(ending==='decline'?'approval_declined':'cancelled'));
   for(let i=0;i<100&&!f.cards.some(value=>value.type==='mcp-request');i++)await new Promise(resolve=>setImmediate(resolve));
   const request=f.cards.find(value=>value.type==='mcp-request').request;
   assert.equal(request.params._meta.window_use_approval_kind,'stage');assert.deepEqual(request.params._meta.persist,['session']);
   assert.equal(f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'always'}}),true);
   await assert.rejects(f.desktop(),{code:'permission_denied'},'a stage always response is never accepted');
   if(ending==='decline')f.host.respondApproval(f.native,request.id,{action:'decline'});
-  if(ending==='ui-disappeared')f.host.registerApprovalUI(f.native,undefined);
   if(ending==='policy'){f.update({stage4Enabled:false});f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});}
   await rejected;await assert.rejects(f.desktop(),{code:'permission_denied'});
   f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});
   assert.equal((await f.call('context')).stage,1);assert.deepEqual(f.approvals.getPersistentAppApprovals(),{approvedApps:[]});
-  if(ending!=='ui-disappeared')assert.ok(f.cards.some(value=>value.notification?.method==='serverRequest/resolved'&&value.notification.params.requestId===request.id));
+  for(let i=0;i<100&&!f.cards.some(value=>value.notification?.method==='serverRequest/resolved'&&value.notification.params.requestId===request.id);i++)await new Promise(resolve=>setImmediate(resolve));
+  assert.ok(f.cards.some(value=>value.notification?.method==='serverRequest/resolved'&&value.notification.params.requestId===request.id));
 });
 
-test('stage response checks elapsed deadline even before the timeout callback runs',async t=>{
-  const f=await fixture(t,undefined,undefined,40);f.setAnswer('pending');
-  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,{code:'approval_timeout'});
+test('detached stage approval remains pending after its UI unregisters',async t=>{
+  const f=await fixture(t,undefined,undefined,30);f.setAnswer('pending');
+  const waiting=f.requestStage(4),rejected=assert.rejects(waiting,{code:'permission_pending'});
   for(let i=0;i<100&&!f.cards.some(value=>value.type==='mcp-request');i++)await new Promise(resolve=>setImmediate(resolve));
   const request=f.cards.find(value=>value.type==='mcp-request').request;
-  const until=Date.now()+55;while(Date.now()<until){} // Hold the event loop past the deadline.
+  f.host.registerApprovalUI(f.native,undefined);await rejected;
   f.host.respondApproval(f.native,request.id,{action:'accept',content:{persist:'session'}});
-  await rejected;assert.equal((await f.call('context')).stage,1);
+  for(let i=0;i<100&&!f.engine.resumes.length;i++)await new Promise(resolve=>setImmediate(resolve));assert.equal(f.engine.resumes.length,1);
+  assert.equal((await f.call('context')).stage,1,'a late receipt alone cannot grant action authority');
 });
 
 test('prepare permissions returns independent app results and performs no native mutation',async t=>{
@@ -147,9 +155,9 @@ test('prepare permissions returns independent app results and performs no native
 });
 
 for(const ending of ['cancel','stop','policy','timeout']) test(`prepare app ${ending} stops before the next app card`,async t=>{
-  const f=await fixture(t,undefined,undefined,ending==='timeout'?40:1000);f.addApp();const candidates=(await f.call('list_windows')).candidates.map(value=>value.candidateId);
+  const f=await fixture(t,undefined,undefined,ending==='timeout'?30:1000);f.addApp();const candidates=(await f.call('list_windows')).candidates.map(value=>value.candidateId);
   f.setAnswer(request=>request.params._meta.window_use_approval_kind==='stage'?'허용':'pending');
-  const waiting=f.call('prepare_permissions',{stage:4,candidateIds:candidates,reason:'Verify sequential application permission cancellation'}),rejected=assert.rejects(waiting);
+  const waiting=f.call('prepare_permissions',{stage:4,candidateIds:candidates,reason:'Verify sequential application permission cancellation'}),rejected=assert.rejects(waiting,ending==='timeout'?{code:'permission_pending',approvalState:'pending'}:undefined);
   for(let i=0;i<100&&f.cards.filter(value=>value.type==='mcp-request').length<2;i++)await new Promise(resolve=>setImmediate(resolve));
   const card=f.cards.filter(value=>value.type==='mcp-request')[1].request;
   if(ending==='cancel')f.host.respondApproval(f.native,card.id,{action:'cancel'});
@@ -256,4 +264,54 @@ test('stage3 catches thrown manager errors and bounds diagnostic fields', async 
   assert.equal(result.authorized, false);
   assert.deepEqual(result.diagnostic, { code: 'native_child_error', cleanupUnconfirmed: true, phase: 'start', message: 'x'.repeat(512) });
   assert.deepEqual(f.counts(), { starts: 1, releases: 0 });
+});
+
+// Exercise host classification with a substituted controller boundary; authority,
+// policy dispatch and transport serialization remain production code.
+async function isolatedOperationFixture(t, failure) {
+  const isolationModule=require('./window-use-isolation.cjs'),childModule=require('./window-child-session.cjs');
+  const originalController=isolationModule.createIsolationController,originalManager=childModule.createWindowsChildSessionManager;
+  const calls=[];let rejectNext=true;
+  isolationModule.createIsolationController=()=>({
+    start:async()=>({ok:true}),release:async()=>({ok:true}),
+    capture:async()=>{calls.push('capture');if(rejectNext){rejectNext=false;throw Object.assign(new Error(failure.message || 'Child operation failed'),failure);}return {ok:true,observationId:'fresh-after-failure',geometry:{width:10,height:10},png:'YQ=='};},
+    input:async()=>{calls.push('input');throw Object.assign(new Error(failure.message || 'Child operation failed'),failure);},
+  });
+  childModule.createWindowsChildSessionManager=()=>({describe:async()=>({admissionReady:true}),reconcileBootstrap:async()=>({ok:true})});
+  let f;try {f=await fixture(t,undefined,{executable:'fixture.exe',sha256:'a'.repeat(64)});}finally {isolationModule.createIsolationController=originalController;childModule.createWindowsChildSessionManager=originalManager;}
+  f.update({stage3Enabled:true});assert.equal((await f.requestStage(3)).authorized,true);
+  return {...f,calls};
+}
+
+test('stage3 minimized viewer has distinct sanitized public recovery metadata and fresh capture',async t=>{
+  const f=await isolatedOperationFixture(t,{code:'isolated_viewer_minimized',actionExecuted:false,viewerState:'minimized',requiredUserAction:'restore_isolated_viewer',message:'Failed C:\\Users\\private\\session.json'});
+  let payload;await assert.rejects(f.call('capture_isolated',{targetId:'child'}),error=>{payload=require('./window-control-errors.cjs').errorPayload(error);return true;});
+  assert.equal(payload.code,'isolated_viewer_minimized');assert.equal(payload.actionExecuted,false);assert.equal(payload.viewerState,'minimized');assert.equal(payload.requiredUserAction,'restore_isolated_viewer');assert.equal(payload.observationRequired,true);
+  assert.match(payload.message,/Azrael isolated session \(model control\)/);assert.doesNotMatch(payload.message,/restore_window|private/);
+  assert.match(payload.message,/최소화를 해제해주세요/);
+  assert.equal(payload.nativeCode,'isolated_viewer_minimized');assert.equal(payload.diagnostic.message,'[redacted diagnostic message]');
+  assert.equal((await f.call('capture_isolated',{targetId:'child'})).observationId,'fresh-after-failure');assert.deepEqual(f.calls,['capture','capture']);assert.deepEqual(f.backendCalls,[]);
+});
+
+test('stage3 unknown mutation stops input without permanently blocking read-only capture',async t=>{
+  const f=await isolatedOperationFixture(t,{code:'native_input_failed',mutationOutcome:'unknown',inputReleaseConfirmed:true,message:'secret=private'});
+  let payload;await assert.rejects(f.call('input_isolated',{targetId:'child',observationId:'old',input:{kind:'text',text:'fixture'}}),error=>{payload=require('./window-control-errors.cjs').errorPayload(error);return true;});
+  assert.equal(payload.code,'state_changed');assert.equal(payload.mutationOutcome,'unknown');assert.equal(payload.inputReleaseConfirmed,true);assert.equal(payload.recovery,'observe_again');assert.equal(payload.observationRequired,true);assert.equal(payload.diagnostic.message,'[redacted diagnostic message]');assert.deepEqual(f.calls,['input']);
+  // The first explicit capture also fails in this fixture; neither failure revokes authority.
+  await assert.rejects(f.call('capture_isolated',{targetId:'child'}),{code:'state_changed'});
+  assert.equal((await f.call('capture_isolated',{targetId:'child'})).observationId,'fresh-after-failure');assert.deepEqual(f.calls,['input','capture','capture']);
+});
+
+test('stage3 revalidation and generic failures retain bounded native diagnostics',async t=>{
+  for(const failure of [
+    {code:'child_input_revalidated',actionExecuted:false,inputReleaseConfirmed:true},
+    {code:'native_action_failed',actionExecuted:false,recovery:'observe_again',observationRequired:true,message:'token=private',diagnostic:{code:'native_action_failed',hresult:-1,type:'COMException',message:'token=private',stack:'private'}},
+  ]) {
+    const f=await isolatedOperationFixture(t,failure);let payload;
+    await assert.rejects(f.call('input_isolated',{targetId:'child',observationId:'old',input:{kind:'text',text:'fixture'}}),error=>{payload=require('./window-control-errors.cjs').errorPayload(error);return true;});
+    assert.equal(payload.nativeCode,failure.code);assert.equal(payload.diagnostic.code,failure.code);assert.doesNotMatch(JSON.stringify(payload),/private|stack/);
+    if(failure.code==='child_input_revalidated'){assert.equal(payload.code,'state_changed');assert.equal(payload.actionExecuted,false);assert.equal(payload.inputReleaseConfirmed,true);assert.equal(payload.recovery,'observe_again');assert.equal(payload.observationRequired,true);}
+    else {assert.equal(payload.code,'unsupported_action');assert.equal(payload.diagnostic.hresult,-1);assert.equal(payload.diagnostic.type,'COMException');assert.equal(payload.actionExecuted,false);assert.equal(payload.recovery,'observe_again');assert.equal(payload.observationRequired,true);}
+    assert.deepEqual(f.calls,['input']);
+  }
 });

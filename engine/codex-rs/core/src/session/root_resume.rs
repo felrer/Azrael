@@ -998,6 +998,8 @@ impl Session {
             .await?;
         self.stop_root_resume_timer();
         self.interrupt_parked_root(parked).await;
+        drop(_guard);
+        self.maybe_resume_host_approval().await?;
         Ok(())
     }
 

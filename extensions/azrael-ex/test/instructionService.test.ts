@@ -103,7 +103,7 @@ test("real host adapter maps generated release, preview, download and selected a
   assert.deepEqual(state.downloadedVersions, ["1.0.0"]); assert.equal(state.currentVersion, null);
   const ids = ["global-instructions"];
   state = await dispatch("apply", { version: "1.0.0", componentIds: ids });
-  assert.equal(state.currentVersion, "1.0.0"); assert.deepEqual(state.selectedComponentIds, ids);
+  assert.equal(state.currentVersion, "1.0.0", JSON.stringify({ error: state.error, warnings: f.warnings })); assert.deepEqual(state.selectedComponentIds, ids);
   assert.equal(state.error, undefined); assert.deepEqual(state.conflicts, []);
   assert((await fs.readFile(path.join(f.home, "AGENTS.md"), "utf8")).length);
   await assert.rejects(fs.access(path.join(f.home, "agents/luna_explorer.toml")), { code: "ENOENT" });

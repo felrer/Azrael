@@ -12,7 +12,7 @@ async function removeOrdinary(file) {
 }
 async function fixture(t, options = {}) {
   await fs.mkdir(root, { recursive: true });
-  const directory = path.join(root, `case-${++sequence}`);
+  const directory = path.join(root, `case-${process.pid}-${++sequence}`);
   const manager = createResourceManager({ directory, idleMs: 0, ...options });
   t.after(async () => { await manager.stopScheduler(); await removeOrdinary(directory); });
   await manager.inspect();
@@ -31,6 +31,22 @@ async function session(manager, id = 'session') {
   const registered = await manager.registerSession({ id, workId: 'work', runId: 'run', identity, ownershipVerified: true });
   await manager.releaseLease(id, registered.lease); return registered;
 }
+
+test('legacy unknown session admission requires fresh exact release proof; generated unknown stays protected', async t => {
+  const { manager } = await fixture(t);
+  const registered = await manager.registerSession({ id: 'legacy', workId: 'work', runId: 'run', identity, ownershipVerified: true });
+  await manager.releaseLease('legacy', registered.lease, { state: 'unknown' });
+  const proof = { ok: true, identity, ownershipVerified: true, inputReleased: true, available: true, admissionReady: true };
+  await assert.rejects(manager.acquireSessionLease('legacy', 'task', async () => ({ ...proof, inputReleased: false })), /unverified/);
+  await assert.rejects(manager.acquireSessionLease('legacy', 'task', async () => ({ ...proof, identity: { ...identity, processId: 999 } })), /unverified/);
+  assert.equal((await manager.inspect()).resources[0].state, 'unknown');
+  const admitted = await manager.acquireSessionLease('legacy', 'task', async () => proof);
+  assert.equal((await manager.inspect()).resources[0].state, 'ready');
+  await assert.rejects(manager.acquireSessionLease('legacy', 'other', async () => proof), /current state/);
+  await manager.releaseLease('legacy', admitted.lease);
+  const file = await generated(manager); await manager.releaseLease(file.id, file.lease, { state: 'unknown' });
+  await assert.rejects(manager.acquireSessionLease(file.id, 'task', async () => proof), /current state/);
+});
 
 test('only explicit owned registration is disposable; exact bytes and metadata survive cleanup', async t => {
   const { manager, directory } = await fixture(t);
@@ -142,6 +158,74 @@ test('partial ordinary deletion reports freed bytes and remaining paths, then re
   const r = await generated(manager); await fs.writeFile(path.join(r.path, 'z-long-first'), 'abc'); await manager.releaseLease(r.id, r.lease);
   const first = await manager.cleanup(); assert.equal(first.results[0].state, 'failed'); assert.equal(first.freedBytes, 3); assert.deepEqual(first.results[0].remainingPaths, [r.path]);
   fail = false; const second = await manager.cleanup(); assert.equal(second.results[0].state, 'deleted'); assert.equal(second.freedBytes, 5);
+});
+
+test('external logoff after host restart retires session leases and files immediately while keeping evidence', async t => {
+  const { manager, directory } = await fixture(t, { idleMs: 1000000 });
+  await manager.registerSession({ id: 'session', workId: 'work', runId: 'run', identity, ownershipVerified: true });
+  const payload = await generated(manager, 'capture', { sessionIds: ['session'] });
+  await manager.releaseLease(payload.id, payload.lease);
+  const evidence = path.join(directory, 'verification.json'); await fs.writeFile(evidence, '{"passed":true}');
+  let closes = 0;
+  const restarted = createResourceManager({ directory, idleMs: 1000000, inspectSession: async actual => {
+    assert.deepEqual(actual, identity); return observation('closed');
+  }, closeSession: async () => { closes++; throw new Error('Already logged off'); } });
+  const result = await restarted.cleanup();
+  assert.equal(closes, 0); assert.equal(result.resources.length, 0);
+  assert.equal(result.results[0].logoffConfirmed, true); assert.equal(result.results[0].filesCleanupState, 'complete');
+  assert.deepEqual(result.results[0].remainingPaths, []);
+  assert.equal(await fs.readFile(evidence, 'utf8'), '{"passed":true}');
+  assert.equal((await restarted.cleanup()).results.length, 0);
+});
+
+test('confirmed logoff preserves independent payload producers and retries from durable closure receipt', async t => {
+  const { manager, directory } = await fixture(t, { inspectSession: async () => observation('closed') });
+  await session(manager); const payload = await generated(manager, 'capture', { sessionIds: ['session'] });
+  const deferred = (await manager.cleanup()).results[0];
+  assert.equal(deferred.state, 'deferred'); assert.equal(deferred.logoffConfirmed, true);
+  assert.equal(deferred.filesCleanupState, 'deferred'); assert.equal(deferred.reason, 'active leases');
+  await manager.releaseLease(payload.id, payload.lease);
+  const restarted = createResourceManager({ directory, idleMs: 0, inspectSession: async () => { throw new Error('New host has no live transport'); } });
+  const result = (await restarted.cleanup()).results[0];
+  assert.equal(result.state, 'deleted'); assert.equal(result.logoffConfirmed, true);
+});
+
+test('unknown or reused session identities cannot clear a stale input lease or delete payload', async t => {
+  let observed = observation('closed', { identity: { ...identity, processCreated: 'new-instance' } });
+  const { manager, directory } = await fixture(t, { inspectSession: async () => observed });
+  await manager.registerSession({ id: 'session', workId: 'work', runId: 'run', identity, ownershipVerified: true });
+  const payload = await generated(manager, 'capture', { sessionIds: ['session'] }); await manager.releaseLease(payload.id, payload.lease);
+  for (const value of [observed, observation('unknown', { ownershipVerified: false }), observation('closed', { processesStopped: false })]) {
+    observed = value; const result = await manager.cleanup();
+    assert.equal(result.results[0].state, 'deferred'); assert.equal(result.results[0].logoffConfirmed, false);
+    assert.equal(result.resources.find(r => r.id === 'session').leases.length, 1);
+    assert.equal(await fs.readFile(path.join(payload.path, 'capture'), 'utf8'), '12345');
+  }
+  assert.ok((await fs.stat(path.join(directory, 'management/resources.json'))).isFile());
+});
+
+test('file deletion failure reports confirmed logoff separately and preserves exact retry evidence', async t => {
+  let fail = true;
+  const { manager } = await fixture(t, { inspectSession: async () => observation('closed'), unlink: async file => {
+    if (fail) throw Object.assign(new Error('File locked'), { code: 'EACCES' }); return fs.unlink(file);
+  } });
+  await session(manager); const payload = await generated(manager, 'capture', { sessionIds: ['session'] }); await manager.releaseLease(payload.id, payload.lease);
+  const failed = (await manager.cleanup()).results[0];
+  assert.equal(failed.logoffConfirmed, true); assert.equal(failed.filesCleanupState, 'partial');
+  assert.deepEqual(failed.diagnostic, { phase: 'delete_files', code: 'EACCES' });
+  assert.deepEqual(failed.remainingPaths, [payload.path]);
+  fail = false; assert.equal((await manager.cleanup()).results[0].filesCleanupState, 'complete');
+});
+
+test('external logoff does not discard explicit session protection', async t => {
+  const { manager } = await fixture(t, { inspectSession: async () => observation('closed') });
+  const registered = await manager.registerSession({ id: 'session', workId: 'work', runId: 'run', identity, ownershipVerified: true });
+  await manager.releaseLease(registered.id, registered.lease, { state: 'protected' });
+  const result = await manager.cleanup();
+  assert.equal(result.results[0].logoffConfirmed, true); assert.equal(result.results[0].reason, 'protected');
+  assert.equal(result.resources[0].protected, true);
+  await manager.setProtection(registered.id, { protected: false, consumers: [] });
+  assert.equal((await manager.cleanup()).results[0].state, 'deleted');
 });
 
 test('stale lock needs exact owner-stop verification and does not expire on time or PID absence', async t => {

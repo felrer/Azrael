@@ -430,6 +430,9 @@ impl ToolExecutor<ToolInvocation> for ClaudeControlHandler {
             description = "Run a native Azrael agent with its configured role and permissions. Wait for its result by default; run_in_background returns its task handle. Use current role names. The child inherits the configured model; model overrides are unavailable.";
         }
         let mut description = description.to_string();
+        if self.kind == ClaudeControlKind::AskUserQuestion && self.backend.tool_name().name == "request_user_input_async" {
+            description.push_str("\nIf a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions.");
+        }
         if self.kind == ClaudeControlKind::Agent && !self.native_parameter_exposed("agent_type") {
             properties["subagent_type"] = json!({"type":"string","enum":["default"],"description":"Use default; the native runtime selects its configured role. Role overrides are unavailable."});
             description.push_str(" Set subagent_type to default; the native runtime selects its configured role and role overrides are unavailable.");

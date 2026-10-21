@@ -1,0 +1,6 @@
+{
+  "id":"design","title":"디자인 보드","description":"기기별 HTML 미리보기와 디자인안 비교","schemaVersion":1,
+  "editor":"design","rules":"rules.md","features":["devices","alternatives","backup","handoff"],
+  "map":{"unit":"px","origin":"top-left","width":1280,"height":720},"fields":[],
+  "initialCategories":[{"id":"designs","name":"디자인안","color":"#777777"}]
+}

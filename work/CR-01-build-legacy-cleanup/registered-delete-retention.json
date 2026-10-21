@@ -1,0 +1,215 @@
+{
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "9e4e3ecc4048fc67e3d57f04e4e3843927c4a36bb98d6cc6da481d349f8288d1",
+        "owner": "/root",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\e6b4d924456d732f6296b62a551482b2a270e95ebb07ae7f5933131243433ec8.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "0cc15b2485265e8d815e1ab95c6f3668f4461ff1aedace9b0b2598ded91382fd",
+        "owner": "/root",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\19ebba7b58c56c455a8e4d96b681c0af98df4b556104d498d3c6a79ecdb9af12.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "7c643883ab3832a918350eceb013791ab7f7728192e70bd57da848dbaeb78692",
+        "owner": "/root",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\7fa4b7e0b27b398f8e69fa609d0d590a759b636f11bc4eefb1839e37408fb282.json",
+        "version": null
+      },
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "76753a003d2b732a0ad8f3af8368f139ff9965f2b97eff380ac993db5b381bbf",
+        "owner": "/root",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\075fe8c6fb49f4a8d8c8b26ea25c0252afbee42c533455b19b451e3623c61c9b.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "1b738c307901c1ce1472cb68cd09d05fefab38d569d93552b5db894e5f2fb3f5"
+        ],
+        "group_token": "3e75cb044795834ec4bdb8e393295a2213a814866cc1f40da99d54d8d05d4573",
+        "id": "1b738c307901c1ce1472cb68cd09d05fefab38d569d93552b5db894e5f2fb3f5",
+        "identity": "49a070c4fbb945f795a1f8a3af70730921e3299383ef7e55659e6367ccedc5ed",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+        "logical_bytes": 1060919,
+        "measured_at_ms": 1792428968038,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "7c643883ab3832a918350eceb013791ab7f7728192e70bd57da848dbaeb78692",
+          "status": "measured"
+        },
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r2",
+        "related_items": [],
+        "token": "df71ce6f80b619d446e04cbc8cbe2383b31e2c2416bc0a29d8c1e9288855b9e6"
+      },
+      {
+        "blockers": [
+          "producer owner membership is not complete"
+        ],
+        "group_member_ids": [
+          "1b98935d39844258bf8319b9ca2cd2faeb44e61927d1a20e824ee5815a051ec9"
+        ],
+        "group_token": "c00d8f9a50ac6c43fa12473d87a617c802e0a318b461d5cbd9e222801fd59fff",
+        "id": "1b98935d39844258bf8319b9ca2cd2faeb44e61927d1a20e824ee5815a051ec9",
+        "identity": "b864b52b8062e6fcb8a473b06557a83d3f03ac21cf8016fd2665323cac0d6e11",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+        "logical_bytes": 2056111,
+        "measured_at_ms": 1792428957452,
+        "membership_source_observation": {
+          "blockers": [
+            "producer owner membership is not complete"
+          ],
+          "identity": "0cc15b2485265e8d815e1ab95c6f3668f4461ff1aedace9b0b2598ded91382fd",
+          "status": "measured"
+        },
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r1",
+        "related_items": [],
+        "token": "cbdc92d90da40617cbdaf87299672e985fbcacae7c108e128aa2b47006e89ce1"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "26c8a73cef545c6c36ddd9f09bc6efa0c535f69366b3405eb06e4aab772b7ae3"
+        ],
+        "group_token": "5f856bc3dc1b450f63c5ce6c444c04c8b473bcc66cc644bcc5308999d722a32d",
+        "id": "26c8a73cef545c6c36ddd9f09bc6efa0c535f69366b3405eb06e4aab772b7ae3",
+        "identity": "ce068a972458d5754f374047d0f5ab17ed60437e788f5817941d8ea0fa956eaa",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+        "logical_bytes": 1054102,
+        "measured_at_ms": 1792428978516,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "76753a003d2b732a0ad8f3af8368f139ff9965f2b97eff380ac993db5b381bbf",
+          "status": "measured"
+        },
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\registered-delete-20261020-r3",
+        "related_items": [],
+        "token": "f6de87b6524e02232500455a16a2eb97baa536f7fb3c8ddb32ec83a1fbf7f281"
+      },
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "447a634153854806dc68d97f356957164ee48c9797ef61d97f73e440756f0a3f"
+        ],
+        "group_token": "c11269fb906d383a1c17ae5e9d88ddb67a1e6c9754d66baa112c28ad79b0a424",
+        "id": "447a634153854806dc68d97f356957164ee48c9797ef61d97f73e440756f0a3f",
+        "identity": "fc2fcd0e49e8c21447102abf032987937b5b171112ebd7dc04668b78434e597b",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+        "logical_bytes": 808216,
+        "measured_at_ms": 1792428946938,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "9e4e3ecc4048fc67e3d57f04e4e3843927c4a36bb98d6cc6da481d349f8288d1",
+          "status": "measured"
+        },
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\cleanup-20261020-r1",
+        "related_items": [],
+        "token": "94a8052b2f79339f1ce48c5a9166dc68341101ac711b21c149180260552fbd2b"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+        "status": "deferred"
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+        "status": "deferred"
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+        "status": "deferred"
+      },
+      {
+        "id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+        "status": "deferred"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "1b738c307901c1ce1472cb68cd09d05fefab38d569d93552b5db894e5f2fb3f5",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r2",
+        "reason": "Retain exact source, observed failure/correction and passing native evidence until next installed engine accepts registered group cleanup; cleanup audit remains needed to resume legacy deletion.",
+        "remaining": true,
+        "revisit_condition": "After updated installed engine independently preserves these source/check identities and legacy cleanup handoff, release evidence consumers and review the entire group for deletion.",
+        "status": "deferred",
+        "token": "df71ce6f80b619d446e04cbc8cbe2383b31e2c2416bc0a29d8c1e9288855b9e6"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "1b98935d39844258bf8319b9ca2cd2faeb44e61927d1a20e824ee5815a051ec9",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r1",
+        "reason": "Retain exact source, observed failure/correction and passing native evidence until next installed engine accepts registered group cleanup; cleanup audit remains needed to resume legacy deletion.",
+        "remaining": true,
+        "revisit_condition": "After updated installed engine independently preserves these source/check identities and legacy cleanup handoff, release evidence consumers and review the entire group for deletion.",
+        "status": "deferred",
+        "token": "cbdc92d90da40617cbdaf87299672e985fbcacae7c108e128aa2b47006e89ce1"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "26c8a73cef545c6c36ddd9f09bc6efa0c535f69366b3405eb06e4aab772b7ae3",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:registered-delete-20261020-r3",
+        "reason": "Retain exact source, observed failure/correction and passing native evidence until next installed engine accepts registered group cleanup; cleanup audit remains needed to resume legacy deletion.",
+        "remaining": true,
+        "revisit_condition": "After updated installed engine independently preserves these source/check identities and legacy cleanup handoff, release evidence consumers and review the entire group for deletion.",
+        "status": "deferred",
+        "token": "f6de87b6524e02232500455a16a2eb97baa536f7fb3c8ddb32ec83a1fbf7f281"
+      },
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "447a634153854806dc68d97f356957164ee48c9797ef61d97f73e440756f0a3f",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:cleanup-20261020-r1",
+        "reason": "Retain exact source, observed failure/correction and passing native evidence until next installed engine accepts registered group cleanup; cleanup audit remains needed to resume legacy deletion.",
+        "remaining": true,
+        "revisit_condition": "After updated installed engine independently preserves these source/check identities and legacy cleanup handoff, release evidence consumers and review the entire group for deletion.",
+        "status": "deferred",
+        "token": "94a8052b2f79339f1ce48c5a9166dc68341101ac711b21c149180260552fbd2b"
+      }
+    ]
+  }
+}

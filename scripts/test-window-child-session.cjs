@@ -2,6 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const path = require('node:path');
 const crypto = require('node:crypto');
 const { describeChildSession, createWindowsChildSessionManager, probeWindowsChildSession } = require('./window-child-session.cjs');
 
@@ -142,7 +143,7 @@ function connectedFixture({ identity, responder, authorize = async () => true, e
       if (mode?.reconcileBootstrap) { reconciliations.push(value); return reconciliation; }
       calls.push(value);
       if (value.operation === 'start') { connected = true; return { ok: startOk, identity: peer, ownershipVerified: true, admission: proof === undefined ? mockAdmission(peer) : proof }; }
-      const result = responder ? await responder(value) : { ok: true, state: 'stopped' };
+      const result = responder ? await responder(value) : ['releaseInput', 'releaseLease', 'acquireLease'].includes(value.operation) ? { ok: true, inputReleased: true, sessionId: peer.childSessionId } : { ok: true, state: 'stopped' };
       if (value.operation === 'stop' && result.ok && ['stopped', 'closed'].includes(result.state)) connected = false;
       return result;
     }, get healthy() { return healthy; }, disconnect() { if (!mode?.reconcileBootstrap) disconnected = true; } }),
@@ -201,7 +202,7 @@ test('warm reuse releases input and requires fresh authority and verified identi
   const f = connectedFixture({ responder: async request => request.operation === 'status'
     ? { ok: true, sessionId: 4, ownershipVerified: true, state: 'running', pendingWork: false, directUser: false,
       unsavedWork: false, unknownState: false, unrelatedApps: false, pendingUserDecision: false, heldInput: false }
-    : { ok: true } });
+    : { ok: true, inputReleased: true, sessionId: 4 } });
   await f.manager.start({ ownerId: 'task-a' });
   assert.equal((await f.manager.observe()).pendingWork, true);
   await f.manager.release({ ownerId: 'task-a' });
@@ -220,7 +221,7 @@ test('stage disable callback takes effect before each operation but permits rele
     nativeHelper: { path: 'C:\\fixture\\trusted.exe', sha256: 'a'.repeat(64) }, bootstrapJournalPath: 'C:\\fixture\\bootstrap.json', authorize: async () => true,
     transportFactory: (_helper, mode) => ({ request: async request => mode?.reconcileBootstrap ? { ok: true, state: 'no_pending_bootstrap' } : request.operation === 'start'
       ? { ok: true, ownershipVerified: true, identity: { parentSessionId: 1, childSessionId: 4, sid: environment().parent.sid, profile: environment().parent.profile, workerPid: 567, workerCreated: '1234' } }
-      : { ok: true }, disconnect() {} }) });
+      : { ok: true, inputReleased: true, sessionId: 4 }, disconnect() {} }) });
   await manager.start({ ownerId: 'task-a' });
   enabled = false;
   assert.equal((await manager.request({ ownerId: 'task-a', operation: 'input' })).code, 'stage3_disabled');
@@ -306,8 +307,15 @@ test('missing journal fails explicitly; disabled-stage startup reconciliation ca
 test('pinned native headless reconciliation of absent fixture journal never creates bootstrap state', {
   skip: !process.env.AZRAEL_CHILD_HELPER_FIXTURE || !process.env.AZRAEL_CHILD_JOURNAL_FIXTURE,
 }, async () => {
-  const executable = process.env.AZRAEL_CHILD_HELPER_FIXTURE;
-  const journal = process.env.AZRAEL_CHILD_JOURNAL_FIXTURE;
+  const executable = path.resolve(process.env.AZRAEL_CHILD_HELPER_FIXTURE);
+  const journal = path.resolve(process.env.AZRAEL_CHILD_JOURNAL_FIXTURE);
+  const selfTest = require('node:child_process').spawnSync(executable, ['--self-test'], { encoding: 'utf8', timeout: 30000, windowsHide: true });
+  assert.equal(selfTest.status, 0, selfTest.stderr || selfTest.stdout);
+  const nativeChecks = JSON.parse(selfTest.stdout);
+  assert.equal(nativeChecks.ok, true);
+  assert.equal(nativeChecks.bootstrapLaunchFixtureChecks, 10);
+  assert.equal(nativeChecks.connected, false);
+  assert.equal(nativeChecks.configurationWritten, false);
   assert.equal(fs.existsSync(journal), false, 'Only a nonexistent task fixture journal may be inspected by this test');
   const manager = createWindowsChildSessionManager({ enabled: false, bootstrapJournalPath: journal,
     nativeHelper: { path: executable, sha256: crypto.createHash('sha256').update(fs.readFileSync(executable)).digest('hex') } });
@@ -316,4 +324,87 @@ test('pinned native headless reconciliation of absent fixture journal never crea
   assert.equal(result.state, 'no_pending_bootstrap');
   assert.equal(result.registryValuesRemoved, 0);
   assert.equal(fs.existsSync(journal), false);
+});
+
+const closedIdentity = () => ({ sid: environment().parent.sid, profile: environment().parent.profile,
+  parentSessionId: 1, childSessionId: 4, workerPid: 567, workerCreated: '1234', sessionAnchorPid: 568, sessionAnchorCreated: '1235' });
+const closedEvidence = identity => ({ ok: true, state: 'closed', identity: { ...identity }, ownershipVerified: true,
+  logoffConfirmed: true, processesStopped: true, pendingWork: false, directUser: false, unsavedWork: false,
+  unknownState: false, unrelatedApps: false, pendingUserDecision: false, heldInput: false });
+
+test('fresh closure inspection is read-only, works disabled and does not alter live manager transport', async () => {
+  const modes = [], requests = [], disconnected = [];
+  const identity = closedIdentity();
+  const manager = createWindowsChildSessionManager({ enabled: false, nativeHelper: { path: 'fixture.exe', sha256: 'a'.repeat(64) },
+    transportFactory: (_helper, mode) => { modes.push(mode); return {
+      async request(value) { requests.push(value); return closedEvidence(identity); },
+      disconnect() { disconnected.push(mode); },
+    }; }, probe: async () => { throw new Error('Closure must not create a viewer or run admission probe'); } });
+  assert.deepEqual(await manager.inspectClosure(identity), closedEvidence(identity));
+  assert.deepEqual(modes, [{ mode: 'inspectClosure' }]);
+  assert.deepEqual(disconnected, modes);
+  assert.deepEqual(requests, [{ helperSha256: 'a'.repeat(64), identity }]);
+  assert.equal((await manager.observe()).state, 'absent');
+});
+
+test('closure inspection defers legacy proof, mismatched identity and every missing or unsafe closure flag', async () => {
+  let response, launches = 0, disconnects = 0;
+  const identity = closedIdentity();
+  const manager = createWindowsChildSessionManager({ nativeHelper: { path: 'fixture.exe', sha256: 'a'.repeat(64) },
+    transportFactory: () => { launches++; return { request: async () => response, disconnect() { disconnects++; } }; } });
+  for (const key of Object.keys(identity)) {
+    const missing = { ...identity }; delete missing[key];
+    assert.equal((await manager.inspectClosure(missing)).ownershipVerified, false, key);
+  }
+  assert.equal(launches, 0);
+  for (const key of Object.keys(identity)) {
+    response = closedEvidence(identity); response.identity[key] = typeof identity[key] === 'string' ? `${identity[key]}other` : identity[key] + 100;
+    assert.equal((await manager.inspectClosure(identity)).ownershipVerified, false, key);
+  }
+  for (const key of ['pendingWork', 'directUser', 'unsavedWork', 'unknownState', 'unrelatedApps', 'pendingUserDecision', 'heldInput']) {
+    for (const unsafe of [true, undefined]) {
+      response = closedEvidence(identity); response[key] = unsafe;
+      assert.equal((await manager.inspectClosure(identity)).ownershipVerified, false, `${key}: ${unsafe}`);
+    }
+  }
+  for (const key of ['ok', 'ownershipVerified', 'logoffConfirmed', 'processesStopped']) {
+    response = closedEvidence(identity); response[key] = false;
+    assert.equal((await manager.inspectClosure(identity)).ownershipVerified, false, key);
+  }
+  response = { ok: false, code: 'native_child_error', message: 'Unknown access or reused identity' };
+  assert.equal((await manager.inspectClosure(identity)).unknownState, true);
+  assert.equal(disconnects, launches);
+});
+
+test('closure transport loss is deferred and never resets uncertain live ownership', async () => {
+  const fixture = connectedFixture({ identity: closedIdentity(), responder: async () => { throw new Error('lost transport'); } });
+  await fixture.manager.start({ ownerId: 'task-a' });
+  assert.equal((await fixture.manager.observe()).state, 'unknown');
+  assert.equal((await fixture.manager.inspectClosure(closedIdentity())).unknownState, true);
+  assert.equal((await fixture.manager.observe()).state, 'unknown');
+  assert.equal(fixture.calls.some(value => value.operation === 'stop'), false);
+});
+
+test('retiring an exact proven closed child releases stale manager state for the next owned start', async () => {
+  const identity = closedIdentity();
+  let starts = 0, liveDisconnects = 0;
+  const manager = createWindowsChildSessionManager({ enabled: true, probe: async () => environment(),
+    nativeHelper: { path: 'fixture.exe', sha256: 'a'.repeat(64) }, bootstrapJournalPath: 'C:\\fixture\\bootstrap.json', authorize: async () => true,
+    transportFactory: (_helper, mode) => ({ healthy: true, disconnect() { if (!mode) liveDisconnects++; },
+      async request(value) {
+        if (mode?.reconcileBootstrap) return { ok: true };
+        if (mode?.mode === 'inspectClosure') return closedEvidence(value.identity);
+        if (value.operation === 'start') { starts++; return { ok: true, identity, ownershipVerified: true, admission: mockAdmission(identity) }; }
+        throw new Error('Transport lost');
+      } }),
+  });
+  await manager.start({ ownerId: 'task-a' });
+  assert.equal((await manager.observe()).state, 'unknown');
+  assert.equal((await manager.retireClosed({ ...identity, childSessionId: 5 })).ok, false);
+  assert.equal(liveDisconnects, 0);
+  assert.equal((await manager.retireClosed(identity)).state, 'closed');
+  assert.equal(liveDisconnects, 1);
+  assert.equal((await manager.observe()).state, 'closed');
+  assert.equal((await manager.start({ ownerId: 'task-b' })).ok, true);
+  assert.equal(starts, 2);
 });

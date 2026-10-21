@@ -966,6 +966,9 @@ impl Session {
             warn!("failed to flush rollout after emitting terminal turn event: {err}");
         }
         if cleared_active_turn {
+            if let Err(error) = self.maybe_resume_host_approval().await {
+                warn!(%error, "host approval resume did not start");
+            }
             self.maybe_start_turn_for_pending_work().await;
         }
     }

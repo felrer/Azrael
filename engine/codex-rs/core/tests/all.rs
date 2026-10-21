@@ -1,7 +1,8 @@
 #![allow(clippy::expect_used)]
 
-// Single integration test binary that aggregates all test modules.
-// The submodules live in `tests/all/`.
+// Aggregates integration test modules without a dedicated test binary.
+// The submodules live in `tests/suite/`.
 pub use codex_protocol::error;
 
+mod integration_test_setup;
 mod suite;

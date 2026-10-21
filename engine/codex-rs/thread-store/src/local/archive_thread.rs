@@ -49,6 +49,45 @@ pub(super) async fn archive_threads(
         message: format!("failed to scan thread rollout files: {err}"),
     })?;
 
+    // All lifecycle and physical writer locks remain held through this preflight
+    // and the move phase. A cold receipt cannot slip between inspection and archive.
+    for &thread_id in &thread_ids {
+        if let Some(selected) = thread_rollout_resolver::resolve_current(store, thread_id).await? {
+            let (items, id, errors) =
+                codex_rollout::RolloutRecorder::load_rollout_items(&selected.path)
+                    .await
+                    .map_err(|error| ThreadStoreError::Internal {
+                        message: format!(
+                            "failed to inspect host approvals before archive: {error}"
+                        ),
+                    })?;
+            if id != Some(thread_id) || errors != 0 {
+                return Err(ThreadStoreError::InvalidRequest {
+                    message: format!("incomplete host approval history for thread {thread_id}"),
+                });
+            }
+            let mut ledger = std::collections::BTreeMap::new();
+            for item in items {
+                if let codex_rollout::RolloutItem::EventMsg(
+                    codex_protocol::protocol::EventMsg::HostApprovalLedgerUpdated(update),
+                ) = item
+                {
+                    update.apply_to(thread_id, &mut ledger);
+                }
+            }
+            if ledger
+                .values()
+                .any(|stored| stored.request.requires_invalidation())
+            {
+                return Err(ThreadStoreError::Conflict {
+                    message: format!(
+                        "thread {thread_id} has host approvals or resume reservations; resume the thread and withdraw host approvals before archiving"
+                    ),
+                });
+            }
+        }
+    }
+
     let parent_thread_id = thread_ids[0];
     let mut archived_thread_ids = Vec::new();
     for thread_id in thread_ids {
@@ -367,5 +406,95 @@ mod tests {
         assert_eq!(updated.rollout_path, archived_path);
         assert!(updated.archived_at.is_some());
         assert_eq!(updated.recency_at, metadata.recency_at);
+    }
+}
+
+#[cfg(test)]
+mod host_approval_archive_tests {
+    use super::*;
+    use crate::local::test_support::{test_config, write_session_file_with_history_mode};
+    use crate::{ArchiveThreadsParams, ThreadStore};
+    use codex_protocol::ThreadId;
+    use codex_protocol::host_approvals::*;
+    use codex_protocol::protocol::ThreadHistoryMode;
+    use std::io::Write;
+    use uuid::Uuid;
+    #[tokio::test]
+    async fn host_approval_cold_descendant_blocks_all_archive_moves_until_withdrawn() {
+        for mode in [ThreadHistoryMode::Legacy, ThreadHistoryMode::Paginated] {
+            let home = tempfile::TempDir::new().unwrap();
+            let store = LocalThreadStore::new(test_config(home.path()), None);
+            let parent_uuid = Uuid::new_v4();
+            let child_uuid = Uuid::new_v4();
+            let parent = ThreadId::from_string(&parent_uuid.to_string()).unwrap();
+            let child = ThreadId::from_string(&child_uuid.to_string()).unwrap();
+            let parent_path = write_session_file_with_history_mode(
+                home.path(),
+                "2025-01-03T12-00-00",
+                parent_uuid,
+                mode,
+            )
+            .unwrap();
+            let child_path = write_session_file_with_history_mode(
+                home.path(),
+                "2025-01-03T12-00-01",
+                child_uuid,
+                mode,
+            )
+            .unwrap();
+            let mut stored = StoredHostApproval {
+                owner_hash: "a".repeat(64),
+                request: HostApprovalRecord {
+                    request_id: "host:cold".into(),
+                    scope_key: "b".repeat(64),
+                    payload: serde_json::json!({}),
+                    state: HostApprovalState::Accepted,
+                    persistence: Some(HostApprovalPersistence::Session),
+                    original_turn_id: Some("turn".into()),
+                    original_root_turn_id: Some("turn".into()),
+                    waiter_detached: true,
+                    resume_state: HostApprovalResumeState::Pending,
+                    resume_turn_id: None,
+                },
+            };
+            let append = |record: StoredHostApproval| {
+                let line = codex_rollout::RolloutLine {
+                    timestamp: "2026-10-19T00:00:00.000Z".into(),
+                    ordinal: None,
+                    item: codex_rollout::RolloutItem::EventMsg(
+                        codex_protocol::protocol::EventMsg::HostApprovalLedgerUpdated(
+                            HostApprovalLedgerEvent {
+                                thread_id: child,
+                                updates: vec![record],
+                            },
+                        ),
+                    ),
+                };
+                let mut file = std::fs::OpenOptions::new()
+                    .append(true)
+                    .open(&child_path)
+                    .unwrap();
+                writeln!(file, "{}", serde_json::to_string(&line).unwrap()).unwrap();
+                file.sync_all().unwrap();
+            };
+            append(stored.clone());
+            let params = || ArchiveThreadsParams {
+                thread_ids: vec![parent, child],
+                writer_lock_thread_ids: vec![],
+            };
+            assert!(matches!(
+                store.archive_threads(params()).await,
+                Err(ThreadStoreError::Conflict { .. })
+            ));
+            assert!(parent_path.exists());
+            assert!(child_path.exists());
+            stored.request.state = HostApprovalState::Cancelled;
+            stored.request.persistence = None;
+            stored.request.resume_state = HostApprovalResumeState::Cancelled;
+            append(stored);
+            assert_eq!(store.archive_threads(params()).await.unwrap().len(), 2);
+            assert!(!parent_path.exists());
+            assert!(!child_path.exists());
+        }
     }
 }

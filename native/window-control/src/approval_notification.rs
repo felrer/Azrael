@@ -294,7 +294,7 @@ fn data(seconds: u64) -> windows::core::Result<NotificationData> {
     data.Values()?.Insert(
         &HSTRING::from("remaining"),
         &HSTRING::from(format!(
-            "Expires in {seconds} seconds. Click to review in Azrael."
+            "Notification closes in {seconds} seconds. Approval stays pending in Azrael."
         )),
     )?;
     // One owning thread orders updates. Zero is the documented "always update"

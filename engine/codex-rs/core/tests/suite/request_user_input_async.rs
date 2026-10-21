@@ -33,6 +33,82 @@ use pretty_assertions::assert_eq;
 use serde_json::json;
 use test_case::test_case;
 
+#[tokio::test(flavor = "multi_thread", worker_threads = 2)]
+async fn async_question_reused_provider_call_id_creates_distinct_message_ids() -> Result<()> {
+    skip_if_no_network!(Ok(()));
+    let server = start_mock_server().await;
+    let question = || {
+        sse(vec![
+            ev_response_created("question-response"),
+            ev_function_call_with_namespace(
+                "reused-call",
+                "functions",
+                "request_user_input_async",
+                &json!({"questions": [{"title": "Continue?"}]}).to_string(),
+            ),
+            ev_completed("question-response"),
+        ])
+    };
+    let responses = mount_sse_sequence(
+        &server,
+        vec![
+            question(),
+            sse(vec![ev_completed("finished-first")]),
+            question(),
+            sse(vec![ev_completed("finished-second")]),
+        ],
+    )
+    .await;
+    let test = test_codex()
+        .with_model_info_override("gpt-5.2", |model| {
+            model
+                .experimental_supported_tools
+                .push("request_user_input_async".into());
+        })
+        .build_with_auto_env(&server)
+        .await?;
+    let mut ids = Vec::new();
+    for index in 0..2 {
+        test.codex
+            .start_or_steer_turn(TurnInputRequest::user_input(vec![UserInput::Text {
+                text: "Ask a question.".into(),
+                text_elements: Vec::new(),
+            }]))
+            .await?;
+        let message = wait_for_event_match(test.codex.as_ref(), |event| match event {
+            EventMsg::ItemCompleted(event) => match &event.item {
+                TurnItem::AgentMessage(message) if message.questions.is_some() => {
+                    Some(message.clone())
+                }
+                _ => None,
+            },
+            _ => None,
+        })
+        .await;
+        uuid::Uuid::parse_str(&message.id)?;
+        wait_for_event(test.codex.as_ref(), |event| {
+            matches!(event, EventMsg::TurnComplete(_))
+        })
+        .await;
+        let requests = responses.requests();
+        let output = requests[index * 2 + 1]
+            .input()
+            .into_iter()
+            .rev()
+            .find(|item| item["type"] == "function_call_output" && item["call_id"] == "reused-call")
+            .expect("question call output");
+        let output: serde_json::Value =
+            serde_json::from_str(output["output"].as_str().expect("text output"))?;
+        assert_eq!(
+            output["question_ids"],
+            json!([json!(["request_user_input_async", message.id, 0]).to_string()])
+        );
+        ids.push(message.id);
+    }
+    assert_ne!(ids[0], ids[1]);
+    Ok(())
+}
+
 #[test_case(SessionSource::Exec, false, false; "root_without_tool")]
 #[test_case(SessionSource::Exec, true, true; "root_with_tool")]
 #[test_case(SessionSource::SubAgent(SubAgentSource::Other("test".to_string())), true, false; "subagent")]
@@ -322,7 +398,10 @@ async fn freeform_async_message_emits_an_item_without_ending_the_turn(
         .iter()
         .find(|tool| tool["name"] == "request_user_input_async")
         .expect("question tool is still directly available");
-    assert_eq!(question_tool["description"], "Questions only.");
+    assert_eq!(
+        question_tool["description"],
+        "Questions only.\nIf a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions."
+    );
     assert_eq!(
         requests[1].function_call_output_text(CALL_ID),
         Some(r#"{"accepted":true}"#.to_string())
@@ -386,10 +465,12 @@ async fn request_user_input_async_emits_item_and_does_not_end_the_turn(
         "Which environment should I use?\n- Staging\n- Production\n\nWhat deadline should I use?";
     let questions = vec![
         AsyncUserInputQuestion {
+            withdrawn: false,
             title: TITLE.to_string(),
             options: Some(vec!["Staging".to_string(), "Production".to_string()]),
         },
         AsyncUserInputQuestion {
+            withdrawn: false,
             title: "What deadline should I use?".to_string(),
             options: None,
         },
@@ -470,7 +551,7 @@ async fn request_user_input_async_emits_item_and_does_not_end_the_turn(
     assert_eq!(
         serde_json::to_value(&started)?,
         serde_json::to_value(AgentMessageItem {
-            id: CALL_ID.to_string(),
+            id: started.id.clone(),
             content: vec![AgentMessageContent::Text {
                 text: MESSAGE.to_string(),
             }],
@@ -496,7 +577,7 @@ async fn request_user_input_async_emits_item_and_does_not_end_the_turn(
     .await;
     assert_eq!(
         serde_json::to_value(completed)?,
-        serde_json::to_value(started)?
+        serde_json::to_value(&started)?
     );
 
     wait_for_event(test.codex.as_ref(), |event| {
@@ -513,7 +594,12 @@ async fn request_user_input_async_emits_item_and_does_not_end_the_turn(
             .iter()
             .find(|tool| tool["type"] == "function" && tool["name"] == "request_user_input_async")
             .expect("the async message tool should be directly visible to the model");
-        assert_eq!(tool["description"], expected_description);
+        assert_eq!(
+            tool["description"],
+            format!(
+                "{expected_description}\nIf a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions."
+            )
+        );
         assert_eq!(tool["strict"], false);
         if let Some(expected_parameters) = expected_parameters {
             assert_eq!(
@@ -541,7 +627,7 @@ async fn request_user_input_async_emits_item_and_does_not_end_the_turn(
     }
     assert_eq!(
         requests[1].function_call_output_text(CALL_ID),
-        Some(r#"{"accepted":true}"#.to_string())
+        Some(json!({"accepted": true, "question_ids": [json!(["request_user_input_async", started.id, 0]).to_string(), json!(["request_user_input_async", started.id, 1]).to_string()]}).to_string())
     );
     let has_synthetic_assistant_message = requests[1].input().into_iter().any(|item| {
         item["type"] == "message" && item["role"] == "assistant" && item.to_string().contains(TITLE)

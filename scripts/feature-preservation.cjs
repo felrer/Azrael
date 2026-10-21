@@ -9,6 +9,7 @@ const { snapshotProject } = require('./deployment-input-snapshot.cjs');
 const verificationCache = require('./verification-result-cache.cjs');
 const nativeCache = require('./native-verification-cache.cjs');
 const cargoCache = require('./cargo-verification-cache.cjs');
+const { validateCargoPreflight } = require('./cargo-verification.cjs');
 const hash = data => crypto.createHash('sha256').update(data).digest('hex');
 const fileHash = async filename => hash(await fs.promises.readFile(filename));
 const canonical = value => JSON.stringify(value, (_, item) => item && typeof item === 'object' && !Array.isArray(item)
@@ -94,6 +95,7 @@ function validateManifest(manifest, projectRoot, transformRules = {}) {
       if (!['node', 'python'].includes(check.executable) || !['source', 'native'].includes(check.level) || !Array.isArray(check.args) || !check.args.length || check.args.some(arg => typeof arg !== 'string' || arg.includes('\0') || arg === '--live')) throw Error(`Invalid check command: ${check.id}`);
       if (feature.area === 'ui' && check.level !== 'source') throw Error(`UI check must be source: ${check.id}`);
       validateCargoSchedule(feature, check);
+      validateCargoPreflight(check);
       const sources = checkSources(check);
       if (!sources.length) throw Error(`Missing executable check source: ${check.id}`);
       sources.forEach(source => reference(projectRoot, source));
@@ -266,22 +268,47 @@ async function runPreservation(config) {
   const cacheHandles = [];
   let activeCacheCheckIds, activeNativeCheckIds, nativeRuntime, cargoRuntime, cargoGroups = [], activeCargoCheckIds, manifest, rules, features, sourceCacheBindsProjectTypeScript = false;
   const cacheSummary = kind => kind === 'native' ? receipt.nativeCache : kind === 'cargo' ? receipt.cargoCache : receipt.cache;
-  const publishPassingCaches = async (verifyIdentity = true, failedRun = false) => {
-    if (!cacheHandles.some(entry => !failedRun || entry.kind === 'cargo')) return;
+  const reopenCache = entry => {
+    const options = { checkId: entry.group.check.id, key: entry.key, runDirectory };
+    if (entry.kind === 'cargo') return cargoCache.begin({ ...cargoCache.options(config), ...options });
+    if (entry.kind === 'native') return nativeCache.begin({ ...nativeCache.options(config), ...options });
+    return verificationCache.begin({ projectRoot: config.projectRoot, ...options });
+  };
+  const closeCache = async entry => {
+    const summary = cacheSummary(entry.kind);
+    await entry.handle.close().catch(error => summary?.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
+    entry.releasedAfterCheck = true;
+    for (const reason of entry.handle.deferred || []) if (!summary.deferred.includes(reason)) summary.deferred.push(reason);
+  };
+  const publishPassingCaches = async (verifyIdentity = true, entries = cacheHandles) => {
+    const candidates = entries.filter(entry => entry.completed && !entry.published && !entry.handle.hit && entry.record?.exitCode === 0 && entry.record.signal == null && entry.record.error == null);
+    if (!entries.length) return;
     const started = performance.now();
     if (verifyIdentity && !same(receipt.inputs, await identity(config, manifest, rulesFor(config), features, execution))) throw Error('Inputs changed during verification');
-    const finalRuntime = cacheHandles.some(entry => entry.kind === 'source') ? await sourceCacheRuntime(config, sourceCacheBindsProjectTypeScript) : null;
+    if (receipt.sourceExecution && !same(receipt.sourceExecution, await sourceExecutionIdentity(config))) throw Error('Source execution environment changed');
+    const finalRuntime = entries.some(entry => entry.kind === 'source') ? await sourceCacheRuntime(config, sourceCacheBindsProjectTypeScript) : null;
     const finalNativeRuntime = nativeRuntime ? await nativeCache.runtime(config, checkEnvironment(config)) : null;
     const finalCargoRuntime = cargoRuntime ? await cargoCache.runtime(config, checkEnvironment(config)) : null;
-    for (const entry of cacheHandles) {
+    for (const entry of entries) {
       const finalKey = entry.kind === 'native' ? await nativeCache.key(config, entry.group, finalNativeRuntime) : entry.kind === 'cargo' ? await cargoCache.key(config, entry.group, receipt.inputs, finalCargoRuntime) : await sourceCacheKey(config, entry.group, receipt.inputs, finalRuntime);
       if (entry.key !== finalKey) throw Error(`${entry.kind} cache inputs changed during verification`);
     }
     receipt.timings.cacheInputMs += performance.now() - started;
-    for (const entry of cacheHandles) if (!entry.handle.hit && entry.record?.exitCode === 0 && (!failedRun || entry.kind === 'cargo')) {
+    for (const entry of candidates) {
       const summary = cacheSummary(entry.kind);
-      const published = await entry.handle.publish(entry.record);
-      if (!published.published) summary.deferred.push({ checkId: entry.group.check.id, reason: published.reason });
+      // Completed evidence survives a later gate failure only after validation
+      // and atomic publication under the current (or freshly acquired) lease.
+      const handle = entry.releasedAfterCheck ? await reopenCache(entry) : entry.handle;
+      try {
+        if (!handle.hit) {
+          const published = await handle.publish(entry.record);
+          if (!published.published) summary.deferred.push({ checkId: entry.group.check.id, reason: published.reason });
+          else entry.published = true;
+        }
+      } finally {
+        if (handle !== entry.handle) await handle.close().catch(error => summary.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
+        for (const reason of handle.deferred || []) if (!summary.deferred.includes(reason)) summary.deferred.push(reason);
+      }
     }
   };
   let checkpoint = Promise.resolve();
@@ -435,6 +462,7 @@ async function runPreservation(config) {
           kind = 'cargo'; cacheHandles.push({ handle, group, key, kind }); receipt.cargoCache.deferred.push(...(handle.deferred || []));
         }
         receipt.timings.cacheLookupMs += performance.now() - lookupStarted;
+        try {
         const reused = Boolean(handle?.hit);
         const started = performance.now();
         const result = { ...(handle?.hit || await execution(check.executable, args, { cwd: config.projectRoot,
@@ -458,6 +486,14 @@ async function runPreservation(config) {
         receipt.checks = records.filter(Boolean);
         await persist();
         if (result.exitCode !== 0 || result.signal != null || result.error) throw Error(`Receipt mandatory check failed: ${check.id} (exit ${result.exitCode})`);
+        if (handle) {
+          const entry = cacheHandles.find(entry => entry.handle === handle);
+          entry.completed = true;
+          if (!handle.hit) await publishPassingCaches(true, [entry]);
+        }
+        } finally {
+          if (handle) await closeCache(cacheHandles.find(entry => entry.handle === handle));
+        }
     };
     const sourceGroups = [...shared.values()].filter(group => !group.native);
     let cursor = 0, executionError;
@@ -481,14 +517,12 @@ async function runPreservation(config) {
   } catch (error) {
     receipt.status = 'failed'; receipt.error = error.message;
     // A failed overall run may retain independent passing check evidence, never a passing receipt.
-    try { if (receipt.inputs) await publishPassingCaches(true, true); }
+    try { if (receipt.inputs) await publishPassingCaches(true); }
     catch (cacheError) { receipt.cachePublicationError = cacheError.message; }
   }
   finally {
     for (const entry of cacheHandles) {
-      const summary = cacheSummary(entry.kind);
-      await entry.handle.close().catch(error => summary?.deferred.push({ checkId: entry.group.check.id, reason: error.message }));
-      for (const reason of entry.handle.deferred || []) if (!summary.deferred.includes(reason)) summary.deferred.push(reason);
+      await closeCache(entry);
     }
     if (activeCacheCheckIds) {
       try { const cleanup = await verificationCache.pruneRemovedChecks({ projectRoot: config.projectRoot,

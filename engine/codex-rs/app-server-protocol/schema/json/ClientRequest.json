@@ -1718,6 +1718,21 @@
       },
       "type": "object"
     },
+    "HostApprovalDecision": {
+      "enum": [
+        "accept",
+        "decline",
+        "cancel"
+      ],
+      "type": "string"
+    },
+    "HostApprovalPersistence": {
+      "enum": [
+        "session",
+        "always"
+      ],
+      "type": "string"
+    },
     "ImageDetail": {
       "enum": [
         "auto",
@@ -4376,6 +4391,140 @@
       ],
       "type": "object"
     },
+    "ThreadApprovalDeferParams": {
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "requestId",
+        "scopeKey",
+        "threadId"
+      ],
+      "type": "object"
+    },
+    "ThreadApprovalListParams": {
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "threadId"
+      ],
+      "type": "object"
+    },
+    "ThreadApprovalRequestParams": {
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "payload": true,
+        "requestId": {
+          "type": "string"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "payload",
+        "requestId",
+        "scopeKey",
+        "threadId"
+      ],
+      "type": "object"
+    },
+    "ThreadApprovalResolveParams": {
+      "additionalProperties": false,
+      "properties": {
+        "decision": {
+          "$ref": "#/definitions/HostApprovalDecision"
+        },
+        "ownerToken": {
+          "type": "string"
+        },
+        "persistence": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/HostApprovalPersistence"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "resume": {
+          "type": "boolean"
+        },
+        "scopeKey": {
+          "type": "string"
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "decision",
+        "ownerToken",
+        "requestId",
+        "resume",
+        "scopeKey",
+        "threadId"
+      ],
+      "type": "object"
+    },
+    "ThreadApprovalWithdrawParams": {
+      "additionalProperties": false,
+      "properties": {
+        "ownerToken": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "threadId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "ownerToken",
+        "reason",
+        "threadId"
+      ],
+      "type": "object"
+    },
     "ThreadApproveGuardianDeniedActionParams": {
       "properties": {
         "event": {
@@ -6542,6 +6691,126 @@
         "params"
       ],
       "title": "Thread/goal/clearRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "thread/approval/defer"
+          ],
+          "title": "Thread/approval/deferRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ThreadApprovalDeferParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Thread/approval/deferRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "thread/approval/request"
+          ],
+          "title": "Thread/approval/requestRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ThreadApprovalRequestParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Thread/approval/requestRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "thread/approval/list"
+          ],
+          "title": "Thread/approval/listRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ThreadApprovalListParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Thread/approval/listRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "thread/approval/resolve"
+          ],
+          "title": "Thread/approval/resolveRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ThreadApprovalResolveParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Thread/approval/resolveRequest",
+      "type": "object"
+    },
+    {
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/RequestId"
+        },
+        "method": {
+          "enum": [
+            "thread/approval/withdraw"
+          ],
+          "title": "Thread/approval/withdrawRequestMethod",
+          "type": "string"
+        },
+        "params": {
+          "$ref": "#/definitions/ThreadApprovalWithdrawParams"
+        }
+      },
+      "required": [
+        "id",
+        "method",
+        "params"
+      ],
+      "title": "Thread/approval/withdrawRequest",
       "type": "object"
     },
     {

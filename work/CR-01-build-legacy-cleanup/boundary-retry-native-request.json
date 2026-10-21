@@ -1,0 +1,27 @@
+{
+  "operation": "register",
+  "group": {
+    "id": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+    "kind": "run",
+    "owner": "/root",
+    "version": null,
+    "membership_complete": true,
+    "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0791db2d1d5229e58265894d28a2aef22295af3709a73cb4cc6b8f8aebe3d2cd.json",
+    "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+    "membership_source_format": "producer_registry_v1",
+    "members": [
+      {
+        "id": "682070e6f10551014745fa40a36960479b50f23579ad7e675542efe13239edbc",
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\boundary-retry-20261020-r1",
+        "role": "run",
+        "lifecycle_role": "artifact",
+        "kind": "run",
+        "owner": "/root",
+        "generated": true,
+        "protection_known": true,
+        "references": [],
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0791db2d1d5229e58265894d28a2aef22295af3709a73cb4cc6b8f8aebe3d2cd.json"
+      }
+    ]
+  }
+}

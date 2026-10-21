@@ -4,7 +4,7 @@ import path from "node:path";
 import Module from "node:module";
 import test, { type TestContext } from "node:test";
 
-const root = path.resolve(__dirname, "../../..");
+const root = path.resolve(__dirname, path.basename(path.dirname(__dirname)) === "dist" ? "../../../.." : "../../..");
 const libraryFile = path.join(root, "scripts/instruction-library.cjs");
 const { InstructionLibrary } = require(libraryFile);
 const skill = (text = "Original") => [{ path: "SKILL.md", encoding: "utf8", content: `---\nname: catalog-review\ndescription: Catalog fixture\n---\n${text}\n` }];

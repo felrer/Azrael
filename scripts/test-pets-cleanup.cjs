@@ -39,7 +39,7 @@ test("Pets retirement in actual generated bundles and shared import contracts", 
     assert.deepEqual(injectPetsCleanup(result.text, asset, vp), { text: result.text, count: 0 });
     const file = parse(result.text, asset);
     const expectedExports = exportsOf(parse(source, asset));
-    if (asset === "webview/assets/app-initial-c014f9ee4429.js") expectedExports.push("azraelDesignStore", "useAzraelDesignState", "__azraelOpenBtwPanel");
+    if (asset === "webview/assets/app-initial-c014f9ee4429.js") expectedExports.push("azraelDesignStore", "useAzraelDesignState", "__azraelOpenBtwPanel", "azraelRootResumeBranchContext");
     assert.deepEqual(exportsOf(file), expectedExports.sort(), `${asset} preserves imported export names and owned design and side-question exports`);
     generated.set(asset, result.text); parsed.set(asset, file);
     console.log(`PASS ${asset}: petsCleanupEdits=1; qS parsed; exports preserved; idempotent; bytes=${Buffer.byteLength(result.text)}`);

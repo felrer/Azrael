@@ -9,6 +9,7 @@ fn questions(chat: &mut ChatWidget, message_id: &str, title: &str) {
     chat.add_async_questions(
         message_id,
         &[AsyncUserInputQuestion {
+            withdrawn: false,
             title: title.into(),
             options: None,
         }],

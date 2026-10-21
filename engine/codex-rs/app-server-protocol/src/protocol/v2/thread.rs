@@ -992,6 +992,9 @@ pub struct ThreadQueueListParams {
 #[serde(rename_all = "camelCase")]
 #[ts(export_to = "v2/")]
 pub struct ThreadQueueListResponse {
+    pub pending_approval_count: u32,
+    #[serde(default)]
+    pub pending_question_count: u32,
     pub data: Vec<QueuedSubmission>,
     /// Opaque cursor for the next page, or `null` when no submissions remain.
     pub next_cursor: Option<String>,
@@ -2010,15 +2013,18 @@ mod response_performance_tests {
             "last_token_usage": {"input_tokens":0,"cached_input_tokens":0,"output_tokens":0,"reasoning_output_tokens":0,"total_tokens":0},
             "model_context_window": 1000
         });
-        let mut info: codex_protocol::protocol::TokenUsageInfo = serde_json::from_value(old).unwrap();
+        let mut info: codex_protocol::protocol::TokenUsageInfo =
+            serde_json::from_value(old).unwrap();
         assert!(info.response_performance.is_none());
         let mut stats = codex_protocol::response_performance::ResponsePerformance {
-            turn_id: "turn-1".into(), ..Default::default()
+            turn_id: "turn-1".into(),
+            ..Default::default()
         };
         stats.record(Some(123), 1000);
         info.response_performance = Some(stats);
         let persisted = serde_json::to_value(&info).unwrap();
-        let restored: codex_protocol::protocol::TokenUsageInfo = serde_json::from_value(persisted).unwrap();
+        let restored: codex_protocol::protocol::TokenUsageInfo =
+            serde_json::from_value(persisted).unwrap();
         let wire = serde_json::to_value(super::ThreadTokenUsage::from(restored)).unwrap();
         assert_eq!(wire["responsePerformance"]["turnId"], "turn-1");
         assert_eq!(wire["responsePerformance"]["outputTokens"], 123);
@@ -2178,5 +2184,105 @@ mod auto_compaction_tests {
             )
             .is_err()
         );
+    }
+}
+
+pub use codex_protocol::host_approvals::{
+    HostApprovalDecision, HostApprovalPersistence, HostApprovalRecord, HostApprovalResumeState,
+    HostApprovalState,
+};
+
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalRequestParams {
+    pub thread_id: String,
+    pub owner_token: String,
+    pub request_id: String,
+    pub scope_key: String,
+    pub payload: serde_json::Value,
+}
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalListParams {
+    pub thread_id: String,
+    pub owner_token: String,
+}
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalResolveParams {
+    pub thread_id: String,
+    pub owner_token: String,
+    pub request_id: String,
+    pub scope_key: String,
+    pub decision: HostApprovalDecision,
+    pub persistence: Option<HostApprovalPersistence>,
+    pub resume: bool,
+}
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalWithdrawParams {
+    pub thread_id: String,
+    pub owner_token: String,
+    pub request_id: Option<String>,
+    pub reason: String,
+}
+#[derive(Serialize, Deserialize, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase", deny_unknown_fields)]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalDeferParams {
+    pub thread_id: String,
+    pub owner_token: String,
+    pub request_id: String,
+    pub scope_key: String,
+}
+// Bearer capabilities must never appear in request diagnostics.
+macro_rules! redacted_host_approval_debug {
+    ($($ty:ty),* $(,)?) => { $(impl std::fmt::Debug for $ty {
+        fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+            f.debug_struct(stringify!($ty)).field("thread_id", &self.thread_id).finish_non_exhaustive()
+        }
+    })* };
+}
+redacted_host_approval_debug!(
+    ThreadApprovalRequestParams,
+    ThreadApprovalListParams,
+    ThreadApprovalResolveParams,
+    ThreadApprovalWithdrawParams,
+    ThreadApprovalDeferParams
+);
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalResponse {
+    pub request: HostApprovalRecord,
+}
+#[derive(Serialize, Deserialize, Debug, Clone, PartialEq, JsonSchema, TS)]
+#[serde(rename_all = "camelCase")]
+#[ts(export_to = "v2/")]
+pub struct ThreadApprovalListResponse {
+    pub requests: Vec<HostApprovalRecord>,
+}
+
+#[cfg(test)]
+mod host_approval_wire_tests {
+    use super::*;
+    #[test]
+    fn host_approval_wire_contract_has_exact_identity_and_redacted_capability() {
+        let token = "a".repeat(64);
+        let params: ThreadApprovalResolveParams = serde_json::from_value(serde_json::json!({"threadId":"thread", "ownerToken":token, "requestId":"host:request", "scopeKey":"b".repeat(64), "decision":"accept", "persistence":"session", "resume":false})).unwrap();
+        assert_eq!(params.decision, HostApprovalDecision::Accept);
+        assert!(!format!("{params:?}").contains(&params.owner_token));
+        assert_eq!(
+            serde_json::to_value(params).unwrap()["requestId"],
+            "host:request"
+        );
+        assert!(serde_json::from_value::<ThreadApprovalResolveParams>(serde_json::json!({"threadId":"thread", "ownerToken":"a".repeat(64), "requestId":"host:request", "scopeKey":"b".repeat(64), "decision":"approve", "resume":true})).is_err());
+        let request = serde_json::json!({"threadId":"thread", "ownerToken":"a".repeat(64), "requestId":"host:request", "scopeKey":"b".repeat(64)});
+        let _: ThreadApprovalDeferParams = serde_json::from_value(request.clone()).unwrap();
+        assert!(serde_json::from_value::<ThreadApprovalDeferParams>(serde_json::json!({"threadId":"thread", "ownerToken":"a".repeat(64), "requestId":"host:request", "scopeKey":"b".repeat(64), "text":"accept"})).is_err());
     }
 }

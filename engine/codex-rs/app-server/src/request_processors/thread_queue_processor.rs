@@ -24,6 +24,11 @@ use codex_app_server_protocol::Turn;
 use codex_app_server_protocol::TurnItemsView;
 use codex_app_server_protocol::TurnStatus;
 use codex_app_server_protocol::UserInput;
+use codex_app_server_protocol::{
+    ThreadApprovalDeferParams, ThreadApprovalListParams, ThreadApprovalListResponse,
+    ThreadApprovalRequestParams, ThreadApprovalResolveParams, ThreadApprovalResponse,
+    ThreadApprovalWithdrawParams,
+};
 use codex_core::CodexThread;
 use codex_core::NotSubmittedReason;
 use codex_core::ThreadManager;
@@ -117,7 +122,73 @@ impl ThreadQueueRequestProcessor {
         &self,
         params: ThreadQueueListParams,
     ) -> Result<ThreadQueueListResponse, JSONRPCErrorError> {
-        let (thread_id, _, _) = self.require_thread(&params.thread_id).await?;
+        let (thread_id, loaded, _) = self.require_thread(&params.thread_id).await?;
+        let pending_approval_count;
+        let pending_question_count = if let Some(thread) = loaded {
+            pending_approval_count = thread.pending_approval_count();
+            thread.pending_question_count()
+        } else {
+            let stored = self
+                .thread_store
+                .read_thread(ReadThreadParams {
+                    thread_id,
+                    include_archived: true,
+                    include_history: false,
+                })
+                .await
+                .map_err(|e| internal_error(e.to_string()))?;
+            let history = if let Some(path) = stored.rollout_path {
+                let (items, id, errors) = codex_rollout::RolloutRecorder::load_rollout_items(&path)
+                    .await
+                    .map_err(|e| internal_error(e.to_string()))?;
+                if id != Some(thread_id) || errors != 0 {
+                    return Err(internal_error("incomplete question history"));
+                }
+                items
+            } else {
+                self.thread_store
+                    .read_thread(ReadThreadParams {
+                        thread_id,
+                        include_archived: true,
+                        include_history: true,
+                    })
+                    .await
+                    .map_err(|e| internal_error(e.to_string()))?
+                    .history
+                    .map_or_else(Vec::new, |h| h.items)
+            };
+            pending_approval_count = CodexThread::pending_approval_count_from_history(thread_id, &history);
+            let mut accepted = Vec::new();
+            if let Some(local) = self
+                .thread_store
+                .as_any()
+                .downcast_ref::<codex_thread_store::LocalThreadStore>()
+            {
+                if let Some(db) = local.state_db().await {
+                    for receipt in db
+                        .thread_queue()
+                        .pending_user_inputs(thread_id)
+                        .await
+                        .map_err(|e| internal_error(e.to_string()))?
+                    {
+                        let payload: serde_json::Value = serde_json::from_str(
+                            receipt
+                                .payload_json
+                                .as_deref()
+                                .ok_or_else(|| internal_error("accepted input missing payload"))?,
+                        )
+                        .map_err(|e| internal_error(e.to_string()))?;
+                        if payload["origin"] != "queue" {
+                            accepted.push(
+                                serde_json::from_value(payload["content"].clone())
+                                    .map_err(|e| internal_error(e.to_string()))?,
+                            );
+                        }
+                    }
+                }
+            }
+            CodexThread::pending_question_count_from_history(&history, &accepted)
+        };
         let offset = params
             .cursor
             .as_deref()
@@ -142,6 +213,8 @@ impl ThreadQueueRequestProcessor {
             None
         };
         Ok(ThreadQueueListResponse {
+            pending_approval_count: pending_approval_count.try_into().unwrap_or(u32::MAX),
+            pending_question_count: pending_question_count.try_into().unwrap_or(u32::MAX),
             data: items
                 .into_iter()
                 .map(api_queued_submission)
@@ -274,6 +347,112 @@ impl ThreadQueueRequestProcessor {
         })
     }
 
+    async fn approval_thread(&self, id: &str) -> Result<Arc<CodexThread>, JSONRPCErrorError> {
+        let (_, loaded, _) = self.require_thread(id).await?;
+        loaded.ok_or_else(|| {
+            invalid_request("resume the persistent thread before changing host approvals")
+        })
+    }
+    pub(crate) async fn approval_request(
+        &self,
+        p: ThreadApprovalRequestParams,
+    ) -> Result<ThreadApprovalResponse, JSONRPCErrorError> {
+        let thread = self.approval_thread(&p.thread_id).await?;
+        let request = thread
+            .request_host_approval(&p.owner_token, p.request_id, p.scope_key, p.payload)
+            .await
+            .map_err(|e| invalid_request(e.to_string()))?;
+        Ok(ThreadApprovalResponse { request })
+    }
+    pub(crate) async fn approval_resolve(
+        &self,
+        p: ThreadApprovalResolveParams,
+    ) -> Result<ThreadApprovalResponse, JSONRPCErrorError> {
+        let thread = self.approval_thread(&p.thread_id).await?;
+        let request = thread
+            .resolve_host_approval(
+                &p.owner_token,
+                &p.request_id,
+                &p.scope_key,
+                p.decision,
+                p.persistence,
+                p.resume,
+            )
+            .await
+            .map_err(|e| invalid_request(e.to_string()))?;
+        Ok(ThreadApprovalResponse { request })
+    }
+    pub(crate) async fn approval_defer(
+        &self,
+        p: ThreadApprovalDeferParams,
+    ) -> Result<ThreadApprovalResponse, JSONRPCErrorError> {
+        let thread = self.approval_thread(&p.thread_id).await?;
+        let request = thread
+            .defer_host_approval(&p.owner_token, &p.request_id, &p.scope_key)
+            .await
+            .map_err(|e| invalid_request(e.to_string()))?;
+        Ok(ThreadApprovalResponse { request })
+    }
+    pub(crate) async fn approval_withdraw(
+        &self,
+        p: ThreadApprovalWithdrawParams,
+    ) -> Result<ThreadApprovalListResponse, JSONRPCErrorError> {
+        if p.reason.len() > 256 {
+            return Err(invalid_request(
+                "approval withdrawal reason exceeds 256 bytes",
+            ));
+        }
+        let thread = self.approval_thread(&p.thread_id).await?;
+        let requests = thread
+            .withdraw_host_approvals(Some(&p.owner_token), p.request_id.as_deref())
+            .await
+            .map_err(|e| invalid_request(e.to_string()))?;
+        Ok(ThreadApprovalListResponse { requests })
+    }
+    pub(crate) async fn approval_list(
+        &self,
+        p: ThreadApprovalListParams,
+    ) -> Result<ThreadApprovalListResponse, JSONRPCErrorError> {
+        let (thread_id, loaded, _) = self.require_thread(&p.thread_id).await?;
+        let requests = if let Some(thread) = loaded {
+            thread
+                .list_host_approvals(&p.owner_token)
+                .map_err(|e| invalid_request(e.to_string()))?
+        } else {
+            let stored = self
+                .thread_store
+                .read_thread(ReadThreadParams {
+                    thread_id,
+                    include_archived: false,
+                    include_history: false,
+                })
+                .await
+                .map_err(|e| internal_error(e.to_string()))?;
+            let history = if let Some(path) = stored.rollout_path {
+                let (items, id, errors) = codex_rollout::RolloutRecorder::load_rollout_items(&path)
+                    .await
+                    .map_err(|e| internal_error(e.to_string()))?;
+                if id != Some(thread_id) || errors != 0 {
+                    return Err(internal_error("incomplete host approval history"));
+                }
+                items
+            } else {
+                self.thread_store
+                    .read_thread(ReadThreadParams {
+                        thread_id,
+                        include_archived: false,
+                        include_history: true,
+                    })
+                    .await
+                    .map_err(|e| internal_error(e.to_string()))?
+                    .history
+                    .map_or_else(Vec::new, |h| h.items)
+            };
+            CodexThread::host_approvals_from_history(thread_id, &history, &p.owner_token)
+                .map_err(|e| invalid_request(e.to_string()))?
+        };
+        Ok(ThreadApprovalListResponse { requests })
+    }
     fn service(&self) -> Result<&QueuedItemService, JSONRPCErrorError> {
         self.service
             .as_deref()

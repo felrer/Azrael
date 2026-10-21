@@ -138,6 +138,7 @@ fn persisted_event_msg(
         | EventMsg::TurnComplete(_)
         | EventMsg::TurnDeferred(_)
         | EventMsg::RootResumeWaitUpdated(_)
+        | EventMsg::HostApprovalLedgerUpdated(_)
         | EventMsg::ThreadSettingsApplied(_) => Some(Cow::Borrowed(ev)),
 
         // Only persist these legacy events when the thread's history mode is Legacy.
@@ -236,7 +237,7 @@ fn persisted_item_completed_event<'a>(
         ThreadHistoryMode::Legacy => {
             // Legacy rollouts keep only items with no lossless raw ResponseItem or legacy
             // equivalent.
-            (matches!(
+            (matches!(&event.item, TurnItem::AgentMessage(item) if item.questions.is_some()) || matches!(
                 event.item,
                 TurnItem::FunctionCallOutput(_)
                     | TurnItem::Plan(_)

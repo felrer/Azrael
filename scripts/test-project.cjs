@@ -7,7 +7,7 @@ const lifecycle = require("./artifact-lifecycle.cjs");
 const { planSourceTests } = require("./source-test-policy.cjs");
 const { spawn, spawnSync } = require("node:child_process");
 const ROOT = path.resolve(__dirname, "..");
-const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue"].map(name => `scripts/test-${name}.cjs`);
+const QUEUE = ["queue-refresh", "queued-compaction", "queued-input", "queue-consumption", "compaction-progress", "account-switch-queue", "question-withdrawal", "question-queue"].map(name => `scripts/test-${name}.cjs`);
 const RECOVERY = ["recovery-state", "recovery-bridge", "fetch-response", "queue-consumption", "send-result-integration", "immediate-stop", "edit-stop-integration"].map(name => `scripts/test-${name}.cjs`);
 const NAMESPACE = ["scripts/test-integrated-entry.cjs", "scripts/test-namespace-source.cjs", "scripts/test-feature-preservation.cjs", "scripts/test-preservation-integration.cjs"];
 const BUILD = ["scripts/test-build-module-cache.ps1", "scripts/test-incremental-extension-build.cjs", "scripts/test-ordered-asset-reader.cjs", "scripts/test-deployment-input-snapshot.cjs", "scripts/test-build-metrics.ps1", "scripts/test-deploy-azrael.ps1", "scripts/test-verification-state.ps1"];

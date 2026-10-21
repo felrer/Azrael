@@ -3297,6 +3297,7 @@ fn core_turn_item_into_thread_item_converts_supported_variants() {
         memory_citation: None,
         delivery: Some(AgentMessageDelivery::Async),
         questions: Some(vec![AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which?".to_string(),
             options: None,
         }]),

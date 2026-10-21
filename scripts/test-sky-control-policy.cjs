@@ -8,11 +8,41 @@ const { transformTransport, TRANSPORT, TRANSPORT_POLICY_MODULES, generateSetting
 const { createSettingsOwner } = require('./use-control-settings.cjs');
 const { createDesktopAuthority } = require('./window-desktop-authority.cjs');
 const { createOwner: createAppApprovalOwner } = require('./computer-use-approvals.cjs');
-const { TRANSPORT_POLICY_REEXPORT } = require('./computer-use-runtime.cjs');
+const { ROOT_POLICY_REEXPORT } = require('./computer-use-runtime.cjs');
 // Pristine Sky 0.7.4 input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
 const pinned = path.join(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77'), 'bin');
+test('native frozen service bridge inherits live metadata without accepting mutable or shadowed descriptors', () => {
+  const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-sky-metadata-'));
+  try {
+    fs.copyFileSync(path.join(__dirname, 'sky-control-policy.mjs'), path.join(root, 'sky-control-policy.mjs'));
+    fs.writeFileSync(path.join(root, 'use-control-settings.mjs'), generateSettingsModule(fs.readFileSync(path.join(__dirname, 'use-control-settings.cjs'))).content);
+    for (const mode of ['own', 'inherited', 'mutable-child', 'mutable-parent', 'shadow']) {
+      const script = `
+        import assert from 'node:assert/strict';
+        import { trustedDesktopMetadata } from ${JSON.stringify(pathToFileURL(path.join(root, 'sky-control-policy.mjs')).href)};
+        let turn = 'first';
+        const base = {};
+        Object.defineProperty(base, 'requestMeta', { get: () => Object.freeze({ 'x-codex-turn-metadata': Object.freeze({ thread_id:'thread', turn_id:turn, sandbox_mode:'danger-full-access', sandbox:'none' }) }) });
+        const mode = ${JSON.stringify(mode)};
+        if (mode !== 'mutable-parent') Object.freeze(base);
+        const bridge = mode === 'own' ? base : Object.create(base);
+        if (mode === 'shadow') Object.defineProperty(bridge, 'requestMeta', { value: base.requestMeta });
+        if (mode !== 'mutable-child') Object.freeze(bridge);
+        Object.defineProperty(globalThis, 'nodeRepl', { value:bridge, configurable:false, writable:false });
+        if (mode === 'own' || mode === 'inherited') {
+          assert.equal(trustedDesktopMetadata()['x-codex-turn-metadata'].turn_id, 'first');
+          turn = 'second';
+          assert.equal(trustedDesktopMetadata()['x-codex-turn-metadata'].turn_id, 'second');
+        } else assert.throws(trustedDesktopMetadata, /Trusted NodeRepl metadata/);
+      `;
+      const result = require('node:child_process').spawnSync(process.execPath, ['--input-type=module', '-e', script], { encoding:'utf8', timeout:10000 });
+      assert.equal(result.status, 0, `${mode}: ${result.stderr || result.error?.message}`);
+    }
+  } finally { fs.rmSync(root, { recursive:true }); }
+});
+
 test('cached managed service and pinned native queue/writer reread policy and fail closed', async t => {
-  const temporary = path.resolve('artifacts/tasks/DU-01-window-use-stages/runs/20261017-desktop-authority-r1/temporary');
+  const temporary = path.resolve(process.env.AZRAEL_TEST_SKY_POLICY_TEMPORARY || 'artifacts/tasks/DU-01-window-use-stages/runs/20261017-desktop-authority-r1/temporary');
   fs.mkdirSync(temporary, { recursive: true });
   const root = fs.mkdtempSync(path.join(temporary, 'sky-gate-'));
   const oldHome = process.env.CODEX_HOME;
@@ -39,9 +69,10 @@ test('cached managed service and pinned native queue/writer reread policy and fa
   fs.cpSync(path.join(pinned, 'node_modules/@oai/sky/dist'), path.join(packageRoot, 'dist'), { recursive: true });
   for (const rel of TRANSPORT_POLICY_MODULES) {
     if (rel.endsWith('/use-control-settings.mjs')) fs.writeFileSync(path.join(root, rel), settingsEsm.content);
-    else if (rel.endsWith('/sky-control-policy.mjs')) fs.writeFileSync(path.join(root, rel), TRANSPORT_POLICY_REEXPORT);
+    else if (rel.endsWith('/sky-control-policy.mjs')) fs.copyFileSync(path.join(__dirname, 'sky-control-policy.mjs'), path.join(root, rel));
     else fs.copyFileSync(path.join(__dirname, path.posix.basename(rel)), path.join(root, rel));
   }
+  fs.writeFileSync(path.join(root, 'sky-control-policy.mjs'), ROOT_POLICY_REEXPORT);
   const source = fs.readFileSync(path.join(pinned, TRANSPORT));
   const transformed = transformTransport(source, '0.7.4');
   assert.equal(transformed.transform.version, 4);

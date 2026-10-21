@@ -20,7 +20,7 @@ if (scope !== "integration") {
 }
 if (scope !== "lib" && process.exitCode === 0) {
   const storage = runCargoTest(sourceRoot, [
-    "test", "-p", "codex-core", "--test", "all", "auto_compaction", "--locked", "--offline", "--", "--test-threads=1",
+    "test", "-p", "codex-core", "--test", "all", "--features", "codex-core/integration-tests", "auto_compaction", "--locked", "--offline", "--", "--test-threads=1",
   ]);
   if (storage.error) throw storage.error;
   process.exitCode = storage.status ?? 1;

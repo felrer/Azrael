@@ -11,6 +11,9 @@
       ],
       "type": "string"
     },
+    "AgentPath": {
+      "type": "string"
+    },
     "AsyncUserInputQuestion": {
       "additionalProperties": false,
       "properties": {
@@ -25,6 +28,9 @@
         },
         "title": {
           "type": "string"
+        },
+        "withdrawn": {
+          "type": "boolean"
         }
       },
       "required": [
@@ -879,6 +885,157 @@
       ],
       "type": "string"
     },
+    "ParentRequest": {
+      "properties": {
+        "blockedAction": {
+          "type": "string"
+        },
+        "childTaskId": {
+          "type": "string"
+        },
+        "childThreadId": {
+          "type": "string"
+        },
+        "context": {
+          "type": "string"
+        },
+        "createdAtMs": {
+          "format": "int64",
+          "type": "integer"
+        },
+        "deliveryReason": {
+          "description": "Content-free delivery diagnostic code; never question or response text.",
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "deliveryState": {
+          "allOf": [
+            {
+              "$ref": "#/definitions/ParentRequestDeliveryState"
+            }
+          ],
+          "description": "Delivery of the current leg: request before response, response after save."
+        },
+        "parentThreadId": {
+          "type": "string"
+        },
+        "presentation": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ParentRequestPresentation"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "question": {
+          "type": "string"
+        },
+        "recommendation": {
+          "type": "string"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "requestKey": {
+          "type": "string"
+        },
+        "response": {
+          "anyOf": [
+            {
+              "$ref": "#/definitions/ParentResponse"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/ParentRequestStatus"
+        },
+        "updatedAtMs": {
+          "format": "int64",
+          "type": "integer"
+        }
+      },
+      "required": [
+        "blockedAction",
+        "childTaskId",
+        "childThreadId",
+        "context",
+        "createdAtMs",
+        "deliveryState",
+        "parentThreadId",
+        "question",
+        "recommendation",
+        "requestId",
+        "requestKey",
+        "status",
+        "updatedAtMs"
+      ],
+      "type": "object"
+    },
+    "ParentRequestDeliveryState": {
+      "enum": [
+        "queued",
+        "resume_scheduled",
+        "delivered",
+        "blocked"
+      ],
+      "type": "string"
+    },
+    "ParentRequestPresentation": {
+      "properties": {
+        "childAgentPath": {
+          "$ref": "#/definitions/AgentPath"
+        },
+        "parentTurnId": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "childAgentPath",
+        "parentTurnId"
+      ],
+      "type": "object"
+    },
+    "ParentRequestStatus": {
+      "enum": [
+        "pending",
+        "resolved",
+        "cancelled",
+        "deferred"
+      ],
+      "type": "string"
+    },
+    "ParentResponse": {
+      "properties": {
+        "decision": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "retryCondition": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "status": {
+          "$ref": "#/definitions/ParentRequestStatus"
+        }
+      },
+      "required": [
+        "decision",
+        "reason",
+        "status"
+      ],
+      "type": "object"
+    },
     "PatchApplyStatus": {
       "enum": [
         "inProgress",
@@ -1656,6 +1813,16 @@
               "type": [
                 "string",
                 "null"
+              ]
+            },
+            "parentRequest": {
+              "anyOf": [
+                {
+                  "$ref": "#/definitions/ParentRequest"
+                },
+                {
+                  "type": "null"
+                }
               ]
             },
             "reasoningEffort": {

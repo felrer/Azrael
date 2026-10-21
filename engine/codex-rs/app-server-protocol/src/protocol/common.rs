@@ -627,6 +627,36 @@ client_request_definitions! {
         serialization: thread_id(params.thread_id),
         response: v2::ThreadGoalClearResponse,
     },
+    ThreadApprovalDefer => "thread/approval/defer" {
+        params: v2::ThreadApprovalDeferParams,
+        serialization: thread_id(params.thread_id),
+        manual_payload_conversion: manual,
+        response: v2::ThreadApprovalResponse,
+    },
+    ThreadApprovalRequest => "thread/approval/request" {
+        params: v2::ThreadApprovalRequestParams,
+        serialization: thread_id(params.thread_id),
+        manual_payload_conversion: manual,
+        response: v2::ThreadApprovalResponse,
+    },
+    ThreadApprovalList => "thread/approval/list" {
+        params: v2::ThreadApprovalListParams,
+        serialization: thread_id(params.thread_id),
+        manual_payload_conversion: manual,
+        response: v2::ThreadApprovalListResponse,
+    },
+    ThreadApprovalResolve => "thread/approval/resolve" {
+        params: v2::ThreadApprovalResolveParams,
+        serialization: thread_id(params.thread_id),
+        manual_payload_conversion: manual,
+        response: v2::ThreadApprovalResponse,
+    },
+    ThreadApprovalWithdraw => "thread/approval/withdraw" {
+        params: v2::ThreadApprovalWithdrawParams,
+        serialization: thread_id(params.thread_id),
+        manual_payload_conversion: manual,
+        response: v2::ThreadApprovalListResponse,
+    },
     #[experimental("thread/queue/add")]
     ThreadQueueAdd => "thread/queue/add" {
         params: v2::ThreadQueueAddParams,

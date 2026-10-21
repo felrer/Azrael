@@ -117,3 +117,9 @@
 검증 payload 그룹 `ar01-parent-routing-r1`은 producer 종료·통과 근거 이관·소비자 해제 후 재등록했으며, review blockers0으로 임시 묶음을 삭제했다. cleanup attempt `attempt-45928-1259-1792412626027` 결과는 status deleted, remaining=false다. 실제 run 경로 부재도 확인했다. 보존 근거는 현재 수정의 검증 근거로 유지하며, 해당 기능이 대체되거나 새 검증 근거로 전환되어 이 기록의 참조가 해제될 때 재검토한다.
 
 보존 근거 전체는 그룹 `ar01-parent-routing-evidence-20261019`(1,950,791 bytes)로 등록하고, 현재 문서 참조와 삭제한 run의 control evidence 때문에 동일 조건으로 defer 처리했다. 최종 staged diff8개 파일만 검사했으며 whitespace 검사 exit0이다. 코드 수정 단계의 검증·정리는 완료했다. 앱 적용과 실제 모델 왕복 검증은 별도 미수행 범위다.
+
+## 전체 변경 빌드·사용자 프로필 설치
+
+사용자가 현재 전체 변경사항을 반영한 빌드와 사용자 프로필 설치를 명시적으로 지시했다. 설치 대상은 Windows x64 MSVC의 일반 VS Code 사용자 프로필, 상태 `C:/Users/felre/.azrael-ex`이며 앱 버전2026.0.10을 유지한다. 실행 중 창과 기존 복구본을 보호한다. 전체 tracked/nonignored untracked 및 삭제를 새로운 불변 입력 `artifacts/build/p19a`에 캡처한 후 동일 입력으로 engine/bridge·native helper·내부 모듈·host를 생성한다. 전체 엔진 교체와 누적 변경 범위 때문에 FullRegression을 선택하되 동일 입력의 유효한 통과 근거는 기존 owner의 cache 조건에 따라 재사용한다. Windows PTY 선행검사, provenance와 dependency/interface/output 사전검사, 전체 필수 source/engine/UI gate, 정확한 최종 VSIX의 fresh-state6단계를 모두 통과해야 설치한다. 새 변경이 primary에 생겨도 진행 중 입력을 갱신하지 않는다. 다른 OS 빌드·원격 배포는 포함하지 않는다.
+
+소유자는 root, run은 `artifacts/tasks/AR-01-root-child-mail-analysis/runs/20261019-deploy-r1`, frozen project는 `artifacts/build/p19a`이다. 기존 배포 runner와 capture/provenance/lifecycle owner를 재사용한다. 선행 입력 준비→Windows PTY→배포 runner(빌드와 source 검사 병행)→최종 host6단계→일반 프로필 설치→설치 receipt/보존 확인→정리 순서로 진행한다. 로그·input receipt·검증/설치 결과는 이 run 및 해당 release lifecycle에 보관한다.

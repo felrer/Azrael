@@ -4,6 +4,26 @@
 
 Design Azrael UI in the OpenAI style. Reuse the pinned UI’s existing native components, page layouts, settings rows, switches, buttons, typography, spacing and semantic theme tokens. Verify the actual rendered page and its interactions in light and dark themes; plain unstyled controls or source-only tests do not establish visual acceptance.
 
+## Withdrawn questions and queue waiting
+
+Status: `partial`; scoped source and Windows native React/CSS fixtures cover
+light/dark rendering and interactions. Full application-provider, package,
+installed-host and other-platform acceptance are separate in the
+[work record](../../work/CL-01-question-withdrawal/01-plan.md).
+
+An asynchronous question withdrawn by the model becomes a collapsed, inactive
+history disclosure labelled **철회된 질문**. Expanding it reveals its original
+question text. Remaining questions retain their original identities and source
+indexes. The existing question-state reconciler closes a withdrawn selection and
+removes its draft; accepted user replies remain in history. Source-item updates
+also refresh virtualized question cards whose projected rows remain mounted.
+
+Queued messages held by unanswered questions show **사용자 답변 대기 중** through
+the existing queue status surface. The queue retains its order, cancellation and
+explicit send controls. State and automatic dispatch authority belong to the
+[question and queue contract](queued-compaction.md#unanswered-asynchronous-questions).
+Preservation feature: `ui.question-withdrawal`.
+
 ## Composer and feature surface
 
 Status: `partial` — pinned source transforms, scoped runtime fixtures, packaged host acceptance and actual webview startup are verified; full presentation and theme comparisons remain pending.

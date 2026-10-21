@@ -48,6 +48,24 @@ async function atomic(file, bytes) {
   await write(temp, bytes);
   try { await safe(file); await fs.rename(temp, file); } finally { await remove(temp); }
 }
+async function publishVersion(stage, destination) {
+  // Windows scanners can briefly hold a freshly written directory. Retry only
+  // the ordinary rename; an existing immutable version must never be replaced.
+  const identity = await fs.lstat(await safe(stage));
+  const delays = [25, 50, 100, 200, 400];
+  for (let attempt = 0; ; attempt++) {
+    const current = await fs.lstat(await safe(stage));
+    if (!current.isDirectory() || current.dev !== identity.dev || current.ino !== identity.ino) throw new Error("Instruction staging identity changed");
+    await safe(destination);
+    try { await fs.lstat(destination); throw new Error("Immutable version cache identity conflict"); }
+    catch (error) { if (error.code !== "ENOENT") throw error; }
+    try { await fs.rename(stage, destination); return; }
+    catch (error) {
+      if (process.platform !== "win32" || !["EPERM", "EBUSY"].includes(error.code) || attempt === delays.length) throw error;
+      await new Promise(resolve => setTimeout(resolve, delays[attempt]));
+    }
+  }
+}
 function allowedUrl(value) {
   const url = new URL(value);
   const hosts = new Set(["api.github.com", "github.com", "release-assets.githubusercontent.com", "objects.githubusercontent.com", "github-releases.githubusercontent.com"]);
@@ -263,7 +281,7 @@ class InstructionStore {
         for (const key of ["schemaVersion","instructionVersion","minimumAppVersion","components"]) if (!same(internal[key],m[key])) throw new Error("Internal instruction manifest mismatch");
         await write(path.join(stage,"manifest.json"),Buffer.from(JSON.stringify(m))); await write(path.join(stage,"documents.json"),docs);
         if (options.signal?.aborted) throw new Error("Instruction download cancelled");
-        await safe(this.cache(v)); await fs.mkdir(path.dirname(this.cache(v)),{recursive:true}); await fs.rename(stage,this.cache(v));
+        await safe(this.cache(v)); await fs.mkdir(path.dirname(this.cache(v)),{recursive:true}); await publishVersion(stage,this.cache(v));
       } finally { await safe(stage); await fs.rm(stage,{recursive:true,force:true}); }
       return this.getState();
     });

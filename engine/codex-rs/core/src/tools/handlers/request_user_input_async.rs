@@ -78,7 +78,10 @@ impl ToolExecutor<ToolInvocation> for RequestUserInputAsyncHandler {
 
         ToolSpec::Function(ResponsesApiTool {
             name: TOOL_NAME.to_string(),
-            description: self.description.clone(),
+            description: format!(
+                "{}\nIf a question becomes unnecessary during subsequent work, withdraw it with withdraw_user_questions.",
+                self.description
+            ),
             strict: false,
             defer_loading: None,
             parameters,
@@ -94,7 +97,6 @@ impl ToolExecutor<ToolInvocation> for RequestUserInputAsyncHandler {
             let ToolInvocation {
                 session,
                 turn,
-                call_id,
                 payload,
                 ..
             } = invocation;
@@ -128,8 +130,18 @@ impl ToolExecutor<ToolInvocation> for RequestUserInputAsyncHandler {
                 messages.push(lines.join("\n"));
             }
 
+            if args.questions.iter().any(|q| q.withdrawn) {
+                return Err(FunctionCallError::RespondToModel(
+                    "new questions cannot be withdrawn".into(),
+                ));
+            }
+            let _guard = session.root_resume_submission_guard().await;
+            let message_id = uuid::Uuid::now_v7().to_string();
+            let question_ids: Vec<_> = (0..args.questions.len())
+                .map(|index| crate::session::user_questions::question_id(&message_id, index))
+                .collect();
             let item = TurnItem::AgentMessage(AgentMessageItem {
-                id: call_id,
+                id: message_id,
                 content: vec![AgentMessageContent::Text {
                     text: messages.join("\n\n"),
                 }],
@@ -138,11 +150,27 @@ impl ToolExecutor<ToolInvocation> for RequestUserInputAsyncHandler {
                 delivery: Some(AgentMessageDelivery::Async),
                 questions: Some(args.questions),
             });
+            session.observe_user_question_event(
+                &codex_protocol::protocol::EventMsg::ItemCompleted(
+                    codex_protocol::protocol::ItemCompletedEvent {
+                        thread_id: session.thread_id,
+                        turn_id: turn.sub_id.clone(),
+                        item: item.clone(),
+                        started_at_ms: None,
+                        completed_at_ms: 0,
+                    },
+                ),
+            );
             session.emit_turn_item_started(turn.as_ref(), &item).await;
             session.emit_turn_item_completed(turn.as_ref(), item).await;
+            session
+                .flush_rollout()
+                .await
+                .map_err(|e| FunctionCallError::RespondToModel(e.to_string()))?;
+            session.notify_question_state_changed().await;
 
             Ok(boxed_tool_output(FunctionToolOutput::from_text(
-                r#"{"accepted":true}"#.to_string(),
+                serde_json::json!({"accepted": true, "question_ids": question_ids}).to_string(),
                 /*success*/ Some(true),
             )))
         })
@@ -150,6 +178,60 @@ impl ToolExecutor<ToolInvocation> for RequestUserInputAsyncHandler {
 }
 
 impl CoreToolRuntime for RequestUserInputAsyncHandler {
+    fn is_builtin_control_tool(&self) -> bool {
+        true
+    }
+}
+
+pub struct WithdrawUserQuestionsHandler;
+
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct WithdrawUserQuestionsArgs {
+    question_ids: Vec<String>,
+}
+
+impl ToolExecutor<ToolInvocation> for WithdrawUserQuestionsHandler {
+    fn tool_name(&self) -> ToolName {
+        ToolName::plain("withdraw_user_questions")
+    }
+
+    fn spec(&self) -> ToolSpec {
+        ToolSpec::Function(ResponsesApiTool {
+            name: "withdraw_user_questions".into(),
+            description: "Withdraw questions that are no longer needed, using question_ids returned by request_user_input_async.".into(),
+            strict: false,
+            defer_loading: None,
+            parameters: JsonSchema::object(BTreeMap::from([("question_ids".into(), JsonSchema::array(JsonSchema::string(None), None))]), Some(vec!["question_ids".into()]), Some(false.into())),
+            output_schema: None,
+        })
+    }
+
+    fn handle<'a>(&'a self, invocation: ToolInvocation) -> codex_tools::ToolExecutorFuture<'a>
+    where
+        ToolInvocation: 'a,
+    {
+        Box::pin(async move {
+            let ToolPayload::Function { arguments } = invocation.payload else {
+                return Err(FunctionCallError::RespondToModel(
+                    "withdraw_user_questions requires function arguments".into(),
+                ));
+            };
+            let args: WithdrawUserQuestionsArgs = parse_arguments(&arguments)?;
+            invocation
+                .session
+                .withdraw_user_questions(&args.question_ids)
+                .await
+                .map_err(|e| FunctionCallError::RespondToModel(e.to_string()))?;
+            Ok(boxed_tool_output(FunctionToolOutput::from_text(
+                serde_json::json!({"accepted": true}).to_string(),
+                Some(true),
+            )))
+        })
+    }
+}
+
+impl CoreToolRuntime for WithdrawUserQuestionsHandler {
     fn is_builtin_control_tool(&self) -> bool {
         true
     }

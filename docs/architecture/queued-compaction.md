@@ -35,6 +35,58 @@ ordinary message meaning.
 
 ## Queue execution
 
+### Pending Window Use approvals
+
+Source implementation adds a separate durable `pendingApprovalCount`. Pending approval immediately holds automatic queued messages and compaction, independently of the 30-second initial tool wait. Missing or malformed counts fail closed. Questions and approvals can coexist; explicit send-now retains its existing behavior. A late approval uses a typed internal resume, never ordinary user text. Host fixtures, UI rendering and focused native engine integration are verified on Windows x64; installed acceptance and execution on other platforms remain pending.
+
+### Unanswered asynchronous questions
+
+Status: `partial`; implementation and verification are tracked in the
+[work record](../../work/CL-01-question-withdrawal/01-plan.md).
+
+Each question created by `request_user_input_async` has an engine-owned identity
+returned to the model. Questions remain pending until answered through the
+question reply path or removed by `withdraw_user_questions`. Withdrawal accepts
+multiple IDs without requiring a reason; resolution and withdrawal have the same
+removal semantics. Repeated withdrawal is idempotent. Unknown IDs and IDs from
+another conversation are rejected. Ordinary chat text is not interpreted as an
+answer or detected as a question.
+
+The question tool description instructs the model to withdraw questions that
+become unnecessary during work. There is no extra inference or mandatory question
+review at turn completion. Asking does not stop independent work in the active
+turn. When the turn becomes idle, pending questions hold automatic queue dispatch,
+including queued compaction, without removing or reordering queued items. Removing
+the last pending question makes the queue eligible under its other admission
+conditions; it does not clear interruption, account-switch or recovery holds.
+
+Question state is authoritative in the engine and survives reopening and restart.
+Question changes and queue admission are ordered so another window or a stale
+snapshot cannot dispatch through the hold. Reply and withdrawal races preserve
+already accepted user input; a reply to an already withdrawn question cannot
+restart work automatically. Withdrawn questions leave an inactive, collapsed
+record in conversation history. Queue presentation identifies the pending-question
+hold. These semantics are common to Windows x64, Linux x64 and macOS ARM64;
+verification in one environment does not establish installed acceptance elsewhere.
+
+Core owns the ledger in `core/src/session/user_questions.rs`. New question
+messages receive UUIDs; each question ID retains the native tuple of tool name,
+message ID and original question index. Durable `ItemCompleted` updates retain
+the original message and turn identity. Withdrawal appends and flushes those
+updates before committing the live state. Accepted direct replies record
+`answered_async_question_ids` in host-owned history metadata, so replay does not
+infer answers from ordinary user text. Loaded and unloaded queue queries expose
+`pendingQuestionCount`, and question changes notify queue subscribers. Ordinary
+input that leaves question state unchanged sends no question notification and
+does not wait on realtime-history recording.
+
+The automatic queue trigger is `queue`; explicit send-now uses `queue_user`.
+Both keep Queue input provenance and treat their message content as ordinary
+input. Explicit send-now may proceed while questions remain pending. The native
+and legacy host coordinators recheck the engine count before automatic dispatch;
+missing or invalid state retains the queue. Preservation feature:
+`ui.question-withdrawal` for source/UI checks and `engine.question-withdrawal` for native and SDK checks.
+
 Preservation feature: `ui.queued-compaction`; Core admission lives in
 `engine/codex-rs/core/src/session/compact_input.rs`, with boundary and admission
 tests in `compact_input_tests.rs` and host warning coverage in

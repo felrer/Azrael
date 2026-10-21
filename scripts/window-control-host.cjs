@@ -36,7 +36,7 @@ class Bridge {
   }); }
   dispose() { for (const p of this.pending.values()) { clearTimeout(p.timer); p.reject(windowError('connection_error', 'Engine disconnected')); } this.pending.clear(); this.registration?.dispose(); }
 }
-function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 50000 }) {
+function createHost({ runtime, vscode, backend = createBackend(runtime), approvals = require('./window-use-approvals.cjs'), createServer = net.createServer, occupancyDirectory, approvalTimeoutMs = 30000 }) {
   const settingsOwner = require('./use-control-settings.cjs').createSettingsOwner(runtime.codexHome);
   const { stageEnabled } = require('./use-control-settings.cjs');
   const stageGrants = new Map();
@@ -44,25 +44,35 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const desktop=()=>desktopAuthority??=require('./window-desktop-authority.cjs').createDesktopAuthority({directory:path.join(runtime.codexHome,'azrael','window-use','desktop-authority'),codexHome:runtime.codexHome});
   let isolation;
   const resources = require('./window-use-resources.cjs').createResourceManager({directory:path.join(runtime.codexHome,'azrael','window-use','resources'),inspectSession:identity=>isolation ? isolation.observeSession(identity):{identity,ownershipVerified:false,state:'unknown'},closeSession:identity=>isolation.closeSession(identity)});
-  resources.startScheduler();
   const childRuntime=runtime.windowControl?.childSession;
   const childModule=require('./window-child-session.cjs');
-  const childSession=childModule.createWindowsChildSessionManager({bootstrapJournalPath:path.join(runtime.codexHome,'azrael','window-use','child-bootstrap.json'),enabled:()=>stageEnabled(settingsOwner.getSettings(),3),...(childRuntime?{probe:()=>childModule.probeWindowsChildSession({probePath:childRuntime.probeScript,tempDirectory:path.join(runtime.codexHome,'tmp','window-child-probe')}),nativeHelper:{path:childRuntime.executable,sha256:childRuntime.sha256}}:{}),authorize:async(_operation,request,ownedIdentity)=>{
+  const childSession=childModule.createWindowsChildSessionManager({bootstrapJournalPath:path.join(runtime.codexHome,'azrael','window-use','child-bootstrap.json'),manualRecoveryRequestPath:path.join(runtime.codexHome,'azrael','window-use','manual-recovery','request.json'),enabled:()=>stageEnabled(settingsOwner.getSettings(),3),...(childRuntime?{probe:()=>childModule.probeWindowsChildSession({probePath:childRuntime.probeScript,tempDirectory:path.join(runtime.codexHome,'tmp','window-child-probe')}),nativeHelper:{path:childRuntime.executable,sha256:childRuntime.sha256}}:{}),authorize:async(_operation,request,ownedIdentity)=>{
     const permission=scope.getStore(),state=settingsOwner.getSettings(),grant=stageGrants.get(request.ownerId);
     if(['stop','releaseInput'].includes(_operation)) return !!ownedIdentity;
     const task=threads.get(request.ownerId);
     return permission?.threadId===request.ownerId && permission.disabled===true && !permission.signal?.aborted && !permission.uiRecord?.cancelled && task && (!permission.turnId || permission.turnId===task.turnId) && permission.policyGeneration===state.windowUseGeneration && stageEnabled(state,3) && grant?.stage===3 && grant.policyGeneration===state.windowUseGeneration;
   }});
   const scope = new AsyncLocalStorage(), bridges = new Map(), threads = new Map(), files = new Map(), selections = new Map(), uiTokens = new Map(), activeUI = new Set(), activeConsents = new Set(), lifecycleRequests = new Map(), cleanupTasks = new Map(), approvalUIs = new Map(), pendingConsents = new Map();
-  const isolationAuthorized=async (thread,operation,parentIdentity)=>{const permission=scope.getStore(),state=settingsOwner.getSettings(),grant=stageGrants.get(thread),t=threads.get(thread);return !!(permission?.disabled===true && permission.threadId===thread && !permission.signal?.aborted && !permission.uiRecord?.cancelled && t && (!permission.turnId || permission.turnId===t.turnId) && permission.policyGeneration===state.windowUseGeneration && stageEnabled(state,3) && grant?.stage===3 && grant.policyGeneration===state.windowUseGeneration && (!['capture','input'].includes(operation) || parentIdentity && approvals.hasAppApproval(parentIdentity.executable,thread)));};
+  const durableApprovals = require('./window-use-async-approvals.cjs').createLedger({ directory:path.join(runtime.codexHome,'azrael','window-use','approval-owner'),rpc:(thread,method,params)=>{const t=threads.get(thread);if(!t)throw windowError('connection_error','승인 요청의 엔진 연결이 없습니다.');return t.bridge.rpc(method,params);} });
+  const approvalReceipts = new Map(), approvalTasks = new Set();
+  const trackApproval = task => { approvalTasks.add(task); void task.finally(()=>approvalTasks.delete(task)).catch(()=>{}); return task; };
+  const isolationAuthorized=async (thread,operation,parentIdentity)=>{const permission=scope.getStore(),state=settingsOwner.getSettings(),grant=stageGrants.get(thread),t=threads.get(thread);return !!(permission?.disabled===true && permission.threadId===thread && !permission.signal?.aborted && !permission.uiRecord?.cancelled && t && (!permission.turnId || permission.turnId===t.turnId) && permission.policyGeneration===state.windowUseGeneration && stageEnabled(state,3) && grant?.stage===3 && grant.policyGeneration===state.windowUseGeneration && (!(['capture','input'].includes(operation) || operation==='launch' && parentIdentity!==undefined) || parentIdentity && approvals.hasAppApproval(parentIdentity.executable,thread)));};
   isolation=require('./window-use-isolation.cjs').createIsolationController({childSession,resources,authorize:isolationAuthorized,approveApp:async(thread,identity)=>consent(identity,thread),resolveExecutable:async identity=>{
-    const windows=await backend.request('listWindows',{});if(!Array.isArray(windows) || !windows.some(w=>sameTarget(w,identity))) throw windowError('state_changed','실행할 앱의 기존 창이 변경됐습니다.');
+    if(identity.source==='installed-package') {
+      const current=await childModule.resolveInstalledApplication({packageName:identity.packageName,applicationId:identity.applicationId});
+      if(!['source','packageName','packageFullName','applicationId','executable'].every(name=>current[name]===identity[name])) throw windowError('state_changed','승인한 설치 앱의 등록 정보가 변경됐습니다.');
+    } else {
+      const windows=await backend.request('listWindows',{});if(!Array.isArray(windows) || !windows.some(w=>sameTarget(w,identity))) throw windowError('state_changed','실행할 앱의 기존 창이 변경됐습니다.');
+    }
     if(process.platform!=='win32' || !path.win32.isAbsolute(identity.executable) || !/\.exe$/i.test(identity.executable)) throw windowError('unsupported_action','Windows 실행 파일을 확인할 수 없습니다.');
     if(/^(chrome|msedge|firefox)\.exe$/i.test(path.win32.basename(identity.executable))) throw windowError('unsupported_action','브라우저와 Threads는 Chrome 제어 경로를 사용해주세요.');
     const info=await fsp.lstat(identity.executable);if(!info.isFile() || info.isSymbolicLink()) throw windowError('state_changed','앱 실행 파일의 신원을 확인할 수 없습니다.');
     const hash=require('node:crypto').createHash('sha256');for await(const chunk of fs.createReadStream(identity.executable)) hash.update(chunk);return {executable:identity.executable,sha256:hash.digest('hex')};
   }});
   if(childRuntime) void (async()=>{await fsp.mkdir(path.join(runtime.codexHome,'azrael','window-use'),{recursive:true});await childSession.reconcileBootstrap();})().catch(()=>{});
+  // Start after the isolation observer exists so startup can reconcile closed
+  // sessions even when this host never owned their live transport.
+  resources.startScheduler();
   const socketDirectory = process.platform === 'win32' ? undefined : fs.mkdtempSync(path.join(os.tmpdir(), 'azw-'));
   if (socketDirectory) fs.chmodSync(socketDirectory, 0o700);
   const nonce = randomBytes(32).toString('hex'), pipe = socketDirectory ? path.join(socketDirectory, 'w.sock') : '\\\\.\\pipe\\azrael-window-' + randomUUID();
@@ -71,8 +81,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   function consentIsPending(record) {
     const t = threads.get(record.thread);
     return !disposed && pendingConsents.get(record.id) === record && !record.controller.signal.aborted &&
-      t === record.t && t.turnVersion === record.version && (!record.turnId || t.turnId === record.turnId) &&
-      !record.uiRecord?.cancelled && Date.now() < record.deadline;
+      t === record.t && (record.deferred || t.turnVersion === record.version && (!record.turnId || t.turnId === record.turnId) && !record.uiRecord?.cancelled);
   }
   const notificationSubscription = backend.onApprovalNotificationActivated?.(event => {
     const record = pendingConsents.get(CONSENT_PREFIX + event.requestId);
@@ -92,10 +101,10 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     notificationTasks.add(task); void task.finally(() => notificationTasks.delete(task)); return task;
   }
   function notifyConsent(record, appTitle) {
-    if (!backend.showApprovalNotification || !consentIsPending(record)) return;
+    if (!backend.showApprovalNotification || record.notificationTask || !consentIsPending(record)) return;
     record.notificationTask = trackNotification(Promise.resolve().then(() => {
       if (!consentIsPending(record)) return;
-      return backend.showApprovalNotification({ requestId: record.id.slice(CONSENT_PREFIX.length), appTitle, timeoutMs: Math.max(1, record.deadline - Date.now()) });
+      return backend.showApprovalNotification({ requestId: record.id.slice(CONSENT_PREFIX.length), appTitle, timeoutMs: 50000 });
     }).catch(() => {}).then(() => {
       // Remove a Show that completed after the approval ended.
       if (!consentIsPending(record)) return hideConsentNotification(record);
@@ -136,7 +145,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     const previous=stageGrants.get(thread);
     const reused=previous?.stage===args.stage && previous.policyGeneration===state.windowUseGeneration && (args.stage===3 || args.stage===4 && previous.turnId===t.turnId || sameTarget(previous.identity,identity));
     if(!reused) {
-      await consent(undefined,thread,{stage:args.stage,reason:args.reason}); check();
+      await consent(undefined,thread,{stage:args.stage,reason:args.reason,identity}); check();
       if(previous?.stage===3 && args.stage!==3) await isolation.release(thread);
       check(); desktopAuthority?.revoke(thread);
       stageGrants.set(thread,{stage:args.stage,identity,turnId:t.turnId,prepared:args.prepareOnly===true,policyGeneration:state.windowUseGeneration,appRevocationFingerprint:require('./window-desktop-authority.cjs').appRevocationFingerprint(runtime.codexHome,args.stage===4?'computer-use':'window-use')});
@@ -159,7 +168,23 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     check();return {authorized:true,...await contextFor(thread)};
   }
   const resourceOperation=async(tool,thread,args={})=>{if(scope.getStore()?.threadId!==thread) throw windowError('permission_denied','Native permission context denied');const result=await (tool==='cleanup'?resources.cleanup({reason:'agent-request',...(args.ids?{ids:args.ids}:{})}):resources.inspect());const childStatus=tool==='resource_status' && childRuntime ? await childSession.describe():undefined;return {...result,...(childStatus?{childSession:childStatus}:{}),resources:result.resources.slice(0,20),resourceCount:result.resources.length,...(result.results?{results:result.results.slice(0,20)}:{})};};
-  const isolatedOperation=async(tool,thread,args,parentIdentity)=>{if(!await isolationAuthorized(thread)) throw windowError('permission_denied','Window Use 격리 실행 권한이 필요합니다.');let result;try{result=tool==='launch_isolated'?await isolation.launch({ownerId:thread,parentIdentity}):tool==='capture_isolated'?await isolation.capture({ownerId:thread,targetId:args.targetId}):await isolation.input({ownerId:thread,targetId:args.targetId,observationId:args.observationId,input:args.input});}catch(error){if(error.mutationOutcome==='unknown') throw windowError('state_changed','격리 입력 결과가 불명확합니다. 자동 재실행하지 말고 상태를 확인해주세요.',{mutationOutcome:'unknown'});if(/stale|unknown isolated target|stopped|held keys/i.test(error.message)) throw windowError('state_changed',error.message);if(/invalid|unsupported|requires|bounds|shortcut/i.test(error.message)) throw windowError('invalid_request',error.message);throw windowError('unsupported_action','격리 실행 동작을 완료하지 못했습니다.',{nativeCode:typeof error.code==='string'?error.code:'child-operation-failed'});}if(tool==='capture_isolated') {const {png,geometry,...value}=result;return {...value,widthPx:geometry.width,heightPx:geometry.height,image:{mimeType:'image/png',data:png}};}return result;};
+  const isolatedOperation=async(tool,thread,args,parentIdentity)=>{if(!await isolationAuthorized(thread)) throw windowError('permission_denied','Window Use 격리 실행 권한이 필요합니다.');let result;try{if(tool==='launch_isolated' && args.packageName!==undefined) parentIdentity=await childModule.resolveInstalledApplication({packageName:args.packageName,...(args.applicationId!==undefined?{applicationId:args.applicationId}:{})});result=tool==='launch_isolated'?await isolation.launch({ownerId:thread,parentIdentity}):tool==='capture_isolated'?await isolation.capture({ownerId:thread,targetId:args.targetId}):await isolation.input({ownerId:thread,targetId:args.targetId,observationId:args.observationId,input:args.input});} catch(error) {
+    const diagnostic=require('./window-use-isolation.cjs').childDiagnostic(error,tool);
+    const details={diagnostic,nativeCode:diagnostic.code || 'child-operation-failed'};
+    for(const key of ['actionExecuted','inputReleaseConfirmed','connectionRecovered']) if(typeof error[key]==='boolean') details[key]=error[key];
+    if(error.observationRequired===true) details.observationRequired=true;
+    if(error.recovery==='observe_again') details.recovery='observe_again';
+    if(['unknown','confirmed','not_executed'].includes(error.mutationOutcome)) details.mutationOutcome=error.mutationOutcome;
+    if(['minimized','normal','absent'].includes(error.viewerState)) details.viewerState=error.viewerState;
+    if(error.requiredUserAction==='restore_isolated_viewer') details.requiredUserAction='restore_isolated_viewer';
+    if(error.mutationOutcome==='unknown') throw windowError('state_changed','격리 동작 결과가 불명확합니다. 현재 동작 순서를 중단하고, 자동 재실행 없이 새 화면으로 상태를 확인해주세요.',{...details,mutationOutcome:'unknown',recovery:'observe_again',observationRequired:true});
+    if(error.code==='isolated_viewer_minimized') throw windowError('isolated_viewer_minimized','Azrael isolated session (model control) 뷰어 창의 최소화를 해제해주세요. 완료를 확인한 뒤 새 화면을 확인하겠습니다.',{...details,viewerState:'minimized',requiredUserAction:'restore_isolated_viewer',actionExecuted:false,observationRequired:true});
+    if(error.code==='child_session_reconnected' || error.connectionRecovered===true) throw windowError('state_changed','격리 세션 연결을 복구했습니다. 앱을 다시 선택하고 새 화면을 확인한 뒤 작업을 이어가세요.',{...details,connectionRecovered:true,recovery:'observe_again',observationRequired:true});
+    if(['child_session_occupied','child_recovery_blocked','child_session_identity_mismatch','child_identity_mismatch'].includes(error.code)) throw windowError('state_changed','격리 세션을 다른 작업이 사용 중이거나 안전한 연결 복구를 확인하지 못했습니다. 진단 원인을 확인한 뒤 재시도해주세요.',details);
+    if(error.code==='child_input_revalidated' || /stale|unknown isolated target|stopped|held keys/i.test(error.message)) throw windowError('state_changed','격리 실행 상태가 변경됐습니다. 현재 권한과 입력 해제 상태를 확인한 뒤 새 화면을 확인해주세요.',{...details,recovery:'observe_again',observationRequired:true});
+    if(/invalid|unsupported|requires|bounds|shortcut/i.test(error.message)) throw windowError('invalid_request','격리 실행 요청이 현재 동작 조건을 충족하지 못했습니다.',details);
+    throw windowError('unsupported_action','격리 실행 동작을 완료하지 못했습니다.',details);
+  }if(tool==='capture_isolated') {const {png,geometry,...value}=result;return {...value,widthPx:geometry.width,heightPx:geometry.height,image:{mimeType:'image/png',data:png}};}return result;};
   const owner = createWindowOwner({ backend, requestStage, context:contextFor, resources:resourceOperation, isolation:isolatedOperation, codexHome: runtime.codexHome, workspacePath: vscode.workspace?.workspaceFile?.fsPath || runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath, occupancyDirectory: occupancyDirectory || runtime.occupancyDirectory || commonDirectory(), workspaceName: (process.platform === 'win32' ? path.win32 : path).basename(runtime.workspacePath || vscode.workspace?.workspaceFolders?.[0]?.uri.fsPath || '') || 'Azrael',
     onUserStop: (thread, value) => {
       invalidateUI(thread); approvals.stop(thread);
@@ -177,7 +202,16 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     return operation.stage===1 ? stageEnabled(state,1) || controlled : controlled;
   } });
   const serial = fn => { const result = queue.then(fn); queue = result.catch(() => {}); return result; };
-  function invalidateUI(thread) { if(thread) void isolation.release(thread).catch(()=>{});else for(const id of stageGrants.keys()) void isolation.release(id).catch(()=>{}); if(thread) {stageGrants.delete(thread);desktopAuthority?.revoke(thread);}else {for(const id of stageGrants.keys()) desktopAuthority?.revoke(id);stageGrants.clear();} for (const consent of activeConsents) if (!thread || consent.thread === thread) consent.controller.abort(); for (const record of activeUI) if (!thread || record.thread === thread) { record.cancelled = true; uiTokens.delete(record.token); } }
+  function invalidateUI(thread,{preserveApprovals=false}={}) {
+    if(thread) void isolation.release(thread).catch(()=>{});else for(const id of stageGrants.keys()) void isolation.release(id).catch(()=>{});
+    if(thread) {stageGrants.delete(thread);desktopAuthority?.revoke(thread);}else {for(const id of stageGrants.keys()) desktopAuthority?.revoke(id);stageGrants.clear();}
+    for (const consent of activeConsents) if ((!thread || consent.thread === thread) && !(preserveApprovals && consent.deferred)) consent.controller.abort();
+    if(!preserveApprovals&&!disposed) for(const id of thread?[thread]:threads.keys()) {
+      approvalReceipts.delete(id);
+      void trackApproval(durableApprovals.withdraw(id,undefined,'host-invalidated')).catch(()=>{});
+    }
+    for (const record of activeUI) if (!thread || record.thread === thread) { record.cancelled = true; uiTokens.delete(record.token); }
+  }
   const uiScope = async fn => {
     const thread = current, t = threads.get(thread); let record;
     try {
@@ -193,15 +227,15 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
   const render = value => { if (value) last = value; if (panel) void panel.webview.postMessage({ type: 'state', value: last || {}, threadId: current, macros: undefined }); };
   const publicState = status => ({ targetId: last?.targetId, state: last?.state, window: last?.window, supportedActions: last?.supportedActions, pauseReason: last?.pauseReason, restoreAllowed: last?.restoreAllowed, ...(status ? { status } : {}) });
   function renderFailure(thread) { if (!thread || current !== thread) return; let value; try { value = owner.peek(thread); } catch { /* Preserve the original operation error. */ } render(value || publicState('실행 오류')); }
-  function cleanup(thread) {
+  function cleanup(thread,options) {
     if (cleanupTasks.has(thread)) return cleanupTasks.get(thread);
-    const task = cleanupThread(thread).finally(() => { if (cleanupTasks.get(thread) === task) cleanupTasks.delete(thread); });
+    const task = cleanupThread(thread,options).finally(() => { if (cleanupTasks.get(thread) === task) cleanupTasks.delete(thread); });
     cleanupTasks.set(thread, task);
     return task;
   }
-  async function cleanupThread(thread) {
+  async function cleanupThread(thread,options) {
     const closing = threads.get(thread); if (closing) closing.closed = true;
-    invalidateUI(thread); approvals.stop(thread); owner.clear(thread); selections.delete(thread);
+    invalidateUI(thread,options); approvals.stop(thread); owner.clear(thread); selections.delete(thread);
     if (closing?.ready) { try { await closing.ready; } catch {} }
     if (closing && threads.get(thread) !== closing) return;
     threads.delete(thread); const file = files.get(thread); files.delete(thread);
@@ -263,16 +297,72 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     if (existing) { if (existing.bridge !== bridge || existing.closed) throw new Error('Window Use thread belongs to another engine or is closing'); return existing; }
     const t = { bridge, turnId: undefined, starting: false, turnVersion: 0, mode:undefined };
     threads.set(thread, t);
-    t.ready = publish(thread).then(() => { if (disposed || t.closed || threads.get(thread) !== t || bridges.get(bridge.native) !== bridge) throw windowError('cancelled', 'Window Use registration cancelled'); });
+    t.ready = publish(thread).then(()=>restoreApprovals(thread)).then(() => { if (disposed || t.closed || threads.get(thread) !== t || bridges.get(bridge.native) !== bridge) throw windowError('cancelled', 'Window Use registration cancelled'); });
     void t.ready.catch(() => {});
     return t;
+  }
+  function approvalBinding(thread,descriptor,stageRequest,stageOverride) {
+    const stage=stageOverride ?? stageRequest?.stage ?? stageGrants.get(thread)?.stage ?? 2;
+    return {threadId:thread,stage,kind:stageRequest?'stage':'app',descriptor:descriptor?{executable:descriptor.executable,packageName:descriptor.packageName,packageFullName:descriptor.packageFullName,applicationId:descriptor.applicationId}:null,stageIdentity:stageRequest?.identity??null,policyGeneration:settingsOwner.getSettings().windowUseGeneration,appRevocationFingerprint:require('./window-desktop-authority.cjs').appRevocationFingerprint(runtime.codexHome,stage===4?'computer-use':'window-use'),runtime:{codexHome:path.resolve(runtime.codexHome),manifestSha256:runtime.windowControl?.manifestSha256??null,directory:runtime.windowControl?.directory??null,mode:threads.get(thread)?.mode??null}};
+  }
+  // App and stage scopes differ; reconstruct the same trusted binding, rather
+  // than treating a late click or a prior turn's native metadata as authority.
+  function currentApprovalKey(record) {
+    const b=record.binding;
+    return durableApprovals.scopeKey(approvalBinding(record.thread,b.descriptor,b.kind==='stage'?{stage:b.stage,identity:b.stageIdentity}:undefined,b.stage));
+  }
+  function publishConsent(record,value) {
+    const publisher=approvalUIs.get(record.native);
+    if(record.route==='panel'&&panel&&panelNonce===record.panelNonce&&current===record.thread) return panel.webview.postMessage(value.type==='mcp-request'?{type:'approval',request:value.request}:value);
+    if(!publisher) throw windowError('connection_error','Window Use approval UI is not connected',{stage:'approval',approvalState:'cancelled',userResponded:false,actionExecuted:false});
+    record.route='ordinary'; return publisher(value);
+  }
+  function finishConsent(record,state) {
+    clearTimeout(record.timer); pendingConsents.delete(record.id); activeConsents.delete(record); dismissConsentNotification(record);
+    if(record.deferred&&record.binding.kind==='app')approvals.response(record.id,{action:'cancel'});
+    if(disposed)return;
+    void Promise.resolve().then(()=>publishConsent(record,record.route==='panel'?{type:'approval-resolved',requestId:record.id,threadId:record.thread,approvalState:state}:{type:'mcp-notification',hostId:'local',notification:{method:'serverRequest/resolved',params:{threadId:record.thread,requestId:record.id}}})).catch(()=>{});
+  }
+  function pendingApproval(record) { return windowError('permission_pending','승인 응답을 기다리고 있습니다. 독립적인 작업을 계속하고, 진행할 일이 없으면 턴을 마쳐주세요. 응답 후 작업이 재개됩니다.',{stage:'approval',approvalState:'pending',approvalRequestId:record.id,userResponded:false,actionExecuted:false}); }
+  function adoptApproval(saved,t,{deferred=true,uiRecord,turnId,version}={}) {
+    const request=saved.payload.request,binding=saved.payload.binding;
+    const record={id:saved.requestId,scopeKey:saved.scopeKey,binding,request,thread:binding.threadId,native:t.bridge.native,t,version:version??t.turnVersion,turnId,uiRecord,controller:new AbortController(),route:panel&&current===binding.threadId?'panel':'ordinary',panelNonce,offered:request.params._meta.persist,policyGeneration:binding.policyGeneration,deferred};
+    record.controller.signal.addEventListener('abort',()=>{
+      record.waiter?.reject(windowError('cancelled','Application approval cancelled',{stage:'approval',approvalState:'cancelled',userResponded:false,actionExecuted:false}));
+      finishConsent(record,'cancelled');
+      if(!disposed&&!record.preserveOnAbort) void trackApproval(durableApprovals.withdraw(record.thread,record.id,'approval-cancelled')).catch(()=>{});
+    },{once:true});
+    pendingConsents.set(record.id,record);activeConsents.add(record);return record;
+  }
+  async function restoreApprovals(thread) {
+    const t=threads.get(thread);if(!t||disposed)return;
+    if(t.approvalRestore)return t.approvalRestore;
+    const task=restoreApprovalRecords(thread);
+    t.approvalRestore=task;
+    try {return await task;} finally {if(t.approvalRestore===task)t.approvalRestore=undefined;}
+  }
+  async function restoreApprovalRecords(thread) {
+    const t=threads.get(thread);if(!t||disposed)return;
+    const saved=await durableApprovals.list(thread),receipts=new Map();approvalReceipts.set(thread,receipts);
+    for(const item of saved) {
+      if((item.state==='declined'||item.state==='cancelled')&&!pendingConsents.has(item.requestId))continue;
+      const record=pendingConsents.get(item.requestId)??adoptApproval(item,t);
+      let valid=false;try{valid=!record.controller.signal.aborted&&currentApprovalKey(record)===item.scopeKey&&stageEnabled(settingsOwner.getSettings(),record.binding.stage);}catch{}
+      if(!valid) {await durableApprovals.withdraw(thread,item.requestId,'approval-scope-changed');record.controller.abort();continue;}
+      if(item.state==='accepted') {receipts.set(item.scopeKey,item);if(!record.waiter)finishConsent(record,'accepted');continue;}
+      if(item.state!=='pending') {if(!record.waiter)finishConsent(record,item.state);continue;}
+      if(!record.waiter) {
+        await durableApprovals.defer(thread,item.requestId,item.scopeKey);record.deferred=true;
+        if(approvalUIs.has(record.native)||panel&&current===thread) {await publishConsent(record,{type:'mcp-request',hostId:'local',request:record.request});notifyConsent(record,record.request.params._meta.tool_params_display.find(x=>x.name==='app')?.value??'Window Use');}
+      }
+    }
   }
   function registerApprovalUI(native, publish, navigate) {
     if (typeof navigate === 'function' && !disposed) approvalNavigation.set(native, navigate); else approvalNavigation.delete(native);
     const previous = approvalUIs.get(native);
     if (previous === publish) return;
-    for (const record of activeConsents) if (record.native === native && record.route === 'ordinary') record.controller.abort();
     if (typeof publish === 'function' && !disposed) approvalUIs.set(native, publish); else approvalUIs.delete(native);
+    if(typeof publish==='function') for(const [thread,t] of threads)if(t.bridge.native===native)void trackApproval(restoreApprovals(thread)).catch(()=>{});
   }
   function respondApproval(native, id, result) {
     if (typeof id !== 'string' || !id.startsWith(CONSENT_PREFIX)) return false;
@@ -280,10 +370,20 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     // Local IDs never reach the engine, including retired IDs and wrong owners.
     if (!record || record.native !== native) return true;
     const t = threads.get(record.thread);
-    if (disposed || record.controller.signal.aborted || t !== record.t || t.turnVersion !== record.version || (record.turnId && t.turnId !== record.turnId) || record.uiRecord?.cancelled) { record.controller.abort(); return true; }
-    if(Date.now()>=record.deadline) { record.expire();return true; }
+    if (disposed || record.controller.signal.aborted || t !== record.t || t?.closed || !record.deferred&&(t.turnVersion !== record.version || record.turnId&&t.turnId!==record.turnId || record.uiRecord?.cancelled)) { record.controller.abort(); return true; }
     if (!result || !['accept', 'decline', 'cancel'].includes(result.action) || (result.action === 'accept' && !record.offered.includes(result.content?.persist ?? result._meta?.persist))) return true;
-    pendingConsents.delete(id); record.answer(result); return true;
+    if(record.resolving)return true;
+    record.resolving=true;
+    void trackApproval((async()=>{
+      if(currentApprovalKey(record)!==record.scopeKey||!stageEnabled(settingsOwner.getSettings(),record.binding.stage)) {record.controller.abort();return;}
+      const resumeRequested=record.deferred;
+      let saved=await durableApprovals.resolve(record.thread,id,record.scopeKey,result,resumeRequested);
+      if(record.controller.signal.aborted||disposed||currentApprovalKey(record)!==record.scopeKey) {record.controller.abort();return;}
+      if(record.deferred&&!resumeRequested) saved=await durableApprovals.resolve(record.thread,id,record.scopeKey,result,true);
+      if(saved.state==='accepted') {let receipts=approvalReceipts.get(record.thread);if(!receipts)approvalReceipts.set(record.thread,receipts=new Map());receipts.set(record.scopeKey,saved);}
+      if(record.deferred)finishConsent(record,saved.state);else record.waiter?.resolve(result);
+    })()).catch(error=>{record.resolving=false;record.waiter?.reject(windowError('connection_error','승인 응답 저장을 확인하지 못했습니다. 작업은 실행되지 않았습니다.',{stage:'approval',approvalState:'cancelled',userResponded:true,actionExecuted:false,cause:error}));if(record.deferred&&!disposed)void trackApproval(restoreApprovals(record.thread)).catch(()=>{});});
+    return true;
   }
   async function consent(descriptor, thread = current, stageRequest) {
     const t = threads.get(thread), version = t?.turnVersion, permission = scope.getStore();
@@ -300,26 +400,40 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     const denied = result => { if (result?.content?.windowError) throw fromPayload(result.content.windowError); throw windowError('cancelled', 'Application approval cancelled', { stage: 'approval' }); };
     if (stored) { if (stored.action !== 'accept') denied(stored); if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); return true; }
     if (!needsPrompt) denied();
-    const controller = new AbortController(), native = t.bridge.native, dedicated = panel && current === thread, publisher = approvalUIs.get(native);
-    const record = { id, thread, native, t, version, turnId: permission.turnId, uiRecord: permission.uiRecord, controller, route: dedicated ? 'panel' : 'ordinary', panelNonce, publisher, offered, policyGeneration:permission.policyGeneration, deadline: Date.now() + approvalTimeoutMs }; activeConsents.add(record);
+    Object.assign(request.params._meta,{window_use_async_approval:true,window_use_approval_state:'pending'});
+    const binding=approvalBinding(thread,descriptor,stageRequest),key=durableApprovals.scopeKey(binding);
+    await restoreApprovals(thread);
+    const receipt=approvalReceipts.get(thread)?.get(key);
+    if(receipt?.state==='accepted') {
+      if(!isStage) {const answer={action:'accept',content:{persist:receipt.persistence}};if(approvals.response(id,answer)?.action!=='accept'||!approvals.hasAppApproval(descriptor.executable,thread))denied();}
+      return true;
+    }
+    const existing=[...pendingConsents.values()].find(item=>item.thread===thread&&item.scopeKey===key);
+    if(existing) {if(!isStage)approvals.response(id,{action:'cancel'});throw pendingApproval(existing);}
+    let saved;
+    try {saved=await durableApprovals.request(thread,request,binding);}catch(error){if(!isStage)approvals.response(id,{action:'cancel'});throw windowError('connection_error','승인 요청을 안전하게 저장하지 못했습니다. 작업은 실행되지 않았습니다.',{actionExecuted:false,cause:error});}
+    const record=adoptApproval(saved,t,{deferred:false,uiRecord:permission.uiRecord,turnId:permission.turnId,version}),controller=record.controller;
     const abort = () => controller.abort(); permission.signal?.addEventListener('abort', abort, { once: true });
-    let timer, onAbort, terminalState = 'cancelled';
+    let terminalState = 'cancelled';
     const details = (approvalState, userResponded = false) => ({ stage: 'approval', approvalState, userResponded, actionExecuted: false });
-    const publishUI = value => { if (record.route === 'panel') { if (!panel || panelNonce !== record.panelNonce || current !== thread) throw windowError('connection_error', 'Window Use approval panel is not connected', details('cancelled')); return panel.webview.postMessage(value); } if (!publisher) throw windowError('connection_error', 'Window Use approval UI is not connected', details('cancelled')); return publisher(value); };
     try {
       if (permission.signal?.aborted || permission.uiRecord?.cancelled || disposed || threads.get(thread) !== t || t.turnVersion !== version) controller.abort();
       if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', details('cancelled'));
-      const interrupted = new Promise((_, reject) => {
-        onAbort = () => reject(windowError('cancelled', 'Application approval cancelled', details('cancelled')));
-        controller.signal.addEventListener('abort', onAbort, { once: true });
-        record.expire=()=>reject(windowError('approval_timeout', '승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.', details('expired')));
-        timer = setTimeout(record.expire, approvalTimeoutMs);
-      });
       permission.progress?.('approval');
-      const response = new Promise(resolve => { record.answer = resolve; pendingConsents.set(id, record); });
-      const delivery = Promise.resolve().then(() => { if (controller.signal.aborted) throw windowError('cancelled', 'Application approval cancelled', details('cancelled')); return publishUI(record.route === 'panel' ? { type: 'approval', request } : { type: 'mcp-request', hostId: 'local', request }); }).then(delivered => { if (delivered === false) throw windowError('connection_error', 'Window Use approval UI is not connected', details('cancelled')); notifyConsent(record, appTitle); return response; }, error => { if (error.code === 'cancelled') throw error; throw windowError('connection_error', 'Window Use approval UI is not connected', { ...details('cancelled'), cause: error }); });
-      const answer = await Promise.race([delivery, interrupted]);
-      if(Date.now()>=record.deadline) throw windowError('approval_timeout','승인 응답을 아직 받지 못해 대기 시간이 초과됐습니다.',details('expired'));
+      const response = new Promise((resolve,reject) => {record.waiter={resolve,reject};});
+      void response.catch(()=>{});
+      let delivered;
+      try {delivered=await publishConsent(record,{type:'mcp-request',hostId:'local',request});}
+      catch(error) {throw windowError('connection_error','Window Use approval UI is not connected',{...details('cancelled'),cause:error});}
+      if(delivered===false)throw windowError('connection_error','Window Use approval UI is not connected',details('cancelled'));
+      if(controller.signal.aborted)throw windowError('cancelled','Application approval cancelled',details('cancelled'));
+      notifyConsent(record,appTitle);
+      record.timer=setTimeout(()=>{
+        record.deferred=true;
+        permission.signal?.removeEventListener('abort',abort);
+        void trackApproval(durableApprovals.defer(thread,id,key)).then(()=>record.waiter?.reject(pendingApproval(record)),error=>record.waiter?.reject(windowError('connection_error','승인 대기 상태의 저장을 확인하지 못했습니다.',{actionExecuted:false,cause:error})));
+      },approvalTimeoutMs);
+      const answer = await response;
       if(settingsOwner.getSettings().windowUseGeneration!==record.policyGeneration) throw isStage ? windowError('cancelled','Window Use approval policy changed',details('cancelled')) : windowError('permission_denied','Application authorization revoked');
       if (controller.signal.aborted || disposed || threads.get(thread) !== t || t.turnVersion !== version || permission.uiRecord?.cancelled || (permission.turnId && t.turnId !== permission.turnId)) throw windowError('cancelled', 'Application approval cancelled', details('cancelled'));
       if (answer.action !== 'accept') throw windowError(answer.action === 'decline' ? 'approval_declined' : 'cancelled', answer.action === 'decline' ? 'Application approval refused' : 'Application approval cancelled', details(answer.action === 'decline' ? 'declined' : 'cancelled', true));
@@ -327,8 +441,8 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       const result = approvals.response(id, answer);
       if (result?.action !== 'accept') denied(result);
       if (!approvals.hasAppApproval(descriptor.executable, thread)) throw windowError('permission_denied', 'Application authorization revoked', { stage: 'approval' }); terminalState = 'accepted'; return true;
-    } catch (error) { terminalState = error.approvalState || 'cancelled'; if(!isStage) approvals.response(id, { action: 'cancel' }); throw error; }
-    finally { permission.progress?.('running');pendingConsents.delete(id); dismissConsentNotification(record); clearTimeout(timer); if (onAbort) controller.signal.removeEventListener('abort', onAbort); permission.signal?.removeEventListener('abort', abort); activeConsents.delete(record); try { void Promise.resolve(publishUI(record.route === 'panel' ? { type: 'approval-resolved', requestId: id, threadId: thread, approvalState: terminalState } : { type: 'mcp-notification', hostId: 'local', notification: { method: 'serverRequest/resolved', params: { threadId: thread, requestId: id } } })).catch(() => {}); } catch { /* Disconnected views cannot receive terminal cleanup. */ } }
+    } catch (error) { terminalState = error.approvalState || 'cancelled';if(error.code!=='permission_pending'&&!record.deferred)record.controller.abort();if(!isStage&&!record.deferred) approvals.response(id, { action: 'cancel' }); throw error; }
+    finally { permission.progress?.('running');permission.signal?.removeEventListener('abort',abort);record.waiter=undefined;if(!record.deferred)finishConsent(record,terminalState); }
   }
   function prepareRequest(method, params) {
     if (!['thread/start', 'thread/resume'].includes(method) || runtime.windowControl === undefined) return params;
@@ -411,7 +525,7 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       .replace('<pre id="status">', `<section id="approval" role="region" aria-labelledby="approval-heading" hidden><h3 id="approval-heading">Window Use 승인</h3><p id="approval-app"></p><p id="approval-message"></p><dl id="approval-details"></dl><p id="approval-state" role="status" aria-live="polite"></p><div id="approval-actions"><button data-approval="session">이 대화에서 허용</button><button data-approval="always">항상 허용</button><button data-approval="decline">거부</button><button data-approval="cancel">취소</button></div></section><pre id="status">`)
       .replace('</body>', `<script nonce="${panelNonce}">let approvalRequest;const approvalBox=document.getElementById('approval'),approvalButtons=[...document.querySelectorAll('[data-approval]')],approvalState=document.getElementById('approval-state');approvalButtons.forEach(button=>button.onclick=()=>{if(!approvalRequest||button.disabled||button.hidden)return;const offered=approvalRequest.params._meta.persist||[];if(['session','always'].includes(button.dataset.approval)&&!offered.includes(button.dataset.approval))return;approvalButtons.forEach(b=>b.disabled=true);approvalState.textContent='응답을 처리하고 있습니다.';const choice=button.dataset.approval;api.postMessage({nonce:'${panelNonce}',type:'approval-response',requestId:approvalRequest.id,threadId:approvalRequest.params.threadId,result:{action:choice==='session'||choice==='always'?'accept':choice,...(choice==='session'||choice==='always'?{content:{persist:choice}}:{})}})});window.addEventListener('message',event=>{const message=event.data;if(message.type==='approval'){approvalRequest=message.request;approvalBox.hidden=false;const params=approvalRequest.params,meta=params._meta,stage=meta.window_use_approval_kind==='stage',fields=Array.isArray(meta.tool_params_display)?meta.tool_params_display:[];document.getElementById('approval-app').textContent=fields.find(f=>f.name==='app')?.value||meta.tool_params?.app||'';document.getElementById('approval-message').textContent=params.message||'이 앱의 선택한 창을 캡처하고 제어하도록 허용할까요?';const details=document.getElementById('approval-details');details.replaceChildren();for(const field of fields.filter(f=>f.name!=='app')){const term=document.createElement('dt'),value=document.createElement('dd');term.textContent=field.display_name||field.name;value.textContent=field.value;details.append(term,value)}for(const button of approvalButtons){const choice=button.dataset.approval;button.hidden=['session','always'].includes(choice)&&(!(meta.persist||[]).includes(choice)||(stage&&choice==='always'));if(choice==='session')button.textContent=stage?'이번 작업 허용':'이 대화에서 허용';}approvalState.textContent='승인 응답을 기다리고 있습니다. 아직 창 제어는 실행되지 않았습니다.';approvalButtons.forEach(b=>b.disabled=false)}if(message.type==='approval-resolved'&&approvalRequest?.id===message.requestId&&approvalRequest.params.threadId===message.threadId){approvalButtons.forEach(b=>b.disabled=true);approvalState.textContent=({expired:'승인 응답을 받지 못해 대기 시간이 초과됐습니다. 창 제어는 실행되지 않았습니다. 다시 요청해주세요.',cancelled:'승인 요청이 취소됐습니다. 창 제어는 실행되지 않았습니다.',declined:'앱 제어를 거부했습니다. 창 제어는 실행되지 않았습니다.',accepted:'앱 제어를 허용했습니다.'})[message.approvalState]||'승인 요청이 종료됐습니다.';approvalRequest=undefined}});</script></body>`);
     web.onDidReceiveMessage(message => { void handleUI(message).catch(e => panel?.webview.postMessage({ type: 'error', text: errorPayload(e).message })); });
-    panel.onDidDispose(() => { for (const record of activeConsents) if (record.route === 'panel' && record.panelNonce === panelNonce) record.controller.abort(); panel = undefined; panelNonce = undefined; }); render();
+    panel.onDidDispose(() => { for (const record of activeConsents) if (record.route === 'panel' && record.panelNonce === panelNonce) {if(!record.deferred)record.controller.abort();else record.panelNonce=undefined;} panel = undefined; panelNonce = undefined; }); render(); if(current)void trackApproval(restoreApprovals(current)).catch(()=>{});
   }
   function observe(native, message) {
     const params = message?.params; const thread = params?.threadId || params?.thread?.id;
@@ -419,9 +533,9 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
       const bridge = bridges.get(native); if (bridge && !disposed) registerThread(thread, bridge);
     }
     const t = threads.get(thread); if (!t || t.bridge.native !== native) return;
-    if (message.method === 'turn/started') { invalidateUI(thread); t.turnVersion++; t.starting = false; t.turnId = params.turn?.id; }
-    if (message.method === 'thread/closed') { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); void serial(() => cleanup(thread)); }
-    if (message.method === 'turn/completed') { invalidateUI(thread); t.turnVersion++; t.starting = false; t.turnId = undefined; owner.invalidateObservation(thread); if (current === thread) { render(publicState(params.turn?.status || '완료')); if (params.turn?.error?.message) void panel?.webview.postMessage({ type: 'error', text: params.turn.error.message }); } }
+    if (message.method === 'turn/started') { invalidateUI(thread,{preserveApprovals:true}); t.turnVersion++; t.starting = false; t.turnId = params.turn?.id; }
+    if (['thread/closed','thread/archived','thread/deleted'].includes(message.method)) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); void serial(() => cleanup(thread)); }
+    if (message.method === 'turn/completed') { invalidateUI(thread,{preserveApprovals:true}); t.turnVersion++; t.starting = false; t.turnId = undefined; owner.invalidateObservation(thread); if (current === thread) { render(publicState(params.turn?.status || '완료')); if (params.turn?.error?.message) void panel?.webview.postMessage({ type: 'error', text: params.turn.error.message }); } }
     if (current !== thread) return;
     if (message.method === 'item/agentMessage/delta' && typeof params.delta === 'string') void panel?.webview.postMessage({ type: 'text', text: params.delta });
     if (message.method === 'error') void panel?.webview.postMessage({ type: 'error', text: params.error?.message || params.message || 'Engine error' });
@@ -454,19 +568,21 @@ function createHost({ runtime, vscode, backend = createBackend(runtime), approva
     return true;
   }
   function attach(native, raw) { if (!bridges.has(native)) bridges.set(native, new Bridge(native, raw, () => disconnect(native))); return bridges.get(native); }
-  function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return; bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread)); } }
+  function disconnect(native) { lifecycleRequests.delete(native); approvalUIs.delete(native); approvalNavigation.delete(native); const bridge = bridges.get(native); if (!bridge) return;
+    for(const record of activeConsents)if(record.native===native){record.preserveOnAbort=true;record.controller.abort();}
+    bridge.dispose(); bridges.delete(native); for (const [thread, t] of threads) if (t.bridge === bridge) { invalidateUI(thread,{preserveApprovals:true}); approvals.stop(thread); owner.clear(thread); if (current === thread) render(publicState('엔진 연결 끊김')); void serial(() => cleanup(thread,{preserveApprovals:true})); } }
   const policyFile=path.join(runtime.codexHome,'azrael','computer-use','use-settings.json');
-  const policyListener=()=>{for(const [thread,grant] of stageGrants) {let currentGeneration;try{currentGeneration=settingsOwner.getSettings().windowUseGeneration;}catch{}if(currentGeneration!==grant.policyGeneration){invalidateUI(thread);owner.invalidateObservation(thread);approvals.stop(thread);}}};
+  const policyListener=()=>{for(const record of activeConsents){let generation;try{generation=settingsOwner.getSettings().windowUseGeneration;}catch{}if(generation!==record.policyGeneration)record.controller.abort();}for(const [thread,grant] of stageGrants) {let currentGeneration;try{currentGeneration=settingsOwner.getSettings().windowUseGeneration;}catch{}if(currentGeneration!==grant.policyGeneration){invalidateUI(thread);owner.invalidateObservation(thread);approvals.stop(thread);}}};
   fs.watchFile(policyFile,{persistent:false,interval:250},policyListener);
   const approvalWatches=['window-use','computer-use'].map(connector=>{
     const fingerprint=()=>require('./window-desktop-authority.cjs').appRevocationFingerprint(runtime.codexHome,connector);
     const file=path.join(runtime.codexHome,'azrael',connector,'app-approvals.json');
-    const listener=()=>{let currentFingerprint;try{currentFingerprint=fingerprint();}catch{}for(const [thread,grant] of stageGrants) if((connector==='computer-use'?grant.stage===4:[2,3].includes(grant.stage)) && (currentFingerprint===undefined || grant.appRevocationFingerprint!==currentFingerprint)){invalidateUI(thread);owner.invalidateObservation(thread);approvals.stop(thread);}};
+    const listener=()=>{let currentFingerprint;try{currentFingerprint=fingerprint();}catch{}for(const record of activeConsents)if((connector==='computer-use'?record.binding.stage===4:[2,3].includes(record.binding.stage))&&(currentFingerprint===undefined||record.binding.appRevocationFingerprint!==currentFingerprint))record.controller.abort();for(const [thread,grant] of stageGrants) if((connector==='computer-use'?grant.stage===4:[2,3].includes(grant.stage)) && (currentFingerprint===undefined || grant.appRevocationFingerprint!==currentFingerprint)){invalidateUI(thread);owner.invalidateObservation(thread);approvals.stop(thread);}};
     fs.watchFile(file,{persistent:false,interval:250},listener);return {file,listener};
   });
 
   const settingsHost = require('./use-settings-host.cjs').createSettingsHost({ runtime, vscode, backend, approvals, open });
-  async function dispose() { if (disposed) return; disposed = true; const releaseThreads=[...threads.keys()];fs.unwatchFile(policyFile,policyListener);for(const watch of approvalWatches)fs.unwatchFile(watch.file,watch.listener); notificationSubscription?.dispose(); await resources.stopScheduler(); settingsHost.dispose(); invalidateUI(); await Promise.allSettled(releaseThreads.map(thread=>isolation.release(thread)));owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; if(server?.listening===true) await new Promise(resolve=>server.close(resolve));else server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); if (socketDirectory) {try{await fsp.unlink(pipe);}catch(error){if(error.code!=='ENOENT')throw error;}await fsp.rmdir(socketDirectory);} }
+  async function dispose() { if (disposed) return; disposed = true; await Promise.allSettled([...activeConsents].map(record=>durableApprovals.defer(record.thread,record.id,record.scopeKey))); await Promise.allSettled([...approvalTasks]); const releaseThreads=[...threads.keys()];fs.unwatchFile(policyFile,policyListener);for(const watch of approvalWatches)fs.unwatchFile(watch.file,watch.listener); notificationSubscription?.dispose(); await resources.stopScheduler(); settingsHost.dispose(); invalidateUI(); await Promise.allSettled(releaseThreads.map(thread=>isolation.release(thread)));owner.dispose(); for (const bridge of bridges.values()) bridge.dispose(); bridges.clear(); lifecycleRequests.clear(); approvalUIs.clear(); panel?.dispose(); for (const thread of [...threads.keys()]) await cleanup(thread); await Promise.all([...cleanupTasks.values()]); await queue; if(server?.listening===true) await new Promise(resolve=>server.close(resolve));else server?.close(); await Promise.all([...notificationTasks]); await backend.dispose(); if (socketDirectory) {try{await fsp.unlink(pipe);}catch(error){if(error.code!=='ENOENT')throw error;}await fsp.rmdir(socketDirectory);} }
   return { settings: settingsHost.receive, open, attach, prepareRequest, registerApprovalUI, respondApproval, request, beforeResult, observe, disconnect, dispose, handlePipe, handleUI, startThread, owner, threads, get panelNonce() { return panelNonce; }, get nonce() { return nonce; } };
 }
 let active;

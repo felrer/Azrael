@@ -1,0 +1,28 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "additionalProperties": false,
+  "properties": {
+    "ownerToken": {
+      "type": "string"
+    },
+    "payload": true,
+    "requestId": {
+      "type": "string"
+    },
+    "scopeKey": {
+      "type": "string"
+    },
+    "threadId": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "ownerToken",
+    "payload",
+    "requestId",
+    "scopeKey",
+    "threadId"
+  ],
+  "title": "ThreadApprovalRequestParams",
+  "type": "object"
+}

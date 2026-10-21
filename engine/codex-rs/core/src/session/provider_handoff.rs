@@ -35,7 +35,7 @@ fn quota_warning(source: &str, target: &str) -> String {
     )
 }
 
-fn provider_id<'a>(model: &'a str, native_id: &'a str) -> std::borrow::Cow<'a, str> {
+pub(super) fn provider_id<'a>(model: &'a str, native_id: &'a str) -> std::borrow::Cow<'a, str> {
     if let Ok((provider, _)) = crate::managed_catalog::selection(model) {
         provider
     } else if crate::devin::catalog::is_devin(model) {

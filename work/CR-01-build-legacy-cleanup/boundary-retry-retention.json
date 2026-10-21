@@ -1,0 +1,64 @@
+{
+  "review": {
+    "groups": [
+      {
+        "cached_live_members": 1,
+        "cleanup_status": null,
+        "id": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+        "kind": "run",
+        "members_total": 1,
+        "membership_complete": true,
+        "membership_source": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles",
+        "membership_source_format": "producer_registry_v1",
+        "membership_source_identity": "fc8d2156127e00f457097bc09a5228d82af2889083718950bfa8a00da9a21856",
+        "owner": "/root",
+        "provenance_ref": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\maintenance\\lifecycles\\0791db2d1d5229e58265894d28a2aef22295af3709a73cb4cc6b8f8aebe3d2cd.json",
+        "version": null
+      }
+    ],
+    "items": [
+      {
+        "blockers": [],
+        "group_member_ids": [
+          "682070e6f10551014745fa40a36960479b50f23579ad7e675542efe13239edbc"
+        ],
+        "group_token": "f6a4c780407678593b36e412097abe1e82528296ba24c690f0826eda711f105d",
+        "id": "682070e6f10551014745fa40a36960479b50f23579ad7e675542efe13239edbc",
+        "identity": "21abc5cfa16a721510ac1596080a58ca3ba4c495911421247be9fa4af0029f8c",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+        "logical_bytes": 1475612,
+        "measured_at_ms": 1792435072252,
+        "membership_source_observation": {
+          "blockers": [],
+          "identity": "fc8d2156127e00f457097bc09a5228d82af2889083718950bfa8a00da9a21856",
+          "status": "measured"
+        },
+        "path": "C:\\Users\\felre\\Desktop\\pi-harness-init\\artifacts\\tasks\\CR-01-build-legacy-cleanup\\runs\\boundary-retry-20261020-r1",
+        "related_items": [],
+        "token": "bfa94b1876315c88c541f8140036d64bf7602ab9a2f72fe017191ef06dfe2391"
+      }
+    ]
+  },
+  "apply": {
+    "aborted": false,
+    "groups": [
+      {
+        "id": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+        "status": "deferred"
+      }
+    ],
+    "results": [
+      {
+        "decision": "defer",
+        "group_status": "deferred",
+        "id": "682070e6f10551014745fa40a36960479b50f23579ad7e675542efe13239edbc",
+        "lifecycle_group_id": "run:CR-01-build-legacy-cleanup:boundary-retry-20261020-r1",
+        "reason": "Retain exact source and passing boundary/deletion evidence until next installed engine accepts diagnostics and registered-group cleanup.",
+        "remaining": true,
+        "revisit_condition": "After installed engine acceptance, preserve compact deletion receipt then review this whole run for deletion.",
+        "status": "deferred",
+        "token": "bfa94b1876315c88c541f8140036d64bf7602ab9a2f72fe017191ef06dfe2391"
+      }
+    ]
+  }
+}

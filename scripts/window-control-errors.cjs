@@ -2,15 +2,19 @@
 
 // Classify ordinary recovery paths; unexpected implementation/provider failures
 // share one public fallback instead of exposing arbitrary exception text.
-const CODES = new Set(['approval_timeout', 'approval_declined', 'cancelled', 'selection_required', 'state_changed', 'window_minimized', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
+const CODES = new Set(['permission_pending', 'approval_timeout', 'approval_declined', 'cancelled', 'selection_required', 'state_changed', 'window_minimized', 'isolated_viewer_minimized', 'permission_denied', 'timeout', 'connection_error', 'unsupported_action', 'invalid_request', 'condition_failed', 'unclassified']);
 const UNCLASSIFIED = '미분류된 오류';
-const APPROVAL_STATES = new Set(['waiting', 'expired', 'declined', 'cancelled', 'accepted']);
+const APPROVAL_STATES = new Set(['waiting', 'pending', 'expired', 'declined', 'cancelled', 'accepted']);
 const NATIVE_PERMISSION_REASONS = new Set(['missing', 'malformed', 'not_disabled']);
 const PAUSE_REASONS = new Set(['minimized', 'user_stopped', 'error']);
 const RECOVERIES = new Set(['observe_again', 'reselect', 'user_resume']);
 function copyApprovalDetails(source, target) {
   if (APPROVAL_STATES.has(source?.approvalState)) target.approvalState = source.approvalState;
-  for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed', 'observationRequired']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
+  if (typeof source?.approvalRequestId === 'string' && /^azrael-window-consent-[a-f0-9-]{36}$/i.test(source.approvalRequestId)) target.approvalRequestId = source.approvalRequestId;
+  for (const key of ['userResponded', 'actionExecuted', 'restoreAllowed', 'observationRequired', 'inputReleaseConfirmed', 'connectionRecovered']) if (typeof source?.[key] === 'boolean') target[key] = source[key];
+  if (['minimized','normal','absent'].includes(source?.viewerState)) target.viewerState = source.viewerState;
+  if (source?.requiredUserAction === 'restore_isolated_viewer') target.requiredUserAction = source.requiredUserAction;
+  if (source?.diagnostic && typeof source.diagnostic === 'object' && !Array.isArray(source.diagnostic)) target.diagnostic = require('./window-use-isolation.cjs').childDiagnostic({ diagnostic: source.diagnostic });
   if (RECOVERIES.has(source?.recovery)) target.recovery = source.recovery;
   if (PAUSE_REASONS.has(source?.pauseReason)) target.pauseReason = source.pauseReason;
   if (NATIVE_PERMISSION_REASONS.has(source?.nativePermissionReason)) target.nativePermissionReason = source.nativePermissionReason;

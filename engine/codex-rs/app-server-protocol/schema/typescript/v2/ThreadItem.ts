@@ -5,6 +5,7 @@ import type { FunctionCallOutputBody } from "../FunctionCallOutputBody";
 import type { ImageGenerationItem } from "../ImageGenerationItem";
 import type { LegacyAppPathString } from "../LegacyAppPathString";
 import type { MessagePhase } from "../MessagePhase";
+import type { ParentRequest } from "../ParentRequest";
 import type { ReasoningEffort } from "../ReasoningEffort";
 import type { SleepItem } from "../SleepItem";
 import type { WebSearchItem } from "../WebSearchItem";
@@ -122,7 +123,7 @@ reasoningEffort: ReasoningEffort | null,
 /**
  * Last known status of the target agents, when available.
  */
-agentsStates: { [key in string]?: CollabAgentState }, } | { "type": "subAgentActivity",
+agentsStates: { [key in string]?: CollabAgentState }, } | { "type": "subAgentActivity", parentRequest?: ParentRequest,
 /**
  * Resolved model at sub-agent creation; absent from older records and other activities.
  */

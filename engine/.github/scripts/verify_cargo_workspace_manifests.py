@@ -26,11 +26,66 @@ UTILITY_NAME_EXCEPTIONS = {
     "path-utils": "codex-utils-path",
 }
 MANIFEST_FEATURE_EXCEPTIONS = {
+    # Approved compile-scope contract: integration selection is opt-in; Bazel
+    # retains the embedded/lifecycle defaults explicitly in each owning BUILD.
+    "codex-rs/core/Cargo.toml": {"integration-tests": ()},
+    "codex-rs/app-server/Cargo.toml": {"integration-tests": ()},
+    "codex-rs/app-server-client/Cargo.toml": {
+        "default": ("embedded",),
+        "embedded": (
+            "codex-app-server-daemon/lifecycle",
+            "dep:codex-app-server",
+            "dep:codex-arg0",
+            "dep:codex-config",
+            "dep:codex-core",
+            "dep:codex-exec-server",
+            "dep:codex-feedback",
+            "dep:codex-protocol",
+            "dep:toml",
+        ),
+    },
+    "codex-rs/app-server-daemon/Cargo.toml": {
+        "default": ("lifecycle",),
+        "lifecycle": (
+            "dep:sha2",
+            "dep:anyhow",
+            "dep:codex-app-server-protocol",
+            "dep:codex-app-server-transport",
+            "dep:codex-http-client",
+            "dep:codex-install-context",
+            "dep:codex-utils-home-dir",
+            "dep:libc",
+            "dep:serde",
+            "dep:semver",
+            "dep:blake3",
+            "dep:tempfile",
+            "dep:tracing",
+            "dep:windows-sys",
+        ),
+    },
     "codex-rs/code-mode/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
     "codex-rs/v8-poc/Cargo.toml": {"sandbox": ("v8/v8_enable_sandbox",)},
 }
-OPTIONAL_DEPENDENCY_EXCEPTIONS = set()
+OPTIONAL_DEPENDENCY_EXCEPTIONS = {
+    ("codex-rs/app-server-client/Cargo.toml", "dependencies", name)
+    for name in (
+        "codex-app-server", "codex-arg0", "codex-config", "codex-core",
+        "codex-exec-server", "codex-feedback", "codex-protocol", "toml",
+    )
+} | {
+    ("codex-rs/app-server-daemon/Cargo.toml", "dependencies", name)
+    for name in (
+        "sha2", "anyhow", "codex-app-server-protocol", "codex-app-server-transport",
+        "codex-http-client", "codex-install-context", "codex-utils-home-dir",
+        "libc", "serde", "semver", "blake3", "tempfile", "tracing",
+    )
+} | {
+    ("codex-rs/app-server-daemon/Cargo.toml", "target.cfg(windows).dependencies", "windows-sys"),
+}
 INTERNAL_DEPENDENCY_FEATURE_EXCEPTIONS = {}
+DEFAULT_FEATURE_DISABLE_EXCEPTIONS = {
+    ("codex-rs/app-server-client/Cargo.toml", "dependencies", "codex-app-server-daemon"),
+}
 
 
 def main() -> int:
@@ -38,6 +93,7 @@ def main() -> int:
     used_manifest_feature_exceptions: set[str] = set()
     used_optional_dependency_exceptions: set[tuple[str, str, str]] = set()
     used_internal_dependency_feature_exceptions: set[tuple[str, str, str]] = set()
+    used_default_feature_disable_exceptions: set[tuple[str, str, str]] = set()
     failures_by_path: dict[str, list[str]] = {}
 
     for path in manifests_to_verify():
@@ -47,6 +103,7 @@ def main() -> int:
             used_manifest_feature_exceptions,
             used_optional_dependency_exceptions,
             used_internal_dependency_feature_exceptions,
+            used_default_feature_disable_exceptions,
         ):
             failures_by_path[manifest_key(path)] = errors
 
@@ -55,6 +112,7 @@ def main() -> int:
         used_manifest_feature_exceptions,
         used_optional_dependency_exceptions,
         used_internal_dependency_feature_exceptions,
+        used_default_feature_disable_exceptions,
     )
 
     if not failures_by_path:
@@ -108,6 +166,7 @@ def manifest_errors(
     used_manifest_feature_exceptions: set[str],
     used_optional_dependency_exceptions: set[tuple[str, str, str]],
     used_internal_dependency_feature_exceptions: set[tuple[str, str, str]],
+    used_default_feature_disable_exceptions: set[tuple[str, str, str]],
 ) -> list[str]:
     manifest = load_manifest(path)
     package = manifest.get("package")
@@ -199,11 +258,15 @@ def manifest_errors(
                         )
 
             if dependency.get("default-features") is False:
-                errors.append(
-                    "remove `default-features = false` from workspace dependency "
-                    f"`{dependency_entry_label(section_name, dependency_name)}`; "
-                    "new workspace crate feature toggles are not allowed"
-                )
+                exception_key = (path_key, section_name, dependency_name)
+                if exception_key in DEFAULT_FEATURE_DISABLE_EXCEPTIONS:
+                    used_default_feature_disable_exceptions.add(exception_key)
+                else:
+                    errors.append(
+                        "remove `default-features = false` from workspace dependency "
+                        f"`{dependency_entry_label(section_name, dependency_name)}`; "
+                        "new workspace crate feature toggles are not allowed"
+                    )
 
     return errors
 
@@ -227,7 +290,7 @@ def is_workspace_reference(value: object) -> bool:
 
 
 def manifest_key(path: Path) -> str:
-    return str(path.relative_to(ROOT))
+    return path.relative_to(ROOT).as_posix()
 
 
 def normalize_feature_mapping(value: object) -> dict[str, tuple[str, ...]] | None:
@@ -321,7 +384,18 @@ def add_unused_exception_errors(
     used_manifest_feature_exceptions: set[str],
     used_optional_dependency_exceptions: set[tuple[str, str, str]],
     used_internal_dependency_feature_exceptions: set[tuple[str, str, str]],
+    used_default_feature_disable_exceptions: set[tuple[str, str, str]],
 ) -> None:
+    for path_key, section_name, dependency_name in sorted(
+        DEFAULT_FEATURE_DISABLE_EXCEPTIONS - used_default_feature_disable_exceptions
+    ):
+        add_failure(
+            failures_by_path,
+            path_key,
+            "remove the stale default-feature-disable exception for "
+            f"`{dependency_entry_label(section_name, dependency_name)}` from "
+            "`DEFAULT_FEATURE_DISABLE_EXCEPTIONS`",
+        )
     for path_key in sorted(
         set(MANIFEST_FEATURE_EXCEPTIONS) - used_manifest_feature_exceptions
     ):

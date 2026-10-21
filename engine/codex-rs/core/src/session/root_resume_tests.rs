@@ -1118,3 +1118,92 @@ async fn queued_compact_preserves_root_resume_reservation() {
     assert_eq!(session.root_resume_record(), Some(reservation));
     assert!(session.active_turn.lock().await.is_none());
 }
+
+#[tokio::test]
+async fn host_approval_root_reservation_cancellation_dispatches_one_typed_resume() {
+    use codex_protocol::host_approvals::*;
+    let server = start_mock_server().await;
+    let requests = mount_sse_once(
+        &server,
+        sse(vec![
+            ev_response_created("approval-resume"),
+            ev_completed("approval-resume"),
+        ]),
+    )
+    .await;
+    let home = tempfile::tempdir().unwrap();
+    let clock = Arc::new(FakeClock::new());
+    let (session, turn, events) = make_persistent_session_and_context_with_time_provider_and_rx(
+        home.path(),
+        InitialHistory::New,
+        clock,
+        format!("{}/v1", server.uri()),
+    )
+    .await
+    .unwrap();
+    let reservation = park_root(&session, &turn, 60_000).await;
+    let owner = "a".repeat(64);
+    let scope = "b".repeat(64);
+    session
+        .request_host_approval(
+            &owner,
+            "host:root-blocked".into(),
+            scope.clone(),
+            serde_json::json!({}),
+        )
+        .await
+        .unwrap();
+    session
+        .defer_host_approval(&owner, "host:root-blocked", &scope)
+        .await
+        .unwrap();
+    let pending = session
+        .resolve_host_approval(
+            &owner,
+            "host:root-blocked",
+            &scope,
+            HostApprovalDecision::Decline,
+            None,
+            true,
+        )
+        .await
+        .unwrap();
+    assert_eq!(pending.resume_state, HostApprovalResumeState::Pending);
+    assert!(session.active_turn.lock().await.is_none());
+    session
+        .cancel_root_reservation(
+            &reservation.id,
+            session.root_resume_record().unwrap().revision,
+        )
+        .await
+        .unwrap();
+    let record = session.list_host_approvals(&owner).unwrap().pop().unwrap();
+    assert_eq!(record.resume_state, HostApprovalResumeState::Resumed);
+    let resumed_id = record.resume_turn_id.unwrap();
+    let complete = tokio::time::timeout(Duration::from_secs(15), async {
+        loop {
+            if let EventMsg::TurnComplete(event) = events.recv().await.unwrap().msg {
+                if event.turn_id == resumed_id {
+                    break event;
+                }
+            }
+        }
+    })
+    .await
+    .unwrap();
+    assert_eq!(complete.turn_id, resumed_id);
+    session.maybe_resume_host_approval().await.unwrap();
+    assert_eq!(requests.requests().len(), 1);
+    assert!(
+        requests
+            .single_request()
+            .message_input_texts("developer")
+            .iter()
+            .any(|text| {
+                text.contains("If declined, report the refusal")
+                    && text.contains("make a fresh tool call under host revalidation")
+                    && text.contains("recorded decision alone grants no authority")
+            })
+    );
+    session.live_thread().unwrap().shutdown().await.unwrap();
+}

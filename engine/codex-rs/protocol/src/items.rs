@@ -138,6 +138,9 @@ pub enum AgentMessageDelivery {
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
 #[ts(export_to = "v2/")]
 pub struct AsyncUserInputQuestion {
+    #[serde(default, skip_serializing_if = "is_false")]
+    #[ts(as = "Option<bool>", optional)]
+    pub withdrawn: bool,
     pub title: String,
     pub options: Option<Vec<String>>,
 }
@@ -869,4 +872,27 @@ mod tests {
             }
         );
     }
+}
+
+fn is_false(value: &bool) -> bool {
+    !*value
+}
+
+#[test]
+fn async_question_withdrawal_is_optional_on_the_wire() {
+    assert!(<AsyncUserInputQuestion as TS>::decl().contains("withdrawn?: boolean"));
+    let question: AsyncUserInputQuestion =
+        serde_json::from_value(serde_json::json!({"title": "Continue?", "options": null})).unwrap();
+    assert!(!question.withdrawn);
+    assert!(
+        serde_json::to_value(&question)
+            .unwrap()
+            .get("withdrawn")
+            .is_none()
+    );
+    let question: AsyncUserInputQuestion = serde_json::from_value(
+        serde_json::json!({"title": "Continue?", "options": null, "withdrawn": true}),
+    )
+    .unwrap();
+    assert!(question.withdrawn);
 }

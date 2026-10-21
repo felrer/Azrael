@@ -232,6 +232,35 @@ test("explicit retirement compacts absent failed or unknown records without inve
   assert.equal(lifecycle.finalize(root, 'unknown-retirement', retirement).status, 'retained');
 });
 
+test("CLI retirement pins surviving evidence and retains live members and consumers", t => {
+  const { root, at, record } = fixture(t);
+  const evidence = path.join(root, 'retirement.json');
+  fs.writeFileSync(evidence, JSON.stringify({ producerTreeStopped: true, exitCode: null }));
+  const digest = require('node:crypto').createHash('sha256').update(fs.readFileSync(evidence)).digest('hex');
+  const args = ['finalize', '--project-root', root, '--id', 'stopped', '--producer-stopped-verified', 'true',
+    '--evidence-ref', evidence, '--evidence-sha256', digest, '--reason', 'Verified exact producer closure'];
+  record('stopped', [['outputs/partial', 'output']], { state: 'pending', membership_complete: false });
+  for (const key of ['--producer-stopped-verified', '--evidence-ref', '--evidence-sha256', '--reason']) {
+    const incomplete = [...args], index = incomplete.indexOf(key); incomplete.splice(index, 2);
+    assert.throws(() => lifecycle.main(incomplete), /Explicit verified retirement/);
+  }
+  fs.writeFileSync(evidence, 'changed');
+  assert.throws(() => lifecycle.main([...args]), /SHA256 changed/);
+  fs.writeFileSync(evidence, JSON.stringify({ producerTreeStopped: true, exitCode: null }));
+  fs.mkdirSync(path.dirname(at('outputs/partial')), { recursive: true });
+  fs.writeFileSync(at('outputs/partial'), 'retained evidence');
+  assert.equal(lifecycle.main([...args]).status, 'retained');
+  fs.unlinkSync(at('outputs/partial'));
+  record('consumer', [['outputs/consumer', 'output']], { references: [{ id: 'stopped', reason: 'needed' }] });
+  assert.equal(lifecycle.main([...args]).status, 'retained');
+  assert.equal(lifecycle.finalize(root, 'consumer').status, 'finalized');
+  const result = lifecycle.main([...args]);
+  assert.equal(result.status, 'finalized');
+  assert.equal(result.retirement.sha256, digest);
+  assert.equal(result.retirement.original_state, 'pending');
+  assert.equal(JSON.parse(fs.readFileSync(evidence)).exitCode, null);
+});
+
 test("Windows lifecycle acceptance includes module management and keeps metric fixtures in the registered run", () => {
   const { commands } = require("./check-artifact-lifecycle.cjs");
   const run = path.join(repo, "artifacts/tasks/lifecycle-checks/runs/command-fixture");
@@ -240,6 +269,11 @@ test("Windows lifecycle acceptance includes module management and keeps metric f
   assert.ok(metrics);
   assert.equal(metrics[1][metrics[1].indexOf("-OutputDirectory") + 1], path.join(run, "temporary/metrics"));
   assert.ok(selected.some(([, args]) => args.includes("scripts/test-build-module-cache.ps1")));
+  for (const [flag, fixture] of [["-RegistryOnly", "module-registry"], ["-LegacyRegistryOnly", "module-legacy-registry"]]) {
+    const entry = selected.find(([, args]) => args.includes("scripts/test-build-module-cache.ps1") && args.includes(flag));
+    assert.ok(entry, `${flag} must be part of Windows acceptance`);
+    assert.equal(entry[1][entry[1].indexOf("-FixtureRoot") + 1], path.join(run, "temporary", fixture));
+  }
 });
 
 function stopEvidence(root, record, extra = {}) {

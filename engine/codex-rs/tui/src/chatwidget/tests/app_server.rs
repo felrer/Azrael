@@ -1684,6 +1684,7 @@ async fn live_app_server_turn_completion_repairs_dropped_message_deltas() {
         memory_citation: None,
         delivery: None,
         questions: Some(vec![codex_protocol::items::AsyncUserInputQuestion {
+            withdrawn: false,
             title: "Which way?".into(),
             options: None,
         }]),

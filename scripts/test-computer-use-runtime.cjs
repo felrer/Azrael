@@ -4,17 +4,18 @@ const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 const test = require('node:test');
+const { pathToFileURL } = require('node:url');
 const { stageRuntime, verifyRuntime } = require('./computer-use-runtime.cjs');
 // Pristine official input recorded in artifacts/logs/cua-window-candidate/intermediate-receipt.json.
 // Sky 0.7.4 is the supported transform input; the installed Azrael executable is already branded.
 const officialRuntime = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_RUNTIME || path.join(process.env.LOCALAPPDATA, 'OpenAI/Codex/runtimes/cua_node/b63ee7ee40c23b77'));
 const officialBin = path.join(officialRuntime, 'bin');
-const officialPlugin = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_PLUGIN || path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.930.21537'));
+const officialPlugin = path.resolve(process.env.AZRAEL_TEST_COMPUTER_USE_PLUGIN || path.join(os.homedir(), '.azrael-ex/plugins/cache/openai-bundled/computer-use/26.1007.21434'));
 function cleanup(root) {
   if (path.dirname(path.resolve(root)) !== path.resolve(os.tmpdir()) || !path.basename(root).startsWith('azrael-computer-use-packaging-')) throw new Error('Unsafe fixture cleanup path');
   fs.rmSync(root, { recursive: true });
 }
-test('recorded official Computer Use inputs stage with their complete dependency provenance', () => {
+test('recorded official Computer Use inputs stage with their complete dependency provenance', async () => {
   const root = fs.mkdtempSync(path.join(os.tmpdir(), 'azrael-computer-use-packaging-'));
   try {
     const staged = stageRuntime({ runtimeDirectory: officialRuntime, pluginDirectory: officialPlugin, destination: path.join(root, 'bundle') });
@@ -24,6 +25,46 @@ test('recorded official Computer Use inputs stage with their complete dependency
     const sky = staged.manifest.files.find(entry => entry.path.endsWith('/codex-computer-use.exe'));
     assert.equal(sky.sourceSha256, require('./computer-use-branding.cjs').SOURCE_SHA256);
     assert.notEqual(sky.sha256, sky.sourceSha256);
+    assert.equal(verifyRuntime(staged.directory).manifestSha256, staged.manifestSha256);
+    const { PACKAGE_POLICY_OWNER } = require('./computer-use-runtime.cjs');
+    const packageRoot = path.join(staged.directory, 'node_modules/@oai/sky');
+    const policyPath = path.join(staged.directory, PACKAGE_POLICY_OWNER);
+    const rootPolicy = await import(pathToFileURL(path.join(staged.directory, 'sky-control-policy.mjs')));
+    const packagePolicy = await import(pathToFileURL(policyPath));
+    assert.strictEqual(rootPolicy.withDesktopAuthority, packagePolicy.withDesktopAuthority, 'service and transport share the same authority owner');
+    for (const rel of require('./inject-sky-control-policy.cjs').TRANSPORT_POLICY_MODULES) {
+      const modulePath = path.join(staged.directory, rel);
+      const imports = [...fs.readFileSync(modulePath, 'utf8').matchAll(/(?:from\s*|import\s*)['"](\.[^'"]+)['"]/g)];
+      for (const [, specifier] of imports) {
+        assert(!path.relative(packageRoot, path.resolve(path.dirname(modulePath), specifier)).startsWith('..'), 'Node REPL package import must stay inside node_modules: ' + specifier);
+      }
+    }
+    // Previously installed bundles retain their original owner-1 layout and
+    // receipts; verification must not require rewriting a running distribution.
+    const runtimeModule = require('./computer-use-runtime.cjs');
+    const manifestPath = path.join(staged.directory, 'manifest.json');
+    const rootPolicyPath = path.join(staged.directory, 'sky-control-policy.mjs');
+    const originalManifest = fs.readFileSync(manifestPath);
+    const originalRoot = fs.readFileSync(rootPolicyPath);
+    const originalPackagePolicy = fs.readFileSync(policyPath);
+    const legacyManifest = JSON.parse(originalManifest);
+    legacyManifest.skyPolicyOwnerVersion = 1;
+    const legacyRoot = legacyManifest.files.find(entry => entry.path === 'sky-control-policy.mjs');
+    delete legacyRoot.transform; delete legacyRoot.sourceSha256; delete legacyRoot.sourceBytes;
+    Object.assign(legacyRoot, { sha256: runtimeModule.hash(originalPackagePolicy), bytes: originalPackagePolicy.length });
+    const legacyReexport = runtimeModule.generateTransportPolicyReexport(originalPackagePolicy);
+    Object.assign(legacyManifest.files.find(entry => entry.path === PACKAGE_POLICY_OWNER), {
+      sha256: runtimeModule.hash(legacyReexport.content), bytes: legacyReexport.content.length,
+      sourceSha256: runtimeModule.hash(originalPackagePolicy), sourceBytes: originalPackagePolicy.length,
+      transform: legacyReexport.transform,
+    });
+    fs.writeFileSync(rootPolicyPath, originalPackagePolicy);
+    fs.writeFileSync(policyPath, legacyReexport.content);
+    fs.writeFileSync(manifestPath, JSON.stringify(legacyManifest));
+    assert.equal(verifyRuntime(staged.directory).manifest.skyPolicyOwnerVersion, 1);
+    fs.writeFileSync(rootPolicyPath, originalRoot);
+    fs.writeFileSync(policyPath, originalPackagePolicy);
+    fs.writeFileSync(manifestPath, originalManifest);
     assert.equal(verifyRuntime(staged.directory).manifestSha256, staged.manifestSha256);
   } finally { cleanup(root); }
 });
@@ -72,8 +113,9 @@ try {
     const rootEntry = staged.manifest.files.find(entry => entry.path === path.posix.basename(rel));
     const packageEntry = staged.manifest.files.find(entry => entry.path === rel);
     if (rel.endsWith('/sky-control-policy.mjs')) {
-      assert.equal(packageEntry.sourceSha256, rootEntry.sha256);
-      assert.equal(fs.readFileSync(path.join(staged.directory, rel), 'utf8'), require('./computer-use-runtime.cjs').TRANSPORT_POLICY_REEXPORT);
+      assert.equal(rootEntry.sourceSha256, packageEntry.sha256);
+      assert.equal(fs.readFileSync(path.join(staged.directory, 'sky-control-policy.mjs'), 'utf8'), require('./computer-use-runtime.cjs').ROOT_POLICY_REEXPORT);
+      assert.equal(staged.manifest.skyPolicyOwnerVersion, 2);
     } else assert.equal(packageEntry.sha256, rootEntry.sha256);
     assert.equal(packageEntry.source, rootEntry.source);
   }

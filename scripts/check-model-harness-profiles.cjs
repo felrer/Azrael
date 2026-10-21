@@ -14,6 +14,7 @@ const checks = scope === "config"
   ? [["codex-config", "harness"]]
   : scope === "context" ? [
       ["codex-core", "context::world_state::model::tests"],
+      ["codex-core", "session::provider_handoff::tests"],
       ["codex-core", "instruction_state_projection"],
     ] : [
       ["codex-core", "claude"],
@@ -27,7 +28,7 @@ for (const [crate, filter] of checks) {
   if (result.status !== 0) { process.exitCode = result.status ?? 1; break; }
 }
 if (scope === "context" && !process.exitCode) {
-  const result = runCargoTest(sourceRoot, ["test", "-p", "codex-core", "--test", "all", "suite::model_switching", "--locked", "--offline", "--", "--test-threads=1"]);
+  const result = runCargoTest(sourceRoot, ["test", "-p", "codex-core", "--test", "all", "--features", "codex-core/integration-tests", "suite::model_switching", "--locked", "--offline", "--", "--test-threads=1"]);
   if (result.error) throw result.error;
   process.exitCode = result.status ?? 1;
 }

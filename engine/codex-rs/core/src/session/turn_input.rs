@@ -260,6 +260,21 @@ pub(super) async fn handle(
             root_turn_id,
         });
     }
+    if origin != UserInputOrigin::Queue
+        && let SubmittedTurnInput::UserInput { content, .. } = &request.input
+    {
+        session.validate_question_replies(content)?;
+    }
+    if matches!(&mode, TurnInputMode::StartIfIdle)
+        && request.start.turn_trigger.as_deref() != Some("queue_user")
+        && (session.pending_question_count() > 0
+            || session.pending_approval_count() > 0
+            || session.has_host_approval_resume())
+    {
+        return Ok(TurnInputSubmission::NotSubmitted {
+            reason: NotSubmittedReason::NotIdle,
+        });
+    }
     if let Some(origin) = session.root_resume_originating_turn() {
         match &mode {
             TurnInputMode::Steer { expected_turn_id }
@@ -798,6 +813,7 @@ impl Session {
         turn_id: &str,
         attribution: Option<codex_history::TurnAttribution>,
     ) {
+        self.reopen_host_approval_registration();
         let mut state = self.state.lock().await;
         state.last_started_turn_id = Some(turn_id.to_owned());
         if let Some(attribution) = attribution {
@@ -1073,4 +1089,37 @@ fn with_acceptance_order(mut input: TurnInput, acceptance_order: Option<u64>) ->
         metadata.acceptance_order = acceptance_order;
     }
     input
+}
+
+/// Dedicated typed host-decision wake. Only the durable ledger calls this under
+/// the submission gate. Public turn/start strings cannot select this path.
+pub(super) async fn start_host_approval_resume(
+    session: &Arc<Session>,
+    record: &codex_protocol::host_approvals::HostApprovalRecord,
+) -> CodexResult<TurnInputSubmission> {
+    let request = TurnInputRequest::new(SubmittedTurnInput::ResponseItem(ResponseItem::Message {
+        id: None,
+        role: "developer".into(),
+        content: vec![codex_protocol::models::ContentItem::InputText {
+            text: format!("A host approval decision is recorded for request {} (scope {}). Decision: {:?}. If declined, report the refusal and continue only independent authorized work; do not request the same permission again without new user intent. If accepted, make a fresh tool call under host revalidation; the recorded decision alone grants no authority. This event does not replay the requested action.", record.request_id, record.scope_key, record.state),
+        }],
+        phase: None,
+        internal_chat_message_metadata_passthrough: None,
+    })).on_start(TurnStartOptions {
+        turn_trigger: Some("approval_decision".into()),
+        parent_turn_id: record.original_turn_id.clone(),
+        root_turn_id: record.original_root_turn_id.clone(),
+        ..Default::default()
+    });
+    start_if_idle(
+        session,
+        request.into(),
+        record
+            .resume_turn_id
+            .clone()
+            .expect("durable approval resume identity"),
+        TurnStartKind::Recovery,
+        None,
+    )
+    .await
 }

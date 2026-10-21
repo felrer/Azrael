@@ -1,5 +1,6 @@
 "use strict";
 const { ACCOUNT_QUEUE_PRESENTATION_PREFIX, ACCOUNT_QUEUE_PRESENTATION_MARKER, ACCOUNT_QUEUE_PRESENTATION_PRELUDE } = require("./inject-account-switch-queue.cjs");
+const { QUESTION_QUEUE_PRESENTATION_ASSET, questionQueueValidationView } = require("./inject-question-queue.cjs");
 
 const QUEUE_REFRESH_ASSET = "webview/assets/app-initial-7a199c66e670.js";
 // The stable upstream coordinator now implements the invalidation algorithm.
@@ -12,7 +13,12 @@ const NATIVE_QUEUE_REFRESH_ANCHORS = Object.freeze([
 ]);
 function injectQueueRefresh(text) {
   let nativeText = text;
-  const count = value => text.split(value).length - 1;
+  // Later production transforms own these exact edits. Validate their complete
+  // boundary before reversing them only in the native validation view. The
+  // returned source, pending counters and queue protections remain untouched.
+  try { nativeText = questionQueueValidationView(text, QUESTION_QUEUE_PRESENTATION_ASSET); }
+  catch (error) { throw new Error("Pinned native queue-refresh question presentation is malformed or duplicated", { cause: error }); }
+  const count = value => nativeText.split(value).length - 1;
   if (count(ACCOUNT_QUEUE_PRESENTATION_PREFIX) !== 1) throw new Error("Pinned native queue-refresh function prefix must occur exactly once");
   const markers = count(ACCOUNT_QUEUE_PRESENTATION_MARKER);
   if (markers !== 0) {
@@ -20,7 +26,7 @@ function injectQueueRefresh(text) {
     if (markers !== 1 || count(ACCOUNT_QUEUE_PRESENTATION_PRELUDE) !== 1 || count(transformedPrefix) !== 1) {
       throw new Error("Pinned native queue-refresh presentation prelude is malformed or duplicated");
     }
-    nativeText = text.replace(transformedPrefix, ACCOUNT_QUEUE_PRESENTATION_PREFIX);
+    nativeText = nativeText.replace(transformedPrefix, ACCOUNT_QUEUE_PRESENTATION_PREFIX);
   }
   for (const anchor of NATIVE_QUEUE_REFRESH_ANCHORS) {
     const found = nativeText.split(anchor).length - 1;

@@ -1670,6 +1670,14 @@ impl TurnRequestProcessor {
                 reservation.root_thread_id == thread_id
                     && (is_startup_interrupt || reservation.originating_turn_id == turn_id)
             }) {
+                thread
+                    .withdraw_host_approvals(None, None)
+                    .await
+                    .map_err(|error| {
+                        internal_error(format!(
+                            "failed to invalidate host approvals on parked turn interrupt: {error}"
+                        ))
+                    })?;
                 self.thread_manager
                     .cancel_root_reservation(&reservation.id, reservation.revision)
                     .await

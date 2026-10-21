@@ -1580,6 +1580,31 @@ impl MessageProcessor {
                     .thread_goal_clear(request_id.clone(), params)
                     .await
             }
+            ClientRequest::ThreadApprovalRequest { params, .. } => self
+                .thread_queue_processor
+                .approval_request(params)
+                .await
+                .map(|response| Some(ClientResponsePayload::ThreadApprovalRequest(response))),
+            ClientRequest::ThreadApprovalList { params, .. } => self
+                .thread_queue_processor
+                .approval_list(params)
+                .await
+                .map(|response| Some(ClientResponsePayload::ThreadApprovalList(response))),
+            ClientRequest::ThreadApprovalResolve { params, .. } => self
+                .thread_queue_processor
+                .approval_resolve(params)
+                .await
+                .map(|response| Some(ClientResponsePayload::ThreadApprovalResolve(response))),
+            ClientRequest::ThreadApprovalWithdraw { params, .. } => self
+                .thread_queue_processor
+                .approval_withdraw(params)
+                .await
+                .map(|response| Some(ClientResponsePayload::ThreadApprovalWithdraw(response))),
+            ClientRequest::ThreadApprovalDefer { params, .. } => self
+                .thread_queue_processor
+                .approval_defer(params)
+                .await
+                .map(|response| Some(ClientResponsePayload::ThreadApprovalDefer(response))),
             ClientRequest::ThreadQueueAdd { params, .. } => self
                 .thread_queue_processor
                 .add(params)

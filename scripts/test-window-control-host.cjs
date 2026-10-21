@@ -22,7 +22,7 @@ async function main() {
     async function fragmentedPipe(message) { const socket = new EventEmitter(); socket.setTimeout = () => {}; let finish; socket.destroy = () => { socket.destroyed = true; socket.emit('close'); finish({ error: { code: 'cancelled', message: 'Selected-window request cancelled' } }); }; const reply = new Promise(resolve => { finish = resolve; socket.end = bytes => resolve(JSON.parse(bytes)); }); proofSocket = socket; connectSocket(socket); const bytes = Buffer.from(JSON.stringify(message) + '\n'); for (let i = 0; i < bytes.length; i++) socket.emit('data', bytes.subarray(i, i + 1)); return reply; }
     const host = ownedHost = createHost({ occupancyDirectory: path.join(home, 'occupancy'), runtime: { codexHome: home }, vscode, backend, approvals, createServer });
     let callbacks; const native = { registerProvider(_id, value) { callbacks = value; return { dispose() {} }; } };
-    const requests = []; host.attach(native, (_provider, id, method, params) => {
+    const requests = []; require('./window-approval-engine-fixture.cjs').attachApprovalEngine(host,native, (_provider, id, method, params) => {
       requests.push({ method, params });
       if (method === 'mcpServer/tool/call') {
         assert.deepEqual(Object.keys(params.arguments), ['requestToken']); assert.equal(params.server, 'azrael_window'); assert.equal(params.tool, 'ui_operation');
