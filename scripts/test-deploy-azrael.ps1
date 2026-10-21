@@ -221,6 +221,7 @@ if(args[0]==='run'){
  console.log(JSON.stringify({receiptPath}));
 }else if(args[0]==='verify'){
  same(config.uiRoot,path.join(a,'pristine UI'),'UI root');
+ require('node:assert/strict').deepStrictEqual(config.sourceTestPolicy,JSON.parse(fs.readFileSync(path.join(a,'prepare-invocation.json'),'utf8')).SourceTestPolicy,'package verification must use the exact preparation source-test policy');
  if(!config.receiptPath||!config.reportPath)throw Error('package preservation paths missing');
  if(scenario.mode==='package-preservation-fail'){console.error('causal package preservation failure');process.exit(43);}
  if(!fs.existsSync(config.receiptPath))throw Error('causal package preservation receipt missing');
