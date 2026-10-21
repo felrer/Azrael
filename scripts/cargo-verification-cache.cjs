@@ -24,7 +24,8 @@ const wrappers = new Set(['check-api-context.cjs', 'check-model-harness-profiles
   'check-shared-engine-native.cjs'].map(file => `scripts/${file}`));
 const sourceOnlyHelpers = {
   'scripts/cargo-verification.cjs': '07edcd7bdab380342a1fefcb369340ede5179e60f7075b623bb52065ab6768bb',
-  'scripts/cargo-target-owner.cjs': 'a1aa884c33c635dabf641b4ac8ee43f422eb88033cc8b331252ab5634e3a343b',
+  // Explicit recovery only retires verified lease metadata; Cargo payload inputs remain unchanged.
+  'scripts/cargo-target-owner.cjs': '9733242c5a46ef350188eae1d8fdd55b16efeb8ef36bb895ebcbe0a8f9689e8f',
 };
 function auditedSourceOnly(config, group) {
   try {
