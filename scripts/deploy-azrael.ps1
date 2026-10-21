@@ -186,12 +186,13 @@ function Assert-Package {
         outputDirectory = (Join-Path $logs 'package-preservation')
         receiptPath = $prepared.PreservationReceipt; reportPath = $prepared.PreservationReport
         packagePath = $prepared.HostVsix; bindingPath = $prepared.PreservationBinding
+        sourceTestPolicy = (Get-Content -LiteralPath $sourceTestPolicyPath -Raw | ConvertFrom-Json)
     }
     if ($prepared.PSObject.Properties['PreservationFeatureIds']) {
         $preservationConfig.featureIds = @($prepared.PreservationFeatureIds)
     }
     $preservationConfigPath = Join-Path $logs 'package-preservation-inputs.json'
-    $preservationConfig | ConvertTo-Json | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
+    $preservationConfig | ConvertTo-Json -Depth 10 | Set-Content -LiteralPath $preservationConfigPath -Encoding utf8NoBOM
     & node (Join-Path $PSScriptRoot 'feature-preservation.cjs') verify --config $preservationConfigPath *> (Join-Path $logs 'package-preservation.log')
     if ($LASTEXITCODE -ne 0) { throw 'Package feature preservation verification failed. See package-preservation.log.' }
     $archive = [IO.Compression.ZipFile]::OpenRead($prepared.HostVsix)
