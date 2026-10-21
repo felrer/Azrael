@@ -1,3 +1,13 @@
+## Current work: approved build-guidance simplification
+
+Scope: apply the seven annotated decisions and only the six selected consolidation/removal recommendations. This changes common instructions for all supported platforms and Azrael owner references; product code, build execution and installation are outside this task. Root owns all edits; no delegation or worktree is needed.
+
+Complete: permit lower-order version increments unless an exact version is requested; remove default previous-version/rollback retention while keeping active consumers and user data; replace abstract cross-platform evidence with related tests. Centralize reuse and completion reporting, remove repeated new-identity/preparation warnings, CSS/history examples and the isolated timing measurement. Keep unselected operational details, mandatory acceptance and management-tool group cleanup rules.
+
+Verification on Windows x64: Python 3.13 -X utf8 -B scripts/import-instructions.py --check exit 0 (24 skill files, 10 components, 64 local links); skill-creator quick_validate.py for implementation and project-bootstrap exit 0 each. The three changed maintained resources and active installed copies are byte-identical. Scoped git diff --check exit 0. A whole-checkout diff --check also found pre-existing CRLF whitespace in host_roots_tests.rs; that unrelated file was not changed. Product builds, installation, runtime cleanup and Linux/macOS execution were not run.
+
+Current limitation: existing cleaner guards may still retain previous installation-receipt references. The operational owner describes that implementation separately from the new no-default-rollback policy; this documentation change does not claim the cleaner itself was changed.
+
 상태: 빌드 개선 1·2·3·5·6·7번 구현 및 Windows 관련 회귀 검증 완료. 4번 브라우저 수명 개선은 제외. 기존 2026.0.11 고정본과 실패 기록은 유지하며, 새 제품 전체 빌드·설치는 실행하지 않았다. 기존 작업과 공유 파일 변경이 섞여 이번 작업만의 커밋은 보류했다.
 
 # ???? ?? ??? ??

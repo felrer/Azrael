@@ -78,7 +78,7 @@ When handling generated inputs, logs, reports, backups and version evidence, als
   Check target paths and preview results, then apply through an invocation permitted in that environment.
 - Delete within one PowerShell session using native `Remove-Item -LiteralPath`.
   Use recursive deletion only after confirming the absolute path is within this task's owned directory and has no references or linked paths
-  from running processes or the current or immediately previous installation. Do not use wildcards, deletion commands assembled as strings,
+  from running processes or active installations. Do not use wildcards, deletion commands assembled as strings,
   or deletion that passes paths through `cmd /c`, batch commands or another shell.
 - Keep complex path calculations and protection checks in existing cleanup scripts; pass only necessary parameters at invocation.
   Establish permission from actual execution results. A particular command form or use of a script does not itself establish permission.
